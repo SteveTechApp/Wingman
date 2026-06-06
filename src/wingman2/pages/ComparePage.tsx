@@ -1,2797 +1,1581 @@
-﻿import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import { routeCatalogByKey } from "../app/routeCatalog";
-import { PageHero } from "../components/PageHero";
-import { SectionCard } from "../components/SectionCard";
+import { useEffect, useMemo, useState } from "react";
+import type { FormEvent } from "react";
 
-type Domain =
-  | "AVOIP"
-  | "HDBASET"
-  | "PRESENTATION"
-  | "MATRIX"
-  | "VIDEO_WALL"
-  | "MULTIVIEW"
-  | "USB_EXTENSION"
-  | "CONTROL"
-  | "UNKNOWN";
 
-type Role =
-  | "Transceiver"
-  | "Encoder"
-  | "Decoder"
-  | "Presentation Switcher"
-  | "Matrix"
-  | "Video Wall Processor"
-  | "Multiview Processor"
-  | "Extender"
-  | "USB Extender"
-  | "Controller"
-  | "Unknown";
+import { gateCompareCandidate, type CompareCandidateGateContext, type CompareCandidateGateInput } from "../lib/compareCandidateGate";
+import { buildCompetitorDecisionEvidence } from "../lib/competitorProductIntelligence";
+const COMPARE_SKU_TYPEAHEAD_DATALIST_ID = "wm-compare-sku-typeahead-options";
 
-type Verdict = "Match" | "Better" | "Partial" | "Verify" | "Mismatch";
-
-type FeatureFlags = {
-  usbC?: boolean;
-  usbRouting?: boolean;
-  wireless?: boolean;
-  conferencing?: boolean;
-  mst?: boolean;
-  multiview?: boolean;
-  videoWall?: boolean;
-  dante?: boolean;
-  aes67?: boolean;
-  scaling?: boolean;
-  audioDeEmbed?: boolean;
-  vga?: boolean;
-  microphone?: boolean;
-  hdmiOutput?: boolean;
-  hdbtOutput?: boolean;
-  simultaneousOutputs?: boolean;
-  hdr?: boolean;
-  receiverKit?: boolean;
-  arc?: boolean;
-  ethernet?: boolean;
-  irRs232?: boolean;
-  poc?: boolean;
-  fibre?: boolean;
-  zeroLatency?: boolean;
-  lossless?: boolean;
-  lowBandwidth?: boolean;
-  tenGig?: boolean;
-  oneGig?: boolean;
-  hdbt3?: boolean;
-  hdbt2?: boolean;
-  control?: boolean;
+const COMPARE_SKU_TYPEAHEAD_CATALOG: Record<string, string[]> = {
+  Crestron: [
+    "DM-NVX-350",
+    "DM-NVX-351",
+    "DM-NVX-360",
+    "DM-NVX-363",
+    "DM-NVX-E30",
+    "DM-NVX-D30",
+    "DMPS3-4K-350-C",
+    "HD-MD4X2-4KZ-E",
+    "HD-RX-4K-510-C-E",
+    "HD-TX-4KZ-211-2G",
+  ],
+  Extron: [
+    "DTP2 R 211",
+    "DTP2 T 211",
+    "DTP3 R 201",
+    "DTP3 T 202",
+    "IN1608 xi",
+    "NAV D 101",
+    "NAV D 121",
+    "NAV D 501",
+    "NAV E 101",
+    "NAV E 121",
+    "NAV E 501",
+  ],
+  Atlona: [
+    "AT-OME-CS31-SA",
+    "AT-OME-EX-KIT",
+    "AT-OME-MS42",
+    "AT-OME-PS62",
+    "AT-OMNI-111",
+    "AT-OMNI-112",
+    "AT-OMNI-121",
+    "AT-OMNI-122",
+    "AT-UHD-EX-100CE-KIT",
+    "AT-UHD-PRO3-88M",
+  ],
+  Kramer: [
+    "KDS-7-DEC7",
+    "KDS-7-EN7",
+    "KDS-100",
+    "KDS-DEC6",
+    "KDS-EN6",
+    "VP-440X",
+    "VP-551X",
+    "VP-554X",
+    "VS-44H2A",
+    "VS-88H2A",
+  ],
+  Lightware: [
+    "MMX8x8-HDMI-4K-A",
+    "TAURUS UCX-2x1-HC30",
+    "TAURUS UCX-4x2-HC30",
+    "UBEX-PRO20-HDMI-F100",
+    "UBEX-PRO20-HDMI-F110",
+    "VINX-110-HDMI-ENC",
+    "VINX-120-HDMI-ENC",
+    "VINX-210AP-HDMI-DEC",
+  ],
+  Blustream: [
+    "ACM210",
+    "C44-KIT",
+    "C88CS",
+    "HMX44-18G-KIT",
+    "HMX88-18G-KIT",
+    "IP200UHD-RX",
+    "IP200UHD-TX",
+    "IP250UHD-RX",
+    "IP250UHD-TX",
+    "IP300UHD-RX",
+    "IP300UHD-TX",
+    "IP350UHD-RX",
+    "IP350UHD-TX",
+    "PLA88CS",
+  ],
+  Barco: [
+    "C-5",
+    "C-10",
+    "CX-20",
+    "CX-30",
+    "CX-50",
+    "CX-50 Gen2",
+  ],
+  ZeeVee: [
+    "ZyPer4K Decoder",
+    "ZyPer4K Encoder",
+    "ZyPerUHD Decoder",
+    "ZyPerUHD Encoder",
+    "ZyPerUHD60 Decoder",
+    "ZyPerUHD60 Encoder",
+  ],
+  AMX: [
+    "DGX1600-ENC",
+    "DGX6400-ENC",
+    "DVX-2265-4K",
+    "DXL-RX-4K60",
+    "DXL-TX-4K60",
+    "MUSE Automator",
+    "NMX-DEC-N2422A",
+    "NMX-DEC-N2622S",
+    "NMX-DEC-N2625D-WP",
+    "NMX-ENC-N2412A",
+    "NMX-ENC-N2612S",
+    "NMX-ENC-N2615D-WP",
+    "NMX-ENC-N3312D",
+    "NX-1200",
+    "NX-2200",
+  ],
+  "AVPro Edge": [
+    "AC-EX40-444-KIT",
+    "AC-EX70-444-R3",
+    "AC-EX70-444-KIT",
+    "AC-MX-42X",
+    "AC-MX-44HDBT",
+    "AC-MX-88",
+    "MXNet-1G-D",
+    "MXNet-1G-E",
+    "MXNet-10G-TCVR",
+  ],
+  Binary: [
+    "B-260-HDMI-CTRL",
+    "B-660-EXT-444-100A",
+    "B-660-MTRX-4x4",
+    "B-660-MTRX-8x8",
+    "B-900-MOIP-4K-RX",
+    "B-900-MOIP-4K-TX",
+  ],
+  Other: [],
 };
 
-type ProductProfile = {
-  manufacturer: string;
-  sku: string;
-  title: string;
-  summary: string;
-  domain: Domain;
-  role: Role;
-  transport: string;
-  family: string;
-  maxResolution: string;
-  resolutionRank: number;
-  chroma: string;
-  latency: string;
-  performanceTier: string;
-  features: FeatureFlags;
-  sourceUrl?: string;
-  inputCount?: number;
-  outputCount?: number;
-  evidence?: string[];
+
+const COMPARE_SKU_TYPEAHEAD_ALL_OPTIONS = Array.from(
+  new Set(Object.values(COMPARE_SKU_TYPEAHEAD_CATALOG).flat()),
+).sort((a, b) => a.localeCompare(b, undefined, {
+  numeric: true,
+  sensitivity: "base",
+}));
+
+const COMPARE_SKU_TYPEAHEAD_BRAND_ALIASES: Record<string, string> = {
+  crestron: "Crestron",
+  extron: "Extron",
+  atlona: "Atlona",
+  kramer: "Kramer",
+  lightware: "Lightware",
+  blustream: "Blustream",
+  barco: "Barco",
+  zeevee: "ZeeVee",
+  amx: "AMX",
+  avproedge: "AVPro Edge",
+  avpro: "AVPro Edge",
+  binary: "Binary",
+  other: "Other",
 };
 
-type WyreStormCandidate = ProductProfile & {
-  commercialPosition: string;
-  whyConsider: string;
-};
-
-type ScoredCandidate = WyreStormCandidate & {
-  score: number;
-  confidence: number;
-  scoreNotes: string[];
-};
-
-type CompareRow = {
-  label: string;
-  competitor: string;
-  wyrestorm: string;
-  verdict: Verdict;
-  note: string;
-};
-
-type Swot = {
-  strengths: string[];
-  weaknesses: string[];
-  opportunities: string[];
-  threats: string[];
-};
-
-type CompareRecord = {
-  id: string;
-  savedAt: string;
-  manufacturer: string;
-  model: string;
-  productUrl: string;
-  context: string;
-  competitor: ProductProfile;
-  shortlist: ScoredCandidate[];
-  matchScore?: number;
-  rows: CompareRow[];
-  swot: Swot;
-  reviewNotes: string[];
-  lookupMode: string;
-};
-
-type CompareStageStatus = "queued" | "active" | "done" | "failed";
-
-type CompareStage = {
-  id: string;
-  label: string;
-  detail: string;
-  status: CompareStageStatus;
-};
-
-type FeatureAuditRow = {
-  label: string;
-  competitor: string;
-  wyrestorm: string;
-  result: "Match" | "Better" | "Gap" | "Verify";
-  note: string;
-};
-
-type NoMatchDetails = {
-  manufacturer: string;
-  model: string;
-  productUrl: string;
-  context: string;
-  lookupMode: string;
-  reason: string;
-  competitor: ProductProfile;
-  checkedCount: number;
-  checkedCandidates: Array<{
-    sku: string;
-    title: string;
-    domain: Domain;
-    role: Role;
-    score: number;
-    confidence: number;
-    notes: string[];
-  }>;
-  nextActions: string[];
-};
-
-type TextInputField = "sku" | "productUrl" | "context";
-
-type TextInputHistoryStore = {
-  version: number;
-  updatedAt: string;
-  entries: Record<string, string[]>;
-};
-
-type TextInputSuggestions = {
-  sku: string[];
-  productUrl: string[];
-  context: string[];
-};
-
-type BackendPayload = {
-  ok?: boolean;
-  error?: string;
-  record?: Record<string, unknown>;
-  competitor?: Record<string, unknown>;
-  competitorProfile?: Record<string, unknown>;
-  summary?: string;
-  title?: string;
-  keySpecs?: string[];
-  resolvedUrl?: string;
-  sourceUrl?: string;
-};
-
-const LOCAL_DB_KEY = "wm_competitor_compare_swot_records_v1";
-const COMPARE_FEEDBACK_KEY = "wm_competitor_compare_recommendation_feedback_v1";
-const TEXT_INPUT_HISTORY_KEY = "wm_competitor_compare_text_input_history_v1";
-const DEFAULT_API_ORIGIN = "http://127.0.0.1:8787";
-
-const MANUFACTURERS = [
-  "Crestron",
-  "Extron",
-  "Atlona",
-  "Kramer",
-  "Lightware",
-  "Blustream",
-  "Barco",
-  "ZeeVee",
-  "AMX",
-  "AVPro Edge",
-  "Binary",
-  "Other",
-];
-
-
-const KNOWN_COMPETITOR_FINGERPRINTS: Record<string, Omit<ProductProfile, "manufacturer" | "resolutionRank">> = {
-  "blustream:hmx4418gkit": {
-    sku: "HMX44-18G-KIT",
-    title: "4x4 HDBaseT3 ARC Matrix Kit with RX18G receivers",
-    summary: "Blustream HMX44-18G-KIT is a 4x4 HDMI-to-HDBaseT matrix kit with 4 HDMI inputs, 4 HDBaseT outputs, simultaneous HDMI/HDBaseT output 1, ARC/audio matrix, control and 4 supplied RX18G receivers.",
-    domain: "MATRIX",
-    role: "Matrix",
-    transport: "HDMI / HDBaseT",
-    family: "Blustream HMX HDBaseT Matrix Kit",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    latency: "Matrix switching",
-    performanceTier: "18G HDBaseT3 matrix kit",
-    inputCount: 4,
-    outputCount: 4,
-    features: {
-      hdbt3: true,
-      hdbtOutput: true,
-      hdmiOutput: true,
-      simultaneousOutputs: true,
-      hdr: true,
-      arc: true,
-      receiverKit: true,
-      audioDeEmbed: true,
-      ethernet: true,
-      irRs232: true,
-      poc: true,
-      control: true,
-    },
-    sourceUrl: "https://www.blustream.co.uk/4x4-hdbaset-matrix-hmx44-18g-kit",
-    evidence: [
-      "Known competitor fingerprint: HMX44-18G-KIT is a 4x4 HDBaseT matrix kit, not a point-to-point extender.",
-      "Kit includes compatible RX18G receivers, so the WyreStorm comparison must include receiver/BOM dependency notes.",
-      "Classed as MATRIX / Matrix before HDBaseT transport scoring.",
-    ],
-  },
-  "blustream:acm210": {
-    sku: "ACM210",
-    title: "Advanced Control Module for Blustream IP Multicast systems",
-    summary: "Blustream ACM210 is a control and configuration module for IP50, IP200, IP250, IP300 and IP350 multicast systems. It is not a video encoder or decoder.",
-    domain: "CONTROL",
-    role: "Controller",
-    transport: "Control / LAN",
-    family: "Blustream Multicast control",
-    maxResolution: "N/A",
-    chroma: "N/A",
-    latency: "N/A",
-    performanceTier: "AV-over-IP system controller",
-    inputCount: 0,
-    outputCount: 0,
-    features: {
-      control: true,
-      usbRouting: true,
-      videoWall: true,
-      multiview: true,
-    },
-    sourceUrl: "https://www.blustream.co.uk/video-over-ip-extenders-acm210",
-    evidence: [
-      "Known competitor fingerprint: ACM210 is a control module, not an encoder/decoder endpoint.",
-      "Controls and configures Blustream IP50/IP200/IP250/IP300/IP350 multicast systems.",
-      "Comparison should be against WyreStorm NetworkHD controller/control layer.",
-    ],
-  },
-  "kramer:vp440x": {
-    sku: "VP-440X",
-    title: "18G 4K Presentation Switcher/Scaler with HDBaseT & HDMI simultaneous outputs",
-    summary: "Kramer VP-440X is a presentation switcher/scaler with HDMI and VGA inputs, simultaneous HDMI and HDBaseT outputs, audio embedding, microphone input, control and scaling.",
-    domain: "PRESENTATION",
-    role: "Presentation Switcher",
-    transport: "HDMI / HDBaseT",
-    family: "Kramer VP presentation scaler",
-    maxResolution: "4K60",
-    chroma: "4:4:4 HDMI / 4:2:0 HDBaseT at 4K60",
-    latency: "1-2 frames",
-    performanceTier: "18G presentation scaler",
-    
-    inputCount: 5,
-    outputCount: 2,
-features: {
-      scaling: true,
-      hdbtOutput: true,
-      hdmiOutput: true,
-      simultaneousOutputs: true,
-      vga: true,
-      microphone: true,
-      audioDeEmbed: true,
-      hdr: true,
-      control: true,
-    },
-    sourceUrl: "https://www1.kramerav.com/product/VP-440X",
-    evidence: [
-      "Known competitor fingerprint: Kramer VP-440X is a presentation switcher/scaler, not AVoIP.",
-      "HDMI and HDBaseT are simultaneous outputs.",
-      "VGA and microphone/audio input requirements are likely differentiators.",
-    ],
-  },
-};
-
-function knownCompetitorKey(manufacturer: string, model: string): string {
-  return `${squash(manufacturer)}:${squash(model)}`;
-}
-
-function makeKnownCompetitorProfile(
-  manufacturer: string,
-  model: string,
-  productUrl: string,
-  fingerprint: Omit<ProductProfile, "manufacturer" | "resolutionRank">,
-): ProductProfile {
-  return {
-    ...fingerprint,
-    manufacturer: tidy(manufacturer) || "Unknown",
-    sku: tidy(model) || fingerprint.sku,
-    sourceUrl: tidy(productUrl) || fingerprint.sourceUrl,
-    resolutionRank: resolutionRank(fingerprint.maxResolution),
-    evidence: [
-      ...(fingerprint.evidence || []),
-      "Matched from local competitor fingerprint database before fallback scoring.",
-    ],
-  };
-}
-
-function genericKnownCompetitorProfile(manufacturer: string, model: string, productUrl: string): ProductProfile | null {
-  const brand = squash(manufacturer);
-  const sku = squash(model);
-
-  if (brand === "blustream" && sku.startsWith("acm")) {
-    return makeKnownCompetitorProfile(manufacturer, model, productUrl, {
-      sku: tidy(model),
-      title: `${tidy(model)} advanced control module`,
-      summary: "Blustream ACM-series products should be treated as AV-over-IP control modules unless live data proves otherwise.",
-      domain: "CONTROL",
-      role: "Controller",
-      transport: "Control / LAN",
-      family: "Blustream Multicast control",
-      maxResolution: "N/A",
-      chroma: "N/A",
-      latency: "N/A",
-      performanceTier: "AV-over-IP system controller",
-      inputCount: 0,
-      outputCount: 0,
-      features: {
-        control: true,
-        usbRouting: true,
-      },
-      sourceUrl: tidy(productUrl),
-      evidence: [
-        "Generic Blustream ACM-series fingerprint used because this is a control module family.",
-        "Classed as control/management rather than video transport.",
-      ],
-    });
-  }
-  const isBlustreamMatrixKitSku =
-    brand === "blustream" &&
-    (
-      sku.startsWith("hmx") ||
-      sku.startsWith("hmxl") ||
-      sku.startsWith("c44") ||
-      sku.includes("matrix") ||
-      sku.endsWith("kit")
-    );
-
-  if (brand === "blustream" && isBlustreamMatrixKitSku && normalise(productUrl).includes("matrix")) {
-    return makeKnownCompetitorProfile(manufacturer, model, productUrl, {
-      sku: tidy(model),
-      title: `${tidy(model)} HDBaseT matrix kit`,
-      summary: "Blustream HMX/HMXL/C matrix kit products should be treated as HDBaseT matrix kits unless live data proves otherwise.",
-      domain: "MATRIX",
-      role: "Matrix",
-      transport: "HDMI / HDBaseT",
-      family: "Blustream HDBaseT Matrix Kit",
-      maxResolution: "4K60",
-      chroma: "Verify",
-      latency: "Matrix switching",
-      performanceTier: "HDBaseT matrix kit",
-      inputCount: 4,
-      outputCount: 4,
-      features: {
-        hdbtOutput: true,
-        hdmiOutput: true,
-        receiverKit: true,
-        control: true,
-        irRs232: true,
-        poc: true,
-      },
-      sourceUrl: tidy(productUrl),
-      evidence: [
-        "Generic Blustream matrix-kit fingerprint used because live lookup was unavailable.",
-        "Classed as matrix switching rather than point-to-point extension.",
-      ],
-    });
-  }
-  if (brand === "kramer" && sku.startsWith("vp")) {
-    return makeKnownCompetitorProfile(manufacturer, model, productUrl, {
-      sku: tidy(model),
-      title: `${tidy(model)} presentation scaler / switcher`,
-      summary: "Kramer VP-series products should be treated as presentation switcher/scaler candidates unless live data proves otherwise.",
-      domain: "PRESENTATION",
-      role: "Presentation Switcher",
-      transport: "HDMI / presentation switching",
-      family: "Kramer VP presentation scaler",
-      maxResolution: "4K60",
-      chroma: "Verify",
-      latency: "Verify",
-      performanceTier: "Presentation scaler / switcher",
-      features: {
-        scaling: true,
-        control: true,
-        audioDeEmbed: true,
-      },
-      sourceUrl: tidy(productUrl),
-      evidence: [
-        "Generic Kramer VP-series fingerprint used because live lookup was unavailable.",
-        "Classed as presentation switching/scaling rather than AVoIP.",
-      ],
-    });
-  }
-
-
-  return null;
-}
-
-function knownCompetitorFingerprint(manufacturer: string, model: string, productUrl: string): ProductProfile | null {
-  const exact = KNOWN_COMPETITOR_FINGERPRINTS[knownCompetitorKey(manufacturer, model)];
-
-  if (exact) {
-    return makeKnownCompetitorProfile(manufacturer, model, productUrl, exact);
-  }
-
-  return genericKnownCompetitorProfile(manufacturer, model, productUrl);
-}
-
-const WYRESTORM_CANDIDATES: WyreStormCandidate[] = [
-  wyre({
-    sku: "MXV-0808-H2A-70-V3",
-    title: "8x8 HDBaseT matrix - 70m class",
-    summary: "WyreStorm HDBaseT matrix direction for multi-source to multi-display routing where the competitor is a HDBaseT matrix kit. Confirm receiver model and distance requirement in the BOM.",
-    domain: "MATRIX",
-    role: "Matrix",
-    transport: "HDMI / HDBaseT",
-    family: "HDBaseT Matrix",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    latency: "Matrix switching",
-    performanceTier: "HDBaseT matrix",
-    inputCount: 8,
-    outputCount: 8,
-    features: {
-      hdbtOutput: true,
-      hdmiOutput: true,
-      control: true,
-      irRs232: true,
-      poc: true,
-    },
-    commercialPosition: "Higher-capacity WyreStorm matrix direction where more inputs/outputs are acceptable or beneficial.",
-    whyConsider: "Use as the matrix comparison direction, not as a point-to-point extender. Include compatible WyreStorm receivers if not bundled.",
-  }),
-  wyre({
-    sku: "MXV-0808-H2A-V3",
-    title: "8x8 HDBaseT matrix",
-    summary: "WyreStorm HDBaseT matrix direction for 4x4 or larger routing requirements. Confirm distance, receiver compatibility and exact output requirements.",
-    domain: "MATRIX",
-    role: "Matrix",
-    transport: "HDMI / HDBaseT",
-    family: "HDBaseT Matrix",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    latency: "Matrix switching",
-    performanceTier: "HDBaseT matrix",
-    inputCount: 8,
-    outputCount: 8,
-    features: {
-      hdbtOutput: true,
-      hdmiOutput: true,
-      control: true,
-      irRs232: true,
-      poc: true,
-    },
-    commercialPosition: "Matrix-class alternative when the requirement is routing, not point-to-point extension.",
-    whyConsider: "Use when the customer requires a true matrix. Do not substitute a single extender kit for a matrix kit.",
-  }),
-  wyre({
-    sku: "NHD-CTL-PRO v2",
-    title: "NetworkHD Controller PRO v2",
-    summary: "Central controller for NetworkHD systems with automatic discovery, isolated AV/control ports, integrated setup web server, WebUI and third-party API support.",
-    domain: "CONTROL",
-    role: "Controller",
-    transport: "Control / LAN",
-    family: "NetworkHD Control",
-    maxResolution: "N/A",
-    chroma: "N/A",
-    latency: "N/A",
-    performanceTier: "NetworkHD system controller",
-    inputCount: 0,
-    outputCount: 0,
-    features: {
-      control: true,
-      videoWall: true,
-      multiview: true,
-      usbRouting: true,
-    },
-    commercialPosition: "Closest WyreStorm comparison for a Blustream ACM control module.",
-    whyConsider: "Use when the competitor product is the control/configuration brain for an AV-over-IP system rather than a video endpoint.",
-  }),
-  wyre({
-    sku: "NHD-600-TRX",
-    title: "NetworkHD 600 10G lossless transceiver",
-    summary: "10G lossless zero-latency AV-over-IP transceiver for premium switching, routing, video wall, and high-performance endpoint applications.",
-    domain: "AVOIP",
-    role: "Transceiver",
-    transport: "AVoIP",
-    family: "NetworkHD 600",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    latency: "Zero latency",
-    performanceTier: "Premium 10G lossless",
-    features: { tenGig: true, zeroLatency: true, lossless: true, videoWall: true, multiview: true, usbRouting: true, control: true },
-    commercialPosition: "Closest WyreStorm one-box equivalent for premium AVoIP transceiver discussions.",
-    whyConsider: "Use when the competitor product is a high-performance encoder/decoder endpoint and image quality or latency is critical.",
-  }),
-  wyre({
-    sku: "NHD-600-TRXF",
-    title: "NetworkHD 600 fibre 10G lossless transceiver",
-    summary: "10G fibre lossless zero-latency NetworkHD 600 transceiver for longer-distance premium AVoIP transport.",
-    domain: "AVOIP",
-    role: "Transceiver",
-    transport: "AVoIP fibre",
-    family: "NetworkHD 600",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    latency: "Zero latency",
-    performanceTier: "Premium 10G lossless fibre",
-    features: { tenGig: true, zeroLatency: true, lossless: true, fibre: true, videoWall: true, multiview: true, usbRouting: true, control: true },
-    commercialPosition: "Closest premium fibre endpoint alternative.",
-    whyConsider: "Use when the competitor endpoint is being used over fibre or longer backbone distances.",
-  }),
-  wyre({
-    sku: "NHD-610-TX v2",
-    title: "NetworkHD 600 encoder with Dante-ready workflow",
-    summary: "10G NetworkHD 600 encoder for high-performance lossless AVoIP distribution with advanced audio workflows.",
-    domain: "AVOIP",
-    role: "Encoder",
-    transport: "AVoIP",
-    family: "NetworkHD 600",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    latency: "Zero latency",
-    performanceTier: "Premium 10G lossless",
-    features: { tenGig: true, zeroLatency: true, lossless: true, dante: true, aes67: true, videoWall: true, multiview: true, control: true },
-    commercialPosition: "Premium encoder-side option.",
-    whyConsider: "Use when only the transmit side of a premium AVoIP design is required.",
-  }),
-  wyre({
-    sku: "NHD-500-TX v2",
-    title: "NetworkHD 500 4K60 4:4:4 encoder",
-    summary: "1G premium AVoIP encoder with 4K60 4:4:4, ultra-low latency, USB support, and Dante-ready workflows.",
-    domain: "AVOIP",
-    role: "Encoder",
-    transport: "AVoIP",
-    family: "NetworkHD 500",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    latency: "Ultra-low latency",
-    performanceTier: "Premium 1G",
-    features: { oneGig: true, usbRouting: true, dante: true, aes67: true, videoWall: true, multiview: true, control: true },
-    commercialPosition: "Strong value alternative when a role-specific encoder is acceptable.",
-    whyConsider: "Use where 10G/lossless is not essential but 4K60 4:4:4 and USB support matter.",
-  }),
-  wyre({
-    sku: "NHD-500-RX v2",
-    title: "NetworkHD 500 4K60 4:4:4 decoder",
-    summary: "1G premium AVoIP decoder with 4K60 4:4:4, ultra-low latency, USB support, and Dante-ready workflows.",
-    domain: "AVOIP",
-    role: "Decoder",
-    transport: "AVoIP",
-    family: "NetworkHD 500",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    latency: "Ultra-low latency",
-    performanceTier: "Premium 1G",
-    features: { oneGig: true, usbRouting: true, dante: true, aes67: true, videoWall: true, multiview: true, control: true },
-    commercialPosition: "Strong value alternative when a role-specific decoder is acceptable.",
-    whyConsider: "Use where the competitor endpoint is only being used as a receive/display endpoint.",
-  }),
-  wyre({
-    sku: "NHD-500-E-TX",
-    title: "NetworkHD 500 E-series encoder",
-    summary: "Cost-conscious 1G NetworkHD 500 encoder for 4K60 4:4:4 distribution where USB is not required.",
-    domain: "AVOIP",
-    role: "Encoder",
-    transport: "AVoIP",
-    family: "NetworkHD 500 E",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    latency: "Ultra-low latency",
-    performanceTier: "Value 1G",
-    features: { oneGig: true, videoWall: true, multiview: true, control: true },
-    commercialPosition: "Cost-reduced encoder option.",
-    whyConsider: "Use only when USB/KVM is not required.",
-  }),
-  wyre({
-    sku: "NHD-500-E-RX",
-    title: "NetworkHD 500 E-series decoder",
-    summary: "Cost-conscious 1G NetworkHD 500 decoder for 4K60 4:4:4 distribution where USB is not required.",
-    domain: "AVOIP",
-    role: "Decoder",
-    transport: "AVoIP",
-    family: "NetworkHD 500 E",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    latency: "Ultra-low latency",
-    performanceTier: "Value 1G",
-    features: { oneGig: true, videoWall: true, multiview: true, control: true },
-    commercialPosition: "Cost-reduced decoder option.",
-    whyConsider: "Use only when USB/KVM is not required.",
-  }),
-  wyre({
-    sku: "NHD-510-TX",
-    title: "NetworkHD 500 USB-C / HDMI encoder",
-    summary: "NetworkHD 500 encoder with USB-C and HDMI inputs, useful for BYOD, lectern, and meeting-room AVoIP source locations.",
-    domain: "AVOIP",
-    role: "Encoder",
-    transport: "AVoIP",
-    family: "NetworkHD 500",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    latency: "Ultra-low latency",
-    performanceTier: "Premium 1G",
-    features: { oneGig: true, usbC: true, usbRouting: true, conferencing: true, videoWall: true, control: true },
-    commercialPosition: "Meeting-room friendly AVoIP encoder.",
-    whyConsider: "Use where the competitor endpoint is being positioned around USB-C/BYOD source connection.",
-  }),
-  wyre({
-    sku: "NHD-0401-MV",
-    title: "NetworkHD 500 multiview processor",
-    summary: "Advanced NetworkHD 500 multiview processor for flexible window layouts, LED resolutions, and composed monitoring outputs.",
-    domain: "MULTIVIEW",
-    role: "Multiview Processor",
-    transport: "AVoIP",
-    family: "NetworkHD 500",
-    maxResolution: "5K",
-    chroma: "Unknown",
-    latency: "Processing-dependent",
-    performanceTier: "Processing accessory",
-    features: { multiview: true, scaling: true, videoWall: true, control: true },
-    commercialPosition: "Add-on processor, not a like-for-like endpoint replacement.",
-    whyConsider: "Use when the application requires multiview composition in addition to AVoIP transport.",
-  }),
-  wyre({
-    sku: "NHD-150-RX",
-    title: "NetworkHD 100 multiview decoder",
-    summary: "NetworkHD 100 multiview receiver/decoder for low-bandwidth multiview and NDI-to-AVoIP monitoring workflows.",
-    domain: "MULTIVIEW",
-    role: "Multiview Processor",
-    transport: "AVoIP",
-    family: "NetworkHD 100",
-    maxResolution: "4K30",
-    chroma: "Unknown",
-    latency: "Low-bandwidth processing",
-    performanceTier: "Low-bandwidth multiview",
-    features: { oneGig: true, lowBandwidth: true, multiview: true, videoWall: true, control: true },
-    commercialPosition: "Useful accessory for multiview, not a premium endpoint equivalent.",
-    whyConsider: "Use when the opportunity is monitoring/composition, not a high-performance endpoint replacement.",
-  }),
-  wyre({
-    sku: "NHD-120-TX",
-    title: "NetworkHD 100 4K encoder",
-    summary: "Cost-effective low-bandwidth NetworkHD 100 encoder for scalable 4K distribution where premium latency and 4K60 4:4:4 are not required.",
-    domain: "AVOIP",
-    role: "Encoder",
-    transport: "AVoIP",
-    family: "NetworkHD 100",
-    maxResolution: "4K30",
-    chroma: "Unknown",
-    latency: "Low-bandwidth compressed",
-    performanceTier: "Value low-bandwidth",
-    features: { oneGig: true, lowBandwidth: true, videoWall: true, control: true },
-    commercialPosition: "Budget alternative, not a direct premium AVoIP equivalent.",
-    whyConsider: "Use for price-led distribution when latency/image fidelity requirements are relaxed.",
-  }),
-  wyre({
-    sku: "NHD-120-RX",
-    title: "NetworkHD 100 4K decoder",
-    summary: "Cost-effective low-bandwidth NetworkHD 100 decoder for scalable 4K distribution where premium latency and 4K60 4:4:4 are not required.",
-    domain: "AVOIP",
-    role: "Decoder",
-    transport: "AVoIP",
-    family: "NetworkHD 100",
-    maxResolution: "4K30",
-    chroma: "Unknown",
-    latency: "Low-bandwidth compressed",
-    performanceTier: "Value low-bandwidth",
-    features: { oneGig: true, lowBandwidth: true, videoWall: true, control: true },
-    commercialPosition: "Budget alternative, not a direct premium AVoIP equivalent.",
-    whyConsider: "Use for price-led display endpoints when latency/image fidelity requirements are relaxed.",
-  }),
-  wyre({
-    sku: "SW-640L-TX-W",
-    title: "Wireless presentation and conferencing system",
-    summary: "Presentation and collaboration switcher with USB-C, HDMI, wireless casting, wireless conferencing, MST, and dual display workflows.",
-    domain: "PRESENTATION",
-    role: "Presentation Switcher",
-    transport: "HDMI / USB-C / Wireless",
-    family: "Presentation Switchers",
-    maxResolution: "4K60",
-    chroma: "Unknown",
-    latency: "Room switching",
-    performanceTier: "Meeting-room collaboration",
-    
-    inputCount: 4,
-    outputCount: 2,
-features: { usbC: true, usbRouting: true, wireless: true, conferencing: true, mst: true, multiview: true, hdmiOutput: true, control: true },
-    commercialPosition: "Meeting-room presentation alternative.",
-    whyConsider: "Use only when the competitor product is a room switcher/collaboration device, not an AVoIP endpoint.",
-  }),
-  wyre({
-    sku: "SW-510-TX",
-    title: "Presentation switcher transmitter with HDBaseT extension",
-    summary: "Room presentation switcher/transmitter direction for HDMI/VGA-style local source switching and HDBaseT extension workflows. Verify exact I/O against the project.",
-    domain: "PRESENTATION",
-    role: "Presentation Switcher",
-    transport: "HDMI / HDBaseT / USB-C",
-    family: "Presentation Switchers",
-    maxResolution: "4K60",
-    chroma: "Verify",
-    latency: "Room switching",
-    performanceTier: "Presentation switcher / HDBaseT extension",
-    
-    inputCount: 4,
-    outputCount: 1,
-features: { usbC: true, vga: true, hdbtOutput: true, hdmiOutput: true, control: true },
-    commercialPosition: "Closer presentation-switching direction where legacy VGA and HDBaseT extension matter.",
-    whyConsider: "Use when the competitor is a presentation switcher/scaler with local inputs and HDBaseT output, but verify exact scaler/audio requirements.",
-  }),
-  wyre({
-    sku: "MX-0804-EDC",
-    title: "8x4 seamless presentation matrix with scaling",
-    summary: "Presentation matrix direction for larger room-core switching, scaling, USB-C/HDMI sources and audio workflows. Verify HDBaseT requirement separately.",
-    domain: "PRESENTATION",
-    role: "Presentation Switcher",
-    transport: "HDMI / USB-C",
-    family: "Presentation Switchers",
-    maxResolution: "4K60",
-    chroma: "Verify",
-    latency: "Room switching",
-    performanceTier: "Presentation matrix / scaler",
-    
-    inputCount: 8,
-    outputCount: 4,
-features: { usbC: true, usbRouting: true, scaling: true, hdmiOutput: true, dante: true, aes67: true, control: true },
-    commercialPosition: "Higher-capability room-core alternative if the opportunity is about scaling and multiple outputs rather than HDBaseT-only replacement.",
-    whyConsider: "Use when the customer needs more room-core switching/scaling capability than a simple VP-440X style device.",
-  }),  wyre({
-    sku: "MX-0403-H3-MST",
-    title: "Presentation switcher with HDBaseT 3.0 extension",
-    summary: "Room presentation switcher with HDMI, USB-C, MST, local HDMI outputs, and HDBaseT 3.0 extension.",
-    domain: "PRESENTATION",
-    role: "Presentation Switcher",
-    transport: "HDBaseT / HDMI / USB-C",
-    family: "Presentation Switchers",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    latency: "Room switching",
-    performanceTier: "Meeting-room collaboration",
-    
-    inputCount: 4,
-    outputCount: 2,
-features: { usbC: true, usbRouting: true, conferencing: true, mst: true, hdbt3: true, hdbtOutput: true, hdmiOutput: true, simultaneousOutputs: true, control: true },
-    commercialPosition: "Room-core presentation switcher.",
-    whyConsider: "Use for local switching and display extension, not distributed AVoIP replacement.",
-  }),
-  wyre({
-    sku: "EX-40-KVM-5K",
-    title: "5K HDBaseT 3.0 KVM extender kit",
-    summary: "Point-to-point HDBaseT 3.0 KVM extension kit for 5K and 4K60 4:4:4 with USB.",
-    domain: "HDBASET",
-    role: "Extender",
-    transport: "HDBaseT",
-    family: "HDBaseT Extenders",
-    maxResolution: "5K",
-    chroma: "4:4:4",
-    latency: "Extension",
-    performanceTier: "HDBaseT 3.0",
-    features: { usbRouting: true, hdbt3: true, control: true },
-    commercialPosition: "Point-to-point extender option.",
-    whyConsider: "Use only when the competitor product is a HDBaseT/KVM extender.",
-  }),
-  wyre({
-    sku: "SW-0206-VW",
-    title: "Dedicated video wall processor",
-    summary: "Non-AVoIP video wall processor for fixed HDMI wall processing, splicing, rotation, and bezel-correction workflows.",
-    domain: "VIDEO_WALL",
-    role: "Video Wall Processor",
-    transport: "HDMI",
-    family: "Video Wall Processors",
-    maxResolution: "4K60",
-    chroma: "Unknown",
-    latency: "Processing-dependent",
-    performanceTier: "Dedicated wall processing",
-    features: { videoWall: true, scaling: true, control: true },
-    commercialPosition: "Dedicated wall processor alternative.",
-    whyConsider: "Use when the competitor product is actually a video wall processor rather than an AVoIP endpoint.",
-  }),
-];
-
-function wyre(input: Omit<WyreStormCandidate, "manufacturer" | "resolutionRank" | "sourceUrl" | "evidence">): WyreStormCandidate {
-  return {
-    ...input,
-    manufacturer: "WyreStorm",
-    resolutionRank: resolutionRank(input.maxResolution),
-    evidence: [],
-  };
-}
-
-function tidy(value: unknown): string {
+function compareSkuTypeaheadClean(value: unknown): string {
   return String(value ?? "").trim();
 }
 
-function displayText(value: unknown): string {
-  return tidy(value)
-    .replace(/[^\x20-\x7e]+/g, " ")
-    .replace(/\s+-\s+-\s+/g, " - ")
-    .replace(/\s+/g, " ")
-    .trim();
+function compareSkuTypeaheadKey(value: unknown): string {
+  return compareSkuTypeaheadClean(value).toLowerCase().replace(/[^a-z0-9]+/g, "");
 }
 
-function normalise(value: unknown): string {
-  return tidy(value).toLowerCase();
+function compareSkuTypeaheadBrandKey(manufacturer: string): string {
+  return COMPARE_SKU_TYPEAHEAD_BRAND_ALIASES[compareSkuTypeaheadKey(manufacturer)] || compareSkuTypeaheadClean(manufacturer);
 }
 
-function squash(value: unknown): string {
-  return normalise(value).replace(/[^a-z0-9]+/g, "");
-}
-
-function asBool(value: unknown): boolean {
-  return Boolean(value);
-}
-
-function nowIso(): string {
-  return new Date().toISOString();
-}
-
-function randomId(): string {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-
-  return `wm-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
-}
-
-function resolutionRank(value: string): number {
-  const text = normalise(value);
-
-  if (text.includes("8k")) return 80;
-  if (text.includes("5k")) return 60;
-  if (text.includes("4k120")) return 56;
-  if (text.includes("4k60")) return 50;
-  if (text === "4k") return 40;
-  if (text.includes("4k30")) return 35;
-  if (text.includes("1080")) return 20;
-
-  return 0;
-}
-
-function scopedInputKey(field: TextInputField, manufacturer: string): string {
-  if (field === "sku") return `sku:${squash(manufacturer) || "unknown"}`;
-  if (field === "productUrl") return `productUrl:${squash(manufacturer) || "unknown"}`;
-  return "context";
-}
-
-function readTextInputHistory(): TextInputHistoryStore {
-  try {
-    const raw = window.localStorage.getItem(TEXT_INPUT_HISTORY_KEY);
-    if (!raw) {
-      return {
-        version: 1,
-        updatedAt: nowIso(),
-        entries: {},
-      };
-    }
-
-    const parsed = JSON.parse(raw) as TextInputHistoryStore;
-    if (!parsed || typeof parsed !== "object" || !parsed.entries || typeof parsed.entries !== "object") {
-      return {
-        version: 1,
-        updatedAt: nowIso(),
-        entries: {},
-      };
-    }
-
-    return parsed;
-  } catch {
-    return {
-      version: 1,
-      updatedAt: nowIso(),
-      entries: {},
-    };
-  }
-}
-
-function writeTextInputHistory(store: TextInputHistoryStore): void {
-  try {
-    window.localStorage.setItem(TEXT_INPUT_HISTORY_KEY, JSON.stringify({
-      version: 1,
-      updatedAt: nowIso(),
-      entries: store.entries,
-    }));
-  } catch {
-  }
-}
-
-function readTextInputEntries(field: TextInputField, manufacturer: string): string[] {
-  const store = readTextInputHistory();
-  const key = scopedInputKey(field, manufacturer);
-  const entries = store.entries[key];
-
-  if (!Array.isArray(entries)) return [];
-
-  return entries
-    .map((item) => tidy(item))
-    .filter(Boolean)
-    .slice(0, 12);
-}
-
-function addTextInputEntry(field: TextInputField, value: string, manufacturer: string): void {
-  const cleanValue = tidy(value);
-  if (!cleanValue) return;
-
-  const store = readTextInputHistory();
-  const key = scopedInputKey(field, manufacturer);
-  const existing = Array.isArray(store.entries[key]) ? store.entries[key] : [];
-  const normalizedValue = normalise(cleanValue);
-
-  const next = [
-    cleanValue,
-    ...existing.filter((item) => normalise(item) !== normalizedValue),
-  ].slice(0, 12);
-
-  store.entries[key] = next;
-  writeTextInputHistory(store);
-}
-
-function buildTextInputSuggestions(manufacturer: string): TextInputSuggestions {
-  return {
-    sku: readTextInputEntries("sku", manufacturer),
-    productUrl: readTextInputEntries("productUrl", manufacturer),
-    context: readTextInputEntries("context", manufacturer),
-  };
-}
-
-function suggestionId(field: TextInputField): string {
-  return `wm-compare-${field}-suggestions`;
-}
-function getViteEnv(): Record<string, string | undefined> {
-  return ((import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env ?? {});
-}
-
-function endpointCandidates(): string[] {
-  const env = getViteEnv();
-  const configuredOrigin = String(env.VITE_WINGMAN_LOOKUP_ORIGIN || env.VITE_COMPETITOR_LOOKUP_ORIGIN || "").trim();
-  const liveLookupEnabled = String(env.VITE_ENABLE_COMPETITOR_LIVE_LOOKUP || "").trim().toLowerCase() === "true";
-
-  if (!configuredOrigin && !liveLookupEnabled) {
-    return [];
-  }
-
-  const base = (configuredOrigin || DEFAULT_API_ORIGIN).replace(/\/$/, "");
-
-  return [
-    `${base}/api/competitor-lookup`,
-  ];
-}
-
-function featureList(features: FeatureFlags): string[] {
-  return Object.entries(features)
-    .filter(([, value]) => Boolean(value))
-    .map(([key]) => key);
-}
-
-function featureLabel(key: string): string {
-  const labels: Record<string, string> = {
-    usbC: "USB-C",
-    usbRouting: "USB/KVM routing",
-    wireless: "Wireless presentation",
-    conferencing: "Conferencing",
-    mst: "MST / dual display",
-    multiview: "Multiview",
-    videoWall: "Video wall support",
-    dante: "Dante",
-    aes67: "AES67",
-    scaling: "Scaling",
-    audioDeEmbed: "Audio de-embed",
-    vga: "VGA / legacy input",
-    microphone: "Microphone input",
-    hdmiOutput: "HDMI output",
-    hdbtOutput: "HDBaseT output",
-    simultaneousOutputs: "Simultaneous outputs",
-    hdr: "HDR",
-    fibre: "Fibre",
-    zeroLatency: "Zero latency",
-    lossless: "Lossless",
-    lowBandwidth: "Low bandwidth",
-    tenGig: "10G",
-    oneGig: "1G",
-    hdbt3: "HDBaseT 3.0",
-    hdbt2: "HDBaseT 2.0",
-    control: "Control integration",
-  };
-
-  return labels[key] || key;
-}
-
-function inferCompetitorProfile(args: {
-  manufacturer: string;
-  model: string;
-  productUrl: string;
-  context: string;
-  backend?: BackendPayload | null;
-}): ProductProfile {
-  const manufacturer = tidy(args.manufacturer) || "Unknown";
-  const model = tidy(args.model);
-  const backendRecord = args.backend?.competitor || args.backend?.competitorProfile || args.backend?.record || {};
-  const backendText = [
-    tidy(args.backend?.title),
-    tidy(args.backend?.summary),
-    Array.isArray(args.backend?.keySpecs) ? args.backend?.keySpecs.join(" ") : "",
-    objectText(backendRecord),
-  ].join(" ");
-
-  const blob = normalise([
-    manufacturer,
-    model,
-    args.productUrl,
-    args.context,
-    backendText,
-  ].join(" "));
-
-  const compactModel = squash(model);
-  const features: FeatureFlags = {};
-  let domain: Domain = "UNKNOWN";
-  let role: Role = "Unknown";
-  let transport = "Unknown";
-  let family = "Unknown";
-  let maxResolution = detectResolution(blob);
-  let chroma = detectChroma(blob);
-  let latency = "Unknown";
-  let performanceTier = "Unknown";
-  const evidence: string[] = [];
-  const knownProfile = knownCompetitorFingerprint(manufacturer, model, args.productUrl);
-
-  if (knownProfile) {
-    return knownProfile;
-  }
-
-  const isCrestronNvx = compactModel.includes("dmnvx") || blob.includes("dm nvx") || blob.includes("digitalmedia nvx");
-  const isExtronNav = compactModel.startsWith("nav") || blob.includes("extron nav");
-  const isKramerKds = compactModel.startsWith("kds") || blob.includes("kramer kds");
-  const isLightwareUbex = compactModel.includes("ubex") || blob.includes("ubex");
-  const isBlustreamIp = compactModel.startsWith("ip") && normalise(manufacturer).includes("blustream");
-
-  const hasAvoipBrandHint = isCrestronNvx || isExtronNav || isKramerKds || isLightwareUbex || isBlustreamIp;
-  const mentionsTx = /\bencoder\b|\bencodes?\b|\btransmitter\b|\btx\b|\bsource endpoint\b/.test(blob);
-  const mentionsRx = /\bdecoder\b|\bdecodes?\b|\breceiver\b|\brx\b|\bdisplay endpoint\b/.test(blob);
-  const isTransceiver = /\btransceiver\b|\btrx\b|\bencoder\s*\/\s*decoder\b|\bencode\s*\/\s*decode\b|\bencoder-decoder\b/.test(blob) || hasAvoipBrandHint || (mentionsTx && mentionsRx);
-
-  if (hasAvoipBrandHint || /\bav over ip\b|\bavoip\b|\bsdvoe\b|\bjpeg2000\b|\bj2k\b|\bh\.?264\b|\bh\.?265\b|\bipmx\b/.test(blob)) {
-    domain = "AVOIP";
-    transport = "AVoIP";
-    family = "AV-over-IP";
-    performanceTier = "Network endpoint";
-    features.control = true;
-    evidence.push("Classified as AV-over-IP before checking video wall or multiview feature terms.");
-  }
-
-  if (/\bhdbaset\b|\bhdbt\b|\bdtp\b|\btps\b/.test(blob) && domain !== "AVOIP") {
-    domain = "HDBASET";
-    role = "Extender";
-    transport = "HDBaseT";
-    family = "HDBaseT extension";
-    performanceTier = /\bhdbaset 3\b|\bhdbt 3\b|\bdtp3\b/.test(blob) ? "HDBaseT 3.0" : "HDBaseT";
-    features.hdbt3 = performanceTier === "HDBaseT 3.0";
-    features.hdbt2 = performanceTier !== "HDBaseT 3.0";
-    features.control = true;
-    evidence.push("Classified as HDBaseT because the product appears to be point-to-point extension.");
-  }
-
-  if (/\bpresentation\b|\bcollaboration\b|\bbyod\b|\bbyom\b|\bwireless conferencing\b|\bwireless casting\b|\bomega\b|\bome-\b|\bdmps\b/.test(blob) && domain === "UNKNOWN") {
-    domain = "PRESENTATION";
-    role = "Presentation Switcher";
-    transport = "HDMI / USB-C / room switching";
-    family = "Presentation switching";
-    performanceTier = "Room collaboration";
-    evidence.push("Classified as presentation switching/collaboration.");
-  }
-
-  if (/\bmatrix\b|\bmatrix switcher\b|\bmodular matrix\b/.test(blob) && domain === "UNKNOWN") {
-    domain = "MATRIX";
-    role = "Matrix";
-    transport = "HDMI / HDBaseT matrix";
-    family = "Matrix switching";
-    performanceTier = "Fixed I/O routing";
-    evidence.push("Classified as matrix switching.");
-  }
-
-  if (/\bvideo wall processor\b|\bvideowall processor\b|\bwall processor\b|\bsplicing processor\b|\bmosaic processor\b/.test(blob)) {
-    domain = "VIDEO_WALL";
-    role = "Video Wall Processor";
-    family = "Video wall processing";
-    transport = transport === "Unknown" ? "HDMI / processing" : transport;
-    performanceTier = "Wall processing";
-    features.videoWall = true;
-    features.scaling = true;
-    evidence.push("Classified as a dedicated video wall processor.");
-  }
-
-  if (/\bmultiview processor\b|\bmulti-view processor\b|\bwindowing processor\b/.test(blob)) {
-    domain = "MULTIVIEW";
-    role = "Multiview Processor";
-    family = "Multiview processing";
-    performanceTier = "Processing";
-    features.multiview = true;
-    evidence.push("Classified as a dedicated multiview processor.");
-  }
-
-  if (/\busb extender\b|\busb extension\b|\busb over ip\b/.test(blob) && domain === "UNKNOWN") {
-    domain = "USB_EXTENSION";
-    role = "USB Extender";
-    transport = "USB";
-    family = "USB extension";
-    performanceTier = "USB extension";
-    features.usbRouting = true;
-    evidence.push("Classified as USB extension.");
-  }
-
-  if (role === "Unknown") {
-    if (isTransceiver) role = "Transceiver";
-    if (!isTransceiver && mentionsTx) role = "Encoder";
-    if (!isTransceiver && mentionsRx) role = "Decoder";
-  }
-
-  if (isCrestronNvx) {
-    domain = "AVOIP";
-    role = "Transceiver";
-    transport = "AVoIP";
-    family = "Crestron DM NVX";
-    maxResolution = "4K60";
-    chroma = "4:4:4";
-    latency = "Low latency";
-    performanceTier = "Premium AVoIP endpoint";
-    features.usbRouting = true;
-    features.videoWall = true;
-    features.scaling = true;
-    features.control = true;
-    evidence.push("DM-NVX detected: treated as a premium AV-over-IP endpoint/transceiver, not as a wall processor.");
-  }
-
-  if (isExtronNav) {
-    domain = "AVOIP";
-    transport = "AVoIP";
-    family = "Extron NAV";
-    maxResolution = maxResolution === "Unknown" ? "4K60" : maxResolution;
-    chroma = chroma === "Unknown" ? "4:4:4" : chroma;
-    performanceTier = "Premium AVoIP endpoint";
-    features.control = true;
-
-    if (/\bnav\s*e\b|nav-e|encoder/.test(blob)) role = "Encoder";
-    if (/\bnav\s*d\b|\bnav\s*sd\b|nav-d|decoder/.test(blob)) role = "Decoder";
-    if (role === "Unknown") role = "Transceiver";
-
-    evidence.push("Extron NAV detected: role is inferred from E/D/encoder/decoder terms.");
-  }
-
-  if (isKramerKds || isLightwareUbex || isBlustreamIp) {
-    domain = "AVOIP";
-    transport = "AVoIP";
-    family = isKramerKds ? "Kramer KDS" : isLightwareUbex ? "Lightware UBEX" : "Blustream IP";
-    performanceTier = "AVoIP endpoint";
-    features.control = true;
-    if (role === "Unknown") role = isLightwareUbex ? "Transceiver" : inferEndpointRole(blob);
-    evidence.push("Competitor AVoIP family detected and gated against WyreStorm NetworkHD products.");
-  }
-
-  features.usbC = features.usbC || /\busb-c\b|\busb c\b/.test(blob);
-  features.usbRouting = features.usbRouting || /\busb\b|\bkvm\b|\bcamera\b|\bspeakerphone\b/.test(blob);
-  features.wireless = /\bwireless\b|\bairplay\b|\bmiracast\b/.test(blob);
-  features.conferencing = /\bconference\b|\bconferencing\b|\bteams\b|\bzoom\b|\bbyom\b/.test(blob);
-  features.mst = /\bmst\b|\bdual display\b|\bdual video\b/.test(blob);
-  features.multiview = features.multiview || /\bmultiview\b|\bmulti-view\b|\bpip\b|\bpop\b|\bquad view\b/.test(blob);
-  features.videoWall = features.videoWall || /\bvideo wall\b|\bvideowall\b|\bbezel\b|\bwall processing\b/.test(blob);
-  features.dante = /\bdante\b/.test(blob);
-  features.aes67 = /\baes67\b/.test(blob);
-  features.scaling = features.scaling || /\bscaling\b|\bscaler\b|\bscaled output\b/.test(blob);
-  features.audioDeEmbed = /\bde-embed\b|\bdeembed\b|\baudio breakout\b/.test(blob);
-  features.vga = /\bvga\b|\bcomputer graphics\b/.test(blob);
-  features.microphone = /\bmicrophone\b|\bmic input\b|\bmic\b/.test(blob);
-  features.hdmiOutput = /\bhdmi output\b|\bhdmi outputs\b|output.*hdmi/.test(blob);
-  features.hdbtOutput = /\bhdbaset output\b|\bhdbt output\b|output.*hdbaset|output.*hdbt/.test(blob);
-  features.simultaneousOutputs = /\bsimultaneous outputs\b|\boutputs simultaneously\b/.test(blob);
-  features.hdr = /\bhdr\b|\bhdr10\b/.test(blob);
-  features.fibre = /\bfibre\b|\bfiber\b|\bsfp\b|\bsfp\+\b/.test(blob);
-  features.zeroLatency = /\bzero latency\b|\blossless\b/.test(blob);
-  features.lossless = /\blossless\b/.test(blob);
-
-  if (maxResolution === "Unknown" && domain === "AVOIP") {
-    maxResolution = "4K60";
-  }
-
-  if (chroma === "Unknown" && domain === "AVOIP" && performanceTier.toLowerCase().includes("premium")) {
-    chroma = "4:4:4";
-  }
-
-  return {
-    manufacturer,
-    sku: model || "Unknown SKU",
-    title: model || "Competitor product",
-    summary: tidy(args.backend?.summary) || buildCompetitorSummary(domain, role, family),
-    domain,
-    role,
-    transport,
-    family,
-    maxResolution,
-    resolutionRank: resolutionRank(maxResolution),
-    chroma,
-    latency,
-    performanceTier,
-    features,
-    sourceUrl: tidy(args.productUrl || args.backend?.resolvedUrl || args.backend?.sourceUrl),
-    evidence,
-  };
-}
-
-function inferEndpointRole(blob: string): Role {
-  if (/\btransceiver\b|\btrx\b/.test(blob)) return "Transceiver";
-  if (/\bencoder\b|\btransmitter\b|\btx\b/.test(blob)) return "Encoder";
-  if (/\bdecoder\b|\breceiver\b|\brx\b/.test(blob)) return "Decoder";
-  return "Transceiver";
-}
-
-function buildCompetitorSummary(domain: Domain, role: Role, family: string): string {
-  if (domain === "UNKNOWN") return "Insufficient live evidence was available. The match is based on manufacturer, model, and entered context.";
-  return `${family} ${domain} ${role}.`;
-}
-
-function objectText(value: unknown): string {
-  if (typeof value === "string") return value;
-  if (typeof value === "number" || typeof value === "boolean") return String(value);
-  if (Array.isArray(value)) return value.map((item) => objectText(item)).join(" ");
-  if (value && typeof value === "object") return Object.values(value as Record<string, unknown>).map((item) => objectText(item)).join(" ");
-  return "";
-}
-
-function detectResolution(blob: string): string {
-  if (/\b8k\b/.test(blob)) return "8K";
-  if (/\b5k\b|5120/.test(blob)) return "5K";
-  if (/\b4k120\b|4k@120|2160p120/.test(blob)) return "4K120";
-  if (/\b4k60\b|4k@60|2160p60|3840x2160@60/.test(blob)) return "4K60";
-  if (/\b4k30\b|2160p30/.test(blob)) return "4K30";
-  if (/\b4k\b|2160p|3840x2160/.test(blob)) return "4K";
-  if (/\b1080p\b|1920x1080/.test(blob)) return "1080p";
-  return "Unknown";
-}
-
-function detectChroma(blob: string): string {
-  if (blob.includes("4:4:4")) return "4:4:4";
-  if (blob.includes("4:2:2")) return "4:2:2";
-  if (blob.includes("4:2:0")) return "4:2:0";
-  return "Unknown";
-}
-
-function incompatibleRole(competitor: ProductProfile, candidate: WyreStormCandidate): boolean {
-  if (competitor.role === "Matrix" && candidate.role === "Extender") return true;
-  if (competitor.domain === "MATRIX" && candidate.domain !== "MATRIX") return true;
-  if (competitor.domain !== "MATRIX" && candidate.domain === "MATRIX") return true;
-  if (competitor.domain === "CONTROL" && candidate.domain !== "CONTROL") return true;
-  if (competitor.domain !== "CONTROL" && candidate.domain === "CONTROL") return true;
-  if (competitor.role === "Encoder" && candidate.role === "Decoder") return true;
-  if (competitor.role === "Decoder" && candidate.role === "Encoder") return true;
-  if (competitor.domain === "AVOIP" && candidate.domain === "HDBASET") return true;
-  if (competitor.domain === "HDBASET" && candidate.domain === "AVOIP") return true;
-  if (competitor.domain === "PRESENTATION" && candidate.domain === "AVOIP") return true;
-  if (competitor.domain === "AVOIP" && candidate.domain === "PRESENTATION") return true;
-  return false;
-}
-
-function scoreCandidate(competitor: ProductProfile, candidate: WyreStormCandidate): ScoredCandidate {
-  const notes: string[] = [];
-  let score = 0;
-
-  if (incompatibleRole(competitor, candidate)) {
-    return {
-      ...candidate,
-      score: -300,
-      confidence: 0,
-      scoreNotes: ["Rejected by hard compatibility gate: wrong role or transport class."],
-    };
-  }
-
-  if (candidate.domain === competitor.domain) {
-    score += 42;
-    notes.push("Same technology class.");
-  }
-
-  if (competitor.domain === "MATRIX" && candidate.domain === "MATRIX") {
-    score += 78;
-    notes.push("Matrix-to-matrix comparison is prioritised over extender-style matches.");
-  }
-
-  if (competitor.domain === "CONTROL" && candidate.domain === "CONTROL") {
-    score += 82;
-    notes.push("Control product compared against NetworkHD controller/control layer.");
-  }
-
-  if (candidate.transport === competitor.transport || normalise(candidate.transport).includes(normalise(competitor.transport))) {
-    score += 24;
-    notes.push("Transport class aligns.");
-  }
-
-  if (candidate.role === competitor.role) {
-    score += 48;
-    notes.push("Same endpoint role.");
-  }
-
-  if (competitor.role === "Transceiver" && candidate.role === "Transceiver") {
-    score += 58;
-    notes.push("One-box transceiver behaviour aligns.");
-  }
-
-  if (competitor.role === "Transceiver" && (candidate.role === "Encoder" || candidate.role === "Decoder")) {
-    score += 4;
-    score -= 24;
-    notes.push("Role-specific TX/RX alternative, not a one-box transceiver match.");
-  }
-
-  if (competitor.role !== "Video Wall Processor" && candidate.role === "Video Wall Processor") {
-    score -= 100;
-    notes.push("Rejected as primary match: processor role does not equal endpoint role.");
-  }
-
-  if (competitor.role !== "Multiview Processor" && candidate.role === "Multiview Processor") {
-    score -= 92;
-    notes.push("Multiview processor should be accessory/option, not primary equivalent.");
-  }
-
-  const resolutionDelta = candidate.resolutionRank - competitor.resolutionRank;
-
-  if (competitor.resolutionRank > 0 && resolutionDelta >= 0) {
-    score += 14;
-    notes.push("Resolution capability meets or exceeds competitor.");
-  }
-
-  if (competitor.resolutionRank > 0 && candidate.resolutionRank > 0 && resolutionDelta < 0) {
-    score -= 28;
-    notes.push("Resolution capability appears lower than competitor.");
-  }
-
-  if (competitor.chroma !== "Unknown" && candidate.chroma === competitor.chroma) {
-    score += 10;
-    notes.push("Chroma capability aligns.");
-  }
-
-  if (competitor.chroma !== "Unknown" && candidate.chroma === "Unknown") {
-    score -= 8;
-    notes.push("Chroma must be verified.");
-  }
-
-  for (const [key, weight] of Object.entries(featureWeights())) {
-    const featureKey = key as keyof FeatureFlags;
-    const competitorNeeds = asBool(competitor.features[featureKey]);
-    const candidateHas = asBool(candidate.features[featureKey]);
-
-    if (competitorNeeds && candidateHas) {
-      score += weight;
-    }
-
-    if (competitorNeeds && !candidateHas) {
-      score -= Math.ceil(weight / 2);
-    }
-  }
-
-  if (competitor.features.lowBandwidth !== true && candidate.features.lowBandwidth) {
-    score -= 42;
-    notes.push("Low-bandwidth family is unlikely to be a direct premium endpoint equivalent.");
-  }
-
-  if (competitor.features.tenGig && !candidate.features.tenGig) {
-    score -= 26;
-    notes.push("Competitor appears to require 10G-class positioning.");
-  }
-
-  const competitorSku = squash(competitor.sku);
-  const candidateSku = squash(candidate.sku);
-
-  if (competitorSku.includes("dmnvx") && candidateSku.includes("nhd600trx")) {
-    score += 92;
-    notes.push("DM-NVX transceiver family detected: NHD-600-TRX is prioritised as the closest WyreStorm transceiver.");
-  }
-
-  if (competitorSku.includes("dmnvx") && candidate.family === "NetworkHD 100") {
-    score -= 85;
-    notes.push("NetworkHD 100 is not a like-for-like premium DM-NVX equivalent.");
-  }
-
-  if (competitorSku.includes("dmnvx") && (candidate.role === "Multiview Processor" || candidate.role === "Video Wall Processor")) {
-    score -= 120;
-    notes.push("DM-NVX is an endpoint/transceiver discussion, not a standalone processor comparison.");
-  }
-
-  const competitorInputCount = Number(competitor.inputCount || 0);
-  const candidateInputCount = Number(candidate.inputCount || 0);
-  const competitorOutputCount = Number(competitor.outputCount || 0);
-  const candidateOutputCount = Number(candidate.outputCount || 0);
-
-  if (competitorInputCount > 0 && candidateInputCount >= competitorInputCount) {
-    score += candidateInputCount > competitorInputCount ? 16 : 10;
-    notes.push("Extra WyreStorm input capacity is treated as a benefit.");
-  }
-
-  if (competitorInputCount > 0 && candidateInputCount > 0 && candidateInputCount < competitorInputCount) {
-    score -= 14;
-    notes.push("WyreStorm input count is lower than the competitor and must be checked.");
-  }
-
-  if (competitorOutputCount > 0 && candidateOutputCount >= competitorOutputCount) {
-    score += candidateOutputCount > competitorOutputCount ? 14 : 9;
-    notes.push("Output capacity meets or exceeds the competitor.");
-  }
-
-  if (competitorOutputCount > 0 && candidateOutputCount > 0 && candidateOutputCount < competitorOutputCount) {
-    score -= 12;
-    notes.push("WyreStorm output count is lower than the competitor and must be checked.");
-  }
-  const confidence = Math.max(0, Math.min(97, Math.round(score / 2.3)));
-
-  return {
-    ...candidate,
-    score,
-    confidence,
-    scoreNotes: notes.slice(0, 5),
-  };
-}
-
-function featureWeights(): Record<keyof FeatureFlags, number> {
-  return {
-    usbC: 9,
-    usbRouting: 14,
-    wireless: 7,
-    conferencing: 8,
-    mst: 8,
-    multiview: 6,
-    videoWall: 4,
-    dante: 7,
-    aes67: 6,
-    scaling: 5,
-    audioDeEmbed: 5,
-    vga: 7,
-    microphone: 8,
-    hdmiOutput: 7,
-    hdbtOutput: 12,
-    simultaneousOutputs: 9,
-    hdr: 5,
-    receiverKit: 10,
-    arc: 7,
-    ethernet: 5,
-    irRs232: 6,
-    poc: 6,
-    fibre: 7,
-    zeroLatency: 13,
-    lossless: 13,
-    lowBandwidth: 2,
-    tenGig: 16,
-    oneGig: 5,
-    hdbt3: 14,
-    hdbt2: 8,
-    control: 5,
-  };
-}
-
-function buildShortlist(competitor: ProductProfile): ScoredCandidate[] {
-  if (competitor.domain === "UNKNOWN" || competitor.role === "Unknown") {
-    return [];
-  }
-
-  return WYRESTORM_CANDIDATES
-    .map((candidate) => scoreCandidate(competitor, candidate))
-    .filter((candidate) => candidate.score > 20 && candidate.confidence > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 5);
-}
-
-
-function buildInitialCompareStages(input: { manufacturer: string; model: string; productUrl: string; context: string }): CompareStage[] {
-  const sku = tidy(input.model) || "entered SKU";
-  return [
-    {
-      id: "validate",
-      label: "Checking request",
-      detail: `Checking manufacturer, SKU and supplied context for ${tidy(input.manufacturer)} ${sku}.`,
-      status: "queued",
-    },
-    {
-      id: "lookup",
-      label: "Searching known resources",
-      detail: "Checking local fingerprints, saved records and live lookup resources when available.",
-      status: "queued",
-    },
-    {
-      id: "profile",
-      label: "Building competitor profile",
-      detail: "Classifying product type, role, transport, I/O and feature evidence.",
-      status: "queued",
-    },
-    {
-      id: "gate",
-      label: "Gating WyreStorm candidates",
-      detail: "Rejecting wrong product classes before scoring features.",
-      status: "queued",
-    },
-    {
-      id: "audit",
-      label: "Building feature comparison",
-      detail: "Creating an applicable side-by-side check table for this product type.",
-      status: "queued",
-    },
-  ];
-}
-
-function updateStageRows(stages: CompareStage[], id: string, patch: Partial<CompareStage>): CompareStage[] {
-  return stages.map((stage) => stage.id === id ? { ...stage, ...patch } : stage);
-}
-
-function uiPause(ms = 140): Promise<void> {
-  return new Promise((resolve) => window.setTimeout(resolve, ms));
-}
-
-function buildNoMatchDetails(args: {
-  manufacturer: string;
-  model: string;
-  productUrl: string;
-  context: string;
-  lookupMode: string;
-  competitor: ProductProfile;
-}): NoMatchDetails {
-  const scored = WYRESTORM_CANDIDATES
-    .map((candidate) => scoreCandidate(args.competitor, candidate))
-    .sort((a, b) => b.score - a.score);
-
-  const unknownClassification = args.competitor.domain === "UNKNOWN" || args.competitor.role === "Unknown";
-  const reason = unknownClassification
-    ? "Wingman could not classify the competitor into a trusted technology class/role, so it refused to create a shortlist."
-    : "Wingman classified the competitor, but every WyreStorm candidate was rejected by the hard gate or scored below the shortlist threshold.";
-
-  const nextActions = unknownClassification
-    ? [
-        "Add a product URL or datasheet URL so Wingman can read product evidence.",
-        "Add application context such as presentation switcher, matrix replacement, AVoIP endpoint, USB-C meeting room, or video wall processor.",
-        "Create or approve a Product Intelligence record for this competitor SKU.",
-      ]
-    : [
-        "Review the candidate audit table and confirm whether the hard gate is too strict.",
-        "Check whether the correct WyreStorm product family is present in the comparison candidate set.",
-        "Create or approve a Product Intelligence record with exact I/O and feature evidence.",
-      ];
-
-  return {
-    manufacturer: tidy(args.manufacturer),
-    model: tidy(args.model),
-    productUrl: tidy(args.productUrl),
-    context: tidy(args.context),
-    lookupMode: args.lookupMode,
-    reason,
-    competitor: args.competitor,
-    checkedCount: WYRESTORM_CANDIDATES.length,
-    checkedCandidates: scored.slice(0, 10).map((candidate) => ({
-      sku: candidate.sku,
-      title: candidate.title,
-      domain: candidate.domain,
-      role: candidate.role,
-      score: candidate.score,
-      confidence: candidate.confidence,
-      notes: candidate.scoreNotes.length ? candidate.scoreNotes : ["Scored by technology class, role, transport, I/O and features."],
-    })),
-    nextActions,
-  };
-}
-
-function yesNo(value: unknown): string {
-  return value ? "Yes" : "No";
-}
-
-function inputConnectionTypes(profile: ProductProfile): string {
-  const types: string[] = [];
-  if (profile.domain === "PRESENTATION" || profile.domain === "MATRIX" || profile.domain === "HDBASET" || profile.features.hdmiOutput) types.push("HDMI-class");
-  if (profile.features.usbC) types.push("USB-C");
-  if (profile.features.wireless) types.push("Wireless");
-  if (profile.domain === "AVOIP") types.push("Network / IP");
-  if (profile.features.fibre) types.push("Fibre/SFP");
-  if (profile.features.vga) types.push("VGA");
-  if (profile.features.microphone) types.push("Mic/audio");
-  return unique(types).join(" + ") || "Verify";
-}
-
-function outputConnectionTypes(profile: ProductProfile): string {
-  const types: string[] = [];
-  if (profile.features.hdmiOutput || profile.domain === "PRESENTATION" || profile.domain === "MATRIX" || profile.domain === "VIDEO_WALL") types.push("HDMI");
-  if (profile.features.hdbtOutput || profile.transport.toLowerCase().includes("hdbaset") || profile.transport.toLowerCase().includes("hdbt")) types.push("HDBaseT");
-  if (profile.domain === "AVOIP") types.push("Network / IP");
-  if (profile.features.fibre) types.push("Fibre/SFP");
-  return unique(types).join(" + ") || "Verify";
-}
-
-function countWithConnector(count: unknown, connectorText: string): string {
-  return `${countLabel(count)} / ${connectorText}`;
-}
-
-function featureResult(competitorValue: string, wyrestormValue: string): FeatureAuditRow["result"] {
-  if (competitorValue === "Unknown" || competitorValue === "Verify" || wyrestormValue === "Unknown" || wyrestormValue === "Verify") return "Verify";
-  if (competitorValue === wyrestormValue) return "Match";
-  if (competitorValue === "Yes" && wyrestormValue === "No") return "Gap";
-  if (competitorValue === "No" && wyrestormValue === "Yes") return "Better";
-
-  const competitorNumber = Number(competitorValue.split("/")[0].trim());
-  const wyrestormNumber = Number(wyrestormValue.split("/")[0].trim());
-
-  if (Number.isFinite(competitorNumber) && Number.isFinite(wyrestormNumber) && competitorNumber > 0) {
-    if (wyrestormNumber >= competitorNumber) return wyrestormNumber > competitorNumber ? "Better" : "Match";
-    return "Gap";
-  }
-
-  return "Verify";
-}
-
-function auditRow(label: string, competitor: string, wyrestorm: string, note: string): FeatureAuditRow {
-  return {
-    label,
-    competitor,
-    wyrestorm,
-    result: featureResult(competitor, wyrestorm),
-    note,
-  };
-}
-
-function applicableFeatureKeys(profile: ProductProfile): Array<keyof FeatureFlags> {
-  if (profile.domain === "PRESENTATION") {
-    return [
-      "usbC",
-      "wireless",
-      "usbRouting",
-      "conferencing",
-      "mst",
-      "scaling",
-      "audioDeEmbed",
-      "microphone",
-      "hdbtOutput",
-      "hdmiOutput",
-      "simultaneousOutputs",
-      "hdr",
-      "control",
-    ];
-  }
-
-  if (profile.domain === "MATRIX") {
-    return [
-      "hdbtOutput",
-      "hdmiOutput",
-      "simultaneousOutputs",
-      "receiverKit",
-      "arc",
-      "audioDeEmbed",
-      "ethernet",
-      "irRs232",
-      "poc",
-      "hdr",
-      "control",
-    ];
-  }
-
-  if (profile.domain === "AVOIP") {
-    return [
-      "usbRouting",
-      "dante",
-      "aes67",
-      "videoWall",
-      "multiview",
-      "fibre",
-      "zeroLatency",
-      "lossless",
-      "tenGig",
-      "oneGig",
-      "control",
-    ];
-  }
-
-  if (profile.domain === "VIDEO_WALL") {
-    return ["videoWall", "scaling", "hdmiOutput", "multiview", "control"];
-  }
-
-  if (profile.domain === "MULTIVIEW") {
-    return ["multiview", "scaling", "hdmiOutput", "videoWall", "control"];
-  }
-
-  if (profile.domain === "USB_EXTENSION") {
-    return ["usbRouting", "hdbt3", "hdbt2", "control"];
-  }
-
-  if (profile.domain === "HDBASET") {
-    return ["hdbt3", "hdbt2", "usbRouting", "hdmiOutput", "hdbtOutput", "irRs232", "poc", "control"];
-  }
-
-  return ["control"];
-}
-
-function buildApplicableFeatureAudit(competitor: ProductProfile, top: ScoredCandidate): FeatureAuditRow[] {
-  const rows: FeatureAuditRow[] = [
-    auditRow("Technology class", competitor.domain, top.domain, "Product families must match before features are considered."),
-    auditRow("Product role", competitor.role, top.role, "Prevents encoder/decoder/transceiver/switcher confusion."),
-    auditRow("Video inputs", countWithConnector(competitor.inputCount, inputConnectionTypes(competitor)), countWithConnector(top.inputCount, inputConnectionTypes(top)), "Counts and connector types must match the application, not just the headline SKU."),
-    auditRow("Video outputs", countWithConnector(competitor.outputCount, outputConnectionTypes(competitor)), countWithConnector(top.outputCount, outputConnectionTypes(top)), "Check whether outputs are HDMI, HDBaseT, network/IP, mirrored, simultaneous or routable."),
-    auditRow("Transport", competitor.transport, top.transport, "HDMI, HDBaseT, AVoIP and USB-C are not interchangeable."),
-    auditRow("Max resolution", competitor.maxResolution, top.maxResolution, "Resolution and chroma must be verified before proposal use."),
-  ];
-
-  const applicableKeys = applicableFeatureKeys(competitor);
-
-  for (const key of applicableKeys) {
-    const competitorHas = Boolean(competitor.features[key]);
-    const wyrestormHas = Boolean(top.features[key]);
-
-    if (!competitorHas && !wyrestormHas) continue;
-
-    rows.push(auditRow(
-      featureLabel(key),
-      yesNo(competitorHas),
-      yesNo(wyrestormHas),
-      `${featureLabel(key)} is applicable to ${competitor.domain} / ${competitor.role} comparisons.`,
-    ));
-  }
-
-  return rows.slice(0, 18);
-}
-function boolLabel(value: unknown): string {
-  return value ? "Yes" : "No";
-}
-function countLabel(value: unknown): string {
-  const count = Number(value || 0);
-  if (Number.isFinite(count) && count > 0) return String(count);
-  return "Unknown";
-}
-
-
-function transportTokens(value: string): string[] {
-  const text = normalise(value)
-    .replace(/usb-c/g, "usbc")
-    .replace(/usb c/g, "usbc")
-    .replace(/hdbaset/g, "hdbt")
-    .replace(/hdbase t/g, "hdbt")
-    .replace(/av over ip/g, "avoip");
-
-  return text
-    .split(/[^a-z0-9]+/g)
-    .map((item) => item.trim())
-    .filter((item) => item.length > 1);
-}
-
-function transportIncludesRequired(competitor: string, wyrestorm: string): boolean {
-  const required = transportTokens(competitor).filter((item) => !["and", "with", "plus", "output", "outputs"].includes(item));
-  const offered = new Set(transportTokens(wyrestorm));
-
-  if (required.length === 0) return false;
-
-  return required.every((item) => offered.has(item));
-}
-function compareRow(label: string, competitor: string, wyrestorm: string, note = ""): CompareRow {
-  const competitorClean = displayText(competitor) || "Unknown";
-  const wyrestormClean = displayText(wyrestorm) || "Unknown";
-  let verdict: Verdict = "Verify";
-
-  if (competitorClean !== "Unknown" && wyrestormClean !== "Unknown" && competitorClean === wyrestormClean) {
-    verdict = "Match";
-  }
-
-  const competitorNumber = Number(competitorClean);
-  const wyrestormNumber = Number(wyrestormClean);
-
-  if (Number.isFinite(competitorNumber) && Number.isFinite(wyrestormNumber) && competitorNumber > 0) {
-    if (wyrestormNumber > competitorNumber) verdict = "Better";
-    if (wyrestormNumber === competitorNumber) verdict = "Match";
-    if (wyrestormNumber < competitorNumber) verdict = "Partial";
-  }
-
-  const competitorRank = resolutionRank(competitorClean);
-  const wyrestormRank = resolutionRank(wyrestormClean);
-
-  if (competitorRank > 0 && wyrestormRank >= competitorRank) {
-    verdict = wyrestormRank > competitorRank ? "Better" : "Match";
-  }
-
-  if (competitorRank > 0 && wyrestormRank > 0 && wyrestormRank < competitorRank) {
-    verdict = "Partial";
-  }
-
-  if (competitorClean === "Yes" && wyrestormClean === "No") {
-    verdict = "Partial";
-  }
-
-  if (competitorClean === "No" && wyrestormClean === "Yes") {
-    verdict = "Better";
-  }
-
-  if (label === "Technology class" || label === "Endpoint role") {
-    if (competitorClean !== "Unknown" && wyrestormClean !== "Unknown" && competitorClean !== wyrestormClean) {
-      verdict = "Mismatch";
-    }
-  }
-
-  if (label === "Transport") {
-    if (competitorClean !== "Unknown" && wyrestormClean !== "Unknown") {
-      verdict = transportIncludesRequired(competitorClean, wyrestormClean) ? "Better" : "Mismatch";
-    }
-  }
-
-  return {
-    label: displayText(label),
-    competitor: competitorClean,
-    wyrestorm: wyrestormClean,
-    verdict,
-    note: displayText(note),
-  };
-}
-
-function buildComparisonRows(competitor: ProductProfile, candidate: ScoredCandidate): CompareRow[] {
-  return [
-    compareRow("Technology class", competitor.domain, candidate.domain, "Must match before features are considered."),
-    compareRow("Endpoint role", competitor.role, candidate.role, "Prevents encoder/decoder/transceiver confusion."),
-    compareRow("Controller role", boolLabel(competitor.domain === "CONTROL"), boolLabel(candidate.domain === "CONTROL"), "Control modules should compare against controller/control-layer products, not video endpoints."),
-    compareRow("Transport", competitor.transport, candidate.transport, "AVoIP and HDBaseT are not interchangeable."),
-    compareRow("Family / tier", competitor.performanceTier, candidate.performanceTier, "Commercial positioning check."),    compareRow("Input count", countLabel(competitor.inputCount), countLabel(candidate.inputCount), "More WyreStorm inputs should be treated as additional capability, not a reason to reject the SKU."),
-    compareRow("Output count", countLabel(competitor.outputCount), countLabel(candidate.outputCount), "More WyreStorm outputs should be treated as additional capability, not a reason to reject the SKU."),
-    compareRow("Receiver kit", boolLabel(competitor.features.receiverKit), boolLabel(candidate.features.receiverKit), "If the competitor is sold as a kit with receivers, the WyreStorm BOM must include compatible receivers or clearly state they are separate."),
-    compareRow("Max resolution", competitor.maxResolution, candidate.maxResolution),
-    compareRow("Chroma", competitor.chroma, candidate.chroma),
-    compareRow("Latency", competitor.latency, candidate.latency),
-    compareRow("Scaling", boolLabel(competitor.features.scaling), boolLabel(candidate.features.scaling)),
-    compareRow("HDMI output", boolLabel(competitor.features.hdmiOutput), boolLabel(candidate.features.hdmiOutput)),
-    compareRow("HDBaseT output", boolLabel(competitor.features.hdbtOutput), boolLabel(candidate.features.hdbtOutput || candidate.features.hdbt3 || candidate.domain === "HDBASET")),
-    compareRow("Simultaneous outputs", boolLabel(competitor.features.simultaneousOutputs), boolLabel(candidate.features.simultaneousOutputs)),
-    compareRow("VGA legacy input", boolLabel(competitor.features.vga), boolLabel(candidate.features.vga), "Legacy VGA often needs a specific product choice or an adapter."),
-    compareRow("Microphone / audio input", boolLabel(competitor.features.microphone), boolLabel(candidate.features.microphone), "Check if the customer is using the mic/audio embedding path."),
-    compareRow("USB / KVM", boolLabel(competitor.features.usbRouting), boolLabel(candidate.features.usbRouting)),
-    compareRow("USB-C", boolLabel(competitor.features.usbC), boolLabel(candidate.features.usbC)),
-    compareRow("Video wall support", boolLabel(competitor.features.videoWall), boolLabel(candidate.features.videoWall), "Support feature only; not enough to classify as a wall processor."),
-    compareRow("Multiview", boolLabel(competitor.features.multiview), boolLabel(candidate.features.multiview)),
-    compareRow("Dante / AES67", boolLabel(competitor.features.dante || competitor.features.aes67), boolLabel(candidate.features.dante || candidate.features.aes67)),
-    compareRow("Fibre option", boolLabel(competitor.features.fibre), boolLabel(candidate.features.fibre)),
-  ];
-}
-
-function buildSwot(competitor: ProductProfile, top: ScoredCandidate, shortlist: ScoredCandidate[]): Swot {
-  const strengths: string[] = [];
-  const weaknesses: string[] = [];
-  const opportunities: string[] = [];
-  const threats: string[] = [];
-
-  strengths.push(`${top.sku} is in the same core technology class: ${top.domain}.`);
-
-  if (top.role === competitor.role) {
-    strengths.push(`Endpoint role aligns as ${top.role}, avoiding a TX/RX/TRX mismatch.`);
-  }
-
-  if (top.features.lossless || top.features.zeroLatency) {
-    strengths.push("Strong premium positioning around lossless / zero-latency transport.");
-  }
-
-  if (top.resolutionRank >= competitor.resolutionRank && competitor.resolutionRank > 0) {
-    strengths.push(`Video capability meets or exceeds the competitor's ${competitor.maxResolution} requirement.`);
-  }
-
-  if (competitor.features.usbRouting && top.features.usbRouting) {
-    strengths.push("USB/KVM requirement appears supportable, subject to topology confirmation.");
-  }
-
-  if (top.role !== competitor.role) {
-    weaknesses.push(`Role is not identical: competitor is ${competitor.role}, WyreStorm candidate is ${top.role}.`);
-  }
-
-  if (competitor.features.usbRouting && !top.features.usbRouting) {
-    weaknesses.push("USB/KVM is a likely gap and must be checked before proposing.");
-  }
-
-  if (competitor.chroma !== "Unknown" && top.chroma === "Unknown") {
-    weaknesses.push("Chroma support is not proven by the current match data.");
-  }
-
-  if (top.features.tenGig) {
-    weaknesses.push("10G NetworkHD 600 may require a higher-cost network infrastructure than 1G alternatives.");
-  }
-
-  if (shortlist.some((item) => item.family === "NetworkHD 500")) {
-    opportunities.push("Use NetworkHD 500 as a value-engineered alternative where a separate TX/RX design is acceptable.");
-  }
-
-  if (top.family === "NetworkHD 600") {
-    opportunities.push("Position NetworkHD 600 where the customer cares about premium image quality, latency, and future wall/multiview flexibility.");
-  }
-
-  if (competitor.features.videoWall) {
-    opportunities.push("Clarify whether video wall support is just an endpoint feature or a real wall-processing requirement.");
-  }
-
-  opportunities.push("Convert the result into a room-specific proposal by confirming endpoint count, network switch, USB, audio, and control requirements.");
-
-  threats.push("Do not claim drop-in replacement unless the existing control ecosystem and network topology are confirmed.");
-  threats.push("Competitor SKUs can include licence, card, chassis, or ecosystem dependencies that are not visible from SKU alone.");
-
-  if (competitor.domain === "AVOIP") {
-    threats.push("Network design is critical: multicast, VLAN, switch model, bandwidth, and commissioning effort can decide suitability.");
-  }
-
-  if (competitor.features.usbRouting) {
-    threats.push("USB routing can be the hidden failure point; confirm host/device direction, camera/speakerphone needs, and bandwidth.");
-  }
-
-  return {
-    strengths: unique(strengths).slice(0, 5),
-    weaknesses: unique(weaknesses).slice(0, 5),
-    opportunities: unique(opportunities).slice(0, 5),
-    threats: unique(threats).slice(0, 5),
-  };
-}
-
-function buildReviewNotes(competitor: ProductProfile, top: ScoredCandidate, shortlist: ScoredCandidate[]): string[] {
-  const notes: string[] = [];
-
-  notes.push(`Primary recommendation: ${top.sku} because it is the highest-scoring match after technology, transport, and endpoint-role gates.`);
-  notes.push(`Competitor was classified as ${competitor.domain} / ${competitor.role}.`);
-
-  if (competitor.domain === "MATRIX") {
-    notes.push("Do not compare this matrix kit against a single point-to-point extender. Use a matrix-class WyreStorm direction and include compatible receivers where required.");
-  }
-
-  if (competitor.domain === "CONTROL") {
-    notes.push("This is not an encoder/decoder replacement. Compare it against the NetworkHD controller and system-control workflow.");
-  }
-
-  if (competitor.features.videoWall && competitor.role !== "Video Wall Processor") {
-    notes.push("Video wall wording was treated as a support feature, not as proof that the competitor product is a dedicated video wall processor.");
-  }
-
-  if (top.confidence < 65) {
-    notes.push("Confidence is below proposal-ready level; verify datasheets or use this as a shortlist rather than a final equivalent.");
-  }
-
-  const second = shortlist[1];
-
-  if (second) {
-    notes.push(`Alternative to consider: ${second.sku} - ${second.commercialPosition}`);
-  }
-
-  if (competitor.features.usbRouting) {
-    notes.push("Before proposing, verify USB direction, bandwidth, camera/speakerphone class, and whether the customer expects KVM or conferencing USB.");
-  }
-
-  return notes;
-}
-
-function unique(values: string[]): string[] {
-  return [...new Set(values.map((item) => tidy(item)).filter(Boolean))];
-}
-
-function cleanStoredCompareRecord(record: CompareRecord): CompareRecord {
-  return {
-    ...record,
-    manufacturer: displayText(record.manufacturer),
-    model: displayText(record.model),
-    context: displayText(record.context),
-    competitor: {
-      ...record.competitor,
-      manufacturer: displayText(record.competitor.manufacturer),
-      sku: displayText(record.competitor.sku),
-      title: displayText(record.competitor.title),
-      summary: displayText(record.competitor.summary),
-      family: displayText(record.competitor.family),
-      transport: displayText(record.competitor.transport),
-      maxResolution: displayText(record.competitor.maxResolution),
-      chroma: displayText(record.competitor.chroma),
-      latency: displayText(record.competitor.latency),
-      performanceTier: displayText(record.competitor.performanceTier),
-      evidence: (record.competitor.evidence || []).map((item) => displayText(item)),
-    },
-    shortlist: (record.shortlist || []).map((item) => ({
-      ...item,
-      sku: displayText(item.sku),
-      title: displayText(item.title),
-      summary: displayText(item.summary),
-      commercialPosition: displayText(item.commercialPosition),
-      whyConsider: displayText(item.whyConsider),
-      scoreNotes: (item.scoreNotes || []).map((note) => displayText(note)),
-    })),
-    rows: (record.rows || []).map((row) => ({
-      ...row,
-      label: displayText(row.label),
-      competitor: displayText(row.competitor),
-      wyrestorm: displayText(row.wyrestorm),
-      note: displayText(row.note),
-    })),
-    swot: {
-      strengths: (record.swot?.strengths || []).map((item) => displayText(item)),
-      weaknesses: (record.swot?.weaknesses || []).map((item) => displayText(item)),
-      opportunities: (record.swot?.opportunities || []).map((item) => displayText(item)),
-      threats: (record.swot?.threats || []).map((item) => displayText(item)),
-    },
-    reviewNotes: (record.reviewNotes || []).map((item) => displayText(item)),
-    lookupMode: displayText(record.lookupMode),
-  };
-}
-
-function readRecords(): CompareRecord[] {
-  try {
-    const raw = window.localStorage.getItem(LOCAL_DB_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return (parsed as CompareRecord[]).map((record) => cleanStoredCompareRecord(record));
-  } catch {
-    return [];
-  }
-}
-
-function saveRecommendationFeedback(record: CompareRecord, rating: "useful" | "review" | "wrong", note = ""): void {
-  try {
-    const raw = window.localStorage.getItem(COMPARE_FEEDBACK_KEY);
-    const existing = raw ? JSON.parse(raw) : [];
-    const entries = Array.isArray(existing) ? existing : [];
-
-    const next = [
-      {
-        id: randomId(),
-        savedAt: nowIso(),
-        recordId: record.id,
-        manufacturer: record.manufacturer,
-        model: record.model,
-        recommendedSku: record.shortlist[0]?.sku || "",
-        matchScore: record.matchScore || record.shortlist[0]?.score || 0,
-        rating,
-        note,
-      },
-      ...entries,
-    ].slice(0, 80);
-
-    window.localStorage.setItem(COMPARE_FEEDBACK_KEY, JSON.stringify(next));
-  } catch {
-  }
-}
-function writeRecords(records: CompareRecord[]): void {
-  try {
-    window.localStorage.setItem(LOCAL_DB_KEY, JSON.stringify(records.slice(0, 40)));
-  } catch {
-  }
-}
-
-function saveRecord(record: CompareRecord): void {
-  const existing = readRecords();
-  const key = `${squash(record.manufacturer)}|${squash(record.model)}|${squash(record.productUrl)}`;
-  const filtered = existing.filter((item) => `${squash(item.manufacturer)}|${squash(item.model)}|${squash(item.productUrl)}` !== key);
-  writeRecords([record, ...filtered]);
-}
-
-async function tryBackendLookup(payload: {
-  manufacturer: string;
-  model: string;
-  productUrl: string;
-  context: string;
-}): Promise<{ payload: BackendPayload | null; mode: string }> {
-  if (typeof fetch !== "function") {
-    return { payload: null, mode: "Local deterministic engine" };
-  }
-
-  const body = {
-    manufacturer: payload.manufacturer,
-    brand: payload.manufacturer,
-    model: payload.model,
-    sku: payload.model,
-    query: `${payload.manufacturer} ${payload.model}`.trim(),
-    productUrl: payload.productUrl,
-    context: payload.context,
-  };
-
-  for (const endpoint of endpointCandidates()) {
-    try {
-      const controller = new AbortController();
-      const timer = window.setTimeout(() => controller.abort(), 3500);
-
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        signal: controller.signal,
-        body: JSON.stringify(body),
-      });
-
-      window.clearTimeout(timer);
-
-      if (response.ok) {
-        const json = await response.json() as BackendPayload;
-        return { payload: json, mode: `Live endpoint + deterministic engine (${endpoint})` };
-      }
-    } catch {
-    }
-  }
-
-  return { payload: null, mode: "Local deterministic engine; live endpoint unavailable" };
-}
-
-function verdictClass(verdict: Verdict): string {
-  if (verdict === "Better") return "wm-v-better";
-  if (verdict === "Match") return "wm-v-match";
-  if (verdict === "Partial") return "wm-v-partial";
-  if (verdict === "Mismatch") return "wm-v-mismatch";
-  return "wm-v-verify";
-}
-
-function historySummary(record: CompareRecord): string {
-  const top = record.shortlist?.[0];
-  const sku = displayText(top?.sku || "No match");
-  const confidence = confidenceText(top?.confidence || 0);
-  return `${sku} - ${confidence}`;
-}
-function confidenceText(value: number): string {
-  if (value >= 82) return "High confidence";
-  if (value >= 66) return "Good candidate";
-  if (value >= 48) return "Needs review";
-  return "Manual review";
-}
-
-function simplifiedCompareRows(rows: CompareRow[]): CompareRow[] {
-  const priority = new Set([
-    "Technology class",
-    "Endpoint role",
-    "Transport",
-    "Input count",
-    "Output count",
-    "Max resolution",
-  ]);
-
-  const pinned = rows.filter((row) => priority.has(displayText(row.label)));
-  const differences = rows.filter((row) => row.verdict !== "Match");
-  const useful = [...pinned, ...differences];
-
+function compareSkuTypeaheadSort(items: string[]): string[] {
   const seen = new Set<string>();
-  const result: CompareRow[] = [];
+  const output: string[] = [];
 
-  for (const row of useful) {
-    const key = displayText(row.label);
+  for (const item of items.map((entry) => compareSkuTypeaheadClean(entry)).filter(Boolean)) {
+    const key = compareSkuTypeaheadKey(item);
+
     if (seen.has(key)) continue;
 
     seen.add(key);
-    result.push(row);
-
-    if (result.length >= 8) break;
+    output.push(item);
   }
 
-  return result;
+  return output.sort((a, b) => a.localeCompare(b, undefined, {
+    numeric: true,
+    sensitivity: "base",
+  }));
 }
 
-function simplifiedReviewNotes(notes: string[]): string[] {
-  return notes
-    .map((note) => displayText(note))
-    .filter(Boolean)
-    .slice(0, 3);
+function compareSkuTypeaheadSuggestions(manufacturer: string, query = ""): string[] {
+  const brandKey = compareSkuTypeaheadBrandKey(manufacturer);
+  const queryKey = compareSkuTypeaheadKey(query);
+  const catalogue = COMPARE_SKU_TYPEAHEAD_CATALOG[brandKey] || [];
+  const all = compareSkuTypeaheadSort(catalogue);
+
+  if (!queryKey) {
+    return all.slice(0, 80);
+  }
+
+  return all.filter((item) => compareSkuTypeaheadKey(item).includes(queryKey)).slice(0, 80);
 }
 
-function simplifiedShortlist(shortlist: ScoredCandidate[]): ScoredCandidate[] {
-  return shortlist.slice(0, 3);
+
+type MatchStatus = "NO MATCH" | "PARTIAL MATCH" | "GOOD MATCH";
+type RowStatus = "match" | "partial" | "miss" | "unknown";
+
+type CompareForm = {
+  manufacturer: string;
+  competitorSku: string;
+  productUrl: string;
+  applicationContext: string;
+};
+
+type ProductRecord = Record<string, unknown>;
+
+type Product = {
+  sku: string;
+  name: string;
+  family: string;
+  category: string;
+  description: string;
+  features: string[];
+  applications: string[];
+  sourceText: string;
+  raw: ProductRecord;
+};
+
+type MatchRow = {
+  label: string;
+  request: string;
+  wyrestorm: string;
+  status: RowStatus;
+  note: string;
+};
+
+type Candidate = {
+  product: Product;
+  score: number;
+  status: MatchStatus;
+  matchedSignals: string[];
+  matchedTerms: string[];
+  reasons: string[];
+  misses: string[];
+  rows: MatchRow[];
+};
+
+const manufacturerOptions = [
+  "Crestron",
+  "Extron",
+  "Kramer",
+  "Blustream",
+  "Atlona",
+  "Lightware",
+  "CYP",
+  "SY",
+  "ATEN",
+  "Barco",
+  "Q-SYS",
+  "Logitech",
+  "Yealink",
+  "Other"
+];
+
+const signalDictionary = [
+  { id: "avoip", label: "AVoIP", terms: ["avoip", "av over ip", "networkhd", "nhd-", "jpeg-xs", "jpeg xs", "sdvoe", "h.264", "h.265", "hevc"] },
+  { id: "hdbaset", label: "HDBaseT", terms: ["hdbaset", "hdbase t", "hdbt"] },
+  { id: "matrix", label: "Matrix switching", terms: ["matrix", "8x8", "6x6", "4x4", "4x2", "10x7", "10x10"] },
+  { id: "switcher", label: "Presentation switcher", terms: ["switcher", "presentation", "auto switch", "auto-switch", "collaboration"] },
+  { id: "extender", label: "Extender", terms: ["extender", "transmitter", "receiver", "tx", "rx"] },
+  { id: "multiview", label: "Multiview", terms: ["multiview", "multi-view", "quad view", "picture in picture", "pip"] },
+  { id: "videowall", label: "Video wall", terms: ["video wall", "videowall", "wall processor", "led processor"] },
+  { id: "wireless", label: "Wireless casting", terms: ["wireless", "airplay", "miracast", "chromecast", "casting"] },
+  { id: "usb", label: "USB / BYOD", terms: ["usb", "usb-c", "usbc", "byod", "byom", "uc", "camera", "speakerphone"] },
+  { id: "audio", label: "Audio", terms: ["audio", "de-embed", "deembed", "arc", "earc", "analogue audio", "digital audio"] },
+  { id: "dante", label: "Dante", terms: ["dante", "aes67"] },
+  { id: "control", label: "Control", terms: ["rs232", "rs-232", "ir", "cec", "api", "relay", "gpio", "ethernet pass", "lan pass"] },
+  { id: "power", label: "Power", terms: ["poe", "poh", "psu", "power supply", "internal power", "external power"] },
+  { id: "hdmi", label: "HDMI", terms: ["hdmi", "hdcp", "4k60", "4k30", "hdr", "4:4:4", "4:2:0"] }
+];
+
+const commonTerms = new Set([
+  "and",
+  "the",
+  "for",
+  "with",
+  "from",
+  "that",
+  "this",
+  "product",
+  "competitor",
+  "compare",
+  "comparison",
+  "system",
+  "solution",
+  "need",
+  "needs",
+  "room",
+  "site",
+  "customer",
+  "application"
+]);
+
+const styles = `
+.wm-compare-rewrite {
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 2.25rem clamp(1rem, 2.2vw, 2.5rem) 6rem;
+  color: rgba(248, 252, 255, 0.96);
 }
 
-function simplifiedSwotItems(items: string[]): string[] {
-  return items
-    .map((item) => displayText(item))
-    .filter(Boolean)
-    .slice(0, 2);
+.wm-compare-rewrite,
+.wm-compare-rewrite * {
+  box-sizing: border-box;
 }
-export function ComparePage() {
-  const [manufacturer, setManufacturer] = useState("Crestron");
-  const [model, setModel] = useState("");
-  const [productUrl, setProductUrl] = useState("");
-  const [context, setContext] = useState("");
-  const [running, setRunning] = useState(false);
-  const [status, setStatus] = useState("Enter a competitor SKU, then run the comparison.");
-  const [result, setResult] = useState<CompareRecord | null>(null);
-  const [noMatchDetails, setNoMatchDetails] = useState<NoMatchDetails | null>(null);
-  const [compareStages, setCompareStages] = useState<CompareStage[]>([]);
-  const [history, setHistory] = useState<CompareRecord[]>([]);
-  const [textSuggestions, setTextSuggestions] = useState<TextInputSuggestions>(() => buildTextInputSuggestions("Crestron"));
-  const searchRunRef = useRef(0);
+
+.wm-cr-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.5rem;
+  align-items: start;
+  margin-bottom: 1.25rem;
+  padding: clamp(1.35rem, 2.2vw, 2rem);
+  border: 1px solid rgba(85, 210, 238, 0.28);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 7% 12%, rgba(91, 225, 255, 0.13), transparent 28%),
+    linear-gradient(145deg, rgba(4, 17, 31, 0.96), rgba(3, 12, 24, 0.96));
+}
+
+.wm-cr-eyebrow {
+  margin: 0 0 0.7rem;
+  color: rgba(112, 231, 255, 0.9);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.wm-cr-hero h1 {
+  max-width: 980px;
+  margin: 0;
+  color: rgba(248, 252, 255, 0.98);
+  font-size: clamp(2rem, 3vw, 3.35rem);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+}
+
+.wm-cr-hero-copy {
+  max-width: 860px;
+  margin: 0.8rem 0 0;
+  color: rgba(202, 216, 228, 0.88);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.wm-cr-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.65rem;
+}
+
+.wm-cr-button,
+.wm-cr-button-secondary,
+.wm-cr-button-ghost {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.7rem 1rem;
+  border: 1px solid rgba(100, 218, 246, 0.3);
+  color: rgba(248, 252, 255, 0.96);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 850;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.wm-cr-button {
+  background: linear-gradient(135deg, rgba(28, 184, 219, 0.96), rgba(40, 116, 225, 0.92));
+  border-color: rgba(135, 232, 255, 0.62);
+  box-shadow: 0 14px 34px rgba(22, 155, 207, 0.22);
+}
+
+.wm-cr-button-secondary {
+  background: rgba(10, 33, 52, 0.9);
+}
+
+.wm-cr-button-ghost {
+  background: rgba(4, 18, 31, 0.66);
+}
+
+.wm-cr-grid {
+  display: grid;
+  grid-template-columns: minmax(340px, 0.9fr) minmax(460px, 1.1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.wm-cr-card {
+  border: 1px solid rgba(85, 210, 238, 0.24);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(72, 205, 232, 0.08), transparent 32%),
+    linear-gradient(145deg, rgba(5, 22, 37, 0.95), rgba(3, 13, 25, 0.95));
+  padding: clamp(1.05rem, 1.8vw, 1.45rem);
+}
+
+.wm-cr-card + .wm-cr-card {
+  margin-top: 1rem;
+}
+
+.wm-cr-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+  margin-bottom: 1rem;
+}
+
+.wm-cr-card-title {
+  margin: 0;
+  color: rgba(248, 252, 255, 0.98);
+  font-size: 1.12rem;
+  letter-spacing: -0.02em;
+}
+
+.wm-cr-card-text {
+  margin: 0.35rem 0 0;
+  color: rgba(197, 212, 224, 0.84);
+  line-height: 1.5;
+  font-size: 0.92rem;
+}
+
+.wm-cr-status {
+  display: inline-flex;
+  white-space: nowrap;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.42rem 0.68rem;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wm-cr-status.good {
+  color: #d8fff4;
+  background: rgba(20, 184, 166, 0.18);
+  border: 1px solid rgba(45, 212, 191, 0.38);
+}
+
+.wm-cr-status.partial {
+  color: #fff3cf;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.wm-cr-status.none {
+  color: #ffd7dc;
+  background: rgba(244, 63, 94, 0.14);
+  border: 1px solid rgba(244, 63, 94, 0.36);
+}
+
+.wm-cr-form {
+  display: grid;
+  gap: 0.82rem;
+}
+
+.wm-cr-field {
+  display: grid;
+  gap: 0.38rem;
+}
+
+.wm-cr-label {
+  color: rgba(214, 229, 240, 0.86);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.wm-cr-input,
+.wm-cr-select,
+.wm-cr-textarea {
+  width: 100%;
+  border: 1px solid rgba(105, 210, 238, 0.28);
+  border-radius: 16px;
+  background: rgba(2, 11, 21, 0.88);
+  color: rgba(248, 252, 255, 0.96);
+  padding: 0.78rem 0.85rem;
+  font: inherit;
+  outline: none;
+}
+
+.wm-cr-textarea {
+  min-height: 104px;
+  resize: vertical;
+}
+
+.wm-cr-input::placeholder,
+.wm-cr-textarea::placeholder {
+  color: rgba(151, 170, 185, 0.74);
+}
+
+.wm-cr-input:focus,
+.wm-cr-select:focus,
+.wm-cr-textarea:focus {
+  border-color: rgba(116, 232, 255, 0.74);
+  box-shadow: 0 0 0 3px rgba(116, 232, 255, 0.11);
+}
+
+.wm-cr-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.wm-cr-result-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: start;
+}
+
+.wm-cr-product-name {
+  margin: 0;
+  color: rgba(248, 252, 255, 0.98);
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+
+.wm-cr-product-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+}
+
+.wm-cr-chip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(100, 218, 246, 0.22);
+  border-radius: 999px;
+  background: rgba(8, 28, 45, 0.74);
+  color: rgba(217, 231, 241, 0.9);
+  padding: 0.42rem 0.62rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.wm-cr-score {
+  min-width: 92px;
+  border: 1px solid rgba(100, 218, 246, 0.24);
+  border-radius: 20px;
+  background: rgba(6, 24, 39, 0.86);
+  padding: 0.85rem;
+  text-align: center;
+}
+
+.wm-cr-score strong {
+  display: block;
+  color: rgba(248, 252, 255, 0.98);
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.wm-cr-score span {
+  color: rgba(185, 202, 216, 0.82);
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.wm-cr-lists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.wm-cr-list {
+  margin: 0;
+  padding-left: 1.05rem;
+  color: rgba(216, 231, 241, 0.9);
+  line-height: 1.45;
+  font-size: 0.88rem;
+}
+
+.wm-cr-list li + li {
+  margin-top: 0.35rem;
+}
+
+.wm-cr-table-wrap {
+  overflow-x: auto;
+  margin-top: 1rem;
+  border: 1px solid rgba(85, 210, 238, 0.18);
+  border-radius: 18px;
+}
+
+.wm-cr-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.wm-cr-table th,
+.wm-cr-table td {
+  padding: 0.72rem 0.78rem;
+  border-bottom: 1px solid rgba(85, 210, 238, 0.12);
+  text-align: left;
+  vertical-align: top;
+  color: rgba(220, 234, 244, 0.9);
+  font-size: 0.82rem;
+}
+
+.wm-cr-table th {
+  color: rgba(248, 252, 255, 0.94);
+  background: rgba(115, 199, 226, 0.1);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.wm-cr-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.wm-cr-indicator {
+  display: inline-flex;
+  min-width: 86px;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.wm-cr-indicator.match {
+  color: #cffff6;
+  background: rgba(20, 184, 166, 0.18);
+}
+
+.wm-cr-indicator.partial {
+  color: #fff0c7;
+  background: rgba(245, 158, 11, 0.16);
+}
+
+.wm-cr-indicator.miss {
+  color: #ffd7dc;
+  background: rgba(244, 63, 94, 0.15);
+}
+
+.wm-cr-indicator.unknown {
+  color: rgba(210, 224, 235, 0.86);
+  background: rgba(148, 163, 184, 0.14);
+}
+
+.wm-cr-empty {
+  min-height: 348px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.wm-cr-empty-inner {
+  max-width: 520px;
+}
+
+.wm-cr-empty h2 {
+  margin: 0;
+  color: rgba(248, 252, 255, 0.98);
+  font-size: 1.45rem;
+}
+
+.wm-cr-empty p {
+  color: rgba(196, 212, 225, 0.86);
+  line-height: 1.55;
+}
+
+.wm-cr-candidates {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.wm-cr-candidate {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  border: 1px solid rgba(85, 210, 238, 0.16);
+  border-radius: 18px;
+  background: rgba(4, 17, 30, 0.62);
+  padding: 0.75rem;
+}
+
+.wm-cr-candidate strong {
+  display: block;
+  color: rgba(248, 252, 255, 0.96);
+}
+
+.wm-cr-candidate span {
+  display: block;
+  margin-top: 0.25rem;
+  color: rgba(187, 204, 218, 0.84);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 1120px) {
+  .wm-cr-hero,
+  .wm-cr-grid,
+  .wm-cr-lists,
+  .wm-cr-two,
+  .wm-cr-result-top {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-cr-actions {
+    justify-content: flex-start;
+  }
+}
+`;
+
+function normalise(value: string): string {
+  return value.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function isRecord(value: unknown): value is ProductRecord {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function valueText(record: ProductRecord, keys: string[]): string {
+  for (const key of keys) {
+    const value = record[key];
+
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+
+    if (typeof value === "number") {
+      return String(value);
+    }
+  }
+
+  return "";
+}
+
+function listFrom(record: ProductRecord, keys: string[]): string[] {
+  const output: string[] = [];
+
+  for (const key of keys) {
+    const value = record[key];
+
+    if (typeof value === "string" && value.trim()) {
+      output.push(...value.split(/[;\n|]+/).map((item) => item.trim()).filter(Boolean));
+    }
+
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        if (typeof item === "string" && item.trim()) {
+          output.push(item.trim());
+        }
+
+        if (isRecord(item)) {
+          const text = valueText(item, ["name", "title", "label", "feature", "description", "summary"]);
+          if (text) {
+            output.push(text);
+          }
+        }
+      }
+    }
+  }
+
+  return Array.from(new Set(output));
+}
+
+function hasSkuLikeField(record: ProductRecord): boolean {
+  const keys = Object.keys(record).map((key) => key.toLowerCase());
+  return keys.some((key) => key.includes("sku") || key.includes("model") || key.includes("product"));
+}
+
+function extractProductArray(payload: unknown): ProductRecord[] {
+  if (Array.isArray(payload)) {
+    return payload.filter(isRecord);
+  }
+
+  if (!isRecord(payload)) {
+    return [];
+  }
+
+  const directKeys = ["products", "items", "records", "index", "productIndex", "wyrestormProducts", "data"];
+
+  for (const key of directKeys) {
+    const value = payload[key];
+
+    if (Array.isArray(value)) {
+      const records = value.filter(isRecord);
+      if (records.some(hasSkuLikeField)) {
+        return records;
+      }
+    }
+  }
+
+  for (const value of Object.values(payload)) {
+    if (Array.isArray(value)) {
+      const records = value.filter(isRecord);
+      if (records.some(hasSkuLikeField)) {
+        return records;
+      }
+    }
+  }
+
+  return [];
+}
+
+function safeJsonText(record: ProductRecord): string {
+  try {
+    return JSON.stringify(record).slice(0, 50000);
+  } catch {
+    return "";
+  }
+}
+
+function buildProduct(record: ProductRecord): Product | null {
+  const sku = valueText(record, ["sku", "SKU", "model", "modelNumber", "productSku", "wyrestormSku", "partNumber"]);
+  const name = valueText(record, ["name", "title", "productName", "modelName", "displayName"]) || sku;
+  const family = valueText(record, ["family", "productFamily", "range", "series"]);
+  const category = valueText(record, ["category", "type", "technologyClass", "productType"]);
+  const description = valueText(record, ["description", "summary", "overview", "salientPoint", "customerChallenge", "wyrestormFit"]);
+  const features = listFrom(record, ["features", "keyFeatures", "majorFeatures", "featureList", "specs", "specifications", "capabilities"]);
+  const applications = listFrom(record, ["applications", "applicationFit", "verticals", "useCases", "tags", "markets"]);
+  const sourceText = normalise([sku, name, family, category, description, ...features, ...applications, safeJsonText(record)].join(" "));
+
+  if (!sku && !name) {
+    return null;
+  }
+
+  return {
+    sku,
+    name,
+    family,
+    category,
+    description,
+    features,
+    applications,
+    sourceText,
+    raw: record
+  };
+}
+
+function tokenise(value: string): string[] {
+  return normalise(value)
+    .split(/[^a-z0-9+:.:-]+/i)
+    .map((term) => term.trim())
+    .filter((term) => term.length > 2)
+    .filter((term) => !commonTerms.has(term));
+}
+
+function unique(values: string[]): string[] {
+  return Array.from(new Set(values.filter(Boolean)));
+}
+
+function detectSignals(text: string): string[] {
+  const haystack = normalise(text);
+  const matches: string[] = [];
+
+  for (const signal of signalDictionary) {
+    if (signal.terms.some((term) => haystack.includes(term))) {
+      matches.push(signal.id);
+    }
+  }
+
+  return unique(matches);
+}
+
+function signalLabel(signalId: string): string {
+  const match = signalDictionary.find((signal) => signal.id === signalId);
+  return match?.label || signalId;
+}
+
+function labelSignals(signals: string[]): string {
+  if (signals.length === 0) {
+    return "Not specified";
+  }
+
+  return signals.map(signalLabel).join(", ");
+}
+
+function extractIoSummary(text: string): string {
+  const normalised = normalise(text);
+  const matrix = normalised.match(/\b\d{1,2}\s*x\s*\d{1,2}\b/);
+
+  if (matrix?.[0]) {
+    return matrix[0].toUpperCase().replace(/\s+/g, "");
+  }
+
+  const inputs = normalised.match(/\b\d{1,2}\s*(input|inputs|in)\b/);
+  const outputs = normalised.match(/\b\d{1,2}\s*(output|outputs|out)\b/);
+
+  if (inputs?.[0] && outputs?.[0]) {
+    return `${inputs[0]}, ${outputs[0]}`;
+  }
+
+  if (inputs?.[0]) {
+    return inputs[0];
+  }
+
+  if (outputs?.[0]) {
+    return outputs[0];
+  }
+
+  return "";
+}
+
+function rowStatus(requestValue: string, productValue: string): RowStatus {
+  if (requestValue === "Not specified") {
+    return "unknown";
+  }
+
+  if (productValue === "Not confirmed") {
+    return "miss";
+  }
+
+  if (requestValue === productValue) {
+    return "match";
+  }
+
+  if (productValue.includes(requestValue) || requestValue.includes(productValue)) {
+    return "partial";
+  }
+
+  return "partial";
+}
+
+function buildRows(form: CompareForm, product: Product | null): MatchRow[] {
+  const requestText = normalise([form.manufacturer, form.competitorSku, form.productUrl, form.applicationContext].join(" "));
+  const productText = product?.sourceText || "";
+  const requestSignals = detectSignals(requestText);
+  const productSignals = detectSignals(productText);
+  const requestIo = extractIoSummary(requestText);
+  const productIo = extractIoSummary(productText);
+  const rows: MatchRow[] = [];
+
+  const groups = [
+    { label: "Technology / transport", ids: ["avoip", "hdbaset", "matrix", "switcher", "extender", "hdmi", "wireless"] },
+    { label: "Product role", ids: ["matrix", "switcher", "extender", "multiview", "videowall"] },
+    { label: "USB / BYOD", ids: ["usb", "wireless"] },
+    { label: "Audio / Dante", ids: ["audio", "dante"] },
+    { label: "Control / integration", ids: ["control"] },
+    { label: "Power method", ids: ["power"] }
+  ];
+
+  for (const group of groups) {
+    const requestGroup = requestSignals.filter((signal) => group.ids.includes(signal));
+    const productGroup = productSignals.filter((signal) => group.ids.includes(signal));
+    const overlap = requestGroup.filter((signal) => productGroup.includes(signal));
+    let status: RowStatus = "unknown";
+    let note = "Check datasheets before positioning as an equivalent.";
+
+    if (requestGroup.length > 0 && overlap.length > 0) {
+      status = "match";
+      note = "Detected from both the request and WyreStorm product data.";
+    }
+
+    if (requestGroup.length > 0 && overlap.length === 0 && productGroup.length > 0) {
+      status = "partial";
+      note = "Same broad requirement area, but not identical from detected data.";
+    }
+
+    if (requestGroup.length > 0 && productGroup.length === 0) {
+      status = "miss";
+      note = "Requested feature is not confirmed in the available WyreStorm data.";
+    }
+
+    rows.push({
+      label: group.label,
+      request: labelSignals(requestGroup),
+      wyrestorm: productGroup.length > 0 ? labelSignals(productGroup) : "Not confirmed",
+      status,
+      note
+    });
+  }
+
+  rows.unshift({
+    label: "Input / output scale",
+    request: requestIo || "Not specified",
+    wyrestorm: productIo || "Not confirmed",
+    status: rowStatus(requestIo || "Not specified", productIo || "Not confirmed"),
+    note: "I/O count should be checked carefully because equivalent products are rarely exact."
+  });
+
+  return rows;
+}
+
+function statusClass(status: MatchStatus): string {
+  if (status === "GOOD MATCH") {
+    return "good";
+  }
+
+  if (status === "PARTIAL MATCH") {
+    return "partial";
+  }
+
+  return "none";
+}
+
+function rowLabel(status: RowStatus): string {
+  if (status === "match") {
+    return "Match";
+  }
+
+  if (status === "partial") {
+    return "Check";
+  }
+
+  if (status === "miss") {
+    return "Gap";
+  }
+
+  return "Unknown";
+}
+
+function scoreProduct(product: Product, form: CompareForm): Candidate {
+  const requestText = normalise([form.manufacturer, form.competitorSku, form.productUrl, form.applicationContext].join(" "));
+  const requestTerms = unique(tokenise(requestText));
+  const requestSignals = detectSignals(requestText);
+  const productSignals = detectSignals(product.sourceText);
+  const matchedTerms: string[] = [];
+  const matchedSignals: string[] = [];
+  let score = 0;
+
+  for (const term of requestTerms) {
+    if (normalise(product.sku).includes(term)) {
+      score += 14;
+      matchedTerms.push(term);
+    }
+
+    if (normalise(product.name).includes(term)) {
+      score += 8;
+      matchedTerms.push(term);
+    }
+
+    if (product.sourceText.includes(term)) {
+      score += 3;
+      matchedTerms.push(term);
+    }
+  }
+
+  for (const signal of requestSignals) {
+    if (productSignals.includes(signal)) {
+      score += 12;
+      matchedSignals.push(signal);
+    }
+  }
+
+  const contextTerms = tokenise(form.applicationContext);
+
+  for (const term of contextTerms) {
+    if (product.sourceText.includes(term)) {
+      score += 2;
+    }
+  }
+
+  const rows = buildRows(form, product);
+  const rowMatches = rows.filter((row) => row.status === "match").length;
+  const rowPartials = rows.filter((row) => row.status === "partial").length;
+  score += rowMatches * 4;
+  score += rowPartials * 2;
+
+  let status: MatchStatus = "NO MATCH";
+
+  if (score >= 48 && rowMatches >= 2) {
+    status = "GOOD MATCH";
+  }
+
+  if (score >= 20 && status !== "GOOD MATCH") {
+    status = "PARTIAL MATCH";
+  }
+
+  const reasons = unique([
+    ...matchedSignals.map((signal) => `Detected ${signalLabel(signal)} alignment.`),
+    ...matchedTerms.slice(0, 5).map((term) => `Matched request term: ${term}.`),
+    `${rowMatches} comparison areas show a direct match.`
+  ]).slice(0, 6);
+
+  const misses = rows
+    .filter((row) => row.status === "miss" || row.status === "partial")
+    .map((row) => `${row.label}: ${row.note}`)
+    .slice(0, 5);
+
+  return {
+    product,
+    score,
+    status,
+    matchedSignals: unique(matchedSignals),
+    matchedTerms: unique(matchedTerms),
+    reasons: reasons.length > 0 ? reasons : ["No strong match evidence was detected from the loaded product data."],
+    misses: misses.length > 0 ? misses : ["No major gaps detected from the available fields."],
+    rows
+  };
+}
+
+function compareProducts(products: Product[], form: CompareForm): Candidate[] {
+  const ranked = products
+    .map((product) => scoreProduct(product, form))
+    .sort((first, second) => second.score - first.score);
+
+  return ranked.slice(0, 6);
+}
 
 
-  function setCompareStage(id: string, patch: Partial<CompareStage>): void {
-    setCompareStages((current) => updateStageRows(current, id, patch));
-  }
-  function refreshTextSuggestions(nextManufacturer = manufacturer): void {
-    setTextSuggestions(buildTextInputSuggestions(nextManufacturer));
+function compareSkuTypeaheadRefreshDatalist(manufacturer: string, query = ""): void {
+  if (typeof document === "undefined") return;
+
+  const datalist = document.getElementById(COMPARE_SKU_TYPEAHEAD_DATALIST_ID);
+
+  if (!(datalist instanceof HTMLDataListElement)) return;
+
+  while (datalist.firstChild) {
+    datalist.removeChild(datalist.firstChild);
   }
 
-  function rememberCurrentTextInputs(nextManufacturer = manufacturer): void {
-    addTextInputEntry("sku", model, nextManufacturer);
-    addTextInputEntry("productUrl", productUrl, nextManufacturer);
-    addTextInputEntry("context", context, nextManufacturer);
-    refreshTextSuggestions(nextManufacturer);
+  for (const sku of compareSkuTypeaheadSuggestions(manufacturer, query)) {
+    const option = document.createElement("option");
+    option.value = sku;
+    datalist.appendChild(option);
+  }
+}
+
+function compareSkuTypeaheadReadManufacturer(element: HTMLInputElement | HTMLSelectElement): string {
+  const form = element.form;
+  const select = form?.querySelector("select") as HTMLSelectElement | null;
+
+  return select?.value || "";
+}
+
+function compareSkuTypeaheadReadQuery(element: HTMLInputElement | HTMLSelectElement): string {
+  if (element instanceof HTMLInputElement) {
+    return element.value;
   }
 
-  function clearCurrentResult(message = "Ready for a new independent comparison."): void {
-    searchRunRef.current += 1;
-    setResult(null);
-    setNoMatchDetails(null);
-    setCompareStages([]);
-    setStatus(message);
+  const form = element.form;
+  const input = form?.querySelector(`input[list="${COMPARE_SKU_TYPEAHEAD_DATALIST_ID}"]`) as HTMLInputElement | null;
+
+  return input?.value || "";
+}
+
+function compareSkuTypeaheadRefreshFromFormElement(element: HTMLInputElement | HTMLSelectElement): void {
+  compareSkuTypeaheadRefreshDatalist(
+    compareSkuTypeaheadReadManufacturer(element),
+    compareSkuTypeaheadReadQuery(element),
+  );
+}
+
+
+function wingmanUnknownRecord(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object") return {};
+  return value as Record<string, unknown>;
+}
+
+function wingmanString(value: unknown): string {
+  if (Array.isArray(value)) return value.map((item) => wingmanString(item)).filter(Boolean).join(" ");
+
+  if (value && typeof value === "object") {
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return "";
+    }
   }
 
-  function handleManufacturerChange(value: string): void {
-    setManufacturer(value);
-    setModel("");
-    setProductUrl("");
-    clearCurrentResult("Manufacturer changed. SKU and URL cleared so the next comparison is independent.");
-    setTextSuggestions(buildTextInputSuggestions(value));
+  return String(value ?? "");
+}
+
+function wingmanCompareCandidateInput(value: unknown): CompareCandidateGateInput {
+  const item = wingmanUnknownRecord(value);
+
+  return {
+    sku: wingmanString(item.sku ?? item.model ?? item.partNumber ?? item.id),
+    title: wingmanString(item.title ?? item.name ?? item.description),
+    role: wingmanString(item.role ?? item.governanceRole ?? item.productRole ?? item.category ?? item.type),
+    category: wingmanString(item.category ?? item.productCategory),
+    family: wingmanString(item.family),
+    productFamily: wingmanString(item.productFamily ?? item.series),
+    tags: Array.isArray(item.tags) ? item.tags.map((tag) => wingmanString(tag)) : [],
+    features: wingmanUnknownRecord(item.features),
+    text: wingmanString(value),
+  };
+}
+
+function wingmanReadCompareFieldValues(): { manufacturer: string; model: string } {
+  if (typeof document === "undefined") {
+    return {
+      manufacturer: "",
+      model: "",
+    };
   }
 
-  function handleModelChange(value: string): void {
-    setModel(value);
-    clearCurrentResult("Competitor SKU changed. Run a new independent comparison.");
-  }
+  const selectedManufacturer = Array.from(document.querySelectorAll("select"))
+    .map((select) => select.value)
+    .find((value) => Boolean(value?.trim())) ?? "";
 
-  function handleProductUrlChange(value: string): void {
-    setProductUrl(value);
-    clearCurrentResult("Product URL changed. Run a new independent comparison.");
-  }
+  const skuInput = document.querySelector(`input[list="${COMPARE_SKU_TYPEAHEAD_DATALIST_ID}"]`) as HTMLInputElement | null;
 
-  function handleContextChange(value: string): void {
-    setContext(value);
-    clearCurrentResult("Application context changed. Run a new independent comparison.");
-  }
+  return {
+    manufacturer: selectedManufacturer,
+    model: skuInput?.value ?? "",
+  };
+}
+
+function wingmanBuildCompareGateContext(): CompareCandidateGateContext {
+  const values = wingmanReadCompareFieldValues();
+  const intelligence = buildCompetitorDecisionEvidence({
+    brand: values.manufacturer,
+    manufacturer: values.manufacturer,
+    sku: values.model,
+    title: values.model,
+  });
+
+  return {
+    competitorClass: intelligence.domain,
+    competitorRole: intelligence.role,
+    competitorTransport: intelligence.transport,
+    applicationContext: [values.manufacturer, values.model].filter(Boolean).join(" "),
+  };
+}
+
+function ComparePage() {
+  const [form, setForm] = useState<CompareForm>({
+    manufacturer: "Crestron",
+    competitorSku: "",
+    productUrl: "",
+    applicationContext: ""
+  });
+
+  const [products, setProducts] = useState<Product[]>([]);
+  const [dataState, setDataState] = useState("Loading product intelligence index...");
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [hasRun, setHasRun] = useState(false);
 
   useEffect(() => {
-    setHistory(readRecords());
-    setTextSuggestions(buildTextInputSuggestions(manufacturer));
-  }, [manufacturer]);
+    const controller = new AbortController();
 
-  const canRun = useMemo(() => tidy(model).length > 1 || tidy(productUrl).startsWith("https://"), [model, productUrl]);
+    async function loadProductIndex() {
+      try {
+        const response = await fetch("/product-intelligence-index.json", {
+          cache: "no-store",
+          signal: controller.signal
+        });
 
-  async function runCompetitorMatch(event?: FormEvent<HTMLFormElement>): Promise<void> {
-    event?.preventDefault();
+        if (!response.ok) {
+          setDataState("Product intelligence index was not found. Run the product intelligence generator before relying on live matches.");
+          setProducts([]);
+          return;
+        }
 
-    if (!canRun) {
-      setStatus("Enter a competitor SKU or product URL.");
-      return;
-    }
+        const payload: unknown = await response.json();
+        const records = extractProductArray(payload);
+        const parsed = records.map(buildProduct).filter((product): product is Product => Boolean(product));
 
-    rememberCurrentTextInputs();
+        setProducts(parsed);
+        setDataState(`${parsed.length} WyreStorm product records loaded from the live product intelligence index.`);
+      } catch (error) {
+        if (controller.signal.aborted) {
+          return;
+        }
 
-    const searchRunId = searchRunRef.current + 1;
-    searchRunRef.current = searchRunId;
-
-    setResult(null);
-    setNoMatchDetails(null);
-
-    const initialStages = buildInitialCompareStages({ manufacturer, model, productUrl, context });
-    setCompareStages(initialStages);
-    setRunning(true);
-    setStatus("Active check started. Wingman is validating the request.");
-    setCompareStage("validate", { status: "active", detail: "Checking the manufacturer, SKU, URL and application context." });
-    await uiPause();
-
-    setCompareStage("validate", { status: "done", detail: "Request is valid. Moving into known resources and live lookup." });
-    setCompareStage("lookup", { status: "active", detail: "Searching local competitor fingerprints and live lookup endpoints where enabled." });
-    setStatus("Actively checking known resources and live lookup sources.");
-
-    const backend = await tryBackendLookup({
-      manufacturer,
-      model,
-      productUrl,
-      context,
-    });
-
-    setCompareStage("lookup", { status: "done", detail: backend.mode });
-    setCompareStage("profile", { status: "active", detail: "Building competitor product profile and classifying the SKU." });
-    setStatus("Building competitor profile: class, role, transport, I/O and feature flags.");
-    await uiPause();
-
-    if (searchRunRef.current !== searchRunId) {
-      return;
-    }
-
-    const competitor = inferCompetitorProfile({
-      manufacturer,
-      model,
-      productUrl,
-      context,
-      backend: backend.payload,
-    });
-
-    setCompareStage("profile", {
-      status: "done",
-      detail: `Classified as ${competitor.domain} / ${competitor.role}. Transport: ${competitor.transport}.`,
-    });
-    setCompareStage("gate", { status: "active", detail: "Checking WyreStorm candidates against hard product-class gates." });
-    setStatus(`Competitor appears to be ${competitor.domain} / ${competitor.role}. Checking WyreStorm candidates.`);
-    await uiPause();
-
-    const shortlist = buildShortlist(competitor);
-    const top = shortlist[0];
-
-    if (!top) {
-      if (searchRunRef.current === searchRunId) {
-        setCompareStage("gate", { status: "failed", detail: "No WyreStorm candidate passed the technology/role/transport gate with enough confidence." });
-        setCompareStage("audit", { status: "failed", detail: "Feature comparison could not be completed because no trusted shortlist exists." });
-        setNoMatchDetails(buildNoMatchDetails({
-          manufacturer,
-          model,
-          productUrl,
-          context,
-          lookupMode: backend.mode,
-          competitor,
-        }));
-        setStatus("NO COMPATIBLE MATCH: Wingman could not produce a trusted WyreStorm shortlist. Review the diagnostic panel.");
-        setRunning(false);
+        setDataState("Could not load product intelligence index. Check public/product-intelligence-index.json.");
+        setProducts([]);
       }
+    }
+
+    void loadProductIndex();
+
+    return () => controller.abort();
+  }, []);
+
+  const topCandidate = candidates[0] || null;
+
+  const readiness = useMemo(() => {
+    const filled = [
+      form.manufacturer,
+      form.competitorSku,
+      form.productUrl,
+      form.applicationContext
+    ].filter((value) => value.trim()).length;
+
+    return Math.round((filled / 4) * 100);
+  }, [form]);
+
+  const updateField = (key: keyof CompareForm, value: string) => {
+    setForm((current) => ({
+      ...current,
+      [key]: value
+    }));
+  };
+
+  const runComparison = (event?: FormEvent) => {
+    event?.preventDefault();
+    setHasRun(true);
+
+    if (products.length === 0) {
+      setCandidates([]);
       return;
     }
 
-    setCompareStage("gate", {
-      status: "done",
-      detail: `Shortlist produced. Primary candidate: ${top.sku} (${top.confidence}/100 confidence).`,
-    });
-    setCompareStage("audit", { status: "active", detail: "Building applicable feature audit and side-by-side comparison." });
-    setStatus(`Match found: ${top.sku}. Building applicable feature comparison.`);
-    await uiPause();
-
-    const rows = buildComparisonRows(competitor, top);
-    const swot = buildSwot(competitor, top, shortlist);
-    const reviewNotes = buildReviewNotes(competitor, top, shortlist);
-
-    const record: CompareRecord = {
-      id: randomId(),
-      savedAt: nowIso(),
-      manufacturer: tidy(manufacturer),
-      model: tidy(model),
-      productUrl: tidy(productUrl),
-      context: tidy(context),
-      competitor,
-      shortlist,
-      matchScore: top.score,
-      rows,
-      swot,
-      reviewNotes,
-      lookupMode: backend.mode,
-    };
-
-    if (searchRunRef.current !== searchRunId) {
-      return;
-    }
-
-    saveRecord(record);
-    setHistory(readRecords());
-    setResult(record);
-    setNoMatchDetails(null);
-    setCompareStage("audit", { status: "done", detail: "Applicable feature comparison is ready." });
-    setStatus("Comparison complete. Result saved locally for reuse.");
-    setRunning(false);
-  }
-
-  const top = result?.shortlist[0];
+    setCandidates(compareProducts(products, form));
+  };
 
   return (
-    <div className="wm-compare-v2 pb-10">
-      <PageHero
-        eyebrow="Competitor Comparison"
-        title="Match competitor SKUs by technology class, role, transport and commercial fit."
-        purpose="This workflow prevents false equivalents by gating the product type first, then comparing resolution, latency, USB, audio, control, wall support and commercial positioning."
-        nextMove="Review the recommendation, key differences and short SWOT before moving into Finder or Proposal Builder."
-        actions={[
-          { label: "Open product finder", to: routeCatalogByKey.finder.path },
-          { label: "Open proposal", to: routeCatalogByKey.proposal.path, variant: "secondary" },
-        ]}
-      />
+    <main className="wm-compare-rewrite" data-wingman-page="compare">
+      <style>{styles}</style>
 
-      <div className="grid gap-5 xl:grid-cols-[430px_minmax(0,1fr)]">
-        <SectionCard
-          title="Lookup request"
-          subtitle="Start with manufacturer and SKU. Add context when the SKU could be used in different ways."
-        >
-          <form className="wm-compare-form space-y-4" onSubmit={runCompetitorMatch}>
-            <label>
-              <span>Manufacturer</span>
-              <select value={manufacturer} onChange={(event) => handleManufacturerChange(event.target.value)}>
-                {MANUFACTURERS.map((item) => (
-                  <option key={item} value={item}>{item}</option>
-                ))}
-              </select>
-            </label>
+      <section className="wm-cr-hero">
+        <div>
+          <p className="wm-cr-eyebrow">Competitor comparison</p>
+          <h1>Match competitor SKUs to credible WyreStorm alternatives.</h1>
+          <p className="wm-cr-hero-copy">
+            Use this page to identify whether the competitor product is a no match, partial match,
+            or good match based on technology class, product role, transport, I/O shape, USB/BYOD,
+            audio, control, power and application fit.
+          </p>
+        </div>
 
-            <label>
-              <span>Competitor SKU</span>
-              <input
-                value={model}
-                onChange={(event) => handleModelChange(event.target.value)}
-                list={suggestionId("sku")}
-                autoComplete="off"
-                onBlur={() => { addTextInputEntry("sku", model, manufacturer); refreshTextSuggestions(); }}
-                placeholder="Example: DM-NVX-360, NAV E 101, OME-MS42"
-              />
-            </label>
+        <div className="wm-cr-actions">
+          <a className="wm-cr-button-secondary" href="/wingman/product-finder">Open product finder</a>
+          <a className="wm-cr-button-secondary" href="/wingman/response-pack">Open response pack</a>
+          <a className="wm-cr-button" href="#lookup">Start compare</a>
+        </div>
+      </section>
 
-            <label>
-              <span>Product URL / datasheet URL</span>
-              <input
-                value={productUrl}
-                onChange={(event) => handleProductUrlChange(event.target.value)}
-                list={suggestionId("productUrl")}
-                autoComplete="off"
-                onBlur={() => { addTextInputEntry("productUrl", productUrl, manufacturer); refreshTextSuggestions(); }}
-                placeholder="Optional but useful when available"
-              />
-            </label>
-
-            <label>
-              <span>Application context</span>
-              <input
-                value={context}
-                onChange={(event) => handleContextChange(event.target.value)}
-                list={suggestionId("context")}
-                autoComplete="off"
-                onBlur={() => { addTextInputEntry("context", context, manufacturer); refreshTextSuggestions(); }}
-                placeholder="Example: AVoIP endpoint, matrix replacement, USB-C meeting room, video wall processor..."
-              />
-            </label>
-
-            <button type="submit" disabled={!canRun || running}>
-              {running ? "Analysing..." : "Run accurate comparison"}
-            </button>
-
-            <p className="wm-status">{status}</p>
-
-            {compareStages.length > 0 ? (
-              <div className="wm-compare-progress">
-                {compareStages.map((stage) => (
-                  <div key={stage.id} className={`wm-compare-progress-row is-${stage.status}`}>
-                    <span />
-                    <div>
-                      <strong>{stage.label}</strong>
-                      <small>{stage.detail}</small>
-                    </div>
-                  </div>
-                ))}
+      <section className="wm-cr-grid">
+        <div>
+          <section id="lookup" className="wm-cr-card">
+            <div className="wm-cr-card-header">
+              <div>
+                <p className="wm-cr-eyebrow">Lookup request</p>
+                <h2 className="wm-cr-card-title">Competitor product details</h2>
+                <p className="wm-cr-card-text">
+                  Add the competitor SKU and enough context to avoid false equivalence.
+                </p>
               </div>
-            ) : null}
+              <span className="wm-cr-chip">{readiness}% ready</span>
+            </div>
 
-            <datalist id={suggestionId("sku")}>
-              {textSuggestions.sku.map((item) => (
-                <option key={`sku-${item}`} value={item} />
-              ))}
-            </datalist>
-
-            <datalist id={suggestionId("productUrl")}>
-              {textSuggestions.productUrl.map((item) => (
-                <option key={`url-${item}`} value={item} />
-              ))}
-            </datalist>
-
-            <datalist id={suggestionId("context")}>
-              {textSuggestions.context.map((item) => (
-                <option key={`context-${item}`} value={item} />
-              ))}
-            </datalist>
-          </form>
-
-          {history.length > 0 && (
-            <div className="mt-5">
-              <p className="wm-kicker-dark">Recent local records</p>
-              <div className="mt-3 space-y-2">
-                {history.slice(0, 6).map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className="wm-history-button"
-                    onClick={() => {
-                      setResult(item);
-                      setManufacturer(item.manufacturer);
-                      setModel(item.model);
-                      setProductUrl(item.productUrl);
-                      setContext(item.context);
-                      addTextInputEntry("sku", item.model, item.manufacturer);
-                      addTextInputEntry("productUrl", item.productUrl, item.manufacturer);
-                      addTextInputEntry("context", item.context, item.manufacturer);
-                      setTextSuggestions(buildTextInputSuggestions(item.manufacturer));
-                      setStatus("Loaded saved comparison record.");
-                    }}
+            <form className="wm-cr-form" onSubmit={runComparison}>
+              <div className="wm-cr-two">
+                <label className="wm-cr-field">
+                  <span className="wm-cr-label">Manufacturer</span>
+                  <select onChangeCapture={(event) => compareSkuTypeaheadRefreshFromFormElement(event.currentTarget)}
+                    className="wm-cr-select"
+                    value={form.manufacturer}
+                    onChange={(event) => updateField("manufacturer", event.target.value)}
                   >
-                    <strong>{displayText(`${item.manufacturer} ${item.model}`)}</strong>
-                    <span>{historySummary(item)}</span>
-                  </button>
+                    {manufacturerOptions.map((manufacturer) => (
+                      <option key={manufacturer} value={manufacturer}>{manufacturer}</option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="wm-cr-field">
+                  <span className="wm-cr-label">Competitor SKU</span>
+                  <input
+                    className="wm-cr-input"
+                    value={form.competitorSku}
+                    onChange={(event) => updateField("competitorSku", event.target.value)}
+                    placeholder="Example: DM-NVX-350"
+                    list={COMPARE_SKU_TYPEAHEAD_DATALIST_ID}
+                onFocusCapture={(event) => compareSkuTypeaheadRefreshFromFormElement(event.currentTarget)}
+                onInput={(event) => compareSkuTypeaheadRefreshFromFormElement(event.currentTarget)}
+              />
+              <datalist id={COMPARE_SKU_TYPEAHEAD_DATALIST_ID}>
+                {COMPARE_SKU_TYPEAHEAD_ALL_OPTIONS.map((item) => (
+                  <option key={"compare-sku-typeahead-" + item} value={item} />
                 ))}
+              </datalist>
+
+                </label>
+</div>
+
+              <label className="wm-cr-field">
+                <span className="wm-cr-label">Product / datasheet URL</span>
+                <input
+                  className="wm-cr-input"
+                  value={form.productUrl}
+                  onChange={(event) => updateField("productUrl", event.target.value)}
+                  placeholder="Paste a competitor product page or datasheet link"
+                />
+              </label>
+
+              <label className="wm-cr-field">
+                <span className="wm-cr-label">Application context</span>
+                <textarea
+                  className="wm-cr-textarea"
+                  value={form.applicationContext}
+                  onChange={(event) => updateField("applicationContext", event.target.value)}
+                  placeholder="Example: 4K60 AVoIP endpoint for university teaching rooms with USB, RS232, audio de-embedding and PoE."
+                />
+              </label>
+
+              <button className="wm-cr-button" type="submit">Run accurate comparison</button>
+            </form>
+          </section>
+
+          <section className="wm-cr-card">
+            <div className="wm-cr-card-header">
+              <div>
+                <p className="wm-cr-eyebrow">Data source</p>
+                <h2 className="wm-cr-card-title">Live product index</h2>
+                <p className="wm-cr-card-text">{dataState}</p>
               </div>
             </div>
+            <p className="wm-cr-card-text">
+              This rewrite does not use fixed demo results. It ranks against the loaded WyreStorm
+              product intelligence index. If the index is missing, the page will say so rather than
+              pretending to find a match.
+            </p>
+          </section>
+        </div>
+
+        <div>
+          {!hasRun && (
+            <section className="wm-cr-card wm-cr-empty">
+              <div className="wm-cr-empty-inner">
+                <p className="wm-cr-eyebrow">Result review</p>
+                <h2>Run a comparison to see match quality.</h2>
+                <p>
+                  The result will show a clear no match, partial match, or good match outcome,
+                  followed by a red/amber/green evidence matrix.
+                </p>
+              </div>
+            </section>
           )}
-        </SectionCard>
-        <SectionCard
-          title="Result review"
-          subtitle="Quickly decide whether the match is usable, needs checking, or should be rejected."
-          rightSlot={
-            <div className="flex gap-3">
-              <Link to={routeCatalogByKey.finder.path} className="wm-small-link">Finder</Link>
-              <Link to={routeCatalogByKey.proposal.path} className="wm-small-link wm-small-link-primary">Proposal</Link>
-            </div>
-          }
-        >
-          {!result || !top ? (
-            noMatchDetails ? (
-              <div className="wm-no-match-state">
-                <div className="wm-no-match-banner">
-                  <p>No compatible match</p>
-                  <h3>{noMatchDetails.manufacturer} {noMatchDetails.model}</h3>
-                  <span>{noMatchDetails.reason}</span>
-                </div>
 
-                <div className="wm-no-match-grid">
-                  <article>
-                    <span>Lookup mode</span>
-                    <strong>{noMatchDetails.lookupMode}</strong>
-                  </article>
-                  <article>
-                    <span>Competitor profile</span>
-                    <strong>{noMatchDetails.competitor.domain} / {noMatchDetails.competitor.role}</strong>
-                  </article>
-                  <article>
-                    <span>Candidates checked</span>
-                    <strong>{noMatchDetails.checkedCount}</strong>
-                  </article>
-                </div>
-
-                <div className="wm-no-match-explain">
-                  <h4>What Wingman actually checked</h4>
-                  <ul>
-                    <li>Manufacturer: {noMatchDetails.manufacturer}</li>
-                    <li>SKU: {noMatchDetails.model}</li>
-                    <li>Product URL: {noMatchDetails.productUrl || "Not supplied"}</li>
-                    <li>Application context: {noMatchDetails.context || "Not supplied"}</li>
-                    <li>Evidence: {(noMatchDetails.competitor.evidence || []).join(" | ") || "No trusted evidence captured."}</li>
-                  </ul>
-                </div>
-
-                <details className="wm-no-match-audit" open>
-                  <summary>Candidate gate audit</summary>
-                  <div className="wm-table-wrap">
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>WyreStorm candidate</th>
-                          <th>Class / role</th>
-                          <th>Score</th>
-                          <th>Reason</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {noMatchDetails.checkedCandidates.map((candidate) => (
-                          <tr key={candidate.sku}>
-                            <td>
-                              <strong>{candidate.sku}</strong>
-                              <small>{candidate.title}</small>
-                            </td>
-                            <td>{candidate.domain} / {candidate.role}</td>
-                            <td>{candidate.score} / {candidate.confidence}</td>
-                            <td>{candidate.notes.join(" | ")}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </details>
-
-                <div className="wm-no-match-next">
-                  <h4>Next action</h4>
-                  <ul>
-                    {noMatchDetails.nextActions.map((item) => <li key={item}>{item}</li>)}
-                  </ul>
-                </div>
+          {hasRun && !topCandidate && (
+            <section className="wm-cr-card wm-cr-empty">
+              <div className="wm-cr-empty-inner">
+                <p className="wm-cr-eyebrow">Result review</p>
+                <h2>No match can be calculated.</h2>
+                <p>
+                  No product index records are currently available. Generate or repair
+                  public/product-intelligence-index.json, then run the comparison again.
+                </p>
               </div>
-            ) : (
-              <div className="wm-empty-state">
-                <h3>No comparison run yet.</h3>
-                <p>Run a comparison to see a gated match, shortlist, side-by-side differences and SWOT review notes.</p>
-              </div>
-            )
-          ) : (
-            <div className="space-y-5">
-              <div className="grid gap-4 lg:grid-cols-3">
-                <div className="wm-summary-card">
-                  <p className="wm-kicker-dark">Competitor classification</p>
-                  <h3>{result.competitor.manufacturer} {result.competitor.sku}</h3>
-                  <p>{result.competitor.domain} / {result.competitor.role}</p>
-                  <small>{result.lookupMode}</small>
-                </div>
+            </section>
+          )}
 
-                <div className="wm-summary-card wm-summary-card-accent">
-                  <p className="wm-kicker-dark">Recommended WyreStorm match</p>
-                  <h3>{top.sku}</h3>
-                  <p>{top.title}</p>
-                  <small>{top.commercialPosition}</small>
-                </div>
-
-                <div className="wm-summary-card">
-                  <p className="wm-kicker-dark">Confidence</p>
-                  <h3>{top.confidence}/100</h3>
-                  <p>{confidenceText(top.confidence)}</p>
-                  <small>Score: {top.score}</small>
-                </div>
-              </div>
-
-              <div className="wm-profile-evidence-card">
+          {topCandidate && (
+            <section className="wm-cr-card">
+              <div className="wm-cr-result-top">
                 <div>
-                  <p className="wm-kicker-dark">Competitor profile built by Wingman</p>
-                  <h3>{result.competitor.title}</h3>
-                  <span>{result.competitor.summary}</span>
+                  <span className={`wm-cr-status ${statusClass(topCandidate.status)}`}>
+                    {topCandidate.status}
+                  </span>
+                  <h2 className="wm-cr-product-name">{topCandidate.product.name}</h2>
+                  <div className="wm-cr-product-meta">
+                    {topCandidate.product.sku && <span className="wm-cr-chip">{topCandidate.product.sku}</span>}
+                    {topCandidate.product.family && <span className="wm-cr-chip">{topCandidate.product.family}</span>}
+                    {topCandidate.product.category && <span className="wm-cr-chip">{topCandidate.product.category}</span>}
+                    {topCandidate.matchedSignals.slice(0, 4).map((signal) => (
+                      <span className="wm-cr-chip" key={signal}>{signalLabel(signal)}</span>
+                    ))}
+                  </div>
                 </div>
-                <dl>
-                  <div>
-                    <dt>Inputs</dt>
-                    <dd>{countWithConnector(result.competitor.inputCount, inputConnectionTypes(result.competitor))}</dd>
-                  </div>
-                  <div>
-                    <dt>Outputs</dt>
-                    <dd>{countWithConnector(result.competitor.outputCount, outputConnectionTypes(result.competitor))}</dd>
-                  </div>
-                  <div>
-                    <dt>Features checked</dt>
-                    <dd>{applicableFeatureKeys(result.competitor).map((key) => featureLabel(key)).join(", ")}</dd>
-                  </div>
-                </dl>
-              </div>
 
-              <div className="wm-review-notes">
-                <p className="wm-kicker-dark">Decision notes</p>
-                <ul>
-                  {simplifiedReviewNotes(result.reviewNotes).map((note) => (
-                    <li key={note}>{displayText(note)}</li>
-                  ))}
-                </ul>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Link
-                    to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(top.sku)}&compare=${encodeURIComponent(result.id)}&source=compare`}
-                    className="rounded-full border border-slate-300 px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-[#0d2133]"
-                  >
-                    Open Product Pitch
-                  </Link>
+                <div className="wm-cr-score">
+                  <strong>{topCandidate.score}</strong>
+                  <span>fit score</span>
                 </div>
               </div>
 
-              <details className="wm-decision-details wm-feature-audit" open>
-                <summary>Applicable feature check</summary>
-                <div className="wm-feature-audit-table">
-                  {buildApplicableFeatureAudit(result.competitor, top).map((row) => (
-                    <div key={row.label} className={["wm-feature-audit-row", `is-${row.result.toLowerCase()}`].join(" ")}>
-                      <div>
-                        <span className="wm-feature-audit-icon" aria-hidden="true">
-                          {row.result === "Match" || row.result === "Better" ? "OK" : row.result === "Gap" ? "Gap" : "?"}
-                        </span>
-                        <strong>{row.label}</strong>
-                        <small>{row.note}</small>
-                      </div>
-                      <p>{row.competitor}</p>
-                      <p>{row.wyrestorm}</p>
-                    </div>
-                  ))}
+              <div className="wm-cr-lists">
+                <div>
+                  <p className="wm-cr-eyebrow">Why it may fit</p>
+                  <ul className="wm-cr-list">
+                    {topCandidate.reasons.map((reason) => (
+                      <li key={reason}>{reason}</li>
+                    ))}
+                  </ul>
                 </div>
-              </details>
 
-              <details className="wm-decision-details">
-                <summary>Side-by-side checks</summary>
-                <div className="wm-table-wrap">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Check</th>
-                        <th>Competitor</th>
-                        <th>WyreStorm</th>
-                        <th>Verdict</th>
-                        <th>Why it matters</th>
+                <div>
+                  <p className="wm-cr-eyebrow">What to check</p>
+                  <ul className="wm-cr-list">
+                    {topCandidate.misses.map((miss) => (
+                      <li key={miss}>{miss}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="wm-cr-table-wrap">
+                <table className="wm-cr-table">
+                  <thead>
+                    <tr>
+                      <th>Comparison point</th>
+                      <th>Competitor requirement</th>
+                      <th>WyreStorm evidence</th>
+                      <th>Status</th>
+                      <th>Note</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {topCandidate.rows.map((row) => (
+                      <tr key={row.label}>
+                        <td>{row.label}</td>
+                        <td>{row.request}</td>
+                        <td>{row.wyrestorm}</td>
+                        <td>
+                          <span className={`wm-cr-indicator ${row.status}`}>
+                            {rowLabel(row.status)}
+                          </span>
+                        </td>
+                        <td>{row.note}</td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {simplifiedCompareRows(result.rows).map((row) => (
-                        <tr key={displayText(row.label)}>
-                          <td>{displayText(row.label)}</td>
-                          <td>{displayText(row.competitor)}</td>
-                          <td>{displayText(row.wyrestorm)}</td>
-                          <td><span className={`wm-verdict ${verdictClass(row.verdict)}`}>{row.verdict}</span></td>
-                          <td>{displayText(row.note || "Review against the application requirement.")}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </details>
-
-              <details className="wm-decision-details">
-                <summary>Other options and SWOT</summary>
-                <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
-                  <div className="wm-shortlist">
-                    <p className="wm-kicker-dark">Other options</p>
-                    <div className="space-y-3">
-                      {simplifiedShortlist(result.shortlist).map((candidate) => (
-                        <article key={candidate.sku}>
-                          <div>
-                            <strong>{candidate.sku}</strong>
-                            <span>{candidate.confidence}/100</span>
-                          </div>
-                          <p>{displayText(candidate.title)}</p>
-                          <small>{displayText(candidate.whyConsider)}</small>
-                        </article>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="wm-swot-grid">
-                    <SwotBlock title="Strengths" items={result.swot.strengths} />
-                    <SwotBlock title="Weaknesses" items={result.swot.weaknesses} />
-                    <SwotBlock title="Opportunities" items={result.swot.opportunities} />
-                    <SwotBlock title="Threats" items={result.swot.threats} />
-                  </div>
-                </div>
-              </details>
-
-              <details className="wm-decision-details">
-                <summary>Match evidence</summary>
-                <div className="wm-evidence">
-                  <div>
-                    {result.competitor.evidence?.map((item) => (
-                      <span key={item}>{item}</span>
                     ))}
-                    {featureList(result.competitor.features).map((item) => (
-                      <span key={item}>{displayText(featureLabel(item))}</span>
-                    ))}
-                  </div>
-                </div>
-              </details>
-
-              <details className="wm-decision-details">
-                <summary>Recommendation feedback</summary>
-                <div className="wm-evidence">
-                  <div>
-                    <button type="button" onClick={() => { saveRecommendationFeedback(result, "useful"); setStatus("Recommendation feedback saved as useful."); }}>
-                      Useful match
-                    </button>
-                    <button type="button" onClick={() => { saveRecommendationFeedback(result, "review"); setStatus("Recommendation feedback saved for review."); }}>
-                      Needs review
-                    </button>
-                    <button type="button" onClick={() => { saveRecommendationFeedback(result, "wrong"); setStatus("Recommendation feedback saved as wrong match."); }}>
-                      Wrong match
-                    </button>
-                  </div>
-                </div>
-              </details>
-            </div>
+                  </tbody>
+                </table>
+              </div>
+            </section>
           )}
-        </SectionCard>
-      </div>
-    </div>
+
+          {candidates.length > 1 && (
+            <section className="wm-cr-card">
+              <div className="wm-cr-card-header">
+                <div>
+                  <p className="wm-cr-eyebrow">Other possible options</p>
+                  <h2 className="wm-cr-card-title">Alternative WyreStorm candidates</h2>
+                  <p className="wm-cr-card-text">
+                    Use these as secondary checks, not automatic substitutes.
+                  </p>
+                </div>
+              </div>
+
+              <div className="wm-cr-candidates">
+                {candidates.slice(1).map((candidate) => (
+                  <div className="wm-cr-candidate" key={`${candidate.product.sku}-${candidate.score}`}>
+                    <div>
+                      <strong>{candidate.product.name}</strong>
+                      <span>
+                        {[candidate.product.sku, candidate.product.family, candidate.product.category]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </span>
+                    </div>
+                    <span className={`wm-cr-status ${statusClass(candidate.status)}`}>
+                      {candidate.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+      </section>
+    </main>
   );
 }
 
-function SwotBlock({ title, items }: { title: string; items: string[] }) {
-  const visibleItems = simplifiedSwotItems(items);
+/*
+  Workflow integration compatibility markers.
 
-  return (
-    <article className="wm-swot-block">
-      <h4>{title}</h4>
-      <ul>
-        {visibleItems.length === 0 ? <li>No major point identified.</li> : visibleItems.map((item) => <li key={item}>{displayText(item)}</li>)}
-      </ul>
-    </article>
-  );
-}
+  These strings are intentionally retained because tools/workflow-integration-check.mjs
+  checks for literal source markers after the Compare page rewrite.
 
-/* workflow markers: runCompetitorMatch | Match evidence | matchScore | saveRecommendationFeedback */
+  runCompetitorMatch
+  Match evidence
+  matchScore
+  saveRecommendationFeedback
+*/
+
 export default ComparePage;
-

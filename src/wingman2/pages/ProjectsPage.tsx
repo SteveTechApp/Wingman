@@ -1,4 +1,4 @@
-﻿import { AlertTriangle, Check, Cloud, Copy, RotateCcw, Trash2 } from "lucide-react";
+import { AlertTriangle, Check, Cloud, Copy, RotateCcw, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
@@ -20,7 +20,7 @@ export function ProjectsPage() {
   } = useProjectStore();
 
   return (
-    <div className="pb-10">
+    <div data-wingman-page="projects" className="pb-10">
       <PageHero
         eyebrow="Project Management"
         title="Keep live opportunities, drafts, and next actions in one place."
@@ -41,10 +41,10 @@ export function ProjectsPage() {
               <div
                 className={`inline-flex max-w-xl items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold ${
                   syncStatus.state === "synced"
-                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                    ? "border-[#29465e] bg-[#0d2133] text-emerald-800"
                     : syncStatus.state === "error" || syncStatus.state === "conflict"
-                      ? "border-rose-200 bg-rose-50 text-rose-800"
-                      : "border-[#29465e] bg-[#0d2133] text-slate-700"
+                      ? "border-[#29465e] bg-[#0d2133] text-rose-800"
+                      : "border-[#29465e] bg-[#0d2133] text-[#edf6ff]"
                 }`}
                 title={syncStatus.message}
               >
@@ -60,7 +60,7 @@ export function ProjectsPage() {
               <button
                 type="button"
                 onClick={resetStore}
-                className="inline-flex items-center gap-2 rounded-full border border-[#29465e] bg-[#0d2133] px-4 py-2 text-xs font-semibold text-slate-700 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700"
+                className="inline-flex items-center gap-2 rounded-full border border-[#29465e] bg-[#0d2133] px-4 py-2 text-xs font-semibold text-[#edf6ff] transition hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]"
               >
                 <RotateCcw className="h-4 w-4" />
                 Reset sample store
@@ -70,7 +70,7 @@ export function ProjectsPage() {
         >
           <div className="overflow-hidden rounded-2xl border border-[#29465e] bg-[#0d2133]">
             <table className="min-w-full text-left text-sm">
-              <thead className="bg-[#0d2133] text-slate-600">
+              <thead className="bg-[#0d2133] text-[#edf6ff]">
                 <tr>
                   <th className="px-5 py-4 font-semibold">Project</th>
                   <th className="px-5 py-4 font-semibold">Owner</th>
@@ -85,21 +85,21 @@ export function ProjectsPage() {
                   projects.map((project) => (
                     <tr key={project.id} className="border-t border-[#29465e]">
                       <td className="px-5 py-4 font-medium text-[#edf6ff]">{project.name}</td>
-                      <td className="px-5 py-4 text-slate-700">{project.owner}</td>
-                      <td className="px-5 py-4 text-slate-700">{project.stage}</td>
+                      <td className="px-5 py-4 text-[#edf6ff]">{project.owner}</td>
+                      <td className="px-5 py-4 text-[#edf6ff]">{project.stage}</td>
                       <td className="px-5 py-4">
                         <StatusChip
                           label={project.status === "recommended" ? "On track" : "Needs review"}
                           variant={project.status}
                         />
                       </td>
-                      <td className="px-5 py-4 text-slate-700">{project.updated}</td>
+                      <td className="px-5 py-4 text-[#edf6ff]">{project.updated}</td>
                       <td className="px-5 py-4">
                         <div className="flex flex-wrap items-center gap-2">
                           <Link
                             to={`${routeCatalogByKey.projects.path}/${project.id}`}
                             onClick={() => setActiveProjectId(project.id)}
-                            className="rounded-full border border-slate-300 bg-[#0d2133] px-4 py-2 text-xs font-semibold text-slate-700 transition hover:bg-[#0d2133]"
+                            className="rounded-full border border-[#29465e] bg-[#0d2133] px-4 py-2 text-xs font-semibold text-[#edf6ff] transition hover:bg-[#0d2133]"
                           >
                             Detail
                           </Link>
@@ -115,7 +115,7 @@ export function ProjectsPage() {
                           <button
                             type="button"
                             onClick={() => copyProject(project.id)}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-slate-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-[#edf6ff] transition hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]"
                             title={`Copy ${project.name}`}
                             aria-label={`Copy ${project.name}`}
                           >
@@ -125,7 +125,7 @@ export function ProjectsPage() {
                           <button
                             type="button"
                             onClick={() => deleteProject(project.id)}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-slate-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-700"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-[#edf6ff] transition hover:border-[#ff8a8a] hover:bg-[#2a1020] hover:text-[#ff8a8a]"
                             title={`Delete ${project.name}`}
                             aria-label={`Delete ${project.name}`}
                           >
@@ -137,7 +137,7 @@ export function ProjectsPage() {
                   ))
                 ) : (
                   <tr>
-                    <td className="px-5 py-8 text-center text-slate-500" colSpan={6}>
+                    <td className="px-5 py-8 text-center text-[#cfe6f7]" colSpan={6}>
                       No active projects are currently listed. Use Reset sample store to restore the starter examples.
                     </td>
                   </tr>
@@ -157,7 +157,7 @@ export function ProjectsPage() {
                 <div key={draft.id} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-5 shadow-sm">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-sm text-slate-500">{draft.customer}</p>
+                      <p className="text-sm text-[#cfe6f7]">{draft.customer}</p>
                       <h3 className="mt-2 text-lg font-semibold text-[#edf6ff]">{draft.name}</h3>
                     </div>
 
@@ -165,7 +165,7 @@ export function ProjectsPage() {
                       <button
                         type="button"
                         onClick={() => copyProposalDraft(draft.id)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-slate-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-amber-700"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-[#edf6ff] transition hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]"
                         title={`Copy ${draft.name}`}
                         aria-label={`Copy ${draft.name}`}
                       >
@@ -175,7 +175,7 @@ export function ProjectsPage() {
                       <button
                         type="button"
                         onClick={() => deleteProposalDraft(draft.id)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-slate-600 transition hover:border-red-300 hover:bg-red-50 hover:text-red-700"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-[#edf6ff] transition hover:border-[#ff8a8a] hover:bg-[#2a1020] hover:text-[#ff8a8a]"
                         title={`Delete ${draft.name}`}
                         aria-label={`Delete ${draft.name}`}
                       >
@@ -184,7 +184,7 @@ export function ProjectsPage() {
                     </div>
                   </div>
 
-                  <p className="mt-3 text-sm text-slate-600">{draft.state}</p>
+                  <p className="mt-3 text-sm text-[#edf6ff]">{draft.state}</p>
 
                   <div className="mt-5">
                     <Link
@@ -198,7 +198,7 @@ export function ProjectsPage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-8 text-center text-sm text-slate-500">
+            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-8 text-center text-sm text-[#cfe6f7]">
               No proposal drafts are currently listed. Use Reset sample store to restore the starter examples.
             </div>
           )}
@@ -209,4 +209,5 @@ export function ProjectsPage() {
 }
 
 export default ProjectsPage;
+
 

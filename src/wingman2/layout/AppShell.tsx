@@ -234,14 +234,14 @@ export function AppShell({ children }: AppShellProps) {
             </span>
           </div>
 
-          <button type="button" className="wingman-new-project-button" onClick={handleNewProject}>
+          <button type="button" className="wingman-new-project-button" onClick={handleNewProject} aria-label="Create new Wingman project">
             <Plus className="h-4 w-4" />
             <span>{uiText.newProject}</span>
           </button>
         </header>
 
         <main className="wingman-app-main">
-          <div className="wingman-page-host" key={`${location.pathname}-${pageResetVersion}`}>
+          <div data-wingman-visual-root="true" className="wingman-page-host" key={`${location.pathname}-${pageResetVersion}`}>
             {children ?? <Outlet />}
           </div>
         </main>

@@ -8080,7 +8080,7 @@ body.wm-product-finder-active main :is(.text-amber-500, .text-amber-600, .text-o
 }
 
 .wm-product-diagram-node-control {
-  border-color: rgba(45, 153, 255, $1) !important;
+  border-color: rgba(45, 153, 255, 0.34) !important;
 }
 
 .wm-product-diagram-node-other {
@@ -14835,7 +14835,7 @@ body,
   min-height: 100%;
   background:
     radial-gradient(circle at 20% 0%, rgba(34, 211, 238, 0.13), transparent 34%),
-    radial-gradient(circle at 86% 8%, rgba(45, 153, 255, $1), transparent 30%),
+    radial-gradient(circle at 86% 8%, rgba(45, 153, 255, 0.12), transparent 30%),
     linear-gradient(135deg, var(--wm-uniform-bg-0), var(--wm-uniform-bg-1) 58%, #020617) !important;
   color: var(--wm-uniform-text) !important;
 }
@@ -14981,7 +14981,7 @@ main .wm-action-button {
 main .wm-primary-action,
 main button[class*="primary"],
 main a[class*="primary"] {
-  background: linear-gradient(135deg, rgba(8, 145, 178, 0.94), rgba(45, 153, 255, $1)) !important;
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.94), rgba(45, 153, 255, 0.92)) !important;
   color: #ffffff !important;
 }
 
@@ -15194,7 +15194,7 @@ main [class*="text-red-"] {
 
 .wm-template-filter-button.is-active {
   border-color: rgba(103, 232, 249, 0.72) !important;
-  background: linear-gradient(135deg, rgba(8, 145, 178, 0.46), rgba(45, 153, 255, $1)) !important;
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.46), rgba(45, 153, 255, 0.28)) !important;
 }
 
 .wm-template-results-toolbar {
@@ -19711,3 +19711,498 @@ html[data-wingman-route="templates"] .wingman-page-host :is(.rounded-xl, .rounde
   border-color: rgba(126, 157, 182, 0.26) !important;
   box-shadow: none !important;
 }
+
+/* WINGMAN_ALL_PAGES_VISUAL_CONSISTENCY_START */
+/* Final route-wide pass: every Wingman page should inherit the same shell, hero,
+   card, form and action treatment while legacy page components are retired. */
+
+html[data-wingman-route] .wingman-page-host {
+  --wm-consistency-panel: linear-gradient(145deg, rgba(8, 31, 54, 0.94), rgba(5, 18, 32, 0.94));
+  --wm-consistency-panel-soft: linear-gradient(145deg, rgba(10, 36, 56, 0.9), rgba(5, 18, 32, 0.88));
+  --wm-consistency-hero: linear-gradient(145deg, rgba(10, 36, 56, 0.98), rgba(4, 15, 27, 0.98));
+  --wm-consistency-border: rgba(74, 245, 230, 0.28);
+  --wm-consistency-border-strong: rgba(74, 245, 230, 0.48);
+  --wm-consistency-title: #65d7f4;
+  --wm-consistency-title-soft: #a8f4ff;
+  --wm-consistency-text: #f7fbff;
+  --wm-consistency-muted: rgba(226, 239, 250, 0.8);
+  --wm-consistency-faint: rgba(226, 239, 250, 0.56);
+  --wm-consistency-shadow: 0 16px 42px rgba(0, 0, 0, 0.26);
+
+  display: block !important;
+  width: min(100%, 1480px) !important;
+  max-width: 1480px !important;
+  margin: 0 auto !important;
+  padding: 14px 18px 30px !important;
+  color: var(--wm-consistency-text) !important;
+}
+
+html[data-wingman-route] .wingman-page-host > :is(main, section, div) {
+  display: grid !important;
+  align-content: start !important;
+  gap: 16px !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: var(--wm-consistency-text) !important;
+  background: transparent !important;
+  letter-spacing: 0 !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  li,
+  span,
+  strong,
+  small,
+  label,
+  button,
+  a,
+  .wingman-display,
+  .wm-page-title,
+  .wm-section-title,
+  .wm-card-title
+) {
+  letter-spacing: 0 !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(
+  .wingman-page-hero,
+  .wm-page-hero,
+  .wm-page-header,
+  .wm-navhub-hero,
+  .wm-cr-hero,
+  .cca-header,
+  .wm20-panel[data-wingman-discovery-capture="true"],
+  .wm-product-call-cards-hero,
+  .wm-product-pitch-hero,
+  .wm-profile-hero,
+  .wm-intel-hero,
+  .wm-template-detail-hero,
+  .wm-vs-header-card
+) {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: end !important;
+  gap: 14px !important;
+  min-height: auto !important;
+  margin: 0 !important;
+  padding: 18px 20px !important;
+  border: 1px solid var(--wm-consistency-border) !important;
+  border-radius: 18px !important;
+  background: var(--wm-consistency-hero) !important;
+  color: var(--wm-consistency-text) !important;
+  box-shadow: var(--wm-consistency-shadow) !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(
+  .wingman-page-hero,
+  .wm-page-hero,
+  .wm-page-header,
+  .wm-navhub-hero,
+  .wm-cr-hero,
+  .cca-header,
+  .wm20-panel[data-wingman-discovery-capture="true"],
+  .wm-product-call-cards-hero,
+  .wm-product-pitch-hero,
+  .wm-profile-hero,
+  .wm-intel-hero,
+  .wm-template-detail-hero,
+  .wm-vs-header-card
+) :is(h1, .wingman-display, .wm-page-title) {
+  max-width: 940px !important;
+  margin: 0 !important;
+  color: var(--wm-consistency-title) !important;
+  font-size: clamp(2rem, 2.6vw, 2.75rem) !important;
+  line-height: 1.05 !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(
+  .wingman-kicker,
+  .wm-navhub-eyebrow,
+  .wm-cr-eyebrow,
+  .cca-header p,
+  .wm20-eyebrow,
+  .wm-profile-kicker,
+  .wm-profile-card-label,
+  .wm-intel-hero span,
+  .wm-product-call-card-selector-label,
+  .wm-template-library-header .wm-section-kicker,
+  [class*="eyebrow"],
+  [class*="kicker"]
+) {
+  color: var(--wm-consistency-title-soft) !important;
+  font-size: 0.72rem !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+  letter-spacing: 0 !important;
+  text-transform: uppercase !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(
+  .wingman-page-hero,
+  .wm-page-hero,
+  .wm-page-header,
+  .wm-navhub-hero,
+  .wm-cr-hero,
+  .cca-header,
+  .wm20-panel[data-wingman-discovery-capture="true"],
+  .wm-product-call-cards-hero,
+  .wm-product-pitch-hero,
+  .wm-profile-hero,
+  .wm-intel-hero,
+  .wm-template-detail-hero,
+  .wm-vs-header-card
+) :is(p:not([class*="eyebrow"]):not([class*="kicker"]), span:not([class*="eyebrow"]):not([class*="kicker"])) {
+  max-width: 880px !important;
+  margin: 7px 0 0 !important;
+  color: var(--wm-consistency-muted) !important;
+  font-size: 0.94rem !important;
+  line-height: 1.45 !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(
+  .wingman-panel,
+  .wingman-surface,
+  .wingman-section-card,
+  .wm-navhub-secondary,
+  .wm-navhub-card,
+  .wm-cr-card,
+  .wm-cr-score,
+  .wm-cr-candidate,
+  .cca-commandBar,
+  .cca-mainCapture,
+  .cca-sideCoach,
+  .cca-handoffRail,
+  .cca-openerCard,
+  .cca-nextQuestion,
+  .cca-insightCard,
+  .wm20-panel,
+  .wm20-next,
+  .wm-product-call-card-selector,
+  .wm-product-call-card-empty,
+  .wm-product-call-card-result,
+  .wm-product-call-card-panel,
+  .wm-product-pitch-start,
+  .wm-product-pitch-controls,
+  .wm-product-pitch-sheet,
+  .wm-product-pitch-main-card,
+  .wm-product-conversation-panel,
+  .wm-product-conversation-card,
+  .wm-profile-card,
+  .wm-profile-status-strip,
+  .wm-intel-stats,
+  .wm-intel-tabs,
+  .wm-intel-record-list,
+  .wm-intel-panel,
+  .wm-intel-subsection,
+  .wm-intel-approval-box,
+  .wm-intel-guidance,
+  .wm-intel-governance article,
+  .wm-template-stat-card,
+  .wm-template-filter-panel,
+  .wm-template-results-panel,
+  .wm-template-preview-panel,
+  .wm-template-card,
+  .wm-diagram-card,
+  .wm-diagram-control-panel,
+  .wm-diagram-preview-panel,
+  .wm-diagram-studio-shell,
+  .wm-glossary-toolbar,
+  .wm-glossary-results,
+  .wm-glossary-detail,
+  .wm-glossary-definition-grid,
+  .wm-glossary-say-panel,
+  .wm-vs-panel,
+  .rounded-xl.border,
+  .rounded-2xl.border,
+  .rounded-3xl.border
+) {
+  border: 1px solid var(--wm-consistency-border) !important;
+  border-radius: 18px !important;
+  background: var(--wm-consistency-panel) !important;
+  color: var(--wm-consistency-text) !important;
+  box-shadow: var(--wm-consistency-shadow) !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(
+  .wm-navhub-card,
+  .wm-template-card,
+  .wm-cr-candidate,
+  .cca-openerCard,
+  .cca-nextQuestion,
+  .cca-insightCard,
+  .wm-product-call-card-panel,
+  .wm-product-pitch-main-card,
+  .wm-product-conversation-card,
+  .wm-profile-card,
+  .wm-intel-record-list button,
+  .rounded-xl.border,
+  .rounded-2xl.border,
+  .rounded-3xl.border
+) {
+  background: var(--wm-consistency-panel-soft) !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(
+  [class*="bg-white"],
+  [class*="bg-slate-50"],
+  [class*="bg-slate-100"],
+  [class*="bg-gray-50"],
+  [class*="bg-gray-100"],
+  [class*="bg-zinc-50"],
+  [class*="bg-neutral-50"],
+  [class*="bg-amber-50"],
+  [class*="bg-orange-50"],
+  [class*="bg-[#0d2133]"],
+  [class*="from-white"],
+  [class*="to-white"]
+) {
+  background: var(--wm-consistency-panel-soft) !important;
+  border-color: var(--wm-consistency-border) !important;
+  color: var(--wm-consistency-text) !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(h1, h2, h3, h4, h5, h6, strong, label, th, summary) {
+  color: var(--wm-consistency-text) !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(
+  h2,
+  h3,
+  .wm-cr-card-title,
+  .wm-cr-product-name,
+  .wm-navhub-card strong,
+  .wm-template-card h3,
+  .wm-intel-panel-head h2,
+  .wm-profile-card h2,
+  .wm-product-call-card-selector h2,
+  .wm-product-call-card-result h2,
+  .wm-product-pitch-main-card h3
+) {
+  color: var(--wm-consistency-title) !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(p, li, dd, small, td, span, .wm-cr-card-text, .wm-cr-list) {
+  color: var(--wm-consistency-muted) !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(
+  input,
+  select,
+  textarea,
+  .wm-cr-input,
+  .wm-cr-select,
+  .wm-cr-textarea
+) {
+  width: 100%;
+  border: 1px solid var(--wm-consistency-border) !important;
+  border-radius: 12px !important;
+  background: rgba(3, 14, 25, 0.96) !important;
+  color: var(--wm-consistency-text) !important;
+  caret-color: var(--wm-consistency-title) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(input, textarea)::placeholder {
+  color: var(--wm-consistency-faint) !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(input, select, textarea):focus {
+  border-color: var(--wm-consistency-border-strong) !important;
+  outline: 2px solid rgba(74, 245, 230, 0.16) !important;
+  outline-offset: 2px !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(
+  button,
+  a[class*="button"],
+  a[class*="action"],
+  .wm-cr-button,
+  .wm-cr-button-secondary,
+  .wm20-card-action,
+  .wingman-hero-action,
+  .wm-primary-action,
+  .wm-secondary-action
+) {
+  border-color: var(--wm-consistency-border) !important;
+  color: var(--wm-consistency-text) !important;
+  letter-spacing: 0 !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(
+  .wm-cr-button,
+  .wm20-card-action,
+  .wingman-hero-action-primary,
+  .wm-primary-action,
+  button[type="submit"],
+  button.is-primary,
+  a.is-primary
+) {
+  border-color: var(--wm-consistency-border-strong) !important;
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.9), rgba(45, 153, 255, 0.62)) !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 28px rgba(8, 145, 178, 0.18) !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(
+  .wm-cr-button-secondary,
+  .wingman-hero-action-secondary,
+  .wm-secondary-action,
+  .wm-profile-page button,
+  .cca-headerActions button,
+  .cca-questionActions button
+) {
+  background: rgba(8, 31, 54, 0.86) !important;
+  color: var(--wm-consistency-text) !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(
+  .wm-cr-chip,
+  .wm-cr-status,
+  .wm-cr-indicator,
+  .wm20-badge,
+  .wm-status-pill,
+  .wm-chip,
+  [class*="pill"],
+  [class*="chip"],
+  [class*="badge"]
+) {
+  border-color: rgba(74, 245, 230, 0.28) !important;
+  color: var(--wm-consistency-title-soft) !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(table, .wm-cr-table) {
+  border-color: var(--wm-consistency-border) !important;
+  background: rgba(3, 14, 25, 0.74) !important;
+  color: var(--wm-consistency-text) !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(th) {
+  background: rgba(74, 245, 230, 0.1) !important;
+  color: var(--wm-consistency-title-soft) !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(td) {
+  color: var(--wm-consistency-muted) !important;
+}
+
+@media (max-width: 760px) {
+  html[data-wingman-route] .wingman-page-host {
+    padding: 10px 12px 26px !important;
+  }
+
+  html[data-wingman-route] .wingman-page-host > :is(main, section, div) {
+    gap: 12px !important;
+  }
+
+  html[data-wingman-route] .wingman-page-host :is(
+    .wingman-page-hero,
+    .wm-page-hero,
+    .wm-page-header,
+    .wm-navhub-hero,
+    .wm-cr-hero,
+    .cca-header,
+    .wm20-panel[data-wingman-discovery-capture="true"],
+    .wm-product-call-cards-hero,
+    .wm-product-pitch-hero,
+    .wm-profile-hero,
+    .wm-intel-hero,
+    .wm-template-detail-hero,
+    .wm-vs-header-card
+  ) {
+    grid-template-columns: 1fr !important;
+    padding: 16px !important;
+  }
+
+  html[data-wingman-route] .wingman-page-host :is(
+    .wingman-page-hero,
+    .wm-page-hero,
+    .wm-page-header,
+    .wm-navhub-hero,
+    .wm-cr-hero,
+    .cca-header,
+    .wm20-panel[data-wingman-discovery-capture="true"],
+    .wm-product-call-cards-hero,
+    .wm-product-pitch-hero,
+    .wm-profile-hero,
+    .wm-intel-hero,
+    .wm-template-detail-hero,
+    .wm-vs-header-card
+  ) :is(h1, .wingman-display, .wm-page-title) {
+    font-size: clamp(1.7rem, 8vw, 2.15rem) !important;
+  }
+}
+
+/* WINGMAN_ALL_PAGES_VISUAL_CONSISTENCY_END */
+
+/* WINGMAN_LEGACY_SPECIFICITY_OVERRIDES_START */
+/* A few older pages ship in-component or earlier high-specificity rules. Keep
+   these route-scoped so the shared visual system wins without changing TSX. */
+
+html[data-wingman-route="callCards"] .wingman-page-host .cca-page .cca-mainCapture .cca-field input,
+.wm-route-call-cards .wingman-page-host .cca-page .cca-mainCapture .cca-field input {
+  border-color: var(--wm-consistency-border) !important;
+  background: rgba(3, 14, 25, 0.96) !important;
+  color: var(--wm-consistency-text) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-page-host .cca-page .cca-mainCapture .cca-field input:focus,
+.wm-route-call-cards .wingman-page-host .cca-page .cca-mainCapture .cca-field input:focus {
+  border-color: var(--wm-consistency-border-strong) !important;
+  background: rgba(3, 14, 25, 0.98) !important;
+  box-shadow: 0 0 0 2px rgba(74, 245, 230, 0.16) !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-page-host .cca-page .cca-supportDetails,
+.wm-route-call-cards .wingman-page-host .cca-page .cca-supportDetails {
+  border-color: var(--wm-consistency-border) !important;
+  background: var(--wm-consistency-panel-soft) !important;
+  color: var(--wm-consistency-text) !important;
+  box-shadow: var(--wm-consistency-shadow) !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-page-host .cca-page .cca-supportDetails > summary,
+.wm-route-call-cards .wingman-page-host .cca-page .cca-supportDetails > summary {
+  background: transparent !important;
+  color: var(--wm-consistency-text) !important;
+}
+
+html[data-wingman-route="intelligence"] .wingman-page-host .wm-intel-tabs button,
+.wm-route-intelligence .wingman-page-host .wm-intel-tabs button {
+  border-color: var(--wm-consistency-border) !important;
+  background: rgba(8, 31, 54, 0.86) !important;
+  color: var(--wm-consistency-muted) !important;
+}
+
+html[data-wingman-route="intelligence"] .wingman-page-host .wm-intel-tabs button.is-active,
+.wm-route-intelligence .wingman-page-host .wm-intel-tabs button.is-active {
+  border-color: var(--wm-consistency-border-strong) !important;
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.72), rgba(45, 153, 255, 0.42)) !important;
+  color: var(--wm-consistency-text) !important;
+}
+
+html[data-wingman-route="intelligence"] .wingman-page-host .wm-intel-toggle,
+.wm-route-intelligence .wingman-page-host .wm-intel-toggle {
+  border-color: var(--wm-consistency-border) !important;
+  background: var(--wm-consistency-panel-soft) !important;
+  color: var(--wm-consistency-text) !important;
+}
+
+html[data-wingman-route="intelligence"] .wingman-page-host .wm-intel-toggle input,
+.wm-route-intelligence .wingman-page-host .wm-intel-toggle input {
+  width: 16px !important;
+  background: rgba(3, 14, 25, 0.96) !important;
+}
+
+/* WINGMAN_LEGACY_SPECIFICITY_OVERRIDES_END */

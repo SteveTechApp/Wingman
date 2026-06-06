@@ -1,4 +1,4 @@
-﻿import { Cable, CheckCircle2, Circle, Clock3, Monitor, Network, PanelTop, Settings2, type LucideIcon } from "lucide-react";
+import { Cable, CheckCircle2, Circle, Clock3, Monitor, Network, PanelTop, Settings2, type LucideIcon } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
@@ -131,9 +131,9 @@ function progressClasses(state: ProgressState) {
       };
     case "current":
       return {
-        wrapper: "border-amber-200 bg-amber-50 text-amber-950 hover:bg-amber-100/70",
-        icon: "text-amber-600",
-        badge: "bg-amber-100 text-amber-700",
+        wrapper: "border-cyan-200 bg-cyan-50 text-cyan-950 hover:bg-cyan-100/70",
+        icon: "text-cyan-600",
+        badge: "bg-cyan-100 text-cyan-700",
         label: "Current",
       };
     default:
@@ -300,7 +300,7 @@ export function VideowallBuilderPage() {
           >
             <div className="mb-4 flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-[0.18em]">
               <span className="rounded-full bg-emerald-100 px-3 py-1 text-emerald-700">Completed</span>
-              <span className="rounded-full bg-amber-100 px-3 py-1 text-amber-700">Current</span>
+              <span className="rounded-full bg-cyan-100 px-3 py-1 text-cyan-700">Current</span>
               <span className="rounded-full bg-[#0d2133] px-3 py-1 text-slate-600">To do</span>
             </div>
 

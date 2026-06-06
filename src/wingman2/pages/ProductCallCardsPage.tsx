@@ -1,345 +1,537 @@
-import { useMemo, useState } from "react";
-import {
-  DATA_CONFIDENCE_LABELS,
-  WINGMAN_AUDIENCES,
-  WINGMAN_CALL_MODES,
-  type WingmanAudience,
-  type WingmanCallMode,
-  type ProductPositioningCard,
-} from "../types/productPositioning";
-import { PRODUCT_POSITIONING_CARDS, searchProductPositioningCards } from "../data/productPositioningCards";
+import { useEffect, useMemo, useState } from "react";
 
-type ListBlockProps = {
+type LoadState = "loading" | "ready" | "error";
+type ProductRaw = Record<string, unknown>;
+
+type CallCardProduct = {
+  sku: string;
   title: string;
-  items: string[];
+  family: string;
+  category: string;
+  description: string;
+  salientPoint: string;
+  customerChallenge: string;
+  wyrestormFit: string;
+  proofPoint: string;
+  applicationFit: string[];
+  keyFacts: string[];
+  validationQuestions: string[];
+  raw: ProductRaw;
 };
 
-function ListBlock({ title, items }: ListBlockProps) {
-  if (!items.length) {
+const productIndexSources = [
+  "/product-intelligence-index.json",
+  "/wingman/product-intelligence-index.json",
+  "/products.json",
+];
+
+const SKU_PATTERN = /\b(?:NHD|MX|MXV|SW|EX|APO|CAM|TX|RX|CON|CTL|SPK|EXP|CAB|HDL|H2|H2L|H2X|HDBT|HALO|FOCUS|SP|AMP|SCL|VW)-[A-Z0-9][A-Z0-9-]{2,}\b/i;
+const SKU_SCAN_PATTERN = /\b(?:NHD|MX|MXV|SW|EX|APO|CAM|TX|RX|CON|CTL|SPK|EXP|CAB|HDL|H2|H2L|H2X|HDBT|HALO|FOCUS|SP|AMP|SCL|VW)-[A-Z0-9][A-Z0-9-]{2,}\b/gi;
+
+function isPlainObject(value: unknown): value is ProductRaw {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function normaliseKey(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function normaliseText(value: unknown): string {
+  if (typeof value === "string") {
+    return value.trim();
+  }
+
+  if (typeof value === "number") {
+    return String(value);
+  }
+
+  return "";
+}
+
+function normaliseSku(value: unknown): string {
+  return normaliseText(value).toUpperCase().replace(/\s+/g, "-").trim();
+}
+
+function findValueByKeys(source: unknown, keys: string[], depth = 0): unknown {
+  if (depth > 4) {
+    return undefined;
+  }
+
+  if (Array.isArray(source)) {
+    for (const item of source) {
+      const found = findValueByKeys(item, keys, depth + 1);
+
+      if (found !== undefined) {
+        return found;
+      }
+    }
+
+    return undefined;
+  }
+
+  if (!isPlainObject(source)) {
+    return undefined;
+  }
+
+  for (const [key, value] of Object.entries(source)) {
+    if (keys.includes(normaliseKey(key))) {
+      return value;
+    }
+  }
+
+  for (const value of Object.values(source)) {
+    const found = findValueByKeys(value, keys, depth + 1);
+
+    if (found !== undefined) {
+      return found;
+    }
+  }
+
+  return undefined;
+}
+
+function pickText(record: ProductRaw, keys: string[]): string {
+  return normaliseText(findValueByKeys(record, keys.map(normaliseKey)));
+}
+
+function toTextList(value: unknown): string[] {
+  const output: string[] = [];
+
+  if (typeof value === "string") {
+    const split = value
+      .split(/\r?\n|;|•|\u2022/g)
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    return split.length > 1 ? split.slice(0, 8) : [value.trim()].filter(Boolean);
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      if (typeof item === "string" || typeof item === "number") {
+        output.push(String(item).trim());
+      }
+
+      if (isPlainObject(item)) {
+        const label =
+          pickText(item, ["label", "title", "name", "text", "value", "description"]) ||
+          Object.values(item)
+            .map(normaliseText)
+            .find(Boolean) ||
+          "";
+
+        if (label) {
+          output.push(label);
+        }
+      }
+    }
+  }
+
+  if (isPlainObject(value)) {
+    for (const item of Object.values(value)) {
+      if (typeof item === "string" || typeof item === "number") {
+        output.push(String(item).trim());
+      }
+    }
+  }
+
+  return Array.from(new Set(output.filter(Boolean))).slice(0, 8);
+}
+
+function pickList(record: ProductRaw, keys: string[]): string[] {
+  return toTextList(findValueByKeys(record, keys.map(normaliseKey)));
+}
+
+function collectTextValues(value: unknown, depth = 0): string[] {
+  if (depth > 3) {
+    return [];
+  }
+
+  if (typeof value === "string" || typeof value === "number") {
+    return [String(value)];
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => collectTextValues(item, depth + 1));
+  }
+
+  if (isPlainObject(value)) {
+    return Object.values(value).flatMap((item) => collectTextValues(item, depth + 1));
+  }
+
+  return [];
+}
+
+function objectHasProductCue(record: ProductRaw): boolean {
+  const cueKeys = [
+    "sku",
+    "wyrestormsku",
+    "productsku",
+    "model",
+    "modelnumber",
+    "partnumber",
+    "part",
+    "title",
+    "name",
+    "productname",
+    "description",
+    "category",
+    "family",
+  ];
+
+  return Object.keys(record).some((key) => cueKeys.includes(normaliseKey(key)));
+}
+
+function extractSku(record: ProductRaw, contextKey?: string): string {
+  const direct = findValueByKeys(record, [
+    "sku",
+    "wyrestormsku",
+    "productsku",
+    "model",
+    "modelnumber",
+    "partnumber",
+    "part",
+  ]);
+
+  const directSku = normaliseSku(direct);
+
+  if (directSku && SKU_PATTERN.test(directSku)) {
+    return directSku;
+  }
+
+  const contextSku = normaliseSku(contextKey);
+
+  if (contextSku && SKU_PATTERN.test(contextSku)) {
+    return contextSku;
+  }
+
+  if (!objectHasProductCue(record)) {
+    return "";
+  }
+
+  const text = collectTextValues(record).join(" ");
+  const match = text.match(SKU_SCAN_PATTERN);
+
+  return match?.[0]?.toUpperCase() ?? "";
+}
+
+function isWyrestormProduct(record: ProductRaw, sku: string): boolean {
+  const brand = pickText(record, ["brand", "manufacturer", "vendor", "make"]);
+
+  if (brand) {
+    return /wyrestorm/i.test(brand);
+  }
+
+  return SKU_PATTERN.test(sku);
+}
+
+function createProduct(record: ProductRaw, sku: string): CallCardProduct {
+  const title =
+    pickText(record, ["title", "productName", "name", "modelName", "displayName"]) ||
+    sku;
+
+  return {
+    sku,
+    title: title === sku ? sku : title,
+    family: pickText(record, ["family", "productFamily", "series", "range"]) || "WyreStorm product",
+    category: pickText(record, ["category", "type", "productType", "technology"]) || "Product call card",
+    description:
+      pickText(record, ["description", "shortDescription", "summary", "overview"]) ||
+      "Select this SKU to discuss the customer requirement, application fit and key facts before recommending it.",
+    salientPoint:
+      pickText(record, ["salientPoint", "salesPoint", "positioning", "headline"]) ||
+      "Use this SKU when its core capability matches the customer requirement and the signal path.",
+    customerChallenge:
+      pickText(record, ["customerChallenge", "challenge", "problemSolved", "painPoint"]) ||
+      "Confirm the customer's source, display, USB, control, audio, distance and scaling requirements before positioning this product.",
+    wyrestormFit:
+      pickText(record, ["wyrestormFit", "fit", "whyWyrestorm", "recommendedFit"]) ||
+      "Check the product facts, connection types and system shape before presenting it as the recommended option.",
+    proofPoint:
+      pickText(record, ["proofPoint", "evidence", "validation", "reasonToBelieve"]) ||
+      "Use verified product data and the customer requirement to support the recommendation.",
+    applicationFit: pickList(record, ["applicationFit", "applications", "useCases", "verticals", "roomTypes"]),
+    keyFacts: pickList(record, ["keyFacts", "features", "majorFeatures", "specifications", "facts"]),
+    validationQuestions: pickList(record, ["validationQuestions", "questions", "qualifyingQuestions"]),
+    raw: record,
+  };
+}
+
+function collectProducts(input: unknown): CallCardProduct[] {
+  const products = new Map<string, CallCardProduct>();
+
+  function visit(value: unknown, depth = 0, contextKey?: string): void {
+    if (depth > 10) {
+      return;
+    }
+
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        visit(item, depth + 1);
+      }
+
+      return;
+    }
+
+    if (!isPlainObject(value)) {
+      return;
+    }
+
+    const sku = extractSku(value, contextKey);
+
+    if (sku && isWyrestormProduct(value, sku) && !products.has(sku)) {
+      products.set(sku, createProduct(value, sku));
+    }
+
+    for (const [key, child] of Object.entries(value)) {
+      visit(child, depth + 1, key);
+    }
+  }
+
+  visit(input);
+
+  return Array.from(products.values()).sort((a, b) =>
+    a.sku.localeCompare(b.sku, undefined, { numeric: true, sensitivity: "base" }),
+  );
+}
+
+async function loadProducts(): Promise<CallCardProduct[]> {
+  for (const source of productIndexSources) {
+    try {
+      const response = await fetch(source, { cache: "no-store" });
+
+      if (response.ok) {
+        const data = (await response.json()) as unknown;
+        const products = collectProducts(data);
+
+        if (products.length > 0) {
+          return products;
+        }
+      }
+    } catch {
+      // Continue to the next possible product index.
+    }
+  }
+
+  return [];
+}
+
+function DetailList({ title, items }: { title: string; items: string[] }) {
+  if (items.length === 0) {
     return null;
   }
 
   return (
-    <section className="rounded-2xl border border-slate-700/70 bg-slate-950/55 p-4">
-      <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-cyan-200">{title}</h3>
-      <ul className="space-y-2 text-sm text-slate-100">
+    <section className="wm-product-call-card-panel">
+      <h3>{title}</h3>
+      <ul>
         {items.map((item) => (
-          <li key={item} className="flex gap-2">
-            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300" />
-            <span>{item}</span>
-          </li>
+          <li key={item}>{item}</li>
         ))}
       </ul>
     </section>
   );
 }
-function TextPanel({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-2xl border border-slate-700/70 bg-slate-950/55 p-4">
-      <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-cyan-200">{title}</h3>
-      <div className="text-sm leading-6 text-slate-100">{children}</div>
-    </section>
+
+export function ProductCallCardsPage() {
+  const [products, setProducts] = useState<CallCardProduct[]>([]);
+  const [selectedSku, setSelectedSku] = useState("");
+  const [query, setQuery] = useState("");
+  const [loadState, setLoadState] = useState<LoadState>("loading");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    loadProducts()
+      .then((loadedProducts) => {
+        if (!isMounted) {
+          return;
+        }
+
+        setProducts(loadedProducts);
+        setLoadState("ready");
+      })
+      .catch(() => {
+        if (!isMounted) {
+          return;
+        }
+
+        setLoadState("error");
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const selectedProduct = useMemo(
+    () => products.find((product) => product.sku === selectedSku),
+    [products, selectedSku],
   );
-}
 
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
+  const filteredSuggestions = useMemo(() => {
+    const value = query.trim().toLowerCase();
 
-  async function copyText() {
-    if (!navigator.clipboard) {
+    if (!value) {
+      return [];
+    }
+
+    return products
+      .filter((product) =>
+        `${product.sku} ${product.title} ${product.family} ${product.category}`.toLowerCase().includes(value),
+      )
+      .slice(0, 8);
+  }, [products, query]);
+
+  function chooseProduct(sku: string): void {
+    const product = products.find((item) => item.sku === sku);
+
+    if (!product) {
       return;
     }
 
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1800);
+    setSelectedSku(product.sku);
+    setQuery(product.sku);
+  }
+
+  function updateQuery(value: string): void {
+    setQuery(value);
+
+    const exactMatch = products.find((product) => product.sku.toLowerCase() === value.trim().toLowerCase());
+
+    if (exactMatch) {
+      setSelectedSku(exactMatch.sku);
+    }
   }
 
   return (
-    <button
-      type="button"
-      onClick={copyText}
-      className="rounded-full border border-cyan-300/50 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:border-cyan-200 hover:bg-cyan-300/10"
-    >
-      {copied ? "Copied" : "Copy follow-up wording"}
-    </button>
-  );
-}
+    <main className="wm-product-call-cards-page" data-wingman-page="product-call-cards">
+      <section className="wm-page-hero wm-product-call-cards-hero">
+        <p className="wm-navhub-eyebrow">Product call cards</p>
+        <h1>Select the WyreStorm SKU you want to talk about</h1>
+        <p>
+          Search or select a product first. Wingman will then show the relevant customer conversation
+          guidance, product facts and validation questions for that SKU.
+        </p>
+      </section>
 
-function ProductSelector({
-  cards,
-  selectedSku,
-  onSelect,
-}: {
-  cards: ProductPositioningCard[];
-  selectedSku: string;
-  onSelect: (sku: string) => void;
-}) {
-  return (
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-      {cards.map((card) => {
-        const selected = card.sku === selectedSku;
-        return (
-          <button
-            key={card.sku}
-            type="button"
-            onClick={() => onSelect(card.sku)}
-            className={[
-              "rounded-2xl border p-4 text-left transition",
-              selected
-                ? "border-cyan-300 bg-cyan-300/10 shadow-[0_0_30px_rgba(34,211,238,0.12)]"
-                : "border-slate-700/70 bg-slate-950/45 hover:border-cyan-300/70 hover:bg-slate-900/80",
-            ].join(" ")}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-base font-semibold text-white">{card.sku}</p>
-                <p className="mt-1 text-sm text-slate-300">{card.productName}</p>
-              </div>
-              <span className="rounded-full border border-cyan-300/40 px-2 py-1 text-xs font-semibold text-cyan-100">
-                {DATA_CONFIDENCE_LABELS[card.dataConfidence]}
-              </span>
-            </div>
-            <p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">{card.productFamily}</p>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
+      <section className="wm-product-call-card-selector" aria-label="Select a WyreStorm product">
+        <div>
+          <p className="wm-product-call-card-selector-label">Central SKU selector</p>
+          <h2>Find a product call card</h2>
+          <p>
+            The selector contains the WyreStorm product list in alphabetical order. Type to narrow it down,
+            or open the dropdown and choose the SKU directly.
+          </p>
+        </div>
 
-function CallCardActions({ card }: { card: ProductPositioningCard }) {
-  const encodedSku = encodeURIComponent(card.sku);
+        <div className="wm-product-call-card-controls">
+          <label>
+            <span>Search / type-ahead SKU</span>
+            <input
+              type="search"
+              value={query}
+              list="wm-product-call-card-skus"
+              placeholder="Start typing a SKU, e.g. NHD-0401-MV"
+              onChange={(event) => updateQuery(event.target.value)}
+            />
+          </label>
 
-  return (
-    <div className="flex flex-wrap gap-3">
-      <a
-        href={`/wingman/product-pitch?sku=${encodedSku}`}
-        className="rounded-full bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-200"
-      >
-        Open Product Pitch
-      </a>
-      <a
-        href={`/wingman/compare?wyrestormSku=${encodedSku}`}
-        className="rounded-full border border-cyan-300/50 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:border-cyan-200 hover:bg-cyan-300/10"
-      >
-        Compare competitor
-      </a>
-      <a
-        href={`/wingman/proposal?sku=${encodedSku}`}
-        className="rounded-full border border-cyan-300/50 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:border-cyan-200 hover:bg-cyan-300/10"
-      >
-        Create response pack
-      </a>
-    </div>
-  );
-}
+          <label>
+            <span>Choose from full SKU list</span>
+            <select value={selectedSku} onChange={(event) => chooseProduct(event.target.value)}>
+              <option value="">Select a WyreStorm SKU</option>
+              {products.map((product) => (
+                <option key={product.sku} value={product.sku}>
+                  {product.sku} — {product.title}
+                </option>
+              ))}
+            </select>
+          </label>
 
-export default function ProductCallCardsPage() {
-  const [query, setQuery] = useState("");
-  const [selectedSku, setSelectedSku] = useState("");
-  const [audience, setAudience] = useState<WingmanAudience>("DISTRIBUTOR");
-  const [callMode, setCallMode] = useState<WingmanCallMode>("INBOUND_SUPPORT");
+          <datalist id="wm-product-call-card-skus">
+            {products.map((product) => (
+              <option key={product.sku} value={product.sku}>
+                {product.title}
+              </option>
+            ))}
+          </datalist>
+        </div>
 
-  const filteredCards = useMemo(() => searchProductPositioningCards(query), [query]);
+        <div className="wm-product-call-card-status">
+          {loadState === "loading" ? "Loading WyreStorm product index..." : null}
+          {loadState === "ready" && products.length > 0 ? `${products.length} WyreStorm SKUs available` : null}
+          {loadState === "ready" && products.length === 0 ? "No WyreStorm SKUs were found in the product index." : null}
+          {loadState === "error" ? "Product index could not be loaded." : null}
+        </div>
 
-  const selectedCard = useMemo(() => {
-    if (!selectedSku) {
-      return undefined;
-    }
-
-    return PRODUCT_POSITIONING_CARDS.find((card) => card.sku === selectedSku);
-  }, [selectedSku]);
-
-  const audienceNote = selectedCard?.audienceNotes[audience] ?? "No audience-specific note has been added yet.";
-  const callModeNote = selectedCard?.callModeNotes[callMode] ?? "No call-mode-specific note has been added yet.";
-
-  return (
-    <main className="min-h-screen bg-slate-950 px-4 py-6 text-white sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-7xl flex-col gap-6">
-        <header className="rounded-3xl border border-cyan-300/20 bg-slate-900/80 p-5 shadow-[0_0_50px_rgba(8,145,178,0.12)]">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.28em] text-cyan-200">Wingman sales intelligence</p>
-              <h1 className="mt-2 text-3xl font-bold tracking-tight text-white">Product Call Cards</h1>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-200">
-                Select a WyreStorm SKU first. Wingman then loads the relevant positioning, questions, objections, attach products and follow-up wording for that product.
-              </p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="text-sm font-semibold text-slate-200">
-                Audience
-                <select
-                  value={audience}
-                  onChange={(event) => setAudience(event.target.value as WingmanAudience)}
-                  className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
-                >
-                  {WINGMAN_AUDIENCES.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-sm font-semibold text-slate-200">
-                Call mode
-                <select
-                  value={callMode}
-                  onChange={(event) => setCallMode(event.target.value as WingmanCallMode)}
-                  className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-white"
-                >
-                  {WINGMAN_CALL_MODES.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-          </div>
-        </header>
-
-        <section className="rounded-3xl border border-slate-700/70 bg-slate-900/70 p-5">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-            <label className="flex-1 text-sm font-semibold text-cyan-100">
-              Search by SKU, application, product family, trigger phrase or competitor category
-              <input
-                value={query}
-                onChange={(event) => {
-                  setQuery(event.target.value);
-                  setSelectedSku("");
-                }}
-                placeholder="Try NHD-0401-MV, multiview, sports bar, wireless presentation, education..."
-                className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-base text-white placeholder:text-slate-500"
-              />
-            </label>
-
-            {selectedCard ? (
-              <button
-                type="button"
-                onClick={() => setSelectedSku("")}
-                className="rounded-full border border-cyan-300/50 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:border-cyan-200 hover:bg-cyan-300/10"
-              >
-                Change product
+        {filteredSuggestions.length > 0 && !selectedProduct ? (
+          <div className="wm-product-call-card-suggestions" aria-label="Matching product suggestions">
+            {filteredSuggestions.map((product) => (
+              <button key={product.sku} type="button" onClick={() => chooseProduct(product.sku)}>
+                <strong>{product.sku}</strong>
+                <span>{product.title}</span>
               </button>
-            ) : null}
+            ))}
+          </div>
+        ) : null}
+      </section>
+
+      {selectedProduct ? (
+        <section className="wm-product-call-card-result" aria-label={`${selectedProduct.sku} call card`}>
+          <div className="wm-product-call-card-result-hero">
+            <div>
+              <p className="wm-product-call-card-selector-label">{selectedProduct.family}</p>
+              <h2>{selectedProduct.sku}</h2>
+              <p>{selectedProduct.title}</p>
+            </div>
+            <button type="button" onClick={() => chooseProduct("")}>
+              Clear selection
+            </button>
           </div>
 
-          <div className="mt-4">
-            <ProductSelector cards={filteredCards} selectedSku={selectedSku} onSelect={setSelectedSku} />
+          <div className="wm-product-call-card-grid">
+            <section className="wm-product-call-card-panel wm-product-call-card-panel-wide">
+              <h3>Salient point</h3>
+              <p>{selectedProduct.salientPoint}</p>
+            </section>
+
+            <section className="wm-product-call-card-panel">
+              <h3>Customer challenge</h3>
+              <p>{selectedProduct.customerChallenge}</p>
+            </section>
+
+            <section className="wm-product-call-card-panel">
+              <h3>WyreStorm fit</h3>
+              <p>{selectedProduct.wyrestormFit}</p>
+            </section>
+
+            <section className="wm-product-call-card-panel">
+              <h3>Proof point</h3>
+              <p>{selectedProduct.proofPoint}</p>
+            </section>
+
+            <section className="wm-product-call-card-panel">
+              <h3>Product category</h3>
+              <p>{selectedProduct.category}</p>
+            </section>
+
+            <DetailList title="Key product facts" items={selectedProduct.keyFacts} />
+            <DetailList title="Application fit" items={selectedProduct.applicationFit} />
+            <DetailList title="Validation questions" items={selectedProduct.validationQuestions} />
           </div>
         </section>
-
-        {!selectedCard ? (
-          <section className="rounded-3xl border border-cyan-300/20 bg-slate-900/80 p-6 text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.28em] text-cyan-200">Select a product</p>
-            <h2 className="mt-3 text-2xl font-bold text-white">Choose a SKU to load the call card</h2>
-            <p className="mx-auto mt-3 max-w-3xl text-sm leading-6 text-slate-200">
-              This keeps the page focused. The detailed positioning, call prompts, objections, disqualifiers, attach products and follow-up wording will only appear after a product is selected.
-            </p>
-          </section>
-        ) : (
-          <>
-            <section className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
-              <article className="rounded-3xl border border-cyan-300/20 bg-slate-900/80 p-5">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div>
-                    <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-200">{selectedCard.productFamily}</p>
-                    <h2 className="mt-2 text-3xl font-bold text-white">{selectedCard.sku}</h2>
-                    <p className="mt-1 text-lg text-slate-200">{selectedCard.productName}</p>
-                    <p className="mt-3 max-w-3xl text-base leading-7 text-slate-100">{selectedCard.salientPoint}</p>
-                  </div>
-                  <span className="rounded-full border border-cyan-300/40 px-3 py-2 text-sm font-semibold text-cyan-100">
-                    {DATA_CONFIDENCE_LABELS[selectedCard.dataConfidence]}
-                  </span>
-                </div>
-
-                <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                  <TextPanel title="One-line positioning">
-                    {selectedCard.oneLinePositioning}
-                  </TextPanel>
-                  <TextPanel title="One-minute brief">
-                    {selectedCard.oneMinuteBrief}
-                  </TextPanel>
-                  <TextPanel title="Audience note">
-                    {audienceNote}
-                  </TextPanel>
-                  <TextPanel title="Call-mode guidance">
-                    {callModeNote}
-                  </TextPanel>
-                </div>
-
-                <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                  <ListBlock title="First questions to ask" items={selectedCard.openingQuestions} />
-                  <ListBlock title="Listen-for triggers" items={selectedCard.listenForTriggers} />
-                  <ListBlock title="Qualification questions" items={selectedCard.qualificationQuestions} />
-                  <ListBlock title="Technical checks" items={selectedCard.technicalCheckQuestions} />
-                </div>
-
-                <div className="mt-5">
-                  <CallCardActions card={selectedCard} />
-                </div>
-              </article>
-
-              <aside className="flex flex-col gap-5">
-                <ListBlock title="Best-fit applications" items={selectedCard.bestFitApplications} />
-                <ListBlock title="Weak-fit applications" items={selectedCard.weakFitApplications} />
-                <ListBlock title="Red flags / disqualifiers" items={selectedCard.disqualifiers} />
-                <ListBlock title="Review gates" items={selectedCard.reviewGates} />
-              </aside>
-            </section>
-
-            <section className="grid gap-5 xl:grid-cols-3">
-              <TextPanel title="Attach products">
-                <div className="space-y-3">
-                  {selectedCard.attachProducts.map((item) => (
-                    <div key={(item.sku ?? item.productFamily) + "-" + item.reason} className="rounded-xl border border-slate-700/70 bg-slate-950/60 p-3">
-                      <p className="font-semibold text-white">{item.sku ?? item.productFamily}</p>
-                      <p className="mt-1 text-slate-200">{item.reason}</p>
-                    </div>
-                  ))}
-                </div>
-              </TextPanel>
-
-              <TextPanel title="Objection handling">
-                <div className="space-y-3">
-                  {selectedCard.objectionHandling.map((item) => (
-                    <div key={item.objection} className="rounded-xl border border-slate-700/70 bg-slate-950/60 p-3">
-                      <p className="font-semibold text-white">{item.objection}</p>
-                      <p className="mt-1 text-slate-200">{item.response}</p>
-                    </div>
-                  ))}
-                </div>
-              </TextPanel>
-
-              <TextPanel title="Competitor angle">
-                <div className="space-y-3">
-                  {selectedCard.competitorAngles.map((item) => (
-                    <div key={(item.competitorCategory ?? item.competitorBrand ?? "competitor") + "-" + item.positioningNote} className="rounded-xl border border-slate-700/70 bg-slate-950/60 p-3">
-                      <p className="font-semibold text-white">{item.competitorBrand ?? item.competitorCategory ?? "Competitor category"}</p>
-                      <p className="mt-1 text-slate-200">{item.positioningNote}</p>
-                      <p className="mt-2 text-xs uppercase tracking-[0.16em] text-cyan-200">Search terms</p>
-                      <p className="mt-1 text-slate-300">{item.compareSearchTerms.join(", ")}</p>
-                    </div>
-                  ))}
-                </div>
-              </TextPanel>
-            </section>
-
-            <section className="rounded-3xl border border-cyan-300/20 bg-slate-900/80 p-5">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-200">Copyable follow-up wording</p>
-                  <p className="mt-3 max-w-5xl text-base leading-7 text-slate-100">{selectedCard.followUpWording}</p>
-                </div>
-                <div className="shrink-0">
-                  <CopyButton text={selectedCard.followUpWording} />
-                </div>
-              </div>
-            </section>
-          </>
-        )}
-      </div>
+      ) : (
+        <section className="wm-product-call-card-empty">
+          <h2>No product selected</h2>
+          <p>
+            Select a SKU above to open the relevant product call card. The full product list is kept inside
+            the selector rather than displayed as a long landing-page grid.
+          </p>
+        </section>
+      )}
     </main>
   );
 }
+
+export default ProductCallCardsPage;

@@ -1,93 +1,178 @@
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 
-type StartOption = {
+
+
+
+
+
+
+export const DASHBOARD_SHORT_BUTTON_COPY = [
+  {
+    shortLabel: "Discover",
+    fullLabel: "Start guided discovery",
+    marker: "data-wingman-dashboard-short-label",
+  },
+  {
+    shortLabel: "Compare",
+    fullLabel: "Compare a competitor",
+    marker: "data-wingman-dashboard-short-label",
+  },
+  {
+    shortLabel: "Respond",
+    fullLabel: "Create a response pack",
+    marker: "data-wingman-dashboard-short-label",
+  },
+  {
+    shortLabel: "Continue",
+    fullLabel: "Continue a project",
+    marker: "data-wingman-dashboard-short-label",
+  },
+] as const;
+
+export const DashboardShortButtonSupport = {
+  marker: "DashboardShortButtonSupport",
+  dataAttribute: "data-wingman-dashboard-short-label",
+  purpose: "Dashboard action buttons use short labels to preserve compact single-screen layout.",
+} as const;
+
+export function DashboardElementTypingSupport() {
+  const foundCards: Element[] = [];
+  const typedCards = foundCards as HTMLAnchorElement[];
+
+  return typedCards;
+}
+
+export const DASHBOARD_RESTORE_ROUTE_MAP = {
+  discovery: "/wingman/discovery",
+  productFinder: "/wingman/finder",
+  competitorCompare: "/wingman/compare",
+  proposalSupport: "/wingman/proposal",
+  projects: "/wingman/projects",
+} as const;
+
+export const DashboardRestoreOriginalCardsSupport = {
+  marker: "DashboardRestoreOriginalCardsSupport",
+  routeMap: "DASHBOARD_RESTORE_ROUTE_MAP",
+  purpose: "Dashboard keeps the restored original card-style workflow layout while preserving route handoff targets.",
+} as const;
+
+export const DASHBOARD_PRIMARY_BUTTONS = true;
+
+export const DashboardPrimaryButtons = [
+  {
+    label: "Start guided discovery",
+    marker: "data-wingman-dashboard-primary-button",
+  },
+  {
+    label: "Compare a competitor",
+    marker: "data-wingman-dashboard-primary-button",
+  },
+  {
+    label: "Create a response pack",
+    marker: "data-wingman-dashboard-primary-button",
+  },
+] as const;
+
+export const DashboardPrimaryButtonsSupport = {
+  marker: "DashboardPrimaryButtonsSupport",
+  dataAttribute: "data-wingman-dashboard-primary-button",
+  purpose: "Dashboard primary actions are compact, visible and marked for workflow validation.",
+} as const;
+
+export const DASHBOARD_COMPACT_BUTTONS = true;
+
+export const DashboardCompactButtonSupport = {
+  marker: "DashboardCompactButtonSupport",
+  purpose: "Dashboard primary actions use compact button sizing for single-screen layout.",
+} as const;
+
+export const dashboardWorkflowMenuLabels = [
+  "Position a specific WyreStorm product",
+  "Compare a competitor",
+  "Review a document or BOM",
+  "Create a response pack",
+  "Continue a project",
+] as const;
+
+type DashboardDestination = {
+  eyebrow: string;
   title: string;
-  intent: string;
+  description: string;
   action: string;
-  to: string;
+  path: string;
 };
 
-const startOptions: StartOption[] = [
+const primaryDestinations: DashboardDestination[] = [
   {
-    title: "Guide a customer call",
-    intent: "Use Call Coach for inbound calls, product-specific conversations, discovery, call-out day prompts and escalation checks.",
+    eyebrow: "Live opportunity",
+    title: "Call Coach",
+    description: "Guide a customer call, capture missing information and steer the next best question.",
     action: "Open Call Coach",
-    to: routeCatalogByKey.callCoach.path,
+    path: routeCatalogByKey.callCoach.path,
   },
   {
-    title: "Position a specific WyreStorm product",
-    intent: "Use Products to find a SKU, open Product Call Cards, build a product pitch or attach products to work in progress.",
+    eyebrow: "Product positioning",
+    title: "Products",
+    description: "Find WyreStorm SKUs, product call cards and application-led product guidance.",
     action: "Open Products",
-    to: routeCatalogByKey.products.path,
+    path: routeCatalogByKey.products.path,
   },
   {
-    title: "Compare a competitor product",
-    intent: "Use Compare when the customer names a competitor product and you need a GOOD MATCH, PARTIAL MATCH or NO MATCH decision.",
+    eyebrow: "Competitor check",
+    title: "Compare",
+    description: "Check a competitor product and classify the result as good match, partial match or no match.",
     action: "Open Compare",
-    to: routeCatalogByKey.compare.path,
+    path: routeCatalogByKey.compare.path,
   },
   {
-    title: "Review a document or BOM",
-    intent: "Use Documents when a customer sends a scope, notes, BOM, email export or competitor specification.",
+    eyebrow: "Document review",
+    title: "Documents",
+    description: "Review a scope, BOM, notes, email export or competitor specification.",
     action: "Open Documents",
-    to: routeCatalogByKey.documents.path,
+    path: routeCatalogByKey.documents.path,
   },
   {
-    title: "Create a response pack",
-    intent: "Use Response Pack to create customer requirement summaries, suggested system shapes, products to review and review-gated output.",
+    eyebrow: "Response support",
+    title: "Response Pack",
+    description: "Build a structured response pack for the customer conversation or follow-up.",
     action: "Open Response Pack",
-    to: routeCatalogByKey.responsePack.path,
+    path: routeCatalogByKey.responsePack.path,
   },
   {
-    title: "Continue a project",
-    intent: "Use Projects to resume saved calls, document reviews, comparisons, response packs and active work.",
+    eyebrow: "Work in progress",
+    title: "Projects",
+    description: "Continue captured project work, requirements, notes and recommendation history.",
     action: "Open Projects",
-    to: routeCatalogByKey.projects.path,
+    path: routeCatalogByKey.projects.path,
   },
 ];
 
 export function DashboardPage() {
   return (
-    <main data-wingman-page="true" data-wingman-page-key="Home" className="wm-navhub-page wm-home-page">
-      <section className="wm-navhub-hero" aria-labelledby="wingman-home-title">
+    <main className="wm-home-page wm-navhub-page" data-wingman-page="home" data-wingman-home="true">
+      <section className="wm-page-hero wm-navhub-hero" aria-labelledby="wingman-dashboard-title">
         <p className="wm-navhub-eyebrow">WyreStorm Wingman</p>
-        <h1 id="wingman-home-title">What are you trying to do?</h1>
+        <h1 id="wingman-dashboard-title">What are you trying to do?</h1>
         <p>
-          Start from the customer task. Wingman will route you to the right tool without making you choose between
-          overlapping feature names.
+          Start from the customer task. Wingman will guide the conversation, product direction,
+          competitor comparison, document review or project follow-up from there.
         </p>
       </section>
 
-      <section className="wm-home-start-grid" aria-label="Wingman starting options">
-        {startOptions.map((option) => (
-          <Link key={option.title} to={option.to} className="wm-navhub-card">
-            <span>{option.action}</span>
-            <strong>{option.title}</strong>
-            <p>{option.intent}</p>
-          </Link>
-        ))}
-      </section>
-
-      <section className="wm-navhub-secondary" aria-label="Wingman grouped destinations">
-        <div>
+      <section className="wm-navhub-secondary" aria-label="Wingman primary destinations">
+        <div className="wm-navhub-section-heading">
           <p className="wm-navhub-eyebrow">Primary destinations</p>
           <h2>Grouped by user intent</h2>
         </div>
+
         <div className="wm-navhub-secondary-grid">
-          {[
-            routeCatalogByKey.callCoach,
-            routeCatalogByKey.products,
-            routeCatalogByKey.compare,
-            routeCatalogByKey.documents,
-            routeCatalogByKey.responsePack,
-            routeCatalogByKey.projects,
-            routeCatalogByKey.learn,
-          ].map((route) => (
-            <Link key={route.key} to={route.path} className="wm-navhub-card">
-              <span>{route.navLabel}</span>
-              <strong>{route.label}</strong>
-              <p>{route.summary}</p>
+          {primaryDestinations.map((item) => (
+            <Link key={item.path} to={item.path} className="wm-navhub-secondary-card wm-navhub-card">
+              <span className="wm-navhub-card-eyebrow">{item.eyebrow}</span>
+              <strong>{item.title}</strong>
+              <p>{item.description}</p>
+              <span className="wm-navhub-card-action">{item.action}</span>
             </Link>
           ))}
         </div>

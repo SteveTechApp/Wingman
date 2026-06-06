@@ -577,9 +577,64 @@ function buildIndex(products, discoveredSources) {
   };
 }
 
-async function writeFileEnsured(targetPath, content) {
-  await fs.mkdir(path.dirname(targetPath), { recursive: true });
-  await fs.writeFile(targetPath, content, "utf8");
+async function writeFileEnsured(filePath, content) {
+  const fsp = await import("node:fs/promises");
+  const pathModule = await import("node:path");
+
+  await fsp.mkdir(pathModule.dirname(filePath), { recursive: true });
+
+  const lockErrorCodes = new Set(["EBUSY", "EPERM", "EACCES", "UNKNOWN"]);
+  const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+  let existingContent = null;
+
+  for (let attempt = 1; attempt <= 5; attempt += 1) {
+    try {
+      existingContent = await fsp.readFile(filePath, "utf8");
+      break;
+    } catch (error) {
+      if (error && error.code === "ENOENT") {
+        break;
+      }
+
+      if (!error || !lockErrorCodes.has(error.code) || attempt === 5) {
+        existingContent = null;
+        break;
+      }
+
+      await wait(200 * attempt);
+    }
+  }
+
+  if (existingContent === content) {
+    console.log(`[product-intelligence-index] Unchanged ${filePath}`);
+    return;
+  }
+
+  const tempPath = `${filePath}.tmp-${process.pid}-${Date.now()}`;
+
+  await fsp.writeFile(tempPath, content, "utf8");
+
+  for (let attempt = 1; attempt <= 10; attempt += 1) {
+    try {
+      await fsp.rename(tempPath, filePath);
+      return;
+    } catch (error) {
+      const isLockError = error && lockErrorCodes.has(error.code);
+
+      if (!isLockError || attempt === 10) {
+        try {
+          await fsp.rm(tempPath, { force: true });
+        } catch {
+          // best-effort cleanup only
+        }
+
+        throw error;
+      }
+
+      await wait(250 * attempt);
+    }
+  }
 }
 
 function toTsModule(indexObject) {
