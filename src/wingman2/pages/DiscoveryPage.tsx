@@ -615,7 +615,7 @@ export function DiscoveryPage() {
       }) as DiscoveryAnswers);
     }
 
-    function useStoredCallNotes() {
+    function applyStoredCallNotes() {
       const stored = window.sessionStorage.getItem(callNotesStorageKey);
 
       if (!stored) {
@@ -634,7 +634,7 @@ export function DiscoveryPage() {
       }
     }
 
-    useStoredCallNotes();
+    applyStoredCallNotes();
     window.addEventListener("wingman:use-call-notes-in-discovery", handleGuruCallNotes);
 
     return () => {
@@ -655,7 +655,6 @@ export function DiscoveryPage() {
   );
   const complete = DISCOVERY_STEPS.every((step) => Boolean(answers[step.key]));
   const hasMinimumRequired = Boolean(answers.application);
-  const answeredCount = DISCOVERY_STEPS.filter((step) => Boolean(answers[step.key])).length;
   const [showValidationWarning, setShowValidationWarning] = useState(false);
 
   const moveToStep = (index: number) => {
@@ -709,29 +708,30 @@ export function DiscoveryPage() {
     if (!hasMinimumRequired) {
       setShowValidationWarning(true);
       moveToStep(0);
-      return;
+      return false;
     }
     setShowValidationWarning(false);
     const brief = buildDiscoveryBrief(answers);
     saveDiscoveryBriefToProject(brief);
     writeDiscoveryHandoff(brief);
     setSaved(true);
+    return true;
   };
 
   const saveAndOpenProject = () => {
-    saveDiscovery();
+    if (!saveDiscovery()) return;
     const snapshot = readProjectStore();
     const route = snapshot.activeProjectId ? `/wingman/projects/${snapshot.activeProjectId}` : "/wingman/projects";
     navigate(route);
   };
 
   const saveAndOpenFinder = () => {
-    saveDiscovery();
+    if (!saveDiscovery()) return;
     navigate(`/wingman/finder?brief=${encodeURIComponent(summary)}`);
   };
 
   const saveAndOpenProposal = () => {
-    saveDiscovery();
+    if (!saveDiscovery()) return;
     navigate(`/wingman/proposal?brief=${encodeURIComponent(summary)}`);
   };
 
@@ -983,4 +983,3 @@ export function DiscoveryPage() {
 }
 
 export default DiscoveryPage;
-
