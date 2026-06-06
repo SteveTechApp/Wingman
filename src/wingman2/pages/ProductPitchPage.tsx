@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { ProductSalesKnowledgePanel } from "../components/ProductSalesKnowledgePanel";
@@ -421,7 +421,7 @@ function quoteSafetyLabel(status: StoredQuoteSafetyStatus) {
 
 function quoteSafetyClassName(status: StoredQuoteSafetyStatus) {
   if (status === "quote-ready") return "border-emerald-200 bg-emerald-50 text-emerald-950";
-  if (status === "validate-before-quote") return "border-amber-200 bg-amber-50 text-amber-950";
+  if (status === "validate-before-quote") return "border-cyan-200 bg-cyan-50 text-cyan-950";
   return "border-rose-200 bg-rose-50 text-rose-950";
 }
 

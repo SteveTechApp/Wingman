@@ -102,6 +102,7 @@ export const consolidatedPrimaryNavKeys = [
   "dashboard",
   "callCoach",
   "products",
+  "templates",
   "compare",
   "documents",
   "responsePack",

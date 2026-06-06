@@ -158,6 +158,14 @@ assertSourceContains("src/wingman2/data/projectStore.ts", [
   "Local project changes were newer than backend data",
 ]);
 
+if (errors.length) {
+  console.error("[workflow-integration] Check failed:");
+  for (const error of errors) {
+    console.error(`- ${error}`);
+  }
+  process.exit(1);
+}
+
 await checkProtectedBackendRoutes();
 
 if (errors.length) {

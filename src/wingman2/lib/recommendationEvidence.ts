@@ -7,6 +7,7 @@ import type {
   StoredRecommendationEvidence,
 } from "../data/projectStore";
 import { buildSalesReadinessPackage } from "./salesReadiness";
+import { buildAvDecisionEvidence } from "./avDecisionEvidence";
 
 export type RecommendationEvidenceProduct = {
   sku: string;
@@ -322,12 +323,12 @@ function missingInformation(input: RecommendationEvidenceInput) {
   return Array.from(missing);
 }
 
-function quoteSafetyStatus(input: RecommendationEvidenceInput, missing: string[], dependencies: string[]): StoredQuoteSafetyStatus {
+function quoteSafetyStatus(input: RecommendationEvidenceInput, missing: string[], dependencies: string[], decisionBlockerCount = 0): StoredQuoteSafetyStatus {
   const compareScore = Number(input.compare?.matchScore ?? 0);
   const fallbackProduct = Boolean(input.product && "isFallback" in input.product && input.product.isFallback);
   const weakCompare = Boolean(input.compare && compareScore > 0 && compareScore < 66);
 
-  if (missing.length >= 3 || !input.product?.sku) return "do-not-quote-yet";
+  if (decisionBlockerCount > 0 || missing.length >= 3 || !input.product?.sku) return "do-not-quote-yet";
   if (missing.length > 0 || fallbackProduct || weakCompare || dependencies.length > 0) return "validate-before-quote";
   return "quote-ready";
 }
@@ -466,11 +467,25 @@ export function productToSelection(
 export function buildRecommendationEvidence(input: RecommendationEvidenceInput): StoredRecommendationEvidence {
   const missing = missingInformation(input);
   const dependencies = requiredDependencies(input);
-  const status = quoteSafetyStatus(input, missing, dependencies);
+
+  const avDecision = buildAvDecisionEvidence({
+    source: input.source,
+    requirementText: combinedRequirementText(input),
+    productText: productText(input.product),
+    productSku: input.product?.sku,
+    productFamily: input.product?.family,
+    productCategory: input.product?.category,
+    missingInformation: missing,
+    dependencies,
+  });
+
+  const status = quoteSafetyStatus(input, missing, dependencies, avDecision.blockerCount);
+
   const quoteChecks = unique([
     ...missing.map((item) => `Confirm ${item}.`),
     "Validate datasheet, lifecycle, firmware, region, accessory, power and mounting requirements.",
     ...dependencies.map((item) => `Dependency check: ${item}`),
+    ...avDecision.quoteChecks,
   ]);
 
   return {
@@ -480,18 +495,18 @@ export function buildRecommendationEvidence(input: RecommendationEvidenceInput):
     productDirection: productDirection(input),
     systemShape: suggestedSystemShape(input),
     whyThisFits: whyThisFits(input),
-    evidenceUsed: unique([...countEvidence(input), ...compareEvidence(input.compare)]),
+    evidenceUsed: unique([...countEvidence(input), ...compareEvidence(input.compare), ...avDecision.evidence]),
     quoteChecks,
-    missingInformation: missing,
-    requiredDependencies: dependencies,
+    missingInformation: unique([...missing, ...avDecision.missingInformation]),
+    requiredDependencies: unique([...dependencies, ...avDecision.requiredDependencies]),
     optionalUpgrades: optionalUpgrades(input),
-    alternatives: alternatives(input),
+    alternatives: unique([...alternatives(input), ...avDecision.alternatives]),
     customerSafeWording: customerSafeWording(input, status),
-    internalGuidance: internalGuidance(input, status),
+    internalGuidance: unique([...internalGuidance(input, status), ...avDecision.repGuidance]),
     quoteSafetyStatus: status,
     quoteSafetyMessage: quoteSafetyMessage(status, missing),
     confidence: confidence(status, missing),
-    nextBestQuestion: nextBestQuestion(input, missing),
+    nextBestQuestion: avDecision.nextBestQuestion || nextBestQuestion(input, missing),
   };
 }
 

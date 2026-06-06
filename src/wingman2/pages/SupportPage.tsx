@@ -1,4 +1,4 @@
-﻿import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { featureAudit } from "../content/featureAudit";
 import { PageHero } from "../components/PageHero";
@@ -43,7 +43,7 @@ export function SupportPage() {
             ].map((item) => (
               <div key={item.title} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-5 shadow-sm">
                 <h3 className="text-base font-semibold text-[#edf6ff]">{item.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{item.copy}</p>
+                <p className="mt-2 text-sm leading-6 text-[#edf6ff]">{item.copy}</p>
                 <Link
                   to={item.to}
                   className="mt-4 inline-flex rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
@@ -71,14 +71,14 @@ export function SupportPage() {
                     {item.statusMeta.label}
                   </span>
                 </div>
-                <ul className="mt-4 space-y-2 text-sm text-slate-700">
+                <ul className="mt-4 space-y-2 text-sm text-[#edf6ff]">
                   {item.needed.map((need) => (
                     <li key={need}>{need}</li>
                   ))}
                 </ul>
                 <Link
                   to={item.route.path}
-                  className="mt-4 inline-flex rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:bg-[#0d2133]"
+                  className="mt-4 inline-flex rounded-full border border-[#29465e] px-4 py-2 text-sm text-[#edf6ff] transition hover:bg-[#0d2133]"
                 >
                   Open {item.route.label}
                 </Link>

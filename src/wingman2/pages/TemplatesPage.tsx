@@ -1,5 +1,5 @@
-﻿import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import * as roomTemplatesModule from "../lib/roomTemplates";
 import * as roomTemplatesExtraModule from "../lib/roomTemplatesExtra";
 
@@ -343,7 +343,8 @@ const buildTemplateLibrary = (): NormalisedTemplate[] => {
   );
 };
 
-const TemplatesPage = () => {
+export const TemplatesPage = () => {
+  const navigate = useNavigate();
   const templates = useMemo(() => buildTemplateLibrary(), []);
   const [query, setQuery] = useState("");
   const [activeVertical, setActiveVertical] = useState("All");
@@ -404,6 +405,12 @@ const TemplatesPage = () => {
           : "wm-page wm-template-library-page"
       }
     >
+        <Link className="wm-template-start-card wm-template-start-card-blank" to="/wingman/discovery?new=1">
+          <span>Start blank discovery</span>
+          <strong>No template</strong>
+          <p>Open a clean discovery workflow and capture the customer requirement from scratch.</p>
+        </Link>
+
       <header className="wm-page-header wm-template-library-header">
         <div>
           <p className="wm-section-kicker">Wingman template library</p>
@@ -508,6 +515,7 @@ const TemplatesPage = () => {
               onClick={() => {
                 setQuery("");
                 setActiveVertical("All");
+                setActiveTemplateId(null);
               }}
               type="button"
             >
@@ -526,7 +534,14 @@ const TemplatesPage = () => {
                   .filter(Boolean)
                   .join(" ")}
                 key={`${template.id}-${template.title}`}
-                onClick={() => setActiveTemplateId(template.id)}
+                onClick={() => {
+                  if (showNameOnlyCards) {
+                    navigate(`/wingman/templates/${encodeURIComponent(template.id)}`);
+                    return;
+                  }
+
+                  setActiveTemplateId(template.id);
+                }}
                 type="button"
               >
                 {showNameOnlyCards ? (
@@ -639,8 +654,4 @@ const TemplatesPage = () => {
   );
 };
 
-export { TemplatesPage };
 export default TemplatesPage;
-
-
-

@@ -761,7 +761,7 @@ const pageStyles = `
   color: var(--wm-sweep-text) !important;
   background:
     radial-gradient(circle at top right, rgba(245, 158, 11, 0.1), transparent 34%),
-    linear-gradient(180deg, #f8fafc 0%, #eef3f8 100%);
+    linear-gradient(180deg, #06111d 0%, #eef3f8 100%);
 }
 
 .cca-page * {
@@ -869,8 +869,8 @@ const pageStyles = `
 
 .cca-typeStrip button.is-selected {
   border-color: rgba(245, 158, 11, 0.9);
-  background: #fffbeb;
-  box-shadow: inset 4px 0 0 #f59e0b;
+  background: rgba(4, 17, 30, 0.82);
+  box-shadow: inset 4px 0 0 #4af5e6;
 }
 
 .cca-typeStrip strong {
@@ -968,7 +968,7 @@ const pageStyles = `
 
 .cca-openerCard {
   border-color: rgba(245, 158, 11, 0.32);
-  background: #fffbeb;
+  background: rgba(4, 17, 30, 0.82);
 }
 
 .cca-openerCard span,
@@ -1011,8 +1011,8 @@ const pageStyles = `
   min-height: 54px;
   border: 0;
   border-radius: 18px;
-  color: #ffffff;
-  background: #0f172a;
+  color: #071827;
+  background: #f7fbff;
   font-size: 0.94rem;
   font-weight: 850;
   cursor: pointer;
@@ -1045,7 +1045,7 @@ const pageStyles = `
 
 .cca-nextQuestion {
   border-color: rgba(245, 158, 11, 0.34);
-  background: #fffbeb;
+  background: rgba(4, 17, 30, 0.82);
 }
 
 .cca-nextQuestion textarea {
@@ -1059,7 +1059,7 @@ const pageStyles = `
 
 .cca-actionCard {
   border-color: rgba(245, 158, 11, 0.34);
-  background: #fffbeb;
+  background: rgba(4, 17, 30, 0.82);
 }
 
 .cca-chipCloud {
@@ -1115,8 +1115,8 @@ const pageStyles = `
 
 .cca-handoffRail button.is-primary {
   border-color: rgba(245, 158, 11, 0.92);
-  background: #fffbeb;
-  box-shadow: inset 4px 0 0 #f59e0b;
+  background: rgba(4, 17, 30, 0.82);
+  box-shadow: inset 4px 0 0 #4af5e6;
 }
 
 .cca-handoffRail strong {
@@ -1219,7 +1219,7 @@ button:disabled {
   padding: 0 22px !important;
   border-radius: 22px !important;
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  color: #ffffff !important;
+  color: #071827 !important;
   font-size: 1.05rem !important;
   font-weight: 850 !important;
   line-height: 1 !important;
@@ -1315,7 +1315,7 @@ button:disabled {
   width: 11px !important;
   height: 11px !important;
   border-radius: 999px !important;
-  background: #ffffff !important;
+  background: #071827 !important;
   transform: translateY(-50%) !important;
   animation: ccaMicPulse 1.4s infinite !important;
 }
@@ -1326,7 +1326,7 @@ button:disabled {
   border: 1px solid rgba(246, 163, 64, 0.38) !important;
   background:
     radial-gradient(circle at 0% 0%, rgba(246, 163, 64, 0.18), transparent 14rem),
-    linear-gradient(180deg, #fffaf0, #fffdf7) !important;
+    linear-gradient(180deg, #f7fbffaf0, #f7fbffdf7) !important;
   box-shadow: 0 12px 28px rgba(146, 64, 14, 0.1) !important;
 }
 
@@ -1417,7 +1417,7 @@ button:disabled {
   border-radius: 28px !important;
   border: 1px solid rgba(14, 165, 233, 0.24) !important;
   padding: 24px 26px !important;
-  color: #0f172a !important;
+  color: #f7fbff !important;
   background:
     linear-gradient(90deg, rgba(14, 165, 233, 0.055) 0 1px, transparent 1px 100%),
     linear-gradient(rgba(14, 165, 233, 0.045) 1px, transparent 1px),

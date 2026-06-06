@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ChangeEvent, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import {
   AlertTriangle,
@@ -38,13 +38,13 @@ type WingmanSelectionAccent = "cyan" | "teal" | "green" | "amber" | "red" | "pur
 
 function selectionAccentClasses(accent: WingmanSelectionAccent) {
   const classes: Record<WingmanSelectionAccent, string> = {
-    cyan: "border-cyan-200 bg-cyan-50 text-cyan-950 hover:border-cyan-300",
-    teal: "border-teal-200 bg-teal-50 text-teal-950 hover:border-teal-300",
-    green: "border-emerald-200 bg-emerald-50 text-emerald-950 hover:border-emerald-300",
-    amber: "border-amber-200 bg-amber-50 text-amber-950 hover:border-amber-300",
-    red: "border-rose-200 bg-rose-50 text-rose-950 hover:border-rose-300",
-    purple: "border-purple-200 bg-purple-50 text-purple-950 hover:border-purple-300",
-    blue: "border-sky-200 bg-sky-50 text-sky-950 hover:border-sky-300",
+    cyan: "border-cyan-200 bg-[#10263a] text-[#f7fbff] hover:border-cyan-300",
+    teal: "border-[#29465e] bg-[#0d2133] text-[#f7fbff] hover:border-[#4af5e6]",
+    green: "border-[#29465e] bg-[#0d2133] text-[#f7fbff] hover:border-[#4af5e6]",
+    amber: "border-cyan-200 bg-[#0d2133] text-[#f7fbff] hover:border-cyan-300",
+    red: "border-[#29465e] bg-[#0d2133] text-[#f7fbff] hover:border-[#ff8a8a]",
+    purple: "border-[#29465e] bg-[#0d2133] text-[#f7fbff] hover:border-[#4af5e6]",
+    blue: "border-[#29465e] bg-[#10263a] text-[#f7fbff] hover:border-[#4af5e6]",
   };
 
   return classes[accent] ?? classes.cyan;
@@ -109,7 +109,7 @@ function WingmanSelectionCard({
       )} ${selectedClass}`}
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="rounded-2xl bg-[#0d2133] p-2 text-slate-950 shadow-sm">
+        <div className="rounded-2xl bg-[#0d2133] p-2 text-white shadow-sm">
           <Icon className="h-5 w-5" />
         </div>
         {indicator ? (
@@ -125,13 +125,13 @@ function WingmanSelectionCard({
         </p>
       ) : null}
 
-      <h3 className="mt-2 text-base font-black leading-5 text-slate-950">{title}</h3>
-      <p className="mt-2 line-clamp-3 text-sm leading-5 text-slate-700">{description}</p>
+      <h3 className="mt-2 text-base font-black leading-5 text-white">{title}</h3>
+      <p className="mt-2 line-clamp-3 text-sm leading-5 text-white/70">{description}</p>
 
       {metaBadges?.length ? (
         <div className="mt-auto flex flex-wrap gap-2 pt-3">
           {metaBadges.map((badge) => (
-            <span key={badge} className="rounded-full border border-[#29465e] bg-[#0d2133] px-2.5 py-1 text-[11px] font-bold text-slate-700">
+            <span key={badge} className="rounded-full border border-[#29465e] bg-[#0d2133] px-2.5 py-1 text-[11px] font-bold text-white/70">
               {badge}
             </span>
           ))}
@@ -959,8 +959,8 @@ export function SalesHelperPage() {
             title="2. Ask this next"
             subtitle="Only the current question is shown prominently. Previous answers stay in the summary panel."
             rightSlot={
-              <div className="flex items-center gap-2 rounded-full border border-[#29465e] bg-[#0d2133] px-3 py-2 text-sm font-black text-slate-700">
-                <ConversationIcon className="h-4 w-4 text-amber-500" />
+              <div className="flex items-center gap-2 rounded-full border border-[#29465e] bg-[#0d2133] px-3 py-2 text-sm font-black text-white/70">
+                <ConversationIcon className="h-4 w-4 text-cyan-500" />
                 {capturedCount}/{activeConversation.questions.length} captured
               </div>
             }
@@ -976,10 +976,10 @@ export function SalesHelperPage() {
               <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
                 <div className="rounded-3xl border border-[#29465e] bg-[#0d2133] p-5 shadow-sm">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-black uppercase tracking-[0.14em] text-amber-900">
+                    <span className="rounded-full bg-cyan-100 px-3 py-1 text-xs font-black uppercase tracking-[0.14em] text-[#f7fbff]">
                       Question {safeQuestionIndex + 1}
                     </span>
-                    <span className="rounded-full bg-[#0d2133] px-3 py-1 text-xs font-bold text-slate-600">
+                    <span className="rounded-full bg-[#0d2133] px-3 py-1 text-xs font-bold text-white/60">
                       {activeQuestion.category}
                     </span>
                     {currentAnswer.status === "unknown" ? (
@@ -988,26 +988,26 @@ export function SalesHelperPage() {
                       </span>
                     ) : null}
                     {currentAnswer.status === "review" ? (
-                      <span className="rounded-full bg-amber-600 px-3 py-1 text-xs font-black text-white">
+                      <span className="rounded-full bg-cyan-600 px-3 py-1 text-xs font-black text-white">
                         Needs review
                       </span>
                     ) : null}
                   </div>
 
-                  <h2 className="mt-4 text-3xl font-black leading-tight tracking-tight text-slate-950">
+                  <h2 className="mt-4 text-3xl font-black leading-tight tracking-tight text-white">
                     {activeQuestion.prompt}
                   </h2>
 
-                  <details className="mt-4 rounded-2xl border border-[#29465e] bg-[#0d2133] p-3 text-slate-700">
-                    <summary className="flex cursor-pointer items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
-                      <HelpCircle className="h-4 w-4 text-slate-500" />
+                  <details className="mt-4 rounded-2xl border border-[#29465e] bg-[#0d2133] p-3 text-white/70">
+                    <summary className="flex cursor-pointer items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/55">
+                      <HelpCircle className="h-4 w-4 text-white/55" />
                       Why this matters
                     </summary>
                     <p className="mt-2 text-sm leading-6">{activeQuestion.why}</p>
                   </details>
 
                   <div className="mt-5">
-                    <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">
+                    <p className="text-xs font-black uppercase tracking-[0.14em] text-white/55">
                       Quick answer chips
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -1022,7 +1022,7 @@ export function SalesHelperPage() {
                             className={`rounded-full border px-3 py-2 text-sm font-semibold transition ${
                               selected
                                 ? "border-slate-950 bg-slate-950 text-white"
-                                : "border-[#29465e] bg-[#0d2133] text-slate-700 hover:border-amber-300 hover:bg-amber-50"
+                                : "border-[#29465e] bg-[#0d2133] text-white/70 hover:border-cyan-300 hover:bg-[#0d2133]"
                             }`}
                           >
                             {chip}
@@ -1033,7 +1033,7 @@ export function SalesHelperPage() {
                   </div>
 
                   <label className="mt-5 block">
-                    <span className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">
+                    <span className="text-xs font-black uppercase tracking-[0.14em] text-white/55">
                       Optional note
                     </span>
                     <textarea
@@ -1041,7 +1041,7 @@ export function SalesHelperPage() {
                       onChange={updateNote}
                       rows={3}
                       placeholder={activeQuestion.notePlaceholder}
-                      className="mt-2 min-h-[84px] w-full resize-y rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 py-3 text-sm leading-6 text-[#edf6ff] outline-none transition placeholder:text-slate-400 focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
+                      className="mt-2 min-h-[84px] w-full resize-y rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 py-3 text-sm leading-6 text-[#edf6ff] outline-none transition placeholder:text-[#8aa6b8] focus:border-[#4af5e6] focus:ring-4 focus:ring-[#4af5e6]/30"
                     />
                   </label>
 
@@ -1051,7 +1051,7 @@ export function SalesHelperPage() {
                         type="button"
                         onClick={goPrevious}
                         disabled={safeQuestionIndex === 0}
-                        className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-[#0d2133] px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-[#0d2133] disabled:cursor-not-allowed disabled:opacity-40"
+                        className="inline-flex items-center gap-2 rounded-full border border-[#29465e] bg-[#0d2133] px-4 py-2 text-sm font-black text-white/70 transition hover:bg-[#0d2133] disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         <ArrowLeft className="h-4 w-4" />
                         Previous
@@ -1060,7 +1060,7 @@ export function SalesHelperPage() {
                         type="button"
                         onClick={goNext}
                         disabled={safeQuestionIndex === activeConversation.questions.length - 1}
-                        className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+                        className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-[#13283a]"
                       >
                         Next question
                         <ArrowRight className="h-4 w-4" />
@@ -1071,14 +1071,14 @@ export function SalesHelperPage() {
                       <button
                         type="button"
                         onClick={markUnknown}
-                        className="rounded-full border border-slate-300 bg-[#0d2133] px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-[#0d2133]"
+                        className="rounded-full border border-[#29465e] bg-[#0d2133] px-4 py-2 text-sm font-black text-white/70 transition hover:bg-[#0d2133]"
                       >
                         Mark unknown
                       </button>
                       <button
                         type="button"
                         onClick={markReview}
-                        className="rounded-full border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-black text-amber-900 transition hover:bg-amber-100"
+                        className="rounded-full border border-cyan-300 bg-[#0d2133] px-4 py-2 text-sm font-black text-[#f7fbff] transition hover:bg-[#102b44]"
                       >
                         Needs review
                       </button>
@@ -1087,8 +1087,8 @@ export function SalesHelperPage() {
                 </div>
 
                 <aside className="rounded-3xl border border-[#29465e] bg-[#0d2133] p-4 shadow-sm">
-                  <div className="flex items-center gap-2 text-sm font-black text-slate-950">
-                    <Search className="h-4 w-4 text-amber-500" />
+                  <div className="flex items-center gap-2 text-sm font-black text-white">
+                    <Search className="h-4 w-4 text-cyan-500" />
                     Listen for
                   </div>
 
@@ -1096,7 +1096,7 @@ export function SalesHelperPage() {
                     {activeQuestion.listenFor.map((item) => (
                       <span
                         key={item}
-                        className="rounded-full border border-[#29465e] bg-[#0d2133] px-3 py-1 text-xs font-bold text-slate-600"
+                        className="rounded-full border border-[#29465e] bg-[#0d2133] px-3 py-1 text-xs font-bold text-white/60"
                       >
                         {item}
                       </span>
@@ -1104,11 +1104,11 @@ export function SalesHelperPage() {
                   </div>
 
                   <div className="mt-5 rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
-                    <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">
+                    <p className="text-xs font-black uppercase tracking-[0.14em] text-white/55">
                       Recommended next action
                     </p>
-                    <p className="mt-2 text-lg font-black text-slate-950">{recommendedDestination.label}</p>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                    <p className="mt-2 text-lg font-black text-white">{recommendedDestination.label}</p>
+                    <p className="mt-2 text-sm leading-6 text-white/60">
                       This is based on the selected conversation type and captured answers.
                     </p>
                     <Link
@@ -1121,7 +1121,7 @@ export function SalesHelperPage() {
                   </div>
 
                   {riskFlags.length > 0 ? (
-                    <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950">
+                    <div className="mt-4 rounded-2xl border border-cyan-200 bg-[#0d2133] p-4 text-[#f7fbff]">
                       <div className="flex items-center gap-2 text-sm font-black">
                         <AlertTriangle className="h-4 w-4" />
                         Review flags
@@ -1148,7 +1148,7 @@ export function SalesHelperPage() {
                     type="button"
                     onClick={copySummary}
                     disabled={!hasCapturedAnswers}
-                    className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+                    className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-[#13283a]"
                   >
                     {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     {copied ? "Copied" : "Copy"}
@@ -1156,7 +1156,7 @@ export function SalesHelperPage() {
                   <button
                     type="button"
                     onClick={clearActiveConversation}
-                    className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-[#0d2133] px-4 py-2 text-sm font-black text-slate-700 transition hover:bg-[#0d2133]"
+                    className="inline-flex items-center gap-2 rounded-full border border-[#29465e] bg-[#0d2133] px-4 py-2 text-sm font-black text-white/70 transition hover:bg-[#0d2133]"
                   >
                     <Eraser className="h-4 w-4" />
                     Clear
@@ -1165,7 +1165,7 @@ export function SalesHelperPage() {
               }
             >
               <div className="rounded-2xl border border-[#29465e] bg-slate-950 p-4 text-slate-100">
-                <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.14em] text-amber-300">
+                <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.14em] text-cyan-300">
                   <ClipboardList className="h-4 w-4" />
                   Live sales capture
                 </div>
@@ -1176,16 +1176,16 @@ export function SalesHelperPage() {
 
               <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
                 <div>
-                  <p className="text-sm font-black text-slate-950">Save this capture</p>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">
+                  <p className="text-sm font-black text-white">Save this capture</p>
+                  <p className="mt-1 text-sm leading-6 text-white/60">
                     Saves locally every time. If a project is active, it also writes these answers into project requirements.
                   </p>
-                  {saveMessage ? <p className="mt-2 text-sm font-black text-amber-700">{saveMessage}</p> : null}
+                  {saveMessage ? <p className="mt-2 text-sm font-black text-cyan-700">{saveMessage}</p> : null}
                 </div>
                 <button
                   type="button"
                   onClick={saveCapture}
-                  className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-amber-400"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#0d2133]0 px-4 py-2 text-sm font-black text-white transition hover:bg-[#4af5e6]"
                 >
                   <Save className="h-4 w-4" />
                   Save capture
@@ -1197,8 +1197,8 @@ export function SalesHelperPage() {
               <div
                 className={`rounded-2xl border p-5 ${
                   projectGuidance.reviewRequired
-                    ? "border-amber-200 bg-amber-50 text-amber-950"
-                    : "border-emerald-200 bg-emerald-50 text-emerald-950"
+                    ? "border-cyan-200 bg-[#0d2133] text-[#f7fbff]"
+                    : "border-[#29465e] bg-[#0d2133] text-[#f7fbff]"
                 }`}
               >
                 <p className="text-sm font-black uppercase tracking-[0.14em]">Readiness</p>
@@ -1211,15 +1211,15 @@ export function SalesHelperPage() {
               </div>
 
               <div className="mt-4 grid gap-3">
-                <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 text-sm leading-6 text-slate-700">
+                <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 text-sm leading-6 text-white/70">
                   <p className="flex items-center gap-2 font-black text-[#edf6ff]">
-                    <MessageSquareText className="h-4 w-4 text-amber-500" />
+                    <MessageSquareText className="h-4 w-4 text-cyan-500" />
                     {projectGuidance.outputPurpose.motion}
                   </p>
                   <p className="mt-2">{projectGuidance.outputPurpose.customerOutput}</p>
                 </div>
                 {projectGuidance.repGuidance.slice(0, 2).map((item) => (
-                  <div key={item} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 text-sm leading-6 text-slate-700">
+                  <div key={item} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 text-sm leading-6 text-white/70">
                     {item}
                   </div>
                 ))}

@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, CheckCircle2, Save, ShieldCheck } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
@@ -157,7 +157,7 @@ export function ProjectDetailPage() {
               <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Confirmed</p>
               <p className="mt-2 text-2xl font-black text-[#edf6ff]">{readiness.confirmed}</p>
             </div>
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950">
+            <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-4 text-cyan-950">
               <p className="text-xs font-black uppercase tracking-[0.14em]">Needs review</p>
               <p className="mt-2 text-2xl font-black">{readiness.review}</p>
             </div>
@@ -196,7 +196,7 @@ export function ProjectDetailPage() {
                     <textarea
                       value={requirement.value}
                       onChange={(event) => updateRequirement(requirement.id, { value: event.target.value })}
-                      className="min-h-20 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 py-3 text-sm leading-6 text-[#edf6ff] outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
+                      className="min-h-20 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 py-3 text-sm leading-6 text-[#edf6ff] outline-none focus:border-cyan-400 focus:ring-4 focus:ring-amber-100"
                     />
                     <span className="text-xs leading-5 text-slate-500">{requirement.whyItMatters}</span>
                   </label>
@@ -208,7 +208,7 @@ export function ProjectDetailPage() {
                       onChange={(event) =>
                         updateRequirement(requirement.id, { status: event.target.value as StoredRequirementStatus })
                       }
-                      className="rounded-2xl border border-[#29465e] bg-[#0d2133] px-3 py-2 text-sm font-semibold text-[#edf6ff] outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-100"
+                      className="rounded-2xl border border-[#29465e] bg-[#0d2133] px-3 py-2 text-sm font-semibold text-[#edf6ff] outline-none focus:border-cyan-400 focus:ring-4 focus:ring-amber-100"
                     >
                       {statusOptions.map((status) => (
                         <option key={status} value={status}>
@@ -229,7 +229,7 @@ export function ProjectDetailPage() {
         >
           <div className="grid gap-4 lg:grid-cols-3">
             {recommendationEvidence ? (
-              <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950">
+              <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-4 text-cyan-950">
                 <p className="text-sm font-black">Quote safety</p>
                 <p className="mt-2 text-lg font-black">
                   {recommendationEvidence.quoteSafetyStatus === "quote-ready"

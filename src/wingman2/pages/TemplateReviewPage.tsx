@@ -22,10 +22,11 @@ import {
 import { exportBomCsv, exportProposalHtml } from "../lib/proposalExport";
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
 import { roomTemplates, type RoomTemplate, type TemplateBomRow } from "../lib/roomTemplates";
+import { extraRoomTemplates } from "../lib/roomTemplatesExtra";
 import type { SalesBomRow } from "../lib/salesReadiness";
 
 const includedStatuses = new Set(["included", "optional", "validate"]);
-
+const allRoomTemplates: RoomTemplate[] = [...roomTemplates, ...extraRoomTemplates];
 function templateVisualPath(fileName: string): string {
   const base = String(import.meta.env.BASE_URL || "/");
   const cleanBase = base.endsWith("/") ? base : `${base}/`;
@@ -211,7 +212,7 @@ function buildTemplateProject(template: RoomTemplate, rows: TemplateBomRow[]): S
 export function TemplateReviewPage() {
   const { templateId } = useParams();
   const selectedTemplate = useMemo(
-    () => roomTemplates.find((template) => template.id === templateId) ?? roomTemplates[0],
+    () => allRoomTemplates.find((template) => template.id === templateId) ?? allRoomTemplates[0],
     [templateId],
   );
 
@@ -321,7 +322,7 @@ export function TemplateReviewPage() {
         rightSlot={
           <Link
             to={routeCatalogByKey.templates.path}
-            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-[#0d2133] px-4 py-2 text-sm font-black text-[#edf6ff] transition hover:bg-[#0d2133]"
+            className="inline-flex items-center gap-2 rounded-full border border-[#29465e] bg-[#0d2133] px-4 py-2 text-sm font-black text-[#edf6ff] transition hover:bg-[#0d2133]"
           >
             <ArrowLeft className="h-4 w-4" />
             Select another template
@@ -379,30 +380,30 @@ export function TemplateReviewPage() {
             <div className="mt-5 grid gap-4 lg:grid-cols-3">
               <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
                 <p className="wingman-kicker">Application</p>
-                <p className="mt-2 text-sm leading-6 text-slate-700">{selectedTemplate.application}</p>
+                <p className="mt-2 text-sm leading-6 text-white/70">{selectedTemplate.application}</p>
               </div>
               <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
                 <p className="wingman-kicker">Scale</p>
-                <p className="mt-2 text-sm leading-6 text-slate-700">{selectedTemplate.scale}</p>
+                <p className="mt-2 text-sm leading-6 text-white/70">{selectedTemplate.scale}</p>
               </div>
               <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
                 <p className="wingman-kicker">BOM state</p>
-                <p className="mt-2 text-sm leading-6 text-slate-700">
+                <p className="mt-2 text-sm leading-6 text-white/70">
                   {requiredCount} required rows, {optionalCount} optional or validate rows.
                 </p>
               </div>
             </div>
 
             <details className="wm-decision-details mt-4">
-              <summary className="cursor-pointer text-sm font-black text-slate-950">
+              <summary className="cursor-pointer text-sm font-black text-white">
                 Architecture, validation and upgrade notes
               </summary>
               <div className="mt-4 grid gap-4 lg:grid-cols-3">
                 <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
                   <p className="wingman-kicker">Architecture</p>
-                  <p className="mt-2 text-sm leading-7 text-slate-700">{selectedTemplate.architecture}</p>
+                  <p className="mt-2 text-sm leading-7 text-white/70">{selectedTemplate.architecture}</p>
                 </div>
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
+                <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-4 text-sm leading-6 text-cyan-950">
                   <p className="font-black">Validate before customer issue</p>
                   <ul className="mt-2 list-disc space-y-1 pl-4">
                     {selectedTemplate.validationItems.map((item) => (
@@ -410,7 +411,7 @@ export function TemplateReviewPage() {
                     ))}
                   </ul>
                 </div>
-                <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm leading-6 text-sky-950">
+                <div className="rounded-2xl border border-sky-200 bg-[#10263a] p-4 text-sm leading-6 text-sky-950">
                   <p className="font-black">Useful upgrade paths</p>
                   <ul className="mt-2 list-disc space-y-1 pl-4">
                     {selectedTemplate.upgradePaths.map((item) => (
@@ -426,9 +427,9 @@ export function TemplateReviewPage() {
                 <div>
                   <p className="wingman-kicker">Other AV design scope
 Editable WyreStorm BOM</p>
-                  <h3 className="mt-2 text-xl font-black text-slate-950">Template rows</h3>
+                  <h3 className="mt-2 text-xl font-black text-white">Template rows</h3>
                 </div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-[#0d2133] px-3 py-1.5 text-sm font-semibold text-slate-700">
+                <div className="inline-flex items-center gap-2 rounded-full bg-[#0d2133] px-3 py-1.5 text-sm font-semibold text-white/70">
                   <SlidersHorizontal className="h-4 w-4" />
                   Quantity and include/exclude edits
                 </div>
@@ -436,7 +437,7 @@ Editable WyreStorm BOM</p>
 
               <div className="mt-4 overflow-hidden rounded-2xl border border-[#29465e]">
                 <table className="min-w-full text-left text-sm">
-                  <thead className="bg-[#0d2133] text-slate-600">
+                  <thead className="bg-[#0d2133] text-white/60">
                     <tr>
                       <th className="px-4 py-3 font-semibold">Use</th>
                       <th className="px-4 py-3 font-semibold">SKU</th>
@@ -457,15 +458,15 @@ Editable WyreStorm BOM</p>
                               type="checkbox"
                               checked={enabled}
                               onChange={() => toggleRow(row.id)}
-                              className="h-4 w-4 rounded border-slate-300"
+                              className="h-4 w-4 rounded border-[#29465e]"
                               aria-label={`Include ${row.sku}`}
                             />
                           </td>
                           <td className="px-4 py-3">
                             <p className="font-black text-[#edf6ff]">{row.sku}</p>
-                            <p className="mt-1 text-xs text-slate-500">{row.description}</p>
+                            <p className="mt-1 text-xs text-white/55">{row.description}</p>
                           </td>
-                          <td className="px-4 py-3 text-slate-700">{row.role}</td>
+                          <td className="px-4 py-3 text-white/70">{row.role}</td>
                           <td className="px-4 py-3">
                             <input
                               type="number"
@@ -473,7 +474,7 @@ Editable WyreStorm BOM</p>
                               max="99"
                               value={row.qty}
                               onChange={(event) => updateRowQty(row.id, Number(event.target.value))}
-                              className="w-20 rounded-lg border border-slate-300 px-2 py-1 text-sm text-[#edf6ff]"
+                              className="w-20 rounded-lg border border-[#29465e] px-2 py-1 text-sm text-[#edf6ff]"
                               aria-label={`Quantity for ${row.sku}`}
                             />
                           </td>
@@ -484,13 +485,13 @@ Editable WyreStorm BOM</p>
                                   ? "bg-emerald-100 text-emerald-800"
                                   : row.type === "Optional"
                                     ? "bg-sky-100 text-sky-800"
-                                    : "bg-amber-100 text-amber-900"
+                                    : "bg-cyan-100 text-cyan-900"
                               }`}
                             >
                               {row.type}
                             </span>
                           </td>
-                          <td className="max-w-md px-4 py-3 text-slate-600">{row.notes}</td>
+                          <td className="max-w-md px-4 py-3 text-white/60">{row.notes}</td>
                         </tr>
                       );
                     })}

@@ -1,4 +1,4 @@
-﻿import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { BookOpenCheck, Cable, CheckCircle2, HelpCircle, Network, Search, Sparkles, Workflow } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
@@ -708,11 +708,11 @@ export function ProductFamilyPage() {
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
           {decisionRules.map((rule, index) => (
             <div key={rule} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
-              <div className="flex items-center gap-2 text-sm font-black text-slate-950">
+              <div className="flex items-center gap-2 text-sm font-black text-white">
                 <span className="grid h-7 w-7 place-items-center rounded-full bg-slate-950 text-xs text-white">{index + 1}</span>
                 Rule
               </div>
-              <p className="mt-3 text-sm font-semibold leading-6 text-slate-700">{rule}</p>
+              <p className="mt-3 text-sm font-semibold leading-6 text-white/70">{rule}</p>
             </div>
           ))}
         </div>
@@ -731,14 +731,14 @@ export function ProductFamilyPage() {
                   onClick={() => setActiveFamilyId(guide.id)}
                   className={[
                     "w-full rounded-2xl border p-4 text-left transition",
-                    active ? "border-orange-300 bg-orange-50 text-slate-950" : "border-[#29465e] bg-[#0d2133] text-slate-700 hover:border-slate-300 hover:bg-[#0d2133]",
+                    active ? "border-cyan-300 bg-[#10263a] text-white" : "border-[#29465e] bg-[#0d2133] text-white/70 hover:border-[#29465e] hover:bg-[#0d2133]",
                   ].join(" ")}
                 >
                   <span className="flex items-center gap-2 text-sm font-black">
-                    {active ? <CheckCircle2 className="h-4 w-4 text-orange-600" /> : <BookOpenCheck className="h-4 w-4 text-slate-400" />}
+                    {active ? <CheckCircle2 className="h-4 w-4 text-cyan-600" /> : <BookOpenCheck className="h-4 w-4 text-slate-400" />}
                     {guide.name}
                   </span>
-                  <span className="mt-2 block text-xs font-semibold leading-5 text-slate-600">{guide.shortPosition}</span>
+                  <span className="mt-2 block text-xs font-semibold leading-5 text-white/60">{guide.shortPosition}</span>
                 </button>
               );
             })}
@@ -748,8 +748,8 @@ export function ProductFamilyPage() {
         <section className="wingman-section-card wingman-surface overflow-hidden rounded-3xl">
           <header className="border-b border-[#29465e] p-5">
             <p className="wingman-kicker">Family crib sheet</p>
-            <h2 className="mt-2 text-3xl font-black text-slate-950">{activeFamily.name}</h2>
-            <p className="mt-3 max-w-4xl text-sm font-semibold leading-6 text-slate-700">{activeFamily.customerPitch}</p>
+            <h2 className="mt-2 text-3xl font-black text-white">{activeFamily.name}</h2>
+            <p className="mt-3 max-w-4xl text-sm font-semibold leading-6 text-white/70">{activeFamily.customerPitch}</p>
           </header>
 
           <div className="space-y-5 p-5">
@@ -757,15 +757,15 @@ export function ProductFamilyPage() {
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <p className="wingman-kicker">Representative SKUs</p>
-                  <h3 className="mt-2 text-xl font-semibold text-slate-950">Products to start the conversation</h3>
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                  <h3 className="mt-2 text-xl font-semibold text-white">Products to start the conversation</h3>
+                  <p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">
                     Use this as a quick range view. Open a specific SKU for a one-page pitch, or pitch the whole range when the exact model is not fixed yet.
                   </p>
                 </div>
 
                 <Link
                   to={productPitchRangePath(activeFamily.pitchQuery)}
-                  className="inline-flex shrink-0 items-center justify-center rounded-full border border-slate-300 bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+                  className="inline-flex shrink-0 items-center justify-center rounded-full border border-[#29465e] bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
                 >
                   Pitch this range
                 </Link>
@@ -776,11 +776,11 @@ export function ProductFamilyPage() {
                   <Link
                     key={sku}
                     to={productPitchSkuPath(sku)}
-                    className="group rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 text-left transition hover:border-orange-300 hover:bg-orange-50"
+                    className="group rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 text-left transition hover:border-cyan-300 hover:bg-[#10263a]"
                   >
-                    <span className="block text-xs font-medium uppercase tracking-[0.22em] text-slate-500">SKU</span>
-                    <strong className="mt-1 block text-base font-semibold text-slate-950">{sku}</strong>
-                    <span className="mt-3 inline-flex text-sm font-medium text-orange-700 group-hover:text-orange-800">
+                    <span className="block text-xs font-medium uppercase tracking-[0.22em] text-white/55">SKU</span>
+                    <strong className="mt-1 block text-base font-semibold text-white">{sku}</strong>
+                    <span className="mt-3 inline-flex text-sm font-medium text-cyan-700 group-hover:text-cyan-800">
                       Open pitch
                     </span>
                   </Link>
@@ -789,7 +789,7 @@ export function ProductFamilyPage() {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-3">
-              <FamilyTextBlock icon={<Sparkles className="h-4 w-4 text-orange-600" />} title="What it is" text={activeFamily.whatItIs} />
+              <FamilyTextBlock icon={<Sparkles className="h-4 w-4 text-cyan-600" />} title="What it is" text={activeFamily.whatItIs} />
               <FamilyTextBlock icon={<HelpCircle className="h-4 w-4 text-sky-600" />} title="Why it exists" text={activeFamily.whyItExists} />
               <FamilyTextBlock icon={<Workflow className="h-4 w-4 text-emerald-600" />} title="How it works" text={activeFamily.howItWorks} />
             </div>
@@ -797,7 +797,7 @@ export function ProductFamilyPage() {
             <details className="wm-decision-details">
               <summary>More product detail</summary>
               <div className="mt-4 grid gap-4 xl:grid-cols-2">
-                <FamilyListBlock icon={<Cable className="h-4 w-4 text-orange-600" />} title="Connectivity" items={activeFamily.connectivity} />
+                <FamilyListBlock icon={<Cable className="h-4 w-4 text-cyan-600" />} title="Connectivity" items={activeFamily.connectivity} />
                 <FamilyListBlock icon={<Network className="h-4 w-4 text-sky-600" />} title="Useful functionality" items={activeFamily.usefulFunctionality} />
               </div>
 
@@ -809,14 +809,14 @@ export function ProductFamilyPage() {
 
               <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.72fr)]">
                 <div className="rounded-3xl border border-[#29465e] bg-[#0d2133] p-5">
-                  <h3 className="flex items-center gap-2 text-sm font-black text-slate-950">
-                    <Search className="h-4 w-4 text-orange-600" />
+                  <h3 className="flex items-center gap-2 text-sm font-black text-white">
+                    <Search className="h-4 w-4 text-cyan-600" />
                     Discovery questions
                   </h3>
                   <ul className="mt-3 space-y-2">
                     {activeFamily.discoveryQuestions.map((question) => (
-                      <li key={question} className="flex gap-2 text-sm font-semibold leading-6 text-slate-700">
-                        <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-orange-500" />
+                      <li key={question} className="flex gap-2 text-sm font-semibold leading-6 text-white/70">
+                        <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-[#10263a]0" />
                         <span>{question}</span>
                       </li>
                     ))}
@@ -829,8 +829,8 @@ export function ProductFamilyPage() {
                     <p className="mt-3 text-sm font-semibold leading-6 text-slate-200">{activeFamily.positionAgainst}</p>
                   </div>
 
-                  <div className="rounded-3xl border border-orange-200 bg-orange-50 p-5">
-                    <h3 className="text-sm font-black text-slate-950">Sales rule</h3>
+                  <div className="rounded-3xl border border-cyan-200 bg-[#10263a] p-5">
+                    <h3 className="text-sm font-black text-white">Sales rule</h3>
                     <p className="mt-3 text-sm font-black leading-6 text-[#edf6ff]">{activeFamily.salesRule}</p>
                   </div>
                 </div>
@@ -846,11 +846,11 @@ export function ProductFamilyPage() {
 function FamilyTextBlock({ icon, title, text }: { icon: ReactNode; title: string; text: string }) {
   return (
     <div className="rounded-3xl border border-[#29465e] bg-[#0d2133] p-5">
-      <h3 className="flex items-center gap-2 text-sm font-black text-slate-950">
+      <h3 className="flex items-center gap-2 text-sm font-black text-white">
         {icon}
         {title}
       </h3>
-      <p className="mt-3 text-sm font-semibold leading-6 text-slate-700">{text}</p>
+      <p className="mt-3 text-sm font-semibold leading-6 text-white/70">{text}</p>
     </div>
   );
 }
@@ -858,14 +858,14 @@ function FamilyTextBlock({ icon, title, text }: { icon: ReactNode; title: string
 function FamilyListBlock({ icon, title, items }: { icon?: ReactNode; title: string; items: string[] }) {
   return (
     <div className="rounded-3xl border border-[#29465e] bg-[#0d2133] p-5">
-      <h3 className="flex items-center gap-2 text-sm font-black text-slate-950">
+      <h3 className="flex items-center gap-2 text-sm font-black text-white">
         {icon}
         {title}
       </h3>
       <ul className="mt-3 space-y-2">
         {items.map((item) => (
-          <li key={item} className="flex gap-2 text-sm font-semibold leading-6 text-slate-700">
-            <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-orange-500" />
+          <li key={item} className="flex gap-2 text-sm font-semibold leading-6 text-white/70">
+            <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-[#10263a]0" />
             <span>{item}</span>
           </li>
         ))}
