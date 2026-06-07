@@ -1,4 +1,5 @@
 import { handleAgentsRoute } from "./routes/agents.mjs";
+import { enforceCsrf, issueCsrf } from "./security/csrf.mjs";
 import http from "node:http";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -2012,6 +2013,17 @@ function allowLocalIntelligenceDraftBypass(req, url) {
 const server = http.createServer(async (req, res) => {
   const method = req.method || "GET";
   const url = new URL(req.url || "/", `http://${req.headers.host || `${HOST}:${PORT}`}`);
+
+  // CSRF token bootstrap + double-submit guard. The guard is inert unless
+  // WINGMAN_CSRF_ENFORCE=true, so this is a no-op until explicitly enabled.
+  if (method === "GET" && url.pathname === "/api/csrf") {
+    issueCsrf(req, res, sendJson);
+    return;
+  }
+
+  if (!enforceCsrf(req, res, url, sendJson)) {
+    return;
+  }
 
   if (allowLocalIntelligenceDraftBypass(req, url)) {
     if (method === "GET" && url.pathname === "/api/intelligence/drafts") {

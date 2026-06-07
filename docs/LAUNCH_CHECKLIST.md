@@ -40,12 +40,17 @@ Run each end to end on staging, signed in and (where relevant) as a guest:
 
 ## 4. Production Infrastructure (Blocker)
 
+Scaffolding in place: `.github/workflows/deploy.yml` (fill in the provider deploy step),
+`.env.production.example` (copy to the secret manager), `/api/health` + `/api/ready`
+endpoints, and the migration runbook in `OPERATIONS.md` §8.
+
 - [ ] Supabase project provisioned; `001_initial_schema.sql` applied.
 - [ ] File-store data migrated and verified (row counts + sample project); backup retained.
 - [ ] `WINGMAN_STORAGE_MODE=supabase` and app exercised under concurrent use.
 - [ ] All secrets in the host secret manager (no committed `.env`).
+- [ ] Hosting chosen and the `deploy.yml` deploy step wired to it.
 - [ ] Hosting, domain and TLS live; HTTPS enforced end to end.
-- [ ] Health check wired to an uptime monitor; error-rate alert configured.
+- [ ] Health check (`/api/health`) wired to an uptime monitor; error-rate alert configured.
 - [ ] Load test run against staging at target concurrency — passed.
 
 ## 5. Security (Blocker)
@@ -53,8 +58,9 @@ Run each end to end on staging, signed in and (where relevant) as a guest:
 - [ ] Secure cookies confirmed over HTTPS (`WINGMAN_SESSION_COOKIE_SECURE=true`).
 - [ ] CORS locked to the exact front-end origin (not `*`).
 - [ ] Rate limiting verified on auth and competitor look-up.
-- [ ] **CSRF decision made** (implement before external launch, or accept SameSite-only for
-      an internal-only launch — see `OPERATIONS.md` §7).
+- [ ] **CSRF**: server guard + SPA wiring both implemented, shipping dark. For an external
+      launch, set `WINGMAN_CSRF_ENFORCE=true` in staging, test, then enable in production
+      (steps in `OPERATIONS.md` §7). Internal-only launch may rely on `SameSite=Strict`.
 - [ ] Security review completed; no high-severity findings open.
 
 ## 6. Soap-Test Workshop (Blocker — WyreStorm standard)

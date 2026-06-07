@@ -18,8 +18,8 @@ for (const file of requiredFiles) {
 const dataText = fs.readFileSync(dataPath, "utf8");
 const topLevelSkus = [...dataText.matchAll(/^\s*\{\s*\r?\n\s*sku:\s*"([^"]+)"/gm)].map((match) => match[1]);
 
-if (topLevelSkus.length < 10) {
-  console.error(`[call-cards] Expected at least 10 product positioning cards, found ${topLevelSkus.length}.`);
+if (topLevelSkus.length < 40) {
+  console.error(`[call-cards] Expected at least 40 product positioning cards, found ${topLevelSkus.length}.`);
   process.exit(1);
 }
 
@@ -53,6 +53,7 @@ for (const field of requiredFields) {
 const pageText = fs.readFileSync(pagePath, "utf8");
 const requiredPageTerms = [
   "Product Call Cards",
+  "ProductMediaPanel",
   "Audience",
   "Call mode",
   "Copy follow-up wording",

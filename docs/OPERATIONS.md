@@ -125,20 +125,51 @@ Wingman supports a file store (development) and Supabase (production), selected 
 
 ---
 
-## 7. Outstanding Security Hardening — CSRF (action required)
+## 7. CSRF Protection (implemented, dark — enable after testing)
 
-Wingman currently relies on `SameSite` cookies for cross-site request protection and has
-**no CSRF token** on state-changing requests. Recommended before an external launch:
+Defence in depth on top of the production `SameSite=Strict` session cookie (which already
+blocks cross-site cookie use). A stateless **double-submit** CSRF layer is implemented in
+`server/security/csrf.mjs` and wired into the API request handler:
 
-1. Issue a CSRF token on session creation (e.g. a per-session random token returned to the
-   client and stored in a non-`HttpOnly` cookie or fetched via an endpoint).
-2. Require the token in a header (e.g. `X-CSRF-Token`) on all `POST`/`PUT`/`PATCH`/`DELETE`
-   requests; reject requests where the header doesn't match the session token.
-3. Keep `SameSite=Lax` (or `Strict`) cookies as defence-in-depth.
-4. Add a test that a state-changing request without a valid token is rejected.
+- `GET /api/csrf` issues a random token in a readable `wingman_csrf` cookie and returns it.
+- State-changing requests (`POST`/`PUT`/`PATCH`/`DELETE`) must echo that token in the
+  `X-CSRF-Token` header; the server checks header == cookie (timing-safe).
 
-This change touches the auth/session server and must be validated with the test suite and a
-manual login/save cycle before deploy.
+**It is OFF by default** (`enforceCsrf` returns true unless `WINGMAN_CSRF_ENFORCE=true`), so
+shipping it changes no behaviour until you enable it.
+
+The SPA is already wired: `installCsrfFetch()` (in `src/main.tsx`, from
+`src/wingman2/api/csrf.ts`) wraps `window.fetch` so every mutating `/api/*` call fetches the
+token once from `/api/csrf` and sends it as `X-CSRF-Token`. While the server guard is off the
+header is simply ignored, so nothing changes until you enable it.
+
+To turn it on:
+
+1. Set `WINGMAN_CSRF_ENFORCE=true` in staging.
+2. Test the full login → save-project cycle and confirm normal use still works.
+3. Confirm a mutating request sent **without** the header (e.g. via curl) is rejected with 403.
+4. Set `WINGMAN_CSRF_ENFORCE=true` in production.
+
+Exempt paths (token bootstrap / unauthenticated entry): `/api/csrf`,
+`/api/wingman/auth/login`, `/api/wingman/auth/signup`.
+
+---
+
+## 8. Migrating the file store to Supabase (one-off)
+
+The dev/file store lives at `data/wingman-app-db.json` (collections: users/members,
+workspaces, sessions, projects, invitations, audit, telemetry). To move to production storage:
+
+1. Provision the Supabase project and apply `server/migrations/001_initial_schema.sql`.
+2. Set the `SUPABASE_*` env (URL, service-role key, table names from `.env.example`).
+3. **Back up** `data/wingman-app-db.json`.
+4. Bring the app up once with `WINGMAN_STORAGE_MODE=supabase`. The app-store reads Supabase
+   as the source of truth; seed it by re-creating the workspace/owner via signup, or import
+   the JSON rows into the matching tables with the Supabase SQL editor / `supabase` CLI.
+5. Verify: row counts per table match, and a sample project loads and saves.
+6. Keep the JSON backup until the migration is confirmed in production.
+
+> Do not run a bulk importer blind against production — verify against staging first.
 
 ---
 

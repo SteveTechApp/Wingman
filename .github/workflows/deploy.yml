@@ -1,0 +1,100 @@
+name: Deploy
+
+# Provider-agnostic deploy pipeline. Trigger manually (choose the target
+# environment) or automatically on a version tag. The deploy step is a
+# placeholder — fill in the provider commands once hosting is chosen
+# (see docs/DEPLOYMENT.md and the "Decisions" list in LAUNCH_CHECKLIST.md).
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        type: choice
+        options: [staging, production]
+        default: staging
+  push:
+    tags:
+      - "v*.*.*"
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  verify:
+    name: Verify (typecheck, build, guards, tests)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run verify
+      - run: npm run test
+
+  build-image:
+    name: Build & push image
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=tag
+            type=sha,prefix=
+            type=raw,value=${{ inputs.environment || 'staging' }}
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to ${{ inputs.environment || 'staging' }}
+    needs: build-image
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'staging' }}
+    steps:
+      - uses: actions/checkout@v4
+      # ---------------------------------------------------------------------
+      # TODO: replace with the chosen provider's deploy step. Examples:
+      #   - SSH + docker compose pull && up -d on a VPS
+      #   - `flyctl deploy`, `render deploy`, `railway up`
+      #   - cloud run / app service / ECS update-service
+      # Required runtime env/secrets (set in the GitHub Environment):
+      #   NODE_ENV=production, WINGMAN_STORAGE_MODE=supabase,
+      #   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, GEMINI_API_KEY,
+      #   WINGMAN_CORS_ALLOW_ORIGIN, WINGMAN_SESSION_COOKIE_SECURE=true,
+      #   (optional, after testing) WINGMAN_CSRF_ENFORCE=true
+      # ---------------------------------------------------------------------
+      - name: Deploy (placeholder)
+        run: |
+          echo "No deploy provider configured yet."
+          echo "Add the provider deploy command here once hosting is chosen."
+          echo "Target environment: ${{ inputs.environment || 'staging' }}"
+
+      - name: Post-deploy health check (placeholder)
+        run: |
+          echo "After wiring deploy, curl the API health endpoint, e.g.:"
+          echo "  curl -fsS https://<host>/api/health"
