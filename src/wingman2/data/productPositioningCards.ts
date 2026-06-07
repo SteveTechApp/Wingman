@@ -1,6 +1,6 @@
-﻿import type { ProductPositioningCard } from "../types/productPositioning";
+﻿import type { ProductPositioningAttachProduct, ProductPositioningCard } from "../types/productPositioning";
 
-export const PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
+const CORE_PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
   {
     sku: "NHD-0401-MV",
     productName: "4-input HDMI multiview processor",
@@ -8,11 +8,11 @@ export const PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     technologyType: "HDMI multiview",
     salientPoint: "A practical way to show several HDMI sources on one display, processor input or confidence monitor.",
     oneLinePositioning: "Use this when the customer needs to see multiple sources together on one output rather than simply switching between them.",
-    oneMinuteBrief: "The NHD-0401-MV is useful when the opportunity is about source visibility. It helps frame the conversation around multiview, preview, monitoring and operator confidence rather than standard matrix switching. It can be positioned as a standalone multiview option or as part of a wider WyreStorm signal-management conversation.",
+    oneMinuteBrief: "The NHD-0401-MV is useful when the customer needs source visibility. It helps explain multiview, preview, monitoring and operator confidence rather than treating the job as standard matrix switching. It can be positioned as a standalone multiview option or as part of a wider WyreStorm AV design.",
     bestFitApplications: ["sports bars", "control rooms", "security monitoring", "education preview displays", "LED processor input management", "confidence monitoring"],
     weakFitApplications: ["full matrix replacement", "large distributed AV by itself", "complete video wall processing without confirming layout needs"],
     customerProblems: ["The customer has several feeds but only one display or processor input.", "The operator needs to see more than one source at the same time.", "The current solution relies on switching back and forth between sources."],
-    wyrestormFit: ["Positions WyreStorm as a signal-management partner, not only a source/display supplier.", "Creates a path into wider matrix, AVoIP or video wall conversations."],
+    wyrestormFit: ["Helps sales explain the difference between source visibility, switching, AVoIP and video wall processing.", "Can lead into wider matrix, AVoIP or video wall design where the requirement grows."],
     openingQuestions: ["How many sources need to be visible at the same time?", "Is the output feeding a display, matrix, LED processor, recorder or AVoIP encoder?", "Do you need fixed layouts or user-selectable layouts?", "What resolution and refresh rate do the sources need?", "Is this standalone or part of a wider routed AV system?"],
     qualificationQuestions: ["Do any of the sources carry protected content?", "Who needs to control the layout?", "Is audio required from a specific source?", "Is this for operator monitoring or customer-facing display?", "Are there future source expansion plans?"],
     technicalCheckQuestions: ["Confirm HDCP requirements.", "Confirm output resolution.", "Confirm layout expectations.", "Confirm control method.", "Confirm whether this is true multiview or video wall processing."],
@@ -20,7 +20,7 @@ export const PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     disqualifiers: ["Do not present as a full matrix replacement.", "Do not present as a complete video wall processor without checking the requirement.", "Do not assume it replaces an AVoIP decoder."],
     caveats: ["Check HDCP, resolution, layout and control expectations before confirming.", "Clarify whether the need is multiview, switching, video wall processing or AVoIP composition."],
     objectionHandling: [
-      { objection: "Can the display do this?", response: "Some displays offer limited PiP or PbP, but a dedicated multiview processor gives a more predictable AV integration path and clearer source-management conversation." },
+      { objection: "Can the display do this?", response: "Some displays offer limited PiP or PbP, but a dedicated multiview processor gives a more predictable AV integration path and clearer source handling." },
       { objection: "Can a matrix do this?", response: "A matrix routes different sources to outputs. Multiview is different because it shows several sources on one output at the same time." },
       { objection: "Is this a video wall processor?", response: "It depends on whether the customer needs multiview, wall processing, or both. Confirm layout, outputs and scaling before positioning." }
     ],
@@ -34,7 +34,7 @@ export const PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     ],
     audienceNotes: {
       DISTRIBUTOR: "Lead with the simple attach opportunity: customers often ask for switching, but actually need source visibility.",
-      DEALER: "Use this to open a system conversation around preview, LED inputs, sports bars and monitoring.",
+      DEALER: "Use this when preview, LED processor inputs, sports-bar displays or monitoring points need several sources visible at once.",
       INTEGRATOR: "Clarify layout control, signal path, HDCP and whether this is before or after a matrix/AVoIP system.",
       CONSULTANT: "Position as a multiview function, not as a generic switching or wall-processing substitute.",
       END_USER: "Explain that it allows several feeds to be viewed together on one screen."
@@ -46,7 +46,7 @@ export const PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
       PROJECT_DISCOVERY: "Capture source count, output destination, layout needs and control expectations.",
       TRAINING: "Use this SKU to teach the difference between matrix switching and multiview."
     },
-    followUpWording: "Based on what you described, this looks like a multiview requirement rather than simply a switching requirement. WyreStorm has options that can help show multiple HDMI sources on a single output, either standalone or as part of a wider signal-management system. Before confirming the best option, we should check source count, output resolution, required layouts, HDCP expectations and where the output sits in the wider system.",
+    followUpWording: "Based on what you described, this looks like a multiview requirement rather than simply a switching requirement. WyreStorm has options that can help show multiple HDMI sources on a single output, either standalone or as part of a wider AV system. Before confirming the best option, we should check source count, output resolution, required layouts, HDCP expectations and where the output sits in the wider system.",
     reviewGates: ["Confirm this is multiview, not full video wall processing.", "Confirm HDCP and resolution.", "Confirm control/layout expectations."],
     dataConfidence: "MEDIUM",
     lastReviewed: "2026-06-04"
@@ -82,7 +82,7 @@ export const PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
       { competitorCategory: "AVoIP multiview decoder", positioningNote: "Compare only against AVoIP multiview receivers/decoders in a similar system architecture.", compareSearchTerms: ["AVoIP multiview receiver", "decoder multiview"] }
     ],
     audienceNotes: {
-      DISTRIBUTOR: "Position as a NetworkHD system conversation, not a standalone box sale.",
+      DISTRIBUTOR: "Treat this as part of a NetworkHD design, not a standalone box sale.",
       DEALER: "Useful for monitoring, education and control-room style opportunities.",
       INTEGRATOR: "Check system series, controller, VLAN/network and source compatibility.",
       CONSULTANT: "Frame as a composed output capability inside a defined NetworkHD design.",
@@ -155,11 +155,11 @@ export const PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     technologyType: "1GbE JPEG-XS AVoIP",
     salientPoint: "A strong 1GbE AVoIP option for high-quality routed AV where NetworkHD 500-series is the correct platform.",
     oneLinePositioning: "Use this when the customer needs scalable 1GbE NetworkHD distribution with strong image-quality positioning.",
-    oneMinuteBrief: "NHD-500 is a strong conversation for education, campus and flexible AV distribution where a matrix becomes limiting but 10GbE SDVoE may not be the right commercial fit.",
+    oneMinuteBrief: "NHD-500 fits education, campus and flexible AV distribution where a matrix becomes limiting but 10GbE SDVoE may not be the right commercial fit.",
     bestFitApplications: ["higher education", "campus AV", "teaching spaces", "distributed displays", "mixed room estates"],
     weakFitApplications: ["very small local systems", "10GbE SDVoE-only specifications", "simple display extension"],
     customerProblems: ["The customer needs routing across multiple rooms.", "A matrix is becoming too fixed or too small.", "They need a scalable AV platform over network infrastructure."],
-    wyrestormFit: ["Positions WyreStorm strongly in education and scalable signal management.", "Works well where salespeople need to move beyond one-room thinking."],
+    wyrestormFit: ["Supports education and scalable AV distribution where WyreStorm needs to cover more than one room.", "Works well where salespeople need to move beyond one-room thinking."],
     openingQuestions: ["How many rooms, sources and displays are involved?", "Is this a new NetworkHD system or expansion?", "Is 1GbE infrastructure preferred?", "Are mixed resolutions or future expansion expected?", "Is central management required?"],
     qualificationQuestions: ["Which NetworkHD series is already installed?", "Is the network dedicated or shared?", "What latency and image-quality expectations exist?", "Is USB required?", "Are there legacy products to support?"],
     technicalCheckQuestions: ["Confirm NetworkHD series compatibility.", "Confirm switch requirements.", "Confirm controller requirement.", "Confirm source/display counts.", "Confirm USB/audio/control expectations."],
@@ -202,8 +202,8 @@ export const PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     productFamily: "Hybrid Matrix",
     technologyType: "Hybrid matrix with AV, USB, audio and NetworkHD integration",
     salientPoint: "A strong teaching-space product when the room needs more than simple HDMI switching.",
-    oneLinePositioning: "Use this when the teaching room needs AV switching, USB/conferencing, audio and hybrid signal management in one system conversation.",
-    oneMinuteBrief: "MX-1007-HYB is a strong education and hybrid-teaching story. It helps simplify conversations where a classroom needs USB-C/HDMI sources, display routing, USB device handling, audio and NetworkHD integration rather than separate boxes everywhere.",
+    oneLinePositioning: "Use this when the teaching room needs AV switching, USB/conferencing, audio and hybrid signal management in one system design.",
+    oneMinuteBrief: "MX-1007-HYB is a strong education and hybrid-teaching story. It helps simplify rooms where a classroom needs USB-C/HDMI sources, display routing, USB device handling, audio and NetworkHD integration rather than separate boxes everywhere.",
     bestFitApplications: ["higher education teaching rooms", "hybrid classrooms", "training rooms", "lecture spaces", "standardised room upgrades"],
     weakFitApplications: ["basic huddle room", "simple HDMI extension", "large AVoIP estate by itself"],
     customerProblems: ["The room has multiple source types.", "USB/conferencing is part of the requirement.", "The customer wants a repeatable teaching-room standard.", "Audio and control need to be considered together."],
@@ -250,7 +250,7 @@ export const PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     productName: "Education-focused matrix switcher",
     productFamily: "Education Matrix",
     technologyType: "Presentation / education matrix",
-    salientPoint: "A practical option for teaching spaces that need structured source and display routing without overcomplicating the room.",
+    salientPoint: "Fits teaching spaces that need structured source and display routing without overcomplicating the room.",
     oneLinePositioning: "Use this when the room needs an education-focused matrix approach but not the full hybrid requirement of MX-1007-HYB.",
     oneMinuteBrief: "MX-0408-EDU fits education spaces where the core need is reliable source/display routing for teaching, but the design does not require the same level of hybrid NetworkHD/audio integration as larger systems.",
     bestFitApplications: ["classrooms", "seminar rooms", "teaching spaces", "training rooms"],
@@ -446,7 +446,7 @@ export const PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     bestFitApplications: ["larger meeting rooms", "boardrooms", "training rooms", "dual-display presentation", "BYOD/BYOM spaces"],
     weakFitApplications: ["single-input rooms", "large distributed AV", "certified Teams Room appliance replacement"],
     customerProblems: ["Users need flexible wired and wireless presentation.", "The room has more than a basic single-display requirement.", "Guest and fixed sources need to be handled cleanly."],
-    wyrestormFit: ["Positions WyreStorm as a complete meeting-room signal-management option.", "Provides natural attach paths to cameras, audio and extension."],
+    wyrestormFit: ["Shows how WyreStorm can cover the meeting-room source, USB and display workflow.", "Provides natural attach paths to cameras, audio and extension."],
     openingQuestions: ["How many wired sources are required?", "Do users need wireless presentation?", "How many displays or outputs are needed?", "Is USB conferencing involved?", "Is the customer expecting BYOD or a certified room appliance?"],
     qualificationQuestions: ["Which wireless platforms are required?", "Are there fixed room PCs or only laptops?", "Is dual display needed?", "What USB devices are in the room?", "Is local control required?"],
     technicalCheckQuestions: ["Confirm inputs/outputs.", "Confirm wireless support.", "Confirm USB workflow.", "Confirm network policy.", "Confirm resolution/HDCP."],
@@ -686,7 +686,7 @@ export const PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     bestFitApplications: ["small huddle rooms", "BYOD meeting rooms", "USB conferencing", "simple UC spaces"],
     weakFitApplications: ["large divisible rooms", "complex DSP audio", "large lecture theatres"],
     customerProblems: ["The customer has video sorted but poor audio.", "They need microphone/speaker support for BYOD calls.", "The room needs a simple UC audio path."],
-    wyrestormFit: ["Helps attach audio to presentation and camera opportunities.", "Keeps the conversation around complete room usability."],
+    wyrestormFit: ["Helps attach audio to presentation and camera opportunities.", "Keeps the focus on whether the whole room is usable, not just whether video switches."],
     openingQuestions: ["How many people are in the room?", "Is this for Teams/Zoom/BYOD calls?", "What camera is being used?", "Is the PC/laptop host in the room?", "Is existing audio being reused?"],
     qualificationQuestions: ["What pickup distance is needed?", "Is expansion required?", "Is room noise a concern?", "Does the customer need table or installed audio?", "Is DSP already specified?"],
     technicalCheckQuestions: ["Confirm room size.", "Confirm USB host path.", "Confirm acoustic expectations.", "Confirm camera/platform.", "Confirm whether larger APO audio is required."],
@@ -771,9 +771,591 @@ export const PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
   }
 ];
 
+type CuratedSkuSeed = {
+  sku: string;
+  productName: string;
+  productFamily: string;
+  technologyType: string;
+  salientPoint: string;
+  jobToBeDone: string;
+  bestFitApplications: string[];
+  weakFitApplications: string[];
+  customerProblems?: string[];
+  wyrestormFit?: string[];
+  openingQuestions?: string[];
+  qualificationQuestions?: string[];
+  technicalCheckQuestions?: string[];
+  listenForTriggers?: string[];
+  disqualifiers?: string[];
+  caveats?: string[];
+  attachProducts?: ProductPositioningAttachProduct[];
+  competitorCategory?: string;
+  competitorSearchTerms?: string[];
+  reviewGates?: string[];
+};
+
+function createExpandedProductPositioningCard(seed: CuratedSkuSeed): ProductPositioningCard {
+  const customerProblems = seed.customerProblems ?? [
+    `The customer needs ${seed.jobToBeDone}.`,
+    "The salesperson needs to explain the product by room outcome rather than by model number.",
+    "The design has at least one dependency that should be checked before quoting.",
+  ];
+  const openingQuestions = seed.openingQuestions ?? [
+    "What is the room or site trying to achieve?",
+    "How many sources, displays and users are involved?",
+    "Is this standalone, matrix-led, UC-led or AV-over-IP-led?",
+    "What is already installed that must be reused?",
+    "Who will operate or support the system day to day?",
+  ];
+  const qualificationQuestions = seed.qualificationQuestions ?? [
+    "Which signal formats and resolutions must be supported?",
+    "Are USB, audio, control, network or power requirements part of the brief?",
+    "Is the requirement fixed now or expected to expand?",
+    "Does the customer need a simple user workflow or an integrator-managed system?",
+  ];
+  const technicalCheckQuestions = seed.technicalCheckQuestions ?? [
+    "Confirm source count, display count and signal format.",
+    "Confirm distance, cable type and infrastructure.",
+    "Confirm USB, audio, control and network requirements.",
+    "Confirm the exact SKU and regional availability before quoting.",
+  ];
+  const listenForTriggers = seed.listenForTriggers ?? [
+    "We need a cleaner room workflow.",
+    "The current system has too many boxes.",
+    "Users struggle to connect reliably.",
+    "The room needs to be easier to support.",
+  ];
+  const disqualifiers = seed.disqualifiers ?? [
+    "Do not position where a simpler extender, switcher or accessory is enough.",
+    "Do not assume USB, audio, control or network behaviour without checking the signal path.",
+    "Do not quote into a governed project without confirming compatibility and dependencies.",
+  ];
+  const caveats = seed.caveats ?? [
+    "Confirm the complete signal path before presenting as quote-ready.",
+    "Use the official product page and current stock/region data before final selection.",
+  ];
+  const reviewGates = seed.reviewGates ?? technicalCheckQuestions.slice(0, 3);
+  const compareSearchTerms = seed.competitorSearchTerms ?? [seed.technologyType, seed.productFamily, seed.sku];
+
+  return {
+    sku: seed.sku,
+    productName: seed.productName,
+    productFamily: seed.productFamily,
+    technologyType: seed.technologyType,
+    salientPoint: seed.salientPoint,
+    oneLinePositioning: `Use this when ${seed.jobToBeDone}.`,
+    oneMinuteBrief: `${seed.sku} is best presented around the application: ${seed.salientPoint} Keep the call focused on what the room needs to do, then check the dependencies before moving it into a quote.`,
+    bestFitApplications: seed.bestFitApplications,
+    weakFitApplications: seed.weakFitApplications,
+    customerProblems,
+    wyrestormFit: seed.wyrestormFit ?? [
+      "Gives the salesperson a clear WyreStorm option for the application.",
+      "Keeps the discussion tied to the room workflow and required checks.",
+      "Creates a route into companion products where the project needs a complete signal path.",
+    ],
+    openingQuestions,
+    qualificationQuestions,
+    technicalCheckQuestions,
+    listenForTriggers,
+    disqualifiers,
+    caveats,
+    objectionHandling: [
+      {
+        objection: "Is this the right product, or just the nearest SKU?",
+        response: "Use it only when the application and signal path match. Confirm the review gates before treating it as quote-ready.",
+      },
+      {
+        objection: "Can we use a cheaper box?",
+        response: "Possibly. First check whether the cheaper option covers the same source, display, USB, audio, control and support requirements.",
+      },
+    ],
+    attachProducts: seed.attachProducts ?? [
+      { productFamily: "Cables and installation accessories", reason: "Confirm the physical signal path and power approach before quoting." },
+      { productFamily: "Control or room interface", reason: "Attach when users need a repeatable room workflow rather than manual source changes." },
+    ],
+    competitorAngles: [
+      {
+        competitorCategory: seed.competitorCategory ?? seed.technologyType,
+        positioningNote: "Compare the application, I/O, transport, USB/audio/control behaviour and required infrastructure before claiming equivalence.",
+        compareSearchTerms,
+      },
+    ],
+    audienceNotes: {
+      DISTRIBUTOR: "Lead with the application and the attach opportunity, then check whether the account needs a simpler or larger system shape.",
+      DEALER: "Keep the talk track practical: what connects, what the user does, and what must be checked before quote.",
+      INTEGRATOR: "Validate signal path, infrastructure, control and commissioning dependencies before committing the SKU.",
+      CONSULTANT: "Frame as a product option inside a defined system architecture, not as a generic substitute.",
+      END_USER: "Explain the room outcome in plain English and avoid model-number-only language.",
+      INTERNAL_SALES: "Use this as a curated starter card; escalate unclear design dependencies before quoting.",
+    },
+    callModeNotes: {
+      INBOUND_SUPPORT: "Start by separating the real application from the product name the caller mentioned.",
+      PRODUCT_CALLOUT: "Use this with accounts where the application is common and the product opens useful attach questions.",
+      COMPETITOR_DISPLACEMENT: "Compare like-for-like only after checking I/O, transport, USB, audio, control and infrastructure.",
+      PROJECT_DISCOVERY: "Capture the review gates before moving the SKU into proposal support.",
+      TRAINING: "Use this card to teach when the SKU is a good fit and when to slow down.",
+    },
+    followUpWording: `Based on the requirement, ${seed.sku} may be relevant where ${seed.jobToBeDone}. Before we treat it as quote-ready, we should confirm ${reviewGates.map((item) => item.replace(/\.$/, "").toLowerCase()).join(", ")}.`,
+    reviewGates,
+    dataConfidence: "MEDIUM",
+    lastReviewed: "2026-06-07",
+  };
+}
+
+const EXPANDED_PRODUCT_POSITIONING_SEEDS: CuratedSkuSeed[] = [
+  {
+    sku: "AMP-2120-DNT",
+    productName: "Advanced Dante amplifier",
+    productFamily: "Audio / Dante",
+    technologyType: "Dante installed audio amplifier",
+    salientPoint: "A useful audio product where the room needs installed loudspeaker power and Dante/network audio is part of the design.",
+    jobToBeDone: "the room needs installed loudspeaker output with Dante or network-audio coordination",
+    bestFitApplications: ["teaching rooms", "training rooms", "meeting rooms", "hospitality audio zones"],
+    weakFitApplications: ["USB speakerphone-only rooms", "large DSP-led audio designs without review", "rooms using display speakers only"],
+    customerProblems: ["The video path is clear but the loudspeaker/audio path has not been designed.", "The room needs a proper installed audio output, not just monitor speakers.", "The project includes Dante or network audio requirements."],
+    openingQuestions: ["How many loudspeakers and zones are required?", "Is Dante already specified or already on site?", "What source feeds the amplifier?", "Who will commission the audio path?"],
+    technicalCheckQuestions: ["Confirm loudspeaker load and power requirement.", "Confirm Dante/network audio path.", "Confirm control and commissioning responsibility.", "Confirm whether DSP or AEC is handled elsewhere."],
+    attachProducts: [
+      { productFamily: "APO UC audio", reason: "Use where the same room also needs conferencing microphone/speaker workflow." },
+      { productFamily: "Presentation switchers", reason: "Attach when the amplifier is part of a teaching or meeting-room signal path." },
+    ],
+    competitorCategory: "Dante amplifier",
+    competitorSearchTerms: ["Dante amplifier", "network amplifier", "installed audio amplifier"],
+  },
+  {
+    sku: "AMP-260-DNT",
+    productName: "120W network amplifier",
+    productFamily: "Audio / Dante",
+    technologyType: "Network audio amplifier",
+    salientPoint: "A compact network amplifier option where room audio needs to be treated as part of the AV system.",
+    jobToBeDone: "the customer needs a network-aware amplifier for installed room audio",
+    bestFitApplications: ["small teaching rooms", "meeting rooms", "retail audio zones", "hospitality spaces"],
+    weakFitApplications: ["large divisible rooms", "DSP-heavy auditoriums", "rooms needing only USB table audio"],
+    openingQuestions: ["What loudspeakers are being driven?", "Is the audio local, networked or Dante-led?", "Is this playback audio, conferencing audio or both?", "How will volume be controlled?"],
+    technicalCheckQuestions: ["Confirm speaker impedance/load.", "Confirm audio source and network path.", "Confirm volume/control method.", "Confirm installation location and power."],
+    competitorCategory: "network amplifier",
+    competitorSearchTerms: ["120W network amplifier", "Dante amplifier", "installed AV amplifier"],
+  },
+  {
+    sku: "APO-COM-MIC",
+    productName: "Apollo companion microphone",
+    productFamily: "APO UC Audio",
+    technologyType: "UC companion microphone",
+    salientPoint: "An attach product for rooms where Apollo UC coverage needs to extend across the table.",
+    jobToBeDone: "the meeting table needs better microphone coverage than the main UC device alone can provide",
+    bestFitApplications: ["meeting rooms", "boardrooms", "BYOD UC spaces", "training rooms"],
+    weakFitApplications: ["rooms without Apollo UC products", "large DSP-designed spaces", "audio-only rooms with no UC workflow"],
+    openingQuestions: ["Which Apollo product is in the room?", "How large is the table?", "Where do people sit?", "Is the far end complaining about pickup?"],
+    technicalCheckQuestions: ["Confirm Apollo compatibility.", "Confirm pickup coverage and table layout.", "Confirm cable route and placement.", "Confirm Teams rooms are tested before install."],
+    caveats: ["WyreStorm UC is Zoom-certified, not Teams-certified; Teams rooms must be tested before install.", "Confirm compatibility with the selected Apollo host product."],
+    attachProducts: [
+      { sku: "APO-210-UC", reason: "Primary UC table audio context for companion microphone discussions." },
+      { sku: "APO-VX20-UC", reason: "Consider where the room needs a compact UC audio path instead." },
+    ],
+    competitorCategory: "UC expansion microphone",
+    competitorSearchTerms: ["companion microphone", "UC expansion microphone", "speakerphone expansion mic"],
+  },
+  {
+    sku: "APO-DG2-PRO",
+    productName: "Apollo wireless casting and conferencing dongle",
+    productFamily: "APO UC / Wireless",
+    technologyType: "USB-C wireless presentation and conferencing dongle",
+    salientPoint: "A practical accessory when the customer wants a simpler wireless casting or wireless conferencing user action.",
+    jobToBeDone: "users need a straightforward wireless presentation or conferencing connection from their laptop",
+    bestFitApplications: ["BYOD meeting rooms", "training rooms", "executive spaces", "guest presentation spaces"],
+    weakFitApplications: ["fixed PC rooms with no guest laptops", "rooms where wireless is prohibited", "high-security sites without IT approval"],
+    openingQuestions: ["Is wireless presentation allowed by IT?", "Is this for casting only or conferencing as well?", "What host laptops are common?", "How many dongles does the site need?"],
+    technicalCheckQuestions: ["Confirm Apollo ecosystem compatibility.", "Confirm wireless policy.", "Confirm USB-C host expectations.", "Confirm conferencing platform testing."],
+    caveats: ["WyreStorm UC is Zoom-certified, not Teams-certified; Teams rooms must be tested before install.", "Wireless use depends on customer IT policy and room workflow."],
+    competitorCategory: "wireless presentation dongle",
+    competitorSearchTerms: ["wireless casting dongle", "wireless conferencing dongle", "USB-C presentation dongle"],
+  },
+  {
+    sku: "CAM-0402-NDI-BRG",
+    productName: "4K multi-camera video bridge with USB, HDMI and NDI",
+    productFamily: "Camera / Capture",
+    technologyType: "Multi-camera bridge",
+    salientPoint: "A stronger answer when the room needs several cameras or AV sources presented into a conferencing or capture workflow.",
+    jobToBeDone: "camera and AV sources need to be bridged into USB, HDMI or NDI workflows",
+    bestFitApplications: ["hybrid teaching", "lecture capture", "multi-camera training rooms", "conference rooms"],
+    weakFitApplications: ["single webcam rooms", "audio-only conferencing", "rooms without camera switching or bridging"],
+    openingQuestions: ["How many cameras or sources need to be bridged?", "What platform receives the output?", "Is NDI required on the network?", "Is audio handled separately?"],
+    technicalCheckQuestions: ["Confirm input and output formats.", "Confirm USB host and NDI network requirements.", "Confirm control method.", "Confirm audio path and lip-sync expectations."],
+    attachProducts: [
+      { productFamily: "CAM PTZ cameras", reason: "Attach where the bridge is fed by room cameras." },
+      { productFamily: "APO UC audio", reason: "Attach where the room also needs microphone/speaker capture." },
+    ],
+    competitorCategory: "multi-camera bridge",
+    competitorSearchTerms: ["camera bridge", "NDI bridge", "USB capture bridge", "multi camera conference bridge"],
+  },
+  {
+    sku: "CAM-420-PTZ",
+    productName: "4K dual-lens AI PTZ camera",
+    productFamily: "Camera / Capture",
+    technologyType: "AI PTZ camera",
+    salientPoint: "A camera option for rooms where coverage, framing and presenter visibility matter more than a basic webcam.",
+    jobToBeDone: "the room needs controllable camera coverage with higher-quality capture",
+    bestFitApplications: ["teaching rooms", "training spaces", "large meeting rooms", "hybrid events"],
+    weakFitApplications: ["small huddle rooms with one close participant", "audio-only rooms", "rooms with no camera control requirement"],
+    openingQuestions: ["What area must the camera cover?", "Is the use case conferencing, lecture capture or streaming?", "Who controls camera presets?", "Is audio captured separately?"],
+    technicalCheckQuestions: ["Confirm camera output path.", "Confirm mounting and field of view.", "Confirm control method.", "Confirm platform and audio workflow."],
+    competitorCategory: "AI PTZ camera",
+    competitorSearchTerms: ["4K PTZ camera", "AI PTZ camera", "dual lens PTZ camera"],
+  },
+  {
+    sku: "EX-100-H2",
+    productName: "4K60 HDBT 2.0 extender set",
+    productFamily: "HDBaseT Extenders",
+    technologyType: "HDBaseT extension",
+    salientPoint: "A point-to-point extension option when the job is a known source-to-display run rather than a switching or AVoIP design.",
+    jobToBeDone: "one HDMI source needs to reach one display over a longer cable run",
+    bestFitApplications: ["meeting rooms", "teaching rooms", "signage displays", "simple source extension"],
+    weakFitApplications: ["multi-source switching", "matrix routing", "large distributed AV"],
+    openingQuestions: ["What is the source and what is the display?", "What is the cable distance and cable grade?", "Is control or IR required?", "Is this one-to-one or part of a wider system?"],
+    technicalCheckQuestions: ["Confirm distance and cable category.", "Confirm resolution and HDR/HDCP needs.", "Confirm control, audio and power requirements.", "Confirm whether a switcher or matrix is actually required."],
+    competitorCategory: "HDBaseT extender",
+    competitorSearchTerms: ["HDBaseT extender", "4K60 extender", "HDMI over Cat extender"],
+  },
+  {
+    sku: "EX-100-USB3",
+    productName: "USB 3.2 HDBaseT-USB3 extender",
+    productFamily: "USB Extension",
+    technologyType: "USB 3 extension",
+    salientPoint: "Use when USB peripherals need reliable extension, especially cameras or devices that cannot sit next to the host PC.",
+    jobToBeDone: "USB devices need to be extended between the room equipment and host computer",
+    bestFitApplications: ["USB camera extension", "UC rooms", "interactive teaching rooms", "KVM-style support workflows"],
+    weakFitApplications: ["video-only extension", "USB 2-only low-cost accessory needs", "rooms where the host can be local"],
+    openingQuestions: ["Which USB devices are being extended?", "Is USB 3 bandwidth needed?", "Where is the host PC?", "Is video also being extended separately?"],
+    technicalCheckQuestions: ["Confirm USB device types and bandwidth.", "Confirm host location and cable route.", "Confirm power requirements.", "Confirm whether video, audio or control also need products."],
+    competitorCategory: "USB extender",
+    competitorSearchTerms: ["USB 3 extender", "HDBaseT USB extender", "USB camera extender"],
+  },
+  {
+    sku: "EX-100-KVM",
+    productName: "KVM-capable HDBaseT extender set",
+    productFamily: "KVM / Extension",
+    technologyType: "HDBaseT KVM extension",
+    salientPoint: "Useful where a user needs keyboard, mouse or USB control of a source from the display or operator position.",
+    jobToBeDone: "video and USB control need to be extended together for a workstation or operator workflow",
+    bestFitApplications: ["operator desks", "training rooms", "remote PC control", "support and demonstration spaces"],
+    weakFitApplications: ["display-only extension", "multi-user KVM matrices", "USB camera-only rooms"],
+    openingQuestions: ["What USB devices need to follow the video?", "Where is the PC or source located?", "How far is the operator position?", "Is this one workstation or multiple workstations?"],
+    technicalCheckQuestions: ["Confirm USB device type.", "Confirm resolution and distance.", "Confirm latency tolerance.", "Confirm whether a full KVM matrix is required."],
+    competitorCategory: "KVM extender",
+    competitorSearchTerms: ["KVM extender", "HDBaseT KVM", "USB HDMI extender"],
+  },
+  {
+    sku: "EX-35-8K",
+    productName: "35m HDMI 2.1 8K HDBaseT extender",
+    productFamily: "8K / HDBaseT Extension",
+    technologyType: "HDMI 2.1 / 8K extension",
+    salientPoint: "A short-run premium extender where HDMI 2.1 or 8K capability is genuinely part of the brief.",
+    jobToBeDone: "a high-bandwidth HDMI 2.1 or 8K signal needs extension over a controlled distance",
+    bestFitApplications: ["high-end residential", "premium display rooms", "gaming or simulation spaces", "demonstration spaces"],
+    weakFitApplications: ["standard 1080p rooms", "budget signage", "long-run matrix or AVoIP projects"],
+    openingQuestions: ["Is HDMI 2.1 or 8K actually required?", "What is the exact distance?", "What source and display are being used?", "Are gaming features or high refresh rates required?"],
+    technicalCheckQuestions: ["Confirm resolution, refresh and HDR requirement.", "Confirm distance and cable grade.", "Confirm HDMI 2.1 feature expectations.", "Confirm HDCP and audio requirements."],
+    competitorCategory: "8K HDMI extender",
+    competitorSearchTerms: ["8K extender", "HDMI 2.1 extender", "35m HDBaseT extender"],
+  },
+  {
+    sku: "EX-70-H2",
+    productName: "4K60 HDBT extender set",
+    productFamily: "HDBaseT Extenders",
+    technologyType: "HDBaseT extension",
+    salientPoint: "A practical one-source-to-one-display extender for common 4K60 room runs.",
+    jobToBeDone: "a 4K source needs to reach a display over a structured cable run",
+    bestFitApplications: ["meeting rooms", "classrooms", "digital signage", "single-display installs"],
+    weakFitApplications: ["multi-display routing", "USB-heavy UC rooms", "AVoIP distribution"],
+    openingQuestions: ["What distance is required?", "What resolution and refresh rate are needed?", "Is control or audio needed?", "Is a switcher required before the extender?"],
+    technicalCheckQuestions: ["Confirm distance and cable category.", "Confirm resolution and HDCP.", "Confirm power method.", "Confirm control and audio requirements."],
+    competitorCategory: "HDBaseT extender",
+    competitorSearchTerms: ["70m HDBaseT extender", "4K60 extender", "HDMI over Cat extender"],
+  },
+  {
+    sku: "EX3-100-EARC",
+    productName: "HDBaseT 3.0 extender with eARC relevance",
+    productFamily: "HDBaseT 3.0 Extension",
+    technologyType: "HDBaseT 3.0 extension",
+    salientPoint: "A stronger extender conversation where modern HDMI, audio-return or premium display workflows must be considered.",
+    jobToBeDone: "a premium source/display link needs HDBaseT 3.0-class extension and audio-path checks",
+    bestFitApplications: ["premium meeting rooms", "residential media spaces", "boardrooms", "display extension with audio-return needs"],
+    weakFitApplications: ["simple low-cost extension", "matrix routing", "rooms where audio return is irrelevant"],
+    openingQuestions: ["Is eARC or display audio return required?", "What source and display are involved?", "What distance and cable grade are available?", "Are control and audio de-embed needed?"],
+    technicalCheckQuestions: ["Confirm HDMI/audio return requirements.", "Confirm distance and cable category.", "Confirm HDCP and resolution.", "Confirm control and audio routing."],
+    competitorCategory: "HDBaseT 3.0 extender",
+    competitorSearchTerms: ["HDBaseT 3 extender", "eARC extender", "4K60 HDBaseT extender"],
+  },
+  {
+    sku: "MV-0401-PRO",
+    productName: "4-input 4K60 multiview processor",
+    productFamily: "Video Wall / Multiview",
+    technologyType: "4K multiview processing",
+    salientPoint: "Use when the customer needs several sources visible on one screen or processor feed, not just a source switch.",
+    jobToBeDone: "multiple sources need to be viewed together on one output canvas",
+    bestFitApplications: ["control rooms", "sports bars", "education preview displays", "LED processor feeds"],
+    weakFitApplications: ["full matrix routing", "large AVoIP distribution", "simple source switching"],
+    openingQuestions: ["How many sources must be visible at once?", "Is the output a display, recorder or LED processor?", "Do users need fixed or selectable layouts?", "Is audio required from one source?"],
+    technicalCheckQuestions: ["Confirm source count and output resolution.", "Confirm layout requirements.", "Confirm HDCP and audio expectations.", "Confirm whether video wall processing is also needed."],
+    competitorCategory: "multiview processor",
+    competitorSearchTerms: ["4K multiviewer", "quad viewer", "multiview processor"],
+  },
+  {
+    sku: "MX-0404-SCL",
+    productName: "4x4 HDMI matrix with scaling",
+    productFamily: "Matrix / Routing",
+    technologyType: "HDMI matrix switching",
+    salientPoint: "A matrix option for local source-to-display routing where four sources and four displays need predictable HDMI management.",
+    jobToBeDone: "several local HDMI sources need to be routed to several local displays",
+    bestFitApplications: ["meeting suites", "training rooms", "small hospitality systems", "retail display control"],
+    weakFitApplications: ["distributed building-wide AV", "USB conferencing workflows", "single-display switcher jobs"],
+    openingQuestions: ["How many sources and displays are required?", "Are displays the same resolution?", "Is scaling needed?", "Who controls the routing?"],
+    technicalCheckQuestions: ["Confirm source and display count.", "Confirm resolution and scaling requirements.", "Confirm HDCP and EDID handling.", "Confirm control method."],
+    competitorCategory: "HDMI matrix",
+    competitorSearchTerms: ["4x4 HDMI matrix", "matrix scaler", "4K60 matrix"],
+  },
+  {
+    sku: "MX-0808-H2A-MK2",
+    productName: "8x8 HDMI matrix",
+    productFamily: "Matrix / Routing",
+    technologyType: "HDMI matrix switching",
+    salientPoint: "A local matrix option where eight HDMI sources and eight display outputs are a better shape than AVoIP.",
+    jobToBeDone: "a local AV system needs fixed-size HDMI routing across up to eight inputs and outputs",
+    bestFitApplications: ["hospitality head-end rooms", "education AV racks", "training suites", "larger meeting-room clusters"],
+    weakFitApplications: ["campus-wide routing", "future endpoint growth beyond matrix size", "USB-first UC rooms"],
+    openingQuestions: ["Is the system local to one rack or distributed around the building?", "Are eight inputs and outputs enough now and later?", "What control system is planned?", "Are mixed resolutions involved?"],
+    technicalCheckQuestions: ["Confirm input/output count and future growth.", "Confirm resolution, HDCP and EDID requirements.", "Confirm control method.", "Confirm whether AVoIP would be more flexible."],
+    competitorCategory: "8x8 HDMI matrix",
+    competitorSearchTerms: ["8x8 HDMI matrix", "4K60 matrix", "HDMI matrix switch"],
+  },
+  {
+    sku: "NHD-500-DNT-TX",
+    productName: "NetworkHD 500-series Dante encoder",
+    productFamily: "NetworkHD 500 Series",
+    technologyType: "1GbE JPEG-XS AVoIP encoder with Dante relevance",
+    salientPoint: "Use where NetworkHD 500-series video distribution and Dante-aware audio workflows meet.",
+    jobToBeDone: "a source needs to enter a NetworkHD 500-series AVoIP system with audio design requirements checked",
+    bestFitApplications: ["higher education", "teaching rooms", "campus AV", "distributed AV with network audio"],
+    weakFitApplications: ["standalone point-to-point extension", "10GbE SDVoE-only designs", "non-NetworkHD systems"],
+    openingQuestions: ["Is this a NetworkHD 500-series system?", "Is Dante required?", "What source is being encoded?", "What controller and switch are being used?"],
+    technicalCheckQuestions: ["Confirm NetworkHD 500-series compatibility.", "Confirm Dante/audio routing.", "Confirm network switch and controller.", "Confirm endpoint count and licensing/commissioning needs."],
+    attachProducts: [
+      { productFamily: "NetworkHD controller", reason: "Required to manage the NetworkHD system." },
+      { productFamily: "Dante audio products", reason: "Attach where network audio is part of the room design." },
+    ],
+    competitorCategory: "AVoIP encoder with Dante",
+    competitorSearchTerms: ["JPEG-XS encoder", "AVoIP Dante encoder", "NetworkHD 500 encoder"],
+  },
+  {
+    sku: "NHD-510-TX",
+    productName: "NetworkHD 510 encoder",
+    productFamily: "NetworkHD 500 Series",
+    technologyType: "1GbE JPEG-XS AVoIP encoder",
+    salientPoint: "An encoder option for NetworkHD 500-series designs where sources need to enter the routed AV network.",
+    jobToBeDone: "a local source needs to become part of a NetworkHD 500-series distribution system",
+    bestFitApplications: ["campus AV", "teaching spaces", "multi-room presentation", "distributed displays"],
+    weakFitApplications: ["small local switching", "10GbE SDVoE systems", "standalone HDMI extension"],
+    openingQuestions: ["What source is being encoded?", "How many endpoints are in the system?", "Is the network ready for NetworkHD 500-series?", "Is USB or audio follow needed?"],
+    technicalCheckQuestions: ["Confirm NetworkHD series.", "Confirm controller and switch requirements.", "Confirm source format and resolution.", "Confirm endpoint count and expansion plan."],
+    competitorCategory: "AVoIP encoder",
+    competitorSearchTerms: ["JPEG-XS encoder", "1GbE AVoIP encoder", "AV over IP transmitter"],
+  },
+  {
+    sku: "NHD-610-TX",
+    productName: "NetworkHD 610 SDVoE encoder",
+    productFamily: "NetworkHD 600 Series",
+    technologyType: "10GbE SDVoE AVoIP encoder",
+    salientPoint: "A 10GbE source encoder for performance-led NetworkHD 600-series systems.",
+    jobToBeDone: "a source needs to enter a premium 10GbE SDVoE AVoIP system",
+    bestFitApplications: ["control rooms", "premium AVoIP", "large venues", "low-latency distribution"],
+    weakFitApplications: ["1GbE-only networks", "small local switcher rooms", "budget signage"],
+    openingQuestions: ["Is this a NetworkHD 600-series design?", "Is 10GbE switching available?", "What latency and image quality are required?", "How many endpoints are planned?"],
+    technicalCheckQuestions: ["Confirm 10GbE network design.", "Confirm controller requirement.", "Confirm SDVoE series compatibility.", "Confirm source count and expansion."],
+    competitorCategory: "SDVoE encoder",
+    competitorSearchTerms: ["SDVoE encoder", "10GbE AVoIP transmitter", "AV over IP encoder"],
+  },
+  {
+    sku: "NHD-CTL-PRO-V2",
+    productName: "NetworkHD Pro controller",
+    productFamily: "NetworkHD Control",
+    technologyType: "AVoIP system controller",
+    salientPoint: "The control and management component that should be discussed whenever NetworkHD is more than a simple endpoint conversation.",
+    jobToBeDone: "a NetworkHD system needs central control, routing management and commissioning structure",
+    bestFitApplications: ["NetworkHD systems", "multi-room AVoIP", "campus AV", "large display estates"],
+    weakFitApplications: ["non-NetworkHD systems", "single point-to-point extenders", "standalone HDMI matrix jobs"],
+    openingQuestions: ["Which NetworkHD series is being designed?", "How many endpoints are involved?", "Who needs routing control?", "Is third-party control integration required?"],
+    technicalCheckQuestions: ["Confirm NetworkHD series support.", "Confirm endpoint count.", "Confirm control integration.", "Confirm network and commissioning responsibilities."],
+    competitorCategory: "AVoIP controller",
+    competitorSearchTerms: ["AVoIP controller", "NetworkHD controller", "AV over IP control processor"],
+  },
+  {
+    sku: "NHD-USB-TRX",
+    productName: "USB 2.0 over IP transceiver",
+    productFamily: "NetworkHD USB",
+    technologyType: "USB over IP transceiver",
+    salientPoint: "Use where USB needs to follow an AVoIP or networked room workflow rather than staying local to the PC.",
+    jobToBeDone: "USB peripherals need to be extended or routed across an IP-based AV workflow",
+    bestFitApplications: ["AVoIP UC rooms", "teaching rooms with remote USB", "operator workstations", "interactive displays"],
+    weakFitApplications: ["USB 3 camera bandwidth requirements", "video-only AVoIP", "simple local USB cabling"],
+    openingQuestions: ["Which USB devices need to be connected?", "Is USB 2 sufficient?", "Where is the host PC?", "Does USB need to follow video routing?"],
+    technicalCheckQuestions: ["Confirm USB device type and bandwidth.", "Confirm host/peripheral locations.", "Confirm NetworkHD/control workflow.", "Confirm latency and user expectations."],
+    competitorCategory: "USB over IP",
+    competitorSearchTerms: ["USB over IP", "USB 2 transceiver", "AVoIP USB routing"],
+  },
+  {
+    sku: "SW-120-TX3-UK",
+    productName: "2-gang HDBaseT 3.0 in-wall transmitter",
+    productFamily: "In-Wall Presentation",
+    technologyType: "HDBaseT 3.0 in-wall transmitter",
+    salientPoint: "A neat wall-plate input point for rooms where the user connects at the wall and the AV rack or display is elsewhere.",
+    jobToBeDone: "a room needs a clean in-wall source input with HDBaseT 3.0 extension",
+    bestFitApplications: ["teaching rooms", "meeting rooms", "training rooms", "front-of-room inputs"],
+    weakFitApplications: ["table-box workflows", "wireless-only rooms", "multi-input matrix requirements without a receiver/design"],
+    openingQuestions: ["Where will the user plug in?", "What receiver or switcher is downstream?", "Is UK back-box depth suitable?", "Is control or USB needed?"],
+    technicalCheckQuestions: ["Confirm matching receiver/system compatibility.", "Confirm back-box and installation depth.", "Confirm input formats.", "Confirm cable route and power."],
+    competitorCategory: "in-wall HDBaseT transmitter",
+    competitorSearchTerms: ["HDBaseT 3 wall plate", "in-wall transmitter", "USB-C HDMI wall plate"],
+  },
+  {
+    sku: "SW-130-TX-UK",
+    productName: "3-input in-wall HDBaseT switcher",
+    productFamily: "In-Wall Presentation",
+    technologyType: "In-wall presentation switcher",
+    salientPoint: "A useful front-of-room input plate when the customer needs a tidy local source connection point with switching.",
+    jobToBeDone: "presenters need a wall-mounted input point with simple local switching",
+    bestFitApplications: ["classrooms", "small meeting rooms", "training spaces", "presentation walls"],
+    weakFitApplications: ["large multi-display routing", "wireless-first rooms", "rooms needing full UC USB management"],
+    openingQuestions: ["How many local inputs are needed at the wall?", "What is downstream of the transmitter?", "Does the user need button control?", "Is UK wall-box fit confirmed?"],
+    technicalCheckQuestions: ["Confirm input count and formats.", "Confirm receiver/system compatibility.", "Confirm installation depth.", "Confirm control and power requirements."],
+    competitorCategory: "in-wall switcher",
+    competitorSearchTerms: ["3 input wall plate switcher", "HDBaseT wall plate", "in-wall presentation switcher"],
+  },
+  {
+    sku: "SW-220-TX-W",
+    productName: "Synergy 2-input switcher",
+    productFamily: "Synergy Presentation",
+    technologyType: "Presentation switcher",
+    salientPoint: "A compact Synergy option for smaller rooms where the user needs a simple source connection workflow.",
+    jobToBeDone: "a smaller meeting or teaching space needs straightforward source selection",
+    bestFitApplications: ["small meeting rooms", "huddle spaces", "teaching rooms", "BYOD presentation"],
+    weakFitApplications: ["larger rooms needing four or more inputs", "complex UC rooms", "distributed AV"],
+    openingQuestions: ["How many sources are used regularly?", "Do users need HDMI, USB-C or wireless?", "Is there a single display?", "Does USB or audio need to be considered?"],
+    technicalCheckQuestions: ["Confirm input types.", "Confirm display and extension requirement.", "Confirm USB/audio/control needs.", "Confirm whether a larger Synergy product is required."],
+    competitorCategory: "presentation switcher",
+    competitorSearchTerms: ["2 input presentation switcher", "BYOD switcher", "Synergy switcher"],
+  },
+  {
+    sku: "SW-640L-TX-W",
+    productName: "Synergy 4-input 4K60 presentation switcher",
+    productFamily: "Synergy Presentation",
+    technologyType: "Presentation switcher",
+    salientPoint: "A strong room-workflow product where four inputs and user-friendly presentation switching are central to the brief.",
+    jobToBeDone: "a meeting, teaching or training room needs a more complete presentation switching workflow",
+    bestFitApplications: ["meeting rooms", "classrooms", "training rooms", "BYOD presentation spaces"],
+    weakFitApplications: ["single-source extension", "large matrix routing", "campus-wide AVoIP"],
+    openingQuestions: ["Which sources are used every week?", "Do users need wired, wireless or both?", "Is USB part of the room experience?", "What display or receiver is downstream?"],
+    technicalCheckQuestions: ["Confirm input types and count.", "Confirm display/extension path.", "Confirm USB, audio and control needs.", "Confirm room operation expectations."],
+    attachProducts: [
+      { productFamily: "APO UC audio", reason: "Attach when the room also needs meeting audio." },
+      { productFamily: "CAM cameras", reason: "Attach when the room includes conferencing or capture." },
+    ],
+    competitorCategory: "presentation switcher",
+    competitorSearchTerms: ["4 input presentation switcher", "wireless presentation switcher", "BYOD room switcher"],
+  },
+  {
+    sku: "SWX-100-HDBT3",
+    productName: "HDBaseT 3 transmitter and receiver kit",
+    productFamily: "HDBaseT 3.0 Extension",
+    technologyType: "HDBaseT 3.0 extender kit",
+    salientPoint: "A kit conversation for projects that need a matched HDBaseT 3.0 transmitter and receiver path.",
+    jobToBeDone: "the design needs a known transmitter/receiver extension pair rather than separate unmatched parts",
+    bestFitApplications: ["meeting rooms", "classrooms", "premium display extension", "front-of-room AV"],
+    weakFitApplications: ["matrix routing", "AVoIP distribution", "simple short HDMI cable runs"],
+    openingQuestions: ["Is a matched TX/RX kit preferred?", "What source and display are being connected?", "What distance and cable grade are available?", "Is control, USB or audio needed?"],
+    technicalCheckQuestions: ["Confirm distance and cable category.", "Confirm resolution and HDCP.", "Confirm control/audio requirements.", "Confirm whether the room needs switching before extension."],
+    competitorCategory: "HDBaseT 3 extender kit",
+    competitorSearchTerms: ["HDBaseT 3 kit", "TX RX extender kit", "4K60 HDBaseT extender kit"],
+  },
+  {
+    sku: "SYN-CTL-HUB",
+    productName: "Ethernet protocol converter for SYN-TOUCH10",
+    productFamily: "Synergy Control",
+    technologyType: "Control interface",
+    salientPoint: "A control accessory that matters when the room needs the Synergy touch interface to talk to the wider system reliably.",
+    jobToBeDone: "a Synergy control workflow needs the correct hub/interface between touch control and room devices",
+    bestFitApplications: ["Synergy rooms", "touch-controlled meeting rooms", "teaching spaces", "training rooms"],
+    weakFitApplications: ["rooms without SYN-TOUCH10", "manual-only rooms", "third-party control systems already specified"],
+    openingQuestions: ["Is SYN-TOUCH10 part of the design?", "What devices need to be controlled?", "Is Ethernet available at the control location?", "Who will commission the control workflow?"],
+    technicalCheckQuestions: ["Confirm SYN-TOUCH10 requirement.", "Confirm device/control compatibility.", "Confirm network and power location.", "Confirm commissioning responsibility."],
+    attachProducts: [
+      { sku: "SYN-TOUCH10", reason: "Primary touch controller context for this hub." },
+      { productFamily: "Synergy switchers", reason: "Attach where room control is tied to a Synergy presentation workflow." },
+    ],
+    competitorCategory: "control interface",
+    competitorSearchTerms: ["touch panel control hub", "Ethernet protocol converter", "room control interface"],
+  },
+  {
+    sku: "SYN-TOUCH10",
+    productName: "Synergy 10.1-inch all-in-one touchpad IP controller",
+    productFamily: "Synergy Control",
+    technologyType: "Touch room controller",
+    salientPoint: "A room-facing controller for sales conversations where the user experience is as important as the AV signal path.",
+    jobToBeDone: "users need a clear touch interface to run the room without learning the AV rack",
+    bestFitApplications: ["meeting rooms", "teaching rooms", "training rooms", "executive spaces"],
+    weakFitApplications: ["very small rooms with manual source buttons", "third-party control platforms already locked", "systems with no supported device path"],
+    openingQuestions: ["What should the user be able to control?", "Which WyreStorm products are in the room?", "Is a simple touch workflow part of the brief?", "Who maintains the room presets?"],
+    technicalCheckQuestions: ["Confirm supported device/control path.", "Confirm network and mounting location.", "Confirm commissioning responsibility.", "Confirm whether SYN-CTL-HUB is required."],
+    attachProducts: [
+      { sku: "SYN-CTL-HUB", reason: "Use where the control design requires the protocol converter." },
+      { productFamily: "Synergy switchers", reason: "Attach when touch control is part of a presentation workflow." },
+    ],
+    competitorCategory: "touch room controller",
+    competitorSearchTerms: ["touch panel controller", "IP room controller", "presentation room touchpad"],
+  },
+];
+
+const EXPANDED_PRODUCT_POSITIONING_CARDS = EXPANDED_PRODUCT_POSITIONING_SEEDS.map(createExpandedProductPositioningCard);
+
+export const PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
+  ...CORE_PRODUCT_POSITIONING_CARDS,
+  ...EXPANDED_PRODUCT_POSITIONING_CARDS,
+];
+
 export function getProductPositioningCardBySku(sku: string): ProductPositioningCard | undefined {
   const normalisedSku = sku.trim().toLowerCase();
   return PRODUCT_POSITIONING_CARDS.find((card) => card.sku.toLowerCase() === normalisedSku);
+}
+
+export function getBestProductPositioningCardForSku(sku: string): ProductPositioningCard | undefined {
+  const exact = getProductPositioningCardBySku(sku);
+  if (exact) return exact;
+
+  const normalisedSku = sku.trim().toUpperCase();
+
+  if (/^NHD-500[-\s]/.test(normalisedSku)) {
+    return getProductPositioningCardBySku("NHD-500 Series");
+  }
+
+  if (/^NHD-600[-\s]/.test(normalisedSku)) {
+    return getProductPositioningCardBySku("NHD-600-TRX");
+  }
+
+  if (/^MX-0403-H3-MST/.test(normalisedSku)) {
+    return getProductPositioningCardBySku("MX-0403-MST");
+  }
+
+  if (/^MX-040[23]-MST/.test(normalisedSku)) {
+    return getProductPositioningCardBySku(normalisedSku.startsWith("MX-0403") ? "MX-0403-MST" : "MX-0402-MST");
+  }
+
+  if (/^MX-0808-KIT/.test(normalisedSku)) {
+    return getProductPositioningCardBySku("MX-0808-KIT");
+  }
+
+  return PRODUCT_POSITIONING_CARDS.find((card) => {
+    const cardSku = card.sku.trim().toUpperCase();
+    return cardSku.endsWith(" SERIES") && normalisedSku.startsWith(cardSku.replace(/\s+SERIES$/, ""));
+  });
 }
 
 export function searchProductPositioningCards(query: string): ProductPositioningCard[] {

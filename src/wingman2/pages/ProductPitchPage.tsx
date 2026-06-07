@@ -2,6 +2,8 @@
 
 import { Link, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { ProductMediaPanel } from "../components/ProductMediaPanel";
+import { ProductPositioningStatement } from "../components/ProductPositioningStatement";
 import { ProductSalesKnowledgePanel } from "../components/ProductSalesKnowledgePanel";
 import {
   saveRecommendationEvidenceToProject,
@@ -17,6 +19,14 @@ import {
   type RecommendationEvidenceCompare,
   type RecommendationEvidenceProduct,
 } from "../lib/recommendationEvidence";
+import {
+  WINGMAN_APPLICATION_CONTEXTS,
+  WINGMAN_AUDIENCES,
+  WINGMAN_CALL_MODES,
+  type WingmanApplicationContext,
+  type WingmanAudience,
+  type WingmanCallMode,
+} from "../types/productPositioning";
 
 type PitchObjection = {
   objection: string;
@@ -46,6 +56,7 @@ type PitchProduct = {
   related: string[];
   confidence: string;
   tags: string[];
+  raw?: Record<string, unknown>;
 };
 
 const fallbackProducts: PitchProduct[] = [
@@ -61,7 +72,7 @@ const fallbackProducts: PitchProduct[] = [
     customerChallenge:
       "The customer wants a modern teaching or meeting space, but source, display, USB, audio and networked AV requirements are being discussed separately.",
     wyrestormFit:
-      "MX-1007-HYB keeps the conversation around the room outcome: connect local sources, manage USB, feed displays and extend into NetworkHD where needed.",
+      "MX-1007-HYB keeps the room outcome clear: connect local sources, manage USB, feed displays and extend into NetworkHD where needed.",
     proofPoint:
       "It is positioned as a hybrid product option where local presentation and networked AV need to work together rather than compete.",
     validationQuestion:
@@ -461,7 +472,7 @@ function normaliseProduct(entry: unknown, index: number): PitchProduct | null {
   const wyrestormFit = firstText(
     source,
     ["wyrestormFit", "wyreStormFit", "fit", "whyWyrestorm", "whyWyreStorm"],
-    "Use the product facts and application fit to explain why this is the practical WyreStorm option."
+    "Use the product facts and application fit to explain when this WyreStorm product is genuinely suitable."
   );
 
   const proofPoint = firstText(
@@ -551,7 +562,8 @@ function normaliseProduct(entry: unknown, index: number): PitchProduct | null {
     ],
     related,
     confidence,
-    tags
+    tags,
+    raw: source,
   };
 }
 
@@ -712,6 +724,9 @@ export function ProductPitchPage() {
   const [activeSection, setActiveSection] = useState<PitchSection>("Talk track");
   const [indexStatus, setIndexStatus] = useState("Starter sales-support data loaded");
   const [saveMessage, setSaveMessage] = useState("");
+  const [audience, setAudience] = useState<WingmanAudience>("DEALER");
+  const [callMode, setCallMode] = useState<WingmanCallMode>("PROJECT_DISCOVERY");
+  const [application, setApplication] = useState<WingmanApplicationContext>("MEETING_ROOM");
   const [searchParams] = useSearchParams();
   const { activeProject } = useProjectStore();
 
@@ -800,9 +815,35 @@ export function ProductPitchPage() {
   const talkTrack = useMemo(() => {
     return [
       selectedProduct.salientPoint,
-      "Lead with the customer requirement, then explain why " + selectedProduct.sku + " is the practical WyreStorm option.",
+      "Check what the room needs to do before treating " + selectedProduct.sku + " as the right product.",
       selectedProduct.validationQuestion
     ];
+  }, [selectedProduct]);
+
+  // A clean, customer-facing positioning record for the statement view. Prefer the
+  // real product-intelligence record (which carries the rich salesLanguage block);
+  // fall back to synthesising one from the normalised pitch fields.
+  const positioningProduct = useMemo<Record<string, unknown>>(() => {
+    if (selectedProduct.raw && typeof selectedProduct.raw === "object") {
+      return selectedProduct.raw;
+    }
+
+    return {
+      sku: selectedProduct.sku,
+      name: selectedProduct.name,
+      family: selectedProduct.family,
+      category: selectedProduct.category,
+      description: selectedProduct.description,
+      features: selectedProduct.majorFeatures,
+      salesLanguage: {
+        headline: selectedProduct.salientPoint,
+        plainEnglishSummary: selectedProduct.summary ?? selectedProduct.description,
+        realWorldApplication: selectedProduct.applicationFit.join(" • "),
+        customerValue: selectedProduct.customerChallenge,
+        salespersonCue: selectedProduct.proofPoint,
+        talkTrack: selectedProduct.majorFeatures,
+      },
+    };
   }, [selectedProduct]);
 
   const selectedEvidenceProduct = useMemo(
@@ -989,7 +1030,7 @@ export function ProductPitchPage() {
           <span className="wm-pitch-eyebrow">Product Pitch</span>
           <h1>Product sales support desk</h1>
           <p>
-            Select a product, lead with the customer problem, then keep the sales helper cards visible while the conversation moves.
+            Select a product, choose who you are speaking to, then shape the wording around the room or use case.
           </p>
           <nav className="wm-pitch-header-actions" aria-label="Related pitch tools">
             <Link to={routeCatalogByKey.productFamilies.path}>Product Families</Link>
@@ -1087,28 +1128,50 @@ export function ProductPitchPage() {
             </div>
           </article>
 
-          <div className="wm-pitch-helper-grid" aria-label="Immediate helper cards">
-            <HelperCard
-              eyebrow="Problem"
-              title="Customer challenge"
-              value={selectedProduct.customerChallenge}
-            />
-            <HelperCard
-              eyebrow="Fit"
-              title="WyreStorm angle"
-              value={selectedProduct.wyrestormFit}
-            />
-            <HelperCard
-              eyebrow="Proof"
-              title="Proof point"
-              value={selectedProduct.proofPoint}
-            />
-            <HelperCard
-              eyebrow="Question"
-              title="Validation question"
-              value={selectedProduct.validationQuestion}
-            />
+          <ProductMediaPanel sku={selectedProduct.sku} title={selectedProduct.name} compact />
+
+          <div className="wm-pitch-context-controls" aria-label="Positioning context">
+            <label>
+              <span>Customer type</span>
+              <select value={audience} onChange={(event) => setAudience(event.target.value as WingmanAudience)}>
+                {WINGMAN_AUDIENCES.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              <span>Application</span>
+              <select value={application} onChange={(event) => setApplication(event.target.value as WingmanApplicationContext)}>
+                {WINGMAN_APPLICATION_CONTEXTS.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              <span>Call mode</span>
+              <select value={callMode} onChange={(event) => setCallMode(event.target.value as WingmanCallMode)}>
+                {WINGMAN_CALL_MODES.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
+
+          <ProductPositioningStatement
+            product={positioningProduct}
+            showHeader={false}
+            audience={audience}
+            callMode={callMode}
+            application={application}
+          />
 
           <div className="wm-pitch-evidence-strip">
             <div>
@@ -1122,20 +1185,6 @@ export function ProductPitchPage() {
             {saveMessage ? <small>{saveMessage}</small> : null}
           </div>
 
-          <nav className="wm-pitch-tabs" aria-label="Product support sections">
-            {sectionLabels.map((label) => (
-              <button
-                className={activeSection === label ? "is-active" : ""}
-                key={label}
-                type="button"
-                onClick={() => setActiveSection(label)}
-              >
-                {label}
-              </button>
-            ))}
-          </nav>
-
-          {renderPitchSection()}
         </section>
 
         <aside className="wm-pitch-assist-rail" aria-label="Sales helper cards">
@@ -1148,27 +1197,8 @@ export function ProductPitchPage() {
           </div>
 
           <article>
-            <h3>Lead with</h3>
-            <p>{selectedProduct.salientPoint}</p>
-          </article>
-
-          <article>
             <h3>Ask now</h3>
             <p>{selectedProduct.validationQuestion}</p>
-          </article>
-
-          <article>
-            <h3>Next best action</h3>
-            <p>
-              Confirm the missing room, source, display, USB, audio, control and network details before recommending the final system shape.
-            </p>
-          </article>
-
-          <article>
-            <h3>Quick warning</h3>
-            <p>
-              Do not present this as a guaranteed fit until the product role matches the actual customer requirement.
-            </p>
           </article>
 
           <article>
@@ -1188,4 +1218,3 @@ export function ProductPitchPage() {
 }
 
 export default ProductPitchPage;
-

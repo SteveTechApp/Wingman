@@ -457,17 +457,21 @@ function scoreProduct(
 
   // Technology class match (most important)
   const compatibleClasses = TECH_CLASS_COMPATIBILITY[competitor.technologyClass] || [];
-  if (compatibleClasses.includes(productTechClass)) {
+  const classMatched = compatibleClasses.includes(productTechClass);
+  if (classMatched) {
     score += 40;
     matchReasons.push(`Same technology class: ${productTechClass.replace(/_/g, " ")}`);
   } else if (productTechClass !== "UNKNOWN" && competitor.technologyClass !== "UNKNOWN") {
     cautions.push(`Different technology: ${competitor.technologyClass} vs ${productTechClass}`);
   }
 
-  // Role match
+  // Role match. "strong" = an explicit, corroborated role match; "weak" = an
+  // assumed AVoIP endpoint role with no direct confirmation.
+  let roleSignal: "strong" | "weak" | "none" = "none";
   if (competitor.role !== "unknown" && productRole !== "unknown") {
     if (competitor.role === productRole) {
       score += 25;
+      roleSignal = "strong";
       matchReasons.push(`Same role: ${productRole}`);
     } else if (
       (competitor.role === "encoder" && productRole === "transmitter") ||
@@ -476,6 +480,7 @@ function scoreProduct(
       (competitor.role === "receiver" && productRole === "decoder")
     ) {
       score += 20;
+      roleSignal = "strong";
       matchReasons.push(`Compatible role: ${competitor.role} ↔ ${productRole}`);
     }
   } else if (
@@ -483,7 +488,8 @@ function scoreProduct(
     ["encoder", "decoder", "transceiver", "transmitter", "receiver"].includes(productRole)
   ) {
     score += 15;
-    matchReasons.push(`AVoIP endpoint role: ${productRole}`);
+    roleSignal = "weak";
+    matchReasons.push(`Assumed AVoIP endpoint role: ${productRole} (confirm direction)`);
   }
 
   // Capability overlap
@@ -507,13 +513,20 @@ function scoreProduct(
     cautions.push(`May not support: ${missingCapabilities.join(", ")}`);
   }
 
-  // Determine match quality
+  // Determine match quality from corroborating signals rather than the raw
+  // score alone. This stops thin "class-only" guesses being presented as exact
+  // equivalents while still allowing a confirmed class+role match to rate highly.
+  const capOverlapCount = capabilityOverlap.length;
+  const competitorProvidedCaps = competitor.capabilities.length > 0;
   let matchQuality: "excellent" | "good" | "partial" | "weak";
-  if (score >= 60) {
+  // "Excellent" needs class + a confirmed role match. If the competitor listed
+  // capabilities, at least one must overlap; if none were given, the class+role
+  // match is the strongest available signal and still qualifies.
+  if (classMatched && roleSignal === "strong" && (capOverlapCount >= 1 || !competitorProvidedCaps)) {
     matchQuality = "excellent";
-  } else if (score >= 45) {
+  } else if (classMatched && (roleSignal === "strong" || capOverlapCount >= 1)) {
     matchQuality = "good";
-  } else if (score >= 25) {
+  } else if (classMatched || roleSignal === "strong" || (roleSignal === "weak" && capOverlapCount >= 1)) {
     matchQuality = "partial";
   } else {
     matchQuality = "weak";
@@ -599,7 +612,38 @@ export function findMatches(
     .sort((a, b) => b.score - a.score)
     .slice(0, maxResults);
 
-  // Build recommendation
+  // Honesty guard: temper the displayed match quality when the evidence is thin.
+  // Without the competitor's real specs we cannot claim an exact equivalent, and
+  // a low-confidence identification should never present as a confirmed match.
+  const specsProvided = competitor.capabilities.length > 0;
+  const lowConfidence = competitor.confidence === "low";
+  const QUALITY_RANK: Record<MatchResult["matchQuality"], number> = {
+    excellent: 3,
+    good: 2,
+    partial: 1,
+    weak: 0,
+  };
+  const capQuality = (
+    quality: MatchResult["matchQuality"],
+    ceiling: MatchResult["matchQuality"],
+  ): MatchResult["matchQuality"] =>
+    QUALITY_RANK[quality] > QUALITY_RANK[ceiling] ? ceiling : quality;
+
+  const specPrompt = `Add ${competitor.sku}'s key specs (resolution, role, transport, USB, distance) to confirm an exact match`;
+
+  for (const match of scoredProducts) {
+    // A weak/uncertain identification still caps the result. Missing competitor
+    // specs no longer downgrade a confirmed class+role match — instead we surface
+    // a caution so the salesperson knows to confirm before quoting.
+    if (lowConfidence) {
+      match.matchQuality = capQuality(match.matchQuality, "partial");
+    }
+    if (!specsProvided && !match.cautions.some((c) => c.startsWith("Limited spec"))) {
+      match.cautions.push("Limited spec detail provided — match is based on product type, not confirmed specifications");
+    }
+  }
+
+  // Build recommendation from the (tempered) top match.
   let recommendation: string;
   let nextSteps: string[];
 
@@ -616,25 +660,27 @@ export function findMatches(
       "Contact WyreStorm pre-sales for custom recommendations",
     ];
   } else if (scoredProducts[0].matchQuality === "excellent") {
-    recommendation = `${scoredProducts[0].sku} is an excellent alternative to ${competitor.sku}`;
+    recommendation = `${scoredProducts[0].sku} is a strong match for ${competitor.sku}. Confirm the highlighted specs to finalise.`;
     nextSteps = [
-      `Review ${scoredProducts[0].sku} datasheet for exact specifications`,
+      `Review the ${scoredProducts[0].sku} datasheet against ${competitor.sku}'s exact specifications`,
       "Compare pricing and availability",
-      "Verify installation requirements match",
+      "Verify installation and control requirements match",
     ];
   } else if (scoredProducts[0].matchQuality === "good") {
-    recommendation = `${scoredProducts[0].sku} is a good alternative, but verify specific requirements`;
+    recommendation = `${scoredProducts[0].sku} is a likely alternative to ${competitor.sku} — verify the noted specifics before quoting.`;
     nextSteps = [
-      "Confirm feature requirements with customer",
-      "Review any capability gaps noted",
-      "Consider alternatives listed below",
+      "Confirm the key feature requirements with the customer",
+      "Review the capability gaps noted on each match",
+      specsProvided ? "Compare the shortlisted alternatives below" : specPrompt,
     ];
   } else {
-    recommendation = "Partial matches found - customer requirements should be verified";
+    recommendation = `Treat these as starting points only — verify ${competitor.sku}'s exact role and specs before recommending a WyreStorm equivalent.`;
     nextSteps = [
-      "Clarify the exact application requirements",
-      "Review all alternatives with customer",
-      "Contact pre-sales if unsure",
+      lowConfidence
+        ? "Confirm the competitor brand and model — identification was uncertain"
+        : "Clarify the exact application requirements",
+      specsProvided ? "Review all alternatives with the customer" : specPrompt,
+      "Contact WyreStorm pre-sales if unsure",
     ];
   }
 

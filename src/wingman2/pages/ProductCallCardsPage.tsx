@@ -1,4 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { routeCatalogByKey } from "../app/routeCatalog";
+import { ProductMediaPanel } from "../components/ProductMediaPanel";
+import { getBestProductPositioningCardForSku } from "../data/productPositioningCards";
+import { buildProductSalesNarrative } from "../lib/productSalesPositioning";
+import {
+  WINGMAN_APPLICATION_CONTEXTS,
+  WINGMAN_AUDIENCES,
+  WINGMAN_CALL_MODES,
+  type WingmanApplicationContext,
+  type WingmanAudience,
+  type WingmanCallMode,
+} from "../types/productPositioning";
 
 type LoadState = "loading" | "ready" | "error";
 type ProductRaw = Record<string, unknown>;
@@ -8,14 +21,15 @@ type CallCardProduct = {
   title: string;
   family: string;
   category: string;
-  description: string;
-  salientPoint: string;
-  customerChallenge: string;
-  wyrestormFit: string;
-  proofPoint: string;
-  applicationFit: string[];
-  keyFacts: string[];
-  validationQuestions: string[];
+  // Positioning statement (plain-English, customer-facing)
+  whatItIs: string;
+  summary: string;
+  realWorld: string;
+  customerValue: string;
+  howToTalk: string;
+  talkingPoints: string[];
+  applications: string[];
+  features: string[];
   raw: ProductRaw;
 };
 
@@ -225,34 +239,47 @@ function isWyrestormProduct(record: ProductRaw, sku: string): boolean {
   return SKU_PATTERN.test(sku);
 }
 
+function salesLanguageOf(record: ProductRaw): ProductRaw {
+  const value = (record as { salesLanguage?: unknown }).salesLanguage;
+  return isPlainObject(value) ? value : {};
+}
+
 function createProduct(record: ProductRaw, sku: string): CallCardProduct {
+  const sl = salesLanguageOf(record);
+
   const title =
-    pickText(record, ["title", "productName", "name", "modelName", "displayName"]) ||
-    sku;
+    pickText(record, ["title", "productName", "name", "modelName", "displayName"]) || sku;
+  const family = pickText(record, ["family", "productFamily", "series", "range"]) || "WyreStorm product";
+  const category = pickText(record, ["category", "type", "productType", "technology"]);
+
+  // Strip a leading "SKU:" prefix that some headlines carry.
+  const headline = normaliseText(sl.headline).replace(new RegExp(`^${sku}\\s*[:\\-–]\\s*`, "i"), "").trim();
+  const summary =
+    normaliseText(sl.plainEnglishSummary) ||
+    pickText(record, ["description", "shortDescription", "summary", "overview"]);
+  const realWorld =
+    normaliseText(sl.realWorldApplication) ||
+    pickList(record, ["applications", "useCases", "verticals", "roomTypes"]).join(" • ");
+  const talkingPoints = toTextList(sl.talkTrack);
+  const applications = pickList(record, ["applications", "useCases", "verticals", "roomTypes"]);
+  const features = pickList(record, ["features", "majorFeatures", "keyFacts", "technologies"]);
 
   return {
     sku,
     title: title === sku ? sku : title,
-    family: pickText(record, ["family", "productFamily", "series", "range"]) || "WyreStorm product",
-    category: pickText(record, ["category", "type", "productType", "technology"]) || "Product call card",
-    description:
-      pickText(record, ["description", "shortDescription", "summary", "overview"]) ||
-      "Select this SKU to discuss the customer requirement, application fit and key facts before recommending it.",
-    salientPoint:
-      pickText(record, ["salientPoint", "salesPoint", "positioning", "headline"]) ||
-      "Use this SKU when its core capability matches the customer requirement and the signal path.",
-    customerChallenge:
-      pickText(record, ["customerChallenge", "challenge", "problemSolved", "painPoint"]) ||
-      "Confirm the customer's source, display, USB, control, audio, distance and scaling requirements before positioning this product.",
-    wyrestormFit:
-      pickText(record, ["wyrestormFit", "fit", "whyWyrestorm", "recommendedFit"]) ||
-      "Check the product facts, connection types and system shape before presenting it as the recommended option.",
-    proofPoint:
-      pickText(record, ["proofPoint", "evidence", "validation", "reasonToBelieve"]) ||
-      "Use verified product data and the customer requirement to support the recommendation.",
-    applicationFit: pickList(record, ["applicationFit", "applications", "useCases", "verticals", "roomTypes"]),
-    keyFacts: pickList(record, ["keyFacts", "features", "majorFeatures", "specifications", "facts"]),
-    validationQuestions: pickList(record, ["validationQuestions", "questions", "qualifyingQuestions"]),
+    family,
+    category,
+    whatItIs: headline || summary || [title, category].filter(Boolean).join(" — "),
+    summary,
+    realWorld,
+    customerValue: normaliseText(sl.customerValue),
+    howToTalk: normaliseText(sl.salespersonCue),
+    talkingPoints:
+      talkingPoints.length > 0
+        ? talkingPoints
+        : features.slice(0, 4),
+    applications,
+    features,
     raw: record,
   };
 }
@@ -338,6 +365,10 @@ export function ProductCallCardsPage() {
   const [selectedSku, setSelectedSku] = useState("");
   const [query, setQuery] = useState("");
   const [loadState, setLoadState] = useState<LoadState>("loading");
+  const [audience, setAudience] = useState<WingmanAudience>("DEALER");
+  const [callMode, setCallMode] = useState<WingmanCallMode>("PROJECT_DISCOVERY");
+  const [application, setApplication] = useState<WingmanApplicationContext>("MEETING_ROOM");
+  const [copyStatus, setCopyStatus] = useState("");
 
   useEffect(() => {
     let isMounted = true;
@@ -368,6 +399,23 @@ export function ProductCallCardsPage() {
     () => products.find((product) => product.sku === selectedSku),
     [products, selectedSku],
   );
+  const selectedPositioningCard = useMemo(
+    () => (selectedProduct ? getBestProductPositioningCardForSku(selectedProduct.sku) : undefined),
+    [selectedProduct],
+  );
+  const selectedNarrative = useMemo(
+    () =>
+      selectedProduct
+        ? buildProductSalesNarrative({
+            product: selectedProduct,
+            card: selectedPositioningCard,
+            audience,
+            callMode,
+            application,
+          })
+        : null,
+    [application, audience, callMode, selectedPositioningCard, selectedProduct],
+  );
 
   const filteredSuggestions = useMemo(() => {
     const value = query.trim().toLowerCase();
@@ -384,6 +432,12 @@ export function ProductCallCardsPage() {
   }, [products, query]);
 
   function chooseProduct(sku: string): void {
+    if (!sku) {
+      setSelectedSku("");
+      setQuery("");
+      return;
+    }
+
     const product = products.find((item) => item.sku === sku);
 
     if (!product) {
@@ -404,14 +458,26 @@ export function ProductCallCardsPage() {
     }
   }
 
+  async function copyFollowUpWording(): Promise<void> {
+    if (!selectedNarrative) return;
+
+    try {
+      await navigator.clipboard.writeText(selectedNarrative.followUpWording);
+      setCopyStatus("Follow-up wording copied.");
+      window.setTimeout(() => setCopyStatus(""), 1800);
+    } catch {
+      setCopyStatus("Copy unavailable. Select the wording manually.");
+    }
+  }
+
   return (
     <main className="wm-product-call-cards-page" data-wingman-page="product-call-cards">
       <section className="wm-page-hero wm-product-call-cards-hero">
-        <p className="wm-navhub-eyebrow">Product call cards</p>
-        <h1>Select the WyreStorm SKU you want to talk about</h1>
+        <p className="wm-navhub-eyebrow">Product Call Cards</p>
+        <h1>Pick a product and shape the wording for the customer.</h1>
         <p>
-          Search or select a product first. Wingman will then show the relevant customer conversation
-          guidance, product facts and validation questions for that SKU.
+          Choose a WyreStorm SKU, customer type and application. Wingman gives UK sales users wording
+          that is easier to say, tied to a real room or use case, and clear about what must be checked before quoting.
         </p>
       </section>
 
@@ -444,6 +510,39 @@ export function ProductCallCardsPage() {
               {products.map((product) => (
                 <option key={product.sku} value={product.sku}>
                   {product.sku} — {product.title}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            <span>Audience / customer type</span>
+            <select value={audience} onChange={(event) => setAudience(event.target.value as WingmanAudience)}>
+              {WINGMAN_AUDIENCES.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            <span>Call mode</span>
+            <select value={callMode} onChange={(event) => setCallMode(event.target.value as WingmanCallMode)}>
+              {WINGMAN_CALL_MODES.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            <span>Application / use case</span>
+            <select value={application} onChange={(event) => setApplication(event.target.value as WingmanApplicationContext)}>
+              {WINGMAN_APPLICATION_CONTEXTS.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.label}
                 </option>
               ))}
             </select>
@@ -484,41 +583,64 @@ export function ProductCallCardsPage() {
               <p className="wm-product-call-card-selector-label">{selectedProduct.family}</p>
               <h2>{selectedProduct.sku}</h2>
               <p>{selectedProduct.title}</p>
+              <p>
+                {selectedPositioningCard
+                  ? `Curated card: ${selectedPositioningCard.dataConfidence.toLowerCase()} confidence`
+                  : "Generated from product-index text. Validate before quoting."}
+              </p>
             </div>
             <button type="button" onClick={() => chooseProduct("")}>
               Clear selection
             </button>
           </div>
 
-          <div className="wm-product-call-card-grid">
-            <section className="wm-product-call-card-panel wm-product-call-card-panel-wide">
-              <h3>Salient point</h3>
-              <p>{selectedProduct.salientPoint}</p>
+          <ProductMediaPanel sku={selectedProduct.sku} title={selectedProduct.title} />
+
+          <div
+            className="wm-product-call-card-statement"
+            style={{ display: "grid", gridTemplateColumns: "1fr", gap: "14px" }}
+          >
+            <section className="wm-product-call-card-panel">
+              <h3>Say this</h3>
+              <p>{selectedNarrative?.sayThis}</p>
             </section>
 
             <section className="wm-product-call-card-panel">
-              <h3>Customer challenge</h3>
-              <p>{selectedProduct.customerChallenge}</p>
+              <h3>Why it fits this application</h3>
+              <p>{selectedNarrative?.whyItFits}</p>
+              <p>{selectedNarrative?.applicationAngle}</p>
             </section>
 
             <section className="wm-product-call-card-panel">
-              <h3>WyreStorm fit</h3>
-              <p>{selectedProduct.wyrestormFit}</p>
+              <h3>Audience guidance</h3>
+              <p>{selectedNarrative?.audienceAngle}</p>
+              <p>{selectedNarrative?.callModeAngle}</p>
             </section>
+
+            <DetailList title="Ask next" items={selectedNarrative?.askNext ?? []} />
+            <DetailList title="What to check before quoting" items={selectedNarrative?.checkBeforeQuoting ?? []} />
+            <DetailList
+              title="Worth mentioning"
+              items={selectedNarrative?.proofPoints.length ? selectedNarrative.proofPoints : selectedProduct.talkingPoints}
+            />
+            <DetailList title="Avoid saying" items={selectedNarrative?.avoidSaying ?? []} />
 
             <section className="wm-product-call-card-panel">
-              <h3>Proof point</h3>
-              <p>{selectedProduct.proofPoint}</p>
+              <h3>Follow-up wording</h3>
+              <p>{selectedNarrative?.followUpWording}</p>
+              <div className="wm-pitch-header-actions" style={{ marginTop: "12px" }}>
+                <button type="button" onClick={copyFollowUpWording}>
+                  Copy follow-up wording
+                </button>
+                <Link to={`${routeCatalogByKey.compare.path}?q=${encodeURIComponent(selectedProduct.sku)}`}>
+                  Compare competitor
+                </Link>
+                <Link to={`${routeCatalogByKey.responsePack.path}?sku=${encodeURIComponent(selectedProduct.sku)}`}>
+                  Create response pack
+                </Link>
+              </div>
+              {copyStatus ? <p>{copyStatus}</p> : null}
             </section>
-
-            <section className="wm-product-call-card-panel">
-              <h3>Product category</h3>
-              <p>{selectedProduct.category}</p>
-            </section>
-
-            <DetailList title="Key product facts" items={selectedProduct.keyFacts} />
-            <DetailList title="Application fit" items={selectedProduct.applicationFit} />
-            <DetailList title="Validation questions" items={selectedProduct.validationQuestions} />
           </div>
         </section>
       ) : (
