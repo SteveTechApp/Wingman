@@ -115,3 +115,5 @@ archive/
 
 # --- Vite oddities ---
 vite.config.ts.timestamp-*
+server/node_modules/
+.vite-temp/
