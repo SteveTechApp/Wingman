@@ -22732,3 +22732,646 @@ html[data-wingman-route="templates"] .wingman-page-host,
   }
 }
 /* === Product Pitch Sales Desk redesign end === */
+
+/* Product Call Cards Phase 1 split */
+.wm-pcc-page {
+  min-height: 100vh;
+  padding: 16px;
+  color: #ffffff;
+}
+
+.wm-pcc-hero,
+.wm-pcc-panel,
+.wm-pcc-card,
+.wm-pcc-selected-card,
+.wm-pcc-product-hero,
+.wm-pcc-context-strip,
+.wm-pcc-stepper {
+  border: 1px solid rgba(0, 229, 255, 0.38);
+  background: rgba(5, 24, 42, 0.86);
+  border-radius: 14px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.2);
+}
+
+.wm-pcc-hero {
+  padding: 18px 20px;
+  margin-bottom: 12px;
+}
+
+.wm-pcc-hero h1,
+.wm-pcc-product-hero h2,
+.wm-pcc-card h2,
+.wm-pcc-sales-points h2,
+.wm-pcc-selected-card h2,
+.wm-pcc-modal h2 {
+  color: #55e6ff;
+  margin: 0 0 8px;
+}
+
+.wm-pcc-hero p,
+.wm-pcc-card p,
+.wm-pcc-selected-card p,
+.wm-pcc-product-hero p,
+.wm-pcc-context-strip,
+.wm-pcc-list,
+.wm-pcc-card li,
+.wm-pcc-modal p,
+.wm-pcc-modal li {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.wm-pcc-eyebrow {
+  color: #7df7ff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+}
+
+.wm-pcc-stepper {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+
+.wm-pcc-step,
+.wm-pcc-choice,
+.wm-pcc-filter,
+.wm-pcc-product-option,
+.wm-pcc-primary,
+.wm-pcc-secondary,
+.wm-pcc-tabs button,
+.wm-pcc-hero-actions button,
+.wm-pcc-modal-header button {
+  border: 1px solid rgba(85, 230, 255, 0.42);
+  background: rgba(8, 34, 56, 0.9);
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wm-pcc-step.is-active,
+.wm-pcc-choice.is-selected,
+.wm-pcc-filter.is-selected,
+.wm-pcc-product-option.is-selected,
+.wm-pcc-tabs button.is-selected {
+  border-color: rgba(125, 247, 255, 0.95);
+  background: rgba(0, 229, 255, 0.18);
+  color: #ffffff;
+}
+
+.wm-pcc-context-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 9px 12px;
+  margin-bottom: 12px;
+  font-size: 0.82rem;
+}
+
+.wm-pcc-context-strip span {
+  border: 1px solid rgba(85, 230, 255, 0.24);
+  border-radius: 999px;
+  padding: 5px 9px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.wm-pcc-panel {
+  padding: 16px;
+}
+
+.wm-pcc-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.wm-pcc-card {
+  padding: 14px;
+}
+
+.wm-pcc-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.wm-pcc-card-header span {
+  color: #7df7ff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.wm-pcc-choice-grid,
+.wm-pcc-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-pcc-select-grid,
+.wm-pcc-positioning-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.wm-pcc-positioning-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wm-pcc-field {
+  display: grid;
+  gap: 6px;
+  color: #7df7ff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.wm-pcc-field input,
+.wm-pcc-field select,
+.wm-pcc-textarea,
+.wm-pcc-response-area {
+  width: 100%;
+  border: 1px solid rgba(85, 230, 255, 0.42);
+  background: rgba(3, 15, 28, 0.94);
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.wm-pcc-product-results {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.wm-pcc-product-option {
+  text-align: left;
+  display: grid;
+  gap: 4px;
+}
+
+.wm-pcc-product-option span,
+.wm-pcc-product-option small {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.wm-pcc-selected-card {
+  padding: 14px;
+  margin-top: 12px;
+}
+
+.wm-pcc-selected-card dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.wm-pcc-selected-card dt {
+  color: #7df7ff;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.wm-pcc-selected-card dd {
+  margin: 0;
+  color: #ffffff;
+}
+
+.wm-pcc-product-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.wm-pcc-hero-actions {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.wm-pcc-four-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.wm-pcc-guidance {
+  margin-top: 12px;
+}
+
+.wm-pcc-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.wm-pcc-tab-panel {
+  border: 1px solid rgba(85, 230, 255, 0.28);
+  background: rgba(3, 15, 28, 0.64);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.wm-pcc-textarea {
+  min-height: 140px;
+}
+
+.wm-pcc-response-area {
+  min-height: 280px;
+  margin-top: 12px;
+  line-height: 1.5;
+}
+
+.wm-pcc-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.wm-pcc-primary {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: rgba(125, 247, 255, 0.9);
+}
+
+.wm-pcc-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.wm-pcc-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.wm-pcc-modal {
+  width: min(980px, 96vw);
+  max-height: 90vh;
+  overflow: auto;
+  border: 1px solid rgba(125, 247, 255, 0.72);
+  background: #061524;
+  border-radius: 18px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+}
+
+.wm-pcc-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(85, 230, 255, 0.24);
+}
+
+.wm-pcc-modal-body {
+  padding: 16px;
+}
+
+.wm-pcc-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.wm-pcc-image-placeholder,
+.wm-pcc-diagram-placeholder {
+  min-height: 240px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgba(125, 247, 255, 0.5);
+  border-radius: 14px;
+  background: rgba(8, 34, 56, 0.82);
+  color: #ffffff;
+  padding: 20px;
+}
+
+@media (max-width: 1100px) {
+  .wm-pcc-grid,
+  .wm-pcc-select-grid,
+  .wm-pcc-positioning-grid,
+  .wm-pcc-four-grid,
+  .wm-pcc-product-results,
+  .wm-pcc-product-hero,
+  .wm-pcc-modal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-pcc-stepper {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+/* Product Call Cards Phase 1A optional setup and mode-aware wording */
+.wm-pcc-fast-path,
+.wm-pcc-mode-strip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 14px;
+  padding: 14px;
+  border: 1px solid rgba(125, 247, 255, 0.48);
+  background: rgba(0, 229, 255, 0.08);
+  border-radius: 14px;
+}
+
+.wm-pcc-fast-path h2,
+.wm-pcc-mode-strip h2 {
+  margin: 0 0 6px;
+  color: #55e6ff;
+}
+
+.wm-pcc-fast-path p,
+.wm-pcc-mode-strip p,
+.wm-pcc-card-note,
+.wm-pcc-guidance-note,
+.wm-pcc-hero-line {
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.wm-pcc-card-note {
+  margin-top: -4px;
+  margin-bottom: 10px;
+  font-size: 0.86rem;
+}
+
+.wm-pcc-known-requirement {
+  margin-top: 12px;
+}
+
+.wm-pcc-hero-line {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .wm-pcc-fast-path,
+  .wm-pcc-mode-strip {
+    grid-template-columns: 1fr;
+  }
+}
+/* Product Call Cards Phase 1B live context dropdowns */
+.wm-pcc-context-controls {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr 1.15fr 1fr 0.9fr 1fr;
+  gap: 8px;
+  align-items: end;
+}
+
+.wm-pcc-context-control {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.wm-pcc-context-control span {
+  color: #7df7ff;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.wm-pcc-context-control select {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(85, 230, 255, 0.38);
+  background: rgba(3, 15, 28, 0.94);
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 8px 10px;
+  font-weight: 700;
+  outline: none;
+}
+
+.wm-pcc-context-control select:focus {
+  border-color: rgba(125, 247, 255, 0.95);
+  box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.18);
+}
+
+.wm-pcc-mode-strip {
+  display: none !important;
+}
+
+@media (max-width: 1250px) {
+  .wm-pcc-context-controls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .wm-pcc-context-controls {
+    grid-template-columns: 1fr;
+  }
+}
+/* Product Call Cards Phase 1C product dashboard */
+.wm-pcc-dashboard-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.wm-pcc-dashboard-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: start;
+  padding: 16px;
+  border: 1px solid rgba(0, 229, 255, 0.38);
+  background: rgba(5, 24, 42, 0.86);
+  border-radius: 14px;
+}
+
+.wm-pcc-dashboard-hero h2 {
+  color: #55e6ff;
+  margin: 0 0 4px;
+}
+
+.wm-pcc-dashboard-hero h3 {
+  margin: 0 0 10px;
+  color: #ffffff;
+}
+
+.wm-pcc-dashboard-hero p {
+  color: rgba(255, 255, 255, 0.86);
+  max-width: 980px;
+}
+
+.wm-pcc-dashboard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-content: start;
+  justify-content: flex-end;
+}
+
+.wm-pcc-dashboard-actions button,
+.wm-pcc-dashboard-viewbar button {
+  border: 1px solid rgba(85, 230, 255, 0.42);
+  background: rgba(8, 34, 56, 0.9);
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 9px 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.wm-pcc-dashboard-actions button:hover,
+.wm-pcc-dashboard-viewbar button:hover,
+.wm-pcc-dashboard-viewbar button.is-selected {
+  border-color: rgba(125, 247, 255, 0.95);
+  background: rgba(0, 229, 255, 0.18);
+}
+
+.wm-pcc-dashboard-snapshot {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.wm-pcc-dashboard-snapshot article {
+  border: 1px solid rgba(85, 230, 255, 0.32);
+  background: rgba(3, 15, 28, 0.74);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.wm-pcc-dashboard-snapshot span,
+.wm-pcc-dashboard-dl dt {
+  display: block;
+  color: #7df7ff;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.wm-pcc-dashboard-snapshot strong {
+  display: block;
+  margin-top: 6px;
+  color: #ffffff;
+  font-size: 1.2rem;
+}
+
+.wm-pcc-dashboard-snapshot small {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.wm-pcc-dashboard-viewbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-pcc-dashboard-content {
+  min-height: 260px;
+}
+
+.wm-pcc-dashboard-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
+  gap: 12px;
+}
+
+.wm-pcc-dashboard-dl {
+  display: grid;
+  gap: 10px;
+}
+
+.wm-pcc-dashboard-dl div {
+  border-bottom: 1px solid rgba(85, 230, 255, 0.16);
+  padding-bottom: 8px;
+}
+
+.wm-pcc-dashboard-dl dd {
+  margin: 3px 0 0;
+  color: #ffffff;
+}
+
+.wm-pcc-dashboard-list {
+  margin: 0;
+  padding-left: 18px;
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.55;
+}
+
+.wm-pcc-dashboard-list li {
+  margin-bottom: 7px;
+}
+
+.wm-pcc-sales-language-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.wm-pcc-sales-language-grid section {
+  border: 1px solid rgba(85, 230, 255, 0.22);
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.wm-pcc-sales-language-grid h3 {
+  margin: 0 0 8px;
+  color: #55e6ff;
+}
+
+@media (max-width: 1100px) {
+  .wm-pcc-dashboard-hero,
+  .wm-pcc-dashboard-overview,
+  .wm-pcc-sales-language-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-pcc-dashboard-actions {
+    justify-content: flex-start;
+  }
+
+  .wm-pcc-dashboard-snapshot {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .wm-pcc-dashboard-snapshot {
+    grid-template-columns: 1fr;
+  }
+}
+/* Product Call Cards Phase 1D language levels */
+.wm-pcc-context-controls-compact {
+  grid-template-columns: minmax(150px, 0.6fr) minmax(240px, 1fr) minmax(180px, 0.8fr);
+}
+
+.wm-pcc-language-note {
+  margin-top: 10px;
+  padding: 9px 11px;
+  border: 1px solid rgba(125, 247, 255, 0.28);
+  background: rgba(0, 229, 255, 0.08);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+@media (max-width: 900px) {
+  .wm-pcc-context-controls-compact {
+    grid-template-columns: 1fr;
+  }
+}
