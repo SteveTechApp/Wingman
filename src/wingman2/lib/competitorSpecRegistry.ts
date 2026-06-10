@@ -702,7 +702,11 @@ function lookupFingerprint(rawSku: string): Fingerprint | null {
 
   for (const fp of FINGERPRINTS) {
     for (const key of fp.keys) {
-      if (candidate === key || candidate.includes(key) || key.includes(candidate)) {
+      const isExact = candidate === key;
+      const inputContainsKnownSku = key.length >= 5 && candidate.includes(key);
+      const missingPrefixMatch = candidate.length >= 5 && key.endsWith(candidate);
+
+      if (isExact || inputContainsKnownSku || missingPrefixMatch) {
         return fp;
       }
     }
@@ -740,6 +744,8 @@ function parseFeatures(text: string): Record<string, boolean> {
   if (/wireless|clickshare|airmedia/.test(value)) features.wireless = true;
   if (/\b10g\b|sdvoe/.test(value)) features.tenGig = true;
   if (/hdbaset|hdbt/.test(value)) features.hdbtOutput = true;
+  if (/rs-?232|ir\b|cec|relay|contact closure|control/.test(value)) features.control = true;
+  if (/\bpoe\b|\bpoh\b|\bpoc\b|power over ethernet/.test(value)) features.poe = true;
   return features;
 }
 
@@ -777,9 +783,13 @@ export function resolveCompetitorSpecProfile(
     : evidence.tier === "family-rule"
       ? "family-rule"
       : "sku-only";
+  const evidenceSkuKey = normKey(evidence.sku);
+  const displaySku = fingerprint && !fingerprint.keys.includes(evidenceSkuKey)
+    ? fingerprint.sku
+    : evidence.sku || input;
 
   return {
-    sku: evidence.sku || input,
+    sku: displaySku,
     title: input,
     domain,
     role,
@@ -792,11 +802,11 @@ export function resolveCompetitorSpecProfile(
     // metadata
     brand: evidence.brand,
     specTier,
-    readiness: evidence.readiness,
-    assumptions: evidence.assumptions,
-    whyNotDirectEquivalent: evidence.whyNotDirectEquivalent,
-    missingFacts: evidence.missingFacts,
-    confidencePenalty: evidence.confidencePenalty,
+    readiness: fingerprint ? "approved" : evidence.readiness,
+    assumptions: fingerprint ? [] : evidence.assumptions,
+    whyNotDirectEquivalent: fingerprint ? [] : evidence.whyNotDirectEquivalent,
+    missingFacts: fingerprint ? [] : evidence.missingFacts,
+    confidencePenalty: fingerprint ? 0 : evidence.confidencePenalty,
     source: fingerprint ? "fingerprint" : evidence.tier === "family-rule" ? "family-rule" : "typed-text",
     datasheetUrl: fingerprint?.datasheetUrl,
   };
