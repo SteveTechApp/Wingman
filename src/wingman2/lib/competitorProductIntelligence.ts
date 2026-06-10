@@ -690,6 +690,8 @@ export function buildCompetitorDecisionEvidence(profile: {
   role?: string;
   transport?: string;
   maxResolution?: string;
+  inputCount?: number;
+  outputCount?: number;
   features?: Record<string, boolean | undefined>;
 }): CompetitorDecisionEvidence {
   const rawText = [
@@ -701,6 +703,8 @@ export function buildCompetitorDecisionEvidence(profile: {
     profile.role,
     profile.transport,
     profile.maxResolution,
+    profile.inputCount ? `${profile.inputCount} input` : "",
+    profile.outputCount ? `${profile.outputCount} output` : "",
     ...Object.entries(profile.features ?? {})
       .filter(([, value]) => Boolean(value))
       .map(([name]) => name),

@@ -13,6 +13,12 @@ export type CompareDecisionProfile = {
   chroma?: string;
   latency?: string;
   features?: Record<string, boolean | undefined>;
+  sourceTier?: "verified-profile" | "official-structured" | "text-inferred" | "missing";
+  sourceLabel?: string;
+  profileEvidence?: string[];
+  profileWarnings?: string[];
+  specTier?: string;
+  readiness?: string;
 };
 
 export type CompareDecisionInput = {
@@ -60,6 +66,8 @@ const HARD_FEATURES = [
   "tenGig",
   "zeroLatency",
   "lossless",
+  "control",
+  "poe",
 ];
 
 function clean(value: unknown): string {
@@ -157,6 +165,8 @@ function featureLabel(key: string): string {
     tenGig: "10G network class",
     zeroLatency: "zero latency",
     lossless: "lossless transport",
+    control: "control connections",
+    poe: "PoE / remote power",
   };
 
   return labels[key] || key;
@@ -230,8 +240,43 @@ function scoreConfidence(input: CompareDecisionInput, blockers: string[], gaps: 
   const blockerPenalty = blockers.length * 28;
   const gapPenalty = gaps.length * 11;
   const verifyPenalty = verify.length * 4;
+  const wyrestormSourcePenalty = sourceTierPenalty(input.wyrestorm);
+  const competitorSourcePenalty = competitorTierPenalty(input.competitor);
 
-  return Math.max(5, Math.min(98, Math.round(base - blockerPenalty - gapPenalty - verifyPenalty)));
+  return Math.max(5, Math.min(98, Math.round(base - blockerPenalty - gapPenalty - verifyPenalty - wyrestormSourcePenalty - competitorSourcePenalty)));
+}
+
+function sourceTierPenalty(profile: CompareDecisionProfile): number {
+  if (profile.sourceTier === "verified-profile") return 0;
+  if (profile.sourceTier === "official-structured") return (profile.profileWarnings?.length ?? 0) > 0 ? 8 : 3;
+  if (profile.sourceTier === "text-inferred") return 14;
+  if (profile.sourceTier === "missing") return 24;
+  return 8;
+}
+
+function competitorTierPenalty(profile: CompareDecisionProfile): number {
+  if (profile.specTier === "verified-profile") return 0;
+  if (profile.specTier === "family-rule") return 12;
+  if (profile.specTier === "sku-only") return 26;
+  return 8;
+}
+
+function profileSourceLabel(profile: CompareDecisionProfile, fallback: string): string {
+  if (profile.sourceLabel) return profile.sourceLabel;
+  if (profile.sourceTier === "verified-profile") return fallback + " verified profile";
+  if (profile.sourceTier === "official-structured") return fallback + " official-page extracted facts";
+  if (profile.sourceTier === "text-inferred") return fallback + " text-inferred facts";
+  if (profile.sourceTier === "missing") return fallback + " facts missing";
+  return fallback + " evidence tier unknown";
+}
+
+function hasTrustedCompetitorProfile(profile: CompareDecisionProfile): boolean {
+  return profile.specTier === "verified-profile";
+}
+
+function hasUsableWyrestormProfile(profile: CompareDecisionProfile): boolean {
+  return profile.sourceTier === "verified-profile" ||
+    (profile.sourceTier === "official-structured" && (profile.profileWarnings?.length ?? 0) <= 1);
 }
 
 function summaryFor(outcome: CompareDecisionOutcome, input: CompareDecisionInput): string {
@@ -327,7 +372,16 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
 
   warningItems.forEach((warning) => addUnique(verify, "Compare warning: " + warning));
 
-  
+  addUnique(verify, "WyreStorm evidence tier: " + profileSourceLabel(wyrestorm, "WyreStorm") + ".");
+
+  for (const warning of wyrestorm.profileWarnings ?? []) {
+    addUnique(verify, "WyreStorm data warning: " + warning);
+  }
+
+  for (const evidence of wyrestorm.profileEvidence ?? []) {
+    addUnique(matches, "WyreStorm evidence: " + evidence);
+  }
+
   addUnique(verify, "Competitor intelligence tier: " + competitorIntelligence.tier + ".");
   addUnique(verify, "Competitor intelligence readiness: " + competitorIntelligence.readiness + ".");
 
@@ -339,19 +393,21 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
     addUnique(gaps, "Why not direct equivalent: " + reason);
   }
 
-const confidence = Math.max(5, scoreConfidence(input, blockers, gaps, verify) - competitorIntelligence.confidencePenalty);
+  const confidence = Math.max(5, scoreConfidence(input, blockers, gaps, verify) - competitorIntelligence.confidencePenalty);
+  const trustedCompetitor = hasTrustedCompetitorProfile(competitor);
+  const usableWyrestorm = hasUsableWyrestormProfile(wyrestorm);
 
   let outcome: CompareDecisionOutcome = "VERIFY";
 
   if (blockers.length > 0) {
     outcome = "NO MATCH";
-  } else if (confidence >= 82 && gaps.length === 0 && verify.length <= 2) {
+  } else if (trustedCompetitor && usableWyrestorm && confidence >= 82 && gaps.length === 0 && verify.length <= 3) {
     outcome = "GOOD MATCH";
-  } else if (confidence >= 55 && gaps.length <= 4) {
+  } else if (confidence >= 55 && gaps.length <= 4 && (trustedCompetitor || usableWyrestorm)) {
     outcome = "PARTIAL MATCH";
   }
 
-  if (verify.length >= 5 && outcome !== "NO MATCH") {
+  if ((!trustedCompetitor || !usableWyrestorm || verify.length >= 5) && outcome !== "NO MATCH" && outcome !== "PARTIAL MATCH") {
     outcome = "VERIFY";
   }
 
