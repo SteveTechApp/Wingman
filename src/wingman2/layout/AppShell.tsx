@@ -12,6 +12,7 @@ import {
 } from "../app/routeCatalog";
 import { WingmanGuruDrawer } from "../components/WingmanGuruDrawer";
 import { WingmanGuruFab } from "../components/WingmanGuruFab";
+import { WingmanViewportFitControl } from "../components/WingmanViewportFitControl";
 import { clearActiveProject } from "../data/projectStore";
 import { useWingmanLanguage } from "../data/wingmanLanguage";
 import { useWingmanProfile } from "../data/wingmanProfile";
@@ -234,6 +235,7 @@ export function AppShell({ children }: AppShellProps) {
             </span>
           </div>
 
+          <WingmanViewportFitControl />
           <button type="button" className="wingman-new-project-button" onClick={handleNewProject} aria-label="Create new Wingman project">
             <Plus className="h-4 w-4" />
             <span>{uiText.newProject}</span>

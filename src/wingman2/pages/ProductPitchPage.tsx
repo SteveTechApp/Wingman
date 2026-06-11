@@ -1,739 +1,505 @@
-﻿import { useEffect, useMemo, useState } from "react";
-
-import { Link, useSearchParams } from "react-router-dom";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
-import { ProductSalesKnowledgePanel } from "../components/ProductSalesKnowledgePanel";
+import { writeProductWorkspaceHandoff } from "../data/productWorkspaceHandoff";
 import {
-  saveRecommendationEvidenceToProject,
-  useProjectStore,
-  type StoredQuoteSafetyStatus,
-  type StoredRecommendationEvidence,
-  type StoredProductSelection,
-} from "../data/projectStore";
-import { readLatestDiscoveryBrief } from "../data/workflowHandoff";
-import {
-  buildRecommendationEvidence,
-  productToSelection,
-  type RecommendationEvidenceCompare,
-  type RecommendationEvidenceProduct,
-} from "../lib/recommendationEvidence";
+  buildProductNarrative,
+  cleanUsefulList,
+  extractRawProducts,
+  normaliseProductRecord,
+  productText,
+  type ProductNarrative,
+  type ProductSpec
+} from "../lib/productStoryEngine";
 
-type PitchObjection = {
-  objection: string;
-  response: string;
-};
+type ProductTab = "overview" | "sales" | "spec" | "diagram" | "visual";
 
-type PitchProduct = {
-  sku: string;
-  name: string;
-  family: string;
-  category: string;
-  description: string;
-  salientPoint: string;
-  customerChallenge: string;
-  wyrestormFit: string;
-  proofPoint: string;
-  validationQuestion: string;
-  applicationFit: string[];
-  majorFeatures: string[];
-  summary?: string;
-  features?: string[];
-  url?: string;
-  sourceText?: string;
-  customerQuestions: string[];
-  checks: string[];
-  objections: PitchObjection[];
-  related: string[];
-  confidence: string;
-  tags: string[];
-};
-
-const fallbackProducts: PitchProduct[] = [
+const fallbackProducts: ProductSpec[] = [
   {
-    sku: "MX-1007-HYB",
-    name: "Hybrid classroom and meeting-room presentation switcher",
-    family: "Presentation",
-    category: "Education / Corporate",
-    description:
-      "A hybrid room hub for local HDMI, USB-C, USB host/hub, HDBaseT 3.0 and NetworkHD 500-series workflows.",
-    salientPoint:
-      "Use this when the room needs more than a basic switcher and the salesperson needs one clear story for sources, USB, audio and AV transport.",
-    customerChallenge:
-      "The customer wants a modern teaching or meeting space, but source, display, USB, audio and networked AV requirements are being discussed separately.",
-    wyrestormFit:
-      "MX-1007-HYB keeps the conversation around the room outcome: connect local sources, manage USB, feed displays and extend into NetworkHD where needed.",
-    proofPoint:
-      "It is positioned as a hybrid product option where local presentation and networked AV need to work together rather than compete.",
-    validationQuestion:
-      "Do they need a local room switcher only, or does the room also need to connect into a wider AV-over-IP system?",
-    applicationFit: [
-      "Higher education teaching rooms",
-      "Training spaces",
-      "Boardrooms with USB and presentation requirements",
-      "Hybrid rooms needing local and networked AV"
-    ],
-    majorFeatures: [
-      "Hybrid local presentation and NetworkHD workflow",
-      "USB-C and HDMI source support",
-      "USB host and hub functionality",
-      "HDBaseT 3.0 extension path",
-      "Room-centric presentation switching"
-    ],
-    customerQuestions: [
-      "How many sources are local to the room?",
-      "Does USB need to follow the selected source?",
-      "Is this room standalone or part of a wider AV-over-IP estate?",
-      "Do they need a simple operator experience for lecturers or presenters?"
-    ],
-    checks: [
-      "Confirm display count and resolution requirement",
-      "Confirm whether the system needs NetworkHD integration",
-      "Confirm USB peripherals and host devices",
-      "Confirm audio requirement before selecting companion products"
-    ],
-    objections: [
-      {
-        objection: "Is this over-specified?",
-        response:
-          "Only position it where the brief combines presentation, USB and AV transport. For a simpler local-only room, move the discussion toward the smaller EDU or switcher options."
-      },
-      {
-        objection: "Why not just use a matrix?",
-        response:
-          "A matrix may be right for simple source-to-display routing. MX-1007-HYB is stronger when USB, room operation and hybrid AV transport need to be considered together."
-      }
-    ],
-    related: ["MX-0804-EDU", "SW-640-TX-W", "NHD-500 Series"],
-    confidence:
-      "Strong fit when the brief combines local presentation, USB and AV extension.",
-    tags: ["hybrid", "usb-c", "hdbaset", "networkhd", "education"]
+    sku: "CAM-210-NDI-PTZ",
+    name: "1080p60 PTZ Camera",
+    family: "WyreStorm",
+    category: "NDI / camera",
+    productType: "PTZ camera",
+    description: "PTZ camera for conferencing, streaming, capture and network video workflows.",
+    purpose: "Use this when the customer needs a controllable room camera with more flexibility than a fixed webcam.",
+    summary: "A flexible PTZ camera for UC, lecture capture and streaming workflows with USB, HDMI and NDI output paths.",
+    keyFeatures: ["1080p60 PTZ camera", "USB 3.0 connectivity", "HDMI output", "NDI workflow support", "Auto-framing support", "Optical zoom for room coverage"],
+    applications: ["Meeting room / UC", "Lecture capture", "Streaming", "Training room", "Classroom / lecture", "BYOM / UC"],
+    ioSummary: ["USB 3.0 host connection", "HDMI output", "NDI / network video path", "PTZ control path to confirm"],
+    video: ["1080p60 camera workflow", "HDMI output", "NDI / network video support"],
+    audio: ["Audio path must be confirmed separately from the camera."],
+    usb: ["USB 3.0 path to host"],
+    network: ["NDI / network video path"],
+    control: ["PTZ control and preset requirement to confirm"],
+    power: ["Confirm power method from current datasheet"],
+    physical: ["Confirm mounting position and field of view"],
+    checks: ["Confirm host location", "Confirm USB distance", "Confirm NDI network readiness", "Confirm camera mounting position", "Confirm microphone and speaker path separately"],
+    related: ["CAM-0402-BRG", "NHD-128-NDI-TRX", "NHD-150-RX"]
   },
   {
-    sku: "NHD-0401-MV",
-    name: "Four-input NetworkHD multiview processor",
-    family: "NetworkHD",
-    category: "AV-over-IP / Multiview",
-    description:
-      "A compact multiview product for showing multiple sources on a single output canvas.",
-    salientPoint:
-      "Use this when the customer needs more than source switching: they need to see several inputs at once on one display or LED processor feed.",
-    customerChallenge:
-      "The customer wants to monitor, compare or present several video sources at the same time without adding multiple displays.",
-    wyrestormFit:
-      "NHD-0401-MV gives the salesperson a simple multiview story: four inputs, one output canvas, useful for LFDs, LED processors and monitoring applications.",
-    proofPoint:
-      "It is a direct answer to single-screen multiview requirements and can also sit inside wider NetworkHD-led conversations.",
-    validationQuestion:
-      "Do they need to switch between sources, or do they need multiple sources visible at the same time?",
-    applicationFit: [
-      "Reception displays",
-      "Command and monitoring points",
-      "Hospitality sports preview displays",
-      "LED processor input feeds",
-      "Education and training source monitoring"
-    ],
-    majorFeatures: [
-      "Four-input multiview workflow",
-      "Single output canvas",
-      "Useful with LFD and LED processor systems",
-      "Clear add-on sale where normal switching is not enough"
-    ],
-    customerQuestions: [
-      "How many sources need to be visible at the same time?",
-      "Does the customer need fixed layouts or operator-controlled layouts?",
-      "Is the output feeding a normal display or a processor?",
-      "Is this standalone or part of a wider NetworkHD design?"
-    ],
-    checks: [
-      "Confirm source count",
-      "Confirm output display or processor resolution",
-      "Confirm desired layout behaviour",
-      "Confirm whether audio follows any selected source"
-    ],
-    objections: [
-      {
-        objection: "Can a normal matrix do this?",
-        response:
-          "A matrix routes one source to one or more outputs. Multiview is different because it shows multiple sources together on one canvas."
-      },
-      {
-        objection: "Why not use more screens?",
-        response:
-          "More screens may work, but multiview is cleaner where space, cost, operator simplicity or a single LED processor input is preferred."
-      }
-    ],
-    related: ["NHD-150-RX", "NHD-600-TRX", "SW-0206-VW"],
-    confidence:
-      "Strong fit for true multiview. Do not confuse this with products that simply have multiple outputs.",
-    tags: ["multiview", "video wall", "networkhd", "monitoring", "led"]
-  },
-  {
-    sku: "SW-640-TX-W",
-    name: "Wireless presentation switcher for larger meeting spaces",
-    family: "Presentation",
-    category: "Corporate / Education",
-    description:
-      "A presentation switcher for rooms needing multiple inputs, wireless presentation and a more complete front-of-room workflow.",
-    salientPoint:
-      "Use this when the salesperson needs a direct answer for rooms with several sources and wireless presentation expectations.",
-    customerChallenge:
-      "The customer wants a simple presentation experience, but users are bringing a mix of laptops, USB-C devices and wireless sharing expectations.",
-    wyrestormFit:
-      "SW-640-TX-W helps position WyreStorm as the room workflow product rather than just an extender or switch.",
-    proofPoint:
-      "It gives sales teams a clear product option for rooms that have outgrown a basic two or three input device.",
-    validationQuestion:
-      "How many wired sources and wireless users does the room realistically need to support?",
-    applicationFit: [
-      "Meeting rooms",
-      "Training spaces",
-      "Classrooms",
-      "Rooms needing wired and wireless presentation"
-    ],
-    majorFeatures: [
-      "Multiple presentation inputs",
-      "Wireless presentation support",
-      "Room-focused source selection",
-      "Useful upgrade path from basic switchers"
-    ],
-    customerQuestions: [
-      "Do users need wired, wireless or both?",
-      "Are there more than four regular presentation sources?",
-      "Does the room need a simple front-panel or user-friendly workflow?",
-      "Does USB need to be considered as part of the room experience?"
-    ],
-    checks: [
-      "Confirm local input count",
-      "Confirm wireless presentation requirement",
-      "Confirm display and extension requirement",
-      "Confirm control expectations"
-    ],
-    objections: [
-      {
-        objection: "Can we use a cheaper switch?",
-        response:
-          "Only if the brief is purely source selection. When wireless presentation and a better user workflow matter, this is a stronger conversation."
-      }
-    ],
-    related: ["SW-620-TX-W", "MX-0804-EDU", "APO-VX20-UC"],
-    confidence:
-      "Good fit where the opportunity starts with user experience rather than cable extension.",
-    tags: ["wireless", "presentation", "meeting room", "usb-c"]
-  },
-  {
-    sku: "NHD-600-TRX",
-    name: "10GbE SDVoE NetworkHD transceiver",
-    family: "NetworkHD",
-    category: "AV-over-IP",
-    description:
-      "A 10GbE SDVoE transceiver for high-performance AV-over-IP applications.",
-    salientPoint:
-      "Use this when performance, very low latency and flexible encoder/decoder deployment matter more than entry-level AV-over-IP cost.",
-    customerChallenge:
-      "The customer needs scalable AV distribution but cannot accept the compromises of a lower-performance transport layer.",
-    wyrestormFit:
-      "NHD-600-TRX gives the sales discussion a high-performance AVoIP option with transceiver flexibility.",
-    proofPoint:
-      "It is the correct direction for designs where 10GbE SDVoE performance is required.",
-    validationQuestion:
-      "Is this a performance-led AV-over-IP project, or would a 1GbE NetworkHD series meet the actual requirement?",
-    applicationFit: [
-      "High-performance AV-over-IP",
-      "Large venues",
-      "Command and control",
-      "Premium multi-room distribution",
-      "Projects where latency and image quality are central"
-    ],
-    majorFeatures: [
-      "10GbE SDVoE workflow",
-      "Transceiver design",
-      "Flexible encoder or decoder deployment",
-      "NetworkHD ecosystem positioning"
-    ],
-    customerQuestions: [
-      "Is 10GbE switching available or planned?",
-      "What latency is acceptable?",
-      "Is the design fixed or likely to change over time?",
-      "Are source and display counts expected to grow?"
-    ],
-    checks: [
-      "Confirm 10GbE network design",
-      "Confirm VLAN and switch suitability",
-      "Confirm endpoint count",
-      "Confirm whether the project needs a controller"
-    ],
-    objections: [
-      {
-        objection: "Why not use a cheaper 1GbE AVoIP system?",
-        response:
-          "A 1GbE system may be right if the performance requirement is lower. NHD-600-TRX is for projects where 10GbE SDVoE performance is part of the requirement."
-      }
-    ],
-    related: ["NHD-CTL-PRO", "NHD-500 Series", "NHD-0401-MV"],
-    confidence:
-      "Strong fit for performance-led AVoIP. Avoid using it as the default answer for every multi-room system.",
-    tags: ["sdvoe", "10gbe", "avoip", "networkhd", "transceiver"]
+    sku: "AMP-260-DNT",
+    name: "120W Network Amplifier",
+    family: "WyreStorm",
+    category: "Audio / control",
+    productType: "Network amplifier",
+    description: "Networked DSP amplifier for distributed and room-based audio reinforcement workflows.",
+    purpose: "Use this where the customer needs a compact amplification and DSP platform with Dante-based audio integration.",
+    summary: "A compact DSP amplifier for room audio and distributed audio applications where networked audio and simple deployment matter.",
+    keyFeatures: ["120W network amplifier", "Advanced DSP", "Dante integration", "Compact installation format", "Room and distributed audio applications"],
+    applications: ["Room audio reinforcement", "Distributed audio", "Boardroom", "Education", "Lecture hall", "Hospitality"],
+    ioSummary: ["Amplifier output path", "Audio input path", "Dante / network audio integration", "Control path to confirm"],
+    video: ["No direct video role. Confirm wider system context separately."],
+    audio: ["Amplifier workflow", "Dante audio support", "DSP-based audio processing"],
+    usb: ["No USB role unless part of wider system workflow"],
+    network: ["Dante / Ethernet network integration"],
+    control: ["Control and DSP configuration path to confirm"],
+    power: ["Amplifier power specification must be confirmed from current datasheet"],
+    physical: ["Confirm install location, rack or local placement and speaker load"],
+    checks: ["Confirm speaker load and room requirement", "Confirm Dante network availability", "Confirm control requirement", "Confirm wider audio system context"],
+    related: []
   }
 ];
 
-const sectionLabels = [
-  "Talk track",
-  "Fit",
-  "Features",
-  "Objections",
-  "Proposal support",
-  "Checks"
-] as const;
-
-type PitchSection = (typeof sectionLabels)[number];
-
-const COMPARE_RECORDS_KEY = "wm_competitor_compare_swot_records_v1";
-
-function asRecord(value: unknown): Record<string, unknown> {
-  if (!value || typeof value !== "object") return {};
-  if (Array.isArray(value)) return {};
-  return value as Record<string, unknown>;
+function includesProduct(product: ProductSpec, term: string) {
+  return productText(product).includes(term);
 }
 
-function toText(value: unknown): string {
-  if (typeof value === "string") return value.trim();
-  if (typeof value === "number") return String(value);
-  if (typeof value === "boolean") return String(value);
-  if (Array.isArray(value)) return value.map(toText).filter(Boolean).join(", ");
-  return "";
-}
-
-function toArray(value: unknown): string[] {
-  if (Array.isArray(value)) {
-    return value.map(toText).map((item) => item.trim()).filter(Boolean);
-  }
-
-  if (typeof value === "string") {
-    return value
-      .split(/\n|;|\|/g)
-      .map((item) => item.trim())
-      .filter(Boolean);
-  }
-
-  return [];
-}
-
-function firstText(source: Record<string, unknown>, keys: string[], fallback: string): string {
-  for (const key of keys) {
-    const text = toText(source[key]);
-    if (text) return text;
-  }
-
-  return fallback;
-}
-
-function firstArray(source: Record<string, unknown>, keys: string[], fallback: string[]): string[] {
-  for (const key of keys) {
-    const values = toArray(source[key]);
-    if (values.length > 0) return values;
-  }
-
-  return fallback;
-}
-
-function safeSourceText(source: Record<string, unknown>) {
-  try {
-    return JSON.stringify(source).slice(0, 5000);
-  } catch {
-    return "";
-  }
-}
-
-function normaliseObjections(value: unknown): PitchObjection[] {
-  if (Array.isArray(value)) {
-    return value
-      .map((entry) => {
-        const record = asRecord(entry);
-        const objection = firstText(record, ["objection", "title", "challenge", "name"], "");
-        const response = firstText(record, ["response", "answer", "handling", "text", "body"], "");
-
-        if (objection || response) {
-          return {
-            objection: objection || "Likely objection",
-            response: response || "Add a product-specific response in the product intelligence record."
-          };
-        }
-
-        const text = toText(entry);
-        if (text) {
-          return {
-            objection: "Likely objection",
-            response: text
-          };
-        }
-
-        return null;
-      })
-      .filter((item): item is PitchObjection => Boolean(item));
-  }
-
-  const text = toText(value);
-
-  if (text) {
-    return [
-      {
-        objection: "Likely objection",
-        response: text
-      }
-    ];
-  }
-
-  return [];
-}
-
-function extractRawProducts(data: unknown): unknown[] {
-  if (Array.isArray(data)) return data;
-
-  const root = asRecord(data);
-  const likelyKeys = ["products", "items", "records", "index", "data", "productIntelligence"];
-
-  for (const key of likelyKeys) {
-    const candidate = root[key];
-
-    if (Array.isArray(candidate)) return candidate;
-
-    const candidateRecord = asRecord(candidate);
-    const candidateValues = Object.values(candidateRecord);
-
-    if (candidateValues.length > 0) return candidateValues;
-  }
-
-  const values = Object.values(root).filter((value) => {
-    if (!value || typeof value !== "object") return false;
-    return !Array.isArray(value);
-  });
-
-  return values;
-}
-
-function normaliseProduct(entry: unknown, index: number): PitchProduct | null {
-  const source = asRecord(entry);
-
-  if (Object.keys(source).length === 0) return null;
-
-  const sku = firstText(
-    source,
-    ["sku", "SKU", "model", "partNumber", "productSku", "productCode"],
-    "PRODUCT-" + String(index + 1)
-  );
-
-  const name = firstText(
-    source,
-    ["name", "title", "productName", "modelName", "shortName"],
-    sku
-  );
-
-  const family = firstText(
-    source,
-    ["family", "series", "range", "productFamily", "systemType"],
-    "Product"
-  );
-
-  const category = firstText(
-    source,
-    ["category", "vertical", "application", "type", "productType"],
-    "Sales support"
-  );
-
-  const description = firstText(
-    source,
-    ["description", "summary", "overview", "shortDescription"],
-    "Product-specific description is not yet available in the product intelligence record."
-  );
-
-  const salientPoint = firstText(
-    source,
-    ["salientPoint", "salesHeadline", "headline", "positioning", "salesAngle"],
-    description
-  );
-
-  const customerChallenge = firstText(
-    source,
-    ["customerChallenge", "challenge", "problemSolved", "painPoint"],
-    "Clarify the customer problem before presenting this product."
-  );
-
-  const wyrestormFit = firstText(
-    source,
-    ["wyrestormFit", "wyreStormFit", "fit", "whyWyrestorm", "whyWyreStorm"],
-    "Use the product facts and application fit to explain why this is the practical WyreStorm option."
-  );
-
-  const proofPoint = firstText(
-    source,
-    ["proofPoint", "evidence", "whyItWorks", "validation"],
-    "Add a proof point to the product intelligence record."
-  );
-
-  const validationQuestion = firstText(
-    source,
-    ["validationQuestion", "qualifyingQuestion", "qualificationQuestion", "salesQuestion"],
-    "What customer requirement makes this product the right option?"
-  );
-
-  const applicationFit = firstArray(
-    source,
-    ["applicationFit", "applications", "useCases", "verticals", "rooms"],
-    ["Use where the customer requirement matches the product's core role."]
-  );
-
-  const majorFeatures = firstArray(
-    source,
-    ["majorFeatures", "keyFeatures", "features", "featureSummary", "capabilities"],
-    ["Add key product features to the product intelligence record."]
-  );
-
-  const url = firstText(source, ["url", "productUrl", "link", "href"], "");
-
-  const customerQuestions = firstArray(
-    source,
-    ["customerQuestions", "discoveryQuestions", "questions", "qualificationQuestions"],
-    [validationQuestion]
-  );
-
-  const checks = firstArray(
-    source,
-    ["checks", "preProposalChecks", "beforeQuoting", "whatToCheck", "designChecks"],
-    ["Confirm source count, display count, signal type, distance, USB, audio, control and network requirements."]
-  );
-
-  const objections = normaliseObjections(
-    source.objections || source.objectionHandling || source.commonObjections
-  );
-
-  const related = firstArray(
-    source,
-    ["related", "relatedProducts", "alternatives", "companionProducts"],
-    []
-  );
-
-  const confidence = firstText(
-    source,
-    ["confidence", "recommendationConfidence", "fitConfidence"],
-    "Use discovery answers to confirm whether this is a good fit, partial fit or not suitable."
-  );
-
-  const tags = firstArray(
-    source,
-    ["tags", "keywords", "searchTerms"],
-    [sku, name, family, category]
-  );
-
-  return {
-    sku,
-    name,
-    family,
-    category,
-    description,
-    salientPoint,
-    customerChallenge,
-    wyrestormFit,
-    proofPoint,
-    validationQuestion,
-    applicationFit,
-    majorFeatures,
-    summary: description,
-    features: majorFeatures,
-    url,
-    sourceText: safeSourceText(source),
-    customerQuestions,
-    checks,
-    objections: objections.length > 0 ? objections : [
-      {
-        objection: "No objection handling added yet",
-        response: "Add common objections and responses to the product intelligence record for stronger sales support."
-      }
-    ],
-    related,
-    confidence,
-    tags
-  };
-}
-
-function normaliseProducts(data: unknown): PitchProduct[] {
-  const rawProducts = extractRawProducts(data);
-  const products = rawProducts
-    .map((entry, index) => normaliseProduct(entry, index))
-    .filter((product): product is PitchProduct => Boolean(product));
-
-  if (products.length > 0) return products;
-
-  return fallbackProducts;
-}
-
-function includesSearch(product: PitchProduct, term: string): boolean {
-  const haystack = [
-    product.sku,
-    product.name,
-    product.family,
-    product.category,
-    product.description,
-    product.salientPoint,
-    product.customerChallenge,
-    ...product.tags,
-    ...product.majorFeatures,
-    ...product.applicationFit
-  ]
-    .join(" ")
-    .toLowerCase();
-
-  return haystack.includes(term);
-}
-
-function productSearchUrl(sku: string): string {
-  return `https://wyrestorm.com/?s=${encodeURIComponent(sku)}`;
-}
-
-function readCompareContext(compareId: string): RecommendationEvidenceCompare | null {
-  if (typeof window === "undefined" || !compareId) return null;
-
-  try {
-    const raw = window.localStorage.getItem(COMPARE_RECORDS_KEY);
-    if (!raw) return null;
-
-    const records = JSON.parse(raw) as Array<Record<string, unknown>>;
-    const record = records.find((item) => toText(item.id) === compareId);
-    if (!record) return null;
-
-    const competitor = asRecord(record.competitor);
-    const shortlist = Array.isArray(record.shortlist) ? record.shortlist : [];
-    const top = asRecord(shortlist.find((item) => Object.keys(asRecord(item)).length > 0));
-
-    return {
-      id: toText(record.id),
-      competitorBrand: toText(record.manufacturer) || toText(competitor.manufacturer),
-      competitorSku: toText(record.model) || toText(competitor.sku),
-      competitorName: toText(competitor.title),
-      wyrestormSku: toText(top.sku),
-      wyrestormTitle: toText(top.title),
-      matchScore: Number.isFinite(Number(record.matchScore)) ? Number(record.matchScore) : Number(top.confidence),
-      confidence: toText(top.confidence),
-      summary: toText(competitor.summary),
-      warnings: toArray(record.reviewNotes),
-      evidence: toArray(competitor.evidence),
-      source: "Competitor Compare",
-    };
-  } catch {
-    return null;
-  }
-}
-
-function productEvidenceContext(product: PitchProduct): RecommendationEvidenceProduct {
-  return {
-    sku: product.sku,
-    title: product.name,
-    name: product.name,
-    family: product.family,
-    category: product.category,
-    summary: product.summary || product.description,
-    features: product.features || product.majorFeatures,
-    tags: product.tags,
-    source: "Product Pitch",
-    isFallback: !product.sourceText,
-  };
-}
-
-function quoteSafetyLabel(status: StoredQuoteSafetyStatus) {
-  if (status === "quote-ready") return "Quote-ready draft";
-  if (status === "validate-before-quote") return "Validate before quote";
-  return "Do not quote yet";
-}
-
-function evidenceSelection(product: RecommendationEvidenceProduct, evidence: StoredRecommendationEvidence): StoredProductSelection {
-  const status =
-    evidence.quoteSafetyStatus === "quote-ready"
-      ? "recommended"
-      : evidence.quoteSafetyStatus === "do-not-quote-yet"
-        ? "caution"
-        : "alternative";
-  const selection = productToSelection(product, "Product Pitch");
-
-  return {
-    ...selection,
-    status,
-    evidence: evidence.evidenceUsed.slice(0, 8),
-    cautions: [...evidence.missingInformation, ...evidence.quoteChecks].slice(0, 8),
-  };
-}
-
-function HelperCard(props: { title: string; value: string; eyebrow?: string }) {
-  return (
-    <article className="wm-pitch-helper-card">
-      {props.eyebrow ? <span>{props.eyebrow}</span> : null}
-      <h3>{props.title}</h3>
-      <p>{props.value}</p>
-    </article>
-  );
-}
-
-function BulletList(props: { items: string[] }) {
-  const items = props.items.filter(Boolean);
-
-  if (items.length === 0) {
-    return <p className="wm-pitch-muted">No product-specific content available yet.</p>;
-  }
+function DisplayList({ items, max = 6 }: { items: string[]; max?: number }) {
+  const useful = cleanUsefulList(items, max);
 
   return (
-    <ul className="wm-pitch-bullet-list">
-      {items.map((item, index) => (
-        <li key={item + "-" + index}>{item}</li>
+    <ul className="grid gap-2 text-sm leading-6 text-white/75">
+      {useful.map((item, index) => (
+        <li key={`${item}-${index}`} className="rounded-2xl border border-[#29465e] bg-[#081724] px-3 py-2">
+          {item}
+        </li>
       ))}
     </ul>
   );
 }
 
-function ObjectionList(props: { objections: PitchObjection[] }) {
+function WorkCard({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="wm-pitch-objection-list">
-      {props.objections.map((item, index) => (
-        <article key={item.objection + "-" + index}>
-          <h4>{item.objection}</h4>
-          <p>{item.response}</p>
-        </article>
-      ))}
+    <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+      <h3 className="text-lg font-black text-cyan-300">{title}</h3>
+      <div className="mt-3 text-sm leading-6 text-white/75">{children}</div>
+    </section>
+  );
+}
+
+function SelectionPage({
+  products,
+  searchTerm,
+  setSearchTerm,
+  openProduct
+}: {
+  products: ProductSpec[];
+  searchTerm: string;
+  setSearchTerm: (value: string) => void;
+  openProduct: (sku: string) => void;
+}) {
+  const term = searchTerm.trim().toLowerCase();
+
+  const filtered = useMemo(() => {
+    if (!term) return products.slice(0, 80);
+    return products.filter((product) => includesProduct(product, term)).slice(0, 80);
+  }, [products, term]);
+
+  return (
+    <main className="grid gap-4 pb-6 text-white">
+      <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-300">Product workspace</p>
+        <h1 className="mt-2 text-3xl font-black tracking-tight text-white">Select one product</h1>
+        <p className="mt-2 max-w-4xl text-sm leading-6 text-white/70">
+          Select a product first. The next page opens a single product workspace with Overview, Sales Cards, Technical Spec, Diagram and Room Visual tabs.
+        </p>
+      </section>
+
+      <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+        <label className="grid gap-2">
+          <span className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Search by SKU, product name or application</span>
+          <input
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Example: CAM-210-NDI-PTZ, amplifier, HDMI extender, NetworkHD"
+            type="search"
+            className="min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-semibold text-white outline-none focus:border-cyan-300"
+            autoFocus
+          />
+        </label>
+
+        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {filtered.map((product) => (
+            <button
+              key={product.sku}
+              type="button"
+              onClick={() => openProduct(product.sku)}
+              className="min-h-[132px] rounded-3xl border border-[#29465e] bg-[#081724] p-4 text-left transition hover:border-cyan-300 hover:bg-cyan-500/10"
+            >
+              <span className="block text-xs font-black uppercase tracking-[0.14em] text-cyan-300">{product.family}</span>
+              <strong className="mt-2 block text-xl font-black text-white">{product.sku}</strong>
+              <span className="mt-1 block text-sm font-semibold text-white/80">{product.name}</span>
+              <span className="mt-3 block text-xs text-white/50">{product.productType}</span>
+            </button>
+          ))}
+        </div>
+
+        {!filtered.length ? (
+          <div className="mt-5 rounded-2xl border border-amber-400/40 bg-amber-400/10 p-4 text-sm text-amber-100">
+            No matching product found. Clear the search or use a broader term.
+          </div>
+        ) : null}
+      </section>
+    </main>
+  );
+}
+
+function TabButton({
+  label,
+  active,
+  onClick
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-full px-4 py-2 text-sm font-black transition ${
+        active
+          ? "bg-cyan-300 text-slate-950"
+          : "border border-[#29465e] bg-[#081724] text-cyan-100 hover:border-cyan-300"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+function OverviewTab({ product, narrative }: { product: ProductSpec; narrative: ProductNarrative }) {
+  return (
+    <div className="grid gap-4">
+      <section className="rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-6">
+        <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-200">One-minute product view</p>
+        <h2 className="mt-2 text-2xl font-black text-white">{narrative.headline}</h2>
+        <p className="mt-3 max-w-4xl text-sm leading-6 text-white/75">{narrative.whatItIs}</p>
+      </section>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <WorkCard title="What it does">
+          <p>{narrative.whyItHelps}</p>
+        </WorkCard>
+
+        <WorkCard title="Why the customer cares">
+          <p>{narrative.whyCustomerCares}</p>
+        </WorkCard>
+
+        <WorkCard title="Use it when">
+          <p>{narrative.useWhen}</p>
+        </WorkCard>
+
+        <WorkCard title="Do not lead with it when">
+          <p>{narrative.avoidIf}</p>
+        </WorkCard>
+
+        <WorkCard title="Best-fit applications">
+          <DisplayList items={product.applications} max={6} />
+        </WorkCard>
+
+        <WorkCard title="Ask next">
+          <DisplayList items={narrative.askNow} max={4} />
+        </WorkCard>
+      </div>
     </div>
   );
 }
 
-function EvidenceMiniList(props: { items: string[]; empty: string }) {
-  return <BulletList items={props.items.length > 0 ? props.items.slice(0, 4) : [props.empty]} />;
+function SalesTab({ product, narrative }: { product: ProductSpec; narrative: ProductNarrative }) {
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      <WorkCard title="Customer challenge">
+        <p>{narrative.customerChallenge}</p>
+      </WorkCard>
+
+      <WorkCard title="Why this product helps">
+        <p>{narrative.whyItHelps}</p>
+      </WorkCard>
+
+      <WorkCard title="Key features worth mentioning">
+        <DisplayList items={product.keyFeatures} max={6} />
+      </WorkCard>
+
+      <WorkCard title="Say it like this">
+        <p>{narrative.suggestedWording}</p>
+      </WorkCard>
+
+      <WorkCard title="Suggest a demo / evaluation">
+        <p>{narrative.demoPrompt}</p>
+      </WorkCard>
+
+      <WorkCard title="Do not oversell">
+        <p>Keep the conversation tied to the room, workflow and confirmed requirement. Do not promise unverified I/O, distance, USB, network, audio or control behaviour until checked.</p>
+      </WorkCard>
+    </div>
+  );
+}
+
+function SpecTable({ product }: { product: ProductSpec }) {
+  const rows = [
+    ["Product type", [product.productType]],
+    ["I/O summary", product.ioSummary],
+    ["Video / signal", product.video],
+    ["Audio", product.audio],
+    ["USB", product.usb],
+    ["Network", product.network],
+    ["Control / integration", product.control],
+    ["Power", product.power],
+    ["Physical / install", product.physical],
+    ["Checks before recommending", product.checks]
+  ] as const;
+
+  return (
+    <div className="overflow-hidden rounded-3xl border border-[#29465e] bg-[#071522]">
+      {rows.map(([label, rawItems]) => {
+        const items = cleanUsefulList([...rawItems], 4);
+
+        return (
+          <div key={label} className="grid gap-3 border-b border-[#29465e] p-4 last:border-b-0 lg:grid-cols-[220px_minmax(0,1fr)]">
+            <strong className="text-sm font-black text-cyan-300">{label}</strong>
+            <div className="flex flex-wrap gap-2">
+              {items.map((item) => (
+                <span key={item} className="rounded-full border border-[#29465e] bg-[#081724] px-3 py-1.5 text-sm text-white/75">
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function SpecTab({ product }: { product: ProductSpec }) {
+  return (
+    <div className="grid gap-4">
+      <section className="rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-5">
+        <h2 className="text-xl font-black text-white">Technical specification view</h2>
+        <p className="mt-2 text-sm leading-6 text-white/70">
+          Use this tab to confirm details. It is separated from the sales view so the user is not forced to interpret technical data during a live conversation.
+        </p>
+      </section>
+
+      <SpecTable product={product} />
+    </div>
+  );
+}
+
+function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: ProductNarrative }) {
+  const saveHandoff = () => {
+    writeProductWorkspaceHandoff(product, narrative);
+  };
+
+  return (
+    <div className="grid gap-4">
+      <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+        <h2 className="text-xl font-black text-cyan-300">Simple product connection view</h2>
+        <div className="mt-5 grid items-stretch gap-3 lg:grid-cols-[1fr_80px_1fr_80px_1fr]">
+          <div className="rounded-3xl border border-[#29465e] bg-[#081724] p-5">
+            <p className="text-xs font-black uppercase tracking-[0.14em] text-white/45">Source / input side</p>
+            <strong className="mt-2 block text-lg text-white">{narrative.diagramSource}</strong>
+          </div>
+
+          <div className="hidden items-center justify-center text-3xl font-black text-cyan-300 lg:flex">→</div>
+
+          <div className="rounded-3xl border border-cyan-400 bg-cyan-500/10 p-5">
+            <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-200">WyreStorm product</p>
+            <strong className="mt-2 block text-lg text-white">{product.sku}</strong>
+            <span className="mt-1 block text-sm text-white/65">{product.productType}</span>
+          </div>
+
+          <div className="hidden items-center justify-center text-3xl font-black text-cyan-300 lg:flex">→</div>
+
+          <div className="rounded-3xl border border-[#29465e] bg-[#081724] p-5">
+            <p className="text-xs font-black uppercase tracking-[0.14em] text-white/45">Output / destination side</p>
+            <strong className="mt-2 block text-lg text-white">{narrative.diagramOutput}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+        <h3 className="text-lg font-black text-cyan-300">Open full schematic</h3>
+        <p className="mt-2 text-sm leading-6 text-white/70">
+          Use Schematic Builder for the full end-to-end system diagram with known WyreStorm devices, third-party devices and TBC blocks.
+        </p>
+        <Link
+          to={routeCatalogByKey.visualDesign.path}
+          onClick={saveHandoff}
+          className="mt-4 inline-flex rounded-full bg-cyan-300 px-5 py-2 text-sm font-black text-slate-950"
+        >
+          Send product to Schematic Builder
+        </Link>
+      </section>
+    </div>
+  );
+}
+
+function VisualTab({ product, narrative }: { product: ProductSpec; narrative: ProductNarrative }) {
+  const [copied, setCopied] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const copyPrompt = () => {
+    if (!navigator.clipboard) return;
+
+    void navigator.clipboard.writeText(narrative.visualPrompt).then(() => {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1500);
+    });
+  };
+
+  const saveHandoff = () => {
+    writeProductWorkspaceHandoff(product, narrative);
+    setSaved(true);
+    window.setTimeout(() => setSaved(false), 1500);
+  };
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+      <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+        <h2 className="text-xl font-black text-cyan-300">Room visual prompt</h2>
+        <p className="mt-2 text-sm leading-6 text-white/70">
+          Once discovery is complete, this can become a Generate room image action for proposal support. For now, this prompt can be copied or stored as product context.
+        </p>
+
+        <textarea
+          readOnly
+          value={narrative.visualPrompt}
+          className="mt-4 min-h-[220px] w-full rounded-3xl border border-[#29465e] bg-[#081724] p-4 text-sm leading-6 text-white/75"
+        />
+
+        <div className="mt-4 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={copyPrompt}
+            className="rounded-full bg-cyan-300 px-5 py-2 text-sm font-black text-slate-950"
+          >
+            {copied ? "Copied" : "Copy room image prompt"}
+          </button>
+
+          <button
+            type="button"
+            onClick={saveHandoff}
+            className="rounded-full border border-cyan-300 px-5 py-2 text-sm font-black text-cyan-100"
+          >
+            {saved ? "Saved" : "Save visual context"}
+          </button>
+        </div>
+      </section>
+
+      <aside className="rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-5">
+        <h3 className="text-lg font-black text-white">Future workflow</h3>
+        <ol className="mt-4 grid gap-3 text-sm leading-6 text-white/75">
+          <li>1. Complete room discovery.</li>
+          <li>2. Select the product and schematic.</li>
+          <li>3. Generate a representative room image.</li>
+          <li>4. Add the image to the response pack or proposal.</li>
+        </ol>
+      </aside>
+    </div>
+  );
+}
+
+function ProductWorkspace({
+  product,
+  backToSelection
+}: {
+  product: ProductSpec;
+  backToSelection: () => void;
+}) {
+  const [activeTab, setActiveTab] = useState<ProductTab>("overview");
+  const narrative = useMemo(() => buildProductNarrative(product), [product]);
+
+  useEffect(() => {
+    writeProductWorkspaceHandoff(product, narrative);
+  }, [product, narrative]);
+
+  return (
+    <main className="grid gap-4 pb-6 text-white">
+      <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-300">Product workspace</p>
+            <h1 className="mt-2 text-3xl font-black tracking-tight text-cyan-200">{product.sku}</h1>
+            <h2 className="mt-1 text-xl font-bold text-white">{product.name}</h2>
+            <p className="mt-3 max-w-4xl text-sm leading-6 text-white/70">{narrative.headline}</p>
+          </div>
+
+          <button
+            type="button"
+            onClick={backToSelection}
+            className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100"
+          >
+            Back to product selection
+          </button>
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-4">
+        <div className="flex flex-wrap gap-2">
+          <TabButton label="Overview" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
+          <TabButton label="Sales Cards" active={activeTab === "sales"} onClick={() => setActiveTab("sales")} />
+          <TabButton label="Technical Spec" active={activeTab === "spec"} onClick={() => setActiveTab("spec")} />
+          <TabButton label="Diagram" active={activeTab === "diagram"} onClick={() => setActiveTab("diagram")} />
+          <TabButton label="Room Visual" active={activeTab === "visual"} onClick={() => setActiveTab("visual")} />
+        </div>
+      </section>
+
+      {activeTab === "overview" ? <OverviewTab product={product} narrative={narrative} /> : null}
+      {activeTab === "sales" ? <SalesTab product={product} narrative={narrative} /> : null}
+      {activeTab === "spec" ? <SpecTab product={product} /> : null}
+      {activeTab === "diagram" ? <DiagramTab product={product} narrative={narrative} /> : null}
+      {activeTab === "visual" ? <VisualTab product={product} narrative={narrative} /> : null}
+    </main>
+  );
 }
 
 export function ProductPitchPage() {
-  const [products, setProducts] = useState<PitchProduct[]>(fallbackProducts);
-  const [selectedSku, setSelectedSku] = useState(fallbackProducts[0]?.sku || "");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeFamily, setActiveFamily] = useState("All");
-  const [activeSection, setActiveSection] = useState<PitchSection>("Talk track");
-  const [indexStatus, setIndexStatus] = useState("Starter sales-support data loaded");
-  const [saveMessage, setSaveMessage] = useState("");
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { activeProject } = useProjectStore();
+  const selectedSku = searchParams.get("sku") || "";
+
+  const [products, setProducts] = useState<ProductSpec[]>(fallbackProducts);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
 
     fetch("/product-intelligence-index.json", { cache: "no-store" })
       .then((response) => {
-        if (!response.ok) throw new Error("Product intelligence index was not available.");
+        if (!response.ok) throw new Error("Product index unavailable");
         return response.json() as Promise<unknown>;
       })
       .then((data) => {
         if (cancelled) return;
 
-        const loadedProducts = normaliseProducts(data);
-        setProducts(loadedProducts);
-        setIndexStatus("Product intelligence index connected");
+        const indexed = extractRawProducts(data)
+          .map((entry, index) => normaliseProductRecord(entry, index))
+          .filter((product): product is ProductSpec => Boolean(product));
+
+        if (indexed.length) {
+          setProducts(indexed);
+        }
+
+        setLoaded(true);
       })
       .catch(() => {
         if (cancelled) return;
         setProducts(fallbackProducts);
-        setIndexStatus("Using starter data until product index is available");
+        setLoaded(true);
       });
 
     return () => {
@@ -741,451 +507,60 @@ export function ProductPitchPage() {
     };
   }, []);
 
-  useEffect(() => {
-    const skuParam = (searchParams.get("sku") ?? "").trim().toUpperCase();
-    const queryParam = (searchParams.get("q") ?? "").trim();
-    const familyParam = (searchParams.get("family") ?? "").trim();
-
-    if (skuParam) {
-      setSelectedSku(skuParam);
-      setSearchTerm(skuParam);
-      setSaveMessage("");
-      return;
-    }
-
-    if (queryParam) {
-      setSearchTerm(queryParam);
-      setSaveMessage("");
-    }
-
-    if (familyParam) {
-      setActiveFamily(familyParam);
-      setSaveMessage("");
-    }
-  }, [searchParams]);
-
-  const families = useMemo(() => {
-    return Array.from(new Set(products.map((product) => product.family).filter(Boolean))).sort();
-  }, [products]);
-
-  const filteredProducts = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
-
-    return products.filter((product) => {
-      const familyMatches = activeFamily === "All" || product.family === activeFamily;
-      const searchMatches = !term || includesSearch(product, term);
-      return familyMatches && searchMatches;
-    });
-  }, [activeFamily, products, searchTerm]);
-
-  useEffect(() => {
-    if (products.some((product) => product.sku === selectedSku)) return;
-
-    const firstProduct = filteredProducts[0] || products[0];
-
-    if (firstProduct && !searchTerm.trim()) {
-      setSelectedSku(firstProduct.sku);
-    }
-  }, [filteredProducts, products, searchTerm, selectedSku]);
-
   const selectedProduct = useMemo(() => {
+    if (!selectedSku) return null;
+    return products.find((product) => product.sku.toLowerCase() === selectedSku.toLowerCase()) || null;
+  }, [products, selectedSku]);
+
+  const openProduct = (sku: string) => {
+    navigate(`/wingman/product-pitch?sku=${encodeURIComponent(sku)}`);
+  };
+
+  const backToSelection = () => {
+    navigate("/wingman/product-pitch");
+  };
+
+  if (!loaded && !products.length) {
     return (
-      products.find((product) => product.sku === selectedSku) ||
-      filteredProducts[0] ||
-      products[0] ||
-      fallbackProducts[0]
+      <main className="rounded-3xl border border-[#29465e] bg-[#071522] p-6 text-white">
+        Loading product workspace...
+      </main>
     );
-  }, [filteredProducts, products, selectedSku]);
-
-  const talkTrack = useMemo(() => {
-    return [
-      selectedProduct.salientPoint,
-      "Lead with the customer requirement, then explain why " + selectedProduct.sku + " is the practical WyreStorm option.",
-      selectedProduct.validationQuestion
-    ];
-  }, [selectedProduct]);
-
-  const selectedEvidenceProduct = useMemo(
-    () => productEvidenceContext(selectedProduct),
-    [selectedProduct],
-  );
-
-  const compareContext = useMemo(
-    () => readCompareContext((searchParams.get("compare") ?? "").trim()),
-    [searchParams],
-  );
-
-  const discoveryBrief = useMemo(
-    () => activeProject?.discoveryBrief ?? readLatestDiscoveryBrief(),
-    [activeProject],
-  );
-
-  const recommendationEvidence = useMemo(() => {
-    return buildRecommendationEvidence({
-      source: compareContext ? "Competitor Compare" : searchParams.get("source") === "finder" ? "Product Finder" : "Product Pitch",
-      project: activeProject,
-      discoveryBrief,
-      product: selectedEvidenceProduct,
-      compare: compareContext,
-      query: searchTerm,
-    });
-  }, [activeProject, compareContext, discoveryBrief, searchParams, searchTerm, selectedEvidenceProduct]);
-
-  function selectProduct(sku: string): void {
-    setSelectedSku(sku);
-    setActiveSection("Talk track");
-    setSaveMessage("");
   }
 
-  function savePitchEvidence(): void {
-    const project = saveRecommendationEvidenceToProject(
-      recommendationEvidence,
-      evidenceSelection(selectedEvidenceProduct, recommendationEvidence),
-    );
-    setSaveMessage(`Saved pitch evidence to ${project.name}.`);
-  }
-
-  function renderPitchSection() {
-    if (activeSection === "Talk track") {
-      return (
-        <div className="wm-pitch-section-content">
-          <div className="wm-pitch-two-column">
-            <article>
-              <h3>Use this in the conversation</h3>
-              <BulletList items={talkTrack} />
-            </article>
-            <article>
-              <h3>Discovery prompts</h3>
-              <BulletList items={selectedProduct.customerQuestions} />
-            </article>
-          </div>
-        </div>
-      );
-    }
-
-    if (activeSection === "Fit") {
-      return (
-        <div className="wm-pitch-section-content">
-          <div className="wm-pitch-two-column">
-            <article>
-              <h3>Application fit</h3>
-              <BulletList items={selectedProduct.applicationFit} />
-            </article>
-            <article>
-              <h3>Recommendation confidence</h3>
-              <p>{selectedProduct.confidence}</p>
-            </article>
-          </div>
-        </div>
-      );
-    }
-
-    if (activeSection === "Features") {
-      return (
-        <div className="wm-pitch-section-content">
-          <div className="wm-pitch-two-column">
-            <article>
-              <h3>Key product facts</h3>
-              <BulletList items={selectedProduct.majorFeatures} />
-            </article>
-            <article>
-              <h3>Related products</h3>
-              <BulletList items={selectedProduct.related.length > 0 ? selectedProduct.related : ["No related products added yet."]} />
-            </article>
-          </div>
-          <ProductSalesKnowledgePanel product={selectedProduct} mode="pitch" />
-        </div>
-      );
-    }
-
-    if (activeSection === "Objections") {
-      return (
-        <div className="wm-pitch-section-content">
-          <ObjectionList objections={selectedProduct.objections} />
-        </div>
-      );
-    }
-
-    if (activeSection === "Proposal support") {
-      return (
-        <div className="wm-pitch-section-content">
-          <div className="wm-pitch-two-column">
-            <article>
-              <h3>Customer-facing wording</h3>
-              <p>
-                {selectedProduct.sku} is a suitable product option where the customer requirement is: {selectedProduct.customerChallenge}
-              </p>
-              <p>
-                The product fit is strongest when: {selectedProduct.wyrestormFit}
-              </p>
-            </article>
-            <article>
-              <h3>Suggested next action</h3>
-              <p>{selectedProduct.validationQuestion}</p>
-              <p className="wm-pitch-muted">
-                Capture the answer before moving this into a proposal support pack.
-              </p>
-            </article>
-            <article>
-              <h3>Customer-safe wording</h3>
-              <EvidenceMiniList
-                items={recommendationEvidence.customerSafeWording}
-                empty="Confirm the requirement before presenting customer wording."
-              />
-            </article>
-            <article>
-              <h3>Project evidence</h3>
-              <EvidenceMiniList
-                items={recommendationEvidence.evidenceUsed}
-                empty="No structured evidence has been captured yet."
-              />
-            </article>
-          </div>
-        </div>
-      );
-    }
-
+  if (!selectedSku) {
     return (
-      <div className="wm-pitch-section-content">
-        <div className="wm-pitch-two-column">
-          <article>
-            <h3>What to check before quoting</h3>
-            <BulletList items={selectedProduct.checks} />
-          </article>
-          <article>
-            <h3>Do not assume</h3>
-            <BulletList
-              items={[
-                "Confirm the actual source and display count.",
-                "Confirm whether USB, audio, control, network or power requirements change the product choice.",
-                "Confirm whether the opportunity is standalone, matrix-led or AV-over-IP-led."
-              ]}
-            />
-          </article>
-          <article>
-            <h3>Quote safety</h3>
-            <p>{recommendationEvidence.quoteSafetyMessage}</p>
-            <EvidenceMiniList
-              items={recommendationEvidence.missingInformation}
-              empty="No major missing information is currently flagged."
-            />
-          </article>
-          <article>
-            <h3>Required dependencies</h3>
-            <EvidenceMiniList
-              items={recommendationEvidence.requiredDependencies}
-              empty="No governed required dependency is selected yet."
-            />
-          </article>
-        </div>
-      </div>
+      <SelectionPage
+        products={products}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        openProduct={openProduct}
+      />
     );
   }
 
-  return (
-    <main className="wm-product-pitch-page" data-wingman-product-pitch-sales-desk="true">
-      <header className="wm-pitch-header">
-        <div>
-          <span className="wm-pitch-eyebrow">Product Pitch</span>
-          <h1>Product sales support desk</h1>
-          <p>
-            Select a product, lead with the customer problem, then keep the sales helper cards visible while the conversation moves.
+  if (!selectedProduct) {
+    return (
+      <main className="grid gap-4 pb-6 text-white">
+        <section className="rounded-3xl border border-amber-400/40 bg-amber-400/10 p-5">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-200">Product not found</p>
+          <h1 className="mt-2 text-3xl font-black">No product workspace found for {selectedSku}</h1>
+          <p className="mt-2 text-sm leading-6 text-white/70">
+            Return to product selection and choose a product from the connected index.
           </p>
-          <nav className="wm-pitch-header-actions" aria-label="Related pitch tools">
-            <Link to={routeCatalogByKey.productFamilies.path}>Product Families</Link>
-            <Link to={routeCatalogByKey.finder.path}>Product Finder</Link>
-          </nav>
-        </div>
-
-        <div className="wm-pitch-header-status">
-          <strong>{products.length}</strong>
-          <span>products available</span>
-          <small>{indexStatus}</small>
-        </div>
-      </header>
-
-      <section className="wm-pitch-workbench">
-        <aside className="wm-pitch-product-picker" aria-label="Product selector">
-          <div className="wm-pitch-panel-heading">
-            <span>1</span>
-            <div>
-              <h2>Select product</h2>
-              <p>Search by SKU, range, use case or feature.</p>
-            </div>
-          </div>
-
-          <input
-            className="wm-pitch-search"
-            value={searchTerm}
-            onChange={(event) => {
-              setSearchTerm(event.target.value);
-              setSaveMessage("");
-            }}
-            placeholder="Search product, feature or use case"
-            type="search"
-          />
-
-          <div className="wm-pitch-family-chips">
-            <button
-              className={activeFamily === "All" ? "is-active" : ""}
-              type="button"
-              onClick={() => {
-                setActiveFamily("All");
-                setSaveMessage("");
-              }}
-            >
-              All
-            </button>
-            {families.map((family) => (
-              <button
-                className={activeFamily === family ? "is-active" : ""}
-                key={family}
-                type="button"
-                onClick={() => {
-                  setActiveFamily(family);
-                  setSaveMessage("");
-                }}
-              >
-                {family}
-              </button>
-            ))}
-          </div>
-
-          <div className="wm-pitch-product-list">
-            {filteredProducts.slice(0, 24).map((product) => (
-              <button
-                className={selectedProduct.sku === product.sku ? "is-selected" : ""}
-                key={product.sku}
-                type="button"
-                onClick={() => selectProduct(product.sku)}
-              >
-                <strong>{product.sku}</strong>
-                <span>{product.name}</span>
-                <small>{product.category}</small>
-              </button>
-            ))}
-
-            {filteredProducts.length === 0 ? (
-              <p className="wm-pitch-muted">No matching product found. Clear the search or choose another range.</p>
-            ) : null}
-          </div>
-        </aside>
-
-        <section className="wm-pitch-centre" aria-label="Product sales content">
-          <article className="wm-pitch-product-hero">
-            <div>
-              <span className="wm-pitch-eyebrow">{selectedProduct.family}</span>
-              <h2>{selectedProduct.sku}</h2>
-              <h3>{selectedProduct.name}</h3>
-              <p>{selectedProduct.description}</p>
-            </div>
-
-            <div className="wm-pitch-category-card">
-              <span>Best used for</span>
-              <strong>{selectedProduct.category}</strong>
-              <small>{quoteSafetyLabel(recommendationEvidence.quoteSafetyStatus)}</small>
-            </div>
-          </article>
-
-          <div className="wm-pitch-helper-grid" aria-label="Immediate helper cards">
-            <HelperCard
-              eyebrow="Problem"
-              title="Customer challenge"
-              value={selectedProduct.customerChallenge}
-            />
-            <HelperCard
-              eyebrow="Fit"
-              title="WyreStorm angle"
-              value={selectedProduct.wyrestormFit}
-            />
-            <HelperCard
-              eyebrow="Proof"
-              title="Proof point"
-              value={selectedProduct.proofPoint}
-            />
-            <HelperCard
-              eyebrow="Question"
-              title="Validation question"
-              value={selectedProduct.validationQuestion}
-            />
-          </div>
-
-          <div className="wm-pitch-evidence-strip">
-            <div>
-              <span>Project evidence</span>
-              <strong>{quoteSafetyLabel(recommendationEvidence.quoteSafetyStatus)}</strong>
-              <p>{recommendationEvidence.quoteSafetyMessage}</p>
-            </div>
-            <button type="button" className="wm-pitch-save-button" onClick={savePitchEvidence}>
-              Save pitch to project
-            </button>
-            {saveMessage ? <small>{saveMessage}</small> : null}
-          </div>
-
-          <nav className="wm-pitch-tabs" aria-label="Product support sections">
-            {sectionLabels.map((label) => (
-              <button
-                className={activeSection === label ? "is-active" : ""}
-                key={label}
-                type="button"
-                onClick={() => setActiveSection(label)}
-              >
-                {label}
-              </button>
-            ))}
-          </nav>
-
-          {renderPitchSection()}
+          <button
+            type="button"
+            onClick={backToSelection}
+            className="mt-4 rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100"
+          >
+            Back to product selection
+          </button>
         </section>
+      </main>
+    );
+  }
 
-        <aside className="wm-pitch-assist-rail" aria-label="Sales helper cards">
-          <div className="wm-pitch-panel-heading">
-            <span>2</span>
-            <div>
-              <h2>Helper cards</h2>
-              <p>Keep these visible during the call.</p>
-            </div>
-          </div>
-
-          <article>
-            <h3>Lead with</h3>
-            <p>{selectedProduct.salientPoint}</p>
-          </article>
-
-          <article>
-            <h3>Ask now</h3>
-            <p>{selectedProduct.validationQuestion}</p>
-          </article>
-
-          <article>
-            <h3>Next best action</h3>
-            <p>
-              Confirm the missing room, source, display, USB, audio, control and network details before recommending the final system shape.
-            </p>
-          </article>
-
-          <article>
-            <h3>Quick warning</h3>
-            <p>
-              Do not present this as a guaranteed fit until the product role matches the actual customer requirement.
-            </p>
-          </article>
-
-          <article>
-            <h3>Source links</h3>
-            <p>Open the source page or search WyreStorm before turning this into a final quote.</p>
-            <div className="wm-pitch-link-stack">
-              {selectedProduct.url ? (
-                <a href={selectedProduct.url} target="_blank" rel="noreferrer">Product page</a>
-              ) : null}
-              <a href={productSearchUrl(selectedProduct.sku)} target="_blank" rel="noreferrer">WyreStorm search</a>
-            </div>
-          </article>
-        </aside>
-      </section>
-    </main>
-  );
+  return <ProductWorkspace product={selectedProduct} backToSelection={backToSelection} />;
 }
 
 export default ProductPitchPage;
-

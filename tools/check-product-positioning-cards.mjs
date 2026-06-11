@@ -5,8 +5,9 @@ const repoRoot = process.cwd();
 const dataPath = path.join(repoRoot, "src", "wingman2", "data", "productPositioningCards.ts");
 const typePath = path.join(repoRoot, "src", "wingman2", "types", "productPositioning.ts");
 const pagePath = path.join(repoRoot, "src", "wingman2", "pages", "ProductCallCardsPage.tsx");
+const pagesDir = path.join(repoRoot, "src", "wingman2", "pages", "productCallCards");
 
-const requiredFiles = [dataPath, typePath, pagePath];
+const requiredFiles = [dataPath, typePath, pagePath, pagesDir];
 
 for (const file of requiredFiles) {
   if (!fs.existsSync(file)) {
@@ -18,8 +19,8 @@ for (const file of requiredFiles) {
 const dataText = fs.readFileSync(dataPath, "utf8");
 const topLevelSkus = [...dataText.matchAll(/^\s*\{\s*\r?\n\s*sku:\s*"([^"]+)"/gm)].map((match) => match[1]);
 
-if (topLevelSkus.length < 10) {
-  console.error(`[call-cards] Expected at least 10 product positioning cards, found ${topLevelSkus.length}.`);
+if (topLevelSkus.length < 40) {
+  console.error(`[call-cards] Expected at least 40 product positioning cards, found ${topLevelSkus.length}.`);
   process.exit(1);
 }
 
@@ -50,14 +51,21 @@ for (const field of requiredFields) {
   }
 }
 
-const pageText = fs.readFileSync(pagePath, "utf8");
+const pageFiles = fs.readdirSync(pagesDir)
+  .filter((file) => file.endsWith(".tsx") || file.endsWith(".ts"))
+  .map((file) => path.join(pagesDir, file));
+const pageText = [pagePath, ...pageFiles]
+  .map((file) => fs.readFileSync(file, "utf8"))
+  .join("\n");
 const requiredPageTerms = [
   "Product Call Cards",
-  "Audience",
-  "Call mode",
-  "Copy follow-up wording",
-  "Compare competitor",
-  "Create response pack",
+  "Product identifier",
+  "Scenario checkpoint",
+  "Objection helper",
+  "Confidence cue",
+  "Sales confidence",
+  "Create response wording",
+  "getBestProductPositioningCardForSku",
 ];
 
 for (const term of requiredPageTerms) {

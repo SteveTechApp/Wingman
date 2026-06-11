@@ -19,7 +19,7 @@ export type CompareCandidateGateInput = {
   family?: string;
   productFamily?: string;
   tags?: string[];
-  features?: Record<string, unknown>;
+  features?: Record<string, unknown> | string[];
   text?: string;
 };
 
@@ -77,6 +77,10 @@ function clean(value: unknown): string {
 }
 
 function textFor(candidate: CompareCandidateGateInput): string {
+  const featureText = Array.isArray(candidate.features)
+    ? candidate.features
+    : Object.keys(candidate.features ?? {});
+
   return [
     candidate.sku,
     candidate.title,
@@ -86,7 +90,31 @@ function textFor(candidate: CompareCandidateGateInput): string {
     candidate.productFamily,
     candidate.text,
     ...(candidate.tags ?? []),
-    ...Object.keys(candidate.features ?? {}),
+    ...featureText,
+  ].join(" ").toLowerCase();
+}
+
+function identityTextFor(candidate: CompareCandidateGateInput): string {
+  return [
+    candidate.sku,
+    candidate.title,
+    candidate.role,
+    candidate.category,
+    candidate.family,
+    candidate.productFamily,
+  ].join(" ").toLowerCase();
+}
+
+function markerTextFor(candidate: CompareCandidateGateInput): string {
+  const featureText = Array.isArray(candidate.features)
+    ? candidate.features
+    : Object.keys(candidate.features ?? {});
+
+  return [
+    candidate.category,
+    candidate.role,
+    ...(candidate.tags ?? []),
+    ...featureText,
   ].join(" ").toLowerCase();
 }
 
@@ -150,19 +178,37 @@ function allowedClassPair(competitorClass: CompareCompetitorClass, candidateClas
   return false;
 }
 
-function isAccessoryLike(candidateText: string, role: string): boolean {
-  return hasAny(candidateText + " " + role.toLowerCase(), NON_EQUIVALENT_ROLE_MARKERS);
+function isAccessoryLike(candidate: CompareCandidateGateInput, role: string): boolean {
+  const identityText = identityTextFor(candidate) + " " + role.toLowerCase();
+  const markerText = markerTextFor(candidate);
+
+  if (/\b(cab-|cable|adapter|dongle|rack mount|rack-mount|control app|software app)\b/.test(identityText)) {
+    return true;
+  }
+
+  return [
+    "accessory",
+    "accessory / other",
+    "product-specific accessory",
+    "rack accessory",
+    "networkhd-accessory",
+    "cable / accessory",
+    "control-app",
+    "software",
+  ].some((marker) => markerText.includes(marker));
 }
 
-function specificBadSku(candidateText: string): string[] {
+function specificBadSku(candidate: CompareCandidateGateInput): string[] {
   const blocked: string[] = [];
+  const sku = String(candidate.sku ?? "").trim().toLowerCase();
+  const identityText = identityTextFor(candidate);
 
-  if (/apo-210-uc|apo-com-mic|apo-dg1|apo-dg2|apo-dg-hdmi|apo-120-dnt/.test(candidateText)) {
+  if (/apo-210-uc|apo-com-mic|apo-sky-mic|apo-dg1|apo-dg2|apo-dg-hdmi|apo-120-dnt/.test(sku + " " + identityText)) {
     blocked.push("APO audio/conferencing/accessory product cannot be a primary equivalent for unrelated AV transport competitors.");
   }
 
-  if (/cab-|cable/.test(candidateText)) blocked.push("Cable product cannot be a primary competitor equivalent.");
-  if (/rack/.test(candidateText)) blocked.push("Rack accessory cannot be a primary competitor equivalent.");
+  if (/^cab-|cable \/ accessory|\bcable\b/.test(sku + " " + identityText)) blocked.push("Cable product cannot be a primary competitor equivalent.");
+  if (/rack mount|rack-mount|^nhd-000-rack/.test(sku + " " + identityText)) blocked.push("Rack accessory cannot be a primary competitor equivalent.");
 
   return blocked;
 }
@@ -182,9 +228,9 @@ export function gateCompareCandidate(
     "candidateRole=" + candidateRole,
   ];
 
-  for (const reason of specificBadSku(candidateText)) blockedBy.push(reason);
+  for (const reason of specificBadSku(candidate)) blockedBy.push(reason);
 
-  if (isAccessoryLike(candidateText, candidateRole)) {
+  if (isAccessoryLike(candidate, candidateRole)) {
     blockedBy.push("Candidate is accessory/cable/workflow/rack class and should not be a primary equivalent.");
   }
 

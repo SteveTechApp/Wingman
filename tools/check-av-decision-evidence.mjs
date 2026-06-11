@@ -35,6 +35,12 @@ const checks = [
       "...avDecision.requiredDependencies",
     ],
   },
+  {
+    file: "src/wingman2/data/productPositioningCards.ts",
+    markers: [
+      "WyreStorm UC is Zoom-certified, not Teams-certified; Teams rooms must be tested before install.",
+    ],
+  },
 ];
 
 const errors = [];
@@ -49,10 +55,19 @@ for (const check of checks) {
   }
 }
 
+const roomTemplateSource = readFileSync(path.join(root, "src/wingman2/lib/roomTemplates.ts"), "utf8");
+const expPrimarySwitcherMatches = roomTemplateSource.match(
+  /(?:sku:\s*"EXP-(?:SW|MX)-[^"]*"[\s\S]{0,260}type:\s*"Required"|type:\s*"Required"[\s\S]{0,260}sku:\s*"EXP-(?:SW|MX)-[^"]*")/g,
+) ?? [];
+
+if (expPrimarySwitcherMatches.length) {
+  errors.push("src/wingman2/lib/roomTemplates.ts proposes an EXP-prefixed switcher/matrix as a required template row.");
+}
+
 if (errors.length) {
   console.error("[av-decision-evidence] Check failed:");
   for (const error of errors) console.error("- " + error);
   process.exit(1);
 }
 
-console.log("[av-decision-evidence] Verified AV decision validation layer, recommendation evidence wiring, and critical AV safety rules.");
+console.log("[av-decision-evidence] Verified AV decision validation layer, recommendation evidence wiring, EXP template guardrail, UC caveat, and critical AV safety rules.");

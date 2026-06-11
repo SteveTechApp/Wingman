@@ -5,6 +5,7 @@ import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 import { WingmanCoachPanel } from "../components/WingmanCoachPanel";
+import { ResponsePackContextPanel } from "../components/ResponsePackContextPanel";
 import {
   getCurrentWorkflowProject,
   readProjectStore,
@@ -367,6 +368,7 @@ export function ProposalPage() {
         }
       >
         <WingmanCoachPanel coach={proposalCoach} compact showFunnel={false} showVisuals />
+        <ResponsePackContextPanel />
 
         <div className="grid gap-6 xl:grid-cols-[260px_1fr]">
           <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">

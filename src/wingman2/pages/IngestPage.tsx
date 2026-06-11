@@ -1,4 +1,4 @@
-﻿import { useRef, useState, type ChangeEvent } from "react";
+import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
@@ -7,6 +7,8 @@ import { saveIngestAnalysisToProject } from "../data/projectStore";
 import { extractDocuments } from "../lib/documentExtract";
 import { analyzeRequirementsText } from "../lib/requirementsParser";
 
+type RequestType = "Email / message" | "RFI / information request" | "Formal RFQ" | "BOM / competitor list" | "Multi-space scope" | "Rough notes";
+
 type IngestAnalysis = {
   requirements: string[];
   unknowns: string[];
@@ -14,16 +16,123 @@ type IngestAnalysis = {
   files: string[];
 };
 
+const requestTypes: RequestType[] = [
+  "Email / message",
+  "RFI / information request",
+  "Formal RFQ",
+  "BOM / competitor list",
+  "Multi-space scope",
+  "Rough notes",
+];
+
+function requestTypeGuidance(type: RequestType) {
+  if (type === "Email / message") {
+    return {
+      title: "Reply-ready decoder",
+      output: "Create a concise response, ask for missing details and avoid over-technical wording.",
+      voice: "Helpful, practical and clear."
+    };
+  }
+
+  if (type === "RFI / information request") {
+    return {
+      title: "Information response",
+      output: "Extract what the customer is really asking and produce structured information points with assumptions.",
+      voice: "Customer-safe and evidence-led."
+    };
+  }
+
+  if (type === "Formal RFQ") {
+    return {
+      title: "Formal request review",
+      output: "Separate firm requirements from assumptions, verification gates and technical review items.",
+      voice: "Controlled, cautious and review-ready."
+    };
+  }
+
+  if (type === "BOM / competitor list") {
+    return {
+      title: "Substitution review",
+      output: "Identify likely WyreStorm relevance, competitor substitution paths and items needing comparison.",
+      voice: "Fit-based, not like-for-like unless proven."
+    };
+  }
+
+  if (type === "Multi-space scope") {
+    return {
+      title: "Project splitter",
+      output: "Split requirements by space, show missing information and prepare project handoff.",
+      voice: "Design-consultant style with clear next actions."
+    };
+  }
+
+  return {
+    title: "Rough notes clean-up",
+    output: "Turn messy notes into questions, risks, likely system shape and next workflow.",
+    voice: "Plain, structured and practical."
+  };
+}
+
+function buildSystemShape(requirements: string[], unknowns: string[]) {
+  const text = `${requirements.join(" ")} ${unknowns.join(" ")}`.toLowerCase();
+
+  if (text.includes("video wall") || text.includes("led wall") || text.includes("lcd wall")) {
+    return "Video wall or display-wall workflow. Confirm wall type, layout, source behaviour, processing and whether fixed wall processing or NetworkHD is required.";
+  }
+
+  if (text.includes("ndi") || text.includes("camera") || text.includes("stream") || text.includes("record")) {
+    return "Camera, capture or streaming workflow. Confirm camera type, host, USB/HDMI/NDI path, audio ownership and control.";
+  }
+
+  if (text.includes("usb") || text.includes("teams") || text.includes("zoom") || text.includes("byod") || text.includes("byom")) {
+    return "Meeting-room / UC workflow. Confirm host ownership, USB devices, display count, source inputs and cable landing points.";
+  }
+
+  if (text.includes("matrix") || text.includes("multiple displays") || text.includes("several screens") || text.includes("av over ip") || text.includes("avoip")) {
+    return "Routed AV workflow. Confirm source count, display count, zones, distances, network ownership and control requirements.";
+  }
+
+  return "System shape is not yet safe to call. Use Discovery to confirm application, source count, display count, USB, audio, control and infrastructure.";
+}
+
+function cleanList(items: string[], fallback: string[]) {
+  const cleaned = items.map((item) => item.trim()).filter(Boolean);
+  if (cleaned.length) return cleaned;
+  return fallback;
+}
+
 export function IngestPage() {
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [extractState, setExtractState] = useState<"idle" | "extracting" | "complete" | "error">("idle");
+  const [requestType, setRequestType] = useState<RequestType>("Email / message");
+  const [pastedText, setPastedText] = useState("");
   const [analysis, setAnalysis] = useState<IngestAnalysis>({
     requirements: [],
-    unknowns: ["Select a readable text file or pasteable brief export to generate structured requirements."],
+    unknowns: ["Paste a customer message, RFQ, RFI, notes or upload readable files to decode the request."],
     skippedFiles: [],
     files: [],
   });
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const requestGuidance = useMemo(() => requestTypeGuidance(requestType), [requestType]);
+  const requirements = cleanList(analysis.requirements, ["No requirements extracted yet."]);
+  const unknowns = cleanList(analysis.unknowns, ["No missing details extracted yet."]);
+  const systemShape = useMemo(() => buildSystemShape(analysis.requirements, analysis.unknowns), [analysis.requirements, analysis.unknowns]);
+
+  const analyseText = (text: string, warnings: string[] = [], files: string[] = []) => {
+    const parsed = analyzeRequirementsText(text, warnings);
+    const nextAnalysis: IngestAnalysis = {
+      requirements: parsed.requirements,
+      unknowns: parsed.unknowns,
+      skippedFiles: [],
+      files,
+    };
+
+    setAnalysis(nextAnalysis);
+    saveIngestAnalysisToProject(nextAnalysis, { requireExistingProject: true });
+    setExtractState("complete");
+  };
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
@@ -33,10 +142,24 @@ export function IngestPage() {
     const extracted = await extractDocuments(files);
     const text = extracted.map((item) => item.text).filter(Boolean).join("\n\n");
     const extractionWarnings = extracted.flatMap((item) => item.warnings);
-    const parsed = analyzeRequirementsText(text, extractionWarnings);
-    const nextAnalysis = {
+    const skippedFiles = extracted.filter((item) => !item.text).map((item) => item.fileName);
+    const combinedText = [pastedText, text].filter(Boolean).join("\n\n");
+
+    if (!combinedText.trim()) {
+      setAnalysis({
+        requirements: [],
+        unknowns: ["No usable text could be extracted. Paste the customer request manually or convert the file to text first."],
+        skippedFiles,
+        files: files.map((file) => file.name),
+      });
+      setExtractState("error");
+      return;
+    }
+
+    const parsed = analyzeRequirementsText(combinedText, extractionWarnings);
+    const nextAnalysis: IngestAnalysis = {
       ...parsed,
-      skippedFiles: extracted.filter((item) => !item.text).map((item) => item.fileName),
+      skippedFiles,
       files: files.map((file) => file.name),
     };
 
@@ -45,105 +168,144 @@ export function IngestPage() {
     setExtractState(extractionWarnings.length && !text ? "error" : "complete");
   };
 
+  const runPasteAnalysis = () => {
+    analyseText(pastedText, [], selectedFiles);
+  };
+
   return (
-    <div className="pb-10">
+    <div className="pb-8" data-wingman-request-decoder="true">
       <PageHero
-        eyebrow="Document Ingest"
-        title="Convert customer documents into structured sales direction."
-        purpose="This page turns emails, tenders, PDFs, and schematics into usable requirements so Wingman can reduce ambiguity, surface missing information, and start the solution story faster."
-        nextMove="Upload the source material, review the extracted requirements, then turn the cleaned brief into a proposal draft or matched solution."
+        eyebrow="Request Decoder"
+        title="Turn emails, RFIs, RFQs, BOMs and rough notes into usable pre-sales direction."
+        purpose="Use this when the customer sends something ambiguous. Wingman extracts requirements, unknowns, system shape, response voice and next actions before the user jumps into product selection."
+        nextMove="Paste or upload the request, choose the request type, review what matters, then continue to Discovery, Compare, Product Finder, Response Pack or Schematic."
         actions={[
           { label: "Open discovery", to: routeCatalogByKey.discovery.path },
-          { label: "Open proposal", to: routeCatalogByKey.proposal.path, variant: "secondary" },
+          { label: "Create response pack", to: routeCatalogByKey.responsePack.path, variant: "secondary" },
         ]}
       />
 
       <SectionCard
-        title="Upload to insight"
-        subtitle="Files are converted into requirements, risks, and recommended next actions."
+        title="Decode the incoming request"
+        subtitle="Start with the customer communication, not a product assumption."
       >
-        <div className="grid gap-6 xl:grid-cols-[1.05fr_1fr_340px]">
-          <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-[#0d2133] p-8 text-center">
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              className="hidden"
-              onChange={handleFileChange}
-              accept=".pdf,.doc,.docx,.txt,.rtf,.md,.csv,.eml"
-            />
-            <p className="text-lg font-semibold text-[#edf6ff]">Drop PDFs, emails, schematics, or tenders here</p>
-            <p className="mt-2 text-sm text-slate-600">
-              PDF, DOCX, text, markdown, CSV, and email exports are parsed into requirements locally.
-            </p>
-            <p className="mt-2 text-xs leading-5 text-slate-500">
-              If a project is active, extracted requirements are saved there. Otherwise this remains a standalone review.
-            </p>
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={extractState === "extracting"}
-              className="mt-5 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {extractState === "extracting" ? "Extracting..." : "Select files"}
-            </button>
-
-            {selectedFiles.length ? (
-              <div className="mt-5 rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 text-left">
-                <p className="text-sm font-semibold text-[#edf6ff]">Selected files</p>
-                <ul className="mt-3 space-y-2 text-sm text-slate-700">
-                  {selectedFiles.map((fileName) => (
-                    <li key={fileName}>{fileName}</li>
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_340px]">
+          <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+            <div className="grid gap-4">
+              <label className="grid gap-2">
+                <span className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Request type</span>
+                <select
+                  value={requestType}
+                  onChange={(event) => setRequestType(event.target.value as RequestType)}
+                  className="min-h-11 rounded-2xl border border-[#29465e] bg-[#0d2133] px-3 text-sm font-semibold text-white"
+                >
+                  {requestTypes.map((item) => (
+                    <option key={item} value={item}>{item}</option>
                   ))}
-                </ul>
+                </select>
+              </label>
+
+              <label className="grid gap-2">
+                <span className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Paste customer wording</span>
+                <textarea
+                  value={pastedText}
+                  onChange={(event) => setPastedText(event.target.value)}
+                  placeholder="Paste the email, RFQ text, notes, BOM lines or customer message here."
+                  className="min-h-[220px] rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 text-sm leading-6 text-white outline-none focus:border-cyan-300"
+                />
+              </label>
+
+              <button
+                type="button"
+                onClick={runPasteAnalysis}
+                disabled={!pastedText.trim()}
+                className="rounded-full bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Decode pasted request
+              </button>
+
+              <div className="rounded-2xl border-2 border-dashed border-[#29465e] bg-[#081724] p-4">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={handleFileChange}
+                  accept=".pdf,.doc,.docx,.txt,.rtf,.md,.csv,.eml"
+                />
+                <p className="text-sm font-black text-white">Upload readable files</p>
+                <p className="mt-1 text-sm leading-6 text-white/55">
+                  Use this for exported emails, text files, CSV BOMs, markdown notes or documents with extractable text.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={extractState === "extracting"}
+                  className="mt-3 rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100 disabled:opacity-40"
+                >
+                  {extractState === "extracting" ? "Extracting..." : "Select files"}
+                </button>
+
+                {selectedFiles.length ? (
+                  <ul className="mt-3 space-y-1 text-sm text-white/60">
+                    {selectedFiles.map((fileName) => (
+                      <li key={fileName}>{fileName}</li>
+                    ))}
+                  </ul>
+                ) : null}
               </div>
-            ) : null}
-
-            {extractState === "complete" ? (
-              <p className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-semibold text-emerald-900">
-                Extraction complete.
-              </p>
-            ) : extractState === "error" ? (
-              <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm font-semibold text-rose-900">
-                No usable text could be extracted from the selected files.
-              </p>
-            ) : null}
-          </div>
-
-          <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-5">
-            <p className="text-sm font-semibold text-[#edf6ff]">Extracted requirements</p>
-            <ul className="mt-4 space-y-3 text-sm text-slate-700">
-              {analysis.requirements.map((requirement) => (
-                <li key={requirement}>{requirement}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-5">
-            <p className="text-sm font-semibold text-[#edf6ff]">Unknowns / next actions</p>
-            <ul className="mt-4 space-y-2 text-sm text-slate-700">
-              {analysis.unknowns.map((unknown) => (
-                <li key={unknown}>{unknown}</li>
-              ))}
-            </ul>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <Link
-                to={routeCatalogByKey.discovery.path}
-                className="rounded-full border border-slate-300 px-4 py-2 text-sm text-slate-700 transition hover:bg-[#0d2133]"
-              >
-                Open discovery
-              </Link>
-              <Link
-                to={routeCatalogByKey.proposal.path}
-                className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
-              >
-                Create proposal draft
-              </Link>
             </div>
-          </div>
+          </section>
+
+          <section className="grid gap-4">
+            <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Extracted requirements</p>
+              <ul className="mt-4 space-y-2 text-sm leading-6 text-white/75">
+                {requirements.slice(0, 10).map((requirement, index) => (
+                  <li key={`${requirement}-${index}`} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">
+                    {requirement}
+                  </li>
+                ))}
+              </ul>
+            </article>
+
+            <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Likely system shape</p>
+              <p className="mt-3 text-sm leading-6 text-white/75">{systemShape}</p>
+            </article>
+          </section>
+
+          <aside className="grid gap-4">
+            <article className="rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-200">{requestGuidance.title}</p>
+              <h2 className="mt-2 text-xl font-black text-white">Correct response voice</h2>
+              <p className="mt-3 text-sm leading-6 text-white/75">{requestGuidance.voice}</p>
+              <p className="mt-3 text-sm leading-6 text-white/75">{requestGuidance.output}</p>
+            </article>
+
+            <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Unknowns / next actions</p>
+              <ul className="mt-4 space-y-2 text-sm leading-6 text-white/75">
+                {unknowns.slice(0, 10).map((unknown, index) => (
+                  <li key={`${unknown}-${index}`} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">
+                    {unknown}
+                  </li>
+                ))}
+              </ul>
+            </article>
+
+            <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Continue</p>
+              <div className="mt-4 grid gap-2">
+                <Link to={routeCatalogByKey.discovery.path} className="rounded-full border border-cyan-300 px-4 py-2 text-center text-sm font-black text-cyan-100">Open Discovery</Link>
+                <Link to={routeCatalogByKey.finder.path} className="rounded-full border border-cyan-300 px-4 py-2 text-center text-sm font-black text-cyan-100">Open Product Finder</Link>
+                <Link to={routeCatalogByKey.compare.path} className="rounded-full border border-cyan-300 px-4 py-2 text-center text-sm font-black text-cyan-100">Compare competitor items</Link>
+                <Link to={routeCatalogByKey.responsePack.path} className="rounded-full bg-cyan-300 px-4 py-2 text-center text-sm font-black text-slate-950">Create Response Pack</Link>
+              </div>
+            </article>
+          </aside>
         </div>
       </SectionCard>
     </div>
   );
 }
-
