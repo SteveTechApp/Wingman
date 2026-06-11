@@ -77,10 +77,11 @@ export function rigorousCompare(
   products: WyrestormProduct[],
   providedBrand?: string,
   maxCandidates = 8,
+  sourceUrl?: string,
 ): RigorousCompareResult {
   const analysis = analyzeCompetitor(input, providedBrand);
   const base = compareCompetitor(input, products, providedBrand, maxCandidates);
-  const competitor = resolveCompetitorSpecProfile(input, providedBrand || analysis.brand);
+  const competitor = resolveCompetitorSpecProfile(input, providedBrand || analysis.brand, sourceUrl);
   const unresolvedCompetitor =
     competitor.specTier === "sku-only" &&
     (!competitor.domain || competitor.domain === "UNKNOWN") &&

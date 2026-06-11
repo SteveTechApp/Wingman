@@ -1,6 +1,38 @@
 import { buildCompetitorDecisionEvidence } from "./competitorProductIntelligence";
 export type CompareDecisionOutcome = "GOOD MATCH" | "PARTIAL MATCH" | "NO MATCH" | "VERIFY";
 
+export type CompareSpecFacts = {
+  hdmiInputs?: number;
+  hdmiOutputs?: number;
+  usbHostPorts?: number;
+  usbDevicePorts?: number;
+  usbTotalPorts?: number;
+  audioInputs?: number;
+  audioOutputs?: number;
+  networkPorts?: number;
+  controlPorts?: number;
+  rs232?: boolean;
+  ir?: boolean;
+  cec?: boolean;
+  relay?: boolean;
+  gpio?: boolean;
+  ethernetControl?: boolean;
+  audioEmbed?: boolean;
+  audioDeEmbed?: boolean;
+  analogAudio?: boolean;
+  arc?: boolean;
+  earc?: boolean;
+  dante?: boolean;
+  aes67?: boolean;
+  poe?: boolean;
+  poc?: boolean;
+  poh?: boolean;
+  powerDelivery?: boolean;
+  internalPsu?: boolean;
+  externalPsu?: boolean;
+  powerSupply?: string;
+};
+
 export type CompareDecisionProfile = {
   sku?: string;
   title?: string;
@@ -13,6 +45,8 @@ export type CompareDecisionProfile = {
   chroma?: string;
   latency?: string;
   features?: Record<string, boolean | undefined>;
+  specs?: CompareSpecFacts;
+  sourceUrl?: string;
   sourceTier?: "verified-profile" | "official-structured" | "text-inferred" | "missing";
   sourceLabel?: string;
   profileEvidence?: string[];
@@ -68,6 +102,10 @@ const HARD_FEATURES = [
   "lossless",
   "control",
   "poe",
+  "poc",
+  "poh",
+  "audioDeEmbed",
+  "audioEmbed",
 ];
 
 function clean(value: unknown): string {
@@ -167,6 +205,10 @@ function featureLabel(key: string): string {
     lossless: "lossless transport",
     control: "control connections",
     poe: "PoE / remote power",
+    poc: "PoC",
+    poh: "PoH",
+    audioDeEmbed: "audio de-embed",
+    audioEmbed: "audio embed",
   };
 
   return labels[key] || key;
