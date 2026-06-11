@@ -33,7 +33,7 @@
     "label": "Compare",
     "navLabel": "Compare",
     "pageFile": "ComparePage.tsx",
-    "summary": "Find credible WyreStorm replacements for competitor products with verdicts, caveats and quote checks."
+    "summary": "Classify competitor replacements as GOOD MATCH, PARTIAL MATCH or NO MATCH with evidence, blockers and next questions."
   },
   {
     "key": "documents",
@@ -123,7 +123,7 @@
     "label": "Product Finder",
     "navLabel": "Find Product",
     "pageFile": "FinderPage.tsx",
-    "summary": "Match a brief to WyreStorm product families and shortlist options."
+    "summary": "Start from the customer problem and reveal only the product-selection details that affect the WyreStorm recommendation."
   },
   {
     "key": "productFamilies",
@@ -138,28 +138,28 @@
     "key": "productPitch",
     "path": "/wingman/product-pitch",
     "segment": "product-pitch",
-    "label": "Product Pitch",
-    "navLabel": "Product Pitch",
+    "label": "Product Dashboard",
+    "navLabel": "Product Dashboard",
     "pageFile": "ProductPitchPage.tsx",
-    "summary": "Create customer-safe positioning for a selected WyreStorm SKU."
+    "summary": "Explain one selected WyreStorm SKU with product facts, I/O, sales voice, questions, checks and response actions."
   },
   {
     "key": "ingest",
     "path": "/wingman/ingest",
     "segment": "ingest",
-    "label": "Document Review",
-    "navLabel": "Upload / Paste",
+    "label": "Request Decoder",
+    "navLabel": "Decode Request",
     "pageFile": "IngestPage.tsx",
-    "summary": "Extract requirements and unknowns from customer documents, BOMs, scopes and emails."
+    "summary": "Decode emails, RFIs, RFQs, BOMs, scopes and rough notes into requirements, unknowns, system shape and next action."
   },
   {
     "key": "proposal",
     "path": "/wingman/proposal",
     "segment": "proposal",
     "label": "Response Pack Builder",
-    "navLabel": "Response Pack Builder",
+    "navLabel": "Response Pack",
     "pageFile": "ProposalPage.tsx",
-    "summary": "Build customer requirement summaries, suggested system shapes, products to review and review gates."
+    "summary": "Build customer-safe replies, RFI responses, project summaries, product review lists, assumptions and schematic support."
   },
   {
     "key": "support",
@@ -201,10 +201,10 @@
     "key": "visualDesign",
     "path": "/wingman/visual-design",
     "segment": "visual-design",
-    "label": "Visual Design Studio",
-    "navLabel": "Visuals",
+    "label": "Schematic Builder",
+    "navLabel": "Schematic",
     "pageFile": "VisualDesignStudioPage.tsx",
-    "summary": "Generate editable AV diagrams and visual support from project data."
+    "summary": "Generate end-to-end AV schematics with WyreStorm devices, known third-party items and TBC products."
   },
   {
     "key": "glossary",

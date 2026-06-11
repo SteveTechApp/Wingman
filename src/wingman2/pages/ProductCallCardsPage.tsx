@@ -39,6 +39,10 @@ export function ProductCallCardsPage() {
   const productMatch = path.match(/\/product-call-cards\/product\/([^/]+)$/);
   const responseMatch = path.match(/\/product-call-cards\/response\/([^/]+)$/);
 
+  if (path.endsWith("/setup")) {
+    return <ProductCallCardsSetupPage />;
+  }
+
   if (path.endsWith("/select")) {
     return <ProductCallCardsSelectPage />;
   }
@@ -47,8 +51,16 @@ export function ProductCallCardsPage() {
     return <ProductCallCardsProductPage sku={decodeURIComponent(productMatch[1])} />;
   }
 
+  if (path.endsWith("/card")) {
+    return <ProductCallCardsProductPage />;
+  }
+
   if (responseMatch) {
     return <ProductCallCardsResponsePage sku={decodeURIComponent(responseMatch[1])} />;
+  }
+
+  if (path.endsWith("/response")) {
+    return <ProductCallCardsResponsePage />;
   }
 
   return <ProductCallCardsSetupPage />;

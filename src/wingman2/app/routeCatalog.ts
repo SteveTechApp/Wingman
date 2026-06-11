@@ -134,6 +134,10 @@ export function routeByPath(pathname: string) {
     return routeCatalogByKey.templates;
   }
 
+  if (pathname.startsWith("/wingman/product-call-cards/")) {
+    return routeCatalogByKey.productCallCards;
+  }
+
   if (normalizedPath === "/wingman/profile") {
     return routeCatalogByKey.profile;
   }

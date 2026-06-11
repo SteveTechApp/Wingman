@@ -51,7 +51,7 @@ const TemplateReviewRoute = lazy(fromNamedExport(() => import("../pages/Template
 
 function RouteFallback() {
   return (
-    <div className="rounded-3xl border border-[#29465e] bg-[#0d2133] p-6 text-sm font-semibold text-slate-600">
+    <div data-wingman-sales-helper="true" className="rounded-3xl border border-[#29465e] bg-[#0d2133] p-6 text-sm font-semibold text-slate-600">
       Loading Wingman view...
     </div>
   );
@@ -76,10 +76,9 @@ export const wingmanRoutes: RouteObject[] = [
       { path: "projects/:projectId", element: routeElement(ProjectDetailRoute) },
       { path: "templates/:templateId", element: routeElement(TemplateReviewRoute) },
       ...routeCatalog.filter((route) => route.key !== "dashboard").map((route) => ({
-        path: route.segment,
+        path: route.key === "productCallCards" ? `${route.segment}/*` : route.segment,
         element: routeElement(pageRegistry[route.key]),
       })),
     ],
   },
 ];
-
