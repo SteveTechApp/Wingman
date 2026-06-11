@@ -15,11 +15,12 @@
  * are left undefined so the classifier returns VERIFY rather than a false blocker.
  */
 
-import type { CompareDecisionProfile } from "./competitorCompareDecision";
+import type { CompareDecisionProfile, CompareSpecFacts } from "./competitorCompareDecision";
 import {
   buildCompetitorDecisionEvidence,
   type CompetitorTechnologyClass,
 } from "./competitorProductIntelligence";
+import { findCompetitorSourceProduct, type CompetitorSourceProduct } from "../data/competitorSourceFeeds";
 
 export type CompetitorSpecTier = "verified-profile" | "family-rule" | "sku-only";
 
@@ -48,6 +49,7 @@ type Fingerprint = {
   inputCount?: number;
   outputCount?: number;
   features?: Record<string, boolean>;
+  specs?: CompareSpecFacts;
   datasheetUrl?: string;
 };
 
@@ -746,7 +748,79 @@ function parseFeatures(text: string): Record<string, boolean> {
   if (/hdbaset|hdbt/.test(value)) features.hdbtOutput = true;
   if (/rs-?232|ir\b|cec|relay|contact closure|control/.test(value)) features.control = true;
   if (/\bpoe\b|\bpoh\b|\bpoc\b|power over ethernet/.test(value)) features.poe = true;
+  if (/\bpoc\b/.test(value)) features.poc = true;
+  if (/\bpoh\b/.test(value)) features.poh = true;
+  if (/audio\s*de.?embed|de.?embed/.test(value)) features.audioDeEmbed = true;
+  if (/audio\s*embed/.test(value)) features.audioEmbed = true;
   return features;
+}
+
+function parseSpecFacts(text: string, inputCount?: number, outputCount?: number, features: Record<string, boolean> = {}): CompareSpecFacts {
+  const value = text.toLowerCase();
+  const specs: CompareSpecFacts = {};
+
+  if (inputCount) specs.hdmiInputs = inputCount;
+  if (outputCount) specs.hdmiOutputs = outputCount;
+
+  if (/usb\s*host/.test(value)) specs.usbHostPorts = 1;
+  if (/usb\s*(device|client|peripheral)/.test(value)) specs.usbDevicePorts = 1;
+  if (/usb|kvm/.test(value) || features.usbRouting) specs.usbTotalPorts = specs.usbTotalPorts ?? 1;
+
+  if (/audio\s*in|mic|microphone|line\s*in/.test(value)) specs.audioInputs = 1;
+  if (/audio\s*out|line\s*out|speaker|toslink|spdif/.test(value)) specs.audioOutputs = 1;
+  if (/ethernet|lan|rj45|network/.test(value)) specs.networkPorts = 1;
+  if (/rs-?232|ir\b|cec|relay|gpio|contact closure|control/.test(value) || features.control) specs.controlPorts = 1;
+
+  specs.rs232 = /rs-?232/.test(value) ? true : undefined;
+  specs.ir = /\bir\b|infrared/.test(value) ? true : undefined;
+  specs.cec = /\bcec\b/.test(value) ? true : undefined;
+  specs.relay = /relay|contact closure/.test(value) ? true : undefined;
+  specs.gpio = /gpio/.test(value) ? true : undefined;
+  specs.ethernetControl = /ethernet|lan|web ui|api|tcp\/ip|tcp-ip/.test(value) ? true : undefined;
+
+  specs.audioDeEmbed = Boolean(features.audioDeEmbed || /audio\s*de.?embed|de.?embed/.test(value));
+  specs.audioEmbed = Boolean(features.audioEmbed || /audio\s*embed/.test(value));
+  specs.analogAudio = /analog audio|analogue audio|line in|line out|phoenix audio/.test(value) ? true : undefined;
+  specs.arc = /\barc\b/.test(value) ? true : undefined;
+  specs.earc = /\bearc\b/.test(value) ? true : undefined;
+  specs.dante = Boolean(features.dante || /\bdante\b/.test(value));
+  specs.aes67 = Boolean(features.aes67 || /aes67/.test(value));
+
+  specs.poe = Boolean(features.poe || /\bpoe\b|power over ethernet/.test(value));
+  specs.poc = Boolean(features.poc || /\bpoc\b|power over cable/.test(value));
+  specs.poh = Boolean(features.poh || /\bpoh\b|power over hdbaset/.test(value));
+  specs.powerDelivery = /usb-c power|power delivery|\bpd\b/.test(value) ? true : undefined;
+  specs.externalPsu = /external power|dc power|power supply|psu|adapter/.test(value) ? true : undefined;
+  specs.internalPsu = /internal power|iec|mains input/.test(value) ? true : undefined;
+
+  if (specs.poh) specs.powerSupply = "PoH / HDBaseT remote power";
+  else if (specs.poc) specs.powerSupply = "PoC remote power";
+  else if (specs.poe) specs.powerSupply = "PoE";
+  else if (specs.externalPsu) specs.powerSupply = "External PSU";
+  else if (specs.internalPsu) specs.powerSupply = "Internal PSU";
+
+  return Object.fromEntries(Object.entries(specs).filter(([, item]) => item !== undefined)) as CompareSpecFacts;
+}
+
+function sourceProductDomain(product: CompetitorSourceProduct): CompetitorTechnologyClass {
+  return product.domain === "WIRELESS_COLLAB" ? "WIRELESS_PRESENTATION" : product.domain;
+}
+
+function specsFromSourceProduct(product: CompetitorSourceProduct): CompareSpecFacts {
+  return {
+    ...parseSpecFacts([product.summary, ...product.evidence].join(" "), product.inputCount, product.outputCount, product.features),
+    hdmiInputs: product.inputCount,
+    hdmiOutputs: product.outputCount,
+    dante: product.features.dante,
+    aes67: product.features.aes67,
+    audioDeEmbed: product.features.audioDeEmbed,
+    audioEmbed: product.features.audioEmbed,
+    poc: product.features.poc,
+    poe: product.features.poe,
+    poh: product.features.poh,
+    rs232: product.features.irRs232,
+    controlPorts: product.features.control ? 1 : undefined,
+  };
 }
 
 /**
@@ -755,6 +829,7 @@ function parseFeatures(text: string): Record<string, boolean> {
 export function resolveCompetitorSpecProfile(
   rawInput: string,
   providedBrand?: string,
+  sourceUrl?: string,
 ): ResolvedCompetitorProfile {
   const input = String(rawInput ?? "").trim();
   const evidence = buildCompetitorDecisionEvidence({
@@ -764,23 +839,37 @@ export function resolveCompetitorSpecProfile(
   });
 
   const fingerprint = lookupFingerprint(evidence.sku) || lookupFingerprint(input);
+  const sourceProduct = findCompetitorSourceProduct(
+    providedBrand || evidence.brand,
+    evidence.sku || input,
+    sourceUrl || input,
+  );
 
   // Domain: prefer fingerprint, fall back to family-rule evidence (UNKNOWN -> undefined).
   const domain =
     fingerprint?.domain ||
+    (sourceProduct ? sourceProductDomain(sourceProduct) : undefined) ||
     (evidence.domain && evidence.domain !== "UNKNOWN" ? evidence.domain : undefined);
 
   const role =
     fingerprint?.role ||
+    sourceProduct?.role ||
     (evidence.role && evidence.role !== "Unknown" ? evidence.role : undefined);
 
   const parsedIo = parseIoCounts(input);
-  const features = fingerprint?.features ?? parseFeatures(input);
+  const parsedFeatures = parseFeatures(input);
+  const features = {
+    ...(sourceProduct?.features ?? {}),
+    ...parsedFeatures,
+    ...(fingerprint?.features ?? {}),
+  };
   const hasFeatures = Object.keys(features).length > 0;
 
   const specTier: CompetitorSpecTier = fingerprint
     ? "verified-profile"
-    : evidence.tier === "family-rule"
+    : sourceProduct
+      ? "verified-profile"
+      : evidence.tier === "family-rule"
       ? "family-rule"
       : "sku-only";
   const evidenceSkuKey = normKey(evidence.sku);
@@ -789,25 +878,32 @@ export function resolveCompetitorSpecProfile(
     : evidence.sku || input;
 
   return {
-    sku: displaySku,
-    title: input,
+    sku: sourceProduct?.sku || displaySku,
+    title: sourceProduct?.title || input,
     domain,
     role,
-    transport: canonicalTransport(domain),
-    inputCount: fingerprint?.inputCount ?? parsedIo.inputCount,
-    outputCount: fingerprint?.outputCount ?? parsedIo.outputCount,
-    maxResolution: fingerprint?.maxResolution ?? parseResolution(input),
-    chroma: fingerprint?.chroma,
+    transport: sourceProduct?.transport || canonicalTransport(domain),
+    inputCount: fingerprint?.inputCount ?? sourceProduct?.inputCount ?? parsedIo.inputCount,
+    outputCount: fingerprint?.outputCount ?? sourceProduct?.outputCount ?? parsedIo.outputCount,
+    maxResolution: fingerprint?.maxResolution ?? sourceProduct?.maxResolution ?? parseResolution(input),
+    chroma: fingerprint?.chroma ?? sourceProduct?.chroma,
     features: hasFeatures ? features : undefined,
+    specs: {
+      ...parseSpecFacts(input, fingerprint?.inputCount ?? sourceProduct?.inputCount ?? parsedIo.inputCount, fingerprint?.outputCount ?? sourceProduct?.outputCount ?? parsedIo.outputCount, features),
+      ...(sourceProduct ? specsFromSourceProduct(sourceProduct) : {}),
+      ...(fingerprint?.specs ?? {}),
+    },
+    sourceUrl: fingerprint?.datasheetUrl || sourceProduct?.sourceUrl || sourceUrl,
     // metadata
-    brand: evidence.brand,
+    brand: sourceProduct?.manufacturer || evidence.brand,
     specTier,
-    readiness: fingerprint ? "approved" : evidence.readiness,
-    assumptions: fingerprint ? [] : evidence.assumptions,
-    whyNotDirectEquivalent: fingerprint ? [] : evidence.whyNotDirectEquivalent,
-    missingFacts: fingerprint ? [] : evidence.missingFacts,
-    confidencePenalty: fingerprint ? 0 : evidence.confidencePenalty,
-    source: fingerprint ? "fingerprint" : evidence.tier === "family-rule" ? "family-rule" : "typed-text",
-    datasheetUrl: fingerprint?.datasheetUrl,
+    readiness: fingerprint || sourceProduct ? "approved" : evidence.readiness,
+    assumptions: fingerprint || sourceProduct ? [] : evidence.assumptions,
+    whyNotDirectEquivalent: fingerprint || sourceProduct ? [] : evidence.whyNotDirectEquivalent,
+    missingFacts: fingerprint || sourceProduct ? [] : evidence.missingFacts,
+    confidencePenalty: fingerprint || sourceProduct ? 0 : evidence.confidencePenalty,
+    source: fingerprint ? "fingerprint" : sourceProduct ? "fingerprint" : evidence.tier === "family-rule" ? "family-rule" : "typed-text",
+    datasheetUrl: fingerprint?.datasheetUrl || sourceProduct?.sourceUrl,
+    sourceLabel: sourceProduct ? `${sourceProduct.sourceName}: ${sourceProduct.sourceCollection}` : undefined,
   };
 }

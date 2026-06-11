@@ -83,20 +83,30 @@ const requiredMatrixMarkers = [
   "Product class",
   "HDMI inputs",
   "HDMI outputs",
-  "USB ports / hosts / devices",
+  "USB host ports",
+  "USB device ports",
+  "Audio inputs",
+  "Audio outputs",
   "Control connections",
+  "Network / LAN ports",
+  "PoE",
+  "PoC",
+  "PoH",
+  "Power supply",
   "status: \"miss\"",
   "status: \"match\"",
   "status: \"partial\"",
 ];
 
 const requiredMatrixComponentMarkers = [
-  "Specification match matrix",
+  "Specification comparison matrix",
   "data-wingman-feature-match-grid",
   "CompareFeatureValueKind",
   "QuantityValue",
   "BooleanValue",
-  "md:grid-cols-[48px_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,1.2fr)]",
+  "competitorLabel",
+  "wyrestormLabel",
+  "md:grid-cols-[48px_minmax(120px,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(90px,0.45fr)]",
 ];
 
 const requiredControlsMarkers = [

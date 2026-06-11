@@ -1,30 +1,34 @@
-import { AlertTriangle, CheckCircle2, CircleHelp, PlusCircle, XCircle, type LucideIcon } from "lucide-react";
+import { AlertTriangle, Check, CircleHelp, Plus, X, type LucideIcon } from "lucide-react";
 import type {
   CompareFeatureMatrixRow,
   CompareFeatureMatrixStatus,
   CompareFeatureValueKind,
 } from "../../lib/compareFeatureMatrix";
 
-const STATUS_VIEW: Record<CompareFeatureMatrixStatus, { label: string; Icon: LucideIcon; className: string }> = {
+const STATUS_VIEW: Record<CompareFeatureMatrixStatus, { label: string; Icon: LucideIcon; className: string; shortLabel: string }> = {
   match: {
     label: "Match",
-    Icon: CheckCircle2,
-    className: "border-emerald-400/50 bg-emerald-400/15 text-emerald-100",
+    shortLabel: "OK",
+    Icon: Check,
+    className: "border-emerald-400/60 bg-emerald-400/15 text-emerald-100",
   },
   miss: {
-    label: "Miss",
-    Icon: XCircle,
-    className: "border-rose-400/55 bg-rose-400/15 text-rose-100",
+    label: "No match",
+    shortLabel: "No",
+    Icon: X,
+    className: "border-rose-400/60 bg-rose-400/15 text-rose-100",
   },
   partial: {
-    label: "Partial",
+    label: "Partial or unknown",
+    shortLabel: "Check",
     Icon: AlertTriangle,
-    className: "border-amber-400/55 bg-amber-400/15 text-amber-100",
+    className: "border-amber-400/65 bg-amber-400/15 text-amber-100",
   },
   extra: {
-    label: "Extra",
-    Icon: PlusCircle,
-    className: "border-cyan-300/55 bg-cyan-300/15 text-cyan-100",
+    label: "WyreStorm extra",
+    shortLabel: "Extra",
+    Icon: Plus,
+    className: "border-cyan-300/60 bg-cyan-300/15 text-cyan-100",
   },
 };
 
@@ -43,7 +47,7 @@ function StatusIcon({ status }: { status: CompareFeatureMatrixStatus }) {
   const Icon = view.Icon;
 
   return (
-    <span className={`inline-flex h-8 w-8 items-center justify-center rounded-full border ${view.className}`} title={view.label}>
+    <span className={`inline-flex h-8 min-w-8 items-center justify-center rounded-full border ${view.className}`} title={view.label}>
       <Icon className="h-4 w-4" aria-hidden="true" />
       <span className="sr-only">{view.label}</span>
     </span>
@@ -53,8 +57,8 @@ function StatusIcon({ status }: { status: CompareFeatureMatrixStatus }) {
 function BooleanValue({ value }: { value: string }) {
   if (value === "Yes") {
     return (
-      <span className="inline-flex items-center gap-1.5 font-black text-emerald-100">
-        <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+      <span className="inline-flex items-center gap-1 font-black text-emerald-100">
+        <Check className="h-4 w-4" aria-hidden="true" />
         Yes
       </span>
     );
@@ -62,15 +66,15 @@ function BooleanValue({ value }: { value: string }) {
 
   if (value === "No") {
     return (
-      <span className="inline-flex items-center gap-1.5 font-black text-rose-100">
-        <XCircle className="h-4 w-4" aria-hidden="true" />
+      <span className="inline-flex items-center gap-1 font-black text-rose-100">
+        <X className="h-4 w-4" aria-hidden="true" />
         No
       </span>
     );
   }
 
   return (
-    <span className="inline-flex items-center gap-1.5 font-black text-amber-100">
+    <span className="inline-flex items-center gap-1 font-black text-amber-100">
       <CircleHelp className="h-4 w-4" aria-hidden="true" />
       Unknown
     </span>
@@ -83,7 +87,7 @@ function QuantityValue({ value }: { value: string }) {
   }
 
   return (
-    <span className="inline-flex min-w-8 items-center justify-center rounded-lg border border-cyan-300/40 bg-cyan-300/10 px-2 py-1 text-sm font-black text-cyan-100">
+    <span className="inline-flex h-8 min-w-9 items-center justify-center rounded-lg border border-cyan-300/40 bg-cyan-300/10 px-2 text-sm font-black text-cyan-100">
       {value}
     </span>
   );
@@ -95,65 +99,95 @@ function MatrixValue({ row, side }: { row: CompareFeatureMatrixRow; side: "compe
   if (row.kind === "boolean") return <BooleanValue value={value} />;
   if (row.kind === "quantity") return <QuantityValue value={value} />;
 
-  return <span className="text-sm font-semibold leading-5 text-white/75">{value}</span>;
+  return <span className="text-sm font-semibold leading-5 text-white/80">{value}</span>;
 }
 
 function kindLabel(kind: CompareFeatureValueKind) {
-  return kind;
+  if (kind === "quantity") return "count";
+  if (kind === "boolean") return "yes/no";
+  return "value";
 }
 
-export function CompareSpecificationMatrix({ rows }: { rows: CompareFeatureMatrixRow[] }) {
+function productLabel(value: string, fallback: string) {
+  const trimmed = value.trim();
+  return trimmed || fallback;
+}
+
+export function CompareSpecificationMatrix({
+  rows,
+  competitorLabel = "Competitor product",
+  wyrestormLabel = "WyreStorm product",
+}: {
+  rows: CompareFeatureMatrixRow[];
+  competitorLabel?: string;
+  wyrestormLabel?: string;
+}) {
   if (!rows.length) return null;
 
   const counts = matrixCounts(rows);
+  const competitor = productLabel(competitorLabel, "Competitor product");
+  const wyrestorm = productLabel(wyrestormLabel, "WyreStorm product");
 
   return (
-    <section className="mt-4 rounded-2xl border border-[#29465e] bg-[#081724] p-4" data-wingman-feature-match-grid="true">
+    <section className="mt-3 rounded-2xl border border-[#29465e] bg-[#081724] p-3" data-wingman-feature-match-grid="true">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h4 className="text-sm font-black text-cyan-200">Specification match matrix</h4>
-          <p className="mt-1 text-xs leading-5 text-white/55">Competitor facts against this WyreStorm candidate.</p>
+          <h4 className="text-sm font-black text-cyan-200">Specification comparison matrix</h4>
+          <p className="mt-1 text-xs leading-5 text-white/55">Rows show the fact being compared; columns show the competitor and WyreStorm value.</p>
         </div>
         <div className="flex flex-wrap gap-2 text-xs font-black">
           <span className="rounded-full border border-emerald-400/50 bg-emerald-400/10 px-2.5 py-1 text-emerald-100">{counts.match} match</span>
-          <span className="rounded-full border border-rose-400/50 bg-rose-400/10 px-2.5 py-1 text-rose-100">{counts.miss} miss</span>
-          <span className="rounded-full border border-amber-400/50 bg-amber-400/10 px-2.5 py-1 text-amber-100">{counts.partial} partial</span>
+          <span className="rounded-full border border-rose-400/50 bg-rose-400/10 px-2.5 py-1 text-rose-100">{counts.miss} no</span>
+          <span className="rounded-full border border-amber-400/50 bg-amber-400/10 px-2.5 py-1 text-amber-100">{counts.partial} check</span>
         </div>
       </div>
 
-      <div className="mt-4 grid gap-2 text-sm">
-        <div className="hidden grid-cols-[48px_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,1.2fr)] gap-3 border-b border-[#29465e] pb-2 text-xs font-black uppercase tracking-[0.12em] text-white/40 md:grid">
+      <div className="mt-3 grid gap-1 text-sm">
+        <div className="hidden rounded-xl border border-[#29465e] bg-[#0d2133] px-3 py-2 text-xs font-black uppercase tracking-[0.1em] text-white/45 md:grid md:grid-cols-[48px_minmax(120px,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(90px,0.45fr)] md:gap-3">
           <span>Fit</span>
           <span>Spec</span>
-          <span>Competitor</span>
-          <span>WyreStorm</span>
-          <span>Note</span>
+          <span>{competitor}</span>
+          <span>{wyrestorm}</span>
+          <span>Result</span>
         </div>
 
-        {rows.map((row) => (
-          <div
-            key={row.id}
-            className="grid gap-3 rounded-xl border border-[#1b3348] bg-[#071522] p-3 md:grid-cols-[48px_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,1.2fr)] md:items-start"
-          >
-            <div className="flex items-center justify-between gap-3 md:block">
-              <StatusIcon status={row.status} />
-              <span className="text-xs font-black uppercase tracking-[0.12em] text-white/40 md:hidden">{STATUS_VIEW[row.status].label}</span>
+        {rows.map((row) => {
+          const status = STATUS_VIEW[row.status];
+
+          return (
+            <div
+              key={row.id}
+              className="grid gap-2 rounded-xl border border-[#1b3348] bg-[#071522] px-3 py-2 md:grid-cols-[48px_minmax(120px,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(90px,0.45fr)] md:items-center md:gap-3"
+            >
+              <div className="flex items-center justify-between gap-2 md:block">
+                <StatusIcon status={row.status} />
+                <span className="text-xs font-black uppercase tracking-[0.1em] text-white/40 md:hidden">{status.label}</span>
+              </div>
+
+              <div className="min-w-0">
+                <div className="font-black leading-5 text-white">{row.label}</div>
+                <div className="text-[11px] font-black uppercase tracking-[0.1em] text-white/35">{row.group} / {kindLabel(row.kind)}</div>
+              </div>
+
+              <div className="min-w-0 rounded-lg border border-[#29465e]/70 bg-[#0a1b2a] px-2 py-1.5">
+                <div className="mb-1 text-[11px] font-black uppercase tracking-[0.1em] text-white/35 md:hidden">{competitor}</div>
+                <MatrixValue row={row} side="competitor" />
+              </div>
+
+              <div className="min-w-0 rounded-lg border border-[#29465e]/70 bg-[#0a1b2a] px-2 py-1.5">
+                <div className="mb-1 text-[11px] font-black uppercase tracking-[0.1em] text-white/35 md:hidden">{wyrestorm}</div>
+                <MatrixValue row={row} side="wyrestorm" />
+              </div>
+
+              <div className="flex items-center justify-between gap-2 md:block">
+                <span className={`inline-flex rounded-full border px-2 py-1 text-[11px] font-black uppercase tracking-[0.08em] ${status.className}`}>
+                  {status.shortLabel}
+                </span>
+                {row.note ? <span className="text-xs leading-4 text-white/45 md:mt-1 md:block">{row.note}</span> : null}
+              </div>
             </div>
-            <div className="min-w-0">
-              <div className="font-black leading-5 text-white">{row.label}</div>
-              <div className="mt-1 text-xs text-white/40">{row.group} / {kindLabel(row.kind)}</div>
-            </div>
-            <div className="min-w-0">
-              <div className="mb-1 text-xs font-black uppercase tracking-[0.12em] text-white/35 md:hidden">Competitor</div>
-              <MatrixValue row={row} side="competitor" />
-            </div>
-            <div className="min-w-0">
-              <div className="mb-1 text-xs font-black uppercase tracking-[0.12em] text-white/35 md:hidden">WyreStorm</div>
-              <MatrixValue row={row} side="wyrestorm" />
-            </div>
-            <p className="min-w-0 text-sm leading-5 text-white/55">{row.note}</p>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

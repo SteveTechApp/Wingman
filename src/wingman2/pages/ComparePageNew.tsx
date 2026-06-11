@@ -17,7 +17,7 @@ import {
   type RigorousMatch,
 } from "../lib/rigorousCompare";
 import type { CompareDecisionOutcome } from "../lib/competitorCompareDecision";
-import { buildCompareFeatureMatrixRows } from "../lib/compareFeatureMatrix";
+import { buildCompareFeatureMatrixRows, type CompareFeatureMatrixRow } from "../lib/compareFeatureMatrix";
 
 const KNOWN_BRANDS = [
   "Crestron",
@@ -176,9 +176,9 @@ function CompetitorProductProfileCard({ result }: { result: RigorousCompareResul
         ))}
       </dl>
 
-      {competitor.datasheetUrl ? (
-        <a href={competitor.datasheetUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm font-black text-cyan-200">
-          Open source product family
+      {competitor.datasheetUrl || competitor.sourceUrl ? (
+        <a href={competitor.datasheetUrl || competitor.sourceUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm font-black text-cyan-200">
+          Open product/spec source
         </a>
       ) : null}
 
@@ -204,6 +204,39 @@ function CompetitorProductProfileCard({ result }: { result: RigorousCompareResul
         </div>
       ) : null}
     </section>
+  );
+}
+
+function DataQualityStrip({ rows }: { rows: CompareFeatureMatrixRow[] }) {
+  const competitorGaps = rows.filter((row) => row.competitorValue === "Unknown").map((row) => row.label);
+  const wyrestormGaps = rows.filter((row) => row.wyrestormValue === "Unknown").map((row) => row.label);
+
+  if (!competitorGaps.length && !wyrestormGaps.length) return null;
+
+  return (
+    <div className="mt-3 grid gap-2 rounded-2xl border border-amber-400/35 bg-amber-400/10 p-3 text-xs" data-wingman-compare-data-quality="true">
+      <div className="flex flex-wrap gap-2">
+        <span className="font-black uppercase tracking-[0.12em] text-amber-100">Dataset gaps</span>
+        {wyrestormGaps.length ? (
+          <span className="rounded-full border border-rose-400/45 bg-rose-400/10 px-2 py-1 font-black text-rose-100">
+            WyreStorm needs {wyrestormGaps.length} fact{wyrestormGaps.length === 1 ? "" : "s"}
+          </span>
+        ) : (
+          <span className="rounded-full border border-emerald-400/45 bg-emerald-400/10 px-2 py-1 font-black text-emerald-100">
+            WyreStorm core facts present
+          </span>
+        )}
+        {competitorGaps.length ? (
+          <span className="rounded-full border border-amber-400/45 bg-amber-400/10 px-2 py-1 font-black text-amber-100">
+            Competitor needs {competitorGaps.length} fact{competitorGaps.length === 1 ? "" : "s"}
+          </span>
+        ) : null}
+      </div>
+      <div className="grid gap-1 text-white/70 md:grid-cols-2">
+        {wyrestormGaps.length ? <p>WyreStorm data to complete: {wyrestormGaps.slice(0, 5).join(", ")}.</p> : null}
+        {competitorGaps.length ? <p>Competitor data to source: {competitorGaps.slice(0, 5).join(", ")}.</p> : null}
+      </div>
+    </div>
   );
 }
 
@@ -240,16 +273,23 @@ function MatchCard({ match, rank, competitor, defaultExpanded = false }: { match
 
       {expanded ? (
         <div className="border-t border-[#29465e] p-4">
-          <p className="text-sm leading-6 text-white/75">{decision.summary}</p>
+          <CompareSpecificationMatrix
+            rows={matrixRows}
+            competitorLabel={`${competitor.brand || "Competitor"} ${competitor.sku || "product"}`}
+            wyrestormLabel={match.sku}
+          />
+          <DataQualityStrip rows={matrixRows} />
 
-          <CompareSpecificationMatrix rows={matrixRows} />
-
-          <div className="mt-4 grid gap-3 xl:grid-cols-2">
-            <EvidenceList title="Confirmed matches" items={decision.matches} tone="match" />
-            <EvidenceList title="Blocking differences" items={decision.blockers} tone="block" />
-            <EvidenceList title="Gaps to explain" items={decision.gaps} tone="gap" />
-            <EvidenceList title="Verify before customer issue" items={decision.verify} tone="verify" />
-          </div>
+          <details className="mt-4 rounded-2xl border border-[#29465e] bg-[#081724] p-4">
+            <summary className="cursor-pointer text-sm font-black text-cyan-200">Evidence notes and objection handling</summary>
+            <p className="mt-3 text-sm leading-6 text-white/70">{decision.summary}</p>
+            <div className="mt-4 grid gap-3 xl:grid-cols-2">
+              <EvidenceList title="Confirmed matches" items={decision.matches} tone="match" />
+              <EvidenceList title="Blocking differences" items={decision.blockers} tone="block" />
+              <EvidenceList title="Gaps to explain" items={decision.gaps} tone="gap" />
+              <EvidenceList title="Verify before customer issue" items={decision.verify} tone="verify" />
+            </div>
+          </details>
 
           <div className="mt-4 rounded-2xl border border-cyan-500/30 bg-cyan-500/10 p-4 text-sm leading-6 text-white">
             <strong className="text-cyan-200">Next action: </strong>
@@ -331,7 +371,7 @@ export default function ComparePageNew() {
       setState("analyzing");
 
       try {
-        const compareResult = rigorousCompare(compareInputText || competitorInput, products, resolvedBrand, 10);
+        const compareResult = rigorousCompare(compareInputText || competitorInput, products, resolvedBrand, 10, productUrl.trim());
         setResult(compareResult);
         setError("");
         setState("results");
@@ -359,10 +399,7 @@ export default function ComparePageNew() {
     <main className="grid gap-4 pb-6 text-white" data-wingman-compare-decision-desk="true">
       <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-300">Competitor replacement desk</p>
-        <h1 className="mt-2 text-3xl font-black">Decide whether WyreStorm is a good, partial or no-match replacement</h1>
-        <p className="mt-2 max-w-4xl text-sm leading-6 text-white/70">
-          Enter the competitor product, paste useful context, then review the match evidence, blocking differences, verification points and customer-safe next action.
-        </p>
+        <h1 className="mt-2 text-3xl font-black">Compare the two products by specification</h1>
       </section>
 
       {(state === "input" || state === "error") ? (
@@ -444,9 +481,9 @@ export default function ComparePageNew() {
                 <li>OK manual manufacturer override or auto-detect</li>
                 <li>OK source/spec page for evidence and dataset improvement</li>
                 <li>OK missing-hyphen and partial SKU interpretation</li>
-                <li>OK competitor product profile plus feature-by-feature grid</li>
-                <li>OK input/output role and capacity</li>
-                <li>OK signal, USB, audio, control and network differences</li>
+                <li>OK competitor and WyreStorm products in matrix columns</li>
+                <li>OK HDMI, USB, audio, control and network counts</li>
+                <li>OK PoE, PoC, PoH and power supply differences</li>
                 <li>OK blocking gaps and verification points</li>
                 <li>OK GOOD / PARTIAL / NO MATCH verdict</li>
               </ul>

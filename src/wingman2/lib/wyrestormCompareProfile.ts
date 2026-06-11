@@ -7,7 +7,7 @@
  * spec registry. This lets the classifier compare like-for-like structured specs.
  */
 
-import type { CompareDecisionProfile } from "./competitorCompareDecision";
+import type { CompareDecisionProfile, CompareSpecFacts } from "./competitorCompareDecision";
 import type { WyrestormProduct } from "./competitorMatchEngine";
 import { canonicalTransport } from "./competitorSpecRegistry";
 
@@ -149,6 +149,20 @@ function isVideoTransportPort(port: TechnicalPort): boolean {
   return /\bhdmi|hdbaset|displayport|dp\b|sdi|usb-c\b/.test(value);
 }
 
+function countCategoryPorts(ports: TechnicalPort[], matcher: (port: TechnicalPort, text: string) => boolean, direction?: "input" | "output"): number | undefined {
+  const total = ports
+    .filter((port) => !isLikelyAccessoryOrFalsePort(port))
+    .filter((port) => !direction || safeText(port.direction).toLowerCase() === direction)
+    .filter((port) => matcher(port, portText(port)))
+    .reduce((sum, port) => sum + (Number.isFinite(Number(port.count)) ? Number(port.count) : 0), 0);
+
+  return total > 0 ? total : undefined;
+}
+
+function anyPort(ports: TechnicalPort[], pattern: RegExp): boolean | undefined {
+  return ports.some((port) => pattern.test(portText(port))) || undefined;
+}
+
 function countPorts(ports: TechnicalPort[], direction: "input" | "output"): number | undefined {
   const total = ports
     .filter((port) => isVideoTransportPort(port))
@@ -229,7 +243,64 @@ function detectFeatures(blob: string): Record<string, boolean> {
   if (/receiver kit|rx kit|extender kit|tx\/rx kit/.test(blob)) features.receiverKit = true;
   if (/rs-?232|ir\b|cec|relay|contact closure|control/.test(blob)) features.control = true;
   if (/\bpoe\b|\bpoh\b|\bpoc\b|power over ethernet/.test(blob)) features.poe = true;
+  if (/\bpoc\b/.test(blob)) features.poc = true;
+  if (/\bpoh\b/.test(blob)) features.poh = true;
+  if (/audio\s*de.?embed|de.?embed/.test(blob)) features.audioDeEmbed = true;
+  if (/audio\s*embed/.test(blob)) features.audioEmbed = true;
   return features;
+}
+
+function buildSpecFacts(product: WyrestormProduct, blob: string, inputCount?: number, outputCount?: number): CompareSpecFacts {
+  const profile = technicalProfile(product);
+  const allPorts = [
+    ...(profile?.io?.ports ?? []),
+    ...(profile?.io?.video ?? []),
+    ...(profile?.io?.audio ?? []),
+    ...(profile?.io?.usb ?? []),
+    ...(profile?.io?.network ?? []),
+    ...(profile?.io?.control ?? []),
+  ];
+  const specs: CompareSpecFacts = {};
+
+  specs.hdmiInputs = countCategoryPorts(allPorts, (_port, value) => /\bhdmi\b/.test(value), "input") ?? inputCount;
+  specs.hdmiOutputs = countCategoryPorts(allPorts, (_port, value) => /\bhdmi\b/.test(value), "output") ?? outputCount;
+  specs.usbHostPorts = countCategoryPorts(allPorts, (_port, value) => /\busb\b/.test(value) && /\bhost\b/.test(value));
+  specs.usbDevicePorts = countCategoryPorts(allPorts, (_port, value) => /\busb\b/.test(value) && /\b(device|client|peripheral)\b/.test(value));
+  specs.usbTotalPorts = countCategoryPorts(allPorts, (_port, value) => /\busb\b|usb-c|usb-a|usb-b/.test(value));
+  specs.audioInputs = countCategoryPorts(allPorts, (port, value) => safeText(port.category).toLowerCase() === "audio" || /audio|line|mic|dante|aes67|toslink|spdif/.test(value), "input");
+  specs.audioOutputs = countCategoryPorts(allPorts, (port, value) => safeText(port.category).toLowerCase() === "audio" || /audio|line|speaker|dante|aes67|toslink|spdif/.test(value), "output");
+  specs.networkPorts = countCategoryPorts(allPorts, (_port, value) => /rj-?45|ethernet|lan|network|10\/100|1000base|10gbase/.test(value));
+  specs.controlPorts = countCategoryPorts(allPorts, (port, value) => safeText(port.category).toLowerCase() === "control" || /rs-?232|ir\b|cec|relay|gpio|contact closure|control/.test(value));
+
+  specs.rs232 = anyPort(allPorts, /rs-?232/);
+  specs.ir = anyPort(allPorts, /\bir\b|infrared/);
+  specs.cec = /\bcec\b/.test(blob) || undefined;
+  specs.relay = anyPort(allPorts, /relay|contact closure/);
+  specs.gpio = anyPort(allPorts, /gpio/);
+  specs.ethernetControl = /web ui|api|tcp\/ip|tcp-ip|ethernet control|lan control/.test(blob) || undefined;
+
+  specs.audioDeEmbed = /audio\s*de.?embed|de.?embed/.test(blob) || undefined;
+  specs.audioEmbed = /audio\s*embed/.test(blob) || undefined;
+  specs.analogAudio = /analog audio|analogue audio|line in|line out|phoenix audio/.test(blob) || undefined;
+  specs.arc = /\barc\b/.test(blob) || undefined;
+  specs.earc = /\bearc\b/.test(blob) || undefined;
+  specs.dante = /\bdante\b/.test(blob) || undefined;
+  specs.aes67 = /aes67/.test(blob) || undefined;
+
+  specs.poe = /\bpoe\b|poe\+|802\.3af|802\.3at|power over ethernet/.test(blob) || undefined;
+  specs.poc = /\bpoc\b|power over cable/.test(blob) || undefined;
+  specs.poh = /\bpoh\b|power over hdbaset/.test(blob) || undefined;
+  specs.powerDelivery = /usb-c power|power delivery|\bpd\b/.test(blob) || undefined;
+  specs.externalPsu = /external power|dc power|power supply|psu|adapter/.test(blob) || anyPort(allPorts, /power supply|dc power|psu/);
+  specs.internalPsu = /internal power|iec|mains input/.test(blob) || undefined;
+
+  if (specs.poh) specs.powerSupply = "PoH / HDBaseT remote power";
+  else if (specs.poc) specs.powerSupply = "PoC remote power";
+  else if (specs.poe) specs.powerSupply = "PoE";
+  else if (specs.externalPsu) specs.powerSupply = "External PSU";
+  else if (specs.internalPsu) specs.powerSupply = "Internal PSU";
+
+  return Object.fromEntries(Object.entries(specs).filter(([, value]) => value !== undefined)) as CompareSpecFacts;
 }
 
 function detectStructuredFeatures(product: WyrestormProduct, blob: string): Record<string, boolean> {
@@ -271,6 +342,7 @@ export function buildWyrestormCompareProfile(product: WyrestormProduct): Compare
   const domain = detectDomain(product, blob);
   const role = detectRole(product, blob, domain);
   const io = structuredIo(product, blob);
+  const specs = buildSpecFacts(product, blob, io.inputCount, io.outputCount);
   const features = detectStructuredFeatures(product, blob);
   const tier = sourceTier(product, io.usedStructuredPorts, io.warnings);
   const transports = [
@@ -289,6 +361,8 @@ export function buildWyrestormCompareProfile(product: WyrestormProduct): Compare
     maxResolution: detectResolution(blob),
     chroma: detectChroma(blob),
     features: Object.keys(features).length > 0 ? features : undefined,
+    specs,
+    sourceUrl: technicalProfile(product)?.sourceQuality?.officialProductUrl,
     sourceTier: tier,
     sourceLabel: sourceLabelFor(tier),
     profileEvidence: io.evidence,
