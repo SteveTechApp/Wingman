@@ -110,6 +110,49 @@ const BRAND_PATTERNS: [RegExp, string][] = [
   [/\b(control4|c4-)\b/i, "Control4"],
 ];
 
+const BRAND_COMPACT_MARKERS: [string[], string][] = [
+  [["crestron", "dmnvx", "dmps", "hdmd", "hdrx", "hdtx"], "Crestron"],
+  [["extron", "nave", "navd", "dtp2", "dtp3", "in1608", "in1804"], "Extron"],
+  [["atlona", "atome", "atomni", "atuhd"], "Atlona"],
+  [["kramer", "kds", "vp440", "vp551", "vp554", "vs88", "vs44"], "Kramer"],
+  [["lightware", "ubex", "vinx", "taurus", "mmx"], "Lightware"],
+  [["blustream", "ip200uhd", "ip250uhd", "ip300uhd", "ip350uhd", "hmx", "pla"], "Blustream"],
+  [["barco", "clickshare", "cx50", "cx30", "cx20"], "Barco"],
+  [["zeevee", "zyper"], "ZeeVee"],
+  [["amx", "nmxenc", "nmxdec", "dvx", "dgx", "dxltx", "dxlrx"], "AMX"],
+  [["avproedge", "avpro", "acex", "acmx", "mxnet"], "AVPro Edge"],
+  [["binary", "b900moip", "b660mtrx", "b660ext"], "Binary"],
+  [["aten"], "ATEN"],
+  [["logitech", "rally", "meetup"], "Logitech"],
+  [["biamp", "tesira", "devio"], "Biamp"],
+  [["shure", "mxa", "ulxd"], "Shure"],
+  [["qsys", "qsc"], "QSC"],
+];
+
+const TECH_COMPACT_MARKERS: [string[], TechnologyClass][] = [
+  [["dmnvx", "nave", "navd", "kds", "nmxenc", "nmxdec", "mxnet", "vinx", "ubex", "atomni", "b900moip", "zyper"], "AVOIP"],
+  [["dtp2", "dtp3", "hdbaset", "hdbt", "hdtx", "hdrx", "dxltx", "dxlrx", "acex", "atomeex", "b660ext"], "HDBASET"],
+  [["matrix", "mtrx", "vs88", "vs44", "acmx", "hdmd", "mmx", "hmx", "dgx", "8x8", "4x4"], "MATRIX"],
+  [["presentation", "switcher", "dmps", "in1608", "in1804", "atome", "taurus", "vp440", "vp551", "dvx"], "PRESENTATION"],
+  [["videowall", "videowallprocessor", "wallprocessor", "multiview"], "VIDEO_WALL"],
+  [["clickshare", "airmedia", "solstice", "screenbeam", "wireless"], "WIRELESS_PRESENTATION"],
+  [["dante", "aes67", "audio", "speakerphone", "microphone"], "AUDIO"],
+  [["controlprocessor", "controller", "automation"], "CONTROL"],
+];
+
+const ROLE_COMPACT_MARKERS: [string[], ProductRole][] = [
+  [["dmnvx350", "dmnvx351", "dmnvx360", "dmnvx363", "mxnet10gtcvr", "ubex"], "transceiver"],
+  [["transmitter", "dtp2t", "dtp3t", "dxltx", "hdtx", "b900moip4ktx"], "transmitter"],
+  [["receiver", "dtp2r", "dtp3r", "dxlrx", "hdrx", "b900moip4krx"], "receiver"],
+  [["nmxenc", "encoder", "nave", "atomni111", "atomni121", "kds7en", "kdsen", "vinx110"], "encoder"],
+  [["nmxdec", "decoder", "navd", "atomni112", "atomni122", "kds7dec", "kdsdec", "vinx210"], "decoder"],
+  [["matrix", "mtrx", "vs88", "vs44", "acmx", "hmx", "dgx"], "matrix"],
+  [["switcher", "presentation", "dmps", "in1608", "taurus", "vp440", "atome"], "switcher"],
+  [["processor", "videowall", "multiview"], "processor"],
+  [["amplifier", "dsp"], "amplifier"],
+  [["controller", "controlprocessor", "nx1200", "nx2200"], "controller"],
+];
+
 // Technology class detection
 const TECH_CLASS_PATTERNS: [RegExp[], TechnologyClass][] = [
   [[/\b(nvx|zyper|ip\d{2,3}uhd|kds|nav\s*[ed]|nmx|mxnet|vinx|ubex|networkhd|nhd|avoip|av.over.ip|sdn|ndi)\b/i], "AVOIP"],
@@ -138,6 +181,15 @@ const ROLE_PATTERNS: [RegExp[], ProductRole][] = [
   [[/\b(amp|amplifier)\b/i], "amplifier"],
   [[/\b(control|automation|nx-|cp-)\b/i], "controller"],
 ];
+
+function compareKey(value: unknown): string {
+  return String(value ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function markerMatch(compactText: string, marker: string): boolean {
+  if (!compactText || !marker) return false;
+  return compactText.includes(marker) || (marker.length >= 5 && marker.includes(compactText));
+}
 
 // Capability keywords
 const CAPABILITY_KEYWORDS: [RegExp, string][] = [
@@ -178,6 +230,14 @@ const CAPABILITY_KEYWORDS: [RegExp, string][] = [
 
 function detectBrand(input: string): string {
   const text = input.toLowerCase();
+  const compact = compareKey(input);
+
+  for (const [markers, brand] of BRAND_COMPACT_MARKERS) {
+    if (markers.some((marker) => markerMatch(compact, marker))) {
+      return brand;
+    }
+  }
+
   for (const [pattern, brand] of BRAND_PATTERNS) {
     if (pattern.test(text)) {
       return brand;
@@ -188,6 +248,14 @@ function detectBrand(input: string): string {
 
 function detectTechnologyClass(input: string, brand: string): TechnologyClass {
   const text = `${input} ${brand}`.toLowerCase();
+  const compact = compareKey(`${input} ${brand}`);
+
+  for (const [markers, techClass] of TECH_COMPACT_MARKERS) {
+    if (markers.some((marker) => markerMatch(compact, marker))) {
+      return techClass;
+    }
+  }
+
   for (const [patterns, techClass] of TECH_CLASS_PATTERNS) {
     if (patterns.some((p) => p.test(text))) {
       return techClass;
@@ -198,6 +266,14 @@ function detectTechnologyClass(input: string, brand: string): TechnologyClass {
 
 function detectRole(input: string): ProductRole {
   const text = input.toLowerCase();
+  const compact = compareKey(input);
+
+  for (const [markers, role] of ROLE_COMPACT_MARKERS) {
+    if (markers.some((marker) => markerMatch(compact, marker))) {
+      return role;
+    }
+  }
+
   for (const [patterns, role] of ROLE_PATTERNS) {
     if (patterns.some((p) => p.test(text))) {
       return role;
@@ -214,6 +290,26 @@ function extractCapabilities(input: string): string[] {
     }
   }
   return [...new Set(caps)];
+}
+
+function extractDisplaySku(input: string): string {
+  const trimmed = input.trim();
+  const compact = compareKey(trimmed);
+
+  if (!trimmed) return "";
+
+  for (const chunk of trimmed.split(/\s+(?:for|with|in|into|as|replacing|replacement)\s+/i)) {
+    const token = chunk.trim().split(/\s+/).slice(0, 4).join(" ");
+    if (/[a-z]/i.test(token) && /\d/.test(token)) {
+      return token.replace(/[,;:.]+$/g, "");
+    }
+  }
+
+  if (compact.length >= 5 && /[a-z]/.test(compact) && /\d/.test(compact)) {
+    return trimmed.split(/\s+/)[0] || trimmed;
+  }
+
+  return trimmed.split(/\s+/)[0] || trimmed;
 }
 
 function stringList(value: unknown): string[] {
@@ -298,7 +394,7 @@ export function analyzeCompetitor(input: string, providedBrand?: string): Compet
   return {
     originalInput: trimmed,
     brand,
-    sku: trimmed.split(/\s+/)[0] || trimmed,
+    sku: extractDisplaySku(trimmed),
     technologyClass,
     role,
     confidence,

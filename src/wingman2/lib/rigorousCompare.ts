@@ -54,6 +54,13 @@ const OUTCOME_RANK: Record<CompareDecisionOutcome, number> = {
   "NO MATCH": 0,
 };
 
+const SOURCE_RANK: Record<string, number> = {
+  "verified-profile": 3,
+  "official-structured": 2,
+  "text-inferred": 1,
+  missing: 0,
+};
+
 /** Map the heuristic candidate score (~0-80) to a starting confidence (50-88)
  * for the classifier, which then applies blocker/gap/evidence penalties. */
 function scoreToBaseConfidence(score: number): number {
@@ -74,6 +81,30 @@ export function rigorousCompare(
   const analysis = analyzeCompetitor(input, providedBrand);
   const base = compareCompetitor(input, products, providedBrand, maxCandidates);
   const competitor = resolveCompetitorSpecProfile(input, providedBrand || analysis.brand);
+  const unresolvedCompetitor =
+    competitor.specTier === "sku-only" &&
+    (!competitor.domain || competitor.domain === "UNKNOWN") &&
+    analysis.confidence === "low";
+
+  if (unresolvedCompetitor) {
+    const label = competitor.sku || analysis.sku || "that competitor SKU";
+
+    return {
+      competitor,
+      analysis,
+      isRelevant: true,
+      relevanceReason: "Wingman has not identified the competitor product class, role or transport yet.",
+      topOutcome: "NONE",
+      matches: [],
+      rejected: [],
+      recommendation: `No reliable WyreStorm equivalent can be recommended for ${label} until the product role and datasheet basics are known.`,
+      nextSteps: [
+        "Add the manufacturer and product URL or paste the key datasheet lines.",
+        "Confirm what the product does in the system: encoder, decoder, matrix, switcher, extender, audio, control or UC.",
+        "Capture the required input/output count, transport, resolution and must-have features before quoting.",
+      ],
+    };
+  }
 
   const bySku = new Map<string, WyrestormProduct>(
     products.map((product) => [String(product.sku), product]),
@@ -89,7 +120,7 @@ export function rigorousCompare(
       competitor,
       wyrestorm,
       score: scoreToBaseConfidence(match.score),
-      warnings: [],
+      warnings: match.cautions,
     });
 
     return {
@@ -105,6 +136,7 @@ export function rigorousCompare(
   evaluated.sort(
     (a, b) =>
       OUTCOME_RANK[b.decision.outcome] - OUTCOME_RANK[a.decision.outcome] ||
+      (SOURCE_RANK[b.wyrestorm.sourceTier ?? "missing"] ?? 0) - (SOURCE_RANK[a.wyrestorm.sourceTier ?? "missing"] ?? 0) ||
       b.decision.confidence - a.decision.confidence ||
       b.heuristicScore - a.heuristicScore,
   );

@@ -6,34 +6,61 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const root = path.resolve(__dirname, "..");
 
-const source = readFileSync(path.join(root, "src/wingman2/pages/ComparePage.tsx"), "utf8");
+const pageSource = readFileSync(path.join(root, "src/wingman2/pages/ComparePageNew.tsx"), "utf8");
+const controlsSource = readFileSync(path.join(root, "src/wingman2/components/compare/CompareControls.tsx"), "utf8");
+const catalogSource = readFileSync(path.join(root, "src/wingman2/lib/competitorProductIntelligence.ts"), "utf8");
 
-const required = [
-  "COMPARE_SKU_TYPEAHEAD_DATALIST_ID",
-  "COMPARE_SKU_TYPEAHEAD_CATALOG",
-  "COMPARE_SKU_TYPEAHEAD_ALL_OPTIONS",
-  "compareSkuTypeaheadSuggestions",
-  "function compareSkuTypeaheadRefreshDatalist",
-  "function compareSkuTypeaheadRefreshFromFormElement",
-  "compareSkuTypeaheadRefreshFromFormElement(event.currentTarget)",
-  "onFocusCapture={(event) => compareSkuTypeaheadRefreshFromFormElement(event.currentTarget)}",
-  "onInput={(event) => compareSkuTypeaheadRefreshFromFormElement(event.currentTarget)}",
-  "onChangeCapture={(event) => compareSkuTypeaheadRefreshFromFormElement(event.currentTarget)}",
-  "list={COMPARE_SKU_TYPEAHEAD_DATALIST_ID}",
-  "<datalist id={COMPARE_SKU_TYPEAHEAD_DATALIST_ID}>",
-  "COMPARE_SKU_TYPEAHEAD_ALL_OPTIONS.map",
+const requiredPageMarkers = [
+  "COMPETITOR_SKU_SEED_CATALOG",
+  "MANUFACTURER_SELECT_OPTIONS",
+  "CompareManufacturerCombobox",
+  "CompareProductLookupInput",
+  "compareSkuKey",
+  "function skuOptionsForBrand",
+  "function compareSkuSuggestions",
+  "COMPETITOR_SKU_SEED_CATALOG[brand]",
+  "Object.values(COMPETITOR_SKU_SEED_CATALOG).flat()",
+  "key.includes(queryKey) || queryKey.includes(key)",
+  "compareSkuSuggestions(competitorInput, resolvedBrand)",
+];
+
+const requiredControlsMarkers = [
+  "role=\"combobox\"",
+  "aria-autocomplete=\"list\"",
+  "role=\"listbox\"",
+  "aria-label=\"Competitor SKU suggestions\"",
+  "visibleSuggestions.map",
+  "suggestions.slice(0, 10)",
+  "data-wingman-manufacturer-combobox",
+  "aria-label=\"Choose competitor manufacturer\"",
+];
+
+const requiredCatalogMarkers = [
   "NMX-ENC-N2612S",
   "DM-NVX-360",
   "NAV E 121",
   "HMX44-18G-KIT",
 ];
 
-const forbidden = [
+const forbiddenPageMarkers = [
+  "<datalist",
+  "<select",
+  "COMPARE_SKU_TYPEAHEAD_DATALIST_ID",
+  "list={COMPARE_SKU_TYPEAHEAD_DATALIST_ID}",
+  "compareSkuTypeaheadRefreshDatalist",
   "compareSkuTypeaheadSuggestions(manufacturer, model).map",
 ];
 
-const missing = required.filter((marker) => !source.includes(marker));
-const forbiddenFound = forbidden.filter((marker) => source.includes(marker));
+const missing = [
+  ...requiredPageMarkers.filter((marker) => !pageSource.includes(marker)).map((marker) => "ComparePageNew missing: " + marker),
+  ...requiredControlsMarkers.filter((marker) => !controlsSource.includes(marker)).map((marker) => "CompareControls missing: " + marker),
+  ...requiredCatalogMarkers.filter((marker) => !catalogSource.includes(marker)).map((marker) => "competitor catalog missing seed SKU: " + marker),
+];
+
+const forbiddenFound = [
+  ...forbiddenPageMarkers.filter((marker) => pageSource.includes(marker)).map((marker) => "ComparePageNew still uses stale marker: " + marker),
+  ...["<datalist", "<select"].filter((marker) => controlsSource.includes(marker)).map((marker) => "CompareControls still uses native control marker: " + marker),
+];
 
 if (missing.length || forbiddenFound.length) {
   console.error("[compare-typeahead-skus] Check failed:");
@@ -49,4 +76,4 @@ if (missing.length || forbiddenFound.length) {
   process.exit(1);
 }
 
-console.log("[compare-typeahead-skus] Verified dynamic brand-scoped SKU type-ahead without React scope leakage.");
+console.log("[compare-typeahead-skus] Verified custom brand-scoped SKU type-ahead without native datalist/select controls.");

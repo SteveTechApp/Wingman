@@ -1,4 +1,16 @@
+import { salesConversationToneOptions } from "../../lib/salesConversationTone";
+
 export type ProductCallContext = {
+  productFamily?: string;
+  family?: string;
+  category?: string;
+  technology?: string;
+  selectedTechnology?: string;
+  selectedCategory?: string;
+  selectedFamily?: string;
+  selectedProductPath?: string;
+  productPath?: string;
+  technicalRequirement?: string;
   audience?: string;
   callMode?: string;
   application?: string;
@@ -40,6 +52,11 @@ const STORE_KEY = "wingman.productCallCards.context";
 export const PRODUCT_CALL_CARDS_BASE = "/wingman/product-call-cards";
 export const PRODUCT_CALL_CARDS_ROUTE_EVENT = "wingman-product-call-cards-route";
 export const PRODUCT_CALL_CARDS_CONTEXT_EVENT = "wingman-product-call-cards-context";
+
+export const PRODUCT_CALL_AUDIENCE_OPTIONS = [
+  ...salesConversationToneOptions.map((option) => option.label),
+  "Internal sales / pre-sales"
+];
 
 export const PRODUCT_CALL_PRODUCTS: ProductCallProduct[] = [
   {
@@ -326,6 +343,62 @@ function normaliseMode(value?: string) {
   return String(value || "").trim().toLowerCase();
 }
 
+export function normaliseAudience(value?: string): string {
+  const raw = String(value || "").trim();
+  const audience = raw.toLowerCase();
+
+  if (!raw) return "the customer";
+
+  const canonicalTone = salesConversationToneOptions.find((option) => {
+    return option.id === audience || option.label.toLowerCase() === audience;
+  });
+
+  if (canonicalTone) return canonicalTone.label;
+  if (audience.includes("internal") || audience.includes("pre-sales") || audience.includes("presales")) return "Internal sales / pre-sales";
+  if (audience.includes("end user") || audience === "user" || audience.includes("customer user")) return "End user";
+  if (audience.includes("consultant") || audience.includes("designer") || audience.includes("specifier") || audience.includes("technical")) return "Technical consultant";
+  if (
+    audience.includes("dealer") ||
+    audience.includes("reseller") ||
+    audience.includes("installer") ||
+    audience.includes("integrator") ||
+    audience.includes("distributor") ||
+    audience.includes("partner") ||
+    audience.includes("trade")
+  ) {
+    return "Dealer / installer";
+  }
+
+  return raw;
+}
+
+function audienceAngle(value?: string): string {
+  const audience = normaliseAudience(value).toLowerCase();
+
+  if (audience.includes("end user")) {
+    return "Keep it outcome-led and easy to repeat: what people in the room can do, what becomes simpler, and what still needs checking.";
+  }
+
+  if (audience.includes("technical consultant")) {
+    return "Use defensible design language: role in the signal path, assumptions, limits and evidence before naming it as the selected product.";
+  }
+
+  if (audience.includes("dealer") || audience.includes("installer")) {
+    return "Keep it commercially useful for the dealer or installer: clear reason to discuss it, simple qualification, practical install checks and no unsupported claims.";
+  }
+
+  if (audience.includes("internal")) {
+    return "Capture the missing facts, caveats and escalation points so pre-sales can validate the recommendation quickly.";
+  }
+
+  return "Keep it commercially useful for a dealer or reseller: clear reason to discuss it, simple qualification and no unsupported claims.";
+}
+
+function audienceLead(value?: string): string {
+  const audience = normaliseAudience(value);
+  return `For ${audience.toLowerCase()}, `;
+}
+
 export function getCallModeProfile(mode?: string): ProductCallModeProfile {
   const requested = normaliseMode(mode);
   const found = PRODUCT_CALL_MODE_PROFILES.find((profile) => {
@@ -343,70 +416,72 @@ export function getModeAwareWording(product: ProductCallProduct, context: Produc
   const profile = getCallModeProfile(context.wordingMode);
   const environment = context.environment || context.application || "this room";
   const audience = context.audience || "the customer";
+  const audienceGuidance = audienceAngle(audience);
+  const lead = audienceLead(audience);
   const requirement = context.knownRequirement || product.bestFor;
   const priorityText = context.customerPriority ? ` The known customer priority is ${context.customerPriority.toLowerCase()}.` : "";
 
   if (profile.id === "dealer-enablement") {
     return {
-      headline: `${product.sku} gives the salesperson a practical way to turn a ${environment.toLowerCase()} discussion into a stronger WyreStorm solution conversation.`,
+      headline: `${lead}${product.sku} gives the salesperson a practical way to turn a ${environment.toLowerCase()} discussion into a stronger WyreStorm solution conversation.`,
       whatItIs: `${product.whatItIs} For a dealer conversation, keep the description short and connect it directly to the opportunity.`,
       whatItDoes: `${product.whatItDoes} The useful sales point is that it helps join up the product, room workflow and customer need.`,
-      whyItMatters: `${product.whyItMatters} It gives the dealer a reason to discuss the wider room requirement instead of only responding to a single box request.${priorityText}`,
-      salespersonAngle: `Use it as an attachment and confidence-building conversation: “This may be the WyreStorm option to discuss if the customer needs ${requirement.toLowerCase()}.”`,
+      whyItMatters: `${product.whyItMatters} It gives the dealer a reason to discuss the wider room requirement instead of only responding to a single box request. ${audienceGuidance}${priorityText}`,
+      salespersonAngle: `Use it as an attachment and confidence-building conversation: â€œThis may be the WyreStorm option to discuss if the customer needs ${requirement.toLowerCase()}.â€`,
       customerBenefit: `The customer gets a clearer room outcome and the dealer has a stronger reason to stay involved in the design discussion.`
     };
   }
 
   if (profile.id === "consultant-technical") {
     return {
-      headline: `${product.sku} should be positioned by application fit, system role and design limits, not by generic product claims.`,
+      headline: `${lead}${product.sku} should be positioned by application fit, system role and design limits, not by generic product claims.`,
       whatItIs: `${product.whatItIs} In a consultant or technical discussion, define exactly where it sits in the signal path or room workflow.`,
       whatItDoes: `${product.whatItDoes} Confirm the host path, signal path, control expectation, room size and any integration limits before treating it as the selected product.`,
-      whyItMatters: `It matters because the right technical fit reduces design risk, avoids over-claiming and makes the recommendation easier to defend.${priorityText}`,
-      salespersonAngle: `Lead with suitability: “This is the WyreStorm option I would check for this application, subject to confirming the room and integration details.”`,
+      whyItMatters: `It matters because the right technical fit reduces design risk, avoids over-claiming and makes the recommendation easier to defend. ${audienceGuidance}${priorityText}`,
+      salespersonAngle: `Lead with suitability: â€œThis is the WyreStorm option I would check for this application, subject to confirming the room and integration details.â€`,
       customerBenefit: `The customer gets a product conversation grounded in real system fit rather than a generic feature list.`
     };
   }
 
   if (profile.id === "end-user-outcome") {
     return {
-      headline: `${product.sku} should be explained around what it helps people do in ${environment.toLowerCase()}, not around internal AV terminology.`,
+      headline: `${lead}${product.sku} should be explained around what it helps people do in ${environment.toLowerCase()}, not around internal AV terminology.`,
       whatItIs: `It is a WyreStorm product designed to support ${requirement.toLowerCase()}. Keep the explanation focused on the room experience.`,
       whatItDoes: `${product.whatItDoes} Describe this in terms of what users can do more easily, not just the technical function.`,
-      whyItMatters: `It matters because the room needs to be simple enough for everyday users while still giving the installer a sensible, supportable product choice.${priorityText}`,
-      salespersonAngle: `Use plain wording: “This is worth discussing because it helps make the room easier to use and easier to support.”`,
+      whyItMatters: `It matters because the room needs to be simple enough for everyday users while still giving the installer a sensible, supportable product choice. ${audienceGuidance}${priorityText}`,
+      salespersonAngle: `Use plain wording: â€œThis is worth discussing because it helps make the room easier to use and easier to support.â€`,
       customerBenefit: `The customer hears how the product improves the room, reduces friction and supports the way people actually work.`
     };
   }
 
   if (profile.id === "competitor-replacement") {
     return {
-      headline: `${product.sku} can be discussed as a possible alternative, but only after checking whether it does the same job in the customer's actual system.`,
+      headline: `${lead}${product.sku} can be discussed as a possible alternative, but only after checking whether it does the same job in the customer's actual system.`,
       whatItIs: `${product.whatItIs} In replacement mode, compare role, technology type, inputs, outputs, control, power and application fit.`,
       whatItDoes: `${product.whatItDoes} Do not imply a direct match until the important system requirements are confirmed.`,
-      whyItMatters: `It matters because competitor comparisons are rarely identical. The useful result is whether this is a good match, partial match or no match for the job.${priorityText}`,
-      salespersonAngle: `Use balanced wording: “This may be a viable WyreStorm option, but we should compare the required connections, control features and room workflow before proposing it.”`,
+      whyItMatters: `It matters because competitor comparisons are rarely identical. The useful result is whether this is a good match, partial match or no match for the job. ${audienceGuidance}${priorityText}`,
+      salespersonAngle: `Use balanced wording: â€œThis may be a viable WyreStorm option, but we should compare the required connections, control features and room workflow before proposing it.â€`,
       customerBenefit: `The customer gets a realistic comparison rather than a forced like-for-like claim.`
     };
   }
 
   if (profile.id === "discovery-support") {
     return {
-      headline: `${product.sku} can be discussed now, but only ask extra questions where the answer changes product fit, wording or next action.`,
+      headline: `${lead}${product.sku} can be discussed now, but only ask extra questions where the answer changes product fit, wording or next action.`,
       whatItIs: `${product.whatItIs} Do not slow the conversation with unnecessary setup questions.`,
       whatItDoes: `${product.whatItDoes} Use the product as the anchor, then ask only the minimum useful questions.`,
-      whyItMatters: `It matters because the salesperson may not know all the room details yet. Wingman should still provide helpful language without forcing a full discovery form.${priorityText}`,
-      salespersonAngle: `Use selective discovery: “I can talk about this product now, but these few checks will confirm whether it is the right fit.”`,
+      whyItMatters: `It matters because the salesperson may not know all the room details yet. Wingman should still provide helpful language without forcing a full discovery form. ${audienceGuidance}${priorityText}`,
+      salespersonAngle: `Use selective discovery: â€œI can talk about this product now, but these few checks will confirm whether it is the right fit.â€`,
       customerBenefit: `The customer gets immediate useful guidance, with only relevant follow-up questions.`
     };
   }
 
   return {
-    headline: `${product.sku} is the WyreStorm product to discuss when the requirement is ${requirement.toLowerCase()}.`,
+    headline: `${lead}${product.sku} is the WyreStorm product to discuss when the requirement is ${requirement.toLowerCase()}.`,
     whatItIs: `${product.whatItIs} Keep the first explanation simple and connect it directly to ${environment.toLowerCase()}.`,
     whatItDoes: `${product.whatItDoes} Focus on the practical room workflow rather than listing every feature.`,
-    whyItMatters: `${product.whyItMatters} This helps the salesperson sell the benefit, not just name the product.${priorityText}`,
-    salespersonAngle: `Lead with the customer problem: “This is relevant because it helps solve the room workflow, not just because it is another SKU.”`,
+    whyItMatters: `${product.whyItMatters} This helps the salesperson sell the benefit, not just name the product. ${audienceGuidance}${priorityText}`,
+    salespersonAngle: `Lead with the customer problem: â€œThis is relevant because it helps solve the room workflow, not just because it is another SKU.â€`,
     customerBenefit: `The customer gets a clearer reason to consider the product and a simpler explanation of where it fits.`
   };
 }
@@ -422,7 +497,11 @@ export function loadCallContext(): ProductCallContext {
   }
 
   try {
-    return JSON.parse(raw) as ProductCallContext;
+    const parsed = JSON.parse(raw) as ProductCallContext;
+    return {
+      ...parsed,
+      audience: parsed.audience ? normaliseAudience(parsed.audience) : undefined,
+    };
   } catch {
     return {};
   }
@@ -430,7 +509,11 @@ export function loadCallContext(): ProductCallContext {
 
 export function saveCallContext(patch: Partial<ProductCallContext>): ProductCallContext {
   const current = loadCallContext();
-  const next = { ...current, ...patch };
+  const normalisedPatch: Partial<ProductCallContext> = {
+    ...patch,
+    audience: patch.audience ? normaliseAudience(patch.audience) : patch.audience,
+  };
+  const next = { ...current, ...normalisedPatch };
 
   if (typeof window !== "undefined") {
     window.localStorage.setItem(STORE_KEY, JSON.stringify(next));
@@ -463,7 +546,10 @@ export function navigateCallCardPage(path: string): void {
     return;
   }
 
-  const nextPath = `${PRODUCT_CALL_CARDS_BASE}${path}`;
+  const normalisedPath = path.startsWith("/") ? path : `/${path}`;
+  const nextPath = path.startsWith(PRODUCT_CALL_CARDS_BASE)
+    ? path
+    : `${PRODUCT_CALL_CARDS_BASE}${normalisedPath}`;
   window.history.pushState({}, "", nextPath);
   window.dispatchEvent(new CustomEvent(PRODUCT_CALL_CARDS_ROUTE_EVENT));
 }
@@ -531,7 +617,7 @@ export function getLanguageAwareWording(product: ProductCallProduct, context: Pr
       whatItIs: `A WyreStorm product for ${environment.toLowerCase()} projects where the customer needs ${requirement.toLowerCase()}.`,
       whatItDoes: `It helps the room work in a cleaner, easier way by supporting the main connection or presentation job the customer is trying to solve.`,
       whyItMatters: `It gives the salesperson a simple benefit to explain: the room is easier to use, easier to discuss and easier to support.${priorityText}`,
-      salespersonAngle: `Lead with the outcome: “This is relevant because it helps make the room easier for the customer to use.”`,
+      salespersonAngle: `Lead with the outcome: â€œThis is relevant because it helps make the room easier for the customer to use.â€`,
       customerBenefit: `The customer gets a clearer room solution rather than a confusing list of boxes and technical details.`
     };
   }
@@ -542,7 +628,7 @@ export function getLanguageAwareWording(product: ProductCallProduct, context: Pr
       whatItIs: `${product.whatItIs} In advanced language, treat it as a defined WyreStorm system component rather than a generic product option.`,
       whatItDoes: `${product.whatItDoes} Discuss the relevant I/O path, host/device role, control or integration expectation and how it sits in the wider AV workflow.`,
       whyItMatters: `It helps qualify whether this SKU is the correct technical fit before moving into design, comparison or proposal support.${priorityText}`,
-      salespersonAngle: `Lead with system fit: “This SKU is relevant if the I/O, control, signal path and application requirements match the room architecture.”`,
+      salespersonAngle: `Lead with system fit: â€œThis SKU is relevant if the I/O, control, signal path and application requirements match the room architecture.â€`,
       customerBenefit: `The customer gets a more defensible recommendation based on topology, integration fit and the actual job the product must perform.`
     };
   }
@@ -552,7 +638,7 @@ export function getLanguageAwareWording(product: ProductCallProduct, context: Pr
     whatItIs: `${product.whatItIs} Keep the first explanation clear and connect it directly to ${environment.toLowerCase()}.`,
     whatItDoes: `${product.whatItDoes} Focus on the practical workflow first, then add technical detail where it supports the sale.`,
     whyItMatters: `${product.whyItMatters} This helps the salesperson sell the benefit, not just name the product.${priorityText}`,
-    salespersonAngle: `Lead with the customer problem: “This is relevant because it helps solve the room workflow, not just because it is another SKU.”`,
+    salespersonAngle: `Lead with the customer problem: â€œThis is relevant because it helps solve the room workflow, not just because it is another SKU.â€`,
     customerBenefit: `The customer gets a clearer reason to consider the product and a practical explanation of where it fits.`
   };
 }

@@ -1,3 +1,5 @@
+import "./wingman2/app/wingmanProductCallCardsCleanUi";
+import "./wingman2/app/wingmanDisplayScaleGuard";
 
 const wingmanWindow = window as Window & { __wingmanNewProjectHandlerInstalled?: boolean };
 

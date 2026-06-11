@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { ProductCallCardsShell } from "./ProductCallCardsShell";
-import { PRODUCT_CALL_LANGUAGE_LEVELS, loadCallContext, navigateCallCardPage, saveCallContext } from "./store";
+import {
+  PRODUCT_CALL_LANGUAGE_LEVELS,
+  PRODUCT_CALL_MODE_PROFILES,
+  loadCallContext,
+  navigateCallCardPage,
+  saveCallContext
+} from "./store";
 import type { ProductCallContext } from "./store";
 
 const applicationOptions = [
@@ -20,26 +26,28 @@ export function ProductCallCardsSetupPage() {
     setContext(next);
   };
 
-  const updateKnownRequirement = (value: string) => {
-    const next = saveCallContext({ knownRequirement: value });
-    setContext(next);
+  const continueToProductSelection = () => {
+    navigateCallCardPage("/select");
   };
 
   return (
     <ProductCallCardsShell
       activeStep="setup"
-      title="Set the product language"
-      intro="Keep this simple. Choose the language level only if it helps the salesperson explain the product more clearly."
+      title="Set the speaking voice"
+      intro="Choose only the context that helps the salesperson explain the product. Skip anything unknown."
     >
       <section className="wm-pcc-panel">
         <article className="wm-pcc-fast-path">
           <div>
-            <p className="wm-pcc-eyebrow">Fast path</p>
-            <h2>Pick a product and use Normal language</h2>
-            <p>Normal uses a balanced mix of plain sales wording and practical AV terms. Simple removes most technical language. Advanced uses more recognised AV acronyms and system-role language.</p>
+            <p className="wm-pcc-eyebrow">Workflow rule</p>
+            <h2>Set the voice, then choose a product</h2>
+            <p>
+              This step controls wording. It should not force a full discovery form. The product call card will still work if setup is skipped.
+            </p>
           </div>
-          <button type="button" className="wm-pcc-primary" onClick={() => navigateCallCardPage("/select")}>
-            Select product
+
+          <button type="button" className="wm-pcc-primary" onClick={continueToProductSelection}>
+            Continue to product selection
           </button>
         </article>
 
@@ -47,9 +55,12 @@ export function ProductCallCardsSetupPage() {
           <article className="wm-pcc-card">
             <header className="wm-pcc-card-header">
               <h2>Language level</h2>
-              <span>Optional</span>
+              <span>Required</span>
             </header>
-            <p className="wm-pcc-card-note">This controls tone and word selection across the product dashboard and response pack.</p>
+            <p className="wm-pcc-card-note">
+              This changes the words Wingman gives the salesperson.
+            </p>
+
             <div className="wm-pcc-choice-grid">
               {PRODUCT_CALL_LANGUAGE_LEVELS.map((profile) => (
                 <button
@@ -58,7 +69,8 @@ export function ProductCallCardsSetupPage() {
                   className={`wm-pcc-choice ${context.salespersonConfidence === profile.level ? "is-selected" : ""}`}
                   onClick={() => updateField("salespersonConfidence", profile.level)}
                 >
-                  {profile.level}
+                  <strong>{profile.level}</strong>
+                  <span>{profile.tone}</span>
                 </button>
               ))}
             </div>
@@ -66,19 +78,23 @@ export function ProductCallCardsSetupPage() {
 
           <article className="wm-pcc-card">
             <header className="wm-pcc-card-header">
-              <h2>Environment / use case</h2>
+              <h2>Call mode</h2>
               <span>Optional</span>
             </header>
-            <p className="wm-pcc-card-note">Only choose this if it affects the example language.</p>
+            <p className="wm-pcc-card-note">
+              Choose the situation only if it changes the wording needed.
+            </p>
+
             <div className="wm-pcc-choice-grid">
-              {applicationOptions.map((option) => (
+              {PRODUCT_CALL_MODE_PROFILES.map((profile) => (
                 <button
-                  key={option}
+                  key={profile.id}
                   type="button"
-                  className={`wm-pcc-choice ${context.application === option ? "is-selected" : ""}`}
-                  onClick={() => updateField("application", option)}
+                  className={`wm-pcc-choice ${context.wordingMode === profile.id ? "is-selected" : ""}`}
+                  onClick={() => updateField("wordingMode", profile.id)}
                 >
-                  {option}
+                  <strong>{profile.label}</strong>
+                  <span>{profile.purpose}</span>
                 </button>
               ))}
             </div>
@@ -90,21 +106,41 @@ export function ProductCallCardsSetupPage() {
             <h2>Known requirement</h2>
             <span>Optional</span>
           </header>
-          <p className="wm-pcc-card-note">Use this for a direct task such as “sell this product into a small BYOD meeting room”.</p>
+          <p className="wm-pcc-card-note">
+            Use this for a direct task such as “sell this product into a small BYOD meeting room”.
+          </p>
+
           <textarea
             value={context.knownRequirement || ""}
-            onChange={(event) => updateKnownRequirement(event.target.value)}
+            onChange={(event) => updateField("knownRequirement", event.target.value)}
             placeholder="Example: sell this product into a small BYOD meeting room where the customer wants fewer separate devices."
             className="wm-pcc-textarea"
           />
         </article>
 
+        <article className="wm-pcc-card">
+          <header className="wm-pcc-card-header">
+            <h2>Environment / use case</h2>
+            <span>Optional</span>
+          </header>
+
+          <div className="wm-pcc-choice-grid">
+            {applicationOptions.map((option) => (
+              <button
+                key={option}
+                type="button"
+                className={`wm-pcc-choice ${context.application === option ? "is-selected" : ""}`}
+                onClick={() => updateField("application", option)}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        </article>
+
         <footer className="wm-pcc-actions">
-          <button type="button" className="wm-pcc-secondary" onClick={() => navigateCallCardPage("/select")}>
-            Skip setup
-          </button>
-          <button type="button" className="wm-pcc-primary" onClick={() => navigateCallCardPage("/select")}>
-            Select product
+          <button type="button" className="wm-pcc-primary" onClick={continueToProductSelection}>
+            Continue to product selection
           </button>
         </footer>
       </section>
