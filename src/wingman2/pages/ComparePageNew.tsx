@@ -16,6 +16,10 @@ import {
   type RigorousCompareResult,
   type RigorousMatch,
 } from "../lib/rigorousCompare";
+import {
+  lookupCompareIntelligence,
+  type CompareIntelligenceResult,
+} from "../lib/compareIntelligenceClient";
 import type { CompareDecisionOutcome } from "../lib/competitorCompareDecision";
 import { buildCompareFeatureMatrixRows, type CompareFeatureMatrixRow } from "../lib/compareFeatureMatrix";
 
@@ -55,6 +59,100 @@ const MANUFACTURER_SELECT_OPTIONS: CompareSelectOption[] = [
 ];
 
 type PageState = "input" | "analyzing" | "results" | "error";
+
+function shouldRequestLiveLookupUrl(result: RigorousCompareResult, hasSourceUrl: boolean): boolean {
+  if (hasSourceUrl && result.competitor.specTier === "verified-profile") return false;
+  if (result.topOutcome === "NONE") return true;
+  if (!result.matches.length) return true;
+  if (result.topOutcome === "VERIFY" && !hasSourceUrl) return true;
+  if (result.competitor.specTier !== "verified-profile" && result.competitor.missingFacts.length > 0) return true;
+
+  return false;
+}
+
+function recordFromUnknown(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function countFromRecord(record: Record<string, unknown>, keys: string[]): number | undefined {
+  const total = keys.reduce((sum, key) => {
+    const value = Number(record[key]);
+    return Number.isFinite(value) && value > 0 ? sum + value : sum;
+  }, 0);
+
+  return total > 0 ? total : undefined;
+}
+
+function addLookupCount(lines: string[], label: string, value: number | undefined) {
+  if (value) lines.push(`${label} ${value}`);
+}
+
+function lookupProfileFacts(profile: Record<string, unknown> | undefined): string {
+  if (!profile) return "";
+
+  const lines: string[] = [];
+  const videoInputs = recordFromUnknown(profile.videoInputs);
+  const videoOutputs = recordFromUnknown(profile.videoOutputs);
+  const usb = recordFromUnknown(profile.usb);
+  const audio = recordFromUnknown(profile.audio);
+  const control = recordFromUnknown(profile.control);
+  const power = recordFromUnknown(profile.power);
+  const network = recordFromUnknown(profile.network);
+  const videoProcessing = recordFromUnknown(profile.videoProcessing);
+  const features = recordFromUnknown(profile.features);
+  const verifiedSource = recordFromUnknown(profile.verifiedSource);
+
+  addLookupCount(lines, "HDMI inputs", countFromRecord(videoInputs, ["hdmi"]));
+  addLookupCount(lines, "HDMI outputs", countFromRecord(videoOutputs, ["hdmi", "hdmiLoopThrough", "hdmiMirrored"]));
+  addLookupCount(lines, "HDBaseT outputs", countFromRecord(videoOutputs, ["hdbaset", "hdbt"]));
+  addLookupCount(lines, "USB host ports", countFromRecord(usb, ["host", "hosts", "usbHost", "usbHostPorts"]));
+  addLookupCount(lines, "USB device ports", countFromRecord(usb, ["device", "devices", "client", "usbDevice", "usbDevicePorts"]));
+  addLookupCount(lines, "Audio inputs", countFromRecord(audio, ["inputs", "audioInputs", "lineInputs", "micInputs"]));
+  addLookupCount(lines, "Audio outputs", countFromRecord(audio, ["outputs", "audioOutputs", "lineOutputs"]));
+  addLookupCount(lines, "Network ports", countFromRecord(control, ["lan", "ethernet", "network"]) ?? countFromRecord(network, ["ports", "lan", "ethernet"]));
+  addLookupCount(lines, "Control ports", countFromRecord(control, ["rs232", "ir", "cec", "relay", "digitalIo", "gpio"]));
+
+  if (videoProcessing.maxResolution) lines.push(`Resolution ${String(videoProcessing.maxResolution)}`);
+  if (videoProcessing.role) lines.push(`Product role ${String(videoProcessing.role)}`);
+  if (network.transport) lines.push(`Transport ${String(network.transport)}`);
+  if (network.codec) lines.push(`Codec ${String(network.codec)}`);
+  if (verifiedSource.role) lines.push(`Verified role ${String(verifiedSource.role)}`);
+  if (features.usbC) lines.push("USB-C");
+  if (features.usbRouting || usb.usb2 || usb.usb3) lines.push("USB routing");
+  if (features.dante || audio.dante) lines.push("Dante audio");
+  if (features.aes67 || audio.aes67) lines.push("AES67 audio");
+  if (features.hdbasetExtension) lines.push("HDBaseT output");
+  if (features.poe || power.poe || power.poePlus) lines.push("PoE");
+  if (features.poc || power.poc) lines.push("PoC");
+  if (features.poh || power.poh) lines.push("PoH");
+  if (features.audioDeEmbed || audio.deEmbed) lines.push("Audio de-embed");
+  if (features.audioEmbed || audio.embed) lines.push("Audio embed");
+  if (control.rs232) lines.push("RS-232");
+  if (control.ir) lines.push("IR control");
+  if (control.lan) lines.push("Ethernet control");
+  if (control.relay) lines.push("Relay");
+  if (control.gpio || control.digitalIo) lines.push("GPIO");
+
+  return lines.join("\n");
+}
+
+function lookupEvidenceText(lookup: CompareIntelligenceResult): string {
+  const lines: string[] = [];
+  const competitor = lookup.competitor;
+
+  if (competitor?.categoryLabel) lines.push(`Technology class ${competitor.categoryLabel}`);
+  if (competitor?.purposeLabel) lines.push(`Product purpose ${competitor.purposeLabel}`);
+  if (competitor?.purposeRole) lines.push(`Product role ${competitor.purposeRole}`);
+
+  const profileFacts = lookupProfileFacts(competitor?.specProfile);
+  if (profileFacts) lines.push(profileFacts);
+
+  for (const source of lookup.evidence?.sources ?? []) {
+    if (source.excerpt) lines.push(source.excerpt);
+  }
+
+  return lines.filter(Boolean).join("\n");
+}
 
 const OUTCOME_STYLES: Record<CompareDecisionOutcome, string> = {
   "GOOD MATCH": "border-emerald-400 bg-emerald-400/15 text-emerald-100",
@@ -240,6 +338,61 @@ function DataQualityStrip({ rows }: { rows: CompareFeatureMatrixRow[] }) {
   );
 }
 
+function LiveLookupRetryPanel({
+  value,
+  status,
+  onChange,
+  onRetry,
+  disabled,
+}: {
+  value: string;
+  status?: string;
+  onChange: (value: string) => void;
+  onRetry: () => void;
+  disabled: boolean;
+}) {
+  return (
+    <section className="rounded-3xl border border-amber-400/45 bg-amber-400/10 p-5" data-wingman-live-lookup-retry="true">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-100">Need a live/spec source</p>
+          <h2 className="mt-1 text-xl font-black text-white">Point Wingman at a product page and retry</h2>
+        </div>
+        <span className="rounded-full border border-amber-400/50 bg-amber-400/10 px-3 py-1 text-xs font-black text-amber-100">
+          Retry lookup
+        </span>
+      </div>
+
+      <p className="mt-3 text-sm leading-6 text-white/75">
+        The current result is not strong enough. Add any public page containing the competitor product details, specification table or PDF datasheet link, then retry so Wingman can use that source for the comparison.
+      </p>
+      {status ? (
+        <p className="mt-3 rounded-2xl border border-amber-400/30 bg-[#071522] p-3 text-sm font-semibold text-amber-50">{status}</p>
+      ) : null}
+
+      <div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
+        <label className="grid gap-2">
+          <span className="text-xs font-black uppercase tracking-[0.16em] text-white/50">Live lookup URL</span>
+          <input
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            placeholder="Paste a product page, reseller page, PDF datasheet, or public spec page"
+            className="min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-semibold text-white"
+          />
+        </label>
+        <button
+          type="button"
+          onClick={onRetry}
+          disabled={disabled || !value.trim()}
+          className="self-end rounded-full bg-amber-300 px-5 py-3 text-sm font-black text-slate-950 transition disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Retry with URL
+        </button>
+      </div>
+    </section>
+  );
+}
+
 function MatchCard({ match, rank, competitor, defaultExpanded = false }: { match: RigorousMatch; rank: number; competitor: RigorousCompareResult["competitor"]; defaultExpanded?: boolean }) {
   const [expanded, setExpanded] = useState(defaultExpanded || rank === 1);
   const { decision } = match;
@@ -311,6 +464,7 @@ export default function ComparePageNew() {
   const [products, setProducts] = useState<WyrestormProduct[]>([]);
   const [result, setResult] = useState<RigorousCompareResult | null>(null);
   const [error, setError] = useState("");
+  const [lookupStatus, setLookupStatus] = useState("");
   const [liveProfile, setLiveProfile] = useState<CompetitorProfile | null>(null);
   const resolvedBrand = useMemo(() => resolveSelectedBrand(selectedBrand, customBrand), [customBrand, selectedBrand]);
   const compareInputText = useMemo(
@@ -356,12 +510,6 @@ export default function ComparePageNew() {
         return;
       }
 
-      if (!productUrl.trim()) {
-        setError("Add a source page containing the competitor product details or specification.");
-        setState("error");
-        return;
-      }
-
       if (products.length === 0) {
         setError("Product data has not loaded yet. Refresh the page or check the product intelligence index.");
         setState("error");
@@ -369,6 +517,7 @@ export default function ComparePageNew() {
       }
 
       setState("analyzing");
+      setLookupStatus("");
 
       try {
         const compareResult = rigorousCompare(compareInputText || competitorInput, products, resolvedBrand, 10, productUrl.trim());
@@ -383,6 +532,61 @@ export default function ComparePageNew() {
     [compareInputText, competitorInput, productUrl, products, resolvedBrand],
   );
 
+  const handleRetryWithSourceUrl = useCallback(async () => {
+    if (!productUrl.trim()) {
+      setError("Paste a live product/spec URL before retrying.");
+      setState("error");
+      return;
+    }
+
+    if (products.length === 0) {
+      setError("Product data has not loaded yet. Refresh the page or check the product intelligence index.");
+      setState("error");
+      return;
+    }
+
+    setState("analyzing");
+    setLookupStatus("Trying the supplied product/spec URL before re-running the matrix.");
+
+    try {
+      let retryInput = [competitorInput, applicationContext, productUrl].map((value) => value.trim()).filter(Boolean).join("\n");
+      let nextLookupStatus = "Retried with the supplied URL and local source parsing.";
+
+      try {
+        const lookup = await lookupCompareIntelligence({
+          brand: resolvedBrand || result?.competitor.brand || "",
+          sku: result?.competitor.sku || competitorInput,
+          productName: result?.competitor.title,
+          rawText: [competitorInput, applicationContext].filter(Boolean).join("\n"),
+          productUrl: productUrl.trim(),
+          allowWeb: true,
+        });
+        const evidenceText = lookupEvidenceText(lookup);
+
+        if (evidenceText) {
+          retryInput = [competitorInput, evidenceText, applicationContext, productUrl].map((value) => value.trim()).filter(Boolean).join("\n");
+        }
+
+        nextLookupStatus = lookup.evidence?.usefulPages
+          ? `Live lookup read ${lookup.evidence.usefulPages} useful page${lookup.evidence.usefulPages === 1 ? "" : "s"} and retried the matrix.`
+          : "Live lookup responded, but Wingman still needs the supplied URL/source text as evidence.";
+      } catch (lookupError) {
+        nextLookupStatus = lookupError instanceof Error
+          ? `Live lookup service unavailable (${lookupError.message}); retried using the URL text and local source feed.`
+          : "Live lookup service unavailable; retried using the URL text and local source feed.";
+      }
+
+      const compareResult = rigorousCompare(retryInput, products, resolvedBrand || result?.competitor.brand, 10, productUrl.trim());
+      setResult(compareResult);
+      setError("");
+      setLookupStatus(nextLookupStatus);
+      setState("results");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Comparison retry failed");
+      setState("error");
+    }
+  }, [applicationContext, competitorInput, productUrl, products, resolvedBrand, result]);
+
   const handleReset = () => {
     setCompetitorInput("");
     setSelectedBrand("");
@@ -391,6 +595,7 @@ export default function ComparePageNew() {
     setApplicationContext("");
     setResult(null);
     setError("");
+    setLookupStatus("");
     setLiveProfile(null);
     setState("input");
   };
@@ -430,8 +635,7 @@ export default function ComparePageNew() {
                   <input
                     value={productUrl}
                     onChange={(event) => setProductUrl(event.target.value)}
-                    placeholder="Any page with product details or specifications"
-                    required
+                    placeholder="Optional first pass; required if Wingman asks for retry evidence"
                     className="min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-semibold text-white"
                   />
                 </label>
@@ -465,7 +669,7 @@ export default function ComparePageNew() {
 
               <button
                 type="submit"
-                disabled={!competitorInput.trim() || !productUrl.trim()}
+                disabled={!competitorInput.trim()}
                 className="rounded-full bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 transition disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Find WyreStorm Alternatives
@@ -479,7 +683,7 @@ export default function ComparePageNew() {
               <ul className="mt-4 space-y-2 text-sm leading-6 text-white/70">
                 <li>OK product purpose and technology class</li>
                 <li>OK manual manufacturer override or auto-detect</li>
-                <li>OK source/spec page for evidence and dataset improvement</li>
+                <li>OK live lookup URL retry if the search is weak</li>
                 <li>OK missing-hyphen and partial SKU interpretation</li>
                 <li>OK competitor and WyreStorm products in matrix columns</li>
                 <li>OK HDMI, USB, audio, control and network counts</li>
@@ -542,6 +746,16 @@ export default function ComparePageNew() {
               <CompetitorProductProfileCard result={result} />
             </div>
           </article>
+
+          {shouldRequestLiveLookupUrl(result, Boolean(productUrl.trim())) ? (
+            <LiveLookupRetryPanel
+              value={productUrl}
+              status={lookupStatus}
+              onChange={setProductUrl}
+              onRetry={handleRetryWithSourceUrl}
+              disabled={false}
+            />
+          ) : null}
 
           {result.matches.length ? (
             <section className="grid gap-3">

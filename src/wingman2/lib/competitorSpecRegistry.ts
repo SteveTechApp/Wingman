@@ -87,6 +87,32 @@ function normKey(value: unknown): string {
   return String(value ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "");
 }
 
+function textFromSourceUrl(rawUrl: unknown): string {
+  const value = String(rawUrl ?? "").trim();
+  if (!value) return "";
+
+  try {
+    const parsed = new URL(value);
+    return decodeURIComponent([
+      parsed.hostname,
+      parsed.pathname,
+      parsed.search,
+    ].join(" "));
+  } catch {
+    return value;
+  }
+}
+
+function skuCandidatesFromSourceUrl(rawUrl: unknown): string[] {
+  const value = textFromSourceUrl(rawUrl);
+  const candidates = value
+    .split(/[/?#=&_.+\s]+/g)
+    .map((item) => item.trim())
+    .filter((item) => /[a-z]/i.test(item) && /\d/.test(item) && item.length >= 5 && item.length <= 48);
+
+  return Array.from(new Set(candidates));
+}
+
 // Endpoint feature defaults shared across AVoIP transceivers.
 const AVOIP_ENDPOINT_IO = { inputCount: 1, outputCount: 1 } as const;
 
@@ -725,6 +751,19 @@ function parseIoCounts(text: string): { inputCount?: number; outputCount?: numbe
   return {};
 }
 
+function quantityFromLabel(text: string, labels: string[]): number | undefined {
+  for (const label of labels) {
+    const labelPattern = label.replace(/\s+/g, "\\s+");
+    const after = text.match(new RegExp(`\\b${labelPattern}\\b\\D{0,24}(\\d{1,2})\\b`, "i"));
+    if (after) return Number(after[1]);
+
+    const before = text.match(new RegExp(`\\b(\\d{1,2})\\s*(?:x\\s*)?${labelPattern}\\b`, "i"));
+    if (before) return Number(before[1]);
+  }
+
+  return undefined;
+}
+
 function parseResolution(text: string): string | undefined {
   const value = text.toLowerCase();
   if (/8k|4320/.test(value)) return "8K";
@@ -762,14 +801,24 @@ function parseSpecFacts(text: string, inputCount?: number, outputCount?: number,
   if (inputCount) specs.hdmiInputs = inputCount;
   if (outputCount) specs.hdmiOutputs = outputCount;
 
-  if (/usb\s*host/.test(value)) specs.usbHostPorts = 1;
-  if (/usb\s*(device|client|peripheral)/.test(value)) specs.usbDevicePorts = 1;
+  specs.hdmiInputs = quantityFromLabel(value, ["hdmi inputs", "video inputs", "input count"]) ?? specs.hdmiInputs;
+  specs.hdmiOutputs = quantityFromLabel(value, ["hdmi outputs", "video outputs", "output count"]) ?? specs.hdmiOutputs;
+
+  specs.usbHostPorts = quantityFromLabel(value, ["usb host ports", "usb hosts", "host ports"]);
+  specs.usbDevicePorts = quantityFromLabel(value, ["usb device ports", "usb client ports", "usb peripheral ports", "device ports"]);
+  specs.usbTotalPorts = quantityFromLabel(value, ["usb total ports", "usb ports"]);
+  if (/usb\s*host/.test(value)) specs.usbHostPorts = specs.usbHostPorts ?? 1;
+  if (/usb\s*(device|client|peripheral)/.test(value)) specs.usbDevicePorts = specs.usbDevicePorts ?? 1;
   if (/usb|kvm/.test(value) || features.usbRouting) specs.usbTotalPorts = specs.usbTotalPorts ?? 1;
 
-  if (/audio\s*in|mic|microphone|line\s*in/.test(value)) specs.audioInputs = 1;
-  if (/audio\s*out|line\s*out|speaker|toslink|spdif/.test(value)) specs.audioOutputs = 1;
-  if (/ethernet|lan|rj45|network/.test(value)) specs.networkPorts = 1;
-  if (/rs-?232|ir\b|cec|relay|gpio|contact closure|control/.test(value) || features.control) specs.controlPorts = 1;
+  specs.audioInputs = quantityFromLabel(value, ["audio inputs", "audio in ports", "mic inputs", "line inputs"]);
+  specs.audioOutputs = quantityFromLabel(value, ["audio outputs", "audio out ports", "line outputs"]);
+  specs.networkPorts = quantityFromLabel(value, ["network ports", "lan ports", "ethernet ports", "rj45 ports"]);
+  specs.controlPorts = quantityFromLabel(value, ["control ports", "control connections"]);
+  if (/audio\s*in|mic|microphone|line\s*in/.test(value)) specs.audioInputs = specs.audioInputs ?? 1;
+  if (/audio\s*out|line\s*out|speaker|toslink|spdif/.test(value)) specs.audioOutputs = specs.audioOutputs ?? 1;
+  if (/ethernet|lan|rj45|network/.test(value)) specs.networkPorts = specs.networkPorts ?? 1;
+  if (/rs-?232|ir\b|cec|relay|gpio|contact closure|control/.test(value) || features.control) specs.controlPorts = specs.controlPorts ?? 1;
 
   specs.rs232 = /rs-?232/.test(value) ? true : undefined;
   specs.ir = /\bir\b|infrared/.test(value) ? true : undefined;
@@ -838,12 +887,19 @@ export function resolveCompetitorSpecProfile(
     title: input,
   });
 
-  const fingerprint = lookupFingerprint(evidence.sku) || lookupFingerprint(input);
+  const sourceUrlText = textFromSourceUrl(sourceUrl);
+  const sourceSkuCandidates = skuCandidatesFromSourceUrl(sourceUrl);
+  const fingerprint =
+    lookupFingerprint(evidence.sku) ||
+    lookupFingerprint(input) ||
+    lookupFingerprint(sourceUrlText);
   const sourceProduct = findCompetitorSourceProduct(
     providedBrand || evidence.brand,
     evidence.sku || input,
     sourceUrl || input,
-  );
+  ) || sourceSkuCandidates
+    .map((candidate) => findCompetitorSourceProduct(providedBrand || evidence.brand, candidate, sourceUrl || input))
+    .find(Boolean);
 
   // Domain: prefer fingerprint, fall back to family-rule evidence (UNKNOWN -> undefined).
   const domain =
@@ -857,7 +913,8 @@ export function resolveCompetitorSpecProfile(
     (evidence.role && evidence.role !== "Unknown" ? evidence.role : undefined);
 
   const parsedIo = parseIoCounts(input);
-  const parsedFeatures = parseFeatures(input);
+  const parseBasis = [input, sourceUrlText].filter(Boolean).join(" ");
+  const parsedFeatures = parseFeatures(parseBasis);
   const features = {
     ...(sourceProduct?.features ?? {}),
     ...parsedFeatures,
@@ -885,11 +942,11 @@ export function resolveCompetitorSpecProfile(
     transport: sourceProduct?.transport || canonicalTransport(domain),
     inputCount: fingerprint?.inputCount ?? sourceProduct?.inputCount ?? parsedIo.inputCount,
     outputCount: fingerprint?.outputCount ?? sourceProduct?.outputCount ?? parsedIo.outputCount,
-    maxResolution: fingerprint?.maxResolution ?? sourceProduct?.maxResolution ?? parseResolution(input),
+    maxResolution: fingerprint?.maxResolution ?? sourceProduct?.maxResolution ?? parseResolution(parseBasis),
     chroma: fingerprint?.chroma ?? sourceProduct?.chroma,
     features: hasFeatures ? features : undefined,
     specs: {
-      ...parseSpecFacts(input, fingerprint?.inputCount ?? sourceProduct?.inputCount ?? parsedIo.inputCount, fingerprint?.outputCount ?? sourceProduct?.outputCount ?? parsedIo.outputCount, features),
+      ...parseSpecFacts(parseBasis, fingerprint?.inputCount ?? sourceProduct?.inputCount ?? parsedIo.inputCount, fingerprint?.outputCount ?? sourceProduct?.outputCount ?? parsedIo.outputCount, features),
       ...(sourceProduct ? specsFromSourceProduct(sourceProduct) : {}),
       ...(fingerprint?.specs ?? {}),
     },

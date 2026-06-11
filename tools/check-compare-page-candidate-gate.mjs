@@ -61,13 +61,19 @@ const requiredPageMarkers = [
   "CompareProductLookupInput",
   "CompetitorProductProfileCard",
   "Source/spec page",
-  "!productUrl.trim()",
+  "Optional first pass; required if Wingman asks for retry evidence",
+  "LiveLookupRetryPanel",
+  "data-wingman-live-lookup-retry",
+  "lookupCompareIntelligence",
+  "Retry with URL",
+  "disabled={!competitorInput.trim()}",
 ];
 
 const prohibitedPageMarkers = [
   "<datalist",
   "<select",
   "COMPARE_SKU_DATALIST_ID",
+  "disabled={!competitorInput.trim() || !productUrl.trim()}",
 ];
 
 const requiredRigorousMarkers = [
@@ -150,4 +156,4 @@ if (missing.length) {
   process.exit(1);
 }
 
-console.log("[compare-page-candidate-gate] Verified active Compare page applies hard candidate gate before match ranking.");
+console.log("[compare-page-candidate-gate] Verified active Compare page applies hard candidate gate and live lookup URL retry before match ranking.");
