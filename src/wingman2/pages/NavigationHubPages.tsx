@@ -112,7 +112,7 @@ export function ProductsPage() {
           "Select SKU first",
           "Includes one-line positioning, one-minute brief, questions, listen-for triggers, objections, disqualifiers, attach products and follow-up wording.",
         ),
-        routeAction("productPitch", "Product Pitch", "Turn a selected SKU into customer-safe positioning and system-shape guidance.", "Pitch a SKU"),
+        routeAction("productPitch", "Product Dashboard", "Select a SKU and show product facts, I/O, what to say, what to ask and what to check before recommending.", "Open dashboard"),
       ]}
       secondaryActions={[
         routeAction("proposal", "Attach Products", "Carry selected products into response-pack output when the project is ready.", "Attach to output"),
@@ -131,7 +131,7 @@ export function DocumentsPage() {
       intent="Customer sent me a document, BOM, scope or competitor specification. Help me understand what matters to WyreStorm."
       subModes={["Upload / Paste", "Extracted Items", "WyreStorm Relevance", "Competitor Substitutions", "Clarification Questions", "Send to Response Pack"]}
       primaryActions={[
-        routeAction("ingest", "Upload / Paste", "Parse customer documents, notes, CSV, email exports and BOM-style text into requirements and unknowns.", "Review document"),
+        routeAction("ingest", "Decode request", "Decode emails, RFIs, RFQs, BOMs, scopes and rough notes into requirements, unknowns, system shape and next action.", "Decode request"),
         routeAction("templates", "Room / BOM templates", "Use editable room templates when the document resembles a known room archetype.", "Open templates"),
         routeAction("compare", "Competitor substitutions", "Check competitor items and decide whether WyreStorm has a good, partial or no-match path.", "Check substitutions"),
         routeAction("proposal", "Send to Response Pack", "Turn extracted requirements into a customer requirement summary and products-to-review output.", "Create response"),
@@ -145,12 +145,12 @@ export function ResponsePackPage() {
     <HubPage
       eyebrow="Wingman / Response Pack"
       title="Response Pack"
-      intent="Create something useful I can send, edit or hand over: customer requirement summary, suggested system shape, products to review and review gates."
+      intent="Create a usable response: quick email reply, RFI response, formal RFQ support, project summary, internal handover or schematic-backed response pack."
       subModes={["Customer requirement summary", "Suggested system shape", "Products to review", "Technical review required", "Commercial review required before quotation"]}
       primaryActions={[
         routeAction("proposal", "Response Pack Builder", "Build the customer-facing response, BOM-style product review list and review-gated output.", "Build response pack"),
         routeAction("support", "Review gates", "Check technical review, commercial review before quotation, escalation and completion gaps.", "Request review"),
-        routeAction("visualDesign", "Visual support", "Create diagrams and editable visual support for handover or customer explanation.", "Create visuals"),
+        routeAction("visualDesign", "Schematic Builder", "Create end-to-end schematics with WyreStorm devices, known third-party items and TBC products.", "Create schematic"),
         routeAction("templates", "Template response", "Start from a room archetype when a known application template is enough.", "Use template"),
       ]}
     />

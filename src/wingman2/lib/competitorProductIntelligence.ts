@@ -39,6 +39,14 @@ export type CompetitorSkuSeed = {
   sku: string;
 };
 
+export type NormalizedCompetitorSku = {
+  brand: string;
+  sku: string;
+  original: string;
+  corrected: boolean;
+  confidence: "brand-scoped" | "known-sku" | "partial";
+};
+
 export type CompetitorFamilyRule = {
   brand: string;
   match: RegExp;
@@ -121,9 +129,17 @@ export const COMPETITOR_SKU_SEED_CATALOG: Record<string, string[]> = {
     "VS-88H2A"
   ],
   "Lightware": [
+    "MMX2-4x1-H20",
+    "MMX4x2-HDMI",
+    "MMX6x2-HT200",
+    "MMX6x2-HT210",
+    "MMX8x4-HT400MC",
+    "MMX8x4-HT420M",
     "MMX8x8-HDMI-4K-A",
     "TAURUS UCX-2x1-HC30",
     "TAURUS UCX-4x2-HC30",
+    "TPX-2x1-TX20-3x3-RX20",
+    "UCX-4x2-HC40",
     "UBEX-PRO20-HDMI-F100",
     "UBEX-PRO20-HDMI-F110",
     "VINX-110-HDMI-ENC",
@@ -197,6 +213,9 @@ export const COMPETITOR_SKU_SEED_CATALOG: Record<string, string[]> = {
     "B-660-MTRX-8x8",
     "B-900-MOIP-4K-RX",
     "B-900-MOIP-4K-TX"
+  ],
+  "Visionary": [
+    "D5200"
   ],
   "Other": []
 };
@@ -488,7 +507,7 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
   },
   {
     brand: "Lightware",
-    match: /^taurus/i,
+    match: /^taurus|^ucx/i,
     tier: "family-rule",
     domain: "PRESENTATION",
     role: "Presentation Switcher",
@@ -642,16 +661,64 @@ export function competitorBrandCounts(): Array<{ brand: string; count: number }>
   }));
 }
 
-function findSeedFromSku(rawSku: string): CompetitorSkuSeed | null {
-  const normalised = key(rawSku);
+function cleanBrand(value: unknown): string {
+  const brand = clean(value);
+  return brand === "Auto-detect where possible" || brand === "Other" ? "" : brand;
+}
 
-  for (const seed of competitorSkuSeeds()) {
-    if (normalised === key(seed.sku) || normalised.includes(key(seed.sku))) {
-      return seed;
+function canonicalBrand(value: unknown): string {
+  const requested = key(value);
+  if (!requested) return "";
+
+  return Object.keys(COMPETITOR_SKU_SEED_CATALOG).find((brand) => key(brand) === requested) || clean(value);
+}
+
+function skuSeedCandidates(brand?: string): CompetitorSkuSeed[] {
+  const requestedBrand = canonicalBrand(brand);
+  const scoped = requestedBrand && COMPETITOR_SKU_SEED_CATALOG[requestedBrand]
+    ? COMPETITOR_SKU_SEED_CATALOG[requestedBrand].map((sku) => ({ brand: requestedBrand, sku }))
+    : competitorSkuSeeds();
+
+  return scoped
+    .filter((seed) => key(seed.brand) !== "other")
+    .sort((a, b) => key(b.sku).length - key(a.sku).length);
+}
+
+export function normalizeCompetitorSku(rawSku: string, providedBrand?: string): NormalizedCompetitorSku | null {
+  const original = clean(rawSku);
+  const requestedBrand = cleanBrand(providedBrand);
+  const compact = key(original);
+  if (!compact || !/[a-z]/i.test(compact) || !/\d/.test(compact)) return null;
+
+  const brandScoped = Boolean(requestedBrand);
+  const candidates = skuSeedCandidates(requestedBrand);
+
+  for (const seed of candidates) {
+    const seedKey = key(seed.sku);
+    if (!seedKey) continue;
+
+    const exact = compact === seedKey;
+    const containsKnownSku = seedKey.length >= 5 && compact.includes(seedKey);
+    const brandScopedPartial = brandScoped && compact.length >= 5 && (seedKey.includes(compact) || compact.includes(seedKey));
+    const unscopedKnownSku = !brandScoped && containsKnownSku;
+
+    if (exact || brandScopedPartial || unscopedKnownSku) {
+      return {
+        brand: seed.brand,
+        sku: seed.sku,
+        original,
+        corrected: original !== seed.sku,
+        confidence: brandScoped ? "brand-scoped" : exact || containsKnownSku ? "known-sku" : "partial",
+      };
     }
   }
 
   return null;
+}
+
+function findSeedFromSku(rawSku: string): CompetitorSkuSeed | null {
+  const normalised = normalizeCompetitorSku(rawSku);
+  return normalised ? { brand: normalised.brand, sku: normalised.sku } : null;
 }
 
 function findRule(brand: string, sku: string): CompetitorFamilyRule {
@@ -690,25 +757,32 @@ export function buildCompetitorDecisionEvidence(profile: {
   role?: string;
   transport?: string;
   maxResolution?: string;
+  inputCount?: number;
+  outputCount?: number;
   features?: Record<string, boolean | undefined>;
 }): CompetitorDecisionEvidence {
+  const normalised = normalizeCompetitorSku(clean(profile.sku || profile.title || ""), profile.brand || profile.manufacturer);
   const rawText = [
+    normalised?.brand,
     profile.brand,
     profile.manufacturer,
+    normalised?.sku,
     profile.sku,
     profile.title,
     profile.domain,
     profile.role,
     profile.transport,
     profile.maxResolution,
+    profile.inputCount ? `${profile.inputCount} input` : "",
+    profile.outputCount ? `${profile.outputCount} output` : "",
     ...Object.entries(profile.features ?? {})
       .filter(([, value]) => Boolean(value))
       .map(([name]) => name),
   ].join(" ");
 
   const seed = findSeedFromSku(rawText);
-  const brand = clean(profile.brand || profile.manufacturer || seed?.brand || "Unknown");
-  const sku = clean(profile.sku || seed?.sku || profile.title || "Unknown competitor product");
+  const brand = clean(normalised?.brand || profile.brand || profile.manufacturer || seed?.brand || "Unknown");
+  const sku = clean(normalised?.sku || seed?.sku || profile.sku || profile.title || "Unknown competitor product");
   const rule = findRule(brand, sku);
   const profileText = clean(rawText).toLowerCase();
   const presentFacts = mergePresentFacts(rule, profileText);

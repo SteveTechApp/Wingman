@@ -7,9 +7,11 @@ const __dirname = path.dirname(__filename);
 const root = path.resolve(__dirname, "..");
 
 const classifierPath = path.join(root, "src/wingman2/lib/competitorCompareDecision.ts");
-const comparePath = path.join(root, "src/wingman2/pages/ComparePage.tsx");
+const rigorousPath = path.join(root, "src/wingman2/lib/rigorousCompare.ts");
+const comparePath = path.join(root, "src/wingman2/pages/ComparePageNew.tsx");
 
 const classifier = readFileSync(classifierPath, "utf8");
+const rigorous = readFileSync(rigorousPath, "utf8");
 const compare = readFileSync(comparePath, "utf8");
 
 const classifierMarkers = [
@@ -24,17 +26,34 @@ const classifierMarkers = [
 ];
 
 const comparePageMarkers = [
-  "ComparePage",
-  "matchScore",
-  "Competitor",
-  "manufacturer",
-  "model",
+  "ComparePageNew",
+  "data-wingman-compare-decision-desk",
+  "rigorousCompare",
+  "decision.outcome",
+  "decision.confidence",
+  "CompareSpecificationMatrix",
+  "buildCompareFeatureMatrixRows",
+  "Competitor product",
+  "Custom manufacturer",
+  "effectiveCompetitorInput",
+  "normalizeCompetitorSku",
+  "rigorousCompare(compareInputText || effectiveCompetitorInput",
+];
+
+const rigorousMarkers = [
+  "classifyCompetitorCompareDecision",
+  "decision: CompareDecisionResult",
+  "decision.outcome",
+  "decision.confidence",
 ];
 
 const missing = [
   ...classifierMarkers
     .filter((marker) => !classifier.includes(marker))
     .map((marker) => "classifier missing: " + marker),
+  ...rigorousMarkers
+    .filter((marker) => !rigorous.includes(marker))
+    .map((marker) => "rigorous compare missing classifier wiring: " + marker),
   ...comparePageMarkers
     .filter((marker) => !compare.includes(marker))
     .map((marker) => "Compare page missing expected marker: " + marker),
@@ -48,15 +67,14 @@ if (missing.length) {
   process.exit(1);
 }
 
-const wired = compare.includes("classifyCompetitorCompareDecision");
+const wired = rigorous.includes("classifyCompetitorCompareDecision") && compare.includes("rigorousCompare");
 
 if (wired) {
-  console.log("[compare-decision-workflow] Compare page can access the deterministic GOOD/PARTIAL/NO MATCH/VERIFY classifier.");
+  console.log("[compare-decision-workflow] Active Compare page reaches the deterministic GOOD/PARTIAL/NO MATCH/VERIFY classifier through rigorousCompare.");
 }
 
 if (!wired) {
-  console.warn("[compare-decision-workflow] Classifier exists, but ComparePage does not yet call it directly.");
-  console.warn("[compare-decision-workflow] This is allowed for now because the classifier is independently verified and ready for safe wiring.");
+  console.warn("[compare-decision-workflow] Classifier exists, but active Compare page is not wired through rigorousCompare.");
 }
 
 console.log("[compare-decision-workflow] Verified competitor decision classifier readiness without brittle page-internal markers.");

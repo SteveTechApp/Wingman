@@ -1,12 +1,27 @@
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   analyzeCompetitor,
-  compareCompetitor,
-  type CompareResult,
   type CompetitorProfile,
-  type MatchResult,
   type WyrestormProduct,
 } from "../lib/competitorMatchEngine";
+import {
+  CompareManufacturerCombobox,
+  CompareProductLookupInput,
+  type CompareSelectOption,
+} from "../components/compare/CompareControls";
+import { CompareSpecificationMatrix } from "../components/compare/CompareSpecificationMatrix";
+import { COMPETITOR_SKU_SEED_CATALOG, normalizeCompetitorSku } from "../lib/competitorProductIntelligence";
+import {
+  rigorousCompare,
+  type RigorousCompareResult,
+  type RigorousMatch,
+} from "../lib/rigorousCompare";
+import {
+  lookupCompareIntelligence,
+  type CompareIntelligenceResult,
+} from "../lib/compareIntelligenceClient";
+import type { CompareDecisionOutcome } from "../lib/competitorCompareDecision";
+import { buildCompareFeatureMatrixRows, type CompareFeatureMatrixRow } from "../lib/compareFeatureMatrix";
 
 const KNOWN_BRANDS = [
   "Crestron",
@@ -26,538 +41,786 @@ const KNOWN_BRANDS = [
   "Biamp",
   "Shure",
   "QSC",
-  "Other",
+  "Visionary",
+];
+
+const CUSTOM_BRAND_VALUE = "__custom_brand__";
+
+const MANUFACTURER_OPTIONS = Array.from(
+  new Set([
+    ...Object.keys(COMPETITOR_SKU_SEED_CATALOG).filter((brand) => brand !== "Other"),
+    ...KNOWN_BRANDS,
+  ]),
+).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+
+const MANUFACTURER_SELECT_OPTIONS: CompareSelectOption[] = [
+  { value: "", label: "Auto-detect where possible" },
+  ...MANUFACTURER_OPTIONS.map((brand) => ({ value: brand, label: brand })),
+  { value: CUSTOM_BRAND_VALUE, label: "Other / type manufacturer" },
 ];
 
 type PageState = "input" | "analyzing" | "results" | "error";
+
+function shouldRequestLiveLookupUrl(result: RigorousCompareResult, hasSourceUrl: boolean): boolean {
+  if (hasSourceUrl && result.competitor.specTier === "verified-profile") return false;
+  if (result.topOutcome === "NONE") return true;
+  if (!result.matches.length) return true;
+  if (result.topOutcome === "VERIFY" && !hasSourceUrl) return true;
+  if (result.competitor.specTier !== "verified-profile" && result.competitor.missingFacts.length > 0) return true;
+
+  return false;
+}
+
+function recordFromUnknown(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function countFromRecord(record: Record<string, unknown>, keys: string[]): number | undefined {
+  const total = keys.reduce((sum, key) => {
+    const value = Number(record[key]);
+    return Number.isFinite(value) && value > 0 ? sum + value : sum;
+  }, 0);
+
+  return total > 0 ? total : undefined;
+}
+
+function addLookupCount(lines: string[], label: string, value: number | undefined) {
+  if (value) lines.push(`${label} ${value}`);
+}
+
+function lookupProfileFacts(profile: Record<string, unknown> | undefined): string {
+  if (!profile) return "";
+
+  const lines: string[] = [];
+  const videoInputs = recordFromUnknown(profile.videoInputs);
+  const videoOutputs = recordFromUnknown(profile.videoOutputs);
+  const usb = recordFromUnknown(profile.usb);
+  const audio = recordFromUnknown(profile.audio);
+  const control = recordFromUnknown(profile.control);
+  const power = recordFromUnknown(profile.power);
+  const network = recordFromUnknown(profile.network);
+  const videoProcessing = recordFromUnknown(profile.videoProcessing);
+  const features = recordFromUnknown(profile.features);
+  const verifiedSource = recordFromUnknown(profile.verifiedSource);
+
+  addLookupCount(lines, "HDMI inputs", countFromRecord(videoInputs, ["hdmi"]));
+  addLookupCount(lines, "HDMI outputs", countFromRecord(videoOutputs, ["hdmi", "hdmiLoopThrough", "hdmiMirrored"]));
+  addLookupCount(lines, "HDBaseT outputs", countFromRecord(videoOutputs, ["hdbaset", "hdbt"]));
+  addLookupCount(lines, "USB host ports", countFromRecord(usb, ["host", "hosts", "usbHost", "usbHostPorts"]));
+  addLookupCount(lines, "USB device ports", countFromRecord(usb, ["device", "devices", "client", "usbDevice", "usbDevicePorts"]));
+  addLookupCount(lines, "Audio inputs", countFromRecord(audio, ["inputs", "audioInputs", "lineInputs", "micInputs"]));
+  addLookupCount(lines, "Audio outputs", countFromRecord(audio, ["outputs", "audioOutputs", "lineOutputs"]));
+  addLookupCount(lines, "Network ports", countFromRecord(control, ["lan", "ethernet", "network"]) ?? countFromRecord(network, ["ports", "lan", "ethernet"]));
+  addLookupCount(lines, "Control ports", countFromRecord(control, ["rs232", "ir", "cec", "relay", "digitalIo", "gpio"]));
+
+  if (videoProcessing.maxResolution) lines.push(`Resolution ${String(videoProcessing.maxResolution)}`);
+  if (videoProcessing.role) lines.push(`Product role ${String(videoProcessing.role)}`);
+  if (network.transport) lines.push(`Transport ${String(network.transport)}`);
+  if (network.codec) lines.push(`Codec ${String(network.codec)}`);
+  if (verifiedSource.role) lines.push(`Verified role ${String(verifiedSource.role)}`);
+  if (features.usbC) lines.push("USB-C");
+  if (features.usbRouting || usb.usb2 || usb.usb3) lines.push("USB routing");
+  if (features.dante || audio.dante) lines.push("Dante audio");
+  if (features.aes67 || audio.aes67) lines.push("AES67 audio");
+  if (features.hdbasetExtension) lines.push("HDBaseT output");
+  if (features.poe || power.poe || power.poePlus) lines.push("PoE");
+  if (features.poc || power.poc) lines.push("PoC");
+  if (features.poh || power.poh) lines.push("PoH");
+  if (features.audioDeEmbed || audio.deEmbed) lines.push("Audio de-embed");
+  if (features.audioEmbed || audio.embed) lines.push("Audio embed");
+  if (control.rs232) lines.push("RS-232");
+  if (control.ir) lines.push("IR control");
+  if (control.lan) lines.push("Ethernet control");
+  if (control.relay) lines.push("Relay");
+  if (control.gpio || control.digitalIo) lines.push("GPIO");
+
+  return lines.join("\n");
+}
+
+function lookupEvidenceText(lookup: CompareIntelligenceResult): string {
+  const lines: string[] = [];
+  const competitor = lookup.competitor;
+
+  if (competitor?.categoryLabel) lines.push(`Technology class ${competitor.categoryLabel}`);
+  if (competitor?.purposeLabel) lines.push(`Product purpose ${competitor.purposeLabel}`);
+  if (competitor?.purposeRole) lines.push(`Product role ${competitor.purposeRole}`);
+
+  const profileFacts = lookupProfileFacts(competitor?.specProfile);
+  if (profileFacts) lines.push(profileFacts);
+
+  for (const source of lookup.evidence?.sources ?? []) {
+    if (source.excerpt) lines.push(source.excerpt);
+  }
+
+  return lines.filter(Boolean).join("\n");
+}
+
+const OUTCOME_STYLES: Record<CompareDecisionOutcome, string> = {
+  "GOOD MATCH": "border-emerald-400 bg-emerald-400/15 text-emerald-100",
+  "PARTIAL MATCH": "border-amber-400 bg-amber-400/15 text-amber-100",
+  VERIFY: "border-yellow-400 bg-yellow-400/15 text-yellow-100",
+  "NO MATCH": "border-rose-400 bg-rose-400/15 text-rose-100",
+};
+
+function readIndexedProducts(data: unknown): WyrestormProduct[] {
+  if (Array.isArray(data)) {
+    return data as WyrestormProduct[];
+  }
+
+  if (data && typeof data === "object" && Array.isArray((data as { products?: unknown }).products)) {
+    return (data as { products: WyrestormProduct[] }).products;
+  }
+
+  return [];
+}
+
+function outcomeClass(outcome: CompareDecisionOutcome) {
+  return OUTCOME_STYLES[outcome];
+}
+
+function formatProfileValue(value: unknown): string {
+  const text = String(value ?? "").trim();
+  return text || "Unknown";
+}
+
+function compareSkuKey(value: unknown): string {
+  return String(value ?? "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function skuOptionsForBrand(brand?: string): string[] {
+  if (brand && COMPETITOR_SKU_SEED_CATALOG[brand]) {
+    return COMPETITOR_SKU_SEED_CATALOG[brand];
+  }
+
+  return Array.from(new Set(Object.values(COMPETITOR_SKU_SEED_CATALOG).flat()));
+}
+
+function compareSkuSuggestions(query: string, brand?: string): string[] {
+  const queryKey = compareSkuKey(query);
+  const options = skuOptionsForBrand(brand);
+  const filtered = queryKey
+    ? options.filter((sku) => {
+      const key = compareSkuKey(sku);
+      return key.includes(queryKey) || queryKey.includes(key);
+    })
+    : options;
+
+  return Array.from(new Set(filtered))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" }))
+    .slice(0, 80);
+}
+
+function resolveSelectedBrand(selectedBrand: string, customBrand: string): string | undefined {
+  if (selectedBrand === CUSTOM_BRAND_VALUE) {
+    return customBrand.trim() || undefined;
+  }
+
+  return selectedBrand || undefined;
+}
+
+function EvidenceList({ title, items, tone }: { title: string; items: string[]; tone: "match" | "gap" | "block" | "verify" }) {
+  if (!items.length) return null;
+
+  const marker = tone === "match" ? "OK" : tone === "block" ? "NO" : "!";
+  const titleClass = tone === "match" ? "text-emerald-200" : tone === "block" ? "text-rose-200" : "text-amber-200";
+
+  return (
+    <section className="rounded-2xl border border-[#29465e] bg-[#071522] p-4">
+      <h4 className={`text-sm font-black ${titleClass}`}>{title}</h4>
+      <ul className="mt-3 space-y-2 text-sm leading-6 text-white/75">
+        {items.map((item, index) => (
+          <li key={`${item}-${index}`} className="flex gap-2">
+            <span className="shrink-0 font-black">{marker}</span>
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function CompetitorProductProfileCard({ result }: { result: RigorousCompareResult }) {
+  const competitor = result.competitor;
+  const facts: [string, unknown][] = [
+    ["Manufacturer", competitor.brand],
+    ["SKU", competitor.sku],
+    ["Technology", competitor.domain],
+    ["Role", competitor.role],
+    ["Transport", competitor.transport],
+    ["Inputs", competitor.inputCount],
+    ["Outputs", competitor.outputCount],
+    ["Resolution", competitor.maxResolution],
+    ["Chroma", competitor.chroma],
+    ["Evidence tier", competitor.specTier],
+  ];
+
+  return (
+    <section className="rounded-2xl border border-[#29465e] bg-[#081724] p-4" data-wingman-competitor-product-profile="true">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Competitor product profile</p>
+          <h3 className="mt-1 text-xl font-black text-white">{competitor.brand} {competitor.sku}</h3>
+        </div>
+        <span className="rounded-full border border-cyan-300/40 bg-cyan-300/10 px-3 py-1 text-xs font-black text-cyan-100">
+          {competitor.readiness}
+        </span>
+      </div>
+
+      <dl className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        {facts.map(([label, value]) => (
+          <div key={label} className="rounded-xl border border-[#1b3348] bg-[#071522] p-3">
+            <dt className="text-xs font-black uppercase tracking-[0.12em] text-white/40">{label}</dt>
+            <dd className="mt-1 text-sm font-black text-white">{formatProfileValue(value)}</dd>
+          </div>
+        ))}
+      </dl>
+
+      {competitor.datasheetUrl || competitor.sourceUrl ? (
+        <a href={competitor.datasheetUrl || competitor.sourceUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm font-black text-cyan-200">
+          Open product/spec source
+        </a>
+      ) : null}
+
+      {competitor.assumptions.length || competitor.missingFacts.length ? (
+        <div className="mt-4 grid gap-3 lg:grid-cols-2">
+          {competitor.assumptions.length ? (
+            <div className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-3">
+              <p className="text-sm font-black text-amber-100">Assumptions</p>
+              <ul className="mt-2 space-y-1 text-sm leading-5 text-white/70">
+                {competitor.assumptions.slice(0, 4).map((item) => <li key={item}>{item}</li>)}
+              </ul>
+            </div>
+          ) : null}
+
+          {competitor.missingFacts.length ? (
+            <div className="rounded-xl border border-amber-400/30 bg-amber-400/10 p-3">
+              <p className="text-sm font-black text-amber-100">Missing competitor facts</p>
+              <ul className="mt-2 space-y-1 text-sm leading-5 text-white/70">
+                {competitor.missingFacts.slice(0, 4).map((item) => <li key={item}>{item}</li>)}
+              </ul>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function DataQualityStrip({ rows }: { rows: CompareFeatureMatrixRow[] }) {
+  const competitorGaps = rows.filter((row) => row.competitorValue === "Unknown").map((row) => row.label);
+  const wyrestormGaps = rows.filter((row) => row.wyrestormValue === "Unknown").map((row) => row.label);
+
+  if (!competitorGaps.length && !wyrestormGaps.length) return null;
+
+  return (
+    <div className="mt-3 grid gap-2 rounded-2xl border border-amber-400/35 bg-amber-400/10 p-3 text-xs" data-wingman-compare-data-quality="true">
+      <div className="flex flex-wrap gap-2">
+        <span className="font-black uppercase tracking-[0.12em] text-amber-100">Dataset gaps</span>
+        {wyrestormGaps.length ? (
+          <span className="rounded-full border border-rose-400/45 bg-rose-400/10 px-2 py-1 font-black text-rose-100">
+            WyreStorm needs {wyrestormGaps.length} fact{wyrestormGaps.length === 1 ? "" : "s"}
+          </span>
+        ) : (
+          <span className="rounded-full border border-emerald-400/45 bg-emerald-400/10 px-2 py-1 font-black text-emerald-100">
+            WyreStorm core facts present
+          </span>
+        )}
+        {competitorGaps.length ? (
+          <span className="rounded-full border border-amber-400/45 bg-amber-400/10 px-2 py-1 font-black text-amber-100">
+            Competitor needs {competitorGaps.length} fact{competitorGaps.length === 1 ? "" : "s"}
+          </span>
+        ) : null}
+      </div>
+      <div className="grid gap-1 text-white/70 md:grid-cols-2">
+        {wyrestormGaps.length ? <p>WyreStorm data to complete: {wyrestormGaps.slice(0, 5).join(", ")}.</p> : null}
+        {competitorGaps.length ? <p>Competitor data to source: {competitorGaps.slice(0, 5).join(", ")}.</p> : null}
+      </div>
+    </div>
+  );
+}
+
+function LiveLookupRetryPanel({
+  value,
+  status,
+  onChange,
+  onRetry,
+  disabled,
+}: {
+  value: string;
+  status?: string;
+  onChange: (value: string) => void;
+  onRetry: () => void;
+  disabled: boolean;
+}) {
+  return (
+    <section className="rounded-3xl border border-amber-400/45 bg-amber-400/10 p-5" data-wingman-live-lookup-retry="true">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-100">Need a live/spec source</p>
+          <h2 className="mt-1 text-xl font-black text-white">Point Wingman at a product page and retry</h2>
+        </div>
+        <span className="rounded-full border border-amber-400/50 bg-amber-400/10 px-3 py-1 text-xs font-black text-amber-100">
+          Retry lookup
+        </span>
+      </div>
+
+      <p className="mt-3 text-sm leading-6 text-white/75">
+        The current result is not strong enough. Add any public page containing the competitor product details, specification table or PDF datasheet link, then retry so Wingman can use that source for the comparison.
+      </p>
+      {status ? (
+        <p className="mt-3 rounded-2xl border border-amber-400/30 bg-[#071522] p-3 text-sm font-semibold text-amber-50">{status}</p>
+      ) : null}
+
+      <div className="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
+        <label className="grid gap-2">
+          <span className="text-xs font-black uppercase tracking-[0.16em] text-white/50">Live lookup URL</span>
+          <input
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+            placeholder="Paste a product page, reseller page, PDF datasheet, or public spec page"
+            className="min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-semibold text-white"
+          />
+        </label>
+        <button
+          type="button"
+          onClick={onRetry}
+          disabled={disabled || !value.trim()}
+          className="self-end rounded-full bg-amber-300 px-5 py-3 text-sm font-black text-slate-950 transition disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          Retry with URL
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function MatchCard({ match, rank, competitor, defaultExpanded = false }: { match: RigorousMatch; rank: number; competitor: RigorousCompareResult["competitor"]; defaultExpanded?: boolean }) {
+  const [expanded, setExpanded] = useState(defaultExpanded || rank === 1);
+  const { decision } = match;
+  const matrixRows = useMemo(
+    () => buildCompareFeatureMatrixRows(competitor, match.wyrestorm),
+    [competitor, match.wyrestorm],
+  );
+
+  return (
+    <article className={`overflow-hidden rounded-3xl border ${rank === 1 ? "border-cyan-300 bg-cyan-500/10" : "border-[#29465e] bg-[#071522]"}`}>
+      <button
+        type="button"
+        onClick={() => setExpanded((current) => !current)}
+        className="flex w-full items-center justify-between gap-4 p-4 text-left"
+      >
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#0d2133] text-sm font-black text-cyan-200">{rank}</span>
+          <div className="min-w-0">
+            <h3 className="text-lg font-black text-white">{match.sku}</h3>
+            <p className="text-sm text-white/55">{match.name || match.family}</p>
+          </div>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-3">
+          <span className="text-xs font-black text-white/45">{decision.confidence}%</span>
+          <span className={`rounded-full border px-3 py-1 text-xs font-black ${outcomeClass(decision.outcome)}`}>
+            {decision.outcome}
+          </span>
+        </div>
+      </button>
+
+      {expanded ? (
+        <div className="border-t border-[#29465e] p-4">
+          <CompareSpecificationMatrix
+            rows={matrixRows}
+            competitorLabel={`${competitor.brand || "Competitor"} ${competitor.sku || "product"}`}
+            wyrestormLabel={match.sku}
+          />
+          <DataQualityStrip rows={matrixRows} />
+
+          <details className="mt-4 rounded-2xl border border-[#29465e] bg-[#081724] p-4">
+            <summary className="cursor-pointer text-sm font-black text-cyan-200">Evidence notes and objection handling</summary>
+            <p className="mt-3 text-sm leading-6 text-white/70">{decision.summary}</p>
+            <div className="mt-4 grid gap-3 xl:grid-cols-2">
+              <EvidenceList title="Confirmed matches" items={decision.matches} tone="match" />
+              <EvidenceList title="Blocking differences" items={decision.blockers} tone="block" />
+              <EvidenceList title="Gaps to explain" items={decision.gaps} tone="gap" />
+              <EvidenceList title="Verify before customer issue" items={decision.verify} tone="verify" />
+            </div>
+          </details>
+
+          <div className="mt-4 rounded-2xl border border-cyan-500/30 bg-cyan-500/10 p-4 text-sm leading-6 text-white">
+            <strong className="text-cyan-200">Next action: </strong>
+            {decision.nextAction}
+          </div>
+        </div>
+      ) : null}
+    </article>
+  );
+}
 
 export default function ComparePageNew() {
   const [state, setState] = useState<PageState>("input");
   const [competitorInput, setCompetitorInput] = useState("");
   const [selectedBrand, setSelectedBrand] = useState("");
+  const [customBrand, setCustomBrand] = useState("");
   const [productUrl, setProductUrl] = useState("");
   const [applicationContext, setApplicationContext] = useState("");
   const [products, setProducts] = useState<WyrestormProduct[]>([]);
-  const [result, setResult] = useState<CompareResult | null>(null);
+  const [result, setResult] = useState<RigorousCompareResult | null>(null);
   const [error, setError] = useState("");
+  const [lookupStatus, setLookupStatus] = useState("");
   const [liveProfile, setLiveProfile] = useState<CompetitorProfile | null>(null);
+  const resolvedBrand = useMemo(() => resolveSelectedBrand(selectedBrand, customBrand), [customBrand, selectedBrand]);
+  const normalisedSku = useMemo(
+    () => normalizeCompetitorSku(competitorInput, resolvedBrand),
+    [competitorInput, resolvedBrand],
+  );
+  const effectiveBrand = normalisedSku?.brand || resolvedBrand;
+  const effectiveCompetitorInput = normalisedSku?.sku || competitorInput;
+  const compareInputText = useMemo(
+    () => [effectiveCompetitorInput, productUrl, applicationContext].map((value) => value.trim()).filter(Boolean).join(" "),
+    [applicationContext, effectiveCompetitorInput, productUrl],
+  );
+  const skuSuggestions = useMemo(
+    () => compareSkuSuggestions(competitorInput, effectiveBrand),
+    [competitorInput, effectiveBrand],
+  );
 
-  // Load WyreStorm products on mount
   useEffect(() => {
     async function loadProducts() {
       try {
-        const res = await fetch("/product-intelligence-index.json");
-        if (!res.ok) throw new Error("Failed to load product data");
-        const data = await res.json();
-        setProducts(Array.isArray(data) ? data : []);
+        const response = await fetch("/product-intelligence-index.json", { cache: "no-store" });
+        if (!response.ok) throw new Error("Product index unavailable");
+        const data = await response.json();
+        setProducts(readIndexedProducts(data));
       } catch (err) {
         console.error("Failed to load products:", err);
       }
     }
-    loadProducts();
+
+    void loadProducts();
   }, []);
 
-  // Live analysis as user types
   useEffect(() => {
     if (competitorInput.trim().length >= 3) {
-      const profile = analyzeCompetitor(competitorInput, selectedBrand || undefined);
-      setLiveProfile(profile);
-    } else {
-      setLiveProfile(null);
+      setLiveProfile(analyzeCompetitor(compareInputText || effectiveCompetitorInput, effectiveBrand));
+      return;
     }
-  }, [competitorInput, selectedBrand]);
+
+    setLiveProfile(null);
+  }, [compareInputText, competitorInput, effectiveBrand, effectiveCompetitorInput]);
 
   const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
+    async (event: React.FormEvent) => {
+      event.preventDefault();
 
       if (!competitorInput.trim()) {
-        setError("Please enter a competitor product SKU or name");
+        setError("Enter a competitor SKU, product name or pasted description.");
         setState("error");
         return;
       }
 
       if (products.length === 0) {
-        setError("Product data not loaded. Please refresh the page.");
+        setError("Product data has not loaded yet. Refresh the page or check the product intelligence index.");
         setState("error");
         return;
       }
 
       setState("analyzing");
-
-      // Add a small delay for UX
-      await new Promise((r) => setTimeout(r, 300));
+      setLookupStatus("");
 
       try {
-        const fullInput = applicationContext
-          ? `${competitorInput} ${applicationContext}`
-          : competitorInput;
-
-        const compareResult = compareCompetitor(
-          fullInput,
-          products,
-          selectedBrand || undefined,
-          6
-        );
-
+        const compareResult = rigorousCompare(compareInputText || effectiveCompetitorInput, products, effectiveBrand, 10, productUrl.trim());
+        if (normalisedSku?.corrected) {
+          setCompetitorInput(normalisedSku.sku);
+          if (!resolvedBrand && normalisedSku.brand) {
+            setSelectedBrand(normalisedSku.brand);
+          }
+        }
         setResult(compareResult);
+        setError("");
         setState("results");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Comparison failed");
         setState("error");
       }
     },
-    [competitorInput, selectedBrand, applicationContext, products]
+    [compareInputText, competitorInput, effectiveBrand, effectiveCompetitorInput, normalisedSku, productUrl, products, resolvedBrand],
   );
+
+  const handleRetryWithSourceUrl = useCallback(async () => {
+    if (!productUrl.trim()) {
+      setError("Paste a live product/spec URL before retrying.");
+      setState("error");
+      return;
+    }
+
+    if (products.length === 0) {
+      setError("Product data has not loaded yet. Refresh the page or check the product intelligence index.");
+      setState("error");
+      return;
+    }
+
+    setState("analyzing");
+    setLookupStatus("Trying the supplied product/spec URL before re-running the matrix.");
+
+    try {
+      let retryInput = [effectiveCompetitorInput, applicationContext, productUrl].map((value) => value.trim()).filter(Boolean).join("\n");
+      let nextLookupStatus = "Retried with the supplied URL and local source parsing.";
+
+      try {
+        const lookup = await lookupCompareIntelligence({
+          brand: effectiveBrand || result?.competitor.brand || "",
+          sku: result?.competitor.sku || effectiveCompetitorInput,
+          productName: result?.competitor.title,
+          rawText: [effectiveCompetitorInput, applicationContext].filter(Boolean).join("\n"),
+          productUrl: productUrl.trim(),
+          allowWeb: true,
+        });
+        const evidenceText = lookupEvidenceText(lookup);
+
+        if (evidenceText) {
+          retryInput = [effectiveCompetitorInput, evidenceText, applicationContext, productUrl].map((value) => value.trim()).filter(Boolean).join("\n");
+        }
+
+        nextLookupStatus = lookup.evidence?.usefulPages
+          ? `Live lookup read ${lookup.evidence.usefulPages} useful page${lookup.evidence.usefulPages === 1 ? "" : "s"} and retried the matrix.`
+          : "Live lookup responded, but Wingman still needs the supplied URL/source text as evidence.";
+      } catch (lookupError) {
+        nextLookupStatus = lookupError instanceof Error
+          ? `Live lookup service unavailable (${lookupError.message}); retried using the URL text and local source feed.`
+          : "Live lookup service unavailable; retried using the URL text and local source feed.";
+      }
+
+      const compareResult = rigorousCompare(retryInput, products, effectiveBrand || result?.competitor.brand, 10, productUrl.trim());
+      setResult(compareResult);
+      setError("");
+      setLookupStatus(nextLookupStatus);
+      setState("results");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Comparison retry failed");
+      setState("error");
+    }
+  }, [applicationContext, effectiveBrand, effectiveCompetitorInput, productUrl, products, result]);
 
   const handleReset = () => {
     setCompetitorInput("");
     setSelectedBrand("");
+    setCustomBrand("");
     setProductUrl("");
     setApplicationContext("");
     setResult(null);
     setError("");
+    setLookupStatus("");
     setLiveProfile(null);
     setState("input");
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Competitor Compare</h1>
-          <p className="mt-2 text-gray-600">
-            Enter a competitor product to find the best WyreStorm alternatives
-          </p>
-        </div>
+    <main className="grid gap-4 pb-6 text-white" data-wingman-compare-decision-desk="true">
+      <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-300">Competitor replacement desk</p>
+        <h1 className="mt-2 text-3xl font-black">Compare the two products by specification</h1>
+      </section>
 
-        {/* Input Form */}
-        {(state === "input" || state === "error") && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Current Process Section */}
-              <div className="border border-gray-200 rounded-lg p-4">
-                <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">
-                  Competitor Product Details
-                </h2>
+      {(state === "input" || state === "error") ? (
+        <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <form onSubmit={handleSubmit} className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+            <div className="grid gap-4">
+              <CompareProductLookupInput
+                value={competitorInput}
+                onChange={setCompetitorInput}
+                suggestions={skuSuggestions}
+                placeholder="Example: DM-NVX-350, DMNVX350, NAV E 501, VS88H2A, or pasted product description"
+              />
 
-                {/* Competitor SKU Input */}
-                <div className="mb-4">
-                  <label
-                    htmlFor="competitor-sku"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Competitor SKU or Product Name *
-                  </label>
+              <div className="grid gap-4 md:grid-cols-2">
+                <CompareManufacturerCombobox
+                  value={selectedBrand}
+                  options={MANUFACTURER_SELECT_OPTIONS}
+                  onChange={(value) => {
+                    setSelectedBrand(value);
+                    if (value !== CUSTOM_BRAND_VALUE) {
+                      setCustomBrand("");
+                    }
+                  }}
+                />
+
+                <label className="grid gap-2">
+                  <span className="text-xs font-black uppercase tracking-[0.16em] text-white/50">Source/spec page</span>
                   <input
-                    id="competitor-sku"
-                    type="text"
-                    value={competitorInput}
-                    onChange={(e) => setCompetitorInput(e.target.value)}
-                    placeholder="e.g., DM-NVX-350, NAV E 501, AT-OME-EX-KIT"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    autoFocus
-                  />
-                  <p className="mt-1 text-sm text-gray-500">
-                    Enter any competitor SKU - we'll identify what it is
-                  </p>
-                </div>
-
-                {/* Brand Dropdown */}
-                <div className="mb-4">
-                  <label
-                    htmlFor="brand-select"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Manufacturer (optional)
-                  </label>
-                  <select
-                    id="brand-select"
-                    value={selectedBrand}
-                    onChange={(e) => setSelectedBrand(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-                  >
-                    <option value="">Auto-detect from SKU</option>
-                    {KNOWN_BRANDS.map((brand) => (
-                      <option key={brand} value={brand}>
-                        {brand}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Product URL */}
-                <div className="mb-4">
-                  <label
-                    htmlFor="product-url"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Product URL (optional)
-                  </label>
-                  <input
-                    id="product-url"
-                    type="url"
                     value={productUrl}
-                    onChange={(e) => setProductUrl(e.target.value)}
-                    placeholder="https://..."
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    onChange={(event) => setProductUrl(event.target.value)}
+                    placeholder="Optional first pass; required if Wingman asks for retry evidence"
+                    className="min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-semibold text-white"
                   />
-                </div>
-
-                {/* Application Context */}
-                <div>
-                  <label
-                    htmlFor="app-context"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Application Context (optional)
-                  </label>
-                  <input
-                    id="app-context"
-                    type="text"
-                    value={applicationContext}
-                    onChange={(e) => setApplicationContext(e.target.value)}
-                    placeholder="e.g., conference room, lecture hall, 4K video wall"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                  <p className="mt-1 text-sm text-gray-500">
-                    Adding context helps find more relevant matches
-                  </p>
-                </div>
+                </label>
               </div>
 
-              {/* Live Analysis Preview */}
-              {liveProfile && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h3 className="text-sm font-medium text-blue-800 mb-2">
-                    Product Analysis
-                  </h3>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>
-                      <span className="text-blue-600">Brand:</span>{" "}
-                      <span className="font-medium">{liveProfile.brand}</span>
-                    </div>
-                    <div>
-                      <span className="text-blue-600">Confidence:</span>{" "}
-                      <span
-                        className={`font-medium ${
-                          liveProfile.confidence === "high"
-                            ? "text-green-600"
-                            : liveProfile.confidence === "medium"
-                            ? "text-yellow-600"
-                            : "text-gray-600"
-                        }`}
-                      >
-                        {liveProfile.confidence}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-blue-600">Technology:</span>{" "}
-                      <span className="font-medium">
-                        {liveProfile.technologyClass.replace(/_/g, " ")}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-blue-600">Role:</span>{" "}
-                      <span className="font-medium">{liveProfile.role}</span>
-                    </div>
-                  </div>
-                  {liveProfile.capabilities.length > 0 && (
-                    <div className="mt-2">
-                      <span className="text-blue-600 text-sm">Capabilities:</span>{" "}
-                      <span className="text-sm">
-                        {liveProfile.capabilities.join(", ")}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
+              {selectedBrand === CUSTOM_BRAND_VALUE ? (
+                <label className="grid gap-2">
+                  <span className="text-xs font-black uppercase tracking-[0.16em] text-white/50">Custom manufacturer</span>
+                  <input
+                    value={customBrand}
+                    onChange={(event) => setCustomBrand(event.target.value)}
+                    placeholder="Type the manufacturer name"
+                    className="min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-semibold text-white"
+                  />
+                </label>
+              ) : null}
 
-              {/* Error Display */}
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
-                  {error}
-                </div>
-              )}
+              <label className="grid gap-2">
+                <span className="text-xs font-black uppercase tracking-[0.16em] text-white/50">Application context</span>
+                <input
+                  value={applicationContext}
+                  onChange={(event) => setApplicationContext(event.target.value)}
+                  placeholder="Example: lecture theatre, meeting room, 4K video wall, AVoIP estate"
+                  className="min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-semibold text-white"
+                />
+              </label>
 
-              {/* Submit Button */}
+              {error ? (
+                <div className="rounded-2xl border border-rose-400 bg-rose-400/10 p-4 text-sm font-semibold text-rose-100">{error}</div>
+              ) : null}
+
+              {normalisedSku?.corrected ? (
+                <div className="rounded-2xl border border-cyan-300/35 bg-cyan-300/10 p-4 text-sm font-semibold text-cyan-50" data-wingman-sku-normalisation="true">
+                  Interpreting as {normalisedSku.brand} {normalisedSku.sku}
+                </div>
+              ) : null}
+
               <button
                 type="submit"
                 disabled={!competitorInput.trim()}
-                className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                className="rounded-full bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 transition disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Find WyreStorm Alternatives
               </button>
-            </form>
-          </div>
-        )}
+            </div>
+          </form>
 
-        {/* Analyzing State */}
-        {state === "analyzing" && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-            <div className="animate-spin w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4" />
-            <p className="text-gray-600">Analyzing competitor product...</p>
-          </div>
-        )}
+          <aside className="grid gap-4">
+            <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+              <h2 className="text-xl font-black text-cyan-300">What Wingman will check</h2>
+              <ul className="mt-4 space-y-2 text-sm leading-6 text-white/70">
+                <li>OK product purpose and technology class</li>
+                <li>OK manual manufacturer override or auto-detect</li>
+                <li>OK live lookup URL retry if the search is weak</li>
+                <li>OK missing-hyphen and partial SKU interpretation</li>
+                <li>OK competitor and WyreStorm products in matrix columns</li>
+                <li>OK HDMI, USB, audio, control and network counts</li>
+                <li>OK PoE, PoC, PoH and power supply differences</li>
+                <li>OK blocking gaps and verification points</li>
+                <li>OK GOOD / PARTIAL / NO MATCH verdict</li>
+              </ul>
+            </article>
 
-        {/* Results */}
-        {state === "results" && result && (
-          <div className="space-y-6">
-            {/* Competitor Analysis Card */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    {result.competitor.brand} {result.competitor.sku}
-                  </h2>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {result.competitor.technologyClass.replace(/_/g, " ")} •{" "}
-                    {result.competitor.role}
-                  </p>
-                </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    result.competitor.confidence === "high"
-                      ? "bg-green-100 text-green-800"
-                      : result.competitor.confidence === "medium"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-gray-100 text-gray-800"
-                  }`}
-                >
-                  {result.competitor.confidence} confidence
-                </span>
-              </div>
+            {liveProfile ? (
+              <article className="rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-5">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-200">Live interpretation</p>
+                <dl className="mt-3 grid gap-3 text-sm">
+                  <div><dt className="text-white/45">Manufacturer used</dt><dd className="font-black text-white">{effectiveBrand || liveProfile.brand}</dd></div>
+                  <div><dt className="text-white/45">Auto detected</dt><dd className="font-black text-white">{liveProfile.brand}</dd></div>
+                  <div><dt className="text-white/45">Technology</dt><dd className="font-black text-white">{liveProfile.technologyClass.replace(/_/g, " ")}</dd></div>
+                  <div><dt className="text-white/45">Role</dt><dd className="font-black text-white">{liveProfile.role}</dd></div>
+                  <div><dt className="text-white/45">Confidence</dt><dd className="font-black text-white">{liveProfile.confidence}</dd></div>
+                </dl>
+              </article>
+            ) : null}
+          </aside>
+        </section>
+      ) : null}
 
-              {/* Relevance Notice */}
-              <div
-                className={`p-3 rounded-lg mb-4 ${
-                  result.isRelevant
-                    ? "bg-green-50 border border-green-200"
-                    : "bg-yellow-50 border border-yellow-200"
-                }`}
-              >
-                <p
-                  className={`text-sm ${
-                    result.isRelevant ? "text-green-700" : "text-yellow-700"
-                  }`}
-                >
-                  {result.relevanceReason}
+      {state === "analyzing" ? (
+        <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-8 text-center">
+          <p className="text-lg font-black text-cyan-300">Checking product role, specification fit and blocking differences...</p>
+        </section>
+      ) : null}
+
+      {state === "results" && result ? (
+        <section className="grid gap-4">
+          <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Competitor request</p>
+                <h2 className="mt-2 text-2xl font-black text-white">
+                  {result.competitor.brand} {result.competitor.sku}
+                </h2>
+                <p className="mt-1 text-sm text-white/55">
+                  {(result.competitor.domain || "type unverified").toString().replace(/_/g, " ")} Â· {result.competitor.role || "role unverified"}
+                  {result.competitor.maxResolution ? ` Â· ${result.competitor.maxResolution}` : ""}
                 </p>
               </div>
 
-              {/* Recommendation */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h3 className="font-medium text-blue-900 mb-2">Recommendation</h3>
-                <p className="text-blue-800">{result.recommendation}</p>
-              </div>
+              {result.topOutcome !== "NONE" ? (
+                <span className={`rounded-full border px-4 py-2 text-sm font-black ${OUTCOME_STYLES[result.topOutcome as CompareDecisionOutcome]}`}>
+                  {result.topOutcome}
+                </span>
+              ) : null}
             </div>
 
-            {/* Match Results */}
-            {result.matches.length > 0 && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                  WyreStorm Alternatives
-                </h2>
-                <div className="space-y-4">
-                  {result.matches.map((match, index) => (
-                    <MatchCard key={match.sku} match={match} rank={index + 1} />
-                  ))}
-                </div>
-              </div>
-            )}
+            <div className="mt-4 rounded-2xl border border-cyan-500/30 bg-cyan-500/10 p-4">
+              <p className="text-sm font-black text-cyan-200">Recommendation</p>
+              <p className="mt-2 text-sm leading-6 text-white">{result.recommendation}</p>
+            </div>
 
-            {/* Next Steps */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-3">
-                Next Steps
-              </h2>
-              <ul className="space-y-2">
-                {result.nextSteps.map((step, i) => (
-                  <li key={i} className="flex items-start">
-                    <span className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-medium mr-3 flex-shrink-0">
-                      {i + 1}
-                    </span>
-                    <span className="text-gray-700">{step}</span>
-                  </li>
+            <div className="mt-4">
+              <CompetitorProductProfileCard result={result} />
+            </div>
+          </article>
+
+          {shouldRequestLiveLookupUrl(result, Boolean(productUrl.trim())) ? (
+            <LiveLookupRetryPanel
+              value={productUrl}
+              status={lookupStatus}
+              onChange={setProductUrl}
+              onRetry={handleRetryWithSourceUrl}
+              disabled={false}
+            />
+          ) : null}
+
+          {result.matches.length ? (
+            <section className="grid gap-3">
+              <h2 className="text-xl font-black text-cyan-300">WyreStorm candidates</h2>
+              {result.matches.map((match, index) => (
+                <MatchCard key={`${match.sku}-${index}`} match={match} rank={index + 1} competitor={result.competitor} />
+              ))}
+            </section>
+          ) : null}
+
+          {result.rejected.length ? (
+            <section className="grid gap-3 rounded-3xl border border-rose-400/40 bg-rose-400/10 p-5">
+              <h2 className="text-xl font-black text-rose-100">Not equivalent</h2>
+              <p className="text-sm leading-6 text-rose-100/80">Rejected candidates include the blocking feature rows that make them unsafe to present as equivalent.</p>
+              {result.rejected.slice(0, 6).map((match, index) => (
+                <MatchCard
+                  key={`${match.sku}-${index}`}
+                  match={match}
+                  rank={result.matches.length + index + 1}
+                  competitor={result.competitor}
+                  defaultExpanded={result.matches.length === 0 && index === 0}
+                />
+              ))}
+            </section>
+          ) : null}
+
+          {result.nextSteps.length ? (
+            <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+              <h2 className="text-xl font-black text-cyan-300">What to ask or check next</h2>
+              <ul className="mt-4 space-y-2 text-sm leading-6 text-white/75">
+                {result.nextSteps.map((step, index) => (
+                  <li key={`${step}-${index}`} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">{step}</li>
                 ))}
               </ul>
-            </div>
+            </section>
+          ) : null}
 
-            {/* Actions */}
-            <div className="flex gap-4">
-              <button
-                onClick={handleReset}
-                className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
-              >
-                Compare Another Product
-              </button>
-              <button
-                onClick={() => {
-                  // TODO: Add to project functionality
-                  alert("Add to project feature coming soon");
-                }}
-                className="flex-1 py-3 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-              >
-                Add to Project
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function MatchCard({ match, rank }: { match: MatchResult; rank: number }) {
-  const [expanded, setExpanded] = useState(rank === 1);
-
-  const qualityColors = {
-    excellent: "bg-green-100 text-green-800 border-green-200",
-    good: "bg-blue-100 text-blue-800 border-blue-200",
-    partial: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    weak: "bg-gray-100 text-gray-800 border-gray-200",
-  };
-
-  return (
-    <div
-      className={`border rounded-lg overflow-hidden ${
-        rank === 1 ? "border-blue-300 bg-blue-50/30" : "border-gray-200"
-      }`}
-    >
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
-      >
-        <div className="flex items-center space-x-4">
-          <span
-            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-              rank === 1
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200 text-gray-600"
-            }`}
+          <button
+            type="button"
+            onClick={handleReset}
+            className="rounded-full border border-cyan-300 px-5 py-3 text-sm font-black text-cyan-100"
           >
-            {rank}
-          </span>
-          <div>
-            <h3 className="font-semibold text-gray-900">{match.sku}</h3>
-            <p className="text-sm text-gray-500">{match.family}</p>
-          </div>
-        </div>
-        <div className="flex items-center space-x-3">
-          <span
-            className={`px-3 py-1 rounded-full text-sm font-medium border ${
-              qualityColors[match.matchQuality]
-            }`}
-          >
-            {match.matchQuality.toUpperCase()}
-          </span>
-          <svg
-            className={`w-5 h-5 text-gray-400 transform transition-transform ${
-              expanded ? "rotate-180" : ""
-            }`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </div>
-      </button>
-
-      {expanded && (
-        <div className="px-4 pb-4 border-t border-gray-100">
-          <div className="pt-4 space-y-3">
-            {/* Product Name */}
-            <p className="text-gray-700">{match.name}</p>
-
-            {/* Match Reasons */}
-            {match.matchReasons.length > 0 && (
-              <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-1">
-                  Why this matches:
-                </h4>
-                <ul className="text-sm text-green-700 space-y-1">
-                  {match.matchReasons.map((reason, i) => (
-                    <li key={i} className="flex items-start">
-                      <svg
-                        className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      {reason}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Cautions */}
-            {match.cautions.length > 0 && (
-              <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-1">
-                  Things to verify:
-                </h4>
-                <ul className="text-sm text-yellow-700 space-y-1">
-                  {match.cautions.map((caution, i) => (
-                    <li key={i} className="flex items-start">
-                      <svg
-                        className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      {caution}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Capability Overlap */}
-            {match.capabilityOverlap.length > 0 && (
-              <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-1">
-                  Shared capabilities:
-                </h4>
-                <div className="flex flex-wrap gap-1">
-                  {match.capabilityOverlap.map((cap) => (
-                    <span
-                      key={cap}
-                      className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs"
-                    >
-                      {cap}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Score Debug (hidden in production) */}
-            {import.meta.env.DEV && (
-              <div className="text-xs text-gray-400 mt-2">
-                Score: {match.score}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
+            Compare another product
+          </button>
+        </section>
+      ) : null}
+    </main>
   );
 }

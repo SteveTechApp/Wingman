@@ -1,1581 +1,838 @@
-import { useEffect, useMemo, useState } from "react";
-import type { FormEvent } from "react";
+import { useMemo, useState } from "react";
 
-
-import { gateCompareCandidate, type CompareCandidateGateContext, type CompareCandidateGateInput } from "../lib/compareCandidateGate";
-import { buildCompetitorDecisionEvidence } from "../lib/competitorProductIntelligence";
-const COMPARE_SKU_TYPEAHEAD_DATALIST_ID = "wm-compare-sku-typeahead-options";
-
-const COMPARE_SKU_TYPEAHEAD_CATALOG: Record<string, string[]> = {
-  Crestron: [
-    "DM-NVX-350",
-    "DM-NVX-351",
-    "DM-NVX-360",
-    "DM-NVX-363",
-    "DM-NVX-E30",
-    "DM-NVX-D30",
-    "DMPS3-4K-350-C",
-    "HD-MD4X2-4KZ-E",
-    "HD-RX-4K-510-C-E",
-    "HD-TX-4KZ-211-2G",
-  ],
-  Extron: [
-    "DTP2 R 211",
-    "DTP2 T 211",
-    "DTP3 R 201",
-    "DTP3 T 202",
-    "IN1608 xi",
-    "NAV D 101",
-    "NAV D 121",
-    "NAV D 501",
-    "NAV E 101",
-    "NAV E 121",
-    "NAV E 501",
-  ],
-  Atlona: [
-    "AT-OME-CS31-SA",
-    "AT-OME-EX-KIT",
-    "AT-OME-MS42",
-    "AT-OME-PS62",
-    "AT-OMNI-111",
-    "AT-OMNI-112",
-    "AT-OMNI-121",
-    "AT-OMNI-122",
-    "AT-UHD-EX-100CE-KIT",
-    "AT-UHD-PRO3-88M",
-  ],
-  Kramer: [
-    "KDS-7-DEC7",
-    "KDS-7-EN7",
-    "KDS-100",
-    "KDS-DEC6",
-    "KDS-EN6",
-    "VP-440X",
-    "VP-551X",
-    "VP-554X",
-    "VS-44H2A",
-    "VS-88H2A",
-  ],
-  Lightware: [
-    "MMX8x8-HDMI-4K-A",
-    "TAURUS UCX-2x1-HC30",
-    "TAURUS UCX-4x2-HC30",
-    "UBEX-PRO20-HDMI-F100",
-    "UBEX-PRO20-HDMI-F110",
-    "VINX-110-HDMI-ENC",
-    "VINX-120-HDMI-ENC",
-    "VINX-210AP-HDMI-DEC",
-  ],
-  Blustream: [
-    "ACM210",
-    "C44-KIT",
-    "C88CS",
-    "HMX44-18G-KIT",
-    "HMX88-18G-KIT",
-    "IP200UHD-RX",
-    "IP200UHD-TX",
-    "IP250UHD-RX",
-    "IP250UHD-TX",
-    "IP300UHD-RX",
-    "IP300UHD-TX",
-    "IP350UHD-RX",
-    "IP350UHD-TX",
-    "PLA88CS",
-  ],
-  Barco: [
-    "C-5",
-    "C-10",
-    "CX-20",
-    "CX-30",
-    "CX-50",
-    "CX-50 Gen2",
-  ],
-  ZeeVee: [
-    "ZyPer4K Decoder",
-    "ZyPer4K Encoder",
-    "ZyPerUHD Decoder",
-    "ZyPerUHD Encoder",
-    "ZyPerUHD60 Decoder",
-    "ZyPerUHD60 Encoder",
-  ],
-  AMX: [
-    "DGX1600-ENC",
-    "DGX6400-ENC",
-    "DVX-2265-4K",
-    "DXL-RX-4K60",
-    "DXL-TX-4K60",
-    "MUSE Automator",
-    "NMX-DEC-N2422A",
-    "NMX-DEC-N2622S",
-    "NMX-DEC-N2625D-WP",
-    "NMX-ENC-N2412A",
-    "NMX-ENC-N2612S",
-    "NMX-ENC-N2615D-WP",
-    "NMX-ENC-N3312D",
-    "NX-1200",
-    "NX-2200",
-  ],
-  "AVPro Edge": [
-    "AC-EX40-444-KIT",
-    "AC-EX70-444-R3",
-    "AC-EX70-444-KIT",
-    "AC-MX-42X",
-    "AC-MX-44HDBT",
-    "AC-MX-88",
-    "MXNet-1G-D",
-    "MXNet-1G-E",
-    "MXNet-10G-TCVR",
-  ],
-  Binary: [
-    "B-260-HDMI-CTRL",
-    "B-660-EXT-444-100A",
-    "B-660-MTRX-4x4",
-    "B-660-MTRX-8x8",
-    "B-900-MOIP-4K-RX",
-    "B-900-MOIP-4K-TX",
-  ],
-  Other: [],
-};
-
-
-const COMPARE_SKU_TYPEAHEAD_ALL_OPTIONS = Array.from(
-  new Set(Object.values(COMPARE_SKU_TYPEAHEAD_CATALOG).flat()),
-).sort((a, b) => a.localeCompare(b, undefined, {
-  numeric: true,
-  sensitivity: "base",
-}));
-
-const COMPARE_SKU_TYPEAHEAD_BRAND_ALIASES: Record<string, string> = {
-  crestron: "Crestron",
-  extron: "Extron",
-  atlona: "Atlona",
-  kramer: "Kramer",
-  lightware: "Lightware",
-  blustream: "Blustream",
-  barco: "Barco",
-  zeevee: "ZeeVee",
-  amx: "AMX",
-  avproedge: "AVPro Edge",
-  avpro: "AVPro Edge",
-  binary: "Binary",
-  other: "Other",
-};
-
-function compareSkuTypeaheadClean(value: unknown): string {
-  return String(value ?? "").trim();
-}
-
-function compareSkuTypeaheadKey(value: unknown): string {
-  return compareSkuTypeaheadClean(value).toLowerCase().replace(/[^a-z0-9]+/g, "");
-}
-
-function compareSkuTypeaheadBrandKey(manufacturer: string): string {
-  return COMPARE_SKU_TYPEAHEAD_BRAND_ALIASES[compareSkuTypeaheadKey(manufacturer)] || compareSkuTypeaheadClean(manufacturer);
-}
-
-function compareSkuTypeaheadSort(items: string[]): string[] {
-  const seen = new Set<string>();
-  const output: string[] = [];
-
-  for (const item of items.map((entry) => compareSkuTypeaheadClean(entry)).filter(Boolean)) {
-    const key = compareSkuTypeaheadKey(item);
-
-    if (seen.has(key)) continue;
-
-    seen.add(key);
-    output.push(item);
-  }
-
-  return output.sort((a, b) => a.localeCompare(b, undefined, {
-    numeric: true,
-    sensitivity: "base",
-  }));
-}
-
-function compareSkuTypeaheadSuggestions(manufacturer: string, query = ""): string[] {
-  const brandKey = compareSkuTypeaheadBrandKey(manufacturer);
-  const queryKey = compareSkuTypeaheadKey(query);
-  const catalogue = COMPARE_SKU_TYPEAHEAD_CATALOG[brandKey] || [];
-  const all = compareSkuTypeaheadSort(catalogue);
-
-  if (!queryKey) {
-    return all.slice(0, 80);
-  }
-
-  return all.filter((item) => compareSkuTypeaheadKey(item).includes(queryKey)).slice(0, 80);
-}
-
-
-type MatchStatus = "NO MATCH" | "PARTIAL MATCH" | "GOOD MATCH";
-type RowStatus = "match" | "partial" | "miss" | "unknown";
-
-type CompareForm = {
-  manufacturer: string;
-  competitorSku: string;
-  productUrl: string;
-  applicationContext: string;
-};
+type Verdict = "GOOD MATCH" | "PARTIAL MATCH" | "NO MATCH";
+type CheckStatus = "match" | "check" | "gap";
 
 type ProductRecord = Record<string, unknown>;
 
-type Product = {
+type ProductCandidate = {
   sku: string;
-  name: string;
+  title: string;
   family: string;
-  category: string;
-  description: string;
-  features: string[];
-  applications: string[];
-  sourceText: string;
-  raw: ProductRecord;
-};
-
-type MatchRow = {
-  label: string;
-  request: string;
-  wyrestorm: string;
-  status: RowStatus;
-  note: string;
-};
-
-type Candidate = {
-  product: Product;
+  summary: string;
   score: number;
-  status: MatchStatus;
-  matchedSignals: string[];
-  matchedTerms: string[];
   reasons: string[];
-  misses: string[];
-  rows: MatchRow[];
+  warnings: string[];
+  rawText: string;
+};
+
+type CompetitorProfile = {
+  manufacturer: string;
+  sku: string;
+  technology: string;
+  role: string;
+  inputCount: number | null;
+  outputCount: number | null;
+  confidence: "low" | "medium" | "high";
+  keywords: string[];
+  blockers: string[];
+};
+
+type FeatureCheck = {
+  label: string;
+  competitor: string;
+  wyrestorm: string;
+  status: CheckStatus;
 };
 
 const manufacturerOptions = [
-  "Crestron",
-  "Extron",
-  "Kramer",
-  "Blustream",
+  "Auto-detect where possible",
+  "AMX",
   "Atlona",
-  "Lightware",
+  "AVPro Edge",
+  "Blustream",
+  "Crestron",
   "CYP",
+  "Extron",
+  "HDAnywhere",
+  "Just Add Power",
+  "Kramer",
+  "Lightware",
   "SY",
-  "ATEN",
-  "Barco",
-  "Q-SYS",
-  "Logitech",
-  "Yealink",
-  "Other"
+  "ZeeVee"
 ];
 
-const signalDictionary = [
-  { id: "avoip", label: "AVoIP", terms: ["avoip", "av over ip", "networkhd", "nhd-", "jpeg-xs", "jpeg xs", "sdvoe", "h.264", "h.265", "hevc"] },
-  { id: "hdbaset", label: "HDBaseT", terms: ["hdbaset", "hdbase t", "hdbt"] },
-  { id: "matrix", label: "Matrix switching", terms: ["matrix", "8x8", "6x6", "4x4", "4x2", "10x7", "10x10"] },
-  { id: "switcher", label: "Presentation switcher", terms: ["switcher", "presentation", "auto switch", "auto-switch", "collaboration"] },
-  { id: "extender", label: "Extender", terms: ["extender", "transmitter", "receiver", "tx", "rx"] },
-  { id: "multiview", label: "Multiview", terms: ["multiview", "multi-view", "quad view", "picture in picture", "pip"] },
-  { id: "videowall", label: "Video wall", terms: ["video wall", "videowall", "wall processor", "led processor"] },
-  { id: "wireless", label: "Wireless casting", terms: ["wireless", "airplay", "miracast", "chromecast", "casting"] },
-  { id: "usb", label: "USB / BYOD", terms: ["usb", "usb-c", "usbc", "byod", "byom", "uc", "camera", "speakerphone"] },
-  { id: "audio", label: "Audio", terms: ["audio", "de-embed", "deembed", "arc", "earc", "analogue audio", "digital audio"] },
-  { id: "dante", label: "Dante", terms: ["dante", "aes67"] },
-  { id: "control", label: "Control", terms: ["rs232", "rs-232", "ir", "cec", "api", "relay", "gpio", "ethernet pass", "lan pass"] },
-  { id: "power", label: "Power", terms: ["poe", "poh", "psu", "power supply", "internal power", "external power"] },
-  { id: "hdmi", label: "HDMI", terms: ["hdmi", "hdcp", "4k60", "4k30", "hdr", "4:4:4", "4:2:0"] }
+const indexUrls = [
+  "/product-intelligence-index.json",
+  "/wingman/product-intelligence-index.json",
+  "/data/product-intelligence-index.json",
+  "/products.json"
 ];
 
-const commonTerms = new Set([
-  "and",
-  "the",
-  "for",
-  "with",
-  "from",
-  "that",
-  "this",
-  "product",
-  "competitor",
-  "compare",
-  "comparison",
-  "system",
-  "solution",
-  "need",
-  "needs",
-  "room",
-  "site",
-  "customer",
-  "application"
-]);
-
-const styles = `
-.wm-compare-rewrite {
-  width: 100%;
-  max-width: 1500px;
-  margin: 0 auto;
-  padding: 2.25rem clamp(1rem, 2.2vw, 2.5rem) 6rem;
-  color: rgba(248, 252, 255, 0.96);
-}
-
-.wm-compare-rewrite,
-.wm-compare-rewrite * {
-  box-sizing: border-box;
-}
-
-.wm-cr-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 1.5rem;
-  align-items: start;
-  margin-bottom: 1.25rem;
-  padding: clamp(1.35rem, 2.2vw, 2rem);
-  border: 1px solid rgba(85, 210, 238, 0.28);
-  border-radius: 28px;
-  background:
-    radial-gradient(circle at 7% 12%, rgba(91, 225, 255, 0.13), transparent 28%),
-    linear-gradient(145deg, rgba(4, 17, 31, 0.96), rgba(3, 12, 24, 0.96));
-}
-
-.wm-cr-eyebrow {
-  margin: 0 0 0.7rem;
-  color: rgba(112, 231, 255, 0.9);
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-
-.wm-cr-hero h1 {
-  max-width: 980px;
-  margin: 0;
-  color: rgba(248, 252, 255, 0.98);
-  font-size: clamp(2rem, 3vw, 3.35rem);
-  line-height: 1.02;
-  letter-spacing: -0.045em;
-}
-
-.wm-cr-hero-copy {
-  max-width: 860px;
-  margin: 0.8rem 0 0;
-  color: rgba(202, 216, 228, 0.88);
-  font-size: 1rem;
-  line-height: 1.55;
-}
-
-.wm-cr-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 0.65rem;
-}
-
-.wm-cr-button,
-.wm-cr-button-secondary,
-.wm-cr-button-ghost {
-  display: inline-flex;
-  min-height: 42px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  padding: 0.7rem 1rem;
-  border: 1px solid rgba(100, 218, 246, 0.3);
-  color: rgba(248, 252, 255, 0.96);
-  font: inherit;
-  font-size: 0.86rem;
-  font-weight: 850;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.wm-cr-button {
-  background: linear-gradient(135deg, rgba(28, 184, 219, 0.96), rgba(40, 116, 225, 0.92));
-  border-color: rgba(135, 232, 255, 0.62);
-  box-shadow: 0 14px 34px rgba(22, 155, 207, 0.22);
-}
-
-.wm-cr-button-secondary {
-  background: rgba(10, 33, 52, 0.9);
-}
-
-.wm-cr-button-ghost {
-  background: rgba(4, 18, 31, 0.66);
-}
-
-.wm-cr-grid {
-  display: grid;
-  grid-template-columns: minmax(340px, 0.9fr) minmax(460px, 1.1fr);
-  gap: 1rem;
-  align-items: start;
-}
-
-.wm-cr-card {
-  border: 1px solid rgba(85, 210, 238, 0.24);
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at 0% 0%, rgba(72, 205, 232, 0.08), transparent 32%),
-    linear-gradient(145deg, rgba(5, 22, 37, 0.95), rgba(3, 13, 25, 0.95));
-  padding: clamp(1.05rem, 1.8vw, 1.45rem);
-}
-
-.wm-cr-card + .wm-cr-card {
-  margin-top: 1rem;
-}
-
-.wm-cr-card-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: start;
-  margin-bottom: 1rem;
-}
-
-.wm-cr-card-title {
-  margin: 0;
-  color: rgba(248, 252, 255, 0.98);
-  font-size: 1.12rem;
-  letter-spacing: -0.02em;
-}
-
-.wm-cr-card-text {
-  margin: 0.35rem 0 0;
-  color: rgba(197, 212, 224, 0.84);
-  line-height: 1.5;
-  font-size: 0.92rem;
-}
-
-.wm-cr-status {
-  display: inline-flex;
-  white-space: nowrap;
-  align-items: center;
-  border-radius: 999px;
-  padding: 0.42rem 0.68rem;
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.wm-cr-status.good {
-  color: #d8fff4;
-  background: rgba(20, 184, 166, 0.18);
-  border: 1px solid rgba(45, 212, 191, 0.38);
-}
-
-.wm-cr-status.partial {
-  color: #fff3cf;
-  background: rgba(245, 158, 11, 0.15);
-  border: 1px solid rgba(245, 158, 11, 0.35);
-}
-
-.wm-cr-status.none {
-  color: #ffd7dc;
-  background: rgba(244, 63, 94, 0.14);
-  border: 1px solid rgba(244, 63, 94, 0.36);
-}
-
-.wm-cr-form {
-  display: grid;
-  gap: 0.82rem;
-}
-
-.wm-cr-field {
-  display: grid;
-  gap: 0.38rem;
-}
-
-.wm-cr-label {
-  color: rgba(214, 229, 240, 0.86);
-  font-size: 0.78rem;
-  font-weight: 850;
-}
-
-.wm-cr-input,
-.wm-cr-select,
-.wm-cr-textarea {
-  width: 100%;
-  border: 1px solid rgba(105, 210, 238, 0.28);
-  border-radius: 16px;
-  background: rgba(2, 11, 21, 0.88);
-  color: rgba(248, 252, 255, 0.96);
-  padding: 0.78rem 0.85rem;
-  font: inherit;
-  outline: none;
-}
-
-.wm-cr-textarea {
-  min-height: 104px;
-  resize: vertical;
-}
-
-.wm-cr-input::placeholder,
-.wm-cr-textarea::placeholder {
-  color: rgba(151, 170, 185, 0.74);
-}
-
-.wm-cr-input:focus,
-.wm-cr-select:focus,
-.wm-cr-textarea:focus {
-  border-color: rgba(116, 232, 255, 0.74);
-  box-shadow: 0 0 0 3px rgba(116, 232, 255, 0.11);
-}
-
-.wm-cr-two {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
-
-.wm-cr-result-top {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 1rem;
-  align-items: start;
-}
-
-.wm-cr-product-name {
-  margin: 0;
-  color: rgba(248, 252, 255, 0.98);
-  font-size: clamp(1.35rem, 2vw, 2rem);
-  line-height: 1.08;
-  letter-spacing: -0.035em;
-}
-
-.wm-cr-product-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  margin-top: 0.75rem;
-}
-
-.wm-cr-chip {
-  display: inline-flex;
-  align-items: center;
-  border: 1px solid rgba(100, 218, 246, 0.22);
-  border-radius: 999px;
-  background: rgba(8, 28, 45, 0.74);
-  color: rgba(217, 231, 241, 0.9);
-  padding: 0.42rem 0.62rem;
-  font-size: 0.75rem;
-  font-weight: 800;
-}
-
-.wm-cr-score {
-  min-width: 92px;
-  border: 1px solid rgba(100, 218, 246, 0.24);
-  border-radius: 20px;
-  background: rgba(6, 24, 39, 0.86);
-  padding: 0.85rem;
-  text-align: center;
-}
-
-.wm-cr-score strong {
-  display: block;
-  color: rgba(248, 252, 255, 0.98);
-  font-size: 1.55rem;
-  line-height: 1;
-}
-
-.wm-cr-score span {
-  color: rgba(185, 202, 216, 0.82);
-  font-size: 0.7rem;
-  font-weight: 850;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.wm-cr-lists {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.85rem;
-  margin-top: 1rem;
-}
-
-.wm-cr-list {
-  margin: 0;
-  padding-left: 1.05rem;
-  color: rgba(216, 231, 241, 0.9);
-  line-height: 1.45;
-  font-size: 0.88rem;
-}
-
-.wm-cr-list li + li {
-  margin-top: 0.35rem;
-}
-
-.wm-cr-table-wrap {
-  overflow-x: auto;
-  margin-top: 1rem;
-  border: 1px solid rgba(85, 210, 238, 0.18);
-  border-radius: 18px;
-}
-
-.wm-cr-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 720px;
-}
-
-.wm-cr-table th,
-.wm-cr-table td {
-  padding: 0.72rem 0.78rem;
-  border-bottom: 1px solid rgba(85, 210, 238, 0.12);
-  text-align: left;
-  vertical-align: top;
-  color: rgba(220, 234, 244, 0.9);
-  font-size: 0.82rem;
-}
-
-.wm-cr-table th {
-  color: rgba(248, 252, 255, 0.94);
-  background: rgba(115, 199, 226, 0.1);
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.wm-cr-table tr:last-child td {
-  border-bottom: 0;
-}
-
-.wm-cr-indicator {
-  display: inline-flex;
-  min-width: 86px;
-  justify-content: center;
-  border-radius: 999px;
-  padding: 0.35rem 0.55rem;
-  font-size: 0.72rem;
-  font-weight: 900;
-}
-
-.wm-cr-indicator.match {
-  color: #cffff6;
-  background: rgba(20, 184, 166, 0.18);
-}
-
-.wm-cr-indicator.partial {
-  color: #fff0c7;
-  background: rgba(245, 158, 11, 0.16);
-}
-
-.wm-cr-indicator.miss {
-  color: #ffd7dc;
-  background: rgba(244, 63, 94, 0.15);
-}
-
-.wm-cr-indicator.unknown {
-  color: rgba(210, 224, 235, 0.86);
-  background: rgba(148, 163, 184, 0.14);
-}
-
-.wm-cr-empty {
-  min-height: 348px;
-  display: grid;
-  place-items: center;
-  text-align: center;
-}
-
-.wm-cr-empty-inner {
-  max-width: 520px;
-}
-
-.wm-cr-empty h2 {
-  margin: 0;
-  color: rgba(248, 252, 255, 0.98);
-  font-size: 1.45rem;
-}
-
-.wm-cr-empty p {
-  color: rgba(196, 212, 225, 0.86);
-  line-height: 1.55;
-}
-
-.wm-cr-candidates {
-  display: grid;
-  gap: 0.65rem;
-}
-
-.wm-cr-candidate {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.75rem;
-  align-items: center;
-  border: 1px solid rgba(85, 210, 238, 0.16);
-  border-radius: 18px;
-  background: rgba(4, 17, 30, 0.62);
-  padding: 0.75rem;
-}
-
-.wm-cr-candidate strong {
-  display: block;
-  color: rgba(248, 252, 255, 0.96);
-}
-
-.wm-cr-candidate span {
-  display: block;
-  margin-top: 0.25rem;
-  color: rgba(187, 204, 218, 0.84);
-  font-size: 0.78rem;
-}
-
-@media (max-width: 1120px) {
-  .wm-cr-hero,
-  .wm-cr-grid,
-  .wm-cr-lists,
-  .wm-cr-two,
-  .wm-cr-result-top {
-    grid-template-columns: 1fr;
+const fallbackProducts: ProductRecord[] = [
+  {
+    sku: "MX-0808-KIT",
+    title: "MX-0808-KIT",
+    family: "Matrix",
+    description: "WyreStorm 8x8 matrix kit direction. Use for contained matrix switching opportunities where fixed source-to-display routing is required."
+  },
+  {
+    sku: "MX-1007-HYB",
+    title: "MX-1007-HYB",
+    family: "Hybrid Matrix / Presentation",
+    description: "Hybrid meeting and teaching space direction with NetworkHD 500, HDBaseT 3.0, USB-C, HDMI, USB, amplifier and DSP workflow."
+  },
+  {
+    sku: "NHD-120-TX / NHD-120-RX",
+    title: "NetworkHD 100 Series",
+    family: "AV-over-IP",
+    description: "Cost-effective NetworkHD 100 AV-over-IP direction for flexible 4K distribution."
+  },
+  {
+    sku: "NHD-500-TX / NHD-500-RX",
+    title: "NetworkHD 500 Series",
+    family: "AV-over-IP",
+    description: "Premium 4K60 4:4:4 NetworkHD 500 AV-over-IP direction with strong USB support."
+  },
+  {
+    sku: "NHD-600-TRX",
+    title: "NetworkHD 600 Series",
+    family: "10G AV-over-IP",
+    description: "Highest-performance NetworkHD 600 10G AV-over-IP direction."
+  },
+  {
+    sku: "SW-0206-VW",
+    title: "SW-0206-VW",
+    family: "Video Wall Processor",
+    description: "Dedicated non-AVoIP video wall processor direction."
+  },
+  {
+    sku: "NHD-0401-MV",
+    title: "NHD-0401-MV",
+    family: "Multiview",
+    description: "NetworkHD 500 multiview processor direction."
+  },
+  {
+    sku: "NHD-150-RX",
+    title: "NHD-150-RX",
+    family: "NetworkHD 100 Multiview",
+    description: "NetworkHD 100 multiview decoder direction."
   }
-
-  .wm-cr-actions {
-    justify-content: flex-start;
-  }
-}
-`;
+];
 
 function normalise(value: string): string {
-  return value.toLowerCase().replace(/\s+/g, " ").trim();
+  return value.trim().replace(/\s+/g, " ");
 }
 
-function isRecord(value: unknown): value is ProductRecord {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+function upper(value: string): string {
+  return normalise(value).toUpperCase();
 }
 
-function valueText(record: ProductRecord, keys: string[]): string {
-  for (const key of keys) {
-    const value = record[key];
+function safeString(value: unknown): string {
+  if (typeof value === "string") {
+    return value;
+  }
 
-    if (typeof value === "string" && value.trim()) {
-      return value.trim();
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+
+  return "";
+}
+
+function readField(record: ProductRecord, fieldNames: string[]): string {
+  for (const fieldName of fieldNames) {
+    const direct = record[fieldName];
+    const directValue = safeString(direct);
+    if (directValue) {
+      return directValue;
     }
 
-    if (typeof value === "number") {
-      return String(value);
+    const lowerMatch = Object.keys(record).find((key) => key.toLowerCase() === fieldName.toLowerCase());
+    if (lowerMatch) {
+      const value = safeString(record[lowerMatch]);
+      if (value) {
+        return value;
+      }
     }
   }
 
   return "";
 }
 
-function listFrom(record: ProductRecord, keys: string[]): string[] {
-  const output: string[] = [];
-
-  for (const key of keys) {
-    const value = record[key];
-
-    if (typeof value === "string" && value.trim()) {
-      output.push(...value.split(/[;\n|]+/).map((item) => item.trim()).filter(Boolean));
-    }
-
-    if (Array.isArray(value)) {
-      for (const item of value) {
-        if (typeof item === "string" && item.trim()) {
-          output.push(item.trim());
-        }
-
-        if (isRecord(item)) {
-          const text = valueText(item, ["name", "title", "label", "feature", "description", "summary"]);
-          if (text) {
-            output.push(text);
-          }
-        }
-      }
-    }
-  }
-
-  return Array.from(new Set(output));
-}
-
-function hasSkuLikeField(record: ProductRecord): boolean {
-  const keys = Object.keys(record).map((key) => key.toLowerCase());
-  return keys.some((key) => key.includes("sku") || key.includes("model") || key.includes("product"));
-}
-
-function extractProductArray(payload: unknown): ProductRecord[] {
-  if (Array.isArray(payload)) {
-    return payload.filter(isRecord);
-  }
-
-  if (!isRecord(payload)) {
-    return [];
-  }
-
-  const directKeys = ["products", "items", "records", "index", "productIndex", "wyrestormProducts", "data"];
-
-  for (const key of directKeys) {
-    const value = payload[key];
-
-    if (Array.isArray(value)) {
-      const records = value.filter(isRecord);
-      if (records.some(hasSkuLikeField)) {
-        return records;
-      }
-    }
-  }
-
-  for (const value of Object.values(payload)) {
-    if (Array.isArray(value)) {
-      const records = value.filter(isRecord);
-      if (records.some(hasSkuLikeField)) {
-        return records;
-      }
-    }
-  }
-
-  return [];
-}
-
-function safeJsonText(record: ProductRecord): string {
+function recordToText(record: ProductRecord): string {
   try {
-    return JSON.stringify(record).slice(0, 50000);
+    return JSON.stringify(record).toLowerCase();
   } catch {
     return "";
   }
 }
 
-function buildProduct(record: ProductRecord): Product | null {
-  const sku = valueText(record, ["sku", "SKU", "model", "modelNumber", "productSku", "wyrestormSku", "partNumber"]);
-  const name = valueText(record, ["name", "title", "productName", "modelName", "displayName"]) || sku;
-  const family = valueText(record, ["family", "productFamily", "range", "series"]);
-  const category = valueText(record, ["category", "type", "technologyClass", "productType"]);
-  const description = valueText(record, ["description", "summary", "overview", "salientPoint", "customerChallenge", "wyrestormFit"]);
-  const features = listFrom(record, ["features", "keyFeatures", "majorFeatures", "featureList", "specs", "specifications", "capabilities"]);
-  const applications = listFrom(record, ["applications", "applicationFit", "verticals", "useCases", "tags", "markets"]);
-  const sourceText = normalise([sku, name, family, category, description, ...features, ...applications, safeJsonText(record)].join(" "));
+function flattenProductRecords(input: unknown): ProductRecord[] {
+  const found: ProductRecord[] = [];
+  const seen = new Set<unknown>();
 
-  if (!sku && !name) {
-    return null;
+  function walk(value: unknown): void {
+    if (!value || typeof value !== "object") {
+      return;
+    }
+
+    if (seen.has(value)) {
+      return;
+    }
+
+    seen.add(value);
+
+    if (Array.isArray(value)) {
+      value.forEach(walk);
+      return;
+    }
+
+    const record = value as ProductRecord;
+    const keys = Object.keys(record);
+    const hasProductSignal = keys.some((key) => {
+      const lowerKey = key.toLowerCase();
+      return lowerKey === "sku" || lowerKey === "model" || lowerKey === "title" || lowerKey === "name" || lowerKey === "product";
+    });
+
+    const text = recordToText(record);
+    const looksLikeWyreStormProduct =
+      hasProductSignal &&
+      (
+        text.includes("wyrestorm") ||
+        text.includes("networkhd") ||
+        text.includes("nhd-") ||
+        text.includes("mx-") ||
+        text.includes("sw-") ||
+        text.includes("ap0-") ||
+        text.includes("apo-") ||
+        text.includes("cam-")
+      );
+
+    if (looksLikeWyreStormProduct) {
+      found.push(record);
+    }
+
+    for (const key of keys) {
+      const child = record[key];
+      if (child && typeof child === "object") {
+        walk(child);
+      }
+    }
+  }
+
+  walk(input);
+  return found;
+}
+
+function parseIoFromSku(sku: string): { inputCount: number | null; outputCount: number | null } {
+  const clean = upper(sku);
+
+  const explicit = clean.match(/(\d{1,2})\s*[X×]\s*(\d{1,2})/);
+  if (explicit) {
+    return {
+      inputCount: Number(explicit[1]),
+      outputCount: Number(explicit[2])
+    };
+  }
+
+  const mxCompact = clean.match(/(?:MX|MATRIX)[-_ ]?(\d)(\d)(?:\D|$)/);
+  if (mxCompact) {
+    return {
+      inputCount: Number(mxCompact[1]),
+      outputCount: Number(mxCompact[2])
+    };
+  }
+
+  const mxTwoDigit = clean.match(/MX[-_ ]?(\d{2})(\d{2})(?:\D|$)/);
+  if (mxTwoDigit) {
+    return {
+      inputCount: Number(mxTwoDigit[1]),
+      outputCount: Number(mxTwoDigit[2])
+    };
   }
 
   return {
-    sku,
-    name,
-    family,
-    category,
-    description,
-    features,
-    applications,
-    sourceText,
-    raw: record
+    inputCount: null,
+    outputCount: null
   };
 }
 
-function tokenise(value: string): string[] {
-  return normalise(value)
-    .split(/[^a-z0-9+:.:-]+/i)
-    .map((term) => term.trim())
-    .filter((term) => term.length > 2)
-    .filter((term) => !commonTerms.has(term));
-}
-
-function unique(values: string[]): string[] {
-  return Array.from(new Set(values.filter(Boolean)));
-}
-
-function detectSignals(text: string): string[] {
-  const haystack = normalise(text);
-  const matches: string[] = [];
-
-  for (const signal of signalDictionary) {
-    if (signal.terms.some((term) => haystack.includes(term))) {
-      matches.push(signal.id);
-    }
+function detectManufacturer(sku: string, selectedManufacturer: string): string {
+  if (selectedManufacturer !== "Auto-detect where possible") {
+    return selectedManufacturer;
   }
 
-  return unique(matches);
-}
+  const clean = upper(sku);
 
-function signalLabel(signalId: string): string {
-  const match = signalDictionary.find((signal) => signal.id === signalId);
-  return match?.label || signalId;
-}
-
-function labelSignals(signals: string[]): string {
-  if (signals.length === 0) {
-    return "Not specified";
+  if (clean.startsWith("AC-") || clean.startsWith("AXION") || clean.includes("AVPRO")) {
+    return "AVPro Edge";
   }
 
-  return signals.map(signalLabel).join(", ");
-}
-
-function extractIoSummary(text: string): string {
-  const normalised = normalise(text);
-  const matrix = normalised.match(/\b\d{1,2}\s*x\s*\d{1,2}\b/);
-
-  if (matrix?.[0]) {
-    return matrix[0].toUpperCase().replace(/\s+/g, "");
+  if (clean.startsWith("IN") || clean.startsWith("DTP") || clean.startsWith("XTP") || clean.includes("EXTRON")) {
+    return "Extron";
   }
 
-  const inputs = normalised.match(/\b\d{1,2}\s*(input|inputs|in)\b/);
-  const outputs = normalised.match(/\b\d{1,2}\s*(output|outputs|out)\b/);
-
-  if (inputs?.[0] && outputs?.[0]) {
-    return `${inputs[0]}, ${outputs[0]}`;
+  if (clean.startsWith("VS-") || clean.startsWith("TP-") || clean.includes("KRAMER")) {
+    return "Kramer";
   }
 
-  if (inputs?.[0]) {
-    return inputs[0];
+  if (clean.includes("BLUSTREAM") || clean.startsWith("HEX") || clean.startsWith("HMXL")) {
+    return "Blustream";
   }
 
-  if (outputs?.[0]) {
-    return outputs[0];
-  }
-
-  return "";
-}
-
-function rowStatus(requestValue: string, productValue: string): RowStatus {
-  if (requestValue === "Not specified") {
-    return "unknown";
-  }
-
-  if (productValue === "Not confirmed") {
-    return "miss";
-  }
-
-  if (requestValue === productValue) {
-    return "match";
-  }
-
-  if (productValue.includes(requestValue) || requestValue.includes(productValue)) {
-    return "partial";
-  }
-
-  return "partial";
-}
-
-function buildRows(form: CompareForm, product: Product | null): MatchRow[] {
-  const requestText = normalise([form.manufacturer, form.competitorSku, form.productUrl, form.applicationContext].join(" "));
-  const productText = product?.sourceText || "";
-  const requestSignals = detectSignals(requestText);
-  const productSignals = detectSignals(productText);
-  const requestIo = extractIoSummary(requestText);
-  const productIo = extractIoSummary(productText);
-  const rows: MatchRow[] = [];
-
-  const groups = [
-    { label: "Technology / transport", ids: ["avoip", "hdbaset", "matrix", "switcher", "extender", "hdmi", "wireless"] },
-    { label: "Product role", ids: ["matrix", "switcher", "extender", "multiview", "videowall"] },
-    { label: "USB / BYOD", ids: ["usb", "wireless"] },
-    { label: "Audio / Dante", ids: ["audio", "dante"] },
-    { label: "Control / integration", ids: ["control"] },
-    { label: "Power method", ids: ["power"] }
-  ];
-
-  for (const group of groups) {
-    const requestGroup = requestSignals.filter((signal) => group.ids.includes(signal));
-    const productGroup = productSignals.filter((signal) => group.ids.includes(signal));
-    const overlap = requestGroup.filter((signal) => productGroup.includes(signal));
-    let status: RowStatus = "unknown";
-    let note = "Check datasheets before positioning as an equivalent.";
-
-    if (requestGroup.length > 0 && overlap.length > 0) {
-      status = "match";
-      note = "Detected from both the request and WyreStorm product data.";
-    }
-
-    if (requestGroup.length > 0 && overlap.length === 0 && productGroup.length > 0) {
-      status = "partial";
-      note = "Same broad requirement area, but not identical from detected data.";
-    }
-
-    if (requestGroup.length > 0 && productGroup.length === 0) {
-      status = "miss";
-      note = "Requested feature is not confirmed in the available WyreStorm data.";
-    }
-
-    rows.push({
-      label: group.label,
-      request: labelSignals(requestGroup),
-      wyrestorm: productGroup.length > 0 ? labelSignals(productGroup) : "Not confirmed",
-      status,
-      note
-    });
-  }
-
-  rows.unshift({
-    label: "Input / output scale",
-    request: requestIo || "Not specified",
-    wyrestorm: productIo || "Not confirmed",
-    status: rowStatus(requestIo || "Not specified", productIo || "Not confirmed"),
-    note: "I/O count should be checked carefully because equivalent products are rarely exact."
-  });
-
-  return rows;
-}
-
-function statusClass(status: MatchStatus): string {
-  if (status === "GOOD MATCH") {
-    return "good";
-  }
-
-  if (status === "PARTIAL MATCH") {
-    return "partial";
-  }
-
-  return "none";
-}
-
-function rowLabel(status: RowStatus): string {
-  if (status === "match") {
-    return "Match";
-  }
-
-  if (status === "partial") {
-    return "Check";
-  }
-
-  if (status === "miss") {
-    return "Gap";
+  if (clean.includes("JAD") || clean.includes("J+P") || clean.includes("JUST ADD")) {
+    return "Just Add Power";
   }
 
   return "Unknown";
 }
 
-function scoreProduct(product: Product, form: CompareForm): Candidate {
-  const requestText = normalise([form.manufacturer, form.competitorSku, form.productUrl, form.applicationContext].join(" "));
-  const requestTerms = unique(tokenise(requestText));
-  const requestSignals = detectSignals(requestText);
-  const productSignals = detectSignals(product.sourceText);
-  const matchedTerms: string[] = [];
-  const matchedSignals: string[] = [];
+function buildCompetitorProfile(skuInput: string, manufacturerInput: string): CompetitorProfile {
+  const sku = upper(skuInput);
+  const manufacturer = detectManufacturer(sku, manufacturerInput);
+  const io = parseIoFromSku(sku);
+
+  let technology = "unknown";
+  let role = "unknown";
+  const keywords: string[] = [];
+  const blockers: string[] = [];
+
+  if (sku.includes("MX") || sku.includes("MAT") || sku.includes("MATRIX")) {
+    technology = "MATRIX";
+    role = "matrix switching";
+    keywords.push("matrix", "switching", "routing");
+  }
+
+  if (sku.includes("EX") || sku.includes("EXT") || sku.includes("HDBT") || sku.includes("TP")) {
+    technology = technology === "MATRIX" ? "MATRIX / HDBASET" : "HDBASET / EXTENDER";
+    role = technology.includes("MATRIX") ? "matrix switching" : "point-to-point extension";
+    keywords.push("hdbaset", "extender", "transmitter", "receiver");
+  }
+
+  if (sku.includes("IP") || sku.includes("AIP") || sku.includes("JPEG") || sku.includes("SDVOE")) {
+    technology = "AV-OVER-IP";
+    role = "network AV distribution";
+    keywords.push("networkhd", "av over ip", "av-over-ip", "encoder", "decoder");
+  }
+
+  if (sku.includes("MV") || sku.includes("MULTI")) {
+    technology = "MULTIVIEW";
+    role = "multiview processing";
+    keywords.push("multiview", "multi-view");
+  }
+
+  if (sku.includes("VW") || sku.includes("WALL")) {
+    technology = "VIDEO WALL";
+    role = "video wall processing";
+    keywords.push("video wall", "wall processor");
+  }
+
+  if (io.inputCount && io.outputCount) {
+    keywords.push(`${io.inputCount}x${io.outputCount}`);
+    keywords.push(`${io.inputCount} x ${io.outputCount}`);
+    keywords.push(`${String(io.inputCount).padStart(2, "0")}${String(io.outputCount).padStart(2, "0")}`);
+  }
+
+  if (technology === "unknown") {
+    blockers.push("Technology class could not be confirmed from the SKU alone.");
+  }
+
+  if (!io.inputCount && technology.includes("MATRIX")) {
+    blockers.push("Matrix input/output count was not confidently detected.");
+  }
+
+  return {
+    manufacturer,
+    sku,
+    technology,
+    role,
+    inputCount: io.inputCount,
+    outputCount: io.outputCount,
+    confidence: technology === "unknown" ? "low" : manufacturer === "Unknown" ? "medium" : "high",
+    keywords,
+    blockers
+  };
+}
+
+async function fetchProductIndex(): Promise<{ records: ProductRecord[]; source: string; usedFallback: boolean }> {
+  for (const url of indexUrls) {
+    try {
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) {
+        continue;
+      }
+
+      const payload = await response.json();
+      const records = flattenProductRecords(payload);
+
+      if (records.length > 0) {
+        return {
+          records,
+          source: url,
+          usedFallback: false
+        };
+      }
+    } catch {
+      // Try next possible local index path.
+    }
+  }
+
+  return {
+    records: fallbackProducts,
+    source: "limited built-in fallback because local product index was not found",
+    usedFallback: true
+  };
+}
+
+function productFromRecord(record: ProductRecord): Omit<ProductCandidate, "score" | "reasons" | "warnings" | "rawText"> {
+  const sku =
+    readField(record, ["sku", "model", "productCode", "product_code", "id"]) ||
+    readField(record, ["title", "name"]) ||
+    "Unknown SKU";
+
+  const title = readField(record, ["title", "name", "product", "displayName"]) || sku;
+  const family = readField(record, ["family", "category", "series", "productFamily"]) || "WyreStorm product";
+  const summary = readField(record, ["summary", "description", "shortDescription", "overview"]) || "No short summary available.";
+
+  return {
+    sku,
+    title,
+    family,
+    summary
+  };
+}
+
+function scoreProduct(record: ProductRecord, profile: CompetitorProfile): ProductCandidate {
+  const extracted = productFromRecord(record);
+  const rawText = recordToText(record);
+  const skuText = upper(extracted.sku);
+  const reasons: string[] = [];
+  const warnings: string[] = [];
   let score = 0;
 
-  for (const term of requestTerms) {
-    if (normalise(product.sku).includes(term)) {
-      score += 14;
-      matchedTerms.push(term);
-    }
+  if (rawText.includes("cable") || rawText.includes("bracket") || rawText.includes("accessory")) {
+    score -= 5;
+    warnings.push("Accessory-like result; unlikely to be the lead replacement.");
+  }
 
-    if (normalise(product.name).includes(term)) {
-      score += 8;
-      matchedTerms.push(term);
-    }
-
-    if (product.sourceText.includes(term)) {
+  for (const keyword of profile.keywords) {
+    if (rawText.includes(keyword.toLowerCase())) {
       score += 3;
-      matchedTerms.push(term);
+      reasons.push(`Matches keyword: ${keyword}`);
     }
   }
 
-  for (const signal of requestSignals) {
-    if (productSignals.includes(signal)) {
-      score += 12;
-      matchedSignals.push(signal);
+  if (profile.technology.includes("MATRIX")) {
+    if (rawText.includes("matrix")) {
+      score += 5;
+      reasons.push("Same broad product class: matrix switching");
     }
-  }
 
-  const contextTerms = tokenise(form.applicationContext);
+    if (profile.inputCount && profile.outputCount) {
+      const compact = `${String(profile.inputCount).padStart(2, "0")}${String(profile.outputCount).padStart(2, "0")}`;
+      const readable = `${profile.inputCount}x${profile.outputCount}`;
+      const spaced = `${profile.inputCount} x ${profile.outputCount}`;
 
-  for (const term of contextTerms) {
-    if (product.sourceText.includes(term)) {
-      score += 2;
-    }
-  }
-
-  const rows = buildRows(form, product);
-  const rowMatches = rows.filter((row) => row.status === "match").length;
-  const rowPartials = rows.filter((row) => row.status === "partial").length;
-  score += rowMatches * 4;
-  score += rowPartials * 2;
-
-  let status: MatchStatus = "NO MATCH";
-
-  if (score >= 48 && rowMatches >= 2) {
-    status = "GOOD MATCH";
-  }
-
-  if (score >= 20 && status !== "GOOD MATCH") {
-    status = "PARTIAL MATCH";
-  }
-
-  const reasons = unique([
-    ...matchedSignals.map((signal) => `Detected ${signalLabel(signal)} alignment.`),
-    ...matchedTerms.slice(0, 5).map((term) => `Matched request term: ${term}.`),
-    `${rowMatches} comparison areas show a direct match.`
-  ]).slice(0, 6);
-
-  const misses = rows
-    .filter((row) => row.status === "miss" || row.status === "partial")
-    .map((row) => `${row.label}: ${row.note}`)
-    .slice(0, 5);
-
-  return {
-    product,
-    score,
-    status,
-    matchedSignals: unique(matchedSignals),
-    matchedTerms: unique(matchedTerms),
-    reasons: reasons.length > 0 ? reasons : ["No strong match evidence was detected from the loaded product data."],
-    misses: misses.length > 0 ? misses : ["No major gaps detected from the available fields."],
-    rows
-  };
-}
-
-function compareProducts(products: Product[], form: CompareForm): Candidate[] {
-  const ranked = products
-    .map((product) => scoreProduct(product, form))
-    .sort((first, second) => second.score - first.score);
-
-  return ranked.slice(0, 6);
-}
-
-
-function compareSkuTypeaheadRefreshDatalist(manufacturer: string, query = ""): void {
-  if (typeof document === "undefined") return;
-
-  const datalist = document.getElementById(COMPARE_SKU_TYPEAHEAD_DATALIST_ID);
-
-  if (!(datalist instanceof HTMLDataListElement)) return;
-
-  while (datalist.firstChild) {
-    datalist.removeChild(datalist.firstChild);
-  }
-
-  for (const sku of compareSkuTypeaheadSuggestions(manufacturer, query)) {
-    const option = document.createElement("option");
-    option.value = sku;
-    datalist.appendChild(option);
-  }
-}
-
-function compareSkuTypeaheadReadManufacturer(element: HTMLInputElement | HTMLSelectElement): string {
-  const form = element.form;
-  const select = form?.querySelector("select") as HTMLSelectElement | null;
-
-  return select?.value || "";
-}
-
-function compareSkuTypeaheadReadQuery(element: HTMLInputElement | HTMLSelectElement): string {
-  if (element instanceof HTMLInputElement) {
-    return element.value;
-  }
-
-  const form = element.form;
-  const input = form?.querySelector(`input[list="${COMPARE_SKU_TYPEAHEAD_DATALIST_ID}"]`) as HTMLInputElement | null;
-
-  return input?.value || "";
-}
-
-function compareSkuTypeaheadRefreshFromFormElement(element: HTMLInputElement | HTMLSelectElement): void {
-  compareSkuTypeaheadRefreshDatalist(
-    compareSkuTypeaheadReadManufacturer(element),
-    compareSkuTypeaheadReadQuery(element),
-  );
-}
-
-
-function wingmanUnknownRecord(value: unknown): Record<string, unknown> {
-  if (!value || typeof value !== "object") return {};
-  return value as Record<string, unknown>;
-}
-
-function wingmanString(value: unknown): string {
-  if (Array.isArray(value)) return value.map((item) => wingmanString(item)).filter(Boolean).join(" ");
-
-  if (value && typeof value === "object") {
-    try {
-      return JSON.stringify(value);
-    } catch {
-      return "";
-    }
-  }
-
-  return String(value ?? "");
-}
-
-function wingmanCompareCandidateInput(value: unknown): CompareCandidateGateInput {
-  const item = wingmanUnknownRecord(value);
-
-  return {
-    sku: wingmanString(item.sku ?? item.model ?? item.partNumber ?? item.id),
-    title: wingmanString(item.title ?? item.name ?? item.description),
-    role: wingmanString(item.role ?? item.governanceRole ?? item.productRole ?? item.category ?? item.type),
-    category: wingmanString(item.category ?? item.productCategory),
-    family: wingmanString(item.family),
-    productFamily: wingmanString(item.productFamily ?? item.series),
-    tags: Array.isArray(item.tags) ? item.tags.map((tag) => wingmanString(tag)) : [],
-    features: wingmanUnknownRecord(item.features),
-    text: wingmanString(value),
-  };
-}
-
-function wingmanReadCompareFieldValues(): { manufacturer: string; model: string } {
-  if (typeof document === "undefined") {
-    return {
-      manufacturer: "",
-      model: "",
-    };
-  }
-
-  const selectedManufacturer = Array.from(document.querySelectorAll("select"))
-    .map((select) => select.value)
-    .find((value) => Boolean(value?.trim())) ?? "";
-
-  const skuInput = document.querySelector(`input[list="${COMPARE_SKU_TYPEAHEAD_DATALIST_ID}"]`) as HTMLInputElement | null;
-
-  return {
-    manufacturer: selectedManufacturer,
-    model: skuInput?.value ?? "",
-  };
-}
-
-function wingmanBuildCompareGateContext(): CompareCandidateGateContext {
-  const values = wingmanReadCompareFieldValues();
-  const intelligence = buildCompetitorDecisionEvidence({
-    brand: values.manufacturer,
-    manufacturer: values.manufacturer,
-    sku: values.model,
-    title: values.model,
-  });
-
-  return {
-    competitorClass: intelligence.domain,
-    competitorRole: intelligence.role,
-    competitorTransport: intelligence.transport,
-    applicationContext: [values.manufacturer, values.model].filter(Boolean).join(" "),
-  };
-}
-
-function ComparePage() {
-  const [form, setForm] = useState<CompareForm>({
-    manufacturer: "Crestron",
-    competitorSku: "",
-    productUrl: "",
-    applicationContext: ""
-  });
-
-  const [products, setProducts] = useState<Product[]>([]);
-  const [dataState, setDataState] = useState("Loading product intelligence index...");
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [hasRun, setHasRun] = useState(false);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    async function loadProductIndex() {
-      try {
-        const response = await fetch("/product-intelligence-index.json", {
-          cache: "no-store",
-          signal: controller.signal
-        });
-
-        if (!response.ok) {
-          setDataState("Product intelligence index was not found. Run the product intelligence generator before relying on live matches.");
-          setProducts([]);
-          return;
-        }
-
-        const payload: unknown = await response.json();
-        const records = extractProductArray(payload);
-        const parsed = records.map(buildProduct).filter((product): product is Product => Boolean(product));
-
-        setProducts(parsed);
-        setDataState(`${parsed.length} WyreStorm product records loaded from the live product intelligence index.`);
-      } catch (error) {
-        if (controller.signal.aborted) {
-          return;
-        }
-
-        setDataState("Could not load product intelligence index. Check public/product-intelligence-index.json.");
-        setProducts([]);
+      if (rawText.includes(compact) || rawText.includes(readable) || rawText.includes(spaced) || skuText.includes(compact)) {
+        score += 7;
+        reasons.push(`Likely matching I/O count: ${profile.inputCount}x${profile.outputCount}`);
+      } else {
+        warnings.push(`Verify I/O count against required ${profile.inputCount}x${profile.outputCount}.`);
       }
     }
+  }
 
-    void loadProductIndex();
+  if (profile.technology.includes("EXTENDER") || profile.technology.includes("HDBASET")) {
+    if (rawText.includes("hdbaset") || rawText.includes("extender")) {
+      score += 6;
+      reasons.push("Same broad transport class: HDBaseT / extender");
+    }
+  }
 
-    return () => controller.abort();
-  }, []);
+  if (profile.technology.includes("AV-OVER-IP")) {
+    if (rawText.includes("networkhd") || rawText.includes("av-over-ip") || rawText.includes("encoder") || rawText.includes("decoder")) {
+      score += 6;
+      reasons.push("Same broad technology class: AV-over-IP");
+    }
+  }
 
-  const topCandidate = candidates[0] || null;
+  if (profile.technology.includes("MULTIVIEW") && rawText.includes("multiview")) {
+    score += 6;
+    reasons.push("Same broad function: multiview");
+  }
 
-  const readiness = useMemo(() => {
-    const filled = [
-      form.manufacturer,
-      form.competitorSku,
-      form.productUrl,
-      form.applicationContext
-    ].filter((value) => value.trim()).length;
+  if (profile.technology.includes("VIDEO WALL") && rawText.includes("video wall")) {
+    score += 6;
+    reasons.push("Same broad function: video wall processing");
+  }
 
-    return Math.round((filled / 4) * 100);
-  }, [form]);
+  if (score < 1 && rawText.includes("wyrestorm")) {
+    score += 1;
+  }
 
-  const updateField = (key: keyof CompareForm, value: string) => {
-    setForm((current) => ({
-      ...current,
-      [key]: value
-    }));
+  return {
+    ...extracted,
+    score,
+    reasons: Array.from(new Set(reasons)).slice(0, 5),
+    warnings: Array.from(new Set(warnings)).slice(0, 5),
+    rawText
   };
+}
 
-  const runComparison = (event?: FormEvent) => {
-    event?.preventDefault();
-    setHasRun(true);
+function getVerdict(topCandidate: ProductCandidate | null, profile: CompetitorProfile): Verdict {
+  if (!topCandidate || topCandidate.score < 4) {
+    return "NO MATCH";
+  }
 
-    if (products.length === 0) {
-      setCandidates([]);
+  const hasIoRequirement = Boolean(profile.inputCount && profile.outputCount);
+  const hasIoMatch = topCandidate.reasons.some((reason) => reason.toLowerCase().includes("i/o count"));
+  const strongClassMatch = topCandidate.score >= 8;
+
+  if (topCandidate.score >= 13 && (!hasIoRequirement || hasIoMatch)) {
+    return "GOOD MATCH";
+  }
+
+  if (strongClassMatch) {
+    return "PARTIAL MATCH";
+  }
+
+  return "NO MATCH";
+}
+
+function buildFeatureChecks(profile: CompetitorProfile, topCandidate: ProductCandidate | null): FeatureCheck[] {
+  if (!topCandidate) {
+    return [
+      {
+        label: "Product class",
+        competitor: profile.technology,
+        wyrestorm: "No candidate found",
+        status: "gap"
+      }
+    ];
+  }
+
+  const checks: FeatureCheck[] = [];
+
+  const classMatch =
+    topCandidate.reasons.some((reason) => reason.toLowerCase().includes("same broad")) ||
+    topCandidate.rawText.includes(profile.technology.toLowerCase());
+
+  checks.push({
+    label: "Product purpose / class",
+    competitor: profile.technology,
+    wyrestorm: topCandidate.family,
+    status: classMatch ? "match" : "check"
+  });
+
+  const ioRequired = Boolean(profile.inputCount && profile.outputCount);
+  const ioMatch = topCandidate.reasons.some((reason) => reason.toLowerCase().includes("i/o count"));
+
+  checks.push({
+    label: "Input / output count",
+    competitor: ioRequired ? `${profile.inputCount}x${profile.outputCount}` : "Not detected",
+    wyrestorm: ioMatch ? "Likely match" : "Verify from datasheet",
+    status: ioRequired ? ioMatch ? "match" : "check" : "check"
+  });
+
+  checks.push({
+    label: "Signal / transport",
+    competitor: profile.technology,
+    wyrestorm: classMatch ? "Broadly aligned" : "Needs verification",
+    status: classMatch ? "match" : "check"
+  });
+
+  checks.push({
+    label: "USB / control / audio",
+    competitor: "Unknown from SKU alone",
+    wyrestorm: "Check feature-by-feature",
+    status: "check"
+  });
+
+  checks.push({
+    label: "Power / install dependencies",
+    competitor: "Unknown from SKU alone",
+    wyrestorm: "Check PSU, PoE/PoH, receivers, controller and network needs",
+    status: "check"
+  });
+
+  return checks;
+}
+
+function statusLabel(status: CheckStatus): string {
+  if (status === "match") {
+    return "MATCH";
+  }
+
+  if (status === "gap") {
+    return "GAP";
+  }
+
+  return "CHECK";
+}
+
+export function ComparePage() {
+  const [competitorSku, setCompetitorSku] = useState("");
+  const [manufacturer, setManufacturer] = useState("Auto-detect where possible");
+  const [sourceContext, setSourceContext] = useState("");
+  const [applicationContext, setApplicationContext] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [indexSource, setIndexSource] = useState("");
+  const [usedFallback, setUsedFallback] = useState(false);
+  const [profile, setProfile] = useState<CompetitorProfile | null>(null);
+  const [candidates, setCandidates] = useState<ProductCandidate[]>([]);
+  const [error, setError] = useState("");
+
+  const canRun = competitorSku.trim().length >= 2;
+
+  const topCandidate = candidates[0] ?? null;
+  const verdict = useMemo(() => getVerdict(topCandidate, profile ?? buildCompetitorProfile("", manufacturer)), [topCandidate, profile, manufacturer]);
+  const checks = useMemo(() => profile ? buildFeatureChecks(profile, topCandidate) : [], [profile, topCandidate]);
+
+  async function runCompare(): Promise<void> {
+    if (!canRun || loading) {
       return;
     }
 
-    setCandidates(compareProducts(products, form));
-  };
+    setLoading(true);
+    setError("");
+
+    try {
+      const nextProfile = buildCompetitorProfile(competitorSku, manufacturer);
+      const index = await fetchProductIndex();
+
+      const scored = index.records
+        .map((record) => scoreProduct(record, nextProfile))
+        .filter((candidate) => candidate.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5);
+
+      setProfile(nextProfile);
+      setIndexSource(index.source);
+      setUsedFallback(index.usedFallback);
+      setCandidates(scored);
+
+      if (scored.length < 1) {
+        setError("No credible WyreStorm candidate was found from the available local product data. Treat this as NO MATCH until product intelligence is improved.");
+      }
+    } catch (caughtError) {
+      setError(caughtError instanceof Error ? caughtError.message : "Compare failed unexpectedly.");
+      setCandidates([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>): void {
+    if (event.key === "Enter") {
+      void runCompare();
+    }
+  }
 
   return (
-    <main className="wm-compare-rewrite" data-wingman-page="compare">
-      <style>{styles}</style>
-
-      <section className="wm-cr-hero">
-        <div>
-          <p className="wm-cr-eyebrow">Competitor comparison</p>
-          <h1>Match competitor SKUs to credible WyreStorm alternatives.</h1>
-          <p className="wm-cr-hero-copy">
-            Use this page to identify whether the competitor product is a no match, partial match,
-            or good match based on technology class, product role, transport, I/O shape, USB/BYOD,
-            audio, control, power and application fit.
-          </p>
-        </div>
-
-        <div className="wm-cr-actions">
-          <a className="wm-cr-button-secondary" href="/wingman/product-finder">Open product finder</a>
-          <a className="wm-cr-button-secondary" href="/wingman/response-pack">Open response pack</a>
-          <a className="wm-cr-button" href="#lookup">Start compare</a>
-        </div>
+    <div className="wm-compare-live">
+      <section className="wm-compare-live-hero">
+        <p className="wm-compare-kicker">Competitor replacement desk</p>
+        <h1>Decide whether WyreStorm is a good, partial or no-match replacement.</h1>
+        <p>
+          Enter a competitor product, then review match evidence, blocking differences, verification points and
+          customer-safe next actions.
+        </p>
       </section>
 
-      <section className="wm-cr-grid">
-        <div>
-          <section id="lookup" className="wm-cr-card">
-            <div className="wm-cr-card-header">
-              <div>
-                <p className="wm-cr-eyebrow">Lookup request</p>
-                <h2 className="wm-cr-card-title">Competitor product details</h2>
-                <p className="wm-cr-card-text">
-                  Add the competitor SKU and enough context to avoid false equivalence.
-                </p>
-              </div>
-              <span className="wm-cr-chip">{readiness}% ready</span>
-            </div>
+      <section className="wm-compare-live-grid">
+        <div className="wm-compare-input-card">
+          <label className="wm-compare-field wm-compare-field-full">
+            <span>Competitor product</span>
+            <input
+              autoComplete="off"
+              onChange={(event) => setCompetitorSku(event.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Example: AC-MX-88, DTP2 T 211, VS-44H2A"
+              value={competitorSku}
+            />
+          </label>
 
-            <form className="wm-cr-form" onSubmit={runComparison}>
-              <div className="wm-cr-two">
-                <label className="wm-cr-field">
-                  <span className="wm-cr-label">Manufacturer</span>
-                  <select onChangeCapture={(event) => compareSkuTypeaheadRefreshFromFormElement(event.currentTarget)}
-                    className="wm-cr-select"
-                    value={form.manufacturer}
-                    onChange={(event) => updateField("manufacturer", event.target.value)}
-                  >
-                    {manufacturerOptions.map((manufacturer) => (
-                      <option key={manufacturer} value={manufacturer}>{manufacturer}</option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="wm-cr-field">
-                  <span className="wm-cr-label">Competitor SKU</span>
-                  <input
-                    className="wm-cr-input"
-                    value={form.competitorSku}
-                    onChange={(event) => updateField("competitorSku", event.target.value)}
-                    placeholder="Example: DM-NVX-350"
-                    list={COMPARE_SKU_TYPEAHEAD_DATALIST_ID}
-                onFocusCapture={(event) => compareSkuTypeaheadRefreshFromFormElement(event.currentTarget)}
-                onInput={(event) => compareSkuTypeaheadRefreshFromFormElement(event.currentTarget)}
-              />
-              <datalist id={COMPARE_SKU_TYPEAHEAD_DATALIST_ID}>
-                {COMPARE_SKU_TYPEAHEAD_ALL_OPTIONS.map((item) => (
-                  <option key={"compare-sku-typeahead-" + item} value={item} />
+          <div className="wm-compare-two-fields">
+            <label className="wm-compare-field">
+              <span>Manufacturer</span>
+              <select onChange={(event) => setManufacturer(event.target.value)} value={manufacturer}>
+                {manufacturerOptions.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
                 ))}
-              </datalist>
+              </select>
+            </label>
 
-                </label>
-</div>
+            <label className="wm-compare-field">
+              <span>Source/spec page</span>
+              <input
+                onChange={(event) => setSourceContext(event.target.value)}
+                placeholder="Any page with product details or specifications"
+                value={sourceContext}
+              />
+            </label>
+          </div>
 
-              <label className="wm-cr-field">
-                <span className="wm-cr-label">Product / datasheet URL</span>
-                <input
-                  className="wm-cr-input"
-                  value={form.productUrl}
-                  onChange={(event) => updateField("productUrl", event.target.value)}
-                  placeholder="Paste a competitor product page or datasheet link"
-                />
-              </label>
+          <label className="wm-compare-field wm-compare-field-full">
+            <span>Application context</span>
+            <input
+              onChange={(event) => setApplicationContext(event.target.value)}
+              placeholder="Example: lecture theatre, meeting room, 4K video wall, AVoIP estate"
+              value={applicationContext}
+            />
+          </label>
 
-              <label className="wm-cr-field">
-                <span className="wm-cr-label">Application context</span>
-                <textarea
-                  className="wm-cr-textarea"
-                  value={form.applicationContext}
-                  onChange={(event) => updateField("applicationContext", event.target.value)}
-                  placeholder="Example: 4K60 AVoIP endpoint for university teaching rooms with USB, RS232, audio de-embedding and PoE."
-                />
-              </label>
+          <button
+            className="wm-compare-run-button"
+            disabled={!canRun || loading}
+            onClick={() => void runCompare()}
+            type="button"
+          >
+            {loading ? "Checking local product intelligence..." : "Find WyreStorm Alternatives"}
+          </button>
 
-              <button className="wm-cr-button" type="submit">Run accurate comparison</button>
-            </form>
-          </section>
+          {!canRun && (
+            <p className="wm-compare-inline-warning">Enter a competitor SKU to activate the comparison.</p>
+          )}
 
-          <section className="wm-cr-card">
-            <div className="wm-cr-card-header">
-              <div>
-                <p className="wm-cr-eyebrow">Data source</p>
-                <h2 className="wm-cr-card-title">Live product index</h2>
-                <p className="wm-cr-card-text">{dataState}</p>
-              </div>
-            </div>
-            <p className="wm-cr-card-text">
-              This rewrite does not use fixed demo results. It ranks against the loaded WyreStorm
-              product intelligence index. If the index is missing, the page will say so rather than
-              pretending to find a match.
-            </p>
-          </section>
+          {error && <p className="wm-compare-error">{error}</p>}
         </div>
 
-        <div>
-          {!hasRun && (
-            <section className="wm-cr-card wm-cr-empty">
-              <div className="wm-cr-empty-inner">
-                <p className="wm-cr-eyebrow">Result review</p>
-                <h2>Run a comparison to see match quality.</h2>
-                <p>
-                  The result will show a clear no match, partial match, or good match outcome,
-                  followed by a red/amber/green evidence matrix.
-                </p>
-              </div>
-            </section>
-          )}
+        <aside className="wm-compare-right-rail">
+          <div className="wm-compare-check-card">
+            <h2>What Wingman will check</h2>
+            <ul>
+              <li>Product purpose and technology class</li>
+              <li>Manufacturer override or auto-detect</li>
+              <li>Input/output role and capacity</li>
+              <li>Signal, USB, audio, control and network differences</li>
+              <li>Blocking gaps and verification points</li>
+              <li>GOOD / PARTIAL / NO MATCH verdict</li>
+            </ul>
+          </div>
 
-          {hasRun && !topCandidate && (
-            <section className="wm-cr-card wm-cr-empty">
-              <div className="wm-cr-empty-inner">
-                <p className="wm-cr-eyebrow">Result review</p>
-                <h2>No match can be calculated.</h2>
-                <p>
-                  No product index records are currently available. Generate or repair
-                  public/product-intelligence-index.json, then run the comparison again.
-                </p>
-              </div>
-            </section>
-          )}
+          <div className="wm-compare-live-card">
+            <h2>Live interpretation</h2>
+            {profile ? (
+              <dl>
+                <div>
+                  <dt>Manufacturer used</dt>
+                  <dd>{profile.manufacturer}</dd>
+                </div>
+                <div>
+                  <dt>Technology</dt>
+                  <dd>{profile.technology}</dd>
+                </div>
+                <div>
+                  <dt>Role</dt>
+                  <dd>{profile.role}</dd>
+                </div>
+                <div>
+                  <dt>I/O</dt>
+                  <dd>{profile.inputCount && profile.outputCount ? `${profile.inputCount}x${profile.outputCount}` : "Not detected"}</dd>
+                </div>
+                <div>
+                  <dt>Confidence</dt>
+                  <dd>{profile.confidence}</dd>
+                </div>
+              </dl>
+            ) : (
+              <p>Enter a competitor SKU and run the comparison.</p>
+            )}
+          </div>
+        </aside>
+      </section>
+
+      {profile && (
+        <section className="wm-compare-results">
+          <div className={`wm-compare-verdict wm-compare-verdict-${verdict.toLowerCase().replace(/\s+/g, "-")}`}>
+            <span>Verdict</span>
+            <strong>{verdict}</strong>
+            <p>
+              {verdict === "GOOD MATCH"
+                ? "The best WyreStorm candidate appears to match the main product class and core requirement. Still verify all feature details against datasheets before quoting."
+                : verdict === "PARTIAL MATCH"
+                  ? "A credible WyreStorm direction exists, but one or more features, I/O details or dependencies need checking before presenting it as an equivalent."
+                  : "No safe direct WyreStorm match was found from the currently available product intelligence."}
+            </p>
+          </div>
+
+          <div className="wm-compare-index-note">
+            <strong>Product data source:</strong> {indexSource}
+            {usedFallback && (
+              <span>
+                Local product index was not found, so Wingman used a limited built-in fallback. Run the product
+                intelligence index generation before using this as a serious comparison.
+              </span>
+            )}
+          </div>
 
           {topCandidate && (
-            <section className="wm-cr-card">
-              <div className="wm-cr-result-top">
-                <div>
-                  <span className={`wm-cr-status ${statusClass(topCandidate.status)}`}>
-                    {topCandidate.status}
-                  </span>
-                  <h2 className="wm-cr-product-name">{topCandidate.product.name}</h2>
-                  <div className="wm-cr-product-meta">
-                    {topCandidate.product.sku && <span className="wm-cr-chip">{topCandidate.product.sku}</span>}
-                    {topCandidate.product.family && <span className="wm-cr-chip">{topCandidate.product.family}</span>}
-                    {topCandidate.product.category && <span className="wm-cr-chip">{topCandidate.product.category}</span>}
-                    {topCandidate.matchedSignals.slice(0, 4).map((signal) => (
-                      <span className="wm-cr-chip" key={signal}>{signalLabel(signal)}</span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="wm-cr-score">
-                  <strong>{topCandidate.score}</strong>
-                  <span>fit score</span>
-                </div>
+            <div className="wm-compare-best-card">
+              <div>
+                <p className="wm-compare-kicker">Best WyreStorm candidate</p>
+                <h2>{topCandidate.sku}</h2>
+                <p>{topCandidate.title}</p>
+                <p>{topCandidate.summary}</p>
               </div>
-
-              <div className="wm-cr-lists">
-                <div>
-                  <p className="wm-cr-eyebrow">Why it may fit</p>
-                  <ul className="wm-cr-list">
-                    {topCandidate.reasons.map((reason) => (
-                      <li key={reason}>{reason}</li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div>
-                  <p className="wm-cr-eyebrow">What to check</p>
-                  <ul className="wm-cr-list">
-                    {topCandidate.misses.map((miss) => (
-                      <li key={miss}>{miss}</li>
-                    ))}
-                  </ul>
-                </div>
+              <div>
+                <span className="wm-compare-score">Score {topCandidate.score}</span>
               </div>
-
-              <div className="wm-cr-table-wrap">
-                <table className="wm-cr-table">
-                  <thead>
-                    <tr>
-                      <th>Comparison point</th>
-                      <th>Competitor requirement</th>
-                      <th>WyreStorm evidence</th>
-                      <th>Status</th>
-                      <th>Note</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {topCandidate.rows.map((row) => (
-                      <tr key={row.label}>
-                        <td>{row.label}</td>
-                        <td>{row.request}</td>
-                        <td>{row.wyrestorm}</td>
-                        <td>
-                          <span className={`wm-cr-indicator ${row.status}`}>
-                            {rowLabel(row.status)}
-                          </span>
-                        </td>
-                        <td>{row.note}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
+            </div>
           )}
 
-          {candidates.length > 1 && (
-            <section className="wm-cr-card">
-              <div className="wm-cr-card-header">
-                <div>
-                  <p className="wm-cr-eyebrow">Other possible options</p>
-                  <h2 className="wm-cr-card-title">Alternative WyreStorm candidates</h2>
-                  <p className="wm-cr-card-text">
-                    Use these as secondary checks, not automatic substitutes.
-                  </p>
-                </div>
+          <div className="wm-compare-feature-grid">
+            {checks.map((check) => (
+              <div className={`wm-compare-feature wm-compare-feature-${check.status}`} key={check.label}>
+                <span>{statusLabel(check.status)}</span>
+                <strong>{check.label}</strong>
+                <p><b>Competitor:</b> {check.competitor}</p>
+                <p><b>WyreStorm:</b> {check.wyrestorm}</p>
               </div>
+            ))}
+          </div>
 
-              <div className="wm-cr-candidates">
-                {candidates.slice(1).map((candidate) => (
-                  <div className="wm-cr-candidate" key={`${candidate.product.sku}-${candidate.score}`}>
+          <div className="wm-compare-candidate-grid">
+            {candidates.length > 0 ? (
+              candidates.map((candidate) => (
+                <article className="wm-compare-candidate" key={`${candidate.sku}-${candidate.score}`}>
+                  <div>
+                    <p className="wm-compare-kicker">{candidate.family}</p>
+                    <h3>{candidate.sku}</h3>
+                    <p>{candidate.title}</p>
+                  </div>
+
+                  <div>
+                    <strong>Why it appeared</strong>
+                    {candidate.reasons.length > 0 ? (
+                      <ul>
+                        {candidate.reasons.map((reason) => (
+                          <li key={reason}>{reason}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>Low-confidence product direction only.</p>
+                    )}
+                  </div>
+
+                  {candidate.warnings.length > 0 && (
                     <div>
-                      <strong>{candidate.product.name}</strong>
-                      <span>
-                        {[candidate.product.sku, candidate.product.family, candidate.product.category]
-                          .filter(Boolean)
-                          .join(" · ")}
-                      </span>
+                      <strong>Check before quoting</strong>
+                      <ul>
+                        {candidate.warnings.map((warning) => (
+                          <li key={warning}>{warning}</li>
+                        ))}
+                      </ul>
                     </div>
-                    <span className={`wm-cr-status ${statusClass(candidate.status)}`}>
-                      {candidate.status}
-                    </span>
-                  </div>
-                ))}
+                  )}
+                </article>
+              ))
+            ) : (
+              <div className="wm-compare-empty-results">
+                <h3>No candidate found</h3>
+                <p>
+                  This should be treated as NO MATCH unless the product intelligence index is incomplete. Add better
+                  product data before using this comparison with a customer.
+                </p>
               </div>
-            </section>
-          )}
-        </div>
-      </section>
-    </main>
+            )}
+          </div>
+        </section>
+      )}
+    </div>
   );
 }
-
-/*
-  Workflow integration compatibility markers.
-
-  These strings are intentionally retained because tools/workflow-integration-check.mjs
-  checks for literal source markers after the Compare page rewrite.
-
-  runCompetitorMatch
-  Match evidence
-  matchScore
-  saveRecommendationFeedback
-*/
 
 export default ComparePage;

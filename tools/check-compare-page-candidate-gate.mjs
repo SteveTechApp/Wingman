@@ -6,16 +6,37 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const root = path.resolve(__dirname, "..");
 
-const comparePath = path.join(root, "src/wingman2/pages/ComparePage.tsx");
+const routesPath = path.join(root, "src/wingman2/app/routes.tsx");
+const comparePath = path.join(root, "src/wingman2/pages/ComparePageNew.tsx");
+const enginePath = path.join(root, "src/wingman2/lib/competitorMatchEngine.ts");
 const gatePath = path.join(root, "src/wingman2/lib/compareCandidateGate.ts");
+const rigorousPath = path.join(root, "src/wingman2/lib/rigorousCompare.ts");
+const matrixPath = path.join(root, "src/wingman2/lib/compareFeatureMatrix.ts");
+const matrixComponentPath = path.join(root, "src/wingman2/components/compare/CompareSpecificationMatrix.tsx");
+const controlsComponentPath = path.join(root, "src/wingman2/components/compare/CompareControls.tsx");
 
-if (!existsSync(comparePath) || !existsSync(gatePath)) {
+if (
+  !existsSync(routesPath) ||
+  !existsSync(comparePath) ||
+  !existsSync(enginePath) ||
+  !existsSync(gatePath) ||
+  !existsSync(rigorousPath) ||
+  !existsSync(matrixPath) ||
+  !existsSync(matrixComponentPath) ||
+  !existsSync(controlsComponentPath)
+) {
   console.error("[compare-page-candidate-gate] Required files are missing.");
   process.exit(1);
 }
 
+const routes = readFileSync(routesPath, "utf8");
 const compare = readFileSync(comparePath, "utf8");
+const engine = readFileSync(enginePath, "utf8");
 const gate = readFileSync(gatePath, "utf8");
+const rigorous = readFileSync(rigorousPath, "utf8");
+const matrix = readFileSync(matrixPath, "utf8");
+const matrixComponent = readFileSync(matrixComponentPath, "utf8");
+const controlsComponent = readFileSync(controlsComponentPath, "utf8");
 
 const requiredGateMarkers = [
   "gateCompareCandidate",
@@ -25,16 +46,108 @@ const requiredGateMarkers = [
   "Candidate class is unknown",
 ];
 
+// The active page now routes through rigorousCompare, which applies the hard
+// candidate gate (via compareCompetitor) AND converges onto the deterministic
+// classifier before ranking.
 const requiredPageMarkers = [
-  "wingmanCompareCandidateInput",
-  "wingmanBuildCompareGateContext",
-  "buildCompetitorDecisionEvidence",
+  "readIndexedProducts",
+  "rigorousCompare",
+  "Find WyreStorm Alternatives",
+  "CUSTOM_BRAND_VALUE",
+  "missing-hyphen and partial SKU interpretation",
+  "buildCompareFeatureMatrixRows",
+  "CompareSpecificationMatrix",
+  "CompareManufacturerCombobox",
+  "CompareProductLookupInput",
+  "CompetitorProductProfileCard",
+  "Source/spec page",
+  "Optional first pass; required if Wingman asks for retry evidence",
+  "LiveLookupRetryPanel",
+  "data-wingman-live-lookup-retry",
+  "lookupCompareIntelligence",
+  "Retry with URL",
+  "disabled={!competitorInput.trim()}",
+];
+
+const prohibitedPageMarkers = [
+  "<datalist",
+  "<select",
+  "COMPARE_SKU_DATALIST_ID",
+  "disabled={!competitorInput.trim() || !productUrl.trim()}",
+];
+
+const requiredRigorousMarkers = [
+  "compareCompetitor",
+  "classifyCompetitorCompareDecision",
+  "resolveCompetitorSpecProfile",
+  "buildWyrestormCompareProfile",
+];
+
+const requiredMatrixMarkers = [
+  "CompareFeatureMatrixRow",
+  "CompareFeatureValueKind",
+  "Product class",
+  "HDMI inputs",
+  "HDMI outputs",
+  "USB host ports",
+  "USB device ports",
+  "Audio inputs",
+  "Audio outputs",
+  "Control connections",
+  "Network / LAN ports",
+  "PoE",
+  "PoC",
+  "PoH",
+  "Power supply",
+  "status: \"miss\"",
+  "status: \"match\"",
+  "status: \"partial\"",
+];
+
+const requiredMatrixComponentMarkers = [
+  "Specification comparison matrix",
+  "data-wingman-feature-match-grid",
+  "CompareFeatureValueKind",
+  "QuantityValue",
+  "BooleanValue",
+  "competitorLabel",
+  "wyrestormLabel",
+  "md:grid-cols-[48px_minmax(120px,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(90px,0.45fr)]",
+];
+
+const requiredControlsMarkers = [
+  "data-wingman-manufacturer-combobox",
+  "role=\"listbox\"",
+  "aria-label=\"Choose competitor manufacturer\"",
+  "bg-[#071522]",
+  "CompareProductLookupInput",
+  "CompareManufacturerCombobox",
+];
+
+const prohibitedMatrixComponentMarkers = [
+  "overflow-x-auto",
+  "min-w-[760px]",
+  "<table",
+];
+
+const requiredEngineMarkers = [
   "gateCompareCandidate",
+  "gateInputForProduct",
+  ".filter((product) => gateCompareCandidate",
+  "competitorClass: toGateClass(competitor.technologyClass)",
 ];
 
 const missing = [
+  ...["ComparePageNew"].filter((marker) => !routes.includes(marker)).map((marker) => "routes missing active ComparePageNew route: " + marker),
   ...requiredGateMarkers.filter((marker) => !gate.includes(marker)).map((marker) => "compareCandidateGate missing: " + marker),
   ...requiredPageMarkers.filter((marker) => !compare.includes(marker)).map((marker) => "ComparePage missing: " + marker),
+  ...prohibitedPageMarkers.filter((marker) => compare.includes(marker)).map((marker) => "ComparePage still uses native dropdown marker: " + marker),
+  ...requiredRigorousMarkers.filter((marker) => !rigorous.includes(marker)).map((marker) => "rigorousCompare missing: " + marker),
+  ...requiredMatrixMarkers.filter((marker) => !matrix.includes(marker)).map((marker) => "compareFeatureMatrix missing: " + marker),
+  ...requiredMatrixComponentMarkers.filter((marker) => !matrixComponent.includes(marker)).map((marker) => "CompareSpecificationMatrix missing: " + marker),
+  ...requiredControlsMarkers.filter((marker) => !controlsComponent.includes(marker)).map((marker) => "CompareControls missing: " + marker),
+  ...prohibitedMatrixComponentMarkers.filter((marker) => matrixComponent.includes(marker)).map((marker) => "CompareSpecificationMatrix still uses overflow table marker: " + marker),
+  ...requiredEngineMarkers.filter((marker) => !engine.includes(marker)).map((marker) => "competitorMatchEngine missing: " + marker),
 ];
 
 if (missing.length) {
@@ -43,11 +156,4 @@ if (missing.length) {
   process.exit(1);
 }
 
-if (!compare.includes("const wingmanCandidateGate = gateCompareCandidate(")) {
-  console.warn("[compare-page-candidate-gate] Candidate gate helpers are present, but matchScore was not patched automatically.");
-  console.warn("[compare-page-candidate-gate] Review reports/compare-page-candidate-gate-repair.md before treating Compare as fully gated.");
-  console.log("[compare-page-candidate-gate] Gate engine installed; page wiring still needs exact local matchScore patch.");
-  process.exit(0);
-}
-
-console.log("[compare-page-candidate-gate] Verified ComparePage applies hard candidate gate before matchScore ranking.");
+console.log("[compare-page-candidate-gate] Verified active Compare page applies hard candidate gate and live lookup URL retry before match ranking.");

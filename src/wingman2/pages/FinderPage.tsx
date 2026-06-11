@@ -2569,7 +2569,7 @@ function ChipButton({ active, label, onClick }: { active: boolean; label: string
           ? "border-slate-950 bg-slate-950 text-white"
           : "border-[#29465e] bg-[#0d2133] text-white/70 hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-800"
       }`}
-     type="button" onClick={() => { window.location.href = "/wingman/templates"; }}>{active ? <Check className="h-3.5 w-3.5" /> : null}
+      type="button" onClick={onClick}>{active ? <Check className="h-3.5 w-3.5" /> : null}
       {label}
     </button>
   );
@@ -3031,8 +3031,8 @@ export function FinderPage() {
     <div className="wm-finder-redesign-page pb-0">
       <PageHero
         eyebrow="Product Finder"
-        title="Find the right WyreStorm product path."
-        purpose="Work through a guided sales intelligence flow: start with the problem, confirm the signal path, size the system, add specialist needs, then review the recommendation."
+        title="Start from the customer problem, then find the safest WyreStorm product path."
+        purpose="Use this when the user does not yet know the right product. Start with the customer problem, reveal only the questions that affect the recommendation, then review a shortlist with cautions."
         nextMove="Choose a quick-start path or search term, then move through each step. The recommendation step stays available whenever you want to check products."
         actions={[
           { label: "Load Discovery brief", variant: "secondary", onClick: applyDiscoveryBrief },
@@ -3041,8 +3041,8 @@ export function FinderPage() {
       />
 
       <SectionCard
-        title="Guided Product Finder"
-        subtitle="Describe the opportunity one decision at a time. Existing matching, shortlist and project handoff stay connected as you move."
+        title="Customer problem to product path"
+        subtitle="Choose the closest customer problem first. Wingman can then expose the signal, I/O, USB, audio, network and control details only where they change the outcome."
       >
         <div className="grid gap-4">
           <nav className="grid gap-2 md:grid-cols-5" aria-label="Finder workflow steps">

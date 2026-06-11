@@ -4,6 +4,7 @@ import {
   compareCompetitor,
   type WyrestormProduct,
 } from "../wingman2/lib/competitorMatchEngine";
+import { rigorousCompare } from "../wingman2/lib/rigorousCompare";
 
 describe("analyzeCompetitor", () => {
   describe("brand detection", () => {
@@ -12,9 +13,23 @@ describe("analyzeCompetitor", () => {
       expect(result.brand).toBe("Crestron");
     });
 
+    it("should detect Crestron from DM NVX SKUs with missing hyphens", () => {
+      const result = analyzeCompetitor("DMNVX350");
+      expect(result.brand).toBe("Crestron");
+      expect(result.technologyClass).toBe("AVOIP");
+      expect(result.role).toBe("transceiver");
+    });
+
     it("should detect Extron from NAV SKU", () => {
       const result = analyzeCompetitor("NAV E 501");
       expect(result.brand).toBe("Extron");
+    });
+
+    it("should detect Extron DTP when spaces are omitted", () => {
+      const result = analyzeCompetitor("DTP2T211");
+      expect(result.brand).toBe("Extron");
+      expect(result.technologyClass).toBe("HDBASET");
+      expect(result.role).toBe("transmitter");
     });
 
     it("should detect Atlona from AT- prefix", () => {
@@ -113,6 +128,11 @@ describe("analyzeCompetitor", () => {
 
     it("should detect transceiver role", () => {
       const result = analyzeCompetitor("transceiver bidirectional");
+      expect(result.role).toBe("transceiver");
+    });
+
+    it("should detect common DM-NVX endpoint SKUs as transceiver-class products", () => {
+      const result = analyzeCompetitor("DM-NVX-360");
       expect(result.role).toBe("transceiver");
     });
 
@@ -239,6 +259,55 @@ describe("compareCompetitor", () => {
       expect(result.matches[0].sku).toMatch(/NHD/);
     });
 
+    it("should not rank UC, camera, rack, or accessory products as DM-NVX AVoIP equivalents", () => {
+      const richProducts: WyrestormProduct[] = [
+        {
+          sku: "APO-210-UC",
+          name: "Apollo video-speakerphone switcher",
+          category: "UC / conferencing",
+          features: ["USB-C", "Wireless presentation", "NDI", "Speakerphone"],
+          tags: ["Audio", "UC / conferencing", "AVoIP"],
+        },
+        {
+          sku: "CAM-210-PTZ",
+          name: "PTZ camera",
+          category: "UC / conferencing",
+          features: ["NDI", "USB", "Camera"],
+          tags: ["Camera", "AVoIP"],
+        },
+        {
+          sku: "NHD-000-RACK4",
+          name: "NetworkHD rack mount",
+          category: "AVoIP",
+          features: ["AVoIP", "Rack accessory"],
+          tags: ["NetworkHD", "rack-mount", "Accessory"],
+        },
+        {
+          sku: "NHD-500-TX",
+          name: "NetworkHD 500 4K60 Encoder",
+          category: "AVoIP",
+          features: ["4K60", "HDR", "PoE", "AV over IP", "Encoder"],
+          tags: ["AVOIP", "encoder", "NetworkHD 500"],
+        },
+        {
+          sku: "NHD-600-TRX",
+          name: "NetworkHD 600 4K60 SDVoE Transceiver",
+          category: "AVoIP",
+          features: ["4K60", "HDR", "PoE", "AV over IP", "Transceiver"],
+          tags: ["AVOIP", "transceiver", "NetworkHD 600"],
+        },
+      ];
+
+      const result = compareCompetitor("DM-NVX-360", richProducts, "Crestron", 5);
+      const skus = result.matches.map((match) => match.sku);
+
+      expect(skus[0]).toMatch(/^NHD-/);
+      expect(skus).toContain("NHD-600-TRX");
+      expect(skus).not.toContain("APO-210-UC");
+      expect(skus).not.toContain("CAM-210-PTZ");
+      expect(skus).not.toContain("NHD-000-RACK4");
+    });
+
     it("should match matrix competitor to matrix products", () => {
       const result = compareCompetitor("VS-88H2A matrix", mockProducts);
       const matrixMatch = result.matches.find((m) => m.sku.includes("MX"));
@@ -344,5 +413,117 @@ describe("compareCompetitor", () => {
       const result = compareCompetitor("  DM-NVX-350  ", mockProducts);
       expect(result.competitor.brand).toBe("Crestron");
     });
+  });
+});
+
+describe("rigorousCompare", () => {
+  const rigorousProducts = [
+    {
+      sku: "APO-210-UC",
+      name: "Apollo video-speakerphone switcher",
+      category: "UC / conferencing",
+      features: ["USB-C", "Wireless presentation", "NDI", "Speakerphone"],
+      tags: ["Audio", "UC / conferencing", "AVOIP"],
+    },
+    {
+      sku: "CAM-210-PTZ",
+      name: "PTZ camera",
+      category: "UC / conferencing",
+      features: ["NDI", "USB", "Camera"],
+      tags: ["Camera", "AVOIP"],
+    },
+    {
+      sku: "NHD-000-RACK4",
+      name: "NetworkHD rack mount",
+      category: "AVOIP",
+      features: ["AVOIP", "Rack accessory"],
+      tags: ["NetworkHD", "rack-mount", "Accessory"],
+    },
+    {
+      sku: "NHD-600-TRX",
+      name: "NetworkHD 600 4K60 SDVoE Transceiver",
+      family: "NetworkHD",
+      category: "AVOIP",
+      role: "Transceiver",
+      features: ["4K60", "4:4:4", "HDR", "PoE", "AV over IP", "Transceiver", "USB routing"],
+      tags: ["AVOIP", "transceiver", "NetworkHD 600"],
+      technicalProfile: {
+        sourceQuality: {
+          officialPageStatus: 200,
+          livePageUsed: true,
+          capturedTechnicalLineCount: 10,
+        },
+        transports: ["SDVoE", "10G Ethernet"],
+        io: {
+          video: [
+            { count: 1, connector: "HDMI", direction: "input", category: "video" },
+            { count: 1, connector: "HDMI", direction: "output", category: "video" },
+          ],
+        },
+      },
+    },
+    {
+      sku: "NHD-500-TX",
+      name: "NetworkHD 500 4K60 Encoder",
+      family: "NetworkHD",
+      category: "AVOIP",
+      role: "Encoder",
+      features: ["4K60", "HDR", "PoE", "AV over IP", "Encoder", "USB routing"],
+      tags: ["AVOIP", "encoder", "NetworkHD 500"],
+      technicalProfile: {
+        sourceQuality: {
+          officialPageStatus: 200,
+          livePageUsed: true,
+          capturedTechnicalLineCount: 8,
+        },
+        transports: ["1G Ethernet"],
+        io: {
+          video: [
+            { count: 1, connector: "HDMI", direction: "input", category: "video" },
+          ],
+        },
+      },
+    },
+  ] as WyrestormProduct[];
+
+  it("does not recommend UC, camera, rack, or accessory products as DM-NVX alternatives", () => {
+    const result = rigorousCompare("DM-NVX-360", rigorousProducts, "Crestron", 8);
+    const allCandidateSkus = [...result.matches, ...result.rejected].map((match) => match.sku);
+
+    expect(result.topOutcome).not.toBe("NONE");
+    expect(result.matches[0].sku).toMatch(/^NHD-/);
+    expect(result.matches[0].wyrestorm.sourceTier).toBe("official-structured");
+    expect(allCandidateSkus).not.toContain("APO-210-UC");
+    expect(allCandidateSkus).not.toContain("CAM-210-PTZ");
+    expect(allCandidateSkus).not.toContain("NHD-000-RACK4");
+  });
+
+  it("handles missing-hyphen competitor SKUs with a manual manufacturer override", () => {
+    const result = rigorousCompare("DMNVX350", rigorousProducts, "Crestron", 8);
+
+    expect(result.competitor.brand).toBe("Crestron");
+    expect(result.competitor.specTier).toBe("verified-profile");
+    expect(result.competitor.readiness).toBe("approved");
+    expect(result.competitor.missingFacts).toEqual([]);
+    expect(result.topOutcome).not.toBe("NONE");
+    expect(result.matches[0].sku).toMatch(/^NHD-/);
+  });
+
+  it("allows partial family-level competitor SKUs without forcing a false exact match", () => {
+    const result = rigorousCompare("DMNVX", rigorousProducts, "Crestron", 8);
+
+    expect(result.competitor.brand).toBe("Crestron");
+    expect(result.competitor.specTier).toBe("family-rule");
+    expect(["PARTIAL MATCH", "VERIFY"]).toContain(result.topOutcome);
+    expect(result.nextSteps.some((step) => step.toLowerCase().includes("datasheet"))).toBe(true);
+  });
+
+  it("returns no alternatives for an unknown competitor SKU until datasheet basics are known", () => {
+    const result = rigorousCompare("XYZ-UNKNOWN-123", rigorousProducts, undefined, 8);
+
+    expect(result.topOutcome).toBe("NONE");
+    expect(result.matches).toEqual([]);
+    expect(result.recommendation).toContain("No reliable WyreStorm equivalent");
+    expect(result.nextSteps.some((step) => step.includes("manufacturer and product URL"))).toBe(true);
   });
 });

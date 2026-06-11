@@ -103,11 +103,13 @@ assertSourceContains("src/wingman2/lib/dependencyGovernance.ts", [
   "TBC-HDBASET-PAIR",
   "TBC-USB-TOPOLOGY",
 ]);
-assertSourceContains("src/wingman2/pages/ComparePage.tsx", [
-  "runCompetitorMatch",
-  "Match evidence",
-  "matchScore",
-  "saveRecommendationFeedback",
+assertSourceContains("src/wingman2/pages/ComparePageNew.tsx", [
+  "rigorousCompare",
+  "CompareSpecificationMatrix",
+  "decision.summary",
+  "decision.nextAction",
+  "result.rejected",
+  "Source/spec page",
 ]);
 assertSourceContains("src/wingman2/pages/DiscoveryPage.tsx", [
   "baseQuestionStrategyByStep",
@@ -176,4 +178,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log("[workflow-integration] Verified extraction/export wiring, sales readiness engine, feedback capture, sync conflict markers, match evidence wiring, and protected backend routes.");
+console.log("[workflow-integration] Verified extraction/export wiring, sales readiness engine, feedback capture, sync conflict markers, compare evidence matrix wiring, and protected backend routes.");
