@@ -35,7 +35,9 @@ const comparePageMarkers = [
   "buildCompareFeatureMatrixRows",
   "Competitor product",
   "Custom manufacturer",
-  "rigorousCompare(compareInputText || competitorInput",
+  "effectiveCompetitorInput",
+  "normalizeCompetitorSku",
+  "rigorousCompare(compareInputText || effectiveCompetitorInput",
 ];
 
 const rigorousMarkers = [

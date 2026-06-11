@@ -6,6 +6,7 @@
  */
 
 import { gateCompareCandidate, type CompareCompetitorClass } from "./compareCandidateGate";
+import { normalizeCompetitorSku } from "./competitorProductIntelligence";
 
 export type TechnologyClass =
   | "AVOIP"
@@ -115,7 +116,7 @@ const BRAND_COMPACT_MARKERS: [string[], string][] = [
   [["extron", "nave", "navd", "dtp2", "dtp3", "in1608", "in1804"], "Extron"],
   [["atlona", "atome", "atomni", "atuhd"], "Atlona"],
   [["kramer", "kds", "vp440", "vp551", "vp554", "vs88", "vs44"], "Kramer"],
-  [["lightware", "ubex", "vinx", "taurus", "mmx"], "Lightware"],
+  [["lightware", "ubex", "vinx", "taurus", "ucx", "mmx"], "Lightware"],
   [["blustream", "ip200uhd", "ip250uhd", "ip300uhd", "ip350uhd", "hmx", "pla"], "Blustream"],
   [["barco", "clickshare", "cx50", "cx30", "cx20"], "Barco"],
   [["zeevee", "zyper"], "ZeeVee"],
@@ -133,7 +134,7 @@ const TECH_COMPACT_MARKERS: [string[], TechnologyClass][] = [
   [["dmnvx", "nave", "navd", "kds", "nmxenc", "nmxdec", "mxnet", "vinx", "ubex", "atomni", "b900moip", "zyper"], "AVOIP"],
   [["dtp2", "dtp3", "hdbaset", "hdbt", "hdtx", "hdrx", "dxltx", "dxlrx", "acex", "atomeex", "b660ext"], "HDBASET"],
   [["matrix", "mtrx", "vs88", "vs44", "acmx", "hdmd", "mmx", "hmx", "dgx", "8x8", "4x4"], "MATRIX"],
-  [["presentation", "switcher", "dmps", "in1608", "in1804", "atome", "taurus", "vp440", "vp551", "dvx"], "PRESENTATION"],
+  [["presentation", "switcher", "dmps", "in1608", "in1804", "atome", "taurus", "ucx", "vp440", "vp551", "dvx"], "PRESENTATION"],
   [["videowall", "videowallprocessor", "wallprocessor", "multiview"], "VIDEO_WALL"],
   [["clickshare", "airmedia", "solstice", "screenbeam", "wireless"], "WIRELESS_PRESENTATION"],
   [["dante", "aes67", "audio", "speakerphone", "microphone"], "AUDIO"],
@@ -147,7 +148,7 @@ const ROLE_COMPACT_MARKERS: [string[], ProductRole][] = [
   [["nmxenc", "encoder", "nave", "atomni111", "atomni121", "kds7en", "kdsen", "vinx110"], "encoder"],
   [["nmxdec", "decoder", "navd", "atomni112", "atomni122", "kds7dec", "kdsdec", "vinx210"], "decoder"],
   [["matrix", "mtrx", "vs88", "vs44", "acmx", "hmx", "dgx"], "matrix"],
-  [["switcher", "presentation", "dmps", "in1608", "taurus", "vp440", "atome"], "switcher"],
+  [["switcher", "presentation", "dmps", "in1608", "taurus", "ucx", "vp440", "atome"], "switcher"],
   [["processor", "videowall", "multiview"], "processor"],
   [["amplifier", "dsp"], "amplifier"],
   [["controller", "controlprocessor", "nx1200", "nx2200"], "controller"],
@@ -378,11 +379,17 @@ function buildEvidence(
 
 export function analyzeCompetitor(input: string, providedBrand?: string): CompetitorProfile {
   const trimmed = input.trim();
-  const brand = providedBrand || detectBrand(trimmed);
-  const technologyClass = detectTechnologyClass(trimmed, brand);
-  const role = detectRole(trimmed);
-  const capabilities = extractCapabilities(trimmed);
-  const evidence = buildEvidence(trimmed, brand, technologyClass, role);
+  const normalised = normalizeCompetitorSku(trimmed, providedBrand);
+  const canonicalInput = normalised ? [normalised.brand, normalised.sku, trimmed].join(" ") : trimmed;
+  const brand = normalised?.brand || providedBrand || detectBrand(trimmed);
+  const technologyClass = detectTechnologyClass(canonicalInput, brand);
+  const role = detectRole(canonicalInput);
+  const capabilities = extractCapabilities(canonicalInput);
+  const evidence = buildEvidence(canonicalInput, brand, technologyClass, role);
+
+  if (normalised?.corrected) {
+    evidence.unshift(`Normalized SKU: ${normalised.original} -> ${normalised.sku}`);
+  }
 
   let confidence: "high" | "medium" | "low" = "low";
   if (brand !== "Unknown" && technologyClass !== "UNKNOWN" && role !== "unknown") {
@@ -394,7 +401,7 @@ export function analyzeCompetitor(input: string, providedBrand?: string): Compet
   return {
     originalInput: trimmed,
     brand,
-    sku: extractDisplaySku(trimmed),
+    sku: normalised?.sku || extractDisplaySku(trimmed),
     technologyClass,
     role,
     confidence,

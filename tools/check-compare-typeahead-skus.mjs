@@ -21,7 +21,9 @@ const requiredPageMarkers = [
   "COMPETITOR_SKU_SEED_CATALOG[brand]",
   "Object.values(COMPETITOR_SKU_SEED_CATALOG).flat()",
   "key.includes(queryKey) || queryKey.includes(key)",
-  "compareSkuSuggestions(competitorInput, resolvedBrand)",
+  "compareSkuSuggestions(competitorInput, effectiveBrand)",
+  "normalizeCompetitorSku",
+  "data-wingman-sku-normalisation",
 ];
 
 const requiredControlsMarkers = [

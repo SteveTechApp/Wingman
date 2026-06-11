@@ -10,7 +10,7 @@ import {
   type CompareSelectOption,
 } from "../components/compare/CompareControls";
 import { CompareSpecificationMatrix } from "../components/compare/CompareSpecificationMatrix";
-import { COMPETITOR_SKU_SEED_CATALOG } from "../lib/competitorProductIntelligence";
+import { COMPETITOR_SKU_SEED_CATALOG, normalizeCompetitorSku } from "../lib/competitorProductIntelligence";
 import {
   rigorousCompare,
   type RigorousCompareResult,
@@ -41,6 +41,7 @@ const KNOWN_BRANDS = [
   "Biamp",
   "Shure",
   "QSC",
+  "Visionary",
 ];
 
 const CUSTOM_BRAND_VALUE = "__custom_brand__";
@@ -467,13 +468,19 @@ export default function ComparePageNew() {
   const [lookupStatus, setLookupStatus] = useState("");
   const [liveProfile, setLiveProfile] = useState<CompetitorProfile | null>(null);
   const resolvedBrand = useMemo(() => resolveSelectedBrand(selectedBrand, customBrand), [customBrand, selectedBrand]);
+  const normalisedSku = useMemo(
+    () => normalizeCompetitorSku(competitorInput, resolvedBrand),
+    [competitorInput, resolvedBrand],
+  );
+  const effectiveBrand = normalisedSku?.brand || resolvedBrand;
+  const effectiveCompetitorInput = normalisedSku?.sku || competitorInput;
   const compareInputText = useMemo(
-    () => [competitorInput, productUrl, applicationContext].map((value) => value.trim()).filter(Boolean).join(" "),
-    [applicationContext, competitorInput, productUrl],
+    () => [effectiveCompetitorInput, productUrl, applicationContext].map((value) => value.trim()).filter(Boolean).join(" "),
+    [applicationContext, effectiveCompetitorInput, productUrl],
   );
   const skuSuggestions = useMemo(
-    () => compareSkuSuggestions(competitorInput, resolvedBrand),
-    [competitorInput, resolvedBrand],
+    () => compareSkuSuggestions(competitorInput, effectiveBrand),
+    [competitorInput, effectiveBrand],
   );
 
   useEffect(() => {
@@ -493,12 +500,12 @@ export default function ComparePageNew() {
 
   useEffect(() => {
     if (competitorInput.trim().length >= 3) {
-      setLiveProfile(analyzeCompetitor(compareInputText || competitorInput, resolvedBrand));
+      setLiveProfile(analyzeCompetitor(compareInputText || effectiveCompetitorInput, effectiveBrand));
       return;
     }
 
     setLiveProfile(null);
-  }, [compareInputText, competitorInput, resolvedBrand]);
+  }, [compareInputText, competitorInput, effectiveBrand, effectiveCompetitorInput]);
 
   const handleSubmit = useCallback(
     async (event: React.FormEvent) => {
@@ -520,7 +527,13 @@ export default function ComparePageNew() {
       setLookupStatus("");
 
       try {
-        const compareResult = rigorousCompare(compareInputText || competitorInput, products, resolvedBrand, 10, productUrl.trim());
+        const compareResult = rigorousCompare(compareInputText || effectiveCompetitorInput, products, effectiveBrand, 10, productUrl.trim());
+        if (normalisedSku?.corrected) {
+          setCompetitorInput(normalisedSku.sku);
+          if (!resolvedBrand && normalisedSku.brand) {
+            setSelectedBrand(normalisedSku.brand);
+          }
+        }
         setResult(compareResult);
         setError("");
         setState("results");
@@ -529,7 +542,7 @@ export default function ComparePageNew() {
         setState("error");
       }
     },
-    [compareInputText, competitorInput, productUrl, products, resolvedBrand],
+    [compareInputText, competitorInput, effectiveBrand, effectiveCompetitorInput, normalisedSku, productUrl, products, resolvedBrand],
   );
 
   const handleRetryWithSourceUrl = useCallback(async () => {
@@ -549,22 +562,22 @@ export default function ComparePageNew() {
     setLookupStatus("Trying the supplied product/spec URL before re-running the matrix.");
 
     try {
-      let retryInput = [competitorInput, applicationContext, productUrl].map((value) => value.trim()).filter(Boolean).join("\n");
+      let retryInput = [effectiveCompetitorInput, applicationContext, productUrl].map((value) => value.trim()).filter(Boolean).join("\n");
       let nextLookupStatus = "Retried with the supplied URL and local source parsing.";
 
       try {
         const lookup = await lookupCompareIntelligence({
-          brand: resolvedBrand || result?.competitor.brand || "",
-          sku: result?.competitor.sku || competitorInput,
+          brand: effectiveBrand || result?.competitor.brand || "",
+          sku: result?.competitor.sku || effectiveCompetitorInput,
           productName: result?.competitor.title,
-          rawText: [competitorInput, applicationContext].filter(Boolean).join("\n"),
+          rawText: [effectiveCompetitorInput, applicationContext].filter(Boolean).join("\n"),
           productUrl: productUrl.trim(),
           allowWeb: true,
         });
         const evidenceText = lookupEvidenceText(lookup);
 
         if (evidenceText) {
-          retryInput = [competitorInput, evidenceText, applicationContext, productUrl].map((value) => value.trim()).filter(Boolean).join("\n");
+          retryInput = [effectiveCompetitorInput, evidenceText, applicationContext, productUrl].map((value) => value.trim()).filter(Boolean).join("\n");
         }
 
         nextLookupStatus = lookup.evidence?.usefulPages
@@ -576,7 +589,7 @@ export default function ComparePageNew() {
           : "Live lookup service unavailable; retried using the URL text and local source feed.";
       }
 
-      const compareResult = rigorousCompare(retryInput, products, resolvedBrand || result?.competitor.brand, 10, productUrl.trim());
+      const compareResult = rigorousCompare(retryInput, products, effectiveBrand || result?.competitor.brand, 10, productUrl.trim());
       setResult(compareResult);
       setError("");
       setLookupStatus(nextLookupStatus);
@@ -585,7 +598,7 @@ export default function ComparePageNew() {
       setError(err instanceof Error ? err.message : "Comparison retry failed");
       setState("error");
     }
-  }, [applicationContext, competitorInput, productUrl, products, resolvedBrand, result]);
+  }, [applicationContext, effectiveBrand, effectiveCompetitorInput, productUrl, products, result]);
 
   const handleReset = () => {
     setCompetitorInput("");
@@ -667,6 +680,12 @@ export default function ComparePageNew() {
                 <div className="rounded-2xl border border-rose-400 bg-rose-400/10 p-4 text-sm font-semibold text-rose-100">{error}</div>
               ) : null}
 
+              {normalisedSku?.corrected ? (
+                <div className="rounded-2xl border border-cyan-300/35 bg-cyan-300/10 p-4 text-sm font-semibold text-cyan-50" data-wingman-sku-normalisation="true">
+                  Interpreting as {normalisedSku.brand} {normalisedSku.sku}
+                </div>
+              ) : null}
+
               <button
                 type="submit"
                 disabled={!competitorInput.trim()}
@@ -697,7 +716,7 @@ export default function ComparePageNew() {
               <article className="rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-5">
                 <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-200">Live interpretation</p>
                 <dl className="mt-3 grid gap-3 text-sm">
-                  <div><dt className="text-white/45">Manufacturer used</dt><dd className="font-black text-white">{resolvedBrand || liveProfile.brand}</dd></div>
+                  <div><dt className="text-white/45">Manufacturer used</dt><dd className="font-black text-white">{effectiveBrand || liveProfile.brand}</dd></div>
                   <div><dt className="text-white/45">Auto detected</dt><dd className="font-black text-white">{liveProfile.brand}</dd></div>
                   <div><dt className="text-white/45">Technology</dt><dd className="font-black text-white">{liveProfile.technologyClass.replace(/_/g, " ")}</dd></div>
                   <div><dt className="text-white/45">Role</dt><dd className="font-black text-white">{liveProfile.role}</dd></div>
