@@ -336,13 +336,14 @@ export function findCompetitorSourceProduct(
   if (exact) return exact;
 
   const sourceScoped = competitorSourceProducts.find((product) => {
+    const productUrlMatch = url && product.sourceUrl && normalised(product.sourceUrl) === url;
     const collectionMatch = url && (
       normalised(product.sourceCollection) === url ||
       url.includes("avitdirect.co.uk/collections/video") ||
       url.includes("avitdirect.co.uk/collections/video-distribution")
     );
 
-    return Boolean(collectionMatch) && squash(product.sku) === skuKey;
+    return Boolean(productUrlMatch || collectionMatch) && squash(product.sku) === skuKey;
   });
 
   if (sourceScoped) return sourceScoped;
