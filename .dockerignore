@@ -18,7 +18,7 @@ build
 *.swo
 *~
 
-# Environment files (should be passed via docker-compose)
+# Environment files
 .env
 .env.local
 .env.*.local
@@ -36,7 +36,7 @@ coverage
 playwright-report
 test-results
 
-# Documentation (not needed in image)
+# Documentation
 *.md
 docs
 
@@ -47,11 +47,8 @@ supabase/.temp
 .DS_Store
 Thumbs.db
 
-# Docker files (prevent recursive copy)
+# Docker files
 Dockerfile
 Dockerfile.*
 docker-compose.yml
 docker-compose*.yml
-
-# Tools and utilities (not needed in production)
-tools
