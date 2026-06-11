@@ -18,6 +18,7 @@
 import type { CompareDecisionProfile, CompareSpecFacts } from "./competitorCompareDecision";
 import {
   buildCompetitorDecisionEvidence,
+  normalizeCompetitorSku,
   type CompetitorTechnologyClass,
 } from "./competitorProductIntelligence";
 import { findCompetitorSourceProduct, type CompetitorSourceProduct } from "../data/competitorSourceFeeds";
@@ -881,9 +882,12 @@ export function resolveCompetitorSpecProfile(
   sourceUrl?: string,
 ): ResolvedCompetitorProfile {
   const input = String(rawInput ?? "").trim();
+  const normalised = normalizeCompetitorSku(input, providedBrand);
+  const canonicalInput = normalised?.sku || input;
+  const canonicalBrand = normalised?.brand || providedBrand;
   const evidence = buildCompetitorDecisionEvidence({
-    brand: providedBrand,
-    sku: input,
+    brand: canonicalBrand,
+    sku: canonicalInput,
     title: input,
   });
 
@@ -891,14 +895,15 @@ export function resolveCompetitorSpecProfile(
   const sourceSkuCandidates = skuCandidatesFromSourceUrl(sourceUrl);
   const fingerprint =
     lookupFingerprint(evidence.sku) ||
+    lookupFingerprint(canonicalInput) ||
     lookupFingerprint(input) ||
     lookupFingerprint(sourceUrlText);
   const sourceProduct = findCompetitorSourceProduct(
-    providedBrand || evidence.brand,
-    evidence.sku || input,
+    canonicalBrand || evidence.brand,
+    evidence.sku || canonicalInput,
     sourceUrl || input,
   ) || sourceSkuCandidates
-    .map((candidate) => findCompetitorSourceProduct(providedBrand || evidence.brand, candidate, sourceUrl || input))
+    .map((candidate) => findCompetitorSourceProduct(canonicalBrand || evidence.brand, candidate, sourceUrl || input))
     .find(Boolean);
 
   // Domain: prefer fingerprint, fall back to family-rule evidence (UNKNOWN -> undefined).
@@ -912,8 +917,8 @@ export function resolveCompetitorSpecProfile(
     sourceProduct?.role ||
     (evidence.role && evidence.role !== "Unknown" ? evidence.role : undefined);
 
-  const parsedIo = parseIoCounts(input);
-  const parseBasis = [input, sourceUrlText].filter(Boolean).join(" ");
+  const parsedIo = parseIoCounts(canonicalInput);
+  const parseBasis = [canonicalInput, input, sourceUrlText].filter(Boolean).join(" ");
   const parsedFeatures = parseFeatures(parseBasis);
   const features = {
     ...(sourceProduct?.features ?? {}),
@@ -932,11 +937,11 @@ export function resolveCompetitorSpecProfile(
   const evidenceSkuKey = normKey(evidence.sku);
   const displaySku = fingerprint && !fingerprint.keys.includes(evidenceSkuKey)
     ? fingerprint.sku
-    : evidence.sku || input;
+    : evidence.sku || canonicalInput;
 
   return {
     sku: sourceProduct?.sku || displaySku,
-    title: sourceProduct?.title || input,
+    title: sourceProduct?.title || canonicalInput,
     domain,
     role,
     transport: sourceProduct?.transport || canonicalTransport(domain),
@@ -952,7 +957,7 @@ export function resolveCompetitorSpecProfile(
     },
     sourceUrl: fingerprint?.datasheetUrl || sourceProduct?.sourceUrl || sourceUrl,
     // metadata
-    brand: sourceProduct?.manufacturer || evidence.brand,
+    brand: sourceProduct?.manufacturer || normalised?.brand || evidence.brand,
     specTier,
     readiness: fingerprint || sourceProduct ? "approved" : evidence.readiness,
     assumptions: fingerprint || sourceProduct ? [] : evidence.assumptions,
