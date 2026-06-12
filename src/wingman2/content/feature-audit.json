@@ -198,6 +198,15 @@
     ]
   },
   {
+    "routeKey": "visualStudio",
+    "status": "partial",
+    "summary": "Visual Studio renders native AV schematic and customer concept graphics from Wingman-ready sample scenarios, with technical/customer modes, assumptions, missing information, quote risks, and next actions.",
+    "needed": [
+      "Connect diagram generation directly to saved Discovery, Finder, Compare, Product Pitch, and Proposal data.",
+      "Add save/export lifecycle and approved visual review before customer issue."
+    ]
+  },
+  {
     "routeKey": "glossary",
     "status": "wired",
     "summary": "AV Glossary gives sales users a searchable reference for common AV terms, acronyms, and technologies with role-specific customer, partner, and consultant wording.",

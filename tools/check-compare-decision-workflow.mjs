@@ -37,7 +37,8 @@ const comparePageMarkers = [
   "Custom manufacturer",
   "effectiveCompetitorInput",
   "normalizeCompetitorSku",
-  "rigorousCompare(compareInputText || effectiveCompetitorInput",
+  "runKnownProfileCompare(compareInputText || effectiveCompetitorInput",
+  "applyCompareEquivalenceGuards(rigorousCompare",
 ];
 
 const rigorousMarkers = [
@@ -67,14 +68,17 @@ if (missing.length) {
   process.exit(1);
 }
 
-const wired = rigorous.includes("classifyCompetitorCompareDecision") && compare.includes("rigorousCompare");
+const wired =
+  rigorous.includes("classifyCompetitorCompareDecision") &&
+  compare.includes("runKnownProfileCompare") &&
+  compare.includes("applyCompareEquivalenceGuards(rigorousCompare");
 
 if (wired) {
-  console.log("[compare-decision-workflow] Active Compare page reaches the deterministic GOOD/PARTIAL/NO MATCH/VERIFY classifier through rigorousCompare.");
+  console.log("[compare-decision-workflow] Active Compare page reaches the deterministic GOOD/PARTIAL/NO MATCH/VERIFY classifier through known-profile compare.");
 }
 
 if (!wired) {
-  console.warn("[compare-decision-workflow] Classifier exists, but active Compare page is not wired through rigorousCompare.");
+  console.warn("[compare-decision-workflow] Classifier exists, but active Compare page is not wired through known-profile compare.");
 }
 
 console.log("[compare-decision-workflow] Verified competitor decision classifier readiness without brittle page-internal markers.");

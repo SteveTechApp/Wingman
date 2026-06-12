@@ -1,3 +1,4 @@
+import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   analyzeCompetitor,
@@ -10,12 +11,15 @@ import {
   type CompareSelectOption,
 } from "../components/compare/CompareControls";
 import { CompareSpecificationMatrix } from "../components/compare/CompareSpecificationMatrix";
+import { CompactCompareMatrix } from "../components/compare/CompactCompareMatrix";
 import { COMPETITOR_SKU_SEED_CATALOG, normalizeCompetitorSku } from "../lib/competitorProductIntelligence";
 import {
   rigorousCompare,
   type RigorousCompareResult,
   type RigorousMatch,
 } from "../lib/rigorousCompare";
+import { applyKnownCompareProfileOverrides, enrichCompareInputWithKnownProfile } from "../lib/knownCompareProfiles";
+import { applyCompareEquivalenceGuards } from "../lib/compareEquivalenceGuard";
 import {
   lookupCompareIntelligence,
   type CompareIntelligenceResult,
@@ -60,6 +64,7 @@ const MANUFACTURER_SELECT_OPTIONS: CompareSelectOption[] = [
 ];
 
 type PageState = "input" | "analyzing" | "results" | "error";
+type WorkflowStep = "request" | "matrix" | "options" | "checks";
 
 function shouldRequestLiveLookupUrl(result: RigorousCompareResult, hasSourceUrl: boolean): boolean {
   if (hasSourceUrl && result.competitor.specTier === "verified-profile") return false;
@@ -174,6 +179,17 @@ function readIndexedProducts(data: unknown): WyrestormProduct[] {
   return [];
 }
 
+function runKnownProfileCompare(
+  inputText: string,
+  products: WyrestormProduct[],
+  brand: string | undefined,
+  limit: number,
+  productUrl: string,
+): RigorousCompareResult {
+  const enrichedInput = enrichCompareInputWithKnownProfile(inputText, brand);
+  const baseResult = applyCompareEquivalenceGuards(rigorousCompare(enrichedInput, products, brand, limit, productUrl));
+  return applyKnownCompareProfileOverrides(baseResult, products, enrichedInput, brand) as RigorousCompareResult;
+}
 function outcomeClass(outcome: CompareDecisionOutcome) {
   return OUTCOME_STYLES[outcome];
 }
@@ -303,6 +319,32 @@ function CompetitorProductProfileCard({ result }: { result: RigorousCompareResul
         </div>
       ) : null}
     </section>
+  );
+}
+
+function ComparisonEvidenceDetails({ result, topMatch }: { result: RigorousCompareResult; topMatch: RigorousMatch | null }) {
+  return (
+    <details className="mt-4 rounded-2xl border border-[#29465e] bg-[#081724] p-4" data-compare-evidence-drawer="true">
+      <summary className="cursor-pointer text-sm font-black text-cyan-200">View comparison evidence</summary>
+
+      <div className="mt-4 grid gap-4">
+        <div className="rounded-2xl border border-cyan-500/30 bg-cyan-500/10 p-4">
+          <p className="text-sm font-black text-cyan-200">Generated recommendation</p>
+          <p className="mt-2 text-sm leading-6 text-white/75">{result.recommendation}</p>
+        </div>
+
+        <CompetitorProductProfileCard result={result} />
+
+        {topMatch ? (
+          <div className="grid gap-3 xl:grid-cols-2">
+            <EvidenceList title="Confirmed matches" items={topMatch.decision.matches} tone="match" />
+            <EvidenceList title="Blocking differences" items={topMatch.decision.blockers} tone="block" />
+            <EvidenceList title="Gaps to explain" items={topMatch.decision.gaps} tone="gap" />
+            <EvidenceList title="Verify before customer issue" items={topMatch.decision.verify} tone="verify" />
+          </div>
+        ) : null}
+      </div>
+    </details>
   );
 }
 
@@ -467,6 +509,8 @@ export default function ComparePageNew() {
   const [error, setError] = useState("");
   const [lookupStatus, setLookupStatus] = useState("");
   const [liveProfile, setLiveProfile] = useState<CompetitorProfile | null>(null);
+  const [workflowStep, setWorkflowStep] = useState<WorkflowStep>("request");
+
   const resolvedBrand = useMemo(() => resolveSelectedBrand(selectedBrand, customBrand), [customBrand, selectedBrand]);
   const normalisedSku = useMemo(
     () => normalizeCompetitorSku(competitorInput, resolvedBrand),
@@ -486,9 +530,7 @@ export default function ComparePageNew() {
   useEffect(() => {
     async function loadProducts() {
       try {
-        const response = await fetch("/product-intelligence-index.json", { cache: "no-store" });
-        if (!response.ok) throw new Error("Product index unavailable");
-        const data = await response.json();
+        const data = await loadProductIntelligenceIndex();
         setProducts(readIndexedProducts(data));
       } catch (err) {
         console.error("Failed to load products:", err);
@@ -514,12 +556,14 @@ export default function ComparePageNew() {
       if (!competitorInput.trim()) {
         setError("Enter a competitor SKU, product name or pasted description.");
         setState("error");
+        setWorkflowStep("request");
         return;
       }
 
       if (products.length === 0) {
         setError("Product data has not loaded yet. Refresh the page or check the product intelligence index.");
         setState("error");
+        setWorkflowStep("request");
         return;
       }
 
@@ -527,19 +571,24 @@ export default function ComparePageNew() {
       setLookupStatus("");
 
       try {
-        const compareResult = rigorousCompare(compareInputText || effectiveCompetitorInput, products, effectiveBrand, 10, productUrl.trim());
+        const compareResult = runKnownProfileCompare(compareInputText || effectiveCompetitorInput, products, effectiveBrand, 10, productUrl.trim());
+
         if (normalisedSku?.corrected) {
           setCompetitorInput(normalisedSku.sku);
+
           if (!resolvedBrand && normalisedSku.brand) {
             setSelectedBrand(normalisedSku.brand);
           }
         }
+
         setResult(compareResult);
         setError("");
         setState("results");
+        setWorkflowStep("matrix");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Comparison failed");
         setState("error");
+        setWorkflowStep("request");
       }
     },
     [compareInputText, competitorInput, effectiveBrand, effectiveCompetitorInput, normalisedSku, productUrl, products, resolvedBrand],
@@ -549,12 +598,14 @@ export default function ComparePageNew() {
     if (!productUrl.trim()) {
       setError("Paste a live product/spec URL before retrying.");
       setState("error");
+      setWorkflowStep("request");
       return;
     }
 
     if (products.length === 0) {
       setError("Product data has not loaded yet. Refresh the page or check the product intelligence index.");
       setState("error");
+      setWorkflowStep("request");
       return;
     }
 
@@ -574,6 +625,7 @@ export default function ComparePageNew() {
           productUrl: productUrl.trim(),
           allowWeb: true,
         });
+
         const evidenceText = lookupEvidenceText(lookup);
 
         if (evidenceText) {
@@ -589,14 +641,16 @@ export default function ComparePageNew() {
           : "Live lookup service unavailable; retried using the URL text and local source feed.";
       }
 
-      const compareResult = rigorousCompare(retryInput, products, effectiveBrand || result?.competitor.brand, 10, productUrl.trim());
+      const compareResult = runKnownProfileCompare(retryInput, products, effectiveBrand || result?.competitor.brand, 10, productUrl.trim());
       setResult(compareResult);
       setError("");
       setLookupStatus(nextLookupStatus);
       setState("results");
+      setWorkflowStep("matrix");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Comparison retry failed");
       setState("error");
+      setWorkflowStep("request");
     }
   }, [applicationContext, effectiveBrand, effectiveCompetitorInput, productUrl, products, result]);
 
@@ -611,18 +665,80 @@ export default function ComparePageNew() {
     setLookupStatus("");
     setLiveProfile(null);
     setState("input");
+    setWorkflowStep("request");
+  };
+
+  const topMatch = result?.matches[0] ?? null;
+  const resultReady = state === "results" && Boolean(result);
+  const activeStep = resultReady ? workflowStep : "request";
+
+  const workflowSteps = [
+    { key: "request", label: "1 Request", description: "Enter competitor product" },
+    { key: "matrix", label: "2 Matrix", description: "Judge replacement fit" },
+    { key: "options", label: "3 Options", description: "WyreStorm candidates" },
+    { key: "checks", label: "4 Checks", description: "Next validation" },
+  ] as const;
+
+  const navButtonClass = (key: typeof workflowSteps[number]["key"], disabled: boolean) => {
+    const active = activeStep === key;
+
+    if (disabled) {
+      return "rounded-2xl border border-[#29465e] bg-[#071522] px-4 py-3 text-left opacity-45";
+    }
+
+    if (active) {
+      return "rounded-2xl border border-cyan-300 bg-cyan-300/15 px-4 py-3 text-left shadow-[0_0_24px_rgba(34,211,238,0.12)]";
+    }
+
+    return "rounded-2xl border border-[#29465e] bg-[#071522] px-4 py-3 text-left transition hover:border-cyan-300/70 hover:bg-cyan-300/10";
   };
 
   return (
-    <main className="grid gap-4 pb-6 text-white" data-wingman-compare-decision-desk="true">
+    <main className="wm-compare-page grid gap-4 pb-8 text-white" data-wingman-compare-screen="true" data-wingman-compare-decision-desk="true">
       <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-300">Competitor replacement desk</p>
-        <h1 className="mt-2 text-3xl font-black">Compare the two products by specification</h1>
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-300">Competitor replacement desk / staged workflow</p>
+        <h1 className="mt-2 text-3xl font-black">Build a visible competitor-to-WyreStorm comparison matrix</h1>
       </section>
 
-      {(state === "input" || state === "error") ? (
-        <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+      <nav className="grid gap-2 md:grid-cols-4" aria-label="Compare workflow stages">
+        {workflowSteps.map((step) => {
+          const disabled = step.key !== "request" && !resultReady;
+
+          return (
+            <button
+              key={step.key}
+              type="button"
+              disabled={disabled}
+              onClick={() => {
+                if (!disabled) {
+                  setWorkflowStep(step.key);
+                }
+              }}
+              className={navButtonClass(step.key, disabled)}
+            >
+              <span className="block text-sm font-black text-white">{step.label}</span>
+              <span className="mt-1 block text-xs font-semibold text-white/55">{step.description}</span>
+            </button>
+          );
+        })}
+      </nav>
+
+      {state === "analyzing" ? (
+        <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-8 text-center">
+          <p className="text-lg font-black text-cyan-300">Checking product role, specification fit and blocking differences...</p>
+        </section>
+      ) : null}
+
+      {activeStep === "request" && state !== "analyzing" ? (
+        <section className="grid gap-4" data-compare-stage="request">
           <form onSubmit={handleSubmit} className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+            <div className="mb-4 rounded-2xl border border-cyan-300/30 bg-cyan-300/10 p-3">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-200">Stage 1 / Competitor input</p>
+              <p className="mt-1 text-sm leading-5 text-white/65">
+                Enter the competitor SKU, choose or confirm the manufacturer, then Wingman will generate a visible specification matrix.
+              </p>
+            </div>
+
             <div className="grid gap-4">
               <CompareProductLookupInput
                 value={competitorInput}
@@ -696,89 +812,95 @@ export default function ComparePageNew() {
             </div>
           </form>
 
-          <aside className="grid gap-4">
-            <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
-              <h2 className="text-xl font-black text-cyan-300">What Wingman will check</h2>
-              <ul className="mt-4 space-y-2 text-sm leading-6 text-white/70">
-                <li>OK product purpose and technology class</li>
-                <li>OK manual manufacturer override or auto-detect</li>
-                <li>OK live lookup URL retry if the search is weak</li>
-                <li>OK missing-hyphen and partial SKU interpretation</li>
-                <li>OK competitor and WyreStorm products in matrix columns</li>
-                <li>OK HDMI, USB, audio, control and network counts</li>
-                <li>OK PoE, PoC, PoH and power supply differences</li>
-                <li>OK blocking gaps and verification points</li>
-                <li>OK GOOD / PARTIAL / NO MATCH verdict</li>
-              </ul>
-            </article>
-
-            {liveProfile ? (
-              <article className="rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-5">
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-200">Live interpretation</p>
-                <dl className="mt-3 grid gap-3 text-sm">
-                  <div><dt className="text-white/45">Manufacturer used</dt><dd className="font-black text-white">{effectiveBrand || liveProfile.brand}</dd></div>
-                  <div><dt className="text-white/45">Auto detected</dt><dd className="font-black text-white">{liveProfile.brand}</dd></div>
-                  <div><dt className="text-white/45">Technology</dt><dd className="font-black text-white">{liveProfile.technologyClass.replace(/_/g, " ")}</dd></div>
-                  <div><dt className="text-white/45">Role</dt><dd className="font-black text-white">{liveProfile.role}</dd></div>
-                  <div><dt className="text-white/45">Confidence</dt><dd className="font-black text-white">{liveProfile.confidence}</dd></div>
-                </dl>
-              </article>
-            ) : null}
-          </aside>
+          {liveProfile ? (
+            <section className="rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-200">Live interpretation preview</p>
+              <dl className="mt-3 grid gap-3 text-sm md:grid-cols-5">
+                <div><dt className="text-white/45">Manufacturer used</dt><dd className="font-black text-white">{effectiveBrand || liveProfile.brand}</dd></div>
+                <div><dt className="text-white/45">Auto detected</dt><dd className="font-black text-white">{liveProfile.brand}</dd></div>
+                <div><dt className="text-white/45">Technology</dt><dd className="font-black text-white">{liveProfile.technologyClass.replace(/_/g, " ")}</dd></div>
+                <div><dt className="text-white/45">Role</dt><dd className="font-black text-white">{liveProfile.role}</dd></div>
+                <div><dt className="text-white/45">Confidence</dt><dd className="font-black text-white">{liveProfile.confidence}</dd></div>
+              </dl>
+            </section>
+          ) : null}
         </section>
       ) : null}
 
-      {state === "analyzing" ? (
-        <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-8 text-center">
-          <p className="text-lg font-black text-cyan-300">Checking product role, specification fit and blocking differences...</p>
-        </section>
-      ) : null}
+      {resultReady && result && activeStep === "matrix" ? (
+        <section className="grid gap-4" data-compare-stage="matrix">
+          {topMatch ? (
+            <section className="rounded-3xl border border-cyan-300/45 bg-[#071522] p-5" data-wingman-visible-comparison-matrix-stage="true">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Stage 2 / Comparison matrix</p>
+                  <h2 className="mt-1 text-2xl font-black text-white">Competitor vs WyreStorm specification matrix</h2>
+                  <p className="mt-2 max-w-4xl text-sm leading-6 text-white/65">
+                    Fast judgement first: NO MATCH / PARTIAL MATCH / GOOD MATCH. Expand evidence only when a customer or quote decision needs backup.
+                  </p>
+                </div>
 
-      {state === "results" && result ? (
-        <section className="grid gap-4">
-          <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Competitor request</p>
-                <h2 className="mt-2 text-2xl font-black text-white">
-                  {result.competitor.brand} {result.competitor.sku}
-                </h2>
-                <p className="mt-1 text-sm text-white/55">
-                  {(result.competitor.domain || "type unverified").toString().replace(/_/g, " ")} Â· {result.competitor.role || "role unverified"}
-                  {result.competitor.maxResolution ? ` Â· ${result.competitor.maxResolution}` : ""}
-                </p>
+                <span className={`rounded-full border px-4 py-2 text-sm font-black ${outcomeClass(topMatch.decision.outcome)}`}>
+                  {topMatch.decision.outcome}
+                </span>
               </div>
 
-              {result.topOutcome !== "NONE" ? (
-                <span className={`rounded-full border px-4 py-2 text-sm font-black ${OUTCOME_STYLES[result.topOutcome as CompareDecisionOutcome]}`}>
-                  {result.topOutcome}
-                </span>
-              ) : null}
-            </div>
+              <CompactCompareMatrix result={result} maxCandidates={4} />
 
-            <div className="mt-4 rounded-2xl border border-cyan-500/30 bg-cyan-500/10 p-4">
-              <p className="text-sm font-black text-cyan-200">Recommendation</p>
-              <p className="mt-2 text-sm leading-6 text-white">{result.recommendation}</p>
-            </div>
+              <ComparisonEvidenceDetails result={result} topMatch={topMatch} />
 
-            <div className="mt-4">
-              <CompetitorProductProfileCard result={result} />
-            </div>
-          </article>
+              <details className="mt-4 rounded-2xl border border-[#29465e] bg-[#081724] p-4" data-compare-detailed-matrix="true">
+                <summary className="cursor-pointer text-sm font-black text-cyan-200">
+                  Open detailed single-candidate matrix
+                </summary>
+                <div className="mt-4" data-compare-matrix="true">
+                  <CompareSpecificationMatrix
+                    rows={buildCompareFeatureMatrixRows(result.competitor, topMatch.wyrestorm)}
+                    competitorLabel={`${result.competitor.brand} ${result.competitor.sku}`.trim()}
+                    wyrestormLabel={topMatch.sku}
+                  />
+                </div>
+              </details>
 
-          {shouldRequestLiveLookupUrl(result, Boolean(productUrl.trim())) ? (
-            <LiveLookupRetryPanel
-              value={productUrl}
-              status={lookupStatus}
-              onChange={setProductUrl}
-              onRetry={handleRetryWithSourceUrl}
-              disabled={false}
-            />
-          ) : null}
+              <div className="mt-4 flex flex-wrap gap-3">
+                <button type="button" onClick={() => setWorkflowStep("request")} className="rounded-full border border-cyan-300 px-5 py-3 text-sm font-black text-cyan-100">
+                  Back to request
+                </button>
+                <button type="button" onClick={() => setWorkflowStep("options")} className="rounded-full bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950">
+                  Continue to options
+                </button>
+              </div>
+            </section>
+          ) : (
+            <section className="rounded-3xl border border-amber-400/40 bg-amber-400/10 p-5">
+              <h2 className="text-xl font-black text-amber-100">No matrix available yet</h2>
+              <p className="mt-2 text-sm leading-6 text-white/70">Wingman needs a stronger candidate match before a meaningful matrix can be shown.</p>
+              <div className="mt-4">
+                <ComparisonEvidenceDetails result={result} topMatch={topMatch} />
+              </div>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <button type="button" onClick={() => setWorkflowStep("request")} className="rounded-full border border-cyan-300 px-5 py-3 text-sm font-black text-cyan-100">
+                  Back to request
+                </button>
+                <button type="button" onClick={() => setWorkflowStep("checks")} className="rounded-full bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950">
+                  Go to next checks
+                </button>
+              </div>
+            </section>
+          )}
+        </section>
+      ) : null}
+
+      {resultReady && result && activeStep === "options" ? (
+        <section className="grid gap-4" data-compare-stage="options">
+          <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Stage 3 / Candidate options</p>
+            <h2 className="mt-1 text-xl font-black text-cyan-300">WyreStorm candidate cards</h2>
+            <p className="mt-1 text-sm text-white/55">Use these cards after reviewing the main matrix.</p>
+          </section>
 
           {result.matches.length ? (
             <section className="grid gap-3">
-              <h2 className="text-xl font-black text-cyan-300">WyreStorm candidates</h2>
               {result.matches.map((match, index) => (
                 <MatchCard key={`${match.sku}-${index}`} match={match} rank={index + 1} competitor={result.competitor} />
               ))}
@@ -801,24 +923,54 @@ export default function ComparePageNew() {
             </section>
           ) : null}
 
+          <div className="flex flex-wrap gap-3">
+            <button type="button" onClick={() => setWorkflowStep("matrix")} className="rounded-full border border-cyan-300 px-5 py-3 text-sm font-black text-cyan-100">
+              Back to matrix
+            </button>
+            <button type="button" onClick={() => setWorkflowStep("checks")} className="rounded-full bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950">
+              Continue to next checks
+            </button>
+          </div>
+        </section>
+      ) : null}
+
+      {resultReady && result && activeStep === "checks" ? (
+        <section className="grid gap-4" data-compare-stage="checks">
+          {shouldRequestLiveLookupUrl(result, Boolean(productUrl.trim())) ? (
+            <LiveLookupRetryPanel
+              value={productUrl}
+              status={lookupStatus}
+              onChange={setProductUrl}
+              onRetry={handleRetryWithSourceUrl}
+              disabled={false}
+            />
+          ) : null}
+
           {result.nextSteps.length ? (
             <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
-              <h2 className="text-xl font-black text-cyan-300">What to ask or check next</h2>
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Stage 4 / Next checks</p>
+              <h2 className="mt-1 text-xl font-black text-cyan-300">What to ask or check next</h2>
               <ul className="mt-4 space-y-2 text-sm leading-6 text-white/75">
                 {result.nextSteps.map((step, index) => (
                   <li key={`${step}-${index}`} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">{step}</li>
                 ))}
               </ul>
             </section>
-          ) : null}
+          ) : (
+            <section className="rounded-3xl border border-emerald-400/40 bg-emerald-400/10 p-5">
+              <h2 className="text-xl font-black text-emerald-100">No additional checks returned</h2>
+              <p className="mt-2 text-sm leading-6 text-white/70">Review the matrix and candidate evidence before using the result externally.</p>
+            </section>
+          )}
 
-          <button
-            type="button"
-            onClick={handleReset}
-            className="rounded-full border border-cyan-300 px-5 py-3 text-sm font-black text-cyan-100"
-          >
-            Compare another product
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <button type="button" onClick={() => setWorkflowStep("options")} className="rounded-full border border-cyan-300 px-5 py-3 text-sm font-black text-cyan-100">
+              Back to options
+            </button>
+            <button type="button" onClick={handleReset} className="rounded-full bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950">
+              Compare another product
+            </button>
+          </div>
         </section>
       ) : null}
     </main>
