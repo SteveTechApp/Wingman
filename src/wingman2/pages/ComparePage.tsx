@@ -1,833 +1,891 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ChangeEvent } from "react";
+import {
+  comparePriorityLabels,
+  comparePriorityOrder,
+  compareTechnologyLabels,
+  compareTemplates,
+  type CompareFieldType,
+  type ComparePriority,
+  type CompareTechnologyType,
+  type CompareTemplateField
+} from "./compareTemplates";
 
-type Verdict = "GOOD MATCH" | "PARTIAL MATCH" | "NO MATCH";
-type CheckStatus = "match" | "check" | "gap";
+type EvidenceType = "datasheet" | "product_page" | "manual" | "sku_inferred" | "user_entered" | "missing";
 
-type ProductRecord = Record<string, unknown>;
+type CompareResult =
+  | "match"
+  | "no_match"
+  | "partial"
+  | "missing_evidence"
+  | "wyrestorm_extra";
 
-type ProductCandidate = {
-  sku: string;
-  title: string;
-  family: string;
-  summary: string;
-  score: number;
-  reasons: string[];
-  warnings: string[];
-  rawText: string;
+type Side = "competitor" | "wyrestorm";
+
+type StepId = "template" | "completeness" | "matrix" | "recommendation";
+
+type FieldValue = {
+  value: string;
+  evidence: EvidenceType;
 };
 
-type CompetitorProfile = {
-  manufacturer: string;
-  sku: string;
-  technology: string;
-  role: string;
-  inputCount: number | null;
-  outputCount: number | null;
-  confidence: "low" | "medium" | "high";
-  keywords: string[];
-  blockers: string[];
+type ComparedRow = CompareTemplateField & {
+  competitorValue: string;
+  wyrestormValue: string;
+  competitorEvidence: EvidenceType;
+  wyrestormEvidence: EvidenceType;
+  result: CompareResult;
 };
 
-type FeatureCheck = {
-  label: string;
-  competitor: string;
-  wyrestorm: string;
-  status: CheckStatus;
+type ParsedIo = {
+  inputs: number | null;
+  outputs: number | null;
 };
 
-const manufacturerOptions = [
-  "Auto-detect where possible",
-  "AMX",
-  "Atlona",
-  "AVPro Edge",
-  "Blustream",
-  "Crestron",
-  "CYP",
-  "Extron",
-  "HDAnywhere",
-  "Just Add Power",
-  "Kramer",
-  "Lightware",
-  "SY",
-  "ZeeVee"
-];
-
-const indexUrls = [
-  "/product-intelligence-index.json",
-  "/wingman/product-intelligence-index.json",
-  "/data/product-intelligence-index.json",
-  "/products.json"
-];
-
-const fallbackProducts: ProductRecord[] = [
+const steps: Array<{ id: StepId; label: string; helper: string }> = [
   {
-    sku: "MX-0808-KIT",
-    title: "MX-0808-KIT",
-    family: "Matrix",
-    description: "WyreStorm 8x8 matrix kit direction. Use for contained matrix switching opportunities where fixed source-to-display routing is required."
+    id: "template",
+    label: "1 Required Data",
+    helper: "Template fields expected for the selected product type."
   },
   {
-    sku: "MX-1007-HYB",
-    title: "MX-1007-HYB",
-    family: "Hybrid Matrix / Presentation",
-    description: "Hybrid meeting and teaching space direction with NetworkHD 500, HDBaseT 3.0, USB-C, HDMI, USB, amplifier and DSP workflow."
+    id: "completeness",
+    label: "2 Completeness",
+    helper: "Shows whether there is enough evidence to compare safely."
   },
   {
-    sku: "NHD-120-TX / NHD-120-RX",
-    title: "NetworkHD 100 Series",
-    family: "AV-over-IP",
-    description: "Cost-effective NetworkHD 100 AV-over-IP direction for flexible 4K distribution."
+    id: "matrix",
+    label: "3 Technical Matrix",
+    helper: "Field-by-field technical comparison."
   },
   {
-    sku: "NHD-500-TX / NHD-500-RX",
-    title: "NetworkHD 500 Series",
-    family: "AV-over-IP",
-    description: "Premium 4K60 4:4:4 NetworkHD 500 AV-over-IP direction with strong USB support."
-  },
-  {
-    sku: "NHD-600-TRX",
-    title: "NetworkHD 600 Series",
-    family: "10G AV-over-IP",
-    description: "Highest-performance NetworkHD 600 10G AV-over-IP direction."
-  },
-  {
-    sku: "SW-0206-VW",
-    title: "SW-0206-VW",
-    family: "Video Wall Processor",
-    description: "Dedicated non-AVoIP video wall processor direction."
-  },
-  {
-    sku: "NHD-0401-MV",
-    title: "NHD-0401-MV",
-    family: "Multiview",
-    description: "NetworkHD 500 multiview processor direction."
-  },
-  {
-    sku: "NHD-150-RX",
-    title: "NHD-150-RX",
-    family: "NetworkHD 100 Multiview",
-    description: "NetworkHD 100 multiview decoder direction."
+    id: "recommendation",
+    label: "4 Recommendation",
+    helper: "Plain decision and next action."
   }
 ];
+
+const evidenceLabels: Record<EvidenceType, string> = {
+  datasheet: "Datasheet",
+  product_page: "Product page",
+  manual: "Manual",
+  sku_inferred: "SKU inferred",
+  user_entered: "User entered",
+  missing: "Missing"
+};
+
+const resultLabels: Record<CompareResult, string> = {
+  match: "✓ Match",
+  no_match: "× No match",
+  partial: "◐ Partial",
+  missing_evidence: "? Evidence needed",
+  wyrestorm_extra: "+ WyreStorm extra"
+};
+
+const technologyOptions = Object.keys(compareTechnologyLabels) as CompareTechnologyType[];
 
 function normalise(value: string): string {
-  return value.trim().replace(/\s+/g, " ");
+  return value.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
-function upper(value: string): string {
-  return normalise(value).toUpperCase();
-}
+function parseNumber(value: string): number | null {
+  const match = value.match(/\d+/);
 
-function safeString(value: unknown): string {
-  if (typeof value === "string") {
-    return value;
+  if (!match) {
+    return null;
   }
 
-  if (typeof value === "number" || typeof value === "boolean") {
-    return String(value);
-  }
-
-  return "";
+  return Number.parseInt(match[0], 10);
 }
 
-function readField(record: ProductRecord, fieldNames: string[]): string {
-  for (const fieldName of fieldNames) {
-    const direct = record[fieldName];
-    const directValue = safeString(direct);
-    if (directValue) {
-      return directValue;
-    }
+function boolValue(value: string): boolean | null {
+  const text = normalise(value);
 
-    const lowerMatch = Object.keys(record).find((key) => key.toLowerCase() === fieldName.toLowerCase());
-    if (lowerMatch) {
-      const value = safeString(record[lowerMatch]);
-      if (value) {
-        return value;
-      }
-    }
+  if (["yes", "true", "y", "supported", "included", "built-in", "built in", "present"].includes(text)) {
+    return true;
   }
 
-  return "";
-}
-
-function recordToText(record: ProductRecord): string {
-  try {
-    return JSON.stringify(record).toLowerCase();
-  } catch {
-    return "";
-  }
-}
-
-function flattenProductRecords(input: unknown): ProductRecord[] {
-  const found: ProductRecord[] = [];
-  const seen = new Set<unknown>();
-
-  function walk(value: unknown): void {
-    if (!value || typeof value !== "object") {
-      return;
-    }
-
-    if (seen.has(value)) {
-      return;
-    }
-
-    seen.add(value);
-
-    if (Array.isArray(value)) {
-      value.forEach(walk);
-      return;
-    }
-
-    const record = value as ProductRecord;
-    const keys = Object.keys(record);
-    const hasProductSignal = keys.some((key) => {
-      const lowerKey = key.toLowerCase();
-      return lowerKey === "sku" || lowerKey === "model" || lowerKey === "title" || lowerKey === "name" || lowerKey === "product";
-    });
-
-    const text = recordToText(record);
-    const looksLikeWyreStormProduct =
-      hasProductSignal &&
-      (
-        text.includes("wyrestorm") ||
-        text.includes("networkhd") ||
-        text.includes("nhd-") ||
-        text.includes("mx-") ||
-        text.includes("sw-") ||
-        text.includes("ap0-") ||
-        text.includes("apo-") ||
-        text.includes("cam-")
-      );
-
-    if (looksLikeWyreStormProduct) {
-      found.push(record);
-    }
-
-    for (const key of keys) {
-      const child = record[key];
-      if (child && typeof child === "object") {
-        walk(child);
-      }
-    }
+  if (["no", "false", "n", "not supported", "none", "absent"].includes(text)) {
+    return false;
   }
 
-  walk(input);
-  return found;
+  return null;
 }
 
-function parseIoFromSku(sku: string): { inputCount: number | null; outputCount: number | null } {
-  const clean = upper(sku);
+function parseIoFromSku(sku: string): ParsedIo {
+  const upper = sku.toUpperCase();
 
-  const explicit = clean.match(/(\d{1,2})\s*[X×]\s*(\d{1,2})/);
-  if (explicit) {
+  const matrixMatch = upper.match(/(?:MX|MATRIX|SW|VW|NHD)[-_]?(\\d{2})(\\d{2})/);
+
+  if (matrixMatch) {
     return {
-      inputCount: Number(explicit[1]),
-      outputCount: Number(explicit[2])
+      inputs: Number.parseInt(matrixMatch[1], 10),
+      outputs: Number.parseInt(matrixMatch[2], 10)
     };
   }
 
-  const mxCompact = clean.match(/(?:MX|MATRIX)[-_ ]?(\d)(\d)(?:\D|$)/);
-  if (mxCompact) {
-    return {
-      inputCount: Number(mxCompact[1]),
-      outputCount: Number(mxCompact[2])
-    };
-  }
+  const readableMatch = upper.match(/(\\d{1,2})\\s*[X×]\\s*(\\d{1,2})/);
 
-  const mxTwoDigit = clean.match(/MX[-_ ]?(\d{2})(\d{2})(?:\D|$)/);
-  if (mxTwoDigit) {
+  if (readableMatch) {
     return {
-      inputCount: Number(mxTwoDigit[1]),
-      outputCount: Number(mxTwoDigit[2])
+      inputs: Number.parseInt(readableMatch[1], 10),
+      outputs: Number.parseInt(readableMatch[2], 10)
     };
   }
 
   return {
-    inputCount: null,
-    outputCount: null
+    inputs: null,
+    outputs: null
   };
 }
 
-function detectManufacturer(sku: string, selectedManufacturer: string): string {
-  if (selectedManufacturer !== "Auto-detect where possible") {
-    return selectedManufacturer;
+function inferTechnologyFromSku(sku: string): CompareTechnologyType {
+  const upper = sku.toUpperCase();
+
+  if (upper.includes("NHD-CTL")) {
+    return "avoip_controller";
   }
 
-  const clean = upper(sku);
-
-  if (clean.startsWith("AC-") || clean.startsWith("AXION") || clean.includes("AVPRO")) {
-    return "AVPro Edge";
+  if (upper.includes("0401-MV") || upper.includes("MULTIVIEW") || upper.includes("MV")) {
+    return "multiview_processor";
   }
 
-  if (clean.startsWith("IN") || clean.startsWith("DTP") || clean.startsWith("XTP") || clean.includes("EXTRON")) {
-    return "Extron";
+  if (upper.includes("VW") || upper.includes("VIDEO WALL")) {
+    return "video_wall_processor";
   }
 
-  if (clean.startsWith("VS-") || clean.startsWith("TP-") || clean.includes("KRAMER")) {
-    return "Kramer";
+  if (upper.includes("NHD-")) {
+    return "avoip_endpoint";
   }
 
-  if (clean.includes("BLUSTREAM") || clean.startsWith("HEX") || clean.startsWith("HMXL")) {
-    return "Blustream";
+  if (upper.includes("HDBASET") || upper.includes("HDBT") || upper.includes("EX-") || upper.includes("-TX") || upper.includes("-RX")) {
+    return "hdbaset_extender";
   }
 
-  if (clean.includes("JAD") || clean.includes("J+P") || clean.includes("JUST ADD")) {
-    return "Just Add Power";
+  if (upper.includes("APO") || upper.includes("CAM") || upper.includes("USB") || upper.includes("UC") || upper.includes("BRG")) {
+    return "usb_uc_device";
+  }
+
+  if (upper.includes("SW-") || upper.includes("PRESENTATION")) {
+    return "presentation_switcher";
+  }
+
+  if (upper.includes("MX-") || upper.includes("MATRIX")) {
+    return "matrix_switcher";
+  }
+
+  return "presentation_switcher";
+}
+
+function deriveRoleFromSku(sku: string, technology: CompareTechnologyType): string {
+  const upper = sku.toUpperCase();
+
+  if (upper.includes("TRX")) {
+    return "Transceiver";
+  }
+
+  if (upper.includes("-TX") || upper.includes("TRANSMITTER") || upper.includes("ENCODER")) {
+    return technology === "avoip_endpoint" ? "Encoder" : "Transmitter";
+  }
+
+  if (upper.includes("-RX") || upper.includes("RECEIVER") || upper.includes("DECODER")) {
+    return technology === "avoip_endpoint" ? "Decoder" : "Receiver";
+  }
+
+  if (upper.includes("CTL")) {
+    return "Controller";
+  }
+
+  if (technology === "matrix_switcher") {
+    return "Matrix";
+  }
+
+  if (technology === "presentation_switcher") {
+    return "Presentation switcher";
+  }
+
+  if (technology === "multiview_processor") {
+    return "Multiview processor";
+  }
+
+  if (technology === "video_wall_processor") {
+    return "Video wall processor";
+  }
+
+  if (technology === "usb_uc_device") {
+    return "USB / UC device";
   }
 
   return "Unknown";
 }
 
-function buildCompetitorProfile(skuInput: string, manufacturerInput: string): CompetitorProfile {
-  const sku = upper(skuInput);
-  const manufacturer = detectManufacturer(sku, manufacturerInput);
-  const io = parseIoFromSku(sku);
+function inferResolutionFromSku(sku: string): string {
+  const upper = sku.toUpperCase();
 
-  let technology = "unknown";
-  let role = "unknown";
-  const keywords: string[] = [];
-  const blockers: string[] = [];
-
-  if (sku.includes("MX") || sku.includes("MAT") || sku.includes("MATRIX")) {
-    technology = "MATRIX";
-    role = "matrix switching";
-    keywords.push("matrix", "switching", "routing");
+  if (upper.includes("8K")) {
+    return "8K";
   }
 
-  if (sku.includes("EX") || sku.includes("EXT") || sku.includes("HDBT") || sku.includes("TP")) {
-    technology = technology === "MATRIX" ? "MATRIX / HDBASET" : "HDBASET / EXTENDER";
-    role = technology.includes("MATRIX") ? "matrix switching" : "point-to-point extension";
-    keywords.push("hdbaset", "extender", "transmitter", "receiver");
+  if (upper.includes("4K60") || upper.includes("4K") || upper.includes("60")) {
+    return "4K60";
   }
 
-  if (sku.includes("IP") || sku.includes("AIP") || sku.includes("JPEG") || sku.includes("SDVOE")) {
-    technology = "AV-OVER-IP";
-    role = "network AV distribution";
-    keywords.push("networkhd", "av over ip", "av-over-ip", "encoder", "decoder");
+  if (upper.includes("1080")) {
+    return "1080p";
   }
 
-  if (sku.includes("MV") || sku.includes("MULTI")) {
-    technology = "MULTIVIEW";
-    role = "multiview processing";
-    keywords.push("multiview", "multi-view");
+  return "";
+}
+
+function inferTransportFromTechnology(technology: CompareTechnologyType, sku: string): string {
+  const upper = sku.toUpperCase();
+
+  if (upper.includes("HDBASET") || upper.includes("HDBT")) {
+    return "HDBaseT";
   }
 
-  if (sku.includes("VW") || sku.includes("WALL")) {
-    technology = "VIDEO WALL";
-    role = "video wall processing";
-    keywords.push("video wall", "wall processor");
+  if (technology === "avoip_endpoint") {
+    return "AVoIP";
   }
 
-  if (io.inputCount && io.outputCount) {
-    keywords.push(`${io.inputCount}x${io.outputCount}`);
-    keywords.push(`${io.inputCount} x ${io.outputCount}`);
-    keywords.push(`${String(io.inputCount).padStart(2, "0")}${String(io.outputCount).padStart(2, "0")}`);
+  if (technology === "matrix_switcher") {
+    return "Matrix switching";
   }
 
-  if (technology === "unknown") {
-    blockers.push("Technology class could not be confirmed from the SKU alone.");
+  if (technology === "presentation_switcher") {
+    return "Presentation switching";
   }
 
-  if (!io.inputCount && technology.includes("MATRIX")) {
-    blockers.push("Matrix input/output count was not confidently detected.");
+  if (technology === "usb_uc_device") {
+    return "USB / UC";
+  }
+
+  return compareTechnologyLabels[technology];
+}
+
+function inferValueFromSku(field: CompareTemplateField, sku: string, technology: CompareTechnologyType): string {
+  const upper = sku.toUpperCase();
+  const parsedIo = parseIoFromSku(sku);
+
+  if (field.id === "technology_type") {
+    return compareTechnologyLabels[technology];
+  }
+
+  if (field.id === "product_role") {
+    return deriveRoleFromSku(sku, technology);
+  }
+
+  if (field.id === "input_count" || field.id === "source_count") {
+    return parsedIo.inputs === null ? "" : String(parsedIo.inputs);
+  }
+
+  if (field.id === "output_count") {
+    return parsedIo.outputs === null ? "" : String(parsedIo.outputs);
+  }
+
+  if (field.id === "hdmi_inputs") {
+    return parsedIo.inputs === null ? "" : String(parsedIo.inputs);
+  }
+
+  if (field.id === "hdmi_outputs") {
+    return parsedIo.outputs === null ? "" : String(parsedIo.outputs);
+  }
+
+  if (field.id === "max_resolution") {
+    return inferResolutionFromSku(sku);
+  }
+
+  if (field.id === "chroma" && upper.includes("4:4:4")) {
+    return "4:4:4";
+  }
+
+  if (field.id === "hdr" && upper.includes("HDR")) {
+    return "Yes";
+  }
+
+  if (field.id === "usb_version" && upper.includes("USB 3")) {
+    return "USB 3.x";
+  }
+
+  if (field.id === "usb_version" && upper.includes("USB")) {
+    return "USB";
+  }
+
+  if (field.id === "hdbaset_version" && upper.includes("HDBASET 3")) {
+    return "HDBaseT 3.0";
+  }
+
+  if (field.id === "hdbaset_version" && (upper.includes("HDBASET") || upper.includes("HDBT"))) {
+    return "HDBaseT";
+  }
+
+  if (field.id === "network_speed" && (upper.includes("600") || upper.includes("SDVOE"))) {
+    return "10GbE";
+  }
+
+  if (field.id === "network_speed" && upper.includes("NHD")) {
+    return "1GbE or series dependent";
+  }
+
+  if (field.id === "codec" && upper.includes("500")) {
+    return "JPEG XS";
+  }
+
+  if (field.id === "codec" && upper.includes("600")) {
+    return "SDVoE";
+  }
+
+  if (field.id === "avoip_family" && upper.includes("NHD-100")) {
+    return "NetworkHD 100 series";
+  }
+
+  if (field.id === "avoip_family" && upper.includes("NHD-500")) {
+    return "NetworkHD 500 series";
+  }
+
+  if (field.id === "avoip_family" && upper.includes("NHD-600")) {
+    return "NetworkHD 600 series";
+  }
+
+  if (field.id === "signal_transport" || field.id === "transport") {
+    return inferTransportFromTechnology(technology, sku);
+  }
+
+  return "";
+}
+
+function valueKey(fieldId: string, side: Side): string {
+  return `${side}.${fieldId}`;
+}
+
+function getFieldValue(
+  field: CompareTemplateField,
+  side: Side,
+  sku: string,
+  technology: CompareTechnologyType,
+  manualValues: Record<string, string>
+): FieldValue {
+  const key = valueKey(field.id, side);
+  const manual = manualValues[key];
+
+  if (typeof manual === "string" && manual.trim().length > 0) {
+    return {
+      value: manual,
+      evidence: "user_entered"
+    };
+  }
+
+  const inferred = inferValueFromSku(field, sku, technology);
+
+  if (inferred.trim().length > 0) {
+    return {
+      value: inferred,
+      evidence: "sku_inferred"
+    };
   }
 
   return {
-    manufacturer,
-    sku,
-    technology,
-    role,
-    inputCount: io.inputCount,
-    outputCount: io.outputCount,
-    confidence: technology === "unknown" ? "low" : manufacturer === "Unknown" ? "medium" : "high",
-    keywords,
-    blockers
+    value: "",
+    evidence: "missing"
   };
 }
 
-async function fetchProductIndex(): Promise<{ records: ProductRecord[]; source: string; usedFallback: boolean }> {
-  for (const url of indexUrls) {
-    try {
-      const response = await fetch(url, { cache: "no-store" });
-      if (!response.ok) {
-        continue;
-      }
+function compareValues(field: CompareTemplateField, competitorValue: string, wyrestormValue: string): CompareResult {
+  const competitorText = normalise(competitorValue);
+  const wyrestormText = normalise(wyrestormValue);
 
-      const payload = await response.json();
-      const records = flattenProductRecords(payload);
+  if (competitorText.length < 1 || wyrestormText.length < 1) {
+    return "missing_evidence";
+  }
 
-      if (records.length > 0) {
-        return {
-          records,
-          source: url,
-          usedFallback: false
-        };
-      }
-    } catch {
-      // Try next possible local index path.
+  if (field.fieldType === "number" || field.fieldType === "port_count") {
+    const competitorNumber = parseNumber(competitorValue);
+    const wyrestormNumber = parseNumber(wyrestormValue);
+
+    if (competitorNumber === null || wyrestormNumber === null) {
+      return "missing_evidence";
     }
+
+    if (wyrestormNumber > competitorNumber) {
+      return "wyrestorm_extra";
+    }
+
+    if (wyrestormNumber === competitorNumber) {
+      return "match";
+    }
+
+    return "no_match";
+  }
+
+  if (field.fieldType === "boolean") {
+    const competitorBool = boolValue(competitorValue);
+    const wyrestormBool = boolValue(wyrestormValue);
+
+    if (competitorBool === null || wyrestormBool === null) {
+      return "missing_evidence";
+    }
+
+    if (competitorBool === wyrestormBool) {
+      return "match";
+    }
+
+    if (!competitorBool && wyrestormBool) {
+      return "wyrestorm_extra";
+    }
+
+    return "no_match";
+  }
+
+  if (competitorText === wyrestormText) {
+    return "match";
+  }
+
+  if (field.blocksRecommendation) {
+    return "no_match";
+  }
+
+  return "partial";
+}
+
+function inputTypeForField(fieldType: CompareFieldType): string {
+  if (fieldType === "number" || fieldType === "port_count") {
+    return "number";
+  }
+
+  return "text";
+}
+
+function buildRows(
+  template: CompareTemplateField[],
+  competitorSku: string,
+  wyrestormSku: string,
+  technology: CompareTechnologyType,
+  manualValues: Record<string, string>
+): ComparedRow[] {
+  return template.map((field) => {
+    const competitor = getFieldValue(field, "competitor", competitorSku, technology, manualValues);
+    const wyrestorm = getFieldValue(field, "wyrestorm", wyrestormSku, technology, manualValues);
+
+    return {
+      ...field,
+      competitorValue: competitor.value,
+      wyrestormValue: wyrestorm.value,
+      competitorEvidence: competitor.evidence,
+      wyrestormEvidence: wyrestorm.evidence,
+      result: compareValues(field, competitor.value, wyrestorm.value)
+    };
+  });
+}
+
+function resultClass(result: CompareResult): string {
+  return `wm-compare-result-${result.replace("_", "-")}`;
+}
+
+function priorityClass(priority: ComparePriority): string {
+  return `wm-compare-priority-${priority.replace("_", "-")}`;
+}
+
+function groupRows(rows: ComparedRow[]): Array<{ priority: ComparePriority; rows: ComparedRow[] }> {
+  return comparePriorityOrder
+    .map((priority) => ({
+      priority,
+      rows: rows.filter((row) => row.priority === priority)
+    }))
+    .filter((group) => group.rows.length > 0);
+}
+
+function buildSummary(rows: ComparedRow[]) {
+  const blockingRows = rows.filter((row) => row.priority === "blocking");
+  const coreRows = rows.filter((row) => row.priority === "core");
+
+  const blockingNoMatches = blockingRows.filter((row) => row.result === "no_match");
+  const blockingMissing = blockingRows.filter((row) => row.result === "missing_evidence");
+  const coreIssues = coreRows.filter((row) => row.result === "no_match" || row.result === "partial" || row.result === "missing_evidence");
+  const knownRows = rows.filter((row) => row.result !== "missing_evidence");
+  const matchRows = rows.filter((row) => row.result === "match" || row.result === "wyrestorm_extra");
+
+  const completeness = rows.length < 1 ? 0 : Math.round((knownRows.length / rows.length) * 100);
+  const matchRate = rows.length < 1 ? 0 : Math.round((matchRows.length / rows.length) * 100);
+
+  let verdict = "GOOD MATCH";
+  let reason = "The available template fields do not show a blocking mismatch.";
+
+  if (coreIssues.length > 0) {
+    verdict = "PARTIAL MATCH";
+    reason = "The main product type is plausible, but one or more core fields need checking or do not fully align.";
+  }
+
+  if (blockingMissing.length > 0) {
+    verdict = "EVIDENCE NEEDED";
+    reason = "One or more blocking fields are missing. Do not position this as equivalent until the missing evidence is confirmed.";
+  }
+
+  if (blockingNoMatches.length > 0) {
+    verdict = "NO MATCH";
+    reason = "One or more blocking fields do not match. This is not a safe equivalent.";
   }
 
   return {
-    records: fallbackProducts,
-    source: "limited built-in fallback because local product index was not found",
-    usedFallback: true
+    verdict,
+    reason,
+    completeness,
+    matchRate,
+    blockingNoMatches,
+    blockingMissing,
+    coreIssues
   };
 }
 
-function productFromRecord(record: ProductRecord): Omit<ProductCandidate, "score" | "reasons" | "warnings" | "rawText"> {
-  const sku =
-    readField(record, ["sku", "model", "productCode", "product_code", "id"]) ||
-    readField(record, ["title", "name"]) ||
-    "Unknown SKU";
-
-  const title = readField(record, ["title", "name", "product", "displayName"]) || sku;
-  const family = readField(record, ["family", "category", "series", "productFamily"]) || "WyreStorm product";
-  const summary = readField(record, ["summary", "description", "shortDescription", "overview"]) || "No short summary available.";
-
-  return {
-    sku,
-    title,
-    family,
-    summary
-  };
+function evidenceClass(evidence: EvidenceType): string {
+  return `wm-evidence-${evidence.replace("_", "-")}`;
 }
 
-function scoreProduct(record: ProductRecord, profile: CompetitorProfile): ProductCandidate {
-  const extracted = productFromRecord(record);
-  const rawText = recordToText(record);
-  const skuText = upper(extracted.sku);
-  const reasons: string[] = [];
-  const warnings: string[] = [];
-  let score = 0;
+function CompareValueInput({
+  field,
+  side,
+  value,
+  onChange
+}: {
+  field: ComparedRow;
+  side: Side;
+  value: string;
+  onChange: (fieldId: string, side: Side, value: string) => void;
+}) {
+  return (
+    <input
+      aria-label={`${side} ${field.label}`}
+      onChange={(event: ChangeEvent<HTMLInputElement>) => onChange(field.id, side, event.target.value)}
+      placeholder="Missing"
+      type={inputTypeForField(field.fieldType)}
+      value={value}
+    />
+  );
+}
 
-  if (rawText.includes("cable") || rawText.includes("bracket") || rawText.includes("accessory")) {
-    score -= 5;
-    warnings.push("Accessory-like result; unlikely to be the lead replacement.");
-  }
+export function Compare() {
+  const [competitorSku, setCompetitorSku] = useState("DN-NVX350");
+  const [wyrestormSku, setWyrestormSku] = useState("");
+  const [selectedTechnology, setSelectedTechnology] = useState<CompareTechnologyType>("avoip_endpoint");
+  const [activeStep, setActiveStep] = useState<StepId>("template");
+  const [manualValues, setManualValues] = useState<Record<string, string>>({});
 
-  for (const keyword of profile.keywords) {
-    if (rawText.includes(keyword.toLowerCase())) {
-      score += 3;
-      reasons.push(`Matches keyword: ${keyword}`);
-    }
-  }
+  const detectedTechnology = useMemo(() => inferTechnologyFromSku(competitorSku), [competitorSku]);
+  const template = compareTemplates[selectedTechnology];
 
-  if (profile.technology.includes("MATRIX")) {
-    if (rawText.includes("matrix")) {
-      score += 5;
-      reasons.push("Same broad product class: matrix switching");
-    }
+  const rows = useMemo(
+    () => buildRows(template, competitorSku, wyrestormSku, selectedTechnology, manualValues),
+    [template, competitorSku, wyrestormSku, selectedTechnology, manualValues]
+  );
 
-    if (profile.inputCount && profile.outputCount) {
-      const compact = `${String(profile.inputCount).padStart(2, "0")}${String(profile.outputCount).padStart(2, "0")}`;
-      const readable = `${profile.inputCount}x${profile.outputCount}`;
-      const spaced = `${profile.inputCount} x ${profile.outputCount}`;
+  const groupedRows = useMemo(() => groupRows(rows), [rows]);
+  const summary = useMemo(() => buildSummary(rows), [rows]);
 
-      if (rawText.includes(compact) || rawText.includes(readable) || rawText.includes(spaced) || skuText.includes(compact)) {
-        score += 7;
-        reasons.push(`Likely matching I/O count: ${profile.inputCount}x${profile.outputCount}`);
-      } else {
-        warnings.push(`Verify I/O count against required ${profile.inputCount}x${profile.outputCount}.`);
+  function updateValue(fieldId: string, side: Side, value: string): void {
+    setManualValues((current) => {
+      const next = { ...current };
+      const key = valueKey(fieldId, side);
+
+      if (value.trim().length < 1) {
+        delete next[key];
+        return next;
       }
-    }
+
+      next[key] = value;
+      return next;
+    });
   }
 
-  if (profile.technology.includes("EXTENDER") || profile.technology.includes("HDBASET")) {
-    if (rawText.includes("hdbaset") || rawText.includes("extender")) {
-      score += 6;
-      reasons.push("Same broad transport class: HDBaseT / extender");
-    }
+  function useDetectedTechnology(): void {
+    setSelectedTechnology(detectedTechnology);
+    setActiveStep("template");
   }
 
-  if (profile.technology.includes("AV-OVER-IP")) {
-    if (rawText.includes("networkhd") || rawText.includes("av-over-ip") || rawText.includes("encoder") || rawText.includes("decoder")) {
-      score += 6;
-      reasons.push("Same broad technology class: AV-over-IP");
-    }
-  }
-
-  if (profile.technology.includes("MULTIVIEW") && rawText.includes("multiview")) {
-    score += 6;
-    reasons.push("Same broad function: multiview");
-  }
-
-  if (profile.technology.includes("VIDEO WALL") && rawText.includes("video wall")) {
-    score += 6;
-    reasons.push("Same broad function: video wall processing");
-  }
-
-  if (score < 1 && rawText.includes("wyrestorm")) {
-    score += 1;
-  }
-
-  return {
-    ...extracted,
-    score,
-    reasons: Array.from(new Set(reasons)).slice(0, 5),
-    warnings: Array.from(new Set(warnings)).slice(0, 5),
-    rawText
-  };
-}
-
-function getVerdict(topCandidate: ProductCandidate | null, profile: CompetitorProfile): Verdict {
-  if (!topCandidate || topCandidate.score < 4) {
-    return "NO MATCH";
-  }
-
-  const hasIoRequirement = Boolean(profile.inputCount && profile.outputCount);
-  const hasIoMatch = topCandidate.reasons.some((reason) => reason.toLowerCase().includes("i/o count"));
-  const strongClassMatch = topCandidate.score >= 8;
-
-  if (topCandidate.score >= 13 && (!hasIoRequirement || hasIoMatch)) {
-    return "GOOD MATCH";
-  }
-
-  if (strongClassMatch) {
-    return "PARTIAL MATCH";
-  }
-
-  return "NO MATCH";
-}
-
-function buildFeatureChecks(profile: CompetitorProfile, topCandidate: ProductCandidate | null): FeatureCheck[] {
-  if (!topCandidate) {
-    return [
-      {
-        label: "Product class",
-        competitor: profile.technology,
-        wyrestorm: "No candidate found",
-        status: "gap"
-      }
-    ];
-  }
-
-  const checks: FeatureCheck[] = [];
-
-  const classMatch =
-    topCandidate.reasons.some((reason) => reason.toLowerCase().includes("same broad")) ||
-    topCandidate.rawText.includes(profile.technology.toLowerCase());
-
-  checks.push({
-    label: "Product purpose / class",
-    competitor: profile.technology,
-    wyrestorm: topCandidate.family,
-    status: classMatch ? "match" : "check"
-  });
-
-  const ioRequired = Boolean(profile.inputCount && profile.outputCount);
-  const ioMatch = topCandidate.reasons.some((reason) => reason.toLowerCase().includes("i/o count"));
-
-  checks.push({
-    label: "Input / output count",
-    competitor: ioRequired ? `${profile.inputCount}x${profile.outputCount}` : "Not detected",
-    wyrestorm: ioMatch ? "Likely match" : "Verify from datasheet",
-    status: ioRequired ? ioMatch ? "match" : "check" : "check"
-  });
-
-  checks.push({
-    label: "Signal / transport",
-    competitor: profile.technology,
-    wyrestorm: classMatch ? "Broadly aligned" : "Needs verification",
-    status: classMatch ? "match" : "check"
-  });
-
-  checks.push({
-    label: "USB / control / audio",
-    competitor: "Unknown from SKU alone",
-    wyrestorm: "Check feature-by-feature",
-    status: "check"
-  });
-
-  checks.push({
-    label: "Power / install dependencies",
-    competitor: "Unknown from SKU alone",
-    wyrestorm: "Check PSU, PoE/PoH, receivers, controller and network needs",
-    status: "check"
-  });
-
-  return checks;
-}
-
-function statusLabel(status: CheckStatus): string {
-  if (status === "match") {
-    return "MATCH";
-  }
-
-  if (status === "gap") {
-    return "GAP";
-  }
-
-  return "CHECK";
-}
-
-export function ComparePage() {
-  const [competitorSku, setCompetitorSku] = useState("");
-  const [manufacturer, setManufacturer] = useState("Auto-detect where possible");
-  const [sourceContext, setSourceContext] = useState("");
-  const [applicationContext, setApplicationContext] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [indexSource, setIndexSource] = useState("");
-  const [usedFallback, setUsedFallback] = useState(false);
-  const [profile, setProfile] = useState<CompetitorProfile | null>(null);
-  const [candidates, setCandidates] = useState<ProductCandidate[]>([]);
-  const [error, setError] = useState("");
-
-  const canRun = competitorSku.trim().length >= 2;
-
-  const topCandidate = candidates[0] ?? null;
-  const verdict = useMemo(() => getVerdict(topCandidate, profile ?? buildCompetitorProfile("", manufacturer)), [topCandidate, profile, manufacturer]);
-  const checks = useMemo(() => profile ? buildFeatureChecks(profile, topCandidate) : [], [profile, topCandidate]);
-
-  async function runCompare(): Promise<void> {
-    if (!canRun || loading) {
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-
-    try {
-      const nextProfile = buildCompetitorProfile(competitorSku, manufacturer);
-      const index = await fetchProductIndex();
-
-      const scored = index.records
-        .map((record) => scoreProduct(record, nextProfile))
-        .filter((candidate) => candidate.score > 0)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 5);
-
-      setProfile(nextProfile);
-      setIndexSource(index.source);
-      setUsedFallback(index.usedFallback);
-      setCandidates(scored);
-
-      if (scored.length < 1) {
-        setError("No credible WyreStorm candidate was found from the available local product data. Treat this as NO MATCH until product intelligence is improved.");
-      }
-    } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "Compare failed unexpectedly.");
-      setCandidates([]);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>): void {
-    if (event.key === "Enter") {
-      void runCompare();
-    }
+  function clearManualValues(): void {
+    setManualValues({});
   }
 
   return (
-    <div className="wm-compare-live">
-      <section className="wm-compare-live-hero">
-        <p className="wm-compare-kicker">Competitor replacement desk</p>
-        <h1>Decide whether WyreStorm is a good, partial or no-match replacement.</h1>
-        <p>
-          Enter a competitor product, then review match evidence, blocking differences, verification points and
-          customer-safe next actions.
-        </p>
-      </section>
-
-      <section className="wm-compare-live-grid">
-        <div className="wm-compare-input-card">
-          <label className="wm-compare-field wm-compare-field-full">
-            <span>Competitor product</span>
-            <input
-              autoComplete="off"
-              onChange={(event) => setCompetitorSku(event.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Example: AC-MX-88, DTP2 T 211, VS-44H2A"
-              value={competitorSku}
-            />
-          </label>
-
-          <div className="wm-compare-two-fields">
-            <label className="wm-compare-field">
-              <span>Manufacturer</span>
-              <select onChange={(event) => setManufacturer(event.target.value)} value={manufacturer}>
-                {manufacturerOptions.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="wm-compare-field">
-              <span>Source/spec page</span>
-              <input
-                onChange={(event) => setSourceContext(event.target.value)}
-                placeholder="Any page with product details or specifications"
-                value={sourceContext}
-              />
-            </label>
-          </div>
-
-          <label className="wm-compare-field wm-compare-field-full">
-            <span>Application context</span>
-            <input
-              onChange={(event) => setApplicationContext(event.target.value)}
-              placeholder="Example: lecture theatre, meeting room, 4K video wall, AVoIP estate"
-              value={applicationContext}
-            />
-          </label>
-
-          <button
-            className="wm-compare-run-button"
-            disabled={!canRun || loading}
-            onClick={() => void runCompare()}
-            type="button"
-          >
-            {loading ? "Checking local product intelligence..." : "Find WyreStorm Alternatives"}
-          </button>
-
-          {!canRun && (
-            <p className="wm-compare-inline-warning">Enter a competitor SKU to activate the comparison.</p>
-          )}
-
-          {error && <p className="wm-compare-error">{error}</p>}
+    <div className="wm-compare-redesign">
+      <header className="wm-compare-redesign-hero">
+        <div>
+          <p className="wm-compare-kicker">Competitor comparison / technical data template</p>
+          <h1>Compare products by required technical evidence, not SKU similarity.</h1>
+          <p>
+            Select the product technology type first. Wingman then shows the expected data fields for that device class,
+            highlights missing evidence and only then presents a safe technical comparison.
+          </p>
         </div>
 
-        <aside className="wm-compare-right-rail">
-          <div className="wm-compare-check-card">
-            <h2>What Wingman will check</h2>
-            <ul>
-              <li>Product purpose and technology class</li>
-              <li>Manufacturer override or auto-detect</li>
-              <li>Input/output role and capacity</li>
-              <li>Signal, USB, audio, control and network differences</li>
-              <li>Blocking gaps and verification points</li>
-              <li>GOOD / PARTIAL / NO MATCH verdict</li>
-            </ul>
-          </div>
+        <div className={`wm-compare-verdict-card wm-compare-verdict-${summary.verdict.toLowerCase().replace(/\s+/g, "-")}`}>
+          <span>Current decision</span>
+          <strong>{summary.verdict}</strong>
+          <small>{summary.completeness}% evidence complete</small>
+        </div>
+      </header>
 
-          <div className="wm-compare-live-card">
-            <h2>Live interpretation</h2>
-            {profile ? (
-              <dl>
-                <div>
-                  <dt>Manufacturer used</dt>
-                  <dd>{profile.manufacturer}</dd>
-                </div>
-                <div>
-                  <dt>Technology</dt>
-                  <dd>{profile.technology}</dd>
-                </div>
-                <div>
-                  <dt>Role</dt>
-                  <dd>{profile.role}</dd>
-                </div>
-                <div>
-                  <dt>I/O</dt>
-                  <dd>{profile.inputCount && profile.outputCount ? `${profile.inputCount}x${profile.outputCount}` : "Not detected"}</dd>
-                </div>
-                <div>
-                  <dt>Confidence</dt>
-                  <dd>{profile.confidence}</dd>
-                </div>
-              </dl>
-            ) : (
-              <p>Enter a competitor SKU and run the comparison.</p>
-            )}
-          </div>
-        </aside>
+      <section className="wm-compare-intake">
+        <label>
+          <span>Competitor SKU</span>
+          <input value={competitorSku} onChange={(event) => setCompetitorSku(event.target.value)} />
+        </label>
+
+        <label>
+          <span>WyreStorm SKU</span>
+          <input placeholder="Enter WyreStorm SKU or leave blank" value={wyrestormSku} onChange={(event) => setWyrestormSku(event.target.value)} />
+        </label>
+
+        <label>
+          <span>Technology type</span>
+          <select value={selectedTechnology} onChange={(event) => setSelectedTechnology(event.target.value as CompareTechnologyType)}>
+            {technologyOptions.map((technology) => (
+              <option key={technology} value={technology}>
+                {compareTechnologyLabels[technology]}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <div className="wm-compare-intake-actions">
+          <button type="button" onClick={useDetectedTechnology}>
+            Use inferred type: {compareTechnologyLabels[detectedTechnology]}
+          </button>
+          <button type="button" onClick={clearManualValues}>
+            Clear entered values
+          </button>
+        </div>
       </section>
 
-      {profile && (
-        <section className="wm-compare-results">
-          <div className={`wm-compare-verdict wm-compare-verdict-${verdict.toLowerCase().replace(/\s+/g, "-")}`}>
-            <span>Verdict</span>
-            <strong>{verdict}</strong>
-            <p>
-              {verdict === "GOOD MATCH"
-                ? "The best WyreStorm candidate appears to match the main product class and core requirement. Still verify all feature details against datasheets before quoting."
-                : verdict === "PARTIAL MATCH"
-                  ? "A credible WyreStorm direction exists, but one or more features, I/O details or dependencies need checking before presenting it as an equivalent."
-                  : "No safe direct WyreStorm match was found from the currently available product intelligence."}
-            </p>
-          </div>
+      <nav className="wm-compare-steps" aria-label="Compare workflow steps">
+        {steps.map((step) => (
+          <button
+            aria-pressed={activeStep === step.id}
+            key={step.id}
+            onClick={() => setActiveStep(step.id)}
+            title={step.helper}
+            type="button"
+          >
+            <strong>{step.label}</strong>
+            <span>{step.helper}</span>
+          </button>
+        ))}
+      </nav>
 
-          <div className="wm-compare-index-note">
-            <strong>Product data source:</strong> {indexSource}
-            {usedFallback && (
-              <span>
-                Local product index was not found, so Wingman used a limited built-in fallback. Run the product
-                intelligence index generation before using this as a serious comparison.
-              </span>
-            )}
-          </div>
-
-          {topCandidate && (
-            <div className="wm-compare-best-card">
-              <div>
-                <p className="wm-compare-kicker">Best WyreStorm candidate</p>
-                <h2>{topCandidate.sku}</h2>
-                <p>{topCandidate.title}</p>
-                <p>{topCandidate.summary}</p>
-              </div>
-              <div>
-                <span className="wm-compare-score">Score {topCandidate.score}</span>
-              </div>
+      {activeStep === "template" && (
+        <section className="wm-compare-panel wm-compare-template-panel">
+          <div className="wm-compare-section-heading">
+            <div>
+              <p className="wm-compare-kicker">Step 1 / Required technical data</p>
+              <h2>{compareTechnologyLabels[selectedTechnology]} template</h2>
+              <p>
+                These are the technical fields Wingman expects before it can compare a competitor product with a
+                WyreStorm product safely.
+              </p>
             </div>
-          )}
+          </div>
 
-          <div className="wm-compare-feature-grid">
-            {checks.map((check) => (
-              <div className={`wm-compare-feature wm-compare-feature-${check.status}`} key={check.label}>
-                <span>{statusLabel(check.status)}</span>
-                <strong>{check.label}</strong>
-                <p><b>Competitor:</b> {check.competitor}</p>
-                <p><b>WyreStorm:</b> {check.wyrestorm}</p>
-              </div>
+          <div className="wm-compare-template-summary">
+            {comparePriorityOrder.map((priority) => {
+              const count = rows.filter((row) => row.priority === priority).length;
+
+              return (
+                <article className={priorityClass(priority)} key={priority}>
+                  <span>{comparePriorityLabels[priority]}</span>
+                  <strong>{count}</strong>
+                  <small>{priority === "blocking" ? "Can block recommendation" : "Comparison detail"}</small>
+                </article>
+              );
+            })}
+          </div>
+
+          <div className="wm-compare-template-list">
+            {groupedRows.map((group) => (
+              <article key={group.priority}>
+                <h3>{comparePriorityLabels[group.priority]}</h3>
+                <div className="wm-compare-template-field-grid">
+                  {group.rows.map((row) => (
+                    <div key={row.id} className="wm-compare-template-field">
+                      <strong>{row.label}</strong>
+                      <p>{row.expectedForType}</p>
+                      <small>{row.whyItMatters}</small>
+                    </div>
+                  ))}
+                </div>
+              </article>
             ))}
           </div>
+        </section>
+      )}
 
-          <div className="wm-compare-candidate-grid">
-            {candidates.length > 0 ? (
-              candidates.map((candidate) => (
-                <article className="wm-compare-candidate" key={`${candidate.sku}-${candidate.score}`}>
-                  <div>
-                    <p className="wm-compare-kicker">{candidate.family}</p>
-                    <h3>{candidate.sku}</h3>
-                    <p>{candidate.title}</p>
-                  </div>
+      {activeStep === "completeness" && (
+        <section className="wm-compare-panel">
+          <div className="wm-compare-section-heading">
+            <div>
+              <p className="wm-compare-kicker">Step 2 / Data completeness</p>
+              <h2>Evidence status before comparison</h2>
+              <p>{summary.reason}</p>
+            </div>
+          </div>
 
-                  <div>
-                    <strong>Why it appeared</strong>
-                    {candidate.reasons.length > 0 ? (
-                      <ul>
-                        {candidate.reasons.map((reason) => (
-                          <li key={reason}>{reason}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p>Low-confidence product direction only.</p>
-                    )}
-                  </div>
+          <div className="wm-compare-readiness-grid">
+            <article>
+              <span>Evidence complete</span>
+              <strong>{summary.completeness}%</strong>
+            </article>
+            <article>
+              <span>Field match rate</span>
+              <strong>{summary.matchRate}%</strong>
+            </article>
+            <article>
+              <span>Blocking gaps</span>
+              <strong>{summary.blockingMissing.length}</strong>
+            </article>
+            <article>
+              <span>Blocking no-match</span>
+              <strong>{summary.blockingNoMatches.length}</strong>
+            </article>
+          </div>
 
-                  {candidate.warnings.length > 0 && (
-                    <div>
-                      <strong>Check before quoting</strong>
-                      <ul>
-                        {candidate.warnings.map((warning) => (
-                          <li key={warning}>{warning}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </article>
-              ))
-            ) : (
-              <div className="wm-compare-empty-results">
-                <h3>No candidate found</h3>
-                <p>
-                  This should be treated as NO MATCH unless the product intelligence index is incomplete. Add better
-                  product data before using this comparison with a customer.
-                </p>
-              </div>
-            )}
+          <div className="wm-compare-gap-columns">
+            <article>
+              <h3>Missing blocking evidence</h3>
+              {summary.blockingMissing.length > 0 ? (
+                <ul>
+                  {summary.blockingMissing.map((row) => (
+                    <li key={row.id}>
+                      <strong>{row.label}</strong>
+                      <span>{row.expectedForType}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No missing blocking fields.</p>
+              )}
+            </article>
+
+            <article>
+              <h3>Blocking no-match fields</h3>
+              {summary.blockingNoMatches.length > 0 ? (
+                <ul>
+                  {summary.blockingNoMatches.map((row) => (
+                    <li key={row.id}>
+                      <strong>{row.label}</strong>
+                      <span>
+                        Competitor: {row.competitorValue || "Missing"} / WyreStorm: {row.wyrestormValue || "Missing"}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No known blocking no-match fields.</p>
+              )}
+            </article>
+          </div>
+        </section>
+      )}
+
+      {activeStep === "matrix" && (
+        <section className="wm-compare-panel wm-compare-matrix-panel">
+          <div className="wm-compare-section-heading">
+            <div>
+              <p className="wm-compare-kicker">Step 3 / Technical matrix</p>
+              <h2>Field-by-field comparison</h2>
+              <p>
+                Enter or correct the competitor and WyreStorm values. Inferred values are low-confidence until confirmed
+                from a datasheet, product page or manual.
+              </p>
+            </div>
+          </div>
+
+          <div className="wm-compare-matrix-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Priority</th>
+                  <th>Field</th>
+                  <th>Expected for this type</th>
+                  <th>Competitor value</th>
+                  <th>WyreStorm value</th>
+                  <th>Result</th>
+                  <th>Why it matters</th>
+                </tr>
+              </thead>
+              <tbody>
+                {groupedRows.map((group) => (
+                  <>
+                    <tr className="wm-compare-group-row" key={`${group.priority}-header`}>
+                      <td colSpan={7}>{comparePriorityLabels[group.priority]}</td>
+                    </tr>
+                    {group.rows.map((row) => (
+                      <tr key={row.id}>
+                        <td>
+                          <span className={`wm-priority-pill ${priorityClass(row.priority)}`}>
+                            {comparePriorityLabels[row.priority]}
+                          </span>
+                        </td>
+                        <td>
+                          <strong>{row.label}</strong>
+                          {row.blocksRecommendation && <small>Blocks recommendation</small>}
+                        </td>
+                        <td>{row.expectedForType}</td>
+                        <td>
+                          <CompareValueInput field={row} side="competitor" value={row.competitorValue} onChange={updateValue} />
+                          <span className={`wm-evidence-pill ${evidenceClass(row.competitorEvidence)}`}>
+                            {evidenceLabels[row.competitorEvidence]}
+                          </span>
+                        </td>
+                        <td>
+                          <CompareValueInput field={row} side="wyrestorm" value={row.wyrestormValue} onChange={updateValue} />
+                          <span className={`wm-evidence-pill ${evidenceClass(row.wyrestormEvidence)}`}>
+                            {evidenceLabels[row.wyrestormEvidence]}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`wm-result-pill ${resultClass(row.result)}`}>{resultLabels[row.result]}</span>
+                        </td>
+                        <td>{row.whyItMatters}</td>
+                      </tr>
+                    ))}
+                  </>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {activeStep === "recommendation" && (
+        <section className="wm-compare-panel">
+          <div className="wm-compare-section-heading">
+            <div>
+              <p className="wm-compare-kicker">Step 4 / Recommendation</p>
+              <h2>{summary.verdict}</h2>
+              <p>{summary.reason}</p>
+            </div>
+          </div>
+
+          <div className="wm-compare-recommendation-grid">
+            <article>
+              <h3>Commercially safe position</h3>
+              <p>
+                {summary.verdict === "NO MATCH"
+                  ? "Do not present this as an equivalent. Use the blocking mismatch rows to explain why."
+                  : summary.verdict === "EVIDENCE NEEDED"
+                    ? "Do not recommend yet. Collect datasheet or product-page evidence for the blocking fields first."
+                    : summary.verdict === "PARTIAL MATCH"
+                      ? "Position as a possible alternative only if the customer accepts the listed differences."
+                      : "Position as a strong technical match, subject to datasheet validation."}
+              </p>
+            </article>
+
+            <article>
+              <h3>Next action</h3>
+              <p>
+                {summary.blockingMissing.length > 0
+                  ? `Collect evidence for: ${summary.blockingMissing.map((row) => row.label).join(", ")}.`
+                  : summary.blockingNoMatches.length > 0
+                    ? `Resolve blocking mismatch: ${summary.blockingNoMatches.map((row) => row.label).join(", ")}.`
+                    : "Validate the entered fields against official product data before using this with a customer."}
+              </p>
+            </article>
           </div>
         </section>
       )}
@@ -835,4 +893,8 @@ export function ComparePage() {
   );
 }
 
-export default ComparePage;
+export function ComparePage() {
+  return <Compare />;
+}
+
+export default Compare;

@@ -54,9 +54,13 @@ const requiredPageMarkers = [
   "rigorousCompare",
   "Find WyreStorm Alternatives",
   "CUSTOM_BRAND_VALUE",
-  "missing-hyphen and partial SKU interpretation",
+  "normalizeCompetitorSku",
+  "normalisedSku?.corrected",
   "buildCompareFeatureMatrixRows",
   "CompareSpecificationMatrix",
+  "CompactCompareMatrix",
+  "View comparison evidence",
+  "type WorkflowStep = \"request\" | \"matrix\" | \"options\" | \"checks\"",
   "CompareManufacturerCombobox",
   "CompareProductLookupInput",
   "CompetitorProductProfileCard",
@@ -105,14 +109,18 @@ const requiredMatrixMarkers = [
 ];
 
 const requiredMatrixComponentMarkers = [
-  "Specification comparison matrix",
+  "Competitor vs WyreStorm comparison matrix",
   "data-wingman-feature-match-grid",
+  "data-compare-matrix",
+  "data-wingman-comparison-matrix-scroll",
   "CompareFeatureValueKind",
   "QuantityValue",
   "BooleanValue",
   "competitorLabel",
   "wyrestormLabel",
-  "md:grid-cols-[48px_minmax(120px,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(90px,0.45fr)]",
+  "StatusPill",
+  "overflow-x-auto",
+  "<table",
 ];
 
 const requiredControlsMarkers = [
@@ -122,12 +130,6 @@ const requiredControlsMarkers = [
   "bg-[#071522]",
   "CompareProductLookupInput",
   "CompareManufacturerCombobox",
-];
-
-const prohibitedMatrixComponentMarkers = [
-  "overflow-x-auto",
-  "min-w-[760px]",
-  "<table",
 ];
 
 const requiredEngineMarkers = [
@@ -146,7 +148,6 @@ const missing = [
   ...requiredMatrixMarkers.filter((marker) => !matrix.includes(marker)).map((marker) => "compareFeatureMatrix missing: " + marker),
   ...requiredMatrixComponentMarkers.filter((marker) => !matrixComponent.includes(marker)).map((marker) => "CompareSpecificationMatrix missing: " + marker),
   ...requiredControlsMarkers.filter((marker) => !controlsComponent.includes(marker)).map((marker) => "CompareControls missing: " + marker),
-  ...prohibitedMatrixComponentMarkers.filter((marker) => matrixComponent.includes(marker)).map((marker) => "CompareSpecificationMatrix still uses overflow table marker: " + marker),
   ...requiredEngineMarkers.filter((marker) => !engine.includes(marker)).map((marker) => "competitorMatchEngine missing: " + marker),
 ];
 

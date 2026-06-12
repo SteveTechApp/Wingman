@@ -14,4 +14,214 @@
     "segment": "call-coach",
     "label": "Call Coach",
     "navLabel": "Call Coach",
-    "page
+    "pageFile": "NavigationHubPages.tsx",
+    "summary": "Live call support, sales prompts and customer conversation guidance."
+  },
+  {
+    "key": "products",
+    "path": "/wingman/products",
+    "segment": "products",
+    "label": "Products",
+    "navLabel": "Products",
+    "pageFile": "NavigationHubPages.tsx",
+    "summary": "Product lookup, finder, pitch support and product call cards."
+  },
+  {
+    "key": "documents",
+    "path": "/wingman/documents",
+    "segment": "documents",
+    "label": "Documents",
+    "navLabel": "Documents",
+    "pageFile": "NavigationHubPages.tsx",
+    "summary": "Ingest requirements, compare against WyreStorm options and build response material."
+  },
+  {
+    "key": "responsePack",
+    "path": "/wingman/response-pack",
+    "segment": "response-pack",
+    "label": "Response Pack",
+    "navLabel": "Response Pack",
+    "pageFile": "NavigationHubPages.tsx",
+    "summary": "Create supporting sales, technical and proposal response material."
+  },
+  {
+    "key": "learn",
+    "path": "/wingman/learn",
+    "segment": "learn",
+    "label": "Learn",
+    "navLabel": "Learn",
+    "pageFile": "NavigationHubPages.tsx",
+    "summary": "Training, glossary and supporting AV knowledge."
+  },
+  {
+    "key": "projects",
+    "path": "/wingman/projects",
+    "segment": "projects",
+    "label": "Projects",
+    "navLabel": "Projects",
+    "pageFile": "ProjectsPage.tsx",
+    "summary": "Review saved opportunities, captured customer requirements and project history."
+  },
+  {
+    "key": "discovery",
+    "path": "/wingman/discovery",
+    "segment": "discovery",
+    "label": "Discovery",
+    "navLabel": "Discovery",
+    "pageFile": "DiscoveryPage.tsx",
+    "summary": "Capture room, source, display, audio, network and customer requirement details."
+  },
+  {
+    "key": "finder",
+    "path": "/wingman/finder",
+    "segment": "finder",
+    "label": "Product Finder",
+    "navLabel": "Finder",
+    "pageFile": "FinderPage.tsx",
+    "summary": "Find suitable WyreStorm products from customer requirements."
+  },
+  {
+    "key": "productFamilies",
+    "path": "/wingman/product-families",
+    "segment": "product-families",
+    "label": "Product Families",
+    "navLabel": "Families",
+    "pageFile": "ProductFamilyPage.tsx",
+    "summary": "Browse WyreStorm product families and application fit."
+  },
+  {
+    "key": "productPitch",
+    "path": "/wingman/product-pitch",
+    "segment": "product-pitch",
+    "label": "Product Pitch",
+    "navLabel": "Pitch",
+    "pageFile": "ProductPitchPage.tsx",
+    "summary": "Turn product facts into customer-ready sales language."
+  },
+  {
+    "key": "compare",
+    "path": "/wingman/compare",
+    "segment": "compare",
+    "label": "Competitor Compare",
+    "navLabel": "Compare",
+    "pageFile": "ComparePageNew.tsx",
+    "summary": "Compare competitor products against suitable WyreStorm alternatives."
+  },
+  {
+    "key": "templates",
+    "path": "/wingman/templates",
+    "segment": "templates",
+    "label": "Templates",
+    "navLabel": "Templates",
+    "pageFile": "TemplatesPage.tsx",
+    "summary": "Start from room, vertical and application templates."
+  },
+  {
+    "key": "videowall",
+    "path": "/wingman/videowall",
+    "segment": "videowall",
+    "label": "Video Wall",
+    "navLabel": "Video Wall",
+    "pageFile": "VideowallBuilderPage.tsx",
+    "summary": "Build video wall and multiview system shapes."
+  },
+  {
+    "key": "salesHelper",
+    "path": "/wingman/sales-helper",
+    "segment": "sales-helper",
+    "label": "Sales Helper",
+    "navLabel": "Sales Helper",
+    "pageFile": "SalesHelperPage.tsx",
+    "summary": "Application-led sales prompts and customer conversation support."
+  },
+  {
+    "key": "visualDesign",
+    "path": "/wingman/visual-design",
+    "segment": "visual-design",
+    "label": "Visual Design",
+    "navLabel": "Visual Design",
+    "pageFile": "VisualDesignStudioPage.tsx",
+    "summary": "Create signal-flow and system design visuals."
+  },
+  {
+    "key": "glossary",
+    "path": "/wingman/glossary",
+    "segment": "glossary",
+    "label": "Glossary",
+    "navLabel": "Glossary",
+    "pageFile": "GlossaryPage.tsx",
+    "summary": "Plain-English AV terms, acronyms and explanations."
+  },
+  {
+    "key": "callCards",
+    "path": "/wingman/call-cards",
+    "segment": "call-cards",
+    "label": "Call Cards",
+    "navLabel": "Call Cards",
+    "pageFile": "CallCardsPage.tsx",
+    "summary": "Guided call prompts by customer type and situation."
+  },
+  {
+    "key": "productCallCards",
+    "path": "/wingman/product-call-cards",
+    "segment": "product-call-cards",
+    "label": "Product Call Cards",
+    "navLabel": "Product Cards",
+    "pageFile": "ProductCallCardsPage.tsx",
+    "summary": "SKU-specific product facts, use cases and customer wording."
+  },
+  {
+    "key": "ingest",
+    "path": "/wingman/ingest",
+    "segment": "ingest",
+    "label": "Document Ingest",
+    "navLabel": "Ingest",
+    "pageFile": "IngestPage.tsx",
+    "summary": "Extract useful requirements from documents and customer notes."
+  },
+  {
+    "key": "proposal",
+    "path": "/wingman/proposal",
+    "segment": "proposal",
+    "label": "Proposal Support",
+    "navLabel": "Proposal",
+    "pageFile": "ProposalPage.tsx",
+    "summary": "Create structured response and proposal support content."
+  },
+  {
+    "key": "support",
+    "path": "/wingman/support",
+    "segment": "support",
+    "label": "Support",
+    "navLabel": "Support",
+    "pageFile": "SupportPage.tsx",
+    "summary": "Support notes, next actions and escalation guidance."
+  },
+  {
+    "key": "intelligence",
+    "path": "/wingman/intelligence",
+    "segment": "intelligence",
+    "label": "Intelligence",
+    "navLabel": "Intelligence",
+    "pageFile": "IntelligencePage.tsx",
+    "summary": "Product and opportunity intelligence."
+  },
+  {
+    "key": "profile",
+    "path": "/wingman/settings",
+    "segment": "settings",
+    "label": "Settings",
+    "navLabel": "Settings",
+    "pageFile": "ProfilePage.tsx",
+    "summary": "User profile, preferences and Wingman settings."
+  },
+  {
+    "key": "visualStudio",
+    "path": "/wingman/visual-studio",
+    "segment": "visual-studio",
+    "label": "Visual Studio",
+    "navLabel": "Visual Studio",
+    "pageFile": "VisualStudioPage.tsx",
+    "summary": "Diagramming and visual system support."
+  }
+]
