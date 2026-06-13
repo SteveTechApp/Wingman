@@ -22,6 +22,7 @@ import {
   type CompetitorTechnologyClass,
 } from "./competitorProductIntelligence";
 import { findCompetitorSourceProduct, type CompetitorSourceProduct } from "../data/competitorSourceFeeds";
+import competitorCompareCatalogRaw from "../../../data/catalog/competitor-catalog.phase4.json";
 
 export type CompetitorSpecTier = "verified-profile" | "family-rule" | "sku-only";
 
@@ -55,7 +56,7 @@ type Fingerprint = {
 };
 
 /** Canonical transport derived from the technology class. Keeping transport a
- * function of domain prevents brand-specific wording (DTP, DXLink, NAV…) from
+ * function of domain prevents brand-specific wording (DTP, DXLink, NAVÃ¢â‚¬Â¦) from
  * producing false transport-mismatch blockers in the classifier. */
 export function canonicalTransport(domain?: string): string | undefined {
   switch ((domain || "").toUpperCase()) {
@@ -745,7 +746,7 @@ function lookupFingerprint(rawSku: string): Fingerprint | null {
 }
 
 function parseIoCounts(text: string): { inputCount?: number; outputCount?: number } {
-  const match = text.match(/(\d{1,2})\s*[x×]\s*(\d{1,2})/);
+  const match = text.match(/(\d{1,2})\s*[xÃƒâ€”]\s*(\d{1,2})/);
   if (match) {
     return { inputCount: Number(match[1]), outputCount: Number(match[2]) };
   }
@@ -873,6 +874,187 @@ function specsFromSourceProduct(product: CompetitorSourceProduct): CompareSpecFa
   };
 }
 
+/* ------------------------------------------------------------------------- *
+ * Structured competitor compare catalog (data/catalog/competitor-catalog.phase4.json)
+ *
+ * This 79-product structured catalog was previously unused. Each entry is mapped
+ * into the same Fingerprint shape the curated list uses, so any catalogued
+ * competitor SKU resolves to a verified-profile with real I/O, resolution and
+ * feature facts. Hand-curated fingerprints still take priority; the catalog
+ * fills the long tail.
+ * ------------------------------------------------------------------------- */
+
+type CatalogPort = { type?: string; count?: number };
+type CatalogEntry = {
+  sku?: string;
+  brand?: string;
+  category?: string;
+  subcategory?: string;
+  technology?: string;
+  role?: string;
+  directionality?: string;
+  transport?: string;
+  summary?: string;
+  sourceUrl?: string;
+  inputs?: CatalogPort[];
+  outputs?: CatalogPort[];
+  control?: string[];
+  audio?: string[];
+  features?: string[];
+  video?: { maxResolution?: string; hdmi?: string; hdr?: boolean };
+  matrixInputs?: number;
+  matrixOutputs?: number;
+  routedInputCount?: number;
+  routedOutputCount?: number;
+};
+
+const COMPETITOR_COMPARE_CATALOG = competitorCompareCatalogRaw as unknown as CatalogEntry[];
+
+const CATALOG_VIDEO_PORT = /(hdmi|hdbaset|displayport|\bdp\b|dtp\d?|\bdm\b|tpx|modular|analog video|av input)/i;
+
+function catalogDomain(entry: CatalogEntry): CompetitorTechnologyClass | undefined {
+  const tech = String(entry.technology ?? "").toLowerCase();
+  const category = String(entry.category ?? "").toLowerCase();
+
+  if (tech.includes("avoip") || category === "avoip") return "AVOIP";
+  if (tech.includes("hdbaset") || category === "extender") return "HDBASET";
+  if (tech.includes("video wall") || category === "video wall") return "VIDEO_WALL";
+  if (tech.includes("matrix") || category === "matrix") return "MATRIX";
+  if (tech.includes("wireless") || category === "wireless presentation") return "WIRELESS_PRESENTATION";
+  if (tech.includes("usb extension")) return "USB_EXTENSION";
+  if (tech.includes("control") || category === "control") return "CONTROL";
+  if (tech.includes("distribution") || category === "distribution") return "MATRIX";
+  if (tech.includes("presentation") || tech.includes("unified communications") || category === "switcher" || category === "uc") {
+    return "PRESENTATION";
+  }
+  return undefined;
+}
+
+function catalogRole(entry: CatalogEntry): string | undefined {
+  const role = String(entry.role ?? "").toLowerCase().replace(/[-_]+/g, " ").trim();
+  const direction = String(entry.directionality ?? "").toLowerCase();
+
+  if (!role || role === "accessory") return undefined;
+  if (role === "endpoint") {
+    if (direction === "tx") return "encoder";
+    if (direction === "rx") return "decoder";
+    return "transceiver";
+  }
+  if (role === "tx") return "transmitter";
+  if (role === "rx") return "receiver";
+  if (role === "extender" || role === "extender kit") return "transmitter";
+  if (role === "matrix switcher" || role === "distribution amplifier") return "matrix";
+  if (role.startsWith("wireless")) return "wireless presentation";
+  if (role === "video bar") return "presentation switcher";
+  return role;
+}
+
+function catalogChroma(resolution?: string): string | undefined {
+  const value = String(resolution ?? "");
+  if (/4:4:4/.test(value)) return "4:4:4";
+  if (/4:2:2/.test(value)) return "4:2:2";
+  if (/4:2:0/.test(value)) return "4:2:0";
+  return undefined;
+}
+
+function countCatalogPorts(ports: CatalogPort[] | undefined, matcher: RegExp): number | undefined {
+  if (!Array.isArray(ports)) return undefined;
+  const total = ports
+    .filter((port) => matcher.test(String(port.type ?? "")))
+    .reduce((sum, port) => sum + (Number.isFinite(Number(port.count)) ? Number(port.count) : 0), 0);
+  return total > 0 ? total : undefined;
+}
+
+function catalogEntryToFingerprint(entry: CatalogEntry): Fingerprint | null {
+  const sku = String(entry.sku ?? "").trim();
+  const brand = String(entry.brand ?? "").trim();
+  if (!sku || !brand) return null;
+
+  const domain = catalogDomain(entry);
+  if (!domain) return null; // skip accessories / unmapped categories
+
+  const role = catalogRole(entry);
+
+  // I/O counts: matrices use routed/matrix size; AVoIP endpoints are single-stream
+  // (left undefined so they are never penalised); others count physical video ports.
+  let inputCount: number | undefined;
+  let outputCount: number | undefined;
+  if (domain === "MATRIX" || domain === "VIDEO_WALL") {
+    inputCount = entry.matrixInputs ?? entry.routedInputCount ?? countCatalogPorts(entry.inputs, CATALOG_VIDEO_PORT);
+    outputCount = entry.matrixOutputs ?? entry.routedOutputCount ?? countCatalogPorts(entry.outputs, CATALOG_VIDEO_PORT);
+  } else if (domain !== "AVOIP") {
+    inputCount = countCatalogPorts(entry.inputs, CATALOG_VIDEO_PORT);
+    outputCount = countCatalogPorts(entry.outputs, CATALOG_VIDEO_PORT);
+  }
+
+  const portTypes = [
+    ...(entry.inputs ?? []).map((p) => p.type ?? ""),
+    ...(entry.outputs ?? []).map((p) => p.type ?? ""),
+  ].join(" ");
+  const blob = [
+    entry.summary,
+    (entry.features ?? []).join(" "),
+    (entry.control ?? []).join(" "),
+    (entry.audio ?? []).join(" "),
+    portTypes,
+    entry.video?.maxResolution,
+  ].filter(Boolean).join(" ");
+
+  const features = parseFeatures(blob);
+  if (/usb-?c/i.test(portTypes)) features.usbC = true;
+  if (/usb (host|device)/i.test(portTypes)) features.usbRouting = true;
+
+  const specs: CompareSpecFacts = { ...parseSpecFacts(blob, inputCount, outputCount, features) };
+  const hdmiIn = countCatalogPorts(entry.inputs, /hdmi/i);
+  const hdmiOut = countCatalogPorts(entry.outputs, /hdmi/i);
+  if (hdmiIn) specs.hdmiInputs = hdmiIn;
+  if (hdmiOut) specs.hdmiOutputs = hdmiOut;
+  const lanPorts = countCatalogPorts(entry.outputs, /lan|ethernet|network/i) ?? countCatalogPorts(entry.inputs, /lan|ethernet|network/i);
+  if (lanPorts) specs.networkPorts = lanPorts;
+
+  return {
+    brand,
+    sku,
+    keys: [normKey(sku)],
+    domain,
+    role: role ?? "",
+    maxResolution: parseResolution([entry.video?.maxResolution, entry.summary].filter(Boolean).join(" ")),
+    chroma: catalogChroma(entry.video?.maxResolution),
+    inputCount,
+    outputCount,
+    features: Object.keys(features).length ? features : undefined,
+    specs: Object.keys(specs).length ? specs : undefined,
+    datasheetUrl: entry.sourceUrl,
+  };
+}
+
+const CATALOG_FINGERPRINTS: Fingerprint[] = COMPETITOR_COMPARE_CATALOG
+  .map(catalogEntryToFingerprint)
+  .filter((fp): fp is Fingerprint => Boolean(fp));
+
+const CATALOG_FINGERPRINT_BY_KEY = new Map<string, Fingerprint>();
+for (const fp of CATALOG_FINGERPRINTS) {
+  for (const key of fp.keys) {
+    if (key && !CATALOG_FINGERPRINT_BY_KEY.has(key)) CATALOG_FINGERPRINT_BY_KEY.set(key, fp);
+  }
+}
+
+function lookupCatalogFingerprint(rawSku: string): Fingerprint | null {
+  const candidate = normKey(rawSku);
+  if (!candidate || candidate.length < 4) return null;
+
+  const direct = CATALOG_FINGERPRINT_BY_KEY.get(candidate);
+  if (direct) return direct;
+
+  for (const fp of CATALOG_FINGERPRINTS) {
+    const key = fp.keys[0];
+    if (key && key.length >= 6 && (candidate.includes(key) || key.includes(candidate))) {
+      return fp;
+    }
+  }
+  return null;
+}
+
 /**
  * Resolve a competitor SKU/name to a structured spec profile.
  */
@@ -897,7 +1079,18 @@ export function resolveCompetitorSpecProfile(
     lookupFingerprint(evidence.sku) ||
     lookupFingerprint(canonicalInput) ||
     lookupFingerprint(input) ||
-    lookupFingerprint(sourceUrlText);
+    lookupFingerprint(sourceUrlText) ||
+    lookupCatalogFingerprint(evidence.sku) ||
+    lookupCatalogFingerprint(canonicalInput) ||
+    lookupCatalogFingerprint(input) ||
+    lookupCatalogFingerprint(sourceUrlText);
+  // Separate catalogue lookup used only to backfill a real datasheet URL when a
+  // hand-curated fingerprint wins but has no URL of its own.
+  const catalogFingerprint =
+    lookupCatalogFingerprint(evidence.sku) ||
+    lookupCatalogFingerprint(canonicalInput) ||
+    lookupCatalogFingerprint(input) ||
+    lookupCatalogFingerprint(sourceUrlText);
   const sourceProduct = findCompetitorSourceProduct(
     canonicalBrand || evidence.brand,
     evidence.sku || canonicalInput,
@@ -927,11 +1120,59 @@ export function resolveCompetitorSpecProfile(
   };
   const hasFeatures = Object.keys(features).length > 0;
 
-  const specTier: CompetitorSpecTier = fingerprint
+  function competitorSpecFamilyGuardKey(value: unknown): string {
+    return String(value ?? "").toUpperCase().replace(/[^A-Z0-9]+/g, "");
+  }
+
+  function isFamilyLevelCompetitorSpecInput(rawInput: unknown, evidenceSku: unknown, providedBrand?: unknown): boolean {
+    const rawKey = competitorSpecFamilyGuardKey(rawInput);
+    const evidenceKey = competitorSpecFamilyGuardKey(evidenceSku);
+    const brandKey = competitorSpecFamilyGuardKey(providedBrand);
+
+    const candidates = [rawKey, evidenceKey]
+      .map((value) => brandKey && value.startsWith(brandKey) ? value.slice(brandKey.length) : value)
+      .filter(Boolean);
+
+    const familyOnlyKeys = new Set([
+      "DMNVX",
+      "NAV",
+      "DTP",
+      "KDS",
+      "NMX",
+      "MXNET",
+      "ZYPER",
+      "UBEX",
+      "VINX",
+      "ATOMNI",
+      "B900MOIP",
+      "IPUHD"
+    ]);
+
+    for (const candidate of candidates) {
+      if (familyOnlyKeys.has(candidate)) {
+        return true;
+      }
+
+      if (!/\d/.test(candidate) && /^DMNVX[A-Z]*$/.test(candidate)) {
+        return true;
+      }
+
+      if (!/\d/.test(candidate) && /^NAV[A-Z]*$/.test(candidate)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+  const familyLevelInput = isFamilyLevelCompetitorSpecInput(canonicalInput, evidence.sku, canonicalBrand || normalised?.brand || evidence.brand);
+  const hasVerifiedFingerprint = Boolean(fingerprint) && !familyLevelInput;
+  const hasVerifiedSourceProduct = Boolean(sourceProduct) && !familyLevelInput;
+
+  const specTier: CompetitorSpecTier = hasVerifiedFingerprint
     ? "verified-profile"
-    : sourceProduct
+    : hasVerifiedSourceProduct
       ? "verified-profile"
-      : evidence.tier === "family-rule"
+      : evidence.tier === "family-rule" || familyLevelInput
       ? "family-rule"
       : "sku-only";
   const evidenceSkuKey = normKey(evidence.sku);
@@ -955,17 +1196,17 @@ export function resolveCompetitorSpecProfile(
       ...(sourceProduct ? specsFromSourceProduct(sourceProduct) : {}),
       ...(fingerprint?.specs ?? {}),
     },
-    sourceUrl: fingerprint?.datasheetUrl || sourceProduct?.sourceUrl || sourceUrl,
+    sourceUrl: fingerprint?.datasheetUrl || catalogFingerprint?.datasheetUrl || sourceProduct?.sourceUrl || sourceUrl,
     // metadata
-    brand: sourceProduct?.manufacturer || normalised?.brand || evidence.brand,
+    brand: sourceProduct?.manufacturer || normalised?.brand || fingerprint?.brand || evidence.brand,
     specTier,
-    readiness: fingerprint || sourceProduct ? "approved" : evidence.readiness,
-    assumptions: fingerprint || sourceProduct ? [] : evidence.assumptions,
-    whyNotDirectEquivalent: fingerprint || sourceProduct ? [] : evidence.whyNotDirectEquivalent,
-    missingFacts: fingerprint || sourceProduct ? [] : evidence.missingFacts,
-    confidencePenalty: fingerprint || sourceProduct ? 0 : evidence.confidencePenalty,
-    source: fingerprint ? "fingerprint" : sourceProduct ? "fingerprint" : evidence.tier === "family-rule" ? "family-rule" : "typed-text",
-    datasheetUrl: fingerprint?.datasheetUrl || sourceProduct?.sourceUrl,
+    readiness: hasVerifiedFingerprint || hasVerifiedSourceProduct ? "approved" : familyLevelInput ? "needs-evidence" : evidence.readiness,
+    assumptions: hasVerifiedFingerprint || hasVerifiedSourceProduct ? [] : evidence.assumptions,
+    whyNotDirectEquivalent: hasVerifiedFingerprint || hasVerifiedSourceProduct ? [] : evidence.whyNotDirectEquivalent,
+    missingFacts: hasVerifiedFingerprint || hasVerifiedSourceProduct ? [] : familyLevelInput ? Array.from(new Set([...evidence.missingFacts, "Exact competitor model/SKU", "Datasheet or product page evidence"])) : evidence.missingFacts,
+    confidencePenalty: hasVerifiedFingerprint || hasVerifiedSourceProduct ? 0 : familyLevelInput ? Math.max(evidence.confidencePenalty, 12) : evidence.confidencePenalty,
+    source: hasVerifiedFingerprint ? "fingerprint" : hasVerifiedSourceProduct ? "fingerprint" : evidence.tier === "family-rule" || familyLevelInput ? "family-rule" : "typed-text",
+    datasheetUrl: fingerprint?.datasheetUrl || catalogFingerprint?.datasheetUrl || sourceProduct?.sourceUrl,
     sourceLabel: sourceProduct ? `${sourceProduct.sourceName}: ${sourceProduct.sourceCollection}` : undefined,
   };
 }
