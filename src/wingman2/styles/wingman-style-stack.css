@@ -24602,7 +24602,7 @@ html[data-wingman-dpr-aware-scaling="true"] .wm-screen-fit-scale {
 }
 
 /* In DPR-aware mode, the percentage shown in the Fit control is the physical/visual scale.
-   Example: on a 2ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â high-DPI display, a CSS scale of 70% is displayed as a 140% visual scale. */
+   Example: on a 2x high-DPI display, a CSS scale of 70% is displayed as a 140% visual scale. */
 html[data-wingman-dpr-aware-scaling="true"] .wm-screen-fit-control {
   min-width: 198px;
 }
@@ -26024,3 +26024,133 @@ body .wm-pcc-preview .wm-pcc-actions button {
 }
 
 /* wingman-product-discussion-fill-inner-space-end */
+
+/* Compare matrix usability pass: sticky header and removable candidate controls */
+.wm-compare-matrix-scroll-shell {
+  position: relative;
+  max-height: min(62vh, 760px);
+  overflow: auto;
+  border: 1px solid rgba(52, 211, 235, 0.24);
+  border-radius: 18px;
+  background: rgba(3, 18, 32, 0.86);
+  scrollbar-gutter: stable both-edges;
+}
+
+.wm-compare-matrix-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: max-content;
+  min-width: 100%;
+}
+
+.wm-compare-matrix-sticky-head,
+.wm-compare-matrix-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: linear-gradient(180deg, rgba(8, 33, 48, 0.98), rgba(5, 22, 36, 0.98));
+  color: #f8fafc;
+  box-shadow: 0 2px 0 rgba(52, 211, 235, 0.28), 0 10px 22px rgba(0, 0, 0, 0.32);
+}
+
+.wm-compare-matrix-sticky-corner,
+.wm-compare-matrix-table th:first-child,
+.wm-compare-matrix-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 25;
+  background: rgba(5, 30, 42, 0.98);
+  box-shadow: 2px 0 0 rgba(52, 211, 235, 0.18);
+}
+
+.wm-compare-matrix-table thead th:first-child {
+  z-index: 45;
+}
+
+.wm-compare-matrix-sticky-evidence,
+.wm-compare-matrix-table th:last-child,
+.wm-compare-matrix-table td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 24;
+  background: rgba(5, 24, 38, 0.98);
+  box-shadow: -2px 0 0 rgba(52, 211, 235, 0.18);
+}
+
+.wm-compare-matrix-table thead th:last-child {
+  z-index: 44;
+}
+
+.wm-compare-candidate-heading {
+  position: relative;
+  display: grid;
+  gap: 0.35rem;
+  padding-right: 2rem;
+}
+
+.wm-compare-remove-candidate {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  display: inline-grid;
+  place-items: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  border: 1px solid rgba(248, 113, 113, 0.72);
+  border-radius: 999px;
+  background: rgba(127, 29, 29, 0.72);
+  color: #fecaca;
+  font-size: 0.85rem;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.wm-compare-remove-candidate:hover,
+.wm-compare-remove-candidate:focus-visible {
+  background: rgba(220, 38, 38, 0.92);
+  color: #ffffff;
+  outline: 2px solid rgba(254, 202, 202, 0.8);
+  outline-offset: 2px;
+}
+
+.wm-compare-removed-candidates {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0.65rem 0;
+  padding: 0.65rem;
+  border: 1px solid rgba(52, 211, 235, 0.18);
+  border-radius: 14px;
+  background: rgba(2, 18, 32, 0.72);
+}
+
+.wm-compare-removed-candidates-label {
+  color: #67e8f9;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.wm-compare-restore-candidate,
+.wm-compare-replace-candidate {
+  border: 1px solid rgba(103, 232, 249, 0.38);
+  border-radius: 999px;
+  background: rgba(8, 47, 73, 0.72);
+  color: #f8fafc;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.76rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.wm-compare-restore-candidate:hover,
+.wm-compare-replace-candidate:hover,
+.wm-compare-restore-candidate:focus-visible,
+.wm-compare-replace-candidate:focus-visible {
+  background: rgba(14, 116, 144, 0.78);
+  outline: 2px solid rgba(103, 232, 249, 0.72);
+  outline-offset: 2px;
+}
