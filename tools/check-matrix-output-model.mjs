@@ -26,6 +26,8 @@ const source = readFileSync(modelPath, "utf8");
 assertIncludes(source, "routedInputCount");
 assertIncludes(source, "routedOutputCount");
 assertIncludes(source, "mirroredOutputCount");
+assertIncludes(source, "extractMirroredOutputCount");
+assertIncludes(source, "Mirrored output wording detected but no explicit mirrored output count was found.");
 assertIncludes(source, "loopOutputCount");
 assertIncludes(source, "localMonitorOutputCount");
 assertIncludes(source, "auxOutputCount");

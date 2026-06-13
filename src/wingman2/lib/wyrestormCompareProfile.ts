@@ -125,6 +125,26 @@ function portText(port: TechnicalPort): string {
   return [port.connector, port.evidence, port.category, port.direction].map(safeText).join(" ").toLowerCase();
 }
 
+function uniqueTechnicalPorts(ports: TechnicalPort[]): TechnicalPort[] {
+  const byKey = new Map<string, TechnicalPort>();
+
+  for (const port of ports) {
+    const key = [
+      safeText(port.count),
+      safeText(port.connector).toLowerCase(),
+      safeText(port.direction).toLowerCase(),
+      safeText(port.category).toLowerCase(),
+      safeText(port.evidence).toLowerCase(),
+    ].join("|");
+
+    if (!byKey.has(key)) {
+      byKey.set(key, port);
+    }
+  }
+
+  return Array.from(byKey.values());
+}
+
 function isLikelyAccessoryOrFalsePort(port: TechnicalPort): boolean {
   const value = portText(port);
 
@@ -149,6 +169,11 @@ function isVideoTransportPort(port: TechnicalPort): boolean {
   return /\bhdmi|hdbaset|displayport|dp\b|sdi|usb-c\b/.test(value);
 }
 
+function isNonRoutedVideoOutputPort(port: TechnicalPort): boolean {
+  const value = portText(port);
+  return /\b(mirror|mirrored|parallel|duplicate|duplicated|loop|daisy|cascade|local monitor|monitor out|preview|aux)\b/.test(value);
+}
+
 function countCategoryPorts(ports: TechnicalPort[], matcher: (port: TechnicalPort, text: string) => boolean, direction?: "input" | "output"): number | undefined {
   const total = ports
     .filter((port) => !isLikelyAccessoryOrFalsePort(port))
@@ -167,6 +192,7 @@ function countPorts(ports: TechnicalPort[], direction: "input" | "output"): numb
   const total = ports
     .filter((port) => isVideoTransportPort(port))
     .filter((port) => safeText(port.direction).toLowerCase() === direction)
+    .filter((port) => direction !== "output" || !isNonRoutedVideoOutputPort(port))
     .reduce((sum, port) => sum + (Number.isFinite(Number(port.count)) ? Number(port.count) : 0), 0);
 
   return total > 0 ? total : undefined;
@@ -184,16 +210,39 @@ function structuredIo(product: WyrestormProduct, blob: string): {
     ...(profile?.io?.video ?? []),
     ...(profile?.io?.ports ?? []),
   ];
-  const videoPorts = Array.from(new Set(allPorts));
+  const videoPorts = uniqueTechnicalPorts(allPorts);
   const dropped = videoPorts.filter((port) => isLikelyAccessoryOrFalsePort(port)).length;
-  const inputCount = countPorts(videoPorts, "input");
-  const outputCount = countPorts(videoPorts, "output");
+  let inputCount = countPorts(videoPorts, "input");
+  let outputCount = countPorts(videoPorts, "output");
+  const physicalOutputCount = videoPorts
+    .filter((port) => isVideoTransportPort(port))
+    .filter((port) => safeText(port.direction).toLowerCase() === "output")
+    .reduce((sum, port) => sum + (Number.isFinite(Number(port.count)) ? Number(port.count) : 0), 0);
   const nameIo = detectIo(blob);
   const evidence: string[] = [];
   const warnings: string[] = [];
+  const matrixLike = /\bmatrix\b/.test(blob);
+  const hasNonRoutedOutputWording = /\b(mirror|mirrored|parallel|duplicate|duplicated|loop|daisy|cascade|local monitor|monitor out|preview|aux)\b/.test(blob);
 
   if (inputCount || outputCount) {
     evidence.push("Structured video I/O read from product technical profile.");
+  }
+
+  if (matrixLike && nameIo.inputCount && nameIo.outputCount) {
+    const structuredConflictsWithMatrixSize =
+      (inputCount !== undefined && inputCount !== nameIo.inputCount) ||
+      (outputCount !== undefined && outputCount !== nameIo.outputCount) ||
+      (physicalOutputCount > 0 && physicalOutputCount !== nameIo.outputCount && hasNonRoutedOutputWording);
+
+    if (structuredConflictsWithMatrixSize || !inputCount || !outputCount) {
+      inputCount = nameIo.inputCount;
+      outputCount = nameIo.outputCount;
+      evidence.push("Routed matrix I/O read from matrix-size evidence instead of summed physical connector count.");
+
+      if (physicalOutputCount > 0 && physicalOutputCount !== nameIo.outputCount) {
+        warnings.push(`Physical video output count (${physicalOutputCount}) differs from routed matrix output count (${nameIo.outputCount}); mirrored/loop/local outputs must not increase matrix size.`);
+      }
+    }
   }
 
   if (dropped > 0) {
