@@ -85,15 +85,17 @@ export function CompareProductLookupInput({
   suggestions,
   onChange,
   placeholder,
+  maxVisibleSuggestions = 40,
 }: {
   value: string;
   suggestions: string[];
   onChange: (value: string) => void;
   placeholder: string;
+  maxVisibleSuggestions?: number;
 }) {
   const [open, setOpen] = useState(false);
   const listboxId = useId();
-  const visibleSuggestions = useMemo(() => suggestions.slice(0, 10), [suggestions]);
+  const visibleSuggestions = useMemo(() => suggestions.slice(0, 10), [maxVisibleSuggestions, suggestions]);
 
   return (
     <div className="relative grid gap-2" onBlur={(event) => closeOnBlur(event, setOpen)}>
@@ -123,7 +125,7 @@ export function CompareProductLookupInput({
           id={listboxId}
           role="listbox"
           aria-label="Competitor SKU suggestions"
-          className="absolute left-0 right-0 top-full z-30 mt-2 max-h-72 overflow-y-auto rounded-2xl border border-[#29465e] bg-[#071522] p-1 shadow-2xl shadow-black/40"
+          className="absolute left-0 right-0 top-full z-30 mt-2 max-h-[28rem] overflow-y-auto rounded-2xl border border-[#29465e] bg-[#071522] p-1 shadow-2xl shadow-black/40"
         >
           {visibleSuggestions.map((sku) => (
             <button
