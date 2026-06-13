@@ -578,13 +578,59 @@ export default function ComparePageNew() {
   }, []);
 
   const handleSkuSelect = useCallback((sku: string, brand?: string) => {
-    setCompetitorInput(sku);
+    const selectedSku = sku.trim();
 
-    if (brand) {
-      setSelectedBrand(brand);
+    if (!selectedSku) {
+      return;
+    }
+
+    const selectedBrandForSku = brand || resolvedBrand;
+    const normalisedSelection = normalizeCompetitorSku(selectedSku, selectedBrandForSku);
+    const nextSku = normalisedSelection?.sku || selectedSku;
+    const nextBrand = normalisedSelection?.brand || selectedBrandForSku;
+    const nextCompareInput = [nextSku, productUrl, applicationContext]
+      .map((value) => value.trim())
+      .filter(Boolean)
+      .join(" ");
+
+    setCompetitorInput(nextSku);
+
+    if (nextBrand) {
+      setSelectedBrand(nextBrand);
       setCustomBrand("");
     }
-  }, []);
+
+    if (!products.length) {
+      setError("Product data is still loading. Try the SKU again in a moment.");
+      setState("error");
+      setWorkflowStep("request");
+      return;
+    }
+
+    setError("");
+    setLookupStatus(`Building WyreStorm alternative matrix for ${nextSku}.`);
+    setState("analyzing");
+    setWorkflowStep("matrix");
+
+    try {
+      const compareResult = runKnownProfileCompare(
+        nextCompareInput || nextSku,
+        products,
+        nextBrand,
+        10,
+        productUrl.trim(),
+      );
+
+      setResult(compareResult);
+      setLookupStatus("");
+      setState("results");
+      setWorkflowStep("matrix");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Comparison failed");
+      setState("error");
+      setWorkflowStep("request");
+    }
+  }, [applicationContext, productUrl, products, resolvedBrand]);
 
   useEffect(() => {
     async function loadProducts() {
@@ -946,14 +992,12 @@ export default function ComparePageNew() {
                 Interpreting as {normalisedSku.brand} {normalisedSku.sku}
               </div>
             ) : null}
-
-            <button
-              type="submit"
-              disabled={!competitorInput.trim()}
-              className="wm-compare-find-button rounded-full bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 transition disabled:cursor-not-allowed disabled:opacity-40"
+            <p
+              className="wm-compare-auto-advance-note"
+              data-wingman-compare-auto-advance="true"
             >
-              Find WyreStorm Alternatives
-            </button>
+              Select a competitor SKU above to build the WyreStorm alternative matrix automatically. Typed entries can still use Enter.
+            </p>
           </form>
 
           {liveProfile ? (

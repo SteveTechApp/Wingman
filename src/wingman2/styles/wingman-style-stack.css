@@ -26154,3 +26154,16 @@ body .wm-pcc-preview .wm-pcc-actions button {
   outline: 2px solid rgba(103, 232, 249, 0.72);
   outline-offset: 2px;
 }
+
+/* Compare SKU auto-advance note */
+.wm-compare-auto-advance-note {
+  margin-top: 0.75rem;
+  border: 1px solid rgba(103, 232, 249, 0.24);
+  border-radius: 999px;
+  background: rgba(8, 47, 73, 0.42);
+  color: rgba(248, 250, 252, 0.78);
+  padding: 0.75rem 1rem;
+  text-align: center;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
