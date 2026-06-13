@@ -451,3 +451,460 @@ export function buildCompareFeatureMatrixRows(
     .filter((row, index, list) => list.findIndex((candidate) => candidate.id === row.id) === index)
     .sort((a, b) => groupOrder(a.group) - groupOrder(b.group));
 }
+
+// WINGMAN_COMPARE_CANDIDATE_SHORTLIST_EXPORTS_START
+type WingmanUnknownRecord = Record<string, unknown>;
+
+export type CompareCandidateShortlistRow = {
+  id: string;
+  sku: string;
+  name: string;
+  productName: string;
+  label: string;
+  competitorValue: string;
+  wyrestormValue: string;
+  fitLabel: string;
+  fitLevel: string;
+  fitHelp: string;
+  role: string;
+  productType: string;
+  category: string;
+  technology: string;
+  technologyType: string;
+  ioSummary: string;
+  inputCount: number | null;
+  outputCount: number | null;
+  score: number;
+  matchScore: number;
+  confidence: number;
+  confidenceScore: number;
+  reason: string;
+  matchReason: string;
+  fitSummary: string;
+  why: string[];
+  checks: string[];
+  warnings: string[];
+  cautions: string[];
+  notes: string[];
+  product: unknown;
+  source: unknown;
+  href: string;
+  url: string;
+  productUrl: string;
+};
+
+const wingmanShortlistProductArrayKeys = [
+  "candidates",
+  "candidateProducts",
+  "candidateProductList",
+  "matchedProducts",
+  "matches",
+  "results",
+  "recommendations",
+  "recommendedProducts",
+  "products",
+  "wyrestormProducts",
+  "options",
+  "productOptions",
+];
+
+const wingmanShortlistProductObjectKeys = [
+  "candidate",
+  "candidateProduct",
+  "matchedProduct",
+  "selectedProduct",
+  "recommendedProduct",
+  "wyrestormProduct",
+  "targetProduct",
+  "rightProduct",
+  "product",
+  "option",
+];
+
+const wingmanShortlistSkuKeys = [
+  "sku",
+  "model",
+  "partNumber",
+  "productSku",
+  "wyrestormSku",
+  "wyreStormSku",
+];
+
+const wingmanShortlistNameKeys = [
+  "name",
+  "title",
+  "productName",
+  "label",
+  "displayName",
+];
+
+const wingmanShortlistRoleKeys = [
+  "role",
+  "productType",
+  "type",
+  "category",
+  "detectedType",
+  "classification",
+];
+
+const wingmanShortlistTechnologyKeys = [
+  "technology",
+  "technologyType",
+  "transport",
+  "family",
+  "productFamily",
+  "signalType",
+  "platform",
+];
+
+const wingmanShortlistFitKeys = [
+  "fit",
+  "fitLevel",
+  "matchLevel",
+  "matchType",
+  "decision",
+  "confidenceLabel",
+  "status",
+];
+
+const wingmanShortlistInputKeys = [
+  "inputs",
+  "inputCount",
+  "videoInputs",
+  "hdmiInputs",
+  "sourceCount",
+];
+
+const wingmanShortlistOutputKeys = [
+  "outputs",
+  "outputCount",
+  "videoOutputs",
+  "hdmiOutputs",
+  "displayCount",
+];
+
+function wingmanShortlistIsRecord(value: unknown): value is WingmanUnknownRecord {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function wingmanShortlistText(value: unknown): string {
+  if (typeof value === "string") {
+    return value.trim();
+  }
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  return "";
+}
+
+function wingmanShortlistPickText(record: WingmanUnknownRecord, keys: string[]): string {
+  for (const key of keys) {
+    const value = record[key];
+    const text = wingmanShortlistText(value);
+
+    if (text) {
+      return text;
+    }
+  }
+
+  return "";
+}
+
+function wingmanShortlistPickNumber(record: WingmanUnknownRecord, keys: string[]): number | null {
+  for (const key of keys) {
+    const value = record[key];
+
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+
+    if (typeof value === "string") {
+      const match = value.match(/\d+/);
+
+      if (match) {
+        return Number(match[0]);
+      }
+    }
+  }
+
+  return null;
+}
+
+function wingmanShortlistLooksLikeProduct(record: WingmanUnknownRecord): boolean {
+  const sku = wingmanShortlistPickText(record, wingmanShortlistSkuKeys);
+  const name = wingmanShortlistPickText(record, wingmanShortlistNameKeys);
+
+  if (!sku && !name) {
+    return false;
+  }
+
+  const manufacturer = wingmanShortlistPickText(record, ["manufacturer", "brand", "make"]);
+
+  if (manufacturer && !/wyrestorm/i.test(manufacturer)) {
+    return false;
+  }
+
+  return true;
+}
+
+function wingmanShortlistCollectProducts(value: unknown, depth = 0, seen = new Set<unknown>()): WingmanUnknownRecord[] {
+  if (depth > 4) {
+    return [];
+  }
+
+  if (!wingmanShortlistIsRecord(value) && !Array.isArray(value)) {
+    return [];
+  }
+
+  if (seen.has(value)) {
+    return [];
+  }
+
+  seen.add(value);
+
+  if (Array.isArray(value)) {
+    const found: WingmanUnknownRecord[] = [];
+
+    for (const item of value) {
+      found.push(...wingmanShortlistCollectProducts(item, depth + 1, seen));
+    }
+
+    return found;
+  }
+
+  const found: WingmanUnknownRecord[] = [];
+
+  if (wingmanShortlistLooksLikeProduct(value)) {
+    found.push(value);
+  }
+
+  for (const [key, child] of Object.entries(value)) {
+    const normalisedKey = key.toLowerCase();
+
+    if (
+      normalisedKey.includes("competitor") ||
+      normalisedKey.includes("featurematrix") ||
+      normalisedKey === "features" ||
+      normalisedKey === "specifications" ||
+      normalisedKey === "rows"
+    ) {
+      continue;
+    }
+
+    found.push(...wingmanShortlistCollectProducts(child, depth + 1, seen));
+  }
+
+  return found;
+}
+
+function wingmanShortlistReadCandidates(sources: unknown[]): WingmanUnknownRecord[] {
+  const direct: WingmanUnknownRecord[] = [];
+
+  for (const source of sources) {
+    if (!wingmanShortlistIsRecord(source)) {
+      continue;
+    }
+
+    for (const key of wingmanShortlistProductArrayKeys) {
+      const value = source[key];
+
+      if (!Array.isArray(value)) {
+        continue;
+      }
+
+      for (const item of value) {
+        if (wingmanShortlistIsRecord(item) && wingmanShortlistLooksLikeProduct(item)) {
+          direct.push(item);
+        }
+      }
+    }
+
+    for (const key of wingmanShortlistProductObjectKeys) {
+      const value = source[key];
+
+      if (wingmanShortlistIsRecord(value) && wingmanShortlistLooksLikeProduct(value)) {
+        direct.push(value);
+      }
+    }
+  }
+
+  const recursive = sources.flatMap((source) => wingmanShortlistCollectProducts(source));
+  const candidates = direct.length > 0 ? direct : recursive;
+
+  const seen = new Set<string>();
+  const deduped: WingmanUnknownRecord[] = [];
+
+  for (const candidate of candidates) {
+    const sku = wingmanShortlistPickText(candidate, wingmanShortlistSkuKeys);
+    const name = wingmanShortlistPickText(candidate, wingmanShortlistNameKeys);
+    const key = `${sku || name}`.toLowerCase();
+
+    if (!key || seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    deduped.push(candidate);
+  }
+
+  return deduped.slice(0, 8);
+}
+
+function wingmanShortlistFit(candidate: WingmanUnknownRecord): { label: string; help: string; score: number } {
+  const explicit = wingmanShortlistPickText(candidate, wingmanShortlistFitKeys).toLowerCase();
+  const score = wingmanShortlistPickNumber(candidate, ["score", "matchScore", "confidence", "confidenceScore"]);
+
+  if (
+    explicit.includes("good") ||
+    explicit.includes("strong") ||
+    score !== null && score >= 75
+  ) {
+    return {
+      label: "Good product-type match",
+      help: "Broad product class, technology direction or I/O shape appears close enough to inspect.",
+      score: score ?? 80,
+    };
+  }
+
+  if (
+    explicit.includes("partial") ||
+    explicit.includes("possible") ||
+    explicit.includes("adjacent") ||
+    score !== null && score >= 45
+  ) {
+    return {
+      label: "Possible product-type match",
+      help: "The product may fit the same broad requirement, but key details need checking.",
+      score: score ?? 55,
+    };
+  }
+
+  return {
+    label: "Adjacent option",
+    help: "Shown as a nearby WyreStorm direction, not as a direct equivalent.",
+    score: score ?? 35,
+  };
+}
+
+function wingmanShortlistIoSummary(candidate: WingmanUnknownRecord): {
+  ioSummary: string;
+  inputCount: number | null;
+  outputCount: number | null;
+} {
+  const explicit = wingmanShortlistPickText(candidate, [
+    "ioSummary",
+    "iOSummary",
+    "ports",
+    "portSummary",
+    "inputOutputSummary",
+  ]);
+
+  const inputCount = wingmanShortlistPickNumber(candidate, wingmanShortlistInputKeys);
+  const outputCount = wingmanShortlistPickNumber(candidate, wingmanShortlistOutputKeys);
+
+  if (explicit) {
+    return {
+      ioSummary: explicit,
+      inputCount,
+      outputCount,
+    };
+  }
+
+  if (inputCount !== null && outputCount !== null) {
+    return {
+      ioSummary: `${inputCount} input${inputCount === 1 ? "" : "s"} / ${outputCount} output${outputCount === 1 ? "" : "s"}`,
+      inputCount,
+      outputCount,
+    };
+  }
+
+  if (inputCount !== null) {
+    return {
+      ioSummary: `${inputCount} input${inputCount === 1 ? "" : "s"} / outputs to confirm`,
+      inputCount,
+      outputCount,
+    };
+  }
+
+  if (outputCount !== null) {
+    return {
+      ioSummary: `Inputs to confirm / ${outputCount} output${outputCount === 1 ? "" : "s"}`,
+      inputCount,
+      outputCount,
+    };
+  }
+
+  return {
+    ioSummary: "Check datasheet for exact I/O",
+    inputCount,
+    outputCount,
+  };
+}
+
+function wingmanShortlistRow(candidate: WingmanUnknownRecord, index: number): CompareCandidateShortlistRow {
+  const sku = wingmanShortlistPickText(candidate, wingmanShortlistSkuKeys);
+  const name = wingmanShortlistPickText(candidate, wingmanShortlistNameKeys) || sku || `WyreStorm option ${index + 1}`;
+  const role = wingmanShortlistPickText(candidate, wingmanShortlistRoleKeys) || "Product role to confirm";
+  const technology = wingmanShortlistPickText(candidate, wingmanShortlistTechnologyKeys) || "Technology type to confirm";
+  const fit = wingmanShortlistFit(candidate);
+  const io = wingmanShortlistIoSummary(candidate);
+
+  const why = [
+    role !== "Product role to confirm" ? `Same broad role: ${role}` : "",
+    technology !== "Technology type to confirm" ? `Technology direction: ${technology}` : "",
+    io.ioSummary !== "Check datasheet for exact I/O" ? `I/O shape: ${io.ioSummary}` : "",
+  ].filter((item): item is string => Boolean(item));
+
+  const checks = [
+    "Confirm exact input/output requirement before quoting.",
+    "Check resolution, HDCP, audio, control and distance requirements.",
+    "Treat this as a WyreStorm product direction, not a guaranteed direct equivalent.",
+  ];
+
+  const reason = why.length > 0 ? why.join(" ") : "Shown as a potential WyreStorm product direction.";
+
+  return {
+    id: `${sku || name}-${index}`,
+    sku,
+    name,
+    productName: name,
+    label: name,
+    competitorValue: "Product-type shortlist",
+    wyrestormValue: `${role}; ${technology}; ${io.ioSummary}`,
+    fitLabel: fit.label,
+    fitLevel: fit.label,
+    fitHelp: fit.help,
+    role,
+    productType: role,
+    category: role,
+    technology,
+    technologyType: technology,
+    ioSummary: io.ioSummary,
+    inputCount: io.inputCount,
+    outputCount: io.outputCount,
+    score: fit.score,
+    matchScore: fit.score,
+    confidence: fit.score,
+    confidenceScore: fit.score,
+    reason,
+    matchReason: reason,
+    fitSummary: fit.help,
+    why: why.length > 0 ? why : [reason],
+    checks,
+    warnings: checks,
+    cautions: checks,
+    notes: checks,
+    product: candidate,
+    source: candidate,
+    href: "",
+    url: "",
+    productUrl: "",
+  };
+}
+
+export function buildCompareCandidateShortlistRows(...sources: unknown[]): CompareCandidateShortlistRow[] {
+  return wingmanShortlistReadCandidates(sources).map(wingmanShortlistRow);
+}
+// WINGMAN_COMPARE_CANDIDATE_SHORTLIST_EXPORTS_END

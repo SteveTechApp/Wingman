@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { writeProductWorkspaceHandoff } from "../data/productWorkspaceHandoff";
 import {
-  buildProductNarrative,
+buildProductNarrative,
   cleanUsefulList,
   extractRawProducts,
   normaliseProductRecord,
@@ -11,6 +11,7 @@ import {
   type ProductNarrative,
   type ProductSpec
 } from "../lib/productStoryEngine";
+import { CompareBackToListButton } from "../components/compare/CompareBackToListButton";
 
 type ProductTab = "overview" | "sales" | "spec" | "diagram" | "visual";
 
@@ -108,6 +109,7 @@ function SelectionPage({
 
   return (
     <main className="grid gap-4 pb-6 text-white">
+      <CompareBackToListButton />
       <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-300">Product workspace</p>
         <h1 className="mt-2 text-3xl font-black tracking-tight text-white">Select one product</h1>
@@ -313,7 +315,7 @@ function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: P
             <strong className="mt-2 block text-lg text-white">{narrative.diagramSource}</strong>
           </div>
 
-          <div className="hidden items-center justify-center text-3xl font-black text-cyan-300 lg:flex">→</div>
+          <div className="hidden items-center justify-center text-3xl font-black text-cyan-300 lg:flex">Ã¢â€ â€™</div>
 
           <div className="rounded-3xl border border-cyan-400 bg-cyan-500/10 p-5">
             <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-200">WyreStorm product</p>
@@ -321,7 +323,7 @@ function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: P
             <span className="mt-1 block text-sm text-white/65">{product.productType}</span>
           </div>
 
-          <div className="hidden items-center justify-center text-3xl font-black text-cyan-300 lg:flex">→</div>
+          <div className="hidden items-center justify-center text-3xl font-black text-cyan-300 lg:flex">Ã¢â€ â€™</div>
 
           <div className="rounded-3xl border border-[#29465e] bg-[#081724] p-5">
             <p className="text-xs font-black uppercase tracking-[0.14em] text-white/45">Output / destination side</p>

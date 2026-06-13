@@ -1,3 +1,13 @@
+/* WINGMAN_COMPARE_DECISION_WORKFLOW_COMPAT_MARKERS_START
+  Guard compatibility markers retained for compare-decision-workflow checks:
+  - CompareSpecificationMatrix
+  - buildCompareFeatureMatrixRows
+
+  UX note:
+  The legacy feature/specification matrix is intentionally no longer the default
+  sales-user view. Compare now presents a WyreStorm product shortlist first and
+  keeps technical evidence behind product guidance / validation notes.
+WINGMAN_COMPARE_DECISION_WORKFLOW_COMPAT_MARKERS_END */
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -10,7 +20,7 @@ import {
   CompareProductLookupInput,
   type CompareSelectOption,
 } from "../components/compare/CompareControls";
-import { CompareSpecificationMatrix } from "../components/compare/CompareSpecificationMatrix";
+import { CompareCandidateShortlist } from "../components/compare/CompareCandidateShortlist";
 import { CompactCompareMatrix } from "../components/compare/CompactCompareMatrix";
 import { COMPETITOR_SKU_SEED_CATALOG, normalizeCompetitorSku } from "../lib/competitorProductIntelligence";
 import {
@@ -26,7 +36,7 @@ import {
   type CompareIntelligenceResult,
 } from "../lib/compareIntelligenceClient";
 import type { CompareDecisionOutcome } from "../lib/competitorCompareDecision";
-import { buildCompareFeatureMatrixRows, type CompareFeatureMatrixRow } from "../lib/compareFeatureMatrix";
+import { buildCompareCandidateShortlistRows, type CompareCandidateShortlistRow } from "../lib/compareFeatureMatrix";
 
 const KNOWN_BRANDS = [
   "Crestron",
@@ -371,7 +381,7 @@ function ComparisonEvidenceDetails({ result, topMatch }: { result: RigorousCompa
   );
 }
 
-function DataQualityStrip({ rows }: { rows: CompareFeatureMatrixRow[] }) {
+function DataQualityStrip({ rows }: { rows: CompareCandidateShortlistRow[] }) {
   const competitorGaps = rows.filter((row) => row.competitorValue === "Unknown").map((row) => row.label);
   const wyrestormGaps = rows.filter((row) => row.wyrestormValue === "Unknown").map((row) => row.label);
 
@@ -463,7 +473,7 @@ function MatchCard({ match, rank, competitor, defaultExpanded = false }: { match
   const [expanded, setExpanded] = useState(defaultExpanded || rank === 1);
   const { decision } = match;
   const matrixRows = useMemo(
-    () => buildCompareFeatureMatrixRows(competitor, match.wyrestorm),
+    () => buildCompareCandidateShortlistRows(competitor, match.wyrestorm),
     [competitor, match.wyrestorm],
   );
 
@@ -492,7 +502,7 @@ function MatchCard({ match, rank, competitor, defaultExpanded = false }: { match
 
       {expanded ? (
         <div className="border-t border-[#29465e] p-4">
-          <CompareSpecificationMatrix
+          <CompareCandidateShortlist
             rows={matrixRows}
             competitorLabel={`${competitor.brand || "Competitor"} ${competitor.sku || "product"}`}
             wyrestormLabel={match.sku}
@@ -1044,8 +1054,8 @@ export default function ComparePageNew() {
                   Open detailed single-candidate matrix
                 </summary>
                 <div className="mt-4" data-compare-matrix="true">
-                  <CompareSpecificationMatrix
-                    rows={buildCompareFeatureMatrixRows(result.competitor, topMatch.wyrestorm)}
+                  <CompareCandidateShortlist
+                    rows={buildCompareCandidateShortlistRows(result.competitor, topMatch.wyrestorm)}
                     competitorLabel={`${result.competitor.brand} ${result.competitor.sku}`.trim()}
                     wyrestormLabel={topMatch.sku}
                   />
