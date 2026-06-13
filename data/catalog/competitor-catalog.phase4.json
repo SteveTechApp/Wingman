@@ -232,7 +232,17 @@
       "USB-C collaboration",
       "HDBaseT room extension"
     ],
-    "notes": "Official Atlona Omega matrix-switcher page. | data/product-intelligence-db.json#3 merged into deployed competitor catalog. | data/product-intelligence-db.json#4 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Atlona Omega is a presentation and collaboration switching family built around HDMI, USB-C, HDBaseT, and USB room workflows. | Compare Omega switchers against presentation switchers and collaboration appliances, not plain HDMI matrices or wall processors. | Official competitor family guidance applied during canonical sync."
+    "notes": "Official Atlona Omega matrix-switcher page. | data/product-intelligence-db.json#3 merged into deployed competitor catalog. | data/product-intelligence-db.json#4 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Atlona Omega is a presentation and collaboration switching family built around HDMI, USB-C, HDBaseT, and USB room workflows. | Compare Omega switchers against presentation switchers and collaboration appliances, not plain HDMI matrices or wall processors. | Official competitor family guidance applied during canonical sync.",
+    "routedInputs": 5,
+    "routedOutputs": 2,
+    "routedInputCount": 5,
+    "routedOutputCount": 2,
+    "matrixInputs": 5,
+    "matrixOutputs": 2,
+    "matrixSize": "5x2",
+    "matrixSizeEvidence": "Title evidence: 5x2 Matrix",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "comparison-only-verify"
   },
   {
     "sku": "AT-OME-PS62",
@@ -3942,7 +3952,17 @@
       "Local HDMI routing",
       "Audio breakaway"
     ],
-    "notes": "competitor-compare.seed.json#15 merged into deployed competitor catalog. | Official Kramer VS-88H2A page. | competitor-compare.seed.json#6 merged into deployed competitor catalog. | data/product-intelligence-db.json#38 merged into deployed competitor catalog. | data/product-intelligence-db.json#47 merged into deployed competitor catalog. | data/product-intelligence-db.json#72 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Kramer VS products are local HDMI matrix switchers for fixed I/O routing. | Compare VS products against plain matrices rather than collaboration or transport systems. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#70 merged into deployed competitor catalog."
+    "notes": "competitor-compare.seed.json#15 merged into deployed competitor catalog. | Official Kramer VS-88H2A page. | competitor-compare.seed.json#6 merged into deployed competitor catalog. | data/product-intelligence-db.json#38 merged into deployed competitor catalog. | data/product-intelligence-db.json#47 merged into deployed competitor catalog. | data/product-intelligence-db.json#72 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Kramer VS products are local HDMI matrix switchers for fixed I/O routing. | Compare VS products against plain matrices rather than collaboration or transport systems. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#70 merged into deployed competitor catalog.",
+    "routedInputs": 8,
+    "routedOutputs": 8,
+    "routedInputCount": 8,
+    "routedOutputCount": 8,
+    "matrixInputs": 8,
+    "matrixOutputs": 8,
+    "matrixSize": "8x8",
+    "matrixSizeEvidence": "Title evidence: 8x8 Matrix",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "comparison-only-verify"
   },
   {
     "sku": "DA2-HDMI",
@@ -4052,7 +4072,17 @@
       "BYOM",
       "Collaboration matrix"
     ],
-    "notes": "Official Lightware Taurus UCX family page. | data/product-intelligence-db.json#40 merged into deployed competitor catalog. | data/product-intelligence-db.json#50 merged into deployed competitor catalog. | data/product-intelligence-db.json#75 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Taurus UCX products are collaboration-first universal switchers with USB-C, USB host routing, and room workflow control. | Compare Taurus UCX products against collaboration matrices and presentation systems, not plain local HDMI matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#73 merged into deployed competitor catalog."
+    "notes": "Official Lightware Taurus UCX family page. | data/product-intelligence-db.json#40 merged into deployed competitor catalog. | data/product-intelligence-db.json#50 merged into deployed competitor catalog. | data/product-intelligence-db.json#75 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Taurus UCX products are collaboration-first universal switchers with USB-C, USB host routing, and room workflow control. | Compare Taurus UCX products against collaboration matrices and presentation systems, not plain local HDMI matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#73 merged into deployed competitor catalog.",
+    "routedInputs": 2,
+    "routedOutputs": 1,
+    "routedInputCount": 2,
+    "routedOutputCount": 1,
+    "matrixInputs": 2,
+    "matrixOutputs": 1,
+    "matrixSize": "2x1",
+    "matrixSizeEvidence": "Title evidence: 2x1 switcher",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "comparison-only-verify"
   },
   {
     "sku": "UCX-4X2-HC60D",
@@ -4123,7 +4153,17 @@
       "BYOM",
       "Collaboration matrix"
     ],
-    "notes": "Official Lightware Taurus UCX family page and A&E specification. | data/product-intelligence-db.json#41 merged into deployed competitor catalog. | data/product-intelligence-db.json#51 merged into deployed competitor catalog. | data/product-intelligence-db.json#76 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Taurus UCX products are collaboration-first universal switchers with USB-C, USB host routing, and room workflow control. | Compare Taurus UCX products against collaboration matrices and presentation systems, not plain local HDMI matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#74 merged into deployed competitor catalog."
+    "notes": "Official Lightware Taurus UCX family page and A&E specification. | data/product-intelligence-db.json#41 merged into deployed competitor catalog. | data/product-intelligence-db.json#51 merged into deployed competitor catalog. | data/product-intelligence-db.json#76 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Taurus UCX products are collaboration-first universal switchers with USB-C, USB host routing, and room workflow control. | Compare Taurus UCX products against collaboration matrices and presentation systems, not plain local HDMI matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#74 merged into deployed competitor catalog.",
+    "routedInputs": 4,
+    "routedOutputs": 2,
+    "routedInputCount": 4,
+    "routedOutputCount": 2,
+    "matrixInputs": 4,
+    "matrixOutputs": 2,
+    "matrixSize": "4x2",
+    "matrixSizeEvidence": "Title evidence: 4x2 switcher",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "comparison-only-verify"
   },
   {
     "sku": "UCX-4X3-HCM40",

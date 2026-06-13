@@ -1,333 +1,256 @@
 {
-  "generatedAt": "2026-05-02T18:38:58.075Z",
-  "sourceUrl": "https://wyrestorm.com/products/",
-  "indexedCount": 151,
-  "discoveredCount": 444,
-  "newCandidateCount": 360,
+  "generatedAt": "2026-06-12T19:39:28.892Z",
+  "sourceUrl": "https://www.wyrestorm.com/sitemap_index.xml",
+  "indexedCount": 311,
+  "discoveredCount": 483,
+  "newCandidateCount": 75,
+  "enrichedCandidateSampleCount": 30,
   "candidates": [
     {
-      "sku": "AMP-2120-DNT",
-      "url": "https://wyrestorm.com/product/amp-2120-dnt/",
+      "sku": "CAB-HAOC-50-P-2",
+      "url": "https://www.wyrestorm.com/product/cab-haoc-50-p-2/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/cab-haoc-50-p-2/ returned 404"
+    },
+    {
+      "sku": "CAB-HAOC-50-P-3",
+      "url": "https://www.wyrestorm.com/product/cab-haoc-50-p-3/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/cab-haoc-50-p-3/ returned 404"
+    },
+    {
+      "sku": "CAB-USBC-15-ENDS",
+      "url": "https://www.wyrestorm.com/product/cab-usbc-15-ends/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/cab-usbc-15-ends/ returned 404"
+    },
+    {
+      "sku": "CAM-200",
+      "url": "https://www.wyrestorm.com/product/cam-200/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "UC BUILDER",
-      "description": "The AMP-2120-DNT is a compact, professional-grade amplifier designed for maximum flexibility in modern AV environments. Supporting both 70V/100V high-impedance or 4/8Ω low-impedance speaker loads, it delivers up to 240W of power in mono or 2x120W in stereo. Built-in DSP provides advanced audio processing—including gain, EQ, filters, dynamics, delay, and mixing—ensuring crystal-clear speech and optimized playback for any application. With flexible analog inputs, Dante connectivity, and intuitive control options via front panel, TCP/IP, or web GUI, the AMP-2120-DNT integrates seamlessly into classrooms, conference rooms, and multipurpose spaces. Automatic paging mute, security features, and comprehensive status indicators make it reliable for both critical communication and everyday use. Compact at just 0.5U, it offers powerful performance and versatility in a space-saving form factor.",
+      "description": "DISCONTINUED Part of the Unified Communication line of products, the CAM-200-PTZ offers a premium video conferencing experience. HD 1080p video ensures users appear crystal clear in their meetings. A high-quality pan and tilt motor provides a smooth experience without excess noise or judder. Equipped with dual outputs, the CAM-200-PTZ can output video via its USB 3.0 port or the network connection. 3rd-party control is a breeze by utilizing the industry standard VISCA protocol. An integrated web interface and free PC software provide advanced configuration options.",
       "sourceStatus": "page fetched"
     },
     {
-      "sku": "AMP-2120-DNT-2",
-      "url": "https://wyrestorm.com/product/amp-2120-dnt-2/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/amp-2120-dnt-2/ returned 404"
-    },
-    {
-      "sku": "AMP-260-DNT-2",
-      "url": "https://wyrestorm.com/product/amp-260-dnt-2/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/amp-260-dnt-2/ returned 404"
-    },
-    {
-      "sku": "APO-100-UC",
-      "url": "https://wyrestorm.com/product/apo-100-uc/",
+      "sku": "CAM-210",
+      "url": "https://www.wyrestorm.com/product/cam-210/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "UC BUILDER",
-      "description": "The APO-100-UC is the entry level solution in the Apollo series of unified communication products. The APO-100 is designed for small meeting rooms and huddle spaces. Simply connect the included USB cable to any laptop and instantly have access to a premium conference speakerphone, no drivers or software required. The APO-100 also allows video passthrough via USB. The supplied USB-C cable can be used natively with USB-C equipped devices, or with a standard USB-A 3.0 port using Display Link technology. Use the capacitive touch buttons on the top of the speakerphone to control volume, mute the microphone and even mute the video from your laptop, tablet, or smart phone.",
+      "description": "Capture crystal-clear 1080p60 video with the WyreStorm CAM-210-NDI-PTZ camera, featuring NDI, HDMI, USB-C & network outputs, smooth pan/tilt/zoom, auto-framing and presenter tracking for professional AV, conferencing & streaming setups.",
       "sourceStatus": "page fetched"
     },
     {
-      "sku": "APO-100-UC-PER2",
-      "url": "https://wyrestorm.com/product/apo-100-uc-per2/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-100-uc-per2/ returned 404"
-    },
-    {
-      "sku": "APO-100-UC-SIDE",
-      "url": "https://wyrestorm.com/product/apo-100-uc-side/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-100-uc-side/ returned 404"
-    },
-    {
-      "sku": "APO-100-UC-TOP",
-      "url": "https://wyrestorm.com/product/apo-100-uc-top/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-100-uc-top/ returned 404"
-    },
-    {
-      "sku": "APO-200-UC",
-      "url": "https://wyrestorm.com/product/apo-200-uc/",
+      "sku": "COM-MIC",
+      "url": "https://www.wyrestorm.com/product/com-mic/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "UC BUILDER",
-      "description": "The APO-200-UC is the premium solution in the Apollo series of unified communication products. The APO-200 is a conference speakerphone and presentation switcher wrapped into one package. With a broad range of connectivity options, transmit video via local USB-C or HDMI, wirelessly with Miracast or AirPlay. Multiview capability allows up to two devices to share content simultaneously, promoting improved collaboration. An integrated USB 3.0 device port allows easy connection of peripheral equipment such as PTZ cameras.",
+      "description": "The COM-MIC-HUB is a versatile microphone hub designed to integrate seamlessly with a variety of microphones and speakers, making it an essential audio solution for educational and conference environments. Compared to other microphone hubs, it features a wireless receiver port, enabling support for wireless microphones. The built-in professional audio DSP enhances both local and remote audio performance, ensuring clear and optimized sound quality for all participants. The COM-MIC-HUB delivers a high-quality, user-friendly audio experience with advanced centralized control capabilities, including an intuitive Web-UI and RS-232 control.",
       "sourceStatus": "page fetched"
     },
     {
-      "sku": "APO-200-UC-PER2",
-      "url": "https://wyrestorm.com/product/apo-200-uc-per2/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-200-uc-per2/ returned 404"
-    },
-    {
-      "sku": "APO-200-UC-SIDE",
-      "url": "https://wyrestorm.com/product/apo-200-uc-side/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-200-uc-side/ returned 404"
-    },
-    {
-      "sku": "APO-200-UC-TOP",
-      "url": "https://wyrestorm.com/product/apo-200-uc-top/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-200-uc-top/ returned 404"
-    },
-    {
-      "sku": "APO-COM-MIC-2",
-      "url": "https://wyrestorm.com/product/apo-com-mic-2/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-com-mic-2/ returned 404"
-    },
-    {
-      "sku": "APO-COM-MIC-TOP",
-      "url": "https://wyrestorm.com/product/apo-com-mic-top/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-com-mic-top/ returned 404"
-    },
-    {
-      "sku": "APO-DG-DOCK-2-1",
-      "url": "https://wyrestorm.com/product/apo-dg-dock-2-1/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-dg-dock-2-1/ returned 404"
-    },
-    {
-      "sku": "APO-DG-DOCK-3",
-      "url": "https://wyrestorm.com/product/apo-dg-dock-3/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-dg-dock-3/ returned 404"
-    },
-    {
-      "sku": "APO-DG-DOCK-4",
-      "url": "https://wyrestorm.com/product/apo-dg-dock-4/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-dg-dock-4/ returned 404"
-    },
-    {
-      "sku": "APO-DG1-2",
-      "url": "https://wyrestorm.com/product/apo-dg1-2/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-dg1-2/ returned 404"
-    },
-    {
-      "sku": "APO-DG1-3",
-      "url": "https://wyrestorm.com/product/apo-dg1-3/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-dg1-3/ returned 404"
-    },
-    {
-      "sku": "APO-DG1-4",
-      "url": "https://wyrestorm.com/product/apo-dg1-4/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-dg1-4/ returned 404"
-    },
-    {
-      "sku": "APO-MIC-EXT-2",
-      "url": "https://wyrestorm.com/product/apo-mic-ext-2/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-mic-ext-2/ returned 404"
-    },
-    {
-      "sku": "APO-MIC-EXT-3",
-      "url": "https://wyrestorm.com/product/apo-mic-ext-3/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-mic-ext-3/ returned 404"
-    },
-    {
-      "sku": "APO-SKY-MIC-2",
-      "url": "https://wyrestorm.com/product/apo-sky-mic-2/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-sky-mic-2/ returned 404"
-    },
-    {
-      "sku": "APO-VX20-MNT-2",
-      "url": "https://wyrestorm.com/product/apo-vx20-mnt-2/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-vx20-mnt-2/ returned 404"
-    },
-    {
-      "sku": "APO-VX20-MNT-3",
-      "url": "https://wyrestorm.com/product/apo-vx20-mnt-3/",
-      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "Potential new WyreStorm product",
-      "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-vx20-mnt-3/ returned 404"
-    },
-    {
-      "sku": "APO-VX20-UC-V2",
-      "url": "https://wyrestorm.com/product/apo-vx20-uc-v2/",
+      "sku": "EX-100",
+      "url": "https://www.wyrestorm.com/product/ex-100/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "UC BUILDER",
-      "description": "Video Bar with camera, microphone, and speakers for seamless meetings. Upgrade your video conferencing experience with an all-in-one solution.",
+      "description": "DISCONTINUED WyreStorm&#039;s first HDBaseT 2.0 device offers the very latest in transmission technology for a 4K ready solution up to 100m/328ft that&#039;s overflowing with device connectivity for one of the most powerful and fully featured HDBaseT extender solutions on the market.",
       "sourceStatus": "page fetched"
     },
     {
-      "sku": "APO-VX20-UC-V2-2",
-      "url": "https://wyrestorm.com/product/apo-vx20-uc-v2-2/",
+      "sku": "EX-100-USBC-2",
+      "url": "https://www.wyrestorm.com/product/ex-100-usbc-2/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "Potential new WyreStorm product",
       "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-vx20-uc-v2-2/ returned 404"
+      "sourceStatus": "https://www.wyrestorm.com/product/ex-100-usbc-2/ returned 404"
     },
     {
-      "sku": "APO-VX20-UC-V2-3",
-      "url": "https://wyrestorm.com/product/apo-vx20-uc-v2-3/",
+      "sku": "EX-100-USBC-3",
+      "url": "https://www.wyrestorm.com/product/ex-100-usbc-3/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "Potential new WyreStorm product",
       "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-vx20-uc-v2-3/ returned 404"
+      "sourceStatus": "https://www.wyrestorm.com/product/ex-100-usbc-3/ returned 404"
     },
     {
-      "sku": "APO-VX20-UC-V2-4",
-      "url": "https://wyrestorm.com/product/apo-vx20-uc-v2-4/",
+      "sku": "EX-100-USBC-4",
+      "url": "https://www.wyrestorm.com/product/ex-100-usbc-4/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "Potential new WyreStorm product",
       "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/apo-vx20-uc-v2-4/ returned 404"
+      "sourceStatus": "https://www.wyrestorm.com/product/ex-100-usbc-4/ returned 404"
     },
     {
-      "sku": "CAB-DAOC-10-C",
-      "url": "https://wyrestorm.com/product/cab-daoc-10-c/",
+      "sku": "EX-35",
+      "url": "https://www.wyrestorm.com/product/ex-35/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "UC BUILDER",
-      "description": "DISCONTINUED Bringing the wealth of knowledge that WyreStorm has accumulated in hybrid HDMI cables, the DAOC brings the same powerful benefits to DisplayPort system topology. Connecting to PC graphics cards or high performance media playback systems, the DAOC is ready for content up to 8K/60 at 8-bit 4:4:4 plus support for HDR-10. The WyreStorm DAOC can extend super high-bandwidth video with up to 32 channels of PCM audio up to 10m/33ft using the very latest in active optical transmission technology.",
+      "description": "The EX-35-8K is a robust solution for extending high-bandwidth video and control signals for residential and corporate installations. It’s features include support for cutting-edge HDMI 2.1 resolutions, delivering 8K@30Hz (or 8K@60Hz 4:2:0) and 4K@120Hz (4:4:4) video up to 35m over a single Cat5e/6 cable, or up to 40m over Cat6a/7, ensuring future-proof performance with a 40Gbps data rate and HDCP 2.3 compliance. Installation is simplified through Bi-direction PoC (Power over Cable), requiring only one power adapter for the entire link, while integrated RS232 and Bi-direction IR Pass-through provide comprehensive control. Furthermore, the unit offers professional audio handling with a balanced de-embedded audio output on the Receiver (RX) for connecting to dedicated sound systems.",
       "sourceStatus": "page fetched"
     },
     {
-      "sku": "CAB-DAOC-10-P",
-      "url": "https://wyrestorm.com/product/cab-daoc-10-p/",
+      "sku": "EX-40-H2",
+      "url": "https://www.wyrestorm.com/product/ex-40-h2/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "UC BUILDER",
-      "description": "DISCONTINUED Bringing the wealth of knowledge that WyreStorm has accumulated in hybrid HDMI cables, the DAOC brings the same powerful benefits to DisplayPort system topology. Connecting to PC graphics cards or high performance media playback systems, the DAOC is ready for content up to 8K/60 at 8-bit 4:4:4 plus support for HDR-10. The WyreStorm DAOC can extend super high-bandwidth video with up to 32 channels of PCM audio up to 10m/33ft using the very latest in active optical transmission technology.",
+      "description": "The EX-40-H2-ARC is a 4K60 4:4:4 HDBaseT 2.0 extender designed for residential applications that demand audio return flexibility. Featuring ARC and S/PDIF pathways from RX to TX and analog audio breakout from the HDMI input, this unit is the perfect fit for installations involving modern TVs and legacy audio systems.",
       "sourceStatus": "page fetched"
     },
     {
-      "sku": "CAB-HAOC-20-2",
-      "url": "https://wyrestorm.com/product/cab-haoc-20-2/",
+      "sku": "EX-60",
+      "url": "https://www.wyrestorm.com/product/ex-60/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "Discover the WyreStorm EX-60-USB2 USB 2.0 extender kit. Extend USB signals up to 60m over Cat6/6a/7 with 480Mbps data transfer, built-in 4-port USB hub, one-way PoC, and plug-and-play installation. Ideal for conferencing, surveillance, gaming, and office setups.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EX-70",
+      "url": "https://www.wyrestorm.com/product/ex-70/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "Extend 4K UHD and 1080p HDMI signals up to 35m/115ft (4K) and 70m/230ft (1080p) with the WyreStorm EX-70-G2 HDMI/HDBaseT extender set, featuring bi-directional IR, RS-232, CEC pass-through, and flexible PoH power options for pro AV installations.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EX-80-KVM5",
+      "url": "https://www.wyrestorm.com/product/ex-80-kvm5/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "Potential new WyreStorm product",
       "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/cab-haoc-20-2/ returned 404"
+      "sourceStatus": "https://www.wyrestorm.com/product/ex-80-kvm5/ returned 404"
     },
     {
-      "sku": "CAB-HAOC-30-P",
-      "url": "https://wyrestorm.com/product/cab-haoc-30-p/",
+      "sku": "EXA-100",
+      "url": "https://www.wyrestorm.com/product/exa-100/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "UC BUILDER",
-      "description": "DISCONTINUED The WyreStorm HAOC is a next generation HDMI cable designed for the next generation of 4K and 5K HDR content. It offers a unique feature set in both delivering uncompressed HDMI content at up to 24Gbps and compatibility with emerging HDMI technologies such as ALLM (Auto Low Latency Mode) & VRR (Variable Refresh Rate) using the latest in optical transmission technology. Now established as the most powerful form of HDMI extension, WyreStorm active optical cables offer the best of both worlds: pixel-perfect long distance transmission of content and native HDMI communication. This model features a detachable RX head and is certified for fire safety.",
+      "description": "WyreStorm EXA-100-EARC extends eARC, ARC, and S/PDIF audio up to 100m with IR, RS-232, and CEC pass-through. Ideal for home theaters and multi-room AV.",
       "sourceStatus": "page fetched"
     },
     {
-      "sku": "CAB-HAOC-30-P-2",
-      "url": "https://wyrestorm.com/product/cab-haoc-30-p-2/",
+      "sku": "EXA-100-KVM",
+      "url": "https://www.wyrestorm.com/product/exa-100-kvm/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "Potential new WyreStorm product",
       "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/cab-haoc-30-p-2/ returned 404"
+      "sourceStatus": "https://www.wyrestorm.com/product/exa-100-kvm/ returned 404"
     },
     {
-      "sku": "CAB-HAOC-30-P-3",
-      "url": "https://wyrestorm.com/product/cab-haoc-30-p-3/",
+      "sku": "EXP-CAB-HAOC-8",
+      "url": "https://www.wyrestorm.com/product/exp-cab-haoc-8/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "The WyreStorm HAOC is a 4K HDMI cable with a higher bandwidth that&#039;s designed to work with future-generation 4K HDR video.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EXP-CAB-USBC-XM",
+      "url": "https://www.wyrestorm.com/product/exp-cab-usbc-xm/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "This USB-C to C cable is a great choice for transmitting data and audio/video. It can handle speeds up to 20Gbps, making it perfect for quickly transferring files or connecting devices that use USB 3.0.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EXP-CAB-USBC-XM-COILED-CABLE",
+      "url": "https://www.wyrestorm.com/product/exp-cab-usbc-xm-coiled-cable/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "Potential new WyreStorm product",
       "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/cab-haoc-30-p-3/ returned 404"
+      "sourceStatus": "https://www.wyrestorm.com/product/exp-cab-usbc-xm-coiled-cable/ returned 404"
     },
     {
-      "sku": "CAB-HAOC-FRL-15-2",
-      "url": "https://wyrestorm.com/product/cab-haoc-frl-15-2/",
+      "sku": "EXP-EX-35-G2",
+      "url": "https://www.wyrestorm.com/product/exp-ex-35-g2/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "The EXP-EX-35-G2 has a transmission rate of 18Gbps. This indicates it may be used with ProAV extenders! It also takes up less space and is more cost effective in its smaller form.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EXP-EX-80-KVM",
+      "url": "https://www.wyrestorm.com/product/exp-ex-80-kvm/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "UC BUILDER",
+      "description": "DISCONTINUED The WyreStorm EXP-EX-80-KVM is a plug and play HDMI and KVM extender, capable of sending up to resolutions of 1080p@60Hz and HID (Human Interface Device) up to 80m (262ft) over a single CAT5e/6 cable. Additionally, it supports bidirectional POC (Power Over Cable) for powering at either the transmitter or the receiver with only one power adapter, making installations quick and effortless. Perfect use in office, home and presentation settings to extend HD video and USB keyboard and mouse from a local zone to a remote PC or laptop.",
+      "sourceStatus": "page fetched"
+    },
+    {
+      "sku": "EXP-MX-0404-HDMI-41",
+      "url": "https://www.wyrestorm.com/product/exp-mx-0404-hdmi-41/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "Potential new WyreStorm product",
       "description": "",
-      "sourceStatus": "https://wyrestorm.com/product/cab-haoc-frl-15-2/ returned 404"
+      "sourceStatus": "https://www.wyrestorm.com/product/exp-mx-0404-hdmi-41/ returned 404"
     },
     {
-      "sku": "CAB-HAOC-FRL-XX",
-      "url": "https://wyrestorm.com/product/cab-haoc-frl-xx/",
+      "sku": "EXP-MX-0404-HDMI-43",
+      "url": "https://www.wyrestorm.com/product/exp-mx-0404-hdmi-43/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/exp-mx-0404-hdmi-43/ returned 404"
+    },
+    {
+      "sku": "EXP-SW-0X01-8K",
+      "url": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "UC BUILDER",
-      "description": "Buy the WyreStorm CAB‑HAOC‑FRL‑XX HDMI cable for ultra-long 4K & 8KHDR video with uncompressed HDMI, ALLM, VRR, and reliable pro AV performance.",
+      "description": "Our plug-and-play 8K HDMI switcher series has the ability to send uncompressed up to 8K@60Hz or 4K@120Hz resolutions to your display. These switchers also support DSC 1.2a pass-through, an approved method of compression in accordance to the HDMI 2.1 specification, allowing up to a 10K@120Hz signal to be transmitted losslessy. Ranging in two models with varying number of inputs to choose from, this powerful switcher series also gives you the tools to de-embed audio from your source if there isn&#039;t an option on the source and supports ARC from your display to send to send high quality 5.1 to your audio distribution system. Other features such as auto switching and CEC passthrough makes this WyreStorm Essentials switcher series a true and powerful plug-and-play solution.",
       "sourceStatus": "page fetched"
     },
     {
-      "sku": "CAB-HAOC-XX",
-      "url": "https://wyrestorm.com/product/cab-haoc-xx/",
+      "sku": "FOCUS-200-WECAM",
+      "url": "https://www.wyrestorm.com/product/focus-200-wecam/",
+      "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/focus-200-wecam/ returned 404"
+    },
+    {
+      "sku": "HALO-60-SPEAKERPHONE",
+      "url": "https://www.wyrestorm.com/product/halo-60-speakerphone/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "UC BUILDER",
-      "description": "The WyreStorm HAOC is a next generation HDMI cable designed for the next generation of 4K and 5K HDR content. It offers a unique feature set in both delivering uncompressed HDMI content at up to 24Gbps and compatibility with emerging HDMI technologies such as ALLM (Auto Low Latency Mode) & VRR (Variable Refresh Rate) using the latest in optical transmission technology. Now established as the most powerful form of HDMI extension, WyreStorm active optical cables offer the best of both worlds: pixel-perfect long distance transmission of content and native HDMI communication, thanks to their ability to be a passive communication technology compared to normal HDBaseT extenders that often terminate the HDMI signal prior to transmission.",
+      "description": "USB Bluetooth Speakerphone offers crystal-clear audio, ideal for virtual meetings and conference calls with easy connectivity and seamless performance.",
       "sourceStatus": "page fetched"
     },
     {
-      "sku": "CAB-IR-LINK",
-      "url": "https://wyrestorm.com/product/cab-ir-link/",
+      "sku": "HALO-VX10-VIDEO-BAR-PIC-2",
+      "url": "https://www.wyrestorm.com/product/halo-vx10-video-bar-pic-2/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "UC BUILDER",
-      "description": "The WyreStorm CAB-IR-LINK integration cable provides integrators with a simple 2-way IR integration between WyreStorm products and any mainstream control system. Simply plug the CAB-IR-LINK cable from the IR emitter output of any control system to the IR RX port of a WyreStorm matrix or extender set to achieve seamless control system compatibility and integration.",
-      "sourceStatus": "page fetched"
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/halo-vx10-video-bar-pic-2/ returned 404"
     },
     {
-      "sku": "CAM-0402-BRG",
-      "url": "https://wyrestorm.com/product/cam-0402-brg/",
+      "sku": "HALO-VX10-VIDEO-BAR-PIC-3",
+      "url": "https://www.wyrestorm.com/product/halo-vx10-video-bar-pic-3/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
-      "title": "UC BUILDER",
-      "description": "The CAM-0402-BRG is a compact and powerful 4K multi-camera video bridge designed to simplify video switching and integration for conferencing, streaming, recording, and hybrid events. Supporting up to four wired inputs (2x HDMI, 2x USB), this device delivers a unified video output via USB or HDMI — all in stunning 4K resolution. Whether you&#039;re combining professional cameras or document cameras from across the network, the CAM-0402-BRG offers seamless multiview capabilities and flexible control options via Buttons, Web UI, API, or RS-232. It appears as a standard USB webcam (UVC/UAC), making it plug-and-play with all major conferencing and streaming platforms like Microsoft Teams, Zoom, OBS, and more. Now with native integration into Microsoft Teams via the WyreStorm Teams app, users can control camera switching directly from within a meeting — no additional software or hardware required. Perfect for corporate AV, education, live production, and government environments, CAM-0402-BRG brings professional-grade mixing into an easy-to-use form factor.",
-      "sourceStatus": "page fetched"
+      "title": "Potential new WyreStorm product",
+      "description": "",
+      "sourceStatus": "https://www.wyrestorm.com/product/halo-vx10-video-bar-pic-3/ returned 404"
     },
     {
-      "sku": "CAM-0402-NDI-BRG",
-      "url": "https://wyrestorm.com/product/cam-0402-ndi-brg/",
+      "sku": "HALO-VX101V1",
+      "url": "https://www.wyrestorm.com/product/halo-vx101v1/",
       "reason": "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
       "title": "UC BUILDER",
-      "description": "The CAM-0402-NDI-BRG is a compact and powerful 4K multi-camera video bridge designed to simplify video switching and integration for conferencing, streaming, recording, and hybrid events. Supporting up to four wired inputs (2x HDMI, 2x USB) and four network-based NDI streams, this device delivers a unified video output via USB, HDMI, or NDI — all in stunning 4K resolution. Whether you&#039;re combining professional cameras, document cameras, or NDI sources from across the network, the CAM-0402-NDI-BRG offers seamless multiview capabilities and flexible control options via Buttons, Web UI, API, or RS232. It appears as a standard USB webcam (UVC/UAC), making it plug-and-play with all major conferencing and streaming platforms like Microsoft Teams, Zoom, OBS, and more. Now with native integration into Microsoft Teams via the WyreStorm Teams app, users can control camera switching directly from within a meeting — no additional software or hardware required. Perfect for corporate AV, education, live production, and government environments, CAM-0402-NDI-BRG brings professional-grade mixing into an easy-to-use form factor.",
+      "description": "HALO VX10 video bar integrates a 4K wide-angle AI camera, 2x stereo speaker and 4x microphone into one device, ideal for huddle room and home office.",
       "sourceStatus": "page fetched"
     }
   ],
   "warnings": [
+    "https://www.wyrestorm.com/products/ returned 404",
     "https://wyrestorm.com/products/ returned 404",
+    "https://wyrestorm.com/product-sitemap.xml timed out",
     "https://wyrestorm.com/sitemap_products.xml returned 404"
   ]
 }

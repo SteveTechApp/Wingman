@@ -8,13 +8,25 @@
     "status": "active",
     "summary": "4K HDR HDBaseT extender for long-distance HDMI extension.",
     "inputs": [
-      { "type": "HDMI", "count": 1 }
+      {
+        "type": "HDMI",
+        "count": 1
+      }
     ],
     "outputs": [
-      { "type": "HDBaseT", "count": 1 },
-      { "type": "HDMI", "count": 1 }
+      {
+        "type": "HDBaseT",
+        "count": 1
+      },
+      {
+        "type": "HDMI",
+        "count": 1
+      }
     ],
-    "control": [ "IR", "RS-232" ],
+    "control": [
+      "IR",
+      "RS-232"
+    ],
     "audio": [],
     "video": {
       "maxResolution": "4K HDR 18Gbps",
@@ -25,7 +37,11 @@
       "meters": 70,
       "notes": "Official product page states 70m class extension"
     },
-    "features": [ "2-way PoH", "HDCP 2.2", "HDR" ],
+    "features": [
+      "2-way PoH",
+      "HDCP 2.2",
+      "HDR"
+    ],
     "notes": "Validated starter record from official WyreStorm product page."
   },
   {
@@ -37,12 +53,21 @@
     "status": "active",
     "summary": "Compact Class B HDBaseT receiver for 4K HDR transmissions.",
     "inputs": [
-      { "type": "HDBaseT", "count": 1 }
+      {
+        "type": "HDBaseT",
+        "count": 1
+      }
     ],
     "outputs": [
-      { "type": "HDMI", "count": 1 }
+      {
+        "type": "HDMI",
+        "count": 1
+      }
     ],
-    "control": [ "IR", "RS-232" ],
+    "control": [
+      "IR",
+      "RS-232"
+    ],
     "audio": [],
     "video": {
       "maxResolution": "4K HDR",
@@ -53,7 +78,11 @@
       "meters": 35,
       "notes": "Official product page states 35m"
     },
-    "features": [ "Class B HDBaseT", "2-way PoH", "4K HDR" ],
+    "features": [
+      "Class B HDBaseT",
+      "2-way PoH",
+      "4K HDR"
+    ],
     "notes": "Validated starter record from official WyreStorm product page."
   },
   {
@@ -65,12 +94,21 @@
     "status": "active",
     "summary": "Single-gang wall plate HDBaseT transmitter for remote HDMI input locations.",
     "inputs": [
-      { "type": "HDMI", "count": 1 }
+      {
+        "type": "HDMI",
+        "count": 1
+      }
     ],
     "outputs": [
-      { "type": "HDBaseT", "count": 1 }
+      {
+        "type": "HDBaseT",
+        "count": 1
+      }
     ],
-    "control": [ "IR", "RS-232" ],
+    "control": [
+      "IR",
+      "RS-232"
+    ],
     "audio": [],
     "video": {
       "maxResolution": "4K UHD",
@@ -81,7 +119,11 @@
       "meters": 35,
       "notes": "Official product page references pairing with RX-35-POH for 35m class use"
     },
-    "features": [ "Wall Plate", "PoH Compatible", "Remote Input" ],
+    "features": [
+      "Wall Plate",
+      "PoH Compatible",
+      "Remote Input"
+    ],
     "notes": "Validated starter record from official WyreStorm product page."
   },
   {
@@ -93,15 +135,34 @@
     "status": "active",
     "summary": "4K HDMI and USB 2.0 KVM extender over HDBaseT 2.0.",
     "inputs": [
-      { "type": "HDMI", "count": 1 },
-      { "type": "USB-B", "count": 1 }
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB-B",
+        "count": 1
+      }
     ],
     "outputs": [
-      { "type": "HDBaseT", "count": 1 },
-      { "type": "HDMI", "count": 1 },
-      { "type": "USB-A", "count": 2 }
+      {
+        "type": "HDBaseT",
+        "count": 1
+      },
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB-A",
+        "count": 2
+      }
     ],
-    "control": [ "IR", "RS-232", "USB" ],
+    "control": [
+      "IR",
+      "RS-232",
+      "USB"
+    ],
     "audio": [],
     "video": {
       "maxResolution": "4K",
@@ -112,7 +173,12 @@
       "meters": 100,
       "notes": "Official product page states 100m class extension"
     },
-    "features": [ "USB 2.0", "KVM", "PoH", "HDBaseT 2.0" ],
+    "features": [
+      "USB 2.0",
+      "KVM",
+      "PoH",
+      "HDBaseT 2.0"
+    ],
     "notes": "Validated starter record from official WyreStorm product page."
   },
   {
@@ -124,13 +190,26 @@
     "status": "active",
     "summary": "8x8 HDBaseT matrix kit with included receivers and mirrored outputs.",
     "inputs": [
-      { "type": "HDMI", "count": 8 }
+      {
+        "type": "HDMI",
+        "count": 8
+      }
     ],
     "outputs": [
-      { "type": "HDBaseT", "count": 8 },
-      { "type": "HDMI", "count": 4 }
+      {
+        "type": "HDBaseT",
+        "count": 8
+      },
+      {
+        "type": "HDMI",
+        "count": 4
+      }
     ],
-    "control": [ "IR", "RS-232", "TCP/IP" ],
+    "control": [
+      "IR",
+      "RS-232",
+      "TCP/IP"
+    ],
     "audio": [],
     "video": {
       "maxResolution": "4K UHD",
@@ -141,8 +220,22 @@
       "meters": 35,
       "notes": "Official product page states 4K UHD up to 35m"
     },
-    "features": [ "Matrix Kit", "Mirrored HDMI Outputs", "Included Receivers" ],
-    "notes": "Validated starter record from official WyreStorm product page."
+    "features": [
+      "Matrix Kit",
+      "Mirrored HDMI Outputs",
+      "Included Receivers"
+    ],
+    "notes": "Validated starter record from official WyreStorm product page.",
+    "routedInputs": 8,
+    "routedOutputs": 8,
+    "routedInputCount": 8,
+    "routedOutputCount": 8,
+    "matrixInputs": 8,
+    "matrixOutputs": 8,
+    "matrixSize": "8x8",
+    "matrixSizeEvidence": "Title evidence: 8x8 HDBaseT matrix",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "verify-before-quote"
   },
   {
     "sku": "MXV-0808-H2A-70-V3",
@@ -153,12 +246,22 @@
     "status": "active",
     "summary": "8x8 HDBaseT matrix with 70m extension and 4K60 4:4:4 support.",
     "inputs": [
-      { "type": "HDMI", "count": 8 }
+      {
+        "type": "HDMI",
+        "count": 8
+      }
     ],
     "outputs": [
-      { "type": "HDBaseT", "count": 8 }
+      {
+        "type": "HDBaseT",
+        "count": 8
+      }
     ],
-    "control": [ "IR", "RS-232", "TCP/IP" ],
+    "control": [
+      "IR",
+      "RS-232",
+      "TCP/IP"
+    ],
     "audio": [],
     "video": {
       "maxResolution": "4K60 4:4:4 18Gbps",
@@ -169,7 +272,11 @@
       "meters": 70,
       "notes": "Official product page states 70m"
     },
-    "features": [ "Lossless Compression", "4K60 4:4:4", "HDR" ],
+    "features": [
+      "Lossless Compression",
+      "4K60 4:4:4",
+      "HDR"
+    ],
     "notes": "Validated starter record from official WyreStorm product page."
   },
   {
@@ -181,14 +288,30 @@
     "status": "active",
     "summary": "Presentation receiver with remote HDBaseT and local HDMI source handling plus USB extension.",
     "inputs": [
-      { "type": "HDBaseT", "count": 1 },
-      { "type": "HDMI", "count": 2 }
+      {
+        "type": "HDBaseT",
+        "count": 1
+      },
+      {
+        "type": "HDMI",
+        "count": 2
+      }
     ],
     "outputs": [
-      { "type": "HDMI", "count": 1 },
-      { "type": "USB", "count": 2 }
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB",
+        "count": 2
+      }
     ],
-    "control": [ "CEC", "TCP/IP", "USB" ],
+    "control": [
+      "CEC",
+      "TCP/IP",
+      "USB"
+    ],
     "audio": [],
     "video": {
       "maxResolution": "4K",
@@ -199,7 +322,12 @@
       "meters": 0,
       "notes": "Receiver endpoint, extension depends on paired transmitter/switcher"
     },
-    "features": [ "USB Device Extension", "Local Inputs", "Auto Switching", "CEC" ],
+    "features": [
+      "USB Device Extension",
+      "Local Inputs",
+      "Auto Switching",
+      "CEC"
+    ],
     "notes": "Validated starter record from official WyreStorm product page."
   },
   {
@@ -212,9 +340,14 @@
     "summary": "Starter NetworkHD controller record for AVoIP system architecture.",
     "inputs": [],
     "outputs": [
-      { "type": "LAN", "count": 1 }
+      {
+        "type": "LAN",
+        "count": 1
+      }
     ],
-    "control": [ "TCP/IP" ],
+    "control": [
+      "TCP/IP"
+    ],
     "audio": [],
     "video": {
       "maxResolution": "",
@@ -225,7 +358,10 @@
       "meters": 100,
       "notes": "Network dependent"
     },
-    "features": [ "AVoIP Control", "System Management" ],
+    "features": [
+      "AVoIP Control",
+      "System Management"
+    ],
     "notes": "Family/category validated from official NetworkHD pages; item details should be expanded in later pass."
   },
   {
@@ -237,15 +373,32 @@
     "status": "draft",
     "summary": "Starter UC family record to support collaboration workflow filtering.",
     "inputs": [
-      { "type": "USB-C", "count": 1 },
-      { "type": "HDMI", "count": 1 }
+      {
+        "type": "USB-C",
+        "count": 1
+      },
+      {
+        "type": "HDMI",
+        "count": 1
+      }
     ],
     "outputs": [
-      { "type": "HDMI", "count": 1 },
-      { "type": "USB", "count": 2 }
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB",
+        "count": 2
+      }
     ],
-    "control": [ "USB", "TCP/IP" ],
-    "audio": [ "USB Audio" ],
+    "control": [
+      "USB",
+      "TCP/IP"
+    ],
+    "audio": [
+      "USB Audio"
+    ],
     "video": {
       "maxResolution": "4K60",
       "hdr": false
@@ -255,7 +408,11 @@
       "meters": 0,
       "notes": "Local device"
     },
-    "features": [ "BYOD", "USB Routing", "Collaboration" ],
+    "features": [
+      "BYOD",
+      "USB Routing",
+      "Collaboration"
+    ],
     "notes": "Family/category validated from official Unified Communication category page; SKU must be replaced with a real validated model in next pass."
   }
 ]
