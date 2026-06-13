@@ -117,6 +117,54 @@ function firstKnownCount(values: readonly unknown[]): number | null {
   return null;
 }
 
+function countFromToken(value: string): number | null {
+  const numeric = parseNumber(value);
+
+  if (numeric !== null) {
+    return numeric;
+  }
+
+  const wordCounts: Record<string, number> = {
+    one: 1,
+    two: 2,
+    three: 3,
+    four: 4,
+    five: 5,
+    six: 6,
+    seven: 7,
+    eight: 8,
+    nine: 9,
+    ten: 10,
+    eleven: 11,
+    twelve: 12,
+    sixteen: 16,
+  };
+
+  return wordCounts[value.toLowerCase()] ?? null;
+}
+
+function extractMirroredOutputCount(text: string): number | null {
+  const patterns = [
+    /\b(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|sixteen)\s*x?\s+(?:additional\s+)?(?:mirrored|parallel|duplicate|duplicated)\s+(?:hdmi\s+)?(?:out(?:put)?s?)?\b/i,
+    /\b(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|sixteen)\s*x?\s+(?:hdmi\s+)?(?:out(?:put)?s?)?\s+(?:which\s+are\s+)?(?:mirrored|parallel|duplicate|duplicated)\b/i,
+    /\b(?:mirrored|parallel|duplicate|duplicated)\s+(?:hdmi\s+)?(?:out(?:put)?s?)?\s*(?:x|:|-)?\s*(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|sixteen)\b/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+
+    if (!match) continue;
+
+    const count = countFromToken(match[1]);
+
+    if (count !== null) {
+      return count;
+    }
+  }
+
+  return null;
+}
+
 function extractMatrixSize(text: string, sku: string): { inputs: number | null; outputs: number | null; evidence: string } {
   const combined = `${sku} ${text}`;
 
@@ -221,8 +269,13 @@ export function classifyMatrixOutputTopology(input: MatrixOutputClassificationIn
 
   const matrixSize = extractMatrixSize(rawText, sku);
 
-  const routedInputCount = firstKnownCount([input.inputCount, input.inputs, matrixSize.inputs]);
-  let routedOutputCount = firstKnownCount([input.outputCount, input.outputs, matrixSize.outputs]);
+  const hasMatrixSizeEvidence = matrixSize.inputs !== null && matrixSize.outputs !== null;
+  const routedInputCount = hasMatrixSizeEvidence
+    ? firstKnownCount([matrixSize.inputs, input.inputCount, input.inputs])
+    : firstKnownCount([input.inputCount, input.inputs]);
+  let routedOutputCount = hasMatrixSizeEvidence
+    ? firstKnownCount([matrixSize.outputs, input.outputCount, input.outputs])
+    : firstKnownCount([input.outputCount, input.outputs]);
 
   const hasHdbaset = /hdbaset|hdbase t|hdbt/i.test(rawText) || /^MXV-/i.test(sku);
   const hasMirrored = /mirror|mirrored|parallel|duplicate|duplicated/i.test(rawText);
@@ -250,7 +303,12 @@ export function classifyMatrixOutputTopology(input: MatrixOutputClassificationIn
   let previewOutputCount = 0;
 
   if (hasMirrored) {
-    mirroredOutputCount = routedOutputCount ?? 1;
+    const explicitMirroredOutputCount = extractMirroredOutputCount(rawText);
+    mirroredOutputCount = explicitMirroredOutputCount ?? 0;
+
+    if (explicitMirroredOutputCount === null) {
+      warnings.push("Mirrored output wording detected but no explicit mirrored output count was found.");
+    }
 
     addOutputGroup(
       physicalOutputs,

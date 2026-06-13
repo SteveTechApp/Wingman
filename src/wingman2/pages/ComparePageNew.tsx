@@ -188,7 +188,7 @@ function runKnownProfileCompare(
 ): RigorousCompareResult {
   const enrichedInput = enrichCompareInputWithKnownProfile(inputText, brand);
   const baseResult = applyCompareEquivalenceGuards(rigorousCompare(enrichedInput, products, brand, limit, productUrl));
-  return applyKnownCompareProfileOverrides(baseResult, products, enrichedInput, brand) as RigorousCompareResult;
+  return applyKnownCompareProfileOverrides(baseResult, products, inputText, brand) as RigorousCompareResult;
 }
 function outcomeClass(outcome: CompareDecisionOutcome) {
   return OUTCOME_STYLES[outcome];
@@ -206,6 +206,10 @@ function compareSkuKey(value: unknown): string {
 function skuOptionsForBrand(brand?: string): string[] {
   if (brand && COMPETITOR_SKU_SEED_CATALOG[brand]) {
     return COMPETITOR_SKU_SEED_CATALOG[brand];
+  }
+
+  if (brand) {
+    return [];
   }
 
   return Array.from(new Set(Object.values(COMPETITOR_SKU_SEED_CATALOG).flat()));
@@ -226,6 +230,21 @@ function compareSkuSuggestions(query: string, brand?: string): string[] {
     .slice(0, 80);
 }
 
+function brandForCompetitorSku(sku: string): string {
+  const skuKey = compareSkuKey(sku);
+
+  for (const [brand, brandSkus] of Object.entries(COMPETITOR_SKU_SEED_CATALOG)) {
+    if (brand === "Other") continue;
+    if (brandSkus.some((item) => compareSkuKey(item) === skuKey)) return brand;
+  }
+
+  return "";
+}
+
+function skuCountForBrand(brand: string): number {
+  return COMPETITOR_SKU_SEED_CATALOG[brand]?.length ?? 0;
+}
+
 function resolveSelectedBrand(selectedBrand: string, customBrand: string): string | undefined {
   if (selectedBrand === CUSTOM_BRAND_VALUE) {
     return customBrand.trim() || undefined;
@@ -234,8 +253,10 @@ function resolveSelectedBrand(selectedBrand: string, customBrand: string): strin
   return selectedBrand || undefined;
 }
 
-function EvidenceList({ title, items, tone }: { title: string; items: string[]; tone: "match" | "gap" | "block" | "verify" }) {
-  if (!items.length) return null;
+function EvidenceList({ title, items, tone }: { title: string; items?: string[]; tone: "match" | "gap" | "block" | "verify" }) {
+  const safeItems = Array.isArray(items) ? items.filter(Boolean) : [];
+
+  if (!safeItems.length) return null;
 
   const marker = tone === "match" ? "OK" : tone === "block" ? "NO" : "!";
   const titleClass = tone === "match" ? "text-emerald-200" : tone === "block" ? "text-rose-200" : "text-amber-200";
@@ -244,7 +265,7 @@ function EvidenceList({ title, items, tone }: { title: string; items: string[]; 
     <section className="rounded-2xl border border-[#29465e] bg-[#071522] p-4">
       <h4 className={`text-sm font-black ${titleClass}`}>{title}</h4>
       <ul className="mt-3 space-y-2 text-sm leading-6 text-white/75">
-        {items.map((item, index) => (
+        {safeItems.map((item, index) => (
           <li key={`${item}-${index}`} className="flex gap-2">
             <span className="shrink-0 font-black">{marker}</span>
             <span>{item}</span>
@@ -526,6 +547,44 @@ export default function ComparePageNew() {
     () => compareSkuSuggestions(competitorInput, effectiveBrand),
     [competitorInput, effectiveBrand],
   );
+  const manufacturerFilters = useMemo(
+    () => MANUFACTURER_OPTIONS
+      .map((brand) => ({ brand, count: skuCountForBrand(brand) }))
+      .filter((item) => item.count > 0),
+    [],
+  );
+  const skuBrowserItems = useMemo(
+    () => skuSuggestions.map((sku) => ({
+      sku,
+      brand: effectiveBrand || brandForCompetitorSku(sku),
+    })),
+    [effectiveBrand, skuSuggestions],
+  );
+  const selectedBrandSkuCount = useMemo(
+    () => skuOptionsForBrand(effectiveBrand).length,
+    [effectiveBrand],
+  );
+  const totalKnownCompetitorSkuCount = useMemo(
+    () => skuOptionsForBrand().length,
+    [],
+  );
+
+  const handleManufacturerSelect = useCallback((value: string) => {
+    setSelectedBrand(value);
+
+    if (value !== CUSTOM_BRAND_VALUE) {
+      setCustomBrand("");
+    }
+  }, []);
+
+  const handleSkuSelect = useCallback((sku: string, brand?: string) => {
+    setCompetitorInput(sku);
+
+    if (brand) {
+      setSelectedBrand(brand);
+      setCustomBrand("");
+    }
+  }, []);
 
   useEffect(() => {
     async function loadProducts() {
@@ -731,56 +790,141 @@ export default function ComparePageNew() {
 
       {activeStep === "request" && state !== "analyzing" ? (
         <section className="grid gap-4" data-compare-stage="request">
-          <form onSubmit={handleSubmit} className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
-            <div className="mb-4 rounded-2xl border border-cyan-300/30 bg-cyan-300/10 p-3">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-200">Stage 1 / Competitor input</p>
-              <p className="mt-1 text-sm leading-5 text-white/65">
-                Enter the competitor SKU, choose or confirm the manufacturer, then Wingman will generate a visible specification matrix.
-              </p>
+          <form onSubmit={handleSubmit} className="wm-compare-request-form rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+            <div className="wm-compare-request-intro flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-cyan-300/30 bg-cyan-300/10 p-4">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-200">Stage 1 / Competitor input</p>
+                <p className="mt-1 text-sm leading-5 text-white/65">
+                  Filter by manufacturer, pick the competitor SKU, then Wingman builds the comparison matrix.
+                </p>
+              </div>
+              <div className="wm-compare-request-stats flex flex-wrap justify-start gap-2 xl:justify-end" aria-label="Competitor SKU coverage">
+                <span className="rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-xs font-black text-cyan-50">{MANUFACTURER_OPTIONS.length} manufacturers</span>
+                <span className="rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-xs font-black text-cyan-50">{totalKnownCompetitorSkuCount} known SKUs</span>
+                <span className="rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-xs font-black text-cyan-50">{effectiveBrand ? `${selectedBrandSkuCount} shown` : "All shown"}</span>
+              </div>
             </div>
 
-            <div className="grid gap-4">
-              <CompareProductLookupInput
-                value={competitorInput}
-                onChange={setCompetitorInput}
-                suggestions={skuSuggestions}
-                placeholder="Example: DM-NVX-350, DMNVX350, NAV E 501, VS88H2A, or pasted product description"
-              />
+            <div className="wm-compare-request-grid grid gap-4">
+              <section className="wm-compare-filter-panel rounded-2xl border border-[#29465e] bg-[#081724] p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Manufacturer filter</p>
+                    <p className="mt-1 text-sm leading-5 text-white/58">Choose a brand first to shorten the SKU list.</p>
+                  </div>
+                  {effectiveBrand ? (
+                    <button
+                      type="button"
+                      onClick={() => handleManufacturerSelect("")}
+                      className="rounded-full border border-cyan-300/50 px-3 py-2 text-xs font-black text-cyan-100"
+                    >
+                      Clear
+                    </button>
+                  ) : null}
+                </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <CompareManufacturerCombobox
-                  value={selectedBrand}
-                  options={MANUFACTURER_SELECT_OPTIONS}
-                  onChange={(value) => {
-                    setSelectedBrand(value);
-                    if (value !== CUSTOM_BRAND_VALUE) {
-                      setCustomBrand("");
-                    }
-                  }}
+                <div className="mt-4">
+                  <CompareManufacturerCombobox
+                    value={selectedBrand}
+                    options={MANUFACTURER_SELECT_OPTIONS}
+                    onChange={handleManufacturerSelect}
+                  />
+                </div>
+
+                <div className="wm-compare-manufacturer-grid mt-4 grid gap-2" aria-label="Manufacturer quick filters">
+                  <button
+                    type="button"
+                    onClick={() => handleManufacturerSelect("")}
+                    className={`flex min-h-11 items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left transition ${!effectiveBrand ? "is-active border-cyan-300 bg-cyan-300 text-slate-950" : "border-[#29465e] bg-[#0d2133] text-white/80 hover:border-cyan-300/70"}`}
+                  >
+                    <span>All</span>
+                    <small>{totalKnownCompetitorSkuCount}</small>
+                  </button>
+                  {manufacturerFilters.map(({ brand, count }) => (
+                    <button
+                      key={brand}
+                      type="button"
+                      onClick={() => handleManufacturerSelect(brand)}
+                      className={`flex min-h-11 items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left transition ${effectiveBrand === brand ? "is-active border-cyan-300 bg-cyan-300 text-slate-950" : "border-[#29465e] bg-[#0d2133] text-white/80 hover:border-cyan-300/70"}`}
+                    >
+                      <span>{brand}</span>
+                      <small>{count}</small>
+                    </button>
+                  ))}
+                </div>
+
+                {selectedBrand === CUSTOM_BRAND_VALUE ? (
+                  <label className="mt-4 grid gap-2">
+                    <span className="text-xs font-black uppercase tracking-[0.16em] text-white/50">Custom manufacturer</span>
+                    <input
+                      value={customBrand}
+                      onChange={(event) => setCustomBrand(event.target.value)}
+                      placeholder="Type the manufacturer name"
+                      className="min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-semibold text-white"
+                    />
+                  </label>
+                ) : null}
+              </section>
+
+              <section className="wm-compare-sku-panel rounded-2xl border border-[#29465e] bg-[#081724] p-4">
+                <CompareProductLookupInput
+                  value={competitorInput}
+                  onChange={setCompetitorInput}
+                  suggestions={skuSuggestions}
+                  placeholder={effectiveBrand ? `Search ${effectiveBrand} SKUs or paste a product description` : "Search any competitor SKU or paste a product description"}
+                  maxVisibleSuggestions={60}
                 />
 
-                <label className="grid gap-2">
-                  <span className="text-xs font-black uppercase tracking-[0.16em] text-white/50">Source/spec page</span>
-                  <input
-                    value={productUrl}
-                    onChange={(event) => setProductUrl(event.target.value)}
-                    placeholder="Optional first pass; required if Wingman asks for retry evidence"
-                    className="min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-semibold text-white"
-                  />
-                </label>
-              </div>
+                <div className="wm-compare-sku-browser mt-4 grid gap-3">
+                  <div className="wm-compare-sku-browser-head flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">
+                        {effectiveBrand ? `${effectiveBrand} SKU list` : "Competitor SKU list"}
+                      </p>
+                      <p className="mt-1 text-sm text-white/58">
+                        {skuBrowserItems.length ? "Click a SKU to load it into the request." : "No stored SKUs for this manufacturer yet. Type or paste the competitor product above."}
+                      </p>
+                    </div>
+                    <span className="rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-2 text-xs font-black text-cyan-50">
+                      {skuBrowserItems.length} result{skuBrowserItems.length === 1 ? "" : "s"}
+                    </span>
+                  </div>
 
-              {selectedBrand === CUSTOM_BRAND_VALUE ? (
-                <label className="grid gap-2">
-                  <span className="text-xs font-black uppercase tracking-[0.16em] text-white/50">Custom manufacturer</span>
-                  <input
-                    value={customBrand}
-                    onChange={(event) => setCustomBrand(event.target.value)}
-                    placeholder="Type the manufacturer name"
-                    className="min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-semibold text-white"
-                  />
-                </label>
-              ) : null}
+                  {skuBrowserItems.length ? (
+                    <div className="wm-compare-sku-grid grid gap-2 pr-1" role="listbox" aria-label="Filtered competitor SKUs">
+                      {skuBrowserItems.map(({ sku, brand }) => (
+                        <button
+                          key={`${brand || "any"}-${sku}`}
+                          type="button"
+                          role="option"
+                          aria-selected={compareSkuKey(competitorInput) === compareSkuKey(sku)}
+                          onClick={() => handleSkuSelect(sku, brand)}
+                          className={`grid min-h-11 gap-1 rounded-xl border px-3 py-2 text-left transition ${compareSkuKey(competitorInput) === compareSkuKey(sku) ? "border-cyan-300 bg-cyan-300 text-slate-950" : "border-[#29465e] bg-[#0d2133] text-white/80 hover:border-cyan-300/70"}`}
+                        >
+                          <span>{sku}</span>
+                          {brand ? <small>{brand}</small> : null}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="wm-compare-empty-sku-list">
+                      Type a SKU, product name or paste the public product description.
+                    </div>
+                  )}
+                </div>
+              </section>
+            </div>
+
+            <div className="wm-compare-context-grid">
+              <label className="grid gap-2">
+                <span className="text-xs font-black uppercase tracking-[0.16em] text-white/50">Source/spec page</span>
+                <input
+                  value={productUrl}
+                  onChange={(event) => setProductUrl(event.target.value)}
+                  placeholder="Optional first pass; required if Wingman asks for retry evidence"
+                  className="min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-semibold text-white"
+                />
+              </label>
 
               <label className="grid gap-2">
                 <span className="text-xs font-black uppercase tracking-[0.16em] text-white/50">Application context</span>
@@ -791,25 +935,25 @@ export default function ComparePageNew() {
                   className="min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-semibold text-white"
                 />
               </label>
-
-              {error ? (
-                <div className="rounded-2xl border border-rose-400 bg-rose-400/10 p-4 text-sm font-semibold text-rose-100">{error}</div>
-              ) : null}
-
-              {normalisedSku?.corrected ? (
-                <div className="rounded-2xl border border-cyan-300/35 bg-cyan-300/10 p-4 text-sm font-semibold text-cyan-50" data-wingman-sku-normalisation="true">
-                  Interpreting as {normalisedSku.brand} {normalisedSku.sku}
-                </div>
-              ) : null}
-
-              <button
-                type="submit"
-                disabled={!competitorInput.trim()}
-                className="rounded-full bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 transition disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Find WyreStorm Alternatives
-              </button>
             </div>
+
+            {error ? (
+              <div className="rounded-2xl border border-rose-400 bg-rose-400/10 p-4 text-sm font-semibold text-rose-100">{error}</div>
+            ) : null}
+
+            {normalisedSku?.corrected ? (
+              <div className="rounded-2xl border border-cyan-300/35 bg-cyan-300/10 p-4 text-sm font-semibold text-cyan-50" data-wingman-sku-normalisation="true">
+                Interpreting as {normalisedSku.brand} {normalisedSku.sku}
+              </div>
+            ) : null}
+
+            <button
+              type="submit"
+              disabled={!competitorInput.trim()}
+              className="wm-compare-find-button rounded-full bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 transition disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Find WyreStorm Alternatives
+            </button>
           </form>
 
           {liveProfile ? (

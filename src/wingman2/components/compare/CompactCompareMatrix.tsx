@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { cleanCompareDisplayText, compactVerdictLabel } from "../../lib/compareDisplayText";
 import { hydrateWyrestormCompareProfile } from "../../lib/knownWyrestormCompareProfiles";
+import { classifyMatrixOutputTopology, matrixSizeLabel } from "../../logic/matrixOutputModel";
 
 type CellVerdict = "match" | "partial" | "no-match" | "check" | "plus";
 
@@ -79,7 +80,66 @@ function firstNumber(record: Record<string, unknown>, keys: readonly string[]): 
   return "";
 }
 
+function withMatrixTopology(record: Record<string, unknown>): Record<string, unknown> {
+  const text = [
+    record.sku,
+    record.name,
+    record.title,
+    record.family,
+    record.category,
+    record.productClass,
+    record.systemRole,
+    record.description,
+    record.summary,
+    record.searchText,
+  ].map(normalise).filter(Boolean).join(" ");
+
+  if (!/\bmatrix\b|\d{1,2}\s*[x×]\s*\d{1,2}/i.test(text)) {
+    return record;
+  }
+
+  const topology = classifyMatrixOutputTopology({
+    sku: normalise(record.sku || record.model || record.partNumber),
+    name: normalise(record.name),
+    title: normalise(record.title),
+    family: normalise(record.family),
+    category: normalise(record.category || record.productClass),
+    description: normalise(record.description),
+    summary: normalise(record.summary),
+    specsText: normalise(record.searchText || record.sourceText || record.rawText),
+    inputCount: normalise(record.inputCount) || null,
+    outputCount: normalise(record.outputCount) || null,
+    inputs: normalise(record.inputs) || null,
+    outputs: normalise(record.outputs) || null,
+  });
+
+  if (topology.routedInputCount === null || topology.routedOutputCount === null) {
+    return record;
+  }
+
+  return {
+    ...record,
+    matrixSize: matrixSizeLabel(topology),
+    routedInputCount: topology.routedInputCount,
+    routedOutputCount: topology.routedOutputCount,
+    routedOutputTypes: topology.routedOutputTypes,
+    mirroredOutputCount: topology.mirroredOutputCount,
+    mirroredOutputTypes: topology.mirroredOutputTypes,
+    loopOutputCount: topology.loopOutputCount,
+    loopOutputTypes: topology.loopOutputTypes,
+    matrixSizeConfidence: topology.matrixSizeConfidence,
+    matrixTopologyWarnings: topology.warnings,
+  };
+}
+
 function matrixSize(record: Record<string, unknown>): string {
+  const routedInputs = firstNumber(record, ["routedInputCount"]);
+  const routedOutputs = firstNumber(record, ["routedOutputCount"]);
+
+  if (routedInputs && routedOutputs) {
+    return `${routedInputs}x${routedOutputs}`;
+  }
+
   const direct = firstText(record, ["matrixSize", "matrix_size", "size"]);
 
   if (/^\d+\s*x\s*\d+$/i.test(direct)) {
@@ -139,9 +199,21 @@ function formatValue(value: string): string {
 function equivalent(a: string, b: string): boolean {
   const aa = lower(a).replace(/[^a-z0-9]+/g, "");
   const bb = lower(b).replace(/[^a-z0-9]+/g, "");
+  const aNumbers = lower(a).match(/\d+(?:\.\d+)?/g) ?? [];
+  const bNumbers = lower(b).match(/\d+(?:\.\d+)?/g) ?? [];
 
   if (!aa || !bb) {
     return false;
+  }
+
+  if (aNumbers.length || bNumbers.length) {
+    if (!aNumbers.length || !bNumbers.length) {
+      return false;
+    }
+
+    if (aNumbers.join("|") !== bNumbers.join("|")) {
+      return false;
+    }
   }
 
   return aa === bb || aa.includes(bb) || bb.includes(aa);
@@ -201,7 +273,7 @@ function candidateList(result: any, maxCandidates: number): CompactCandidate[] {
       family: normalise(wyrestormRecord.family || matchRecord.family || wyrestormRecord.category),
     };
 
-    const hydratedProduct = hydrateWyrestormCompareProfile(baseProduct);
+    const hydratedProduct = withMatrixTopology(hydrateWyrestormCompareProfile(baseProduct));
     const sku = normalise(hydratedProduct.sku || rawSku);
     const title = normalise(hydratedProduct.name || hydratedProduct.title || sku);
 
@@ -268,7 +340,7 @@ function receiverPackage(record: Record<string, unknown>): string {
 }
 
 function buildRows(result: any, candidates: CompactCandidate[]): CompactRow[] {
-  const competitor = competitorProfile(result);
+  const competitor = withMatrixTopology(competitorProfile(result));
 
   const rowDefs = [
     { group: "Identity", feature: "Product class", comp: () => productClass(competitor), cand: (candidate: CompactCandidate) => productClass(candidate.product), evidence: "Core category gate." },

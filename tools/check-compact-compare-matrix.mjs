@@ -35,6 +35,9 @@ assertIncludes(component, "Mirrored outputs", "component");
 assertIncludes(component, "Loop outputs", "component");
 assertIncludes(component, "Receiver package", "component");
 assertIncludes(component, "maxCandidates", "component");
+assertIncludes(component, "aNumbers.join(\"|\") !== bNumbers.join(\"|\")", "component");
+assertIncludes(component, "withMatrixTopology", "component");
+assertIncludes(component, "classifyMatrixOutputTopology", "component");
 
 assertIncludes(comparePage, "CompactCompareMatrix", "ComparePageNew");
 assertIncludes(comparePage, "maxCandidates={4}", "ComparePageNew");

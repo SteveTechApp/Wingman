@@ -31,7 +31,11 @@ assertIncludes(profile, "MXV-0808-H2A-V3", "profile hydrator");
 assertIncludes(profile, "MXV-0808-H2A-70-V3", "profile hydrator");
 assertIncludes(profile, "MXV-0808-H2A-KIT", "profile hydrator");
 assertIncludes(profile, "MX-0808-KIT-V2", "profile hydrator");
-assertIncludes(profile, "mirroredOutputCount: 8", "profile hydrator");
+assertIncludes(profile, "MX-0808-H2A-MK2", "profile hydrator");
+assertIncludes(profile, "MX-0808-SCL", "profile hydrator");
+assertIncludes(profile, "MX-0812-SCL", "profile hydrator");
+assertIncludes(profile, "EXP-MX-0402-H2", "profile hydrator");
+assertIncludes(profile, "mirroredOutputCount: 4", "profile hydrator");
 assertIncludes(profile, "routedInputCount: 8", "profile hydrator");
 assertIncludes(profile, "routedOutputCount: 8", "profile hydrator");
 
