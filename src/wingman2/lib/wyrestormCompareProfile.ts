@@ -150,7 +150,7 @@ function isLikelyAccessoryOrFalsePort(port: TechnicalPort): boolean {
 
   if (!value) return true;
   if (Number(port.count) > 64) return true;
-  if (/\b(bracket|mount|remote|battery|psu|power supply|quickstart|guide|wall mount|rack mount|terminal block|cable|lens cap)\b/.test(value)) {
+  if (/\b(bracket|mount|remote|battery|psu|power supply|power cord|ac power|dc power|mains|adapter|quickstart|quick start|guide|manual|warranty|wall mount|rack mount|terminal block|cable|lens cap|unit|kit|screw|sticker|label|rubber|foot|feet)\b/.test(value)) {
     return true;
   }
   if (/\b(optical zoom|digital zoom|mems mic array|watt|camera\b.*camera|transceiver\b.*transceiver|matrix\b.*matrix)\b/.test(value)) {

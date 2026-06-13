@@ -251,6 +251,13 @@ function detectTechnologyClass(input: string, brand: string): TechnologyClass {
   const text = `${input} ${brand}`.toLowerCase();
   const compact = compareKey(`${input} ${brand}`);
 
+  // Pure USB extension (USB-only extender, no video transport). WyreStorm has no
+  // standalone USB extender, so route to the USB/UC workflow class for tailored
+  // messaging instead of letting it match a video HDBaseT extender.
+  if (/\busb\b/.test(text) && /extend|extension/.test(text) && !/hdmi|hdbaset|hdbt|displayport|\bdp\b|\bdtp\b|sdi|video|4k|1080/.test(text)) {
+    return "USB_CONFERENCE";
+  }
+
   for (const [markers, techClass] of TECH_COMPACT_MARKERS) {
     if (markers.some((marker) => markerMatch(compact, marker))) {
       return techClass;
@@ -262,6 +269,13 @@ function detectTechnologyClass(input: string, brand: string): TechnologyClass {
       return techClass;
     }
   }
+
+  // Dedicated UC / conferencing brands with no WyreStorm-mappable video-transport
+  // product line fall here only when no explicit signature was detected above.
+  if (/\b(logitech|poly|polycom|yealink|jabra)\b/.test(text)) {
+    return "USB_CONFERENCE";
+  }
+
   return "UNKNOWN";
 }
 
@@ -665,6 +679,14 @@ function isRelevantToWyrestorm(competitor: CompetitorProfile): { relevant: boole
     return {
       relevant: true,
       reason: "Product type not fully identified - showing best matches based on available information",
+    };
+  }
+
+  if (competitor.technologyClass === "USB_CONFERENCE") {
+    return {
+      relevant: true,
+      reason:
+        "Compare on the room and USB workflow, not a single SKU: WyreStorm covers UC/BYOD rooms with its Apollo (APO) and HALO conferencing ranges, USB-C presentation switchers and CAM cameras. WyreStorm does not make a standalone USB-only signal extender, so for a pure USB extender treat this as no direct equivalent.",
     };
   }
 
