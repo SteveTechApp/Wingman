@@ -259,6 +259,7 @@ export function CallCardsPage() {
   const [languageId, setLanguageId] = useState<LanguageId>(() => getStoredWingmanCaptureLanguage().id);
   const [clue, setClue] = useState("");
   const [transcript, setTranscript] = useState("");
+  const [transcriptDrawerOpen, setTranscriptDrawerOpen] = useState(() => Boolean(transcript.trim()));
   const [notes, setNotes] = useState("");
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -521,6 +522,7 @@ export function CallCardsPage() {
     setLanguageId("en-GB");
     setClue("");
     setTranscript("");
+    setTranscriptDrawerOpen(false);
     setNotes("");
     setAnswers({});
     setQuestionIndex(0);
@@ -541,9 +543,8 @@ export function CallCardsPage() {
       <section className="cca-shell">
         <header className="cca-header">
           <div>
-            <p>Wingman workspace</p>
             <h1>Live Call Cards</h1>
-            <span>One page for call capture, editable notes, live prompts and handoff.</span>
+            <span>Capture the call, ask the next question, hand off fast.</span>
           </div>
 
           <div className="cca-headerActions">
@@ -560,9 +561,9 @@ export function CallCardsPage() {
                 type="button"
                 className={conversationTypeId === item.id ? "is-selected" : ""}
                 onClick={() => setConversationTypeId(item.id)}
+                title={item.description}
               >
                 <strong>{item.shortTitle}</strong>
-                <span>{item.description}</span>
               </button>
             ))}
           </div>
@@ -627,16 +628,27 @@ export function CallCardsPage() {
               />
             </label>
 
-            <label className="cca-field cca-grow">
-              <span>Editable whole-call transcript</span>
-              <textarea
-                value={transcript}
-                onChange={(event) => setTranscript(event.target.value)}
-                placeholder="Open the whole-call mic, paste a transcript, or type the call summary here. This field is fully editable."
-              />
-            </label>
+            <details
+              className="cca-transcriptDrawer"
+              open={transcriptDrawerOpen}
+              onToggle={(event) => setTranscriptDrawerOpen(event.currentTarget.open)}
+            >
+              <summary>
+                <span>Whole-call transcript</span>
+                <small>{transcript.trim() ? "Transcript captured" : "Collapsed until needed"}</small>
+              </summary>
 
-            <label className="cca-field">
+              <label className="cca-field cca-grow">
+                <span>Editable transcript</span>
+                <textarea
+                  value={transcript}
+                  onChange={(event) => setTranscript(event.target.value)}
+                  placeholder="Open the whole-call mic, paste a transcript, or type the call summary here. This field is fully editable."
+                />
+              </label>
+            </details>
+
+            <label className="cca-field cca-notesField">
               <span>Editable extra notes</span>
               <textarea
                 className="cca-notesArea"
@@ -683,68 +695,65 @@ export function CallCardsPage() {
               <summary>
                 <span>Need more support?</span>
                 <strong>Show Wingman interpretation</strong>
-                <small>Summary, missing detail, product direction and suggested shift.</small>
+                <small>{interpretation.summary}</small>
               </summary>
 
               <div className="cca-supportDetailsBody">
-            <article className="cca-insightCard">
-              <span>Wingman thinks</span>
-              <strong>{interpretation.summary}</strong>
-            </article>
+                <article className="cca-insightCard">
+                  <span>Ask next</span>
+                  <strong>{interpretation.askNext}</strong>
+                </article>
 
-            <article className="cca-insightCard cca-actionCard">
-              <span>Ask next</span>
-              <strong>{interpretation.askNext}</strong>
-            </article>
+                <article className="cca-insightCard">
+                  <span>Missing detail</span>
+                  <div className="cca-chipCloud">
+                    {interpretation.missing.map((item) => (
+                      <em key={item}>{item}</em>
+                    ))}
+                  </div>
+                </article>
 
-            <article className="cca-insightCard">
-              <span>Missing detail</span>
-              <div className="cca-chipCloud">
-                {interpretation.missing.map((item) => (
-                  <em key={item}>{item}</em>
-                ))}
+                <article className="cca-insightCard">
+                  <span>Likely direction</span>
+                  <ul>
+                    {interpretation.direction.slice(0, 3).map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </article>
+
+                <article className="cca-insightCard cca-suggestionCard">
+                  <span>Workflow</span>
+                  <strong>{conversationType.routeLabel}</strong>
+                  <button type="button" onClick={() => goToRoute(conversationType.route)}>Open best workflow</button>
+                  {interpretation.suggestedType !== conversationTypeId ? (
+                    <button type="button" onClick={applySuggestedShift}>Switch to {getConversationType(interpretation.suggestedType).shortTitle}</button>
+                  ) : null}
+                </article>
               </div>
-            </article>
-
-            <article className="cca-insightCard">
-              <span>Likely WyreStorm direction</span>
-              <ul>
-                {interpretation.direction.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </article>
-
-            {interpretation.suggestedType !== conversationTypeId ? (
-              <article className="cca-insightCard cca-suggestionCard">
-                <span>Suggested shift</span>
-                <strong>{getConversationType(interpretation.suggestedType).title}</strong>
-                <button type="button" onClick={applySuggestedShift}>Switch now</button>
-              </article>
-            ) : null}
-              </div>
-            </details>          </aside>
+            </details>
+          </aside>
         </section>
 
         <section className="cca-handoffRail">
-          <button type="button" className="is-primary" onClick={() => goToRoute(conversationType.route)}>
-            <strong>{conversationType.routeLabel}</strong>
-            <span>Best route for this call type</span>
+          <button type="button" className={conversationType.route === "/wingman/videowall" ? "is-primary" : ""} onClick={() => goToRoute("/wingman/videowall")}>
+            <strong>Open Video Wall</strong>
+            <span>Wall or display path</span>
           </button>
 
-          <button type="button" onClick={() => goToRoute("/wingman/discovery")}>
+          <button type="button" className={conversationType.route === "/wingman/discovery" ? "is-primary" : ""} onClick={() => goToRoute("/wingman/discovery")}>
             <strong>Open Discovery</strong>
-            <span>Use when the requirement still needs qualification</span>
+            <span>Qualify the room</span>
           </button>
 
-          <button type="button" onClick={() => goToRoute("/wingman/finder")}>
+          <button type="button" className={conversationType.route === "/wingman/finder" ? "is-primary" : ""} onClick={() => goToRoute("/wingman/finder")}>
             <strong>Open Finder</strong>
-            <span>Use when a product path or SKU needs checking</span>
+            <span>Check product fit</span>
           </button>
 
-          <button type="button" onClick={() => goToRoute("/wingman/proposal")}>
+          <button type="button" className={conversationType.route === "/wingman/proposal" ? "is-primary" : ""} onClick={() => goToRoute("/wingman/proposal")}>
             <strong>Open Proposal</strong>
-            <span>Use when customer-safe wording is needed</span>
+            <span>Customer-safe output</span>
           </button>
         </section>
       </section>
@@ -1547,5 +1556,745 @@ button:disabled {
 
 /* WINGMAN LIVE TRANSCRIPT CANVAS OVERRIDE END */
 
-`;
+/* WINGMAN LIVE CALL COMPACT CONSOLE START */
 
+html[data-wingman-route="callCards"][data-wingman-canvas-scaling="true"] .wingman-page-host,
+html[data-wingman-route="callCards"][data-wingman-dpr-aware-scaling="true"] .wingman-page-host,
+.wm-route-call-cards .wingman-page-host,
+.wm-route-callCards .wingman-page-host {
+  position: static !important;
+  inset: auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  transform: none !important;
+  transform-origin: initial !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.cca-page {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  display: block !important;
+  overflow: hidden !important;
+  padding: 8px 10px !important;
+  color: #f7fbff !important;
+  background:
+    radial-gradient(circle at 82% 0%, rgba(74, 245, 230, 0.12), transparent 28%),
+    linear-gradient(180deg, #06111d 0%, #081724 100%) !important;
+}
+
+.cca-shell {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: calc(100vh - 86px) !important;
+  min-height: 0 !important;
+  display: grid !important;
+  grid-template-rows: 54px 40px minmax(0, 1fr) 52px !important;
+  gap: 8px !important;
+}
+
+.cca-header,
+.cca-commandBar,
+.cca-mainCapture,
+.cca-sideCoach,
+.cca-handoffRail {
+  border: 1px solid rgba(74, 245, 230, 0.22) !important;
+  background: rgba(5, 19, 32, 0.94) !important;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22) !important;
+}
+
+.cca-header {
+  min-height: 0 !important;
+  max-height: 54px !important;
+  border-radius: 14px !important;
+  padding: 7px 10px 7px 14px !important;
+  overflow: hidden !important;
+}
+
+.cca-header h1 {
+  margin: 0 !important;
+  color: #4af5e6 !important;
+  font-size: 1.08rem !important;
+  line-height: 1.05 !important;
+  letter-spacing: 0 !important;
+}
+
+.cca-header span {
+  margin-top: 2px !important;
+  color: rgba(237, 246, 255, 0.72) !important;
+  font-size: 0.66rem !important;
+  line-height: 1.12 !important;
+}
+
+.cca-headerActions {
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+}
+
+.cca-headerActions button,
+.cca-questionActions button,
+.cca-insightCard button {
+  min-height: 28px !important;
+  height: 28px !important;
+  border-color: rgba(74, 245, 230, 0.34) !important;
+  background: rgba(8, 31, 54, 0.86) !important;
+  color: #f7fbff !important;
+  padding: 0 10px !important;
+  font-size: 0.7rem !important;
+  font-weight: 800 !important;
+}
+
+.cca-commandBar {
+  min-height: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 330px !important;
+  align-items: center !important;
+  gap: 8px !important;
+  border-radius: 12px !important;
+  padding: 5px !important;
+  overflow: hidden !important;
+}
+
+.cca-typeStrip {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  min-width: 0 !important;
+}
+
+.cca-typeStrip button {
+  min-height: 28px !important;
+  height: 28px !important;
+  flex: 1 1 0 !important;
+  border-radius: 999px !important;
+  padding: 0 9px !important;
+  background: rgba(8, 31, 54, 0.72) !important;
+  color: rgba(237, 246, 255, 0.78) !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+}
+
+.cca-typeStrip button.is-selected {
+  border-color: rgba(74, 245, 230, 0.9) !important;
+  background: rgba(19, 76, 91, 0.92) !important;
+  color: #f7fbff !important;
+  box-shadow: inset 0 -2px 0 #4af5e6 !important;
+}
+
+.cca-typeStrip strong {
+  font-size: 0.68rem !important;
+  line-height: 1 !important;
+  font-weight: 850 !important;
+}
+
+.cca-typeStrip span {
+  display: none !important;
+}
+
+.cca-compactSettings {
+  grid-template-columns: 1fr 1fr !important;
+  gap: 6px !important;
+  align-items: center !important;
+}
+
+.cca-compactSettings label {
+  gap: 2px !important;
+  color: rgba(74, 245, 230, 0.82) !important;
+  font-size: 0.56rem !important;
+  letter-spacing: 0.08em !important;
+}
+
+.cca-compactSettings select {
+  height: 24px !important;
+  min-height: 24px !important;
+  border-radius: 999px !important;
+  padding: 0 8px !important;
+  background: rgba(3, 14, 25, 0.98) !important;
+  color: #f7fbff !important;
+  font-size: 0.68rem !important;
+}
+
+.cca-liveWorkspace {
+  min-height: 0 !important;
+  height: 100% !important;
+  grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.05fr) !important;
+  gap: 8px !important;
+}
+
+.cca-page .cca-liveWorkspace article,
+.cca-page .cca-liveWorkspace aside,
+.cca-page .cca-liveWorkspace > div {
+  max-height: none !important;
+  overflow-y: visible !important;
+}
+
+.cca-mainCapture,
+.cca-sideCoach {
+  min-height: 0 !important;
+  height: 100% !important;
+  border-radius: 14px !important;
+  padding: 9px !important;
+  overflow: hidden !important;
+}
+
+.cca-mainCapture {
+  display: grid !important;
+  grid-template-rows: auto auto auto auto minmax(72px, 0.58fr) auto !important;
+  gap: 7px !important;
+}
+
+.cca-sideCoach {
+  display: grid !important;
+  grid-template-rows: minmax(0, 1fr) auto !important;
+  gap: 8px !important;
+}
+
+.cca-openerCard,
+.cca-nextQuestion,
+.cca-insightCard,
+.cca-transcriptDrawer,
+.cca-supportDetails {
+  border: 1px solid rgba(74, 245, 230, 0.2) !important;
+  border-radius: 12px !important;
+  background: rgba(8, 31, 54, 0.72) !important;
+  padding: 9px !important;
+}
+
+.cca-openerCard {
+  min-height: 52px !important;
+  padding: 8px 10px !important;
+  overflow: hidden !important;
+}
+
+.cca-openerCard span,
+.cca-nextQuestion span,
+.cca-insightCard span,
+.cca-field span,
+.cca-transcriptDrawer summary span,
+.cca-supportDetails summary span {
+  color: #4af5e6 !important;
+  font-size: 0.58rem !important;
+  line-height: 1 !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.08em !important;
+}
+
+.cca-openerCard strong,
+.cca-nextQuestion strong,
+.cca-insightCard strong,
+.cca-supportDetails summary strong {
+  margin-top: 4px !important;
+  color: #f7fbff !important;
+  font-size: 0.82rem !important;
+  line-height: 1.18 !important;
+  font-weight: 800 !important;
+}
+
+.cca-openerCard strong {
+  display: -webkit-box !important;
+  overflow: hidden !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+}
+
+.cca-openerCard small,
+.cca-transcriptDrawer summary small,
+.cca-supportDetails summary small {
+  margin-top: 4px !important;
+  color: rgba(237, 246, 255, 0.62) !important;
+  font-size: 0.68rem !important;
+  line-height: 1.2 !important;
+}
+
+.cca-micBar {
+  grid-template-columns: 1fr 1fr !important;
+  gap: 7px !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+}
+
+.cca-page .cca-mainCapture .cca-micBar .cca-openMic,
+.cca-page .cca-mainCapture .cca-micBar .cca-captureMic {
+  min-height: 34px !important;
+  height: 34px !important;
+  border-radius: 12px !important;
+  padding: 0 10px !important;
+  color: #f7fbff !important;
+  font-size: 0.78rem !important;
+  box-shadow: none !important;
+}
+
+.cca-field {
+  gap: 4px !important;
+}
+
+.cca-field input,
+.cca-field textarea,
+.cca-nextQuestion textarea {
+  border-color: rgba(74, 245, 230, 0.24) !important;
+  background: rgba(3, 14, 25, 0.98) !important;
+  color: #f7fbff !important;
+  font-size: 0.78rem !important;
+  line-height: 1.24 !important;
+  box-shadow: none !important;
+}
+
+.cca-page .cca-mainCapture .cca-field input {
+  height: 30px !important;
+  min-height: 30px !important;
+  border-radius: 10px !important;
+  padding: 0 10px !important;
+}
+
+.cca-field textarea {
+  padding: 8px !important;
+  resize: none !important;
+}
+
+.cca-notesArea {
+  min-height: 66px !important;
+  height: 100% !important;
+  border-radius: 10px !important;
+  padding: 8px !important;
+  background: rgba(3, 14, 25, 0.98) !important;
+}
+
+.cca-transcriptDrawer {
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.cca-transcriptDrawer:not([open]) > .cca-grow,
+.cca-supportDetails:not([open]) > .cca-supportDetailsBody {
+  display: none !important;
+}
+
+.cca-transcriptDrawer > summary,
+.cca-supportDetails > summary {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 2px 10px !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  list-style: none !important;
+  padding: 8px 10px !important;
+}
+
+.cca-transcriptDrawer > summary::-webkit-details-marker,
+.cca-supportDetails > summary::-webkit-details-marker {
+  display: none !important;
+}
+
+.cca-transcriptDrawer > summary::after,
+.cca-supportDetails > summary::after {
+  content: "Open" !important;
+  grid-row: 1 / span 2 !important;
+  grid-column: 2 !important;
+  align-self: center !important;
+  border: 1px solid rgba(74, 245, 230, 0.28) !important;
+  border-radius: 999px !important;
+  padding: 4px 8px !important;
+  color: #4af5e6 !important;
+  font-size: 0.62rem !important;
+  font-weight: 850 !important;
+}
+
+.cca-transcriptDrawer[open] > summary::after,
+.cca-supportDetails[open] > summary::after {
+  content: "Close" !important;
+}
+
+.cca-transcriptDrawer .cca-grow {
+  min-height: 0 !important;
+  padding: 0 10px 10px !important;
+}
+
+.cca-page .cca-mainCapture .cca-field.cca-grow {
+  min-height: 0 !important;
+  grid-template-rows: auto 130px !important;
+  border-radius: 0 !important;
+}
+
+.cca-page .cca-mainCapture .cca-field.cca-grow::before {
+  display: none !important;
+}
+
+.cca-page .cca-mainCapture .cca-grow textarea {
+  min-height: 130px !important;
+  height: 130px !important;
+  overflow-y: auto !important;
+  resize: vertical !important;
+  border-radius: 10px !important;
+  padding: 8px !important;
+  color: #f7fbff !important;
+  background: rgba(3, 14, 25, 0.98) !important;
+  font-size: 0.78rem !important;
+  line-height: 1.3 !important;
+}
+
+.cca-nextQuestion {
+  display: grid !important;
+  grid-template-rows: auto auto auto minmax(118px, 1fr) !important;
+  gap: 7px !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.cca-nextQuestion textarea {
+  min-height: 118px !important;
+  height: 100% !important;
+  margin-top: 0 !important;
+  border-radius: 10px !important;
+  resize: none !important;
+}
+
+.cca-questionActions {
+  margin-top: 0 !important;
+  flex-wrap: nowrap !important;
+}
+
+.cca-supportDetails {
+  padding: 0 !important;
+}
+
+.cca-supportDetailsBody {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 7px !important;
+  padding: 0 9px 9px !important;
+}
+
+.cca-insightCard {
+  padding: 8px !important;
+}
+
+.cca-insightCard ul {
+  margin: 6px 0 0 !important;
+  padding-left: 14px !important;
+}
+
+.cca-insightCard li {
+  color: rgba(237, 246, 255, 0.78) !important;
+  font-size: 0.7rem !important;
+  line-height: 1.25 !important;
+}
+
+.cca-chipCloud {
+  margin-top: 6px !important;
+  gap: 5px !important;
+}
+
+.cca-chipCloud em {
+  background: rgba(74, 245, 230, 0.1) !important;
+  color: rgba(237, 246, 255, 0.86) !important;
+  padding: 4px 7px !important;
+  font-size: 0.64rem !important;
+}
+
+.cca-suggestionCard {
+  align-content: start !important;
+}
+
+.cca-statusLive,
+.cca-statusText {
+  min-height: 22px !important;
+  display: flex !important;
+  align-items: center !important;
+  border-radius: 999px !important;
+  padding: 0 9px !important;
+  color: rgba(237, 246, 255, 0.78) !important;
+  background: rgba(74, 245, 230, 0.09) !important;
+  border: 1px solid rgba(74, 245, 230, 0.16) !important;
+  font-size: 0.68rem !important;
+  line-height: 1.1 !important;
+}
+
+.cca-handoffRail {
+  min-height: 0 !important;
+  height: 52px !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 7px !important;
+  border-radius: 14px !important;
+  padding: 7px !important;
+}
+
+.cca-handoffRail button {
+  min-height: 0 !important;
+  height: 38px !important;
+  border-radius: 11px !important;
+  padding: 5px 9px !important;
+  background: rgba(8, 31, 54, 0.72) !important;
+  color: #f7fbff !important;
+  box-shadow: none !important;
+}
+
+.cca-handoffRail button.is-primary {
+  border-color: rgba(74, 245, 230, 0.9) !important;
+  background: rgba(19, 76, 91, 0.92) !important;
+  box-shadow: inset 2px 0 0 #4af5e6 !important;
+}
+
+.cca-handoffRail strong {
+  font-size: 0.72rem !important;
+  line-height: 1 !important;
+}
+
+.cca-handoffRail span {
+  margin-top: 2px !important;
+  color: rgba(237, 246, 255, 0.58) !important;
+  font-size: 0.62rem !important;
+  line-height: 1.05 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+@media (max-width: 1180px) {
+  .cca-page {
+    height: auto !important;
+    min-height: 100% !important;
+    overflow: auto !important;
+  }
+
+  .cca-shell {
+    height: auto !important;
+    min-height: 0 !important;
+    grid-template-rows: auto auto auto auto !important;
+  }
+
+  .cca-commandBar,
+  .cca-liveWorkspace {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cca-typeStrip {
+    flex-wrap: wrap !important;
+  }
+
+  .cca-typeStrip button {
+    flex: 1 1 150px !important;
+  }
+
+  .cca-mainCapture,
+  .cca-sideCoach {
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .cca-header,
+  .cca-handoffRail,
+  .cca-supportDetailsBody {
+    grid-template-columns: 1fr !important;
+  }
+
+  .cca-handoffRail {
+    height: auto !important;
+  }
+
+  .cca-handoffRail button {
+    height: auto !important;
+    min-height: 42px !important;
+  }
+}
+
+.cca-page .cca-mainCapture .cca-openerCard {
+  min-height: 52px !important;
+  height: auto !important;
+  max-height: 62px !important;
+  overflow: hidden !important;
+  padding: 8px 10px !important;
+}
+
+.cca-page .cca-mainCapture .cca-transcriptDrawer:not([open]) {
+  min-height: 44px !important;
+  height: 44px !important;
+  max-height: 44px !important;
+}
+
+.cca-page .cca-mainCapture .cca-transcriptDrawer:not([open]) > .cca-field.cca-grow {
+  display: none !important;
+  min-height: 0 !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+}
+
+.cca-page .cca-mainCapture .cca-transcriptDrawer[open] {
+  height: auto !important;
+  max-height: 210px !important;
+}
+
+.cca-page .cca-mainCapture .cca-transcriptDrawer[open] > .cca-field.cca-grow {
+  display: grid !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-page-host .cca-page .cca-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+  height: 54px !important;
+  min-height: 0 !important;
+  max-height: 54px !important;
+  margin: 0 !important;
+  padding: 7px 10px 7px 14px !important;
+  border-radius: 14px !important;
+  background: rgba(5, 19, 32, 0.94) !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-page-host .cca-page .cca-header h1 {
+  margin: 0 !important;
+  max-width: none !important;
+  color: #4af5e6 !important;
+  font-size: 1.08rem !important;
+  line-height: 1.05 !important;
+  letter-spacing: 0 !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-page-host .cca-page .cca-header span {
+  margin-top: 2px !important;
+  max-width: none !important;
+  color: rgba(237, 246, 255, 0.72) !important;
+  font-size: 0.66rem !important;
+  line-height: 1.12 !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-page-host .cca-page .cca-commandBar {
+  height: 40px !important;
+  min-height: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 330px !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 5px !important;
+  border-radius: 12px !important;
+  background: rgba(5, 19, 32, 0.94) !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-page-host .cca-page .cca-typeStrip {
+  display: flex !important;
+  gap: 5px !important;
+  align-items: center !important;
+  min-width: 0 !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-page-host .cca-page .cca-typeStrip button {
+  height: 28px !important;
+  min-height: 28px !important;
+  flex: 1 1 0 !important;
+  padding: 0 8px !important;
+  border-radius: 999px !important;
+  text-align: center !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-page-host .cca-page .cca-typeStrip strong {
+  color: inherit !important;
+  font-size: 0.68rem !important;
+  line-height: 1 !important;
+  font-weight: 850 !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-page-host .cca-page .cca-compactSettings {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 6px !important;
+  align-items: center !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-page-host .cca-page .cca-compactSettings label {
+  display: grid !important;
+  gap: 2px !important;
+  color: rgba(74, 245, 230, 0.82) !important;
+  font-size: 0.56rem !important;
+  line-height: 1 !important;
+  letter-spacing: 0.08em !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-page-host .cca-page .cca-compactSettings select {
+  height: 24px !important;
+  min-height: 24px !important;
+  padding: 0 8px !important;
+  font-size: 0.68rem !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-page-host .cca-page .cca-mainCapture {
+  padding: 9px !important;
+  grid-template-rows: 62px 34px 45px 44px minmax(0, 1fr) auto !important;
+  align-content: stretch !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-page-host .cca-page .cca-micBar {
+  height: 34px !important;
+  min-height: 34px !important;
+  grid-template-columns: 1fr 1fr !important;
+  grid-template-rows: 34px !important;
+  gap: 7px !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-page-host .cca-page .cca-notesField {
+  min-height: 0 !important;
+  height: 100% !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="callCards"] .wingman-page-host .cca-page .cca-notesArea {
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: none !important;
+  resize: none !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-openerCard {
+  height: 62px !important;
+  min-height: 62px !important;
+  max-height: 62px !important;
+  padding: 8px 10px !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-openerCard strong {
+  margin-top: 4px !important;
+  font-size: 0.78rem !important;
+  line-height: 1.12 !important;
+  -webkit-line-clamp: 2 !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-openerCard small {
+  display: none !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-shell {
+  padding: 8px !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-header h1 {
+  color: #4af5e6 !important;
+  font-size: 1.15rem !important;
+  line-height: 1.05 !important;
+  letter-spacing: 0 !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-header span {
+  color: rgba(237, 246, 255, 0.72) !important;
+  font-size: 0.66rem !important;
+  line-height: 1.12 !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-commandBar {
+  padding: 5px !important;
+}
+
+/* WINGMAN LIVE CALL COMPACT CONSOLE END */
+
+`;
