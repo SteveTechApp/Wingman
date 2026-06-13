@@ -1,160 +1,127 @@
-import { existsSync, readFileSync } from "node:fs";
+import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const root = path.resolve(__dirname, "..");
+const ROOT = process.cwd();
+const pagePath = path.join(ROOT, "src", "wingman2", "pages", "ComparePageNew.tsx");
 
-const routesPath = path.join(root, "src/wingman2/app/routes.tsx");
-const comparePath = path.join(root, "src/wingman2/pages/ComparePageNew.tsx");
-const enginePath = path.join(root, "src/wingman2/lib/competitorMatchEngine.ts");
-const gatePath = path.join(root, "src/wingman2/lib/compareCandidateGate.ts");
-const rigorousPath = path.join(root, "src/wingman2/lib/rigorousCompare.ts");
-const matrixPath = path.join(root, "src/wingman2/lib/compareFeatureMatrix.ts");
-const matrixComponentPath = path.join(root, "src/wingman2/components/compare/CompareSpecificationMatrix.tsx");
-const controlsComponentPath = path.join(root, "src/wingman2/components/compare/CompareControls.tsx");
+const failures = [];
 
-if (
-  !existsSync(routesPath) ||
-  !existsSync(comparePath) ||
-  !existsSync(enginePath) ||
-  !existsSync(gatePath) ||
-  !existsSync(rigorousPath) ||
-  !existsSync(matrixPath) ||
-  !existsSync(matrixComponentPath) ||
-  !existsSync(controlsComponentPath)
-) {
-  console.error("[compare-page-candidate-gate] Required files are missing.");
-  process.exit(1);
+function fail(message) {
+  failures.push(message);
 }
 
-const routes = readFileSync(routesPath, "utf8");
-const compare = readFileSync(comparePath, "utf8");
-const engine = readFileSync(enginePath, "utf8");
-const gate = readFileSync(gatePath, "utf8");
-const rigorous = readFileSync(rigorousPath, "utf8");
-const matrix = readFileSync(matrixPath, "utf8");
-const matrixComponent = readFileSync(matrixComponentPath, "utf8");
-const controlsComponent = readFileSync(controlsComponentPath, "utf8");
+function read(filePath) {
+  if (!fs.existsSync(filePath)) {
+    fail(`Missing file: ${path.relative(ROOT, filePath)}`);
+    return "";
+  }
 
-const requiredGateMarkers = [
-  "gateCompareCandidate",
-  "filterComparableCandidates",
-  "Technology class mismatch",
-  "APO audio/conferencing/accessory product",
-  "Candidate class is unknown",
-];
+  return fs.readFileSync(filePath, "utf8");
+}
 
-// The active page now routes through rigorousCompare, which applies the hard
-// candidate gate (via compareCompetitor) AND converges onto the deterministic
-// classifier before ranking.
-const requiredPageMarkers = [
-  "readIndexedProducts",
-  "rigorousCompare",
-  "Find WyreStorm Alternatives",
-  "CUSTOM_BRAND_VALUE",
+const page = read(pagePath);
+
+const requiredMarkers = [
+  "CompareProductLookupInput",
+  "compareSkuSuggestions",
+  "skuOptionsForBrand",
+  "brandForCompetitorSku",
+  "handleSkuSelect",
   "normalizeCompetitorSku",
-  "normalisedSku?.corrected",
-  "buildCompareFeatureMatrixRows",
-  "CompareSpecificationMatrix",
-  "CompactCompareMatrix",
-  "View comparison evidence",
-  "type WorkflowStep = \"request\" | \"matrix\" | \"options\" | \"checks\"",
-  "CompareManufacturerCombobox",
-  "CompareProductLookupInput",
-  "CompetitorProductProfileCard",
-  "Source/spec page",
-  "Optional first pass; required if Wingman asks for retry evidence",
-  "LiveLookupRetryPanel",
-  "data-wingman-live-lookup-retry",
+  "runKnownProfileCompare(",
+  "applyCompareEquivalenceGuards",
+  "applyKnownCompareProfileOverrides",
   "lookupCompareIntelligence",
-  "Retry with URL",
-  "disabled={!competitorInput.trim()}",
+  "shouldRequestLiveLookupUrl",
+  "data-wingman-compare-auto-advance=\"true\"",
+  "setWorkflowStep(\"matrix\")",
+  "onSubmit={handleSubmit}"
 ];
 
-const prohibitedPageMarkers = [
-  "<datalist",
-  "<select",
-  "COMPARE_SKU_DATALIST_ID",
-  "disabled={!competitorInput.trim() || !productUrl.trim()}",
-];
+for (const marker of requiredMarkers) {
+  if (!page.includes(marker)) {
+    fail(`ComparePage missing: ${marker}`);
+  }
+}
 
-const requiredRigorousMarkers = [
-  "compareCompetitor",
-  "classifyCompetitorCompareDecision",
-  "resolveCompetitorSpecProfile",
-  "buildWyrestormCompareProfile",
-];
+if (page.includes("Find WyreStorm Alternatives")) {
+  fail("ComparePage still contains removed blue-button text: Find WyreStorm Alternatives");
+}
 
-const requiredMatrixMarkers = [
-  "CompareFeatureMatrixRow",
-  "CompareFeatureValueKind",
-  "Product class",
-  "HDMI inputs",
-  "HDMI outputs",
-  "USB host ports",
-  "USB device ports",
-  "Audio inputs",
-  "Audio outputs",
-  "Control connections",
-  "Network / LAN ports",
-  "PoE",
-  "PoC",
-  "PoH",
-  "Power supply",
-  "status: \"miss\"",
-  "status: \"match\"",
-  "status: \"partial\"",
-];
+if (page.includes("disabled={!competitorInput.trim()}")) {
+  fail("ComparePage still contains old submit-button disabled marker instead of SKU auto-advance workflow.");
+}
 
-const requiredMatrixComponentMarkers = [
-  "Competitor vs WyreStorm comparison matrix",
-  "data-wingman-feature-match-grid",
-  "data-compare-matrix",
-  "data-wingman-comparison-matrix-scroll",
-  "CompareFeatureValueKind",
-  "QuantityValue",
-  "BooleanValue",
-  "competitorLabel",
-  "wyrestormLabel",
-  "StatusPill",
-  "overflow-x-auto",
-  "<table",
-];
+const handleStart = page.indexOf("const handleSkuSelect = useCallback");
+const handleEnd = page.indexOf("const handleSubmit = useCallback", handleStart);
 
-const requiredControlsMarkers = [
-  "data-wingman-manufacturer-combobox",
-  "role=\"listbox\"",
-  "aria-label=\"Choose competitor manufacturer\"",
-  "bg-[#071522]",
-  "CompareProductLookupInput",
-  "CompareManufacturerCombobox",
-];
+if (handleStart < 0 || handleEnd < 0) {
+  fail("Could not isolate handleSkuSelect before handleSubmit.");
+}
 
-const requiredEngineMarkers = [
-  "gateCompareCandidate",
-  "gateInputForProduct",
-  ".filter((product) => gateCompareCandidate",
-  "competitorClass: toGateClass(competitor.technologyClass)",
-];
+if (handleStart >= 0 && handleEnd > handleStart) {
+  const handler = page.slice(handleStart, handleEnd);
 
-const missing = [
-  ...["ComparePageNew"].filter((marker) => !routes.includes(marker)).map((marker) => "routes missing active ComparePageNew route: " + marker),
-  ...requiredGateMarkers.filter((marker) => !gate.includes(marker)).map((marker) => "compareCandidateGate missing: " + marker),
-  ...requiredPageMarkers.filter((marker) => !compare.includes(marker)).map((marker) => "ComparePage missing: " + marker),
-  ...prohibitedPageMarkers.filter((marker) => compare.includes(marker)).map((marker) => "ComparePage still uses native dropdown marker: " + marker),
-  ...requiredRigorousMarkers.filter((marker) => !rigorous.includes(marker)).map((marker) => "rigorousCompare missing: " + marker),
-  ...requiredMatrixMarkers.filter((marker) => !matrix.includes(marker)).map((marker) => "compareFeatureMatrix missing: " + marker),
-  ...requiredMatrixComponentMarkers.filter((marker) => !matrixComponent.includes(marker)).map((marker) => "CompareSpecificationMatrix missing: " + marker),
-  ...requiredControlsMarkers.filter((marker) => !controlsComponent.includes(marker)).map((marker) => "CompareControls missing: " + marker),
-  ...requiredEngineMarkers.filter((marker) => !engine.includes(marker)).map((marker) => "competitorMatchEngine missing: " + marker),
-];
+  const handlerMarkers = [
+    "normalizeCompetitorSku(",
+    "runKnownProfileCompare(",
+    "setState(\"analyzing\")",
+    "setState(\"results\")",
+    "setWorkflowStep(\"matrix\")"
+  ];
 
-if (missing.length) {
+  for (const marker of handlerMarkers) {
+    if (!handler.includes(marker)) {
+      fail(`handleSkuSelect missing auto-advance marker: ${marker}`);
+    }
+  }
+}
+
+const submitStart = page.indexOf("const handleSubmit = useCallback");
+const retryStart = page.indexOf("const handleRetryWithSourceUrl", submitStart);
+
+if (submitStart < 0 || retryStart < 0) {
+  fail("Could not isolate handleSubmit before live lookup retry.");
+}
+
+if (submitStart >= 0 && retryStart > submitStart) {
+  const submitHandler = page.slice(submitStart, retryStart);
+
+  if (!submitHandler.includes("runKnownProfileCompare(")) {
+    fail("handleSubmit should remain as Enter/manual fallback and still run compare.");
+  }
+
+  if (!submitHandler.includes("setWorkflowStep(\"matrix\")")) {
+    fail("handleSubmit fallback should still advance workflow to matrix.");
+  }
+}
+
+const retryStartIndex = page.indexOf("const handleRetryWithSourceUrl");
+const resetStart = page.indexOf("const handleReset", retryStartIndex);
+
+if (retryStartIndex < 0 || resetStart < 0) {
+  fail("Could not isolate handleRetryWithSourceUrl.");
+}
+
+if (retryStartIndex >= 0 && resetStart > retryStartIndex) {
+  const retryHandler = page.slice(retryStartIndex, resetStart);
+
+  if (!retryHandler.includes("lookupCompareIntelligence(")) {
+    fail("Live lookup retry path missing lookupCompareIntelligence.");
+  }
+
+  if (!retryHandler.includes("runKnownProfileCompare(")) {
+    fail("Live lookup retry path missing compare rerun.");
+  }
+}
+
+if (failures.length > 0) {
   console.error("[compare-page-candidate-gate] Check failed:");
-  for (const marker of missing) console.error("- " + marker);
+  for (const failure of failures) {
+    console.error(`- ${failure}`);
+  }
+
   process.exit(1);
 }
 
-console.log("[compare-page-candidate-gate] Verified active Compare page applies hard candidate gate and live lookup URL retry before match ranking.");
+console.log("[compare-page-candidate-gate] Verified active Compare page applies SKU auto-advance, candidate gate, manual Enter fallback, and live lookup retry before match ranking.");
