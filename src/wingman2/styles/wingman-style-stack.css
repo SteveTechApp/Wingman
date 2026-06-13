@@ -26167,3 +26167,66 @@ body .wm-pcc-preview .wm-pcc-actions button {
   font-size: 0.82rem;
   font-weight: 800;
 }
+
+/* Compare matrix sticky header overlap fix */
+.wm-compare-matrix-scroll-shell {
+  isolation: isolate;
+}
+
+.wm-compare-matrix-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+.wm-compare-matrix-table thead tr {
+  min-height: 104px;
+}
+
+.wm-compare-matrix-table thead th,
+.wm-compare-matrix-sticky-head {
+  height: 104px;
+  min-height: 104px;
+  max-height: 104px;
+  vertical-align: top;
+  overflow: hidden;
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+}
+
+.wm-compare-matrix-table thead th {
+  border-bottom: 2px solid rgba(34, 211, 238, 0.72);
+}
+
+.wm-compare-matrix-table tbody tr:first-child th,
+.wm-compare-matrix-table tbody tr:first-child td {
+  border-top: 0;
+}
+
+.wm-compare-candidate-heading {
+  min-height: 78px;
+  max-height: 86px;
+  overflow: hidden;
+  align-content: start;
+}
+
+.wm-compare-candidate-heading .wm-compact-column-title {
+  display: block;
+  line-height: 1.1;
+  max-height: 2.35em;
+  overflow: hidden;
+}
+
+.wm-compare-candidate-heading .wm-compact-column-subtitle {
+  display: block;
+  line-height: 1.1;
+  max-height: 2.35em;
+  overflow: hidden;
+}
+
+.wm-compare-candidate-heading .wm-compact-outcome {
+  display: inline-flex;
+  width: fit-content;
+  max-width: calc(100% - 0.25rem);
+  white-space: nowrap;
+}

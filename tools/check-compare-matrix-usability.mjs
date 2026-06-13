@@ -6,6 +6,7 @@ const matrixPath = path.join(ROOT, "src", "wingman2", "components", "compare", "
 const cssPath = path.join(ROOT, "src", "wingman2", "styles", "wingman-style-stack.css");
 
 const failures = [];
+const badPowerShellNewlineMarker = String.fromCharCode(96) + "n";
 
 function fail(message) {
   failures.push(message);
@@ -49,7 +50,10 @@ const requiredCssMarkers = [
   ".wm-compare-removed-candidates",
   ".wm-compare-restore-candidate",
   ".wm-compare-replace-candidate",
-  "position: sticky"
+  "position: sticky",
+  "Compare matrix sticky header overlap fix",
+  "height: 104px",
+  "overflow: hidden"
 ];
 
 for (const marker of requiredMatrixMarkers) {
@@ -72,12 +76,21 @@ if (matrix.includes("{candidates.map((candidate) => (")) {
   fail("CompactCompareMatrix still renders all candidates in the header.");
 }
 
+if (css.includes(badPowerShellNewlineMarker)) {
+  fail("CSS contains a literal PowerShell newline marker.");
+}
+
+if (matrix.includes(badPowerShellNewlineMarker)) {
+  fail("CompactCompareMatrix contains a literal PowerShell newline marker.");
+}
+
 if (failures.length > 0) {
   console.error("[compare-matrix-usability] Check failed:");
   for (const failure of failures) {
     console.error(`- ${failure}`);
   }
+
   process.exit(1);
 }
 
-console.log("[compare-matrix-usability] Verified sticky matrix header markers, removable candidate controls, restore strip and visible-candidate row wiring.");
+console.log("[compare-matrix-usability] Verified sticky matrix header markers, removable candidate controls, restore strip, visible-candidate row wiring, and header-overlap guard.");
