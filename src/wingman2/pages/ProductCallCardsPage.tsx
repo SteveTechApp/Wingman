@@ -1,69 +1,2306 @@
-import { useEffect, useState } from "react";
-import { ProductCallCardsProductPage } from "./productCallCards/ProductCallCardsProductPage";
-import { ProductCallCardsResponsePage } from "./productCallCards/ProductCallCardsResponsePage";
-import { ProductCallCardsSelectPage } from "./productCallCards/ProductCallCardsSelectPage";
-import { ProductCallCardsSetupPage } from "./productCallCards/ProductCallCardsSetupPage";
-import {
-  PRODUCT_CALL_CARDS_BASE,
-  PRODUCT_CALL_CARDS_CONTEXT_EVENT,
-  PRODUCT_CALL_CARDS_ROUTE_EVENT
-} from "./productCallCards/store";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 
-function getCurrentPath() {
-  if (typeof window === "undefined") {
-    return PRODUCT_CALL_CARDS_BASE;
-  }
+type ProductSeed = {
+  sku: string;
+  name?: string;
+  family?: string;
+  category?: string;
+  description?: string;
+  tags?: string[];
+  fit?: string;
+  openingLine?: string;
+  questions?: string[];
+  proofPoints?: string[];
+  officialUrl?: string;
+  officialCopyStatus?: string;
+};
 
-  return window.location.pathname.replace(/\/+$/, "");
+type ProductCard = {
+  sku: string;
+  name: string;
+  family: string;
+  category: string;
+  description: string;
+  fit: string;
+  openingLine: string;
+  questions: string[];
+  proofPoints: string[];
+  tags: string[];
+  curated: boolean;
+};
+
+type ProductPayload = {
+  products?: ProductSeed[];
+};
+
+type ProductPanelId = "whatItIs" | "whatItDoes" | "howToSell" | "specification";
+
+type ProductGalleryItem = {
+  id: string;
+  title: string;
+  label: string;
+  kind: "device" | "system" | "connection";
+  imageUrl?: string;
+};
+type QuickTermLookup = {
+  label: string;
+  meaning: string;
+};
+
+let setProductTermLookup: ((lookup: QuickTermLookup) => void) | null = null;
+
+const PRODUCT_PANEL_TABS: Array<{ id: ProductPanelId; label: string; hint: string }> = [
+  { id: "whatItIs", label: "What it is", hint: "Product role" },
+  { id: "whatItDoes", label: "What it does", hint: "Customer use" },
+  { id: "howToSell", label: "How to sell", hint: "Talk track" },
+  { id: "specification", label: "Specification", hint: "Key facts" },
+];
+
+const PAGE_SIZE = 14;
+
+const DATA_ENDPOINTS = [
+  "/product-call-card-products.json",
+  "/product-intelligence-index.json",
+];
+
+const CURATED: Record<string, Partial<ProductCard>> = {
+  "SW-620-TX-W": {
+    family: "Presentation",
+    description: "Wireless and wired presentation switcher for meeting and teaching spaces.",
+    fit: "Use where the customer needs simple local presentation, USB-C/HDMI source access and straightforward room operation.",
+    openingLine: "Strong fit for a simple meeting room or classroom presentation system without moving into full matrix or AVoIP.",
+    questions: [
+      "How many local sources need to connect?",
+      "Is wireless presentation required?",
+      "Is USB camera, microphone or BYOD conferencing also needed?",
+    ],
+    proofPoints: [
+      "Good starting point for presentation-led rooms.",
+      "Keeps the system simple.",
+      "Check USB/conferencing before quoting.",
+    ],
+    tags: ["presentation", "wireless", "meeting room", "teaching"],
+  },
+  "MX-0808-KIT": {
+    family: "Matrix / HDBaseT",
+    description: "Fixed 8x8 matrix kit direction for contained source-to-display routing over HDBaseT.",
+    fit: "Use for contained hospitality, sports bar or venue systems where fixed matrix routing is simpler than AVoIP.",
+    openingLine: "Good when the customer has a fixed number of sources and displays and wants reliable routing without network complexity.",
+    questions: [
+      "How many source devices are there?",
+      "How many displays need independent selection?",
+      "Are cable routes suitable for HDBaseT to a central rack?",
+    ],
+    proofPoints: [
+      "Good fit for contained 8x8 systems.",
+      "Simpler than AVoIP where expansion is limited.",
+      "Check control and distances.",
+    ],
+    tags: ["matrix", "HDBaseT", "hospitality", "sports bar"],
+  },
+  "NHD-150-RX": {
+    family: "NetworkHD 100 multiview",
+    description: "NetworkHD 100-series multiview decoder for showing multiple sources on one output.",
+    fit: "Use where several sources need to appear at once on a single display or output canvas.",
+    openingLine: "Use when the customer needs multiple sources on one screen, not just one source routed to one display.",
+    questions: [
+      "How many sources appear on the same screen?",
+      "Is this monitoring, signage or confidence viewing?",
+      "Is the system already NetworkHD 100?",
+    ],
+    proofPoints: [
+      "Correct direction for 100-series multiview.",
+      "Multiview means multiple sources on one output.",
+      "Confirm layout expectations.",
+    ],
+    tags: ["multiview", "AVoIP", "NetworkHD 100"],
+  },
+  "NHD-0401-MV": {
+    family: "Multiview processor",
+    description: "4-input multiview processor for creating one HDMI multiview output.",
+    fit: "Use where the customer wants a simple four-source multiview output without building a larger AVoIP system.",
+    openingLine: "Useful where the requirement is one combined multiview image rather than full system-wide AVoIP routing.",
+    questions: [
+      "Are four sources or fewer required?",
+      "Is the output LCD, projector or LED processor?",
+      "Are preset layouts needed?",
+    ],
+    proofPoints: [
+      "Simple multiview conversation.",
+      "Useful with LED processor workflows.",
+      "Does not replace a full matrix or AVoIP system.",
+    ],
+    tags: ["multiview", "HDMI", "LED processor"],
+  },
+  "APO-VX20-UC": {
+    family: "USB / UC",
+    description: "BYOD/UC soundbar direction for small meeting and collaboration spaces.",
+    fit: "Use where the room needs a simple camera, speaker and microphone experience.",
+    openingLine: "Fits when the customer wants a simple BYOD meeting room without separate camera, mic and speaker components.",
+    questions: [
+      "How many people are normally in the room?",
+      "Is this BYOD, room PC or Teams appliance?",
+      "Does the display need wireless presentation?",
+    ],
+    proofPoints: [
+      "Good for simple UC spaces.",
+      "Easy workflow to explain.",
+      "Check room size and USB path.",
+    ],
+    tags: ["UC", "BYOD", "soundbar", "meeting"],
+  },
+  "SW-0206-VW": {
+    family: "Video wall processor",
+    description: "Dedicated video wall processor direction for non-AVoIP wall applications.",
+    fit: "Use where a dedicated processor is cleaner than building the wall through AVoIP.",
+    openingLine: "Dedicated processor route when the wall requirement is fixed enough that AVoIP adds unnecessary complexity.",
+    questions: [
+      "Is this LCD wall or LED wall with external processor?",
+      "How many sources feed the wall?",
+      "Full canvas, presets or per-screen content?",
+    ],
+    proofPoints: [
+      "Dedicated non-AVoIP wall option.",
+      "Useful alternative to AVoIP wall designs.",
+      "Confirm wall type and layout behaviour.",
+    ],
+    tags: ["video wall", "processor", "LCD", "LED"],
+  },
+};
+
+const FALLBACK_PRODUCTS: ProductSeed[] = Object.keys(CURATED).map((sku) => ({
+  sku,
+  name: sku,
+  family: CURATED[sku].family,
+  category: CURATED[sku].category,
+  description: CURATED[sku].description,
+  tags: CURATED[sku].tags,
+}));
+
+const FAMILY_FILTERS = [
+  "All",
+  "Presentation",
+  "NetworkHD",
+  "NetworkHD 100",
+  "NetworkHD 500",
+  "NetworkHD 600",
+  "Matrix",
+  "HDBaseT",
+  "USB / UC",
+  "Multiview",
+  "Video wall",
+  "Extenders",
+  "Control",
+  "Cameras",
+];
+
+const QUICK_FINDERS = [
+  "All",
+  "0-9",
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "O",
+  "P",
+  "Q",
+  "R",
+  "S",
+  "T",
+  "U",
+  "V",
+  "W",
+  "X",
+  "Y",
+  "Z",
+];
+
+type GuruTechnicalTerm = {
+  label: string;
+  aliases: string[];
+  plainEnglish: string;
+};
+
+const GURU_TECHNICAL_TERMS: GuruTechnicalTerm[] = [
+  {
+    label: "Low Z",
+    aliases: ["Low Z", "Low-Z", "Low impedance", "low-impedance"],
+    plainEnglish: "Low impedance speaker wiring, normally used for shorter speaker runs and direct amplifier-to-speaker connections.",
+  },
+  {
+    label: "High Z",
+    aliases: ["High Z", "High-Z", "70V", "100V", "constant voltage"],
+    plainEnglish: "High impedance / constant-voltage speaker systems, normally used for longer cable runs or multiple speakers across a zone.",
+  },
+  {
+    label: "Dante",
+    aliases: ["Dante"],
+    plainEnglish: "Networked digital audio over standard IP networks, often used to route audio between DSPs, amplifiers and audio devices.",
+  },
+  {
+    label: "AES67",
+    aliases: ["AES67"],
+    plainEnglish: "An audio-over-IP interoperability standard used to help different network audio systems pass audio between each other.",
+  },
+  {
+    label: "DSP",
+    aliases: ["DSP"],
+    plainEnglish: "Digital signal processing for audio, used for EQ, mixing, routing, echo cancellation, limiting and room tuning.",
+  },
+  {
+    label: "GPIO",
+    aliases: ["GPIO"],
+    plainEnglish: "General purpose input/output ports used for simple triggers, contact closures or control integration.",
+  },
+  {
+    label: "RS-232",
+    aliases: ["RS-232", "RS232"],
+    plainEnglish: "Serial control used to send commands to displays, switchers, projectors and other AV devices.",
+  },
+  {
+    label: "IR",
+    aliases: ["IR", "infrared"],
+    plainEnglish: "Infrared control, usually used to control source devices or displays in the same way as a handheld remote.",
+  },
+  {
+    label: "HDBaseT",
+    aliases: ["HDBaseT", "HDBT"],
+    plainEnglish: "AV extension technology that can carry HDMI video, control and sometimes power over category cable.",
+  },
+  {
+    label: "PoE",
+    aliases: ["PoE", "Power over Ethernet"],
+    plainEnglish: "Power over Ethernet, allowing a network cable to provide power as well as data.",
+  },
+  {
+    label: "PoH",
+    aliases: ["PoH", "Power over HDBaseT"],
+    plainEnglish: "Power over HDBaseT, allowing a transmitter or receiver to be powered through the HDBaseT cable path.",
+  },
+  {
+    label: "ARC/eARC",
+    aliases: ["ARC", "eARC"],
+    plainEnglish: "Audio return from a display back into the AV system, commonly used to send TV/display audio to an amplifier or sound system.",
+  },
+  {
+    label: "EDID",
+    aliases: ["EDID"],
+    plainEnglish: "Display information used by a source to understand supported resolution, audio and format capabilities.",
+  },
+  {
+    label: "HDCP",
+    aliases: ["HDCP"],
+    plainEnglish: "Copy protection used on HDMI video signals. Version mismatch can stop protected content from displaying correctly.",
+  },
+  {
+    label: "4:4:4",
+    aliases: ["4:4:4"],
+    plainEnglish: "Full colour sampling, useful for sharp PC text, spreadsheets, CAD and detailed graphics.",
+  },
+  {
+    label: "HDR",
+    aliases: ["HDR", "Dolby Vision"],
+    plainEnglish: "High dynamic range video for improved brightness, contrast and colour when the full signal chain supports it.",
+  },
+  {
+    label: "CEC",
+    aliases: ["CEC"],
+    plainEnglish: "HDMI control signalling, often used for basic power/input control between connected HDMI devices.",
+  },
+  {
+    label: "USB-C",
+    aliases: ["USB-C"],
+    plainEnglish: "Modern reversible connector that may carry video, USB data and laptop charging depending on the device.",
+  },
+  {
+    label: "USB 3.0",
+    aliases: ["USB 3.0", "USB3"],
+    plainEnglish: "Higher-bandwidth USB, often important for cameras and conferencing devices.",
+  },
+  {
+    label: "BYOD",
+    aliases: ["BYOD"],
+    plainEnglish: "Bring Your Own Device. The user brings their own laptop or device to present or join a call.",
+  },
+  {
+    label: "BYOM",
+    aliases: ["BYOM"],
+    plainEnglish: "Bring Your Own Meeting. The user runs the meeting from their own laptop while using the room camera, microphone and speakers.",
+  },
+  {
+    label: "Multiview",
+    aliases: ["Multiview", "multi-view"],
+    plainEnglish: "Showing more than one source at the same time on a single output canvas.",
+  },
+  {
+    label: "H.265",
+    aliases: ["H.265", "HEVC"],
+    plainEnglish: "Efficient video compression used to reduce network bandwidth in some AV-over-IP systems.",
+  },
+  {
+    label: "H.264",
+    aliases: ["H.264"],
+    plainEnglish: "Common video compression format used for compatibility and lower-bandwidth video transport.",
+  },
+  {
+    label: "JPEG XS",
+    aliases: ["JPEG XS", "JPEG-XS"],
+    plainEnglish: "Low-latency, high-quality compression used in premium AV-over-IP systems.",
+  },
+  {
+    label: "SDVoE",
+    aliases: ["SDVoE"],
+    plainEnglish: "10G AV-over-IP technology used for very high-performance video distribution with extremely low latency.",
+  },
+  {
+    label: "NDI",
+    aliases: ["NDI"],
+    plainEnglish: "Network Device Interface, commonly used for video production and camera workflows over IP networks.",
+  },
+  {
+    label: "MST",
+    aliases: ["MST", "Multi-Stream Transport"],
+    plainEnglish: "DisplayPort/USB-C feature that can support multiple display streams from one connection.",
+  },
+  {
+    label: "Line level",
+    aliases: ["line level", "line-level"],
+    plainEnglish: "An audio signal level used between AV/audio devices before amplification to speakers.",
+  },
+];
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-export function ProductCallCardsPage() {
-  const [path, setPath] = useState(() => getCurrentPath());
-  const [, setRefreshKey] = useState(0);
+const GURU_TERM_LOOKUP = new Map<string, GuruTechnicalTerm>();
+
+GURU_TECHNICAL_TERMS.forEach((term) => {
+  term.aliases.forEach((alias) => {
+    GURU_TERM_LOOKUP.set(alias.toLowerCase(), term);
+  });
+});
+
+const GURU_TERM_PATTERN = new RegExp(
+  `(^|[^A-Za-z0-9])(${GURU_TECHNICAL_TERMS.flatMap((term) => term.aliases).sort((a, b) => b.length - a.length).map(escapeRegex).join("|")})(?=$|[^A-Za-z0-9])`,
+  "gi",
+);
+
+function findGuruTerm(value: string): GuruTechnicalTerm | undefined {
+  return GURU_TERM_LOOKUP.get(value.toLowerCase());
+}
+
+function askGuruAboutTerm(termText: string, product?: ProductCard): void {
+  const term = findGuruTerm(termText);
+  const label = term?.label || termText;
+  const meaning = term?.plainEnglish || "A technical AV term. Check how it affects the product, signal path or customer requirement.";
+
+  if (setProductTermLookup) {
+    setProductTermLookup({
+      label,
+      meaning,
+    });
+
+    return;
+  }
+
+  window.alert(`Guru says: ${label}\n\n${meaning}`);
+}
+
+function renderWithGuruLinks(text: string, product?: ProductCard): ReactNode {
+  const source = cleanText(text);
+
+  if (!source) {
+    return null;
+  }
+
+  const nodes: ReactNode[] = [];
+  let lastIndex = 0;
+  GURU_TERM_PATTERN.lastIndex = 0;
+
+  let match = GURU_TERM_PATTERN.exec(source);
+
+  while (match) {
+    const prefix = match[1] || "";
+    const matchedTerm = match[2] || "";
+    const termStart = match.index + prefix.length;
+
+    if (termStart > lastIndex) {
+      nodes.push(source.slice(lastIndex, termStart));
+    }
+
+    const guruTerm = findGuruTerm(matchedTerm);
+
+    if (guruTerm) {
+      nodes.push(
+        <button
+          key={`${matchedTerm}-${termStart}`}
+          type="button"
+          className="wm-pcc-guru-term"
+          onClick={() => askGuruAboutTerm(matchedTerm, product)}
+          title={`Guru says: ${guruTerm.label}`}
+        >
+          {matchedTerm}
+        </button>,
+      );
+    }
+
+    if (!guruTerm) {
+      nodes.push(matchedTerm);
+    }
+
+    lastIndex = termStart + matchedTerm.length;
+    match = GURU_TERM_PATTERN.exec(source);
+  }
+
+  if (lastIndex < source.length) {
+    nodes.push(source.slice(lastIndex));
+  }
+
+  return <>{nodes}</>;
+}
+
+function cleanText(value: unknown): string {
+  if (typeof value === "string") {
+    return value.trim();
+  }
+
+  if (typeof value === "number") {
+    return String(value);
+  }
+
+  return "";
+}
+
+function normaliseSku(value: string): string {
+  return value.trim().toUpperCase().replace(/\s+/g, "");
+}
+
+function unique(values: string[]): string[] {
+  const seen = new Set<string>();
+  const output: string[] = [];
+
+  values.forEach((value) => {
+    const clean = value.trim();
+
+    if (!clean) {
+      return;
+    }
+
+    const key = clean.toLowerCase();
+
+    if (seen.has(key)) {
+      return;
+    }
+
+    seen.add(key);
+    output.push(clean);
+  });
+
+  return output;
+}
+
+function classify(seed: ProductSeed): string {
+  const text = `${seed.sku} ${seed.name || ""} ${seed.family || ""} ${seed.category || ""} ${seed.description || ""} ${(seed.tags || []).join(" ")}`.toLowerCase();
+
+  if (text.includes("nhd-600") || text.includes("networkhd 600") || text.includes("10g")) {
+    return "NetworkHD 600";
+  }
+
+  if (text.includes("nhd-500") || text.includes("networkhd 500")) {
+    return "NetworkHD 500";
+  }
+
+  if (text.includes("nhd-1") || text.includes("networkhd 100")) {
+    return "NetworkHD 100";
+  }
+
+  if (text.includes("networkhd") || text.includes("avoip") || text.includes("av-over-ip")) {
+    return "NetworkHD";
+  }
+
+  if (text.includes("video wall") || text.includes("videowall") || text.includes("-vw")) {
+    return "Video wall";
+  }
+
+  if (text.includes("multiview") || text.includes("-mv")) {
+    return "Multiview";
+  }
+
+  if (text.includes("usb") || text.includes("uc") || text.includes("byod") || text.includes("conference")) {
+    return "USB / UC";
+  }
+
+  if (text.includes("hdbaset") || text.includes("hdbt") || text.includes("extender")) {
+    return "HDBaseT";
+  }
+
+  if (text.includes("matrix") || text.startsWith("mx-")) {
+    return "Matrix";
+  }
+
+  if (text.includes("presentation") || text.includes("switcher") || text.startsWith("sw-")) {
+    return "Presentation";
+  }
+
+  if (text.includes("camera") || text.includes("ptz") || text.includes("ndi")) {
+    return "Cameras";
+  }
+
+  if (text.includes("touch") || text.includes("control")) {
+    return "Control";
+  }
+
+  return "WyreStorm product";
+}
+
+function questionsFor(product: ProductCard): string[] {
+  const text = `${product.sku} ${product.family} ${product.category} ${product.description} ${product.tags.join(" ")}`.toLowerCase();
+
+  if (text.includes("networkhd") || text.includes("avoip") || text.includes("av-over-ip")) {
+    return [
+      "How many sources and displays are required?",
+      "Who owns the network and switch configuration?",
+      "Is USB, multiview, video wall or low latency required?",
+    ];
+  }
+
+  if (text.includes("usb") || text.includes("uc") || text.includes("byod")) {
+    return [
+      "Is the room BYOD, room PC, Teams appliance or mixed use?",
+      "Which USB devices need to be connected?",
+      "Where are the laptop, display and USB devices located?",
+    ];
+  }
+
+  if (text.includes("video wall") || text.includes("multiview")) {
+    return [
+      "What wall size or layout is required?",
+      "Do they need full canvas, presets, multiview or per-screen content?",
+      "How many sources need to be shown?",
+    ];
+  }
+
+  if (text.includes("matrix") || text.includes("hdbaset")) {
+    return [
+      "How many sources and displays are required?",
+      "Where are the rack and displays located?",
+      "What control method does the customer expect?",
+    ];
+  }
+
+  return [
+    "What problem is the customer trying to solve?",
+    "How many sources and displays are involved?",
+    "Is USB, audio, control or networking part of the requirement?",
+  ];
+}
+
+function toProductCard(seed: ProductSeed): ProductCard {
+  const sku = normaliseSku(seed.sku);
+  const overlay = CURATED[sku] || {};
+  const family = cleanText(overlay.family) || cleanText(seed.family) || classify(seed);
+  const category = cleanText(overlay.category) || cleanText(seed.category) || family;
+  const name = cleanText(overlay.name) || cleanText(seed.name) || sku;
+  const description =
+    cleanText(overlay.description) ||
+    cleanText(seed.description) ||
+    `${name} from the Wingman product index.`;
+
+  const base: ProductCard = {
+    sku,
+    name,
+    family,
+    category,
+    description,
+    fit:
+      cleanText(overlay.fit) ||
+      cleanText(seed.fit) ||
+      `Use this when the customer requirement matches ${family.toLowerCase()} applications. Confirm I/O, signal distance, USB, audio, control and network dependencies before quoting.`,
+    openingLine:
+      cleanText(overlay.openingLine) ||
+      cleanText(seed.openingLine) ||
+      `${sku} is a ${family.toLowerCase()} product direction. Use it as a starting point, then validate the room requirement before making a firm recommendation.`,
+    questions: overlay.questions || seed.questions || [],
+    proofPoints:
+      overlay.proofPoints ||
+      seed.proofPoints || [
+        "Pulled from the Wingman product intelligence data.",
+        "Use this as a product direction until the requirement is validated.",
+        "Confirm dependencies before quoting.",
+      ],
+    tags: unique([...(seed.tags || []), ...((overlay.tags as string[] | undefined) || []), family, category]),
+    curated: Boolean(CURATED[sku]),
+  };
+
+  if (base.questions.length === 0) {
+    base.questions = questionsFor(base);
+  }
+
+  return base;
+}
+
+function isProductSeed(value: unknown): value is ProductSeed {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const record = value as Record<string, unknown>;
+  return Boolean(cleanText(record.sku));
+}
+
+function extractProductSeeds(value: unknown): ProductSeed[] {
+  if (Array.isArray(value)) {
+    return value.filter(isProductSeed);
+  }
+
+  if (!value || typeof value !== "object") {
+    return [];
+  }
+
+  const payload = value as ProductPayload;
+
+  if (Array.isArray(payload.products)) {
+    return payload.products.filter(isProductSeed);
+  }
+
+  return [];
+}
+
+async function loadProductSeeds(): Promise<ProductSeed[]> {
+  for (const endpoint of DATA_ENDPOINTS) {
+    try {
+      const response = await fetch(endpoint, { cache: "no-store" });
+
+      if (!response.ok) {
+        continue;
+      }
+
+      const payload = await response.json();
+      const seeds = extractProductSeeds(payload);
+
+      if (seeds.length > 0) {
+        return seeds;
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  return FALLBACK_PRODUCTS;
+}
+
+function productMatches(product: ProductCard, query: string, family: string, quickFinder: string): boolean {
+  const firstSkuChar = product.sku.charAt(0).toUpperCase();
+
+  if (quickFinder === "0-9" && !/^[0-9]$/.test(firstSkuChar)) {
+    return false;
+  }
+
+  if (quickFinder !== "All" && quickFinder !== "0-9" && firstSkuChar !== quickFinder) {
+    return false;
+  }
+
+  const haystack = [
+    product.sku,
+    product.name,
+    product.family,
+    product.category,
+    product.description,
+    product.fit,
+    product.openingLine,
+    ...product.questions,
+    ...product.proofPoints,
+    ...product.tags,
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  if (family !== "All" && !haystack.includes(family.toLowerCase())) {
+    return false;
+  }
+
+  if (!query.trim()) {
+    return true;
+  }
+
+  return haystack.includes(query.trim().toLowerCase());
+}
+
+function getSkuFromPath(): string {
+  const parts = window.location.pathname.split("/").filter(Boolean);
+  const last = parts[parts.length - 1] || "";
+
+  if (last === "select" || last === "product-call-cards") {
+    return "";
+  }
+
+  return normaliseSku(decodeURIComponent(last));
+}
+
+function goTo(path: string): void {
+  window.location.assign(path);
+}
+
+export default function ProductCallCardsPage() {
+  const pathSku = getSkuFromPath();
+
+  const [products, setProducts] = useState<ProductCard[]>([]);
+  const [isFallback, setIsFallback] = useState(false);
+  const [query, setQuery] = useState("");
+  const [activeFamily, setActiveFamily] = useState("All");
+  const [activeQuickFinder, setActiveQuickFinder] = useState("All");
+  const [selectedSku, setSelectedSku] = useState(pathSku);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [activeProductPanel, setActiveProductPanel] = useState<ProductPanelId>("whatItIs");
+  const [activeGalleryItem, setActiveGalleryItem] = useState<ProductGalleryItem | null>(null);
+  const [activeTermLookup, setActiveTermLookup] = useState<QuickTermLookup | null>(null);
 
   useEffect(() => {
-    const syncPath = () => setPath(getCurrentPath());
-    const syncContext = () => setRefreshKey((value) => value + 1);
+    setProductTermLookup = setActiveTermLookup;
 
-    window.addEventListener("popstate", syncPath);
-    window.addEventListener(PRODUCT_CALL_CARDS_ROUTE_EVENT, syncPath);
-    window.addEventListener(PRODUCT_CALL_CARDS_CONTEXT_EVENT, syncContext);
 
-    return () => {
-      window.removeEventListener("popstate", syncPath);
-      window.removeEventListener(PRODUCT_CALL_CARDS_ROUTE_EVENT, syncPath);
-      window.removeEventListener(PRODUCT_CALL_CARDS_CONTEXT_EVENT, syncContext);
+return () => {
+      setProductTermLookup = null;
     };
   }, []);
 
-  const productMatch = path.match(/\/product-call-cards\/product\/([^/]+)$/);
-  const responseMatch = path.match(/\/product-call-cards\/response\/([^/]+)$/);
+  useEffect(() => {
+    let active = true;
 
-  if (path.endsWith("/setup")) {
-    return <ProductCallCardsSetupPage />;
+    async function load(): Promise<void> {
+      const seeds = await loadProductSeeds();
+
+      if (!active) {
+        return;
+      }
+
+      const cards = seeds
+        .map(toProductCard)
+        .filter((product) => product.sku)
+        .sort((a, b) => a.sku.localeCompare(b.sku));
+
+      setProducts(cards);
+      setIsFallback(seeds === FALLBACK_PRODUCTS);
+
+      if (pathSku && cards.some((product) => product.sku === pathSku)) {
+        setSelectedSku(pathSku);
+      }
+    }
+
+    load();
+
+    return () => {
+      active = false;
+    };
+  }, [pathSku]);
+
+  useEffect(() => {
+    setPageIndex(0);
+  }, [query, activeFamily, activeQuickFinder]);
+
+  const availableQuickFinders = useMemo(() => {
+    const available = new Set<string>();
+    available.add("All");
+
+    products
+      .filter((product) => productMatches(product, query, activeFamily, "All"))
+      .forEach((product) => {
+        const firstSkuChar = product.sku.charAt(0).toUpperCase();
+
+        if (/^[0-9]$/.test(firstSkuChar)) {
+          available.add("0-9");
+          return;
+        }
+
+        if (/^[A-Z]$/.test(firstSkuChar)) {
+          available.add(firstSkuChar);
+        }
+      });
+
+    return available;
+  }, [products, query, activeFamily]);
+
+  useEffect(() => {
+    if (activeQuickFinder === "All") {
+      return;
+    }
+
+    if (availableQuickFinders.has(activeQuickFinder)) {
+      return;
+    }
+
+    setActiveQuickFinder("All");
+  }, [activeQuickFinder, availableQuickFinders]);
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => productMatches(product, query, activeFamily, activeQuickFinder));
+  }, [products, query, activeFamily, activeQuickFinder]);
+
+  const pageCount = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
+  const safePageIndex = Math.min(pageIndex, pageCount - 1);
+  const pageProducts = filteredProducts.slice(safePageIndex * PAGE_SIZE, safePageIndex * PAGE_SIZE + PAGE_SIZE);
+
+  const selectedProduct =
+    products.find((product) => product.sku === selectedSku) ||
+    pageProducts[0] ||
+    filteredProducts[0] ||
+    null;
+
+  const productChecks = useMemo(() => {
+    if (!selectedProduct) {
+      return [];
+    }
+
+    const sku = selectedProduct.sku.toUpperCase();
+    const family = `${selectedProduct.family} ${selectedProduct.category}`.toLowerCase();
+
+    if (sku.startsWith("AMP-") || family.includes("audio") || family.includes("amplifier")) {
+      return [
+        "Confirm speaker type: Low Z, High Z / 70V / 100V, or mixed.",
+        "Confirm speaker quantity, speaker load and how many audio zones are required.",
+        "Confirm the audio source: local analogue, Dante, AES67, HDMI audio breakout or DSP output.",
+        "Check whether DSP, RS-232, GPIO, trigger input or network control is required.",
+      ];
+    }
+
+    if (sku.startsWith("NHD-")) {
+      return [
+        "Confirm whether this is a new NetworkHD system or an addition to an existing system.",
+        "Confirm the required NetworkHD series; do not assume cross-series interoperability.",
+        "Confirm source count, display count, NHD controller and network switch requirements.",
+        "Check whether USB, multiview, video wall, Dante or low-latency operation is required.",
+      ];
+    }
+
+    if (sku.startsWith("MX-") || sku.startsWith("MXV-")) {
+      return [
+        "Confirm real source count and display count before assuming the matrix size is correct.",
+        "Confirm independent routed outputs versus mirrored, loop or local monitor outputs.",
+        "Confirm HDBaseT receiver requirement, cable distance and cable quality.",
+        "Check whether audio breakout, IR, RS-232, ARC/eARC or IP control is required.",
+      ];
+    }
+
+    if (sku.startsWith("SW-0204-VW") || sku.startsWith("SW-0206-VW")) {
+      return [
+        "Confirm wall type: LCD wall, LED processor input, projector blend or other display canvas.",
+        "Confirm source count and required layouts.",
+        "Check whether the user needs fixed presets, full canvas, multiview or per-display content.",
+        "Confirm whether a dedicated processor is better than an AV-over-IP wall approach.",
+      ];
+    }
+
+    if (sku === "NHD-0401-MV" || family.includes("multiview")) {
+      return [
+        "Confirm how many sources need to appear on the same output at the same time.",
+        "Confirm whether the output feeds a display, projector, recorder, streamer or LED processor.",
+        "Check whether the user needs fixed layouts or live layout control.",
+        "Do not confuse multiview with simply having multiple HDMI outputs.",
+      ];
+    }
+
+    if (sku.startsWith("SW-") || family.includes("presentation")) {
+      return [
+        "Confirm how the user connects: HDMI, USB-C, wireless or a mix.",
+        "Confirm whether the room is presentation-only, BYOD/BYOM conferencing or mixed use.",
+        "Confirm display count and whether the outputs need mirrored or independent behaviour.",
+        "Check whether USB device switching, room control or touch-panel operation is required.",
+      ];
+    }
+
+    if (sku.startsWith("APO-") || family.includes("usb") || family.includes("uc")) {
+      return [
+        "Confirm whether the workflow is BYOD, BYOM, room PC, Teams appliance or mixed use.",
+        "Confirm camera, microphone, speakerphone and USB host location.",
+        "Check USB version, cable distance and whether USB switching or extension is required.",
+        "Confirm whether wireless presentation or a dongle workflow is part of the requirement.",
+      ];
+    }
+
+    if (sku.startsWith("EX-") || family.includes("hdbaset") || family.includes("extender")) {
+      return [
+        "Confirm point-to-point source and display locations.",
+        "Confirm cable distance, cable quality and required video format.",
+        "Check whether PoH/PoE, IR, RS-232, Ethernet pass-through or audio breakout is required.",
+        "Confirm transmitter/receiver pairing before specifying.",
+      ];
+    }
+
+    if (sku.startsWith("CAB-") || sku.startsWith("CBL-") || family.includes("cable") || family.includes("accessory")) {
+      return [
+        "Confirm the parent product or device this accessory is being used with.",
+        "Confirm connector type, cable length and installation route.",
+        "Check whether the required function is video, USB data, charging, power, mounting or service access.",
+        "Do not position an accessory as the main system solution.",
+      ];
+    }
+
+    if (sku.startsWith("CAM-") || family.includes("camera")) {
+      return [
+        "Confirm camera output type: USB, HDMI, NDI or mixed.",
+        "Confirm room size, camera position and required field of view.",
+        "Check whether PTZ control, presets, tracking or camera bridge/mixer support is required.",
+        "Confirm how the camera connects into the UC, AV or streaming workflow.",
+      ];
+    }
+
+    if (sku.startsWith("SYN-") || family.includes("control")) {
+      return [
+        "Confirm which devices need to be controlled.",
+        "Confirm control method: IP, RS-232, IR, relay or GPIO.",
+        "Check whether the user needs simple presets, room mode selection or full device control.",
+        "Confirm who will configure and maintain the control interface.",
+      ];
+    }
+
+    return [
+      "Confirm the parent application for this product.",
+      "Confirm what device or system it must connect to.",
+      "Check source, display, audio, USB, control and power dependencies before adding it to a project.",
+    ];
+  }, [selectedProduct]);
+
+  const productSpecificationRows = useMemo(() => {
+    if (!selectedProduct) {
+      return [];
+    }
+
+    const rows: Array<{ label: string; value: string }> = [
+      { label: "SKU", value: selectedProduct.sku },
+      { label: "Family", value: selectedProduct.family },
+      { label: "Category", value: selectedProduct.category },
+    ];
+
+    const matrixIo = selectedProduct.sku.toUpperCase().match(/(?:MX|MXV)-(\d{2})(\d{2})/);
+
+    if (matrixIo) {
+      rows.push({
+        label: "SKU I/O guide",
+        value: `${Number(matrixIo[1])} inputs / ${Number(matrixIo[2])} outputs. Confirm routed outputs versus mirrored or local outputs.`,
+      });
+    }
+
+    const usefulTags = selectedProduct.tags
+      .filter((tag) => tag.length <= 32)
+      .slice(0, 8)
+      .join(", ");
+
+    if (usefulTags) {
+      rows.push({
+        label: "Useful tags",
+        value: usefulTags,
+      });
+    }
+
+    return rows;
+  }, [selectedProduct]);  const firstVisible = filteredProducts.length === 0 ? 0 : safePageIndex * PAGE_SIZE + 1;
+  const lastVisible = Math.min(filteredProducts.length, (safePageIndex + 1) * PAGE_SIZE);
+  const curatedCount = products.filter((product) => product.curated).length;
+
+  function addProductToProject(): void {
+    if (!selectedProduct) {
+      return;
+    }
+
+    const payload = {
+      sku: selectedProduct.sku,
+      name: selectedProduct.name,
+      family: selectedProduct.family,
+      category: selectedProduct.category,
+      description: selectedProduct.description,
+      fit: selectedProduct.fit,
+      openingLine: selectedProduct.openingLine,
+      questions: selectedProduct.questions,
+      proofPoints: selectedProduct.proofPoints,
+      tags: selectedProduct.tags,
+      source: "product-discussion",
+    };
+
+    try {
+      window.sessionStorage.setItem("wingman.pendingProjectProduct", JSON.stringify(payload));
+    } catch {
+      // Continue with navigation even if storage is unavailable.
+    }
+
+    const params = new URLSearchParams();
+    params.set("addSku", selectedProduct.sku);
+    params.set("source", "product-discussion");
+
+    goTo(`/wingman/projects?${params.toString()}`);
   }
 
-  if (path.endsWith("/select")) {
-    return <ProductCallCardsSelectPage />;
-  }
+  function startRoomBuilderWithProduct(): void {
+    if (!selectedProduct) {
+      return;
+    }
 
-  if (productMatch) {
-    return <ProductCallCardsProductPage sku={decodeURIComponent(productMatch[1])} />;
-  }
+    const payload = {
+      sku: selectedProduct.sku,
+      name: selectedProduct.name,
+      family: selectedProduct.family,
+      category: selectedProduct.category,
+      description: selectedProduct.description,
+      source: "product-discussion",
+    };
 
-  if (path.endsWith("/card")) {
-    return <ProductCallCardsProductPage />;
-  }
+    try {
+      window.sessionStorage.setItem("wingman.roomBuilderSeedProduct", JSON.stringify(payload));
+    } catch {
+      // Continue with navigation even if storage is unavailable.
+    }
 
-  if (responseMatch) {
-    return <ProductCallCardsResponsePage sku={decodeURIComponent(responseMatch[1])} />;
-  }
+    const params = new URLSearchParams();
+    params.set("seedSku", selectedProduct.sku);
+    params.set("source", "product-discussion");
 
-  if (path.endsWith("/response")) {
-    return <ProductCallCardsResponsePage />;
+    goTo(`/wingman/discovery?${params.toString()}`);
   }
+return (
+    <section className="wm-pcc-select-shell">
+      <style>{`
+        .wm-pcc-select-shell {
+          height: calc(100vh - 5.4rem);
+          min-height: 0;
+          display: grid;
+          grid-template-rows: auto 1fr;
+          gap: 0.42rem;
+          padding: 0.55rem 0.75rem;
+          overflow: hidden;
+          color: #ffffff;
+        }
 
-  return <ProductCallCardsSetupPage />;
+        .wm-pcc-select-shell,
+        .wm-pcc-select-shell * {
+          box-sizing: border-box;
+        }
+
+        .wm-pcc-header {
+          min-height: 3rem;
+          border: 1px solid rgba(103, 232, 249, 0.24);
+          border-radius: 0.9rem;
+          background: linear-gradient(135deg, rgba(6, 24, 39, 0.95), rgba(8, 35, 56, 0.82));
+          padding: 0.45rem 0.65rem;
+          display: grid;
+          grid-template-columns: 1fr minmax(250px, 410px);
+          align-items: center;
+          gap: 0.65rem;
+        }
+
+        .wm-pcc-eyebrow {
+          margin: 0;
+          color: #67e8f9;
+          font-size: 0.63rem;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+
+        .wm-pcc-title {
+          margin: 0;
+          color: #ffffff;
+          font-size: 1.05rem;
+          line-height: 1.05;
+          font-weight: 900;
+        }
+
+        .wm-pcc-subtitle {
+          margin: 0.08rem 0 0;
+          color: rgba(226, 242, 255, 0.72);
+          font-size: 0.68rem;
+        }
+
+        .wm-pcc-search {
+          width: 100%;
+          height: 1.9rem;
+          border: 1px solid rgba(103, 232, 249, 0.3);
+          border-radius: 0.7rem;
+          background: rgba(2, 13, 24, 0.9);
+          color: #ffffff;
+          padding: 0.45rem 0.65rem;
+          outline: none;
+          font-size: 0.78rem;
+        }
+
+        .wm-pcc-grid {
+          min-height: 0;
+          display: grid;
+          grid-template-columns: minmax(0, 1.12fr) minmax(330px, 0.88fr);
+          gap: 0.42rem;
+          overflow: hidden;
+        }
+
+        .wm-pcc-card {
+          min-height: 0;
+          border: 1px solid rgba(103, 232, 249, 0.2);
+          border-radius: 0.85rem;
+          background: rgba(4, 21, 35, 0.9);
+          box-shadow: 0 14px 34px rgba(0, 0, 0, 0.2);
+          padding: 0.55rem;
+          overflow: hidden;
+        }
+
+        .wm-pcc-left {
+          display: grid;
+          grid-template-rows: auto auto auto 1fr;
+          gap: 0.34rem;
+        }
+
+        .wm-pcc-chips {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.32rem;
+        }
+
+        .wm-pcc-quick-finder {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.22rem;
+          padding: 0.08rem 0;
+        }
+
+        .wm-pcc-quick-button {
+          min-width: 1.28rem;
+          height: 1.22rem;
+          border: 1px solid rgba(103, 232, 249, 0.2);
+          border-radius: 999px;
+          background: rgba(3, 18, 31, 0.88);
+          color: rgba(226, 242, 255, 0.82);
+          font-size: 0.52rem;
+          font-weight: 850;
+          line-height: 1;
+          padding: 0 0.3rem;
+          cursor: pointer;
+        }
+
+        .wm-pcc-quick-button-wide {
+          min-width: 2rem;
+        }
+
+        .wm-pcc-quick-button-active {
+          border-color: #67e8f9;
+          background: rgba(13, 116, 139, 0.46);
+          color: #ffffff;
+          box-shadow: inset 0 0 0 1px rgba(103, 232, 249, 0.24);
+        }
+
+        .wm-pcc-quick-button-disabled {
+          opacity: 0.28;
+          cursor: not-allowed;
+          color: rgba(226, 242, 255, 0.34);
+          border-color: rgba(103, 232, 249, 0.08);
+          background: rgba(3, 18, 31, 0.38);
+          box-shadow: none;
+        }
+
+        .wm-pcc-chip,
+        .wm-pcc-pager-button {
+          border: 1px solid rgba(103, 232, 249, 0.22);
+          border-radius: 999px;
+          background: rgba(3, 18, 31, 0.92);
+          color: #ffffff;
+          font-size: 0.62rem;
+          font-weight: 850;
+          cursor: pointer;
+        }
+
+        .wm-pcc-chip {
+          height: 1.55rem;
+          padding: 0 0.5rem;
+        }
+
+        .wm-pcc-chip-active {
+          border-color: #67e8f9;
+          background: rgba(13, 116, 139, 0.42);
+          box-shadow: inset 0 0 0 1px rgba(103, 232, 249, 0.28);
+        }
+
+        .wm-pcc-status {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.5rem;
+          color: rgba(226, 242, 255, 0.68);
+          font-size: 0.62rem;
+          line-height: 1.15;
+        }
+
+        .wm-pcc-pager {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          white-space: nowrap;
+        }
+
+        .wm-pcc-pager-button {
+          height: 1.4rem;
+          padding: 0 0.5rem;
+        }
+
+        .wm-pcc-product-grid {
+          min-height: 0;
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          grid-auto-rows: 2.55rem;
+          gap: 0.34rem;
+          overflow: hidden;
+        }
+
+        .wm-pcc-product {
+          height: 2.55rem;
+          border: 1px solid rgba(103, 232, 249, 0.18);
+          border-radius: 0.78rem;
+          background: rgba(2, 14, 25, 0.82);
+          color: #ffffff;
+          padding: 0.34rem 0.5rem;
+          text-align: left;
+          cursor: pointer;
+          overflow: hidden;
+        }
+
+        .wm-pcc-product-active {
+          border-color: #67e8f9;
+          background: rgba(13, 87, 110, 0.38);
+        }
+
+        .wm-pcc-sku {
+          display: block;
+          color: #67e8f9;
+          font-weight: 950;
+          font-size: 0.78rem;
+          line-height: 1.05;
+        }
+
+        .wm-pcc-family {
+          display: block;
+          margin-top: 0.05rem;
+          color: rgba(226, 242, 255, 0.62);
+          font-weight: 750;
+          font-size: 0.6rem;
+          line-height: 1.05;
+        }
+
+        .wm-pcc-desc {
+          display: none;
+        }
+
+        .wm-pcc-preview {
+          display: grid;
+          grid-template-rows: auto auto minmax(0, 1fr) auto;
+          gap: 0.34rem;
+        }
+
+        .wm-pcc-gallery-strip {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+          gap: 0.45rem;
+          align-items: stretch;
+        }
+
+        .wm-pcc-gallery-tile {
+          min-width: 0;
+          min-height: 3.2rem;
+          border: 1px solid rgba(103, 232, 249, 0.18);
+          border-radius: 0.72rem;
+          background: rgba(2, 14, 25, 0.72);
+          color: #ffffff;
+          cursor: pointer;
+          padding: 0.45rem;
+          display: grid;
+          grid-template-columns: 2.4rem minmax(0, 1fr);
+          gap: 0.5rem;
+          align-items: center;
+          text-align: left;
+        }
+
+        .wm-pcc-gallery-thumb {
+          width: 2.4rem;
+          height: 2.4rem;
+          border: 1px solid rgba(103, 232, 249, 0.2);
+          border-radius: 0.55rem;
+          background:
+            linear-gradient(135deg, rgba(103, 232, 249, 0.18), rgba(37, 99, 235, 0.12)),
+            rgba(3, 18, 31, 0.8);
+          display: grid;
+          place-items: center;
+          overflow: hidden;
+        }
+
+        .wm-pcc-gallery-thumb img {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          display: block;
+        }
+
+        .wm-pcc-gallery-icon {
+          color: #67e8f9;
+          font-size: 0.82rem;
+          font-weight: 950;
+        }
+
+        .wm-pcc-gallery-title {
+          margin: 0;
+          color: #ffffff;
+          font-size: 0.66rem;
+          line-height: 1.05;
+          font-weight: 950;
+        }
+
+        .wm-pcc-gallery-label {
+          margin: 0.12rem 0 0;
+          color: rgba(226, 242, 255, 0.58);
+          font-size: 0.52rem;
+          line-height: 1.05;
+          font-weight: 800;
+        }
+
+        .wm-pcc-visual-studio-button {
+          min-width: 7.8rem;
+          border: 1px solid rgba(103, 232, 249, 0.24);
+          border-radius: 0.72rem;
+          background: rgba(13, 116, 139, 0.22);
+          color: #67e8f9;
+          font-size: 0.62rem;
+          font-weight: 950;
+          cursor: pointer;
+          padding: 0.45rem 0.55rem;
+        }
+
+        .wm-pcc-gallery-modal {
+          position: fixed;
+          inset: 0;
+          z-index: 99998;
+          display: grid;
+          place-items: center;
+          background: rgba(0, 8, 15, 0.62);
+          backdrop-filter: blur(5px);
+        }
+
+        .wm-pcc-gallery-modal-card {
+          width: min(42rem, calc(100vw - 2rem));
+          border: 1px solid rgba(103, 232, 249, 0.32);
+          border-radius: 1rem;
+          background: rgba(3, 18, 31, 0.98);
+          box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+          padding: 1rem;
+          color: #ffffff;
+        }
+
+        .wm-pcc-gallery-modal-head {
+          display: flex;
+          align-items: start;
+          justify-content: space-between;
+          gap: 1rem;
+          margin-bottom: 0.75rem;
+        }
+
+        .wm-pcc-gallery-modal-kicker {
+          margin: 0;
+          color: #67e8f9;
+          font-size: 0.62rem;
+          font-weight: 950;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+
+        .wm-pcc-gallery-modal-title {
+          margin: 0.16rem 0 0;
+          color: #ffffff;
+          font-size: 1.1rem;
+          line-height: 1.1;
+          font-weight: 950;
+        }
+
+        .wm-pcc-gallery-modal-close {
+          width: 1.7rem;
+          height: 1.7rem;
+          border: 1px solid rgba(103, 232, 249, 0.24);
+          border-radius: 999px;
+          background: rgba(2, 14, 25, 0.85);
+          color: #ffffff;
+          cursor: pointer;
+        }
+
+        .wm-pcc-gallery-visual {
+          min-height: 16rem;
+          border: 1px solid rgba(103, 232, 249, 0.18);
+          border-radius: 0.85rem;
+          background:
+            radial-gradient(circle at 20% 20%, rgba(103, 232, 249, 0.14), transparent 28%),
+            linear-gradient(135deg, rgba(13, 116, 139, 0.12), rgba(2, 14, 25, 0.78));
+          display: grid;
+          place-items: center;
+          padding: 1rem;
+        }
+
+        .wm-pcc-gallery-device-card {
+          width: min(26rem, 100%);
+          min-height: 8rem;
+          border: 1px solid rgba(103, 232, 249, 0.34);
+          border-radius: 0.9rem;
+          background: rgba(2, 14, 25, 0.84);
+          display: grid;
+          place-items: center;
+          padding: 1rem;
+          text-align: center;
+        }
+
+        .wm-pcc-gallery-device-card strong {
+          display: block;
+          color: #67e8f9;
+          font-size: 1.5rem;
+          line-height: 1;
+          font-weight: 950;
+        }
+
+        .wm-pcc-gallery-device-card span {
+          display: block;
+          margin-top: 0.45rem;
+          color: rgba(226, 242, 255, 0.78);
+          font-size: 0.82rem;
+          font-weight: 850;
+        }
+        .wm-pcc-section-tabs {
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+          gap: 0.28rem;
+        }
+
+        .wm-pcc-section-tab {
+          min-width: 0;
+          min-height: 2.2rem;
+          border: 1px solid rgba(103, 232, 249, 0.18);
+          border-radius: 0.68rem;
+          background: rgba(2, 14, 25, 0.72);
+          color: rgba(226, 242, 255, 0.82);
+          cursor: pointer;
+          padding: 0.32rem 0.35rem;
+          text-align: left;
+        }
+
+        .wm-pcc-section-tab strong {
+          display: block;
+          color: #ffffff;
+          font-size: 0.58rem;
+          line-height: 1;
+          font-weight: 900;
+        }
+
+        .wm-pcc-section-tab span {
+          display: block;
+          margin-top: 0.18rem;
+          color: rgba(226, 242, 255, 0.56);
+          font-size: 0.48rem;
+          line-height: 1;
+          font-weight: 800;
+        }
+
+        .wm-pcc-section-tab-active {
+          border-color: #67e8f9;
+          background: rgba(13, 116, 139, 0.38);
+          box-shadow: inset 0 0 0 1px rgba(103, 232, 249, 0.22);
+        }
+
+        .wm-pcc-term-lookup {
+          border: 1px solid rgba(103, 232, 249, 0.24);
+          border-radius: 0.72rem;
+          background: rgba(13, 116, 139, 0.14);
+          padding: 0.5rem 0.6rem;
+          display: grid;
+          grid-template-columns: 1fr auto;
+          gap: 0.5rem;
+          align-items: start;
+        }
+
+        .wm-pcc-term-lookup-title {
+          margin: 0 0 0.18rem;
+          color: #67e8f9;
+          font-size: 0.66rem;
+          font-weight: 950;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .wm-pcc-term-lookup-body {
+          margin: 0;
+          color: rgba(226, 242, 255, 0.88);
+          font-size: 0.68rem;
+          line-height: 1.25;
+        }
+
+        .wm-pcc-term-lookup-close {
+          width: 1.35rem;
+          height: 1.35rem;
+          border: 1px solid rgba(103, 232, 249, 0.22);
+          border-radius: 999px;
+          background: rgba(2, 14, 25, 0.72);
+          color: #ffffff;
+          cursor: pointer;
+          font-size: 0.7rem;
+          line-height: 1;
+        }
+
+        .wm-pcc-focus-panel {
+          min-height: 0;
+          border: 1px solid rgba(103, 232, 249, 0.18);
+          border-radius: 0.8rem;
+          background: rgba(2, 14, 25, 0.62);
+          padding: 0.72rem 0.78rem;
+          overflow: hidden;
+        }
+
+        .wm-pcc-section-heading {
+          margin: 0 0 0.38rem;
+          color: #67e8f9;
+          font-size: 0.72rem;
+          line-height: 1;
+          font-weight: 950;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+        }
+
+        .wm-pcc-response-copy {
+          margin: 0 0 0.7rem;
+          color: rgba(226, 242, 255, 0.9);
+          font-size: 0.82rem;
+          line-height: 1.34;
+        }
+
+        .wm-pcc-response-subhead {
+          margin: 0 0 0.28rem;
+          color: #ffffff;
+          font-size: 0.7rem;
+          line-height: 1;
+          font-weight: 900;
+        }
+
+        .wm-pcc-response-list {
+          margin: 0;
+          padding-left: 1.1rem;
+          color: rgba(226, 242, 255, 0.88);
+          font-size: 0.76rem;
+          line-height: 1.42;
+        }
+
+        .wm-pcc-response-list li + li {
+          margin-top: 0.34rem;
+        }
+
+        .wm-pcc-example-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 0.55rem;
+          margin-top: 0.5rem;
+        }
+
+        .wm-pcc-example-card {
+          border: 1px solid rgba(103, 232, 249, 0.18);
+          border-radius: 0.72rem;
+          background: rgba(13, 116, 139, 0.12);
+          padding: 0.58rem 0.65rem;
+        }
+
+        .wm-pcc-example-title {
+          margin: 0 0 0.28rem;
+          color: #67e8f9;
+          font-size: 0.68rem;
+          line-height: 1.12;
+          font-weight: 950;
+        }
+
+        .wm-pcc-example-body {
+          margin: 0;
+          color: rgba(226, 242, 255, 0.86);
+          font-size: 0.68rem;
+          line-height: 1.32;
+        }
+
+        .wm-pcc-label {
+          margin: 0;
+          color: rgba(226, 242, 255, 0.58);
+          font-size: 0.62rem;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+
+        .wm-pcc-preview-sku {
+          margin: 0.05rem 0 0;
+          color: #67e8f9;
+          font-size: 1.2rem;
+          font-weight: 950;
+          line-height: 1.05;
+        }
+
+        .wm-pcc-preview-family {
+          margin: 0.08rem 0 0;
+          color: rgba(226, 242, 255, 0.78);
+          font-size: 0.66rem;
+          font-weight: 800;
+        }
+
+        .wm-pcc-preview-scroll {
+          min-height: 0;
+          overflow: hidden;
+          display: grid;
+          gap: 0.28rem;
+        }
+
+        .wm-pcc-panel {
+          border: 1px solid rgba(103, 232, 249, 0.16);
+          border-radius: 0.72rem;
+          background: rgba(2, 14, 25, 0.62);
+          padding: 0.42rem 0.5rem;
+          overflow: hidden;
+        }
+
+        .wm-pcc-mini-title {
+          margin: 0 0 0.16rem;
+          color: #ffffff;
+          font-size: 0.66rem;
+          font-weight: 900;
+        }
+
+        .wm-pcc-body,
+        .wm-pcc-list {
+          color: rgba(226, 242, 255, 0.82);
+          font-size: 0.62rem;
+          line-height: 1.18;
+        }
+
+        .wm-pcc-body {
+          margin: 0;
+        }
+
+        .wm-pcc-guru-term {
+          display: inline;
+          border: 0;
+          border-bottom: 1px dotted rgba(103, 232, 249, 0.9);
+          background: transparent;
+          color: #67e8f9;
+          font: inherit;
+          font-weight: 800;
+          padding: 0;
+          margin: 0;
+          cursor: help;
+        }
+
+        .wm-pcc-guru-term:hover,
+        .wm-pcc-guru-term:focus {
+          color: #ffffff;
+          border-bottom-color: #ffffff;
+          outline: none;
+        }
+
+        .wm-pcc-guru-says-popover {
+          position: fixed;
+          right: 1.8rem;
+          bottom: 4.8rem;
+          width: min(23rem, calc(100vw - 2rem));
+          z-index: 99999;
+          border: 1px solid rgba(103, 232, 249, 0.34);
+          border-radius: 0.95rem;
+          background: rgba(3, 18, 31, 0.97);
+          box-shadow: 0 22px 60px rgba(0, 0, 0, 0.48);
+          padding: 0.75rem 0.85rem;
+          color: #ffffff;
+        }
+
+        .wm-pcc-guru-says-head {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.75rem;
+          margin-bottom: 0.45rem;
+        }
+
+        .wm-pcc-guru-says-kicker {
+          margin: 0;
+          color: #67e8f9;
+          font-size: 0.62rem;
+          font-weight: 950;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+
+        .wm-pcc-guru-says-title {
+          margin: 0.1rem 0 0;
+          color: #ffffff;
+          font-size: 0.9rem;
+          line-height: 1.1;
+          font-weight: 950;
+        }
+
+        .wm-pcc-guru-says-body {
+          margin: 0;
+          color: rgba(226, 242, 255, 0.88);
+          font-size: 0.76rem;
+          line-height: 1.32;
+        }
+
+        .wm-pcc-guru-says-close {
+          width: 1.55rem;
+          height: 1.55rem;
+          border: 1px solid rgba(103, 232, 249, 0.24);
+          border-radius: 999px;
+          background: rgba(2, 14, 25, 0.85);
+          color: #ffffff;
+          cursor: pointer;
+          font-size: 0.78rem;
+          line-height: 1;
+          flex: 0 0 auto;
+        }
+
+        .wm-pcc-list {
+          margin: 0.1rem 0 0;
+          padding-left: 1rem;
+        }
+
+        .wm-pcc-actions {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.42rem;
+          min-height: 2.85rem;
+        }
+
+        .wm-pcc-action-wrap {
+          display: grid;
+          grid-template-rows: 1.9rem auto;
+          gap: 0.18rem;
+          min-width: 0;
+        }
+
+        .wm-pcc-action-button {
+          width: 100%;
+          height: 1.9rem;
+          min-height: 1.9rem;
+          max-height: 1.9rem;
+          border-radius: 0.7rem;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid rgba(103, 232, 249, 0.55);
+          color: #ffffff;
+          font-size: 0.66rem;
+          font-weight: 900;
+          line-height: 1;
+          padding: 0 0.55rem;
+          cursor: pointer;
+        }
+
+        .wm-pcc-primary {
+          background: linear-gradient(135deg, #5eeaf7, #228be6);
+        }
+
+        .wm-pcc-secondary {
+          background: rgba(5, 25, 42, 0.95);
+        }
+
+        .wm-pcc-action-help {
+          margin: 0;
+          color: rgba(226, 242, 255, 0.62);
+          font-size: 0.52rem;
+          line-height: 1.12;
+          text-align: center;
+        }
+
+        .wm-pcc-disabled {
+          opacity: 0.45;
+          cursor: not-allowed;
+        }
+
+        .wm-pcc-empty,
+        .wm-pcc-warning {
+          border-radius: 0.75rem;
+          padding: 0.7rem;
+          font-size: 0.78rem;
+        }
+
+        .wm-pcc-empty {
+          border: 1px dashed rgba(103, 232, 249, 0.3);
+          background: rgba(2, 14, 25, 0.42);
+          color: rgba(226, 242, 255, 0.72);
+        }
+
+        .wm-pcc-warning {
+          border: 1px solid rgba(251, 191, 36, 0.38);
+          background: rgba(251, 191, 36, 0.08);
+          color: rgba(255, 245, 210, 0.88);
+        }
+      `
+}</style>
+
+      {activeGalleryItem && selectedProduct && (
+        <div
+          className="wm-pcc-gallery-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${activeGalleryItem.title} gallery view`}
+        >
+          <div className="wm-pcc-gallery-modal-card">
+            <div className="wm-pcc-gallery-modal-head">
+              <div>
+                <p className="wm-pcc-gallery-modal-kicker">Product gallery</p>
+                <h3 className="wm-pcc-gallery-modal-title">{activeGalleryItem.title}</h3>
+              </div>
+
+              <button
+                type="button"
+                className="wm-pcc-gallery-modal-close"
+                onClick={() => setActiveGalleryItem(null)}
+                aria-label="Close product gallery"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="wm-pcc-gallery-visual">
+              {activeGalleryItem.imageUrl ? (
+                <img src={activeGalleryItem.imageUrl} alt={activeGalleryItem.title} />
+              ) : (
+                <div className="wm-pcc-gallery-device-card">
+                  <strong>{selectedProduct.sku}</strong>
+                  <span>{activeGalleryItem.label}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTermLookup && (
+        <aside className="wm-pcc-guru-says-popover" role="dialog" aria-live="polite">
+          <div className="wm-pcc-guru-says-head">
+            <div>
+              <p className="wm-pcc-guru-says-kicker">Guru says</p>
+              <h3 className="wm-pcc-guru-says-title">{activeTermLookup.label}</h3>
+            </div>
+
+            <button
+              type="button"
+              className="wm-pcc-guru-says-close"
+              onClick={() => setActiveTermLookup(null)}
+              aria-label="Close term explanation"
+            >
+              ×
+            </button>
+          </div>
+
+          <p className="wm-pcc-guru-says-body">{activeTermLookup.meaning}</p>
+        </aside>
+      )}
+
+      <header className="wm-pcc-header">
+        <div>
+          <p className="wm-pcc-eyebrow">Wingman workspace</p>
+          <h1 className="wm-pcc-title">Product Discussion</h1>
+          <p className="wm-pcc-subtitle">Discuss one product, then add it to a project only when needed.</p>
+        </div>
+
+        <input
+          className="wm-pcc-search"
+          aria-label="Search WyreStorm SKU or product type"
+          placeholder="Search SKU, family, product type or application..."
+          value={query}
+          onChange={(event) => setQuery(event.currentTarget.value)}
+        />
+      </header>
+
+      <main className="wm-pcc-grid">
+        <section className="wm-pcc-card wm-pcc-left">
+          <div className="wm-pcc-chips">
+            {FAMILY_FILTERS.map((family) => (
+              <button
+                key={family}
+                type="button"
+                onClick={() => setActiveFamily(family)}
+                className={`wm-pcc-chip ${activeFamily === family ? "wm-pcc-chip-active" : ""}`}
+              >
+                {family}
+              </button>
+            ))}
+          </div>
+
+          <div className="wm-pcc-quick-finder" aria-label="Quick SKU finder">
+            {QUICK_FINDERS.map((letter) => {
+              const isQuickDisabled = letter !== "All" && !availableQuickFinders.has(letter);
+
+              return (
+                <button
+                  key={letter}
+                  type="button"
+                  disabled={isQuickDisabled}
+                  onClick={() => {
+                    if (isQuickDisabled) {
+                      return;
+                    }
+
+                    setActiveQuickFinder(letter);
+                  }}
+                  className={`wm-pcc-quick-button ${letter === "All" || letter === "0-9" ? "wm-pcc-quick-button-wide" : ""} ${
+                    activeQuickFinder === letter ? "wm-pcc-quick-button-active" : ""
+                  } ${isQuickDisabled ? "wm-pcc-quick-button-disabled" : ""}`}
+                  title={
+                    isQuickDisabled
+                      ? `No matching SKUs beginning with ${letter}`
+                      : `Show SKUs beginning with ${letter}`
+                  }
+                >
+                  {letter}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="wm-pcc-status">
+            <span>
+              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching · {products.length} total · {curatedCount} curated{activeQuickFinder !== "All" ? ` · ${activeQuickFinder}` : ""}
+            </span>
+
+            <div className="wm-pcc-pager">
+              <button
+                type="button"
+                onClick={() => setPageIndex(Math.max(0, safePageIndex - 1))}
+                disabled={safePageIndex <= 0}
+                className={`wm-pcc-pager-button ${safePageIndex <= 0 ? "wm-pcc-disabled" : ""}`}
+              >
+                Previous
+              </button>
+
+              <span>Page {safePageIndex + 1} of {pageCount}</span>
+
+              <button
+                type="button"
+                onClick={() => setPageIndex(Math.min(pageCount - 1, safePageIndex + 1))}
+                disabled={safePageIndex >= pageCount - 1}
+                className={`wm-pcc-pager-button ${safePageIndex >= pageCount - 1 ? "wm-pcc-disabled" : ""}`}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+
+          {isFallback && (
+            <div className="wm-pcc-warning">
+              Product index was not loaded, so this page is showing the curated fallback set only.
+            </div>
+          )}
+
+          <div className="wm-pcc-product-grid">
+            {pageProducts.map((product) => (
+              <button
+                key={product.sku}
+                type="button"
+                onClick={() => {
+                  setSelectedSku(product.sku);
+                  setActiveTermLookup(null);
+                }}
+                className={`wm-pcc-product ${selectedProduct?.sku === product.sku ? "wm-pcc-product-active" : ""}`}
+              >
+                <span className="wm-pcc-sku">{product.sku}</span>
+                <span className="wm-pcc-family">
+                  {product.curated ? "Curated · " : ""}
+                  {product.family}
+                </span>
+
+              </button>
+            ))}
+
+            {filteredProducts.length === 0 && (
+              <div className="wm-pcc-empty">
+                No matching product call cards found. Try a SKU, product family or application keyword.
+              </div>
+            )}
+          </div>
+        </section>
+
+        <aside className="wm-pcc-card wm-pcc-preview">
+          <div>
+            <p className="wm-pcc-label">Product discussion</p>
+            {selectedProduct && <h2 className="wm-pcc-preview-sku">{selectedProduct.sku}</h2>}
+            {selectedProduct && (
+              <p className="wm-pcc-preview-family">
+                {selectedProduct.family}
+                ""
+              </p>
+            )}
+          </div>
+
+          {selectedProduct && (
+            <div className="wm-pcc-gallery-strip" aria-label="Product gallery">
+              {[
+                {
+                  id: "device",
+                  title: selectedProduct.sku,
+                  label: "Product identity",
+                  kind: "device" as const,
+                  imageUrl:
+                    ((selectedProduct as ProductCard & {
+                      imageUrl?: string;
+                      image?: string;
+                      heroImage?: string;
+                      thumbnailUrl?: string;
+                      productImage?: string;
+                    }).imageUrl ||
+                      (selectedProduct as ProductCard & {
+                        imageUrl?: string;
+                        image?: string;
+                        heroImage?: string;
+                        thumbnailUrl?: string;
+                        productImage?: string;
+                      }).productImage ||
+                      (selectedProduct as ProductCard & {
+                        imageUrl?: string;
+                        image?: string;
+                        heroImage?: string;
+                        thumbnailUrl?: string;
+                        productImage?: string;
+                      }).heroImage ||
+                      (selectedProduct as ProductCard & {
+                        imageUrl?: string;
+                        image?: string;
+                        heroImage?: string;
+                        thumbnailUrl?: string;
+                        productImage?: string;
+                      }).thumbnailUrl ||
+                      (selectedProduct as ProductCard & {
+                        imageUrl?: string;
+                        image?: string;
+                        heroImage?: string;
+                        thumbnailUrl?: string;
+                        productImage?: string;
+                      }).image ||
+                      ""),
+                },
+                {
+                  id: "system",
+                  title: "Typical use",
+                  label: selectedProduct.family,
+                  kind: "system" as const,
+                },
+                {
+                  id: "connection",
+                  title: "Connection focus",
+                  label: selectedProduct.category,
+                  kind: "connection" as const,
+                },
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className="wm-pcc-gallery-tile"
+                  onClick={() => setActiveGalleryItem(item)}
+                >
+                  <span className="wm-pcc-gallery-thumb" aria-hidden="true">
+                    {item.imageUrl ? (
+                      <img src={item.imageUrl} alt="" />
+                    ) : (
+                      <span className="wm-pcc-gallery-icon">
+                        {item.kind === "device" ? "SKU" : item.kind === "system" ? "SYS" : "I/O"}
+                      </span>
+                    )}
+                  </span>
+
+                  <span>
+                    <span className="wm-pcc-gallery-title">{item.title}</span>
+                    <span className="wm-pcc-gallery-label">{item.label}</span>
+                  </span>
+                </button>
+              ))}
+
+              <button
+                type="button"
+                className="wm-pcc-visual-studio-button"
+                onClick={() => {
+                  if (!selectedProduct) {
+                    return;
+                  }
+
+                  try {
+                    window.sessionStorage.setItem(
+                      "wingman.visualStudio.productSeed",
+                      JSON.stringify({
+                        source: "product-discussion",
+                        sku: selectedProduct.sku,
+                        family: selectedProduct.family,
+                        category: selectedProduct.category,
+                        description: selectedProduct.description,
+                        questions: selectedProduct.questions,
+                        proofPoints: selectedProduct.proofPoints,
+                      }),
+                    );
+                  } catch {
+                    // Continue with navigation even if storage is unavailable.
+                  }
+
+                  const params = new URLSearchParams();
+                  params.set("seedSku", selectedProduct.sku);
+                  params.set("source", "product-discussion");
+
+                  goTo(`/wingman/visual-design-studio?${params.toString()}`);
+                }}
+              >
+                Visualise in Studio
+              </button>
+            </div>
+          )}
+          <div className="wm-pcc-section-tabs" aria-label="Product discussion sections">
+            {PRODUCT_PANEL_TABS.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveProductPanel(tab.id)}
+                className={`wm-pcc-section-tab ${
+                  activeProductPanel === tab.id ? "wm-pcc-section-tab-active" : ""
+                }`}
+              >
+                <strong>{tab.label}</strong>
+                <span>{tab.hint}</span>
+              </button>
+            ))}
+          </div>
+
+          {!selectedProduct && (
+            <div className="wm-pcc-empty">
+              Search for a SKU or choose a product family to begin.
+            </div>
+          )}
+
+          {selectedProduct && (
+            <section className="wm-pcc-focus-panel">
+              {activeProductPanel === "whatItIs" && (
+                <>
+                  <h3 className="wm-pcc-section-heading">What it is</h3>
+                  <p className="wm-pcc-response-copy">
+                    {renderWithGuruLinks(selectedProduct.description, selectedProduct)}
+                  </p>
+                </>
+              )}
+
+              {activeProductPanel === "whatItDoes" && (
+                <>
+                  <h3 className="wm-pcc-section-heading">What it does</h3>
+                  <p className="wm-pcc-response-copy">
+                    {renderWithGuruLinks(selectedProduct.fit, selectedProduct)}
+                  </p>
+
+                  <p className="wm-pcc-response-subhead">Check before using it</p>
+                  <ul className="wm-pcc-response-list">
+                    {productChecks.slice(0, 3).map((check) => (
+                      <li key={check}>{renderWithGuruLinks(check, selectedProduct)}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+
+              {activeProductPanel === "howToSell" && (
+                <>
+                  <h3 className="wm-pcc-section-heading">How to sell</h3>
+
+                  <p className="wm-pcc-response-subhead">Simple talk track</p>
+                  <p className="wm-pcc-response-copy">
+                    {renderWithGuruLinks(selectedProduct.openingLine, selectedProduct)}
+                  </p>
+
+                  <p className="wm-pcc-response-subhead">Questions to ask</p>
+                  <ul className="wm-pcc-response-list">
+                    {selectedProduct.questions.slice(0, 4).map((question) => (
+                      <li key={question}>{renderWithGuruLinks(question, selectedProduct)}</li>
+                    ))}
+                  </ul>
+
+                  {(selectedProduct.sku.toUpperCase().startsWith("AMP-") ||
+                    `${selectedProduct.family} ${selectedProduct.category}`.toLowerCase().includes("audio") ||
+                    `${selectedProduct.family} ${selectedProduct.category}`.toLowerCase().includes("amplifier")) && (
+                    <>
+                      <p className="wm-pcc-response-subhead">Example system shapes</p>
+                      <div className="wm-pcc-example-grid">
+                        {[
+                        {
+                          title: "100V / High Z distributed speaker zone",
+                          body:
+                            "One amplifier channel can feed several 100V ceiling or wall speakers across a zone. Each speaker is set to a wattage tap, for example 3W, 6W or 10W. Add the taps together and leave amplifier headroom. This suits background audio, classrooms, corridors, retail areas and larger distributed zones.",
+                        },
+                        {
+                          title: "Low impedance stereo room",
+                          body:
+                            "Two amplifier channels can drive left and right low-impedance speakers, typically 4Ω or 8Ω. This suits a local room where stereo playback, clearer music reproduction or a pair of front speakers is required. Check speaker impedance, cable run, channel load and amplifier power per channel.",
+                        },
+                      ].map((example) => (
+                          <article key={example.title} className="wm-pcc-example-card">
+                            <h4 className="wm-pcc-example-title">{example.title}</h4>
+                            <p className="wm-pcc-example-body">
+                              {renderWithGuruLinks(example.body, selectedProduct)}
+                            </p>
+                          </article>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
+
+              {activeProductPanel === "specification" && (
+                <>
+                  <h3 className="wm-pcc-section-heading">Specification</h3>
+
+                  <ul className="wm-pcc-response-list">
+                    {productSpecificationRows.map((row) => (
+                      <li key={row.label}>
+                        <strong>{row.label}:</strong> {renderWithGuruLinks(row.value, selectedProduct)}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <p className="wm-pcc-response-subhead">Known product facts</p>
+                  <ul className="wm-pcc-response-list">
+                    {selectedProduct.proofPoints.slice(0, 5).map((point) => (
+                      <li key={point}>{renderWithGuruLinks(point, selectedProduct)}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </section>
+          )}
+
+          <div className="wm-pcc-actions">
+            <div className="wm-pcc-action-wrap">
+              <button
+                type="button"
+                onClick={addProductToProject}
+                disabled={!selectedProduct}
+                className={`wm-pcc-action-button wm-pcc-primary ${!selectedProduct ? "wm-pcc-disabled" : ""}`}
+              >
+                Add to project
+              </button>
+              <p className="wm-pcc-action-help">Attach this SKU to an opportunity.</p>
+            </div>
+
+            <div className="wm-pcc-action-wrap">
+              <button
+                type="button"
+                onClick={startRoomBuilderWithProduct}
+                disabled={!selectedProduct}
+                className={`wm-pcc-action-button wm-pcc-secondary ${!selectedProduct ? "wm-pcc-disabled" : ""}`}
+              >
+                Start room builder
+              </button>
+              <p className="wm-pcc-action-help">Move into room/system discovery.</p>
+            </div>
+          </div>
+        </aside>
+      </main>
+    </section>
+  );
 }
-
-export default ProductCallCardsPage;
