@@ -6,7 +6,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 
-const sourceCandidates = [
+const canonicalSourceCandidate = "data/wingman-canonical-product-store.json";
+const fallbackSourceCandidates = [
+  "data/wyrestorm-product-intelligence.json",
   "data/product-intelligence-db.json",
 ];
 
@@ -28,6 +30,16 @@ async function pathExists(targetPath) {
 async function readJsonFile(filePath) {
   const raw = await fs.readFile(filePath, "utf8");
   return JSON.parse(raw);
+}
+
+async function resolveSourceCandidates() {
+  const canonicalPath = path.join(projectRoot, canonicalSourceCandidate);
+
+  if (await pathExists(canonicalPath)) {
+    return [canonicalSourceCandidate];
+  }
+
+  return fallbackSourceCandidates;
 }
 
 function ensureArrayPayload(value) {
@@ -519,18 +531,27 @@ function normalizeProduct(item, index, sourceFile) {
 }
 
 function dedupeProducts(products) {
-  const seen = new Set();
+  const seen = new Map();
   const results = [];
 
   for (const product of products) {
-    const key = [
-      product.sku?.toLowerCase() || "",
+    const skuKey = product.sku?.toLowerCase() || "";
+    const key = skuKey || [
       product.name?.toLowerCase() || "",
+      product.source?.toLowerCase() || "",
     ].join("::");
 
-    if (seen.has(key)) continue;
+    if (seen.has(key)) {
+      const existing = seen.get(key);
+      existing.tags = unique([...(existing.tags || []), ...(product.tags || [])]);
+      existing.searchTerms = unique([...(existing.searchTerms || []), ...(product.searchTerms || [])]);
+      existing.features = unique([...(existing.features || []), ...(product.features || [])]);
+      existing.connectors = unique([...(existing.connectors || []), ...(product.connectors || [])]);
+      existing.applications = unique([...(existing.applications || []), ...(product.applications || [])]);
+      continue;
+    }
 
-    seen.add(key);
+    seen.set(key, product);
     results.push(product);
   }
 
@@ -645,6 +666,7 @@ function toTsModule(indexObject) {
 async function main() {
   const discoveredSources = [];
   const normalizedProducts = [];
+  const sourceCandidates = await resolveSourceCandidates();
 
   for (const relativePath of sourceCandidates) {
     const absolutePath = path.join(projectRoot, relativePath);

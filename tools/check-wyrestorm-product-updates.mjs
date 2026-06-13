@@ -8,6 +8,10 @@ const reportPath = path.join(repoRoot, "public", "wyrestorm-product-update-check
 const candidatePath = path.join(repoRoot, "data", "wyrestorm-product-update-candidates.json");
 
 const sourceUrls = [
+  "https://www.wyrestorm.com/sitemap_index.xml",
+  "https://www.wyrestorm.com/product-sitemap.xml",
+  "https://www.wyrestorm.com/sitemap.xml",
+  "https://www.wyrestorm.com/products/",
   "https://wyrestorm.com/products/",
   "https://wyrestorm.com/product-sitemap.xml",
   "https://wyrestorm.com/sitemap_products.xml",
@@ -16,7 +20,8 @@ const sourceUrls = [
 
 const productPrefixPattern = /^(NHD|SW|SWX|MX|MXV|RX|RXV|TX|EX|EXA|EXP|APO|HALO|CAM|FOCUS|AMP|COM|SYN|SP|CAB|IDB|SR)-/i;
 const skuPattern = /\b(?:NHD|SWX?|MXV?|MX|RXV?|RX|TX|EXA?|EXP|APO|HALO|CAM|FOCUS|AMP|COM|SYN|SP|CAB|IDB|SR)-[A-Z0-9][A-Z0-9-]{1,48}\b/gi;
-const productUrlPattern = /https?:\/\/wyrestorm\.com\/(?:global\/)?product\/([^"'<)\s]+)\/?/gi;
+const productUrlPattern = /https?:\/\/(?:www\.)?wyrestorm\.com\/(?:global\/)?product\/([^"'<)\s]+)\/?/gi;
+const sitemapUrlPattern = /https?:\/\/(?:www\.)?wyrestorm\.com\/[^"'<>\s]*sitemap[^"'<>\s]*/gi;
 
 function cleanText(value) {
   return String(value ?? "")
@@ -38,6 +43,7 @@ function normaliseSku(value) {
     .replace(/^product-/i, "")
     .replace(/\/$/, "")
     .replace(/[^a-z0-9-]/gi, "")
+    .replace(/-+$/g, "")
     .toUpperCase();
 }
 
@@ -48,8 +54,24 @@ function likelyProductSku(value) {
   if (sku.length < 5) return false;
   if (sku.length > 52) return false;
   if (/^(PRODUCT|CATEGORY|SUPPORT|DOWNLOAD|NEWS|BLOG|WHERE|ABOUT)-/i.test(sku)) return false;
+  if (/(?:^|-)\d{2,4}X\d{2,4}(?:-|$)/i.test(sku)) return false;
+  if (/(?:-SCALED|-PER\d*(?:-|$)|-SIDE(?:-|$)|-MAIN(?:-|$)|-FRONT(?:-|$)|-BACK(?:-|$)|-TOP(?:-|$)|-BOTTOM(?:-|$)|-CALLOUT(?:-|$))/i.test(sku)) return false;
 
   return productPrefixPattern.test(sku);
+}
+
+function numericSuffixBases(value) {
+  const bases = [];
+  let sku = normaliseSku(value);
+
+  while (/-\d+$/.test(sku)) {
+    sku = sku.replace(/-\d+$/, "");
+    if (likelyProductSku(sku)) {
+      bases.push(sku);
+    }
+  }
+
+  return bases;
 }
 
 function extractTitle(html, sku) {
@@ -72,12 +94,28 @@ function extractDescription(html) {
 }
 
 async function fetchText(url) {
-  const response = await fetch(url, {
-    headers: {
-      "user-agent": "WingmanProductUpdateCheck/1.0",
-      accept: "text/html,application/xhtml+xml,application/xml,text/xml;q=0.9,*/*;q=0.8",
-    },
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+
+  let response;
+
+  try {
+    response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        "user-agent": "WingmanProductUpdateCheck/1.0",
+        accept: "text/html,application/xhtml+xml,application/xml,text/xml;q=0.9,*/*;q=0.8",
+      },
+    });
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw new Error(`${url} timed out`);
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) {
     throw new Error(`${url} returned ${response.status}`);
@@ -109,7 +147,7 @@ function collectProductLinks(html) {
 
     if (!likelyProductSku(sku)) continue;
 
-    links.set(sku, `https://wyrestorm.com/product/${sku.toLowerCase()}/`);
+    links.set(sku, `https://www.wyrestorm.com/product/${sku.toLowerCase()}/`);
   }
 
   for (const match of html.matchAll(skuPattern)) {
@@ -118,23 +156,47 @@ function collectProductLinks(html) {
     if (!likelyProductSku(sku)) continue;
     if (links.has(sku)) continue;
 
-    links.set(sku, `https://wyrestorm.com/product/${sku.toLowerCase()}/`);
+    links.set(sku, `https://www.wyrestorm.com/product/${sku.toLowerCase()}/`);
   }
 
   return links;
 }
 
+function collectSitemapUrls(html) {
+  return [...html.matchAll(sitemapUrlPattern)]
+    .map((match) => cleanText(match[0]))
+    .filter(Boolean)
+    .filter((url) => /wyrestorm\.com/i.test(url))
+    .filter((url) => /product/i.test(url));
+}
+
 async function discoverProducts() {
   const discovered = new Map();
   const warnings = [];
+  const queuedUrls = [...sourceUrls];
+  const visitedUrls = new Set();
 
-  for (const url of sourceUrls) {
+  for (let index = 0; index < queuedUrls.length && index < 12; index += 1) {
+    const url = queuedUrls[index];
+    const visitKey = url.toLowerCase();
+
+    if (visitedUrls.has(visitKey)) continue;
+
+    visitedUrls.add(visitKey);
+
     try {
       const html = await fetchText(url);
       const links = collectProductLinks(html);
+      const sitemapUrls = collectSitemapUrls(html);
 
       for (const [sku, productUrl] of links) {
         discovered.set(sku, productUrl);
+      }
+
+      for (const sitemapUrl of sitemapUrls) {
+        if (!visitedUrls.has(sitemapUrl.toLowerCase()) && queuedUrls.length < 80) {
+          queuedUrls.push(sitemapUrl);
+        }
       }
     } catch (error) {
       warnings.push(error instanceof Error ? error.message : `Unable to fetch ${url}`);
@@ -172,8 +234,10 @@ async function main() {
   const { skus: indexedSkus, count: indexedCount } = await readIndexedSkus();
   const { discovered, warnings } = await discoverProducts();
 
-  const candidateBasics = [...discovered.entries()]
-    .filter(([sku]) => !indexedSkus.has(sku))
+  const candidateEntries = [...discovered.entries()].filter(([sku]) => !indexedSkus.has(sku));
+  const candidateSkuSet = new Set(candidateEntries.map(([sku]) => sku));
+  const candidateBasics = candidateEntries
+    .filter(([sku]) => !numericSuffixBases(sku).some((baseSku) => indexedSkus.has(baseSku) || candidateSkuSet.has(baseSku)))
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([sku, url]) => ({
       sku,
@@ -181,18 +245,25 @@ async function main() {
       reason: "Found on WyreStorm product pages but not present in Wingman product-intelligence index.",
     }));
 
-  const candidates = [];
+  const candidates = await Promise.all(candidateBasics.slice(0, 30).map((candidate) => enrichCandidate(candidate)));
 
-  for (const candidate of candidateBasics.slice(0, 40)) {
-    candidates.push(await enrichCandidate(candidate));
-  }
+  const enrichedBySku = new Map(candidates.map((candidate) => [candidate.sku, candidate]));
+  const allCandidates = candidateBasics.map((candidate) =>
+    enrichedBySku.get(candidate.sku) || {
+      ...candidate,
+      title: candidate.title || "Potential new WyreStorm product",
+      description: "",
+      sourceStatus: "queued for review",
+    }
+  );
 
   const report = {
     generatedAt,
-    sourceUrl: "https://wyrestorm.com/products/",
+    sourceUrl: "https://www.wyrestorm.com/sitemap_index.xml",
     indexedCount,
     discoveredCount: discovered.size,
     newCandidateCount: candidateBasics.length,
+    enrichedCandidateSampleCount: candidates.length,
     candidates,
     warnings,
   };
@@ -201,7 +272,7 @@ async function main() {
   await mkdir(path.dirname(candidatePath), { recursive: true });
 
   await writeFile(reportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
-  await writeFile(candidatePath, `${JSON.stringify({ generatedAt, candidates }, null, 2)}\n`, "utf8");
+  await writeFile(candidatePath, `${JSON.stringify({ generatedAt, candidates: allCandidates }, null, 2)}\n`, "utf8");
 
   console.log(`Indexed SKUs: ${indexedCount}`);
   console.log(`Discovered SKUs: ${discovered.size}`);
