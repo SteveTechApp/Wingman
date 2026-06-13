@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { cleanCompareDisplayText, compactVerdictLabel } from "../../lib/compareDisplayText";
 import { hydrateWyrestormCompareProfile } from "../../lib/knownWyrestormCompareProfiles";
 import { classifyMatrixOutputTopology, matrixSizeLabel } from "../../logic/matrixOutputModel";
@@ -94,7 +94,7 @@ function withMatrixTopology(record: Record<string, unknown>): Record<string, unk
     record.searchText,
   ].map(normalise).filter(Boolean).join(" ");
 
-  if (!/\bmatrix\b|\d{1,2}\s*[x×]\s*\d{1,2}/i.test(text)) {
+  if (!/\bmatrix\b|\d{1,2}\s*[xÃ—]\s*\d{1,2}/i.test(text)) {
     return record;
   }
 
@@ -395,8 +395,57 @@ function verdictClass(verdict: CellVerdict): string {
 }
 
 export function CompactCompareMatrix({ result, maxCandidates = 4 }: CompactCompareMatrixProps) {
-  const candidates = useMemo(() => candidateList(result, maxCandidates), [result, maxCandidates]);
-  const rows = useMemo(() => buildRows(result, candidates), [result, candidates]);
+  const candidatePoolLimit = Math.max(maxCandidates + 8, maxCandidates * 3);
+  const candidates = useMemo(() => candidateList(result, candidatePoolLimit), [result, candidatePoolLimit]);
+  const [removedCandidateIds, setRemovedCandidateIds] = useState<Set<string>>(() => new Set());
+
+  const visibleCandidates = useMemo(() => (
+    candidates
+      .filter((candidate) => !removedCandidateIds.has(candidate.sku))
+      .slice(0, maxCandidates)
+  ), [candidates, maxCandidates, removedCandidateIds]);
+
+  const visibleCandidateIds = useMemo(() => new Set(visibleCandidates.map((candidate) => candidate.sku)), [visibleCandidates]);
+
+  const removedCandidates = useMemo(() => (
+    candidates.filter((candidate) => removedCandidateIds.has(candidate.sku))
+  ), [candidates, removedCandidateIds]);
+
+  const replacementCandidates = useMemo(() => (
+    candidates.filter((candidate) => !removedCandidateIds.has(candidate.sku) && !visibleCandidateIds.has(candidate.sku))
+  ), [candidates, removedCandidateIds, visibleCandidateIds]);
+
+  const rows = useMemo(() => buildRows(result, visibleCandidates), [result, visibleCandidates]);
+
+  const removeCandidate = (sku: string) => {
+    setRemovedCandidateIds((current) => {
+      const next = new Set(current);
+      next.add(sku);
+      return next;
+    });
+  };
+
+  const restoreCandidate = (sku: string) => {
+    setRemovedCandidateIds((current) => {
+      const next = new Set(current);
+      next.delete(sku);
+      return next;
+    });
+  };
+
+  const restoreAllCandidates = () => {
+    setRemovedCandidateIds(new Set());
+  };
+
+  const showNextCandidate = () => {
+    const lastVisibleCandidate = visibleCandidates[visibleCandidates.length - 1];
+
+    if (!lastVisibleCandidate) {
+      return;
+    }
+
+    removeCandidate(lastVisibleCandidate.sku);
+  };
   const competitor = competitorProfile(result);
   const competitorLabel = [firstText(competitor, ["brand", "manufacturer"]), firstText(competitor, ["sku"])].filter(Boolean).join(" ") || "Competitor product";
   const competitorSubtitle = firstText(competitor, ["title", "domain", "role"]) || "Resolved competitor profile";
@@ -420,32 +469,83 @@ export function CompactCompareMatrix({ result, maxCandidates = 4 }: CompactCompa
         </div>
 
         <div className="wm-compact-toolbar-actions">
-          <span>{candidates.length} option{candidates.length === 1 ? "" : "s"}</span>
+          <span>{visibleCandidates.length} of {candidates.length} option{candidates.length === 1 ? "" : "s"}</span>
           <span>{normalise(result?.topOutcome || "CHECK")}</span>
         </div>
       </div>
 
-      <div className="wm-compact-compare-scroll">
-        <table className="wm-compact-compare-table">
+      {(removedCandidates.length > 0 || replacementCandidates.length > 0) && (
+        <div className="wm-compare-removed-candidates" aria-label="Focused comparison controls">
+          <span className="wm-compare-removed-candidates-label">Focus view</span>
+
+          {removedCandidates.map((candidate) => (
+            <button
+              key={`restore-${candidate.sku}`}
+              type="button"
+              className="wm-compare-restore-candidate"
+              onClick={() => restoreCandidate(candidate.sku)}
+              title="Restore this WyreStorm option"
+            >
+              Restore {candidate.label}
+            </button>
+          ))}
+
+          {replacementCandidates.length > 0 && (
+            <button
+              type="button"
+              className="wm-compare-replace-candidate"
+              onClick={showNextCandidate}
+              title="Remove the last visible option and show another possible match"
+            >
+              Show next WyreStorm option
+            </button>
+          )}
+
+          {removedCandidates.length > 0 && (
+            <button
+              type="button"
+              className="wm-compare-restore-candidate"
+              onClick={restoreAllCandidates}
+              title="Restore all removed WyreStorm options"
+            >
+              Restore all
+            </button>
+          )}
+        </div>
+      )}
+
+      <div className="wm-compact-compare-scroll wm-compare-matrix-scroll-shell">
+        <table className="wm-compact-compare-table wm-compare-matrix-table">
           <thead>
             <tr className="wm-compact-product-row">
-              <th className="wm-compact-feature-head">
+              <th className="wm-compact-feature-head wm-compare-matrix-sticky-head wm-compare-matrix-sticky-corner">
                 <span className="wm-compact-arrow">Replace product</span>
               </th>
               <th className="wm-compact-competitor-head">
                 <span className="wm-compact-column-title">{competitorLabel}</span>
                 <span className="wm-compact-column-subtitle">{competitorSubtitle}</span>
               </th>
-              {candidates.map((candidate) => (
-                <th key={candidate.sku} className="wm-compact-candidate-head">
-                  <span className="wm-compact-column-title">{candidate.label}</span>
-                  <span className="wm-compact-column-subtitle">{candidate.subtitle || "WyreStorm candidate"}</span>
-                  <span className={`wm-compact-outcome ${outcomeClass(candidate.outcome)}`}>
-                    {candidate.outcome || "CHECK"} - {candidate.confidence || 0}%
-                  </span>
+              {visibleCandidates.map((candidate) => (
+                <th key={candidate.sku} className="wm-compact-candidate-head wm-compare-matrix-sticky-head">
+                  <div className="wm-compare-candidate-heading">
+                    <button
+                      type="button"
+                      className="wm-compare-remove-candidate"
+                      onClick={() => removeCandidate(candidate.sku)}
+                      title="Remove this WyreStorm option"
+                      aria-label={`Remove ${candidate.label} from this comparison`}
+                    >
+                      ×
+                    </button>
+                    <span className="wm-compact-column-title">{candidate.label}</span>
+                    <span className="wm-compact-column-subtitle">{candidate.subtitle || "WyreStorm candidate"}</span>
+                    <span className={`wm-compact-outcome ${outcomeClass(candidate.outcome)}`}>
+                      {candidate.outcome || "CHECK"} - {candidate.confidence || 0}%
+                    </span>
+                  </div>
                 </th>
               ))}
-              <th className="wm-compact-evidence-head">Evidence</th>
+              <th className="wm-compact-evidence-head wm-compare-matrix-sticky-head wm-compare-matrix-sticky-evidence">Evidence</th>
             </tr>
           </thead>
 
@@ -464,7 +564,7 @@ export function CompactCompareMatrix({ result, maxCandidates = 4 }: CompactCompa
                   <td className="wm-compact-value-cell wm-compact-competitor-cell">{row.competitor}</td>
 
                   {row.values.map((value, valueIndex) => (
-                    <td key={`${row.feature}-${candidates[valueIndex]?.sku}`} className={`wm-compact-value-cell wm-compact-cell-${value.verdict}`}>
+                    <td key={`${row.feature}-${visibleCandidates[valueIndex]?.sku}`} className={`wm-compact-value-cell wm-compact-cell-${value.verdict}`}>
                       <span className={verdictClass(value.verdict)}>{verdictIcon(value.verdict)}</span>
                       <span>{value.value}</span>
                     </td>
