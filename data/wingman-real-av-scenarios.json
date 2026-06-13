@@ -1,0 +1,516 @@
+{
+    "version":  1,
+    "purpose":  "Wingman real AV scenario validation contract. These scenarios define the expected recommendation shape for common WyreStorm pre-sales opportunities.",
+    "scenarios":  [
+                      {
+                          "id":  "hospitality-sports-bar-8x8",
+                          "name":  "Sports bar with local sources and 8 displays",
+                          "input":  {
+                                        "application":  "hospitality sports bar",
+                                        "sources":  [
+                                                        "Sky box",
+                                                        "BT Sport box",
+                                                        "digital signage player",
+                                                        "local HDMI input"
+                                                    ],
+                                        "displays":  8,
+                                        "distance":  "local rack to displays over structured cabling",
+                                        "usbRequired":  false,
+                                        "audioRequired":  true,
+                                        "controlRequired":  true,
+                                        "expansionRequired":  false
+                                    },
+                          "expected":  {
+                                           "primaryArchitecture":  "fixed matrix or HDBaseT matrix",
+                                           "acceptableArchitectures":  [
+                                                                           "fixed matrix",
+                                                                           "HDBaseT matrix"
+                                                                       ],
+                                           "leadProducts":  [
+                                                                "MX-0808-KIT-V2"
+                                                            ],
+                                           "productFamilies":  [
+                                                                   "matrix",
+                                                                   "HDBaseT"
+                                                               ],
+                                           "requiredDependencies":  [
+                                                                        "receivers",
+                                                                        "control"
+                                                                    ],
+                                           "missingInfo":  [
+                                                               "display distances",
+                                                               "audio distribution method",
+                                                               "control method"
+                                                           ],
+                                           "quoteSafety":  "verify-before-quote",
+                                           "mustNotRecommend":  [
+                                                                    "NetworkHD 600 as first option",
+                                                                    "competitor product in WyreStorm BOM"
+                                                                ]
+                                       }
+                      },
+                      {
+                          "id":  "hospitality-large-venue-av-over-ip",
+                          "name":  "Larger hospitality venue requiring flexible routing",
+                          "input":  {
+                                        "application":  "large sports venue",
+                                        "sources":  12,
+                                        "displays":  24,
+                                        "distance":  "distributed across multiple areas",
+                                        "usbRequired":  false,
+                                        "audioRequired":  true,
+                                        "controlRequired":  true,
+                                        "expansionRequired":  true
+                                    },
+                          "expected":  {
+                                           "primaryArchitecture":  "AV-over-IP",
+                                           "acceptableArchitectures":  [
+                                                                           "NetworkHD 100",
+                                                                           "NetworkHD 500"
+                                                                       ],
+                                           "leadProducts":  [
+                                                                "NHD-CTL-PRO"
+                                                            ],
+                                           "productFamilies":  [
+                                                                   "NetworkHD"
+                                                               ],
+                                           "requiredDependencies":  [
+                                                                        "NHD-CTL-PRO",
+                                                                        "managed network",
+                                                                        "encoders",
+                                                                        "decoders"
+                                                                    ],
+                                           "missingInfo":  [
+                                                               "network switch model",
+                                                               "number of endpoints",
+                                                               "latency sensitivity",
+                                                               "audio breakout needs"
+                                                           ],
+                                           "quoteSafety":  "verify-network-before-quote",
+                                           "mustNotRecommend":  [
+                                                                    "fixed 8x8 matrix as complete solution",
+                                                                    "competitor product in WyreStorm BOM"
+                                                                ]
+                                       }
+                      },
+                      {
+                          "id":  "small-byod-meeting-room",
+                          "name":  "Small BYOD meeting room",
+                          "input":  {
+                                        "application":  "small meeting room",
+                                        "sources":  [
+                                                        "USB-C laptop",
+                                                        "HDMI laptop",
+                                                        "wireless presentation"
+                                                    ],
+                                        "displays":  1,
+                                        "usbRequired":  true,
+                                        "audioRequired":  true,
+                                        "controlRequired":  false,
+                                        "expansionRequired":  false
+                                    },
+                          "expected":  {
+                                           "primaryArchitecture":  "presentation switcher or UC product",
+                                           "acceptableArchitectures":  [
+                                                                           "presentation switcher",
+                                                                           "UC soundbar",
+                                                                           "BYOD switcher"
+                                                                       ],
+                                           "leadProducts":  [
+                                                                "APO-VX20-UC"
+                                                            ],
+                                           "productFamilies":  [
+                                                                   "presentation",
+                                                                   "UC",
+                                                                   "BYOD"
+                                                               ],
+                                           "requiredDependencies":  [
+                                                                        "USB transport",
+                                                                        "camera",
+                                                                        "microphone",
+                                                                        "speaker"
+                                                                    ],
+                                           "missingInfo":  [
+                                                               "display input type",
+                                                               "camera position",
+                                                               "USB host ownership",
+                                                               "wireless casting requirement"
+                                                           ],
+                                           "quoteSafety":  "verify-usb-before-quote",
+                                           "mustNotRecommend":  [
+                                                                    "large matrix as first option",
+                                                                    "AV-over-IP as first option"
+                                                                ]
+                                       }
+                      },
+                      {
+                          "id":  "teams-boardroom-usb-camera-mic",
+                          "name":  "Teams boardroom with USB camera and microphones",
+                          "input":  {
+                                        "application":  "boardroom conferencing",
+                                        "sources":  [
+                                                        "room PC",
+                                                        "USB-C laptop",
+                                                        "HDMI laptop"
+                                                    ],
+                                        "displays":  2,
+                                        "usbRequired":  true,
+                                        "audioRequired":  true,
+                                        "controlRequired":  true,
+                                        "expansionRequired":  false
+                                    },
+                          "expected":  {
+                                           "primaryArchitecture":  "UC and presentation switching with explicit USB routing",
+                                           "acceptableArchitectures":  [
+                                                                           "presentation switcher",
+                                                                           "UC system",
+                                                                           "hybrid matrix"
+                                                                       ],
+                                           "leadProducts":  [
+                                                                "APO-VX20-UC"
+                                                            ],
+                                           "productFamilies":  [
+                                                                   "UC",
+                                                                   "presentation",
+                                                                   "USB"
+                                                               ],
+                                           "requiredDependencies":  [
+                                                                        "USB camera",
+                                                                        "microphone",
+                                                                        "speaker",
+                                                                        "USB host selection"
+                                                                    ],
+                                           "missingInfo":  [
+                                                               "Teams room PC or BYOD",
+                                                               "camera type",
+                                                               "microphone type",
+                                                               "dual display behaviour"
+                                                           ],
+                                           "quoteSafety":  "verify-usb-before-quote",
+                                           "mustNotRecommend":  [
+                                                                    "video-only matrix as complete solution"
+                                                                ]
+                                       }
+                      },
+                      {
+                          "id":  "higher-education-teaching-room",
+                          "name":  "Higher education teaching room",
+                          "input":  {
+                                        "application":  "university teaching space",
+                                        "sources":  [
+                                                        "lectern PC",
+                                                        "USB-C laptop",
+                                                        "HDMI laptop",
+                                                        "document camera",
+                                                        "wireless presentation"
+                                                    ],
+                                        "displays":  3,
+                                        "usbRequired":  true,
+                                        "audioRequired":  true,
+                                        "controlRequired":  true,
+                                        "expansionRequired":  false
+                                    },
+                          "expected":  {
+                                           "primaryArchitecture":  "hybrid education matrix or teaching room switcher",
+                                           "acceptableArchitectures":  [
+                                                                           "hybrid matrix",
+                                                                           "education matrix",
+                                                                           "presentation switcher"
+                                                                       ],
+                                           "leadProducts":  [
+                                                                "MX-1007-HYB"
+                                                            ],
+                                           "productFamilies":  [
+                                                                   "hybrid",
+                                                                   "education",
+                                                                   "matrix"
+                                                               ],
+                                           "requiredDependencies":  [
+                                                                        "USB routing",
+                                                                        "audio handling",
+                                                                        "control panel"
+                                                                    ],
+                                           "missingInfo":  [
+                                                               "lecture capture requirement",
+                                                               "microphone type",
+                                                               "assistive listening",
+                                                               "display zoning"
+                                                           ],
+                                           "quoteSafety":  "verify-before-quote",
+                                           "mustNotRecommend":  [
+                                                                    "hospitality matrix as first option"
+                                                                ]
+                                       }
+                      },
+                      {
+                          "id":  "simple-hdmi-extension",
+                          "name":  "Simple HDMI extension over distance",
+                          "input":  {
+                                        "application":  "point-to-point extension",
+                                        "sources":  1,
+                                        "displays":  1,
+                                        "distance":  "medium distance beyond practical HDMI",
+                                        "usbRequired":  false,
+                                        "audioRequired":  false,
+                                        "controlRequired":  false,
+                                        "expansionRequired":  false
+                                    },
+                          "expected":  {
+                                           "primaryArchitecture":  "HDBaseT extender",
+                                           "acceptableArchitectures":  [
+                                                                           "HDBaseT extender",
+                                                                           "point-to-point extension"
+                                                                       ],
+                                           "leadProducts":  [
+
+                                                            ],
+                                           "productFamilies":  [
+                                                                   "HDBaseT",
+                                                                   "extender"
+                                                               ],
+                                           "requiredDependencies":  [
+                                                                        "transmitter",
+                                                                        "receiver",
+                                                                        "category cable"
+                                                                    ],
+                                           "missingInfo":  [
+                                                               "distance",
+                                                               "resolution",
+                                                               "HDR requirement",
+                                                               "control pass-through"
+                                                           ],
+                                           "quoteSafety":  "verify-distance-before-quote",
+                                           "mustNotRecommend":  [
+                                                                    "AV-over-IP as first option",
+                                                                    "large matrix as first option"
+                                                                ]
+                                       }
+                      },
+                      {
+                          "id":  "lcd-video-wall-basic",
+                          "name":  "Basic LCD video wall",
+                          "input":  {
+                                        "application":  "LCD video wall",
+                                        "sources":  2,
+                                        "wallLayout":  "2x2",
+                                        "displays":  4,
+                                        "usbRequired":  false,
+                                        "audioRequired":  false,
+                                        "controlRequired":  true,
+                                        "expansionRequired":  false
+                                    },
+                          "expected":  {
+                                           "primaryArchitecture":  "dedicated video wall processor",
+                                           "acceptableArchitectures":  [
+                                                                           "SW-0204-VW",
+                                                                           "SW-0206-VW",
+                                                                           "video wall processor"
+                                                                       ],
+                                           "leadProducts":  [
+                                                                "SW-0204-VW",
+                                                                "SW-0206-VW"
+                                                            ],
+                                           "productFamilies":  [
+                                                                   "video wall"
+                                                               ],
+                                           "requiredDependencies":  [
+                                                                        "processor outputs",
+                                                                        "display layout",
+                                                                        "source inputs"
+                                                                    ],
+                                           "missingInfo":  [
+                                                               "wall layout",
+                                                               "display bezel compensation",
+                                                               "content behaviour",
+                                                               "control requirement"
+                                                           ],
+                                           "quoteSafety":  "verify-wall-behaviour-before-quote",
+                                           "mustNotRecommend":  [
+                                                                    "AV-over-IP as mandatory first option"
+                                                                ]
+                                       }
+                      },
+                      {
+                          "id":  "led-wall-novastar-processor",
+                          "name":  "LED wall using external LED processor",
+                          "input":  {
+                                        "application":  "LED wall",
+                                        "sources":  4,
+                                        "displays":  1,
+                                        "processor":  "Novastar or external LED processor",
+                                        "usbRequired":  false,
+                                        "audioRequired":  false,
+                                        "controlRequired":  true,
+                                        "expansionRequired":  false
+                                    },
+                          "expected":  {
+                                           "primaryArchitecture":  "processor-fed LED workflow",
+                                           "acceptableArchitectures":  [
+                                                                           "multiview into LED processor",
+                                                                           "source switch into LED processor"
+                                                                       ],
+                                           "leadProducts":  [
+                                                                "NHD-0401-MV"
+                                                            ],
+                                           "productFamilies":  [
+                                                                   "multiview",
+                                                                   "switching"
+                                                               ],
+                                           "requiredDependencies":  [
+                                                                        "LED processor input format",
+                                                                        "canvas resolution",
+                                                                        "source layout behaviour"
+                                                                    ],
+                                           "missingInfo":  [
+                                                               "LED processor model",
+                                                               "canvas resolution",
+                                                               "required layouts",
+                                                               "HDCP handling"
+                                                           ],
+                                           "quoteSafety":  "verify-led-processor-before-quote",
+                                           "mustNotRecommend":  [
+                                                                    "LCD video wall processor as automatic fit"
+                                                                ]
+                                       }
+                      },
+                      {
+                          "id":  "networkhd-distributed-campus",
+                          "name":  "NetworkHD distributed AV system",
+                          "input":  {
+                                        "application":  "distributed AV",
+                                        "sources":  16,
+                                        "displays":  40,
+                                        "distance":  "campus or large building",
+                                        "usbRequired":  false,
+                                        "audioRequired":  true,
+                                        "controlRequired":  true,
+                                        "expansionRequired":  true
+                                    },
+                          "expected":  {
+                                           "primaryArchitecture":  "NetworkHD AV-over-IP",
+                                           "acceptableArchitectures":  [
+                                                                           "NetworkHD 100",
+                                                                           "NetworkHD 500",
+                                                                           "NetworkHD 600"
+                                                                       ],
+                                           "leadProducts":  [
+                                                                "NHD-CTL-PRO"
+                                                            ],
+                                           "productFamilies":  [
+                                                                   "NetworkHD"
+                                                               ],
+                                           "requiredDependencies":  [
+                                                                        "NHD-CTL-PRO",
+                                                                        "managed switches",
+                                                                        "encoders",
+                                                                        "decoders",
+                                                                        "network design"
+                                                                    ],
+                                           "missingInfo":  [
+                                                               "network topology",
+                                                               "bandwidth",
+                                                               "latency",
+                                                               "USB requirement",
+                                                               "audio format"
+                                                           ],
+                                           "quoteSafety":  "verify-network-before-quote",
+                                           "mustNotRecommend":  [
+                                                                    "fixed matrix as complete solution"
+                                                                ]
+                                       }
+                      },
+                      {
+                          "id":  "ndi-camera-multiview-workflow",
+                          "name":  "NDI camera and multiview workflow",
+                          "input":  {
+                                        "application":  "camera monitoring and production support",
+                                        "sources":  [
+                                                        "NDI PTZ camera",
+                                                        "HDMI source",
+                                                        "PC graphics"
+                                                    ],
+                                        "displays":  1,
+                                        "usbRequired":  false,
+                                        "audioRequired":  true,
+                                        "controlRequired":  true,
+                                        "expansionRequired":  true
+                                    },
+                          "expected":  {
+                                           "primaryArchitecture":  "NDI bridge into NetworkHD or multiview workflow",
+                                           "acceptableArchitectures":  [
+                                                                           "NDI bridge",
+                                                                           "NetworkHD multiview",
+                                                                           "NHD-150-RX multiview"
+                                                                       ],
+                                           "leadProducts":  [
+                                                                "NHD-128-NDI-TRX",
+                                                                "NHD-150-RX"
+                                                            ],
+                                           "productFamilies":  [
+                                                                   "NetworkHD",
+                                                                   "NDI",
+                                                                   "multiview"
+                                                               ],
+                                           "requiredDependencies":  [
+                                                                        "NDI source confirmation",
+                                                                        "network design",
+                                                                        "multiview output path"
+                                                                    ],
+                                           "missingInfo":  [
+                                                               "NDI format",
+                                                               "camera count",
+                                                               "output resolution",
+                                                               "recording or streaming requirement"
+                                                           ],
+                                           "quoteSafety":  "verify-network-before-quote",
+                                           "mustNotRecommend":  [
+                                                                    "HDMI-only matrix as complete solution"
+                                                                ]
+                                       }
+                      },
+                      {
+                          "id":  "competitor-io-close-but-not-equivalent",
+                          "name":  "Competitor comparison where I/O looks close but is not equivalent",
+                          "input":  {
+                                        "application":  "competitor replacement",
+                                        "competitorProduct":  "similar input/output count but different routed outputs",
+                                        "usbRequired":  false,
+                                        "audioRequired":  true,
+                                        "controlRequired":  true
+                                    },
+                          "expected":  {
+                                           "primaryArchitecture":  "comparison with evidence-based match status",
+                                           "acceptableArchitectures":  [
+                                                                           "NO MATCH",
+                                                                           "PARTIAL MATCH",
+                                                                           "GOOD MATCH"
+                                                                       ],
+                                           "leadProducts":  [
+
+                                                            ],
+                                           "productFamilies":  [
+                                                                   "matrix",
+                                                                   "comparison"
+                                                               ],
+                                           "requiredDependencies":  [
+                                                                        "routedInputs",
+                                                                        "routedOutputs",
+                                                                        "physicalOutputs",
+                                                                        "quoteSafety"
+                                                                    ],
+                                           "missingInfo":  [
+                                                               "exact competitor SKU",
+                                                               "routed I/O",
+                                                               "HDCP version",
+                                                               "HDMI version",
+                                                               "audio/control ports"
+                                                           ],
+                                           "quoteSafety":  "comparison-only-verify",
+                                           "mustNotRecommend":  [
+                                                                    "GOOD MATCH when routed outputs differ",
+                                                                    "competitor product in WyreStorm BOM"
+                                                                ]
+                                       }
+                      }
+                  ]
+}
