@@ -24921,6 +24921,284 @@ html[data-wingman-route="compare"] .wingman-page-host::after {
   display: none !important;
 }
 
+html[data-wingman-route="compare"] .wm-compare-request-form {
+  min-height: max(560px, calc(100vh - 350px));
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  overflow: visible;
+}
+
+html[data-wingman-route="compare"] .wm-compare-request-intro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+html[data-wingman-route="compare"] .wm-compare-request-stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+html[data-wingman-route="compare"] .wm-compare-request-stats span {
+  border: 1px solid rgba(103, 232, 249, 0.28);
+  border-radius: 999px;
+  background: rgba(8, 47, 73, 0.42);
+  padding: 7px 10px;
+  color: rgba(236, 254, 255, 0.84);
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+html[data-wingman-route="compare"] .wm-compare-request-grid {
+  display: grid;
+  grid-template-columns: 1fr !important;
+  gap: 16px;
+  align-items: stretch;
+  min-height: 0;
+}
+
+html[data-wingman-route="compare"] .wm-compare-filter-panel {
+  min-height: 0;
+  overflow: visible !important;
+}
+
+html[data-wingman-route="compare"] .wm-compare-sku-panel {
+  min-height: 390px;
+  overflow: visible !important;
+}
+
+html[data-wingman-route="compare"] .wm-compare-manufacturer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)) !important;
+  gap: 8px;
+}
+
+html[data-wingman-route="compare"] .wm-compare-manufacturer-grid button,
+html[data-wingman-route="compare"] .wm-compare-sku-grid button {
+  border: 1px solid rgba(41, 70, 94, 0.95);
+  background: rgba(13, 33, 51, 0.74);
+  color: rgba(255, 255, 255, 0.78);
+  transition: border-color 140ms ease, background 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+html[data-wingman-route="compare"] .wm-compare-manufacturer-grid button {
+  min-height: 46px;
+  border-radius: 14px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: left;
+}
+
+html[data-wingman-route="compare"] .wm-compare-manufacturer-grid button span,
+html[data-wingman-route="compare"] .wm-compare-sku-grid button span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+html[data-wingman-route="compare"] .wm-compare-manufacturer-grid button small,
+html[data-wingman-route="compare"] .wm-compare-sku-grid button small {
+  flex: 0 0 auto;
+  color: rgba(103, 232, 249, 0.78);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+html[data-wingman-route="compare"] .wm-compare-manufacturer-grid button:hover,
+html[data-wingman-route="compare"] .wm-compare-sku-grid button:hover {
+  border-color: rgba(103, 232, 249, 0.65);
+  background: rgba(8, 47, 73, 0.72);
+  color: #ffffff;
+}
+
+html[data-wingman-route="compare"] .wm-compare-manufacturer-grid button.is-active,
+html[data-wingman-route="compare"] .wm-compare-sku-grid button[aria-selected="true"] {
+  border-color: rgba(103, 232, 249, 0.9);
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.92), rgba(14, 165, 233, 0.82));
+  color: #04111f;
+  box-shadow: 0 10px 24px rgba(34, 211, 238, 0.14);
+}
+
+html[data-wingman-route="compare"] .wm-compare-manufacturer-grid button.is-active small,
+html[data-wingman-route="compare"] .wm-compare-sku-grid button[aria-selected="true"] small {
+  color: rgba(4, 17, 31, 0.72);
+}
+
+html[data-wingman-route="compare"] .wm-compare-sku-browser {
+  display: grid;
+  gap: 12px;
+}
+
+html[data-wingman-route="compare"] .wm-compare-sku-browser-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+html[data-wingman-route="compare"] .wm-compare-sku-browser-head > span {
+  border: 1px solid rgba(103, 232, 249, 0.28);
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: rgba(8, 47, 73, 0.42);
+  color: rgba(236, 254, 255, 0.84);
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+html[data-wingman-route="compare"] .wm-compare-sku-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+  gap: 8px;
+  max-height: none;
+  overflow: visible;
+  padding-right: 4px;
+}
+
+html[data-wingman-route="compare"] .wm-compare-sku-grid button {
+  min-height: 46px;
+  border-radius: 14px;
+  padding: 8px 10px;
+  display: grid;
+  gap: 3px;
+  text-align: left;
+}
+
+html[data-wingman-route="compare"] .wm-compare-empty-sku-list {
+  min-height: 130px;
+  border: 1px dashed rgba(103, 232, 249, 0.3);
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
+html[data-wingman-route="compare"] .wm-compare-context-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+html[data-wingman-route="compare"] .wm-compare-find-button[type="submit"] {
+  width: 100%;
+  min-height: 48px;
+  background: linear-gradient(90deg, rgba(6, 182, 212, 0.96), rgba(37, 99, 235, 0.94)) !important;
+  color: #04111f !important;
+  box-shadow: 0 14px 34px rgba(14, 165, 233, 0.2);
+}
+
+@media (max-width: 1180px) {
+  html[data-wingman-route="compare"] .wm-compare-request-grid,
+  html[data-wingman-route="compare"] .wm-compare-context-grid {
+    grid-template-columns: 1fr;
+  }
+
+  html[data-wingman-route="compare"] .wm-compare-sku-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  html[data-wingman-route="compare"] .wm-compare-request-intro,
+  html[data-wingman-route="compare"] .wm-compare-sku-browser-head {
+    display: grid;
+  }
+
+  html[data-wingman-route="compare"] .wm-compare-request-stats {
+    justify-content: flex-start;
+  }
+
+  html[data-wingman-route="compare"] .wm-compare-sku-grid,
+  html[data-wingman-route="compare"] .wm-compare-manufacturer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wm-compare-page .wm-compare-request-form {
+  min-height: max(560px, calc(100vh - 350px));
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  overflow: visible;
+}
+
+.wm-compare-page .wm-compare-request-grid {
+  grid-template-columns: 1fr !important;
+  align-items: stretch;
+  min-height: 0;
+}
+
+.wm-compare-page .wm-compare-filter-panel {
+  min-height: 0;
+  overflow: visible !important;
+}
+
+.wm-compare-page .wm-compare-sku-panel {
+  min-height: 390px;
+  overflow: visible !important;
+}
+
+.wm-compare-page .wm-compare-manufacturer-grid {
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)) !important;
+}
+
+.wm-compare-page .wm-compare-sku-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route="compare"] .wingman-guru-fab,
+html[data-wingman-route="compare"] [data-wingman-guru-fab="true"] {
+  display: none !important;
+}
+
+.wm-compare-page .wm-compare-request-stats span,
+.wm-compare-page .wm-compare-sku-browser-head > span {
+  white-space: nowrap;
+}
+
+.wm-compare-page .wm-compare-manufacturer-grid button span,
+.wm-compare-page .wm-compare-sku-grid button span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.wm-compare-page .wm-compare-manufacturer-grid button small,
+.wm-compare-page .wm-compare-sku-grid button small {
+  color: currentColor;
+  opacity: 0.72;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.wm-compare-page .wm-compare-find-button[type="submit"] {
+  width: 100%;
+  min-height: 48px;
+  background: linear-gradient(90deg, rgba(6, 182, 212, 0.96), rgba(37, 99, 235, 0.94)) !important;
+  color: #04111f !important;
+  box-shadow: 0 14px 34px rgba(14, 165, 233, 0.2);
+}
+
 html[data-wingman-route="compare"] .wm-compact-compare {
   width: 100%;
   border: 1px solid rgba(34, 211, 238, 0.28);
@@ -25186,3 +25464,563 @@ html[data-wingman-route="compare"] [data-compare-detailed-matrix="true"] {
 }
 
 /* === WM COMPACT COMPARE MATRIX END === */
+
+/* wingman-product-call-card-fill-viewport-start */
+
+/*
+  Product Discussion should behave like a working dashboard:
+  - use full horizontal space
+  - fill vertical viewport
+  - enlarge the product result objects
+  - enlarge the active product discussion area
+*/
+
+/* Break out of overly narrow page sizing */
+body .wm-pcc-page,
+body .wm-pcc-page-host,
+body .wm-pcc-workspace,
+body .wm-pcc-shell {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* Main two-column workspace */
+body .wm-pcc-main-grid,
+body .wm-pcc-content-grid {
+  width: 100% !important;
+  max-width: none !important;
+  grid-template-columns: minmax(42rem, 1.04fr) minmax(42rem, 1.08fr) !important;
+  gap: 0.9rem !important;
+  align-items: stretch !important;
+  min-height: calc(100vh - 12.1rem) !important;
+}
+
+/* Left and right panels should fill the visible working area */
+body .wm-pcc-card,
+body .wm-pcc-results,
+body .wm-pcc-results-panel,
+body .wm-pcc-list-card,
+body .wm-pcc-preview {
+  align-self: stretch !important;
+  min-height: calc(100vh - 12.1rem) !important;
+  height: calc(100vh - 12.1rem) !important;
+}
+
+/* Product list area */
+body .wm-pcc-results,
+body .wm-pcc-results-panel,
+body .wm-pcc-list-card {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* Enlarge the product result objects */
+body .wm-pcc-list-card button,
+body .wm-pcc-results button,
+body .wm-pcc-results-panel button {
+  min-height: 3.15rem !important;
+}
+
+/* Product list rows: make the visible product objects feel deliberate */
+body .wm-pcc-list-card [role="button"],
+body .wm-pcc-results [role="button"],
+body .wm-pcc-results-panel [role="button"] {
+  min-height: 3.15rem !important;
+}
+
+/* Main selected product panel */
+body .wm-pcc-preview {
+  display: grid !important;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto !important;
+  padding: 1rem !important;
+  overflow: hidden !important;
+}
+
+/* Product heading should be clearer */
+body .wm-pcc-preview h2,
+body .wm-pcc-preview h3 {
+  line-height: 1.05 !important;
+}
+
+/* Product gallery row: bigger than before, still not bubble-heavy */
+body .wm-pcc-preview .wm-pcc-gallery-strip {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) 8.6rem !important;
+  gap: 0.5rem !important;
+  margin: 0.42rem 0 0.58rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-gallery-tile {
+  min-height: 3.15rem !important;
+  height: 3.15rem !important;
+  border-radius: 0.8rem !important;
+  padding: 0.45rem 0.55rem !important;
+  display: grid !important;
+  grid-template-columns: 2.05rem minmax(0, 1fr) !important;
+  gap: 0.48rem !important;
+  align-items: center !important;
+}
+
+body .wm-pcc-preview .wm-pcc-gallery-thumb {
+  width: 2.05rem !important;
+  height: 2.05rem !important;
+  border-radius: 0.56rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-gallery-icon {
+  font-size: 0.64rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-gallery-title,
+body .wm-pcc-preview .wm-pcc-gallery-label {
+  display: block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+body .wm-pcc-preview .wm-pcc-gallery-title {
+  font-size: 0.68rem !important;
+  line-height: 1.08 !important;
+}
+
+body .wm-pcc-preview .wm-pcc-gallery-label {
+  margin-top: 0.16rem !important;
+  font-size: 0.54rem !important;
+  line-height: 1.08 !important;
+}
+
+body .wm-pcc-preview .wm-pcc-visual-studio-button {
+  min-width: 0 !important;
+  min-height: 3.15rem !important;
+  height: 3.15rem !important;
+  border-radius: 0.8rem !important;
+  padding: 0.42rem 0.62rem !important;
+  font-size: 0.62rem !important;
+  line-height: 1.1 !important;
+}
+
+/* Four discussion cards: large enough to fill, but rectangular */
+body .wm-pcc-preview .wm-pcc-section-tabs {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 0.5rem !important;
+  margin: 0 0 0.68rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-section-tab {
+  min-height: 3.1rem !important;
+  height: 3.1rem !important;
+  aspect-ratio: auto !important;
+  border-radius: 0.82rem !important;
+  padding: 0.52rem 0.62rem !important;
+  display: block !important;
+  text-align: left !important;
+}
+
+body .wm-pcc-preview .wm-pcc-section-tab strong,
+body .wm-pcc-preview .wm-pcc-section-tab span {
+  display: block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+body .wm-pcc-preview .wm-pcc-section-tab strong {
+  font-size: 0.68rem !important;
+  line-height: 1.08 !important;
+}
+
+body .wm-pcc-preview .wm-pcc-section-tab span {
+  margin-top: 0.18rem !important;
+  font-size: 0.54rem !important;
+  line-height: 1.08 !important;
+}
+
+/* Main answer card should occupy the empty lower area */
+body .wm-pcc-preview .wm-pcc-focus-panel {
+  min-height: 0 !important;
+  height: 100% !important;
+  overflow: auto !important;
+  padding: 1.15rem 1.2rem !important;
+  border-radius: 0.9rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-section-heading {
+  font-size: 0.88rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-response-copy {
+  font-size: 0.92rem !important;
+  line-height: 1.5 !important;
+  max-width: none !important;
+}
+
+body .wm-pcc-preview .wm-pcc-response-subhead {
+  font-size: 0.82rem !important;
+  margin-top: 1rem !important;
+  margin-bottom: 0.45rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-response-list {
+  font-size: 0.84rem !important;
+  line-height: 1.48 !important;
+  max-width: none !important;
+}
+
+/* Bottom action buttons should feel attached to the product card */
+body .wm-pcc-preview .wm-pcc-actions {
+  margin-top: 0.75rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-actions button {
+  min-height: 2.35rem !important;
+  font-size: 0.72rem !important;
+}
+
+/* At the 156% browser zoom / 1920 wide fit setting, keep both sides visible */
+@media (max-width: 1500px) {
+  body .wm-pcc-main-grid,
+  body .wm-pcc-content-grid {
+    grid-template-columns: minmax(35.5rem, 1fr) minmax(37.5rem, 1fr) !important;
+    min-height: calc(100vh - 12.8rem) !important;
+  }
+
+  body .wm-pcc-card,
+  body .wm-pcc-results,
+  body .wm-pcc-results-panel,
+  body .wm-pcc-list-card,
+  body .wm-pcc-preview {
+    min-height: calc(100vh - 12.8rem) !important;
+    height: calc(100vh - 12.8rem) !important;
+  }
+
+  body .wm-pcc-preview .wm-pcc-focus-panel {
+    padding: 1rem 1.05rem !important;
+  }
+}
+
+/* wingman-product-call-card-fill-viewport-end */
+
+/* wingman-product-discussion-object-scale-start */
+
+/* Product Discussion: scale the objects inside the panels, not just the panels */
+
+/* Left product result objects */
+body .wm-pcc-results button,
+body .wm-pcc-results-panel button,
+body .wm-pcc-list-card button {
+  min-height: 4.25rem !important;
+  border-radius: 1rem !important;
+  padding: 0.78rem 0.95rem !important;
+}
+
+body .wm-pcc-results button strong,
+body .wm-pcc-results-panel button strong,
+body .wm-pcc-list-card button strong {
+  font-size: 0.92rem !important;
+  line-height: 1.05 !important;
+}
+
+body .wm-pcc-results button span,
+body .wm-pcc-results-panel button span,
+body .wm-pcc-list-card button span {
+  font-size: 0.68rem !important;
+  line-height: 1.1 !important;
+}
+
+/* Selected product header */
+body .wm-pcc-preview .wm-pcc-product-title,
+body .wm-pcc-preview h2 {
+  font-size: 1.15rem !important;
+  line-height: 1.05 !important;
+}
+
+body .wm-pcc-preview .wm-pcc-product-family,
+body .wm-pcc-preview .wm-pcc-product-subtitle {
+  font-size: 0.82rem !important;
+}
+
+/* Gallery row */
+body .wm-pcc-preview .wm-pcc-gallery-strip {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) 9.4rem !important;
+  gap: 0.6rem !important;
+  margin: 0.55rem 0 0.75rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-gallery-tile,
+body .wm-pcc-preview .wm-pcc-visual-studio-button {
+  min-height: 3.75rem !important;
+  height: 3.75rem !important;
+  border-radius: 0.95rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-gallery-tile {
+  grid-template-columns: 2.35rem minmax(0, 1fr) !important;
+  padding: 0.58rem 0.7rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-gallery-thumb {
+  width: 2.35rem !important;
+  height: 2.35rem !important;
+  border-radius: 0.66rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-gallery-title {
+  font-size: 0.76rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-gallery-label {
+  font-size: 0.6rem !important;
+}
+
+/* Four product discussion cards */
+body .wm-pcc-preview .wm-pcc-section-tabs {
+  gap: 0.6rem !important;
+  margin-bottom: 0.85rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-section-tab {
+  min-height: 3.75rem !important;
+  height: 3.75rem !important;
+  border-radius: 0.95rem !important;
+  padding: 0.65rem 0.75rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-section-tab strong {
+  font-size: 0.78rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-section-tab span {
+  font-size: 0.62rem !important;
+}
+
+/* Main answer panel */
+body .wm-pcc-preview .wm-pcc-focus-panel {
+  display: block !important;
+  padding: 1.45rem 1.55rem !important;
+  border-radius: 1.05rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-section-heading {
+  font-size: 1rem !important;
+  margin-bottom: 0.95rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-response-copy {
+  font-size: 1rem !important;
+  line-height: 1.58 !important;
+}
+
+body .wm-pcc-preview .wm-pcc-response-subhead {
+  font-size: 0.9rem !important;
+  margin-top: 1.2rem !important;
+  margin-bottom: 0.55rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-response-list {
+  font-size: 0.92rem !important;
+  line-height: 1.52 !important;
+}
+
+/* Bottom actions */
+body .wm-pcc-preview .wm-pcc-actions {
+  margin-top: 0.9rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-actions button {
+  min-height: 2.75rem !important;
+  border-radius: 0.95rem !important;
+  font-size: 0.8rem !important;
+}
+
+@media (max-width: 1500px) {
+  body .wm-pcc-results button,
+  body .wm-pcc-results-panel button,
+  body .wm-pcc-list-card button {
+    min-height: 3.85rem !important;
+  }
+
+  body .wm-pcc-preview .wm-pcc-gallery-tile,
+  body .wm-pcc-preview .wm-pcc-visual-studio-button,
+  body .wm-pcc-preview .wm-pcc-section-tab {
+    min-height: 3.35rem !important;
+    height: 3.35rem !important;
+  }
+
+  body .wm-pcc-preview .wm-pcc-focus-panel {
+    padding: 1.25rem 1.35rem !important;
+  }
+
+  body .wm-pcc-preview .wm-pcc-response-copy {
+    font-size: 0.96rem !important;
+  }
+}
+
+/* wingman-product-discussion-object-scale-end */
+
+/* wingman-product-discussion-fill-inner-space-start */
+
+/*
+  Product Discussion inner-space fill:
+  - make the product result list objects fill the left panel
+  - make the right-hand answer card feel like the main workspace object
+  - avoid reverting to circular/bubble controls
+*/
+
+/* Left panel: make the product list area consume the available height */
+body .wm-pcc-results,
+body .wm-pcc-results-panel,
+body .wm-pcc-list-card {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: calc(100vh - 12.1rem) !important;
+  height: calc(100vh - 12.1rem) !important;
+}
+
+/* The product-list grid usually sits after the filter/pager controls */
+body .wm-pcc-results :is(div, section):has(> button),
+body .wm-pcc-results-panel :is(div, section):has(> button),
+body .wm-pcc-list-card :is(div, section):has(> button) {
+  align-content: stretch !important;
+}
+
+/* Product result buttons: taller and easier to read */
+body .wm-pcc-results button,
+body .wm-pcc-results-panel button,
+body .wm-pcc-list-card button {
+  min-height: 4.8rem !important;
+  border-radius: 1.05rem !important;
+  padding: 0.82rem 1rem !important;
+}
+
+body .wm-pcc-results button strong,
+body .wm-pcc-results-panel button strong,
+body .wm-pcc-list-card button strong {
+  font-size: 1rem !important;
+  line-height: 1.08 !important;
+}
+
+body .wm-pcc-results button span,
+body .wm-pcc-results-panel button span,
+body .wm-pcc-list-card button span {
+  font-size: 0.74rem !important;
+  line-height: 1.12 !important;
+}
+
+/* Do not let tiny filter chips become oversized */
+body .wm-pcc-results button[aria-label],
+body .wm-pcc-results-panel button[aria-label],
+body .wm-pcc-list-card button[aria-label] {
+  min-height: unset !important;
+}
+
+/* Right panel: keep it full height */
+body .wm-pcc-preview {
+  min-height: calc(100vh - 12.1rem) !important;
+  height: calc(100vh - 12.1rem) !important;
+  display: grid !important;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto !important;
+  overflow: hidden !important;
+}
+
+/* Gallery and tabs should be substantial, but still rectangular */
+body .wm-pcc-preview .wm-pcc-gallery-tile,
+body .wm-pcc-preview .wm-pcc-visual-studio-button,
+body .wm-pcc-preview .wm-pcc-section-tab {
+  border-radius: 1rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-gallery-strip {
+  gap: 0.65rem !important;
+  margin: 0.6rem 0 0.8rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-gallery-tile,
+body .wm-pcc-preview .wm-pcc-visual-studio-button {
+  min-height: 4.1rem !important;
+  height: 4.1rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-section-tab {
+  min-height: 4rem !important;
+  height: 4rem !important;
+}
+
+/* Main answer panel: enlarge and position content deliberately */
+body .wm-pcc-preview .wm-pcc-focus-panel {
+  min-height: 0 !important;
+  height: 100% !important;
+  padding: 1.65rem 1.75rem !important;
+  border-radius: 1.1rem !important;
+  overflow: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Make the selected product explanation the visual anchor */
+body .wm-pcc-preview .wm-pcc-section-heading {
+  font-size: 1.08rem !important;
+  margin-bottom: 1rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-response-copy {
+  font-size: 1.06rem !important;
+  line-height: 1.62 !important;
+  max-width: 52rem !important;
+}
+
+/* When lists/subheads exist in other tabs, make them fill better */
+body .wm-pcc-preview .wm-pcc-response-subhead {
+  font-size: 0.95rem !important;
+  margin-top: 1.35rem !important;
+  margin-bottom: 0.65rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-response-list {
+  font-size: 0.96rem !important;
+  line-height: 1.55 !important;
+}
+
+/* Action bar should sit cleanly at the bottom */
+body .wm-pcc-preview .wm-pcc-actions {
+  margin-top: 0.9rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-actions button {
+  min-height: 3rem !important;
+  border-radius: 1rem !important;
+  font-size: 0.86rem !important;
+}
+
+/* Current 156% browser zoom / 1920 fit adjustment */
+@media (max-width: 1500px) {
+  body .wm-pcc-results button,
+  body .wm-pcc-results-panel button,
+  body .wm-pcc-list-card button {
+    min-height: 4.35rem !important;
+  }
+
+  body .wm-pcc-preview .wm-pcc-gallery-tile,
+  body .wm-pcc-preview .wm-pcc-visual-studio-button {
+    min-height: 3.75rem !important;
+    height: 3.75rem !important;
+  }
+
+  body .wm-pcc-preview .wm-pcc-section-tab {
+    min-height: 3.7rem !important;
+    height: 3.7rem !important;
+  }
+
+  body .wm-pcc-preview .wm-pcc-focus-panel {
+    padding: 1.45rem 1.55rem !important;
+  }
+
+  body .wm-pcc-preview .wm-pcc-response-copy {
+    font-size: 1rem !important;
+  }
+}
+
+/* wingman-product-discussion-fill-inner-space-end */
