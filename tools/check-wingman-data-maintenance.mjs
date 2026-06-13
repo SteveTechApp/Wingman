@@ -1,0 +1,90 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+
+const repoRoot = process.cwd();
+
+async function readJson(relativePath) {
+  const raw = await readFile(path.join(repoRoot, relativePath), "utf8");
+  return JSON.parse(raw);
+}
+
+function payloadToArray(value) {
+  if (Array.isArray(value)) return value;
+  if (value && typeof value === "object") {
+    if (Array.isArray(value.products)) return value.products;
+    if (Array.isArray(value.records)) return value.records;
+    if (Array.isArray(value.items)) return value.items;
+    if (Array.isArray(value.data)) return value.data;
+  }
+
+  return [];
+}
+
+function normaliseSkuKey(value) {
+  return String(value ?? "").trim().toUpperCase().replace(/[^A-Z0-9]+/g, "");
+}
+
+function duplicateSkus(products) {
+  const seen = new Set();
+  const duplicates = new Set();
+
+  for (const product of products) {
+    const key = normaliseSkuKey(product.sku || product.id);
+    if (!key) continue;
+    if (seen.has(key)) duplicates.add(key);
+    seen.add(key);
+  }
+
+  return [...duplicates].sort();
+}
+
+function requireCondition(condition, message, errors) {
+  if (!condition) errors.push(message);
+}
+
+async function main() {
+  const errors = [];
+  const canonical = await readJson("data/wingman-canonical-product-store.json");
+  const index = await readJson("public/product-intelligence-index.json");
+  const queue = await readJson("data/wingman-data-maintenance-queue.json");
+  const report = await readJson("reports/wingman-data-maintenance-report.json");
+
+  const canonicalProducts = payloadToArray(canonical);
+  const indexProducts = payloadToArray(index);
+  const duplicates = duplicateSkus(canonicalProducts);
+  const indexSources = Array.isArray(index?.meta?.sourceFiles) ? index.meta.sourceFiles : [];
+  const canonicalWithCompareGate = canonicalProducts.filter((product) => product?.dataMaintenance?.approvedFor?.compare === true);
+  const canonicalWithMaintenance = canonicalProducts.filter((product) => product?.dataMaintenance?.readinessGates);
+
+  requireCondition(canonicalProducts.length >= 250, `Canonical product store is too small (${canonicalProducts.length}). Expected at least 250 records.`, errors);
+  requireCondition(duplicates.length === 0, `Canonical product store has duplicate SKU keys: ${duplicates.slice(0, 20).join(", ")}`, errors);
+  requireCondition(indexProducts.length >= canonicalProducts.length - 2, `Public product index (${indexProducts.length}) is not aligned with canonical store (${canonicalProducts.length}).`, errors);
+  requireCondition(indexSources.includes("data/wingman-canonical-product-store.json"), "Public product index is not generated from data/wingman-canonical-product-store.json.", errors);
+  requireCondition(canonicalWithMaintenance.length === canonicalProducts.length, "Some canonical products are missing maintenance gate metadata.", errors);
+  requireCondition(canonicalWithCompareGate.length >= 180, `Only ${canonicalWithCompareGate.length} products are compare-ready. Expected at least 180.`, errors);
+  requireCondition(Array.isArray(queue?.newWyrestormCandidates), "Maintenance queue is missing newWyrestormCandidates.", errors);
+  requireCondition(Array.isArray(queue?.dataReviewItems), "Maintenance queue is missing dataReviewItems.", errors);
+  requireCondition(Array.isArray(report?.phaseStatus) && report.phaseStatus.length >= 6, "Maintenance report does not cover phases 1-6.", errors);
+
+  console.log("[wingman-data-maintenance] Canonical products: " + canonicalProducts.length);
+  console.log("[wingman-data-maintenance] Public index products: " + indexProducts.length);
+  console.log("[wingman-data-maintenance] Compare-ready products: " + canonicalWithCompareGate.length);
+  console.log("[wingman-data-maintenance] New candidates queued: " + queue.newWyrestormCandidates.length);
+  console.log("[wingman-data-maintenance] Data review items queued: " + queue.dataReviewItems.length);
+
+  if (errors.length) {
+    console.error("[wingman-data-maintenance] Failed:");
+    for (const error of errors) {
+      console.error("- " + error);
+    }
+    process.exit(1);
+  }
+
+  console.log("[wingman-data-maintenance] Passed.");
+}
+
+main().catch((error) => {
+  console.error("[wingman-data-maintenance] Check failed.");
+  console.error(error);
+  process.exit(1);
+});
