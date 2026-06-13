@@ -117,3 +117,6 @@ archive/
 vite.config.ts.timestamp-*
 server/node_modules/
 .vite-temp/
+
+# Local Wingman script backups
+_wingman_backup_*/

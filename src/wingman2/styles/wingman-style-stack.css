@@ -26230,3 +26230,32 @@ body .wm-pcc-preview .wm-pcc-actions button {
   max-width: calc(100% - 0.25rem);
   white-space: nowrap;
 }
+
+/* WINGMAN_COMPARE_HIDE_LEGACY_MATRIX_START */
+/*
+  Compare UX direction:
+  Show candidate WyreStorm product options first.
+  Keep the technical compare data available to the engine, but do not expose the
+  legacy feature/specification matrix as the default sales-user view.
+*/
+.wm-compare-page table,
+.wm-compare-page .compare-feature-matrix,
+.wm-compare-page .compare-specification-matrix,
+.wm-compare-page .feature-matrix,
+.wm-compare-page .specification-matrix,
+.wm-compare-page [data-wingman-compare-matrix="true"],
+.wm-compare-page [data-compare-matrix="true"],
+.wm-compare-page [aria-label*="matrix" i],
+.wm-compare-page [aria-label*="comparison table" i],
+main[data-wingman-compare-screen="true"] table,
+main[data-wingman-compare-screen="true"] .compare-feature-matrix,
+main[data-wingman-compare-screen="true"] .compare-specification-matrix,
+main[data-wingman-compare-screen="true"] .feature-matrix,
+main[data-wingman-compare-screen="true"] .specification-matrix,
+main[data-wingman-compare-screen="true"] [data-wingman-compare-matrix="true"],
+main[data-wingman-compare-screen="true"] [data-compare-matrix="true"],
+main[data-wingman-compare-screen="true"] [aria-label*="matrix" i],
+main[data-wingman-compare-screen="true"] [aria-label*="comparison table" i] {
+  display: none !important;
+}
+/* WINGMAN_COMPARE_HIDE_LEGACY_MATRIX_END */
