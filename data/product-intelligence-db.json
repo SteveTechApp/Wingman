@@ -42495,7 +42495,21 @@
           ]
         }
       ],
-      "compatibilityReferences": []
+      "compatibilityReferences": [],
+      "routedInputs": 1,
+      "routedOutputs": 2,
+      "routedInputCount": 1,
+      "routedOutputCount": 2,
+      "matrixInputs": 1,
+      "matrixOutputs": 2,
+      "matrixSize": "1x2",
+      "matrixSizeEvidence": "Title evidence: 1x2 HDMI Splitter",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote",
+      "physicalOutputs": 2,
+      "physicalOutputCount": 2,
+      "mirroredOutputs": 2,
+      "mirroredOutputCount": 2
     },
     {
       "brand": "WyreStorm",
@@ -43260,7 +43274,21 @@
           ]
         }
       ],
-      "compatibilityReferences": []
+      "compatibilityReferences": [],
+      "routedInputs": 1,
+      "routedOutputs": 2,
+      "routedInputCount": 1,
+      "routedOutputCount": 2,
+      "matrixInputs": 1,
+      "matrixOutputs": 2,
+      "matrixSize": "1x2",
+      "matrixSizeEvidence": "Title evidence: 1x2 HDMI Splitter",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote",
+      "physicalOutputs": 2,
+      "physicalOutputCount": 2,
+      "mirroredOutputs": 2,
+      "mirroredOutputCount": 2
     },
     {
       "brand": "WyreStorm",
@@ -44020,7 +44048,21 @@
           ]
         }
       ],
-      "compatibilityReferences": []
+      "compatibilityReferences": [],
+      "routedInputs": 1,
+      "routedOutputs": 4,
+      "routedInputCount": 1,
+      "routedOutputCount": 4,
+      "matrixInputs": 1,
+      "matrixOutputs": 4,
+      "matrixSize": "1x4",
+      "matrixSizeEvidence": "Title evidence: 1x4 HDMI Splitter",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote",
+      "physicalOutputs": 4,
+      "physicalOutputCount": 4,
+      "mirroredOutputs": 4,
+      "mirroredOutputCount": 4
     },
     {
       "brand": "WyreStorm",
@@ -66235,7 +66277,9 @@
       "matrixSize": "8x8",
       "matrixSizeEvidence": "Title evidence: 8x8 HDBaseT matrix",
       "ioEvidenceStatus": "derived",
-      "quoteSafety": "verify-before-quote"
+      "quoteSafety": "verify-before-quote",
+      "mirroredOutputs": 4,
+      "mirroredOutputCount": 4
     },
     {
       "brand": "WyreStorm",
@@ -73605,7 +73649,17 @@
           "note": "Recommended receiver for H2A-70 matrix path with 70m 4K 18Gbps A/V.",
           "role": "source"
         }
-      ]
+      ],
+      "routedInputs": 8,
+      "routedOutputs": 8,
+      "routedInputCount": 8,
+      "routedOutputCount": 8,
+      "matrixInputs": 8,
+      "matrixOutputs": 8,
+      "matrixSize": "8x8",
+      "matrixSizeEvidence": "Title evidence: 70m 4K60 8x8 HDBaseT Matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "brand": "WyreStorm",
@@ -114948,7 +115002,21 @@
           ]
         }
       ],
-      "compatibilityReferences": []
+      "compatibilityReferences": [],
+      "routedInputs": 1,
+      "routedOutputs": 4,
+      "routedInputCount": 1,
+      "routedOutputCount": 4,
+      "matrixInputs": 1,
+      "matrixOutputs": 4,
+      "matrixSize": "1x4",
+      "matrixSizeEvidence": "Title evidence: 1x4 HDMI Splitter",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote",
+      "physicalOutputs": 4,
+      "physicalOutputCount": 4,
+      "mirroredOutputs": 4,
+      "mirroredOutputCount": 4
     },
     {
       "brand": "WyreStorm",
@@ -115711,7 +115779,11 @@
       "matrixSize": "1x8",
       "matrixSizeEvidence": "Title evidence: 1x8 HDMI",
       "ioEvidenceStatus": "derived",
-      "quoteSafety": "verify-before-quote"
+      "quoteSafety": "verify-before-quote",
+      "physicalOutputs": 8,
+      "physicalOutputCount": 8,
+      "mirroredOutputs": 8,
+      "mirroredOutputCount": 8
     },
     {
       "brand": "WyreStorm",
@@ -126937,7 +127009,17 @@
           ]
         }
       ],
-      "compatibilityReferences": []
+      "compatibilityReferences": [],
+      "routedInputs": 4,
+      "routedOutputs": 2,
+      "routedInputCount": 4,
+      "routedOutputCount": 2,
+      "matrixInputs": 4,
+      "matrixOutputs": 2,
+      "matrixSize": "4x2",
+      "matrixSizeEvidence": "Title evidence: 4-input presentation switcher with 2 HDMI matrix outputs",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "brand": "WyreStorm",
@@ -154992,7 +155074,21 @@
           ]
         }
       ],
-      "compatibilityReferences": []
+      "compatibilityReferences": [],
+      "routedInputs": 1,
+      "routedOutputs": 2,
+      "routedInputCount": 1,
+      "routedOutputCount": 2,
+      "matrixInputs": 1,
+      "matrixOutputs": 2,
+      "matrixSize": "1x2",
+      "matrixSizeEvidence": "Title evidence: 1x2 HDMI Splitter",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote",
+      "physicalOutputs": 2,
+      "physicalOutputCount": 2,
+      "mirroredOutputs": 2,
+      "mirroredOutputCount": 2
     },
     {
       "id": "SW-120-TX3-US",

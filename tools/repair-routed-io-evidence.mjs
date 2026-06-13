@@ -65,10 +65,40 @@ const ROUTED_IO_OVERRIDES = {
     ioEvidenceStatus: "derived",
     quoteSafety: "verify-before-quote"
   },
+  "MXV-0808-H2A-70-V3": {
+    routedInputs: 8,
+    routedOutputs: 8,
+    matrixSizeEvidence: "Title evidence: 70m 4K60 8x8 HDBaseT Matrix",
+    ioEvidenceStatus: "derived",
+    quoteSafety: "verify-before-quote"
+  },
+  "MXV-0404-H2A-KIT-V2": {
+    routedInputs: 4,
+    routedOutputs: 4,
+    physicalOutputs: 5,
+    mirroredOutputs: 1,
+    matrixSizeEvidence: "Source evidence: 4 HDBaseT zone outputs plus 1 mirrored HDMI output",
+    ioEvidenceStatus: "derived",
+    quoteSafety: "verify-before-quote"
+  },
   "MX-0402-MST": {
     routedInputs: 4,
     routedOutputs: 2,
     matrixSizeEvidence: "SKU/title evidence: MX-0402-MST / 4x2 HDMI",
+    ioEvidenceStatus: "derived",
+    quoteSafety: "verify-before-quote"
+  },
+  "SW-0401-H2": {
+    routedInputs: 4,
+    routedOutputs: 1,
+    matrixSizeEvidence: "Title/source evidence: 4x1 HDMI switcher routing four sources to one display",
+    ioEvidenceStatus: "derived",
+    quoteSafety: "verify-before-quote"
+  },
+  "SW-640L-TX-W": {
+    routedInputs: 4,
+    routedOutputs: 2,
+    matrixSizeEvidence: "Title evidence: 4-input presentation switcher with 2 HDMI matrix outputs",
     ioEvidenceStatus: "derived",
     quoteSafety: "verify-before-quote"
   },
@@ -131,13 +161,97 @@ const ROUTED_IO_OVERRIDES = {
   "SP-0108-SCL": {
     routedInputs: 1,
     routedOutputs: 8,
+    physicalOutputs: 8,
+    mirroredOutputs: 8,
     matrixSizeEvidence: "Title evidence: 1x8 HDMI",
+    ioEvidenceStatus: "derived",
+    quoteSafety: "verify-before-quote"
+  },
+  "EXP-SP-0102-8K": {
+    routedInputs: 1,
+    routedOutputs: 2,
+    physicalOutputs: 2,
+    mirroredOutputs: 2,
+    matrixSizeEvidence: "Title evidence: 1x2 HDMI Splitter",
+    ioEvidenceStatus: "derived",
+    quoteSafety: "verify-before-quote"
+  },
+  "EXP-SP-0102-H2": {
+    routedInputs: 1,
+    routedOutputs: 2,
+    physicalOutputs: 2,
+    mirroredOutputs: 2,
+    matrixSizeEvidence: "Title evidence: 1x2 HDMI Splitter",
+    ioEvidenceStatus: "derived",
+    quoteSafety: "verify-before-quote"
+  },
+  "EXP-SP-0104-H2": {
+    routedInputs: 1,
+    routedOutputs: 4,
+    physicalOutputs: 4,
+    mirroredOutputs: 4,
+    matrixSizeEvidence: "Title evidence: 1x4 HDMI Splitter",
+    ioEvidenceStatus: "derived",
+    quoteSafety: "verify-before-quote"
+  },
+  "SP-0102-H2": {
+    routedInputs: 1,
+    routedOutputs: 2,
+    physicalOutputs: 2,
+    mirroredOutputs: 2,
+    matrixSizeEvidence: "Title evidence: 1x2 HDMI Splitter",
+    ioEvidenceStatus: "derived",
+    quoteSafety: "verify-before-quote"
+  },
+  "SP-0104-H2": {
+    routedInputs: 1,
+    routedOutputs: 4,
+    physicalOutputs: 4,
+    mirroredOutputs: 4,
+    matrixSizeEvidence: "Title evidence: 1x4 HDMI Splitter",
+    ioEvidenceStatus: "derived",
+    quoteSafety: "verify-before-quote"
+  },
+  "SP-618": {
+    routedInputs: 1,
+    routedOutputs: 8,
+    physicalOutputs: 8,
+    mirroredOutputs: 8,
+    matrixSizeEvidence: "Title evidence: 1x8 HDMI Splitter",
+    ioEvidenceStatus: "derived",
+    quoteSafety: "verify-before-quote"
+  },
+  "TX-H2X-HDBT": {
+    routedInputs: 1,
+    routedOutputs: 1,
+    physicalOutputs: 2,
+    mirroredOutputs: 1,
+    matrixSizeEvidence: "Source evidence: 1 routed HDBaseT output plus 1 mirrored HDMI output",
+    ioEvidenceStatus: "derived",
+    quoteSafety: "verify-before-quote"
+  },
+  "TX-H2X-HDMI": {
+    routedInputs: 1,
+    routedOutputs: 1,
+    physicalOutputs: 2,
+    mirroredOutputs: 1,
+    matrixSizeEvidence: "Source evidence: 1 routed HDBaseT output plus 1 mirrored HDMI output",
+    ioEvidenceStatus: "derived",
+    quoteSafety: "verify-before-quote"
+  },
+  "TX-H2X-OM3": {
+    routedInputs: 1,
+    routedOutputs: 1,
+    physicalOutputs: 2,
+    mirroredOutputs: 1,
+    matrixSizeEvidence: "Source evidence: 1 routed fibre output plus 1 mirrored HDMI output",
     ioEvidenceStatus: "derived",
     quoteSafety: "verify-before-quote"
   },
   "MX-0808-KIT-V2": {
     routedInputs: 8,
     routedOutputs: 8,
+    mirroredOutputs: 4,
     matrixSizeEvidence: "Title evidence: 8x8 HDBaseT matrix",
     ioEvidenceStatus: "derived",
     quoteSafety: "verify-before-quote"
@@ -145,7 +259,41 @@ const ROUTED_IO_OVERRIDES = {
   "AT-OME-MS52W": {
     routedInputs: 5,
     routedOutputs: 2,
+    physicalOutputs: 3,
+    mirroredOutputs: 1,
     matrixSizeEvidence: "Title evidence: 5x2 Matrix",
+    ioEvidenceStatus: "derived",
+    quoteSafety: "comparison-only-verify"
+  },
+  "AT-OME-SW32": {
+    routedInputs: 3,
+    routedOutputs: 2,
+    matrixSizeEvidence: "Summary evidence: 3-input matrix switcher with dual HDMI outputs",
+    ioEvidenceStatus: "derived",
+    quoteSafety: "comparison-only-verify"
+  },
+  "DM-MD8X8": {
+    routedInputs: 8,
+    routedOutputs: 8,
+    matrixSizeEvidence: "SKU evidence: DM-MD8X8",
+    ioEvidenceStatus: "derived",
+    quoteSafety: "comparison-only-verify"
+  },
+  "DA2-HDMI": {
+    routedInputs: 1,
+    routedOutputs: 2,
+    physicalOutputs: 2,
+    mirroredOutputs: 2,
+    matrixSizeEvidence: "Title evidence: HDMI distribution amplifier feeding two displays",
+    ioEvidenceStatus: "derived",
+    quoteSafety: "comparison-only-verify"
+  },
+  "HD-DA2-4KZ-E": {
+    routedInputs: 1,
+    routedOutputs: 2,
+    physicalOutputs: 2,
+    mirroredOutputs: 2,
+    matrixSizeEvidence: "Title evidence: 1x2 HDMI Distribution Amplifier",
     ioEvidenceStatus: "derived",
     quoteSafety: "comparison-only-verify"
   },
@@ -153,6 +301,13 @@ const ROUTED_IO_OVERRIDES = {
     routedInputs: 2,
     routedOutputs: 1,
     matrixSizeEvidence: "Title evidence: 2x1 switcher",
+    ioEvidenceStatus: "derived",
+    quoteSafety: "comparison-only-verify"
+  },
+  "UCX-4X3-HCM40": {
+    routedInputs: 4,
+    routedOutputs: 3,
+    matrixSizeEvidence: "SKU/summary evidence: UCX-4X3-HCM40 / 4x3 universal matrix switcher",
     ioEvidenceStatus: "derived",
     quoteSafety: "comparison-only-verify"
   },
@@ -557,6 +712,11 @@ report.recordsChanged.push(...actualChanges);
 
   if (report.parseErrors.length > 0) {
     console.log("Some JSON files could not be parsed. See report for details.");
+  }
+
+  if (!APPLY && report.actualChanges > 0) {
+    console.log("Run npm run wm:repair-routed-io to apply the routed I/O repair set.");
+    process.exitCode = 1;
   }
 }
 

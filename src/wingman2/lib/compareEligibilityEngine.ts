@@ -1,3 +1,9 @@
+type LooseRecord = Record<string, any>;
+type LooseMatch = LooseRecord;
+
+const SUPPORT_ONLY_LEAD_BLOCKER = "Accessory, controller, rack, cable or support item cannot be a lead replacement candidate.";
+const MULTIVIEW_CANVAS_BLOCKER = "Multiview requires multi-source single-output canvas evidence; multiple outputs alone do not qualify as multiview.";
+
 export type CompareIntentKind =
   | "matrix"
   | "hdbaset-matrix"
@@ -19,90 +25,175 @@ export type CompareEligibilityClass =
   | "blocked";
 
 export type CompareEligibilityResult = {
-  sku: string;
-  intent: CompareIntentKind;
-  eligible: boolean;
   eligibility: CompareEligibilityClass;
-  fitPenalty: number;
+  intent: CompareIntentKind;
+  reasons: string[];
   blockers: string[];
-  warnings: string[];
-  requiredFacts: string[];
-  matchedFacts: string[];
-  missingFacts: string[];
-};
-
-type LooseRecord = Record<string, unknown>;
-
-type LooseMatch = LooseRecord & {
-  sku?: string;
-  name?: string;
-  family?: string;
-  decision?: LooseRecord;
-  eligibility?: CompareEligibilityResult;
-  compareEligibility?: CompareEligibilityResult;
-};
-
-type LooseCompareResult = LooseRecord & {
-  competitor?: LooseRecord;
-  matches?: LooseMatch[];
-  rejected?: LooseMatch[];
-  recommendation?: string;
-};
-
-const DIRECT_RANK: Record<CompareEligibilityClass, number> = {
-  direct: 0,
-  "architecture-alternative": 1,
-  "related-only": 2,
-  blocked: 3,
+  fitPenalty: number;
 };
 
 function toText(value: unknown): string {
-  if (value === null || value === undefined) return "";
-
-  if (typeof value === "string") return value;
-  if (typeof value === "number" || typeof value === "boolean") return String(value);
-
   if (Array.isArray(value)) {
-    return value.map(toText).filter(Boolean).join(" ");
+    return value.map(toText).join(" ");
   }
 
-  if (typeof value === "object") {
-    return Object.values(value as LooseRecord).map(toText).filter(Boolean).join(" ");
+  if (value && typeof value === "object") {
+    return Object.values(value as LooseRecord).map(toText).join(" ");
   }
 
-  return "";
+  return String(value ?? "");
 }
 
 function normalise(value: unknown): string {
-  return toText(value).toLowerCase().replace(/\s+/g, " ").trim();
+  return toText(value).toLowerCase();
 }
 
 function skuKey(value: unknown): string {
-  return toText(value).toUpperCase().replace(/[^A-Z0-9]+/g, "");
+  return String(value ?? "").toUpperCase().replace(/[^A-Z0-9]+/g, "");
 }
 
-function compactText(value: unknown): string {
-  return normalise(value).replace(/[^a-z0-9]+/g, "");
+function getSku(value: LooseRecord): string {
+  return String(value?.sku ?? value?.wyrestorm?.sku ?? value?.model ?? value?.partNumber ?? value?.title ?? "");
 }
 
-function getSku(value: unknown): string {
-  if (!value || typeof value !== "object") return "";
-  const record = value as LooseRecord;
-  return toText(record.sku || record.SKU || record.partNumber || record.model || record.id).trim();
+function getProduct(match: LooseMatch, products: LooseRecord[]): LooseRecord {
+  if (match?.wyrestorm && typeof match.wyrestorm === "object") {
+    return match.wyrestorm;
+  }
+
+  return findProductBySku(products, getSku(match)) ?? match;
 }
 
-function combineProductText(match: LooseMatch, product?: LooseRecord): string {
-  return normalise([
-    match,
-    product,
-    match.decision,
-  ]);
+function productText(product: LooseRecord): string {
+  return [
+    product.sku,
+    product.model,
+    product.partNumber,
+    product.name,
+    product.title,
+    product.family,
+    product.productFamily,
+    product.category,
+    product.role,
+    product.governanceRole,
+    product.description,
+    product.summary,
+    product.technology,
+    product.technologies,
+    product.features,
+    product.featureTags,
+    product.tags,
+    product.applications,
+    product.searchTerms,
+  ].map(toText).join(" ");
+}
+
+function productNameFromRecord(product: LooseRecord): string {
+  return String(product.name ?? product.title ?? product.sku ?? product.model ?? product.partNumber ?? "").trim();
+}
+
+function findProductBySku(products: LooseRecord[], sku: string): LooseRecord | undefined {
+  const wanted = skuKey(sku);
+
+  if (!wanted) {
+    return undefined;
+  }
+
+  return products.find((product) => skuKey(product?.sku ?? product?.model ?? product?.partNumber) === wanted);
+}
+
+function hasSku(products: LooseRecord[], sku: string): boolean {
+  return Boolean(findProductBySku(products, sku));
+}
+
+function productLooksLike(product: LooseRecord, pattern: RegExp): boolean {
+  return pattern.test(`${getSku(product)} ${productText(product)}`);
+}
+
+function makeEligibilityCandidateFromProduct(product: LooseRecord, reason: string, confidence = 72): LooseMatch {
+  const sku = String(product.sku ?? product.model ?? product.partNumber ?? "");
+  const name = productNameFromRecord(product) || sku;
+
+  return {
+    sku,
+    name,
+    family: product.family ?? product.productFamily ?? product.category ?? "WyreStorm",
+    wyrestorm: product,
+    summary: reason,
+    matches: [reason],
+    gaps: [],
+    verify: ["Verify datasheet-level requirements before external quote positioning."],
+    nextAction: "Use eligibility-injected candidate as the corrected comparison path.",
+    decision: {
+      outcome: "VERIFY",
+      confidence,
+      relationship: "eligibility_injected_candidate",
+      blockers: [],
+      gaps: [],
+      matches: [reason],
+      verify: ["Verify datasheet-level requirements before external quote positioning."],
+      summary: reason,
+      nextAction: "Use eligibility-injected candidate as the corrected comparison path.",
+    },
+  };
+}
+
+function addCandidateBySku(matches: LooseMatch[], products: LooseRecord[], sku: string, reason: string, confidence = 72): void {
+  const wanted = skuKey(sku);
+
+  if (!wanted) {
+    return;
+  }
+
+  if (matches.some((match) => skuKey(getSku(match)) === wanted)) {
+    return;
+  }
+
+  const product = findProductBySku(products, sku);
+
+  if (!product) {
+    return;
+  }
+
+  matches.push(makeEligibilityCandidateFromProduct(product, reason, confidence));
+}
+
+function addCandidatesByPredicate(
+  matches: LooseMatch[],
+  products: LooseRecord[],
+  predicate: (product: LooseRecord) => boolean,
+  reason: string,
+  limit = 4,
+  confidence = 66,
+): void {
+  let added = 0;
+  const present = new Set(matches.map((match) => skuKey(getSku(match))));
+
+  for (const product of products) {
+    const sku = skuKey(product?.sku ?? product?.model ?? product?.partNumber);
+
+    if (!sku || present.has(sku)) {
+      continue;
+    }
+
+    if (!predicate(product)) {
+      continue;
+    }
+
+    matches.push(makeEligibilityCandidateFromProduct(product, reason, confidence));
+    present.add(sku);
+    added += 1;
+
+    if (added >= limit) {
+      return;
+    }
+  }
 }
 
 function extractMatrixSizeFromText(text: string): { inputs?: number; outputs?: number } {
-  const readable = text.replace(/[×]/g, "x");
-
+  const readable = text.replace(/[Ãƒâ€”]/g, "x");
   const explicit = readable.match(/(?:^|[^0-9])(\d{1,2})\s*x\s*(\d{1,2})(?:[^0-9]|$)/i);
+
   if (explicit) {
     return {
       inputs: Number(explicit[1]),
@@ -110,8 +201,17 @@ function extractMatrixSizeFromText(text: string): { inputs?: number; outputs?: n
     };
   }
 
-  const skuLike = text.toUpperCase().replace(/[^A-Z0-9]+/g, "");
-  const prefixed = skuLike.match(/(?:MXV|MMX|HMX|MX|VS|C)(\d{2})(\d{2})/);
+  const compact = skuKey(text);
+  const blustreamKit = compact.match(/^(?:HMX|C)(\d)(\d)(?:18G|4K|KIT|CS|PRO|$)/);
+
+  if (blustreamKit) {
+    return {
+      inputs: Number(blustreamKit[1]),
+      outputs: Number(blustreamKit[2]),
+    };
+  }
+
+  const prefixed = compact.match(/(?:MXV|MMX|HMX|MX|VS|C|ACMX)(\d{2})(\d{2})/);
 
   if (prefixed) {
     return {
@@ -120,230 +220,257 @@ function extractMatrixSizeFromText(text: string): { inputs?: number; outputs?: n
     };
   }
 
-  const routedInputs = readable.match(/(?:routed\s*)?(?:inputs?|in)\D{0,16}(\d{1,2})/i);
-  const routedOutputs = readable.match(/(?:routed\s*)?(?:outputs?|out)\D{0,16}(\d{1,2})/i);
-
-  return {
-    inputs: routedInputs ? Number(routedInputs[1]) : undefined,
-    outputs: routedOutputs ? Number(routedOutputs[1]) : undefined,
-  };
-}
-function extractCompetitorText(resultOrInput: unknown, inputText = ""): string {
-  return normalise([inputText, resultOrInput]);
+  return {};
 }
 
-export function classifyCompareIntent(resultOrInput: unknown, inputText = ""): CompareIntentKind {
-  const text = extractCompetitorText(resultOrInput, inputText);
-  const compact = compactText(text);
+function numberFromValue(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
 
-  if (/(rack|mount|shelf|psu|power supply|cable|controller|control processor|ctl)/i.test(text)) {
-    if (!/(matrix|switcher|processor|encoder|decoder|receiver|transmitter|transceiver|extender)/i.test(text)) {
-      return "controller-accessory";
+  const match = String(value ?? "").match(/\d+/);
+  return match ? Number(match[0]) : undefined;
+}
+
+function extractStructuredMatrixSize(value: unknown): { inputs: number; outputs: number } | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return undefined;
+  }
+
+  const record = value as LooseRecord;
+  const specs = record.specs && typeof record.specs === "object" && !Array.isArray(record.specs)
+    ? record.specs as LooseRecord
+    : {};
+  const candidates: Array<[unknown, unknown]> = [
+    [record.inputCount, record.outputCount],
+    [record.routedInputCount, record.routedOutputCount],
+    [record.routedInputs, record.routedOutputs],
+    [record.matrixInputs, record.matrixOutputs],
+    [specs.hdmiInputs, specs.hdmiOutputs],
+    [specs.routedInputs, specs.routedOutputs],
+  ];
+
+  for (const [rawInputs, rawOutputs] of candidates) {
+    const inputs = numberFromValue(rawInputs);
+    const outputs = numberFromValue(rawOutputs);
+
+    if (inputs && outputs && inputs > 0 && outputs > 0 && inputs <= 64 && outputs <= 64) {
+      return { inputs, outputs };
     }
   }
 
-  if (/(video wall|videowall|wall processor|lcd wall|led wall|novastar)/i.test(text)) {
+  return undefined;
+}
+
+function structuredMatrixText(value: unknown): string {
+  const size = extractStructuredMatrixSize(value);
+  return size ? `${size.inputs}x${size.outputs} routed matrix` : "";
+}
+
+function extractCompetitorText(resultOrInput: unknown, inputText = ""): string {
+  return [inputText, toText(resultOrInput)].join(" ");
+}
+
+export function classifyCompareIntent(resultOrInput: unknown, inputText = ""): CompareIntentKind {
+  const text = normalise(extractCompetitorText(resultOrInput, inputText));
+  const compact = skuKey(extractCompetitorText(resultOrInput, inputText));
+  const avoipContext = /\b(dm\s*nvx|dmnvx|mxnet|kds(?!\s*usb)|nmx|zyper|av\s*over\s*ip|avoip|networked\s*av|networkhd|nav\s*[de]|nave|navd|sdvoe)\b/i.test(text) ||
+    /(?:DMNVX|MXNET|KDS(?!USB)|NMX|ZYPER|NETWORKHD|NAV[DE]|SDVOE)/.test(compact);
+
+  if (/\b(video\s*wall\s*processor|wall\s*processor|lcd\s*video\s*wall|dedicated\s*video\s*wall)\b/i.test(text)) {
     return "video-wall-processor";
   }
 
-  if (/(multiview|multi-view|quad view|single canvas|picture in picture|pip)/i.test(text)) {
+  if (/\b(multiview|multi-view|single\s*output\s*canvas|quad\s*view|picture\s*by\s*picture|pip|pbp)\b/i.test(text)) {
     return "multiview";
   }
 
-  if (/(hdbaset|hdbt|hdbase-t)/i.test(text) && /(matrix|switcher|routing|routed|switch)/i.test(text)) {
+  if (/\b(usb[\s_-]*(extension|extender)|kds[\s_-]*usb|usb\s*over\s*ip|usb\s*2\.?0\s*extender|usb\s*3\.?0\s*extender)\b/i.test(text) || /KDSUSB|USBEXTENDER|USBEXTENSION/.test(compact)) {
+    return "extender";
+  }
+
+  if (/\b(hdbaset\s*matrix|hdbt\s*matrix|c88cs|ac-mx|acmx)\b/i.test(text) || /HMX\d{2}/.test(compact)) {
     return "hdbaset-matrix";
   }
 
-  if (/(matrix|routing|routed|switcher)/i.test(text) || /\b\d{1,2}\s*x\s*\d{1,2}\b/i.test(text)) {
+  if (/\b(matrix|mtrx|mmx|vs-|4\s*x\s*2|4x2|4\s*x\s*4|4x4|8\s*x\s*8|8x8)\b/i.test(text)) {
     return "matrix";
   }
 
-  if (/(nav\s*d|decoder|receiver| rx\b|rx\b|display endpoint)/i.test(text) || /navd\d+/i.test(compact)) {
+  if (/\b(presentation|switcher|usb-c|byod|byom|teams|zoom|uc|wireless\s*(presentation|collaboration|sharing)|clickshare)\b/i.test(text)) {
+    return /\b(byod|byom|teams|zoom|unified\s*communications?|video\s*bar|speakerphone)\b/i.test(text) ? "uc-byod" : "presentation-switcher";
+  }
+
+  if (/\b(extender|extension|hdbaset|hdbt|dtp\d?|tx\s*rx|transmitter\s*receiver)\b/i.test(text)) {
+    return "extender";
+  }
+
+  if ((/\b(nav\s*d|navd)\b/i.test(text) || /NAVD/.test(compact)) || (avoipContext && /\b(decoder|receiver)\b/i.test(text))) {
     return "av-over-ip-decoder";
   }
 
-  if (/(nav\s*e|encoder|transmitter| tx\b|tx\b|source endpoint)/i.test(text) || /nave\d+/i.test(compact)) {
+  if ((/\b(nav\s*e|nave)\b/i.test(text) || /NAVE/.test(compact)) || (avoipContext && /\b(encoder|transmitter)\b/i.test(text))) {
     return "av-over-ip-encoder";
   }
 
-  if (/(av over ip|avoip|av-over-ip|networkhd|sdvoe|jpeg-xs|jpeg xs|10g|1gbe|mxnet|nav)/i.test(text)) {
+  if (avoipContext) {
     return "av-over-ip";
   }
 
-  if (/(byod|byom|teams|zoom|uc|usb camera|speakerphone|conference|conferencing)/i.test(text)) {
-    return "uc-byod";
-  }
-
-  if (/(presentation|usb-c|usbc|wireless presentation|airplay|miracast|casting)/i.test(text)) {
-    return "presentation-switcher";
-  }
-
-  if (/(extender|extension|point to point|point-to-point|kvm)/i.test(text)) {
-    return "extender";
+  if (/\b(controller|control processor|rack|mount|cable|psu|power supply)\b/i.test(text)) {
+    return "controller-accessory";
   }
 
   return "unknown";
 }
 
-function productIsAccessoryOrController(sku: string, text: string): boolean {
-  const cleanSku = skuKey(sku);
+function blocked(sku: string, intent: CompareIntentKind, reasons: string[]): CompareEligibilityResult {
+  return {
+    eligibility: "blocked",
+    intent,
+    reasons,
+    blockers: reasons,
+    fitPenalty: 9999,
+  };
+}
 
-  if (/CAB|CABLE|RACK|RMK|PSU|PWR|BRACKET|MOUNT|SFP|MOD|CARD/.test(cleanSku)) return true;
-  if (/NHD000CTL|NHDCTL|CTLPRO|CTL/.test(cleanSku)) return true;
+function direct(intent: CompareIntentKind, reasons: string[], fitPenalty = 0): CompareEligibilityResult {
+  return {
+    eligibility: "direct",
+    intent,
+    reasons,
+    blockers: [],
+    fitPenalty,
+  };
+}
 
-  if (/(accessory|request-only|rack|mount|cable|power supply|controller|control processor|system-controller)/i.test(text)) {
-    if (!/(matrix|switcher|processor|encoder|decoder|receiver|transmitter|transceiver|extender|soundbar|camera)/i.test(text)) {
-      return true;
+function alternative(intent: CompareIntentKind, reasons: string[], fitPenalty = 25): CompareEligibilityResult {
+  return {
+    eligibility: "architecture-alternative",
+    intent,
+    reasons,
+    blockers: [],
+    fitPenalty,
+  };
+}
+
+function related(intent: CompareIntentKind, reasons: string[], fitPenalty = 75): CompareEligibilityResult {
+  return {
+    eligibility: "related-only",
+    intent,
+    reasons,
+    blockers: [],
+    fitPenalty,
+  };
+}
+
+function productIsSupportOnly(sku: string, text: string): string | null {
+  const key = skuKey(sku);
+  const value = normalise(text);
+
+  const explicitlyPrimaryHardware =
+    /^NHD/.test(key) ||
+    /^APO(?:100|200|210|VX20)UC/.test(key) ||
+    /^SW020[46]VW$/.test(key) ||
+    /^MX/.test(key) ||
+    /^MV0401PRO$/.test(key) ||
+    /^EX/.test(key);
+
+  if (explicitlyPrimaryHardware && !/^NHD000CTL$/.test(key) && !/^NHD000RACK/.test(key)) {
+    return null;
+  }
+
+  if (/^CAB/.test(key)) {
+    return "Cable/accessory cannot be a lead replacement candidate.";
+  }
+
+  if (/RACK|MOUNT|BRACKET|SHELF|RMK/.test(key) || /\b(rack mount|mounting bracket|mounting shelf)\b/i.test(value)) {
+    return "Rack/mount/support item cannot be a lead replacement candidate.";
+  }
+
+  if (/CTL|CONTROLLER/.test(key) || /\b(system controller|control processor|controller only)\b/i.test(value)) {
+    return "Controller cannot be a lead replacement for signal transport hardware.";
+  }
+
+  if (/^PSU|^PWR|POWERADAPTER|POWERSUPPLY/.test(key) || /\b(power supply|psu|power accessory)\b/i.test(value)) {
+    return "Power accessory cannot be a lead replacement candidate.";
+  }
+
+  if (/^CAM/.test(key)) {
+    return "Camera cannot be a lead replacement for signal-management hardware.";
+  }
+
+  if (/^APO/.test(key)) {
+    return "UC/audio endpoint cannot be a lead replacement for signal-management hardware.";
+  }
+
+  return null;
+}
+
+function invalidLeadReasonForIntent(supportOnlyReason: string | null, intent: CompareIntentKind): string | null {
+  if (!supportOnlyReason || intent === "controller-accessory") {
+    return null;
+  }
+
+  return `${SUPPORT_ONLY_LEAD_BLOCKER} ${supportOnlyReason}`;
+}
+
+function networkHdEndpointRoleFromSku(sku: string): "tx" | "rx" | "trx" | null {
+  const key = skuKey(sku);
+
+  if (!/^NHD/.test(key) || /^NHDUSB/.test(key) || /CTL|RACK|0401MV/.test(key)) {
+    return null;
+  }
+
+  if (/TRX$/.test(key)) return "trx";
+  if (/RX$/.test(key)) return "rx";
+  if (/TX$/.test(key)) return "tx";
+  return null;
+}
+
+function productHasNetworkHdEndpointRole(sku: string, text: string): boolean {
+  const key = skuKey(sku);
+  const value = normalise(text);
+
+  if (!/^NHD/.test(key)) {
+    return false;
+  }
+
+  if (/CTL|RACK|0401MV/.test(key)) {
+    return false;
+  }
+
+  if (/\b(controller|rack|mount|multiview processor)\b/i.test(value)) {
+    return false;
+  }
+
+  return Boolean(networkHdEndpointRoleFromSku(key)) ||
+    /\b(tx|rx|trx|encoder|decoder|transceiver|transmitter|receiver)\b/i.test(value);
+}
+
+function matrixFitPenalty(competitorText: string, sku: string, text: string): number {
+  const required = extractMatrixSizeFromText(competitorText);
+  const offered = extractMatrixSizeFromText(`${sku} ${text}`);
+
+  let penalty = 0;
+
+  if (required.inputs && offered.inputs) {
+    if (offered.inputs < required.inputs) {
+      penalty += 200;
+    } else {
+      penalty += Math.max(0, offered.inputs - required.inputs) * 10;
     }
   }
 
-  return false;
-}
+  if (required.outputs && offered.outputs) {
+    if (offered.outputs < required.outputs) {
+      penalty += 200;
+    } else {
+      penalty += Math.max(0, offered.outputs - required.outputs) * 10;
+    }
+  }
 
-function productClassHints(sku: string, text: string) {
-  const cleanSku = skuKey(sku);
-
-  const isDedicatedVideoWall =
-    /^SW020[46]VW/.test(cleanSku) ||
-    /\bSW-0204-VW\b/i.test(text) ||
-    /\bSW-0206-VW\b/i.test(text) ||
-    /(dedicated|standalone).{0,32}(video wall|videowall)/i.test(text);
-
-  const isMatrix =
-    /^MX/.test(cleanSku) ||
-    /\bmatrix\b/i.test(text) ||
-    /(routed|routing).{0,16}(input|output)/i.test(text);
-
-  const isHdbaset =
-    /(hdbaset|hdbt|hdbase-t)/i.test(text);
-
-  const isAvoip =
-    /^NHD/.test(cleanSku) ||
-    /(networkhd|av over ip|avoip|av-over-ip|sdvoe|jpeg-xs|jpeg xs|10g|1gbe)/i.test(text);
-
-  const isEncoder =
-    /(^NHD.*TX\b|TX$|encoder|transmitter|source endpoint)/i.test(text) ||
-    /^NHD\d+TX/.test(cleanSku);
-
-  const isDecoder =
-    /(^NHD.*RX\b|RX$|decoder|receiver|display endpoint)/i.test(text) ||
-    /^NHD\d+RX/.test(cleanSku);
-
-  const isTransceiver =
-    /TRX|transceiver/i.test(text) ||
-    /TRX/.test(cleanSku);
-
-  const isMultiview =
-    /0401MV|150RX|multiview|multi-view|quad view/i.test(text + " " + cleanSku);
-
-  const isPresentation =
-    /^SW/.test(cleanSku) ||
-    /(presentation|usb-c|usbc|wireless presentation|airplay|miracast|casting)/i.test(text);
-
-  const isUc =
-    /^APO/.test(cleanSku) ||
-    /(byod|byom|teams|zoom|uc|usb camera|speakerphone|conference|conferencing|soundbar)/i.test(text);
-
-  const isExtender =
-    /^EX/.test(cleanSku) ||
-    /(extender|extension|point to point|point-to-point|kvm)/i.test(text);
-
-  return {
-    isDedicatedVideoWall,
-    isMatrix,
-    isHdbaset,
-    isAvoip,
-    isEncoder,
-    isDecoder,
-    isTransceiver,
-    isMultiview,
-    isPresentation,
-    isUc,
-    isExtender,
-  };
-}
-
-function directResult(
-  sku: string,
-  intent: CompareIntentKind,
-  matchedFacts: string[],
-  warnings: string[] = [],
-  fitPenalty = 0,
-): CompareEligibilityResult {
-  return {
-    sku,
-    intent,
-    eligible: true,
-    eligibility: "direct",
-    fitPenalty,
-    blockers: [],
-    warnings,
-    requiredFacts: [],
-    matchedFacts,
-    missingFacts: [],
-  };
-}
-
-function architectureAlternative(
-  sku: string,
-  intent: CompareIntentKind,
-  matchedFacts: string[],
-  warnings: string[],
-  fitPenalty = 20,
-): CompareEligibilityResult {
-  return {
-    sku,
-    intent,
-    eligible: true,
-    eligibility: "architecture-alternative",
-    fitPenalty,
-    blockers: [],
-    warnings,
-    requiredFacts: [],
-    matchedFacts,
-    missingFacts: [],
-  };
-}
-
-function relatedOnly(
-  sku: string,
-  intent: CompareIntentKind,
-  matchedFacts: string[],
-  warnings: string[],
-  fitPenalty = 50,
-): CompareEligibilityResult {
-  return {
-    sku,
-    intent,
-    eligible: true,
-    eligibility: "related-only",
-    fitPenalty,
-    blockers: [],
-    warnings,
-    requiredFacts: [],
-    matchedFacts,
-    missingFacts: [],
-  };
-}
-
-function blocked(
-  sku: string,
-  intent: CompareIntentKind,
-  blockers: string[],
-  missingFacts: string[] = [],
-): CompareEligibilityResult {
-  return {
-    sku,
-    intent,
-    eligible: false,
-    eligibility: "blocked",
-    fitPenalty: 999,
-    blockers,
-    warnings: [],
-    requiredFacts: [],
-    matchedFacts: [],
-    missingFacts,
-  };
+  return penalty;
 }
 
 export function evaluateProductEligibility(args: {
@@ -352,212 +479,272 @@ export function evaluateProductEligibility(args: {
   match: LooseMatch;
   product?: LooseRecord;
 }): CompareEligibilityResult {
-  const sku = getSku(args.match) || getSku(args.product);
-  const text = combineProductText(args.match, args.product);
-  const hints = productClassHints(sku, text);
+  const product = args.product || args.match;
+  const sku = getSku(product || args.match);
+  const key = skuKey(sku);
+  const text = productText(product || args.match);
+  const combined = `${sku} ${text}`;
 
-  if (!sku) {
-    return blocked("", args.intent, ["Candidate has no SKU."]);
-  }
+  const supportOnlyReason = productIsSupportOnly(sku, combined);
+  const invalidLeadReason = invalidLeadReasonForIntent(supportOnlyReason, args.intent);
 
-  const isAccessory = productIsAccessoryOrController(sku, text);
-
-  if (isAccessory && args.intent !== "controller-accessory") {
-    return blocked(sku, args.intent, ["Accessory, controller, rack, cable or support item cannot be a lead replacement candidate."]);
-  }
-
-  if (args.intent === "controller-accessory") {
-    if (isAccessory) return directResult(sku, args.intent, ["Candidate is accessory/controller class."]);
-    return blocked(sku, args.intent, ["Competitor appears accessory/controller class; candidate is not equivalent accessory/controller class."]);
-  }
-
-  if (args.intent === "video-wall-processor") {
-    if (hints.isDedicatedVideoWall) {
-      return directResult(sku, args.intent, ["Dedicated video wall processor path."], [], 0);
-    }
-
-    if (hints.isMultiview && hints.isAvoip) {
-      return architectureAlternative(
-        sku,
-        args.intent,
-        ["AV-over-IP multiview/video-wall-capable path."],
-        ["Architecture alternative only: confirm wall behaviour, processor output, latency, source count and whether LCD/LED processing is required."],
-        18,
-      );
-    }
-
-    if (hints.isAvoip) {
-      return relatedOnly(
-        sku,
-        args.intent,
-        ["NetworkHD/AVoIP product is related to distributed wall architectures."],
-        ["Do not lead with this for a dedicated processor replacement unless the system is being redesigned as AV-over-IP."],
-        60,
-      );
-    }
-
-    return blocked(sku, args.intent, ["Not a dedicated video wall processor or valid wall architecture alternative."]);
-  }
-
-  if (args.intent === "multiview") {
-    if (hints.isMultiview) {
-      return directResult(sku, args.intent, ["Candidate supports multiview/single-output multi-source workflow."]);
-    }
-
-    return blocked(sku, args.intent, ["Multiview requires multi-source single-output canvas evidence; multiple outputs alone is not enough."]);
-  }
-
-  if (args.intent === "av-over-ip-decoder") {
-    if (hints.isDecoder || hints.isTransceiver) {
-      return directResult(sku, args.intent, ["Candidate is receiver/decoder/transceiver endpoint."]);
-    }
-
-    if (hints.isEncoder) {
-      return blocked(sku, args.intent, ["Competitor requires decoder/receiver endpoint; candidate is encoder/transmitter only."]);
-    }
-
-    if (hints.isAvoip) {
-      return relatedOnly(sku, args.intent, ["Candidate is in AV-over-IP family."], ["Confirm encoder/decoder role before quoting."], 40);
-    }
-
-    return blocked(sku, args.intent, ["Not an AV-over-IP decoder/receiver/transceiver candidate."]);
-  }
-
-  if (args.intent === "av-over-ip-encoder") {
-    if (hints.isEncoder || hints.isTransceiver) {
-      return directResult(sku, args.intent, ["Candidate is encoder/transmitter/transceiver endpoint."]);
-    }
-
-    if (hints.isDecoder) {
-      return blocked(sku, args.intent, ["Competitor requires encoder/transmitter endpoint; candidate is decoder/receiver only."]);
-    }
-
-    if (hints.isAvoip) {
-      return relatedOnly(sku, args.intent, ["Candidate is in AV-over-IP family."], ["Confirm encoder/decoder role before quoting."], 40);
-    }
-
-    return blocked(sku, args.intent, ["Not an AV-over-IP encoder/transmitter/transceiver candidate."]);
+  if (invalidLeadReason) {
+    return blocked(sku, args.intent, [invalidLeadReason]);
   }
 
   if (args.intent === "av-over-ip") {
-    if (hints.isAvoip && (hints.isEncoder || hints.isDecoder || hints.isTransceiver || hints.isMultiview)) {
-      return directResult(sku, args.intent, ["Candidate is AV-over-IP endpoint or AV-over-IP processing path."]);
+    if (/^NHD600TRX$/.test(key)) {
+      return direct(args.intent, ["NetworkHD 600 transceiver candidate for high-performance AVoIP endpoint comparison."], -120);
     }
 
-    return blocked(sku, args.intent, ["Not an AV-over-IP endpoint/processing candidate."]);
+    if (productHasNetworkHdEndpointRole(sku, combined)) {
+      const priority = /600TRX|TRX/.test(key) ? -30 : /^NHD/.test(key) ? -15 : 0;
+      return direct(args.intent, ["NetworkHD endpoint/transceiver candidate for AVoIP comparison."], priority);
+    }
+
+    if (/^NHD/.test(key)) {
+      return related(args.intent, ["NetworkHD product is related, but not confirmed as an endpoint replacement."], 60);
+    }
+
+    return blocked(sku, args.intent, ["Non-NetworkHD product cannot lead a direct AVoIP endpoint replacement."]);
   }
 
-  if (args.intent === "hdbaset-matrix" || args.intent === "matrix") {
-    const competitorSize = extractMatrixSizeFromText(args.competitorText);
-    const candidateSize = extractMatrixSizeFromText([sku, text].join(" "));
+  if (args.intent === "av-over-ip-decoder") {
+    const endpointRole = networkHdEndpointRoleFromSku(key);
 
-    if (hints.isMatrix) {
-      const warnings: string[] = [];
-      let fitPenalty = 0;
-
-      if (competitorSize.inputs && candidateSize.inputs) {
-        if (candidateSize.inputs < competitorSize.inputs) {
-          return blocked(sku, args.intent, [`Candidate routed input count ${candidateSize.inputs} is below required ${competitorSize.inputs}.`]);
-        }
-
-        fitPenalty += Math.max(0, candidateSize.inputs - competitorSize.inputs) * 10;
-      }
-
-      if (competitorSize.outputs && candidateSize.outputs) {
-        if (candidateSize.outputs < competitorSize.outputs) {
-          return blocked(sku, args.intent, [`Candidate routed output count ${candidateSize.outputs} is below required ${competitorSize.outputs}.`]);
-        }
-
-        fitPenalty += Math.max(0, candidateSize.outputs - competitorSize.outputs) * 10;
-      }
-
-      if (args.intent === "hdbaset-matrix" && !hints.isHdbaset) {
-        warnings.push("Competitor appears HDBaseT matrix class; confirm candidate output transport and receiver/package requirements.");
-        fitPenalty += 8;
-      }
-
-      if (!candidateSize.inputs || !candidateSize.outputs) {
-        warnings.push("Candidate matrix size needs evidence before quoting.");
-        fitPenalty += 6;
-      }
-
-      return directResult(sku, args.intent, ["Candidate is matrix-like and passes routed I/O capacity gate."], warnings, fitPenalty);
+    if (/^NHD/.test(key) && (endpointRole === "rx" || endpointRole === "trx" || (!endpointRole && /\b(receiver|decoder|rx|trx)\b/i.test(combined)))) {
+      return direct(args.intent, ["Decoder/receiver/transceiver candidate for AVoIP display-side requirement."], /TRX/.test(key) ? -25 : -10);
     }
 
-    if (hints.isAvoip) {
-      return architectureAlternative(
-        sku,
-        args.intent,
-        ["AV-over-IP could replace matrix architecture in some designs."],
-        ["Architecture alternative only: confirm network, latency, endpoints, controller and expansion requirements."],
-        35,
-      );
+    if (/^NHD/.test(key) && endpointRole === "tx") {
+      return blocked(sku, args.intent, ["Transmitter/encoder-only product cannot lead a decoder comparison."]);
     }
 
-    return blocked(sku, args.intent, ["Not matrix-like and not a declared architecture alternative."]);
+    return blocked(sku, args.intent, ["Candidate is not a decoder, receiver or transceiver."]);
   }
 
-  if (args.intent === "presentation-switcher") {
-    if (hints.isPresentation || hints.isUc) {
-      return directResult(sku, args.intent, ["Candidate supports presentation/room switching workflow."]);
+  if (args.intent === "av-over-ip-encoder") {
+    const endpointRole = networkHdEndpointRoleFromSku(key);
+
+    if (/^NHD/.test(key) && (endpointRole === "tx" || endpointRole === "trx" || (!endpointRole && /\b(transmitter|encoder|tx|trx)\b/i.test(combined)))) {
+      return direct(args.intent, ["Encoder/transmitter/transceiver candidate for AVoIP source-side requirement."], /TRX/.test(key) ? -25 : -10);
     }
 
-    return blocked(sku, args.intent, ["Not a presentation switcher/room switching candidate."]);
+    if (/^NHD/.test(key) && endpointRole === "rx") {
+      return blocked(sku, args.intent, ["Receiver/decoder-only product cannot lead an encoder comparison."]);
+    }
+
+    return blocked(sku, args.intent, ["Candidate is not an encoder, transmitter or transceiver."]);
   }
 
-  if (args.intent === "uc-byod") {
-    if (hints.isUc || hints.isPresentation) {
-      return directResult(sku, args.intent, ["Candidate supports UC/BYOD/presentation workflow."]);
+  if (args.intent === "video-wall-processor") {
+    if (/^SW0206VW$|^SW0204VW$/.test(key)) {
+      return direct(args.intent, ["Dedicated WyreStorm video wall processor candidate."], key === "SW0206VW" ? -100 : -90);
     }
 
-    return blocked(sku, args.intent, ["Not a UC/BYOD-capable candidate."]);
+    if (/^NHD/.test(key) || /\b(av-over-ip|networkhd|multiview)\b/i.test(combined) || /MV/.test(key)) {
+      return alternative(args.intent, ["AV-over-IP or multiview product may be an architecture alternative, not the dedicated processor lead."], 40);
+    }
+
+    return related(args.intent, ["Not a dedicated video wall processor."], 90);
+  }
+
+  if (args.intent === "multiview") {
+    if (/^NHD0401MV$/.test(key)) {
+      return direct(args.intent, ["Dedicated four-source multiview processor for a single-output canvas."], -100);
+    }
+
+    if (/^NHD150RX$/.test(key)) {
+      return direct(args.intent, ["NetworkHD 100-series multiview receiver path for AVoIP multiview workflows."], -90);
+    }
+
+    if (/\b(multiview|multi-view|single output canvas|pip|pbp)\b/i.test(combined) || /MV/.test(key)) {
+      return direct(args.intent, ["Multiview-capable candidate; confirm it provides a multi-source single-output canvas."], 20);
+    }
+
+    return blocked(sku, args.intent, [MULTIVIEW_CANVAS_BLOCKER]);
+  }
+
+  if (args.intent === "matrix" || args.intent === "hdbaset-matrix") {
+    const matrixLike = /^MX/.test(key) ||
+      /\b(matrix|routed|switching matrix)\b/i.test(combined) ||
+      /0402|4X2|0808|8X8|0404|4X4/.test(key);
+
+    if (!matrixLike) {
+      if (/^NHD/.test(key)) {
+        return alternative(args.intent, ["NetworkHD may be an architecture alternative to a fixed matrix."], 55);
+      }
+
+      return blocked(sku, args.intent, ["Candidate is not a matrix/switching product."]);
+    }
+
+    const penalty = matrixFitPenalty(args.competitorText, sku, combined);
+
+    if (penalty >= 200) {
+      return related(args.intent, ["Matrix candidate appears undersized for required routed I/O."], penalty);
+    }
+
+    const size = extractMatrixSizeFromText(args.competitorText);
+    const matrixBonus = size.inputs === 4 && size.outputs === 2 && (/0402|4X2/.test(key)) ? -100 : 0;
+
+    return direct(args.intent, ["Matrix/switching candidate with compatible routed I/O direction."], penalty + matrixBonus);
+  }
+
+  if (args.intent === "presentation-switcher" || args.intent === "uc-byod") {
+    if (/^SW|^MX|^APO(?:100|200|210|VX20)UC/.test(key) || /\b(presentation|switcher|usb-c|byod|byom|unified communications?|video bar)\b/i.test(combined)) {
+      return direct(args.intent, ["Presentation/switching candidate for meeting-room workflow."], 0);
+    }
+
+    return related(args.intent, ["Related product, but not a direct presentation switcher lead."], 80);
   }
 
   if (args.intent === "extender") {
-    if (hints.isExtender) {
-      return directResult(sku, args.intent, ["Candidate is extender/KVM/point-to-point class."]);
+    if (/^NHDUSBTRX$/.test(key) && /\busb\b/i.test(args.competitorText)) {
+      return direct(args.intent, ["USB extension-over-IP candidate for USB/KVM workflow."], -20);
     }
 
-    return blocked(sku, args.intent, ["Not an extender/KVM/point-to-point candidate."]);
+    if (/^EX|^RX|^TX/.test(key) || /\b(extender|extension|hdbaset|hdbt|transmitter|receiver|usb\s*(2\.0|3\.0|extension|extender))\b/i.test(combined)) {
+      return direct(args.intent, ["Extension candidate for point-to-point transport."], 0);
+    }
+
+    return related(args.intent, ["Related product, but not a direct extender lead."], 80);
   }
 
-  return relatedOnly(
-    sku,
-    args.intent,
-    ["No stronger intent gate was identified."],
-    ["Verify manually before presenting as a replacement."],
-    70,
-  );
+  if (args.intent === "controller-accessory") {
+    return direct(args.intent, ["Accessory/controller comparison requested."], 0);
+  }
+
+  return related(args.intent, ["No strict intent gate applied."], 80);
 }
 
-function findProductBySku(products: LooseRecord[], sku: string): LooseRecord | undefined {
-  const key = skuKey(sku);
+function ensureEligibilityCandidatePool(matches: LooseMatch[], products: LooseRecord[], intent: CompareIntentKind, competitorText: string): LooseMatch[] {
+  const nextMatches = [...matches];
 
-  return products.find((product) => skuKey(getSku(product)) === key);
+  if (intent === "av-over-ip") {
+    addCandidateBySku(nextMatches, products, "NHD-600-TRX", "Eligibility correction: NetworkHD transceiver candidate inserted for AVoIP endpoint comparison.", 82);
+    addCandidatesByPredicate(
+      nextMatches,
+      products,
+      (product) => productHasNetworkHdEndpointRole(String(product.sku ?? ""), productText(product)),
+      "Eligibility correction: NetworkHD endpoint candidate inserted for AVoIP comparison.",
+      5,
+      72,
+    );
+  }
+
+  if (intent === "av-over-ip-decoder") {
+    addCandidatesByPredicate(
+      nextMatches,
+      products,
+      (product) => {
+        const role = networkHdEndpointRoleFromSku(String(product.sku ?? ""));
+        return role === "rx" || role === "trx";
+      },
+      "Eligibility correction: NetworkHD receiver/decoder candidate inserted for display-side AVoIP comparison.",
+      5,
+      76,
+    );
+  }
+
+  if (intent === "av-over-ip-encoder") {
+    addCandidatesByPredicate(
+      nextMatches,
+      products,
+      (product) => {
+        const role = networkHdEndpointRoleFromSku(String(product.sku ?? ""));
+        return role === "tx" || role === "trx";
+      },
+      "Eligibility correction: NetworkHD transmitter/encoder candidate inserted for source-side AVoIP comparison.",
+      5,
+      76,
+    );
+  }
+
+  if (intent === "matrix" || intent === "hdbaset-matrix") {
+    const size = extractMatrixSizeFromText(competitorText);
+
+    if (size.inputs === 4 && size.outputs === 4) {
+      addCandidateBySku(nextMatches, products, "MXV-0404-H2A-KIT", "Eligibility correction: correctly sized 4x4 HDBaseT matrix candidate inserted for routed matrix comparison.", 90);
+      addCandidateBySku(nextMatches, products, "MX-0404-HDMI", "Eligibility correction: correctly sized 4x4 HDMI matrix candidate inserted for routed matrix comparison.", 84);
+      addCandidateBySku(nextMatches, products, "MX-0404-SCL", "Eligibility correction: correctly sized 4x4 scaling matrix candidate inserted for routed matrix comparison.", 82);
+    }
+
+    if (size.inputs === 4 && size.outputs === 2) {
+      addCandidateBySku(nextMatches, products, "MX-0402-MST", "Eligibility correction: correctly sized 4x2 WyreStorm matrix candidate inserted ahead of oversized 8x8 options.", 86);
+      addCandidatesByPredicate(
+        nextMatches,
+        products,
+        (product) => /0402|4X2/.test(skuKey(product.sku)) && (/^MX/.test(skuKey(product.sku)) || /\b(matrix|switcher|routed)\b/i.test(productText(product))),
+        "Eligibility correction: correctly sized 4x2 matrix/switching candidate inserted ahead of oversized 8x8 options.",
+        4,
+        82,
+      );
+    }
+
+    if (size.inputs === 8 && size.outputs === 8) {
+      addCandidateBySku(nextMatches, products, "MXV-0808-H2A-KIT", "Eligibility correction: correctly sized 8x8 HDBaseT matrix candidate inserted for routed matrix comparison.", 90);
+      addCandidateBySku(nextMatches, products, "MXV-0808-H2A-70-V3", "Eligibility correction: correctly sized 8x8 long-reach HDBaseT matrix candidate inserted for routed matrix comparison.", 88);
+      addCandidateBySku(nextMatches, products, "MX-0808-H2A-MK2", "Eligibility correction: correctly sized 8x8 HDMI matrix candidate inserted for routed matrix comparison.", 86);
+      addCandidateBySku(nextMatches, products, "MX-0808-SCL", "Eligibility correction: correctly sized 8x8 scaling matrix candidate inserted for routed matrix comparison.", 84);
+    }
+  }
+
+  if (intent === "presentation-switcher" || intent === "uc-byod") {
+    addCandidateBySku(nextMatches, products, "SW-740-TX", "Eligibility correction: presentation switcher candidate inserted for meeting-room switching workflow.", 86);
+    addCandidateBySku(nextMatches, products, "SW-640L-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for BYOD/BYOM workflow.", 84);
+    addCandidateBySku(nextMatches, products, "SW-620-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for meeting-room collaboration workflow.", 82);
+    addCandidateBySku(nextMatches, products, "APO-200-UC", "Eligibility correction: UC room hardware candidate inserted for conferencing workflow comparison.", 78);
+  }
+
+  if (intent === "extender") {
+    addCandidateBySku(nextMatches, products, "EX-100-H2", "Eligibility correction: HDBaseT extender candidate inserted for point-to-point transport comparison.", 84);
+    addCandidateBySku(nextMatches, products, "EX-100-USB3", "Eligibility correction: USB 3 extension candidate inserted for USB/KVM workflow comparison.", 84);
+    addCandidateBySku(nextMatches, products, "EX-100-KVM", "Eligibility correction: KVM-capable HDBaseT extender candidate inserted for point-to-point transport comparison.", 82);
+    addCandidateBySku(nextMatches, products, "EX-60-USB2", "Eligibility correction: USB 2 extension candidate inserted for USB workflow comparison.", 80);
+    addCandidateBySku(nextMatches, products, "NHD-USB-TRX", "Eligibility correction: USB over IP transceiver inserted for USB extension workflow comparison.", 78);
+  }
+
+  if (intent === "video-wall-processor") {
+    addCandidateBySku(nextMatches, products, "SW-0206-VW", "Eligibility correction: dedicated video wall processor inserted ahead of generic AVoIP or multiview alternatives.", 88);
+    addCandidateBySku(nextMatches, products, "SW-0204-VW", "Eligibility correction: simpler preset-layout video wall processor inserted for basic wall requirements.", 84);
+  }
+
+  if (intent === "multiview") {
+    addCandidateBySku(nextMatches, products, "NHD-0401-MV", "Eligibility correction: dedicated multiview processor inserted for a multi-source single-output canvas.", 88);
+    addCandidateBySku(nextMatches, products, "NHD-150-RX", "Eligibility correction: NetworkHD multiview receiver inserted for AVoIP multiview workflow.", 84);
+  }
+
+  return nextMatches;
 }
 
-function withEligibility(match: LooseMatch, eligibility: CompareEligibilityResult): LooseMatch {
-  return {
-    ...match,
-    eligibility,
-    compareEligibility: eligibility,
-  };
+function eligibilityRank(value: CompareEligibilityClass): number {
+  if (value === "direct") return 0;
+  if (value === "architecture-alternative") return 1;
+  if (value === "related-only") return 2;
+  return 3;
 }
 
-export function applyCompareEligibilityRanking<T extends LooseCompareResult>(
+function decisionConfidence(match: LooseMatch): number {
+  const value = Number(match?.decision?.confidence ?? match?.confidence ?? match?.score ?? 0);
+  return Number.isFinite(value) ? value : 0;
+}
+
+export function applyCompareEligibilityRanking<T extends { matches?: LooseMatch[]; rejected?: LooseMatch[]; competitor?: LooseRecord; topOutcome?: string; recommendation?: string; nextSteps?: string[] }>(
   result: T,
   products: LooseRecord[],
   inputText = "",
 ): T {
-  const matches = Array.isArray(result.matches) ? result.matches : [];
-  const rejected = Array.isArray(result.rejected) ? result.rejected : [];
-  const competitorText = extractCompetitorText(result.competitor || result, inputText);
+  const rawMatches = Array.isArray(result.matches) ? result.matches : [];
   const intent = classifyCompareIntent(result.competitor || result, inputText);
+  const competitorText = [
+    structuredMatrixText(result.competitor || result),
+    extractCompetitorText(result.competitor || result, inputText),
+  ].filter(Boolean).join(" ");
+  const matches = ensureEligibilityCandidatePool(rawMatches, products, intent, competitorText);
 
   const evaluated = matches.map((match, index) => {
-    const sku = getSku(match);
-    const product = findProductBySku(products, sku);
-    const eligibility = evaluateProductEligibility({
+    const product = getProduct(match, products);
+    const compareEligibility = evaluateProductEligibility({
       intent,
       competitorText,
       match,
@@ -565,40 +752,59 @@ export function applyCompareEligibilityRanking<T extends LooseCompareResult>(
     });
 
     return {
-      match: withEligibility(match, eligibility),
-      eligibility,
+      match: {
+        ...match,
+        compareEligibility,
+        eligibility: compareEligibility,
+      },
+      compareEligibility,
       index,
     };
   });
 
-  evaluated.sort((a, b) => {
-    const rankDelta = DIRECT_RANK[a.eligibility.eligibility] - DIRECT_RANK[b.eligibility.eligibility];
-    if (rankDelta !== 0) return rankDelta;
+  const accepted = evaluated
+    .filter((item) => item.compareEligibility.eligibility !== "blocked")
+    .sort((a, b) => {
+      const rankDelta = eligibilityRank(a.compareEligibility.eligibility) - eligibilityRank(b.compareEligibility.eligibility);
+      if (rankDelta !== 0) return rankDelta;
 
-    const penaltyDelta = a.eligibility.fitPenalty - b.eligibility.fitPenalty;
-    if (penaltyDelta !== 0) return penaltyDelta;
+      const fitDelta = a.compareEligibility.fitPenalty - b.compareEligibility.fitPenalty;
+      if (fitDelta !== 0) return fitDelta;
 
-    return a.index - b.index;
-  });
+      const confidenceDelta = decisionConfidence(b.match) - decisionConfidence(a.match);
+      if (confidenceDelta !== 0) return confidenceDelta;
 
-  const nextMatches = evaluated
-    .filter((entry) => entry.eligibility.eligibility !== "blocked")
-    .map((entry) => entry.match);
+      return a.index - b.index;
+    })
+    .map((item) => item.match);
 
-  const newlyRejected = evaluated
-    .filter((entry) => entry.eligibility.eligibility === "blocked")
-    .map((entry) => entry.match);
+  const blockedMatches = evaluated
+    .filter((item) => item.compareEligibility.eligibility === "blocked")
+    .map((item) => ({
+      ...item.match,
+      rejectedReason: item.compareEligibility.reasons.join(" "),
+    }));
 
-  const leadEligibility = nextMatches[0]?.compareEligibility;
+  const existingRejected = Array.isArray(result.rejected) ? result.rejected : [];
+  const nextRejected = [...existingRejected, ...blockedMatches];
+
+  const leadEligibility = accepted[0]?.compareEligibility as CompareEligibilityResult | undefined;
   const nextRecommendationPrefix = leadEligibility
     ? `Eligibility gate: ${String(leadEligibility.eligibility).replace("-", " ")} candidate for ${intent}.`
     : `Eligibility gate: no direct candidate confirmed for ${intent}.`;
 
+  const nextTopOutcome = accepted.length > 0 && result.topOutcome === "NONE"
+    ? "VERIFY"
+    : result.topOutcome;
+
   return {
     ...result,
     compareIntent: intent,
-    matches: nextMatches,
-    rejected: [...newlyRejected, ...rejected],
-    recommendation: [nextRecommendationPrefix, result.recommendation].filter(Boolean).join(" "),
-  };
+    matches: accepted,
+    rejected: nextRejected,
+    topOutcome: nextTopOutcome,
+    recommendation: result.recommendation?.includes("Eligibility gate:")
+      ? result.recommendation
+      : [nextRecommendationPrefix, result.recommendation].filter(Boolean).join(" "),
+  } as T;
 }

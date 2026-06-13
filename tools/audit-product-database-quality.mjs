@@ -115,12 +115,31 @@ function fieldCount(product, fields) {
   return null;
 }
 
+function modeledMatrixSize(product) {
+  const inputs = fieldCount(product, ["matrixInputs", "routedInputCount", "routedInputs"]);
+  const outputs = fieldCount(product, ["matrixOutputs", "routedOutputCount", "routedOutputs"]);
+
+  if (inputs !== null && outputs !== null) {
+    return {
+      inputs,
+      outputs,
+      evidence: clean(product.matrixSizeEvidence || product.matrixSize || "Modeled routed I/O"),
+      source: "modeled",
+    };
+  }
+
+  return null;
+}
+
 function extractMatrixSize(product) {
+  const modeled = modeledMatrixSize(product);
+  if (modeled) return modeled;
+
   const sku = skuOf(product);
   const text = `${sku} ${textBlob(product)}`;
   const patterns = [
     /(\d{1,2})\s*[xX×]\s*(\d{1,2})\s+(?:advanced\s+|seamless\s+|scaling\s+|hdmi\s+|hdbaset\s+|tps\s+)?matrix/i,
-    /(\d{1,2})\s*[xX×]\s*(\d{1,2})\s+(?:hdmi|hdbaset|tps|matrix|switcher)/i,
+    /(\d{1,2})\s*[xX×]\s*(\d{1,2})\s+(?:hdmi|hdbaset|tps|matrix|switcher|splitter|distribution amplifier)/i,
     /matrix\s+(?:switch(?:er)?\s+)?(?:with\s+)?(\d{1,2})\s*[xX×]\s*(\d{1,2})/i,
     /(\d{1,2})\s+inputs?\s*(?:\/|and|to|-)\s*(\d{1,2})\s+outputs?/i,
   ];
@@ -130,11 +149,16 @@ function extractMatrixSize(product) {
     if (match) return { inputs: Number(match[1]), outputs: Number(match[2]), evidence: match[0], source: "text" };
   }
 
+  const crossPoint = text.match(/\b(?:cross\s*point|crosspoint)\s*(\d)(\d)\b/i);
+  if (crossPoint) {
+    return { inputs: Number(crossPoint[1]), outputs: Number(crossPoint[2]), evidence: crossPoint[0], source: "text" };
+  }
+
   const compactSku = key(sku);
   const skuPatterns = [
     /(?:MXV|MX|MMX|VS|MTRX)(\d{2})(\d{2})/,
     /MMX(\d{1,2})X(\d{1,2})/,
-    /(\d{1,2})X(\d{1,2})(?:HDMI|HDBT|HT|KIT|SCL|H2|H2A|H20|H40)/,
+    /(\d{1,2})X(\d{1,2})(?:HDMI|HDBT|HT|KIT|SCL|H2|H2A|H20|H40|DA|DISTRIBUTION|SPLITTER)/,
   ];
 
   for (const pattern of skuPatterns) {
@@ -204,6 +228,9 @@ function structuredVideoCount(product, direction, options = {}) {
 }
 
 function explicitMirroredCount(product) {
+  const modeled = fieldCount(product, ["mirroredOutputCount", "mirroredOutputs"]);
+  if (modeled !== null) return modeled;
+
   const text = textBlob(product);
   const patterns = [
     /\b(\d{1,2})\s*x?\s+(?:additional\s+)?(?:mirrored|parallel|duplicate|duplicated)\s+(?:hdmi\s+)?(?:out(?:put)?s?)?\b/i,
@@ -213,6 +240,16 @@ function explicitMirroredCount(product) {
   for (const pattern of patterns) {
     const match = text.match(pattern);
     if (match) return Number(match[1]);
+  }
+
+  const matrix = extractMatrixSize(product);
+  if (matrix?.inputs === 1 && isSplitterOrDistribution(product)) {
+    return matrix.outputs;
+  }
+
+  if (/\b(?:a|one|1x?)\s+(?:additional\s+)?(?:mirrored|parallel|duplicate|duplicated)\s+(?:hdmi\s+)?out(?:put)?\b/i.test(text) ||
+    /\b(?:hdmi\s+)?out(?:put)?\s*[–-]?\s*(?:mirrored|parallel|duplicate|duplicated)\b/i.test(text)) {
+    return 1;
   }
 
   return null;
@@ -254,12 +291,44 @@ function issue(severity, source, product, code, message, details = {}) {
   };
 }
 
-function isMatrixProduct(product) {
-  const text = textBlob(product).toLowerCase();
-  return /\bmatrix\b/.test(text) || Boolean(extractMatrixSize(product));
+function isSplitterOrDistribution(product) {
+  const text = clean([
+    titleOf(product),
+    product.category,
+    product.type,
+    product.role,
+    product.domain,
+  ].filter(Boolean).join(" ")).toLowerCase();
+
+  if (/\bswitcher\b/.test(text) && !/\b(splitter|distribution amplifier|distribution amp)\b/.test(text)) {
+    return false;
+  }
+
+  return /\b(splitter|distribution amplifier|distribution amp|duplicate displays?)\b/i.test(text);
 }
 
-function auditProduct(source, product) {
+function isEndpointOrAccessory(product) {
+  const sku = key(skuOf(product));
+  const text = textBlob(product).toLowerCase();
+
+  if (/^(NHD|RX|TX|EX|CAB|CAM|APO|CON)/.test(sku)) return true;
+  if (/\b(encoder|decoder|transmitter|receiver|transceiver|extender|adapter|cable|scaler|controller|rack|mount|power supply|psu)\b/i.test(text)) {
+    return true;
+  }
+
+  return false;
+}
+
+function isMatrixProduct(product) {
+  const text = textBlob(product).toLowerCase();
+
+  if (extractMatrixSize(product)) return true;
+  if (isEndpointOrAccessory(product)) return false;
+
+  return /\b(matrix switcher|hdmi matrix|hdbaset matrix|presentation matrix|seamless matrix|scaling matrix|cross\s*point|crosspoint|splitter|distribution amplifier)\b/i.test(text);
+}
+
+function auditProduct(source, product, officialEvidenceSkus = new Set()) {
   const issues = [];
   if (!isRecord(product)) return issues;
   if (!skuOf(product)) return issues;
@@ -275,7 +344,7 @@ function auditProduct(source, product) {
   const structuredRoutedOutputs = structuredVideoCount(product, "output", { routedOnly: true });
   const structuredPhysicalOutputs = structuredVideoCount(product, "output", { routedOnly: false });
   const mirroredCount = explicitMirroredCount(product);
-  const hasMirrored = /\b(mirror|mirrored|parallel|duplicate|duplicated)\b/i.test(text);
+  const hasMirrored = /\b(mirrored|parallel|duplicate|duplicated)\b/i.test(text) || isSplitterOrDistribution(product);
   const hasLoop = /\b(loop|daisy|cascade)\b/i.test(text);
 
   if (matrixProduct && !matrix) {
@@ -302,7 +371,15 @@ function auditProduct(source, product) {
       }));
     }
 
-    if (structuredPhysicalOutputs !== null && structuredPhysicalOutputs > matrix.outputs && (hasMirrored || hasLoop)) {
+    const routedOutputIsExplicit = routedOutputField !== null && routedOutputField === matrix.outputs;
+    const mirroredOrLoopIsModeled = mirroredCount !== null || fieldCount(product, ["physicalOutputCount", "physicalOutputs"]) !== null;
+
+    if (
+      structuredPhysicalOutputs !== null &&
+      structuredPhysicalOutputs > matrix.outputs &&
+      (hasMirrored || hasLoop) &&
+      (!routedOutputIsExplicit || !mirroredOrLoopIsModeled)
+    ) {
       issues.push(issue("critical", source, product, "physical-output-count-used-as-routed", "Physical output count appears larger than routed matrix output count because mirrored/loop outputs are present.", {
         routedOutputsFromMatrix: matrix.outputs,
         structuredPhysicalOutputs,
@@ -310,7 +387,7 @@ function auditProduct(source, product) {
       }));
     }
 
-    if (!hasOfficialEvidence(product) && source !== "wyrestorm-sku-catalog-2026") {
+    if (!hasOfficialEvidence(product) && !officialEvidenceSkus.has(key(skuOf(product))) && source !== "wyrestorm-sku-catalog-2026") {
       issues.push(issue("warning", source, product, "missing-official-evidence", "Matrix product lacks attached official page/PDF evidence in this data source.", {
         sourceTier: sourceTier(product),
       }));
@@ -348,12 +425,25 @@ function markdownTable(rows, columns) {
 async function main() {
   const sourceReports = [];
   const allIssues = [];
+  const loadedSources = [];
+  const officialEvidenceSkus = new Set();
 
   for (const source of sources) {
     const payload = await readJson(source.path);
     const records = asArray(payload);
     const products = records.filter(isRecord);
-    const issues = products.flatMap((product) => auditProduct(source.name, product));
+
+    loadedSources.push({ source, products });
+
+    for (const product of products) {
+      if (hasOfficialEvidence(product)) {
+        officialEvidenceSkus.add(key(skuOf(product)));
+      }
+    }
+  }
+
+  for (const { source, products } of loadedSources) {
+    const issues = products.flatMap((product) => auditProduct(source.name, product, officialEvidenceSkus));
 
     sourceReports.push({
       source: source.name,

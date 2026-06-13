@@ -423,6 +423,31 @@ function normalizeProduct(item, index, sourceFile) {
   const profileTransports = asArray(technicalProfile?.transports);
   const profileApplications = asArray(technicalProfile?.applications);
   const salesLanguageTerms = collectTextValues(salesLanguage);
+  const routedIo = {
+    routedInputs: item?.routedInputs,
+    routedOutputs: item?.routedOutputs,
+    routedInputCount: item?.routedInputCount,
+    routedOutputCount: item?.routedOutputCount,
+    matrixInputs: item?.matrixInputs,
+    matrixOutputs: item?.matrixOutputs,
+    matrixSize: item?.matrixSize,
+    matrixSizeEvidence: item?.matrixSizeEvidence,
+    ioEvidenceStatus: item?.ioEvidenceStatus,
+    quoteSafety: item?.quoteSafety,
+    physicalInputs: item?.physicalInputs,
+    physicalOutputs: item?.physicalOutputs,
+    physicalInputCount: item?.physicalInputCount,
+    physicalOutputCount: item?.physicalOutputCount,
+    physicalVideoInputCount: item?.physicalVideoInputCount,
+    physicalVideoOutputCount: item?.physicalVideoOutputCount,
+    mirroredInputs: item?.mirroredInputs,
+    mirroredOutputs: item?.mirroredOutputs,
+    mirroredInputCount: item?.mirroredInputCount,
+    mirroredOutputCount: item?.mirroredOutputCount,
+  };
+  const routedIoFields = Object.fromEntries(
+    Object.entries(routedIo).filter(([, value]) => value !== undefined && value !== null && value !== ""),
+  );
 
   const tags = unique([
     ...(Array.isArray(item?.tags) ? item.tags : []),
@@ -515,6 +540,7 @@ function normalizeProduct(item, index, sourceFile) {
     productClassification,
     classificationPath,
     subClassifications,
+    ...routedIoFields,
     technicalProfile,
     salesLanguage,
     source: path.relative(projectRoot, sourceFile).replace(/\\/g, "/"),

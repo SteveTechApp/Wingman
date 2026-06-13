@@ -189,7 +189,7 @@ function runKnownProfileCompare(
 ): RigorousCompareResult {
   const enrichedInput = enrichCompareInputWithKnownProfile(inputText, brand);
   const baseResult = applyCompareEquivalenceGuards(rigorousCompare(enrichedInput, products, brand, limit, productUrl));
-    const curatedResult = applyKnownCompareProfileOverrides(baseResult, products, inputText, brand) as RigorousCompareResult;
+  const curatedResult = applyKnownCompareProfileOverrides(baseResult, products, inputText, brand) as RigorousCompareResult;
   return applyCompareEligibilityRanking(curatedResult, products, inputText) as RigorousCompareResult;
 }
 function outcomeClass(outcome: CompareDecisionOutcome) {

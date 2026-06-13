@@ -242,7 +242,11 @@
     "matrixSize": "5x2",
     "matrixSizeEvidence": "Title evidence: 5x2 Matrix",
     "ioEvidenceStatus": "derived",
-    "quoteSafety": "comparison-only-verify"
+    "quoteSafety": "comparison-only-verify",
+    "physicalOutputs": 3,
+    "physicalOutputCount": 3,
+    "mirroredOutputs": 1,
+    "mirroredOutputCount": 1
   },
   {
     "sku": "AT-OME-PS62",
@@ -370,7 +374,17 @@
       "HDBaseT room extension",
       "USB host switching"
     ],
-    "notes": "Official Atlona education brochure and product page. | data/product-intelligence-db.json#58 merged into deployed competitor catalog. | data/product-intelligence-db.json#6 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Atlona Omega is a presentation and collaboration switching family built around HDMI, USB-C, HDBaseT, and USB room workflows. | Compare Omega switchers against presentation switchers and collaboration appliances, not plain HDMI matrices or wall processors. | Official competitor family guidance applied during canonical sync."
+    "notes": "Official Atlona education brochure and product page. | data/product-intelligence-db.json#58 merged into deployed competitor catalog. | data/product-intelligence-db.json#6 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Atlona Omega is a presentation and collaboration switching family built around HDMI, USB-C, HDBaseT, and USB room workflows. | Compare Omega switchers against presentation switchers and collaboration appliances, not plain HDMI matrices or wall processors. | Official competitor family guidance applied during canonical sync.",
+    "routedInputs": 3,
+    "routedOutputs": 2,
+    "routedInputCount": 3,
+    "routedOutputCount": 2,
+    "matrixInputs": 3,
+    "matrixOutputs": 2,
+    "matrixSize": "3x2",
+    "matrixSizeEvidence": "Summary evidence: 3-input matrix switcher with dual HDMI outputs",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "comparison-only-verify"
   },
   {
     "sku": "AT-OME-TX11-WP",
@@ -1924,7 +1938,17 @@
       "Enterprise routing",
       "Modular matrix"
     ],
-    "notes": "src/competitor/competitors.json#9 merged into deployed competitor catalog. | data/product-intelligence-db.json#23 merged into deployed competitor catalog. | data/product-intelligence-db.json#34 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | DigitalMedia modular matrix products are enterprise routing chassis for large AV switching systems. | Compare DigitalMedia modular matrixes against modular or enterprise matrix systems rather than room switchers. | Official competitor family guidance applied during canonical sync."
+    "notes": "src/competitor/competitors.json#9 merged into deployed competitor catalog. | data/product-intelligence-db.json#23 merged into deployed competitor catalog. | data/product-intelligence-db.json#34 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | DigitalMedia modular matrix products are enterprise routing chassis for large AV switching systems. | Compare DigitalMedia modular matrixes against modular or enterprise matrix systems rather than room switchers. | Official competitor family guidance applied during canonical sync.",
+    "routedInputs": 8,
+    "routedOutputs": 8,
+    "routedInputCount": 8,
+    "routedOutputCount": 8,
+    "matrixInputs": 8,
+    "matrixOutputs": 8,
+    "matrixSize": "8x8",
+    "matrixSizeEvidence": "SKU evidence: DM-MD8X8",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "comparison-only-verify"
   },
   {
     "sku": "DM-NVX-360",
@@ -2212,7 +2236,21 @@
       "Compact form factor",
       "Mirrored HDMI distribution"
     ],
-    "notes": "Official Crestron HD-DA2-4KZ-E page. | data/product-intelligence-db.json#24 merged into deployed competitor catalog. | data/product-intelligence-db.json#28 merged into deployed competitor catalog. | data/product-intelligence-db.json#39 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Crestron HD-DA products are HDMI distribution amplifiers for mirrored output workflows. | Compare HD-DA products against splitters and DAs, not matrices or room switchers. | Official competitor family guidance applied during canonical sync."
+    "notes": "Official Crestron HD-DA2-4KZ-E page. | data/product-intelligence-db.json#24 merged into deployed competitor catalog. | data/product-intelligence-db.json#28 merged into deployed competitor catalog. | data/product-intelligence-db.json#39 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Crestron HD-DA products are HDMI distribution amplifiers for mirrored output workflows. | Compare HD-DA products against splitters and DAs, not matrices or room switchers. | Official competitor family guidance applied during canonical sync.",
+    "routedInputs": 1,
+    "routedOutputs": 2,
+    "routedInputCount": 1,
+    "routedOutputCount": 2,
+    "matrixInputs": 1,
+    "matrixOutputs": 2,
+    "matrixSize": "1x2",
+    "matrixSizeEvidence": "Title evidence: 1x2 HDMI Distribution Amplifier",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "comparison-only-verify",
+    "physicalOutputs": 2,
+    "physicalOutputCount": 2,
+    "mirroredOutputs": 2,
+    "mirroredOutputCount": 2
   },
   {
     "sku": "HD-MD4X2-4KZ-E",
@@ -4007,7 +4045,21 @@
       "Compact form factor",
       "Mirrored distribution"
     ],
-    "notes": "Official Lightware DA2-HDMI product page. | data/product-intelligence-db.json#39 merged into deployed competitor catalog. | data/product-intelligence-db.json#48 merged into deployed competitor catalog. | data/product-intelligence-db.json#73 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Lightware DA products are local distribution amplifiers for mirrored output workflows. | Compare DA products against splitters and mirrored distribution products, not matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#71 merged into deployed competitor catalog."
+    "notes": "Official Lightware DA2-HDMI product page. | data/product-intelligence-db.json#39 merged into deployed competitor catalog. | data/product-intelligence-db.json#48 merged into deployed competitor catalog. | data/product-intelligence-db.json#73 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Lightware DA products are local distribution amplifiers for mirrored output workflows. | Compare DA products against splitters and mirrored distribution products, not matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#71 merged into deployed competitor catalog.",
+    "routedInputs": 1,
+    "routedOutputs": 2,
+    "routedInputCount": 1,
+    "routedOutputCount": 2,
+    "matrixInputs": 1,
+    "matrixOutputs": 2,
+    "matrixSize": "1x2",
+    "matrixSizeEvidence": "Title evidence: HDMI distribution amplifier feeding two displays",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "comparison-only-verify",
+    "physicalOutputs": 2,
+    "physicalOutputCount": 2,
+    "mirroredOutputs": 2,
+    "mirroredOutputCount": 2
   },
   {
     "sku": "UCX-2X1-HC30",
@@ -4227,7 +4279,17 @@
       "BYOM",
       "Collaboration matrix"
     ],
-    "notes": "Official Lightware UCX-4x3-HCM40 product page. | data/product-intelligence-db.json#42 merged into deployed competitor catalog. | data/product-intelligence-db.json#52 merged into deployed competitor catalog. | data/product-intelligence-db.json#77 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Taurus UCX products are collaboration-first universal switchers with USB-C, USB host routing, and room workflow control. | Compare Taurus UCX products against collaboration matrices and presentation systems, not plain local HDMI matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#75 merged into deployed competitor catalog."
+    "notes": "Official Lightware UCX-4x3-HCM40 product page. | data/product-intelligence-db.json#42 merged into deployed competitor catalog. | data/product-intelligence-db.json#52 merged into deployed competitor catalog. | data/product-intelligence-db.json#77 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Taurus UCX products are collaboration-first universal switchers with USB-C, USB host routing, and room workflow control. | Compare Taurus UCX products against collaboration matrices and presentation systems, not plain local HDMI matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#75 merged into deployed competitor catalog.",
+    "routedInputs": 4,
+    "routedOutputs": 3,
+    "routedInputCount": 4,
+    "routedOutputCount": 3,
+    "matrixInputs": 4,
+    "matrixOutputs": 3,
+    "matrixSize": "4x3",
+    "matrixSizeEvidence": "SKU/summary evidence: UCX-4X3-HCM40 / 4x3 universal matrix switcher",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "comparison-only-verify"
   },
   {
     "sku": "TPX-TX107",

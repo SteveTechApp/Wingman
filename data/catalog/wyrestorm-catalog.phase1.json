@@ -235,7 +235,9 @@
     "matrixSize": "8x8",
     "matrixSizeEvidence": "Title evidence: 8x8 HDBaseT matrix",
     "ioEvidenceStatus": "derived",
-    "quoteSafety": "verify-before-quote"
+    "quoteSafety": "verify-before-quote",
+    "mirroredOutputs": 4,
+    "mirroredOutputCount": 4
   },
   {
     "sku": "MXV-0808-H2A-70-V3",
@@ -277,7 +279,17 @@
       "4K60 4:4:4",
       "HDR"
     ],
-    "notes": "Validated starter record from official WyreStorm product page."
+    "notes": "Validated starter record from official WyreStorm product page.",
+    "routedInputs": 8,
+    "routedOutputs": 8,
+    "routedInputCount": 8,
+    "routedOutputCount": 8,
+    "matrixInputs": 8,
+    "matrixOutputs": 8,
+    "matrixSize": "8x8",
+    "matrixSizeEvidence": "Title evidence: 70m 4K60 8x8 HDBaseT Matrix",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "verify-before-quote"
   },
   {
     "sku": "SW-515-RX",
