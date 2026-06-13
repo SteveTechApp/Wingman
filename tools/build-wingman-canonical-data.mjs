@@ -83,6 +83,20 @@ function unique(values) {
   const results = [];
 
   for (const value of values.flat()) {
+    // Preserve structured items (e.g. technicalProfile port objects). Previously
+    // clean() ran String() over these, producing "[object Object]" entries that
+    // destroyed the structured I/O the compare engine relies on. Keep the original
+    // object/array intact and dedupe it by its JSON signature instead.
+    if (isPlainObject(value) || Array.isArray(value)) {
+      const key = JSON.stringify(value);
+
+      if (seen.has(key)) continue;
+
+      seen.add(key);
+      results.push(value);
+      continue;
+    }
+
     const text = clean(value);
     const key = text.toLowerCase();
 

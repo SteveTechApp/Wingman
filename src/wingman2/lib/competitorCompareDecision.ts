@@ -239,13 +239,17 @@ function compareCounts(
   gaps: string[],
   matches: string[],
   verify: string[],
+  info: string[],
 ): void {
   const competitorCount = numberValue(competitorValue);
   const wyrestormCount = numberValue(wyrestormValue);
   const noun = countNoun(label);
 
   if (competitorCount === null && wyrestormCount === null) {
-    addUnique(verify, label + " count unknown for both products.");
+    // Neither side states a fixed count (normal for AVoIP / single-stream
+    // endpoints). This is not an actionable difference, so it is recorded as an
+    // informational note and must not block a GOOD MATCH.
+    addUnique(info, label + " count not stated for either product.");
     return;
   }
 
@@ -352,9 +356,14 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
   const gaps: string[] = [];
   const matches: string[] = [];
   const verify: string[] = [];
+  // Administrative / evidence-tier notes: surfaced for transparency but excluded
+  // from the GOOD MATCH gate and the confidence penalty, because they are always
+  // present and previously made GOOD MATCH unreachable even with strong data.
+  const info: string[] = [];
 
   const competitor = input.competitor;
   const wyrestorm = input.wyrestorm;
+  const competitorTrusted = hasTrustedCompetitorProfile(competitor);
   const competitorIntelligence = buildCompetitorDecisionEvidence(competitor);
 
   if (isUnknown(competitor.domain) || isUnknown(wyrestorm.domain)) {
@@ -381,8 +390,19 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
     addUnique(matches, "Transport path matches required competitor transport.");
   }
 
-  compareCounts("Input", competitor.inputCount, wyrestorm.inputCount, blockers, gaps, matches, verify);
-  compareCounts("Output", competitor.outputCount, wyrestorm.outputCount, blockers, gaps, matches, verify);
+  // Single-stream endpoints (encoder/decoder/transceiver/transmitter/receiver) do
+  // not have a meaningful fixed I/O count, so a count comparison there only creates
+  // false gaps. Counts are compared for matrices/switchers, where they matter.
+  const endpointRoles = new Set(["encoder", "decoder", "transceiver", "transmitter", "receiver"]);
+  const endpointComparison =
+    endpointRoles.has(normaliseRole(competitor.role)) || endpointRoles.has(normaliseRole(wyrestorm.role));
+
+  if (endpointComparison) {
+    addUnique(info, "Single-stream endpoint: fixed input/output count comparison not applicable.");
+  } else {
+    compareCounts("Input", competitor.inputCount, wyrestorm.inputCount, blockers, gaps, matches, verify, info);
+    compareCounts("Output", competitor.outputCount, wyrestorm.outputCount, blockers, gaps, matches, verify, info);
+  }
 
   const competitorResolution = resolutionRank(competitor.maxResolution);
   const wyrestormResolution = resolutionRank(wyrestorm.maxResolution);
@@ -414,7 +434,7 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
 
   warningItems.forEach((warning) => addUnique(verify, "Compare warning: " + warning));
 
-  addUnique(verify, "WyreStorm evidence tier: " + profileSourceLabel(wyrestorm, "WyreStorm") + ".");
+  addUnique(info, "WyreStorm evidence tier: " + profileSourceLabel(wyrestorm, "WyreStorm") + ".");
 
   for (const warning of wyrestorm.profileWarnings ?? []) {
     addUnique(verify, "WyreStorm data warning: " + warning);
@@ -424,26 +444,37 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
     addUnique(matches, "WyreStorm evidence: " + evidence);
   }
 
-  addUnique(verify, "Competitor intelligence tier: " + competitorIntelligence.tier + ".");
-  addUnique(verify, "Competitor intelligence readiness: " + competitorIntelligence.readiness + ".");
+  addUnique(info, "Competitor intelligence tier: " + competitorIntelligence.tier + ".");
+  addUnique(info, "Competitor intelligence readiness: " + competitorIntelligence.readiness + ".");
 
-  for (const fact of competitorIntelligence.missingFacts) {
-    addUnique(verify, "Competitor data missing: " + fact + ".");
+  // A verified competitor profile already carries real specs, so the heuristic
+  // family-rule "missing facts" / "why not equivalent" notes (and their penalty)
+  // are applied only when we do NOT have a verified profile. This stops verified
+  // comparisons being flooded with false gaps and an unwarranted penalty.
+  if (!competitorTrusted) {
+    for (const fact of competitorIntelligence.missingFacts) {
+      addUnique(verify, "Competitor data missing: " + fact + ".");
+    }
+
+    for (const reason of competitorIntelligence.whyNotDirectEquivalent) {
+      addUnique(gaps, "Why not direct equivalent: " + reason);
+    }
+  } else {
+    addUnique(matches, "Competitor profile: verified structured specs.");
   }
 
-  for (const reason of competitorIntelligence.whyNotDirectEquivalent) {
-    addUnique(gaps, "Why not direct equivalent: " + reason);
-  }
-
-  const confidence = Math.max(5, scoreConfidence(input, blockers, gaps, verify) - competitorIntelligence.confidencePenalty);
-  const trustedCompetitor = hasTrustedCompetitorProfile(competitor);
+  const competitorPenalty = competitorTrusted ? 0 : competitorIntelligence.confidencePenalty;
+  // Confidence and the GOOD MATCH gate are scored on substantive findings only;
+  // administrative `info` notes are surfaced but never penalise or block.
+  const confidence = Math.max(5, scoreConfidence(input, blockers, gaps, verify) - competitorPenalty);
+  const trustedCompetitor = competitorTrusted;
   const usableWyrestorm = hasUsableWyrestormProfile(wyrestorm);
 
   let outcome: CompareDecisionOutcome = "VERIFY";
 
   if (blockers.length > 0) {
     outcome = "NO MATCH";
-  } else if (trustedCompetitor && usableWyrestorm && confidence >= 82 && gaps.length === 0 && verify.length <= 3) {
+  } else if (trustedCompetitor && usableWyrestorm && confidence >= 78 && gaps.length === 0 && verify.length <= 3) {
     outcome = "GOOD MATCH";
   } else if (confidence >= 55 && gaps.length <= 4 && (trustedCompetitor || usableWyrestorm)) {
     outcome = "PARTIAL MATCH";
@@ -459,7 +490,7 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
     blockers,
     gaps,
     matches,
-    verify,
+    verify: verify.concat(info),
     summary: summaryFor(outcome, input),
     nextAction: nextActionFor(outcome),
   };
