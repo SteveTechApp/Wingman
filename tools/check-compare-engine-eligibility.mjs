@@ -4,6 +4,7 @@ import path from "node:path";
 const ROOT = process.cwd();
 
 const files = {
+  behaviourTest: path.join(ROOT, "src", "wingman2", "lib", "competitorCompareBehaviour.test.ts"),
   specRegistry: path.join(ROOT, "src", "wingman2", "lib", "competitorSpecRegistry.ts"),
   engine: path.join(ROOT, "src", "wingman2", "lib", "compareEligibilityEngine.ts"),
   test: path.join(ROOT, "src", "wingman2", "lib", "compareEligibilityEngine.test.ts"),
@@ -30,6 +31,12 @@ const page = read("page");
 const pkg = read("pkg");
 
 const engineMarkers = [
+  "NHD-150-RX",
+  "NHD-0401-MV",
+  "SW-0204-VW",
+  "SW-0206-VW",
+  "invalidLeadReasonForIntent",
+  "ensureEligibilityCandidatePool",
   "CompareIntentKind",
   "CompareEligibilityResult",
   "classifyCompareIntent",
@@ -82,6 +89,23 @@ const specRegistryMarkers = [
 
 for (const marker of specRegistryMarkers) {
   if (!specRegistry.includes(marker)) failures.push(`Competitor spec registry missing marker: ${marker}`);
+}
+
+
+const behaviourTest = read("behaviourTest");
+
+const behaviourMarkers = [
+  "runCompareRuntimePipeline",
+  "DMNVX350",
+  "DMNVX",
+  "NAV D 121",
+  "MMX4x2-HDMI",
+  "dedicated LCD video wall processor",
+  "single output canvas"
+];
+
+for (const marker of behaviourMarkers) {
+  if (!behaviourTest.includes(marker)) failures.push(`Competitor compare behaviour test missing marker: ${marker}`);
 }
 
 if (!pkg.includes("check:compare-engine-eligibility")) {

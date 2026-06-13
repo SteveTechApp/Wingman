@@ -916,12 +916,12 @@ function catalogDomain(entry: CatalogEntry): CompetitorTechnologyClass | undefin
   const tech = String(entry.technology ?? "").toLowerCase();
   const category = String(entry.category ?? "").toLowerCase();
 
+  if (tech.includes("usb extension")) return "USB_EXTENSION";
   if (tech.includes("avoip") || category === "avoip") return "AVOIP";
   if (tech.includes("hdbaset") || category === "extender") return "HDBASET";
   if (tech.includes("video wall") || category === "video wall") return "VIDEO_WALL";
   if (tech.includes("matrix") || category === "matrix") return "MATRIX";
   if (tech.includes("wireless") || category === "wireless presentation") return "WIRELESS_PRESENTATION";
-  if (tech.includes("usb extension")) return "USB_EXTENSION";
   if (tech.includes("control") || category === "control") return "CONTROL";
   if (tech.includes("distribution") || category === "distribution") return "MATRIX";
   if (tech.includes("presentation") || tech.includes("unified communications") || category === "switcher" || category === "uc") {

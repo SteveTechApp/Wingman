@@ -120,14 +120,19 @@ export function classifySkuPackage(input: ProductClassificationInput | string): 
     warnings.push("KIT SKU detected. Do not classify as TX-only or RX-only.");
 
     if (sku.startsWith("MX-") || text.includes("matrix")) {
-      endpointRole = "matrix_with_rx_kit";
-      productClass = text.includes("hdbaset") || text.includes("hdbase t") ? "hdbaset_matrix_kit" : "hdmi_matrix";
-      technologyFamily = text.includes("hdbaset") || text.includes("hdbase t") ? "HDBaseT Matrix" : "Matrix";
+      const includesMatrixReceivers = text.includes("hdbaset") ||
+        text.includes("hdbase t") ||
+        /\breceivers?\b/i.test(text) ||
+        /\brx\b/i.test(text);
+
+      endpointRole = includesMatrixReceivers ? "matrix_with_rx_kit" : "matrix_switcher";
+      productClass = includesMatrixReceivers ? "hdbaset_matrix_kit" : "hdmi_matrix";
+      technologyFamily = includesMatrixReceivers ? "HDBaseT Matrix" : "Matrix";
       topology = "many_sources_to_many_displays";
       comparableClasses = ["hdbaset_matrix_kit", "hdbaset_matrix", "hdmi_matrix"];
       notComparableWith = ["tx", "rx", "trx", "accessory", "cable"];
       leadEligibility = "default";
-      hardBlockerTags.push("kit_not_endpoint", "matrix_package");
+      hardBlockerTags.push("kit_not_endpoint", includesMatrixReceivers ? "matrix_package" : "matrix_switching_package");
     }
 
     if (endpointRole === "unknown") {
