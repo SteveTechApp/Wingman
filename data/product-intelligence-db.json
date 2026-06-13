@@ -58434,7 +58434,17 @@
           ]
         }
       ],
-      "compatibilityReferences": []
+      "compatibilityReferences": [],
+      "routedInputs": 4,
+      "routedOutputs": 2,
+      "routedInputCount": 4,
+      "routedOutputCount": 2,
+      "matrixInputs": 4,
+      "matrixOutputs": 2,
+      "matrixSize": "4x2",
+      "matrixSizeEvidence": "SKU/title evidence: MX-0402-MST / 4x2 HDMI",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "brand": "WyreStorm",
@@ -59611,7 +59621,17 @@
           ]
         }
       ],
-      "compatibilityReferences": []
+      "compatibilityReferences": [],
+      "routedInputs": 4,
+      "routedOutputs": 3,
+      "routedInputCount": 4,
+      "routedOutputCount": 3,
+      "matrixInputs": 4,
+      "matrixOutputs": 3,
+      "matrixSize": "4x3",
+      "matrixSizeEvidence": "SKU/title evidence: MX-0403-H3-MST / 4x3 HDMI",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "brand": "WyreStorm",
@@ -60608,7 +60628,17 @@
           ]
         }
       ],
-      "compatibilityReferences": []
+      "compatibilityReferences": [],
+      "routedInputs": 4,
+      "routedOutputs": 4,
+      "routedInputCount": 4,
+      "routedOutputCount": 4,
+      "matrixInputs": 4,
+      "matrixOutputs": 4,
+      "matrixSize": "4x4",
+      "matrixSizeEvidence": "SKU/title evidence: MX-0404-HDMI / 4x4 HDMI Matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "brand": "WyreStorm",
@@ -62713,7 +62743,17 @@
           ]
         }
       ],
-      "compatibilityReferences": []
+      "compatibilityReferences": [],
+      "routedInputs": 4,
+      "routedOutputs": 4,
+      "routedInputCount": 4,
+      "routedOutputCount": 4,
+      "matrixInputs": 4,
+      "matrixOutputs": 4,
+      "matrixSize": "4x4",
+      "matrixSizeEvidence": "SKU/title evidence: MX-0404-SCL / 4x4 HDMI Matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "brand": "WyreStorm",
@@ -64134,7 +64174,17 @@
           ]
         }
       ],
-      "compatibilityReferences": []
+      "compatibilityReferences": [],
+      "routedInputs": 8,
+      "routedOutputs": 4,
+      "routedInputCount": 8,
+      "routedOutputCount": 4,
+      "matrixInputs": 8,
+      "matrixOutputs": 4,
+      "matrixSize": "8x4",
+      "matrixSizeEvidence": "Title evidence: 8x4 Seamless Matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "brand": "WyreStorm",
@@ -66175,7 +66225,17 @@
           ]
         }
       ],
-      "compatibilityReferences": []
+      "compatibilityReferences": [],
+      "routedInputs": 8,
+      "routedOutputs": 8,
+      "routedInputCount": 8,
+      "routedOutputCount": 8,
+      "matrixInputs": 8,
+      "matrixOutputs": 8,
+      "matrixSize": "8x8",
+      "matrixSizeEvidence": "Title evidence: 8x8 HDBaseT matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "brand": "WyreStorm",
@@ -67355,7 +67415,17 @@
           ]
         }
       ],
-      "compatibilityReferences": []
+      "compatibilityReferences": [],
+      "routedInputs": 8,
+      "routedOutputs": 8,
+      "routedInputCount": 8,
+      "routedOutputCount": 8,
+      "matrixInputs": 8,
+      "matrixOutputs": 8,
+      "matrixSize": "8x8",
+      "matrixSizeEvidence": "SKU evidence: MX-0808-SCL",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "brand": "WyreStorm",
@@ -68534,7 +68604,17 @@
           ]
         }
       ],
-      "compatibilityReferences": []
+      "compatibilityReferences": [],
+      "routedInputs": 8,
+      "routedOutputs": 12,
+      "routedInputCount": 8,
+      "routedOutputCount": 12,
+      "matrixInputs": 8,
+      "matrixOutputs": 12,
+      "matrixSize": "8x12",
+      "matrixSizeEvidence": "SKU evidence: MX-0812-SCL",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "brand": "WyreStorm",
@@ -70227,7 +70307,17 @@
           "note": "Recommended receiver for hybrid matrix / TX-SCL-HDBT path with 100m 4K 18Gbps A/V plus PoH, IR and RS-232 notes.",
           "role": "source"
         }
-      ]
+      ],
+      "routedInputs": 10,
+      "routedOutputs": 7,
+      "routedInputCount": 10,
+      "routedOutputCount": 7,
+      "matrixInputs": 10,
+      "matrixOutputs": 7,
+      "matrixSize": "10x7",
+      "matrixSizeEvidence": "SKU/title evidence: MX-1007-HYB / 10x7 Seamless Matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "brand": "WyreStorm",
@@ -71316,7 +71406,17 @@
           "note": "Recommended receiver for custom HDBaseT matrix use with 70m 4K A/V plus PoH, IR and RS-232 notes.",
           "role": "source"
         }
-      ]
+      ],
+      "routedInputs": 16,
+      "routedOutputs": 16,
+      "routedInputCount": 16,
+      "routedOutputCount": 16,
+      "matrixInputs": 16,
+      "matrixOutputs": 16,
+      "matrixSize": "16x16",
+      "matrixSizeEvidence": "SKU/title evidence: MX-1616-SCL / 16x16 HDMI",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "brand": "WyreStorm",
@@ -115601,7 +115701,17 @@
           ]
         }
       ],
-      "compatibilityReferences": []
+      "compatibilityReferences": [],
+      "routedInputs": 1,
+      "routedOutputs": 8,
+      "routedInputCount": 1,
+      "routedOutputCount": 8,
+      "matrixInputs": 1,
+      "matrixOutputs": 8,
+      "matrixSize": "1x8",
+      "matrixSizeEvidence": "Title evidence: 1x8 HDMI",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "brand": "WyreStorm",

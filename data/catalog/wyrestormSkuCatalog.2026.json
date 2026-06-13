@@ -162,7 +162,17 @@
     "description": "4K60Hz 4:4:4 1x8 HDMI Splitter | Dolby Vision & HDR | EDID Management | Down-Scaling | Audio De-embed",
     "searchText": "SP-0108-SCL 4K60Hz 4:4:4 1x8 HDMI Splitter | Dolby Vision & HDR | EDID Management | Down-Scaling | Audio De-embed Distribution product",
     "source": "2026 Wyrestorm SKU (1).xlsx",
-    "year": 2026
+    "year": 2026,
+    "routedInputs": 1,
+    "routedOutputs": 8,
+    "routedInputCount": 1,
+    "routedOutputCount": 8,
+    "matrixInputs": 1,
+    "matrixOutputs": 8,
+    "matrixSize": "1x8",
+    "matrixSizeEvidence": "Title evidence: 1x8 HDMI",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "verify-before-quote"
   },
   {
     "sku": "EX-100-G2",
@@ -734,7 +744,17 @@
     "description": "4K60Hz 4:4:4 10x7 Seamless Matrix | 7 HDMI & 1 USB-C input | NetworkHD (500 series) & HDBT TM Inputs & outputs | Audio DSP, AMP & Mixing | DANTE | Dolby Vision & HDR | Routable CEC & RS232",
     "searchText": "MX-1007-HYB 4K60Hz 4:4:4 10x7 Seamless Matrix | 7 HDMI & 1 USB-C input | NetworkHD (500 series) & HDBT TM Inputs & outputs | Audio DSP, AMP & Mixing | DANTE | Dolby Vision & HDR | Routable CEC & RS232 NetworkHD matrix",
     "source": "2026 Wyrestorm SKU (1).xlsx",
-    "year": 2026
+    "year": 2026,
+    "routedInputs": 10,
+    "routedOutputs": 7,
+    "routedInputCount": 10,
+    "routedOutputCount": 7,
+    "matrixInputs": 10,
+    "matrixOutputs": 7,
+    "matrixSize": "10x7",
+    "matrixSizeEvidence": "SKU/title evidence: MX-1007-HYB / 10x7 Seamless Matrix",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "verify-before-quote"
   },
   {
     "sku": "NETWORKHD TOUCH TM",
@@ -1372,7 +1392,17 @@
     "description": "Synergy 4K60Hz HDR 4x2 HDMI & USB-C Matrix Switcher with MST | Dual 60-Watt Charging | USB 3.2 | USB Passthrough 1Gbe | GPIO | Down-Scaling",
     "searchText": "MX-0402-MST Synergy 4K60Hz HDR 4x2 HDMI & USB-C Matrix Switcher with MST | Dual 60-Watt Charging | USB 3.2 | USB Passthrough 1Gbe | GPIO | Down-Scaling Switching and Control matrix",
     "source": "2026 Wyrestorm SKU (1).xlsx",
-    "year": 2026
+    "year": 2026,
+    "routedInputs": 4,
+    "routedOutputs": 2,
+    "routedInputCount": 4,
+    "routedOutputCount": 2,
+    "matrixInputs": 4,
+    "matrixOutputs": 2,
+    "matrixSize": "4x2",
+    "matrixSizeEvidence": "SKU/title evidence: MX-0402-MST / 4x2 HDMI",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "verify-before-quote"
   },
   {
     "sku": "MX-0403-H3-MST",
@@ -1383,7 +1413,17 @@
     "description": "Synergy 4K60Hz HDR 4x3 HDMI & USB-C Matrix Switcher with MST & HDBaseT 3.0 Output| Dual 60-Watt Charging | USB 3.2 | USB Passthrough 1Gbe | GPIO | Down-Scaling",
     "searchText": "MX-0403-H3-MST Synergy 4K60Hz HDR 4x3 HDMI & USB-C Matrix Switcher with MST & HDBaseT 3.0 Output| Dual 60-Watt Charging | USB 3.2 | USB Passthrough 1Gbe | GPIO | Down-Scaling Switching and Control matrix",
     "source": "2026 Wyrestorm SKU (1).xlsx",
-    "year": 2026
+    "year": 2026,
+    "routedInputs": 4,
+    "routedOutputs": 3,
+    "routedInputCount": 4,
+    "routedOutputCount": 3,
+    "matrixInputs": 4,
+    "matrixOutputs": 3,
+    "matrixSize": "4x3",
+    "matrixSizeEvidence": "SKU/title evidence: MX-0403-H3-MST / 4x3 HDMI",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "verify-before-quote"
   },
   {
     "sku": "MX-0404-HDMI",
@@ -1394,7 +1434,17 @@
     "description": "4K60Hz 4:4:4 4x4 HDMI Matrix | Dolby Vision & HDR | 4K-1080P Simple Scaler | Audio De-embed | CEC",
     "searchText": "MX-0404-HDMI 4K60Hz 4:4:4 4x4 HDMI Matrix | Dolby Vision & HDR | 4K-1080P Simple Scaler | Audio De-embed | CEC Switching and Control matrix",
     "source": "2026 Wyrestorm SKU (1).xlsx",
-    "year": 2026
+    "year": 2026,
+    "routedInputs": 4,
+    "routedOutputs": 4,
+    "routedInputCount": 4,
+    "routedOutputCount": 4,
+    "matrixInputs": 4,
+    "matrixOutputs": 4,
+    "matrixSize": "4x4",
+    "matrixSizeEvidence": "SKU/title evidence: MX-0404-HDMI / 4x4 HDMI Matrix",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "verify-before-quote"
   },
   {
     "sku": "MX-0404-KIT",
@@ -1416,7 +1466,17 @@
     "description": "4K60Hz 4:4:4 4x4 HDMI Matrix | HDR | Seamless Switching | Multiview | Videowall | Scaling Outputs |Balanced Analog and S/PDIF Audio De-embed | CEC",
     "searchText": "MX-0404-SCL 4K60Hz 4:4:4 4x4 HDMI Matrix | HDR | Seamless Switching | Multiview | Videowall | Scaling Outputs |Balanced Analog and S/PDIF Audio De-embed | CEC Switching and Control matrix",
     "source": "2026 Wyrestorm SKU (1).xlsx",
-    "year": 2026
+    "year": 2026,
+    "routedInputs": 4,
+    "routedOutputs": 4,
+    "routedInputCount": 4,
+    "routedOutputCount": 4,
+    "matrixInputs": 4,
+    "matrixOutputs": 4,
+    "matrixSize": "4x4",
+    "matrixSizeEvidence": "SKU/title evidence: MX-0404-SCL / 4x4 HDMI Matrix",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "verify-before-quote"
   },
   {
     "sku": "MX-0804-EDC",
@@ -1427,7 +1487,17 @@
     "description": "4K60Hz 4:4:4 8x4 Seamless Matrix | 7 HDMI & 1 USB-C input | 4 HDMI outputs | Audio DSP & Mixing | DANTE | Dolby Vision & HDR | CEC",
     "searchText": "MX-0804-EDC 4K60Hz 4:4:4 8x4 Seamless Matrix | 7 HDMI & 1 USB-C input | 4 HDMI outputs | Audio DSP & Mixing | DANTE | Dolby Vision & HDR | CEC Switching and Control matrix",
     "source": "2026 Wyrestorm SKU (1).xlsx",
-    "year": 2026
+    "year": 2026,
+    "routedInputs": 8,
+    "routedOutputs": 4,
+    "routedInputCount": 8,
+    "routedOutputCount": 4,
+    "matrixInputs": 8,
+    "matrixOutputs": 4,
+    "matrixSize": "8x4",
+    "matrixSizeEvidence": "Title evidence: 8x4 Seamless Matrix",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "verify-before-quote"
   },
   {
     "sku": "MX-0808-H2A-MK2",
@@ -1449,7 +1519,17 @@
     "description": "4K60Hz 4:2:0 8x8 HDBaseT TM Matrix | PoH | Includes 8 Receivers | 4x Mirrored HDMI | Audio De-embed (4K: 35m/114ft, 1080p: 70m/228ft)",
     "searchText": "MX-0808-KIT-V2 4K60Hz 4:2:0 8x8 HDBaseT TM Matrix | PoH | Includes 8 Receivers | 4x Mirrored HDMI | Audio De-embed (4K: 35m/114ft, 1080p: 70m/228ft) Switching and Control matrix",
     "source": "2026 Wyrestorm SKU (1).xlsx",
-    "year": 2026
+    "year": 2026,
+    "routedInputs": 8,
+    "routedOutputs": 8,
+    "routedInputCount": 8,
+    "routedOutputCount": 8,
+    "matrixInputs": 8,
+    "matrixOutputs": 8,
+    "matrixSize": "8x8",
+    "matrixSizeEvidence": "Title evidence: 8x8 HDBaseT matrix",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "verify-before-quote"
   },
   {
     "sku": "MX-0808-SCL",
@@ -1460,7 +1540,17 @@
     "description": "4K60 4:4:4 8x8 Seamless Scaling HDMI Matrix with USB-C | Audio De-embed | HDCP 2.3",
     "searchText": "MX-0808-SCL 4K60 4:4:4 8x8 Seamless Scaling HDMI Matrix with USB-C | Audio De-embed | HDCP 2.3 Switching and Control matrix",
     "source": "2026 Wyrestorm SKU (1).xlsx",
-    "year": 2026
+    "year": 2026,
+    "routedInputs": 8,
+    "routedOutputs": 8,
+    "routedInputCount": 8,
+    "routedOutputCount": 8,
+    "matrixInputs": 8,
+    "matrixOutputs": 8,
+    "matrixSize": "8x8",
+    "matrixSizeEvidence": "SKU evidence: MX-0808-SCL",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "verify-before-quote"
   },
   {
     "sku": "MX-0812-SCL",
@@ -1471,7 +1561,17 @@
     "description": "4K60 4:4:4 8x12 Advanced Seamless Scaling HDMI Matrix | Advanced Video Wall | Audio De-embed | HDCP 2.3",
     "searchText": "MX-0812-SCL 4K60 4:4:4 8x12 Advanced Seamless Scaling HDMI Matrix | Advanced Video Wall | Audio De-embed | HDCP 2.3 Switching and Control matrix",
     "source": "2026 Wyrestorm SKU (1).xlsx",
-    "year": 2026
+    "year": 2026,
+    "routedInputs": 8,
+    "routedOutputs": 12,
+    "routedInputCount": 8,
+    "routedOutputCount": 12,
+    "matrixInputs": 8,
+    "matrixOutputs": 12,
+    "matrixSize": "8x12",
+    "matrixSizeEvidence": "SKU evidence: MX-0812-SCL",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "verify-before-quote"
   },
   {
     "sku": "MX-1616-SCL",
@@ -1482,7 +1582,17 @@
     "description": "16 Slot - 4K60Hz 4:4:4 Seamless Empty Custom Matrix Chassis",
     "searchText": "MX-1616-SCL 16 Slot - 4K60Hz 4:4:4 Seamless Empty Custom Matrix Chassis Switching and Control matrix",
     "source": "2026 Wyrestorm SKU (1).xlsx",
-    "year": 2026
+    "year": 2026,
+    "routedInputs": 16,
+    "routedOutputs": 16,
+    "routedInputCount": 16,
+    "routedOutputCount": 16,
+    "matrixInputs": 16,
+    "matrixOutputs": 16,
+    "matrixSize": "16x16",
+    "matrixSizeEvidence": "SKU/title evidence: MX-1616-SCL / 16x16 HDMI",
+    "ioEvidenceStatus": "derived",
+    "quoteSafety": "verify-before-quote"
   },
   {
     "sku": "MXV-0404-H2A-KIT",

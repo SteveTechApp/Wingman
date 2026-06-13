@@ -2752,7 +2752,17 @@
         "Primary image is shown because no explicit front-view filename was found.",
         "Rear or connector-view image was not identified; verify before using in customer-facing output."
       ],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 4,
+      "routedOutputs": 2,
+      "routedInputCount": 4,
+      "routedOutputCount": 2,
+      "matrixInputs": 4,
+      "matrixOutputs": 2,
+      "matrixSize": "4x2",
+      "matrixSizeEvidence": "SKU/title evidence: MX-0402-MST / 4x2 HDMI",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "sku": "MX-0403-H3-MST",
@@ -2786,7 +2796,17 @@
         "Primary image is shown because no explicit front-view filename was found.",
         "Rear or connector-view image was not identified; verify before using in customer-facing output."
       ],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 4,
+      "routedOutputs": 3,
+      "routedInputCount": 4,
+      "routedOutputCount": 3,
+      "matrixInputs": 4,
+      "matrixOutputs": 3,
+      "matrixSize": "4x3",
+      "matrixSizeEvidence": "SKU/title evidence: MX-0403-H3-MST / 4x3 HDMI",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "sku": "MX-0404-HDMI",
@@ -2848,7 +2868,17 @@
         "Primary image is shown because no explicit front-view filename was found.",
         "Rear or connector-view image was not identified; verify before using in customer-facing output."
       ],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 4,
+      "routedOutputs": 4,
+      "routedInputCount": 4,
+      "routedOutputCount": 4,
+      "matrixInputs": 4,
+      "matrixOutputs": 4,
+      "matrixSize": "4x4",
+      "matrixSizeEvidence": "SKU/title evidence: MX-0404-HDMI / 4x4 HDMI Matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "sku": "MX-0404-KIT",
@@ -2958,7 +2988,17 @@
         "Primary image is shown because no explicit front-view filename was found.",
         "Rear or connector-view image was not identified; verify before using in customer-facing output."
       ],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 4,
+      "routedOutputs": 4,
+      "routedInputCount": 4,
+      "routedOutputCount": 4,
+      "matrixInputs": 4,
+      "matrixOutputs": 4,
+      "matrixSize": "4x4",
+      "matrixSizeEvidence": "SKU/title evidence: MX-0404-SCL / 4x4 HDMI Matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "sku": "MX-0804-EDC",
@@ -3010,7 +3050,17 @@
         }
       ],
       "notes": [],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 8,
+      "routedOutputs": 4,
+      "routedInputCount": 8,
+      "routedOutputCount": 4,
+      "matrixInputs": 8,
+      "matrixOutputs": 4,
+      "matrixSize": "8x4",
+      "matrixSizeEvidence": "Title evidence: 8x4 Seamless Matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "sku": "MX-0808-H2A-MK2",
@@ -3144,7 +3194,17 @@
         }
       ],
       "notes": [],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 8,
+      "routedOutputs": 8,
+      "routedInputCount": 8,
+      "routedOutputCount": 8,
+      "matrixInputs": 8,
+      "matrixOutputs": 8,
+      "matrixSize": "8x8",
+      "matrixSizeEvidence": "Title evidence: 8x8 HDBaseT matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "sku": "MX-0808-SCL",
@@ -3182,7 +3242,17 @@
         }
       ],
       "notes": [],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 8,
+      "routedOutputs": 8,
+      "routedInputCount": 8,
+      "routedOutputCount": 8,
+      "matrixInputs": 8,
+      "matrixOutputs": 8,
+      "matrixSize": "8x8",
+      "matrixSizeEvidence": "SKU evidence: MX-0808-SCL",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "sku": "MX-0812-SCL",
@@ -3227,7 +3297,17 @@
         }
       ],
       "notes": [],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 8,
+      "routedOutputs": 12,
+      "routedInputCount": 8,
+      "routedOutputCount": 12,
+      "matrixInputs": 8,
+      "matrixOutputs": 12,
+      "matrixSize": "8x12",
+      "matrixSizeEvidence": "SKU evidence: MX-0812-SCL",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "sku": "MX-1007-HYB",
@@ -3279,7 +3359,17 @@
         }
       ],
       "notes": [],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 10,
+      "routedOutputs": 7,
+      "routedInputCount": 10,
+      "routedOutputCount": 7,
+      "matrixInputs": 10,
+      "matrixOutputs": 7,
+      "matrixSize": "10x7",
+      "matrixSizeEvidence": "SKU/title evidence: MX-1007-HYB / 10x7 Seamless Matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "sku": "MX-1616-SCL",
@@ -3331,7 +3421,17 @@
         }
       ],
       "notes": [],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 16,
+      "routedOutputs": 16,
+      "routedInputCount": 16,
+      "routedOutputCount": 16,
+      "matrixInputs": 16,
+      "matrixOutputs": 16,
+      "matrixSize": "16x16",
+      "matrixSizeEvidence": "SKU/title evidence: MX-1616-SCL / 16x16 HDMI",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "sku": "MXV-0404-H2A-KIT",
@@ -4943,7 +5043,17 @@
         "Primary image is shown because no explicit front-view filename was found.",
         "Rear or connector-view image was not identified; verify before using in customer-facing output."
       ],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 1,
+      "routedOutputs": 8,
+      "routedInputCount": 1,
+      "routedOutputCount": 8,
+      "matrixInputs": 1,
+      "matrixOutputs": 8,
+      "matrixSize": "1x8",
+      "matrixSizeEvidence": "Title evidence: 1x8 HDMI",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     {
       "sku": "SW-0204-VW",
@@ -9520,7 +9630,17 @@
         "Primary image is shown because no explicit front-view filename was found.",
         "Rear or connector-view image was not identified; verify before using in customer-facing output."
       ],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 4,
+      "routedOutputs": 2,
+      "routedInputCount": 4,
+      "routedOutputCount": 2,
+      "matrixInputs": 4,
+      "matrixOutputs": 2,
+      "matrixSize": "4x2",
+      "matrixSizeEvidence": "SKU/title evidence: MX-0402-MST / 4x2 HDMI",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     "MX-0403-H3-MST": {
       "sku": "MX-0403-H3-MST",
@@ -9554,7 +9674,17 @@
         "Primary image is shown because no explicit front-view filename was found.",
         "Rear or connector-view image was not identified; verify before using in customer-facing output."
       ],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 4,
+      "routedOutputs": 3,
+      "routedInputCount": 4,
+      "routedOutputCount": 3,
+      "matrixInputs": 4,
+      "matrixOutputs": 3,
+      "matrixSize": "4x3",
+      "matrixSizeEvidence": "SKU/title evidence: MX-0403-H3-MST / 4x3 HDMI",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     "MX-0404-HDMI": {
       "sku": "MX-0404-HDMI",
@@ -9616,7 +9746,17 @@
         "Primary image is shown because no explicit front-view filename was found.",
         "Rear or connector-view image was not identified; verify before using in customer-facing output."
       ],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 4,
+      "routedOutputs": 4,
+      "routedInputCount": 4,
+      "routedOutputCount": 4,
+      "matrixInputs": 4,
+      "matrixOutputs": 4,
+      "matrixSize": "4x4",
+      "matrixSizeEvidence": "SKU/title evidence: MX-0404-HDMI / 4x4 HDMI Matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     "MX-0404-KIT": {
       "sku": "MX-0404-KIT",
@@ -9726,7 +9866,17 @@
         "Primary image is shown because no explicit front-view filename was found.",
         "Rear or connector-view image was not identified; verify before using in customer-facing output."
       ],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 4,
+      "routedOutputs": 4,
+      "routedInputCount": 4,
+      "routedOutputCount": 4,
+      "matrixInputs": 4,
+      "matrixOutputs": 4,
+      "matrixSize": "4x4",
+      "matrixSizeEvidence": "SKU/title evidence: MX-0404-SCL / 4x4 HDMI Matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     "MX-0804-EDC": {
       "sku": "MX-0804-EDC",
@@ -9778,7 +9928,17 @@
         }
       ],
       "notes": [],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 8,
+      "routedOutputs": 4,
+      "routedInputCount": 8,
+      "routedOutputCount": 4,
+      "matrixInputs": 8,
+      "matrixOutputs": 4,
+      "matrixSize": "8x4",
+      "matrixSizeEvidence": "Title evidence: 8x4 Seamless Matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     "MX-0808-H2A-MK2": {
       "sku": "MX-0808-H2A-MK2",
@@ -9912,7 +10072,17 @@
         }
       ],
       "notes": [],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 8,
+      "routedOutputs": 8,
+      "routedInputCount": 8,
+      "routedOutputCount": 8,
+      "matrixInputs": 8,
+      "matrixOutputs": 8,
+      "matrixSize": "8x8",
+      "matrixSizeEvidence": "Title evidence: 8x8 HDBaseT matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     "MX-0808-SCL": {
       "sku": "MX-0808-SCL",
@@ -9950,7 +10120,17 @@
         }
       ],
       "notes": [],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 8,
+      "routedOutputs": 8,
+      "routedInputCount": 8,
+      "routedOutputCount": 8,
+      "matrixInputs": 8,
+      "matrixOutputs": 8,
+      "matrixSize": "8x8",
+      "matrixSizeEvidence": "SKU evidence: MX-0808-SCL",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     "MX-0812-SCL": {
       "sku": "MX-0812-SCL",
@@ -9995,7 +10175,17 @@
         }
       ],
       "notes": [],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 8,
+      "routedOutputs": 12,
+      "routedInputCount": 8,
+      "routedOutputCount": 12,
+      "matrixInputs": 8,
+      "matrixOutputs": 12,
+      "matrixSize": "8x12",
+      "matrixSizeEvidence": "SKU evidence: MX-0812-SCL",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     "MX-1007-HYB": {
       "sku": "MX-1007-HYB",
@@ -10047,7 +10237,17 @@
         }
       ],
       "notes": [],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 10,
+      "routedOutputs": 7,
+      "routedInputCount": 10,
+      "routedOutputCount": 7,
+      "matrixInputs": 10,
+      "matrixOutputs": 7,
+      "matrixSize": "10x7",
+      "matrixSizeEvidence": "SKU/title evidence: MX-1007-HYB / 10x7 Seamless Matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     "MX-1616-SCL": {
       "sku": "MX-1616-SCL",
@@ -10099,7 +10299,17 @@
         }
       ],
       "notes": [],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 16,
+      "routedOutputs": 16,
+      "routedInputCount": 16,
+      "routedOutputCount": 16,
+      "matrixInputs": 16,
+      "matrixOutputs": 16,
+      "matrixSize": "16x16",
+      "matrixSizeEvidence": "SKU/title evidence: MX-1616-SCL / 16x16 HDMI",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     "MXV-0404-H2A-KIT": {
       "sku": "MXV-0404-H2A-KIT",
@@ -11711,7 +11921,17 @@
         "Primary image is shown because no explicit front-view filename was found.",
         "Rear or connector-view image was not identified; verify before using in customer-facing output."
       ],
-      "lastChecked": "2026-06-07"
+      "lastChecked": "2026-06-07",
+      "routedInputs": 1,
+      "routedOutputs": 8,
+      "routedInputCount": 1,
+      "routedOutputCount": 8,
+      "matrixInputs": 1,
+      "matrixOutputs": 8,
+      "matrixSize": "1x8",
+      "matrixSizeEvidence": "Title evidence: 1x8 HDMI",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     },
     "SW-0204-VW": {
       "sku": "SW-0204-VW",
