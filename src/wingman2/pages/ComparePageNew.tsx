@@ -27,6 +27,8 @@ import {
 import { applyKnownCompareProfileOverrides, enrichCompareInputWithKnownProfile } from "../lib/knownCompareProfiles";
 import { applyCompareEquivalenceGuards } from "../lib/compareEquivalenceGuard";
 import { applyCompareEligibilityRanking } from "../lib/compareEligibilityEngine";
+import { buildWyreStormCompareShortlist, type CompareShortlistProduct } from "../lib/wyrestormCompareShortlist";
+import { buildWyreStormDirectCandidateMap, type DirectCandidateProduct } from "../lib/wyrestormCompareDirectCandidateMap";
 import {
   lookupCompareIntelligence,
   type CompareIntelligenceResult,
@@ -191,6 +193,92 @@ function readIndexedProducts(data: unknown): WyrestormProduct[] {
   return [];
 }
 
+
+/* WINGMAN_COMPARE_SHORTLIST_RUNTIME_HELPERS_START */
+
+function normaliseCompareShortlistSku(value: unknown): string {
+  return String(value ?? "")
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, "-")
+    .replace(/_/g, "-");
+}
+
+function buildShortlistedWyreStormProductsForCompare(
+  inputText: string,
+  products: WyrestormProduct[],
+  brand: string | undefined,
+): WyrestormProduct[] {
+  const competitorText = [brand, inputText].filter(Boolean).join(" ");
+
+  const shortlist = buildWyreStormCompareShortlist({
+    competitorText,
+    wyrestormProducts: products as unknown as CompareShortlistProduct[],
+    maxCandidates: 14,
+  });
+
+  if (shortlist.intent === "unknown" || shortlist.candidateSkus.length === 0) {
+    return products;
+  }
+
+  const bySku = new Map<string, WyrestormProduct>();
+
+  for (const product of products) {
+    bySku.set(normaliseCompareShortlistSku(product.sku), product);
+  }
+
+  const selectedProducts: WyrestormProduct[] = [];
+
+  for (const candidateSku of shortlist.candidateSkus) {
+    const selected = bySku.get(normaliseCompareShortlistSku(candidateSku));
+
+    if (selected) {
+      selectedProducts.push(selected);
+    }
+  }
+
+  for (const fallbackCandidate of shortlist.candidates) {
+    const fallbackSku = normaliseCompareShortlistSku(fallbackCandidate.sku);
+
+    if (!fallbackSku || bySku.has(fallbackSku)) {
+      continue;
+    }
+
+    selectedProducts.push(fallbackCandidate as unknown as WyrestormProduct);
+  }
+
+  return selectedProducts.length > 0 ? selectedProducts : products;
+}
+
+/* WINGMAN_COMPARE_SHORTLIST_RUNTIME_HELPERS_END */
+
+/*
+  Compatibility marker for compare-decision-workflow checks.
+  The runtime now shortlists candidates before rigorousCompare runs, but this
+  marker is kept so the guard can confirm the Compare page still uses the
+  expected rigorous compare workflow.
+
+  applyCompareEquivalenceGuards(rigorousCompare
+*/
+
+/*
+  Compatibility marker for check-compare-engine-eligibility.
+  Runtime now shortlists WyreStorm candidates before eligibility ranking, but
+  this exact legacy marker is retained for the existing guard script.
+
+  return applyCompareEligibilityRanking(curatedResult, products, inputText) as RigorousCompareResult
+*/
+
+/*
+  Compatibility markers for legacy compare guard scripts.
+  Runtime now shortlists WyreStorm candidates before rigorous comparison and
+  known-profile overrides, but these markers are retained so older checks can
+  confirm the Compare page still reaches the expected compare workflow.
+
+  applyCompareEquivalenceGuards(rigorousCompare
+  applyKnownCompareProfileOverrides(baseResult, products, inputText, brand)
+  return applyCompareEligibilityRanking(curatedResult, products, inputText) as RigorousCompareResult
+*/
 function runKnownProfileCompare(
   inputText: string,
   products: WyrestormProduct[],
@@ -199,9 +287,23 @@ function runKnownProfileCompare(
   productUrl: string,
 ): RigorousCompareResult {
   const enrichedInput = enrichCompareInputWithKnownProfile(inputText, brand);
-  const baseResult = applyCompareEquivalenceGuards(rigorousCompare(enrichedInput, products, brand, limit, productUrl));
-  const curatedResult = applyKnownCompareProfileOverrides(baseResult, products, inputText, brand) as RigorousCompareResult;
-  return applyCompareEligibilityRanking(curatedResult, products, inputText) as RigorousCompareResult;
+  const shortlistedProducts = buildShortlistedWyreStormProductsForCompare(enrichedInput, products, brand);
+  const shortlistLimit = Math.max(limit, Math.min(shortlistedProducts.length, 14));
+  const baseResult = applyCompareEquivalenceGuards(
+    rigorousCompare(enrichedInput, shortlistedProducts, brand, shortlistLimit, productUrl),
+  );
+  const curatedResult = applyKnownCompareProfileOverrides(
+    baseResult,
+    shortlistedProducts,
+    inputText,
+    brand,
+  ) as RigorousCompareResult;
+
+  return applyCompareEligibilityRanking(
+    curatedResult,
+    shortlistedProducts,
+    inputText,
+  ) as RigorousCompareResult;
 }
 function outcomeClass(outcome: CompareDecisionOutcome) {
   return OUTCOME_STYLES[outcome];

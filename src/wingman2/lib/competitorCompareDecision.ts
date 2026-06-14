@@ -31,6 +31,15 @@ export type CompareSpecFacts = {
   internalPsu?: boolean;
   externalPsu?: boolean;
   powerSupply?: string;
+  gpioPortCount?: number;
+  relayPortCount?: number;
+  hdbasetClass?: string;
+  hdbasetDistance?: number;
+  networkSpeed?: string;
+  ndiVersion?: string;
+  ptzProtocol?: string;
+  wirelessStandard?: string;
+  cableCategory?: string;
 };
 
 export type CompareDecisionProfile = {

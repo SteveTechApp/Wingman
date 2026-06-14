@@ -268,7 +268,7 @@ const projectStages: ProjectStage[] = [
   "Support",
 ];
 
-let backendSyncTimer: ReturnType<typeof window.setTimeout> | null = null;
+let backendSyncTimer: number | null = null;
 let backendHydrationPromise: Promise<void> | null = null;
 let backendSyncRejectedForSession = false;
 
