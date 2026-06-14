@@ -77,4 +77,41 @@ describe("wyrestormCompareDirectCandidateMap", () => {
     expect(result.didApply).toBe(false);
     expect(result.candidateSkus).toHaveLength(0);
   });
+
+  it("maps Blustream IP300UHD-RX to NetworkHD receiver candidates", () => {
+    const result = buildWyreStormDirectCandidateMap({
+      competitorText: "Blustream IP300UHD-RX AVoIP receiver decoder 4K60",
+      wyrestormProducts: [],
+      maxCandidates: 10,
+    });
+
+    expect(result.didApply).toBe(true);
+    expect(result.candidates.map((candidate) => candidate.sku)).toContain("NHD-500-RX");
+    expect(result.candidates.map((candidate) => candidate.sku)).toContain("NHD-150-RX");
+    expect(result.candidates.map((candidate) => candidate.sku)).not.toContain("EX-100-KVM-IP");
+  });
+
+  it("maps compact Blustream IP300UHDRX text to NetworkHD receiver candidates", () => {
+    const result = buildWyreStormDirectCandidateMap({
+      competitorText: "Blustream IP300UHDRX",
+      wyrestormProducts: [],
+      maxCandidates: 10,
+    });
+
+    expect(result.didApply).toBe(true);
+    expect(result.candidates.map((candidate) => candidate.sku)).toContain("NHD-500-RX");
+    expect(result.candidates.map((candidate) => candidate.sku)).not.toContain("EX-100-KVM-IP");
+  });
+
+  it("maps Blustream IP300UHD-TX to NetworkHD transmitter candidates", () => {
+    const result = buildWyreStormDirectCandidateMap({
+      competitorText: "Blustream IP300UHD-TX AVoIP transmitter encoder 4K60",
+      wyrestormProducts: [],
+      maxCandidates: 10,
+    });
+
+    expect(result.didApply).toBe(true);
+    expect(result.candidates.map((candidate) => candidate.sku)).toContain("NHD-500-TX");
+    expect(result.candidates.map((candidate) => candidate.sku)).not.toContain("EX-100-KVM-IP");
+  });
 });
