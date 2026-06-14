@@ -172,7 +172,9 @@ export function GuruCallNotesInterpreter() {
     recognition.onresult = (event) => {
       let transcript = "";
 
-      for (let index = event.resultIndex; index < event.results.length; index += 1) {
+      const startIndex = event.resultIndex ?? 0;
+
+      for (let index = startIndex; index < event.results.length; index += 1) {
         transcript += event.results[index][0].transcript;
       }
 
