@@ -16,6 +16,10 @@ export type CompetitorTechnologyClass =
   | "CONTROL"
   | "WIRELESS_PRESENTATION"
   | "AUDIO"
+  | "NDI_CAMERA"
+  | "PTZ_CAMERA"
+  | "WIRELESS_CASTING"
+  | "CABLE"
   | "UNKNOWN";
 
 export type CompetitorRole =
@@ -30,8 +34,12 @@ export type CompetitorRole =
   | "Multiview Processor"
   | "USB/KVM Extender"
   | "Wireless Presentation"
+  | "Wireless Casting"
   | "Controller"
   | "Audio Processor"
+  | "NDI Camera"
+  | "PTZ Camera"
+  | "Cable"
   | "Unknown";
 
 export type CompetitorSkuSeed = {
@@ -217,6 +225,54 @@ export const COMPETITOR_SKU_SEED_CATALOG: Record<string, string[]> = {
   "Visionary": [
     "D5200"
   ],
+  "BirdDog": [
+    "P100",
+    "P200",
+    "P400",
+    "MAKI ULTRA",
+    "FLEX 4K",
+    "Eyes HDMI",
+    "Eyes SDI",
+    "Air 4K Quad",
+    "4K EYE"
+  ],
+  "Marshall": [
+    "CV420-18X-NDI",
+    "CV605-NDI",
+    "CV630-IP",
+    "CV730-NDI",
+    "CV420-30X-IP",
+    "VS-PTC-200NDI"
+  ],
+  "Mersive": [
+    "Solstice Gen3",
+    "Solstice Pod Gen3",
+    "Solstice Active Learning"
+  ],
+  "Barco ClickShare": [
+    "CS-100 Huddle",
+    "CX-20",
+    "CX-30",
+    "CX-50",
+    "CX-50 Gen2",
+    "CS-100",
+    "CS-100 Huddle",
+    "CX-20 Gen2",
+    "CX-30 Gen2"
+  ],
+  "Airtame": [
+    "Airtame 2",
+    "Airtame Cloud"
+  ],
+  "Sony": [
+    "BRC-X400",
+    "BRC-X1000",
+    "EVI-H100V",
+    "SRG-300H",
+    "SRG-300SE",
+    "SRG-X120",
+    "SRG-XP1"
+  ],
   "Other": []
 };
 
@@ -231,6 +287,10 @@ const REQUIRED_FACTS: Record<CompetitorTechnologyClass, string[]> = {
   CONTROL: ["control role", "network/control ports", "AV transport absence", "compatible ecosystem"],
   WIRELESS_PRESENTATION: ["wireless protocol", "HDMI/USB integration", "conferencing support", "network/security requirements"],
   AUDIO: ["audio transport", "I/O type", "Dante/AES67 support", "DSP/mic support"],
+  NDI_CAMERA: ["NDI version (NDI 5 / HX2 / HX3)", "PTZ protocol (VISCA-over-IP / Pelco-D)", "sensor resolution", "frame rate", "zoom range", "PoE class"],
+  PTZ_CAMERA: ["PTZ protocol (VISCA / Pelco-D / ONVIF)", "sensor resolution", "frame rate", "optical zoom", "PoE class", "IP control method"],
+  WIRELESS_CASTING: ["wireless standard (Wi-Fi 5 / Wi-Fi 6)", "screen mirroring protocols (Miracast / AirPlay / Chromecast)", "max simultaneous users", "4K wireless support", "moderation workflow"],
+  CABLE: ["cable category or fiber type", "max rated distance", "shielding (UTP / STP / SFTP)", "connector type", "plenum/LSOH rating"],
   UNKNOWN: ["technology class", "product role", "transport", "I/O count", "max resolution"],
 };
 
@@ -647,6 +707,84 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     presentFacts: ["transport family", "extension family"],
     assumptions: ["B-660-EXT pattern indicates Binary extension family."],
     whyNotDirectEquivalent: ["Distance, TX/RX kit status and feature support must be verified."],
+  },
+  {
+    brand: "BirdDog",
+    match: /^(p100|p200|p400|maki|flex|eye|air)/i,
+    tier: "family-rule",
+    domain: "NDI_CAMERA",
+    role: "NDI Camera",
+    transport: "NDI / HDMI",
+    action: "BirdDog NDI camera â€” WyreStorm has no direct NDI camera replacement. Compare against NetworkHD encoder as an architecture alternative for the distribution layer.",
+    requiredFacts: REQUIRED_FACTS.NDI_CAMERA,
+    presentFacts: ["NDI output", "PTZ capability", "brand family"],
+    assumptions: ["BirdDog cameras output NDI natively. The architecture path is NetworkHD encoder capturing HDMI output."],
+    whyNotDirectEquivalent: ["WyreStorm does not manufacture NDI cameras. The recommended path is NetworkHD encoder plus NHD-CTL-PRO for routing."],
+  },
+  {
+    brand: "Marshall",
+    match: /^(cv|vs-ptc)/i,
+    tier: "family-rule",
+    domain: "NDI_CAMERA",
+    role: "NDI Camera",
+    transport: "NDI / HDMI / SDI",
+    action: "Marshall NDI camera â€” WyreStorm has no direct NDI camera replacement. Compare against NetworkHD encoder as an architecture alternative.",
+    requiredFacts: REQUIRED_FACTS.NDI_CAMERA,
+    presentFacts: ["NDI output", "PTZ capability", "brand family"],
+    assumptions: ["Marshall CV-NDI series outputs NDI. Architecture path is NetworkHD encoder."],
+    whyNotDirectEquivalent: ["WyreStorm does not manufacture NDI cameras."],
+  },
+  {
+    brand: "Sony",
+    match: /^(brc|evi|srg)/i,
+    tier: "family-rule",
+    domain: "PTZ_CAMERA",
+    role: "PTZ Camera",
+    transport: "HDMI / SDI / IP",
+    action: "Sony PTZ camera â€” WyreStorm has no direct PTZ camera. Compare against NetworkHD encoder for distribution; PTZ control handled separately by the control system.",
+    requiredFacts: REQUIRED_FACTS.PTZ_CAMERA,
+    presentFacts: ["PTZ control protocol", "HDMI output", "brand family"],
+    assumptions: ["Sony BRC/SRG/EVI use VISCA-over-IP or VISCA serial. PTZ control is independent of the AV distribution path."],
+    whyNotDirectEquivalent: ["WyreStorm does not manufacture PTZ cameras."],
+  },
+  {
+    brand: "Mersive",
+    match: /^solstice/i,
+    tier: "family-rule",
+    domain: "WIRELESS_CASTING",
+    role: "Wireless Casting",
+    transport: "Wi-Fi / Ethernet",
+    action: "Mersive Solstice wireless presentation â€” compare against WyreStorm Apollo series for wireless casting workflow.",
+    requiredFacts: REQUIRED_FACTS.WIRELESS_CASTING,
+    presentFacts: ["wireless protocol", "simultaneous users", "brand family"],
+    assumptions: ["Mersive Solstice uses software-defined wireless presentation over Wi-Fi. Apollo series is the closest WyreStorm alternative."],
+    whyNotDirectEquivalent: ["Confirm Apollo protocol support (Miracast, AirPlay, Chromecast) against Solstice capabilities before quoting."],
+  },
+  {
+    brand: "Barco ClickShare",
+    match: /^c[sx]-/i,
+    tier: "family-rule",
+    domain: "WIRELESS_CASTING",
+    role: "Wireless Casting",
+    transport: "Wi-Fi / USB dongle",
+    action: "Barco ClickShare wireless presentation â€” compare against WyreStorm Apollo series for wireless casting workflow.",
+    requiredFacts: REQUIRED_FACTS.WIRELESS_CASTING,
+    presentFacts: ["wireless protocol", "USB dongle workflow", "brand family"],
+    assumptions: ["ClickShare uses USB dongle plus Wi-Fi. Apollo series comparison should confirm dongle vs. app-based workflow."],
+    whyNotDirectEquivalent: ["ClickShare uses a proprietary USB dongle + base unit workflow. Apollo uses software-only / BYOD approach. Confirm customer preference before quoting."],
+  },
+  {
+    brand: "Airtame",
+    match: /^airtame/i,
+    tier: "family-rule",
+    domain: "WIRELESS_CASTING",
+    role: "Wireless Casting",
+    transport: "Wi-Fi",
+    action: "Airtame wireless screen sharing â€” compare against WyreStorm Apollo series.",
+    requiredFacts: REQUIRED_FACTS.WIRELESS_CASTING,
+    presentFacts: ["wireless protocol", "brand family"],
+    assumptions: ["Airtame is an app-based wireless casting platform."],
+    whyNotDirectEquivalent: ["Confirm Apollo wireless protocols, user count and cloud management against Airtame before quoting."],
   },
 ];
 

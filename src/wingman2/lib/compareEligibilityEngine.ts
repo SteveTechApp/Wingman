@@ -15,6 +15,12 @@ export type CompareIntentKind =
   | "presentation-switcher"
   | "uc-byod"
   | "extender"
+  | "ndi-camera"
+  | "ptz-camera"
+  | "wireless-casting"
+  | "usb-audio"
+  | "cable"
+  | "gpio-relay"
   | "controller-accessory"
   | "unknown";
 
@@ -317,7 +323,31 @@ export function classifyCompareIntent(resultOrInput: unknown, inputText = ""): C
     return "av-over-ip";
   }
 
-  if (/\b(controller|control processor|rack|mount|cable|psu|power supply)\b/i.test(text)) {
+  if (/\b(ndi(?:\s*(?:5|hx|hx2|hx3))?[\s|-]?(camera|cam|ptz)|birddog|marshall\s*cv|ndi\s*source|ndi\s*encoder\s*camera)\b/i.test(text)) {
+    return "ndi-camera";
+  }
+
+  if (/\b(ptz|pan[\s-]tilt[\s-]zoom|visca|pelco[\s-]?d|sony\s*ev[ic]|sony\s*brc|aver\s*cam|huddly|logitech\s*(rally|meetup|brio))\b/i.test(text)) {
+    return "ptz-camera";
+  }
+
+  if (/\b(wireless\s*(casting|presentation|sharing|collaboration)|clickshare|solstice|mersive|airtame|barco\s*c[sx]|miracast|airplay|chromecast|wifidisplay)\b/i.test(text)) {
+    return "wireless-casting";
+  }
+
+  if (/\b(usb\s*(microphone|mic|speakerphone|audio|conference\s*speaker)|shure\s*mv|rode\s*(nt|pod|streamer)|jabra\s*(evolve|speak)|jabra\s*phs|yeti|snowball)\b/i.test(text)) {
+    return "usb-audio";
+  }
+
+  if (/\b(gpio|relay|contact\s*closure|dry\s*contact|i\/o\s*(module|port)|general[\s-]purpose\s*i\/o)\b/i.test(text)) {
+    return "gpio-relay";
+  }
+
+  if (/\b(cat\s*5e?|cat\s*6a?|cat\s*7|cat\s*8|om\d|os\d|single[\s-]mode|multimode|fiber|fibre|optical\s*cable|aoc|hdmi\s*cable|copper\s*cable|plenum\s*cable)\b/i.test(text)) {
+    return "cable";
+  }
+
+  if (/\b(controller|control processor|rack|mount|psu|power supply)\b/i.test(text)) {
     return "controller-accessory";
   }
 
@@ -610,6 +640,54 @@ export function evaluateProductEligibility(args: {
     return related(args.intent, ["Related product, but not a direct extender lead."], 80);
   }
 
+  if (args.intent === "ndi-camera") {
+    if (/\b(ndi|birddog|networkhd\s*cam)\b/i.test(combined)) {
+      return direct(args.intent, ["NDI-capable camera or NDI workflow candidate."], 0);
+    }
+
+    return blocked(sku, args.intent, ["Candidate is not an NDI camera or NDI-capable endpoint."]);
+  }
+
+  if (args.intent === "ptz-camera") {
+    if (/\b(ptz|pan[\s-]tilt|visca|pelco|cam)\b/i.test(combined)) {
+      return direct(args.intent, ["PTZ or controllable camera candidate."], 0);
+    }
+
+    return blocked(sku, args.intent, ["Candidate is not a PTZ or controllable camera."]);
+  }
+
+  if (args.intent === "wireless-casting") {
+    if (/\b(apollo|wireless|casting|miracast|airplay|chromecast)\b/i.test(combined) || /^APO/.test(key)) {
+      return direct(args.intent, ["Wireless casting or collaboration candidate."], 0);
+    }
+
+    return related(args.intent, ["No confirmed wireless casting capability."], 75);
+  }
+
+  if (args.intent === "usb-audio") {
+    if (/\b(usb|audio|mic|speakerphone|conference)\b/i.test(combined) || /^APO/.test(key)) {
+      return direct(args.intent, ["USB audio or conferencing audio candidate."], 0);
+    }
+
+    return blocked(sku, args.intent, ["Candidate is not a USB audio or conferencing audio product."]);
+  }
+
+  if (args.intent === "gpio-relay") {
+    if (/\b(gpio|relay|contact\s*closure|i\/o)\b/i.test(combined)) {
+      return direct(args.intent, ["GPIO or relay candidate."], 0);
+    }
+
+    return related(args.intent, ["No confirmed GPIO or relay capability noted."], 70);
+  }
+
+  if (args.intent === "cable") {
+    if (/^CAB/.test(key) || /\b(cable|cat\s*\d|fiber|fibre|optical|aoc)\b/i.test(combined)) {
+      return direct(args.intent, ["Cable or passive cabling accessory candidate."], 0);
+    }
+
+    return blocked(sku, args.intent, ["Candidate is not a cable or passive cabling product."]);
+  }
+
   if (args.intent === "controller-accessory") {
     return direct(args.intent, ["Accessory/controller comparison requested."], 0);
   }
@@ -712,6 +790,28 @@ function ensureEligibilityCandidatePool(matches: LooseMatch[], products: LooseRe
   if (intent === "multiview") {
     addCandidateBySku(nextMatches, products, "NHD-0401-MV", "Eligibility correction: dedicated multiview processor inserted for a multi-source single-output canvas.", 88);
     addCandidateBySku(nextMatches, products, "NHD-150-RX", "Eligibility correction: NetworkHD multiview receiver inserted for AVoIP multiview workflow.", 84);
+  }
+
+  if (intent === "wireless-casting") {
+    addCandidatesByPredicate(
+      nextMatches,
+      products,
+      (product) => /^APO/.test(String(product.sku ?? "")) || /\b(apollo|wireless|casting)\b/i.test(productText(product)),
+      "Eligibility correction: WyreStorm Apollo or wireless collaboration product inserted for wireless casting comparison.",
+      4,
+      76,
+    );
+  }
+
+  if (intent === "usb-audio") {
+    addCandidatesByPredicate(
+      nextMatches,
+      products,
+      (product) => /^APO/.test(String(product.sku ?? "")) || /\b(usb|audio|mic|conferenc)\b/i.test(productText(product)),
+      "Eligibility correction: WyreStorm USB audio or conferencing candidate inserted for USB audio comparison.",
+      4,
+      72,
+    );
   }
 
   return nextMatches;

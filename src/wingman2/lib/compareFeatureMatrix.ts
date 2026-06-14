@@ -22,19 +22,24 @@ type FeatureDefinition = {
 
 const FEATURE_DEFINITIONS: FeatureDefinition[] = [
   { key: "usbRouting", label: "USB / KVM routing", group: "USB" },
-  { key: "usbC", label: "USB-C", group: "USB" },
+  { key: "usbC", label: "USB-C input", group: "USB" },
+  { key: "mst", label: "MST (Multi-Stream Transport)", group: "USB" },
+  { key: "usbcPd", label: "USB-C power delivery", group: "USB" },
   { key: "dante", label: "Dante audio", group: "Audio" },
   { key: "aes67", label: "AES67 audio", group: "Audio" },
   { key: "audioDeEmbed", label: "Audio de-embed", group: "Audio" },
   { key: "audioEmbed", label: "Audio embed", group: "Audio" },
+  { key: "arc", label: "ARC / eARC", group: "Audio" },
   { key: "control", label: "Control connections", group: "Control" },
+  { key: "ndi", label: "NDI output", group: "Special" },
   { key: "wireless", label: "Wireless presentation", group: "Special" },
   { key: "multiview", label: "Multiview", group: "Special" },
-  { key: "videoWall", label: "Video wall", group: "Special" },
+  { key: "videoWall", label: "Video wall output", group: "Special" },
+  { key: "scalingOutput", label: "Per-output scaling", group: "Special" },
   { key: "hdbtOutput", label: "HDBaseT output", group: "Special" },
   { key: "receiverKit", label: "Receiver kit", group: "Special" },
   { key: "tenGig", label: "10G network class", group: "Special" },
-  { key: "zeroLatency", label: "Zero latency", group: "Special" },
+  { key: "zeroLatency", label: "Zero-frame latency", group: "Special" },
   { key: "lossless", label: "Lossless transport", group: "Special" },
 ];
 
@@ -433,9 +438,37 @@ export function buildCompareFeatureMatrixRows(
     compareBooleanRow("ir", "Control", "IR", competitor.specs?.ir, wyrestorm.specs?.ir),
     compareBooleanRow("cec", "Control", "CEC", competitor.specs?.cec, wyrestorm.specs?.cec),
     compareBooleanRow("relay", "Control", "Relay / GPIO", competitor.specs?.relay || competitor.specs?.gpio, wyrestorm.specs?.relay || wyrestorm.specs?.gpio),
+    compareQuantityRow("gpioPortCount", "Control", "GPIO ports", competitor.specs?.gpioPortCount, wyrestorm.specs?.gpioPortCount),
+    compareQuantityRow("relayPortCount", "Control", "Relay ports", competitor.specs?.relayPortCount, wyrestorm.specs?.relayPortCount),
     compareBooleanRow("arc", "Audio", "ARC / eARC", competitor.specs?.arc || competitor.specs?.earc, wyrestorm.specs?.arc || wyrestorm.specs?.earc),
     compareRankedRow("resolution", "Resolution", competitor.maxResolution, wyrestorm.maxResolution, resolutionRank),
     compareRankedRow("chroma", "Chroma", competitor.chroma, wyrestorm.chroma, chromaRank),
+    compareCategoricalRow("hdbasetClass", "Signal", "HDBaseT class", competitor.specs?.hdbasetClass, wyrestorm.specs?.hdbasetClass, (left, right) => {
+      const rank = (v: unknown) => {
+        const t = lower(v);
+        if (t.includes("3.0")) return 4;
+        if (t.includes("class a")) return 3;
+        if (t.includes("class b")) return 2;
+        if (t.includes("lite") || t.includes("class c")) return 1;
+        return 0;
+      };
+      return rank(right) >= rank(left);
+    }),
+    compareCategoricalRow("hdbasetDistance", "Signal", "HDBaseT distance", competitor.specs?.hdbasetDistance, wyrestorm.specs?.hdbasetDistance, (left, right) => Number(right) >= Number(left)),
+    compareCategoricalRow("networkSpeed", "Signal", "Network speed", competitor.specs?.networkSpeed, wyrestorm.specs?.networkSpeed, (left, right) => {
+      const rank = (v: unknown) => { const t = lower(v); if (t.includes("10g")) return 3; if (t.includes("1g") || t.includes("gigabit")) return 2; return 1; };
+      return rank(right) >= rank(left);
+    }),
+    compareCategoricalRow("ndiVersion", "Signal", "NDI version", competitor.specs?.ndiVersion, wyrestorm.specs?.ndiVersion, (left, right) => lower(left) === lower(right)),
+    compareCategoricalRow("ptzProtocol", "Control", "PTZ protocol", competitor.specs?.ptzProtocol, wyrestorm.specs?.ptzProtocol, (left, right) => lower(String(right)).includes(lower(String(left)).split(" ")[0] ?? "")),
+    compareCategoricalRow("wirelessStandard", "Signal", "Wireless standard", competitor.specs?.wirelessStandard, wyrestorm.specs?.wirelessStandard, (left, right) => {
+      const rank = (v: unknown) => { const t = lower(v); if (t.includes("wi-fi 6") || t.includes("wifi 6")) return 3; if (t.includes("wi-fi 5") || t.includes("wifi 5")) return 2; return 1; };
+      return rank(right) >= rank(left);
+    }),
+    compareCategoricalRow("cableCategory", "Signal", "Cable category", competitor.specs?.cableCategory, wyrestorm.specs?.cableCategory, (left, right) => {
+      const rank = (v: unknown) => { const t = lower(v); if (t.includes("cat8")) return 5; if (t.includes("cat7")) return 4; if (t.includes("cat6a")) return 3; if (t.includes("cat6")) return 2; if (t.includes("cat5")) return 1; return 0; };
+      return rank(right) >= rank(left);
+    }),
     compareBooleanRow("powerPoe", "Power", "PoE", competitor.specs?.poe ?? featureValue(competitor, "poe"), wyrestorm.specs?.poe ?? featureValue(wyrestorm, "poe")),
     compareBooleanRow("powerPoc", "Power", "PoC", competitor.specs?.poc ?? featureValue(competitor, "poc"), wyrestorm.specs?.poc ?? featureValue(wyrestorm, "poc")),
     compareBooleanRow("powerPoh", "Power", "PoH", competitor.specs?.poh ?? featureValue(competitor, "poh"), wyrestorm.specs?.poh ?? featureValue(wyrestorm, "poh")),

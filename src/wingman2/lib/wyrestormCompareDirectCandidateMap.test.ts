@@ -1,0 +1,80 @@
+import { describe, expect, it } from "vitest";
+import {
+  buildWyreStormDirectCandidateMap,
+  type DirectCandidateProduct,
+} from "./wyrestormCompareDirectCandidateMap";
+
+const products: DirectCandidateProduct[] = [
+  { sku: "NHD-500-TX", name: "NetworkHD 500 transmitter", description: "NetworkHD AVoIP TX" },
+  { sku: "NHD-124-TX", name: "NetworkHD 100 transmitter", description: "NetworkHD AVoIP TX" },
+  { sku: "NHD-500-RX", name: "NetworkHD 500 receiver", description: "NetworkHD AVoIP RX" },
+  { sku: "NHD-150-RX", name: "NetworkHD 100 multiview receiver", description: "NetworkHD AVoIP RX multiview" },
+  { sku: "NHD-600-TRX", name: "NetworkHD 600 transceiver", description: "10G SDVoE AVoIP" },
+  { sku: "EXF-300-H2", name: "HDBaseT extender", description: "HDBaseT extender kit" },
+  { sku: "EX-100-H2", name: "HDBaseT extender", description: "HDBaseT extender kit" },
+  { sku: "NHD-CTL-PRO", name: "NetworkHD controller", description: "controller" },
+];
+
+describe("wyrestormCompareDirectCandidateMap", () => {
+  it("maps Blustream IP350UHD-TX to NetworkHD transmitter candidates, not extenders", () => {
+    const result = buildWyreStormDirectCandidateMap({
+      competitorText: "Blustream IP350UHD-TX AVoIP Transmitter 4K60",
+      wyrestormProducts: products,
+    });
+
+    expect(result.didApply).toBe(true);
+    expect(result.intent).toBe("avoip_encoder");
+    expect(result.candidateSkus).toContain("NHD-500-TX");
+    expect(result.candidateSkus).toContain("NHD-124-TX");
+    expect(result.candidateSkus).not.toContain("EXF-300-H2");
+    expect(result.candidateSkus).not.toContain("EX-100-H2");
+    expect(result.candidateSkus).not.toContain("NHD-CTL-PRO");
+  });
+
+  it("maps AVoIP receiver products to NetworkHD receiver candidates", () => {
+    const result = buildWyreStormDirectCandidateMap({
+      competitorText: "Blustream IP350UHD-RX AVoIP Receiver 4K60",
+      wyrestormProducts: products,
+    });
+
+    expect(result.didApply).toBe(true);
+    expect(result.intent).toBe("avoip_decoder");
+    expect(result.candidateSkus).toContain("NHD-500-RX");
+    expect(result.candidateSkus).toContain("NHD-150-RX");
+    expect(result.candidateSkus).not.toContain("NHD-500-TX");
+  });
+
+  it("maps 10G AVoIP to NetworkHD 600 only", () => {
+    const result = buildWyreStormDirectCandidateMap({
+      competitorText: "Competitor 10G SDVoE AVoIP transceiver",
+      wyrestormProducts: products,
+    });
+
+    expect(result.didApply).toBe(true);
+    expect(result.intent).toBe("avoip_10g");
+    expect(result.candidateSkus).toContain("NHD-600-TRX");
+    expect(result.candidateSkus).not.toContain("NHD-500-TX");
+    expect(result.candidateSkus).not.toContain("NHD-500-RX");
+  });
+
+  it("adds rich fallback candidates when catalogue data is incomplete", () => {
+    const result = buildWyreStormDirectCandidateMap({
+      competitorText: "Blustream IP350UHD-TX AVoIP Transmitter",
+      wyrestormProducts: [],
+    });
+
+    expect(result.didApply).toBe(true);
+    expect(result.candidateSkus).toContain("NHD-500-TX");
+    expect(result.candidates[0]?.technology).toContain("AVoIP");
+  });
+
+  it("does not apply to unrelated text", () => {
+    const result = buildWyreStormDirectCandidateMap({
+      competitorText: "generic HDMI splitter",
+      wyrestormProducts: products,
+    });
+
+    expect(result.didApply).toBe(false);
+    expect(result.candidateSkus).toHaveLength(0);
+  });
+});

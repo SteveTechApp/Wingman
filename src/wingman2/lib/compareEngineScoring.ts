@@ -843,6 +843,84 @@ export function getArchitectureAlternative(
     };
   }
 
+  if (competitor.domainTag === "ndi_camera" || competitor.domainTag === "ptz_camera") {
+    return {
+      fromDomain: competitor.domainTag,
+      toDomain: "avoip_encoder",
+      reason:
+        "WyreStorm does not currently manufacture NDI or PTZ cameras. The closest architecture path is a NetworkHD encoder capturing the camera's HDMI/SDI output, combined with NHD-CTL-PRO for routing and control.",
+      tradeoffs: [
+        "A WyreStorm encoder captures camera output over HDMI but does not replace PTZ control protocols natively.",
+        "PTZ control (VISCA-over-IP, Pelco-D) must be handled separately by the control system.",
+        "NDI-native cameras should be evaluated alongside the NetworkHD AVoIP platform for integration.",
+        "Confirm whether the requirement is camera replacement or camera-plus-distribution architecture.",
+      ],
+      skus: ["NHD-124-TX", "NHD-500-TX", "NHD-CTL-PRO"],
+    };
+  }
+
+  if (competitor.domainTag === "wireless_casting") {
+    return {
+      fromDomain: "wireless_casting",
+      toDomain: "wireless_casting",
+      reason:
+        "WyreStorm Apollo series covers wireless presentation and casting. Confirm the Apollo variant matches the required protocols (Miracast, AirPlay, Chromecast), simultaneous user count, and moderator control requirements.",
+      tradeoffs: [
+        "Confirm Wi-Fi standard (Wi-Fi 5 vs Wi-Fi 6) and band (2.4GHz / 5GHz) against the competitor.",
+        "Confirm 4K wireless delivery if required.",
+        "Confirm IT/network security policy compatibility.",
+        "Confirm whether a moderation or approval workflow is required.",
+      ],
+      skus: ["APO-100-UC", "APO-200-UC", "APO-210-UC", "APO-VX20-UC"],
+    };
+  }
+
+  if (competitor.domainTag === "usb_audio") {
+    return {
+      fromDomain: "usb_audio",
+      toDomain: "usb_audio",
+      reason:
+        "WyreStorm UC/audio products (Apollo series) cover USB speakerphones and conferencing audio. For USB microphones without conferencing use, confirm whether a WyreStorm product fits or if a specialist audio manufacturer is the right path.",
+      tradeoffs: [
+        "Confirm whether the requirement is a standalone USB microphone or an integrated conferencing speakerphone.",
+        "Confirm USB standard (USB 2.0, USB-C) and driver-free operation.",
+        "Confirm sample rate and polar pattern requirements.",
+        "WyreStorm Apollo UC products combine audio and UC rather than being pure microphone replacements.",
+      ],
+      skus: ["APO-100-UC", "APO-200-UC"],
+    };
+  }
+
+  if (competitor.domainTag === "relay_gpio") {
+    return {
+      fromDomain: "relay_gpio",
+      toDomain: "control_system",
+      reason:
+        "GPIO and relay expansion modules are typically used alongside a control system. Confirm whether a WyreStorm product carries native GPIO/relay ports or whether a third-party relay module (Crestron, AMX, Global Caché) is required alongside WyreStorm hardware.",
+      tradeoffs: [
+        "Many WyreStorm matrix and presentation products carry GPIO or relay ports natively — check the datasheet first.",
+        "Standalone relay/GPIO expansion modules are not manufactured by WyreStorm.",
+        "Confirm voltage levels, current ratings, and NO/NC requirements before recommending a relay path.",
+      ],
+      skus: [],
+    };
+  }
+
+  if (competitor.domainTag === "copper_cable" || competitor.domainTag === "fiber_cable" || competitor.domainTag === "hdmi_cable") {
+    return {
+      fromDomain: competitor.domainTag,
+      toDomain: competitor.domainTag,
+      reason:
+        "Cable comparison should be treated as an accessory match rather than a product comparison. Confirm the cable category, shielding, distance rating, and connector type from the project specification.",
+      tradeoffs: [
+        "Cat6A STP is required for HDBaseT 3.0 and 10G runs — do not substitute Cat5e or Cat6 UTP.",
+        "OM4 or OS2 single-mode fibre is required for long-distance AOC runs.",
+        "Plenum (CMP) rating is required for in-ceiling or air-handling space installations.",
+        "Confirm whether the cable is a WyreStorm-supplied accessory or a third-party structured cabling product.",
+      ],
+      skus: [],
+    };
+  }
 
   return undefined;
 }
