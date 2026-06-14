@@ -723,8 +723,8 @@ export function compareProfiles(competitor: ProductProfile, candidate: ProductPr
 
   /*
    * Sparse profiles should not cause a correct direct AVoIP candidate to disappear.
-   * If the core replacement facts align — same domain, no blockers, network speed,
-   * I/O count, resolution and latency — keep it as a visible VERIFY/PARTIAL candidate.
+   * If the core replacement facts align â€” same domain, no blockers, network speed,
+   * I/O count, resolution and latency â€” keep it as a visible VERIFY/PARTIAL candidate.
    */
   const hasBlockingGap = gaps.some((gap) => gap.severity === 5);
   const isDirectAvoipCandidate =
@@ -735,11 +735,19 @@ export function compareProfiles(competitor: ProductProfile, candidate: ProductPr
   const coreAvoipFactsAlign =
     matchedAttributes.has("networkSpeed") &&
     matchedAttributes.has("ioCountMatch") &&
-    matchedAttributes.has("resolutionChroma") &&
+    matchedAttributes.has("resolutionChroma");
+
+  const strongAvoipFactsAlign =
+    coreAvoipFactsAlign &&
     matchedAttributes.has("latencyClass");
 
   if (isDirectAvoipCandidate && !hasBlockingGap && coreAvoipFactsAlign) {
-    confidence = Math.max(confidence, applyReadinessCap(72, candidate.readiness));
+    const directAvoipFloor = strongAvoipFactsAlign ? 78 : 72;
+    confidence = Math.max(confidence, applyReadinessCap(directAvoipFloor, candidate.readiness));
+  }
+
+  if (candidate.readiness === "sku-only") {
+    confidence = 0;
   }
 
   const outcome = outcomeFromConfidence(confidence, gaps);

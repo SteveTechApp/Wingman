@@ -12,15 +12,22 @@ import {
   type ProductProfile,
   type ProductSubTag,
 } from "./compareEngineModel";
+import {
+  buildWyreStormCompareShortlist,
+  explainWyreStormCompareShortlist,
+  type CompareShortlistProduct,
+  type CompareShortlistResult,
+} from "./wyrestormCompareShortlist";
 
 /**
  * Runtime adapter for existing Wingman Compare data.
  *
- * Purpose:
- * - Accept loose/current compare objects without forcing a UI rewrite.
- * - Normalise them into the governed ProductProfile shape.
- * - Run the Phase 2 weighted scoring engine.
- * - Return customer-safe summary text and structured evidence.
+ * This adapter is now shortlist-first:
+ *
+ * 1. Coerce competitor into a governed profile.
+ * 2. Detect competitor intent from SKU/product text.
+ * 3. Build a small deterministic WyreStorm candidate shortlist.
+ * 4. Score only the shortlisted products.
  *
  * Do not import React, CSS, Guru, voice, route or page-shell code here.
  */
@@ -41,6 +48,15 @@ export interface RuntimeGapSummary {
   candidateValue: string;
 }
 
+export interface RuntimeShortlistSummary {
+  intent: CompareShortlistResult["intent"];
+  confidence: number;
+  reason: string;
+  candidateSkus: string[];
+  explanation: string;
+  debug: string[];
+}
+
 export interface RuntimeCompareSummary {
   topOutcome: CompareResult["topOutcome"];
   recommendation: string;
@@ -58,6 +74,7 @@ export interface RuntimeCompareSummary {
   verify: string[];
   blockers: string[];
   customerSafeSummary: string;
+  shortlist: RuntimeShortlistSummary;
 }
 
 const DOMAIN_FALLBACK: ProductDomainTag = "hdmi_matrix";
@@ -151,7 +168,18 @@ function readArray(source: LooseCompareProduct, keys: string[]): string[] | unde
 
 function compactText(...values: Array<unknown>): string {
   return values
-    .map((value) => String(value ?? "").trim())
+    .map((value) => {
+      if (Array.isArray(value)) {
+        return value.join(" ");
+      }
+
+      if (value && typeof value === "object") {
+        return Object.values(value as Record<string, unknown>).join(" ");
+      }
+
+      return String(value ?? "");
+    })
+    .map((value) => value.trim())
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
@@ -159,6 +187,38 @@ function compactText(...values: Array<unknown>): string {
 
 function includesAny(haystack: string, needles: string[]): boolean {
   return needles.some((needle) => haystack.includes(needle));
+}
+
+function buildCompetitorTextForShortlist(source: LooseCompareProduct): string {
+  return compactText(
+    source.brand,
+    source.manufacturer,
+    source.sku,
+    source.SKU,
+    source.partNumber,
+    source.model,
+    source.name,
+    source.title,
+    source.productName,
+    source.productClass,
+    source.class,
+    source.category,
+    source.type,
+    source.technology,
+    source.transport,
+    source.role,
+    source.description,
+    source.features,
+    source.network,
+    source.networkInterface,
+    source.networkSpeed,
+    source.inputs,
+    source.outputs,
+    source.inputTypes,
+    source.outputTypes,
+    source.resolution,
+    source.maxResolution,
+  );
 }
 
 function inferDomainTag(source: LooseCompareProduct): ProductDomainTag {
@@ -177,85 +237,34 @@ function inferDomainTag(source: LooseCompareProduct): ProductDomainTag {
     source.description,
   );
 
-  if (includesAny(text, ["ndi"]) && includesAny(text, ["camera", "ptz"])) {
-    return "ndi_camera";
-  }
-
-  if (includesAny(text, ["ptz", "camera"])) {
-    return "ptz_camera";
-  }
-
-  if (includesAny(text, ["wireless", "airplay", "miracast", "chromecast", "casting"])) {
-    return "wireless_casting";
-  }
-
-  if (includesAny(text, ["usb audio", "microphone", "speakerphone"])) {
-    return "usb_audio";
-  }
-
-  if (includesAny(text, ["relay", "gpio", "contact closure"])) {
-    return "relay_gpio";
-  }
-
-  if (includesAny(text, ["control processor", "control system", "cp4", "netlinx"])) {
-    return "control_system";
-  }
-
-  if (includesAny(text, ["video wall", "videowall", "wall processor", "sw-0206-vw", "sw-0204-vw"])) {
-    return "videowall_processor";
-  }
-
-  if (includesAny(text, ["presentation", "usb-c", "usbc", "auto switch", "switcher", "apollo"])) {
-    return "presentation_switcher";
-  }
-
-  if (includesAny(text, ["splitter", "distribution amplifier"])) {
-    return "hdmi_splitter";
-  }
-
-  if (includesAny(text, ["extender", "hdbaset kit", "hdbaset extender"])) {
-    return "hdbaset_extender";
-  }
+  if (includesAny(text, ["ndi"]) && includesAny(text, ["camera", "ptz"])) return "ndi_camera";
+  if (includesAny(text, ["ptz", "camera"])) return "ptz_camera";
+  if (includesAny(text, ["wireless", "airplay", "miracast", "chromecast", "casting"])) return "wireless_casting";
+  if (includesAny(text, ["usb audio", "microphone", "speakerphone"])) return "usb_audio";
+  if (includesAny(text, ["relay", "gpio", "contact closure"])) return "relay_gpio";
+  if (includesAny(text, ["control processor", "control system", "cp4", "netlinx"])) return "control_system";
+  if (includesAny(text, ["video wall", "videowall", "wall processor", "sw-0206-vw", "sw-0204-vw"])) return "videowall_processor";
+  if (includesAny(text, ["presentation", "usb-c", "usbc", "auto switch", "switcher", "apollo"])) return "presentation_switcher";
+  if (includesAny(text, ["splitter", "distribution amplifier"])) return "hdmi_splitter";
+  if (includesAny(text, ["extender", "hdbaset kit", "hdbaset extender"])) return "hdbaset_extender";
 
   if (includesAny(text, ["hdbaset matrix", "hdbt matrix"]) || (includesAny(text, ["matrix"]) && includesAny(text, ["hdbaset", "hdbt"]))) {
     return "hdbaset_matrix";
   }
 
-  if (includesAny(text, ["scaling matrix", "scl", "multiview matrix"])) {
-    return "matrix_switcher_scaling";
-  }
-
-  if (includesAny(text, ["matrix"])) {
-    return "hdmi_matrix";
-  }
+  if (includesAny(text, ["scaling matrix", "scl", "multiview matrix"])) return "matrix_switcher_scaling";
+  if (includesAny(text, ["matrix"])) return "hdmi_matrix";
 
   if (includesAny(text, ["avoip", "av over ip", "av-over-ip", "networkhd", "sdvoe", "jpeg-xs", "jpeg xs", "h.264", "h.265"])) {
-    if (includesAny(text, ["decoder", "receiver", " rx", "-rx"])) {
-      return "avoip_decoder";
-    }
-
-    if (includesAny(text, ["encoder", "transmitter", " tx", "-tx"])) {
-      return "avoip_encoder";
-    }
-
-    if (includesAny(text, ["controller", "control", "ctl", "dir"])) {
-      return "avoip_controller";
-    }
-
+    if (includesAny(text, ["decoder", "receiver", " rx", "-rx"])) return "avoip_decoder";
+    if (includesAny(text, ["encoder", "transmitter", " tx", "-tx"])) return "avoip_encoder";
+    if (includesAny(text, ["controller", "control", "ctl", "dir"])) return "avoip_controller";
     return "avoip_decoder";
   }
 
-  if (includesAny(text, ["cat6", "cat6a", "cat5e", "cat7", "cat8"])) {
-    return "copper_cable";
-  }
-
-  if (includesAny(text, ["fiber", "fibre", "om3", "om4", "os2", "sfp", "aoc"])) {
-    return "fiber_cable";
-  }
-
-  if (includesAny(text, ["hdmi cable", "premium high speed"])) {
-    return "hdmi_cable";
-  }
+  if (includesAny(text, ["cat6", "cat6a", "cat5e", "cat7", "cat8"])) return "copper_cable";
+  if (includesAny(text, ["fiber", "fibre", "om3", "om4", "os2", "sfp", "aoc"])) return "fiber_cable";
+  if (includesAny(text, ["hdmi cable", "premium high speed"])) return "hdmi_cable";
 
   return DOMAIN_FALLBACK;
 }
@@ -309,17 +318,9 @@ function inferSubTags(source: LooseCompareProduct): ProductSubTag[] {
 function inferReadiness(source: LooseCompareProduct): CompareReadinessTier {
   const text = compactText(source.readiness, source.evidenceTier, source.status, source.approvalStatus);
 
-  if (includesAny(text, ["approved", "verified-profile", "verified profile", "safe"])) {
-    return "approved";
-  }
-
-  if (includesAny(text, ["usable", "review", "partial"])) {
-    return "usable-with-review";
-  }
-
-  if (includesAny(text, ["sku-only", "sku only", "no spec", "unknown"])) {
-    return "sku-only";
-  }
+  if (includesAny(text, ["approved", "verified-profile", "verified profile", "safe"])) return "approved";
+  if (includesAny(text, ["usable", "review", "partial"])) return "usable-with-review";
+  if (includesAny(text, ["sku-only", "sku only", "no spec", "unknown"])) return "sku-only";
 
   return "needs-evidence";
 }
@@ -338,19 +339,12 @@ function inferPowerSupply(source: LooseCompareProduct): ProductProfile["powerSup
 function inferNetworkInterface(source: LooseCompareProduct): string[] | undefined {
   const direct = readArray(source, ["networkInterface", "networkInterfaces", "network", "ethernet", "lan", "networkSpeed"]);
 
-  if (direct) {
-    return direct;
-  }
+  if (direct) return direct;
 
   const text = compactText(source.sku, source.name, source.description, source.technology, source.transport);
 
-  if (includesAny(text, ["nhd-600", "10gbe", "10gb", "10g", "sfp+"])) {
-    return ["10GbE"];
-  }
-
-  if (includesAny(text, ["nhd-100", "nhd-120", "nhd-124", "nhd-128", "nhd-150", "nhd-500", "1gbe", "1gb", "gigabit"])) {
-    return ["1GbE"];
-  }
+  if (includesAny(text, ["nhd-600", "10gbe", "10gb", "10g", "sfp+"])) return ["10GbE"];
+  if (includesAny(text, ["nhd-100", "nhd-120", "nhd-124", "nhd-128", "nhd-150", "nhd-500", "1gbe", "1gb", "gigabit"])) return ["1GbE"];
 
   return undefined;
 }
@@ -358,23 +352,13 @@ function inferNetworkInterface(source: LooseCompareProduct): string[] | undefine
 function inferLatency(source: LooseCompareProduct): string | undefined {
   const direct = readString(source, ["compressionLatency", "latency", "latencyClass"]);
 
-  if (direct) {
-    return direct;
-  }
+  if (direct) return direct;
 
   const text = compactText(source.sku, source.name, source.description, source.technology);
 
-  if (includesAny(text, ["nhd-600", "sdvoe", "zero latency", "zero-frame", "zero frame"])) {
-    return "zero-frame";
-  }
-
-  if (includesAny(text, ["nhd-500", "jpeg-xs", "jpeg xs", "ultra-low", "ultra low"])) {
-    return "ultra-low";
-  }
-
-  if (includesAny(text, ["h.264", "h264", "h.265", "h265"])) {
-    return "standard";
-  }
+  if (includesAny(text, ["nhd-600", "sdvoe", "zero latency", "zero-frame", "zero frame"])) return "zero-frame";
+  if (includesAny(text, ["nhd-500", "jpeg-xs", "jpeg xs", "ultra-low", "ultra low"])) return "ultra-low";
+  if (includesAny(text, ["h.264", "h264", "h.265", "h265"])) return "standard";
 
   return undefined;
 }
@@ -382,9 +366,7 @@ function inferLatency(source: LooseCompareProduct): string | undefined {
 function inferInputTypes(source: LooseCompareProduct): string[] | undefined {
   const direct = readArray(source, ["inputTypes", "inputsTypes", "inputType", "inputs"]);
 
-  if (direct) {
-    return direct;
-  }
+  if (direct) return direct;
 
   const text = compactText(source.sku, source.name, source.description, source.technology, source.transport);
   const result: string[] = [];
@@ -401,9 +383,7 @@ function inferInputTypes(source: LooseCompareProduct): string[] | undefined {
 function inferOutputTypes(source: LooseCompareProduct): string[] | undefined {
   const direct = readArray(source, ["outputTypes", "outputsTypes", "outputType", "outputs"]);
 
-  if (direct) {
-    return direct;
-  }
+  if (direct) return direct;
 
   const text = compactText(source.sku, source.name, source.description, source.technology, source.transport);
   const result: string[] = [];
@@ -419,9 +399,7 @@ function inferOutputTypes(source: LooseCompareProduct): string[] | undefined {
 function inferResolution(source: LooseCompareProduct): string | undefined {
   const direct = readString(source, ["maxResolution", "resolution", "videoResolution"]);
 
-  if (direct) {
-    return direct;
-  }
+  if (direct) return direct;
 
   const text = compactText(source.sku, source.name, source.description, source.features);
 
@@ -437,9 +415,7 @@ function inferResolution(source: LooseCompareProduct): string | undefined {
 function inferHdbasetClass(source: LooseCompareProduct): string | undefined {
   const direct = readString(source, ["hdbasetClass", "hdbasetDeviceClass"]);
 
-  if (direct) {
-    return direct;
-  }
+  if (direct) return direct;
 
   const text = compactText(source.sku, source.name, source.description, source.features, source.hdbasetVersion);
 
@@ -454,9 +430,7 @@ function inferHdbasetClass(source: LooseCompareProduct): string | undefined {
 function inferPoeClass(source: LooseCompareProduct): string | undefined {
   const direct = readString(source, ["poeClass", "pohClass", "powerClass"]);
 
-  if (direct) {
-    return direct;
-  }
+  if (direct) return direct;
 
   const text = compactText(source.powerSupply, source.power, source.features, source.description);
 
@@ -604,12 +578,26 @@ export function coerceCompareProductToProfile(
   };
 }
 
+function buildShortlist(input: RuntimeCompareInput): CompareShortlistResult {
+  return buildWyreStormCompareShortlist({
+    competitorText: buildCompetitorTextForShortlist(input.competitor),
+    wyrestormProducts: input.candidates as CompareShortlistProduct[],
+    maxCandidates: 12,
+  });
+}
+
 export function buildRuntimeCompareResult(input: RuntimeCompareInput): CompareResult {
   const competitor = coerceCompareProductToProfile(input.competitor, {
     brand: readString(input.competitor, ["brand", "manufacturer"]) ?? "Competitor",
   });
 
-  const candidates = input.candidates.map((candidate) =>
+  const shortlist = buildShortlist(input);
+  const candidateSources: LooseCompareProduct[] =
+    shortlist.candidates.length > 0
+      ? shortlist.candidates
+      : input.candidates;
+
+  const candidates = candidateSources.map((candidate) =>
     coerceCompareProductToProfile(candidate, {
       brand: readString(candidate, ["brand", "manufacturer"]) ?? "WyreStorm",
     }),
@@ -638,13 +626,14 @@ function makeCustomerSafeSummary(result: CompareResult): string {
   }
 
   if (result.architectureAlternative) {
-    return `No safe direct WyreStorm replacement is confirmed from the current data. Review the suggested architecture alternative and validate the trade-offs before customer positioning.`;
+    return "No safe direct WyreStorm replacement is confirmed from the current data. Review the suggested architecture alternative and validate the trade-offs before customer positioning.";
   }
 
   return "No suitable WyreStorm match is confirmed from the current data. Search wider, add product evidence, or ask pre-sales to review.";
 }
 
 export function buildRuntimeCompareSummary(input: RuntimeCompareInput): RuntimeCompareSummary {
+  const shortlist = buildShortlist(input);
   const result = buildRuntimeCompareResult(input);
   const top = result.matches[0];
   const allMatches = [...result.matches, ...result.rejected];
@@ -673,6 +662,14 @@ export function buildRuntimeCompareSummary(input: RuntimeCompareInput): RuntimeC
     verify: flattenVerify(allMatches),
     blockers: flattenBlockers(allMatches),
     customerSafeSummary: makeCustomerSafeSummary(result),
+    shortlist: {
+      intent: shortlist.intent,
+      confidence: shortlist.confidence,
+      reason: shortlist.reason,
+      candidateSkus: shortlist.candidateSkus,
+      explanation: explainWyreStormCompareShortlist(shortlist),
+      debug: shortlist.debug,
+    },
   };
 }
 
