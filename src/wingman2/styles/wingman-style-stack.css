@@ -26772,3 +26772,85 @@ html[data-wingman-route="compare"] .wingman-page-host .wm-compare-context-drawer
 html[data-wingman-route="compare"] .wingman-page-host .wm-compare-options-strip {
   padding: 8px 10px !important;
 }
+
+
+/* WINGMAN_COMPARE_OUTCOME_BADGE_CONTRAST_START */
+
+/*
+  Compare page outcome badge contrast fix.
+
+  Problem:
+  Some selected/active outcome badges were inheriting a pale/white background,
+  making PARTIAL MATCH unreadable.
+
+  Rule:
+  Outcome badges should stay on the dark Wingman surface. Use coloured borders
+  and text, not pale filled buttons.
+*/
+
+.wm-compare-page [data-outcome],
+.wm-compare-page [data-match-outcome],
+.wm-compare-page .wm-compare-outcome,
+.wm-compare-page .wm-outcome-badge,
+.wm-compare-page .compare-outcome-badge {
+  background: rgba(7, 23, 36, 0.96) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(100, 255, 218, 0.45) !important;
+  box-shadow: none !important;
+}
+
+/* Partial match should be clearly readable. */
+.wm-compare-page [data-outcome*="PARTIAL" i],
+.wm-compare-page [data-match-outcome*="PARTIAL" i],
+.wm-compare-page .wm-outcome-partial,
+.wm-compare-page .compare-outcome-partial,
+.wm-compare-page .partial-match {
+  background: rgba(21, 32, 18, 0.98) !important;
+  color: #f6d66f !important;
+  border-color: rgba(246, 214, 111, 0.75) !important;
+}
+
+/* Good match: green without losing dark-theme contrast. */
+.wm-compare-page [data-outcome*="GOOD" i],
+.wm-compare-page [data-match-outcome*="GOOD" i],
+.wm-compare-page .wm-outcome-good,
+.wm-compare-page .compare-outcome-good,
+.wm-compare-page .good-match {
+  background: rgba(10, 40, 28, 0.98) !important;
+  color: #74f7b2 !important;
+  border-color: rgba(116, 247, 178, 0.75) !important;
+}
+
+/* No match: red warning without a white badge. */
+.wm-compare-page [data-outcome*="NO" i],
+.wm-compare-page [data-match-outcome*="NO" i],
+.wm-compare-page .wm-outcome-no,
+.wm-compare-page .compare-outcome-no,
+.wm-compare-page .no-match {
+  background: rgba(48, 18, 18, 0.98) !important;
+  color: #ff9a9a !important;
+  border-color: rgba(255, 120, 120, 0.75) !important;
+}
+
+/* Prevent active/focus/selected states from turning badges white. */
+.wm-compare-page [data-outcome]:is(:hover, :focus, :focus-visible, :active),
+.wm-compare-page [data-match-outcome]:is(:hover, :focus, :focus-visible, :active),
+.wm-compare-page .wm-compare-outcome:is(:hover, :focus, :focus-visible, :active),
+.wm-compare-page .wm-outcome-badge:is(:hover, :focus, :focus-visible, :active),
+.wm-compare-page .compare-outcome-badge:is(:hover, :focus, :focus-visible, :active) {
+  background: rgba(7, 23, 36, 0.96) !important;
+  color: #ffffff !important;
+  outline: 2px solid rgba(100, 255, 218, 0.35) !important;
+  outline-offset: 2px !important;
+}
+
+/* Catch common utility-class leakage that creates white badges inside Compare. */
+.wm-compare-page .bg-white,
+.wm-compare-page .bg-slate-50,
+.wm-compare-page .bg-gray-50,
+.wm-compare-page .bg-zinc-50 {
+  background-color: rgba(7, 23, 36, 0.96) !important;
+  color: #ffffff !important;
+}
+
+/* WINGMAN_COMPARE_OUTCOME_BADGE_CONTRAST_END */
