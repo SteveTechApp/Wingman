@@ -94,7 +94,7 @@ function isLikelyAvoipText(text: string): boolean {
     return true;
   }
 
-  if (/\bIP\d{2,4}[A-Z0-9]*-(TX|RX)\b/i.test(text)) {
+  if (/\bIP\d{2,4}[A-Z0-9]*-?(TX|RX)\b/i.test(text)) {
     return true;
   }
 
@@ -106,11 +106,11 @@ function isLikelyAvoipText(text: string): boolean {
 }
 
 function isSourceSide(text: string): boolean {
-  return containsAny(text, ["-tx", " tx", "transmitter", "encoder", "source-side", "source side"]);
+  return containsAny(text, ["-tx", " tx", "transmitter", "encoder", "source-side", "source side"]) || /\bIP\d{2,4}[A-Z0-9]*-?TX\b/i.test(text);
 }
 
 function isSinkSide(text: string): boolean {
-  return containsAny(text, ["-rx", " rx", "receiver", "decoder", "display-side", "display side", "sink-side", "sink side"]);
+  return containsAny(text, ["-rx", " rx", "receiver", "decoder", "display-side", "display side", "sink-side", "sink side"]) || /\bIP\d{2,4}[A-Z0-9]*-?RX\b/i.test(text);
 }
 
 function is10G(text: string): boolean {
