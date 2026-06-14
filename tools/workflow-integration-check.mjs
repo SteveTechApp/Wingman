@@ -105,10 +105,11 @@ assertSourceContains("src/wingman2/lib/dependencyGovernance.ts", [
 ]);
 assertSourceContains("src/wingman2/pages/ComparePageNew.tsx", [
   "rigorousCompare",
-  "CompareSpecificationMatrix",
   "decision.summary",
   "decision.nextAction",
-  "result.rejected",
+  "isSelectableWyrestormRecommendation",
+  "viableMatches",
+  "View comparison evidence",
   "Source/spec page",
 ]);
 assertSourceContains("src/wingman2/pages/DiscoveryPage.tsx", [
@@ -178,4 +179,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log("[workflow-integration] Verified extraction/export wiring, sales readiness engine, feedback capture, sync conflict markers, compare evidence matrix wiring, and protected backend routes.");
+console.log("[workflow-integration] Verified extraction/export wiring, sales readiness engine, feedback capture, sync conflict markers, compare viable-option evidence wiring, and protected backend routes.");

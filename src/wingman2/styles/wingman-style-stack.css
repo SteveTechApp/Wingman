@@ -24901,7 +24901,7 @@ html[data-wingman-route="compare"] main.wingman-app-main {
   height: calc(100vh - 64px) !important;
   overflow-x: hidden !important;
   overflow-y: auto !important;
-  padding-bottom: 28px !important;
+  padding-bottom: 12px !important;
 }
 
 html[data-wingman-route="compare"] .wingman-page-host {
@@ -24912,7 +24912,7 @@ html[data-wingman-route="compare"] .wingman-page-host {
   height: auto !important;
   min-height: 0 !important;
   margin: 0 auto !important;
-  padding: 12px 18px 32px !important;
+  padding: 4px 10px 10px !important;
   overflow: visible !important;
 }
 
@@ -24921,61 +24921,80 @@ html[data-wingman-route="compare"] .wingman-page-host::after {
   display: none !important;
 }
 
+html[data-wingman-route="compare"] .wm-compare-page {
+  gap: 6px !important;
+  padding-bottom: 8px !important;
+}
+
+html[data-wingman-route="compare"] .wm-compare-compact-header {
+  min-height: 44px;
+  padding: 7px 9px !important;
+  border-radius: 14px !important;
+}
+
+html[data-wingman-route="compare"] .wm-compare-compact-title {
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: 18px !important;
+  line-height: 1.15 !important;
+}
+
+html[data-wingman-route="compare"] .wm-compare-mini-steps {
+  min-width: min(100%, 360px);
+  gap: 5px !important;
+}
+
+html[data-wingman-route="compare"] .wm-compare-mini-steps button {
+  min-height: 32px !important;
+  border-radius: 10px !important;
+  padding: 5px 9px !important;
+}
+
+html[data-wingman-route="compare"] .wm-compare-reset-button {
+  min-height: 32px !important;
+  border-radius: 10px !important;
+  padding: 5px 10px !important;
+}
+
+html[data-wingman-route="compare"] .wm-compare-context-drawer {
+  padding: 9px 10px !important;
+  border-radius: 14px !important;
+}
+
 html[data-wingman-route="compare"] .wm-compare-request-form {
-  min-height: max(560px, calc(100vh - 350px));
+  min-height: 0;
   display: grid;
-  gap: 16px;
+  gap: 8px;
   align-content: start;
   overflow: visible;
 }
 
-html[data-wingman-route="compare"] .wm-compare-request-intro {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-html[data-wingman-route="compare"] .wm-compare-request-stats {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-html[data-wingman-route="compare"] .wm-compare-request-stats span {
-  border: 1px solid rgba(103, 232, 249, 0.28);
-  border-radius: 999px;
-  background: rgba(8, 47, 73, 0.42);
-  padding: 7px 10px;
-  color: rgba(236, 254, 255, 0.84);
-  font-size: 11px;
-  font-weight: 900;
-  white-space: nowrap;
-}
-
 html[data-wingman-route="compare"] .wm-compare-request-grid {
   display: grid;
-  grid-template-columns: 1fr !important;
-  gap: 16px;
+  grid-template-columns: minmax(260px, 0.34fr) minmax(0, 1fr) !important;
+  gap: 8px;
   align-items: stretch;
   min-height: 0;
 }
 
 html[data-wingman-route="compare"] .wm-compare-filter-panel {
   min-height: 0;
+  padding: 10px !important;
+  border-radius: 14px !important;
   overflow: visible !important;
 }
 
 html[data-wingman-route="compare"] .wm-compare-sku-panel {
-  min-height: 390px;
+  min-height: 0;
+  padding: 10px !important;
+  border-radius: 14px !important;
   overflow: visible !important;
 }
 
 html[data-wingman-route="compare"] .wm-compare-manufacturer-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)) !important;
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 5px;
 }
 
 html[data-wingman-route="compare"] .wm-compare-manufacturer-grid button,
@@ -24987,9 +25006,9 @@ html[data-wingman-route="compare"] .wm-compare-sku-grid button {
 }
 
 html[data-wingman-route="compare"] .wm-compare-manufacturer-grid button {
-  min-height: 46px;
-  border-radius: 14px;
-  padding: 8px 10px;
+  min-height: 32px;
+  border-radius: 10px;
+  padding: 5px 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -25037,7 +25056,7 @@ html[data-wingman-route="compare"] .wm-compare-sku-grid button[aria-selected="tr
 
 html[data-wingman-route="compare"] .wm-compare-sku-browser {
   display: grid;
-  gap: 12px;
+  gap: 6px;
 }
 
 html[data-wingman-route="compare"] .wm-compare-sku-browser-head {
@@ -25049,8 +25068,8 @@ html[data-wingman-route="compare"] .wm-compare-sku-browser-head {
 
 html[data-wingman-route="compare"] .wm-compare-sku-browser-head > span {
   border: 1px solid rgba(103, 232, 249, 0.28);
-  border-radius: 999px;
-  padding: 7px 10px;
+  border-radius: 12px;
+  padding: 5px 8px;
   background: rgba(8, 47, 73, 0.42);
   color: rgba(236, 254, 255, 0.84);
   font-size: 11px;
@@ -25061,28 +25080,28 @@ html[data-wingman-route="compare"] .wm-compare-sku-browser-head > span {
 html[data-wingman-route="compare"] .wm-compare-sku-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
-  gap: 8px;
-  max-height: none;
-  overflow: visible;
-  padding-right: 4px;
+  gap: 5px;
+  max-height: clamp(260px, 40vh, 390px);
+  overflow-y: auto;
+  padding-right: 3px;
 }
 
 html[data-wingman-route="compare"] .wm-compare-sku-grid button {
-  min-height: 46px;
-  border-radius: 14px;
-  padding: 8px 10px;
+  min-height: 34px;
+  border-radius: 10px;
+  padding: 5px 8px;
   display: grid;
   gap: 3px;
   text-align: left;
 }
 
 html[data-wingman-route="compare"] .wm-compare-empty-sku-list {
-  min-height: 130px;
+  min-height: 72px;
   border: 1px dashed rgba(103, 232, 249, 0.3);
-  border-radius: 18px;
+  border-radius: 14px;
   display: grid;
   place-items: center;
-  padding: 20px;
+  padding: 12px;
   color: rgba(255, 255, 255, 0.58);
   font-size: 13px;
   font-weight: 800;
@@ -25092,7 +25111,12 @@ html[data-wingman-route="compare"] .wm-compare-empty-sku-list {
 html[data-wingman-route="compare"] .wm-compare-context-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 16px;
+  gap: 8px;
+}
+
+html[data-wingman-route="compare"] .wm-compare-page :is(input, button[aria-haspopup="listbox"]) {
+  min-height: 36px;
+  border-radius: 10px;
 }
 
 html[data-wingman-route="compare"] .wm-compare-find-button[type="submit"] {
@@ -25115,13 +25139,8 @@ html[data-wingman-route="compare"] .wm-compare-find-button[type="submit"] {
 }
 
 @media (max-width: 720px) {
-  html[data-wingman-route="compare"] .wm-compare-request-intro,
   html[data-wingman-route="compare"] .wm-compare-sku-browser-head {
     display: grid;
-  }
-
-  html[data-wingman-route="compare"] .wm-compare-request-stats {
-    justify-content: flex-start;
   }
 
   html[data-wingman-route="compare"] .wm-compare-sku-grid,
@@ -25131,15 +25150,15 @@ html[data-wingman-route="compare"] .wm-compare-find-button[type="submit"] {
 }
 
 .wm-compare-page .wm-compare-request-form {
-  min-height: max(560px, calc(100vh - 350px));
+  min-height: 0;
   display: grid;
-  gap: 16px;
+  gap: 10px;
   align-content: start;
   overflow: visible;
 }
 
 .wm-compare-page .wm-compare-request-grid {
-  grid-template-columns: 1fr !important;
+  grid-template-columns: minmax(260px, 0.34fr) minmax(0, 1fr) !important;
   align-items: stretch;
   min-height: 0;
 }
@@ -25150,25 +25169,28 @@ html[data-wingman-route="compare"] .wm-compare-find-button[type="submit"] {
 }
 
 .wm-compare-page .wm-compare-sku-panel {
-  min-height: 390px;
+  min-height: 0;
   overflow: visible !important;
 }
 
 .wm-compare-page .wm-compare-manufacturer-grid {
-  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)) !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
 }
 
 .wm-compare-page .wm-compare-sku-grid {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
-  overflow: visible !important;
+  max-height: clamp(280px, 42vh, 430px);
+  overflow-y: auto !important;
 }
 
 html[data-wingman-route="compare"] .wingman-guru-fab,
+html[data-wingman-route="compare"] .wingman-guru-backdrop,
+html[data-wingman-route="compare"] .wingman-guru-drawer,
+html[data-wingman-route="compare"] .wm-guru-helper-root,
 html[data-wingman-route="compare"] [data-wingman-guru-fab="true"] {
   display: none !important;
 }
 
-.wm-compare-page .wm-compare-request-stats span,
 .wm-compare-page .wm-compare-sku-browser-head > span {
   white-space: nowrap;
 }
@@ -26684,3 +26706,69 @@ main[data-wingman-compare-screen="true"] [aria-label*="comparison table" i] {
 }
 
 /* WINGMAN_COMPARE_GREEN_RESULT_BUTTONS_END */
+
+
+/* WINGMAN_GURU_GLOBAL_RESTORE_START */
+
+/*
+  Guru should be a single global floating assistant.
+  Do not hide Guru root/helper classes.
+  Do not place microphone buttons as global floating controls.
+*/
+
+button.wingman-guru-fab {
+  position: fixed !important;
+  left: auto !important;
+  top: auto !important;
+  right: clamp(1.25rem, 2vw, 2.5rem) !important;
+  bottom: clamp(1.25rem, 3vh, 2.5rem) !important;
+  z-index: 9500 !important;
+  display: inline-grid !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+body:has(.wm-compare-page) button[aria-label*="microphone" i]:not(.wm-input-voice-button):not(.wingman-guru-fab):not([aria-label*="Guru" i]),
+body:has(.wm-compare-page) button[aria-label*="voice" i]:not(.wm-input-voice-button):not(.wingman-guru-fab):not([aria-label*="Guru" i]),
+body:has(.wm-compare-page) button[aria-label*="mic" i]:not(.wm-input-voice-button):not(.wingman-guru-fab):not([aria-label*="Guru" i]),
+body:has(.wm-compare-page) .wm-floating-mic:not(.wm-input-voice-button),
+body:has(.wm-compare-page) .wm-global-mic:not(.wm-input-voice-button),
+body:has(.wm-compare-page) .wm-voice-floating:not(.wm-input-voice-button) {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.wm-input-with-voice {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wm-input-voice-button {
+  position: static !important;
+}
+
+/* WINGMAN_GURU_GLOBAL_RESTORE_END */
+
+html[data-wingman-route="compare"] .wingman-page-host .wm-compare-page {
+  gap: 6px !important;
+  padding-bottom: 8px !important;
+}
+
+html[data-wingman-route="compare"] .wingman-page-host .wm-compare-page > section,
+html[data-wingman-route="compare"] .wingman-page-host .wm-compare-page > form {
+  margin-block: 0 !important;
+}
+
+html[data-wingman-route="compare"] .wingman-page-host .wm-compare-compact-header,
+html[data-wingman-route="compare"] .wingman-page-host .wm-compare-request-form,
+html[data-wingman-route="compare"] .wingman-page-host .wm-compare-filter-panel,
+html[data-wingman-route="compare"] .wingman-page-host .wm-compare-sku-panel,
+html[data-wingman-route="compare"] .wingman-page-host .wm-compare-context-drawer,
+html[data-wingman-route="compare"] .wingman-page-host .wm-compare-options-strip {
+  padding: 8px 10px !important;
+}

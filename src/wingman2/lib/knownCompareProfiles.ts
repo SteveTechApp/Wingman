@@ -497,7 +497,7 @@ export function applyKnownCompareProfileOverrides(result: AnyRecord, products: r
     recommendation: [
       `${profile.brand} ${profile.sku} resolved as ${profile.productClass}.`,
       `Preferred WyreStorm candidates are ${preferredSkus}.`,
-      "Use the visible matrix for fit judgement and verify datasheet-level differences before external positioning.",
+      "Use the recommendation evidence for fit judgement and verify datasheet-level differences before external positioning.",
     ].join(" "),
   };
 }

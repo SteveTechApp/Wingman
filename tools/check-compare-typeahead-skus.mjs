@@ -32,7 +32,8 @@ const requiredControlsMarkers = [
   "role=\"listbox\"",
   "aria-label=\"Competitor SKU suggestions\"",
   "visibleSuggestions.map",
-  "suggestions.slice(0, 10)",
+  "suggestions.slice(0, maxVisibleSuggestions)",
+  "onSelectSuggestion?.(sku)",
   "data-wingman-manufacturer-combobox",
   "aria-label=\"Choose competitor manufacturer\"",
 ];

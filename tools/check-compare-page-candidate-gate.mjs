@@ -34,7 +34,9 @@ const requiredMarkers = [
   "lookupCompareIntelligence",
   "shouldRequestLiveLookupUrl",
   "data-wingman-compare-auto-advance=\"true\"",
-  "setWorkflowStep(\"matrix\")",
+  "setWorkflowStep(\"options\")",
+  "isSelectableWyrestormRecommendation",
+  "No suitable WyreStorm match found from the current data",
   "onSubmit={handleSubmit}"
 ];
 
@@ -67,7 +69,7 @@ if (handleStart >= 0 && handleEnd > handleStart) {
     "runKnownProfileCompare(",
     "setState(\"analyzing\")",
     "setState(\"results\")",
-    "setWorkflowStep(\"matrix\")"
+    "setWorkflowStep(\"options\")"
   ];
 
   for (const marker of handlerMarkers) {
@@ -91,8 +93,8 @@ if (submitStart >= 0 && retryStart > submitStart) {
     fail("handleSubmit should remain as Enter/manual fallback and still run compare.");
   }
 
-  if (!submitHandler.includes("setWorkflowStep(\"matrix\")")) {
-    fail("handleSubmit fallback should still advance workflow to matrix.");
+  if (!submitHandler.includes("setWorkflowStep(\"options\")")) {
+    fail("handleSubmit fallback should advance workflow to options.");
   }
 }
 
@@ -124,4 +126,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log("[compare-page-candidate-gate] Verified active Compare page applies SKU auto-advance, candidate gate, manual Enter fallback, and live lookup retry before match ranking.");
+console.log("[compare-page-candidate-gate] Verified active Compare page applies SKU auto-advance, viable-option gate, manual Enter fallback, and live lookup retry before match ranking.");

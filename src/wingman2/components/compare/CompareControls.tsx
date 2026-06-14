@@ -84,18 +84,20 @@ export function CompareProductLookupInput({
   value,
   suggestions,
   onChange,
+  onSelectSuggestion,
   placeholder,
   maxVisibleSuggestions = 40,
 }: {
   value: string;
   suggestions: string[];
   onChange: (value: string) => void;
+  onSelectSuggestion?: (value: string) => void;
   placeholder: string;
   maxVisibleSuggestions?: number;
 }) {
   const [open, setOpen] = useState(false);
   const listboxId = useId();
-  const visibleSuggestions = useMemo(() => suggestions.slice(0, 10), [maxVisibleSuggestions, suggestions]);
+  const visibleSuggestions = useMemo(() => suggestions.slice(0, maxVisibleSuggestions), [maxVisibleSuggestions, suggestions]);
 
   return (
     <div className="relative grid gap-2" onBlur={(event) => closeOnBlur(event, setOpen)}>
@@ -136,6 +138,7 @@ export function CompareProductLookupInput({
               onClick={() => {
                 onChange(sku);
                 setOpen(false);
+                onSelectSuggestion?.(sku);
               }}
               className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold text-white transition hover:bg-[#0d2133]"
             >
