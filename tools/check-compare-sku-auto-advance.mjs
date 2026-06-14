@@ -31,7 +31,8 @@ const requiredPageMarkers = [
   "handleSkuSelect",
   "runKnownProfileCompare(",
   "data-wingman-compare-auto-advance=\"true\"",
-  "setWorkflowStep(\"matrix\")",
+  "setWorkflowStep(\"options\")",
+  "Viable product choices",
   "Typed entries can still use Enter",
   "onSubmit={handleSubmit}"
 ];
@@ -57,15 +58,15 @@ if (handleStart >= 0 && handleEnd > handleStart) {
   const handler = page.slice(handleStart, handleEnd);
 
   if (!handler.includes("runKnownProfileCompare(")) {
-    fail("handleSkuSelect does not run the compare matrix directly.");
+    fail("handleSkuSelect does not run compare directly.");
   }
 
   if (!handler.includes("setState(\"results\")")) {
     fail("handleSkuSelect does not advance to results.");
   }
 
-  if (!handler.includes("setWorkflowStep(\"matrix\")")) {
-    fail("handleSkuSelect does not advance workflow to matrix.");
+  if (!handler.includes("setWorkflowStep(\"options\")")) {
+    fail("handleSkuSelect does not advance workflow to options.");
   }
 }
 
@@ -77,4 +78,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log("[compare-sku-auto-advance] Verified competitor SKU selection auto-advances to the WyreStorm matrix and the large submit button is removed.");
+console.log("[compare-sku-auto-advance] Verified competitor SKU selection auto-advances to WyreStorm options and the large submit button is removed.");

@@ -35,7 +35,6 @@ if (!wingmanWindow.__wingmanNewProjectHandlerInstalled) {
   );
 }
 
-
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
@@ -44,7 +43,6 @@ import App from "./App";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { installCsrfFetch } from "./wingman2/api/csrf";
 import "./wingman2/styles/wingman-style-stack.css";
-
 
 // Attach the X-CSRF-Token header to mutating API calls. No-op until the server
 // guard is enabled (WINGMAN_CSRF_ENFORCE=true).
@@ -63,12 +61,6 @@ createRoot(rootElement).render(
         <App />
       </BrowserRouter>
     </ErrorBoundary>
-      <GuruHelper />
+    <GuruHelper />
   </React.StrictMode>,
 );
-
-
-
-
-
-
