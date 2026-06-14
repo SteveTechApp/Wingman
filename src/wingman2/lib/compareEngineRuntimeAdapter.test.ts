@@ -138,8 +138,8 @@ describe("compareEngineRuntimeAdapter", () => {
       candidates: [
         {
           manufacturer: "WyreStorm",
-          sku: "NHD-120-RX",
-          technology: "NetworkHD AVoIP",
+          sku: "NHD-500-RX",
+          technology: "NetworkHD 500 1G receiver",
           role: "Receiver",
           network: "1GbE",
           outputs: 1,
@@ -151,8 +151,8 @@ describe("compareEngineRuntimeAdapter", () => {
 
     expect(summary.shortlist.intent).toBe("avoip_1g_decoder");
         const skuOnlyResult =
-      summary.rejected.find((item) => item.sku === "NHD-120-RX") ??
-      summary.matches.find((item) => item.sku === "NHD-120-RX");
+      summary.rejected.find((item) => item.sku === "NHD-500-RX") ??
+      summary.matches.find((item) => item.sku === "NHD-500-RX");
 
     expect(skuOnlyResult?.decision.confidence).toBe(0);
     expect(summary.verify.join(" ")).toContain("SKU is recognised");

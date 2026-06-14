@@ -8,7 +8,19 @@
  *
  * This file is intentionally deterministic and easy to debug.
  * Do not add React, CSS, Guru, microphone, route or page layout code here.
+ *
+ * AV-over-IP endpoint shortlisting defers to networkHdAvoipEquivalence (the single
+ * source of truth) so the 100 / 500 / 600 series mapping, the "never mix 10G and
+ * 1G" rule and the banned-legacy-SKU list are enforced in exactly one place.
  */
+
+import {
+  isBannedNetworkHdSku,
+  mapCompetitorToNetworkHdAvoip,
+  stripBannedNetworkHdSkus,
+  type CompetitorAvoipClassification,
+  type NetworkHdAvoipRecommendation,
+} from "./networkHdAvoipEquivalence";
 
 export type WyreStormCompareIntent =
   | "avoip_1g_encoder"
@@ -243,15 +255,17 @@ function selectForIntent(
 
   if (intent === "avoip_1g_encoder") {
     return all.filter((product) =>
-      hasSku(product, ["NHD-124", "NHD-128", "NHD-500-TX", "NHD-100", "-TX"]) &&
-      !hasSku(product, ["NHD-600"]),
+      hasSku(product, ["NHD-124", "NHD-128", "NHD-500-TX", "-TX"]) &&
+      !hasSku(product, ["NHD-600"]) &&
+      !isBannedNetworkHdSku(product.sku),
     );
   }
 
   if (intent === "avoip_1g_decoder") {
     return all.filter((product) =>
-      hasSku(product, ["NHD-120", "NHD-150", "NHD-500-RX", "NHD-100", "-RX"]) &&
-      !hasSku(product, ["NHD-600"]),
+      hasSku(product, ["NHD-120", "NHD-150", "NHD-500-RX", "-RX"]) &&
+      !hasSku(product, ["NHD-600"]) &&
+      !isBannedNetworkHdSku(product.sku),
     );
   }
 
@@ -396,16 +410,87 @@ function addFallbackSkus(intent: WyreStormCompareIntent, selected: CompareShortl
   return result;
 }
 
+const AVOIP_ENDPOINT_INTENTS = new Set<WyreStormCompareIntent>([
+  "avoip_10g",
+  "avoip_1g_encoder",
+  "avoip_1g_decoder",
+]);
+
+function avoipShortlistIntent(
+  classification: CompetitorAvoipClassification,
+  recommendation: NetworkHdAvoipRecommendation,
+): WyreStormCompareIntent {
+  if (recommendation.series === "600") return "avoip_10g";
+  if (classification.role === "decoder") return "avoip_1g_decoder";
+  return "avoip_1g_encoder";
+}
+
+function buildAvoipShortlistCandidates(
+  recommendation: NetworkHdAvoipRecommendation,
+  products: CompareShortlistProduct[],
+): CompareShortlistProduct[] {
+  const byKey = new Map(products.map((product) => [normaliseSku(product.sku), product]));
+
+  const candidates = recommendation.candidateSkus
+    .filter((sku) => !isBannedNetworkHdSku(sku))
+    .map((sku) => {
+      const existing = byKey.get(normaliseSku(sku));
+
+      if (existing) {
+        return existing;
+      }
+
+      return {
+        sku,
+        name: `NetworkHD ${recommendation.series} candidate`,
+        productClass: `NetworkHD ${recommendation.series} AVoIP`,
+        description: recommendation.reason,
+        tags: ["avoip", "networkhd", `networkhd-${recommendation.series}`],
+      } satisfies CompareShortlistProduct;
+    });
+
+  return uniqueBySku(candidates);
+}
+
 export function buildWyreStormCompareShortlist(args: {
   competitorText: string;
   wyrestormProducts: CompareShortlistProduct[];
   maxCandidates?: number;
 }): CompareShortlistResult {
   const detected = detectCompetitorIntent(args.competitorText);
+  const maxCandidates = args.maxCandidates ?? 12;
+
+  // AV-over-IP endpoints are mapped by the single source of truth: correct series
+  // by network class + codec, banned SKUs removed, 10G never mixed with 1G.
+  if (AVOIP_ENDPOINT_INTENTS.has(detected.intent)) {
+    const { classification, recommendation } = mapCompetitorToNetworkHdAvoip(args.competitorText);
+
+    if (recommendation.applies) {
+      const candidates = buildAvoipShortlistCandidates(recommendation, args.wyrestormProducts).slice(0, maxCandidates);
+      const intent = avoipShortlistIntent(classification, recommendation);
+      const confidence = classification.knownFamily || recommendation.series !== "500" ? 92 : 84;
+
+      return {
+        intent,
+        confidence,
+        reason: recommendation.reason,
+        candidateSkus: candidates.map((product) => normaliseSku(product.sku)),
+        candidates,
+        rejectedCount: Math.max(0, args.wyrestormProducts.length - candidates.length),
+        debug: [
+          `Detected intent: ${intent}`,
+          `AVoIP series: NetworkHD ${recommendation.series} (${recommendation.networkClass.toUpperCase()})`,
+          `Codec: ${classification.codec}`,
+          `Verify codec: ${recommendation.verifyCodec}`,
+          `Returned candidates: ${candidates.length}`,
+        ],
+      };
+    }
+  }
+
   const selected = uniqueBySku(selectForIntent(detected.intent, args.wyrestormProducts));
   const withFallback = uniqueBySku(addFallbackSkus(detected.intent, selected));
-  const maxCandidates = args.maxCandidates ?? 12;
-  const candidates = withFallback.slice(0, maxCandidates);
+  const candidates = stripBannedNetworkHdSkus(withFallback).slice(0, maxCandidates);
 
   return {
     intent: detected.intent,

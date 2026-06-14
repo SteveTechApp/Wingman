@@ -57,7 +57,8 @@ const pageMarkers = [
 
 const testMarkers = [
   "prevents accessories and controllers from becoming lead replacements",
-  "prefers decoder or transceiver candidates",
+  "maps a 1G decoder competitor",
+  "maps a 10G/SDVoE competitor to the 600 series",
   "prefers correctly sized matrix candidates",
   "keeps dedicated video wall processors ahead",
 ];
