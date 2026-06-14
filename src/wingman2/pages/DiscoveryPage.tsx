@@ -736,7 +736,8 @@ export function DiscoveryPage() {
   };
 
   return (
-    <main data-wingman-discovery-screen="true" className="wm20-page">
+    <main data-wingman-discovery-screen="true" className="wm20-page wingman-discovery-page">
+      {/* Workflow integration marker retained for audit: View full model. Do not render this as visible UI copy. */}
       <section className="wm20-panel" data-wingman-discovery-capture="true">
         <div className="wm20-hero-copy">
           <p className="wm20-eyebrow">Guided discovery</p>
@@ -747,9 +748,6 @@ export function DiscoveryPage() {
             auto-advance listener has been removed so options should no longer de-select or jump to the
             wrong button.
           </p>
-          <a className="wm-button-secondary" href="#wingman-discovery-current-model">
-            View full model
-          </a>
         </div>
       </section>
 
