@@ -25,7 +25,7 @@ describe("compareEngineRuntimeAdapter", () => {
     expect(profile.readiness).toBe("approved");
   });
 
-  it("blocks a loose 10G AVoIP competitor from matching a loose NetworkHD 500 candidate", () => {
+  it("blocks a loose 10G AVoIP competitor from directly matching a loose NetworkHD 500 candidate", () => {
     const result = compareLooseProfiles(
       {
         manufacturer: "Competitor",
@@ -52,7 +52,7 @@ describe("compareEngineRuntimeAdapter", () => {
     expect(result.decision.blockers.join(" ")).toContain("10G");
   });
 
-  it("summarises rejected candidates and network notes for the visible Compare workflow", () => {
+  it("shortlists NetworkHD 600 before scoring a 10G AVoIP competitor", () => {
     const summary = buildRuntimeCompareSummary({
       competitor: {
         manufacturer: "Competitor",
@@ -74,13 +74,54 @@ describe("compareEngineRuntimeAdapter", () => {
           resolution: "4K60",
           readiness: "approved",
         },
+        {
+          manufacturer: "WyreStorm",
+          sku: "NHD-600-TRX",
+          technology: "NetworkHD 600 10G SDVoE AVoIP transceiver",
+          role: "Transmitter",
+          network: "10GbE",
+          inputs: 1,
+          resolution: "4K60",
+          compressionLatency: "zero-frame",
+          readiness: "approved",
+        },
       ],
     });
 
-    expect(summary.topOutcome).toBe("NO MATCH");
-    expect(summary.rejected).toHaveLength(1);
-    expect(summary.networkNote).toContain("NetworkHD 600");
-    expect(summary.customerSafeSummary).toContain("No safe direct");
+    expect(summary.shortlist.intent).toBe("avoip_10g");
+    expect(summary.shortlist.candidateSkus).toContain("NHD-600-TRX");
+    expect(summary.shortlist.candidateSkus).not.toContain("NHD-500-TX");
+    expect(summary.matches[0]?.sku).toBe("NHD-600-TRX");
+  });
+
+  it("uses fallback shortlist candidates when the product list is incomplete", () => {
+    const summary = buildRuntimeCompareSummary({
+      competitor: {
+        manufacturer: "Competitor",
+        sku: "COMP-10G-RX",
+        technology: "10G SDVoE AVoIP receiver",
+        role: "Receiver",
+        network: "10GbE",
+        outputs: 1,
+        resolution: "4K60",
+      },
+      candidates: [
+        {
+          manufacturer: "WyreStorm",
+          sku: "NHD-500-RX",
+          technology: "NetworkHD 500 1G receiver",
+          role: "Receiver",
+          network: "1GbE",
+          outputs: 1,
+          resolution: "4K60",
+          readiness: "approved",
+        },
+      ],
+    });
+
+    expect(summary.shortlist.intent).toBe("avoip_10g");
+    expect(summary.shortlist.candidateSkus).toContain("NHD-600-TRX");
+    expect(summary.shortlist.candidateSkus).not.toContain("NHD-500-RX");
   });
 
   it("caps sku-only runtime candidates and requests evidence", () => {
@@ -108,7 +149,12 @@ describe("compareEngineRuntimeAdapter", () => {
       ],
     });
 
-    expect(summary.rejected[0]?.decision.confidence).toBe(0);
+    expect(summary.shortlist.intent).toBe("avoip_1g_decoder");
+        const skuOnlyResult =
+      summary.rejected.find((item) => item.sku === "NHD-120-RX") ??
+      summary.matches.find((item) => item.sku === "NHD-120-RX");
+
+    expect(skuOnlyResult?.decision.confidence).toBe(0);
     expect(summary.verify.join(" ")).toContain("SKU is recognised");
   });
 });

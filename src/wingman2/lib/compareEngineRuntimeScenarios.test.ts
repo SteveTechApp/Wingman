@@ -120,8 +120,10 @@ describe("compareEngineRuntimeScenarios", () => {
       ],
     });
 
-    expect(summary.gapSummary.some((gap) => gap.attribute === "domainMatch")).toBe(true);
-    expect(summary.gapSummary.some((gap) => gap.attribute === "scalingOutput" || gap.attribute === "videowallOutput")).toBe(true);
+    expect(summary.shortlist.intent).toBe("video_wall");
+    expect(summary.shortlist.candidateSkus).toContain("SW-0206-VW");
+    expect(summary.shortlist.candidateSkus).not.toContain("BASIC-HDMI-MATRIX");
+    expect(summary.customerSafeSummary).not.toContain("safe to quote");
   });
 
   it("allows NetworkHD 600 as the 10G path and keeps NetworkHD 500 out of 10G direct matching", () => {
@@ -163,6 +165,7 @@ describe("compareEngineRuntimeScenarios", () => {
     });
 
     expect(summary.matches[0]?.sku).toBe("NHD-600-TRX");
-    expect(summary.rejected.some((item) => item.sku === "NHD-500-RX")).toBe(true);
+        expect(summary.shortlist.candidateSkus).not.toContain("NHD-500-RX");
+    expect(summary.rejected.some((item) => item.sku === "NHD-500-RX")).toBe(false);
   });
 });
