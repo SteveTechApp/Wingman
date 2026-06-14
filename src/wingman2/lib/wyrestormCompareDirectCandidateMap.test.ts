@@ -16,7 +16,7 @@ const products: DirectCandidateProduct[] = [
 ];
 
 describe("wyrestormCompareDirectCandidateMap", () => {
-  it("maps Blustream IP350UHD-TX to NetworkHD transmitter candidates, not extenders", () => {
+  it("maps a 1G AVoIP transmitter (codec unknown) to the NetworkHD 500 series only, not 100-series or extenders", () => {
     const result = buildWyreStormDirectCandidateMap({
       competitorText: "Blustream IP350UHD-TX AVoIP Transmitter 4K60",
       wyrestormProducts: products,
@@ -25,13 +25,27 @@ describe("wyrestormCompareDirectCandidateMap", () => {
     expect(result.didApply).toBe(true);
     expect(result.intent).toBe("avoip_encoder");
     expect(result.candidateSkus).toContain("NHD-500-TX");
-    expect(result.candidateSkus).toContain("NHD-124-TX");
+    // codec is unknown -> default to 500, never mix in the 100 series
+    expect(result.candidateSkus).not.toContain("NHD-124-TX");
     expect(result.candidateSkus).not.toContain("EXF-300-H2");
     expect(result.candidateSkus).not.toContain("EX-100-H2");
     expect(result.candidateSkus).not.toContain("NHD-CTL-PRO");
   });
 
-  it("maps AVoIP receiver products to NetworkHD receiver candidates", () => {
+  it("maps an H.264/H.265 1G transmitter to the NetworkHD 100 series", () => {
+    const result = buildWyreStormDirectCandidateMap({
+      competitorText: "Competitor AVoIP H.265 HEVC encoder 1GbE",
+      wyrestormProducts: products,
+    });
+
+    expect(result.didApply).toBe(true);
+    expect(result.intent).toBe("avoip_encoder");
+    expect(result.candidateSkus).toContain("NHD-124-TX");
+    expect(result.candidateSkus).not.toContain("NHD-500-TX");
+    expect(result.candidateSkus).not.toContain("NHD-600-TRX");
+  });
+
+  it("maps a 1G AVoIP receiver (codec unknown) to NetworkHD 500 receivers only", () => {
     const result = buildWyreStormDirectCandidateMap({
       competitorText: "Blustream IP350UHD-RX AVoIP Receiver 4K60",
       wyrestormProducts: products,
@@ -40,8 +54,9 @@ describe("wyrestormCompareDirectCandidateMap", () => {
     expect(result.didApply).toBe(true);
     expect(result.intent).toBe("avoip_decoder");
     expect(result.candidateSkus).toContain("NHD-500-RX");
-    expect(result.candidateSkus).toContain("NHD-150-RX");
+    expect(result.candidateSkus).not.toContain("NHD-150-RX");
     expect(result.candidateSkus).not.toContain("NHD-500-TX");
+    expect(result.candidateSkus).not.toContain("NHD-600-TRX");
   });
 
   it("maps 10G AVoIP to NetworkHD 600 only", () => {
@@ -87,7 +102,7 @@ describe("wyrestormCompareDirectCandidateMap", () => {
 
     expect(result.didApply).toBe(true);
     expect(result.candidates.map((candidate) => candidate.sku)).toContain("NHD-500-RX");
-    expect(result.candidates.map((candidate) => candidate.sku)).toContain("NHD-150-RX");
+    expect(result.candidates.map((candidate) => candidate.sku)).not.toContain("NHD-150-RX");
     expect(result.candidates.map((candidate) => candidate.sku)).not.toContain("EX-100-KVM-IP");
   });
 
@@ -113,5 +128,21 @@ describe("wyrestormCompareDirectCandidateMap", () => {
     expect(result.didApply).toBe(true);
     expect(result.candidates.map((candidate) => candidate.sku)).toContain("NHD-500-TX");
     expect(result.candidates.map((candidate) => candidate.sku)).not.toContain("EX-100-KVM-IP");
+  });
+
+  it("never returns a banned legacy SKU even if it is in the product index", () => {
+    const withLegacy = [
+      ...products,
+      { sku: "NHD-100-TX", name: "Legacy NetworkHD 100 encoder" },
+      { sku: "NHD-400-TX", name: "Legacy NetworkHD 400 encoder" },
+    ];
+
+    const result = buildWyreStormDirectCandidateMap({
+      competitorText: "Blustream IP300UHD-TX AVoIP transmitter",
+      wyrestormProducts: withLegacy,
+    });
+
+    expect(result.candidateSkus).not.toContain("NHD-100-TX");
+    expect(result.candidateSkus).not.toContain("NHD-400-TX");
   });
 });
