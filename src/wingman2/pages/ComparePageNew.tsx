@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   isBannedNetworkHdSku,
   mapCompetitorToNetworkHdAvoip,
@@ -7,6 +7,7 @@ import {
   type NetworkHdAvoipMember,
   type NetworkHdAvoipRecommendation,
 } from "../lib/networkHdAvoipEquivalence";
+import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 
 /*
 KNOWN_COMPARE_PROFILE_OVERRIDE_COMPATIBILITY_GUARD
@@ -737,6 +738,14 @@ function ComparePageNew() {
   const [, setState] = useState<"capture" | "analyzing" | "results">("capture");
   const [customSkuStore, setCustomSkuStore] = useState<string[]>([]);
 
+  // Pre-warm the force-cached product intelligence index so compare/spec flows
+  // read it from cache instead of re-fetching the large index on demand.
+  useEffect(() => {
+    loadProductIntelligenceIndex().catch(() => {
+      // Non-fatal: the built-in WyreStorm product set still drives comparison.
+    });
+  }, []);
+
   const effectiveBrand = selectedBrand || brandForCompetitorSku(competitorInput);
   const skuSuggestions = useMemo(() => compareSkuSuggestions(competitorInput, effectiveBrand), [competitorInput, effectiveBrand]);
   const knownBrandSkus = useMemo(() => skuOptionsForBrand(effectiveBrand, customSkuStore), [customSkuStore, effectiveBrand]);
@@ -789,9 +798,10 @@ function ComparePageNew() {
   const handleRetryWithSourceUrl = useCallback((sourceUrl?: string): string => {
     const lookupTarget = sourceUrl ?? competitorInput;
     lookupCompareIntelligence(lookupTarget);
-    runKnownProfileCompare(profile);
+    const retryInput = buildCompetitorProfile(effectiveBrand, lookupTarget, mustMatchFeatures);
+    runKnownProfileCompare(retryInput);
     return sourceUrl ?? "";
-  }, [competitorInput, profile]);
+  }, [competitorInput, effectiveBrand, mustMatchFeatures]);
 
   const handleReset = useCallback((): void => {
     resetCompare();
@@ -901,6 +911,10 @@ function ComparePageNew() {
         </label>
 
         <button type="submit" onClick={runCompare}>Run compare</button>
+
+        <p className="wm-compare-auto-advance-note">
+          Select a competitor SKU above to show WyreStorm options automatically. Typed entries can still use Enter.
+        </p>
       </form>
 
       <section className="wm-compare-start-card">
@@ -935,6 +949,13 @@ function ComparePageNew() {
               </div>
             )}
           </article>
+
+          <div className="wm-compare-options-strip">
+            <h2>Viable product choices</h2>
+            <span>
+              {scoredCandidates.length} option{scoredCandidates.length === 1 ? "" : "s"} ranked
+            </span>
+          </div>
 
           <div className="wm-compare-candidate-grid">
             {scoredCandidates.map((candidate) => (
