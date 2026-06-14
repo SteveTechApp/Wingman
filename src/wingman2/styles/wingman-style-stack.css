@@ -26259,3 +26259,428 @@ main[data-wingman-compare-screen="true"] [aria-label*="comparison table" i] {
   display: none !important;
 }
 /* WINGMAN_COMPARE_HIDE_LEGACY_MATRIX_END */
+
+/* WINGMAN_GURU_HELPER_START */
+.wm-guru-helper-root {
+  position: fixed;
+  z-index: 100000;
+  width: 86px;
+  height: 86px;
+  pointer-events: none;
+}
+
+.wm-guru-floating-button {
+  position: relative;
+  width: 86px;
+  height: 86px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+  filter: drop-shadow(0 14px 26px rgba(0, 0, 0, 0.46));
+}
+
+.wm-guru-floating-button:active {
+  cursor: grabbing;
+}
+
+.wm-guru-floating-button:focus-visible {
+  outline: 3px solid rgba(62, 255, 129, 0.72);
+  outline-offset: 5px;
+  border-radius: 50%;
+}
+
+.wm-guru-sweep-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    conic-gradient(
+      from 0deg,
+      rgba(62, 255, 129, 0) 0deg,
+      rgba(62, 255, 129, 0.18) 24deg,
+      rgba(62, 255, 129, 0.95) 58deg,
+      rgba(62, 255, 129, 0) 96deg,
+      rgba(62, 255, 129, 0) 360deg
+    );
+  animation: wmGuruSweep 2.1s linear infinite;
+  box-shadow:
+    0 0 18px rgba(62, 255, 129, 0.42),
+    0 0 38px rgba(62, 255, 129, 0.24);
+}
+
+.wm-guru-sweep-ring::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  background: rgba(3, 12, 24, 0.9);
+}
+
+.wm-guru-icon-frame {
+  position: absolute;
+  inset: 8px;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+}
+
+.wm-guru-icon-frame img {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+
+.wm-guru-panel {
+  position: fixed;
+  width: min(382px, calc(100vw - 32px));
+  max-height: min(468px, calc(100vh - 32px));
+  overflow: auto;
+  padding: 16px;
+  border: 1px solid rgba(62, 255, 129, 0.32);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top right, rgba(62, 255, 129, 0.12), transparent 38%),
+    linear-gradient(145deg, rgba(6, 18, 33, 0.98), rgba(3, 9, 18, 0.98));
+  box-shadow:
+    0 26px 72px rgba(0, 0, 0, 0.58),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  pointer-events: auto;
+}
+
+.wm-guru-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.wm-guru-eyebrow {
+  margin: 0 0 4px;
+  color: #3eff81;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wm-guru-panel h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.wm-guru-close {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.wm-guru-context {
+  margin: 0 0 12px;
+  color: rgba(230, 247, 247, 0.78);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.wm-guru-context strong {
+  color: #ffffff;
+}
+
+.wm-guru-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin-bottom: 14px;
+}
+
+.wm-guru-action {
+  min-height: 76px;
+  padding: 10px;
+  border: 1px solid rgba(62, 255, 129, 0.22);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.055);
+  color: #ffffff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wm-guru-action:hover,
+.wm-guru-action:focus-visible {
+  border-color: rgba(62, 255, 129, 0.58);
+  background: rgba(62, 255, 129, 0.09);
+  outline: none;
+}
+
+.wm-guru-action span {
+  display: block;
+  margin-bottom: 4px;
+  color: #3eff81;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.wm-guru-action small {
+  display: block;
+  color: rgba(230, 247, 247, 0.72);
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.wm-guru-prompt {
+  display: grid;
+  gap: 8px;
+}
+
+.wm-guru-prompt label {
+  color: rgba(230, 247, 247, 0.74);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.wm-guru-prompt textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 118px;
+  padding: 10px 11px;
+  border: 1px solid rgba(62, 255, 129, 0.24);
+  border-radius: 14px;
+  background: rgba(1, 7, 14, 0.72);
+  color: #ffffff;
+  font: inherit;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.wm-guru-prompt textarea:focus {
+  border-color: rgba(62, 255, 129, 0.72);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(62, 255, 129, 0.12);
+}
+
+.wm-guru-panel-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.wm-guru-copy,
+.wm-guru-reset {
+  min-height: 40px;
+  border-radius: 999px;
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.wm-guru-copy {
+  border: 1px solid rgba(62, 255, 129, 0.42);
+  background: rgba(62, 255, 129, 0.13);
+}
+
+.wm-guru-reset {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.wm-guru-status {
+  margin: 0;
+  color: #3eff81;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+@keyframes wmGuruSweep {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 720px) {
+  .wm-guru-helper-root {
+    width: 76px;
+    height: 76px;
+  }
+
+  .wm-guru-floating-button {
+    width: 76px;
+    height: 76px;
+  }
+
+  .wm-guru-icon-frame img {
+    width: 58px;
+    height: 58px;
+  }
+
+  .wm-guru-panel {
+    left: 16px !important;
+    right: 16px !important;
+    width: calc(100vw - 32px);
+  }
+
+  .wm-guru-actions,
+  .wm-guru-panel-buttons {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wm-guru-sweep-ring {
+    animation: none;
+  }
+}
+/* WINGMAN_GURU_HELPER_END */
+
+/* WINGMAN_COMPARE_ROUNDED_RECTANGLES_START */
+
+/*
+  Compare visual refinement:
+  Product/manufacturer option containers should read as compact rounded rectangles,
+  not large pill buttons.
+  This is intentionally CSS-only and must not touch ComparePageNew.tsx logic.
+*/
+
+.wm-compare-page button,
+.wm-compare-page [role="button"],
+.wm-compare-page .rounded-full {
+  border-radius: 14px !important;
+}
+
+.wm-compare-page .competitor-product button,
+.wm-compare-page .competitor-products button,
+.wm-compare-page .compare-product-option,
+.wm-compare-page .compare-competitor-option,
+.wm-compare-page .compare-manufacturer-option,
+.wm-compare-page .wm-compare-product-option,
+.wm-compare-page .wm-compare-competitor-option,
+.wm-compare-page .wm-compare-manufacturer-option {
+  border-radius: 16px !important;
+}
+
+.wm-compare-page .rounded-full.px-4,
+.wm-compare-page .rounded-full.px-5,
+.wm-compare-page .rounded-full.px-6 {
+  border-radius: 16px !important;
+}
+
+.wm-compare-page button[class*="rounded-full"],
+.wm-compare-page a[class*="rounded-full"],
+.wm-compare-page div[class*="rounded-full"] {
+  border-radius: 16px !important;
+}
+
+.wm-compare-page .compare-product-grid button,
+.wm-compare-page .competitor-grid button,
+.wm-compare-page .sku-grid button,
+.wm-compare-page [data-wingman-compare-product],
+.wm-compare-page [data-wingman-competitor-product],
+.wm-compare-page [data-wingman-sku-option] {
+  min-height: 58px;
+  border-radius: 16px !important;
+  text-align: left;
+}
+
+/*
+  Keep tiny counters, status dots and icon buttons circular where intended.
+*/
+.wm-compare-page .wm-count-badge,
+.wm-compare-page .compare-count-badge,
+.wm-compare-page [data-wingman-count-badge],
+.wm-compare-page [aria-label*="close" i],
+.wm-compare-page [aria-label*="remove" i],
+.wm-compare-page [aria-label*="clear" i] {
+  border-radius: 999px !important;
+}
+
+/* WINGMAN_COMPARE_ROUNDED_RECTANGLES_END */
+
+/* WINGMAN_COMPARE_GREEN_RESULT_BUTTONS_START */
+
+/*
+  Compare result buttons:
+  Make selectable WyreStorm SKU/product results visually distinct from page controls.
+  This is CSS-only and must not alter ComparePageNew lookup/typeahead logic.
+*/
+
+.wm-compare-page [data-wingman-sku-option],
+.wm-compare-page [data-wingman-compare-product],
+.wm-compare-page [data-wingman-competitor-product],
+.wm-compare-page .compare-product-option,
+.wm-compare-page .compare-sku-option,
+.wm-compare-page .compare-sku-suggestion,
+.wm-compare-page .wm-compare-product-option,
+.wm-compare-page .wm-compare-sku-option,
+.wm-compare-page .wm-compare-sku-suggestion {
+  min-height: 58px;
+  border: 1px solid rgba(62, 255, 129, 0.46) !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(135deg, rgba(18, 122, 63, 0.92), rgba(9, 75, 43, 0.92)) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.26),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+  text-align: left !important;
+}
+
+.wm-compare-page [data-wingman-sku-option]:hover,
+.wm-compare-page [data-wingman-compare-product]:hover,
+.wm-compare-page [data-wingman-competitor-product]:hover,
+.wm-compare-page .compare-product-option:hover,
+.wm-compare-page .compare-sku-option:hover,
+.wm-compare-page .compare-sku-suggestion:hover,
+.wm-compare-page .wm-compare-product-option:hover,
+.wm-compare-page .wm-compare-sku-option:hover,
+.wm-compare-page .wm-compare-sku-suggestion:hover {
+  border-color: rgba(62, 255, 129, 0.86) !important;
+  background:
+    linear-gradient(135deg, rgba(25, 151, 78, 0.96), rgba(12, 92, 52, 0.96)) !important;
+  transform: translateY(-1px);
+}
+
+.wm-compare-page [data-wingman-sku-option] *,
+.wm-compare-page [data-wingman-compare-product] *,
+.wm-compare-page [data-wingman-competitor-product] *,
+.wm-compare-page .compare-product-option *,
+.wm-compare-page .compare-sku-option *,
+.wm-compare-page .compare-sku-suggestion *,
+.wm-compare-page .wm-compare-product-option *,
+.wm-compare-page .wm-compare-sku-option *,
+.wm-compare-page .wm-compare-sku-suggestion * {
+  color: #ffffff !important;
+}
+
+/*
+  Keep non-selectable warnings and no-match messages out of the green result treatment.
+*/
+.wm-compare-page [data-wingman-no-match],
+.wm-compare-page .compare-no-match,
+.wm-compare-page .wm-compare-no-match {
+  border-color: rgba(255, 96, 96, 0.42) !important;
+  background: rgba(127, 29, 29, 0.22) !important;
+  color: #ffffff !important;
+}
+
+/* WINGMAN_COMPARE_GREEN_RESULT_BUTTONS_END */

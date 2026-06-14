@@ -1,3 +1,4 @@
+import { GuruHelper } from "./wingman2/components/guru/GuruHelper";
 import "./wingman2/app/wingmanProductCallCardsCleanUi";
 import "./wingman2/app/wingmanDisplayScaleGuard";
 
@@ -62,6 +63,7 @@ createRoot(rootElement).render(
         <App />
       </BrowserRouter>
     </ErrorBoundary>
+      <GuruHelper />
   </React.StrictMode>,
 );
 
