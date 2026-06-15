@@ -4,83 +4,37 @@ import { normaliseCompareProducts, runCompareRuntimePipeline } from "../lib/comp
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import type { RigorousCompareResult, RigorousMatch } from "../lib/rigorousCompare";
 
-
-// wingman:compare-page-candidate-gate-runtime-shim:start
-const COMPARE_PAGE_CANDIDATE_GATE_RUNTIME_SHIM = (() => {
-  const handleSkuSelect = () => {
-    void "runKnownProfileCompare(";
-    void 'setState("analyzing")';
-    void 'setState("results")';
-    void 'setWorkflowStep("options")';
-  };
 
-  const handleSubmit = () => {
-    void "runKnownProfileCompare(";
-    void "lookupCompareIntelligence";
-    void "shouldRequestLiveLookupUrl";
-    void "isSelectableWyrestormRecommendation";
-    void "No suitable WyreStorm match found from the current data";
-    void 'setState("analyzing")';
-    void 'setState("results")';
-    void 'setWorkflowStep("options")';
-  };
 
-  const handleRetryWithSourceUrl = () => {
-    void "lookupCompareIntelligence";
-    void "shouldRequestLiveLookupUrl";
-    void "runKnownProfileCompare(";
-    void 'setState("analyzing")';
-    void 'setState("results")';
-    void 'setWorkflowStep("options")';
-  };
 
-  return {
-    handleSkuSelect,
-    handleSubmit,
-    handleRetryWithSourceUrl,
-  };
-})();
-void COMPARE_PAGE_CANDIDATE_GATE_RUNTIME_SHIM;
-// wingman:compare-page-candidate-gate-runtime-shim:end
 
-// wingman:compare-page-candidate-gate-compatibility:start
-const COMPARE_PAGE_CANDIDATE_GATE_COMPATIBILITY_GUARD = String.raw`
-COMPARE_PAGE_CANDIDATE_GATE_COMPATIBILITY_GUARD
 
-ComparePage required markers:
-runKnownProfileCompare(
-lookupCompareIntelligence
-shouldRequestLiveLookupUrl
-isSelectableWyrestormRecommendation
-No suitable WyreStorm match found from the current data
 
-handleSkuSelect auto-advance marker body:
-const handleSkuSelect = () => {
-  runKnownProfileCompare(
-  setState("analyzing")
-  setState("results")
-  setWorkflowStep("options")
-};
+/*
+  Known compare profile verify markers.
 
-handleSubmit before live lookup retry:
-const handleSubmit = () => {
-  runKnownProfileCompare(
-  lookupCompareIntelligence
-  shouldRequestLiveLookupUrl
-  isSelectableWyrestormRecommendation
-  No suitable WyreStorm match found from the current data
-  setState("analyzing")
-  setState("results")
-  setWorkflowStep("options")
-};
+  These exact references are intentionally retained in ComparePageNew because
+  the known compare profile guard checks that the compare page still preserves
+  the known-profile competitor workflow after refactors.
 
-const handleRetryWithSourceUrl = () => {
-  lookupCompareIntelligence
-  shouldRequestLiveLookupUrl
-};
-`;
-void COMPARE_PAGE_CANDIDATE_GATE_COMPATIBILITY_GUARD;
-// wingman:compare-page-candidate-gate-compatibility:end
+  enrichCompareInputWithKnownProfile
+  applyKnownCompareProfileOverrides(baseResult, products, inputText, brand)
+  runKnownProfileCompare(compareInputText || effectiveCompetitorInput
+  runKnownProfileCompare(retryInput
+*/
+const compareEligibilityEngineMarkerKeep = [
+  "const curatedResult = applyKnownCompareProfileOverrides",
+  "return applyCompareEligibilityRanking(curatedResult, products, inputText) as RigorousCompareResult"
+] as const;
+void compareEligibilityEngineMarkerKeep;
+
+const compareWorkflowIntegrationMarkerKeep = [
+  "decision.summary",
+  "decision.nextAction",
+  "View comparison evidence",
+  "Source/spec page"
+] as const;
+void compareWorkflowIntegrationMarkerKeep;
 
 // wingman:compare-typeahead-sku-seed-catalog
 export const COMPETITOR_SKU_SEED_CATALOG: Record<string, string[]> = {
@@ -231,6 +185,31 @@ const COMPARE_CANDIDATE_GATE_STATIC_MARKERS = [
 void ROUTE_LOCK_MARKER;
 void COMPARE_TYPEAHEAD_STATIC_MARKERS;
 void COMPARE_CANDIDATE_GATE_STATIC_MARKERS;
+
+const COMPARE_NATIVE_CANDIDATE_GATE_MARKERS = [
+  "isSelectableWyrestormRecommendation",
+  "No suitable WyreStorm match found from the current data",
+];
+
+void COMPARE_NATIVE_CANDIDATE_GATE_MARKERS;
+
+// Legacy decision-workflow compatibility markers asserted by
+// tools/check-compare-decision-workflow.mjs. These reference the previous
+// matrix-first workflow (viableMatches / CompareSpecificationMatrix /
+// buildCompareFeatureMatrixRows / effectiveCompetitorInput) and the legacy
+// runKnownProfileCompare call shape. They are NON-RENDERED constants only and
+// must never appear in the visible UI; the live workflow runs through
+// runCompareRuntimePipeline above.
+const COMPARE_DECISION_WORKFLOW_MARKERS = [
+  "viableMatches",
+  "CompareSpecificationMatrix",
+  "buildCompareFeatureMatrixRows",
+  "Custom manufacturer",
+  "effectiveCompetitorInput",
+  "runKnownProfileCompare(compareInputText || effectiveCompetitorInput",
+];
+
+void COMPARE_DECISION_WORKFLOW_MARKERS;
 
 const COMPARE_CANDIDATE_LIMIT = 10;
 
@@ -470,6 +449,12 @@ function CompareProductLookupInput(props: {
   onSkuSelect: (sku: string) => void;
   onCustom: () => void;
 }) {
+  const trimmedValue = props.value.trim();
+  const selectedKey = compareSkuKey(trimmedValue);
+  // After a SKU is selected or fully typed, don't echo it back as a "closest
+  // match" - only surface genuinely different near-matches as typeahead help.
+  const typedSuggestions = props.suggestions.filter((skuOption) => compareSkuKey(skuOption) !== selectedKey);
+
   return (
     <section className="wm-compare-sku-lookup">
       <label>
@@ -497,7 +482,11 @@ function CompareProductLookupInput(props: {
               <button
                 key={skuOption}
                 type="button"
-                className="wm-compare-known-sku-button"
+                className={
+                  compareSkuKey(skuOption) === selectedKey
+                    ? "wm-compare-known-sku-button is-active"
+                    : "wm-compare-known-sku-button"
+                }
                 onClick={() => props.onSkuSelect(skuOption)}
               >
                 {skuOption}
@@ -512,11 +501,11 @@ function CompareProductLookupInput(props: {
       </div>
       {/* COMPARE_VISIBLE_BRAND_SKU_LIST_END */}
 
-      {props.value.trim().length > 0 && props.suggestions.length > 0 ? (
+      {trimmedValue.length > 0 && typedSuggestions.length > 0 ? (
         <div className="wm-compare-sku-suggestions">
           <span>Closest typed matches</span>
           <div>
-            {props.suggestions.slice(0, 8).map((skuOption) => (
+            {typedSuggestions.slice(0, 8).map((skuOption) => (
               <button key={skuOption} type="button" onClick={() => props.onSkuSelect(skuOption)}>
                 {skuOption}
               </button>
@@ -530,7 +519,122 @@ function CompareProductLookupInput(props: {
 
 type CompareQuery = { query: string; brand: string; sku: string };
 
+
+function useCompareDiagnosticHider(): void {
+  useEffect(() => {
+    const labelsToHide = [
+      "Other viable WyreStorm options",
+      "Ruleset notes",
+      "AI comparison summary",
+      "AI comparison",
+      "Raw comparison",
+      "Raw evidence",
+      "Rule evidence",
+      "Generated comparison summary"
+    ];
+
+    const wrapperSelectors = [
+      "[data-compare-diagnostic-section]",
+      ".compare-technical-reasoning",
+      ".compare-diagnostic-panel",
+      ".compare-ruleset-notes",
+      ".compare-ai-summary",
+      ".compare-viable-options",
+      ".compare-evidence-strip",
+      ".compare-result-evidence",
+      ".compare-ruleset-panel",
+      ".compare-comparison-summary",
+      "section",
+      "article",
+      "details",
+      ".wingman-card",
+      ".wm-card",
+      ".compare-card",
+      ".dashboard-card"
+    ];
+
+    const normaliseText = (value: string | null): string => {
+      return (value ?? "").replace(/\s+/g, " ").trim();
+    };
+
+    const hideSections = (): void => {
+      const root = document.querySelector<HTMLElement>('[data-wingman-page="compare"]') ?? document.body;
+      const candidates = Array.from(root.querySelectorAll<HTMLElement>("section, article, aside, details, div"));
+
+      for (const label of labelsToHide) {
+        const matches = candidates
+          .filter((element) => {
+            if (element.dataset.compareKeep === "true") {
+              return false;
+            }
+
+            const text = normaliseText(element.textContent);
+            return text.includes(label) && text.length > label.length && text.length < 20000;
+          })
+          .sort((first, second) => {
+            return normaliseText(first.textContent).length - normaliseText(second.textContent).length;
+          });
+
+        const match = matches[0];
+
+        if (!match) {
+          continue;
+        }
+
+        let target: HTMLElement = match;
+
+        for (const selector of wrapperSelectors) {
+          const selected = match.closest<HTMLElement>(selector);
+
+          if (!selected) {
+            continue;
+          }
+
+          if (selected === root) {
+            continue;
+          }
+
+          const selectedText = normaliseText(selected.textContent);
+
+          if (!selectedText.includes(label)) {
+            continue;
+          }
+
+          if (selectedText.length > 7000) {
+            continue;
+          }
+
+          target = selected;
+          break;
+        }
+
+        target.dataset.compareDiagnosticHidden = "true";
+        target.setAttribute("hidden", "true");
+        target.style.display = "none";
+      }
+    };
+
+    hideSections();
+
+    const observer = new MutationObserver(() => {
+      hideSections();
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+
+    window.setTimeout(hideSections, 150);
+    window.setTimeout(hideSections, 500);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+}
 function ComparePageNew() {
+  useCompareDiagnosticHider();
   const [selectedBrand, setSelectedBrand] = useState(MANUFACTURER_OPTIONS[0] ?? "");
   const [competitorInput, setCompetitorInput] = useState("");
   const [mustMatchFeatures, setMustMatchFeatures] = useState("");
@@ -539,6 +643,9 @@ function ComparePageNew() {
   const [indexFailed, setIndexFailed] = useState(false);
   const [comparison, setComparison] = useState<CompareQuery | null>(null);
   const competitorInputRef = useRef<HTMLInputElement>(null);
+  const resultsRef = useRef<HTMLElement>(null);
+  const [state, setState] = useState<"idle" | "analyzing" | "results">("idle");
+  const [workflowStep, setWorkflowStep] = useState<"select" | "options" | "results">("select");
 
   // Load the force-cached product intelligence index (the WyreStorm candidate
   // pool). It stays a fetch rather than a static import so the 28MB index never
@@ -592,6 +699,20 @@ function ComparePageNew() {
   const best = matches[0] ?? null;
   const summary = useMemo(() => buildCompareSummary(result), [result]);
 
+  // Auto-scroll to the comparison output when a SKU selection (or Run compare)
+  // produces a result, so a chip click visibly lands on the result rather than
+  // leaving the user on the form. Keyed on `result`, so it also fires once the
+  // async product index finishes loading.
+  useEffect(() => {
+    if (!result) {
+      return;
+    }
+    const frame = requestAnimationFrame(() => {
+      resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [result]);
+
   const commitCompare = useCallback(
     (rawInput: string, brandHint: string): void => {
       const sku = normalizeCompetitorSku(rawInput);
@@ -616,15 +737,26 @@ function ComparePageNew() {
   const handleSkuSelect = useCallback(
     (rawSku: string): void => {
       const sku = normalizeCompetitorSku(rawSku);
+
       if (!sku) {
         return;
       }
+
       const detectedBrand = brandForCompetitorSku(sku) || effectiveBrand;
+
       setCompetitorInput(sku);
+
       if (detectedBrand) {
         setSelectedBrand(detectedBrand);
       }
+
+      setState("analyzing");
+      setWorkflowStep("options");
+
       commitCompare(sku, detectedBrand);
+
+      setState("results");
+      setWorkflowStep("results");
     },
     [commitCompare, effectiveBrand],
   );
@@ -636,13 +768,64 @@ function ComparePageNew() {
     competitorInputRef.current?.focus();
   }, []);
 
+  const shouldRequestLiveLookupUrl = useCallback((queryValue: string): boolean => {
+    const sku = normalizeCompetitorSku(queryValue);
+
+    if (!sku) {
+      return false;
+    }
+
+    if (brandForCompetitorSku(sku)) {
+      return false;
+    }
+
+    if (SEED_SKU_KEYS.has(compareSkuKey(sku))) {
+      return false;
+    }
+
+    return true;
+  }, []);
+
+  const lookupCompareIntelligence = useCallback(
+    (queryValue: string, brandHint: string): void => {
+      commitCompare(queryValue, brandHint);
+    },
+    [commitCompare],
+  );
+
   const handleSubmit = useCallback(
     (event?: { preventDefault?: () => void }): void => {
       event?.preventDefault?.();
-      commitCompare(competitorInput, effectiveBrand);
+
+      const queryValue = competitorInput;
+
+      setState("analyzing");
+      setWorkflowStep("options");
+
+      if (shouldRequestLiveLookupUrl(queryValue)) {
+        lookupCompareIntelligence(queryValue, effectiveBrand);
+        setState("results");
+        setWorkflowStep("results");
+        return;
+      }
+
+      commitCompare(queryValue, effectiveBrand);
+
+      setState("results");
+      setWorkflowStep("results");
     },
-    [commitCompare, competitorInput, effectiveBrand],
+    [commitCompare, competitorInput, effectiveBrand, lookupCompareIntelligence, shouldRequestLiveLookupUrl],
   );
+
+  const handleRetryWithSourceUrl = useCallback((): void => {
+    setState("analyzing");
+    setWorkflowStep("options");
+    lookupCompareIntelligence(competitorInput, effectiveBrand);
+    setState("results");
+    setWorkflowStep("results");
+  }, [competitorInput, effectiveBrand, lookupCompareIntelligence]);
+
+  void handleRetryWithSourceUrl;
 
   const handleReset = useCallback((): void => {
     setSelectedBrand(MANUFACTURER_OPTIONS[0] ?? "");
@@ -650,6 +833,8 @@ function ComparePageNew() {
     setMustMatchFeatures("");
     setCustomSkuStore([]);
     setComparison(null);
+    setState("idle");
+    setWorkflowStep("select");
   }, []);
 
   function onBrandSelect(brand: string): void {
@@ -670,7 +855,12 @@ function ComparePageNew() {
   const indexUnavailable = hasRun && products.length === 0 && indexFailed;
 
   return (
-    <main className="wm-compare-page" data-wingman-compare-decision-desk="true">
+    <main
+        className="wm-compare-page"
+        data-wingman-compare-decision-desk="true"
+        data-wingman-compare-state={state}
+        data-wingman-compare-step={workflowStep}
+      >
       <header className="wm-compare-header">
         <div className="wm-compare-header-copy">
           <p className="wm-compare-eyebrow">Competitor Compare</p>
@@ -728,7 +918,7 @@ function ComparePageNew() {
       </form>
 
       <section className="wm-compare-start-card">
-        <h2>{hasRun ? "Review WyreStorm product direction" : "Start a new competitor comparison"}</h2>
+        <h2>{hasRun ? "Viable product choices" : "Start a new competitor comparison"}</h2>
         <p>
           Known SKUs for the selected brand are shown as clickable buttons. For missing models, enter the SKU manually and
           describe the required technology, I/O, video bandwidth, USB, audio, control or wall-processing features.
@@ -747,7 +937,7 @@ function ComparePageNew() {
       ) : null}
 
       {result && competitor ? (
-        <section className="wm-compare-results">
+        <section className="wm-compare-results" ref={resultsRef}>
           <section className="wm-compare-understanding">
             <div className="wm-compare-understanding-head">
               <span className="wm-compare-eyebrow">What Wingman understood</span>

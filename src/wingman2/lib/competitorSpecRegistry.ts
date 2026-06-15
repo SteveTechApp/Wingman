@@ -1048,7 +1048,11 @@ function lookupCatalogFingerprint(rawSku: string): Fingerprint | null {
 
   for (const fp of CATALOG_FINGERPRINTS) {
     const key = fp.keys[0];
-    if (key && key.length >= 6 && (candidate.includes(key) || key.includes(candidate))) {
+    // candidate.includes(key): the typed SKU contains a known catalogue key (safe).
+    // key.includes(candidate): a long catalogue key contains the typed SKU - only
+    // trust this when the typed SKU is itself substantial, so a short cross-brand
+    // token (e.g. BirdDog "P200") can't match inside an unrelated SKU ("IP200UHD-TX").
+    if (key && key.length >= 6 && (candidate.includes(key) || (candidate.length >= 6 && key.includes(candidate)))) {
       return fp;
     }
   }

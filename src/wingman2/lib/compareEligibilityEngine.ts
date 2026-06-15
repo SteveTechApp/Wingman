@@ -95,6 +95,20 @@ function skuKey(value: unknown): string {
   return String(value ?? "").toUpperCase().replace(/[^A-Z0-9]+/g, "");
 }
 
+// WyreStorm SKUs that are end-of-life / being discontinued. They must never be
+// positioned as a lead or recommendation. There is no lifecycle flag on the
+// product intelligence index yet, so maintain the list here and extend it as the
+// line transitions.
+const DISCONTINUED_WYRESTORM_SKUS = new Set<string>([
+  "CAM200PTZ", // CAM-200-PTZ
+  "APO200UC", // APO-200-UC
+  "APO210UC", // APO-210-UC
+]);
+
+function isDiscontinuedWyrestormSku(value: unknown): boolean {
+  return DISCONTINUED_WYRESTORM_SKUS.has(skuKey(value));
+}
+
 function getSku(value: LooseRecord): string {
   return String(value?.sku ?? value?.wyrestorm?.sku ?? value?.model ?? value?.partNumber ?? value?.title ?? "");
 }
@@ -314,7 +328,35 @@ function extractCompetitorText(resultOrInput: unknown, inputText = ""): string {
   return [inputText, toText(resultOrInput)].join(" ");
 }
 
+/** Cameras and wireless casting are under-served by the text heuristics below and
+ * easily mis-fire (e.g. an NDI camera reading as a UC switcher). When the competitor
+ * spec registry has already resolved one of these domains, trust it over the text. */
+function intentFromResolvedDomain(resultOrInput: unknown): CompareIntentKind | null {
+  if (!resultOrInput || typeof resultOrInput !== "object") {
+    return null;
+  }
+
+  const domain = String((resultOrInput as LooseRecord).domain ?? "").toUpperCase();
+
+  switch (domain) {
+    case "NDI_CAMERA":
+      return "ndi-camera";
+    case "PTZ_CAMERA":
+      return "ptz-camera";
+    case "WIRELESS_CASTING":
+    case "WIRELESS_PRESENTATION":
+      return "wireless-casting";
+    default:
+      return null;
+  }
+}
+
 export function classifyCompareIntent(resultOrInput: unknown, inputText = ""): CompareIntentKind {
+  const domainIntent = intentFromResolvedDomain(resultOrInput);
+  if (domainIntent) {
+    return domainIntent;
+  }
+
   const text = normalise(extractCompetitorText(resultOrInput, inputText));
   const compact = skuKey(extractCompetitorText(resultOrInput, inputText));
   const avoipContext = /\b(dm\s*nvx|dmnvx|mxnet|kds(?!\s*usb)|nmx|zyper|av\s*over\s*ip|avoip|networked\s*av|networkhd|nav\s*[de]|nave|navd|sdvoe)\b/i.test(text) ||
@@ -441,6 +483,8 @@ function productIsSupportOnly(sku: string, text: string): string | null {
     /^SW020[46]VW$/.test(key) ||
     /^MX/.test(key) ||
     /^MV0401PRO$/.test(key) ||
+    /^CAM\d/.test(key) ||
+    /^APODG\d/.test(key) ||
     /^EX/.test(key);
 
   if (explicitlyPrimaryHardware && !/^NHD000CTL$/.test(key) && !/^NHD000RACK/.test(key)) {
@@ -479,6 +523,11 @@ function invalidLeadReasonForIntent(supportOnlyReason: string | null, intent: Co
     return null;
   }
 
+  // Cameras (CAM-*) and primary Apollo devices (APO speakerphones / video bars /
+  // casting dongles) are recognised as primary hardware above, so they are never
+  // flagged support-only here - they lead their own camera / wireless / UC intents.
+  // Genuine accessories (mics, docks, adapters, mounts) stay support-only and are
+  // correctly kept out of the lead position.
   return `${SUPPORT_ONLY_LEAD_BLOCKER} ${supportOnlyReason}`;
 }
 
@@ -557,6 +606,13 @@ export function evaluateProductEligibility(args: {
   if (isBannedNetworkHdSku(sku)) {
     return blocked(sku, args.intent, [
       `${sku} is a retired NetworkHD platform and must never be specified in a comparison. Use a current 100/500/600 series SKU.`,
+    ]);
+  }
+
+  // End-of-life / discontinued WyreStorm SKUs must never lead or be recommended.
+  if (isDiscontinuedWyrestormSku(sku)) {
+    return blocked(sku, args.intent, [
+      `${sku} is being discontinued (end-of-life) and should not be positioned. Recommend a current WyreStorm alternative.`,
     ]);
   }
 
@@ -812,7 +868,7 @@ function ensureEligibilityCandidatePool(
   if (intent === "presentation-switcher" || intent === "uc-byod") {
 addCandidateBySku(nextMatches, products, "SW-640L-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for BYOD/BYOM workflow.", 84);
     addCandidateBySku(nextMatches, products, "SW-620-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for meeting-room collaboration workflow.", 82);
-    addCandidateBySku(nextMatches, products, "APO-200-UC", "Eligibility correction: UC room hardware candidate inserted for conferencing workflow comparison.", 78);
+    addCandidateBySku(nextMatches, products, "APO-VX20-UC-V2", "Eligibility correction: current Apollo UC video bar candidate inserted for conferencing workflow comparison.", 78);
   }
 
   if (intent === "extender") {
@@ -834,13 +890,43 @@ addCandidateBySku(nextMatches, products, "SW-640L-TX-W", "Eligibility correction
   }
 
   if (intent === "wireless-casting") {
+    addCandidateBySku(nextMatches, products, "APO-DG2-PRO", "Eligibility correction: current Apollo USB-C wireless casting dongle inserted as the direct wireless-casting counterpart.", 84);
+    addCandidateBySku(nextMatches, products, "APO-VX20-UC-V2", "Eligibility correction: current Apollo UC video bar inserted for room-based wireless collaboration.", 80);
     addCandidatesByPredicate(
       nextMatches,
       products,
-      (product) => /^APO/.test(String(product.sku ?? "")) || /\b(apollo|wireless|casting)\b/i.test(productText(product)),
+      (product) =>
+        !isDiscontinuedWyrestormSku(product.sku) &&
+        (/^APO/.test(String(product.sku ?? "")) || /\b(apollo|wireless|casting)\b/i.test(productText(product))),
       "Eligibility correction: WyreStorm Apollo or wireless collaboration product inserted for wireless casting comparison.",
       4,
       76,
+    );
+  }
+
+  if (intent === "ndi-camera") {
+    addCandidateBySku(nextMatches, products, "CAM-210-NDI-PTZ", "Eligibility correction: WyreStorm NDI PTZ camera inserted as the direct competitor-camera counterpart.", 84);
+    addCandidateBySku(nextMatches, products, "CAM-0402-NDI-BRG", "Eligibility correction: WyreStorm NDI multi-camera bridge inserted for NDI camera/capture workflow.", 78);
+    addCandidatesByPredicate(
+      nextMatches,
+      products,
+      (product) => /^CAM/.test(skuKey(product.sku)) && /\bNDI\b/i.test(`${product.sku} ${productText(product)}`),
+      "Eligibility correction: WyreStorm NDI-capable camera inserted for NDI camera comparison.",
+      3,
+      76,
+    );
+  }
+
+  if (intent === "ptz-camera") {
+    addCandidateBySku(nextMatches, products, "CAM-210-PTZ", "Eligibility correction: WyreStorm PTZ camera inserted as the direct competitor-camera counterpart.", 84);
+    addCandidateBySku(nextMatches, products, "CAM-420-PTZ", "Eligibility correction: WyreStorm 4K AI PTZ camera inserted for high-end PTZ comparison.", 80);
+    addCandidatesByPredicate(
+      nextMatches,
+      products,
+      (product) => !isDiscontinuedWyrestormSku(product.sku) && /^CAM/.test(skuKey(product.sku)) && /\bPTZ\b/i.test(`${product.sku} ${productText(product)}`),
+      "Eligibility correction: WyreStorm PTZ-capable camera inserted for PTZ camera comparison.",
+      3,
+      74,
     );
   }
 

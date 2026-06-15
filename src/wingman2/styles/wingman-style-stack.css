@@ -27883,7 +27883,8 @@ html[data-wingman-route="compare"] .wingman-page-host .wm-compare-page {
   outline: none;
 }
 
-.wm-compare-page .wm-compare-brand-grid button.is-active {
+.wm-compare-page .wm-compare-brand-grid button.is-active,
+.wm-compare-page .wm-compare-known-sku-grid button.is-active {
   border-color: rgba(74, 245, 230, 0.7);
   background: rgba(74, 245, 230, 0.18);
   color: #eafffb;
@@ -27979,6 +27980,7 @@ html[data-wingman-route="compare"] .wingman-page-host .wm-compare-page {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  scroll-margin-top: 16px;
 }
 
 .wm-compare-page .wm-compare-best {
@@ -29202,7 +29204,7 @@ html[data-wingman-route="compare"] .wingman-page-host .wm-compare-page {
 }
 
 [data-wingman-native-run-compare-fallback="true"]::after {
-  content: "  Ã‚Â· fallback";
+  content: "  Ãƒâ€šÃ‚Â· fallback";
   opacity: 0.72;
   font-size: 0.68em;
 }
@@ -29263,4 +29265,22 @@ html[data-wingman-route="compare"] .wingman-page-host .wm-compare-page {
   .wingman-compare-decision-toggle-shell {
     grid-template-columns: 1fr;
   }
+}
+
+
+/* compare-clean-sales-result-view */
+[data-compare-diagnostic-hidden="true"],
+[data-compare-diagnostic-section],
+.compare-technical-reasoning,
+.compare-diagnostic-panel,
+.compare-ruleset-notes,
+.compare-ai-summary,
+.compare-viable-options,
+.compare-evidence-strip,
+.compare-result-evidence,
+.compare-ruleset-panel,
+.compare-comparison-summary,
+.compare-feature-matrix-debug,
+.compare-raw-evidence {
+  display: none !important;
 }
