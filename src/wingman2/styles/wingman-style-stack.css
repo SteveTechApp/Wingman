@@ -27544,3 +27544,614 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   margin: 5px 0;
   line-height: 1.35;
 }
+
+/* === Compare page visual repair: start === */
+
+/*
+  Compare page visual repair.
+  Restores dark Wingman card/chip styling after the compare rebase.
+  Scoped using Compare workflow input placeholders so other pages are not affected.
+*/
+
+body:has(input[placeholder*="competitor SKU" i]) main,
+body:has(input[placeholder*="Known type" i]) main {
+  --compare-card-bg: rgba(7, 22, 34, 0.88);
+  --compare-card-bg-strong: rgba(8, 30, 46, 0.96);
+  --compare-border: rgba(33, 214, 230, 0.24);
+  --compare-border-strong: rgba(33, 214, 230, 0.42);
+  --compare-text: rgba(238, 247, 252, 0.94);
+  --compare-muted: rgba(184, 204, 215, 0.78);
+  --compare-chip: rgba(13, 43, 63, 0.92);
+  --compare-chip-hover: rgba(18, 74, 104, 0.98);
+  color: var(--compare-text);
+}
+
+body:has(input[placeholder*="competitor SKU" i]) main > *,
+body:has(input[placeholder*="Known type" i]) main > * {
+  max-width: 1240px;
+}
+
+body:has(input[placeholder*="competitor SKU" i]) main h1,
+body:has(input[placeholder*="competitor SKU" i]) main h2,
+body:has(input[placeholder*="Known type" i]) main h1,
+body:has(input[placeholder*="Known type" i]) main h2 {
+  margin: 0 0 0.25rem;
+  color: rgba(238, 247, 252, 0.98);
+  letter-spacing: -0.02em;
+}
+
+body:has(input[placeholder*="competitor SKU" i]) main p,
+body:has(input[placeholder*="Known type" i]) main p {
+  max-width: 1180px;
+  color: var(--compare-muted);
+  line-height: 1.42;
+}
+
+body:has(input[placeholder*="competitor SKU" i]) main form,
+body:has(input[placeholder*="Known type" i]) main form {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 0.9rem;
+  padding: 1rem;
+  border: 1px solid var(--compare-border);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(10, 32, 48, 0.92), rgba(5, 19, 31, 0.9));
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24);
+}
+
+body:has(input[placeholder*="competitor SKU" i]) main label,
+body:has(input[placeholder*="Known type" i]) main label {
+  display: block;
+  margin-bottom: 0.28rem;
+  color: rgba(210, 230, 238, 0.86);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+body:has(input[placeholder*="competitor SKU" i]) main input,
+body:has(input[placeholder*="competitor SKU" i]) main select,
+body:has(input[placeholder*="competitor SKU" i]) main textarea,
+body:has(input[placeholder*="Known type" i]) main input,
+body:has(input[placeholder*="Known type" i]) main select,
+body:has(input[placeholder*="Known type" i]) main textarea {
+  width: 100%;
+  min-height: 42px;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid rgba(33, 214, 230, 0.22);
+  border-radius: 12px;
+  background: rgba(2, 13, 22, 0.92);
+  color: rgba(238, 247, 252, 0.95);
+  outline: none;
+}
+
+body:has(input[placeholder*="competitor SKU" i]) main input::placeholder,
+body:has(input[placeholder*="competitor SKU" i]) main textarea::placeholder,
+body:has(input[placeholder*="Known type" i]) main input::placeholder,
+body:has(input[placeholder*="Known type" i]) main textarea::placeholder {
+  color: rgba(176, 194, 204, 0.62);
+}
+
+body:has(input[placeholder*="competitor SKU" i]) main button:not([type="submit"]),
+body:has(input[placeholder*="Known type" i]) main button:not([type="submit"]),
+body:has(input[placeholder*="competitor SKU" i]) main [role="button"],
+body:has(input[placeholder*="Known type" i]) main [role="button"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  margin: 0.16rem 0.24rem 0.16rem 0;
+  padding: 0.42rem 0.68rem;
+  border: 1px solid rgba(33, 214, 230, 0.26);
+  border-radius: 999px;
+  background: var(--compare-chip);
+  color: rgba(238, 247, 252, 0.92);
+  font-size: 0.76rem;
+  font-weight: 750;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+body:has(input[placeholder*="competitor SKU" i]) main button:not([type="submit"]):hover,
+body:has(input[placeholder*="Known type" i]) main button:not([type="submit"]):hover,
+body:has(input[placeholder*="competitor SKU" i]) main [role="button"]:hover,
+body:has(input[placeholder*="Known type" i]) main [role="button"]:hover {
+  border-color: rgba(33, 214, 230, 0.52);
+  background: var(--compare-chip-hover);
+  transform: translateY(-1px);
+}
+
+body:has(input[placeholder*="competitor SKU" i]) main form button[type="submit"],
+body:has(input[placeholder*="Known type" i]) main form button[type="submit"] {
+  display: none !important;
+}
+
+body:has(input[placeholder*="competitor SKU" i]) main a,
+body:has(input[placeholder*="Known type" i]) main a {
+  color: rgba(52, 223, 236, 0.96);
+  text-decoration: none;
+}
+
+body:has(input[placeholder*="competitor SKU" i]) main a:hover,
+body:has(input[placeholder*="Known type" i]) main a:hover {
+  text-decoration: underline;
+}
+
+body:has(input[placeholder*="competitor SKU" i]) main {
+  padding-top: 0.85rem;
+}
+
+@media (max-width: 900px) {
+  body:has(input[placeholder*="competitor SKU" i]) main form,
+  body:has(input[placeholder*="Known type" i]) main form {
+    padding: 0.8rem;
+    border-radius: 14px;
+  }
+
+  body:has(input[placeholder*="competitor SKU" i]) main button:not([type="submit"]),
+  body:has(input[placeholder*="Known type" i]) main button:not([type="submit"]) {
+    font-size: 0.72rem;
+    padding: 0.38rem 0.58rem;
+  }
+}
+
+/* === Compare page visual repair: end === */
+
+/* === Compare result page styling repair: start === */
+
+body.wingman-compare-page main {
+  color: rgba(238, 247, 252, 0.94);
+}
+
+body.wingman-compare-page main > * {
+  max-width: 1220px;
+}
+
+body.wingman-compare-page main form {
+  margin-top: 0.8rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(33, 214, 230, 0.22);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(20, 95, 125, 0.22), transparent 34%),
+    linear-gradient(180deg, rgba(8, 29, 45, 0.96), rgba(5, 18, 30, 0.94));
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+}
+
+body.wingman-compare-page main input,
+body.wingman-compare-page main textarea,
+body.wingman-compare-page main select {
+  width: 100%;
+  min-height: 42px;
+  padding: 0.65rem 0.78rem;
+  border: 1px solid rgba(33, 214, 230, 0.26);
+  border-radius: 12px;
+  background: rgba(2, 13, 22, 0.94);
+  color: rgba(238, 247, 252, 0.95);
+}
+
+body.wingman-compare-page main input::placeholder,
+body.wingman-compare-page main textarea::placeholder {
+  color: rgba(180, 200, 211, 0.6);
+}
+
+body.wingman-compare-page main label {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: rgba(205, 228, 238, 0.88);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+body.wingman-compare-page main form button[type="submit"] {
+  display: none !important;
+}
+
+body.wingman-compare-page main button:not([type="submit"]),
+body.wingman-compare-page main [role="button"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 31px;
+  margin: 0.15rem 0.24rem 0.15rem 0;
+  padding: 0.4rem 0.68rem;
+  border: 1px solid rgba(33, 214, 230, 0.28);
+  border-radius: 999px;
+  background: rgba(12, 43, 63, 0.92);
+  color: rgba(238, 247, 252, 0.94);
+  font-size: 0.75rem;
+  font-weight: 750;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+body.wingman-compare-page main button:not([type="submit"]):hover,
+body.wingman-compare-page main [role="button"]:hover {
+  border-color: rgba(33, 214, 230, 0.55);
+  background: rgba(18, 72, 102, 0.98);
+  transform: translateY(-1px);
+}
+
+body.wingman-compare-page main h1,
+body.wingman-compare-page main h2 {
+  color: rgba(238, 247, 252, 0.98);
+  letter-spacing: -0.02em;
+}
+
+body.wingman-compare-page main h3 {
+  margin: 1.05rem 0 0.38rem;
+  color: rgba(52, 223, 236, 0.96);
+  font-size: 1rem;
+  font-weight: 850;
+  letter-spacing: -0.01em;
+}
+
+body.wingman-compare-page main h4,
+body.wingman-compare-page main strong {
+  color: rgba(238, 247, 252, 0.98);
+}
+
+body.wingman-compare-page main p {
+  max-width: 1120px;
+  color: rgba(192, 210, 220, 0.88);
+  line-height: 1.42;
+}
+
+body.wingman-compare-page main a {
+  color: rgba(52, 223, 236, 0.96);
+  text-decoration: none;
+}
+
+body.wingman-compare-page main a:hover {
+  text-decoration: underline;
+}
+
+/*
+  Result content repair:
+  Compare currently renders result text in a plain flow after the form.
+  These selectors re-create a readable result panel without changing logic.
+*/
+body.wingman-compare-page main form ~ div,
+body.wingman-compare-page main form ~ section,
+body.wingman-compare-page main form ~ article {
+  max-width: 1220px;
+}
+
+body.wingman-compare-page main form ~ div:has(h3),
+body.wingman-compare-page main form ~ section:has(h3),
+body.wingman-compare-page main form ~ article:has(h3) {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(33, 214, 230, 0.18);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(33, 214, 230, 0.08), transparent 35%),
+    rgba(6, 22, 35, 0.72);
+}
+
+body.wingman-compare-page main form ~ div:has(h3) > div,
+body.wingman-compare-page main form ~ section:has(h3) > div,
+body.wingman-compare-page main form ~ article:has(h3) > div {
+  margin-top: 0.65rem;
+  padding: 0.82rem;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 14px;
+  background: rgba(2, 14, 24, 0.58);
+}
+
+body.wingman-compare-page main form ~ div:has(h3) > div:has(a),
+body.wingman-compare-page main form ~ section:has(h3) > div:has(a),
+body.wingman-compare-page main form ~ article:has(h3) > div:has(a) {
+  border-color: rgba(33, 214, 230, 0.2);
+  background:
+    linear-gradient(180deg, rgba(9, 38, 56, 0.86), rgba(4, 18, 29, 0.82));
+}
+
+body.wingman-compare-page main form ~ div:has(h3) button,
+body.wingman-compare-page main form ~ section:has(h3) button,
+body.wingman-compare-page main form ~ article:has(h3) button {
+  min-height: 30px;
+  padding: 0.36rem 0.62rem;
+  font-size: 0.72rem;
+}
+
+body.wingman-compare-page main form + p,
+body.wingman-compare-page main form + div,
+body.wingman-compare-page main form + section {
+  margin-top: 0.75rem;
+}
+
+body.wingman-compare-page main .partial,
+body.wingman-compare-page main [class*="partial" i] {
+  color: rgba(255, 211, 120, 0.96);
+}
+
+body.wingman-compare-page main [class*="match" i] {
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  body.wingman-compare-page main form {
+    padding: 0.8rem;
+    border-radius: 14px;
+  }
+
+  body.wingman-compare-page main form ~ div:has(h3),
+  body.wingman-compare-page main form ~ section:has(h3),
+  body.wingman-compare-page main form ~ article:has(h3) {
+    padding: 0.8rem;
+    border-radius: 14px;
+  }
+}
+
+/* === Compare result page styling repair: end === */
+
+/* === Compare structured result layout repair: start === */
+
+body.wingman-compare-page main {
+  color: rgba(238, 247, 252, 0.94);
+}
+
+body.wingman-compare-page main > * {
+  max-width: 1240px;
+}
+
+body.wingman-compare-page main form {
+  margin-top: 0.8rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(33, 214, 230, 0.22);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(20, 95, 125, 0.2), transparent 34%),
+    linear-gradient(180deg, rgba(8, 29, 45, 0.96), rgba(5, 18, 30, 0.94));
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+}
+
+body.wingman-compare-page main form button[type="submit"] {
+  display: none !important;
+}
+
+body.wingman-compare-page main input,
+body.wingman-compare-page main textarea,
+body.wingman-compare-page main select {
+  width: 100%;
+  min-height: 42px;
+  padding: 0.65rem 0.78rem;
+  border: 1px solid rgba(33, 214, 230, 0.26);
+  border-radius: 12px;
+  background: rgba(2, 13, 22, 0.94);
+  color: rgba(238, 247, 252, 0.95);
+}
+
+body.wingman-compare-page main label {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: rgba(205, 228, 238, 0.88);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+}
+
+body.wingman-compare-page main button:not([type="submit"]),
+body.wingman-compare-page main [role="button"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 31px;
+  margin: 0.15rem 0.24rem 0.15rem 0;
+  padding: 0.4rem 0.68rem;
+  border: 1px solid rgba(33, 214, 230, 0.28);
+  border-radius: 999px;
+  background: rgba(12, 43, 63, 0.92);
+  color: rgba(238, 247, 252, 0.94);
+  font-size: 0.75rem;
+  font-weight: 750;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+body.wingman-compare-page main button:not([type="submit"]):hover,
+body.wingman-compare-page main [role="button"]:hover {
+  border-color: rgba(33, 214, 230, 0.55);
+  background: rgba(18, 72, 102, 0.98);
+  transform: translateY(-1px);
+}
+
+body.wingman-compare-page .compare-result-flow {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(33, 214, 230, 0.22);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top left, rgba(33, 214, 230, 0.1), transparent 34%),
+    linear-gradient(180deg, rgba(7, 27, 42, 0.88), rgba(3, 15, 25, 0.88));
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.24);
+}
+
+body.wingman-compare-page .compare-result-flow h2,
+body.wingman-compare-page .compare-result-flow h3 {
+  margin: 0 0 0.45rem;
+  color: rgba(52, 223, 236, 0.96);
+  font-size: 1.02rem;
+  font-weight: 850;
+  letter-spacing: -0.01em;
+}
+
+body.wingman-compare-page .compare-result-flow p {
+  margin: 0.24rem 0;
+  color: rgba(192, 210, 220, 0.9);
+  line-height: 1.42;
+}
+
+body.wingman-compare-page .compare-result-help-copy {
+  display: none !important;
+}
+
+body.wingman-compare-page .compare-result-summary-card,
+body.wingman-compare-page .compare-result-copy-card {
+  margin: 0.8rem 0;
+  padding: 0.95rem;
+  border: 1px solid rgba(33, 214, 230, 0.2);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(9, 39, 58, 0.92), rgba(4, 18, 29, 0.88));
+}
+
+body.wingman-compare-page .compare-result-summary-card {
+  border-left: 4px solid rgba(255, 211, 120, 0.9);
+}
+
+body.wingman-compare-page .compare-result-copy-card {
+  border-left: 4px solid rgba(52, 223, 236, 0.9);
+  white-space: pre-line;
+}
+
+body.wingman-compare-page .compare-result-candidate-card {
+  display: block;
+  margin: 0.85rem 0;
+  padding: 0.95rem;
+  border: 1px solid rgba(33, 214, 230, 0.18);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at top right, rgba(33, 214, 230, 0.08), transparent 32%),
+    rgba(3, 17, 28, 0.82);
+}
+
+body.wingman-compare-page .compare-result-candidate-card:hover {
+  border-color: rgba(33, 214, 230, 0.34);
+  background:
+    radial-gradient(circle at top right, rgba(33, 214, 230, 0.12), transparent 32%),
+    rgba(5, 24, 38, 0.9);
+}
+
+body.wingman-compare-page .compare-result-candidate-card strong,
+body.wingman-compare-page .compare-result-summary-card strong,
+body.wingman-compare-page .compare-result-copy-card strong {
+  color: rgba(238, 247, 252, 0.98);
+  font-weight: 850;
+}
+
+body.wingman-compare-page .compare-result-candidate-card a,
+body.wingman-compare-page .compare-result-summary-card a,
+body.wingman-compare-page .compare-result-copy-card a,
+body.wingman-compare-page .compare-result-flow a {
+  color: rgba(52, 223, 236, 0.96);
+  text-decoration: none;
+}
+
+body.wingman-compare-page .compare-result-candidate-card a:hover,
+body.wingman-compare-page .compare-result-summary-card a:hover,
+body.wingman-compare-page .compare-result-copy-card a:hover,
+body.wingman-compare-page .compare-result-flow a:hover {
+  text-decoration: underline;
+}
+
+body.wingman-compare-page .compare-result-candidate-card span,
+body.wingman-compare-page .compare-result-candidate-card b,
+body.wingman-compare-page .compare-result-candidate-card strong,
+body.wingman-compare-page .compare-result-summary-card span,
+body.wingman-compare-page .compare-result-summary-card b,
+body.wingman-compare-page .compare-result-summary-card strong {
+  margin-right: 0.32rem;
+}
+
+body.wingman-compare-page .compare-result-candidate-card :is(h4, h5, h6),
+body.wingman-compare-page .compare-result-summary-card :is(h4, h5, h6),
+body.wingman-compare-page .compare-result-copy-card :is(h4, h5, h6) {
+  margin: 0.75rem 0 0.32rem;
+  color: rgba(238, 247, 252, 0.98);
+  font-size: 0.86rem;
+  font-weight: 850;
+}
+
+body.wingman-compare-page .compare-result-flow [class*="partial" i],
+body.wingman-compare-page .compare-result-flow :is(span, strong, b):has(+ span) {
+  color: inherit;
+}
+
+body.wingman-compare-page .compare-result-flow .partial,
+body.wingman-compare-page .compare-result-flow [class*="partial" i] {
+  color: rgba(255, 211, 120, 0.98);
+  font-weight: 850;
+}
+
+@media (min-width: 1100px) {
+  body.wingman-compare-page .compare-result-flow {
+    padding: 1.1rem;
+  }
+
+  body.wingman-compare-page .compare-result-candidate-card {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  body.wingman-compare-page .compare-result-flow,
+  body.wingman-compare-page .compare-result-summary-card,
+  body.wingman-compare-page .compare-result-candidate-card,
+  body.wingman-compare-page .compare-result-copy-card,
+  body.wingman-compare-page main form {
+    padding: 0.8rem;
+    border-radius: 14px;
+  }
+}
+
+/* === Compare structured result layout repair: end === */
+
+/* === Compare result card visibility repair: start === */
+
+body.wingman-compare-page .compare-result-flow {
+  display: block;
+  margin-top: 1rem;
+}
+
+body.wingman-compare-page .compare-result-candidate-card,
+body.wingman-compare-page .compare-result-summary-card,
+body.wingman-compare-page .compare-result-copy-card {
+  display: block !important;
+  margin: 0.9rem 0 !important;
+  padding: 1rem !important;
+  border: 1px solid rgba(33, 214, 230, 0.28) !important;
+  border-radius: 16px !important;
+  background:
+    radial-gradient(circle at top right, rgba(33, 214, 230, 0.1), transparent 32%),
+    linear-gradient(180deg, rgba(8, 35, 52, 0.92), rgba(3, 16, 27, 0.9)) !important;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22) !important;
+}
+
+body.wingman-compare-page .compare-result-summary-card {
+  border-left: 4px solid rgba(255, 211, 120, 0.95) !important;
+}
+
+body.wingman-compare-page .compare-result-copy-card {
+  border-left: 4px solid rgba(52, 223, 236, 0.95) !important;
+  white-space: pre-line;
+}
+
+body.wingman-compare-page .compare-result-candidate-card + .compare-result-candidate-card {
+  margin-top: 1rem !important;
+}
+
+body.wingman-compare-page .compare-result-candidate-card strong,
+body.wingman-compare-page .compare-result-summary-card strong {
+  color: rgba(238, 247, 252, 0.98);
+}
+
+body.wingman-compare-page .compare-result-candidate-card a,
+body.wingman-compare-page .compare-result-summary-card a,
+body.wingman-compare-page .compare-result-copy-card a {
+  color: rgba(52, 223, 236, 0.96);
+  font-weight: 850;
+}
+
+/* === Compare result card visibility repair: end === */

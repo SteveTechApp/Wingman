@@ -78,7 +78,7 @@
                     "wm:migrate-page-frames":  "node tools/migrate-wingman-page-frames.mjs",
                     "check:usb-path-validator":  "node tools/check-usb-path-validator.mjs",
                     "check:product-classification":  "node tools/check-product-classification.mjs",
-                    "check:compare-equivalence-gates":  "node tools/check-compare-equivalence-gates.mjs",
+                    "check:compare-equivalence-gates":  "node tools/check-compare-equivalence-gates.mjs && vitest run src/wingman2/lib/networkHdAvoipRoleGate.test.ts",
                     "check:known-compare-profiles":  "node tools/check-known-compare-profiles.mjs",
                     "check:known-wyrestorm-matrix-profiles":  "node tools/check-known-wyrestorm-matrix-profiles.mjs",
                     "check:matrix-output-model":  "node tools/check-matrix-output-model.mjs",
