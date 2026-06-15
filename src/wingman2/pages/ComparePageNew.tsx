@@ -9,6 +9,13 @@ import {
 } from "../lib/networkHdAvoipEquivalence";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 
+
+/*
+  Compare known SKU click behaviour:
+  COMPARE_SKU_CLICK_AUTO_ADVANCE_BRIDGE
+  Known competitor SKU selection should go directly to WyreStorm result options.
+  Do not re-present a stored SKU confirmation stage after SKU click.
+*/
 /*
 KNOWN_COMPARE_PROFILE_OVERRIDE_COMPATIBILITY_GUARD
 applyKnownCompareProfileOverrides(baseResult, products, inputText, brand)
@@ -335,7 +342,7 @@ function includesAny(text: string, terms: string[]): boolean {
 function extractTags(text: string): string[] {
   const tags: string[] = [];
 
-  if (includesAny(text, ["AVOIP", "AV OVER IP", "IP300", "IP200", "OMNI", "NVX", "NAV", "ZYPER", "NETWORK"])) {
+  if (includesAny(text, ["AVOIP", "AV OVER IP", "IP350", "IP300", "IP250", "IP200", "OMNI", "NVX", "NAV", "ZYPER", "NETWORK"])) {
     tags.push("avoip");
   }
 
@@ -591,9 +598,9 @@ function buildAvoipCandidates(
   const networkNote = `Same network class: ${recommendation.networkClass.toUpperCase()}. 10G and 1G NetworkHD families are never mixed.`;
   const identityNote = classification.knownFamily
     ? `Competitor identified as ${classification.knownFamily}.`
-    : `Detected AV-over-IP endpoint role: ${classification.role}.`;
+    : `Detected endpoint role: ${classification.role}.`;
   const verifyGap = recommendation.verifyCodec
-    ? ["Verify the competitor codec - only drop to the NetworkHD 100 series if it is confirmed H.264/H.265."]
+    ? ["Verify the competitor codec. Only drop to the NetworkHD 100 series if the competitor is confirmed as an H.264/H.265 lower-bandwidth workflow and the customer accepts that class of performance."]
     : [];
 
   return recommendation.candidateSkus
@@ -621,6 +628,117 @@ function buildAvoipCandidates(
     .slice(0, 8);
 }
 
+function compareSummaryRoleLabel(
+  classificationRole: CompetitorAvoipClassification["role"],
+  fallbackRole: string,
+): string {
+  if (classificationRole === "encoder") {
+    return "Encoder / transmitter";
+  }
+
+  if (classificationRole === "decoder") {
+    return "Decoder / receiver";
+  }
+
+  if (classificationRole === "transceiver") {
+    return "Transceiver";
+  }
+
+  if (fallbackRole && fallbackRole !== "Unknown") {
+    return fallbackRole;
+  }
+
+  return "Needs confirmation";
+}
+
+function compareSummaryProductType(
+  profile: CompetitorProfile,
+  classification: CompetitorAvoipClassification,
+): string {
+  const roleLabel = compareSummaryRoleLabel(classification.role, profile.role);
+
+  if (classification.isAvoip && roleLabel !== "Needs confirmation") {
+    return `AV-over-IP ${roleLabel.toLowerCase()}`;
+  }
+
+  if (classification.isAvoip) {
+    return "AV-over-IP endpoint";
+  }
+
+  if (profile.productClass && profile.productClass !== "Unknown") {
+    return profile.productClass;
+  }
+
+  return "Needs confirmation";
+}
+
+function compareSummarySystemClass(
+  profile: CompetitorProfile,
+  classification: CompetitorAvoipClassification,
+  recommendation: NetworkHdAvoipRecommendation,
+): string {
+  if (classification.isAvoip && recommendation.networkClass === "1g") {
+    return "1GbE AV-over-IP endpoint";
+  }
+
+  if (classification.isAvoip && recommendation.networkClass === "10g") {
+    return "10GbE / SDVoE AV-over-IP endpoint";
+  }
+
+  if (classification.isAvoip) {
+    return "AV-over-IP endpoint - transport class needs confirmation";
+  }
+
+  if (profile.transport && profile.transport !== "Unknown") {
+    return profile.transport;
+  }
+
+  return "Needs confirmation";
+}
+
+function compareSummaryRoleGate(
+  classificationRole: CompetitorAvoipClassification["role"],
+  fallbackRole: string,
+): string {
+  const roleLabel = compareSummaryRoleLabel(classificationRole, fallbackRole);
+
+  if (roleLabel === "Encoder / transmitter") {
+    return "The competitor SKU is identified as a transmitter / encoder, so WyreStorm receiver-only products should not be treated as equivalent alternatives. Receiver SKUs may still be required elsewhere in the system, but they are not the direct comparison for this competitor product.";
+  }
+
+  if (roleLabel === "Decoder / receiver") {
+    return "The competitor SKU is identified as a receiver / decoder, so WyreStorm transmitter-only products should not be treated as equivalent alternatives. Transmitter SKUs may still be required elsewhere in the system, but they are not the direct comparison for this competitor product.";
+  }
+
+  if (roleLabel === "Transceiver") {
+    return "The competitor product appears to be a transceiver, so WyreStorm transceiver or role-compatible endpoint options should be checked before positioning.";
+  }
+
+  return "The endpoint role is not confirmed. Confirm whether the competitor product sits at the source side, display side, or operates as a transceiver before quoting.";
+}
+
+function compareSummaryRequiredChecks(
+  classification: CompetitorAvoipClassification,
+): string[] {
+  const checks = [
+    "Confirm the competitor codec and compression class.",
+    "Confirm required video format: resolution, refresh rate, colour space and HDR requirement.",
+    "Confirm whether USB/KVM, audio breakout, Dante/AES67, IR, RS-232 or CEC control are required.",
+    "Confirm whether the project is a new NetworkHD system or an addition to an existing system.",
+    "Confirm the network switch design, VLAN/IGMP requirements and available infrastructure before quoting.",
+    "Validate mandatory features against current WyreStorm datasheets before issuing a final BOM.",
+  ];
+
+  if (classification.isAvoip && classification.networkClass === "1g") {
+    checks.splice(4, 0, "Keep the design in the 1GbE NetworkHD lane unless a confirmed 10GbE / SDVoE requirement is present.");
+  }
+
+  if (classification.isAvoip && classification.networkClass === "10g") {
+    checks.splice(4, 0, "Keep the design in the 10GbE NetworkHD lane. Do not mix 10GbE SDVoE endpoints with 1GbE NetworkHD endpoint families.");
+  }
+
+  return checks;
+}
 function verdictClass(verdict: Verdict): string {
   if (verdict === "GOOD MATCH") {
     return "is-good";
@@ -755,8 +873,7 @@ function ComparePageNew() {
     [competitorInput, effectiveBrand, mustMatchFeatures],
   );
 
-  const scoredCandidates = useMemo(() => {
-    const avoip = mapCompetitorToNetworkHdAvoip(profile.rawText);
+  const avoipProfile = useMemo(() => mapCompetitorToNetworkHdAvoip(profile.rawText), [profile.rawText]); const scoredCandidates = useMemo(() => { const avoip = avoipProfile;
 
     if (avoip.recommendation.applies) {
       return buildAvoipCandidates(avoip.classification, avoip.recommendation);
@@ -816,25 +933,44 @@ function ComparePageNew() {
       return "No suitable WyreStorm match found from the current data";
     }
 
+    const competitorLabel = `${effectiveBrand} ${competitorInput || "unspecified SKU"}`.trim();
+    const detectedProductType = compareSummaryProductType(profile, avoipProfile.classification);
+    const detectedSystemClass = compareSummarySystemClass(profile, avoipProfile.classification, avoipProfile.recommendation);
+    const detectedRole = compareSummaryRoleLabel(avoipProfile.classification.role, profile.role);
+    const roleGate = compareSummaryRoleGate(avoipProfile.classification.role, profile.role);
+    const requiredChecks = compareSummaryRequiredChecks(avoipProfile.classification);
+    const copySafeChecks = uniqueSkuOptions([...requiredChecks, ...best.checks]);
+    const fitEvidence = best.matched.length > 0 ? best.matched : ["No strong fit evidence entered yet."];
+    const gapEvidence = best.gaps.length > 0 ? best.gaps : ["This is a product-direction match, not a confirmed feature-for-feature replacement. Confirm codec, USB/KVM, audio/control requirements and network design before quoting."];
+
     return [
-      `Competitor: ${effectiveBrand} ${competitorInput || "unspecified SKU"}`,
-      `Detected product class: ${profile.productClass}`,
-      `Detected role: ${profile.role}`,
-      `Detected transport: ${profile.transport}`,
+      `Competitor product: ${competitorLabel}`,
+      `Detected product type: ${detectedProductType}`,
+      `Detected system class: ${detectedSystemClass}`,
+      `Detected role: ${detectedRole}`,
       "",
       `Nearest WyreStorm direction: ${best.product.sku} - ${best.product.name}`,
       `Match result: ${best.verdict} (${Math.round(best.score)}%)`,
       "",
-      "Why it may fit:",
-      ...(best.matched.length > 0 ? best.matched.map((item) => `- ${item}`) : ["- No strong fit evidence entered yet."]),
+      "Why this WyreStorm direction is suggested",
+      `- ${competitorLabel} is being treated as ${detectedProductType}.`,
+      `- ${best.product.sku} is the nearest WyreStorm direction because it sits in the same system class and role direction shown above.`,
+      ...fitEvidence.map((item) => `- ${item}`),
       "",
-      "Check before quoting:",
-      ...best.checks.map((item) => `- ${item}`),
+      "Role matching",
+      `- ${roleGate}`,
       "",
-      "Gaps / cautions:",
-      ...(best.gaps.length > 0 ? best.gaps.map((item) => `- ${item}`) : ["- No obvious major gap from entered data. Confirm against datasheets."]),
+      "Check before quoting",
+      ...copySafeChecks.map((item) => `- ${item}`),
+      "",
+      "Gaps / cautionsss",
+      ...gapEvidence.map((item) => `- ${item}`),
+      "",
+      "BOM safety",
+      "- Do not place competitor products in a WyreStorm BOM.",
+      "- Treat this as a product-direction comparison until the required features have been confirmed against current datasheets.",
     ].join("\n");
-  }, [best, competitorInput, effectiveBrand, profile]);
+  }, [avoipProfile, best, competitorInput, effectiveBrand, profile]);
 
   function onBrandSelect(brand: string): void {
     setSelectedBrand(brand);
@@ -970,7 +1106,7 @@ function ComparePageNew() {
                 <p>{candidate.product.transport}</p>
 
                 <div>
-                  <strong>Why it may fit</strong>
+                  <strong>Why this direction is suggested</strong>
                   <ul>
                     {(candidate.matched.length > 0 ? candidate.matched : ["No strong fit evidence entered yet."]).map((line) => (
                       <li key={line}>{line}</li>
@@ -979,7 +1115,7 @@ function ComparePageNew() {
                 </div>
 
                 <div>
-                  <strong>Check before positioning</strong>
+                  <strong>Check before quoting</strong>
                   <ul>
                     {candidate.checks.map((line) => (
                       <li key={line}>{line}</li>
@@ -989,7 +1125,7 @@ function ComparePageNew() {
 
                 {candidate.gaps.length > 0 ? (
                   <div>
-                    <strong>Gaps / caution</strong>
+                    <strong>Gaps / cautionss</strong>
                     <ul>
                       {candidate.gaps.map((line) => (
                         <li key={line}>{line}</li>

@@ -2,6 +2,7 @@ import { GuruHelper } from "./wingman2/components/guru/GuruHelper";
 import "./wingman2/app/wingmanProductCallCardsCleanUi";
 import "./wingman2/app/wingmanDisplayScaleGuard";
 
+import "./wingman2/lib/compareSkuAutoAdvanceBridge";
 const wingmanWindow = window as Window & { __wingmanNewProjectHandlerInstalled?: boolean };
 
 if (!wingmanWindow.__wingmanNewProjectHandlerInstalled) {

@@ -254,8 +254,54 @@ const KNOWN_AVOIP_FAMILIES: KnownAvoipFamily[] = [
   { label: "AMX SVSI N2400/N2600", keys: ["n2412", "n2422", "n2612", "n2622", "n2400", "n2600", "n2615", "n2625"], networkClass: "1g", codec: "visually-lossless" },
 ];
 
+const KNOWN_AVOIP_SKU_ROLE_OVERRIDES: Array<{
+  keys: string[];
+  role: AvoipEndpointRole;
+  label: string;
+}> = [
+  {
+    keys: ["atomni111", "atomni112", "atomni512"],
+    role: "encoder",
+    label: "Atlona OmniStream encoder",
+  },
+  {
+    keys: ["atomni121", "atomni122", "atomni521"],
+    role: "decoder",
+    label: "Atlona OmniStream decoder",
+  },
+  {
+    keys: ["ip200uhdtx", "ip250uhdtx", "ip300uhdtx", "ip350uhdtx"],
+    role: "encoder",
+    label: "Blustream IP UHD transmitter",
+  },
+  {
+    keys: ["ip200uhdrx", "ip250uhdrx", "ip300uhdrx", "ip350uhdrx"],
+    role: "decoder",
+    label: "Blustream IP UHD receiver",
+  },
+];
+
+function knownAvoipRoleFromSku(compact: string): { role: AvoipEndpointRole; label: string } | null {
+  const match = KNOWN_AVOIP_SKU_ROLE_OVERRIDES.find((entry) =>
+    entry.keys.some((key) => compact.includes(key))
+  );
+
+  if (!match) {
+    return null;
+  }
+
+  return {
+    role: match.role,
+    label: match.label,
+  };
+}
 function detectRole(text: string, compact: string): AvoipEndpointRole {
-  const isTx = /\b(encoder|transmitter|source)\b/.test(text) || /-?tx\b/.test(text) || /tx$/.test(compact) || /[^a-z]e\d{2,3}/.test(text);
+  const knownRole = knownAvoipRoleFromSku(compact);
+
+  if (knownRole) {
+    return knownRole.role;
+  }
+const isTx = /\b(encoder|transmitter|source)\b/.test(text) || /-?tx\b/.test(text) || /tx$/.test(compact) || /[^a-z]e\d{2,3}/.test(text);
   const isRx = /\b(decoder|receiver|display\s*side|sink)\b/.test(text) || /-?rx\b/.test(text) || /rx$/.test(compact) || /[^a-z]d\d{2,3}/.test(text);
   const isTrx = /\b(transceiver|trx|bidirectional|two[\s-]?way)\b/.test(text);
 
@@ -460,7 +506,7 @@ export function recommendNetworkHdAvoip(
   } else if (series === "100") {
     reason = "Competitor is a 1G H.264/H.265 endpoint, so the NetworkHD 100 series is the like-for-like codec match.";
   } else if (verifyCodec) {
-    reason = "Competitor is a 1G AVoIP endpoint; NetworkHD 500 is the default like-for-like match. Verify the codec — only drop to the 100 series if it is confirmed H.264/H.265.";
+    reason = "The competitor appears to be a 1GbE AV-over-IP endpoint. NetworkHD 500 is the safer like-for-like WyreStorm direction for higher-quality 1GbE AV-over-IP workflows. Verify the competitor codec. Only drop to the NetworkHD 100 series if the competitor is confirmed as an H.264/H.265 lower-bandwidth workflow and the customer accepts that class of performance.";
   } else {
     reason = "Competitor is a 1G visually-lossless endpoint, so the NetworkHD 500 series is the like-for-like match.";
   }
