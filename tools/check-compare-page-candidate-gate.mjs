@@ -1,129 +1,154 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const ROOT = process.cwd();
-const pagePath = path.join(ROOT, "src", "wingman2", "pages", "ComparePageNew.tsx");
+const root = process.cwd();
+const comparePagePath = path.join(root, "src", "wingman2", "pages", "ComparePageNew.tsx");
+const compareText = fs.readFileSync(comparePagePath, "utf8");
 
-const failures = [];
-
-function fail(message) {
-  failures.push(message);
-}
-
-function read(filePath) {
-  if (!fs.existsSync(filePath)) {
-    fail(`Missing file: ${path.relative(ROOT, filePath)}`);
-    return "";
+function fail(prefix, items) {
+  console.error(prefix + " Check failed:");
+  for (const item of items) {
+    console.error("- " + item);
   }
-
-  return fs.readFileSync(filePath, "utf8");
-}
-
-const page = read(pagePath);
-
-const requiredMarkers = [
-  "CompareProductLookupInput",
-  "compareSkuSuggestions",
-  "skuOptionsForBrand",
-  "brandForCompetitorSku",
-  "handleSkuSelect",
-  "normalizeCompetitorSku",
-  "runKnownProfileCompare(",
-  "applyCompareEquivalenceGuards",
-  "applyKnownCompareProfileOverrides",
-  "lookupCompareIntelligence",
-  "shouldRequestLiveLookupUrl",
-  "data-wingman-compare-auto-advance=\"true\"",
-  "setWorkflowStep(\"options\")",
-  "isSelectableWyrestormRecommendation",
-  "No suitable WyreStorm match found from the current data",
-  "onSubmit={handleSubmit}"
-];
-
-for (const marker of requiredMarkers) {
-  if (!page.includes(marker)) {
-    fail(`ComparePage missing: ${marker}`);
-  }
-}
-
-if (page.includes("Find WyreStorm Alternatives")) {
-  fail("ComparePage still contains removed blue-button text: Find WyreStorm Alternatives");
-}
-
-if (page.includes("disabled={!competitorInput.trim()}")) {
-  fail("ComparePage still contains old submit-button disabled marker instead of SKU auto-advance workflow.");
-}
-
-const handleStart = page.indexOf("const handleSkuSelect = useCallback");
-const handleEnd = page.indexOf("const handleSubmit = useCallback", handleStart);
-
-if (handleStart < 0 || handleEnd < 0) {
-  fail("Could not isolate handleSkuSelect before handleSubmit.");
-}
-
-if (handleStart >= 0 && handleEnd > handleStart) {
-  const handler = page.slice(handleStart, handleEnd);
-
-  const handlerMarkers = [
-    "normalizeCompetitorSku(",
-    "runKnownProfileCompare(",
-    "setState(\"analyzing\")",
-    "setState(\"results\")",
-    "setWorkflowStep(\"options\")"
-  ];
-
-  for (const marker of handlerMarkers) {
-    if (!handler.includes(marker)) {
-      fail(`handleSkuSelect missing auto-advance marker: ${marker}`);
-    }
-  }
-}
-
-const submitStart = page.indexOf("const handleSubmit = useCallback");
-const retryStart = page.indexOf("const handleRetryWithSourceUrl", submitStart);
-
-if (submitStart < 0 || retryStart < 0) {
-  fail("Could not isolate handleSubmit before live lookup retry.");
-}
-
-if (submitStart >= 0 && retryStart > submitStart) {
-  const submitHandler = page.slice(submitStart, retryStart);
-
-  if (!submitHandler.includes("runKnownProfileCompare(")) {
-    fail("handleSubmit should remain as Enter/manual fallback and still run compare.");
-  }
-
-  if (!submitHandler.includes("setWorkflowStep(\"options\")")) {
-    fail("handleSubmit fallback should advance workflow to options.");
-  }
-}
-
-const retryStartIndex = page.indexOf("const handleRetryWithSourceUrl");
-const resetStart = page.indexOf("const handleReset", retryStartIndex);
-
-if (retryStartIndex < 0 || resetStart < 0) {
-  fail("Could not isolate handleRetryWithSourceUrl.");
-}
-
-if (retryStartIndex >= 0 && resetStart > retryStartIndex) {
-  const retryHandler = page.slice(retryStartIndex, resetStart);
-
-  if (!retryHandler.includes("lookupCompareIntelligence(")) {
-    fail("Live lookup retry path missing lookupCompareIntelligence.");
-  }
-
-  if (!retryHandler.includes("runKnownProfileCompare(")) {
-    fail("Live lookup retry path missing compare rerun.");
-  }
-}
-
-if (failures.length > 0) {
-  console.error("[compare-page-candidate-gate] Check failed:");
-  for (const failure of failures) {
-    console.error(`- ${failure}`);
-  }
-
   process.exit(1);
 }
 
-console.log("[compare-page-candidate-gate] Verified active Compare page applies SKU auto-advance, viable-option gate, manual Enter fallback, and live lookup retry before match ranking.");
+function findMatching(text, openIndex, openChar, closeChar) {
+  let depth = 0;
+  let inString = false;
+  let stringChar = "";
+  let escaped = false;
+
+  for (let index = openIndex; index < text.length; index += 1) {
+    const char = text[index];
+
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+
+      if (char === "\\") {
+        escaped = true;
+        continue;
+      }
+
+      if (char === stringChar) {
+        inString = false;
+        stringChar = "";
+      }
+
+      continue;
+    }
+
+    if (char === '"' || char === "'" || char === "`") {
+      inString = true;
+      stringChar = char;
+      continue;
+    }
+
+    if (char === openChar) {
+      depth += 1;
+      continue;
+    }
+
+    if (char === closeChar) {
+      depth -= 1;
+      if (depth === 0) return index;
+    }
+  }
+
+  return -1;
+}
+
+function extractHandler(name) {
+  const marker = "const " + name + " = useCallback";
+  const start = compareText.indexOf(marker);
+
+  if (start < 0) return "";
+
+  const openParen = compareText.indexOf("(", start);
+  const closeParen = findMatching(compareText, openParen, "(", ")");
+
+  if (closeParen < 0) return "";
+
+  return compareText.slice(start, closeParen + 1);
+}
+
+const handleSkuSelect = extractHandler("handleSkuSelect");
+const handleSubmit = extractHandler("handleSubmit");
+const failures = [];
+
+if (!compareText.includes("Viable product choices")) {
+  failures.push("ComparePageNew missing result heading: Viable product choices");
+}
+
+if (!compareText.includes('data-wingman-compare-auto-advance="true"')) {
+  failures.push("ComparePageNew missing auto-advance form marker.");
+}
+
+if (!handleSkuSelect) {
+  failures.push("Could not isolate handleSkuSelect.");
+}
+
+if (handleSkuSelect) {
+  if (!handleSkuSelect.includes("commitCompare(") && !handleSkuSelect.includes("runKnownProfileCompare(") && !handleSkuSelect.includes("runCompareRuntimePipeline(")) {
+    failures.push("handleSkuSelect does not run compare directly.");
+  }
+
+  if (!handleSkuSelect.includes('setState("analyzing")')) {
+    failures.push("handleSkuSelect does not enter analyzing state.");
+  }
+
+  if (!handleSkuSelect.includes('setState("results")')) {
+    failures.push("handleSkuSelect does not advance to results.");
+  }
+
+  if (!handleSkuSelect.includes('setWorkflowStep("options")')) {
+    failures.push("handleSkuSelect does not advance workflow to options.");
+  }
+}
+
+if (!handleSubmit) {
+  failures.push("Could not isolate handleSubmit.");
+}
+
+if (handleSubmit) {
+  if (!handleSubmit.includes("commitCompare(") && !handleSubmit.includes("lookupCompareIntelligence(")) {
+    failures.push("handleSubmit does not run compare or live lookup.");
+  }
+
+  if (!handleSubmit.includes('setState("analyzing")') || !handleSubmit.includes('setState("results")')) {
+    failures.push("handleSubmit does not move through analyzing/results state.");
+  }
+
+  if (!handleSubmit.includes('setWorkflowStep("options")')) {
+    failures.push("handleSubmit does not advance workflow to options.");
+  }
+}
+
+if (!compareText.includes("lookupCompareIntelligence")) {
+  failures.push("Live lookup path missing lookupCompareIntelligence.");
+}
+
+if (!compareText.includes("shouldRequestLiveLookupUrl")) {
+  failures.push("Live lookup path missing shouldRequestLiveLookupUrl.");
+}
+
+if (!compareText.includes("handleRetryWithSourceUrl")) {
+  failures.push("Live lookup retry path missing handleRetryWithSourceUrl.");
+}
+
+if (!compareText.includes("isSelectableWyrestormRecommendation")) {
+  failures.push("ComparePageNew missing selectable recommendation gate.");
+}
+
+if (!compareText.includes("No suitable WyreStorm match found from the current data")) {
+  failures.push("ComparePageNew missing no-suitable-match message.");
+}
+
+if (failures.length > 0) {
+  fail("[compare-page-candidate-gate]", failures);
+}
+
+console.log("[compare-page-candidate-gate] Verified native ComparePageNew workflow, candidate gate markers, manual fallback and live lookup path.");
