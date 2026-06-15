@@ -31,15 +31,28 @@ describe("wyrestormCompareShortlist", () => {
     expect(result.candidateSkus).not.toContain("NHD-500-RX");
   });
 
-  it("shortlists 1G receiver products for AVoIP receiver intent", () => {
+  it("shortlists the 1G 500-series receiver for an unknown-codec AVoIP receiver, never the 100 series or 10G", () => {
     const result = buildWyreStormCompareShortlist({
       competitorText: "Competitor AV over IP decoder receiver 1GbE",
       wyrestormProducts: products,
     });
 
     expect(result.intent).toBe("avoip_1g_decoder");
-    expect(result.candidateSkus).toContain("NHD-120-RX");
     expect(result.candidateSkus).toContain("NHD-500-RX");
+    // codec unknown -> 500 is the default; do not mix in the 100 series or 10G 600
+    expect(result.candidateSkus).not.toContain("NHD-120-RX");
+    expect(result.candidateSkus).not.toContain("NHD-600-TRX");
+  });
+
+  it("shortlists the 1G 100-series receiver when the competitor is H.264/H.265", () => {
+    const result = buildWyreStormCompareShortlist({
+      competitorText: "Competitor AV over IP H.265 decoder receiver 1GbE",
+      wyrestormProducts: products,
+    });
+
+    expect(result.intent).toBe("avoip_1g_decoder");
+    expect(result.candidateSkus).toContain("NHD-120-RX");
+    expect(result.candidateSkus).not.toContain("NHD-500-RX");
     expect(result.candidateSkus).not.toContain("NHD-600-TRX");
   });
 

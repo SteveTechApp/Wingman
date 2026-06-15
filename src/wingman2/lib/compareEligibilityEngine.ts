@@ -1,3 +1,40 @@
+import {
+  isBannedNetworkHdSku,
+  mapCompetitorToNetworkHdAvoip,
+  networkClassOfNetworkHdSku,
+  type AvoipNetworkClass,
+  type NetworkHdAvoipRecommendation,
+} from "./networkHdAvoipEquivalence";
+
+const AVOIP_ENDPOINT_INTENTS = new Set<CompareIntentKind>([
+  "av-over-ip",
+  "av-over-ip-encoder",
+  "av-over-ip-decoder",
+]);
+
+/**
+ * Enforce the "never mix 10G and 1G" rule: a 1G competitor must not be offered a
+ * 10G NetworkHD 600 endpoint, and a 10G/SDVoE competitor must not be offered a 1G
+ * (100/500) endpoint. Returns a blocker reason, or null when the pairing is allowed.
+ */
+function avoipNetworkMismatch(competitorNetworkClass: AvoipNetworkClass, candidateSku: string): string | null {
+  if (competitorNetworkClass === "unknown") {
+    return null;
+  }
+
+  const candidateClass = networkClassOfNetworkHdSku(candidateSku);
+
+  if (candidateClass === "unknown" || candidateClass === competitorNetworkClass) {
+    return null;
+  }
+
+  if (competitorNetworkClass === "10g") {
+    return "1G NetworkHD endpoint cannot replace a 10G/SDVoE competitor. Use the NetworkHD 600 series; do not mix 10G and 1G.";
+  }
+
+  return "NetworkHD 600 is 10G SDVoE and must not be mixed with a 1G competitor. Use the NetworkHD 100/500 series.";
+}
+
 type LooseRecord = Record<string, any>;
 type LooseMatch = LooseRecord;
 
@@ -508,12 +545,29 @@ export function evaluateProductEligibility(args: {
   competitorText: string;
   match: LooseMatch;
   product?: LooseRecord;
+  competitorNetworkClass?: AvoipNetworkClass;
 }): CompareEligibilityResult {
   const product = args.product || args.match;
   const sku = getSku(product || args.match);
   const key = skuKey(sku);
   const text = productText(product || args.match);
   const combined = `${sku} ${text}`;
+
+  // Retired NetworkHD platforms (NHD-100/110/220/300/400) must never be specified.
+  if (isBannedNetworkHdSku(sku)) {
+    return blocked(sku, args.intent, [
+      `${sku} is a retired NetworkHD platform and must never be specified in a comparison. Use a current 100/500/600 series SKU.`,
+    ]);
+  }
+
+  // Never mix 10G and 1G NetworkHD families against an AVoIP endpoint competitor.
+  if (AVOIP_ENDPOINT_INTENTS.has(args.intent)) {
+    const networkMismatch = avoipNetworkMismatch(args.competitorNetworkClass ?? "unknown", sku);
+
+    if (networkMismatch) {
+      return blocked(sku, args.intent, [networkMismatch]);
+    }
+  }
 
   const supportOnlyReason = productIsSupportOnly(sku, combined);
   const invalidLeadReason = invalidLeadReasonForIntent(supportOnlyReason, args.intent);
@@ -695,47 +749,35 @@ export function evaluateProductEligibility(args: {
   return related(args.intent, ["No strict intent gate applied."], 80);
 }
 
-function ensureEligibilityCandidatePool(matches: LooseMatch[], products: LooseRecord[], intent: CompareIntentKind, competitorText: string): LooseMatch[] {
+function ensureEligibilityCandidatePool(
+  matches: LooseMatch[],
+  products: LooseRecord[],
+  intent: CompareIntentKind,
+  competitorText: string,
+  avoipRecommendation: NetworkHdAvoipRecommendation,
+): LooseMatch[] {
   const nextMatches = [...matches];
 
-  if (intent === "av-over-ip") {
-    addCandidateBySku(nextMatches, products, "NHD-600-TRX", "Eligibility correction: NetworkHD transceiver candidate inserted for AVoIP endpoint comparison.", 82);
-    addCandidatesByPredicate(
-      nextMatches,
-      products,
-      (product) => productHasNetworkHdEndpointRole(String(product.sku ?? ""), productText(product)),
-      "Eligibility correction: NetworkHD endpoint candidate inserted for AVoIP comparison.",
-      5,
-      72,
-    );
-  }
+  // AVoIP endpoints: inject only the truth-resolved series (correct network class
+  // + codec + role, banned SKUs already removed). This never mixes 10G and 1G.
+  if (AVOIP_ENDPOINT_INTENTS.has(intent) && avoipRecommendation.applies) {
+    let added = 0;
 
-  if (intent === "av-over-ip-decoder") {
-    addCandidatesByPredicate(
-      nextMatches,
-      products,
-      (product) => {
-        const role = networkHdEndpointRoleFromSku(String(product.sku ?? ""));
-        return role === "rx" || role === "trx";
-      },
-      "Eligibility correction: NetworkHD receiver/decoder candidate inserted for display-side AVoIP comparison.",
-      5,
-      76,
-    );
-  }
+    for (const sku of avoipRecommendation.candidateSkus) {
+      addCandidateBySku(
+        nextMatches,
+        products,
+        sku,
+        `Eligibility correction: NetworkHD ${avoipRecommendation.series} (${avoipRecommendation.networkClass.toUpperCase()}) candidate inserted for AVoIP comparison.`,
+        80,
+      );
 
-  if (intent === "av-over-ip-encoder") {
-    addCandidatesByPredicate(
-      nextMatches,
-      products,
-      (product) => {
-        const role = networkHdEndpointRoleFromSku(String(product.sku ?? ""));
-        return role === "tx" || role === "trx";
-      },
-      "Eligibility correction: NetworkHD transmitter/encoder candidate inserted for source-side AVoIP comparison.",
-      5,
-      76,
-    );
+      added += 1;
+
+      if (added >= 6) {
+        break;
+      }
+    }
   }
 
   if (intent === "matrix" || intent === "hdbaset-matrix") {
@@ -840,16 +882,34 @@ export function applyCompareEligibilityRanking<T extends { matches?: LooseMatch[
     structuredMatrixText(result.competitor || result),
     extractCompetitorText(result.competitor || result, inputText),
   ].filter(Boolean).join(" ");
-  const matches = ensureEligibilityCandidatePool(rawMatches, products, intent, competitorText);
+
+  // Resolve the competitor's AVoIP network class + correct NetworkHD series once,
+  // so the eligibility layer obeys the same "never mix 10G and 1G" + ban rules.
+  const { classification: avoipClassification, recommendation: avoipRecommendation } =
+    mapCompetitorToNetworkHdAvoip(competitorText);
+  const competitorNetworkClass: AvoipNetworkClass = avoipClassification.isAvoip
+    ? avoipClassification.networkClass
+    : "unknown";
+  const recommendedSkuKeys = new Set(avoipRecommendation.candidateSkus.map((sku) => skuKey(sku)));
+
+  const matches = ensureEligibilityCandidatePool(rawMatches, products, intent, competitorText, avoipRecommendation);
 
   const evaluated = matches.map((match, index) => {
     const product = getProduct(match, products);
-    const compareEligibility = evaluateProductEligibility({
+    const baseEligibility = evaluateProductEligibility({
       intent,
       competitorText,
       match,
       product,
+      competitorNetworkClass,
     });
+
+    // Within the allowed network class, prefer the truth-resolved series/role
+    // (e.g. 500 over 100 for a visually-lossless 1G competitor) so it leads.
+    const compareEligibility =
+      baseEligibility.eligibility === "direct" && recommendedSkuKeys.has(skuKey(getSku(match)))
+        ? { ...baseEligibility, fitPenalty: baseEligibility.fitPenalty - 40 }
+        : baseEligibility;
 
     return {
       match: {

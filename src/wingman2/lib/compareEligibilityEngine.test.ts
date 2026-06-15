@@ -8,8 +8,8 @@ import {
 const products = [
   { sku: "NHD-000-CTL", name: "NetworkHD controller", role: "system-controller / conditional-default" },
   { sku: "NHD-000-RACK4", name: "NetworkHD rack mount", role: "rack-mount / request-only" },
-  { sku: "NHD-110-TX", name: "NetworkHD encoder transmitter", role: "endpoint-hardware / default" },
-  { sku: "NHD-110-RX", name: "NetworkHD decoder receiver", role: "endpoint-hardware / default" },
+  { sku: "NHD-500-TX", name: "NetworkHD 500 encoder transmitter", role: "endpoint-hardware / default" },
+  { sku: "NHD-500-RX", name: "NetworkHD 500 decoder receiver", role: "endpoint-hardware / default" },
   { sku: "NHD-600-TRX", name: "NetworkHD 600 transceiver SDVoE 10G", role: "endpoint-hardware / default" },
   { sku: "NHD-0401-MV", name: "4 input multiview processor for NetworkHD", role: "primary-hardware / default" },
   { sku: "MX-0404-HDMI", name: "4x4 HDMI matrix switcher", role: "primary-hardware / default" },
@@ -40,14 +40,14 @@ describe("compare eligibility engine", () => {
     expect(eligibility.blockers.join(" ")).toMatch(/cannot be a lead replacement/i);
   });
 
-  it("prefers decoder or transceiver candidates for decoder competitor requests", () => {
+  it("maps a 1G decoder competitor to the 500-series receiver and blocks the 10G 600 transceiver", () => {
     const result = applyCompareEligibilityRanking(
       {
         competitor: { sku: "NAV D 121", role: "AV over IP decoder receiver" },
         matches: [
           { sku: "NHD-000-CTL" },
-          { sku: "NHD-110-TX" },
-          { sku: "NHD-110-RX" },
+          { sku: "NHD-500-TX" },
+          { sku: "NHD-500-RX" },
           { sku: "NHD-600-TRX" },
         ],
         rejected: [] as Array<{ sku?: string }>,
@@ -56,17 +56,20 @@ describe("compare eligibility engine", () => {
       "NAV D 121 decoder receiver endpoint",
     );
 
-    expect(result.matches?.[0]?.sku).toMatch(/NHD-110-RX|NHD-600-TRX/);
+    // NAV is a 1G endpoint -> 500 series; the 10G 600-TRX must never be mixed in.
+    expect(result.matches?.[0]?.sku).toBe("NHD-500-RX");
+    expect(result.matches?.some((item) => item.sku === "NHD-600-TRX")).toBe(false);
+    expect(result.rejected?.some((item) => item.sku === "NHD-600-TRX")).toBe(true);
     expect(result.rejected?.some((item) => item.sku === "NHD-000-CTL")).toBe(true);
   });
 
-  it("blocks receiver-only NetworkHD endpoints for encoder competitor requests", () => {
+  it("blocks receiver-only and 10G endpoints for a 1G encoder competitor request", () => {
     const result = applyCompareEligibilityRanking(
       {
         competitor: { sku: "NAV E 121", role: "AV over IP encoder transmitter" },
         matches: [
-          { sku: "NHD-110-RX" },
-          { sku: "NHD-110-TX" },
+          { sku: "NHD-500-RX" },
+          { sku: "NHD-500-TX" },
           { sku: "NHD-600-TRX" },
         ],
         rejected: [] as Array<{ sku?: string }>,
@@ -75,9 +78,53 @@ describe("compare eligibility engine", () => {
       "NAV E 121 encoder transmitter endpoint",
     );
 
-    expect(result.matches?.[0]?.sku).toMatch(/NHD-110-TX|NHD-600-TRX/);
-    expect(result.matches?.some((item) => item.sku === "NHD-110-RX")).toBe(false);
-    expect(result.rejected?.some((item) => item.sku === "NHD-110-RX")).toBe(true);
+    expect(result.matches?.[0]?.sku).toBe("NHD-500-TX");
+    expect(result.matches?.some((item) => item.sku === "NHD-500-RX")).toBe(false);
+    expect(result.matches?.some((item) => item.sku === "NHD-600-TRX")).toBe(false);
+    expect(result.rejected?.some((item) => item.sku === "NHD-500-RX")).toBe(true);
+    expect(result.rejected?.some((item) => item.sku === "NHD-600-TRX")).toBe(true);
+  });
+
+  it("maps a 10G/SDVoE competitor to the 600 series and blocks 1G NetworkHD endpoints", () => {
+    const result = applyCompareEligibilityRanking(
+      {
+        competitor: { sku: "MXNet-10G-TCVR", role: "AV over IP transceiver", transport: "10G SDVoE" },
+        matches: [
+          { sku: "NHD-500-TX" },
+          { sku: "NHD-500-RX" },
+          { sku: "NHD-600-TRX" },
+        ],
+        rejected: [] as Array<{ sku?: string }>,
+      },
+      products,
+      "MXNet-10G-TCVR 10G SDVoE transceiver",
+    );
+
+    expect(result.matches?.[0]?.sku).toBe("NHD-600-TRX");
+    expect(result.matches?.some((item) => item.sku === "NHD-500-TX")).toBe(false);
+    expect(result.matches?.some((item) => item.sku === "NHD-500-RX")).toBe(false);
+    expect(result.rejected?.some((item) => item.sku === "NHD-500-RX")).toBe(true);
+  });
+
+  it("blocks retired legacy NetworkHD SKUs from ever becoming a comparison candidate", () => {
+    const result = applyCompareEligibilityRanking(
+      {
+        competitor: { sku: "NAV E 121", role: "AV over IP encoder transmitter" },
+        matches: [
+          { sku: "NHD-110-TX" },
+          { sku: "NHD-400-TX" },
+          { sku: "NHD-500-TX" },
+        ],
+        rejected: [] as Array<{ sku?: string }>,
+      },
+      products,
+      "NAV E 121 encoder transmitter endpoint",
+    );
+
+    expect(result.matches?.some((item) => item.sku === "NHD-110-TX")).toBe(false);
+    expect(result.matches?.some((item) => item.sku === "NHD-400-TX")).toBe(false);
+    expect(result.rejected?.some((item) => item.sku === "NHD-110-TX")).toBe(true);
+    expect(result.matches?.[0]?.sku).toMatch(/NHD-500-TX|NHD-600-TRX/);
   });
 
   it("prefers correctly sized matrix candidates over oversized or unrelated products", () => {

@@ -5,10 +5,21 @@
  * Before the older comparison/eligibility pipeline runs, obvious competitor
  * product types should be constrained to the correct WyreStorm family.
  *
+ * AV-over-IP endpoints are mapped through networkHdAvoipEquivalence (the single
+ * source of truth): the competitor's network class and codec decide the exact
+ * NetworkHD series (100 / 500 / 600), 10G and 1G families are never mixed, and
+ * the banned legacy SKUs (NHD-100/110/220/300/400) are never returned.
+ *
  * Example:
- * Blustream IP350UHD-TX = AVoIP transmitter
- * Direct WyreStorm candidates = NetworkHD TX products, not EX/EXF extenders.
+ * Blustream IP350UHD-TX = 1G AVoIP transmitter (codec unspecified)
+ * Direct WyreStorm candidates = NetworkHD 500 transmitters (verify codec),
+ * not 100-series, not 10G, and never an EX/EXF extender.
  */
+
+import {
+  isBannedNetworkHdSku,
+  mapCompetitorToNetworkHdAvoip,
+} from "./networkHdAvoipEquivalence";
 
 export interface DirectCandidateProduct {
   sku: string;
@@ -89,34 +100,6 @@ function containsAny(text: string, terms: string[]): boolean {
   return terms.some((term) => text.includes(term.toLowerCase()));
 }
 
-function isLikelyAvoipText(text: string): boolean {
-  if (containsAny(text, ["avoip", "av over ip", "av-over-ip", "network av", "networkhd", "sdvoe", "jpeg-xs", "jpeg xs"])) {
-    return true;
-  }
-
-  if (/\bIP\d{2,4}[A-Z0-9]*-?(TX|RX)\b/i.test(text)) {
-    return true;
-  }
-
-  if (/\bIP\d{2,4}[A-Z0-9]*\b/i.test(text) && containsAny(text, ["tx", "rx", "transmitter", "receiver", "encoder", "decoder"])) {
-    return true;
-  }
-
-  return false;
-}
-
-function isSourceSide(text: string): boolean {
-  return containsAny(text, ["-tx", " tx", "transmitter", "encoder", "source-side", "source side"]) || /\bIP\d{2,4}[A-Z0-9]*-?TX\b/i.test(text);
-}
-
-function isSinkSide(text: string): boolean {
-  return containsAny(text, ["-rx", " rx", "receiver", "decoder", "display-side", "display side", "sink-side", "sink side"]) || /\bIP\d{2,4}[A-Z0-9]*-?RX\b/i.test(text);
-}
-
-function is10G(text: string): boolean {
-  return containsAny(text, ["10gbe", "10gb", "10g", "sdvoe", "zero latency", "zero-frame", "zero frame"]);
-}
-
 function isNonDirectAccessory(product: DirectCandidateProduct): boolean {
   const sku = normaliseSku(product.sku);
   const text = productText(product);
@@ -138,135 +121,51 @@ function isHdbasetExtender(product: DirectCandidateProduct): boolean {
   return false;
 }
 
-function findBySkuOrder(products: DirectCandidateProduct[], orderedTerms: string[]): DirectCandidateProduct[] {
-  const result: DirectCandidateProduct[] = [];
-  const used = new Set<string>();
-
-  for (const term of orderedTerms) {
-    const normalisedTerm = normaliseSku(term);
-
-    for (const product of products) {
-      const sku = normaliseSku(product.sku);
-
-      if (!sku || used.has(sku)) {
-        continue;
-      }
-
-      if (sku.includes(normalisedTerm)) {
-        used.add(sku);
-        result.push(enrichCandidate(product));
-      }
-    }
-  }
-
-  return result;
+function roleFromSku(sku: string): { role: string; isTransceiver: boolean } {
+  if (sku.includes("TRX")) return { role: "Transceiver", isTransceiver: true };
+  if (sku.endsWith("-RX") || sku.includes("-RX-")) return { role: "Receiver", isTransceiver: false };
+  return { role: "Transmitter", isTransceiver: false };
 }
 
-function addFallback(
-  result: DirectCandidateProduct[],
-  sku: string,
-  name: string,
-  fields: Partial<DirectCandidateProduct>,
-): void {
-  const existing = new Set(result.map((item) => normaliseSku(item.sku)));
-  const normalisedSku = normaliseSku(sku);
-
-  if (existing.has(normalisedSku)) {
-    return;
-  }
-
-  result.push(enrichCandidate({
-    sku,
-    name,
-    title: name,
-    productName: name,
-    ...fields,
-  }));
-}
-
+/** Add display-quality NetworkHD AVoIP metadata to a (possibly bare) candidate. */
 function enrichCandidate(product: DirectCandidateProduct): DirectCandidateProduct {
   const sku = normaliseSku(product.sku);
+
+  if (!sku.startsWith("NHD")) {
+    return product;
+  }
+
   const existingTags = Array.isArray(product.tags) ? product.tags : [];
+  const isTenGig = /NHD-6\d{2}/.test(sku);
+  const { role } = roleFromSku(sku);
+  const seriesMatch = sku.match(/NHD-(\d)/);
+  const seriesLabel = seriesMatch ? `NetworkHD ${seriesMatch[1]}00` : "NetworkHD";
+  const technology = isTenGig ? "10G SDVoE AVoIP" : "1G NetworkHD AVoIP";
+  const network = isTenGig ? "10GbE" : "1GbE";
 
-  if (sku.includes("NHD-600")) {
-    return {
-      ...product,
-      name: product.name ?? product.title ?? "NHD-600-TRX NetworkHD 600 transceiver",
-      title: product.title ?? product.name ?? "NHD-600-TRX NetworkHD 600 transceiver",
-      productName: product.productName ?? product.name ?? product.title ?? "NHD-600-TRX NetworkHD 600 transceiver",
-      productClass: product.productClass ?? "NetworkHD 600 AVoIP transceiver",
-      family: product.family ?? "NetworkHD 600",
-      technology: product.technology ?? "10G SDVoE AVoIP",
-      transport: product.transport ?? "AVoIP",
-      role: product.role ?? "Transceiver",
-      description:
-        product.description ??
-        "NetworkHD 600 10G AVoIP transceiver for high-performance source or display endpoint roles.",
-      network: product.network ?? "10GbE",
-      networkInterface: product.networkInterface ?? "10GbE",
-      maxResolution: product.maxResolution ?? "4K60",
-      resolution: product.resolution ?? "4K60",
-      inputs: product.inputs ?? 1,
-      outputs: product.outputs ?? 1,
-      inputCount: product.inputCount ?? 1,
-      outputCount: product.outputCount ?? 1,
-      tags: Array.from(new Set([...existingTags, "direct-compare-candidate", "avoip", "networkhd", "10g"])),
-    };
-  }
-
-  if (sku.includes("NHD") && sku.includes("TX")) {
-    return {
-      ...product,
-      name: product.name ?? product.title ?? `${sku} NetworkHD AVoIP transmitter`,
-      title: product.title ?? product.name ?? `${sku} NetworkHD AVoIP transmitter`,
-      productName: product.productName ?? product.name ?? product.title ?? `${sku} NetworkHD AVoIP transmitter`,
-      productClass: product.productClass ?? "NetworkHD AVoIP transmitter",
-      family: product.family ?? "NetworkHD",
-      technology: product.technology ?? "1G NetworkHD AVoIP transmitter",
-      transport: product.transport ?? "AVoIP",
-      role: product.role ?? "Transmitter",
-      description:
-        product.description ??
-        "NetworkHD AVoIP transmitter/encoder candidate for source-side AVoIP comparison.",
-      network: product.network ?? "1GbE",
-      networkInterface: product.networkInterface ?? "1GbE",
-      maxResolution: product.maxResolution ?? "4K60",
-      resolution: product.resolution ?? "4K60",
-      inputs: product.inputs ?? 1,
-      outputs: product.outputs ?? 1,
-      inputCount: product.inputCount ?? 1,
-      outputCount: product.outputCount ?? 1,
-      tags: Array.from(new Set([...existingTags, "direct-compare-candidate", "avoip", "networkhd", "transmitter", "encoder"])),
-    };
-  }
-
-  if (sku.includes("NHD") && (sku.includes("RX") || sku.includes("150"))) {
-    return {
-      ...product,
-      name: product.name ?? product.title ?? `${sku} NetworkHD AVoIP receiver`,
-      title: product.title ?? product.name ?? `${sku} NetworkHD AVoIP receiver`,
-      productName: product.productName ?? product.name ?? product.title ?? `${sku} NetworkHD AVoIP receiver`,
-      productClass: product.productClass ?? "NetworkHD AVoIP receiver",
-      family: product.family ?? "NetworkHD",
-      technology: product.technology ?? "1G NetworkHD AVoIP receiver",
-      transport: product.transport ?? "AVoIP",
-      role: product.role ?? "Receiver",
-      description:
-        product.description ??
-        "NetworkHD AVoIP receiver/decoder candidate for display-side AVoIP comparison.",
-      network: product.network ?? "1GbE",
-      networkInterface: product.networkInterface ?? "1GbE",
-      maxResolution: product.maxResolution ?? "4K60",
-      resolution: product.resolution ?? "4K60",
-      inputs: product.inputs ?? 1,
-      outputs: product.outputs ?? 1,
-      inputCount: product.inputCount ?? 1,
-      outputCount: product.outputCount ?? 1,
-      tags: Array.from(new Set([...existingTags, "direct-compare-candidate", "avoip", "networkhd", "receiver", "decoder"])),
-    };
-  }
-
-  return product;
+  return {
+    ...product,
+    name: product.name ?? product.title ?? `${sku} ${seriesLabel} AVoIP ${role.toLowerCase()}`,
+    title: product.title ?? product.name ?? `${sku} ${seriesLabel} AVoIP ${role.toLowerCase()}`,
+    productName: product.productName ?? product.name ?? product.title ?? `${sku} ${seriesLabel} AVoIP ${role.toLowerCase()}`,
+    productClass: product.productClass ?? `${seriesLabel} AVoIP ${role.toLowerCase()}`,
+    family: product.family ?? seriesLabel,
+    technology: product.technology ?? technology,
+    transport: product.transport ?? "AVoIP",
+    role: product.role ?? role,
+    description:
+      product.description ??
+      `${seriesLabel} AVoIP ${role.toLowerCase()} candidate for ${isTenGig ? "10G SDVoE" : "1G"} endpoint comparison.`,
+    network: product.network ?? network,
+    networkInterface: product.networkInterface ?? network,
+    maxResolution: product.maxResolution ?? "4K60",
+    resolution: product.resolution ?? "4K60",
+    inputs: product.inputs ?? 1,
+    outputs: product.outputs ?? 1,
+    inputCount: product.inputCount ?? 1,
+    outputCount: product.outputCount ?? 1,
+    tags: Array.from(new Set([...existingTags, "direct-compare-candidate", "avoip", "networkhd", isTenGig ? "10g" : "1g"])),
+  };
 }
 
 function unique(products: DirectCandidateProduct[]): DirectCandidateProduct[] {
@@ -292,114 +191,61 @@ export function buildWyreStormDirectCandidateMap(args: {
   wyrestormProducts: DirectCandidateProduct[];
   maxCandidates?: number;
 }): DirectCandidateMapResult {
-  const text = args.competitorText.toLowerCase();
   const maxCandidates = args.maxCandidates ?? 10;
   const products = args.wyrestormProducts.filter((product) => normaliseSku(product.sku));
+  const { classification, recommendation } = mapCompetitorToNetworkHdAvoip(args.competitorText);
 
-  if (isLikelyAvoipText(text) && is10G(text)) {
-    const selected = findBySkuOrder(products, ["NHD-600-TRX", "NHD-600"]);
-    addFallback(selected, "NHD-600-TRX", "NetworkHD 600 transceiver", {
-      productClass: "NetworkHD 600 AVoIP transceiver",
-      family: "NetworkHD 600",
-      technology: "10G SDVoE AVoIP",
-      transport: "AVoIP",
-      role: "Transceiver",
-    });
-
-    const candidates = unique(selected).slice(0, maxCandidates);
-
+  if (!recommendation.applies) {
     return {
-      didApply: true,
-      intent: "avoip_10g",
-      reason: "Competitor appears to be a 10G AVoIP endpoint. Restricting direct comparison to NetworkHD 600.",
-      candidates,
-      candidateSkus: candidates.map((item) => normaliseSku(item.sku)),
-      debug: [`input=${args.competitorText}`, `candidates=${candidates.length}`],
+      didApply: false,
+      intent: "none",
+      reason: "No direct WyreStorm candidate map applied.",
+      candidates: [],
+      candidateSkus: [],
+      debug: [`input=${args.competitorText}`],
     };
   }
 
-  if (isLikelyAvoipText(text) && isSourceSide(text)) {
-    const selected = findBySkuOrder(
-      products.filter((product) => !isNonDirectAccessory(product) && !isHdbasetExtender(product)),
-      ["NHD-500-TX", "NHD-124-TX", "NHD-128", "NHD-100-TX"],
-    );
+  const intent: DirectCandidateIntent =
+    recommendation.series === "600"
+      ? "avoip_10g"
+      : classification.role === "decoder"
+        ? "avoip_decoder"
+        : "avoip_encoder";
 
-    addFallback(selected, "NHD-500-TX", "NetworkHD 500 transmitter", {
-      productClass: "NetworkHD 500 AVoIP transmitter",
-      family: "NetworkHD 500",
-      technology: "1G JPEG-XS AVoIP transmitter",
-      transport: "AVoIP",
-      role: "Transmitter",
-    });
+  const catalog = products.filter(
+    (product) =>
+      !isNonDirectAccessory(product) &&
+      !isHdbasetExtender(product) &&
+      !isBannedNetworkHdSku(product.sku),
+  );
+  const byKey = new Map(catalog.map((product) => [normaliseSku(product.sku), product]));
 
-    addFallback(selected, "NHD-124-TX", "NetworkHD 100 transmitter", {
-      productClass: "NetworkHD 100 AVoIP transmitter",
-      family: "NetworkHD 100",
-      technology: "1G AVoIP transmitter",
-      transport: "AVoIP",
-      role: "Transmitter",
-    });
+  const selected: DirectCandidateProduct[] = [];
+  for (const sku of recommendation.candidateSkus) {
+    if (isBannedNetworkHdSku(sku)) {
+      continue;
+    }
 
-    const candidates = unique(selected).slice(0, maxCandidates);
-
-    return {
-      didApply: true,
-      intent: "avoip_encoder",
-      reason: "Competitor appears to be an AVoIP transmitter/encoder. Restricting direct comparison to NetworkHD transmitter candidates.",
-      candidates,
-      candidateSkus: candidates.map((item) => normaliseSku(item.sku)),
-      debug: [`input=${args.competitorText}`, `candidates=${candidates.length}`],
-    };
+    const existing = byKey.get(normaliseSku(sku));
+    selected.push(enrichCandidate(existing ?? { sku }));
   }
 
-  if (isLikelyAvoipText(text) && isSinkSide(text)) {
-    const selected = findBySkuOrder(
-      products.filter((product) => !isNonDirectAccessory(product) && !isHdbasetExtender(product)),
-      ["NHD-500-RX", "NHD-150-RX", "NHD-120-RX", "NHD-100-RX"],
-    );
-
-    addFallback(selected, "NHD-500-RX", "NetworkHD 500 receiver", {
-      productClass: "NetworkHD 500 AVoIP receiver",
-      family: "NetworkHD 500",
-      technology: "1G JPEG-XS AVoIP receiver",
-      transport: "AVoIP",
-      role: "Receiver",
-    });
-
-    addFallback(selected, "NHD-150-RX", "NetworkHD 100 multiview receiver", {
-      productClass: "NetworkHD 100 AVoIP multiview receiver",
-      family: "NetworkHD 100",
-      technology: "1G AVoIP multiview receiver",
-      transport: "AVoIP",
-      role: "Receiver",
-    });
-
-    addFallback(selected, "NHD-120-RX", "NetworkHD 100 receiver", {
-      productClass: "NetworkHD 100 AVoIP receiver",
-      family: "NetworkHD 100",
-      technology: "1G AVoIP receiver",
-      transport: "AVoIP",
-      role: "Receiver",
-    });
-
-    const candidates = unique(selected).slice(0, maxCandidates);
-
-    return {
-      didApply: true,
-      intent: "avoip_decoder",
-      reason: "Competitor appears to be an AVoIP receiver/decoder. Restricting direct comparison to NetworkHD receiver candidates.",
-      candidates,
-      candidateSkus: candidates.map((item) => normaliseSku(item.sku)),
-      debug: [`input=${args.competitorText}`, `candidates=${candidates.length}`],
-    };
-  }
+  const candidates = unique(selected).slice(0, maxCandidates);
 
   return {
-    didApply: false,
-    intent: "none",
-    reason: "No direct WyreStorm candidate map applied.",
-    candidates: [],
-    candidateSkus: [],
-    debug: [`input=${args.competitorText}`],
+    didApply: true,
+    intent,
+    reason: recommendation.reason,
+    candidates,
+    candidateSkus: candidates.map((item) => normaliseSku(item.sku)),
+    debug: [
+      `input=${args.competitorText}`,
+      `series=NetworkHD ${recommendation.series}`,
+      `networkClass=${recommendation.networkClass}`,
+      `codec=${classification.codec}`,
+      `verifyCodec=${recommendation.verifyCodec}`,
+      `candidates=${candidates.length}`,
+    ],
   };
 }
