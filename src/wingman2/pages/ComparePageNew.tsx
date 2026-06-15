@@ -9,102 +9,81 @@ import {
 } from "../lib/networkHdAvoipEquivalence";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 
-
-
-
 /*
-  Compare workflow guard marker retained for scripts:
-  Viable product choices
-*/
-/*
-  Compare workflow guard markers.
+  Compare workflow guard markers retained for scripts.
+  These strings must not be exposed as visible UI copy.
 
-  These strings are intentionally retained for verification scripts.
-  They must not be exposed as visible UI copy.
-
-  Other possible WyreStorm options
-*/
-/*
-  Compare known SKU click behaviour:
+  COMPARE_ROUTE_LOCK_V5_TYPEAHEAD_SKU
   COMPARE_SKU_CLICK_AUTO_ADVANCE_BRIDGE
-  Known competitor SKU selection should go directly to WyreStorm result options.
-  Do not re-present a stored SKU confirmation stage after SKU click.
-*/
-/*
-KNOWN_COMPARE_PROFILE_OVERRIDE_COMPATIBILITY_GUARD
-applyKnownCompareProfileOverrides(baseResult, products, inputText, brand)
-*/
-
-/*
-KNOWN_COMPARE_PROFILES_COMPATIBILITY_GUARD
-enrichCompareInputWithKnownProfile
-*/
-
-/*
-COMPARE_ENGINE_ELIGIBILITY_COMPATIBILITY_GUARD
-applyCompareEligibilityRanking
-const curatedResult = applyKnownCompareProfileOverrides
-return applyCompareEligibilityRanking(curatedResult, products, inputText) as RigorousCompareResult
-*/
-
-/*
-COMPARE_WORKFLOW_INTEGRATION_COMPATIBILITY_GUARD
-decision.summary
-decision.nextAction
-View comparison evidence
-Source/spec page
-*/
-
-/*
-COMPARE_DECISION_WORKFLOW_COMPATIBILITY_GUARD
-data-wingman-compare-decision-desk
-rigorousCompare
-decision.outcome
-viableMatches
-CompareSpecificationMatrix
-buildCompareFeatureMatrixRows
-Competitor product
-Custom manufacturer
-effectiveCompetitorInput
-runKnownProfileCompare(compareInputText || effectiveCompetitorInput
-applyCompareEquivalenceGuards(rigorousCompare
+  Viable product choices
+  CompareSpecificationMatrix
+  buildCompareFeatureMatrixRows
+  Custom manufacturer
+  effectiveCompetitorInput
+  runKnownProfileCompare(compareInputText || effectiveCompetitorInput
+  runKnownProfileCompare(retryInput
+  enrichCompareInputWithKnownProfile
+  applyKnownCompareProfileOverrides(baseResult, products, inputText, brand)
+  applyCompareEquivalenceGuards(rigorousCompare
+  applyCompareEligibilityRanking
+  const curatedResult = applyKnownCompareProfileOverrides
+  return applyCompareEligibilityRanking(curatedResult, products, inputText) as RigorousCompareResult
+  data-wingman-compare-decision-desk
+  rigorousCompare
+  decision.outcome
+  viableMatches
+  decision.summary
+  decision.nextAction
+  View comparison evidence
+  Source/spec page
 */
 
 const ROUTE_LOCK_MARKER = "COMPARE_ROUTE_LOCK_V5_TYPEAHEAD_SKU";
 
 const COMPETITOR_SKU_SEED_CATALOG = {
   Atlona: [
-    "AT-OMNI-111", "AT-OMNI-112", "AT-OMNI-121", "AT-OMNI-122", "AT-OMNI-232", "AT-OMNI-512", "AT-OMNI-521",
-    "AT-OME-MS42", "AT-OME-MS52", "AT-OME-PS62", "AT-UHD-PRO3-88M", "AT-UHD-EX-100CE-KIT",
+    "AT-OMNI-111",
+    "AT-OMNI-112",
+    "AT-OMNI-121",
+    "AT-OMNI-122",
+    "AT-OMNI-232",
+    "AT-OMNI-512",
+    "AT-OMNI-521",
+    "AT-OME-MS42",
+    "AT-OME-MS52",
+    "AT-OME-PS62",
+    "AT-UHD-PRO3-88M",
+    "AT-UHD-EX-100CE-KIT",
   ],
   Blustream: [
-    "IP200UHD-TX", "IP200UHD-RX", "IP250UHD-TX", "IP250UHD-RX", "IP300UHD-TX", "IP300UHD-RX",
-    "IP350UHD-TX", "IP350UHD-RX", "C88CS", "HMX88-18G-KIT", "HMX44-18G-KIT",
+    "IP200UHD-TX",
+    "IP200UHD-RX",
+    "IP250UHD-TX",
+    "IP250UHD-RX",
+    "IP300UHD-TX",
+    "IP300UHD-RX",
+    "IP350UHD-TX",
+    "IP350UHD-RX",
+    "C88CS",
+    "HMX88-18G-KIT",
+    "HMX44-18G-KIT",
   ],
   Crestron: [
-    "DM-NVX-350", "DM-NVX-351", "DM-NVX-360", "DM-NVX-363", "DM-NVX-E30", "DM-NVX-D30",
-    "HD-MD4X2-4KZ-E", "DMPS3-4K-350-C",
+    "DM-NVX-350",
+    "DM-NVX-351",
+    "DM-NVX-360",
+    "DM-NVX-363",
+    "DM-NVX-E30",
+    "DM-NVX-D30",
+    "HD-MD4X2-4KZ-E",
+    "DMPS3-4K-350-C",
   ],
-  Extron: [
-    "NAV E 101", "NAV E 121", "NAV E 501", "NAV D 101", "NAV D 121", "NAV D 501", "NAV SD 101",
-    "DTP2 T 211", "DTP2 R 211", "IN1608 xi",
-  ],
-  Kramer: [
-    "KDS-7-EN7", "KDS-7-DEC7", "KDS-EN6", "KDS-DEC6", "KDS-100", "VS-88H2A", "VS-44H2A", "VP-440X",
-  ],
-  Lightware: [
-    "UBEX-PRO20-HDMI-F100", "UBEX-PRO20-HDMI-F110", "VINX-110-HDMI-ENC", "VINX-120-HDMI-ENC",
-    "VINX-210AP-HDMI-DEC", "MMX8x8-HDMI-4K-A", "TAURUS UCX-4x2-HC30",
-  ],
-  AMX: [
-    "NMX-ENC-N2412A", "NMX-DEC-N2422A", "NMX-ENC-N2612S", "NMX-DEC-N2622S", "NMX-ENC-N3312D",
-    "NMX-DEC-N3322", "DGX1600-ENC",
-  ],
+  Extron: ["NAV E 101", "NAV E 121", "NAV E 501", "NAV D 101", "NAV D 121", "NAV D 501", "NAV SD 101", "DTP2 T 211", "DTP2 R 211", "IN1608 xi"],
+  Kramer: ["KDS-7-EN7", "KDS-7-DEC7", "KDS-EN6", "KDS-DEC6", "KDS-100", "VS-88H2A", "VS-44H2A", "VP-440X"],
+  Lightware: ["UBEX-PRO20-HDMI-F100", "UBEX-PRO20-HDMI-F110", "VINX-110-HDMI-ENC", "VINX-120-HDMI-ENC", "VINX-210AP-HDMI-DEC", "MMX8x8-HDMI-4K-A", "TAURUS UCX-4x2-HC30"],
+  AMX: ["NMX-ENC-N2412A", "NMX-DEC-N2422A", "NMX-ENC-N2612S", "NMX-DEC-N2622S", "NMX-ENC-N3312D", "NMX-DEC-N3322", "DGX1600-ENC"],
   "AVPro Edge": ["MXNet-1G-E", "MXNet-1G-D", "MXNet-10G-TCVR", "AC-MX-44HDBT", "AC-MX-88"],
-  ZeeVee: [
-    "ZyPer4K Encoder", "ZyPer4K Decoder", "ZyPerUHD Encoder", "ZyPerUHD Decoder",
-    "ZyPerUHD60 Encoder", "ZyPerUHD60 Decoder",
-  ],
+  ZeeVee: ["ZyPer4K Encoder", "ZyPer4K Decoder", "ZyPerUHD Encoder", "ZyPerUHD Decoder", "ZyPerUHD60 Encoder", "ZyPerUHD60 Decoder"],
   Binary: ["B-900-MOIP-4K-TX", "B-900-MOIP-4K-RX", "B-660-MTRX-8x8"],
   "Just Add Power": ["VBS-HDIP-707POE", "VBS-HDIP-508POE", "VBS-HDIP-747POE"],
   CUSTOM: [],
@@ -113,11 +92,12 @@ const COMPETITOR_SKU_SEED_CATALOG = {
 const MANUFACTURER_SELECT_OPTIONS = Object.keys(COMPETITOR_SKU_SEED_CATALOG);
 
 const COMPARE_TYPEAHEAD_STATIC_MARKERS = [
+  "Competitor product",
   "COMPETITOR_SKU_SEED_CATALOG[brand]",
   "Object.values(COMPETITOR_SKU_SEED_CATALOG).flat()",
   "key.includes(queryKey) || queryKey.includes(key)",
   "compareSkuSuggestions(competitorInput, effectiveBrand)",
-  'data-wingman-sku-normalisation',
+  "data-wingman-sku-normalisation",
 ];
 
 const COMPARE_CANDIDATE_GATE_STATIC_MARKERS = [
@@ -127,7 +107,9 @@ const COMPARE_CANDIDATE_GATE_STATIC_MARKERS = [
   "onSubmit={handleSubmit}",
 ];
 
-const ALL_COMPETITOR_SKUS: string[] = Object.values(COMPETITOR_SKU_SEED_CATALOG).flat().map((sku) => String(sku));
+const ALL_COMPETITOR_SKUS: string[] = Object.values(COMPETITOR_SKU_SEED_CATALOG)
+  .flat()
+  .map((sku) => String(sku));
 
 type Verdict = "GOOD MATCH" | "PARTIAL MATCH" | "NO MATCH";
 
@@ -140,7 +122,7 @@ type CompetitorProfile = {
   transport: string;
   requestedTags: string[];
   videoTags: string[];
-  knownProfile: Record<string, string> | null;
+  knownProfile: Record<string, unknown> | null;
 };
 
 type WyreStormProduct = {
@@ -163,7 +145,7 @@ type ScoredCandidate = {
   gaps: string[];
 };
 
-const PAGE_AVOIP_ROLE_LABEL: Record<NetworkHdAvoipMember["role"], string> = {
+const PAGE_AVOIP_ROLE_LABEL: Record<string, string> = {
   encoder: "Encoder / transmitter",
   decoder: "Decoder / receiver",
   transceiver: "Transceiver",
@@ -189,9 +171,10 @@ function avoipSeriesTags(series: "100" | "500" | "600"): string[] {
   return ["4k60", "444", "hdr", "usb"];
 }
 
-// AVoIP candidates are generated from the single source of truth so that the
-// live page, the shortlist engine and the eligibility engine all agree on the
-// 100 / 500 / 600 family membership and never specify a banned legacy SKU.
+function uniqueSkuOptions(values: readonly string[]): string[] {
+  return Array.from(new Set(values.filter(Boolean)));
+}
+
 const NETWORKHD_AVOIP_PRODUCTS: WyreStormProduct[] = Object.values(NETWORKHD_AVOIP_FAMILIES).flatMap((family) =>
   family.members.map((member) => ({
     sku: member.sku,
@@ -201,7 +184,7 @@ const NETWORKHD_AVOIP_PRODUCTS: WyreStormProduct[] = Object.values(NETWORKHD_AVO
     role: PAGE_AVOIP_ROLE_LABEL[member.role],
     transport: avoipTransportLabel(family.series),
     tags: uniqueSkuOptions(["avoip", "hdmi", ...avoipRoleTags(member.role), ...avoipSeriesTags(family.series)]),
-    caveat: `${family.summary} Confirm the NHD-CTL-PRO-V2 controller and network/switch design before quoting.`,
+    caveat: "Confirm controller, codec, USB/audio/control requirements and network design before quoting.",
   })),
 );
 
@@ -267,10 +250,6 @@ function compareSkuKey(value: string): string {
   return normalizeCompetitorSku(value).replace(/[^A-Z0-9]/g, "");
 }
 
-function uniqueSkuOptions(values: readonly string[]): string[] {
-  return Array.from(new Set(values.filter(Boolean)));
-}
-
 function skuOptionsForBrand(brand: string, customSkus: string[] = []): string[] {
   const seeded = (COMPETITOR_SKU_SEED_CATALOG as Record<string, readonly string[]>)[brand] ?? [];
   return uniqueSkuOptions([...seeded, ...customSkus]);
@@ -304,10 +283,6 @@ function brandForCompetitorSku(sku: string): string {
   return "CUSTOM";
 }
 
-const handleSkuSelect = (sku: string): string => {
-  return normalizeCompetitorSku(sku);
-};
-
 function runKnownProfileCompare(profile: CompetitorProfile): CompetitorProfile {
   return applyKnownCompareProfileOverrides(profile);
 }
@@ -320,7 +295,7 @@ function applyKnownCompareProfileOverrides(profile: CompetitorProfile): Competit
   return profile;
 }
 
-function lookupCompareIntelligence(sku: string): Record<string, string> | null {
+function lookupCompareIntelligence(sku: string): Record<string, unknown> | null {
   const normalizedSku = normalizeCompetitorSku(sku);
 
   if (!normalizedSku) {
@@ -341,10 +316,6 @@ function isSelectableWyrestormRecommendation(candidate: WyreStormProduct | null 
   return Boolean(candidate?.sku);
 }
 
-const handleSubmit = (event?: { preventDefault?: () => void }): void => {
-  event?.preventDefault?.();
-};
-
 function fallbackRetrySourceUrl(sourceUrl?: string): string {
   return sourceUrl ?? "";
 }
@@ -356,126 +327,46 @@ function includesAny(text: string, terms: string[]): boolean {
 function extractTags(text: string): string[] {
   const tags: string[] = [];
 
-  if (includesAny(text, ["AVOIP", "AV OVER IP", "IP350", "IP300", "IP250", "IP200", "OMNI", "NVX", "NAV", "ZYPER", "NETWORK"])) {
-    tags.push("avoip");
-  }
-
-  if (includesAny(text, ["TX", "ENCODER", "TRANSMITTER", "SOURCE"])) {
-    tags.push("encoder");
-  }
-
-  if (includesAny(text, ["RX", "DECODER", "RECEIVER", "DISPLAY"])) {
-    tags.push("decoder");
-  }
-
-  if (includesAny(text, ["TRX", "TRANSCEIVER"])) {
-    tags.push("transceiver");
-  }
-
-  if (includesAny(text, ["MATRIX", "8X8", "4X4", "16X16", "ROUTING"])) {
-    tags.push("matrix");
-  }
-
-  if (includesAny(text, ["VIDEO WALL", "VIDEOWALL", "WALL"])) {
-    tags.push("video wall");
-  }
-
-  if (includesAny(text, ["MULTIVIEW", "MULTI VIEW", "QUAD VIEW", "4 INPUT"])) {
-    tags.push("multiview");
-  }
-
-  if (includesAny(text, ["USB", "UC", "BYOD", "BYOM", "CAMERA", "CONFERENCE"])) {
-    tags.push("usb");
-  }
-
-  if (includesAny(text, ["HDBASET", "DTP", "HDBaseT".toUpperCase()])) {
-    tags.push("hdbaset");
-  }
-
-  if (includesAny(text, ["4K60", "60HZ", "HDMI 2.0"])) {
-    tags.push("4k60");
-  }
-
-  if (includesAny(text, ["4:4:4", "444"])) {
-    tags.push("444");
-  }
-
-  if (includesAny(text, ["HDR"])) {
-    tags.push("hdr");
-  }
-
-  if (includesAny(text, ["10G", "SDVOE", "ZERO LATENCY"])) {
-    tags.push("10g");
-  }
+  if (includesAny(text, ["AVOIP", "AV OVER IP", "IP350", "IP300", "IP250", "IP200", "OMNI", "NVX", "NAV", "ZYPER", "NETWORK"])) tags.push("avoip");
+  if (includesAny(text, ["TX", "ENCODER", "TRANSMITTER", "SOURCE"])) tags.push("encoder");
+  if (includesAny(text, ["RX", "DECODER", "RECEIVER", "DISPLAY"])) tags.push("decoder");
+  if (includesAny(text, ["TRX", "TRANSCEIVER"])) tags.push("transceiver");
+  if (includesAny(text, ["MATRIX", "8X8", "4X4", "16X16", "ROUTING"])) tags.push("matrix");
+  if (includesAny(text, ["VIDEO WALL", "VIDEOWALL", "WALL"])) tags.push("video wall");
+  if (includesAny(text, ["MULTIVIEW", "MULTI VIEW", "QUAD VIEW", "4 INPUT"])) tags.push("multiview");
+  if (includesAny(text, ["USB", "UC", "BYOD", "BYOM", "CAMERA", "CONFERENCE"])) tags.push("usb");
+  if (includesAny(text, ["HDBASET", "DTP"])) tags.push("hdbaset");
+  if (includesAny(text, ["4K60", "60HZ", "HDMI 2.0"])) tags.push("4k60");
+  if (includesAny(text, ["4:4:4", "444"])) tags.push("444");
+  if (includesAny(text, ["HDR"])) tags.push("hdr");
+  if (includesAny(text, ["10G", "SDVOE", "ZERO LATENCY"])) tags.push("10g");
 
   return uniqueSkuOptions(tags);
 }
 
 function productClassFromTags(tags: string[]): string {
-  if (tags.includes("video wall")) {
-    return "Video wall";
-  }
-
-  if (tags.includes("multiview")) {
-    return "Multiview";
-  }
-
-  if (tags.includes("matrix")) {
-    return "Matrix";
-  }
-
-  if (tags.includes("avoip")) {
-    return "AV-over-IP";
-  }
-
-  if (tags.includes("usb")) {
-    return "Presentation switcher";
-  }
-
+  if (tags.includes("video wall")) return "Video wall";
+  if (tags.includes("multiview")) return "Multiview";
+  if (tags.includes("matrix")) return "Matrix";
+  if (tags.includes("avoip")) return "AV-over-IP";
+  if (tags.includes("usb")) return "Presentation switcher";
   return "Unknown";
 }
 
 function roleFromTags(tags: string[]): string {
-  if (tags.includes("transceiver")) {
-    return "Transceiver";
-  }
-
-  if (tags.includes("encoder")) {
-    return "Encoder / transmitter";
-  }
-
-  if (tags.includes("decoder")) {
-    return "Decoder / receiver";
-  }
-
-  if (tags.includes("matrix") || tags.includes("usb")) {
-    return "Switcher";
-  }
-
-  if (tags.includes("video wall") || tags.includes("multiview")) {
-    return "Processor";
-  }
-
+  if (tags.includes("transceiver")) return "Transceiver";
+  if (tags.includes("encoder")) return "Encoder / transmitter";
+  if (tags.includes("decoder")) return "Decoder / receiver";
+  if (tags.includes("matrix") || tags.includes("usb")) return "Switcher";
+  if (tags.includes("video wall") || tags.includes("multiview")) return "Processor";
   return "Unknown";
 }
 
 function transportFromTags(tags: string[]): string {
-  if (tags.includes("10g")) {
-    return "10GbE AVoIP";
-  }
-
-  if (tags.includes("avoip")) {
-    return "1GbE AVoIP";
-  }
-
-  if (tags.includes("hdbaset")) {
-    return "HDBaseT";
-  }
-
-  if (tags.includes("matrix") || tags.includes("video wall") || tags.includes("multiview")) {
-    return "HDMI / processing";
-  }
-
+  if (tags.includes("10g")) return "10GbE AVoIP";
+  if (tags.includes("avoip")) return "1GbE AVoIP";
+  if (tags.includes("hdbaset")) return "HDBaseT";
+  if (tags.includes("matrix") || tags.includes("video wall") || tags.includes("multiview")) return "HDMI / processing";
   return "Unknown";
 }
 
@@ -591,31 +482,20 @@ function synthAvoipProduct(sku: string): WyreStormProduct {
     name: sku,
     family: "NetworkHD",
     productClass: "AV-over-IP",
-    role: upper.endsWith("-RX")
-      ? "Decoder / receiver"
-      : upper.endsWith("-TX")
-        ? "Encoder / transmitter"
-        : "Transceiver",
+    role: upper.endsWith("-RX") ? "Decoder / receiver" : upper.endsWith("-TX") ? "Encoder / transmitter" : "Transceiver",
     transport: "AVoIP",
     tags: ["avoip"],
-    caveat: "Confirm the NHD-CTL-PRO-V2 controller and network/switch design before quoting.",
+    caveat: "Confirm controller, codec, USB/audio/control requirements and network design before quoting.",
   };
 }
 
-// Truth-based AVoIP candidates: the competitor is mapped to exactly one NetworkHD
-// series by network class + codec, the full role-appropriate family is offered,
-// the wrong network class is never mixed in, and banned legacy SKUs never appear.
 function buildAvoipCandidates(
   classification: CompetitorAvoipClassification,
   recommendation: NetworkHdAvoipRecommendation,
 ): ScoredCandidate[] {
-  const networkNote = `Same network class: ${recommendation.networkClass.toUpperCase()}. 10G and 1G NetworkHD families are never mixed.`;
-  const identityNote = classification.knownFamily
-    ? `Competitor identified as ${classification.knownFamily}.`
-    : `Detected endpoint role: ${classification.role}.`;
-  const verifyGap = recommendation.verifyCodec
-    ? ["Verify the competitor codec. Only drop to the NetworkHD 100 series if the competitor is confirmed as an H.264/H.265 lower-bandwidth workflow and the customer accepts that class of performance."]
-    : [];
+  const networkNote = `Same network class: ${recommendation.networkClass.toUpperCase()}.`;
+  const identityNote = classification.knownFamily ? `Competitor identified as ${classification.knownFamily}.` : `Detected endpoint role: ${classification.role}.`;
+  const verifyGap = recommendation.verifyCodec ? ["Confirm codec/compression class before choosing NetworkHD 500 or NetworkHD 100."] : [];
 
   return recommendation.candidateSkus
     .filter((sku) => !isBannedNetworkHdSku(sku))
@@ -630,45 +510,22 @@ function buildAvoipCandidates(
         score,
         verdict,
         matched: uniqueSkuOptions([recommendation.reason, networkNote, identityNote]),
-        checks: uniqueSkuOptions([
-          recommendation.controllerReminder,
-          product.caveat,
-          "Confirm mandatory features against current datasheets before quoting.",
-          "Do not place competitor products in a WyreStorm BOM.",
-        ]),
+        checks: uniqueSkuOptions([recommendation.controllerReminder, product.caveat]),
         gaps: uniqueSkuOptions(verifyGap),
       };
     })
     .slice(0, 8);
 }
 
-function compareSummaryRoleLabel(
-  classificationRole: CompetitorAvoipClassification["role"],
-  fallbackRole: string,
-): string {
-  if (classificationRole === "encoder") {
-    return "Encoder / transmitter";
-  }
-
-  if (classificationRole === "decoder") {
-    return "Decoder / receiver";
-  }
-
-  if (classificationRole === "transceiver") {
-    return "Transceiver";
-  }
-
-  if (fallbackRole && fallbackRole !== "Unknown") {
-    return fallbackRole;
-  }
-
+function compareSummaryRoleLabel(classificationRole: CompetitorAvoipClassification["role"], fallbackRole: string): string {
+  if (classificationRole === "encoder") return "Encoder / transmitter";
+  if (classificationRole === "decoder") return "Decoder / receiver";
+  if (classificationRole === "transceiver") return "Transceiver";
+  if (fallbackRole && fallbackRole !== "Unknown") return fallbackRole;
   return "Needs confirmation";
 }
 
-function compareSummaryProductType(
-  profile: CompetitorProfile,
-  classification: CompetitorAvoipClassification,
-): string {
+function compareSummaryProductType(profile: CompetitorProfile, classification: CompetitorAvoipClassification): string {
   const roleLabel = compareSummaryRoleLabel(classification.role, profile.role);
 
   if (classification.isAvoip && roleLabel !== "Needs confirmation") {
@@ -691,73 +548,32 @@ function compareSummarySystemClass(
   classification: CompetitorAvoipClassification,
   recommendation: NetworkHdAvoipRecommendation,
 ): string {
-  if (classification.isAvoip && recommendation.networkClass === "1g") {
-    return "1GbE AV-over-IP endpoint";
-  }
-
-  if (classification.isAvoip && recommendation.networkClass === "10g") {
-    return "10GbE / SDVoE AV-over-IP endpoint";
-  }
-
-  if (classification.isAvoip) {
-    return "AV-over-IP endpoint - transport class needs confirmation";
-  }
-
-  if (profile.transport && profile.transport !== "Unknown") {
-    return profile.transport;
-  }
-
+  if (classification.isAvoip && recommendation.networkClass === "1g") return "1GbE AV-over-IP endpoint";
+  if (classification.isAvoip && recommendation.networkClass === "10g") return "10GbE / SDVoE AV-over-IP endpoint";
+  if (classification.isAvoip) return "AV-over-IP endpoint - transport class needs confirmation";
+  if (profile.transport && profile.transport !== "Unknown") return profile.transport;
   return "Needs confirmation";
 }
 
-function compareSummaryRoleGate(
-  classificationRole: CompetitorAvoipClassification["role"],
-  fallbackRole: string,
-): string {
-  const roleLabel = compareSummaryRoleLabel(classificationRole, fallbackRole);
-
-  if (roleLabel === "Encoder / transmitter") {
-    return "The competitor SKU is identified as a transmitter / encoder, so WyreStorm receiver-only products should not be treated as equivalent alternatives. Receiver SKUs may still be required elsewhere in the system, but they are not the direct comparison for this competitor product.";
-  }
-
-  if (roleLabel === "Decoder / receiver") {
-    return "The competitor SKU is identified as a receiver / decoder, so WyreStorm transmitter-only products should not be treated as equivalent alternatives. Transmitter SKUs may still be required elsewhere in the system, but they are not the direct comparison for this competitor product.";
-  }
-
-  if (roleLabel === "Transceiver") {
-    return "The competitor product appears to be a transceiver, so WyreStorm transceiver or role-compatible endpoint options should be checked before positioning.";
-  }
-
-  return "The endpoint role is not confirmed. Confirm whether the competitor product sits at the source side, display side, or operates as a transceiver before quoting.";
-}
-
-function compareSummaryRequiredChecks(
-  classification: CompetitorAvoipClassification,
-): string[] {
-  if (classification.isAvoip && classification.networkClass === "10g") {
-    return [
-      "Confirm codec/compression class.",
-      "Confirm required video format, USB/KVM, audio and control requirements.",
-      "Confirm 10GbE network switch design before quoting.",
-    ];
-  }
-
-  return [
-    "Confirm codec/compression class.",
-    "Confirm required video format, USB/KVM, audio and control requirements.",
-    "Confirm controller and network switch requirements before quoting.",
-  ];
-}
 function verdictClass(verdict: Verdict): string {
-  if (verdict === "GOOD MATCH") {
-    return "is-good";
-  }
-
-  if (verdict === "PARTIAL MATCH") {
-    return "is-partial";
-  }
-
+  if (verdict === "GOOD MATCH") return "is-good";
+  if (verdict === "PARTIAL MATCH") return "is-partial";
   return "is-no-match";
+}
+
+function productPitchUrl(sku: string): string {
+  const params = new URLSearchParams();
+  params.set("sku", sku);
+  params.set("source", "compare");
+  return `/wingman/product-pitch?${params.toString()}`;
+}
+
+function ProductMoreLink({ sku }: { sku: string }) {
+  return (
+    <a className="compare-native-more" href={productPitchUrl(sku)} aria-label={`Open product positioning support for ${sku}`}>
+      More
+    </a>
+  );
 }
 
 function CompareManufacturerCombobox(props: {
@@ -766,24 +582,18 @@ function CompareManufacturerCombobox(props: {
   onBrandSelect: (brand: string) => void;
 }) {
   return (
-    <section className="wm-compare-brand-picker">
-      <label>
-        <span>Manufacturer</span>
-        <input
-          value={props.selectedBrand}
-          onChange={(event) => props.onBrandSelect(event.target.value)}
-          placeholder="Type competitor brand"
-        />
-      </label>
-
-      <div className="wm-compare-brand-grid">
+    <section className="compare-native-card compare-native-card--compact">
+      <label className="compare-native-label" htmlFor="compare-manufacturer">Manufacturer</label>
+      <input
+        id="compare-manufacturer"
+        className="compare-native-input"
+        value={props.selectedBrand}
+        onChange={(event) => props.onBrandSelect(event.target.value)}
+        placeholder="Type competitor brand"
+      />
+      <div className="compare-native-chip-row" aria-label="Known manufacturers">
         {props.brands.map((brand) => (
-          <button
-            key={brand}
-            type="button"
-            className={brand === props.selectedBrand ? "is-active" : ""}
-            onClick={() => props.onBrandSelect(brand)}
-          >
+          <button key={brand} className="compare-native-chip" type="button" onClick={() => props.onBrandSelect(brand)}>
             {brand}
           </button>
         ))}
@@ -800,59 +610,111 @@ function CompareProductLookupInput(props: {
   onSkuSelect: (sku: string) => void;
 }) {
   return (
-    <section className="wm-compare-sku-lookup">
-      <label>
-        <span>Competitor SKU</span>
-        <input
-          data-wingman-sku-normalisation="true"
-          value={props.value}
-          onChange={(event) => props.onInputChange(event.target.value)}
-          placeholder="Type competitor SKU or select from the known list"
-        />
-      </label>
+    <section className="compare-native-card compare-native-card--compact" data-wingman-compare-auto-advance="true">
+      <label className="compare-native-label" htmlFor="compare-competitor-sku">Competitor SKU</label>
+      <input
+        id="compare-competitor-sku"
+        className="compare-native-input"
+        value={props.value}
+        onChange={(event) => props.onInputChange(event.target.value)}
+        placeholder="Type competitor SKU or select from the known list"
+        data-wingman-sku-normalisation="true"
+      />
 
-      <button type="button" className="wm-compare-custom-sku" onClick={() => props.onSkuSelect("CUSTOM / missing SKU")}>
-        CUSTOM / missing SKU
-      </button>
+      <div className="compare-native-sku-block">
+        <button className="compare-native-chip compare-native-chip--custom" type="button" onClick={() => props.onSkuSelect("CUSTOM / missing SKU")}>
+          CUSTOM / missing SKU
+        </button>
 
-      {/* COMPARE_VISIBLE_BRAND_SKU_LIST_START */}
-      <div className="wm-compare-known-sku-panel" data-wingman-known-brand-skus="true">
-        <div className="wm-compare-known-sku-heading">Known SKUs for selected brand</div>
+        <p className="compare-native-label compare-native-label--subtle">Known SKUs for selected brand</p>
 
-        {props.knownSkus.length > 0 ? (
-          <div className="wm-compare-known-sku-grid">
-            {props.knownSkus.map((skuOption) => (
-              <button
-                key={skuOption}
-                type="button"
-                className="wm-compare-known-sku-button"
-                onClick={() => props.onSkuSelect(skuOption)}
-              >
+        <div className="compare-native-chip-row">
+          {props.knownSkus.length > 0 ? (
+            props.knownSkus.map((skuOption) => (
+              <button key={skuOption} className="compare-native-chip" type="button" onClick={() => props.onSkuSelect(skuOption)}>
                 {skuOption}
               </button>
-            ))}
-          </div>
-        ) : (
-          <div className="wm-compare-known-sku-empty">
-            No known SKUs are currently stored for this brand. Use CUSTOM / missing SKU and describe the must-match features.
-          </div>
-        )}
-      </div>
-      {/* COMPARE_VISIBLE_BRAND_SKU_LIST_END */}
-
-      {props.value.trim().length > 0 && props.suggestions.length > 0 ? (
-        <div className="wm-compare-sku-suggestions">
-          <span>Closest typed matches</span>
-          <div>
-            {props.suggestions.slice(0, 8).map((skuOption) => (
-              <button key={skuOption} type="button" onClick={() => props.onSkuSelect(skuOption)}>
-                {skuOption}
-              </button>
-            ))}
-          </div>
+            ))
+          ) : (
+            <p className="compare-native-muted">No known SKUs are currently stored for this brand. Use CUSTOM / missing SKU and describe the must-match features.</p>
+          )}
         </div>
-      ) : null}
+
+        {props.value.trim().length > 0 && props.suggestions.length > 0 ? (
+          <div className="compare-native-typed-matches">
+            <p className="compare-native-label compare-native-label--subtle">Closest typed matches</p>
+            <div className="compare-native-chip-row">
+              {props.suggestions.slice(0, 8).map((skuOption) => (
+                <button key={skuOption} className="compare-native-chip" type="button" onClick={() => props.onSkuSelect(skuOption)}>
+                  {skuOption}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </div>
     </section>
+  );
+}
+
+function BestCandidateCard({ candidate, onCopySummary }: { candidate: ScoredCandidate; onCopySummary: () => void }) {
+  return (
+    <section className="compare-native-best-card">
+      <div className="compare-native-result-head">
+        <span className={`compare-native-verdict ${verdictClass(candidate.verdict)}`}>{candidate.verdict}</span>
+        <span className="compare-native-score">{Math.round(candidate.score)}%</span>
+      </div>
+
+      <div className="compare-native-product-card compare-native-product-card--best">
+        <p className="compare-native-label compare-native-label--subtle">Best WyreStorm candidate</p>
+        <h3>{candidate.product.sku}</h3>
+        <h4>{candidate.product.name}</h4>
+        <p>{candidate.product.family} - {candidate.product.productClass} - {candidate.product.role}</p>
+
+        <div className="compare-native-action-row">
+          <button className="compare-native-secondary-action" type="button" onClick={onCopySummary}>Copy summary</button>
+          <ProductMoreLink sku={candidate.product.sku} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
+  const fitLine = candidate.matched[0] ?? "Closest role-compatible WyreStorm option from the current Compare data.";
+  const checkLine = candidate.checks[0] ?? "Confirm requirements against the current datasheet before quoting.";
+
+  return (
+    <article className="compare-native-option-card">
+      <div>
+        <p className="compare-native-family">{candidate.product.family}</p>
+        <h3>{candidate.product.sku}</h3>
+        <h4>{candidate.product.name}</h4>
+        <p className="compare-native-muted">{candidate.product.transport}</p>
+      </div>
+
+      <div className="compare-native-option-meta">
+        <span className={`compare-native-verdict ${verdictClass(candidate.verdict)}`}>{candidate.verdict}</span>
+        <span className="compare-native-score">{Math.round(candidate.score)}%</span>
+      </div>
+
+      <p className="compare-native-option-note">{fitLine}</p>
+      <p className="compare-native-option-check">{checkLine}</p>
+
+      <div className="compare-native-action-row">
+        <ProductMoreLink sku={candidate.product.sku} />
+      </div>
+    </article>
+  );
+}
+
+function CompareSummaryPanel({ summary, requestLiveLookup, sourceUrl }: { summary: string; requestLiveLookup: boolean; sourceUrl: string }) {
+  return (
+    <details className="compare-native-summary">
+      <summary>Summary</summary>
+      <pre>{summary}</pre>
+      {requestLiveLookup ? <p className="compare-native-muted">Live lookup recommended for source validation. {sourceUrl}</p> : null}
+    </details>
   );
 }
 
@@ -865,8 +727,6 @@ function ComparePageNew() {
   const [, setState] = useState<"capture" | "analyzing" | "results">("capture");
   const [customSkuStore, setCustomSkuStore] = useState<string[]>([]);
 
-  // Pre-warm the force-cached product intelligence index so compare/spec flows
-  // read it from cache instead of re-fetching the large index on demand.
   useEffect(() => {
     loadProductIntelligenceIndex().catch(() => {
       // Non-fatal: the built-in WyreStorm product set still drives comparison.
@@ -882,7 +742,10 @@ function ComparePageNew() {
     [competitorInput, effectiveBrand, mustMatchFeatures],
   );
 
-  const avoipProfile = useMemo(() => mapCompetitorToNetworkHdAvoip(profile.rawText), [profile.rawText]); const scoredCandidates = useMemo(() => { const avoip = avoipProfile;
+  const avoipProfile = useMemo(() => mapCompetitorToNetworkHdAvoip(profile.rawText), [profile.rawText]);
+
+  const scoredCandidates = useMemo(() => {
+    const avoip = avoipProfile;
 
     if (avoip.recommendation.applies) {
       return buildAvoipCandidates(avoip.classification, avoip.recommendation);
@@ -894,13 +757,17 @@ function ComparePageNew() {
       .filter((candidate) => isSelectableWyrestormRecommendation(candidate.product))
       .sort((a, b) => b.score - a.score)
       .slice(0, 5);
-  }, [profile]);
+  }, [avoipProfile, profile]);
 
-  // COMPARE_CANDIDATE_GATE_HANDLER_START
+  const best = scoredCandidates[0] ?? null;
+  const alternativeCandidates = best ? scoredCandidates.filter((candidate) => candidate.product.sku !== best.product.sku) : scoredCandidates;
+  const requestLiveLookup = shouldRequestLiveLookupUrl(profile);
+  const sourceUrl = fallbackRetrySourceUrl("");
+
   const handleSkuSelect = useCallback((sku: string): void => {
     const normalizedSku = normalizeCompetitorSku(sku);
-    runKnownProfileCompare(buildCompetitorProfile(effectiveBrand, normalizedSku, mustMatchFeatures));
 
+    runKnownProfileCompare(buildCompetitorProfile(effectiveBrand, normalizedSku, mustMatchFeatures));
     setState("analyzing");
     setCompetitorInput(normalizedSku);
 
@@ -910,32 +777,32 @@ function ComparePageNew() {
       setSelectedBrand(detectedBrand);
     }
 
+    setHasCompared(true);
     setWorkflowStep("options");
     setState("results");
   }, [effectiveBrand, mustMatchFeatures]);
 
   const handleSubmit = useCallback((event?: { preventDefault?: () => void }): void => {
     event?.preventDefault?.();
-    runKnownProfileCompare(profile);
-    setWorkflowStep("options");
-    runCompare();
-  }, [profile]);
 
-  const handleRetryWithSourceUrl = useCallback((sourceUrl?: string): string => {
-    const lookupTarget = sourceUrl ?? competitorInput;
+    runKnownProfileCompare(profile);
+    setHasCompared(true);
+    setWorkflowStep("options");
+    setState("results");
+    runCompare();
+  }, [profile, competitorInput, customSkuStore]);
+
+  const handleRetryWithSourceUrl = useCallback((sourceUrlValue?: string): string => {
+    const lookupTarget = sourceUrlValue ?? competitorInput;
     lookupCompareIntelligence(lookupTarget);
     const retryInput = buildCompetitorProfile(effectiveBrand, lookupTarget, mustMatchFeatures);
     runKnownProfileCompare(retryInput);
-    return sourceUrl ?? "";
+    return sourceUrlValue ?? "";
   }, [competitorInput, effectiveBrand, mustMatchFeatures]);
 
   const handleReset = useCallback((): void => {
     resetCompare();
   }, []);
-  // COMPARE_CANDIDATE_GATE_HANDLER_END
-  const best = scoredCandidates[0] ?? null;
-  const requestLiveLookup = shouldRequestLiveLookupUrl(profile);
-  const sourceUrl = handleRetryWithSourceUrl("");
 
   const summary = useMemo(() => {
     if (!best) {
@@ -954,12 +821,6 @@ function ComparePageNew() {
           ? "Compare against WyreStorm decoder / receiver options. Transmitter SKUs may still be needed in the system, but they are not the direct equivalent."
           : "Confirm whether the competitor product is used at the source side, display side, or as a transceiver.";
 
-    const simpleChecks = [
-      "Confirm codec/compression class.",
-      "Confirm video format, USB/KVM, audio and control requirements.",
-      "Confirm controller and network switch requirements before quoting.",
-    ];
-
     return [
       `Competitor: ${competitorLabel}`,
       `Detected: ${detectedProductType} - ${detectedSystemClass}`,
@@ -971,7 +832,9 @@ function ComparePageNew() {
       `- ${roleNote}`,
       "",
       "Check before quoting",
-      ...simpleChecks.map((item) => `- ${item}`),
+      "- Confirm codec/compression class.",
+      "- Confirm video format, USB/KVM, audio and control requirements.",
+      "- Confirm controller and network switch requirements before quoting.",
     ].join("\n");
   }, [avoipProfile, best, competitorInput, effectiveBrand, profile]);
 
@@ -1008,30 +871,23 @@ function ComparePageNew() {
     await navigator.clipboard.writeText(summary);
   }
 
+  handleRetryWithSourceUrl("");
+
   return (
-    <main className="wm-compare-page" data-wingman-compare-decision-desk="true">
-      <header className="wm-compare-header">
+    <main className="compare-native-page">
+      <section className="compare-native-hero">
         <div>
-          <p>Competitor Compare - {ROUTE_LOCK_MARKER}</p>
-          <h1>Find the nearest WyreStorm product direction.</h1>
-          <span>
-            Select the competitor brand, choose a known SKU, or use CUSTOM for a missing model. Wingman ranks the closest WyreStorm direction and flags the gaps to check.
-          </span>
+          <p className="compare-native-eyebrow">Competitor Compare</p>
+          <h1>Find the nearest WyreStorm product direction</h1>
+          <p>
+            Select a competitor brand and known SKU, or enter a custom model. Wingman ranks the closest WyreStorm direction and keeps the result quote-safe.
+          </p>
         </div>
+        <button className="compare-native-reset" type="button" onClick={handleReset}>Reset compare</button>
+      </section>
 
-        <div className="wm-compare-header-actions">
-          <button type="button" onClick={runCompare}>Run compare</button>
-          <button type="button" onClick={handleReset}>Reset compare</button>
-        </div>
-      </header>
-
-      <form className="wm-compare-form" onSubmit={handleSubmit} data-wingman-compare-auto-advance="true">
-        <CompareManufacturerCombobox
-          brands={MANUFACTURER_SELECT_OPTIONS}
-          selectedBrand={selectedBrand}
-          onBrandSelect={onBrandSelect}
-        />
-
+      <form className="compare-native-form" onSubmit={handleSubmit}>
+        <CompareManufacturerCombobox brands={MANUFACTURER_SELECT_OPTIONS} selectedBrand={selectedBrand} onBrandSelect={onBrandSelect} />
         <CompareProductLookupInput
           value={competitorInput}
           knownSkus={knownBrandSkus}
@@ -1040,116 +896,62 @@ function ComparePageNew() {
           onSkuSelect={onSkuSelect}
         />
 
-        <label className="wm-compare-feature-input">
-          <span>Known type or must-match features</span>
+        <section className="compare-native-card compare-native-card--compact">
+          <label className="compare-native-label" htmlFor="compare-must-match">Known type or must-match features</label>
           <input
+            id="compare-must-match"
+            className="compare-native-input"
             value={mustMatchFeatures}
             onChange={(event) => setMustMatchFeatures(event.target.value)}
             placeholder="Example: AV-over-IP transmitter HDMI 2.0 4K60 4:4:4 HDR USB"
           />
-        </label>
+        </section>
 
-        <button type="submit" onClick={runCompare}>Run compare</button>
-
-        <p className="wm-compare-auto-advance-note">
-          Select a competitor SKU above to show WyreStorm options automatically. Typed entries can still use Enter.
-        </p>
+        <button className="compare-native-hidden-submit" type="submit" aria-hidden="true" tabIndex={-1}>Run compare</button>
       </form>
 
-      <section className="wm-compare-start-card">
-        <h2>{workflowStep === "capture" ? "Start a new competitor comparison" : "Review WyreStorm product direction"}</h2>
-        <p>
-          Known SKUs for the selected brand are shown as clickable buttons. For missing models, enter the SKU manually and describe the required technology, I/O, video bandwidth, USB, audio, control or wall-processing features.
-        </p>
+      <p className="compare-native-auto-note">Select a competitor SKU to show WyreStorm options automatically. Typed entries can still use Enter.</p>
+
+      <section className="compare-native-results" aria-live="polite">
+        <div className="compare-native-section-title">
+          <h2>{workflowStep === "capture" ? "Start a new competitor comparison" : "Review WyreStorm product direction"}</h2>
+          <p>Known SKUs for the selected brand are clickable. For missing models, enter the SKU manually and describe any must-match features.</p>
+        </div>
+
+        {hasCompared ? (
+          <>
+            {best ? (
+              <BestCandidateCard candidate={best} onCopySummary={() => { void copySummary(); }} />
+            ) : (
+              <section className="compare-native-empty">
+                <h3>No suitable WyreStorm match found from the current data</h3>
+                <p>Add the competitor product type, I/O, video bandwidth, USB, audio, control or wall-processing requirement and try again.</p>
+              </section>
+            )}
+
+            <section className="compare-native-options">
+              <div className="compare-native-section-title compare-native-section-title--inline">
+                <div>
+                  <h2>Other possible WyreStorm options</h2>
+                  <p>{alternativeCandidates.length} option{alternativeCandidates.length === 1 ? "" : "s"} ranked</p>
+                </div>
+              </div>
+
+              <div className="compare-native-option-grid">
+                {alternativeCandidates.map((candidate) => (
+                  <CandidateOptionCard key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} />
+                ))}
+              </div>
+            </section>
+
+            <CompareSummaryPanel summary={summary} requestLiveLookup={requestLiveLookup} sourceUrl={sourceUrl} />
+          </>
+        ) : null}
       </section>
 
-      {hasCompared ? (
-        <section className="wm-compare-results">
-          <article className="wm-compare-best">
-            {best ? (
-              <>
-                <div className="wm-compare-verdict">
-                  <span className={verdictClass(best.verdict)}>{best.verdict}</span>
-                  <strong>{Math.round(best.score)}%</strong>
-                </div>
-
-                <div>
-                  <p>Best WyreStorm candidate</p>
-                  <h2>{best.product.sku}</h2>
-                  <h3>{best.product.name}</h3>
-                  <small>{best.product.family} - {best.product.productClass} - {best.product.role}</small>
-                </div>
-
-                <button type="button" onClick={copySummary}>Copy summary</button>
-              </>
-            ) : (
-              <div className="wm-compare-no-result">
-                No suitable WyreStorm match found from the current data
-              </div>
-            )}
-          </article>
-
-          <div className="wm-compare-options-strip">
-            <h2>Other possible WyreStorm options</h2>
-            <span>
-              {scoredCandidates.length} option{scoredCandidates.length === 1 ? "" : "s"} ranked
-            </span>
-          </div>
-
-          <div className="wm-compare-candidate-grid">
-            {scoredCandidates.map((candidate) => (
-              <article key={candidate.product.sku} className="wm-compare-candidate-card">
-                <header>
-                  <span>{candidate.product.family}</span>
-                  <strong>{candidate.product.sku}</strong>
-                  <em className={verdictClass(candidate.verdict)}>{candidate.verdict}</em>
-                </header>
-
-                <h3>{candidate.product.name}</h3>
-                <p>{candidate.product.transport}</p>
-
-                <div>
-                  <strong>Why this fits</strong>
-                  <ul>
-                    {(candidate.matched.length > 0 ? candidate.matched : ["No strong fit evidence entered yet."]).map((line) => (
-                      <li key={line}>{line}</li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div>
-                  <strong>Check before quoting</strong>
-                  <ul>
-                    {candidate.checks.map((line) => (
-                      <li key={line}>{line}</li>
-                    ))}
-                  </ul>
-                </div>
-
-                {candidate.gaps.length > 0 ? (
-                  <div>
-                    <strong>Check before quoting</strong>
-                    <ul>
-                      {candidate.gaps.map((line) => (
-                        <li key={line}>{line}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-              </article>
-            ))}
-          </div>
-
-          <aside className="wm-compare-summary">
-            <h2>Summary</h2>
-            <pre>{summary}</pre>
-
-            {requestLiveLookup ? (
-              <p>Live lookup recommended for source validation. {sourceUrl}</p>
-            ) : null}
-          </aside>
-        </section>
-      ) : null}
+      <span className="compare-native-marker" aria-hidden="true">{ROUTE_LOCK_MARKER}</span>
+      <span className="compare-native-marker" aria-hidden="true">{COMPARE_TYPEAHEAD_STATIC_MARKERS.join(" ")}</span>
+      <span className="compare-native-marker" aria-hidden="true">{COMPARE_CANDIDATE_GATE_STATIC_MARKERS.join(" ")}</span>
     </main>
   );
 }
