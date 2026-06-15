@@ -43,7 +43,9 @@ import App from "./App";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { installCsrfFetch } from "./wingman2/api/csrf";
 import "./wingman2/styles/wingman-style-stack.css";
-
+import WorkflowAlphaNumericFilter from "./wingman2/components/workflow/WorkflowAlphaNumericFilter";
+import ProductStoryLanguageEnhancer from "./wingman2/components/workflow/ProductStoryLanguageEnhancer";
+import ProductCallCardsStickyLayoutEnhancer from "./wingman2/components/workflow/ProductCallCardsStickyLayoutEnhancer";
 // Attach the X-CSRF-Token header to mutating API calls. No-op until the server
 // guard is enabled (WINGMAN_CSRF_ENFORCE=true).
 installCsrfFetch();
@@ -59,6 +61,9 @@ createRoot(rootElement).render(
     <ErrorBoundary>
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <App />
+<ProductCallCardsStickyLayoutEnhancer />
+    <ProductStoryLanguageEnhancer />
+    <WorkflowAlphaNumericFilter />
       </BrowserRouter>
     </ErrorBoundary>
     <GuruHelper />

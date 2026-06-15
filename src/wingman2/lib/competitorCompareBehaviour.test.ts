@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import rawProductIndex from "../../../public/product-intelligence-index.json";
 import { normaliseCompareProducts, runCompareRuntimePipeline } from "./compareRuntimePipeline";
+import { isBannedNetworkHdSku } from "./networkHdAvoipEquivalence";
 
 type AnyRecord = Record<string, any>;
 
@@ -42,6 +43,27 @@ describe("competitor compare runtime behaviour", () => {
     expect(result.matches.length).toBeGreaterThan(0);
     expect(sku(result.matches[0])).toMatch(/^NHD-/);
     expectNoSupportItemsInLeadResults(result);
+  });
+
+  it("never names a banned or non-lead WyreStorm SKU in the recommendation prose", () => {
+    const result = runCompareRuntimePipeline("DMNVX350", products, "Crestron", 10);
+    const recommendation = String(result.recommendation ?? "").toUpperCase();
+    const leadSku = sku(result.matches[0]);
+
+    // (1) No retired/banned NetworkHD SKU (NHD-100/110/220/300/400) may appear.
+    const namedNhd = recommendation.match(/\bNHD-[A-Z0-9][A-Z0-9-]*/g) ?? [];
+    for (const token of namedNhd) {
+      expect(isBannedNetworkHdSku(token)).toBe(false);
+    }
+
+    // (2) Any candidate SKU named in the recommendation must be the ranked lead -
+    // never another match or a rejected (e.g. eligibility-blocked) candidate.
+    const otherCandidateSkus = [...result.matches.slice(1), ...result.rejected]
+      .map((item: AnyRecord) => sku(item))
+      .filter((value: string) => value && value !== leadSku);
+    for (const other of otherCandidateSkus) {
+      expect(recommendation).not.toContain(other);
+    }
   });
 
   it("keeps family-level Crestron DM-NVX input as family-rule rather than false verified-profile", () => {
