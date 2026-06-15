@@ -28155,3 +28155,541 @@ body.wingman-compare-page .compare-result-copy-card a {
 }
 
 /* === Compare result card visibility repair: end === */
+
+/* === Compare simple summary repair: start === */
+
+body.wingman-compare-page .compare-result-copy-card {
+  white-space: pre-line !important;
+  font-family: inherit !important;
+  line-height: 1.45 !important;
+  max-width: 100% !important;
+  border-left: 4px solid rgba(52, 223, 236, 0.95) !important;
+}
+
+body.wingman-compare-page .compare-result-copy-card,
+body.wingman-compare-page .compare-result-summary-card,
+body.wingman-compare-page .compare-result-candidate-card {
+  font-size: 0.9rem !important;
+}
+
+body.wingman-compare-page .compare-result-copy-card::first-line {
+  color: rgba(52, 223, 236, 0.98);
+  font-weight: 850;
+}
+
+body.wingman-compare-page .compare-result-copy-card br + br {
+  display: none;
+}
+
+/* === Compare simple summary repair: end === */
+
+/* === Compare minimal result view: start === */
+
+/*
+  Compare result simplification.
+
+  Purpose:
+  - Keep Compare as a fast sales tool.
+  - Show the best direction first.
+  - Keep alternatives visible but compact.
+  - Hide repeated evidence blocks that make the page look like a report.
+*/
+
+body.wingman-compare-page .compare-result-flow {
+  max-width: 1220px !important;
+  padding: 0.9rem !important;
+}
+
+/* Hide long repeated copy block by default. The user can still use the copy button if present. */
+body.wingman-compare-page .compare-result-copy-card {
+  display: none !important;
+}
+
+/* Best result remains readable. */
+body.wingman-compare-page .compare-result-summary-card {
+  display: block !important;
+  margin: 0.75rem 0 1rem !important;
+  padding: 0.95rem 1rem !important;
+  border: 1px solid rgba(33, 214, 230, 0.32) !important;
+  border-left: 4px solid rgba(52, 223, 236, 0.95) !important;
+  border-radius: 16px !important;
+  background:
+    radial-gradient(circle at top left, rgba(33, 214, 230, 0.12), transparent 34%),
+    linear-gradient(180deg, rgba(8, 36, 54, 0.96), rgba(3, 16, 27, 0.92)) !important;
+}
+
+/* Candidate cards become shortlist tiles, not repeated reports. */
+body.wingman-compare-page .compare-result-candidate-card {
+  position: relative;
+  display: block !important;
+  max-height: 104px !important;
+  min-height: 86px !important;
+  overflow: hidden !important;
+  margin: 0.55rem 0 !important;
+  padding: 0.75rem 0.9rem !important;
+  border: 1px solid rgba(33, 214, 230, 0.18) !important;
+  border-radius: 14px !important;
+  background:
+    linear-gradient(180deg, rgba(6, 28, 42, 0.9), rgba(3, 15, 25, 0.86)) !important;
+  box-shadow: none !important;
+}
+
+/* Fade out hidden detail so it looks deliberately collapsed, not broken. */
+body.wingman-compare-page .compare-result-candidate-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(3, 15, 25, 0), rgba(3, 15, 25, 0.98));
+}
+
+/* Keep candidate title visible and prominent. */
+body.wingman-compare-page .compare-result-candidate-card a,
+body.wingman-compare-page .compare-result-candidate-card strong,
+body.wingman-compare-page .compare-result-candidate-card b {
+  color: rgba(52, 223, 236, 0.98) !important;
+  font-weight: 850 !important;
+}
+
+/* Suppress heavy detail headings inside repeated candidate cards. */
+body.wingman-compare-page .compare-result-candidate-card :is(h4, h5, h6),
+body.wingman-compare-page .compare-result-candidate-card p:nth-of-type(n+3) {
+  display: none !important;
+}
+
+/* Keep result text compact. */
+body.wingman-compare-page .compare-result-flow,
+body.wingman-compare-page .compare-result-flow p,
+body.wingman-compare-page .compare-result-flow li {
+  font-size: 0.88rem !important;
+  line-height: 1.35 !important;
+}
+
+body.wingman-compare-page .compare-result-flow h2,
+body.wingman-compare-page .compare-result-flow h3 {
+  margin-top: 0.6rem !important;
+  margin-bottom: 0.35rem !important;
+  color: rgba(52, 223, 236, 0.96) !important;
+  font-size: 0.98rem !important;
+}
+
+/* Reduce repeated button noise. */
+body.wingman-compare-page .compare-result-flow button {
+  min-height: 28px !important;
+  padding: 0.32rem 0.58rem !important;
+  font-size: 0.72rem !important;
+}
+
+/* Do not let comparison results look like a long document. */
+body.wingman-compare-page .compare-result-flow pre,
+body.wingman-compare-page .compare-result-flow code {
+  white-space: normal !important;
+  font-family: inherit !important;
+}
+
+/* === Compare minimal result view: end === */
+
+/* === Compare polished results view: start === */
+
+/*
+  Compare results visual repair.
+
+  Goal:
+  - Make results look like a clear shortlist, not plain text.
+  - Best match appears as the primary card.
+  - Alternative WyreStorm options appear as compact cards.
+  - Repeated long explanatory content is visually suppressed.
+  - Logic and ranking are not changed here.
+*/
+
+body.wingman-compare-page main,
+body:has(input[placeholder*="competitor SKU" i]) main,
+body:has(input[placeholder*="Known type" i]) main {
+  --compare-panel: rgba(5, 20, 32, 0.94);
+  --compare-panel-soft: rgba(8, 30, 46, 0.88);
+  --compare-card: rgba(7, 27, 42, 0.94);
+  --compare-card-2: rgba(4, 17, 28, 0.92);
+  --compare-line: rgba(33, 214, 230, 0.22);
+  --compare-line-strong: rgba(33, 214, 230, 0.42);
+  --compare-text: rgba(238, 247, 252, 0.96);
+  --compare-muted: rgba(187, 207, 218, 0.84);
+  --compare-cyan: rgba(52, 223, 236, 0.98);
+  --compare-amber: rgba(255, 211, 120, 0.98);
+  color: var(--compare-text);
+}
+
+/* Keep the top input/search area compact. */
+body.wingman-compare-page main form,
+body:has(input[placeholder*="competitor SKU" i]) main form,
+body:has(input[placeholder*="Known type" i]) main form {
+  margin: 0.75rem 0 1rem !important;
+  padding: 0.85rem !important;
+  border: 1px solid var(--compare-line) !important;
+  border-radius: 16px !important;
+  background:
+    radial-gradient(circle at top left, rgba(33, 214, 230, 0.1), transparent 32%),
+    linear-gradient(180deg, rgba(8, 30, 46, 0.96), rgba(3, 15, 25, 0.94)) !important;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.22) !important;
+}
+
+/* Hide the old large submit path. SKU click / Enter handles progression. */
+body.wingman-compare-page main form button[type="submit"],
+body:has(input[placeholder*="competitor SKU" i]) main form button[type="submit"],
+body:has(input[placeholder*="Known type" i]) main form button[type="submit"] {
+  display: none !important;
+}
+
+/* Main results shell. Uses both class-based and structural fallback selectors. */
+body.wingman-compare-page .compare-result-flow,
+body.wingman-compare-page main form ~ div,
+body.wingman-compare-page main form ~ section,
+body:has(input[placeholder*="competitor SKU" i]) main form ~ div,
+body:has(input[placeholder*="Known type" i]) main form ~ div {
+  max-width: 1220px !important;
+}
+
+/* The first major results container. */
+body.wingman-compare-page .compare-result-flow,
+body.wingman-compare-page main form ~ div:has(h2),
+body.wingman-compare-page main form ~ section:has(h2),
+body:has(input[placeholder*="competitor SKU" i]) main form ~ div:has(h2),
+body:has(input[placeholder*="Known type" i]) main form ~ div:has(h2) {
+  margin-top: 1rem !important;
+  padding: 1rem !important;
+  border: 1px solid var(--compare-line) !important;
+  border-radius: 20px !important;
+  background:
+    radial-gradient(circle at top left, rgba(33, 214, 230, 0.08), transparent 34%),
+    linear-gradient(180deg, rgba(5, 23, 37, 0.9), rgba(2, 12, 21, 0.92)) !important;
+  box-shadow: 0 20px 52px rgba(0, 0, 0, 0.28) !important;
+}
+
+/* Headings. */
+body.wingman-compare-page main h2,
+body.wingman-compare-page main h3,
+body:has(input[placeholder*="competitor SKU" i]) main h2,
+body:has(input[placeholder*="competitor SKU" i]) main h3,
+body:has(input[placeholder*="Known type" i]) main h2,
+body:has(input[placeholder*="Known type" i]) main h3 {
+  margin: 0.65rem 0 0.4rem !important;
+  color: var(--compare-cyan) !important;
+  font-size: 1rem !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Best candidate card. */
+body.wingman-compare-page .compare-result-summary-card,
+body.wingman-compare-page main form ~ div:has(h3) > div:first-of-type,
+body:has(input[placeholder*="competitor SKU" i]) main form ~ div:has(h3) > div:first-of-type,
+body:has(input[placeholder*="Known type" i]) main form ~ div:has(h3) > div:first-of-type {
+  margin: 0.75rem 0 1rem !important;
+  padding: 1rem !important;
+  border: 1px solid var(--compare-line-strong) !important;
+  border-left: 4px solid var(--compare-cyan) !important;
+  border-radius: 16px !important;
+  background:
+    radial-gradient(circle at top right, rgba(52, 223, 236, 0.12), transparent 32%),
+    linear-gradient(180deg, rgba(9, 38, 58, 0.96), rgba(4, 17, 28, 0.94)) !important;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Candidate cards from the runtime classifier, plus fallback for repeated result blocks. */
+body.wingman-compare-page .compare-result-candidate-card,
+body.wingman-compare-page main form ~ div:has(h3) > div:not(:first-of-type),
+body:has(input[placeholder*="competitor SKU" i]) main form ~ div:has(h3) > div:not(:first-of-type),
+body:has(input[placeholder*="Known type" i]) main form ~ div:has(h3) > div:not(:first-of-type) {
+  position: relative !important;
+  display: block !important;
+  margin: 0.65rem 0 !important;
+  padding: 0.85rem 0.95rem !important;
+  border: 1px solid rgba(33, 214, 230, 0.2) !important;
+  border-radius: 15px !important;
+  background:
+    linear-gradient(180deg, rgba(7, 29, 44, 0.92), rgba(3, 15, 25, 0.9)) !important;
+  box-shadow: none !important;
+}
+
+/* Give candidate list a tighter shortlist feel. */
+body.wingman-compare-page .compare-result-candidate-card {
+  max-height: 128px !important;
+  overflow: hidden !important;
+}
+
+body.wingman-compare-page .compare-result-candidate-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(3, 15, 25, 0), rgba(3, 15, 25, 0.98));
+}
+
+/* Link / SKU treatment. */
+body.wingman-compare-page main a,
+body.wingman-compare-page main strong,
+body.wingman-compare-page main b,
+body:has(input[placeholder*="competitor SKU" i]) main a,
+body:has(input[placeholder*="Known type" i]) main a {
+  color: var(--compare-cyan) !important;
+  font-weight: 850 !important;
+}
+
+body.wingman-compare-page main p,
+body.wingman-compare-page main li,
+body:has(input[placeholder*="competitor SKU" i]) main p,
+body:has(input[placeholder*="Known type" i]) main p {
+  color: var(--compare-muted) !important;
+  font-size: 0.88rem !important;
+  line-height: 1.38 !important;
+}
+
+/* Make verdict badges readable even when rendered as plain text/spans. */
+body.wingman-compare-page main [class*="partial" i],
+body.wingman-compare-page main [class*="match" i],
+body:has(input[placeholder*="competitor SKU" i]) main [class*="partial" i],
+body:has(input[placeholder*="Known type" i]) main [class*="partial" i] {
+  color: var(--compare-amber) !important;
+  font-weight: 850 !important;
+}
+
+/* Suppress long repeated evidence inside candidate tiles. */
+body.wingman-compare-page .compare-result-candidate-card :is(h4, h5, h6),
+body.wingman-compare-page .compare-result-candidate-card p:nth-of-type(n+4),
+body.wingman-compare-page .compare-result-candidate-card ul:nth-of-type(n+2),
+body.wingman-compare-page .compare-result-candidate-card li:nth-of-type(n+4) {
+  display: none !important;
+}
+
+/* The copy summary is useful but should not dominate the result screen. */
+body.wingman-compare-page .compare-result-copy-card {
+  display: block !important;
+  max-height: 180px !important;
+  overflow: hidden !important;
+  margin-top: 1rem !important;
+  padding: 0.9rem !important;
+  border: 1px solid rgba(33, 214, 230, 0.2) !important;
+  border-left: 4px solid rgba(52, 223, 236, 0.8) !important;
+  border-radius: 15px !important;
+  background: rgba(3, 15, 25, 0.72) !important;
+  white-space: pre-line !important;
+  font-family: inherit !important;
+}
+
+/* Inputs and selectable chips. */
+body.wingman-compare-page main input,
+body.wingman-compare-page main textarea,
+body.wingman-compare-page main select,
+body:has(input[placeholder*="competitor SKU" i]) main input,
+body:has(input[placeholder*="Known type" i]) main input {
+  min-height: 40px !important;
+  border: 1px solid rgba(33, 214, 230, 0.24) !important;
+  border-radius: 12px !important;
+  background: rgba(2, 13, 22, 0.94) !important;
+  color: var(--compare-text) !important;
+}
+
+body.wingman-compare-page main button:not([type="submit"]),
+body.wingman-compare-page main [role="button"],
+body:has(input[placeholder*="competitor SKU" i]) main button:not([type="submit"]),
+body:has(input[placeholder*="Known type" i]) main button:not([type="submit"]) {
+  border: 1px solid rgba(33, 214, 230, 0.28) !important;
+  border-radius: 999px !important;
+  background: rgba(12, 43, 63, 0.92) !important;
+  color: var(--compare-text) !important;
+  font-weight: 750 !important;
+}
+
+@media (max-width: 900px) {
+  body.wingman-compare-page .compare-result-flow,
+  body.wingman-compare-page main form ~ div:has(h2),
+  body.wingman-compare-page .compare-result-summary-card,
+  body.wingman-compare-page .compare-result-candidate-card,
+  body.wingman-compare-page .compare-result-copy-card,
+  body.wingman-compare-page main form {
+    padding: 0.8rem !important;
+    border-radius: 14px !important;
+  }
+}
+
+/* === Compare polished results view: end === */
+
+/* === Compare active result styling: start === */
+
+body.wingman-compare-page main {
+  color: rgba(238, 247, 252, 0.96);
+}
+
+body.wingman-compare-page main form {
+  margin: 0.75rem 0 1rem !important;
+  padding: 0.9rem !important;
+  border: 1px solid rgba(33, 214, 230, 0.22) !important;
+  border-radius: 16px !important;
+  background:
+    radial-gradient(circle at top left, rgba(33, 214, 230, 0.1), transparent 30%),
+    linear-gradient(180deg, rgba(8, 30, 46, 0.96), rgba(3, 15, 25, 0.94)) !important;
+}
+
+body.wingman-compare-page main form button[type="submit"] {
+  display: none !important;
+}
+
+body.wingman-compare-page .compare-result-shell {
+  margin-top: 1rem !important;
+  padding: 1rem !important;
+  border: 1px solid rgba(33, 214, 230, 0.24) !important;
+  border-radius: 20px !important;
+  background:
+    radial-gradient(circle at top left, rgba(33, 214, 230, 0.08), transparent 35%),
+    linear-gradient(180deg, rgba(5, 23, 37, 0.94), rgba(2, 12, 21, 0.94)) !important;
+  box-shadow: 0 20px 52px rgba(0, 0, 0, 0.28) !important;
+}
+
+body.wingman-compare-page .compare-best-card {
+  margin: 0.75rem 0 1rem !important;
+  padding: 1rem !important;
+  border: 1px solid rgba(52, 223, 236, 0.42) !important;
+  border-left: 4px solid rgba(52, 223, 236, 0.98) !important;
+  border-radius: 16px !important;
+  background:
+    radial-gradient(circle at top right, rgba(52, 223, 236, 0.14), transparent 34%),
+    linear-gradient(180deg, rgba(9, 38, 58, 0.96), rgba(4, 17, 28, 0.94)) !important;
+}
+
+body.wingman-compare-page .compare-option-card {
+  position: relative !important;
+  display: block !important;
+  max-height: 126px !important;
+  overflow: hidden !important;
+  margin: 0.65rem 0 !important;
+  padding: 0.85rem 0.95rem !important;
+  border: 1px solid rgba(33, 214, 230, 0.22) !important;
+  border-radius: 15px !important;
+  background:
+    linear-gradient(180deg, rgba(7, 29, 44, 0.94), rgba(3, 15, 25, 0.92)) !important;
+}
+
+body.wingman-compare-page .compare-option-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(3, 15, 25, 0), rgba(3, 15, 25, 0.98));
+}
+
+body.wingman-compare-page .compare-summary-card {
+  max-height: 170px !important;
+  overflow: hidden !important;
+  margin-top: 1rem !important;
+  padding: 0.9rem !important;
+  border: 1px solid rgba(33, 214, 230, 0.2) !important;
+  border-left: 4px solid rgba(52, 223, 236, 0.8) !important;
+  border-radius: 15px !important;
+  background: rgba(3, 15, 25, 0.72) !important;
+  white-space: pre-line !important;
+}
+
+body.wingman-compare-page main h2,
+body.wingman-compare-page main h3 {
+  margin: 0.65rem 0 0.4rem !important;
+  color: rgba(52, 223, 236, 0.96) !important;
+  font-size: 1rem !important;
+  font-weight: 850 !important;
+}
+
+body.wingman-compare-page main p,
+body.wingman-compare-page main li {
+  color: rgba(187, 207, 218, 0.84) !important;
+  font-size: 0.88rem !important;
+  line-height: 1.38 !important;
+}
+
+body.wingman-compare-page main a,
+body.wingman-compare-page main strong,
+body.wingman-compare-page main b {
+  color: rgba(52, 223, 236, 0.98) !important;
+  font-weight: 850 !important;
+}
+
+body.wingman-compare-page .compare-option-card :is(h4, h5, h6),
+body.wingman-compare-page .compare-option-card p:nth-of-type(n+4),
+body.wingman-compare-page .compare-option-card ul:nth-of-type(n+2),
+body.wingman-compare-page .compare-option-card li:nth-of-type(n+4) {
+  display: none !important;
+}
+
+/* Visible test aid: if this appears, route styling is active. Remove only after confirming if required. */
+body.wingman-compare-page main::before {
+  content: "Compare styling active";
+  display: inline-flex;
+  margin: 0 0 0.6rem;
+  padding: 0.28rem 0.55rem;
+  border: 1px solid rgba(52, 223, 236, 0.28);
+  border-radius: 999px;
+  color: rgba(52, 223, 236, 0.9);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* === Compare active result styling: end === */
+
+/* === Compare product more action: start === */
+
+body.wingman-compare-page .compare-more-action-row {
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+
+body.wingman-compare-page .compare-product-more-action,
+body.wingman-compare-page .compare-product-more-action:visited {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0.38rem 0.78rem;
+  border: 1px solid rgba(52, 223, 236, 0.42);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(29, 126, 160, 0.96), rgba(11, 75, 104, 0.96));
+  color: rgba(238, 247, 252, 0.98) !important;
+  font-size: 0.76rem;
+  font-weight: 850;
+  line-height: 1;
+  text-decoration: none !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.24);
+}
+
+body.wingman-compare-page .compare-product-more-action:hover {
+  border-color: rgba(52, 223, 236, 0.72);
+  background:
+    linear-gradient(180deg, rgba(40, 158, 196, 0.98), rgba(13, 92, 126, 0.98));
+  transform: translateY(-1px);
+}
+
+body.wingman-compare-page .compare-option-card .compare-more-action-row,
+body.wingman-compare-page .compare-result-candidate-card .compare-more-action-row {
+  position: relative;
+  z-index: 2;
+  margin-top: 0.5rem;
+}
+
+body.wingman-compare-page .compare-option-card .compare-product-more-action,
+body.wingman-compare-page .compare-result-candidate-card .compare-product-more-action {
+  min-height: 27px;
+  padding: 0.3rem 0.62rem;
+  font-size: 0.72rem;
+}
+
+/* === Compare product more action: end === */

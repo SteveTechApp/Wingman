@@ -3,6 +3,9 @@ import "./wingman2/app/wingmanProductCallCardsCleanUi";
 import "./wingman2/app/wingmanDisplayScaleGuard";
 
 import "./wingman2/lib/compareSkuAutoAdvanceBridge";
+import "./wingman2/lib/compareVisualRouteBridge";
+import "./wingman2/lib/compareMoreButtonBridge";
+import "./wingman2/lib/productPositioningAutofillBridge";
 const wingmanWindow = window as Window & { __wingmanNewProjectHandlerInstalled?: boolean };
 
 if (!wingmanWindow.__wingmanNewProjectHandlerInstalled) {

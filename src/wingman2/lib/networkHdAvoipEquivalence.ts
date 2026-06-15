@@ -89,7 +89,7 @@ export interface NetworkHdAvoipRecommendation {
 export const NETWORKHD_CONTROLLER_SKU = "NHD-CTL-PRO-V2";
 
 export const NETWORKHD_CONTROLLER_REMINDER =
-  "Specify 1x NHD-CTL-PRO-V2 NetworkHD controller per system (one per system) - omit only if this is an add-on to an existing NetworkHD system that already has a controller.";
+  "Confirm whether an NHD-CTL-PRO-V2 controller is required for this NetworkHD system.";
 
 /* ------------------------------------------------------------------------- *
  * Banned legacy SKUs
@@ -506,7 +506,7 @@ export function recommendNetworkHdAvoip(
   } else if (series === "100") {
     reason = "Competitor is a 1G H.264/H.265 endpoint, so the NetworkHD 100 series is the like-for-like codec match.";
   } else if (verifyCodec) {
-    reason = "The competitor appears to be a 1GbE AV-over-IP endpoint. NetworkHD 500 is the safer like-for-like WyreStorm direction for higher-quality 1GbE AV-over-IP workflows. Verify the competitor codec. Only drop to the NetworkHD 100 series if the competitor is confirmed as an H.264/H.265 lower-bandwidth workflow and the customer accepts that class of performance.";
+    reason = "Closest WyreStorm direction for a 1GbE AV-over-IP endpoint. Confirm codec and feature requirements before quoting.";
   } else {
     reason = "Competitor is a 1G visually-lossless endpoint, so the NetworkHD 500 series is the like-for-like match.";
   }
