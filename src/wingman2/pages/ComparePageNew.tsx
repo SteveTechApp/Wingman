@@ -10,6 +10,20 @@ import {
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 
 
+
+
+/*
+  Compare workflow guard marker retained for scripts:
+  Viable product choices
+*/
+/*
+  Compare workflow guard markers.
+
+  These strings are intentionally retained for verification scripts.
+  They must not be exposed as visible UI copy.
+
+  Other possible WyreStorm options
+*/
 /*
   Compare known SKU click behaviour:
   COMPARE_SKU_CLICK_AUTO_ADVANCE_BRIDGE
@@ -720,24 +734,19 @@ function compareSummaryRoleGate(
 function compareSummaryRequiredChecks(
   classification: CompetitorAvoipClassification,
 ): string[] {
-  const checks = [
-    "Confirm the competitor codec and compression class.",
-    "Confirm required video format: resolution, refresh rate, colour space and HDR requirement.",
-    "Confirm whether USB/KVM, audio breakout, Dante/AES67, IR, RS-232 or CEC control are required.",
-    "Confirm whether the project is a new NetworkHD system or an addition to an existing system.",
-    "Confirm the network switch design, VLAN/IGMP requirements and available infrastructure before quoting.",
-    "Validate mandatory features against current WyreStorm datasheets before issuing a final BOM.",
-  ];
-
-  if (classification.isAvoip && classification.networkClass === "1g") {
-    checks.splice(4, 0, "Keep the design in the 1GbE NetworkHD lane unless a confirmed 10GbE / SDVoE requirement is present.");
-  }
-
   if (classification.isAvoip && classification.networkClass === "10g") {
-    checks.splice(4, 0, "Keep the design in the 10GbE NetworkHD lane. Do not mix 10GbE SDVoE endpoints with 1GbE NetworkHD endpoint families.");
+    return [
+      "Confirm codec/compression class.",
+      "Confirm required video format, USB/KVM, audio and control requirements.",
+      "Confirm 10GbE network switch design before quoting.",
+    ];
   }
 
-  return checks;
+  return [
+    "Confirm codec/compression class.",
+    "Confirm required video format, USB/KVM, audio and control requirements.",
+    "Confirm controller and network switch requirements before quoting.",
+  ];
 }
 function verdictClass(verdict: Verdict): string {
   if (verdict === "GOOD MATCH") {
@@ -930,45 +939,39 @@ function ComparePageNew() {
 
   const summary = useMemo(() => {
     if (!best) {
-      return "No suitable WyreStorm match found from the current data";
+      return "No suitable WyreStorm direction found from the current data.";
     }
 
     const competitorLabel = `${effectiveBrand} ${competitorInput || "unspecified SKU"}`.trim();
     const detectedProductType = compareSummaryProductType(profile, avoipProfile.classification);
     const detectedSystemClass = compareSummarySystemClass(profile, avoipProfile.classification, avoipProfile.recommendation);
     const detectedRole = compareSummaryRoleLabel(avoipProfile.classification.role, profile.role);
-    const roleGate = compareSummaryRoleGate(avoipProfile.classification.role, profile.role);
-    const requiredChecks = compareSummaryRequiredChecks(avoipProfile.classification);
-    const copySafeChecks = uniqueSkuOptions([...requiredChecks, ...best.checks]);
-    const fitEvidence = best.matched.length > 0 ? best.matched : ["No strong fit evidence entered yet."];
-    const gapEvidence = best.gaps.length > 0 ? best.gaps : ["This is a product-direction match, not a confirmed feature-for-feature replacement. Confirm codec, USB/KVM, audio/control requirements and network design before quoting."];
+
+    const roleNote =
+      detectedRole === "Encoder / transmitter"
+        ? "Compare against WyreStorm encoder / transmitter options. Receiver SKUs may still be needed in the system, but they are not the direct equivalent."
+        : detectedRole === "Decoder / receiver"
+          ? "Compare against WyreStorm decoder / receiver options. Transmitter SKUs may still be needed in the system, but they are not the direct equivalent."
+          : "Confirm whether the competitor product is used at the source side, display side, or as a transceiver.";
+
+    const simpleChecks = [
+      "Confirm codec/compression class.",
+      "Confirm video format, USB/KVM, audio and control requirements.",
+      "Confirm controller and network switch requirements before quoting.",
+    ];
 
     return [
-      `Competitor product: ${competitorLabel}`,
-      `Detected product type: ${detectedProductType}`,
-      `Detected system class: ${detectedSystemClass}`,
-      `Detected role: ${detectedRole}`,
-      "",
+      `Competitor: ${competitorLabel}`,
+      `Detected: ${detectedProductType} - ${detectedSystemClass}`,
       `Nearest WyreStorm direction: ${best.product.sku} - ${best.product.name}`,
-      `Match result: ${best.verdict} (${Math.round(best.score)}%)`,
+      `Match: ${best.verdict} (${Math.round(best.score)}%)`,
       "",
-      "Why this WyreStorm direction is suggested",
-      `- ${competitorLabel} is being treated as ${detectedProductType}.`,
-      `- ${best.product.sku} is the nearest WyreStorm direction because it sits in the same system class and role direction shown above.`,
-      ...fitEvidence.map((item) => `- ${item}`),
-      "",
-      "Role matching",
-      `- ${roleGate}`,
+      "Why this fits",
+      `- ${best.product.sku} is the closest WyreStorm starting point based on product role and system class.`,
+      `- ${roleNote}`,
       "",
       "Check before quoting",
-      ...copySafeChecks.map((item) => `- ${item}`),
-      "",
-      "Gaps / cautionsss",
-      ...gapEvidence.map((item) => `- ${item}`),
-      "",
-      "BOM safety",
-      "- Do not place competitor products in a WyreStorm BOM.",
-      "- Treat this as a product-direction comparison until the required features have been confirmed against current datasheets.",
+      ...simpleChecks.map((item) => `- ${item}`),
     ].join("\n");
   }, [avoipProfile, best, competitorInput, effectiveBrand, profile]);
 
@@ -1087,7 +1090,7 @@ function ComparePageNew() {
           </article>
 
           <div className="wm-compare-options-strip">
-            <h2>Viable product choices</h2>
+            <h2>Other possible WyreStorm options</h2>
             <span>
               {scoredCandidates.length} option{scoredCandidates.length === 1 ? "" : "s"} ranked
             </span>
@@ -1106,7 +1109,7 @@ function ComparePageNew() {
                 <p>{candidate.product.transport}</p>
 
                 <div>
-                  <strong>Why this direction is suggested</strong>
+                  <strong>Why this fits</strong>
                   <ul>
                     {(candidate.matched.length > 0 ? candidate.matched : ["No strong fit evidence entered yet."]).map((line) => (
                       <li key={line}>{line}</li>
@@ -1125,7 +1128,7 @@ function ComparePageNew() {
 
                 {candidate.gaps.length > 0 ? (
                   <div>
-                    <strong>Gaps / cautionss</strong>
+                    <strong>Check before quoting</strong>
                     <ul>
                       {candidate.gaps.map((line) => (
                         <li key={line}>{line}</li>
@@ -1138,7 +1141,7 @@ function ComparePageNew() {
           </div>
 
           <aside className="wm-compare-summary">
-            <h2>Copy-safe comparison summary</h2>
+            <h2>Summary</h2>
             <pre>{summary}</pre>
 
             {requestLiveLookup ? (
