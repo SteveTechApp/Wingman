@@ -234,7 +234,7 @@ function addCandidatesByPredicate(
 }
 
 function extractMatrixSizeFromText(text: string): { inputs?: number; outputs?: number } {
-  const readable = text.replace(/[Ãƒâ€”]/g, "x");
+  const readable = text.replace(/[ÃƒÆ’Ã¢â‚¬â€]/g, "x");
   const explicit = readable.match(/(?:^|[^0-9])(\d{1,2})\s*x\s*(\d{1,2})(?:[^0-9]|$)/i);
 
   if (explicit) {
@@ -810,8 +810,7 @@ function ensureEligibilityCandidatePool(
   }
 
   if (intent === "presentation-switcher" || intent === "uc-byod") {
-    addCandidateBySku(nextMatches, products, "SW-740-TX", "Eligibility correction: presentation switcher candidate inserted for meeting-room switching workflow.", 86);
-    addCandidateBySku(nextMatches, products, "SW-640L-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for BYOD/BYOM workflow.", 84);
+addCandidateBySku(nextMatches, products, "SW-640L-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for BYOD/BYOM workflow.", 84);
     addCandidateBySku(nextMatches, products, "SW-620-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for meeting-room collaboration workflow.", 82);
     addCandidateBySku(nextMatches, products, "APO-200-UC", "Eligibility correction: UC room hardware candidate inserted for conferencing workflow comparison.", 78);
   }
@@ -869,6 +868,16 @@ function eligibilityRank(value: CompareEligibilityClass): number {
 function decisionConfidence(match: LooseMatch): number {
   const value = Number(match?.decision?.confidence ?? match?.confidence ?? match?.score ?? 0);
   return Number.isFinite(value) ? value : 0;
+}
+
+/** When the eligibility re-rank promotes a different (never-banned) candidate to
+ * the lead, repoint the recommendation's lead-SKU reference at the new lead so the
+ * prose never names a blocked/banned SKU and always tracks matches[0]. */
+function retargetRecommendationLead(recommendation: string, fromSku: string, toSku: string): string {
+  if (!recommendation || !fromSku || !toSku || fromSku === toSku || !recommendation.includes(fromSku)) {
+    return recommendation;
+  }
+  return recommendation.split(fromSku).join(toSku);
 }
 
 export function applyCompareEligibilityRanking<T extends { matches?: LooseMatch[]; rejected?: LooseMatch[]; competitor?: LooseRecord; topOutcome?: string; recommendation?: string; nextSteps?: string[] }>(
@@ -957,14 +966,24 @@ export function applyCompareEligibilityRanking<T extends { matches?: LooseMatch[
     ? "VERIFY"
     : result.topOutcome;
 
+  // rigorousCompare wrote its recommendation against its own pre-rank lead, which
+  // can be a candidate the eligibility layer just blocked (e.g. a retired NetworkHD
+  // SKU). Repoint that reference at the final ranked lead so the prose never names
+  // a banned/blocked SKU and always matches matches[0].
+  const retargetedRecommendation = retargetRecommendationLead(
+    result.recommendation ?? "",
+    getSku(rawMatches[0] ?? {}),
+    accepted[0] ? getSku(accepted[0]) : "",
+  );
+
   return {
     ...result,
     compareIntent: intent,
     matches: accepted,
     rejected: nextRejected,
     topOutcome: nextTopOutcome,
-    recommendation: result.recommendation?.includes("Eligibility gate:")
-      ? result.recommendation
-      : [nextRecommendationPrefix, result.recommendation].filter(Boolean).join(" "),
+    recommendation: retargetedRecommendation.includes("Eligibility gate:")
+      ? retargetedRecommendation
+      : [nextRecommendationPrefix, retargetedRecommendation].filter(Boolean).join(" "),
   } as T;
 }

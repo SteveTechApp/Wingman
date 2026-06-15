@@ -27544,3 +27544,1723 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   margin: 5px 0;
   line-height: 1.35;
 }
+
+/* Wingman Discovery 20 percent density reduction */
+.wm-discovery-capture-page {
+  width: min(100%, 1260px);
+  padding: 10px 14px 72px;
+}
+
+.wm-discovery-capture-hero {
+  padding: 16px 20px;
+  margin-bottom: 10px;
+}
+
+.wm-discovery-capture-hero h1 {
+  font-size: clamp(1.65rem, 3.2vw, 2.45rem);
+  line-height: 0.98;
+  margin: 3px 0 4px;
+}
+
+.wm-discovery-capture-hero p {
+  font-size: 0.88rem;
+}
+
+.wm-discovery-eyebrow,
+.wm-discovery-trail-topline span,
+.wm-discovery-capture-heading span,
+.wm-discovery-summary-heading span {
+  font-size: 0.68rem;
+}
+
+.wm-discovery-completion-card {
+  min-width: 118px;
+  padding: 12px;
+}
+
+.wm-discovery-completion-card strong {
+  font-size: 1.6rem;
+}
+
+.wm-discovery-completion-card span {
+  font-size: 0.74rem;
+}
+
+.wm-discovery-trail-card {
+  padding: 11px;
+  margin-bottom: 10px;
+}
+
+.wm-discovery-progress-bar {
+  height: 6px;
+  margin-bottom: 9px;
+}
+
+.wm-discovery-step-pills {
+  gap: 6px;
+}
+
+.wm-discovery-step-pill {
+  min-height: 42px;
+  padding: 7px 9px;
+  border-radius: 12px;
+}
+
+.wm-discovery-step-pill span {
+  width: 18px;
+  height: 18px;
+  font-size: 0.68rem;
+}
+
+.wm-discovery-step-pill strong {
+  font-size: 0.76rem;
+}
+
+.wm-discovery-step-pill small {
+  font-size: 0.68rem;
+}
+
+.wm-discovery-question-layout {
+  gap: 10px;
+  grid-template-columns: minmax(0, 1.45fr) minmax(290px, 0.55fr);
+}
+
+.wm-discovery-question-card,
+.wm-discovery-capture-card,
+.wm-discovery-summary-card {
+  padding: 13px;
+}
+
+.wm-discovery-question-heading span {
+  font-size: 0.74rem;
+  margin-bottom: 4px;
+}
+
+.wm-discovery-question-heading h2 {
+  font-size: clamp(1.18rem, 2.25vw, 1.7rem);
+  margin-bottom: 4px;
+}
+
+.wm-discovery-question-heading p,
+.wm-discovery-why-card p,
+.wm-discovery-live-tip p,
+.wm-discovery-option small {
+  font-size: 0.8rem;
+}
+
+.wm-discovery-why-card {
+  margin: 10px 0;
+  padding: 9px 11px;
+}
+
+.wm-discovery-option-list {
+  gap: 7px;
+}
+
+.wm-discovery-option {
+  padding: 9px 11px;
+  gap: 9px;
+}
+
+.wm-discovery-option strong {
+  font-size: 0.84rem;
+}
+
+.wm-discovery-option-radio {
+  width: 15px;
+  height: 15px;
+}
+
+.wm-discovery-navigation-row {
+  margin-top: 10px;
+}
+
+.wm-discovery-trail-topline button,
+.wm-discovery-navigation-row button,
+.wm-discovery-capture-actions button,
+.wm-discovery-mic-button {
+  padding: 7px 11px;
+  font-size: 0.78rem;
+}
+
+.wm-discovery-capture-heading {
+  margin-bottom: 9px;
+}
+
+.wm-discovery-capture-heading h3 {
+  font-size: 0.94rem;
+}
+
+.wm-discovery-capture-card textarea {
+  min-height: 168px;
+  padding: 10px;
+  font-size: 0.82rem;
+}
+
+.wm-discovery-live-tip {
+  margin-top: 10px;
+  padding: 10px;
+}
+
+.wm-discovery-summary-card {
+  margin-top: 10px;
+}
+
+.wm-discovery-summary-grid {
+  gap: 8px;
+}
+
+.wm-discovery-summary-grid article {
+  padding: 9px 10px;
+}
+
+.wm-discovery-summary-grid span,
+.wm-discovery-summary-grid p {
+  font-size: 0.78rem;
+}
+/* End Wingman Discovery 20 percent density reduction */
+
+/* ==========================================================================
+   Competitor Compare (ComparePageNew) - dark Wingman layout.
+   The shortlist/result-led compare page uses its own markup. These rules give
+   it compact dark cards, spaced selectable chips and readable inputs, and they
+   override the older light-theme .wm-compare-page rules that targeted the
+   previous matrix page markup.
+   ========================================================================== */
+
+.wm-compare-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  color: var(--wm-text) !important;
+}
+
+html[data-wingman-route="compare"] .wingman-page-host .wm-compare-page {
+  gap: 14px !important;
+}
+
+/* Header */
+.wm-compare-page .wm-compare-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.wm-compare-header-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wm-compare-eyebrow {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--wm-orange);
+}
+
+.wm-compare-page .wm-compare-header h1 {
+  margin: 0;
+  font-size: clamp(1.3rem, 2.4vw, 1.8rem);
+  line-height: 1.1;
+  color: var(--wm-text);
+}
+
+.wm-compare-page .wm-compare-header span {
+  max-width: 64ch;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--wm-text-soft);
+}
+
+.wm-compare-header-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wm-compare-page .wm-compare-reset {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 12px;
+  background: rgba(16, 36, 55, 0.7);
+  color: var(--wm-text-soft);
+  padding: 9px 16px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease, color 120ms ease;
+}
+
+.wm-compare-page .wm-compare-reset:hover,
+.wm-compare-page .wm-compare-reset:focus-visible {
+  border-color: rgba(248, 113, 113, 0.55);
+  background: rgba(248, 113, 113, 0.1);
+  color: #fecaca;
+  outline: none;
+}
+
+/* Form shell + inputs */
+.wm-compare-page .wm-compare-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--wm-panel);
+  border: 1px solid rgba(74, 245, 230, 0.16);
+}
+
+.wm-compare-page .wm-compare-brand-picker,
+.wm-compare-page .wm-compare-sku-lookup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wm-compare-page .wm-compare-form label span {
+  color: var(--wm-text-muted) !important;
+}
+
+.wm-compare-page .wm-compare-form input,
+.wm-compare-page .wm-compare-form select,
+.wm-compare-page .wm-compare-form textarea {
+  background: rgba(6, 16, 26, 0.85) !important;
+  color: var(--wm-text) !important;
+  border: 1px solid rgba(120, 169, 255, 0.22) !important;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+}
+
+.wm-compare-page .wm-compare-form input::placeholder,
+.wm-compare-page .wm-compare-form textarea::placeholder {
+  color: var(--wm-text-muted) !important;
+}
+
+.wm-compare-page .wm-compare-form input:focus,
+.wm-compare-page .wm-compare-form select:focus,
+.wm-compare-page .wm-compare-form textarea:focus {
+  border-color: rgba(74, 245, 230, 0.6) !important;
+  outline: none;
+}
+
+/* Selectable chips: manufacturers, known SKUs and typed suggestions */
+.wm-compare-page .wm-compare-brand-grid,
+.wm-compare-page .wm-compare-known-sku-grid,
+.wm-compare-page .wm-compare-sku-suggestions > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-compare-page .wm-compare-brand-grid button,
+.wm-compare-page .wm-compare-known-sku-grid button,
+.wm-compare-page .wm-compare-sku-suggestions > div button {
+  border: 1px solid rgba(74, 245, 230, 0.22);
+  border-radius: 999px;
+  background: rgba(16, 36, 55, 0.72);
+  color: var(--wm-text-soft);
+  padding: 7px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease, color 120ms ease;
+}
+
+.wm-compare-page .wm-compare-brand-grid button:hover,
+.wm-compare-page .wm-compare-brand-grid button:focus-visible,
+.wm-compare-page .wm-compare-known-sku-grid button:hover,
+.wm-compare-page .wm-compare-known-sku-grid button:focus-visible,
+.wm-compare-page .wm-compare-sku-suggestions > div button:hover,
+.wm-compare-page .wm-compare-sku-suggestions > div button:focus-visible {
+  border-color: rgba(74, 245, 230, 0.6);
+  background: rgba(74, 245, 230, 0.12);
+  color: var(--wm-text);
+  outline: none;
+}
+
+.wm-compare-page .wm-compare-brand-grid button.is-active {
+  border-color: rgba(74, 245, 230, 0.7);
+  background: rgba(74, 245, 230, 0.18);
+  color: #eafffb;
+}
+
+/* CUSTOM / missing SKU - a clearly selectable, distinct option */
+.wm-compare-page .wm-compare-custom-sku {
+  align-self: flex-start;
+  border: 1px dashed rgba(74, 245, 230, 0.55);
+  border-radius: 999px;
+  background: rgba(16, 36, 55, 0.5);
+  color: var(--wm-text);
+  padding: 7px 14px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.wm-compare-page .wm-compare-custom-sku:hover,
+.wm-compare-page .wm-compare-custom-sku:focus-visible {
+  border-color: rgba(74, 245, 230, 0.8);
+  background: rgba(74, 245, 230, 0.12);
+  outline: none;
+}
+
+.wm-compare-page .wm-compare-known-sku-panel,
+.wm-compare-page .wm-compare-sku-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wm-compare-page .wm-compare-known-sku-heading,
+.wm-compare-page .wm-compare-sku-suggestions > span {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--wm-text-muted);
+}
+
+.wm-compare-page .wm-compare-known-sku-empty {
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--wm-text-soft);
+}
+
+/* Primary action - scoped under the form so it out-ranks the legacy
+   .wm-compare-page button[type="submit"] light-theme rule. */
+.wm-compare-page .wm-compare-form .wm-compare-run {
+  width: 100%;
+  min-height: 46px;
+  border: 0 !important;
+  border-radius: 14px !important;
+  background: linear-gradient(180deg, #4af5e6, #18b3a6) !important;
+  color: #04212c !important;
+  font-size: 0.92rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.28);
+}
+
+.wm-compare-page .wm-compare-form .wm-compare-run:hover,
+.wm-compare-page .wm-compare-form .wm-compare-run:focus-visible {
+  filter: brightness(1.06);
+  outline: none;
+}
+
+/* Start / guidance card */
+.wm-compare-page .wm-compare-start-card {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--wm-panel-soft);
+  border: 1px solid rgba(74, 245, 230, 0.14);
+}
+
+.wm-compare-page .wm-compare-start-card h2 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  color: var(--wm-text);
+}
+
+.wm-compare-page .wm-compare-start-card p {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--wm-text-soft);
+}
+
+/* Results */
+.wm-compare-page .wm-compare-results {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.wm-compare-page .wm-compare-best {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--wm-panel);
+  border: 1px solid rgba(74, 245, 230, 0.22);
+}
+
+.wm-compare-page .wm-compare-best > div {
+  flex: 1 1 240px;
+}
+
+.wm-compare-page .wm-compare-best p {
+  margin: 0 0 4px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--wm-text-muted);
+}
+
+.wm-compare-page .wm-compare-best h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--wm-text);
+}
+
+.wm-compare-page .wm-compare-best h3 {
+  margin: 2px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--wm-text-soft);
+}
+
+.wm-compare-page .wm-compare-best small {
+  font-size: 0.8rem;
+  color: var(--wm-text-muted);
+}
+
+.wm-compare-page .wm-compare-best button {
+  border: 1px solid rgba(74, 245, 230, 0.3);
+  border-radius: 12px;
+  background: rgba(16, 36, 55, 0.7);
+  color: var(--wm-text);
+  padding: 9px 16px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.wm-compare-page .wm-compare-best button:hover,
+.wm-compare-page .wm-compare-best button:focus-visible {
+  border-color: rgba(74, 245, 230, 0.6);
+  background: rgba(74, 245, 230, 0.12);
+  outline: none;
+}
+
+.wm-compare-page .wm-compare-verdict {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 120px;
+}
+
+.wm-compare-page .wm-compare-verdict span {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.wm-compare-page .wm-compare-verdict strong {
+  font-size: 1.4rem;
+  color: var(--wm-text);
+}
+
+.wm-compare-page .wm-compare-no-result {
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px dashed rgba(248, 113, 113, 0.4);
+  background: rgba(248, 113, 113, 0.06);
+  color: var(--wm-text-soft);
+  font-weight: 600;
+}
+
+.wm-compare-page .wm-compare-options-strip {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wm-compare-page .wm-compare-options-strip h2 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--wm-text);
+}
+
+.wm-compare-page .wm-compare-options-strip span {
+  font-size: 0.8rem;
+  color: var(--wm-text-muted);
+}
+
+.wm-compare-page .wm-compare-candidate-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.wm-compare-page .wm-compare-candidate-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--wm-panel-soft);
+  border: 1px solid rgba(74, 245, 230, 0.16);
+}
+
+.wm-compare-page .wm-compare-candidate-card header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.wm-compare-page .wm-compare-candidate-card header span {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--wm-text-muted);
+}
+
+.wm-compare-page .wm-compare-candidate-card header strong {
+  font-size: 0.95rem;
+  color: var(--wm-text);
+}
+
+.wm-compare-page .wm-compare-candidate-card header em {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid;
+  font-style: normal;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.wm-compare-page .wm-compare-candidate-card h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--wm-text-soft);
+}
+
+.wm-compare-page .wm-compare-candidate-card > p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--wm-text-muted);
+}
+
+.wm-compare-page .wm-compare-candidate-card strong {
+  font-size: 0.78rem;
+  color: var(--wm-text);
+}
+
+.wm-compare-page .wm-compare-candidate-card ul {
+  margin: 4px 0 0;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.wm-compare-page .wm-compare-candidate-card li {
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--wm-text-soft);
+}
+
+.wm-compare-page .wm-compare-summary {
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--wm-panel);
+  border: 1px solid rgba(74, 245, 230, 0.16);
+}
+
+.wm-compare-page .wm-compare-summary h2 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  color: var(--wm-text);
+}
+
+.wm-compare-page .wm-compare-summary pre {
+  margin: 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(6, 16, 26, 0.6);
+  border: 1px solid rgba(120, 169, 255, 0.12);
+  color: var(--wm-text-soft);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.wm-compare-page .wm-compare-summary p {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  color: var(--wm-text-muted);
+}
+
+/* Verdict colour coding (shared by best-match pill and candidate badges) */
+.wm-compare-page .is-good {
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.5);
+}
+
+.wm-compare-page .is-partial {
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.5);
+}
+
+.wm-compare-page .is-no-match {
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.5);
+}
+
+.wm-compare-page .is-verify {
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+/* Disabled primary action */
+.wm-compare-page .wm-compare-form .wm-compare-run:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: none;
+}
+
+/* "What Wingman understood" - the resolved competitor profile */
+.wm-compare-page .wm-compare-understanding {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--wm-panel);
+  border: 1px solid rgba(74, 245, 230, 0.22);
+}
+
+.wm-compare-page .wm-compare-understanding-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wm-compare-page .wm-compare-understanding h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--wm-text);
+}
+
+.wm-compare-page .wm-compare-understanding-title {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--wm-text-soft);
+}
+
+.wm-compare-page .wm-compare-readiness {
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.wm-compare-page .wm-compare-spec-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm-compare-page .wm-compare-spec-chip {
+  padding: 5px 10px;
+  border-radius: 10px;
+  background: rgba(6, 16, 26, 0.6);
+  border: 1px solid rgba(120, 169, 255, 0.18);
+  color: var(--wm-text-soft);
+  font-size: 0.78rem;
+}
+
+.wm-compare-page .wm-compare-spec-chip strong {
+  margin-right: 2px;
+  font-weight: 800;
+  color: var(--wm-text-muted);
+}
+
+.wm-compare-page .wm-compare-source-link {
+  align-self: flex-start;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #67e8f9 !important;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(103, 232, 249, 0.4);
+}
+
+.wm-compare-page .wm-compare-source-link:hover {
+  color: #a5f3fc !important;
+}
+
+/* Reason lists shared by best-match detail and candidate cards */
+.wm-compare-page .wm-compare-reason-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wm-compare-page .wm-compare-reason-block > strong {
+  font-size: 0.78rem;
+  color: var(--wm-text);
+}
+
+.wm-compare-page .wm-compare-reason-block ul {
+  margin: 0;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.wm-compare-page .wm-compare-reason-block li {
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--wm-text-soft);
+}
+
+/* Recommendation banner */
+.wm-compare-page .wm-compare-recommendation {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: rgba(8, 47, 73, 0.42);
+  border: 1px solid rgba(103, 232, 249, 0.22);
+}
+
+.wm-compare-page .wm-compare-recommendation p {
+  margin: 0;
+  flex: 1 1 240px;
+  font-size: 0.88rem;
+  color: var(--wm-text);
+}
+
+.wm-compare-page .wm-compare-outcome {
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 0.74rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.wm-compare-page .wm-compare-best-detail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--wm-panel-soft);
+  border: 1px solid rgba(74, 245, 230, 0.14);
+}
+
+/* "Ruled out" - transparent, structured rejections */
+.wm-compare-page .wm-compare-rejected {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: var(--wm-panel-soft);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.wm-compare-page .wm-compare-rejected h2 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  color: var(--wm-text);
+}
+
+.wm-compare-page .wm-compare-rejected ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wm-compare-page .wm-compare-rejected li {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  font-size: 0.8rem;
+}
+
+.wm-compare-page .wm-compare-rejected li strong {
+  min-width: 120px;
+  color: var(--wm-text);
+}
+
+.wm-compare-page .wm-compare-rejected li span {
+  flex: 1 1 240px;
+  color: var(--wm-text-muted);
+}
+
+.wm-compare-page .wm-compare-rejected-note {
+  margin: 10px 0 0;
+  font-size: 0.74rem;
+  font-style: italic;
+  color: var(--wm-text-muted);
+}
+
+.wm-compare-page .wm-compare-loading {
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(8, 47, 73, 0.42);
+  border: 1px solid rgba(103, 232, 249, 0.22);
+  color: var(--wm-text-soft);
+  font-weight: 700;
+}
+/* End Competitor Compare (ComparePageNew) dark layout */
+
+/* wingman:alpha-numeric-workflow-filter */
+.wingman-alpha-filter-host {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  margin: 0.45rem 0 0.65rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid rgba(47, 214, 232, 0.16);
+  border-radius: 18px;
+  background: rgba(0, 18, 31, 0.58);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.wingman-alpha-filter-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: rgba(183, 242, 249, 0.9);
+  text-transform: uppercase;
+}
+
+.wingman-alpha-filter-rail {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.wingman-alpha-filter-button {
+  min-width: 1.55rem;
+  height: 1.55rem;
+  padding: 0 0.42rem;
+  border: 1px solid rgba(47, 214, 232, 0.28);
+  border-radius: 999px;
+  background: rgba(2, 28, 44, 0.86);
+  color: rgba(211, 243, 248, 0.88);
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.wingman-alpha-filter-button:hover {
+  border-color: rgba(47, 214, 232, 0.58);
+  background: rgba(4, 55, 77, 0.92);
+  color: #ffffff;
+}
+
+.wingman-alpha-filter-button.is-active {
+  border-color: rgba(47, 214, 232, 0.85);
+  background: rgba(17, 154, 190, 0.42);
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(47, 214, 232, 0.16), 0 0 16px rgba(47, 214, 232, 0.16);
+}
+
+.wingman-alpha-filter-button:disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+}
+
+.wingman-alpha-filter-count {
+  margin-left: auto;
+  color: rgba(183, 207, 218, 0.72);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+[data-wingman-alpha-hidden="true"] {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .wingman-alpha-filter-host {
+    align-items: flex-start;
+  }
+
+  .wingman-alpha-filter-count {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+/* wingman:product-story-language */
+.wingman-product-story-panel {
+  margin: 0.55rem 0 0.7rem;
+  padding: 0.78rem 0.85rem;
+  border: 1px solid rgba(47, 214, 232, 0.18);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(5, 37, 54, 0.88), rgba(2, 17, 29, 0.9));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 10px 28px rgba(0, 0, 0, 0.18);
+}
+
+.wingman-product-story-eyebrow {
+  margin-bottom: 0.28rem;
+  color: rgba(101, 232, 246, 0.86);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.wingman-product-story-title {
+  color: #ffffff;
+  font-size: 0.93rem;
+  font-weight: 850;
+  line-height: 1.22;
+}
+
+.wingman-product-story-purpose,
+.wingman-product-story-talktrack {
+  margin: 0.45rem 0 0;
+  color: rgba(222, 239, 244, 0.88);
+  font-size: 0.8rem;
+  line-height: 1.42;
+}
+
+.wingman-product-story-talktrack {
+  color: rgba(184, 211, 219, 0.86);
+}
+
+.wingman-product-story-row {
+  display: grid;
+  grid-template-columns: minmax(7.2rem, 0.33fr) 1fr;
+  gap: 0.65rem;
+  margin-top: 0.52rem;
+  padding-top: 0.52rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.wingman-product-story-row span,
+.wingman-product-story-mini-heading {
+  color: rgba(101, 232, 246, 0.82);
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.wingman-product-story-row strong {
+  color: rgba(244, 251, 253, 0.94);
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.42;
+}
+
+.wingman-product-story-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-top: 0.68rem;
+}
+
+.wingman-product-story-list-block {
+  min-width: 0;
+  padding: 0.62rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  background: rgba(0, 10, 18, 0.36);
+}
+
+.wingman-product-story-list {
+  margin: 0.42rem 0 0;
+  padding-left: 1rem;
+  color: rgba(222, 239, 244, 0.84);
+  font-size: 0.75rem;
+  line-height: 1.38;
+}
+
+.wingman-product-story-list li + li {
+  margin-top: 0.22rem;
+}
+
+@media (max-width: 900px) {
+  .wingman-product-story-row {
+    grid-template-columns: 1fr;
+    gap: 0.26rem;
+  }
+
+  .wingman-product-story-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* wingman:product-callcards-sticky-horizontal-layout */
+[data-wingman-product-callcards-page="true"] {
+  overflow: hidden;
+}
+
+[data-wingman-pcc-split-layout="true"] {
+  display: grid !important;
+  grid-template-columns: minmax(24rem, 0.95fr) minmax(28rem, 1.05fr) !important;
+  gap: 0.75rem !important;
+  align-items: stretch !important;
+  min-height: 0 !important;
+  max-height: calc(100vh - 13.4rem) !important;
+  overflow: hidden !important;
+}
+
+[data-wingman-pcc-list-pane="true"],
+[data-wingman-pcc-detail-pane="true"] {
+  min-height: 0 !important;
+  overflow: auto !important;
+  scrollbar-width: thin;
+  border-radius: 18px;
+}
+
+[data-wingman-pcc-list-pane="true"] {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.55rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+[data-wingman-pcc-list-pane="true"] .wingman-product-story-panel {
+  display: none !important;
+}
+
+[data-wingman-pcc-sticky-filter="true"],
+[data-wingman-pcc-list-pane="true"] .wingman-alpha-filter-host {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 25 !important;
+  margin-top: 0 !important;
+  backdrop-filter: blur(12px);
+  background:
+    linear-gradient(180deg, rgba(3, 24, 38, 0.97), rgba(2, 16, 28, 0.93)) !important;
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.28),
+    inset 0 -1px 0 rgba(47, 214, 232, 0.12);
+}
+
+[data-wingman-pcc-list-pane="true"] .wingman-alpha-filter-host {
+  padding: 0.42rem 0.5rem !important;
+  gap: 0.4rem !important;
+}
+
+[data-wingman-pcc-list-pane="true"] .wingman-alpha-filter-button {
+  min-width: 1.42rem !important;
+  height: 1.42rem !important;
+  font-size: 0.64rem !important;
+}
+
+[data-wingman-pcc-detail-pane="true"] {
+  padding-bottom: 0.65rem !important;
+}
+
+[data-wingman-pcc-detail-pane="true"] .wingman-product-story-panel--compact {
+  max-height: 15.5rem;
+  overflow: auto;
+}
+
+[data-wingman-pcc-detail-pane="true"] .wingman-product-story-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 1150px) {
+  [data-wingman-pcc-split-layout="true"] {
+    grid-template-columns: 1fr !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  [data-wingman-pcc-list-pane="true"],
+  [data-wingman-pcc-detail-pane="true"] {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+
+
+[data-wingman-compare-paged-workflow="true"] {
+  --compare-stepper-height: 6.4rem;
+}
+
+.wingman-compare-stepper-shell {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.22fr) minmax(0, 1fr);
+  gap: 0.42rem 0.75rem;
+  align-items: center;
+  margin: 0 0 0.85rem;
+  padding: 0.62rem 0.75rem;
+  border: 1px solid rgba(47, 214, 232, 0.18);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(3, 24, 38, 0.98), rgba(2, 16, 28, 0.95));
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.28),
+    inset 0 -1px 0 rgba(47, 214, 232, 0.12);
+  backdrop-filter: blur(14px);
+}
+
+.wingman-compare-stepper-title {
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.wingman-compare-stepper-rail {
+  display: flex;
+  gap: 0.34rem;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.wingman-compare-stepper-button {
+  min-height: 2rem;
+  padding: 0 0.68rem;
+  border: 1px solid rgba(47, 214, 232, 0.24);
+  border-radius: 999px;
+  background: rgba(2, 28, 44, 0.86);
+  color: rgba(214, 238, 244, 0.86);
+  font-size: 0.72rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.wingman-compare-stepper-button:hover {
+  border-color: rgba(47, 214, 232, 0.58);
+  background: rgba(4, 55, 77, 0.92);
+  color: #ffffff;
+}
+
+.wingman-compare-stepper-button.is-active {
+  border-color: rgba(47, 214, 232, 0.9);
+  background: rgba(17, 154, 190, 0.42);
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(47, 214, 232, 0.16), 0 0 16px rgba(47, 214, 232, 0.16);
+}
+
+.wingman-compare-stepper-hint {
+  grid-column: 2;
+  color: rgba(184, 211, 219, 0.82);
+  font-size: 0.74rem;
+  line-height: 1.32;
+}
+
+[data-wingman-compare-step-hidden="true"] {
+  display: none !important;
+}
+
+[data-wingman-compare-step] {
+  animation: wingmanCompareStepFade 160ms ease-out;
+}
+
+[data-wingman-compare-active-step="select"] [data-wingman-compare-step="select"],
+[data-wingman-compare-active-step="options"] [data-wingman-compare-step="options"],
+[data-wingman-compare-active-step="results"] [data-wingman-compare-step="results"],
+[data-wingman-compare-active-step="evidence"] [data-wingman-compare-step="evidence"] {
+  min-height: calc(100vh - 13rem);
+}
+
+@keyframes wingmanCompareStepFade {
+  from {
+    opacity: 0.7;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .wingman-compare-stepper-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .wingman-compare-stepper-rail {
+    justify-content: flex-start;
+  }
+
+  .wingman-compare-stepper-hint {
+    grid-column: 1;
+  }
+}
+
+
+[data-wingman-compare-paged-workflow="true"] {
+  --compare-stepper-height: auto;
+}
+
+.wingman-compare-stepper-shell {
+  margin-bottom: 0.45rem !important;
+  padding: 0.46rem 0.62rem !important;
+  gap: 0.28rem 0.55rem !important;
+  border-radius: 14px !important;
+}
+
+.wingman-compare-stepper-title {
+  font-size: 0.7rem !important;
+}
+
+.wingman-compare-stepper-rail {
+  gap: 0.28rem !important;
+}
+
+.wingman-compare-stepper-button {
+  min-height: 1.72rem !important;
+  padding: 0 0.56rem !important;
+  font-size: 0.66rem !important;
+}
+
+.wingman-compare-stepper-hint {
+  margin-top: -0.1rem !important;
+  font-size: 0.68rem !important;
+  line-height: 1.22 !important;
+}
+
+[data-wingman-compare-active-step="select"] [data-wingman-compare-step="select"],
+[data-wingman-compare-active-step="options"] [data-wingman-compare-step="options"],
+[data-wingman-compare-active-step="results"] [data-wingman-compare-step="results"],
+[data-wingman-compare-active-step="evidence"] [data-wingman-compare-step="evidence"] {
+  min-height: 0 !important;
+}
+
+[data-wingman-compare-step] {
+  margin-top: 0.35rem !important;
+  margin-bottom: 0.45rem !important;
+}
+
+[data-wingman-compare-step] > * {
+  margin-top: 0.35rem !important;
+  margin-bottom: 0.35rem !important;
+}
+
+[data-wingman-compare-paged-workflow="true"] section,
+[data-wingman-compare-paged-workflow="true"] article,
+[data-wingman-compare-paged-workflow="true"] [class*="panel"],
+[data-wingman-compare-paged-workflow="true"] [class*="Panel"],
+[data-wingman-compare-paged-workflow="true"] [class*="card"],
+[data-wingman-compare-paged-workflow="true"] [class*="Card"] {
+  gap: 0.45rem !important;
+}
+
+[data-wingman-compare-paged-workflow="true"] input,
+[data-wingman-compare-paged-workflow="true"] textarea,
+[data-wingman-compare-paged-workflow="true"] select {
+  min-height: 2.2rem !important;
+}
+
+[data-wingman-compare-paged-workflow="true"] .wingman-alpha-filter-host {
+  margin: 0.35rem 0 0.45rem !important;
+  padding: 0.38rem 0.48rem !important;
+}
+
+[data-wingman-compare-paged-workflow="true"] .wingman-alpha-filter-button {
+  min-width: 1.38rem !important;
+  height: 1.38rem !important;
+  font-size: 0.62rem !important;
+}
+
+[data-wingman-compare-paged-workflow="true"] button {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Remove forced blank compare canvas height introduced by the first page-split pass. */
+[data-wingman-compare-active-step] [data-wingman-compare-step] {
+  height: auto !important;
+  max-height: none !important;
+}
+
+
+[data-wingman-alpha-not-present="true"] {
+  display: none !important;
+}
+
+.wingman-alpha-filter-host[data-wingman-alpha-actual-buckets] .wingman-alpha-filter-rail,
+[data-wingman-alpha-actual-buckets] {
+  align-items: center;
+}
+
+.wingman-alpha-filter-host[data-wingman-alpha-actual-buckets] .wingman-alpha-filter-button {
+  min-width: 1.48rem;
+}
+
+
+[data-wingman-native-alpha-hidden="true"] {
+  display: none !important;
+}
+
+[data-wingman-alpha-not-present="true"] {
+  display: none !important;
+}
+
+[data-wingman-alpha-actual-buckets] .wingman-alpha-filter-count {
+  white-space: nowrap;
+}
+
+
+[data-wingman-compare-filter-hidden="true"],
+[data-wingman-native-alpha-hidden="true"],
+[data-wingman-alpha-not-present="true"] {
+  display: none !important;
+}
+
+.wingman-compare-reset-search-button {
+  justify-self: end;
+  min-height: 1.72rem;
+  padding: 0 0.62rem;
+  border: 1px solid rgba(47, 214, 232, 0.35);
+  border-radius: 999px;
+  background: rgba(2, 28, 44, 0.9);
+  color: rgba(230, 247, 250, 0.92);
+  font-size: 0.66rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.wingman-compare-reset-search-button:hover {
+  border-color: rgba(47, 214, 232, 0.7);
+  background: rgba(4, 55, 77, 0.95);
+  color: #ffffff;
+}
+
+.wingman-compare-stepper-shell .wingman-compare-reset-search-button {
+  grid-column: 2;
+  margin-left: auto;
+}
+
+
+.wingman-compare-action-bar {
+  position: sticky;
+  bottom: 0.65rem;
+  z-index: 80;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.28rem 0.75rem;
+  align-items: center;
+  margin: 0.65rem 0 0.4rem;
+  padding: 0.68rem 0.75rem;
+  border: 1px solid rgba(47, 214, 232, 0.24);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(3, 28, 44, 0.98), rgba(2, 16, 28, 0.96));
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(14px);
+}
+
+.wingman-compare-action-summary {
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.02em;
+}
+
+.wingman-compare-action-message {
+  grid-column: 1;
+  color: rgba(190, 216, 224, 0.88);
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+.wingman-compare-action-message[data-wingman-compare-action-warning] {
+  color: rgba(255, 216, 148, 0.96);
+}
+
+.wingman-compare-action-buttons {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.wingman-compare-run-action,
+.wingman-compare-reset-action {
+  min-height: 2.15rem;
+  padding: 0 0.88rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.wingman-compare-run-action {
+  border: 1px solid rgba(61, 210, 255, 0.55);
+  background: linear-gradient(135deg, rgba(14, 160, 196, 0.95), rgba(38, 132, 214, 0.95));
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(47, 214, 232, 0.18);
+}
+
+.wingman-compare-run-action:hover {
+  border-color: rgba(118, 235, 255, 0.82);
+  box-shadow: 0 0 28px rgba(47, 214, 232, 0.28);
+}
+
+.wingman-compare-run-action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.wingman-compare-reset-action {
+  border: 1px solid rgba(154, 193, 204, 0.28);
+  background: rgba(3, 28, 44, 0.86);
+  color: rgba(230, 247, 250, 0.9);
+}
+
+.wingman-compare-reset-action:hover {
+  border-color: rgba(47, 214, 232, 0.65);
+  color: #ffffff;
+}
+
+[data-wingman-compare-selected-sku-chip="true"] {
+  border-color: rgba(118, 235, 255, 0.95) !important;
+  background: rgba(22, 154, 188, 0.48) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 1px rgba(47, 214, 232, 0.2), 0 0 18px rgba(47, 214, 232, 0.2) !important;
+}
+
+@media (max-width: 900px) {
+  .wingman-compare-action-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .wingman-compare-action-buttons {
+    grid-column: 1;
+    grid-row: auto;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+
+[data-wingman-compare-start-again="true"] {
+  border-color: rgba(47, 214, 232, 0.42) !important;
+  background: rgba(3, 28, 44, 0.9) !important;
+  color: rgba(230, 247, 250, 0.95) !important;
+}
+
+[data-wingman-compare-start-again="true"]:hover {
+  border-color: rgba(47, 214, 232, 0.75) !important;
+  background: rgba(4, 55, 77, 0.96) !important;
+  color: #ffffff !important;
+}
+
+
+.wingman-compare-match-status {
+  margin: 0.55rem 0;
+  padding: 0.62rem 0.75rem;
+  border: 1px solid rgba(47, 214, 232, 0.22);
+  border-radius: 14px;
+  background: rgba(3, 28, 44, 0.88);
+  color: rgba(220, 242, 248, 0.9);
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+
+.wingman-compare-match-status[data-wingman-compare-match-state="running"] {
+  border-color: rgba(47, 214, 232, 0.42);
+  background: rgba(4, 45, 62, 0.92);
+}
+
+.wingman-compare-match-status[data-wingman-compare-match-state="matched"] {
+  border-color: rgba(84, 235, 170, 0.46);
+  background: rgba(6, 58, 47, 0.74);
+  color: rgba(223, 255, 243, 0.95);
+}
+
+.wingman-compare-match-status[data-wingman-compare-match-state="failed"] {
+  border-color: rgba(255, 190, 96, 0.45);
+  background: rgba(58, 38, 8, 0.72);
+  color: rgba(255, 230, 184, 0.96);
+}
+
+[data-wingman-compare-match-visible="true"] {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+
+[data-wingman-invalid-sku-blocked="true"] {
+  display: none !important;
+}
+
+.wingman-invalid-sku-guard-panel {
+  margin: 0.85rem 0;
+  padding: 1rem;
+  border: 1px solid rgba(255, 190, 96, 0.45);
+  border-radius: 18px;
+  background: rgba(58, 38, 8, 0.72);
+  color: rgba(255, 230, 184, 0.96);
+}
+
+.wingman-invalid-sku-guard-panel h2 {
+  margin: 0 0 0.45rem;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.wingman-invalid-sku-guard-panel p {
+  margin: 0.45rem 0;
+  max-width: 68rem;
+  color: rgba(255, 236, 198, 0.95);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.wingman-invalid-sku-next {
+  margin-top: 0.65rem;
+  padding: 0.62rem 0.72rem;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.2);
+  font-size: 0.78rem;
+  line-height: 1.42;
+}
+
+.wingman-invalid-sku-restart {
+  margin-top: 0.75rem;
+  min-height: 2rem;
+  padding: 0 0.78rem;
+  border: 1px solid rgba(47, 214, 232, 0.45);
+  border-radius: 999px;
+  background: rgba(3, 28, 44, 0.92);
+  color: #ffffff;
+  font-size: 0.74rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+
+.wingman-compare-auto-run-status {
+  margin: 0.45rem 0;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgba(47, 214, 232, 0.24);
+  border-radius: 14px;
+  background: rgba(3, 28, 44, 0.86);
+  color: rgba(220, 242, 248, 0.9);
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.wingman-compare-auto-run-status[data-wingman-compare-auto-run-state="running"] {
+  border-color: rgba(47, 214, 232, 0.55);
+  background: rgba(4, 45, 62, 0.92);
+  color: #ffffff;
+}
+
+.wingman-compare-auto-run-status[data-wingman-compare-auto-run-state="failed"] {
+  border-color: rgba(255, 190, 96, 0.45);
+  background: rgba(58, 38, 8, 0.72);
+  color: rgba(255, 230, 184, 0.96);
+}
+
+[data-wingman-compare-selected-sku-chip="true"] {
+  border-color: rgba(118, 235, 255, 0.95) !important;
+  background: rgba(22, 154, 188, 0.52) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 1px rgba(47, 214, 232, 0.2), 0 0 18px rgba(47, 214, 232, 0.22) !important;
+}
+
+[data-wingman-native-run-compare-fallback="true"] {
+  opacity: 0.68 !important;
+  background: rgba(3, 28, 44, 0.9) !important;
+  border: 1px dashed rgba(47, 214, 232, 0.42) !important;
+}
+
+[data-wingman-native-run-compare-fallback="true"]::after {
+  content: "  Ã‚Â· fallback";
+  opacity: 0.72;
+  font-size: 0.68em;
+}
+
+
+[data-wingman-compare-results-input-hidden="true"] {
+  display: none !important;
+}
+
+[data-wingman-compare-decision-collapsed="true"] {
+  display: none !important;
+}
+
+[data-wingman-compare-primary-decision="true"] {
+  border-color: rgba(47, 214, 232, 0.28) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 12px 30px rgba(0, 0, 0, 0.18) !important;
+}
+
+.wingman-compare-decision-toggle-shell {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.55rem;
+  align-items: center;
+  margin: 0.45rem 0;
+  padding: 0.5rem 0.62rem;
+  border: 1px solid rgba(47, 214, 232, 0.16);
+  border-radius: 14px;
+  background: rgba(3, 28, 44, 0.58);
+}
+
+.wingman-compare-decision-toggle {
+  min-height: 1.75rem;
+  padding: 0 0.65rem;
+  border: 1px solid rgba(47, 214, 232, 0.34);
+  border-radius: 999px;
+  background: rgba(2, 28, 44, 0.9);
+  color: rgba(230, 247, 250, 0.95);
+  font-size: 0.7rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.wingman-compare-decision-toggle:hover {
+  border-color: rgba(47, 214, 232, 0.68);
+  background: rgba(4, 55, 77, 0.95);
+  color: #ffffff;
+}
+
+.wingman-compare-decision-toggle-summary {
+  color: rgba(184, 211, 219, 0.82);
+  font-size: 0.72rem;
+  line-height: 1.32;
+}
+
+@media (max-width: 900px) {
+  .wingman-compare-decision-toggle-shell {
+    grid-template-columns: 1fr;
+  }
+}

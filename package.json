@@ -53,7 +53,7 @@
                     "data:import-source-pdfs":  "node tools/import-wingman-source-pdfs.mjs",
                     "data:maintenance":  "powershell -NoProfile -ExecutionPolicy Bypass -File ./Update-WingmanData.ps1",
                     "data:product-media-index":  "node tools/generate-product-media-index.mjs",
-                    "data:product-intelligence-index":  "node tools/generate-product-intelligence-index.mjs",
+                    "data:product-intelligence-index":  "node tools/generate-product-intelligence-index.mjs \u0026\u0026 node tools/sanitize-product-intelligence-index.mjs",
                     "dev":  "vite",
                     "dev:lookup-api":  "npm --prefix server run dev",
                     "inspect:compare-workflow":  "node tools/inspect-compare-workflow-shape.mjs",
