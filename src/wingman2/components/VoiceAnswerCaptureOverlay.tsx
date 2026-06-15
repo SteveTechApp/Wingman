@@ -258,7 +258,9 @@ export function VoiceAnswerCaptureOverlay() {
     recognition.onresult = (event) => {
       let interimTranscript = "";
 
-      for (let index = event.resultIndex; index < event.results.length; index += 1) {
+      const startIndex = event.resultIndex ?? 0;
+
+      for (let index = startIndex; index < event.results.length; index += 1) {
         const result = event.results[index];
         const transcript = result[0]?.transcript || "";
 
