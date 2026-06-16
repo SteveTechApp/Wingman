@@ -1,3 +1,5 @@
+import "./wingman2/lib/guruDetachedPanel";
+import "./wingman2/lib/microphoneSafety";
 import { GuruHelper } from "./wingman2/components/guru/GuruHelper";
 import "./wingman2/app/wingmanProductCallCardsCleanUi";
 import "./wingman2/app/wingmanDisplayScaleGuard";
