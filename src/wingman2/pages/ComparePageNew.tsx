@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   isBannedNetworkHdSku,
   mapCompetitorToNetworkHdAvoip,
@@ -719,6 +719,7 @@ function CompareSummaryPanel({ summary, requestLiveLookup, sourceUrl }: { summar
 }
 
 function ComparePageNew() {
+  const bestMatchRef = useRef<HTMLDivElement | null>(null);
   const [selectedBrand, setSelectedBrand] = useState("Atlona");
   const [competitorInput, setCompetitorInput] = useState("");
   const [mustMatchFeatures, setMustMatchFeatures] = useState("");
@@ -732,6 +733,8 @@ function ComparePageNew() {
       // Non-fatal: the built-in WyreStorm product set still drives comparison.
     });
   }, []);
+
+
 
   const effectiveBrand = selectedBrand || brandForCompetitorSku(competitorInput);
   const skuSuggestions = useMemo(() => compareSkuSuggestions(competitorInput, effectiveBrand), [competitorInput, effectiveBrand]);
@@ -760,6 +763,26 @@ function ComparePageNew() {
   }, [avoipProfile, profile]);
 
   const best = scoredCandidates[0] ?? null;
+  useEffect(() => {
+    if (!hasCompared || workflowStep !== "options" || !best?.product.sku) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      bestMatchRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+
+      bestMatchRef.current?.focus({
+        preventScroll: true,
+      });
+    }, 120);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [best?.product.sku, hasCompared, workflowStep]);
   const alternativeCandidates = best ? scoredCandidates.filter((candidate) => candidate.product.sku !== best.product.sku) : scoredCandidates;
   const requestLiveLookup = shouldRequestLiveLookupUrl(profile);
   const sourceUrl = fallbackRetrySourceUrl("");
@@ -921,7 +944,14 @@ function ComparePageNew() {
         {hasCompared ? (
           <>
             {best ? (
-              <BestCandidateCard candidate={best} onCopySummary={() => { void copySummary(); }} />
+              <div
+                ref={bestMatchRef}
+                className="compare-native-scroll-target"
+                tabIndex={-1}
+                aria-label={`Main WyreStorm match: ${best.product.sku}`}
+              >
+                <BestCandidateCard candidate={best} onCopySummary={() => { void copySummary(); }} />
+              </div>
             ) : (
               <section className="compare-native-empty">
                 <h3>No suitable WyreStorm match found from the current data</h3>
