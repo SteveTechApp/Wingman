@@ -12,6 +12,7 @@ buildProductNarrative,
   type ProductSpec
 } from "../lib/productStoryEngine";
 import { CompareBackToListButton } from "../components/compare/CompareBackToListButton";
+import { ReportProblemButton } from "../components/ReportProblemButton";
 
 type ProductTab = "overview" | "sales" | "spec" | "diagram" | "visual";
 
@@ -439,13 +440,16 @@ function ProductWorkspace({
             <p className="mt-3 max-w-4xl text-sm leading-6 text-white/70">{narrative.headline}</p>
           </div>
 
-          <button
-            type="button"
-            onClick={backToSelection}
-            className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100"
-          >
-            Back to product selection
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <ReportProblemButton sku={product.sku} productName={product.name} />
+            <button
+              type="button"
+              onClick={backToSelection}
+              className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100"
+            >
+              Back to product selection
+            </button>
+          </div>
         </div>
       </section>
 
