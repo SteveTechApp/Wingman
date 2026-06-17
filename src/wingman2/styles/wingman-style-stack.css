@@ -28703,3 +28703,261 @@ body {
 }
 /* === Wingman browser scroll model end === */
 
+/* === Wingman authority shell scroll override start === */
+/*
+  Final specificity override.
+
+  DevTools showed the active blocker:
+  .wingman-authority-shell .wingman-shell / #root > .wingman-shell
+  was forcing height: 100dvh and overflow: hidden.
+
+  This restores normal long-page behaviour while keeping the sidebar/topbar usable.
+*/
+
+html,
+body,
+#root {
+  height: auto !important;
+  min-height: 100% !important;
+  max-height: none !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+#root > .wingman-shell.wingman-authority-shell,
+#root > .wingman-shell,
+.wingman-authority-shell,
+.wingman-authority-shell.wingman-shell,
+.wingman-authority-shell .wingman-shell {
+  height: auto !important;
+  min-height: 100vh !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+#root > .wingman-shell.wingman-authority-shell,
+.wingman-shell.wingman-authority-shell {
+  display: flex !important;
+  align-items: stretch !important;
+}
+
+.wingman-authority-shell .wingman-sidebar,
+#root > .wingman-shell .wingman-sidebar {
+  position: sticky !important;
+  top: 0 !important;
+  align-self: flex-start !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+.wingman-authority-shell .wingman-workspace,
+#root > .wingman-shell .wingman-workspace,
+.wingman-authority-shell .wingman-app-main,
+#root > .wingman-shell .wingman-app-main,
+.wingman-authority-shell .wingman-page-host,
+#root > .wingman-shell .wingman-page-host {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.wingman-authority-shell .wingman-topbar,
+#root > .wingman-shell .wingman-topbar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 90 !important;
+}
+
+.wingman-authority-shell .wingman-app-main,
+#root > .wingman-shell .wingman-app-main {
+  padding-bottom: 160px !important;
+}
+
+/* Prevent large page interiors being trapped after the shell is released. */
+.wingman-authority-shell .finder-page,
+.wingman-authority-shell .product-pitch-page,
+.wingman-authority-shell .compare-page,
+.wingman-authority-shell .project-detail-page,
+.wingman-authority-shell .proposal-page,
+.wingman-authority-shell .visual-design-page,
+.wingman-authority-shell .visual-design-studio-page,
+.wingman-authority-shell .wm-visual-design-page,
+.wingman-authority-shell .wm-diagram-studio-shell,
+.wingman-authority-shell .wm-diagram-control-panel,
+.wingman-authority-shell .wm-generated-output-stack {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+/* === Wingman authority shell scroll override end === */
+
+/* === Wingman CSS-rendered Guru launcher start === */
+/*
+  Final Guru launcher model:
+  - legacy GuruHelper hidden
+  - AppShell Guru button remains the only launcher
+  - robot icon is rendered as button::after, so it cannot disappear behind child layers
+  - green sweep is rendered as button::before
+  - dashboard content is left-aligned after the sidebar
+*/
+
+/* Keep only the AppShell-owned Guru launcher. */
+.wm-guru-helper-root {
+  display: none !important;
+}
+
+/* Remove the leftover dashboard gutter without breaking the sidebar. */
+html[data-wingman-route="dashboard"] #root > .wingman-shell,
+html[data-wingman-route="dashboard"] #root > .wingman-shell.wingman-authority-shell,
+html[data-wingman-route="dashboard"] .wingman-shell.wingman-authority-shell {
+  display: flex !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  gap: 0 !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-sidebar {
+  flex: 0 0 var(--wm-sidebar-width, 268px) !important;
+  width: var(--wm-sidebar-width, 268px) !important;
+  max-width: var(--wm-sidebar-width, 268px) !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-workspace {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  padding-left: 14px !important;
+  padding-right: 14px !important;
+  transform: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-app-main,
+html[data-wingman-route="dashboard"] .wingman-page-host,
+html[data-wingman-route="dashboard"] main {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-app-main > *,
+html[data-wingman-route="dashboard"] .wingman-page-host > *,
+html[data-wingman-route="dashboard"] main > * {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* One visible Guru launcher button. */
+html[data-wingman-route] button.wingman-guru-fab,
+body button.wingman-guru-fab,
+button.wingman-guru-fab,
+.wingman-guru-fab {
+  position: fixed !important;
+  right: 22px !important;
+  left: auto !important;
+  bottom: 84px !important;
+  top: auto !important;
+
+  width: 74px !important;
+  height: 74px !important;
+  min-width: 74px !important;
+  min-height: 74px !important;
+  max-width: 74px !important;
+  max-height: 74px !important;
+
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+
+  border: 1px solid rgba(96, 238, 255, 0.36) !important;
+  border-radius: 999px !important;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(13, 42, 61, 0.98) 0%, rgba(5, 19, 34, 0.98) 64%, rgba(2, 10, 20, 0.98) 100%) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(96, 238, 255, 0.12),
+    0 0 24px rgba(49, 255, 155, 0.48),
+    0 0 56px rgba(49, 255, 155, 0.26) !important;
+
+  opacity: 1 !important;
+  visibility: visible !important;
+  overflow: visible !important;
+  isolation: isolate !important;
+  transform: none !important;
+  z-index: 9500 !important;
+  cursor: pointer !important;
+}
+
+/* Hide internal child layers. The button paints the icon and sweep itself. */
+button.wingman-guru-fab > *,
+.wingman-guru-fab > * {
+  display: none !important;
+}
+
+/* Green sweep ring. */
+button.wingman-guru-fab::before,
+.wingman-guru-fab::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: -6px !important;
+  border-radius: 999px !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+
+  background:
+    conic-gradient(
+      from 0deg,
+      rgba(49, 255, 155, 0) 0deg,
+      rgba(49, 255, 155, 0) 210deg,
+      rgba(49, 255, 155, 1) 266deg,
+      rgba(96, 238, 255, 0.86) 318deg,
+      rgba(49, 255, 155, 0) 360deg
+    ) !important;
+
+  -webkit-mask: radial-gradient(circle, transparent 0 58%, #000 60% 100%) !important;
+  mask: radial-gradient(circle, transparent 0 58%, #000 60% 100%) !important;
+
+  animation: wingmanGuruSweep 2.35s linear infinite !important;
+}
+
+/* Robot icon drawn directly onto the button. */
+button.wingman-guru-fab::after,
+.wingman-guru-fab::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 9px !important;
+  border-radius: 999px !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+
+  background:
+    url("/wingman-guru-icon.png") center / contain no-repeat !important;
+
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: drop-shadow(0 0 10px rgba(96, 238, 255, 0.48)) !important;
+}
+
+button.wingman-guru-fab[data-open="true"],
+.wingman-guru-fab[data-open="true"] {
+  display: none !important;
+}
+
+@keyframes wingmanGuruSweep {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* === Wingman CSS-rendered Guru launcher end === */
+

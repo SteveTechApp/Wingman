@@ -6,6 +6,8 @@ describe("single Guru entry point", () => {
   it("uses the AppShell Guru launcher and does not render the legacy helper from main", () => {
     const mainSource = readFileSync(join(process.cwd(), "src/main.tsx"), "utf8");
     const appShellSource = readFileSync(join(process.cwd(), "src/wingman2/layout/AppShell.tsx"), "utf8");
+    const guruFabSource = readFileSync(join(process.cwd(), "src/wingman2/components/WingmanGuruFab.tsx"), "utf8");
+    const cssSource = readFileSync(join(process.cwd(), "src/wingman2/styles/wingman-style-stack.css"), "utf8");
 
     expect(mainSource).not.toContain("GuruHelper");
     expect(mainSource).not.toContain("<GuruHelper />");
@@ -15,5 +17,12 @@ describe("single Guru entry point", () => {
 
     expect((appShellSource.match(/<WingmanGuruFab/g) ?? []).length).toBe(1);
     expect((appShellSource.match(/<WingmanGuruDrawer/g) ?? []).length).toBe(1);
+
+    expect(guruFabSource).toContain("wingman-guru-fab");
+
+    expect(cssSource).toContain("Wingman CSS-rendered Guru launcher start");
+    expect(cssSource).toContain('url("/wingman-guru-icon.png")');
+    expect(cssSource).toContain("button.wingman-guru-fab::after");
+    expect(cssSource).toContain("button.wingman-guru-fab::before");
   });
 });
