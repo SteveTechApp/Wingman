@@ -8987,7 +8987,7 @@
     "productRole": "primary-hardware",
     "catalogVisibility": "default",
     "features": [
-      "Seamless Switching",
+      "Seamless wired/wireless integration",
       "Unified Comms",
       "Unified Communications",
       "Camera / capture",
@@ -9003,9 +9003,7 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
-      "IR control",
       "HDCP support",
       "Tabletop / room installation",
       "Camera",
@@ -9013,7 +9011,7 @@
       "Video bar"
     ],
     "featureTags": [
-      "Seamless Switching",
+      "Seamless wired/wireless integration",
       "Unified Comms",
       "microphone",
       "camera",
@@ -9026,16 +9024,14 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
-      "IR control",
       "HDCP support",
       "Tabletop / room installation",
       "Speakerphone",
       "Video bar"
     ],
     "tags": [
-      "Seamless Switching",
+      "Seamless wired/wireless integration",
       "Unified Comms",
       "Unified Communications",
       "Camera / capture",
@@ -9053,9 +9049,7 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
-      "IR control",
       "HDCP support",
       "Tabletop / room installation",
       "Speakerphone",
@@ -9067,7 +9061,7 @@
       "Meeting room, BYOD/BYOM and conferencing workflows"
     ],
     "capabilities": [
-      "Seamless Switching",
+      "Seamless wired/wireless integration",
       "Unified Comms",
       "HDMI",
       "HDR",
@@ -9078,9 +9072,7 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
-      "IR control",
       "HDCP support",
       "Tabletop / room installation",
       "Camera",
@@ -9094,7 +9086,7 @@
       "Video Bar for Conference Rooms: Advanced Meeting Solution",
       "Product",
       "Primary hardware",
-      "Seamless Switching",
+      "Seamless wired/wireless integration",
       "Unified Comms",
       "Unified Communications",
       "Camera / capture",
@@ -9113,9 +9105,7 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
-      "IR control",
       "HDCP support",
       "Tabletop / room installation",
       "Speakerphone",
@@ -9266,8 +9256,7 @@
         "KVM / USB extension",
         "USB 3.x",
         "USB-C",
-        "USB-C power delivery",
-        "NDI"
+        "USB-C power delivery"
       ],
       "io": {
         "ports": [
@@ -9519,7 +9508,7 @@
           "5m"
         ],
         "processing": [
-          "Seamless switching"
+          "Seamless wired/wireless integration"
         ],
         "evidence": [
           "AUDIO & VIDEO",
@@ -9593,7 +9582,6 @@
           "1x APO-MIC-EXT (RJ45 to USB MINI adapter)"
         ],
         "protocols": [
-          "NDI",
           "API"
         ],
         "linkSpeeds": [],
@@ -9602,7 +9590,6 @@
       "control": {
         "present": true,
         "protocols": [
-          "IR",
           "API"
         ],
         "evidence": [
@@ -9661,12 +9648,10 @@
           "USB-C power delivery"
         ],
         "Network": [
-          "Ethernet / LAN",
-          "NDI"
+          "Ethernet / LAN"
         ],
         "Control": [
-          "IP / web control",
-          "IR control"
+          "IP / web control"
         ],
         "Processing": [
           "HDCP support"
@@ -9745,24 +9730,10 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Auto Framing / Speaker Tracking / Presenter Tracking / Individuals Gallery / Manual Mode",
-          "confidence": 0.94
-        },
-        {
           "id": "ip-control",
           "label": "IP / web control",
           "group": "Control",
           "evidence": "Button, Bluetooth Remote Controller, API, Web UI",
-          "confidence": 0.94
-        },
-        {
-          "id": "ir",
-          "label": "IR control",
-          "group": "Control",
-          "evidence": "Features automatic switching modes such as last-in-first-out, ensuring the most relevant input source is always displayed",
           "confidence": 0.94
         },
         {
