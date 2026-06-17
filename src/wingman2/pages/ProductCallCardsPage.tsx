@@ -1,4 +1,5 @@
-﻿import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 
 type ProductSeed = {
   sku: string;
@@ -58,10 +59,7 @@ const PRODUCT_PANEL_TABS: Array<{ id: ProductPanelId; label: string; hint: strin
 
 const PAGE_SIZE = 14;
 
-const DATA_ENDPOINTS = [
-  "/product-call-card-products.json",
-  "/product-intelligence-index.json",
-];
+const PRODUCT_CALL_CARD_ENDPOINT = "/product-call-card-products.json";
 
 const CURATED: Record<string, Partial<ProductCard>> = {
   "SW-620-TX-W": {
@@ -678,23 +676,30 @@ function extractProductSeeds(value: unknown): ProductSeed[] {
 }
 
 async function loadProductSeeds(): Promise<ProductSeed[]> {
-  for (const endpoint of DATA_ENDPOINTS) {
-    try {
-      const response = await fetch(endpoint, { cache: "no-store" });
+  try {
+    const response = await fetch(PRODUCT_CALL_CARD_ENDPOINT, { cache: "no-store" });
 
-      if (!response.ok) {
-        continue;
-      }
-
+    if (response.ok) {
       const payload = await response.json();
       const seeds = extractProductSeeds(payload);
 
       if (seeds.length > 0) {
         return seeds;
       }
-    } catch {
-      continue;
     }
+  } catch {
+    // Fall through to the shared product-intelligence index.
+  }
+
+  try {
+    const payload = await loadProductIntelligenceIndex();
+    const seeds = extractProductSeeds(payload);
+
+    if (seeds.length > 0) {
+      return seeds;
+    }
+  } catch {
+    // Fall through to curated fallback products.
   }
 
   return FALLBACK_PRODUCTS;
