@@ -29049,3 +29049,328 @@ html[data-wingman-route] .wm-page-content {
 }
 /* === Wingman global workspace left align end === */
 
+/* === Wingman Visual Studio compact layout repair start === */
+/*
+  Visual Studio page repair:
+  - Keeps page controls readable at browser zoom.
+  - Restores a real left rail / canvas / right rail layout.
+  - Gives React Flow enough visible canvas area.
+  - Stops control labels and descriptions collapsing into a single line.
+*/
+
+html[data-wingman-route] .wm-vs-page {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  min-height: calc(100vh - 72px) !important;
+  margin: 0 !important;
+  padding: 10px 14px 90px !important;
+  color: #eef6ff !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  gap: 10px !important;
+}
+
+html[data-wingman-route] .wm-vs-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 330px) !important;
+  gap: 12px !important;
+  align-items: stretch !important;
+  border: 1px solid rgba(74, 245, 230, 0.24) !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(135deg, rgba(5, 18, 31, 0.96), rgba(9, 31, 50, 0.86)),
+    rgba(4, 18, 30, 0.94) !important;
+  padding: 12px 14px !important;
+}
+
+html[data-wingman-route] .wm-vs-header h1 {
+  margin: 0 !important;
+  color: #ffffff !important;
+  font-size: clamp(1.05rem, 1.25vw, 1.45rem) !important;
+  line-height: 1.08 !important;
+  font-weight: 950 !important;
+}
+
+html[data-wingman-route] .wm-vs-header p {
+  margin: 4px 0 0 !important;
+  color: rgba(226, 242, 255, 0.72) !important;
+  font-size: 0.82rem !important;
+  line-height: 1.28 !important;
+}
+
+html[data-wingman-route] .wm-vs-eyebrow {
+  margin: 0 !important;
+  color: #67e8f9 !important;
+  font-size: 0.68rem !important;
+  line-height: 1.05 !important;
+  font-weight: 950 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+}
+
+html[data-wingman-route] .wm-vs-header-card,
+html[data-wingman-route] .wm-vs-panel {
+  border: 1px solid rgba(74, 245, 230, 0.22) !important;
+  border-radius: 14px !important;
+  background: rgba(4, 21, 35, 0.9) !important;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.2) !important;
+}
+
+html[data-wingman-route] .wm-vs-header-card {
+  display: grid !important;
+  align-content: center !important;
+  gap: 5px !important;
+  padding: 12px 14px !important;
+}
+
+html[data-wingman-route] .wm-vs-header-card span,
+html[data-wingman-route] .wm-vs-header-card small {
+  color: rgba(226, 242, 255, 0.72) !important;
+  font-size: 0.72rem !important;
+}
+
+html[data-wingman-route] .wm-vs-header-card strong {
+  color: #ffffff !important;
+  font-size: 0.94rem !important;
+  line-height: 1.1 !important;
+}
+
+html[data-wingman-route] .wm-vs-layout {
+  min-height: calc(100vh - 250px) !important;
+  display: grid !important;
+  grid-template-columns: minmax(225px, 280px) minmax(520px, 1fr) minmax(250px, 330px) !important;
+  gap: 12px !important;
+  align-items: stretch !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route] .wm-vs-left-rail,
+html[data-wingman-route] .wm-vs-right-rail {
+  min-width: 0 !important;
+  display: grid !important;
+  align-content: start !important;
+  gap: 10px !important;
+}
+
+html[data-wingman-route] .wm-vs-panel {
+  padding: 10px 12px !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route] .wm-vs-diagram-list,
+html[data-wingman-route] .wm-vs-mode-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+  margin-top: 8px !important;
+}
+
+html[data-wingman-route] .wm-vs-choice,
+html[data-wingman-route] .wm-vs-mode {
+  width: 100% !important;
+  min-height: 58px !important;
+  border: 1px solid rgba(74, 245, 230, 0.18) !important;
+  border-radius: 12px !important;
+  background: rgba(2, 14, 25, 0.76) !important;
+  color: #eef6ff !important;
+  padding: 9px 10px !important;
+  text-align: left !important;
+  display: grid !important;
+  gap: 4px !important;
+  cursor: pointer !important;
+  white-space: normal !important;
+}
+
+html[data-wingman-route] .wm-vs-choice.is-active,
+html[data-wingman-route] .wm-vs-mode.is-active {
+  border-color: rgba(103, 232, 249, 0.72) !important;
+  background: rgba(13, 116, 139, 0.32) !important;
+  box-shadow: inset 0 0 0 1px rgba(103, 232, 249, 0.26) !important;
+}
+
+html[data-wingman-route] .wm-vs-choice span,
+html[data-wingman-route] .wm-vs-mode span {
+  color: #67e8f9 !important;
+  font-size: 0.82rem !important;
+  line-height: 1.12 !important;
+  font-weight: 950 !important;
+  white-space: normal !important;
+}
+
+html[data-wingman-route] .wm-vs-choice small,
+html[data-wingman-route] .wm-vs-mode small {
+  color: rgba(226, 242, 255, 0.7) !important;
+  font-size: 0.68rem !important;
+  line-height: 1.22 !important;
+  white-space: normal !important;
+}
+
+html[data-wingman-route] .wm-vs-canvas-shell {
+  min-width: 0 !important;
+  min-height: 560px !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(500px, 1fr) !important;
+  gap: 8px !important;
+  border: 1px solid rgba(74, 245, 230, 0.24) !important;
+  border-radius: 16px !important;
+  background: rgba(4, 21, 35, 0.9) !important;
+  padding: 10px !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route] .wm-vs-canvas-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  min-width: 0 !important;
+}
+
+html[data-wingman-route] .wm-vs-canvas-toolbar h2 {
+  margin: 4px 0 0 !important;
+  color: #67e8f9 !important;
+  font-size: 1rem !important;
+  line-height: 1.1 !important;
+  font-weight: 950 !important;
+}
+
+html[data-wingman-route] .wm-vs-toolbar-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+html[data-wingman-route] .wm-vs-button {
+  min-height: 32px !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(103, 232, 249, 0.34) !important;
+  padding: 6px 10px !important;
+  color: #ffffff !important;
+  font-size: 0.76rem !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+}
+
+html[data-wingman-route] .wm-vs-button-primary {
+  background: linear-gradient(135deg, #22d3ee, #2563eb) !important;
+}
+
+html[data-wingman-route] .wm-vs-button-secondary {
+  background: rgba(2, 14, 25, 0.88) !important;
+}
+
+html[data-wingman-route] .wm-vs-canvas {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: clamp(500px, 58vh, 760px) !important;
+  min-height: 500px !important;
+  border: 1px solid rgba(103, 232, 249, 0.18) !important;
+  border-radius: 14px !important;
+  background:
+    radial-gradient(circle at top left, rgba(103, 232, 249, 0.08), transparent 28%),
+    #06111d !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route] .wm-vs-canvas .react-flow {
+  background: #06111d !important;
+}
+
+html[data-wingman-route] .wm-vs-flow-node {
+  min-width: 165px !important;
+  max-width: 230px !important;
+  border: 1px solid rgba(103, 232, 249, 0.34) !important;
+  border-radius: 12px !important;
+  background: rgba(4, 21, 35, 0.96) !important;
+  color: #ffffff !important;
+  padding: 8px 10px !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24) !important;
+}
+
+html[data-wingman-route] .wm-vs-node-kicker {
+  color: #67e8f9 !important;
+  font-size: 0.56rem !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.06em !important;
+}
+
+html[data-wingman-route] .wm-vs-node-title {
+  color: #ffffff !important;
+  font-size: 0.76rem !important;
+  line-height: 1.12 !important;
+  font-weight: 950 !important;
+  margin-top: 4px !important;
+}
+
+html[data-wingman-route] .wm-vs-node-subtitle {
+  color: rgba(226, 242, 255, 0.7) !important;
+  font-size: 0.62rem !important;
+  line-height: 1.18 !important;
+  margin-top: 3px !important;
+}
+
+html[data-wingman-route] .wm-vs-summary-panel h2 {
+  margin: 4px 0 6px !important;
+  color: #67e8f9 !important;
+  font-size: 0.96rem !important;
+  line-height: 1.12 !important;
+  font-weight: 950 !important;
+}
+
+html[data-wingman-route] .wm-vs-summary-panel p,
+html[data-wingman-route] .wm-vs-list {
+  color: rgba(226, 242, 255, 0.78) !important;
+  font-size: 0.75rem !important;
+  line-height: 1.28 !important;
+}
+
+html[data-wingman-route] .wm-vs-list {
+  margin: 8px 0 0 !important;
+  padding-left: 1rem !important;
+}
+
+html[data-wingman-route] .wm-vs-list li + li {
+  margin-top: 5px !important;
+}
+
+@media (max-width: 1400px) {
+  html[data-wingman-route] .wm-vs-layout {
+    grid-template-columns: minmax(220px, 270px) minmax(500px, 1fr) !important;
+  }
+
+  html[data-wingman-route] .wm-vs-right-rail {
+    grid-column: 1 / -1 !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  html[data-wingman-route] .wm-vs-summary-panel {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+@media (max-width: 1050px) {
+  html[data-wingman-route] .wm-vs-header,
+  html[data-wingman-route] .wm-vs-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-wingman-route] .wm-vs-right-rail {
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-wingman-route] .wm-vs-canvas-shell {
+    min-height: 500px !important;
+  }
+
+  html[data-wingman-route] .wm-vs-canvas {
+    min-height: 440px !important;
+    height: 52vh !important;
+  }
+}
+/* === Wingman Visual Studio compact layout repair end === */
+
