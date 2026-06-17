@@ -128,3 +128,35 @@ export function rankProductsByFamilyScores<TProduct extends ProductShortlistItem
     })
     .map((entry) => entry.product);
 }
+
+export function getProductFamilyRankingReason<TProduct extends ProductShortlistItemLike>(
+  item: TProduct,
+  productFamilyScores: Array<{ family?: string | null; score?: number | null; reasons?: string[] | null }> | null | undefined,
+): string {
+  if (!productFamilyScores?.length) {
+    return "";
+  }
+
+  const matchedScores = productFamilyScores
+    .filter((score) => Boolean(score.family))
+    .filter((score) => itemMatchesFamily(item, String(score.family)))
+    .sort((left, right) => Number(right.score ?? 0) - Number(left.score ?? 0));
+
+  const leadingScore = matchedScores[0];
+
+  if (!leadingScore?.family) {
+    return "";
+  }
+
+  const scoreText = typeof leadingScore.score === "number" ? ` (${Math.round(leadingScore.score)} score)` : "";
+  const reasonText = Array.isArray(leadingScore.reasons)
+    ? leadingScore.reasons.filter(Boolean).slice(0, 2).join("; ")
+    : "";
+
+  if (reasonText) {
+    return `${leadingScore.family}${scoreText}: ${reasonText}`;
+  }
+
+  return `${leadingScore.family}${scoreText}`;
+}
+
