@@ -5,17 +5,19 @@ const root = process.cwd();
 
 const scanRoots = [
   "src/wingman2",
+  "src/__tests__",
   "tools",
 ];
 
 const priorityFiles = [
-  "src/wingman2/pages/DiscoveryPage.tsx",
-  "src/wingman2/pages/FinderPage.tsx",
-  "src/wingman2/pages/ProjectDetailPage.tsx",
-  "src/wingman2/pages/ProposalPage.tsx",
   "src/wingman2/lib/recommendationEvidence.ts",
+  "src/wingman2/lib/recommendationEvidence.priority3.test.ts",
+  "src/__tests__/recommendationEvidence.test.ts",
   "src/wingman2/lib/avDecisionEvidence.ts",
-  "src/wingman2/lib/salesReadiness.ts",
+  "src/wingman2/pages/DiscoveryPage.tsx",
+  "src/wingman2/pages/ProjectDetailPage.tsx",
+  "src/wingman2/pages/FinderPage.tsx",
+  "src/wingman2/pages/ProposalPage.tsx",
   "src/wingman2/logic/matrixOutputModel.ts",
 ];
 
@@ -84,15 +86,21 @@ function unique(values) {
   return Array.from(new Set(values));
 }
 
+function lower(value) {
+  return String(value ?? "").toLowerCase();
+}
+
 function containsAny(content, markers) {
-  return markers.some((marker) => content.toLowerCase().includes(marker.toLowerCase()));
+  const contentText = lower(content);
+  return markers.some((marker) => contentText.includes(lower(marker)));
 }
 
 function countMarkers(content, markers) {
+  const contentText = lower(content);
   let score = 0;
 
   for (const marker of markers) {
-    if (content.toLowerCase().includes(marker.toLowerCase())) {
+    if (contentText.includes(lower(marker))) {
       score += 1;
     }
   }
@@ -100,7 +108,26 @@ function countMarkers(content, markers) {
   return score;
 }
 
-function findEvidence(files, markers) {
+function sortEvidence(files, expectedEvidencePath) {
+  if (!expectedEvidencePath) {
+    return files;
+  }
+
+  const expected = lower(expectedEvidencePath);
+
+  return [...files].sort((a, b) => {
+    const aExpected = lower(a).includes(expected) ? 0 : 1;
+    const bExpected = lower(b).includes(expected) ? 0 : 1;
+
+    if (aExpected !== bExpected) {
+      return aExpected - bExpected;
+    }
+
+    return a.localeCompare(b);
+  });
+}
+
+function findEvidence(files, markers, expectedEvidencePath) {
   const evidence = [];
 
   for (const file of files) {
@@ -111,7 +138,7 @@ function findEvidence(files, markers) {
     }
   }
 
-  return unique(evidence).slice(0, 12);
+  return sortEvidence(unique(evidence), expectedEvidencePath);
 }
 
 function grade(score, maxScore) {
@@ -128,8 +155,22 @@ function grade(score, maxScore) {
   return "weak";
 }
 
-function auditArea({ label, purpose, markers, requiredEvidence }) {
-  const evidence = findEvidence(sourceFiles, markers);
+function expectedFileHasEvidence(expectedEvidencePath, markers) {
+  if (!expectedEvidencePath) {
+    return true;
+  }
+
+  const expectedFile = sourceFiles.find((file) => lower(file).includes(lower(expectedEvidencePath)));
+
+  if (!expectedFile) {
+    return false;
+  }
+
+  return containsAny(read(expectedFile), markers);
+}
+
+function auditArea({ label, purpose, markers, expectedEvidencePath }) {
+  const evidence = findEvidence(sourceFiles, markers, expectedEvidencePath);
   let markerScore = 0;
 
   for (const file of evidence) {
@@ -137,8 +178,9 @@ function auditArea({ label, purpose, markers, requiredEvidence }) {
   }
 
   const cappedScore = Math.min(markerScore, markers.length);
-  const hasRequiredEvidence = requiredEvidence ? evidence.some((file) => file.includes(requiredEvidence)) : true;
-  const score = hasRequiredEvidence ? cappedScore : Math.max(0, cappedScore - 2);
+  const hasExpectedEvidence = expectedFileHasEvidence(expectedEvidencePath, markers);
+
+  const score = hasExpectedEvidence ? cappedScore : Math.max(0, cappedScore - 2);
 
   return {
     label,
@@ -146,9 +188,9 @@ function auditArea({ label, purpose, markers, requiredEvidence }) {
     score,
     maxScore: markers.length,
     grade: grade(score, markers.length),
-    evidence,
-    requiredEvidence,
-    hasRequiredEvidence,
+    evidence: evidence.slice(0, 12),
+    expectedEvidencePath,
+    hasExpectedEvidence,
   };
 }
 
@@ -158,8 +200,9 @@ function printArea(area) {
   console.log(`Purpose: ${area.purpose}`);
   console.log(`Score: ${area.score}/${area.maxScore} (${area.grade})`);
 
-  if (area.requiredEvidence && !area.hasRequiredEvidence) {
-    console.log(`Required evidence missing from expected area: ${area.requiredEvidence}`);
+  if (area.expectedEvidencePath) {
+    const status = area.hasExpectedEvidence ? "found" : "missing";
+    console.log(`Expected implementation evidence: ${area.expectedEvidencePath} (${status})`);
   }
 
   if (area.evidence.length === 0) {
@@ -173,7 +216,11 @@ function printArea(area) {
   }
 }
 
-const sourceFiles = unique(scanRoots.flatMap((scanRoot) => walk(scanRoot)));
+const walkedFiles = unique(scanRoots.flatMap((scanRoot) => walk(scanRoot)));
+const sourceFiles = unique([
+  ...priorityFiles.filter(fileExists),
+  ...walkedFiles,
+]);
 
 const missingPriorityFiles = priorityFiles.filter((file) => !fileExists(file));
 
@@ -181,27 +228,44 @@ const areas = [
   auditArea({
     label: "Architecture decision logic",
     purpose: "Wingman should decide between AV-over-IP, matrix switching, HDBaseT, USB extension, and dedicated processing from the application rather than from SKU preference.",
-    requiredEvidence: "recommendationEvidence",
+    expectedEvidencePath: "src/wingman2/lib/recommendationEvidence.ts",
     markers: [
-      "avoip",
-      "av-over-ip",
-      "matrix",
+      "RecommendationArchitectureDecision",
+      "architectureDecision",
+      "networkhd-avoip",
+      "contained-routing",
+      "dedicated-wall-processor",
+      "meeting-room",
+      "education-hybrid",
       "hdbaset",
-      "hdmi",
-      "distance",
-      "latency",
-      "scaling",
-      "multiview",
-      "video wall",
-      "wall processor",
+      "matrix",
       "usb",
       "byom",
+      "dependency",
+      "quoteChecks",
+    ],
+  }),
+  auditArea({
+    label: "Scenario regression coverage",
+    purpose: "Recommendation logic should be protected by AV scenarios, not just broad marker checks.",
+    expectedEvidencePath: "src/wingman2/lib/recommendationEvidence.priority3.test.ts",
+    markers: [
+      "meeting room",
+      "byom",
+      "hospitality",
+      "teaching room",
+      "led wall",
+      "NetworkHD",
+      "managed-network",
+      "scenario",
+      "not.toContain",
+      "NHD-CTL-PRO",
     ],
   }),
   auditArea({
     label: "Application and room context",
     purpose: "Recommendations should react to room type, source/display count, vertical, workflow, and project stage.",
-    requiredEvidence: "DiscoveryPage",
+    expectedEvidencePath: "src/wingman2/pages/DiscoveryPage.tsx",
     markers: [
       "room",
       "application",
@@ -220,7 +284,7 @@ const areas = [
   auditArea({
     label: "USB and conferencing discipline",
     purpose: "Meeting and classroom recommendations should include camera, speakerphone, USB host/device, BYOM/BYOD, and extension checks.",
-    requiredEvidence: "DiscoveryPage",
+    expectedEvidencePath: "src/wingman2/lib/recommendationEvidence.ts",
     markers: [
       "usb",
       "camera",
@@ -239,7 +303,7 @@ const areas = [
   auditArea({
     label: "Audio, control, and dependencies",
     purpose: "A real proposal needs audio breakout, amplifier/DSP needs, control, controller, receiver, transmitter, network, and power dependencies.",
-    requiredEvidence: "recommendationEvidence",
+    expectedEvidencePath: "src/wingman2/lib/recommendationEvidence.ts",
     markers: [
       "audio",
       "dsp",
@@ -261,7 +325,7 @@ const areas = [
   auditArea({
     label: "Product-family mapping",
     purpose: "Wingman should map requirements to the correct WyreStorm family before naming a SKU.",
-    requiredEvidence: "recommendationEvidence",
+    expectedEvidencePath: "src/wingman2/lib/recommendationEvidence.ts",
     markers: [
       "networkhd 100",
       "networkhd 500",
@@ -282,7 +346,7 @@ const areas = [
   auditArea({
     label: "Missing-information and quote safety",
     purpose: "The engine should expose unknowns, weak assumptions, validation warnings, and quote-safety status before proposal output.",
-    requiredEvidence: "ProjectDetailPage",
+    expectedEvidencePath: "src/wingman2/pages/ProjectDetailPage.tsx",
     markers: [
       "missingInformation",
       "missing information",
@@ -300,7 +364,7 @@ const areas = [
   auditArea({
     label: "Project evidence handoff",
     purpose: "Discovery, Finder, Compare, Product Pitch, Visual Studio, and Proposal should feed or read the project record.",
-    requiredEvidence: "ProjectDetailPage",
+    expectedEvidencePath: "src/wingman2/pages/ProjectDetailPage.tsx",
     markers: [
       "project",
       "discoveryBrief",
@@ -339,12 +403,13 @@ for (const area of areas) {
 
 const weakAreas = areas.filter((area) => area.grade === "weak");
 const partialAreas = areas.filter((area) => area.grade === "partial");
+const missingExpectedEvidence = areas.filter((area) => area.expectedEvidencePath && !area.hasExpectedEvidence);
 
 console.log("");
 console.log("## Priority 3 conclusion");
 
-if (weakAreas.length === 0 && partialAreas.length === 0) {
-  console.log("The recommendation layer has broad marker coverage. Next step: scenario-based behavioural tests.");
+if (weakAreas.length === 0 && partialAreas.length === 0 && missingExpectedEvidence.length === 0) {
+  console.log("The recommendation layer has structured architecture logic, scenario regression coverage and expected implementation evidence in the right files.");
 }
 
 if (weakAreas.length > 0) {
@@ -361,10 +426,17 @@ if (partialAreas.length > 0) {
   }
 }
 
+if (missingExpectedEvidence.length > 0) {
+  console.log("Areas where evidence is still not concentrated in the expected implementation file:");
+  for (const area of missingExpectedEvidence) {
+    console.log(`- ${area.label}: ${area.expectedEvidencePath}`);
+  }
+}
+
 console.log("");
 console.log("Recommended next engineering step:");
-console.log("Add scenario tests that assert the correct architecture path before product/SKU selection: meeting room USB-C/BYOM, hospitality TV distribution, HE teaching room, LED wall processor, and flexible multi-room AVoIP.");
+console.log("Move from evidence wording to product-family scoring: score NetworkHD, matrix, HDBaseT, presentation/UC and video-wall processor families before suggesting a SKU.");
 
-if (totalPercent < 55) {
+if (totalPercent < 70 || missingExpectedEvidence.length > 0) {
   process.exitCode = 1;
 }
