@@ -1,7 +1,15 @@
 import { useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 
+import { getProductFamilyRankingReason } from "../../lib/productFamilyShortlistRanking";
+
 type UnknownRecord = Record<string, unknown>;
+
+type ProductFamilyScoreLike = {
+  family?: string | null;
+  score?: number | null;
+  reasons?: string[] | null;
+};
 
 type Tone = {
   border: string;
@@ -20,6 +28,7 @@ type CandidateCard = {
   ioSummary: string;
   why: string[];
   checks: string[];
+  rankingReason: string;
   tone: Tone;
 };
 
@@ -313,6 +322,77 @@ function pickText(record: UnknownRecord, keys: string[]): string {
   return "";
 }
 
+function arrayFromUnknown(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+function stringArrayFromUnknown(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.map(textFromUnknown).filter(Boolean);
+  }
+
+  const text = textFromUnknown(value);
+
+  return text ? [text] : [];
+}
+
+function normalizeProductFamilyScore(value: unknown): ProductFamilyScoreLike | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const family = pickText(value, ["family", "productFamily", "technology", "category"]);
+  const score = pickNumber(value, ["score", "confidence", "familyScore"]);
+  const reasons = stringArrayFromUnknown(value.reasons ?? value.reason ?? value.evidence);
+
+  if (!family) {
+    return null;
+  }
+
+  return {
+    family,
+    score,
+    reasons,
+  };
+}
+
+function readProductFamilyScoresFrom(value: unknown): ProductFamilyScoreLike[] {
+  const directScores = arrayFromUnknown(value).map(normalizeProductFamilyScore).filter((item): item is ProductFamilyScoreLike => Boolean(item));
+
+  if (directScores.length) {
+    return directScores;
+  }
+
+  if (!isRecord(value)) {
+    return [];
+  }
+
+  const nestedCandidates = [
+    value.productFamilyScores,
+    value.recommendationEvidence,
+    isRecord(value.recommendationEvidence) ? value.recommendationEvidence.productFamilyScores : null,
+    value.discoveryBrief,
+    isRecord(value.discoveryBrief) ? value.discoveryBrief.recommendationEvidence : null,
+    isRecord(value.discoveryBrief) && isRecord(value.discoveryBrief.recommendationEvidence)
+      ? value.discoveryBrief.recommendationEvidence.productFamilyScores
+      : null,
+  ];
+
+  for (const candidate of nestedCandidates) {
+    const nestedScores = readProductFamilyScoresFrom(candidate);
+
+    if (nestedScores.length) {
+      return nestedScores;
+    }
+  }
+
+  return [];
+}
+
+function readProductFamilyScores(props: CompareCandidateShortlistProps): ProductFamilyScoreLike[] {
+  return readProductFamilyScoresFrom(props);
+}
+
 function pickNumber(record: UnknownRecord, keys: string[]): number | null {
   for (const key of keys) {
     const value = record[key];
@@ -523,13 +603,24 @@ function deriveIoSummary(record: UnknownRecord): string {
   return "Check datasheet for exact I/O";
 }
 
-function makeCandidateCard(record: UnknownRecord, index: number): CandidateCard {
+function makeCandidateCard(record: UnknownRecord, index: number, productFamilyScores: ProductFamilyScoreLike[]): CandidateCard {
   const sku = pickText(record, SKU_KEYS);
   const name = pickText(record, NAME_KEYS) || sku || `WyreStorm option ${index + 1}`;
   const role = pickText(record, ROLE_KEYS) || "Product role to confirm";
   const technology = pickText(record, TECHNOLOGY_KEYS) || "Technology type to confirm";
   const ioSummary = deriveIoSummary(record);
   const fit = deriveFit(record);
+  const rankingReason = getProductFamilyRankingReason(
+    {
+      sku,
+      title: name,
+      family: technology,
+      category: role,
+      technology,
+      description: [role, technology, ioSummary].filter(Boolean).join(" "),
+    },
+    productFamilyScores,
+  );
 
   const why = [
     role !== "Product role to confirm" ? `Same broad role: ${role}` : "",
@@ -554,12 +645,15 @@ function makeCandidateCard(record: UnknownRecord, index: number): CandidateCard 
     ioSummary,
     why: why.length > 0 ? why : ["Shown as a potential WyreStorm product direction."],
     checks,
+    rankingReason,
     tone: fit.tone,
   };
 }
 
 function buildCandidateCards(props: CompareCandidateShortlistProps): CandidateCard[] {
-  return collectCandidateRecords(props).map(makeCandidateCard);
+  const productFamilyScores = readProductFamilyScores(props);
+
+  return collectCandidateRecords(props).map((record, index) => makeCandidateCard(record, index, productFamilyScores));
 }
 
 function readDetectedCategory(props: CompareCandidateShortlistProps): string {
@@ -678,6 +772,12 @@ export function CompareCandidateShortlist(props: CompareCandidateShortlistProps)
                   <span style={styles.factValue}>{candidate.ioSummary}</span>
                 </div>
               </div>
+
+              {candidate.rankingReason ? (
+                <div style={styles.notes} data-testid="compare-product-family-ranking-reason">
+                  <strong>Why this compare option is prioritised:</strong> {candidate.rankingReason}
+                </div>
+              ) : null}
 
               <div style={styles.sectionLabel}>Why shown</div>
               <ul style={styles.list}>
