@@ -3208,7 +3208,7 @@ export function FinderPage() {
                     ) : null}
                   </div>
 
-                  <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_320px]">
+                  <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
                     <main className="wm-finder-results-panel grid content-start gap-3">
                       {!hasIntent ? (
                         <div className="grid min-h-[220px] place-items-center rounded-2xl border border-dashed border-[#29465e] bg-[#0d2133] p-6 text-center">
@@ -3370,7 +3370,42 @@ export function FinderPage() {
                       )}
                     </main>
 
-                    <aside className="grid content-start gap-3">
+                    <aside className="grid content-start gap-3 lg:sticky lg:top-4">
+                      <section data-wingman-finder-guidance-card="true" className="rounded-2xl border border-[#24455c] bg-[#0b1d2d] p-4 shadow-[0_18px_48px_rgba(0,0,0,0.22)]">
+                        <p className="text-[0.68rem] font-black uppercase tracking-[0.16em] text-cyan-200">
+                          Finder guidance
+                        </p>
+                        <h3 className="mt-2 text-base font-black text-slate-50">
+                          Build the product path safely
+                        </h3>
+
+                        <div className="mt-3 grid gap-3 text-sm text-slate-300">
+                          <div>
+                            <p className="font-bold text-slate-100">Current state</p>
+                            <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                              A weak or empty result means the requirement needs more qualification before the product path is safe.
+                            </p>
+                          </div>
+
+                          <div>
+                            <p className="font-bold text-slate-100">Check before recommending</p>
+                            <ul className="mt-1 grid gap-1 pl-4 text-xs leading-relaxed text-slate-400">
+                              <li>How many sources and displays?</li>
+                              <li>What distance does the signal need to travel?</li>
+                              <li>Is USB, camera, audio or control required?</li>
+                              <li>Is this extension, switching, AV-over-IP, multiview or video wall processing?</li>
+                            </ul>
+                          </div>
+
+                          <div className="rounded-xl border border-cyan-300/20 bg-cyan-300/10 p-3">
+                            <p className="font-bold text-slate-100">Ask this next</p>
+                            <p className="mt-1 text-xs leading-relaxed text-slate-300">
+                              Where are the sources and displays located, and what else needs to travel with the video signal?
+                            </p>
+                          </div>
+                        </div>
+                      </section>
+
                       <details className="wm-decision-details">
                         <summary>
                           <Sparkles className="h-4 w-4 text-cyan-500" />
