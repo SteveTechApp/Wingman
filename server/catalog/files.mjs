@@ -10,6 +10,7 @@ export const CATALOG_DIR = path.join(DATA_DIR, "catalog");
 
 export const PRODUCT_INTELLIGENCE_DB_FILE = path.join(DATA_DIR, "product-intelligence-db.json");
 export const COMPETITOR_APPROVALS_FILE = path.join(DATA_DIR, "competitor-approvals.json");
+export const WINGMAN_PRODUCT_REPORTS_FILE = path.join(DATA_DIR, "wingman-product-reports.json");
 export const WYRESTORM_PRODUCT_INTELLIGENCE_FILE = path.join(DATA_DIR, "wyrestorm-product-intelligence.json");
 
 export const WYRESTORM_SKU_MASTER_FILE = path.join(CATALOG_DIR, "wyrestormSkuCatalog.2026.json");

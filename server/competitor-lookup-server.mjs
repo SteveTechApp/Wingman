@@ -6,6 +6,7 @@ import path from "node:path";
 import {
   COMPETITOR_APPROVALS_FILE,
   COMPETITOR_CATALOG_FILE,
+  WINGMAN_PRODUCT_REPORTS_FILE,
 } from "./catalog/files.mjs";
 import {
   handleProductIntelligenceEvidencePost,
@@ -333,6 +334,47 @@ async function readJsonFile(filePath, fallback) {
 async function writeJsonFile(filePath, value) {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
   await fs.writeFile(filePath, JSON.stringify(value, null, 2), "utf8");
+}
+
+// Persist a user-submitted product data correction from the "Report a problem"
+// button. Appends to data/wingman-product-reports.json for the product team to review.
+async function handleProductReportPost(req, res, helpers) {
+  let body;
+  try {
+    body = await helpers.parseJsonBody(req);
+  } catch {
+    helpers.sendJson(res, 400, { ok: false, error: "Invalid JSON body." });
+    return;
+  }
+
+  const sku = String(body?.sku ?? "").trim();
+  const problem = String(body?.problem ?? "").trim();
+
+  if (!sku || !problem) {
+    helpers.sendJson(res, 422, { ok: false, error: "A SKU and a problem description are required." });
+    return;
+  }
+
+  const report = {
+    id: String(body?.id ?? "").trim() || `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`,
+    receivedAt: new Date().toISOString(),
+    createdAt: String(body?.createdAt ?? "").trim() || null,
+    sku,
+    productName: String(body?.productName ?? "").trim(),
+    detail: String(body?.detail ?? "").trim(),
+    problem,
+    correction: String(body?.correction ?? "").trim(),
+    reporter: String(body?.reporter ?? "").trim(),
+    source: String(body?.source ?? "").trim(),
+    status: "new",
+  };
+
+  const existing = await readJsonFile(WINGMAN_PRODUCT_REPORTS_FILE, []);
+  const reports = Array.isArray(existing) ? existing : [];
+  reports.unshift(report);
+  await writeJsonFile(WINGMAN_PRODUCT_REPORTS_FILE, reports);
+
+  helpers.sendJson(res, 200, { ok: true, id: report.id });
 }
 
 async function getCompetitorCatalog() {
@@ -2168,6 +2210,11 @@ const server = http.createServer(async (req, res) => {
 
   if (method === "POST" && url.pathname === "/api/wingman/auth/logout") {
     await runProtectedRoute(res, () => handleWingmanAuthLogoutPost(req, res, url, { sendJson }));
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/wingman/product-report") {
+    await runProtectedRoute(res, () => handleProductReportPost(req, res, { sendJson, parseJsonBody }));
     return;
   }
 
