@@ -1,4 +1,4 @@
-/* Consolidated Wingman style stack. Keep imported once from src/main.tsx. */
+﻿/* Consolidated Wingman style stack. Keep imported once from src/main.tsx. */
 
 @tailwind base;
 
@@ -28110,7 +28110,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
 }
 
 .vw2-chip.is-selected span::before {
-  content: "âœ“ ";
+  content: "Ã¢Å“â€œ ";
   color: #8fffe6;
 }
 
@@ -28576,3 +28576,219 @@ body.wingman-guru-detached-active .wingman-guru-detached-panel {
   }
 }
 /* WINGMAN GURU DETACHED PANEL + MIC SAFETY END */
+
+/* === Wingman global scroll repair start === */
+/*
+  Purpose:
+  Some early Wingman layouts deliberately suppressed page scrolling to keep
+  short workflow pages inside the viewport. Larger product, project, proposal,
+  compare and document pages now need normal vertical scrolling.
+
+  Rule:
+  Let the browser and main Wingman page column scroll when content exceeds the
+  viewport. Keep horizontal overflow controlled.
+*/
+
+html,
+body,
+#root {
+  min-height: 100%;
+  height: auto;
+}
+
+html {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+body {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+#root {
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+
+/* Common Wingman app/layout containers */
+.wingman-app,
+.wingman-shell,
+.wingman-layout,
+.wingman-main,
+.wingman-content,
+.wm-app,
+.wm-app-shell,
+.wm-shell,
+.wm-layout,
+.wm-main,
+.wm-content,
+.wm-page,
+.wm-page-shell,
+.wm-page-content {
+  min-height: 0;
+}
+
+/* Main content should be allowed to exceed the viewport */
+.wingman-main,
+.wingman-content,
+.wm-main,
+.wm-content,
+.wm-page,
+.wm-page-content,
+main {
+  max-height: none !important;
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+
+/* Known long-form Wingman areas */
+.product-workspace,
+.product-pitch-page,
+.project-detail-page,
+.proposal-page,
+.compare-page,
+.finder-page,
+.discovery-page,
+.visual-design-studio-page,
+.product-call-cards-page,
+.template-review-page {
+  max-height: none !important;
+  overflow-y: visible !important;
+}
+
+/* Allow explicit scroll panels to scroll instead of clipping content */
+.wm-scroll-panel,
+.wm-page-scroll,
+.wingman-scroll-panel,
+.wingman-page-scroll,
+[data-wingman-scroll],
+[data-wingman-scroll-root] {
+  min-height: 0;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+}
+
+/* Avoid the app footer/taskbar area visually clipping final content */
+.wingman-main,
+.wm-main,
+main {
+  padding-bottom: max(32px, env(safe-area-inset-bottom));
+}
+/* === Wingman global scroll repair end === */
+
+/* === Wingman strong main scroll repair start === */
+/*
+  Stronger scroll repair:
+  - body/root must not clip the app
+  - the Wingman content column must own vertical scrolling
+  - long pages such as Visual Design, Product Pitch, Compare, Projects and Proposal must not be trapped inside 100vh cards
+*/
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html,
+body {
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+}
+
+#root {
+  height: 100vh;
+  overflow: hidden !important;
+}
+
+/* Common app shells: keep full viewport, but do not clip descendants internally */
+.wingman-app,
+.wingman-shell,
+.wingman-layout,
+.wm-app,
+.wm-app-shell,
+.wm-shell,
+.wm-layout,
+[class*="wingman-shell"],
+[class*="wingman-layout"],
+[class*="wm-shell"],
+[class*="wm-layout"] {
+  height: 100vh;
+  max-height: 100vh;
+  min-height: 0;
+  overflow: hidden !important;
+}
+
+/* The main/right-hand page area should scroll */
+.wingman-main,
+.wingman-content,
+.wm-main,
+.wm-content,
+.wm-page-scroll,
+.wm-page-content,
+main,
+[class*="wingman-main"],
+[class*="wingman-content"],
+[class*="wm-main"],
+[class*="wm-content"] {
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  scrollbar-gutter: stable;
+}
+
+/* Avoid inner page wrappers clipping long content */
+.wm-page,
+.wm-page-shell,
+.wm-page-content,
+.wingman-page,
+.wingman-page-shell,
+.wingman-page-content,
+.product-workspace,
+.product-pitch-page,
+.project-detail-page,
+.proposal-page,
+.compare-page,
+.finder-page,
+.discovery-page,
+.visual-design-studio-page,
+.visual-design-page,
+.product-call-cards-page,
+.template-review-page,
+[class*="visual-design"],
+[class*="product-pitch"],
+[class*="project-detail"],
+[class*="proposal-page"],
+[class*="compare-page"],
+[class*="finder-page"] {
+  height: auto !important;
+  max-height: none !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+/* If a page intentionally uses its own scrollable canvas/panel, allow it */
+.wm-scroll-panel,
+.wingman-scroll-panel,
+[data-wingman-scroll],
+[data-wingman-scroll-root],
+[class*="scroll-panel"],
+[class*="scroll-area"] {
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+}
+
+/* Give long pages enough bottom space above Windows/taskbar/browser chrome */
+.wingman-main,
+.wingman-content,
+.wm-main,
+.wm-content,
+main {
+  padding-bottom: max(48px, env(safe-area-inset-bottom)) !important;
+}
+/* === Wingman strong main scroll repair end === */
+
