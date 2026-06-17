@@ -409,7 +409,7 @@ console.log("");
 console.log("## Priority 3 conclusion");
 
 if (weakAreas.length === 0 && partialAreas.length === 0 && missingExpectedEvidence.length === 0) {
-  console.log("The recommendation layer has structured architecture logic, scenario regression coverage, product-family scoring, structured score storage, project/proposal surfacing evidence, and score-aware proposal product ranking in the right files.");
+  console.log("The recommendation layer has structured architecture logic, scenario regression coverage, product-family scoring, structured score storage, project/proposal surfacing evidence, score-aware proposal/Finder ranking, and scenario coverage proving family-path changes reorder SKUs.");
 }
 
 if (weakAreas.length > 0) {
@@ -435,7 +435,7 @@ if (missingExpectedEvidence.length > 0) {
 
 console.log("");
 console.log("Recommended next engineering step:");
-console.log("Extend product-family score weighting beyond proposal output into the main recommendation shortlist, then add scenario tests proving SKU order changes when the family path changes.");
+console.log("Expose the product-family ranking reason in the Finder and recommendation cards so sales users can see why a product moved to the top, then add rendered UI coverage for the visible order.");
 
 if (totalPercent < 70 || missingExpectedEvidence.length > 0) {
   process.exitCode = 1;
