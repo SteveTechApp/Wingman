@@ -227,4 +227,20 @@ describe("Priority 3 recommendation architecture scenarios", () => {
     expect(evidence.quoteChecks.join(" ")).toContain("Product-family caution: NetworkHD");
   });
 
+  it("stores product-family scores as structured evidence", () => {
+    const evidence = buildRecommendationEvidence({
+      source: "priority3-structured-family-score-test",
+      product: {
+        sku: "APO-VX20-UC",
+        name: "APO-VX20-UC",
+        family: "Presentation / UC",
+      },
+      query: "Small meeting room with USB-C, BYOM laptop, camera, speakerphone and one display",
+    });
+
+    expect(evidence.productFamilyScores?.[0]?.family).toBe("Presentation / UC");
+    expect(evidence.productFamilyScores?.[0]?.score).toBeGreaterThan(70);
+    expect(evidence.productFamilyScores?.[0]?.reasons.join(" ")).toContain("Meeting-room workflow");
+  });
+
 });
