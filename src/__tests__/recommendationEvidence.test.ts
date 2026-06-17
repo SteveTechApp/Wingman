@@ -1216,3 +1216,24 @@ describe("Query-based evidence", () => {
     expect(result.systemShape.toLowerCase()).toContain("networkhd");
   });
 });
+
+describe("Structured product-family score evidence", () => {
+  it("should include structured product-family scores", () => {
+    const evidence = buildRecommendationEvidence({
+      source: "test",
+      product: {
+        sku: "APO-VX20-UC",
+        name: "APO-VX20-UC",
+        family: "Presentation / UC",
+      },
+      query: "Meeting room with USB-C BYOM camera and speakerphone",
+    });
+
+    expect(Array.isArray(evidence.productFamilyScores)).toBe(true);
+    expect(evidence.productFamilyScores?.[0]).toHaveProperty("family");
+    expect(evidence.productFamilyScores?.[0]).toHaveProperty("score");
+    expect(evidence.productFamilyScores?.[0]).toHaveProperty("reasons");
+    expect(evidence.productFamilyScores?.[0]).toHaveProperty("cautions");
+  });
+});
+

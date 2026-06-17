@@ -198,6 +198,20 @@ export type StoredProjectSyncStatus = {
 
 export type StoredQuoteSafetyStatus = "quote-ready" | "validate-before-quote" | "do-not-quote-yet";
 
+export type StoredRecommendationProductFamily =
+  | "NetworkHD"
+  | "Matrix / HDBaseT"
+  | "Presentation / UC"
+  | "Video wall processor"
+  | "Core review";
+
+export type StoredProductFamilyScore = {
+  family: StoredRecommendationProductFamily;
+  score: number;
+  reasons: string[];
+  cautions: string[];
+};
+
 export type StoredRecommendationEvidence = {
   updatedAt: string;
   source: string;
@@ -206,6 +220,7 @@ export type StoredRecommendationEvidence = {
   systemShape: string;
   whyThisFits: string[];
   evidenceUsed: string[];
+  productFamilyScores?: StoredProductFamilyScore[];
   quoteChecks: string[];
   missingInformation: string[];
   requiredDependencies: string[];

@@ -3,8 +3,10 @@ import type {
   StoredDiscoveryBrief,
   StoredProductSelection,
   StoredProject,
+  StoredProductFamilyScore,
   StoredQuoteSafetyStatus,
   StoredRecommendationEvidence,
+  StoredRecommendationProductFamily,
 } from "../data/projectStore";
 import { buildSalesReadinessPackage } from "./salesReadiness";
 import { buildAvDecisionEvidence } from "./avDecisionEvidence";
@@ -210,19 +212,8 @@ type RecommendationArchitectureDecision = {
 };
 
 
-type RecommendationProductFamily =
-  | "NetworkHD"
-  | "Matrix / HDBaseT"
-  | "Presentation / UC"
-  | "Video wall processor"
-  | "Core review";
-
-type RecommendationProductFamilyScore = {
-  family: RecommendationProductFamily;
-  score: number;
-  reasons: string[];
-  cautions: string[];
-};
+type RecommendationProductFamily = StoredRecommendationProductFamily;
+type RecommendationProductFamilyScore = StoredProductFamilyScore;
 
 function numberFromRequirement(value: unknown) {
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -903,6 +894,7 @@ export function buildRecommendationEvidence(input: RecommendationEvidenceInput):
       ...productFamilyScoreEvidence(familyScores),
       ...avDecision.evidence,
     ]),
+    productFamilyScores: familyScores,
     quoteChecks,
     missingInformation: unique([...missing, ...avDecision.missingInformation]),
     requiredDependencies: unique([...dependencies, ...avDecision.requiredDependencies]),
