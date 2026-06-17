@@ -145,11 +145,11 @@ function findProductBySku(products: LooseRecord[], sku: string): LooseRecord | u
   return products.find((product) => skuKey(product?.sku ?? product?.model ?? product?.partNumber) === wanted);
 }
 
-function hasSku(products: LooseRecord[], sku: string): boolean {
+function _hasSku(products: LooseRecord[], sku: string): boolean {
   return Boolean(findProductBySku(products, sku));
 }
 
-function productLooksLike(product: LooseRecord, pattern: RegExp): boolean {
+function _productLooksLike(product: LooseRecord, pattern: RegExp): boolean {
   return pattern.test(`${getSku(product)} ${productText(product)}`);
 }
 

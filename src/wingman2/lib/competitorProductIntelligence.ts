@@ -1,4 +1,4 @@
-export type CompetitorIntelligenceTier =
+﻿export type CompetitorIntelligenceTier =
   | "sku-only"
   | "family-rule"
   | "fingerprint"
@@ -311,7 +311,7 @@ function uniq(items: string[]): string[] {
   return Array.from(new Set(items.map(clean).filter(Boolean)));
 }
 
-function defaultRule(brand: string, sku: string): CompetitorFamilyRule {
+function defaultRule(brand: string, _sku: string): CompetitorFamilyRule {
   return {
     brand,
     match: /.*/,
@@ -715,7 +715,7 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     domain: "NDI_CAMERA",
     role: "NDI Camera",
     transport: "NDI / HDMI",
-    action: "BirdDog NDI camera â€” WyreStorm has no direct NDI camera replacement. Compare against NetworkHD encoder as an architecture alternative for the distribution layer.",
+    action: "BirdDog NDI camera Ã¢â‚¬â€ WyreStorm has no direct NDI camera replacement. Compare against NetworkHD encoder as an architecture alternative for the distribution layer.",
     requiredFacts: REQUIRED_FACTS.NDI_CAMERA,
     presentFacts: ["NDI output", "PTZ capability", "brand family"],
     assumptions: ["BirdDog cameras output NDI natively. The architecture path is NetworkHD encoder capturing HDMI output."],
@@ -728,7 +728,7 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     domain: "NDI_CAMERA",
     role: "NDI Camera",
     transport: "NDI / HDMI / SDI",
-    action: "Marshall NDI camera â€” WyreStorm has no direct NDI camera replacement. Compare against NetworkHD encoder as an architecture alternative.",
+    action: "Marshall NDI camera Ã¢â‚¬â€ WyreStorm has no direct NDI camera replacement. Compare against NetworkHD encoder as an architecture alternative.",
     requiredFacts: REQUIRED_FACTS.NDI_CAMERA,
     presentFacts: ["NDI output", "PTZ capability", "brand family"],
     assumptions: ["Marshall CV-NDI series outputs NDI. Architecture path is NetworkHD encoder."],
@@ -741,7 +741,7 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     domain: "PTZ_CAMERA",
     role: "PTZ Camera",
     transport: "HDMI / SDI / IP",
-    action: "Sony PTZ camera â€” WyreStorm has no direct PTZ camera. Compare against NetworkHD encoder for distribution; PTZ control handled separately by the control system.",
+    action: "Sony PTZ camera Ã¢â‚¬â€ WyreStorm has no direct PTZ camera. Compare against NetworkHD encoder for distribution; PTZ control handled separately by the control system.",
     requiredFacts: REQUIRED_FACTS.PTZ_CAMERA,
     presentFacts: ["PTZ control protocol", "HDMI output", "brand family"],
     assumptions: ["Sony BRC/SRG/EVI use VISCA-over-IP or VISCA serial. PTZ control is independent of the AV distribution path."],
@@ -754,7 +754,7 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     domain: "WIRELESS_CASTING",
     role: "Wireless Casting",
     transport: "Wi-Fi / Ethernet",
-    action: "Mersive Solstice wireless presentation â€” compare against WyreStorm Apollo series for wireless casting workflow.",
+    action: "Mersive Solstice wireless presentation Ã¢â‚¬â€ compare against WyreStorm Apollo series for wireless casting workflow.",
     requiredFacts: REQUIRED_FACTS.WIRELESS_CASTING,
     presentFacts: ["wireless protocol", "simultaneous users", "brand family"],
     assumptions: ["Mersive Solstice uses software-defined wireless presentation over Wi-Fi. Apollo series is the closest WyreStorm alternative."],
@@ -767,7 +767,7 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     domain: "WIRELESS_CASTING",
     role: "Wireless Casting",
     transport: "Wi-Fi / USB dongle",
-    action: "Barco ClickShare wireless presentation â€” compare against WyreStorm Apollo series for wireless casting workflow.",
+    action: "Barco ClickShare wireless presentation Ã¢â‚¬â€ compare against WyreStorm Apollo series for wireless casting workflow.",
     requiredFacts: REQUIRED_FACTS.WIRELESS_CASTING,
     presentFacts: ["wireless protocol", "USB dongle workflow", "brand family"],
     assumptions: ["ClickShare uses USB dongle plus Wi-Fi. Apollo series comparison should confirm dongle vs. app-based workflow."],
@@ -780,7 +780,7 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     domain: "WIRELESS_CASTING",
     role: "Wireless Casting",
     transport: "Wi-Fi",
-    action: "Airtame wireless screen sharing â€” compare against WyreStorm Apollo series.",
+    action: "Airtame wireless screen sharing Ã¢â‚¬â€ compare against WyreStorm Apollo series.",
     requiredFacts: REQUIRED_FACTS.WIRELESS_CASTING,
     presentFacts: ["wireless protocol", "brand family"],
     assumptions: ["Airtame is an app-based wireless casting platform."],
@@ -994,3 +994,4 @@ export function buildCompetitorIntelligenceAudit(): {
     ],
   };
 }
+

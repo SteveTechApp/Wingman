@@ -117,8 +117,8 @@ const productPitch = read(files.productPitchPage);
 const discovery = read(files.discoveryPage);
 const competitorDecision = read(files.competitorDecision);
 const competitorIntelligence = read(files.competitorIntelligence);
-const avDecision = read(files.avDecision);
-const recommendationEvidence = read(files.recommendationEvidence);
+const _avDecision = read(files.avDecision);
+const _recommendationEvidence = read(files.recommendationEvidence);
 const productIndex = readJson(files.productIndex);
 const products = arrayify(productIndex);
 

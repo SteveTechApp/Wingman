@@ -146,7 +146,7 @@ async function makeRequest(url, timeout) {
 async function runLoadTest(url, concurrency, totalRequests, timeout) {
   const results = [];
   let completed = 0;
-  let inFlight = 0;
+  let _inFlight = 0;
 
   const runNext = async () => {
     if (completed >= totalRequests) return;
@@ -159,7 +159,7 @@ async function runLoadTest(url, concurrency, totalRequests, timeout) {
     inFlight--;
 
     // Progress indicator (every 10%)
-    const progress = Math.floor((results.length / totalRequests) * 10);
+    const _progress = Math.floor((results.length / totalRequests) * 10);
     if (results.length % Math.ceil(totalRequests / 10) === 0) {
       process.stdout.write(`\r  Progress: ${results.length}/${totalRequests}`);
     }

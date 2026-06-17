@@ -66,15 +66,15 @@ for (const file of pageFiles) {
   }
 
   updated = updated.replace(
-    /className=(["'`])([^"'`]*rounded-full[^"'`]*(?:bg-amber|bg-yellow|bg-orange|bg-\[\#fff|bg-\[\#fef|bg-\[\#ff)[^"'`]*)\1/g,
+    /className=(["'`])([^"'`]*rounded-full[^"'`]*(?:bg-amber|bg-yellow|bg-orange|bg-\[#fff|bg-\[#fef|bg-\[#ff)[^"'`]*)\1/g,
     (match, quote, classes) => {
       if (classes.includes("wm-product-intelligence-review-chip")) return match;
 
       const cleaned = classes
         .replace(/\bbg-(amber|yellow|orange)-\d+(?:\/\d+)?\b/g, "")
-        .replace(/\bbg-\[\#(?:fff|fef|ff)[^\]]+\]/gi, "")
+        .replace(/\bbg-\[#(?:fff|fef|ff)[^\]]+\]/gi, "")
         .replace(/\btext-(amber|yellow|orange|cyan|sky)-\d+(?:\/\d+)?\b/g, "")
-        .replace(/\btext-\[\#[0-9a-f]{3,8}\]/gi, "")
+        .replace(/\btext-\[#[0-9a-f]{3,8}\]/gi, "")
         .replace(/\bborder-(amber|yellow|orange)-\d+(?:\/\d+)?\b/g, "")
         .replace(/\s+/g, " ")
         .trim();

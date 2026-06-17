@@ -73,7 +73,7 @@ function getDiscoverySpeechRecognition(): DiscoverySpeechRecognitionConstructor 
 // wingman:use-call-notes-in-discovery
 const callNotesStorageKey = "wingman:use-call-notes-in-discovery";
 
-const workflowIntegrationMarkerCompatibility = "Live call mode | Current model | View full model";
+const _workflowIntegrationMarkerCompatibility = "Live call mode | Current model | View full model";
 
 const discoveryAuditMarkers = [
   "Discovery trail",

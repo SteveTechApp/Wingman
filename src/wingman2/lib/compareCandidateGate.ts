@@ -40,7 +40,7 @@ export type CompareCandidateGateResult = {
   evidence: string[];
 };
 
-const NON_EQUIVALENT_ROLE_MARKERS = [
+const _NON_EQUIVALENT_ROLE_MARKERS = [
   "accessory",
   "cable",
   "rack-mount",
@@ -217,7 +217,7 @@ export function gateCompareCandidate(
   candidate: CompareCandidateGateInput,
   context: CompareCandidateGateContext,
 ): CompareCandidateGateResult {
-  const candidateText = textFor(candidate);
+  const _candidateText = textFor(candidate);
   const candidateRole = clean(candidate.role || candidate.category || candidate.productFamily || "unknown");
   const candidateClass = classifyCandidate(candidate);
   const competitorClass = context.competitorClass || "UNKNOWN";

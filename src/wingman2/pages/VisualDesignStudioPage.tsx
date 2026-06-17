@@ -82,7 +82,7 @@ function escapeMermaidLabel(value: string) {
     .replace(/\[/g, "(")
     .replace(/\]/g, ")")
     .replace(/\{/g, "(")
-    .replace(/\}/g, ")")
+    .replace(/}/g, ")")
     .replace(/\|/g, "-")
     .trim();
 }
@@ -145,7 +145,7 @@ function parseMermaidToSchematic(result: DiagramGenerationResult): SchematicMode
       return;
     }
 
-    const nodeMatch = line.match(/^([A-Za-z_][\w]*)\s*(?:\[\[|\[\(|\[|\(\[|\(|\{\{|\{)\s*"?([^"\]\)\}]+)"?/);
+    const nodeMatch = line.match(/^([A-Za-z_][\w]*)\s*(?:\[\[|\[\(|\[|\(\[|\(|\{\{|\{)\s*"?([^"\])}]+)"?/);
     if (nodeMatch) {
       const [, id, rawLabel] = nodeMatch;
       const label = cleanSchematicLabel(rawLabel);
