@@ -23,6 +23,26 @@ function statusLabel(status: StoredRequirementStatus) {
   return "Needs review";
 }
 
+function projectText(value: unknown, fallback = "Not captured") {
+  if (Array.isArray(value)) {
+    const text = value.map((item) => String(item ?? "").trim()).filter(Boolean).join(", ");
+    return text || fallback;
+  }
+
+  const text = String(value ?? "").trim();
+  return text || fallback;
+}
+
+function dedupeText(items: Array<string | undefined | null>) {
+  return Array.from(
+    new Set(
+      items
+        .map((item) => String(item ?? "").trim())
+        .filter(Boolean),
+    ),
+  );
+}
+
 export function ProjectDetailPage() {
   const { projectId } = useParams();
   const { projects, syncStatus } = useProjectStore();
@@ -49,6 +69,71 @@ export function ProjectDetailPage() {
         : null,
     [project],
   );
+
+  const selectedProducts = project?.productSelections ?? [];
+  const latestCompareRun = project?.compareRuns?.[0] ?? null;
+  const proposal = project?.proposal ?? null;
+
+  const missingInformation = useMemo(() => {
+    const evidenceMissing = recommendationEvidence?.missingInformation ?? [];
+    const discoveryMissing = project?.discoveryBrief?.missingInformation ?? [];
+    const proposalWarnings = proposal?.governanceWarnings ?? [];
+    const weakRequirements = requirements
+      .filter((requirement) => requirement.status === "unknown" || requirement.status === "review")
+      .map((requirement) => `${requirement.label}: ${requirement.value || "Not confirmed"}`);
+
+    return dedupeText([...evidenceMissing, ...discoveryMissing, ...proposalWarnings, ...weakRequirements]);
+  }, [project, proposal, recommendationEvidence, requirements]);
+
+  const commandCards = useMemo(() => {
+    if (!project) return [];
+
+    const capturedPercent =
+      typeof project.discoveryBrief?.capturedPercent === "number"
+        ? `${project.discoveryBrief.capturedPercent}% captured`
+        : "Discovery not scored";
+
+    const compareLabel = latestCompareRun
+      ? projectText(
+          [
+            latestCompareRun.competitorBrand,
+            latestCompareRun.competitorSku || latestCompareRun.competitorName,
+          ]
+            .filter(Boolean)
+            .join(" "),
+          "Compare run saved",
+        )
+      : "No compare run saved";
+
+    const proposalLabel = proposal
+      ? projectText(proposal.outputPurpose?.motion || proposal.title, "Proposal draft saved")
+      : "No proposal draft saved";
+
+    return [
+      {
+        label: "Discovery brief",
+        value: capturedPercent,
+        detail: project.discoveryBrief?.nextBestQuestion || "Open Discovery to capture the next customer requirement.",
+      },
+      {
+        label: "Product direction",
+        value: recommendationEvidence?.productDirection || "Not selected",
+        detail: recommendationEvidence?.systemShape || "Use Finder or Product Pitch to create a safer product direction.",
+      },
+      {
+        label: "Compare evidence",
+        value: compareLabel,
+        detail: latestCompareRun?.summary || "No competitor comparison evidence has been saved to this project yet.",
+      },
+      {
+        label: "Proposal readiness",
+        value: proposalLabel,
+        detail:
+          recommendationEvidence?.quoteSafetyMessage ||
+          (proposal?.readinessScore ? `Proposal readiness score: ${proposal.readinessScore}%` : "Generate a response pack after requirements are cleaner."),
+      },
+    ];
+  }, [latestCompareRun, project, proposal, recommendationEvidence]);
 
   useEffect(() => {
     setRequirements(initialRequirements);
@@ -173,6 +258,67 @@ export function ProjectDetailPage() {
               {message}
             </p>
           ) : null}
+        </SectionCard>
+
+        <SectionCard
+          title="Opportunity command centre"
+          subtitle="Single view of the live project record: discovery status, product direction, compare evidence, proposal readiness, missing information, and next workflow handoff."
+        >
+          <div className="grid gap-4 lg:grid-cols-4">
+            {commandCards.map((card) => (
+              <div key={card.label} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 shadow-sm">
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{card.label}</p>
+                <p className="mt-2 text-lg font-black text-[#edf6ff]">{card.value}</p>
+                <p className="mt-2 text-sm leading-6 text-[#cfe6f7]">{card.detail}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-5 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
+              <p className="text-sm font-black text-[#edf6ff]">Missing information / review blockers</p>
+              <div className="mt-3 grid gap-2 text-sm text-[#cfe6f7]">
+                {missingInformation.length ? (
+                  missingInformation.slice(0, 8).map((item) => (
+                    <p key={item} className="rounded-xl border border-[#29465e] bg-[#10283e] p-3">
+                      {item}
+                    </p>
+                  ))
+                ) : (
+                  <p className="rounded-xl border border-emerald-300 bg-emerald-950/40 p-3 text-emerald-100">
+                    No current blockers captured. Still check datasheets, stock, regional suitability, and final system dependencies before quoting.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
+              <p className="text-sm font-black text-[#edf6ff]">Workflow handoff</p>
+              <p className="mt-2 text-sm leading-6 text-[#cfe6f7]">
+                Continue from this project record rather than starting each page cold.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link to={routeCatalogByKey.discovery.path} className="rounded-full border border-[#29465e] bg-[#10283e] px-4 py-2 text-sm font-semibold text-[#edf6ff]">
+                  Discovery
+                </Link>
+                <Link to={routeCatalogByKey.finder.path} className="rounded-full border border-[#29465e] bg-[#10283e] px-4 py-2 text-sm font-semibold text-[#edf6ff]">
+                  Finder
+                </Link>
+                <Link to={routeCatalogByKey.compare.path} className="rounded-full border border-[#29465e] bg-[#10283e] px-4 py-2 text-sm font-semibold text-[#edf6ff]">
+                  Compare
+                </Link>
+                <Link to={routeCatalogByKey.productPitch.path} className="rounded-full border border-[#29465e] bg-[#10283e] px-4 py-2 text-sm font-semibold text-[#edf6ff]">
+                  Product Pitch
+                </Link>
+                <Link to={routeCatalogByKey.visualStudio.path} className="rounded-full border border-cyan-300 bg-[#10283e] px-4 py-2 text-sm font-semibold text-[#9ffcf4]">
+                  Visual Studio
+                </Link>
+                <Link to={routeCatalogByKey.proposal.path} className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white">
+                  Proposal
+                </Link>
+              </div>
+            </div>
+          </div>
         </SectionCard>
 
         <SectionCard
