@@ -28577,36 +28577,43 @@ body.wingman-guru-detached-active .wingman-guru-detached-panel {
 }
 /* WINGMAN GURU DETACHED PANEL + MIC SAFETY END */
 
-/* === Wingman final scroll model start === */
+/* === Wingman browser scroll model start === */
 /*
-  Final scroll model:
-  - Browser/body/root remain viewport-locked.
-  - Sidebar remains stable.
-  - Main Wingman workspace column owns vertical scrolling.
-  - Long pages must not clip their inner content.
+  Browser-level scroll model.
+
+  The previous fixed-shell/internal-scroll model can clip long pages at high
+  browser zoom. This model lets the browser own vertical scrolling, keeps the
+  sidebar visually stable with sticky positioning, and prevents long Wingman
+  pages from being trapped inside 100vh containers.
 */
 
 html,
 body,
 #root {
   width: 100%;
-  height: 100%;
   min-height: 100%;
-  overflow: hidden !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
 }
 
 body {
-  overscroll-behavior: none;
+  overscroll-behavior-y: auto;
 }
 
 .wingman-shell {
-  height: 100vh !important;
   min-height: 100vh !important;
-  max-height: 100vh !important;
-  overflow: hidden !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  align-items: stretch;
 }
 
 .wingman-sidebar {
+  position: sticky !important;
+  top: 0 !important;
+  align-self: flex-start !important;
   height: 100vh !important;
   max-height: 100vh !important;
   overflow-x: hidden !important;
@@ -28614,63 +28621,33 @@ body {
 }
 
 .wingman-workspace {
-  height: 100vh !important;
-  min-height: 0 !important;
-  max-height: 100vh !important;
-  display: grid !important;
-  grid-template-rows: var(--wm-topbar-height) minmax(0, 1fr) !important;
-  overflow: hidden !important;
-}
-
-.wingman-topbar {
-  min-height: var(--wm-topbar-height) !important;
-  max-height: var(--wm-topbar-height) !important;
-  overflow: visible !important;
-}
-
-.wingman-app-main {
-  height: calc(100vh - var(--wm-topbar-height)) !important;
-  min-height: 0 !important;
-  max-height: calc(100vh - var(--wm-topbar-height)) !important;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-  overscroll-behavior: contain;
-  scrollbar-gutter: stable both-edges;
-  padding-bottom: 120px !important;
-}
-
-.wingman-page-host {
-  min-height: max-content !important;
+  min-height: 100vh !important;
   height: auto !important;
   max-height: none !important;
   overflow: visible !important;
-  padding-bottom: 96px !important;
+}
+
+.wingman-topbar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 90 !important;
+  min-height: var(--wm-topbar-height) !important;
+  overflow: visible !important;
+}
+
+.wingman-app-main,
+.wingman-page-host {
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
 }
 
 .wingman-app-main {
-  scrollbar-width: auto;
-  scrollbar-color: rgba(74, 245, 230, 0.72) rgba(8, 22, 36, 0.92);
+  padding-bottom: 140px !important;
 }
 
-.wingman-app-main::-webkit-scrollbar {
-  width: 14px !important;
-  height: 14px !important;
-  display: block !important;
-}
-
-.wingman-app-main::-webkit-scrollbar-track {
-  border-left: 1px solid rgba(74, 245, 230, 0.16);
-  background: rgba(8, 22, 36, 0.92);
-}
-
-.wingman-app-main::-webkit-scrollbar-thumb {
-  border: 3px solid rgba(8, 22, 36, 0.92);
-  border-radius: 999px;
-  background: rgba(74, 245, 230, 0.74);
-  background-clip: padding-box;
-}
-
-/* Generic long-page wrappers */
+/* Long page wrappers must never clip content. */
 .wm-page,
 .wm-page-shell,
 .wm-page-content,
@@ -28687,14 +28664,7 @@ body {
 .visual-design-studio-page,
 .visual-design-page,
 .product-call-cards-page,
-.template-review-page {
-  height: auto !important;
-  min-height: 0 !important;
-  max-height: none !important;
-  overflow: visible !important;
-}
-
-/* Visual Design / schematic builder */
+.template-review-page,
 .wm-visual-design-page,
 .wm-diagram-studio-shell,
 .wm-diagram-control-panel,
@@ -28705,23 +28675,24 @@ body {
 .wm-native-schematic-panel,
 .wm-deployment-visual-panel,
 .wm-schematic-review-panel {
-  height: auto !important;
   min-height: 0 !important;
+  height: auto !important;
   max-height: none !important;
   overflow: visible !important;
 }
 
 .wm-visual-design-page,
 .visual-design-studio-page,
-.visual-design-page {
-  padding-bottom: 140px !important;
+.visual-design-page,
+.product-pitch-page,
+.finder-page,
+.compare-page,
+.project-detail-page,
+.proposal-page {
+  padding-bottom: 160px !important;
 }
 
-.wm-diagram-studio-shell {
-  align-items: start !important;
-}
-
-/* Keep floating assistant controls away from the scroll area and taskbar. */
+/* Keep floating assistant controls away from the bottom-right content and taskbar. */
 .wingman-guru-fab,
 [class*="guru-fab"],
 [class*="GuruFab"],
@@ -28730,5 +28701,5 @@ body {
   bottom: 96px !important;
   right: 28px !important;
 }
-/* === Wingman final scroll model end === */
+/* === Wingman browser scroll model end === */
 
