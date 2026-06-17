@@ -30,6 +30,7 @@ import { SectionCard } from "../components/SectionCard";
 import { discoveryBriefToFinderNeed, readLatestDiscoveryBrief } from "../data/workflowHandoff";
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
 import { getProductFamilyRankingReason, rankProductsByFamilyScores } from "../lib/productFamilyShortlistRanking";
+import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 
 type MatchStatus = "recommended" | "alternative" | "caution";
 type ProductVoiceId = "endUser" | "systemIntegrator" | "consultant";
@@ -2693,8 +2694,7 @@ export function FinderPage() {
   useEffect(() => {
     let active = true;
 
-    fetch("/product-intelligence-index.json")
-      .then((response) => (response.ok ? response.json() : null))
+    loadProductIntelligenceIndex()
       .then((data) => {
         if (!active) return;
 

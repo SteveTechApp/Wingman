@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Database, Send, Sparkles, X } from "lucide-react";
 import GuruAssistantAvatar from "./branding/GuruAssistantAvatar";
 import { GuruCallNotesInterpreter } from "./GuruCallNotesInterpreter";
+import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 
 type WingmanGuruDrawerProps = {
   open: boolean;
@@ -1289,14 +1290,7 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
 
     let active = true;
 
-    fetch("/product-intelligence-index.json", { cache: "no-store" })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Index request failed: ${response.status}`);
-        }
-
-        return response.json() as Promise<unknown>;
-      })
+    loadProductIntelligenceIndex()
       .then((data) => {
         if (!active) {
           return;
