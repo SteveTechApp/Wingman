@@ -316,7 +316,7 @@ function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: P
             <strong className="mt-2 block text-lg text-white">{narrative.diagramSource}</strong>
           </div>
 
-          <div className="hidden items-center justify-center text-3xl font-black text-cyan-300 lg:flex">Ã¢â€ â€™</div>
+          <div className="hidden items-center justify-center text-3xl font-black text-cyan-300 lg:flex">Ã¢â€ â€™</div>
 
           <div className="rounded-3xl border border-cyan-400 bg-cyan-500/10 p-5">
             <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-200">WyreStorm product</p>
@@ -324,7 +324,7 @@ function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: P
             <span className="mt-1 block text-sm text-white/65">{product.productType}</span>
           </div>
 
-          <div className="hidden items-center justify-center text-3xl font-black text-cyan-300 lg:flex">Ã¢â€ â€™</div>
+          <div className="hidden items-center justify-center text-3xl font-black text-cyan-300 lg:flex">Ã¢â€ â€™</div>
 
           <div className="rounded-3xl border border-[#29465e] bg-[#081724] p-5">
             <p className="text-xs font-black uppercase tracking-[0.14em] text-white/45">Output / destination side</p>

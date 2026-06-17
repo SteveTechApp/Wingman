@@ -186,7 +186,7 @@ function classifyMatrixTopology(product) {
   const name = getName(product);
   const family = getFamily(product);
   const text = getText(product);
-  const lower = text.toLowerCase();
+  const _lower = text.toLowerCase();
   const size = extractMatrixSize(text, sku);
 
   const routedInputCount = parseNumber(record.routedInputCount ?? record.inputCount ?? record.inputs ?? size.inputs);

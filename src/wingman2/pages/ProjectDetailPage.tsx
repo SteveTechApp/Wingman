@@ -140,7 +140,7 @@ export function ProjectDetailPage() {
     [project],
   );
 
-  const selectedProducts = project?.productSelections ?? [];
+  const selectedProducts = useMemo(() => project?.productSelections ?? [], [project?.productSelections]);
   const latestCompareRun = project?.compareRuns?.[0] ?? null;
   const proposal = project?.proposal ?? null;
 

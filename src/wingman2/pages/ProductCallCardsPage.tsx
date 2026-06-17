@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+﻿import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 type ProductSeed = {
   sku: string;
@@ -400,7 +400,7 @@ function findGuruTerm(value: string): GuruTechnicalTerm | undefined {
   return GURU_TERM_LOOKUP.get(value.toLowerCase());
 }
 
-function askGuruAboutTerm(termText: string, product?: ProductCard): void {
+function askGuruAboutTerm(termText: string, _product?: ProductCard): void {
   const term = findGuruTerm(termText);
   const label = term?.label || termText;
   const meaning = term?.plainEnglish || "A technical AV term. Check how it affects the product, signal path or customer requirement.";
@@ -1861,7 +1861,7 @@ return (
                 onClick={() => setActiveGalleryItem(null)}
                 aria-label="Close product gallery"
               >
-                ×
+                Ã—
               </button>
             </div>
 
@@ -1893,7 +1893,7 @@ return (
               onClick={() => setActiveTermLookup(null)}
               aria-label="Close term explanation"
             >
-              ×
+              Ã—
             </button>
           </div>
 
@@ -1965,7 +1965,7 @@ return (
 
           <div className="wm-pcc-status">
             <span>
-              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching · {products.length} total · {curatedCount} curated{activeQuickFinder !== "All" ? ` · ${activeQuickFinder}` : ""}
+              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching Â· {products.length} total Â· {curatedCount} curated{activeQuickFinder !== "All" ? ` Â· ${activeQuickFinder}` : ""}
             </span>
 
             <div className="wm-pcc-pager">
@@ -2010,7 +2010,7 @@ return (
               >
                 <span className="wm-pcc-sku">{product.sku}</span>
                 <span className="wm-pcc-family">
-                  {product.curated ? "Curated · " : ""}
+                  {product.curated ? "Curated Â· " : ""}
                   {product.family}
                 </span>
 
@@ -2235,7 +2235,7 @@ return (
                         {
                           title: "Low impedance stereo room",
                           body:
-                            "Two amplifier channels can drive left and right low-impedance speakers, typically 4Ω or 8Ω. This suits a local room where stereo playback, clearer music reproduction or a pair of front speakers is required. Check speaker impedance, cable run, channel load and amplifier power per channel.",
+                            "Two amplifier channels can drive left and right low-impedance speakers, typically 4Î© or 8Î©. This suits a local room where stereo playback, clearer music reproduction or a pair of front speakers is required. Check speaker impedance, cable run, channel load and amplifier power per channel.",
                         },
                       ].map((example) => (
                           <article key={example.title} className="wm-pcc-example-card">

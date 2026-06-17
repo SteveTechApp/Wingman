@@ -15,7 +15,6 @@
 
 const MUTATING_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 const HEADER_NAME = "X-CSRF-Token";
-const COOKIE_NAME = "wingman_csrf";
 
 let cachedToken = "";
 let inflight: Promise<string> | null = null;
