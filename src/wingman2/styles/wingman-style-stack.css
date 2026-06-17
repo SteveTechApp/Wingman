@@ -28792,3 +28792,142 @@ main {
 }
 /* === Wingman strong main scroll repair end === */
 
+/* === Wingman targeted scroll repair start === */
+/*
+  Targeted scroll fix:
+  The app shell uses a fixed sidebar + topbar. The browser body is intentionally
+  locked, so the right-hand Wingman content column must be the scroll container.
+
+  This also stops large Visual Design / schematic pages from clipping their
+  lower content when zoomed or when the page exceeds the viewport.
+*/
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  overflow: hidden !important;
+}
+
+.wingman-shell {
+  height: 100vh !important;
+  min-height: 100vh !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+}
+
+.wingman-sidebar {
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+.wingman-workspace {
+  height: 100vh !important;
+  min-height: 0 !important;
+  max-height: 100vh !important;
+  display: grid !important;
+  grid-template-rows: var(--wm-topbar-height) minmax(0, 1fr) !important;
+  overflow: hidden !important;
+}
+
+.wingman-topbar {
+  min-height: var(--wm-topbar-height) !important;
+  max-height: var(--wm-topbar-height) !important;
+  overflow: visible !important;
+}
+
+/* This is the real vertical scroll surface. */
+.wingman-app-main {
+  height: calc(100vh - var(--wm-topbar-height)) !important;
+  min-height: 0 !important;
+  max-height: calc(100vh - var(--wm-topbar-height)) !important;
+  overflow-x: hidden !important;
+  overflow-y: scroll !important;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable both-edges;
+  padding-bottom: 120px !important;
+}
+
+.wingman-page-host {
+  min-height: max-content !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding-bottom: 96px !important;
+}
+
+/* Make the actual scrollbar obvious while testing. */
+.wingman-app-main {
+  scrollbar-width: auto;
+  scrollbar-color: rgba(74, 245, 230, 0.7) rgba(8, 22, 36, 0.92);
+}
+
+.wingman-app-main::-webkit-scrollbar {
+  width: 14px !important;
+  height: 14px !important;
+  display: block !important;
+}
+
+.wingman-app-main::-webkit-scrollbar-track {
+  border-left: 1px solid rgba(74, 245, 230, 0.16);
+  background: rgba(8, 22, 36, 0.92);
+}
+
+.wingman-app-main::-webkit-scrollbar-thumb {
+  border: 3px solid rgba(8, 22, 36, 0.92);
+  border-radius: 999px;
+  background: rgba(74, 245, 230, 0.74);
+  background-clip: padding-box;
+}
+
+/* Visual Design: do not trap the control panel or generated schematic stack. */
+.wm-visual-design-page,
+.visual-design-studio-page,
+.visual-design-page {
+  height: auto !important;
+  min-height: max-content !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding-bottom: 120px !important;
+}
+
+.wm-diagram-studio-shell {
+  align-items: start !important;
+  min-height: max-content !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.wm-diagram-control-panel,
+.wm-generated-output-stack {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.wm-diagram-card,
+.wm-diagram-template-list,
+.wm-port-schematic-panel,
+.wm-native-schematic-panel,
+.wm-deployment-visual-panel,
+.wm-schematic-review-panel {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Keep floating Guru controls away from the scrollbar and Windows taskbar zone. */
+.wingman-guru-fab,
+[class*="guru-fab"],
+[class*="GuruFab"],
+[class*="guru-button"],
+[class*="GuruButton"] {
+  bottom: 96px !important;
+  right: 28px !important;
+}
+/* === Wingman targeted scroll repair end === */
+
