@@ -1,3 +1,4 @@
+﻿import { getProductStory, productStoryRelatedText } from "../data/productStories";
 export type ProductRole =
   | "camera"
   | "audio"
@@ -201,6 +202,30 @@ export function normaliseProductRecord(entry: unknown, index: number): ProductSp
   };
 }
 
+
+export function applyProductStoryToSpec(product: ProductSpec): ProductSpec {
+  const story = getProductStory(product.sku);
+
+  if (!story) {
+    return product;
+  }
+
+  return {
+    ...product,
+    name: story.plainEnglishName || product.name,
+    family: story.family || product.family,
+    category: story.category || product.category,
+    productType: story.productType || product.productType,
+    description: story.whatItIs || product.description,
+    purpose: story.oneLinePosition || product.purpose,
+    summary: story.whatItDoes || product.summary,
+    keyFeatures: cleanUsefulList([...story.keyFeatures, ...product.keyFeatures], 10),
+    applications: cleanUsefulList([...story.idealApplications, ...product.applications], 10),
+    checks: cleanUsefulList([...story.quoteChecks, ...product.checks], 10),
+    related: cleanUsefulList([...productStoryRelatedText(story), ...product.related], 12),
+  };
+}
+
 export function productText(product: ProductSpec) {
   return [
     product.sku,
@@ -250,7 +275,7 @@ function firstMeaningful(values: string[], fallback: string) {
 // and where it sits in its range - so two products in the same family (e.g. an
 // encoder vs a decoder, or a 100 vs a 600 series) no longer read identically.
 
-const FEATURE_SPLITTER = /\s*[|•·]\s*/;
+const FEATURE_SPLITTER = /\s*[|â€¢Â·]\s*/;
 
 const NETWORKHD_SERIES_NOTE: Record<string, string> = {
   "100": "the NetworkHD 100 series - H.264/H.265 over standard 1GbE, the bandwidth-light, budget-friendly tier for signage and lower-motion content",
@@ -386,7 +411,7 @@ function cleanFeatureToken(item: string): string {
     .replace(/\bUSB[\s-]?3(?:\.[012x])?\b/gi, "USB 3.x")
     .replace(KIND_WORDS, "")
     .replace(/\s{2,}/g, " ")
-    .replace(/^[\s/|,&·-]+|[\s/|,&·-]+$/g, "")
+    .replace(/^[\s/|,&Â·-]+|[\s/|,&Â·-]+$/g, "")
     .trim();
 }
 
@@ -463,7 +488,7 @@ function skuHeadline(product: ProductSpec, role: ProductRole): string {
   // whatItIs keeps the fuller "(transmit end)" detail.
   const kind = productKind(product, role).replace(/\s*\([^)]*\)\s*$/, "");
 
-  if (feats.length >= 2) return `${feats.join(" · ")} - ${kind}.`;
+  if (feats.length >= 2) return `${feats.join(" Â· ")} - ${kind}.`;
   if (feats.length === 1) return `${feats[0]} - ${kind}.`;
   return `${product.name} - ${kind}.`;
 }
@@ -662,12 +687,33 @@ function buildRoleNarrative(product: ProductSpec): ProductNarrative {
 // override the most prominent, previously-generic fields with SKU-specific,
 // feature-led, range-aware language so every product reads as itself.
 export function buildProductNarrative(product: ProductSpec): ProductNarrative {
-  const base = buildRoleNarrative(product);
+  const enrichedProduct = applyProductStoryToSpec(product);
+  const base = buildRoleNarrative(enrichedProduct);
+  const story = getProductStory(enrichedProduct.sku);
+
+  if (story) {
+    return {
+      ...base,
+      headline: story.oneLinePosition,
+      whatItIs: story.whatItIs,
+      customerChallenge: story.customerProblem,
+      whyItHelps: story.whatItDoes,
+      whyCustomerCares: story.familyContext,
+      useWhen: story.whenToUse.join(" "),
+      avoidIf: story.whenNotToUse.join(" "),
+      suggestedWording: story.customerSafeWording,
+      demoPrompt: story.salesTalkTrack,
+      askNow: story.discoveryQuestions,
+      diagramSource: story.diagramSource || base.diagramSource,
+      diagramOutput: story.diagramOutput || base.diagramOutput,
+      visualPrompt: `Create a realistic AV application visual showing ${story.sku} in context. Show the customer problem, related WyreStorm products where relevant, source path, display/output path and any items still to be confirmed.`,
+    };
+  }
 
   return {
     ...base,
-    headline: skuHeadline(product, base.role),
-    whatItIs: skuWhatItIs(product, base.role),
-    suggestedWording: skuSuggestedWording(product, base.role, base.suggestedWording),
+    headline: skuHeadline(enrichedProduct, base.role),
+    whatItIs: skuWhatItIs(enrichedProduct, base.role),
+    suggestedWording: skuSuggestedWording(enrichedProduct, base.role, base.suggestedWording),
   };
 }

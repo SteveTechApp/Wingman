@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { getProductStory, productStoryRelatedText } from "../data/productStories";
 
 type ProductSeed = {
   sku: string;
@@ -607,10 +608,28 @@ function questionsFor(product: ProductCard): string[] {
 function toProductCard(seed: ProductSeed): ProductCard {
   const sku = normaliseSku(seed.sku);
   const overlay = CURATED[sku] || {};
-  const family = cleanText(overlay.family) || cleanText(seed.family) || classify(seed);
-  const category = cleanText(overlay.category) || cleanText(seed.category) || family;
-  const name = cleanText(overlay.name) || cleanText(seed.name) || sku;
+  const story = getProductStory(sku);
+  const storyProofPoints = story
+    ? [
+        ...story.keyFeatures,
+        ...productStoryRelatedText(story),
+        ...story.quoteChecks,
+      ]
+    : undefined;
+  const storyTags = story
+    ? [
+        story.family,
+        story.category,
+        story.productType,
+        ...story.idealApplications,
+      ]
+    : [];
+
+  const family = cleanText(story?.family) || cleanText(overlay.family) || cleanText(seed.family) || classify(seed);
+  const category = cleanText(story?.category) || cleanText(overlay.category) || cleanText(seed.category) || family;
+  const name = cleanText(story?.plainEnglishName) || cleanText(overlay.name) || cleanText(seed.name) || sku;
   const description =
+    cleanText(story?.whatItIs) ||
     cleanText(overlay.description) ||
     cleanText(seed.description) ||
     `${name} from the Wingman product index.`;
@@ -622,23 +641,33 @@ function toProductCard(seed: ProductSeed): ProductCard {
     category,
     description,
     fit:
+      cleanText(story?.whatItDoes) ||
       cleanText(overlay.fit) ||
       cleanText(seed.fit) ||
       `Use this when the customer requirement matches ${family.toLowerCase()} applications. Confirm I/O, signal distance, USB, audio, control and network dependencies before quoting.`,
     openingLine:
+      cleanText(story?.oneLinePosition) ||
+      cleanText(story?.salesTalkTrack) ||
       cleanText(overlay.openingLine) ||
       cleanText(seed.openingLine) ||
       `${sku} is a ${family.toLowerCase()} product direction. Use it as a starting point, then validate the room requirement before making a firm recommendation.`,
-    questions: overlay.questions || seed.questions || [],
+    questions: story?.discoveryQuestions || overlay.questions || seed.questions || [],
     proofPoints:
+      storyProofPoints ||
       overlay.proofPoints ||
       seed.proofPoints || [
         "Pulled from the Wingman product intelligence data.",
         "Use this as a product direction until the requirement is validated.",
         "Confirm dependencies before quoting.",
       ],
-    tags: unique([...(seed.tags || []), ...((overlay.tags as string[] | undefined) || []), family, category]),
-    curated: Boolean(CURATED[sku]),
+    tags: unique([
+      ...(seed.tags || []),
+      ...((overlay.tags as string[] | undefined) || []),
+      ...storyTags,
+      family,
+      category,
+    ]),
+    curated: Boolean(CURATED[sku] || story),
   };
 
   if (base.questions.length === 0) {
@@ -1866,7 +1895,7 @@ return (
                 onClick={() => setActiveGalleryItem(null)}
                 aria-label="Close product gallery"
               >
-                Ã—
+                Ãƒâ€”
               </button>
             </div>
 
@@ -1898,7 +1927,7 @@ return (
               onClick={() => setActiveTermLookup(null)}
               aria-label="Close term explanation"
             >
-              Ã—
+              Ãƒâ€”
             </button>
           </div>
 
@@ -1970,7 +1999,7 @@ return (
 
           <div className="wm-pcc-status">
             <span>
-              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching Â· {products.length} total Â· {curatedCount} curated{activeQuickFinder !== "All" ? ` Â· ${activeQuickFinder}` : ""}
+              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching Ã‚Â· {products.length} total Ã‚Â· {curatedCount} curated{activeQuickFinder !== "All" ? ` Ã‚Â· ${activeQuickFinder}` : ""}
             </span>
 
             <div className="wm-pcc-pager">
@@ -2015,7 +2044,7 @@ return (
               >
                 <span className="wm-pcc-sku">{product.sku}</span>
                 <span className="wm-pcc-family">
-                  {product.curated ? "Curated Â· " : ""}
+                  {product.curated ? "Curated Ã‚Â· " : ""}
                   {product.family}
                 </span>
 
@@ -2240,7 +2269,7 @@ return (
                         {
                           title: "Low impedance stereo room",
                           body:
-                            "Two amplifier channels can drive left and right low-impedance speakers, typically 4Î© or 8Î©. This suits a local room where stereo playback, clearer music reproduction or a pair of front speakers is required. Check speaker impedance, cable run, channel load and amplifier power per channel.",
+                            "Two amplifier channels can drive left and right low-impedance speakers, typically 4ÃŽÂ© or 8ÃŽÂ©. This suits a local room where stereo playback, clearer music reproduction or a pair of front speakers is required. Check speaker impedance, cable run, channel load and amplifier power per channel.",
                         },
                       ].map((example) => (
                           <article key={example.title} className="wm-pcc-example-card">
@@ -2309,3 +2338,4 @@ return (
     </section>
   );
 }
+
