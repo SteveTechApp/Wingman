@@ -409,7 +409,7 @@ console.log("");
 console.log("## Priority 3 conclusion");
 
 if (weakAreas.length === 0 && partialAreas.length === 0 && missingExpectedEvidence.length === 0) {
-  console.log("The recommendation layer has structured architecture logic, scenario regression coverage, product-family scoring, structured score storage, project/proposal surfacing evidence, score-aware proposal/Finder ranking, scenario coverage proving family-path changes reorder SKUs, visible Finder and Project Detail ranking reasons, rendered coverage for those surfaces, and guarded Compare candidate ranking reasons when product-family score context exists.");
+  console.log("The recommendation layer has structured architecture logic, scenario regression coverage, product-family scoring, structured score storage, project/proposal surfacing evidence, score-aware proposal/Finder ranking, scenario coverage proving family-path changes reorder SKUs, visible Finder and Project Detail ranking reasons, rendered coverage for those surfaces, and rendered Compare coverage proving ranking reasons stay hidden without matching product-family context and appear when valid score context exists.");
 }
 
 if (weakAreas.length > 0) {
@@ -435,7 +435,7 @@ if (missingExpectedEvidence.length > 0) {
 
 console.log("");
 console.log("Recommended next engineering step:");
-console.log("Add rendered coverage proving Compare candidate ranking reasons stay hidden without product-family score context and appear when score context is present.");
+console.log("Review the Priority 3 audit for any remaining marker-only checks and replace the weakest ones with rendered or scenario-level coverage.");
 
 if (totalPercent < 70 || missingExpectedEvidence.length > 0) {
   process.exitCode = 1;
