@@ -8,6 +8,9 @@ import {
   type NetworkHdAvoipRecommendation,
 } from "../lib/networkHdAvoipEquivalence";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { Link, useNavigate } from "react-router-dom";
+import { routeCatalogByKey } from "../app/routeCatalog";
+import { saveCompareRunToProject, saveProductSelectionToCurrentProject } from "../data/projectStore";
 
 /*
   Compare workflow guard markers retained for scripts.
@@ -727,6 +730,8 @@ function ComparePageNew() {
   const [hasCompared, setHasCompared] = useState(false);
   const [, setState] = useState<"capture" | "analyzing" | "results">("capture");
   const [customSkuStore, setCustomSkuStore] = useState<string[]>([]);
+  const [committedSku, setCommittedSku] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadProductIntelligenceIndex().catch(() => {
@@ -861,6 +866,46 @@ function ComparePageNew() {
     ].join("\n");
   }, [avoipProfile, best, competitorInput, effectiveBrand, profile]);
 
+  const handleCommit = useCallback(
+    (target: "project" | "proposal"): void => {
+      if (!best) return;
+
+      const status =
+        best.verdict === "GOOD MATCH" ? "recommended" : best.verdict === "NO MATCH" ? "caution" : "alternative";
+
+      saveCompareRunToProject({
+        competitorBrand: effectiveBrand,
+        competitorSku: competitorInput || undefined,
+        wyrestormSku: best.product.sku,
+        wyrestormTitle: best.product.name,
+        mode: "compare",
+        summary,
+        matchScore: Math.round(best.score),
+        matchType: best.verdict,
+        evidence: best.matched,
+        warnings: best.checks,
+        source: "Competitor Compare",
+      });
+
+      saveProductSelectionToCurrentProject({
+        sku: best.product.sku,
+        title: best.product.name,
+        family: best.product.family,
+        status,
+        source: "Competitor Compare",
+        evidence: best.matched,
+        cautions: best.checks,
+      });
+
+      setCommittedSku(best.product.sku);
+
+      if (target === "proposal") {
+        navigate(routeCatalogByKey.proposal.path);
+      }
+    },
+    [best, competitorInput, effectiveBrand, navigate, summary],
+  );
+
   function onBrandSelect(brand: string): void {
     setSelectedBrand(brand);
     setWorkflowStep("options");
@@ -888,6 +933,7 @@ function ComparePageNew() {
     setWorkflowStep("capture");
     setHasCompared(false);
     setCustomSkuStore([]);
+    setCommittedSku(null);
   }
 
   async function copySummary(): Promise<void> {
@@ -975,6 +1021,36 @@ function ComparePageNew() {
             </section>
 
             <CompareSummaryPanel summary={summary} requestLiveLookup={requestLiveLookup} sourceUrl={sourceUrl} />
+
+            {best ? (
+              <section className="compare-native-card">
+                <div className="compare-native-section-title">
+                  <h2>Take this forward</h2>
+                  <p>Save {best.product.sku} to your project, or carry it straight into a proposal. The comparison and the quote-safety checks are saved with it.</p>
+                </div>
+                <div className="compare-native-action-row">
+                  <button type="button" className="compare-native-more" onClick={() => handleCommit("proposal")}>
+                    Build proposal with {best.product.sku}
+                  </button>
+                  <button type="button" className="compare-native-secondary-action" onClick={() => handleCommit("project")}>
+                    Add to project
+                  </button>
+                  <Link
+                    className="compare-native-secondary-action"
+                    to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(best.product.sku)}&source=compare`}
+                  >
+                    See full pitch
+                  </Link>
+                </div>
+                {committedSku === best.product.sku ? (
+                  <p className="compare-native-muted">
+                    Saved to your project.{" "}
+                    <Link to={routeCatalogByKey.projects.path}>Open projects</Link> or{" "}
+                    <Link to={routeCatalogByKey.proposal.path}>build the proposal</Link>.
+                  </p>
+                ) : null}
+              </section>
+            ) : null}
           </>
         ) : null}
       </section>
