@@ -17,6 +17,7 @@ import { exportBomCsv, exportProposalHtml } from "../lib/proposalExport";
 import { buildSalesReadinessPackage, type SalesBomRow, type SalesBomType } from "../lib/salesReadiness";
 import { getStoredWingmanProfile } from "../data/wingmanProfile";
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
+import { rankProductsByFamilyScores } from "../lib/productFamilyShortlistRanking";
 
 const feedbackActions: Array<{
   rating: "accepted" | "needs-review" | "missing-accessory" | "wrong-fit";
@@ -135,6 +136,16 @@ export function ProposalPage() {
     };
   }, []);
 
+  const productFamilyScores = useMemo(
+    () => context.recommendationEvidence?.productFamilyScores ?? [],
+    [context.recommendationEvidence?.productFamilyScores],
+  );
+  const leadingProductFamilyScore = productFamilyScores[0] ?? null;
+  const rankedProducts = useMemo(
+    () => rankProductsByFamilyScores(context.products, productFamilyScores),
+    [context.products, productFamilyScores],
+  );
+
   const sections = useMemo(
     () => [
       "Cover",
@@ -143,22 +154,22 @@ export function ProposalPage() {
       "Discovered Requirements",
       "Recommended Solution",
       "Visual Support",
-      context.products.length ? "Product Shortlist" : "Product Gaps",
+      rankedProducts.length ? "Product Shortlist" : "Product Gaps",
       "Assumptions",
       "Contact",
     ],
-    [context.products.length],
+    [rankedProducts],
   );
   const salesReadiness = useMemo(
     () =>
       buildSalesReadinessPackage({
-        products: context.products,
+        products: rankedProducts,
         discovery: context.discovery,
         assumptions: context.assumptions,
         ingest: context.ingest,
         compareRun: context.compareRun,
       }),
-    [context.assumptions, context.compareRun, context.discovery, context.ingest, context.products],
+    [context.assumptions, context.compareRun, context.discovery, context.ingest, rankedProducts],
   );
   const bomRows = useMemo<SalesBomRow[]>(() => {
     if (context.project?.stage === "Templates" && context.project.proposal?.bomRows?.length) {
@@ -191,7 +202,7 @@ export function ProposalPage() {
       }),
     [bomRows, context.assumptions, context.compareRun, context.discovery, context.products, salesReadiness.readinessScore],
   );
-  const hasCoreProducts = context.products.length > 0;
+  const hasCoreProducts = rankedProducts.length > 0;
   const readinessLabel = !hasCoreProducts
     ? "Not proposal ready"
     : salesReadiness.reviewRequired
@@ -202,18 +213,13 @@ export function ProposalPage() {
     : salesReadiness.reviewRequired
       ? "Resolve validate items before this is treated as customer-ready."
       : "Suitable for proposal drafting after final validation checks.";
-  const productFamilyScores = useMemo(
-    () => context.recommendationEvidence?.productFamilyScores ?? [],
-    [context.recommendationEvidence?.productFamilyScores],
-  );
-  const leadingProductFamilyScore = productFamilyScores[0] ?? null;
 
   const proposal = useMemo(
     () => ({
       title: context.discovery.projectTitle,
       summary: context.discovery.summary,
       sections,
-      products: context.products,
+      products: rankedProducts,
       productFamilyScores,
       assumptions: context.assumptions,
       outputPurpose: salesReadiness.outputPurpose,
@@ -243,7 +249,7 @@ export function ProposalPage() {
       contactPhone: context.profile.phone,
       updatedAt: new Date().toISOString(),
     }),
-    [bomRows, context.assumptions, context.discovery.projectTitle, context.discovery.summary, context.products, context.profile, context.recommendationEvidence, productFamilyScores, proposalCoach, salesReadiness, sections],
+    [bomRows, context.assumptions, context.discovery.projectTitle, context.discovery.summary, rankedProducts, context.profile, context.recommendationEvidence, productFamilyScores, proposalCoach, salesReadiness, sections],
   );
 
   useEffect(() => {
@@ -471,8 +477,8 @@ export function ProposalPage() {
               <div>
                 <p className="wingman-kicker">Recommended core products</p>
                 <p className="mt-2 text-sm leading-7 text-white/70">
-                  {context.products.length
-                    ? context.products.map((product) => `${product.sku} - ${product.title || product.family || product.category || "Selected product"}`).join("; ")
+                  {rankedProducts.length
+                    ? rankedProducts.map((product) => `${product.sku} - ${product.title || product.family || product.category || "Selected product"}`).join("; ")
                     : "No WyreStorm product has been selected yet. Open Product Finder, choose the core product path, and add it to this project before exporting a customer proposal."}
                 </p>
               </div>

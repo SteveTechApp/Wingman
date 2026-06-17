@@ -23,6 +23,8 @@ describe("product-family score surfacing", () => {
     expect(source).toContain("const productFamilyScores = useMemo");
     expect(source).toContain("leadingProductFamilyScore");
     expect(source).toContain("productFamilyScores,");
+    expect(source).toContain("rankProductsByFamilyScores");
+    expect(source).toContain("rankedProducts");
   });
 
   it("keeps product-family decision in exported proposal HTML", () => {
