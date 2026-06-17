@@ -13,6 +13,7 @@ buildProductNarrative,
 } from "../lib/productStoryEngine";
 import { CompareBackToListButton } from "../components/compare/CompareBackToListButton";
 import { ReportProblemButton } from "../components/ReportProblemButton";
+import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 
 type ProductTab = "overview" | "sales" | "spec" | "diagram" | "visual";
 
@@ -484,11 +485,7 @@ export function ProductPitchPage() {
   useEffect(() => {
     let cancelled = false;
 
-    fetch("/product-intelligence-index.json", { cache: "no-store" })
-      .then((response) => {
-        if (!response.ok) throw new Error("Product index unavailable");
-        return response.json() as Promise<unknown>;
-      })
+    loadProductIntelligenceIndex()
       .then((data) => {
         if (cancelled) return;
 
