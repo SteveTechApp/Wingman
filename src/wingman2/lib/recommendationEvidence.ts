@@ -209,6 +209,21 @@ type RecommendationArchitectureDecision = {
   repGuidance: string[];
 };
 
+
+type RecommendationProductFamily =
+  | "NetworkHD"
+  | "Matrix / HDBaseT"
+  | "Presentation / UC"
+  | "Video wall processor"
+  | "Core review";
+
+type RecommendationProductFamilyScore = {
+  family: RecommendationProductFamily;
+  score: number;
+  reasons: string[];
+  cautions: string[];
+};
+
 function numberFromRequirement(value: unknown) {
   if (typeof value === "number" && Number.isFinite(value)) {
     return value;
@@ -453,6 +468,137 @@ function suggestedSystemShape(input: RecommendationEvidenceInput) {
   return architectureDecision(input).systemShape;
 }
 
+
+function addFamilyScore(
+  scores: Map<RecommendationProductFamily, RecommendationProductFamilyScore>,
+  family: RecommendationProductFamily,
+  points: number,
+  reason: string,
+) {
+  const existing = scores.get(family) ?? {
+    family,
+    score: 0,
+    reasons: [],
+    cautions: [],
+  };
+
+  existing.score += points;
+
+  if (reason) {
+    existing.reasons.push(reason);
+  }
+
+  scores.set(family, existing);
+}
+
+function addFamilyCaution(
+  scores: Map<RecommendationProductFamily, RecommendationProductFamilyScore>,
+  family: RecommendationProductFamily,
+  caution: string,
+) {
+  const existing = scores.get(family) ?? {
+    family,
+    score: 0,
+    reasons: [],
+    cautions: [],
+  };
+
+  if (caution) {
+    existing.cautions.push(caution);
+  }
+
+  scores.set(family, existing);
+}
+
+function productFamilyScores(input: RecommendationEvidenceInput): RecommendationProductFamilyScore[] {
+  const architecture = architectureDecision(input);
+  const roomModel = roomModelFrom(input);
+  const combined = `${productText(input.product)} ${combinedRequirementText(input)}`;
+  const displayCount = numberFromRequirement(roomModel.displayCount);
+  const sourceCount = numberFromRequirement(roomModel.sourceCount);
+  const scores = new Map<RecommendationProductFamily, RecommendationProductFamilyScore>();
+
+  addFamilyScore(scores, "Core review", 10, "Every recommendation still needs requirement, datasheet and dependency validation.");
+
+  if (architecture.path === "networkhd-avoip") {
+    addFamilyScore(scores, "NetworkHD", 70, "Architecture decision favours flexible or distributed AV-over-IP.");
+    addFamilyScore(scores, "Matrix / HDBaseT", 20, "Matrix / HDBaseT remains an alternative if routing proves fixed and local.");
+    addFamilyCaution(scores, "NetworkHD", "Confirm controller, managed switch, multicast/IGMP, VLAN and NetworkHD family before quoting.");
+  }
+
+  if (architecture.path === "contained-routing") {
+    addFamilyScore(scores, "Matrix / HDBaseT", 70, "Architecture decision favours contained fixed routing.");
+    addFamilyScore(scores, "NetworkHD", 20, "NetworkHD remains an upgrade path only if routing flexibility or expansion is required.");
+    addFamilyCaution(scores, "NetworkHD", "Do not move a simple local system to AV-over-IP without a routing or scale reason.");
+  }
+
+  if (architecture.path === "meeting-room") {
+    addFamilyScore(scores, "Presentation / UC", 75, "Meeting-room workflow is driven by USB, BYOM/BYOD, camera, audio and display behaviour.");
+    addFamilyScore(scores, "Matrix / HDBaseT", 20, "Matrix / HDBaseT may apply where room extension or local routed outputs are required.");
+    addFamilyCaution(scores, "NetworkHD", "Do not default a single-room USB-C/BYOM requirement to AV-over-IP.");
+  }
+
+  if (architecture.path === "education-hybrid") {
+    addFamilyScore(scores, "Presentation / UC", 45, "Teaching-room workflow includes USB, capture, audio and control validation.");
+    addFamilyScore(scores, "Matrix / HDBaseT", 45, "Education spaces often need routed outputs, confidence display and extension.");
+    addFamilyScore(scores, "NetworkHD", 25, "NetworkHD applies when the teaching space connects into distributed or campus routing.");
+    addFamilyCaution(scores, "Presentation / UC", "Validate audio, capture, control and confidence display before proposing.");
+  }
+
+  if (architecture.path === "dedicated-wall-processor") {
+    addFamilyScore(scores, "Video wall processor", 80, "Video wall or LED processor language requires dedicated wall-processing validation first.");
+    addFamilyScore(scores, "NetworkHD", 25, "NetworkHD applies only if routing flexibility, distributed endpoints or expansion justify it.");
+    addFamilyCaution(scores, "NetworkHD", "Do not assume AV-over-IP is the primary wall approach before wall behaviour is confirmed.");
+  }
+
+  if (sourceCount !== null && sourceCount > 8) {
+    addFamilyScore(scores, "NetworkHD", 10, `Source count is high: ${sourceCount}.`);
+    addFamilyScore(scores, "Matrix / HDBaseT", 10, `Source count may require a larger matrix: ${sourceCount}.`);
+  }
+
+  if (displayCount !== null && displayCount > 10) {
+    addFamilyScore(scores, "NetworkHD", 15, `Display count favours scalable distribution: ${displayCount}.`);
+  }
+
+  if (hasAny(combined, ["hdbaset", "receiver", "extender", "cat6", "cat 6", "distance"])) {
+    addFamilyScore(scores, "Matrix / HDBaseT", 15, "Distance or receiver language supports matrix / HDBaseT validation.");
+  }
+
+  if (hasAny(combined, ["usb", "byom", "byod", "teams", "zoom", "camera", "speakerphone"])) {
+    addFamilyScore(scores, "Presentation / UC", 15, "USB or UC language supports presentation / UC validation.");
+  }
+
+  if (hasAny(combined, ["sw-0206-vw", "sw-0204-vw", "novastar", "led wall", "video wall"])) {
+    addFamilyScore(scores, "Video wall processor", 20, "Wall processor language detected.");
+  }
+
+  return Array.from(scores.values())
+    .map((score) => ({
+      ...score,
+      score: Math.max(0, Math.min(100, score.score)),
+      reasons: unique(score.reasons),
+      cautions: unique(score.cautions),
+    }))
+    .sort((a, b) => b.score - a.score);
+}
+
+function productFamilyScoreEvidence(scores: RecommendationProductFamilyScore[]) {
+  return scores.map((score) => {
+    const reasons = score.reasons.slice(0, 2).join(" ");
+    return `Product-family score: ${score.family} ${score.score}/100. ${reasons}`.trim();
+  });
+}
+
+function productFamilyScoreQuoteChecks(scores: RecommendationProductFamilyScore[]) {
+  return scores.flatMap((score) =>
+    score.cautions.map((caution) => `Product-family caution: ${score.family}: ${caution}`),
+  );
+}
+
+function topProductFamily(scores: RecommendationProductFamilyScore[]) {
+  return scores[0]?.family ?? "Core review";
+}
+
 function addMissingInformation(input: RecommendationEvidenceInput, output: Set<string>) {
   const roomModel = roomModelFrom(input);
   const requirementText = combinedRequirementText(input);
@@ -619,12 +765,14 @@ function whyThisFits(input: RecommendationEvidenceInput) {
 function customerSafeWording(input: RecommendationEvidenceInput, status: StoredQuoteSafetyStatus) {
   const direction = productDirection(input);
   const architecture = architectureDecision(input);
+  const familyScores = productFamilyScores(input);
   const checks = status === "quote-ready"
     ? "We will still run the final datasheet and dependency check before issuing the quote."
     : "Before this becomes a quote, we need to confirm the open design details and dependencies.";
 
   return unique([
     `The current WyreStorm direction is ${direction}.`,
+    `The leading product-family path is ${topProductFamily(familyScores)} before final SKU selection.`,
     checks,
     "This recommendation is based on the captured room requirement, not just a SKU match.",
     ...architecture.customerSafeWording,
@@ -632,10 +780,12 @@ function customerSafeWording(input: RecommendationEvidenceInput, status: StoredQ
 }
 
 function internalGuidance(input: RecommendationEvidenceInput, status: StoredQuoteSafetyStatus) {
+  const familyScores = productFamilyScores(input);
   const output = [
     status === "do-not-quote-yet"
       ? "Keep this as a design direction. Do not send a price or BOM until the missing information is confirmed."
       : "Use this as a sales conversation aid and keep validation items visible.",
+    `Use product-family scoring before SKU selection. Leading family: ${topProductFamily(familyScores)}.`,
     "Escalate to pre-sales when architecture, USB, network, video wall, or dependency validation affects the final design.",
     ...architectureDecision(input).repGuidance,
   ];
@@ -715,6 +865,7 @@ export function buildRecommendationEvidence(input: RecommendationEvidenceInput):
   const missing = missingInformation(input);
   const dependencies = requiredDependencies(input);
   const architecture = architectureDecision(input);
+  const familyScores = productFamilyScores(input);
 
   const avDecision = buildAvDecisionEvidence({
     source: input.source,
@@ -734,6 +885,7 @@ export function buildRecommendationEvidence(input: RecommendationEvidenceInput):
     "Validate datasheet, lifecycle, firmware, region, accessory, power and mounting requirements.",
     ...dependencies.map((item) => `Dependency check: ${item}`),
     ...architecture.quoteChecks,
+    ...productFamilyScoreQuoteChecks(familyScores),
     ...avDecision.quoteChecks,
   ]);
 
@@ -744,7 +896,13 @@ export function buildRecommendationEvidence(input: RecommendationEvidenceInput):
     productDirection: productDirection(input),
     systemShape: suggestedSystemShape(input),
     whyThisFits: whyThisFits(input),
-    evidenceUsed: unique([...countEvidence(input), ...compareEvidence(input.compare), ...architecture.evidence, ...avDecision.evidence]),
+    evidenceUsed: unique([
+      ...countEvidence(input),
+      ...compareEvidence(input.compare),
+      ...architecture.evidence,
+      ...productFamilyScoreEvidence(familyScores),
+      ...avDecision.evidence,
+    ]),
     quoteChecks,
     missingInformation: unique([...missing, ...avDecision.missingInformation]),
     requiredDependencies: unique([...dependencies, ...avDecision.requiredDependencies]),

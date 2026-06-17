@@ -188,4 +188,43 @@ describe("Priority 3 recommendation architecture scenarios", () => {
     expect(dependencyBlob).toContain("managed network");
     expect(evidenceBlob).toContain("series interoperability");
   });
+  it("uses product-family scoring before SKU selection for meeting rooms", () => {
+    const evidence = buildRecommendationEvidence({
+      source: "priority3-family-scoring-test",
+      product: {
+        sku: "APO-VX20-UC",
+        name: "APO-VX20-UC",
+        family: "Presentation / UC",
+      },
+      query: "Small meeting room with USB-C, BYOM laptop, camera, speakerphone and one display",
+    });
+
+    const customerText = evidence.customerSafeWording.join(" ");
+    const internalText = evidence.internalGuidance.join(" ");
+    const evidenceText = evidence.evidenceUsed.join(" ");
+
+    expect(customerText).toContain("leading product-family path is Presentation / UC");
+    expect(internalText).toContain("Use product-family scoring before SKU selection");
+    expect(evidenceText).toContain("Product-family score: Presentation / UC");
+  });
+
+  it("scores dedicated video wall processor first for LED wall briefs", () => {
+    const evidence = buildRecommendationEvidence({
+      source: "priority3-family-scoring-test",
+      product: {
+        sku: "SW-0206-VW",
+        name: "SW-0206-VW",
+        family: "Video wall processor",
+      },
+      query: "Casino LED wall using a Novastar processor path with four sources and preset layouts",
+    });
+
+    const customerText = evidence.customerSafeWording.join(" ");
+    const evidenceText = evidence.evidenceUsed.join(" ");
+
+    expect(customerText).toContain("leading product-family path is Video wall processor");
+    expect(evidenceText).toContain("Product-family score: Video wall processor");
+    expect(evidence.quoteChecks.join(" ")).toContain("Product-family caution: NetworkHD");
+  });
+
 });
