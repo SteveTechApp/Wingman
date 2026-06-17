@@ -14,6 +14,7 @@ import {
 } from "../data/projectStore";
 import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
 import { getProjectRequirementRecords, requirementReadiness } from "../lib/projectRequirements";
+import { getProductFamilyRankingReason } from "../lib/productFamilyShortlistRanking";
 
 const statusOptions: StoredRequirementStatus[] = ["confirmed", "review", "unknown"];
 
@@ -146,6 +147,17 @@ export function ProjectDetailPage() {
     [recommendationEvidence],
   );
   const leadingProductFamilyScore = productFamilyScores[0] ?? null;
+
+  const selectedProductRankingReasons = useMemo(
+    () =>
+      selectedProducts
+        .map((product) => ({
+          sku: product.sku,
+          reason: getProductFamilyRankingReason(product, productFamilyScores),
+        }))
+        .filter((item) => Boolean(item.reason)),
+    [productFamilyScores, selectedProducts],
+  );
   const latestCompareRun = project?.compareRuns?.[0] ?? null;
   const proposal = project?.proposal ?? null;
 
@@ -161,7 +173,14 @@ export function ProjectDetailPage() {
   }, [project, proposal, recommendationEvidence, requirements]);
 
   const commandCards = useMemo(() => {
-    if (!project) return [];
+    if (!project) return [
+      {
+        label: "Ranking reason",
+        value: selectedProductRankingReasons[0]?.sku || "No ranked product",
+        detail:
+          selectedProductRankingReasons[0]?.reason ||
+          "No product-family ranking reason has been stored for the selected products yet.",
+      },];
 
     const capturedPercent =
       typeof project.discoveryBrief?.capturedPercent === "number"
@@ -208,7 +227,7 @@ export function ProjectDetailPage() {
           (proposal?.readinessScore ? `Proposal readiness score: ${proposal.readinessScore}%` : "Generate a response pack after requirements are cleaner."),
       },
     ];
-  }, [latestCompareRun, project, proposal, recommendationEvidence]);
+  }, [latestCompareRun, project, proposal, recommendationEvidence, selectedProductRankingReasons]);
 
   const projectEvidenceTimeline = useMemo<ProjectEvidenceTimelineItem[]>(() => {
     if (!project) return [];
