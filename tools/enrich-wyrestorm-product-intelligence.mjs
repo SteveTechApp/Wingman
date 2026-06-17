@@ -175,9 +175,18 @@ function uniqueObjects(values, keySelector) {
   return output;
 }
 
+// Word-boundary term match: a short token like "ndi" must NOT match inside a
+// longer word ("i-ndi-viduals"). Terms may contain spaces/hyphens/dots/slashes,
+// so we only require the boundaries to be non-alphanumeric.
+function matchesTerm(text, term) {
+  const needle = lower(term).trim();
+  if (!needle) return false;
+  const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(?<![a-z0-9])${escaped}(?![a-z0-9])`).test(lower(text));
+}
+
 function includesAny(text, terms) {
-  const haystack = lower(text);
-  return terms.some((term) => haystack.includes(lower(term)));
+  return terms.some((term) => matchesTerm(text, term));
 }
 
 function normaliseSkuKey(value) {
@@ -1051,10 +1060,10 @@ function familyForTechnologyType(type) {
 
 function featureEvidence(rule, lines, fallbackText) {
   const allLines = lines.map(clean).filter(Boolean);
-  const term = rule.terms.find((candidate) => lower(fallbackText).includes(lower(candidate)));
+  const term = rule.terms.find((candidate) => matchesTerm(fallbackText, candidate));
   if (!term) return null;
 
-  const evidence = allLines.find((line) => lower(line).includes(lower(term))) || "";
+  const evidence = allLines.find((line) => matchesTerm(line, term)) || "";
   return {
     id: rule.id,
     label: rule.label,

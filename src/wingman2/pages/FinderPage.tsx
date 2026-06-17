@@ -3090,7 +3090,7 @@ export function FinderPage() {
                   <h2 id="finder-active-step-title" className="mt-1 text-2xl font-black tracking-tight text-white">
                     {activeStepDefinition.label}
                   </h2>
-                  <p className="mt-1 max-w-3xl text-sm leading-6 text-white/60">{activeStepDefinition.description}</p>
+                  <p className="mt-1 max-w-none text-sm leading-6 text-white/60">{activeStepDefinition.description}</p>
                 </div>
 
                 <button
@@ -3208,7 +3208,7 @@ export function FinderPage() {
                     ) : null}
                   </div>
 
-                  <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_320px]">
+                  <div className="grid gap-4">
                     <main className="wm-finder-results-panel grid content-start gap-3">
                       {!hasIntent ? (
                         <div className="grid min-h-[220px] place-items-center rounded-2xl border border-dashed border-[#29465e] bg-[#0d2133] p-6 text-center">

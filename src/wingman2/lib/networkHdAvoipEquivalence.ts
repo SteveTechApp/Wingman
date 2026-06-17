@@ -89,7 +89,7 @@ export interface NetworkHdAvoipRecommendation {
 export const NETWORKHD_CONTROLLER_SKU = "NHD-CTL-PRO-V2";
 
 export const NETWORKHD_CONTROLLER_REMINDER =
-  "Confirm whether an NHD-CTL-PRO-V2 controller is required for this NetworkHD system.";
+  "Specify one NHD-CTL-PRO-V2 controller per system (one per system), unless this is an add-on to an existing NetworkHD system that already has a controller.";
 
 /* ------------------------------------------------------------------------- *
  * Banned legacy SKUs

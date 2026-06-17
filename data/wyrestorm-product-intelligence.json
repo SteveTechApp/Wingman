@@ -24,7 +24,6 @@
       "Analog audio",
       "DSP audio processing",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
       "IR control",
       "PoE / PoH / PoC"
@@ -38,7 +37,6 @@
       "Analog audio",
       "DSP audio processing",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
       "IR control",
       "PoE / PoH / PoC"
@@ -57,7 +55,6 @@
       "Analog audio",
       "DSP audio processing",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
       "IR control",
       "PoE / PoH / PoC",
@@ -72,7 +69,6 @@
       "Analog audio",
       "DSP audio processing",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
       "IR control",
       "PoE / PoH / PoC",
@@ -97,7 +93,6 @@
       "Analog audio",
       "DSP audio processing",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
       "IR control",
       "PoE / PoH / PoC",
@@ -548,13 +543,6 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "LED status indicators for operational monitoring.",
-          "confidence": 0.94
-        },
-        {
           "id": "ip-control",
           "label": "IP / web control",
           "group": "Control",
@@ -921,7 +909,6 @@
       "Analog audio",
       "DSP audio processing",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
       "IR control",
       "PoE / PoH / PoC"
@@ -935,7 +922,6 @@
       "Analog audio",
       "DSP audio processing",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
       "IR control",
       "PoE / PoH / PoC"
@@ -953,7 +939,6 @@
       "Analog audio",
       "DSP audio processing",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
       "IR control",
       "PoE / PoH / PoC",
@@ -970,7 +955,6 @@
       "Analog audio",
       "DSP audio processing",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
       "IR control",
       "PoE / PoH / PoC",
@@ -995,7 +979,6 @@
       "Analog audio",
       "DSP audio processing",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
       "IR control",
       "PoE / PoH / PoC",
@@ -1440,13 +1423,6 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "LED status indicators for operational monitoring.",
-          "confidence": 0.94
-        },
-        {
           "id": "ip-control",
           "label": "IP / web control",
           "group": "Control",
@@ -1821,7 +1797,6 @@
       "USB 3.x",
       "USB routing / switching",
       "USB-C power delivery",
-      "NDI",
       "IR control",
       "Camera",
       "Speakerphone"
@@ -1839,7 +1814,6 @@
       "USB 3.x",
       "USB routing / switching",
       "USB-C power delivery",
-      "NDI",
       "IR control",
       "Camera"
     ],
@@ -1861,7 +1835,6 @@
       "USB 3.x",
       "USB routing / switching",
       "USB-C power delivery",
-      "NDI",
       "IR control",
       "Camera",
       "Meeting room",
@@ -1883,7 +1856,6 @@
       "USB 3.x",
       "USB routing / switching",
       "USB-C power delivery",
-      "NDI",
       "IR control",
       "Camera",
       "Speakerphone",
@@ -1913,7 +1885,6 @@
       "USB 3.x",
       "USB routing / switching",
       "USB-C power delivery",
-      "NDI",
       "IR control",
       "Camera",
       "Meeting room",
@@ -2430,13 +2401,6 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Real-time LED indication of mic pick-up direction",
-          "confidence": 0.94
-        },
-        {
           "id": "ir",
           "label": "IR control",
           "group": "Control",
@@ -2838,7 +2802,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -2865,7 +2828,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -2896,7 +2858,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -2925,7 +2886,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -2964,7 +2924,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -3555,13 +3514,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "LAN",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Real-time LED indication of mic pick-up direction",
           "confidence": 0.94
         },
         {
@@ -7652,7 +7604,6 @@
       "Microphone",
       "USB-C",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "Video bar"
     ],
@@ -7666,7 +7617,6 @@
       "DSP audio processing",
       "USB-C",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "Video bar"
     ],
@@ -7685,7 +7635,6 @@
       "DSP audio processing",
       "USB-C",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "Video bar",
       "Meeting room",
@@ -7703,7 +7652,6 @@
       "Microphone",
       "USB-C",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "Video bar",
       "USB",
@@ -7728,7 +7676,6 @@
       "DSP audio processing",
       "USB-C",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "Video bar",
       "Meeting room",
@@ -8124,13 +8071,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "1x 8-Pin RJ45 Female",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "1x Mute Indicator",
           "confidence": 0.94
         },
         {
@@ -8987,7 +8927,7 @@
     "productRole": "primary-hardware",
     "catalogVisibility": "default",
     "features": [
-      "Seamless Switching",
+      "Seamless wired/wireless integration",
       "Unified Comms",
       "Unified Communications",
       "Camera / capture",
@@ -9003,9 +8943,7 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
-      "IR control",
       "HDCP support",
       "Tabletop / room installation",
       "Camera",
@@ -9013,7 +8951,7 @@
       "Video bar"
     ],
     "featureTags": [
-      "Seamless Switching",
+      "Seamless wired/wireless integration",
       "Unified Comms",
       "microphone",
       "camera",
@@ -9026,16 +8964,14 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
-      "IR control",
       "HDCP support",
       "Tabletop / room installation",
       "Speakerphone",
       "Video bar"
     ],
     "tags": [
-      "Seamless Switching",
+      "Seamless wired/wireless integration",
       "Unified Comms",
       "Unified Communications",
       "Camera / capture",
@@ -9053,9 +8989,7 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
-      "IR control",
       "HDCP support",
       "Tabletop / room installation",
       "Speakerphone",
@@ -9067,7 +9001,7 @@
       "Meeting room, BYOD/BYOM and conferencing workflows"
     ],
     "capabilities": [
-      "Seamless Switching",
+      "Seamless wired/wireless integration",
       "Unified Comms",
       "HDMI",
       "HDR",
@@ -9078,9 +9012,7 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
-      "IR control",
       "HDCP support",
       "Tabletop / room installation",
       "Camera",
@@ -9094,7 +9026,7 @@
       "Video Bar for Conference Rooms: Advanced Meeting Solution",
       "Product",
       "Primary hardware",
-      "Seamless Switching",
+      "Seamless wired/wireless integration",
       "Unified Comms",
       "Unified Communications",
       "Camera / capture",
@@ -9113,9 +9045,7 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
-      "IR control",
       "HDCP support",
       "Tabletop / room installation",
       "Speakerphone",
@@ -9266,8 +9196,7 @@
         "KVM / USB extension",
         "USB 3.x",
         "USB-C",
-        "USB-C power delivery",
-        "NDI"
+        "USB-C power delivery"
       ],
       "io": {
         "ports": [
@@ -9519,7 +9448,7 @@
           "5m"
         ],
         "processing": [
-          "Seamless switching"
+          "Seamless wired/wireless integration"
         ],
         "evidence": [
           "AUDIO & VIDEO",
@@ -9593,7 +9522,6 @@
           "1x APO-MIC-EXT (RJ45 to USB MINI adapter)"
         ],
         "protocols": [
-          "NDI",
           "API"
         ],
         "linkSpeeds": [],
@@ -9602,7 +9530,6 @@
       "control": {
         "present": true,
         "protocols": [
-          "IR",
           "API"
         ],
         "evidence": [
@@ -9661,12 +9588,10 @@
           "USB-C power delivery"
         ],
         "Network": [
-          "Ethernet / LAN",
-          "NDI"
+          "Ethernet / LAN"
         ],
         "Control": [
-          "IP / web control",
-          "IR control"
+          "IP / web control"
         ],
         "Processing": [
           "HDCP support"
@@ -9745,24 +9670,10 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Auto Framing / Speaker Tracking / Presenter Tracking / Individuals Gallery / Manual Mode",
-          "confidence": 0.94
-        },
-        {
           "id": "ip-control",
           "label": "IP / web control",
           "group": "Control",
           "evidence": "Button, Bluetooth Remote Controller, API, Web UI",
-          "confidence": 0.94
-        },
-        {
-          "id": "ir",
-          "label": "IR control",
-          "group": "Control",
-          "evidence": "Features automatic switching modes such as last-in-first-out, ensuring the most relevant input source is always displayed",
           "confidence": 0.94
         },
         {
@@ -22256,7 +22167,6 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -22280,7 +22190,6 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -22306,7 +22215,6 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -22331,7 +22239,6 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -22364,7 +22271,6 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -22897,13 +22803,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "RS-232, Web GUI, LAN",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Power indicator and OLED screen for quick status monitoring",
           "confidence": 0.94
         },
         {
@@ -29566,7 +29465,6 @@
       "Control application",
       "Software control app",
       "DSP audio processing",
-      "NDI",
       "NetworkHD AV over IP",
       "IP / web control",
       "IR control",
@@ -29581,7 +29479,6 @@
       "software",
       "control-app",
       "DSP audio processing",
-      "NDI",
       "NetworkHD AV over IP",
       "IP / web control",
       "IR control",
@@ -29600,7 +29497,6 @@
       "software",
       "control-app",
       "DSP audio processing",
-      "NDI",
       "NetworkHD AV over IP",
       "IP / web control",
       "IR control",
@@ -29615,7 +29511,6 @@
       "Seamless Switching",
       "Audio / Control",
       "DSP audio processing",
-      "NDI",
       "NetworkHD AV over IP",
       "IP / web control",
       "IR control",
@@ -29641,7 +29536,6 @@
       "software",
       "control-app",
       "DSP audio processing",
-      "NDI",
       "NetworkHD AV over IP",
       "IP / web control",
       "IR control",
@@ -29912,13 +29806,6 @@
           "label": "DSP audio processing",
           "group": "Audio",
           "evidence": "Valid license required to register app",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Save preset switching configurations for individual screens, groups of screens",
           "confidence": 0.94
         },
         {
@@ -30913,7 +30800,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -30934,7 +30820,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -30959,7 +30844,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -30979,7 +30863,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -31012,7 +30895,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -31441,13 +31323,6 @@
           "label": "USB-C power delivery",
           "group": "USB",
           "evidence": "1x S/PDIF Out: S/PDIF Coaxial Digital",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
           "confidence": 0.94
         },
         {
@@ -33652,7 +33527,6 @@
       "DSP audio processing",
       "USB 2.0",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -33675,7 +33549,6 @@
       "DSP audio processing",
       "USB 2.0",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -33701,7 +33574,6 @@
       "DSP audio processing",
       "USB 2.0",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -33723,7 +33595,6 @@
       "DSP audio processing",
       "USB 2.0",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -33755,7 +33626,6 @@
       "DSP audio processing",
       "USB 2.0",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -34257,13 +34127,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "The EX-100-H2 uses the powerful HDBaseT 2.0 chipset to send along 4K, USB, PoH and HD audio up to 100m/328ft with a single Cat 6 cable. This extender hosts the perfect combination of features to give you the tools you need to set up your next conference or presentation. With separate audio lanes, you’re free to send audio independently to overlay your presentation.",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "LED indication for power supply to units, signal status to show established display connection, HDCP presence in signal and transmission link",
           "confidence": 0.94
         },
         {
@@ -35707,7 +35570,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
       "IR control",
       "In-wall installation"
@@ -35726,7 +35588,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
       "IR control",
       "In-wall installation"
@@ -35748,7 +35609,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
       "IR control",
       "In-wall installation",
@@ -35765,7 +35625,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
       "IR control",
       "In-wall installation"
@@ -35793,7 +35652,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IP / web control",
       "IR control",
       "In-wall installation",
@@ -36271,13 +36129,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "RX: 4x USB 3.2 Type A, 1x RJ45 Input",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
           "confidence": 0.94
         },
         {
@@ -37647,7 +37498,6 @@
       "Audio breakout",
       "KVM / USB extension",
       "USB 2.0",
-      "NDI",
       "IR control",
       "RS-232 control",
       "HDCP support",
@@ -37667,7 +37517,6 @@
       "Audio breakout",
       "KVM / USB extension",
       "USB 2.0",
-      "NDI",
       "IR control",
       "RS-232 control",
       "HDCP support",
@@ -37690,7 +37539,6 @@
       "Audio breakout",
       "KVM / USB extension",
       "USB 2.0",
-      "NDI",
       "IR control",
       "RS-232 control",
       "HDCP support",
@@ -37709,7 +37557,6 @@
       "Audio breakout",
       "KVM / USB extension",
       "USB 2.0",
-      "NDI",
       "IR control",
       "RS-232 control",
       "HDCP support",
@@ -37738,7 +37585,6 @@
       "Audio breakout",
       "KVM / USB extension",
       "USB 2.0",
-      "NDI",
       "IR control",
       "RS-232 control",
       "HDCP support",
@@ -38186,13 +38032,6 @@
           "label": "USB 2.0",
           "group": "USB",
           "evidence": "HDMI: 40Gbps | USB 2.0: 255Mbps",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
           "confidence": 0.94
         },
         {
@@ -40250,7 +40089,6 @@
       "Audio breakout",
       "DSP audio processing",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "HDCP support",
@@ -40267,7 +40105,6 @@
       "Audio breakout",
       "DSP audio processing",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "HDCP support",
@@ -40287,7 +40124,6 @@
       "Audio breakout",
       "DSP audio processing",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "HDCP support",
@@ -40304,7 +40140,6 @@
       "Audio breakout",
       "DSP audio processing",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "HDCP support",
@@ -40330,7 +40165,6 @@
       "Audio breakout",
       "DSP audio processing",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "HDCP support",
@@ -40780,13 +40614,6 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
-          "confidence": 0.94
-        },
-        {
           "id": "ir",
           "label": "IR control",
           "group": "Control",
@@ -41159,7 +40986,6 @@
       "DSP audio processing",
       "USB 3.x",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -41179,7 +41005,6 @@
       "DSP audio processing",
       "USB 3.x",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -41202,7 +41027,6 @@
       "DSP audio processing",
       "USB 3.x",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -41221,7 +41045,6 @@
       "DSP audio processing",
       "USB 3.x",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -41250,7 +41073,6 @@
       "DSP audio processing",
       "USB 3.x",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -41810,13 +41632,6 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Visual LED indication for power, display connection signal status, HDBaseT TM link, and HDCP presence in signal",
-          "confidence": 0.94
-        },
-        {
           "id": "cec",
           "label": "CEC control",
           "group": "Control",
@@ -42227,7 +42042,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "SFP / fibre",
       "CEC control",
       "IR control",
@@ -42248,7 +42062,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "SFP / fibre",
       "CEC control",
       "IR control",
@@ -42272,7 +42085,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "SFP / fibre",
       "CEC control",
       "IR control",
@@ -42292,7 +42104,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "SFP / fibre",
       "CEC control",
       "IR control",
@@ -42322,7 +42133,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "SFP / fibre",
       "CEC control",
       "IR control",
@@ -42849,13 +42659,6 @@
           "label": "USB-C power delivery",
           "group": "USB",
           "evidence": "1x S/PDIF: TOSLINK (Digital Optical)",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Visual LED indication for power supply to units, signal status to show established display connection, HDCP presence in signal and HDBaseT link between devices",
           "confidence": 0.94
         },
         {
@@ -47422,7 +47225,6 @@
       "Receiver",
       "Signal extension endpoint",
       "Analog audio",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -47438,7 +47240,6 @@
       "receiver",
       "transmitter",
       "Analog audio",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -47457,7 +47258,6 @@
       "extender",
       "transmitter",
       "Analog audio",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -47472,7 +47272,6 @@
       "HDMI",
       "Extender / HDBaseT",
       "Analog audio",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -47497,7 +47296,6 @@
       "extender",
       "transmitter",
       "Analog audio",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -47992,13 +47790,6 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Visual LED indication for power supply to units, signal status to show established display connection, HDCP presence in signal and HDBaseT TM link between devices",
-          "confidence": 0.94
-        },
-        {
           "id": "cec",
           "label": "CEC control",
           "group": "Control",
@@ -48403,7 +48194,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -48423,7 +48213,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -48446,7 +48235,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -48465,7 +48253,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -48494,7 +48281,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -49018,13 +48804,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "HDMI | HDCP 2.2 | EDID | 2-way PoH | Bidirectional IR, RS-232, and Ethernet",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Visual LED indication for power, display connection signal status, HDBaseT™ link, and HDCP presence in signal",
           "confidence": 0.94
         },
         {
@@ -50348,7 +50127,6 @@
       "Signal extension endpoint",
       "HDR",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "PoE / PoH / PoC"
@@ -50360,7 +50138,6 @@
       "extender",
       "HDR",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "PoE / PoH / PoC"
@@ -50376,7 +50153,6 @@
       "extender",
       "HDR",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "PoE / PoH / PoC",
@@ -50389,7 +50165,6 @@
       "Extender / HDBaseT",
       "HDR",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "PoE / PoH / PoC"
@@ -50411,7 +50186,6 @@
       "extender",
       "HDR",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "PoE / PoH / PoC",
@@ -50689,13 +50463,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "Extending 4K UHD content at 4:4:4/60 up to 70m/230ft, the EX-70-H2X is compatible with the latest HDR standards including HDR-10 and HLG up to 60Hz; Dolby Vision is supported at 30Hz. Powerful Class A HDBaseT transmission means Ethernet, IR & RS-232 are also supported, with the addition of 2-way PoH for flexible installation options. The HDMI loop-output means that source content can be sent to multiple locations by simply cascading the signal to additional extenders or switchers.",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
           "confidence": 0.94
         },
         {
@@ -62207,14 +61974,12 @@
       "HDBaseT extender",
       "Endpoint",
       "Signal extension endpoint",
-      "NDI",
       "HDBaseT"
     ],
     "featureTags": [
       "Accessory",
       "Extender / HDBaseT",
       "extender",
-      "NDI",
       "HDBaseT"
     ],
     "tags": [
@@ -62225,14 +61990,12 @@
       "Endpoint",
       "Signal extension endpoint",
       "extender",
-      "NDI",
       "Point-to-point extension",
       "Long-distance video, USB, control and network transport",
       "HDBaseT"
     ],
     "capabilities": [
       "Accessory",
-      "NDI",
       "HDBaseT"
     ],
     "searchTerms": [
@@ -62247,7 +62010,6 @@
       "Signal extension endpoint",
       "Point-to-point extension",
       "extender",
-      "NDI",
       "Long-distance video, USB, control and network transport",
       "HDBaseT",
       "wingman-sales-language-v1",
@@ -62500,13 +62262,6 @@
           "group": "Video",
           "evidence": "hdbaset",
           "confidence": 0.72
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
-          "confidence": 0.94
         }
       ],
       "applications": [
@@ -62805,7 +62560,6 @@
       "Receiver",
       "Signal extension endpoint",
       "KVM / USB extension",
-      "NDI",
       "IR control",
       "EDID management",
       "HDCP support",
@@ -62822,7 +62576,6 @@
       "receiver",
       "transmitter",
       "KVM / USB extension",
-      "NDI",
       "IR control",
       "EDID management",
       "HDCP support",
@@ -62842,7 +62595,6 @@
       "usb-kvm",
       "transmitter",
       "KVM / USB extension",
-      "NDI",
       "IR control",
       "EDID management",
       "HDCP support",
@@ -62856,7 +62608,6 @@
       "HDMI",
       "Accessory",
       "KVM / USB extension",
-      "NDI",
       "IR control",
       "EDID management",
       "HDCP support",
@@ -62881,7 +62632,6 @@
       "usb-kvm",
       "transmitter",
       "KVM / USB extension",
-      "NDI",
       "IR control",
       "EDID management",
       "HDCP support",
@@ -63349,13 +63099,6 @@
           "label": "KVM / USB extension",
           "group": "USB",
           "evidence": "1x EXP-EX-80-KVM Transmitter",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
           "confidence": 0.94
         },
         {
@@ -81996,7 +81739,6 @@
       "Microphone",
       "USB 2.0",
       "USB-C",
-      "NDI",
       "IR control",
       "Speakerphone"
     ],
@@ -82010,7 +81752,6 @@
       "DSP audio processing",
       "USB 2.0",
       "USB-C",
-      "NDI",
       "IR control"
     ],
     "tags": [
@@ -82028,7 +81769,6 @@
       "DSP audio processing",
       "USB 2.0",
       "USB-C",
-      "NDI",
       "IR control",
       "Meeting room",
       "BYOM / UC",
@@ -82044,7 +81784,6 @@
       "Microphone",
       "USB 2.0",
       "USB-C",
-      "NDI",
       "IR control",
       "Speakerphone",
       "Audio"
@@ -82069,7 +81808,6 @@
       "DSP audio processing",
       "USB 2.0",
       "USB-C",
-      "NDI",
       "IR control",
       "Meeting room",
       "BYOM / UC",
@@ -82455,13 +82193,6 @@
           "label": "USB-C",
           "group": "USB",
           "evidence": "1x USB Type-C port. The following cables are recommended to be used to connect with source device:",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Supports simple, intuitive touch controls and LED indicators.",
           "confidence": 0.94
         },
         {
@@ -86644,7 +86375,6 @@
       "DSP audio processing",
       "USB-C",
       "Ethernet / LAN",
-      "NDI",
       "IR control"
     ],
     "featureTags": [
@@ -86655,7 +86385,6 @@
       "DSP audio processing",
       "USB-C",
       "Ethernet / LAN",
-      "NDI",
       "IR control"
     ],
     "tags": [
@@ -86668,7 +86397,6 @@
       "DSP audio processing",
       "USB-C",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "Classroom / lecture",
       "BYOD presentation",
@@ -86681,7 +86409,6 @@
       "DSP audio processing",
       "USB-C",
       "Ethernet / LAN",
-      "NDI",
       "IR control"
     ],
     "searchTerms": [
@@ -86700,7 +86427,6 @@
       "DSP audio processing",
       "USB-C",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "Classroom / lecture",
       "BYOD presentation",
@@ -87109,13 +86835,6 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "1 x Mains outlet (British/European/Indian Standard)",
-          "confidence": 0.94
-        },
-        {
           "id": "ir",
           "label": "IR control",
           "group": "Control",
@@ -87452,7 +87171,6 @@
       "DSP audio processing",
       "USB-C",
       "Ethernet / LAN",
-      "NDI",
       "IR control"
     ],
     "featureTags": [
@@ -87463,7 +87181,6 @@
       "DSP audio processing",
       "USB-C",
       "Ethernet / LAN",
-      "NDI",
       "IR control"
     ],
     "tags": [
@@ -87476,7 +87193,6 @@
       "DSP audio processing",
       "USB-C",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "Classroom / lecture",
       "BYOD presentation",
@@ -87489,7 +87205,6 @@
       "DSP audio processing",
       "USB-C",
       "Ethernet / LAN",
-      "NDI",
       "IR control"
     ],
     "searchTerms": [
@@ -87508,7 +87223,6 @@
       "DSP audio processing",
       "USB-C",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "Classroom / lecture",
       "BYOD presentation",
@@ -87995,13 +87709,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "Optional Weiland to UK & Schuko 2 meter cables available for ‘MS’ models (IDB-PWR-UK & IDB-PWR-SCH)",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "1 x Mains outlet (British/European/Indian Standard) (built in)",
           "confidence": 0.94
         },
         {
@@ -110125,7 +109832,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "SFP / fibre",
       "CEC control",
       "IP / web control",
@@ -110148,7 +109854,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "SFP / fibre",
       "CEC control",
       "IP / web control",
@@ -110176,7 +109881,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "SFP / fibre",
       "CEC control",
       "IP / web control",
@@ -110199,7 +109903,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "SFP / fibre",
       "CEC control",
       "IP / web control",
@@ -110232,7 +109935,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "SFP / fibre",
       "CEC control",
       "IP / web control",
@@ -110818,13 +110520,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "Ethernet",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "LED indication for visual power supply to receiver via PoH or mains, signal status to show established connection to display, HDBaseT link to matrix and HDCP confirmation to illustrate the presence of encryption within a signal",
           "confidence": 0.94
         },
         {
@@ -135366,7 +135061,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -135392,7 +135086,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "NetworkHD AV over IP",
       "CEC control",
       "IR control",
@@ -135422,7 +135115,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -135448,7 +135140,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "NetworkHD AV over IP",
       "CEC control",
       "IR control",
@@ -135485,7 +135176,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -135972,13 +135662,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "Ethernet",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Graphic or logo can be inserted into central image placeholder for screen indication or additional branding",
           "confidence": 0.94
         },
         {
@@ -137349,7 +137032,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -137380,7 +137062,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "NetworkHD AV over IP",
       "CEC control",
       "IR control",
@@ -137415,7 +137096,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -137448,7 +137128,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "NetworkHD AV over IP",
       "CEC control",
       "IR control",
@@ -137491,7 +137170,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -138073,13 +137751,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "Ethernet",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
           "confidence": 0.94
         },
         {
@@ -139661,7 +139332,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -139688,7 +139358,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "NetworkHD AV over IP",
       "CEC control",
       "IP / web control",
@@ -139719,7 +139388,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -139747,7 +139415,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "NetworkHD AV over IP",
       "CEC control",
       "IP / web control",
@@ -139786,7 +139453,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -140280,13 +139946,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "Ethernet",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
           "confidence": 0.94
         },
         {
@@ -143044,7 +142703,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -143070,7 +142728,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "NetworkHD AV over IP",
       "CEC control",
       "IR control",
@@ -143100,7 +142757,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -143127,7 +142783,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "NetworkHD AV over IP",
       "CEC control",
       "IR control",
@@ -143165,7 +142820,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -143682,13 +143336,6 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
-          "confidence": 0.94
-        },
-        {
           "id": "networkhd",
           "label": "NetworkHD AV over IP",
           "group": "Network",
@@ -144151,7 +143798,6 @@
       "USB 2.0",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "SFP / fibre",
       "CEC control",
       "IP / web control",
@@ -144180,7 +143826,6 @@
       "USB 2.0",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "NetworkHD AV over IP",
       "SFP / fibre",
       "CEC control",
@@ -144214,7 +143859,6 @@
       "USB 2.0",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "SFP / fibre",
       "CEC control",
       "IP / web control",
@@ -144245,7 +143889,6 @@
       "USB 2.0",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "NetworkHD AV over IP",
       "SFP / fibre",
       "CEC control",
@@ -144287,7 +143930,6 @@
       "USB 2.0",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "SFP / fibre",
       "CEC control",
       "IP / web control",
@@ -144891,13 +144533,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "The NetworkHD 500s series is an HDMI 2.0 AV over IP solution. Capable of encoding up to 4K60 including Dolby Vision, HDR10 and HLG content. The 500 series comes loaded with a number of advanced features such as the flexibility of Ethernet or Fiber as a transport method. Ultra-low latency encoding and incredibly fast matrix switching speeds enhance the experience. A powerful routing engine allows audio, video, USB and control signals to be discretely sent to any endpoint. Create captivating video walls up to 16x16 in size and control them with the tap of a button in the amazing NetworkHD Touch control app.",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Copyright @ 2026, WyreStorm Technologies. All Rights Reserved. | Privacy Policy | Terms & Conditions | Sitemap",
           "confidence": 0.94
         },
         {
@@ -165314,7 +164949,6 @@
       "Controller",
       "NetworkHD touch control interface",
       "DSP audio processing",
-      "NDI",
       "IR control"
     ],
     "featureTags": [
@@ -165327,7 +164961,6 @@
       "networkhd-control",
       "touch-interface",
       "DSP audio processing",
-      "NDI",
       "NetworkHD AV over IP",
       "IR control"
     ],
@@ -165344,7 +164977,6 @@
       "networkhd-control",
       "touch-interface",
       "DSP audio processing",
-      "NDI",
       "IR control",
       "AV over IP distribution",
       "NetworkHD user control interface"
@@ -165357,7 +164989,6 @@
       "Multiview",
       "AVoIP Infrastructure",
       "DSP audio processing",
-      "NDI",
       "NetworkHD AV over IP",
       "IR control",
       "IP"
@@ -165382,7 +165013,6 @@
       "networkhd-control",
       "touch-interface",
       "DSP audio processing",
-      "NDI",
       "IR control",
       "AV over IP distribution",
       "NetworkHD user control interface",
@@ -165644,13 +165274,6 @@
           "label": "DSP audio processing",
           "group": "Audio",
           "evidence": "WyreStorm Technologies is committed to protecting and respecting your privacy, and we’ll only use your personal information to administer your account and to provide the products and services you requested from us. From time to time, we would like to contact you about our products and services, as well as other content that may be of interest to you. You can unsubscribe from these communications at any time. For more information on how to unsubscribe, our privacy policies, and how we are committed to protecting and respecting your privacy, please review our privacy policy .",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Save preset switching configurations for individual screens, groups of screens",
           "confidence": 0.94
         },
         {
@@ -169632,7 +169255,6 @@
       "USB 2.0",
       "USB routing / switching",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -169646,7 +169268,6 @@
       "USB",
       "Camera / Capture",
       "camera",
-      "ndi",
       "DisplayPort",
       "HDMI",
       "HDR",
@@ -169672,7 +169293,6 @@
       "NDI camera endpoint",
       "4K camera",
       "camera",
-      "ndi",
       "DisplayPort",
       "HDMI",
       "HDR",
@@ -169705,7 +169325,6 @@
       "USB 2.0",
       "USB routing / switching",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -169728,7 +169347,6 @@
       "4K camera",
       "Image capture endpoint",
       "camera",
-      "ndi",
       "DisplayPort",
       "HDMI",
       "HDR",
@@ -170232,13 +169850,6 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
-          "confidence": 0.94
-        },
-        {
           "id": "cec",
           "label": "CEC control",
           "group": "Control",
@@ -170653,7 +170264,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -170675,7 +170285,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -170700,7 +170309,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -170722,7 +170330,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -170752,7 +170359,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -171329,13 +170935,6 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Visual LED indication for power supply, signal status to show display connection, HDCP in signal and Link between HDBaseT devices",
-          "confidence": 0.94
-        },
-        {
           "id": "ir",
           "label": "IR control",
           "group": "Control",
@@ -171730,7 +171329,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "SFP / fibre",
       "IR control",
       "RS-232 control",
@@ -171751,7 +171349,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "SFP / fibre",
       "IR control",
       "RS-232 control",
@@ -171775,7 +171372,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "SFP / fibre",
       "IR control",
       "RS-232 control",
@@ -171796,7 +171392,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "SFP / fibre",
       "IR control",
       "RS-232 control",
@@ -171825,7 +171420,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "SFP / fibre",
       "IR control",
       "RS-232 control",
@@ -172374,13 +171968,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "HDCP 2.2 | EDID | PoH (2-way) | Bidirectional IR, RS-232, and Ethernet",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Visual LED indication for power supply to units, HDBaseT signal transmission and reception status and HDCP presence in signal",
           "confidence": 0.94
         },
         {
@@ -173913,7 +173500,6 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -173939,7 +173525,6 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -173967,7 +173552,6 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -173993,7 +173577,6 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -174028,7 +173611,6 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -174608,13 +174190,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "Ethernet",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "LED indication for power supply to units, signal status to show established display connection, HDCP presence in signal and transmission link",
           "confidence": 0.94
         },
         {
@@ -176157,7 +175732,6 @@
       "Analog audio",
       "DSP audio processing",
       "USB 3.x",
-      "NDI",
       "SFP / fibre",
       "IR control",
       "RS-232 control",
@@ -176176,7 +175750,6 @@
       "Analog audio",
       "DSP audio processing",
       "USB 3.x",
-      "NDI",
       "SFP / fibre",
       "IR control",
       "RS-232 control",
@@ -176198,7 +175771,6 @@
       "Analog audio",
       "DSP audio processing",
       "USB 3.x",
-      "NDI",
       "SFP / fibre",
       "IR control",
       "RS-232 control",
@@ -176216,7 +175788,6 @@
       "Analog audio",
       "DSP audio processing",
       "USB 3.x",
-      "NDI",
       "SFP / fibre",
       "IR control",
       "RS-232 control",
@@ -176246,7 +175817,6 @@
       "Analog audio",
       "DSP audio processing",
       "USB 3.x",
-      "NDI",
       "SFP / fibre",
       "IR control",
       "RS-232 control",
@@ -176705,13 +176275,6 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "LED indication for HDCP presence within signal and transmission link between devices",
-          "confidence": 0.94
-        },
-        {
           "id": "sfp",
           "label": "SFP / fibre",
           "group": "Network",
@@ -177093,7 +176656,6 @@
       "DSP audio processing",
       "USB 3.x",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -177111,7 +176673,6 @@
       "DSP audio processing",
       "USB 3.x",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -177132,7 +176693,6 @@
       "DSP audio processing",
       "USB 3.x",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -177150,7 +176710,6 @@
       "DSP audio processing",
       "USB 3.x",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -177177,7 +176736,6 @@
       "DSP audio processing",
       "USB 3.x",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -177661,13 +177219,6 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "LED indication for HDCP presence within signal and transmission link between devices",
-          "confidence": 0.94
-        },
-        {
           "id": "cec",
           "label": "CEC control",
           "group": "Control",
@@ -178077,7 +177628,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -178106,7 +177656,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -178139,7 +177688,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -178168,7 +177716,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -178207,7 +177754,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -178694,13 +178240,6 @@
           "label": "USB-C power delivery",
           "group": "USB",
           "evidence": "S/PDIF: 2ch LPCM | Dolby Digital/CTS up to 5.1ch",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "LED indication for HDCP presence within signal and transmission link between devices",
           "confidence": 0.94
         },
         {
@@ -179721,7 +179260,6 @@
       "Signal extension endpoint",
       "HDR",
       "USB-C power delivery",
-      "NDI",
       "SFP / fibre"
     ],
     "featureTags": [
@@ -179733,7 +179271,6 @@
       "receiver",
       "HDR",
       "USB-C power delivery",
-      "NDI",
       "SFP / fibre"
     ],
     "tags": [
@@ -179748,7 +179285,6 @@
       "extender",
       "HDR",
       "USB-C power delivery",
-      "NDI",
       "SFP / fibre",
       "Point-to-point extension",
       "Long-distance video, USB, control and network transport"
@@ -179760,7 +179296,6 @@
       "Extender / HDBaseT",
       "HDR",
       "USB-C power delivery",
-      "NDI",
       "SFP / fibre"
     ],
     "searchTerms": [
@@ -179780,7 +179315,6 @@
       "extender",
       "HDR",
       "USB-C power delivery",
-      "NDI",
       "SFP / fibre",
       "Long-distance video, USB, control and network transport",
       "wingman-sales-language-v1",
@@ -180039,13 +179573,6 @@
           "label": "USB-C power delivery",
           "group": "USB",
           "evidence": "With high-framerate HDR-10 and HLG technology exceeding the capabilities of HDBaseT, WyreStorm has implemented light-compression technology. The RXV-70-4K-ARC forms part of this new generation of signal extension technology and furthermore, frees the 5.1 audio from an ARC compatible TV and sends back to an H2XC matrix over HDBaseT; an optical S/PDIF input is also present for sending digital audio signals.",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
           "confidence": 0.94
         },
         {
@@ -180349,7 +179876,6 @@
       "DSP audio processing",
       "USB 3.x",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -180369,7 +179895,6 @@
       "DSP audio processing",
       "USB 3.x",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -180392,7 +179917,6 @@
       "DSP audio processing",
       "USB 3.x",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -180412,7 +179936,6 @@
       "DSP audio processing",
       "USB 3.x",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -180440,7 +179963,6 @@
       "DSP audio processing",
       "USB 3.x",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -180944,13 +180466,6 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "LED indication for HDCP presence within signal and transmission link between devices",
-          "confidence": 0.94
-        },
-        {
           "id": "cec",
           "label": "CEC control",
           "group": "Control",
@@ -181383,7 +180898,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -181412,7 +180926,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -181445,7 +180958,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -181474,7 +180986,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -181513,7 +181024,6 @@
       "Audio breakout",
       "DSP audio processing",
       "USB-C power delivery",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -181998,13 +181508,6 @@
           "label": "USB-C power delivery",
           "group": "USB",
           "evidence": "S/PDIF: 2ch LPCM | Dolby Digital/CTS up to 5.1ch",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "LED indication for HDCP presence within signal and transmission link between devices",
           "confidence": 0.94
         },
         {
@@ -192554,7 +192057,6 @@
       "USB 3.x",
       "USB routing / switching",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -192579,7 +192081,6 @@
       "USB 3.x",
       "USB routing / switching",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -192607,7 +192108,6 @@
       "USB 3.x",
       "USB routing / switching",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -192636,7 +192136,6 @@
       "USB 3.x",
       "USB routing / switching",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -192670,7 +192169,6 @@
       "USB 3.x",
       "USB routing / switching",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -193185,13 +192683,6 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Additional 2ch analogue audio input for sending separate stereo audio to RX",
-          "confidence": 0.94
-        },
-        {
           "id": "cec",
           "label": "CEC control",
           "group": "Control",
@@ -193650,7 +193141,6 @@
       "USB 3.x",
       "USB routing / switching",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -193675,7 +193165,6 @@
       "USB 3.x",
       "USB routing / switching",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -193703,7 +193192,6 @@
       "USB 3.x",
       "USB routing / switching",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -193732,7 +193220,6 @@
       "USB 3.x",
       "USB routing / switching",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -193766,7 +193253,6 @@
       "USB 3.x",
       "USB routing / switching",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -194278,13 +193764,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "1x HDBT out: 8-pin RJ45",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Additional 2ch analogue audio input for sending separate stereo audio to RX",
           "confidence": 0.94
         },
         {
@@ -195780,7 +195259,6 @@
       "USB 2.0",
       "USB routing / switching",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -195809,7 +195287,6 @@
       "USB 2.0",
       "USB routing / switching",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -195841,7 +195318,6 @@
       "USB 2.0",
       "USB routing / switching",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -195873,7 +195349,6 @@
       "USB 2.0",
       "USB routing / switching",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -195912,7 +195387,6 @@
       "USB 2.0",
       "USB routing / switching",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -196589,13 +196063,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "Ethernet",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
           "confidence": 0.94
         },
         {
@@ -199601,7 +199068,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -199628,7 +199094,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -199658,7 +199123,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -199686,7 +199150,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -199722,7 +199185,6 @@
       "USB routing / switching",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IP / web control",
       "IR control",
@@ -200332,13 +199794,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "Ethernet",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "PIR input allows automatic room triggering depending on occupancy",
           "confidence": 0.94
         },
         {
@@ -209592,7 +209047,6 @@
       "Signal extension endpoint",
       "HDR",
       "Analog audio",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -209611,7 +209065,6 @@
       "transmitter",
       "HDR",
       "Analog audio",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -209633,7 +209086,6 @@
       "transmitter",
       "HDR",
       "Analog audio",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -209653,7 +209105,6 @@
       "Extender / HDBaseT",
       "HDR",
       "Analog audio",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -209680,7 +209131,6 @@
       "transmitter",
       "HDR",
       "Analog audio",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -210127,13 +209577,6 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Front panel LED indication for HDCP presence and transmission link between devices",
-          "confidence": 0.94
-        },
-        {
           "id": "ir",
           "label": "IR control",
           "group": "Control",
@@ -210527,7 +209970,6 @@
       "USB 2.0",
       "USB routing / switching",
       "USB-C power delivery",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -210548,7 +209990,6 @@
       "USB 2.0",
       "USB routing / switching",
       "USB-C power delivery",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -210572,7 +210013,6 @@
       "USB 2.0",
       "USB routing / switching",
       "USB-C power delivery",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -210595,7 +210035,6 @@
       "USB 2.0",
       "USB routing / switching",
       "USB-C power delivery",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -210625,7 +210064,6 @@
       "USB 2.0",
       "USB routing / switching",
       "USB-C power delivery",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -211157,13 +210595,6 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Front panel LED indication for HDCP presence and transmission link between devices",
-          "confidence": 0.94
-        },
-        {
           "id": "ir",
           "label": "IR control",
           "group": "Control",
@@ -211557,7 +210988,6 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -211581,7 +211011,6 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -211608,7 +211037,6 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -211634,7 +211062,6 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -211667,7 +211094,6 @@
       "USB-C",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -212197,13 +211623,6 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
-          "confidence": 0.94
-        },
-        {
           "id": "ir",
           "label": "IR control",
           "group": "Control",
@@ -212600,7 +212019,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -212618,7 +212036,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -212639,7 +212056,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -212658,7 +212074,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -212685,7 +212100,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "IR control",
       "RS-232 control",
       "EDID management",
@@ -213208,13 +212622,6 @@
           "label": "Ethernet / LAN",
           "group": "Network",
           "evidence": "HDMI | HDCP 2.2 | EDID | 2-way PoH | Bidirectional IR, RS-232, and Ethernet",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "Visual LED indication for power supply, signal status to show display connection, HDCP in signal and Link between HDBaseT devices",
           "confidence": 0.94
         },
         {
@@ -217027,7 +216434,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -217048,7 +216454,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -217073,7 +216478,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -217095,7 +216499,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -217125,7 +216528,6 @@
       "DSP audio processing",
       "USB-C power delivery",
       "Ethernet / LAN",
-      "NDI",
       "CEC control",
       "IR control",
       "RS-232 control",
@@ -217524,13 +216926,6 @@
           "confidence": 0.94
         },
         {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
-          "confidence": 0.94
-        },
-        {
           "id": "cec",
           "label": "CEC control",
           "group": "Control",
@@ -217911,7 +217306,6 @@
       "USB 2.0",
       "USB 3.x",
       "USB-C",
-      "NDI",
       "IR control"
     ],
     "featureTags": [
@@ -217923,7 +217317,6 @@
       "USB 2.0",
       "USB 3.x",
       "USB-C",
-      "NDI",
       "IR control"
     ],
     "tags": [
@@ -217938,7 +217331,6 @@
       "USB 2.0",
       "USB 3.x",
       "USB-C",
-      "NDI",
       "IR control",
       "Optional room connectivity accessory"
     ],
@@ -217950,7 +217342,6 @@
       "USB 2.0",
       "USB 3.x",
       "USB-C",
-      "NDI",
       "IR control"
     ],
     "searchTerms": [
@@ -217969,7 +217360,6 @@
       "USB 2.0",
       "USB 3.x",
       "USB-C",
-      "NDI",
       "IR control",
       "Optional room connectivity accessory",
       "wingman-sales-language-v1",
@@ -218361,13 +217751,6 @@
           "label": "USB-C",
           "group": "USB",
           "evidence": "The USB-HUB4 is a simple add-on accessory for expanding USB connectivity of your devices. Pair this hub with a number of WyreStorm products to help build your full solution. Connect the hub to the CAB-UAOC-15 USB 3.0 extension cable to provide long distance transmission of high-speed USB 3.0. The USB-HUB4 is also a great companion to the Apollo line of unified communication solutions. Although simple, we’ve kept pro installations in mind by including a set of mounting brackets to easily install the hub under a desk or behind a display.",
-          "confidence": 0.94
-        },
-        {
-          "id": "ndi",
-          "label": "NDI",
-          "group": "Network",
-          "evidence": "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
           "confidence": 0.94
         },
         {
