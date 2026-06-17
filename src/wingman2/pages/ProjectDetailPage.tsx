@@ -33,6 +33,41 @@ function projectText(value: unknown, fallback = "Not captured") {
   return text || fallback;
 }
 
+function projectRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  return value as Record<string, unknown>;
+}
+
+function projectField(value: unknown, key: string, fallback = "") {
+  const record = projectRecord(value);
+
+  if (!record) {
+    return fallback;
+  }
+
+  return projectText(record[key], fallback);
+}
+
+function projectNumber(value: unknown, key: string) {
+  const record = projectRecord(value);
+  const rawValue = record?.[key];
+
+  if (typeof rawValue === "number" && Number.isFinite(rawValue)) {
+    return rawValue;
+  }
+
+  const parsedValue = Number(rawValue);
+
+  if (Number.isFinite(parsedValue)) {
+    return parsedValue;
+  }
+
+  return null;
+}
+
 function dedupeText(items: Array<string | undefined | null>) {
   return Array.from(
     new Set(
@@ -50,6 +85,15 @@ type ProjectEvidenceTimelineItem = {
   status: string;
   detail: string;
   timestamp: string;
+  route: string;
+};
+
+type ProjectReadinessGate = {
+  status: "Do not quote yet" | "Validate before proposal" | "Proposal-ready draft";
+  tone: "block" | "review" | "ready";
+  summary: string;
+  blockers: string[];
+  nextAction: string;
   route: string;
 };
 
@@ -274,6 +318,61 @@ export function ProjectDetailPage() {
     return items;
   }, [project, proposal, recommendationEvidence, selectedProducts]);
 
+  const projectReadinessGate = useMemo<ProjectReadinessGate>(() => {
+    const unknownRequirementCount = requirements.filter((requirement) => requirement.status === "unknown").length;
+    const reviewRequirementCount = requirements.filter((requirement) => requirement.status === "review").length;
+    const weakRequirementCount = unknownRequirementCount + reviewRequirementCount;
+    const evidenceCount = projectEvidenceTimeline.length;
+    const proposalScore = projectNumber(proposal, "readinessScore");
+    const quoteSafetyStatus = projectField(recommendationEvidence, "quoteSafetyStatus");
+    const productDirection = projectField(recommendationEvidence, "productDirection");
+    const hasDiscovery = Boolean(project?.discoveryBrief);
+    const hasProductDirection = Boolean(productDirection || selectedProducts.length);
+    const blockers = dedupeText([
+      ...missingInformation,
+      !hasDiscovery ? "Discovery brief is missing." : null,
+      !hasProductDirection ? "Product direction has not been saved." : null,
+      evidenceCount === 0 ? "No evidence has been saved against this project." : null,
+      weakRequirementCount > 0 ? `${weakRequirementCount} requirement${weakRequirementCount === 1 ? "" : "s"} still need confirmation or review.` : null,
+      quoteSafetyStatus === "do-not-quote" ? "Recommendation evidence is marked do not quote." : null,
+    ]);
+
+    if (blockers.length > 0) {
+      return {
+        status: "Do not quote yet",
+        tone: "block",
+        summary: "This project still has blockers. Keep it in discovery or technical review before sending a customer proposal.",
+        blockers,
+        nextAction: "Clear the blockers first. Start with Discovery, Finder, or Compare depending on what is missing.",
+        route: routeCatalogByKey.discovery.path,
+      };
+    }
+
+    if (quoteSafetyStatus === "validate-before-quote" || reviewRequirementCount > 0 || (proposalScore !== null && proposalScore < 80)) {
+      return {
+        status: "Validate before proposal",
+        tone: "review",
+        summary: "The project has enough structure to prepare a draft, but it still needs technical or commercial validation before it is customer-safe.",
+        blockers: dedupeText([
+          quoteSafetyStatus === "validate-before-quote" ? "Recommendation evidence asks for validation before quote." : null,
+          reviewRequirementCount > 0 ? `${reviewRequirementCount} requirement${reviewRequirementCount === 1 ? "" : "s"} are marked for review.` : null,
+          proposalScore !== null && proposalScore < 80 ? `Proposal readiness score is ${proposalScore}%.` : null,
+        ]),
+        nextAction: "Open Proposal to draft the response, then validate the system shape, dependencies, and customer assumptions before sending.",
+        route: routeCatalogByKey.proposal.path,
+      };
+    }
+
+    return {
+      status: "Proposal-ready draft",
+      tone: "ready",
+      summary: "The project has a usable discovery record, product direction, and no current missing-information blockers.",
+      blockers: [],
+      nextAction: "Open Proposal or Visual Studio to turn the project record into customer-facing output.",
+      route: routeCatalogByKey.proposal.path,
+    };
+  }, [missingInformation, project, projectEvidenceTimeline.length, proposal, recommendationEvidence, requirements, selectedProducts.length]);
+
   useEffect(() => {
     setRequirements(initialRequirements);
     setMessage("");
@@ -457,6 +556,49 @@ export function ProjectDetailPage() {
                 </Link>
               </div>
             </div>
+          </div>
+        </SectionCard>
+
+        <SectionCard
+          title="Proposal readiness gate"
+          subtitle="Use this as the commercial safety check before turning the project into a customer proposal or quote request."
+        >
+          <div
+            className={
+              projectReadinessGate.tone === "ready"
+                ? "rounded-2xl border border-emerald-300 bg-emerald-950/30 p-5"
+                : projectReadinessGate.tone === "review"
+                  ? "rounded-2xl border border-amber-300 bg-amber-950/30 p-5"
+                  : "rounded-2xl border border-rose-300 bg-rose-950/30 p-5"
+            }
+          >
+            <div className="grid gap-4 lg:grid-cols-[240px_1fr_220px]">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">Current status</p>
+                <p className="mt-2 text-2xl font-black text-[#edf6ff]">{projectReadinessGate.status}</p>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-[#edf6ff]">{projectReadinessGate.summary}</p>
+                <p className="mt-2 text-sm leading-6 text-[#cfe6f7]">{projectReadinessGate.nextAction}</p>
+              </div>
+              <Link
+                to={projectReadinessGate.route}
+                className="inline-flex items-center justify-center rounded-full bg-slate-950 px-5 py-3 text-sm font-black text-white"
+              >
+                Open next workflow
+              </Link>
+            </div>
+
+            {projectReadinessGate.blockers.length > 0 && (
+              <div className="mt-5 grid gap-2">
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">Blockers / checks</p>
+                {projectReadinessGate.blockers.slice(0, 8).map((blocker) => (
+                  <p key={blocker} className="rounded-xl border border-white/10 bg-slate-950/50 p-3 text-sm leading-6 text-[#edf6ff]">
+                    {blocker}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
         </SectionCard>
 
