@@ -29374,3 +29374,80 @@ html[data-wingman-route] .wm-vs-list li + li {
 }
 /* === Wingman Visual Studio compact layout repair end === */
 
+/* === Wingman Visual Studio readable flow scale start === */
+/*
+  Final Visual Studio canvas readability:
+  the page shell is now correct, but the flow was still scaling the nodes too small.
+  This keeps the diagram legible and removes the minimap from the limited canvas area.
+*/
+
+html[data-wingman-route] .wm-vs-seed-note {
+  margin-top: 8px !important;
+  color: #67e8f9 !important;
+  font-size: 0.76rem !important;
+  font-weight: 900 !important;
+}
+
+html[data-wingman-route] .wm-vs-canvas {
+  min-height: 560px !important;
+  height: clamp(560px, 62vh, 790px) !important;
+}
+
+html[data-wingman-route] .wm-vs-canvas .react-flow__minimap {
+  display: none !important;
+}
+
+html[data-wingman-route] .wm-vs-canvas .react-flow__controls {
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.26) !important;
+}
+
+html[data-wingman-route] .wm-vs-canvas .react-flow__attribution {
+  display: none !important;
+}
+
+html[data-wingman-route] .wm-vs-flow-node {
+  width: 190px !important;
+  min-width: 190px !important;
+  max-width: 190px !important;
+  padding: 10px 12px !important;
+}
+
+html[data-wingman-route] .wm-vs-node-kicker {
+  font-size: 0.62rem !important;
+}
+
+html[data-wingman-route] .wm-vs-node-title {
+  font-size: 0.86rem !important;
+  line-height: 1.15 !important;
+}
+
+html[data-wingman-route] .wm-vs-node-subtitle {
+  font-size: 0.68rem !important;
+  line-height: 1.22 !important;
+}
+
+html[data-wingman-route] .wm-vs-edge-normal,
+html[data-wingman-route] .wm-vs-edge-risk,
+html[data-wingman-route] .wm-vs-edge-missing {
+  stroke-width: 2.2px !important;
+}
+
+@media (max-width: 1400px) {
+  html[data-wingman-route] .wm-vs-flow-node {
+    width: 176px !important;
+    min-width: 176px !important;
+    max-width: 176px !important;
+  }
+
+  html[data-wingman-route] .wm-vs-node-title {
+    font-size: 0.8rem !important;
+  }
+
+  html[data-wingman-route] .wm-vs-node-subtitle {
+    font-size: 0.64rem !important;
+  }
+}
+/* === Wingman Visual Studio readable flow scale end === */
+

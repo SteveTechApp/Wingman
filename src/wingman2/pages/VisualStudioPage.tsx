@@ -1,15 +1,69 @@
-import { useMemo, useState } from "react";
+﻿import { useMemo, useState } from "react";
 import VisualStudioCanvas from "../components/VisualStudioCanvas";
 import { getVisualDiagramById, visualStudioDiagrams } from "../lib/visualStudioSamples";
-import type { VisualDiagramMode } from "../lib/visualStudioTypes";
+import type { VisualDiagramMode, VisualDiagramModel } from "../lib/visualStudioTypes";
+
+function readVisualStudioSearchParams(): URLSearchParams {
+  if (typeof window === "undefined") {
+    return new URLSearchParams();
+  }
+
+  return new URLSearchParams(window.location.search);
+}
+
+function readSeedSku(): string {
+  const searchParams = readVisualStudioSearchParams();
+  return (searchParams.get("seedSku") || searchParams.get("sku") || "").trim().toUpperCase();
+}
+
+function getInitialVisualStudioDiagramId(): string {
+  const searchParams = readVisualStudioSearchParams();
+  const seedSku = readSeedSku();
+  const source = (searchParams.get("source") || "").trim().toLowerCase();
+
+  if (seedSku || source === "product-discussion") {
+    return getVisualDiagramById("product-port-view") ? "product-port-view" : visualStudioDiagrams[0].id;
+  }
+
+  return visualStudioDiagrams[0].id;
+}
+
+function replaceSeedProductNode(model: VisualDiagramModel, seedSku: string): VisualDiagramModel {
+  if (!seedSku || model.id !== "product-port-view") {
+    return model;
+  }
+
+  return {
+    ...model,
+    title: `${seedSku} Product Connection / Port Ownership View`,
+    customerSummary: `A simple view showing what connects into ${seedSku}, what comes out, and what still needs confirming before quote.`,
+    technicalSummary: `Shows likely input, output, USB, network, audio and control ownership checks around ${seedSku}. Port claims still need datasheet validation.`,
+    assumptions: [
+      `The selected product is ${seedSku}.`,
+      ...model.assumptions,
+    ],
+    nodes: model.nodes.map((node) => {
+      if (node.id !== "device") {
+        return node;
+      }
+
+      return {
+        ...node,
+        label: seedSku,
+        subtitle: "Selected WyreStorm product / port map",
+      };
+    }),
+  };
+}
 
 export default function VisualStudioPage() {
-  const [selectedDiagramId, setSelectedDiagramId] = useState(visualStudioDiagrams[0].id);
+  const seedSku = useMemo(() => readSeedSku(), []);
+  const [selectedDiagramId, setSelectedDiagramId] = useState(() => getInitialVisualStudioDiagramId());
   const [mode, setMode] = useState<VisualDiagramMode>("technical");
 
   const selectedDiagram = useMemo(() => {
-    return getVisualDiagramById(selectedDiagramId);
-  }, [selectedDiagramId]);
+    return replaceSeedProductNode(getVisualDiagramById(selectedDiagramId), seedSku);
+  }, [selectedDiagramId, seedSku]);
 
   return (
     <main className="wm-vs-page">
@@ -22,6 +76,7 @@ export default function VisualStudioPage() {
             This first pass uses Wingman-ready AV scenarios and is designed to connect later to
             Discovery, Finder, Product Pitch and Proposal data.
           </p>
+          {seedSku ? <p className="wm-vs-seed-note">Seed product: {seedSku}</p> : null}
         </div>
 
         <div className="wm-vs-header-card">
