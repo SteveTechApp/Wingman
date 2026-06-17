@@ -41,3 +41,29 @@ describe("Compare candidate product-family ranking reason", () => {
     expect(reason.textContent).toContain("Meeting-room workflow");
   });
 });
+
+describe("Compare candidate product-family ranking reason guard", () => {
+  it("keeps the ranking reason hidden when score context is empty or does not match", () => {
+    const { rerender } = render(
+      <CompareCandidateShortlist candidates={candidates} productFamilyScores={[]} />,
+    );
+
+    expect(screen.queryByTestId("compare-product-family-ranking-reason")).toBeNull();
+
+    rerender(
+      <CompareCandidateShortlist
+        candidates={candidates}
+        productFamilyScores={[
+          {
+            family: "NetworkHD 500",
+            score: 94,
+            reasons: ["Distributed AV-over-IP path"],
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.queryByTestId("compare-product-family-ranking-reason")).toBeNull();
+  });
+});
+
