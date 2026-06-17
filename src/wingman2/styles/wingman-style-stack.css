@@ -28961,3 +28961,91 @@ button.wingman-guru-fab[data-open="true"],
 }
 /* === Wingman CSS-rendered Guru launcher end === */
 
+/* === Wingman global workspace left align start === */
+/*
+  Global workspace alignment:
+  previous dashboard-only repair fixed the home page, but other routes such as
+  Call Coach still inherit a large left offset. The sidebar should reserve its
+  width once; the workspace should begin immediately after it.
+*/
+
+html[data-wingman-route] #root > .wingman-shell,
+html[data-wingman-route] #root > .wingman-shell.wingman-authority-shell,
+html[data-wingman-route] .wingman-shell.wingman-authority-shell {
+  display: flex !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  gap: 0 !important;
+}
+
+html[data-wingman-route] .wingman-sidebar {
+  flex: 0 0 var(--wm-sidebar-width, 268px) !important;
+  width: var(--wm-sidebar-width, 268px) !important;
+  min-width: var(--wm-sidebar-width, 268px) !important;
+  max-width: var(--wm-sidebar-width, 268px) !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+html[data-wingman-route] .wingman-workspace {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 14px !important;
+  padding-right: 14px !important;
+  transform: none !important;
+  left: auto !important;
+}
+
+html[data-wingman-route] .wingman-app-main,
+html[data-wingman-route] .wingman-page-host,
+html[data-wingman-route] main.wingman-app-main {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  transform: none !important;
+}
+
+html[data-wingman-route] .wingman-app-main > *,
+html[data-wingman-route] .wingman-page-host > *,
+html[data-wingman-route] main.wingman-app-main > * {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Stop route pages from retaining a centred 1920px canvas offset. */
+html[data-wingman-route] .dashboard-page,
+html[data-wingman-route] .finder-page,
+html[data-wingman-route] .product-pitch-page,
+html[data-wingman-route] .visual-design-page,
+html[data-wingman-route] .visual-design-studio-page,
+html[data-wingman-route] .compare-page,
+html[data-wingman-route] .project-detail-page,
+html[data-wingman-route] .proposal-page,
+html[data-wingman-route] .product-call-cards-page,
+html[data-wingman-route] .template-review-page,
+html[data-wingman-route] .call-coach-page,
+html[data-wingman-route] .call-cards-page,
+html[data-wingman-route] .sales-helper-page,
+html[data-wingman-route] .wingman-page,
+html[data-wingman-route] .wm-page,
+html[data-wingman-route] .wingman-page-shell,
+html[data-wingman-route] .wm-page-shell,
+html[data-wingman-route] .wingman-page-content,
+html[data-wingman-route] .wm-page-content {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  transform: none !important;
+}
+/* === Wingman global workspace left align end === */
+
