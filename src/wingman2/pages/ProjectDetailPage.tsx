@@ -43,6 +43,32 @@ function dedupeText(items: Array<string | undefined | null>) {
   );
 }
 
+type ProjectEvidenceTimelineItem = {
+  id: string;
+  label: string;
+  source: string;
+  status: string;
+  detail: string;
+  timestamp: string;
+  route: string;
+};
+
+function formatProjectTimestamp(value: unknown) {
+  const text = String(value ?? "").trim();
+  if (!text) return "Not timestamped";
+
+  const date = new Date(text);
+  if (Number.isNaN(date.getTime())) return text;
+
+  return date.toLocaleString(undefined, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export function ProjectDetailPage() {
   const { projectId } = useParams();
   const { projects, syncStatus } = useProjectStore();
@@ -134,6 +160,119 @@ export function ProjectDetailPage() {
       },
     ];
   }, [latestCompareRun, project, proposal, recommendationEvidence]);
+
+  const projectEvidenceTimeline = useMemo<ProjectEvidenceTimelineItem[]>(() => {
+    if (!project) return [];
+
+    const items: ProjectEvidenceTimelineItem[] = [];
+
+    if (project.discoveryBrief) {
+      items.push({
+        id: "discovery-brief",
+        label: "Discovery brief",
+        source: "Discovery",
+        status:
+          typeof project.discoveryBrief.capturedPercent === "number"
+            ? `${project.discoveryBrief.capturedPercent}% captured`
+            : "Captured",
+        detail:
+          project.discoveryBrief.nextBestQuestion ||
+          project.discoveryBrief.missingInformation?.[0] ||
+          "Discovery information exists for this opportunity.",
+        timestamp: formatProjectTimestamp(project.discoveryBrief.savedAt),
+        route: routeCatalogByKey.discovery.path,
+      });
+    }
+
+    if (recommendationEvidence) {
+      items.push({
+        id: "recommendation-evidence",
+        label: "Recommendation evidence",
+        source: recommendationEvidence.source,
+        status:
+          recommendationEvidence.quoteSafetyStatus === "quote-ready"
+            ? "Quote-ready draft"
+            : recommendationEvidence.quoteSafetyStatus === "validate-before-quote"
+              ? "Validate before quote"
+              : "Do not quote yet",
+        detail:
+          recommendationEvidence.productDirection ||
+          recommendationEvidence.nextBestQuestion ||
+          "Recommendation evidence exists but needs review.",
+        timestamp: formatProjectTimestamp(recommendationEvidence.updatedAt),
+        route: routeCatalogByKey.finder.path,
+      });
+    }
+
+    selectedProducts.forEach((product, index) => {
+      items.push({
+        id: `product-${product.sku}-${index}`,
+        label: product.sku,
+        source: product.source || "Product selection",
+        status: product.status === "recommended" ? "Recommended" : product.status || "Selected",
+        detail: projectText(product.title || product.family || product.category, "Product direction saved to project."),
+        timestamp: formatProjectTimestamp(product.addedAt),
+        route: routeCatalogByKey.productPitch.path,
+      });
+    });
+
+    (project.compareRuns ?? []).slice(0, 4).forEach((compareRun, index) => {
+      items.push({
+        id: compareRun.id || `compare-${index}`,
+        label: projectText(
+          [compareRun.competitorBrand, compareRun.competitorSku || compareRun.competitorName]
+            .filter(Boolean)
+            .join(" "),
+          "Competitor comparison",
+        ),
+        source: compareRun.source || "Compare",
+        status: compareRun.confidence || compareRun.matchType || "Comparison saved",
+        detail:
+          compareRun.summary ||
+          compareRun.evidence?.[0] ||
+          compareRun.warnings?.[0] ||
+          "Comparison evidence saved to project.",
+        timestamp: formatProjectTimestamp(compareRun.createdAt),
+        route: routeCatalogByKey.compare.path,
+      });
+    });
+
+    if (project.ingest) {
+      items.push({
+        id: "ingest-analysis",
+        label: "Document ingest",
+        source: "Documents",
+        status: `${project.ingest.files.length} file${project.ingest.files.length === 1 ? "" : "s"} analysed`,
+        detail:
+          project.ingest.requirements[0] ||
+          project.ingest.unknowns[0] ||
+          "Document analysis has been saved to this project.",
+        timestamp: formatProjectTimestamp(project.ingest.updatedAt),
+        route: routeCatalogByKey.ingest.path,
+      });
+    }
+
+    if (proposal) {
+      items.push({
+        id: "proposal-draft",
+        label: proposal.title,
+        source: "Proposal",
+        status:
+          typeof proposal.readinessScore === "number"
+            ? `${proposal.readinessScore}% ready`
+            : "Draft saved",
+        detail:
+          proposal.outputPurpose?.nextAction ||
+          proposal.summary ||
+          proposal.governanceWarnings?.[0] ||
+          "Proposal draft exists for this project.",
+        timestamp: formatProjectTimestamp(proposal.updatedAt),
+        route: routeCatalogByKey.proposal.path,
+      });
+    }
+
+    return items;
+  }, [project, proposal, recommendationEvidence, selectedProducts]);
 
   useEffect(() => {
     setRequirements(initialRequirements);
@@ -319,6 +458,38 @@ export function ProjectDetailPage() {
               </div>
             </div>
           </div>
+        </SectionCard>
+
+        <SectionCard
+          title="Project evidence trace"
+          subtitle="Trace what Wingman has actually captured, where it came from, what it proves, and which workflow should be opened next."
+        >
+          {projectEvidenceTimeline.length ? (
+            <div className="grid gap-3">
+              {projectEvidenceTimeline.map((item) => (
+                <div key={item.id} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
+                  <div className="grid gap-3 lg:grid-cols-[180px_1fr_180px_140px]">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{item.source}</p>
+                      <p className="mt-2 font-black text-[#edf6ff]">{item.label}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-[#edf6ff]">{item.status}</p>
+                      <p className="mt-1 text-sm leading-6 text-[#cfe6f7]">{item.detail}</p>
+                    </div>
+                    <p className="text-sm text-[#cfe6f7]">{item.timestamp}</p>
+                    <Link to={item.route} className="inline-flex items-center justify-center rounded-full border border-[#29465e] bg-[#10283e] px-4 py-2 text-sm font-semibold text-[#edf6ff]">
+                      Open
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-amber-300 bg-amber-950/30 p-4 text-amber-100">
+              No saved discovery, product, compare, ingest, or proposal evidence is attached to this project yet. Start with Discovery or Finder before treating this opportunity as ready for proposal.
+            </div>
+          )}
         </SectionCard>
 
         <SectionCard
