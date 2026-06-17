@@ -88,6 +88,7 @@ export type StoredProjectProposal = {
   summary: string;
   sections: string[];
   products: StoredProductSelection[];
+  productFamilyScores?: StoredProductFamilyScore[];
   assumptions: string[];
   outputPurpose?: StoredProposalOutputPurpose;
   governedDependencies?: StoredGovernedDependency[];
