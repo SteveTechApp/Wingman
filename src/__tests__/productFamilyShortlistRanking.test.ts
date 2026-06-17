@@ -1,6 +1,6 @@
 ﻿import { describe, expect, it } from "vitest";
 
-import { rankProductsByFamilyScores, scoreProductForFamilyPath } from "../wingman2/lib/productFamilyShortlistRanking";
+import { rankProductsByFamilyScores, scoreProductForFamilyPath , getProductFamilyRankingReason} from "../wingman2/lib/productFamilyShortlistRanking";
 
 describe("product-family shortlist ranking", () => {
   it("moves NetworkHD products ahead when NetworkHD has the strongest family score", () => {
@@ -151,6 +151,31 @@ describe("product-family path ordering scenarios", () => {
     ]);
 
     expect(matrixPath[0]?.sku).toBe("MX-0808-KIT");
+  });
+});
+
+describe("product-family ranking explanation", () => {
+  it("explains which family score moved a product upward", () => {
+    const reason = getProductFamilyRankingReason(
+      {
+        sku: "SW-640-TX-W",
+        title: "Wireless presentation switcher",
+        family: "Presentation / UC",
+        category: "Presentation switcher",
+        technology: "USB-C wireless presentation BYOD",
+      },
+      [
+        {
+          family: "Presentation / UC",
+          score: 91,
+          reasons: ["Meeting-room workflow", "BYOD presentation"],
+        },
+      ],
+    );
+
+    expect(reason).toContain("Presentation / UC");
+    expect(reason).toContain("91");
+    expect(reason).toContain("Meeting-room workflow");
   });
 });
 

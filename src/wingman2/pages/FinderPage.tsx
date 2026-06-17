@@ -29,7 +29,7 @@ import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 import { discoveryBriefToFinderNeed, readLatestDiscoveryBrief } from "../data/workflowHandoff";
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
-import { rankProductsByFamilyScores } from "../lib/productFamilyShortlistRanking";
+import { getProductFamilyRankingReason, rankProductsByFamilyScores } from "../lib/productFamilyShortlistRanking";
 
 type MatchStatus = "recommended" | "alternative" | "caution";
 type ProductVoiceId = "endUser" | "systemIntegrator" | "consultant";
@@ -2788,6 +2788,16 @@ export function FinderPage() {
     [matches, finderProductFamilyScores],
   );
 
+  const topFinderRankingReason = useMemo(() => {
+    const leadingMatch = rankedMatches[0];
+if (!leadingMatch) {
+      return "";
+    }
+
+    return getProductFamilyRankingReason(leadingMatch, finderProductFamilyScores);
+  }, [finderProductFamilyScores, rankedMatches]);
+
+
 
   const finderCoach = useMemo(
     () =>
@@ -3230,6 +3240,11 @@ export function FinderPage() {
 
                   <div className="grid gap-4">
                     <main className="wm-finder-results-panel grid content-start gap-3">
+                      {topFinderRankingReason ? (
+                        <div className="finder-family-ranking-note" data-testid="finder-product-family-ranking-reason">
+                          Why this is first: {topFinderRankingReason}
+                        </div>
+                      ) : null}
                       {!hasIntent ? (
                         <div className="grid min-h-[220px] place-items-center rounded-2xl border border-dashed border-[#29465e] bg-[#0d2133] p-6 text-center">
                           <div className="max-w-xl">
@@ -3240,7 +3255,9 @@ export function FinderPage() {
                             </p>
                           </div>
                         </div>
-                      ) : rankedMatches.length ? (
+                      ) :       
+
+rankedMatches.length ? (
                         rankedMatches.map((match, index) => {
                           const resultKey = `${match.sku}-${index}`;
                           const isExpanded = expandedResultKey === resultKey;
