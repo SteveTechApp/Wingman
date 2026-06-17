@@ -2148,7 +2148,7 @@ return (
                   params.set("seedSku", selectedProduct.sku);
                   params.set("source", "product-discussion");
 
-                  goTo(`/wingman/visual-design-studio?${params.toString()}`);
+                  goTo(`/wingman/visual-studio?${params.toString()}`);
                 }}
               >
                 Visualise in Studio
