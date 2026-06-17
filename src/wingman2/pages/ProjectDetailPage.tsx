@@ -141,6 +141,11 @@ export function ProjectDetailPage() {
   );
 
   const selectedProducts = useMemo(() => project?.productSelections ?? [], [project?.productSelections]);
+  const productFamilyScores = useMemo(
+    () => recommendationEvidence?.productFamilyScores ?? [],
+    [recommendationEvidence],
+  );
+  const leadingProductFamilyScore = productFamilyScores[0] ?? null;
   const latestCompareRun = project?.compareRuns?.[0] ?? null;
   const proposal = project?.proposal ?? null;
 
@@ -512,6 +517,58 @@ export function ProjectDetailPage() {
             ))}
           </div>
 
+          {leadingProductFamilyScore ? (
+            <div className="mt-5 rounded-2xl border border-cyan-300/70 bg-[#0b2638] p-5 shadow-sm">
+              <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-200">Product-family decision</p>
+                  <p className="mt-2 text-2xl font-black text-[#edf6ff]">{leadingProductFamilyScore.family}</p>
+                  <p className="mt-1 text-sm font-semibold text-[#9ffcf4]">{leadingProductFamilyScore.score}/100 confidence</p>
+                </div>
+                <div className="grid gap-3 lg:grid-cols-2">
+                  <div className="rounded-2xl border border-[#29465e] bg-[#10283e] p-4">
+                    <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">Why this family is leading</p>
+                    <div className="mt-3 grid gap-2 text-sm leading-6 text-[#cfe6f7]">
+                      {leadingProductFamilyScore.reasons.slice(0, 3).map((reason) => (
+                        <p key={reason} className="rounded-xl border border-cyan-300/20 bg-cyan-950/30 p-3">
+                          {reason}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-[#29465e] bg-[#10283e] p-4">
+                    <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">Checks before SKU selection</p>
+                    <div className="mt-3 grid gap-2 text-sm leading-6 text-[#cfe6f7]">
+                      {leadingProductFamilyScore.cautions.length ? (
+                        leadingProductFamilyScore.cautions.slice(0, 3).map((caution) => (
+                          <p key={caution} className="rounded-xl border border-amber-300/30 bg-amber-950/30 p-3 text-amber-100">
+                            {caution}
+                          </p>
+                        ))
+                      ) : (
+                        <p className="rounded-xl border border-emerald-300/30 bg-emerald-950/30 p-3 text-emerald-100">
+                          No family-level cautions captured. Continue to datasheet, dependency, regional and stock validation.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {productFamilyScores.length > 1 ? (
+                <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                  {productFamilyScores.slice(1, 5).map((score) => (
+                    <div key={score.family} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
+                      <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{score.family}</p>
+                      <p className="mt-2 text-xl font-black text-[#edf6ff]">{score.score}/100</p>
+                      <p className="mt-2 text-xs leading-5 text-[#cfe6f7]">{score.reasons[0] || "Alternative family path retained for review."}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
           <div className="mt-5 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
             <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
               <p className="text-sm font-black text-[#edf6ff]">Missing information / review blockers</p>
@@ -701,6 +758,25 @@ export function ProjectDetailPage() {
                 <p className="mt-2 text-xs leading-5">{recommendationEvidence.nextBestQuestion}</p>
               </div>
             ) : null}
+
+            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
+              <p className="text-sm font-black text-[#edf6ff]">Product-family scores</p>
+              <div className="mt-3 space-y-2 text-sm text-[#cfe6f7]">
+                {productFamilyScores.length ? (
+                  productFamilyScores.slice(0, 4).map((score) => (
+                    <div key={score.family} className="rounded-xl border border-[#29465e] bg-[#10283e] p-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-black text-[#edf6ff]">{score.family}</span>
+                        <span className="rounded-full border border-cyan-300/50 px-2 py-1 text-xs font-black text-[#9ffcf4]">{score.score}/100</span>
+                      </div>
+                      <p className="mt-2 text-xs leading-5">{score.reasons[0] || "Family retained for review."}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p>No product-family score has been stored yet. Rebuild recommendation evidence from Finder or Discovery.</p>
+                )}
+              </div>
+            </div>
 
             <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
               <p className="text-sm font-black text-[#edf6ff]">Selected products</p>
