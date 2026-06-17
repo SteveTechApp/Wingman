@@ -29,6 +29,7 @@ import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 import { discoveryBriefToFinderNeed, readLatestDiscoveryBrief } from "../data/workflowHandoff";
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
+import { rankProductsByFamilyScores } from "../lib/productFamilyShortlistRanking";
 
 type MatchStatus = "recommended" | "alternative" | "caution";
 type ProductVoiceId = "endUser" | "systemIntegrator" | "consultant";
@@ -2758,6 +2759,8 @@ export function FinderPage() {
       .slice(0, hasPointToPointOneInOneOutNeed(need) ? 4 : 8);
   }, [hasIntent, need, products]);
 
+  
+  
   const bestMatch = matches[0] ?? null;
 
   const activeProject = useMemo(
@@ -2768,6 +2771,23 @@ export function FinderPage() {
     () => projects.find((project) => project.id === activeProjectId),
     [activeProjectId, projects],
   );
+
+  const finderProductFamilyScores = useMemo(
+    () =>
+      activeProject?.recommendationEvidence?.productFamilyScores ??
+      workflowProject?.recommendationEvidence?.productFamilyScores ??
+      [],
+    [
+      activeProject?.recommendationEvidence?.productFamilyScores,
+      workflowProject?.recommendationEvidence?.productFamilyScores,
+    ],
+  );
+
+  const rankedMatches = useMemo(
+    () => rankProductsByFamilyScores(matches, finderProductFamilyScores),
+    [matches, finderProductFamilyScores],
+  );
+
 
   const finderCoach = useMemo(
     () =>
@@ -3197,7 +3217,7 @@ export function FinderPage() {
                     <div>
                       <p className="text-sm font-black text-white">Product results</p>
                       <p className="mt-1 text-xs leading-5 text-white/55">
-                        {hasIntent ? `${matches.length} matching product${matches.length === 1 ? "" : "s"} from the current Finder need.` : "Add a starting requirement to generate recommendations."}
+                        {hasIntent ? `${rankedMatches.length} matching product${rankedMatches.length === 1 ? "" : "s"} from the current Finder need.` : "Add a starting requirement to generate recommendations."}
                       </p>
                     </div>
 
@@ -3220,8 +3240,8 @@ export function FinderPage() {
                             </p>
                           </div>
                         </div>
-                      ) : matches.length ? (
-                        matches.map((match, index) => {
+                      ) : rankedMatches.length ? (
+                        rankedMatches.map((match, index) => {
                           const resultKey = `${match.sku}-${index}`;
                           const isExpanded = expandedResultKey === resultKey;
                           const reasonLines = getReasonLines(match, need);
