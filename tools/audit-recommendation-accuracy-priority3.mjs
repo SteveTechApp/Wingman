@@ -409,7 +409,7 @@ console.log("");
 console.log("## Priority 3 conclusion");
 
 if (weakAreas.length === 0 && partialAreas.length === 0 && missingExpectedEvidence.length === 0) {
-  console.log("The recommendation layer has structured architecture logic, scenario regression coverage, product-family scoring, structured score storage, project/proposal surfacing evidence, score-aware proposal/Finder ranking, scenario coverage proving family-path changes reorder SKUs, a visible Finder reason for the leading product, rendered Finder-flow coverage, and a Project Detail command-card reason for selected products.");
+  console.log("The recommendation layer has structured architecture logic, scenario regression coverage, product-family scoring, structured score storage, project/proposal surfacing evidence, score-aware proposal/Finder ranking, scenario coverage proving family-path changes reorder SKUs, a visible Finder reason for the leading product, rendered Finder-flow coverage, a Project Detail command-card reason for selected products, and rendered coverage for that Project Detail reason card.");
 }
 
 if (weakAreas.length > 0) {
@@ -435,7 +435,7 @@ if (missingExpectedEvidence.length > 0) {
 
 console.log("");
 console.log("Recommended next engineering step:");
-console.log("Add rendered coverage for the Project Detail ranking-reason card, then consider exposing the same reason in Compare candidate cards where product-family evidence exists.");
+console.log("Review Compare candidate cards for product-family evidence availability, then expose ranking reasons there only where the card has a valid product-family score context.");
 
 if (totalPercent < 70 || missingExpectedEvidence.length > 0) {
   process.exitCode = 1;
