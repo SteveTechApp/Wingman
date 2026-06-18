@@ -252,11 +252,11 @@ export function productText(product: ProductSpec) {
 export function inferProductRole(product: ProductSpec): ProductRole {
   const text = productText(product);
 
-  if (text.includes("ptz") || text.includes("camera") || text.includes("ndi")) return "camera";
-  if (text.includes("amplifier") || text.includes("dante") || text.includes("dsp") || text.includes("speaker")) return "audio";
   if (text.includes("multiview") || text.includes("multi-view") || text.includes("quad")) return "multiview";
   if (text.includes("video wall") || text.includes("videowall") || text.includes("led wall")) return "videoWall";
-  if (text.includes("networkhd") || text.includes("avoip") || text.includes("av over ip") || text.includes("encoder") || text.includes("decoder")) return "avoip";
+  if (text.includes("amplifier") || text.includes("dante") || text.includes("dsp") || text.includes("speaker")) return "audio";
+  if (/^nhd-/i.test(product.sku) || text.includes("networkhd") || text.includes("avoip") || text.includes("av over ip") || text.includes("encoder") || text.includes("decoder")) return "avoip";
+  if (/^cam-/i.test(product.sku) || text.includes("ptz") || text.includes("camera bridge") || text.includes("camera")) return "camera";
   if (text.includes("matrix")) return "matrix";
   if (text.includes("presentation") || text.includes("usb-c") || text.includes("byod") || text.includes("byom")) return "presentation";
   if (text.includes("hdbaset") || text.includes("extender") || text.includes("transmitter") || text.includes("receiver")) return "extension";
@@ -308,6 +308,11 @@ function endpointRole(sku: string): "encoder" | "decoder" | "transceiver" | null
   return null;
 }
 
+function isCameraBridgeProduct(product: ProductSpec): boolean {
+  const text = `${product.sku} ${product.name} ${product.productType} ${product.description}`.toLowerCase();
+  return /\bbrg\b/.test(text) || text.includes("camera bridge") || text.includes("multi-camera video bridge");
+}
+
 function productKind(product: ProductSpec, role: ProductRole): string {
   const endpoint = endpointRole(product.sku);
 
@@ -337,7 +342,15 @@ function productKind(product: ProductSpec, role: ProductRole): string {
       if (endpoint === "transceiver") return "AV-over-IP transceiver (transmit or receive)";
       return "NetworkHD AV-over-IP endpoint";
     case "camera":
-      return /\bndi\b/i.test(productText(product)) ? "NDI-capable PTZ conference camera" : "PTZ conference camera";
+      if (isCameraBridgeProduct(product)) {
+        return /\bndi\b/i.test(productText(product))
+          ? "multi-camera bridge with USB, HDMI and NDI workflow support"
+          : "multi-camera bridge for USB and HDMI workflow integration";
+      }
+      if (/\bptz\b/i.test(productText(product))) {
+        return /\bndi\b/i.test(productText(product)) ? "NDI-capable PTZ camera" : "PTZ conference camera";
+      }
+      return /\bndi\b/i.test(productText(product)) ? "NDI-capable room camera" : "room camera";
     case "matrix":
       return "HDMI / HDBaseT matrix switcher";
     case "multiview":
@@ -608,21 +621,23 @@ function articleFor(kind: string): string {
   return /^(av\b|ndi|hdmi|hdbaset|8|[aeiou])/i.test(kind) ? "an" : "a";
 }
 
+function isPlaceholderText(value: string): boolean {
+  return /not yet|to be|confirm|classified|unknown|tbd|n\/a/i.test(value);
+}
+
 function skuWhatItIs(product: ProductSpec, role: ProductRole): string {
   const kind = productKind(product, role);
   const feats = headlineFeatures(product, 5);
   const featureClause = feats.length ? ` Headline capability: ${feats.join(", ")}.` : "";
   const application = firstMeaningful(product.applications, "");
   const applicationClause =
-    application && !/not yet|to be|confirm/i.test(application)
-      ? ` It is typically used in ${application.toLowerCase()}.`
-      : "";
+    application && !isPlaceholderText(application) ? ` It is typically used in ${application.toLowerCase()}.` : "";
   const connections = connectionList(product, 5);
   const connectionClause = connections.length ? ` It connects via ${connections.join(", ")}.` : "";
   const breadthClause =
     functionBreadth(product) === "multi"
-      ? " This is a multi-function endpoint - it carries video plus USB, audio and control together rather than doing one job."
-      : " It is a focused, single-purpose device.";
+      ? " It combines several workflow roles, so the real check is how video, USB, audio and control need to move through the room together."
+      : " It plays a defined role in the signal path, so the useful sales conversation is what connects on each side and what problem it removes from the design.";
 
   return `${product.sku} (${product.name}) is ${articleFor(kind)} ${kind}.${featureClause}${applicationClause}${connectionClause}${breadthClause}`;
 }
@@ -630,10 +645,12 @@ function skuWhatItIs(product: ProductSpec, role: ProductRole): string {
 function skuSuggestedWording(product: ProductSpec, role: ProductRole, fallback: string): string {
   const kind = productKind(product, role);
   const feats = headlineFeatures(product, 3);
-  const application = firstMeaningful(product.applications, "this kind of room or system").toLowerCase();
-  const lead = feats.length ? `, leading with ${feats.slice(0, 3).join(", ")}` : "";
+  const application = firstMeaningful(product.applications, "");
+  const applicationClause =
+    application && !isPlaceholderText(application) ? ` for ${application.toLowerCase()}` : "";
+  const featureClause = feats.length > 0 ? ` The practical hooks are ${feats.slice(0, 3).join(", ")}.` : "";
   const family = familyRelationship(product, role);
-  const pitch = `"${product.sku} is the ${kind} for ${application}${lead}."`;
+  const pitch = `"${product.sku} is the ${kind}${applicationClause}."${featureClause}`;
 
   return family ? `${pitch} Then place it in the range: ${family}` : `${pitch} ${fallback}`;
 }
@@ -660,6 +677,25 @@ function buildRoleNarrativeBase(product: ProductSpec): RoleNarrativeBase {
   const whatItIs = `${product.sku} is a ${product.productType.toLowerCase()} for ${mainApplication.toLowerCase()}.`;
 
   if (role === "camera") {
+    if (isCameraBridgeProduct(product)) {
+      return {
+        role,
+        headline: "Use this when several cameras or room sources need to become one clean feed.",
+        whatItIs,
+        customerChallenge: "The customer does not just need a camera. They need several camera or AV sources to land cleanly in one conferencing, capture or streaming workflow.",
+        whyItHelps: `${product.sku} sits between the cameras/sources and the destination platform so the room can switch, bridge or present a usable combined feed instead of leaving the workflow to ad-hoc USB dongles or operator workarounds.`,
+        whyCustomerCares: "It makes hybrid teaching, UC capture and multi-camera rooms easier to explain because the bridge becomes the handoff point between room AV and the platform receiving it.",
+        useWhen: "Use it where the project needs more than one camera or source brought into USB, HDMI or NDI workflow, and the output destination still needs to be confirmed properly.",
+        avoidIf: "Avoid leading with this if one simple fixed USB camera would solve the room. Also avoid it if the audio path, platform compatibility or operator workflow has not been confirmed.",
+        suggestedWording: `${product.sku} is the bridge/mixer conversation when the room needs several camera or AV sources turned into one practical feed for conferencing, recording or streaming.`,
+        demoPrompt: "Show how several cameras or room sources are switched and then handed off to the conferencing, recording or capture platform. That is the real value, not the spec list.",
+        askNow: ["How many cameras or room sources need to be brought together?", "What receives the final feed - a laptop, room PC, conferencing appliance, recorder or streaming platform?", "Does the workflow need USB, HDMI, NDI or a mix?", "Who controls source switching during the session, and where does the room audio enter the path?"],
+        diagramSource: "Cameras, presentation source or room AV inputs",
+        diagramOutput: "UC host, recorder, streamer or NDI / HDMI / USB destination",
+        visualPrompt: `Create a realistic hybrid-teaching or conferencing room showing ${product.sku} between multiple camera/source inputs and the final conferencing, capture or streaming destination.`,
+      };
+    }
+
     return {
       role,
       headline: "Use this when a basic webcam is not enough.",
@@ -797,13 +833,13 @@ function buildRoleNarrativeBase(product: ProductSpec): RoleNarrativeBase {
     headline: "Use this when the product role matches the customer's real requirement.",
     whatItIs,
     customerChallenge: `The customer has a real room or system problem - ${product.purpose.toLowerCase().replace(/\.$/, "")} - and needs to know this product genuinely solves it, not just that it has a part number.`,
-    whyItHelps: `${product.sku} fits when its job - ${product.purpose.toLowerCase().replace(/\.$/, "")} - matches what the room actually needs. Anchor the conversation on the source side, the destination side and the signal path between them, and check the I/O, distance, USB, audio and control details before committing.`,
+    whyItHelps: `${product.sku} earns its place when the room genuinely needs ${product.purpose.toLowerCase().replace(/\.$/, "")}. The practical check is what connects on each side, what dependencies come with it, and whether it removes a real design problem instead of adding another box.`,
     whyCustomerCares: "Customers buy outcomes, not boxes. Framing it as the thing that fixes a specific frustration - and being honest about where it does and does not fit - is what earns their confidence and the order.",
     useWhen: `Use it where the requirement is genuinely ${product.purpose.toLowerCase().replace(/\.$/, "")}, and the room's connections, distances and control needs line up with what this product does.`,
     avoidIf: "Avoid making a firm recommendation until the application, signal path, I/O, distance and control requirements are confirmed - it is always safer to ask one more question than to quote the wrong box.",
-    suggestedWording: `${product.sku} is worth considering where the customer requirement matches its core role: ${product.purpose}`,
+    suggestedWording: `${product.sku} is worth discussing when the customer genuinely needs ${product.purpose.toLowerCase().replace(/\.$/, "")}, and we can explain what it connects to and why it is the right system role.`,
     demoPrompt: "Suggest a demo or evaluation where the customer needs to see it working before they commit - especially if this is an unfamiliar product for them or for you.",
-    askNow: ["What's the one thing they're hoping this will fix or make easier?", "What's in the room today, and what's frustrating about it?", "Who uses the room, and how comfortable are they with technology?", "What would make them feel confident enough to go ahead?"],
+    askNow: ["What exactly is this product expected to connect to or replace?", "Where does it sit in the room or signal path today?", "What dependency would make this unsafe to quote without checking first?", "If this product is selected, what still needs to be confirmed before proposal stage?"],
     diagramSource: "Customer source / system input",
     diagramOutput: "Display / room system / destination",
     visualPrompt: `Create a realistic AV room concept showing ${product.sku} used in context with labelled source, WyreStorm device, display, network/control and any TBC devices.`

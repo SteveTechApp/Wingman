@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { getBestProductPositioningCardForSku } from "../../data/productPositioningCards";
+import { getProductCallCommercialOverride } from "../../lib/productCallCommercialOverrides";
 import { DATA_CONFIDENCE_LABELS } from "../../types/productPositioning";
 import type { ProductPositioningCard, ProductPositioningObjection } from "../../types/productPositioning";
 import { ProductCallCardsShell } from "./ProductCallCardsShell";
@@ -89,6 +90,15 @@ function buildScenarioCheckpoint(product: ProductCallProduct, context: ProductCa
 }
 
 function buildObjectionHelpers(product: ProductCallProduct, card?: ProductPositioningCard): ProductPositioningObjection[] {
+  const commercialOverride = getProductCallCommercialOverride(product.sku);
+
+  if (commercialOverride?.objections?.length) {
+    return commercialOverride.objections.slice(0, 3).map((response, index) => ({
+      objection: index === 0 ? "Likely pushback" : "What to clarify",
+      response,
+    }));
+  }
+
   if (card?.objectionHandling?.length) {
     return card.objectionHandling.slice(0, 3);
   }

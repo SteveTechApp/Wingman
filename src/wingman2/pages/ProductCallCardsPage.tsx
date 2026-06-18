@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { getBestProductPositioningCardForSku } from "../data/productPositioningCards";
 import { getProductStory, productStoryRelatedText } from "../data/productStories";
 import { saveProductSelectionToCurrentProject } from "../data/projectStore";
 import { buildProductNarrative, normaliseProductRecord, type ProductNarrative } from "../lib/productStoryEngine";
@@ -650,6 +651,7 @@ function toProductCard(seed: ProductSeed): ProductCard {
         ...story.idealApplications,
       ]
     : [];
+  const positioningCard = getBestProductPositioningCardForSku(sku);
 
   const narrative = narrativeForSeed(seed);
 
@@ -661,6 +663,7 @@ function toProductCard(seed: ProductSeed): ProductCard {
   const description =
     cleanText(story?.whatItIs) ||
     cleanText(overlay.description) ||
+    cleanText(positioningCard?.oneMinuteBrief) ||
     cleanText(narrative?.whatItIs) ||
     cleanText(seed.description) ||
     `${name} from the Wingman product index.`;
@@ -674,6 +677,8 @@ function toProductCard(seed: ProductSeed): ProductCard {
     fit:
       cleanText(story?.whatItDoes) ||
       cleanText(overlay.fit) ||
+      cleanText(positioningCard?.oneMinuteBrief) ||
+      cleanText(positioningCard?.oneLinePositioning) ||
       cleanText(seed.fit) ||
       cleanText(narrative?.whyItHelps) ||
       `Use this when the customer requirement matches ${family.toLowerCase()} applications. Confirm I/O, signal distance, USB, audio, control and network dependencies before quoting.`,
@@ -684,17 +689,28 @@ function toProductCard(seed: ProductSeed): ProductCard {
       cleanText(story?.oneLinePosition) ||
       cleanText(story?.salesTalkTrack) ||
       cleanText(overlay.openingLine) ||
+      cleanText(positioningCard?.followUpWording) ||
+      cleanText(positioningCard?.oneMinuteBrief) ||
       cleanText(narrative?.suggestedWording) ||
       cleanText(seed.openingLine) ||
       `${sku} is a ${family.toLowerCase()} product direction. Use it as a starting point, then validate the room requirement before making a firm recommendation.`,
     questions:
       (story?.discoveryQuestions?.length ? story.discoveryQuestions : undefined) ||
       (overlay.questions?.length ? overlay.questions : undefined) ||
+      (positioningCard?.openingQuestions?.length ? positioningCard.openingQuestions : undefined) ||
+      (positioningCard?.qualificationQuestions?.length ? positioningCard.qualificationQuestions : undefined) ||
       (narrative?.askNow?.length ? narrative.askNow : undefined) ||
       seed.questions ||
       [],
     proofPoints:
       storyProofPoints ||
+      (positioningCard
+        ? [
+            positioningCard.salientPoint,
+            ...positioningCard.wyrestormFit,
+            ...positioningCard.reviewGates,
+          ]
+        : undefined) ||
       overlay.proofPoints ||
       seed.proofPoints || [
         "Pulled from the Wingman product intelligence data.",
@@ -705,6 +721,13 @@ function toProductCard(seed: ProductSeed): ProductCard {
       ...(seed.tags || []),
       ...((overlay.tags as string[] | undefined) || []),
       ...storyTags,
+      ...(positioningCard
+        ? [
+            positioningCard.productFamily,
+            positioningCard.technologyType,
+            ...positioningCard.bestFitApplications,
+          ]
+        : []),
       family,
       category,
     ]),
@@ -982,10 +1005,23 @@ return () => {
     pageProducts[0] ||
     filteredProducts[0] ||
     null;
+  const selectedPositioningCard = useMemo(
+    () => (selectedProduct ? getBestProductPositioningCardForSku(selectedProduct.sku) : undefined),
+    [selectedProduct],
+  );
 
   const productChecks = useMemo(() => {
     if (!selectedProduct) {
       return [];
+    }
+
+    const positionedChecks = [
+      ...(selectedPositioningCard?.technicalCheckQuestions || []),
+      ...(selectedPositioningCard?.reviewGates || []),
+    ];
+
+    if (positionedChecks.length > 0) {
+      return unique(positionedChecks).slice(0, 4);
     }
 
     const sku = selectedProduct.sku.toUpperCase();
@@ -1095,7 +1131,7 @@ return () => {
       "Confirm what device or system it must connect to.",
       "Check source, display, audio, USB, control and power dependencies before adding it to a project.",
     ];
-  }, [selectedProduct]);
+  }, [selectedPositioningCard, selectedProduct]);
 
   const productSpecificationRows = useMemo(() => {
     if (!selectedProduct) {
@@ -2445,4 +2481,3 @@ return (
     </section>
   );
 }
-

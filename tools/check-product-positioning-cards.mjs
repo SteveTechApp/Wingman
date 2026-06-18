@@ -6,8 +6,9 @@ const dataPath = path.join(repoRoot, "src", "wingman2", "data", "productPosition
 const typePath = path.join(repoRoot, "src", "wingman2", "types", "productPositioning.ts");
 const pagePath = path.join(repoRoot, "src", "wingman2", "pages", "ProductCallCardsPage.tsx");
 const pagesDir = path.join(repoRoot, "src", "wingman2", "pages", "productCallCards");
+const callCardJsonPath = path.join(repoRoot, "public", "product-call-card-products.json");
 
-const requiredFiles = [dataPath, typePath, pagePath, pagesDir];
+const requiredFiles = [dataPath, typePath, pagePath, pagesDir, callCardJsonPath];
 
 for (const file of requiredFiles) {
   if (!fs.existsSync(file)) {
@@ -76,3 +77,45 @@ for (const term of requiredPageTerms) {
 }
 
 console.log(`[call-cards] OK: ${topLevelSkus.length} product positioning cards found and required files are present.`);
+
+const payload = JSON.parse(fs.readFileSync(callCardJsonPath, "utf8"));
+const callCardProducts = Array.isArray(payload) ? payload : Array.isArray(payload.products) ? payload.products : [];
+
+if (callCardProducts.length < 100) {
+  console.error(`[call-cards] Expected at least 100 call-card product records, found ${callCardProducts.length}.`);
+  process.exit(1);
+}
+
+const bannedPatterns = [
+  /should be discussed around/i,
+  /what customer problem is this product being used to solve\?/i,
+  /fits [a-z /-]+ applications\./i,
+  /validate the customer workflow before adding it to a project/i,
+  /focused, single-purpose device/i,
+];
+
+const weakRecords = callCardProducts.filter((product) => {
+  const haystack = [
+    product.description,
+    product.fit,
+    product.openingLine,
+    ...(Array.isArray(product.questions) ? product.questions : []),
+  ].join(" ");
+
+  return bannedPatterns.some((pattern) => pattern.test(haystack));
+});
+
+if (weakRecords.length > 0) {
+  console.error("[call-cards] Found weak generic product helper copy in call-card records.");
+  console.error(
+    weakRecords
+      .slice(0, 12)
+      .map((product) => `- ${product.sku}`)
+      .join("\n"),
+  );
+  process.exit(1);
+}
+
+console.log(
+  `[call-cards] OK: ${callCardProducts.length} call-card product records use practical helper copy without banned filler patterns.`,
+);
