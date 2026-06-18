@@ -50,12 +50,7 @@ const kindLabel: Record<string, string> = {
 };
 
 function makeNodeLabel(node: VisualDiagramNode, mode: VisualDiagramMode): string {
-  if (mode === "customer") {
-    return node.label;
-  }
-
-  const kind = kindLabel[node.kind] ?? "Device";
-  return `${node.label} · ${kind}`;
+  return node.label;
 }
 
 function makeNodeSubtitle(node: VisualDiagramNode, mode: VisualDiagramMode): string | undefined {
@@ -108,7 +103,7 @@ export function buildReactFlowModel(
         status,
         mode,
         emphasis,
-        className: `${statusClass[status]} ${emphasisClass[emphasis]}`
+        className: `${statusClass[status]} ${emphasisClass[emphasis]} wm-vs-node-kind-${node.kind} wm-vs-node-mode-${mode}`
       }
     };
   });
@@ -119,8 +114,8 @@ export function buildReactFlowModel(
       source: edge.source,
       target: edge.target,
       label: edge.label,
-      type: "smoothstep",
-      animated: edge.status === "risk" || edge.status === "missing",
+      type: mode === "technical" ? "step" : "smoothstep",
+      animated: false,
       className: edgeClass(edge),
       markerEnd: {
         type: MarkerType.ArrowClosed
