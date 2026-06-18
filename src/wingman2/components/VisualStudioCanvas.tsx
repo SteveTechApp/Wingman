@@ -83,7 +83,7 @@ function VisualStudioCanvasInner({ model, mode }: VisualStudioCanvasProps) {
   };
 
   return (
-    <section className="wm-vs-canvas-shell">
+    <section className={`wm-vs-canvas-shell wm-vs-canvas-shell-${mode}`}>
       <div className="wm-vs-canvas-toolbar">
         <div>
           <p className="wm-vs-eyebrow">Native diagram canvas</p>
@@ -99,23 +99,48 @@ function VisualStudioCanvasInner({ model, mode }: VisualStudioCanvasProps) {
         </div>
       </div>
 
-      <div className="wm-vs-canvas" ref={exportRef} data-diagram-id={model.id}>
-        <ReactFlow
-          nodes={flowModel.nodes}
-          edges={flowModel.edges}
-          nodeTypes={nodeTypes}
-          fitView
-          fitViewOptions={{ padding: 0.035, maxZoom: 1.08 }}
-          minZoom={0.45}
-          maxZoom={2.1}
-          nodesDraggable
-          nodesConnectable={false}
-          elementsSelectable
-        >
-          <Background gap={24} size={1} />
-          <MiniMap pannable zoomable />
-          <Controls />
-        </ReactFlow>
+      <div className={`wm-vs-canvas wm-vs-canvas-${mode}`} ref={exportRef} data-diagram-id={model.id}>
+        <div className="wm-vs-canvas-stage">
+          <ReactFlow
+            nodes={flowModel.nodes}
+            edges={flowModel.edges}
+            nodeTypes={nodeTypes}
+            fitView
+            fitViewOptions={{ padding: 0.11, maxZoom: 1.02, minZoom: 0.72 }}
+            minZoom={0.52}
+            maxZoom={1.9}
+            nodesDraggable
+            nodesConnectable={false}
+            elementsSelectable
+          >
+            <Background gap={28} size={1} />
+            <MiniMap pannable zoomable />
+            <Controls />
+          </ReactFlow>
+        </div>
+
+        <div className="wm-vs-schematic-footer" aria-hidden="true">
+          <div>
+            <span>Client</span>
+            <strong>Wingman</strong>
+          </div>
+          <div>
+            <span>Project</span>
+            <strong>{model.title}</strong>
+          </div>
+          <div>
+            <span>View</span>
+            <strong>{mode === "technical" ? "Technical schematic" : "Customer concept"}</strong>
+          </div>
+          <div>
+            <span>Diagram</span>
+            <strong>{model.subtitle}</strong>
+          </div>
+          <div>
+            <span>Status</span>
+            <strong>Review before quote</strong>
+          </div>
+        </div>
       </div>
     </section>
   );

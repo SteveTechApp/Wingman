@@ -869,7 +869,10 @@ export function buildProductNarrative(product: ProductSpec): ProductNarrative {
       askNow: story.discoveryQuestions,
       diagramSource: story.diagramSource || base.diagramSource,
       diagramOutput: story.diagramOutput || base.diagramOutput,
-      visualPrompt: `Create a realistic AV application visual showing ${story.sku} in context. Show the customer problem, related WyreStorm products where relevant, source path, display/output path and any items still to be confirmed.`,
+      visualPrompt:
+        base.role === "camera"
+          ? `Create a realistic camera-focused AV room visual showing ${story.sku} in context. Show the camera position, customer problem, source path, output destination and any items still to be confirmed.`
+          : `Create a realistic AV application visual showing ${story.sku} in context. Show the customer problem, related WyreStorm products where relevant, source path, display/output path and any items still to be confirmed.`,
     };
   }
 

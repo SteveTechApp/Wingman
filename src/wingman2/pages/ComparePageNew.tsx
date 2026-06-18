@@ -155,6 +155,12 @@ type ScoredCandidate = {
   gaps: string[];
 };
 
+type CompetitorSummary = {
+  heading: string;
+  detail: string;
+  bullets: string[];
+};
+
 const PAGE_AVOIP_ROLE_LABEL: Record<string, string> = {
   encoder: "Encoder / transmitter",
   decoder: "Decoder / receiver",
@@ -578,6 +584,69 @@ function productPitchUrl(sku: string): string {
   return `/wingman/product-pitch?${params.toString()}`;
 }
 
+function uniqueText(values: Array<string | null | undefined>, limit = 4): string[] {
+  const seen = new Set<string>();
+  const output: string[] = [];
+
+  for (const value of values) {
+    const text = String(value || "").trim();
+
+    if (!text) {
+      continue;
+    }
+
+    const key = text.toLowerCase();
+
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    output.push(text);
+
+    if (output.length >= limit) {
+      break;
+    }
+  }
+
+  return output;
+}
+
+function buildCompetitorSummary(profile: CompetitorProfile, mustMatchFeatures: string): CompetitorSummary {
+  const inferredTags = uniqueText(profile.requestedTags.map((tag) => {
+    if (tag === "avoip") return "AV-over-IP";
+    if (tag === "video wall") return "Video wall";
+    if (tag === "multiview") return "Multiview";
+    if (tag === "matrix") return "Matrix";
+    if (tag === "usb") return "USB / UC";
+    if (tag === "hdbaset") return "HDBaseT";
+    if (tag === "4k60") return "4K60";
+    if (tag === "444") return "4:4:4";
+    if (tag === "hdr") return "HDR";
+    if (tag === "10g") return "10G / SDVoE";
+    if (tag === "encoder") return "Encoder / transmitter";
+    if (tag === "decoder") return "Decoder / receiver";
+    if (tag === "transceiver") return "Transceiver";
+    return tag;
+  }), 5);
+
+  const bullets = uniqueText([
+    profile.productClass !== "Unknown" ? `Class: ${profile.productClass}` : "",
+    profile.role !== "Unknown" ? `Role: ${profile.role}` : "",
+    profile.transport !== "Unknown" ? `Transport: ${profile.transport}` : "",
+    inferredTags.length ? `Detected traits: ${inferredTags.join(", ")}` : "",
+    mustMatchFeatures.trim() ? `Must-match notes: ${mustMatchFeatures.trim()}` : "",
+  ], 5);
+
+  return {
+    heading: [profile.brand, profile.sku].filter(Boolean).join(" ").trim() || "Competitor product",
+    detail: profile.knownProfile && typeof profile.knownProfile.name === "string" && profile.knownProfile.name.trim()
+      ? profile.knownProfile.name.trim()
+      : "Wingman matched against this inferred competitor product direction.",
+    bullets,
+  };
+}
+
 function ProductMoreLink({ sku }: { sku: string }) {
   return (
     <a className="compare-native-more" href={productPitchUrl(sku)} aria-label={`Open product positioning support for ${sku}`}>
@@ -667,7 +736,15 @@ function CompareProductLookupInput(props: {
   );
 }
 
-function BestCandidateCard({ candidate, onCopySummary }: { candidate: ScoredCandidate; onCopySummary: () => void }) {
+function BestCandidateCard({
+  candidate,
+  competitor,
+  onCopySummary,
+}: {
+  candidate: ScoredCandidate;
+  competitor: CompetitorSummary;
+  onCopySummary: () => void;
+}) {
   return (
     <section className="compare-native-best-card">
       <div className="compare-native-result-head">
@@ -675,15 +752,31 @@ function BestCandidateCard({ candidate, onCopySummary }: { candidate: ScoredCand
         <span className="compare-native-score">{Math.round(candidate.score)}%</span>
       </div>
 
-      <div className="compare-native-product-card compare-native-product-card--best">
-        <p className="compare-native-label compare-native-label--subtle">Best WyreStorm candidate</p>
-        <h3>{candidate.product.sku}</h3>
-        <h4>{candidate.product.name}</h4>
-        <p>{candidate.product.family} - {candidate.product.productClass} - {candidate.product.role}</p>
+      <div className="compare-native-compare-grid">
+        <div className="compare-native-product-card compare-native-product-card--competitor">
+          <p className="compare-native-label compare-native-label--subtle">Competitor product Wingman matched against</p>
+          <h3>{competitor.heading}</h3>
+          <h4>{competitor.detail}</h4>
+          <ul className="compare-native-bullet-list">
+            {competitor.bullets.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </div>
 
-        <div className="compare-native-action-row">
-          <button className="compare-native-secondary-action" type="button" onClick={onCopySummary}>Copy summary</button>
-          <ProductMoreLink sku={candidate.product.sku} />
+        <div className="compare-native-product-card compare-native-product-card--best">
+          <p className="compare-native-label compare-native-label--subtle">Best WyreStorm candidate</p>
+          <h3>{candidate.product.sku}</h3>
+          <h4>{candidate.product.name}</h4>
+          <p>{candidate.product.family} - {candidate.product.productClass} - {candidate.product.role}</p>
+          <p className="compare-native-match-anchor">
+            {candidate.matched[0] ?? "Closest role-compatible WyreStorm option from the current Compare data."}
+          </p>
+
+          <div className="compare-native-action-row">
+            <button className="compare-native-secondary-action" type="button" onClick={onCopySummary}>Copy summary</button>
+            <ProductMoreLink sku={candidate.product.sku} />
+          </div>
         </div>
       </div>
     </section>
@@ -758,6 +851,7 @@ function ComparePageNew() {
   );
 
   const avoipProfile = useMemo(() => mapCompetitorToNetworkHdAvoip(profile.rawText), [profile.rawText]);
+  const competitorSummary = useMemo(() => buildCompetitorSummary(profile, mustMatchFeatures), [mustMatchFeatures, profile]);
 
   const scoredCandidates = useMemo(() => {
     const avoip = avoipProfile;
@@ -1021,7 +1115,7 @@ function ComparePageNew() {
                 tabIndex={-1}
                 aria-label={`Main WyreStorm match: ${best.product.sku}`}
               >
-                <BestCandidateCard candidate={best} onCopySummary={() => { void copySummary(); }} />
+                <BestCandidateCard candidate={best} competitor={competitorSummary} onCopySummary={() => { void copySummary(); }} />
               </div>
             ) : (
               <section className="compare-native-empty">
