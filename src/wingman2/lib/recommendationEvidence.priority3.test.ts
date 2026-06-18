@@ -188,6 +188,86 @@ describe("Priority 3 recommendation architecture scenarios", () => {
     expect(dependencyBlob).toContain("managed network");
     expect(evidenceBlob).toContain("series interoperability");
   });
+
+  it("keeps a Teams boardroom BYOD brief on a presentation and USB-led path instead of defaulting to matrix or AVoIP", () => {
+    const evidence = buildRecommendationEvidence({
+      source: "Priority 3 scenario",
+      query: "Microsoft Teams boardroom with BYOD laptop takeover, USB camera, table microphones, dual displays and table USB-C input.",
+      discoveryBrief: discoveryBrief({
+        applicationType: "Meeting room",
+        roomType: "Boardroom",
+        sourceCount: 3,
+        displayCount: 2,
+        displays: "Dual display Teams room",
+        usbTransport: "BYOD laptop needs USB camera and microphones",
+        usbOwnership: "User laptop takes ownership of room USB peripherals",
+        audioPath: "Table microphones and room audio",
+        controlNeeds: "Simple boardroom source and meeting control",
+        resolutionRequirement: "4K60",
+      }),
+      product: {
+        sku: "MX-1007-HYB",
+        title: "Hybrid presentation and AV routing switcher",
+        family: "Presentation / UC",
+        category: "Meeting room",
+        summary: "USB-C, BYOD and room AV switching for Teams spaces.",
+        tags: ["presentation", "usb-c", "byod", "teams", "uc"],
+      },
+    });
+
+    const evidenceBlob = joined([
+      evidence.systemShape,
+      evidence.customerSafeWording,
+      evidence.requiredDependencies,
+      evidence.quoteChecks,
+    ]);
+
+    expect(evidence.systemShape).toContain("Meeting-room direction");
+    expect(evidence.systemShape).not.toContain("Contained routing direction");
+    expect(evidence.systemShape).not.toContain("NetworkHD direction");
+    expect(evidenceBlob).toContain("usb");
+    expect(evidenceBlob).toContain("camera");
+    expect(evidence.productFamilyScores?.[0]?.family).toBe("Presentation / UC");
+    expect(evidence.quoteSafetyStatus).not.toBe("quote-ready");
+  });
+
+  it("keeps an NDI camera workflow on camera and bridge direction instead of leading with controller-only infrastructure", () => {
+    const evidence = buildRecommendationEvidence({
+      source: "Priority 3 scenario",
+      query: "NDI camera workflow feeding lecture capture and streaming with a PTZ camera and bridge into the AV system.",
+      discoveryBrief: discoveryBrief({
+        applicationType: "Streaming / capture",
+        roomType: "Lecture capture room",
+        sourceCount: 2,
+        displayCount: 1,
+        displays: "Confidence display",
+        usbTransport: "USB path for host capture and control",
+        networkAvailability: "Managed network available for NDI and streaming",
+        audioPath: "Microphones and programme audio",
+        controlNeeds: "PTZ presets and operator control",
+      }),
+      product: {
+        sku: "CAM-210-NDI-PTZ",
+        title: "NDI PTZ camera",
+        family: "Unified Communication",
+        category: "NDI / camera",
+        summary: "NDI PTZ camera for streaming and lecture capture.",
+        tags: ["ndi", "camera", "ptz", "streaming"],
+      },
+    });
+
+    const dependencyBlob = joined(evidence.requiredDependencies);
+    const wordingBlob = joined([evidence.customerSafeWording, evidence.internalGuidance, evidence.alternatives]);
+
+    expect(evidence.customerRequirement.toLowerCase()).toContain("ndi");
+    expect(evidence.productDirection).toContain("CAM-210-NDI-PTZ");
+    expect(evidence.productDirection).not.toContain("NHD-CTL-PRO");
+    expect(dependencyBlob).toContain("nhd-ctl-pro");
+    expect(dependencyBlob).toContain("network");
+    expect(wordingBlob).not.toContain("controller-only");
+    expect(wordingBlob).not.toContain("rack-only");
+    expect(evidence.quoteSafetyStatus).not.toBe("quote-ready");
+  });
   it("uses product-family scoring before SKU selection for meeting rooms", () => {
     const evidence = buildRecommendationEvidence({
       source: "priority3-family-scoring-test",

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { saveDiscoveryBriefToProject, type StoredDiscoveryBrief } from "../data/projectStore";
+import { buildDiscoveryRecommendationEvidence } from "../lib/recommendationEvidence";
 
 type DiscoveryOption = {
   value: string;
@@ -554,6 +555,11 @@ function getOptionLabel(step: DiscoveryQuestion, value: string): string {
   return value;
 }
 
+function isUnknownDiscoveryValue(value: string): boolean {
+  const text = value.trim().toLowerCase();
+  return text.includes("unknown") || text.includes("not sure");
+}
+
 export function DiscoveryPage() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [answers, setAnswers] = useState<DiscoveryAnswers>({});
@@ -751,8 +757,23 @@ export function DiscoveryPage() {
       .map((item) => `${item.label}: ${item.answer}${item.note ? ` — ${item.note}` : ""}`)
       .join("\n");
     const strategy = getQuestionStrategy("opportunity", answers.opportunity ?? "");
+    const missingInformation = discoveryQuestions.flatMap((step) => {
+      const answer = answers[step.id] ?? "";
+      const answerText = answerLabel(step.id);
+      const note = notes[step.id]?.trim() ?? "";
 
-    return {
+      if (!answer && !note && step.required) {
+        return [`Confirm ${step.question.replace(/\?$/, "").toLowerCase()}.`];
+      }
+
+      if (isUnknownDiscoveryValue(answer) || isUnknownDiscoveryValue(answerText) || isUnknownDiscoveryValue(note)) {
+        return [`Confirm ${step.question.replace(/\?$/, "").toLowerCase()}.`];
+      }
+
+      return [];
+    });
+
+    const brief: StoredDiscoveryBrief = {
       savedAt: new Date().toISOString(),
       roomModel: {
         roomType: application,
@@ -777,7 +798,17 @@ export function DiscoveryPage() {
       },
       capturedPercent: completionPercent,
       returnRoute: routeCatalogByKey.discovery.path,
+      missingInformation,
       nextBestQuestion: strategy.askNext,
+    };
+    const recommendationEvidence = buildDiscoveryRecommendationEvidence(brief);
+
+    return {
+      ...brief,
+      missingInformation: recommendationEvidence.missingInformation,
+      nextBestQuestion: recommendationEvidence.nextBestQuestion ?? strategy.askNext,
+      quoteSafetyStatus: recommendationEvidence.quoteSafetyStatus,
+      recommendationEvidence,
     };
   }
 
