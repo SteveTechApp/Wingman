@@ -4,6 +4,7 @@ import type {
   VisualDiagramMode,
   VisualDiagramModel,
   VisualDiagramNode,
+  VisualNodeEmphasis,
   VisualNodeStatus
 } from "./visualStudioTypes";
 
@@ -13,6 +14,7 @@ export interface WingmanFlowNodeData extends Record<string, unknown> {
   kind: string;
   status: VisualNodeStatus;
   mode: VisualDiagramMode;
+  emphasis: VisualNodeEmphasis;
 }
 
 const statusClass: Record<VisualNodeStatus, string> = {
@@ -23,8 +25,13 @@ const statusClass: Record<VisualNodeStatus, string> = {
   risk: "wm-vs-node-risk"
 };
 
-const VISUAL_STUDIO_COLUMN_GAP = 210;
-const VISUAL_STUDIO_ROW_GAP = 132;
+const VISUAL_STUDIO_COLUMN_GAP = 248;
+const VISUAL_STUDIO_ROW_GAP = 164;
+const emphasisClass: Record<VisualNodeEmphasis, string> = {
+  primary: "wm-vs-node-emphasis-primary",
+  support: "wm-vs-node-emphasis-support",
+  compact: "wm-vs-node-emphasis-compact"
+};
 
 const kindLabel: Record<string, string> = {
   customer: "Customer",
@@ -85,6 +92,7 @@ export function buildReactFlowModel(
 ): { nodes: Node<WingmanFlowNodeData>[]; edges: Edge[] } {
   const nodes: Node<WingmanFlowNodeData>[] = model.nodes.map((node) => {
     const status = node.status ?? "normal";
+    const emphasis = node.emphasis ?? "support";
 
     return {
       id: node.id,
@@ -99,7 +107,8 @@ export function buildReactFlowModel(
         kind: node.kind,
         status,
         mode,
-        className: statusClass[status]
+        emphasis,
+        className: `${statusClass[status]} ${emphasisClass[emphasis]}`
       }
     };
   });

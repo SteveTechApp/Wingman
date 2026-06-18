@@ -27,12 +27,15 @@ export type VisualNodeKind =
 
 export type VisualNodeStatus = "normal" | "recommended" | "optional" | "missing" | "risk";
 
+export type VisualNodeEmphasis = "primary" | "support" | "compact";
+
 export interface VisualDiagramNode {
   id: string;
   label: string;
   subtitle?: string;
   kind: VisualNodeKind;
   status?: VisualNodeStatus;
+  emphasis?: VisualNodeEmphasis;
   column: number;
   row: number;
 }

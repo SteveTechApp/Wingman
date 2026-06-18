@@ -1,7 +1,12 @@
-﻿import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import VisualStudioCanvas from "../components/VisualStudioCanvas";
+import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import {
+  buildProductConnectionDiagram,
+  findProductIntelligenceEntry,
+} from "../lib/visualStudioProductConnection";
 import { getVisualDiagramById, visualStudioDiagrams } from "../lib/visualStudioSamples";
-import type { VisualDiagramMode, VisualDiagramModel } from "../lib/visualStudioTypes";
+import type { VisualDiagramMode } from "../lib/visualStudioTypes";
 
 function readVisualStudioSearchParams(): URLSearchParams {
   if (typeof window === "undefined") {
@@ -28,61 +33,63 @@ function getInitialVisualStudioDiagramId(): string {
   return visualStudioDiagrams[0].id;
 }
 
-function replaceSeedProductNode(model: VisualDiagramModel, seedSku: string): VisualDiagramModel {
-  if (!seedSku || model.id !== "product-port-view") {
-    return model;
-  }
-
-  return {
-    ...model,
-    title: `${seedSku} Product Connection / Port Ownership View`,
-    customerSummary: `A simple view showing what connects into ${seedSku}, what comes out, and what still needs confirming before quote.`,
-    technicalSummary: `Shows likely input, output, USB, network, audio and control ownership checks around ${seedSku}. Port claims still need datasheet validation.`,
-    assumptions: [
-      `The selected product is ${seedSku}.`,
-      ...model.assumptions,
-    ],
-    nodes: model.nodes.map((node) => {
-      if (node.id !== "device") {
-        return node;
-      }
-
-      return {
-        ...node,
-        label: seedSku,
-        subtitle: "Selected WyreStorm product / port map",
-      };
-    }),
-  };
-}
-
 export default function VisualStudioPage() {
   const seedSku = useMemo(() => readSeedSku(), []);
   const [selectedDiagramId, setSelectedDiagramId] = useState(() => getInitialVisualStudioDiagramId());
   const [mode, setMode] = useState<VisualDiagramMode>("technical");
+  const [productIntelligenceIndex, setProductIntelligenceIndex] = useState<unknown>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!seedSku) {
+      return undefined;
+    }
+
+    loadProductIntelligenceIndex()
+      .then((index) => {
+        if (!cancelled) {
+          setProductIntelligenceIndex(index);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setProductIntelligenceIndex(null);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [seedSku]);
 
   const selectedDiagram = useMemo(() => {
-    return replaceSeedProductNode(getVisualDiagramById(selectedDiagramId), seedSku);
-  }, [selectedDiagramId, seedSku]);
+    const baseModel = getVisualDiagramById(selectedDiagramId);
+    const productRecord = findProductIntelligenceEntry(productIntelligenceIndex, seedSku);
+
+    return buildProductConnectionDiagram(baseModel, seedSku, productRecord);
+  }, [productIntelligenceIndex, selectedDiagramId, seedSku]);
 
   return (
     <main className="wm-vs-page">
       <header className="wm-vs-header">
-        <div>
+        <div className="wm-vs-header-copy">
           <p className="wm-vs-eyebrow">Wingman Visual Studio</p>
           <h1>Native AV schematic and concept graphics</h1>
           <p>
-            Generate customer-safe visuals and technical system shapes directly inside Wingman.
-            This first pass uses Wingman-ready AV scenarios and is designed to connect later to
-            Discovery, Finder, Product Pitch and Proposal data.
+            Generate readable customer-safe visuals and technical system shapes directly inside
+            Wingman. Product connection view now keeps the selected WyreStorm SKU at the centre
+            and treats support lanes as quote checks rather than the main architecture.
           </p>
           {seedSku ? <p className="wm-vs-seed-note">Seed product: {seedSku}</p> : null}
         </div>
 
         <div className="wm-vs-header-card">
           <span>Current output</span>
-          <strong>{mode === "technical" ? "Technical schematic" : "Customer concept graphic"}</strong>
-          <small>PNG and SVG export ready</small>
+          <strong>{mode === "technical" ? "Technical schematic" : "Customer concept"}</strong>
+          <small>
+            {selectedDiagram.id === "product-port-view" ? "Product-led connection map" : "PNG and SVG export ready"}
+          </small>
         </div>
       </header>
 
