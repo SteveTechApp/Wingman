@@ -1,15 +1,27 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-describe("Finder product-family ranking reason", () => {
-  it("shows sales users why the top Finder match was prioritised", () => {
-    const source = readFileSync(join(process.cwd(), "src/wingman2/pages/FinderPage.tsx"), "utf8");
+import { getProductFamilyRankingReason } from "../wingman2/lib/productFamilyShortlistRanking";
 
-    expect(source).toContain("getProductFamilyRankingReason");
-    expect(source).toContain("topFinderRankingReason");
-    expect(source).toContain("Why this is first: {topFinderRankingReason}");
-    expect(source).toContain("finder-product-family-ranking-reason");
-    expect(source).toContain('data-testid="finder-product-family-ranking-reason"');
+describe("Finder product-family ranking reason", () => {
+  it("explains the NDI camera workflow using the matched family reasons", () => {
+    const reason = getProductFamilyRankingReason(
+      {
+        sku: "NHD-128-NDI-TRX",
+        title: "NDI to NetworkHD bridge",
+        family: "NetworkHD 100 / NDI",
+        category: "NDI / camera",
+      },
+      [
+        {
+          family: "NetworkHD",
+          score: 88,
+          reasons: ["NDI camera workflow", "Bridge path into the wider AV system"],
+        },
+      ],
+    );
+
+    expect(reason).toContain("NetworkHD");
+    expect(reason).toContain("NDI camera workflow");
+    expect(reason).toContain("Bridge path into the wider AV system");
   });
 });

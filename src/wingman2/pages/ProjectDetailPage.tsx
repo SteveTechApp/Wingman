@@ -358,7 +358,7 @@ export function ProjectDetailPage() {
       !hasProductDirection ? "Product direction has not been saved." : null,
       evidenceCount === 0 ? "No evidence has been saved against this project." : null,
       weakRequirementCount > 0 ? `${weakRequirementCount} requirement${weakRequirementCount === 1 ? "" : "s"} still need confirmation or review.` : null,
-      quoteSafetyStatus === "do-not-quote" ? "Recommendation evidence is marked do not quote." : null,
+      quoteSafetyStatus === "do-not-quote-yet" ? "Recommendation evidence is marked do not quote." : null,
     ]);
 
     if (blockers.length > 0) {

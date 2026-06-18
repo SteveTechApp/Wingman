@@ -2,6 +2,31 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { getProductStory, productStoryRelatedText } from "../data/productStories";
 import { saveProductSelectionToCurrentProject } from "../data/projectStore";
+import { buildProductNarrative, normaliseProductRecord, type ProductNarrative } from "../lib/productStoryEngine";
+
+// Reuse the role-aware Product Pitch engine so call-card copy is plain and
+// sales-focused (and consistent with the Pitch page) instead of the thin,
+// hollow enriched-data talk tracks ("...should be discussed around supports
+// 4k60..."). The engine already prefers hand-authored stories where they exist.
+function narrativeForSeed(seed: ProductSeed): ProductNarrative | null {
+  const spec = normaliseProductRecord(
+    {
+      sku: seed.sku,
+      name: seed.name,
+      family: seed.family,
+      category: seed.category,
+      productType: seed.category,
+      description: seed.description,
+      // Tags feed headline-feature extraction only. They are category-ish words
+      // (e.g. "HDBaseT"), not room applications, so leaving applications unset
+      // avoids awkward phrasing like "the ... for hdbaset".
+      features: seed.tags,
+    },
+    0,
+  );
+
+  return spec ? buildProductNarrative(spec) : null;
+}
 
 type ProductSeed = {
   sku: string;
@@ -626,12 +651,17 @@ function toProductCard(seed: ProductSeed): ProductCard {
       ]
     : [];
 
+  const narrative = narrativeForSeed(seed);
+
   const family = cleanText(story?.family) || cleanText(overlay.family) || cleanText(seed.family) || classify(seed);
   const category = cleanText(story?.category) || cleanText(overlay.category) || cleanText(seed.category) || family;
   const name = cleanText(story?.plainEnglishName) || cleanText(overlay.name) || cleanText(seed.name) || sku;
+  // Plain "what it is" from the engine wins over the raw marketing description
+  // (e.g. "Part of the latest generation of... for the latest generation of...").
   const description =
     cleanText(story?.whatItIs) ||
     cleanText(overlay.description) ||
+    cleanText(narrative?.whatItIs) ||
     cleanText(seed.description) ||
     `${name} from the Wingman product index.`;
 
@@ -645,14 +675,24 @@ function toProductCard(seed: ProductSeed): ProductCard {
       cleanText(story?.whatItDoes) ||
       cleanText(overlay.fit) ||
       cleanText(seed.fit) ||
+      cleanText(narrative?.whyItHelps) ||
       `Use this when the customer requirement matches ${family.toLowerCase()} applications. Confirm I/O, signal distance, USB, audio, control and network dependencies before quoting.`,
+    // Sales-focused talk track: hand-authored story/overlay first, then the
+    // engine's "say it like this" wording, then (only as a last resort) the
+    // weak enriched seed copy.
     openingLine:
       cleanText(story?.oneLinePosition) ||
       cleanText(story?.salesTalkTrack) ||
       cleanText(overlay.openingLine) ||
+      cleanText(narrative?.suggestedWording) ||
       cleanText(seed.openingLine) ||
       `${sku} is a ${family.toLowerCase()} product direction. Use it as a starting point, then validate the room requirement before making a firm recommendation.`,
-    questions: story?.discoveryQuestions || overlay.questions || seed.questions || [],
+    questions:
+      (story?.discoveryQuestions?.length ? story.discoveryQuestions : undefined) ||
+      (overlay.questions?.length ? overlay.questions : undefined) ||
+      (narrative?.askNow?.length ? narrative.askNow : undefined) ||
+      seed.questions ||
+      [],
     proofPoints:
       storyProofPoints ||
       overlay.proofPoints ||
@@ -735,6 +775,57 @@ async function loadProductSeeds(): Promise<ProductSeed[]> {
   return FALLBACK_PRODUCTS;
 }
 
+// Family chips cannot be matched by a naive substring of the chip label: extender
+// products are tagged "HDBaseT" and say "extender" (singular), so a search for
+// "extenders" found almost nothing, and "USB / UC" never appears verbatim. Each
+// chip maps to the SKU prefixes / suffixes and the wording that actually identify
+// that family.
+type FamilyMatcher = { terms?: string[]; skuPrefixes?: string[]; skuContains?: string[] };
+
+const FAMILY_MATCHERS: Record<string, FamilyMatcher> = {
+  Presentation: { skuPrefixes: ["SW-"], terms: ["presentation", "switcher", "byod", "byom"] },
+  NetworkHD: { skuPrefixes: ["NHD-"], terms: ["networkhd", "av-over-ip", "avoip"] },
+  "NetworkHD 100": { skuPrefixes: ["NHD-1"], terms: ["networkhd 100"] },
+  "NetworkHD 500": { skuPrefixes: ["NHD-5"], terms: ["networkhd 500"] },
+  "NetworkHD 600": { skuPrefixes: ["NHD-6"], terms: ["networkhd 600"] },
+  Matrix: { skuPrefixes: ["MX-", "MXV-"], terms: ["matrix"] },
+  HDBaseT: { skuPrefixes: ["EX-", "EXP-", "RX-", "RXV", "RX3", "RXF", "TX-", "EX3", "EXA", "EXF"], terms: ["hdbaset", "hdbt"] },
+  "USB / UC": { skuPrefixes: ["APO-"], terms: ["usb", "byod", "byom", "conference", "apollo", "uc video", "uc room", " uc "] },
+  Multiview: { skuContains: ["-MV"], terms: ["multiview", "multi-view"] },
+  "Video wall": { skuContains: ["-VW"], terms: ["video wall", "videowall"] },
+  Extenders: { skuPrefixes: ["EX-", "EXP-", "RX-", "RXV", "RX3", "RXF", "TX-", "EX3", "EXA", "EXF"], terms: ["extender", "hdbaset", "hdbt"] },
+  Control: { skuPrefixes: ["SYN-", "NHD-CTL", "NHD-000-CTL", "NHD-TOUCH"], terms: ["control", "touch panel", "keypad"] },
+  Cameras: { skuPrefixes: ["CAM-"], terms: ["camera", "ptz", " ndi", "bridge"] },
+};
+
+function matchesFamily(product: ProductCard, family: string): boolean {
+  if (family === "All") {
+    return true;
+  }
+
+  const matcher = FAMILY_MATCHERS[family];
+  // Match on the SKU and the product's own classification fields (family /
+  // category) only - never the free-text copy, otherwise common words like
+  // "HDBaseT" or "USB" in a description pull unrelated products into the chip.
+  const classification = `${product.family} ${product.category}`.toLowerCase();
+
+  if (!matcher) {
+    return classification.includes(family.toLowerCase());
+  }
+
+  const sku = product.sku.toUpperCase();
+
+  if (matcher.skuPrefixes?.some((prefix) => sku.startsWith(prefix))) {
+    return true;
+  }
+
+  if (matcher.skuContains?.some((part) => sku.includes(part))) {
+    return true;
+  }
+
+  return Boolean(matcher.terms?.some((term) => classification.includes(term)));
+}
+
 function productMatches(product: ProductCard, query: string, family: string, quickFinder: string): boolean {
   const firstSkuChar = product.sku.charAt(0).toUpperCase();
 
@@ -761,7 +852,7 @@ function productMatches(product: ProductCard, query: string, family: string, qui
     .join(" ")
     .toLowerCase();
 
-  if (family !== "All" && !haystack.includes(family.toLowerCase())) {
+  if (!matchesFamily(product, family)) {
     return false;
   }
 
@@ -1907,7 +1998,7 @@ return (
                 onClick={() => setActiveGalleryItem(null)}
                 aria-label="Close product gallery"
               >
-                Ãƒâ€”
+                ×
               </button>
             </div>
 
@@ -1939,7 +2030,7 @@ return (
               onClick={() => setActiveTermLookup(null)}
               aria-label="Close term explanation"
             >
-              Ãƒâ€”
+              ×
             </button>
           </div>
 
@@ -2011,7 +2102,7 @@ return (
 
           <div className="wm-pcc-status">
             <span>
-              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching Ã‚Â· {products.length} total Ã‚Â· {curatedCount} curated{activeQuickFinder !== "All" ? ` Ã‚Â· ${activeQuickFinder}` : ""}
+              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching · {products.length} total · {curatedCount} curated{activeQuickFinder !== "All" ? ` · ${activeQuickFinder}` : ""}
             </span>
 
             <div className="wm-pcc-pager">
@@ -2056,7 +2147,7 @@ return (
               >
                 <span className="wm-pcc-sku">{product.sku}</span>
                 <span className="wm-pcc-family">
-                  {product.curated ? "Curated Ã‚Â· " : ""}
+                  {product.curated ? "Curated · " : ""}
                   {product.family}
                 </span>
 
@@ -2078,7 +2169,6 @@ return (
             {selectedProduct && (
               <p className="wm-pcc-preview-family">
                 {selectedProduct.family}
-                ""
               </p>
             )}
           </div>
@@ -2207,9 +2297,14 @@ return (
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveProductPanel(tab.id)}
-                className={`wm-pcc-section-tab ${
-                  activeProductPanel === tab.id ? "wm-pcc-section-tab-active" : ""
-                }`}
+                aria-pressed={activeProductPanel === tab.id}
+                className={[
+                  "wm-pcc-section-tab",
+                  tab.id !== "specification" ? "wm-pcc-section-tab-core" : "",
+                  activeProductPanel === tab.id ? "wm-pcc-section-tab-active" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
               >
                 <strong>{tab.label}</strong>
                 <span>{tab.hint}</span>
@@ -2281,7 +2376,7 @@ return (
                         {
                           title: "Low impedance stereo room",
                           body:
-                            "Two amplifier channels can drive left and right low-impedance speakers, typically 4ÃŽÂ© or 8ÃŽÂ©. This suits a local room where stereo playback, clearer music reproduction or a pair of front speakers is required. Check speaker impedance, cable run, channel load and amplifier power per channel.",
+                            "Two amplifier channels can drive left and right low-impedance speakers, typically 4Ω or 8Ω. This suits a local room where stereo playback, clearer music reproduction or a pair of front speakers is required. Check speaker impedance, cable run, channel load and amplifier power per channel.",
                         },
                       ].map((example) => (
                           <article key={example.title} className="wm-pcc-example-card">
