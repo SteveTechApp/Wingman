@@ -644,6 +644,45 @@ export function DiscoveryPage() {
     window.sessionStorage.removeItem(callNotesStorageKey);
   }, []);
 
+  useEffect(() => {
+    // Video Wall builder handoff: "Send to Discovery" seeds the wall design here.
+    const useVideoWall = window.sessionStorage.getItem("wingman:use-video-wall-in-discovery");
+    const videoWallRaw = window.sessionStorage.getItem("wingman:video-wall-discovery");
+    if (useVideoWall === "1" && videoWallRaw) {
+      try {
+        const payload = JSON.parse(videoWallRaw) as { wallType?: string; recommendation?: { products?: unknown[] } };
+        const wallType = String(payload.wallType ?? "video wall").trim() || "video wall";
+        const products = Array.isArray(payload.recommendation?.products)
+          ? payload.recommendation.products.map((item) => String(item)).filter(Boolean).join(", ")
+          : "";
+        const note = `Video wall design from the builder: ${wallType}${products ? `. Suggested: ${products}` : ""}.`;
+        setAnswers((current) => ({ ...current, opportunity: current.opportunity || "video-wall" }));
+        setNotes((current) => ({ ...current, opportunity: current.opportunity ? current.opportunity : note }));
+      } catch {
+        // Ignore malformed handoff payloads.
+      }
+      window.sessionStorage.removeItem("wingman:use-video-wall-in-discovery");
+    }
+
+    // Product call-card "start room builder" handoff: seed discovery with the chosen product.
+    const seedRaw = window.sessionStorage.getItem("wingman.roomBuilderSeedProduct");
+    if (seedRaw) {
+      try {
+        const seed = JSON.parse(seedRaw) as { sku?: string; name?: string };
+        const label = [seed.sku, seed.name].map((item) => String(item ?? "").trim()).filter(Boolean).join(" — ");
+        if (label) {
+          setNotes((current) => ({
+            ...current,
+            sources: current.sources ? current.sources : `Customer is interested in ${label}.`,
+          }));
+        }
+      } catch {
+        // Ignore malformed handoff payloads.
+      }
+      window.sessionStorage.removeItem("wingman.roomBuilderSeedProduct");
+    }
+  }, []);
+
   function movePrevious(): void {
     setActiveIndex((index) => Math.max(0, index - 1));
   }

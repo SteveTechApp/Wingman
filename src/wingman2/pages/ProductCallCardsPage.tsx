@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { getProductStory, productStoryRelatedText } from "../data/productStories";
+import { saveProductSelectionToCurrentProject } from "../data/projectStore";
 
 type ProductSeed = {
   sku: string;
@@ -1060,6 +1061,17 @@ return () => {
       tags: selectedProduct.tags,
       source: "product-discussion",
     };
+
+    // Persist into the canonical project store so the product actually lands in the
+    // current project (ProjectsPage reads projectStore). The sessionStorage payload is
+    // kept for richer call-card context, but the store is what makes the handoff stick.
+    saveProductSelectionToCurrentProject({
+      sku: selectedProduct.sku,
+      title: selectedProduct.name,
+      family: selectedProduct.family,
+      category: selectedProduct.category,
+      source: "Product call cards",
+    });
 
     try {
       window.sessionStorage.setItem("wingman.pendingProjectProduct", JSON.stringify(payload));
