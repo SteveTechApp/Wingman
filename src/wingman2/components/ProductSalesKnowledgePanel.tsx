@@ -157,6 +157,10 @@ function ConversationModal({
                 <h4>How it works</h4>
                 <p>{knowledge.howItWorks}</p>
               </article>
+              <article>
+                <h4>How it relates to other WyreStorm options</h4>
+                <p>{knowledge.howItRelates}</p>
+              </article>
               {knowledge.featureHints.length ? (
                 <ListBlock title="Feature notes to explain carefully" items={knowledge.featureHints} />
               ) : null}

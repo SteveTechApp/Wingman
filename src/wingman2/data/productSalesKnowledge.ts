@@ -33,6 +33,7 @@ export type ProductSalesKnowledge = {
   whatItIs: string;
   whereItSits: string;
   howItWorks: string;
+  howItRelates: string;
   specialFeatures: string[];
   worksWith: string[];
   commonUseCases: string[];
@@ -114,6 +115,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "Usually at the lectern, credenza, table box, rack or behind the front-of-room display. The correct location depends on where the laptop connects, where the display is mounted and where any USB camera, soundbar or touch display returns to the host.",
     howItWorks:
       "The switcher selects between local inputs, manages the output path to the display, and may also handle USB, scaling, MST dual-display, audio de-embedding or HDBaseT extension depending on the model.",
+    howItRelates:
+      "Think of it as the friendly front door to one room. Below it sits a plain HDMI switcher (source selection only, no USB or BYOD); above it sit matrix and AV-over-IP systems that route to many rooms. It is most often confused with a matrix - the difference is one room and one display path, not many displays each choosing their own source. Usually sold with the display, a USB camera or soundbar, and sometimes a touch panel.",
     specialFeatures: [
       "Can simplify a room where users bring laptops and expect one easy connection.",
       "Some models support USB-C, HDMI, dual display / MST, HDBaseT output, scaling or room-control handoff.",
@@ -184,6 +187,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "Usually close to the display, source equipment, rack, lectern or furniture position where the sources are located.",
     howItWorks:
       "Several HDMI inputs feed the switcher. The selected input is sent to the output. Some models may include scaling, audio handling or control.",
+    howItRelates:
+      "The simplest 'choose between a few sources for one screen' box. A presentation switcher is the step up when laptops, USB-C or wireless sharing are involved; a matrix is the step up when several screens each need their own source. Customers often ask for a 'splitter' when they mean this - a splitter copies one source to many screens, a switcher chooses one of many for a single screen.",
     specialFeatures: ["Simpler than a matrix", "Useful when one display needs several local source options", "Often controlled by button, remote, serial or IP depending on model"],
     worksWith: ["HDMI laptops", "room PCs", "media players", "displays", "projectors", "control systems"],
     commonUseCases: ["Small meeting rooms", "training rooms", "reception displays", "local source selection"],
@@ -230,6 +235,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "Normally in a rack, comms room, AV cupboard or central equipment location where sources and display cable routes can be managed.",
     howItWorks:
       "Each source connects to an input. Each display or zone connects to an output. The matrix decides which input is routed to each output.",
+    howItRelates:
+      "The central-routing answer for fixed systems. Below it sit switchers (one display) and distribution amplifiers (the same image everywhere); above it sits AV-over-IP for many rooms and easy future growth. The classic mix-up is matrix versus splitter - a matrix lets each screen show a different source, a splitter cannot. Sold with display receivers, control and often an audio path.",
     specialFeatures: [
       "Correct choice for fixed multi-input / multi-output routing.",
       "Can support scaling, audio breakaway, HDBaseT outputs, seamless switching or control depending on model.",
@@ -292,6 +299,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "One end sits near the source, the other near the display. The cable path between them is normally category cable, fibre or active optical HDMI depending on product type.",
     howItWorks:
       "The transmitter takes the source signal, sends it over the installed cable route, and the receiver rebuilds the signal at the display end.",
+    howItRelates:
+      "This solves distance, not choice. It is a transmitter and receiver sold as a pair; if the customer also needs to pick between sources, that is a switcher or matrix conversation. It is often confused with a matrix because both involve a far-end receiver - the difference is that an extender just moves one signal from A to B.",
     specialFeatures: [
       "Use when HDMI distance is too long for a standard passive cable.",
       "Some models also carry USB, IR, RS-232, Ethernet or audio.",
@@ -356,6 +365,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "A transmitter is the source-side half of an extension system. It takes a local source signal and sends it to a receiver or compatible downstream device.",
     whereItSits: "At the source position: table, lectern, wall plate, rack, source shelf or local equipment area.",
     howItWorks: "It accepts the source connection and sends it over HDBaseT, network, fibre or another supported transport path.",
+    howItRelates:
+      "The source-side half of an extension link - only half a solution on its own, since it needs its matching receiver (or a compatible matrix input) at the far end. The most common quoting slip is pricing the transmitter and forgetting the receiver that completes the link.",
     specialFeatures: ["Source-side product", "Often paired with a matching receiver", "May include USB, control or audio depending on model"],
     worksWith: ["Receivers", "displays", "matrices", "USB devices", "control systems"],
     commonUseCases: ["Remote input points", "lecterns", "table inputs", "source-side extension"],
@@ -383,6 +394,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "A receiver is the display-side half of an extension system. It rebuilds a transported signal and outputs it to the display or endpoint.",
     whereItSits: "Behind the display, above a projector, at a display wall, in a credenza, or at the far end of an extension path.",
     howItWorks: "It receives the transported signal from a transmitter, matrix or compatible source-side device and outputs to HDMI, USB, audio or control as supported.",
+    howItRelates:
+      "The display-side half of an extension link - it always needs a transmitter or matrix output feeding it. Receiver-only quotes are the mirror image of the transmitter trap: confirm what is sending the signal before you quote.",
     specialFeatures: ["Display-side product", "Requires a compatible source-side device", "May support USB, control, audio or scaling depending on model"],
     worksWith: ["Transmitters", "matrix outputs", "displays", "projectors", "USB peripherals", "control systems"],
     commonUseCases: ["Remote displays", "projectors", "touch displays", "receiver-side extension"],
@@ -410,6 +423,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "A distribution amplifier, often called a splitter, takes one source and sends the same content to multiple outputs. It is not a matrix because it does not let each output choose a different source.",
     whereItSits: "Usually near the source equipment or rack where one signal needs to be duplicated to several displays.",
     howItWorks: "One input is copied to multiple outputs. All connected displays normally receive the same source signal.",
+    howItRelates:
+      "The 'same picture on every screen' box. If each screen needs its own source, that is a matrix; if it is one screen choosing between sources, that is a switcher. This is the product customers usually mean when they say 'splitter', and the one most often confused with a matrix.",
     specialFeatures: ["Simple way to duplicate one source", "Useful for signage, monitor feeds or repeat displays", "Should not be confused with matrix routing"],
     worksWith: ["One HDMI source", "multiple displays", "signage players", "confidence monitors", "preview displays"],
     commonUseCases: ["Retail signage", "reception screens", "training room repeater displays", "simple monitor duplication"],
@@ -445,6 +460,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "An encoder is the source-side device in an AV-over-IP system. It converts a source signal into a network stream so it can be routed to decoders around the building.",
     whereItSits: "At the source, rack, lectern, media player, camera output or source equipment position.",
     howItWorks: "The source connects to the encoder. The encoder connects to the AV network. Decoders subscribe to that stream and output it to displays.",
+    howItRelates:
+      "The source-side endpoint in an AV-over-IP system - there is a matching decoder at every display, plus a controller and network tying them together. A matrix is the simpler, fixed alternative when no network is wanted. The detail people most often get backwards is the count: encoders live at sources, decoders at displays.",
     specialFeatures: ["Source-side AVoIP endpoint", "Supports flexible routing when paired with decoders and a controller", "Network design matters"],
     worksWith: ["NetworkHD controller", "managed network switch", "AVoIP decoders", "sources", "multiview processors"],
     commonUseCases: ["Campus AV", "hospitality", "retail signage", "education", "control rooms", "large venues"],
@@ -485,6 +502,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "A decoder is the display-side device in an AV-over-IP system. It receives a network AV stream and outputs it to a display, projector or processor.",
     whereItSits: "Behind the display, above a projector, in a rack feeding a processor, or wherever a network stream needs to become HDMI again.",
     howItWorks: "The decoder subscribes to the chosen encoder stream under controller command and outputs the selected content to the display.",
+    howItRelates:
+      "The display-side endpoint in an AV-over-IP system, paired with encoders at the sources and a controller on the network. Count decoders by screens and encoders by sources - mixing the two up is the usual error. A matrix is the simpler alternative when the system is small and fixed.",
     specialFeatures: ["Display-side AVoIP endpoint", "Can support routed displays, video walls or source switching depending on the system", "Requires encoder/controller/network"],
     worksWith: ["AVoIP encoders", "NetworkHD controller", "managed switch", "displays", "video walls", "multiview systems"],
     commonUseCases: ["Distributed display systems", "hospitality venues", "education estates", "control rooms", "retail signage"],
@@ -517,6 +536,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "A transceiver can operate as part of a flexible AV-over-IP endpoint architecture, depending on model and configuration.",
     whereItSits: "At a source or display position depending on how the system is configured.",
     howItWorks: "It participates in the AV network as an endpoint and is controlled through the AV-over-IP platform.",
+    howItRelates:
+      "A flexible endpoint that can act as source-side or display-side depending on configuration, used in routed AV-over-IP systems. It still needs the controller and managed network. Always confirm which NetworkHD family it belongs to, since the families are not cross-compatible.",
     specialFeatures: ["Flexible endpoint role", "Useful in routed AV systems", "Network design and configuration are critical"],
     worksWith: ["AV network", "controller", "sources", "displays", "switches"],
     commonUseCases: ["Large routed AV systems", "flexible venues", "control rooms", "education estates"],
@@ -544,6 +565,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "A video wall processor takes one or more sources and creates the required output layout for a group of displays or an LED processor.",
     whereItSits: "Usually in the rack or near the wall processor/display infrastructure, between sources and the wall outputs.",
     howItWorks: "It processes the source image and maps it to the required display outputs, wall layout or processor input.",
+    howItRelates:
+      "The dedicated, non-networked way to drive a wall. The step across is an AV-over-IP wall design (more flexible, more complex, needs a network); the simpler sibling is a basic splitter when every screen just shows the same thing. Choose the processor when the wall behaviour is known and fixed.",
     specialFeatures: ["Used when the wall needs layout/canvas processing", "Can be simpler than AVoIP for fixed LCD walls", "Wall behaviour must be defined before quoting"],
     worksWith: ["LCD video walls", "LED processors", "sources", "matrix systems", "AVoIP systems", "control systems"],
     commonUseCases: ["Retail feature walls", "lobbies", "control rooms", "venues", "hospitality feature displays"],
@@ -576,6 +599,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "A multiview processor creates one output image made from multiple source windows. It is not the same as simply having multiple HDMI outputs.",
     whereItSits: "Usually between multiple sources/network streams and a single monitor, confidence display, operator display or preview screen.",
     howItWorks: "It combines several source views into one composed output so the user can see multiple feeds at the same time.",
+    howItRelates:
+      "Shows several sources on ONE screen - not to be confused with multi-output routing (many screens). A matrix or AVoIP system routes; this composes. It is usually sold alongside an AVoIP or matrix system to feed an operator, confidence or monitoring display.",
     specialFeatures: ["Shows multiple sources on one screen", "Useful for monitoring and preview", "Must not be confused with multi-output routing"],
     worksWith: ["AVoIP systems", "matrix outputs", "operator monitors", "preview displays", "control rooms"],
     commonUseCases: ["Control rooms", "sports bars", "lecture capture", "operator preview", "source monitoring"],
@@ -607,6 +632,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "A UC room core brings camera, microphone, speaker and presentation functions together so a user can run a video meeting or share content easily.",
     whereItSits: "Usually at the front of the room, display position, credenza, table or meeting-room equipment location.",
     howItWorks: "It connects the room display, camera/audio functions and user device or room PC into a simpler meeting workflow.",
+    howItRelates:
+      "The all-in-one meeting-room answer for small and medium spaces. Below it sits a basic webcam-and-speaker setup; above it sit separate camera, DSP and microphones once the room is too big for one device to cover. It is often confused with a presentation switcher - this leads with the video call, the switcher leads with sharing content.",
     specialFeatures: ["Supports meeting-room workflows", "May combine camera, speaker, microphone, presentation and wireless casting", "User experience matters more than raw routing"],
     worksWith: ["Displays", "laptops", "room PCs", "Teams/Zoom platforms", "USB peripherals", "microphones", "DSPs"],
     commonUseCases: ["Huddle rooms", "small meeting rooms", "hotel meeting rooms", "telemedicine rooms", "BYOD spaces"],
@@ -647,6 +674,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "A wireless presentation system lets users share content without plugging in a video cable, typically using AirPlay, Miracast, app-based sharing or a wireless dongle workflow.",
     whereItSits: "Normally connected to the display or room presentation system, with network access validated by IT.",
     howItWorks: "The user's device sends content wirelessly to the receiver/system, which outputs to the display or room AV path.",
+    howItRelates:
+      "The cable-free way to share, usually riding alongside a presentation switcher or UC room rather than standing alone. It complements the wired path rather than replacing it - most rooms keep a wired fallback - and network and IT policy decide whether it is even allowed.",
     specialFeatures: ["Reduces cable clutter", "Useful for guest presentation", "IT policy and network design are essential"],
     worksWith: ["Displays", "presentation switchers", "laptops", "mobile devices", "UC systems", "guest networks"],
     commonUseCases: ["Meeting rooms", "classrooms", "training rooms", "hospitality meeting rooms"],
@@ -674,6 +703,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "A camera captures the room, presenter, audience or subject and feeds conferencing, recording, streaming or production systems.",
     whereItSits: "Mounted at the front of room, rear of room, ceiling, wall, lectern, stage or clinical/teaching position depending on the shot required.",
     howItWorks: "The camera outputs video over HDMI, USB, SDI, NDI or network depending on model and workflow.",
+    howItRelates:
+      "One piece of the capture story. A camera bridge is the step up when several cameras must become one feed; a UC room core is the step across when the room wants camera, mic and speaker in a single box. Pick the camera by where the picture has to end up - call, recorder, stream or network - not just by how good it looks.",
     specialFeatures: ["PTZ control may allow presets", "NDI models can enter network video workflows", "Field of view and mounting height are critical"],
     worksWith: ["Camera bridges", "UC systems", "recorders", "streaming encoders", "NetworkHD/NDI workflows", "control systems"],
     commonUseCases: ["Lecture capture", "hybrid meetings", "training", "telemedicine", "worship", "events"],
@@ -701,6 +732,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "A camera bridge takes one or more camera/source feeds and presents them to a conferencing, capture or streaming workflow in the required format.",
     whereItSits: "Usually in the rack, lectern, production position or near the room PC/USB host.",
     howItWorks: "Camera and source feeds connect into the bridge; the bridge outputs the selected/composed feed over USB, HDMI, NDI or network depending on model.",
+    howItRelates:
+      "Turns one or more cameras into a single feed a meeting platform or recorder can use. Below it sits a single camera (one fixed view); a UC room core is the simpler all-in-one for small rooms. Sold alongside the cameras themselves, and usually a room PC or recorder.",
     specialFeatures: ["Can simplify multi-camera rooms", "Useful when the meeting platform only accepts one USB video feed", "Camera/source count must be checked"],
     worksWith: ["PTZ cameras", "room PCs", "USB hosts", "recorders", "streaming systems", "NDI workflows"],
     commonUseCases: ["Training rooms", "lecture capture", "council rooms", "worship", "simulation labs"],
@@ -727,6 +760,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
     whatItIs: "An audio amplifier powers loudspeakers and may include network audio or control features depending on the model.",
     whereItSits: "Usually in the rack, ceiling service space, AV cupboard or local room equipment position.",
     howItWorks: "Audio signal enters the amplifier; the amplifier drives speaker outputs.",
+    howItRelates:
+      "The 'make the speakers loud enough' box. It usually sits downstream of a DSP, which does the mixing, microphones and echo control; on its own it powers speakers but does not solve conferencing audio. Sold with speakers, and a DSP wherever microphones are involved.",
     specialFeatures: ["Can support installed room audio", "Dante/network audio may simplify DSP integration", "Speaker load and room size matter"],
     worksWith: ["DSPs", "speakers", "Dante systems", "presentation switchers", "matrix/AVoIP systems"],
     commonUseCases: ["Classrooms", "meeting rooms", "training rooms", "hospitality", "retail audio"],
@@ -753,6 +788,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
     whatItIs: "An audio DSP processes microphones, speakers, program audio, conferencing audio and room audio logic.",
     whereItSits: "Normally in the rack or AV cupboard with microphone, speaker and network audio cabling.",
     howItWorks: "Audio inputs feed the DSP; the DSP mixes, processes and routes audio to amplifiers, speakers, conferencing systems or network audio.",
+    howItRelates:
+      "The brain of room audio - microphones, echo cancellation, mixing and routing. The amplifier is its partner: the DSP decides, the amp drives the speakers. If the room has people speaking or conferencing, the DSP is the part a switcher's simple audio output cannot replace.",
     specialFeatures: ["Handles real audio system behaviour", "Important for conferencing, microphones and echo control", "Commissioning matters"],
     worksWith: ["Microphones", "amplifiers", "speakers", "Dante", "UC systems", "control"],
     commonUseCases: ["Boardrooms", "lecture rooms", "training rooms", "council rooms", "large meeting rooms"],
@@ -780,6 +817,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "A control interface gives users or the AV system a way to trigger room actions such as source selection, display power, presets or device control.",
     whereItSits: "At the table, wall, lectern, rack or touch panel position depending on who operates the room.",
     howItWorks: "The control interface sends commands by IP, RS-232, IR, relay or a platform-specific control path.",
+    howItRelates:
+      "The simple-buttons layer that hides the technical system from users. It does not replace the transport (switcher, matrix or AVoIP) - it sits on top and makes the chosen system usable. Sold with whatever it controls, and only as good as the presets designed behind it.",
     specialFeatures: ["Turns technical routing into simple user actions", "Can reduce support calls", "Needs clear preset design"],
     worksWith: ["Displays", "switchers", "matrices", "AVoIP systems", "projectors", "relays", "third-party control"],
     commonUseCases: ["Meeting rooms", "classrooms", "hospitality venues", "training rooms"],
@@ -807,6 +846,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "A cable is a signal path component, not a switching or processing product. It connects one device to another and should only appear when cabling is specifically being discussed.",
     whereItSits: "Between source and display, source and switcher, switcher and display, rack and display, or other device-to-device locations.",
     howItWorks: "It carries the supported signal over the rated distance and bandwidth.",
+    howItRelates:
+      "A signal path, not a product that switches or processes anything. It is the step before active electronics - reach for an extender once the run is too long or demanding for even an active optical cable. Only bring it up once the active hardware path is settled.",
     specialFeatures: ["Some cables support longer HDMI runs", "Active optical cables can solve certain long direct HDMI routes", "Route length and bend radius matter"],
     worksWith: ["Sources", "displays", "switchers", "matrices", "processors", "extenders"],
     commonUseCases: ["Device interconnect", "direct display feed", "rack patching", "short local connections"],
@@ -834,6 +875,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "An accessory supports the main AV system but is not usually the core product that solves the signal path.",
     whereItSits: "Wherever the main product requires mounting, power, rack fitting, adaptation or installation support.",
     howItWorks: "It supports installation, physical fit, power or usability rather than defining the signal architecture.",
+    howItRelates:
+      "A supporting item - mount, bracket, power or adapter - that completes an installation rather than solving the signal path. Always attach it after the main product is chosen, never in its place.",
     specialFeatures: ["Useful as an attach item", "Should not replace the main product recommendation", "Often project-dependent"],
     worksWith: ["Main WyreStorm hardware", "racks", "mounts", "installation accessories"],
     commonUseCases: ["Mounting", "power", "adapters", "spares", "installation support"],
@@ -863,6 +906,8 @@ const knowledgeByClass: Partial<Record<WingmanProductClass | "default", ProductS
       "Its position depends on product class. Establish whether it belongs at the source, display, rack, network, table, lectern, front-of-room or control position.",
     howItWorks:
       "Use the product classification, connectors, I/O count and feature set to explain how it moves, switches, processes, controls or supports the signal path.",
+    howItRelates:
+      "Where this sits depends on its class - source, display, rack, network or user table. Establish whether it switches, extends, routes, processes, captures, amplifies or simply supports the signal, then position it against the simpler and more capable WyreStorm options on either side.",
     specialFeatures: ["Clarify product class first", "Confirm signal path", "Validate companion equipment"],
     worksWith: ["Sources", "displays", "network", "audio", "control", "installation infrastructure"],
     commonUseCases: ["Professional AV systems"],
