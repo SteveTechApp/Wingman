@@ -99,15 +99,15 @@ function VisualStudioCanvasInner({ model, mode }: VisualStudioCanvasProps) {
         </div>
       </div>
 
-      <div className="wm-vs-canvas" ref={exportRef}>
+      <div className="wm-vs-canvas" ref={exportRef} data-diagram-id={model.id}>
         <ReactFlow
           nodes={flowModel.nodes}
           edges={flowModel.edges}
           nodeTypes={nodeTypes}
           fitView
-          fitViewOptions={{ padding: 0.08 }}
-          minZoom={0.65}
-          maxZoom={1.8}
+          fitViewOptions={{ padding: 0.035, maxZoom: 1.08 }}
+          minZoom={0.45}
+          maxZoom={2.1}
           nodesDraggable
           nodesConnectable={false}
           elementsSelectable
