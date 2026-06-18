@@ -30148,3 +30148,39 @@ body .wm-pcc-preview .wm-pcc-section-tab-active.wm-pcc-section-tab span {
   }
 }
 /* === end Product Family page workspace chip and rule card refinement === */
+
+/* WINGMAN_PROPOSAL_RESPONSE_PACK_CONTRAST_FIX_20260618
+   Compact scoped contrast repair for Proposal / Response Pack cards. */
+
+:where([class*="proposal"], [class*="Proposal"], [class*="response-pack"], [class*="responsePack"], [class*="ResponsePack"]) {
+  --proposal-card-bg: rgba(6, 25, 40, 0.94);
+  --proposal-card-bg-soft: rgba(9, 36, 55, 0.9);
+  --proposal-card-border: rgba(74, 220, 245, 0.24);
+  --proposal-text-strong: #f8fbff;
+  --proposal-text-body: #d7e5f2;
+  --proposal-text-muted: #9fb4c8;
+  --proposal-heading: #55dff4;
+}
+
+:where([class*="proposal"], [class*="Proposal"], [class*="response-pack"], [class*="responsePack"], [class*="ResponsePack"])
+:where(article, section, [class*="card"], [class*="Card"], [class*="panel"], [class*="Panel"]) {
+  background: linear-gradient(180deg, var(--proposal-card-bg), var(--proposal-card-bg-soft)) !important;
+  border-color: var(--proposal-card-border) !important;
+  color: var(--proposal-text-body) !important;
+}
+
+:where([class*="proposal"], [class*="Proposal"], [class*="response-pack"], [class*="responsePack"], [class*="ResponsePack"])
+:where(h1, h2, h3, h4, strong, b) {
+  color: var(--proposal-text-strong) !important;
+}
+
+:where([class*="proposal"], [class*="Proposal"], [class*="response-pack"], [class*="responsePack"], [class*="ResponsePack"])
+:where([class*="title"], [class*="Title"], [class*="heading"], [class*="Heading"]) {
+  color: var(--proposal-heading) !important;
+}
+
+:where([class*="proposal"], [class*="Proposal"], [class*="response-pack"], [class*="responsePack"], [class*="ResponsePack"])
+:where([class*="muted"], [class*="Muted"], [class*="sub"], [class*="Sub"], [class*="caption"], [class*="Caption"]) {
+  color: var(--proposal-text-muted) !important;
+}
+
