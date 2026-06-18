@@ -88,7 +88,7 @@ const ALL_COMPETITOR_SKUS: string[] = Object.values(COMPETITOR_SKU_SEED_CATALOG)
   .flat()
   .map((sku) => String(sku));
 
-type Verdict = "GOOD MATCH" | "PARTIAL MATCH" | "NO MATCH";
+type Verdict = "GOOD MATCH" | "PARTIAL MATCH" | "ARCHITECTURE ALTERNATIVE" | "NO MATCH";
 
 type CompetitorProfile = {
   brand: string;
@@ -112,6 +112,7 @@ type WyreStormProduct = {
   transport: string;
   tags: string[];
   caveat: string;
+  compareSuitability?: "general" | "specialist";
 };
 
 type ScoredCandidate = {
@@ -207,6 +208,86 @@ const WYRESTORM_PRODUCTS: WyreStormProduct[] = [
     caveat: "Use for simpler preset video wall layouts.",
   },
   {
+    sku: "EX-100-KVM",
+    name: "HDBaseT HDMI and USB KVM extender kit",
+    family: "HDBaseT Extension",
+    productClass: "HDBaseT extender",
+    role: "TX/RX extender kit",
+    transport: "HDBaseT",
+    tags: ["hdbaset", "extender", "extension", "usb", "usb 2.0", "kvm", "point-to-point", "tx rx"],
+    caveat: "Use for point-to-point HDMI and USB extension. Confirm resolution, cable length, USB version and control needs before quoting.",
+  },
+  {
+    sku: "EX-100-H2",
+    name: "HDBaseT HDMI extender kit",
+    family: "HDBaseT Extension",
+    productClass: "HDBaseT extender",
+    role: "TX/RX extender kit",
+    transport: "HDBaseT",
+    tags: ["hdbaset", "extender", "extension", "hdmi", "point-to-point", "tx rx"],
+    caveat: "Use for point-to-point HDMI extension. Confirm resolution, cable length, control needs and receiver/transmitter requirements before quoting.",
+  },
+  {
+    sku: "EX-60-USB2",
+    name: "USB 2.0 extender",
+    family: "USB Extension",
+    productClass: "HDBaseT extender",
+    role: "USB extender",
+    transport: "USB extension",
+    tags: ["usb", "usb 2.0", "extender", "extension", "point-to-point"],
+    caveat: "Use when the requirement is USB extension rather than video switching. Confirm USB version, device type and cable length before quoting.",
+  },
+  {
+    sku: "MX-0402-MST",
+    name: "4x2 presentation switcher with MST",
+    family: "Synergy / Presentation",
+    productClass: "Presentation switcher",
+    role: "Switcher",
+    transport: "HDMI / USB-C / MST",
+    tags: ["presentation", "switcher", "usb", "usb-c", "mst", "4k60", "small room", "dual display"],
+    caveat: "Use for compact presentation rooms that need a few sources and professional switching without stepping into large-room matrix architecture.",
+  },
+  {
+    sku: "MX-0403-H3-MST",
+    name: "4x3 presentation switcher with MST and HDBaseT 3.0 output",
+    family: "Synergy / Presentation",
+    productClass: "Presentation switcher",
+    role: "Switcher",
+    transport: "HDMI / USB-C / HDBaseT 3.0 / MST",
+    tags: ["presentation", "switcher", "usb", "usb-c", "mst", "4k60", "hdbaset3", "dual display", "room core"],
+    caveat: "Use when a contained room needs presentation switching plus a more capable output path, without jumping to a specialist large-room hybrid core.",
+  },
+  {
+    sku: "SW-620-TX-W",
+    name: "2-input wireless presentation switcher",
+    family: "Synergy / Presentation",
+    productClass: "Presentation switcher",
+    role: "Switcher",
+    transport: "HDMI / USB-C / Wireless presentation",
+    tags: ["presentation", "switcher", "usb", "usb-c", "wireless", "byod", "byom", "4k60", "small room"],
+    caveat: "Use when the sale is really about easy wired and wireless laptop presentation, not a larger matrix or specialist room core.",
+  },
+  {
+    sku: "SW-640L-TX-W",
+    name: "4-input wireless presentation switcher",
+    family: "Synergy / Presentation",
+    productClass: "Presentation switcher",
+    role: "Switcher",
+    transport: "HDMI / USB-C / Wireless presentation",
+    tags: ["presentation", "switcher", "usb", "usb-c", "wireless", "byod", "byom", "4k60", "dual display"],
+    caveat: "Use when the room needs a stronger day-to-day presentation workflow with more inputs and easier guest connection.",
+  },
+  {
+    sku: "MX-0404-SCL",
+    name: "4x4 seamless local matrix",
+    family: "Matrix",
+    productClass: "Matrix",
+    role: "Switcher",
+    transport: "HDMI matrix",
+    tags: ["matrix", "4x4", "hdmi", "fixed io", "local matrix", "4k60", "444", "multiview", "scaling"],
+    caveat: "Use when the right answer is a contained local matrix rather than a video wall processor, presentation switcher or AVoIP design.",
+  },
+  {
     sku: "MX-0808-KIT",
     name: "8x8 HDMI/HDBaseT matrix kit",
     family: "Matrix",
@@ -243,8 +324,9 @@ const WYRESTORM_PRODUCTS: WyreStormProduct[] = [
     productClass: "Presentation switcher",
     role: "Switcher",
     transport: "HDMI / USB-C / HDBaseT / NetworkHD 500",
-    tags: ["presentation", "usb-c", "hdbaset", "uc", "hybrid", "meeting room"],
-    caveat: "Use when room switching, USB, audio and hybrid transport are relevant.",
+    tags: ["presentation", "usb-c", "hdbaset", "uc", "hybrid", "meeting room", "specialist", "large room", "dual room", "master slave", "nhd500", "dsp", "amp", "mic", "audio", "hdbaset3"],
+    caveat: "Specialist room core for large single rooms or linked rooms. Confirm hybrid teaching, master/slave room sharing, amp/DSP, mic input and inter-room transport requirements before quoting.",
+    compareSuitability: "specialist",
   },
 ];
 
@@ -293,12 +375,83 @@ function runKnownProfileCompare(profile: CompetitorProfile): CompetitorProfile {
   return applyKnownCompareProfileOverrides(profile);
 }
 
-function applyCompareEquivalenceGuards(candidate: ScoredCandidate): ScoredCandidate {
+function isAtlonaOmeExKitProfile(profile: CompetitorProfile): boolean {
+  const compact = [profile.brand, profile.sku, profile.rawText]
+    .join(" ")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
+
+  return compact.includes("ATOMEEXKIT");
+}
+
+function applyCompareEquivalenceGuards(candidate: ScoredCandidate, profile?: CompetitorProfile): ScoredCandidate {
+  if (!profile) return candidate;
+
+  const isHdbasetExtenderProfile = /hdbaset extender/i.test(profile.productClass) || isAtlonaOmeExKitProfile(profile);
+  const changesArchitecture = candidate.product.productClass === "Presentation switcher"
+    || candidate.product.productClass === "Matrix"
+    || /^MX|^SW/.test(candidate.product.sku);
+
+  if (isHdbasetExtenderProfile && changesArchitecture) {
+    return {
+      ...candidate,
+      score: Math.min(candidate.score, 54),
+      verdict: "ARCHITECTURE ALTERNATIVE",
+      matched: uniqueSkuOptions([
+        ...candidate.matched,
+        "ARCHITECTURE ALTERNATIVE: this WyreStorm option changes the room design rather than replacing the point-to-point HDBaseT extender path.",
+      ]),
+      checks: uniqueSkuOptions([
+        ...candidate.checks,
+        "Confirm whether the customer actually needs switching, multiple sources or multiple outputs before moving away from an extender-led design.",
+      ]),
+      gaps: uniqueSkuOptions([
+        ...candidate.gaps,
+        "The competitor product is a point-to-point HDBaseT extender kit. This WyreStorm product changes the system architecture because it adds presentation switching rather than simply replacing the extender path.",
+      ]),
+    };
+  }
+
   return candidate;
 }
 
 function applyKnownCompareProfileOverrides(profile: CompetitorProfile): CompetitorProfile {
-  return profile;
+  if (!isAtlonaOmeExKitProfile(profile)) return profile;
+
+  return {
+    ...profile,
+    brand: "Atlona",
+    sku: "AT-OME-EX-KIT",
+    rawText: profile.rawText || "Atlona AT-OME-EX-KIT HDBaseT TX/RX extender kit with USB 2.0 and control extension.",
+    productClass: "HDBaseT extender",
+    role: "TX/RX extender kit",
+    transport: "HDBaseT",
+    requestedTags: uniqueSkuOptions([
+      ...profile.requestedTags,
+      "hdbaset",
+      "hdbaset extender",
+      "extender",
+      "extension",
+      "tx rx",
+      "usb",
+      "usb 2.0",
+      "point-to-point",
+      "control",
+    ]),
+    videoTags: uniqueSkuOptions([...profile.videoTags, "4k60"]),
+    knownProfile: {
+      ...(profile.knownProfile ?? {}),
+      title: "Atlona AT-OME-EX-KIT",
+      name: "HDBaseT TX/RX extender kit",
+      productClass: "HDBaseT extender",
+      headlineSpec: "Point-to-point HDMI / USB / control extension over category cable.",
+      transport: "HDBaseT",
+      usbControl: "USB 2.0 plus control transport where supported.",
+      typicalApplication: "Meeting room, classroom, interactive display, UC extension or source-to-display extension.",
+      validation: "Confirm required resolution, USB version, cable length, HDBaseT class, control needs and whether the customer actually needs switching.",
+      notThis: "Not a matrix, not AV-over-IP, not multiview and not a presentation switcher unless another switching stage is involved.",
+    },
+  };
 }
 
 function lookupCompareIntelligence(sku: string): Record<string, unknown> | null {
@@ -438,6 +591,9 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
   const matched: string[] = [];
   const checks: string[] = [];
   const gaps: string[] = [];
+  const trueVideoWallRequirement = isTrueVideoWallRequirement(profile);
+  const wirelessPresentationRequirement = isWirelessPresentationRequirement(profile);
+  const containedLocalMatrixRequirement = isContainedLocalMatrixRequirement(profile);
 
   if (profile.productClass !== "Unknown" && product.productClass === profile.productClass) {
     score += 28;
@@ -482,8 +638,13 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
     gaps.push("Competitor appears to be a receiver/decoder but candidate is a transmitter/encoder.");
   }
 
-  if (profile.productClass === "Video wall" && product.sku === "SW-0206-VW") {
-    score += 18;
+  if (product.sku.endsWith("-VW") && !trueVideoWallRequirement) {
+    score -= 52;
+    gaps.push("Products ending in -VW should only lead when the brief is a true LCD video wall requirement.");
+  }
+
+  if (trueVideoWallRequirement && (product.sku === "SW-0206-VW" || product.sku === "SW-0204-VW")) {
+    score += product.sku === "SW-0206-VW" ? 18 : 14;
     matched.push("Dedicated non-AVoIP video wall processor considered.");
   }
 
@@ -492,10 +653,71 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
     matched.push("Dedicated multiview processor considered.");
   }
 
+  if (product.compareSuitability === "specialist" && !isSpecialistHybridRoomRequirement(profile)) {
+    score -= 42;
+    gaps.push("This WyreStorm product is a specialist room core and should not be used as a default compare match for ordinary presentation switcher briefs.");
+  }
+
+  if (profile.productClass === "Presentation switcher" && (product.sku === "MX-0402-MST" || product.sku === "MX-0403-H3-MST")) {
+    score += 22;
+    matched.push("Compact presentation-switcher path considered ahead of larger specialist or matrix-led products.");
+  }
+
+  if (profile.productClass === "Presentation switcher" && wirelessPresentationRequirement && (product.sku === "SW-620-TX-W" || product.sku === "SW-640L-TX-W")) {
+    score += product.sku === "SW-640L-TX-W" ? 22 : 18;
+    matched.push("Wireless presentation requirement detected, so the SW-600 room-switcher path was prioritised.");
+  }
+
+  if (profile.productClass === "Presentation switcher" && !wirelessPresentationRequirement && (product.sku === "SW-620-TX-W" || product.sku === "SW-640L-TX-W")) {
+    score -= 10;
+    gaps.push("Wireless presentation has not been established yet, so confirm whether the room really needs an SW-600 wireless workflow.");
+  }
+
+  if (profile.productClass === "Presentation switcher" && product.sku === "MX-0403-H3-MST" && /mtr|teams room|capture|hdbaset 3|hdbaset3/i.test(profile.rawText)) {
+    score += 16;
+    matched.push("HDBaseT 3.0 / MTR capture style output requirement detected.");
+  }
+
+  if (profile.productClass === "Presentation switcher" && product.sku === "MX-1007-HYB" && !isSpecialistHybridRoomRequirement(profile)) {
+    score -= 18;
+    gaps.push("Brief does not look like the kind of large-room or dual-room hybrid-core job that would justify MX-1007-HYB.");
+  }
+
+  if (containedLocalMatrixRequirement && product.sku === "MX-0404-SCL") {
+    score += 24;
+    matched.push("Contained local matrix requirement detected, so the SCL matrix path was prioritised.");
+  }
+
+  if (profile.productClass === "Matrix" && !trueVideoWallRequirement && product.sku.endsWith("-VW")) {
+    score -= 18;
+    gaps.push("This looks like a matrix discussion, not a dedicated LCD video wall processor requirement.");
+  }
+
+  if (profile.productClass === "Matrix" && product.productClass === "Presentation switcher") {
+    score -= 8;
+    gaps.push("Confirm whether the customer really needs matrix-style source-to-display routing rather than a presentation-room switcher.");
+  }
+
   if (matched.length === 0) {
     gaps.push("No strong feature match from the entered data.");
   }
 
+  const hdbasetExtenderProfile = /hdbaset extender/i.test(profile.productClass) || isAtlonaOmeExKitProfile(profile);
+
+  if (hdbasetExtenderProfile && product.productClass === "HDBaseT extender") {
+    score += 70;
+    matched.push("Same product class: point-to-point HDBaseT extender path.");
+  }
+
+  if (hdbasetExtenderProfile && (product.productClass === "Presentation switcher" || product.productClass === "Matrix")) {
+    score -= 55;
+    gaps.push("Competitor is an HDBaseT extender kit, not a switching or matrix product.");
+  }
+
+  if (hdbasetExtenderProfile && product.sku === "MX-0403-H3-MST") {
+    score -= 50;
+    gaps.push("MX-0403-H3-MST should only be considered as an architecture alternative when the brief adds switching, multiple sources or multiple outputs.");
+  }
   checks.push(product.caveat);
   checks.push("Confirm mandatory features against current datasheets before quoting.");
   checks.push("Do not place competitor products in a WyreStorm BOM.");
@@ -510,7 +732,7 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
     matched: uniqueSkuOptions(matched),
     checks: uniqueSkuOptions(checks),
     gaps: uniqueSkuOptions(gaps),
-  });
+  }, profile);
 }
 
 function findWyrestormProduct(sku: string): WyreStormProduct | undefined {
@@ -572,6 +794,40 @@ function buildAvoipCandidates(
 
 function matrixOutputCount(profile: CompetitorProfile): number | undefined {
   return profile.resolvedSpec?.outputCount;
+}
+
+function isSpecialistHybridRoomRequirement(profile: CompetitorProfile): boolean {
+  const specialistSignals = [
+    "large room",
+    "dual room",
+    "master slave",
+    "nhd500",
+    "hdbaset3",
+    "dsp",
+    "amp",
+    "mic",
+    "audio",
+    "hybrid",
+  ];
+
+  return specialistSignals.some((signal) => profile.rawText.toLowerCase().includes(signal) || profile.requestedTags.includes(signal));
+}
+
+function isTrueVideoWallRequirement(profile: CompetitorProfile): boolean {
+  return profile.productClass === "Video wall"
+    || /video[\s-]?wall|lcd wall|2x2|1x4|1x6|bezel/i.test(profile.rawText);
+}
+
+function isWirelessPresentationRequirement(profile: CompetitorProfile): boolean {
+  return /wireless|airplay|miracast|casting|cast|guest/i.test(profile.rawText)
+    || profile.requestedTags.includes("byod");
+}
+
+function isContainedLocalMatrixRequirement(profile: CompetitorProfile): boolean {
+  return profile.productClass === "Matrix"
+    && !isHdBaseTMatrix(profile)
+    && !isTrueVideoWallRequirement(profile)
+    && !profile.requestedTags.includes("avoip");
 }
 
 function matrixInputCount(profile: CompetitorProfile): number | undefined {
@@ -732,9 +988,116 @@ function compareSummarySystemClass(
   return "Needs confirmation";
 }
 
+function compareArchitectureDirection(profile: CompetitorProfile, best: ScoredCandidate): string {
+  if (best.product.sku.endsWith("-VW")) {
+    return "Dedicated LCD video wall processor path.";
+  }
+
+  if (best.product.sku === "MX-0404-SCL") {
+    return "Contained local HDMI matrix path.";
+  }
+
+  if (best.product.sku === "MX-0402-MST") {
+    return "Compact presentation-switcher path for local room switching.";
+  }
+
+  if (best.product.sku === "MX-0403-H3-MST") {
+    return "Compact presentation-switcher path with HDBaseT 3.0 output for downstream room or capture workflows.";
+  }
+
+  if (best.product.sku === "SW-620-TX-W" || best.product.sku === "SW-640L-TX-W") {
+    return "Presentation-room workflow path with wired and wireless user connection.";
+  }
+
+  if (best.product.sku.startsWith("MXV-")) {
+    return wantsClassA(profile)
+      ? "18Gbps HDBaseT Class A matrix path with separate receivers."
+      : "18Gbps HDBaseT Class B matrix path with separate receivers.";
+  }
+
+  if (best.product.productClass === "AV-over-IP") {
+    return "AV-over-IP architecture path.";
+  }
+
+  return `${best.product.productClass} architecture path.`;
+}
+
+function compareQuoteSafetyStatus(profile: CompetitorProfile, best: ScoredCandidate): string {
+  if (best.verdict === "NO MATCH") {
+    return "High caution: do not quote as a direct replacement from current evidence.";
+  }
+
+  if (best.verdict === "ARCHITECTURE ALTERNATIVE") {
+    return "Architecture alternative only: safe to discuss, not safe to quote as a like-for-like replacement without reframing the system design.";
+  }
+
+  if (profile.requestedTags.includes("hdbaset")) {
+    return "Conditional: safe only after cable run, HDBaseT class and transmitted resolution are confirmed.";
+  }
+
+  if (profile.requestedTags.includes("avoip")) {
+    return "Conditional: safe only after network readiness, controller path and endpoint role are confirmed.";
+  }
+
+  if (best.gaps.length > 0) {
+    return "Conditional: confirm the open technical and workflow gaps before quote.";
+  }
+
+  return "Working direction: suitable as a quote starting point, subject to normal datasheet and workflow validation.";
+}
+
+function compareWrongProductAvoidance(profile: CompetitorProfile, best: ScoredCandidate): string {
+  if (best.product.sku.endsWith("-VW")) {
+    return "Wrong-product avoidance: only use this route when the customer truly needs an LCD video wall processor, not general matrix switching.";
+  }
+
+  if (best.product.sku === "MX-1007-HYB") {
+    return "Wrong-product avoidance: do not lead with this unless the room genuinely needs a specialist hybrid core with room audio, mic and inter-room workflow.";
+  }
+
+  if (profile.productClass === "Matrix" && best.product.productClass === "Presentation switcher") {
+    return "Wrong-product avoidance: confirm the customer does not actually need a true matrix before dropping into a presentation-switcher answer.";
+  }
+
+  if (profile.productClass === "Presentation switcher" && best.product.productClass === "Matrix") {
+    return "Wrong-product avoidance: confirm the room has really moved beyond presentation switching into source-to-display matrix routing.";
+  }
+
+  return "Wrong-product avoidance: keep the recommendation tied to the customer workflow, not just the nearest-looking SKU.";
+}
+
+function compareNextQuestion(profile: CompetitorProfile, best: ScoredCandidate): string {
+  if (best.product.sku.startsWith("MXV-")) {
+    return "Next question: what CAT cable distance must hold at the actual signal format, and does that force Class A / 70m or is Class B sufficient?";
+  }
+
+  if (best.product.sku === "MX-0403-H3-MST") {
+    return "Next question: is the HDBaseT 3.0 output being used for a room display, an MTR capture path, or another downstream endpoint?";
+  }
+
+  if (best.product.sku === "SW-620-TX-W" || best.product.sku === "SW-640L-TX-W") {
+    return "Next question: does the room really need wireless casting / guest presentation, and what USB or conferencing workflow has to be supported at the same time?";
+  }
+
+  if (best.product.sku === "MX-0404-SCL") {
+    return "Next question: is this genuinely a contained local matrix with fixed source and display count, or is the job drifting toward HDBaseT or AVoIP distribution?";
+  }
+
+  if (best.product.productClass === "AV-over-IP") {
+    return "Next question: is the network ready for the required bandwidth, switching and controller expectations on this AVoIP design?";
+  }
+
+  if (profile.requestedTags.includes("hdbaset")) {
+    return "Next question: what signal format, cable run and endpoint count must be supported before we lock the HDBaseT path?";
+  }
+
+  return "Next question: what single missing workflow detail would most change the product family direction before quote?";
+}
+
 function verdictClass(verdict: Verdict): string {
   if (verdict === "GOOD MATCH") return "is-good";
   if (verdict === "PARTIAL MATCH") return "is-partial";
+  if (verdict === "ARCHITECTURE ALTERNATIVE") return "is-partial";
   return "is-no-match";
 }
 
@@ -798,7 +1161,7 @@ function competitorHeadlineIo(profile: CompetitorProfile): string {
     outputs ? `${outputs} out` : "",
   ].filter(Boolean);
 
-  return `I/O: ${parts.join(" / ")}${parts.length ? ` · ${competitorIoTypeLabel(profile)}` : ""}`;
+  return `I/O: ${parts.join(" / ")}${parts.length ? ` Â· ${competitorIoTypeLabel(profile)}` : ""}`;
 }
 
 function unsupportedCompetitorVideoPorts(profile: CompetitorProfile): string[] {
@@ -839,13 +1202,13 @@ function competitorUsbFacts(profile: CompetitorProfile): string {
     specs.usbStandard || "",
   ].filter(Boolean);
 
-  return labels.length ? `USB: ${labels.join(" · ")}` : "";
+  return labels.length ? `USB: ${labels.join(" Â· ")}` : "";
 }
 
 function competitorHdbasetFacts(profile: CompetitorProfile): string {
   const specs = profile.resolvedSpec?.specs;
   const items = [specs?.hdbasetVersion, specs?.hdbasetClass].filter(Boolean);
-  return items.length ? `HDBaseT: ${items.join(" · ")}` : "";
+  return items.length ? `HDBaseT: ${items.join(" Â· ")}` : "";
 }
 
 function competitorDistanceQuestion(profile: CompetitorProfile): string {
@@ -909,7 +1272,7 @@ function competitorControlFacts(profile: CompetitorProfile): string {
     specs.ethernetControl ? "IP / LAN control" : "",
   ].filter(Boolean);
 
-  return items.length ? `Control: ${items.join(" · ")}` : "";
+  return items.length ? `Control: ${items.join(" Â· ")}` : "";
 }
 
 function competitorAudioNetworkFacts(profile: CompetitorProfile): string {
@@ -926,7 +1289,7 @@ function competitorAudioNetworkFacts(profile: CompetitorProfile): string {
     specs.audioEmbed ? "Audio embed" : "",
   ].filter(Boolean);
 
-  return items.length ? `Audio / Network: ${items.join(" · ")}` : "";
+  return items.length ? `Audio / Network: ${items.join(" Â· ")}` : "";
 }
 
 function competitorWirelessFacts(profile: CompetitorProfile): string {
@@ -942,7 +1305,7 @@ function competitorWirelessFacts(profile: CompetitorProfile): string {
     specs.castingDongleSupport ? `Dongle support: ${specs.castingDongleSupport}` : "",
   ].filter(Boolean);
 
-  return items.length ? `Wireless: ${items.join(" · ")}` : "";
+  return items.length ? `Wireless: ${items.join(" Â· ")}` : "";
 }
 
 function buildCompetitorSummary(profile: CompetitorProfile, mustMatchFeatures: string): CompetitorSummary {
@@ -996,6 +1359,25 @@ function buildCompetitorSummary(profile: CompetitorProfile, mustMatchFeatures: s
     mustMatchFeatures.trim() ? `Must-match notes: ${mustMatchFeatures.trim()}` : "",
   ], 5);
 
+  if (isAtlonaOmeExKitProfile(profile)) {
+    return {
+      heading: "Atlona AT-OME-EX-KIT",
+      detail: "HDBaseT TX/RX extender kit",
+      facts: uniqueText([
+        "Product type: HDBaseT TX/RX extender kit",
+        "Headline spec: point-to-point HDMI / USB / control extension over category cable.",
+        "Transport: HDBaseT",
+        "USB / control: USB 2.0 plus control transport where supported.",
+        "Typical application: meeting room, classroom, interactive display or UC extension.",
+      ], 8),
+      bullets: uniqueText([
+        "Atlona AT-OME-EX-KIT overview card",
+        "This is an extender-led product direction, not a matrix, AV-over-IP endpoint, multiview processor or presentation switcher.",
+        "Confirm required resolution, USB version, cable length, HDBaseT class, control needs and whether the customer actually needs switching.",
+      ], 8),
+      sourceUrl: resolvedSpec?.datasheetUrl,
+    };
+  }
   return {
     heading: [profile.brand, profile.sku].filter(Boolean).join(" ").trim() || "Competitor product",
     detail: resolvedSpec?.title?.trim()
@@ -1326,6 +1708,10 @@ function ComparePageNew() {
     const detectedProductType = compareSummaryProductType(profile, avoipProfile.classification);
     const detectedSystemClass = compareSummarySystemClass(profile, avoipProfile.classification, avoipProfile.recommendation);
     const detectedRole = compareSummaryRoleLabel(avoipProfile.classification.role, profile.role);
+    const architectureDirection = compareArchitectureDirection(profile, best);
+    const quoteSafetyStatus = compareQuoteSafetyStatus(profile, best);
+    const wrongProductAvoidance = compareWrongProductAvoidance(profile, best);
+    const nextQuestion = compareNextQuestion(profile, best);
 
     const roleNote =
       detectedRole === "Encoder / transmitter"
@@ -1339,14 +1725,19 @@ function ComparePageNew() {
       `Detected: ${detectedProductType} - ${detectedSystemClass}`,
       `Nearest WyreStorm direction: ${best.product.sku} - ${best.product.name}`,
       `Match: ${best.verdict} (${Math.round(best.score)}%)`,
+      `Architecture: ${architectureDirection}`,
+      `Quote safety: ${quoteSafetyStatus}`,
       "",
       "Why this fits",
       `- ${best.product.sku} is the closest WyreStorm starting point based on product role and system class.`,
       `- ${roleNote}`,
       ...(best.matched.slice(0, 2).map((line) => `- ${line}`)),
+      `- ${wrongProductAvoidance}`,
+      `- ${nextQuestion}`,
       "",
       "Check before quoting",
       ...best.checks.slice(0, 3).map((line) => `- ${line}`),
+      ...(best.gaps.slice(0, 2).map((line) => `- Gap: ${line}`)),
       ...(best.checks.length === 0 ? [
         "- Confirm codec/compression class.",
         "- Confirm video format, USB/KVM, audio and control requirements.",

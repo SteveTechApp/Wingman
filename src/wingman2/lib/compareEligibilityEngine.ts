@@ -234,7 +234,7 @@ function addCandidatesByPredicate(
 }
 
 function extractMatrixSizeFromText(text: string): { inputs?: number; outputs?: number } {
-  const readable = text.replace(/[×]/g, "x");
+  const readable = text.replace(/[Ã—]/g, "x");
   const explicit = readable.match(/(?:^|[^0-9])(\d{1,2})\s*x\s*(\d{1,2})(?:[^0-9]|$)/i);
 
   if (explicit) {
@@ -317,6 +317,10 @@ function extractCompetitorText(resultOrInput: unknown, inputText = ""): string {
 export function classifyCompareIntent(resultOrInput: unknown, inputText = ""): CompareIntentKind {
   const text = normalise(extractCompetitorText(resultOrInput, inputText));
   const compact = skuKey(extractCompetitorText(resultOrInput, inputText));
+  if (/ATOMEEXKIT/.test(compact)) {
+    return "extender";
+  }
+
   const avoipContext = /\b(dm\s*nvx|dmnvx|mxnet|kds(?!\s*usb)|nmx|zyper|av\s*over\s*ip|avoip|networked\s*av|networkhd|nav\s*[de]|nave|navd|sdvoe)\b/i.test(text) ||
     /(?:DMNVX|MXNET|KDS(?!USB)|NMX|ZYPER|NETWORKHD|NAV[DE]|SDVOE)/.test(compact);
 
@@ -683,6 +687,10 @@ export function evaluateProductEligibility(args: {
   }
 
   if (args.intent === "extender") {
+    if (/^MX|^SW/.test(key) || /\b(presentation|matrix|switcher)\b/i.test(combined)) {
+      return alternative(args.intent, ["ARCHITECTURE ALTERNATIVE: candidate changes the room architecture rather than replacing the point-to-point HDBaseT extender path."], 65);
+    }
+
     if (/^NHDUSBTRX$/.test(key) && /\busb\b/i.test(args.competitorText)) {
       return direct(args.intent, ["USB extension-over-IP candidate for USB/KVM workflow."], -20);
     }

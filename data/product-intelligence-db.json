@@ -41668,8 +41668,8 @@
       "title": "8K60Hz 4:4:4 1x2 HDMI Splitter",
       "description": "8K60Hz 4:4:4 1x2 HDMI Splitter | Dolby Vision & HDR | Audio De-embed | Down-Scaler",
       "summary": "8K60Hz 4:4:4 1x2 HDMI Splitter | Dolby Vision & HDR | Audio De-embed | Down-Scaler",
-      "category": "Audio / control",
-      "family": "Splitter / Distribution",
+      "category": "Signal Management",
+      "family": "Essentials / Splitter",
       "technologies": [
         "HDMI",
         "Audio",
@@ -42509,7 +42509,12 @@
       "physicalOutputs": 2,
       "physicalOutputCount": 2,
       "mirroredOutputs": 2,
-      "mirroredOutputCount": 2
+      "mirroredOutputCount": 2,
+      "productClass": "Splitter / Distribution",
+      "productType": "HDMI splitter",
+      "role": "HDMI splitter / distribution amplifier",
+      "domain": "SIGNAL_DISTRIBUTION",
+      "transport": "HDMI"
     },
     {
       "brand": "WyreStorm",
@@ -77053,8 +77058,8 @@
       "title": "NetworkHD 4-Input 4K60 Multiview Switcher",
       "description": "NetworkHD 4-Input 4K60 Multiview Switcher | Dolby Vision & HDR | Audio De-embed | Compatible with 400 & 500 Series",
       "summary": "NetworkHD 4-Input 4K60 Multiview Switcher | Dolby Vision & HDR | Audio De-embed | Compatible with 400 & 500 Series",
-      "category": "AVoIP",
-      "family": "NetworkHD AVoIP",
+      "category": "Multiview",
+      "family": "NetworkHD / Multiview",
       "technologies": [
         "AVoIP",
         "Multiview",
@@ -78184,7 +78189,11 @@
           ]
         }
       ],
-      "compatibilityReferences": []
+      "compatibilityReferences": [],
+      "productClass": "Multiview",
+      "productType": "Multiview processor",
+      "role": "primary-hardware / multiview",
+      "domain": "MULTIVIEW"
     },
     {
       "brand": "WyreStorm",
@@ -152776,8 +152785,8 @@
       "title": "WyreStorm NHD-128-NDI-TRX 4K30 NDI to AV over IP Gateway",
       "url": "https://www.wyrestorm.com/product/nhd-128-ndi-trx/",
       "description": "WyreStorm NHD-128-NDI-TRX bridges NDI and NetworkHD with bidirectional 4K30 conversion, PoE, and cloud management. Ideal for lecture halls, courtrooms, and corporate AV.",
-      "family": "Camera / Capture",
-      "role": "Endpoint hardware",
+      "family": "NetworkHD 100",
+      "role": "endpoint-hardware / NDI bridge",
       "productRole": "endpoint-hardware",
       "catalogVisibility": "default",
       "features": [
@@ -153647,7 +153656,7 @@
         }
       },
       "summary": "WyreStorm NHD-128-NDI-TRX bridges NDI and NetworkHD with bidirectional 4K30 conversion, PoE, and cloud management. Ideal for lecture halls, courtrooms, and corporate AV.",
-      "category": "Camera / Capture",
+      "category": "NetworkHD / NDI bridge",
       "technologies": [
         "Camera / Capture",
         "NDI",
@@ -153705,7 +153714,11 @@
           ]
         }
       ],
-      "compatibilityReferences": []
+      "compatibilityReferences": [],
+      "productClass": "AV-over-IP / NDI bridge",
+      "productType": "NDI to NetworkHD bridge",
+      "domain": "AVOIP",
+      "transport": "NDI / H.265 / NetworkHD 100 workflow"
     },
     {
       "brand": "WyreStorm",

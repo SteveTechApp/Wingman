@@ -842,12 +842,17 @@
     "sku": "NHD-0401-MV",
     "name": "NHD-0401-MV",
     "slug": "nhd-0401-mv",
-    "family": "NetworkHD",
+    "family": "NetworkHD / Multiview",
     "type": "switcher",
     "description": "NetworkHD 4-Input 4K60 Multiview Switcher | Dolby Vision & HDR | Audio De-embed | Compatible with 400 & 500 Series",
     "searchText": "NHD-0401-MV NetworkHD 4-Input 4K60 Multiview Switcher | Dolby Vision & HDR | Audio De-embed | Compatible with 400 & 500 Series NetworkHD switcher",
     "source": "2026 Wyrestorm SKU (1).xlsx",
-    "year": 2026
+    "year": 2026,
+    "productClass": "Multiview",
+    "category": "Multiview",
+    "productType": "Multiview processor",
+    "role": "Multiview processor",
+    "domain": "MULTIVIEW"
   },
   {
     "sku": "NHD-120-IW-TX",
@@ -1714,23 +1719,33 @@
     "sku": "SW-0204-VW",
     "name": "SW-0204-VW",
     "slug": "sw-0204-vw",
-    "family": "Switching and Control",
+    "family": "Video Wall",
     "type": "product",
     "description": "4K 60Hz 4-Output Video Wall | 1x4, 2x2 layout |Ultra-wide resolution support | WEB GUI and RS232 control",
     "searchText": "SW-0204-VW 4K 60Hz 4-Output Video Wall | 1x4, 2x2 layout |Ultra-wide resolution support | WEB GUI and RS232 control Switching and Control product",
     "source": "2026 Wyrestorm SKU (1).xlsx",
-    "year": 2026
+    "year": 2026,
+    "productClass": "Video wall processor",
+    "category": "Video wall processor",
+    "productType": "Video wall processor",
+    "role": "Processor",
+    "domain": "VIDEO_WALL"
   },
   {
     "sku": "SW-0206-VW",
     "name": "SW-0206-VW",
     "slug": "sw-0206-vw",
-    "family": "Switching and Control",
+    "family": "Video Wall",
     "type": "product",
     "description": "4K 60Hz 6-Output Video Wall | Cascading up to 6 devices | Multi-fast layout and customized layout |Ultra-wide resolution support | WEB GUI and RS232 control",
     "searchText": "SW-0206-VW 4K 60Hz 6-Output Video Wall | Cascading up to 6 devices | Multi-fast layout and customized layout |Ultra-wide resolution support | WEB GUI and RS232 control Switching and Control product",
     "source": "2026 Wyrestorm SKU (1).xlsx",
-    "year": 2026
+    "year": 2026,
+    "productClass": "Video wall processor",
+    "category": "Video wall processor",
+    "productType": "Video wall processor",
+    "role": "Processor",
+    "domain": "VIDEO_WALL"
   },
   {
     "sku": "SW-120-TX3",
