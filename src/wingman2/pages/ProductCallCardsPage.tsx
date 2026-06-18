@@ -2129,7 +2129,6 @@ return (
             {selectedProduct && (
               <p className="wm-pcc-preview-family">
                 {selectedProduct.family}
-                ""
               </p>
             )}
           </div>
