@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { BookOpenCheck, Cable, CheckCircle2, HelpCircle, Network, Search, Sparkles, Workflow } from "lucide-react";
+import { BookOpenCheck, Cable, CheckCircle2, HelpCircle, MapPin, Network, Search, Sparkles, Workflow } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
@@ -13,6 +13,7 @@ type ProductFamilyGuide = {
   whatItIs: string;
   whyItExists: string;
   howItWorks: string;
+  roomFit: string;
   connectivity: string[];
   usefulFunctionality: string[];
   specialFeatures: string[];
@@ -40,6 +41,8 @@ const familyGuides: ProductFamilyGuide[] = [
       "It gives dealers a scalable alternative to fixed matrix switching when budget matters and the system still needs network-routed AV.",
     howItWorks:
       "Sources are connected to encoders, displays are connected to decoders, and the AV network plus control layer decides which content appears where.",
+    roomFit:
+      "Encoders sit at each source - the rack, a media player, a laptop input - and decoders sit behind each display. The network switch and controller are the hub everything plugs into, so the 'room' for AVoIP is really the whole building's cabling.",
     connectivity: [
       "Source-side encoders for HDMI sources.",
       "Display-side decoders behind screens or at display zones.",
@@ -93,6 +96,8 @@ const familyGuides: ProductFamilyGuide[] = [
       "It bridges the gap between cost-focused AV-over-IP and high-end 10G lossless systems, giving integrators a strong mainstream platform for serious commercial AV.",
     howItWorks:
       "Encoders put sources onto the AV network, decoders feed displays, and the control layer manages routing, presets, USB and system behaviour.",
+    roomFit:
+      "Same shape as the rest of the range: small encoders at the sources, decoders behind the displays, and a managed switch plus NHD-CTL-PRO at the centre. The endpoints live at the edges; plan rack and switch space for the core.",
     connectivity: [
       "Encoders at source locations.",
       "Decoders at display locations.",
@@ -147,6 +152,8 @@ const familyGuides: ProductFamilyGuide[] = [
       "Some environments need AVoIP flexibility with uncompromised image performance and extremely low delay, especially where operators interact with content in real time.",
     howItWorks:
       "NetworkHD 600 endpoints sit at source and display positions, a 10G AV network carries the signals, and the control layer selects the active routing and presets.",
+    roomFit:
+      "10G endpoints sit at sources and displays just like the other families, but the 10G switch and cabling at the centre are the part that needs the most planning, space and budget.",
     connectivity: [
       "10G network infrastructure.",
       "Transceiver endpoints at sources, displays or mixed local positions.",
@@ -200,6 +207,8 @@ const familyGuides: ProductFamilyGuide[] = [
       "Not every multi-display system needs AV-over-IP. Matrix products keep many projects simpler, easier to support and more cost-effective.",
     howItWorks:
       "Sources and display paths connect to a central chassis or switcher. The customer selects which input feeds each output, often through presets or control.",
+    roomFit:
+      "Central kit - the chassis lives in the rack or AV cupboard, with every source cabled into its inputs and every display (or its receiver) cabled out of its outputs. The whole system fans out from this one box.",
     connectivity: [
       "HDMI, HDBaseT or mixed input/output paths depending on product.",
       "Display receivers where HDBaseT or extension outputs are used.",
@@ -253,6 +262,8 @@ const familyGuides: ProductFamilyGuide[] = [
       "Video walls have different behaviours: single canvas, per-display content, multiview, signage and mixed layouts. The processor choice depends on that behaviour.",
     howItWorks:
       "Sources feed the processor, the processor creates the required wall layout, and outputs feed the displays or downstream wall path.",
+    roomFit:
+      "The processor sits in the rack or near the wall, between the sources and the wall screens (or LED processor). Sources go in, the shaped layout comes out to the displays.",
     connectivity: [
       "Source inputs into the wall processor.",
       "Outputs to wall displays or the next processing stage.",
@@ -306,6 +317,8 @@ const familyGuides: ProductFamilyGuide[] = [
       "Most meeting rooms fail because the user experience is messy, not because the video specification is exotic.",
     howItWorks:
       "Laptop, room source, camera, microphone and display paths are brought into a simpler room workflow, often with automatic or user-friendly switching.",
+    roomFit:
+      "Room-local kit - at the table, lectern, credenza or behind the front display, wherever people plug in or sit. Its position follows the users and the screen, not the rack.",
     connectivity: [
       "USB-C and HDMI source inputs where supported.",
       "Display outputs for single or dual-screen rooms depending on product.",
@@ -359,6 +372,8 @@ const familyGuides: ProductFamilyGuide[] = [
       "Many AV problems are distance and cable-route problems, not routing-platform problems.",
     howItWorks:
       "A transmitter sends the AV signal over the installed cable route to a receiver at the display or destination.",
+    roomFit:
+      "One end at the source position, the other behind the display, joined by the installed category cable between them. The rest of the room never sees it.",
     connectivity: [
       "Source connection at the transmitter.",
       "Category cable path between transmitter and receiver.",
@@ -412,6 +427,8 @@ const familyGuides: ProductFamilyGuide[] = [
       "Video can look right while the room still fails because the USB path is missing, too slow or connected to the wrong host.",
     howItWorks:
       "USB host and USB device locations are separated, then linked using an extender path suitable for the required distance and bandwidth.",
+    roomFit:
+      "One end at the USB host (laptop, room PC or codec), the other at the peripheral (camera, microphone or touch display). It bridges the gap when the host and the device are not in the same place.",
     connectivity: [
       "USB host connection at the laptop, room PC or codec.",
       "USB device connection for camera, microphone, speakerphone, touch or keyboard/mouse.",
@@ -465,6 +482,8 @@ const familyGuides: ProductFamilyGuide[] = [
       "Hybrid meetings, lectures and events often need more than one camera or more than one output format.",
     howItWorks:
       "Camera or video sources are captured, switched or bridged into the required output path for conferencing, production, display, recording or AV-over-IP integration.",
+    roomFit:
+      "Cameras mount where the shot needs them - front, rear, ceiling or lectern; bridges live in the rack or near the room PC. Always trace the cable back to where the video has to arrive.",
     connectivity: [
       "Camera inputs such as USB, HDMI or network video depending on the product.",
       "USB output to conferencing platforms where bridge workflows are used.",
@@ -518,6 +537,8 @@ const familyGuides: ProductFamilyGuide[] = [
       "Video switching alone does not make a working room. Speech, programme audio and conferencing audio need their own signal path.",
     howItWorks:
       "Audio is taken from sources, microphones or conferencing devices, then routed, processed, amplified or handed into the wider room audio system.",
+    roomFit:
+      "Amplifiers and DSP live in the rack or a local cabinet; microphones and speakers sit out in the room. Back-of-house kit the customer hears but never sees.",
     connectivity: [
       "Analogue audio where the product supports local audio I/O.",
       "Dante or network audio where the selected design requires it.",
@@ -570,6 +591,8 @@ const familyGuides: ProductFamilyGuide[] = [
       "Many support issues come from the wrong cable for the distance, bandwidth or installation route.",
     howItWorks:
       "The correct cable carries the required video, audio or data signal between devices while respecting distance, bandwidth and installation constraints.",
+    roomFit:
+      "Between any two devices - source to display, rack to screen, or patched within the rack itself. The cable is the quiet link the rest of the system depends on.",
     connectivity: [
       "Source-to-display or source-to-equipment links.",
       "Rack patching and display connections.",
@@ -623,6 +646,8 @@ const familyGuides: ProductFamilyGuide[] = [
       "A technically correct AV system can still fail if users do not know how to operate it or support teams cannot see what is happening.",
     howItWorks:
       "Control devices and management tools sit above the signal path, triggering presets, display control, source selection or support visibility.",
+    roomFit:
+      "Touch panels and keypads go where the user operates the room - table, wall or lectern; gateways and management kit sit in the rack. The interface is what people see; the brains stay hidden.",
     connectivity: [
       "Network control connections.",
       "RS-232, IR, relay or other control paths where required by the device and system.",
@@ -793,6 +818,8 @@ export function ProductFamilyPage() {
               <FamilyTextBlock icon={<HelpCircle className="h-4 w-4 text-sky-600" />} title="Why it exists" text={activeFamily.whyItExists} />
               <FamilyTextBlock icon={<Workflow className="h-4 w-4 text-emerald-600" />} title="How it works" text={activeFamily.howItWorks} />
             </div>
+
+            <FamilyTextBlock icon={<MapPin className="h-4 w-4 text-cyan-600" />} title="Where it sits in the room" text={activeFamily.roomFit} />
 
             <details className="wm-decision-details">
               <summary>More product detail</summary>
