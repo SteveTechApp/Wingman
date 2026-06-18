@@ -2,6 +2,31 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { getProductStory, productStoryRelatedText } from "../data/productStories";
 import { saveProductSelectionToCurrentProject } from "../data/projectStore";
+import { buildProductNarrative, normaliseProductRecord, type ProductNarrative } from "../lib/productStoryEngine";
+
+// Reuse the role-aware Product Pitch engine so call-card copy is plain and
+// sales-focused (and consistent with the Pitch page) instead of the thin,
+// hollow enriched-data talk tracks ("...should be discussed around supports
+// 4k60..."). The engine already prefers hand-authored stories where they exist.
+function narrativeForSeed(seed: ProductSeed): ProductNarrative | null {
+  const spec = normaliseProductRecord(
+    {
+      sku: seed.sku,
+      name: seed.name,
+      family: seed.family,
+      category: seed.category,
+      productType: seed.category,
+      description: seed.description,
+      // Tags feed headline-feature extraction only. They are category-ish words
+      // (e.g. "HDBaseT"), not room applications, so leaving applications unset
+      // avoids awkward phrasing like "the ... for hdbaset".
+      features: seed.tags,
+    },
+    0,
+  );
+
+  return spec ? buildProductNarrative(spec) : null;
+}
 
 type ProductSeed = {
   sku: string;
@@ -626,12 +651,17 @@ function toProductCard(seed: ProductSeed): ProductCard {
       ]
     : [];
 
+  const narrative = narrativeForSeed(seed);
+
   const family = cleanText(story?.family) || cleanText(overlay.family) || cleanText(seed.family) || classify(seed);
   const category = cleanText(story?.category) || cleanText(overlay.category) || cleanText(seed.category) || family;
   const name = cleanText(story?.plainEnglishName) || cleanText(overlay.name) || cleanText(seed.name) || sku;
+  // Plain "what it is" from the engine wins over the raw marketing description
+  // (e.g. "Part of the latest generation of... for the latest generation of...").
   const description =
     cleanText(story?.whatItIs) ||
     cleanText(overlay.description) ||
+    cleanText(narrative?.whatItIs) ||
     cleanText(seed.description) ||
     `${name} from the Wingman product index.`;
 
@@ -645,14 +675,24 @@ function toProductCard(seed: ProductSeed): ProductCard {
       cleanText(story?.whatItDoes) ||
       cleanText(overlay.fit) ||
       cleanText(seed.fit) ||
+      cleanText(narrative?.whyItHelps) ||
       `Use this when the customer requirement matches ${family.toLowerCase()} applications. Confirm I/O, signal distance, USB, audio, control and network dependencies before quoting.`,
+    // Sales-focused talk track: hand-authored story/overlay first, then the
+    // engine's "say it like this" wording, then (only as a last resort) the
+    // weak enriched seed copy.
     openingLine:
       cleanText(story?.oneLinePosition) ||
       cleanText(story?.salesTalkTrack) ||
       cleanText(overlay.openingLine) ||
+      cleanText(narrative?.suggestedWording) ||
       cleanText(seed.openingLine) ||
       `${sku} is a ${family.toLowerCase()} product direction. Use it as a starting point, then validate the room requirement before making a firm recommendation.`,
-    questions: story?.discoveryQuestions || overlay.questions || seed.questions || [],
+    questions:
+      (story?.discoveryQuestions?.length ? story.discoveryQuestions : undefined) ||
+      (overlay.questions?.length ? overlay.questions : undefined) ||
+      (narrative?.askNow?.length ? narrative.askNow : undefined) ||
+      seed.questions ||
+      [],
     proofPoints:
       storyProofPoints ||
       overlay.proofPoints ||
@@ -2257,9 +2297,14 @@ return (
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveProductPanel(tab.id)}
-                className={`wm-pcc-section-tab ${
-                  activeProductPanel === tab.id ? "wm-pcc-section-tab-active" : ""
-                }`}
+                aria-pressed={activeProductPanel === tab.id}
+                className={[
+                  "wm-pcc-section-tab",
+                  tab.id !== "specification" ? "wm-pcc-section-tab-core" : "",
+                  activeProductPanel === tab.id ? "wm-pcc-section-tab-active" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
               >
                 <strong>{tab.label}</strong>
                 <span>{tab.hint}</span>
