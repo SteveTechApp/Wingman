@@ -1,82 +1,126 @@
-import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const root = path.resolve(__dirname, "..");
+const root = process.cwd();
 
-const pageSource = readFileSync(path.join(root, "src/wingman2/pages/ComparePageNew.tsx"), "utf8");
-const controlsSource = readFileSync(path.join(root, "src/wingman2/components/compare/CompareControls.tsx"), "utf8");
-const catalogSource = readFileSync(path.join(root, "src/wingman2/lib/competitorProductIntelligence.ts"), "utf8");
+function resolve(relativePath) {
+  return path.resolve(root, relativePath);
+}
 
-const requiredPageMarkers = [
-  "COMPETITOR_SKU_SEED_CATALOG",
-  "MANUFACTURER_SELECT_OPTIONS",
-  "CompareManufacturerCombobox",
-  "CompareProductLookupInput",
-  "compareSkuKey",
-  "function skuOptionsForBrand",
-  "function compareSkuSuggestions",
-  "COMPETITOR_SKU_SEED_CATALOG[brand]",
-  "Object.values(COMPETITOR_SKU_SEED_CATALOG).flat()",
-  "key.includes(queryKey) || queryKey.includes(key)",
-  "compareSkuSuggestions(competitorInput, effectiveBrand)",
-  "normalizeCompetitorSku",
-  "data-wingman-sku-normalisation",
+function exists(relativePath) {
+  return existsSync(resolve(relativePath));
+}
+
+function read(relativePath) {
+  return readFileSync(resolve(relativePath), "utf8");
+}
+
+function tail(output, lineCount = 10) {
+  return output
+    .split(/\r?\n/)
+    .map((line) => line.trimEnd())
+    .filter(Boolean)
+    .slice(-lineCount)
+    .join("\n");
+}
+
+function runVitest(files) {
+  const vitestEntry = resolve("node_modules/vitest/vitest.mjs");
+
+  try {
+    const output = execFileSync(process.execPath, [vitestEntry, "run", ...files], {
+      cwd: root,
+      encoding: "utf8",
+      stdio: "pipe",
+    });
+
+    return { status: "pass", output };
+  } catch (error) {
+    return {
+      status: "fail",
+      output: [error.stdout, error.stderr, error.message].filter(Boolean).join("\n"),
+    };
+  }
+}
+
+const retainedGuards = [
+  {
+    label: "Compare page retained",
+    relativePath: "src/wingman2/pages/ComparePageNew.tsx",
+  },
+  {
+    label: "Compare controls retained",
+    relativePath: "src/wingman2/components/compare/CompareControls.tsx",
+  },
+  {
+    label: "Native selector avoidance retained",
+    relativePath: "src/wingman2/components/compare/CompareControls.tsx",
+    forbidden: ["<select", "<datalist"],
+  },
 ];
 
-const requiredControlsMarkers = [
-  "role=\"combobox\"",
-  "aria-autocomplete=\"list\"",
-  "role=\"listbox\"",
-  "aria-label=\"Competitor SKU suggestions\"",
-  "visibleSuggestions.map",
-  "suggestions.slice(0, maxVisibleSuggestions)",
-  "onSelectSuggestion?.(sku)",
-  "data-wingman-manufacturer-combobox",
-  "aria-label=\"Choose competitor manufacturer\"",
-];
+const guardFailures = [];
 
-const requiredCatalogMarkers = [
-  "NMX-ENC-N2612S",
-  "DM-NVX-360",
-  "NAV E 121",
-  "HMX44-18G-KIT",
-];
-
-const forbiddenPageMarkers = [
-  "<datalist",
-  "<select",
-  "COMPARE_SKU_TYPEAHEAD_DATALIST_ID",
-  "list={COMPARE_SKU_TYPEAHEAD_DATALIST_ID}",
-  "compareSkuTypeaheadRefreshDatalist",
-  "compareSkuTypeaheadSuggestions(manufacturer, model).map",
-];
-
-const missing = [
-  ...requiredPageMarkers.filter((marker) => !pageSource.includes(marker)).map((marker) => "ComparePageNew missing: " + marker),
-  ...requiredControlsMarkers.filter((marker) => !controlsSource.includes(marker)).map((marker) => "CompareControls missing: " + marker),
-  ...requiredCatalogMarkers.filter((marker) => !catalogSource.includes(marker)).map((marker) => "competitor catalog missing seed SKU: " + marker),
-];
-
-const forbiddenFound = [
-  ...forbiddenPageMarkers.filter((marker) => pageSource.includes(marker)).map((marker) => "ComparePageNew still uses stale marker: " + marker),
-  ...["<datalist", "<select"].filter((marker) => controlsSource.includes(marker)).map((marker) => "CompareControls still uses native control marker: " + marker),
-];
-
-if (missing.length || forbiddenFound.length) {
-  console.error("[compare-typeahead-skus] Check failed:");
-
-  for (const marker of missing) {
-    console.error("- Missing marker: " + marker);
+for (const guard of retainedGuards) {
+  if (!exists(guard.relativePath)) {
+    guardFailures.push(`${guard.label}: missing ${guard.relativePath}`);
+    continue;
   }
 
-  for (const marker of forbiddenFound) {
-    console.error("- Forbidden marker still present: " + marker);
+  const source = read(guard.relativePath);
+
+  if (guard.forbidden?.length) {
+    const presentForbidden = guard.forbidden.filter((marker) => source.includes(marker));
+
+    if (presentForbidden.length > 0) {
+      guardFailures.push(`${guard.label}: forbidden ${presentForbidden.join(", ")}`);
+    }
+  }
+}
+
+const suites = [
+  {
+    label: "Custom compare controls render path",
+    files: ["src/wingman2/components/compare/CompareControls.test.tsx"],
+  },
+  {
+    label: "Rendered compare workflow handoff",
+    files: ["src/__tests__/compareWorkflowRendered.test.tsx"],
+  },
+  {
+    label: "Brand-scoped SKU normalization",
+    files: ["src/wingman2/lib/compareSkuNormalization.test.ts"],
+  },
+];
+
+const suiteResults = suites.map((suite) => ({
+  ...suite,
+  result: runVitest(suite.files),
+}));
+
+const failedSuites = suiteResults.filter((suite) => suite.result.status === "fail");
+
+if (guardFailures.length > 0 || failedSuites.length > 0) {
+  console.error("[compare-typeahead-skus] Check failed:");
+
+  if (guardFailures.length > 0) {
+    console.error("Retained guards to repair:");
+    for (const failure of guardFailures) {
+      console.error("- " + failure);
+    }
+  }
+
+  if (failedSuites.length > 0) {
+    console.error("Behavioural suites to repair:");
+    for (const suite of failedSuites) {
+      console.error("- " + suite.label);
+      console.error(tail(suite.result.output));
+    }
   }
 
   process.exit(1);
 }
 
-console.log("[compare-typeahead-skus] Verified custom brand-scoped SKU type-ahead without native datalist/select controls.");
+console.log("[compare-typeahead-skus] Marker guards retained only for file presence and native-control avoidance.");
+console.log("[compare-typeahead-skus] Behavioural coverage passed for custom combobox controls, SKU suggestion selection, and compare workflow handoff.");

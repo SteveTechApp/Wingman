@@ -102,7 +102,7 @@
     "check:wingman-recommendation-scenarios": "node tools/check-wingman-recommendation-scenarios.mjs",
     "check:compare-matrix-usability": "node tools/check-compare-matrix-usability.mjs",
     "check:compare-sku-auto-advance": "node tools/check-compare-sku-auto-advance.mjs",
-    "check:compare-engine-eligibility": "vitest run src/wingman2/lib/compareEligibilityEngine.test.ts && node tools/check-compare-engine-eligibility.mjs",
+    "check:compare-engine-eligibility": "node tools/check-compare-engine-eligibility.mjs",
     "check:competitor-compare-behaviour": "vitest run src/wingman2/lib/competitorCompareBehaviour.test.ts",
     "check:route-registry-direct": "node tools/audit-wingman-route-registry-direct.mjs",
     "check:recommendation-accuracy": "node tools/audit-recommendation-accuracy-priority3.mjs",

@@ -713,7 +713,7 @@ export function ProductFamilyPage() {
   const activeFamily = useMemo(() => findGuide(activeFamilyId), [activeFamilyId]);
 
   return (
-    <div className="space-y-5 pb-6">
+    <div className="wm-product-family-page space-y-5 pb-6">
       <PageHero
         eyebrow="Product families"
         title="WyreStorm range positioning for sales conversations"
@@ -730,14 +730,14 @@ export function ProductFamilyPage() {
         title="Fast architecture rules"
         subtitle="Use these before choosing a family, especially when deciding between AVoIP, matrix, HDBaseT and UC products."
       >
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+        <div className="wm-product-family-rules-grid">
           {decisionRules.map((rule, index) => (
-            <div key={rule} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
-              <div className="flex items-center gap-2 text-sm font-black text-white">
-                <span className="grid h-7 w-7 place-items-center rounded-full bg-slate-950 text-xs text-white">{index + 1}</span>
-                Rule
+            <div key={rule} className="wm-product-family-rule-card">
+              <div className="wm-product-family-rule-head">
+                <span className="wm-product-family-rule-badge">{index + 1}</span>
+                <span className="wm-product-family-rule-label">Rule</span>
               </div>
-              <p className="mt-3 text-sm font-semibold leading-6 text-white/70">{rule}</p>
+              <p className="wm-product-family-rule-body">{rule}</p>
             </div>
           ))}
         </div>
@@ -745,7 +745,7 @@ export function ProductFamilyPage() {
 
       <div className="grid gap-5 xl:grid-cols-[330px_minmax(0,1fr)]">
         <SectionCard title="Choose family" subtitle="Pick the family that best matches the customer application before discussing SKUs.">
-          <div className="space-y-2">
+          <div className="wm-product-family-picker-list">
             {familyGuides.map((guide) => {
               const active = guide.id === activeFamily.id;
 
@@ -755,7 +755,7 @@ export function ProductFamilyPage() {
                   type="button"
                   onClick={() => setActiveFamilyId(guide.id)}
                   className={[
-                    "w-full rounded-2xl border p-4 text-left transition",
+                    "wm-product-family-picker w-full rounded-2xl border p-4 text-left transition",
                     active ? "border-cyan-300 bg-[#10263a] text-white" : "border-[#29465e] bg-[#0d2133] text-white/70 hover:border-[#29465e] hover:bg-[#0d2133]",
                   ].join(" ")}
                 >
@@ -902,4 +902,3 @@ function FamilyListBlock({ icon, title, items }: { icon?: ReactNode; title: stri
 }
 
 export default ProductFamilyPage;
-
