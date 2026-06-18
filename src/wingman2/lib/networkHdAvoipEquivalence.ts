@@ -224,6 +224,8 @@ const TEN_GIG_SIGNALS = ["10g", "10gbe", "10 gbe", "10 gig", "sdvoe", "zero late
 const ONE_GIG_SIGNALS = ["1g", "1gbe", "1 gbe", "1 gig", "gigabit"];
 const H26X_SIGNALS = ["h.264", "h264", "h.265", "h265", "hevc", "h.26", "avc"];
 const VISUALLY_LOSSLESS_SIGNALS = ["jpeg2000", "jpeg 2000", "jpeg-2000", "j2k", "jpeg-xs", "jpegxs", "jpeg xs", "visually lossless", "visually-lossless", "pure3", "pixel perfect", "pixel-perfect", "light compression", "mathematically lossless"];
+const FOUR_K60_SIGNALS = ["4k60", "4k 60", "2160p60", "4k@60", "4k/60"];
+const CHROMA_444_SIGNALS = ["4:4:4", "444"];
 
 /**
  * High-confidence competitor family truth. Only families whose network class /
@@ -379,6 +381,8 @@ export function classifyCompetitorAvoip(input: string): CompetitorAvoipClassific
   const explicitH26x = includesAny(text, H26X_SIGNALS);
   const explicitLossless = includesAny(text, VISUALLY_LOSSLESS_SIGNALS);
   const explicitOneGig = includesAny(text, ONE_GIG_SIGNALS);
+  const explicitFourK60 = includesAny(text, FOUR_K60_SIGNALS);
+  const explicit444 = includesAny(text, CHROMA_444_SIGNALS);
 
   let networkClass: AvoipNetworkClass = "unknown";
   let codec: AvoipCodecClass = "unknown";
@@ -387,6 +391,10 @@ export function classifyCompetitorAvoip(input: string): CompetitorAvoipClassific
     networkClass = "10g";
     codec = "uncompressed-sdvoe";
     signals.push("explicit 10G / SDVoE / uncompressed signal");
+  } else if (explicitFourK60 && explicit444) {
+    networkClass = "1g";
+    codec = "visually-lossless";
+    signals.push("explicit 4K60 4:4:4 signal");
   } else if (explicitH26x) {
     networkClass = "1g";
     codec = "h264_h265";

@@ -535,8 +535,10 @@ const FINGERPRINTS: Fingerprint[] = [
     domain: "MATRIX",
     role: "Matrix",
     maxResolution: "4K60",
+    chroma: "4:4:4",
     inputCount: 8,
     outputCount: 8,
+    features: { hdbtOutput: true },
   },
   {
     brand: "Blustream",
@@ -545,8 +547,10 @@ const FINGERPRINTS: Fingerprint[] = [
     domain: "MATRIX",
     role: "Matrix",
     maxResolution: "4K60",
+    chroma: "4:4:4",
     inputCount: 4,
     outputCount: 4,
+    features: { hdbtOutput: true },
   },
   {
     brand: "Blustream",
@@ -775,6 +779,18 @@ function parseResolution(text: string): string | undefined {
   return undefined;
 }
 
+function parseFirstMatch(text: string, patterns: RegExp[], formatter?: (value: string) => string): string | undefined {
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    const captured = match?.[1];
+    if (captured) {
+      return formatter ? formatter(captured) : captured;
+    }
+  }
+
+  return undefined;
+}
+
 function parseFeatures(text: string): Record<string, boolean> {
   const value = text.toLowerCase();
   const features: Record<string, boolean> = {};
@@ -785,6 +801,7 @@ function parseFeatures(text: string): Record<string, boolean> {
   if (/multiview|multi-view/.test(value)) features.multiview = true;
   if (/video\s*wall|videowall/.test(value)) features.videoWall = true;
   if (/wireless|clickshare|airmedia/.test(value)) features.wireless = true;
+  if (/dongle|clickshare button|apo-dg2|apo-dg1/.test(value)) features.castingDongle = true;
   if (/\b10g\b|sdvoe/.test(value)) features.tenGig = true;
   if (/hdbaset|hdbt/.test(value)) features.hdbtOutput = true;
   if (/rs-?232|ir\b|cec|relay|contact closure|control/.test(value)) features.control = true;
@@ -805,13 +822,45 @@ function parseSpecFacts(text: string, inputCount?: number, outputCount?: number,
 
   specs.hdmiInputs = quantityFromLabel(value, ["hdmi inputs", "video inputs", "input count"]) ?? specs.hdmiInputs;
   specs.hdmiOutputs = quantityFromLabel(value, ["hdmi outputs", "video outputs", "output count"]) ?? specs.hdmiOutputs;
+  specs.hdmiVersion = parseFirstMatch(value, [/\bhdmi\s*(2\.1|2\.0|1\.4|1\.3|1\.2)\b/i], (version) => `HDMI ${version}`);
+  specs.hdcpVersion = parseFirstMatch(value, [/\bhdcp\s*(2\.3|2\.2|2\.1|2\.0|1\.4)\b/i], (version) => `HDCP ${version}`);
+  specs.displayPortInputs = quantityFromLabel(value, ["displayport inputs", "dp inputs"]);
+  specs.displayPortOutputs = quantityFromLabel(value, ["displayport outputs", "dp outputs"]);
+  specs.dviInputs = quantityFromLabel(value, ["dvi inputs"]);
+  specs.dviOutputs = quantityFromLabel(value, ["dvi outputs"]);
+  specs.vgaInputs = quantityFromLabel(value, ["vga inputs"]);
+  specs.vgaOutputs = quantityFromLabel(value, ["vga outputs"]);
+  specs.sdiInputs = quantityFromLabel(value, ["sdi inputs"]);
+  specs.sdiOutputs = quantityFromLabel(value, ["sdi outputs"]);
+  specs.compositeInputs = quantityFromLabel(value, ["composite inputs", "cvbs inputs"]);
+  specs.compositeOutputs = quantityFromLabel(value, ["composite outputs", "cvbs outputs"]);
+  specs.componentInputs = quantityFromLabel(value, ["component inputs", "ypbpr inputs"]);
+  specs.componentOutputs = quantityFromLabel(value, ["component outputs", "ypbpr outputs"]);
+  if (/\bdisplayport\b|\bdp\b/.test(value)) specs.displayPortInputs = specs.displayPortInputs ?? 1;
+  if (/\bdvi\b/.test(value)) specs.dviInputs = specs.dviInputs ?? 1;
+  if (/\bvga\b/.test(value)) specs.vgaInputs = specs.vgaInputs ?? 1;
+  if (/\bsdi\b/.test(value)) specs.sdiInputs = specs.sdiInputs ?? 1;
+  if (/composite|cvbs/.test(value)) specs.compositeInputs = specs.compositeInputs ?? 1;
+  if (/component|ypbpr/.test(value)) specs.componentInputs = specs.componentInputs ?? 1;
 
   specs.usbHostPorts = quantityFromLabel(value, ["usb host ports", "usb hosts", "host ports"]);
   specs.usbDevicePorts = quantityFromLabel(value, ["usb device ports", "usb client ports", "usb peripheral ports", "device ports"]);
   specs.usbTotalPorts = quantityFromLabel(value, ["usb total ports", "usb ports"]);
+  specs.usbCPorts = quantityFromLabel(value, ["usb-c ports", "usbc ports", "type-c ports"]);
+  specs.usbStandard = parseFirstMatch(
+    value,
+    [/\busb\s*(3\.2|3\.1|3\.0|2\.0)\b/i, /\b(super ?speed usb|high ?speed usb)\b/i],
+    (standard) => {
+      const normalized = standard.toUpperCase().replace(/\s+/g, " ").trim();
+      return normalized.startsWith("USB") ? normalized : normalized === "SUPER SPEED USB" ? "USB 3.x" : "USB 2.0";
+    },
+  );
   if (/usb\s*host/.test(value)) specs.usbHostPorts = specs.usbHostPorts ?? 1;
   if (/usb\s*(device|client|peripheral)/.test(value)) specs.usbDevicePorts = specs.usbDevicePorts ?? 1;
   if (/usb|kvm/.test(value) || features.usbRouting) specs.usbTotalPorts = specs.usbTotalPorts ?? 1;
+  if (/usb-?c|type-?c/.test(value)) specs.usbCPorts = specs.usbCPorts ?? 1;
+  if (/usb\s*3|usb3|super ?speed/.test(value)) specs.usbStandard = specs.usbStandard ?? "USB 3.x";
+  else if (/usb\s*2|usb2|high ?speed/.test(value)) specs.usbStandard = specs.usbStandard ?? "USB 2.0";
 
   specs.audioInputs = quantityFromLabel(value, ["audio inputs", "audio in ports", "mic inputs", "line inputs"]);
   specs.audioOutputs = quantityFromLabel(value, ["audio outputs", "audio out ports", "line outputs"]);
@@ -835,7 +884,17 @@ function parseSpecFacts(text: string, inputCount?: number, outputCount?: number,
   specs.arc = /\barc\b/.test(value) ? true : undefined;
   specs.earc = /\bearc\b/.test(value) ? true : undefined;
   specs.dante = Boolean(features.dante || /\bdante\b/.test(value));
+  specs.dedicatedDantePort = /dedicated dante port|separate dante|independent dante port/.test(value) ? true : undefined;
   specs.aes67 = Boolean(features.aes67 || /aes67/.test(value));
+  specs.wirelessCasting = Boolean(features.wireless || /wireless (casting|presentation|screensharing|screen sharing)|airplay|miracast|clickshare/.test(value));
+  specs.castingDongleSupport = parseFirstMatch(
+    value,
+    [
+      /\b(apo-dg2|apo-dg1|clickshare button)\b/i,
+      /\b(apo-dg1|dongle|clickshare button)\b/i,
+    ],
+    (support) => support.toUpperCase().replace(/\s+/g, "") === "APO-DG2-PRO" ? "APO-DG2" : support.toUpperCase().replace(/\s+/g, ""),
+  );
 
   specs.poe = Boolean(features.poe || /\bpoe\b|power over ethernet/.test(value));
   specs.poc = Boolean(features.poc || /\bpoc\b|power over cable/.test(value));
@@ -843,6 +902,12 @@ function parseSpecFacts(text: string, inputCount?: number, outputCount?: number,
   specs.powerDelivery = /usb-c power|power delivery|\bpd\b/.test(value) ? true : undefined;
   specs.externalPsu = /external power|dc power|power supply|psu|adapter/.test(value) ? true : undefined;
   specs.internalPsu = /internal power|iec|mains input/.test(value) ? true : undefined;
+  specs.hdbasetVersion = parseFirstMatch(value, [/\bhdbaset\s*(3\.0|2\.0|1\.0)\b/i], (version) => `HDBaseT ${version}`);
+  specs.hdbasetClass = parseFirstMatch(
+    value,
+    [/\bhdbaset[^.]{0,24}\bclass\s*([abc])\b/i, /\bclass\s*([abc])\b[^.]{0,24}\bhdbaset\b/i],
+    (klass) => `Class ${klass.toUpperCase()}`,
+  ) ?? specs.hdbasetClass;
 
   if (specs.poh) specs.powerSupply = "PoH / HDBaseT remote power";
   else if (specs.poc) specs.powerSupply = "PoC remote power";
@@ -993,6 +1058,8 @@ function catalogEntryToFingerprint(entry: CatalogEntry): Fingerprint | null {
   ].join(" ");
   const blob = [
     entry.summary,
+    entry.transport,
+    entry.technology,
     (entry.features ?? []).join(" "),
     (entry.control ?? []).join(" "),
     (entry.audio ?? []).join(" "),
@@ -1009,6 +1076,30 @@ function catalogEntryToFingerprint(entry: CatalogEntry): Fingerprint | null {
   const hdmiOut = countCatalogPorts(entry.outputs, /hdmi/i);
   if (hdmiIn) specs.hdmiInputs = hdmiIn;
   if (hdmiOut) specs.hdmiOutputs = hdmiOut;
+  const displayPortIn = countCatalogPorts(entry.inputs, /displayport|\bdp\b/i);
+  const displayPortOut = countCatalogPorts(entry.outputs, /displayport|\bdp\b/i);
+  const dviIn = countCatalogPorts(entry.inputs, /\bdvi\b/i);
+  const dviOut = countCatalogPorts(entry.outputs, /\bdvi\b/i);
+  const vgaIn = countCatalogPorts(entry.inputs, /\bvga\b/i);
+  const vgaOut = countCatalogPorts(entry.outputs, /\bvga\b/i);
+  const sdiIn = countCatalogPorts(entry.inputs, /\bsdi\b/i);
+  const sdiOut = countCatalogPorts(entry.outputs, /\bsdi\b/i);
+  const compositeIn = countCatalogPorts(entry.inputs, /composite|cvbs/i);
+  const compositeOut = countCatalogPorts(entry.outputs, /composite|cvbs/i);
+  const componentIn = countCatalogPorts(entry.inputs, /component|ypbpr/i);
+  const componentOut = countCatalogPorts(entry.outputs, /component|ypbpr/i);
+  if (displayPortIn) specs.displayPortInputs = displayPortIn;
+  if (displayPortOut) specs.displayPortOutputs = displayPortOut;
+  if (dviIn) specs.dviInputs = dviIn;
+  if (dviOut) specs.dviOutputs = dviOut;
+  if (vgaIn) specs.vgaInputs = vgaIn;
+  if (vgaOut) specs.vgaOutputs = vgaOut;
+  if (sdiIn) specs.sdiInputs = sdiIn;
+  if (sdiOut) specs.sdiOutputs = sdiOut;
+  if (compositeIn) specs.compositeInputs = compositeIn;
+  if (compositeOut) specs.compositeOutputs = compositeOut;
+  if (componentIn) specs.componentInputs = componentIn;
+  if (componentOut) specs.componentOutputs = componentOut;
   const lanPorts = countCatalogPorts(entry.outputs, /lan|ethernet|network/i) ?? countCatalogPorts(entry.inputs, /lan|ethernet|network/i);
   if (lanPorts) specs.networkPorts = lanPorts;
 

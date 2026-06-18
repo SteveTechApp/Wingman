@@ -4,9 +4,25 @@ export type CompareDecisionOutcome = "GOOD MATCH" | "PARTIAL MATCH" | "NO MATCH"
 export type CompareSpecFacts = {
   hdmiInputs?: number;
   hdmiOutputs?: number;
+  hdmiVersion?: string;
+  hdcpVersion?: string;
+  displayPortInputs?: number;
+  displayPortOutputs?: number;
+  dviInputs?: number;
+  dviOutputs?: number;
+  vgaInputs?: number;
+  vgaOutputs?: number;
+  sdiInputs?: number;
+  sdiOutputs?: number;
+  compositeInputs?: number;
+  compositeOutputs?: number;
+  componentInputs?: number;
+  componentOutputs?: number;
   usbHostPorts?: number;
   usbDevicePorts?: number;
   usbTotalPorts?: number;
+  usbCPorts?: number;
+  usbStandard?: string;
   audioInputs?: number;
   audioOutputs?: number;
   networkPorts?: number;
@@ -23,7 +39,10 @@ export type CompareSpecFacts = {
   arc?: boolean;
   earc?: boolean;
   dante?: boolean;
+  dedicatedDantePort?: boolean;
   aes67?: boolean;
+  wirelessCasting?: boolean;
+  castingDongleSupport?: string;
   poe?: boolean;
   poc?: boolean;
   poh?: boolean;
@@ -33,6 +52,7 @@ export type CompareSpecFacts = {
   powerSupply?: string;
   gpioPortCount?: number;
   relayPortCount?: number;
+  hdbasetVersion?: string;
   hdbasetClass?: string;
   hdbasetDistance?: number;
   networkSpeed?: string;
