@@ -56,7 +56,7 @@ type Fingerprint = {
 };
 
 /** Canonical transport derived from the technology class. Keeping transport a
- * function of domain prevents brand-specific wording (DTP, DXLink, NAVÃ¢â‚¬Â¦) from
+ * function of domain prevents brand-specific wording (DTP, DXLink, NAV…) from
  * producing false transport-mismatch blockers in the classifier. */
 export function canonicalTransport(domain?: string): string | undefined {
   switch ((domain || "").toUpperCase()) {
@@ -746,7 +746,7 @@ function lookupFingerprint(rawSku: string): Fingerprint | null {
 }
 
 function parseIoCounts(text: string): { inputCount?: number; outputCount?: number } {
-  const match = text.match(/(\d{1,2})\s*[xÃƒâ€”]\s*(\d{1,2})/);
+  const match = text.match(/(\d{1,2})\s*[x×]\s*(\d{1,2})/);
   if (match) {
     return { inputCount: Number(match[1]), outputCount: Number(match[2]) };
   }

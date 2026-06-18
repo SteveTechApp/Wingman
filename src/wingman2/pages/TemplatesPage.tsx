@@ -789,7 +789,7 @@ function classNames(...values: Array<string | false | null | undefined>) {
 
 function truncate(value: string, max = 28) {
   if (value.length <= max) return value;
-  return value.slice(0, max - 1).trimEnd() + "â€¦";
+  return value.slice(0, max - 1).trimEnd() + "…";
 }
 
 function splitLabel(value: string, max = 24) {

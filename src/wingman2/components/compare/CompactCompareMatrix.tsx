@@ -94,7 +94,7 @@ function withMatrixTopology(record: Record<string, unknown>): Record<string, unk
     record.searchText,
   ].map(normalise).filter(Boolean).join(" ");
 
-  if (!/\bmatrix\b|\d{1,2}\s*[xÃ—]\s*\d{1,2}/i.test(text)) {
+  if (!/\bmatrix\b|\d{1,2}\s*[x×]\s*\d{1,2}/i.test(text)) {
     return record;
   }
 

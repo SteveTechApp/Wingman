@@ -723,8 +723,8 @@ export function compareProfiles(competitor: ProductProfile, candidate: ProductPr
 
   /*
    * Sparse profiles should not cause a correct direct AVoIP candidate to disappear.
-   * If the core replacement facts align â€” same domain, no blockers, network speed,
-   * I/O count, resolution and latency â€” keep it as a visible VERIFY/PARTIAL candidate.
+   * If the core replacement facts align — same domain, no blockers, network speed,
+   * I/O count, resolution and latency — keep it as a visible VERIFY/PARTIAL candidate.
    */
   const hasBlockingGap = gaps.some((gap) => gap.severity === 5);
   const isDirectAvoipCandidate =
