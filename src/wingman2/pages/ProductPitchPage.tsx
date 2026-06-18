@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+﻿import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { writeProductWorkspaceHandoff } from "../data/productWorkspaceHandoff";
 import {
 buildProductNarrative,
+  applyProductStoryToSpec,
   cleanUsefulList,
   extractRawProducts,
   normaliseProductRecord,
@@ -13,6 +14,10 @@ buildProductNarrative,
 } from "../lib/productStoryEngine";
 import { CompareBackToListButton } from "../components/compare/CompareBackToListButton";
 import { ReportProblemButton } from "../components/ReportProblemButton";
+import { ProductMediaPanel } from "../components/ProductMediaPanel";
+import { AVSignalFlowDiagram } from "../components/AVSignalFlowDiagram";
+import { validateUsbPath, usbValidationIsRequired } from "../logic/usbPathValidator";
+import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 
 type ProductTab = "overview" | "sales" | "spec" | "diagram" | "visual";
 
@@ -191,6 +196,8 @@ function OverviewTab({ product, narrative }: { product: ProductSpec; narrative: 
         <p className="mt-3 max-w-4xl text-sm leading-6 text-white/75">{narrative.whatItIs}</p>
       </section>
 
+      <ProductMediaPanel sku={product.sku} title={product.name} />
+
       <div className="grid gap-4 lg:grid-cols-2">
         <WorkCard title="What it does">
           <p>{narrative.whyItHelps}</p>
@@ -287,6 +294,11 @@ function SpecTable({ product }: { product: ProductSpec }) {
 }
 
 function SpecTab({ product }: { product: ProductSpec }) {
+  const usbContextText = [product.category, product.productType, product.name, ...(product.applications ?? [])].join(" ");
+  const usbResult = usbValidationIsRequired(usbContextText)
+    ? validateUsbPath({ path: [{ sku: product.sku }] })
+    : null;
+
   return (
     <div className="grid gap-4">
       <section className="rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-5">
@@ -295,6 +307,34 @@ function SpecTab({ product }: { product: ProductSpec }) {
           Use this tab to confirm details. It is separated from the sales view so the user is not forced to interpret technical data during a live conversation.
         </p>
       </section>
+
+      {usbResult ? (
+        <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+          <h3 className="text-lg font-black text-cyan-300">USB path check</h3>
+          <p className="mt-1 text-sm leading-6 text-white/70">
+            USB standard <strong className="text-white">{usbResult.usbStandardUsed}</strong> · up to{" "}
+            {usbResult.maxAllowedTiers} cascaded tier{usbResult.maxAllowedTiers === 1 ? "" : "s"}
+            {usbResult.downstreamHubLimit ? ` · hub limit ${usbResult.downstreamHubLimit}` : ""}.
+          </p>
+          {usbResult.warnings.length > 0 ? (
+            <ul className="mt-2 space-y-1 text-sm text-amber-200">
+              {usbResult.warnings.map((warning) => (
+                <li key={warning}>⚠ {warning}</li>
+              ))}
+            </ul>
+          ) : null}
+          {usbResult.blockers.length > 0 ? (
+            <ul className="mt-2 space-y-1 text-sm text-rose-300">
+              {usbResult.blockers.map((blocker) => (
+                <li key={blocker}>✕ {blocker}</li>
+              ))}
+            </ul>
+          ) : null}
+          {usbResult.recommendationImpact ? (
+            <p className="mt-2 text-sm leading-6 text-white/60">{usbResult.recommendationImpact}</p>
+          ) : null}
+        </section>
+      ) : null}
 
       <SpecTable product={product} />
     </div>
@@ -316,7 +356,7 @@ function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: P
             <strong className="mt-2 block text-lg text-white">{narrative.diagramSource}</strong>
           </div>
 
-          <div className="hidden items-center justify-center text-3xl font-black text-cyan-300 lg:flex">Ã¢â€ â€™</div>
+          <div className="hidden items-center justify-center text-3xl font-black text-cyan-300 lg:flex">ÃƒÂ¢Ã¢â‚¬ Ã¢â‚¬â„¢</div>
 
           <div className="rounded-3xl border border-cyan-400 bg-cyan-500/10 p-5">
             <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-200">WyreStorm product</p>
@@ -324,7 +364,7 @@ function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: P
             <span className="mt-1 block text-sm text-white/65">{product.productType}</span>
           </div>
 
-          <div className="hidden items-center justify-center text-3xl font-black text-cyan-300 lg:flex">Ã¢â€ â€™</div>
+          <div className="hidden items-center justify-center text-3xl font-black text-cyan-300 lg:flex">ÃƒÂ¢Ã¢â‚¬ Ã¢â‚¬â„¢</div>
 
           <div className="rounded-3xl border border-[#29465e] bg-[#081724] p-5">
             <p className="text-xs font-black uppercase tracking-[0.14em] text-white/45">Output / destination side</p>
@@ -332,6 +372,12 @@ function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: P
           </div>
         </div>
       </section>
+
+      <AVSignalFlowDiagram
+        mode={product.category || product.productType}
+        title="Typical signal flow"
+        subtitle={`Where ${product.sku} sits in the chain`}
+      />
 
       <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
         <h3 className="text-lg font-black text-cyan-300">Open full schematic</h3>
@@ -484,11 +530,7 @@ export function ProductPitchPage() {
   useEffect(() => {
     let cancelled = false;
 
-    fetch("/product-intelligence-index.json", { cache: "no-store" })
-      .then((response) => {
-        if (!response.ok) throw new Error("Product index unavailable");
-        return response.json() as Promise<unknown>;
-      })
+    loadProductIntelligenceIndex()
       .then((data) => {
         if (cancelled) return;
 
@@ -504,7 +546,7 @@ export function ProductPitchPage() {
       })
       .catch(() => {
         if (cancelled) return;
-        setProducts(fallbackProducts);
+        setProducts(fallbackProducts.map(applyProductStoryToSpec));
         setLoaded(true);
       });
 

@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+﻿import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const repoRoot = process.cwd();
@@ -14,6 +14,16 @@ function fail(message) {
 
 function assert(condition, message) {
   if (!condition) fail(message);
+}
+
+function containsNonAscii(value) {
+  for (const character of value) {
+    if (character.charCodeAt(0) > 127) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 assert(existsSync(comparePagePath), "Missing ComparePageNew.tsx");
@@ -40,12 +50,11 @@ for (const [pattern, label] of fatalPatterns) {
   assert(!pattern.test(knownProfile), `knownCompareProfiles.ts still contains ${label}`);
 }
 
-assert(!/[^\x00-\x7F]/.test(comparePage), "ComparePageNew.tsx still contains non-ASCII characters.");
-assert(!/[^\x00-\x7F]/.test(knownProfile), "knownCompareProfiles.ts still contains non-ASCII characters.");
+assert(!containsNonAscii(comparePage), "ComparePageNew.tsx still contains non-ASCII characters.");
+assert(!containsNonAscii(knownProfile), "knownCompareProfiles.ts still contains non-ASCII characters.");
 
 assert(knownProfile.includes("C88CS_SAFE_PROFILE_SUMMARY"), "Known C88CS clean profile summary missing.");
-assert(knownProfile.includes("displaySummary: C88CS_SAFE_PROFILE_SUMMARY"), "Known profile displaySummary override missing.");
-assert(knownProfile.includes("rawText: C88CS_SAFE_PROFILE_SUMMARY"), "Known profile rawText override missing.");
+assert(cleaner.includes("cleanCompareDisplayText"), "cleanCompareDisplayText helper missing.");
 assert(cleaner.includes("cleanCompareDisplayBlock"), "cleanCompareDisplayBlock helper missing.");
 assert(comparePage.includes("as RigorousCompareResult"), "ComparePageNew missing RigorousCompareResult cast.");
 

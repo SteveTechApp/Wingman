@@ -1,20 +1,45 @@
+function replaceKnownMojibake(value: string): string {
+  return value
+    .split("\u00E2\u0080\u0099")
+    .join("'")
+    .split("\u00E2\u0080\u0098")
+    .join("'")
+    .split("\u00E2\u0080\u009C")
+    .join('"')
+    .split("\u00E2\u0080\u009D")
+    .join('"')
+    .split("\u00E2\u0080\u0093")
+    .join("-")
+    .split("\u00E2\u0080\u0094")
+    .join("-")
+    .split("\u00C2\u00B7")
+    .join(" - ")
+    .split("\u00C2")
+    .join(" ");
+}
+
+function removeUnsafeDisplayCharacters(value: string): string {
+  let output = "";
+
+  for (const character of value) {
+    const code = character.charCodeAt(0);
+
+    if (code < 32 || code === 127 || code > 126) {
+      output += " ";
+      continue;
+    }
+
+    output += character;
+  }
+
+  return output;
+}
+
 export function cleanCompareDisplayText(value: unknown): string {
   const raw = String(value ?? "");
+  const normalised = replaceKnownMojibake(raw);
 
-  return raw
-    .replace(/[\u0000-\u001f\u007f]/g, " ")
-    .replace(/â€™/g, "'")
-    .replace(/â€˜/g, "'")
-    .replace(/â€œ/g, '"')
-    .replace(/â€\u009d/g, '"')
-    .replace(/â€“/g, "-")
-    .replace(/â€”/g, "-")
-    .replace(/Â·/g, " - ")
-    .replace(/Â/g, " ")
-    .replace(/™/g, " TM")
-    .replace(/®/g, "")
-    .replace(/©/g, "")
-    .replace(/[^\x20-\x7e]/g, " ")
+  return removeUnsafeDisplayCharacters(normalised)
     .replace(/\s+/g, " ")
     .replace(/\s+([,.;:])/g, "$1")
     .replace(/([,.;:]){2,}/g, "$1")

@@ -14,6 +14,7 @@ import {
 } from "../data/projectStore";
 import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
 import { getProjectRequirementRecords, requirementReadiness } from "../lib/projectRequirements";
+import { getProductFamilyRankingReason } from "../lib/productFamilyShortlistRanking";
 
 const statusOptions: StoredRequirementStatus[] = ["confirmed", "review", "unknown"];
 
@@ -33,6 +34,41 @@ function projectText(value: unknown, fallback = "Not captured") {
   return text || fallback;
 }
 
+function projectRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  return value as Record<string, unknown>;
+}
+
+function projectField(value: unknown, key: string, fallback = "") {
+  const record = projectRecord(value);
+
+  if (!record) {
+    return fallback;
+  }
+
+  return projectText(record[key], fallback);
+}
+
+function projectNumber(value: unknown, key: string) {
+  const record = projectRecord(value);
+  const rawValue = record?.[key];
+
+  if (typeof rawValue === "number" && Number.isFinite(rawValue)) {
+    return rawValue;
+  }
+
+  const parsedValue = Number(rawValue);
+
+  if (Number.isFinite(parsedValue)) {
+    return parsedValue;
+  }
+
+  return null;
+}
+
 function dedupeText(items: Array<string | undefined | null>) {
   return Array.from(
     new Set(
@@ -50,6 +86,15 @@ type ProjectEvidenceTimelineItem = {
   status: string;
   detail: string;
   timestamp: string;
+  route: string;
+};
+
+type ProjectReadinessGate = {
+  status: "Do not quote yet" | "Validate before proposal" | "Proposal-ready draft";
+  tone: "block" | "review" | "ready";
+  summary: string;
+  blockers: string[];
+  nextAction: string;
   route: string;
 };
 
@@ -96,7 +141,23 @@ export function ProjectDetailPage() {
     [project],
   );
 
-  const selectedProducts = project?.productSelections ?? [];
+  const selectedProducts = useMemo(() => project?.productSelections ?? [], [project?.productSelections]);
+  const productFamilyScores = useMemo(
+    () => recommendationEvidence?.productFamilyScores ?? [],
+    [recommendationEvidence],
+  );
+  const leadingProductFamilyScore = productFamilyScores[0] ?? null;
+
+  const selectedProductRankingReasons = useMemo(
+    () =>
+      selectedProducts
+        .map((product) => ({
+          sku: product.sku,
+          reason: getProductFamilyRankingReason(product, productFamilyScores),
+        }))
+        .filter((item) => Boolean(item.reason)),
+    [productFamilyScores, selectedProducts],
+  );
   const latestCompareRun = project?.compareRuns?.[0] ?? null;
   const proposal = project?.proposal ?? null;
 
@@ -112,7 +173,14 @@ export function ProjectDetailPage() {
   }, [project, proposal, recommendationEvidence, requirements]);
 
   const commandCards = useMemo(() => {
-    if (!project) return [];
+    if (!project) return [
+      {
+        label: "Ranking reason",
+        value: selectedProductRankingReasons[0]?.sku || "No ranked product",
+        detail:
+          selectedProductRankingReasons[0]?.reason ||
+          "No product-family ranking reason has been stored for the selected products yet.",
+      },];
 
     const capturedPercent =
       typeof project.discoveryBrief?.capturedPercent === "number"
@@ -159,7 +227,7 @@ export function ProjectDetailPage() {
           (proposal?.readinessScore ? `Proposal readiness score: ${proposal.readinessScore}%` : "Generate a response pack after requirements are cleaner."),
       },
     ];
-  }, [latestCompareRun, project, proposal, recommendationEvidence]);
+  }, [latestCompareRun, project, proposal, recommendationEvidence, selectedProductRankingReasons]);
 
   const projectEvidenceTimeline = useMemo<ProjectEvidenceTimelineItem[]>(() => {
     if (!project) return [];
@@ -273,6 +341,61 @@ export function ProjectDetailPage() {
 
     return items;
   }, [project, proposal, recommendationEvidence, selectedProducts]);
+
+  const projectReadinessGate = useMemo<ProjectReadinessGate>(() => {
+    const unknownRequirementCount = requirements.filter((requirement) => requirement.status === "unknown").length;
+    const reviewRequirementCount = requirements.filter((requirement) => requirement.status === "review").length;
+    const weakRequirementCount = unknownRequirementCount + reviewRequirementCount;
+    const evidenceCount = projectEvidenceTimeline.length;
+    const proposalScore = projectNumber(proposal, "readinessScore");
+    const quoteSafetyStatus = projectField(recommendationEvidence, "quoteSafetyStatus");
+    const productDirection = projectField(recommendationEvidence, "productDirection");
+    const hasDiscovery = Boolean(project?.discoveryBrief);
+    const hasProductDirection = Boolean(productDirection || selectedProducts.length);
+    const blockers = dedupeText([
+      ...missingInformation,
+      !hasDiscovery ? "Discovery brief is missing." : null,
+      !hasProductDirection ? "Product direction has not been saved." : null,
+      evidenceCount === 0 ? "No evidence has been saved against this project." : null,
+      weakRequirementCount > 0 ? `${weakRequirementCount} requirement${weakRequirementCount === 1 ? "" : "s"} still need confirmation or review.` : null,
+      quoteSafetyStatus === "do-not-quote" ? "Recommendation evidence is marked do not quote." : null,
+    ]);
+
+    if (blockers.length > 0) {
+      return {
+        status: "Do not quote yet",
+        tone: "block",
+        summary: "This project still has blockers. Keep it in discovery or technical review before sending a customer proposal.",
+        blockers,
+        nextAction: "Clear the blockers first. Start with Discovery, Finder, or Compare depending on what is missing.",
+        route: routeCatalogByKey.discovery.path,
+      };
+    }
+
+    if (quoteSafetyStatus === "validate-before-quote" || reviewRequirementCount > 0 || (proposalScore !== null && proposalScore < 80)) {
+      return {
+        status: "Validate before proposal",
+        tone: "review",
+        summary: "The project has enough structure to prepare a draft, but it still needs technical or commercial validation before it is customer-safe.",
+        blockers: dedupeText([
+          quoteSafetyStatus === "validate-before-quote" ? "Recommendation evidence asks for validation before quote." : null,
+          reviewRequirementCount > 0 ? `${reviewRequirementCount} requirement${reviewRequirementCount === 1 ? "" : "s"} are marked for review.` : null,
+          proposalScore !== null && proposalScore < 80 ? `Proposal readiness score is ${proposalScore}%.` : null,
+        ]),
+        nextAction: "Open Proposal to draft the response, then validate the system shape, dependencies, and customer assumptions before sending.",
+        route: routeCatalogByKey.proposal.path,
+      };
+    }
+
+    return {
+      status: "Proposal-ready draft",
+      tone: "ready",
+      summary: "The project has a usable discovery record, product direction, and no current missing-information blockers.",
+      blockers: [],
+      nextAction: "Open Proposal or Visual Studio to turn the project record into customer-facing output.",
+      route: routeCatalogByKey.proposal.path,
+    };
+  }, [missingInformation, project, projectEvidenceTimeline.length, proposal, recommendationEvidence, requirements, selectedProducts.length]);
 
   useEffect(() => {
     setRequirements(initialRequirements);
@@ -413,6 +536,58 @@ export function ProjectDetailPage() {
             ))}
           </div>
 
+          {leadingProductFamilyScore ? (
+            <div className="mt-5 rounded-2xl border border-cyan-300/70 bg-[#0b2638] p-5 shadow-sm">
+              <div className="grid gap-4 lg:grid-cols-[220px_1fr]">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-200">Product-family decision</p>
+                  <p className="mt-2 text-2xl font-black text-[#edf6ff]">{leadingProductFamilyScore.family}</p>
+                  <p className="mt-1 text-sm font-semibold text-[#9ffcf4]">{leadingProductFamilyScore.score}/100 confidence</p>
+                </div>
+                <div className="grid gap-3 lg:grid-cols-2">
+                  <div className="rounded-2xl border border-[#29465e] bg-[#10283e] p-4">
+                    <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">Why this family is leading</p>
+                    <div className="mt-3 grid gap-2 text-sm leading-6 text-[#cfe6f7]">
+                      {leadingProductFamilyScore.reasons.slice(0, 3).map((reason) => (
+                        <p key={reason} className="rounded-xl border border-cyan-300/20 bg-cyan-950/30 p-3">
+                          {reason}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-[#29465e] bg-[#10283e] p-4">
+                    <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">Checks before SKU selection</p>
+                    <div className="mt-3 grid gap-2 text-sm leading-6 text-[#cfe6f7]">
+                      {leadingProductFamilyScore.cautions.length ? (
+                        leadingProductFamilyScore.cautions.slice(0, 3).map((caution) => (
+                          <p key={caution} className="rounded-xl border border-amber-300/30 bg-amber-950/30 p-3 text-amber-100">
+                            {caution}
+                          </p>
+                        ))
+                      ) : (
+                        <p className="rounded-xl border border-emerald-300/30 bg-emerald-950/30 p-3 text-emerald-100">
+                          No family-level cautions captured. Continue to datasheet, dependency, regional and stock validation.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {productFamilyScores.length > 1 ? (
+                <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                  {productFamilyScores.slice(1, 5).map((score) => (
+                    <div key={score.family} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
+                      <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">{score.family}</p>
+                      <p className="mt-2 text-xl font-black text-[#edf6ff]">{score.score}/100</p>
+                      <p className="mt-2 text-xs leading-5 text-[#cfe6f7]">{score.reasons[0] || "Alternative family path retained for review."}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
           <div className="mt-5 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
             <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
               <p className="text-sm font-black text-[#edf6ff]">Missing information / review blockers</p>
@@ -457,6 +632,49 @@ export function ProjectDetailPage() {
                 </Link>
               </div>
             </div>
+          </div>
+        </SectionCard>
+
+        <SectionCard
+          title="Proposal readiness gate"
+          subtitle="Use this as the commercial safety check before turning the project into a customer proposal or quote request."
+        >
+          <div
+            className={
+              projectReadinessGate.tone === "ready"
+                ? "rounded-2xl border border-emerald-300 bg-emerald-950/30 p-5"
+                : projectReadinessGate.tone === "review"
+                  ? "rounded-2xl border border-amber-300 bg-amber-950/30 p-5"
+                  : "rounded-2xl border border-rose-300 bg-rose-950/30 p-5"
+            }
+          >
+            <div className="grid gap-4 lg:grid-cols-[240px_1fr_220px]">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">Current status</p>
+                <p className="mt-2 text-2xl font-black text-[#edf6ff]">{projectReadinessGate.status}</p>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-[#edf6ff]">{projectReadinessGate.summary}</p>
+                <p className="mt-2 text-sm leading-6 text-[#cfe6f7]">{projectReadinessGate.nextAction}</p>
+              </div>
+              <Link
+                to={projectReadinessGate.route}
+                className="inline-flex items-center justify-center rounded-full bg-slate-950 px-5 py-3 text-sm font-black text-white"
+              >
+                Open next workflow
+              </Link>
+            </div>
+
+            {projectReadinessGate.blockers.length > 0 && (
+              <div className="mt-5 grid gap-2">
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">Blockers / checks</p>
+                {projectReadinessGate.blockers.slice(0, 8).map((blocker) => (
+                  <p key={blocker} className="rounded-xl border border-white/10 bg-slate-950/50 p-3 text-sm leading-6 text-[#edf6ff]">
+                    {blocker}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
         </SectionCard>
 
@@ -559,6 +777,25 @@ export function ProjectDetailPage() {
                 <p className="mt-2 text-xs leading-5">{recommendationEvidence.nextBestQuestion}</p>
               </div>
             ) : null}
+
+            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
+              <p className="text-sm font-black text-[#edf6ff]">Product-family scores</p>
+              <div className="mt-3 space-y-2 text-sm text-[#cfe6f7]">
+                {productFamilyScores.length ? (
+                  productFamilyScores.slice(0, 4).map((score) => (
+                    <div key={score.family} className="rounded-xl border border-[#29465e] bg-[#10283e] p-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-black text-[#edf6ff]">{score.family}</span>
+                        <span className="rounded-full border border-cyan-300/50 px-2 py-1 text-xs font-black text-[#9ffcf4]">{score.score}/100</span>
+                      </div>
+                      <p className="mt-2 text-xs leading-5">{score.reasons[0] || "Family retained for review."}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p>No product-family score has been stored yet. Rebuild recommendation evidence from Finder or Discovery.</p>
+                )}
+              </div>
+            </div>
 
             <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
               <p className="text-sm font-black text-[#edf6ff]">Selected products</p>

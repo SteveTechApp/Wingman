@@ -190,7 +190,7 @@ function productIsAvoip(text: string) {
   return hasAny(text, ["networkhd", "avoip", "av over ip", "nhd-", "encoder", "decoder", "transceiver"]);
 }
 
-function productIsMatrix(text: string) {
+function _productIsMatrix(text: string) {
   return hasAny(text, ["matrix", "mx-", "mxv-", "8x8", "4x4", "16x16"]);
 }
 

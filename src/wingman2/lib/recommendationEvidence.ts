@@ -3,8 +3,10 @@ import type {
   StoredDiscoveryBrief,
   StoredProductSelection,
   StoredProject,
+  StoredProductFamilyScore,
   StoredQuoteSafetyStatus,
   StoredRecommendationEvidence,
+  StoredRecommendationProductFamily,
 } from "../data/projectStore";
 import { buildSalesReadinessPackage } from "./salesReadiness";
 import { buildAvDecisionEvidence } from "./avDecisionEvidence";
@@ -190,26 +192,402 @@ function productDirection(input: RecommendationEvidenceInput) {
   );
 }
 
+type RecommendationArchitectureDecision = {
+  path:
+    | "dedicated-wall-processor"
+    | "networkhd-avoip"
+    | "education-hybrid"
+    | "meeting-room"
+    | "contained-routing"
+    | "core-review";
+  systemShape: string;
+  evidence: string[];
+  missingInformation: string[];
+  requiredDependencies: string[];
+  optionalUpgrades: string[];
+  alternatives: string[];
+  quoteChecks: string[];
+  customerSafeWording: string[];
+  repGuidance: string[];
+};
+
+
+type RecommendationProductFamily = StoredRecommendationProductFamily;
+type RecommendationProductFamilyScore = StoredProductFamilyScore;
+
+function numberFromRequirement(value: unknown) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  const match = String(value ?? "").match(/\d+/);
+  const parsed = Number(match?.[0]);
+
+  if (Number.isFinite(parsed)) {
+    return parsed;
+  }
+
+  return null;
+}
+
+function architectureDecision(input: RecommendationEvidenceInput): RecommendationArchitectureDecision {
+  const roomModel = roomModelFrom(input);
+  const productBlob = productText(input.product);
+  const requirementText = combinedRequirementText(input);
+  const combined = `${productBlob} ${requirementText}`;
+
+  const sourceCount = numberFromRequirement(roomModel.sourceCount);
+  const displayCount = numberFromRequirement(roomModel.displayCount);
+
+  const isWall = hasAny(combined, ["video wall", "videowall", "led wall", "lcd wall", "novastar", "wall processor"]);
+  const isNetworkHd = hasAny(combined, ["networkhd", "av over ip", "av-over-ip", "avoip", "nhd-"]);
+  const isMeeting = hasAny(combined, ["meeting", "conference", "teams", "zoom", "uc", "usb", "byod", "byom", "camera", "speakerphone"]);
+  const isEducation = hasAny(combined, ["higher education", "education", "teaching", "classroom", "lecture", "lectern", "confidence display"]);
+  const isHospitality = hasAny(combined, ["hospitality", "sports bar", "bar", "casino", "hotel", "pub", "venue"]);
+  const isContained = hasAny(combined, ["contained", "local rack", "local source", "simple source", "fixed routing"]);
+  const isFlexibleDistribution = hasAny(combined, [
+    "any source to any display",
+    "multi-room",
+    "distributed",
+    "remote source",
+    "campus",
+    "estate",
+    "managed network",
+    "av vlan",
+    "networked building",
+    "flexible routing",
+  ]);
+
+  if (isWall) {
+    return {
+      path: "dedicated-wall-processor",
+      systemShape:
+        "Validate the wall as a dedicated processor path first, then compare against AV-over-IP only if routing flexibility, source expansion, or distributed endpoints are required.",
+      evidence: [
+        "Architecture decision: video wall or LED wall language detected.",
+        "Dedicated processor validation should happen before selecting an AV-over-IP wall approach.",
+      ],
+      missingInformation: [
+        "Wall layout, source behaviour, canvas/preset needs and processor path",
+      ],
+      requiredDependencies: [
+        "Confirmed LED/LCD processor input path, canvas behaviour, source layout presets and control requirement.",
+      ],
+      optionalUpgrades: [
+        "Consider SW-0204-VW for simple preset-layout walls.",
+        "Consider SW-0206-VW for flexible dedicated non-AV-over-IP wall processing.",
+      ],
+      alternatives: [
+        "Do not assume AV-over-IP is best for video wall work; compare SW-0206-VW, SW-0204-VW and NetworkHD options against the confirmed behaviour.",
+      ],
+      quoteChecks: [
+        "Validate wall geometry, processor path, scaling behaviour, presets, source count and control before quote.",
+      ],
+      customerSafeWording: [
+        "For the wall element, we should validate the processor and layout behaviour before treating this as a generic distribution system.",
+      ],
+      repGuidance: [
+        "Ask whether the customer needs full canvas, preset layouts, per-display content, multiview, or simple processor input switching.",
+      ],
+    };
+  }
+
+  if (isNetworkHd || isFlexibleDistribution || (displayCount !== null && displayCount > 10 && !isContained)) {
+    return {
+      path: "networkhd-avoip",
+      systemShape:
+        "NetworkHD direction: source encoders, display decoders, NHD-CTL-PRO control, and a validated managed network switching design.",
+      evidence: [
+        "Architecture decision: flexible or distributed routing requirement detected.",
+        displayCount !== null ? `Display count captured: ${displayCount}.` : "",
+        sourceCount !== null ? `Source count captured: ${sourceCount}.` : "",
+      ],
+      missingInformation: [
+        "Network availability, managed switch suitability and AV VLAN approach",
+      ],
+      requiredDependencies: [
+        "NHD-CTL-PRO control layer for NetworkHD projects.",
+        "Suitable managed network switching design, including multicast/IGMP and AV VLAN considerations.",
+      ],
+      optionalUpgrades: [
+        "Consider NetworkHD 500 for premium 4K60 4:4:4 workflows, stronger USB support, or Dante-ready discussions.",
+        "Consider NetworkHD 600 where the project genuinely needs highest-performance lossless zero-latency 10G AV-over-IP.",
+      ],
+      alternatives: [
+        "Do not choose AV-over-IP when a contained matrix or dedicated wall processor is the simpler, safer answer.",
+        "Do not imply NetworkHD series interoperability; keep each NetworkHD family validated as its own system.",
+      ],
+      quoteChecks: [
+        "Validate switching infrastructure, multicast/IGMP, VLAN design, endpoint count, controller, and NetworkHD family before quote.",
+      ],
+      customerSafeWording: [
+        "The NetworkHD direction is appropriate only if the project needs flexible routing, distributed endpoints, or expansion beyond a simple fixed matrix.",
+      ],
+      repGuidance: [
+        "Confirm whether the customer needs any-source-to-any-display routing or whether a simpler matrix would satisfy the brief.",
+      ],
+    };
+  }
+
+  if (isEducation) {
+    return {
+      path: "education-hybrid",
+      systemShape:
+        "Education / hybrid teaching-room direction: confirm presentation switching, USB capture, audio, control, confidence display and managed-network requirements before selecting the final platform.",
+      evidence: [
+        "Architecture decision: higher-education or teaching-room language detected.",
+      ],
+      missingInformation: [
+        "Teaching-room USB capture path, audio path, control ownership and confidence-display behaviour",
+      ],
+      requiredDependencies: [
+        "Confirmed USB, camera/capture, microphone/audio, control and confidence-display paths before quote.",
+      ],
+      optionalUpgrades: [
+        "Consider hybrid matrix or presentation switcher direction where USB, audio and control are part of the room workflow.",
+        "Consider NetworkHD only when room-to-room routing, distributed endpoints or managed-network scale justify it.",
+      ],
+      alternatives: [
+        "Do not reduce teaching rooms to video switching only; USB, audio, control and confidence display may drive the design.",
+      ],
+      quoteChecks: [
+        "Validate lectern sources, laptop inputs, USB devices, capture path, audio routing, control interface and display behaviour.",
+      ],
+      customerSafeWording: [
+        "For a teaching room, the video path should be checked alongside USB, audio, control and confidence-display behaviour.",
+      ],
+      repGuidance: [
+        "Ask what needs to be captured, what the lecturer controls, and whether the confidence display follows or differs from the main output.",
+      ],
+    };
+  }
+
+  if (isMeeting) {
+    return {
+      path: "meeting-room",
+      systemShape:
+        "Meeting-room direction: presentation path plus explicit USB host/peripheral routing, audio path, display behaviour, and control ownership.",
+      evidence: [
+        "Architecture decision: meeting, UC, BYOD/BYOM or USB language detected.",
+      ],
+      missingInformation: [
+        "USB host ownership, peripheral location and transport bandwidth",
+      ],
+      requiredDependencies: [
+        "Confirmed USB host/peripheral transport path before quoting conferencing or BYOD workflows.",
+      ],
+      optionalUpgrades: [
+        "Consider presentation switcher or UC direction before AV-over-IP for simple one-room collaboration spaces.",
+      ],
+      alternatives: [
+        "Do not default a one-room USB-C/BYOM meeting room to AV-over-IP unless routing scale or distribution requires it.",
+      ],
+      quoteChecks: [
+        "Validate laptop ownership, USB host, camera, microphone/speakerphone, display count, audio path and control needs.",
+      ],
+      customerSafeWording: [
+        "The meeting-room direction should be led by how the laptop, USB devices, audio and display are actually used.",
+      ],
+      repGuidance: [
+        "Ask where the camera, microphone and speakerphone connect, and which device owns the USB session.",
+      ],
+    };
+  }
+
+  if (isContained || isHospitality || hasAny(combined, ["matrix", "multi-zone", "switcher"]) || (displayCount !== null && displayCount <= 10)) {
+    return {
+      path: "contained-routing",
+      systemShape:
+        "Contained routing direction: matrix or switcher architecture with confirmed input/output count, display behaviour, distance, and receiver requirements.",
+      evidence: [
+        "Architecture decision: contained matrix/switcher or hospitality distribution requirement detected.",
+        displayCount !== null ? `Display count captured: ${displayCount}.` : "",
+        sourceCount !== null ? `Source count captured: ${sourceCount}.` : "",
+      ],
+      missingInformation: [
+        "Routed output count, source count, receiver requirement and cable-distance path",
+      ],
+      requiredDependencies: [
+        "Confirmed receiver/extender requirement, cable distance, output behaviour and control method for contained distribution.",
+      ],
+      optionalUpgrades: [
+        "Keep MX-0808-KIT or matrix direction in play for contained cost-sensitive systems.",
+      ],
+      alternatives: [
+        "Do not move a contained local system to AV-over-IP unless flexibility, distance, mixed locations or expansion justify it.",
+      ],
+      quoteChecks: [
+        "Validate source count, routed display count, mirrored outputs, HDBaseT receiver needs, cable distance and audio/control requirements.",
+      ],
+      customerSafeWording: [
+        "For contained distribution, a matrix or switcher route may be simpler and safer than networked AV if the routing requirement is fixed.",
+      ],
+      repGuidance: [
+        "Start from the display count and work backwards to sources, routed outputs, receiver locations and cable distances.",
+      ],
+    };
+  }
+
+  return {
+    path: "core-review",
+    systemShape:
+      "Core WyreStorm product direction with source, display, distance, USB, audio, control, and dependency checks still visible.",
+    evidence: [
+      "Architecture decision: not enough confirmed context to choose a stronger architecture path.",
+    ],
+    missingInformation: [
+      "Application type, source count, display count, distance, USB, audio, control and network requirement",
+    ],
+    requiredDependencies: [],
+    optionalUpgrades: [],
+    alternatives: [
+      "Do not name a final SKU until the architecture path is clearer.",
+    ],
+    quoteChecks: [
+      "Confirm the application, source/display count, signal distance, USB, audio, control and network needs before quote.",
+    ],
+    customerSafeWording: [
+      "The current direction needs further requirement confirmation before it becomes a final design.",
+    ],
+    repGuidance: [
+      "Use discovery to clarify the architecture before pushing a product.",
+    ],
+  };
+}
+
 function suggestedSystemShape(input: RecommendationEvidenceInput) {
-  const textBlob = `${productText(input.product)} ${combinedRequirementText(input)}`;
+  return architectureDecision(input).systemShape;
+}
 
-  if (hasAny(textBlob, ["video wall", "videowall", "lcd wall", "led wall"])) {
-    return "Validate the wall as a dedicated processor path first, then compare against AV-over-IP only if routing flexibility, source expansion, or distributed endpoints are required.";
+
+function addFamilyScore(
+  scores: Map<RecommendationProductFamily, RecommendationProductFamilyScore>,
+  family: RecommendationProductFamily,
+  points: number,
+  reason: string,
+) {
+  const existing = scores.get(family) ?? {
+    family,
+    score: 0,
+    reasons: [],
+    cautions: [],
+  };
+
+  existing.score += points;
+
+  if (reason) {
+    existing.reasons.push(reason);
   }
 
-  if (hasAny(textBlob, ["networkhd", "av over ip", "avoip"])) {
-    return "NetworkHD direction: source encoders, display decoders, NHD-CTL-PRO control, and a validated managed network switching design.";
+  scores.set(family, existing);
+}
+
+function addFamilyCaution(
+  scores: Map<RecommendationProductFamily, RecommendationProductFamilyScore>,
+  family: RecommendationProductFamily,
+  caution: string,
+) {
+  const existing = scores.get(family) ?? {
+    family,
+    score: 0,
+    reasons: [],
+    cautions: [],
+  };
+
+  if (caution) {
+    existing.cautions.push(caution);
   }
 
-  if (hasAny(textBlob, ["meeting", "conference", "teams", "zoom", "uc", "usb", "byod", "byom"])) {
-    return "Meeting-room direction: presentation path plus explicit USB host/peripheral routing, audio path, display behaviour, and control ownership.";
+  scores.set(family, existing);
+}
+
+function productFamilyScores(input: RecommendationEvidenceInput): RecommendationProductFamilyScore[] {
+  const architecture = architectureDecision(input);
+  const roomModel = roomModelFrom(input);
+  const combined = `${productText(input.product)} ${combinedRequirementText(input)}`;
+  const displayCount = numberFromRequirement(roomModel.displayCount);
+  const sourceCount = numberFromRequirement(roomModel.sourceCount);
+  const scores = new Map<RecommendationProductFamily, RecommendationProductFamilyScore>();
+
+  addFamilyScore(scores, "Core review", 10, "Every recommendation still needs requirement, datasheet and dependency validation.");
+
+  if (architecture.path === "networkhd-avoip") {
+    addFamilyScore(scores, "NetworkHD", 70, "Architecture decision favours flexible or distributed AV-over-IP.");
+    addFamilyScore(scores, "Matrix / HDBaseT", 20, "Matrix / HDBaseT remains an alternative if routing proves fixed and local.");
+    addFamilyCaution(scores, "NetworkHD", "Confirm controller, managed switch, multicast/IGMP, VLAN and NetworkHD family before quoting.");
   }
 
-  if (hasAny(textBlob, ["matrix", "multi-zone", "hospitality", "sports bar"])) {
-    return "Contained routing direction: matrix or switcher architecture with confirmed input/output count, display behaviour, distance, and receiver requirements.";
+  if (architecture.path === "contained-routing") {
+    addFamilyScore(scores, "Matrix / HDBaseT", 70, "Architecture decision favours contained fixed routing.");
+    addFamilyScore(scores, "NetworkHD", 20, "NetworkHD remains an upgrade path only if routing flexibility or expansion is required.");
+    addFamilyCaution(scores, "NetworkHD", "Do not move a simple local system to AV-over-IP without a routing or scale reason.");
   }
 
-  return "Core WyreStorm product direction with source, display, distance, USB, audio, control, and dependency checks still visible.";
+  if (architecture.path === "meeting-room") {
+    addFamilyScore(scores, "Presentation / UC", 75, "Meeting-room workflow is driven by USB, BYOM/BYOD, camera, audio and display behaviour.");
+    addFamilyScore(scores, "Matrix / HDBaseT", 20, "Matrix / HDBaseT may apply where room extension or local routed outputs are required.");
+    addFamilyCaution(scores, "NetworkHD", "Do not default a single-room USB-C/BYOM requirement to AV-over-IP.");
+  }
+
+  if (architecture.path === "education-hybrid") {
+    addFamilyScore(scores, "Presentation / UC", 45, "Teaching-room workflow includes USB, capture, audio and control validation.");
+    addFamilyScore(scores, "Matrix / HDBaseT", 45, "Education spaces often need routed outputs, confidence display and extension.");
+    addFamilyScore(scores, "NetworkHD", 25, "NetworkHD applies when the teaching space connects into distributed or campus routing.");
+    addFamilyCaution(scores, "Presentation / UC", "Validate audio, capture, control and confidence display before proposing.");
+  }
+
+  if (architecture.path === "dedicated-wall-processor") {
+    addFamilyScore(scores, "Video wall processor", 80, "Video wall or LED processor language requires dedicated wall-processing validation first.");
+    addFamilyScore(scores, "NetworkHD", 25, "NetworkHD applies only if routing flexibility, distributed endpoints or expansion justify it.");
+    addFamilyCaution(scores, "NetworkHD", "Do not assume AV-over-IP is the primary wall approach before wall behaviour is confirmed.");
+  }
+
+  if (sourceCount !== null && sourceCount > 8) {
+    addFamilyScore(scores, "NetworkHD", 10, `Source count is high: ${sourceCount}.`);
+    addFamilyScore(scores, "Matrix / HDBaseT", 10, `Source count may require a larger matrix: ${sourceCount}.`);
+  }
+
+  if (displayCount !== null && displayCount > 10) {
+    addFamilyScore(scores, "NetworkHD", 15, `Display count favours scalable distribution: ${displayCount}.`);
+  }
+
+  if (hasAny(combined, ["hdbaset", "receiver", "extender", "cat6", "cat 6", "distance"])) {
+    addFamilyScore(scores, "Matrix / HDBaseT", 15, "Distance or receiver language supports matrix / HDBaseT validation.");
+  }
+
+  if (hasAny(combined, ["usb", "byom", "byod", "teams", "zoom", "camera", "speakerphone"])) {
+    addFamilyScore(scores, "Presentation / UC", 15, "USB or UC language supports presentation / UC validation.");
+  }
+
+  if (hasAny(combined, ["sw-0206-vw", "sw-0204-vw", "novastar", "led wall", "video wall"])) {
+    addFamilyScore(scores, "Video wall processor", 20, "Wall processor language detected.");
+  }
+
+  return Array.from(scores.values())
+    .map((score) => ({
+      ...score,
+      score: Math.max(0, Math.min(100, score.score)),
+      reasons: unique(score.reasons),
+      cautions: unique(score.cautions),
+    }))
+    .sort((a, b) => b.score - a.score);
+}
+
+function productFamilyScoreEvidence(scores: RecommendationProductFamilyScore[]) {
+  return scores.map((score) => {
+    const reasons = score.reasons.slice(0, 2).join(" ");
+    return `Product-family score: ${score.family} ${score.score}/100. ${reasons}`.trim();
+  });
+}
+
+function productFamilyScoreQuoteChecks(scores: RecommendationProductFamilyScore[]) {
+  return scores.flatMap((score) =>
+    score.cautions.map((caution) => `Product-family caution: ${score.family}: ${caution}`),
+  );
+}
+
+function topProductFamily(scores: RecommendationProductFamilyScore[]) {
+  return scores[0]?.family ?? "Core review";
 }
 
 function addMissingInformation(input: RecommendationEvidenceInput, output: Set<string>) {
@@ -238,6 +616,8 @@ function addMissingInformation(input: RecommendationEvidenceInput, output: Set<s
   if (hasAny(combined, ["video wall", "videowall", "multiview", "multi-view", "lcd wall", "led wall"])) {
     output.add("Wall layout, source behaviour, canvas/preset needs and processor path");
   }
+
+  architectureDecision(input).missingInformation.forEach((item) => output.add(item));
 }
 
 function requiredDependencies(input: RecommendationEvidenceInput) {
@@ -245,7 +625,7 @@ function requiredDependencies(input: RecommendationEvidenceInput) {
   const productBlob = productText(product);
   const requirementText = combinedRequirementText(input);
   const combined = `${productBlob} ${requirementText}`;
-  const dependencies: string[] = [];
+  const dependencies: string[] = [...architectureDecision(input).requiredDependencies];
 
   if (hasAny(combined, ["networkhd", "av over ip", "avoip"])) {
     dependencies.push("NHD-CTL-PRO control layer for NetworkHD projects.");
@@ -276,7 +656,7 @@ function requiredDependencies(input: RecommendationEvidenceInput) {
 
 function optionalUpgrades(input: RecommendationEvidenceInput) {
   const combined = `${productText(input.product)} ${combinedRequirementText(input)}`;
-  const output: string[] = [];
+  const output: string[] = [...architectureDecision(input).optionalUpgrades];
 
   if (hasAny(combined, ["networkhd 100", "nhd-120", "nhd-150"])) {
     output.push("Consider NetworkHD 500 where the brief needs premium 4K60 4:4:4 workflows, stronger USB support, or Dante-ready discussions.");
@@ -298,6 +678,7 @@ function optionalUpgrades(input: RecommendationEvidenceInput) {
 function alternatives(input: RecommendationEvidenceInput) {
   const combined = `${productText(input.product)} ${combinedRequirementText(input)}`;
   const output: string[] = [
+    ...architectureDecision(input).alternatives,
     "Do not issue a final quote until datasheet, lifecycle, region, firmware and accessory checks are complete.",
   ];
 
@@ -374,23 +755,30 @@ function whyThisFits(input: RecommendationEvidenceInput) {
 
 function customerSafeWording(input: RecommendationEvidenceInput, status: StoredQuoteSafetyStatus) {
   const direction = productDirection(input);
+  const architecture = architectureDecision(input);
+  const familyScores = productFamilyScores(input);
   const checks = status === "quote-ready"
     ? "We will still run the final datasheet and dependency check before issuing the quote."
     : "Before this becomes a quote, we need to confirm the open design details and dependencies.";
 
-  return [
+  return unique([
     `The current WyreStorm direction is ${direction}.`,
+    `The leading product-family path is ${topProductFamily(familyScores)} before final SKU selection.`,
     checks,
     "This recommendation is based on the captured room requirement, not just a SKU match.",
-  ];
+    ...architecture.customerSafeWording,
+  ]);
 }
 
 function internalGuidance(input: RecommendationEvidenceInput, status: StoredQuoteSafetyStatus) {
+  const familyScores = productFamilyScores(input);
   const output = [
     status === "do-not-quote-yet"
       ? "Keep this as a design direction. Do not send a price or BOM until the missing information is confirmed."
       : "Use this as a sales conversation aid and keep validation items visible.",
+    `Use product-family scoring before SKU selection. Leading family: ${topProductFamily(familyScores)}.`,
     "Escalate to pre-sales when architecture, USB, network, video wall, or dependency validation affects the final design.",
+    ...architectureDecision(input).repGuidance,
   ];
 
   if (input.compare?.competitorSku || input.compare?.competitorName) {
@@ -467,6 +855,8 @@ export function productToSelection(
 export function buildRecommendationEvidence(input: RecommendationEvidenceInput): StoredRecommendationEvidence {
   const missing = missingInformation(input);
   const dependencies = requiredDependencies(input);
+  const architecture = architectureDecision(input);
+  const familyScores = productFamilyScores(input);
 
   const avDecision = buildAvDecisionEvidence({
     source: input.source,
@@ -485,6 +875,8 @@ export function buildRecommendationEvidence(input: RecommendationEvidenceInput):
     ...missing.map((item) => `Confirm ${item}.`),
     "Validate datasheet, lifecycle, firmware, region, accessory, power and mounting requirements.",
     ...dependencies.map((item) => `Dependency check: ${item}`),
+    ...architecture.quoteChecks,
+    ...productFamilyScoreQuoteChecks(familyScores),
     ...avDecision.quoteChecks,
   ]);
 
@@ -495,7 +887,14 @@ export function buildRecommendationEvidence(input: RecommendationEvidenceInput):
     productDirection: productDirection(input),
     systemShape: suggestedSystemShape(input),
     whyThisFits: whyThisFits(input),
-    evidenceUsed: unique([...countEvidence(input), ...compareEvidence(input.compare), ...avDecision.evidence]),
+    evidenceUsed: unique([
+      ...countEvidence(input),
+      ...compareEvidence(input.compare),
+      ...architecture.evidence,
+      ...productFamilyScoreEvidence(familyScores),
+      ...avDecision.evidence,
+    ]),
+    productFamilyScores: familyScores,
     quoteChecks,
     missingInformation: unique([...missing, ...avDecision.missingInformation]),
     requiredDependencies: unique([...dependencies, ...avDecision.requiredDependencies]),

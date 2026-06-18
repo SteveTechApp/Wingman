@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach, Mock } from "vitest";
-import { extractDocumentText, extractDocuments, ExtractedDocument } from "@/wingman2/lib/documentExtract";
+import { describe, it, expect, vi, Mock } from "vitest";
+import { extractDocumentText, extractDocuments } from "@/wingman2/lib/documentExtract";
 
 /**
  * Creates a mock File object for testing.
@@ -10,7 +10,6 @@ function createMockFile(
   content: string,
   options: { type?: string; throwOnText?: boolean; throwOnArrayBuffer?: boolean } = {}
 ): File {
-  const blob = new Blob([content], { type: options.type || "text/plain" });
 
   const file = {
     name,

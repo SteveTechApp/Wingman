@@ -262,7 +262,7 @@ function addOutputGroup(
 export function classifyMatrixOutputTopology(input: MatrixOutputClassificationInput): MatrixOutputTopology {
   const sku = normaliseSku(input.sku);
   const rawText = normaliseText(input);
-  const lowerText = rawText.toLowerCase();
+  const _lowerText = rawText.toLowerCase();
   const warnings: string[] = [];
   const compareNotes: string[] = [];
   const physicalOutputs: MatrixPhysicalOutputGroup[] = [];
@@ -273,7 +273,7 @@ export function classifyMatrixOutputTopology(input: MatrixOutputClassificationIn
   const routedInputCount = hasMatrixSizeEvidence
     ? firstKnownCount([matrixSize.inputs, input.inputCount, input.inputs])
     : firstKnownCount([input.inputCount, input.inputs]);
-  let routedOutputCount = hasMatrixSizeEvidence
+  const routedOutputCount = hasMatrixSizeEvidence
     ? firstKnownCount([matrixSize.outputs, input.outputCount, input.outputs])
     : firstKnownCount([input.outputCount, input.outputs]);
 

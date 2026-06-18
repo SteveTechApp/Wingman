@@ -1,4 +1,4 @@
-import { memo, useMemo, useRef } from "react";
+﻿import { memo, useMemo, useRef } from "react";
 import {
   Background,
   Controls,
@@ -105,9 +105,9 @@ function VisualStudioCanvasInner({ model, mode }: VisualStudioCanvasProps) {
           edges={flowModel.edges}
           nodeTypes={nodeTypes}
           fitView
-          fitViewOptions={{ padding: 0.18 }}
-          minZoom={0.35}
-          maxZoom={1.6}
+          fitViewOptions={{ padding: 0.08 }}
+          minZoom={0.65}
+          maxZoom={1.8}
           nodesDraggable
           nodesConnectable={false}
           elementsSelectable

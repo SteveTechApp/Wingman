@@ -29,6 +29,8 @@ import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 import { discoveryBriefToFinderNeed, readLatestDiscoveryBrief } from "../data/workflowHandoff";
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
+import { getProductFamilyRankingReason, rankProductsByFamilyScores } from "../lib/productFamilyShortlistRanking";
+import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 
 type MatchStatus = "recommended" | "alternative" | "caution";
 type ProductVoiceId = "endUser" | "systemIntegrator" | "consultant";
@@ -2692,8 +2694,7 @@ export function FinderPage() {
   useEffect(() => {
     let active = true;
 
-    fetch("/product-intelligence-index.json")
-      .then((response) => (response.ok ? response.json() : null))
+    loadProductIntelligenceIndex()
       .then((data) => {
         if (!active) return;
 
@@ -2758,6 +2759,8 @@ export function FinderPage() {
       .slice(0, hasPointToPointOneInOneOutNeed(need) ? 4 : 8);
   }, [hasIntent, need, products]);
 
+  
+  
   const bestMatch = matches[0] ?? null;
 
   const activeProject = useMemo(
@@ -2768,6 +2771,33 @@ export function FinderPage() {
     () => projects.find((project) => project.id === activeProjectId),
     [activeProjectId, projects],
   );
+
+  const finderProductFamilyScores = useMemo(
+    () =>
+      activeProject?.recommendationEvidence?.productFamilyScores ??
+      workflowProject?.recommendationEvidence?.productFamilyScores ??
+      [],
+    [
+      activeProject?.recommendationEvidence?.productFamilyScores,
+      workflowProject?.recommendationEvidence?.productFamilyScores,
+    ],
+  );
+
+  const rankedMatches = useMemo(
+    () => rankProductsByFamilyScores(matches, finderProductFamilyScores),
+    [matches, finderProductFamilyScores],
+  );
+
+  const topFinderRankingReason = useMemo(() => {
+    const leadingMatch = rankedMatches[0];
+if (!leadingMatch) {
+      return "";
+    }
+
+    return getProductFamilyRankingReason(leadingMatch, finderProductFamilyScores);
+  }, [finderProductFamilyScores, rankedMatches]);
+
+
 
   const finderCoach = useMemo(
     () =>
@@ -3197,7 +3227,7 @@ export function FinderPage() {
                     <div>
                       <p className="text-sm font-black text-white">Product results</p>
                       <p className="mt-1 text-xs leading-5 text-white/55">
-                        {hasIntent ? `${matches.length} matching product${matches.length === 1 ? "" : "s"} from the current Finder need.` : "Add a starting requirement to generate recommendations."}
+                        {hasIntent ? `${rankedMatches.length} matching product${rankedMatches.length === 1 ? "" : "s"} from the current Finder need.` : "Add a starting requirement to generate recommendations."}
                       </p>
                     </div>
 
@@ -3210,6 +3240,11 @@ export function FinderPage() {
 
                   <div className="grid gap-4">
                     <main className="wm-finder-results-panel grid content-start gap-3">
+                      {topFinderRankingReason ? (
+                        <div className="finder-family-ranking-note" data-testid="finder-product-family-ranking-reason">
+                          Why this is first: {topFinderRankingReason}
+                        </div>
+                      ) : null}
                       {!hasIntent ? (
                         <div className="grid min-h-[220px] place-items-center rounded-2xl border border-dashed border-[#29465e] bg-[#0d2133] p-6 text-center">
                           <div className="max-w-xl">
@@ -3220,8 +3255,10 @@ export function FinderPage() {
                             </p>
                           </div>
                         </div>
-                      ) : matches.length ? (
-                        matches.map((match, index) => {
+                      ) :       
+
+rankedMatches.length ? (
+                        rankedMatches.map((match, index) => {
                           const resultKey = `${match.sku}-${index}`;
                           const isExpanded = expandedResultKey === resultKey;
                           const reasonLines = getReasonLines(match, need);

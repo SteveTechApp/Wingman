@@ -7,7 +7,6 @@ import {
   NETWORKHD_AVOIP_FAMILIES,
   NETWORKHD_CONTROLLER_REMINDER,
   NETWORKHD_CONTROLLER_SKU,
-  recommendNetworkHdAvoip,
   stripBannedNetworkHdSkus,
 } from "./networkHdAvoipEquivalence";
 

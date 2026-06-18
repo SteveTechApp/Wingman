@@ -74,6 +74,15 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
     ? `<img src="${escapeHtml(proposal.companyLogoDataUrl)}" alt="${escapeHtml(companyName)} logo" style="max-height:64px;max-width:220px;object-fit:contain;margin-bottom:16px;" />`
     : "";
   const visualBlocks = proposal.visualBlocks ?? [];
+  const productFamilyScores = proposal.productFamilyScores ?? [];
+  const leadingProductFamilyScore = productFamilyScores[0] ?? null;
+  const productFamilyDecisionHtml = leadingProductFamilyScore
+    ? `<section><h2>Product Family Decision</h2><p><strong>${escapeHtml(leadingProductFamilyScore.family)}</strong> was the leading product-family path before final SKU selection. Family confidence: ${escapeHtml(String(leadingProductFamilyScore.score))}/100.</p><p>${escapeHtml(leadingProductFamilyScore.reasons[0] || "Family path selected from recommendation evidence.")}</p>${
+        leadingProductFamilyScore.cautions.length
+          ? `<p><strong>Validation:</strong> ${escapeHtml(leadingProductFamilyScore.cautions[0])}</p>`
+          : "<p><strong>Validation:</strong> Validate datasheet, dependencies, firmware, lifecycle, regional suitability and accessories before customer issue.</p>"
+      }</section>`
+    : "<section><h2>Product Family Decision</h2><p>No product-family decision has been stored yet. Treat this as a draft until the architecture and family path are confirmed.</p></section>";
 
   const hasCoreProducts = proposal.products.length > 0;
   const readinessNotice = hasCoreProducts
@@ -107,6 +116,7 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   </style>
 </head>
 <body>
+   ${productFamilyDecisionHtml}
   ${logoHtml}
   <p class="meta">${escapeHtml(companyName)} proposal draft${preparedBy ? ` | Prepared by ${escapeHtml(preparedBy)}` : ""}</p>
   <h1>${escapeHtml(proposal.title)}</h1>

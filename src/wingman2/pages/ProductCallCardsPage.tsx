@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { getProductStory, productStoryRelatedText } from "../data/productStories";
+import { saveProductSelectionToCurrentProject } from "../data/projectStore";
 
 type ProductSeed = {
   sku: string;
@@ -58,10 +61,7 @@ const PRODUCT_PANEL_TABS: Array<{ id: ProductPanelId; label: string; hint: strin
 
 const PAGE_SIZE = 14;
 
-const DATA_ENDPOINTS = [
-  "/product-call-card-products.json",
-  "/product-intelligence-index.json",
-];
+const PRODUCT_CALL_CARD_ENDPOINT = "/product-call-card-products.json";
 
 const CURATED: Record<string, Partial<ProductCard>> = {
   "SW-620-TX-W": {
@@ -400,7 +400,7 @@ function findGuruTerm(value: string): GuruTechnicalTerm | undefined {
   return GURU_TERM_LOOKUP.get(value.toLowerCase());
 }
 
-function askGuruAboutTerm(termText: string, product?: ProductCard): void {
+function askGuruAboutTerm(termText: string, _product?: ProductCard): void {
   const term = findGuruTerm(termText);
   const label = term?.label || termText;
   const meaning = term?.plainEnglish || "A technical AV term. Check how it affects the product, signal path or customer requirement.";
@@ -609,10 +609,28 @@ function questionsFor(product: ProductCard): string[] {
 function toProductCard(seed: ProductSeed): ProductCard {
   const sku = normaliseSku(seed.sku);
   const overlay = CURATED[sku] || {};
-  const family = cleanText(overlay.family) || cleanText(seed.family) || classify(seed);
-  const category = cleanText(overlay.category) || cleanText(seed.category) || family;
-  const name = cleanText(overlay.name) || cleanText(seed.name) || sku;
+  const story = getProductStory(sku);
+  const storyProofPoints = story
+    ? [
+        ...story.keyFeatures,
+        ...productStoryRelatedText(story),
+        ...story.quoteChecks,
+      ]
+    : undefined;
+  const storyTags = story
+    ? [
+        story.family,
+        story.category,
+        story.productType,
+        ...story.idealApplications,
+      ]
+    : [];
+
+  const family = cleanText(story?.family) || cleanText(overlay.family) || cleanText(seed.family) || classify(seed);
+  const category = cleanText(story?.category) || cleanText(overlay.category) || cleanText(seed.category) || family;
+  const name = cleanText(story?.plainEnglishName) || cleanText(overlay.name) || cleanText(seed.name) || sku;
   const description =
+    cleanText(story?.whatItIs) ||
     cleanText(overlay.description) ||
     cleanText(seed.description) ||
     `${name} from the Wingman product index.`;
@@ -624,23 +642,33 @@ function toProductCard(seed: ProductSeed): ProductCard {
     category,
     description,
     fit:
+      cleanText(story?.whatItDoes) ||
       cleanText(overlay.fit) ||
       cleanText(seed.fit) ||
       `Use this when the customer requirement matches ${family.toLowerCase()} applications. Confirm I/O, signal distance, USB, audio, control and network dependencies before quoting.`,
     openingLine:
+      cleanText(story?.oneLinePosition) ||
+      cleanText(story?.salesTalkTrack) ||
       cleanText(overlay.openingLine) ||
       cleanText(seed.openingLine) ||
       `${sku} is a ${family.toLowerCase()} product direction. Use it as a starting point, then validate the room requirement before making a firm recommendation.`,
-    questions: overlay.questions || seed.questions || [],
+    questions: story?.discoveryQuestions || overlay.questions || seed.questions || [],
     proofPoints:
+      storyProofPoints ||
       overlay.proofPoints ||
       seed.proofPoints || [
         "Pulled from the Wingman product intelligence data.",
         "Use this as a product direction until the requirement is validated.",
         "Confirm dependencies before quoting.",
       ],
-    tags: unique([...(seed.tags || []), ...((overlay.tags as string[] | undefined) || []), family, category]),
-    curated: Boolean(CURATED[sku]),
+    tags: unique([
+      ...(seed.tags || []),
+      ...((overlay.tags as string[] | undefined) || []),
+      ...storyTags,
+      family,
+      category,
+    ]),
+    curated: Boolean(CURATED[sku] || story),
   };
 
   if (base.questions.length === 0) {
@@ -678,23 +706,30 @@ function extractProductSeeds(value: unknown): ProductSeed[] {
 }
 
 async function loadProductSeeds(): Promise<ProductSeed[]> {
-  for (const endpoint of DATA_ENDPOINTS) {
-    try {
-      const response = await fetch(endpoint, { cache: "no-store" });
+  try {
+    const response = await fetch(PRODUCT_CALL_CARD_ENDPOINT, { cache: "no-store" });
 
-      if (!response.ok) {
-        continue;
-      }
-
+    if (response.ok) {
       const payload = await response.json();
       const seeds = extractProductSeeds(payload);
 
       if (seeds.length > 0) {
         return seeds;
       }
-    } catch {
-      continue;
     }
+  } catch {
+    // Fall through to the shared product-intelligence index.
+  }
+
+  try {
+    const payload = await loadProductIntelligenceIndex();
+    const seeds = extractProductSeeds(payload);
+
+    if (seeds.length > 0) {
+      return seeds;
+    }
+  } catch {
+    // Fall through to curated fallback products.
   }
 
   return FALLBACK_PRODUCTS;
@@ -1026,6 +1061,17 @@ return () => {
       tags: selectedProduct.tags,
       source: "product-discussion",
     };
+
+    // Persist into the canonical project store so the product actually lands in the
+    // current project (ProjectsPage reads projectStore). The sessionStorage payload is
+    // kept for richer call-card context, but the store is what makes the handoff stick.
+    saveProductSelectionToCurrentProject({
+      sku: selectedProduct.sku,
+      title: selectedProduct.name,
+      family: selectedProduct.family,
+      category: selectedProduct.category,
+      source: "Product call cards",
+    });
 
     try {
       window.sessionStorage.setItem("wingman.pendingProjectProduct", JSON.stringify(payload));
@@ -1861,7 +1907,7 @@ return (
                 onClick={() => setActiveGalleryItem(null)}
                 aria-label="Close product gallery"
               >
-                ×
+                Ãƒâ€”
               </button>
             </div>
 
@@ -1893,7 +1939,7 @@ return (
               onClick={() => setActiveTermLookup(null)}
               aria-label="Close term explanation"
             >
-              ×
+              Ãƒâ€”
             </button>
           </div>
 
@@ -1965,7 +2011,7 @@ return (
 
           <div className="wm-pcc-status">
             <span>
-              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching · {products.length} total · {curatedCount} curated{activeQuickFinder !== "All" ? ` · ${activeQuickFinder}` : ""}
+              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching Ã‚Â· {products.length} total Ã‚Â· {curatedCount} curated{activeQuickFinder !== "All" ? ` Ã‚Â· ${activeQuickFinder}` : ""}
             </span>
 
             <div className="wm-pcc-pager">
@@ -2010,7 +2056,7 @@ return (
               >
                 <span className="wm-pcc-sku">{product.sku}</span>
                 <span className="wm-pcc-family">
-                  {product.curated ? "Curated · " : ""}
+                  {product.curated ? "Curated Ã‚Â· " : ""}
                   {product.family}
                 </span>
 
@@ -2235,7 +2281,7 @@ return (
                         {
                           title: "Low impedance stereo room",
                           body:
-                            "Two amplifier channels can drive left and right low-impedance speakers, typically 4Ω or 8Ω. This suits a local room where stereo playback, clearer music reproduction or a pair of front speakers is required. Check speaker impedance, cable run, channel load and amplifier power per channel.",
+                            "Two amplifier channels can drive left and right low-impedance speakers, typically 4ÃŽÂ© or 8ÃŽÂ©. This suits a local room where stereo playback, clearer music reproduction or a pair of front speakers is required. Check speaker impedance, cable run, channel load and amplifier power per channel.",
                         },
                       ].map((example) => (
                           <article key={example.title} className="wm-pcc-example-card">
@@ -2304,3 +2350,4 @@ return (
     </section>
   );
 }
+

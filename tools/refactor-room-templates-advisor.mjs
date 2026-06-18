@@ -37,7 +37,7 @@ function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function toSlug(value) {
+function _toSlug(value) {
   return value
     .toLowerCase()
     .replace(/networkhd\s+/g, "networkhd")
