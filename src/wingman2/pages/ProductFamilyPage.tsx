@@ -295,7 +295,7 @@ const familyGuides: ProductFamilyGuide[] = [
   {
     id: "presentation-uc",
     name: "Presentation switchers and UC",
-    shortPosition: "Meeting-room and classroom products for USB-C, wireless presentation, BYOD/BYOD and conferencing-led spaces.",
+    shortPosition: "Meeting-room and classroom products for USB-C, wireless presentation, BYOD/BYOM and conferencing-led spaces.",
     productSkus: ["MX-0402-MST", "MX-0403-H3-MST", "SW-640L-TX-W", "APO-VX20-UC", "IDB-300"],
     pitchQuery: "WyreStorm presentation UC USB-C BYOD",
     customerPitch:
@@ -313,7 +313,7 @@ const familyGuides: ProductFamilyGuide[] = [
       "Network or control connections for management and room integration.",
     ],
     usefulFunctionality: [
-      "BYOD and BYOD workflows.",
+      "BYOD and BYOM workflows.",
       "USB-C laptop connection and charging where supported.",
       "Wireless presentation or wireless conferencing where supported.",
       "Cleaner user operation for meeting rooms and classrooms.",
@@ -326,7 +326,7 @@ const familyGuides: ProductFamilyGuide[] = [
     bestFit: [
       "Huddle rooms and meeting rooms.",
       "Classrooms and training rooms.",
-      "BYOD/BYOD spaces.",
+      "BYOD/BYOM spaces.",
       "Rooms where ease of use is the main buying reason.",
     ],
     discoveryQuestions: [
@@ -668,7 +668,7 @@ const decisionRules = [
   "Use AVoIP when flexibility, expansion, distributed locations or shared sources are the value.",
   "Check matrix for fewer than around 12 outputs, fixed routing or tight budgets.",
   "Use HDBaseT or extension when the main problem is distance, not routing.",
-  "Use presentation/UC when the room workflow is laptops, USB-C, BYOD/BYOD or conferencing.",
+  "Use presentation/UC when the room workflow is laptops, USB-C, BYOD/BYOM or conferencing.",
   "Treat USB, audio and control as design paths, not afterthoughts.",
 ];
 
@@ -816,7 +816,7 @@ export function ProductFamilyPage() {
                   <ul className="mt-3 space-y-2">
                     {activeFamily.discoveryQuestions.map((question) => (
                       <li key={question} className="flex gap-2 text-sm font-semibold leading-6 text-white/70">
-                        <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-[#10263a]0" />
+                        <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-cyan-300" />
                         <span>{question}</span>
                       </li>
                     ))}
@@ -865,7 +865,7 @@ function FamilyListBlock({ icon, title, items }: { icon?: ReactNode; title: stri
       <ul className="mt-3 space-y-2">
         {items.map((item) => (
           <li key={item} className="flex gap-2 text-sm font-semibold leading-6 text-white/70">
-            <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-[#10263a]0" />
+            <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-cyan-300" />
             <span>{item}</span>
           </li>
         ))}

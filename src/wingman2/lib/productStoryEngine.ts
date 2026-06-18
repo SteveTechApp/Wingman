@@ -39,6 +39,8 @@ export type ProductNarrative = {
   role: ProductRole;
   headline: string;
   whatItIs: string;
+  whereItSits: string;
+  familyFit: string;
   customerChallenge: string;
   whyItHelps: string;
   whyCustomerCares: string;
@@ -275,7 +277,7 @@ function firstMeaningful(values: string[], fallback: string) {
 // and where it sits in its range - so two products in the same family (e.g. an
 // encoder vs a decoder, or a 100 vs a 600 series) no longer read identically.
 
-const FEATURE_SPLITTER = /\s*[|â€¢Â·]\s*/;
+const FEATURE_SPLITTER = /\s*[|•·]\s*/;
 
 const NETWORKHD_SERIES_NOTE: Record<string, string> = {
   "100": "the NetworkHD 100 series - H.264/H.265 over standard 1GbE, the bandwidth-light, budget-friendly tier for signage and lower-motion content",
@@ -411,7 +413,7 @@ function cleanFeatureToken(item: string): string {
     .replace(/\bUSB[\s-]?3(?:\.[012x])?\b/gi, "USB 3.x")
     .replace(KIND_WORDS, "")
     .replace(/\s{2,}/g, " ")
-    .replace(/^[\s/|,&Â·-]+|[\s/|,&Â·-]+$/g, "")
+    .replace(/^[\s/|,&·-]+|[\s/|,&·-]+$/g, "")
     .trim();
 }
 
@@ -482,13 +484,117 @@ function rangeRelationship(product: ProductSpec): string {
   return `Part of ${NETWORKHD_SERIES_NOTE[series]}. ${pairing}, all run under an NHD-CTL-PRO controller. ${ladder[series]} Never mix 1GbE and 10GbE NetworkHD families on the same job.`;
 }
 
+// Where the device physically lives in the room and the signal chain. A
+// salesperson who has never seen the product still needs to be able to say
+// "this sits behind the screen" or "this goes in the rack" with confidence.
+function roomPlacement(product: ProductSpec, role: ProductRole): string {
+  const endpoint = endpointRole(product.sku);
+
+  switch (role) {
+    case "camera":
+      return "Mounted in the room with a clear view of whoever needs to be seen - on top of or below the display for a presenter, on a rear or side wall for the whole room, or ceiling-mounted in larger spaces. Its video then runs back to the room PC, UC host or the network, so confirm where that host lives and how far the cable has to travel.";
+    case "audio":
+      return "Usually lives in the rack, an AV cupboard or a local cabinet near the room, with speaker cabling running out to the loudspeakers and an audio feed coming in from the source, DSP or network. It is back-of-house kit - the customer hears it but never sees it.";
+    case "avoip":
+      if (endpoint === "encoder")
+        return "Sits at each source - next to the laptop input, media player, camera or rack output it is encoding - and connects into the AV network switch. One encoder per source you want to send.";
+      if (endpoint === "decoder")
+        return "Sits at each display - behind the screen, above the projector or in the rack feeding a processor - and connects into the AV network switch. One decoder per screen you want to feed.";
+      return "Sits at a source or a display and connects into the AV network switch. The switch and the NHD-CTL-PRO controller are the heart of the system; the endpoints are the edges.";
+    case "matrix":
+      return "Central kit - it lives in the rack or AV cupboard with every source cabled into its inputs and every display (or its receiver) cabled out of its outputs. The whole system fans out from this one box, so plan the rack space and cable routes around it.";
+    case "multiview":
+      return "Sits between several sources and the one screen that shows the combined picture - usually in or near the rack, feeding an operator monitor, confidence display or processor input.";
+    case "videoWall":
+      return "Sits in the rack or near the wall, between the sources and the wall displays (or the LED processor). Sources come in, the shaped wall layout goes out to the screens.";
+    case "presentation":
+      return "The room hub - typically at the table, in a credenza, at the lectern or behind the front display. This is where users plug in or cast, and where the cable to the display starts, so its position is driven by where people sit and where the screen is.";
+    case "extension":
+      if (endpoint === "encoder")
+        return "The transmit end sits at the source position - table, lectern, wall plate or rack - and sends the signal down the installed cable to its matching receiver at the far end.";
+      if (endpoint === "decoder")
+        return "The receive end sits at the display - behind the screen or above the projector - and rebuilds the signal arriving from its matching transmitter.";
+      return "One end sits at the source and the other at the display, linked by the installed category or fibre cable run between them.";
+    case "wireless":
+      return "Connects to the room display or presentation system, with the user's own laptop or phone casting to it over the network - so nothing of theirs has to be plugged in.";
+    default:
+      return "Confirm where it physically sits - at the source, at the display, in the rack, on the network or at the user's table - because that drives the cable routes, power and who installs it.";
+  }
+}
+
+// How the product relates to the rest of its WyreStorm family: the step up, the
+// step down, and the partner products it is usually sold alongside. For
+// NetworkHD this is the governed series ladder; for the other families it is a
+// plain-language "where this one sits" so the salesperson is never caught out by
+// "what's the difference between this and the other one?".
+function familyRelationship(product: ProductSpec, role: ProductRole): string {
+  const networkHd = rangeRelationship(product);
+  if (networkHd) return networkHd;
+
+  const sku = product.sku.toUpperCase();
+  const endpoint = endpointRole(product.sku);
+
+  if (/^APO/.test(sku)) {
+    if (/VX20/.test(sku))
+      return "Part of the Apollo all-in-one UC range - the visible camera/mic/speaker bar for small-to-medium rooms. Add APO-DG2 when the same room also wants cable-free wireless presentation. Step away from Apollo to separate camera, DSP and speakers once the room is too big for one bar to cover.";
+    if (/DG\d/.test(sku))
+      return "An Apollo add-on, not a system on its own - it bolts wireless presentation onto an Apollo room (typically alongside APO-VX20-UC). If the room needs to manage several wired sources as well, move the conversation to a presentation switcher.";
+    if (/MIC/.test(sku))
+      return "An Apollo accessory that extends microphone pickup for larger Apollo rooms. It only makes sense attached to an Apollo bar, so always confirm the host product first.";
+    return "Part of the Apollo UC family for simple meeting-room collaboration. Position it alongside the Apollo bar and casting devices rather than against full installed AV systems.";
+  }
+
+  if (/^SW-?0?20[46]/.test(sku) || role === "videoWall") {
+    return "Sits in the dedicated video-wall processor family. SW-0204-VW is the simpler, preset-layout step; SW-0206-VW is the more capable step up. Both are the non-networked alternative to building the wall through NetworkHD AV-over-IP - reach for AVoIP only when routing flexibility and expansion outweigh the simplicity of a dedicated processor.";
+  }
+
+  if (/^SW-?6/.test(sku) || (role === "presentation" && /^SW/.test(sku))) {
+    return "Part of the room presentation-switcher family. SW-620-TX-W is the compact core; SW-640-TX-W is the step up for more inputs or dual-output rooms. Pair either with SYN-TOUCH10 when the room needs a clean touch interface, or add an Apollo bar when video calls matter as much as presenting. Move up to a matrix or NetworkHD only when the job becomes multi-room routing.";
+  }
+
+  if (role === "presentation") {
+    return "Part of the presentation / BYOD family aimed at making one room easy to use. Step up to a matrix or AV-over-IP only when the requirement grows from one room into routing many sources to many displays.";
+  }
+
+  if (role === "matrix") {
+    return "Part of the HDMI/HDBaseT matrix family - the central-routing answer for fixed systems. Smaller matrices suit one rack feeding a known set of screens; for many rooms, heavy future expansion or any-source-anywhere routing across a site, position NetworkHD AV-over-IP instead.";
+  }
+
+  if (role === "camera") {
+    const text = productText(product);
+    if (/\bbridge\b|-BRG/i.test(text + sku))
+      return "Part of the WyreStorm camera family, on the bridge/switching side - it turns one or more cameras into a single feed the meeting platform or recorder can use. Pair it with the PTZ cameras; reach for a plain camera instead when a single fixed view is all the room needs.";
+    return "Part of the WyreStorm camera family. NDI models join network-video workflows; PTZ models give controllable framing; camera bridges (CAM-...-BRG) combine several cameras into one feed. Match the model to where the picture has to end up - UC call, recorder, stream or network - not just to the camera spec.";
+  }
+
+  if (role === "extension") {
+    const pairing =
+      endpoint === "encoder"
+        ? "It needs its matching receiver at the far end to be a complete link"
+        : endpoint === "decoder"
+          ? "It needs its matching transmitter at the source end to be a complete link"
+          : "Transmitter and receiver are sold and quoted as a pair";
+    return `Part of the HDBaseT extension family, which solves distance rather than switching. ${pairing} - a half-quoted extender is the classic missed line. When the real need is choosing between several sources or feeding many screens, move up to a switcher, matrix or AV-over-IP.`;
+  }
+
+  if (role === "audio") {
+    return "Part of the WyreStorm audio family that completes a room beyond video. It sits alongside the video products rather than replacing them, and works with DSP, microphones, speakers and Dante/network-audio where the design calls for it. If people speak in the room, an audio product almost always belongs in the quote.";
+  }
+
+  if (role === "wireless") {
+    return "Part of the wireless-presentation family - the cable-free way to share. It usually rides alongside a presentation switcher or UC room rather than standing alone, so confirm the wider room workflow and the customer's network policy.";
+  }
+
+  return "";
+}
+
 function skuHeadline(product: ProductSpec, role: ProductRole): string {
   const feats = headlineFeatures(product, 3);
   // Headline uses the short kind (no parenthetical) so it reads as a punchy hook;
   // whatItIs keeps the fuller "(transmit end)" detail.
   const kind = productKind(product, role).replace(/\s*\([^)]*\)\s*$/, "");
 
-  if (feats.length >= 2) return `${feats.join(" Â· ")} - ${kind}.`;
+  if (feats.length >= 2) return `${feats.join(" · ")} - ${kind}.`;
   if (feats.length === 1) return `${feats[0]} - ${kind}.`;
   return `${product.name} - ${kind}.`;
 }
@@ -503,16 +609,19 @@ function skuWhatItIs(product: ProductSpec, role: ProductRole): string {
   const kind = productKind(product, role);
   const feats = headlineFeatures(product, 5);
   const featureClause = feats.length ? ` Headline capability: ${feats.join(", ")}.` : "";
+  const application = firstMeaningful(product.applications, "");
+  const applicationClause =
+    application && !/not yet|to be|confirm/i.test(application)
+      ? ` It is typically used in ${application.toLowerCase()}.`
+      : "";
   const connections = connectionList(product, 5);
   const connectionClause = connections.length ? ` It connects via ${connections.join(", ")}.` : "";
   const breadthClause =
     functionBreadth(product) === "multi"
       ? " This is a multi-function endpoint - it carries video plus USB, audio and control together rather than doing one job."
       : " It is a focused, single-purpose device.";
-  const range = rangeRelationship(product);
-  const rangeClause = range ? ` ${range}` : "";
 
-  return `${product.sku} (${product.name}) is ${articleFor(kind)} ${kind}.${featureClause}${connectionClause}${breadthClause}${rangeClause}`;
+  return `${product.sku} (${product.name}) is ${articleFor(kind)} ${kind}.${featureClause}${applicationClause}${connectionClause}${breadthClause}`;
 }
 
 function skuSuggestedWording(product: ProductSpec, role: ProductRole, fallback: string): string {
@@ -520,13 +629,28 @@ function skuSuggestedWording(product: ProductSpec, role: ProductRole, fallback: 
   const feats = headlineFeatures(product, 3);
   const application = firstMeaningful(product.applications, "this kind of room or system").toLowerCase();
   const lead = feats.length ? `, leading with ${feats.slice(0, 3).join(", ")}` : "";
-  const range = rangeRelationship(product);
+  const family = familyRelationship(product, role);
   const pitch = `"${product.sku} is the ${kind} for ${application}${lead}."`;
 
-  return range ? `${pitch} Then place it in the range: ${range}` : `${pitch} ${fallback}`;
+  return family ? `${pitch} Then place it in the range: ${family}` : `${pitch} ${fallback}`;
 }
 
+type RoleNarrativeBase = Omit<ProductNarrative, "whereItSits" | "familyFit">;
+
+// Adds the two "salesperson confidence" fields - where the product physically
+// sits, and how it relates to the rest of its family - to every role template,
+// so an unfamiliar rep can always answer "where does this go?" and "what's the
+// difference between this and the other one?".
 function buildRoleNarrative(product: ProductSpec): ProductNarrative {
+  const base = buildRoleNarrativeBase(product);
+  return {
+    ...base,
+    whereItSits: roomPlacement(product, base.role),
+    familyFit: familyRelationship(product, base.role),
+  };
+}
+
+function buildRoleNarrativeBase(product: ProductSpec): RoleNarrativeBase {
   const role = inferProductRole(product);
   const mainApplication = firstMeaningful(product.applications, "the right room or system workflow");
   const mainFeature = firstMeaningful(product.keyFeatures, product.productType);
@@ -669,13 +793,13 @@ function buildRoleNarrative(product: ProductSpec): ProductNarrative {
     role,
     headline: "Use this when the product role matches the customer's real requirement.",
     whatItIs,
-    customerChallenge: "The customer needs a product that solves the actual room or system problem, not just a part number.",
-    whyItHelps: `${product.sku} may fit when the application, I/O, signal path and install conditions match its role.`,
-    whyCustomerCares: "It gives the customer a clearer reason to consider the product and gives the salesperson a safer way to position it.",
-    useWhen: `Use it where ${product.purpose.toLowerCase()}`,
-    avoidIf: "Avoid making a firm recommendation until the application, signal path, I/O, distance and control requirements are confirmed.",
+    customerChallenge: `The customer has a real room or system problem - ${product.purpose.toLowerCase().replace(/\.$/, "")} - and needs to know this product genuinely solves it, not just that it has a part number.`,
+    whyItHelps: `${product.sku} fits when its job - ${product.purpose.toLowerCase().replace(/\.$/, "")} - matches what the room actually needs. Anchor the conversation on the source side, the destination side and the signal path between them, and check the I/O, distance, USB, audio and control details before committing.`,
+    whyCustomerCares: "Customers buy outcomes, not boxes. Framing it as the thing that fixes a specific frustration - and being honest about where it does and does not fit - is what earns their confidence and the order.",
+    useWhen: `Use it where the requirement is genuinely ${product.purpose.toLowerCase().replace(/\.$/, "")}, and the room's connections, distances and control needs line up with what this product does.`,
+    avoidIf: "Avoid making a firm recommendation until the application, signal path, I/O, distance and control requirements are confirmed - it is always safer to ask one more question than to quote the wrong box.",
     suggestedWording: `${product.sku} is worth considering where the customer requirement matches its core role: ${product.purpose}`,
-    demoPrompt: "Suggest a demo or evaluation where the customer needs confidence before choosing the product.",
+    demoPrompt: "Suggest a demo or evaluation where the customer needs to see it working before they commit - especially if this is an unfamiliar product for them or for you.",
     askNow: ["What's the one thing they're hoping this will fix or make easier?", "What's in the room today, and what's frustrating about it?", "Who uses the room, and how comfortable are they with technology?", "What would make them feel confident enough to go ahead?"],
     diagramSource: "Customer source / system input",
     diagramOutput: "Display / room system / destination",
