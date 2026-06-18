@@ -277,7 +277,10 @@ function firstMeaningful(values: string[], fallback: string) {
 // and where it sits in its range - so two products in the same family (e.g. an
 // encoder vs a decoder, or a 100 vs a 600 series) no longer read identically.
 
-const FEATURE_SPLITTER = /\s*[|•·]\s*/;
+// Split on the pipe and real bullet/middot separators the product index uses,
+// plus the double-encoded mojibake sequences (â€¢ / Â·) as a fallback in case
+// any un-cleaned data still carries them.
+const FEATURE_SPLITTER = /\s*(?:\||•|·|â€¢|Â·)\s*/;
 
 const NETWORKHD_SERIES_NOTE: Record<string, string> = {
   "100": "the NetworkHD 100 series - H.264/H.265 over standard 1GbE, the bandwidth-light, budget-friendly tier for signage and lower-motion content",
