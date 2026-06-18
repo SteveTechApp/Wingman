@@ -407,15 +407,37 @@ const productsMap = new Map();
 
 walk(json, "", productsMap, new WeakSet(), 0);
 
-const products = Array.from(productsMap.values()).sort((a, b) => a.sku.localeCompare(b.sku));
+// Merge, do not overwrite: the existing file carries curated call-card copy
+// (fit, openingLine, questions, proofPoints, officialUrl, technologyProfile and
+// the repair-tool fields) enriched by the downstream tools. Preserve every
+// existing entry verbatim and only ADD products that are present in the current
+// index but missing from the file - that is how new SKUs (e.g. the full
+// extender range) get surfaced without regressing curated wording.
+let existingPayload = {};
+let existingProducts = [];
+
+try {
+  existingPayload = JSON.parse(await fs.readFile(outputPath, "utf8"));
+  existingProducts = Array.isArray(existingPayload.products) ? existingPayload.products : [];
+} catch {
+  // No existing file - fall back to a clean generation.
+}
+
+const existingSkus = new Set(existingProducts.map((product) => normaliseSku(product.sku)));
+const additions = Array.from(productsMap.values()).filter((product) => !existingSkus.has(normaliseSku(product.sku)));
+
+const products = [...existingProducts, ...additions].sort((a, b) => a.sku.localeCompare(b.sku));
 
 await fs.writeFile(
   outputPath,
   JSON.stringify(
     {
-      generatedAt: new Date().toISOString(),
+      ...existingPayload,
+      generatedAt: existingPayload.generatedAt || new Date().toISOString(),
       source: "product-intelligence-index.json",
       count: products.length,
+      lastToppedUpAt: new Date().toISOString(),
+      addedCount: additions.length,
       products
     },
     null,
@@ -424,10 +446,10 @@ await fs.writeFile(
   "utf8"
 );
 
-console.log(`Generated ${products.length} products`);
+console.log(`Total products: ${products.length} (added ${additions.length} missing from the index)`);
 console.log(outputPath);
 
-if (products.length > 0) {
-  console.log("First 20 SKUs:");
-  console.log(products.slice(0, 20).map((product) => product.sku).join(", "));
+if (additions.length > 0) {
+  console.log("Newly added SKUs:");
+  console.log(additions.map((product) => product.sku).sort((a, b) => a.localeCompare(b)).join(", "));
 }
