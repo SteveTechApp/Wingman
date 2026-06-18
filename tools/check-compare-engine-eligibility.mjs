@@ -1,124 +1,125 @@
-import fs from "node:fs";
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-const ROOT = process.cwd();
+const root = process.cwd();
 
-const files = {
-  behaviourTest: path.join(ROOT, "src", "wingman2", "lib", "competitorCompareBehaviour.test.ts"),
-  specRegistry: path.join(ROOT, "src", "wingman2", "lib", "competitorSpecRegistry.ts"),
-  engine: path.join(ROOT, "src", "wingman2", "lib", "compareEligibilityEngine.ts"),
-  test: path.join(ROOT, "src", "wingman2", "lib", "compareEligibilityEngine.test.ts"),
-  page: path.join(ROOT, "src", "wingman2", "pages", "ComparePageNew.tsx"),
-  pkg: path.join(ROOT, "package.json"),
-};
+function resolve(relativePath) {
+  return path.resolve(root, relativePath);
+}
 
-const failures = [];
+function exists(relativePath) {
+  return existsSync(resolve(relativePath));
+}
 
-function read(label) {
-  const filePath = files[label];
+function read(relativePath) {
+  return readFileSync(resolve(relativePath), "utf8");
+}
 
-  if (!fs.existsSync(filePath)) {
-    failures.push(`Missing ${label}: ${path.relative(ROOT, filePath)}`);
-    return "";
+function tail(output, lineCount = 10) {
+  return output
+    .split(/\r?\n/)
+    .map((line) => line.trimEnd())
+    .filter(Boolean)
+    .slice(-lineCount)
+    .join("\n");
+}
+
+function runVitest(files) {
+  const vitestEntry = resolve("node_modules/vitest/vitest.mjs");
+
+  try {
+    const output = execFileSync(process.execPath, [vitestEntry, "run", ...files], {
+      cwd: root,
+      encoding: "utf8",
+      stdio: "pipe",
+    });
+
+    return { status: "pass", output };
+  } catch (error) {
+    return {
+      status: "fail",
+      output: [error.stdout, error.stderr, error.message].filter(Boolean).join("\n"),
+    };
+  }
+}
+
+const retainedGuards = [
+  {
+    label: "Eligibility engine file retained",
+    relativePath: "src/wingman2/lib/compareEligibilityEngine.ts",
+  },
+  {
+    label: "Compare page wiring retained",
+    relativePath: "src/wingman2/pages/ComparePageNew.tsx",
+    markers: ["applyCompareEligibilityRanking", "const curatedResult = applyKnownCompareProfileOverrides"],
+  },
+  {
+    label: "Competitor spec registry retained",
+    relativePath: "src/wingman2/lib/competitorSpecRegistry.ts",
+  },
+];
+
+const guardFailures = [];
+
+for (const guard of retainedGuards) {
+  if (!exists(guard.relativePath)) {
+    guardFailures.push(`${guard.label}: missing ${guard.relativePath}`);
+    continue;
   }
 
-  return fs.readFileSync(filePath, "utf8");
+  if (!guard.markers?.length) continue;
+
+  const source = read(guard.relativePath);
+  const missingMarkers = guard.markers.filter((marker) => !source.includes(marker));
+
+  if (missingMarkers.length > 0) {
+    guardFailures.push(`${guard.label}: missing ${missingMarkers.join(", ")}`);
+  }
 }
 
-const engine = read("engine");
-const test = read("test");
-const page = read("page");
-const pkg = read("pkg");
-
-const engineMarkers = [
-  "NHD-150-RX",
-  "NHD-0401-MV",
-  "SW-0204-VW",
-  "SW-0206-VW",
-  "invalidLeadReasonForIntent",
-  "ensureEligibilityCandidatePool",
-  "CompareIntentKind",
-  "CompareEligibilityResult",
-  "classifyCompareIntent",
-  "evaluateProductEligibility",
-  "applyCompareEligibilityRanking",
-  "video-wall-processor",
-  "av-over-ip-decoder",
-  "architecture-alternative",
-  "Accessory, controller, rack, cable or support item cannot be a lead replacement candidate.",
-  "Multiview requires multi-source single-output canvas evidence",
+const suites = [
+  {
+    label: "Eligibility ranking scenarios",
+    files: ["src/wingman2/lib/compareEligibilityEngine.test.ts"],
+  },
+  {
+    label: "Runtime compare behaviour scenarios",
+    files: ["src/wingman2/lib/competitorCompareBehaviour.test.ts"],
+  },
+  {
+    label: "SKU normalization and structured profile handoff",
+    files: ["src/wingman2/lib/compareSkuNormalization.test.ts"],
+  },
 ];
 
-const pageMarkers = [
-  "applyCompareEligibilityRanking",
-  "const curatedResult = applyKnownCompareProfileOverrides",
-  "return applyCompareEligibilityRanking(curatedResult, products, inputText) as RigorousCompareResult",
-];
+const suiteResults = suites.map((suite) => ({
+  ...suite,
+  result: runVitest(suite.files),
+}));
 
-const testMarkers = [
-  "prevents accessories and controllers from becoming lead replacements",
-  "maps a 1G decoder competitor",
-  "maps a 10G/SDVoE competitor to the 600 series",
-  "prefers correctly sized matrix candidates",
-  "keeps dedicated video wall processors ahead",
-];
+const failedSuites = suiteResults.filter((suite) => suite.result.status === "fail");
 
-for (const marker of engineMarkers) {
-  if (!engine.includes(marker)) failures.push(`Eligibility engine missing marker: ${marker}`);
-}
-
-for (const marker of pageMarkers) {
-  if (!page.includes(marker)) failures.push(`Compare page missing marker: ${marker}`);
-}
-
-for (const marker of testMarkers) {
-  if (!test.includes(marker)) failures.push(`Eligibility test missing marker: ${marker}`);
-}
-
-
-const specRegistry = read("specRegistry");
-
-const specRegistryMarkers = [
-  "isFamilyLevelCompetitorSpecInput",
-  "familyLevelInput",
-  "hasVerifiedFingerprint",
-  "hasVerifiedSourceProduct",
-  'evidence.tier === "family-rule" || familyLevelInput',
-  '"Exact competitor model/SKU"',
-  '"Datasheet or product page evidence"'
-];
-
-for (const marker of specRegistryMarkers) {
-  if (!specRegistry.includes(marker)) failures.push(`Competitor spec registry missing marker: ${marker}`);
-}
-
-
-const behaviourTest = read("behaviourTest");
-
-const behaviourMarkers = [
-  "runCompareRuntimePipeline",
-  "DMNVX350",
-  "DMNVX",
-  "NAV D 121",
-  "MMX4x2-HDMI",
-  "dedicated LCD video wall processor",
-  "single output canvas"
-];
-
-for (const marker of behaviourMarkers) {
-  if (!behaviourTest.includes(marker)) failures.push(`Competitor compare behaviour test missing marker: ${marker}`);
-}
-
-if (!pkg.includes("check:compare-engine-eligibility")) {
-  failures.push("package.json missing check:compare-engine-eligibility script.");
-}
-
-if (failures.length > 0) {
+if (guardFailures.length > 0 || failedSuites.length > 0) {
   console.error("[compare-engine-eligibility] Check failed:");
-  for (const failure of failures) {
-    console.error(`- ${failure}`);
+
+  if (guardFailures.length > 0) {
+    console.error("Retained guards to repair:");
+    for (const failure of guardFailures) {
+      console.error("- " + failure);
+    }
   }
+
+  if (failedSuites.length > 0) {
+    console.error("Behavioural suites to repair:");
+    for (const suite of failedSuites) {
+      console.error("- " + suite.label);
+      console.error(tail(suite.result.output));
+    }
+  }
+
   process.exit(1);
 }
 
-console.log("[compare-engine-eligibility] Verified deterministic eligibility layer, Compare page wiring, and behaviour-test coverage.");
+console.log("[compare-engine-eligibility] Marker guards retained only for file/wiring safety.");
+console.log("[compare-engine-eligibility] Behavioural coverage passed for eligibility ranking, runtime compare behaviour, and structured SKU/profile handoff.");
