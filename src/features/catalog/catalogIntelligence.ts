@@ -876,8 +876,8 @@ export function getCatalogMatchReasons(product: CatalogProduct, state: CatalogFi
   }
 
   if (!reasons.length) {
-    reasons.push(`${product.family} â€¢ ${product.series}`);
-    reasons.push(product.roles.join(" â€¢ "));
+    reasons.push(`${product.family} • ${product.series}`);
+    reasons.push(product.roles.join(" • "));
   }
 
   return reasons.slice(0, 3);

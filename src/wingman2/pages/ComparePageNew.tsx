@@ -11,7 +11,13 @@ import {
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { Link, useNavigate } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
-import { saveCompareRunToProject, saveProductSelectionToCurrentProject } from "../data/projectStore";
+import {
+  saveCompareRunToProject,
+  saveProductSelectionToCurrentProject,
+  saveRecommendationEvidenceToProject,
+  type StoredProductSelection,
+} from "../data/projectStore";
+import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
 
 /*
   Compare workflow guard markers retained for scripts.
@@ -873,8 +879,16 @@ function ComparePageNew() {
 
       const status =
         best.verdict === "GOOD MATCH" ? "recommended" : best.verdict === "NO MATCH" ? "caution" : "alternative";
-
-      saveCompareRunToProject({
+      const selection: StoredProductSelection = {
+        sku: best.product.sku,
+        title: best.product.name,
+        family: best.product.family,
+        status,
+        source: "Competitor Compare",
+        evidence: best.matched,
+        cautions: best.checks,
+      };
+      const compareRun = {
         competitorBrand: effectiveBrand,
         competitorSku: competitorInput || undefined,
         wyrestormSku: best.product.sku,
@@ -886,17 +900,27 @@ function ComparePageNew() {
         evidence: best.matched,
         warnings: best.checks,
         source: "Competitor Compare",
-      });
+      };
 
-      saveProductSelectionToCurrentProject({
-        sku: best.product.sku,
-        title: best.product.name,
-        family: best.product.family,
-        status,
-        source: "Competitor Compare",
-        evidence: best.matched,
-        cautions: best.checks,
-      });
+      saveCompareRunToProject(compareRun);
+
+      saveProductSelectionToCurrentProject(selection);
+      saveRecommendationEvidenceToProject(
+        buildRecommendationEvidence({
+          source: "Competitor Compare",
+          query: [effectiveBrand, competitorInput, mustMatchFeatures].filter(Boolean).join(" "),
+          compare: compareRun,
+          product: {
+            sku: best.product.sku,
+            title: best.product.name,
+            family: best.product.family,
+            category: best.product.productClass,
+            tags: best.product.tags,
+            summary: best.matched.join(" "),
+          },
+        }),
+        selection,
+      );
 
       setCommittedSku(best.product.sku);
 
@@ -904,7 +928,7 @@ function ComparePageNew() {
         navigate(routeCatalogByKey.proposal.path);
       }
     },
-    [best, competitorInput, effectiveBrand, navigate, summary],
+    [best, competitorInput, effectiveBrand, mustMatchFeatures, navigate, summary],
   );
 
   function onBrandSelect(brand: string): void {

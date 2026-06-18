@@ -73,7 +73,7 @@ export const visualStudioDiagrams: VisualDiagramModel[] = [
       "Confirm whether the user expects single-cable USB-C."
     ],
     nextActions: [
-      "Ask: who owns the meeting â€” user laptop, room PC, or UC appliance?",
+      "Ask: who owns the meeting — user laptop, room PC, or UC appliance?",
       "Confirm camera and microphone model.",
       "Confirm cable distance between table, display and rack."
     ],

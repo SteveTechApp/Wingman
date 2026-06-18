@@ -427,7 +427,7 @@ export function getModeAwareWording(product: ProductCallProduct, context: Produc
       whatItIs: `${product.whatItIs} For a dealer conversation, keep the description short and connect it directly to the opportunity.`,
       whatItDoes: `${product.whatItDoes} The useful sales point is that it helps join up the product, room workflow and customer need.`,
       whyItMatters: `${product.whyItMatters} It gives the dealer a reason to discuss the wider room requirement instead of only responding to a single box request. ${audienceGuidance}${priorityText}`,
-      salespersonAngle: `Use it as an attachment and confidence-building conversation: â€œThis may be the WyreStorm option to discuss if the customer needs ${requirement.toLowerCase()}.â€`,
+      salespersonAngle: `Use it as an attachment and confidence-building conversation: “This may be the WyreStorm option to discuss if the customer needs ${requirement.toLowerCase()}.”`,
       customerBenefit: `The customer gets a clearer room outcome and the dealer has a stronger reason to stay involved in the design discussion.`
     };
   }
@@ -438,7 +438,7 @@ export function getModeAwareWording(product: ProductCallProduct, context: Produc
       whatItIs: `${product.whatItIs} In a consultant or technical discussion, define exactly where it sits in the signal path or room workflow.`,
       whatItDoes: `${product.whatItDoes} Confirm the host path, signal path, control expectation, room size and any integration limits before treating it as the selected product.`,
       whyItMatters: `It matters because the right technical fit reduces design risk, avoids over-claiming and makes the recommendation easier to defend. ${audienceGuidance}${priorityText}`,
-      salespersonAngle: `Lead with suitability: â€œThis is the WyreStorm option I would check for this application, subject to confirming the room and integration details.â€`,
+      salespersonAngle: `Lead with suitability: “This is the WyreStorm option I would check for this application, subject to confirming the room and integration details.”`,
       customerBenefit: `The customer gets a product conversation grounded in real system fit rather than a generic feature list.`
     };
   }
@@ -449,7 +449,7 @@ export function getModeAwareWording(product: ProductCallProduct, context: Produc
       whatItIs: `It is a WyreStorm product designed to support ${requirement.toLowerCase()}. Keep the explanation focused on the room experience.`,
       whatItDoes: `${product.whatItDoes} Describe this in terms of what users can do more easily, not just the technical function.`,
       whyItMatters: `It matters because the room needs to be simple enough for everyday users while still giving the installer a sensible, supportable product choice. ${audienceGuidance}${priorityText}`,
-      salespersonAngle: `Use plain wording: â€œThis is worth discussing because it helps make the room easier to use and easier to support.â€`,
+      salespersonAngle: `Use plain wording: “This is worth discussing because it helps make the room easier to use and easier to support.”`,
       customerBenefit: `The customer hears how the product improves the room, reduces friction and supports the way people actually work.`
     };
   }
@@ -460,7 +460,7 @@ export function getModeAwareWording(product: ProductCallProduct, context: Produc
       whatItIs: `${product.whatItIs} In replacement mode, compare role, technology type, inputs, outputs, control, power and application fit.`,
       whatItDoes: `${product.whatItDoes} Do not imply a direct match until the important system requirements are confirmed.`,
       whyItMatters: `It matters because competitor comparisons are rarely identical. The useful result is whether this is a good match, partial match or no match for the job. ${audienceGuidance}${priorityText}`,
-      salespersonAngle: `Use balanced wording: â€œThis may be a viable WyreStorm option, but we should compare the required connections, control features and room workflow before proposing it.â€`,
+      salespersonAngle: `Use balanced wording: “This may be a viable WyreStorm option, but we should compare the required connections, control features and room workflow before proposing it.”`,
       customerBenefit: `The customer gets a realistic comparison rather than a forced like-for-like claim.`
     };
   }
@@ -471,7 +471,7 @@ export function getModeAwareWording(product: ProductCallProduct, context: Produc
       whatItIs: `${product.whatItIs} Do not slow the conversation with unnecessary setup questions.`,
       whatItDoes: `${product.whatItDoes} Use the product as the anchor, then ask only the minimum useful questions.`,
       whyItMatters: `It matters because the salesperson may not know all the room details yet. Wingman should still provide helpful language without forcing a full discovery form. ${audienceGuidance}${priorityText}`,
-      salespersonAngle: `Use selective discovery: â€œI can talk about this product now, but these few checks will confirm whether it is the right fit.â€`,
+      salespersonAngle: `Use selective discovery: “I can talk about this product now, but these few checks will confirm whether it is the right fit.”`,
       customerBenefit: `The customer gets immediate useful guidance, with only relevant follow-up questions.`
     };
   }
@@ -481,7 +481,7 @@ export function getModeAwareWording(product: ProductCallProduct, context: Produc
     whatItIs: `${product.whatItIs} Keep the first explanation simple and connect it directly to ${environment.toLowerCase()}.`,
     whatItDoes: `${product.whatItDoes} Focus on the practical room workflow rather than listing every feature.`,
     whyItMatters: `${product.whyItMatters} This helps the salesperson sell the benefit, not just name the product. ${audienceGuidance}${priorityText}`,
-    salespersonAngle: `Lead with the customer problem: â€œThis is relevant because it helps solve the room workflow, not just because it is another SKU.â€`,
+    salespersonAngle: `Lead with the customer problem: “This is relevant because it helps solve the room workflow, not just because it is another SKU.”`,
     customerBenefit: `The customer gets a clearer reason to consider the product and a simpler explanation of where it fits.`
   };
 }
@@ -617,7 +617,7 @@ export function getLanguageAwareWording(product: ProductCallProduct, context: Pr
       whatItIs: `A WyreStorm product for ${environment.toLowerCase()} projects where the customer needs ${requirement.toLowerCase()}.`,
       whatItDoes: `It helps the room work in a cleaner, easier way by supporting the main connection or presentation job the customer is trying to solve.`,
       whyItMatters: `It gives the salesperson a simple benefit to explain: the room is easier to use, easier to discuss and easier to support.${priorityText}`,
-      salespersonAngle: `Lead with the outcome: â€œThis is relevant because it helps make the room easier for the customer to use.â€`,
+      salespersonAngle: `Lead with the outcome: “This is relevant because it helps make the room easier for the customer to use.”`,
       customerBenefit: `The customer gets a clearer room solution rather than a confusing list of boxes and technical details.`
     };
   }
@@ -628,7 +628,7 @@ export function getLanguageAwareWording(product: ProductCallProduct, context: Pr
       whatItIs: `${product.whatItIs} In advanced language, treat it as a defined WyreStorm system component rather than a generic product option.`,
       whatItDoes: `${product.whatItDoes} Discuss the relevant I/O path, host/device role, control or integration expectation and how it sits in the wider AV workflow.`,
       whyItMatters: `It helps qualify whether this SKU is the correct technical fit before moving into design, comparison or proposal support.${priorityText}`,
-      salespersonAngle: `Lead with system fit: â€œThis SKU is relevant if the I/O, control, signal path and application requirements match the room architecture.â€`,
+      salespersonAngle: `Lead with system fit: “This SKU is relevant if the I/O, control, signal path and application requirements match the room architecture.”`,
       customerBenefit: `The customer gets a more defensible recommendation based on topology, integration fit and the actual job the product must perform.`
     };
   }
@@ -638,7 +638,7 @@ export function getLanguageAwareWording(product: ProductCallProduct, context: Pr
     whatItIs: `${product.whatItIs} Keep the first explanation clear and connect it directly to ${environment.toLowerCase()}.`,
     whatItDoes: `${product.whatItDoes} Focus on the practical workflow first, then add technical detail where it supports the sale.`,
     whyItMatters: `${product.whyItMatters} This helps the salesperson sell the benefit, not just name the product.${priorityText}`,
-    salespersonAngle: `Lead with the customer problem: â€œThis is relevant because it helps solve the room workflow, not just because it is another SKU.â€`,
+    salespersonAngle: `Lead with the customer problem: “This is relevant because it helps solve the room workflow, not just because it is another SKU.”`,
     customerBenefit: `The customer gets a clearer reason to consider the product and a practical explanation of where it fits.`
   };
 }

@@ -28110,7 +28110,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
 }
 
 .vw2-chip.is-selected span::before {
-  content: "Ã¢Å“â€œ ";
+  content: "✓ ";
   color: #8fffe6;
 }
 
@@ -29451,3 +29451,31 @@ html[data-wingman-route] .wm-vs-edge-missing {
 }
 /* === Wingman Visual Studio readable flow scale end === */
 
+
+/* === Product Call Cards: clearer discussion tab buttons (2026-06-18) === */
+body .wm-pcc-preview .wm-pcc-section-tab {
+  border: 1px solid #29465e !important;
+  background: #0d2133 !important;
+  color: #cfe9ff !important;
+  cursor: pointer !important;
+  transition: background 120ms ease, border-color 120ms ease, box-shadow 120ms ease !important;
+}
+body .wm-pcc-preview .wm-pcc-section-tab:hover {
+  border-color: #22d3ee !important;
+  background: #10263a !important;
+}
+/* The three core discussion tabs (What it is / What it does / How to sell)
+   read as the primary trio; Specification stays a quieter reference tab. */
+body .wm-pcc-preview .wm-pcc-section-tab-core {
+  border-top: 3px solid #1f7d99 !important;
+}
+body .wm-pcc-preview .wm-pcc-section-tab-active.wm-pcc-section-tab {
+  background: #22d3ee !important;
+  border-color: #22d3ee !important;
+  box-shadow: 0 6px 16px rgba(34, 211, 238, 0.28) !important;
+}
+body .wm-pcc-preview .wm-pcc-section-tab-active.wm-pcc-section-tab strong,
+body .wm-pcc-preview .wm-pcc-section-tab-active.wm-pcc-section-tab span {
+  color: #08131f !important;
+}
+/* === end Product Call Cards discussion tab buttons === */

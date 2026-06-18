@@ -16,8 +16,41 @@ import { CompareBackToListButton } from "../components/compare/CompareBackToList
 import { ReportProblemButton } from "../components/ReportProblemButton";
 import { ProductMediaPanel } from "../components/ProductMediaPanel";
 import { AVSignalFlowDiagram } from "../components/AVSignalFlowDiagram";
+import { RoomSchematicDiagram } from "../components/RoomSchematicDiagram";
 import { validateUsbPath, usbValidationIsRequired } from "../logic/usbPathValidator";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { buildProductCheatSheetHtml } from "../lib/productCheatSheet";
+import { getProductMediaBySku, loadProductMediaIndex } from "../data/productMedia";
+
+function openProductCheatSheet(product: ProductSpec, narrative: ProductNarrative, imageUrl?: string) {
+  const html = buildProductCheatSheetHtml({
+    product,
+    narrative,
+    imageUrl,
+    generatedOn: new Date().toLocaleDateString(),
+  });
+
+  const win = window.open("", "_blank", "noopener,noreferrer");
+
+  if (win) {
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+    return;
+  }
+
+  // Pop-up blocked: fall back to downloading the cheat-sheet as a file so it is
+  // still available offline.
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${product.sku}-cheat-sheet.html`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 type ProductTab = "overview" | "sales" | "spec" | "diagram" | "visual";
 
@@ -199,6 +232,16 @@ function OverviewTab({ product, narrative }: { product: ProductSpec; narrative: 
       <ProductMediaPanel sku={product.sku} title={product.name} />
 
       <div className="grid gap-4 lg:grid-cols-2">
+        <WorkCard title="Where it fits in the room">
+          <p>{narrative.whereItSits}</p>
+        </WorkCard>
+
+        {narrative.familyFit ? (
+          <WorkCard title="How it relates to the rest of the family">
+            <p>{narrative.familyFit}</p>
+          </WorkCard>
+        ) : null}
+
         <WorkCard title="What it does">
           <p>{narrative.whyItHelps}</p>
         </WorkCard>
@@ -348,6 +391,8 @@ function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: P
 
   return (
     <div className="grid gap-4">
+      <RoomSchematicDiagram product={product} narrative={narrative} />
+
       <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
         <h2 className="text-xl font-black text-cyan-300">Simple product connection view</h2>
         <div className="mt-5 grid items-stretch gap-3 lg:grid-cols-[1fr_80px_1fr_80px_1fr]">
@@ -356,7 +401,7 @@ function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: P
             <strong className="mt-2 block text-lg text-white">{narrative.diagramSource}</strong>
           </div>
 
-          <div className="hidden items-center justify-center text-3xl font-black text-cyan-300 lg:flex">ÃƒÂ¢Ã¢â‚¬ Ã¢â‚¬â„¢</div>
+          <div className="hidden items-center justify-center text-3xl font-black text-cyan-300 lg:flex">→</div>
 
           <div className="rounded-3xl border border-cyan-400 bg-cyan-500/10 p-5">
             <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-200">WyreStorm product</p>
@@ -364,7 +409,7 @@ function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: P
             <span className="mt-1 block text-sm text-white/65">{product.productType}</span>
           </div>
 
-          <div className="hidden items-center justify-center text-3xl font-black text-cyan-300 lg:flex">ÃƒÂ¢Ã¢â‚¬ Ã¢â‚¬â„¢</div>
+          <div className="hidden items-center justify-center text-3xl font-black text-cyan-300 lg:flex">→</div>
 
           <div className="rounded-3xl border border-[#29465e] bg-[#081724] p-5">
             <p className="text-xs font-black uppercase tracking-[0.14em] text-white/45">Output / destination side</p>
@@ -469,11 +514,30 @@ function ProductWorkspace({
   backToSelection: () => void;
 }) {
   const [activeTab, setActiveTab] = useState<ProductTab>("overview");
+  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
   const narrative = useMemo(() => buildProductNarrative(product), [product]);
 
   useEffect(() => {
     writeProductWorkspaceHandoff(product, narrative);
   }, [product, narrative]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    loadProductMediaIndex()
+      .then((index) => {
+        if (cancelled || !index) return;
+        const media = getProductMediaBySku(index, product.sku);
+        setImageUrl(media?.front?.url ?? media?.gallery?.[0]?.url);
+      })
+      .catch(() => {
+        if (!cancelled) setImageUrl(undefined);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [product.sku]);
 
   return (
     <main className="grid gap-4 pb-6 text-white">
@@ -487,6 +551,13 @@ function ProductWorkspace({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => openProductCheatSheet(product, narrative, imageUrl)}
+              className="rounded-full bg-cyan-300 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-cyan-200"
+            >
+              Print cheat-sheet
+            </button>
             <ReportProblemButton sku={product.sku} productName={product.name} />
             <button
               type="button"

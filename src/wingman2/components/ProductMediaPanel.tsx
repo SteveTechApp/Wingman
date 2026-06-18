@@ -34,16 +34,18 @@ function ProductImageSlot(props: { label: string; asset?: ProductMediaAsset; mis
 
   return (
     <figure className="wm-product-media-slot">
-      <img
-        src={props.asset.url}
-        alt={props.asset.alt}
-        loading="lazy"
-        decoding="async"
-        referrerPolicy="no-referrer"
-      />
+      <a href={props.asset.url} target="_blank" rel="noreferrer" title="Open full-size image in a new tab">
+        <img
+          src={props.asset.url}
+          alt={props.asset.alt}
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+        />
+      </a>
       <figcaption>
         <span>{props.label}</span>
-        <small>{props.asset.confidence.toLowerCase()} confidence</small>
+        <small>{props.asset.confidence.toLowerCase()} confidence · click to enlarge</small>
       </figcaption>
     </figure>
   );
@@ -127,6 +129,30 @@ export function ProductMediaPanel({ sku, title, compact = false, className = "" 
           missingText="Rear image needs sourcing"
         />
       </div>
+
+      {!compact && media.gallery.length > 0 ? (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "10px" }}>
+          {media.gallery.slice(0, 6).map((asset) => (
+            <a
+              key={asset.url}
+              href={asset.url}
+              target="_blank"
+              rel="noreferrer"
+              title="Open full-size image in a new tab"
+              style={{ display: "block", width: "72px", height: "72px", borderRadius: "8px", overflow: "hidden", border: "1px solid #29465e", background: "#fff" }}
+            >
+              <img
+                src={asset.url}
+                alt={asset.alt}
+                loading="lazy"
+                decoding="async"
+                referrerPolicy="no-referrer"
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+              />
+            </a>
+          ))}
+        </div>
+      ) : null}
 
       {notes.length > 0 ? (
         <ul className="wm-product-media-notes">
