@@ -735,6 +735,57 @@ async function loadProductSeeds(): Promise<ProductSeed[]> {
   return FALLBACK_PRODUCTS;
 }
 
+// Family chips cannot be matched by a naive substring of the chip label: extender
+// products are tagged "HDBaseT" and say "extender" (singular), so a search for
+// "extenders" found almost nothing, and "USB / UC" never appears verbatim. Each
+// chip maps to the SKU prefixes / suffixes and the wording that actually identify
+// that family.
+type FamilyMatcher = { terms?: string[]; skuPrefixes?: string[]; skuContains?: string[] };
+
+const FAMILY_MATCHERS: Record<string, FamilyMatcher> = {
+  Presentation: { skuPrefixes: ["SW-"], terms: ["presentation", "switcher", "byod", "byom"] },
+  NetworkHD: { skuPrefixes: ["NHD-"], terms: ["networkhd", "av-over-ip", "avoip"] },
+  "NetworkHD 100": { skuPrefixes: ["NHD-1"], terms: ["networkhd 100"] },
+  "NetworkHD 500": { skuPrefixes: ["NHD-5"], terms: ["networkhd 500"] },
+  "NetworkHD 600": { skuPrefixes: ["NHD-6"], terms: ["networkhd 600"] },
+  Matrix: { skuPrefixes: ["MX-", "MXV-"], terms: ["matrix"] },
+  HDBaseT: { skuPrefixes: ["EX-", "EXP-", "RX-", "RXV", "RX3", "RXF", "TX-", "EX3", "EXA", "EXF"], terms: ["hdbaset", "hdbt"] },
+  "USB / UC": { skuPrefixes: ["APO-"], terms: ["usb", "byod", "byom", "conference", "apollo", "uc video", "uc room", " uc "] },
+  Multiview: { skuContains: ["-MV"], terms: ["multiview", "multi-view"] },
+  "Video wall": { skuContains: ["-VW"], terms: ["video wall", "videowall"] },
+  Extenders: { skuPrefixes: ["EX-", "EXP-", "RX-", "RXV", "RX3", "RXF", "TX-", "EX3", "EXA", "EXF"], terms: ["extender", "hdbaset", "hdbt"] },
+  Control: { skuPrefixes: ["SYN-", "NHD-CTL", "NHD-000-CTL", "NHD-TOUCH"], terms: ["control", "touch panel", "keypad"] },
+  Cameras: { skuPrefixes: ["CAM-"], terms: ["camera", "ptz", " ndi", "bridge"] },
+};
+
+function matchesFamily(product: ProductCard, family: string): boolean {
+  if (family === "All") {
+    return true;
+  }
+
+  const matcher = FAMILY_MATCHERS[family];
+  // Match on the SKU and the product's own classification fields (family /
+  // category) only - never the free-text copy, otherwise common words like
+  // "HDBaseT" or "USB" in a description pull unrelated products into the chip.
+  const classification = `${product.family} ${product.category}`.toLowerCase();
+
+  if (!matcher) {
+    return classification.includes(family.toLowerCase());
+  }
+
+  const sku = product.sku.toUpperCase();
+
+  if (matcher.skuPrefixes?.some((prefix) => sku.startsWith(prefix))) {
+    return true;
+  }
+
+  if (matcher.skuContains?.some((part) => sku.includes(part))) {
+    return true;
+  }
+
+  return Boolean(matcher.terms?.some((term) => classification.includes(term)));
+}
+
 function productMatches(product: ProductCard, query: string, family: string, quickFinder: string): boolean {
   const firstSkuChar = product.sku.charAt(0).toUpperCase();
 
@@ -761,7 +812,7 @@ function productMatches(product: ProductCard, query: string, family: string, qui
     .join(" ")
     .toLowerCase();
 
-  if (family !== "All" && !haystack.includes(family.toLowerCase())) {
+  if (!matchesFamily(product, family)) {
     return false;
   }
 
