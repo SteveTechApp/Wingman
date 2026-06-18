@@ -28110,7 +28110,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
 }
 
 .vw2-chip.is-selected span::before {
-  content: "Ã¢Å“â€œ ";
+  content: "✓ ";
   color: #8fffe6;
 }
 

@@ -1907,7 +1907,7 @@ return (
                 onClick={() => setActiveGalleryItem(null)}
                 aria-label="Close product gallery"
               >
-                Ãƒâ€”
+                ×
               </button>
             </div>
 
@@ -1939,7 +1939,7 @@ return (
               onClick={() => setActiveTermLookup(null)}
               aria-label="Close term explanation"
             >
-              Ãƒâ€”
+              ×
             </button>
           </div>
 
@@ -2011,7 +2011,7 @@ return (
 
           <div className="wm-pcc-status">
             <span>
-              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching Ã‚Â· {products.length} total Ã‚Â· {curatedCount} curated{activeQuickFinder !== "All" ? ` Ã‚Â· ${activeQuickFinder}` : ""}
+              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching · {products.length} total · {curatedCount} curated{activeQuickFinder !== "All" ? ` · ${activeQuickFinder}` : ""}
             </span>
 
             <div className="wm-pcc-pager">
@@ -2056,7 +2056,7 @@ return (
               >
                 <span className="wm-pcc-sku">{product.sku}</span>
                 <span className="wm-pcc-family">
-                  {product.curated ? "Curated Ã‚Â· " : ""}
+                  {product.curated ? "Curated · " : ""}
                   {product.family}
                 </span>
 
@@ -2281,7 +2281,7 @@ return (
                         {
                           title: "Low impedance stereo room",
                           body:
-                            "Two amplifier channels can drive left and right low-impedance speakers, typically 4ÃŽÂ© or 8ÃŽÂ©. This suits a local room where stereo playback, clearer music reproduction or a pair of front speakers is required. Check speaker impedance, cable run, channel load and amplifier power per channel.",
+                            "Two amplifier channels can drive left and right low-impedance speakers, typically 4Ω or 8Ω. This suits a local room where stereo playback, clearer music reproduction or a pair of front speakers is required. Check speaker impedance, cable run, channel load and amplifier power per channel.",
                         },
                       ].map((example) => (
                           <article key={example.title} className="wm-pcc-example-card">
