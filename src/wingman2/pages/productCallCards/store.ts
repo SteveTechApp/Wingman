@@ -1,4 +1,8 @@
 import { salesConversationToneOptions } from "../../lib/salesConversationTone";
+import { getBestProductPositioningCardForSku } from "../../data/productPositioningCards";
+import { getProductStory, productStoryRelatedText } from "../../data/productStories";
+import { getProductCallCommercialOverride } from "../../lib/productCallCommercialOverrides";
+import { buildProductNarrative, normaliseProductRecord } from "../../lib/productStoryEngine";
 
 export type ProductCallContext = {
   productFamily?: string;
@@ -528,17 +532,17 @@ export function findProduct(sku?: string): ProductCallProduct {
   const found = PRODUCT_CALL_PRODUCTS.find((product) => product.sku.toUpperCase() === normalisedSku);
 
   if (found) {
-    return found;
+    return enrichProduct(found);
   }
 
   const context = loadCallContext();
   const selected = PRODUCT_CALL_PRODUCTS.find((product) => product.sku === context.selectedSku);
 
   if (selected) {
-    return selected;
+    return enrichProduct(selected);
   }
 
-  return PRODUCT_CALL_PRODUCTS[0];
+  return enrichProduct(PRODUCT_CALL_PRODUCTS[0]);
 }
 
 export function navigateCallCardPage(path: string): void {
@@ -583,6 +587,236 @@ export const PRODUCT_CALL_LANGUAGE_LEVELS: ProductCallLanguageProfile[] = [
     instruction: "Use recognised AV terms, acronyms and system-role language, but do not invent unsupported specifications."
   }
 ];
+
+function cleanText(value: unknown): string {
+  if (typeof value === "string") {
+    return value.replace(/\s+/g, " ").trim();
+  }
+
+  if (typeof value === "number") {
+    return String(value);
+  }
+
+  return "";
+}
+
+function firstText(values: unknown[], fallback = ""): string {
+  for (const value of values) {
+    const text = cleanText(value);
+
+    if (text) {
+      return text;
+    }
+  }
+
+  return fallback;
+}
+
+function uniqueItems(values: unknown[], max = 6): string[] {
+  const seen = new Set<string>();
+  const output: string[] = [];
+
+  values.forEach((value) => {
+    const text = cleanText(value);
+
+    if (!text) {
+      return;
+    }
+
+    const key = text.toLowerCase();
+
+    if (seen.has(key)) {
+      return;
+    }
+
+    seen.add(key);
+    output.push(text);
+  });
+
+  return output.slice(0, max);
+}
+
+function flattenTextGroups(groups: Array<unknown[] | undefined>, max = 6): string[] {
+  return uniqueItems(groups.flatMap((group) => group || []), max);
+}
+
+function narrativeForProduct(product: ProductCallProduct) {
+  const spec = normaliseProductRecord(
+    {
+      sku: product.sku,
+      name: product.name,
+      family: product.family,
+      category: product.category,
+      productType: product.category,
+      description: product.whatItIs,
+      features: [
+        ...product.tags,
+        ...product.goodFit,
+        ...product.worthMentioning,
+      ],
+    },
+    0,
+  );
+
+  return spec ? buildProductNarrative(spec) : null;
+}
+
+function enrichProduct(product: ProductCallProduct): ProductCallProduct {
+  const story = getProductStory(product.sku);
+  const positioningCard = getBestProductPositioningCardForSku(product.sku);
+  const commercialOverride = getProductCallCommercialOverride(product.sku);
+  const narrative = narrativeForProduct(product);
+  const storyProof = story
+    ? [
+        ...story.keyFeatures,
+        ...productStoryRelatedText(story),
+        ...story.quoteChecks,
+      ]
+    : [];
+
+  return {
+    ...product,
+    name: firstText([story?.plainEnglishName, product.name], product.name),
+    family: firstText([story?.family, positioningCard?.productFamily, product.family], product.family),
+    category: firstText([story?.category, positioningCard?.technologyType, product.category], product.category),
+    bestFor: firstText(
+      [
+        positioningCard?.oneLinePositioning,
+        story?.whatItDoes,
+        product.goodFit[0],
+        product.bestFor,
+      ],
+      product.bestFor,
+    ),
+    avoidIf: firstText(
+      [
+        positioningCard?.disqualifiers?.[0],
+        positioningCard?.weakFitApplications?.[0],
+        story?.quoteChecks?.[0],
+        product.avoidIf,
+      ],
+      product.avoidIf,
+    ),
+    whatItIs: firstText(
+      [
+        story?.whatItIs,
+        positioningCard?.oneMinuteBrief,
+        narrative?.whatItIs,
+        product.whatItIs,
+      ],
+      product.whatItIs,
+    ),
+    whatItDoes: firstText(
+      [
+        story?.whatItDoes,
+        positioningCard?.oneLinePositioning,
+        narrative?.whyItHelps,
+        product.whatItDoes,
+      ],
+      product.whatItDoes,
+    ),
+    whyItMatters: firstText(
+      [
+        story?.salesTalkTrack,
+        positioningCard?.followUpWording,
+        narrative?.suggestedWording,
+        product.whyItMatters,
+      ],
+      product.whyItMatters,
+    ),
+    goodFit: flattenTextGroups(
+      [
+        story?.idealApplications,
+        positioningCard?.bestFitApplications,
+        product.goodFit,
+      ],
+      5,
+    ),
+    conversationStarters: flattenTextGroups(
+      [
+        commercialOverride?.conversationStarters,
+        positioningCard?.openingQuestions,
+        story?.discoveryQuestions,
+        product.conversationStarters,
+      ],
+      5,
+    ),
+    salesAngles: flattenTextGroups(
+      [
+        [
+          story?.salesTalkTrack,
+          positioningCard?.salientPoint,
+          positioningCard?.followUpWording,
+          narrative?.suggestedWording,
+        ],
+        positioningCard?.wyrestormFit,
+        product.salesAngles,
+      ],
+      4,
+    ),
+    objections: flattenTextGroups(
+      [
+        commercialOverride?.objections,
+        positioningCard?.disqualifiers,
+        positioningCard?.caveats,
+        product.objections,
+      ],
+      4,
+    ),
+    askNext: flattenTextGroups(
+      [
+        commercialOverride?.askNext,
+        story?.discoveryQuestions,
+        positioningCard?.qualificationQuestions,
+        positioningCard?.openingQuestions,
+        narrative?.askNow,
+        product.askNext,
+      ],
+      5,
+    ),
+    checks: flattenTextGroups(
+      [
+        story?.quoteChecks,
+        positioningCard?.technicalCheckQuestions,
+        positioningCard?.reviewGates,
+        product.checks,
+      ],
+      6,
+    ),
+    worthMentioning: flattenTextGroups(
+      [
+        storyProof,
+        positioningCard
+          ? [
+              positioningCard.salientPoint,
+              ...positioningCard.wyrestormFit,
+            ]
+          : undefined,
+        product.worthMentioning,
+      ],
+      5,
+    ),
+    avoidSaying: flattenTextGroups(
+      [
+        positioningCard?.disqualifiers,
+        positioningCard?.caveats,
+        story?.quoteChecks,
+        product.avoidSaying,
+      ],
+      5,
+    ),
+    followUp: firstText(
+      [
+        commercialOverride?.followUp,
+        positioningCard?.followUpWording,
+        story?.salesTalkTrack,
+        narrative?.suggestedWording,
+        product.followUp,
+      ],
+      product.followUp,
+    ),
+  };
+}
 
 function resolveLanguageLevel(value?: string): ProductCallLanguageLevel {
   const normalised = String(value || "").trim().toLowerCase();
