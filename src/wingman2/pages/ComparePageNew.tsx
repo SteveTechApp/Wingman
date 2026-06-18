@@ -18,6 +18,8 @@ import {
   type StoredProductSelection,
 } from "../data/projectStore";
 import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
+import { competitorSkuSeeds } from "../lib/competitorProductIntelligence";
+import { resolveCompetitorSpecProfile, type ResolvedCompetitorProfile } from "../lib/competitorSpecRegistry";
 
 /*
   Compare workflow guard markers retained for scripts.
@@ -50,56 +52,21 @@ import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
 
 const ROUTE_LOCK_MARKER = "COMPARE_ROUTE_LOCK_V5_TYPEAHEAD_SKU";
 
-const COMPETITOR_SKU_SEED_CATALOG = {
-  Atlona: [
-    "AT-OMNI-111",
-    "AT-OMNI-112",
-    "AT-OMNI-121",
-    "AT-OMNI-122",
-    "AT-OMNI-232",
-    "AT-OMNI-512",
-    "AT-OMNI-521",
-    "AT-OME-MS42",
-    "AT-OME-MS52",
-    "AT-OME-PS62",
-    "AT-UHD-PRO3-88M",
-    "AT-UHD-EX-100CE-KIT",
-  ],
-  Blustream: [
-    "IP200UHD-TX",
-    "IP200UHD-RX",
-    "IP250UHD-TX",
-    "IP250UHD-RX",
-    "IP300UHD-TX",
-    "IP300UHD-RX",
-    "IP350UHD-TX",
-    "IP350UHD-RX",
-    "C88CS",
-    "HMX88-18G-KIT",
-    "HMX44-18G-KIT",
-  ],
-  Crestron: [
-    "DM-NVX-350",
-    "DM-NVX-351",
-    "DM-NVX-360",
-    "DM-NVX-363",
-    "DM-NVX-E30",
-    "DM-NVX-D30",
-    "HD-MD4X2-4KZ-E",
-    "DMPS3-4K-350-C",
-  ],
-  Extron: ["NAV E 101", "NAV E 121", "NAV E 501", "NAV D 101", "NAV D 121", "NAV D 501", "NAV SD 101", "DTP2 T 211", "DTP2 R 211", "IN1608 xi"],
-  Kramer: ["KDS-7-EN7", "KDS-7-DEC7", "KDS-EN6", "KDS-DEC6", "KDS-100", "VS-88H2A", "VS-44H2A", "VP-440X"],
-  Lightware: ["UBEX-PRO20-HDMI-F100", "UBEX-PRO20-HDMI-F110", "VINX-110-HDMI-ENC", "VINX-120-HDMI-ENC", "VINX-210AP-HDMI-DEC", "MMX8x8-HDMI-4K-A", "TAURUS UCX-4x2-HC30"],
-  AMX: ["NMX-ENC-N2412A", "NMX-DEC-N2422A", "NMX-ENC-N2612S", "NMX-DEC-N2622S", "NMX-ENC-N3312D", "NMX-DEC-N3322", "DGX1600-ENC"],
-  "AVPro Edge": ["MXNet-1G-E", "MXNet-1G-D", "MXNet-10G-TCVR", "AC-MX-44HDBT", "AC-MX-88"],
-  ZeeVee: ["ZyPer4K Encoder", "ZyPer4K Decoder", "ZyPerUHD Encoder", "ZyPerUHD Decoder", "ZyPerUHD60 Encoder", "ZyPerUHD60 Decoder"],
-  Binary: ["B-900-MOIP-4K-TX", "B-900-MOIP-4K-RX", "B-660-MTRX-8x8"],
-  "Just Add Power": ["VBS-HDIP-707POE", "VBS-HDIP-508POE", "VBS-HDIP-747POE"],
-  CUSTOM: [],
-} as const;
+const COMPETITOR_SKU_SEED_CATALOG: Record<string, string[]> = competitorSkuSeeds().reduce<Record<string, string[]>>((catalog, seed) => {
+  if (!catalog[seed.brand]) {
+    catalog[seed.brand] = [];
+  }
 
-const MANUFACTURER_SELECT_OPTIONS = Object.keys(COMPETITOR_SKU_SEED_CATALOG);
+  if (!catalog[seed.brand].includes(seed.sku)) {
+    catalog[seed.brand].push(seed.sku);
+  }
+
+  return catalog;
+}, {});
+
+COMPETITOR_SKU_SEED_CATALOG.CUSTOM = [];
+
+const MANUFACTURER_SELECT_OPTIONS = Object.keys(COMPETITOR_SKU_SEED_CATALOG).filter((brand) => brand !== "CUSTOM");
 
 const COMPARE_TYPEAHEAD_STATIC_MARKERS = [
   "Competitor product",
@@ -133,6 +100,7 @@ type CompetitorProfile = {
   requestedTags: string[];
   videoTags: string[];
   knownProfile: Record<string, unknown> | null;
+  resolvedSpec: ResolvedCompetitorProfile | null;
 };
 
 type WyreStormProduct = {
@@ -158,7 +126,9 @@ type ScoredCandidate = {
 type CompetitorSummary = {
   heading: string;
   detail: string;
+  facts: string[];
   bullets: string[];
+  sourceUrl?: string;
 };
 
 const PAGE_AVOIP_ROLE_LABEL: Record<string, string> = {
@@ -247,6 +217,26 @@ const WYRESTORM_PRODUCTS: WyreStormProduct[] = [
     caveat: "Good direction for contained fixed I/O systems. Confirm routed vs mirrored outputs.",
   },
   {
+    sku: "MXV-0808-H2A-V3",
+    name: "18Gbps 8x8 HDBaseT matrix mainframe",
+    family: "MXV Matrix",
+    productClass: "Matrix",
+    role: "Switcher",
+    transport: "18Gbps HDBaseT Class B / HDMI",
+    tags: ["matrix", "8x8", "hdbaset", "hdmi", "fixed io", "4k60", "444", "18g", "class b"],
+    caveat: "Mainframe only. For a full 8-output HDBaseT system, quote 8x compatible RXV-35 receivers separately.",
+  },
+  {
+    sku: "MXV-0808-H2A-70-V3",
+    name: "18Gbps 8x8 HDBaseT matrix mainframe",
+    family: "MXV Matrix",
+    productClass: "Matrix",
+    role: "Switcher",
+    transport: "18Gbps HDBaseT Class A / HDMI",
+    tags: ["matrix", "8x8", "hdbaset", "hdmi", "fixed io", "4k60", "444", "18g", "class a", "70m"],
+    caveat: "Mainframe only. For a full 8-output HDBaseT system, quote 8x compatible RXV-70 receivers separately.",
+  },
+  {
     sku: "MX-1007-HYB",
     name: "Hybrid presentation and AV routing switcher",
     family: "Hybrid / Presentation",
@@ -313,6 +303,7 @@ function applyKnownCompareProfileOverrides(profile: CompetitorProfile): Competit
 
 function lookupCompareIntelligence(sku: string): Record<string, unknown> | null {
   const normalizedSku = normalizeCompetitorSku(sku);
+  const resolvedSpec = normalizedSku ? resolveCompetitorSpecProfile(normalizedSku) : null;
 
   if (!normalizedSku) {
     return null;
@@ -320,7 +311,13 @@ function lookupCompareIntelligence(sku: string): Record<string, unknown> | null 
 
   return {
     sku: normalizedSku,
-    brand: brandForCompetitorSku(normalizedSku),
+    brand: resolvedSpec?.brand || brandForCompetitorSku(normalizedSku),
+    title: resolvedSpec?.title,
+    maxResolution: resolvedSpec?.maxResolution,
+    inputCount: resolvedSpec?.inputCount,
+    outputCount: resolvedSpec?.outputCount,
+    transport: resolvedSpec?.transport,
+    role: resolvedSpec?.role,
   };
 }
 
@@ -354,7 +351,10 @@ function extractTags(text: string): string[] {
   if (includesAny(text, ["HDBASET", "DTP"])) tags.push("hdbaset");
   if (includesAny(text, ["4K60", "60HZ", "HDMI 2.0"])) tags.push("4k60");
   if (includesAny(text, ["4:4:4", "444"])) tags.push("444");
+  if (includesAny(text, ["18G", "18GBPS", "18GB"])) tags.push("18g");
   if (includesAny(text, ["HDR"])) tags.push("hdr");
+  if (includesAny(text, ["CLASS A", "70M", "70 M", "100M"])) tags.push("class a");
+  if (includesAny(text, ["CLASS B", "35M", "35 M"])) tags.push("class b");
   if (includesAny(text, ["10G", "SDVOE", "ZERO LATENCY"])) tags.push("10g");
 
   return uniqueSkuOptions(tags);
@@ -388,20 +388,48 @@ function transportFromTags(tags: string[]): string {
 
 function buildCompetitorProfile(brand: string, sku: string, description: string): CompetitorProfile {
   const normalizedSku = normalizeCompetitorSku(sku);
-  const rawText = `${brand} ${normalizedSku} ${description}`.toUpperCase();
-  const requestedTags = extractTags(rawText);
+  const resolvedSpec = normalizedSku ? resolveCompetitorSpecProfile(normalizedSku, brand) : null;
+  const rawText = [
+    brand,
+    normalizedSku,
+    description,
+    resolvedSpec?.title,
+    resolvedSpec?.transport,
+    resolvedSpec?.role,
+    resolvedSpec?.maxResolution,
+    resolvedSpec?.chroma,
+  ].filter(Boolean).join(" ").toUpperCase();
+  const requestedTags = uniqueSkuOptions([
+    ...extractTags(rawText),
+    ...(resolvedSpec?.features?.hdbtOutput ? ["hdbaset"] : []),
+    ...(resolvedSpec?.maxResolution === "4K60" ? ["4k60"] : []),
+    ...(resolvedSpec?.chroma === "4:4:4" ? ["444"] : []),
+    ...(resolvedSpec?.specs?.hdbasetClass === "Class A" ? ["class a"] : []),
+    ...(resolvedSpec?.specs?.hdbasetClass === "Class B" ? ["class b"] : []),
+  ]);
   const knownProfile = lookupCompareIntelligence(normalizedSku);
 
   return runKnownProfileCompare({
-    brand,
+    brand: resolvedSpec?.brand || brand,
     sku: normalizedSku,
     rawText,
-    productClass: productClassFromTags(requestedTags),
-    role: roleFromTags(requestedTags),
-    transport: transportFromTags(requestedTags),
+    productClass: resolvedSpec?.domain === "AVOIP"
+      ? "AV-over-IP"
+      : resolvedSpec?.domain === "VIDEO_WALL"
+        ? "Video wall"
+        : resolvedSpec?.domain === "MULTIVIEW"
+          ? "Multiview"
+          : resolvedSpec?.domain === "MATRIX"
+            ? "Matrix"
+            : resolvedSpec?.domain === "PRESENTATION" || resolvedSpec?.domain === "HDBASET"
+              ? "Presentation switcher"
+              : productClassFromTags(requestedTags),
+    role: resolvedSpec?.role || roleFromTags(requestedTags),
+    transport: resolvedSpec?.transport || transportFromTags(requestedTags),
     requestedTags,
     videoTags: requestedTags.filter((tag) => ["4k60", "444", "hdr", "10g"].includes(tag)),
     knownProfile,
+    resolvedSpec,
   });
 }
 
@@ -512,6 +540,9 @@ function buildAvoipCandidates(
   const networkNote = `Same network class: ${recommendation.networkClass.toUpperCase()}.`;
   const identityNote = classification.knownFamily ? `Competitor identified as ${classification.knownFamily}.` : `Detected endpoint role: ${classification.role}.`;
   const verifyGap = recommendation.verifyCodec ? ["Confirm codec/compression class before choosing NetworkHD 500 or NetworkHD 100."] : [];
+  const bandwidthNote = classification.signals.includes("explicit 4K60 4:4:4 signal")
+    ? "4K60 4:4:4 requirement detected. Stay in NetworkHD 500 or 600; do not drop to NetworkHD 100."
+    : "";
 
   return recommendation.candidateSkus
     .filter((sku) => !isBannedNetworkHdSku(sku))
@@ -525,12 +556,142 @@ function buildAvoipCandidates(
         product,
         score,
         verdict,
-        matched: uniqueSkuOptions([recommendation.reason, networkNote, identityNote]),
-        checks: uniqueSkuOptions([recommendation.controllerReminder, product.caveat]),
+        matched: uniqueSkuOptions([recommendation.reason, networkNote, identityNote, bandwidthNote]),
+        checks: uniqueSkuOptions([
+          recommendation.controllerReminder,
+          product.caveat,
+          classification.signals.includes("explicit 4K60 4:4:4 signal")
+            ? "Confirm whether the customer expects 4K60 4:4:4 on every endpoint, because that rules out the NetworkHD 100 series."
+            : "",
+        ]),
         gaps: uniqueSkuOptions(verifyGap),
       };
     })
     .slice(0, 8);
+}
+
+function matrixOutputCount(profile: CompetitorProfile): number | undefined {
+  return profile.resolvedSpec?.outputCount;
+}
+
+function matrixInputCount(profile: CompetitorProfile): number | undefined {
+  return profile.resolvedSpec?.inputCount;
+}
+
+function isEighteenGigMatrix(profile: CompetitorProfile): boolean {
+  return profile.productClass === "Matrix" && (profile.requestedTags.includes("18g") || profile.requestedTags.includes("4k60") || profile.requestedTags.includes("444"));
+}
+
+function isHdBaseTMatrix(profile: CompetitorProfile): boolean {
+  return profile.productClass === "Matrix" && (
+    profile.requestedTags.includes("hdbaset")
+    || Boolean(profile.resolvedSpec?.features?.hdbtOutput)
+    || /\bkit\b/i.test(profile.sku)
+  );
+}
+
+function wantsClassA(profile: CompetitorProfile): boolean {
+  return profile.requestedTags.includes("class a")
+    || profile.resolvedSpec?.specs?.hdbasetClass === "Class A"
+    || /\b70\b/.test(profile.sku)
+    || /class a|70m|100m/i.test(profile.rawText);
+}
+
+function matrixReceiverRequirement(profile: CompetitorProfile, classA: boolean): string {
+  const outputs = matrixOutputCount(profile);
+  const receiverLabel = classA ? "compatible RXV-70 receivers" : "compatible RXV-35 receivers";
+  return outputs ? `Quote ${outputs}x ${receiverLabel} separately.` : `Quote compatible ${receiverLabel} separately.`;
+}
+
+function buildMatrixCandidates(profile: CompetitorProfile): ScoredCandidate[] | null {
+  if (!isHdBaseTMatrix(profile) || !isEighteenGigMatrix(profile)) {
+    return null;
+  }
+
+  const inputs = matrixInputCount(profile);
+  const outputs = matrixOutputCount(profile);
+  const is8x8 = inputs === 8 && outputs === 8;
+
+  if (!is8x8) {
+    return null;
+  }
+
+  const classA = wantsClassA(profile);
+  const leadSku = classA ? "MXV-0808-H2A-70-V3" : "MXV-0808-H2A-V3";
+  const alternateSku = classA ? "MXV-0808-H2A-V3" : "MXV-0808-H2A-70-V3";
+  const lead = findWyrestormProduct(leadSku);
+  const alternate = findWyrestormProduct(alternateSku);
+  const fallback = findWyrestormProduct("MX-0808-KIT");
+
+  const leadMatched = [
+    `18Gbps 8x8 HDBaseT matrix path is a closer WyreStorm fit than the older MX kit.`,
+    classA
+      ? "Class A / 70m brief detected. Use the MXV-70 path rather than the shorter Class B matrix."
+      : "No Class A requirement detected. Default to the standard MXV Class B / 35m matrix path.",
+    `Mainframe recommendation: ${leadSku}. ${matrixReceiverRequirement(profile, classA)}`,
+  ];
+
+  const leadChecks = [
+    matrixReceiverRequirement(profile, classA),
+    classA
+      ? "WyreStorm Class A HDBaseT is denoted by '70' in the SKU. Confirm distance really needs the longer Class A path."
+      : "If the room needs longer Class A HDBaseT distance, step up to the '70' MXV path instead.",
+    "Confirm the actual CAT cable run and whether the quoted distance must hold at 4K60 4:4:4 or only at 1080p.",
+    "Commercial reminder: getting HDBaseT class or transmitted resolution wrong can either push price up unnecessarily or stop the signal transporting reliably.",
+    "Confirm mirrored outputs, audio breakouts and scaler requirements before quote.",
+  ];
+
+  const candidates: ScoredCandidate[] = [];
+
+  if (lead) {
+    candidates.push({
+      product: lead,
+      score: 95,
+      verdict: "GOOD MATCH",
+      matched: uniqueSkuOptions(leadMatched),
+      checks: uniqueSkuOptions(leadChecks),
+      gaps: [],
+    });
+  }
+
+  if (alternate) {
+    candidates.push({
+      product: alternate,
+      score: 83,
+      verdict: "PARTIAL MATCH",
+      matched: uniqueSkuOptions([
+        classA
+          ? "Alternative shorter-distance Class B MXV path if Class A distance is not actually required."
+          : "Alternative longer-distance Class A MXV path if the brief later proves to need it.",
+        `Mainframe recommendation: ${alternateSku}. ${matrixReceiverRequirement(profile, !classA)}`,
+      ]),
+      checks: uniqueSkuOptions([
+        matrixReceiverRequirement(profile, !classA),
+        "Choose this path only if the HDBaseT class and distance requirement justify it.",
+      ]),
+      gaps: uniqueSkuOptions([
+        classA ? "Shorter Class B distance may be wrong for this brief." : "Longer Class A path may add cost if distance does not require it.",
+      ]),
+    });
+  }
+
+  if (fallback) {
+    candidates.push({
+      product: fallback,
+      score: 34,
+      verdict: "NO MATCH",
+      matched: ["Older fixed-I/O matrix family only."],
+      checks: uniqueSkuOptions([
+        "Avoid using MX-0808-KIT as the lead answer for an 18Gbps 8x8 HDBaseT matrix brief.",
+        "If 18Gbps / 4K60 4:4:4 matters, stay in the MXV family instead.",
+      ]),
+      gaps: uniqueSkuOptions([
+        "MX-0808-KIT is not the right 18Gbps matrix path for this competitor brief.",
+      ]),
+    });
+  }
+
+  return candidates;
 }
 
 function compareSummaryRoleLabel(classificationRole: CompetitorAvoipClassification["role"], fallbackRole: string): string {
@@ -612,7 +773,181 @@ function uniqueText(values: Array<string | null | undefined>, limit = 4): string
   return output;
 }
 
+function competitorIoTypeLabel(profile: CompetitorProfile): string {
+  const spec = profile.resolvedSpec;
+  const transport = String(spec?.transport || profile.transport || "").toLowerCase();
+
+  if (spec?.domain === "AVOIP" || transport.includes("avoip")) return "AV-over-IP endpoint";
+  if (spec?.domain === "HDBASET" || transport.includes("hdbaset") || transport.includes("tps")) return "HDBaseT / extension";
+  if (transport.includes("usb-c")) return "HDMI / USB-C";
+  if (transport.includes("hdmi")) return "HDMI";
+  if (transport.includes("usb")) return "USB / video";
+  return "signal path";
+}
+
+function competitorHeadlineIo(profile: CompetitorProfile): string {
+  const inputs = profile.resolvedSpec?.inputCount;
+  const outputs = profile.resolvedSpec?.outputCount;
+
+  if (!inputs && !outputs) {
+    return "";
+  }
+
+  const parts = [
+    inputs ? `${inputs} in` : "",
+    outputs ? `${outputs} out` : "",
+  ].filter(Boolean);
+
+  return `I/O: ${parts.join(" / ")}${parts.length ? ` · ${competitorIoTypeLabel(profile)}` : ""}`;
+}
+
+function unsupportedCompetitorVideoPorts(profile: CompetitorProfile): string[] {
+  const specs = profile.resolvedSpec?.specs;
+
+  if (!specs) {
+    return [];
+  }
+
+  return [
+    specs.displayPortInputs || specs.displayPortOutputs ? `DP ${[specs.displayPortInputs ? `${specs.displayPortInputs} in` : "", specs.displayPortOutputs ? `${specs.displayPortOutputs} out` : ""].filter(Boolean).join(" / ")}` : "",
+    specs.dviInputs || specs.dviOutputs ? `DVI ${[specs.dviInputs ? `${specs.dviInputs} in` : "", specs.dviOutputs ? `${specs.dviOutputs} out` : ""].filter(Boolean).join(" / ")}` : "",
+    specs.vgaInputs || specs.vgaOutputs ? `VGA ${[specs.vgaInputs ? `${specs.vgaInputs} in` : "", specs.vgaOutputs ? `${specs.vgaOutputs} out` : ""].filter(Boolean).join(" / ")}` : "",
+    specs.sdiInputs || specs.sdiOutputs ? `SDI ${[specs.sdiInputs ? `${specs.sdiInputs} in` : "", specs.sdiOutputs ? `${specs.sdiOutputs} out` : ""].filter(Boolean).join(" / ")}` : "",
+    specs.compositeInputs || specs.compositeOutputs ? `Composite ${[specs.compositeInputs ? `${specs.compositeInputs} in` : "", specs.compositeOutputs ? `${specs.compositeOutputs} out` : ""].filter(Boolean).join(" / ")}` : "",
+    specs.componentInputs || specs.componentOutputs ? `Component ${[specs.componentInputs ? `${specs.componentInputs} in` : "", specs.componentOutputs ? `${specs.componentOutputs} out` : ""].filter(Boolean).join(" / ")}` : "",
+  ].filter(Boolean);
+}
+
+function competitorVideoProtectionFacts(profile: CompetitorProfile): string {
+  const specs = profile.resolvedSpec?.specs;
+  const items = [specs?.hdmiVersion, specs?.hdcpVersion].filter(Boolean);
+  return items.length ? `HDMI / HDCP: ${items.join(" / ")}` : "";
+}
+
+function competitorUsbFacts(profile: CompetitorProfile): string {
+  const specs = profile.resolvedSpec?.specs;
+
+  if (!specs) {
+    return "";
+  }
+
+  const labels = [
+    specs.usbCPorts ? `${specs.usbCPorts}x USB-C` : "",
+    specs.usbHostPorts ? `${specs.usbHostPorts} host` : "",
+    specs.usbDevicePorts ? `${specs.usbDevicePorts} device` : "",
+    specs.usbTotalPorts ? `${specs.usbTotalPorts} total USB` : "",
+    specs.usbStandard || "",
+  ].filter(Boolean);
+
+  return labels.length ? `USB: ${labels.join(" · ")}` : "";
+}
+
+function competitorHdbasetFacts(profile: CompetitorProfile): string {
+  const specs = profile.resolvedSpec?.specs;
+  const items = [specs?.hdbasetVersion, specs?.hdbasetClass].filter(Boolean);
+  return items.length ? `HDBaseT: ${items.join(" · ")}` : "";
+}
+
+function competitorDistanceQuestion(profile: CompetitorProfile): string {
+  const specs = profile.resolvedSpec?.specs;
+  const isHdBaseT = profile.requestedTags.includes("hdbaset") || Boolean(profile.resolvedSpec?.features?.hdbtOutput);
+
+  if (!isHdBaseT) {
+    return "";
+  }
+
+  if (specs?.hdbasetClass) {
+    return "Discovery check: validate CAT cable run and whether the required distance must hold at 4K60 or only at 1080p for the stated HDBaseT class.";
+  }
+
+  return "Discovery check: validate CAT cable run, intended signal resolution, and whether the brief needs Class A or Class B HDBaseT before quoting.";
+}
+
+function competitorCommercialRiskNote(profile: CompetitorProfile): string {
+  const isHdBaseT = profile.requestedTags.includes("hdbaset") || Boolean(profile.resolvedSpec?.features?.hdbtOutput);
+  const isAvoip = profile.requestedTags.includes("avoip") || profile.resolvedSpec?.domain === "AVOIP";
+
+  if (isHdBaseT) {
+    return "Why this matters: HDBaseT class, cable run and transmitted resolution can move the quote up or down. If they are wrong, the signal may not transport reliably at all.";
+  }
+
+  if (isAvoip) {
+    return "Why this matters: AVoIP removes most point-to-point distance and HDBaseT class decisions, but only if the network infrastructure, switching and bandwidth meet IT-grade requirements.";
+  }
+
+  return "";
+}
+
+function competitorEducationalNote(profile: CompetitorProfile): string {
+  const isHdBaseT = profile.requestedTags.includes("hdbaset") || Boolean(profile.resolvedSpec?.features?.hdbtOutput);
+  const isAvoip = profile.requestedTags.includes("avoip") || profile.resolvedSpec?.domain === "AVOIP";
+
+  if (isHdBaseT) {
+    return "Educational point: on HDBaseT, the practical question is not just distance. It is distance at the actual signal format being sent, especially 4K60 4:4:4 versus 1080p.";
+  }
+
+  if (isAvoip) {
+    return "Educational point: AVoIP is often easier to position because the transport decision moves away from per-link HDBaseT limits and toward overall network readiness.";
+  }
+
+  return "";
+}
+
+function competitorControlFacts(profile: CompetitorProfile): string {
+  const specs = profile.resolvedSpec?.specs;
+
+  if (!specs) {
+    return "";
+  }
+
+  const items = [
+    specs.networkPorts ? `${specs.networkPorts}x LAN` : "",
+    specs.rs232 ? "RS-232" : "",
+    specs.ir ? "IR" : "",
+    specs.relay ? (specs.relayPortCount ? `${specs.relayPortCount}x Relay` : "Relay") : "",
+    specs.gpio ? (specs.gpioPortCount ? `${specs.gpioPortCount}x GPIO` : "GPIO") : "",
+    specs.ethernetControl ? "IP / LAN control" : "",
+  ].filter(Boolean);
+
+  return items.length ? `Control: ${items.join(" · ")}` : "";
+}
+
+function competitorAudioNetworkFacts(profile: CompetitorProfile): string {
+  const specs = profile.resolvedSpec?.specs;
+
+  if (!specs) {
+    return "";
+  }
+
+  const items = [
+    specs.dante ? (specs.dedicatedDantePort ? "Dedicated Dante port" : "Dante") : "",
+    specs.aes67 ? "AES67" : "",
+    specs.audioDeEmbed ? "Audio de-embed" : "",
+    specs.audioEmbed ? "Audio embed" : "",
+  ].filter(Boolean);
+
+  return items.length ? `Audio / Network: ${items.join(" · ")}` : "";
+}
+
+function competitorWirelessFacts(profile: CompetitorProfile): string {
+  const specs = profile.resolvedSpec?.specs;
+
+  if (!specs) {
+    return "";
+  }
+
+  const items = [
+    specs.wirelessCasting ? "Wireless casting" : "",
+    specs.wirelessStandard || "",
+    specs.castingDongleSupport ? `Dongle support: ${specs.castingDongleSupport}` : "",
+  ].filter(Boolean);
+
+  return items.length ? `Wireless: ${items.join(" · ")}` : "";
+}
+
 function buildCompetitorSummary(profile: CompetitorProfile, mustMatchFeatures: string): CompetitorSummary {
+  const resolvedSpec = profile.resolvedSpec;
+  const unsupportedPorts = unsupportedCompetitorVideoPorts(profile);
   const inferredTags = uniqueText(profile.requestedTags.map((tag) => {
     if (tag === "avoip") return "AV-over-IP";
     if (tag === "video wall") return "Video wall";
@@ -630,20 +965,46 @@ function buildCompetitorSummary(profile: CompetitorProfile, mustMatchFeatures: s
     return tag;
   }), 5);
 
+  const facts = uniqueText([
+    competitorHeadlineIo(profile),
+    resolvedSpec?.maxResolution ? `Resolution: ${resolvedSpec.maxResolution}` : "",
+    competitorVideoProtectionFacts(profile),
+    competitorUsbFacts(profile),
+    competitorHdbasetFacts(profile),
+    competitorControlFacts(profile),
+    competitorAudioNetworkFacts(profile),
+    competitorWirelessFacts(profile),
+    unsupportedPorts.length ? `Other video I/O: ${unsupportedPorts.join(", ")}` : "",
+    resolvedSpec?.transport ? `Transport: ${resolvedSpec.transport}` : "",
+  ], 8);
+
   const bullets = uniqueText([
     profile.productClass !== "Unknown" ? `Class: ${profile.productClass}` : "",
     profile.role !== "Unknown" ? `Role: ${profile.role}` : "",
-    profile.transport !== "Unknown" ? `Transport: ${profile.transport}` : "",
+    competitorDistanceQuestion(profile),
+    competitorCommercialRiskNote(profile),
+    competitorEducationalNote(profile),
+    unsupportedPorts.length
+      ? "WyreStorm note: competitor relies on non-native video connectors, so verify signal conversion or surrounding workflow before positioning a like-for-like replacement."
+      : "",
+    resolvedSpec?.specTier === "verified-profile"
+      ? "Data confidence: verified competitor profile in compare registry."
+      : profile.transport !== "Unknown"
+        ? `Transport: ${profile.transport}`
+        : "",
     inferredTags.length ? `Detected traits: ${inferredTags.join(", ")}` : "",
     mustMatchFeatures.trim() ? `Must-match notes: ${mustMatchFeatures.trim()}` : "",
   ], 5);
 
   return {
     heading: [profile.brand, profile.sku].filter(Boolean).join(" ").trim() || "Competitor product",
-    detail: profile.knownProfile && typeof profile.knownProfile.name === "string" && profile.knownProfile.name.trim()
-      ? profile.knownProfile.name.trim()
-      : "Wingman matched against this inferred competitor product direction.",
+    detail: resolvedSpec?.title?.trim()
+      || (profile.knownProfile && typeof profile.knownProfile.title === "string" && profile.knownProfile.title.trim() ? profile.knownProfile.title.trim() : "")
+      || (profile.knownProfile && typeof profile.knownProfile.name === "string" && profile.knownProfile.name.trim() ? profile.knownProfile.name.trim() : "")
+      || "Wingman matched against this competitor product direction.",
+    facts,
     bullets,
+    sourceUrl: resolvedSpec?.datasheetUrl,
   };
 }
 
@@ -757,11 +1118,25 @@ function BestCandidateCard({
           <p className="compare-native-label compare-native-label--subtle">Competitor product Wingman matched against</p>
           <h3>{competitor.heading}</h3>
           <h4>{competitor.detail}</h4>
+          {competitor.facts.length ? (
+            <div className="compare-native-fact-row" aria-label="Competitor headline facts">
+              {competitor.facts.map((fact) => (
+                <span key={fact} className="compare-native-fact-pill">{fact}</span>
+              ))}
+            </div>
+          ) : null}
           <ul className="compare-native-bullet-list">
             {competitor.bullets.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>
+          {competitor.sourceUrl ? (
+            <div className="compare-native-action-row">
+              <a className="compare-native-secondary-action" href={competitor.sourceUrl} target="_blank" rel="noreferrer">
+                Open competitor reference
+              </a>
+            </div>
+          ) : null}
         </div>
 
         <div className="compare-native-product-card compare-native-product-card--best">
@@ -772,6 +1147,9 @@ function BestCandidateCard({
           <p className="compare-native-match-anchor">
             {candidate.matched[0] ?? "Closest role-compatible WyreStorm option from the current Compare data."}
           </p>
+          {candidate.checks[0] ? (
+            <p className="compare-native-option-check">{candidate.checks[0]}</p>
+          ) : null}
 
           <div className="compare-native-action-row">
             <button className="compare-native-secondary-action" type="button" onClick={onCopySummary}>Copy summary</button>
@@ -858,6 +1236,12 @@ function ComparePageNew() {
 
     if (avoip.recommendation.applies) {
       return buildAvoipCandidates(avoip.classification, avoip.recommendation);
+    }
+
+    const matrixCandidates = buildMatrixCandidates(profile);
+
+    if (matrixCandidates?.length) {
+      return matrixCandidates;
     }
 
     return WYRESTORM_PRODUCTS
@@ -959,11 +1343,15 @@ function ComparePageNew() {
       "Why this fits",
       `- ${best.product.sku} is the closest WyreStorm starting point based on product role and system class.`,
       `- ${roleNote}`,
+      ...(best.matched.slice(0, 2).map((line) => `- ${line}`)),
       "",
       "Check before quoting",
-      "- Confirm codec/compression class.",
-      "- Confirm video format, USB/KVM, audio and control requirements.",
-      "- Confirm controller and network switch requirements before quoting.",
+      ...best.checks.slice(0, 3).map((line) => `- ${line}`),
+      ...(best.checks.length === 0 ? [
+        "- Confirm codec/compression class.",
+        "- Confirm video format, USB/KVM, audio and control requirements.",
+        "- Confirm controller and network switch requirements before quoting.",
+      ] : []),
     ].join("\n");
   }, [avoipProfile, best, competitorInput, effectiveBrand, profile]);
 
