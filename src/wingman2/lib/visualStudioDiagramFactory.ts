@@ -23,6 +23,9 @@ const statusClass: Record<VisualNodeStatus, string> = {
   risk: "wm-vs-node-risk"
 };
 
+const VISUAL_STUDIO_COLUMN_GAP = 210;
+const VISUAL_STUDIO_ROW_GAP = 132;
+
 const kindLabel: Record<string, string> = {
   customer: "Customer",
   source: "Source",
@@ -45,7 +48,7 @@ function makeNodeLabel(node: VisualDiagramNode, mode: VisualDiagramMode): string
   }
 
   const kind = kindLabel[node.kind] ?? "Device";
-  return `${node.label} Â· ${kind}`;
+  return `${node.label} · ${kind}`;
 }
 
 function makeNodeSubtitle(node: VisualDiagramNode, mode: VisualDiagramMode): string | undefined {
@@ -87,8 +90,8 @@ export function buildReactFlowModel(
       id: node.id,
       type: "wingmanVisualNode",
       position: {
-        x: node.column * 270,
-        y: node.row * 150
+        x: node.column * VISUAL_STUDIO_COLUMN_GAP,
+        y: node.row * VISUAL_STUDIO_ROW_GAP
       },
       data: {
         label: makeNodeLabel(node, mode),

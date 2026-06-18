@@ -64,7 +64,7 @@ function recommendation(category, _fileName) {
   }
 
   if (category === "discovery-route") {
-    return "Retire only after DiscoveryPage and SourceDeviceCollator styling are reviewed.";
+    return "Retire only after DiscoveryPage styling is reviewed.";
   }
 
   if (category === "global-design-pass") {

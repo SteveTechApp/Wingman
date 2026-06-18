@@ -1,4 +1,4 @@
-/* Consolidated Wingman style stack. Keep imported once from src/main.tsx. */
+﻿/* Consolidated Wingman style stack. Keep imported once from src/main.tsx. */
 
 @tailwind base;
 
@@ -28110,7 +28110,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
 }
 
 .vw2-chip.is-selected span::before {
-  content: "âœ“ ";
+  content: "Ã¢Å“â€œ ";
   color: #8fffe6;
 }
 
@@ -28576,3 +28576,878 @@ body.wingman-guru-detached-active .wingman-guru-detached-panel {
   }
 }
 /* WINGMAN GURU DETACHED PANEL + MIC SAFETY END */
+
+/* === Wingman browser scroll model start === */
+/*
+  Browser-level scroll model.
+
+  The previous fixed-shell/internal-scroll model can clip long pages at high
+  browser zoom. This model lets the browser own vertical scrolling, keeps the
+  sidebar visually stable with sticky positioning, and prevents long Wingman
+  pages from being trapped inside 100vh containers.
+*/
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  height: auto !important;
+  max-height: none !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+body {
+  overscroll-behavior-y: auto;
+}
+
+.wingman-shell {
+  min-height: 100vh !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  align-items: stretch;
+}
+
+.wingman-sidebar {
+  position: sticky !important;
+  top: 0 !important;
+  align-self: flex-start !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+.wingman-workspace {
+  min-height: 100vh !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.wingman-topbar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 90 !important;
+  min-height: var(--wm-topbar-height) !important;
+  overflow: visible !important;
+}
+
+.wingman-app-main,
+.wingman-page-host {
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.wingman-app-main {
+  padding-bottom: 140px !important;
+}
+
+/* Long page wrappers must never clip content. */
+.wm-page,
+.wm-page-shell,
+.wm-page-content,
+.wingman-page,
+.wingman-page-shell,
+.wingman-page-content,
+.product-workspace,
+.product-pitch-page,
+.project-detail-page,
+.proposal-page,
+.compare-page,
+.finder-page,
+.discovery-page,
+.visual-design-studio-page,
+.visual-design-page,
+.product-call-cards-page,
+.template-review-page,
+.wm-visual-design-page,
+.wm-diagram-studio-shell,
+.wm-diagram-control-panel,
+.wm-generated-output-stack,
+.wm-diagram-card,
+.wm-diagram-template-list,
+.wm-port-schematic-panel,
+.wm-native-schematic-panel,
+.wm-deployment-visual-panel,
+.wm-schematic-review-panel {
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.wm-visual-design-page,
+.visual-design-studio-page,
+.visual-design-page,
+.product-pitch-page,
+.finder-page,
+.compare-page,
+.project-detail-page,
+.proposal-page {
+  padding-bottom: 160px !important;
+}
+
+/* Keep floating assistant controls away from the bottom-right content and taskbar. */
+.wingman-guru-fab,
+[class*="guru-fab"],
+[class*="GuruFab"],
+[class*="guru-button"],
+[class*="GuruButton"] {
+  bottom: 96px !important;
+  right: 28px !important;
+}
+/* === Wingman browser scroll model end === */
+
+/* === Wingman authority shell scroll override start === */
+/*
+  Final specificity override.
+
+  DevTools showed the active blocker:
+  .wingman-authority-shell .wingman-shell / #root > .wingman-shell
+  was forcing height: 100dvh and overflow: hidden.
+
+  This restores normal long-page behaviour while keeping the sidebar/topbar usable.
+*/
+
+html,
+body,
+#root {
+  height: auto !important;
+  min-height: 100% !important;
+  max-height: none !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+#root > .wingman-shell.wingman-authority-shell,
+#root > .wingman-shell,
+.wingman-authority-shell,
+.wingman-authority-shell.wingman-shell,
+.wingman-authority-shell .wingman-shell {
+  height: auto !important;
+  min-height: 100vh !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+#root > .wingman-shell.wingman-authority-shell,
+.wingman-shell.wingman-authority-shell {
+  display: flex !important;
+  align-items: stretch !important;
+}
+
+.wingman-authority-shell .wingman-sidebar,
+#root > .wingman-shell .wingman-sidebar {
+  position: sticky !important;
+  top: 0 !important;
+  align-self: flex-start !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+.wingman-authority-shell .wingman-workspace,
+#root > .wingman-shell .wingman-workspace,
+.wingman-authority-shell .wingman-app-main,
+#root > .wingman-shell .wingman-app-main,
+.wingman-authority-shell .wingman-page-host,
+#root > .wingman-shell .wingman-page-host {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.wingman-authority-shell .wingman-topbar,
+#root > .wingman-shell .wingman-topbar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 90 !important;
+}
+
+.wingman-authority-shell .wingman-app-main,
+#root > .wingman-shell .wingman-app-main {
+  padding-bottom: 160px !important;
+}
+
+/* Prevent large page interiors being trapped after the shell is released. */
+.wingman-authority-shell .finder-page,
+.wingman-authority-shell .product-pitch-page,
+.wingman-authority-shell .compare-page,
+.wingman-authority-shell .project-detail-page,
+.wingman-authority-shell .proposal-page,
+.wingman-authority-shell .visual-design-page,
+.wingman-authority-shell .visual-design-studio-page,
+.wingman-authority-shell .wm-visual-design-page,
+.wingman-authority-shell .wm-diagram-studio-shell,
+.wingman-authority-shell .wm-diagram-control-panel,
+.wingman-authority-shell .wm-generated-output-stack {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+/* === Wingman authority shell scroll override end === */
+
+/* === Wingman CSS-rendered Guru launcher start === */
+/*
+  Final Guru launcher model:
+  - legacy GuruHelper hidden
+  - AppShell Guru button remains the only launcher
+  - robot icon is rendered as button::after, so it cannot disappear behind child layers
+  - green sweep is rendered as button::before
+  - dashboard content is left-aligned after the sidebar
+*/
+
+/* Keep only the AppShell-owned Guru launcher. */
+.wm-guru-helper-root {
+  display: none !important;
+}
+
+/* Remove the leftover dashboard gutter without breaking the sidebar. */
+html[data-wingman-route="dashboard"] #root > .wingman-shell,
+html[data-wingman-route="dashboard"] #root > .wingman-shell.wingman-authority-shell,
+html[data-wingman-route="dashboard"] .wingman-shell.wingman-authority-shell {
+  display: flex !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  gap: 0 !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-sidebar {
+  flex: 0 0 var(--wm-sidebar-width, 268px) !important;
+  width: var(--wm-sidebar-width, 268px) !important;
+  max-width: var(--wm-sidebar-width, 268px) !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-workspace {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  padding-left: 14px !important;
+  padding-right: 14px !important;
+  transform: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-app-main,
+html[data-wingman-route="dashboard"] .wingman-page-host,
+html[data-wingman-route="dashboard"] main {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-app-main > *,
+html[data-wingman-route="dashboard"] .wingman-page-host > *,
+html[data-wingman-route="dashboard"] main > * {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* One visible Guru launcher button. */
+html[data-wingman-route] button.wingman-guru-fab,
+body button.wingman-guru-fab,
+button.wingman-guru-fab,
+.wingman-guru-fab {
+  position: fixed !important;
+  right: 22px !important;
+  left: auto !important;
+  bottom: 84px !important;
+  top: auto !important;
+
+  width: 74px !important;
+  height: 74px !important;
+  min-width: 74px !important;
+  min-height: 74px !important;
+  max-width: 74px !important;
+  max-height: 74px !important;
+
+  display: grid !important;
+  place-items: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+
+  border: 1px solid rgba(96, 238, 255, 0.36) !important;
+  border-radius: 999px !important;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(13, 42, 61, 0.98) 0%, rgba(5, 19, 34, 0.98) 64%, rgba(2, 10, 20, 0.98) 100%) !important;
+
+  box-shadow:
+    0 0 0 1px rgba(96, 238, 255, 0.12),
+    0 0 24px rgba(49, 255, 155, 0.48),
+    0 0 56px rgba(49, 255, 155, 0.26) !important;
+
+  opacity: 1 !important;
+  visibility: visible !important;
+  overflow: visible !important;
+  isolation: isolate !important;
+  transform: none !important;
+  z-index: 9500 !important;
+  cursor: pointer !important;
+}
+
+/* Hide internal child layers. The button paints the icon and sweep itself. */
+button.wingman-guru-fab > *,
+.wingman-guru-fab > * {
+  display: none !important;
+}
+
+/* Green sweep ring. */
+button.wingman-guru-fab::before,
+.wingman-guru-fab::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: -6px !important;
+  border-radius: 999px !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+
+  background:
+    conic-gradient(
+      from 0deg,
+      rgba(49, 255, 155, 0) 0deg,
+      rgba(49, 255, 155, 0) 210deg,
+      rgba(49, 255, 155, 1) 266deg,
+      rgba(96, 238, 255, 0.86) 318deg,
+      rgba(49, 255, 155, 0) 360deg
+    ) !important;
+
+  -webkit-mask: radial-gradient(circle, transparent 0 58%, #000 60% 100%) !important;
+  mask: radial-gradient(circle, transparent 0 58%, #000 60% 100%) !important;
+
+  animation: wingmanGuruSweep 2.35s linear infinite !important;
+}
+
+/* Robot icon drawn directly onto the button. */
+button.wingman-guru-fab::after,
+.wingman-guru-fab::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 9px !important;
+  border-radius: 999px !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+
+  background:
+    url("/wingman-guru-icon.png") center / contain no-repeat !important;
+
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: drop-shadow(0 0 10px rgba(96, 238, 255, 0.48)) !important;
+}
+
+button.wingman-guru-fab[data-open="true"],
+.wingman-guru-fab[data-open="true"] {
+  display: none !important;
+}
+
+@keyframes wingmanGuruSweep {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* === Wingman CSS-rendered Guru launcher end === */
+
+/* === Wingman global workspace left align start === */
+/*
+  Global workspace alignment:
+  previous dashboard-only repair fixed the home page, but other routes such as
+  Call Coach still inherit a large left offset. The sidebar should reserve its
+  width once; the workspace should begin immediately after it.
+*/
+
+html[data-wingman-route] #root > .wingman-shell,
+html[data-wingman-route] #root > .wingman-shell.wingman-authority-shell,
+html[data-wingman-route] .wingman-shell.wingman-authority-shell {
+  display: flex !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  gap: 0 !important;
+}
+
+html[data-wingman-route] .wingman-sidebar {
+  flex: 0 0 var(--wm-sidebar-width, 268px) !important;
+  width: var(--wm-sidebar-width, 268px) !important;
+  min-width: var(--wm-sidebar-width, 268px) !important;
+  max-width: var(--wm-sidebar-width, 268px) !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+html[data-wingman-route] .wingman-workspace {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 14px !important;
+  padding-right: 14px !important;
+  transform: none !important;
+  left: auto !important;
+}
+
+html[data-wingman-route] .wingman-app-main,
+html[data-wingman-route] .wingman-page-host,
+html[data-wingman-route] main.wingman-app-main {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  transform: none !important;
+}
+
+html[data-wingman-route] .wingman-app-main > *,
+html[data-wingman-route] .wingman-page-host > *,
+html[data-wingman-route] main.wingman-app-main > * {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Stop route pages from retaining a centred 1920px canvas offset. */
+html[data-wingman-route] .dashboard-page,
+html[data-wingman-route] .finder-page,
+html[data-wingman-route] .product-pitch-page,
+html[data-wingman-route] .visual-design-page,
+html[data-wingman-route] .visual-design-studio-page,
+html[data-wingman-route] .compare-page,
+html[data-wingman-route] .project-detail-page,
+html[data-wingman-route] .proposal-page,
+html[data-wingman-route] .product-call-cards-page,
+html[data-wingman-route] .template-review-page,
+html[data-wingman-route] .call-coach-page,
+html[data-wingman-route] .call-cards-page,
+html[data-wingman-route] .sales-helper-page,
+html[data-wingman-route] .wingman-page,
+html[data-wingman-route] .wm-page,
+html[data-wingman-route] .wingman-page-shell,
+html[data-wingman-route] .wm-page-shell,
+html[data-wingman-route] .wingman-page-content,
+html[data-wingman-route] .wm-page-content {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  transform: none !important;
+}
+/* === Wingman global workspace left align end === */
+
+/* === Wingman Visual Studio compact layout repair start === */
+/*
+  Visual Studio page repair:
+  - Keeps page controls readable at browser zoom.
+  - Restores a real left rail / canvas / right rail layout.
+  - Gives React Flow enough visible canvas area.
+  - Stops control labels and descriptions collapsing into a single line.
+*/
+
+html[data-wingman-route] .wm-vs-page {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  min-height: calc(100vh - 72px) !important;
+  margin: 0 !important;
+  padding: 10px 14px 90px !important;
+  color: #eef6ff !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  gap: 10px !important;
+}
+
+html[data-wingman-route] .wm-vs-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 330px) !important;
+  gap: 12px !important;
+  align-items: stretch !important;
+  border: 1px solid rgba(74, 245, 230, 0.24) !important;
+  border-radius: 16px !important;
+  background:
+    linear-gradient(135deg, rgba(5, 18, 31, 0.96), rgba(9, 31, 50, 0.86)),
+    rgba(4, 18, 30, 0.94) !important;
+  padding: 12px 14px !important;
+}
+
+html[data-wingman-route] .wm-vs-header h1 {
+  margin: 0 !important;
+  color: #ffffff !important;
+  font-size: clamp(1.05rem, 1.25vw, 1.45rem) !important;
+  line-height: 1.08 !important;
+  font-weight: 950 !important;
+}
+
+html[data-wingman-route] .wm-vs-header p {
+  margin: 4px 0 0 !important;
+  color: rgba(226, 242, 255, 0.72) !important;
+  font-size: 0.82rem !important;
+  line-height: 1.28 !important;
+}
+
+html[data-wingman-route] .wm-vs-eyebrow {
+  margin: 0 !important;
+  color: #67e8f9 !important;
+  font-size: 0.68rem !important;
+  line-height: 1.05 !important;
+  font-weight: 950 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+}
+
+html[data-wingman-route] .wm-vs-header-card,
+html[data-wingman-route] .wm-vs-panel {
+  border: 1px solid rgba(74, 245, 230, 0.22) !important;
+  border-radius: 14px !important;
+  background: rgba(4, 21, 35, 0.9) !important;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.2) !important;
+}
+
+html[data-wingman-route] .wm-vs-header-card {
+  display: grid !important;
+  align-content: center !important;
+  gap: 5px !important;
+  padding: 12px 14px !important;
+}
+
+html[data-wingman-route] .wm-vs-header-card span,
+html[data-wingman-route] .wm-vs-header-card small {
+  color: rgba(226, 242, 255, 0.72) !important;
+  font-size: 0.72rem !important;
+}
+
+html[data-wingman-route] .wm-vs-header-card strong {
+  color: #ffffff !important;
+  font-size: 0.94rem !important;
+  line-height: 1.1 !important;
+}
+
+html[data-wingman-route] .wm-vs-layout {
+  min-height: calc(100vh - 250px) !important;
+  display: grid !important;
+  grid-template-columns: minmax(225px, 280px) minmax(520px, 1fr) minmax(250px, 330px) !important;
+  gap: 12px !important;
+  align-items: stretch !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route] .wm-vs-left-rail,
+html[data-wingman-route] .wm-vs-right-rail {
+  min-width: 0 !important;
+  display: grid !important;
+  align-content: start !important;
+  gap: 10px !important;
+}
+
+html[data-wingman-route] .wm-vs-panel {
+  padding: 10px 12px !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route] .wm-vs-diagram-list,
+html[data-wingman-route] .wm-vs-mode-grid {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+  margin-top: 8px !important;
+}
+
+html[data-wingman-route] .wm-vs-choice,
+html[data-wingman-route] .wm-vs-mode {
+  width: 100% !important;
+  min-height: 58px !important;
+  border: 1px solid rgba(74, 245, 230, 0.18) !important;
+  border-radius: 12px !important;
+  background: rgba(2, 14, 25, 0.76) !important;
+  color: #eef6ff !important;
+  padding: 9px 10px !important;
+  text-align: left !important;
+  display: grid !important;
+  gap: 4px !important;
+  cursor: pointer !important;
+  white-space: normal !important;
+}
+
+html[data-wingman-route] .wm-vs-choice.is-active,
+html[data-wingman-route] .wm-vs-mode.is-active {
+  border-color: rgba(103, 232, 249, 0.72) !important;
+  background: rgba(13, 116, 139, 0.32) !important;
+  box-shadow: inset 0 0 0 1px rgba(103, 232, 249, 0.26) !important;
+}
+
+html[data-wingman-route] .wm-vs-choice span,
+html[data-wingman-route] .wm-vs-mode span {
+  color: #67e8f9 !important;
+  font-size: 0.82rem !important;
+  line-height: 1.12 !important;
+  font-weight: 950 !important;
+  white-space: normal !important;
+}
+
+html[data-wingman-route] .wm-vs-choice small,
+html[data-wingman-route] .wm-vs-mode small {
+  color: rgba(226, 242, 255, 0.7) !important;
+  font-size: 0.68rem !important;
+  line-height: 1.22 !important;
+  white-space: normal !important;
+}
+
+html[data-wingman-route] .wm-vs-canvas-shell {
+  min-width: 0 !important;
+  min-height: 560px !important;
+  display: grid !important;
+  grid-template-rows: auto minmax(500px, 1fr) !important;
+  gap: 8px !important;
+  border: 1px solid rgba(74, 245, 230, 0.24) !important;
+  border-radius: 16px !important;
+  background: rgba(4, 21, 35, 0.9) !important;
+  padding: 10px !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route] .wm-vs-canvas-toolbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  min-width: 0 !important;
+}
+
+html[data-wingman-route] .wm-vs-canvas-toolbar h2 {
+  margin: 4px 0 0 !important;
+  color: #67e8f9 !important;
+  font-size: 1rem !important;
+  line-height: 1.1 !important;
+  font-weight: 950 !important;
+}
+
+html[data-wingman-route] .wm-vs-toolbar-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+html[data-wingman-route] .wm-vs-button {
+  min-height: 32px !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(103, 232, 249, 0.34) !important;
+  padding: 6px 10px !important;
+  color: #ffffff !important;
+  font-size: 0.76rem !important;
+  line-height: 1 !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+}
+
+html[data-wingman-route] .wm-vs-button-primary {
+  background: linear-gradient(135deg, #22d3ee, #2563eb) !important;
+}
+
+html[data-wingman-route] .wm-vs-button-secondary {
+  background: rgba(2, 14, 25, 0.88) !important;
+}
+
+html[data-wingman-route] .wm-vs-canvas {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: clamp(500px, 58vh, 760px) !important;
+  min-height: 500px !important;
+  border: 1px solid rgba(103, 232, 249, 0.18) !important;
+  border-radius: 14px !important;
+  background:
+    radial-gradient(circle at top left, rgba(103, 232, 249, 0.08), transparent 28%),
+    #06111d !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route] .wm-vs-canvas .react-flow {
+  background: #06111d !important;
+}
+
+html[data-wingman-route] .wm-vs-flow-node {
+  min-width: 165px !important;
+  max-width: 230px !important;
+  border: 1px solid rgba(103, 232, 249, 0.34) !important;
+  border-radius: 12px !important;
+  background: rgba(4, 21, 35, 0.96) !important;
+  color: #ffffff !important;
+  padding: 8px 10px !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24) !important;
+}
+
+html[data-wingman-route] .wm-vs-node-kicker {
+  color: #67e8f9 !important;
+  font-size: 0.56rem !important;
+  line-height: 1 !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.06em !important;
+}
+
+html[data-wingman-route] .wm-vs-node-title {
+  color: #ffffff !important;
+  font-size: 0.76rem !important;
+  line-height: 1.12 !important;
+  font-weight: 950 !important;
+  margin-top: 4px !important;
+}
+
+html[data-wingman-route] .wm-vs-node-subtitle {
+  color: rgba(226, 242, 255, 0.7) !important;
+  font-size: 0.62rem !important;
+  line-height: 1.18 !important;
+  margin-top: 3px !important;
+}
+
+html[data-wingman-route] .wm-vs-summary-panel h2 {
+  margin: 4px 0 6px !important;
+  color: #67e8f9 !important;
+  font-size: 0.96rem !important;
+  line-height: 1.12 !important;
+  font-weight: 950 !important;
+}
+
+html[data-wingman-route] .wm-vs-summary-panel p,
+html[data-wingman-route] .wm-vs-list {
+  color: rgba(226, 242, 255, 0.78) !important;
+  font-size: 0.75rem !important;
+  line-height: 1.28 !important;
+}
+
+html[data-wingman-route] .wm-vs-list {
+  margin: 8px 0 0 !important;
+  padding-left: 1rem !important;
+}
+
+html[data-wingman-route] .wm-vs-list li + li {
+  margin-top: 5px !important;
+}
+
+@media (max-width: 1400px) {
+  html[data-wingman-route] .wm-vs-layout {
+    grid-template-columns: minmax(220px, 270px) minmax(500px, 1fr) !important;
+  }
+
+  html[data-wingman-route] .wm-vs-right-rail {
+    grid-column: 1 / -1 !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  html[data-wingman-route] .wm-vs-summary-panel {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+@media (max-width: 1050px) {
+  html[data-wingman-route] .wm-vs-header,
+  html[data-wingman-route] .wm-vs-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-wingman-route] .wm-vs-right-rail {
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-wingman-route] .wm-vs-canvas-shell {
+    min-height: 500px !important;
+  }
+
+  html[data-wingman-route] .wm-vs-canvas {
+    min-height: 440px !important;
+    height: 52vh !important;
+  }
+}
+/* === Wingman Visual Studio compact layout repair end === */
+
+/* === Wingman Visual Studio readable flow scale start === */
+/*
+  Final Visual Studio canvas readability:
+  the page shell is now correct, but the flow was still scaling the nodes too small.
+  This keeps the diagram legible and removes the minimap from the limited canvas area.
+*/
+
+html[data-wingman-route] .wm-vs-seed-note {
+  margin-top: 8px !important;
+  color: #67e8f9 !important;
+  font-size: 0.76rem !important;
+  font-weight: 900 !important;
+}
+
+html[data-wingman-route] .wm-vs-canvas {
+  min-height: 560px !important;
+  height: clamp(560px, 62vh, 790px) !important;
+}
+
+html[data-wingman-route] .wm-vs-canvas .react-flow__minimap {
+  display: none !important;
+}
+
+html[data-wingman-route] .wm-vs-canvas .react-flow__controls {
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.26) !important;
+}
+
+html[data-wingman-route] .wm-vs-canvas .react-flow__attribution {
+  display: none !important;
+}
+
+html[data-wingman-route] .wm-vs-flow-node {
+  width: 190px !important;
+  min-width: 190px !important;
+  max-width: 190px !important;
+  padding: 10px 12px !important;
+}
+
+html[data-wingman-route] .wm-vs-node-kicker {
+  font-size: 0.62rem !important;
+}
+
+html[data-wingman-route] .wm-vs-node-title {
+  font-size: 0.86rem !important;
+  line-height: 1.15 !important;
+}
+
+html[data-wingman-route] .wm-vs-node-subtitle {
+  font-size: 0.68rem !important;
+  line-height: 1.22 !important;
+}
+
+html[data-wingman-route] .wm-vs-edge-normal,
+html[data-wingman-route] .wm-vs-edge-risk,
+html[data-wingman-route] .wm-vs-edge-missing {
+  stroke-width: 2.2px !important;
+}
+
+@media (max-width: 1400px) {
+  html[data-wingman-route] .wm-vs-flow-node {
+    width: 176px !important;
+    min-width: 176px !important;
+    max-width: 176px !important;
+  }
+
+  html[data-wingman-route] .wm-vs-node-title {
+    font-size: 0.8rem !important;
+  }
+
+  html[data-wingman-route] .wm-vs-node-subtitle {
+    font-size: 0.64rem !important;
+  }
+}
+/* === Wingman Visual Studio readable flow scale end === */
+

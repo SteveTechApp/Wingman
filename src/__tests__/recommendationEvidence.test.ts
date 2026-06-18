@@ -1,18 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import {
   buildRecommendationEvidence,
   buildDiscoveryRecommendationEvidence,
   productToSelection,
   type RecommendationEvidenceInput,
-  type RecommendationEvidenceProduct,
-  type RecommendationEvidenceCompare,
-} from "@/wingman2/lib/recommendationEvidence";
+  type RecommendationEvidenceProduct } from "@/wingman2/lib/recommendationEvidence";
 import type {
   StoredDiscoveryBrief,
-  StoredProject,
-  StoredProductSelection,
-  StoredRecommendationEvidence,
-} from "@/wingman2/data/projectStore";
+  StoredProductSelection } from "@/wingman2/data/projectStore";
 
 // Mock the dependencies that have side effects or external dependencies
 vi.mock("@/wingman2/lib/salesReadiness", () => ({
@@ -29,10 +24,7 @@ vi.mock("@/wingman2/lib/salesReadiness", () => ({
       motion: "Outcome SKU",
       summary: "Test summary",
       customerOutput: "Test output",
-      nextAction: "Test action",
-    },
-  })),
-}));
+      nextAction: "Test action" } })) }));
 
 vi.mock("@/wingman2/lib/avDecisionEvidence", () => ({
   buildAvDecisionEvidence: vi.fn(() => ({
@@ -47,16 +39,13 @@ vi.mock("@/wingman2/lib/avDecisionEvidence", () => ({
     alternatives: [],
     repGuidance: [],
     nextBestQuestion: "",
-    issues: [],
-  })),
-}));
+    issues: [] })) }));
 
 describe("productToSelection", () => {
   describe("Basic conversion", () => {
     it("should convert a minimal product to selection", () => {
       const product: RecommendationEvidenceProduct = {
-        sku: "NHD-500-TX",
-      };
+        sku: "NHD-500-TX" };
 
       const result = productToSelection(product);
 
@@ -79,8 +68,7 @@ describe("productToSelection", () => {
         features: ["4K60 4:4:4", "USB 2.0", "IR passthrough"],
         tags: ["encoder", "avoip", "4k"],
         source: "Product Finder",
-        isFallback: false,
-      };
+        isFallback: false };
 
       const result = productToSelection(product, "Custom Source");
 
@@ -96,8 +84,7 @@ describe("productToSelection", () => {
       const product: RecommendationEvidenceProduct = {
         sku: "TEST-SKU",
         name: "Product Name",
-        title: "Product Title",
-      };
+        title: "Product Title" };
 
       const result = productToSelection(product);
 
@@ -107,8 +94,7 @@ describe("productToSelection", () => {
     it("should fall back to title when name is not present", () => {
       const product: RecommendationEvidenceProduct = {
         sku: "TEST-SKU",
-        title: "Product Title",
-      };
+        title: "Product Title" };
 
       const result = productToSelection(product);
 
@@ -117,8 +103,7 @@ describe("productToSelection", () => {
 
     it("should fall back to SKU when neither name nor title is present", () => {
       const product: RecommendationEvidenceProduct = {
-        sku: "TEST-SKU",
-      };
+        sku: "TEST-SKU" };
 
       const result = productToSelection(product);
 
@@ -132,8 +117,7 @@ describe("productToSelection", () => {
         sku: "TEST-SKU",
         name: "",
         title: "",
-        summary: "",
-      };
+        summary: "" };
 
       const result = productToSelection(product);
 
@@ -145,8 +129,7 @@ describe("productToSelection", () => {
       const product: RecommendationEvidenceProduct = {
         sku: "  TEST-SKU  ",
         name: "   ",
-        title: "Valid Title",
-      };
+        title: "Valid Title" };
 
       const result = productToSelection(product);
 
@@ -159,8 +142,7 @@ describe("productToSelection", () => {
         sku: "TEST-SKU",
         family: undefined,
         category: undefined,
-        tags: undefined,
-      };
+        tags: undefined };
 
       const result = productToSelection(product);
 
@@ -180,8 +162,7 @@ describe("productToSelection", () => {
         addedAt: "2024-01-01T00:00:00Z",
         source: "Project Store",
         evidence: ["Supports 8 sources"],
-        cautions: ["Requires external power"],
-      };
+        cautions: ["Requires external power"] };
 
       const result = productToSelection(storedSelection);
 
@@ -198,8 +179,7 @@ describe("buildRecommendationEvidence", () => {
   describe("Basic evidence building", () => {
     it("should build evidence for minimal input", () => {
       const input: RecommendationEvidenceInput = {
-        source: "Test",
-      };
+        source: "Test" };
 
       const result = buildRecommendationEvidence(input);
 
@@ -219,9 +199,7 @@ describe("buildRecommendationEvidence", () => {
           sku: "NHD-500-TX",
           title: "NetworkHD 500 Transmitter",
           family: "NetworkHD 500",
-          category: "AV-over-IP",
-        },
-      };
+          category: "AV-over-IP" } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -235,9 +213,7 @@ describe("buildRecommendationEvidence", () => {
         source: "Test",
         product: {
           sku: "NHD-500-TX",
-          family: "NetworkHD 500",
-        },
-      };
+          family: "NetworkHD 500" } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -257,10 +233,7 @@ describe("buildRecommendationEvidence", () => {
             customerWording: "Need a 4K video distribution system",
             roomType: "Boardroom",
             sourceCount: "4",
-            displayCount: "8",
-          },
-        },
-      };
+            displayCount: "8" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -276,10 +249,7 @@ describe("buildRecommendationEvidence", () => {
             sourceCount: "2",
             displayCount: "1",
             usbTransport: "Required",
-            networkAvailability: "Managed network available",
-          },
-        },
-      };
+            networkAvailability: "Managed network available" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -293,13 +263,9 @@ describe("buildRecommendationEvidence", () => {
           inference: {
             summary: "Small meeting room with presentation switching needs",
             architecture: "Presentation Switcher",
-            missing: ["Display resolution requirement"],
-          },
+            missing: ["Display resolution requirement"] },
           roomModel: {
-            outcome: "Simple presentation switching",
-          },
-        },
-      };
+            outcome: "Simple presentation switching" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -325,11 +291,7 @@ describe("buildRecommendationEvidence", () => {
             roomModel: {
               customerWording: "Campus-wide video distribution",
               sourceCount: "20",
-              displayCount: "100",
-            },
-          },
-        },
-      };
+              displayCount: "100" } } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -347,9 +309,7 @@ describe("buildRecommendationEvidence", () => {
           wyrestormSku: "NHD-500-TX",
           matchScore: 85,
           evidence: ["Similar 4K60 encoding capability"],
-          warnings: ["Check USB support differences"],
-        },
-      };
+          warnings: ["Check USB support differences"] } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -360,9 +320,7 @@ describe("buildRecommendationEvidence", () => {
       const input: RecommendationEvidenceInput = {
         source: "Compare",
         compare: {
-          competitorSku: "COMPETITOR-SKU",
-        },
-      };
+          competitorSku: "COMPETITOR-SKU" } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -376,12 +334,9 @@ describe("buildRecommendationEvidence", () => {
       const input: RecommendationEvidenceInput = {
         source: "Compare",
         compare: {
-          matchScore: 75,
-        },
+          matchScore: 75 },
         product: {
-          sku: "NHD-500-TX",
-        },
-      };
+          sku: "NHD-500-TX" } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -399,10 +354,7 @@ describe("buildRecommendationEvidence", () => {
         discoveryBrief: {
           roomModel: {
             customerWording: "Need a 2x2 video wall for the lobby",
-            videoWallRequirement: "2x2 LCD wall",
-          },
-        },
-      };
+            videoWallRequirement: "2x2 LCD wall" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -414,14 +366,10 @@ describe("buildRecommendationEvidence", () => {
         source: "Test",
         product: {
           sku: "NHD-500-TX",
-          family: "NetworkHD 500",
-        },
+          family: "NetworkHD 500" },
         discoveryBrief: {
           inference: {
-            architecture: "AV over IP",
-          },
-        },
-      };
+            architecture: "AV over IP" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -434,10 +382,7 @@ describe("buildRecommendationEvidence", () => {
         discoveryBrief: {
           roomModel: {
             customerWording: "Teams meeting room with BYOD support",
-            usbTransport: "Required",
-          },
-        },
-      };
+            usbTransport: "Required" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -449,10 +394,7 @@ describe("buildRecommendationEvidence", () => {
         source: "Test",
         discoveryBrief: {
           roomModel: {
-            applicationType: "Sports bar multi-zone",
-          },
-        },
-      };
+            applicationType: "Sports bar multi-zone" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -471,10 +413,7 @@ describe("buildRecommendationEvidence", () => {
         discoveryBrief: {
           roomModel: {
             sourceCount: "unknown",
-            displayCount: "4",
-          },
-        },
-      };
+            displayCount: "4" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -490,10 +429,7 @@ describe("buildRecommendationEvidence", () => {
         discoveryBrief: {
           roomModel: {
             sourceCount: "2",
-            displayCount: "not confirmed",
-          },
-        },
-      };
+            displayCount: "not confirmed" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -509,10 +445,7 @@ describe("buildRecommendationEvidence", () => {
         discoveryBrief: {
           roomModel: {
             customerWording: "Teams meeting room setup",
-            usbTransport: "not sure",
-          },
-        },
-      };
+            usbTransport: "not sure" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -526,15 +459,11 @@ describe("buildRecommendationEvidence", () => {
       const input: RecommendationEvidenceInput = {
         source: "Test",
         product: {
-          sku: "NHD-500-TX",
-        },
+          sku: "NHD-500-TX" },
         discoveryBrief: {
           roomModel: {
             customerWording: "NetworkHD AV-over-IP installation",
-            networkAvailability: "unknown",
-          },
-        },
-      };
+            networkAvailability: "unknown" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -548,9 +477,7 @@ describe("buildRecommendationEvidence", () => {
       const input: RecommendationEvidenceInput = {
         source: "Test",
         discoveryBrief: {
-          missingInformation: ["Customer budget", "Installation timeline"],
-        },
-      };
+          missingInformation: ["Customer budget", "Installation timeline"] } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -563,8 +490,7 @@ describe("buildRecommendationEvidence", () => {
     it("should return do-not-quote-yet when no product selected", () => {
       const input: RecommendationEvidenceInput = {
         source: "Test",
-        product: undefined,
-      };
+        product: undefined };
 
       const result = buildRecommendationEvidence(input);
 
@@ -585,10 +511,7 @@ describe("buildRecommendationEvidence", () => {
           roomModel: {
             sourceCount: "unknown",
             displayCount: "unknown",
-            distanceInfrastructureNotes: "unknown",
-          },
-        },
-      };
+            distanceInfrastructureNotes: "unknown" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -607,10 +530,7 @@ describe("buildRecommendationEvidence", () => {
             sourceCount: "2",
             displayCount: "4",
             resolutionRequirement: "4K60",
-            distanceInfrastructureNotes: "50m",
-          },
-        },
-      };
+            distanceInfrastructureNotes: "50m" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -622,17 +542,13 @@ describe("buildRecommendationEvidence", () => {
         source: "Test",
         product: {
           sku: "FALLBACK-SKU",
-          isFallback: true,
-        },
+          isFallback: true },
         discoveryBrief: {
           roomModel: {
             sourceCount: "2",
             displayCount: "4",
             resolutionRequirement: "4K60",
-            distanceInfrastructureNotes: "50m",
-          },
-        },
-      };
+            distanceInfrastructureNotes: "50m" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -644,8 +560,7 @@ describe("buildRecommendationEvidence", () => {
     it("should return low confidence when quote status is do-not-quote-yet", () => {
       const input: RecommendationEvidenceInput = {
         source: "Test",
-        product: undefined,
-      };
+        product: undefined };
 
       const result = buildRecommendationEvidence(input);
 
@@ -661,10 +576,7 @@ describe("buildRecommendationEvidence", () => {
           roomModel: {
             sourceCount: "2",
             displayCount: "4",
-            resolutionRequirement: "4K60",
-          },
-        },
-      };
+            resolutionRequirement: "4K60" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -683,10 +595,7 @@ describe("buildRecommendationEvidence", () => {
             sourceCount: "2",
             displayCount: "4",
             resolutionRequirement: "4K60",
-            distanceInfrastructureNotes: "50m",
-          },
-        },
-      };
+            distanceInfrastructureNotes: "50m" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -701,10 +610,7 @@ describe("buildRecommendationEvidence", () => {
         product: undefined,
         discoveryBrief: {
           roomModel: {
-            sourceCount: "unknown",
-          },
-        },
-      };
+            sourceCount: "unknown" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -718,9 +624,7 @@ describe("buildRecommendationEvidence", () => {
         source: "Test",
         product: {
           sku: "NHD-500-TX",
-          family: "NetworkHD 500",
-        },
-      };
+          family: "NetworkHD 500" } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -735,10 +639,7 @@ describe("buildRecommendationEvidence", () => {
         source: "Test",
         discoveryBrief: {
           roomModel: {
-            customerWording: "Teams meeting room with camera",
-          },
-        },
-      };
+            customerWording: "Teams meeting room with camera" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -753,10 +654,7 @@ describe("buildRecommendationEvidence", () => {
         source: "Test",
         discoveryBrief: {
           roomModel: {
-            videoWallRequirement: "2x2 video wall",
-          },
-        },
-      };
+            videoWallRequirement: "2x2 video wall" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -776,9 +674,7 @@ describe("buildRecommendationEvidence", () => {
         source: "Test",
         product: {
           sku: "NHD-120-TX",
-          family: "NetworkHD 100",
-        },
-      };
+          family: "NetworkHD 100" } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -793,10 +689,7 @@ describe("buildRecommendationEvidence", () => {
         source: "Test",
         discoveryBrief: {
           roomModel: {
-            videoWallRequirement: "LCD video wall",
-          },
-        },
-      };
+            videoWallRequirement: "LCD video wall" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -811,10 +704,7 @@ describe("buildRecommendationEvidence", () => {
         source: "Test",
         discoveryBrief: {
           roomModel: {
-            applicationType: "Sports bar with multiple TVs",
-          },
-        },
-      };
+            applicationType: "Sports bar with multiple TVs" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -830,8 +720,7 @@ describe("buildRecommendationEvidence", () => {
     it("should always include datasheet validation reminder", () => {
       const input: RecommendationEvidenceInput = {
         source: "Test",
-        product: { sku: "ANY-SKU" },
-      };
+        product: { sku: "ANY-SKU" } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -846,9 +735,7 @@ describe("buildRecommendationEvidence", () => {
         source: "Test",
         product: {
           sku: "NHD-500-TX",
-          family: "NetworkHD",
-        },
-      };
+          family: "NetworkHD" } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -863,10 +750,7 @@ describe("buildRecommendationEvidence", () => {
         source: "Test",
         discoveryBrief: {
           roomModel: {
-            videoWallRequirement: "Video wall needed",
-          },
-        },
-      };
+            videoWallRequirement: "Video wall needed" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -883,9 +767,7 @@ describe("buildRecommendationEvidence", () => {
         source: "Test",
         product: {
           sku: "NHD-500-TX",
-          title: "NetworkHD 500 Transmitter",
-        },
-      };
+          title: "NetworkHD 500 Transmitter" } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -899,8 +781,7 @@ describe("buildRecommendationEvidence", () => {
     it("should always include room requirement basis statement", () => {
       const input: RecommendationEvidenceInput = {
         source: "Test",
-        product: { sku: "TEST-SKU" },
-      };
+        product: { sku: "TEST-SKU" } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -915,8 +796,7 @@ describe("buildRecommendationEvidence", () => {
     it("should include escalation guidance for do-not-quote status", () => {
       const input: RecommendationEvidenceInput = {
         source: "Test",
-        product: undefined,
-      };
+        product: undefined };
 
       const result = buildRecommendationEvidence(input);
 
@@ -933,9 +813,7 @@ describe("buildRecommendationEvidence", () => {
         source: "Test",
         product: { sku: "NHD-500-TX" },
         compare: {
-          competitorSku: "COMPETITOR-SKU",
-        },
-      };
+          competitorSku: "COMPETITOR-SKU" } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -951,9 +829,7 @@ describe("buildRecommendationEvidence", () => {
       const input: RecommendationEvidenceInput = {
         source: "Test",
         discoveryBrief: {
-          nextBestQuestion: "What is the display resolution requirement?",
-        },
-      };
+          nextBestQuestion: "What is the display resolution requirement?" } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -965,10 +841,7 @@ describe("buildRecommendationEvidence", () => {
         source: "Test",
         discoveryBrief: {
           roomModel: {
-            sourceCount: "unknown",
-          },
-        },
-      };
+            sourceCount: "unknown" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -985,10 +858,7 @@ describe("buildRecommendationEvidence", () => {
             sourceCount: "2",
             displayCount: "4",
             resolutionRequirement: "4K60",
-            distanceInfrastructureNotes: "30m Cat6",
-          },
-        },
-      };
+            distanceInfrastructureNotes: "30m Cat6" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -1003,10 +873,7 @@ describe("buildRecommendationEvidence", () => {
         source: "Test",
         discoveryBrief: {
           roomModel: {
-            sourceCount: "unknown",
-          },
-        },
-      };
+            sourceCount: "unknown" } } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -1019,8 +886,7 @@ describe("buildRecommendationEvidence", () => {
     it("should include standard validation reminder", () => {
       const input: RecommendationEvidenceInput = {
         source: "Test",
-        product: { sku: "TEST-SKU" },
-      };
+        product: { sku: "TEST-SKU" } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -1038,9 +904,7 @@ describe("buildRecommendationEvidence", () => {
         source: "Test",
         product: {
           sku: "NHD-500-TX",
-          summary: "NetworkHD AV over IP encoder",
-        },
-      };
+          summary: "NetworkHD AV over IP encoder" } };
 
       const result = buildRecommendationEvidence(input);
 
@@ -1059,13 +923,10 @@ describe("buildDiscoveryRecommendationEvidence", () => {
         customerWording: "Corporate boardroom AV upgrade",
         roomType: "Boardroom",
         sourceCount: "4",
-        displayCount: "2",
-      },
+        displayCount: "2" },
       inference: {
         summary: "Large meeting room with multiple source switching",
-        architecture: "Matrix or presentation switcher",
-      },
-    };
+        architecture: "Matrix or presentation switcher" } };
 
     const result = buildDiscoveryRecommendationEvidence(brief);
 
@@ -1088,9 +949,7 @@ describe("buildDiscoveryRecommendationEvidence", () => {
     const brief: StoredDiscoveryBrief = {
       missingInformation: ["Budget range", "Timeline"],
       roomModel: {
-        sourceCount: "unknown",
-      },
-    };
+        sourceCount: "unknown" } };
 
     const result = buildDiscoveryRecommendationEvidence(brief);
 
@@ -1102,8 +961,7 @@ describe("buildDiscoveryRecommendationEvidence", () => {
 describe("Return type structure validation", () => {
   it("should always return StoredRecommendationEvidence shape", () => {
     const input: RecommendationEvidenceInput = {
-      source: "Test",
-    };
+      source: "Test" };
 
     const result = buildRecommendationEvidence(input);
 
@@ -1129,8 +987,7 @@ describe("Return type structure validation", () => {
 
   it("should have array types for list properties", () => {
     const input: RecommendationEvidenceInput = {
-      source: "Test",
-    };
+      source: "Test" };
 
     const result = buildRecommendationEvidence(input);
 
@@ -1147,8 +1004,7 @@ describe("Return type structure validation", () => {
 
   it("should have valid enum values for status and confidence", () => {
     const input: RecommendationEvidenceInput = {
-      source: "Test",
-    };
+      source: "Test" };
 
     const result = buildRecommendationEvidence(input);
 
@@ -1160,8 +1016,7 @@ describe("Return type structure validation", () => {
 
   it("should have ISO date string for updatedAt", () => {
     const input: RecommendationEvidenceInput = {
-      source: "Test",
-    };
+      source: "Test" };
 
     const result = buildRecommendationEvidence(input);
 
@@ -1179,9 +1034,7 @@ describe("Data deduplication and uniqueness", () => {
         roomModel: {
           customerWording: "Same customer wording",
           notes: "Same customer wording", // Duplicate content
-        },
-      },
-    };
+        } } };
 
     const result = buildRecommendationEvidence(input);
 
@@ -1196,10 +1049,7 @@ describe("Data deduplication and uniqueness", () => {
       discoveryBrief: {
         missingInformation: ["Source count", "Source count"],
         inference: {
-          missing: ["Source count"],
-        },
-      },
-    };
+          missing: ["Source count"] } } };
 
     const result = buildRecommendationEvidence(input);
 
@@ -1218,10 +1068,7 @@ describe("Data deduplication and uniqueness", () => {
       discoveryBrief: {
         roomModel: {
           customerWording: "",
-          notes: "",
-        },
-      },
-    };
+          notes: "" } } };
 
     const result = buildRecommendationEvidence(input);
 
@@ -1248,8 +1095,7 @@ describe("Edge cases and error handling", () => {
   it("should handle null product gracefully", () => {
     const input: RecommendationEvidenceInput = {
       source: "Test",
-      product: null,
-    };
+      product: null };
 
     const result = buildRecommendationEvidence(input);
 
@@ -1260,8 +1106,7 @@ describe("Edge cases and error handling", () => {
   it("should handle null discovery brief gracefully", () => {
     const input: RecommendationEvidenceInput = {
       source: "Test",
-      discoveryBrief: null,
-    };
+      discoveryBrief: null };
 
     const result = buildRecommendationEvidence(input);
 
@@ -1272,8 +1117,7 @@ describe("Edge cases and error handling", () => {
   it("should handle null compare gracefully", () => {
     const input: RecommendationEvidenceInput = {
       source: "Test",
-      compare: null,
-    };
+      compare: null };
 
     const result = buildRecommendationEvidence(input);
 
@@ -1288,8 +1132,7 @@ describe("Edge cases and error handling", () => {
       discoveryBrief: null,
       product: null,
       compare: null,
-      query: undefined,
-    };
+      query: undefined };
 
     const result = buildRecommendationEvidence(input);
 
@@ -1304,10 +1147,7 @@ describe("Edge cases and error handling", () => {
       query: "Special chars: <>&\"'`${}[]",
       discoveryBrief: {
         roomModel: {
-          customerWording: "Unicode: éàü 中文",
-        },
-      },
-    };
+          customerWording: "Unicode: éàü 中文" } } };
 
     const result = buildRecommendationEvidence(input);
 
@@ -1322,10 +1162,7 @@ describe("Edge cases and error handling", () => {
       query: longString,
       discoveryBrief: {
         roomModel: {
-          customerWording: longString,
-        },
-      },
-    };
+          customerWording: longString } } };
 
     const result = buildRecommendationEvidence(input);
 
@@ -1339,10 +1176,7 @@ describe("Edge cases and error handling", () => {
         roomModel: {
           sourceCount: "0",
           displayCount: "-1",
-          longestRun: "100.5m",
-        },
-      },
-    };
+          longestRun: "100.5m" } } };
 
     const result = buildRecommendationEvidence(input);
 
@@ -1355,8 +1189,7 @@ describe("Query-based evidence", () => {
   it("should include query in requirement detection", () => {
     const input: RecommendationEvidenceInput = {
       source: "Test",
-      query: "I need a video wall solution for our lobby",
-    };
+      query: "I need a video wall solution for our lobby" };
 
     const result = buildRecommendationEvidence(input);
 
@@ -1366,8 +1199,7 @@ describe("Query-based evidence", () => {
   it("should detect meeting room patterns from query", () => {
     const input: RecommendationEvidenceInput = {
       source: "Test",
-      query: "Teams meeting room with BYOD capabilities",
-    };
+      query: "Teams meeting room with BYOD capabilities" };
 
     const result = buildRecommendationEvidence(input);
 
@@ -1377,11 +1209,31 @@ describe("Query-based evidence", () => {
   it("should detect AV-over-IP patterns from query", () => {
     const input: RecommendationEvidenceInput = {
       source: "Test",
-      query: "NetworkHD 500 system for campus distribution",
-    };
+      query: "NetworkHD 500 system for campus distribution" };
 
     const result = buildRecommendationEvidence(input);
 
     expect(result.systemShape.toLowerCase()).toContain("networkhd");
   });
 });
+
+describe("Structured product-family score evidence", () => {
+  it("should include structured product-family scores", () => {
+    const evidence = buildRecommendationEvidence({
+      source: "test",
+      product: {
+        sku: "APO-VX20-UC",
+        name: "APO-VX20-UC",
+        family: "Presentation / UC",
+      },
+      query: "Meeting room with USB-C BYOM camera and speakerphone",
+    });
+
+    expect(Array.isArray(evidence.productFamilyScores)).toBe(true);
+    expect(evidence.productFamilyScores?.[0]).toHaveProperty("family");
+    expect(evidence.productFamilyScores?.[0]).toHaveProperty("score");
+    expect(evidence.productFamilyScores?.[0]).toHaveProperty("reasons");
+    expect(evidence.productFamilyScores?.[0]).toHaveProperty("cautions");
+  });
+});
+

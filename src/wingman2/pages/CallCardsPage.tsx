@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { SalesWorkflowBridge } from "../components/SalesWorkflowBridge";
 import { SUPPORTED_WINGMAN_LANGUAGES, getStoredWingmanCaptureLanguage, setStoredWingmanCaptureLanguage, type WingmanLanguageId, useWingmanLanguage } from "../data/wingmanLanguage";
 
 type ConversationTypeId = "displayAttach" | "meetingRoom" | "productSku" | "competitor" | "supportRisk";
@@ -552,6 +553,8 @@ export function CallCardsPage() {
             <button type="button" onClick={startNewCall}>New call</button>
           </div>
         </header>
+
+        <SalesWorkflowBridge variant="callCards" />
 
         <section className="cca-commandBar">
           <div className="cca-typeStrip" aria-label="Conversation type">

@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { routeCatalogByKey } from "../app/routeCatalog";
+import { saveDiscoveryBriefToProject, type StoredDiscoveryBrief } from "../data/projectStore";
 
 type DiscoveryOption = {
   value: string;
@@ -73,7 +76,7 @@ function getDiscoverySpeechRecognition(): DiscoverySpeechRecognitionConstructor 
 // wingman:use-call-notes-in-discovery
 const callNotesStorageKey = "wingman:use-call-notes-in-discovery";
 
-const workflowIntegrationMarkerCompatibility = "Live call mode | Current model | View full model";
+const _workflowIntegrationMarkerCompatibility = "Live call mode | Current model | View full model";
 
 const discoveryAuditMarkers = [
   "Discovery trail",
@@ -558,6 +561,8 @@ export function DiscoveryPage() {
   const [isListening, setIsListening] = useState(false);
   const [micSupported, setMicSupported] = useState(false);
   const [micError, setMicError] = useState("");
+  const [savedMessage, setSavedMessage] = useState("");
+  const navigate = useNavigate();
 
   const recogniserRef = useRef<DiscoverySpeechRecognitionLike | null>(null);
   const activeStepIdRef = useRef(discoveryQuestions[0]?.id ?? "");
@@ -639,6 +644,45 @@ export function DiscoveryPage() {
     window.sessionStorage.removeItem(callNotesStorageKey);
   }, []);
 
+  useEffect(() => {
+    // Video Wall builder handoff: "Send to Discovery" seeds the wall design here.
+    const useVideoWall = window.sessionStorage.getItem("wingman:use-video-wall-in-discovery");
+    const videoWallRaw = window.sessionStorage.getItem("wingman:video-wall-discovery");
+    if (useVideoWall === "1" && videoWallRaw) {
+      try {
+        const payload = JSON.parse(videoWallRaw) as { wallType?: string; recommendation?: { products?: unknown[] } };
+        const wallType = String(payload.wallType ?? "video wall").trim() || "video wall";
+        const products = Array.isArray(payload.recommendation?.products)
+          ? payload.recommendation.products.map((item) => String(item)).filter(Boolean).join(", ")
+          : "";
+        const note = `Video wall design from the builder: ${wallType}${products ? `. Suggested: ${products}` : ""}.`;
+        setAnswers((current) => ({ ...current, opportunity: current.opportunity || "video-wall" }));
+        setNotes((current) => ({ ...current, opportunity: current.opportunity ? current.opportunity : note }));
+      } catch {
+        // Ignore malformed handoff payloads.
+      }
+      window.sessionStorage.removeItem("wingman:use-video-wall-in-discovery");
+    }
+
+    // Product call-card "start room builder" handoff: seed discovery with the chosen product.
+    const seedRaw = window.sessionStorage.getItem("wingman.roomBuilderSeedProduct");
+    if (seedRaw) {
+      try {
+        const seed = JSON.parse(seedRaw) as { sku?: string; name?: string };
+        const label = [seed.sku, seed.name].map((item) => String(item ?? "").trim()).filter(Boolean).join(" — ");
+        if (label) {
+          setNotes((current) => ({
+            ...current,
+            sources: current.sources ? current.sources : `Customer is interested in ${label}.`,
+          }));
+        }
+      } catch {
+        // Ignore malformed handoff payloads.
+      }
+      window.sessionStorage.removeItem("wingman.roomBuilderSeedProduct");
+    }
+  }, []);
+
   function movePrevious(): void {
     setActiveIndex((index) => Math.max(0, index - 1));
   }
@@ -693,6 +737,58 @@ export function DiscoveryPage() {
     setAnswers({});
     setNotes({});
     setActiveIndex(0);
+    setSavedMessage("");
+  }
+
+  function buildDiscoveryBrief(): StoredDiscoveryBrief {
+    const answerLabel = (stepId: string): string => {
+      const step = discoveryQuestions.find((candidate) => candidate.id === stepId);
+      return step && answers[stepId] ? getOptionLabel(step, answers[stepId]) : "";
+    };
+    const application = answerLabel("opportunity") || answers.opportunity || "Discovery";
+    const allNotes = Object.values(notes).map((note) => note.trim()).filter(Boolean);
+    const summaryText = capturedSummary
+      .map((item) => `${item.label}: ${item.answer}${item.note ? ` — ${item.note}` : ""}`)
+      .join("\n");
+    const strategy = getQuestionStrategy("opportunity", answers.opportunity ?? "");
+
+    return {
+      savedAt: new Date().toISOString(),
+      roomModel: {
+        roomType: application,
+        application,
+        outcome: notes.opportunity?.trim() || application,
+        customerWording: notes.opportunity?.trim() || allNotes[0] || "",
+        scale: answerLabel("scale"),
+        devices: [answerLabel("sources")].filter(Boolean),
+        displayBehaviour: answerLabel("displays"),
+        usbOwnership: answerLabel("usb"),
+        audioPath: answerLabel("audio"),
+        controlNeeds: [answerLabel("control")].filter(Boolean),
+        cableRun: answerLabel("infrastructure"),
+        network: answerLabel("infrastructure"),
+        notes: allNotes.join(" | "),
+        summary: summaryText,
+      },
+      inference: {
+        summary: summaryText,
+        architecture: strategy.likelyDirection,
+        nextBestQuestion: strategy.askNext,
+      },
+      capturedPercent: completionPercent,
+      returnRoute: routeCatalogByKey.discovery.path,
+      nextBestQuestion: strategy.askNext,
+    };
+  }
+
+  function saveDiscoveryToProject(): void {
+    saveDiscoveryBriefToProject(buildDiscoveryBrief());
+    setSavedMessage("Discovery saved to your project. Continue to product selection or a proposal when ready.");
+  }
+
+  function moveForward(target: "finder" | "proposal"): void {
+    saveDiscoveryBriefToProject(buildDiscoveryBrief());
+    navigate(target === "proposal" ? routeCatalogByKey.proposal.path : routeCatalogByKey.finder.path);
   }
 
   function toggleMicrophone(): void {
@@ -938,6 +1034,21 @@ export function DiscoveryPage() {
               </article>
             ))}
           </div>
+        </section>
+      )}
+
+      {capturedSummary.length > 0 && (
+        <section className="wm-discovery-summary-card">
+          <div className="wm-discovery-summary-heading">
+            <span>Next step</span>
+            <p>Carry this discovery into product selection or a proposal. The captured brief saves to your project, so the next step picks it up.</p>
+          </div>
+          <div className="wm-discovery-capture-actions">
+            <button type="button" onClick={() => moveForward("finder")}>Find matching products</button>
+            <button type="button" onClick={() => moveForward("proposal")}>Build proposal</button>
+            <button type="button" onClick={saveDiscoveryToProject}>Save to project</button>
+          </div>
+          {savedMessage && <p className="wm-discovery-muted-note">{savedMessage}</p>}
         </section>
       )}
     </main>

@@ -17,6 +17,7 @@ import { exportBomCsv, exportProposalHtml } from "../lib/proposalExport";
 import { buildSalesReadinessPackage, type SalesBomRow, type SalesBomType } from "../lib/salesReadiness";
 import { getStoredWingmanProfile } from "../data/wingmanProfile";
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
+import { rankProductsByFamilyScores } from "../lib/productFamilyShortlistRanking";
 
 const feedbackActions: Array<{
   rating: "accepted" | "needs-review" | "missing-accessory" | "wrong-fit";
@@ -135,6 +136,16 @@ export function ProposalPage() {
     };
   }, []);
 
+  const productFamilyScores = useMemo(
+    () => context.recommendationEvidence?.productFamilyScores ?? [],
+    [context.recommendationEvidence?.productFamilyScores],
+  );
+  const leadingProductFamilyScore = productFamilyScores[0] ?? null;
+  const rankedProducts = useMemo(
+    () => rankProductsByFamilyScores(context.products, productFamilyScores),
+    [context.products, productFamilyScores],
+  );
+
   const sections = useMemo(
     () => [
       "Cover",
@@ -143,22 +154,22 @@ export function ProposalPage() {
       "Discovered Requirements",
       "Recommended Solution",
       "Visual Support",
-      context.products.length ? "Product Shortlist" : "Product Gaps",
+      rankedProducts.length ? "Product Shortlist" : "Product Gaps",
       "Assumptions",
       "Contact",
     ],
-    [context.products.length],
+    [rankedProducts],
   );
   const salesReadiness = useMemo(
     () =>
       buildSalesReadinessPackage({
-        products: context.products,
+        products: rankedProducts,
         discovery: context.discovery,
         assumptions: context.assumptions,
         ingest: context.ingest,
         compareRun: context.compareRun,
       }),
-    [context.assumptions, context.compareRun, context.discovery, context.ingest, context.products],
+    [context.assumptions, context.compareRun, context.discovery, context.ingest, rankedProducts],
   );
   const bomRows = useMemo<SalesBomRow[]>(() => {
     if (context.project?.stage === "Templates" && context.project.proposal?.bomRows?.length) {
@@ -191,7 +202,7 @@ export function ProposalPage() {
       }),
     [bomRows, context.assumptions, context.compareRun, context.discovery, context.products, salesReadiness.readinessScore],
   );
-  const hasCoreProducts = context.products.length > 0;
+  const hasCoreProducts = rankedProducts.length > 0;
   const readinessLabel = !hasCoreProducts
     ? "Not proposal ready"
     : salesReadiness.reviewRequired
@@ -208,7 +219,8 @@ export function ProposalPage() {
       title: context.discovery.projectTitle,
       summary: context.discovery.summary,
       sections,
-      products: context.products,
+      products: rankedProducts,
+      productFamilyScores,
       assumptions: context.assumptions,
       outputPurpose: salesReadiness.outputPurpose,
       governedDependencies: salesReadiness.governedDependencies,
@@ -237,7 +249,7 @@ export function ProposalPage() {
       contactPhone: context.profile.phone,
       updatedAt: new Date().toISOString(),
     }),
-    [bomRows, context.assumptions, context.discovery.projectTitle, context.discovery.summary, context.products, context.profile, context.recommendationEvidence, proposalCoach, salesReadiness, sections],
+    [bomRows, context.assumptions, context.discovery.projectTitle, context.discovery.summary, rankedProducts, context.profile, context.recommendationEvidence, productFamilyScores, proposalCoach, salesReadiness, sections],
   );
 
   useEffect(() => {
@@ -465,10 +477,38 @@ export function ProposalPage() {
               <div>
                 <p className="wingman-kicker">Recommended core products</p>
                 <p className="mt-2 text-sm leading-7 text-white/70">
-                  {context.products.length
-                    ? context.products.map((product) => `${product.sku} - ${product.title || product.family || product.category || "Selected product"}`).join("; ")
+                  {rankedProducts.length
+                    ? rankedProducts.map((product) => `${product.sku} - ${product.title || product.family || product.category || "Selected product"}`).join("; ")
                     : "No WyreStorm product has been selected yet. Open Product Finder, choose the core product path, and add it to this project before exporting a customer proposal."}
                 </p>
+              </div>
+
+              <div className="lg:col-span-2">
+                <div className="rounded-2xl border border-cyan-200 bg-[#10263a] p-4 text-cyan-950">
+                  <p className="wingman-kicker">Proposal product-family decision</p>
+                  {leadingProductFamilyScore ? (
+                    <div className="mt-2 grid gap-4 lg:grid-cols-[220px_1fr]">
+                      <div>
+                        <p className="text-2xl font-black">{leadingProductFamilyScore.family}</p>
+                        <p className="mt-2 text-sm font-semibold">{leadingProductFamilyScore.score}/100 family confidence before SKU selection</p>
+                      </div>
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div className="rounded-2xl border border-cyan-200 bg-[#0d2133] p-3 text-sm leading-6 text-white/70">
+                          <p className="font-black text-white">Why this route fits</p>
+                          <p className="mt-2">{leadingProductFamilyScore.reasons[0] || "Family path selected from recommendation evidence."}</p>
+                        </div>
+                        <div className="rounded-2xl border border-amber-200 bg-[#0d2133] p-3 text-sm leading-6 text-white/70">
+                          <p className="font-black text-white">Validation before proposal issue</p>
+                          <p className="mt-2">{leadingProductFamilyScore.cautions[0] || "Validate datasheet, dependencies, firmware, lifecycle, regional suitability and accessories before customer issue."}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-sm leading-6 text-white/70">
+                      No product-family decision has been stored yet. Rebuild recommendation evidence from Discovery or Finder before issuing a final proposal.
+                    </p>
+                  )}
+                </div>
               </div>
               <details className="wm-decision-details lg:col-span-2">
                 <summary>Dependency governance</summary>
