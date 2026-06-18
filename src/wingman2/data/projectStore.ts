@@ -433,6 +433,25 @@ function normalizeEvidenceConfidence(value: unknown): StoredRecommendationEviden
   return "low";
 }
 
+function normalizeProductFamilyScores(value: unknown): StoredProductFamilyScore[] {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .map((item): StoredProductFamilyScore | null => {
+      const record = objectRecord(item);
+      const family = stringValue(record?.family);
+      if (!record || !family) return null;
+
+      return {
+        family: family as StoredProductFamilyScore["family"],
+        score: Number.isFinite(Number(record.score)) ? Number(record.score) : 0,
+        reasons: stringArray(record.reasons),
+        cautions: stringArray(record.cautions),
+      };
+    })
+    .filter((item): item is StoredProductFamilyScore => Boolean(item));
+}
+
 function normalizeRecommendationEvidence(value: unknown): StoredRecommendationEvidence | undefined {
   const record = objectRecord(value);
   if (!record) return undefined;
@@ -450,6 +469,7 @@ function normalizeRecommendationEvidence(value: unknown): StoredRecommendationEv
     systemShape: systemShape || "System shape not confirmed.",
     whyThisFits: stringArray(record.whyThisFits),
     evidenceUsed: stringArray(record.evidenceUsed),
+    productFamilyScores: normalizeProductFamilyScores(record.productFamilyScores),
     quoteChecks: stringArray(record.quoteChecks),
     missingInformation: stringArray(record.missingInformation),
     requiredDependencies: stringArray(record.requiredDependencies),
@@ -535,6 +555,7 @@ function normalizeProjectProposal(value: unknown): StoredProjectProposal | undef
     sections: stringArray(record.sections),
     products: normalizeProductSelections(record.products),
     assumptions: stringArray(record.assumptions),
+    productFamilyScores: normalizeProductFamilyScores(record.productFamilyScores),
     outputPurpose: outputPurpose
       ? {
           motion: stringValue(outputPurpose.motion),
