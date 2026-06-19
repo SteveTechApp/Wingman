@@ -32172,3 +32172,100 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-card:focus-visible {
     min-height: 0 !important;
   }
 }
+
+/* WINGMAN_SALES_HELPER_FULL_TEXT_WIDTH_CARDS_20260619 */
+html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card {
+  display: flex !important;
+  flex-direction: column !important;
+  grid-template-columns: none !important;
+  grid-template-rows: none !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  min-height: 190px !important;
+  padding: 18px 20px !important;
+  text-align: left !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card > *,
+html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-head,
+html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-eyebrow,
+html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-title,
+html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-body,
+html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card .wm-sh-choice-action {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  grid-column: 1 / -1 !important;
+  justify-self: stretch !important;
+  align-self: stretch !important;
+  text-align: left !important;
+}
+
+html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-head {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 7px !important;
+}
+
+html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-eyebrow {
+  color: #8feaff !important;
+  font-size: 0.68rem !important;
+  font-weight: 900 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0.025em !important;
+  text-transform: uppercase !important;
+}
+
+html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-title {
+  color: #ffffff !important;
+  font-size: 1.08rem !important;
+  font-weight: 900 !important;
+  line-height: 1.15 !important;
+  letter-spacing: -0.01em !important;
+}
+
+html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-body {
+  flex: 1 1 auto !important;
+  color: rgba(232, 244, 255, 0.86) !important;
+  font-size: 0.88rem !important;
+  font-weight: 500 !important;
+  line-height: 1.42 !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-action {
+  width: auto !important;
+  align-self: flex-start !important;
+  margin-top: auto !important;
+  color: #65d7f4 !important;
+  font-size: 0.8rem !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+}
+
+html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-action::after {
+  content: " →" !important;
+}
+
+html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
+  grid-template-columns: repeat(2, minmax(360px, 1fr)) !important;
+  gap: 16px !important;
+}
+
+@media (max-width: 1180px) {
+  html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-card-grid > .wm-sh-choice-card {
+    min-height: 0 !important;
+  }
+}
