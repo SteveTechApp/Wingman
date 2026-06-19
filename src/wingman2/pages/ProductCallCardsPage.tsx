@@ -1243,6 +1243,13 @@ return (
     <section className="wm-pcc-select-shell">
       <style>{`
         .wm-pcc-select-shell {
+          --wm-pcc-weight-body: 500;
+          --wm-pcc-weight-ui: 700;
+          --wm-pcc-weight-heading: 800;
+          --wm-pcc-weight-strong: 900;
+          --wm-pcc-tracking-kicker: 0.07em;
+          --wm-pcc-tracking-section: 0.05em;
+          --wm-pcc-tracking-meta: 0.08em;
           height: calc(100vh - 5.4rem);
           min-height: 0;
           display: grid;
@@ -1274,9 +1281,9 @@ return (
           margin: 0;
           color: #67e8f9;
           font-size: 0.63rem;
-          font-weight: 900;
+          font-weight: var(--wm-pcc-weight-ui);
           text-transform: uppercase;
-          letter-spacing: 0.08em;
+          letter-spacing: var(--wm-pcc-tracking-kicker);
         }
 
         .wm-pcc-title {
@@ -1284,13 +1291,14 @@ return (
           color: #ffffff;
           font-size: 1.05rem;
           line-height: 1.05;
-          font-weight: 900;
+          font-weight: var(--wm-pcc-weight-heading);
         }
 
         .wm-pcc-subtitle {
           margin: 0.08rem 0 0;
           color: rgba(226, 242, 255, 0.72);
           font-size: 0.68rem;
+          font-weight: var(--wm-pcc-weight-body);
         }
 
         .wm-pcc-search {
@@ -1350,7 +1358,7 @@ return (
           background: rgba(3, 18, 31, 0.88);
           color: rgba(226, 242, 255, 0.82);
           font-size: 0.52rem;
-          font-weight: 850;
+          font-weight: var(--wm-pcc-weight-heading);
           line-height: 1;
           padding: 0 0.3rem;
           cursor: pointer;
@@ -1383,7 +1391,7 @@ return (
           background: rgba(3, 18, 31, 0.92);
           color: #ffffff;
           font-size: 0.62rem;
-          font-weight: 850;
+          font-weight: var(--wm-pcc-weight-heading);
           cursor: pointer;
         }
 
@@ -1449,7 +1457,7 @@ return (
         .wm-pcc-sku {
           display: block;
           color: #67e8f9;
-          font-weight: 950;
+          font-weight: var(--wm-pcc-weight-heading);
           font-size: 0.78rem;
           line-height: 1.05;
         }
@@ -1458,7 +1466,7 @@ return (
           display: block;
           margin-top: 0.05rem;
           color: rgba(226, 242, 255, 0.62);
-          font-weight: 750;
+          font-weight: var(--wm-pcc-weight-body);
           font-size: 0.6rem;
           line-height: 1.05;
         }
@@ -1519,7 +1527,7 @@ return (
         .wm-pcc-gallery-icon {
           color: #67e8f9;
           font-size: 0.82rem;
-          font-weight: 950;
+          font-weight: var(--wm-pcc-weight-strong);
         }
 
         .wm-pcc-gallery-title {
@@ -1527,7 +1535,7 @@ return (
           color: #ffffff;
           font-size: 0.66rem;
           line-height: 1.05;
-          font-weight: 950;
+          font-weight: var(--wm-pcc-weight-heading);
         }
 
         .wm-pcc-gallery-label {
@@ -1535,7 +1543,7 @@ return (
           color: rgba(226, 242, 255, 0.58);
           font-size: 0.52rem;
           line-height: 1.05;
-          font-weight: 800;
+          font-weight: var(--wm-pcc-weight-heading);
         }
 
         .wm-pcc-visual-studio-button {
@@ -1545,7 +1553,7 @@ return (
           background: rgba(13, 116, 139, 0.22);
           color: #67e8f9;
           font-size: 0.62rem;
-          font-weight: 950;
+          font-weight: var(--wm-pcc-weight-strong);
           cursor: pointer;
           padding: 0.45rem 0.55rem;
         }
@@ -1582,9 +1590,9 @@ return (
           margin: 0;
           color: #67e8f9;
           font-size: 0.62rem;
-          font-weight: 950;
+          font-weight: var(--wm-pcc-weight-ui);
           text-transform: uppercase;
-          letter-spacing: 0.08em;
+          letter-spacing: var(--wm-pcc-tracking-kicker);
         }
 
         .wm-pcc-gallery-modal-title {
@@ -1592,7 +1600,7 @@ return (
           color: #ffffff;
           font-size: 1.1rem;
           line-height: 1.1;
-          font-weight: 950;
+          font-weight: var(--wm-pcc-weight-heading);
         }
 
         .wm-pcc-gallery-modal-close {
@@ -1634,7 +1642,7 @@ return (
           color: #67e8f9;
           font-size: 1.5rem;
           line-height: 1;
-          font-weight: 950;
+          font-weight: var(--wm-pcc-weight-heading);
         }
 
         .wm-pcc-gallery-device-card span {
@@ -1642,7 +1650,7 @@ return (
           margin-top: 0.45rem;
           color: rgba(226, 242, 255, 0.78);
           font-size: 0.82rem;
-          font-weight: 850;
+          font-weight: var(--wm-pcc-weight-heading);
         }
         .wm-pcc-section-tabs {
           display: grid;
@@ -1667,7 +1675,7 @@ return (
           color: #ffffff;
           font-size: 0.58rem;
           line-height: 1;
-          font-weight: 900;
+          font-weight: var(--wm-pcc-weight-strong);
         }
 
         .wm-pcc-section-tab span {
@@ -1676,7 +1684,7 @@ return (
           color: rgba(226, 242, 255, 0.56);
           font-size: 0.48rem;
           line-height: 1;
-          font-weight: 800;
+          font-weight: var(--wm-pcc-weight-heading);
         }
 
         .wm-pcc-section-tab-active {
@@ -1700,15 +1708,16 @@ return (
           margin: 0 0 0.18rem;
           color: #67e8f9;
           font-size: 0.66rem;
-          font-weight: 950;
+          font-weight: var(--wm-pcc-weight-ui);
           text-transform: uppercase;
-          letter-spacing: 0.05em;
+          letter-spacing: var(--wm-pcc-tracking-section);
         }
 
         .wm-pcc-term-lookup-body {
           margin: 0;
           color: rgba(226, 242, 255, 0.88);
           font-size: 0.68rem;
+          font-weight: var(--wm-pcc-weight-body);
           line-height: 1.25;
         }
 
@@ -1738,15 +1747,16 @@ return (
           color: #67e8f9;
           font-size: 0.72rem;
           line-height: 1;
-          font-weight: 950;
+          font-weight: var(--wm-pcc-weight-ui);
           text-transform: uppercase;
-          letter-spacing: 0.06em;
+          letter-spacing: var(--wm-pcc-tracking-section);
         }
 
         .wm-pcc-response-copy {
           margin: 0 0 0.7rem;
           color: rgba(226, 242, 255, 0.9);
           font-size: 0.82rem;
+          font-weight: var(--wm-pcc-weight-body);
           line-height: 1.34;
         }
 
@@ -1755,7 +1765,7 @@ return (
           color: #ffffff;
           font-size: 0.7rem;
           line-height: 1;
-          font-weight: 900;
+          font-weight: var(--wm-pcc-weight-strong);
         }
 
         .wm-pcc-response-list {
@@ -1763,6 +1773,7 @@ return (
           padding-left: 1.1rem;
           color: rgba(226, 242, 255, 0.88);
           font-size: 0.76rem;
+          font-weight: var(--wm-pcc-weight-body);
           line-height: 1.42;
         }
 
@@ -1789,13 +1800,14 @@ return (
           color: #67e8f9;
           font-size: 0.68rem;
           line-height: 1.12;
-          font-weight: 950;
+          font-weight: var(--wm-pcc-weight-heading);
         }
 
         .wm-pcc-example-body {
           margin: 0;
           color: rgba(226, 242, 255, 0.86);
           font-size: 0.68rem;
+          font-weight: var(--wm-pcc-weight-body);
           line-height: 1.32;
         }
 
@@ -1803,16 +1815,16 @@ return (
           margin: 0;
           color: rgba(226, 242, 255, 0.58);
           font-size: 0.62rem;
-          font-weight: 900;
+          font-weight: var(--wm-pcc-weight-strong);
           text-transform: uppercase;
-          letter-spacing: 0.08em;
+          letter-spacing: var(--wm-pcc-tracking-meta);
         }
 
         .wm-pcc-preview-sku {
           margin: 0.05rem 0 0;
           color: #67e8f9;
           font-size: 1.2rem;
-          font-weight: 950;
+          font-weight: var(--wm-pcc-weight-heading);
           line-height: 1.05;
         }
 
@@ -1820,7 +1832,7 @@ return (
           margin: 0.08rem 0 0;
           color: rgba(226, 242, 255, 0.78);
           font-size: 0.66rem;
-          font-weight: 800;
+          font-weight: var(--wm-pcc-weight-heading);
         }
 
         .wm-pcc-preview-scroll {
@@ -1842,13 +1854,14 @@ return (
           margin: 0 0 0.16rem;
           color: #ffffff;
           font-size: 0.66rem;
-          font-weight: 900;
+          font-weight: var(--wm-pcc-weight-heading);
         }
 
         .wm-pcc-body,
         .wm-pcc-list {
           color: rgba(226, 242, 255, 0.82);
           font-size: 0.62rem;
+          font-weight: var(--wm-pcc-weight-body);
           line-height: 1.18;
         }
 
@@ -1863,7 +1876,7 @@ return (
           background: transparent;
           color: #67e8f9;
           font: inherit;
-          font-weight: 800;
+          font-weight: var(--wm-pcc-weight-heading);
           padding: 0;
           margin: 0;
           cursor: help;
@@ -1902,9 +1915,9 @@ return (
           margin: 0;
           color: #67e8f9;
           font-size: 0.62rem;
-          font-weight: 950;
+          font-weight: var(--wm-pcc-weight-strong);
           text-transform: uppercase;
-          letter-spacing: 0.08em;
+          letter-spacing: var(--wm-pcc-tracking-meta);
         }
 
         .wm-pcc-guru-says-title {
@@ -1912,13 +1925,14 @@ return (
           color: #ffffff;
           font-size: 0.9rem;
           line-height: 1.1;
-          font-weight: 950;
+          font-weight: var(--wm-pcc-weight-heading);
         }
 
         .wm-pcc-guru-says-body {
           margin: 0;
           color: rgba(226, 242, 255, 0.88);
           font-size: 0.76rem;
+          font-weight: var(--wm-pcc-weight-body);
           line-height: 1.32;
         }
 
@@ -1966,7 +1980,7 @@ return (
           border: 1px solid rgba(103, 232, 249, 0.55);
           color: #ffffff;
           font-size: 0.66rem;
-          font-weight: 900;
+          font-weight: var(--wm-pcc-weight-strong);
           line-height: 1;
           padding: 0 0.55rem;
           cursor: pointer;
@@ -1984,6 +1998,7 @@ return (
           margin: 0;
           color: rgba(226, 242, 255, 0.62);
           font-size: 0.52rem;
+          font-weight: var(--wm-pcc-weight-body);
           line-height: 1.12;
           text-align: center;
         }

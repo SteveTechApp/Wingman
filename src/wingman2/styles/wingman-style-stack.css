@@ -44,6 +44,12 @@
   --wm-shadow-panel: 0 22px 70px rgba(0, 0, 0, 0.34);
   --wm-shadow-card: 0 18px 44px rgba(15, 23, 42, 0.12);
   --wm-font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --wm-weight-body: 500;
+  --wm-weight-ui: 700;
+  --wm-weight-heading: 800;
+  --wm-weight-strong: 900;
+  --wm-tracking-kicker: 0.08em;
+  --wm-tracking-heading: -0.03em;
 }
 
 * {
@@ -169,8 +175,8 @@ textarea {
   place-items: center;
   border-radius: 16px;
   color: #1b1205;
-  font-weight: 900;
-  letter-spacing: -0.06em;
+  font-weight: var(--wm-weight-strong);
+  letter-spacing: -0.05em;
   background: linear-gradient(180deg, rgba(7, 24, 40, 0.97), rgba(4, 13, 24, 0.97));
   box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
 }
@@ -183,7 +189,7 @@ textarea {
   margin: 0;
   color: var(--wm-text-muted);
   font-size: 0.67rem;
-  font-weight: 800;
+  font-weight: var(--wm-weight-ui);
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
@@ -193,7 +199,8 @@ textarea {
   margin-top: 2px;
   color: var(--wm-text);
   font-size: 1.15rem;
-  letter-spacing: -0.03em;
+  font-weight: var(--wm-weight-heading);
+  letter-spacing: var(--wm-tracking-heading);
 }
 
 .wingman-nav {
@@ -248,8 +255,8 @@ textarea {
 .wingman-nav-copy span {
   overflow: hidden;
   font-size: 0.83rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
+  font-weight: var(--wm-weight-ui);
+  letter-spacing: -0.008em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -272,7 +279,7 @@ textarea {
   margin: 0;
   color: var(--wm-text);
   font-size: 0.96rem;
-  font-weight: 850;
+  font-weight: var(--wm-weight-heading);
   letter-spacing: -0.02em;
 }
 
@@ -312,7 +319,7 @@ textarea {
   padding: 0 14px;
   color: #ffe9c9;
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: var(--wm-weight-ui);
 }
 
 .wingman-mobile-nav-button:hover,
@@ -352,8 +359,8 @@ textarea {
   margin: 0;
   color: var(--wm-text-muted) !important;
   font-size: 0.68rem !important;
-  font-weight: 850 !important;
-  letter-spacing: 0.18em !important;
+  font-weight: var(--wm-weight-ui) !important;
+  letter-spacing: var(--wm-tracking-kicker) !important;
   line-height: 1.2 !important;
   text-transform: uppercase !important;
 }
@@ -365,8 +372,8 @@ textarea {
 .wingman-display {
   margin: 0;
   font-family: var(--wm-font) !important;
-  font-weight: 850 !important;
-  letter-spacing: -0.055em !important;
+  font-weight: var(--wm-weight-heading) !important;
+  letter-spacing: -0.045em !important;
 }
 
 .wingman-page-hero {
@@ -410,8 +417,8 @@ textarea {
 .wingman-hero-next span {
   color: #4af5e6;
   font-size: 0.67rem;
-  font-weight: 900;
-  letter-spacing: 0.18em;
+  font-weight: var(--wm-weight-ui);
+  letter-spacing: var(--wm-tracking-kicker);
   text-transform: uppercase;
 }
 
@@ -436,7 +443,7 @@ textarea {
   border-radius: 999px;
   padding: 0 15px;
   font-size: 0.84rem;
-  font-weight: 850;
+  font-weight: var(--wm-weight-heading);
   text-decoration: none;
   transition:
     transform 160ms ease,
@@ -480,8 +487,8 @@ textarea {
   margin: 4px 0 0;
   color: var(--wm-ink);
   font-size: clamp(1.2rem, 1.6vw, 1.65rem);
-  font-weight: 850;
-  letter-spacing: -0.035em;
+  font-weight: var(--wm-weight-heading);
+  letter-spacing: var(--wm-tracking-heading);
 }
 
 .wingman-section-card-header p:not(.wingman-kicker) {
@@ -2042,8 +2049,8 @@ html[data-wingman-route="dashboard"] .wm-dashboard-eyebrow {
   margin: 0 0 7px !important;
   color: #4af5e6;
   font-size: 0.72rem !important;
-  font-weight: 800 !important;
-  letter-spacing: 0.11em !important;
+  font-weight: var(--wm-weight-ui) !important;
+  letter-spacing: var(--wm-tracking-kicker) !important;
   text-transform: uppercase !important;
 }
 
@@ -2052,7 +2059,8 @@ html[data-wingman-route="dashboard"] .wm-dashboard-hero h1 {
   color: #ffffff !important;
   font-size: clamp(1.9rem, 3vw, 3rem) !important;
   line-height: 0.98 !important;
-  letter-spacing: -0.045em !important;
+  font-weight: var(--wm-weight-heading) !important;
+  letter-spacing: -0.04em !important;
 }
 
 html[data-wingman-route="dashboard"] .wm-dashboard-hero p:not(.wm-dashboard-eyebrow) {
@@ -2105,7 +2113,8 @@ html[data-wingman-route="dashboard"] .wm-dashboard-section-heading h2 {
   color: #eef6ff !important;
   font-size: 1.25rem !important;
   line-height: 1.15 !important;
-  letter-spacing: -0.025em !important;
+  font-weight: var(--wm-weight-heading) !important;
+  letter-spacing: -0.02em !important;
 }
 
 html[data-wingman-route="dashboard"] .wm-dashboard-grid,
@@ -13277,11 +13286,6 @@ html[data-wingman-route="dashboard"] .wm-dashboard-section-heading h2 {
 html[data-wingman-route="dashboard"] .wm-dashboard-section-heading h3 {
   font-size: 1.08rem !important;
   line-height: 1.12 !important;
-}
-
-html[data-wingman-route="dashboard"] .wm-dashboard-eyebrow {
-  font-size: 0.68rem !important;
-  letter-spacing: 0.18em !important;
 }
 
 html[data-wingman-route="dashboard"] .wm-opportunity-action-grid,
@@ -27585,8 +27589,8 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   margin: 0 0 0.35rem;
   color: rgba(52, 223, 236, 0.88);
   font-size: 0.72rem;
-  font-weight: 850;
-  letter-spacing: 0.07em;
+  font-weight: var(--wm-weight-ui);
+  letter-spacing: var(--wm-tracking-kicker);
   text-transform: uppercase;
 }
 
@@ -27600,8 +27604,8 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   margin: 0;
   color: rgba(238, 247, 252, 0.98);
   font-size: 1.18rem;
-  font-weight: 900;
-  letter-spacing: -0.03em;
+  font-weight: var(--wm-weight-heading);
+  letter-spacing: var(--wm-tracking-heading);
 }
 
 .compare-native-hero p,
@@ -27628,7 +27632,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   background: rgba(12, 43, 63, 0.92);
   color: rgba(238, 247, 252, 0.96);
   font-size: 0.76rem;
-  font-weight: 850;
+  font-weight: var(--wm-weight-ui);
   line-height: 1;
   text-decoration: none;
   cursor: pointer;
@@ -27691,7 +27695,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   color: rgba(238, 247, 252, 0.92);
   padding: 0.34rem 0.62rem;
   font-size: 0.73rem;
-  font-weight: 800;
+  font-weight: var(--wm-weight-ui);
   cursor: pointer;
 }
 
@@ -27722,7 +27726,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   color: rgba(210, 226, 235, 0.82);
   text-align: center;
   font-size: 0.74rem;
-  font-weight: 800;
+  font-weight: var(--wm-weight-ui);
 }
 
 .compare-native-results {
@@ -27768,7 +27772,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   background: rgba(255, 211, 120, 0.12);
   color: rgba(255, 211, 120, 0.98);
   font-size: 0.72rem;
-  font-weight: 900;
+  font-weight: var(--wm-weight-ui);
 }
 
 .compare-native-verdict.is-good {
@@ -27802,7 +27806,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   margin: 0.16rem 0 0;
   color: rgba(52, 223, 236, 0.98);
   font-size: 0.96rem;
-  font-weight: 900;
+  font-weight: var(--wm-weight-heading);
 }
 
 .compare-native-product-card h4,
@@ -27810,7 +27814,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   margin: 0.14rem 0 0;
   color: rgba(238, 247, 252, 0.96);
   font-size: 0.85rem;
-  font-weight: 850;
+  font-weight: var(--wm-weight-heading);
 }
 
 .compare-native-bullet-list {
@@ -27840,7 +27844,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   background: rgba(8, 34, 50, 0.92);
   color: rgba(217, 242, 251, 0.94);
   font-size: 0.72rem;
-  font-weight: 820;
+  font-weight: var(--wm-weight-ui);
   line-height: 1.15;
 }
 
@@ -27883,7 +27887,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   margin: 0;
   color: rgba(190, 210, 220, 0.72);
   font-size: 0.69rem;
-  font-weight: 800;
+  font-weight: var(--wm-weight-ui);
 }
 
 .compare-native-option-meta {
@@ -27915,7 +27919,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
 
 .compare-native-summary summary {
   color: rgba(52, 223, 236, 0.96);
-  font-weight: 900;
+  font-weight: var(--wm-weight-ui);
   cursor: pointer;
 }
 
@@ -31629,9 +31633,9 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-eyebrow {
   margin: 0;
   color: #65d7f4;
   font-size: 0.72rem;
-  font-weight: 900;
+  font-weight: var(--wm-weight-ui);
   line-height: 1.1;
-  letter-spacing: 0.045em;
+  letter-spacing: var(--wm-tracking-kicker);
   text-transform: uppercase;
 }
 
@@ -31640,7 +31644,7 @@ html[data-wingman-route="salesHelper"] .wm-sh-page-hero h1 {
   color: #65d7f4;
   font-size: clamp(1.7rem, 2.4vw, 2.65rem);
   line-height: 1.05;
-  font-weight: 800;
+  font-weight: var(--wm-weight-heading);
 }
 
 html[data-wingman-route="salesHelper"] .wm-sh-page-hero p,
@@ -31682,7 +31686,7 @@ html[data-wingman-route="salesHelper"] .wm-sh-page-step span {
 html[data-wingman-route="salesHelper"] .wm-sh-page-step strong {
   color: #f8fbff;
   font-size: 0.88rem;
-  font-weight: 800;
+  font-weight: var(--wm-weight-ui);
 }
 
 html[data-wingman-route="salesHelper"] .wm-sh-page-section {
@@ -31770,265 +31774,6 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-body {
   }
 }
 
-/* WINGMAN_SALES_HELPER_CARD_TEXT_REFINEMENT_20260619 */
-html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
-  gap: 18px !important;
-  align-items: stretch !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card {
-  appearance: none !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-start !important;
-  justify-content: flex-start !important;
-  gap: 14px !important;
-  min-height: 220px !important;
-  padding: 18px 18px 18px !important;
-  text-align: left !important;
-  border-radius: 18px !important;
-  border: 1px solid rgba(101, 215, 244, 0.26) !important;
-  background:
-    radial-gradient(circle at 14% 0%, rgba(101, 215, 244, 0.12), transparent 34%),
-    linear-gradient(145deg, rgba(7, 28, 42, 0.96), rgba(3, 14, 24, 0.95)) !important;
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.18) !important;
-  transition:
-    transform 120ms ease,
-    border-color 120ms ease,
-    box-shadow 120ms ease,
-    background 120ms ease !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card:hover,
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card:focus-visible {
-  transform: translateY(-2px) !important;
-  border-color: rgba(101, 215, 244, 0.55) !important;
-  background:
-    radial-gradient(circle at 14% 0%, rgba(101, 215, 244, 0.18), transparent 36%),
-    linear-gradient(145deg, rgba(9, 34, 49, 0.98), rgba(4, 18, 29, 0.96)) !important;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.24) !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-choice-head {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-start !important;
-  gap: 8px !important;
-  width: 100% !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-choice-eyebrow {
-  display: block !important;
-  max-width: 30ch !important;
-  margin: 0 !important;
-  color: #8feaff !important;
-  font-size: 0.71rem !important;
-  font-weight: 900 !important;
-  line-height: 1.22 !important;
-  letter-spacing: 0.02em !important;
-  text-transform: uppercase !important;
-  opacity: 0.94 !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-choice-title {
-  display: block !important;
-  margin: 0 !important;
-  color: #ffffff !important;
-  font-size: 1.18rem !important;
-  font-weight: 800 !important;
-  line-height: 1.12 !important;
-  letter-spacing: -0.01em !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-choice-body {
-  display: block !important;
-  margin: 0 !important;
-  color: rgba(232, 244, 255, 0.86) !important;
-  font-size: 0.94rem !important;
-  font-weight: 500 !important;
-  line-height: 1.48 !important;
-  max-width: 40ch !important;
-  flex: 1 1 auto !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-choice-action {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  margin-top: auto !important;
-  padding-top: 2px !important;
-  color: #65d7f4 !important;
-  font-size: 0.8rem !important;
-  font-weight: 800 !important;
-  line-height: 1 !important;
-  letter-spacing: 0.01em !important;
-  opacity: 0.96 !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-choice-action::after {
-  content: "→" !important;
-  font-size: 0.95rem !important;
-  line-height: 1 !important;
-}
-
-@media (max-width: 1400px) {
-  html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
-  }
-}
-
-@media (max-width: 980px) {
-  html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  html[data-wingman-route="salesHelper"] .wm-sh-choice-card {
-    min-height: 0 !important;
-  }
-}
-
-/* WINGMAN_SALES_HELPER_CLEAN_TWO_COLUMN_CARDS_20260619 */
-html[data-wingman-route="salesHelper"] .wm-sh-page {
-  width: min(1220px, calc(100vw - 300px)) !important;
-  max-width: 1220px !important;
-  padding-top: 22px !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-page-hero {
-  margin-bottom: 22px !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-page-hero h1 {
-  font-size: clamp(1.9rem, 2.2vw, 2.45rem) !important;
-  line-height: 1.06 !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-page-stepper {
-  margin: 0 0 28px !important;
-  gap: 10px !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-page-section {
-  gap: 16px !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 16px !important;
-  width: 100% !important;
-  max-width: none !important;
-  align-items: stretch !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card {
-  appearance: none !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: flex-start !important;
-  justify-content: flex-start !important;
-  gap: 12px !important;
-  min-height: 188px !important;
-  width: 100% !important;
-  max-width: none !important;
-  padding: 18px 20px 18px !important;
-  overflow: hidden !important;
-  text-align: left !important;
-  border-radius: 18px !important;
-  border: 1px solid rgba(101, 215, 244, 0.28) !important;
-  background:
-    radial-gradient(circle at 14% 0%, rgba(101, 215, 244, 0.13), transparent 36%),
-    linear-gradient(145deg, rgba(7, 28, 42, 0.96), rgba(3, 14, 24, 0.95)) !important;
-  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.18) !important;
-  grid-template-columns: none !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card > *,
-html[data-wingman-route="salesHelper"] .wm-sh-choice-head,
-html[data-wingman-route="salesHelper"] .wm-sh-choice-eyebrow,
-html[data-wingman-route="salesHelper"] .wm-sh-choice-title,
-html[data-wingman-route="salesHelper"] .wm-sh-choice-body,
-html[data-wingman-route="salesHelper"] .wm-sh-choice-action {
-  width: 100% !important;
-  max-width: none !important;
-  min-width: 0 !important;
-  margin: 0 !important;
-  justify-self: auto !important;
-  align-self: stretch !important;
-  grid-column: auto !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-choice-head {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 7px !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-choice-eyebrow {
-  display: block !important;
-  color: #8feaff !important;
-  font-size: 0.68rem !important;
-  font-weight: 900 !important;
-  line-height: 1.18 !important;
-  letter-spacing: 0.025em !important;
-  text-transform: uppercase !important;
-  opacity: 0.96 !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-choice-title {
-  display: block !important;
-  color: #ffffff !important;
-  font-size: 1.08rem !important;
-  font-weight: 900 !important;
-  line-height: 1.14 !important;
-  letter-spacing: -0.01em !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-choice-body {
-  display: block !important;
-  flex: 1 1 auto !important;
-  color: rgba(232, 244, 255, 0.84) !important;
-  font-size: 0.88rem !important;
-  font-weight: 500 !important;
-  line-height: 1.42 !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-choice-action {
-  display: inline-flex !important;
-  width: auto !important;
-  align-self: flex-start !important;
-  align-items: center !important;
-  gap: 8px !important;
-  margin-top: auto !important;
-  color: #65d7f4 !important;
-  font-size: 0.8rem !important;
-  font-weight: 900 !important;
-  line-height: 1 !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-choice-action::after {
-  content: "→" !important;
-}
-
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card:hover,
-html[data-wingman-route="salesHelper"] .wm-sh-choice-card:focus-visible {
-  transform: translateY(-1px) !important;
-  border-color: rgba(101, 215, 244, 0.62) !important;
-  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.24) !important;
-}
-
-@media (max-width: 1180px) {
-  html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  html[data-wingman-route="salesHelper"] .wm-sh-choice-card {
-    min-height: 0 !important;
-  }
-}
-
 /* WINGMAN_SALES_HELPER_FORCE_STACKED_CARD_CONTENT_20260619 */
 html[data-wingman-route="salesHelper"] .wm-sh-page {
   width: min(1240px, calc(100vw - 292px)) !important;
@@ -32059,11 +31804,14 @@ html[data-wingman-route="salesHelper"] .wm-sh-page-step span {
 html[data-wingman-route="salesHelper"] .wm-sh-page-step strong {
   font-size: 0.94rem !important;
   line-height: 1.2 !important;
+  font-weight: var(--wm-weight-ui) !important;
 }
 
 html[data-wingman-route="salesHelper"] .wm-sh-section-head h2 {
   font-size: 1.42rem !important;
   line-height: 1.14 !important;
+  font-weight: var(--wm-weight-heading) !important;
+  letter-spacing: var(--wm-tracking-heading) !important;
 }
 
 html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
@@ -32116,6 +31864,8 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-eyebrow {
   max-width: 32ch !important;
   color: #8feaff !important;
   font-size: 0.74rem !important;
+  font-weight: var(--wm-weight-ui) !important;
+  letter-spacing: var(--wm-tracking-kicker) !important;
   line-height: 1.22 !important;
 }
 
@@ -32123,6 +31873,7 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-title {
   color: #ffffff !important;
   font-size: 1.18rem !important;
   line-height: 1.18 !important;
+  font-weight: var(--wm-weight-heading) !important;
   letter-spacing: -0.012em !important;
 }
 
@@ -32144,6 +31895,7 @@ html[data-wingman-route="salesHelper"] .wm-sh-choice-action {
   padding-top: 6px !important;
   color: #72e4ff !important;
   font-size: 0.9rem !important;
+  font-weight: var(--wm-weight-ui) !important;
   letter-spacing: 0.01em !important;
   white-space: nowrap !important;
 }
@@ -32216,25 +31968,25 @@ html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-head {
 html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-eyebrow {
   color: #8feaff !important;
   font-size: 0.68rem !important;
-  font-weight: 900 !important;
+  font-weight: var(--wm-weight-ui) !important;
   line-height: 1.2 !important;
-  letter-spacing: 0.025em !important;
+  letter-spacing: var(--wm-tracking-kicker) !important;
   text-transform: uppercase !important;
 }
 
 html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-title {
   color: #ffffff !important;
   font-size: 1.08rem !important;
-  font-weight: 900 !important;
+  font-weight: var(--wm-weight-heading) !important;
   line-height: 1.15 !important;
-  letter-spacing: -0.01em !important;
+  letter-spacing: var(--wm-tracking-heading) !important;
 }
 
 html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-body {
   flex: 1 1 auto !important;
   color: rgba(232, 244, 255, 0.86) !important;
   font-size: 0.88rem !important;
-  font-weight: 500 !important;
+  font-weight: var(--wm-weight-body) !important;
   line-height: 1.42 !important;
   white-space: normal !important;
   overflow: visible !important;
@@ -32247,7 +31999,7 @@ html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-action {
   margin-top: auto !important;
   color: #65d7f4 !important;
   font-size: 0.8rem !important;
-  font-weight: 900 !important;
+  font-weight: var(--wm-weight-ui) !important;
   line-height: 1 !important;
 }
 
