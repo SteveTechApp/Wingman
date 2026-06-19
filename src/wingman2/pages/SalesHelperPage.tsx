@@ -101,9 +101,14 @@ export function SalesHelperPage() {
               type="button"
               onClick={() => navigate(card.route)}
             >
-              <span className="wm-sh-choice-eyebrow">{card.eyebrow}</span>
-              <span className="wm-sh-choice-title">{card.title}</span>
+              <div className="wm-sh-choice-head">
+                <span className="wm-sh-choice-eyebrow">{card.eyebrow}</span>
+                <span className="wm-sh-choice-title">{card.title}</span>
+              </div>
+
               <span className="wm-sh-choice-body">{card.body}</span>
+
+              <span className="wm-sh-choice-action">Open in Wingman</span>
             </button>
           ))}
         </div>
@@ -113,4 +118,3 @@ export function SalesHelperPage() {
 }
 
 export default SalesHelperPage;
-
