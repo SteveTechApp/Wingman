@@ -30489,3 +30489,145 @@ html[data-wingman-route="sales-helper"] button[class*="sales-helper"]:hover {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* WINGMAN_SALES_HELPER_DIRECT_STRUCTURE_REPAIR_20260619 */
+html[data-wingman-route="sales-helper"] .wingman-app-main {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+html[data-wingman-route="sales-helper"] .wingman-page-host {
+  display: block !important;
+  width: min(1240px, calc(100vw - 300px)) !important;
+  max-width: 1240px !important;
+  margin: 0 auto !important;
+  padding: 34px 28px 64px !important;
+}
+
+html[data-wingman-route="sales-helper"] .wingman-page-host > * {
+  max-width: 100% !important;
+}
+
+html[data-wingman-route="sales-helper"] .wingman-page-host > div,
+html[data-wingman-route="sales-helper"] .wingman-page-host > section,
+html[data-wingman-route="sales-helper"] .wingman-page-host > article {
+  display: block !important;
+  margin-bottom: 18px !important;
+}
+
+html[data-wingman-route="sales-helper"] .wingman-page-host h1,
+html[data-wingman-route="sales-helper"] .wingman-page-host h2,
+html[data-wingman-route="sales-helper"] .wingman-page-host h3 {
+  display: block !important;
+  margin: 0 0 8px !important;
+  color: #65d7f4 !important;
+  line-height: 1.12 !important;
+}
+
+html[data-wingman-route="sales-helper"] .wingman-page-host p {
+  display: block !important;
+  margin: 0 0 10px !important;
+  color: rgba(232, 244, 255, 0.88) !important;
+  line-height: 1.45 !important;
+}
+
+html[data-wingman-route="sales-helper"] .wingman-page-host button {
+  appearance: none !important;
+  display: grid !important;
+  grid-template-columns: minmax(180px, 0.42fr) minmax(260px, 0.58fr) !important;
+  gap: 12px !important;
+  width: 100% !important;
+  min-height: 86px !important;
+  margin: 0 !important;
+  padding: 16px 18px !important;
+  text-align: left !important;
+  align-items: center !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(101, 215, 244, 0.26) !important;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(101, 215, 244, 0.12), transparent 34%),
+    linear-gradient(145deg, rgba(7, 28, 42, 0.96), rgba(3, 14, 24, 0.94)) !important;
+  color: #f8fbff !important;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.22) !important;
+  cursor: pointer !important;
+}
+
+html[data-wingman-route="sales-helper"] .wingman-page-host button + button {
+  margin-top: 12px !important;
+}
+
+html[data-wingman-route="sales-helper"] .wingman-page-host button strong,
+html[data-wingman-route="sales-helper"] .wingman-page-host button b {
+  color: #f8fbff !important;
+  font-weight: 900 !important;
+}
+
+html[data-wingman-route="sales-helper"] .wingman-page-host button span,
+html[data-wingman-route="sales-helper"] .wingman-page-host button p,
+html[data-wingman-route="sales-helper"] .wingman-page-host button small {
+  color: rgba(232, 244, 255, 0.86) !important;
+}
+
+html[data-wingman-route="sales-helper"] .wingman-page-host button:hover,
+html[data-wingman-route="sales-helper"] .wingman-page-host button:focus-visible {
+  border-color: rgba(101, 215, 244, 0.64) !important;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(101, 215, 244, 0.2), transparent 34%),
+    linear-gradient(145deg, rgba(8, 36, 52, 0.98), rgba(3, 18, 30, 0.96)) !important;
+}
+
+html[data-wingman-route="sales-helper"] .wingman-page-host ol,
+html[data-wingman-route="sales-helper"] .wingman-page-host ul {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  list-style: none !important;
+  margin: 24px 0 !important;
+  padding: 0 !important;
+}
+
+html[data-wingman-route="sales-helper"] .wingman-page-host li {
+  display: block !important;
+  padding: 10px 12px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(101, 215, 244, 0.24) !important;
+  background: rgba(7, 28, 42, 0.78) !important;
+  color: rgba(232, 244, 255, 0.9) !important;
+  font-weight: 800 !important;
+}
+
+html[data-wingman-route="sales-helper"] .wingman-page-host form,
+html[data-wingman-route="sales-helper"] .wingman-page-host fieldset {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+  border: 0 !important;
+  padding: 0 !important;
+  margin: 18px 0 !important;
+}
+
+html[data-wingman-route="sales-helper"] .wingman-page-host label {
+  display: block !important;
+  color: #65d7f4 !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+}
+
+@media (max-width: 980px) {
+  html[data-wingman-route="sales-helper"] .wingman-page-host {
+    width: 100% !important;
+    padding: 22px 16px 48px !important;
+  }
+
+  html[data-wingman-route="sales-helper"] .wingman-page-host ol,
+  html[data-wingman-route="sales-helper"] .wingman-page-host ul,
+  html[data-wingman-route="sales-helper"] .wingman-page-host form,
+  html[data-wingman-route="sales-helper"] .wingman-page-host fieldset {
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-wingman-route="sales-helper"] .wingman-page-host button {
+    grid-template-columns: 1fr !important;
+  }
+}
