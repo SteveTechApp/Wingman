@@ -30184,3 +30184,48 @@ body .wm-pcc-preview .wm-pcc-section-tab-active.wm-pcc-section-tab span {
   color: var(--proposal-text-muted) !important;
 }
 
+
+/* WINGMAN_PROPOSAL_COACH_PANEL_CONTRAST_FIX_20260619 */
+html[data-wingman-route="proposal"] .wm-coach-panel {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(101, 215, 244, 0.14), transparent 34%),
+    linear-gradient(145deg, rgba(5, 22, 32, 0.98), rgba(3, 14, 24, 0.96)) !important;
+  border: 1px solid rgba(101, 215, 244, 0.28) !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.38) !important;
+  color: #f8fbff !important;
+}
+
+html[data-wingman-route="proposal"] .wm-coach-panel,
+html[data-wingman-route="proposal"] .wm-coach-panel p,
+html[data-wingman-route="proposal"] .wm-coach-panel li,
+html[data-wingman-route="proposal"] .wm-coach-panel span {
+  color: rgba(232, 244, 255, 0.9) !important;
+}
+
+html[data-wingman-route="proposal"] .wm-coach-panel h2,
+html[data-wingman-route="proposal"] .wm-coach-panel h3,
+html[data-wingman-route="proposal"] .wm-coach-kicker,
+html[data-wingman-route="proposal"] .wm-coach-advice-label,
+html[data-wingman-route="proposal"] .wm-coach-title-block h2 {
+  color: #65d7f4 !important;
+}
+
+html[data-wingman-route="proposal"] .wm-coach-question-row > *,
+html[data-wingman-route="proposal"] .wm-coach-grid > *,
+html[data-wingman-route="proposal"] .wm-coach-visuals > *,
+html[data-wingman-route="proposal"] .wm-coach-localization,
+html[data-wingman-route="proposal"] .wm-coach-confidence {
+  background: rgba(8, 31, 45, 0.82) !important;
+  border: 1px solid rgba(101, 215, 244, 0.2) !important;
+  color: rgba(232, 244, 255, 0.92) !important;
+}
+
+html[data-wingman-route="proposal"] .wm-coach-confidence strong,
+html[data-wingman-route="proposal"] .wm-coach-confidence span {
+  color: #65d7f4 !important;
+}
+
+html[data-wingman-route="proposal"] .wm-coach-panel a,
+html[data-wingman-route="proposal"] .wm-coach-panel button {
+  color: #f8fbff;
+}
