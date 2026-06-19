@@ -30229,3 +30229,37 @@ html[data-wingman-route="proposal"] .wm-coach-panel a,
 html[data-wingman-route="proposal"] .wm-coach-panel button {
   color: #f8fbff;
 }
+
+/* WINGMAN_PROPOSAL_VISUAL_TILES_CONTRAST_FIX_20260619 */
+html[data-wingman-route="proposal"] .wm-coach-visuals,
+html[data-wingman-route="proposal"] .wm-coach-visuals > *,
+html[data-wingman-route="proposal"] .wm-coach-visuals div,
+html[data-wingman-route="proposal"] .wm-coach-visuals article,
+html[data-wingman-route="proposal"] .wm-coach-visuals section {
+  background:
+    radial-gradient(circle at 10% 0%, rgba(101, 215, 244, 0.12), transparent 34%),
+    linear-gradient(145deg, rgba(6, 28, 42, 0.96), rgba(3, 16, 27, 0.95)) !important;
+  border-color: rgba(101, 215, 244, 0.24) !important;
+  color: rgba(232, 244, 255, 0.94) !important;
+}
+
+html[data-wingman-route="proposal"] .wm-coach-visuals p,
+html[data-wingman-route="proposal"] .wm-coach-visuals span,
+html[data-wingman-route="proposal"] .wm-coach-visuals li,
+html[data-wingman-route="proposal"] .wm-coach-visuals small {
+  color: rgba(232, 244, 255, 0.9) !important;
+}
+
+html[data-wingman-route="proposal"] .wm-coach-visuals h2,
+html[data-wingman-route="proposal"] .wm-coach-visuals h3,
+html[data-wingman-route="proposal"] .wm-coach-visuals strong,
+html[data-wingman-route="proposal"] .wm-coach-visuals .wm-coach-advice-label {
+  color: #65d7f4 !important;
+}
+
+html[data-wingman-route="proposal"] .wm-coach-visuals button,
+html[data-wingman-route="proposal"] .wm-coach-visuals a {
+  background: rgba(101, 215, 244, 0.14) !important;
+  border-color: rgba(101, 215, 244, 0.28) !important;
+  color: #f8fbff !important;
+}
