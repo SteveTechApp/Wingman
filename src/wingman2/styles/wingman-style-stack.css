@@ -30367,3 +30367,125 @@ html[data-wingman-route="sales-helper"] .wingman-page-host .sales-helper-card-gr
     grid-template-columns: 1fr;
   }
 }
+
+/* WINGMAN_SALES_HELPER_REAL_CLASS_LAYOUT_REPAIR_20260619 */
+html[data-wingman-route="sales-helper"] .wingman-page-host {
+  max-width: 1240px !important;
+  margin: 0 auto !important;
+  padding: 34px 28px 48px !important;
+}
+
+html[data-wingman-route="sales-helper"] [class*="sales-helper"] {
+  box-sizing: border-box;
+}
+
+html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="step"],
+html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="tabs"],
+html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="progress"] {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  align-items: center !important;
+  margin: 18px 0 22px !important;
+}
+
+html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="step"] > *,
+html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="tabs"] > *,
+html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="progress"] > * {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-height: 36px !important;
+  padding: 8px 12px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(101, 215, 244, 0.28) !important;
+  background: rgba(7, 28, 42, 0.86) !important;
+  color: rgba(232, 244, 255, 0.92) !important;
+  font-weight: 800 !important;
+}
+
+html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="grid"],
+html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="options"],
+html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="cards"],
+html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="choices"] {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+  margin-top: 18px !important;
+}
+
+html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="card"],
+html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="option"],
+html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="choice"],
+html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="panel"],
+html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="tile"] {
+  display: block !important;
+  min-width: 0 !important;
+  padding: 16px 18px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(101, 215, 244, 0.24) !important;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(101, 215, 244, 0.11), transparent 34%),
+    linear-gradient(145deg, rgba(5, 22, 32, 0.96), rgba(3, 14, 24, 0.94)) !important;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.24) !important;
+}
+
+html[data-wingman-route="sales-helper"] [class*="sales-helper"] h1,
+html[data-wingman-route="sales-helper"] [class*="sales-helper"] h2,
+html[data-wingman-route="sales-helper"] [class*="sales-helper"] h3,
+html[data-wingman-route="sales-helper"] [class*="sales-helper"] strong {
+  color: #f8fbff !important;
+}
+
+html[data-wingman-route="sales-helper"] [class*="sales-helper"] p,
+html[data-wingman-route="sales-helper"] [class*="sales-helper"] span,
+html[data-wingman-route="sales-helper"] [class*="sales-helper"] li {
+  color: rgba(232, 244, 255, 0.88) !important;
+  line-height: 1.45 !important;
+}
+
+html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="kicker"],
+html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="label"],
+html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="eyebrow"] {
+  color: #65d7f4 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  font-weight: 900 !important;
+}
+
+html[data-wingman-route="sales-helper"] [class*="sales-helper"] button,
+html[data-wingman-route="sales-helper"] button[class*="sales-helper"] {
+  display: flex !important;
+  width: 100% !important;
+  min-height: 72px !important;
+  padding: 16px 18px !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(101, 215, 244, 0.26) !important;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(101, 215, 244, 0.12), transparent 34%),
+    linear-gradient(145deg, rgba(7, 28, 42, 0.96), rgba(3, 14, 24, 0.94)) !important;
+  color: #f8fbff !important;
+  font-weight: 800 !important;
+}
+
+html[data-wingman-route="sales-helper"] [class*="sales-helper"] button:hover,
+html[data-wingman-route="sales-helper"] button[class*="sales-helper"]:hover {
+  border-color: rgba(101, 215, 244, 0.62) !important;
+  background: rgba(101, 215, 244, 0.14) !important;
+}
+
+@media (max-width: 980px) {
+  html[data-wingman-route="sales-helper"] .wingman-page-host {
+    padding: 22px 16px 36px !important;
+  }
+
+  html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="grid"],
+  html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="options"],
+  html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="cards"],
+  html[data-wingman-route="sales-helper"] [class*="sales-helper"][class*="choices"] {
+    grid-template-columns: 1fr !important;
+  }
+}
