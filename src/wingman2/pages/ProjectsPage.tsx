@@ -6,6 +6,13 @@ import { SectionCard } from "../components/SectionCard";
 import { StatusChip } from "../components/StatusChip";
 import { setActiveProjectId, useProjectStore } from "../data/projectStore";
 
+const PROJECTS_PILL_BUTTON_CLASS =
+  "rounded-full border border-[#29465e] bg-[#0d2133] px-4 py-2 text-xs font-bold text-[#edf6ff] transition";
+const PROJECTS_ICON_BUTTON_CLASS =
+  "inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-[#edf6ff] transition";
+const PROJECTS_DARK_BUTTON_CLASS = "rounded-full bg-slate-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-slate-800";
+const PROJECTS_DARK_BUTTON_XS_CLASS = "rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-slate-800";
+
 export function ProjectsPage() {
   const {
     projects,
@@ -39,7 +46,7 @@ export function ProjectsPage() {
           rightSlot={
             <div className="flex flex-wrap items-center gap-3">
               <div
-                className={`inline-flex max-w-xl items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold ${
+                className={`inline-flex max-w-xl items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold ${
                   syncStatus.state === "synced"
                     ? "border-[#29465e] bg-[#0d2133] text-emerald-800"
                     : syncStatus.state === "error" || syncStatus.state === "conflict"
@@ -60,7 +67,7 @@ export function ProjectsPage() {
               <button
                 type="button"
                 onClick={resetStore}
-                className="inline-flex items-center gap-2 rounded-full border border-[#29465e] bg-[#0d2133] px-4 py-2 text-xs font-semibold text-[#edf6ff] transition hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]"
+                className={`inline-flex items-center gap-2 ${PROJECTS_PILL_BUTTON_CLASS} hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]`}
               >
                 <RotateCcw className="h-4 w-4" />
                 Reset sample store
@@ -72,19 +79,19 @@ export function ProjectsPage() {
             <table className="min-w-full text-left text-sm">
               <thead className="bg-[#0d2133] text-[#edf6ff]">
                 <tr>
-                  <th className="px-5 py-4 font-semibold">Project</th>
-                  <th className="px-5 py-4 font-semibold">Owner</th>
-                  <th className="px-5 py-4 font-semibold">Stage</th>
-                  <th className="px-5 py-4 font-semibold">Status</th>
-                  <th className="px-5 py-4 font-semibold">Last updated</th>
-                  <th className="px-5 py-4 font-semibold">Actions</th>
+                  <th className="px-5 py-4 font-bold">Project</th>
+                  <th className="px-5 py-4 font-bold">Owner</th>
+                  <th className="px-5 py-4 font-bold">Stage</th>
+                  <th className="px-5 py-4 font-bold">Status</th>
+                  <th className="px-5 py-4 font-bold">Last updated</th>
+                  <th className="px-5 py-4 font-bold">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {projects.length ? (
                   projects.map((project) => (
                     <tr key={project.id} className="border-t border-[#29465e]">
-                      <td className="px-5 py-4 font-medium text-[#edf6ff]">{project.name}</td>
+                      <td className="px-5 py-4 font-semibold text-[#edf6ff]">{project.name}</td>
                       <td className="px-5 py-4 text-[#edf6ff]">{project.owner}</td>
                       <td className="px-5 py-4 text-[#edf6ff]">{project.stage}</td>
                       <td className="px-5 py-4">
@@ -99,7 +106,7 @@ export function ProjectsPage() {
                           <Link
                             to={`${routeCatalogByKey.projects.path}/${project.id}`}
                             onClick={() => setActiveProjectId(project.id)}
-                            className="rounded-full border border-[#29465e] bg-[#0d2133] px-4 py-2 text-xs font-semibold text-[#edf6ff] transition hover:bg-[#0d2133]"
+                            className={PROJECTS_PILL_BUTTON_CLASS}
                           >
                             Detail
                           </Link>
@@ -107,7 +114,7 @@ export function ProjectsPage() {
                           <Link
                             to={project.resumeTo}
                             onClick={() => setActiveProjectId(project.id)}
-                            className="rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+                            className={PROJECTS_DARK_BUTTON_XS_CLASS}
                           >
                             {activeProjectId === project.id ? "Resume active" : "Resume workflow"}
                           </Link>
@@ -115,7 +122,7 @@ export function ProjectsPage() {
                           <button
                             type="button"
                             onClick={() => copyProject(project.id)}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-[#edf6ff] transition hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]"
+                            className={`${PROJECTS_ICON_BUTTON_CLASS} hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]`}
                             title={`Copy ${project.name}`}
                             aria-label={`Copy ${project.name}`}
                           >
@@ -125,7 +132,7 @@ export function ProjectsPage() {
                           <button
                             type="button"
                             onClick={() => deleteProject(project.id)}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-[#edf6ff] transition hover:border-[#ff8a8a] hover:bg-[#2a1020] hover:text-[#ff8a8a]"
+                            className={`${PROJECTS_ICON_BUTTON_CLASS} hover:border-[#ff8a8a] hover:bg-[#2a1020] hover:text-[#ff8a8a]`}
                             title={`Delete ${project.name}`}
                             aria-label={`Delete ${project.name}`}
                           >
@@ -158,14 +165,14 @@ export function ProjectsPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-sm text-[#cfe6f7]">{draft.customer}</p>
-                      <h3 className="mt-2 text-lg font-semibold text-[#edf6ff]">{draft.name}</h3>
+                      <h3 className="mt-2 text-lg font-extrabold text-[#edf6ff]">{draft.name}</h3>
                     </div>
 
                     <div className="flex shrink-0 items-center gap-2">
                       <button
                         type="button"
                         onClick={() => copyProposalDraft(draft.id)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-[#edf6ff] transition hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]"
+                        className={`${PROJECTS_ICON_BUTTON_CLASS} hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]`}
                         title={`Copy ${draft.name}`}
                         aria-label={`Copy ${draft.name}`}
                       >
@@ -175,7 +182,7 @@ export function ProjectsPage() {
                       <button
                         type="button"
                         onClick={() => deleteProposalDraft(draft.id)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-[#edf6ff] transition hover:border-[#ff8a8a] hover:bg-[#2a1020] hover:text-[#ff8a8a]"
+                        className={`${PROJECTS_ICON_BUTTON_CLASS} hover:border-[#ff8a8a] hover:bg-[#2a1020] hover:text-[#ff8a8a]`}
                         title={`Delete ${draft.name}`}
                         aria-label={`Delete ${draft.name}`}
                       >
@@ -189,7 +196,7 @@ export function ProjectsPage() {
                   <div className="mt-5">
                     <Link
                       to={routeCatalogByKey.proposal.path}
-                      className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+                      className={PROJECTS_DARK_BUTTON_CLASS}
                     >
                       Open draft
                     </Link>
