@@ -30826,3 +30826,71 @@ html[data-wingman-route="salesHelper"] .wingman-page-host button:not(:where(ol:f
     grid-template-columns: 1fr !important;
   }
 }
+
+/* WINGMAN_SALES_HELPER_FIRST_FOUR_BUTTON_STEPPER_FIX_20260619 */
+html[data-wingman-route="salesHelper"] .wingman-page-host > button:nth-of-type(-n + 4) {
+  display: inline-flex !important;
+  width: calc((100% - 30px) / 4) !important;
+  min-height: 46px !important;
+  margin: 18px 10px 22px 0 !important;
+  padding: 10px 12px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  grid-template-columns: none !important;
+  text-align: center !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+  font-size: 0.84rem !important;
+  line-height: 1.15 !important;
+}
+
+html[data-wingman-route="salesHelper"] .wingman-page-host > button:nth-of-type(4) {
+  margin-right: 0 !important;
+}
+
+html[data-wingman-route="salesHelper"] .wingman-page-host > button:nth-of-type(-n + 4) strong,
+html[data-wingman-route="salesHelper"] .wingman-page-host > button:nth-of-type(-n + 4) b,
+html[data-wingman-route="salesHelper"] .wingman-page-host > button:nth-of-type(-n + 4) span,
+html[data-wingman-route="salesHelper"] .wingman-page-host > button:nth-of-type(-n + 4) p {
+  display: inline !important;
+  margin: 0 !important;
+  font-size: 0.84rem !important;
+  line-height: 1.15 !important;
+  color: #f8fbff !important;
+}
+
+html[data-wingman-route="salesHelper"] .wingman-page-host > button:nth-of-type(n + 5) {
+  display: grid !important;
+  grid-template-columns: minmax(260px, 0.34fr) minmax(460px, 0.66fr) !important;
+  min-height: 78px !important;
+  margin: 0 0 12px !important;
+  padding: 16px 18px !important;
+}
+
+html[data-wingman-route="salesHelper"] .wingman-page-host > button:nth-of-type(n + 5) strong,
+html[data-wingman-route="salesHelper"] .wingman-page-host > button:nth-of-type(n + 5) b {
+  justify-self: start !important;
+  align-self: center !important;
+}
+
+html[data-wingman-route="salesHelper"] .wingman-page-host > button:nth-of-type(n + 5) span,
+html[data-wingman-route="salesHelper"] .wingman-page-host > button:nth-of-type(n + 5) p,
+html[data-wingman-route="salesHelper"] .wingman-page-host > button:nth-of-type(n + 5) small {
+  justify-self: start !important;
+  align-self: center !important;
+}
+
+@media (max-width: 980px) {
+  html[data-wingman-route="salesHelper"] .wingman-page-host > button:nth-of-type(-n + 4) {
+    width: calc((100% - 10px) / 2) !important;
+  }
+
+  html[data-wingman-route="salesHelper"] .wingman-page-host > button:nth-of-type(2),
+  html[data-wingman-route="salesHelper"] .wingman-page-host > button:nth-of-type(4) {
+    margin-right: 0 !important;
+  }
+
+  html[data-wingman-route="salesHelper"] .wingman-page-host > button:nth-of-type(n + 5) {
+    grid-template-columns: 1fr !important;
+  }
+}
