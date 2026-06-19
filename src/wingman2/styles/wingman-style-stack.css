@@ -31525,3 +31525,85 @@ html[data-wingman-route="salesHelper"] .wm-sh-panel [role="button"]:hover {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* WINGMAN_SALES_HELPER_FORCE_SINGLE_COLUMN_CARDS_20260619 */
+html[data-wingman-route="salesHelper"] .wm-sh-flow,
+html[data-wingman-route="salesHelper"] .wm-sh-body,
+html[data-wingman-route="salesHelper"] .wm-sh-stage,
+html[data-wingman-route="salesHelper"] .wm-sh-content,
+html[data-wingman-route="salesHelper"] .wm-sh-main {
+  display: block !important;
+  max-width: 1380px !important;
+  width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+html[data-wingman-route="salesHelper"] .wm-sh-panel,
+html[data-wingman-route="salesHelper"] .wm-sh-options,
+html[data-wingman-route="salesHelper"] .wm-sh-grid,
+html[data-wingman-route="salesHelper"] .wm-sh-cards {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+  gap: 14px !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 18px 0 0 !important;
+  padding: 0 !important;
+  grid-column: 1 / -1 !important;
+}
+
+html[data-wingman-route="salesHelper"] .wm-sh-panel > *,
+html[data-wingman-route="salesHelper"] .wm-sh-options > *,
+html[data-wingman-route="salesHelper"] .wm-sh-grid > *,
+html[data-wingman-route="salesHelper"] .wm-sh-cards > * {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+html[data-wingman-route="salesHelper"] .wm-sh-panel button,
+html[data-wingman-route="salesHelper"] .wm-sh-options button,
+html[data-wingman-route="salesHelper"] .wm-sh-grid button,
+html[data-wingman-route="salesHelper"] .wm-sh-cards button,
+html[data-wingman-route="salesHelper"] .wm-sh-panel [role="button"],
+html[data-wingman-route="salesHelper"] .wm-sh-options [role="button"],
+html[data-wingman-route="salesHelper"] .wm-sh-grid [role="button"],
+html[data-wingman-route="salesHelper"] .wm-sh-cards [role="button"] {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  min-height: 150px !important;
+  width: 100% !important;
+  padding: 18px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(101, 215, 244, 0.28) !important;
+  background:
+    radial-gradient(circle at 14% 0%, rgba(101, 215, 244, 0.14), transparent 36%),
+    linear-gradient(145deg, rgba(7, 28, 42, 0.96), rgba(3, 14, 24, 0.95)) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2) !important;
+  text-align: left !important;
+}
+
+html[data-wingman-route="salesHelper"] .wm-sh-panel button > *,
+html[data-wingman-route="salesHelper"] .wm-sh-options button > *,
+html[data-wingman-route="salesHelper"] .wm-sh-grid button > *,
+html[data-wingman-route="salesHelper"] .wm-sh-cards button > *,
+html[data-wingman-route="salesHelper"] .wm-sh-panel [role="button"] > *,
+html[data-wingman-route="salesHelper"] .wm-sh-options [role="button"] > *,
+html[data-wingman-route="salesHelper"] .wm-sh-grid [role="button"] > *,
+html[data-wingman-route="salesHelper"] .wm-sh-cards [role="button"] > * {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+@media (max-width: 980px) {
+  html[data-wingman-route="salesHelper"] .wm-sh-panel,
+  html[data-wingman-route="salesHelper"] .wm-sh-options,
+  html[data-wingman-route="salesHelper"] .wm-sh-grid,
+  html[data-wingman-route="salesHelper"] .wm-sh-cards {
+    grid-template-columns: 1fr !important;
+  }
+}
