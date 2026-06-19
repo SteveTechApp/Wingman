@@ -31030,3 +31030,50 @@ html[data-wingman-route="salesHelper"] .wm-sh-panel [role="button"]:hover {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* WINGMAN_SALES_HELPER_STEPPER_AUTOFIT_FIX_20260619 */
+html[data-wingman-route="salesHelper"] .wm-sh-stepper {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+  gap: 10px !important;
+  width: 100% !important;
+  margin: 12px 0 22px !important;
+}
+
+html[data-wingman-route="salesHelper"] .wm-sh-stepper > *,
+html[data-wingman-route="salesHelper"] .wm-sh-stepper button,
+html[data-wingman-route="salesHelper"] .wm-sh-stepper [role="button"] {
+  display: grid !important;
+  grid-template-columns: auto 1fr !important;
+  gap: 10px !important;
+  align-items: center !important;
+  justify-content: start !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 46px !important;
+  margin: 0 !important;
+  padding: 10px 12px !important;
+  overflow: hidden !important;
+  text-align: left !important;
+  white-space: normal !important;
+  border-radius: 14px !important;
+}
+
+html[data-wingman-route="salesHelper"] .wm-sh-stepper > * *,
+html[data-wingman-route="salesHelper"] .wm-sh-stepper button *,
+html[data-wingman-route="salesHelper"] .wm-sh-stepper [role="button"] * {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+html[data-wingman-route="salesHelper"] .wm-sh-stepper + .wm-sh-panel {
+  margin-top: 10px !important;
+}
+
+@media (max-width: 720px) {
+  html[data-wingman-route="salesHelper"] .wm-sh-stepper {
+    grid-template-columns: 1fr !important;
+  }
+}
