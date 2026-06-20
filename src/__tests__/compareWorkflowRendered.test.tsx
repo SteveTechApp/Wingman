@@ -69,6 +69,9 @@ describe("Compare rendered workflow", () => {
 
     expect(screen.getByText("Sales answer")).toBeInTheDocument();
     expect(screen.getByText(/IP350UHD-TX is recognised as a source-side AV-over-IP encoder/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/This product is an AV-over-IP product in the IP350UHD-TX family/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/I\/O: 1 in \/ 1 out/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Resolution: 4K60/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/IP350UHD-TX is used to put a local HDMI or USB-C source into an AV-over-IP distribution system/i)).toBeInTheDocument();
     expect(screen.getByText(/Use NHD-500-TX when the requirement is encoding a local source into a WyreStorm NetworkHD 500 system/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Ask the customer/i).length).toBeGreaterThanOrEqual(1);
@@ -102,6 +105,9 @@ describe("Compare rendered workflow", () => {
     await screen.findByText("Sales answer");
 
     expect(screen.getByText(/AT-OMNI-111 is recognised as a source-side AV-over-IP encoder/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/This product is an AV-over-IP product in the Atlona OmniStream family/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/I\/O: 1 in \/ 1 out/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Resolution: 4K60/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/Use NHD-500-TX when the requirement is encoding a local source into a WyreStorm NetworkHD 500 system/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Correct product direction/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/Same product job/i).length).toBeGreaterThanOrEqual(1);

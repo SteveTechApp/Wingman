@@ -140,6 +140,7 @@ type CompetitorSummary = {
   resolution: string;
   ecosystem: string;
   facts: Array<{ label: string; value: string }>;
+  identityItems: string[];
   knownFeatures: string[];
   unknownFeatures: string[];
   verifyItems: string[];
@@ -1356,6 +1357,15 @@ function competitorIoTypeLabel(profile: CompetitorProfile): string {
   return "signal path";
 }
 
+function joinCommercialFactParts(parts: Array<string | null | undefined>): string {
+  return parts.filter(Boolean).join(", ");
+}
+
+function commercialPortLabel(count: number | undefined, singular: string, plural = `${singular}s`): string {
+  if (!count) return "";
+  return `${count}x ${count === 1 ? singular : plural}`;
+}
+
 function competitorHeadlineIo(profile: CompetitorProfile): string {
   const inputs = profile.resolvedSpec?.inputCount;
   const outputs = profile.resolvedSpec?.outputCount;
@@ -1369,7 +1379,7 @@ function competitorHeadlineIo(profile: CompetitorProfile): string {
     outputs ? `${outputs} out` : "",
   ].filter(Boolean);
 
-  return `I/O: ${parts.join(" / ")}${parts.length ? ` Â· ${competitorIoTypeLabel(profile)}` : ""}`;
+  return `I/O: ${parts.join(" / ")}${parts.length ? ` | ${competitorIoTypeLabel(profile)}` : ""}`;
 }
 
 function unsupportedCompetitorVideoPorts(profile: CompetitorProfile): string[] {
@@ -1410,13 +1420,13 @@ function competitorUsbFacts(profile: CompetitorProfile): string {
     specs.usbStandard || "",
   ].filter(Boolean);
 
-  return labels.length ? `USB: ${labels.join(" Â· ")}` : "";
+  return labels.length ? `USB: ${labels.join(" | ")}` : "";
 }
 
 function competitorHdbasetFacts(profile: CompetitorProfile): string {
   const specs = profile.resolvedSpec?.specs;
   const items = [specs?.hdbasetVersion, specs?.hdbasetClass].filter(Boolean);
-  return items.length ? `HDBaseT: ${items.join(" Â· ")}` : "";
+  return items.length ? `HDBaseT: ${items.join(" | ")}` : "";
 }
 
 function competitorDistanceQuestion(profile: CompetitorProfile): string {
@@ -1480,7 +1490,7 @@ function competitorControlFacts(profile: CompetitorProfile): string {
     specs.ethernetControl ? "IP / LAN control" : "",
   ].filter(Boolean);
 
-  return items.length ? `Control: ${items.join(" Â· ")}` : "";
+  return items.length ? `Control: ${items.join(" | ")}` : "";
 }
 
 function competitorAudioNetworkFacts(profile: CompetitorProfile): string {
@@ -1497,7 +1507,7 @@ function competitorAudioNetworkFacts(profile: CompetitorProfile): string {
     specs.audioEmbed ? "Audio embed" : "",
   ].filter(Boolean);
 
-  return items.length ? `Audio / Network: ${items.join(" Â· ")}` : "";
+  return items.length ? `Audio / Network: ${items.join(" | ")}` : "";
 }
 
 function competitorWirelessFacts(profile: CompetitorProfile): string {
@@ -1513,7 +1523,85 @@ function competitorWirelessFacts(profile: CompetitorProfile): string {
     specs.castingDongleSupport ? `Dongle support: ${specs.castingDongleSupport}` : "",
   ].filter(Boolean);
 
-  return items.length ? `Wireless: ${items.join(" Â· ")}` : "";
+  return items.length ? `Wireless: ${items.join(" | ")}` : "";
+}
+
+function competitorCommercialIdentity(profile: CompetitorProfile): string[] {
+  const specs = profile.resolvedSpec?.specs;
+  const isAvoip = profile.resolvedSpec?.domain === "AVOIP" || profile.requestedTags.includes("avoip");
+  const isHdBaseT = profile.resolvedSpec?.domain === "HDBASET" || profile.requestedTags.includes("hdbaset");
+  const role = (profile.role || "").toLowerCase();
+  const identity: string[] = [];
+  const ecosystem = compareCompetitorEcosystem(profile);
+  const classLabel =
+    profile.productClass.toLowerCase() === "av-over-ip"
+      ? "an AV-over-IP product"
+      : /^[aeiou]/i.test(profile.productClass)
+        ? `an ${profile.productClass.toLowerCase()}`
+        : `a ${profile.productClass.toLowerCase()}`;
+
+  if (profile.productClass !== "Unknown") {
+    identity.push(`This product is ${classLabel} in the ${ecosystem} family.`);
+  }
+
+  const sourceSideIo = joinCommercialFactParts([
+    commercialPortLabel(profile.resolvedSpec?.inputCount ?? specs?.hdmiInputs, "source/video input"),
+    commercialPortLabel(specs?.networkPorts ?? (isAvoip ? 1 : undefined), "LAN/network port"),
+  ]);
+
+  const displaySideIo = joinCommercialFactParts([
+    commercialPortLabel(specs?.networkPorts ?? (isAvoip ? 1 : undefined), "LAN/network port"),
+    commercialPortLabel(profile.resolvedSpec?.outputCount ?? specs?.hdmiOutputs, "display/video output"),
+  ]);
+
+  const routedIo = joinCommercialFactParts([
+    commercialPortLabel(specs?.hdmiInputs ?? profile.resolvedSpec?.inputCount, "HDMI input"),
+    commercialPortLabel(specs?.hdmiOutputs ?? profile.resolvedSpec?.outputCount, "HDMI output"),
+    commercialPortLabel(specs?.usbCPorts, "USB-C port"),
+    commercialPortLabel(specs?.networkPorts, "LAN/network port"),
+  ]);
+
+  if (isAvoip && /encoder|transmitter/.test(role) && sourceSideIo) {
+    identity.push(`Headline I/O: ${sourceSideIo}.`);
+  } else if (isAvoip && /decoder|receiver/.test(role) && displaySideIo) {
+    identity.push(`Headline I/O: ${displaySideIo}.`);
+  } else if (routedIo) {
+    identity.push(`Headline I/O: ${routedIo}.`);
+  }
+
+  const extraVideoIo = joinCommercialFactParts([
+    commercialPortLabel(specs?.displayPortInputs, "DisplayPort input"),
+    commercialPortLabel(specs?.displayPortOutputs, "DisplayPort output"),
+    commercialPortLabel(specs?.dviInputs, "DVI input"),
+    commercialPortLabel(specs?.dviOutputs, "DVI output"),
+    commercialPortLabel(specs?.vgaInputs, "VGA input"),
+    commercialPortLabel(specs?.vgaOutputs, "VGA output"),
+    commercialPortLabel(specs?.sdiInputs, "SDI input"),
+    commercialPortLabel(specs?.sdiOutputs, "SDI output"),
+    commercialPortLabel(specs?.compositeInputs, "composite input"),
+    commercialPortLabel(specs?.componentInputs, "component input"),
+  ]);
+
+  if (extraVideoIo) {
+    identity.push(`Other video I/O: ${extraVideoIo}.`);
+  }
+
+  const featureCallouts = joinCommercialFactParts([
+    profile.resolvedSpec?.maxResolution ? `Resolution ${profile.resolvedSpec.maxResolution}` : "",
+    specs?.hdmiVersion ? specs.hdmiVersion : "",
+    specs?.hdcpVersion ? specs.hdcpVersion : "",
+    specs?.usbStandard ? specs.usbStandard : "",
+    isHdBaseT && specs?.hdbasetVersion ? specs.hdbasetVersion : "",
+    isHdBaseT && specs?.hdbasetClass ? specs.hdbasetClass : "",
+    specs?.dante ? "Dante" : "",
+    specs?.wirelessCasting ? "Wireless casting" : "",
+  ]);
+
+  if (featureCallouts) {
+    identity.push(`Key feature callouts: ${featureCallouts}.`);
+  }
+
+  return uniqueText(identity, 4);
 }
 
 function buildCompetitorSummary(profile: CompetitorProfile, mustMatchFeatures: string): CompetitorSummary {
@@ -1577,6 +1665,7 @@ function buildCompetitorSummary(profile: CompetitorProfile, mustMatchFeatures: s
 
   const warning = exactLimitedDataWarning(profile);
   const outcomeLabel = warning ? "Insufficient competitor data" : profile.productClass === "Unknown" ? "Feature check needed" : "Same product job";
+  const identityItems = competitorCommercialIdentity(profile);
 
   if (isAtlonaOmeExKitProfile(profile)) {
     return {
@@ -1596,6 +1685,11 @@ function buildCompetitorSummary(profile: CompetitorProfile, mustMatchFeatures: s
         { label: "Resolution", value: resolvedSpec?.maxResolution || "Not verified locally" },
         { label: "Ecosystem / family", value: "Atlona OME" },
       ],
+      identityItems: uniqueText([
+        "This product is an HDBaseT extender in the Atlona OME family.",
+        "Headline I/O: 1x source/video input, 1x display/video output, USB/control extension over category cable.",
+        resolvedSpec?.maxResolution ? `Key feature callouts: Resolution ${resolvedSpec.maxResolution}.` : "",
+      ], 4),
       knownFeatures: uniqueText([
         "Point-to-point HDMI / USB / control extension over category cable.",
         "USB 2.0 plus control transport where supported.",
@@ -1629,6 +1723,7 @@ function buildCompetitorSummary(profile: CompetitorProfile, mustMatchFeatures: s
     resolution: resolvedSpec?.maxResolution || "Not verified locally",
     ecosystem: compareCompetitorEcosystem(profile),
     facts,
+    identityItems,
     knownFeatures,
     unknownFeatures,
     verifyItems,
@@ -1833,6 +1928,15 @@ function salesWhatItDoes(competitor: CompetitorSummary): string {
   return `${competitor.heading} is used to ${competitorPlainEnglishPurpose(competitor)}.`;
 }
 
+function competitorIdentityItems(competitor: CompetitorSummary): string[] {
+  return uniqueText([
+    ...competitor.identityItems,
+    competitor.resolution && competitor.resolution !== "Not verified locally" && !competitor.identityItems.some((item) => item.includes(competitor.resolution))
+      ? `Key feature callouts: Resolution ${competitor.resolution}.`
+      : "",
+  ], 4);
+}
+
 function salesDirectionFitLabel(candidate: ScoredCandidate): string {
   if (candidate.outcomeLabel === "Insufficient competitor data") return "Insufficient competitor data";
   if (candidate.outcomeLabel === "Wrong product type") return "Wrong product type";
@@ -1989,6 +2093,7 @@ function BestCandidateCard({
   const comparisonRows = salesComparisonRows(competitor, candidate);
   const directionFit = salesDirectionFitLabel(candidate);
   const replacementConfidence = salesReplacementConfidenceLabel(competitor, candidate);
+  const identityItems = competitorIdentityItems(competitor);
 
   return (
     <section className="compare-native-best-card">
@@ -2001,6 +2106,7 @@ function BestCandidateCard({
         <p className="compare-native-label compare-native-label--subtle">Sales answer</p>
         <h3>Competitor product</h3>
         <p>{competitor.heading} is recognised as a {shortRoleLabel(competitor.role)} used to {competitorPlainEnglishPurpose(competitor)}.</p>
+        <CompareEvidenceList title="Product identity" items={identityItems} />
 
         <h3>What it does</h3>
         <p>{salesWhatItDoes(competitor)}</p>
@@ -2259,10 +2365,12 @@ function ComparePageNew() {
     const directionFit = salesDirectionFitLabel(best);
     const replacementConfidence = salesReplacementConfidenceLabel(competitorSummary, best);
     const askCustomer = salesAskCustomer(competitorSummary, best);
+    const identityItems = competitorIdentityItems(competitorSummary);
     const limitedWarning = exactLimitedDataWarning(profile);
 
     return [
       `${competitorSummary.heading} appears to be a ${shortRoleLabel(competitorSummary.role)}.`,
+      ...identityItems.map((line) => line),
       `The closest WyreStorm direction is ${best.product.sku} because it performs the same basic job in a ${best.product.family} system.`,
       `${directionFit}. ${replacementConfidence}.`,
       salesImportantDifference(competitorSummary, best),
