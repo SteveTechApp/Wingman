@@ -27565,6 +27565,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
 .compare-native-hero,
 .compare-native-form,
 .compare-native-results,
+.compare-native-stage-card,
 .compare-native-card,
 .compare-native-best-card,
 .compare-native-summary {
@@ -27649,11 +27650,62 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   transform: translateY(-1px);
 }
 
+.compare-native-reset:disabled,
+.compare-native-secondary-action:disabled,
+.compare-native-more:disabled,
+.compare-native-stage-card:disabled {
+  opacity: 0.52;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .compare-native-form {
   display: grid;
   gap: 0.7rem;
   padding: 0.85rem 0.95rem;
   border-radius: 20px;
+}
+
+.compare-native-stage-rail {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.compare-native-stage-card {
+  display: grid;
+  gap: 0.24rem;
+  justify-items: start;
+  padding: 0.78rem 0.86rem;
+  border-radius: 18px;
+  color: rgba(238, 247, 252, 0.96);
+  text-align: left;
+  cursor: pointer;
+}
+
+.compare-native-stage-card strong {
+  font-size: 0.9rem;
+  font-weight: var(--wm-weight-heading);
+  line-height: 1.2;
+}
+
+.compare-native-stage-card.is-active {
+  border-color: rgba(52, 223, 236, 0.5);
+  background:
+    radial-gradient(circle at top left, rgba(52, 223, 236, 0.14), transparent 34%),
+    linear-gradient(180deg, rgba(8, 34, 50, 0.98), rgba(4, 17, 28, 0.96));
+}
+
+.compare-native-stage-card.is-complete {
+  border-color: rgba(105, 235, 171, 0.34);
+}
+
+.compare-native-stage-step {
+  color: rgba(52, 223, 236, 0.86);
+  font-size: 0.72rem;
+  font-weight: var(--wm-weight-ui);
+  letter-spacing: var(--wm-tracking-kicker);
+  text-transform: uppercase;
 }
 
 .compare-native-card {
@@ -27734,6 +27786,11 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   gap: 0.75rem;
   padding: 0.85rem 0.95rem;
   border-radius: 22px;
+}
+
+.compare-native-results--stage {
+  min-height: 320px;
+  align-content: start;
 }
 
 .compare-native-section-title {
@@ -27862,6 +27919,11 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   margin-top: 0.58rem;
 }
 
+.compare-native-action-row--between {
+  justify-content: space-between;
+  align-items: center;
+}
+
 .compare-native-options {
   display: grid;
   gap: 0.58rem;
@@ -27932,6 +27994,13 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   line-height: 1.35;
 }
 
+.compare-native-guidance-card p:last-child {
+  margin: 0;
+  color: rgba(210, 226, 235, 0.86);
+  font-size: 0.84rem;
+  line-height: 1.38;
+}
+
 @media (max-width: 900px) {
   .compare-native-hero,
   .compare-native-option-card,
@@ -27946,6 +28015,14 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
 
   .compare-native-option-meta {
     justify-content: flex-start;
+  }
+
+  .compare-native-stage-rail {
+    grid-template-columns: 1fr;
+  }
+
+  .compare-native-action-row--between {
+    align-items: stretch;
   }
 }
 
