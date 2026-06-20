@@ -69,9 +69,13 @@ describe("Compare rendered workflow", () => {
 
     expect(screen.getByText("Sales answer")).toBeInTheDocument();
     expect(screen.getByText(/IP350UHD-TX is recognised as a source-side AV-over-IP encoder/i)).toBeInTheDocument();
+    expect(screen.getByText(/IP350UHD-TX is used to put a local HDMI or USB-C source into an AV-over-IP distribution system/i)).toBeInTheDocument();
     expect(screen.getByText(/Use NHD-500-TX when the requirement is encoding a local source into a WyreStorm NetworkHD 500 system/i)).toBeInTheDocument();
-    expect(screen.getByText(/Check before quoting/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Check before quoting/i)).toHaveLength(1);
+    expect(screen.getAllByText(/Ask the customer/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Correct product direction/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Not a drop-in replacement/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText(/Match score context/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/\b\d+%\b/)).not.toBeInTheDocument();
 
     expect(screen.getByText("NHD-500-TX")).toBeInTheDocument();
     expect(screen.getByText("NHD-500-E-TX")).toBeInTheDocument();
@@ -99,8 +103,16 @@ describe("Compare rendered workflow", () => {
 
     expect(screen.getByText(/AT-OMNI-111 is recognised as a source-side AV-over-IP encoder/i)).toBeInTheDocument();
     expect(screen.getByText(/Use NHD-500-TX when the requirement is encoding a local source into a WyreStorm NetworkHD 500 system/i)).toBeInTheDocument();
-    expect(screen.getByText(/Atlona OmniStream and WyreStorm NetworkHD are not drop-in compatible ecosystems/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Check before quoting/i)).toHaveLength(1);
+    expect(screen.getAllByText(/Correct product direction/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Same product job/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Not a drop-in replacement/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Correct WyreStorm direction, not a drop-in replacement/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Atlona OmniStream and WyreStorm NetworkHD are separate ecosystems/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("Product job")).toBeInTheDocument();
+    expect(screen.getByText("System type")).toBeInTheDocument();
+    expect(screen.getByText("System compatibility")).toBeInTheDocument();
+    expect(screen.getAllByText("Match").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Not a match").length).toBeGreaterThanOrEqual(1);
   });
 
   it("makes incomplete competitor data explicit and shows multiple verify-before-quote items", async () => {
@@ -115,16 +127,15 @@ describe("Compare rendered workflow", () => {
     await screen.findByText("Sales answer");
 
     expect(
-      screen.getByText(
+      screen.getAllByText(
         "Wingman has limited local data for this competitor SKU. Treat this as product-direction guidance, not a confirmed direct equivalent.",
-      ),
-    ).toBeInTheDocument();
+      ).length,
+    ).toBeGreaterThanOrEqual(1);
 
-    const verifyHeadings = screen.getAllByText(/Check before quoting/i);
-    expect(verifyHeadings).toHaveLength(1);
-    expect(screen.getByText(/Confirm exact video format, bandwidth and connector expectations before external quote use/i)).toBeInTheDocument();
-    expect(screen.getByText(/Confirm control, audio and USB behaviour before treating this as a direct equivalent/i)).toBeInTheDocument();
-    expect(screen.getByText(/Confirm whether the customer wants the same architecture or is open to a different WyreStorm system direction/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Ask the customer/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Confirm exact video format, bandwidth and connector expectations before external quote use/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Confirm control, audio and USB behaviour before treating this as a direct equivalent/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Confirm whether the customer wants the same architecture or is open to a different WyreStorm system direction/i).length).toBeGreaterThanOrEqual(1);
   });
 
   it("keeps HDBaseT extender kits on extender architecture instead of leading with switchers", async () => {
@@ -161,5 +172,23 @@ describe("Compare rendered workflow", () => {
     expect(screen.getByText(/HMX44-18G-KIT is recognised as a matrix switcher/i)).toBeInTheDocument();
     expect(screen.getByText("MX-0404-SCL")).toBeInTheDocument();
     expect(screen.queryByText(/point-to-point HDBaseT extender kit/i)).not.toBeInTheDocument();
+  });
+
+  it("does not expose old internal compare phrasing in the visible result", async () => {
+    render(
+      <MemoryRouter>
+        <ComparePageNew />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Atlona" }));
+    fireEvent.click(screen.getByRole("button", { name: "AT-OMNI-111" }));
+
+    await screen.findByText("Sales answer");
+
+    expect(screen.queryByText(/Wrong-product avoidance/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/customer workflow/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/network ready for required bandwidth, switching and controller expectations/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/codec\/compression class/i)).not.toBeInTheDocument();
   });
 });
