@@ -54,4 +54,57 @@ describe("Compare rendered workflow", () => {
     expect(activeProject.recommendationEvidence?.evidenceUsed.join(" ").toLowerCase()).toContain("competitor");
     expect(pitchLink.getAttribute("href")).toContain(`/wingman/product-pitch?sku=${encodeURIComponent(selectedSku)}`);
   });
+
+  it("shows evidence-led AVoIP compare reasoning with differentiated candidate explanations", async () => {
+    render(
+      <MemoryRouter>
+        <ComparePageNew />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Blustream" }));
+    fireEvent.click(screen.getByRole("button", { name: "IP350UHD-TX" }));
+
+    await screen.findByText("Best WyreStorm candidate");
+
+    expect(screen.getByText(/Recognised class: AV-over-IP/i)).toBeInTheDocument();
+    expect(screen.getByText(/Signal direction: Source-side \/ encoder path/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Where it matches/i).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText(/Unknown \/ verify before quoting/i).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText(/Required WyreStorm dependencies/i).length).toBeGreaterThanOrEqual(2);
+
+    expect(screen.getByText("NHD-500-TX")).toBeInTheDocument();
+    expect(screen.getByText("NHD-500-E-TX")).toBeInTheDocument();
+    expect(screen.getByText("NHD-510-TX")).toBeInTheDocument();
+
+    expect(screen.getAllByText(/Standard NetworkHD 500 source-side encoder path/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/lighter NetworkHD 500 encoder path/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/audio-network encoder option/i).length).toBeGreaterThanOrEqual(1);
+
+    expect(screen.queryByText(/Closest WyreStorm direction for a 1GbE AV-over-IP endpoint/i)).not.toBeInTheDocument();
+  });
+
+  it("makes incomplete competitor data explicit and shows multiple verify-before-quote items", async () => {
+    render(
+      <MemoryRouter>
+        <ComparePageNew />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "CUSTOM / missing SKU" }));
+
+    await screen.findByText("Best WyreStorm candidate");
+
+    expect(
+      screen.getByText(
+        "Wingman has limited local data for this competitor SKU. Treat this as product-direction guidance, not a confirmed direct equivalent.",
+      ),
+    ).toBeInTheDocument();
+
+    const verifyHeadings = screen.getAllByText(/Unknown \/ verify before quoting/i);
+    expect(verifyHeadings.length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText(/Confirm exact video format, bandwidth and connector expectations before external quote use/i)).toBeInTheDocument();
+    expect(screen.getByText(/Confirm control, audio and USB behaviour before treating this as a direct equivalent/i)).toBeInTheDocument();
+    expect(screen.getByText(/Confirm whether the customer wants the same architecture or is open to a different WyreStorm system direction/i)).toBeInTheDocument();
+  });
 });
