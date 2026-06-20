@@ -525,6 +525,7 @@ function extractTags(text: string): string[] {
   if (includesAny(text, ["TX", "ENCODER", "TRANSMITTER", "SOURCE"])) tags.push("encoder");
   if (includesAny(text, ["RX", "DECODER", "RECEIVER", "DISPLAY"])) tags.push("decoder");
   if (includesAny(text, ["TRX", "TRANSCEIVER"])) tags.push("transceiver");
+  if (includesAny(text, ["EXTENDER", "EXTENSION", "POINT-TO-POINT", "TX/RX KIT", "TX RX KIT", "TRANSMITTER RECEIVER"])) tags.push("extender");
   if (includesAny(text, ["MATRIX", "8X8", "4X4", "16X16", "ROUTING"])) tags.push("matrix");
   if (includesAny(text, ["VIDEO WALL", "VIDEOWALL", "WALL"])) tags.push("video wall");
   if (includesAny(text, ["MULTIVIEW", "MULTI VIEW", "QUAD VIEW", "4 INPUT"])) tags.push("multiview");
@@ -544,6 +545,7 @@ function extractTags(text: string): string[] {
 function productClassFromTags(tags: string[]): string {
   if (tags.includes("video wall")) return "Video wall";
   if (tags.includes("multiview")) return "Multiview";
+  if (tags.includes("hdbaset") || tags.includes("extender")) return "HDBaseT extender";
   if (tags.includes("matrix")) return "Matrix";
   if (tags.includes("avoip")) return "AV-over-IP";
   if (tags.includes("usb")) return "Presentation switcher";
@@ -552,6 +554,8 @@ function productClassFromTags(tags: string[]): string {
 
 function roleFromTags(tags: string[]): string {
   if (tags.includes("transceiver")) return "Transceiver";
+  if (tags.includes("extender") && tags.includes("usb")) return "USB extender";
+  if (tags.includes("extender") || tags.includes("hdbaset")) return "TX/RX extender kit";
   if (tags.includes("encoder")) return "Encoder / transmitter";
   if (tags.includes("decoder")) return "Decoder / receiver";
   if (tags.includes("matrix") || tags.includes("usb")) return "Switcher";
@@ -602,10 +606,16 @@ function buildCompetitorProfile(brand: string, sku: string, description: string)
           ? "Multiview"
           : resolvedSpec?.domain === "MATRIX"
             ? "Matrix"
-            : resolvedSpec?.domain === "PRESENTATION" || resolvedSpec?.domain === "HDBASET"
+            : resolvedSpec?.domain === "HDBASET"
+              ? "HDBaseT extender"
+              : resolvedSpec?.domain === "PRESENTATION"
               ? "Presentation switcher"
               : productClassFromTags(requestedTags),
-    role: resolvedSpec?.role || roleFromTags(requestedTags),
+    role: resolvedSpec?.domain === "HDBASET" && resolvedSpec?.features?.receiverKit
+      ? "TX/RX extender kit"
+      : resolvedSpec?.domain === "HDBASET" && resolvedSpec?.features?.usbRouting
+        ? "USB extender"
+        : resolvedSpec?.role || roleFromTags(requestedTags),
     transport: resolvedSpec?.transport || transportFromTags(requestedTags),
     requestedTags,
     videoTags: requestedTags.filter((tag) => ["4k60", "444", "hdr", "10g"].includes(tag)),
