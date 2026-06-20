@@ -89,6 +89,7 @@ const ALL_COMPETITOR_SKUS: string[] = Object.values(COMPETITOR_SKU_SEED_CATALOG)
   .map((sku) => String(sku));
 
 type Verdict = "GOOD MATCH" | "PARTIAL MATCH" | "ARCHITECTURE ALTERNATIVE" | "NO MATCH";
+type CompareStage = "brand" | "sku" | "results";
 
 type CompetitorProfile = {
   brand: string;
@@ -2239,15 +2240,25 @@ function CompareSummaryPanel({ summary, requestLiveLookup, sourceUrl }: { summar
   );
 }
 
+const COMPARE_STAGES: Array<{ key: CompareStage; step: string; title: string }> = [
+  { key: "brand", step: "Step 1", title: "Choose competitor brand" },
+  { key: "sku", step: "Step 2", title: "Choose competitor product" },
+  { key: "results", step: "Step 3", title: "Review WyreStorm direction" },
+];
+
 function ComparePageNew() {
   const bestMatchRef = useRef<HTMLDivElement | null>(null);
   const [selectedBrand, setSelectedBrand] = useState("Atlona");
   const [competitorInput, setCompetitorInput] = useState("");
   const [mustMatchFeatures, setMustMatchFeatures] = useState("");
   const [workflowStep, setWorkflowStep] = useState<"capture" | "options">("capture");
+  const [compareStage, setCompareStage] = useState<CompareStage>("brand");
   const [hasCompared, setHasCompared] = useState(false);
   const [, setState] = useState<"capture" | "analyzing" | "results">("capture");
   const [customSkuStore, setCustomSkuStore] = useState<string[]>([]);
+  const [customManufacturerStore, setCustomManufacturerStore] = useState<string[]>([]);
+  const [customManufacturerInput, setCustomManufacturerInput] = useState("");
+  const [isAddingManufacturer, setIsAddingManufacturer] = useState(false);
   const [committedSku, setCommittedSku] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -2270,7 +2281,13 @@ function ComparePageNew() {
 
   const avoipProfile = useMemo(() => mapCompetitorToNetworkHdAvoip(profile.rawText), [profile.rawText]);
   const competitorSummary = useMemo(() => buildCompetitorSummary(profile, mustMatchFeatures), [mustMatchFeatures, profile]);
+  const hasCompetitorSelection = competitorInput.trim().length > 0;
 
+  const compareManufacturerOptions = useMemo(() => {
+    const seededBrands = new Set(MANUFACTURER_SELECT_OPTIONS.map((brand) => brand.toLowerCase()));
+    const newBrands = customManufacturerStore.filter((brand) => !seededBrands.has(brand.toLowerCase()));
+    return [...newBrands, ...MANUFACTURER_SELECT_OPTIONS];
+  }, [customManufacturerStore]);
   const scoredCandidates = useMemo(() => {
     const avoip = avoipProfile;
 
@@ -2332,6 +2349,7 @@ function ComparePageNew() {
 
     setHasCompared(true);
     setWorkflowStep("options");
+    setCompareStage("results");
     setState("results");
   }, [effectiveBrand, mustMatchFeatures]);
 
@@ -2341,6 +2359,7 @@ function ComparePageNew() {
     runKnownProfileCompare(profile);
     setHasCompared(true);
     setWorkflowStep("options");
+    setCompareStage("results");
     setState("results");
     runCompare();
   }, [profile, competitorInput, customSkuStore]);
@@ -2439,9 +2458,44 @@ function ComparePageNew() {
     [best, competitorInput, effectiveBrand, mustMatchFeatures, navigate, summary],
   );
 
+  function saveCustomManufacturer(): void {
+    const brand = customManufacturerInput.trim();
+
+    if (!brand) {
+      return;
+    }
+
+    const lowerBrand = brand.toLowerCase();
+
+    setCustomManufacturerStore((current) => {
+      const alreadyCustom = current.some((item) => item.toLowerCase() === lowerBrand);
+      const alreadySeeded = MANUFACTURER_SELECT_OPTIONS.some((item) => item.toLowerCase() === lowerBrand);
+
+      if (alreadyCustom || alreadySeeded) {
+        return current;
+      }
+
+      return [brand, ...current].slice(0, 12);
+    });
+
+    setSelectedBrand(brand);
+    setCompetitorInput("");
+    setCommittedSku(null);
+    setMustMatchFeatures("");
+    setWorkflowStep("capture");
+    setHasCompared(false);
+    setState("capture");
+    setCustomManufacturerInput("");
+    setIsAddingManufacturer(false);
+    setCompareStage("sku");
+  }
   function onBrandSelect(brand: string): void {
     setSelectedBrand(brand);
-    setWorkflowStep("options");
+    setCompetitorInput("");
+    setCommittedSku(null);
+    setIsAddingManufacturer(false);
+    setCustomManufacturerInput("");
+    setCompareStage("sku");
   }
 
   function onSkuSelect(sku: string): void {
@@ -2457,6 +2511,7 @@ function ComparePageNew() {
 
     setHasCompared(true);
     setWorkflowStep("options");
+    setCompareStage("results");
   }
 
   function resetCompare(): void {
@@ -2464,8 +2519,12 @@ function ComparePageNew() {
     setCompetitorInput("");
     setMustMatchFeatures("");
     setWorkflowStep("capture");
+    setCompareStage("brand");
     setHasCompared(false);
     setCustomSkuStore([]);
+    setCustomManufacturerStore([]);
+    setCustomManufacturerInput("");
+    setIsAddingManufacturer(false);
     setCommittedSku(null);
   }
 
@@ -2482,45 +2541,188 @@ function ComparePageNew() {
           <p className="compare-native-eyebrow">Competitor Compare</p>
           <h1>Find the nearest WyreStorm product direction</h1>
           <p>
-            Select a competitor brand and known SKU, or enter a custom model. Wingman ranks the closest WyreStorm direction and keeps the result quote-safe.
+            Move through the compare workflow one step at a time so the user sees the product direction first, then the deeper evidence only when needed, while Wingman keeps the result quote-safe.
           </p>
         </div>
         <button className="compare-native-reset" type="button" onClick={handleReset}>Reset compare</button>
       </section>
 
-      <form className="compare-native-form" onSubmit={handleSubmit}>
-        <CompareManufacturerCombobox brands={MANUFACTURER_SELECT_OPTIONS} selectedBrand={selectedBrand} onBrandSelect={onBrandSelect} />
-        <CompareProductLookupInput
-          value={competitorInput}
-          knownSkus={knownBrandSkus}
-          suggestions={skuSuggestions}
-          onInputChange={setCompetitorInput}
-          onSkuSelect={onSkuSelect}
-        />
+      <nav className="compare-native-stage-rail" aria-label="Compare workflow steps">
+        {COMPARE_STAGES.map((stage, index) => {
+          const isActive = compareStage === stage.key;
+          const currentIndex = COMPARE_STAGES.findIndex((item) => item.key === compareStage);
+          const isComplete = currentIndex > index;
+          const isLocked = stage.key === "results" && !hasCompared;
 
-        <section className="compare-native-card compare-native-card--compact">
-          <label className="compare-native-label" htmlFor="compare-must-match">Known type or must-match features</label>
-          <input
-            id="compare-must-match"
-            className="compare-native-input"
-            value={mustMatchFeatures}
-            onChange={(event) => setMustMatchFeatures(event.target.value)}
-            placeholder="Example: AV-over-IP transmitter HDMI 2.0 4K60 4:4:4 HDR USB"
-          />
+          return (
+            <button
+              key={stage.key}
+              type="button"
+              className={`compare-native-stage-card${isActive ? " is-active" : ""}${isComplete ? " is-complete" : ""}`}
+              onClick={() => {
+                if (isLocked) {
+                  return;
+                }
+
+                setCompareStage(stage.key);
+              }}
+              aria-current={isActive ? "step" : undefined}
+              disabled={isLocked}
+            >
+              <span className="compare-native-stage-step">{stage.step}</span>
+              <strong>{stage.title}</strong>
+            </button>
+          );
+        })}
+      </nav>
+
+      {compareStage === "brand" ? (
+        <section className="compare-native-results compare-native-results--stage" aria-live="polite">
+          <div className="compare-native-section-title">
+            <h2>Choose competitor brand</h2>
+            <p>Start with the manufacturer so Wingman can narrow the SKU list and compare against the right product family.</p>
+          </div>
+
+          <CompareManufacturerCombobox brands={compareManufacturerOptions} selectedBrand={selectedBrand} onBrandSelect={onBrandSelect} />
+
+          <section className="compare-native-card compare-native-card--compact compare-native-guidance-card">
+            <p className="compare-native-label compare-native-label--subtle">Why this step matters</p>
+            <p>Picking the brand first keeps the next screen shorter and avoids mixing unlike technologies before the actual competitor product has been chosen.</p>
+          </section>
+
+          {isAddingManufacturer ? (
+            <section className="compare-native-card compare-native-card--compact">
+              <label className="compare-native-label" htmlFor="compare-custom-manufacturer">Missing manufacturer name</label>
+              <input
+                id="compare-custom-manufacturer"
+                className="compare-native-input"
+                value={customManufacturerInput}
+                onChange={(event) => setCustomManufacturerInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key !== "Enter") {
+                    return;
+                  }
+
+                  event.preventDefault();
+                  saveCustomManufacturer();
+                }}
+                placeholder="Example: AVPro Edge, AV Access, PureLink"
+                autoFocus
+              />
+              <p className="compare-native-auto-note">
+                Use this when the competitor brand is not listed. The next step will capture the missing model/SKU and the must-match features.
+              </p>
+              <div className="compare-native-action-row">
+                <button className="compare-native-more" type="button" onClick={saveCustomManufacturer} disabled={customManufacturerInput.trim().length === 0}>
+                  Use this manufacturer
+                </button>
+                <button
+                  className="compare-native-secondary-action"
+                  type="button"
+                  onClick={() => {
+                    setIsAddingManufacturer(false);
+                    setCustomManufacturerInput("");
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </section>
+          ) : null}
+          <div className="compare-native-action-row compare-native-action-row--between">
+            <span className="compare-native-muted">Selected brand: {selectedBrand}</span>
+            <div className="compare-native-action-row">
+              <button
+                className="compare-native-secondary-action"
+                type="button"
+                onClick={() => {
+                  setIsAddingManufacturer((current) => !current);
+                  setCustomManufacturerInput("");
+                }}
+              >
+                Add missing manufacturer
+              </button>
+              <button className="compare-native-more" type="button" onClick={() => setCompareStage("sku")}>
+                Next: choose competitor product
+              </button>
+            </div>
+          </div>
         </section>
+      ) : null}
 
-        <button className="compare-native-hidden-submit" type="submit" aria-hidden="true" tabIndex={-1}>Run compare</button>
-      </form>
+      {compareStage === "sku" ? (
+        <form className="compare-native-results compare-native-results--stage" onSubmit={handleSubmit}>
+          <div className="compare-native-section-title">
+            <h2>Choose competitor product</h2>
+            <p>Pick a known SKU, or type a custom model and add only the details that change the product direction or quote risk.</p>
+          </div>
 
-      <p className="compare-native-auto-note">Select a competitor SKU to show WyreStorm options automatically. Typed entries can still use Enter.</p>
+          <CompareProductLookupInput
+            value={competitorInput}
+            knownSkus={knownBrandSkus}
+            suggestions={skuSuggestions}
+            onInputChange={setCompetitorInput}
+            onSkuSelect={onSkuSelect}
+          />
 
-      <section className="compare-native-results" aria-live="polite">
-        <div className="compare-native-section-title">
-          <h2>{workflowStep === "capture" ? "Start a new competitor comparison" : "Review WyreStorm product direction"}</h2>
-          <p>Known SKUs for the selected brand are clickable. For missing models, enter the SKU manually and describe any must-match features.</p>
-        </div>
+          <section className="compare-native-card compare-native-card--compact">
+            <label className="compare-native-label" htmlFor="compare-must-match">Known type or must-match features</label>
+            <input
+              id="compare-must-match"
+              className="compare-native-input"
+              value={mustMatchFeatures}
+              onChange={(event) => setMustMatchFeatures(event.target.value)}
+              placeholder="Example: AV-over-IP transmitter HDMI 2.0 4K60 4:4:4 HDR USB"
+            />
+          </section>
 
-        {hasCompared ? (
+          <p className="compare-native-auto-note">Clicking a known SKU will still open the result automatically. Typed entries can still use Enter, or use the review button below.</p>
+
+          <div className="compare-native-action-row compare-native-action-row--between">
+            <button className="compare-native-secondary-action" type="button" onClick={() => setCompareStage("brand")}>
+              Back to brand
+            </button>
+            <div className="compare-native-action-row">
+              <button
+                className="compare-native-secondary-action"
+                type="button"
+                onClick={() => {
+                  const customLabel = competitorInput.trim().length > 0 ? competitorInput.trim() : "Custom / missing SKU";
+                  setCompetitorInput(customLabel);
+                  setCommittedSku(customLabel);
+                  setCustomSkuStore((current) => current.includes(customLabel) ? current : [customLabel, ...current].slice(0, 8));
+                }}
+              >
+                CUSTOM / missing SKU
+              </button>
+              <button className="compare-native-more" type="submit" disabled={!hasCompetitorSelection}>
+                Review WyreStorm direction
+              </button>
+            </div>
+          </div>
+
+          <button className="compare-native-hidden-submit" type="submit" aria-hidden="true" tabIndex={-1}>Run compare</button>
+        </form>
+      ) : null}
+
+      {compareStage === "results" ? (
+        <section className="compare-native-results" aria-live="polite">
+          <div className="compare-native-section-title compare-native-section-title--inline">
+            <div>
+              <h2>{workflowStep === "capture" ? "Start a new competitor comparison" : "Review WyreStorm product direction"}</h2>
+              <p>The sales answer is shown first. Deeper evidence stays inside expandable sections so the user does not need to read everything up front.</p>
+            </div>
+            <div className="compare-native-action-row">
+              <button className="compare-native-secondary-action" type="button" onClick={() => setCompareStage("sku")}>
+                Edit competitor details
+              </button>
+              <button className="compare-native-secondary-action" type="button" onClick={handleReset}>
+                Start new compare
+              </button>
+            </div>
+          </div>
+
+          {hasCompared ? (
           <>
             {best ? (
               <div
@@ -2585,8 +2787,9 @@ function ComparePageNew() {
               </section>
             ) : null}
           </>
-        ) : null}
-      </section>
+          ) : null}
+        </section>
+      ) : null}
 
       <span className="compare-native-marker" aria-hidden="true">{ROUTE_LOCK_MARKER}</span>
       <span className="compare-native-marker" aria-hidden="true">{COMPARE_TYPEAHEAD_STATIC_MARKERS.join(" ")}</span>

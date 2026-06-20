@@ -128,7 +128,16 @@ describe("Compare rendered workflow", () => {
       </MemoryRouter>,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "CUSTOM / missing SKU" }));
+        const nextProductStep = screen.queryByRole("button", { name: /next: choose competitor product/i });
+
+    if (nextProductStep) {
+      fireEvent.click(nextProductStep);
+    }
+
+    await screen.findByRole("heading", { name: /choose competitor product/i });
+
+    const customSkuButtons = await screen.findAllByRole("button", { name: /custom \/ missing sku/i });
+    fireEvent.click(customSkuButtons[0]);
 
     await screen.findByText("Sales answer");
 
