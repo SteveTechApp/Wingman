@@ -29,7 +29,7 @@ describe("Compare rendered workflow", () => {
     fireEvent.click(screen.getByRole("button", { name: "Crestron" }));
     fireEvent.click(screen.getByRole("button", { name: "DM-NVX-350" }));
 
-    await screen.findByText("Best WyreStorm candidate");
+    await screen.findByText("Sales answer");
 
     const pitchLink = screen.getByRole("link", { name: /See full pitch/i });
     const addToProjectButton = screen.getByRole("button", { name: /Add to project/i });
@@ -55,7 +55,7 @@ describe("Compare rendered workflow", () => {
     expect(pitchLink.getAttribute("href")).toContain(`/wingman/product-pitch?sku=${encodeURIComponent(selectedSku)}`);
   });
 
-  it("shows evidence-led AVoIP compare reasoning with differentiated candidate explanations", async () => {
+  it("shows a short sales-first AVoIP compare answer with differentiated candidate explanations", async () => {
     render(
       <MemoryRouter>
         <ComparePageNew />
@@ -65,23 +65,42 @@ describe("Compare rendered workflow", () => {
     fireEvent.click(screen.getByRole("button", { name: "Blustream" }));
     fireEvent.click(screen.getByRole("button", { name: "IP350UHD-TX" }));
 
-    await screen.findByText("Best WyreStorm candidate");
+    await screen.findByText("Sales answer");
 
-    expect(screen.getByText(/Recognised class: AV-over-IP/i)).toBeInTheDocument();
-    expect(screen.getByText(/Signal direction: Source-side \/ encoder path/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Where it matches/i).length).toBeGreaterThanOrEqual(2);
-    expect(screen.getAllByText(/Unknown \/ verify before quoting/i).length).toBeGreaterThanOrEqual(2);
-    expect(screen.getAllByText(/Required WyreStorm dependencies/i).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText("Sales answer")).toBeInTheDocument();
+    expect(screen.getByText(/IP350UHD-TX is recognised as a source-side AV-over-IP encoder/i)).toBeInTheDocument();
+    expect(screen.getByText(/Use NHD-500-TX when the requirement is encoding a local source into a WyreStorm NetworkHD 500 system/i)).toBeInTheDocument();
+    expect(screen.getByText(/Check before quoting/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Check before quoting/i)).toHaveLength(1);
 
     expect(screen.getByText("NHD-500-TX")).toBeInTheDocument();
     expect(screen.getByText("NHD-500-E-TX")).toBeInTheDocument();
     expect(screen.getByText("NHD-510-TX")).toBeInTheDocument();
 
+    fireEvent.click(screen.getAllByText(/More detail/i)[0]);
     expect(screen.getAllByText(/Standard NetworkHD 500 source-side encoder path/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/lighter NetworkHD 500 encoder path/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/audio-network encoder option/i).length).toBeGreaterThanOrEqual(1);
 
     expect(screen.queryByText(/Closest WyreStorm direction for a 1GbE AV-over-IP endpoint/i)).not.toBeInTheDocument();
+  });
+
+  it("states ecosystem difference for Atlona OmniStream encoder and keeps the sales answer compact", async () => {
+    render(
+      <MemoryRouter>
+        <ComparePageNew />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Atlona" }));
+    fireEvent.click(screen.getByRole("button", { name: "AT-OMNI-111" }));
+
+    await screen.findByText("Sales answer");
+
+    expect(screen.getByText(/AT-OMNI-111 is recognised as a source-side AV-over-IP encoder/i)).toBeInTheDocument();
+    expect(screen.getByText(/Use NHD-500-TX when the requirement is encoding a local source into a WyreStorm NetworkHD 500 system/i)).toBeInTheDocument();
+    expect(screen.getByText(/Atlona OmniStream and WyreStorm NetworkHD are not drop-in compatible ecosystems/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Check before quoting/i)).toHaveLength(1);
   });
 
   it("makes incomplete competitor data explicit and shows multiple verify-before-quote items", async () => {
@@ -93,7 +112,7 @@ describe("Compare rendered workflow", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "CUSTOM / missing SKU" }));
 
-    await screen.findByText("Best WyreStorm candidate");
+    await screen.findByText("Sales answer");
 
     expect(
       screen.getByText(
@@ -101,8 +120,8 @@ describe("Compare rendered workflow", () => {
       ),
     ).toBeInTheDocument();
 
-    const verifyHeadings = screen.getAllByText(/Unknown \/ verify before quoting/i);
-    expect(verifyHeadings.length).toBeGreaterThanOrEqual(2);
+    const verifyHeadings = screen.getAllByText(/Check before quoting/i);
+    expect(verifyHeadings).toHaveLength(1);
     expect(screen.getByText(/Confirm exact video format, bandwidth and connector expectations before external quote use/i)).toBeInTheDocument();
     expect(screen.getByText(/Confirm control, audio and USB behaviour before treating this as a direct equivalent/i)).toBeInTheDocument();
     expect(screen.getByText(/Confirm whether the customer wants the same architecture or is open to a different WyreStorm system direction/i)).toBeInTheDocument();
@@ -118,10 +137,9 @@ describe("Compare rendered workflow", () => {
     fireEvent.click(screen.getByRole("button", { name: "Atlona" }));
     fireEvent.click(screen.getByRole("button", { name: "AT-OME-EX-KIT" }));
 
-    await screen.findByText("Best WyreStorm candidate");
+    await screen.findByText("Sales answer");
 
-    expect(screen.getByText(/Recognised class: HDBaseT extender/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/TX\/RX extender kit/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/AT-OME-EX-KIT is recognised as a point-to-point HDBaseT extender kit/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Quote the transmitter\/receiver kit or matching endpoint pair/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("EX-100-KVM")).toBeInTheDocument();
     expect(screen.queryByText("MX-0403-H3-MST")).not.toBeInTheDocument();
@@ -138,10 +156,10 @@ describe("Compare rendered workflow", () => {
     fireEvent.click(screen.getByRole("button", { name: "Blustream" }));
     fireEvent.click(screen.getByRole("button", { name: "HMX44-18G-KIT" }));
 
-    await screen.findByText("Best WyreStorm candidate");
+    await screen.findByText("Sales answer");
 
-    expect(screen.getByText(/Recognised class: Matrix/i)).toBeInTheDocument();
+    expect(screen.getByText(/HMX44-18G-KIT is recognised as a matrix switcher/i)).toBeInTheDocument();
     expect(screen.getByText("MX-0404-SCL")).toBeInTheDocument();
-    expect(screen.queryByText(/Recognised class: HDBaseT extender/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/point-to-point HDBaseT extender kit/i)).not.toBeInTheDocument();
   });
 });

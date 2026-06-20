@@ -1361,6 +1361,12 @@ function compareSignalDirection(profile: CompetitorProfile): string {
 }
 
 function compareCompetitorEcosystem(profile: CompetitorProfile): string {
+  const combined = [profile.brand, profile.sku, profile.rawText].join(" ").toUpperCase();
+
+  if (combined.includes("OMNISTREAM") || combined.includes("AT-OMNI") || combined.includes("ATOMNI")) {
+    return "Atlona OmniStream";
+  }
+
   if (profile.resolvedSpec?.title) return profile.resolvedSpec.title;
   if (profile.resolvedSpec?.brand && profile.productClass !== "Unknown") {
     return `${profile.resolvedSpec.brand} ${profile.productClass}`;
@@ -1801,6 +1807,144 @@ function CompareEvidenceList({ title, items, className = "" }: { title: string; 
   );
 }
 
+function shortRoleLabel(role: string): string {
+  const value = role.trim();
+  if (/encoder|transmitter/i.test(value)) return "source-side AV-over-IP encoder";
+  if (/decoder|receiver/i.test(value)) return "display-side AV-over-IP decoder";
+  if (/transceiver/i.test(value)) return "AV-over-IP transceiver";
+  if (/tx\/rx extender kit/i.test(value)) return "point-to-point HDBaseT extender kit";
+  if (/usb extender/i.test(value)) return "USB extension endpoint";
+  if (/presentation switcher|switcher/i.test(value)) return "presentation switcher";
+  if (/matrix/i.test(value)) return "matrix switcher";
+  if (/video wall/i.test(value)) return "video wall processor";
+  return value.toLowerCase();
+}
+
+function competitorPlainEnglishPurpose(competitor: CompetitorSummary): string {
+  if (/av-over-ip/i.test(competitor.recognisedClass) && /encoder|transmitter/i.test(competitor.role)) {
+    return "put a local HDMI or USB-C source into an AV-over-IP distribution system";
+  }
+
+  if (/av-over-ip/i.test(competitor.recognisedClass) && /decoder|receiver/i.test(competitor.role)) {
+    return "pull a stream back out of an AV-over-IP system at the display end";
+  }
+
+  if (/hdbaset/i.test(competitor.recognisedClass) || /extender/i.test(competitor.role)) {
+    return "extend a source to a remote display or device over category cable";
+  }
+
+  if (/matrix/i.test(competitor.recognisedClass)) {
+    return "route multiple sources to different display destinations";
+  }
+
+  if (/presentation/i.test(competitor.recognisedClass)) {
+    return "switch room sources cleanly for a meeting-room or presentation workflow";
+  }
+
+  if (/video wall/i.test(competitor.recognisedClass)) {
+    return "build and control a dedicated video wall layout";
+  }
+
+  return "solve the same system requirement in the competitor ecosystem";
+}
+
+function wyrestormPlainEnglishRequirement(candidate: ScoredCandidate, competitor: CompetitorSummary): string {
+  if (/NHD-500-TX/i.test(candidate.product.sku)) {
+    return "encoding a local source into a WyreStorm NetworkHD 500 system";
+  }
+
+  if (/NHD-500-E-TX/i.test(candidate.product.sku)) {
+    return "a lighter NetworkHD 500 source encoder path without stepping up to richer endpoint features";
+  }
+
+  if (/NHD-510-TX/i.test(candidate.product.sku)) {
+    return "encoding into NetworkHD 500 where Dante or audio-network workflow matters";
+  }
+
+  if (/^EX-/i.test(candidate.product.sku)) {
+    return "point-to-point extension over category cable rather than switching or matrix routing";
+  }
+
+  if (/^MX-0404-SCL$/i.test(candidate.product.sku)) {
+    return "a contained local matrix with fixed routed HDMI outputs";
+  }
+
+  if (/^MX/i.test(candidate.product.sku)) {
+    return "routed source-to-display switching inside a contained matrix system";
+  }
+
+  if (/^SW-020[46]-VW$/i.test(candidate.product.sku)) {
+    return "a dedicated WyreStorm video wall processor path";
+  }
+
+  if (/^SW-|presentation/i.test(candidate.product.productClass)) {
+    return "presentation-room switching and source ownership in one room";
+  }
+
+  if (/av-over-ip/i.test(competitor.recognisedClass)) {
+    return "the same endpoint role inside the correct WyreStorm AV-over-IP family";
+  }
+
+  return "the same system role in a WyreStorm design";
+}
+
+function salesOutcomeBadges(competitor: CompetitorSummary, candidate: ScoredCandidate): string[] {
+  const badges: string[] = [];
+
+  if (candidate.matched.some((item) => /Same endpoint role/i.test(item))) badges.push("Same product role");
+  if (candidate.matched.some((item) => /Same product class|Same product class: point-to-point HDBaseT extender path|Same NetworkHD 500 source-side encoder architecture|matrix/i.test(item))) badges.push("Same system type");
+  if (candidate.mismatches.length > 0 || candidate.blockers.length > 0) badges.push("Not drop-in compatible");
+  if (candidate.unknowns.length > 0 || competitor.warning) badges.push("Feature check needed");
+  if (candidate.outcomeLabel === "Wrong product class") badges.push("Wrong direction");
+
+  return uniqueText(badges, 5);
+}
+
+function salesWhyBullets(candidate: ScoredCandidate): string[] {
+  return uniqueText([
+    ...candidate.matched,
+    ...candidate.partialMatches,
+  ], 4);
+}
+
+function salesImportantDifference(competitor: CompetitorSummary, candidate: ScoredCandidate): string {
+  if (/av-over-ip/i.test(competitor.recognisedClass) && /^NHD-5/i.test(candidate.product.sku)) {
+    return `${competitor.ecosystem} and WyreStorm NetworkHD are not drop-in compatible ecosystems unless the protocol, control method and endpoint expectations are proven equivalent. Position this as the right WyreStorm system direction, not as a plug-swap replacement.`;
+  }
+
+  if (/hdbaset/i.test(competitor.recognisedClass) && /^EX-/i.test(candidate.product.sku)) {
+    return "This stays in the same point-to-point extension lane, but HDMI version, HDBaseT class, cable distance and USB/control behaviour still need to match before it is treated as equivalent.";
+  }
+
+  if (/matrix/i.test(competitor.recognisedClass) && /^MX/i.test(candidate.product.sku)) {
+    return "This is the right WyreStorm matrix direction, but it is only a safe match if the routed I/O size, output behaviour and required signal format really line up with the competitor design.";
+  }
+
+  if (candidate.mismatches[0]) {
+    return candidate.mismatches[0];
+  }
+
+  return "This is the closest WyreStorm direction from the local evidence, but it should still be positioned around system fit rather than claimed as a direct like-for-like swap.";
+}
+
+function salesCheckBeforeQuote(competitor: CompetitorSummary, candidate: ScoredCandidate): string[] {
+  if (competitor.warning) {
+    return uniqueText([
+      ...competitor.verifyItems,
+      ...candidate.dependencies,
+      ...candidate.unknowns,
+      ...candidate.checks,
+    ], 5);
+  }
+
+  return uniqueText([
+    ...candidate.dependencies,
+    ...candidate.unknowns,
+    ...candidate.checks,
+    ...competitor.verifyItems,
+  ], 5);
+}
+
 function CompareManufacturerCombobox(props: {
   brands: string[];
   selectedBrand: string;
@@ -1891,6 +2035,11 @@ function BestCandidateCard({
   competitor: CompetitorSummary;
   onCopySummary: () => void;
 }) {
+  const badges = salesOutcomeBadges(competitor, candidate);
+  const whyBullets = salesWhyBullets(candidate);
+  const importantDifference = salesImportantDifference(competitor, candidate);
+  const checkBeforeQuote = salesCheckBeforeQuote(competitor, candidate);
+
   return (
     <section className="compare-native-best-card">
       <div className="compare-native-result-head">
@@ -1898,50 +2047,79 @@ function BestCandidateCard({
         <span className="compare-native-score">{candidate.outcomeLabel}</span>
       </div>
 
-      <div className="compare-native-compare-grid">
-        <div className="compare-native-product-card compare-native-product-card--competitor">
-          <p className="compare-native-label compare-native-label--subtle">Competitor product Wingman matched against</p>
-          <h3>{competitor.heading}</h3>
-          <h4>{competitor.detail}</h4>
-          <p className="compare-native-match-anchor">{competitor.outcomeLabel}</p>
-          {competitor.warning ? <p className="compare-native-option-check">{competitor.warning}</p> : null}
-          {competitor.facts.length ? (
-            <div className="compare-native-fact-row" aria-label="Competitor headline facts">
-              {competitor.facts.map((fact) => (
-                <span key={`${fact.label}-${fact.value}`} className="compare-native-fact-pill">{fact.label}: {fact.value}</span>
-              ))}
-            </div>
-          ) : null}
-          <CompareEvidenceList title="Known features" items={competitor.knownFeatures} />
-          <CompareEvidenceList title="Unknown / verify before quoting" items={competitor.unknownFeatures.slice(0, 5)} className="compare-native-evidence--warn" />
-          <CompareEvidenceList title="Verify before quoting" items={competitor.verifyItems.slice(0, 5)} className="compare-native-evidence--warn" />
-          {competitor.sourceUrl ? (
-            <div className="compare-native-action-row">
-              <a className="compare-native-secondary-action" href={competitor.sourceUrl} target="_blank" rel="noreferrer">
-                Open competitor reference
-              </a>
-            </div>
-          ) : null}
+      <div className="compare-native-product-card compare-native-product-card--best">
+        <p className="compare-native-label compare-native-label--subtle">Sales answer</p>
+        <h3>Competitor product</h3>
+        <p>{competitor.heading} is recognised as a {shortRoleLabel(competitor.role)} used to {competitorPlainEnglishPurpose(competitor)}.</p>
+
+        <h3>WyreStorm direction</h3>
+        <p>Use {candidate.product.sku} when the requirement is {wyrestormPlainEnglishRequirement(candidate, competitor)}.</p>
+
+        {badges.length ? (
+          <div className="compare-native-fact-row" aria-label="Sales outcome badges">
+            {badges.map((badge) => (
+              <span key={badge} className="compare-native-fact-pill">{badge}</span>
+            ))}
+          </div>
+        ) : null}
+
+        <CompareEvidenceList title="Why this direction" items={whyBullets} />
+
+        <div className="compare-native-evidence-block compare-native-evidence--danger">
+          <p className="compare-native-label compare-native-label--subtle">Important difference</p>
+          <p>{importantDifference}</p>
         </div>
 
-        <div className="compare-native-product-card compare-native-product-card--best">
-          <p className="compare-native-label compare-native-label--subtle">Best WyreStorm candidate</p>
-          <h3>{candidate.product.sku}</h3>
-          <h4>{candidate.product.name}</h4>
-          <p>{candidate.product.family} - {candidate.product.productClass} - {candidate.product.role}</p>
-          <p className="compare-native-match-anchor">{candidate.outcomeLabel}</p>
-          <p className="compare-native-muted">Match score context: {Math.round(candidate.score)}%</p>
-          <CompareEvidenceList title="Where it matches" items={candidate.matched.slice(0, 5)} />
-          <CompareEvidenceList title="Partial matches" items={candidate.partialMatches.slice(0, 4)} />
-          <CompareEvidenceList title="Where it does not match" items={candidate.mismatches.slice(0, 4)} className="compare-native-evidence--danger" />
-          <CompareEvidenceList title="Unknown / verify before quoting" items={uniqueText([...candidate.unknowns, ...candidate.checks, ...candidate.gaps], 6)} className="compare-native-evidence--warn" />
-          <CompareEvidenceList title="Quote blockers" items={candidate.blockers.slice(0, 4)} className="compare-native-evidence--danger" />
-          <CompareEvidenceList title="Required WyreStorm dependencies" items={candidate.dependencies.slice(0, 5)} />
+        <CompareEvidenceList title="Check before quoting" items={checkBeforeQuote} className="compare-native-evidence--warn" />
 
-          <div className="compare-native-action-row">
-            <button className="compare-native-secondary-action" type="button" onClick={onCopySummary}>Copy summary</button>
-            <ProductMoreLink sku={candidate.product.sku} />
+        {competitor.warning ? <p className="compare-native-option-check">{competitor.warning}</p> : null}
+
+        <details className="compare-native-summary">
+          <summary>More detail</summary>
+          <div className="compare-native-compare-grid">
+            <div className="compare-native-product-card compare-native-product-card--competitor">
+              <p className="compare-native-label compare-native-label--subtle">Competitor detail</p>
+              <h3>{competitor.heading}</h3>
+              <h4>{competitor.detail}</h4>
+              <p className="compare-native-match-anchor">{competitor.outcomeLabel}</p>
+              {competitor.facts.length ? (
+                <div className="compare-native-fact-row" aria-label="Competitor headline facts">
+                  {competitor.facts.map((fact) => (
+                    <span key={`${fact.label}-${fact.value}`} className="compare-native-fact-pill">{fact.label}: {fact.value}</span>
+                  ))}
+                </div>
+              ) : null}
+              <CompareEvidenceList title="Known features" items={competitor.knownFeatures} />
+              <CompareEvidenceList title="Unknowns" items={competitor.unknownFeatures.slice(0, 5)} className="compare-native-evidence--warn" />
+              {competitor.sourceUrl ? (
+                <div className="compare-native-action-row">
+                  <a className="compare-native-secondary-action" href={competitor.sourceUrl} target="_blank" rel="noreferrer">
+                    Open competitor reference
+                  </a>
+                </div>
+              ) : null}
+            </div>
+
+            <div className="compare-native-product-card compare-native-product-card--best">
+              <p className="compare-native-label compare-native-label--subtle">WyreStorm detail</p>
+              <h3>{candidate.product.sku}</h3>
+              <h4>{candidate.product.name}</h4>
+              <p>{candidate.product.family} - {candidate.product.productClass} - {candidate.product.role}</p>
+              <p className="compare-native-match-anchor">{candidate.outcomeLabel}</p>
+              <p className="compare-native-muted">Match score context: {Math.round(candidate.score)}%</p>
+              <CompareEvidenceList title="Where it matches" items={candidate.matched.slice(0, 5)} />
+              <CompareEvidenceList title="Partial matches" items={candidate.partialMatches.slice(0, 4)} />
+              <CompareEvidenceList title="Where it does not match" items={candidate.mismatches.slice(0, 4)} className="compare-native-evidence--danger" />
+              <CompareEvidenceList title="Unknowns" items={uniqueText([...candidate.unknowns, ...candidate.checks, ...candidate.gaps], 6)} className="compare-native-evidence--warn" />
+              <CompareEvidenceList title="Quote blockers" items={candidate.blockers.slice(0, 4)} className="compare-native-evidence--danger" />
+              <CompareEvidenceList title="Required WyreStorm dependencies" items={candidate.dependencies.slice(0, 5)} />
+            </div>
           </div>
+        </details>
+
+        <div className="compare-native-action-row">
+          <button className="compare-native-secondary-action" type="button" onClick={onCopySummary}>Copy summary</button>
+          <ProductMoreLink sku={candidate.product.sku} />
         </div>
       </div>
     </section>
@@ -1968,10 +2146,12 @@ function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
       {candidate.mismatches[0] ? <p className="compare-native-option-check">{candidate.mismatches[0]}</p> : null}
       {!candidate.mismatches[0] && candidate.unknowns[0] ? <p className="compare-native-option-check">{candidate.unknowns[0]}</p> : null}
 
-      <CompareEvidenceList title="Where it matches" items={candidate.matched.slice(0, 3)} />
-      <CompareEvidenceList title="Where it does not match" items={candidate.mismatches.slice(0, 2)} className="compare-native-evidence--danger" />
-      <CompareEvidenceList title="Unknown / verify before quoting" items={uniqueText([...candidate.unknowns, ...candidate.checks, ...candidate.gaps], 3)} className="compare-native-evidence--warn" />
-      <CompareEvidenceList title="Required WyreStorm dependencies" items={candidate.dependencies.slice(0, 3)} />
+      <details className="compare-native-summary">
+        <summary>More detail</summary>
+        <CompareEvidenceList title="Why this direction" items={candidate.matched.slice(0, 3)} />
+        <CompareEvidenceList title="Where it does not match" items={candidate.mismatches.slice(0, 2)} className="compare-native-evidence--danger" />
+        <CompareEvidenceList title="Commercial checks" items={uniqueText([...candidate.unknowns, ...candidate.checks, ...candidate.gaps, ...candidate.dependencies], 4)} className="compare-native-evidence--warn" />
+      </details>
 
       <div className="compare-native-action-row">
         <ProductMoreLink sku={candidate.product.sku} />
@@ -1983,7 +2163,7 @@ function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
 function CompareSummaryPanel({ summary, requestLiveLookup, sourceUrl }: { summary: string; requestLiveLookup: boolean; sourceUrl: string }) {
   return (
     <details className="compare-native-summary">
-      <summary>Summary</summary>
+      <summary>Copyable summary</summary>
       <pre>{summary}</pre>
       {requestLiveLookup ? <p className="compare-native-muted">Live lookup recommended for source validation. {sourceUrl}</p> : null}
     </details>
