@@ -800,7 +800,7 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
     unknowns: uniqueSkuOptions(unknowns),
     blockers: uniqueSkuOptions(blockers),
     dependencies: uniqueSkuOptions(requiredDependencies),
-    outcomeLabel: "Functional alternative",
+    outcomeLabel: "Feature check needed",
   }, profile);
 
   return {
@@ -913,7 +913,7 @@ function buildAvoipCandidates(
 ): ScoredCandidate[] {
   const networkNote = `Same network class: ${recommendation.networkClass.toUpperCase()}.`;
   const identityNote = classification.knownFamily ? `Competitor identified as ${classification.knownFamily}.` : `Detected endpoint role: ${classification.role}.`;
-  const verifyGap = recommendation.verifyCodec ? ["Confirm codec/compression class before choosing NetworkHD 500 or NetworkHD 100."] : [];
+  const verifyGap = recommendation.verifyCodec ? ["Confirm the video transport method before choosing between NetworkHD 500 and NetworkHD 100."] : [];
   const bandwidthNote = classification.signals.includes("explicit 4K60 4:4:4 signal")
     ? "4K60 4:4:4 requirement detected. Stay in NetworkHD 500 or 600; do not drop to NetworkHD 100."
     : "";
@@ -944,7 +944,7 @@ function buildAvoipCandidates(
         mismatches: uniqueSkuOptions(specific.mismatches),
         unknowns: uniqueSkuOptions([
           ...specific.unknowns,
-          recommendation.verifyCodec ? "Competitor codec/compression class is not proven from local evidence." : "",
+          recommendation.verifyCodec ? "Competitor video transport method is not proven from local evidence." : "",
           "Verify USB, audio, control and any non-video feature expectations before quoting.",
         ]),
         blockers: uniqueSkuOptions([
@@ -956,7 +956,7 @@ function buildAvoipCandidates(
           recommendation.controllerReminder,
           ...candidateRequiredDependencies(product, profile),
         ]),
-        outcomeLabel: "Functional alternative",
+        outcomeLabel: "Feature check needed",
       };
 
       return {
@@ -1090,7 +1090,7 @@ function buildMatrixCandidates(profile: CompetitorProfile): ScoredCandidate[] | 
       ]),
       blockers: [],
       dependencies: uniqueSkuOptions(candidateRequiredDependencies(lead, profile)),
-      outcomeLabel: "Direct product-role match",
+      outcomeLabel: "Same product job",
     };
     candidates.push(leadCandidate);
   }
@@ -1122,7 +1122,7 @@ function buildMatrixCandidates(profile: CompetitorProfile): ScoredCandidate[] | 
       ]),
       blockers: [],
       dependencies: uniqueSkuOptions(candidateRequiredDependencies(alternate, profile)),
-      outcomeLabel: "Functional alternative",
+      outcomeLabel: "Feature check needed",
     };
     candidates.push(alternateCandidate);
   }
@@ -1145,156 +1145,12 @@ function buildMatrixCandidates(profile: CompetitorProfile): ScoredCandidate[] | 
       unknowns: [],
       blockers: ["Do not quote MX-0808-KIT as the direct replacement for this brief."],
       dependencies: [],
-      outcomeLabel: "Wrong product class",
+      outcomeLabel: "Wrong product type",
     };
     candidates.push(fallbackCandidate);
   }
 
   return candidates;
-}
-
-function compareSummaryRoleLabel(classificationRole: CompetitorAvoipClassification["role"], fallbackRole: string): string {
-  if (classificationRole === "encoder") return "Encoder / transmitter";
-  if (classificationRole === "decoder") return "Decoder / receiver";
-  if (classificationRole === "transceiver") return "Transceiver";
-  if (fallbackRole && fallbackRole !== "Unknown") return fallbackRole;
-  return "Needs confirmation";
-}
-
-function compareSummaryProductType(profile: CompetitorProfile, classification: CompetitorAvoipClassification): string {
-  const roleLabel = compareSummaryRoleLabel(classification.role, profile.role);
-
-  if (classification.isAvoip && roleLabel !== "Needs confirmation") {
-    return `AV-over-IP ${roleLabel.toLowerCase()}`;
-  }
-
-  if (classification.isAvoip) {
-    return "AV-over-IP endpoint";
-  }
-
-  if (profile.productClass && profile.productClass !== "Unknown") {
-    return profile.productClass;
-  }
-
-  return "Needs confirmation";
-}
-
-function compareSummarySystemClass(
-  profile: CompetitorProfile,
-  classification: CompetitorAvoipClassification,
-  recommendation: NetworkHdAvoipRecommendation,
-): string {
-  if (classification.isAvoip && recommendation.networkClass === "1g") return "1GbE AV-over-IP endpoint";
-  if (classification.isAvoip && recommendation.networkClass === "10g") return "10GbE / SDVoE AV-over-IP endpoint";
-  if (classification.isAvoip) return "AV-over-IP endpoint - transport class needs confirmation";
-  if (profile.transport && profile.transport !== "Unknown") return profile.transport;
-  return "Needs confirmation";
-}
-
-function compareArchitectureDirection(profile: CompetitorProfile, best: ScoredCandidate): string {
-  if (best.product.sku.endsWith("-VW")) {
-    return "Dedicated LCD video wall processor path.";
-  }
-
-  if (best.product.sku === "MX-0404-SCL") {
-    return "Contained local HDMI matrix path.";
-  }
-
-  if (best.product.sku === "MX-0402-MST") {
-    return "Compact presentation-switcher path for local room switching.";
-  }
-
-  if (best.product.sku === "MX-0403-H3-MST") {
-    return "Compact presentation-switcher path with HDBaseT 3.0 output for downstream room or capture workflows.";
-  }
-
-  if (best.product.sku === "SW-620-TX-W" || best.product.sku === "SW-640L-TX-W") {
-    return "Presentation-room workflow path with wired and wireless user connection.";
-  }
-
-  if (best.product.sku.startsWith("MXV-")) {
-    return wantsClassA(profile)
-      ? "18Gbps HDBaseT Class A matrix path with separate receivers."
-      : "18Gbps HDBaseT Class B matrix path with separate receivers.";
-  }
-
-  if (best.product.productClass === "AV-over-IP") {
-    return "AV-over-IP architecture path.";
-  }
-
-  return `${best.product.productClass} architecture path.`;
-}
-
-function compareQuoteSafetyStatus(profile: CompetitorProfile, best: ScoredCandidate): string {
-  if (best.verdict === "NO MATCH") {
-    return "High caution: do not quote as a direct replacement from current evidence.";
-  }
-
-  if (best.verdict === "ARCHITECTURE ALTERNATIVE") {
-    return "Architecture alternative only: safe to discuss, not safe to quote as a like-for-like replacement without reframing the system design.";
-  }
-
-  if (profile.requestedTags.includes("hdbaset")) {
-    return "Conditional: safe only after cable run, HDBaseT class and transmitted resolution are confirmed.";
-  }
-
-  if (profile.requestedTags.includes("avoip")) {
-    return "Conditional: safe only after network readiness, controller path and endpoint role are confirmed.";
-  }
-
-  if (best.gaps.length > 0) {
-    return "Conditional: confirm the open technical and workflow gaps before quote.";
-  }
-
-  return "Working direction: suitable as a quote starting point, subject to normal datasheet and workflow validation.";
-}
-
-function compareWrongProductAvoidance(profile: CompetitorProfile, best: ScoredCandidate): string {
-  if (best.product.sku.endsWith("-VW")) {
-    return "Wrong-product avoidance: only use this route when the customer truly needs an LCD video wall processor, not general matrix switching.";
-  }
-
-  if (best.product.sku === "MX-1007-HYB") {
-    return "Wrong-product avoidance: do not lead with this unless the room genuinely needs a specialist hybrid core with room audio, mic and inter-room workflow.";
-  }
-
-  if (profile.productClass === "Matrix" && best.product.productClass === "Presentation switcher") {
-    return "Wrong-product avoidance: confirm the customer does not actually need a true matrix before dropping into a presentation-switcher answer.";
-  }
-
-  if (profile.productClass === "Presentation switcher" && best.product.productClass === "Matrix") {
-    return "Wrong-product avoidance: confirm the room has really moved beyond presentation switching into source-to-display matrix routing.";
-  }
-
-  return "Wrong-product avoidance: keep the recommendation tied to the customer workflow, not just the nearest-looking SKU.";
-}
-
-function compareNextQuestion(profile: CompetitorProfile, best: ScoredCandidate): string {
-  if (best.product.sku.startsWith("MXV-")) {
-    return "Next question: what CAT cable distance must hold at the actual signal format, and does that force Class A / 70m or is Class B sufficient?";
-  }
-
-  if (best.product.sku === "MX-0403-H3-MST") {
-    return "Next question: is the HDBaseT 3.0 output being used for a room display, an MTR capture path, or another downstream endpoint?";
-  }
-
-  if (best.product.sku === "SW-620-TX-W" || best.product.sku === "SW-640L-TX-W") {
-    return "Next question: does the room really need wireless casting / guest presentation, and what USB or conferencing workflow has to be supported at the same time?";
-  }
-
-  if (best.product.sku === "MX-0404-SCL") {
-    return "Next question: is this genuinely a contained local matrix with fixed source and display count, or is the job drifting toward HDBaseT or AVoIP distribution?";
-  }
-
-  if (best.product.productClass === "AV-over-IP") {
-    return "Next question: is the network ready for the required bandwidth, switching and controller expectations on this AVoIP design?";
-  }
-
-  if (profile.requestedTags.includes("hdbaset")) {
-    return "Next question: what signal format, cable run and endpoint count must be supported before we lock the HDBaseT path?";
-  }
-
-  return "Next question: what single missing workflow detail would most change the product family direction before quote?";
 }
 
 function verdictClass(verdict: Verdict): string {
@@ -1466,7 +1322,7 @@ function plainLanguageOutcome(profile: CompetitorProfile, candidate: ScoredCandi
     || candidate.mismatches.some((line) => /not an AVoIP|wrong architecture|point-to-point|does not replace/i.test(line));
 
   if (hasClassMismatch || candidate.verdict === "NO MATCH") {
-    return "Wrong product class";
+    return "Wrong product type";
   }
 
   if (limited && candidate.verdict !== "GOOD MATCH") {
@@ -1474,18 +1330,18 @@ function plainLanguageOutcome(profile: CompetitorProfile, candidate: ScoredCandi
   }
 
   if (candidate.verdict === "ARCHITECTURE ALTERNATIVE") {
-    return "Product-family direction only";
+    return "Feature check needed";
   }
 
   if (candidate.verdict === "GOOD MATCH" && candidate.matched.some((line) => /Same product class|Same endpoint role|matrix topology|role-compatible/i.test(line))) {
-    return "Direct product-role match";
+    return "Same product job";
   }
 
   if (candidate.verdict === "PARTIAL MATCH") {
-    return "Functional alternative";
+    return "Feature check needed";
   }
 
-  return limited ? "Insufficient competitor data" : "Product-family direction only";
+  return limited ? "Insufficient competitor data" : "Feature check needed";
 }
 
 function competitorIoTypeLabel(profile: CompetitorProfile): string {
@@ -1602,7 +1458,7 @@ function competitorEducationalNote(profile: CompetitorProfile): string {
   }
 
   if (isAvoip) {
-    return "Educational point: AVoIP is often easier to position because the transport decision moves away from per-link HDBaseT limits and toward overall network readiness.";
+    return "Educational point: AVoIP is often easier to position because the transport decision moves away from per-link HDBaseT limits and toward the wider AV network design.";
   }
 
   return "";
@@ -1720,7 +1576,7 @@ function buildCompetitorSummary(profile: CompetitorProfile, mustMatchFeatures: s
   ], 8);
 
   const warning = exactLimitedDataWarning(profile);
-  const outcomeLabel = warning ? "Insufficient competitor data" : profile.productClass === "Unknown" ? "Product-family direction only" : "Direct product-role match";
+  const outcomeLabel = warning ? "Insufficient competitor data" : profile.productClass === "Unknown" ? "Feature check needed" : "Same product job";
 
   if (isAtlonaOmeExKitProfile(profile)) {
     return {
@@ -1755,7 +1611,7 @@ function buildCompetitorSummary(profile: CompetitorProfile, mustMatchFeatures: s
         "Confirm whether the customer really needs point-to-point extension or has moved into switching/matrix architecture.",
         "Confirm control needs before positioning any alternative as direct replacement.",
       ], 8),
-      outcomeLabel: exactLimitedDataWarning(profile) ? "Insufficient competitor data" : "Direct product-role match",
+      outcomeLabel: exactLimitedDataWarning(profile) ? "Insufficient competitor data" : "Same product job",
       warning: exactLimitedDataWarning(profile),
       sourceUrl: resolvedSpec?.datasheetUrl,
     };
@@ -1803,6 +1659,36 @@ function CompareEvidenceList({ title, items, className = "" }: { title: string; 
           <li key={`${title}-${item}`}>{item}</li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+function CompareSalesTable({ rows }: { rows: Array<{ check: string; result: string; reason: string }> }) {
+  if (!rows.length) {
+    return null;
+  }
+
+  return (
+    <div className="compare-native-evidence-block">
+      <p className="compare-native-label compare-native-label--subtle">Comparison view</p>
+      <table className="compare-native-table">
+        <thead>
+          <tr>
+            <th>Check</th>
+            <th>Result</th>
+            <th>Plain-English reason</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={`${row.check}-${row.result}-${row.reason}`}>
+              <td>{row.check}</td>
+              <td>{row.result}</td>
+              <td>{row.reason}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
@@ -1891,11 +1777,13 @@ function wyrestormPlainEnglishRequirement(candidate: ScoredCandidate, competitor
 function salesOutcomeBadges(competitor: CompetitorSummary, candidate: ScoredCandidate): string[] {
   const badges: string[] = [];
 
-  if (candidate.matched.some((item) => /Same endpoint role/i.test(item))) badges.push("Same product role");
+  if (candidate.outcomeLabel !== "Wrong product type" && candidate.outcomeLabel !== "Insufficient competitor data") badges.push("Correct product direction");
+  if (candidate.matched.some((item) => /Same endpoint role/i.test(item))) badges.push("Same product job");
   if (candidate.matched.some((item) => /Same product class|Same product class: point-to-point HDBaseT extender path|Same NetworkHD 500 source-side encoder architecture|matrix/i.test(item))) badges.push("Same system type");
   if (candidate.mismatches.length > 0 || candidate.blockers.length > 0) badges.push("Not drop-in compatible");
   if (candidate.unknowns.length > 0 || competitor.warning) badges.push("Feature check needed");
-  if (candidate.outcomeLabel === "Wrong product class") badges.push("Wrong direction");
+  if (candidate.outcomeLabel === "Wrong product type") badges.push("Wrong product type");
+  if (candidate.outcomeLabel === "Insufficient competitor data") badges.push("Insufficient competitor data");
 
   return uniqueText(badges, 5);
 }
@@ -1909,7 +1797,7 @@ function salesWhyBullets(candidate: ScoredCandidate): string[] {
 
 function salesImportantDifference(competitor: CompetitorSummary, candidate: ScoredCandidate): string {
   if (/av-over-ip/i.test(competitor.recognisedClass) && /^NHD-5/i.test(candidate.product.sku)) {
-    return `${competitor.ecosystem} and WyreStorm NetworkHD are not drop-in compatible ecosystems unless the protocol, control method and endpoint expectations are proven equivalent. Position this as the right WyreStorm system direction, not as a plug-swap replacement.`;
+    return `Correct WyreStorm direction, not a drop-in replacement. ${competitor.ecosystem} and WyreStorm NetworkHD are separate ecosystems, so this should be positioned as the right system direction rather than a one-box swap.`;
   }
 
   if (/hdbaset/i.test(competitor.recognisedClass) && /^EX-/i.test(candidate.product.sku)) {
@@ -1924,25 +1812,84 @@ function salesImportantDifference(competitor: CompetitorSummary, candidate: Scor
     return candidate.mismatches[0];
   }
 
-  return "This is the closest WyreStorm direction from the local evidence, but it should still be positioned around system fit rather than claimed as a direct like-for-like swap.";
+  return "This is the closest WyreStorm direction from the local evidence, but it should be positioned as a system-fit answer rather than a guaranteed one-box replacement.";
 }
 
-function salesCheckBeforeQuote(competitor: CompetitorSummary, candidate: ScoredCandidate): string[] {
-  if (competitor.warning) {
-    return uniqueText([
-      ...competitor.verifyItems,
-      ...candidate.dependencies,
-      ...candidate.unknowns,
-      ...candidate.checks,
-    ], 5);
-  }
-
-  return uniqueText([
+function salesAskCustomer(competitor: CompetitorSummary, candidate: ScoredCandidate): string[] {
+  const visiblePrompts = uniqueText([
+    ...competitor.verifyItems,
     ...candidate.dependencies,
     ...candidate.unknowns,
-    ...candidate.checks,
-    ...competitor.verifyItems,
-  ], 5);
+  ], 8).filter((item) => !/^Why this matters:/i.test(item) && !/^Educational point:/i.test(item));
+
+  if (competitor.warning) {
+    return visiblePrompts.slice(0, 5);
+  }
+
+  return visiblePrompts.slice(0, 5);
+}
+
+function salesWhatItDoes(competitor: CompetitorSummary): string {
+  return `${competitor.heading} is used to ${competitorPlainEnglishPurpose(competitor)}.`;
+}
+
+function salesDirectionFitLabel(candidate: ScoredCandidate): string {
+  if (candidate.outcomeLabel === "Insufficient competitor data") return "Insufficient competitor data";
+  if (candidate.outcomeLabel === "Wrong product type") return "Wrong product type";
+  return "Correct product direction";
+}
+
+function salesReplacementConfidenceLabel(competitor: CompetitorSummary, candidate: ScoredCandidate): string {
+  if (/av-over-ip/i.test(competitor.recognisedClass) && /^NHD-/i.test(candidate.product.sku)) {
+    return "Not a drop-in replacement";
+  }
+
+  if (candidate.mismatches.length > 0 || candidate.blockers.length > 0) {
+    return "Not a drop-in replacement";
+  }
+
+  if (candidate.unknowns.length > 0 || competitor.warning) {
+    return "Feature check needed";
+  }
+
+  return "Same product job";
+}
+
+function salesComparisonRows(competitor: CompetitorSummary, candidate: ScoredCandidate): Array<{ check: string; result: string; reason: string }> {
+  const sameRole = candidate.matched.some((item) => /Same endpoint role/i.test(item));
+  const sameClass = candidate.matched.some((item) => /Same product class|point-to-point HDBaseT extender path|Same NetworkHD 500 source-side encoder architecture|matrix/i.test(item));
+  const sameSourceSide = /encoder|transmitter/i.test(competitor.role) && /Encoder|transmitter/i.test(candidate.product.role);
+  const ecosystemMismatch = /av-over-ip/i.test(competitor.recognisedClass) && /^NHD-/i.test(candidate.product.sku);
+
+  return [
+    {
+      check: "Product job",
+      result: sameRole ? "Match" : candidate.outcomeLabel === "Wrong product type" ? "Not a match" : "Check needed",
+      reason: sameRole ? "Both are encoders/transmitters, decoders/receivers, or the same device role." : "Confirm that both products perform the same basic device job.",
+    },
+    {
+      check: "Signal side",
+      result: sameSourceSide ? "Match" : candidate.outcomeLabel === "Wrong product type" ? "Not a match" : "Check needed",
+      reason: sameSourceSide ? "Both sit at the source end." : "Confirm whether the competitor is source-side, display-side, or bidirectional.",
+    },
+    {
+      check: "System type",
+      result: sameClass ? "Match" : candidate.outcomeLabel === "Wrong product type" ? "Not a match" : "Check needed",
+      reason: sameClass ? `Both are being treated as ${competitor.recognisedClass.toLowerCase()} products.` : "The system family is not fully proven from the current local evidence.",
+    },
+    {
+      check: "System compatibility",
+      result: ecosystemMismatch || candidate.mismatches.length > 0 || candidate.blockers.length > 0 ? "Not a match" : "Check needed",
+      reason: ecosystemMismatch
+        ? `${competitor.ecosystem} and WyreStorm NetworkHD are separate ecosystems.`
+        : candidate.mismatches[0] || "Final compatibility depends on feature detail and system design.",
+    },
+    {
+      check: "Feature detail",
+      result: candidate.unknowns.length > 0 || competitor.warning ? "Check needed" : "Match",
+      reason: competitor.warning || candidate.unknowns[0] || "No major open feature checks are surfaced from the local data.",
+    },
+  ];
 }
 
 function CompareManufacturerCombobox(props: {
@@ -2038,13 +1985,16 @@ function BestCandidateCard({
   const badges = salesOutcomeBadges(competitor, candidate);
   const whyBullets = salesWhyBullets(candidate);
   const importantDifference = salesImportantDifference(competitor, candidate);
-  const checkBeforeQuote = salesCheckBeforeQuote(competitor, candidate);
+  const askCustomer = salesAskCustomer(competitor, candidate);
+  const comparisonRows = salesComparisonRows(competitor, candidate);
+  const directionFit = salesDirectionFitLabel(candidate);
+  const replacementConfidence = salesReplacementConfidenceLabel(competitor, candidate);
 
   return (
     <section className="compare-native-best-card">
       <div className="compare-native-result-head">
         <span className={`compare-native-verdict ${verdictClass(candidate.verdict)}`}>{candidate.verdict}</span>
-        <span className="compare-native-score">{candidate.outcomeLabel}</span>
+        <span className="compare-native-score">{directionFit}</span>
       </div>
 
       <div className="compare-native-product-card compare-native-product-card--best">
@@ -2052,7 +2002,10 @@ function BestCandidateCard({
         <h3>Competitor product</h3>
         <p>{competitor.heading} is recognised as a {shortRoleLabel(competitor.role)} used to {competitorPlainEnglishPurpose(competitor)}.</p>
 
-        <h3>WyreStorm direction</h3>
+        <h3>What it does</h3>
+        <p>{salesWhatItDoes(competitor)}</p>
+
+        <h3>Closest WyreStorm direction</h3>
         <p>Use {candidate.product.sku} when the requirement is {wyrestormPlainEnglishRequirement(candidate, competitor)}.</p>
 
         {badges.length ? (
@@ -2063,14 +2016,25 @@ function BestCandidateCard({
           </div>
         ) : null}
 
-        <CompareEvidenceList title="Why this direction" items={whyBullets} />
+        <CompareEvidenceList title="Why this direction fits" items={whyBullets} />
+        <CompareSalesTable rows={comparisonRows} />
 
         <div className="compare-native-evidence-block compare-native-evidence--danger">
           <p className="compare-native-label compare-native-label--subtle">Important difference</p>
           <p>{importantDifference}</p>
         </div>
 
-        <CompareEvidenceList title="Check before quoting" items={checkBeforeQuote} className="compare-native-evidence--warn" />
+        <div className="compare-native-evidence-block compare-native-evidence--warn">
+          <p className="compare-native-label compare-native-label--subtle">Product direction fit</p>
+          <p>{directionFit}. {candidate.product.sku} is the closest WyreStorm direction from the current local evidence.</p>
+        </div>
+
+        <div className="compare-native-evidence-block compare-native-evidence--warn">
+          <p className="compare-native-label compare-native-label--subtle">Direct replacement confidence</p>
+          <p>{replacementConfidence}.</p>
+        </div>
+
+        <CompareEvidenceList title="Ask the customer" items={askCustomer} className="compare-native-evidence--warn" />
 
         {competitor.warning ? <p className="compare-native-option-check">{competitor.warning}</p> : null}
 
@@ -2105,8 +2069,7 @@ function BestCandidateCard({
               <h3>{candidate.product.sku}</h3>
               <h4>{candidate.product.name}</h4>
               <p>{candidate.product.family} - {candidate.product.productClass} - {candidate.product.role}</p>
-              <p className="compare-native-match-anchor">{candidate.outcomeLabel}</p>
-              <p className="compare-native-muted">Match score context: {Math.round(candidate.score)}%</p>
+              <p className="compare-native-match-anchor">{directionFit}</p>
               <CompareEvidenceList title="Where it matches" items={candidate.matched.slice(0, 5)} />
               <CompareEvidenceList title="Partial matches" items={candidate.partialMatches.slice(0, 4)} />
               <CompareEvidenceList title="Where it does not match" items={candidate.mismatches.slice(0, 4)} className="compare-native-evidence--danger" />
@@ -2293,54 +2256,22 @@ function ComparePageNew() {
       return "No suitable WyreStorm direction found from the current data.";
     }
 
-    const competitorLabel = `${effectiveBrand} ${competitorInput || "unspecified SKU"}`.trim();
-    const detectedProductType = compareSummaryProductType(profile, avoipProfile.classification);
-    const detectedSystemClass = compareSummarySystemClass(profile, avoipProfile.classification, avoipProfile.recommendation);
-    const detectedRole = compareSummaryRoleLabel(avoipProfile.classification.role, profile.role);
-    const architectureDirection = compareArchitectureDirection(profile, best);
-    const quoteSafetyStatus = compareQuoteSafetyStatus(profile, best);
-    const wrongProductAvoidance = compareWrongProductAvoidance(profile, best);
-    const nextQuestion = compareNextQuestion(profile, best);
+    const directionFit = salesDirectionFitLabel(best);
+    const replacementConfidence = salesReplacementConfidenceLabel(competitorSummary, best);
+    const askCustomer = salesAskCustomer(competitorSummary, best);
     const limitedWarning = exactLimitedDataWarning(profile);
 
-    const roleNote =
-      detectedRole === "Encoder / transmitter"
-        ? "Compare against WyreStorm encoder / transmitter options. Receiver SKUs may still be needed in the system, but they are not the direct equivalent."
-        : detectedRole === "Decoder / receiver"
-          ? "Compare against WyreStorm decoder / receiver options. Transmitter SKUs may still be needed in the system, but they are not the direct equivalent."
-          : "Confirm whether the competitor product is used at the source side, display side, or as a transceiver.";
-
     return [
-      `Competitor: ${competitorLabel}`,
-      `Outcome: ${best.outcomeLabel}`,
-      `Detected: ${detectedProductType} - ${detectedSystemClass}`,
-      `Nearest WyreStorm direction: ${best.product.sku} - ${best.product.name}`,
-      `Verdict: ${best.verdict} (${Math.round(best.score)}%)`,
-      `Architecture: ${architectureDirection}`,
-      `Quote safety: ${quoteSafetyStatus}`,
+      `${competitorSummary.heading} appears to be a ${shortRoleLabel(competitorSummary.role)}.`,
+      `The closest WyreStorm direction is ${best.product.sku} because it performs the same basic job in a ${best.product.family} system.`,
+      `${directionFit}. ${replacementConfidence}.`,
+      salesImportantDifference(competitorSummary, best),
       ...(limitedWarning ? [limitedWarning] : []),
       "",
-      "Where it matches",
-      `- ${best.product.sku} is the closest WyreStorm starting point based on product role and system class.`,
-      `- ${roleNote}`,
-      ...(best.matched.slice(0, 4).map((line) => `- ${line}`)),
-      ...(best.partialMatches.slice(0, 2).map((line) => `- Partial: ${line}`)),
-      "",
-      "Where it does not match",
-      ...(best.mismatches.slice(0, 3).map((line) => `- ${line}`)),
-      `- ${wrongProductAvoidance}`,
-      `- ${nextQuestion}`,
-      "",
-      "Unknown / verify before quoting",
-      ...uniqueText([...best.unknowns, ...best.checks, ...best.gaps], 5).map((line) => `- ${line}`),
-      "",
-      "Required WyreStorm dependencies",
-      ...best.dependencies.slice(0, 5).map((line) => `- ${line}`),
-      "",
-      "Quote blockers",
-      ...best.blockers.slice(0, 4).map((line) => `- ${line}`),
+      "Ask the customer before quoting:",
+      ...askCustomer.slice(0, 4).map((line) => `- ${line}`),
     ].join("\n");
-  }, [avoipProfile, best, competitorInput, effectiveBrand, profile]);
+  }, [best, competitorSummary, profile]);
 
   const handleCommit = useCallback(
     (target: "project" | "proposal"): void => {
