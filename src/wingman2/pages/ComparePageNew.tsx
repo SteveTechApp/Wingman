@@ -122,13 +122,29 @@ type ScoredCandidate = {
   matched: string[];
   checks: string[];
   gaps: string[];
+  partialMatches: string[];
+  mismatches: string[];
+  unknowns: string[];
+  blockers: string[];
+  dependencies: string[];
+  outcomeLabel: string;
 };
 
 type CompetitorSummary = {
   heading: string;
   detail: string;
-  facts: string[];
-  bullets: string[];
+  recognisedClass: string;
+  role: string;
+  signalDirection: string;
+  transport: string;
+  resolution: string;
+  ecosystem: string;
+  facts: Array<{ label: string; value: string }>;
+  knownFeatures: string[];
+  unknownFeatures: string[];
+  verifyItems: string[];
+  outcomeLabel: string;
+  warning: string;
   sourceUrl?: string;
 };
 
@@ -409,6 +425,18 @@ function applyCompareEquivalenceGuards(candidate: ScoredCandidate, profile?: Com
         ...candidate.gaps,
         "The competitor product is a point-to-point HDBaseT extender kit. This WyreStorm product changes the system architecture because it adds presentation switching rather than simply replacing the extender path.",
       ]),
+      partialMatches: uniqueSkuOptions([
+        ...candidate.partialMatches,
+        "Useful only if the customer has moved from point-to-point extension into a switching-led room design.",
+      ]),
+      mismatches: uniqueSkuOptions([
+        ...candidate.mismatches,
+        "This is not a point-to-point extender like-for-like replacement.",
+      ]),
+      blockers: uniqueSkuOptions([
+        ...candidate.blockers,
+        "Architecture changes must be agreed before this can be quoted as the preferred path.",
+      ]),
     };
   }
 
@@ -591,6 +619,10 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
   const matched: string[] = [];
   const checks: string[] = [];
   const gaps: string[] = [];
+  const partialMatches: string[] = [];
+  const mismatches: string[] = [];
+  const unknowns: string[] = [];
+  const blockers: string[] = [];
   const trueVideoWallRequirement = isTrueVideoWallRequirement(profile);
   const wirelessPresentationRequirement = isWirelessPresentationRequirement(profile);
   const containedLocalMatrixRequirement = isContainedLocalMatrixRequirement(profile);
@@ -608,6 +640,8 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
   if (profile.transport !== "Unknown" && product.transport.toUpperCase().includes(profile.transport.split(" ")[0].toUpperCase())) {
     score += 14;
     matched.push(`Similar transport direction: ${product.transport}`);
+  } else if (profile.transport !== "Unknown") {
+    partialMatches.push(`Transport differs: competitor points to ${profile.transport}, WyreStorm candidate is ${product.transport}.`);
   }
 
   profile.requestedTags.forEach((tag) => {
@@ -620,27 +654,36 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
   profile.videoTags.forEach((tag) => {
     if (!product.tags.includes(tag)) {
       gaps.push(`Confirm video bandwidth requirement: ${tag}`);
+      unknowns.push(`Verify whether the competitor really requires ${tag} before treating this as like-for-like.`);
     }
   });
 
   if (profile.productClass === "AV-over-IP" && product.productClass !== "AV-over-IP") {
     score -= 24;
     gaps.push("Competitor appears to be AVoIP but candidate is not an AVoIP endpoint.");
+    mismatches.push("Competitor architecture is AV-over-IP, but this WyreStorm product is not an AVoIP endpoint.");
+    blockers.push("Do not quote this as a direct AVoIP replacement.");
   }
 
   if (profile.role.includes("Encoder") && product.role.includes("Decoder")) {
     score -= 26;
     gaps.push("Competitor appears to be a transmitter/encoder but candidate is a receiver/decoder.");
+    mismatches.push("Competitor is source-side / encoder-led, but this candidate sits at the display-side / decoder end.");
+    blockers.push("Wrong endpoint direction for a direct replacement.");
   }
 
   if (profile.role.includes("Decoder") && product.role.includes("Encoder")) {
     score -= 26;
     gaps.push("Competitor appears to be a receiver/decoder but candidate is a transmitter/encoder.");
+    mismatches.push("Competitor is display-side / decoder-led, but this candidate sits at the source-side / encoder end.");
+    blockers.push("Wrong endpoint direction for a direct replacement.");
   }
 
   if (product.sku.endsWith("-VW") && !trueVideoWallRequirement) {
     score -= 52;
     gaps.push("Products ending in -VW should only lead when the brief is a true LCD video wall requirement.");
+    mismatches.push("This is a dedicated video-wall processor path, but the current brief does not prove a true LCD video-wall requirement.");
+    blockers.push("Do not lead with a -VW product unless the job is genuinely a video wall.");
   }
 
   if (trueVideoWallRequirement && (product.sku === "SW-0206-VW" || product.sku === "SW-0204-VW")) {
@@ -656,6 +699,7 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
   if (product.compareSuitability === "specialist" && !isSpecialistHybridRoomRequirement(profile)) {
     score -= 42;
     gaps.push("This WyreStorm product is a specialist room core and should not be used as a default compare match for ordinary presentation switcher briefs.");
+    mismatches.push("This is a specialist large-room / dual-room core, not a normal default compare answer.");
   }
 
   if (profile.productClass === "Presentation switcher" && (product.sku === "MX-0402-MST" || product.sku === "MX-0403-H3-MST")) {
@@ -671,6 +715,7 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
   if (profile.productClass === "Presentation switcher" && !wirelessPresentationRequirement && (product.sku === "SW-620-TX-W" || product.sku === "SW-640L-TX-W")) {
     score -= 10;
     gaps.push("Wireless presentation has not been established yet, so confirm whether the room really needs an SW-600 wireless workflow.");
+    unknowns.push("Wireless presentation benefit is not yet evidenced from the competitor brief.");
   }
 
   if (profile.productClass === "Presentation switcher" && product.sku === "MX-0403-H3-MST" && /mtr|teams room|capture|hdbaset 3|hdbaset3/i.test(profile.rawText)) {
@@ -696,10 +741,12 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
   if (profile.productClass === "Matrix" && product.productClass === "Presentation switcher") {
     score -= 8;
     gaps.push("Confirm whether the customer really needs matrix-style source-to-display routing rather than a presentation-room switcher.");
+    partialMatches.push("This could help functionally if the room is really presentation-led, but it is not the same matrix architecture by default.");
   }
 
   if (matched.length === 0) {
     gaps.push("No strong feature match from the entered data.");
+    unknowns.push("The current competitor evidence does not yet prove a strong like-for-like fit.");
   }
 
   const hdbasetExtenderProfile = /hdbaset extender/i.test(profile.productClass) || isAtlonaOmeExKitProfile(profile);
@@ -707,32 +754,49 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
   if (hdbasetExtenderProfile && product.productClass === "HDBaseT extender") {
     score += 70;
     matched.push("Same product class: point-to-point HDBaseT extender path.");
+    matched.push("Preserves point-to-point extension architecture instead of forcing switching or matrix logic.");
   }
 
   if (hdbasetExtenderProfile && (product.productClass === "Presentation switcher" || product.productClass === "Matrix")) {
     score -= 55;
     gaps.push("Competitor is an HDBaseT extender kit, not a switching or matrix product.");
+    mismatches.push("This changes the architecture from point-to-point extension into switching/routing.");
+    blockers.push("Only discuss this as an architecture alternative, not a direct replacement.");
   }
 
   if (hdbasetExtenderProfile && product.sku === "MX-0403-H3-MST") {
     score -= 50;
     gaps.push("MX-0403-H3-MST should only be considered as an architecture alternative when the brief adds switching, multiple sources or multiple outputs.");
+    blockers.push("Do not lead with MX-0403-H3-MST unless the customer has moved beyond a simple extender brief.");
   }
   checks.push(product.caveat);
   checks.push("Confirm mandatory features against current datasheets before quoting.");
   checks.push("Do not place competitor products in a WyreStorm BOM.");
+  unknowns.push(...compareUnknownFeatureSummary(profile).slice(0, 4));
 
   const boundedScore = Math.max(0, Math.min(100, score));
   const verdict: Verdict = boundedScore >= 72 ? "GOOD MATCH" : boundedScore >= 42 ? "PARTIAL MATCH" : "NO MATCH";
+  const requiredDependencies = candidateRequiredDependencies(product, profile);
 
-  return applyCompareEquivalenceGuards({
+  const candidate = applyCompareEquivalenceGuards({
     product,
     score: boundedScore,
     verdict,
     matched: uniqueSkuOptions(matched),
     checks: uniqueSkuOptions(checks),
     gaps: uniqueSkuOptions(gaps),
+    partialMatches: uniqueSkuOptions(partialMatches),
+    mismatches: uniqueSkuOptions(mismatches),
+    unknowns: uniqueSkuOptions(unknowns),
+    blockers: uniqueSkuOptions(blockers),
+    dependencies: uniqueSkuOptions(requiredDependencies),
+    outcomeLabel: "Functional alternative",
   }, profile);
+
+  return {
+    ...candidate,
+    outcomeLabel: plainLanguageOutcome(profile, candidate),
+  };
 }
 
 function findWyrestormProduct(sku: string): WyreStormProduct | undefined {
@@ -755,7 +819,85 @@ function synthAvoipProduct(sku: string): WyreStormProduct {
   };
 }
 
+function avoipCandidateSpecificEvidence(product: WyreStormProduct): {
+  matched: string[];
+  partial: string[];
+  mismatches: string[];
+  unknowns: string[];
+  dependencies: string[];
+} {
+  const upper = product.sku.toUpperCase();
+
+  if (upper === "NHD-500-TX") {
+    return {
+      matched: [
+        "Standard NetworkHD 500 source-side encoder path.",
+        "Fits the 1GbE visually-lossless / 4K60 4:4:4 WyreStorm AVoIP lane.",
+      ],
+      partial: [],
+      mismatches: [],
+      unknowns: ["Verify whether the competitor also expects USB, audio-network or wall-plate behaviour beyond the base encoder role."],
+      dependencies: [
+        "Specify one NHD-CTL-PRO-V2 controller per system unless the site already has one.",
+        "Quote matching decoder endpoints separately for the display side.",
+      ],
+    };
+  }
+
+  if (upper === "NHD-500-E-TX") {
+    return {
+      matched: [
+        "Same NetworkHD 500 encoder family and same source-side AVoIP role.",
+        "Useful when the brief only needs a simpler encoder endpoint rather than a richer feature set.",
+      ],
+      partial: ["This is a lighter NetworkHD 500 encoder path, so confirm that no additional endpoint features are expected."],
+      mismatches: [],
+      unknowns: ["Verify whether the competitor endpoint expects any feature beyond the lighter encoder role before using this as the lead answer."],
+      dependencies: [
+        "Specify one NHD-CTL-PRO-V2 controller per system unless the site already has one.",
+        "Quote matching decoder endpoints separately for the display side.",
+      ],
+    };
+  }
+
+  if (upper === "NHD-510-TX") {
+    return {
+      matched: [
+        "Same NetworkHD 500 source-side encoder architecture.",
+        "Only makes commercial sense when the competitor brief points toward Dante / network-audio workflow value.",
+      ],
+      partial: ["This is the stronger audio-network encoder option, so it is only a better fit if Dante-style audio handling matters."],
+      mismatches: [],
+      unknowns: ["Verify whether the competitor sale actually includes Dante / audio-network expectations before leading with NHD-510-TX."],
+      dependencies: [
+        "Specify one NHD-CTL-PRO-V2 controller per system unless the site already has one.",
+        "Quote matching decoder endpoints separately for the display side.",
+        "Confirm the audio-network design and who owns Dante configuration before quoting.",
+      ],
+    };
+  }
+
+  if (upper.includes("-IW-")) {
+    return {
+      matched: ["Same AVoIP endpoint direction with an in-wall installation form factor."],
+      partial: ["Only a better fit if the physical wall-plate format is actually required."],
+      mismatches: [],
+      unknowns: ["Verify whether the project truly needs an in-wall endpoint rather than a standard chassis."],
+      dependencies: [],
+    };
+  }
+
+  return {
+    matched: [product.name],
+    partial: [],
+    mismatches: [],
+    unknowns: ["Verify endpoint feature detail before quoting."],
+    dependencies: [],
+  };
+}
+
 function buildAvoipCandidates(
+  profile: CompetitorProfile,
   classification: CompetitorAvoipClassification,
   recommendation: NetworkHdAvoipRecommendation,
 ): ScoredCandidate[] {
@@ -770,15 +912,16 @@ function buildAvoipCandidates(
     .filter((sku) => !isBannedNetworkHdSku(sku))
     .map((sku, index) => {
       const product = findWyrestormProduct(sku) ?? synthAvoipProduct(sku);
+      const specific = avoipCandidateSpecificEvidence(product);
       const isLead = index === 0;
       const score = recommendation.verifyCodec ? (isLead ? 70 : 60) : isLead ? 94 : 82;
       const verdict: Verdict = score >= 72 ? "GOOD MATCH" : score >= 42 ? "PARTIAL MATCH" : "NO MATCH";
 
-      return {
+      const candidate: ScoredCandidate = {
         product,
         score,
         verdict,
-        matched: uniqueSkuOptions([recommendation.reason, networkNote, identityNote, bandwidthNote]),
+        matched: uniqueSkuOptions([recommendation.reason, networkNote, identityNote, bandwidthNote, ...specific.matched]),
         checks: uniqueSkuOptions([
           recommendation.controllerReminder,
           product.caveat,
@@ -787,6 +930,28 @@ function buildAvoipCandidates(
             : "",
         ]),
         gaps: uniqueSkuOptions(verifyGap),
+        partialMatches: uniqueSkuOptions(specific.partial),
+        mismatches: uniqueSkuOptions(specific.mismatches),
+        unknowns: uniqueSkuOptions([
+          ...specific.unknowns,
+          recommendation.verifyCodec ? "Competitor codec/compression class is not proven from local evidence." : "",
+          "Verify USB, audio, control and any non-video feature expectations before quoting.",
+        ]),
+        blockers: uniqueSkuOptions([
+          classification.role === "encoder" && product.role.includes("Decoder") ? "Wrong endpoint direction for a direct replacement." : "",
+          classification.role === "decoder" && product.role.includes("Encoder") ? "Wrong endpoint direction for a direct replacement." : "",
+        ]),
+        dependencies: uniqueSkuOptions([
+          ...specific.dependencies,
+          recommendation.controllerReminder,
+          ...candidateRequiredDependencies(product, profile),
+        ]),
+        outcomeLabel: "Functional alternative",
+      };
+
+      return {
+        ...candidate,
+        outcomeLabel: plainLanguageOutcome(profile, candidate),
       };
     })
     .slice(0, 8);
@@ -900,18 +1065,28 @@ function buildMatrixCandidates(profile: CompetitorProfile): ScoredCandidate[] | 
   const candidates: ScoredCandidate[] = [];
 
   if (lead) {
-    candidates.push({
+    const leadCandidate: ScoredCandidate = {
       product: lead,
       score: 95,
       verdict: "GOOD MATCH",
       matched: uniqueSkuOptions(leadMatched),
       checks: uniqueSkuOptions(leadChecks),
       gaps: [],
-    });
+      partialMatches: [],
+      mismatches: [],
+      unknowns: uniqueSkuOptions([
+        "Verify HDMI version, HDCP version and control behaviour before quoting.",
+        "Verify whether every destination really needs HDBaseT and at what resolution over distance.",
+      ]),
+      blockers: [],
+      dependencies: uniqueSkuOptions(candidateRequiredDependencies(lead, profile)),
+      outcomeLabel: "Direct product-role match",
+    };
+    candidates.push(leadCandidate);
   }
 
   if (alternate) {
-    candidates.push({
+    const alternateCandidate: ScoredCandidate = {
       product: alternate,
       score: 83,
       verdict: "PARTIAL MATCH",
@@ -928,11 +1103,22 @@ function buildMatrixCandidates(profile: CompetitorProfile): ScoredCandidate[] | 
       gaps: uniqueSkuOptions([
         classA ? "Shorter Class B distance may be wrong for this brief." : "Longer Class A path may add cost if distance does not require it.",
       ]),
-    });
+      partialMatches: uniqueSkuOptions([
+        "Same 8x8 MXV architecture, but the HDBaseT class/distance assumption differs from the current lead path.",
+      ]),
+      mismatches: [],
+      unknowns: uniqueSkuOptions([
+        "Verify actual cable distance and transmitted signal requirement before switching HDBaseT class.",
+      ]),
+      blockers: [],
+      dependencies: uniqueSkuOptions(candidateRequiredDependencies(alternate, profile)),
+      outcomeLabel: "Functional alternative",
+    };
+    candidates.push(alternateCandidate);
   }
 
   if (fallback) {
-    candidates.push({
+    const fallbackCandidate: ScoredCandidate = {
       product: fallback,
       score: 34,
       verdict: "NO MATCH",
@@ -944,7 +1130,14 @@ function buildMatrixCandidates(profile: CompetitorProfile): ScoredCandidate[] | 
       gaps: uniqueSkuOptions([
         "MX-0808-KIT is not the right 18Gbps matrix path for this competitor brief.",
       ]),
-    });
+      partialMatches: [],
+      mismatches: ["Older matrix family does not satisfy the evidenced 18Gbps / 4K60 4:4:4 HDBaseT requirement."],
+      unknowns: [],
+      blockers: ["Do not quote MX-0808-KIT as the direct replacement for this brief."],
+      dependencies: [],
+      outcomeLabel: "Wrong product class",
+    };
+    candidates.push(fallbackCandidate);
   }
 
   return candidates;
@@ -1134,6 +1327,149 @@ function uniqueText(values: Array<string | null | undefined>, limit = 4): string
   }
 
   return output;
+}
+
+function exactLimitedDataWarning(profile: CompetitorProfile): string {
+  const limited =
+    !profile.resolvedSpec
+    || profile.resolvedSpec.specTier !== "verified-profile"
+    || profile.knownProfile === null;
+
+  return limited
+    ? "Wingman has limited local data for this competitor SKU. Treat this as product-direction guidance, not a confirmed direct equivalent."
+    : "";
+}
+
+function compareSignalDirection(profile: CompetitorProfile): string {
+  const role = (profile.role || "").toLowerCase();
+  if (role.includes("encoder") || role.includes("transmitter")) return "Source-side / encoder path";
+  if (role.includes("decoder") || role.includes("receiver")) return "Display-side / decoder path";
+  if (role.includes("transceiver")) return "Bidirectional / transceiver path";
+  if (role.includes("switcher") || role.includes("matrix")) return "Room core / switching path";
+  if (role.includes("processor")) return "Processing path";
+  return "Signal direction needs confirmation";
+}
+
+function compareCompetitorEcosystem(profile: CompetitorProfile): string {
+  if (profile.resolvedSpec?.title) return profile.resolvedSpec.title;
+  if (profile.resolvedSpec?.brand && profile.productClass !== "Unknown") {
+    return `${profile.resolvedSpec.brand} ${profile.productClass}`;
+  }
+  return profile.brand || "Not confirmed";
+}
+
+function compareFeatureFlagSummary(profile: CompetitorProfile): string[] {
+  const features = profile.resolvedSpec?.features ?? {};
+  const specs = profile.resolvedSpec?.specs;
+  return uniqueText([
+    features.receiverKit ? "Receiver kit packaging evidenced" : "",
+    features.hdbtOutput ? "HDBaseT output path evidenced" : "",
+    features.usbRouting ? "USB routing evidenced" : "",
+    features.usbC ? "USB-C connectivity evidenced" : "",
+    features.tenGig ? "10GbE transport evidenced" : "",
+    features.zeroLatency ? "Zero-latency transport evidenced" : "",
+    features.lossless ? "Visually lossless / uncompressed transport evidenced" : "",
+    features.wireless ? "Wireless casting evidenced" : "",
+    specs?.dante ? "Dante audio evidenced" : "",
+    specs?.audioDeEmbed ? "Audio de-embed evidenced" : "",
+    specs?.audioEmbed ? "Audio embed evidenced" : "",
+  ], 8);
+}
+
+function compareUnknownFeatureSummary(profile: CompetitorProfile): string[] {
+  const specs = profile.resolvedSpec?.specs;
+  const unknowns = uniqueText([
+    !profile.resolvedSpec ? "No verified local competitor specification profile found." : "",
+    !profile.resolvedSpec?.maxResolution ? "Resolution ceiling not verified locally." : "",
+    !profile.role || profile.role === "Unknown" ? "Endpoint role not proven from local competitor data." : "",
+    !profile.transport || profile.transport === "Unknown" ? "Transport type not proven from local competitor data." : "",
+    !specs?.hdmiVersion ? "HDMI version not verified locally." : "",
+    !specs?.hdcpVersion ? "HDCP version not verified locally." : "",
+    !specs?.usbStandard && profile.requestedTags.includes("usb") ? "USB standard and port behaviour not verified locally." : "",
+    !specs?.hdbasetClass && profile.requestedTags.includes("hdbaset") ? "HDBaseT class/distance not verified locally." : "",
+    !specs?.networkPorts && profile.requestedTags.includes("avoip") ? "LAN port count and network control details not verified locally." : "",
+  ], 8);
+
+  if (unknowns.length >= 3) {
+    return unknowns;
+  }
+
+  return uniqueText([
+    ...unknowns,
+    "Control expectations need confirmation before quoting.",
+    "Audio handling needs confirmation before quoting.",
+    "System dependencies need confirmation before quoting.",
+  ], 8);
+}
+
+function candidateRequiredDependencies(product: WyreStormProduct, profile: CompetitorProfile): string[] {
+  if (product.sku.startsWith("NHD-")) {
+    return uniqueText([
+      "Specify one NHD-CTL-PRO-V2 controller per NetworkHD system unless the site already has one.",
+      product.role.includes("Encoder") ? "Quote compatible decoder endpoints at the display side if the system needs a full end-to-end AVoIP path." : "",
+      product.role.includes("Decoder") ? "Quote compatible encoder endpoints at the source side if the system needs a full end-to-end AVoIP path." : "",
+      product.sku.includes("-DNT-") || product.sku.includes("-510-") ? "Only position this path when the Dante / network-audio workflow is genuinely part of the brief." : "",
+      product.sku.includes("-IW-") ? "Only position this path if the physical in-wall form factor is a project requirement." : "",
+      "Confirm network switch readiness, VLAN policy, multicast handling and who owns network setup before quoting.",
+    ], 6);
+  }
+
+  if (product.sku.startsWith("MXV-")) {
+    return uniqueText([
+      wantsClassA(profile)
+        ? matrixReceiverRequirement(profile, true)
+        : matrixReceiverRequirement(profile, false),
+      "Confirm the receiver model, HDBaseT class and actual cable-distance requirement before quoting.",
+      "Confirm whether local mirrored HDMI outputs, audio breakouts or scaling are required.",
+    ], 5);
+  }
+
+  if (product.productClass === "HDBaseT extender") {
+    return uniqueText([
+      "Quote the transmitter/receiver kit or matching endpoint pair; do not treat this as a matrix or AVoIP system.",
+      "Confirm HDBaseT class, cable run, USB version and control path before quoting.",
+    ], 4);
+  }
+
+  if (product.productClass === "Presentation switcher") {
+    return uniqueText([
+      "Confirm whether the room needs switching, BYOD/BYOM, wireless presentation or USB transport, not just a nearest technical SKU.",
+      /H3|HDBASET/i.test(product.transport) ? "Confirm whether the downstream HDBaseT / room-capture path is genuinely part of the requirement." : "",
+      /Wireless/i.test(product.transport) ? "Confirm whether wireless presentation and guest connection are actually required." : "",
+    ], 4);
+  }
+
+  return uniqueText([
+    "Confirm the final room workflow, dependencies and adjacent products before quoting.",
+  ], 3);
+}
+
+function plainLanguageOutcome(profile: CompetitorProfile, candidate: ScoredCandidate): string {
+  const limited = Boolean(exactLimitedDataWarning(profile));
+  const hasClassMismatch = candidate.blockers.some((line) => /class mismatch|role mismatch|wrong product class/i.test(line))
+    || candidate.mismatches.some((line) => /not an AVoIP|wrong architecture|point-to-point|does not replace/i.test(line));
+
+  if (hasClassMismatch || candidate.verdict === "NO MATCH") {
+    return "Wrong product class";
+  }
+
+  if (limited && candidate.verdict !== "GOOD MATCH") {
+    return "Insufficient competitor data";
+  }
+
+  if (candidate.verdict === "ARCHITECTURE ALTERNATIVE") {
+    return "Product-family direction only";
+  }
+
+  if (candidate.verdict === "GOOD MATCH" && candidate.matched.some((line) => /Same product class|Same endpoint role|matrix topology|role-compatible/i.test(line))) {
+    return "Direct product-role match";
+  }
+
+  if (candidate.verdict === "PARTIAL MATCH") {
+    return "Functional alternative";
+  }
+
+  return limited ? "Insufficient competitor data" : "Product-family direction only";
 }
 
 function competitorIoTypeLabel(profile: CompetitorProfile): string {
@@ -1328,53 +1664,83 @@ function buildCompetitorSummary(profile: CompetitorProfile, mustMatchFeatures: s
     return tag;
   }), 5);
 
-  const facts = uniqueText([
+  const facts = [
+    { label: "Recognised class", value: profile.productClass !== "Unknown" ? profile.productClass : "Needs confirmation" },
+    { label: "Role", value: profile.role !== "Unknown" ? profile.role : "Needs confirmation" },
+    { label: "Signal direction", value: compareSignalDirection(profile) },
+    { label: "Transport", value: profile.transport !== "Unknown" ? profile.transport : "Needs confirmation" },
+    { label: "Resolution", value: resolvedSpec?.maxResolution || "Not verified locally" },
+    { label: "Ecosystem / family", value: compareCompetitorEcosystem(profile) },
+  ].filter((entry) => entry.value);
+
+  const knownFeatures = uniqueText([
     competitorHeadlineIo(profile),
-    resolvedSpec?.maxResolution ? `Resolution: ${resolvedSpec.maxResolution}` : "",
     competitorVideoProtectionFacts(profile),
     competitorUsbFacts(profile),
     competitorHdbasetFacts(profile),
     competitorControlFacts(profile),
     competitorAudioNetworkFacts(profile),
     competitorWirelessFacts(profile),
-    unsupportedPorts.length ? `Other video I/O: ${unsupportedPorts.join(", ")}` : "",
-    resolvedSpec?.transport ? `Transport: ${resolvedSpec.transport}` : "",
+    unsupportedPorts.length ? `Other video I/O evidenced: ${unsupportedPorts.join(", ")}` : "",
+    ...compareFeatureFlagSummary(profile),
+    inferredTags.length ? `Detected traits: ${inferredTags.join(", ")}` : "",
+    mustMatchFeatures.trim() ? `Must-match notes: ${mustMatchFeatures.trim()}` : "",
+  ], 10);
+
+  const unknownFeatures = uniqueText([
+    ...compareUnknownFeatureSummary(profile),
+    unsupportedPorts.length
+      ? "WyreStorm does not natively match every competitor legacy connector, so confirm whether signal conversion or surrounding workflow is acceptable."
+      : "",
   ], 8);
 
-  const bullets = uniqueText([
-    profile.productClass !== "Unknown" ? `Class: ${profile.productClass}` : "",
-    profile.role !== "Unknown" ? `Role: ${profile.role}` : "",
+  const verifyItems = uniqueText([
     competitorDistanceQuestion(profile),
     competitorCommercialRiskNote(profile),
     competitorEducationalNote(profile),
-    unsupportedPorts.length
-      ? "WyreStorm note: competitor relies on non-native video connectors, so verify signal conversion or surrounding workflow before positioning a like-for-like replacement."
-      : "",
-    resolvedSpec?.specTier === "verified-profile"
-      ? "Data confidence: verified competitor profile in compare registry."
-      : profile.transport !== "Unknown"
-        ? `Transport: ${profile.transport}`
-        : "",
-    inferredTags.length ? `Detected traits: ${inferredTags.join(", ")}` : "",
-    mustMatchFeatures.trim() ? `Must-match notes: ${mustMatchFeatures.trim()}` : "",
-  ], 5);
+    "Confirm exact video format, bandwidth and connector expectations before external quote use.",
+    "Confirm control, audio and USB behaviour before treating this as a direct equivalent.",
+    "Confirm whether the customer wants the same architecture or is open to a different WyreStorm system direction.",
+  ], 8);
+
+  const warning = exactLimitedDataWarning(profile);
+  const outcomeLabel = warning ? "Insufficient competitor data" : profile.productClass === "Unknown" ? "Product-family direction only" : "Direct product-role match";
 
   if (isAtlonaOmeExKitProfile(profile)) {
     return {
       heading: "Atlona AT-OME-EX-KIT",
       detail: "HDBaseT TX/RX extender kit",
-      facts: uniqueText([
-        "Product type: HDBaseT TX/RX extender kit",
-        "Headline spec: point-to-point HDMI / USB / control extension over category cable.",
-        "Transport: HDBaseT",
-        "USB / control: USB 2.0 plus control transport where supported.",
+      recognisedClass: "HDBaseT extender",
+      role: "TX/RX extender kit",
+      signalDirection: "Point-to-point source-to-display extension",
+      transport: "HDBaseT",
+      resolution: resolvedSpec?.maxResolution || "Not verified locally",
+      ecosystem: "Atlona OME",
+      facts: [
+        { label: "Recognised class", value: "HDBaseT extender" },
+        { label: "Role", value: "TX/RX extender kit" },
+        { label: "Signal direction", value: "Point-to-point source-to-display extension" },
+        { label: "Transport", value: "HDBaseT" },
+        { label: "Resolution", value: resolvedSpec?.maxResolution || "Not verified locally" },
+        { label: "Ecosystem / family", value: "Atlona OME" },
+      ],
+      knownFeatures: uniqueText([
+        "Point-to-point HDMI / USB / control extension over category cable.",
+        "USB 2.0 plus control transport where supported.",
         "Typical application: meeting room, classroom, interactive display or UC extension.",
       ], 8),
-      bullets: uniqueText([
-        "Atlona AT-OME-EX-KIT overview card",
-        "This is an extender-led product direction, not a matrix, AV-over-IP endpoint, multiview processor or presentation switcher.",
-        "Confirm required resolution, USB version, cable length, HDBaseT class, control needs and whether the customer actually needs switching.",
+      unknownFeatures: uniqueText([
+        "Exact HDMI/HDCP version not verified locally.",
+        "HDBaseT class and cable-distance behaviour not verified locally.",
+        "Control and USB edge-case behaviour should be checked against the live datasheet.",
       ], 8),
+      verifyItems: uniqueText([
+        "Confirm required resolution, USB version, cable length and HDBaseT class before quoting.",
+        "Confirm whether the customer really needs point-to-point extension or has moved into switching/matrix architecture.",
+        "Confirm control needs before positioning any alternative as direct replacement.",
+      ], 8),
+      outcomeLabel: exactLimitedDataWarning(profile) ? "Insufficient competitor data" : "Direct product-role match",
+      warning: exactLimitedDataWarning(profile),
       sourceUrl: resolvedSpec?.datasheetUrl,
     };
   }
@@ -1384,8 +1750,18 @@ function buildCompetitorSummary(profile: CompetitorProfile, mustMatchFeatures: s
       || (profile.knownProfile && typeof profile.knownProfile.title === "string" && profile.knownProfile.title.trim() ? profile.knownProfile.title.trim() : "")
       || (profile.knownProfile && typeof profile.knownProfile.name === "string" && profile.knownProfile.name.trim() ? profile.knownProfile.name.trim() : "")
       || "Wingman matched against this competitor product direction.",
+    recognisedClass: profile.productClass !== "Unknown" ? profile.productClass : "Needs confirmation",
+    role: profile.role !== "Unknown" ? profile.role : "Needs confirmation",
+    signalDirection: compareSignalDirection(profile),
+    transport: profile.transport !== "Unknown" ? profile.transport : "Needs confirmation",
+    resolution: resolvedSpec?.maxResolution || "Not verified locally",
+    ecosystem: compareCompetitorEcosystem(profile),
     facts,
-    bullets,
+    knownFeatures,
+    unknownFeatures,
+    verifyItems,
+    outcomeLabel,
+    warning,
     sourceUrl: resolvedSpec?.datasheetUrl,
   };
 }
@@ -1395,6 +1771,23 @@ function ProductMoreLink({ sku }: { sku: string }) {
     <a className="compare-native-more" href={productPitchUrl(sku)} aria-label={`Open product positioning support for ${sku}`}>
       More
     </a>
+  );
+}
+
+function CompareEvidenceList({ title, items, className = "" }: { title: string; items: string[]; className?: string }) {
+  if (!items.length) {
+    return null;
+  }
+
+  return (
+    <div className={`compare-native-evidence-block ${className}`.trim()}>
+      <p className="compare-native-label compare-native-label--subtle">{title}</p>
+      <ul className="compare-native-bullet-list">
+        {items.map((item) => (
+          <li key={`${title}-${item}`}>{item}</li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -1492,7 +1885,7 @@ function BestCandidateCard({
     <section className="compare-native-best-card">
       <div className="compare-native-result-head">
         <span className={`compare-native-verdict ${verdictClass(candidate.verdict)}`}>{candidate.verdict}</span>
-        <span className="compare-native-score">{Math.round(candidate.score)}%</span>
+        <span className="compare-native-score">{candidate.outcomeLabel}</span>
       </div>
 
       <div className="compare-native-compare-grid">
@@ -1500,18 +1893,18 @@ function BestCandidateCard({
           <p className="compare-native-label compare-native-label--subtle">Competitor product Wingman matched against</p>
           <h3>{competitor.heading}</h3>
           <h4>{competitor.detail}</h4>
+          <p className="compare-native-match-anchor">{competitor.outcomeLabel}</p>
+          {competitor.warning ? <p className="compare-native-option-check">{competitor.warning}</p> : null}
           {competitor.facts.length ? (
             <div className="compare-native-fact-row" aria-label="Competitor headline facts">
               {competitor.facts.map((fact) => (
-                <span key={fact} className="compare-native-fact-pill">{fact}</span>
+                <span key={`${fact.label}-${fact.value}`} className="compare-native-fact-pill">{fact.label}: {fact.value}</span>
               ))}
             </div>
           ) : null}
-          <ul className="compare-native-bullet-list">
-            {competitor.bullets.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+          <CompareEvidenceList title="Known features" items={competitor.knownFeatures} />
+          <CompareEvidenceList title="Unknown / verify before quoting" items={competitor.unknownFeatures.slice(0, 5)} className="compare-native-evidence--warn" />
+          <CompareEvidenceList title="Verify before quoting" items={competitor.verifyItems.slice(0, 5)} className="compare-native-evidence--warn" />
           {competitor.sourceUrl ? (
             <div className="compare-native-action-row">
               <a className="compare-native-secondary-action" href={competitor.sourceUrl} target="_blank" rel="noreferrer">
@@ -1526,12 +1919,14 @@ function BestCandidateCard({
           <h3>{candidate.product.sku}</h3>
           <h4>{candidate.product.name}</h4>
           <p>{candidate.product.family} - {candidate.product.productClass} - {candidate.product.role}</p>
-          <p className="compare-native-match-anchor">
-            {candidate.matched[0] ?? "Closest role-compatible WyreStorm option from the current Compare data."}
-          </p>
-          {candidate.checks[0] ? (
-            <p className="compare-native-option-check">{candidate.checks[0]}</p>
-          ) : null}
+          <p className="compare-native-match-anchor">{candidate.outcomeLabel}</p>
+          <p className="compare-native-muted">Match score context: {Math.round(candidate.score)}%</p>
+          <CompareEvidenceList title="Where it matches" items={candidate.matched.slice(0, 5)} />
+          <CompareEvidenceList title="Partial matches" items={candidate.partialMatches.slice(0, 4)} />
+          <CompareEvidenceList title="Where it does not match" items={candidate.mismatches.slice(0, 4)} className="compare-native-evidence--danger" />
+          <CompareEvidenceList title="Unknown / verify before quoting" items={uniqueText([...candidate.unknowns, ...candidate.checks, ...candidate.gaps], 6)} className="compare-native-evidence--warn" />
+          <CompareEvidenceList title="Quote blockers" items={candidate.blockers.slice(0, 4)} className="compare-native-evidence--danger" />
+          <CompareEvidenceList title="Required WyreStorm dependencies" items={candidate.dependencies.slice(0, 5)} />
 
           <div className="compare-native-action-row">
             <button className="compare-native-secondary-action" type="button" onClick={onCopySummary}>Copy summary</button>
@@ -1544,9 +1939,6 @@ function BestCandidateCard({
 }
 
 function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
-  const fitLine = candidate.matched[0] ?? "Closest role-compatible WyreStorm option from the current Compare data.";
-  const checkLine = candidate.checks[0] ?? "Confirm requirements against the current datasheet before quoting.";
-
   return (
     <article className="compare-native-option-card">
       <div>
@@ -1558,11 +1950,18 @@ function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
 
       <div className="compare-native-option-meta">
         <span className={`compare-native-verdict ${verdictClass(candidate.verdict)}`}>{candidate.verdict}</span>
-        <span className="compare-native-score">{Math.round(candidate.score)}%</span>
+        <span className="compare-native-score">{candidate.outcomeLabel}</span>
       </div>
 
-      <p className="compare-native-option-note">{fitLine}</p>
-      <p className="compare-native-option-check">{checkLine}</p>
+      <p className="compare-native-option-note">{candidate.matched[0] ?? "Closest role-compatible WyreStorm option from the current Compare data."}</p>
+      {candidate.partialMatches[0] ? <p className="compare-native-option-note">{candidate.partialMatches[0]}</p> : null}
+      {candidate.mismatches[0] ? <p className="compare-native-option-check">{candidate.mismatches[0]}</p> : null}
+      {!candidate.mismatches[0] && candidate.unknowns[0] ? <p className="compare-native-option-check">{candidate.unknowns[0]}</p> : null}
+
+      <CompareEvidenceList title="Where it matches" items={candidate.matched.slice(0, 3)} />
+      <CompareEvidenceList title="Where it does not match" items={candidate.mismatches.slice(0, 2)} className="compare-native-evidence--danger" />
+      <CompareEvidenceList title="Unknown / verify before quoting" items={uniqueText([...candidate.unknowns, ...candidate.checks, ...candidate.gaps], 3)} className="compare-native-evidence--warn" />
+      <CompareEvidenceList title="Required WyreStorm dependencies" items={candidate.dependencies.slice(0, 3)} />
 
       <div className="compare-native-action-row">
         <ProductMoreLink sku={candidate.product.sku} />
@@ -1617,7 +2016,7 @@ function ComparePageNew() {
     const avoip = avoipProfile;
 
     if (avoip.recommendation.applies) {
-      return buildAvoipCandidates(avoip.classification, avoip.recommendation);
+      return buildAvoipCandidates(profile, avoip.classification, avoip.recommendation);
     }
 
     const matrixCandidates = buildMatrixCandidates(profile);
@@ -1712,6 +2111,7 @@ function ComparePageNew() {
     const quoteSafetyStatus = compareQuoteSafetyStatus(profile, best);
     const wrongProductAvoidance = compareWrongProductAvoidance(profile, best);
     const nextQuestion = compareNextQuestion(profile, best);
+    const limitedWarning = exactLimitedDataWarning(profile);
 
     const roleNote =
       detectedRole === "Encoder / transmitter"
@@ -1722,27 +2122,33 @@ function ComparePageNew() {
 
     return [
       `Competitor: ${competitorLabel}`,
+      `Outcome: ${best.outcomeLabel}`,
       `Detected: ${detectedProductType} - ${detectedSystemClass}`,
       `Nearest WyreStorm direction: ${best.product.sku} - ${best.product.name}`,
-      `Match: ${best.verdict} (${Math.round(best.score)}%)`,
+      `Verdict: ${best.verdict} (${Math.round(best.score)}%)`,
       `Architecture: ${architectureDirection}`,
       `Quote safety: ${quoteSafetyStatus}`,
+      ...(limitedWarning ? [limitedWarning] : []),
       "",
-      "Why this fits",
+      "Where it matches",
       `- ${best.product.sku} is the closest WyreStorm starting point based on product role and system class.`,
       `- ${roleNote}`,
-      ...(best.matched.slice(0, 2).map((line) => `- ${line}`)),
+      ...(best.matched.slice(0, 4).map((line) => `- ${line}`)),
+      ...(best.partialMatches.slice(0, 2).map((line) => `- Partial: ${line}`)),
+      "",
+      "Where it does not match",
+      ...(best.mismatches.slice(0, 3).map((line) => `- ${line}`)),
       `- ${wrongProductAvoidance}`,
       `- ${nextQuestion}`,
       "",
-      "Check before quoting",
-      ...best.checks.slice(0, 3).map((line) => `- ${line}`),
-      ...(best.gaps.slice(0, 2).map((line) => `- Gap: ${line}`)),
-      ...(best.checks.length === 0 ? [
-        "- Confirm codec/compression class.",
-        "- Confirm video format, USB/KVM, audio and control requirements.",
-        "- Confirm controller and network switch requirements before quoting.",
-      ] : []),
+      "Unknown / verify before quoting",
+      ...uniqueText([...best.unknowns, ...best.checks, ...best.gaps], 5).map((line) => `- ${line}`),
+      "",
+      "Required WyreStorm dependencies",
+      ...best.dependencies.slice(0, 5).map((line) => `- ${line}`),
+      "",
+      "Quote blockers",
+      ...best.blockers.slice(0, 4).map((line) => `- ${line}`),
     ].join("\n");
   }, [avoipProfile, best, competitorInput, effectiveBrand, profile]);
 

@@ -514,7 +514,7 @@ export function recommendNetworkHdAvoip(
   } else if (series === "100") {
     reason = "Competitor is a 1G H.264/H.265 endpoint, so the NetworkHD 100 series is the like-for-like codec match.";
   } else if (verifyCodec) {
-    reason = "Closest WyreStorm direction for a 1GbE AV-over-IP endpoint. Confirm codec and feature requirements before quoting.";
+    reason = "Competitor appears to be a 1GbE AVoIP endpoint, but the local evidence does not yet prove the codec class. NetworkHD 500 is the safer WyreStorm direction until codec and feature requirements are confirmed.";
   } else {
     reason = "Competitor is a 1G visually-lossless endpoint, so the NetworkHD 500 series is the like-for-like match.";
   }
