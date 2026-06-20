@@ -318,6 +318,8 @@ describe("compareCompetitor", () => {
       const result = compareCompetitor("DTP2 T 211 HDBaseT", mockProducts);
       const extenderMatch = result.matches.find((m) => m.sku.includes("EX"));
       expect(extenderMatch).toBeDefined();
+      expect(result.matches.some((match) => match.sku.startsWith("MX-"))).toBe(false);
+      expect(result.matches.some((match) => match.sku.startsWith("SW-"))).toBe(false);
     });
 
     it("should match Dante competitor to audio products", () => {
@@ -393,6 +395,14 @@ describe("compareCompetitor", () => {
     it("should detect video wall context", () => {
       const result = compareCompetitor("processor video wall multiview", mockProducts);
       expect(result.competitor.technologyClass).toBe("VIDEO_WALL");
+    });
+
+    it("keeps HDBaseT extender comparisons out of matrix and presentation candidate lanes", () => {
+      const result = compareCompetitor("AT-OME-EX-KIT HDBaseT extender kit", mockProducts);
+
+      expect(result.competitor.technologyClass).toBe("HDBASET");
+      expect(result.matches.length).toBeGreaterThan(0);
+      expect(result.matches.every((match) => match.sku.startsWith("EX-"))).toBe(true);
     });
   });
 

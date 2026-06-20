@@ -107,4 +107,41 @@ describe("Compare rendered workflow", () => {
     expect(screen.getByText(/Confirm control, audio and USB behaviour before treating this as a direct equivalent/i)).toBeInTheDocument();
     expect(screen.getByText(/Confirm whether the customer wants the same architecture or is open to a different WyreStorm system direction/i)).toBeInTheDocument();
   });
+
+  it("keeps HDBaseT extender kits on extender architecture instead of leading with switchers", async () => {
+    render(
+      <MemoryRouter>
+        <ComparePageNew />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Atlona" }));
+    fireEvent.click(screen.getByRole("button", { name: "AT-OME-EX-KIT" }));
+
+    await screen.findByText("Best WyreStorm candidate");
+
+    expect(screen.getByText(/Recognised class: HDBaseT extender/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/TX\/RX extender kit/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/Quote the transmitter\/receiver kit or matching endpoint pair/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("EX-100-KVM")).toBeInTheDocument();
+    expect(screen.queryByText("MX-0403-H3-MST")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Compact presentation-switcher path considered/i)).not.toBeInTheDocument();
+  });
+
+  it("keeps matrix kits on matrix architecture instead of drifting into extender classification", async () => {
+    render(
+      <MemoryRouter>
+        <ComparePageNew />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Blustream" }));
+    fireEvent.click(screen.getByRole("button", { name: "HMX44-18G-KIT" }));
+
+    await screen.findByText("Best WyreStorm candidate");
+
+    expect(screen.getByText(/Recognised class: Matrix/i)).toBeInTheDocument();
+    expect(screen.getByText("MX-0404-SCL")).toBeInTheDocument();
+    expect(screen.queryByText(/Recognised class: HDBaseT extender/i)).not.toBeInTheDocument();
+  });
 });

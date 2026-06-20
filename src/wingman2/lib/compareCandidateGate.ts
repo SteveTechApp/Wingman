@@ -164,16 +164,16 @@ function allowedClassPair(competitorClass: CompareCompetitorClass, candidateClas
   if (competitorClass === "UNKNOWN") return candidateClass !== "AUDIO" && candidateClass !== "CONTROL";
   if (competitorClass === candidateClass) return true;
 
-  if (competitorClass === "HDBASET") return candidateClass === "HDBASET" || candidateClass === "MATRIX" || candidateClass === "PRESENTATION";
-  if (competitorClass === "MATRIX") return candidateClass === "MATRIX" || candidateClass === "AVOIP";
-  if (competitorClass === "PRESENTATION") return candidateClass === "PRESENTATION" || candidateClass === "MATRIX" || candidateClass === "HDBASET";
+  if (competitorClass === "HDBASET") return candidateClass === "HDBASET";
+  if (competitorClass === "MATRIX") return candidateClass === "MATRIX";
+  if (competitorClass === "PRESENTATION") return candidateClass === "PRESENTATION";
   if (competitorClass === "AVOIP") return candidateClass === "AVOIP";
-  if (competitorClass === "VIDEO_WALL") return candidateClass === "VIDEO_WALL" || candidateClass === "AVOIP" || candidateClass === "MULTIVIEW";
-  if (competitorClass === "MULTIVIEW") return candidateClass === "MULTIVIEW" || candidateClass === "AVOIP";
+  if (competitorClass === "VIDEO_WALL") return candidateClass === "VIDEO_WALL";
+  if (competitorClass === "MULTIVIEW") return candidateClass === "MULTIVIEW";
   if (competitorClass === "WIRELESS_PRESENTATION") return candidateClass === "WIRELESS_PRESENTATION" || candidateClass === "PRESENTATION";
-  if (competitorClass === "USB_EXTENSION") return candidateClass === "USB_EXTENSION" || candidateClass === "PRESENTATION";
+  if (competitorClass === "USB_EXTENSION") return candidateClass === "USB_EXTENSION";
   if (competitorClass === "CONTROL") return candidateClass === "CONTROL";
-  if (competitorClass === "AUDIO") return candidateClass === "AUDIO" || candidateClass === "PRESENTATION";
+  if (competitorClass === "AUDIO") return candidateClass === "AUDIO";
 
   return false;
 }
