@@ -5,6 +5,7 @@ export type CompareCompetitorClass =
   | "PRESENTATION"
   | "VIDEO_WALL"
   | "MULTIVIEW"
+  | "CAMERA"
   | "USB_EXTENSION"
   | "CONTROL"
   | "WIRELESS_PRESENTATION"
@@ -68,6 +69,7 @@ const MATRIX_MARKERS = ["matrix", "mx-", "4x4", "6x6", "8x8", "16x16", "routing"
 const PRESENTATION_MARKERS = ["presentation", "switcher", "collaboration", "usb-c", "byod", "byom", "meeting room", "sw-"];
 const VIDEO_WALL_MARKERS = ["video wall", "videowall", "wall processor", "lcd wall", "led processor"];
 const MULTIVIEW_MARKERS = ["multiview", "multi-view", "pip", "pbp", "single output canvas", "window"];
+const CAMERA_MARKERS = ["camera", "ptz", "ndi camera", "birddog", "marshall cv", "visca", "pelco"];
 const USB_MARKERS = ["usb", "kvm", "usb extension", "usb extender"];
 const CONTROL_MARKERS = ["control", "controller", "processor", "automation"];
 const WIRELESS_MARKERS = ["wireless", "miracast", "airplay", "casting", "clickshare"];
@@ -133,7 +135,7 @@ function wingmanSkuClassGuard(candidate: CompareCandidateGateInput): CompareComp
   if (/^MX-/.test(sku) || text.includes("matrix")) return "MATRIX";
   if (/^SW-/.test(sku) || text.includes("presentation")) return "PRESENTATION";
   if (/^APO-/.test(sku) || text.includes("audio") || text.includes("microphone") || text.includes("speakerphone")) return "AUDIO";
-  if (/^CAM-/.test(sku) || text.includes("camera")) return "USB_EXTENSION";
+  if (/^CAM-/.test(sku) || hasAny(text, CAMERA_MARKERS)) return "CAMERA";
   if (/^CAB-/.test(sku) || role.includes("cable")) return "UNKNOWN";
 
   return "UNKNOWN";
@@ -148,6 +150,7 @@ function classifyCandidate(candidate: CompareCandidateGateInput): CompareCompeti
 
   if (hasAny(text, VIDEO_WALL_MARKERS)) return "VIDEO_WALL";
   if (hasAny(text, MULTIVIEW_MARKERS)) return "MULTIVIEW";
+  if (hasAny(text, CAMERA_MARKERS)) return "CAMERA";
   if (hasAny(text, AVOIP_MARKERS)) return "AVOIP";
   if (hasAny(text, HDBASET_MARKERS)) return "HDBASET";
   if (hasAny(text, MATRIX_MARKERS)) return "MATRIX";
@@ -170,6 +173,7 @@ function allowedClassPair(competitorClass: CompareCompetitorClass, candidateClas
   if (competitorClass === "AVOIP") return candidateClass === "AVOIP";
   if (competitorClass === "VIDEO_WALL") return candidateClass === "VIDEO_WALL";
   if (competitorClass === "MULTIVIEW") return candidateClass === "MULTIVIEW";
+  if (competitorClass === "CAMERA") return candidateClass === "CAMERA";
   if (competitorClass === "WIRELESS_PRESENTATION") return candidateClass === "WIRELESS_PRESENTATION" || candidateClass === "PRESENTATION";
   if (competitorClass === "USB_EXTENSION") return candidateClass === "USB_EXTENSION";
   if (competitorClass === "CONTROL") return candidateClass === "CONTROL";

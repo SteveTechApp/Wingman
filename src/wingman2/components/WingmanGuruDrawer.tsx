@@ -8,6 +8,15 @@ import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCac
 type WingmanGuruDrawerProps = {
   open: boolean;
   onClose: () => void;
+  contextLabel?: string;
+  contextSummary?: string;
+  supportCue?: {
+    label: string;
+    summary: string;
+    prompts: string[];
+  };
+  seedPrompt?: string | null;
+  onSeedHandled?: () => void;
 };
 
 type GuruMessage = {
@@ -1276,7 +1285,15 @@ const openingMessage = createMessage(
     : "Hi, I'm Guru, Wingman's real-time AV and WyreStorm technical assistant. Ask me a product, AV terminology, acronym, or system design question. You can ask for an end-user, installer, or consultant view. External lookup is off, so I'll answer from the local Wingman glossary and product index."
 );
 
-export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
+export function WingmanGuruDrawer({
+  open,
+  onClose,
+  contextLabel,
+  contextSummary,
+  supportCue,
+  seedPrompt,
+  onSeedHandled,
+}: WingmanGuruDrawerProps) {
   const [messages, setMessages] = useState<GuruMessage[]>([openingMessage]);
   const [draft, setDraft] = useState("");
   const [products, setProducts] = useState<ProductEntry[]>([]);
@@ -1326,6 +1343,15 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
 
     return () => window.clearTimeout(timer);
   }, [open, messages]);
+
+  useEffect(() => {
+    if (!open || !seedPrompt?.trim()) {
+      return;
+    }
+
+    void sendMessage(seedPrompt);
+    onSeedHandled?.();
+  }, [open, onSeedHandled, seedPrompt]);
 
   const helperText = useMemo(() => {
     return `${indexStatus} - Glossary: ${avGlossary.length} terms - Local Guru memory: ${memoryCount}`;
@@ -1407,6 +1433,28 @@ export function WingmanGuruDrawer({ open, onClose }: WingmanGuruDrawerProps) {
             <X className="h-4 w-4" />
           </button>
         </header>
+
+        {supportCue ? (
+          <section className="wingman-guru-context-card" aria-label="Guru workflow support">
+            <p className="wingman-guru-context-kicker">{supportCue.label}</p>
+            <h3>{contextLabel ? `${contextLabel} support` : "Workflow support"}</h3>
+            <p>{supportCue.summary}</p>
+            {contextSummary ? <small>Current page: {contextSummary}</small> : null}
+            <div className="wingman-guru-context-prompts">
+              {supportCue.prompts.map((prompt) => (
+                <button
+                  key={prompt}
+                  type="button"
+                  className="wingman-guru-context-prompt"
+                  onClick={() => handleQuickPrompt(prompt)}
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>{prompt}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <div className="wingman-guru-quick-prompts">
           {quickPrompts.map((prompt) => (

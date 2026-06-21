@@ -3,6 +3,7 @@
 type WingmanGuruFabProps = {
   open: boolean;
   onClick: () => void;
+  supportCue?: string;
 };
 
 type GuruPosition = {
@@ -56,7 +57,7 @@ function clearStoredPosition() {
   }
 }
 
-export function WingmanGuruFab({ open, onClick }: WingmanGuruFabProps) {
+export function WingmanGuruFab({ open, onClick, supportCue }: WingmanGuruFabProps) {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const dragRef = useRef({
     pointerId: null as number | null,
@@ -393,19 +394,21 @@ export function WingmanGuruFab({ open, onClick }: WingmanGuruFabProps) {
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
-      aria-label="Open Guru technical assistant"
+      aria-label={supportCue ? `Open Guru technical assistant. ${supportCue}.` : "Open Guru technical assistant"}
       aria-pressed="false"
       className="wingman-guru-fab"
       data-open="false"
+      data-support-available={supportCue ? "true" : "false"}
+      data-support-cue={supportCue ?? ""}
       style={style}
-      title="Drag Guru to move. Double-click to reset."
+      title={supportCue ? `${supportCue}. Drag Guru to move. Double-click to reset.` : "Drag Guru to move. Double-click to reset."}
     >
       <span className="wingman-guru-fab-sweep" aria-hidden="true" />
       <span className="wingman-guru-fab-glow" aria-hidden="true" />
       <img src="/wingman-guru-icon.png" alt="Guru" className="wingman-guru-fab-image" width={64} height={64} decoding="async" loading="eager" />
+      {supportCue ? <span className="wingman-guru-fab-status">{supportCue}</span> : null}
     </button>
   );
 }
 
 export default WingmanGuruFab;
-
