@@ -68,11 +68,15 @@ describe("Compare rendered workflow", () => {
     await screen.findByText("Sales answer");
 
     expect(screen.getByText("Sales answer")).toBeInTheDocument();
+    expect(screen.getByText("Competitor matched against")).toBeInTheDocument();
+    expect(screen.getByText("Suggested WyreStorm direction")).toBeInTheDocument();
     expect(screen.getByText(/IP350UHD-TX is recognised as a source-side AV-over-IP encoder/i)).toBeInTheDocument();
     expect(screen.getAllByText(/This product is an AV-over-IP product in the IP350UHD-TX family/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/I\/O: 1 in \/ 1 out/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/Resolution: 4K60/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(/IP350UHD-TX is used to put a local HDMI or USB-C source into an AV-over-IP distribution system/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/1x HDMI input, 1x LAN\/network port/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/1x local source input, 1x LAN\/network port/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/IP350UHD-TX is used to put a local HDMI source into an AV-over-IP distribution system/i)).toBeInTheDocument();
     expect(screen.getByText(/Use NHD-500-TX when the requirement is encoding a local source into a WyreStorm NetworkHD 500 system/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Ask the customer/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/Correct product direction/i).length).toBeGreaterThanOrEqual(1);
@@ -80,9 +84,9 @@ describe("Compare rendered workflow", () => {
     expect(screen.queryByText(/Match score context/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/\b\d+%\b/)).not.toBeInTheDocument();
 
-    expect(screen.getByText("NHD-500-TX")).toBeInTheDocument();
-    expect(screen.getByText("NHD-500-E-TX")).toBeInTheDocument();
-    expect(screen.getByText("NHD-510-TX")).toBeInTheDocument();
+    expect(screen.getAllByText("NHD-500-TX").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("NHD-500-E-TX").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("NHD-510-TX").length).toBeGreaterThanOrEqual(1);
 
     fireEvent.click(screen.getAllByText(/More detail/i)[0]);
     expect(screen.getAllByText(/Standard NetworkHD 500 source-side encoder path/i).length).toBeGreaterThanOrEqual(1);
@@ -114,11 +118,29 @@ describe("Compare rendered workflow", () => {
     expect(screen.getAllByText(/Not a drop-in replacement/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/Correct WyreStorm direction, not a drop-in replacement/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/Atlona OmniStream and WyreStorm NetworkHD are separate ecosystems/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("Product job")).toBeInTheDocument();
-    expect(screen.getByText("System type")).toBeInTheDocument();
-    expect(screen.getByText("System compatibility")).toBeInTheDocument();
-    expect(screen.getAllByText("Match").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("Not a match").length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText("Comparison view")).not.toBeInTheDocument();
+    expect(screen.queryByText("Product job")).not.toBeInTheDocument();
+    expect(screen.queryByText("System type")).not.toBeInTheDocument();
+    expect(screen.queryByText("System compatibility")).not.toBeInTheDocument();
+  });
+
+  it("keeps Kramer KDS-EN6 wording evidence-led and does not invent USB-C", async () => {
+    render(
+      <MemoryRouter>
+        <ComparePageNew />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Kramer" }));
+    fireEvent.click(screen.getByRole("button", { name: "KDS-EN6" }));
+
+    await screen.findByText("Sales answer");
+
+    expect(screen.getByText(/Kramer KDS-EN6 is recognised as a source-side AV-over-IP encoder/i)).toBeInTheDocument();
+    expect(screen.getByText(/Kramer KDS-EN6 is used to put a local HDMI source into an AV-over-IP distribution system/i)).toBeInTheDocument();
+    expect(screen.getByText(/Use NHD-500-TX when the requirement is encoding a local source into a WyreStorm NetworkHD 500 system/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Not a drop-in replacement/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText(/USB-C/i)).not.toBeInTheDocument();
   });
 
   it("makes incomplete competitor data explicit and shows multiple verify-before-quote items", async () => {
@@ -139,7 +161,7 @@ describe("Compare rendered workflow", () => {
     const customSkuButtons = await screen.findAllByRole("button", { name: /custom \/ missing sku/i });
     fireEvent.click(customSkuButtons[0]);
 
-    await screen.findByText("Sales answer");
+    await screen.findByRole("heading", { name: /No suitable WyreStorm match found from the current data/i });
 
     expect(
       screen.getAllByText(
@@ -147,7 +169,7 @@ describe("Compare rendered workflow", () => {
       ).length,
     ).toBeGreaterThanOrEqual(1);
 
-    expect(screen.getAllByText(/Ask the customer/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText("Sales answer")).not.toBeInTheDocument();
     expect(screen.getAllByText(/Confirm exact video format, bandwidth and connector expectations before external quote use/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/Confirm control, audio and USB behaviour before treating this as a direct equivalent/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/Confirm whether the customer wants the same architecture or is open to a different WyreStorm system direction/i).length).toBeGreaterThanOrEqual(1);
@@ -167,7 +189,7 @@ describe("Compare rendered workflow", () => {
 
     expect(screen.getByText(/AT-OME-EX-KIT is recognised as a point-to-point HDBaseT extender kit/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Quote the transmitter\/receiver kit or matching endpoint pair/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("EX-100-KVM")).toBeInTheDocument();
+    expect(screen.getAllByText("EX-100-KVM").length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText("MX-0403-H3-MST")).not.toBeInTheDocument();
     expect(screen.queryByText(/Compact presentation-switcher path considered/i)).not.toBeInTheDocument();
   });
@@ -205,5 +227,20 @@ describe("Compare rendered workflow", () => {
     expect(screen.queryByText(/customer workflow/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/network ready for required bandwidth, switching and controller expectations/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/codec\/compression class/i)).not.toBeInTheDocument();
+  });
+
+  it("does not suggest NO MATCH products in the visible compare options", async () => {
+    render(
+      <MemoryRouter>
+        <ComparePageNew />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Barco" }));
+    fireEvent.click(screen.getByRole("button", { name: "C-5" }));
+
+    expect(screen.queryByText(/^NO MATCH$/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Wrong product type/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("Comparison view")).not.toBeInTheDocument();
   });
 });

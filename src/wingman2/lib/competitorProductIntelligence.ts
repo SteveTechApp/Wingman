@@ -715,11 +715,11 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     domain: "NDI_CAMERA",
     role: "NDI Camera",
     transport: "NDI / HDMI",
-    action: "BirdDog NDI camera — WyreStorm has no direct NDI camera replacement. Compare against NetworkHD encoder as an architecture alternative for the distribution layer.",
+    action: "BirdDog NDI camera - compare against WyreStorm NDI/PTZ camera direction first, then only discuss NetworkHD separately if the wider distribution architecture also needs attention.",
     requiredFacts: REQUIRED_FACTS.NDI_CAMERA,
     presentFacts: ["NDI output", "PTZ capability", "brand family"],
-    assumptions: ["BirdDog cameras output NDI natively. The architecture path is NetworkHD encoder capturing HDMI output."],
-    whyNotDirectEquivalent: ["WyreStorm does not manufacture NDI cameras. The recommended path is NetworkHD encoder plus NHD-CTL-PRO for routing."],
+    assumptions: ["BirdDog cameras output NDI natively. Camera-role comparison should stay in the camera category before any wider system transport conversation."],
+    whyNotDirectEquivalent: ["Even where a WyreStorm camera is the closest role match, NDI version, PTZ behaviour, control method, zoom and output workflow still need checking before quoting."],
   },
   {
     brand: "Marshall",
@@ -728,11 +728,11 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     domain: "NDI_CAMERA",
     role: "NDI Camera",
     transport: "NDI / HDMI / SDI",
-    action: "Marshall NDI camera — WyreStorm has no direct NDI camera replacement. Compare against NetworkHD encoder as an architecture alternative.",
+    action: "Marshall NDI camera - compare against WyreStorm camera direction first, then treat any NetworkHD discussion as wider system architecture rather than the camera replacement itself.",
     requiredFacts: REQUIRED_FACTS.NDI_CAMERA,
     presentFacts: ["NDI output", "PTZ capability", "brand family"],
-    assumptions: ["Marshall CV-NDI series outputs NDI. Architecture path is NetworkHD encoder."],
-    whyNotDirectEquivalent: ["WyreStorm does not manufacture NDI cameras."],
+    assumptions: ["Marshall CV-NDI series outputs NDI. Camera-role comparison should stay in the camera category first."],
+    whyNotDirectEquivalent: ["NDI version, PTZ behaviour, SDI/HDMI workflow and control method still need checking before quoting."],
   },
   {
     brand: "Sony",
@@ -741,11 +741,11 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     domain: "PTZ_CAMERA",
     role: "PTZ Camera",
     transport: "HDMI / SDI / IP",
-    action: "Sony PTZ camera — WyreStorm has no direct PTZ camera. Compare against NetworkHD encoder for distribution; PTZ control handled separately by the control system.",
+    action: "Sony PTZ camera - compare against WyreStorm PTZ camera direction first, and only discuss NetworkHD separately if the broader AV distribution path also needs redesign.",
     requiredFacts: REQUIRED_FACTS.PTZ_CAMERA,
     presentFacts: ["PTZ control protocol", "HDMI output", "brand family"],
-    assumptions: ["Sony BRC/SRG/EVI use VISCA-over-IP or VISCA serial. PTZ control is independent of the AV distribution path."],
-    whyNotDirectEquivalent: ["WyreStorm does not manufacture PTZ cameras."],
+    assumptions: ["Sony BRC/SRG/EVI use VISCA-over-IP or VISCA serial. Camera-role comparison should stay in the PTZ camera category first."],
+    whyNotDirectEquivalent: ["PTZ control method, output path, zoom, framing and mounting workflow still need checking before quoting."],
   },
   {
     brand: "Mersive",
@@ -994,4 +994,3 @@ export function buildCompetitorIntelligenceAudit(): {
     ],
   };
 }
-

@@ -16,6 +16,8 @@ const products = [
   { sku: "MX-0402-MST", name: "4x2 matrix switcher", role: "primary-hardware / default" },
   { sku: "MX-0808-KIT-V2", name: "8x8 HDBaseT matrix kit", role: "primary-hardware / default" },
   { sku: "SW-0206-VW", name: "Dedicated 4K video wall processor", role: "primary-hardware / default" },
+  { sku: "CAM-210-NDI-PTZ", name: "NDI PTZ camera", role: "primary-hardware / default" },
+  { sku: "CAM-420-PTZ", name: "PTZ camera", role: "primary-hardware / default" },
 ];
 
 describe("compare eligibility engine", () => {
@@ -26,6 +28,7 @@ describe("compare eligibility engine", () => {
     expect(classifyCompareIntent({ sku: "C88CS", role: "8x8 HDBaseT matrix with receivers" })).toBe("hdbaset-matrix");
     expect(classifyCompareIntent({ sku: "KDS-USB2", role: "USB extension receiver" })).toBe("extender");
     expect(classifyCompareIntent({ sku: "LCD video wall processor" })).toBe("video-wall-processor");
+    expect(classifyCompareIntent({ sku: "BirdDog P400", role: "NDI PTZ camera" })).toBe("ndi-camera");
   });
 
   it("prevents accessories and controllers from becoming lead replacements", () => {
@@ -192,4 +195,5 @@ describe("compare eligibility engine", () => {
     expect(result.matches?.[0]?.sku).toBe("SW-0206-VW");
     expect(result.rejected?.some((item) => item.sku === "NHD-000-RACK4")).toBe(true);
   });
+
 });

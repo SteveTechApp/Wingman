@@ -22,6 +22,12 @@ type AppShellProps = {
   children?: ReactNode;
 };
 
+type GuruSupportCue = {
+  label: string;
+  summary: string;
+  prompts: string[];
+};
+
 const routeClassNames = routeCatalog.map((route) => `wm-route-${route.segment}`);
 
 const storedProjectKeys = [
@@ -110,8 +116,84 @@ function navDisplayLabel(key: WingmanRouteKey, navLabel: string) {
   return compactLabels[key] ?? navLabel;
 }
 
+const GURU_SUPPORT_BY_ROUTE: Partial<Record<WingmanRouteKey, GuruSupportCue>> = {
+  discovery: {
+    label: "Discovery help ready",
+    summary: "Guru can help turn messy customer language into room purpose, signal flow, distance, USB and quote-risk questions.",
+    prompts: [
+      "Help me turn this customer requirement into a discovery checklist.",
+      "What should I confirm before I quote this room?",
+      "What architecture questions matter most here?",
+    ],
+  },
+  finder: {
+    label: "Product guidance ready",
+    summary: "Guru can explain what a product actually does in a system, where it fits, and what should be confirmed before it is shortlisted.",
+    prompts: [
+      "Explain where this WyreStorm product fits in a real system.",
+      "What should I avoid saying about this product?",
+      "What dependencies should I confirm before adding it to a project?",
+    ],
+  },
+  productFamilies: {
+    label: "Architecture help ready",
+    summary: "Guru can explain why a family fits, what problem it solves, and what would push the answer toward a different WyreStorm path.",
+    prompts: [
+      "Explain when I should use this product family.",
+      "What customer wording usually points to this architecture?",
+      "What would rule this family out?",
+    ],
+  },
+  productPitch: {
+    label: "Sales talk-track ready",
+    summary: "Guru can help with customer-safe wording, internal caution notes, objections and the next discovery question.",
+    prompts: [
+      "Give me a safer customer talk track for this product.",
+      "What should I not promise yet?",
+      "What question should I ask next before quote?",
+    ],
+  },
+  compare: {
+    label: "Compare help ready",
+    summary: "Guru can explain what the competitor product appears to be, why the WyreStorm direction was chosen, and what still needs checking before quote.",
+    prompts: [
+      "Explain this competitor product in plain English.",
+      "Why did Wingman choose this WyreStorm direction?",
+      "What must I confirm before treating this as a replacement?",
+    ],
+  },
+  proposal: {
+    label: "Proposal checks ready",
+    summary: "Guru can surface assumptions, missing facts, dependency checks and safer wording before the quote leaves the building.",
+    prompts: [
+      "What assumptions should stay visible in this proposal?",
+      "What quote blockers should I call out internally?",
+      "Give me a safer external summary for this proposal.",
+    ],
+  },
+  salesHelper: {
+    label: "Conversation help ready",
+    summary: "Guru can support the current sales conversation with next questions, AV terminology help and commercial framing.",
+    prompts: [
+      "What should I ask next in this conversation?",
+      "Explain this AV term simply for a salesperson.",
+      "What product direction should I explore from this requirement?",
+    ],
+  },
+  visualStudio: {
+    label: "Diagram help ready",
+    summary: "Guru can explain what the system diagram means, what assumptions it is making, and what should be verified against the live design.",
+    prompts: [
+      "Explain this diagram in plain English.",
+      "What assumptions is this diagram making?",
+      "What should I verify before sharing this drawing?",
+    ],
+  },
+};
+
 export function AppShell({ children }: AppShellProps) {
   const [guruOpen, setGuruOpen] = useState(false);
+  const [guruSeedPrompt, setGuruSeedPrompt] = useState<string | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [pageResetVersion, setPageResetVersion] = useState(0);
   const location = useLocation();
@@ -123,6 +205,7 @@ export function AppShell({ children }: AppShellProps) {
   const activeLabel = activeRoute?.label ?? "Home";
   const activeSummary = activeRoute?.summary ?? "WyreStorm technical sales workspace.";
   const activeRouteClass = activeRoute ? `wm-route-${activeRoute.segment}` : "wm-route-dashboard";
+  const guruSupportCue = activeRoute ? GURU_SUPPORT_BY_ROUTE[activeRoute.key] : undefined;
   const primaryNav = useMemo(() => consolidatedPrimaryNavKeys.map((key) => routeCatalogByKey[key]), []);
   const topbarGreeting = useMemo(() => {
     const displayName = profile.userName.trim() || profile.reportPreparedBy.trim() || "Wingman";
@@ -153,7 +236,14 @@ export function AppShell({ children }: AppShellProps) {
   }, [location.pathname]);
 
   useEffect(() => {
-    function handleOpenGuru() {
+    function handleOpenGuru(event: Event) {
+      const customEvent = event as CustomEvent<{ prompt?: string }>;
+      const nextPrompt = typeof customEvent.detail?.prompt === "string" ? customEvent.detail.prompt.trim() : "";
+
+      if (nextPrompt) {
+        setGuruSeedPrompt(nextPrompt);
+      }
+
       setGuruOpen(true);
     }
 
@@ -249,8 +339,20 @@ export function AppShell({ children }: AppShellProps) {
         </main>
       </div>
 
-      <WingmanGuruFab open={guruOpen} onClick={() => setGuruOpen((current) => !current)} />
-      <WingmanGuruDrawer open={guruOpen} onClose={() => setGuruOpen(false)} />
+      <WingmanGuruFab
+        open={guruOpen}
+        onClick={() => setGuruOpen((current) => !current)}
+        supportCue={guruSupportCue?.label}
+      />
+      <WingmanGuruDrawer
+        open={guruOpen}
+        onClose={() => setGuruOpen(false)}
+        contextLabel={activeLabel}
+        contextSummary={activeSummary}
+        supportCue={guruSupportCue}
+        seedPrompt={guruSeedPrompt}
+        onSeedHandled={() => setGuruSeedPrompt(null)}
+      />
     </div>
   );
 }
