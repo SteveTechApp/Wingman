@@ -1,4 +1,5 @@
 import type { FormEvent } from "react";
+import { createPortal } from "react-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Database, Send, Sparkles, X } from "lucide-react";
 import GuruAssistantAvatar from "./branding/GuruAssistantAvatar";
@@ -1294,6 +1295,11 @@ export function WingmanGuruDrawer({
   seedPrompt,
   onSeedHandled,
 }: WingmanGuruDrawerProps) {
+  const [portalReady, setPortalReady] = useState(false);
+
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
   const [messages, setMessages] = useState<GuruMessage[]>([openingMessage]);
   const [draft, setDraft] = useState("");
   const [products, setProducts] = useState<ProductEntry[]>([]);
@@ -1397,10 +1403,12 @@ export function WingmanGuruDrawer({
     ]);
   }
 
-  return (
-    <>
+  return portalReady
+    ? createPortal(
+        <>
       <div
         className="wingman-guru-backdrop"
+        data-wingman-guru-backdrop="true"
         data-open={open ? "true" : "false"}
         onClick={onClose}
         aria-hidden={open ? "false" : "true"}
@@ -1408,8 +1416,8 @@ export function WingmanGuruDrawer({
 
       <aside
         className="wingman-guru-drawer"
+        data-wingman-guru-drawer="true"
         data-open={open ? "true" : "false"}
-        hidden={!open}
       >
         <header className="wingman-guru-drawer-header">
           <div className="wingman-guru-drawer-heading">
@@ -1507,11 +1515,12 @@ export function WingmanGuruDrawer({
           <button type="submit" className="wingman-guru-send" aria-label="Send question">
             <Send className="h-4 w-4" />
             <span>Send</span>
-          </button>
-        </form>
+          </button>        </form>
       </aside>
-    </>
-  );
+        </>,
+        document.body,
+      )
+    : null;
 }
 
 export default WingmanGuruDrawer;

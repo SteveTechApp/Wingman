@@ -3995,16 +3995,6 @@ html.wm-route-templates img {
   max-width: 100% !important;
   object-fit: cover !important;
 }
-
-/* Guru should not dominate the workflow pages. */
-html.wm-route-call-cards [class*="Guru"],
-html.wm-route-call-cards [class*="guru"],
-html.wm-route-templates [class*="Guru"],
-html.wm-route-templates [class*="guru"] {
-  max-width: 5.25rem !important;
-  max-height: 5.25rem !important;
-}
-
 /* Smaller laptops/tablets should be allowed to scroll normally. */
 @media (max-width: 1100px) {
   html.wm-route-call-cards main,
@@ -32576,3 +32566,201 @@ html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
   margin-top: 0 !important;
 }
 /* WINGMAN-HIDE-INFO-PILLS-END */
+
+
+
+
+/* WINGMAN-GURU-PORTAL-FIX-START */
+/*
+  Guru drawer is rendered to document.body.
+  Keep it independent from Compare/Product page scroll containers and viewport-fit wrappers.
+*/
+
+body > .wingman-guru-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483400 !important;
+}
+
+body > .wingman-guru-drawer {
+  position: fixed !important;
+  right: 18px !important;
+  bottom: 96px !important;
+  left: auto !important;
+  top: auto !important;
+  z-index: 2147483500 !important;
+}
+
+body > .wingman-guru-drawer[data-open="false"],
+body > .wingman-guru-backdrop[data-open="false"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body > .wingman-guru-drawer[data-open="true"],
+body > .wingman-guru-backdrop[data-open="true"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+body > .wingman-guru-drawer[data-open="true"] {
+  display: flex !important;
+  width: min(440px, calc(100vw - 36px)) !important;
+  max-height: min(720px, calc(100vh - 124px)) !important;
+  pointer-events: auto !important;
+  transform: none !important;
+}
+
+@media (max-width: 640px) {
+  body > .wingman-guru-drawer {
+    right: 10px !important;
+    bottom: 86px !important;
+    width: calc(100vw - 20px) !important;
+    max-height: calc(100vh - 104px) !important;
+  }
+}
+/* WINGMAN-GURU-PORTAL-FIX-END */
+
+
+/* WINGMAN-GURU-COMPACT-UX-START */
+/*
+  Guru should behave like a compact assistant, not a second page.
+  Keep the drawer focused on asking a question and reading the answer.
+*/
+
+body > .wingman-guru-drawer {
+  width: min(390px, calc(100vw - 36px)) !important;
+  max-height: min(620px, calc(100vh - 124px)) !important;
+  padding: 1rem !important;
+  gap: 0.72rem !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-drawer-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: start !important;
+  gap: 0.75rem !important;
+  padding-bottom: 0.62rem !important;
+  border-bottom: 1px solid rgba(125, 221, 255, 0.12) !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-drawer-heading {
+  display: block !important;
+  min-width: 0 !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-drawer-heading .wingman-guru-avatar {
+  display: none !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-drawer-heading h2 {
+  margin: 0 !important;
+  font-size: 1rem !important;
+  line-height: 1.1 !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-drawer-heading p {
+  display: none !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-close {
+  width: 2rem !important;
+  height: 2rem !important;
+  min-width: 2rem !important;
+}
+
+/* Hide status/stat lines such as product index, glossary and memory counts */
+body > .wingman-guru-drawer :where(
+  .wingman-guru-status,
+  .wingman-guru-index-status,
+  .wingman-guru-memory-status
+) {
+  display: none !important;
+}
+
+/* Keep the route context, but make it a small hint, not a large panel */
+body > .wingman-guru-drawer .wingman-guru-context-card {
+  padding: 0.72rem 0.78rem !important;
+  border-radius: 14px !important;
+  background: rgba(3, 28, 38, 0.72) !important;
+  border-color: rgba(91, 226, 255, 0.14) !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-context-kicker {
+  margin: 0 !important;
+  font-size: 0.68rem !important;
+  letter-spacing: 0.09em !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-context-card h3 {
+  margin: 0.16rem 0 0 !important;
+  font-size: 0.84rem !important;
+  line-height: 1.18 !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-context-card p,
+body > .wingman-guru-drawer .wingman-guru-context-card small {
+  display: none !important;
+}
+
+/* Remove the wall of suggested prompt buttons by default */
+body > .wingman-guru-drawer .wingman-guru-context-prompts,
+body > .wingman-guru-drawer .wingman-guru-quick-prompts {
+  display: none !important;
+}
+
+/* Hide call-notes interpreter in the compact drawer; it belongs in Call Coach / Discovery */
+body > .wingman-guru-drawer .wingman-guru-call-interpreter {
+  display: none !important;
+}
+
+/* Give the useful area more room */
+body > .wingman-guru-drawer .wingman-guru-messages {
+  min-height: 160px !important;
+  max-height: min(330px, calc(100vh - 280px)) !important;
+  padding-right: 0.25rem !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-message-meta {
+  font-size: 0.66rem !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-message-bubble {
+  font-size: 0.82rem !important;
+  line-height: 1.42 !important;
+  padding: 0.68rem 0.76rem !important;
+}
+
+/* Composer should be the dominant action */
+body > .wingman-guru-drawer .wingman-guru-composer {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 0.55rem !important;
+  padding-top: 0.62rem !important;
+  border-top: 1px solid rgba(125, 221, 255, 0.12) !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-input {
+  min-height: 2.55rem !important;
+  max-height: 6.5rem !important;
+  font-size: 0.84rem !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-send {
+  min-width: 4.4rem !important;
+  padding-inline: 0.82rem !important;
+}
+
+@media (max-width: 640px) {
+  body > .wingman-guru-drawer {
+    width: calc(100vw - 20px) !important;
+    max-height: calc(100vh - 104px) !important;
+    padding: 0.88rem !important;
+  }
+
+  body > .wingman-guru-drawer .wingman-guru-messages {
+    max-height: calc(100vh - 270px) !important;
+  }
+}
+/* WINGMAN-GURU-COMPACT-UX-END */
