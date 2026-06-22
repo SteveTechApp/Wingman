@@ -2926,8 +2926,9 @@ function ComparePageNew() {
   }, [customManufacturerStore]);
   const scoredCandidates = useMemo(() => {
     const avoip = avoipProfile;
+    const shouldUseAvoipFastPath = avoip.recommendation.applies && profile.productClass === "AV-over-IP";
 
-    if (avoip.recommendation.applies) {
+    if (shouldUseAvoipFastPath) {
       return buildAvoipCandidates(profile, avoip.classification, avoip.recommendation);
     }
 

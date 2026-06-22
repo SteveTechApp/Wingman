@@ -331,18 +331,71 @@ const AVOIP_FAMILY_MARKERS = [
   "networkhd",
 ];
 
+const EXPLICIT_AVOIP_SIGNALS = [
+  "avoip",
+  "av over ip",
+  "av-over-ip",
+  "network av",
+  "networked av",
+  "networkhd",
+  "sdvoe",
+  "jpeg-xs",
+  "jpeg xs",
+  "jpeg2000",
+];
+
+const NDI_CAMERA_CONTEXT_SIGNALS = [
+  "ndi camera",
+  "camera",
+  "ptz",
+  "visca",
+  "pelco",
+  "birddog",
+  "marshall cv",
+  "vs-ptc",
+  "sony brc",
+  "evi",
+  "srg",
+];
+
+const NDI_CAMERA_CONTEXT_COMPACT_SIGNALS = [
+  "vsptc",
+  "marshallcv",
+  "birddog",
+  "brc",
+  "evi",
+  "srg",
+];
+
 function looksLikeAvoip(text: string, compact: string): boolean {
-  if (includesAny(text, ["avoip", "av over ip", "av-over-ip", "network av", "networked av", "networkhd", "sdvoe", "jpeg-xs", "jpeg xs", "jpeg2000", "ndi"])) {
+  const explicitAvoipSignal = includesAny(text, EXPLICIT_AVOIP_SIGNALS);
+  const knownAvoipFamily = KNOWN_AVOIP_FAMILIES.some((family) => family.keys.some((key) => compact.includes(key)));
+  const broadAvoipMarker = AVOIP_FAMILY_MARKERS.some((marker) => compact.includes(marker));
+  const ndiCameraContext =
+    (text.includes("ndi") || compact.includes("ndi")) &&
+    (includesAny(text, NDI_CAMERA_CONTEXT_SIGNALS) ||
+      NDI_CAMERA_CONTEXT_COMPACT_SIGNALS.some((marker) => compact.includes(marker)));
+
+  /*
+   * NDI camera/PTZ products are often camera endpoints, not NetworkHD-style AVoIP
+   * replacements. Plain "NDI" is not enough evidence to force the compare flow
+   * into the AVoIP endpoint shortcut.
+   */
+  if (ndiCameraContext && !explicitAvoipSignal && !knownAvoipFamily && !broadAvoipMarker) {
+    return false;
+  }
+
+  if (explicitAvoipSignal) {
     return true;
   }
 
   // Known AVoIP codec families imply AVoIP even without the words.
-  if (KNOWN_AVOIP_FAMILIES.some((family) => family.keys.some((key) => compact.includes(key)))) {
+  if (knownAvoipFamily) {
     return true;
   }
 
   // Broader AVoIP product-line markers (codec unknown, domain certain).
-  if (AVOIP_FAMILY_MARKERS.some((marker) => compact.includes(marker))) {
+  if (broadAvoipMarker) {
     return true;
   }
 
