@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -8,6 +8,19 @@ import ComparePageNew from "@/wingman2/pages/ComparePageNew";
 vi.mock("@/wingman2/lib/productIntelligenceIndexCache", () => ({
   loadProductIntelligenceIndex: vi.fn().mockResolvedValue({ products: [] }),
 }));
+
+function renderComparePage() {
+  render(
+    <MemoryRouter>
+      <ComparePageNew />
+    </MemoryRouter>,
+  );
+}
+
+function runKnownCompare(brand: string, sku: string) {
+  fireEvent.click(screen.getByRole("button", { name: brand }));
+  fireEvent.click(screen.getByRole("button", { name: sku }));
+}
 
 describe("Compare rendered workflow", () => {
   beforeAll(() => {
@@ -20,21 +33,14 @@ describe("Compare rendered workflow", () => {
   });
 
   it("saves a quote-safe competitor lookup and keeps the lead recommendation away from controller-only products", async () => {
-    render(
-      <MemoryRouter>
-        <ComparePageNew />
-      </MemoryRouter>,
-    );
+    renderComparePage();
 
-    fireEvent.click(screen.getByRole("button", { name: "Crestron" }));
-    fireEvent.click(screen.getByRole("button", { name: "DM-NVX-350" }));
+    runKnownCompare("Crestron", "DM-NVX-350");
 
-    await screen.findByText("Sales answer");
+    await screen.findByText("Competitor matched against");
 
-    const pitchLink = screen.getByRole("link", { name: /See full pitch/i });
     const addToProjectButton = screen.getByRole("button", { name: /Add to project/i });
-
-    expect(screen.getByText(/keeps the result quote-safe/i)).toBeInTheDocument();
+    const pitchLink = screen.getByRole("link", { name: /See full pitch/i });
 
     fireEvent.click(addToProjectButton);
 
@@ -55,105 +61,58 @@ describe("Compare rendered workflow", () => {
     expect(pitchLink.getAttribute("href")).toContain(`/wingman/product-pitch?sku=${encodeURIComponent(selectedSku)}`);
   });
 
-  it("shows a short sales-first AVoIP compare answer with differentiated candidate explanations", async () => {
-    render(
-      <MemoryRouter>
-        <ComparePageNew />
-      </MemoryRouter>,
-    );
+  it("renders the key comparison matrix with competitor and WyreStorm values side by side", async () => {
+    renderComparePage();
 
-    fireEvent.click(screen.getByRole("button", { name: "Blustream" }));
-    fireEvent.click(screen.getByRole("button", { name: "IP350UHD-TX" }));
+    runKnownCompare("Blustream", "IP350UHD-TX");
 
-    await screen.findByText("Sales answer");
+    const matrix = await screen.findByRole("table", { name: /competitor versus wyrestorm comparison matrix/i });
 
-    expect(screen.getByText("Sales answer")).toBeInTheDocument();
-    expect(screen.getByText("Competitor matched against")).toBeInTheDocument();
-    expect(screen.getByText("Suggested WyreStorm direction")).toBeInTheDocument();
-    expect(screen.getByText(/Core comparison points used for the match/i)).toBeInTheDocument();
-    expect(screen.getByText(/IP350UHD-TX is recognised as a source-side AV-over-IP encoder/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/This product is an AV-over-IP product in the IP350UHD-TX family/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/I\/O: 1 in \/ 1 out/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/Resolution: 4K60/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/1x HDMI input, 1x LAN\/network port/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/1x local source input, 1x LAN\/network port/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/1x HDMI input/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/1x LAN\/network port/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(/IP350UHD-TX is used to put a local HDMI source into an AV-over-IP distribution system/i)).toBeInTheDocument();
-    expect(screen.getByText(/Use NHD-500-TX when the requirement is encoding a local source into a WyreStorm NetworkHD 500 system/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Ask the customer/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/Correct product direction/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/Not a drop-in replacement/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.queryByText(/Match score context/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/\b\d+%\b/)).not.toBeInTheDocument();
+    expect(within(matrix).getAllByRole("columnheader").map((node) => node.textContent)).toEqual([
+      "Comparison point",
+      "Competitor",
+      "WyreStorm",
+      "Result",
+    ]);
 
-    expect(screen.getAllByText("NHD-500-TX").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("NHD-500-E-TX").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("NHD-510-TX").length).toBeGreaterThanOrEqual(1);
+    const inputRow = within(matrix).getByText("Inputs").closest('[role="row"]');
+    expect(inputRow).not.toBeNull();
+    expect(within(inputRow as HTMLElement).getByText(/1x HDMI input/i)).toBeInTheDocument();
+    expect(within(inputRow as HTMLElement).getByText(/1x local source input/i)).toBeInTheDocument();
 
-    fireEvent.click(screen.getAllByText(/More detail/i)[0]);
-    expect(screen.getAllByText(/Standard NetworkHD 500 source-side encoder path/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/lighter NetworkHD 500 encoder path/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/audio-network encoder option/i).length).toBeGreaterThanOrEqual(1);
-
-    expect(screen.queryByText(/Closest WyreStorm direction for a 1GbE AV-over-IP endpoint/i)).not.toBeInTheDocument();
+    const transportRow = within(matrix).getByText("Transport").closest('[role="row"]');
+    expect(transportRow).not.toBeNull();
+    expect(within(transportRow as HTMLElement).getAllByText(/AVoIP/i).length).toBeGreaterThanOrEqual(1);
+    expect(within(transportRow as HTMLElement).getByText(/1GbE JPEG-XS AVoIP/i)).toBeInTheDocument();
   });
 
-  it("states ecosystem difference for Atlona OmniStream encoder and keeps the sales answer compact", async () => {
-    render(
-      <MemoryRouter>
-        <ComparePageNew />
-      </MemoryRouter>,
-    );
+  it("keeps supporting evidence collapsed by default on the result screen", async () => {
+    renderComparePage();
 
-    fireEvent.click(screen.getByRole("button", { name: "Atlona" }));
-    fireEvent.click(screen.getByRole("button", { name: "AT-OMNI-111" }));
+    runKnownCompare("Atlona", "AT-OMNI-111");
 
-    await screen.findByText("Sales answer");
+    await screen.findByRole("table", { name: /competitor versus wyrestorm comparison matrix/i });
 
-    expect(screen.getByText(/AT-OMNI-111 is recognised as a source-side AV-over-IP encoder/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/This product is an AV-over-IP product in the Atlona OmniStream family/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/I\/O: 1 in \/ 1 out/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/Resolution: 4K60/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(/Use NHD-500-TX when the requirement is encoding a local source into a WyreStorm NetworkHD 500 system/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Correct product direction/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/Same product job/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/Not a drop-in replacement/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/Correct WyreStorm direction, not a drop-in replacement/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/Atlona OmniStream and WyreStorm NetworkHD are separate ecosystems/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.queryByText("Comparison view")).not.toBeInTheDocument();
-    expect(screen.queryByText("Product job")).not.toBeInTheDocument();
-    expect(screen.queryByText("System type")).not.toBeInTheDocument();
-    expect(screen.queryByText("System compatibility")).not.toBeInTheDocument();
+    const quoteChecks = screen.getByText("Quote checks").closest("details") as HTMLDetailsElement | null;
+    const whyThisFits = screen.getByText("Why this fits").closest("details") as HTMLDetailsElement | null;
+    const fullEvidenceTrace = screen.getByText("Full evidence trace").closest("details") as HTMLDetailsElement | null;
+    const copyableSummary = screen.getByText("Copyable summary").closest("details") as HTMLDetailsElement | null;
+    const otherOptions = screen.getByText(/Other possible WyreStorm options/i).closest("details") as HTMLDetailsElement | null;
+
+    expect(quoteChecks?.open).toBe(false);
+    expect(whyThisFits?.open).toBe(false);
+    expect(fullEvidenceTrace?.open).toBe(false);
+    expect(copyableSummary?.open).toBe(false);
+    expect(otherOptions?.open).toBe(false);
+
+    expect(screen.queryByText("Ask the customer")).not.toBeInTheDocument();
+    expect(screen.queryByText("More detail")).not.toBeInTheDocument();
   });
 
-  it("keeps Kramer KDS-EN6 wording evidence-led and does not invent USB-C", async () => {
-    render(
-      <MemoryRouter>
-        <ComparePageNew />
-      </MemoryRouter>,
-    );
+  it("uses concrete limited-data wording instead of the old generic guidance phrasing", async () => {
+    renderComparePage();
 
-    fireEvent.click(screen.getByRole("button", { name: "Kramer" }));
-    fireEvent.click(screen.getByRole("button", { name: "KDS-EN6" }));
-
-    await screen.findByText("Sales answer");
-
-    expect(screen.getByText(/Kramer KDS-EN6 is recognised as a source-side AV-over-IP encoder/i)).toBeInTheDocument();
-    expect(screen.getByText(/Kramer KDS-EN6 is used to put a local HDMI source into an AV-over-IP distribution system/i)).toBeInTheDocument();
-    expect(screen.getByText(/Use NHD-500-TX when the requirement is encoding a local source into a WyreStorm NetworkHD 500 system/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Not a drop-in replacement/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.queryByText(/USB-C/i)).not.toBeInTheDocument();
-  });
-
-  it("makes incomplete competitor data explicit and shows multiple verify-before-quote items", async () => {
-    render(
-      <MemoryRouter>
-        <ComparePageNew />
-      </MemoryRouter>,
-    );
-
-        const nextProductStep = screen.queryByRole("button", { name: /next: choose competitor product/i });
+    const nextProductStep = screen.queryByRole("button", { name: /next: choose competitor product/i });
 
     if (nextProductStep) {
       fireEvent.click(nextProductStep);
@@ -166,48 +125,17 @@ describe("Compare rendered workflow", () => {
 
     await screen.findByRole("heading", { name: /No suitable WyreStorm match found from the current data/i });
 
-    expect(
-      screen.getAllByText(
-        "Wingman has limited local data for this competitor SKU. Treat this as product-direction guidance, not a confirmed direct equivalent.",
-      ).length,
-    ).toBeGreaterThanOrEqual(1);
-
-    expect(screen.queryByText("Sales answer")).not.toBeInTheDocument();
-    expect(screen.getAllByText(/Confirm exact video format, bandwidth and connector expectations before external quote use/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/Confirm control, audio and USB behaviour before treating this as a direct equivalent/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/Confirm whether the customer wants the same architecture or is open to a different WyreStorm system direction/i).length).toBeGreaterThanOrEqual(1);
-  });
-
-  it("keeps HDBaseT extender kits on extender architecture instead of leading with switchers", async () => {
-    render(
-      <MemoryRouter>
-        <ComparePageNew />
-      </MemoryRouter>,
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: "Atlona" }));
-    fireEvent.click(screen.getByRole("button", { name: "AT-OME-EX-KIT" }));
-
-    await screen.findByText("Sales answer");
-
-    expect(screen.getByText(/AT-OME-EX-KIT is recognised as a point-to-point HDBaseT extender kit/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Quote the transmitter\/receiver kit or matching endpoint pair/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("EX-100-KVM").length).toBeGreaterThanOrEqual(1);
-    expect(screen.queryByText("MX-0403-H3-MST")).not.toBeInTheDocument();
-    expect(screen.queryByText(/Compact presentation-switcher path considered/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/Closest direction only until the competitor specification is confirmed\./i)).toBeInTheDocument();
+    expect(screen.queryByText(/Treat this as product-direction guidance, not a confirmed direct equivalent/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Confirm whether the customer wants the same architecture/i)).not.toBeInTheDocument();
   });
 
   it("keeps Marshall NDI PTZ cameras in the camera lane instead of forcing a NetworkHD encoder result", async () => {
-    render(
-      <MemoryRouter>
-        <ComparePageNew />
-      </MemoryRouter>,
-    );
+    renderComparePage();
 
-    fireEvent.click(screen.getByRole("button", { name: "Marshall" }));
-    fireEvent.click(screen.getByRole("button", { name: "VS-PTC-200NDI" }));
+    runKnownCompare("Marshall", "VS-PTC-200NDI");
 
-    await screen.findByText("Sales answer");
+    await screen.findByText("Competitor matched against");
 
     expect(screen.getAllByText("Marshall VS-PTC-200NDI").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("NDI camera").length).toBeGreaterThanOrEqual(1);
@@ -216,75 +144,42 @@ describe("Compare rendered workflow", () => {
     expect(screen.queryByText(/source-side AV-over-IP encoder/i)).not.toBeInTheDocument();
   });
 
-  it("keeps wireless presentation products in the wireless collaboration lane instead of forcing NetworkHD", async () => {
-    render(
-      <MemoryRouter>
-        <ComparePageNew />
-      </MemoryRouter>,
-    );
+  it("shows presentation-switcher comparison rows instead of debug-style copy", async () => {
+    renderComparePage();
 
-    fireEvent.click(screen.getByRole("button", { name: "Barco" }));
-    fireEvent.click(screen.getByRole("button", { name: "C-5" }));
+    runKnownCompare("Atlona", "AT-OME-CS31-SA");
 
-    await screen.findByText("Sales answer");
+    const matrix = await screen.findByRole("table", { name: /competitor versus wyrestorm comparison matrix/i });
 
-    expect(screen.getAllByText(/Wireless casting|Wireless presentation/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/SW-620-TX-W|SW-640L-TX-W/).length).toBeGreaterThanOrEqual(1);
-    expect(screen.queryByText("NHD-500-TX")).not.toBeInTheDocument();
-    expect(screen.queryByText(/AV-over-IP encoder/i)).not.toBeInTheDocument();
-  });
-
-  it("keeps matrix kits on matrix architecture instead of drifting into extender classification", async () => {
-    render(
-      <MemoryRouter>
-        <ComparePageNew />
-      </MemoryRouter>,
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: "Blustream" }));
-    fireEvent.click(screen.getByRole("button", { name: "HMX44-18G-KIT" }));
-
-    await screen.findByText("Sales answer");
-
-    expect(screen.getByText(/HMX44-18G-KIT is recognised as a matrix switcher/i)).toBeInTheDocument();
-    expect(screen.getByText("MX-0404-SCL")).toBeInTheDocument();
-    expect(screen.getByText(/Core comparison points used for the match/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/4x HDMI inputs/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/4x (HDMI|HDBaseT) outputs/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/routed display outputs/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.queryByText(/point-to-point HDBaseT extender kit/i)).not.toBeInTheDocument();
-  });
-
-  it("does not expose old internal compare phrasing in the visible result", async () => {
-    render(
-      <MemoryRouter>
-        <ComparePageNew />
-      </MemoryRouter>,
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: "Atlona" }));
-    fireEvent.click(screen.getByRole("button", { name: "AT-OMNI-111" }));
-
-    await screen.findByText("Sales answer");
-
-    expect(screen.queryByText(/Wrong-product avoidance/i)).not.toBeInTheDocument();
+    expect(within(matrix).getByText("Product type")).toBeInTheDocument();
+    expect(within(matrix).getByText("Inputs")).toBeInTheDocument();
+    expect(within(matrix).getByText("Outputs")).toBeInTheDocument();
+    expect(within(matrix).getByText("Transport")).toBeInTheDocument();
+    expect(within(matrix).getByText("Main caveat")).toBeInTheDocument();
+    expect(within(matrix).getAllByText(/presentation switcher/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText("Match score context")).not.toBeInTheDocument();
     expect(screen.queryByText(/customer workflow/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/network ready for required bandwidth, switching and controller expectations/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/codec\/compression class/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("NHD-500-TX")).not.toBeInTheDocument();
   });
 
-  it("does not suggest NO MATCH products in the visible compare options", async () => {
-    render(
-      <MemoryRouter>
-        <ComparePageNew />
-      </MemoryRouter>,
-    );
+  it("treats larger matrix options as covering the brief for Lightware MMX6x2 without relabeling outputs as inputs", async () => {
+    renderComparePage();
 
-    fireEvent.click(screen.getByRole("button", { name: "Barco" }));
-    fireEvent.click(screen.getByRole("button", { name: "C-5" }));
+    runKnownCompare("Lightware", "MMX6x2-HT200");
 
-    expect(screen.queryByText(/^NO MATCH$/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Wrong product type/i)).not.toBeInTheDocument();
-    expect(screen.queryByText("Comparison view")).not.toBeInTheDocument();
+    const matrix = await screen.findByRole("table", { name: /competitor versus wyrestorm comparison matrix/i });
+
+    const inputRow = within(matrix).getByText("Inputs").closest('[role="row"]');
+    expect(inputRow).not.toBeNull();
+    expect(within(inputRow as HTMLElement).getByText(/6x .*input/i)).toBeInTheDocument();
+    expect(within(inputRow as HTMLElement).getByText("Covers required count")).toBeInTheDocument();
+
+    const outputRow = within(matrix).getByText("Outputs").closest('[role="row"]');
+    expect(outputRow).not.toBeNull();
+    expect(within(outputRow as HTMLElement).getByText(/2x .*output/i)).toBeInTheDocument();
+    expect(within(outputRow as HTMLElement).queryByText(/2x .*input/i)).not.toBeInTheDocument();
+
+    expect(screen.queryByText("MX-0402-MST")).not.toBeInTheDocument();
   });
 });

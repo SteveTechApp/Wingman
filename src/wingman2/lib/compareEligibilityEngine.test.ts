@@ -191,6 +191,33 @@ describe("compare eligibility engine", () => {
     expect(lead?.compareEligibility?.eligibility).toBe("direct");
   });
 
+  it("keeps 6x2 routed matrix requests on larger 8x8 matrix candidates instead of undersized 4x2 switchers", () => {
+    const result = applyCompareEligibilityRanking(
+      {
+        competitor: {
+          sku: "MMX6x2-HT200",
+          role: "Matrix",
+          transport: "HDMI / TPS",
+          inputCount: 6,
+          outputCount: 2,
+        },
+        matches: [
+          { sku: "MX-0402-MST" },
+          { sku: "MX-0808-KIT-V2" },
+          { sku: "MXV-0808-H2A-MK2" },
+        ],
+        rejected: [] as Array<{ sku?: string }>,
+      },
+      products,
+      "MMX6x2-HT200 6x2 HDMI TPS matrix",
+    );
+    const lead = result.matches?.[0] as { sku?: string; compareEligibility?: { eligibility?: string } } | undefined;
+
+    expect(lead?.sku).toMatch(/0808/);
+    expect(lead?.compareEligibility?.eligibility).toBe("direct");
+    expect(lead?.sku).not.toBe("MX-0402-MST");
+  });
+
   it("keeps dedicated video wall processors ahead of AV-over-IP wall alternatives", () => {
     const result = applyCompareEligibilityRanking(
       {
