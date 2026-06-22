@@ -197,6 +197,25 @@ describe("Compare rendered workflow", () => {
     expect(screen.queryByText(/Compact presentation-switcher path considered/i)).not.toBeInTheDocument();
   });
 
+  it("keeps Marshall NDI PTZ cameras in the camera lane instead of forcing a NetworkHD encoder result", async () => {
+    render(
+      <MemoryRouter>
+        <ComparePageNew />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Marshall" }));
+    fireEvent.click(screen.getByRole("button", { name: "VS-PTC-200NDI" }));
+
+    await screen.findByText("Sales answer");
+
+    expect(screen.getAllByText("Marshall VS-PTC-200NDI").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("NDI camera").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("CAM-210-NDI-PTZ").length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText("NHD-500-TX")).not.toBeInTheDocument();
+    expect(screen.queryByText(/source-side AV-over-IP encoder/i)).not.toBeInTheDocument();
+  });
+
   it("keeps matrix kits on matrix architecture instead of drifting into extender classification", async () => {
     render(
       <MemoryRouter>

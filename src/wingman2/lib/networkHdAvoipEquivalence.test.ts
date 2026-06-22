@@ -93,6 +93,11 @@ describe("classifyCompetitorAvoip", () => {
     expect(classifyCompetitorAvoip("8x8 HDBaseT matrix").isAvoip).toBe(false);
     expect(classifyCompetitorAvoip("generic HDMI splitter").isAvoip).toBe(false);
   });
+
+  it("does not classify NDI PTZ cameras as AVoIP endpoints just because NDI is present", () => {
+    const result = classifyCompetitorAvoip("Marshall VS-PTC-200NDI NDI PTZ camera");
+    expect(result.isAvoip).toBe(false);
+  });
 });
 
 describe("recommendNetworkHdAvoip", () => {
