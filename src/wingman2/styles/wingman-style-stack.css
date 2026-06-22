@@ -32510,3 +32510,69 @@ html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
     min-height: 0 !important;
   }
 }
+
+
+/* WINGMAN-HIDE-INFO-PILLS-START */
+/*
+  Hide page-header shortcut/info pill rows.
+  Keep functional chips, tabs, selection buttons and form controls available elsewhere.
+*/
+
+:where(
+  .wm-page-hero,
+  .wm-hero,
+  .wm-native-hero,
+  .products-native-hero,
+  .product-native-hero,
+  .compare-native-hero,
+  .discovery-native-hero,
+  .documents-native-hero,
+  .templates-native-hero,
+  .response-pack-native-hero
+) > :where(
+  .wm-info-pills,
+  .wm-info-pill-row,
+  .wm-page-pills,
+  .wm-page-pill-row,
+  .wm-page-shortcuts,
+  .wm-shortcut-pills,
+  .wm-hero-pills,
+  .wm-hero-pill-row,
+  .wm-pill-nav,
+  .wm-pill-strip,
+  .wm-chip-nav,
+  .wm-tab-pills,
+  .wm-tabs-pill-row
+) {
+  display: none !important;
+}
+
+:where(
+  .wm-page-hero,
+  .wm-hero,
+  .wm-native-hero,
+  .products-native-hero,
+  .product-native-hero,
+  .compare-native-hero,
+  .discovery-native-hero,
+  .documents-native-hero,
+  .templates-native-hero,
+  .response-pack-native-hero
+) > :where(
+  .wm-info-pills,
+  .wm-info-pill-row,
+  .wm-page-pills,
+  .wm-page-pill-row,
+  .wm-page-shortcuts,
+  .wm-shortcut-pills,
+  .wm-hero-pills,
+  .wm-hero-pill-row,
+  .wm-pill-nav,
+  .wm-pill-strip,
+  .wm-chip-nav,
+  .wm-tab-pills,
+  .wm-tabs-pill-row
+) + * {
+  margin-top: 0 !important;
+}
+/* WINGMAN-HIDE-INFO-PILLS-END */
