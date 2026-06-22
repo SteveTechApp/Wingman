@@ -21,6 +21,8 @@ import {
   type CompetitorAvoipClassification,
   type NetworkHdAvoipRecommendation,
 } from "./networkHdAvoipEquivalence";
+import { resolveWyrestormSkuAlias } from "./skuAliasResolver";
+import { isWyreStormSkuCompareLeadAllowed } from "./wyrestormSkuBusinessStatus";
 
 export type WyreStormCompareIntent =
   | "avoip_1g_encoder"
@@ -88,11 +90,30 @@ function containsAny(text: string, values: string[]): boolean {
 }
 
 function normaliseSku(value: unknown): string {
-  return String(value ?? "")
+  const prepared = String(value ?? "")
     .trim()
     .toUpperCase()
     .replace(/\s+/g, "-")
     .replace(/_/g, "-");
+
+  return String(resolveWyrestormSkuAlias(prepared))
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, "-")
+    .replace(/_/g, "-");
+}
+
+function canonicaliseProduct(product: CompareShortlistProduct): CompareShortlistProduct {
+  const resolvedSku = resolveWyrestormSkuAlias(String(product.sku ?? "").trim());
+
+  if (!resolvedSku || resolvedSku === product.sku) {
+    return product;
+  }
+
+  return {
+    ...product,
+    sku: resolvedSku,
+  };
 }
 
 function hasSku(product: CompareShortlistProduct, terms: string[]): boolean {
@@ -108,10 +129,11 @@ function uniqueBySku(products: CompareShortlistProduct[]): CompareShortlistProdu
   const seen = new Set<string>();
   const result: CompareShortlistProduct[] = [];
 
-  for (const product of products) {
+  for (const originalProduct of products) {
+    const product = canonicaliseProduct(originalProduct);
     const sku = normaliseSku(product.sku);
 
-    if (!sku || seen.has(sku)) {
+    if (!sku || !isWyreStormSkuCompareLeadAllowed(product.sku) || seen.has(sku)) {
       continue;
     }
 
@@ -350,7 +372,7 @@ function addFallbackSkus(intent: WyreStormCompareIntent, selected: CompareShortl
   function add(sku: string, name: string, reason: string): void {
     const normalised = normaliseSku(sku);
 
-    if (existing.has(normalised)) {
+    if (!normalised || !isWyreStormSkuCompareLeadAllowed(sku) || existing.has(normalised)) {
       return;
     }
 
@@ -441,7 +463,7 @@ function buildAvoipShortlistCandidates(
       }
 
       return {
-        sku,
+        sku: resolveWyrestormSkuAlias(sku),
         name: `NetworkHD ${recommendation.series} candidate`,
         productClass: `NetworkHD ${recommendation.series} AVoIP`,
         description: recommendation.reason,

@@ -3,6 +3,7 @@ import { getBestProductPositioningCardForSku } from "../../data/productPositioni
 import { getProductStory, productStoryRelatedText } from "../../data/productStories";
 import { getProductCallCommercialOverride } from "../../lib/productCallCommercialOverrides";
 import { buildProductNarrative, normaliseProductRecord } from "../../lib/productStoryEngine";
+import { resolveWyrestormSkuAlias } from "../../lib/skuAliasResolver";
 
 export type ProductCallContext = {
   productFamily?: string;
@@ -64,7 +65,7 @@ export const PRODUCT_CALL_AUDIENCE_OPTIONS = [
 
 export const PRODUCT_CALL_PRODUCTS: ProductCallProduct[] = [
   {
-    sku: "APO-VX20-UC",
+    sku: "APO-VX20-UC-V2",
     name: "Apollo TM Video Bar & Switcher",
     category: "UC / meeting-room audio",
     family: "Apollo",
@@ -122,7 +123,7 @@ export const PRODUCT_CALL_PRODUCTS: ProductCallProduct[] = [
       "Do not ignore microphone pickup distance.",
       "Do not claim it is suitable for lecture theatres or large rooms without checking the space."
     ],
-    followUp: "This looks like a smaller UC or BYOD meeting-room requirement. APO-VX20-UC may be relevant if the room needs a compact USB audio and video path, but we should confirm room size, participant count, host device, camera/framing expectations and whether a larger audio solution is required."
+    followUp: "This looks like a smaller UC or BYOD meeting-room requirement. APO-VX20-UC-V2 may be relevant if the room needs a compact USB audio and video path, but we should confirm room size, participant count, host device, camera/framing expectations and whether a larger audio solution is required."
   },
   {
     sku: "SW-620-TX-W",
@@ -528,15 +529,20 @@ export function saveCallContext(patch: Partial<ProductCallContext>): ProductCall
 }
 
 export function findProduct(sku?: string): ProductCallProduct {
-  const normalisedSku = String(sku || "").toUpperCase();
-  const found = PRODUCT_CALL_PRODUCTS.find((product) => product.sku.toUpperCase() === normalisedSku);
+  const normalisedSku = resolveWyrestormSkuAlias(String(sku || "")).toUpperCase();
+  const found = PRODUCT_CALL_PRODUCTS.find(
+    (product) => resolveWyrestormSkuAlias(product.sku).toUpperCase() === normalisedSku,
+  );
 
   if (found) {
     return enrichProduct(found);
   }
 
   const context = loadCallContext();
-  const selected = PRODUCT_CALL_PRODUCTS.find((product) => product.sku === context.selectedSku);
+  const selectedSku = resolveWyrestormSkuAlias(String(context.selectedSku || ""));
+  const selected = PRODUCT_CALL_PRODUCTS.find(
+    (product) => resolveWyrestormSkuAlias(product.sku) === selectedSku,
+  );
 
   if (selected) {
     return enrichProduct(selected);

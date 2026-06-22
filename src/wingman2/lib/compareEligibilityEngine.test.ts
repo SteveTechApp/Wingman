@@ -14,10 +14,20 @@ const products = [
   { sku: "NHD-0401-MV", name: "4 input multiview processor for NetworkHD", role: "primary-hardware / default" },
   { sku: "MX-0404-HDMI", name: "4x4 HDMI matrix switcher", role: "primary-hardware / default" },
   { sku: "MX-0402-MST", name: "4x2 matrix switcher", role: "primary-hardware / default" },
+  { sku: "MX-0403-H3-MST", name: "4x3 presentation switcher", role: "primary-hardware / default" },
   { sku: "MX-0808-KIT-V2", name: "8x8 HDBaseT matrix kit", role: "primary-hardware / default" },
+  { sku: "MXV-0808-H2A-MK2", name: "8x8 18Gbps HDBaseT matrix mainframe", role: "primary-hardware / default" },
+  { sku: "MX-0808-SCL-V2", name: "8x8 seamless scaling matrix", role: "primary-hardware / default" },
   { sku: "SW-0206-VW", name: "Dedicated 4K video wall processor", role: "primary-hardware / default" },
+  { sku: "SW-740-TX", name: "Discontinued presentation switcher", role: "primary-hardware / default" },
   { sku: "CAM-210-NDI-PTZ", name: "NDI PTZ camera", role: "primary-hardware / default" },
   { sku: "CAM-420-PTZ", name: "PTZ camera", role: "primary-hardware / default" },
+  { sku: "EX-70-H2", name: "HDBaseT extender", role: "primary-hardware / default" },
+  { sku: "EX-35-H2", name: "Compact HDBaseT extender", role: "primary-hardware / default" },
+  { sku: "EX-100-H2", name: "Discontinued HDBaseT extender", role: "primary-hardware / default" },
+  { sku: "APO-VX20-UC-V2", name: "Apollo VX20 UC V2", role: "primary-hardware / default" },
+  { sku: "APO-DG2-PRO", name: "Apollo DG2 Pro", role: "primary-hardware / default" },
+  { sku: "CAB-HAOC-10", name: "HDMI cable", role: "primary-hardware / default" },
 ];
 
 describe("compare eligibility engine", () => {
@@ -40,7 +50,7 @@ describe("compare eligibility engine", () => {
     });
 
     expect(eligibility.eligibility).toBe("blocked");
-    expect(eligibility.blockers.join(" ")).toMatch(/cannot be a lead replacement/i);
+    expect(eligibility.blockers.join(" ")).toMatch(/must not be suggested as a current compare lead/i);
   });
 
   it("maps a 1G decoder competitor to the 500-series receiver and blocks the 10G 600 transceiver", () => {
@@ -145,7 +155,8 @@ describe("compare eligibility engine", () => {
       "4x2 HDMI matrix",
     );
 
-    expect(result.matches?.[0]?.sku).toBe("MX-0402-MST");
+    expect(["MX-0402-MST", "MX-0403-H3-MST"]).toContain(result.matches?.[0]?.sku);
+    expect(result.matches?.some((item) => item.sku === "MX-0402-MST" || item.sku === "MX-0403-H3-MST")).toBe(true);
     expect(result.rejected?.some((item) => item.sku === "NHD-000-CTL")).toBe(true);
   });
 
@@ -194,6 +205,52 @@ describe("compare eligibility engine", () => {
 
     expect(result.matches?.[0]?.sku).toBe("SW-0206-VW");
     expect(result.rejected?.some((item) => item.sku === "NHD-000-RACK4")).toBe(true);
+  });
+
+  it("blocks discontinued, do-not-spec and cable SKUs from accepted compare results", () => {
+    const result = applyCompareEligibilityRanking(
+      {
+        competitor: { sku: "AT-OME-CS31-SA", role: "presentation switcher" },
+        matches: [
+          { sku: "SW-740-TX" },
+          { sku: "MX-0402-MST" },
+          { sku: "APO-DG2-PRO" },
+          { sku: "CAB-HAOC-10" },
+        ],
+        rejected: [] as Array<{ sku?: string }>,
+      },
+      products,
+      "presentation switcher",
+    );
+
+    expect(["MX-0402-MST", "MX-0403-H3-MST"]).toContain(result.matches?.[0]?.sku);
+    expect(result.matches?.some((item) => item.sku === "MX-0402-MST" || item.sku === "MX-0403-H3-MST")).toBe(true);
+    expect(result.matches?.some((item) => item.sku === "SW-740-TX")).toBe(false);
+    expect(result.matches?.some((item) => item.sku === "APO-DG2-PRO")).toBe(false);
+    expect(result.matches?.some((item) => item.sku === "CAB-HAOC-10")).toBe(false);
+    expect(result.rejected?.some((item) => item.sku === "SW-740-TX")).toBe(true);
+    expect(result.rejected?.some((item) => item.sku === "APO-DG2-PRO")).toBe(true);
+    expect(result.rejected?.some((item) => item.sku === "CAB-HAOC-10")).toBe(true);
+  });
+
+  it("blocks discontinued extender SKUs and keeps current extender candidates", () => {
+    const result = applyCompareEligibilityRanking(
+      {
+        competitor: { sku: "AT-OME-EX-KIT", role: "HDBaseT extender" },
+        matches: [
+          { sku: "EX-100-H2" },
+          { sku: "EX-70-H2" },
+          { sku: "EX-35-H2" },
+        ],
+        rejected: [] as Array<{ sku?: string }>,
+      },
+      products,
+      "point-to-point HDBaseT extender",
+    );
+
+    expect(result.matches?.some((item) => item.sku === "EX-100-H2")).toBe(false);
+    expect(result.matches?.some((item) => item.sku === "EX-70-H2")).toBe(true);
+    expect(result.rejected?.some((item) => item.sku === "EX-100-H2")).toBe(true);
   });
 
 });

@@ -16,7 +16,7 @@ const products: CompareShortlistProduct[] = [
   { sku: "SW-0206-VW", name: "Video wall processor", description: "video wall processor" },
   { sku: "SW-0204-VW", name: "Preset video wall processor", description: "simple video wall" },
   { sku: "SW-620-TX-W", name: "Wireless presentation switcher", description: "presentation switcher wireless" },
-  { sku: "APO-VX20-UC", name: "Apollo UC soundbar", description: "USB conferencing soundbar" },
+  { sku: "APO-VX20-UC-V2", name: "Apollo UC soundbar", description: "USB conferencing soundbar" },
 ];
 
 describe("wyrestormCompareShortlist", () => {
@@ -95,5 +95,15 @@ describe("wyrestormCompareShortlist", () => {
     });
 
     expect(explainWyreStormCompareShortlist(result)).toContain("Shortlisted WyreStorm candidates");
+  });
+
+  it("resolves legacy aliases to current active shortlist SKUs", () => {
+    const result = buildWyreStormCompareShortlist({
+      competitorText: "small BYOD UC meeting room with wireless presentation",
+      wyrestormProducts: [{ sku: "APO-VX20-UC", name: "Apollo legacy alias", description: "USB conferencing soundbar" }],
+    });
+
+    expect(result.candidateSkus).toContain("APO-VX20-UC-V2");
+    expect(result.candidates.some((product) => product.sku === "APO-VX20-UC-V2")).toBe(true);
   });
 });

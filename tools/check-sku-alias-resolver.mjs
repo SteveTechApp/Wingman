@@ -21,6 +21,10 @@ function assertIncludes(source, marker, label) {
   assert(source.includes(marker), `${label} missing marker: ${marker}`);
 }
 
+function assertIncludesOneOf(source, markers, label) {
+  assert(markers.some((marker) => source.includes(marker)), `${label} missing any accepted marker: ${markers.join(" | ")}`);
+}
+
 assert(existsSync(aliasPath), "Missing src/wingman2/lib/skuAliasResolver.ts");
 assert(existsSync(profilePath), "Missing src/wingman2/lib/knownCompareProfiles.ts");
 
@@ -37,13 +41,13 @@ assertIncludes(alias, "MX-0808-KIT-V2", "alias resolver");
 
 assertIncludes(profile, "resolveWyrestormSkuAlias", "known compare profiles");
 assertIncludes(profile, "skuAliasMatches", "known compare profiles");
-assertIncludes(profile, 'sku: "MXV-0808-H2A-V3"', "known compare profiles");
+assertIncludesOneOf(profile, ['sku: "MXV-0808-H2A-MK2"', 'sku: "MXV-0808-H2A-V3"'], "known compare profiles");
 assertIncludes(profile, 'sku: "MXV-0808-H2A-70-V3"', "known compare profiles");
 assertIncludes(profile, 'sku: "MXV-0808-H2A-KIT"', "known compare profiles");
 assertIncludes(profile, 'sku: "MX-0808-KIT-V2"', "known compare profiles");
 
 if (audit) {
-  assertIncludes(audit, "MXV-0808-H2A-V3", "strict matrix audit");
+  assertIncludesOneOf(audit, ["MXV-0808-H2A-MK2", "MXV-0808-H2A-V3"], "strict matrix audit");
   assertIncludes(audit, "MXV-0808-H2A-70-V3", "strict matrix audit");
   assertIncludes(audit, "MXV-0808-H2A-KIT", "strict matrix audit");
   assertIncludes(audit, "MX-0808-KIT-V2", "strict matrix audit");

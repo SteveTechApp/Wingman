@@ -35,9 +35,9 @@ export interface KnownWyrestormCompareProfile {
 
 const PROFILES: readonly KnownWyrestormCompareProfile[] = [
   {
-    sku: "MXV-0808-H2A-V3",
-    aliases: ["MXV-0808-H2A", "MXV0808H2A", "MXV-0808-H2A-V3"],
-    name: "MXV-0808-H2A-V3 8x8 HDBaseT Matrix",
+    sku: "MXV-0808-H2A-MK2",
+    aliases: ["MXV-0808-H2A", "MXV0808H2A", "MXV-0808-H2A-V3", "MXV-0808-H2A-MK2"],
+    name: "MXV-0808-H2A-MK2 8x8 HDBaseT Matrix",
     family: "MXV Matrix",
     productClass: "HDBaseT matrix",
     systemRole: "8x8 fixed I/O matrix for routing HDMI sources to remote displays over HDBaseT.",
@@ -355,9 +355,9 @@ const PROFILES: readonly KnownWyrestormCompareProfile[] = [
     dataSource: "2026-wyrestorm-sku-catalog-known-topology",
   },
   {
-    sku: "MX-0808-SCL",
-    aliases: ["MX0808SCL", "MX-0808-SCL"],
-    name: "MX-0808-SCL 8x8 Seamless Scaling Matrix",
+    sku: "MX-0808-SCL-V2",
+    aliases: ["MX0808SCL", "MX-0808-SCL", "MX-0808-SCL-V2"],
+    name: "MX-0808-SCL-V2 8x8 Seamless Scaling Matrix",
     family: "MX Scaling Matrix",
     productClass: "HDMI / USB-C scaling matrix",
     systemRole: "8x8 seamless scaling matrix for routing eight sources to eight independently routed HDMI destinations.",

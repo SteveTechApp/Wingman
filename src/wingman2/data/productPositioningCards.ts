@@ -1,5 +1,7 @@
 ﻿import type { ProductPositioningAttachProduct, ProductPositioningCard } from "../types/productPositioning";
 
+import { resolveWyrestormSkuAlias } from "../lib/skuAliasResolver";
+
 const CORE_PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
   {
     sku: "NHD-0401-MV",
@@ -485,13 +487,13 @@ const CORE_PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     lastReviewed: "2026-06-04"
   },
   {
-    sku: "MX-0808-KIT",
+    sku: "MX-0808-KIT-V2",
     productName: "8x8 matrix kit",
     productFamily: "HDBaseT Matrix",
     technologyType: "Matrix switching / HDBaseT distribution",
     salientPoint: "A practical local matrix option for smaller venues and systems where AVoIP is not commercially justified.",
     oneLinePositioning: "Use this when the customer needs straightforward 8x8 source-to-display routing and a local matrix remains the right system shape.",
-    oneMinuteBrief: "MX-0808-KIT is useful for smaller hospitality and local distribution opportunities where the customer needs a familiar matrix approach. It should not be oversold where the system really needs the scale and flexibility of AVoIP.",
+    oneMinuteBrief: "MX-0808-KIT-V2 is useful for smaller hospitality and local distribution opportunities where the customer needs a familiar matrix approach. It should not be oversold where the system really needs the scale and flexibility of AVoIP.",
     bestFitApplications: ["small hospitality venues", "pubs", "small bars", "local TV distribution", "simple source/display routing"],
     weakFitApplications: ["large scalable multi-zone AV", "mixed-resolution estate with expansion needs", "campus-wide distribution"],
     customerProblems: ["The venue needs several sources routed to several screens.", "Budget does not justify AVoIP.", "The customer needs a simple matrix replacement."],
@@ -527,7 +529,7 @@ const CORE_PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
       PROJECT_DISCOVERY: "Capture source/display count, distance and expansion.",
       TRAINING: "Use to explain matrix versus AVoIP decision."
     },
-    followUpWording: "This sounds like a smaller source-to-display routing requirement where an 8x8 matrix may still be the right commercial and technical shape. MX-0808-KIT can be considered if the source and display count fits, cable distances are suitable and the customer does not need the scale or flexibility of AVoIP. We should confirm resolution, HDCP, distance, control and future expansion before final selection.",
+    followUpWording: "This sounds like a smaller source-to-display routing requirement where an 8x8 matrix may still be the right commercial and technical shape. MX-0808-KIT-V2 can be considered if the source and display count fits, cable distances are suitable and the customer does not need the scale or flexibility of AVoIP. We should confirm resolution, HDCP, distance, control and future expansion before final selection.",
     reviewGates: ["Confirm 8x8 is enough.", "Confirm HDMI/HDCP/resolution.", "Confirm whether AVoIP should be considered."],
     dataConfidence: "MEDIUM",
     lastReviewed: "2026-06-04"
@@ -676,13 +678,13 @@ const CORE_PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     lastReviewed: "2026-06-04"
   },
   {
-    sku: "APO-VX20-UC",
+    sku: "APO-VX20-UC-V2",
     productName: "Compact UC audio product",
     productFamily: "APO UC Audio",
     technologyType: "USB conferencing audio",
     salientPoint: "A compact audio option for smaller UC/BYOD spaces where microphone and speaker handling need to be considered.",
     oneLinePositioning: "Use this when the opportunity needs a simple UC audio path rather than only video switching.",
-    oneMinuteBrief: "APO-VX20-UC should be used to remind salespeople that meeting-room projects often fail if audio is ignored. It is best positioned in smaller huddle or meeting spaces where UC audio is part of the requirement.",
+    oneMinuteBrief: "APO-VX20-UC-V2 should be used to remind salespeople that meeting-room projects often fail if audio is ignored. It is best positioned in smaller huddle or meeting spaces where UC audio is part of the requirement.",
     bestFitApplications: ["small huddle rooms", "BYOD meeting rooms", "USB conferencing", "simple UC spaces"],
     weakFitApplications: ["large divisible rooms", "complex DSP audio", "large lecture theatres"],
     customerProblems: ["The room can show video, but call audio is still the weak point.", "They need a simple way to make a small BYOD room usable without designing a full DSP system.", "The rep needs a compact UC audio answer that keeps the opportunity moving."],
@@ -717,7 +719,7 @@ const CORE_PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
       PROJECT_DISCOVERY: "Capture room size, host path, camera and acoustic expectations.",
       TRAINING: "Use to teach why audio must be asked about."
     },
-    followUpWording: "This sounds like a small-room meeting problem where video alone is not enough. APO-VX20-UC is the WyreStorm conversation when the rep needs a compact audio path that makes a BYOD or UC room actually usable. Before quote, confirm participant count, room size, host workflow, camera/platform path and whether the space is still simple enough to avoid a larger audio design.",
+    followUpWording: "This sounds like a small-room meeting problem where video alone is not enough. APO-VX20-UC-V2 is the WyreStorm conversation when the rep needs a compact audio path that makes a BYOD or UC room actually usable. Before quote, confirm participant count, room size, host workflow, camera/platform path and whether the space is still simple enough to avoid a larger audio design.",
     reviewGates: ["Confirm room size.", "Confirm USB host path.", "Confirm audio pickup expectations."],
     dataConfidence: "MEDIUM",
     lastReviewed: "2026-06-04"
@@ -954,7 +956,7 @@ const EXPANDED_PRODUCT_POSITIONING_SEEDS: CuratedSkuSeed[] = [
     listenForTriggers: ["People around the table are not being heard clearly.", "The room audio is close, but still missing the far end.", "They need better pickup without rebuilding the room.", "The call problem is the microphone coverage."],
     attachProducts: [
       { sku: "APO-210-UC", reason: "Primary UC table audio context for companion microphone discussions." },
-      { sku: "APO-VX20-UC", reason: "Consider where the room needs a compact UC audio path instead." },
+      { sku: "APO-VX20-UC-V2", reason: "Consider where the room needs a compact UC audio path instead." },
     ],
     competitorCategory: "UC expansion microphone",
     competitorSearchTerms: ["companion microphone", "UC expansion microphone", "speakerphone expansion mic"],
@@ -1393,15 +1395,18 @@ export const PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
 ];
 
 export function getProductPositioningCardBySku(sku: string): ProductPositioningCard | undefined {
-  const normalisedSku = sku.trim().toLowerCase();
-  return PRODUCT_POSITIONING_CARDS.find((card) => card.sku.toLowerCase() === normalisedSku);
+  const normalisedSku = resolveWyrestormSkuAlias(sku).trim().toLowerCase();
+
+  return PRODUCT_POSITIONING_CARDS.find(
+    (card) => resolveWyrestormSkuAlias(card.sku).trim().toLowerCase() === normalisedSku,
+  );
 }
 
 export function getBestProductPositioningCardForSku(sku: string): ProductPositioningCard | undefined {
   const exact = getProductPositioningCardBySku(sku);
   if (exact) return exact;
 
-  const normalisedSku = sku.trim().toUpperCase();
+  const normalisedSku = resolveWyrestormSkuAlias(sku).trim().toUpperCase();
 
   if (/^NHD-500[-\s]/.test(normalisedSku)) {
     return getProductPositioningCardBySku("NHD-500 Series");
@@ -1420,7 +1425,7 @@ export function getBestProductPositioningCardForSku(sku: string): ProductPositio
   }
 
   if (/^MX-0808-KIT/.test(normalisedSku)) {
-    return getProductPositioningCardBySku("MX-0808-KIT");
+    return getProductPositioningCardBySku("MX-0808-KIT-V2");
   }
 
   return PRODUCT_POSITIONING_CARDS.find((card) => {

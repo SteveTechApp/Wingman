@@ -65,7 +65,7 @@ export const C88CS_PROFILE: KnownCompareProfile = {
   ],
   preferredCandidates: [
     {
-      sku: "MXV-0808-H2A-V3",
+      sku: "MXV-0808-H2A-MK2",
       relationship: "direct_matrix_candidate",
       confidence: 78,
       outcome: "PARTIAL MATCH",
@@ -122,7 +122,7 @@ export const C88CS_PROFILE: KnownCompareProfile = {
     "Input transport HDMI.",
     "Output transport HDBaseT.",
     "System role route multiple HDMI sources to multiple remote displays over HDBaseT.",
-    "Preferred WyreStorm direct matrix candidates MXV-0808-H2A-V3 and MXV-0808-H2A-70-V3.",
+    "Preferred WyreStorm direct matrix candidates MXV-0808-H2A-MK2 and MXV-0808-H2A-70-V3.",
     "Alias MXV-0808-70-H2A resolves to MXV-0808-H2A-70-V3.",
     "Related WyreStorm package candidates MXV-0808-H2A-KIT and MX-0808-KIT-V2.",
   ].join("\n"),
@@ -172,7 +172,7 @@ export const LIGHTWARE_MMX4X2_PROFILE: KnownCompareProfile = {
       nextAction: "Treat as an over-capacity option, not the direct replacement.",
     },
     {
-      sku: "MX-0808-SCL",
+      sku: "MX-0808-SCL-V2",
       relationship: "larger_scaling_matrix_candidate",
       confidence: 42,
       outcome: "VERIFY",

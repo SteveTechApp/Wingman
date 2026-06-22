@@ -70,12 +70,15 @@ describe("Compare rendered workflow", () => {
     expect(screen.getByText("Sales answer")).toBeInTheDocument();
     expect(screen.getByText("Competitor matched against")).toBeInTheDocument();
     expect(screen.getByText("Suggested WyreStorm direction")).toBeInTheDocument();
+    expect(screen.getByText(/Core comparison points used for the match/i)).toBeInTheDocument();
     expect(screen.getByText(/IP350UHD-TX is recognised as a source-side AV-over-IP encoder/i)).toBeInTheDocument();
     expect(screen.getAllByText(/This product is an AV-over-IP product in the IP350UHD-TX family/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/I\/O: 1 in \/ 1 out/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/Resolution: 4K60/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/1x HDMI input, 1x LAN\/network port/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText(/1x local source input, 1x LAN\/network port/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/1x HDMI input/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/1x LAN\/network port/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/IP350UHD-TX is used to put a local HDMI source into an AV-over-IP distribution system/i)).toBeInTheDocument();
     expect(screen.getByText(/Use NHD-500-TX when the requirement is encoding a local source into a WyreStorm NetworkHD 500 system/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Ask the customer/i).length).toBeGreaterThanOrEqual(1);
@@ -208,6 +211,10 @@ describe("Compare rendered workflow", () => {
 
     expect(screen.getByText(/HMX44-18G-KIT is recognised as a matrix switcher/i)).toBeInTheDocument();
     expect(screen.getByText("MX-0404-SCL")).toBeInTheDocument();
+    expect(screen.getByText(/Core comparison points used for the match/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/4x HDMI inputs/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/4x (HDMI|HDBaseT) outputs/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/routed display outputs/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText(/point-to-point HDBaseT extender kit/i)).not.toBeInTheDocument();
   });
 

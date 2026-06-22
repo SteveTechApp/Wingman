@@ -4,6 +4,7 @@ import { getBestProductPositioningCardForSku } from "../data/productPositioningC
 import { getProductStory, productStoryRelatedText } from "../data/productStories";
 import { saveProductSelectionToCurrentProject } from "../data/projectStore";
 import { buildProductNarrative, normaliseProductRecord, type ProductNarrative } from "../lib/productStoryEngine";
+import { resolveWyrestormSkuAlias } from "../lib/skuAliasResolver";
 
 // Reuse the role-aware Product Pitch engine so call-card copy is plain and
 // sales-focused (and consistent with the Pitch page) instead of the thin,
@@ -107,7 +108,7 @@ const CURATED: Record<string, Partial<ProductCard>> = {
     ],
     tags: ["presentation", "wireless", "meeting room", "teaching"],
   },
-  "MX-0808-KIT": {
+  "MX-0808-KIT-V2": {
     family: "Matrix / HDBaseT",
     description: "Fixed 8x8 matrix kit direction for contained source-to-display routing over HDBaseT.",
     fit: "Use for contained hospitality, sports bar or venue systems where fixed matrix routing is simpler than AVoIP.",
@@ -158,7 +159,7 @@ const CURATED: Record<string, Partial<ProductCard>> = {
     ],
     tags: ["multiview", "HDMI", "LED processor"],
   },
-  "APO-VX20-UC": {
+  "APO-VX20-UC-V2": {
     family: "USB / UC",
     description: "BYOD/UC soundbar direction for small meeting and collaboration spaces.",
     fit: "Use where the room needs a simple camera, speaker and microphone experience.",
@@ -509,7 +510,7 @@ function cleanText(value: unknown): string {
 }
 
 function normaliseSku(value: string): string {
-  return value.trim().toUpperCase().replace(/\s+/g, "");
+  return resolveWyrestormSkuAlias(value).trim().toUpperCase().replace(/\s+/g, "");
 }
 
 function unique(values: string[]): string[] {
