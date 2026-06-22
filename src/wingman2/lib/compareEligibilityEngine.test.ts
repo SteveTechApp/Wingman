@@ -22,6 +22,7 @@ const products = [
   { sku: "SW-740-TX", name: "Discontinued presentation switcher", role: "primary-hardware / default" },
   { sku: "CAM-210-NDI-PTZ", name: "NDI PTZ camera", role: "primary-hardware / default" },
   { sku: "CAM-420-PTZ", name: "PTZ camera", role: "primary-hardware / default" },
+  { sku: "AMP-2120-DNT", name: "Dante amplifier", role: "primary-hardware / default" },
   { sku: "EX-70-H2", name: "HDBaseT extender", role: "primary-hardware / default" },
   { sku: "EX-35-H2", name: "Compact HDBaseT extender", role: "primary-hardware / default" },
   { sku: "EX-100-H2", name: "Discontinued HDBaseT extender", role: "primary-hardware / default" },
@@ -39,6 +40,8 @@ describe("compare eligibility engine", () => {
     expect(classifyCompareIntent({ sku: "KDS-USB2", role: "USB extension receiver" })).toBe("extender");
     expect(classifyCompareIntent({ sku: "LCD video wall processor" })).toBe("video-wall-processor");
     expect(classifyCompareIntent({ sku: "BirdDog P400", role: "NDI PTZ camera" })).toBe("ndi-camera");
+    expect(classifyCompareIntent({ sku: "ClickShare CX-50", role: "wireless presentation" })).toBe("wireless-casting");
+    expect(classifyCompareIntent({ sku: "Q-SYS Core 110f", role: "Dante audio DSP" })).toBe("network-audio");
   });
 
   it("prevents accessories and controllers from becoming lead replacements", () => {
@@ -205,6 +208,46 @@ describe("compare eligibility engine", () => {
 
     expect(result.matches?.[0]?.sku).toBe("SW-0206-VW");
     expect(result.rejected?.some((item) => item.sku === "NHD-000-RACK4")).toBe(true);
+  });
+
+  it("keeps network-audio competitors out of the NetworkHD video lane", () => {
+    const result = applyCompareEligibilityRanking(
+      {
+        competitor: { sku: "Q-SYS Core 110f", role: "Dante audio DSP" },
+        matches: [
+          { sku: "NHD-500-TX" },
+          { sku: "AMP-2120-DNT" },
+        ],
+        rejected: [] as Array<{ sku?: string }>,
+      },
+      products,
+      "Q-SYS Core 110f Dante audio DSP",
+    ) as { compareIntent?: string; matches?: Array<{ sku?: string }>; rejected?: Array<{ sku?: string }> };
+
+    expect(result.compareIntent).toBe("network-audio");
+    expect(result.matches?.[0]?.sku).toBe("AMP-2120-DNT");
+    expect(result.matches?.some((item) => item.sku === "NHD-500-TX")).toBe(false);
+    expect(result.rejected?.some((item) => item.sku === "NHD-500-TX")).toBe(true);
+  });
+
+  it("keeps wireless presentation competitors out of the NetworkHD endpoint lane", () => {
+    const result = applyCompareEligibilityRanking(
+      {
+        competitor: { sku: "ClickShare CX-50", role: "wireless presentation and sharing" },
+        matches: [
+          { sku: "NHD-500-TX" },
+          { sku: "APO-VX20-UC-V2" },
+        ],
+        rejected: [] as Array<{ sku?: string }>,
+      },
+      products,
+      "ClickShare CX-50 wireless presentation",
+    ) as { compareIntent?: string; matches?: Array<{ sku?: string }>; rejected?: Array<{ sku?: string }> };
+
+    expect(result.compareIntent).toBe("wireless-casting");
+    expect(result.matches?.[0]?.sku).toBe("APO-VX20-UC-V2");
+    expect(result.matches?.some((item) => item.sku === "NHD-500-TX")).toBe(false);
+    expect(result.rejected?.some((item) => item.sku === "NHD-500-TX")).toBe(true);
   });
 
   it("blocks discontinued, do-not-spec and cable SKUs from accepted compare results", () => {

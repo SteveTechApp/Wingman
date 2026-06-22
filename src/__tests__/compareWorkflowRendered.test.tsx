@@ -216,6 +216,24 @@ describe("Compare rendered workflow", () => {
     expect(screen.queryByText(/source-side AV-over-IP encoder/i)).not.toBeInTheDocument();
   });
 
+  it("keeps wireless presentation products in the wireless collaboration lane instead of forcing NetworkHD", async () => {
+    render(
+      <MemoryRouter>
+        <ComparePageNew />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Barco" }));
+    fireEvent.click(screen.getByRole("button", { name: "C-5" }));
+
+    await screen.findByText("Sales answer");
+
+    expect(screen.getAllByText(/Wireless casting|Wireless presentation/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/SW-620-TX-W|SW-640L-TX-W/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText("NHD-500-TX")).not.toBeInTheDocument();
+    expect(screen.queryByText(/AV-over-IP encoder/i)).not.toBeInTheDocument();
+  });
+
   it("keeps matrix kits on matrix architecture instead of drifting into extender classification", async () => {
     render(
       <MemoryRouter>

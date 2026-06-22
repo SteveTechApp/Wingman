@@ -98,6 +98,11 @@ describe("classifyCompetitorAvoip", () => {
     const result = classifyCompetitorAvoip("Marshall VS-PTC-200NDI NDI PTZ camera");
     expect(result.isAvoip).toBe(false);
   });
+
+  it("does not classify Dante audio DSP products as AVoIP endpoints", () => {
+    const result = classifyCompetitorAvoip("Q-SYS Core 110f Dante audio DSP");
+    expect(result.isAvoip).toBe(false);
+  });
 });
 
 describe("recommendNetworkHdAvoip", () => {

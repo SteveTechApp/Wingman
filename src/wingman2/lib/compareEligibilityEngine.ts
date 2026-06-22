@@ -48,6 +48,7 @@ export type CompareIntentKind =
   | "av-over-ip"
   | "av-over-ip-encoder"
   | "av-over-ip-decoder"
+  | "network-audio"
   | "video-wall-processor"
   | "multiview"
   | "presentation-switcher"
@@ -333,6 +334,26 @@ export function classifyCompareIntent(resultOrInput: unknown, inputText = ""): C
     return "multiview";
   }
 
+  if (/\b(ndi(?:\s*(?:5|hx|hx2|hx3))?[\s|-]?(camera|cam|ptz)|birddog|marshall\s*cv|vs-ptc|ndi\s*source|ndi\s*encoder\s*camera)\b/i.test(text)) {
+    return "ndi-camera";
+  }
+
+  if (/\b(ptz|pan[\s-]tilt[\s-]zoom|visca|pelco[\s-]?d|sony\s*ev[ic]|sony\s*brc|aver\s*cam|huddly|logitech\s*(rally|meetup|brio)|vaddio)\b/i.test(text)) {
+    return "ptz-camera";
+  }
+
+  if (/\b(dante|aes67|audio\s*dsp|network\s*audio|q-sys|qsys|tesira|devio|audio processor|amplifier|avio)\b/i.test(text)) {
+    return "network-audio";
+  }
+
+  if (/\b(wireless\s*(casting|presentation|sharing|collaboration)|clickshare|solstice|mersive|airtame|barco\s*c[sx]|miracast|airplay|chromecast|wifidisplay)\b/i.test(text)) {
+    return "wireless-casting";
+  }
+
+  if (/\b(usb\s*(microphone|mic|speakerphone|audio|conference\s*speaker)|shure\s*mv|rode\s*(nt|pod|streamer)|jabra\s*(evolve|speak)|jabra\s*phs|yeti|snowball)\b/i.test(text)) {
+    return "usb-audio";
+  }
+
   if (/\b(usb[\s_-]*(extension|extender)|kds[\s_-]*usb|usb\s*over\s*ip|usb\s*2\.?0\s*extender|usb\s*3\.?0\s*extender)\b/i.test(text) || /KDSUSB|USBEXTENDER|USBEXTENSION/.test(compact)) {
     return "extender";
   }
@@ -363,22 +384,6 @@ export function classifyCompareIntent(resultOrInput: unknown, inputText = ""): C
 
   if (avoipContext) {
     return "av-over-ip";
-  }
-
-  if (/\b(ndi(?:\s*(?:5|hx|hx2|hx3))?[\s|-]?(camera|cam|ptz)|birddog|marshall\s*cv|ndi\s*source|ndi\s*encoder\s*camera)\b/i.test(text)) {
-    return "ndi-camera";
-  }
-
-  if (/\b(ptz|pan[\s-]tilt[\s-]zoom|visca|pelco[\s-]?d|sony\s*ev[ic]|sony\s*brc|aver\s*cam|huddly|logitech\s*(rally|meetup|brio))\b/i.test(text)) {
-    return "ptz-camera";
-  }
-
-  if (/\b(wireless\s*(casting|presentation|sharing|collaboration)|clickshare|solstice|mersive|airtame|barco\s*c[sx]|miracast|airplay|chromecast|wifidisplay)\b/i.test(text)) {
-    return "wireless-casting";
-  }
-
-  if (/\b(usb\s*(microphone|mic|speakerphone|audio|conference\s*speaker)|shure\s*mv|rode\s*(nt|pod|streamer)|jabra\s*(evolve|speak)|jabra\s*phs|yeti|snowball)\b/i.test(text)) {
-    return "usb-audio";
   }
 
   if (/\b(gpio|relay|contact\s*closure|dry\s*contact|i\/o\s*(module|port)|general[\s-]purpose\s*i\/o)\b/i.test(text)) {
@@ -726,11 +731,27 @@ export function evaluateProductEligibility(args: {
   }
 
   if (args.intent === "wireless-casting") {
+    if (/^NHD/.test(key) || /\b(avoip|networkhd|encoder|decoder|transceiver|transmitter|receiver)\b/i.test(combined)) {
+      return blocked(sku, args.intent, ["This is a wireless presentation workflow, not an AVoIP endpoint comparison. Do not lead with NetworkHD here."]);
+    }
+
     if (/\b(apollo|wireless|casting|miracast|airplay|chromecast)\b/i.test(combined) || /^APO/.test(key)) {
       return direct(args.intent, ["Wireless casting or collaboration candidate."], 0);
     }
 
     return related(args.intent, ["No confirmed wireless casting capability."], 75);
+  }
+
+  if (args.intent === "network-audio") {
+    if (/^NHD/.test(key) || /\b(avoip|networkhd|encoder|decoder|transceiver|transmitter|receiver)\b/i.test(combined)) {
+      return blocked(sku, args.intent, ["This is network audio, not network video. Do not lead with an AVoIP endpoint for an audio DSP / Dante comparison."]);
+    }
+
+    if (/^AMP/.test(key) || /\b(dante|aes67|audio|dsp|amplifier|speakerphone|conference)\b/i.test(combined)) {
+      return direct(args.intent, ["Audio / DSP / network-audio candidate."], 0);
+    }
+
+    return related(args.intent, ["No confirmed audio / DSP / network-audio capability noted."], 75);
   }
 
   if (args.intent === "usb-audio") {
