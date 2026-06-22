@@ -69,8 +69,22 @@ describe("competitor compare runtime behaviour", () => {
     const leadSkus = skus(result.matches).slice(0, 4);
 
     expect(result.competitor.brand).toBe("Lightware");
+    expect(result.competitor.inputCount).toBe(4);
+    expect(result.competitor.outputCount).toBe(2);
     expect(leadSkus[0]).not.toBe("MX-0808-KIT-V2");
     expect(leadSkus.some((item) => item.includes("0402") || item.includes("4X2"))).toBe(true);
+  });
+
+  it("keeps Lightware MMX6x2 requests as 6x2 matrix jobs and does not lead with undersized 4x2 products", () => {
+    const result = runCompareRuntimePipeline("MMX6x2-HT200", products, "Lightware", 12);
+    const leadSkus = skus(result.matches).slice(0, 4);
+
+    expect(result.competitor.brand).toBe("Lightware");
+    expect(result.competitor.sku).toBe("MMX6x2-HT200");
+    expect(result.competitor.inputCount).toBe(6);
+    expect(result.competitor.outputCount).toBe(2);
+    expect(leadSkus.length).toBeGreaterThan(0);
+    expect(leadSkus[0]).not.toMatch(/0402|0403/);
   });
 
   it("returns WyreStorm 4x4 matrix options for Blustream HMX44 instead of a no-matrix dead end", () => {
