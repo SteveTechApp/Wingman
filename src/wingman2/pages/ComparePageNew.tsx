@@ -21,7 +21,11 @@ import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
 import { competitorSkuSeeds } from "../lib/competitorProductIntelligence";
 import { resolveCompetitorSpecProfile, type ResolvedCompetitorProfile } from "../lib/competitorSpecRegistry";
 import { buildWyrestormCompareProfile } from "../lib/wyrestormCompareProfile";
-import { hydrateWyrestormCompareProfile } from "../lib/knownWyrestormCompareProfiles";
+import { findKnownWyrestormCompareProfile, hydrateWyrestormCompareProfile } from "../lib/knownWyrestormCompareProfiles";
+import type { KnownWyrestormCompareProfile } from "../lib/knownWyrestormCompareProfiles";
+import type { CompareSpecFacts } from "../lib/competitorCompareDecision";
+import { isWyreStormSkuCompareLeadAllowed } from "../lib/wyrestormSkuBusinessStatus";
+import { resolveWyrestormSkuAlias, skuAliasMatches } from "../lib/skuAliasResolver";
 
 /*
   Compare workflow guard markers retained for scripts.
@@ -189,6 +193,13 @@ type WyreStormSummary = {
   headlineIo: string;
   identityItems: string[];
   facts: Array<{ label: string; value: string }>;
+  comparisonFacts: Array<{ label: string; value: string }>;
+};
+
+type CompareCoreFact = {
+  label: string;
+  competitor: string;
+  wyrestorm: string;
 };
 
 const PAGE_AVOIP_ROLE_LABEL: Record<string, string> = {
@@ -277,7 +288,7 @@ const WYRESTORM_PRODUCTS: WyreStormProduct[] = [
     caveat: "Use for point-to-point HDMI and USB extension. Confirm resolution, cable length, USB version and control needs before quoting.",
   },
   {
-    sku: "EX-100-H2",
+    sku: "EX-70-H2",
     name: "HDBaseT HDMI extender kit",
     family: "HDBaseT Extension",
     productClass: "HDBaseT extender",
@@ -377,7 +388,7 @@ const WYRESTORM_PRODUCTS: WyreStormProduct[] = [
     caveat: "Use when the right answer is a contained local matrix rather than a video wall processor, presentation switcher or AVoIP design.",
   },
   {
-    sku: "MX-0808-KIT",
+    sku: "MX-0808-KIT-V2",
     name: "8x8 HDMI/HDBaseT matrix kit",
     family: "Matrix",
     productClass: "Matrix",
@@ -387,7 +398,7 @@ const WYRESTORM_PRODUCTS: WyreStormProduct[] = [
     caveat: "Good direction for contained fixed I/O systems. Confirm routed vs mirrored outputs.",
   },
   {
-    sku: "MXV-0808-H2A-V3",
+    sku: "MXV-0808-H2A-MK2",
     name: "18Gbps 8x8 HDBaseT matrix mainframe",
     family: "MXV Matrix",
     productClass: "Matrix",
@@ -938,8 +949,9 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
 }
 
 function findWyrestormProduct(sku: string): WyreStormProduct | undefined {
-  const key = compareSkuKey(sku);
-  return WYRESTORM_PRODUCTS.find((product) => compareSkuKey(product.sku) === key);
+  const canonicalSku = resolveWyrestormSkuAlias(sku);
+  const key = compareSkuKey(canonicalSku);
+  return WYRESTORM_PRODUCTS.find((product) => compareSkuKey(product.sku) === key || skuAliasMatches(product.sku, canonicalSku));
 }
 
 function synthAvoipProduct(sku: string): WyreStormProduct {
@@ -1176,14 +1188,14 @@ function buildMatrixCandidates(profile: CompetitorProfile): ScoredCandidate[] | 
   }
 
   const classA = wantsClassA(profile);
-  const leadSku = classA ? "MXV-0808-H2A-70-V3" : "MXV-0808-H2A-V3";
-  const alternateSku = classA ? "MXV-0808-H2A-V3" : "MXV-0808-H2A-70-V3";
+  const leadSku = classA ? "MXV-0808-H2A-70-V3" : "MXV-0808-H2A-MK2";
+  const alternateSku = classA ? "MXV-0808-H2A-MK2" : "MXV-0808-H2A-70-V3";
   const lead = findWyrestormProduct(leadSku);
   const alternate = findWyrestormProduct(alternateSku);
-  const fallback = findWyrestormProduct("MX-0808-KIT");
+  const fallback = findWyrestormProduct("MX-0808-KIT-V2");
 
   const leadMatched = [
-    `18Gbps 8x8 HDBaseT matrix path is a closer WyreStorm fit than the older MX kit.`,
+        `18Gbps 8x8 HDBaseT matrix path is a closer WyreStorm fit than the kit-style MX matrix path.`,
     classA
       ? "Class A / 70m brief detected. Use the MXV-70 path rather than the shorter Class B matrix."
       : "No Class A requirement detected. Default to the standard MXV Class B / 35m matrix path.",
@@ -1262,16 +1274,16 @@ function buildMatrixCandidates(profile: CompetitorProfile): ScoredCandidate[] | 
       verdict: "NO MATCH",
       matched: ["Older fixed-I/O matrix family only."],
       checks: uniqueSkuOptions([
-        "Avoid using MX-0808-KIT as the lead answer for an 18Gbps 8x8 HDBaseT matrix brief.",
+        "Avoid using MX-0808-KIT-V2 as the lead answer for an 18Gbps 8x8 HDBaseT matrix brief.",
         "If 18Gbps / 4K60 4:4:4 matters, stay in the MXV family instead.",
       ]),
       gaps: uniqueSkuOptions([
-        "MX-0808-KIT is not the right 18Gbps matrix path for this competitor brief.",
+        "MX-0808-KIT-V2 is not the right 18Gbps matrix path for this competitor brief.",
       ]),
       partialMatches: [],
-      mismatches: ["Older matrix family does not satisfy the evidenced 18Gbps / 4K60 4:4:4 HDBaseT requirement."],
+      mismatches: ["Kit-style matrix path does not satisfy the evidenced 18Gbps / 4K60 4:4:4 HDBaseT requirement."],
       unknowns: [],
-      blockers: ["Do not quote MX-0808-KIT as the direct replacement for this brief."],
+      blockers: ["Do not quote MX-0808-KIT-V2 as the direct replacement for this brief."],
       dependencies: [],
       outcomeLabel: "Wrong product type",
     };
@@ -1970,10 +1982,10 @@ function pickProductConnectorLabel(candidate: ScoredCandidate, side: "input" | "
     return side === "input" ? "HDMI source input" : "HDBaseT output";
   }
   if (/usb-c/.test(combined) && /wireless/.test(combined)) {
-    return side === "input" ? "HDMI / USB-C source input" : "display/video output";
+    return side === "input" ? "local source input" : "display/video output";
   }
   if (/usb-c/.test(combined)) {
-    return side === "input" ? "HDMI / USB-C source input" : "display/video output";
+    return side === "input" ? "local source input" : "display/video output";
   }
   if (/wireless/.test(combined)) {
     return side === "input" ? "wired/wireless source input" : "display/video output";
@@ -2030,6 +2042,7 @@ function wyrestormFeatureCallouts(candidate: ScoredCandidate, resolution: string
 }
 
 function buildWyrestormSummary(candidate: ScoredCandidate): WyreStormSummary {
+  const knownProfile = findKnownWyrestormCompareProfile(candidate.product.sku);
   const hydratedProduct = hydrateWyrestormCompareProfile({
     ...candidate.product,
     title: candidate.product.name,
@@ -2046,6 +2059,39 @@ function buildWyrestormSummary(candidate: ScoredCandidate): WyreStormSummary {
   const resolution = profile.maxResolution || "Not verified locally";
   const headlineIo = wyrestormHeadlineIo(candidate, profile.inputCount, profile.outputCount);
   const featureCallouts = wyrestormFeatureCallouts(candidate, resolution);
+  const hdmiProtection = joinCommercialFactParts([
+    knownProfile?.hdmiVersion,
+    knownProfile?.hdcpVersion,
+  ].filter((item) => item && !/^verify datasheet$/i.test(item)));
+  const usbFacts = joinCommercialFactParts([
+    profile.specs?.usbCPorts ? `${profile.specs.usbCPorts}x USB-C` : "",
+    profile.specs?.usbHostPorts ? `${profile.specs.usbHostPorts}x USB host` : "",
+    profile.specs?.usbDevicePorts ? `${profile.specs.usbDevicePorts}x USB device` : "",
+    profile.specs?.usbTotalPorts ? `${profile.specs.usbTotalPorts}x USB total` : "",
+    profile.specs?.usbStandard || "",
+    !profile.specs?.usbTotalPorts && knownProfile?.inputTypes.includes("USB-C") ? "USB-C source input path" : "",
+  ]);
+  const hdbasetFacts = joinCommercialFactParts([
+    profile.specs?.hdbasetVersion || "",
+    profile.specs?.hdbasetClass || "",
+    knownProfile?.distanceClass && !/^verify datasheet$/i.test(knownProfile.distanceClass) ? knownProfile.distanceClass : "",
+  ]);
+  const controlFacts = joinCommercialFactParts([
+    profile.specs?.networkPorts ? `${profile.specs.networkPorts}x LAN/network port${profile.specs.networkPorts === 1 ? "" : "s"}` : "",
+    profile.specs?.rs232 ? "RS-232" : "",
+    profile.specs?.ir ? "IR" : "",
+    profile.specs?.relay ? "Relay" : "",
+    profile.specs?.gpio ? "GPIO" : "",
+    knownProfile?.control?.filter((item) => !/verify/i.test(item)).join(" | ") || "",
+  ]);
+  const otherVideoIo = joinCommercialFactParts([
+    knownProfile?.mirroredOutputCount
+      ? `${knownProfile.mirroredOutputCount}x mirrored ${knownProfile.mirroredOutputTypes.join(" / ")} output${knownProfile.mirroredOutputCount === 1 ? "" : "s"}`
+      : "",
+    knownProfile?.loopOutputCount
+      ? `${knownProfile.loopOutputCount}x loop ${knownProfile.loopOutputTypes.join(" / ")} output${knownProfile.loopOutputCount === 1 ? "" : "s"}`
+      : "",
+  ]);
   const identityItems = uniqueText([
     `This WyreStorm option is a ${candidate.product.productClass.toLowerCase()} in the ${candidate.product.family} family.`,
     headlineIo !== "I/O still needs confirmation from current local data" ? `Headline I/O: ${headlineIo}.` : "",
@@ -2072,11 +2118,241 @@ function buildWyrestormSummary(candidate: ScoredCandidate): WyreStormSummary {
       { label: "Headline I/O", value: headlineIo },
       { label: "Resolution", value: resolution },
     ],
+    comparisonFacts: [
+      { label: "Inputs", value: wyrestormInputSummary(candidate, profile, knownProfile) },
+      { label: "Outputs", value: wyrestormOutputSummary(candidate, profile, knownProfile) },
+      { label: "HDMI / HDCP", value: hdmiProtection },
+      { label: "USB", value: usbFacts },
+      { label: "HDBaseT / distance", value: hdbasetFacts },
+      { label: "Max resolution", value: knownProfile?.maxResolution || resolution },
+      { label: "Control / network", value: controlFacts },
+      { label: "Other video I/O", value: otherVideoIo },
+    ].filter((entry) => entry.value),
   };
 }
 
 function wyrestormIdentityItems(candidate: ScoredCandidate): string[] {
   return buildWyrestormSummary(candidate).identityItems;
+}
+
+function stripComparePrefix(value: string, prefix: string): string {
+  return value.startsWith(`${prefix}: `) ? value.slice(prefix.length + 2) : value;
+}
+
+function textHasToken(value: string, pattern: RegExp): boolean {
+  return pattern.test(value.toLowerCase());
+}
+
+function safeCompareValue(value: string | undefined): string {
+  return String(value ?? "").trim();
+}
+
+function explicitPortSummary(specs: CompareSpecFacts | undefined, direction: "input" | "output"): string {
+  if (!specs) {
+    return "";
+  }
+
+  const connectorParts = [
+    commercialPortLabel(direction === "input" ? specs.hdmiInputs : specs.hdmiOutputs, "HDMI input", "HDMI inputs"),
+    commercialPortLabel(direction === "input" ? specs.displayPortInputs : specs.displayPortOutputs, "DisplayPort input", "DisplayPort inputs"),
+    commercialPortLabel(direction === "input" ? specs.dviInputs : specs.dviOutputs, "DVI input", "DVI inputs"),
+    commercialPortLabel(direction === "input" ? specs.vgaInputs : specs.vgaOutputs, "VGA input", "VGA inputs"),
+    commercialPortLabel(direction === "input" ? specs.sdiInputs : specs.sdiOutputs, "SDI input", "SDI inputs"),
+    commercialPortLabel(direction === "input" ? specs.compositeInputs : specs.compositeOutputs, "composite input", "composite inputs"),
+    commercialPortLabel(direction === "input" ? specs.componentInputs : specs.componentOutputs, "component input", "component inputs"),
+  ].filter(Boolean);
+
+  return joinCommercialFactParts(connectorParts);
+}
+
+function inferredCompetitorInputLabel(profile: CompetitorProfile): { singular: string; plural: string } {
+  const transport = `${profile.transport} ${profile.resolvedSpec?.transport ?? ""}`.toLowerCase();
+  const role = profile.role.toLowerCase();
+  const domain = profile.resolvedSpec?.domain ?? "";
+
+  if (domain === "AVOIP" || transport.includes("avoip")) {
+    if (/decoder|receiver/.test(role)) return { singular: "LAN/network port", plural: "LAN/network ports" };
+    if (transport.includes("hdmi")) return { singular: "HDMI input", plural: "HDMI inputs" };
+    return { singular: "local source input", plural: "local source inputs" };
+  }
+
+  if (domain === "HDBASET" || /tps|hdbaset/.test(transport)) {
+    return { singular: "HDMI input", plural: "HDMI inputs" };
+  }
+
+  if (transport.includes("usb-c") && transport.includes("hdmi")) {
+    return { singular: "source input (HDMI / USB-C)", plural: "source inputs (HDMI / USB-C)" };
+  }
+
+  if (transport.includes("usb-c")) {
+    return { singular: "USB-C input", plural: "USB-C inputs" };
+  }
+
+  if (transport.includes("hdmi")) {
+    return { singular: "HDMI input", plural: "HDMI inputs" };
+  }
+
+  return { singular: "source input", plural: "source inputs" };
+}
+
+function inferredCompetitorOutputLabel(profile: CompetitorProfile): { singular: string; plural: string } {
+  const transport = `${profile.transport} ${profile.resolvedSpec?.transport ?? ""}`.toLowerCase();
+  const role = profile.role.toLowerCase();
+  const domain = profile.resolvedSpec?.domain ?? "";
+
+  if (domain === "AVOIP" || transport.includes("avoip")) {
+    if (/decoder|receiver/.test(role) && transport.includes("hdmi")) return { singular: "HDMI output", plural: "HDMI outputs" };
+    return { singular: "LAN/network port", plural: "LAN/network ports" };
+  }
+
+  if (transport.includes("tps")) {
+    return { singular: "TPS output", plural: "TPS outputs" };
+  }
+
+  if (domain === "HDBASET" || transport.includes("hdbaset")) {
+    return { singular: "HDBaseT output", plural: "HDBaseT outputs" };
+  }
+
+  if (transport.includes("hdmi")) {
+    return { singular: "HDMI output", plural: "HDMI outputs" };
+  }
+
+  return { singular: "display output", plural: "display outputs" };
+}
+
+function competitorInputSummary(profile: CompetitorProfile): string {
+  const explicit = explicitPortSummary(profile.resolvedSpec?.specs, "input");
+
+  if (explicit) {
+    return explicit;
+  }
+
+  const count = profile.resolvedSpec?.inputCount;
+  if (!count) {
+    return "";
+  }
+
+  const label = inferredCompetitorInputLabel(profile);
+  return commercialPortLabel(count, label.singular, label.plural);
+}
+
+function competitorOutputSummary(profile: CompetitorProfile): string {
+  const explicit = explicitPortSummary(profile.resolvedSpec?.specs, "output");
+
+  if (explicit) {
+    return explicit;
+  }
+
+  const count = profile.resolvedSpec?.outputCount;
+  if (!count) {
+    return "";
+  }
+
+  const label = inferredCompetitorOutputLabel(profile);
+  return commercialPortLabel(count, label.singular, label.plural);
+}
+
+function wyrestormInputSummary(
+  candidate: ScoredCandidate,
+  profile: ReturnType<typeof buildWyrestormCompareProfile>,
+  knownProfile?: KnownWyrestormCompareProfile,
+): string {
+  const explicit = explicitPortSummary(profile.specs, "input");
+
+  if (explicit) {
+    return explicit;
+  }
+
+  if (knownProfile?.routedInputCount) {
+    const typeText = knownProfile.inputTypes.length ? ` (${knownProfile.inputTypes.join(" / ")})` : "";
+    return `${knownProfile.routedInputCount}x routed source input${knownProfile.routedInputCount === 1 ? "" : "s"}${typeText}`;
+  }
+
+  return stripComparePrefix(wyrestormHeadlineIo(candidate, profile.inputCount, profile.outputCount).split(",")[0] ?? "", "Headline I/O");
+}
+
+function wyrestormOutputSummary(
+  candidate: ScoredCandidate,
+  profile: ReturnType<typeof buildWyrestormCompareProfile>,
+  knownProfile?: KnownWyrestormCompareProfile,
+): string {
+  const explicit = explicitPortSummary(profile.specs, "output");
+  const extras = joinCommercialFactParts([
+    knownProfile?.mirroredOutputCount
+      ? `${knownProfile.mirroredOutputCount}x mirrored ${knownProfile.mirroredOutputTypes.join(" / ")} output${knownProfile.mirroredOutputCount === 1 ? "" : "s"}`
+      : "",
+    knownProfile?.loopOutputCount
+      ? `${knownProfile.loopOutputCount}x loop ${knownProfile.loopOutputTypes.join(" / ")} output${knownProfile.loopOutputCount === 1 ? "" : "s"}`
+      : "",
+  ]);
+
+  if (knownProfile?.routedOutputCount) {
+    const routedTypes = knownProfile.routedOutputTypes.length ? ` (${knownProfile.routedOutputTypes.join(" / ")})` : "";
+    const routed = `${knownProfile.routedOutputCount}x routed display output${knownProfile.routedOutputCount === 1 ? "" : "s"}${routedTypes}`;
+    return joinCommercialFactParts([routed, extras]);
+  }
+
+  if (explicit) {
+    return joinCommercialFactParts([explicit, extras]);
+  }
+
+  const headlineParts = wyrestormHeadlineIo(candidate, profile.inputCount, profile.outputCount).split(",").slice(1).join(",").trim();
+  return joinCommercialFactParts([headlineParts, extras]);
+}
+
+function competitorComparisonFacts(competitor: CompetitorSummary, profile: CompetitorProfile): Array<{ label: string; value: string }> {
+  const unsupportedPorts = unsupportedCompetitorVideoPorts(profile);
+  const transport = `${profile.transport} ${profile.resolvedSpec?.transport ?? ""}`.trim();
+
+  return [
+    { label: "Inputs", value: competitorInputSummary(profile) },
+    { label: "Outputs", value: competitorOutputSummary(profile) },
+    { label: "HDMI / HDCP", value: stripComparePrefix(competitorVideoProtectionFacts(profile), "HDMI / HDCP") },
+    { label: "USB", value: stripComparePrefix(competitorUsbFacts(profile), "USB") },
+    {
+      label: "HDBaseT / TPS",
+      value: joinCommercialFactParts([
+        stripComparePrefix(competitorHdbasetFacts(profile), "HDBaseT"),
+        textHasToken(transport, /\btps\b/) ? "TPS transport path evidenced" : "",
+      ]),
+    },
+    { label: "Max resolution", value: competitor.resolution !== "Not verified locally" ? competitor.resolution : "" },
+    {
+      label: "Control / network",
+      value: joinCommercialFactParts([
+        stripComparePrefix(competitorControlFacts(profile), "Control"),
+        stripComparePrefix(competitorAudioNetworkFacts(profile), "Audio / Network"),
+      ]),
+    },
+    { label: "Other video I/O", value: unsupportedPorts.join(", ") },
+  ].filter((entry) => entry.value);
+}
+
+function buildCoreComparisonFacts(
+  competitor: CompetitorSummary,
+  profile: CompetitorProfile,
+  wyrestorm: WyreStormSummary,
+): CompareCoreFact[] {
+  const competitorFacts = new Map(competitorComparisonFacts(competitor, profile).map((entry) => [entry.label, entry.value]));
+  const wyrestormFacts = new Map(wyrestorm.comparisonFacts.map((entry) => [entry.label, entry.value]));
+  const orderedLabels = [
+    "Inputs",
+    "Outputs",
+    "HDMI / HDCP",
+    "USB",
+    "HDBaseT / TPS",
+    "Max resolution",
+    "Control / network",
+    "Other video I/O",
+  ];
+
+  return orderedLabels
+    .map((label) => ({
+      label,
+      competitor: safeCompareValue(competitorFacts.get(label)),
+      wyrestorm: safeCompareValue(wyrestormFacts.get(label)),
+    }))
+    .filter((entry) => entry.competitor || entry.wyrestorm);
 }
 
 function shortRoleLabel(role: string): string {
@@ -2382,10 +2658,12 @@ function CompareProductLookupInput(props: {
 function BestCandidateCard({
   candidate,
   competitor,
+  competitorProfile,
   onCopySummary,
 }: {
   candidate: ScoredCandidate;
   competitor: CompetitorSummary;
+  competitorProfile: CompetitorProfile;
   onCopySummary: () => void;
 }) {
   const badges = salesOutcomeBadges(competitor, candidate);
@@ -2395,6 +2673,7 @@ function BestCandidateCard({
   const directionFit = salesDirectionFitLabel(candidate);
   const replacementConfidence = salesReplacementConfidenceLabel(competitor, candidate);
   const wyrestorm = buildWyrestormSummary(candidate);
+  const coreFacts = buildCoreComparisonFacts(competitor, competitorProfile, wyrestorm);
 
   return (
     <section className="compare-native-best-card">
@@ -2442,6 +2721,27 @@ function BestCandidateCard({
             </div>
           </section>
         </div>
+
+        {coreFacts.length ? (
+          <section className="compare-native-core-facts" aria-label="Core comparison points">
+            <p className="compare-native-label compare-native-label--subtle">Core comparison points used for the match</p>
+            <div className="compare-native-core-facts-grid">
+              {coreFacts.map((fact) => (
+                <article key={`core-fact-${fact.label}`} className="compare-native-core-fact">
+                  <span>{fact.label}</span>
+                  <div>
+                    <strong>Competitor</strong>
+                    <p>{fact.competitor || "Not verified locally"}</p>
+                  </div>
+                  <div>
+                    <strong>WyreStorm</strong>
+                    <p>{fact.wyrestorm || "Confirm in WyreStorm datasheet"}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <div className="compare-native-decision-strip" aria-label="Compare decision summary">
           <article className="compare-native-decision-tile">
@@ -2639,6 +2939,7 @@ function ComparePageNew() {
 
     return WYRESTORM_PRODUCTS
       .filter((product) => !isBannedNetworkHdSku(product.sku))
+      .filter((product) => isWyreStormSkuCompareLeadAllowed(product.sku))
       .map((product) => scoreProduct(profile, product))
       .filter((candidate) => isSelectableWyrestormRecommendation(candidate.product))
       .sort((a, b) => b.score - a.score)
@@ -3073,7 +3374,12 @@ function ComparePageNew() {
                 tabIndex={-1}
                 aria-label={`Main WyreStorm match: ${best.product.sku}`}
               >
-                <BestCandidateCard candidate={best} competitor={competitorSummary} onCopySummary={() => { void copySummary(); }} />
+                <BestCandidateCard
+                  candidate={best}
+                  competitor={competitorSummary}
+                  competitorProfile={profile}
+                  onCopySummary={() => { void copySummary(); }}
+                />
               </div>
             ) : (
               <section className="compare-native-empty">

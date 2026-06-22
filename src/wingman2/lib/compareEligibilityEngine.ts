@@ -5,6 +5,7 @@ import {
   type AvoipNetworkClass,
   type NetworkHdAvoipRecommendation,
 } from "./networkHdAvoipEquivalence";
+import { getWyreStormCompareLeadBlockReason } from "./wyrestormSkuBusinessStatus";
 
 const AVOIP_ENDPOINT_INTENTS = new Set<CompareIntentKind>([
   "av-over-ip",
@@ -564,6 +565,12 @@ export function evaluateProductEligibility(args: {
     ]);
   }
 
+  const businessStatusBlockReason = getWyreStormCompareLeadBlockReason(sku);
+
+  if (businessStatusBlockReason) {
+    return blocked(sku, args.intent, [businessStatusBlockReason]);
+  }
+
   // Never mix 10G and 1G NetworkHD families against an AVoIP endpoint competitor.
   if (AVOIP_ENDPOINT_INTENTS.has(args.intent)) {
     const networkMismatch = avoipNetworkMismatch(args.competitorNetworkClass ?? "unknown", sku);
@@ -813,19 +820,21 @@ function ensureEligibilityCandidatePool(
       addCandidateBySku(nextMatches, products, "MXV-0808-H2A-KIT", "Eligibility correction: correctly sized 8x8 HDBaseT matrix candidate inserted for routed matrix comparison.", 90);
       addCandidateBySku(nextMatches, products, "MXV-0808-H2A-70-V3", "Eligibility correction: correctly sized 8x8 long-reach HDBaseT matrix candidate inserted for routed matrix comparison.", 88);
       addCandidateBySku(nextMatches, products, "MX-0808-H2A-MK2", "Eligibility correction: correctly sized 8x8 HDMI matrix candidate inserted for routed matrix comparison.", 86);
-      addCandidateBySku(nextMatches, products, "MX-0808-SCL", "Eligibility correction: correctly sized 8x8 scaling matrix candidate inserted for routed matrix comparison.", 84);
+      addCandidateBySku(nextMatches, products, "MX-0808-SCL-V2", "Eligibility correction: correctly sized 8x8 scaling matrix candidate inserted for routed matrix comparison.", 84);
     }
   }
 
   if (intent === "presentation-switcher" || intent === "uc-byod") {
-    addCandidateBySku(nextMatches, products, "SW-740-TX", "Eligibility correction: presentation switcher candidate inserted for meeting-room switching workflow.", 86);
+    addCandidateBySku(nextMatches, products, "MX-0402-MST", "Eligibility correction: presentation switcher candidate inserted for compact meeting-room switching workflow.", 86);
+    addCandidateBySku(nextMatches, products, "MX-0403-H3-MST", "Eligibility correction: presentation switcher candidate inserted for presentation rooms that also need a stronger room-core output path.", 84);
     addCandidateBySku(nextMatches, products, "SW-640L-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for BYOD/BYOM workflow.", 84);
     addCandidateBySku(nextMatches, products, "SW-620-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for meeting-room collaboration workflow.", 82);
-    addCandidateBySku(nextMatches, products, "APO-200-UC", "Eligibility correction: UC room hardware candidate inserted for conferencing workflow comparison.", 78);
+    addCandidateBySku(nextMatches, products, "APO-VX20-UC-V2", "Eligibility correction: UC room hardware candidate inserted for conferencing workflow comparison.", 78);
   }
 
   if (intent === "extender") {
-    addCandidateBySku(nextMatches, products, "EX-100-H2", "Eligibility correction: HDBaseT extender candidate inserted for point-to-point transport comparison.", 84);
+    addCandidateBySku(nextMatches, products, "EX-70-H2", "Eligibility correction: HDBaseT extender candidate inserted for point-to-point transport comparison.", 84);
+    addCandidateBySku(nextMatches, products, "EX-35-H2", "Eligibility correction: compact HDBaseT extender candidate inserted for shorter point-to-point transport comparison.", 82);
     addCandidateBySku(nextMatches, products, "EX-100-USB3", "Eligibility correction: USB 3 extension candidate inserted for USB/KVM workflow comparison.", 84);
     addCandidateBySku(nextMatches, products, "EX-100-KVM", "Eligibility correction: KVM-capable HDBaseT extender candidate inserted for point-to-point transport comparison.", 82);
     addCandidateBySku(nextMatches, products, "EX-60-USB2", "Eligibility correction: USB 2 extension candidate inserted for USB workflow comparison.", 80);

@@ -10,7 +10,7 @@ const prioritySkus = [
   "NHD-500-TX",
   "NHD-500-RX",
   "NHD-600-TRX",
-  "APO-VX20-UC",
+  "APO-VX20-UC-V2",
   "APO-DG2",
   "SYN-TOUCH10",
   "SW-0206-VW",
@@ -63,7 +63,7 @@ describe("product story layer", () => {
   });
 
   it("captures partner-product relationships that sales users need", () => {
-    expect(productStoryRelatedText(getProductStory("APO-VX20-UC")!).join(" ")).toContain("APO-DG2");
+    expect(productStoryRelatedText(getProductStory("APO-VX20-UC-V2")!).join(" ")).toContain("APO-DG2");
     expect(productStoryRelatedText(getProductStory("NHD-150-RX")!).join(" ")).toContain("NHD-124-TX");
     expect(productStoryRelatedText(getProductStory("NHD-150-RX")!).join(" ")).toContain("NHD-CTL-PRO");
     expect(productStoryRelatedText(getProductStory("SW-620-TX-W")!).join(" ")).toContain("SYN-TOUCH10");
@@ -90,5 +90,9 @@ describe("product story layer", () => {
     expect(narrative.headline).toContain("premium 1GbE");
     expect(narrative.whyCustomerCares).toContain("NetworkHD 500 is the premium 1GbE");
     expect(narrative.avoidIf).toContain("Do not use it for a simple one-source one-display extension job");
+  });
+
+  it("resolves active SKU aliases to the same product story", () => {
+    expect(getProductStory("APO-VX20-UC")?.sku).toBe("APO-VX20-UC-V2");
   });
 });

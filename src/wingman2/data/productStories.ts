@@ -28,8 +28,10 @@ export type ProductStory = {
   diagramOutput?: string;
 };
 
+import { resolveWyrestormSkuAlias } from "../lib/skuAliasResolver";
+
 function normaliseStorySku(value: string): string {
-  return value.trim().toUpperCase().replace(/\s+/g, "");
+  return resolveWyrestormSkuAlias(value).trim().toUpperCase().replace(/\s+/g, "");
 }
 
 export const PRODUCT_STORIES: ProductStory[] = [
@@ -230,13 +232,13 @@ export const PRODUCT_STORIES: ProductStory[] = [
     diagramOutput: "10G NetworkHD switching fabric"
   },
   {
-    sku: "APO-VX20-UC",
+    sku: "APO-VX20-UC-V2",
     plainEnglishName: "Apollo VX20 UC video bar",
     family: "Apollo / UC",
     category: "BYOD meeting room",
     productType: "All-in-one UC video bar",
-    oneLinePosition: "APO-VX20-UC is the simple meeting-room conversation for camera, microphone and speaker audio in one device.",
-    whatItIs: "APO-VX20-UC is an all-in-one UC video bar for small meeting rooms and collaboration spaces.",
+    oneLinePosition: "APO-VX20-UC-V2 is the simple meeting-room conversation for camera, microphone and speaker audio in one device.",
+    whatItIs: "APO-VX20-UC-V2 is an all-in-one UC video bar for small meeting rooms and collaboration spaces.",
     whatItDoes: "It gives the room a neater camera, microphone and speaker experience without turning a simple meeting space into a complex installed AV system.",
     customerProblem: "The customer wants video calls to feel better than a laptop webcam and speakers, but they do not want a complicated room system.",
     salesTalkTrack: "Lead with simplicity: one visible meeting-room device that improves the call experience. Add APO-DG2 when wireless presentation is part of the same conversation.",
@@ -251,7 +253,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     whenNotToUse: ["Do not use it where a large room needs separate microphones, speakers and camera coverage.", "Do not position it as a full Teams-certified room system unless certification is confirmed.", "Do not ignore USB host location and cable distance."],
     discoveryQuestions: ["How many people normally use the room?", "Is it BYOD, BYOM, room PC or mixed use?", "Do they also need wireless presentation?", "Where will the laptop or host device connect?"],
     quoteChecks: ["Confirm room size and coverage.", "Confirm USB path and host location.", "Confirm display connection workflow.", "Confirm whether APO-DG2 is needed for wireless presentation."],
-    customerSafeWording: "Use APO-VX20-UC where the customer wants a simple, neat meeting-room video bar instead of separate camera, microphone and speaker devices.",
+    customerSafeWording: "Use APO-VX20-UC-V2 where the customer wants a simple, neat meeting-room video bar instead of separate camera, microphone and speaker devices.",
     internalRepGuidance: "This is often an easy attachment to display or meeting-room conversations. Ask the wireless presentation question early.",
     keyFeatures: ["All-in-one UC video bar", "Camera, microphone and speaker conversation", "Simple BYOD/BYOM fit", "Works with APO-DG2 for wireless presentation"],
     diagramSource: "BYOD laptop or room host",
@@ -270,7 +272,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     salesTalkTrack: "Attach it to the VX20 conversation where the customer wants a simple meeting room plus wireless presentation.",
     idealApplications: ["BYOD meeting rooms", "Visitor presentation", "Small collaboration rooms", "Cable-light presentation"],
     worksWith: [
-      { sku: "APO-VX20-UC", reason: "Complements the UC video bar with wireless presentation." },
+      { sku: "APO-VX20-UC-V2", reason: "Complements the UC video bar with wireless presentation." },
       { sku: "SW-620-TX-W", reason: "Use a switcher instead where the room needs more source management." }
     ],
     familyContext: "DG2 is part of the meeting-room experience conversation. It should be positioned as a workflow add-on, not as a full AV switching system.",
@@ -280,7 +282,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     quoteChecks: ["Confirm host/display workflow.", "Confirm wireless policy and network assumptions.", "Confirm region/availability.", "Confirm whether a switcher is a better fit."],
     customerSafeWording: "Use APO-DG2 where the room needs a simple wireless presentation path alongside the UC workflow.",
     internalRepGuidance: "Treat DG2 as a meeting-room attachment question: 'Do they also want wireless sharing?'",
-    keyFeatures: ["Wireless presentation attachment", "USB-C casting conversation", "Visitor-friendly room workflow", "Pairs with APO-VX20-UC"],
+    keyFeatures: ["Wireless presentation attachment", "USB-C casting conversation", "Visitor-friendly room workflow", "Pairs with APO-VX20-UC-V2"],
     diagramSource: "Laptop or mobile user",
     diagramOutput: "Meeting-room display path"
   },
@@ -299,7 +301,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     worksWith: [
       { sku: "SW-620-TX-W", reason: "Good fit where a presentation switcher needs a cleaner user interface." },
       { sku: "SW-640-TX-W", reason: "Useful where a larger presentation switcher workflow needs simple front-end control." },
-      { sku: "APO-VX20-UC", reason: "Can support a simpler room user-experience conversation where control is part of the requirement." }
+      { sku: "APO-VX20-UC-V2", reason: "Can support a simpler room user-experience conversation where control is part of the requirement." }
     ],
     familyContext: "This is a simple room interface story. Do not position it as a Crestron/Extron-style full building control platform.",
     whenToUse: ["Users need a clear control interface.", "The room has source selection or modes that need simplifying.", "A presentation or UC workflow benefits from one front-end touch point."],
@@ -355,7 +357,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     worksWith: [
       { sku: "CAM-210-NDI-PTZ", reason: "Attach where the bridge is fed by PTZ cameras and the room needs a better capture workflow." },
       { sku: "CAM-420-PTZ", reason: "Attach where a larger room still needs a switched/bridged camera output path." },
-      { sku: "APO-VX20-UC", reason: "Use where the room also needs a clear microphone/speaker path into the UC workflow." }
+      { sku: "APO-VX20-UC-V2", reason: "Use where the room also needs a clear microphone/speaker path into the UC workflow." }
     ],
     familyContext: "This is on the bridge/mixer side of the camera family. Keep it separate from the pure PTZ camera story: the camera captures the image; the bridge decides how several images or AV sources get into the platform.",
     whenToUse: ["Several cameras or AV sources need to be handed into one destination workflow.", "The room needs a cleaner AV-to-UC or AV-to-capture path.", "The destination still needs to be defined as USB, HDMI or capture workflow."],
@@ -383,7 +385,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     worksWith: [
       { sku: "CAM-210-NDI-PTZ", reason: "Attach where PTZ camera feeds need to enter the bridge workflow." },
       { sku: "NHD-128-NDI-TRX", reason: "Use where the design needs to move from NDI capture workflow into NetworkHD distribution." },
-      { sku: "APO-VX20-UC", reason: "Use where the room also needs microphone/speaker workflow sorted alongside the camera path." }
+      { sku: "APO-VX20-UC-V2", reason: "Use where the room also needs microphone/speaker workflow sorted alongside the camera path." }
     ],
     familyContext: "This sits between pure camera capture and wider NDI/network-video workflow. It should not be sold as 'the NDI one is always better'; sell it when the customer actually has an NDI path to justify.",
     whenToUse: ["The room has several camera or AV feeds.", "The workflow may need NDI as well as USB or HDMI handoff.", "The design needs a bridge between room capture and wider network-video or AV workflow."],
@@ -438,7 +440,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["Meeting room", "Classroom", "Training room", "BYOD presentation", "Simple wireless presentation"],
     worksWith: [
       { sku: "SYN-TOUCH10", reason: "Adds a simple touch interface for room operation." },
-      { sku: "APO-VX20-UC", reason: "Use where presentation and UC video-bar workflow are both required." },
+      { sku: "APO-VX20-UC-V2", reason: "Use where presentation and UC video-bar workflow are both required." },
       { sku: "SW-640-TX-W", reason: "Step up when more inputs or dual-output behaviour is needed." }
     ],
     familyContext: "This is a presentation switcher conversation, not a whole-building routing platform.",
@@ -466,7 +468,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["Larger meeting room", "Teaching room", "Training room", "Dual-output presentation", "BYOD/BYOM spaces"],
     worksWith: [
       { sku: "SYN-TOUCH10", reason: "Adds simple front-end control for a more capable room." },
-      { sku: "APO-VX20-UC", reason: "Use where the room also needs a simple UC video bar." },
+      { sku: "APO-VX20-UC-V2", reason: "Use where the room also needs a simple UC video bar." },
       { sku: "SW-620-TX-W", reason: "Use the smaller switcher where the room requirement is simpler." }
     ],
     familyContext: "This sits in the local presentation-switcher family. Use matrix or AVoIP when routing scale or distribution becomes the real requirement.",

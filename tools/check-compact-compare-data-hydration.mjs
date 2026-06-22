@@ -20,6 +20,10 @@ function assertIncludes(source, marker, label) {
   assert(source.includes(marker), `${label} missing marker: ${marker}`);
 }
 
+function assertIncludesOneOf(source, markers, label) {
+  assert(markers.some((marker) => source.includes(marker)), `${label} missing any accepted marker: ${markers.join(" | ")}`);
+}
+
 assert(existsSync(profilePath), "Missing knownWyrestormCompareProfiles.ts");
 assert(existsSync(compactPath), "Missing CompactCompareMatrix.tsx");
 
@@ -27,12 +31,12 @@ const profile = readFileSync(profilePath, "utf8");
 const compact = readFileSync(compactPath, "utf8");
 
 assertIncludes(profile, "hydrateWyrestormCompareProfile", "profile hydrator");
-assertIncludes(profile, "MXV-0808-H2A-V3", "profile hydrator");
+assertIncludesOneOf(profile, ["MXV-0808-H2A-MK2", "MXV-0808-H2A-V3"], "profile hydrator");
 assertIncludes(profile, "MXV-0808-H2A-70-V3", "profile hydrator");
 assertIncludes(profile, "MXV-0808-H2A-KIT", "profile hydrator");
 assertIncludes(profile, "MX-0808-KIT-V2", "profile hydrator");
 assertIncludes(profile, "MX-0808-H2A-MK2", "profile hydrator");
-assertIncludes(profile, "MX-0808-SCL", "profile hydrator");
+assertIncludesOneOf(profile, ["MX-0808-SCL-V2", "MX-0808-SCL"], "profile hydrator");
 assertIncludes(profile, "MX-0812-SCL", "profile hydrator");
 assertIncludes(profile, "EXP-MX-0402-H2", "profile hydrator");
 assertIncludes(profile, "mirroredOutputCount: 4", "profile hydrator");

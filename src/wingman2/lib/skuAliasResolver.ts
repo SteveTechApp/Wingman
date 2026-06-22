@@ -6,9 +6,9 @@ export interface CanonicalSkuAlias {
 
 export const WYRESTORM_CANONICAL_SKU_ALIASES: readonly CanonicalSkuAlias[] = [
   {
-    canonicalSku: "MXV-0808-H2A-V3",
-    aliases: ["MXV-0808-H2A", "MXV0808H2A", "MXV 0808 H2A", "MXV-0808-H2A-V3", "MXV0808H2AV3"],
-    note: "Resolve base MXV-0808-H2A request to current indexed V3 SKU.",
+    canonicalSku: "MXV-0808-H2A-MK2",
+    aliases: ["MXV-0808-H2A", "MXV0808H2A", "MXV 0808 H2A", "MXV-0808-H2A-V3", "MXV0808H2AV3", "MXV-0808-H2A-MK2", "MXV0808H2AMK2"],
+    note: "Resolve base MXV-0808-H2A request to the current indexed MK2 SKU used for active 2026 compare paths.",
   },
   {
     canonicalSku: "MXV-0808-H2A-70-V3",
@@ -29,6 +29,21 @@ export const WYRESTORM_CANONICAL_SKU_ALIASES: readonly CanonicalSkuAlias[] = [
     canonicalSku: "MX-0808-H2A-MK2",
     aliases: ["MX-0808-H2A", "MX0808H2A", "MX 0808 H2A", "MX-0808-H2A-MK2", "MX0808H2AMK2"],
     note: "Resolve base MX HDMI matrix SKU to current indexed MK2 SKU.",
+  },
+  {
+    canonicalSku: "MX-0808-SCL-V2",
+    aliases: ["MX-0808-SCL", "MX0808SCL", "MX 0808 SCL", "MX-0808-SCL-V2", "MX0808SCLV2"],
+    note: "Resolve base MX-0808-SCL request to the current V2 scaling matrix SKU.",
+  },
+  {
+    canonicalSku: "NHD-610-TX-V2",
+    aliases: ["NHD-610-TX", "NHD610TX", "NHD 610 TX", "NHD-610-TX-V2", "NHD610TXV2"],
+    note: "Resolve base NetworkHD 610 encoder wording to the current V2 SKU.",
+  },
+  {
+    canonicalSku: "APO-VX20-UC-V2",
+    aliases: ["APO-VX20-UC", "APOVX20UC", "APO VX20 UC", "APO-VX20-UC-V2", "APOVX20UCV2"],
+    note: "Resolve Apollo VX20 UC references to the current V2 SKU.",
   },
 ];
 

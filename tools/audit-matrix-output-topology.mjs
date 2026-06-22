@@ -9,7 +9,7 @@ const outMd = resolve(repoRoot, "reports/wingman-strict-matrix-output-topology-a
 const outDomainCsv = resolve(repoRoot, "reports/wingman-product-domain-classification-audit.csv");
 
 const expectedMatrixSkus = [
-  "MXV-0808-H2A-V3",
+  "MXV-0808-H2A-MK2",
   "MXV-0808-H2A-70-V3",
   "MXV-0808-H2A-KIT",
   "MX-0808-KIT-V2",
