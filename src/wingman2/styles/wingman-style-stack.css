@@ -33169,3 +33169,194 @@ body > .wingman-guru-drawer .wingman-guru-send {
   color: rgba(255, 197, 99, 0.96) !important;
 }
 /* WINGMAN-GURU-MESSAGE-CONTRAST-FIX-END */
+
+
+/* WINGMAN-FINDER-DROPDOWN-CONTRAST-FIX-START */
+/*
+  Finder native select/dropdown contrast fix.
+  Prevent white text on white option menus.
+*/
+
+html[data-wingman-route="finder"] select,
+html.wm-route-finder select,
+body:has(.finder-native-page) select {
+  color-scheme: dark !important;
+  background-color: rgba(7, 29, 43, 0.96) !important;
+  color: rgba(239, 248, 252, 0.98) !important;
+  border-color: rgba(91, 226, 255, 0.26) !important;
+}
+
+html[data-wingman-route="finder"] select:focus,
+html.wm-route-finder select:focus,
+body:has(.finder-native-page) select:focus {
+  background-color: rgba(8, 36, 53, 0.98) !important;
+  color: rgba(245, 252, 255, 1) !important;
+  outline: 2px solid rgba(52, 223, 236, 0.36) !important;
+  outline-offset: 2px !important;
+}
+
+html[data-wingman-route="finder"] select option,
+html[data-wingman-route="finder"] select optgroup,
+html.wm-route-finder select option,
+html.wm-route-finder select optgroup,
+body:has(.finder-native-page) select option,
+body:has(.finder-native-page) select optgroup {
+  background-color: #071827 !important;
+  color: #eff8fc !important;
+}
+
+html[data-wingman-route="finder"] select option:checked,
+html[data-wingman-route="finder"] select option:hover,
+html.wm-route-finder select option:checked,
+html.wm-route-finder select option:hover,
+body:has(.finder-native-page) select option:checked,
+body:has(.finder-native-page) select option:hover {
+  background-color: #0b3b4d !important;
+  color: #ffffff !important;
+}
+
+/* Also cover custom listbox/dropdown implementations if Finder uses one on some controls. */
+html[data-wingman-route="finder"] [role="listbox"],
+html.wm-route-finder [role="listbox"],
+body:has(.finder-native-page) [role="listbox"] {
+  background: #071827 !important;
+  color: #eff8fc !important;
+  border: 1px solid rgba(91, 226, 255, 0.24) !important;
+}
+
+html[data-wingman-route="finder"] [role="option"],
+html.wm-route-finder [role="option"],
+body:has(.finder-native-page) [role="option"] {
+  background: #071827 !important;
+  color: #eff8fc !important;
+}
+
+html[data-wingman-route="finder"] [role="option"][aria-selected="true"],
+html[data-wingman-route="finder"] [role="option"]:hover,
+html.wm-route-finder [role="option"][aria-selected="true"],
+html.wm-route-finder [role="option"]:hover,
+body:has(.finder-native-page) [role="option"][aria-selected="true"],
+body:has(.finder-native-page) [role="option"]:hover {
+  background: #0b3b4d !important;
+  color: #ffffff !important;
+}
+/* WINGMAN-FINDER-DROPDOWN-CONTRAST-FIX-END */
+
+
+/* WINGMAN-FINDER-STEPPER-STATE-FIX-START */
+/*
+  Finder workflow stepper state styling.
+  Current step is bright, completed steps are muted, future steps are darker.
+  Uses the existing aria-current="step" marker.
+*/
+
+html[data-wingman-route="finder"] nav[aria-label="Finder workflow steps"] {
+  isolation: isolate;
+}
+
+/* Default state: future / not yet reached */
+html[data-wingman-route="finder"] nav[aria-label="Finder workflow steps"] button {
+  position: relative !important;
+  opacity: 0.46 !important;
+  filter: grayscale(0.38) saturate(0.72) !important;
+  border-color: rgba(109, 128, 142, 0.14) !important;
+  background:
+    linear-gradient(180deg, rgba(9, 22, 33, 0.84), rgba(5, 15, 24, 0.78)) !important;
+  box-shadow: none !important;
+  transform: none !important;
+  transition:
+    opacity 160ms ease,
+    filter 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease !important;
+}
+
+html[data-wingman-route="finder"] nav[aria-label="Finder workflow steps"] button span {
+  color: rgba(161, 176, 188, 0.62) !important;
+}
+
+html[data-wingman-route="finder"] nav[aria-label="Finder workflow steps"] button > span:first-child {
+  background: rgba(80, 97, 111, 0.18) !important;
+  border: 1px solid rgba(125, 145, 160, 0.16) !important;
+  color: rgba(184, 198, 208, 0.62) !important;
+}
+
+/* Completed steps: any step before the current aria-current step */
+html[data-wingman-route="finder"] nav[aria-label="Finder workflow steps"] button:has(~ button[aria-current="step"]) {
+  opacity: 0.64 !important;
+  filter: grayscale(0.24) saturate(0.82) !important;
+  border-color: rgba(128, 154, 171, 0.18) !important;
+  background:
+    linear-gradient(180deg, rgba(14, 30, 42, 0.88), rgba(7, 20, 31, 0.82)) !important;
+}
+
+html[data-wingman-route="finder"] nav[aria-label="Finder workflow steps"] button:has(~ button[aria-current="step"]) span {
+  color: rgba(190, 205, 215, 0.72) !important;
+}
+
+html[data-wingman-route="finder"] nav[aria-label="Finder workflow steps"] button:has(~ button[aria-current="step"]) > span:first-child {
+  background: rgba(105, 127, 142, 0.18) !important;
+  border-color: rgba(142, 164, 178, 0.22) !important;
+  color: rgba(210, 222, 230, 0.76) !important;
+}
+
+/* Current step */
+html[data-wingman-route="finder"] nav[aria-label="Finder workflow steps"] button[aria-current="step"] {
+  opacity: 1 !important;
+  filter: none !important;
+  border-color: rgba(65, 222, 255, 0.46) !important;
+  background:
+    radial-gradient(circle at top left, rgba(67, 224, 255, 0.22), transparent 42%),
+    linear-gradient(180deg, rgba(8, 55, 76, 0.98), rgba(5, 34, 52, 0.96)) !important;
+  box-shadow:
+    0 0 0 1px rgba(67, 224, 255, 0.12),
+    0 16px 34px rgba(0, 0, 0, 0.26) !important;
+  transform: translateY(-1px) !important;
+}
+
+html[data-wingman-route="finder"] nav[aria-label="Finder workflow steps"] button[aria-current="step"] span {
+  color: rgba(238, 248, 252, 0.94) !important;
+}
+
+html[data-wingman-route="finder"] nav[aria-label="Finder workflow steps"] button[aria-current="step"] span span {
+  color: rgba(191, 222, 235, 0.86) !important;
+}
+
+html[data-wingman-route="finder"] nav[aria-label="Finder workflow steps"] button[aria-current="step"] > span:first-child {
+  background: rgba(67, 224, 255, 0.22) !important;
+  border-color: rgba(67, 224, 255, 0.48) !important;
+  color: rgba(139, 246, 255, 0.98) !important;
+}
+
+/* Future steps after the current one */
+html[data-wingman-route="finder"] nav[aria-label="Finder workflow steps"] button[aria-current="step"] ~ button {
+  opacity: 0.4 !important;
+  filter: grayscale(0.48) saturate(0.62) !important;
+  border-color: rgba(83, 101, 116, 0.12) !important;
+  background:
+    linear-gradient(180deg, rgba(8, 19, 29, 0.74), rgba(4, 13, 21, 0.72)) !important;
+}
+
+html[data-wingman-route="finder"] nav[aria-label="Finder workflow steps"] button[aria-current="step"] ~ button span {
+  color: rgba(146, 160, 172, 0.52) !important;
+}
+
+html[data-wingman-route="finder"] nav[aria-label="Finder workflow steps"] button[aria-current="step"] ~ button > span:first-child {
+  background: rgba(58, 75, 90, 0.14) !important;
+  border-color: rgba(103, 121, 136, 0.12) !important;
+  color: rgba(160, 174, 186, 0.52) !important;
+}
+
+/* Hover should make muted steps readable but not as loud as the current step */
+html[data-wingman-route="finder"] nav[aria-label="Finder workflow steps"] button:not([aria-current="step"]):hover {
+  opacity: 0.82 !important;
+  filter: grayscale(0.12) saturate(0.92) !important;
+  border-color: rgba(91, 226, 255, 0.26) !important;
+}
+
+html[data-wingman-route="finder"] nav[aria-label="Finder workflow steps"] button:not([aria-current="step"]):hover span {
+  color: rgba(226, 239, 246, 0.84) !important;
+}
+/* WINGMAN-FINDER-STEPPER-STATE-FIX-END */
