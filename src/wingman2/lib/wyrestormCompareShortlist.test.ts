@@ -17,6 +17,7 @@ const products: CompareShortlistProduct[] = [
   { sku: "SW-0204-VW", name: "Preset video wall processor", description: "simple video wall" },
   { sku: "SW-620-TX-W", name: "Wireless presentation switcher", description: "presentation switcher wireless" },
   { sku: "APO-VX20-UC-V2", name: "Apollo UC soundbar", description: "USB conferencing soundbar" },
+  { sku: "AMP-2120-DNT", name: "Dante amplifier", description: "network audio amplifier Dante DSP" },
 ];
 
 describe("wyrestormCompareShortlist", () => {
@@ -76,6 +77,29 @@ describe("wyrestormCompareShortlist", () => {
     expect(result.intent).toBe("video_wall");
     expect(result.candidateSkus).toContain("SW-0206-VW");
     expect(result.candidateSkus).toContain("SW-0204-VW");
+  });
+
+  it("keeps NDI PTZ camera workflows out of the generic NetworkHD encoder lane", () => {
+    const result = buildWyreStormCompareShortlist({
+      competitorText: "Marshall VS-PTC-200NDI NDI PTZ camera",
+      wyrestormProducts: products,
+    });
+
+    expect(result.intent).toBe("ndi_camera_workflow");
+    expect(result.candidateSkus).toContain("CAM-210-NDI-PTZ");
+    expect(result.candidateSkus).not.toContain("NHD-500-TX");
+  });
+
+  it("keeps audio-network products out of the NetworkHD AVoIP lane", () => {
+    const result = buildWyreStormCompareShortlist({
+      competitorText: "Q-SYS Core 110f Dante audio DSP",
+      wyrestormProducts: products,
+    });
+
+    expect(result.intent).toBe("audio_network");
+    expect(result.candidateSkus).toContain("AMP-2120-DNT");
+    expect(result.candidateSkus).not.toContain("NHD-500-TX");
+    expect(result.candidateSkus).not.toContain("NHD-500-RX");
   });
 
   it("provides fallback candidates even if the product index is incomplete", () => {

@@ -29,6 +29,7 @@ export type WyreStormCompareIntent =
   | "avoip_1g_decoder"
   | "avoip_10g"
   | "avoip_controller"
+  | "audio_network"
   | "hdmi_matrix"
   | "hdbaset_matrix"
   | "hdbaset_extender"
@@ -162,6 +163,14 @@ function detectCompetitorIntent(input: string): { intent: WyreStormCompareIntent
       intent: "ndi_camera_workflow",
       confidence: 88,
       reason: "Competitor appears to involve NDI camera or NDI bridge workflow.",
+    };
+  }
+
+  if (containsAny(text, ["dante", "aes67", "audio dsp", "network audio", "q-sys", "qsys", "tesira", "devio", "avio", "amplifier"])) {
+    return {
+      intent: "audio_network",
+      confidence: 84,
+      reason: "Competitor appears to be an audio / DSP / network-audio product.",
     };
   }
 
@@ -305,6 +314,13 @@ function selectForIntent(
     );
   }
 
+  if (intent === "audio_network") {
+    return all.filter((product) =>
+      hasSku(product, ["AMP-", "APO-"]) ||
+      hasText(product, ["audio", "dante", "aes67", "dsp", "speakerphone", "conference"]),
+    );
+  }
+
   if (intent === "multiview") {
     return all.filter((product) =>
       hasSku(product, ["NHD-0401-MV", "NHD-150", "SCL"]) ||
@@ -415,6 +431,12 @@ function addFallbackSkus(intent: WyreStormCompareIntent, selected: CompareShortl
   if (intent === "multiview") {
     add("NHD-0401-MV", "4-input multiview processor", "Fallback standalone multiview candidate.");
     add("NHD-150-RX", "NetworkHD 100 multiview receiver", "Fallback NetworkHD multiview candidate.");
+  }
+
+  if (intent === "audio_network") {
+    add("AMP-2120-DNT", "Network audio amplifier", "Fallback network-audio / Dante amplifier candidate.");
+    add("AMP-260-DNT", "Compact network audio amplifier", "Fallback compact network-audio / Dante amplifier candidate.");
+    add("APO-VX20-UC-V2", "Conference audio/soundbar", "Fallback conferencing-audio candidate where the requirement is room audio rather than network video.");
   }
 
   if (intent === "presentation_switcher" || intent === "wireless_presentation" || intent === "usb_conferencing") {

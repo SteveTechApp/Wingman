@@ -126,6 +126,8 @@ function productClassFromResolvedDomain(domain?: string): string | null {
   switch ((domain || "").toUpperCase()) {
     case "AVOIP":
       return "AV-over-IP";
+    case "AUDIO":
+      return "Network audio";
     case "VIDEO_WALL":
       return "Video wall";
     case "MULTIVIEW":
@@ -136,12 +138,16 @@ function productClassFromResolvedDomain(domain?: string): string | null {
       return "HDBaseT extender";
     case "PRESENTATION":
       return "Presentation switcher";
+    case "WIRELESS_PRESENTATION":
+      return "Wireless casting";
     case "NDI_CAMERA":
       return "NDI camera";
     case "PTZ_CAMERA":
       return "PTZ camera";
     case "WIRELESS_CASTING":
       return "Wireless casting";
+    case "CONTROL":
+      return "Control accessory";
     default:
       return null;
   }
@@ -605,17 +611,41 @@ function includesAny(text: string, terms: string[]): boolean {
 function extractTags(text: string): string[] {
   const tags: string[] = [];
 
-  if (includesAny(text, ["AVOIP", "AV OVER IP", "IP350", "IP300", "IP250", "IP200", "OMNI", "NVX", "NAV", "ZYPER", "NETWORK"])) tags.push("avoip");
+  if (includesAny(text, [
+    "AVOIP",
+    "AV OVER IP",
+    "AV-OVER-IP",
+    "IP350UHD",
+    "IP300UHD",
+    "IP250UHD",
+    "IP200UHD",
+    "OMNISTREAM",
+    "AT-OMNI",
+    "DM-NVX",
+    "DMNVX",
+    "NAV E",
+    "NAV D",
+    "NAVE",
+    "NAVD",
+    "ZYPER",
+    "MXNET",
+    "JUST ADD POWER",
+    "JAP",
+    "SDVOE",
+  ])) tags.push("avoip");
   if (includesAny(text, ["TX", "ENCODER", "TRANSMITTER", "SOURCE"])) tags.push("encoder");
   if (includesAny(text, ["RX", "DECODER", "RECEIVER", "DISPLAY"])) tags.push("decoder");
   if (includesAny(text, ["TRX", "TRANSCEIVER"])) tags.push("transceiver");
   if (includesAny(text, ["EXTENDER", "EXTENSION", "POINT-TO-POINT", "TX/RX KIT", "TX RX KIT", "TRANSMITTER RECEIVER"])) tags.push("extender");
-  if (includesAny(text, ["MATRIX", "8X8", "4X4", "16X16", "ROUTING"])) tags.push("matrix");
-  if (includesAny(text, ["VIDEO WALL", "VIDEOWALL", "WALL"])) tags.push("video wall");
+  if (includesAny(text, ["MATRIX", "8X8", "4X4", "16X16", "MATRIX SWITCHER"])) tags.push("matrix");
+  if (includesAny(text, ["VIDEO WALL", "VIDEOWALL", "WALL PROCESSOR", "LCD WALL", "LED WALL"])) tags.push("video wall");
   if (includesAny(text, ["MULTIVIEW", "MULTI VIEW", "QUAD VIEW", "4 INPUT"])) tags.push("multiview");
   if (includesAny(text, ["NDI", "BIRDDOG", "MARSHALL CV", "NDI CAMERA"])) tags.push("ndi camera");
   if (includesAny(text, ["PTZ", "VISCA", "PELCO", "BRC", "EVI", "SRG"])) tags.push("ptz camera");
+  if (includesAny(text, ["CAMERA", "HUDDLY", "VADDIO", "RALLY BAR", "MEETUP", "BRIO", "WEBCAM"])) tags.push("camera");
   if (includesAny(text, ["WIRELESS", "CLICKSHARE", "SOLSTICE", "MERSIVE", "AIRTAME", "AIRPLAY", "MIRACAST", "CHROMECAST"])) tags.push("wireless casting");
+  if (includesAny(text, ["SPEAKERPHONE", "SOUNDBAR", "VIDEO BAR", "CONFERENCING BAR", "USB CAMERA", "CONFERENCE CAMERA"])) tags.push("usb conferencing");
+  if (includesAny(text, ["DANTE", "AES67", "AUDIO DSP", "NETWORK AUDIO", "Q-SYS", "QSYS", "TESIRA", "DEVIO", "AMPLIFIER", "AUDIO PROCESSOR"])) tags.push("network audio");
   if (includesAny(text, ["USB", "UC", "BYOD", "BYOM", "TEAMS", "ZOOM", "USB-C"])) tags.push("usb");
   if (includesAny(text, ["HDBASET", "DTP"])) tags.push("hdbaset");
   if (includesAny(text, ["4K60", "60HZ", "HDMI 2.0"])) tags.push("4k60");
@@ -632,11 +662,14 @@ function extractTags(text: string): string[] {
 function productClassFromTags(tags: string[]): string {
   if (tags.includes("ndi camera")) return "NDI camera";
   if (tags.includes("ptz camera")) return "PTZ camera";
+  if (tags.includes("camera")) return "PTZ camera";
+  if (tags.includes("usb conferencing")) return "USB conferencing";
+  if (tags.includes("network audio")) return "Network audio";
   if (tags.includes("wireless casting")) return "Wireless casting";
   if (tags.includes("video wall")) return "Video wall";
   if (tags.includes("multiview")) return "Multiview";
-  if (tags.includes("hdbaset") || tags.includes("extender")) return "HDBaseT extender";
   if (tags.includes("matrix")) return "Matrix";
+  if (tags.includes("hdbaset") || tags.includes("extender")) return "HDBaseT extender";
   if (tags.includes("avoip")) return "AV-over-IP";
   if (tags.includes("usb")) return "Presentation switcher";
   return "Unknown";
@@ -645,13 +678,17 @@ function productClassFromTags(tags: string[]): string {
 function roleFromTags(tags: string[]): string {
   if (tags.includes("ndi camera")) return "NDI Camera";
   if (tags.includes("ptz camera")) return "PTZ Camera";
+  if (tags.includes("camera")) return "Camera";
+  if (tags.includes("usb conferencing")) return "Conference bar / USB conferencing";
+  if (tags.includes("network audio")) return "Audio processor";
   if (tags.includes("wireless casting")) return "Wireless casting";
   if (tags.includes("transceiver")) return "Transceiver";
   if (tags.includes("extender") && tags.includes("usb")) return "USB extender";
   if (tags.includes("extender") || tags.includes("hdbaset")) return "TX/RX extender kit";
   if (tags.includes("encoder")) return "Encoder / transmitter";
   if (tags.includes("decoder")) return "Decoder / receiver";
-  if (tags.includes("matrix") || tags.includes("usb")) return "Switcher";
+  if (tags.includes("matrix")) return "Switcher";
+  if (tags.includes("usb")) return "Switcher";
   if (tags.includes("video wall") || tags.includes("multiview")) return "Processor";
   return "Unknown";
 }
@@ -659,6 +696,9 @@ function roleFromTags(tags: string[]): string {
 function transportFromTags(tags: string[]): string {
   if (tags.includes("ndi camera")) return "NDI / HDMI";
   if (tags.includes("ptz camera")) return "HDMI / USB / IP";
+  if (tags.includes("camera")) return "HDMI / USB / IP";
+  if (tags.includes("usb conferencing")) return "USB / HDMI / network collaboration";
+  if (tags.includes("network audio")) return "Dante / AES67 / network audio";
   if (tags.includes("wireless casting")) return "Wi-Fi / Ethernet";
   if (tags.includes("10g")) return "10GbE AVoIP";
   if (tags.includes("avoip")) return "1GbE AVoIP";
@@ -722,6 +762,8 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
   const containedLocalMatrixRequirement = isContainedLocalMatrixRequirement(profile);
   const ndiCameraRequirement = profile.productClass === "NDI camera";
   const ptzCameraRequirement = profile.productClass === "PTZ camera";
+  const usbConferencingRequirement = profile.productClass === "USB conferencing";
+  const networkAudioRequirement = profile.productClass === "Network audio";
   const wirelessCastingRequirement = profile.productClass === "Wireless casting";
 
   if (profile.productClass !== "Unknown" && product.productClass === profile.productClass) {
@@ -760,6 +802,25 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
     gaps.push("Competitor appears to be AVoIP but candidate is not an AVoIP endpoint.");
     mismatches.push("Competitor architecture is AV-over-IP, but this WyreStorm product is not an AVoIP endpoint.");
     blockers.push("Do not quote this as a direct AVoIP replacement.");
+  }
+
+  if (usbConferencingRequirement && /Presentation switcher|PTZ camera/.test(product.productClass)) {
+    score += product.productClass === "PTZ camera" ? 36 : 28;
+    partialMatches.push(
+      product.productClass === "PTZ camera"
+        ? "This stays in the room-camera lane, but confirm whether the customer also needs the wider USB conferencing appliance."
+        : "This supports meeting-room collaboration, but confirm whether the customer needs a conferencing bar/camera rather than source switching.",
+    );
+  } else if (usbConferencingRequirement && product.productClass === "AV-over-IP") {
+    score -= 72;
+    mismatches.push("This is AV-over-IP transport hardware, not a USB conferencing device.");
+    blockers.push("Wrong product class for a conferencing-bar or USB-camera comparison.");
+  }
+
+  if (networkAudioRequirement && product.productClass === "AV-over-IP") {
+    score -= 88;
+    mismatches.push("This is network audio, not network video.");
+    blockers.push("Wrong product class for an audio DSP / Dante comparison.");
   }
 
   if (ndiCameraRequirement && product.productClass === "NDI camera") {
@@ -826,6 +887,18 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
     gaps.push("Competitor appears to be a receiver/decoder but candidate is a transmitter/encoder.");
     mismatches.push("Competitor is display-side / decoder-led, but this candidate sits at the source-side / encoder end.");
     blockers.push("Wrong endpoint direction for a direct replacement.");
+  }
+
+  if (profile.productClass === "Matrix" && product.productClass === "HDBaseT extender") {
+    score -= 42;
+    mismatches.push("This is a matrix-style routing product, not a point-to-point extender.");
+    blockers.push("Do not replace a routed matrix requirement with an extender-led answer.");
+  }
+
+  if (profile.productClass === "HDBaseT extender" && product.productClass === "Matrix") {
+    score -= 42;
+    mismatches.push("This is a point-to-point extender requirement, not a matrix-style routing product.");
+    blockers.push("Do not replace a point-to-point extender requirement with a matrix-led answer.");
   }
 
   if (product.sku.endsWith("-VW") && !trueVideoWallRequirement) {
