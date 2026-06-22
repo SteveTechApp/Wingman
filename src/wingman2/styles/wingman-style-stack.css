@@ -33106,3 +33106,66 @@ body > .wingman-guru-drawer button:not(.wingman-guru-close):not(.wingman-guru-se
   }
 }
 /* WINGMAN-GURU-SINGLE-COLUMN-FIX-END */
+
+
+/* WINGMAN-GURU-MESSAGE-CONTRAST-FIX-START */
+/*
+  Improve Guru drawer chat readability.
+  User messages were too dark against the drawer background.
+*/
+
+body > .wingman-guru-drawer .wingman-guru-message {
+  display: grid !important;
+  gap: 0.28rem !important;
+  width: 100% !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-message-meta {
+  color: rgba(176, 205, 220, 0.78) !important;
+  font-size: 0.68rem !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-message-bubble {
+  border: 1px solid rgba(86, 216, 255, 0.16) !important;
+  background: rgba(12, 35, 52, 0.96) !important;
+  color: rgba(240, 249, 253, 0.96) !important;
+  box-shadow: none !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-message-bubble,
+body > .wingman-guru-drawer .wingman-guru-message-bubble * {
+  color: rgba(240, 249, 253, 0.96) !important;
+  text-shadow: none !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-message--user .wingman-guru-message-bubble,
+body > .wingman-guru-drawer [data-role="user"] .wingman-guru-message-bubble,
+body > .wingman-guru-drawer [data-author="user"] .wingman-guru-message-bubble {
+  border-color: rgba(52, 223, 236, 0.2) !important;
+  background: rgba(5, 45, 58, 0.98) !important;
+  color: rgba(245, 252, 255, 0.98) !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-message--assistant .wingman-guru-message-bubble,
+body > .wingman-guru-drawer [data-role="assistant"] .wingman-guru-message-bubble,
+body > .wingman-guru-drawer [data-author="assistant"] .wingman-guru-message-bubble {
+  border-color: rgba(105, 180, 255, 0.16) !important;
+  background: rgba(16, 39, 61, 0.98) !important;
+  color: rgba(240, 249, 253, 0.96) !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-input {
+  background: rgba(8, 26, 40, 0.96) !important;
+  border: 1px solid rgba(91, 226, 255, 0.18) !important;
+  color: rgba(245, 252, 255, 0.98) !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-input::placeholder {
+  color: rgba(175, 197, 210, 0.68) !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-send {
+  opacity: 1 !important;
+  color: rgba(255, 197, 99, 0.96) !important;
+}
+/* WINGMAN-GURU-MESSAGE-CONTRAST-FIX-END */
