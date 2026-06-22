@@ -395,9 +395,10 @@ export function WingmanGuruFab({ open, onClick, supportCue }: WingmanGuruFabProp
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       aria-label={supportCue ? `Open Guru technical assistant. ${supportCue}.` : "Open Guru technical assistant"}
-      aria-pressed="false"
+      aria-pressed={open ? "true" : "false"}
       className="wingman-guru-fab"
-      data-open="false"
+      data-wingman-guru-fab="true"
+      data-open={open ? "true" : "false"}
       data-support-available={supportCue ? "true" : "false"}
       data-support-cue={supportCue ?? ""}
       style={style}
