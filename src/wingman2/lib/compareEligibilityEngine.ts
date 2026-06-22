@@ -818,6 +818,7 @@ function ensureEligibilityCandidatePool(
 
   if (intent === "matrix" || intent === "hdbaset-matrix") {
     const size = extractMatrixSizeFromText(competitorText);
+    const prefersHdBaseTMatrix = /\bhdbaset\b|\bhdbt\b|\btps\b/i.test(competitorText);
 
     if (size.inputs === 4 && size.outputs === 4) {
       addCandidateBySku(nextMatches, products, "MXV-0404-H2A-KIT", "Eligibility correction: correctly sized 4x4 HDBaseT matrix candidate inserted for routed matrix comparison.", 90);
@@ -842,6 +843,27 @@ function ensureEligibilityCandidatePool(
       addCandidateBySku(nextMatches, products, "MXV-0808-H2A-70-V3", "Eligibility correction: correctly sized 8x8 long-reach HDBaseT matrix candidate inserted for routed matrix comparison.", 88);
       addCandidateBySku(nextMatches, products, "MX-0808-H2A-MK2", "Eligibility correction: correctly sized 8x8 HDMI matrix candidate inserted for routed matrix comparison.", 86);
       addCandidateBySku(nextMatches, products, "MX-0808-SCL-V2", "Eligibility correction: correctly sized 8x8 scaling matrix candidate inserted for routed matrix comparison.", 84);
+    }
+
+    if (
+      size.inputs &&
+      size.outputs &&
+      size.inputs <= 8 &&
+      size.outputs <= 8 &&
+      !(size.inputs === 4 && size.outputs === 2) &&
+      !(size.inputs === 4 && size.outputs === 4) &&
+      !(size.inputs === 8 && size.outputs === 8)
+    ) {
+      const overCapacityReason = `Eligibility correction: nearest larger fixed matrix candidates inserted because WyreStorm does not offer an exact ${size.inputs}x${size.outputs} routed matrix. More I/O is acceptable only if the room still stays in the same matrix architecture.`;
+
+      if (prefersHdBaseTMatrix) {
+        addCandidateBySku(nextMatches, products, "MXV-0808-H2A-KIT", overCapacityReason, 88);
+        addCandidateBySku(nextMatches, products, "MXV-0808-H2A-70-V3", `${overCapacityReason} Use the longer-reach path only when distance requires it.`, 84);
+        addCandidateBySku(nextMatches, products, "MX-0808-KIT-V2", `${overCapacityReason} Older kit path, so verify bandwidth and topology before quote.`, 80);
+      }
+
+      addCandidateBySku(nextMatches, products, "MX-0808-H2A-MK2", overCapacityReason, prefersHdBaseTMatrix ? 82 : 88);
+      addCandidateBySku(nextMatches, products, "MX-0808-SCL-V2", `${overCapacityReason} Only keep the scaling path in play if scaling is commercially useful.`, prefersHdBaseTMatrix ? 78 : 84);
     }
   }
 

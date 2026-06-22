@@ -27544,7 +27544,8 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
 .compare-native-page {
   display: grid;
   gap: 0.8rem;
-  max-width: 1240px;
+  max-width: 1480px;
+  width: 100%;
   color: rgba(238, 247, 252, 0.96);
 }
 
@@ -27797,7 +27798,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
 }
 
 .compare-native-best-card {
-  padding: 0.8rem;
+  padding: 0.72rem;
   border-radius: 20px;
   border-color: rgba(52, 223, 236, 0.36);
 }
@@ -27805,20 +27806,21 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
 .compare-native-result-head {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.35rem;
-  margin-bottom: 0.58rem;
+  margin-bottom: 0.46rem;
 }
 
 .compare-native-verdict,
 .compare-native-score {
   display: inline-flex;
   align-items: center;
-  min-height: 25px;
-  padding: 0.25rem 0.48rem;
+  min-height: 23px;
+  padding: 0.22rem 0.46rem;
   border-radius: 999px;
   background: rgba(255, 211, 120, 0.12);
   color: rgba(255, 211, 120, 0.98);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: var(--wm-weight-ui);
 }
 
@@ -27832,13 +27834,53 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   color: rgba(255, 156, 156, 0.98);
 }
 
+.compare-native-score--caveat {
+  background: rgba(255, 211, 120, 0.14);
+  color: rgba(255, 232, 182, 0.98);
+}
+
 .compare-native-product-card {
-  padding: 0.78rem 0.82rem;
+  padding: 0.72rem 0.76rem;
   border: 1px solid rgba(33, 214, 230, 0.24);
   border-radius: 16px;
   background:
     radial-gradient(circle at top right, rgba(52, 223, 236, 0.1), transparent 34%),
     rgba(3, 16, 27, 0.72);
+}
+
+.compare-native-result-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 0.56rem;
+}
+
+.compare-native-result-panel {
+  padding: 0.58rem 0.7rem;
+  border: 1px solid rgba(33, 214, 230, 0.16);
+  border-radius: 14px;
+  background: rgba(4, 18, 29, 0.84);
+}
+
+.compare-native-result-panel--wyrestorm {
+  border-color: rgba(105, 235, 171, 0.22);
+  background: rgba(6, 27, 31, 0.9);
+}
+
+.compare-native-result-panel h3 {
+  margin: 0.04rem 0 0;
+  color: rgba(52, 223, 236, 0.98);
+  font-size: 0.95rem;
+  font-weight: var(--wm-weight-heading);
+  line-height: 1.14;
+}
+
+.compare-native-result-panel h4 {
+  margin: 0.08rem 0 0;
+  color: rgba(238, 247, 252, 0.96);
+  font-size: 0.8rem;
+  font-weight: var(--wm-weight-heading);
+  line-height: 1.22;
 }
 
 .compare-native-top-grid {
@@ -27967,6 +28009,108 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   line-height: 1.4;
 }
 
+.compare-native-core-facts {
+  margin-top: 0.6rem;
+  padding: 0.7rem 0.76rem;
+  border: 1px solid rgba(33, 214, 230, 0.16);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top right, rgba(52, 223, 236, 0.08), transparent 34%),
+    rgba(2, 13, 22, 0.76);
+}
+
+.compare-native-core-matrix {
+  margin-top: 0.44rem;
+  border: 1px solid rgba(33, 214, 230, 0.16);
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(3, 16, 27, 0.72);
+}
+
+.compare-native-core-matrix-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.72fr) minmax(0, 1fr) minmax(0, 1fr) minmax(120px, 0.55fr);
+  align-items: stretch;
+}
+
+.compare-native-core-matrix-row + .compare-native-core-matrix-row {
+  border-top: 1px solid rgba(33, 214, 230, 0.12);
+}
+
+.compare-native-core-matrix-row--header {
+  background: rgba(6, 28, 42, 0.96);
+}
+
+.compare-native-core-matrix-heading,
+.compare-native-core-matrix-cell {
+  min-width: 0;
+  padding: 0.62rem 0.74rem;
+}
+
+.compare-native-core-matrix-heading {
+  color: rgba(171, 196, 209, 0.76);
+  font-size: 0.69rem;
+  font-weight: var(--wm-weight-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.compare-native-core-matrix-heading + .compare-native-core-matrix-heading,
+.compare-native-core-matrix-cell + .compare-native-core-matrix-cell {
+  border-left: 1px solid rgba(33, 214, 230, 0.12);
+}
+
+.compare-native-core-matrix-cell {
+  display: grid;
+  align-content: start;
+  gap: 0.26rem;
+  background: rgba(4, 18, 29, 0.82);
+}
+
+.compare-native-core-matrix-cell--point {
+  background: rgba(7, 27, 40, 0.9);
+}
+
+.compare-native-core-matrix-cell--wyrestorm {
+  background: rgba(6, 27, 31, 0.92);
+}
+
+.compare-native-core-matrix-cell--result {
+  background: rgba(17, 29, 21, 0.92);
+}
+
+.compare-native-core-matrix-cell p {
+  margin: 0;
+  color: rgba(232, 244, 250, 0.95);
+  font-size: 0.8rem;
+  line-height: 1.28;
+}
+
+.compare-native-core-matrix-cell--point strong {
+  color: rgba(197, 233, 247, 0.92);
+  font-size: 0.8rem;
+  font-weight: var(--wm-weight-heading);
+  line-height: 1.28;
+}
+
+.compare-native-core-matrix-cell--wyrestorm p {
+  color: rgba(226, 250, 240, 0.96);
+}
+
+.compare-native-core-matrix-cell--result p {
+  color: rgba(192, 245, 204, 0.96);
+  font-weight: var(--wm-weight-ui);
+}
+
+.compare-native-core-matrix-mobile-label {
+  display: none;
+  color: rgba(171, 196, 209, 0.7);
+  font-size: 0.66rem;
+  font-weight: var(--wm-weight-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .compare-native-product-card h3,
 .compare-native-option-card h3 {
   margin: 0.16rem 0 0;
@@ -27997,11 +28141,11 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   display: flex;
   flex-wrap: wrap;
   gap: 0.38rem;
-  margin-top: 0.52rem;
+  margin-top: 0.4rem;
 }
 
 .compare-native-fact-row--tight {
-  margin-top: 0.42rem;
+  margin-top: 0.28rem;
 }
 
 .compare-native-fact-pill {
@@ -28016,6 +28160,24 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   font-size: 0.72rem;
   font-weight: var(--wm-weight-ui);
   line-height: 1.15;
+}
+
+.compare-native-decision-summary {
+  margin-top: 0.58rem;
+  padding: 0.66rem 0.74rem;
+  border: 1px solid rgba(33, 214, 230, 0.15);
+  border-radius: 15px;
+  background: rgba(5, 23, 35, 0.88);
+}
+
+.compare-native-decision-list {
+  margin: 0.38rem 0 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.22rem;
+  color: rgba(226, 239, 246, 0.92);
+  font-size: 0.78rem;
+  line-height: 1.3;
 }
 
 .compare-native-table th:nth-child(1),
@@ -28067,6 +28229,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
 .compare-native-option-grid {
   display: grid;
   gap: 0.5rem;
+  margin-top: 0.7rem;
 }
 
 .compare-native-option-card {
@@ -28141,6 +28304,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
   .compare-native-option-card,
   .compare-native-compare-grid,
   .compare-native-top-grid,
+  .compare-native-result-summary,
   .compare-native-decision-strip {
     grid-template-columns: 1fr;
     display: grid;
@@ -28164,6 +28328,52 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
 
   .compare-native-action-row--between {
     align-items: stretch;
+  }
+
+  .compare-native-core-facts {
+    padding: 0.74rem;
+  }
+
+  .compare-native-core-matrix {
+    display: grid;
+    gap: 0.56rem;
+    border: 0;
+    background: transparent;
+  }
+
+  .compare-native-core-matrix-header {
+    display: none;
+  }
+
+  .compare-native-core-matrix-body {
+    display: grid;
+    gap: 0.56rem;
+  }
+
+  .compare-native-core-matrix-row {
+    grid-template-columns: 1fr;
+    border: 1px solid rgba(33, 214, 230, 0.14);
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(3, 16, 27, 0.78);
+  }
+
+  .compare-native-core-matrix-row + .compare-native-core-matrix-row {
+    border-top: 0;
+  }
+
+  .compare-native-core-matrix-cell {
+    gap: 0.2rem;
+    padding: 0.66rem 0.72rem;
+  }
+
+  .compare-native-core-matrix-cell + .compare-native-core-matrix-cell {
+    border-left: 0;
+    border-top: 1px solid rgba(33, 214, 230, 0.12);
+  }
+
+  .compare-native-core-matrix-mobile-label {
+    display: inline-block;
   }
 }
 
@@ -32764,3 +32974,135 @@ body > .wingman-guru-drawer .wingman-guru-send {
   }
 }
 /* WINGMAN-GURU-COMPACT-UX-END */
+
+
+/* WINGMAN-GURU-SINGLE-COLUMN-FIX-START */
+/*
+  Force Guru to behave as a narrow assistant drawer.
+  Prevent compare support cards, prompt chips and helper panels from creating internal columns.
+*/
+
+body > .wingman-guru-drawer {
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  width: min(380px, calc(100vw - 36px)) !important;
+  max-width: min(380px, calc(100vw - 36px)) !important;
+  max-height: min(560px, calc(100vh - 124px)) !important;
+  overflow: hidden !important;
+}
+
+body > .wingman-guru-drawer,
+body > .wingman-guru-drawer * {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Stop any nested grid/card layout from becoming side-by-side inside the drawer */
+body > .wingman-guru-drawer :where(
+  section,
+  article,
+  aside,
+  form,
+  header,
+  footer,
+  div
+) {
+  grid-template-columns: 1fr !important;
+}
+
+/* Compact header */
+body > .wingman-guru-drawer .wingman-guru-drawer-header {
+  flex: 0 0 auto !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 0.5rem !important;
+  align-items: start !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-drawer-heading {
+  display: block !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-drawer-heading p,
+body > .wingman-guru-drawer .wingman-guru-drawer-heading .wingman-guru-avatar {
+  display: none !important;
+}
+
+/* Hide the oversized compare-support context card and prompt stacks */
+body > .wingman-guru-drawer :where(
+  .wingman-guru-context-card,
+  .wingman-guru-context-prompts,
+  .wingman-guru-quick-prompts,
+  .wingman-guru-support-card,
+  .wingman-guru-support-panel,
+  .wingman-guru-call-interpreter,
+  [class*="support-card"],
+  [class*="support-panel"],
+  [class*="quick-prompt"],
+  [class*="context-prompt"],
+  [class*="call-interpreter"]
+) {
+  display: none !important;
+}
+
+/* Keep only the actual conversation usable */
+body > .wingman-guru-drawer .wingman-guru-messages {
+  flex: 1 1 auto !important;
+  min-height: 150px !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  padding: 0.25rem 0.2rem !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-message,
+body > .wingman-guru-drawer .wingman-guru-message-bubble {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-message-bubble {
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  line-height: 1.4 !important;
+}
+
+/* Composer must sit at the bottom and use one row */
+body > .wingman-guru-drawer .wingman-guru-composer {
+  flex: 0 0 auto !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 0.5rem !important;
+  align-items: end !important;
+  width: 100% !important;
+  padding-top: 0.6rem !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-input {
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 2.5rem !important;
+  max-height: 6rem !important;
+  resize: vertical !important;
+}
+
+body > .wingman-guru-drawer .wingman-guru-send {
+  width: auto !important;
+  min-width: 4.2rem !important;
+  white-space: nowrap !important;
+}
+
+/* Last-resort: prevent any prompt-style buttons from forming a side rail */
+body > .wingman-guru-drawer button:not(.wingman-guru-close):not(.wingman-guru-send) {
+  white-space: normal !important;
+}
+
+@media (max-width: 640px) {
+  body > .wingman-guru-drawer {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: calc(100vh - 104px) !important;
+  }
+}
+/* WINGMAN-GURU-SINGLE-COLUMN-FIX-END */

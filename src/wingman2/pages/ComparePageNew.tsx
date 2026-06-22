@@ -206,6 +206,7 @@ type CompareCoreFact = {
   label: string;
   competitor: string;
   wyrestorm: string;
+  result: string;
 };
 
 const PAGE_AVOIP_ROLE_LABEL: Record<string, string> = {
@@ -765,6 +766,11 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
   const usbConferencingRequirement = profile.productClass === "USB conferencing";
   const networkAudioRequirement = profile.productClass === "Network audio";
   const wirelessCastingRequirement = profile.productClass === "Wireless casting";
+  const competitorIo = buildCompetitorIoSnapshot(profile);
+  const candidateIo = buildWyrestormIoSnapshot(product);
+  const unresolvedAdditionalVideoFamilies = competitorIo.additionalVideoFamilies.filter(
+    (family) => !competitorIo.waivedAdditionalVideoFamilies.includes(family),
+  );
 
   if (profile.productClass !== "Unknown" && product.productClass === profile.productClass) {
     score += 28;
@@ -789,6 +795,58 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
       matched.push(`Matches requested feature: ${tag}`);
     }
   });
+
+  if (competitorIo.waivedAdditionalVideoFamilies.length > 0) {
+    matched.push(`Additional competitor connectors excluded from this comparison: ${competitorIo.waivedAdditionalVideoFamilies.join(", ")}.`);
+  }
+
+  if (unresolvedAdditionalVideoFamilies.length > 0) {
+    score -= 84;
+    mismatches.push(`Competitor evidence includes ${unresolvedAdditionalVideoFamilies.join(", ")} connections outside the default HDMI / USB-C / HDBaseT comparison lane.`);
+    blockers.push(`Confirm that ${unresolvedAdditionalVideoFamilies.join(", ")} are not required for this comparison before recommending a WyreStorm alternative.`);
+    unknowns.push(`If ${unresolvedAdditionalVideoFamilies.join(", ")} stay in scope, reject this candidate rather than treating it as a valid match.`);
+  }
+
+  score += compareInputOutputFit(
+    "input",
+    competitorIo.inputCount,
+    candidateIo.inputCount,
+    matched,
+    partialMatches,
+    mismatches,
+    blockers,
+  );
+
+  score += compareInputOutputFit(
+    "output",
+    competitorIo.outputCount,
+    candidateIo.outputCount,
+    matched,
+    partialMatches,
+    mismatches,
+    blockers,
+  );
+
+  const missingInputFamilies = competitorIo.inputFamilies.filter((family) => !coversConnectorFamily(candidateIo.inputFamilies, family));
+  const missingOutputFamilies = competitorIo.outputFamilies.filter((family) => !coversConnectorFamily(candidateIo.outputFamilies, family));
+
+  if (missingInputFamilies.length > 0) {
+    score -= 46;
+    mismatches.push(`${product.sku} does not cover the competitor input connection type${missingInputFamilies.length === 1 ? "" : "s"}: ${missingInputFamilies.join(", ")}.`);
+    blockers.push(`Do not recommend a product that drops required competitor input connection types.`);
+  } else if (competitorIo.inputFamilies.length > 0) {
+    score += 12;
+    matched.push(`Required input connection types covered: ${competitorIo.inputFamilies.join(", ")}.`);
+  }
+
+  if (missingOutputFamilies.length > 0) {
+    score -= 46;
+    mismatches.push(`${product.sku} does not cover the competitor output connection type${missingOutputFamilies.length === 1 ? "" : "s"}: ${missingOutputFamilies.join(", ")}.`);
+    blockers.push(`Do not recommend a product that drops required competitor output connection types.`);
+  } else if (competitorIo.outputFamilies.length > 0) {
+    score += 12;
+    matched.push(`Required output connection types covered: ${competitorIo.outputFamilies.join(", ")}.`);
+  }
 
   profile.videoTags.forEach((tag) => {
     if (!product.tags.includes(tag)) {
@@ -1415,7 +1473,7 @@ function exactLimitedDataWarning(profile: CompetitorProfile): string {
     || profile.knownProfile === null;
 
   return limited
-    ? "Wingman has limited local data for this competitor SKU. Treat this as product-direction guidance, not a confirmed direct equivalent."
+    ? "Wingman has limited local data for this competitor SKU. Closest direction only until the competitor specification is confirmed."
     : "";
 }
 
@@ -1933,7 +1991,7 @@ function buildCompetitorSummary(profile: CompetitorProfile, mustMatchFeatures: s
     competitorEducationalNote(profile),
     "Confirm exact video format, bandwidth and connector expectations before external quote use.",
     "Confirm control, audio and USB behaviour before treating this as a direct equivalent.",
-    "Confirm whether the customer wants the same architecture or is open to a different WyreStorm system direction.",
+    "Confirm whether the quote stays in the same architecture or moves to a different WyreStorm system.",
   ], 8);
 
   const warning = exactLimitedDataWarning(profile);
@@ -2015,7 +2073,9 @@ function ProductMoreLink({ sku }: { sku: string }) {
 }
 
 function CompareEvidenceList({ title, items, className = "" }: { title: string; items: string[]; className?: string }) {
-  if (!items.length) {
+  const visibleItems = uniqueText(items.map((item) => commercializeCompareCopy(item)).filter(Boolean), items.length);
+
+  if (!visibleItems.length) {
     return null;
   }
 
@@ -2023,7 +2083,7 @@ function CompareEvidenceList({ title, items, className = "" }: { title: string; 
     <div className={`compare-native-evidence-block ${className}`.trim()}>
       <p className="compare-native-label compare-native-label--subtle">{title}</p>
       <ul className="compare-native-bullet-list">
-        {items.map((item) => (
+        {visibleItems.map((item) => (
           <li key={`${title}-${item}`}>{item}</li>
         ))}
       </ul>
@@ -2220,19 +2280,433 @@ function safeCompareValue(value: string | undefined): string {
   return String(value ?? "").trim();
 }
 
+function commercializeCompareCopy(value: string | undefined): string {
+  const input = String(value ?? "").trim();
+
+  if (!input) {
+    return "";
+  }
+
+  const replacements: Array<[RegExp, string]> = [
+    [/^Why this matters:\s*/i, ""],
+    [/^Educational point:\s*/i, ""],
+    [/Wingman has limited local data for this competitor SKU\.\s*Treat this as product-direction guidance, not a confirmed direct equivalent\./i, "Closest direction only until the competitor specification is confirmed."],
+    [/Treat this as product-direction guidance, not a confirmed direct equivalent\./i, "Closest direction only until the competitor specification is confirmed."],
+    [/Confirm exact video format, bandwidth and connector expectations before external quote use\./i, "Video format, bandwidth and connector expectations need checking before quote."],
+    [/Confirm control, audio and USB behaviour before treating this as a direct equivalent\./i, "Control, audio and USB behaviour need checking before quote."],
+    [/Confirm whether the customer wants the same architecture or is open to a different WyreStorm system direction\./i, "Confirm whether the quote stays in the same architecture or moves to a different WyreStorm system."],
+    [/USB-C or USB behaviour not verified locally\./i, "USB behaviour needs checking before quote."],
+    [/USB standard and port behaviour not verified locally\./i, "USB count and behaviour need checking before quote."],
+    [/LAN port count and network control details not verified locally\./i, "LAN port count and network control need checking before quote."],
+    [/Resolution ceiling not verified locally\./i, "Maximum resolution needs checking before quote."],
+    [/Maximum supported resolution not verified locally\./i, "Maximum resolution needs checking before quote."],
+    [/Endpoint role not proven from local competitor data\./i, "Exact product role needs checking before quote."],
+    [/Transport type not proven from local competitor data\./i, "Transport type needs checking before quote."],
+    [/Input connector not confirmed locally\./i, "Input connector needs checking before quote."],
+    [/Input connector types not verified locally\./i, "Input connector types need checking before quote."],
+    [/Output connector types not verified locally\./i, "Output connector types need checking before quote."],
+    [/HDMI version not verified locally\./i, "HDMI version needs checking before quote."],
+    [/HDCP version not verified locally\./i, "HDCP version needs checking before quote."],
+    [/HDBaseT class\/distance not verified locally\./i, "HDBaseT class and distance need checking before quote."],
+    [/Controller or managed-network requirement not verified locally\./i, "Controller and managed-network requirements need checking before quote."],
+    [/Control ports and control behaviour not verified locally\./i, "Control ports and behaviour need checking before quote."],
+    [/Audio handling not verified locally\./i, "Audio handling needs checking before quote."],
+    [/Scaling behaviour not verified locally\./i, "Scaling behaviour needs checking before quote."],
+    [/No verified local competitor specification profile found\./i, "Competitor specification needs checking before quote."],
+    [/Correct WyreStorm direction, not a drop-in replacement\./i, "Closest direction, not confirmed one-box replacement."],
+    [/This is the closest WyreStorm direction from the local evidence, but it should be positioned as a system-fit answer rather than a guaranteed one-box replacement\./i, "Closest direction, not confirmed one-box replacement."],
+    [/Do not quote this as a direct AVoIP replacement\./i, "Closest direction, not a direct AVoIP swap."],
+  ];
+
+  let line = input.replace(/\s+/g, " ");
+  replacements.forEach(([pattern, replacement]) => {
+    line = line.replace(pattern, replacement);
+  });
+
+  if (/not verified locally\./i.test(line)) {
+    line = line.replace(/ not verified locally\./i, " needs checking before quote.");
+  }
+
+  line = line.replace(/\s+\./g, ".").trim();
+
+  return line;
+}
+
+type CompareIoSnapshot = {
+  inputCount?: number;
+  outputCount?: number;
+  inputFamilies: string[];
+  outputFamilies: string[];
+  additionalVideoFamilies: string[];
+  waivedAdditionalVideoFamilies: string[];
+};
+
+function connectorFamilyLabel(value: string): string {
+  const normalized = value.toLowerCase().trim();
+  if (/displayport|\bdp\b/.test(normalized)) return "DisplayPort";
+  if (/dvi/.test(normalized)) return "DVI";
+  if (/vga/.test(normalized)) return "VGA";
+  if (/sdi/.test(normalized)) return "SDI";
+  if (/composite|cvbs/.test(normalized)) return "Composite";
+  if (/component|ypbpr/.test(normalized)) return "Component";
+  if (/usb-?c|type-?c/.test(normalized)) return "USB-C";
+  if (/hdbaset|tps/.test(normalized)) return "HDBaseT/TPS";
+  if (/network|ethernet|lan|avoip/.test(normalized)) return "Network/LAN";
+  if (/hdmi/.test(normalized)) return "HDMI";
+  return value.trim();
+}
+
+function uniqueConnectorFamilies(values: Array<string | null | undefined>): string[] {
+  return uniqueText(values.map((value) => value ? connectorFamilyLabel(value) : ""), 12);
+}
+
+function connectorFamilyWaived(rawText: string, family: string): boolean {
+  const token = family.toLowerCase().replace(/\//g, " ");
+  const compact = token.replace(/\s+/g, "[\\s-]*");
+  const patterns = [
+    new RegExp(`\\b(no|without|ignore|excluding?)\\s+${compact}\\b`, "i"),
+    new RegExp(`\\b${compact}\\b.{0,24}\\b(not required|not used|unused|not needed|ignore|exclude)\\b`, "i"),
+    new RegExp(`\\b(not required|not used|unused|not needed|ignore|exclude)\\b.{0,24}\\b${compact}\\b`, "i"),
+  ];
+
+  return patterns.some((pattern) => pattern.test(rawText));
+}
+
+function buildCompetitorIoSnapshot(profile: CompetitorProfile): CompareIoSnapshot {
+  const specs = profile.resolvedSpec?.specs;
+  const rawText = profile.rawText.toLowerCase();
+  const additionalVideoFamilies = uniqueConnectorFamilies([
+    specs?.displayPortInputs || specs?.displayPortOutputs ? "DisplayPort" : "",
+    specs?.dviInputs || specs?.dviOutputs ? "DVI" : "",
+    specs?.vgaInputs || specs?.vgaOutputs ? "VGA" : "",
+    specs?.sdiInputs || specs?.sdiOutputs ? "SDI" : "",
+    specs?.compositeInputs || specs?.compositeOutputs ? "Composite" : "",
+    specs?.componentInputs || specs?.componentOutputs ? "Component" : "",
+  ]);
+
+  return {
+    inputCount: profile.resolvedSpec?.inputCount,
+    outputCount: profile.resolvedSpec?.outputCount,
+    inputFamilies: uniqueConnectorFamilies([
+      specs?.hdmiInputs ? "HDMI" : "",
+      specs?.usbCPorts ? "USB-C" : "",
+      specs?.displayPortInputs ? "DisplayPort" : "",
+      specs?.dviInputs ? "DVI" : "",
+      specs?.vgaInputs ? "VGA" : "",
+      specs?.sdiInputs ? "SDI" : "",
+      specs?.compositeInputs ? "Composite" : "",
+      specs?.componentInputs ? "Component" : "",
+      specs?.networkPorts && /encoder|transmitter|av over ip|avoip|networkhd/.test(rawText) ? "Network/LAN" : "",
+      /hdbaset|tps/.test(rawText) && /matrix|switcher|presentation|extender|input/.test(rawText) ? "HDBaseT/TPS" : "",
+      !specs?.hdmiInputs && /\bhdmi\b/.test(rawText) && /matrix|switcher|presentation|encoder|transmitter|source/.test(rawText) ? "HDMI" : "",
+      /\busb-?c\b/.test(rawText) ? "USB-C" : "",
+    ]),
+    outputFamilies: uniqueConnectorFamilies([
+      specs?.hdmiOutputs ? "HDMI" : "",
+      specs?.displayPortOutputs ? "DisplayPort" : "",
+      specs?.dviOutputs ? "DVI" : "",
+      specs?.vgaOutputs ? "VGA" : "",
+      specs?.sdiOutputs ? "SDI" : "",
+      specs?.compositeOutputs ? "Composite" : "",
+      specs?.componentOutputs ? "Component" : "",
+      specs?.networkPorts && /decoder|receiver|av over ip|avoip|networkhd/.test(rawText) ? "Network/LAN" : "",
+      /hdbaset|tps/.test(rawText) && /matrix|switcher|presentation|extender|output|display/.test(rawText) ? "HDBaseT/TPS" : "",
+      !specs?.hdmiOutputs && /\bhdmi\b/.test(rawText) && /output|display|decoder|receiver|matrix|switcher/.test(rawText) ? "HDMI" : "",
+    ]),
+    additionalVideoFamilies,
+    waivedAdditionalVideoFamilies: additionalVideoFamilies.filter((family) => connectorFamilyWaived(profile.rawText, family)),
+  };
+}
+
+function buildWyrestormIoSnapshot(product: WyreStormProduct): CompareIoSnapshot {
+  const knownProfile = findKnownWyrestormCompareProfile(product.sku);
+  const hydratedProduct = hydrateWyrestormCompareProfile({
+    ...product,
+    title: product.name,
+    category: product.productClass,
+    role: product.role,
+    description: product.name,
+    summary: product.caveat,
+    technologies: [product.transport],
+    features: product.tags,
+    capabilities: product.tags,
+  }) as Parameters<typeof buildWyrestormCompareProfile>[0];
+  const profile = buildWyrestormCompareProfile(hydratedProduct);
+  const specs = profile.specs;
+  const transportText = `${product.transport} ${profile.transport} ${product.role} ${product.productClass}`.toLowerCase();
+
+  return {
+    inputCount: knownProfile?.routedInputCount ?? profile.inputCount,
+    outputCount: knownProfile?.routedOutputCount ?? profile.outputCount,
+    inputFamilies: uniqueConnectorFamilies([
+      ...(knownProfile?.inputTypes ?? []),
+      specs?.hdmiInputs ? "HDMI" : "",
+      specs?.usbCPorts ? "USB-C" : "",
+      specs?.networkPorts && /encoder|transmitter|av over ip|avoip|networkhd/.test(transportText) ? "Network/LAN" : "",
+      /\bhdbaset\b|\btps\b/.test(transportText) && /matrix|switcher|presentation|extender|input/.test(transportText) ? "HDBaseT/TPS" : "",
+      /\bhdmi\b/.test(transportText) && /matrix|switcher|presentation|encoder|transmitter|source/.test(transportText) ? "HDMI" : "",
+      /\busb-?c\b/.test(transportText) ? "USB-C" : "",
+    ]),
+    outputFamilies: uniqueConnectorFamilies([
+      ...(knownProfile?.routedOutputTypes ?? knownProfile?.outputTypes ?? []),
+      specs?.hdmiOutputs ? "HDMI" : "",
+      specs?.networkPorts && /decoder|receiver|av over ip|avoip|networkhd/.test(transportText) ? "Network/LAN" : "",
+      /\bhdbaset\b/.test(transportText) ? "HDBaseT/TPS" : "",
+      /\bhdmi\b/.test(transportText) && /output|display|decoder|receiver|matrix|switcher/.test(transportText) ? "HDMI" : "",
+    ]),
+    additionalVideoFamilies: [],
+    waivedAdditionalVideoFamilies: [],
+  };
+}
+
+function coversConnectorFamily(candidateFamilies: string[], requiredFamily: string): boolean {
+  return candidateFamilies.includes(requiredFamily);
+}
+
+function compareInputOutputFit(
+  label: "input" | "output",
+  competitorCount: number | undefined,
+  candidateCount: number | undefined,
+  matched: string[],
+  partialMatches: string[],
+  mismatches: string[],
+  blockers: string[],
+): number {
+  if (!competitorCount || !candidateCount) {
+    return 0;
+  }
+
+  if (candidateCount < competitorCount) {
+    mismatches.push(`WyreStorm provides ${candidateCount} ${label}${candidateCount === 1 ? "" : "s"}, but the competitor brief needs ${competitorCount}.`);
+    blockers.push(`Do not recommend a product with fewer ${label}${competitorCount === 1 ? "" : "s"} than the competitor brief requires.`);
+    return -72;
+  }
+
+  if (candidateCount === competitorCount) {
+    matched.push(`Same ${label} count: ${candidateCount}.`);
+    return 22;
+  }
+
+  const spare = candidateCount - competitorCount;
+  matched.push(`Covers the required ${label} count (${competitorCount}) with ${spare} spare.`);
+
+  if (spare >= 4) {
+    partialMatches.push(`Larger ${label} frame than the competitor brief; confirm that the extra I/O is commercially acceptable.`);
+  }
+
+  return Math.max(10, 18 - spare * 2);
+}
+
+function normalizeCompareValue(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function compareValueCount(value: string): number | null {
+  const match = value.match(/\b(\d+)x\b/i);
+  return match ? Number(match[1]) : null;
+}
+
+function compareSharesToken(value: string, tokens: string[]): boolean {
+  const normalized = normalizeCompareValue(value);
+  return tokens.some((token) => normalized.includes(token));
+}
+
+function compareRowResult(label: string, competitor: string, wyrestorm: string): string {
+  const competitorValue = commercializeCompareCopy(competitor);
+  const wyrestormValue = commercializeCompareCopy(wyrestorm);
+
+  if (label === "Main caveat") {
+    return "Check before quote";
+  }
+
+  if (!competitorValue || !wyrestormValue) {
+    return "Needs checking";
+  }
+
+  if (normalizeCompareValue(competitorValue) === normalizeCompareValue(wyrestormValue)) {
+    return "Aligned";
+  }
+
+  if (label === "Inputs" || label === "Outputs") {
+    const competitorCount = compareValueCount(competitorValue);
+    const wyrestormCount = compareValueCount(wyrestormValue);
+
+    if (competitorCount !== null && wyrestormCount !== null) {
+      if (wyrestormCount < competitorCount) return "Too few ports";
+      return competitorCount === wyrestormCount ? "Counts align" : "Covers required count";
+    }
+
+    return "Check connection mix";
+  }
+
+  if (label === "USB") {
+    if (/needs checking before quote/i.test(`${competitorValue} ${wyrestormValue}`)) return "USB check";
+    if (/usb/i.test(competitorValue) && /usb/i.test(wyrestormValue)) return "USB path present";
+    return "USB differs";
+  }
+
+  if (label === "Max resolution") {
+    if (normalizeCompareValue(competitorValue) === normalizeCompareValue(wyrestormValue)) return "Resolution aligns";
+    if (compareSharesToken(competitorValue, ["4k"]) && compareSharesToken(wyrestormValue, ["4k"])) return "Same 4K class";
+    return "Resolution differs";
+  }
+
+  if (label === "Transport") {
+    if (compareSharesToken(competitorValue, ["av over ip"]) && compareSharesToken(wyrestormValue, ["avoip", "networkhd"])) return "Same transport lane";
+    if (compareSharesToken(competitorValue, ["hdbaset", "tps"]) && compareSharesToken(wyrestormValue, ["hdbaset", "tps"])) return "Same transport lane";
+    if (compareSharesToken(competitorValue, ["hdmi"]) && compareSharesToken(wyrestormValue, ["hdmi"])) return "Same transport lane";
+    return "Closest direction";
+  }
+
+  if (label === "Signal direction") {
+    if (compareSharesToken(competitorValue, ["source side", "encoder"]) && compareSharesToken(wyrestormValue, ["source side", "encoder"])) return "Same signal role";
+    if (compareSharesToken(competitorValue, ["display side", "decoder"]) && compareSharesToken(wyrestormValue, ["display side", "decoder"])) return "Same signal role";
+    if (compareSharesToken(competitorValue, ["room core", "switching", "in room"]) && compareSharesToken(wyrestormValue, ["room core", "switching", "in room"])) return "Same signal role";
+    return "Role differs";
+  }
+
+  if (label === "Product type") {
+    if (compareSharesToken(competitorValue, ["matrix"]) && compareSharesToken(wyrestormValue, ["matrix"])) return "Matrix match";
+    if (compareSharesToken(competitorValue, ["presentation switcher", "switcher"]) && compareSharesToken(wyrestormValue, ["presentation switcher", "switcher"])) return "Switcher match";
+    if (compareSharesToken(competitorValue, ["ndi camera", "camera"]) && compareSharesToken(wyrestormValue, ["ndi camera", "camera"])) return "Camera match";
+    if (compareSharesToken(competitorValue, ["av over ip"]) && compareSharesToken(wyrestormValue, ["av over ip"])) return "AV-over-IP match";
+    return "Closest direction";
+  }
+
+  return "Check fit";
+}
+
+function compareQuoteChecks(competitor: CompetitorSummary, candidate: ScoredCandidate): string[] {
+  return uniqueText([
+    ...candidate.blockers,
+    ...candidate.mismatches,
+    ...candidate.dependencies,
+    ...candidate.unknowns,
+    ...candidate.checks,
+    ...candidate.gaps,
+    ...competitor.verifyItems,
+    competitor.warning,
+  ].map((item) => commercializeCompareCopy(item)).filter(Boolean), 8);
+}
+
+function compareSpecificQuoteChecks(competitor: CompetitorSummary, candidate: ScoredCandidate): string[] {
+  return uniqueText([
+    ...candidate.unknowns,
+    ...candidate.checks,
+    ...candidate.gaps,
+    ...competitor.verifyItems,
+    competitor.warning,
+    ...candidate.mismatches,
+    ...candidate.blockers,
+  ].map((item) => commercializeCompareCopy(item)).filter(Boolean), 8);
+}
+
+function compareCompetitorMainCaveat(competitor: CompetitorSummary, candidate: ScoredCandidate): string {
+  const checks = compareSpecificQuoteChecks(competitor, candidate);
+  const preferred = checks.find((item) => /needs checking before quote|closest direction only|not a direct/i.test(item)) || checks[0];
+
+  if (preferred) {
+    return preferred;
+  }
+
+  if (/presentation switcher/i.test(competitor.recognisedClass)) {
+    return "USB path, display behaviour and room workflow need checking before quote.";
+  }
+
+  if (/matrix/i.test(competitor.recognisedClass)) {
+    return "Input/output count and output behaviour need checking before quote.";
+  }
+
+  if (/av-over-ip/i.test(competitor.recognisedClass)) {
+    return "Controller, codec and network requirements need checking before quote.";
+  }
+
+  if (/hdbaset|extender/i.test(competitor.recognisedClass) || /extender/i.test(competitor.role)) {
+    return "Distance, USB and control requirements need checking before quote.";
+  }
+
+  if (/ndi camera|ptz camera/i.test(competitor.recognisedClass) || /camera/i.test(competitor.role)) {
+    return "Camera control, output path and resolution need checking before quote.";
+  }
+
+  if (/wireless/i.test(competitor.recognisedClass) || /wireless/i.test(competitor.role)) {
+    return "Wireless policy and guest-share workflow need checking before quote.";
+  }
+
+  return "Feature fit needs checking before quote.";
+}
+
+function compareWyreStormMainCaveat(competitor: CompetitorSummary, candidate: ScoredCandidate): string {
+  if (/av-over-ip/i.test(competitor.recognisedClass) && /^NHD-/i.test(candidate.product.sku)) {
+    return "Closest direction, not confirmed one-box replacement.";
+  }
+
+  if (/presentation switcher/i.test(competitor.recognisedClass) && /^SW-|^MX-/i.test(candidate.product.sku)) {
+    return "Switcher direction matches, but USB path and room workflow must line up.";
+  }
+
+  if (/matrix/i.test(competitor.recognisedClass) && /^MX/i.test(candidate.product.sku)) {
+    return "Matrix direction matches, but routed I/O and output behaviour must line up.";
+  }
+
+  if (/hdbaset|extender/i.test(competitor.recognisedClass) || /^EX-/i.test(candidate.product.sku)) {
+    return "Extender direction matches, but distance, USB and control must line up.";
+  }
+
+  if (/ndi camera|ptz camera/i.test(competitor.recognisedClass) || /^CAM-/i.test(candidate.product.sku)) {
+    return "Camera direction matches, but control, optics and output expectations must line up.";
+  }
+
+  if (/wireless/i.test(competitor.recognisedClass) || /^SW-6\d{2}.*-W$/i.test(candidate.product.sku)) {
+    return "Wireless direction matches, but policy and guest-share expectations must line up.";
+  }
+
+  return commercializeCompareCopy(salesImportantDifference(competitor, candidate))
+    || "Closest direction, not confirmed one-box replacement.";
+}
+
+function compareHeaderCaveat(competitor: CompetitorSummary, candidate: ScoredCandidate): string {
+  const replacementConfidence = salesReplacementConfidenceLabel(competitor, candidate);
+  const preferred = replacementConfidence === "Not a drop-in replacement"
+    ? compareWyreStormMainCaveat(competitor, candidate)
+    : compareCompetitorMainCaveat(competitor, candidate);
+  return preferred.length > 92 ? `${preferred.slice(0, 89).trimEnd()}...` : preferred;
+}
+
+function compareDecisionSummaryBullets(
+  competitor: CompetitorSummary,
+  candidate: ScoredCandidate,
+  directionFit: string,
+  replacementConfidence: string,
+): string[] {
+  const firstMatch = commercializeCompareCopy(candidate.matched[0] || candidate.partialMatches[0] || "");
+  const secondMatch = commercializeCompareCopy(candidate.matched[1] || candidate.partialMatches[1] || candidate.matched[0] || "");
+  const quoteCheck = compareHeaderCaveat(competitor, candidate)
+    || commercializeCompareCopy(salesImportantDifference(competitor, candidate));
+
+  return uniqueText([
+    `Selected because ${commercializeCompareCopy(wyrestormPlainEnglishRequirement(candidate, competitor))}.`,
+    firstMatch
+      ? `What matches: ${firstMatch.charAt(0).toLowerCase()}${firstMatch.slice(1)}`
+      : `What matches: ${directionFit.toLowerCase()} with ${replacementConfidence.toLowerCase()}.`,
+    quoteCheck ? `Check before quote: ${quoteCheck.charAt(0).toLowerCase()}${quoteCheck.slice(1)}` : "",
+    secondMatch && secondMatch !== firstMatch ? `Also relevant: ${secondMatch.charAt(0).toLowerCase()}${secondMatch.slice(1)}` : "",
+  ], 3);
+}
+
 function explicitPortSummary(specs: CompareSpecFacts | undefined, direction: "input" | "output"): string {
   if (!specs) {
     return "";
   }
 
   const connectorParts = [
-    commercialPortLabel(direction === "input" ? specs.hdmiInputs : specs.hdmiOutputs, "HDMI input", "HDMI inputs"),
-    commercialPortLabel(direction === "input" ? specs.displayPortInputs : specs.displayPortOutputs, "DisplayPort input", "DisplayPort inputs"),
-    commercialPortLabel(direction === "input" ? specs.dviInputs : specs.dviOutputs, "DVI input", "DVI inputs"),
-    commercialPortLabel(direction === "input" ? specs.vgaInputs : specs.vgaOutputs, "VGA input", "VGA inputs"),
-    commercialPortLabel(direction === "input" ? specs.sdiInputs : specs.sdiOutputs, "SDI input", "SDI inputs"),
-    commercialPortLabel(direction === "input" ? specs.compositeInputs : specs.compositeOutputs, "composite input", "composite inputs"),
-    commercialPortLabel(direction === "input" ? specs.componentInputs : specs.componentOutputs, "component input", "component inputs"),
+    commercialPortLabel(direction === "input" ? specs.hdmiInputs : specs.hdmiOutputs, direction === "input" ? "HDMI input" : "HDMI output", direction === "input" ? "HDMI inputs" : "HDMI outputs"),
+    commercialPortLabel(direction === "input" ? specs.displayPortInputs : specs.displayPortOutputs, direction === "input" ? "DisplayPort input" : "DisplayPort output", direction === "input" ? "DisplayPort inputs" : "DisplayPort outputs"),
+    commercialPortLabel(direction === "input" ? specs.dviInputs : specs.dviOutputs, direction === "input" ? "DVI input" : "DVI output", direction === "input" ? "DVI inputs" : "DVI outputs"),
+    commercialPortLabel(direction === "input" ? specs.vgaInputs : specs.vgaOutputs, direction === "input" ? "VGA input" : "VGA output", direction === "input" ? "VGA inputs" : "VGA outputs"),
+    commercialPortLabel(direction === "input" ? specs.sdiInputs : specs.sdiOutputs, direction === "input" ? "SDI input" : "SDI output", direction === "input" ? "SDI inputs" : "SDI outputs"),
+    commercialPortLabel(direction === "input" ? specs.compositeInputs : specs.compositeOutputs, direction === "input" ? "composite input" : "composite output", direction === "input" ? "composite inputs" : "composite outputs"),
+    commercialPortLabel(direction === "input" ? specs.componentInputs : specs.componentOutputs, direction === "input" ? "component input" : "component output", direction === "input" ? "component inputs" : "component outputs"),
   ].filter(Boolean);
 
   return joinCommercialFactParts(connectorParts);
@@ -2405,27 +2879,71 @@ function buildCoreComparisonFacts(
   competitor: CompetitorSummary,
   profile: CompetitorProfile,
   wyrestorm: WyreStormSummary,
+  candidate: ScoredCandidate,
 ): CompareCoreFact[] {
   const competitorFacts = new Map(competitorComparisonFacts(competitor, profile).map((entry) => [entry.label, entry.value]));
   const wyrestormFacts = new Map(wyrestorm.comparisonFacts.map((entry) => [entry.label, entry.value]));
-  const orderedLabels = [
-    "Inputs",
-    "Outputs",
-    "HDMI / HDCP",
-    "USB",
-    "HDBaseT / TPS",
-    "Max resolution",
-    "Control / network",
-    "Other video I/O",
+  const mainQuoteCheck = compareCompetitorMainCaveat(competitor, candidate);
+  const wyrestormCaveat = compareWyreStormMainCaveat(competitor, candidate);
+  const entries: CompareCoreFact[] = [
+    {
+      label: "Product type",
+      competitor: safeCompareValue(competitor.recognisedClass),
+      wyrestorm: safeCompareValue(wyrestorm.productType),
+      result: "",
+    },
+    {
+      label: "Inputs",
+      competitor: safeCompareValue(competitorFacts.get("Inputs")),
+      wyrestorm: safeCompareValue(wyrestormFacts.get("Inputs")),
+      result: "",
+    },
+    {
+      label: "Outputs",
+      competitor: safeCompareValue(competitorFacts.get("Outputs")),
+      wyrestorm: safeCompareValue(wyrestormFacts.get("Outputs")),
+      result: "",
+    },
+    {
+      label: "USB",
+      competitor: safeCompareValue(competitorFacts.get("USB")),
+      wyrestorm: safeCompareValue(wyrestormFacts.get("USB")),
+      result: "",
+    },
+    {
+      label: "Max resolution",
+      competitor: safeCompareValue(competitorFacts.get("Max resolution") || competitor.resolution),
+      wyrestorm: safeCompareValue(wyrestormFacts.get("Max resolution") || wyrestorm.resolution),
+      result: "",
+    },
+    {
+      label: "Transport",
+      competitor: safeCompareValue(competitor.transport),
+      wyrestorm: safeCompareValue(wyrestorm.transport),
+      result: "",
+    },
+    {
+      label: "Signal direction",
+      competitor: safeCompareValue(competitor.signalDirection),
+      wyrestorm: safeCompareValue(wyrestorm.signalDirection),
+      result: "",
+    },
+    {
+      label: "Main caveat",
+      competitor: safeCompareValue(mainQuoteCheck),
+      wyrestorm: safeCompareValue(wyrestormCaveat),
+      result: "Check before quote",
+    },
   ];
 
-  return orderedLabels
-    .map((label) => ({
-      label,
-      competitor: safeCompareValue(competitorFacts.get(label)),
-      wyrestorm: safeCompareValue(wyrestormFacts.get(label)),
-    }))
-    .filter((entry) => entry.competitor || entry.wyrestorm);
+  return entries
+    .filter((entry) => entry.competitor || entry.wyrestorm)
+    .map((entry) => ({
+      ...entry,
+      competitor: commercializeCompareCopy(entry.competitor),
+      wyrestorm: commercializeCompareCopy(entry.wyrestorm),
+      result: entry.result || compareRowResult(entry.label, entry.competitor, entry.wyrestorm),
+    }));
 }
 
 function shortRoleLabel(role: string): string {
@@ -2739,118 +3257,102 @@ function BestCandidateCard({
   competitorProfile: CompetitorProfile;
   onCopySummary: () => void;
 }) {
-  const badges = salesOutcomeBadges(competitor, candidate);
-  const whyBullets = salesWhyBullets(candidate);
-  const importantDifference = salesImportantDifference(competitor, candidate);
-  const askCustomer = salesAskCustomer(competitor, candidate);
   const directionFit = salesDirectionFitLabel(candidate);
   const replacementConfidence = salesReplacementConfidenceLabel(competitor, candidate);
   const wyrestorm = buildWyrestormSummary(candidate);
-  const coreFacts = buildCoreComparisonFacts(competitor, competitorProfile, wyrestorm);
+  const coreFacts = buildCoreComparisonFacts(competitor, competitorProfile, wyrestorm, candidate);
+  const whyBullets = salesWhyBullets(candidate);
+  const askCustomer = salesAskCustomer(competitor, candidate);
+  const decisionBullets = compareDecisionSummaryBullets(competitor, candidate, directionFit, replacementConfidence);
+  const headerCaveat = compareHeaderCaveat(competitor, candidate);
 
   return (
     <section className="compare-native-best-card">
       <div className="compare-native-result-head">
         <span className={`compare-native-verdict ${verdictClass(candidate.verdict)}`}>{candidate.verdict}</span>
         <span className="compare-native-score">{directionFit}</span>
+        {headerCaveat ? <span className="compare-native-score compare-native-score--caveat">{headerCaveat}</span> : null}
       </div>
 
       <div className="compare-native-product-card compare-native-product-card--best">
-        <p className="compare-native-label compare-native-label--subtle">Sales answer</p>
-        <div className="compare-native-top-grid">
-          <section className="compare-native-product-spotlight">
+        <div className="compare-native-result-summary">
+          <section className="compare-native-result-panel">
             <p className="compare-native-label compare-native-label--subtle">Competitor matched against</p>
             <h3>{competitor.heading}</h3>
             <h4>{competitor.detail}</h4>
             <p className="compare-native-match-anchor">{shortRoleLabel(competitor.role)} | {competitor.transport}</p>
-            {competitor.facts.length ? (
-              <div className="compare-native-spotlight-facts" aria-label="Competitor top facts">
-                {competitor.facts.slice(0, 5).map((fact) => (
-                  <article key={`top-competitor-${fact.label}-${fact.value}`} className="compare-native-spotlight-fact">
-                    <span>{fact.label}</span>
-                    <strong>{fact.value}</strong>
-                  </article>
-                ))}
-              </div>
-            ) : null}
           </section>
 
-          <section className="compare-native-product-spotlight compare-native-product-spotlight--wyrestorm">
+          <section className="compare-native-result-panel compare-native-result-panel--wyrestorm">
             <p className="compare-native-label compare-native-label--subtle">Suggested WyreStorm direction</p>
             <h3>{wyrestorm.heading}</h3>
             <h4>{wyrestorm.detail}</h4>
             <p className="compare-native-match-anchor">{wyrestorm.family} | {wyrestorm.transport}</p>
             <div className="compare-native-fact-row compare-native-fact-row--tight" aria-label="WyreStorm outcome facts">
-              <span className="compare-native-fact-pill">{directionFit}</span>
               <span className="compare-native-fact-pill">{replacementConfidence}</span>
-            </div>
-            <div className="compare-native-spotlight-facts" aria-label="WyreStorm top facts">
-              {wyrestorm.facts.slice(0, 5).map((fact) => (
-                <article key={`top-wyrestorm-${fact.label}-${fact.value}`} className="compare-native-spotlight-fact compare-native-spotlight-fact--wyrestorm">
-                  <span>{fact.label}</span>
-                  <strong>{fact.value}</strong>
-                </article>
-              ))}
             </div>
           </section>
         </div>
 
         {coreFacts.length ? (
           <section className="compare-native-core-facts" aria-label="Core comparison points">
-            <p className="compare-native-label compare-native-label--subtle">Core comparison points used for the match</p>
-            <div className="compare-native-core-facts-grid">
-              {coreFacts.map((fact) => (
-                <article key={`core-fact-${fact.label}`} className="compare-native-core-fact">
-                  <span>{fact.label}</span>
-                  <div>
-                    <strong>Competitor</strong>
-                    <p>{fact.competitor || "Not verified locally"}</p>
-                  </div>
-                  <div>
-                    <strong>WyreStorm</strong>
-                    <p>{fact.wyrestorm || "Confirm in WyreStorm datasheet"}</p>
-                  </div>
-                </article>
-              ))}
+            <p className="compare-native-label compare-native-label--subtle">Key comparison matrix</p>
+            <div className="compare-native-core-matrix" role="table" aria-label="Competitor versus WyreStorm comparison matrix">
+              <div className="compare-native-core-matrix-header" role="rowgroup">
+                <div className="compare-native-core-matrix-row compare-native-core-matrix-row--header" role="row">
+                  <span className="compare-native-core-matrix-heading" role="columnheader">Comparison point</span>
+                  <span className="compare-native-core-matrix-heading" role="columnheader">Competitor</span>
+                  <span className="compare-native-core-matrix-heading" role="columnheader">WyreStorm</span>
+                  <span className="compare-native-core-matrix-heading" role="columnheader">Result</span>
+                </div>
+              </div>
+              <div className="compare-native-core-matrix-body" role="rowgroup">
+                {coreFacts.map((fact) => (
+                  <article key={`core-fact-${fact.label}`} className="compare-native-core-matrix-row" role="row">
+                    <div className="compare-native-core-matrix-cell compare-native-core-matrix-cell--point" role="cell">
+                      <span className="compare-native-core-matrix-mobile-label">Comparison point</span>
+                      <strong>{fact.label}</strong>
+                    </div>
+                    <div className="compare-native-core-matrix-cell" role="cell">
+                      <span className="compare-native-core-matrix-mobile-label">Competitor</span>
+                      <p>{fact.competitor || "Not verified locally"}</p>
+                    </div>
+                    <div className="compare-native-core-matrix-cell compare-native-core-matrix-cell--wyrestorm" role="cell">
+                      <span className="compare-native-core-matrix-mobile-label">WyreStorm</span>
+                      <p>{fact.wyrestorm || "Confirm in WyreStorm datasheet"}</p>
+                    </div>
+                    <div className="compare-native-core-matrix-cell compare-native-core-matrix-cell--result" role="cell">
+                      <span className="compare-native-core-matrix-mobile-label">Result</span>
+                      <p>{fact.result}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
             </div>
           </section>
         ) : null}
 
-        <div className="compare-native-decision-strip" aria-label="Compare decision summary">
-          <article className="compare-native-decision-tile">
-            <span>Competitor product</span>
-            <strong>{competitor.heading}</strong>
-            <p>{competitor.heading} is recognised as a {shortRoleLabel(competitor.role)} used to {competitorPlainEnglishPurpose(competitor)}.</p>
-            <p>{salesWhatItDoes(competitor)}</p>
-          </article>
-          <article className="compare-native-decision-tile compare-native-decision-tile--wyrestorm">
-            <span>Closest WyreStorm direction</span>
-            <strong>{candidate.product.sku}</strong>
-            <p>Use {candidate.product.sku} when the requirement is {wyrestormPlainEnglishRequirement(candidate, competitor)}.</p>
-            <p>{directionFit}. {candidate.product.sku} is the closest WyreStorm direction from the current local evidence.</p>
-          </article>
-          <article className="compare-native-decision-tile compare-native-decision-tile--warn">
-            <span>Important difference</span>
-            <strong>{replacementConfidence}</strong>
-            <p>{importantDifference}</p>
-          </article>
-        </div>
-
-        {badges.length ? (
-          <div className="compare-native-fact-row" aria-label="Sales outcome badges">
-            {badges.map((badge) => (
-              <span key={badge} className="compare-native-fact-pill">{badge}</span>
+        <section className="compare-native-decision-summary" aria-label="Decision summary">
+          <p className="compare-native-label compare-native-label--subtle">Decision summary</p>
+          <ul className="compare-native-decision-list">
+            {decisionBullets.map((bullet) => (
+              <li key={bullet}>{bullet}</li>
             ))}
-          </div>
-        ) : null}
-
-        <CompareEvidenceList title="Why this direction fits" items={whyBullets} />
-        <CompareEvidenceList title="Ask the customer" items={askCustomer} className="compare-native-evidence--warn" />
-
-        {competitor.warning ? <p className="compare-native-option-check">{competitor.warning}</p> : null}
+          </ul>
+        </section>
 
         <details className="compare-native-summary">
-          <summary>More detail</summary>
+          <summary>Quote checks</summary>
+          <CompareEvidenceList title="Check before quote" items={askCustomer} className="compare-native-evidence--warn" />
+        </details>
+
+        <details className="compare-native-summary">
+          <summary>Why this fits</summary>
+          <CompareEvidenceList title="Matched points" items={whyBullets} />
+        </details>
+
+        <details className="compare-native-summary">
+          <summary>Full evidence trace</summary>
           <div className="compare-native-compare-grid">
             <div className="compare-native-product-card compare-native-product-card--competitor">
               <p className="compare-native-label compare-native-label--subtle">Competitor detail</p>
@@ -2884,7 +3386,7 @@ function BestCandidateCard({
               <p className="compare-native-match-anchor">{directionFit}</p>
               <CompareEvidenceList title="Why this WyreStorm product" items={wyrestorm.identityItems} />
               <CompareEvidenceList title="Where it matches" items={candidate.matched.slice(0, 5)} />
-              <CompareEvidenceList title="Partial matches" items={candidate.partialMatches.slice(0, 4)} />
+              <CompareEvidenceList title="Deeper why this fits" items={candidate.partialMatches.slice(0, 4)} />
               <CompareEvidenceList title="Where it does not match" items={candidate.mismatches.slice(0, 4)} className="compare-native-evidence--danger" />
               <CompareEvidenceList title="Unknowns" items={uniqueText([...candidate.unknowns, ...candidate.checks, ...candidate.gaps], 6)} className="compare-native-evidence--warn" />
               <CompareEvidenceList title="Quote blockers" items={candidate.blockers.slice(0, 4)} className="compare-native-evidence--danger" />
@@ -2920,13 +3422,13 @@ function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
         <span className="compare-native-score">{candidate.outcomeLabel}</span>
       </div>
 
-      <p className="compare-native-option-note">{candidate.matched[0] ?? "Closest role-compatible WyreStorm option from the current Compare data."}</p>
-      {candidate.partialMatches[0] ? <p className="compare-native-option-note">{candidate.partialMatches[0]}</p> : null}
-      {candidate.mismatches[0] ? <p className="compare-native-option-check">{candidate.mismatches[0]}</p> : null}
-      {!candidate.mismatches[0] && candidate.unknowns[0] ? <p className="compare-native-option-check">{candidate.unknowns[0]}</p> : null}
+      <p className="compare-native-option-note">{commercializeCompareCopy(candidate.matched[0]) || "Closest role-compatible WyreStorm option from the current Compare data."}</p>
+      {candidate.partialMatches[0] ? <p className="compare-native-option-note">{commercializeCompareCopy(candidate.partialMatches[0])}</p> : null}
+      {candidate.mismatches[0] ? <p className="compare-native-option-check">{commercializeCompareCopy(candidate.mismatches[0])}</p> : null}
+      {!candidate.mismatches[0] && candidate.unknowns[0] ? <p className="compare-native-option-check">{commercializeCompareCopy(candidate.unknowns[0])}</p> : null}
 
       <details className="compare-native-summary">
-        <summary>More detail</summary>
+        <summary>Why this option was shortlisted</summary>
         <CompareEvidenceList title="Why this direction" items={candidate.matched.slice(0, 3)} />
         <CompareEvidenceList title="Where it does not match" items={candidate.mismatches.slice(0, 2)} className="compare-native-evidence--danger" />
         <CompareEvidenceList title="Commercial checks" items={uniqueText([...candidate.unknowns, ...candidate.checks, ...candidate.gaps, ...candidate.dependencies], 4)} className="compare-native-evidence--warn" />
@@ -3100,7 +3602,7 @@ function ComparePageNew() {
 
     const directionFit = salesDirectionFitLabel(best);
     const replacementConfidence = salesReplacementConfidenceLabel(competitorSummary, best);
-    const askCustomer = salesAskCustomer(competitorSummary, best);
+    const askCustomer = salesAskCustomer(competitorSummary, best).map((line) => commercializeCompareCopy(line)).filter(Boolean);
     const identityItems = competitorIdentityItems(competitorSummary);
     const limitedWarning = exactLimitedDataWarning(profile);
 
@@ -3427,7 +3929,7 @@ function ComparePageNew() {
           <div className="compare-native-section-title compare-native-section-title--inline">
             <div>
               <h2>{workflowStep === "capture" ? "Start a new competitor comparison" : "Review WyreStorm product direction"}</h2>
-              <p>The sales answer is shown first. Deeper evidence stays inside expandable sections so the user does not need to read everything up front.</p>
+              <p>Answer first. Open supporting evidence only when you need to validate the quote.</p>
             </div>
             <div className="compare-native-action-row">
               <button className="compare-native-secondary-action" type="button" onClick={() => setCompareStage("sku")}>
@@ -3470,19 +3972,14 @@ function ComparePageNew() {
             )}
 
             {alternativeCandidates.length ? (
-              <section className="compare-native-options">
-                <div className="compare-native-section-title compare-native-section-title--inline">
-                  <div>
-                    <h2>Other possible WyreStorm options</h2>
-                    <p>{alternativeCandidates.length} option{alternativeCandidates.length === 1 ? "" : "s"} ranked</p>
-                  </div>
-                </div>
+              <details className="compare-native-summary compare-native-options">
+                <summary>Other possible WyreStorm options ({Math.min(alternativeCandidates.length, 3)})</summary>
                 <div className="compare-native-option-grid">
-                  {alternativeCandidates.map((candidate) => (
+                  {alternativeCandidates.slice(0, 3).map((candidate) => (
                     <CandidateOptionCard key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} />
                   ))}
                 </div>
-              </section>
+              </details>
             ) : null}
 
             <CompareSummaryPanel summary={summary} requestLiveLookup={requestLiveLookup} sourceUrl={sourceUrl} />
