@@ -33360,3 +33360,20 @@ html[data-wingman-route="finder"] nav[aria-label="Finder workflow steps"] button
   color: rgba(226, 239, 246, 0.84) !important;
 }
 /* WINGMAN-FINDER-STEPPER-STATE-FIX-END */
+
+/* PRODUCT_PITCH_100_PERCENT_SCALE_FIX_START */
+/* Product Pitch only: prevent inherited shell/layout scaling from forcing horizontal overflow. */
+body.wm-product-pitch-page-open {
+  overflow-x: hidden;
+}
+
+body.wm-product-pitch-page-open .wingman-main,
+body.wm-product-pitch-page-open main {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
+  transform: none;
+  zoom: 1;
+}
+/* PRODUCT_PITCH_100_PERCENT_SCALE_FIX_END */

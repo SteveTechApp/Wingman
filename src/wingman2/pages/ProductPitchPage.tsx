@@ -23,6 +23,17 @@ import { buildProductCheatSheetHtml } from "../lib/productCheatSheet";
 import { resolveProductLifecycle } from "../lib/wyrestormProductLifecycle";
 import { getProductMediaBySku, loadProductMediaIndex } from "../data/productMedia";
 
+
+function useProductPitchDensityClass() {
+  useEffect(() => {
+    document.body.classList.add("wm-product-pitch-page-open");
+
+    return () => {
+      document.body.classList.remove("wm-product-pitch-page-open");
+    };
+  }, []);
+}
+
 function openProductCheatSheet(product: ProductSpec, narrative: ProductNarrative, imageUrl?: string) {
   const html = buildProductCheatSheetHtml({
     product,
@@ -117,6 +128,108 @@ function includesProduct(product: ProductSpec, term: string) {
   return productText(product).includes(term);
 }
 
+const PRODUCT_PITCH_FILTERS = [
+  "All",
+  "1-9",
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "O",
+  "P",
+  "Q",
+  "R",
+  "S",
+  "T",
+  "U",
+  "V",
+  "W",
+  "X",
+  "Y",
+  "Z"
+] as const;
+
+type ProductPitchQuickFilter = (typeof PRODUCT_PITCH_FILTERS)[number];
+
+const PRODUCT_PITCH_BLOCKED_SKUS = new Set([
+  "NHD-100",
+  "NHD-250-RX",
+  "NHD-300-TX",
+  "APO-100-UC",
+  "APO-200-UC",
+  "APO-DG2-PRO",
+  "APO-VX20-UC",
+  "HALO-VX10-V1",
+  "MX-1010-H2XC",
+  "MX-1616-H2XC",
+  "NHD-000-RACK3",
+  "NHD-000-CTL",
+  "NHD-110-RX",
+  "NHD-110-TX",
+  "NHD-110-RX-S",
+  "NHD-500-E",
+  "NHD-500-T",
+  "NHD-610",
+  "NHD-600-TXRX",
+  "NHD-CTL-PRO",
+  "NHD-CTL-PRO-T",
+  "NHD-TOUCH",
+  "NHD-TOUCHPLUS",
+  "OFFICE-KIT",
+  "SYN-TOUCH10"
+]);
+
+function isH2hcTxCardSku(sku: string) {
+  const value = String(sku || "").trim().toUpperCase();
+  return value.includes("H2HC") && /(^|-)TX($|-)/.test(value);
+}
+
+function isBlockedProductPitchSku(sku: string) {
+  const value = String(sku || "").trim().toUpperCase();
+
+  if (!value) return true;
+  if (PRODUCT_PITCH_BLOCKED_SKUS.has(value)) return true;
+  if (value.endsWith("-US")) return true;
+  if (value === "NHD-400" || value.startsWith("NHD-400-")) return true;
+  if (isH2hcTxCardSku(value)) return true;
+
+  return false;
+}
+
+function isVisibleProductPitchProduct(product: ProductSpec) {
+  return !isBlockedProductPitchSku(product.sku);
+}
+
+function getProductPitchFilterLead(product: ProductSpec) {
+  const sku = product.sku?.trim().toUpperCase() || "";
+  const name = product.name?.trim().toUpperCase() || "";
+  const value = sku || name;
+
+  return value.charAt(0);
+}
+
+function productMatchesProductPitchFilter(product: ProductSpec, filter: ProductPitchQuickFilter) {
+  if (filter === "All") return true;
+
+  const lead = getProductPitchFilterLead(product);
+
+  if (filter === "1-9") {
+    return /^[1-9]$/.test(lead);
+  }
+
+  return lead === filter;
+}
+
 function DisplayList({ items, max = 6 }: { items: string[]; max?: number }) {
   const useful = cleanUsefulList(items, max);
 
@@ -144,19 +257,44 @@ function SelectionPage({
   products,
   searchTerm,
   setSearchTerm,
+  activeQuickFilter,
+  setActiveQuickFilter,
   openProduct
 }: {
   products: ProductSpec[];
   searchTerm: string;
   setSearchTerm: (value: string) => void;
+  activeQuickFilter: ProductPitchQuickFilter;
+  setActiveQuickFilter: (value: ProductPitchQuickFilter) => void;
   openProduct: (sku: string) => void;
 }) {
   const term = searchTerm.trim().toLowerCase();
 
+  const quickFilterCounts = useMemo(() => {
+    const counts = new Map<ProductPitchQuickFilter, number>();
+
+    PRODUCT_PITCH_FILTERS.forEach((filter) => {
+      counts.set(filter, 0);
+    });
+
+    products.forEach((product) => {
+      PRODUCT_PITCH_FILTERS.forEach((filter) => {
+        if (productMatchesProductPitchFilter(product, filter)) {
+          counts.set(filter, (counts.get(filter) || 0) + 1);
+        }
+      });
+    });
+
+    return counts;
+  }, [products]);
+
   const filtered = useMemo(() => {
-    if (!term) return products.slice(0, 80);
-    return products.filter((product) => includesProduct(product, term)).slice(0, 80);
-  }, [products, term]);
+    const quickFiltered = products.filter((product) => productMatchesProductPitchFilter(product, activeQuickFilter));
+
+    if (!term) return quickFiltered;
+
+    return quickFiltered.filter((product) => includesProduct(product, term));
+  }, [products, term, activeQuickFilter]);
 
   return (
     <main className="grid gap-4 pb-6 text-white">
@@ -182,18 +320,51 @@ function SelectionPage({
           />
         </label>
 
-        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-4 flex flex-wrap gap-2" aria-label="Product quick filter">
+          {PRODUCT_PITCH_FILTERS.map((filter) => {
+            const count = quickFilterCounts.get(filter) || 0;
+            const isActive = activeQuickFilter === filter;
+            const isDisabled = filter !== "All" && count === 0;
+
+            return (
+              <button
+                key={filter}
+                type="button"
+                disabled={isDisabled}
+                onClick={() => setActiveQuickFilter(filter)}
+                title={isDisabled ? `No SKUs currently start with ${filter}` : `${count} matching SKU${count === 1 ? "" : "s"}`}
+                className={`min-h-8 rounded-xl border px-3 text-xs font-extrabold transition ${
+                  isActive
+                    ? "border-cyan-200 bg-cyan-300 text-slate-950"
+                    : isDisabled
+                      ? "cursor-not-allowed border-slate-700 bg-slate-900/60 text-slate-600"
+                      : "border-[#29465e] bg-[#081724] text-cyan-100 hover:border-cyan-300 hover:bg-cyan-500/10"
+                }`}
+              >
+                {filter}
+              </button>
+            );
+          })}
+        </div>
+
+        <p className="mt-3 text-xs font-semibold text-white/55">
+          Showing {filtered.length} of {products.length} products
+          {activeQuickFilter !== "All" ? ` · Filter: ${activeQuickFilter}` : ""}
+          {term ? ` · Search: ${searchTerm.trim()}` : ""}
+        </p>
+
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {filtered.map((product) => (
             <button
               key={product.sku}
               type="button"
               onClick={() => openProduct(product.sku)}
-              className="min-h-[132px] rounded-3xl border border-[#29465e] bg-[#081724] p-4 text-left transition hover:border-cyan-300 hover:bg-cyan-500/10"
+              className="min-h-[92px] rounded-2xl border border-[#29465e] bg-[#081724] p-3 text-left transition hover:border-cyan-300 hover:bg-cyan-500/10"
             >
               <span className={`block ${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-300`}>{product.family}</span>
-              <strong className="mt-2 block text-xl font-extrabold text-white">{product.sku}</strong>
-              <span className="mt-1 block text-sm font-bold text-white/80">{product.name}</span>
-              <span className="mt-3 block text-xs text-white/50">{product.productType}</span>
+              <strong className="mt-1 block truncate text-lg font-extrabold text-white">{product.sku}</strong>
+              <span className="mt-1 block line-clamp-2 text-xs font-bold text-white/80">{product.name}</span>
+              <span className="mt-2 block truncate text-[0.68rem] text-white/50">{product.productType}</span>
             </button>
           ))}
         </div>
@@ -655,12 +826,14 @@ function ProductWorkspace({
 }
 
 export function ProductPitchPage() {
+  useProductPitchDensityClass();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const selectedSku = searchParams.get("sku") || "";
 
   const [products, setProducts] = useState<ProductSpec[]>(fallbackProducts);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeQuickFilter, setActiveQuickFilter] = useState<ProductPitchQuickFilter>("All");
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -691,10 +864,13 @@ export function ProductPitchPage() {
     };
   }, []);
 
+  const availableProducts = useMemo(() => products.filter(isVisibleProductPitchProduct), [products]);
+
   const selectedProduct = useMemo(() => {
     if (!selectedSku) return null;
-    return products.find((product) => product.sku.toLowerCase() === selectedSku.toLowerCase()) || null;
-  }, [products, selectedSku]);
+
+    return availableProducts.find((product) => product.sku.toLowerCase() === selectedSku.toLowerCase()) || null;
+  }, [availableProducts, selectedSku]);
 
   const openProduct = (sku: string) => {
     navigate(`/wingman/product-pitch?sku=${encodeURIComponent(sku)}`);
@@ -715,9 +891,11 @@ export function ProductPitchPage() {
   if (!selectedSku) {
     return (
       <SelectionPage
-        products={products}
+        products={availableProducts}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
+        activeQuickFilter={activeQuickFilter}
+        setActiveQuickFilter={setActiveQuickFilter}
         openProduct={openProduct}
       />
     );
@@ -730,7 +908,7 @@ export function ProductPitchPage() {
           <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-amber-200`}>Product not found</p>
           <h1 className={PRODUCT_PITCH_HERO_TITLE_CLASS}>No product workspace found for {selectedSku}</h1>
           <p className="mt-2 text-sm leading-6 text-white/70">
-            Return to product selection and choose a product from the connected index.
+            Return to product selection and choose a current selectable WyreStorm product SKU. Family, regional, legacy, accessory and internal-control references are not selectable Product Pitch SKUs.
           </p>
           <button
             type="button"
