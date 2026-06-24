@@ -20,6 +20,7 @@ import { RoomSchematicDiagram } from "../components/RoomSchematicDiagram";
 import { validateUsbPath, usbValidationIsRequired } from "../logic/usbPathValidator";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { buildProductCheatSheetHtml } from "../lib/productCheatSheet";
+import { resolveProductLifecycle } from "../lib/wyrestormProductLifecycle";
 import { getProductMediaBySku, loadProductMediaIndex } from "../data/productMedia";
 
 function openProductCheatSheet(product: ProductSpec, narrative: ProductNarrative, imageUrl?: string) {
@@ -527,6 +528,7 @@ function ProductWorkspace({
   const [activeTab, setActiveTab] = useState<ProductTab>("overview");
   const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
   const narrative = useMemo(() => buildProductNarrative(product), [product]);
+  const lifecycle = useMemo(() => resolveProductLifecycle(product.sku), [product.sku]);
 
   useEffect(() => {
     writeProductWorkspaceHandoff(product, narrative);
@@ -555,7 +557,7 @@ function ProductWorkspace({
       <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Product workspace</p>
+            <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Product positioning</p>
             <h1 className={`${PRODUCT_PITCH_HERO_TITLE_CLASS} text-cyan-200`}>{product.sku}</h1>
             <h2 className={`mt-1 ${PRODUCT_PITCH_SECTION_TITLE_CLASS} text-white`}>{product.name}</h2>
             <p className="mt-3 max-w-4xl text-sm leading-6 text-white/70">{narrative.headline}</p>
@@ -580,6 +582,58 @@ function ProductWorkspace({
           </div>
         </div>
       </section>
+
+      {!lifecycle.recommendable ? (
+        <section
+          className={`rounded-3xl border p-4 ${
+            lifecycle.status === "discontinued" || lifecycle.status === "do-not-spec" || lifecycle.status === "cable"
+              ? "border-rose-400/50 bg-rose-500/10"
+              : lifecycle.supersededBy
+                ? "border-amber-400/50 bg-amber-400/10"
+                : "border-cyan-400/40 bg-cyan-500/5"
+          }`}
+        >
+          <p
+            className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} ${
+              lifecycle.status === "discontinued" || lifecycle.status === "do-not-spec" || lifecycle.status === "cable"
+                ? "text-rose-200"
+                : lifecycle.supersededBy
+                  ? "text-amber-200"
+                  : "text-cyan-200"
+            }`}
+          >
+            {lifecycle.supersededBy
+              ? "⚠ Superseded product"
+              : lifecycle.status === "discontinued"
+                ? "⚠ Discontinued product"
+                : lifecycle.status === "do-not-spec"
+                  ? "⚠ Do not specify"
+                  : lifecycle.status === "cable"
+                    ? "Cable / accessory"
+                    : "Not on the current business list"}
+          </p>
+          <p className="mt-1 max-w-4xl text-sm leading-6 text-white/75">{lifecycle.note}</p>
+        </section>
+      ) : null}
+
+      {narrative.confidence && narrative.confidence !== "high" && narrative.reviewNote ? (
+        <section
+          className={`rounded-3xl border p-4 ${
+            narrative.confidence === "low"
+              ? "border-amber-400/50 bg-amber-400/10"
+              : "border-cyan-400/40 bg-cyan-500/5"
+          }`}
+        >
+          <p
+            className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} ${
+              narrative.confidence === "low" ? "text-amber-200" : "text-cyan-200"
+            }`}
+          >
+            {narrative.confidence === "low" ? "⚠ Check before quoting" : "Auto-generated positioning"}
+          </p>
+          <p className="mt-1 max-w-4xl text-sm leading-6 text-white/75">{narrative.reviewNote}</p>
+        </section>
+      ) : null}
 
       <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-4`}>
         <div className="flex flex-wrap gap-2">

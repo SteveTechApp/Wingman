@@ -35,6 +35,12 @@ export type ProductSpec = {
   related: string[];
 };
 
+// How much of this narrative is trusted, governed copy versus auto-generated
+// scaffolding. Surfaced in the UI so a non-expert rep knows when to verify
+// against the datasheet before quoting, instead of treating every card as
+// equally authoritative.
+export type NarrativeConfidence = "high" | "medium" | "low";
+
 export type ProductNarrative = {
   role: ProductRole;
   headline: string;
@@ -52,6 +58,11 @@ export type ProductNarrative = {
   diagramSource: string;
   diagramOutput: string;
   visualPrompt: string;
+  // Provenance signal. Optional so the role-template builders do not have to set
+  // it; the public buildProductNarrative entry point always populates it.
+  confidence?: NarrativeConfidence;
+  // Plain-language note shown to the rep when confidence is not "high".
+  reviewNote?: string;
 };
 
 const genericWords = new Set([
@@ -433,14 +444,29 @@ function cleanFeatureToken(item: string): string {
     .trim();
 }
 
-function headlineFeatures(product: ProductSpec, limit = 6): string[] {
+// Structured spec sources (the index's own fields) versus free marketing prose.
+// Capability tokens scraped from a sentence can belong to a companion product the
+// description happens to name ("...pairs with our 4K60 4:4:4 decoder..."), so the
+// lead headline must be built only from structured sources. A pipe-delimited
+// description is a spec list, not a sentence, so its tokens are trustworthy too.
+function structuredFeaturePool(product: ProductSpec): string[] {
   const tags = product.capabilityTags ?? [];
-  const broadText = [product.description, product.name, ...tags, ...product.video, ...product.audio].join(" | ");
-  const extracted = capabilitiesFromText(broadText);
+  const structuredText = [...tags, ...product.video, ...product.audio, ...product.keyFeatures].join(" | ");
+  const extracted = capabilitiesFromText(structuredText);
   const pipeTokens = product.description.includes("|") ? product.description.split(FEATURE_SPLITTER) : [];
-  // Extracted capability phrases lead (clean and specific), then pipe-delimited
-  // spec tokens, then the full capability-tag pool.
-  const pool = [...extracted, ...pipeTokens, ...tags, ...product.video, ...product.audio];
+
+  return [...extracted, ...pipeTokens, ...tags, ...product.video, ...product.audio, ...product.keyFeatures];
+}
+
+// `verifiedOnly` restricts extraction to structured spec fields and drops
+// capability tokens scraped from free description/name prose. Use it for the
+// prominent lead headline; the fuller whatItIs sentence can stay broad because it
+// is clearly framed and lower-prominence.
+function headlineFeatures(product: ProductSpec, limit = 6, opts: { verifiedOnly?: boolean } = {}): string[] {
+  const prosePool = opts.verifiedOnly
+    ? []
+    : capabilitiesFromText([product.description, product.name].join(" "));
+  const pool = [...structuredFeaturePool(product), ...prosePool];
 
   return cleanUsefulList(
     pool
@@ -605,7 +631,9 @@ function familyRelationship(product: ProductSpec, role: ProductRole): string {
 }
 
 function skuHeadline(product: ProductSpec, role: ProductRole): string {
-  const feats = headlineFeatures(product, 3);
+  // Lead claim: structured specs only, so the rep is never handed a punchy
+  // headline figure that was scraped from prose and cannot be defended.
+  const feats = headlineFeatures(product, 3, { verifiedOnly: true });
   // Headline uses the short kind (no parenthetical) so it reads as a punchy hook;
   // whatItIs keeps the fuller "(transmit end)" detail.
   const kind = productKind(product, role).replace(/\s*\([^)]*\)\s*$/, "");
@@ -623,6 +651,15 @@ function articleFor(kind: string): string {
 
 function isPlaceholderText(value: string): boolean {
   return /not yet|to be|confirm|classified|unknown|tbd|n\/a/i.test(value);
+}
+
+// A lower-cased, trimmed purpose phrase usable inside a sentence, or null when
+// the record carries no real purpose. Stops the fallback narrative repeating an
+// empty placeholder back to the rep as if it were a requirement.
+function purposePhrase(product: ProductSpec): string | null {
+  const purpose = product.purpose.trim();
+  if (!purpose || isPlaceholderText(purpose)) return null;
+  return purpose.toLowerCase().replace(/\.$/, "");
 }
 
 function skuWhatItIs(product: ProductSpec, role: ProductRole): string {
@@ -828,21 +865,59 @@ function buildRoleNarrativeBase(product: ProductSpec): RoleNarrativeBase {
     };
   }
 
+  const purpose = purposePhrase(product);
+
   return {
     role,
-    headline: "Use this when the product role matches the customer's real requirement.",
+    headline: purpose
+      ? `Use this when the customer genuinely needs ${purpose}.`
+      : "Use this once you have confirmed what the customer actually needs this product to do.",
     whatItIs,
-    customerChallenge: `The customer has a real room or system problem - ${product.purpose.toLowerCase().replace(/\.$/, "")} - and needs to know this product genuinely solves it, not just that it has a part number.`,
-    whyItHelps: `${product.sku} earns its place when the room genuinely needs ${product.purpose.toLowerCase().replace(/\.$/, "")}. The practical check is what connects on each side, what dependencies come with it, and whether it removes a real design problem instead of adding another box.`,
-    whyCustomerCares: "Customers buy outcomes, not boxes. Framing it as the thing that fixes a specific frustration - and being honest about where it does and does not fit - is what earns their confidence and the order.",
-    useWhen: `Use it where the requirement is genuinely ${product.purpose.toLowerCase().replace(/\.$/, "")}, and the room's connections, distances and control needs line up with what this product does.`,
+    customerChallenge: purpose
+      ? `The customer has a real room or system problem - ${purpose} - and needs to know this product genuinely solves it, not just that it carries the right part number.`
+      : "The customer has a real room or system problem, and the useful conversation is which job they need this product to do, not its part number. Confirm the requirement before positioning it.",
+    whyItHelps: `${product.sku} earns its place only when the room genuinely needs what it does. The practical check is what connects on each side, what dependencies come with it, and whether it removes a real design problem instead of adding another box.`,
+    whyCustomerCares: "What earns the order is tying the product to a specific frustration the customer recognises, and being honest about where it fits and where it does not.",
+    useWhen: purpose
+      ? `Use it where the requirement is genuinely ${purpose}, and the room's connections, distances and control needs line up with what this product does.`
+      : "Use it where the requirement matches what this product actually does, and the room's connections, distances and control needs line up with it.",
     avoidIf: "Avoid making a firm recommendation until the application, signal path, I/O, distance and control requirements are confirmed - it is always safer to ask one more question than to quote the wrong box.",
-    suggestedWording: `${product.sku} is worth discussing when the customer genuinely needs ${product.purpose.toLowerCase().replace(/\.$/, "")}, and we can explain what it connects to and why it is the right system role.`,
+    suggestedWording: purpose
+      ? `${product.sku} is worth discussing when the customer genuinely needs ${purpose}, once we can explain what it connects to and why it is the right system role.`
+      : `${product.sku} is worth discussing once we have confirmed the job it needs to do and can explain what it connects to on each side.`,
     demoPrompt: "Suggest a demo or evaluation where the customer needs to see it working before they commit - especially if this is an unfamiliar product for them or for you.",
     askNow: ["What exactly is this product expected to connect to or replace?", "Where does it sit in the room or signal path today?", "What dependency would make this unsafe to quote without checking first?", "If this product is selected, what still needs to be confirmed before proposal stage?"],
     diagramSource: "Customer source / system input",
     diagramOutput: "Display / room system / destination",
     visualPrompt: `Create a realistic AV room concept showing ${product.sku} used in context with labelled source, WyreStorm device, display, network/control and any TBC devices.`
+  };
+}
+
+// Judge how much of a generated (non-governed) narrative can be trusted, so the
+// UI can tell a non-expert rep when to verify before quoting. A clear role plus
+// a real application or verified spec is "medium"; an unclassified record with no
+// usable purpose is "low" and should be treated as a prompt to check, not a fact.
+function assessConfidence(
+  product: ProductSpec,
+  role: ProductRole,
+): { confidence: NarrativeConfidence; reviewNote: string } {
+  const application = firstMeaningful(product.applications, "");
+  const hasApplication = Boolean(application) && !isPlaceholderText(application);
+  const hasVerifiedFeature = headlineFeatures(product, 3, { verifiedOnly: true }).length > 0;
+  const hasPurpose = purposePhrase(product) !== null;
+
+  if (role !== "general" && hasPurpose && (hasApplication || hasVerifiedFeature)) {
+    return {
+      confidence: "medium",
+      reviewNote:
+        "This positioning is generated from the product index, not a reviewed product story. Spot-check the specification and application against the current datasheet before quoting.",
+    };
+  }
+
+  return {
+    confidence: "low",
+    reviewNote:
+      "This product has no reviewed sales story yet, so its role and positioning are inferred from a limited catalogue record. Confirm what it is, what it connects to and where it fits against the current datasheet before quoting.",
   };
 }
 
@@ -857,6 +932,7 @@ export function buildProductNarrative(product: ProductSpec): ProductNarrative {
   if (story) {
     return {
       ...base,
+      confidence: "high",
       headline: story.oneLinePosition,
       whatItIs: story.whatItIs,
       customerChallenge: story.customerProblem,
@@ -878,6 +954,7 @@ export function buildProductNarrative(product: ProductSpec): ProductNarrative {
 
   return {
     ...base,
+    ...assessConfidence(enrichedProduct, base.role),
     headline: skuHeadline(enrichedProduct, base.role),
     whatItIs: skuWhatItIs(enrichedProduct, base.role),
     suggestedWording: skuSuggestedWording(enrichedProduct, base.role, base.suggestedWording),

@@ -1,0 +1,171 @@
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import path from "node:path";
+
+/**
+ * WyreStorm product lifecycle reconciliation.
+ *
+ * The mechanism that keeps product information honest as the catalogue changes.
+ * It diffs the authoritative 2026 business lists (the source of truth for what is
+ * active / discontinued / do-not-spec / a cable) against what the app actually
+ * ships - the product-intelligence index and the governed sales stories - and
+ * reports the drift that a human needs to act on:
+ *
+ *   ARCHIVE   indexed products that are now discontinued or do-not-spec
+ *   ADD       active products missing from the index
+ *   REVIEW    indexed products not on any business list (stale / unknown)
+ *   SUPERSEDED version families where a discontinued SKU has an active successor
+ *   STORIES   governed stories that lead with, or recommend, a non-active SKU
+ *
+ * Run: node tools/reconcile-wyrestorm-lifecycle.mjs   (npm run lifecycle:reconcile)
+ * Writes docs/wyrestorm-lifecycle-reconciliation.md and prints a summary.
+ *
+ * Refresh cadence: drop the latest WyreStorm business lists into the four
+ * `*.txt` files at the repo root, then run this. It does not edit data - it tells
+ * you what to change so the change stays reviewed.
+ */
+
+const repoRoot = process.cwd();
+const lists = {
+  active: "WyreStorm Active SKU 2026.txt",
+  discontinued: "WyreStorm Discon Products 2026.txt",
+  doNotSpec: "Wyrestorm Do Not Spec List 2026.txt",
+  cable: "Wyrestorm Cables 2026.txt",
+};
+const indexPath = path.join(repoRoot, "public", "product-intelligence-index.json");
+const storiesPath = path.join(repoRoot, "src", "wingman2", "data", "productStories.ts");
+const reportPath = path.join(repoRoot, "docs", "wyrestorm-lifecycle-reconciliation.md");
+
+const normKey = (value) => String(value ?? "").toUpperCase().replace(/[^A-Z0-9]+/g, "");
+
+function readList(file) {
+  const full = path.join(repoRoot, file);
+  if (!existsSync(full)) {
+    console.error(`[lifecycle] Missing business list: ${file}`);
+    process.exit(1);
+  }
+  const skus = readFileSync(full, "utf8")
+    .split(/\r?\n/g)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  return { skus, keys: new Set(skus.map(normKey)) };
+}
+
+const active = readList(lists.active);
+const discontinued = readList(lists.discontinued);
+const doNotSpec = readList(lists.doNotSpec);
+const cable = readList(lists.cable);
+
+const statusOf = (sku) => {
+  const key = normKey(sku);
+  if (active.keys.has(key)) return "active";
+  if (discontinued.keys.has(key)) return "discontinued";
+  if (doNotSpec.keys.has(key)) return "do-not-spec";
+  if (cable.keys.has(key)) return "cable";
+  return "unlisted";
+};
+
+// --- Product index --------------------------------------------------------
+const index = JSON.parse(readFileSync(indexPath, "utf8"));
+const indexProducts = Array.isArray(index) ? index : index.products ?? [];
+const indexedSkus = indexProducts.map((p) => String(p?.sku ?? "")).filter(Boolean);
+const indexedKeys = new Set(indexedSkus.map(normKey));
+
+// --- Governed stories -----------------------------------------------------
+const storiesText = readFileSync(storiesPath, "utf8");
+const storySkus = [...storiesText.matchAll(/\n\s*sku:\s*"([^"]+)",\s*\n\s*plainEnglishName:/g)].map((m) => m[1]);
+const storyWorksWith = [...storiesText.matchAll(/\{\s*sku:\s*"([^"]+)",\s*reason:/g)].map((m) => m[1]);
+
+// --- Reconciliation -------------------------------------------------------
+const archive = indexedSkus.filter((sku) => ["discontinued", "do-not-spec"].includes(statusOf(sku)));
+const add = active.skus.filter((sku) => !indexedKeys.has(normKey(sku)));
+const review = indexedSkus.filter((sku) => statusOf(sku) === "unlisted");
+
+// Version families: strip trailing version tokens to a base, group active+discon.
+const baseKey = (sku) =>
+  normKey(
+    String(sku)
+      .split(/[-\s]+/)
+      .filter((token) => !/^(V\d+|MK\d+)$/i.test(token))
+      .join("-"),
+  );
+const families = new Map();
+for (const sku of [...active.skus, ...discontinued.skus]) {
+  const base = baseKey(sku);
+  if (!families.has(base)) families.set(base, []);
+  families.get(base).push({ sku, status: statusOf(sku) });
+}
+const superseded = [...families.values()].filter(
+  (members) =>
+    members.length > 1 &&
+    members.some((m) => m.status === "discontinued") &&
+    members.some((m) => m.status === "active"),
+);
+
+// Stories that lead with or recommend a non-active SKU.
+const storyIssues = [];
+for (const sku of storySkus) {
+  const status = statusOf(sku);
+  if (status !== "active") storyIssues.push({ sku, where: "story lead", status });
+}
+for (const sku of [...new Set(storyWorksWith)]) {
+  const status = statusOf(sku);
+  if (status !== "active") storyIssues.push({ sku, where: "worksWith", status });
+}
+
+// --- Report ---------------------------------------------------------------
+const lines = [];
+lines.push("# WyreStorm lifecycle reconciliation");
+lines.push("");
+lines.push("> Generated by `npm run lifecycle:reconcile`. Do not edit by hand.");
+lines.push("");
+lines.push(`- Business lists: active ${active.skus.length}, discontinued ${discontinued.skus.length}, do-not-spec ${doNotSpec.skus.length}, cable ${cable.skus.length}`);
+lines.push(`- Indexed products: ${indexedSkus.length} · Governed stories: ${storySkus.length}`);
+lines.push("");
+
+const section = (title, body) => {
+  lines.push(`## ${title}`);
+  lines.push("");
+  lines.push(body.length ? body : "_None._");
+  lines.push("");
+};
+
+section(
+  `ARCHIVE — indexed but discontinued or do-not-spec (${archive.length})`,
+  archive.sort().map((sku) => `- [ ] ${sku} (${statusOf(sku)})`).join("\n"),
+);
+section(
+  `ADD — active products missing from the index (${add.length})`,
+  add.sort().map((sku) => `- [ ] ${sku}`).join("\n"),
+);
+section(
+  `REVIEW — indexed but on no business list (${review.length})`,
+  review.sort().map((sku) => `- [ ] ${sku}`).join("\n"),
+);
+section(
+  `SUPERSEDED — version families with a discontinued SKU and an active successor (${superseded.length})`,
+  superseded
+    .map((members) => {
+      const dead = members.filter((m) => m.status === "discontinued").map((m) => m.sku);
+      const live = members.filter((m) => m.status === "active").map((m) => m.sku);
+      return `- ${dead.join(", ")} → **${live.join(", ")}**`;
+    })
+    .join("\n"),
+);
+section(
+  `STORIES — governed stories referencing a non-active SKU (${storyIssues.length})`,
+  storyIssues
+    .sort((a, b) => a.sku.localeCompare(b.sku))
+    .map((issue) => `- ${issue.sku} — ${issue.where} — \`${issue.status}\``)
+    .join("\n"),
+);
+
+if (!existsSync(path.dirname(reportPath))) mkdirSync(path.dirname(reportPath), { recursive: true });
+writeFileSync(reportPath, lines.join("\n"));
+
+console.log("[lifecycle] WyreStorm lifecycle reconciliation");
+console.log(`[lifecycle]   ARCHIVE (indexed & EoL/do-not-spec): ${archive.length}`);
+console.log(`[lifecycle]   ADD (active & not indexed):          ${add.length}`);
+console.log(`[lifecycle]   REVIEW (indexed & unlisted):         ${review.length}`);
+console.log(`[lifecycle]   SUPERSEDED (version families):       ${superseded.length}`);
+console.log(`[lifecycle]   STORIES (referencing non-active):    ${storyIssues.length}`);
+console.log(`[lifecycle] Report written to ${path.relative(repoRoot, reportPath)}`);

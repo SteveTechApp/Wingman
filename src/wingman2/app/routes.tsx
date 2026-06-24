@@ -30,6 +30,7 @@ const pageRegistry: Record<WingmanRouteKey, LazyPageComponent> = {
   finder: lazy(fromNamedExport(() => import("../pages/FinderPage"), "FinderPage")),
   productFamilies: lazy(fromNamedExport(() => import("../pages/ProductFamilyPage"), "ProductFamilyPage")),
   productPitch: lazy(fromNamedExport(() => import("../pages/ProductPitchPage"), "ProductPitchPage")),
+  catalogBrowser: lazy(fromNamedExport(() => import("../pages/CatalogBrowserPage"), "CatalogBrowserPage")),
   compare: lazy(() => import("../pages/ComparePageNew")),
   templates: lazy(fromNamedExport(() => import("../pages/TemplatesPage"), "TemplatesPage")),
   videowall: lazy(() => import("../pages/VideowallBuilderPage")),

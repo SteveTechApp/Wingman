@@ -135,6 +135,15 @@
     ]
   },
   {
+    "routeKey": "catalogBrowser",
+    "status": "wired",
+    "summary": "Catalogue Browser filters the WyreStorm range with the catalogIntelligence facet engine — family, role, technology, deployment and lifecycle — hiding end-of-life and do-not-recommend products by default and linking each result to Product Positioning.",
+    "needed": [
+      "Promote saved filter views per user.",
+      "Cross-link dependency SKUs into the filter from a selected product."
+    ]
+  },
+  {
     "routeKey": "ingest",
     "status": "partial",
     "summary": "Ingest now parses PDF, DOCX, text, markdown, CSV, and email exports into structured requirements and unknowns, and persists them only when an active project exists.",

@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { createRequire } from "node:module";
 
 const root = process.cwd();
 
@@ -26,7 +27,7 @@ function tail(output, lineCount = 10) {
 }
 
 function runVitest(files) {
-  const vitestEntry = resolve("node_modules/vitest/vitest.mjs");
+  const vitestEntry = path.join(path.dirname(createRequire(import.meta.url).resolve("vitest/package.json")), "vitest.mjs");
 
   try {
     const output = execFileSync(process.execPath, [vitestEntry, "run", ...files], {
