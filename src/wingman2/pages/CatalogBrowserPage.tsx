@@ -13,6 +13,34 @@ import {
   type CatalogFilterState,
   type CatalogProduct,
 } from "../../features/catalog/catalogIntelligence";
+import { resolveProductLifecycle } from "../lib/wyrestormProductLifecycle";
+
+// The catalog engine infers lifecycle from text/manual overrides only. Overlay the
+// authoritative 2026 business lists so a SKU that is discontinued, do-not-spec or
+// superseded is reliably marked excludeFromNewRecommendations even when the engine
+// had no override for it — otherwise it would leak past the "hide end-of-life"
+// promise. (Unlisted SKUs are left as-is; only confirmed EoL signals suppress.)
+export function withBusinessLifecycle(product: CatalogProduct): CatalogProduct {
+  if (product.lifecycle.excludeFromNewRecommendations) return product;
+  const life = resolveProductLifecycle(product.sku);
+  const suppress = life.status === "discontinued" || life.status === "do-not-spec" || Boolean(life.supersededBy);
+  if (!suppress) return product;
+  return { ...product, lifecycle: { ...product.lifecycle, excludeFromNewRecommendations: true } };
+}
+
+// Apply the catalog match engine, then re-apply lifecycle/accessory exclusions as
+// HARD filters. Smart-find mode keeps any product scoring > 0 even when
+// strictMatch rejected it, so without this an exact search for a suppressed SKU
+// would still render while "Hide end-of-life" is on. Exported for testing.
+export function selectCatalogResults(catalog: CatalogProduct[], state: CatalogFilterState): CatalogProduct[] {
+  return filterCatalogProducts(catalog, state).filter((product) => {
+    if (state.excludeEolSoon && product.lifecycle.excludeFromNewRecommendations) return false;
+    if (!state.includeAccessories && (product.deploymentRole === "accessory" || product.deploymentRole === "companion")) {
+      return false;
+    }
+    return true;
+  });
+}
 
 const PANEL = "rounded-3xl border border-[#29465e] bg-[#071522]";
 const CARD = "rounded-3xl border border-[#29465e] bg-[#081724]";
@@ -97,7 +125,7 @@ export function CatalogBrowserPage() {
     loadProductIntelligenceIndex()
       .then((data) => {
         if (cancelled) return;
-        setCatalog(applyCatalogOverrides(extractRawProducts(data)));
+        setCatalog(applyCatalogOverrides(extractRawProducts(data)).map(withBusinessLifecycle));
         setLoaded(true);
       })
       .catch(() => {
@@ -109,7 +137,7 @@ export function CatalogBrowserPage() {
   }, []);
 
   const facets = useMemo(() => buildFacetIndex(catalog), [catalog]);
-  const results = useMemo(() => filterCatalogProducts(catalog, state), [catalog, state]);
+  const results = useMemo(() => selectCatalogResults(catalog, state), [catalog, state]);
 
   const patch = (next: Partial<CatalogFilterState>) => setState((current) => ({ ...current, ...next }));
 

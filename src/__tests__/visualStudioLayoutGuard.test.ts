@@ -8,11 +8,11 @@ describe("Visual Studio layout guard", () => {
 
     expect(css).toContain("Wingman Visual Studio compact layout repair start");
     expect(css).toContain(".wm-vs-layout");
-    expect(css).toContain("grid-template-columns: minmax(225px, 280px) minmax(520px, 1fr) minmax(250px, 330px)");
+    expect(css).toContain("grid-template-columns: minmax(220px, 252px) minmax(720px, 1fr) minmax(230px, 286px)");
     expect(css).toContain(".wm-vs-canvas-shell");
-    expect(css).toContain("grid-template-rows: auto minmax(500px, 1fr)");
+    expect(css).toContain("grid-template-rows: auto minmax(580px, 1fr)");
     expect(css).toContain(".wm-vs-canvas");
-    expect(css).toContain("min-height: 500px");
+    expect(css).toContain("min-height: 640px");
     expect(css).toContain(".wm-vs-choice");
     expect(css).toContain("white-space: normal");
     expect(css).toContain("@media (max-width: 1400px)");

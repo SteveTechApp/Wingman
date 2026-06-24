@@ -9,7 +9,7 @@ describe("Visual Studio seed handoff and canvas readability", () => {
     expect(page).toContain("readSeedSku");
     expect(page).toContain("getInitialVisualStudioDiagramId");
     expect(page).toContain('"product-port-view"');
-    expect(page).toContain("replaceSeedProductNode");
+    expect(page).toContain("buildProductConnectionDiagram");
     expect(page).toContain("Seed product:");
   });
 
@@ -18,12 +18,12 @@ describe("Visual Studio seed handoff and canvas readability", () => {
     const factory = readFileSync(join(process.cwd(), "src/wingman2/lib/visualStudioDiagramFactory.ts"), "utf8");
     const css = readFileSync(join(process.cwd(), "src/wingman2/styles/wingman-style-stack.css"), "utf8");
 
-    expect(canvas).toContain("fitViewOptions={{ padding: 0.08 }}");
-    expect(canvas).toContain("minZoom={0.65}");
-    expect(canvas).toContain("maxZoom={1.8}");
+    expect(canvas).toContain("fitViewOptions={{ padding: 0.11, maxZoom: 1.02, minZoom: 0.72 }}");
+    expect(canvas).toContain("minZoom={0.52}");
+    expect(canvas).toContain("maxZoom={1.9}");
 
-    expect(factory).toContain("VISUAL_STUDIO_COLUMN_GAP = 210");
-    expect(factory).toContain("VISUAL_STUDIO_ROW_GAP = 132");
+    expect(factory).toContain("VISUAL_STUDIO_COLUMN_GAP = 248");
+    expect(factory).toContain("VISUAL_STUDIO_ROW_GAP = 164");
     expect(factory).toContain("node.column * VISUAL_STUDIO_COLUMN_GAP");
     expect(factory).toContain("node.row * VISUAL_STUDIO_ROW_GAP");
 
