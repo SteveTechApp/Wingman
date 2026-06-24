@@ -15,9 +15,9 @@ const conversationCards: SalesHelperCard[] = [
     route: "/wingman/discovery",
   },
   {
-    eyebrow: "Display, signage, LED, LFD or refresh opportunity",
-    title: "Display / signage attach",
-    body: "Use when the opportunity starts from screens, signage, LED, LFD or a video wall. Work backwards into signal management, switching, control and content behaviour.",
+    eyebrow: "Display, projector, signage, LED, LFD or refresh opportunity",
+    title: "Display / projector / LED attach",
+    body: "Use when the opportunity starts from screens, projectors, signage, LED, LFD or a video wall. Work backwards into signal management, switching, extension, control and content behaviour.",
     route: "/wingman/discovery",
   },
   {
@@ -41,7 +41,7 @@ const conversationCards: SalesHelperCard[] = [
   {
     eyebrow: "Account development, attach opportunity or sales enablement conversation",
     title: "Channel and customer growth conversation",
-    body: "Use for account development, distributor enablement, customer conversations and opportunity shaping. Turn display or UC conversations into WyreStorm attachment questions.",
+    body: "Use for account development, outbound calling, distributor enablement, customer conversations and opportunity shaping. Turn display, projector, LED or UC conversations into credible WyreStorm attachment questions.",
     route: "/wingman/call-cards",
   },
   {
@@ -67,10 +67,10 @@ export function SalesHelperPage() {
       <section className="wm-sh-page-hero" aria-labelledby="sales-helper-title">
         <div>
           <p className="wm-sh-page-kicker">Sales Helper</p>
-          <h1 id="sales-helper-title">Guide the sales conversation one step at a time.</h1>
+          <h1 id="sales-helper-title">Guide distributor sales conversations one step at a time.</h1>
           <p>
             Choose the conversation type, ask the next useful question, capture only what matters,
-            then move to the right Wingman tool.
+            then move to the right Wingman tool for enquiries, outbound calls, and WyreStorm attachment opportunities.
           </p>
         </div>
       </section>
@@ -89,7 +89,7 @@ export function SalesHelperPage() {
           <p className="wm-sh-page-kicker">Step 1 / 4</p>
           <h2 id="sales-helper-start-title">Choose the conversation type</h2>
           <p>
-            Pick the closest starting point. Wingman will narrow the next question and capture fields.
+            Pick the closest starting point. Wingman will narrow the next question, keep the conversation application-led, and help you surface viable WyreStorm solution directions.
           </p>
         </div>
 

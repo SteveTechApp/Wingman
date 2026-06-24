@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { saveDiscoveryBriefToProject, type StoredDiscoveryBrief } from "../data/projectStore";
@@ -21,7 +21,10 @@ type DiscoveryQuestion = {
   options: DiscoveryOption[];
 };
 
-type DiscoveryAnswers = Record<string, string>;
+type DiscoveryQuestionView = DiscoveryQuestion;
+
+type DiscoveryAnswerValue = string | string[];
+type DiscoveryAnswers = Record<string, DiscoveryAnswerValue>;
 type DiscoveryNotes = Record<string, string>;
 
 type DiscoverySpeechRecognitionAlternativeLike = {
@@ -63,7 +66,9 @@ type DiscoverySpeechWindow = Window &
   };
 
 function getDiscoverySpeechRecognition(): DiscoverySpeechRecognitionConstructor | undefined {
-  const speechWindow = window as DiscoverySpeechWindow;
+  
+
+const speechWindow = window as DiscoverySpeechWindow;
 
   return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
 }
@@ -90,7 +95,7 @@ const discoveryAuditMarkers = [
   "applicationSpecificDiscoveryQuestionGuidance",
 ] as const;
 
-const discoveryQuestions: DiscoveryQuestion[] = [
+const baseDiscoveryQuestions: DiscoveryQuestion[] = [
   {
     id: "opportunity",
     shortLabel: "Opportunity",
@@ -184,12 +189,12 @@ const discoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "two-four-sources",
-        label: "2–4 sources",
+        label: "2â€“4 sources",
         help: "Common meeting room, classroom or small venue input count.",
       },
       {
         value: "five-eight-sources",
-        label: "5–8 sources",
+        label: "5â€“8 sources",
         help: "Matrix, presentation switcher or structured source routing likely.",
       },
       {
@@ -201,6 +206,42 @@ const discoveryQuestions: DiscoveryQuestion[] = [
         value: "unknown-sources",
         label: "Unknown",
         help: "Ask what the customer needs to connect.",
+      },
+    ],
+  },
+  {
+    id: "source-connection",
+    shortLabel: "Source type",
+    question: "What are the source connector types?",
+    prompt: "Capture whether sources are fixed HDMI devices, USB-C laptops, cameras, wireless inputs, or network streams.",
+    why: "Source connector type changes the viable product family, especially when USB-C, wireless input, NDI, or network video is involved.",
+    required: true,
+    capturePlaceholder: "Example: Two HDMI media players in rack, one USB-C laptop at table, plus NDI camera feeds.",
+    options: [
+      {
+        value: "fixed-hdmi-sources",
+        label: "Mostly fixed HDMI sources",
+        help: "Rack media players, room PCs, signage players, set-top boxes or similar fixed HDMI devices.",
+      },
+      {
+        value: "mixed-hdmi-usbc",
+        label: "Mix of HDMI and USB-C sources",
+        help: "Common when both fixed devices and user laptops need to connect.",
+      },
+      {
+        value: "laptops-wireless-inputs",
+        label: "Laptop and wireless presentation inputs",
+        help: "User-driven presentation inputs, casting, or guest-device workflows.",
+      },
+      {
+        value: "cameras-ndi-network-streams",
+        label: "Cameras, NDI or network streams",
+        help: "Capture, broadcast, PTZ, NDI, or other network-video inputs are part of the conversation.",
+      },
+      {
+        value: "unknown-source-connectors",
+        label: "Unknown",
+        help: "Ask whether the sources are fixed devices, laptops, USB-C, HDMI, wireless, or network streams.",
       },
     ],
   },
@@ -225,7 +266,7 @@ const discoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "three-eight-displays",
-        label: "3–8 displays / outputs",
+        label: "3â€“8 displays / outputs",
         help: "Matrix switching or small AV-over-IP system should be considered.",
       },
       {
@@ -237,6 +278,78 @@ const discoveryQuestions: DiscoveryQuestion[] = [
         value: "video-wall-output",
         label: "Video wall / LED processor",
         help: "Clarify full canvas, per-display content, signage or multiview behaviour.",
+      },
+    ],
+  },
+  {
+    id: "display-behaviour",
+    shortLabel: "Display behaviour",
+    question: "How should the displays behave?",
+    prompt: "Capture whether outputs mirror, route independently, feed a wall processor, or show multiple sources on one canvas.",
+    why: "Display behaviour is the difference between simple distribution, matrix routing, multiview, and wall-processing conversations.",
+    required: true,
+    capturePlaceholder: "Example: All TVs show the same source, or each zone routes independently, or one LED processor needs a multiview feed.",
+    options: [
+      {
+        value: "same-content-all-displays",
+        label: "Same content on all displays",
+        help: "Mirrored distribution or repeated output behaviour.",
+      },
+      {
+        value: "independent-routing-per-display",
+        label: "Different content by display or zone",
+        help: "Any source to any display or zone-by-zone routing is needed.",
+      },
+      {
+        value: "video-wall-or-processor-feed",
+        label: "Video wall or LED processor feed",
+        help: "Wall processor, full canvas, or processor input path needs confirming.",
+      },
+      {
+        value: "multiview-on-one-output",
+        label: "Several sources on one output",
+        help: "Multiview or composed-output behaviour is required.",
+      },
+      {
+        value: "unknown-display-behaviour",
+        label: "Unknown",
+        help: "Ask whether outputs mirror, route independently, feed a wall processor, or need multiview.",
+      },
+    ],
+  },
+  {
+    id: "signal-standard",
+    shortLabel: "Signal standard",
+    question: "What signal standard is expected?",
+    prompt: "Choose the closest resolution and compatibility requirement. Use notes for any HDR, HDCP, or EDID nuance.",
+    why: "Resolution, HDR, HDCP, and EDID expectations often decide whether a proposal is actually safe to quote.",
+    required: true,
+    capturePlaceholder: "Example: 4K60 HDR with HDCP 2.2 displays, or mixed legacy screens with EDID sensitivity.",
+    options: [
+      {
+        value: "1080p-standard-hdmi",
+        label: "1080p / standard HDMI",
+        help: "Standard HD video with no strong HDR or HDCP complexity indicated.",
+      },
+      {
+        value: "4k60-standard",
+        label: "4K60 / standard 4K",
+        help: "4K routing is required but HDR or special compatibility constraints are not yet dominant.",
+      },
+      {
+        value: "4k60-hdr-hdcp",
+        label: "4K60 HDR / HDCP-sensitive",
+        help: "Premium signal path where HDR, HDCP 2.2+, and EDID management must be treated carefully.",
+      },
+      {
+        value: "legacy-edid-risk",
+        label: "Mixed legacy / EDID risk",
+        help: "Older displays, mixed resolutions, or compatibility-sensitive sinks are part of the requirement.",
+      },
+      {
+        value: "unknown-signal-standard",
+        label: "Unknown",
+        help: "Ask whether the job is 1080p, 4K, HDR, HDCP-sensitive, or likely to have EDID issues.",
       },
     ],
   },
@@ -277,9 +390,50 @@ const discoveryQuestions: DiscoveryQuestion[] = [
     ],
   },
   {
+    id: "usb-path",
+    shortLabel: "USB path",
+    question: "What is the USB host and bandwidth path?",
+    prompt: "Capture who owns USB, where the peripherals sit, and whether USB 2.0 or 3.x bandwidth matters.",
+    why: "USB ownership and bandwidth are often the real blockers in conferencing, BYOM, and camera workflows.",
+    required: true,
+    capturePlaceholder: "Example: User laptop hosts room camera and speakerphone over switched USB, or room PC hosts local USB 2.0 peripherals.",
+    options: [
+      {
+        value: "no-usb-path-needed",
+        label: "No USB path needed",
+        help: "Use this when the system is genuinely video/audio only.",
+      },
+      {
+        value: "room-host-usb2",
+        label: "Room host / USB 2.0 path",
+        help: "Room PC or UC appliance owns the peripherals and USB 2.0 class transport is acceptable.",
+      },
+      {
+        value: "user-laptop-host",
+        label: "User laptop hosts room peripherals",
+        help: "BYOD or BYOM workflow where the user device must own the room camera, mic, or speakerphone.",
+      },
+      {
+        value: "switchable-host-usb",
+        label: "Switchable host ownership",
+        help: "USB must move between room system and user laptop depending on workflow.",
+      },
+      {
+        value: "usb3-high-bandwidth-path",
+        label: "High-bandwidth USB 3.x path",
+        help: "Use when cameras, capture devices, or other peripherals need a stronger USB 3.x transport path.",
+      },
+      {
+        value: "unknown-usb-path",
+        label: "Unknown",
+        help: "Ask who owns USB, where the peripherals are, and whether USB 2.0 or 3.x bandwidth matters.",
+      },
+    ],
+  },
+  {
     id: "audio",
     shortLabel: "Audio",
-    question: "What audio requirement is likely?",
+    question: "What audio requirement is likely? Select all that apply.",
     prompt: "Capture whether audio is display speakers, room speakers, amplifier, DSP, Dante or microphone-led.",
     why: "Audio is often missed in first-pass discovery but affects product choice and dependencies.",
     required: true,
@@ -349,6 +503,47 @@ const discoveryQuestions: DiscoveryQuestion[] = [
     ],
   },
   {
+    id: "distance",
+    shortLabel: "Distance",
+    question: "What is the installed cable distance?",
+    prompt: "Choose the closest longest run between sources, switching, and displays.",
+    why: "Distance should be captured explicitly before Wingman decides between local switching, HDBaseT, or networked transport.",
+    required: true,
+    capturePlaceholder: "Example: Table to display under 5m, or rack to projector around 35m, or distributed displays over building network.",
+    options: [
+      {
+        value: "under-5m",
+        label: "Under 5m",
+        help: "Short local cable path.",
+      },
+      {
+        value: "5-10m",
+        label: "5-10m",
+        help: "Short extension range.",
+      },
+      {
+        value: "10-35m",
+        label: "10-35m",
+        help: "Medium extension range where HDBaseT or structured transport may matter.",
+      },
+      {
+        value: "35-70m",
+        label: "35-70m",
+        help: "Longer installed run that should be treated carefully in discovery.",
+      },
+      {
+        value: "70-100m-plus",
+        label: "70-100m+",
+        help: "Very long or site-wide path where networked transport may be more realistic.",
+      },
+      {
+        value: "unknown-distance",
+        label: "Unknown",
+        help: "Ask for the longest installed run or whether the design is effectively building-wide.",
+      },
+    ],
+  },
+  {
     id: "infrastructure",
     shortLabel: "Infrastructure",
     question: "What infrastructure is available?",
@@ -385,6 +580,52 @@ const discoveryQuestions: DiscoveryQuestion[] = [
     ],
   },
 ];
+
+const avoipProfileQuestion: DiscoveryQuestion = {
+  id: "avoip-profile",
+  shortLabel: "AVoIP fit",
+  question: "Which AVoIP performance profile sounds closest?",
+  prompt: "Keep this commercial rather than deeply technical. Choose the closest fit for bandwidth, latency, USB, and multiview expectations.",
+  why: "This is the shortest reliable way to separate NetworkHD 100, 500, and 600 conversations before Finder recommends a family.",
+  required: true,
+  capturePlaceholder:
+    "Example: 1Gb H.265 is fine for lower bandwidth, or premium 1Gb with better USB/quality, or zero-latency 10Gb SDVoE. Note multiview if several sources must appear on one output.",
+  options: [
+    {
+      value: "networkhd-100",
+      label: "Low bandwidth / 1Gb / H.264-H.265",
+      help: "Best when bandwidth efficiency matters more than ultra-low latency and the system suits a cost-sensitive 1Gb AVoIP path.",
+    },
+    {
+      value: "networkhd-500",
+      label: "Premium 1Gb / low latency / stronger USB",
+      help: "Use when image quality, lower latency, stronger USB handling, or Dante-ready discussions matter while staying on 1Gb switching.",
+    },
+    {
+      value: "networkhd-600",
+      label: "Zero latency / lossless / 10Gb / SDVoE",
+      help: "Use when the project genuinely needs highest-performance 10Gb AV-over-IP and validated 10Gb switching.",
+    },
+    {
+      value: "multiview-avoip",
+      label: "Multiview required",
+      help: "Use when several sources must appear on one output or monitoring canvas; the exact NetworkHD series still needs validating.",
+    },
+    {
+      value: "unknown-avoip-profile",
+      label: "Unknown",
+      help: "If unclear, capture the customer wording and validate bandwidth, latency, USB, multiview, and 1Gb versus 10Gb next.",
+    },
+  ],
+};
+
+function getVisibleDiscoveryQuestions(selectedApplication: string): DiscoveryQuestion[] {
+  if (selectedApplication !== "av-over-ip") {
+    return baseDiscoveryQuestions;
+  }
+
+  return [...baseDiscoveryQuestions, avoipProfileQuestion];
+}
 
 
 type ApplicationSpecificDiscoveryQuestionGuidance = {
@@ -433,11 +674,13 @@ const applicationSpecificDiscoveryQuestionGuidance: Record<string, ApplicationSp
     ],
   },
   "av-over-ip": {
-    likelyDirection: "NetworkHD direction depends on image quality, latency, USB, audio, network ownership and 1G/10G availability.",
-    askNext: "Is there a managed AV network available, and will IT support multicast/IGMP or a dedicated AV switch?",
+    likelyDirection: "Use one extra AVoIP qualifier to separate NetworkHD 100, 500, and 600 before Finder recommends the product family.",
+    askNext: "Will IT allow NetworkHD on the managed customer network, or should we default to dedicated AV switching while we validate the performance tier?",
     checkBeforeProduct: [
       "Network ownership",
       "1G vs 10G requirement",
+      "Low bandwidth vs low latency priority",
+      "Multiview requirement",
       "Encoder and decoder count",
       "USB, Dante/audio and control requirements",
       "NHD-CTL-PRO dependency",
@@ -487,6 +730,15 @@ const baseQuestionStrategyByStep: Record<string, ApplicationSpecificDiscoveryQue
       "Source location",
     ],
   },
+  "source-connection": {
+    likelyDirection: "Source connector type decides whether the next conversation is HDMI-only, USB-C, wireless input, NDI, or a mixed workflow.",
+    askNext: "Are the sources fixed HDMI devices, USB-C laptops, wireless inputs, or cameras and network streams?",
+    checkBeforeProduct: [
+      "HDMI, USB-C, wireless or network-video sources",
+      "Fixed devices versus user-driven inputs",
+      "Any NDI, PTZ or camera workflow",
+    ],
+  },
   displays: {
     likelyDirection: "Display/output count is one of the main dividers between switcher, matrix and AV-over-IP design.",
     askNext: "How many displays, projectors, confidence monitors, overflow displays or wall processor feeds are needed?",
@@ -494,6 +746,24 @@ const baseQuestionStrategyByStep: Record<string, ApplicationSpecificDiscoveryQue
       "Output count",
       "Independent versus mirrored outputs",
       "Video wall or LED processor requirement",
+    ],
+  },
+  "display-behaviour": {
+    likelyDirection: "Display behaviour separates mirrored distribution, routed outputs, multiview, and wall-processing conversations.",
+    askNext: "Do the displays all show the same source, route independently, feed a wall processor, or need several sources on one output?",
+    checkBeforeProduct: [
+      "Mirrored versus independent routing",
+      "Wall processor or video wall behaviour",
+      "Multiview requirement",
+    ],
+  },
+  "signal-standard": {
+    likelyDirection: "Signal standard makes resolution, HDR, HDCP, and EDID compatibility visible before a product is named.",
+    askNext: "Is the project standard 1080p, standard 4K60, HDR/HDCP-sensitive 4K, or a mixed EDID-risk environment?",
+    checkBeforeProduct: [
+      "Resolution",
+      "HDR and HDCP requirement",
+      "EDID or mixed-display compatibility risk",
     ],
   },
   usb: {
@@ -505,6 +775,15 @@ const baseQuestionStrategyByStep: Record<string, ApplicationSpecificDiscoveryQue
       "BYOD, BYOM, room PC or UC appliance workflow",
     ],
   },
+  "usb-path": {
+    likelyDirection: "USB path defines host ownership, peripheral location, and whether USB 2.0 or 3.x transport is required.",
+    askNext: "Which device owns the USB session, where are the peripherals, and is USB 2.0 or 3.x bandwidth required?",
+    checkBeforeProduct: [
+      "USB host ownership",
+      "Peripheral location",
+      "USB 2.0 versus USB 3.x path",
+    ],
+  },
   audio: {
     likelyDirection: "Audio requirements affect product dependencies, DSP/amplifier needs and conferencing design.",
     askNext: "Where should sound be heard, and are microphones or conferencing audio required?",
@@ -512,6 +791,15 @@ const baseQuestionStrategyByStep: Record<string, ApplicationSpecificDiscoveryQue
       "Display audio versus room audio",
       "Microphone requirement",
       "DSP, amplifier or Dante requirement",
+    ],
+  },
+  distance: {
+    likelyDirection: "Distance should be captured directly so local switching, HDBaseT, fibre, and AV-over-IP are judged on real path length rather than assumption.",
+    askNext: "What is the longest installed run between the source side, switching core, and display side?",
+    checkBeforeProduct: [
+      "Longest installed run",
+      "Local versus structured cable path",
+      "Whether the path is room-local or building-wide",
     ],
   },
   control: {
@@ -532,21 +820,105 @@ const baseQuestionStrategyByStep: Record<string, ApplicationSpecificDiscoveryQue
       "Managed network, multicast and IGMP availability",
     ],
   },
+  "avoip-profile": {
+    likelyDirection: "AVoIP profile selection shapes whether Wingman should steer toward NetworkHD 100, 500, or 600 and whether multiview must be part of the conversation.",
+    askNext: "Is the driver lower bandwidth, premium 1Gb quality/USB, zero-latency 10Gb performance, or a multiview output requirement?",
+    checkBeforeProduct: [
+      "Low bandwidth versus low latency priority",
+      "1Gb versus 10Gb network availability",
+      "USB and audio integration need",
+      "Multiview requirement",
+    ],
+  },
 };
 
 function getQuestionStrategy(stepId: string, selectedApplication: string): ApplicationSpecificDiscoveryQuestionGuidance {
   const baseStrategy = baseQuestionStrategyByStep[stepId] ?? baseQuestionStrategyByStep.opportunity;
   const applicationStrategy = applicationSpecificDiscoveryQuestionGuidance[selectedApplication];
 
-  if (stepId === "opportunity" && applicationStrategy) {
+  if (!applicationStrategy) {
+    return baseStrategy;
+  }
+
+  if (stepId === "opportunity") {
     return applicationStrategy;
+  }
+
+  if (stepId === "infrastructure" && selectedApplication === "av-over-ip") {
+    return {
+      likelyDirection:
+        "For a known AV-over-IP project, this step is no longer about HDMI or HDBaseT distance classes. The real decision is whether NetworkHD uses the customer managed network or dedicated AV switching.",
+      askNext:
+        "Will IT allow NetworkHD on the managed customer network, or should we carry dedicated AV switch(es) as the default design?",
+      checkBeforeProduct: [
+        "Customer managed network versus dedicated AV switch(es)",
+        "IGMP, multicast and AV VLAN support",
+        "1G versus 10G NetworkHD family requirement",
+        "Controller and switch dependency",
+      ],
+    };
+  }
+
+  if (stepId === "avoip-profile" && selectedApplication === "av-over-ip") {
+    return {
+      likelyDirection:
+        "Use this single step to separate low-bandwidth 1Gb (NetworkHD 100), premium 1Gb (NetworkHD 500), and zero-latency 10Gb (NetworkHD 600) conversations, while keeping multiview visible.",
+      askNext:
+        "Is the priority lower bandwidth, premium 1Gb quality and USB, or true zero-latency 10Gb performance, and is multiview part of the requirement?",
+      checkBeforeProduct: [
+        "H.264/H.265 style low-bandwidth 1Gb path",
+        "Premium 1Gb quality, stronger USB, or Dante-ready path",
+        "Zero-latency 10Gb / SDVoE path",
+        "Multiview or composed-output requirement",
+      ],
+    };
   }
 
   return baseStrategy;
 }
 
-function getOptionLabel(step: DiscoveryQuestion, value: string): string {
-  const option = step.options.find((candidate) => candidate.value === value);
+function getQuestionView(step: DiscoveryQuestion, selectedApplication: string): DiscoveryQuestionView {
+  if (step.id !== "infrastructure" || selectedApplication !== "av-over-ip") {
+    return step;
+  }
+
+  return {
+    ...step,
+    prompt:
+      "AV-over-IP is already established. Capture whether NetworkHD uses the customer managed network or dedicated AV switch infrastructure.",
+    why:
+      "Once the design is known to be AV-over-IP, the main infrastructure decision is managed customer network versus dedicated AV switching, plus IT ownership and multicast readiness.",
+    capturePlaceholder:
+      "Example: NetworkHD will use the customer managed network if IT supports IGMP and AV VLANs, otherwise carry dedicated AV switches.",
+    options: [
+      {
+        value: "customer-managed-network",
+        label: "Use existing customer network",
+        help: "Use the customer managed network only if IT supports NetworkHD switching, multicast, IGMP and AV VLAN requirements.",
+      },
+      {
+        value: "dedicated-av-switching",
+        label: "Specify dedicated AV network switch(es)",
+        help: "Default-safe AVoIP path when network ownership is restricted, unclear or easier to keep separate from IT.",
+      },
+      {
+        value: "unknown-assume-dedicated-av-switching",
+        label: "Unknown - assume dedicated AV network",
+        help: "If network ownership is unclear, carry dedicated AV switch(es) for now and remove them later if the customer network is approved.",
+      },
+    ],
+  };
+}
+
+function getOptionLabel(step: DiscoveryQuestion, value: DiscoveryAnswerValue, selectedApplication = ""): string {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => getOptionLabel(step, item, selectedApplication))
+      .filter(Boolean)
+      .join(", ");
+  }
+
+  const option = getQuestionView(step, selectedApplication).options.find((candidate) => candidate.value === value);
 
   if (option) {
     return option.label;
@@ -560,6 +932,131 @@ function isUnknownDiscoveryValue(value: string): boolean {
   return text.includes("unknown") || text.includes("not sure");
 }
 
+function getAvoipSeriesHint(profile: string): string {
+  switch (profile) {
+    case "networkhd-100":
+      return "NetworkHD 100";
+    case "networkhd-500":
+      return "NetworkHD 500";
+    case "networkhd-600":
+      return "NetworkHD 600";
+    case "multiview-avoip":
+      return "AVoIP multiview";
+    default:
+      return "";
+  }
+}
+
+function getAvoipDirection(profile: string, fallback: string): string {
+  switch (profile) {
+    case "networkhd-100":
+      return "NetworkHD 100 direction: lower-bandwidth 1Gb H.264/H.265 style AVoIP where flexible routing matters more than premium low-latency performance.";
+    case "networkhd-500":
+      return "NetworkHD 500 direction: premium 1Gb AVoIP where better image quality, lower latency, stronger USB handling, or Dante-ready workflows matter.";
+    case "networkhd-600":
+      return "NetworkHD 600 direction: lossless zero-latency 10Gb / SDVoE class AVoIP for the highest-performance routing environments.";
+    case "multiview-avoip":
+      return "AVoIP multiview direction: confirm whether the customer needs multiple sources on one output, then validate whether the correct fit is a 100-series multiview decoder, 500-series multiview processor, or a higher-performance path.";
+    default:
+      return fallback;
+  }
+}
+
+function getAvoipNextQuestion(profile: string, fallback: string): string {
+  switch (profile) {
+    case "networkhd-100":
+      return "Is the low-bandwidth 1Gb H.264/H.265 route acceptable, and are USB or premium low-latency expectations definitely not required?";
+    case "networkhd-500":
+      return "Does the project need premium 1Gb quality, lower latency, stronger USB handling, or Dante-ready conversations, and is the 1Gb network validated?";
+    case "networkhd-600":
+      return "Which 10GbE switch path, cabling, and SDVoE-class zero-latency requirement justify a NetworkHD 600 design?";
+    case "multiview-avoip":
+      return "How many sources must appear on one output, and is the multiview requirement inside a 1Gb or 10Gb AVoIP design?";
+    default:
+      return fallback;
+  }
+}
+
+function signalQualityTags(signalStandard: string): string[] {
+  const signal = signalStandard.toLowerCase();
+
+  if (signal.includes("hdr") || signal.includes("hdcp")) {
+    return ["4K60 HDR", "HDCP-sensitive", "EDID management"];
+  }
+
+  if (signal.includes("legacy") || signal.includes("edid")) {
+    return ["Mixed legacy sinks", "EDID risk", "Compatibility validation"];
+  }
+
+  if (signal.includes("4k60")) {
+    return ["4K60"];
+  }
+
+  if (signal.includes("1080p")) {
+    return ["1080p"];
+  }
+
+  return [];
+}
+
+
+// WINGMAN_DISCOVERY_AUDIO_MULTISELECT_RUNTIME_FIX_START
+function wmDiscoveryIsAudioMultiSelectStep(step: { id?: string } | undefined): boolean {
+  return step?.id === "audio";
+}
+
+function wmDiscoveryIsUnknownAudioValue(value: unknown): boolean {
+  return typeof value === "string" && value === "unknown-audio";
+}
+
+function wmDiscoveryNormaliseAnswerList(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+  }
+
+  if (typeof value === "string" && value.trim().length > 0) {
+    return [value];
+  }
+
+  return [];
+}
+
+function wmDiscoveryToggleAudioAnswer(currentValue: unknown, nextValue: string): string[] {
+  if (wmDiscoveryIsUnknownAudioValue(nextValue)) {
+    return [nextValue];
+  }
+
+  const currentList = wmDiscoveryNormaliseAnswerList(currentValue).filter(
+    (item) => !wmDiscoveryIsUnknownAudioValue(item),
+  );
+
+  if (currentList.includes(nextValue)) {
+    return currentList.filter((item) => item !== nextValue);
+  }
+
+  return [...currentList, nextValue];
+}
+
+function wmDiscoveryHasAnswer(value: unknown): boolean {
+  if (Array.isArray(value)) {
+    return value.length > 0;
+  }
+
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function wmDiscoveryAnswerToText(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0).join(", ");
+  }
+
+  if (typeof value === "string") {
+    return value;
+  }
+
+  return "";
+}
+// WINGMAN_DISCOVERY_AUDIO_MULTISELECT_RUNTIME_FIX_END
 export function DiscoveryPage() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [answers, setAnswers] = useState<DiscoveryAnswers>({});
@@ -571,36 +1068,48 @@ export function DiscoveryPage() {
   const navigate = useNavigate();
 
   const recogniserRef = useRef<DiscoverySpeechRecognitionLike | null>(null);
+  const selectedApplication = wmDiscoveryAnswerToText(answers.opportunity);
+  const discoveryQuestions = useMemo(
+    () => getVisibleDiscoveryQuestions(selectedApplication),
+    [selectedApplication],
+  );
   const activeStepIdRef = useRef(discoveryQuestions[0]?.id ?? "");
+  const completionPanelRef = useRef<HTMLElement | null>(null);
 
-  const currentStep = discoveryQuestions[activeIndex];
+  const currentStep = discoveryQuestions[Math.min(activeIndex, Math.max(discoveryQuestions.length - 1, 0))];
+  const currentStepView = getQuestionView(currentStep, selectedApplication);
   const currentAnswer = answers[currentStep.id] ?? "";
   const currentNote = notes[currentStep.id] ?? "";
-  const selectedQuestionStrategy = getQuestionStrategy(currentStep.id, currentAnswer);
+  const selectedQuestionStrategy = getQuestionStrategy(currentStep.id, selectedApplication);
   const selectedApplicationGuidance = currentStep.id === "opportunity" && currentAnswer.length > 0
     ? selectedQuestionStrategy
     : undefined;
 
   const answeredCount = useMemo(() => {
-    return discoveryQuestions.filter((step) => Boolean(answers[step.id])).length;
+    return discoveryQuestions.filter((step) => wmDiscoveryHasAnswer(answers[step.id])).length;
   }, [answers]);
 
   const completionPercent = Math.round((answeredCount / discoveryQuestions.length) * 100);
   const isFirstStep = activeIndex === 0;
   const isLastStep = activeIndex === discoveryQuestions.length - 1;
+  const isDiscoveryComplete = discoveryQuestions.length > 0 && answeredCount === discoveryQuestions.length;
 
   const capturedSummary = useMemo(() => {
     return discoveryQuestions
-      .filter((step) => Boolean(answers[step.id]) || Boolean(notes[step.id]))
+      .filter((step) => wmDiscoveryHasAnswer(answers[step.id]) || Boolean(notes[step.id]))
       .map((step) => {
         return {
           id: step.id,
           label: step.shortLabel,
-          answer: answers[step.id] ? getOptionLabel(step, answers[step.id]) : "Captured note only",
+          answer: wmDiscoveryHasAnswer(answers[step.id]) ? getOptionLabel(step, answers[step.id], selectedApplication) : "Captured note only",
           note: notes[step.id] ?? "",
         };
       });
-  }, [answers, notes]);
+  }, [answers, notes, selectedApplication]);
+
+  useEffect(() => {
+    setActiveIndex((current) => Math.min(current, Math.max(discoveryQuestions.length - 1, 0)));
+  }, [discoveryQuestions.length]);
 
   useEffect(() => {
     document.documentElement.classList.add("wm-discovery-page-open");
@@ -675,7 +1184,7 @@ export function DiscoveryPage() {
     if (seedRaw) {
       try {
         const seed = JSON.parse(seedRaw) as { sku?: string; name?: string };
-        const label = [seed.sku, seed.name].map((item) => String(item ?? "").trim()).filter(Boolean).join(" — ");
+        const label = [seed.sku, seed.name].map((item) => String(item ?? "").trim()).filter(Boolean).join(" â€” ");
         if (label) {
           setNotes((current) => ({
             ...current,
@@ -698,14 +1207,46 @@ export function DiscoveryPage() {
   }
 
   function handleSelectAnswer(value: string): void {
+    if (wmDiscoveryIsAudioMultiSelectStep(currentStep)) {
+
+      setAnswers((previous) => {
+        const updated = { ...previous };
+        const nextList = wmDiscoveryToggleAudioAnswer(previous[currentStep.id], value);
+
+        if (wmDiscoveryHasAnswer(nextList)) {
+          updated[currentStep.id] = nextList;
+          return updated;
+        }
+
+        delete updated[currentStep.id];
+        return updated;
+      });
+
+      setSavedMessage("");
+      return;
+    }
+
+    const completesDiscovery = discoveryQuestions.every(
+      (step) => step.id === currentStep.id || wmDiscoveryHasAnswer(answers[step.id]),
+    );
+
     setAnswers((previous) => ({
       ...previous,
       [currentStep.id]: value,
     }));
 
-    window.setTimeout(() => {
-      setActiveIndex((index) => Math.min(discoveryQuestions.length - 1, index + 1));
-    }, 180);
+    setSavedMessage("");
+
+    if (isLastStep && completesDiscovery) {
+      window.setTimeout(() => {
+        completionPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+      return;
+    }
+
+    if (!isLastStep) {
+      moveNext();
+    }
   }
 
   function handleCaptureChange(value: string): void {
@@ -713,14 +1254,18 @@ export function DiscoveryPage() {
       ...previous,
       [currentStep.id]: value,
     }));
+    setSavedMessage("");
   }
-
   function saveCaptureAsAnswer(): void {
     const cleanNote = currentNote.trim();
 
     if (!cleanNote) {
       return;
     }
+
+    const completesDiscovery = discoveryQuestions.every(
+      (step) => step.id === currentStep.id || wmDiscoveryHasAnswer(answers[step.id]),
+    );
 
     setAnswers((previous) => ({
       ...previous,
@@ -729,6 +1274,11 @@ export function DiscoveryPage() {
 
     window.setTimeout(() => {
       setActiveIndex((index) => Math.min(discoveryQuestions.length - 1, index + 1));
+
+      if (completesDiscovery) {
+        completionPanelRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+        completionPanelRef.current?.focus({ preventScroll: true });
+      }
     }, 180);
   }
 
@@ -749,14 +1299,41 @@ export function DiscoveryPage() {
   function buildDiscoveryBrief(): StoredDiscoveryBrief {
     const answerLabel = (stepId: string): string => {
       const step = discoveryQuestions.find((candidate) => candidate.id === stepId);
-      return step && answers[stepId] ? getOptionLabel(step, answers[stepId]) : "";
+      return step && wmDiscoveryHasAnswer(answers[stepId]) ? getOptionLabel(step, answers[stepId], selectedApplication) : "";
     };
-    const application = answerLabel("opportunity") || answers.opportunity || "Discovery";
+    const application = answerLabel("opportunity") || wmDiscoveryAnswerToText(answers.opportunity) || "Discovery";
+    const avoipProfile = answerLabel("avoip-profile");
+    const avoipProfileValue = wmDiscoveryAnswerToText(answers["avoip-profile"]);
+    const avoipSeriesHint = getAvoipSeriesHint(avoipProfileValue);
     const allNotes = Object.values(notes).map((note) => note.trim()).filter(Boolean);
     const summaryText = capturedSummary
-      .map((item) => `${item.label}: ${item.answer}${item.note ? ` — ${item.note}` : ""}`)
+      .map((item) => `${item.label}: ${item.answer}${item.note ? ` â€” ${item.note}` : ""}`)
       .join("\n");
-    const strategy = getQuestionStrategy("opportunity", answers.opportunity ?? "");
+    const strategy = getQuestionStrategy("opportunity", wmDiscoveryAnswerToText(answers.opportunity));
+    const inferredDirection = selectedApplication === "av-over-ip"
+      ? getAvoipDirection(avoipProfileValue, strategy.likelyDirection)
+      : strategy.likelyDirection;
+    const nextBestQuestion = selectedApplication === "av-over-ip"
+      ? getAvoipNextQuestion(avoipProfileValue, strategy.askNext)
+      : strategy.askNext;
+    const displayCount = answerLabel("displays");
+    const sourceConnection = answerLabel("source-connection");
+    const displayBehaviour = answerLabel("display-behaviour") || answerLabel("displays");
+    const signalStandard = answerLabel("signal-standard");
+    const distance = answerLabel("distance");
+    const sourceCount = answerLabel("sources");
+    const infrastructure = answerLabel("infrastructure");
+    const usb = answerLabel("usb");
+    const usbPath = answerLabel("usb-path");
+    const audio = answerLabel("audio");
+    const control = answerLabel("control");
+    const qualityTags = signalQualityTags(signalStandard);
+    const distanceInfrastructureNotes = [distance, infrastructure].filter(Boolean).join(" | ");
+    const processingNeeds = [
+      answers["display-behaviour"] === "video-wall-or-processor-feed" || answers.displays === "video-wall-output" ? "Video wall processing" : "",
+      answers["display-behaviour"] === "multiview-on-one-output" ? "Multiview" : "",
+      avoipProfileValue === "multiview-avoip" ? "Multiview" : "",
+    ].filter(Boolean);
     const missingInformation = discoveryQuestions.flatMap((step) => {
       const answer = answers[step.id] ?? "";
       const answerText = answerLabel(step.id);
@@ -766,40 +1343,86 @@ export function DiscoveryPage() {
         return [`Confirm ${step.question.replace(/\?$/, "").toLowerCase()}.`];
       }
 
-      if (isUnknownDiscoveryValue(answer) || isUnknownDiscoveryValue(answerText) || isUnknownDiscoveryValue(note)) {
+      if (isUnknownDiscoveryValue(wmDiscoveryAnswerToText(answer)) || isUnknownDiscoveryValue(answerText) || isUnknownDiscoveryValue(note)) {
         return [`Confirm ${step.question.replace(/\?$/, "").toLowerCase()}.`];
       }
 
       return [];
     });
 
+    if (selectedApplication === "av-over-ip" && answers.infrastructure === "unknown-assume-dedicated-av-switching") {
+      missingInformation.push("Confirm whether NetworkHD will use the customer managed network or a dedicated AV switch design.");
+    }
+
+    if (selectedApplication === "av-over-ip" && (!avoipProfileValue || avoipProfileValue === "unknown-avoip-profile")) {
+      missingInformation.push("Confirm whether the AVoIP path is lower-bandwidth 1Gb, premium 1Gb, or zero-latency 10Gb.");
+    }
+
+    if (avoipProfileValue === "multiview-avoip") {
+      missingInformation.push("Confirm how many sources must appear on one output and which NetworkHD family should carry the multiview requirement.");
+    }
+
     const brief: StoredDiscoveryBrief = {
       savedAt: new Date().toISOString(),
       roomModel: {
         roomType: application,
         application,
+        applicationType: application,
         outcome: notes.opportunity?.trim() || application,
         customerWording: notes.opportunity?.trim() || allNotes[0] || "",
         scale: answerLabel("scale"),
-        devices: [answerLabel("sources")].filter(Boolean),
-        displayBehaviour: answerLabel("displays"),
-        usbOwnership: answerLabel("usb"),
-        audioPath: answerLabel("audio"),
-        controlNeeds: [answerLabel("control")].filter(Boolean),
-        cableRun: answerLabel("infrastructure"),
-        network: answerLabel("infrastructure"),
+        devices: [sourceCount, sourceConnection].filter(Boolean),
+        sourceTypes: [sourceConnection].filter(Boolean),
+        sourceConnections: [sourceConnection].filter(Boolean),
+        sourceCount,
+        displayCount,
+        displays: displayCount,
+        displayArrangement: displayBehaviour,
+        displayBehaviour,
+        signalStandard,
+        signalStandardSummary: signalStandard,
+        downstreamQualityTags: qualityTags,
+        resolutionRequirement: signalStandard,
+        usbOwnership: usb,
+        usbTransport: usbPath || usb,
+        usbTopologyRisk: usbPath,
+        usbNeeds: [usbPath || usb].filter(Boolean),
+        audioPath: audio,
+        audioNeeds: [audio].filter(Boolean),
+        controlNeeds: [control].filter(Boolean),
+        cableRun: distance,
+        longestRun: distance,
+        distanceInfrastructureNotes,
+        network: infrastructure,
+        networkAvailability: infrastructure,
+        processingNeeds,
+        processingRequirement: processingNeeds[0] ?? "",
+        videoWallRequirement:
+          answers["display-behaviour"] === "video-wall-or-processor-feed" || answers.displays === "video-wall-output"
+            ? displayBehaviour
+            : "Not indicated",
+        avoipProfile,
+        avoipSeriesHint,
+        multiviewRequirement:
+          avoipProfileValue === "multiview-avoip" || answers["display-behaviour"] === "multiview-on-one-output"
+            ? "Multiview required"
+            : "Not indicated",
+        designDirection: inferredDirection,
+        inferredArchitectureDirection: inferredDirection,
+        recommendedProductPath: selectedApplication === "av-over-ip" ? "AVoIP / matrix routing" : strategy.likelyDirection,
+        nextBestQuestion,
         notes: allNotes.join(" | "),
         summary: summaryText,
       },
       inference: {
         summary: summaryText,
-        architecture: strategy.likelyDirection,
-        nextBestQuestion: strategy.askNext,
+        architecture: inferredDirection,
+        nextBestQuestion,
       },
       capturedPercent: completionPercent,
       returnRoute: routeCatalogByKey.discovery.path,
       missingInformation,
-      nextBestQuestion: strategy.askNext,
+      nextBestQuestion,
     };
     const recommendationEvidence = buildDiscoveryRecommendationEvidence(brief);
 
@@ -893,7 +1516,7 @@ export function DiscoveryPage() {
     <main className="wm-discovery-capture-page" data-audit={discoveryAuditMarkers.join("|")}>
       <header className="wm-discovery-capture-hero">
         <div>
-          <p className="wm-discovery-eyebrow">Guided discovery · live call mode</p>
+          <p className="wm-discovery-eyebrow">Guided discovery Â· live call mode</p>
           <h1>One question at a time</h1>
           <p>
             Capture the customer wording, choose the closest answer, then move forward. Use the capture box when the
@@ -939,29 +1562,56 @@ export function DiscoveryPage() {
               >
                 <span>{index + 1}</span>
                 <strong>{step.shortLabel}</strong>
-                {isCaptured && <small>{getOptionLabel(step, answer)}</small>}
+                {isCaptured && <small>{getOptionLabel(step, answer, selectedApplication)}</small>}
               </button>
             );
           })}
         </div>
       </section>
 
+      {isDiscoveryComplete ? (
+        <section
+          ref={completionPanelRef}
+          className="wm-discovery-finish-card"
+          tabIndex={-1}
+          aria-labelledby="discovery-complete-title"
+        >
+          <span>Discovery complete</span>
+          <h2 id="discovery-complete-title">All {discoveryQuestions.length} answers are captured. Choose the next move.</h2>
+          <p>
+            Your complete room brief is ready. Finder will use the core architecture requirements to recommend products,
+            while keeping supporting audio, control and installation details visible for validation.
+          </p>
+
+          <div className="wm-discovery-capture-actions wm-discovery-finish-actions">
+            <button type="button" onClick={() => moveForward("finder")}>Find matching products</button>
+            <button type="button" onClick={() => moveForward("proposal")}>Build proposal</button>
+            <button type="button" onClick={saveDiscoveryToProject}>Save to project</button>
+          </div>
+
+          <p className="wm-discovery-finish-review">
+            Need to amend something? Select any completed stage in the Discovery trail above; every answer remains editable.
+          </p>
+
+          {savedMessage && <p className="wm-discovery-muted-note">{savedMessage}</p>}
+        </section>
+      ) : (
       <div className="wm-discovery-question-layout">
         <section className="wm-discovery-question-card">
           <div className="wm-discovery-question-heading">
             <span>{activeIndex + 1} / {discoveryQuestions.length}</span>
-            <h2>{currentStep.question}</h2>
-            <p>{currentStep.prompt}</p>
+            <h2>{currentStepView.question}</h2>
+            <p>{currentStepView.prompt}</p>
           </div>
 
           <div className="wm-discovery-why-card">
             <strong>Why this matters</strong>
-            <p>{currentStep.why}</p>
+            <p>{currentStepView.why}</p>
           </div>
 
           <div className="wm-discovery-option-list">
-            {currentStep.options.map((option) => {
-              const selected = currentAnswer === option.value;
+            {currentStepView.options.map((option) => {
+              const selected = Array.isArray(currentAnswer) ? currentAnswer.includes(option.value) : currentAnswer === option.value;
 
               return (
                 <button
@@ -971,7 +1621,7 @@ export function DiscoveryPage() {
                   onClick={() => handleSelectAnswer(option.value)}
                   aria-pressed={selected}
                 >
-                  <span className="wm-discovery-option-radio" aria-hidden="true" />
+                  <span className={wmDiscoveryIsAudioMultiSelectStep(currentStep) ? "wm-discovery-option-checkbox" : "wm-discovery-option-radio"} aria-hidden="true" />
                   <span>
                     <strong>{option.label}</strong>
                     <small>{option.help}</small>
@@ -1012,7 +1662,7 @@ export function DiscoveryPage() {
           <textarea
             value={currentNote}
             onChange={(event) => handleCaptureChange(event.target.value)}
-            placeholder={currentStep.capturePlaceholder}
+            placeholder={currentStepView.capturePlaceholder}
             rows={9}
           />
 
@@ -1048,6 +1698,7 @@ export function DiscoveryPage() {
           )}
         </aside>
       </div>
+      )}
 
       {capturedSummary.length > 0 && (
         <section className="wm-discovery-summary-card">
@@ -1068,7 +1719,7 @@ export function DiscoveryPage() {
         </section>
       )}
 
-      {capturedSummary.length > 0 && (
+      {capturedSummary.length > 0 && !isDiscoveryComplete && (
         <section className="wm-discovery-summary-card">
           <div className="wm-discovery-summary-heading">
             <span>Next step</span>
@@ -1087,3 +1738,8 @@ export function DiscoveryPage() {
 }
 
 export default DiscoveryPage;
+
+
+
+
+

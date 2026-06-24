@@ -31,6 +31,11 @@ import { discoveryBriefToFinderNeed, readLatestDiscoveryBrief } from "../data/wo
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
 import { getProductFamilyRankingReason, rankProductsByFamilyScores } from "../lib/productFamilyShortlistRanking";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import {
+  wyrestormCapabilityFallbackTerms,
+  wyrestormCapabilityVerdict,
+  type WyrestormDecisionCapability,
+} from "../lib/wyrestormCapabilityProfiles";
 
 type MatchStatus = "recommended" | "alternative" | "caution";
 type ProductVoiceId = "endUser" | "systemIntegrator" | "consultant";
@@ -96,6 +101,8 @@ type FinderNeed = {
   network: string;
   processing: string;
   control: string;
+  avoipProfile: string;
+  avoipSeriesHint: string;
 };
 
 type FinderStep = "start" | "signal" | "size" | "specialist" | "results";
@@ -123,6 +130,13 @@ type FinderFeatureFilter = {
   label: string;
   weight: number;
   matches: (product: FinderProduct) => boolean;
+};
+
+type FinderMatchMode = "exact" | "architecture" | "closest" | "scored" | "none";
+
+type FinderMatchPlan = {
+  matches: ProductMatch[];
+  mode: FinderMatchMode;
 };
 
 type UnknownRecord = Record<string, unknown>;
@@ -216,7 +230,7 @@ const distanceOptions = [
   "Unknown",
 ];
 
-const resolutionOptions = ["1080p", "4K30", "4K60 4:2:0", "4K60 4:4:4", "8K / specialist", "Unknown"];
+const resolutionOptions = ["1080p", "4K30", "4K60", "4K60 4:2:0", "4K60 4:4:4", "8K / specialist", "Unknown"];
 
 const usbOptions = [
   "No USB",
@@ -577,6 +591,8 @@ const initialNeed: FinderNeed = {
   network: "",
   processing: "",
   control: "",
+  avoipProfile: "",
+  avoipSeriesHint: "",
 };
 
 const finderSteps: Array<{
@@ -1314,6 +1330,28 @@ function productHasAny(product: FinderProduct, terms: string[]) {
   return terms.some((term) => text.includes(normaliseText(term)));
 }
 
+function productMatchesAvoipSeries(product: FinderProduct, seriesHint: string) {
+  if (!seriesHint) return false;
+
+  if (seriesHint === "NetworkHD 100") {
+    return productHasAny(product, ["networkhd 100", "nhd-120", "nhd-124", "nhd-150", "nhd-128"]);
+  }
+
+  if (seriesHint === "NetworkHD 500") {
+    return productHasAny(product, ["networkhd 500", "nhd-500", "nhd-0401-mv"]);
+  }
+
+  if (seriesHint === "NetworkHD 600") {
+    return productHasAny(product, ["networkhd 600", "nhd-600", "10g", "sdvoe"]);
+  }
+
+  if (seriesHint === "AVoIP multiview") {
+    return productHasAny(product, ["multiview", "nhd-150-rx", "nhd-0401-mv", "nhd-600-trx"]);
+  }
+
+  return false;
+}
+
 function productHasFeatureTerm(product: FinderProduct, term: string) {
   const text = ` ${getFinderMatchText(product)} `;
   const normalisedTerm = normaliseText(term);
@@ -1328,6 +1366,12 @@ function productHasFeatureTerm(product: FinderProduct, term: string) {
 
 function productHasFeatureAny(product: FinderProduct, terms: string[]) {
   return terms.some((term) => productHasFeatureTerm(product, term));
+}
+
+function productMatchesDecisionCapability(product: FinderProduct, capability: WyrestormDecisionCapability) {
+  const knownVerdict = wyrestormCapabilityVerdict(product.sku, capability);
+  if (knownVerdict !== null) return knownVerdict;
+  return productHasFeatureAny(product, wyrestormCapabilityFallbackTerms(capability));
 }
 
 function productHasAllFeatureGroups(product: FinderProduct, termGroups: string[][]) {
@@ -1636,6 +1680,14 @@ function usbFeatureFilter(value: string): FinderFeatureFilter | null {
 function productPathFeatureFilter(value: string): FinderFeatureFilter | null {
   if (isNeutralFeatureValue(value)) return null;
 
+  if (value === "Wireless presentation") {
+    return makeCustomFeatureFilter("path:wireless", value, 36, (product) => productMatchesDecisionCapability(product, "wirelessCasting"));
+  }
+
+  if (value === "Video wall") {
+    return makeCustomFeatureFilter("path:video-wall", value, 36, (product) => productMatchesDecisionCapability(product, "videoWall"));
+  }
+
   const pathTerms: Record<string, string[]> = {
     "Presentation switcher": ["presentation switcher", "switcher", "usb-c", "usb c", "byod", "byom"],
     "HDMI / USB extender": ["hdmi", "usb", "kvm", "hdbaset", "extender"],
@@ -1663,6 +1715,26 @@ function technicalRequirementFeatureFilter(value: string): FinderFeatureFilter |
 
   if (value === "HDMI + USB") {
     return makeAllFeatureFilter("signal:hdmi-usb", value, [["hdmi"], ["usb", "kvm"]], 38);
+  }
+
+  if (value === "Wireless presentation") {
+    return makeCustomFeatureFilter("requirement:wireless", value, 42, (product) => productMatchesDecisionCapability(product, "wirelessCasting"));
+  }
+
+  if (value === "Dual display / MST") {
+    return makeCustomFeatureFilter("requirement:mst", value, 46, (product) => productMatchesDecisionCapability(product, "mst"));
+  }
+
+  if (value === "Create multiview layout") {
+    return makeCustomFeatureFilter("requirement:multiview", value, 44, (product) => productMatchesDecisionCapability(product, "multiview"));
+  }
+
+  if (value === "Build LCD video wall") {
+    return makeCustomFeatureFilter("requirement:lcd-wall", value, 44, (product) => productMatchesDecisionCapability(product, "videoWall"));
+  }
+
+  if (value === "Feed LED wall processor") {
+    return makeCustomFeatureFilter("requirement:led-wall", value, 44, (product) => productMatchesDecisionCapability(product, "ledWall"));
   }
 
   const requirementTerms: Record<string, string[]> = {
@@ -1751,6 +1823,7 @@ function resolutionFeatureFilter(value: string): FinderFeatureFilter | null {
   const resolutionTerms: Record<string, string[]> = {
     "1080p": ["1080p", "1080p60", "full hd"],
     "4K30": ["4k30", "4k 30"],
+    "4K60": ["4k60", "4k 60", "4k60hz"],
     "4K60 4:2:0": ["4k60", "4k 60", "4:2:0", "4 2 0", "4k60hz"],
     "4K60 4:4:4": ["4k60", "4k 60", "4:4:4", "4 4 4", "4k60hz"],
     "8K / specialist": ["8k", "specialist", "10g", "lossless"],
@@ -1789,6 +1862,14 @@ function networkFeatureFilter(value: string): FinderFeatureFilter | null {
 function processingFeatureFilter(value: string): FinderFeatureFilter | null {
   if (isNeutralFeatureValue(value)) return null;
 
+  if (value === "Multiview") {
+    return makeCustomFeatureFilter("processing:multiview", value, 40, (product) => productMatchesDecisionCapability(product, "multiview"));
+  }
+
+  if (value === "Video wall processing") {
+    return makeCustomFeatureFilter("processing:video-wall", value, 40, (product) => productMatchesDecisionCapability(product, "videoWall"));
+  }
+
   const processingTerms: Record<string, string[]> = {
     Scaling: ["scaling", "scaler", "down-scaling", "down scaling"],
     "Seamless switching": ["seamless", "seamless switching"],
@@ -1799,6 +1880,12 @@ function processingFeatureFilter(value: string): FinderFeatureFilter | null {
   };
 
   return makeAnyFeatureFilter(`processing:${value}`, value, processingTerms[value] ?? [value], 34);
+}
+
+function avoipSeriesFeatureFilter(value: string): FinderFeatureFilter | null {
+  if (!value) return null;
+
+  return makeCustomFeatureFilter(`avoip-series:${value}`, value, 48, (product) => productMatchesAvoipSeries(product, value));
 }
 
 function controlFeatureFilter(value: string): FinderFeatureFilter | null {
@@ -1831,6 +1918,7 @@ function getFeatureFilterForNeedField(key: keyof FinderNeed, value: string): Fin
   if (key === "network") return networkFeatureFilter(value);
   if (key === "processing") return processingFeatureFilter(value);
   if (key === "control") return controlFeatureFilter(value);
+  if (key === "avoipSeriesHint") return avoipSeriesFeatureFilter(value);
   return null;
 }
 
@@ -1838,6 +1926,97 @@ function getActiveFeatureFilters(need: FinderNeed) {
   return (Object.keys(need) as (keyof FinderNeed)[])
     .map((key) => getFeatureFilterForNeedField(key, need[key]))
     .filter((filter): filter is FinderFeatureFilter => Boolean(filter));
+}
+
+function isFinderCoreFeatureFilter(filter: FinderFeatureFilter, need: FinderNeed) {
+  if (filter.id === "query") return true;
+  if (filter.id.startsWith("requirement:") || filter.id.startsWith("path:") || filter.id.startsWith("avoip-series:")) return true;
+  if (filter.id.startsWith("processing:")) return true;
+  if (filter.id.startsWith("network:")) return need.productPath === "AVoIP" || need.technologyType === "AVoIP";
+  return false;
+}
+
+function coreEligibilityNeed(need: FinderNeed): FinderNeed {
+  return {
+    ...need,
+    signalType: "",
+    sourceConnector: "Unknown",
+    displayConnector: "",
+    inputs: "Unknown",
+    outputs: "Unknown",
+    distance: "Unknown",
+    resolution: "Unknown",
+    usb: "Unknown",
+    audio: "Unknown",
+    control: "Unknown",
+  };
+}
+
+function finderFeatureMatches(
+  products: FinderProduct[],
+  need: FinderNeed,
+  filters: FinderFeatureFilter[],
+  strictMatch: boolean,
+  eligibilityNeed = need,
+) {
+  return products
+    .map(cleanFinderProduct)
+    .filter((product) => isAllowedFeatureSearchProduct(product, need))
+    .map((product) => applyFinderRequirementGate(toFeatureSearchMatch(product, need, filters, strictMatch, eligibilityNeed), need))
+    .filter((match) => match.score >= 0)
+    .sort((a, b) => b.score - a.score || a.sku.localeCompare(b.sku));
+}
+
+function buildFinderMatchPlan(products: FinderProduct[], need: FinderNeed, hasIntent: boolean): FinderMatchPlan {
+  if (!hasIntent) return { matches: [], mode: "none" };
+
+  const featureFilters = getActiveFeatureFilters(need);
+
+  if (!featureFilters.length) {
+    const matches = products
+      .map((product) => applyFinderRequirementGate(applyFinderVisibilityToMatch(scoreProduct(product, need), need), need))
+      .filter((match) => shouldShowMatch(match, need))
+      .sort(compareProductMatches)
+      .slice(0, hasPointToPointOneInOneOutNeed(need) ? 4 : 8);
+
+    return { matches, mode: matches.length ? "scored" : "none" };
+  }
+
+  const cleanProducts = products.map(cleanFinderProduct).filter((product) => isAllowedFeatureSearchProduct(product, need));
+  const exactProducts = cleanProducts.filter((product) => featureFilters.every((filter) => filter.matches(product)));
+
+  if (exactProducts.length) {
+    const matches = finderFeatureMatches(exactProducts, need, featureFilters, true);
+    if (matches.length) return { matches, mode: "exact" };
+  }
+
+  // Discovery describes a system, whereas Finder recommends the first product
+  // path within that system. Audio, control, installed distance and I/O scale are
+  // still scored, but are not required to exist on one core device.
+  const coreFilters = featureFilters.filter((filter) => isFinderCoreFeatureFilter(filter, need));
+  const architectureProducts = coreFilters.length
+    ? cleanProducts.filter((product) => coreFilters.every((filter) => filter.matches(product)))
+    : [];
+
+  if (architectureProducts.length) {
+    const matches = finderFeatureMatches(architectureProducts, need, featureFilters, true, coreEligibilityNeed(need));
+    if (matches.length) return { matches, mode: "architecture" };
+  }
+
+  const primaryFilter = coreFilters.find((filter) => filter.id.startsWith("avoip-series:")) ??
+    coreFilters.find((filter) => filter.id.startsWith("requirement:")) ??
+    coreFilters.find((filter) => filter.id.startsWith("path:")) ??
+    coreFilters[0];
+  const closestProducts = primaryFilter
+    ? cleanProducts.filter((product) => primaryFilter.matches(product))
+    : [];
+
+  if (closestProducts.length) {
+    const matches = finderFeatureMatches(closestProducts, need, featureFilters, false, coreEligibilityNeed(need));
+    if (matches.length) return { matches, mode: "closest" };
+  }
+
+  return { matches: [], mode: "none" };
 }
 
 
@@ -2020,12 +2199,18 @@ function suppressedFinderClassMatch(product: FinderProduct): ProductMatch {
     status: "caution",
   };
 }
-function toFeatureSearchMatch(product: FinderProduct, need: FinderNeed, filters: FinderFeatureFilter[], strictMatch: boolean): ProductMatch {
-  const suppressedByWingmanClassification = !isWingmanProductEligibleForFinderNeed(product, need);
+function toFeatureSearchMatch(
+  product: FinderProduct,
+  need: FinderNeed,
+  filters: FinderFeatureFilter[],
+  strictMatch: boolean,
+  eligibilityNeed = need,
+): ProductMatch {
+  const suppressedByWingmanClassification = !isWingmanProductEligibleForFinderNeed(product, eligibilityNeed);
   const cleanProduct = cleanFinderProduct(product);
   const matchingFilters = filters.filter((filter) => filter.matches(cleanProduct));
 
-  if (suppressedByWingmanClassification || !isFinderStrictClassAllowed(cleanProduct, need)) {
+  if (suppressedByWingmanClassification || !isFinderStrictClassAllowed(cleanProduct, eligibilityNeed)) {
     return suppressedFinderClassMatch(cleanProduct);
   }
   const featureScore = 40 + matchingFilters.reduce((sum, filter) => sum + filter.weight, 0) + (strictMatch ? 12 : 0);
@@ -2377,6 +2562,18 @@ if (!isProductAllowedForNeed(cleanProduct, need)) {
 
   if (need.processing && productHasAny(cleanProduct, [need.processing])) score += 18;
 
+  if (need.avoipSeriesHint) {
+    if (productMatchesAvoipSeries(cleanProduct, need.avoipSeriesHint)) {
+      score += need.avoipSeriesHint === "AVoIP multiview" ? 42 : 48;
+    } else if (need.technologyType === "AVoIP" || need.productPath === "AVoIP") {
+      if (need.avoipSeriesHint === "NetworkHD 600") {
+        score -= 95;
+      } else if (need.avoipSeriesHint === "NetworkHD 500" || need.avoipSeriesHint === "NetworkHD 100") {
+        score -= 44;
+      }
+    }
+  }
+
   if (isReceiverOnlyProduct(cleanProduct) && hasMultiInputNeed(need)) score -= 100;
   if (hasIntegratedHdmiUsbNeed(need) && !isStandaloneHdmiUsbExtenderProduct(cleanProduct)) score -= 180;
   if (isReceiverOnlyProduct(cleanProduct) && hasIntegratedHdmiUsbNeed(need)) score -= 120;
@@ -2413,6 +2610,9 @@ function getReasonLines(match: ProductMatch, need: FinderNeed) {
 
   if (need.technicalRequirement && need.technicalRequirement !== "Dual display / MST") {
     lines.push(`Supports the selected technical requirement: ${need.technicalRequirement}.`);
+  }
+  if (need.avoipSeriesHint && productMatchesAvoipSeries(match, need.avoipSeriesHint)) {
+    lines.push(`Matches the discovered AVoIP direction: ${need.avoipSeriesHint}.`);
   }
   if (hasIntegratedHdmiUsbNeed(need)) {
     lines.push("Standalone HDMI and USB transport/extender requirement.");
@@ -2737,30 +2937,12 @@ export function FinderPage() {
 
   const hasIntent = hasFinderIntent(need);
 
-  const matches = useMemo(() => {
-    if (!hasIntent) return [];
+  const finderMatchPlan = useMemo(
+    () => buildFinderMatchPlan(products, need, hasIntent),
+    [hasIntent, need, products],
+  );
+  const matches = finderMatchPlan.matches;
 
-    const featureFilters = getActiveFeatureFilters(need);
-
-    if (featureFilters.length) {
-      const featureMatches = products
-        .map(cleanFinderProduct)
-        .filter((product) => isAllowedFeatureSearchProduct(product, need))
-        .filter((product) => featureFilters.every((filter) => filter.matches(product)))
-        .map((product) => toFeatureSearchMatch(product, need, featureFilters, true));
-
-      return featureMatches.sort((a, b) => b.score - a.score || a.sku.localeCompare(b.sku));
-    }
-
-    return products
-      .map((product) => applyFinderRequirementGate(applyFinderVisibilityToMatch(scoreProduct(product, need), need), need))
-      .filter((match) => shouldShowMatch(match, need))
-      .sort(compareProductMatches)
-      .slice(0, hasPointToPointOneInOneOutNeed(need) ? 4 : 8);
-  }, [hasIntent, need, products]);
-
-  
-  
   const bestMatch = matches[0] ?? null;
 
   const activeProject = useMemo(
@@ -2815,10 +2997,20 @@ if (!leadingMatch) {
 
   const activeStepIndex = Math.max(0, finderSteps.findIndex((step) => step.id === activeStep));
   const activeStepDefinition = finderSteps[activeStepIndex];
+  const finderResultsSummary = !hasIntent
+    ? "Add a starting requirement to generate recommendations."
+    : finderMatchPlan.mode === "exact"
+      ? `${rankedMatches.length} exact product match${rankedMatches.length === 1 ? "" : "es"} from the current Finder need.`
+      : finderMatchPlan.mode === "architecture"
+        ? `${rankedMatches.length} core product path${rankedMatches.length === 1 ? "" : "s"} match the discovered architecture.`
+        : finderMatchPlan.mode === "closest"
+          ? `${rankedMatches.length} closest product path${rankedMatches.length === 1 ? "" : "s"}; validate the remaining technical detail before quoting.`
+          : `${rankedMatches.length} matching product${rankedMatches.length === 1 ? "" : "s"} from the current Finder need.`;
   const needSummaryItems = [
     ["Technology", need.technologyType],
     ["Requirement", need.technicalRequirement],
     ["Product path", need.productPath],
+    ["AVoIP fit", need.avoipProfile || need.avoipSeriesHint],
     ["Signal", need.signalType],
     ["Source", need.sourceConnector],
     ["Output", need.displayConnector],
@@ -3227,7 +3419,7 @@ if (!leadingMatch) {
                     <div>
                       <p className="text-sm font-black text-white">Product results</p>
                       <p className="mt-1 text-xs leading-5 text-white/55">
-                        {hasIntent ? `${rankedMatches.length} matching product${rankedMatches.length === 1 ? "" : "s"} from the current Finder need.` : "Add a starting requirement to generate recommendations."}
+                        {finderResultsSummary}
                       </p>
                     </div>
 
@@ -3240,6 +3432,18 @@ if (!leadingMatch) {
 
                   <div className="grid gap-4">
                     <main className="wm-finder-results-panel grid content-start gap-3">
+                      {finderMatchPlan.mode === "architecture" ? (
+                        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950" data-testid="finder-architecture-match-notice">
+                          <strong className="block">Core architecture matched.</strong>
+                          Wingman has carried the complete Discovery brief across. These products fit the switching or transport role; confirm the supporting audio, control, I/O quantity and install detail as the system is built out.
+                        </div>
+                      ) : null}
+                      {finderMatchPlan.mode === "closest" ? (
+                        <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-4 text-sm leading-6 text-cyan-950" data-testid="finder-closest-match-notice">
+                          <strong className="block">Closest core product paths shown.</strong>
+                          No single product satisfies every selected requirement. Start with one of these paths, then validate the outstanding constraints before adding it to a quote.
+                        </div>
+                      ) : null}
                       {topFinderRankingReason ? (
                         <div className="finder-family-ranking-note" data-testid="finder-product-family-ranking-reason">
                           Why this is first: {topFinderRankingReason}
@@ -3401,7 +3605,7 @@ rankedMatches.length ? (
                             <p className="font-black">No strong match yet</p>
                           </div>
                           <p className="mt-2 text-sm leading-6 text-cyan-900">
-                            Broaden the technical requirement, remove one constraint, or search by SKU.
+                            Review the core technical requirement and product path, then adjust the Discovery brief or search by SKU. Wingman keeps supporting audio, control and install details as validation items rather than silently discarding them.
                           </p>
                         </div>
                       )}
@@ -3589,4 +3793,3 @@ rankedMatches.length ? (
 }
 
 export default FinderPage;
-

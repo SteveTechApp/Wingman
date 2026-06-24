@@ -19,10 +19,15 @@ describe("single Guru entry point", () => {
     expect((appShellSource.match(/<WingmanGuruDrawer/g) ?? []).length).toBe(1);
 
     expect(guruFabSource).toContain("wingman-guru-fab");
+    expect(guruFabSource).toContain("data-context-transfer");
+    expect(guruFabSource).not.toContain("wingman-guru-fab-status");
+    expect(appShellSource).toContain("hasContextualTransfer={Boolean(guruSupportCue)}");
 
     expect(cssSource).toContain("Wingman CSS-rendered Guru launcher start");
     expect(cssSource).toContain('url("/wingman-guru-icon.png")');
     expect(cssSource).toContain("button.wingman-guru-fab::after");
     expect(cssSource).toContain("button.wingman-guru-fab::before");
+    expect(cssSource).toContain("Amber resting sweep ring");
+    expect(cssSource).toContain('data-context-transfer="true"');
   });
 });

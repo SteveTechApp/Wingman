@@ -6,6 +6,8 @@ declare global {
 
 const DETACHED_CLASS = "wingman-guru-detached-panel";
 const ACTIVE_BODY_CLASS = "wingman-guru-detached-active";
+const DETACHED_PANEL_ATTRIBUTE = "data-wingman-guru-detached-panel";
+const DETACHED_ROUTE_BLOCKLIST = new Set(["callCards"]);
 
 function normaliseText(value: string | null | undefined): string {
   return (value ?? "").replace(/\s+/g, " ").trim().toLowerCase();
@@ -84,7 +86,40 @@ function findBestPanelRoot(marker: HTMLElement): HTMLElement {
   return best;
 }
 
+function clearDetachedPanels(activeRoot?: HTMLElement | null): void {
+  const activeBody = document.body;
+  const detachedPanels = Array.from(document.querySelectorAll<HTMLElement>(`.${DETACHED_CLASS}`));
+
+  detachedPanels.forEach((panel) => {
+    if (panel === activeRoot) {
+      return;
+    }
+
+    panel.classList.remove(DETACHED_CLASS);
+    panel.removeAttribute(DETACHED_PANEL_ATTRIBUTE);
+  });
+
+  if (!activeRoot) {
+    activeBody.classList.remove(ACTIVE_BODY_CLASS);
+  }
+}
+
+function shouldSkipDetachedPanelForCurrentRoute(): boolean {
+  const routeKey = document.documentElement.dataset.wingmanRoute;
+
+  if (routeKey && DETACHED_ROUTE_BLOCKLIST.has(routeKey)) {
+    return true;
+  }
+
+  return Boolean(document.querySelector('[data-wingman-page="call-cards"]'));
+}
+
 function detachGuruInterpretationPanel(): void {
+  if (shouldSkipDetachedPanelForCurrentRoute()) {
+    clearDetachedPanels(null);
+    return;
+  }
+
   const allElements = Array.from(document.querySelectorAll<HTMLElement>("body *"));
 
   const markerCandidates = allElements
@@ -94,14 +129,15 @@ function detachGuruInterpretationPanel(): void {
   const marker = markerCandidates[0];
 
   if (!marker) {
-    document.body.classList.remove(ACTIVE_BODY_CLASS);
+    clearDetachedPanels(null);
     return;
   }
 
   const root = findBestPanelRoot(marker);
 
+  clearDetachedPanels(root);
   root.classList.add(DETACHED_CLASS);
-  root.setAttribute("data-wingman-guru-detached-panel", "true");
+  root.setAttribute(DETACHED_PANEL_ATTRIBUTE, "true");
   document.body.classList.add(ACTIVE_BODY_CLASS);
 
   const closeButtons = Array.from(root.querySelectorAll<HTMLButtonElement>("button")).filter((button) =>
