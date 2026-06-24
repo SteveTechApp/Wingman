@@ -53,6 +53,13 @@ export function buildProductCheatSheetHtml(options: CheatSheetOptions): string {
     ? block("How it relates to the rest of the family", narrative.familyFit)
     : "";
 
+  // Carry the provenance signal onto the printed sheet too, so an offline rep
+  // gets the same "verify before quoting" prompt the live app shows.
+  const reviewBanner =
+    narrative.confidence && narrative.confidence !== "high" && narrative.reviewNote
+      ? `<div class="review ${narrative.confidence === "low" ? "review-low" : "review-med"}">${escapeHtml(narrative.reviewNote)}</div>`
+      : "";
+
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -86,6 +93,9 @@ export function buildProductCheatSheetHtml(options: CheatSheetOptions): string {
   .say { background: #ecfeff; border: 1px solid #67e8f9; border-radius: 10px; padding: 9px 11px; margin-top: 4px; }
   .say h2 { margin: 0 0 3px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: #0891b2; }
   .say p { margin: 0; font-style: italic; }
+  .review { margin: 10px 0 0; border-radius: 8px; padding: 7px 10px; font-size: 10.5px; font-weight: 600; }
+  .review-med { background: #ecfeff; border: 1px solid #67e8f9; color: #155e63; }
+  .review-low { background: #fff7ed; border: 1px solid #fdba74; color: #9a3412; }
   .schematic { margin-top: 14px; break-inside: avoid; }
   .schematic h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: #0891b2; margin: 0 0 6px; }
   .schematic .frame { border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden; }
@@ -119,6 +129,8 @@ export function buildProductCheatSheetHtml(options: CheatSheetOptions): string {
     </header>
 
     <div class="headline">${escapeHtml(narrative.headline)}</div>
+
+    ${reviewBanner}
 
     <div class="grid">
       <div class="main">

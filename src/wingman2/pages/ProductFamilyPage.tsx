@@ -718,9 +718,9 @@ export function ProductFamilyPage() {
         eyebrow="Product families"
         title="WyreStorm range positioning for sales conversations"
         purpose="Use this page to explain what each WyreStorm product family does, why it exists, how it connects, and when to position it."
-        nextMove="Start with the application and room behaviour, choose the right family, then move into Product Pitch or Finder for SKU-level output."
+        nextMove="Start with the application and room behaviour, choose the right family, then move into Product Positioning or Finder for SKU-level output."
         actions={[
-          { label: "Open Product Pitch", to: routeCatalogByKey.productPitch.path },
+          { label: "Open Product Positioning", to: routeCatalogByKey.productPitch.path },
           { label: "Open Finder", to: routeCatalogByKey.finder.path, variant: "secondary" },
           { label: "Build proposal", to: routeCatalogByKey.proposal.path, variant: "secondary" },
         ]}

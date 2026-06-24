@@ -622,7 +622,7 @@ export function ProjectDetailPage() {
                   Compare
                 </Link>
                 <Link to={routeCatalogByKey.productPitch.path} className="rounded-full border border-[#29465e] bg-[#10283e] px-4 py-2 text-sm font-semibold text-[#edf6ff]">
-                  Product Pitch
+                  Product Positioning
                 </Link>
                 <Link to={routeCatalogByKey.visualStudio.path} className="rounded-full border border-cyan-300 bg-[#10283e] px-4 py-2 text-sm font-semibold text-[#9ffcf4]">
                   Visual Studio

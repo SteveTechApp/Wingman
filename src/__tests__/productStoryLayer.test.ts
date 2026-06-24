@@ -12,7 +12,7 @@ const prioritySkus = [
   "NHD-600-TRX",
   "APO-VX20-UC-V2",
   "APO-DG2",
-  "SYN-TOUCH10",
+  "SYN-TOUCH10-V2",
   "SW-0206-VW",
   "SW-0204-VW",
   "SW-620-TX-W",
