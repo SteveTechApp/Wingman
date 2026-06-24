@@ -3,7 +3,7 @@
 type WingmanGuruFabProps = {
   open: boolean;
   onClick: () => void;
-  supportCue?: string;
+  hasContextualTransfer?: boolean;
 };
 
 type GuruPosition = {
@@ -57,7 +57,7 @@ function clearStoredPosition() {
   }
 }
 
-export function WingmanGuruFab({ open, onClick, supportCue }: WingmanGuruFabProps) {
+export function WingmanGuruFab({ open, onClick, hasContextualTransfer = false }: WingmanGuruFabProps) {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const dragRef = useRef({
     pointerId: null as number | null,
@@ -394,20 +394,18 @@ export function WingmanGuruFab({ open, onClick, supportCue }: WingmanGuruFabProp
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
-      aria-label={supportCue ? `Open Guru technical assistant. ${supportCue}.` : "Open Guru technical assistant"}
+      aria-label={hasContextualTransfer ? "Open Guru technical assistant. Context is available." : "Open Guru technical assistant"}
       aria-pressed={open ? "true" : "false"}
       className="wingman-guru-fab"
       data-wingman-guru-fab="true"
       data-open={open ? "true" : "false"}
-      data-support-available={supportCue ? "true" : "false"}
-      data-support-cue={supportCue ?? ""}
+      data-context-transfer={hasContextualTransfer ? "true" : "false"}
       style={style}
-      title={supportCue ? `${supportCue}. Drag Guru to move. Double-click to reset.` : "Drag Guru to move. Double-click to reset."}
+      title="Drag Guru to move. Double-click to reset."
     >
       <span className="wingman-guru-fab-sweep" aria-hidden="true" />
       <span className="wingman-guru-fab-glow" aria-hidden="true" />
       <img src="/wingman-guru-icon.png" alt="Guru" className="wingman-guru-fab-image" width={64} height={64} decoding="async" loading="eager" />
-      {supportCue ? <span className="wingman-guru-fab-status">{supportCue}</span> : null}
     </button>
   );
 }

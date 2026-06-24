@@ -1,3 +1,9 @@
+import {
+  wyrestormCapabilityFallbackTerms,
+  wyrestormCapabilityVerdict,
+  type WyrestormDecisionCapability,
+} from "./wyrestormCapabilityProfiles";
+
 export type AvDecisionSeverity = "blocker" | "warning" | "info";
 export type AvDecisionConfidence = "high" | "medium" | "low";
 
@@ -202,18 +208,18 @@ function productHasUsb(text: string) {
   return hasAny(text, ["usb", "kvm", "uc", "byod", "byom", "camera", "microphone", "webcam"]);
 }
 
-function productHasMultiview(text: string) {
-  return hasAny(text, [
-    "multiview",
-    "multi-view",
-    "quad view",
-    "pip",
-    "pbp",
-    "nhd-0401-mv",
-    "nhd-150-rx",
-    "nhd-600-trx",
-    "scl",
-  ]);
+function productHasDecisionCapability(
+  sku: string,
+  text: string,
+  capability: WyrestormDecisionCapability,
+) {
+  const knownVerdict = wyrestormCapabilityVerdict(sku, capability);
+  if (knownVerdict !== null) return knownVerdict;
+  return hasAny(text, wyrestormCapabilityFallbackTerms(capability));
+}
+
+function productHasMultiview(sku: string, text: string) {
+  return productHasDecisionCapability(sku, text, "multiview");
 }
 
 function requirementNeedsNetwork(text: string) {
@@ -263,6 +269,40 @@ function requirementNeedsMultiview(text: string) {
     "picture-by-picture",
     "multiple sources on one screen",
     "multiple sources on a single output",
+  ]);
+}
+
+function requirementNeedsMst(text: string) {
+  return hasAny(text, [
+    "mst",
+    "multi-stream transport",
+    "multistream transport",
+    "extended desktop",
+    "independent desktop",
+    "independent displays",
+    "extend desktop",
+  ]);
+}
+
+function requirementNeedsWirelessCasting(text: string) {
+  return hasAny(text, [
+    "wireless presentation",
+    "wireless casting",
+    "wireless screen share",
+    "wireless screenshare",
+    "airplay",
+    "miracast",
+    "chromecast",
+  ]);
+}
+
+function requirementNeedsMosaicWall(text: string) {
+  return hasAny(text, [
+    "mosaic",
+    "rotated wall",
+    "rotation",
+    "portrait wall",
+    "irregular wall",
   ]);
 }
 
@@ -329,6 +369,60 @@ export function buildAvDecisionEvidence(input: AvDecisionEvidenceInput): AvDecis
 
 
   const matrixCapacity = matrixCapacityFrom(productText);
+
+  if (requirementNeedsMst(requirementText)) {
+    evidence.push("MST requirement detected: Wingman treats this as independent extended desktops over USB-C, not multiview or ordinary dual-output routing.");
+    missing.push("Laptop USB-C DisplayPort Alt Mode and MST support, display EDID behaviour, and the required independent desktop layout");
+    dependencies.push("Validate the laptop operating system/GPU supports USB-C Multi-Stream Transport for the required display arrangement.");
+
+    if (!productHasDecisionCapability(productSku, productText, "mst")) {
+      addIssue(issues, {
+        id: "mst-capability-not-evidenced",
+        severity: "warning",
+        title: "MST extended-desktop capability not evidenced",
+        detail: "Dual outputs, matrix routing and multiview do not prove that a USB-C laptop can extend its desktop independently across displays.",
+        evidence: "The brief asks for MST/independent desktops, but the selected product is not source-profiled for MST support.",
+        question: "Does the user need independent extended desktops, or several sources composed on one screen?",
+      });
+      alternatives.push("For true wired USB-C MST, validate MX-0402-MST, MX-0403-H3-MST, SW-640L-TX-W or SW-620-TX-W against the room workflow.");
+    }
+  }
+
+  if (requirementNeedsWirelessCasting(requirementText)) {
+    evidence.push("Wireless presentation requirement detected; Wingman will validate the named casting protocol rather than treating a USB-C input as wireless sharing.");
+    missing.push("Required wireless casting protocols, corporate Wi-Fi/network policy, guest access model and simultaneous presenter behaviour");
+
+    if (!productHasDecisionCapability(productSku, productText, "wirelessCasting")) {
+      addIssue(issues, {
+        id: "wireless-casting-not-evidenced",
+        severity: "warning",
+        title: "Wireless casting capability not evidenced",
+        detail: "A wired BYOD/USB-C product is not automatically a wireless presentation endpoint.",
+        evidence: "Wireless casting language is present, but the selected product is not source-profiled for wireless casting.",
+        question: "Which casting protocols and guest-network policy must the room support?",
+      });
+    }
+
+    const namedProtocol: Array<{ capability: WyrestormDecisionCapability; label: string }> = [
+      { capability: "airplay", label: "AirPlay" },
+      { capability: "miracast", label: "Miracast" },
+      { capability: "chromecast", label: "Chromecast" },
+    ];
+
+    for (const protocol of namedProtocol) {
+      if (!requirementText.includes(protocol.label.toLowerCase())) continue;
+      if (productHasDecisionCapability(productSku, productText, protocol.capability)) continue;
+
+      addIssue(issues, {
+        id: `wireless-protocol-${protocol.capability}-not-evidenced`,
+        severity: "warning",
+        title: `${protocol.label} support not evidenced`,
+        detail: `The selected product should not be positioned as supporting ${protocol.label} until its protocol support is proven for the deployed firmware and network policy.`,
+        evidence: `${protocol.label} is explicitly required, but the selected SKU is not source-profiled for it.`,
+        question: `Is ${protocol.label} mandatory, and is the guest/corporate wireless network approved for that workflow?`,
+      });
+    }
+  }
 
   if (matrixCapacity && counts.sources !== null && counts.sources > matrixCapacity.inputs) {
     addIssue(issues, {
@@ -492,12 +586,24 @@ export function buildAvDecisionEvidence(input: AvDecisionEvidenceInput): AvDecis
         question: "Does the wall need flexible routing/multi-room expansion, or only a fixed wall processor?",
       });
     }
+
+    if (requirementNeedsMosaicWall(requirementText) && !productHasDecisionCapability(productSku, productText, "mosaicVideoWall")) {
+      addIssue(issues, {
+        id: "mosaic-wall-capability-not-evidenced",
+        severity: "warning",
+        title: "Mosaic or rotated-wall capability not evidenced",
+        detail: "A conventional video wall, native multiview and a mosaic/rotated wall are different processing requirements.",
+        evidence: "The brief asks for mosaic/rotation behaviour, but the selected product is not source-profiled for mosaic video-wall processing.",
+        question: "Does the wall need mosaic/rotation, standard bezel-compensated canvas, or a live multiview composition?",
+      });
+      alternatives.push("For mosaic or rotated NetworkHD walls, validate the NetworkHD 100 or 500 wall-processing path rather than assuming NetworkHD 600 is equivalent.");
+    }
   }
 
   if (requirementNeedsMultiview(requirementText)) {
     evidence.push("Multiview requirement detected; Wingman treats multiview as multiple visible source windows on a single output canvas.");
 
-    if (!productHasMultiview(productText)) {
+    if (!productHasMultiview(productSku, productText)) {
       addIssue(issues, {
         id: "multiview-capability-not-evidenced",
         severity: "warning",

@@ -34,6 +34,8 @@ export type FinderNeedDraft = {
   network: string;
   processing: string;
   control: string;
+  avoipProfile?: string;
+  avoipSeriesHint?: string;
 };
 
 function nowIso() {
@@ -86,39 +88,52 @@ function technicalRequirementFromBrief(roomModel: Record<string, unknown>) {
   const devices = list(roomModel.devices).join(" ").toLowerCase();
   const displays = lower(roomModel.displayBehaviour);
   const roomType = lower(roomModel.roomType);
+  const avoipProfile = lower(roomModel.avoipProfile);
 
-  if (includesAny(outcome + displays, ["video wall", "signage", "large format", "wall"])) return "Build video wall or signage display";
-  if (includesAny(outcome + devices, ["capture", "stream", "record", "ndi camera"])) return "Capture, stream or route camera/video sources";
+  if (includesAny(avoipProfile + roomType, ["av-over-ip", "av over ip", "networkhd"])) return "Distribute AV over network";
+  if (includesAny(displays, ["multiview", "several sources on one output"])) return "Create multiview layout";
+  if (includesAny(outcome + displays, ["video wall", "signage", "large format", "wall processor", "wall"])) return "Build LCD video wall";
+  if (includesAny(outcome + devices, ["capture", "stream", "record", "ndi camera"])) return "Bring NDI camera into AV system";
   if (includesAny(outcome + roomType, ["route", "several displays", "multi-zone", "sports bar", "hospitality"])) return "Route sources to multiple displays";
-  if (includesAny(outcome + devices, ["meeting", "teams", "zoom", "uc", "mtr", "camera", "microphone"])) return "Create meeting / UC room";
-  return "Present device to display";
+  if (includesAny(displays, ["different content", "independent routing"])) return "Route sources to multiple displays";
+  if (includesAny(devices, ["wireless presentation", "wireless inputs"])) return "Wireless presentation";
+  if (includesAny(outcome + devices, ["meeting", "teams", "zoom", "uc", "mtr", "camera", "microphone"])) return "BYOD / UC conferencing";
+  if (includesAny(devices, ["usb-c", "usb c"])) return "Connect USB-C laptop";
+  return "";
 }
 
 function productPathFromRequirement(requirement: string, roomModel: Record<string, unknown>) {
   const blob = [
     requirement,
     roomModel.recommendedProductPath,
+    roomModel.roomType,
+    roomModel.application,
     roomModel.displayBehaviour,
     roomModel.usbOwnership,
     roomModel.audioPath,
+    roomModel.avoipProfile,
+    roomModel.avoipSeriesHint,
     list(roomModel.devices).join(" "),
   ].join(" ").toLowerCase();
 
-  if (includesAny(blob, ["video wall", "signage", "wall"])) return "Video wall / signage";
-  if (includesAny(blob, ["ndi", "camera", "capture", "stream"])) return "Camera / capture";
-  if (includesAny(blob, ["multi-zone", "several displays", "route", "distributed", "av over ip", "avoip"])) return "AVoIP / matrix routing";
-  if (includesAny(blob, ["uc", "meeting", "teams", "zoom", "mtr", "usb"])) return "Presentation / UC switcher";
-  if (includesAny(blob, ["long", "hdbaset", "extension"])) return "Extender / HDBaseT";
+  if (includesAny(blob, ["video wall", "signage", "wall"])) return "Video wall";
+  if (includesAny(blob, ["ndi", "camera", "capture", "stream"])) return "NDI / camera";
+  if (includesAny(blob, ["av over ip", "avoip", "networkhd"])) return "AVoIP";
+  if (includesAny(blob, ["multi-zone", "several displays", "route", "distributed"])) return "Matrix / routing";
+  if (includesAny(blob, ["wireless", "casting", "airplay", "miracast"])) return "Wireless presentation";
+  if (includesAny(blob, ["uc", "meeting", "teams", "zoom", "mtr", "byod", "byom"])) return "UC / conferencing";
+  if (includesAny(blob, ["long", "hdbaset", "extension"])) return "HDBaseT extender";
   return "Presentation switcher";
 }
 
 function technologyTypeFromPath(path: string) {
-  if (path.includes("AVoIP")) return "AVoIP";
-  if (path.includes("matrix")) return "Matrix";
-  if (path.includes("UC")) return "Presentation / Room Core";
-  if (path.includes("Extender")) return "Extender / HDBaseT";
-  if (path.includes("Camera")) return "Camera / Capture";
-  if (path.includes("Video wall")) return "Video Wall / Multiview";
+  const normalisedPath = path.toLowerCase();
+  if (normalisedPath.includes("avoip")) return "AVoIP";
+  if (normalisedPath.includes("matrix")) return "Matrix";
+  if (normalisedPath.includes("uc")) return "Unified Comms";
+  if (normalisedPath.includes("extender")) return "Extender / HDBaseT";
+  if (normalisedPath.includes("camera")) return "Camera / Capture";
+  if (normalisedPath.includes("video wall")) return "Video Wall / Multiview";
   return "Core hardware first";
 }
 
@@ -127,7 +142,7 @@ function resolutionFromBrief(roomModel: Record<string, unknown>) {
   const signal = lower(roomModel.signalStandard ?? roomModel.signalStandardSummary);
   const tags = list(roomModel.downstreamQualityTags).join(" ").toLowerCase();
 
-  if (signal.includes("hdr10") || tags.includes("hdr10")) return "4K60 HDR";
+  if (signal.includes("hdr10") || tags.includes("hdr10")) return "4K60 4:4:4";
   if (signal.includes("4k60")) return "4K60";
   if (signal.includes("1080p")) return "1080p";
   return "Unknown";
@@ -164,12 +179,10 @@ function nextQuestionFromMissingItems(missingItems: string[]) {
 
 function sourceConnectorFromDevices(devices: string[]) {
   const blob = devices.join(" ").toLowerCase();
-  const connectors: string[] = [];
-  if (blob.includes("hdmi")) connectors.push("HDMI");
-  if (blob.includes("usb-c")) connectors.push("USB-C");
-  if (blob.includes("wireless")) connectors.push("Wireless");
-  if (blob.includes("ndi") || blob.includes("network")) connectors.push("RJ45 / network");
-  return connectors.length ? connectors.join(" + ") : "Unknown";
+  if (blob.includes("ndi") || blob.includes("network")) return "RJ45 / network";
+  if (blob.includes("hdmi")) return "HDMI";
+  if (blob.includes("usb-c")) return "USB-C";
+  return "Unknown";
 }
 
 function usbFromBrief(roomModel: Record<string, unknown>) {
@@ -179,28 +192,68 @@ function usbFromBrief(roomModel: Record<string, unknown>) {
     list(roomModel.devices).join(" "),
   ].join(" ").toLowerCase();
 
+  if (includesAny(blob, ["no usb", "no usb path needed"])) return "No USB";
   if (includesAny(blob, ["usb 3", "high bandwidth"])) return "USB 3.x required";
-  if (includesAny(blob, ["conflict", "multiple", "switchable"])) return "USB host switching required";
-  if (includesAny(blob, ["mtr", "room pc", "camera", "microphone", "uc", "teams", "zoom"])) return "USB / UC path required";
-  return "No USB";
+  if (includesAny(blob, ["camera", "speakerphone", "microphone", "byod", "byom", "user laptop", "switchable"])) return "USB camera";
+  if (includesAny(blob, ["room host", "room pc", "usb 2"])) return "USB 2.0 enough";
+  return "Unknown";
 }
 
 function audioFromBrief(roomModel: Record<string, unknown>) {
   const blob = [roomModel.audioPath, list(roomModel.devices).join(" ")].join(" ").toLowerCase();
   if (includesAny(blob, ["dante", "aes67"])) return "Dante / AES67";
   if (includesAny(blob, ["amp-2210", "100v", "speaker"])) return "Amplifier / speakers";
-  if (includesAny(blob, ["soundbar", "apo-vx20", "apo-210"])) return "UC soundbar";
-  if (includesAny(blob, ["dsp", "microphone"])) return "DSP / microphone";
-  return "Not confirmed";
+  if (includesAny(blob, ["soundbar", "apo-vx20", "apo-210", "microphone", "conferencing"])) return "Mic / speakerphone";
+  if (includesAny(blob, ["dsp"])) return "DSP integration";
+  if (includesAny(blob, ["display audio"])) return "No audio requirement";
+  return "Unknown";
 }
 
 function processingFromBrief(roomModel: Record<string, unknown>) {
   const blob = [roomModel.outcome, roomModel.displayBehaviour, roomModel.recommendedProductPath].join(" ").toLowerCase();
+  const avoip = [roomModel.roomType, roomModel.avoipProfile, roomModel.avoipSeriesHint].map(lower).join(" ");
   if (includesAny(blob, ["video wall", "wall"])) return "Video wall processing";
   if (includesAny(blob, ["multiview"])) return "Multiview";
-  if (includesAny(blob, ["same content"])) return "Distribution / mirrored output";
+  if (includesAny(avoip, ["av-over-ip", "av over ip", "networkhd"])) return "AVoIP routing";
+  if (includesAny(blob, ["same content"])) return "No processing";
   if (includesAny(blob, ["different content", "source per display"])) return "Matrix / routing";
-  return "Presentation switching";
+  return "No processing";
+}
+
+function inputCountFromBrief(value: unknown) {
+  const sourceCount = lower(value);
+  if (includesAny(sourceCount, ["9+"])) return "9+";
+  if (includesAny(sourceCount, ["5-8", "5–8"])) return "5-8";
+  if (includesAny(sourceCount, ["2-4", "2–4", "3-4", "3–4"])) return "3-4";
+  if (includesAny(sourceCount, ["2 source", "2 sources"])) return "2";
+  if (includesAny(sourceCount, ["1 source"])) return "1";
+  return "Unknown";
+}
+
+function outputCountFromBrief(value: unknown) {
+  const displayCount = lower(value);
+  if (includesAny(displayCount, ["9+"])) return "9+";
+  if (includesAny(displayCount, ["3-8", "3–8", "3-4", "3–4"])) return "3-4";
+  if (includesAny(displayCount, ["2 display", "2 displays"])) return "2";
+  if (includesAny(displayCount, ["1 display"])) return "1";
+  return "Unknown";
+}
+
+function networkFromBrief(roomModel: Record<string, unknown>) {
+  const blob = [roomModel.network, roomModel.avoipProfile, roomModel.avoipSeriesHint].map(lower).join(" ");
+  if (includesAny(blob, ["10gb", "10g", "networkhd 600", "sdvoe"])) return "10G network";
+  if (includesAny(blob, ["dedicated av", "dedicated-av", "assume dedicated"])) return "Dedicated AV network";
+  if (includesAny(blob, ["managed", "customer network", "existing network", "network available"])) return "Existing LAN";
+  return "Unknown";
+}
+
+function controlFromBrief(roomModel: Record<string, unknown>) {
+  const control = list(roomModel.controlNeeds).join(" ").toLowerCase();
+  if (includesAny(control, ["third-party", "third party"])) return "Third-party control";
+  if (includesAny(control, ["touch panel", "room control"])) return "Touch panel";
+  if (includesAny(control, ["remote", "front panel"])) return "IR";
+  if (includesAny(control, ["simple", "automatic"])) return "No control";
+  return "Unknown";
 }
 
 export function buildDiscoveryBriefFromState(
@@ -338,29 +391,26 @@ export function discoveryBriefToFinderNeed(brief: StoredDiscoveryBrief | null): 
   const productPath = productPathFromRequirement(requirement, roomModel);
 
   return {
-    query: [
-      text(roomModel.roomType),
-      text(roomModel.outcome),
-      requirement,
-      devices.join(" "),
-      text(roomModel.usbOwnership),
-      text(roomModel.audioPath),
-      text(roomModel.notes),
-    ].filter(Boolean).join(" | ").slice(0, 260),
+    // The Finder query box is an explicit product-text search. A customer brief is
+    // deliberately not placed here: making every narrative word a filter is what
+    // previously reduced a complete Discovery to zero results.
+    query: "",
     technicalRequirement: requirement,
     productPath,
     technologyType: technologyTypeFromPath(productPath),
     signalType: devices.join(" ").toLowerCase().includes("usb") ? "HDMI + USB" : "HDMI video",
     sourceConnector: sourceConnectorFromDevices(devices),
     displayConnector: "",
-    inputs: text(roomModel.sourceCount, countBand(devices.length)),
-    outputs: text(roomModel.displayCount, "Unknown"),
+    inputs: inputCountFromBrief(roomModel.sourceCount),
+    outputs: outputCountFromBrief(roomModel.displayCount),
     distance: mapDistance(roomModel.cableRun ?? roomModel.longestRun),
     resolution: resolutionFromBrief(roomModel),
     usb: usbFromBrief(roomModel),
     audio: audioFromBrief(roomModel),
-    network: text(roomModel.network, ""),
+    network: networkFromBrief(roomModel),
     processing: processingFromBrief(roomModel),
-    control: list(roomModel.controlNeeds).join(" + "),
+    control: controlFromBrief(roomModel),
+    avoipProfile: text(roomModel.avoipProfile),
+    avoipSeriesHint: text(roomModel.avoipSeriesHint),
   };
 }

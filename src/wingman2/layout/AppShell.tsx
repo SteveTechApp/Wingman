@@ -1,5 +1,4 @@
-import type { ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Menu, Plus, X } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
@@ -10,13 +9,14 @@ import {
   routeCatalogByKey,
   type WingmanRouteKey,
 } from "../app/routeCatalog";
-import { WingmanGuruDrawer } from "../components/WingmanGuruDrawer";
 import { WingmanGuruFab } from "../components/WingmanGuruFab";
 import { WingmanViewportFitControl } from "../components/WingmanViewportFitControl";
 import { clearActiveProject } from "../data/projectStore";
 import { useWingmanLanguage } from "../data/wingmanLanguage";
 import { useWingmanProfile } from "../data/wingmanProfile";
 import wingmanBrandLogo from "../../assets/branding/wingman-brand-logo.png";
+
+const WingmanGuruDrawer = lazy(() => import("../components/WingmanGuruDrawer"));
 
 type AppShellProps = {
   children?: ReactNode;
@@ -342,17 +342,21 @@ export function AppShell({ children }: AppShellProps) {
       <WingmanGuruFab
         open={guruOpen}
         onClick={() => setGuruOpen((current) => !current)}
-        supportCue={guruSupportCue?.label}
+        hasContextualTransfer={Boolean(guruSupportCue)}
       />
-      <WingmanGuruDrawer
-        open={guruOpen}
-        onClose={() => setGuruOpen(false)}
-        contextLabel={activeLabel}
-        contextSummary={activeSummary}
-        supportCue={guruSupportCue}
-        seedPrompt={guruSeedPrompt}
-        onSeedHandled={() => setGuruSeedPrompt(null)}
-      />
+      {guruOpen && (
+        <Suspense fallback={null}>
+          <WingmanGuruDrawer
+            open={guruOpen}
+            onClose={() => setGuruOpen(false)}
+            contextLabel={activeLabel}
+            contextSummary={activeSummary}
+            supportCue={guruSupportCue}
+            seedPrompt={guruSeedPrompt}
+            onSeedHandled={() => setGuruSeedPrompt(null)}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
