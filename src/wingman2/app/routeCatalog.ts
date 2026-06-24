@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   Bot,
   BookOpen,
+  Boxes,
   ClipboardList,
   Database,
   FileText,
@@ -31,6 +32,7 @@ export type WingmanRouteKey =
   | "finder"
   | "productFamilies"
   | "productPitch"
+  | "catalogBrowser"
   | "compare"
   | "templates"
   | "videowall"
@@ -71,6 +73,7 @@ const iconMap: Record<WingmanRouteKey, LucideIcon> = {
   finder: Search,
   productFamilies: LayoutTemplate,
   productPitch: PackageCheck,
+  catalogBrowser: Boxes,
   compare: Scale,
   templates: LayoutTemplate,
   videowall: Monitor,
@@ -113,7 +116,7 @@ export const consolidatedPrimaryNavKeys = [
 
 export const consolidatedRouteGroups = {
   callCoach: ["callCards", "productCallCards", "discovery", "salesHelper", "support"],
-  products: ["finder", "productFamilies", "productCallCards", "productPitch", "videowall", "proposal"],
+  products: ["finder", "productFamilies", "catalogBrowser", "productCallCards", "productPitch", "videowall", "proposal"],
   documents: ["ingest", "templates", "compare", "proposal"],
   responsePack: ["proposal", "support", "visualDesign", "templates"],
   learn: ["glossary", "intelligence", "support", "productFamilies"],
