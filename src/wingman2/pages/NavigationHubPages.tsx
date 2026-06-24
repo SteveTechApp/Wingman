@@ -101,7 +101,7 @@ export function ProductsPage() {
       eyebrow="Wingman / Products"
       title="Products"
       intent="Help me find, understand or position a WyreStorm product."
-      subModes={["Find Product", "Product Families", "SKU Call Card", "Product Pitch", "Attach Products", "Follow-up Wording"]}
+      subModes={["Find Product", "Product Families", "SKU Call Card", "Product Positioning", "Attach Products", "Follow-up Wording"]}
       primaryActions={[
         routeAction("finder", "Find Product", "Search the product intelligence index and move from requirement to shortlist.", "Find products"),
         routeAction("productFamilies", "Product Families", "Understand the family-level story before choosing a SKU.", "Browse families"),

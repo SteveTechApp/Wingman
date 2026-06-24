@@ -24,7 +24,7 @@
     "label": "Products",
     "navLabel": "Products",
     "pageFile": "NavigationHubPages.tsx",
-    "summary": "Product lookup, finder, pitch support and product call cards."
+    "summary": "Product lookup, finder, positioning support and product call cards."
   },
   {
     "key": "documents",
@@ -93,10 +93,19 @@
     "key": "productPitch",
     "path": "/wingman/product-pitch",
     "segment": "product-pitch",
-    "label": "Product Pitch",
-    "navLabel": "Pitch",
+    "label": "Product Positioning",
+    "navLabel": "Positioning",
     "pageFile": "ProductPitchPage.tsx",
-    "summary": "Turn product facts into customer-ready sales language."
+    "summary": "Turn product facts into credible, customer-ready positioning."
+  },
+  {
+    "key": "catalogBrowser",
+    "path": "/wingman/catalog-browser",
+    "segment": "catalog-browser",
+    "label": "Catalogue Browser",
+    "navLabel": "Catalogue",
+    "pageFile": "CatalogBrowserPage.tsx",
+    "summary": "Filter the WyreStorm range by family, role, technology and lifecycle."
   },
   {
     "key": "compare",

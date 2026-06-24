@@ -38,7 +38,7 @@ export type ResolvedCompetitorProfile = CompareDecisionProfile & {
   datasheetUrl?: string;
 };
 
-type Fingerprint = {
+export type Fingerprint = {
   brand: string;
   /** Canonical example SKU used for display. */
   sku: string;
@@ -328,8 +328,13 @@ const FINGERPRINTS: Fingerprint[] = [
   // ---- Crestron presentation / extension / matrix ----
   {
     brand: "Crestron",
+    // 4x2 switcher. The "hdmd4x4" alias was removed: it encoded a 4x4 I/O that
+    // does not match this 4x2 profile, so a typed HD-MD4X4 would have been
+    // reported with wrong 4x2 specs (the same overloaded-alias bug fixed for the
+    // Lightware MMX matrices). Safer to let an unknown variant fall through to
+    // VERIFY than to assert the wrong I/O. The integrity test enforces this.
     sku: "HD-MD4X2-4KZ-E",
-    keys: ["hdmd4x24kze", "hdmd4x4"],
+    keys: ["hdmd4x24kze"],
     domain: "MATRIX",
     role: "Matrix",
     maxResolution: "4K60",
@@ -750,6 +755,116 @@ const FINGERPRINTS: Fingerprint[] = [
     role: "controller",
   },
 ];
+
+// Exported for the integrity test. The curated list is the high-trust tier a rep
+// quotes against, so its internal consistency is guarded automatically.
+export const CURATED_FINGERPRINTS: ReadonlyArray<Fingerprint> = FINGERPRINTS;
+
+export function normaliseFingerprintKey(value: string): string {
+  return normKey(value);
+}
+
+export type FingerprintIntegrityIssue = {
+  sku: string;
+  key?: string;
+  issue: string;
+};
+
+// Pull the first N×M token out of an alias key (e.g. "mmx6x2ht200" -> 6×2). Used
+// to catch overloaded alias keys whose encoded I/O contradicts the fingerprint's
+// declared I/O — the exact defect behind the Lightware and Crestron fixes.
+function ioFromKey(key: string): { inputs: number; outputs: number } | null {
+  // Strip resolution tokens first (4k / 8k / 1080p): they can abut the matrix
+  // size and corrupt the parse, e.g. "hdmd4x2-4kze" must read 4x2, not 4x24.
+  const cleaned = key.replace(/\d{3,4}p/g, "").replace(/[48]k/g, "");
+  // Require the size token to end at a non-digit / string end so "8x8hdmi" still
+  // reads 8x8 but a longer run is not silently truncated.
+  const match = cleaned.match(/(\d{1,2})x(\d{1,2})(?!\d)/);
+  if (!match) return null;
+  return { inputs: Number(match[1]), outputs: Number(match[2]) };
+}
+
+// Order matters: /wireless/ is checked before /presentation/ so a
+// "Wireless Presentation" role is not captured by the presentation rule.
+const ROLE_DOMAIN_RULES: Array<{ role: RegExp; domains: CompetitorTechnologyClass[] }> = [
+  { role: /matrix/i, domains: ["MATRIX", "VIDEO_WALL"] },
+  { role: /encoder|decoder|transceiver/i, domains: ["AVOIP"] },
+  { role: /transmitter|receiver/i, domains: ["AVOIP", "HDBASET", "USB_EXTENSION"] },
+  { role: /wireless/i, domains: ["WIRELESS_PRESENTATION"] },
+  { role: /presentation/i, domains: ["PRESENTATION"] },
+  { role: /controller/i, domains: ["CONTROL"] },
+];
+
+/**
+ * Validate the curated fingerprint list for internal consistency. Returns every
+ * issue found so a test can fail with an actionable list. These invariants would
+ * have caught the overloaded-alias bugs that previously shipped (a 6×2/4×2 matrix
+ * keyed onto an 8×8 profile, a 4×4 alias on a 4×2 profile).
+ */
+export function validateCuratedFingerprints(
+  fingerprints: ReadonlyArray<Fingerprint> = FINGERPRINTS,
+): FingerprintIntegrityIssue[] {
+  const issues: FingerprintIntegrityIssue[] = [];
+  const seenKeys = new Map<string, string>();
+
+  for (const fp of fingerprints) {
+    if (!fp.keys.length) {
+      issues.push({ sku: fp.sku, issue: "fingerprint has no lookup keys" });
+    }
+
+    for (const key of fp.keys) {
+      // Keys must already be in normalised form, or lookupFingerprint silently
+      // never matches them (input is normalised before comparison).
+      if (normKey(key) !== key) {
+        issues.push({ sku: fp.sku, key, issue: `key is not normalised (expected "${normKey(key)}")` });
+      }
+
+      // Duplicate key across fingerprints -> first one silently wins the match.
+      const owner = seenKeys.get(key);
+      if (owner && owner !== fp.sku) {
+        issues.push({ sku: fp.sku, key, issue: `duplicate key also used by "${owner}"` });
+      } else {
+        seenKeys.set(key, fp.sku);
+      }
+
+      // Overloaded alias: the I/O encoded in the key must match the declared I/O.
+      const keyIo = ioFromKey(key);
+      if (
+        keyIo &&
+        fp.inputCount !== undefined &&
+        fp.outputCount !== undefined &&
+        (keyIo.inputs !== fp.inputCount || keyIo.outputs !== fp.outputCount)
+      ) {
+        issues.push({
+          sku: fp.sku,
+          key,
+          issue: `key encodes ${keyIo.inputs}x${keyIo.outputs} but fingerprint declares ${fp.inputCount}x${fp.outputCount}`,
+        });
+      }
+    }
+
+    // Role/domain coherence: a "Matrix" role must not sit on an AVoIP domain, etc.
+    const rule = ROLE_DOMAIN_RULES.find((entry) => entry.role.test(fp.role));
+    if (rule && !rule.domains.includes(fp.domain)) {
+      issues.push({
+        sku: fp.sku,
+        issue: `role "${fp.role}" is incompatible with domain "${fp.domain}"`,
+      });
+    }
+
+    // A chroma claim without a resolution is meaningless and over-specific.
+    if (fp.chroma && !fp.maxResolution) {
+      issues.push({ sku: fp.sku, issue: "chroma is set without a maxResolution" });
+    }
+
+    // 10G / SDVoE only exists on AV-over-IP transports.
+    if (fp.features?.tenGig && fp.domain !== "AVOIP") {
+      issues.push({ sku: fp.sku, issue: `tenGig feature on non-AVoIP domain "${fp.domain}"` });
+    }
+  }
+
+  return issues;
+}
 
 function lookupFingerprint(rawSku: string): Fingerprint | null {
   const candidate = normKey(rawSku);
