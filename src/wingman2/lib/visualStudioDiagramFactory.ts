@@ -33,7 +33,7 @@ const emphasisClass: Record<VisualNodeEmphasis, string> = {
   compact: "wm-vs-node-emphasis-compact"
 };
 
-const kindLabel: Record<string, string> = {
+const _kindLabel: Record<string, string> = {
   customer: "Customer",
   source: "Source",
   switching: "Switching",
@@ -49,7 +49,7 @@ const kindLabel: Record<string, string> = {
   output: "Output"
 };
 
-function makeNodeLabel(node: VisualDiagramNode, mode: VisualDiagramMode): string {
+function makeNodeLabel(node: VisualDiagramNode, _mode: VisualDiagramMode): string {
   return node.label;
 }
 
