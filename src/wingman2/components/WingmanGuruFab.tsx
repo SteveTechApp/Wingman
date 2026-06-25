@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from "react";
 
 type WingmanGuruFabProps = {
   open: boolean;
@@ -57,6 +57,20 @@ function clearStoredPosition() {
   }
 }
 
+function defaultGuruPosition(button?: HTMLButtonElement | null): GuruPosition {
+  if (typeof window === "undefined") {
+    return { left: 24, top: 180 };
+  }
+
+  const width = button?.getBoundingClientRect().width ?? 72;
+  const height = button?.getBoundingClientRect().height ?? 72;
+
+  return {
+    left: clamp(window.innerWidth - width - 28, 12, Math.max(12, window.innerWidth - width - 12)),
+    top: clamp(Math.round(window.innerHeight * 0.44), 96, Math.max(96, window.innerHeight - height - 24)),
+  };
+}
+
 export function WingmanGuruFab({ open, onClick, hasContextualTransfer = false }: WingmanGuruFabProps) {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const dragRef = useRef({
@@ -70,6 +84,17 @@ export function WingmanGuruFab({ open, onClick, hasContextualTransfer = false }:
   const suppressClickRef = useRef(false);
   const clickTimerRef = useRef<number | null>(null);
   const [position, setPosition] = useState<GuruPosition | null>(() => readStoredPosition());
+
+  useEffect(() => {
+    // Initialise Guru as a true floating page launcher, not a bottom navigation button.
+    if (position) {
+      return;
+    }
+
+    const button = buttonRef.current;
+    setPosition(defaultGuruPosition(button));
+  }, [position]);
+
 
   const buttonPosition = useCallback((button: HTMLButtonElement, left: number, top: number): GuruPosition => {
     const rect = button.getBoundingClientRect();
@@ -260,23 +285,18 @@ export function WingmanGuruFab({ open, onClick, hasContextualTransfer = false }:
     return null;
   }
 
-  const style = (
-    position
-      ? {
-          "--wingman-guru-left": `${position.left}px`,
-          "--wingman-guru-top": `${position.top}px`,
-          "--wingman-guru-right": "auto",
-          "--wingman-guru-bottom": "auto",
-          cursor: dragRef.current.pointerId === null ? "grab" : "grabbing",
-          touchAction: "none",
-          userSelect: "none",
-        }
-      : {
-          cursor: "grab",
-          touchAction: "none",
-          userSelect: "none",
-        }
-  ) as CSSProperties;
+  const currentPosition = position ?? defaultGuruPosition(buttonRef.current);
+
+  const style = {
+    "--wingman-guru-left": `${currentPosition.left}px`,
+    "--wingman-guru-top": `${currentPosition.top}px`,
+    "--wingman-guru-right": "auto",
+    "--wingman-guru-bottom": "auto",
+    "--wingman-guru-transform": "none",
+    cursor: dragRef.current.pointerId === null ? "grab" : "grabbing",
+    touchAction: "none",
+    userSelect: "none",
+  } as CSSProperties;
 
   function handlePointerDown(event: PointerEvent<HTMLButtonElement>) {
     if (!event.pointerType || event.pointerType === "mouse" || event.button !== 0) {
@@ -383,7 +403,9 @@ export function WingmanGuruFab({ open, onClick, hasContextualTransfer = false }:
   }
 
   return (
-    <button data-wingman-guru-launcher="true"
+    <button
+      data-wingman-guru-launcher="true"
+      data-wingman-guru-floating-active="true"
       ref={buttonRef}
       type="button"
       onClick={handleClick}
@@ -396,7 +418,7 @@ export function WingmanGuruFab({ open, onClick, hasContextualTransfer = false }:
       onMouseUp={handleMouseUp}
       aria-label={hasContextualTransfer ? "Open Guru technical assistant. Context is available." : "Open Guru technical assistant"}
       aria-pressed={open ? "true" : "false"}
-      className="wingman-guru-fab wingman-guru-page-float"
+      className="wingman-guru-fab"
       data-wingman-guru-fab="true"
       data-open={open ? "true" : "false"}
       data-context-transfer={hasContextualTransfer ? "true" : "false"}
