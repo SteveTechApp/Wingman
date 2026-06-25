@@ -1,93 +1,151 @@
-import { Link } from "react-router-dom";
-import { routeCatalogByKey } from "../app/routeCatalog";
-import { featureAudit } from "../content/featureAudit";
-import { PageHero } from "../components/PageHero";
-import { SectionCard } from "../components/SectionCard";
+﻿import { Link } from "react-router-dom";
+
+const urgentActions = [
+  {
+    title: "Escalate to pre-sales",
+    body: "Use this when the opportunity needs technical support, product confirmation or internal review.",
+    to: "/wingman/call-coach",
+    cta: "Start handoff",
+  },
+  {
+    title: "Request solution review",
+    body: "Use this when the system shape is known but you need confidence before sending it to the customer.",
+    to: "/wingman/documents",
+    cta: "Prepare review",
+  },
+  {
+    title: "Create customer response",
+    body: "Use this when you need a clean follow-up email, proposal wording or response pack.",
+    to: "/wingman/response-pack",
+    cta: "Build response",
+  },
+] as const;
+
+const menuCards = [
+  {
+    title: "Live customer conversation",
+    body: "Use during a call when the customer is still describing the requirement.",
+    bestFor: "Next question, notes, live capture and handoff.",
+    to: "/wingman/call-coach",
+    cta: "Open Call Coach",
+  },
+  {
+    title: "Product fit",
+    body: "Use when you need to identify the right WyreStorm product or product family.",
+    bestFor: "SKU choice, product role and application fit.",
+    to: "/wingman/products",
+    cta: "Open Products",
+  },
+  {
+    title: "Competitor check",
+    body: "Use when the customer names a competitor product and you need a WyreStorm alternative.",
+    bestFor: "Comparable product class, match gaps and risk checks.",
+    to: "/wingman/compare",
+    cta: "Open Compare",
+  },
+  {
+    title: "Document output",
+    body: "Use when the conversation needs to become a customer-safe written response.",
+    bestFor: "Email wording, proposal text and response packs.",
+    to: "/wingman/response-pack",
+    cta: "Open Response Pack",
+  },
+  {
+    title: "Project workspace",
+    body: "Use when the opportunity has multiple rooms, stages or follow-up actions.",
+    bestFor: "Saved projects, account notes and project continuity.",
+    to: "/wingman/projects",
+    cta: "Open Projects",
+  },
+  {
+    title: "Training and reference",
+    body: "Use when the salesperson needs to understand terminology, product logic or selling prompts.",
+    bestFor: "Glossary, product guidance and sales confidence.",
+    to: "/wingman/learn",
+    cta: "Open Learn",
+  },
+] as const;
+
+const confidenceSignals = [
+  "The customer has named products, but the required system shape is still unclear.",
+  "USB, audio, control, networking or display behaviour may affect the recommendation.",
+  "A competitor SKU is being matched without enough evidence.",
+  "The customer needs written wording that should be commercially safe.",
+] as const;
 
 export function SupportPage() {
   return (
-    <div className="pb-10">
-      <PageHero
-        eyebrow="Support / Escalation"
-        title="Create a clean handoff when confidence drops."
-        purpose="This page exists to stop uncertainty becoming risk by giving users a clear route to technical review, escalation, or branded follow-through when the answer is not yet safe enough."
-        nextMove="Use escalation when the match is partial, the topology is unclear, or the proposal needs a second-pass technical review."
-        actions={[
-          { label: "Open proposal", to: routeCatalogByKey.proposal.path },
-          { label: "Open projects", to: routeCatalogByKey.projects.path, variant: "secondary" },
-        ]}
-      />
+    <main className="wm-support-landing" data-wingman-page="support">
+      <section className="wm-support-landing__hero">
+        <div>
+          <p className="wm-support-landing__eyebrow">Support / handoff</p>
+          <h1>Create a clean handoff when confidence drops.</h1>
+          <p>
+            Choose the support path that matches the situation. This page is a routing menu, not a full feature index.
+          </p>
+        </div>
 
-      <div className="space-y-6">
-        <SectionCard
-          title="Support actions"
-          subtitle="Use this area for contact details, escalation requests, and proposal footer details."
-        >
-          <div className="grid gap-4 md:grid-cols-3">
-            {[
-              {
-                title: "Escalate to pre-sales",
-                copy: "Route uncertain opportunities to a technical owner.",
-                to: routeCatalogByKey.projects.path,
-              },
-              {
-                title: "Request solution review",
-                copy: "Ask for a second-pass validation before sending the proposal.",
-                to: routeCatalogByKey.proposal.path,
-              },
-              {
-                title: "Add branded contact footer",
-                copy: "Insert the correct sales or distributor contact details into the output.",
-                to: routeCatalogByKey.salesHelper.path,
-              },
-            ].map((item) => (
-              <div key={item.title} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-5 shadow-sm">
-                <h3 className="text-base font-semibold text-[#edf6ff]">{item.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#edf6ff]">{item.copy}</p>
-                <Link
-                  to={item.to}
-                  className="mt-4 inline-flex rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
-                >
-                  Open
-                </Link>
+        <div className="wm-support-landing__heroActions" aria-label="Primary support actions">
+          <Link to="/wingman/call-coach">Open Call Coach</Link>
+          <Link to="/wingman/response-pack">Open Response Pack</Link>
+        </div>
+      </section>
+
+      <section className="wm-support-landing__quick">
+        <div className="wm-support-landing__sectionHeader">
+          <p className="wm-support-landing__eyebrow">Immediate support</p>
+          <h2>What do you need right now?</h2>
+        </div>
+
+        <div className="wm-support-landing__quickGrid">
+          {urgentActions.map((action) => (
+            <article className="wm-support-landing__quickCard" key={action.title}>
+              <div>
+                <h3>{action.title}</h3>
+                <p>{action.body}</p>
               </div>
-            ))}
-          </div>
-        </SectionCard>
+              <Link to={action.to}>{action.cta}</Link>
+            </article>
+          ))}
+        </div>
+      </section>
 
-        <SectionCard
-          title="Feature readiness audit"
-          subtitle="This is the current assessment of how complete each Wingman2 feature is after the routing cleanup."
-        >
-          <div className="space-y-4">
-            {featureAudit.map((item) => (
-              <div key={item.routeKey} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-5 shadow-sm">
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                  <div>
-                    <p className="wingman-kicker">{item.route.label}</p>
-                    <h3 className="mt-1 text-lg font-semibold text-[#edf6ff]">{item.summary}</h3>
-                  </div>
-                  <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${item.statusMeta.className}`}>
-                    {item.statusMeta.label}
-                  </span>
+      <section className="wm-support-landing__body">
+        <div className="wm-support-landing__menu">
+          <div className="wm-support-landing__sectionHeader">
+            <p className="wm-support-landing__eyebrow">Choose a path</p>
+            <h2>Support menu</h2>
+          </div>
+
+          <div className="wm-support-landing__menuGrid">
+            {menuCards.map((card) => (
+              <article className="wm-support-landing__menuCard" key={card.title}>
+                <div>
+                  <h3>{card.title}</h3>
+                  <p>{card.body}</p>
+                  <span>{card.bestFor}</span>
                 </div>
-                <ul className="mt-4 space-y-2 text-sm text-[#edf6ff]">
-                  {item.needed.map((need) => (
-                    <li key={need}>{need}</li>
-                  ))}
-                </ul>
-                <Link
-                  to={item.route.path}
-                  className="mt-4 inline-flex rounded-full border border-[#29465e] px-4 py-2 text-sm text-[#edf6ff] transition hover:bg-[#0d2133]"
-                >
-                  Open {item.route.label}
-                </Link>
-              </div>
+                <Link to={card.to}>{card.cta}</Link>
+              </article>
             ))}
           </div>
-        </SectionCard>
-      </div>
-    </div>
+        </div>
+
+        <aside className="wm-support-landing__aside">
+          <p className="wm-support-landing__eyebrow">When to escalate</p>
+          <h2>Confidence signals</h2>
+          <ul>
+            {confidenceSignals.map((signal) => (
+              <li key={signal}>{signal}</li>
+            ))}
+          </ul>
+          <Link to="/wingman/call-coach">Start a guided handoff</Link>
+        </aside>
+      </section>
+    </main>
   );
 }
+
+export default SupportPage;
+
 

@@ -2,6 +2,20 @@
 
 Wingman is for sales and pre-sales users.
 
+## Primary user
+
+Wingman's default operating persona is an internal account manager at a technical distributor representing WyreStorm.
+
+That user may be commercially strong but relatively inexperienced technically, so the product should:
+
+- Help them understand what the product does in plain language.
+- Help them ask the next useful qualification question.
+- Help them recognise the application behind the enquiry.
+- Help them attach WyreStorm to wider display, projector, LED, signage, UC or room-refresh opportunities.
+- Help them keep the wording safe when they are speaking to a system integrator, consultant, purchasing contact or internal pre-sales team.
+
+Wingman should not assume the user wants a deep engineering explanation first. It should start with what problem is being solved, what type of room or workflow this sounds like, and what class of WyreStorm product is likely to be relevant.
+
 The language should help a salesperson move from a product fact to a customer conversation that feels natural, credible and specific. Product pages are evidence, not the conversation itself. Use the salient point of the product page to frame why the product fits a real room, market or application.
 
 Use language that helps the user answer:
@@ -86,6 +100,19 @@ Internal pre-sales:
 - Preserve missing information and risk.
 - Do not turn uncertain discovery into customer-ready wording.
 - Escalate when topology, USB, network, wall behaviour, audio or control are unresolved.
+
+Purchasing / commercial contact:
+
+- Keep the conversation practical and low-jargon.
+- Focus on fit, risk reduction, supportability, and what still needs confirming before quote.
+- Avoid long feature lists unless they clearly change cost, scope or install risk.
+
+Outbound and attachment conversations:
+
+- Treat display, projector, LED and signage sales as entry points into a wider system conversation.
+- Help the salesperson ask what feeds the display, how it is controlled, where sources live, and whether switching, extension, matrix, AVoIP or wall processing is needed.
+- Suggest attachment opportunities only when they are credible for the application.
+- Do not force a single SKU too early; move from application, to product type, to shortlist, to validated recommendation.
 
 ## Natural wording
 
