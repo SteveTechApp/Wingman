@@ -1087,7 +1087,7 @@ export function DiscoveryPage() {
 
   const answeredCount = useMemo(() => {
     return discoveryQuestions.filter((step) => wmDiscoveryHasAnswer(answers[step.id])).length;
-  }, [answers]);
+  }, [answers, discoveryQuestions]);
 
   const completionPercent = Math.round((answeredCount / discoveryQuestions.length) * 100);
   const isFirstStep = activeIndex === 0;
@@ -1105,7 +1105,7 @@ export function DiscoveryPage() {
           note: notes[step.id] ?? "",
         };
       });
-  }, [answers, notes, selectedApplication]);
+  }, [answers, notes, selectedApplication, discoveryQuestions]);
 
   useEffect(() => {
     setActiveIndex((current) => Math.min(current, Math.max(discoveryQuestions.length - 1, 0)));
