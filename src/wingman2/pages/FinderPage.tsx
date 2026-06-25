@@ -2873,101 +2873,7 @@ function FinderStepFooter({
 
 export function FinderPage() {
 
-  useEffect(() => {
-    document.body.classList.add("wingman-finder-expanded-route");
-
-    function applyFinderExpandedLayout() {
-      const main = document.querySelector("main");
-
-      if (!main) {
-        return;
-      }
-
-      main.querySelectorAll("input[type='number']").forEach((input) => {
-        const element = input instanceof HTMLElement ? input : null;
-
-        if (!element) {
-          return;
-        }
-
-        const rect = element.getBoundingClientRect();
-
-        if (rect.width <= 28 && rect.height <= 28) {
-          element.style.display = "none";
-        }
-      });
-
-      const candidates = Array.from(main.querySelectorAll("section, article, div")).filter((element) => {
-        const textContent = element.textContent || "";
-        return (
-          textContent.includes("Customer problem to product path") &&
-          textContent.includes("Quick-start filters") &&
-          textContent.includes("View recommendation")
-        );
-      });
-
-      candidates.forEach((candidate) => {
-        const element = candidate instanceof HTMLElement ? candidate : null;
-
-        if (!element) {
-          return;
-        }
-
-        element.style.width = "100%";
-        element.style.maxWidth = "none";
-        element.style.marginRight = "0";
-
-        let parent = element.parentElement;
-        let depth = 0;
-
-        while (parent && depth < 8) {
-          parent.style.width = "100%";
-          parent.style.maxWidth = "none";
-          parent.style.marginRight = "0";
-
-          const computed = window.getComputedStyle(parent);
-
-          if (computed.display === "grid") {
-            parent.style.gridTemplateColumns = "minmax(0, 1fr)";
-          }
-
-          parent = parent.parentElement;
-          depth += 1;
-        }
-      });
-
-      main.querySelectorAll("[data-finder-reset-action='true']").forEach((button) => {
-        const element = button instanceof HTMLElement ? button : null;
-
-        if (!element) {
-          return;
-        }
-
-        element.style.setProperty("background", "linear-gradient(135deg, #ff9b2f 0%, #f05a00 100%)", "important");
-        element.style.setProperty("background-color", "#f97316", "important");
-        element.style.setProperty("border-color", "rgba(255, 190, 112, 0.98)", "important");
-        element.style.setProperty("color", "#ffffff", "important");
-        element.style.setProperty("opacity", "1", "important");
-        element.style.setProperty("box-shadow", "0 16px 34px rgba(255, 111, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.24)", "important");
-      });
-    }
-
-    applyFinderExpandedLayout();
-
-    const firstFrame = window.requestAnimationFrame(applyFinderExpandedLayout);
-    const secondFrame = window.setTimeout(applyFinderExpandedLayout, 250);
-
-    window.addEventListener("resize", applyFinderExpandedLayout);
-
-    return () => {
-      document.body.classList.remove("wingman-finder-expanded-route");
-      window.cancelAnimationFrame(firstFrame);
-      window.clearTimeout(secondFrame);
-      window.removeEventListener("resize", applyFinderExpandedLayout);
-    };
-  }, []);
-
-  useEffect(() => {
+useEffect(() => {
     function applyFinderHeaderAndGuruCleanup() {
       const main = document.querySelector("main");
 
@@ -3893,7 +3799,7 @@ rankedMatches.length ? (
             <aside className="grid content-start gap-3" aria-label="Finder guidance">
               <WingmanCoachPanel coach={finderCoach} compact showFunnel showVisuals={false} />
 
-              <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 shadow-sm">
+              <div className="finder-active-step-panel rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 shadow-sm">
                 <div className="flex items-center gap-2">
                   <SlidersHorizontal className="h-4 w-4 text-white/55" />
                   <p className="text-sm font-black text-white">Current need</p>
