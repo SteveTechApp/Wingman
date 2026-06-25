@@ -141,6 +141,7 @@ type FinderMatchPlan = {
 
 type UnknownRecord = Record<string, unknown>;
 
+const FINDER_AUTO_LOAD_DISCOVERY_BRIEF = false;
 const PRODUCT_SELECTION_STORE_KEY = "wingman-project-product-selections-v1";
 const STANDALONE_SHORTLIST_KEY = "wingman-finder-standalone-shortlist-v1";
 
@@ -2871,6 +2872,15 @@ function FinderStepFooter({
 }
 
 export function FinderPage() {
+
+  useEffect(() => {
+    document.body.classList.add("wingman-finder-expanded-route");
+
+    return () => {
+      document.body.classList.remove("wingman-finder-expanded-route");
+    };
+  }, []);
+
   const discoveryHandoffAppliedRef = useRef(false);
 
   useEffect(() => {
@@ -2921,6 +2931,10 @@ export function FinderPage() {
   }, []);
 
   useEffect(() => {
+    if (!FINDER_AUTO_LOAD_DISCOVERY_BRIEF) {
+      return;
+    }
+
     if (discoveryHandoffAppliedRef.current) return;
 
     const draftNeed = discoveryBriefToFinderNeed(readLatestDiscoveryBrief());
@@ -3315,11 +3329,20 @@ if (!leadingMatch) {
                   <p className="mt-1 max-w-none text-sm leading-6 text-white/60">{activeStepDefinition.description}</p>
                 </div>
 
-                <button
+                <button data-finder-reset-action="true"
                   type="button"
                   onClick={clearFinder}
-                  className="inline-flex items-center gap-2 rounded-full border border-[#29465e] bg-[#0d2133] px-3 py-2 text-xs font-black text-white/60 transition hover:bg-[#0d2133]"
-                >
+                  className="inline-flex items-center gap-2 rounded-full border border-[#29465e] bg-[#0d2133] px-3 py-2 text-xs font-black text-white/60 transition hover:bg-[#0d2133] finder-reset-button"
+                  style={{
+                    background: "linear-gradient(135deg, #ff9b2f 0%, #f05a00 100%)",
+                    borderColor: "rgba(255, 190, 112, 0.98)",
+                    color: "#ffffff",
+                    boxShadow:
+                      "0 16px 34px rgba(255, 111, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.24)",
+                  }}
+                  data-reset-orange-inline="true"
+
+>
                   <RotateCcw className="h-3.5 w-3.5" />
                   Reset
                 </button>
