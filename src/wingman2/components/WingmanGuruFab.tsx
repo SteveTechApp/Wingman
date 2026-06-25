@@ -383,7 +383,7 @@ export function WingmanGuruFab({ open, onClick, hasContextualTransfer = false }:
   }
 
   return (
-    <button
+    <button data-wingman-guru-launcher="true"
       ref={buttonRef}
       type="button"
       onClick={handleClick}
@@ -396,7 +396,7 @@ export function WingmanGuruFab({ open, onClick, hasContextualTransfer = false }:
       onMouseUp={handleMouseUp}
       aria-label={hasContextualTransfer ? "Open Guru technical assistant. Context is available." : "Open Guru technical assistant"}
       aria-pressed={open ? "true" : "false"}
-      className="wingman-guru-fab"
+      className="wingman-guru-fab wingman-guru-page-float"
       data-wingman-guru-fab="true"
       data-open={open ? "true" : "false"}
       data-context-transfer={hasContextualTransfer ? "true" : "false"}

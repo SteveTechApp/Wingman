@@ -33378,213 +33378,23 @@ body.wm-product-pitch-page-open main {
 }
 /* PRODUCT_PITCH_100_PERCENT_SCALE_FIX_END */
 
-/* Wingman Finder full-width workspace and orange reset pass */
-:where(
-  .wingman-app-main,
-  .wingman-main,
-  .wingman-page-main,
-  .wingman-page-body,
-  .wingman-content,
-  .wm-main,
-  .wm-page,
-  main
-):has(:where(.finder-native-page, .finder-page, .product-finder-page, .wingman-finder-page)) {
-  max-width: none !important;
-}
-
-:where(.finder-native-page, .finder-page, .product-finder-page, .wingman-finder-page) {
-  width: 100% !important;
-  max-width: none !important;
-}
-
-:where(.finder-native-page, .finder-page, .product-finder-page, .wingman-finder-page)
-  :where(
-    .finder-native-shell,
-    .finder-shell,
-    .finder-native-workspace,
-    .finder-workspace,
-    .finder-native-main,
-    .finder-main,
-    .finder-native-content,
-    .finder-content,
-    .finder-native-stage,
-    .finder-stage,
-    .finder-native-panel,
-    .finder-panel,
-    .wingman-workspace,
-    .wingman-workspace-card
-  ) {
-  width: 100% !important;
-  max-width: none !important;
-}
-
-:where(.finder-native-page, .finder-page, .product-finder-page, .wingman-finder-page)
-  :where(
-    .finder-native-layout,
-    .finder-layout,
-    .finder-native-grid,
-    .finder-grid,
-    .finder-native-stage-layout,
-    .finder-stage-layout,
-    .finder-native-workspace-grid,
-    .finder-workspace-grid
-  ) {
+/* Wingman Finder final direct layout fix */
+.finder-active-step-layout {
+  display: grid !important;
   grid-template-columns: minmax(0, 1fr) !important;
   width: 100% !important;
   max-width: none !important;
 }
 
-:where(.finder-native-page, .finder-page, .product-finder-page, .wingman-finder-page)
-  :where(
-    .finder-native-step-card,
-    .finder-step-card,
-    .finder-native-stage-card,
-    .finder-stage-card,
-    .finder-native-current-step,
-    .finder-current-step,
-    .finder-native-form,
-    .finder-form,
-    .finder-native-start-card,
-    .finder-start-card
-  ) {
-  width: min(100%, calc(100vw - 360px)) !important;
-  max-width: none !important;
-}
-
-@media (max-width: 1180px) {
-  :where(.finder-native-page, .finder-page, .product-finder-page, .wingman-finder-page)
-    :where(
-      .finder-native-step-card,
-      .finder-step-card,
-      .finder-native-stage-card,
-      .finder-stage-card,
-      .finder-native-current-step,
-      .finder-current-step,
-      .finder-native-form,
-      .finder-form,
-      .finder-native-start-card,
-      .finder-start-card
-    ) {
-    width: 100% !important;
-  }
-}
-
-button[data-finder-reset-action="true"],
-.finder-reset-button {
-  border-color: rgba(255, 153, 51, 0.88) !important;
-  background:
-    linear-gradient(135deg, rgba(255, 138, 28, 0.98), rgba(229, 82, 0, 0.98)) !important;
-  color: #ffffff !important;
-  box-shadow:
-    0 12px 28px rgba(255, 111, 0, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
-}
-
-button[data-finder-reset-action="true"]:hover,
-.finder-reset-button:hover {
-  border-color: rgba(255, 184, 92, 1) !important;
-  background:
-    linear-gradient(135deg, rgba(255, 156, 48, 1), rgba(240, 94, 0, 1)) !important;
-  color: #ffffff !important;
-  transform: translateY(-1px);
-}
-
-button[data-finder-reset-action="true"] svg,
-.finder-reset-button svg {
-  color: currentColor !important;
-  stroke: currentColor !important;
-}
-
-/* Wingman Finder reset hard orange repair */
-button[data-finder-reset-action="true"].finder-reset-button,
-:where(.finder-native-page, .finder-page, .product-finder-page, .wingman-finder-page) button[data-finder-reset-action="true"].finder-reset-button {
-  border-color: rgba(255, 173, 83, 0.95) !important;
-  background: linear-gradient(135deg, #ff982d 0%, #f05a00 100%) !important;
-  color: #ffffff !important;
-  box-shadow:
-    0 14px 30px rgba(255, 111, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
-}
-
-button[data-finder-reset-action="true"].finder-reset-button:hover,
-:where(.finder-native-page, .finder-page, .product-finder-page, .wingman-finder-page) button[data-finder-reset-action="true"].finder-reset-button:hover {
-  border-color: rgba(255, 196, 122, 1) !important;
-  background: linear-gradient(135deg, #ffab4a 0%, #ff6800 100%) !important;
-  color: #ffffff !important;
-}
-
-/* Wingman Finder stronger full-window layout repair */
-body.wingman-finder-expanded-route {
-  overflow-x: hidden;
-}
-
-body.wingman-finder-expanded-route :where(main, [role="main"]) {
+.finder-active-step-panel {
   width: 100% !important;
   max-width: none !important;
 }
 
-body.wingman-finder-expanded-route :where(main, [role="main"]) > :where(div, section, article) {
-  width: 100% !important;
-  max-width: none !important;
-}
-
-body.wingman-finder-expanded-route :where(
-  .finder-native-page,
-  .finder-page,
-  .product-finder-page,
-  .wingman-finder-page,
-  .finder-native-shell,
-  .finder-shell,
-  .finder-native-workspace,
-  .finder-workspace,
-  .finder-native-main,
-  .finder-main,
-  .finder-native-content,
-  .finder-content,
-  .finder-native-stage,
-  .finder-stage,
-  .finder-native-panel,
-  .finder-panel,
-  .finder-native-form,
-  .finder-form,
-  .finder-native-start-card,
-  .finder-start-card,
-  .finder-native-stage-card,
-  .finder-stage-card,
-  .finder-native-step-card,
-  .finder-step-card
-) {
-  width: 100% !important;
-  max-width: none !important;
-}
-
-body.wingman-finder-expanded-route :where(.finder-native-page, .finder-page, .product-finder-page, .wingman-finder-page) :where([class*="max-w-"]) {
-  max-width: none !important;
-}
-
-body.wingman-finder-expanded-route :where(.finder-native-page, .finder-page, .product-finder-page, .wingman-finder-page) :where([class*="w-[min"], [class*="w-["]) {
-  width: 100% !important;
-}
-
-body.wingman-finder-expanded-route :where(.finder-native-page, .finder-page, .product-finder-page, .wingman-finder-page) :where(.grid) {
-  width: 100% !important;
-}
-
-body.wingman-finder-expanded-route :where(.finder-native-page, .finder-page, .product-finder-page, .wingman-finder-page) :where(input[type="number"]) {
-  appearance: textfield;
-}
-
-body.wingman-finder-expanded-route :where(.finder-native-page, .finder-page, .product-finder-page, .wingman-finder-page) input[type="number"]::-webkit-outer-spin-button,
-body.wingman-finder-expanded-route :where(.finder-native-page, .finder-page, .product-finder-page, .wingman-finder-page) input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-button[data-finder-reset-action="true"].finder-reset-button,
-button[data-reset-orange-inline="true"],
-body.wingman-finder-expanded-route button[data-finder-reset-action="true"].finder-reset-button,
-body.wingman-finder-expanded-route button[data-reset-orange-inline="true"] {
+.finder-reset-button,
+button[data-finder-reset-action="true"] {
   background: linear-gradient(135deg, #ff9b2f 0%, #f05a00 100%) !important;
+  background-color: #f97316 !important;
   border-color: rgba(255, 190, 112, 0.98) !important;
   color: #ffffff !important;
   opacity: 1 !important;
@@ -33593,19 +33403,111 @@ body.wingman-finder-expanded-route button[data-reset-orange-inline="true"] {
     inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
 }
 
-button[data-finder-reset-action="true"].finder-reset-button:hover,
-button[data-reset-orange-inline="true"]:hover,
-body.wingman-finder-expanded-route button[data-finder-reset-action="true"].finder-reset-button:hover,
-body.wingman-finder-expanded-route button[data-reset-orange-inline="true"]:hover {
+.finder-reset-button:hover,
+button[data-finder-reset-action="true"]:hover {
   background: linear-gradient(135deg, #ffb05c 0%, #ff6908 100%) !important;
-  border-color: rgba(255, 210, 150, 1) !important;
+  background-color: #fb923c !important;
   color: #ffffff !important;
 }
 
-button[data-finder-reset-action="true"].finder-reset-button svg,
-button[data-reset-orange-inline="true"] svg,
-body.wingman-finder-expanded-route button[data-finder-reset-action="true"].finder-reset-button svg,
-body.wingman-finder-expanded-route button[data-reset-orange-inline="true"] svg {
+.finder-reset-button svg,
+button[data-finder-reset-action="true"] svg {
   color: currentColor !important;
   stroke: currentColor !important;
+}
+
+/* Hide the stray native numeric spinner that appears beside the Finder workspace title. */
+body.wingman-finder-expanded-route input[type="number"] {
+  appearance: textfield;
+}
+
+body.wingman-finder-expanded-route input[type="number"]::-webkit-outer-spin-button,
+body.wingman-finder-expanded-route input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Wingman Finder Guru and header cleanup */
+body.wingman-finder-expanded-route input[type="number"],
+body.wingman-finder-expanded-route input[role="spinbutton"] {
+  appearance: textfield !important;
+}
+
+body.wingman-finder-expanded-route input[type="number"]::-webkit-outer-spin-button,
+body.wingman-finder-expanded-route input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+body.wingman-finder-expanded-route :where(.wingman-guru-launcher, .wingman-guru-trigger, .wingman-guru-fab, .guru-helper-launcher, [data-wingman-guru-launcher], [data-guru-launcher]) {
+  position: fixed !important;
+  right: 22px !important;
+  bottom: 94px !important;
+  z-index: 180 !important;
+  transform: none !important;
+}
+
+/* Wingman Guru page-floating launcher */
+@keyframes wingman-guru-page-float {
+  0%,
+  100% {
+    translate: 0 -3px;
+  }
+
+  50% {
+    translate: 0 5px;
+  }
+}
+
+:where(
+  [data-wingman-guru-launcher="true"],
+  [data-guru-launcher="true"],
+  .wingman-guru-page-float,
+  .wingman-guru-launcher,
+  .wingman-guru-trigger,
+  .wingman-guru-fab,
+  .guru-helper-launcher,
+  .guru-floating-launcher
+) {
+  position: fixed !important;
+  top: 50% !important;
+  right: 24px !important;
+  bottom: auto !important;
+  left: auto !important;
+  z-index: 240 !important;
+  margin: 0 !important;
+  transform: translateY(-50%) !important;
+  animation: wingman-guru-page-float 4.2s ease-in-out infinite !important;
+}
+
+:where(
+  [data-wingman-guru-launcher="true"],
+  [data-guru-launcher="true"],
+  .wingman-guru-page-float,
+  .wingman-guru-launcher,
+  .wingman-guru-trigger,
+  .wingman-guru-fab,
+  .guru-helper-launcher,
+  .guru-floating-launcher
+):hover {
+  animation-play-state: paused !important;
+  transform: translateY(-50%) scale(1.04) !important;
+}
+
+@media (max-width: 920px) {
+  :where(
+    [data-wingman-guru-launcher="true"],
+    [data-guru-launcher="true"],
+    .wingman-guru-page-float,
+    .wingman-guru-launcher,
+    .wingman-guru-trigger,
+    .wingman-guru-fab,
+    .guru-helper-launcher,
+    .guru-floating-launcher
+  ) {
+    top: auto !important;
+    right: 18px !important;
+    bottom: 88px !important;
+    transform: none !important;
+  }
 }
