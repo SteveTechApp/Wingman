@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SalesWorkflowBridge } from "../components/SalesWorkflowBridge";
 import { SUPPORTED_WINGMAN_LANGUAGES, getStoredWingmanCaptureLanguage, setStoredWingmanCaptureLanguage, type WingmanLanguageId, useWingmanLanguage } from "../data/wingmanLanguage";
@@ -538,7 +538,7 @@ export function CallCardsPage() {
   };
 
   return (
-    <main className="cca-page">
+    <main className="wm-call-cards-page-scale cca-page" data-wingman-page="call-cards">
       <style>{pageStyles}</style>
 
       <section className="cca-shell">
@@ -767,9 +767,15 @@ export function CallCardsPage() {
 export default CallCardsPage;
 
 const pageStyles = `
+main.cca-page {
+  min-height: 0 !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
 .cca-page {
-  min-height: 100%;
-  padding: 10px 14px;
+  min-height: 0;
+  padding: 8px 12px 20px;
   color: var(--wm-sweep-text) !important;
   background:
     radial-gradient(circle at top right, rgba(245, 158, 11, 0.1), transparent 34%),
@@ -782,11 +788,12 @@ const pageStyles = `
 
 .cca-shell {
   width: min(1260px, 100%);
-  min-height: calc(100vh - 104px);
+  min-height: 0;
   margin: 0 auto;
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
-  gap: 10px;
+  grid-template-rows: auto auto auto auto;
+  align-content: start;
+  gap: 12px;
 }
 
 .cca-header,
@@ -856,7 +863,7 @@ const pageStyles = `
 
 .cca-commandBar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
   gap: 12px;
   border-radius: 20px;
   padding: 12px;
@@ -869,7 +876,7 @@ const pageStyles = `
 }
 
 .cca-typeStrip button {
-  min-height: 76px;
+  min-height: 60px;
   border: 1px solid rgba(148, 163, 184, 0.28);
   border-radius: 16px;
   padding: 10px;
@@ -951,8 +958,9 @@ const pageStyles = `
 .cca-liveWorkspace {
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
+  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 400px);
   gap: 12px;
+  align-items: start;
 }
 
 .cca-mainCapture,
@@ -960,12 +968,13 @@ const pageStyles = `
   min-height: 0;
   border-radius: 22px;
   padding: 14px;
-  overflow: hidden;
+  overflow: visible;
+  align-content: start;
 }
 
 .cca-mainCapture {
   display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
+  grid-template-rows: repeat(6, auto);
   gap: 11px;
 }
 
@@ -1041,18 +1050,19 @@ const pageStyles = `
 }
 
 .cca-grow textarea {
-  min-height: 260px;
+  min-height: 160px;
 }
 
 .cca-notesArea {
-  min-height: 92px;
+  min-height: 112px;
 }
 
 .cca-sideCoach {
   display: grid;
-  grid-template-rows: auto auto auto auto auto auto;
+  grid-auto-rows: max-content;
   gap: 10px;
-  overflow-y: auto;
+  max-height: none;
+  overflow: visible;
 }
 
 .cca-nextQuestion {
@@ -1061,7 +1071,7 @@ const pageStyles = `
 }
 
 .cca-nextQuestion textarea {
-  min-height: 120px;
+  min-height: 108px;
   margin-top: 10px;
 }
 
@@ -1115,7 +1125,7 @@ const pageStyles = `
 }
 
 .cca-handoffRail button {
-  min-height: 64px;
+  min-height: 58px;
   border: 1px solid rgba(148, 163, 184, 0.28);
   border-radius: 16px;
   padding: 10px 12px;
@@ -1156,6 +1166,44 @@ const pageStyles = `
   color: #475569;
 }
 
+.cca-transcriptDrawer {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 18px;
+  background: var(--wm-sweep-card) !important;
+  overflow: hidden;
+}
+
+.cca-transcriptDrawer > summary {
+  cursor: pointer;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+}
+
+.cca-transcriptDrawer > summary::-webkit-details-marker {
+  display: none;
+}
+
+.cca-transcriptDrawer > summary span {
+  display: block;
+  color: #92400e;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cca-transcriptDrawer > summary small {
+  color: #64748b;
+  font-size: 0.76rem;
+  line-height: 1.25;
+}
+
+.cca-transcriptDrawer[open] > summary {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+
 button:disabled {
   opacity: 0.42;
   cursor: not-allowed;
@@ -1182,7 +1230,7 @@ button:disabled {
   }
 
   .cca-grow textarea {
-    min-height: 220px;
+    min-height: 180px;
   }
 }
 
@@ -1215,7 +1263,7 @@ button:disabled {
   grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr) !important;
   gap: 14px !important;
   margin: 8px 0 4px !important;
-  min-height: 66px !important;
+  min-height: 58px !important;
   align-items: stretch !important;
 }
 
@@ -1223,8 +1271,8 @@ button:disabled {
 .cca-page .cca-mainCapture .cca-micBar .cca-captureMic {
   position: relative !important;
   width: 100% !important;
-  min-height: 66px !important;
-  height: 66px !important;
+  min-height: 58px !important;
+  height: 58px !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -2300,4 +2348,123 @@ html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cc
 
 /* WINGMAN LIVE CALL COMPACT CONSOLE END */
 
+/* WINGMAN LIVE CALL LAYOUT REPAIR START */
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page {
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  padding: 8px 12px 20px !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-shell {
+  height: auto !important;
+  min-height: 0 !important;
+  display: grid !important;
+  grid-template-rows: auto auto auto auto auto !important;
+  gap: 12px !important;
+  align-content: start !important;
+  overflow: visible !important;
+  padding: 0 !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .swb-bridge {
+  max-width: none !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-commandBar {
+  height: auto !important;
+  min-height: 0 !important;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 320px) !important;
+  padding: 10px !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-liveWorkspace {
+  height: auto !important;
+  min-height: 0 !important;
+  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 400px) !important;
+  gap: 12px !important;
+  align-items: start !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-mainCapture,
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-sideCoach {
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 14px !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-mainCapture {
+  grid-template-rows: repeat(6, auto) !important;
+  align-content: start !important;
+  gap: 11px !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-sideCoach {
+  grid-template-rows: auto auto !important;
+  grid-auto-rows: max-content !important;
+  align-content: start !important;
+  gap: 10px !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-notesField {
+  height: auto !important;
+  grid-template-rows: auto auto !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-notesArea {
+  min-height: 112px !important;
+  height: auto !important;
+  resize: vertical !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-field.cca-grow {
+  min-height: 0 !important;
+  grid-template-rows: auto auto !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-grow textarea {
+  min-height: 160px !important;
+  height: auto !important;
+  resize: vertical !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-nextQuestion {
+  grid-template-rows: auto auto auto auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-nextQuestion textarea {
+  min-height: 108px !important;
+  height: auto !important;
+  resize: vertical !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-supportDetails,
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-transcriptDrawer {
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-handoffRail {
+  height: auto !important;
+  min-height: 0 !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route="callCards"] body #root .wingman-page-host .cca-page .cca-handoffRail button {
+  height: auto !important;
+  min-height: 58px !important;
+}
+
+/* WINGMAN LIVE CALL LAYOUT REPAIR END */
+
 `;
+

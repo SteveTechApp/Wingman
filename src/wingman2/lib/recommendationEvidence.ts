@@ -505,6 +505,7 @@ function productFamilyScores(input: RecommendationEvidenceInput): Recommendation
   const architecture = architectureDecision(input);
   const roomModel = roomModelFrom(input);
   const combined = `${productText(input.product)} ${combinedRequirementText(input)}`;
+  const requirementText = combinedRequirementText(input);
   const displayCount = numberFromRequirement(roomModel.displayCount);
   const sourceCount = numberFromRequirement(roomModel.sourceCount);
   const scores = new Map<RecommendationProductFamily, RecommendationProductFamilyScore>();
@@ -557,6 +558,34 @@ function productFamilyScores(input: RecommendationEvidenceInput): Recommendation
 
   if (hasAny(combined, ["usb", "byom", "byod", "teams", "zoom", "camera", "speakerphone"])) {
     addFamilyScore(scores, "Presentation / UC", 15, "USB or UC language supports presentation / UC validation.");
+  }
+
+  if (hasAny(requirementText, ["mst", "multi-stream transport", "extended desktop", "independent desktop", "independent displays"])) {
+    addFamilyScore(scores, "Presentation / UC", 30, "True USB-C MST / independent desktop behaviour is required.");
+    addFamilyScore(scores, "Matrix / HDBaseT", 15, "A room-core switcher/matrix may be required to carry the MST-capable USB-C workflow.");
+    addFamilyCaution(scores, "NetworkHD", "Do not treat AVoIP, dual outputs or multiview as a substitute for USB-C MST extended desktops.");
+  }
+
+  if (hasAny(requirementText, ["wireless presentation", "wireless casting", "airplay", "miracast", "chromecast", "wireless screen share", "wireless screenshare"])) {
+    addFamilyScore(scores, "Presentation / UC", 25, "Wireless casting workflow is explicitly required.");
+    addFamilyCaution(scores, "Presentation / UC", "Confirm the required casting protocols, corporate Wi-Fi policy, guest access and simultaneous presenter behaviour.");
+  }
+
+  if (hasAny(requirementText, ["multiview", "multi-view", "quad view", "picture in picture", "picture-by-picture", "multiple sources on one screen"])) {
+    if (hasAny(requirementText, ["video wall", "videowall", "led wall", "lcd wall", "novastar", "led processor"])) {
+      addFamilyScore(scores, "Video wall processor", 25, "Multiview is required on a wall/LED canvas.");
+    } else if (hasAny(requirementText, ["networkhd", "av over ip", "avoip", "distributed", "networked"])) {
+      addFamilyScore(scores, "NetworkHD", 20, "Multiview is required within a distributed AV-over-IP workflow.");
+    } else {
+      addFamilyScore(scores, "Presentation / UC", 20, "Multiview is required in a contained presentation workflow.");
+    }
+
+    addFamilyCaution(scores, "Core review", "Confirm whether the customer needs multiview on one canvas, matrix routing to several displays, or USB-C MST extended desktops.");
+  }
+
+  if (hasAny(requirementText, ["zero latency", "zero-latency", "genlock", "lossless", "sdvoe", "10gbe", "10g"])) {
+    addFamilyScore(scores, "NetworkHD", 25, "High-performance lossless/zero-latency AV-over-IP language detected.");
+    addFamilyCaution(scores, "NetworkHD", "Validate NetworkHD 600, 10GbE switching, cabling and Genlock expectations before positioning a zero-latency solution.");
   }
 
   if (hasAny(combined, ["sw-0206-vw", "sw-0204-vw", "novastar", "led wall", "video wall"])) {

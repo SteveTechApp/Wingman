@@ -116,9 +116,9 @@ const audienceCopy: Record<WingmanCoachAudience, { label: string; stance: string
     proof: "Keep proof practical: fewer failed starts, less room support, clearer content sharing, or simpler teaching.",
   },
   dealer: {
-    label: "Selling onward",
-    stance: "Give the user a handoff story they can repeat to their customer without sounding like a brochure.",
-    proof: "Connect the SKU to a room problem, then give one plain validation point they can check before pricing.",
+    label: "System integrator / reseller",
+    stance: "Help the user qualify the integrator or reseller quickly, then give them a handoff story they can repeat to their customer without sounding like a brochure.",
+    proof: "Connect the SKU to a room problem, show the install dependency that matters most, and make any display, projector, LED, or UC attachment opportunity feel credible rather than forced.",
   },
   consultant: {
     label: "Technical reviewer",
@@ -126,9 +126,9 @@ const audienceCopy: Record<WingmanCoachAudience, { label: string; stance: string
     proof: "Call out interfaces, transport, network ownership, validation risks, and where a governed accessory is still needed.",
   },
   internal: {
-    label: "Internal coach",
-    stance: "Keep the workflow moving and show exactly what is known, unknown, risky, and worth asking next.",
-    proof: "Use confidence, evidence, and the SKU funnel to explain why the recommendation changed.",
+    label: "Internal account manager",
+    stance: "Coach an internal distributor salesperson through the next useful question, the likely WyreStorm product direction, and what can be positioned safely right now.",
+    proof: "Show what is known, what is missing, what is risky, and where display, projector, LED, signage, control, or UC attachment opportunities exist before the conversation reaches pre-sales.",
   },
 };
 
@@ -329,7 +329,7 @@ function buildNextQuestion(unknown: string[], risks: string[]) {
   if (firstRisk) {
     return `Can we validate this before it reaches the customer: ${firstRisk}`;
   }
-  return "What would make this recommendation feel obviously right to the person who has to approve or use it?";
+  return "What is the real application here, and what else around the display, projector, LED wall, or room workflow still needs to be solved?";
 }
 
 function buildSkuFunnel(input: WingmanCoachInput): WingmanSkuFunnel {
@@ -455,8 +455,8 @@ function buildProposalOutputs(input: WingmanCoachInput): WingmanProposalOutput[]
     {
       audience: "dealer",
       title: "Selling-onward version",
-      summary: `Explain why ${primarySku} is the practical route, what to validate, and how the customer should recognize the fit in their own room.`,
-      use: "Use this when the reseller or salesperson needs a repeatable story for their customer.",
+      summary: `Explain why ${primarySku} is the practical route, what to validate, and how the integrator, reseller, or salesperson should recognise the fit in the customer's own room.`,
+      use: "Use this when the channel partner needs a repeatable story they can sell onward confidently.",
     },
     {
       audience: "consultant",
@@ -467,7 +467,7 @@ function buildProposalOutputs(input: WingmanCoachInput): WingmanProposalOutput[]
     {
       audience: "internal",
       title: "Wingman workflow version",
-      summary: "Show what is known, what is still open, and why the SKU list narrowed the way it did.",
+      summary: "Show what is known, which application is really in play, what is still open, why the SKU list narrowed, and where display, projector, LED, or UC attachment opportunities exist.",
       use: "Use this for coaching, handoff, and debugging the recommendation path.",
     },
   ];
@@ -492,6 +492,10 @@ function buildPlayback(input: WingmanCoachInput, requirement: WingmanRequirement
   const naturalPlayback = context
     ? `Play it back simply: this is about ${context}, so lead with the room behavior before the SKU list.`
     : "Start by capturing the room problem in the customer's words before naming a product.";
+
+  if (audience === "internal") {
+    return `${naturalPlayback} Coach the conversation for an internal distributor account manager: identify the likely WyreStorm product family, ask the next qualification question, and spot any display, projector, LED, or UC attachment opportunity before naming a final SKU.`;
+  }
 
   if (conversationType === "proposal") {
     return `${naturalPlayback} ${copy.stance} The proposal should show the reasoning, the visual path, and the validation points before the BOM table.`;
