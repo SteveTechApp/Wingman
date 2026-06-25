@@ -2876,10 +2876,224 @@ export function FinderPage() {
   useEffect(() => {
     document.body.classList.add("wingman-finder-expanded-route");
 
+    function applyFinderExpandedLayout() {
+      const main = document.querySelector("main");
+
+      if (!main) {
+        return;
+      }
+
+      main.querySelectorAll("input[type='number']").forEach((input) => {
+        const element = input instanceof HTMLElement ? input : null;
+
+        if (!element) {
+          return;
+        }
+
+        const rect = element.getBoundingClientRect();
+
+        if (rect.width <= 28 && rect.height <= 28) {
+          element.style.display = "none";
+        }
+      });
+
+      const candidates = Array.from(main.querySelectorAll("section, article, div")).filter((element) => {
+        const textContent = element.textContent || "";
+        return (
+          textContent.includes("Customer problem to product path") &&
+          textContent.includes("Quick-start filters") &&
+          textContent.includes("View recommendation")
+        );
+      });
+
+      candidates.forEach((candidate) => {
+        const element = candidate instanceof HTMLElement ? candidate : null;
+
+        if (!element) {
+          return;
+        }
+
+        element.style.width = "100%";
+        element.style.maxWidth = "none";
+        element.style.marginRight = "0";
+
+        let parent = element.parentElement;
+        let depth = 0;
+
+        while (parent && depth < 8) {
+          parent.style.width = "100%";
+          parent.style.maxWidth = "none";
+          parent.style.marginRight = "0";
+
+          const computed = window.getComputedStyle(parent);
+
+          if (computed.display === "grid") {
+            parent.style.gridTemplateColumns = "minmax(0, 1fr)";
+          }
+
+          parent = parent.parentElement;
+          depth += 1;
+        }
+      });
+
+      main.querySelectorAll("[data-finder-reset-action='true']").forEach((button) => {
+        const element = button instanceof HTMLElement ? button : null;
+
+        if (!element) {
+          return;
+        }
+
+        element.style.setProperty("background", "linear-gradient(135deg, #ff9b2f 0%, #f05a00 100%)", "important");
+        element.style.setProperty("background-color", "#f97316", "important");
+        element.style.setProperty("border-color", "rgba(255, 190, 112, 0.98)", "important");
+        element.style.setProperty("color", "#ffffff", "important");
+        element.style.setProperty("opacity", "1", "important");
+        element.style.setProperty("box-shadow", "0 16px 34px rgba(255, 111, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.24)", "important");
+      });
+    }
+
+    applyFinderExpandedLayout();
+
+    const firstFrame = window.requestAnimationFrame(applyFinderExpandedLayout);
+    const secondFrame = window.setTimeout(applyFinderExpandedLayout, 250);
+
+    window.addEventListener("resize", applyFinderExpandedLayout);
+
     return () => {
       document.body.classList.remove("wingman-finder-expanded-route");
+      window.cancelAnimationFrame(firstFrame);
+      window.clearTimeout(secondFrame);
+      window.removeEventListener("resize", applyFinderExpandedLayout);
     };
   }, []);
+
+  useEffect(() => {
+    function applyFinderHeaderAndGuruCleanup() {
+      const main = document.querySelector("main");
+
+      if (!main) {
+        return;
+      }
+
+      const titleElements = Array.from(main.querySelectorAll("h1, h2, h3, p, div, span")).filter((item) => {
+        const element = item instanceof HTMLElement ? item : null;
+
+        if (!element) {
+          return false;
+        }
+
+        return element.textContent?.trim() === "Customer problem to product path";
+      });
+
+      titleElements.forEach((titleElement) => {
+        const title = titleElement instanceof HTMLElement ? titleElement : null;
+
+        if (!title) {
+          return;
+        }
+
+        title.style.lineHeight = "1.35";
+        title.style.minHeight = "30px";
+        title.style.display = "inline-flex";
+        title.style.alignItems = "center";
+
+        let parent = title.parentElement;
+        let depth = 0;
+
+        while (parent && depth < 5) {
+          parent.style.minHeight = depth === 0 ? "46px" : parent.style.minHeight;
+          parent.style.paddingTop = depth <= 1 ? "4px" : parent.style.paddingTop;
+          parent.style.paddingBottom = depth <= 1 ? "14px" : parent.style.paddingBottom;
+          parent.style.overflow = "visible";
+
+          parent.querySelectorAll("input[type='number'], input[role='spinbutton']").forEach((control) => {
+            const controlElement = control instanceof HTMLElement ? control : null;
+
+            if (!controlElement) {
+              return;
+            }
+
+            controlElement.style.display = "none";
+          });
+
+          Array.from(parent.children).forEach((child) => {
+            const childElement = child instanceof HTMLElement ? child : null;
+
+            if (!childElement) {
+              return;
+            }
+
+            if (childElement === title) {
+              return;
+            }
+
+            const rect = childElement.getBoundingClientRect();
+            const text = childElement.textContent?.trim() || "";
+            const looksLikeStraySpinner = text.length === 0 && rect.width <= 32 && rect.height <= 32;
+
+            if (!looksLikeStraySpinner) {
+              return;
+            }
+
+            childElement.style.display = "none";
+          });
+
+          parent = parent.parentElement;
+          depth += 1;
+        }
+      });
+
+      const guruCandidates = Array.from(document.body.querySelectorAll("button, [role='button'], a, div")).filter((item) => {
+        const element = item instanceof HTMLElement ? item : null;
+
+        if (!element) {
+          return false;
+        }
+
+        const rect = element.getBoundingClientRect();
+        const className = String(element.className || "").toLowerCase();
+        const html = element.innerHTML.toLowerCase();
+        const text = element.textContent?.toLowerCase() || "";
+        const isBottomRight = rect.right > window.innerWidth - 180 && rect.bottom > window.innerHeight - 190;
+        const isRoundLauncher = Math.abs(rect.width - rect.height) <= 18 && rect.width >= 44 && rect.width <= 96;
+        const looksLikeGuru = className.includes("guru") || html.includes("guru") || html.includes("wingman") || text.includes("guru");
+
+        return isBottomRight && isRoundLauncher && looksLikeGuru;
+      });
+
+      guruCandidates.forEach((candidate) => {
+        const guru = candidate instanceof HTMLElement ? candidate : null;
+
+        if (!guru) {
+          return;
+        }
+
+        guru.style.position = "fixed";
+        guru.style.top = "50%";
+        guru.style.right = "24px";
+        guru.style.bottom = "auto";
+        guru.style.zIndex = "240";
+        guru.style.transform = "translateY(-50%)";
+        guru.style.margin = "0";
+      });
+    }
+
+    applyFinderHeaderAndGuruCleanup();
+
+    const firstFrame = window.requestAnimationFrame(applyFinderHeaderAndGuruCleanup);
+    const secondFrame = window.setTimeout(applyFinderHeaderAndGuruCleanup, 300);
+    const thirdFrame = window.setTimeout(applyFinderHeaderAndGuruCleanup, 900);
+
+    window.addEventListener("resize", applyFinderHeaderAndGuruCleanup);
+
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      window.clearTimeout(secondFrame);
+      window.clearTimeout(thirdFrame);
+      window.removeEventListener("resize", applyFinderHeaderAndGuruCleanup);
+    };
+  }, []);
+
 
   const discoveryHandoffAppliedRef = useRef(false);
 
@@ -3318,8 +3532,8 @@ if (!leadingMatch) {
             })}
           </nav>
 
-          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
-            <section className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 shadow-sm" aria-labelledby="finder-active-step-title">
+          <div className="finder-active-step-layout grid gap-4">
+            <section className="finder-active-step-panel rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 shadow-sm" aria-labelledby="finder-active-step-title">
               <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#29465e] pb-4">
                 <div className="min-w-0">
                   <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-700">{activeStepDefinition.eyebrow}</p>
@@ -3332,14 +3546,8 @@ if (!leadingMatch) {
                 <button data-finder-reset-action="true"
                   type="button"
                   onClick={clearFinder}
-                  className="inline-flex items-center gap-2 rounded-full border border-[#29465e] bg-[#0d2133] px-3 py-2 text-xs font-black text-white/60 transition hover:bg-[#0d2133] finder-reset-button"
-                  style={{
-                    background: "linear-gradient(135deg, #ff9b2f 0%, #f05a00 100%)",
-                    borderColor: "rgba(255, 190, 112, 0.98)",
-                    color: "#ffffff",
-                    boxShadow:
-                      "0 16px 34px rgba(255, 111, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.24)",
-                  }}
+                  className="finder-reset-button inline-flex items-center gap-2 rounded-full border border-orange-300/90 bg-orange-500 px-3 py-2 text-xs font-black text-white shadow-[0_14px_32px_rgba(255,111,0,0.34)] transition hover:border-orange-200 hover:bg-orange-400"
+                  
                   data-reset-orange-inline="true"
 
 >
