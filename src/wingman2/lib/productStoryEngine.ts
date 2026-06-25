@@ -647,6 +647,18 @@ function purposePhrase(product: ProductSpec): string | null {
   return purpose.toLowerCase().replace(/\.$/, "");
 }
 
+// True only for products that actually drive loudspeakers or process installed
+// room audio (amplifiers, DSP). Self-contained audio devices that merely have
+// their own speaker - speakerphones, microphones, video-speakerphones such as
+// APO-210-UC - are role "audio" too (the description mentions "speaker"), but must
+// NOT be described as "powering the room's speakers", or the quote-facing copy is
+// false. Those fall back to a generic audio clause.
+function drivesRoomSpeakers(product: ProductSpec): boolean {
+  const text = `${product.sku} ${product.name} ${product.productType} ${product.description} ${product.keyFeatures.join(" ")}`.toLowerCase();
+  if (/speakerphone|video[\s-]?bar|conference (?:camera|phone)|\bmic\b|microphone|webcam/.test(text)) return false;
+  return /amplif|\bamp\b|\bdsp\b|\bwatt\b|\bohm\b|loudspeaker|power output|\bpa system\b/.test(text);
+}
+
 // A plain, concrete sentence saying what the product actually does in the signal
 // chain, written so a non-AV salesperson can repeat it on a call. It replaces the
 // old meta line ("the real check is how video, USB, audio and control move through
@@ -684,7 +696,9 @@ function plainFunctionClause(product: ProductSpec, role: ProductRole): string {
         ? " It shows the room or the presenter on calls, recordings or streams, and the shot can pan, tilt and zoom to follow what matters."
         : " It gives calls, recordings or streams a clear, fixed view of the room or the presenter.";
     case "audio":
-      return " It powers the room's speakers and keeps speech and programme sound clear and loud enough for everyone in the space.";
+      return drivesRoomSpeakers(product)
+        ? " It powers the room's speakers and keeps speech and programme sound clear and loud enough for everyone in the space."
+        : " It is part of the room's audio, helping people hear and be heard clearly in the space.";
     case "wireless":
       return " It puts whatever is on a laptop or phone onto the room screen without anyone plugging in a cable.";
     default:
@@ -779,12 +793,17 @@ function buildRoleNarrativeBase(product: ProductSpec): RoleNarrativeBase {
   }
 
   if (role === "audio") {
+    const drivesSpeakers = drivesRoomSpeakers(product);
     return {
       role,
-      headline: "Use this when audio needs proper amplification and network-aware integration.",
+      headline: drivesSpeakers
+        ? "Use this when audio needs proper amplification and network-aware integration."
+        : "Use this when the room needs to be heard clearly on calls and in the space.",
       whatItIs,
-      customerChallenge: "The customer needs room audio that is reliable, controllable and suitable for the space rather than relying on display speakers or ad-hoc amplification.",
-      whyItHelps: `${product.sku} powers the room's speakers and ties the sound into the rest of the AV system, so speech and programme audio stay clear and loud enough without leaning on the display's built-in speakers.`,
+      customerChallenge: "The customer needs room audio that is reliable, controllable and suitable for the space rather than relying on display speakers or ad-hoc audio.",
+      whyItHelps: drivesSpeakers
+        ? `${product.sku} powers the room's speakers and ties the sound into the rest of the AV system, so speech and programme audio stay clear and loud enough without leaning on the display's built-in speakers.`
+        : `${product.sku} handles the room's audio - capturing voices and playing sound back clearly - so people can hear and be heard without relying on a laptop or display's own microphone and speaker.`,
       whyCustomerCares: "People can hear and be heard in the room and on calls, without anyone straining to catch what is said.",
       useWhen: `Use it where ${mainFeature.toLowerCase()} is relevant and the room needs installed audio rather than simple display audio.`,
       avoidIf: "Avoid positioning it before confirming speaker load, room size, Dante/network requirements and who is responsible for audio tuning.",
