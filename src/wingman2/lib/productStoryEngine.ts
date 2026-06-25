@@ -489,21 +489,6 @@ function connectionList(product: ProductSpec, limit = 5): string[] {
   );
 }
 
-// Multi-function vs single-purpose, judged by how many distinct capability
-// dimensions the product carries (video + USB + audio + control + power).
-function functionBreadth(product: ProductSpec): "multi" | "single" {
-  const feats = headlineFeatures(product, 12).join(" | ").toLowerCase();
-  const dimensions = [
-    /usb/,
-    /dante|audio|s\/pdif|arc|de-?embed/,
-    /\bir\b|rs-?232|control|cec|\bapi\b/,
-    /poe|power delivery/,
-    /4k|hdr|dolby|4:4:4/,
-  ].filter((pattern) => pattern.test(feats)).length;
-
-  return dimensions >= 3 ? "multi" : "single";
-}
-
 function rangeRelationship(product: ProductSpec): string {
   const series = networkHdSeries(product);
   if (!series) return "";
@@ -662,6 +647,65 @@ function purposePhrase(product: ProductSpec): string | null {
   return purpose.toLowerCase().replace(/\.$/, "");
 }
 
+// True only for products that actually drive loudspeakers or process installed
+// room audio (amplifiers, DSP). Self-contained audio devices that merely have
+// their own speaker - speakerphones, microphones, video-speakerphones such as
+// APO-210-UC - are role "audio" too (the description mentions "speaker"), but must
+// NOT be described as "powering the room's speakers", or the quote-facing copy is
+// false. Those fall back to a generic audio clause.
+function drivesRoomSpeakers(product: ProductSpec): boolean {
+  const text = `${product.sku} ${product.name} ${product.productType} ${product.description} ${product.keyFeatures.join(" ")}`.toLowerCase();
+  if (/speakerphone|video[\s-]?bar|conference (?:camera|phone)|\bmic\b|microphone|webcam/.test(text)) return false;
+  return /amplif|\bamp\b|\bdsp\b|\bwatt\b|\bohm\b|loudspeaker|power output|\bpa system\b/.test(text);
+}
+
+// A plain, concrete sentence saying what the product actually does in the signal
+// chain, written so a non-AV salesperson can repeat it on a call. It replaces the
+// old meta line ("the real check is how video, USB, audio and control move through
+// the room"), which described the sales conversation rather than the product.
+function plainFunctionClause(product: ProductSpec, role: ProductRole): string {
+  const endpoint = endpointRole(product.sku);
+
+  switch (role) {
+    case "avoip":
+      if (endpoint === "encoder")
+        return " It puts one source onto the network so any matching screen on the system can show it.";
+      if (endpoint === "decoder")
+        return " It takes a source off the network and puts it on one screen.";
+      if (endpoint === "transceiver")
+        return " It sits at a source or a screen and moves that picture across the network to anywhere else on the system.";
+      return " It carries AV over the network, so sources and screens are matched up in software instead of by cable.";
+    case "matrix":
+      return " It connects several sources to several screens at once and lets each screen show whichever source you pick.";
+    case "multiview":
+      return " It puts several sources on one screen at the same time, instead of switching between them one at a time.";
+    case "videoWall":
+      return " It drives a group of screens as one wall - one large picture spread across them all, or different content on each.";
+    case "presentation":
+      return " It takes the laptops and room devices plugged into it and sends the chosen one to the screen, so people share without swapping cables.";
+    case "extension":
+      if (endpoint === "encoder")
+        return " It sends one source down a single long cable run to its matching receiver at the far end.";
+      if (endpoint === "decoder")
+        return " It rebuilds the picture arriving over a long cable run and feeds it to the screen.";
+      return " It carries one source over a long cable run that an ordinary HDMI lead could not reach.";
+    case "camera":
+      if (isCameraBridgeProduct(product))
+        return " It takes several cameras or room sources and hands a meeting, recording or streaming system one combined feed.";
+      return /\bptz\b/i.test(productText(product))
+        ? " It shows the room or the presenter on calls, recordings or streams, and the shot can pan, tilt and zoom to follow what matters."
+        : " It gives calls, recordings or streams a clear, fixed view of the room or the presenter.";
+    case "audio":
+      return drivesRoomSpeakers(product)
+        ? " It powers the room's speakers and keeps speech and programme sound clear and loud enough for everyone in the space."
+        : " It is part of the room's audio, helping people hear and be heard clearly in the space.";
+    case "wireless":
+      return " It puts whatever is on a laptop or phone onto the room screen without anyone plugging in a cable.";
+    default:
+      return "";
+  }
+}
+
 function skuWhatItIs(product: ProductSpec, role: ProductRole): string {
   const kind = productKind(product, role);
   const feats = headlineFeatures(product, 5);
@@ -671,12 +715,9 @@ function skuWhatItIs(product: ProductSpec, role: ProductRole): string {
     application && !isPlaceholderText(application) ? ` It is typically used in ${application.toLowerCase()}.` : "";
   const connections = connectionList(product, 5);
   const connectionClause = connections.length ? ` It connects via ${connections.join(", ")}.` : "";
-  const breadthClause =
-    functionBreadth(product) === "multi"
-      ? " It combines several workflow roles, so the real check is how video, USB, audio and control need to move through the room together."
-      : " It plays a defined role in the signal path, so the useful sales conversation is what connects on each side and what problem it removes from the design.";
+  const functionClause = plainFunctionClause(product, role);
 
-  return `${product.sku} (${product.name}) is ${articleFor(kind)} ${kind}.${featureClause}${applicationClause}${connectionClause}${breadthClause}`;
+  return `${product.sku} (${product.name}) is ${articleFor(kind)} ${kind}.${functionClause}${featureClause}${applicationClause}${connectionClause}`;
 }
 
 function skuSuggestedWording(product: ProductSpec, role: ProductRole, fallback: string): string {
@@ -720,8 +761,8 @@ function buildRoleNarrativeBase(product: ProductSpec): RoleNarrativeBase {
         headline: "Use this when several cameras or room sources need to become one clean feed.",
         whatItIs,
         customerChallenge: "The customer does not just need a camera. They need several camera or AV sources to land cleanly in one conferencing, capture or streaming workflow.",
-        whyItHelps: `${product.sku} sits between the cameras/sources and the destination platform so the room can switch, bridge or present a usable combined feed instead of leaving the workflow to ad-hoc USB dongles or operator workarounds.`,
-        whyCustomerCares: "It makes hybrid teaching, UC capture and multi-camera rooms easier to explain because the bridge becomes the handoff point between room AV and the platform receiving it.",
+        whyItHelps: `${product.sku} takes the room's cameras and sources and hands the meeting, recording or streaming platform one clean feed, so nobody is juggling USB dongles or swapping cables mid-session.`,
+        whyCustomerCares: "In a multi-camera room there is one clear point where the room AV meets the platform, so hybrid teaching and recorded sessions are easier to run and easier to support.",
         useWhen: "Use it where the project needs more than one camera or source brought into USB, HDMI or NDI workflow, and the output destination still needs to be confirmed properly.",
         avoidIf: "Avoid leading with this if one simple fixed USB camera would solve the room. Also avoid it if the audio path, platform compatibility or operator workflow has not been confirmed.",
         suggestedWording: `${product.sku} is the bridge/mixer conversation when the room needs several camera or AV sources turned into one practical feed for conferencing, recording or streaming.`,
@@ -738,8 +779,8 @@ function buildRoleNarrativeBase(product: ProductSpec): RoleNarrativeBase {
       headline: "Use this when a basic webcam is not enough.",
       whatItIs,
       customerChallenge: "The customer needs better room coverage, zoom, framing or capture flexibility than a fixed USB webcam can provide.",
-      whyItHelps: `${product.sku} gives the design a controllable camera path that can support conferencing, capture, streaming or network video depending on how the room is being used.`,
-      whyCustomerCares: "It helps the room feel more professional on calls and gives the system designer more ways to route or capture the camera image.",
+      whyItHelps: `${product.sku} gives the room a camera you can aim and zoom, with a clean feed into video calls, recording, streaming or the AV network.`,
+      whyCustomerCares: "Everyone on the call sees the room clearly instead of a fixed, distant webcam shot, and the picture can go wherever the job needs it.",
       useWhen: "Use it where camera position, zoom, presets, NDI, HDMI or USB connection options matter.",
       avoidIf: "Avoid leading with this if the requirement is only a small personal webcam or if the customer has not confirmed camera location and host connection.",
       suggestedWording: `${product.sku} is a flexible PTZ camera option when the customer needs better room coverage and more connection flexibility than a standard webcam.`,
@@ -752,13 +793,18 @@ function buildRoleNarrativeBase(product: ProductSpec): RoleNarrativeBase {
   }
 
   if (role === "audio") {
+    const drivesSpeakers = drivesRoomSpeakers(product);
     return {
       role,
-      headline: "Use this when audio needs proper amplification and network-aware integration.",
+      headline: drivesSpeakers
+        ? "Use this when audio needs proper amplification and network-aware integration."
+        : "Use this when the room needs to be heard clearly on calls and in the space.",
       whatItIs,
-      customerChallenge: "The customer needs room audio that is reliable, controllable and suitable for the space rather than relying on display speakers or ad-hoc amplification.",
-      whyItHelps: `${product.sku} supports a cleaner audio design by combining amplification, processing and integration points that can sit inside a wider AV system.`,
-      whyCustomerCares: "It helps make speech, programme audio and room reinforcement easier to manage and more professional for everyday users.",
+      customerChallenge: "The customer needs room audio that is reliable, controllable and suitable for the space rather than relying on display speakers or ad-hoc audio.",
+      whyItHelps: drivesSpeakers
+        ? `${product.sku} powers the room's speakers and ties the sound into the rest of the AV system, so speech and programme audio stay clear and loud enough without leaning on the display's built-in speakers.`
+        : `${product.sku} handles the room's audio - capturing voices and playing sound back clearly - so people can hear and be heard without relying on a laptop or display's own microphone and speaker.`,
+      whyCustomerCares: "People can hear and be heard in the room and on calls, without anyone straining to catch what is said.",
       useWhen: `Use it where ${mainFeature.toLowerCase()} is relevant and the room needs installed audio rather than simple display audio.`,
       avoidIf: "Avoid positioning it before confirming speaker load, room size, Dante/network requirements and who is responsible for audio tuning.",
       suggestedWording: `${product.sku} is best explained as the audio part of the system that helps make the room sound right, not just another accessory in the rack.`,
@@ -776,8 +822,8 @@ function buildRoleNarrativeBase(product: ProductSpec): RoleNarrativeBase {
       headline: "Use this when the system needs flexible AV routing over the network.",
       whatItIs,
       customerChallenge: "The customer needs sources and displays to work across rooms, zones or a larger site without being limited by a fixed local matrix.",
-      whyItHelps: `${product.sku} sits in a NetworkHD-style architecture where endpoints, switching and network planning define the system shape.`,
-      whyCustomerCares: "It helps support future expansion, flexible routing and distributed AV where a simple point-to-point connection is not enough.",
+      whyItHelps: `${product.sku} moves AV over the network instead of direct cabling, so any source can reach any screen across the building and the routing can be changed in software later.`,
+      whyCustomerCares: "The customer can add rooms, screens and sources later without re-cabling the building, and send anything to anywhere from one place.",
       useWhen: "Use it where source/display count, distance, flexibility or site-wide routing justifies AV-over-IP.",
       avoidIf: "Avoid using AVoIP as the default answer for a small local room unless routing, scale or future flexibility makes it necessary.",
       suggestedWording: `${product.sku} is part of a flexible networked AV route when the customer needs more than simple local switching.`,
@@ -795,8 +841,8 @@ function buildRoleNarrativeBase(product: ProductSpec): RoleNarrativeBase {
       headline: "Use this when the customer needs several sources visible at the same time.",
       whatItIs,
       customerChallenge: "The customer does not just need to switch sources; they need to see multiple sources together on one output canvas.",
-      whyItHelps: `${product.sku} helps create a combined view so a display, processor or monitoring point can show more than one source at once.`,
-      whyCustomerCares: "It makes the display more useful for monitoring, sports, signage, operations or teaching workflows.",
+      whyItHelps: `${product.sku} combines several sources into one picture, so a single screen can show them all side by side instead of one at a time.`,
+      whyCustomerCares: "Staff can watch everything that matters on one screen - games, feeds, channels or sources - without missing what is happening on the others.",
       useWhen: "Use it where multiview is the requirement. Multiple outputs alone does not mean multiview.",
       avoidIf: "Avoid it when the customer simply needs routing to several displays rather than multiple sources on one screen.",
       suggestedWording: `${product.sku} is for showing multiple sources together on one screen, which is different from simply routing one source to one display.`,
@@ -814,8 +860,8 @@ function buildRoleNarrativeBase(product: ProductSpec): RoleNarrativeBase {
       headline: "Use this when the customer needs a clear wall-processing path.",
       whatItIs,
       customerChallenge: "The customer needs content to appear correctly across an LCD or LED wall, and the sales user must understand whether this is fixed wall processing or flexible routing.",
-      whyItHelps: `${product.sku} helps define the wall behaviour before the design jumps to AVoIP or matrix switching.`,
-      whyCustomerCares: "It reduces confusion around wall layout, source behaviour and processor input expectations.",
+      whyItHelps: `${product.sku} drives a group of screens as one wall - one large picture spread across them, or different content in each section - from the sources you feed it.`,
+      whyCustomerCares: "The wall looks like one deliberate display rather than a row of unrelated screens, and everyone agrees up front how it will behave.",
       useWhen: "Use it where wall layout, source behaviour and display/processor type are central to the requirement.",
       avoidIf: "Avoid finalising the product until wall type, resolution, layout, source behaviour and processor path are confirmed.",
       suggestedWording: `${product.sku} is a wall-processing option when the customer needs a defined way to feed and manage a display wall.`,
@@ -833,8 +879,8 @@ function buildRoleNarrativeBase(product: ProductSpec): RoleNarrativeBase {
       headline: "Use this when the room needs a simple, user-friendly presentation core.",
       whatItIs,
       customerChallenge: "The customer needs users to connect laptops or room sources without turning the room into a complicated AV system.",
-      whyItHelps: `${product.sku} helps centralise the presentation workflow so source selection, display output and any USB/BYOD requirements are easier to explain.`,
-      whyCustomerCares: "It can make the room easier to use and reduce support calls.",
+      whyItHelps: `${product.sku} gives the room one place to plug in, picks up the chosen laptop or room source and puts it on the screen, and passes the room camera and microphone back to the laptop where the model supports it.`,
+      whyCustomerCares: "People walk in, connect and present without help, so the room actually gets used and the support desk hears less about it.",
       useWhen: "Use it where laptop input, local switching, display output and user experience are the main concerns.",
       avoidIf: "Avoid it where the real requirement is large-scale routing, complex AV-over-IP or specialist video-wall processing.",
       suggestedWording: `${product.sku} is a room-friendly presentation product for customers who want a cleaner way to connect and present.`,
@@ -852,8 +898,8 @@ function buildRoleNarrativeBase(product: ProductSpec): RoleNarrativeBase {
       headline: "Use this when the main problem is distance or cable path.",
       whatItIs,
       customerChallenge: "The customer needs a signal to travel reliably from source to display without assuming a short HDMI cable will work.",
-      whyItHelps: `${product.sku} gives the system a defined extension or transport path that can be checked against distance, resolution and USB needs.`,
-      whyCustomerCares: "It makes the installation more predictable and reduces signal-risk surprises.",
+      whyItHelps: `${product.sku} carries the picture from the source to a screen that is too far away for an ordinary HDMI lead, over a single installed cable run.`,
+      whyCustomerCares: "The screen can go where the room needs it, with no dropouts or sparkle from a cable run that was always going to be too long.",
       useWhen: "Use it where distance, cable type or remote display/source locations drive the product choice.",
       avoidIf: "Avoid it if the customer actually needs switching, matrix routing, multiview or AV-over-IP flexibility.",
       suggestedWording: `${product.sku} is the transport part of the design, used where the signal path needs to cover distance reliably.`,
@@ -862,6 +908,44 @@ function buildRoleNarrativeBase(product: ProductSpec): RoleNarrativeBase {
       diagramSource: "Source device",
       diagramOutput: "Remote display / projector",
       visualPrompt: `Create a simple room or classroom visual showing ${product.sku} extending AV from a source location to a remote display or projector.`
+    };
+  }
+
+  if (role === "matrix") {
+    return {
+      role,
+      headline: "Use this when several screens each need to show a different source.",
+      whatItIs,
+      customerChallenge: "The customer has several sources and several screens, and each screen needs to show its own source - not all the same picture, and not just one screen choosing between inputs.",
+      whyItHelps: `${product.sku} connects every source to every screen and lets each screen show whichever source you choose, so one central box drives the whole system instead of re-plugging cables.`,
+      whyCustomerCares: "Staff can put the right content on the right screen at any time - different channels in different areas, or the same one everywhere - without touching the cabling.",
+      useWhen: "Use it where different displays or zones need different sources at the same time, the source and screen count is known, and the system is a fixed install rather than something that keeps growing across the site.",
+      avoidIf: "Avoid it when only one screen needs to choose between sources (that is a switcher), when every screen always shows the same picture (that is a splitter), or when the customer needs easy expansion across many rooms (look at AV-over-IP).",
+      suggestedWording: `${product.sku} is the central box that lets each screen show its own source, sized to the sources and screens the customer actually has.`,
+      demoPrompt: "Suggest a demo where the customer wants to see independent routing - different sources on different screens - and how presets make it simple to operate.",
+      askNow: ["How many sources and how many screens are there?", "Does each screen need to show something different at the same time, or do they all show the same thing?", "Are the screens close to the rack, or spread around the building?", "Who changes what's on each screen, and how do they want to do it?"],
+      diagramSource: "Several sources (media players, PCs, set-top boxes)",
+      diagramOutput: "Several displays or zones, each showing its own source",
+      visualPrompt: `Create a realistic hospitality or boardroom visual showing ${product.sku} routing several sources to several displays, each able to show a different source.`
+    };
+  }
+
+  if (role === "wireless") {
+    return {
+      role,
+      headline: "Use this when people need to share on screen without plugging in a cable.",
+      whatItIs,
+      customerChallenge: "Guests and staff want to put what is on their laptop or phone onto the room screen quickly, without hunting for the right cable or adapter.",
+      whyItHelps: `${product.sku} puts whatever is on a laptop or phone onto the room screen over the network, so people share in seconds without plugging anything in.`,
+      whyCustomerCares: "Meetings start faster, visitors are not left looking for adapters, and the table stays tidy.",
+      useWhen: "Use it where quick, cable-free sharing matters and the room's network and IT policy allow casting.",
+      avoidIf: "Avoid leading with it where the network or IT policy will not allow casting, or where the room needs guaranteed, zero-delay video that only a wired path can promise.",
+      suggestedWording: `${product.sku} is the cable-free way to share on the room screen, usually alongside the room's wired connection rather than instead of it.`,
+      demoPrompt: "Suggest a demo where the customer wants to see how quickly a guest can share from their own device, and how it behaves on their network.",
+      askNow: ["Do people want to share by plugging in a cable, connecting wirelessly, or both?", "Will guests need to share from their own laptops or phones?", "Does the IT team allow devices to connect to the room over the network?", "Is anyone showing fast-moving video where a slight delay would be a problem?"],
+      diagramSource: "Laptop, tablet or phone",
+      diagramOutput: "Room display or presentation system",
+      visualPrompt: `Create a realistic meeting room visual showing ${product.sku} receiving a wireless share from a laptop or phone and putting it on the room display.`
     };
   }
 
