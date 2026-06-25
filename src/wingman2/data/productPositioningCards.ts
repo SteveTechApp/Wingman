@@ -685,42 +685,42 @@ const CORE_PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     salientPoint: "An all-in-one camera, microphone and speaker bar for small meeting and BYOD rooms - one neat device instead of separate kit.",
     oneLinePositioning: "Use this when a small room needs camera, microphone and speaker for video calls in one simple device.",
     oneMinuteBrief: "The APO-VX20-UC-V2 is an all-in-one UC video bar - camera, microphone and speaker in a single unit on the screen - that makes a small meeting or BYOD room work properly for video calls. Reach for it when the room wants a neat one-device upgrade over a laptop webcam, without building a full installed AV system.",
-    bestFitApplications: ["small huddle rooms", "BYOD meeting rooms", "USB conferencing", "simple UC spaces"],
-    weakFitApplications: ["large divisible rooms", "complex DSP audio", "large lecture theatres"],
-    customerProblems: ["The room can show video, but call audio is still the weak point.", "They need a simple way to make a small BYOD room usable without designing a full DSP system.", "The rep needs a compact UC audio answer that keeps the opportunity moving."],
-    wyrestormFit: ["Lets the rep add a credible room-audio layer to presentation and camera opportunities.", "Keeps the sale focused on whether the room actually works for meetings, not just whether content appears on screen."],
-    openingQuestions: ["How many people are in the room?", "Is this for Teams/Zoom/BYOD calls?", "What camera is being used?", "Is the PC/laptop host in the room?", "Is existing audio being reused?"],
-    qualificationQuestions: ["What pickup distance is needed?", "Is expansion required?", "Is room noise a concern?", "Does the customer need table or installed audio?", "Is DSP already specified?"],
-    technicalCheckQuestions: ["Confirm room size.", "Confirm USB host path.", "Confirm acoustic expectations.", "Confirm camera/platform.", "Confirm whether larger APO audio is required."],
-    listenForTriggers: ["The room is fine for presentation but poor on calls.", "They just need a small room to work for BYOD meetings.", "Audio is the weak point, not the display.", "It is a huddle room and they want fewer boxes."],
-    disqualifiers: ["Do not position for large rooms without audio design review.", "Do not replace a specified DSP system casually.", "Do not ignore microphone pickup distance."],
-    caveats: ["Room audio depends on acoustics, room size and user behaviour.", "WyreStorm UC is Zoom-certified, not Teams-certified; Teams rooms must be tested before install.", "Escalate complex rooms for audio review."],
+    bestFitApplications: ["small huddle rooms", "small-to-medium meeting rooms", "BYOD/BYOM meeting rooms", "simple UC spaces"],
+    weakFitApplications: ["large or divisible rooms", "rooms needing separate camera, DSP and speakers", "large lecture theatres"],
+    customerProblems: ["The room relies on a laptop webcam and speaker, so people look and sound poor on calls.", "They want one simple device for camera, microphone and speaker rather than separate boxes and wiring.", "A small BYOD room needs to be call-ready without a full installed AV system."],
+    wyrestormFit: ["Gives a small room a single all-in-one device - camera, microphone and speaker - that runs the call.", "Keeps the sale focused on whether the room actually works for meetings, not just whether content appears on screen."],
+    openingQuestions: ["How many people are usually in the room?", "Is this for Teams/Zoom/BYOD calls?", "Where would the bar sit - above or below the screen?", "Is there a room PC, or do people bring their own laptop?", "How big is the room and how far away do people sit?"],
+    qualificationQuestions: ["Does the camera need to frame the whole room or follow the presenter?", "Is the room small enough for one bar to cover everyone?", "Is wireless sharing needed alongside the call?", "Are there IT or security restrictions on USB devices?", "Is a separate display already in place?"],
+    technicalCheckQuestions: ["Confirm room size against the bar's camera coverage and mic pickup.", "Confirm the USB host path - room PC or laptop.", "Confirm mounting position relative to the screen.", "Confirm the meeting platform.", "Confirm whether a larger room needs separate camera, audio and speakers instead."],
+    listenForTriggers: ["People look and sound poor on calls from a laptop webcam.", "They want fewer boxes in a small meeting room.", "It is a huddle room that needs to be call-ready.", "They are refreshing a small room for hybrid meetings."],
+    disqualifiers: ["Do not position it for a room too large for one bar to cover.", "Do not use it where separate camera, DSP and speakers are genuinely required.", "Do not ignore where the bar mounts relative to the people and screen."],
+    caveats: ["Camera coverage and mic pickup depend on room size and where people sit.", "WyreStorm UC is Zoom-certified, not Teams-certified; Teams rooms must be tested before install.", "Escalate large or complex rooms for a separate camera and audio design."],
     objectionHandling: [
-      { objection: "Can the display speakers do this?", response: "Display speakers may be enough for playback, but conferencing needs microphone pickup and echo-controlled audio path." }
+      { objection: "Can a laptop webcam and speakerphone do this?", response: "For one person maybe, but a room needs a wide camera that frames everyone plus room-filling sound and clean pickup, which a built-in webcam and speaker cannot match." }
     ],
     attachProducts: [
-      { productFamily: "SW presentation switchers", reason: "Attach to BYOD/BYOM presentation rooms." },
-      { productFamily: "CAM cameras", reason: "Attach where video conferencing is also required." }
+      { productFamily: "Displays and mounts", reason: "The video bar mounts to a room display, usually supplied by others." },
+      { sku: "APO-DG2-PRO", reason: "Add wireless casting and conferencing to the same room." }
     ],
     competitorAngles: [
-      { competitorCategory: "USB conferencing audio", positioningNote: "Compare room size, pickup range, host path and platform workflow.", compareSearchTerms: ["USB speakerphone", "UC audio"] }
+      { competitorCategory: "all-in-one UC video bar", positioningNote: "Compare camera field of view, framing, mic pickup range, room-size suitability and platform certification.", compareSearchTerms: ["UC video bar", "all-in-one video bar", "conference camera"] }
     ],
     audienceNotes: {
-      DISTRIBUTOR: "Good attach to meeting-room switcher/camera opportunities.",
-      DEALER: "Use to avoid selling video without audio.",
-      INTEGRATOR: "Validate room size and acoustics.",
-      CONSULTANT: "Frame as compact UC audio, not a DSP replacement.",
-      END_USER: "Explain that it helps people hear and be heard in smaller calls."
+      DISTRIBUTOR: "Good attach to small-room display and meeting-room refresh opportunities.",
+      DEALER: "Position as the simple one-device upgrade over a laptop webcam and speaker.",
+      INTEGRATOR: "Validate room size against the camera field of view and mic pickup.",
+      CONSULTANT: "Frame as an all-in-one small-room UC device, not a replacement for separate camera and DSP in larger rooms.",
+      END_USER: "Explain that one device gives the room a clear picture and clear sound on calls."
     },
     callModeNotes: {
       INBOUND_SUPPORT: "Ask about room size and number of users.",
-      PRODUCT_CALLOUT: "Attach to BYOD room conversations.",
-      COMPETITOR_DISPLACEMENT: "Compare room suitability rather than brand alone.",
-      PROJECT_DISCOVERY: "Capture room size, host path, camera and acoustic expectations.",
-      TRAINING: "Use to teach why audio must be asked about."
+      PRODUCT_CALLOUT: "Attach to small-room and huddle conversations.",
+      COMPETITOR_DISPLACEMENT: "Compare room suitability and camera/mic coverage rather than brand alone.",
+      PROJECT_DISCOVERY: "Capture room size, host path, mounting and platform.",
+      TRAINING: "Use to teach the all-in-one video bar conversation for small rooms."
     },
-    followUpWording: "This sounds like a small-room meeting problem where video alone is not enough. APO-VX20-UC-V2 is the WyreStorm conversation when the rep needs a compact audio path that makes a BYOD or UC room actually usable. Before quote, confirm participant count, room size, host workflow, camera/platform path and whether the space is still simple enough to avoid a larger audio design.",
-    reviewGates: ["Confirm room size.", "Confirm USB host path.", "Confirm audio pickup expectations."],
+    followUpWording: "This sounds like a small room that needs to look and sound good on calls without a complicated system. APO-VX20-UC-V2 is the WyreStorm conversation when the room wants camera, microphone and speaker in one device. Before quote, confirm participant count, room size, where the bar mounts, the host workflow and platform, and whether the room is small enough for one bar to cover.",
+    reviewGates: ["Confirm room size against the camera and mic coverage.", "Confirm the USB host path.", "Confirm mounting position and platform."],
     dataConfidence: "MEDIUM",
     lastReviewed: "2026-06-04"
   },
