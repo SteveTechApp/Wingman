@@ -1,6 +1,6 @@
 import type { FormEvent } from "react";
 import { createPortal } from "react-dom";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Database, Send, Sparkles, X } from "lucide-react";
 import GuruAssistantAvatar from "./branding/GuruAssistantAvatar";
 import { GuruCallNotesInterpreter } from "./GuruCallNotesInterpreter";
@@ -1350,6 +1350,31 @@ export function WingmanGuruDrawer({
     return () => window.clearTimeout(timer);
   }, [open, messages]);
 
+  const sendMessage = useCallback(
+    async (raw: string) => {
+      const prompt = raw.trim();
+
+      if (!prompt) {
+        return;
+      }
+
+      const userMessage = createMessage("user", prompt);
+      const pendingMessage = createMessage("assistant", "Checking Guru knowledge...");
+
+      setMessages((current) => [...current, userMessage, pendingMessage]);
+      setDraft("");
+
+      const answer = await answerQuestion(prompt, products);
+
+      setMessages((current) =>
+        current.map((message) => (message.id === pendingMessage.id ? { ...message, content: answer } : message))
+      );
+
+      setMemoryCount(cacheCount());
+    },
+    [products],
+  );
+
   useEffect(() => {
     if (!open || !seedPrompt?.trim()) {
       return;
@@ -1357,33 +1382,11 @@ export function WingmanGuruDrawer({
 
     void sendMessage(seedPrompt);
     onSeedHandled?.();
-  }, [open, onSeedHandled, seedPrompt]);
+  }, [open, onSeedHandled, seedPrompt, sendMessage]);
 
   const helperText = useMemo(() => {
     return `${indexStatus} - Glossary: ${avGlossary.length} terms - Local Guru memory: ${memoryCount}`;
   }, [indexStatus, memoryCount]);
-
-  async function sendMessage(raw: string) {
-    const prompt = raw.trim();
-
-    if (!prompt) {
-      return;
-    }
-
-    const userMessage = createMessage("user", prompt);
-    const pendingMessage = createMessage("assistant", "Checking Guru knowledge...");
-
-    setMessages((current) => [...current, userMessage, pendingMessage]);
-    setDraft("");
-
-    const answer = await answerQuestion(prompt, products);
-
-    setMessages((current) =>
-      current.map((message) => (message.id === pendingMessage.id ? { ...message, content: answer } : message))
-    );
-
-    setMemoryCount(cacheCount());
-  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

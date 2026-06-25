@@ -1515,7 +1515,7 @@ function verifiedVideoInputLabels(profile: CompetitorProfile): string[] {
   ], 6);
 }
 
-function verifiedLocalSourcePhrase(profile: CompetitorProfile): string {
+function _verifiedLocalSourcePhrase(profile: CompetitorProfile): string {
   const inputs = verifiedVideoInputLabels(profile);
 
   if (inputs.length === 1) {
@@ -2264,7 +2264,7 @@ function buildWyrestormSummary(candidate: ScoredCandidate): WyreStormSummary {
   };
 }
 
-function wyrestormIdentityItems(candidate: ScoredCandidate): string[] {
+function _wyrestormIdentityItems(candidate: ScoredCandidate): string[] {
   return buildWyrestormSummary(candidate).identityItems;
 }
 
@@ -2576,7 +2576,7 @@ function compareRowResult(label: string, competitor: string, wyrestorm: string):
   return "Check fit";
 }
 
-function compareQuoteChecks(competitor: CompetitorSummary, candidate: ScoredCandidate): string[] {
+function _compareQuoteChecks(competitor: CompetitorSummary, candidate: ScoredCandidate): string[] {
   return uniqueText([
     ...candidate.blockers,
     ...candidate.mismatches,
@@ -3060,7 +3060,7 @@ function wyrestormPlainEnglishRequirement(candidate: ScoredCandidate, competitor
   return "the same system role in a WyreStorm design";
 }
 
-function salesOutcomeBadges(competitor: CompetitorSummary, candidate: ScoredCandidate): string[] {
+function _salesOutcomeBadges(competitor: CompetitorSummary, candidate: ScoredCandidate): string[] {
   const badges: string[] = [];
 
   if (candidate.outcomeLabel !== "Wrong product type" && candidate.outcomeLabel !== "Insufficient competitor data") badges.push("Correct product direction");
@@ -3115,7 +3115,7 @@ function salesAskCustomer(competitor: CompetitorSummary, candidate: ScoredCandid
   return visiblePrompts.slice(0, 5);
 }
 
-function salesWhatItDoes(competitor: CompetitorSummary): string {
+function _salesWhatItDoes(competitor: CompetitorSummary): string {
   return `${competitor.heading} is used to ${competitorPlainEnglishPurpose(competitor)}.`;
 }
 
