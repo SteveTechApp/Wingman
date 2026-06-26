@@ -7,13 +7,13 @@ import catalog2026 from "../../data/catalog/wyrestormSkuCatalog.2026.json";
 // (everything else falls back to auto-generated positioning flagged for review in
 // the UI). These baselines can only be RAISED: the point is that coverage never
 // silently regresses and the gap stays visible and managed.
-const MIN_TOTAL_STORIES = 106;
+const MIN_TOTAL_STORIES = 111;
 // Every ACTIVE catalogue SKU now has a governed story (catalogue-grounded copy was
 // authored for the whole active range, alias-deduped; cables, discontinued and
 // do-not-spec SKUs are deliberately excluded per productStoriesLifecycle). 96 is
 // the raw-match count against this static 2026 snapshot (aliases such as
 // NHD-610-TX -> NHD-610-TX-V2 resolve at runtime but not in this direct count).
-const MIN_CATALOG_SKUS_COVERED = 96;
+const MIN_CATALOG_SKUS_COVERED = 101;
 
 function catalogSkus(): string[] {
   return (catalog2026 as Array<{ sku?: string }>)
