@@ -4,6 +4,7 @@
 > Coverage is measured against ACTIVE 2026 SKUs only; SKUs are alias-resolved.
 
 - Governed stories: **109** (reviewed **23**, catalogue-grounded **86**)
+- Governed stories: **111** (reviewed **23**, catalogue-grounded **88**)
 - Active catalogue SKUs (alias-deduped): **99**
 - Active covered: **99 (100%)** · Active uncovered: **0**
 - Excluded (deliberately not storied): cable **18**, discontinued **12**, do-not-spec **16**, unlisted **5**
