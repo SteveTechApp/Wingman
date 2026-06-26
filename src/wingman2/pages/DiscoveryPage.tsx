@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { saveDiscoveryBriefToProject, type StoredDiscoveryBrief } from "../data/projectStore";
@@ -443,6 +443,11 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
         value: "display-audio",
         label: "Display audio only",
         help: "Simpler embedded audio path.",
+      },
+      {
+        value: "source-audio-deembed",
+        label: "De-embed audio from encoder / source",
+        help: "Extract embedded HDMI/source audio for amplifier, DSP, Dante, recording or local audio feed.",
       },
       {
         value: "room-audio",
