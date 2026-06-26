@@ -112,7 +112,8 @@
                     "check:route-registry-direct":  "node tools/audit-wingman-route-registry-direct.mjs",
                     "check:recommendation-accuracy":  "node tools/audit-recommendation-accuracy-priority3.mjs",
                     "test:recommendation-scenarios":  "vitest run src/wingman2/lib/recommendationEvidence.priority3.test.ts src/__tests__/recommendationEvidence.test.ts",
-                    "check:compare-evidence-led-wording":  "node tools/check-compare-evidence-led-wording.mjs"
+                    "check:compare-evidence-led-wording":  "node tools/check-compare-evidence-led-wording.mjs",
+                    "check:hdbaset-avoip-classification":  "node tools/check-hdbaset-avoip-classification.mjs"
                 },
     "dependencies":  {
                          "@xyflow/react":  "^12.10.2",
