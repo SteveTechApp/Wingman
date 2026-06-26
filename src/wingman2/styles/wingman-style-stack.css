@@ -29279,7 +29279,8 @@ body,
   - legacy GuruHelper hidden
   - AppShell Guru button remains the only launcher
   - robot icon is rendered as button::after, so it cannot disappear behind child layers
-  - green sweep is rendered as button::before
+  - Amber resting sweep ring is rendered as button::before
+  - green sweep is used only when data-context-transfer="true"
   - dashboard content is left-aligned after the sidebar
 */
 
@@ -29361,8 +29362,8 @@ button.wingman-guru-fab,
 
   box-shadow:
     0 0 0 1px rgba(96, 238, 255, 0.12),
-    0 0 24px rgba(49, 255, 155, 0.48),
-    0 0 56px rgba(49, 255, 155, 0.26) !important;
+    0 0 24px rgba(255, 184, 77, 0.42),
+    0 0 56px rgba(255, 149, 45, 0.24) !important;
 
   opacity: 1 !important;
   visibility: visible !important;
@@ -29384,7 +29385,7 @@ button.wingman-guru-fab > .wingman-guru-fab-status,
   display: none !important;
 }
 
-/* Green sweep ring. */
+/* Amber resting sweep ring. */
 button.wingman-guru-fab::before,
 .wingman-guru-fab::before {
   content: "" !important;
@@ -29397,17 +29398,41 @@ button.wingman-guru-fab::before,
   background:
     conic-gradient(
       from 0deg,
-      rgba(49, 255, 155, 0) 0deg,
-      rgba(49, 255, 155, 0) 210deg,
-      rgba(49, 255, 155, 1) 266deg,
-      rgba(96, 238, 255, 0.86) 318deg,
-      rgba(49, 255, 155, 0) 360deg
+      rgba(255, 184, 77, 0) 0deg,
+      rgba(255, 184, 77, 0) 210deg,
+      rgba(255, 184, 77, 1) 266deg,
+      rgba(255, 217, 128, 0.9) 318deg,
+      rgba(255, 184, 77, 0) 360deg
     ) !important;
 
   -webkit-mask: radial-gradient(circle, transparent 0 58%, #000 60% 100%) !important;
   mask: radial-gradient(circle, transparent 0 58%, #000 60% 100%) !important;
 
   animation: wingmanGuruSweep 2.35s linear infinite !important;
+}
+
+/* Contextual transfer: green sweep ring when Guru has received useful data. */
+button.wingman-guru-fab[data-context-transfer="true"],
+.wingman-guru-fab[data-context-transfer="true"] {
+  box-shadow:
+    0 0 0 1px rgba(96, 238, 255, 0.16),
+    0 0 28px rgba(49, 255, 155, 0.56),
+    0 0 68px rgba(49, 255, 155, 0.34) !important;
+}
+
+button.wingman-guru-fab[data-context-transfer="true"]::before,
+.wingman-guru-fab[data-context-transfer="true"]::before {
+  background:
+    conic-gradient(
+      from 0deg,
+      rgba(49, 255, 155, 0) 0deg,
+      rgba(49, 255, 155, 0) 210deg,
+      rgba(49, 255, 155, 1) 266deg,
+      rgba(96, 238, 255, 0.86) 318deg,
+      rgba(49, 255, 155, 0) 360deg
+    ) !important;
+  filter: drop-shadow(0 0 8px rgba(49, 255, 155, 0.42)) !important;
+  animation-duration: 1.85s !important;
 }
 
 /* Robot icon drawn directly onto the button. */
