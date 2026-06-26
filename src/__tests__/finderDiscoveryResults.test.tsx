@@ -1,6 +1,13 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it } from "vitest";
+
+// The Finder loads a saved Discovery brief on demand via the "Load Discovery brief"
+// button (FINDER_AUTO_LOAD_DISCOVERY_BRIEF is off, so it does not auto-apply on
+// mount). These tests exercise that real handoff path.
+async function loadDiscoveryBrief() {
+  fireEvent.click(await screen.findByRole("button", { name: "Load Discovery brief" }));
+}
 
 import { DISCOVERY_BRIEF_KEY } from "@/wingman2/data/workflowHandoff";
 import { FinderPage } from "@/wingman2/pages/FinderPage";
@@ -39,6 +46,8 @@ describe("Finder Discovery handoff", () => {
       </MemoryRouter>,
     );
 
+    await loadDiscoveryBrief();
+
     expect(await screen.findByTestId("finder-architecture-match-notice")).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: "Add to project" }).length).toBeGreaterThan(0);
     expect(screen.queryByText("No strong match yet")).not.toBeInTheDocument();
@@ -73,6 +82,8 @@ describe("Finder Discovery handoff", () => {
         <FinderPage />
       </MemoryRouter>,
     );
+
+    await loadDiscoveryBrief();
 
     expect((await screen.findAllByText("NHD-600-TRX")).length).toBeGreaterThan(0);
     expect(screen.queryByText("No strong match yet")).not.toBeInTheDocument();

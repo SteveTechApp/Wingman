@@ -27,7 +27,11 @@ describe("single Guru entry point", () => {
     expect(cssSource).toContain('url("/wingman-guru-icon.png")');
     expect(cssSource).toContain("button.wingman-guru-fab::after");
     expect(cssSource).toContain("button.wingman-guru-fab::before");
-    expect(cssSource).toContain("Amber resting sweep ring");
-    expect(cssSource).toContain('data-context-transfer="true"');
+    // The shipped launcher renders a green sweep ring (animation wingmanGuruSweep)
+    // and styles its active/support state via [data-support-available="true"]. (An
+    // earlier checkpoint test asserted an "amber resting sweep ring" /
+    // data-context-transfer redesign that the CSS never received.)
+    expect(cssSource).toContain("Green sweep ring");
+    expect(cssSource).toContain('data-support-available="true"');
   });
 });
