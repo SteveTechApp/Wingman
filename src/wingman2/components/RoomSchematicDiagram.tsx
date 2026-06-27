@@ -31,6 +31,7 @@ export function RoomSchematicDiagram({ product, narrative }: RoomSchematicDiagra
       }),
     [product.sku, product.productType, narrative.role, narrative.diagramSource, narrative.diagramOutput],
   );
+  const svgDataUri = useMemo(() => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`, [svg]);
 
   return (
     <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
@@ -51,11 +52,9 @@ export function RoomSchematicDiagram({ product, narrative }: RoomSchematicDiagra
         </button>
       </div>
 
-      <div
-        className="mt-4 overflow-hidden rounded-2xl border border-[#29465e] bg-white"
-        // The schematic is a self-contained, theme-independent SVG document.
-        dangerouslySetInnerHTML={{ __html: svg }}
-      />
+      <div className="mt-4 overflow-hidden rounded-2xl border border-[#29465e] bg-white">
+        <img src={svgDataUri} alt={`${product.sku} room schematic`} className="block h-auto w-full" />
+      </div>
     </section>
   );
 }
