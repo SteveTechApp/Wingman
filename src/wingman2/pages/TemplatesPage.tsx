@@ -483,35 +483,7 @@ function TemplatesPage() {
 
             <h3>{template.title}</h3>
             <p className="wm-template-summary">{template.summary}</p>
-
-            <dl className="wm-template-specs">
-              <div>
-                <dt>Technology</dt>
-                <dd>{template.technology}</dd>
-              </div>
-              <div>
-                <dt>Room type</dt>
-                <dd>{template.roomType}</dd>
-              </div>
-              <div>
-                <dt>WyreStorm direction</dt>
-                <dd>{template.direction}</dd>
-              </div>
-            </dl>
-
-            <div className="wm-template-guidance">
-              <h4>Ask next</h4>
-              <ul>
-                {template.askNext.map((question) => (
-                  <li key={question}>{question}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="wm-template-card-footer">
-              <span>{template.status}</span>
-              <span>{template.dependencies.length} dependencies</span>
-            </div>
+            <p className="wm-template-direction">{template.direction}</p>
 
             <div className="wm-template-actions wm-ui-action-row">
               <button
@@ -520,7 +492,7 @@ function TemplatesPage() {
                 data-template-staged-pill="true"
                 onClick={() => stageTemplate(template)}
               >
-                {isStaged ? "Template staged" : "Use"}
+                {isStaged ? "Selected" : "Use"}
               </button>
               <a
                 className={`wm-ui-button ${isMuted ? "wm-ui-button-muted" : "wm-ui-button-forward"}${isStaged ? " wm-ui-decision-sweep" : ""}`}

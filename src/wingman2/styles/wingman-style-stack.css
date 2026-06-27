@@ -28618,7 +28618,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
 }
 
 .vw2-chip.is-selected span::before {
-  content: "âœ“ ";
+  content: "Ã¢Å“â€œ ";
   color: #8fffe6;
 }
 
@@ -32723,7 +32723,7 @@ html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-action {
 }
 
 html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-action::after {
-  content: " â†’" !important;
+  content: " Ã¢â€ â€™" !important;
 }
 
 html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
@@ -36081,80 +36081,55 @@ main.wm-templates-page .wm-template-card.wm-ui-card[data-template-staged="true"]
   }
 }
 
-/* Wingman compact template picker cards */
-[data-wingman-page="templates"] {
-  --wm-template-compact-gap: 12px;
-}
-
-[data-wingman-page="templates"] [class*="template"][class*="grid"],
-[data-wingman-page="templates"] [class*="library"][class*="grid"] {
-  gap: var(--wm-template-compact-gap) !important;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
-}
-
-[data-wingman-page="templates"] [class*="template"][class*="card"],
-[data-wingman-page="templates"] [class*="library"][class*="card"] {
+/* Wingman compact template cards - structural classes */
+.wm-templates-page .wm-template-card {
   min-height: 0 !important;
   padding: 14px !important;
   gap: 8px !important;
   border-radius: 16px !important;
 }
 
-[data-wingman-page="templates"] [class*="template"][class*="card"] h2,
-[data-wingman-page="templates"] [class*="template"][class*="card"] h3,
-[data-wingman-page="templates"] [class*="library"][class*="card"] h2,
-[data-wingman-page="templates"] [class*="library"][class*="card"] h3 {
+.wm-templates-page .wm-template-card h3 {
   margin: 6px 0 !important;
   font-size: 1rem !important;
   line-height: 1.18 !important;
 }
 
-[data-wingman-page="templates"] [class*="template"][class*="card"] p,
-[data-wingman-page="templates"] [class*="library"][class*="card"] p {
+.wm-templates-page .wm-template-summary,
+.wm-templates-page .wm-template-direction {
   margin: 0 !important;
   font-size: 0.82rem !important;
   line-height: 1.35 !important;
 }
 
-[data-wingman-page="templates"] [class*="template"][class*="card"] hr,
-[data-wingman-page="templates"] [class*="template"][class*="card"] dl,
-[data-wingman-page="templates"] [class*="template"][class*="card"] table,
-[data-wingman-page="templates"] [class*="template"][class*="card"] [class*="ask"],
-[data-wingman-page="templates"] [class*="template"][class*="card"] [class*="question"],
-[data-wingman-page="templates"] [class*="template"][class*="card"] [class*="dependency"],
-[data-wingman-page="templates"] [class*="template"][class*="card"] [class*="meta"],
-[data-wingman-page="templates"] [class*="template"][class*="card"] [class*="detail"],
-[data-wingman-page="templates"] [class*="template"][class*="card"] [class*="evidence"],
-[data-wingman-page="templates"] [class*="template"][class*="card"] [class*="status"] {
+.wm-templates-page .wm-template-direction {
+  padding-top: 8px !important;
+  border-top: 1px solid rgba(125, 249, 255, 0.12) !important;
+  color: rgba(235, 245, 255, 0.84) !important;
+}
+
+.wm-templates-page .wm-template-specs,
+.wm-templates-page .wm-template-guidance,
+.wm-templates-page .wm-template-card-footer {
   display: none !important;
 }
 
-[data-wingman-page="templates"] [class*="template"][class*="tag"],
-[data-wingman-page="templates"] [class*="template"][class*="chip"],
-[data-wingman-page="templates"] [class*="category"][class*="chip"] {
-  min-height: 22px !important;
-  padding: 3px 9px !important;
-  font-size: 0.68rem !important;
-  line-height: 1 !important;
-}
-
-[data-wingman-page="templates"] [class*="template"][class*="action"],
-[data-wingman-page="templates"] [class*="template"][class*="actions"] {
+.wm-templates-page .wm-template-actions {
   margin-top: 10px !important;
   gap: 8px !important;
 }
 
-[data-wingman-page="templates"] [class*="template"][class*="card"] button,
-[data-wingman-page="templates"] [class*="template"][class*="card"] a {
+.wm-templates-page .wm-template-actions .wm-ui-button {
   min-height: 32px !important;
   padding: 7px 10px !important;
   font-size: 0.78rem !important;
   border-radius: 10px !important;
 }
 
-[data-wingman-page="templates"] [class*="filter"] button,
-[data-wingman-page="templates"] [class*="category"] button {
-  min-height: 28px !important;
-  padding: 5px 11px !important;
-  font-size: 0.75rem !important;
+.wm-templates-page .wm-template-chip,
+.wm-templates-page .wm-template-tag {
+  min-height: 22px !important;
+  padding: 3px 9px !important;
+  font-size: 0.68rem !important;
+  line-height: 1 !important;
 }
