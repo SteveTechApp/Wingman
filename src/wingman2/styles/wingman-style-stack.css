@@ -36138,3 +36138,150 @@ main.wm-templates-page .wm-template-card.wm-ui-card[data-template-staged="true"]
 .wingman-alpha-filter-readout-disabled {
   display: none !important;
 }
+
+/* Wingman product call cards compact alpha/results layout */
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-readout-disabled,
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-label,
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-count,
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-actual,
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-actual-label,
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-available,
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-summary {
+  display: none !important;
+}
+
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-host {
+  margin: 4px 0 6px !important;
+  padding: 0 !important;
+}
+
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-rail {
+  margin: 0 !important;
+  gap: 4px !important;
+}
+
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-button {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  padding: 0 !important;
+  font-size: 0.64rem !important;
+}
+
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-button.is-active {
+  width: auto !important;
+  min-width: 26px !important;
+  padding: 0 7px !important;
+}
+
+html[data-wingman-route="productCallCards"] .wm-product-call-card-list,
+html[data-wingman-route="productCallCards"] .wm-product-call-card-results,
+html[data-wingman-route="productCallCards"] .wm-product-call-card-picker {
+  gap: 6px !important;
+}
+
+html[data-wingman-route="productCallCards"] .wm-product-call-card-list {
+  padding-top: 4px !important;
+}
+
+/* Wingman product call cards alpha rail only */
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-host > :not(.wingman-alpha-filter-rail) {
+  display: none !important;
+}
+
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-host {
+  margin: 4px 0 4px !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+}
+
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-rail {
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 4px !important;
+}
+
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-button {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  padding: 0 !important;
+  font-size: 0.64rem !important;
+}
+
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-button.is-active {
+  width: auto !important;
+  min-width: 26px !important;
+  padding: 0 7px !important;
+}
+
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-host + *,
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-host ~ [class*="list"],
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-host ~ [class*="result"],
+html[data-wingman-route="productCallCards"] [class*="product"][class*="list"],
+html[data-wingman-route="productCallCards"] [class*="call-card"][class*="list"] {
+  margin-top: 4px !important;
+  padding-top: 0 !important;
+}
+
+/* Wingman product call cards alpha stray text guard */
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-host {
+  font-size: 0 !important;
+  line-height: 0 !important;
+  min-height: 0 !important;
+  max-height: 24px !important;
+  overflow: hidden !important;
+  margin: 4px 0 4px !important;
+  padding: 0 !important;
+}
+
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-host::before,
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-host::after,
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-rail::before,
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-rail::after {
+  content: none !important;
+  display: none !important;
+}
+
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-host > :not(.wingman-alpha-filter-rail) {
+  display: none !important;
+}
+
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-rail {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 4px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  font-size: 0 !important;
+  line-height: 1 !important;
+}
+
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-button {
+  flex: 0 0 auto !important;
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  padding: 0 !important;
+  font-size: 0.64rem !important;
+  line-height: 1 !important;
+}
+
+html[data-wingman-route="productCallCards"] .wingman-alpha-filter-button.is-active {
+  width: auto !important;
+  min-width: 26px !important;
+  padding: 0 7px !important;
+}
+
+html[data-wingman-route="productCallCards"] .wm-pcc-list,
+html[data-wingman-route="productCallCards"] .wm-pcc-left [class*="list"],
+html[data-wingman-route="productCallCards"] .wm-pcc-left [class*="results"] {
+  margin-top: 4px !important;
+  padding-top: 0 !important;
+}
