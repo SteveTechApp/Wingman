@@ -89,8 +89,7 @@ export function CallCoachPage() {
         routeAction("productCallCards", "Product-specific call", "Select a SKU first, then load positioning, questions, objections, disqualifiers and follow-up wording.", "Open SKU call card"),
         routeAction("discovery", "Discovery / requirement capture", "Capture room purpose, sources, displays, USB, infrastructure and missing details.", "Capture requirements"),
         routeAction("salesHelper", "Call-out day", "Use rep guidance, readiness cues and call-out day prompts during active opportunity work.", "Open sales helper"),
-        routeAction("support", "Escalation check", "Check whether technical review, support input or internal handover is needed.", "Check escalation"),
-      ]}
+        routeAction("support", "Escalation check", "Check whether technical review, support input or internal handover is needed.", "Check escalation")]}
     />
   );
 }
@@ -112,13 +111,11 @@ export function ProductsPage() {
           "Select SKU first",
           "Includes one-line positioning, one-minute brief, questions, listen-for triggers, objections, disqualifiers, attach products and follow-up wording.",
         ),
-        routeAction("productPitch", "Product Dashboard", "Select a SKU and show product facts, I/O, what to say, what to ask and what to check before recommending.", "Open dashboard"),
-      ]}
+        routeAction("productPitch", "Product Dashboard", "Select a SKU and show product facts, I/O, what to say, what to ask and what to check before recommending.", "Open dashboard")]}
       secondaryActions={[
         routeAction("proposal", "Attach Products", "Carry selected products into response-pack output when the project is ready.", "Attach to output"),
         routeAction("compare", "Competitor route", "Start from a competitor product when the customer already has an alternative in mind.", "Compare competitor"),
-        routeAction("videowall", "Videowall Builder", "Shape LED or LCD wall signal flow when the product conversation is display-wall led.", "Open wall builder"),
-      ]}
+        routeAction("videowall", "Videowall Builder", "Shape LED or LCD wall signal flow when the product conversation is display-wall led.", "Open wall builder")]}
     />
   );
 }
@@ -134,8 +131,7 @@ export function DocumentsPage() {
         routeAction("ingest", "Decode request", "Decode emails, RFIs, RFQs, BOMs, scopes and rough notes into requirements, unknowns, system shape and next action.", "Decode request"),
         routeAction("templates", "Room / BOM templates", "Use editable room templates when the document resembles a known room archetype.", "Open templates"),
         routeAction("compare", "Competitor substitutions", "Check competitor items and decide whether WyreStorm has a good, partial or no-match path.", "Check substitutions"),
-        routeAction("proposal", "Send to Response Pack", "Turn extracted requirements into a customer requirement summary and products-to-review output.", "Create response"),
-      ]}
+        routeAction("proposal", "Send to Response Pack", "Turn extracted requirements into a customer requirement summary and products-to-review output.", "Create response")]}
     />
   );
 }
@@ -152,8 +148,7 @@ export function ResponsePackPage() {
         routeAction("support", "Review gates", "Check technical review, commercial review before quotation, escalation and completion gaps.", "Request review"),
         routeAction("visualStudio", "Visual Studio", "Create AV schematics and customer-facing concept visuals from captured requirements or sample scenarios.", "Open visual studio"),
         routeAction("visualDesign", "Schematic Builder", "Create end-to-end schematics with WyreStorm devices, known third-party items and TBC products.", "Create schematic"),
-        routeAction("templates", "Template response", "Start from a room archetype when a known application template is enough.", "Use template"),
-      ]}
+        routeAction("templates", "Template response", "Start from a room archetype when a known application template is enough.", "Use template")]}
     />
   );
 }
@@ -169,8 +164,7 @@ export function LearnPage() {
         routeAction("glossary", "Glossary", "Look up AV terms, acronyms and customer-safe explanations.", "Search terms"),
         routeAction("intelligence", "Product Intelligence", "Review product data, classification and source confidence.", "Review intelligence"),
         routeAction("support", "Support guidance", "Find escalation guidance and completion gaps.", "Open support"),
-        routeAction("productFamilies", "Product family learning", "Learn how product families fit real sales conversations.", "Learn families"),
-      ]}
+        routeAction("productFamilies", "Product family learning", "Learn how product families fit real sales conversations.", "Learn families")]}
     />
   );
 }
