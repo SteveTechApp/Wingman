@@ -44,6 +44,9 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { installCsrfFetch } from "./wingman2/api/csrf";
+import ProductCallCardsStickyLayoutEnhancer from "./wingman2/components/workflow/ProductCallCardsStickyLayoutEnhancer";
+import ProductStoryLanguageEnhancer from "./wingman2/components/workflow/ProductStoryLanguageEnhancer";
+import WorkflowAlphaNumericFilter from "./wingman2/components/workflow/WorkflowAlphaNumericFilter";
 import "./wingman2/styles/wingman-style-stack.css";
 
 // Attach the X-CSRF-Token header to mutating API calls. No-op until the server
@@ -57,17 +60,15 @@ if (!rootElement) {
 }
 installCompareManufacturerAssist();
 
-
 createRoot(rootElement).render(
   <React.StrictMode>
     <ErrorBoundary>
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <App />
+        <ProductCallCardsStickyLayoutEnhancer />
+        <ProductStoryLanguageEnhancer />
+        <WorkflowAlphaNumericFilter />
       </BrowserRouter>
     </ErrorBoundary>
   </React.StrictMode>,
 );
-
-
-
-

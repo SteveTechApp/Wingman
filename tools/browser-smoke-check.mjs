@@ -54,9 +54,14 @@ async function assertPageText(page, pathname, expectedText) {
 
 async function assertCompareWorkflow(page) {
   await page.goto(`http://127.0.0.1:${port}/wingman/compare`, { waitUntil: "networkidle" });
-  await page.locator("#competitor-sku").fill("DM-NVX-360");
-  await page.getByRole("button", { name: "Find WyreStorm Alternatives" }).click();
-  await page.locator("text=WyreStorm Alternatives").waitFor({ state: "visible", timeout: 5000 });
+  await page.getByRole("button", { name: "Crestron" }).click();
+  const nextProductStep = page.getByRole("button", { name: "Next: choose competitor product" });
+  if (await nextProductStep.isVisible().catch(() => false)) {
+    await nextProductStep.click();
+  }
+  await page.getByLabel("Competitor SKU").fill("DM-NVX-360");
+  await page.getByRole("button", { name: "Review WyreStorm direction", exact: true }).click();
+  await page.locator("text=Suggested WyreStorm direction").waitFor({ state: "visible", timeout: 5000 });
   const text = await page.locator("body").innerText();
 
   if (text.includes("Product data not loaded")) {

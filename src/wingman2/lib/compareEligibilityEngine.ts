@@ -316,7 +316,33 @@ function extractCompetitorText(resultOrInput: unknown, inputText = ""): string {
   return [inputText, toText(resultOrInput)].join(" ");
 }
 
+function intentFromResolvedDomain(resultOrInput: unknown): CompareIntentKind | null {
+  if (!resultOrInput || typeof resultOrInput !== "object") {
+    return null;
+  }
+
+  const domain = String((resultOrInput as LooseRecord).domain ?? "").toUpperCase();
+
+  switch (domain) {
+    case "NDI_CAMERA":
+      return "ndi-camera";
+    case "PTZ_CAMERA":
+      return "ptz-camera";
+    case "WIRELESS_CASTING":
+    case "WIRELESS_PRESENTATION":
+      return "wireless-casting";
+    default:
+      return null;
+  }
+}
+
 export function classifyCompareIntent(resultOrInput: unknown, inputText = ""): CompareIntentKind {
+  const resolvedDomainIntent = intentFromResolvedDomain(resultOrInput);
+
+  if (resolvedDomainIntent) {
+    return resolvedDomainIntent;
+  }
+
   const text = normalise(extractCompetitorText(resultOrInput, inputText));
   const compact = skuKey(extractCompetitorText(resultOrInput, inputText));
   if (/ATOMEEXKIT/.test(compact)) {
@@ -489,6 +515,14 @@ function invalidLeadReasonForIntent(supportOnlyReason: string | null, intent: Co
     return null;
   }
 
+  if ((intent === "ndi-camera" || intent === "ptz-camera") && supportOnlyReason.startsWith("Camera")) {
+    return null;
+  }
+
+  if ((intent === "wireless-casting" || intent === "uc-byod" || intent === "usb-audio") && supportOnlyReason.startsWith("UC/audio")) {
+    return null;
+  }
+
   return `${SUPPORT_ONLY_LEAD_BLOCKER} ${supportOnlyReason}`;
 }
 
@@ -586,7 +620,12 @@ export function evaluateProductEligibility(args: {
   }
 
   const supportOnlyReason = productIsSupportOnly(sku, combined);
-  const invalidLeadReason = invalidLeadReasonForIntent(supportOnlyReason, args.intent);
+  const isRoleMatchedPrimaryProduct =
+    ((args.intent === "ndi-camera" || args.intent === "ptz-camera") && /^CAM/.test(key)) ||
+    ((args.intent === "wireless-casting" || args.intent === "uc-byod" || args.intent === "usb-audio") && /^APO/.test(key));
+  const invalidLeadReason = isRoleMatchedPrimaryProduct
+    ? null
+    : invalidLeadReasonForIntent(supportOnlyReason, args.intent);
 
   if (invalidLeadReason) {
     return blocked(sku, args.intent, [invalidLeadReason]);
@@ -715,16 +754,24 @@ export function evaluateProductEligibility(args: {
   }
 
   if (args.intent === "ndi-camera") {
+    if (/^CAM/.test(key) && /NDI/.test(key)) {
+      return direct(args.intent, ["WyreStorm NDI camera candidate for a camera-role comparison."], -120);
+    }
+
     if (/\b(ndi|birddog|networkhd\s*cam)\b/i.test(combined)) {
-      return direct(args.intent, ["NDI-capable camera or NDI workflow candidate."], 0);
+      return direct(args.intent, ["NDI-capable camera or NDI workflow candidate."], 20);
     }
 
     return blocked(sku, args.intent, ["Candidate is not an NDI camera or NDI-capable endpoint."]);
   }
 
   if (args.intent === "ptz-camera") {
+    if (/^CAM/.test(key) && /\b(ptz|pan[\s-]tilt|visca)\b/i.test(combined)) {
+      return direct(args.intent, ["WyreStorm PTZ camera candidate for a camera-role comparison."], -120);
+    }
+
     if (/\b(ptz|pan[\s-]tilt|visca|pelco|cam)\b/i.test(combined)) {
-      return direct(args.intent, ["PTZ or controllable camera candidate."], 0);
+      return direct(args.intent, ["PTZ or controllable camera candidate."], 20);
     }
 
     return blocked(sku, args.intent, ["Candidate is not a PTZ or controllable camera."]);
@@ -736,7 +783,7 @@ export function evaluateProductEligibility(args: {
     }
 
     if (/\b(apollo|wireless|casting|miracast|airplay|chromecast)\b/i.test(combined) || /^APO/.test(key)) {
-      return direct(args.intent, ["Wireless casting or collaboration candidate."], 0);
+      return direct(args.intent, ["Wireless casting or collaboration candidate."], /^APO/.test(key) ? -100 : 0);
     }
 
     return related(args.intent, ["No confirmed wireless casting capability."], 75);
@@ -894,7 +941,35 @@ function ensureEligibilityCandidatePool(
     addCandidateBySku(nextMatches, products, "NHD-150-RX", "Eligibility correction: NetworkHD multiview receiver inserted for AVoIP multiview workflow.", 84);
   }
 
+  if (intent === "ndi-camera") {
+    addCandidateBySku(nextMatches, products, "CAM-210-NDI-PTZ", "Eligibility correction: WyreStorm NDI PTZ camera inserted for an NDI camera comparison.", 90);
+    addCandidateBySku(nextMatches, products, "CAM-0402-NDI-BRG", "Eligibility correction: NDI camera bridge inserted as an architecture alternative where several cameras must become one feed.", 78);
+    addCandidatesByPredicate(
+      nextMatches,
+      products,
+      (product) => /^CAM/.test(skuKey(product.sku)) && /\bndi\b/i.test(productText(product)),
+      "Eligibility correction: current WyreStorm NDI camera candidate inserted for camera-role comparison.",
+      4,
+      86,
+    );
+  }
+
+  if (intent === "ptz-camera") {
+    addCandidateBySku(nextMatches, products, "CAM-420-PTZ", "Eligibility correction: current WyreStorm PTZ camera inserted for camera-role comparison.", 90);
+    addCandidateBySku(nextMatches, products, "CAM-210-PTZ", "Eligibility correction: WyreStorm PTZ camera inserted for camera-role comparison.", 86);
+    addCandidatesByPredicate(
+      nextMatches,
+      products,
+      (product) => /^CAM/.test(skuKey(product.sku)) && /\bptz\b/i.test(productText(product)),
+      "Eligibility correction: current WyreStorm PTZ camera candidate inserted for camera-role comparison.",
+      4,
+      84,
+    );
+  }
+
   if (intent === "wireless-casting") {
+    addCandidateBySku(nextMatches, products, "APO-VX20-UC-V2", "Eligibility correction: current Apollo collaboration product inserted for wireless casting comparison.", 88);
+    addCandidateBySku(nextMatches, products, "APO-DG2", "Eligibility correction: Apollo wireless presentation product inserted for casting comparison.", 86);
     addCandidatesByPredicate(
       nextMatches,
       products,
@@ -1016,6 +1091,12 @@ export function applyCompareEligibilityRanking<T extends { matches?: LooseMatch[
   const nextTopOutcome = accepted.length > 0 && result.topOutcome === "NONE"
     ? "VERIFY"
     : result.topOutcome;
+  const lead = accepted[0] as LooseMatch | undefined;
+  const leadSku = lead ? getSku(lead) : "";
+  const leadNextAction = String(lead?.decision?.nextAction ?? lead?.nextAction ?? "").trim();
+  const nextRecommendation = leadSku
+    ? `${nextRecommendationPrefix} ${leadSku} is the current WyreStorm direction.${leadNextAction ? ` ${leadNextAction}` : ""}`
+    : [nextRecommendationPrefix, result.recommendation].filter(Boolean).join(" ");
 
   return {
     ...result,
@@ -1023,8 +1104,6 @@ export function applyCompareEligibilityRanking<T extends { matches?: LooseMatch[
     matches: accepted,
     rejected: nextRejected,
     topOutcome: nextTopOutcome,
-    recommendation: result.recommendation?.includes("Eligibility gate:")
-      ? result.recommendation
-      : [nextRecommendationPrefix, result.recommendation].filter(Boolean).join(" "),
+    recommendation: nextRecommendation,
   } as T;
 }

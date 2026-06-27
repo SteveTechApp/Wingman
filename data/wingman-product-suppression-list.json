@@ -1,0 +1,12 @@
+{
+  "suppressedSkus": [
+    {
+      "sku": "SW-740-TX",
+      "reason": "Discontinued product. Suppress from active Wingman product index and compare recommendations."
+    },
+    {
+      "sku": "SW-740",
+      "reason": "Partial discontinued SKU reference. Suppress to prevent fragments appearing in generated index."
+    }
+  ]
+}
