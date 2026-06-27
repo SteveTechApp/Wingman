@@ -330,6 +330,22 @@ function updateCount(host: HTMLElement, container: HTMLElement, activeBucket: Al
   count.textContent = `${visible} / ${items.length}`;
 }
 
+
+function pruneAlphaFilterReadout(host: HTMLElement): void {
+  Array.from(host.childNodes).forEach((node) => {
+    if (node instanceof HTMLElement) {
+      if (!node.classList.contains("wingman-alpha-filter-rail")) {
+        node.remove();
+      }
+
+      return;
+    }
+
+    if (node.textContent?.trim()) {
+      node.textContent = "";
+    }
+  });
+}
 function buildToolbar(container: HTMLElement, items: HTMLElement[]): void {
   const existingHost = getExistingHost(container);
   const host = existingHost || document.createElement("div");
@@ -372,11 +388,8 @@ function buildToolbar(container: HTMLElement, items: HTMLElement[]): void {
 
   const count = document.createElement("span");
   count.className = "wingman-alpha-filter-readout-disabled";
-
-  host.appendChild(label);
   host.appendChild(rail);
-  host.appendChild(count);
-
+  pruneAlphaFilterReadout(host);
   if (!existingHost && container.parentElement) {
     container.parentElement.insertBefore(host, container);
   }
