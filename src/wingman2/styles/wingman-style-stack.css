@@ -28618,7 +28618,7 @@ body.wm-discovery-page-open::-webkit-scrollbar-thumb {
 }
 
 .vw2-chip.is-selected span::before {
-  content: "Ã¢Å“â€œ ";
+  content: "\2713 ";
   color: #8fffe6;
 }
 
@@ -32723,7 +32723,7 @@ html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-action {
 }
 
 html[data-wingman-route="salesHelper"] .wingman-page-host .wm-sh-choice-action::after {
-  content: " Ã¢â€ â€™" !important;
+  content: " \2192" !important;
 }
 
 html[data-wingman-route="salesHelper"] .wm-sh-card-grid {
@@ -36132,4 +36132,9 @@ main.wm-templates-page .wm-template-card.wm-ui-card[data-template-staged="true"]
   padding: 3px 9px !important;
   font-size: 0.68rem !important;
   line-height: 1 !important;
+}
+
+/* Wingman alpha filter readout disabled */
+.wingman-alpha-filter-readout-disabled {
+  display: none !important;
 }

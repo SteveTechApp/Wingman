@@ -313,7 +313,7 @@ function updateButtonStates(host: HTMLElement, activeBucket: AlphaBucket): void 
 }
 
 function updateCount(host: HTMLElement, container: HTMLElement, activeBucket: AlphaBucket): void {
-  const count = host.querySelector<HTMLElement>(".wingman-alpha-filter-count");
+  const count = host.querySelector<HTMLElement>(".wingman-alpha-filter-readout-disabled");
 
   if (!count) {
     return;
@@ -345,7 +345,7 @@ function buildToolbar(container: HTMLElement, items: HTMLElement[]): void {
   host.innerHTML = "";
 
   const label = document.createElement("span");
-  label.className = "wingman-alpha-filter-label";
+  label.className = "wingman-alpha-filter-readout-disabled";
   label.textContent = "Filter";
 
   const rail = document.createElement("div");
@@ -371,7 +371,7 @@ function buildToolbar(container: HTMLElement, items: HTMLElement[]): void {
   });
 
   const count = document.createElement("span");
-  count.className = "wingman-alpha-filter-count";
+  count.className = "wingman-alpha-filter-readout-disabled";
 
   host.appendChild(label);
   host.appendChild(rail);
