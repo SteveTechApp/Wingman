@@ -1,74 +1,59 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const repoRoot = process.cwd();
+const root = process.cwd();
 
-const files = {
-  callCards: path.join(repoRoot, "src", "wingman2", "pages", "CallCardsPage.tsx"),
-  css: path.join(repoRoot, "src", "wingman2", "styles", "wingman-style-stack.css"),
-  packageJson: path.join(repoRoot, "package.json"),
-};
-
-const errors = [];
-
-function read(filePath) {
-  if (!fs.existsSync(filePath)) {
-    errors.push(`Missing file: ${path.relative(repoRoot, filePath)}`);
-    return "";
-  }
-
-  return fs.readFileSync(filePath, "utf8");
+function read(relativePath) {
+  return fs.readFileSync(path.join(root, relativePath), "utf8");
 }
 
-function requireMarker(label, source, marker) {
-  if (!source.includes(marker)) {
-    errors.push(`${label} missing marker: ${marker}`);
+function assert(condition, message) {
+  if (!condition) {
+    console.error(`[call-cards-focused-workflow] ${message}`);
+    process.exit(1);
   }
 }
 
-const callCards = read(files.callCards);
-const css = read(files.css);
-const packageJson = JSON.parse(read(files.packageJson) || "{}");
+const callCardsPage = read("src/wingman2/pages/CallCardsPage.tsx");
+const productCallCardsPage = read("src/wingman2/pages/ProductCallCardsPage.tsx");
+const routes = read("src/wingman2/app/routes.tsx");
 
-[
-  "callNotesStorageKey",
-  "window.sessionStorage.setItem(callNotesStorageKey",
-  "Live Call Cards handoff",
-  "cca-supportDetails",
-  "Show Wingman interpretation",
-  "cca-supportDetailsBody",
-].forEach((marker) => requireMarker("CallCardsPage.tsx", callCards, marker));
+assert(
+  callCardsPage.includes("Use Call Coach during customer conversations"),
+  "/wingman/call-cards should present a salesperson-facing Call Coach handoff."
+);
 
-[
-  "WINGMAN CALL CARDS FOCUSED WORKFLOW START",
-  ".cca-page .cca-supportDetails",
-  ".cca-page .cca-typeStrip button span",
-  "WINGMAN CALL CARDS FOCUSED WORKFLOW END",
-].forEach((marker) => requireMarker("wingman-style-stack.css", css, marker));
+assert(
+  callCardsPage.includes("Choose the next sales action"),
+  "Call Cards handoff should use sales-facing direction, not developer or release-note wording."
+);
 
-const activeImports = css
-  .split(/\r?\n/)
-  .map((line) => line.trim())
-  .filter((line) => line.startsWith("@import"));
+assert(
+  callCardsPage.includes("/wingman/call-coach") &&
+    callCardsPage.includes("/wingman/discovery") &&
+    callCardsPage.includes("/wingman/compare") &&
+    callCardsPage.includes("/wingman/product-call-cards"),
+  "Call Cards handoff should route users to Call Coach, Discovery, Compare and Product Call Cards."
+);
 
-if (activeImports.length) {
-  errors.push("wingman-style-stack.css must not contain active @import lines.");
-}
+assert(
+  callCardsPage.includes("Product Call Cards remain available"),
+  "Handoff page should clearly preserve Product Call Cards as the SKU-specific sales guidance route."
+);
 
-if (!packageJson.scripts?.["check:call-cards-focused-workflow"]) {
-  errors.push("package.json missing check:call-cards-focused-workflow script.");
-}
+assert(
+  !/workflow consolidated|has moved into|old .*workflow|confusing|demoted|deprecated|archived/i.test(callCardsPage),
+  "Call Cards handoff contains developer-facing transition wording."
+);
 
-if (!String(packageJson.scripts?.verify || "").includes("check:call-cards-focused-workflow")) {
-  errors.push("package.json verify script missing check:call-cards-focused-workflow.");
-}
+assert(
+  routes.includes("../pages/CallCardsPage"),
+  "Route should remain safe for existing /wingman/call-cards links."
+);
 
-if (errors.length) {
-  console.error("[call-cards-focused-workflow] Check failed:");
-  for (const error of errors) {
-    console.error(`- ${error}`);
-  }
-  process.exit(1);
-}
+assert(
+  productCallCardsPage.includes("ProductCallCards") || productCallCardsPage.includes("productCallCards"),
+  "Product Call Cards page should remain present and distinct."
+);
 
-console.log("[call-cards-focused-workflow] Verified Live Call Cards focused workflow and Discovery handoff.");
+console.log("[call-cards-focused-workflow] Verified salesperson-facing Call Coach handoff and Product Call Cards preservation.");

@@ -35935,3 +35935,149 @@ main.wm-templates-page .wm-template-card.wm-ui-card[data-template-staged="true"]
     animation: none !important;
   }
 }
+
+/* ------------------------------------------------------------
+   Live Call Cards consolidation page
+   ------------------------------------------------------------ */
+
+.wm-callcards-transition-page {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.wm-callcards-transition-hero,
+.wm-callcards-transition-panel,
+.wm-callcards-transition-note {
+  border: 1px solid rgba(39, 224, 218, 0.18);
+  border-radius: 1.15rem;
+  background:
+    radial-gradient(circle at top right, rgba(39, 224, 218, 0.08), transparent 18rem),
+    linear-gradient(180deg, rgba(7, 28, 44, 0.96), rgba(4, 18, 31, 0.96));
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+}
+
+.wm-callcards-transition-hero {
+  padding: clamp(1rem, 1.8vw, 1.5rem);
+}
+
+.wm-callcards-transition-kicker {
+  margin: 0 0 0.35rem;
+  color: #27e0da;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wm-callcards-transition-hero h1,
+.wm-callcards-transition-copy h2 {
+  margin: 0;
+  color: #ffffff;
+  font-weight: 950;
+  letter-spacing: -0.035em;
+}
+
+.wm-callcards-transition-hero h1 {
+  font-size: clamp(1.35rem, 2.2vw, 2.25rem);
+}
+
+.wm-callcards-transition-hero p,
+.wm-callcards-transition-copy p,
+.wm-callcards-transition-note span {
+  max-width: 72rem;
+  margin: 0.45rem 0 0;
+  color: rgba(226, 239, 250, 0.82);
+  line-height: 1.55;
+}
+
+.wm-callcards-transition-panel {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1rem, 1.8vw, 1.5rem);
+}
+
+.wm-callcards-transition-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.wm-callcards-transition-card {
+  position: relative;
+  min-height: 8rem;
+  padding: 1rem;
+  overflow: hidden;
+  border: 1px solid rgba(39, 224, 218, 0.2);
+  border-radius: 0.95rem;
+  background: rgba(7, 30, 48, 0.9);
+  color: #ffffff;
+  text-decoration: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease,
+    background 160ms ease;
+}
+
+.wm-callcards-transition-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(39, 224, 218, 0.48);
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.26);
+}
+
+.wm-callcards-transition-card span {
+  display: block;
+  color: #ffffff;
+  font-weight: 950;
+}
+
+.wm-callcards-transition-card small {
+  display: block;
+  margin-top: 0.45rem;
+  color: rgba(226, 239, 250, 0.76);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.wm-callcards-transition-card--primary {
+  border-color: rgba(42, 212, 122, 0.72);
+  background:
+    radial-gradient(circle at top right, rgba(42, 212, 122, 0.24), transparent 9rem),
+    linear-gradient(180deg, rgba(14, 92, 55, 0.95), rgba(7, 40, 31, 0.95));
+  box-shadow: 0 0 22px rgba(42, 212, 122, 0.18);
+}
+
+.wm-callcards-transition-note {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.95rem 1rem;
+  border-color: rgba(255, 153, 64, 0.3);
+  background:
+    radial-gradient(circle at top left, rgba(255, 153, 64, 0.16), transparent 18rem),
+    linear-gradient(180deg, rgba(43, 27, 15, 0.94), rgba(12, 22, 32, 0.96));
+}
+
+.wm-callcards-transition-note strong {
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+@media (max-width: 1100px) {
+  .wm-callcards-transition-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wm-callcards-transition-note {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 680px) {
+  .wm-callcards-transition-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
