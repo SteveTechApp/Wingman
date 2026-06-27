@@ -9,6 +9,7 @@
                     "audit:compare-candidate-gate":  "node --experimental-strip-types tools/audit-compare-candidate-gate.mjs",
                     "audit:competitor-intelligence":  "node tools/audit-competitor-intelligence.mjs",
                     "audit:story-coverage":  "node tools/audit-product-story-coverage.mjs",
+                    "audit:style-drift":  "node tools/audit-wingman-style-drift.mjs",
                     "lifecycle:reconcile":  "node tools/reconcile-wyrestorm-lifecycle.mjs",
                     "audit:data-sources":  "node tools/audit-wingman-data-sources.mjs",
                     "audit:engine-routing":  "node tools/audit-wingman-engine-routing.mjs",
