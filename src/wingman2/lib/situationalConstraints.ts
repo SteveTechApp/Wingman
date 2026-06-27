@@ -298,3 +298,66 @@ export function hasSituationalOpinion(questionId: string, answers: DiscoveryAnsw
   const c = situationalConstraints(answers)[questionId];
   return Boolean(c && (c.recommend.size > 0 || c.unlikely.size > 0));
 }
+
+// --- Finder integration -----------------------------------------------------
+// The Finder uses its own architecture vocabulary (`productPathOptions`) rather than
+// the Discovery option values, so it gets its own relevance map keyed on the captured
+// application. This lets the Finder grey the same way: a sports bar should not steer
+// toward "Presentation switcher" or "Wireless presentation", an AV-over-IP job should
+// not steer toward a single-room extender.
+
+const FINDER_PRODUCT_PATH_BY_OPPORTUNITY: Record<string, { recommend: string[]; unlikely: string[] }> = {
+  "meeting-room": {
+    recommend: ["Presentation switcher", "UC / conferencing", "Wireless presentation"],
+    unlikely: ["Matrix / routing", "AVoIP", "Video wall"],
+  },
+  classroom: {
+    recommend: ["Presentation switcher", "HDBaseT extender", "UC / conferencing"],
+    unlikely: ["Matrix / routing", "AVoIP", "Video wall"],
+  },
+  hospitality: {
+    recommend: ["Matrix / routing", "AVoIP"],
+    unlikely: ["Presentation switcher", "Wireless presentation", "HDMI / USB extender", "UC / conferencing"],
+  },
+  "video-wall": {
+    recommend: ["Video wall", "AVoIP"],
+    unlikely: ["Presentation switcher", "Wireless presentation", "UC / conferencing", "HDMI / USB extender"],
+  },
+  "av-over-ip": {
+    recommend: ["AVoIP"],
+    unlikely: ["Presentation switcher", "HDBaseT extender", "HDMI / USB extender", "Wireless presentation"],
+  },
+};
+
+// The Discovery brief stores the application as the `opportunity` option LABEL
+// (e.g. "Hospitality / bar / venue"); map it back to the opportunity value so the
+// Finder can use the same relevance logic.
+const OPPORTUNITY_BY_LABEL: Record<string, string> = {
+  "Meeting room / boardroom": "meeting-room",
+  "Classroom / teaching space": "classroom",
+  "Hospitality / bar / venue": "hospitality",
+  "Video wall / LED wall": "video-wall",
+  "Distributed AV / AV-over-IP": "av-over-ip",
+};
+
+/** Resolve a Discovery brief room-type / opportunity label to an opportunity value. */
+export function opportunityFromLabel(label: string | undefined): string | undefined {
+  if (!label) return undefined;
+  if (OPPORTUNITY_BY_LABEL[label]) return OPPORTUNITY_BY_LABEL[label];
+  const lower = label.toLowerCase();
+  if (/bar|venue|hospitality|pub/.test(lower)) return "hospitality";
+  if (/av-?over-?ip|avoip|distributed|networkhd/.test(lower)) return "av-over-ip";
+  if (/video ?wall|led/.test(lower)) return "video-wall";
+  if (/class|teach|lecture|education/.test(lower)) return "classroom";
+  if (/meeting|board|huddle|conference room|uc/.test(lower)) return "meeting-room";
+  return undefined;
+}
+
+/** Relevance of a Finder architecture/product-path option for the captured application. */
+export function finderProductPathRelevance(application: string | undefined, productPathOption: string): OptionRelevance {
+  const map = application ? FINDER_PRODUCT_PATH_BY_OPPORTUNITY[application] : undefined;
+  if (!map) return "neutral";
+  if (map.recommend.includes(productPathOption)) return "recommended";
+  if (map.unlikely.includes(productPathOption)) return "unlikely";
+  return "neutral";
+}

@@ -5,6 +5,8 @@ import {
   suggestedDefaultOption,
   hasSituationalOpinion,
   optionUnlikelyReason,
+  finderProductPathRelevance,
+  opportunityFromLabel,
   type DiscoveryAnswers,
 } from "./situationalConstraints";
 
@@ -87,5 +89,30 @@ describe("situational option constraints", () => {
     expect(suggestedDefaultOption("displays", { opportunity: "video-wall" })).toBe("video-wall-output");
     // no strong default before an application is chosen
     expect(suggestedDefaultOption("displays", {})).toBeUndefined();
+  });
+});
+
+describe("finder architecture relevance", () => {
+  it("maps a brief room-type label back to an opportunity", () => {
+    expect(opportunityFromLabel("Hospitality / bar / venue")).toBe("hospitality");
+    expect(opportunityFromLabel("Distributed AV / AV-over-IP")).toBe("av-over-ip");
+    expect(opportunityFromLabel("A sports bar with lots of TVs")).toBe("hospitality");
+    expect(opportunityFromLabel(undefined)).toBeUndefined();
+  });
+
+  it("steers Finder product paths to fit the captured application", () => {
+    // Sports bar: matrix/AVoIP fit, presentation switcher and wireless do not.
+    expect(finderProductPathRelevance("hospitality", "Matrix / routing")).toBe("recommended");
+    expect(finderProductPathRelevance("hospitality", "AVoIP")).toBe("recommended");
+    expect(finderProductPathRelevance("hospitality", "Presentation switcher")).toBe("unlikely");
+    expect(finderProductPathRelevance("hospitality", "Wireless presentation")).toBe("unlikely");
+    // AV-over-IP: AVoIP fit, single-room extenders do not.
+    expect(finderProductPathRelevance("av-over-ip", "AVoIP")).toBe("recommended");
+    expect(finderProductPathRelevance("av-over-ip", "HDBaseT extender")).toBe("unlikely");
+    // Meeting room: presentation/UC fit, matrix/AVoIP do not.
+    expect(finderProductPathRelevance("meeting-room", "Presentation switcher")).toBe("recommended");
+    expect(finderProductPathRelevance("meeting-room", "AVoIP")).toBe("unlikely");
+    // No application captured -> no opinion.
+    expect(finderProductPathRelevance(undefined, "AVoIP")).toBe("neutral");
   });
 });
