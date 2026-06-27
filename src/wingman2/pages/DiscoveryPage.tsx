@@ -3,6 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { saveDiscoveryBriefToProject, type StoredDiscoveryBrief } from "../data/projectStore";
 import { buildDiscoveryRecommendationEvidence } from "../lib/recommendationEvidence";
+import {
+  optionRelevance,
+  optionUnlikelyReason,
+  suggestedDefaultOption,
+} from "../lib/situationalConstraints";
 
 type DiscoveryOption = {
   value: string;
@@ -1617,19 +1622,41 @@ export function DiscoveryPage() {
           <div className="wm-discovery-option-list">
             {currentStepView.options.map((option) => {
               const selected = Array.isArray(currentAnswer) ? currentAnswer.includes(option.value) : currentAnswer === option.value;
+              // Situational awareness: de-emphasise options that do not fit the
+              // context captured so far, and highlight the likely fit. We never hide
+              // an option - the steer is purely visual.
+              const relevance = optionRelevance(currentStep.id, option.value, answers);
+              const isSuggestedDefault = !selected && option.value === suggestedDefaultOption(currentStep.id, answers);
+              const unlikelyReason = !selected && relevance === "unlikely" ? optionUnlikelyReason(currentStep.id, option.value, answers) : "";
+              const optionClassNames = ["wm-discovery-option"];
+              if (selected) optionClassNames.push("is-selected");
+              if (!selected && relevance === "recommended") optionClassNames.push("is-recommended");
+              if (!selected && relevance === "unlikely") optionClassNames.push("is-unlikely");
+              if (isSuggestedDefault) optionClassNames.push("is-suggested");
 
               return (
                 <button
                   key={option.value}
                   type="button"
-                  className={selected ? "wm-discovery-option is-selected" : "wm-discovery-option"}
+                  className={optionClassNames.join(" ")}
                   onClick={() => handleSelectAnswer(option.value)}
                   aria-pressed={selected}
+                  data-relevance={relevance}
+                  title={unlikelyReason || undefined}
                 >
                   <span className={wmDiscoveryIsAudioMultiSelectStep(currentStep) ? "wm-discovery-option-checkbox" : "wm-discovery-option-radio"} aria-hidden="true" />
                   <span>
-                    <strong>{option.label}</strong>
+                    <strong>
+                      {option.label}
+                      {!selected && relevance === "recommended" ? (
+                        <span className="wm-discovery-option-flag wm-discovery-option-flag-fit">{isSuggestedDefault ? "Suggested" : "Likely fit"}</span>
+                      ) : null}
+                      {!selected && relevance === "unlikely" ? (
+                        <span className="wm-discovery-option-flag wm-discovery-option-flag-uncommon">Uncommon here</span>
+                      ) : null}
+                    </strong>
                     <small>{option.help}</small>
+                    {unlikelyReason ? <small className="wm-discovery-option-reason">{unlikelyReason}</small> : null}
                   </span>
                 </button>
               );
