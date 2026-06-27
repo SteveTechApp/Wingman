@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import rawProductIndex from "../../../public/product-intelligence-index.json";
 import { normaliseCompareProducts, runCompareRuntimePipeline } from "./compareRuntimePipeline";
+import { isBannedNetworkHdSku } from "./networkHdAvoipEquivalence";
 
 type AnyRecord = Record<string, any>;
 
@@ -42,6 +43,27 @@ describe("competitor compare runtime behaviour", () => {
     expect(result.matches.length).toBeGreaterThan(0);
     expect(sku(result.matches[0])).toMatch(/^NHD-/);
     expectNoSupportItemsInLeadResults(result);
+  });
+
+  it("never names a banned or non-lead WyreStorm SKU in the recommendation prose", () => {
+    const result = runCompareRuntimePipeline("DMNVX350", products, "Crestron", 10);
+    const recommendation = String(result.recommendation ?? "").toUpperCase();
+    const leadSku = sku(result.matches[0]);
+
+    // (1) No retired/banned NetworkHD SKU (NHD-100/110/220/300/400) may appear.
+    const namedNhd = recommendation.match(/\bNHD-[A-Z0-9][A-Z0-9-]*/g) ?? [];
+    for (const token of namedNhd) {
+      expect(isBannedNetworkHdSku(token)).toBe(false);
+    }
+
+    // (2) Any candidate SKU named in the recommendation must be the ranked lead -
+    // never another match or a rejected (e.g. eligibility-blocked) candidate.
+    const otherCandidateSkus = [...result.matches.slice(1), ...result.rejected]
+      .map((item: AnyRecord) => sku(item))
+      .filter((value: string) => value && value !== leadSku);
+    for (const other of otherCandidateSkus) {
+      expect(recommendation).not.toContain(other);
+    }
   });
 
   it("keeps family-level Crestron DM-NVX input as family-rule rather than false verified-profile", () => {
@@ -115,5 +137,56 @@ describe("competitor compare runtime behaviour", () => {
     expect(leadSkus.length).toBeGreaterThan(0);
     expect(leadSkus.some((item) => item === "NHD-0401-MV" || item === "NHD-150-RX")).toBe(true);
     expectNoSupportItemsInLeadResults(result);
+  });
+
+  it("leads competitor NDI cameras with a WyreStorm CAM- NDI camera, not an AVoIP encoder", () => {
+    for (const [input, brand] of [["P200", "BirdDog"], ["P400", "BirdDog"], ["CV730-NDI", "Marshall"]] as const) {
+      const result = runCompareRuntimePipeline(input, products, brand, 10);
+      expect(result.competitor.domain).toBe("NDI_CAMERA");
+      const lead = sku(result.matches[0]);
+      expect(lead).toMatch(/^CAM-/);
+      expect(lead).toContain("NDI");
+    }
+  });
+
+  it("leads competitor PTZ cameras with a WyreStorm CAM- PTZ camera", () => {
+    for (const [input, brand] of [["SRG-X120", "Sony"], ["BRC-X400", "Sony"]] as const) {
+      const result = runCompareRuntimePipeline(input, products, brand, 10);
+      expect(result.competitor.domain).toBe("PTZ_CAMERA");
+      expect(sku(result.matches[0])).toMatch(/^CAM-\d.*PTZ$/);
+    }
+  });
+
+  it("leads free-text NDI PTZ camera requests with a WyreStorm NDI camera", () => {
+    const result = runCompareRuntimePipeline("4K NDI PTZ conference camera VISCA over IP", products, undefined, 10);
+    const lead = sku(result.matches[0]);
+    expect(lead).toMatch(/^CAM-/);
+    expect(lead).toContain("NDI");
+  });
+
+  it("leads wireless casting / UC presentation competitors with a WyreStorm Apollo (APO-) device", () => {
+    for (const [input, brand] of [["Solstice Gen3", "Mersive"], ["CX-50", "Barco ClickShare"]] as const) {
+      const result = runCompareRuntimePipeline(input, products, brand, 10);
+      expect(sku(result.matches[0])).toMatch(/^APO-/);
+    }
+  });
+
+  it("never positions end-of-life SKUs (CAM-200-PTZ, APO-200-UC, APO-210-UC) as compare candidates", () => {
+    const eolSkus = ["CAM-200-PTZ", "APO-200-UC", "APO-210-UC"];
+    const scenarios: Array<[string, string | undefined]> = [
+      ["SRG-X120", "Sony"],
+      ["BRC-X400", "Sony"],
+      ["P200", "BirdDog"],
+      ["CV730-NDI", "Marshall"],
+      ["Solstice Gen3", "Mersive"],
+      ["CX-50", "Barco ClickShare"],
+    ];
+    for (const [input, brand] of scenarios) {
+      const result = runCompareRuntimePipeline(input, products, brand, 12);
+      const matchSkus = skus(result.matches);
+      for (const eol of eolSkus) {
+        expect(matchSkus).not.toContain(eol);
+      }
+    }
   });
 });

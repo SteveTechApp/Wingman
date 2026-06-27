@@ -94,9 +94,17 @@ function simplifyButton(button: HTMLButtonElement, label: string, helper?: strin
   }
 
   button.dataset.wmPccSimplified = "true";
-  button.innerHTML = helper
-    ? `<strong>${label}</strong><span>${helper}</span>`
-    : `<strong>${label}</strong>`;
+  button.replaceChildren();
+
+  const labelElement = document.createElement("strong");
+  labelElement.textContent = label;
+  button.appendChild(labelElement);
+
+  if (helper) {
+    const helperElement = document.createElement("span");
+    helperElement.textContent = helper;
+    button.appendChild(helperElement);
+  }
 }
 
 function simplifyProductCallCardsButtons(): void {

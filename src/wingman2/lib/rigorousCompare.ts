@@ -25,6 +25,7 @@ import {
   type ResolvedCompetitorProfile,
 } from "./competitorSpecRegistry";
 import { buildWyrestormCompareProfile } from "./wyrestormCompareProfile";
+import { isBannedNetworkHdSku } from "./networkHdAvoipEquivalence";
 
 export type RigorousMatch = {
   sku: string;
@@ -142,8 +143,11 @@ export function rigorousCompare(
       b.heuristicScore - a.heuristicScore,
   );
 
-  const matches = evaluated.filter((item) => item.decision.outcome !== "NO MATCH");
-  const rejected = evaluated.filter((item) => item.decision.outcome === "NO MATCH");
+  // Retired NetworkHD platforms (NHD-100/110/220/300/400) must never be ranked or
+  // named as a recommendation, even before the eligibility layer runs.
+  const eligible = evaluated.filter((item) => !isBannedNetworkHdSku(item.sku));
+  const matches = eligible.filter((item) => item.decision.outcome !== "NO MATCH");
+  const rejected = eligible.filter((item) => item.decision.outcome === "NO MATCH");
   const top = matches[0];
   const topOutcome: CompareDecisionOutcome | "NONE" = top ? top.decision.outcome : "NONE";
 

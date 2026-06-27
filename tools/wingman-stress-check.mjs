@@ -11,8 +11,18 @@ function add(status, area, name, detail = "") {
   results.push({ status, area, name, detail });
 }
 
-function npmExecutable() {
-  return process.platform === "win32" ? "npm.cmd" : "npm";
+function npmRunCommand(script) {
+  if (process.platform === "win32") {
+    return {
+      command: "cmd.exe",
+      args: ["/d", "/s", "/c", `npm run --silent ${script}`],
+    };
+  }
+
+  return {
+    command: "npm",
+    args: ["run", "--silent", script],
+  };
 }
 
 function exists(file) {
@@ -63,7 +73,8 @@ function checkProductMatchingGate() {
     return;
   }
   try {
-    execFileSync(npmExecutable(), ["run", "--silent", "check:product-matching"], { cwd: root, stdio: "pipe", timeout: 120000 });
+    const npmRun = npmRunCommand("check:product-matching");
+    execFileSync(npmRun.command, npmRun.args, { cwd: root, stdio: "pipe", timeout: 120000, windowsHide: true });
     add("PASS", "Product Finder", "Product matching scenario gate passes");
   } catch (error) {
     const stdout = error.stdout ? String(error.stdout).trim() : "";

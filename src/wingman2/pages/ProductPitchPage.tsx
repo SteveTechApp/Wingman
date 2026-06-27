@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { writeProductWorkspaceHandoff } from "../data/productWorkspaceHandoff";
 import {
-buildProductNarrative,
+  buildProductNarrative,
   applyProductStoryToSpec,
   cleanUsefulList,
   extractRawProducts,
@@ -12,6 +12,7 @@ buildProductNarrative,
   type ProductNarrative,
   type ProductSpec
 } from "../lib/productStoryEngine";
+import { buildProductPitchSalesGuidance } from "../lib/productPitchGuidance";
 import { CompareBackToListButton } from "../components/compare/CompareBackToListButton";
 import { ReportProblemButton } from "../components/ReportProblemButton";
 import { ProductMediaPanel } from "../components/ProductMediaPanel";
@@ -76,6 +77,7 @@ const PRODUCT_PITCH_PRIMARY_BUTTON_CLASS = "rounded-full bg-cyan-300 px-5 py-2 t
 const PRODUCT_PITCH_SECONDARY_BUTTON_CLASS = "rounded-full border border-cyan-300 px-5 py-2 text-sm font-bold text-cyan-100";
 const PRODUCT_PITCH_SMALL_PRIMARY_BUTTON_CLASS = "rounded-full bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950";
 const PRODUCT_PITCH_SMALL_SECONDARY_BUTTON_CLASS = "rounded-full border border-cyan-300 px-4 py-2 text-sm font-bold text-cyan-100";
+const PRODUCT_PITCH_FORWARD_BUTTON_CLASS = "wm-ui-button wm-ui-button-forward px-4 py-2 text-sm font-bold";
 
 const fallbackProducts: ProductSpec[] = [
   {
@@ -244,11 +246,21 @@ function DisplayList({ items, max = 6 }: { items: string[]; max?: number }) {
   );
 }
 
-function WorkCard({ title, children }: { title: string; children: ReactNode }) {
+function WorkCard({
+  title,
+  children,
+  tone = "standard",
+}: {
+  title: string;
+  children: ReactNode;
+  tone?: "standard" | "caution";
+}) {
   return (
-    <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
-      <h3 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>{title}</h3>
-      <div className="mt-3 text-sm leading-6 text-white/75">{children}</div>
+    <section className="wm-ui-card rounded-lg border p-5" data-ui-tone={tone}>
+      <h3 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} ${tone === "caution" ? "text-amber-200" : "text-cyan-300"}`}>
+        {title}
+      </h3>
+      <div className="mt-3 text-sm leading-6 text-white">{children}</div>
     </section>
   );
 }
@@ -404,51 +416,60 @@ function TabButton({
 }
 
 function OverviewTab({ product, narrative }: { product: ProductSpec; narrative: ProductNarrative }) {
+  const guidance = buildProductPitchSalesGuidance(product, narrative);
+
   return (
     <div className="grid gap-4">
-      <section className="rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-6">
-        <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-200`}>One-minute product view</p>
-        <h2 className="mt-2 text-2xl font-extrabold text-white">{narrative.headline}</h2>
-        <p className="mt-3 max-w-4xl text-sm leading-6 text-white/75">{narrative.whatItIs}</p>
+      <section className="wm-ui-section rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-6">
+        <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-200`}>Sales guidance</p>
+        <h2 className="mt-2 text-2xl font-extrabold text-cyan-200">Product role</h2>
+        <p className="mt-2 max-w-5xl text-base font-bold leading-6 text-white">{narrative.headline}</p>
+        <p className="mt-2 max-w-5xl text-sm leading-6 text-white">{guidance.productRole}</p>
       </section>
 
-      <ProductMediaPanel sku={product.sku} title={product.name} />
-
       <div className="grid gap-4 lg:grid-cols-2">
-        <WorkCard title="Where it fits in the room">
-          <p>{narrative.whereItSits}</p>
-        </WorkCard>
-
-        {narrative.familyFit ? (
-          <WorkCard title="How it relates to the rest of the family">
-            <p>{narrative.familyFit}</p>
-          </WorkCard>
-        ) : null}
-
-        <WorkCard title="What it does">
-          <p>{narrative.whyItHelps}</p>
-        </WorkCard>
-
-        <WorkCard title="Why the customer cares">
-          <p>{narrative.whyCustomerCares}</p>
-        </WorkCard>
-
-        <WorkCard title="Use it when">
-          <p>{narrative.useWhen}</p>
-        </WorkCard>
-
-        <WorkCard title="Do not lead with it when">
-          <p>{narrative.avoidIf}</p>
+        <WorkCard title="Customer problem it solves">
+          <p>{guidance.customerProblem}</p>
         </WorkCard>
 
         <WorkCard title="Best-fit applications">
-          <DisplayList items={product.applications} max={6} />
+          <DisplayList items={guidance.bestFitApplications} max={8} />
         </WorkCard>
 
-        <WorkCard title="Ask next">
-          <DisplayList items={narrative.askNow} max={4} />
+        <WorkCard title="Poor fit / avoid leading with this" tone="caution">
+          <DisplayList items={guidance.poorFitApplications} max={8} />
+        </WorkCard>
+
+        <WorkCard title="Discovery questions">
+          <DisplayList items={guidance.discoveryQuestions} max={8} />
+        </WorkCard>
+
+        <WorkCard title="Quote checks" tone="caution">
+          <DisplayList items={guidance.quoteChecks} max={8} />
+        </WorkCard>
+
+        <WorkCard title="What not to promise" tone="caution">
+          <DisplayList items={guidance.doNotPromise} max={6} />
+        </WorkCard>
+
+        <WorkCard title="Attach / companion products">
+          <DisplayList items={guidance.attachProducts} max={8} />
+        </WorkCard>
+
+        <WorkCard title="Alternatives inside WyreStorm">
+          <DisplayList items={guidance.alternatives} max={6} />
+        </WorkCard>
+
+        <WorkCard title="Customer-safe wording">
+          <p>{guidance.customerSafeWording}</p>
+        </WorkCard>
+
+        <WorkCard title="Internal sales notes" tone="caution">
+          <DisplayList items={guidance.internalSalesNotes} max={8} />
         </WorkCard>
       </div>
+
+      <ProductMediaPanel sku={product.sku} title={product.name} />
     </div>
   );
 }
@@ -615,7 +636,7 @@ function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: P
         <Link
           to={routeCatalogByKey.visualDesign.path}
           onClick={saveHandoff}
-          className={`mt-4 inline-flex ${PRODUCT_PITCH_PRIMARY_BUTTON_CLASS}`}
+          className={`mt-4 inline-flex ${PRODUCT_PITCH_FORWARD_BUTTON_CLASS}`}
         >
           Send product to Schematic Builder
         </Link>
