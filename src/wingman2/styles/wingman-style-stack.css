@@ -35597,6 +35597,11 @@ html[data-wingman-route="compare"] [data-wingman-page="compare"] a:last-child {
   box-shadow: var(--wm-ui-shadow-card) !important;
 }
 
+.wm-ui-card[data-ui-tone="caution"] {
+  border-color: var(--wm-ui-decision) !important;
+  background: rgba(80, 43, 19, 0.42) !important;
+}
+
 .wm-ui-card-header {
   padding: 0 0 var(--wm-ui-space-3) !important;
   border: 0 !important;
@@ -35930,4 +35935,3 @@ main.wm-templates-page .wm-template-card.wm-ui-card[data-template-staged="true"]
     animation: none !important;
   }
 }
-
