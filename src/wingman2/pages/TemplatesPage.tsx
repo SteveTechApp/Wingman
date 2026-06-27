@@ -466,7 +466,7 @@ function TemplatesPage() {
           <p className="wm-template-kicker wm-ui-kicker">Template library</p>
           <h2 className="wm-ui-title">{filtered.length} options</h2>
         </div>
-        <p className="wm-ui-copy">Templates are advisory starting points. Complex systems still need pre-sales review before quotation.</p>
+        <p className="wm-ui-copy">Choose a starting point. Review before quotation.</p>
       </section>
 
       <section className="wm-template-card-grid wm-ui-grid">
@@ -520,7 +520,7 @@ function TemplatesPage() {
                 data-template-staged-pill="true"
                 onClick={() => stageTemplate(template)}
               >
-                {isStaged ? "Template staged" : "Use template"}
+                {isStaged ? "Template staged" : "Use"}
               </button>
               <a
                 className={`wm-ui-button ${isMuted ? "wm-ui-button-muted" : "wm-ui-button-forward"}${isStaged ? " wm-ui-decision-sweep" : ""}`}
@@ -528,7 +528,7 @@ function TemplatesPage() {
                 data-template-build-pack="true"
                 onClick={() => stageTemplate(template)}
               >
-                Review / build pack
+                Build pack
               </a>
             </div>
           </article>
