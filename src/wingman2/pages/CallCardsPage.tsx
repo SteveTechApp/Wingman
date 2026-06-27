@@ -1,25 +1,25 @@
 const handoffRoutes = [
   {
     title: "Open Call Coach",
-    detail: "Use this for live conversation support, objection handling and quick guidance during a call.",
+    detail: "Use this during a live customer call when you need objection handling, prompts or quick sales guidance.",
     href: "/wingman/call-coach",
     tone: "primary"
   },
   {
     title: "Open Discovery",
-    detail: "Use this when the requirement needs structured room, source, display, USB, audio and control capture.",
+    detail: "Use this to capture the room type, sources, displays, USB, audio, control and project requirements.",
     href: "/wingman/discovery",
     tone: "secondary"
   },
   {
     title: "Open Compare",
-    detail: "Use this when the customer mentions a competitor product or an existing system to replace.",
+    detail: "Use this when the customer mentions a competitor product, existing system or possible replacement.",
     href: "/wingman/compare",
     tone: "secondary"
   },
   {
     title: "Open Product Call Cards",
-    detail: "Use this for SKU-specific sales positioning, discovery prompts and customer-safe product guidance.",
+    detail: "Use this for SKU-specific positioning, discovery prompts and customer-safe product guidance.",
     href: "/wingman/product-call-cards",
     tone: "secondary"
   }
@@ -29,21 +29,21 @@ export function CallCardsPage() {
   return (
     <main className="wingman-page-host wm-callcards-transition-page" data-wingman-page="call-cards-transition">
       <section className="wm-callcards-transition-hero">
-        <p className="wm-callcards-transition-kicker">Workflow consolidated</p>
-        <h1>Live Call Cards has moved into Call Coach</h1>
+        <p className="wm-callcards-transition-kicker">Live customer support</p>
+        <h1>Use Call Coach during customer conversations</h1>
         <p>
-          The old Live Call Cards workflow overlapped with Call Coach, Discovery, Compare and Proposal.
-          Use the clearer workflow below so the user always knows where to go next.
+          When you are on a call and need help shaping the next question, handling an objection,
+          comparing a competitor product or moving the opportunity forward, start with Call Coach.
         </p>
       </section>
 
-      <section className="wm-callcards-transition-panel" aria-label="Recommended Wingman workflow">
+      <section className="wm-callcards-transition-panel" aria-label="Choose the right Wingman tool">
         <div className="wm-callcards-transition-copy">
-          <h2>Use the right Wingman tool for the job</h2>
+          <h2>Choose the next sales action</h2>
           <p>
-            Call Coach now handles live conversation support. Discovery captures structured project
-            requirements. Compare handles competitor or replacement conversations. Product Call Cards
-            remain available for SKU-specific sales guidance.
+            Pick the route that best matches the conversation. Use Call Coach for live support,
+            Discovery for structured requirements, Compare for competitor or replacement conversations,
+            and Product Call Cards for SKU-specific sales positioning.
           </p>
         </div>
 
@@ -62,10 +62,10 @@ export function CallCardsPage() {
       </section>
 
       <section className="wm-callcards-transition-note">
-        <strong>Product Call Cards are still active.</strong>
+        <strong>Need SKU-specific help?</strong>
         <span>
-          Only the confusing live-call capture page has been demoted. Product positioning cards and
-          SKU call-card workflows remain part of Wingman.
+          Product Call Cards remain available for product positioning, discovery prompts,
+          customer-safe wording and sales guidance.
         </span>
       </section>
     </main>

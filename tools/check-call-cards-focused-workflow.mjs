@@ -19,8 +19,13 @@ const productCallCardsPage = read("src/wingman2/pages/ProductCallCardsPage.tsx")
 const routes = read("src/wingman2/app/routes.tsx");
 
 assert(
-  callCardsPage.includes("Live Call Cards has moved into Call Coach"),
-  "/wingman/call-cards should render the consolidation handoff page."
+  callCardsPage.includes("Use Call Coach during customer conversations"),
+  "/wingman/call-cards should present a salesperson-facing Call Coach handoff."
+);
+
+assert(
+  callCardsPage.includes("Choose the next sales action"),
+  "Call Cards handoff should use sales-facing direction, not developer or release-note wording."
 );
 
 assert(
@@ -28,17 +33,22 @@ assert(
     callCardsPage.includes("/wingman/discovery") &&
     callCardsPage.includes("/wingman/compare") &&
     callCardsPage.includes("/wingman/product-call-cards"),
-  "Call Cards consolidation page should route users to Call Coach, Discovery, Compare and Product Call Cards."
+  "Call Cards handoff should route users to Call Coach, Discovery, Compare and Product Call Cards."
 );
 
 assert(
-  callCardsPage.includes("Product Call Cards are still active"),
-  "Consolidation page should clearly distinguish Product Call Cards from the demoted live-call workflow."
+  callCardsPage.includes("Product Call Cards remain available"),
+  "Handoff page should clearly preserve Product Call Cards as the SKU-specific sales guidance route."
+);
+
+assert(
+  !/workflow consolidated|has moved into|old .*workflow|confusing|demoted|deprecated|archived/i.test(callCardsPage),
+  "Call Cards handoff contains developer-facing transition wording."
 );
 
 assert(
   routes.includes("../pages/CallCardsPage"),
-  "Route should remain safe for old /wingman/call-cards links."
+  "Route should remain safe for existing /wingman/call-cards links."
 );
 
 assert(
@@ -46,4 +56,4 @@ assert(
   "Product Call Cards page should remain present and distinct."
 );
 
-console.log("[call-cards-focused-workflow] Verified Live Call Cards consolidation into Call Coach and Product Call Cards preservation.");
+console.log("[call-cards-focused-workflow] Verified salesperson-facing Call Coach handoff and Product Call Cards preservation.");
