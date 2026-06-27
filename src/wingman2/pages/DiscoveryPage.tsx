@@ -1565,16 +1565,7 @@ export function DiscoveryPage() {
     recogniser.start();
     setIsListening(true);
   }
-
-  if (hasActiveTemplateSolutionSeed()) {
-    return (
-      <main className="wm-template-builder-only-page wingman-page-host" data-wingman-page="discovery">
-        <TemplateDiscoverySeedPanel />
-      </main>
-    );
-  }
-
-  return (
+return (
     <main className="wm-discovery-capture-page" data-audit={discoveryAuditMarkers.join("|")}>
       <TemplateDiscoverySeedPanel />
       <header className="wm-discovery-capture-hero">
