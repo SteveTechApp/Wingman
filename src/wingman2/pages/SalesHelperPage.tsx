@@ -1,4 +1,4 @@
-﻿import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 type SalesHelperCard = {
   eyebrow: string;
@@ -42,7 +42,7 @@ const conversationCards: SalesHelperCard[] = [
     eyebrow: "Account development, attach opportunity or sales enablement conversation",
     title: "Channel and customer growth conversation",
     body: "Use for account development, outbound calling, distributor enablement, customer conversations and opportunity shaping. Turn display, projector, LED or UC conversations into credible WyreStorm attachment questions.",
-    route: "/wingman/call-cards",
+    route: "/wingman/call-coach",
   },
   {
     eyebrow: "After discovery, after a product shortlist, after a proposal draft or before escalation",
