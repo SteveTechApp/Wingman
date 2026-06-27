@@ -4,6 +4,12 @@ import { getBestProductPositioningCardForSku } from "../data/productPositioningC
 import { getProductStory, productStoryRelatedText } from "../data/productStories";
 import { saveProductSelectionToCurrentProject } from "../data/projectStore";
 import { buildProductNarrative, normaliseProductRecord, type ProductNarrative } from "../lib/productStoryEngine";
+import {
+  classifyProductCallCard,
+  PRODUCT_CALL_CARD_HEADINGS,
+  productCallCardClassificationText,
+  type ClassifiedProductCallCardHeading,
+} from "../lib/productCallCardClassification";
 import { resolveWyrestormSkuAlias } from "../lib/skuAliasResolver";
 
 // Reuse the role-aware Product Pitch engine so call-card copy is plain and
@@ -33,10 +39,16 @@ function narrativeForSeed(seed: ProductSeed): ProductNarrative | null {
 type ProductSeed = {
   sku: string;
   name?: string;
+  title?: string;
   family?: string;
   category?: string;
+  productType?: string;
   description?: string;
+  summary?: string;
   tags?: string[];
+  applications?: string[] | string;
+  role?: string;
+  productRole?: string;
   fit?: string;
   openingLine?: string;
   questions?: string[];
@@ -56,6 +68,8 @@ type ProductCard = {
   questions: string[];
   proofPoints: string[];
   tags: string[];
+  headings: ClassifiedProductCallCardHeading[];
+  sourceSearchText: string;
   curated: boolean;
 };
 
@@ -203,23 +217,6 @@ const FALLBACK_PRODUCTS: ProductSeed[] = Object.keys(CURATED).map((sku) => ({
   description: CURATED[sku].description,
   tags: CURATED[sku].tags,
 }));
-
-const FAMILY_FILTERS = [
-  "All",
-  "Presentation",
-  "NetworkHD",
-  "NetworkHD 100",
-  "NetworkHD 500",
-  "NetworkHD 600",
-  "Matrix",
-  "HDBaseT",
-  "USB / UC",
-  "Multiview",
-  "Video wall",
-  "Extenders",
-  "Control",
-  "Cameras",
-];
 
 const QUICK_FINDERS = [
   "All",
@@ -732,8 +729,25 @@ function toProductCard(seed: ProductSeed): ProductCard {
       family,
       category,
     ]),
+    headings: [],
+    sourceSearchText: "",
     curated: Boolean(CURATED[sku] || story),
   };
+
+  const classificationSource = {
+    ...seed,
+    sku,
+    name,
+    family,
+    category,
+    productType: cleanText(story?.productType) || cleanText(seed.productType),
+    description,
+    tags: base.tags,
+    applications: story?.idealApplications?.length ? story.idealApplications : seed.applications,
+  };
+
+  base.headings = classifyProductCallCard(classificationSource);
+  base.sourceSearchText = productCallCardClassificationText(classificationSource);
 
   if (base.questions.length === 0) {
     base.questions = questionsFor(base);
@@ -799,55 +813,12 @@ async function loadProductSeeds(): Promise<ProductSeed[]> {
   return FALLBACK_PRODUCTS;
 }
 
-// Family chips cannot be matched by a naive substring of the chip label: extender
-// products are tagged "HDBaseT" and say "extender" (singular), so a search for
-// "extenders" found almost nothing, and "USB / UC" never appears verbatim. Each
-// chip maps to the SKU prefixes / suffixes and the wording that actually identify
-// that family.
-type FamilyMatcher = { terms?: string[]; skuPrefixes?: string[]; skuContains?: string[] };
-
-const FAMILY_MATCHERS: Record<string, FamilyMatcher> = {
-  Presentation: { skuPrefixes: ["SW-"], terms: ["presentation", "switcher", "byod", "byom"] },
-  NetworkHD: { skuPrefixes: ["NHD-"], terms: ["networkhd", "av-over-ip", "avoip"] },
-  "NetworkHD 100": { skuPrefixes: ["NHD-1"], terms: ["networkhd 100"] },
-  "NetworkHD 500": { skuPrefixes: ["NHD-5"], terms: ["networkhd 500"] },
-  "NetworkHD 600": { skuPrefixes: ["NHD-6"], terms: ["networkhd 600"] },
-  Matrix: { skuPrefixes: ["MX-", "MXV-"], terms: ["matrix"] },
-  HDBaseT: { skuPrefixes: ["EX-", "EXP-", "RX-", "RXV", "RX3", "RXF", "TX-", "EX3", "EXA", "EXF"], terms: ["hdbaset", "hdbt"] },
-  "USB / UC": { skuPrefixes: ["APO-"], terms: ["usb", "byod", "byom", "conference", "apollo", "uc video", "uc room", " uc "] },
-  Multiview: { skuContains: ["-MV"], terms: ["multiview", "multi-view"] },
-  "Video wall": { skuContains: ["-VW"], terms: ["video wall", "videowall"] },
-  Extenders: { skuPrefixes: ["EX-", "EXP-", "RX-", "RXV", "RX3", "RXF", "TX-", "EX3", "EXA", "EXF"], terms: ["extender", "hdbaset", "hdbt"] },
-  Control: { skuPrefixes: ["SYN-", "NHD-CTL", "NHD-000-CTL", "NHD-TOUCH"], terms: ["control", "touch panel", "keypad"] },
-  Cameras: { skuPrefixes: ["CAM-"], terms: ["camera", "ptz", " ndi", "bridge"] },
-};
-
 function matchesFamily(product: ProductCard, family: string): boolean {
   if (family === "All") {
     return true;
   }
 
-  const matcher = FAMILY_MATCHERS[family];
-  // Match on the SKU and the product's own classification fields (family /
-  // category) only - never the free-text copy, otherwise common words like
-  // "HDBaseT" or "USB" in a description pull unrelated products into the chip.
-  const classification = `${product.family} ${product.category}`.toLowerCase();
-
-  if (!matcher) {
-    return classification.includes(family.toLowerCase());
-  }
-
-  const sku = product.sku.toUpperCase();
-
-  if (matcher.skuPrefixes?.some((prefix) => sku.startsWith(prefix))) {
-    return true;
-  }
-
-  if (matcher.skuContains?.some((part) => sku.includes(part))) {
-    return true;
-  }
-
-  return Boolean(matcher.terms?.some((term) => classification.includes(term)));
+  return product.headings.includes(family as ClassifiedProductCallCardHeading);
 }
 
 function productMatches(product: ProductCard, query: string, family: string, quickFinder: string): boolean {
@@ -872,6 +843,7 @@ function productMatches(product: ProductCard, query: string, family: string, qui
     ...product.questions,
     ...product.proofPoints,
     ...product.tags,
+    product.sourceSearchText,
   ]
     .join(" ")
     .toLowerCase();
@@ -2109,7 +2081,7 @@ return (
       <main className="wm-pcc-grid">
         <section className="wm-pcc-card wm-pcc-left">
           <div className="wm-pcc-chips">
-            {FAMILY_FILTERS.map((family) => (
+            {PRODUCT_CALL_CARD_HEADINGS.map((family) => (
               <button
                 key={family}
                 type="button"
