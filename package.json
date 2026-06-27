@@ -115,7 +115,8 @@
                     "test:recommendation-scenarios":  "vitest run src/wingman2/lib/recommendationEvidence.priority3.test.ts src/__tests__/recommendationEvidence.test.ts",
                     "check:compare-evidence-led-wording":  "node tools/check-compare-evidence-led-wording.mjs",
                     "check:hdbaset-avoip-classification":  "node tools/check-hdbaset-avoip-classification.mjs",
-                    "check:sales-facing-language":  "node tools/check-sales-facing-language.mjs"
+                    "check:sales-facing-language":  "node tools/check-sales-facing-language.mjs",
+                    "check:call-coach-no-loop":  "node tools/check-call-coach-no-call-cards-loop.mjs"
                 },
     "dependencies":  {
                          "@xyflow/react":  "^12.10.2",
