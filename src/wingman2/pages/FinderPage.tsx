@@ -28,6 +28,7 @@ import {
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 import { discoveryBriefToFinderNeed, readLatestDiscoveryBrief } from "../data/workflowHandoff";
+import { finderProductPathRelevance, opportunityFromLabel } from "../lib/situationalConstraints";
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
 import { getProductFamilyRankingReason, rankProductsByFamilyScores } from "../lib/productFamilyShortlistRanking";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
@@ -2808,6 +2809,45 @@ function FieldSelect({
   );
 }
 
+const FINDER_APPLICATION_LABEL: Record<string, string> = {
+  "meeting-room": "a meeting room",
+  classroom: "a teaching space",
+  hospitality: "a bar / venue",
+  "video-wall": "a video wall",
+  "av-over-ip": "an AV-over-IP system",
+};
+
+// Situational steer for the architecture picker: read the application captured in
+// Discovery and tell the rep which product paths fit it (and flag a path that does
+// not). The Finder uses a native <select>, so we steer with a hint rather than
+// greying individual options the way the Discovery buttons do.
+function FinderProductPathHint({ selectedPath }: { selectedPath: string }) {
+  const application = useMemo(() => {
+    const roomModel = readLatestDiscoveryBrief()?.roomModel as { roomType?: string } | undefined;
+    return opportunityFromLabel(roomModel?.roomType);
+  }, []);
+
+  if (!application) return null;
+
+  const recommended = productPathOptions.filter((path) => finderProductPathRelevance(application, path) === "recommended");
+  if (recommended.length === 0) return null;
+
+  const applicationLabel = FINDER_APPLICATION_LABEL[application] ?? "this job";
+  const selectedIsUnlikely = Boolean(selectedPath) && finderProductPathRelevance(application, selectedPath) === "unlikely";
+
+  return (
+    <div className="md:col-span-2 rounded-xl border border-cyan-500/30 bg-cyan-500/5 px-3 py-2 text-xs leading-5 text-cyan-100/90">
+      <span className="font-bold uppercase tracking-[0.12em] text-cyan-200/80">Likely for {applicationLabel}: </span>
+      {recommended.join(", ")}.
+      {selectedIsUnlikely ? (
+        <span className="mt-1 block text-amber-200/90">
+          Heads up: &ldquo;{selectedPath}&rdquo; is uncommon for {applicationLabel} &ndash; most are {recommended.join(" or ")}.
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
 function StatusPill({ status }: { status: MatchStatus }) {
   const label = status === "recommended" ? "Recommended" : status === "alternative" ? "Alternative" : "Check fit";
   const classes =
@@ -3519,6 +3559,7 @@ if (!leadingMatch) {
 
                     <FieldSelect label="Technical requirement" value={need.technicalRequirement} options={technicalRequirementOptions} onChange={(value) => setNeedField("technicalRequirement", value)} />
                     <FieldSelect label="Likely product path" value={need.productPath} options={productPathOptions} onChange={(value) => setNeedField("productPath", value)} />
+                    <FinderProductPathHint selectedPath={need.productPath} />
                   </div>
                 </div>
               ) : null}
