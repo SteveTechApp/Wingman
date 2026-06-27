@@ -20,19 +20,19 @@ for (const relative of candidateFiles) {
 
   const text = fs.readFileSync(absolute, "utf8");
 
-  if (
-    /Inbound call/i.test(text) &&
-    /\/wingman\/call-cards/i.test(text)
-  ) {
-    findings.push(`${relative}: inbound/live-call card still links to /wingman/call-cards`);
+  if (relative.endsWith("CallCardsPage.tsx")) {
+    if (!text.includes('to="/wingman/call-coach"')) {
+      findings.push(`${relative}: old call-cards route should redirect to Call Coach.`);
+    }
+    continue;
   }
 
-  if (
-    /Call Coach/i.test(text) &&
-    /Live call cards/i.test(text) &&
-    /\/wingman\/call-cards/i.test(text)
-  ) {
-    findings.push(`${relative}: Call Coach still exposes the old Live Call Cards loop`);
+  if (/\/wingman\/call-cards/i.test(text)) {
+    findings.push(`${relative}: visible UI still links to /wingman/call-cards`);
+  }
+
+  if (/title:\s*"Inbound call"/i.test(text) || /Live call cards/i.test(text)) {
+    findings.push(`${relative}: visible UI still exposes the redundant live-call card.`);
   }
 }
 
@@ -44,4 +44,4 @@ if (findings.length > 0) {
   process.exit(1);
 }
 
-console.log("[call-coach-no-loop] Verified Call Coach no longer loops back to Live Call Cards.");
+console.log("[call-coach-no-loop] Verified Call Coach no longer loops to Live Call Cards and old Call Cards route redirects safely.");
