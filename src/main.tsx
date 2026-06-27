@@ -1,4 +1,5 @@
-﻿import "./wingman2/lib/guruDetachedPanel";
+import { installCompareManufacturerAssist } from "./wingman2/lib/compareManufacturerAssist";
+import "./wingman2/lib/guruDetachedPanel";
 import "./wingman2/lib/microphoneSafety";
 import "./wingman2/app/wingmanProductCallCardsCleanUi";
 import "./wingman2/app/wingmanDisplayScaleGuard";
@@ -54,6 +55,8 @@ const rootElement = document.getElementById("root");
 if (!rootElement) {
   throw new Error("Root element #root was not found.");
 }
+installCompareManufacturerAssist();
+
 
 createRoot(rootElement).render(
   <React.StrictMode>

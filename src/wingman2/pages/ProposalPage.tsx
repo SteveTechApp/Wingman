@@ -19,6 +19,7 @@ import { getStoredWingmanProfile } from "../data/wingmanProfile";
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
 import { rankProductsByFamilyScores } from "../lib/productFamilyShortlistRanking";
 
+import TemplateProposalSeedPanel, { hasTemplateProposalSeed } from "../components/TemplateProposalSeedPanel";
 const feedbackActions: Array<{
   rating: "accepted" | "needs-review" | "missing-accessory" | "wrong-fit";
   label: string;
@@ -129,7 +130,7 @@ function openGuruFromProposal(prompt: string) {
   window.dispatchEvent(new CustomEvent("wingman:open-guru", { detail: { prompt } }));
 }
 
-export function ProposalPage() {
+export function ProposalPageProjectMode() {
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const context = useMemo(() => {
     const project = getCurrentWorkflowProject(readProjectStore());
@@ -793,3 +794,14 @@ export function ProposalPage() {
     </div>
   );
 }
+
+function ProposalPage() {
+  if (hasTemplateProposalSeed()) {
+    return <TemplateProposalSeedPanel />;
+  }
+
+  return <ProposalPageProjectMode />;
+}
+
+export { ProposalPage };
+export default ProposalPage;
