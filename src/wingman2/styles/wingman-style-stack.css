@@ -33516,3 +33516,57 @@ button.wingman-guru-fab[data-wingman-guru-floating-active="true"]:active,
 button.wingman-guru-fab[data-wingman-guru-fab="true"]:active {
   cursor: grabbing !important;
 }
+
+/* === Situational discovery option relevance start === */
+/* Wingman de-emphasises Discovery options that do not fit the context captured so
+   far, and highlights the likely fit. Options are never hidden - the steer is
+   purely visual - so the rep can still capture an unusual customer requirement. */
+.wm-discovery-option.is-recommended:not(.is-selected) {
+  border-color: rgba(34, 211, 238, 0.55);
+  box-shadow: inset 3px 0 0 0 rgba(34, 211, 238, 0.85);
+}
+
+.wm-discovery-option.is-suggested:not(.is-selected) {
+  border-color: rgba(34, 211, 238, 0.85);
+  background: rgba(34, 211, 238, 0.08);
+}
+
+.wm-discovery-option.is-unlikely:not(.is-selected) {
+  opacity: 0.55;
+}
+
+.wm-discovery-option.is-unlikely:not(.is-selected):hover {
+  opacity: 0.9;
+}
+
+.wm-discovery-option-flag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.wm-discovery-option-flag-fit {
+  background: rgba(34, 211, 238, 0.16);
+  color: rgb(165, 243, 252);
+  border: 1px solid rgba(34, 211, 238, 0.4);
+}
+
+.wm-discovery-option-flag-uncommon {
+  background: rgba(148, 163, 184, 0.16);
+  color: rgb(203, 213, 225);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+}
+
+.wm-discovery-option-reason {
+  display: block;
+  margin-top: 2px;
+  font-style: italic;
+  opacity: 0.85;
+}
+/* === Situational discovery option relevance end === */

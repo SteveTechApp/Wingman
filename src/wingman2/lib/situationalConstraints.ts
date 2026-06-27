@@ -20,9 +20,11 @@
 
 export type OptionRelevance = "recommended" | "unlikely" | "neutral";
 
-// questionId -> selected option value. Values match the Discovery question option
-// `value`s in DiscoveryPage.tsx and the avoip-profile question.
-export type DiscoveryAnswers = Record<string, string | undefined>;
+// questionId -> selected option value(s). Values match the Discovery question option
+// `value`s in DiscoveryPage.tsx and the avoip-profile question. A value may be an
+// array for the multi-select questions, so the engine is tolerant of both shapes
+// (matching the Discovery page's own answers state).
+export type DiscoveryAnswers = Record<string, string | string[] | undefined>;
 
 type ConstraintEffect = {
   // Option values to highlight as the likely fit for the captured context.
@@ -53,8 +55,11 @@ type ConstraintRule = {
 
 // --- helpers ----------------------------------------------------------------
 
-const is = (answers: DiscoveryAnswers, questionId: string, ...values: string[]) =>
-  values.includes(answers[questionId] ?? "");
+const is = (answers: DiscoveryAnswers, questionId: string, ...values: string[]) => {
+  const answer = answers[questionId];
+  if (Array.isArray(answer)) return answer.some((value) => values.includes(value));
+  return values.includes(answer ?? "");
+};
 
 const OPPORTUNITY = "opportunity";
 const SCALE = "scale";
