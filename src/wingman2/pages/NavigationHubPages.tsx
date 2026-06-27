@@ -82,14 +82,14 @@ export function CallCoachPage() {
     <HubPage
       eyebrow="Wingman / Call Coach"
       title="Call Coach"
-      intent="Help me manage a sales conversation: listen, ask the next question, capture requirements, position a product, or decide when to escalate."
-      subModes={["Inbound call", "Product-specific call", "Discovery / requirement capture", "Call-out day", "Escalation check"]}
+      intent="Help me manage a sales conversation: ask the next question, capture requirements, position a product, or decide when to escalate."
+      subModes={["Product-specific call", "Discovery / requirement capture", "Call-out day", "Escalation check"]}
       primaryActions={[
-        routeAction("callCards", "Inbound call", "Use live call cards to guide a customer conversation and hand off useful notes.", "Guide a live call"),
         routeAction("productCallCards", "Product-specific call", "Select a SKU first, then load positioning, questions, objections, disqualifiers and follow-up wording.", "Open SKU call card"),
         routeAction("discovery", "Discovery / requirement capture", "Capture room purpose, sources, displays, USB, infrastructure and missing details.", "Capture requirements"),
         routeAction("salesHelper", "Call-out day", "Use rep guidance, readiness cues and call-out day prompts during active opportunity work.", "Open sales helper"),
-        routeAction("support", "Escalation check", "Check whether technical review, support input or internal handover is needed.", "Check escalation")]}
+        routeAction("support", "Escalation check", "Check whether technical review, support input or internal handover is needed.", "Check escalation")
+      ]}
     />
   );
 }

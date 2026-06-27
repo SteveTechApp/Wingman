@@ -16,39 +16,32 @@ function assert(condition, message) {
 
 const callCardsPage = read("src/wingman2/pages/CallCardsPage.tsx");
 const productCallCardsPage = read("src/wingman2/pages/ProductCallCardsPage.tsx");
+const navigationHub = read("src/wingman2/pages/NavigationHubPages.tsx");
 const routes = read("src/wingman2/app/routes.tsx");
 
 assert(
-  callCardsPage.includes("Use Call Coach during customer conversations"),
-  "/wingman/call-cards should present a salesperson-facing Call Coach handoff."
+  callCardsPage.includes("Navigate") &&
+    callCardsPage.includes('to="/wingman/call-coach"') &&
+    callCardsPage.includes("replace"),
+  "/wingman/call-cards should redirect directly to Call Coach."
 );
 
 assert(
-  callCardsPage.includes("Choose the next sales action"),
-  "Call Cards handoff should use sales-facing direction, not developer or release-note wording."
+  !callCardsPage.includes("Open Call Coach") &&
+    !callCardsPage.includes("Choose the next sales action") &&
+    !callCardsPage.includes("Product Call Cards remain available"),
+  "/wingman/call-cards should not render a redundant handoff-button page."
 );
 
 assert(
-  callCardsPage.includes("/wingman/call-coach") &&
-    callCardsPage.includes("/wingman/discovery") &&
-    callCardsPage.includes("/wingman/compare") &&
-    callCardsPage.includes("/wingman/product-call-cards"),
-  "Call Cards handoff should route users to Call Coach, Discovery, Compare and Product Call Cards."
-);
-
-assert(
-  callCardsPage.includes("Product Call Cards remain available"),
-  "Handoff page should clearly preserve Product Call Cards as the SKU-specific sales guidance route."
-);
-
-assert(
-  !/workflow consolidated|has moved into|old .*workflow|confusing|demoted|deprecated|archived/i.test(callCardsPage),
-  "Call Cards handoff contains developer-facing transition wording."
+  !/title:\s*"Inbound call"/i.test(navigationHub) &&
+    !/Live call cards/i.test(navigationHub),
+  "Call Coach should not expose the redundant Inbound call / Live Call Cards tile."
 );
 
 assert(
   routes.includes("../pages/CallCardsPage"),
-  "Route should remain safe for existing /wingman/call-cards links."
+  "Route should remain safe for old /wingman/call-cards links."
 );
 
 assert(
@@ -56,4 +49,4 @@ assert(
   "Product Call Cards page should remain present and distinct."
 );
 
-console.log("[call-cards-focused-workflow] Verified salesperson-facing Call Coach handoff and Product Call Cards preservation.");
+console.log("[call-cards-focused-workflow] Verified /wingman/call-cards redirects to Call Coach and redundant live-call buttons are removed.");
