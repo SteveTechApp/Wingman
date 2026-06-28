@@ -6,8 +6,7 @@ function run(command, args, options = {}) {
 
   console.log(`\n==> ${command} ${args.join(" ")}`);
 
-  const executable = process.platform === "win32" && command === "npm" ? "npm.cmd" : command;
-  const result = spawnSync(executable, args, {
+  const result = spawnSync(command, args, {
     cwd: process.cwd(),
     env: process.env,
     encoding: "utf8"
@@ -48,6 +47,16 @@ function run(command, args, options = {}) {
   return true;
 }
 
+function runNpmScript(script, options = {}) {
+  const npmCli = process.env.npm_execpath;
+
+  if (!npmCli || !fs.existsSync(npmCli)) {
+    return run("npm", ["run", script], options);
+  }
+
+  return run(process.execPath, [npmCli, "run", script], options);
+}
+
 function hasScript(name) {
   const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
   return Boolean(pkg.scripts?.[name]);
@@ -59,7 +68,7 @@ if (!hasScript("check:product-update-source-schema")) {
 }
 
 const requiredSteps = [
-  ["npm", ["run", "check:product-update-source-schema"]],
+  ["node", ["tools/check-product-update-source-schema.mjs"]],
   ["node", ["tools/ingest-wyrestorm-catalogue.mjs"]],
   ["node", ["tools/ingest-competitor-fingerprints.mjs"]],
   ["node", ["tools/reconcile-product-updates.mjs"]],
@@ -85,7 +94,7 @@ for (const script of optionalScripts) {
   if (hasScript(script)) {
     optionalResults.push({
       script,
-      passed: run("npm", ["run", script], { optional: true })
+      passed: runNpmScript(script, { optional: true })
     });
   }
 }
