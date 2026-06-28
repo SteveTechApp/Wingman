@@ -1,13 +1,12 @@
 import fs from "node:fs/promises";
-import path from "node:path";
 import { getWingmanRequestAuth } from "../wingman-app-store.mjs";
 import {
-  ROOT_DIR,
+  LEGACY_WINGMAN_APP_DB_FILE,
   PRODUCT_INTELLIGENCE_DB_FILE,
+  WINGMAN_APP_DB_FILE,
   WINGMAN_CANONICAL_PRODUCT_STORE_FILE,
 } from "../catalog/files.mjs";
 
-const WINGMAN_APP_DB_FILE = path.join(ROOT_DIR, "data", "wingman-app-db.json");
 const UI_HOST = String(process.env.WINGMAN_UI_HOST || "127.0.0.1").trim() || "127.0.0.1";
 const parsedUiPort = Number(process.env.WINGMAN_UI_PORT || 3000);
 const UI_PORT = Number.isFinite(parsedUiPort) ? parsedUiPort : 3000;
@@ -295,15 +294,19 @@ let catalogCache = null;
 
 async function loadAppDb() {
   if (appDbCache) return appDbCache;
-  appDbCache = await readJsonFile(WINGMAN_APP_DB_FILE, {
-    users: [],
-    workspaces: [],
-    projectsByWorkspace: {},
-    invitations: [],
-    sessions: [],
-    auditEvents: [],
-    telemetryEvents: [],
-  });
+  const fallback = {
+      users: [],
+      workspaces: [],
+      projectsByWorkspace: {},
+      invitations: [],
+      sessions: [],
+      auditEvents: [],
+      telemetryEvents: [],
+    };
+  appDbCache = await readJsonFile(
+    WINGMAN_APP_DB_FILE,
+    await readJsonFile(LEGACY_WINGMAN_APP_DB_FILE, fallback),
+  );
   return appDbCache;
 }
 

@@ -17,10 +17,9 @@ Use the host's secret manager (the platform's "secrets"/"variables" settings, or
 | Variable | Purpose |
 |----------|---------|
 | `NODE_ENV=production` | Enables secure defaults (secure cookies, storage fail-closed). |
-| `GEMINI_API_KEY` | Powers the GURU assistant and AI drafting. |
 | `SUPABASE_URL` | Supabase project URL (production storage). |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-side Supabase access. **High-privilege — protect closely.** |
-| `WINGMAN_STORAGE_MODE=supabase` | Forces production database storage (not the file store). |
+| `WINGMAN_STORAGE_MODE=supabase-tables` | Forces normalized production database storage (not the file store). |
 | `WINGMAN_SESSION_COOKIE_SECURE=true` | HTTPS-only session cookies (default true when `NODE_ENV=production`). |
 | `WINGMAN_CORS_ALLOW_ORIGIN` | The exact front-end origin, e.g. `https://wingman.example.com`. Never `*` in production. |
 
@@ -28,10 +27,11 @@ Use the host's secret manager (the platform's "secrets"/"variables" settings, or
 
 | Variable | Purpose |
 |----------|---------|
+| `GEMINI_API_KEY` | Reserved for model-backed agent features; the active Guru route remains locally derived until that integration is promoted. |
 | `GOOGLE_CSE_API_KEY` / `GOOGLE_CSE_CX` | Live competitor web look-up. Feature degrades gracefully if absent. |
-| `WINGMAN_AGENT_MODEL` | Override the default model (`gemini-3-flash-preview`). |
+| `GURU_GEMINI_MODEL` | Override the Guru model (default `gemini-2.5-flash`). |
 | `WINGMAN_AGENT_TIMEOUT_MS` | Model call timeout (default 45000). |
-| `WINGMAN_AGENT_FORCE_MOCK` | Forces locally-derived answers. **Must be unset/false in production.** |
+| `WINGMAN_AGENT_FORCE_MOCK` | Forces locally-derived answers in the separate model-backed agent implementation. Leave false if that implementation is promoted. |
 | `LOOKUP_RATE_LIMIT_MAX_REQUESTS` / `LOOKUP_RATE_LIMIT_WINDOW_MS` | Competitor look-up rate limiting. |
 
 A full annotated list lives in `.env.example`.
@@ -39,7 +39,7 @@ A full annotated list lives in `.env.example`.
 ### Pre-launch secret checklist
 
 - [ ] `NODE_ENV=production` is set.
-- [ ] `WINGMAN_AGENT_FORCE_MOCK` is **not** set to `true` (otherwise GURU returns derived, non-AI answers).
+- [ ] The approved Guru operating mode is recorded: locally derived, or a separately tested model-backed integration.
 - [ ] `WINGMAN_CORS_ALLOW_ORIGIN` is a specific HTTPS origin, not `*`.
 - [ ] No `.env` file with real secrets is committed (`git ls-files | grep -i env` returns only `.env.example`).
 - [ ] Supabase service-role key is stored only in the secret manager.
@@ -55,7 +55,7 @@ suspected exposure.
 1. Create a new key in Google AI Studio / Google Cloud.
 2. Update `GEMINI_API_KEY` in the secret manager.
 3. Redeploy (or restart) the server so it picks up the new value.
-4. Confirm GURU returns live answers (no `[guruAgent] Gemini call failed` warnings in logs).
+4. Confirm the separately tested model-backed agent returns live answers without fallback warnings.
 5. Revoke the old key.
 
 ### Supabase service-role key
@@ -77,15 +77,15 @@ suspected exposure.
 ## 3. Storage Operations
 
 Wingman supports a file store (development) and Supabase (production), selected by
-`WINGMAN_STORAGE_MODE` (`auto` | `file` | `supabase`).
+`WINGMAN_STORAGE_MODE` (`auto` | `file` | `supabase` | `supabase-tables`).
 
-- **Production must run `supabase`.** In production, storage is **fail-closed**: if Supabase
+- **Production should run `supabase-tables`.** In production, storage is **fail-closed**: if Supabase
   is unreachable, writes fail loudly rather than silently falling back to the file store.
 - **Backups:** Supabase provides automated backups; verify the retention setting meets your
   needs and test a restore before launch.
 - **Migration from file store:** apply `server/migrations/001_initial_schema.sql`, import
   existing file-store data, then verify row counts and a sample project before switching
-  `WINGMAN_STORAGE_MODE` to `supabase`. Keep the file-store JSON as a backup.
+  `WINGMAN_STORAGE_MODE` to `supabase-tables`. Keep the file-store JSON as a backup.
 
 ---
 
@@ -95,7 +95,7 @@ Wingman supports a file store (development) and Supabase (production), selected 
   (see `DEPLOYMENT.md`). Alert if it fails 2 consecutive checks.
 - **Error rate:** watch server logs for `[guruAgent] Gemini call failed` (degraded AI),
   storage errors, and 5xx responses. Alert on a sustained spike.
-- **Key signals to track:** request error rate, GURU fallback count, auth failure rate,
+- **Key signals to track:** request error rate, agent fallback count (when model-backed agents are enabled), auth failure rate,
   competitor look-up rate-limit rejections.
 - **Log hygiene:** never log secrets, full session tokens, or full customer briefs.
 
@@ -105,7 +105,7 @@ Wingman supports a file store (development) and Supabase (production), selected 
 
 | Symptom | Likely cause | First action |
 |---------|--------------|--------------|
-| GURU returns generic/derived answers | Bad/expired `GEMINI_API_KEY`, or `FORCE_MOCK=true` | Check logs for the fallback warning; verify key and `FORCE_MOCK`. |
+| A model-backed agent returns derived answers | Bad/expired `GEMINI_API_KEY`, or `FORCE_MOCK=true` | Check logs for the fallback warning; verify key and `FORCE_MOCK`. |
 | Projects won't save | Supabase unreachable / bad service-role key | Check Supabase status; verify key; check storage fail-closed logs. |
 | Login fails over HTTPS | Cookie `Secure` mismatch / wrong CORS origin | Verify `WINGMAN_SESSION_COOKIE_SECURE` and `WINGMAN_CORS_ALLOW_ORIGIN`. |
 | CORS errors in browser | `WINGMAN_CORS_ALLOW_ORIGIN` doesn't match front-end origin | Set it to the exact origin and redeploy. |
@@ -157,13 +157,13 @@ Exempt paths (token bootstrap / unauthenticated entry): `/api/csrf`,
 
 ## 8. Migrating the file store to Supabase (one-off)
 
-The dev/file store lives at `data/wingman-app-db.json` (collections: users/members,
+The dev/file store lives at `data/runtime/wingman-app-db.json` (collections: users/members,
 workspaces, sessions, projects, invitations, audit, telemetry). To move to production storage:
 
 1. Provision the Supabase project and apply `server/migrations/001_initial_schema.sql`.
 2. Set the `SUPABASE_*` env (URL, service-role key, table names from `.env.example`).
-3. **Back up** `data/wingman-app-db.json`.
-4. Bring the app up once with `WINGMAN_STORAGE_MODE=supabase`. The app-store reads Supabase
+3. **Back up** `data/runtime/wingman-app-db.json` (older installations may still use `data/wingman-app-db.json`).
+4. Bring the app up once with `WINGMAN_STORAGE_MODE=supabase-tables`. The app-store reads Supabase
    as the source of truth; seed it by re-creating the workspace/owner via signup, or import
    the JSON rows into the matching tables with the Supabase SQL editor / `supabase` CLI.
 5. Verify: row counts per table match, and a sample project loads and saves.
@@ -182,5 +182,5 @@ npm run verify
 npm run test
 ```
 
-`verify` runs type-checking, the production build, and 25+ data/workflow/UI guards.
+`verify` runs source validation, type-checking, the production build, and the data/workflow/UI guards.
 Both must pass clean before promoting a build.

@@ -68,17 +68,13 @@ See `.env.example` for all configuration options.
 ```
 wingman/
 ├── src/                    # Frontend React application
-│   ├── components/         # Reusable UI components
-│   ├── pages/              # Page components
-│   ├── context/            # React context providers
-│   ├── hooks/              # Custom React hooks
-│   ├── services/           # API service layer
-│   └── utils/              # Utilities and types
+│   └── wingman2/           # Canonical routed client, components, data and styles
 ├── server/                 # Backend Node.js server
 │   ├── routes/             # API route handlers
 │   ├── agents/             # AI agent implementations
 │   └── competitor/         # Competitor lookup services
-├── data/                   # Product data and intelligence
+├── data-sources/           # Authoritative editable product sources
+├── data/                   # Generated catalogues, governance and runtime state
 ├── public/                 # Static assets
 └── docs/                   # Documentation
 ```
@@ -108,8 +104,9 @@ npm run data:maintenance                 # Full source sweep and safety workflow
 
 Authoritative product data lives under [`data-sources`](data-sources/README.md).
 WyreStorm has one source package; competitor products use one shared schema split
-into manufacturer CSVs for bulk editing. Files under `data/` and `public/` are
-generated runtime outputs.
+into manufacturer CSVs for bulk editing. Product catalogue files under `data/` and
+`public/` are generated outputs; `data/governance/` is tracked policy and
+`data/runtime/` is ignored operational state.
 
 ## Deployment
 
@@ -152,7 +149,7 @@ docker-compose -f docker-compose.yml up -d
 | `/api/health` | GET | Health check |
 | `/api/product-intelligence/*` | GET | Product data |
 | `/api/agents/*` | POST | AI agent endpoints |
-| `/api/workspaces/*` | GET/POST | Workspace management |
+| `/api/wingman/workspaces/*` | GET/POST | Workspace management |
 
 ## Contributing
 

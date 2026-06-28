@@ -546,7 +546,7 @@ async function buildManifest(products, competitors, competitorFiles) {
   };
 }
 
-async function buildMaintenanceOutputs(products, competitors, manifest) {
+async function buildMaintenanceOutputs(products, competitors, _manifest) {
   let candidates = [];
   try {
     const payload = await readJson("data/wyrestorm-product-update-candidates.json");
