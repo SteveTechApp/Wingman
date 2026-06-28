@@ -60,6 +60,8 @@ function timestamp() {
     .replace("Z", "");
 }
 
+run("node", ["tools/check-product-update-incoming.mjs"]);
+
 const missing = mappings.filter((mapping) => !fs.existsSync(mapping.incoming));
 
 if (missing.length > 0) {

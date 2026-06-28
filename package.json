@@ -129,7 +129,8 @@
                     "check:product-update-source-schema": "node tools/check-product-update-source-schema.mjs",
                     "product-update:promote-incoming": "node tools/promote-product-update-incoming.mjs",
                     "product-update:create-test-incoming": "node tools/test-product-update-incoming-promotion.mjs --create-only",
-                    "product-update:test-promote-incoming": "node tools/test-product-update-incoming-promotion.mjs"
+                    "product-update:test-promote-incoming": "node tools/test-product-update-incoming-promotion.mjs",
+                    "product-update:check-incoming": "node tools/check-product-update-incoming.mjs"
                 },
     "dependencies":  {
                          "@xyflow/react":  "^12.10.2",
