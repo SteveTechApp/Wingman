@@ -3,7 +3,7 @@ import path from "node:path";
 
 const root = process.cwd();
 const sourceRoot = path.join(root, "src");
-const reportPath = path.join(root, "docs", "wingman-style-drift-audit.md");
+const reportPath = path.join(root, "reports", "wingman-style-drift-audit.md");
 const sourceExtensions = new Set([".css", ".html", ".js", ".jsx", ".mjs", ".ts", ".tsx"]);
 
 function walk(directory) {
