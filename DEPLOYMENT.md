@@ -157,7 +157,7 @@ cp .env.example .env
 | `WINGMAN_AUTH_RATE_LIMIT_MAX_REQUESTS` | `8` | Max auth requests per window |
 | `WINGMAN_AUDIT_RETENTION` | `800` | Audit event retention count |
 | `WINGMAN_TELEMETRY_RETENTION` | `400` | Telemetry event retention count |
-| `WINGMAN_STORAGE_MODE` | `auto` | Storage mode (`auto`, `supabase`, `memory`) |
+| `WINGMAN_STORAGE_MODE` | `auto` | Storage mode (`auto`, `file`, `supabase`, `supabase-tables`) |
 | `WINGMAN_STORAGE_FAIL_CLOSED` | `false` | Fail closed on storage errors |
 
 ### External API Keys
@@ -298,6 +298,8 @@ docker run -d \
   -e HOST=0.0.0.0 \
   -e PORT=8787 \
   -e NODE_ENV=production \
+  -e WINGMAN_STORAGE_MODE=file \
+  -e WINGMAN_STORAGE_FAIL_CLOSED=false \
   -e WINGMAN_CORS_ALLOW_ORIGIN=http://localhost:3000 \
   -e GEMINI_API_KEY=your-api-key \
   wingman-backend
@@ -321,6 +323,8 @@ WINGMAN_SESSION_COOKIE_SECURE=true
 GEMINI_API_KEY=your-production-api-key
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+WINGMAN_STORAGE_MODE=supabase-tables
+WINGMAN_STORAGE_FAIL_CLOSED=true
 SUPABASE_WINGMAN_TABLES_ENABLED=true
 ```
 

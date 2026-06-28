@@ -15,6 +15,12 @@ COPY server/ ./
 # Copy data directory for product intelligence
 COPY data/ /app/data/
 
+# Compile canonical catalogues from tracked source files. This keeps clean-checkout
+# and CI-built backend images independent of ignored local generated files.
+COPY data-sources/ /app/data-sources/
+COPY tools/build-product-data-sources.mjs tools/product-update-utils.mjs /app/tools/
+RUN node tools/build-product-data-sources.mjs
+
 # Expose the server port
 EXPOSE 8787
 

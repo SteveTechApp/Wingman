@@ -249,7 +249,7 @@ function skuMasterPorts(description) {
   return { inputs, outputs };
 }
 
-function mapWyrestormSkuMasterRow(raw) {
+function _mapWyrestormSkuMasterRow(raw) {
   const sku = normalizeSku(raw?.sku);
   if (!sku) return null;
 
