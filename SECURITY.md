@@ -1,21 +1,19 @@
-# Security Policy
+# Security policy
 
-## Supported Versions
+## Supported version
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+Wingman is currently pre-1.0. Security fixes are applied to the latest `0.1.x`
+release and the `main` branch only.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+## Reporting a vulnerability
 
-## Reporting a Vulnerability
+Do not disclose suspected vulnerabilities in a public issue. Use GitHub private
+vulnerability reporting for this repository when available; otherwise contact the
+repository owner through an established private company channel.
 
-Use this section to tell people how to report a vulnerability.
+Include the affected route or component, reproduction steps, impact, and any
+suggested mitigation. Secret values and customer data must be redacted.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+The maintainer should acknowledge a report within two business days, provide a
+triage decision within five business days, and coordinate disclosure after a fix
+is available.

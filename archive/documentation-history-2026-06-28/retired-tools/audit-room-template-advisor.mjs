@@ -5,7 +5,7 @@ const root = process.cwd();
 const srcDir = path.join(root, "src");
 const pagePath = path.join(root, "src", "wingman2", "pages", "TemplatesPage.tsx");
 const cssPath = path.join(root, "src", "wingman2", "styles", "wingman-style-stack.css");
-const reportPath = path.join(root, "room-template-advisor-audit.md");
+const reportPath = path.join(root, "reports", "room-template-advisor-audit.md");
 
 function fail(message) {
   throw new Error(message);

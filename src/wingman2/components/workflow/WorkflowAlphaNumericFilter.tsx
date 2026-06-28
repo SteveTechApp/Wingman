@@ -367,7 +367,7 @@ function buildToolbar(container: HTMLElement, items: HTMLElement[]): void {
   host.setAttribute("data-wingman-alpha-actual-buckets", visibleBuckets.join(","));
   host.dataset.alphaActive = activeBucket;
 
-  host.innerHTML = "";
+  host.replaceChildren();
 
   const label = document.createElement("span");
   label.className = "wingman-alpha-filter-readout-disabled";

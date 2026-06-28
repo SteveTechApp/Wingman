@@ -276,7 +276,7 @@ export function TemplateSchematic({ template, rows }: { template: RoomTemplate; 
           <p className="wingman-kicker">Room schematic</p>
           <h3>Example connectivity view</h3>
           <span>
-            Use this as a sales design aid. It shows the assumed signal flow, then the cable schedule reminds the user what still needs validating.
+      Use this as a sales design aid. It shows the assumed signal flow, then the cable schedule shows what still needs validating.
           </span>
         </div>
       </div>

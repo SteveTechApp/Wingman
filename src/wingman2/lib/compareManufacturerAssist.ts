@@ -286,10 +286,11 @@ function updateManufacturerBadge(): void {
   const badge = document.createElement("div");
   badge.className = `${BADGE_CLASS} wm-ui-badge wm-ui-badge-selected`;
   badge.setAttribute("aria-label", `Selected manufacturer ${manufacturer}`);
-  badge.innerHTML = `
-    <span>Selected manufacturer</span>
-    <strong>${manufacturer}</strong>
-  `;
+  const label = document.createElement("span");
+  label.textContent = "Selected manufacturer";
+  const value = document.createElement("strong");
+  value.textContent = manufacturer;
+  badge.append(label, value);
 
   const heading = Array.from(target.querySelectorAll<HTMLElement>("h1, h2, h3")).find((item) =>
     normaliseText(item.textContent).toLowerCase().includes("competitor")

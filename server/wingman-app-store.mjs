@@ -3,6 +3,10 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
+import {
+  LEGACY_WINGMAN_APP_DB_FILE,
+  WINGMAN_APP_DB_FILE,
+} from "./catalog/files.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,7 +18,6 @@ try {
 } catch {
 }
 
-const DB_FILE = path.join(ROOT, "data", "wingman-app-db.json");
 const GOVERNANCE_FILE = path.join(ROOT, "data", "governance", "wingman-governance.json");
 const SESSION_TTL_MS = Math.max(60 * 60 * 1000, Number(process.env.WINGMAN_SESSION_TTL_MS || 7 * 24 * 60 * 60 * 1000));
 const INVITATION_TTL_MS = Math.max(60 * 60 * 1000, Number(process.env.WINGMAN_INVITATION_TTL_MS || 7 * 24 * 60 * 60 * 1000));
@@ -582,7 +585,9 @@ async function readDb() {
   }
   lastStorageModeUsed = "file";
   lastStorageWarning = "";
-  const db = await readJsonFile(DB_FILE, emptyDb());
+  const db =
+    (await readJsonFile(WINGMAN_APP_DB_FILE, null)) ??
+    (await readJsonFile(LEGACY_WINGMAN_APP_DB_FILE, emptyDb()));
   return normalizeDb(db);
 }
 
@@ -614,7 +619,7 @@ async function writeDb(db) {
   }
   lastStorageModeUsed = "file";
   lastStorageWarning = "";
-  await writeJsonFile(DB_FILE, db);
+  await writeJsonFile(WINGMAN_APP_DB_FILE, db);
 }
 
 async function readGovernance() {

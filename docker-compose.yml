@@ -28,6 +28,7 @@ services:
       - WINGMAN_SESSION_COOKIE_SECURE=${WINGMAN_SESSION_COOKIE_SECURE:-false}
       - WINGMAN_ENABLE_SECURITY_HEADERS=${WINGMAN_ENABLE_SECURITY_HEADERS:-true}
       - WINGMAN_STORAGE_MODE=${WINGMAN_STORAGE_MODE:-auto}
+      - WINGMAN_STORAGE_FAIL_CLOSED=${WINGMAN_STORAGE_FAIL_CLOSED:-false}
       - SUPABASE_URL=${SUPABASE_URL:-}
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-}
       - SUPABASE_WINGMAN_TABLES_ENABLED=${SUPABASE_WINGMAN_TABLES_ENABLED:-false}
@@ -37,7 +38,7 @@ services:
       - LOOKUP_TIMEOUT_MS=${LOOKUP_TIMEOUT_MS:-4500}
       - LOOKUP_CACHE_TTL_MS=${LOOKUP_CACHE_TTL_MS:-1800000}
     volumes:
-      - wingman-data:/app/data
+      - wingman-runtime:/app/data/runtime
     networks:
       - wingman-network
     restart: unless-stopped
@@ -53,5 +54,5 @@ networks:
     driver: bridge
 
 volumes:
-  wingman-data:
+  wingman-runtime:
     driver: local

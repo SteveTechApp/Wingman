@@ -267,7 +267,7 @@ export const compareTemplates: Record<CompareTechnologyType, CompareTemplateFiel
   ],
 
   multiview_processor: [
-    field("technology_type", "Technology type", "blocking", "enum", "Multiview processor", "Prevents confusing multiview with simple multi-output switching.", true),
+    field("technology_type", "Technology type", "blocking", "enum", "Multiview processor", "Prevents mixing multiview with simple multi-output switching.", true),
     field("product_role", "Product role", "blocking", "enum", "Multiview processor / decoder / compositor", "The product must create a multi-source canvas.", true),
     field("source_count", "Visible source count", "blocking", "port_count", "Number of simultaneous sources visible on one output", "This is the core multiview requirement.", true),
     field("output_count", "Outputs", "blocking", "port_count", "Number of HDMI/network outputs", "Output count affects display and distribution design.", true),

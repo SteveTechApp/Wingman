@@ -294,7 +294,7 @@ const seedProducts: FinderProduct[] = [
     family: "Presentation / HDBaseT",
     category: "HDMI / USB extender",
     description:
-      "Use when the user needs a single room input point carrying HDMI, USB-C video, and USB for BYOD or BYOD style workflows.",
+      "Use when the room needs a single input point carrying HDMI, USB-C video, and USB for BYOD or BYOM workflows.",
     tags: ["HDMI", "USB-C", "USB 2.0", "HDBaseT", "BYOD / UC", "Presentation Switcher"],
     searchText: "sw-130-tx-uk in wall hdmi usb-c usb hdbaset transmitter byod byom hdmi usb extender",
     source: "seed",
@@ -3428,7 +3428,7 @@ if (!leadingMatch) {
       <PageHero
         eyebrow="Product Finder"
         title="Start from the customer problem, then find the safest WyreStorm product path."
-        purpose="Use this when the user does not yet know the right product. Start with the customer problem, reveal only the questions that affect the recommendation, then review a shortlist with cautions."
+        purpose="Use this when the salesperson does not yet know the right product. Start with the customer problem, reveal only the questions that affect the recommendation, then review a shortlist with cautions."
         nextMove="Choose a quick-start path or search term, then move through each step. The recommendation step stays available whenever you want to check products."
         actions={[
           { label: "Load Discovery brief", variant: "secondary", onClick: applyDiscoveryBrief },

@@ -354,12 +354,12 @@ const GURU_TECHNICAL_TERMS: GuruTechnicalTerm[] = [
   {
     label: "BYOD",
     aliases: ["BYOD"],
-    plainEnglish: "Bring Your Own Device. The user brings their own laptop or device to present or join a call.",
+    plainEnglish: "Bring Your Own Device. A participant brings their own laptop or device to present or join a call.",
   },
   {
     label: "BYOM",
     aliases: ["BYOM"],
-    plainEnglish: "Bring Your Own Meeting. The user runs the meeting from their own laptop while using the room camera, microphone and speakers.",
+    plainEnglish: "Bring Your Own Meeting. A participant runs the meeting from their own laptop while using the room camera, microphone and speakers.",
   },
   {
     label: "Multiview",
@@ -1031,7 +1031,7 @@ return () => {
       return [
         "Confirm wall type: LCD wall, LED processor input, projector blend or other display canvas.",
         "Confirm source count and required layouts.",
-        "Check whether the user needs fixed presets, full canvas, multiview or per-display content.",
+      "Check whether the customer needs fixed presets, full canvas, multiview or per-display content.",
         "Confirm whether a dedicated processor is better than an AV-over-IP wall approach.",
       ];
     }
@@ -1040,14 +1040,14 @@ return () => {
       return [
         "Confirm how many sources need to appear on the same output at the same time.",
         "Confirm whether the output feeds a display, projector, recorder, streamer or LED processor.",
-        "Check whether the user needs fixed layouts or live layout control.",
+      "Check whether the customer needs fixed layouts or live layout control.",
         "Do not confuse multiview with simply having multiple HDMI outputs.",
       ];
     }
 
     if (sku.startsWith("SW-") || family.includes("presentation")) {
       return [
-        "Confirm how the user connects: HDMI, USB-C, wireless or a mix.",
+      "Confirm how people connect: HDMI, USB-C, wireless or a mix.",
         "Confirm whether the room is presentation-only, BYOD/BYOM conferencing or mixed use.",
         "Confirm display count and whether the outputs need mirrored or independent behaviour.",
         "Check whether USB device switching, room control or touch-panel operation is required.",
@@ -1094,7 +1094,7 @@ return () => {
       return [
         "Confirm which devices need to be controlled.",
         "Confirm control method: IP, RS-232, IR, relay or GPIO.",
-        "Check whether the user needs simple presets, room mode selection or full device control.",
+      "Check whether the customer needs simple presets, room mode selection or full device control.",
         "Confirm who will configure and maintain the control interface.",
       ];
     }

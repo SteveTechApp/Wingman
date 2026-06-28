@@ -3,7 +3,7 @@ import path from "node:path";
 
 const root = process.cwd();
 
-const reportPath = path.join(root, "docs", "compare-workflow-integrity-audit.md");
+const reportPath = path.join(root, "reports", "compare-workflow-integrity-audit.md");
 
 const sourceRoots = [
   "src",

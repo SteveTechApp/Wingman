@@ -175,16 +175,16 @@ export function ProposalPageProjectMode() {
   const sections = useMemo(
     () => [
       "Cover",
-      "Executive Summary",
-      "Sales Motion",
-      "Discovered Requirements",
-      "Recommended Solution",
-      "Visual Support",
-      rankedProducts.length ? "Product Shortlist" : "Product Gaps",
-      "Assumptions",
+      "Confirmed Requirement",
+      "Design Assumptions",
+      "Recommended Architecture",
+      "Required WyreStorm Products",
+      "Optional Enhancements",
+      "Risks / Needs Validation",
+      "Next Steps",
       "Contact",
     ],
-    [rankedProducts],
+    [],
   );
   const salesReadiness = useMemo(
     () =>

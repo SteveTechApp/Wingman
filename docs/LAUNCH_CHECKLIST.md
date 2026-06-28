@@ -7,7 +7,7 @@ production until every **Blocker** item is checked.
 
 ## 1. Build & Quality Gate (Blocker)
 
-- [ ] `npm run verify` passes clean on the build machine (typecheck + build + 25 guards).
+- [ ] `npm run verify` passes clean on the build machine (source validation, typecheck, build and repository guards).
 - [ ] `npm run test` passes clean.
 - [ ] No `.bak` files in `src/` (run the cleanup command in the project notes).
 - [ ] React Router v7 future-flag warnings are gone (flags enabled in `main.tsx`).
@@ -19,7 +19,7 @@ Already verified via the repo's check suite — re-run before launch to confirm:
 
 - [ ] `npm run check:product-matching` passes (6 scenarios).
 - [ ] `npm run check:av-decisions` passes (AV safety rules + recommendation evidence).
-- [ ] `npm run check:data-sources` passes (product index baseline, 187 products).
+- [ ] `npm run check:data-sources` passes (canonical product index baseline, currently 310 products).
 - [ ] `npm run check:competitor-intelligence` passes.
 - [ ] EXP guardrail spot-check: confirm no EXP-prefixed SKU is proposed as a **primary**
       switcher in a generated design (only as optional local/lectern switching or cables).
@@ -32,8 +32,8 @@ Run each end to end on staging, signed in and (where relevant) as a guest:
 
 - [ ] **Discovery → Proposal:** complete the wizard and generate a customer-ready proposal.
 - [ ] **Connectivity diagram:** generates correctly, including a multi-display / IP case.
-- [ ] **GURU:** answers a product + an AV-term question; **logs show no fallback warning**
-      (confirms the live Gemini key is working, not the derived fallback).
+- [ ] **GURU:** answers a product + an AV-term question from grounded local data. If a
+      model-backed agent is enabled separately, confirm its logs show no fallback warning.
 - [ ] **Compare:** returns honest pros/cons and a sensible WyreStorm match; handles an
       unknown competitor SKU gracefully.
 - [ ] **Projects:** save, reload, and edit a project against **Supabase** storage.
@@ -46,7 +46,7 @@ endpoints, and the migration runbook in `OPERATIONS.md` §8.
 
 - [ ] Supabase project provisioned; `001_initial_schema.sql` applied.
 - [ ] File-store data migrated and verified (row counts + sample project); backup retained.
-- [ ] `WINGMAN_STORAGE_MODE=supabase` and app exercised under concurrent use.
+- [ ] `WINGMAN_STORAGE_MODE=supabase-tables` and app exercised under concurrent use.
 - [ ] All secrets in the host secret manager (no committed `.env`).
 - [ ] Hosting chosen and the `deploy.yml` deploy step wired to it.
 - [ ] Hosting, domain and TLS live; HTTPS enforced end to end.

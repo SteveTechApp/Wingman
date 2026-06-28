@@ -19,7 +19,7 @@ node tools/load-test.mjs --concurrency 20 --requests 200
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `--url` | `http://localhost:8120` | Base URL of the server |
+| `--url` | `http://localhost:8787` | Base URL of the server |
 | `--concurrency` | `10` | Number of concurrent requests |
 | `--requests` | `100` | Total requests per endpoint |
 | `--endpoints` | (all health endpoints) | Comma-separated list of endpoints |
@@ -175,7 +175,7 @@ Add load tests to your CI pipeline:
 
 ### All Requests Timeout
 
-1. Verify server is running: `curl http://localhost:8120/api/health`
+1. Verify server is running: `curl http://localhost:8787/api/health`
 2. Check firewall settings
 3. Increase timeout: `--timeout 10000`
 

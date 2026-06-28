@@ -77,12 +77,12 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   const productFamilyScores = proposal.productFamilyScores ?? [];
   const leadingProductFamilyScore = productFamilyScores[0] ?? null;
   const productFamilyDecisionHtml = leadingProductFamilyScore
-    ? `<section><h2>Product Family Decision</h2><p><strong>${escapeHtml(leadingProductFamilyScore.family)}</strong> was the leading product-family path before final SKU selection. Family confidence: ${escapeHtml(String(leadingProductFamilyScore.score))}/100.</p><p>${escapeHtml(leadingProductFamilyScore.reasons[0] || "Family path selected from recommendation evidence.")}</p>${
+    ? `<section><h2>Recommended Architecture</h2><p><strong>${escapeHtml(leadingProductFamilyScore.family)}</strong> was the leading product-family path before final SKU selection. Family confidence: ${escapeHtml(String(leadingProductFamilyScore.score))}/100.</p><p>${escapeHtml(leadingProductFamilyScore.reasons[0] || "Family path selected from recommendation evidence.")}</p>${
         leadingProductFamilyScore.cautions.length
           ? `<p><strong>Validation:</strong> ${escapeHtml(leadingProductFamilyScore.cautions[0])}</p>`
           : "<p><strong>Validation:</strong> Validate datasheet, dependencies, firmware, lifecycle, regional suitability and accessories before customer issue.</p>"
       }</section>`
-    : "<section><h2>Product Family Decision</h2><p>No product-family decision has been stored yet. Treat this as a draft until the architecture and family path are confirmed.</p></section>";
+    : "<section><h2>Recommended Architecture</h2><p>No product-family decision has been stored yet. Treat this as a draft until the architecture and family path are confirmed.</p></section>";
 
   const hasCoreProducts = proposal.products.length > 0;
   const readinessNotice = hasCoreProducts
@@ -116,7 +116,6 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   </style>
 </head>
 <body>
-   ${productFamilyDecisionHtml}
   ${logoHtml}
   <p class="meta">${escapeHtml(companyName)} proposal draft${preparedBy ? ` | Prepared by ${escapeHtml(preparedBy)}` : ""}</p>
   <h1>${escapeHtml(proposal.title)}</h1>
@@ -130,8 +129,23 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
       : "<p>WyreStorm SKU or BOM recommendation for customer presentation.</p>"
   }
 
-  <h2>Recommended Solution</h2>
+  <h2>Confirmed Requirement</h2>
+  <p>${escapeHtml(proposal.summary || "The customer requirement has not yet been confirmed.")}</p>
+
+  <h2>Design Assumptions</h2>
+  <ul>${assumptions.map((assumption) => `<li>${escapeHtml(assumption)}</li>`).join("")}</ul>
+
+  ${productFamilyDecisionHtml}
+
+  <h2>Required WyreStorm Products</h2>
   <p>${proposal.products.length ? escapeHtml(proposal.products.map((product) => `${product.sku} - ${product.title || product.family || product.category || "Selected product"}`).join("; ")) : "No WyreStorm product shortlist has been added yet."}</p>
+
+  <h2>Optional Enhancements</h2>
+  <ul>${
+    bomRows.some((row) => row.type === "Optional")
+      ? bomRows.filter((row) => row.type === "Optional").map((row) => `<li>${escapeHtml(row.sku)} - ${escapeHtml(row.description)}</li>`).join("")
+      : "<li>No optional enhancements are currently selected.</li>"
+  }</ul>
 
   <h2>Visual Support</h2>
   ${
@@ -164,14 +178,11 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   <h2>Evidence Basis</h2>
   <ul>${bomRows.length ? bomRows.map((row) => `<li>${escapeHtml(row.sku)}: ${escapeHtml(row.evidence)}</li>`).join("") : "<li>No product evidence captured yet.</li>"}</ul>
 
-  <h2>Sales Guidance</h2>
-  <ul>${proposal.repGuidance?.length ? proposal.repGuidance.map((item) => `<li>${escapeHtml(item)}</li>`).join("") : "<li>Confirm discovery assumptions and validate final design before issue.</li>"}</ul>
-
-  <h2>Governance And Validation</h2>
+  <h2>Risks / Needs Validation</h2>
   <ul>${[...(proposal.governanceWarnings ?? []), ...(proposal.validationNotes ?? [])].length ? [...(proposal.governanceWarnings ?? []), ...(proposal.validationNotes ?? [])].map((item) => `<li>${escapeHtml(item)}</li>`).join("") : "<li>Validate datasheets, lifecycle status, regional suitability, and dependencies before customer issue.</li>"}</ul>
 
-  <h2>Assumptions</h2>
-  <ul>${assumptions.map((assumption) => `<li>${escapeHtml(assumption)}</li>`).join("")}</ul>
+  <h2>Next Steps</h2>
+  <ul>${proposal.repGuidance?.length ? proposal.repGuidance.map((item) => `<li>${escapeHtml(item)}</li>`).join("") : "<li>Confirm discovery assumptions and validate the final design before issue.</li>"}</ul>
 
   <div class="notice">${escapeHtml(readinessNotice)}</div>
   <div class="notice">Competitor products are excluded from this proposal and BOM unless a comparison-only output is explicitly requested.</div>
@@ -187,4 +198,3 @@ export function exportProposalHtml(proposal: StoredProjectProposal, bomRows: Bom
 export function exportBomCsv(proposal: StoredProjectProposal, bomRows: BomRow[]) {
   saveTextFile(`${fileBaseName(proposal.title)}.bom.csv`, buildBomCsv(bomRows), "text/csv;charset=utf-8");
 }
-
