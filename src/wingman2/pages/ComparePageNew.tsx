@@ -3281,11 +3281,61 @@ function CompareEvidenceMatrix({ candidate, competitor }: { candidate: ScoredCan
 
     return fallback;
   };
+  const readScore = (source: unknown) => {
+    if (!source || typeof source !== "object") {
+      return null;
+    }
+
+    const record = source as Record<string, unknown>;
+    const keys = ["score", "matchScore", "fitScore", "scorePercent", "confidence"];
+
+    for (const key of keys) {
+      const value = record[key];
+
+      if (typeof value === "number" && Number.isFinite(value)) {
+        return value <= 1 ? Math.round(value * 100) : Math.round(value);
+      }
+
+      if (typeof value === "string") {
+        const parsed = Number(value.replace("%", "").trim());
+
+        if (Number.isFinite(parsed)) {
+          return parsed <= 1 ? Math.round(parsed * 100) : Math.round(parsed);
+        }
+      }
+    }
+
+    return null;
+  };
+
+  const scoreExplanation = (score: number | null) => {
+    const reason = first([...candidate.matched, ...candidate.partialMatches], "the available evidence shows some relevant fit");
+    const caveat = first([...candidate.mismatches, ...candidate.gaps, ...candidate.unknowns], "there are still details to confirm before treating this as a like-for-like replacement");
+
+    if (score === null) {
+      return `Score not shown because the comparison did not expose a numeric score. Treat this as a shortlist result: ${reason}; ${caveat}.`;
+    }
+
+    if (score >= 90) {
+      return `${score}% because the product role and evidence are strongly aligned. Main fit: ${reason}. Still confirm: ${caveat}.`;
+    }
+
+    if (score >= 75) {
+      return `${score}% because the product appears to fit the main requirement, but it is not fully proven as a like-for-like replacement. Main fit: ${reason}. Check: ${caveat}.`;
+    }
+
+    if (score >= 60) {
+      return `${score}% because this is a plausible architecture or product-family match, but important details are incomplete or different. Main fit: ${reason}. Gap to check: ${caveat}.`;
+    }
+
+    return `${score}% because the candidate only partially matches the competitor requirement. Main fit: ${reason}. Risk: ${caveat}.`;
+  };
 
   const competitorSku = readText(competitor, ["sku", "model", "partNumber", "name", "title"], "Competitor product not clearly identified");
   const competitorBrand = readText(competitor, ["manufacturer", "brand", "vendor"], "Competitor brand not captured");
   const competitorType = readText(competitor, ["productClass", "class", "category", "family", "type", "role"], "Competitor product type not captured");
   const wyrestormType = `${candidate.product.family} - ${candidate.product.productClass} - ${candidate.product.role}`;
+  const displayedScore = readScore(candidate);
   const first = (items: string[] | undefined, fallback: string) => {
     const value = uniqueText(items ?? [], 1)[0];
     return value && value.trim() ? value : fallback;
@@ -3318,6 +3368,11 @@ function CompareEvidenceMatrix({ candidate, competitor }: { candidate: ScoredCan
       label: "Why it scored",
       evidence: first(candidate.matched, "No strong matched fact was captured."),
       meaning: "The strongest direct reason this candidate was shortlisted."
+    },
+    {
+      label: "Score explanation",
+      evidence: scoreExplanation(displayedScore),
+      meaning: "Translates the match percentage into plain sales language, including the main reason and the main caveat."
     },
     {
       label: "Confirmed fit",

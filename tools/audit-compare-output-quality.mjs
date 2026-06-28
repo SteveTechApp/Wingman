@@ -61,6 +61,8 @@ const requiredMarkers = [
   "Competitor product",
   "WyreStorm candidate",
   "Why not 100%",
+  "Score explanation",
+  "scoreExplanation(displayedScore)",
   "Check before quoting",
   "<CompareEvidenceMatrix candidate={candidate} competitor={competitor} />"
 ];
