@@ -48,7 +48,7 @@ successor is current.
 
    | Section | Action |
    |---------|--------|
-   | **ARCHIVE** | Indexed products now discontinued or do-not-spec — archive with `node tools/archive-wingman-stale-data.mjs` and remove from active recommendation paths |
+   | **BLOCKED** | Indexed products now discontinued or do-not-spec — retained for catalogue history but excluded from active recommendation paths |
    | **ADD** | Active products missing from the index — add to `data-sources/wyrestorm/products.csv` and `enrichment.json`, then rebuild |
    | **REVIEW** | Indexed products on no business list — verify status, then archive or confirm |
    | **SUPERSEDED** | Version families where a discontinued SKU has an active successor — promote into `WYRESTORM_SUPERSESSIONS` |

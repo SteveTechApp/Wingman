@@ -39,7 +39,7 @@
 - [ ] SW-0X01-8K
 - [ ] SW-130-TX
 
-## Unlisted SKUs (in the catalogue but on no 2026 business list)
+## Review-gated SKUs (not confirmed by the governed lifecycle import)
 
 Confirm whether these are active before authoring a story; the compare engine treats them as unresolved risk.
 
