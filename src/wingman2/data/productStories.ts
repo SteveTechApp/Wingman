@@ -1,4 +1,4 @@
-﻿export type ProductStoryCompanion = {
+export type ProductStoryCompanion = {
   sku: string;
   reason: string;
 };
@@ -79,18 +79,17 @@ export const PRODUCT_STORIES: ProductStory[] = [
     whatItIs: "NHD-150-RX is a NetworkHD 100-series receiver/decoder used to create a multiview output from NetworkHD 100 streams.",
     whatItDoes: "It lets a 100-series AVoIP design show multiple encoded sources together on a single display output for monitoring, signage, teaching or hospitality use.",
     customerProblem: "The customer wants more than source-to-display routing; they want a single screen to show several active sources at once.",
-    salesTalkTrack: "Position it as the multiview add-on inside a NetworkHD 100 design. Pair it with NHD-124-TX encoders and NHD-CTL-PRO control where a flexible 100-series multiview system is required.",
+    salesTalkTrack: "Position it as the multiview add-on inside a NetworkHD 100 design. Pair it with NHD-124-TX encoders and NetworkHD controller where a flexible 100-series multiview system is required.",
     idealApplications: ["NetworkHD 100 multiview", "Sports bar screen composition", "Lecture theatre source monitoring", "Signage and information display", "Control-room monitor"],
     worksWith: [
       { sku: "NHD-124-TX", reason: "Encodes source devices into the NetworkHD 100 system." },
-      { sku: "NHD-CTL-PRO", reason: "Required controller for the NetworkHD system." },
       { sku: "NHD-120-RX", reason: "Use where a standard single-source NetworkHD 100 receiver output is required." }
     ],
     familyContext: "This belongs in the NetworkHD 100 conversation. Do not mix it into NetworkHD 500 or NetworkHD 600 endpoint designs.",
     whenToUse: ["The system is NetworkHD 100.", "Several sources need to appear together on one output.", "Bandwidth and cost position the project toward 100-series AVoIP."],
     whenNotToUse: ["Do not use it for NetworkHD 500 or 600 systems.", "Do not use it where a dedicated standalone four-input multiview processor is simpler.", "Do not use it if the customer only needs one source on one screen."],
     discoveryQuestions: ["Is the existing or proposed system NetworkHD 100?", "How many sources need to be visible at once?", "Is this for live viewing, signage, confidence monitoring or a processor feed?", "Who will control the layouts?"],
-    quoteChecks: ["Include NHD-CTL-PRO.", "Confirm encoder count.", "Confirm network switch suitability.", "Confirm layout expectations before quoting."],
+    quoteChecks: ["Include the current NetworkHD controller.", "Confirm encoder count.", "Confirm network switch suitability.", "Confirm layout expectations before quoting."],
     customerSafeWording: "Use NHD-150-RX when a NetworkHD 100 system needs a multiview output instead of a normal single-source receiver output.",
     internalRepGuidance: "This is a 100-series multiview decoder. Keep it separate from the NHD-0401-MV story for NetworkHD 500 discussions.",
     keyFeatures: ["NetworkHD 100 multiview output", "Works with 100-series encoders", "Requires NetworkHD controller", "Useful for monitoring and signage"],
@@ -107,51 +106,22 @@ export const PRODUCT_STORIES: ProductStory[] = [
     whatItIs: "NHD-124-TX is a NetworkHD 100-series transmitter that brings a source into a 100-series AVoIP system.",
     whatItDoes: "It encodes a source so it can be routed across the NetworkHD 100 network to compatible receivers or a multiview output.",
     customerProblem: "The customer needs flexible distribution without the cost or bandwidth profile of a premium AVoIP platform.",
-    salesTalkTrack: "Use it when the conversation is a cost-effective 100-series AVoIP system. For multiview, pair the source encoders with NHD-150-RX and NHD-CTL-PRO.",
+    salesTalkTrack: "Use it when the conversation is a cost-effective 100-series AVoIP system. For multiview, pair the source encoders with NHD-150-RX and the current NetworkHD controller.",
     idealApplications: ["Hospitality source distribution", "Signage", "Education", "Sports bar distribution", "Flexible 4K routing"],
     worksWith: [
       { sku: "NHD-150-RX", reason: "Creates a multiview output from NetworkHD 100 streams." },
       { sku: "NHD-120-RX", reason: "Receives a standard single-source 100-series output." },
-      { sku: "NHD-CTL-PRO", reason: "Required controller for system routing and management." }
     ],
     familyContext: "NetworkHD 100 is the cost-effective, bandwidth-conscious AVoIP tier. Step to NetworkHD 500 for premium 4K60 4:4:4 JPEG-XS workflows or NetworkHD 600 for 10G uncompressed performance.",
     whenToUse: ["Flexible source distribution matters.", "The project benefits from 1GbE AVoIP economics.", "The content is suitable for the 100-series design path."],
     whenNotToUse: ["Do not use it in 500 or 600-series systems.", "Do not use it where 4K60 4:4:4 premium quality is the requirement.", "Do not use AVoIP where a small local matrix is simpler."],
     discoveryQuestions: ["How many sources need to be encoded?", "How many displays receive those sources?", "Is the network available and suitable?", "Is multiview required?"],
-    quoteChecks: ["Include matching 100-series receivers.", "Include NHD-CTL-PRO.", "Confirm network switch and VLAN requirements.", "Confirm content type and latency expectations."],
+    quoteChecks: ["Include matching 100-series receivers.", "Include the current NetworkHD controller.", "Confirm network switch and VLAN requirements.", "Confirm content type and latency expectations."],
     customerSafeWording: "Use NHD-124-TX as the source-side part of a NetworkHD 100 system where the customer needs flexible, cost-effective AV distribution.",
     internalRepGuidance: "Always describe TX as the source side. Check receiver count and controller before proposing.",
-    keyFeatures: ["NetworkHD 100 source encoder", "Flexible AVoIP distribution", "Pairs with NHD-150-RX for multiview", "Requires NHD-CTL-PRO"],
+    keyFeatures: ["NetworkHD 100 source encoder", "Flexible AVoIP distribution", "Pairs with NHD-150-RX for multiview", "Requires the current NetworkHD controller"],
     diagramSource: "HDMI source device",
     diagramOutput: "NetworkHD 100 network"
-  },
-  {
-    sku: "NHD-CTL-PRO",
-    plainEnglishName: "NetworkHD system controller",
-    family: "NetworkHD",
-    category: "System controller",
-    productType: "NetworkHD controller",
-    oneLinePosition: "NHD-CTL-PRO is the control and management dependency for NetworkHD systems.",
-    whatItIs: "NHD-CTL-PRO is the controller used to manage compatible NetworkHD systems.",
-    whatItDoes: "It provides the control layer for routing, system management and integration in NetworkHD architectures.",
-    customerProblem: "The customer may think AVoIP is only encoders and decoders, but the system still needs a controller to manage routing and operation.",
-    salesTalkTrack: "Position it as a required NetworkHD system dependency, not an optional accessory.",
-    idealApplications: ["NetworkHD 100", "NetworkHD 500", "NetworkHD 600", "System routing", "AV-over-IP control"],
-    worksWith: [
-      { sku: "NHD-124-TX", reason: "Controls routing for 100-series encoders." },
-      { sku: "NHD-500-TX", reason: "Controls routing for 500-series encoders." },
-      { sku: "NHD-600-TRX", reason: "Controls routing for 600-series transceivers." }
-    ],
-    familyContext: "NetworkHD systems need the correct controller path. Keep series compatibility clear and do not imply cross-series endpoint interoperability.",
-    whenToUse: ["Any proper NetworkHD system is being designed.", "Routing and control are required.", "The system needs a managed architecture rather than isolated point-to-point endpoints."],
-    whenNotToUse: ["Do not position it as a source or receiver.", "Do not include it as a casual accessory without explaining its system role.", "Do not use it to suggest incompatible NetworkHD series can be mixed."],
-    discoveryQuestions: ["Which NetworkHD series is being used?", "How will users control routing?", "Is third-party control integration required?", "Who will configure and maintain the system?"],
-    quoteChecks: ["Confirm NetworkHD series.", "Confirm controller requirement.", "Confirm network topology.", "Confirm control UI or third-party control integration."],
-    customerSafeWording: "NHD-CTL-PRO is the controller that allows the NetworkHD system to operate as a managed AV-over-IP system.",
-    internalRepGuidance: "Treat it as a required dependency for NetworkHD proposals. Do not leave it out of the system story.",
-    keyFeatures: ["NetworkHD control dependency", "Routing management", "System integration support", "Required architecture item"],
-    diagramSource: "User control / control system",
-    diagramOutput: "NetworkHD encoders and receivers"
   },
   {
     sku: "NHD-500-TX",
@@ -167,14 +137,13 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["Higher education", "Corporate AV", "Multi-room distribution", "Training spaces", "Premium 4K AVoIP"],
     worksWith: [
       { sku: "NHD-500-RX", reason: "Receives the 500-series source stream at the display side." },
-      { sku: "NHD-CTL-PRO", reason: "Required NetworkHD controller." },
       { sku: "NHD-0401-MV", reason: "Use where a 500-series discussion also needs a dedicated multiview output." }
     ],
     familyContext: "NetworkHD 500 is the premium 1GbE NetworkHD family. Step up to NetworkHD 600 when the project needs 10G uncompressed SDVoE performance; step down to NetworkHD 100 where budget and bandwidth matter more than premium 4K60 4:4:4 workflows.",
     whenToUse: ["Flexible routing across rooms or displays is required.", "The project needs a stronger 4K AVoIP story than basic H.264/H.265 distribution.", "USB or integration behaviour is part of the room requirement."],
     whenNotToUse: ["Do not use it for a simple one-source one-display extension job.", "Do not use it where the customer specifically needs 10G lossless zero-latency performance.", "Do not mix it with NetworkHD 100 or 600 endpoints in the same routing system."],
     discoveryQuestions: ["How many sources and displays are required?", "Is this one room, several rooms or a building-wide system?", "Is USB device transport needed?", "Who owns the network and switch configuration?"],
-    quoteChecks: ["Include matching NHD-500-RX receivers.", "Include NHD-CTL-PRO.", "Confirm switch requirements and VLAN design.", "Confirm USB, audio, control and latency expectations."],
+    quoteChecks: ["Include matching NHD-500-RX receivers.", "Include the current NetworkHD controller.", "Confirm switch requirements and VLAN design.", "Confirm USB, audio, control and latency expectations."],
     customerSafeWording: "Use NetworkHD 500 when the customer needs flexible professional 4K AV-over-IP over 1GbE with a stronger quality and integration story than a basic distribution system.",
     internalRepGuidance: "NetworkHD 500 should be the default premium 1GbE AVoIP conversation before jumping to 600. Validate scale, USB, switching and network ownership.",
     keyFeatures: ["Premium 1GbE AVoIP", "4K distribution conversation", "Low-latency system path", "Strong USB and integration story"],
@@ -191,18 +160,17 @@ export const PRODUCT_STORIES: ProductStory[] = [
     whatItIs: "NHD-500-RX is the receiver/decoder used at the display side of a NetworkHD 500 system.",
     whatItDoes: "It receives NetworkHD 500 streams and supports the 500-series system story for high-quality routed AV distribution.",
     customerProblem: "The customer needs displays in different spaces to receive selected sources without being locked to a fixed matrix output.",
-    salesTalkTrack: "Explain the TX/RX relationship clearly: source side uses TX, display side uses RX, and the system is controlled with NHD-CTL-PRO.",
+    salesTalkTrack: "Explain the TX/RX relationship clearly: source side uses TX, display side uses RX, and the system is controlled with the current NetworkHD controller.",
     idealApplications: ["Display-side AVoIP receiver", "Multi-room AV", "Education displays", "Corporate displays", "Flexible 4K routing"],
     worksWith: [
       { sku: "NHD-500-TX", reason: "Encodes source devices into the 500-series system." },
-      { sku: "NHD-CTL-PRO", reason: "Required NetworkHD controller." },
       { sku: "NHD-0401-MV", reason: "Use where a composed multiview output is also needed." }
     ],
     familyContext: "NetworkHD 500 endpoints must stay within the 500-series system. Do not position the receiver as cross-compatible with 100 or 600-series endpoints.",
     whenToUse: ["A display needs to receive flexible NetworkHD 500 routed content.", "A room or display zone is part of a wider 500-series AVoIP design.", "Premium 1GbE AVoIP is the correct architecture."],
     whenNotToUse: ["Do not use it as a transmitter/source-side device.", "Do not mix it into 100 or 600-series endpoint systems.", "Do not use AVoIP where a fixed local switcher is simpler."],
     discoveryQuestions: ["How many display locations need receivers?", "Do displays need USB, audio or control paths?", "Are receivers local to the displays or in a rack?", "How will users select sources?"],
-    quoteChecks: ["Match receiver count to display zones.", "Include NHD-500-TX source encoders.", "Include NHD-CTL-PRO.", "Confirm network and switch design."],
+    quoteChecks: ["Match receiver count to display zones.", "Include NHD-500-TX source encoders.", "Include the current NetworkHD controller.", "Confirm network and switch design."],
     customerSafeWording: "Use NHD-500-RX at the display side of a NetworkHD 500 system where displays need flexible source selection over the AV network.",
     internalRepGuidance: "Keep TX/RX language simple for non-technical sales users. TX is source side; RX is display side.",
     keyFeatures: ["Display-side 500-series receiver", "Premium 1GbE AVoIP", "Flexible routed content", "Controller-managed system"],
@@ -222,7 +190,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     salesTalkTrack: "Position NetworkHD 600 as the premium performance route, not the default AVoIP answer. Use it where 10G infrastructure and the application justify it.",
     idealApplications: ["Mission-critical AV", "High-performance 4K distribution", "Premium video walls", "Low-latency applications", "10G infrastructure projects"],
     worksWith: [
-      { sku: "NHD-CTL-PRO", reason: "Required NetworkHD controller for system routing and management." },
       { sku: "NHD-500-TX", reason: "Commercial alternative where 1GbE premium AVoIP is sufficient and 10G is not justified." },
       { sku: "SW-0206-VW", reason: "Consider where a dedicated wall processor is cleaner than a 10G AVoIP wall design." }
     ],
@@ -230,7 +197,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     whenToUse: ["The project has 10G network infrastructure or the budget to provide it.", "Latency and image quality are critical.", "The customer needs the highest-performance NetworkHD route."],
     whenNotToUse: ["Do not lead with 600 for ordinary distribution where 500 is commercially more practical.", "Do not use it on a 1GbE network.", "Do not mix it with 100 or 500-series endpoints in the same routing system."],
     discoveryQuestions: ["Is 10G switching available or being provided?", "Why is zero/ultra-low latency important in this project?", "Is this distribution, video wall, control room or high-value presentation?", "What content type drives the performance requirement?"],
-    quoteChecks: ["Confirm 10G switch design.", "Include NHD-CTL-PRO.", "Confirm optics/cabling where required.", "Confirm whether 500-series would satisfy the requirement at lower complexity."],
+    quoteChecks: ["Confirm 10G switch design.", "Include the current NetworkHD controller.", "Confirm optics/cabling where required.", "Confirm whether 500-series would satisfy the requirement at lower complexity."],
     customerSafeWording: "Use NetworkHD 600 where the project genuinely needs 10G high-performance AV-over-IP and the infrastructure supports it.",
     internalRepGuidance: "Do not sell 600 as 'better therefore always right'. Sell it when performance, latency and network infrastructure make it the right architecture.",
     keyFeatures: ["10G NetworkHD tier", "High-performance AVoIP", "Transceiver role", "Premium low-latency system path"],
@@ -306,7 +273,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["Meeting room control", "Teaching space control", "Presentation switcher operation", "Simple room mode selection"],
     worksWith: [
       { sku: "SW-620-TX-W", reason: "Good fit where a presentation switcher needs a cleaner user interface." },
-      { sku: "SW-640-TX-W", reason: "Useful where a larger presentation switcher workflow needs simple front-end control." },
       { sku: "APO-VX20-UC-V2", reason: "Can support a simpler room user-experience conversation where control is part of the requirement." }
     ],
     familyContext: "This is a simple room interface story. Do not position it as a Crestron/Extron-style full building control platform.",
@@ -449,7 +415,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     worksWith: [
       { sku: "CAM-210-NDI-PTZ", reason: "Use when NDI PTZ cameras need to enter a wider AV distribution workflow." },
       { sku: "NHD-150-RX", reason: "Use when the wider NetworkHD 100 workflow also needs composed monitoring or multiview output." },
-      { sku: "NHD-CTL-PRO", reason: "Use as the control and management dependency for the wider NetworkHD architecture." }
     ],
     familyContext: "This sits in the NetworkHD conversation, not in the pure camera conversation. The key sale is workflow translation and architecture fit, not just the fact that it carries NDI.",
     whenToUse: ["There is a genuine NDI source or destination in the design.", "The room or site is already in a NetworkHD architecture or heading that way.", "The job needs a bridge between network-video capture and wider AV distribution."],
@@ -477,7 +442,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     worksWith: [
       { sku: "SYN-TOUCH10-V2", reason: "Adds a simple touch interface for room operation." },
       { sku: "APO-VX20-UC-V2", reason: "Use where presentation and UC video-bar workflow are both required." },
-      { sku: "SW-640-TX-W", reason: "Step up when more inputs or dual-output behaviour is needed." }
     ],
     familyContext: "This is a presentation switcher conversation, not a whole-building routing platform.",
     whenToUse: ["The room has local presentation sources.", "Wireless presentation is part of the requirement.", "The system should stay simpler than matrix or AVoIP."],
@@ -489,34 +453,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     keyFeatures: ["Presentation-led room core", "Wired and wireless sharing conversation", "Meeting and teaching room fit", "Pairs with SYN-TOUCH10-V2"],
     diagramSource: "Laptop and room sources",
     diagramOutput: "Room display / presentation output"
-  },
-  {
-    sku: "SW-640-TX-W",
-    plainEnglishName: "Larger wireless presentation switcher",
-    family: "Presentation",
-    category: "BYOD/BYOM presentation switcher",
-    productType: "Presentation switcher",
-    oneLinePosition: "SW-640-TX-W is the step-up presentation switcher when the room needs more source capacity or output flexibility.",
-    whatItIs: "SW-640-TX-W is a presentation switcher for more capable meeting, teaching and collaboration spaces.",
-    whatItDoes: "It supports the local room presentation workflow where the customer needs more than the smaller switcher route.",
-    customerProblem: "The customer has a presentation-led room but needs more flexibility than the entry presentation switcher conversation.",
-    salesTalkTrack: "Position it as the step-up from SW-620-TX-W where input count, output behaviour or room complexity justifies it.",
-    idealApplications: ["Larger meeting room", "Teaching room", "Training room", "Dual-output presentation", "BYOD/BYOM spaces"],
-    worksWith: [
-      { sku: "SYN-TOUCH10-V2", reason: "Adds simple front-end control for a more capable room." },
-      { sku: "APO-VX20-UC-V2", reason: "Use where the room also needs a simple UC video bar." },
-      { sku: "SW-620-TX-W", reason: "Use the smaller switcher where the room requirement is simpler." }
-    ],
-    familyContext: "This sits in the local presentation-switcher family. Use matrix or AVoIP when routing scale or distribution becomes the real requirement.",
-    whenToUse: ["The room needs more input or output capability than the smaller switcher.", "The user still wants a local presentation-room workflow.", "Touch control or guided operation matters."],
-    whenNotToUse: ["Do not use it as a substitute for multi-room routing.", "Do not use it where a fixed matrix or AVoIP is clearly the architecture.", "Do not skip display/output behaviour checks."],
-    discoveryQuestions: ["How many sources need to connect?", "How many displays are in the room?", "Do outputs mirror or behave independently?", "Is BYOM/BYOD conferencing required?"],
-    quoteChecks: ["Confirm input/output count.", "Confirm display behaviour.", "Confirm USB path.", "Confirm SYN-TOUCH10-V2 attachment."],
-    customerSafeWording: "Use SW-640-TX-W where the room is still a local presentation space, but needs more flexibility than the compact switcher route.",
-    internalRepGuidance: "Use it as the step-up presentation answer before moving to matrix or AVoIP.",
-    keyFeatures: ["Step-up presentation switcher", "Larger room workflow", "Source/output flexibility", "Pairs with SYN-TOUCH10-V2"],
-    diagramSource: "Multiple room sources",
-    diagramOutput: "Room display outputs"
   },
   {
     sku: "SW-0206-VW",
@@ -723,7 +659,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     worksWith: [
       { sku: "NHD-500-RX", reason: "Extends the room onto the NetworkHD 500 network so content can reach displays elsewhere in the building." },
       { sku: "SYN-TOUCH10-V2", reason: "Gives staff a simple touch interface to run the room without learning the AV system." },
-      { sku: "NHD-CTL-PRO", reason: "The controller required once the room joins a wider NetworkHD system." }
     ],
     familyContext: "The flagship of the room-matrix range and the bridge into NetworkHD 500. Where a room only needs source switching and a display, a smaller matrix or presentation switcher is enough; the MX-1007-HYB earns its place when audio, USB-C and networked AV all matter in the same room.",
     whenToUse: ["The room needs switching, USB-C, room audio and display routing together.", "The design also wants a path onto the NetworkHD 500 network.", "A single managed system is preferred over several separate boxes."],
@@ -751,7 +686,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["Lecture and teaching sources", "BYOD meeting rooms on a campus", "Boardroom source inputs", "Distributed AV across a site"],
     worksWith: [
       { sku: "NHD-500-RX", reason: "The matching 500-series decoder at each display the source needs to reach." },
-      { sku: "NHD-CTL-PRO", reason: "The controller that manages routing across the NetworkHD system." },
       { sku: "NHD-0401-MV", reason: "Adds a combined multiview output where several 500-series sources need to be seen together." }
     ],
     familyContext: "Part of the NetworkHD 500 family - visually lossless 4K over a standard 1GbE network. NHD-510-TX is the encoder to choose when the source side also needs USB-C and a local loop-out; pair it with 500-series decoders and the NetworkHD controller.",
@@ -780,7 +714,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["Campus AV with networked audio", "Performance and worship spaces", "Large venues", "Education estates with Dante"],
     worksWith: [
       { sku: "NHD-500-RX", reason: "The matching 500-series decoder at each display." },
-      { sku: "NHD-CTL-PRO", reason: "The controller that manages the NetworkHD system." },
       { sku: "AMP-260-DNT", reason: "A network amplifier that takes the Dante audio through to room speakers." }
     ],
     familyContext: "Part of the NetworkHD 500 family. NHD-500-DNT-TX is the encoder for designs where Dante networked audio and a fibre option are the deciding factors; for a standard source the plain NHD-500-TX is enough.",
@@ -809,7 +742,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["Large signage systems", "Hospitality source distribution", "Education estates", "Any high source-count 500-series job"],
     worksWith: [
       { sku: "NHD-500-RX", reason: "The matching 500-series decoder at each display." },
-      { sku: "NHD-CTL-PRO", reason: "The controller that manages routing across the system." },
       { sku: "NHD-510-TX", reason: "The step-up encoder for the few positions that also need USB-C and a local loop-out." }
     ],
     familyContext: "The value end of the NetworkHD 500 encoder range. Use NHD-500-E-TX for the many source positions that just need the picture on the network, and step up to NHD-510-TX or NHD-500-DNT-TX only where USB-C, loop-out or Dante are genuinely required.",
@@ -838,7 +770,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["Large signage walls of single screens", "Hospitality displays", "Education display estates", "Any high display-count 500-series job"],
     worksWith: [
       { sku: "NHD-500-TX", reason: "The matching 500-series encoder feeding the sources onto the network." },
-      { sku: "NHD-CTL-PRO", reason: "The controller that manages routing across the system." },
       { sku: "NHD-500-RX", reason: "The fuller decoder for screens that also need video wall, USB or audio." }
     ],
     familyContext: "The value end of the NetworkHD 500 decoder range. Use NHD-500-E-RX for the many display points that just need a source on screen, and step up to NHD-500-RX where video wall, USB or audio de-embed are needed.",
@@ -867,7 +798,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["Control rooms", "Live production", "High-end boardrooms", "Medical and simulation imaging"],
     worksWith: [
       { sku: "NHD-610-RX", reason: "The matching 600-series decoder at each display." },
-      { sku: "NHD-CTL-PRO", reason: "The controller that manages the NetworkHD system." },
       { sku: "NHD-600-TRX", reason: "The flexible 600-series transceiver for positions that may be source or display." }
     ],
     familyContext: "Part of the NetworkHD 600 family - uncompressed 10G SDVoE with zero frame latency, the most demanding tier. The 500 series over 1GbE covers most jobs at lower cost; reach for 600 only when latency and uncompressed quality decide the design.",
@@ -896,7 +826,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["Control-room walls", "Production monitoring", "High-end boardroom displays", "Operations centres"],
     worksWith: [
       { sku: "NHD-610-TX-V2", reason: "The matching 600-series encoder feeding the sources." },
-      { sku: "NHD-CTL-PRO", reason: "The controller that manages the NetworkHD system." },
       { sku: "NHD-600-TRX", reason: "The flexible 600-series transceiver for positions that may be source or display." }
     ],
     familyContext: "Part of the NetworkHD 600 family - uncompressed 10G SDVoE with zero frame latency. Use NHD-610-RX at each demanding display; the 500 series over 1GbE remains the right choice for ordinary display points at lower cost.",
@@ -926,7 +855,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     worksWith: [
       { sku: "NHD-610-TX-V2", reason: "The copper 600-series encoder it interoperates with on the same network." },
       { sku: "NHD-610-RX", reason: "The copper 600-series decoder at standard display positions." },
-      { sku: "NHD-CTL-PRO", reason: "The controller that manages the NetworkHD system." }
     ],
     familyContext: "Part of the NetworkHD 600 family, on fibre. NHD-600-TRXF is the endpoint to use where distance demands fibre or where a position may be source or display; the RJ45 600-series endpoints handle the copper positions.",
     whenToUse: ["Distance or building-to-building runs require fibre.", "A position may need to act as a source or a display.", "Uncompressed, zero-latency 10G is required."],
@@ -956,7 +884,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
       { sku: "NHD-600-E-RX", reason: "The paired economy decoder at each display position." },
       { sku: "NHD-600-TRX", reason: "Mix with full TRX endpoints at positions that need video wall or multiview." },
       { sku: "NHD-610-TX-V2", reason: "The full-feature 600-series encoder with USB, Dante and video wall where those features are needed at the source." },
-      { sku: "NHD-CTL-PRO", reason: "The NetworkHD controller required to manage routing." }
     ],
     familyContext: "NHD-600-E-TX and NHD-600-E-RX are the economy tier within NetworkHD 600. They share the same 10G SDVoE uncompressed quality as NHD-610 and NHD-600-TRX but remove USB, video wall, multiview and SFP+. Use E-series at cost-sensitive source or display positions; use the full series where those features matter.",
     whenToUse: ["Uncompressed zero-latency 4K is required.", "The source position does not need USB passthrough, video wall or multiview.", "Budget is a factor at some endpoints but quality cannot be compromised."],
@@ -986,7 +913,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
       { sku: "NHD-600-E-TX", reason: "The paired economy encoder at the source." },
       { sku: "NHD-600-TRX", reason: "Mix with full TRX endpoints where video wall or multiview is needed at a display position." },
       { sku: "NHD-610-RX", reason: "The full-feature 600-series decoder with video wall, multiview and USB at positions that need those features." },
-      { sku: "NHD-CTL-PRO", reason: "The NetworkHD controller required to manage routing." }
     ],
     familyContext: "NHD-600-E-TX and NHD-600-E-RX are the economy tier within NetworkHD 600. The E-RX is the right choice at standard display positions; upgrade to NHD-610-RX or NHD-600-TRX where video wall or multiview output is needed at the same point.",
     whenToUse: ["Display position needs uncompressed zero-latency 4K.", "No video wall, multiview or USB is needed at this display endpoint.", "Budget matters per-display in a larger system."],
@@ -1014,7 +940,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["Digital signage", "Hospitality information screens", "Retail displays", "Education distribution"],
     worksWith: [
       { sku: "NHD-120-RX", reason: "The matching 100-series decoder at each display." },
-      { sku: "NHD-CTL-PRO", reason: "The controller required to manage the NetworkHD system." },
       { sku: "NHD-150-RX", reason: "The 100-series multiview decoder where several sources need to appear on one screen." }
     ],
     familyContext: "The cost-effective, bandwidth-light tier of NetworkHD. Step up to the 500 series for visually lossless 4K60, or the 600 series for uncompressed 10G; the 100 series is the budget choice for signage and lower-motion content.",
@@ -1043,7 +968,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["Digital signage screens", "Hospitality displays", "Retail video walls of single screens", "Education displays"],
     worksWith: [
       { sku: "NHD-120-TX", reason: "The matching 100-series encoder feeding the sources." },
-      { sku: "NHD-CTL-PRO", reason: "The controller required to manage the NetworkHD system." },
       { sku: "NHD-150-RX", reason: "The 100-series multiview decoder where one screen must show several sources at once." }
     ],
     familyContext: "The display side of the cost-effective NetworkHD 100 tier. Use NHD-120-RX at each screen; step up to the 500 series for visually lossless 4K60, or use NHD-150-RX where multiview is needed on the same network.",
@@ -1071,7 +995,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     salesTalkTrack: "Position it as the way to separate the PC from its USB devices over the network: host one end, devices the other. Confirm what USB devices need to travel and whether USB 2.0 speed is enough for them.",
     idealApplications: ["Room PC in the rack with devices in the room", "Networked KVM", "Camera and touchscreen extension", "Flexible workstation layouts"],
     worksWith: [
-      { sku: "NHD-CTL-PRO", reason: "The controller that manages the NetworkHD system the USB extension runs alongside." },
       { sku: "NHD-500-RX", reason: "Sits in the same NetworkHD 500 room design where video and USB both need to travel." },
       { sku: "CAM-210-PTZ", reason: "A USB camera that can sit in the room while its host PC stays in the rack." }
     ],
@@ -2737,7 +2660,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["Wall-plate inputs into NetworkHD 100", "Classrooms", "Meeting rooms on a campus", "Tidy fixed installs"],
     worksWith: [
       { sku: "NHD-120-RX", reason: "The matching 100-series decoder at each display." },
-      { sku: "NHD-CTL-PRO", reason: "The controller required to manage the NetworkHD system." }
     ],
     familyContext: "The in-wall encoder in the NetworkHD 100 range, for getting a source onto the network from a flush wall position. It pairs with 100-series decoders and the NetworkHD controller, like the rack-mount encoders.",
     whenToUse: ["A NetworkHD 100 source needs joining the system from a wall plate.", "A tidy flush installation is wanted.", "Another device at the wall also needs a network port."],
@@ -3131,7 +3053,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["NetworkHD head-end racks", "Large AV-over-IP systems", "Equipment rooms", "Campus AV racks"],
     worksWith: [
       { sku: "NHD-500-RX", reason: "NetworkHD endpoints that mount into the rack frame." },
-      { sku: "NHD-CTL-PRO", reason: "The controller that sits in the same NetworkHD head-end rack." }
     ],
     familyContext: "A NetworkHD rack accessory for mounting endpoints tidily. It works across the NetworkHD series; it is an installation item that completes the head-end, not a signal-path product.",
     whenToUse: ["A NetworkHD system has several rack-side endpoints.", "Tidy, serviceable rack mounting is wanted.", "There is 6U of rack space available."],
@@ -3145,150 +3066,6 @@ export const PRODUCT_STORIES: ProductStory[] = [
     diagramOutput: "Tidy 6U rack mounting",
     provenance: "catalogue-grounded"
   },
-  {
-    sku: "APO-210-UC",
-    plainEnglishName: "Apollo video-speakerphone switcher",
-    family: "Apollo / UC",
-    category: "UC presentation switcher",
-    productType: "Video-speakerphone switcher with built-in conferencing audio",
-    oneLinePosition: "APO-210-UC is the Apollo all-in-one that switches sources, sends them to a local and a distant screen, and provides the room's call microphone and speaker - without a separate switcher and speakerphone.",
-    whatItIs: "APO-210-UC is an Apollo video-speakerphone switcher with USB-C and HDMI inputs, an HDMI output and an HDBaseT output, a built-in 10W speaker and a four-microphone omni-directional array, dual-view, and wireless sharing over AirPlay and Miracast.",
-    whatItDoes: "It lets people share from a USB-C or HDMI source, or cast wirelessly, sends the chosen picture to a screen in the room and to a second screen over a long HDBaseT cable run, and handles the room's call audio with its own speaker and microphones.",
-    customerProblem: "A small meeting room needs easy wired and wireless sharing and decent call audio, but wiring up a separate switcher, speakerphone and distant-screen extender makes a simple room complicated.",
-    salesTalkTrack: "Position it as the tidy Apollo room core: sources in, two screens out, call audio built in, and wireless sharing - one box instead of three. Confirm whether the room also needs a camera, since this device does not include one.",
-    idealApplications: ["Small meeting rooms", "BYOD/BYOM spaces", "Huddle rooms", "Rooms with a second or overflow screen"],
-    worksWith: [
-      { sku: "CAM-210-PTZ", reason: "Adds a controllable room camera, since this switcher provides the audio and sharing but not a camera." },
-      { sku: "SW-620-TX-W", reason: "The presentation-switcher alternative where built-in call audio is not needed." }
-    ],
-    familyContext: "Part of the Apollo UC range. APO-210-UC pairs presentation switching with conferencing audio and casting but no camera; the APO-VX20-UC-V2 video bar adds a camera in one device, and a HALO speakerphone covers audio-only rooms.",
-    whenToUse: ["A small room needs sharing and call audio from one device.", "Content also has to reach a second screen over a long cable run.", "Wired and wireless sharing are both wanted."],
-    whenNotToUse: ["Do not position it as a camera - it has none; add a camera or move to a video bar.", "Do not use it in a large room where separate camera, microphones and speakers are needed.", "Do not promise wireless casting before the customer's network and security policy are confirmed."],
-    discoveryQuestions: ["How many people are usually in the room?", "Is this for Teams, Zoom or BYOD calls?", "Does the room need a camera as well, or is one already in place?", "Is there a second or overflow screen that also needs the picture?", "Do people want to share with a cable, wirelessly, or both?"],
-    quoteChecks: ["Confirm whether a camera is needed and quoted separately.", "Confirm the second screen's distance against the HDBaseT output run.", "Confirm the meeting platform and host device.", "Confirm wireless casting is allowed on the customer's network."],
-    customerSafeWording: "Use APO-210-UC where a small room needs easy wired and wireless sharing plus built-in call audio, with the option of a second screen over a long cable run.",
-    internalRepGuidance: "Lead with switcher-plus-speakerphone-in-one and the second HDBaseT screen. Always confirm the camera question early - this device does not include one.",
-    keyFeatures: ["USB-C and HDMI inputs", "HDMI output plus HDBaseT output to a distant screen", "Built-in 10W speaker and four-microphone array", "Dual-view", "AirPlay and Miracast wireless sharing"],
-    diagramSource: "USB-C or HDMI source, or wireless device",
-    diagramOutput: "Local screen and a distant HDBaseT screen, with room call audio",
-    provenance: "catalogue-grounded"
-  },
-  {
-    sku: "EX-100-G2",
-    plainEnglishName: "4K HDBaseT extender set, 100m",
-    family: "Extenders",
-    category: "HDBaseT extender set",
-    productType: "HDBaseT extender set (transmitter and receiver)",
-    oneLinePosition: "EX-100-G2 is the long-reach everyday extender pair that carries one source up to 100 metres to a distant screen.",
-    whatItIs: "EX-100-G2 is a 4K60 4:2:0 HDBaseT extender set - a matching transmitter and receiver - with PoH power, CEC, IR and RS232, reaching 100m.",
-    whatItDoes: "It takes one source at the transmitter, sends it over a single category cable, and rebuilds it at a distant screen up to 100 metres away, carrying CEC, IR and RS232 control alongside the picture.",
-    customerProblem: "A screen needs to go a long way from the source - beyond a normal HDMI cable and beyond the shorter extenders - and the job is simply getting one source to it reliably.",
-    salesTalkTrack: "Position it as the dependable long-run extender: one source, one screen, up to 100 metres, with control carried too. Confirm the run length and that switching is not actually needed.",
-    idealApplications: ["Meeting rooms", "Classrooms", "Digital signage", "Long display extension"],
-    worksWith: [
-      { sku: "EX-70-H2", reason: "The full-4:4:4 extender for shorter runs where colour detail matters." },
-      { sku: "EX3-100-EARC", reason: "The step up where eARC audio return and audio de-embed are needed at 100m." },
-      { sku: "MX-0404-HDMI", reason: "A matrix to feed several extenders where more than one screen is involved." }
-    ],
-    familyContext: "A long-reach member of the HDBaseT extender range. EX-70-H2 covers shorter runs at full 4:4:4; EX3-100-EARC adds eARC at the same distance; for more than one source or screen, a switcher or matrix is the move.",
-    whenToUse: ["One source needs to reach one distant screen up to 100 metres away.", "4:2:0 colour is acceptable.", "CEC, IR or RS232 control needs carrying to the far end."],
-    whenNotToUse: ["Do not sell it where switching between sources is needed.", "Do not use it where full 4:4:4 detail is required - use a 4:4:4 extender.", "Do not exceed the supported distance or ignore the installed cable quality."],
-    discoveryQuestions: ["Roughly how far apart are the source and the screen?", "Is there cabling between them already, or does it need running?", "Is it just one source to one screen, or does the room need to switch sources too?", "Does anything need controlling at the far end, like a projector?"],
-    quoteChecks: ["Confirm the run length against 100m.", "Confirm the installed cable type and quality.", "Confirm 4:2:0 is acceptable for the content.", "Confirm any control passthrough needs."],
-    customerSafeWording: "Use EX-100-G2 to carry one source up to 100 metres to a distant screen, with control signals carried alongside.",
-    internalRepGuidance: "Long-run everyday extender - lead with reliable one-to-one distance at 100m. For detailed content step up to a 4:4:4 extender; for audio return, EX3-100-EARC.",
-    keyFeatures: ["4K60 4:2:0 HDBaseT extender set", "100m reach", "PoH power", "CEC", "IR and RS232 passthrough"],
-    diagramSource: "Single source",
-    diagramOutput: "Distant display (up to 100m)",
-    provenance: "catalogue-grounded"
-  },
-  {
-    sku: "EX-100-IW-USBC",
-    plainEnglishName: "In-wall USB 3.2 extender kit, 100m",
-    family: "Extenders / KVM",
-    category: "In-wall USB extender kit",
-    productType: "Single-gang in-wall USB 3.2 extender kit (transmitter and receiver)",
-    oneLinePosition: "EX-100-IW-USBC carries fast USB up to 100 metres from a tidy in-wall plate, so USB devices can sit far from the computer.",
-    whatItIs: "EX-100-IW-USBC is a single-gang in-wall USB 3.2 extender kit - a matching transmitter and receiver - reaching 100 metres at 5Gbps with PoH+ power and four USB-A ports at the far end.",
-    whatItDoes: "It sends fast USB connections from a host computer down a single category cable to four USB-A ports up to 100 metres away, with the connection points built flush into the wall rather than sitting on a desk.",
-    customerProblem: "A room wants its USB connection points built tidily into the wall, but the computer is far away - in the rack or another room - well beyond a USB cable's reach.",
-    salesTalkTrack: "Position it as fast USB over distance in a neat in-wall form: 5Gbps to 100 metres, four ports, flush plates. Confirm the USB devices and that the run is within reach.",
-    idealApplications: ["Wall-plate USB inputs", "Room PC in the rack with devices in the room", "Interactive display setups", "Tidy fixed installs"],
-    worksWith: [
-      { sku: "EX-100-USB3", reason: "The desk-mount USB extender where an in-wall plate is not wanted." },
-      { sku: "USB-HUB4", reason: "A hub to add more device ports at the far end." },
-      { sku: "CAM-210-PTZ", reason: "A USB camera that can sit in the room while its host PC stays in the rack." }
-    ],
-    familyContext: "The in-wall member of the USB extender range, for moving fast USB across distance from a flush wall plate. The EX-100-USB3 is the desk-mount equivalent; where the screen picture also needs to travel, an AV-plus-USB extender does both.",
-    whenToUse: ["Fast USB devices need to sit far from the computer, from a tidy wall position.", "Up to 100 metres at 5Gbps is required.", "Four device ports at the far end suit the job."],
-    whenNotToUse: ["Do not use it where the display picture also needs extending - use an AV-plus-USB extender.", "Do not specify it without confirming the wall back-box.", "Do not assume every device works - confirm the device list."],
-    discoveryQuestions: ["Should the USB connection points be built flush into the wall?", "What gets plugged in - a camera, storage, a touchscreen?", "How far apart are the computer and those devices?", "Is there a suitable back-box and cabling in place?"],
-    quoteChecks: ["Confirm the run length against 100m at 5Gbps.", "Confirm the USB devices and their speed needs.", "Confirm the wall back-box and gang size.", "Confirm whether the AV picture also needs extending."],
-    customerSafeWording: "Use EX-100-IW-USBC to carry fast USB up to 100 metres from a tidy in-wall plate, so devices can sit far from the computer.",
-    internalRepGuidance: "In-wall USB-only extender kit - lead with fast USB over distance in a flush form. Confirm the back-box; if the screen picture also travels, move to an AV-plus-USB extender.",
-    keyFeatures: ["Single-gang in-wall USB 3.2 extender kit", "100m at 5Gbps", "Four USB-A ports at the far end", "PoH+ powered", "Transmitter and receiver in the kit"],
-    diagramSource: "Host computer (rack or remote)",
-    diagramOutput: "Four in-wall USB-A device ports (up to 100m)",
-    provenance: "catalogue-grounded"
-  },
-  {
-    sku: "EX-80-KVM",
-    plainEnglishName: "1080p AV and USB extender set",
-    family: "Extenders / KVM",
-    category: "UTP KVM extender set",
-    productType: "UTP extender set with USB (transmitter and receiver)",
-    oneLinePosition: "EX-80-KVM is the budget extender pair that carries a 1080p picture and USB control over a single cable, so a screen and its keyboard or mouse can sit away from the PC.",
-    whatItIs: "EX-80-KVM is a 1080p60 UTP extender set - a matching transmitter and receiver - with USB 2.0 and PoC power, carrying the picture and USB over a single category cable.",
-    whatItDoes: "It carries a 1080p source to a distant screen and sends USB the other way, so a keyboard, mouse or touchscreen at the screen end controls the computer back at the source - a budget KVM link over one cable.",
-    customerProblem: "A standard-HD computer needs to stay locked away or in the rack, but the screen and the keyboard, mouse or touch that operate it have to be out where the user sits.",
-    salesTalkTrack: "Position it as the value KVM extender: 1080p picture plus USB control over one cable, where 4K is not needed. Confirm 1080p suits the content, the USB devices, and the installed cable run.",
-    idealApplications: ["Secure or rack-mounted PCs operated remotely", "Reception and counter positions", "Control points", "Budget interactive displays"],
-    worksWith: [
-      { sku: "EX-100-KVM", reason: "The 4K KVM extender where 1080p is not enough." },
-      { sku: "EX-40-G3", reason: "A plain 1080p extender where no USB control is needed." },
-      { sku: "EX-60-USB2", reason: "A USB-only extender where the picture does not need to travel." }
-    ],
-    familyContext: "The value, 1080p member of the KVM extender range. Step up to EX-100-KVM for 4K picture-and-control; where only the picture or only USB needs extending, a plain or USB-only extender is cheaper.",
-    whenToUse: ["A screen and its keyboard, mouse or touch need to sit away from the PC.", "1080p picture quality is enough.", "USB 2.0 control suits the devices."],
-    whenNotToUse: ["Do not use it where the screen needs 4K - step up to the 4K KVM extender.", "Do not use it for high-bandwidth USB 3.x devices.", "Do not assume the run distance - confirm it against the installed cable."],
-    discoveryQuestions: ["Does the computer need to stay locked away while people use it elsewhere?", "What controls it at the far end - a keyboard and mouse, or a touchscreen?", "Is a standard HD screen enough, or does it need 4K?", "How far is the screen from the computer, and what cabling is installed?"],
-    quoteChecks: ["Confirm 1080p suits the screen and content.", "Confirm the USB control devices work over USB 2.0.", "Confirm the run distance against the installed cable.", "Confirm whether the picture and control both need to travel."],
-    customerSafeWording: "Use EX-80-KVM where a standard-HD screen and its keyboard, mouse or touch need to sit away from the computer, at a budget price.",
-    internalRepGuidance: "Value 1080p KVM extender - confirm the run distance (not stated on the data line) and that 1080p is enough. For 4K, step up to EX-100-KVM.",
-    keyFeatures: ["1080p60 UTP extender set", "USB 2.0 for keyboard, mouse and touch", "PoC power", "Picture and control over one cable", "Budget option"],
-    diagramSource: "Source PC (rack or secure room)",
-    diagramOutput: "Distant 1080p screen with USB control",
-    provenance: "catalogue-grounded"
-  },
-  {
-    sku: "NETWORKHD TOUCH TM",
-    plainEnglishName: "NetworkHD Touch control app",
-    family: "NetworkHD",
-    category: "Control app",
-    productType: "Free iPad and Android control app",
-    oneLinePosition: "NetworkHD Touch is the free iPad and Android app that lets staff control routing on NetworkHD 100, 200 and 400 series systems from a tablet.",
-    whatItIs: "NetworkHD Touch is a free control app for iPad and Android that gives users a simple touch interface to operate NetworkHD 100, 200 and 400 series AV-over-IP systems.",
-    whatItDoes: "It lets staff switch sources to screens and run a NetworkHD 100, 200 or 400 series system from a tablet, so a room can be controlled without a dedicated touch panel.",
-    customerProblem: "A NetworkHD 100, 200 or 400 system needs a simple way for staff to change what is on each screen, and a fixed control panel adds cost the customer may not want.",
-    salesTalkTrack: "Position it as the no-cost control option for the older NetworkHD series: a tablet app for everyday switching. Confirm the system is 100, 200 or 400 series, and that a tablet and network access are available.",
-    idealApplications: ["NetworkHD 100/200/400 systems", "Bars and venues with staff switching", "Education", "Hospitality"],
-    worksWith: [
-      { sku: "NHD-120-TX", reason: "A NetworkHD 100 encoder the app helps route on those systems." },
-      { sku: "NHD-120-RX", reason: "A NetworkHD 100 decoder whose screen the app switches sources to." },
-      { sku: "NHD-150-RX", reason: "The 100-series multiview decoder the app can drive in those systems." }
-    ],
-    familyContext: "A free control option in the NetworkHD ecosystem, for the 100, 200 and 400 series. It does not control the 500 or 600 series, which are managed through the NetworkHD controller; it complements rather than replaces full system commissioning.",
-    whenToUse: ["The system is NetworkHD 100, 200 or 400 series.", "Staff need a simple way to switch sources from a tablet.", "A no-cost control option is wanted instead of a fixed panel."],
-    whenNotToUse: ["Do not use it with NetworkHD 500 or 600 series systems.", "Do not treat it as a replacement for proper system commissioning.", "Do not assume tablet and network access are in place - confirm them."],
-    discoveryQuestions: ["Is the system the NetworkHD 100, 200 or 400 series?", "Who needs to change what is on each screen, and from where?", "Is a tablet available for staff to use?", "Would a simple app suit the room, or is a fixed panel preferred?"],
-    quoteChecks: ["Confirm the NetworkHD series is 100, 200 or 400.", "Confirm a compatible iPad or Android tablet is available.", "Confirm network access for the tablet to the system.", "Confirm whether a fixed control panel is needed as well."],
-    customerSafeWording: "Use NetworkHD Touch as the free tablet app for switching sources on a NetworkHD 100, 200 or 400 series system, where a fixed control panel is not required.",
-    internalRepGuidance: "Free value-add for the older NetworkHD series - lead with no-cost tablet control. Be clear it is for 100/200/400 only, not the 500/600 series.",
-    keyFeatures: ["Free iPad and Android control app", "For NetworkHD 100, 200 and 400 series", "Touch source switching from a tablet", "No fixed control panel required", "No additional hardware cost"],
-    diagramSource: "Tablet running NetworkHD Touch",
-    diagramOutput: "NetworkHD 100/200/400 system routing",
-    provenance: "catalogue-grounded"
-  }
 ];
 
 export const PRODUCT_STORY_BY_SKU: Record<string, ProductStory> = PRODUCT_STORIES.reduce(
