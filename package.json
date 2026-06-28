@@ -123,7 +123,9 @@
                     "product-update:audit-stories":  "node tools/audit-new-product-stories.mjs",
                     "product-update:audit-competitors":  "node tools/audit-competitor-coverage.mjs",
                     "product-update:all":  "node tools/run-product-intelligence-update.mjs",
-                    "check:product-update-pipeline": "node tools/check-product-update-pipeline.mjs"
+                    "check:product-update-pipeline": "node tools/check-product-update-pipeline.mjs",
+                    "audit:product-update-sources": "node tools/audit-product-update-sources.mjs",
+                    "check:product-update-sources:strict": "node tools/audit-product-update-sources.mjs --strict"
                 },
     "dependencies":  {
                          "@xyflow/react":  "^12.10.2",
