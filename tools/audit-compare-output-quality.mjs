@@ -53,4 +53,28 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log("[compare-output-quality] Compare output language guard passed.");
+const comparePage = fs.readFileSync(path.join(root, "src/wingman2/pages/ComparePageNew.tsx"), "utf8");
+
+const requiredMarkers = [
+  "function CompareEvidenceMatrix",
+  "Comparison evidence matrix",
+  "Why not 100%",
+  "Check before quoting",
+  "<CompareEvidenceMatrix candidate={candidate} />"
+];
+
+for (const marker of requiredMarkers) {
+  if (!comparePage.includes(marker)) {
+    failures.push(`ComparePageNew.tsx missing evidence matrix marker: ${marker}`);
+  }
+}
+
+if (failures.length) {
+  console.error("[compare-output-quality] Check failed:");
+  for (const failure of failures) {
+    console.error(`- ${failure}`);
+  }
+  process.exit(1);
+}
+
+console.log("[compare-output-quality] Compare output language and evidence matrix guard passed.");
