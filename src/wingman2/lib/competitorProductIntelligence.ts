@@ -1,4 +1,6 @@
-﻿export type CompetitorIntelligenceTier =
+import competitorCatalogRaw from "../../../data/catalog/competitor-products.generated.json";
+
+export type CompetitorIntelligenceTier =
   | "sku-only"
   | "family-rule"
   | "fingerprint"
@@ -86,195 +88,14 @@ export type CompetitorDecisionEvidence = {
   readiness: "approved" | "usable-with-review" | "needs-evidence" | "sku-only";
 };
 
-export const COMPETITOR_SKU_SEED_CATALOG: Record<string, string[]> = {
-  "Crestron": [
-    "DM-NVX-350",
-    "DM-NVX-351",
-    "DM-NVX-360",
-    "DM-NVX-363",
-    "DM-NVX-D30",
-    "DM-NVX-E30",
-    "DMPS3-4K-350-C",
-    "HD-MD4X2-4KZ-E",
-    "HD-RX-4K-510-C-E",
-    "HD-TX-4KZ-211-2G"
-  ],
-  "Extron": [
-    "DTP2 R 211",
-    "DTP2 T 211",
-    "DTP3 R 201",
-    "DTP3 T 202",
-    "IN1608 xi",
-    "NAV D 101",
-    "NAV D 121",
-    "NAV D 501",
-    "NAV E 101",
-    "NAV E 121",
-    "NAV E 501"
-  ],
-  "Atlona": [
-    "AT-OME-CS31-SA",
-    "AT-OME-EX-KIT",
-    "AT-OME-MS42",
-    "AT-OME-PS62",
-    "AT-OMNI-111",
-    "AT-OMNI-112",
-    "AT-OMNI-121",
-    "AT-OMNI-122",
-    "AT-UHD-EX-100CE-KIT",
-    "AT-UHD-PRO3-88M"
-  ],
-  "Kramer": [
-    "KDS-7-DEC7",
-    "KDS-7-EN7",
-    "KDS-100",
-    "KDS-DEC6",
-    "KDS-EN6",
-    "VP-440X",
-    "VP-551X",
-    "VP-554X",
-    "VS-44H2A",
-    "VS-88H2A"
-  ],
-  "Lightware": [
-    "MMX2-4x1-H20",
-    "MMX4x2-HDMI",
-    "MMX6x2-HT200",
-    "MMX6x2-HT210",
-    "MMX8x4-HT400MC",
-    "MMX8x4-HT420M",
-    "MMX8x8-HDMI-4K-A",
-    "TAURUS UCX-2x1-HC30",
-    "TAURUS UCX-4x2-HC30",
-    "TPX-2x1-TX20-3x3-RX20",
-    "UCX-4x2-HC40",
-    "UBEX-PRO20-HDMI-F100",
-    "UBEX-PRO20-HDMI-F110",
-    "VINX-110-HDMI-ENC",
-    "VINX-120-HDMI-ENC",
-    "VINX-210AP-HDMI-DEC"
-  ],
-  "Blustream": [
-    "ACM210",
-    "C44-KIT",
-    "C88CS",
-    "HMX44-18G-KIT",
-    "HMX88-18G-KIT",
-    "IP200UHD-RX",
-    "IP200UHD-TX",
-    "IP250UHD-RX",
-    "IP250UHD-TX",
-    "IP300UHD-RX",
-    "IP300UHD-TX",
-    "IP350UHD-RX",
-    "IP350UHD-TX",
-    "PLA88CS"
-  ],
-  "Barco": [
-    "C-5",
-    "C-10",
-    "CX-20",
-    "CX-30",
-    "CX-50",
-    "CX-50 Gen2"
-  ],
-  "ZeeVee": [
-    "ZyPer4K Decoder",
-    "ZyPer4K Encoder",
-    "ZyPerUHD Decoder",
-    "ZyPerUHD Encoder",
-    "ZyPerUHD60 Decoder",
-    "ZyPerUHD60 Encoder"
-  ],
-  "AMX": [
-    "DGX1600-ENC",
-    "DGX6400-ENC",
-    "DVX-2265-4K",
-    "DXL-RX-4K60",
-    "DXL-TX-4K60",
-    "MUSE Automator",
-    "NMX-DEC-N2422A",
-    "NMX-DEC-N2622S",
-    "NMX-DEC-N2625D-WP",
-    "NMX-ENC-N2412A",
-    "NMX-ENC-N2612S",
-    "NMX-ENC-N2615D-WP",
-    "NMX-ENC-N3312D",
-    "NX-1200",
-    "NX-2200"
-  ],
-  "AVPro Edge": [
-    "AC-EX40-444-KIT",
-    "AC-EX70-444-KIT",
-    "AC-EX70-444-R3",
-    "AC-MX-42X",
-    "AC-MX-44HDBT",
-    "AC-MX-88",
-    "MXNet-1G-D",
-    "MXNet-1G-E",
-    "MXNet-10G-TCVR"
-  ],
-  "Binary": [
-    "B-260-HDMI-CTRL",
-    "B-660-EXT-444-100A",
-    "B-660-MTRX-4x4",
-    "B-660-MTRX-8x8",
-    "B-900-MOIP-4K-RX",
-    "B-900-MOIP-4K-TX"
-  ],
-  "Visionary": [
-    "D5200"
-  ],
-  "BirdDog": [
-    "P100",
-    "P200",
-    "P400",
-    "MAKI ULTRA",
-    "FLEX 4K",
-    "Eyes HDMI",
-    "Eyes SDI",
-    "Air 4K Quad",
-    "4K EYE"
-  ],
-  "Marshall": [
-    "CV420-18X-NDI",
-    "CV605-NDI",
-    "CV630-IP",
-    "CV730-NDI",
-    "CV420-30X-IP",
-    "VS-PTC-200NDI"
-  ],
-  "Mersive": [
-    "Solstice Gen3",
-    "Solstice Pod Gen3",
-    "Solstice Active Learning"
-  ],
-  "Barco ClickShare": [
-    "CS-100 Huddle",
-    "CX-20",
-    "CX-30",
-    "CX-50",
-    "CX-50 Gen2",
-    "CS-100",
-    "CS-100 Huddle",
-    "CX-20 Gen2",
-    "CX-30 Gen2"
-  ],
-  "Airtame": [
-    "Airtame 2",
-    "Airtame Cloud"
-  ],
-  "Sony": [
-    "BRC-X400",
-    "BRC-X1000",
-    "EVI-H100V",
-    "SRG-300H",
-    "SRG-300SE",
-    "SRG-X120",
-    "SRG-XP1"
-  ],
-  "Other": []
-};
+export const COMPETITOR_SKU_SEED_CATALOG: Record<string, string[]> = (competitorCatalogRaw as Array<Record<string, any>>).reduce<Record<string, string[]>>((catalog, product) => {
+  const brand = String(product.manufacturer || product.brand || "Unknown").trim();
+  const sku = String(product.model || product.sku || "").trim();
+  if (!sku) return catalog;
+  catalog[brand] ||= [];
+  if (!catalog[brand].includes(sku)) catalog[brand].push(sku);
+  return catalog;
+}, {});
 
 const REQUIRED_FACTS: Record<CompetitorTechnologyClass, string[]> = {
   AVOIP: ["endpoint role", "network class or codec", "max resolution", "transport", "controller/network requirement", "input/output endpoint count"],

@@ -624,7 +624,7 @@ async function readGovernance() {
       version: "2026.03.10",
       approvedAt: "2026-03-10T09:00:00.000Z",
       approvedBy: "WyreStorm Solutions Engineering",
-      catalogVersion: "wyrestorm-catalog.phase1",
+      catalogVersion: "wingman-canonical-source-v1",
       changeSummary: "Guided Project recommendations branch on source origin, first hop, cable media, network readiness, and endpoint delivery.",
       explainability: [],
     },

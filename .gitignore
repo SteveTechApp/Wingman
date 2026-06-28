@@ -103,6 +103,10 @@ wingman/package-lock.json
 
 # --- Archives ---
 archive/
+!archive/
+archive/*
+!archive/product-data-legacy-2026-06-28/
+!archive/product-data-legacy-2026-06-28/**
 *.zip
 *.tar
 *.gz
@@ -117,6 +121,7 @@ archive/
 vite.config.ts.timestamp-*
 server/node_modules/
 .vite-temp/
+data/runtime/
 
 # Local Wingman script backups
 _wingman_backup_*/

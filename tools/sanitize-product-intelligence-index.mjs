@@ -10,7 +10,19 @@ function readJson(filePath) {
 }
 
 function writeJson(filePath, value) {
-  fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+  const content = `${JSON.stringify(value, null, 2)}\n`;
+  let lastError;
+  for (let attempt = 1; attempt <= 20; attempt += 1) {
+    try {
+      fs.writeFileSync(filePath, content, "utf8");
+      return;
+    } catch (error) {
+      lastError = error;
+      if (!["UNKNOWN", "EBUSY", "EPERM"].includes(error?.code) || attempt === 20) break;
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100);
+    }
+  }
+  throw lastError;
 }
 
 function normalise(value) {

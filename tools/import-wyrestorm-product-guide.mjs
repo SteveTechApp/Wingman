@@ -8,8 +8,7 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 
 const DEFAULT_PDF_PATH = "C:/Users/steve/Downloads/Product.pdf";
-const PRODUCT_DB_PATH = path.join(projectRoot, "data", "product-intelligence-db.json");
-const WYRESTORM_SOURCE_PATH = path.join(projectRoot, "data", "wyrestorm-product-intelligence.json");
+const WYRESTORM_SOURCE_PATH = path.join(projectRoot, "data-sources", "wyrestorm", "enrichment.json");
 const PROFILE_VERSION = "wyrestorm-product-manager-v1";
 const GUIDE_SOURCE_LABEL = "2026 WyreStorm Product Guide PDF";
 
@@ -672,14 +671,14 @@ async function main() {
     sizeBytes: pdfStat.size,
   };
 
-  const [productDbRaw, sourceProducts, extraction] = await Promise.all([
-    fs.readFile(PRODUCT_DB_PATH, "utf8").then(JSON.parse),
+  const [sourceProducts, extraction] = await Promise.all([
     fs.readFile(WYRESTORM_SOURCE_PATH, "utf8").then(JSON.parse),
     extractGuideSkus(absolutePdfPath),
   ]);
 
-  const records = Array.isArray(productDbRaw.records) ? productDbRaw.records : [];
   const sourceRecords = Array.isArray(sourceProducts) ? sourceProducts : [];
+  const productDbRaw = { records: sourceRecords, meta: {} };
+  const records = sourceRecords;
   const guideEntries = buildGuideEntries(extraction.rawHits);
   const sourceByKey = new Map(sourceRecords.map((record) => [normaliseSkuKey(record.sku), record]));
 
@@ -767,11 +766,10 @@ async function main() {
     return;
   }
 
-  await fs.writeFile(PRODUCT_DB_PATH, `${JSON.stringify(nextDb, null, 2)}\n`, "utf8");
-  await fs.writeFile(WYRESTORM_SOURCE_PATH, `${JSON.stringify(updatedSourceRecords, null, 2)}\n`, "utf8");
+  await fs.writeFile(WYRESTORM_SOURCE_PATH, `${JSON.stringify(nextDb.records, null, 2)}\n`, "utf8");
 
-  console.log(`[product-guide-import] Wrote ${path.relative(projectRoot, PRODUCT_DB_PATH)}`);
   console.log(`[product-guide-import] Wrote ${path.relative(projectRoot, WYRESTORM_SOURCE_PATH)}`);
+  console.log("[product-guide-import] Run npm run data:sources:build to publish the updated source package.");
 }
 
 main().catch((error) => {

@@ -51,6 +51,10 @@ $Npm = Resolve-Npm
 Write-Host "Wingman data maintenance" -ForegroundColor Green
 Write-Host "Repository: $RepoRoot"
 
+Invoke-Step "Phase 0 - Validate authoritative product sources" {
+  & $Npm run data:sources:check
+}
+
 Invoke-Step "Phase 1 - Build canonical WyreStorm SKU store" {
   & $Npm run data:canonical-products
 }

@@ -100,8 +100,16 @@ npm run typecheck        # Run TypeScript checks
 npm run verify           # Run full verification suite
 
 # Data
-npm run data:product-intelligence-index  # Rebuild product index
+npm run product-update:doctor            # Show source/update status
+npm run data:sources:check               # Validate authoritative CSV/JSON sources
+npm run data:sources:build               # Compile and publish runtime catalogues
+npm run data:maintenance                 # Full source sweep and safety workflow
 ```
+
+Authoritative product data lives under [`data-sources`](data-sources/README.md).
+WyreStorm has one source package; competitor products use one shared schema split
+into manufacturer CSVs for bulk editing. Files under `data/` and `public/` are
+generated runtime outputs.
 
 ## Deployment
 

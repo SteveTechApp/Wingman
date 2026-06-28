@@ -295,7 +295,7 @@ function markdownTable(rows) {
 }
 
 const productIndex = readJson("public/product-intelligence-index.json");
-const competitorCatalog = readJson("data/catalog/competitor-catalog.phase4.json");
+const competitorCatalog = readJson("data/catalog/competitor-products.generated.json");
 
 const vite = await createServer({
   root,

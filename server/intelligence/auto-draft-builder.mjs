@@ -7,10 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..", "..");
 const draftsFile = path.join(repoRoot, "data", "product-intelligence-drafts.json");
 const wyrestormProductFiles = [
-  "data/wyrestorm-product-intelligence.json",
-  "public/product-intelligence-index.json",
-  "data/products.json",
-  "src/data/products.json"
+  "data/wingman-canonical-product-store.json"
 ];
 
 function nowIso() { return new Date().toISOString(); }
@@ -235,7 +232,9 @@ async function loadWyrestormProducts() {
   }
   const deduped = new Map();
   for (const p of found) { const k=sku(p.sku || p.name); if(k && !deduped.has(k)) deduped.set(k,p); }
-  return Array.from(deduped.values());
+  return Array.from(deduped.values()).filter(
+    (product) => product?.raw?.dataMaintenance?.approvedFor?.compare !== false,
+  );
 }
 
 async function buildCompetitorDraft(input = {}) {

@@ -1,0 +1,3 @@
+manufacturer,model,product_name,family,product_class,subcategory,role,approval_status,source_tier,transport_type,input_count,output_count,max_resolution,chroma,technology,topology,directionality,inputs_json,outputs_json,control_json,audio_json,features_json,specs_json,summary,known_limitations,closest_wyrestorm_architecture,closest_wyrestorm_sku_or_family,confidence,evidence_source,last_reviewed,reviewer,notes,aliases_json,routed_input_count,routed_output_count,physical_output_count,mirrored_output_count,io_evidence_status,matrix_size_evidence,quote_safety
+Airtame,Airtame 2,Airtame 2,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+Airtame,Airtame Cloud,Airtame Cloud,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,

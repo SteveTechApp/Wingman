@@ -1,0 +1,7 @@
+manufacturer,model,product_name,family,product_class,subcategory,role,approval_status,source_tier,transport_type,input_count,output_count,max_resolution,chroma,technology,topology,directionality,inputs_json,outputs_json,control_json,audio_json,features_json,specs_json,summary,known_limitations,closest_wyrestorm_architecture,closest_wyrestorm_sku_or_family,confidence,evidence_source,last_reviewed,reviewer,notes,aliases_json,routed_input_count,routed_output_count,physical_output_count,mirrored_output_count,io_evidence_status,matrix_size_evidence,quote_safety
+Marshall,CV420-18X-NDI,CV420-18X-NDI,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+Marshall,CV420-30X-IP,CV420-30X-IP,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+Marshall,CV605-NDI,CV605-NDI,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+Marshall,CV630-IP,CV630-IP,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+Marshall,CV730-NDI,CV730-NDI,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+Marshall,VS-PTC-200NDI,VS-PTC-200NDI,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,

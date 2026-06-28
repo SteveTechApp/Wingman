@@ -1,0 +1,4 @@
+manufacturer,model,product_name,family,product_class,subcategory,role,approval_status,source_tier,transport_type,input_count,output_count,max_resolution,chroma,technology,topology,directionality,inputs_json,outputs_json,control_json,audio_json,features_json,specs_json,summary,known_limitations,closest_wyrestorm_architecture,closest_wyrestorm_sku_or_family,confidence,evidence_source,last_reviewed,reviewer,notes,aliases_json,routed_input_count,routed_output_count,physical_output_count,mirrored_output_count,io_evidence_status,matrix_size_evidence,quote_safety
+Mersive,Solstice Active Learning,Solstice Active Learning,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+Mersive,Solstice Gen3,Solstice Gen3,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+Mersive,Solstice Pod Gen3,Solstice Pod Gen3,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,

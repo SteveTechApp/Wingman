@@ -9,10 +9,7 @@ const DEFAULT_TIMEOUT_MS = Number(process.env.LOOKUP_SEARCH_TIMEOUT_MS || 12000)
 const MAX_PAGES_TO_READ = Number(process.env.LOOKUP_MAX_PAGES_TO_READ || 6);
 
 const WYRESTORM_PRODUCT_FILES = [
-  "data/wyrestorm-product-intelligence.json",
-  "public/product-intelligence-index.json",
-  "data/products.json",
-  "src/data/products.json"
+  "data/wingman-canonical-product-store.json"
 ];
 
 async function loadLocalEnvFile() {
@@ -1258,7 +1255,9 @@ async function loadWyrestormProducts() {
     }
   }
 
-  return Array.from(deduped.values());
+  return Array.from(deduped.values()).filter(
+    (product) => product?.dataMaintenance?.approvedFor?.compare !== false,
+  );
 }
 
 function featureNames(profile) {

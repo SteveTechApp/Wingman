@@ -8,11 +8,9 @@ const reportDir = path.join(root, "reports");
 fs.mkdirSync(reportDir, { recursive: true });
 
 const sourceFiles = [
-  "data/product-intelligence-db.json",
   "data/wingman-canonical-product-store.json",
-  "data/wyrestorm-product-intelligence.json",
-  "data/catalog/wyrestormSkuCatalog.2026.json",
-  "data/catalog/competitor-catalog.phase4.json",
+  "data-sources/wyrestorm/enrichment.json",
+  "data/catalog/competitor-products.generated.json",
   "data/catalog/competitor-custom.local.json",
   "public/product-call-card-products.json"
 ].map((file) => path.join(root, file)).filter(fs.existsSync);

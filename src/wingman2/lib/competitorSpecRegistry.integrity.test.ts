@@ -66,4 +66,22 @@ describe("competitor fingerprint integrity", () => {
     expect(profile.outputCount).toBe(2);
     expect(profile.brand).toBe("Crestron");
   });
+
+  it("does not promote a draft manufacturer row to an approved profile", () => {
+    const profile = resolveCompetitorSpecProfile("DTP3 R 201", "Extron");
+    expect(profile.readiness).toBe("needs-evidence");
+    expect(profile.specTier).not.toBe("verified-profile");
+  });
+
+  it("keeps reviewed source-backed manufacturer rows approved", () => {
+    const profile = resolveCompetitorSpecProfile("AT-OME-CS31-SA", "Atlona");
+    expect(profile.readiness).toBe("approved");
+    expect(profile.specTier).toBe("verified-profile");
+  });
+
+  it("uses the official AT-OMNI-112 encoder role instead of the retired conflicting override", () => {
+    const profile = resolveCompetitorSpecProfile("AT-OMNI-112", "Atlona");
+    expect(String(profile.role).toLowerCase()).toBe("encoder");
+    expect(profile.inputCount).toBe(2);
+  });
 });

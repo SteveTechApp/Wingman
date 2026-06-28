@@ -4,8 +4,7 @@ import { enrichProductClassification } from "./shared/product-classification.mjs
 import {
   COMPETITOR_CATALOG_FILE,
   PRODUCT_INTELLIGENCE_DB_FILE,
-  WYRESTORM_SEED_CATALOG_FILE,
-  WYRESTORM_SKU_MASTER_FILE,
+  WINGMAN_CANONICAL_PRODUCT_STORE_FILE,
 } from "./catalog/files.mjs";
 import { getWingmanRequestAuth } from "./wingman-app-store.mjs";
 
@@ -579,8 +578,9 @@ function mergeRecord(seedRecord, existingRecord) {
 
 async function buildSeedRecords(existingRecords = []) {
   const capturedAt = nowIso();
-  const wyrestormRows = asArray(await readJsonFile(WYRESTORM_SEED_CATALOG_FILE, []));
-  const wyrestormSkuMaster = await readJsonFile(WYRESTORM_SKU_MASTER_FILE, { items: [] });
+  const wyrestormCanonical = await readJsonFile(WINGMAN_CANONICAL_PRODUCT_STORE_FILE, { products: [] });
+  const wyrestormRows = asArray(wyrestormCanonical?.products)
+    .filter((row) => row?.dataMaintenance?.approvedFor?.finder !== false);
   const competitorRows = asArray(await readJsonFile(COMPETITOR_CATALOG_FILE, []));
 
   const seed = [];
@@ -591,14 +591,6 @@ async function buildSeedRecords(existingRecords = []) {
       seed.push(record);
       seededIds.add(record.id);
     }
-  }
-  for (const row of asArray(wyrestormSkuMaster?.items)) {
-    const expanded = mapWyrestormSkuMasterRow(row);
-    if (!expanded) continue;
-    const record = mapCatalogRecord(expanded, "wyrestorm", capturedAt);
-    if (!record || seededIds.has(record.id)) continue;
-    seed.push(record);
-    seededIds.add(record.id);
   }
   for (const row of competitorRows) {
     const record = mapCatalogRecord(row, "competitor", capturedAt);

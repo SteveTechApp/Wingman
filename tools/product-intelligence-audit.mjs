@@ -2,8 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
-const sourcePath = path.join(root, "data/wyrestorm-product-intelligence.json");
-const products = JSON.parse(fs.readFileSync(sourcePath, "utf8"));
+const sourcePath = path.join(root, "data/wingman-canonical-product-store.json");
+const sourcePayload = JSON.parse(fs.readFileSync(sourcePath, "utf8"));
+const products = Array.isArray(sourcePayload?.products) ? sourcePayload.products : [];
 
 function clean(value) {
   return String(value ?? "").replace(/\s+/g, " ").trim();
@@ -163,7 +164,7 @@ const csvPath = path.join(reportDir, "wingman-product-intelligence-audit.csv");
 
 fs.writeFileSync(jsonPath, JSON.stringify({
   generatedAt: new Date().toISOString(),
-  source: "data/wyrestorm-product-intelligence.json",
+  source: "data/wingman-canonical-product-store.json",
   productCount: rows.length,
   issueCount: rows.filter((row) => row.issues).length,
   rows,

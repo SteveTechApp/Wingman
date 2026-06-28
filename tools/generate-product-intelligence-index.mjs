@@ -7,10 +7,6 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 
 const canonicalSourceCandidate = "data/wingman-canonical-product-store.json";
-const fallbackSourceCandidates = [
-  "data/wyrestorm-product-intelligence.json",
-  "data/product-intelligence-db.json",
-];
 
 const outputTargets = [
   { type: "json", path: "public/product-intelligence-index.json" },
@@ -39,7 +35,7 @@ async function resolveSourceCandidates() {
     return [canonicalSourceCandidate];
   }
 
-  return fallbackSourceCandidates;
+  throw new Error(`Missing canonical product store: ${canonicalSourceCandidate}. Run npm run data:canonical-products.`);
 }
 
 function ensureArrayPayload(value) {
@@ -535,6 +531,9 @@ function normalizeProduct(item, index, sourceFile) {
     showWhenRequestedBy: granularity.showWhenRequestedBy,
     productRole: asString(item?.productRole),
     catalogVisibility: asString(item?.catalogVisibility),
+    lifecycleStatus: asString(item?.lifecycleStatus || item?.lifecycle || item?.productLifecycle),
+    doNotSpec: item?.doNotSpec === true,
+    dataMaintenance: item?.dataMaintenance,
     technologyType: asString(item?.technologyType),
     hardwareType: asString(item?.hardwareType),
     productClassification,
