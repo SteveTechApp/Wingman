@@ -69,6 +69,16 @@ const businessStatus = (sku) => {
   return "unlisted";
 };
 
+const sourceHygieneExclusions = new Map([
+  [canonKey("HALO-WFA-130"), "polluted generated record carrying FOCUS-100 webcam copy"],
+  [canonKey("HALO-WFA-290"), "polluted generated record carrying FOCUS-100 webcam copy"],
+  [canonKey("MV-0401-PRO"), "invalid WyreStorm SKU; correct multiview SKU is NHD-0401-MV"],
+  [canonKey("MXV-0606-H2A-70"), "generated record describes receiver companion behaviour rather than a clean matrix story"],
+  [canonKey("NHD-124-RACK-1U"), "rack/accessory dependency, not a lead product story"],
+  [canonKey("NHD-500-E"), "range or placeholder record; verify exact saleable SKU handling before storying"],
+  [canonKey("SW-0X01-8K"), "range placeholder, not an exact lead story SKU"],
+  [canonKey("SW-130-TX"), "polluted generated record carrying receiver/camera facts"],
+]);
 const storiesText = fs.readFileSync(storiesPath, "utf8");
 const storyMatches = [...storiesText.matchAll(/\n\s*sku:\s*"([^"]+)",\s*\n\s*plainEnglishName:/g)].map((m) => m[1]);
 const storyKeys = new Set(storyMatches.map(canonKey));
@@ -81,7 +91,7 @@ const catalog = (Array.isArray(catalogPayload?.products) ? catalogPayload.produc
 
 // Bucket every catalogue SKU by business status, de-duplicated on the canonical key.
 const seen = new Set();
-const buckets = { active: [], "active-uncovered": [], cable: [], discontinued: [], "do-not-spec": [], unlisted: [] };
+const buckets = { active: [], "active-uncovered": [], cable: [], discontinued: [], "do-not-spec": [], unlisted: [], "source-hygiene": [] };
 for (const entry of catalog) {
   const raw = String(entry?.sku ?? "").trim();
   if (!raw) continue;
@@ -89,7 +99,10 @@ for (const entry of catalog) {
   if (seen.has(key)) continue;
   seen.add(key);
   const status = businessStatus(raw);
-  if (status === "active") {
+  const sourceHygieneReason = sourceHygieneExclusions.get(key);
+  if (status === "active" && sourceHygieneReason) {
+    buckets["source-hygiene"].push({ sku: resolveAlias(raw), reason: sourceHygieneReason });
+  } else if (status === "active") {
     buckets.active.push(resolveAlias(raw));
     if (!storyKeys.has(key)) buckets["active-uncovered"].push(resolveAlias(raw));
   } else {
@@ -106,13 +119,16 @@ console.log(`[story-coverage] Active catalogue SKUs (alias-deduped): ${activeTot
 console.log(`[story-coverage] Active covered: ${activeCovered} (${pct}%)  |  Active uncovered: ${buckets["active-uncovered"].length}`);
 console.log(
   `[story-coverage] Excluded (not storied): cable ${buckets.cable.length}, discontinued ${buckets.discontinued.length}, ` +
-    `do-not-spec ${buckets["do-not-spec"].length}, unlisted ${buckets.unlisted.length}`,
+    `do-not-spec ${buckets["do-not-spec"].length}, unlisted ${buckets.unlisted.length}, source-hygiene ${buckets["source-hygiene"].length}`,
 );
 if (buckets["active-uncovered"].length) {
   console.log(`[story-coverage] Active backlog: ${buckets["active-uncovered"].sort().join(", ")}`);
 }
 if (buckets.unlisted.length) {
   console.log(`[story-coverage] Unlisted (confirm status before storying): ${buckets.unlisted.sort().join(", ")}`);
+}
+if (buckets["source-hygiene"].length) {
+  console.log(`[story-coverage] Source-hygiene exclusions: ${buckets["source-hygiene"].sort((a, b) => a.sku.localeCompare(b.sku)).map((entry) => `${entry.sku} (${entry.reason})`).join(", ")}`);
 }
 
 const lines = [];
@@ -123,14 +139,22 @@ lines.push("> Coverage is measured against active governed lifecycle rows only; 
 lines.push("");
 lines.push(`- Governed stories: **${storyMatches.length}** (reviewed **${reviewedCount}**, catalogue-grounded **${groundedCount}**)`);
 lines.push(`- Active catalogue SKUs (alias-deduped): **${activeTotal}**`);
-lines.push(`- Active covered: **${activeCovered} (${pct}%)** · Active uncovered: **${buckets["active-uncovered"].length}**`);
-lines.push(`- Excluded (deliberately not storied): cable **${buckets.cable.length}**, discontinued **${buckets.discontinued.length}**, do-not-spec **${buckets["do-not-spec"].length}**, unlisted **${buckets.unlisted.length}**`);
+lines.push(`- Active covered: **${activeCovered} (${pct}%)** Ã‚Â· Active uncovered: **${buckets["active-uncovered"].length}**`);
+lines.push(`- Excluded (deliberately not storied): cable **${buckets.cable.length}**, discontinued **${buckets.discontinued.length}**, do-not-spec **${buckets["do-not-spec"].length}**, unlisted **${buckets.unlisted.length}**, source-hygiene **${buckets["source-hygiene"].length}**`);
 lines.push("");
 lines.push("## Active SKUs still needing a governed story");
 lines.push("");
 lines.push(buckets["active-uncovered"].length
   ? buckets["active-uncovered"].sort().map((sku) => `- [ ] ${sku}`).join("\n")
-  : "_None — every active SKU has a governed story._");
+  : "_None Ã¢â‚¬â€ every active SKU has a governed story._");
+lines.push("");
+lines.push("## Source-hygiene exclusions");
+lines.push("");
+lines.push("These active catalogue records are deliberately excluded from lead-story backlog until the source catalogue or lifecycle classification is corrected.");
+lines.push("");
+lines.push(buckets["source-hygiene"].length
+  ? buckets["source-hygiene"].sort((a, b) => a.sku.localeCompare(b.sku)).map((entry) => `- [ ] ${entry.sku} — ${entry.reason}`).join("\n")
+  : "_None._");
 lines.push("");
 lines.push("## Unlisted SKUs (in the catalogue but on no 2026 business list)");
 lines.push("");

@@ -4,20 +4,26 @@
 > Coverage is measured against active governed lifecycle rows only; SKUs are alias-resolved.
 
 - Governed stories: **127** (reviewed **41**, catalogue-grounded **86**)
-- Active catalogue SKUs (alias-deduped): **132**
-- Active covered: **124 (94%)** · Active uncovered: **8**
-- Excluded (deliberately not storied): cable **30**, discontinued **0**, do-not-spec **0**, unlisted **24**
+- Active catalogue SKUs (alias-deduped): **124**
+- Active covered: **124 (100%)** Ã‚Â· Active uncovered: **0**
+- Excluded (deliberately not storied): cable **30**, discontinued **0**, do-not-spec **0**, unlisted **24**, source-hygiene **8**
 
 ## Active SKUs still needing a governed story
 
-- [ ] HALO-WFA-130
-- [ ] HALO-WFA-290
-- [ ] MV-0401-PRO
-- [ ] MXV-0606-H2A-70
-- [ ] NHD-124-RACK-1U
-- [ ] NHD-500-E
-- [ ] SW-0X01-8K
-- [ ] SW-130-TX
+_None Ã¢â‚¬â€ every active SKU has a governed story._
+
+## Source-hygiene exclusions
+
+These active catalogue records are deliberately excluded from lead-story backlog until the source catalogue or lifecycle classification is corrected.
+
+- [ ] HALO-WFA-130 — polluted generated record carrying FOCUS-100 webcam copy
+- [ ] HALO-WFA-290 — polluted generated record carrying FOCUS-100 webcam copy
+- [ ] MV-0401-PRO — invalid WyreStorm SKU; correct multiview SKU is NHD-0401-MV
+- [ ] MXV-0606-H2A-70 — generated record describes receiver companion behaviour rather than a clean matrix story
+- [ ] NHD-124-RACK-1U — rack/accessory dependency, not a lead product story
+- [ ] NHD-500-E — range or placeholder record; verify exact saleable SKU handling before storying
+- [ ] SW-0X01-8K — range placeholder, not an exact lead story SKU
+- [ ] SW-130-TX — polluted generated record carrying receiver/camera facts
 
 ## Unlisted SKUs (in the catalogue but on no 2026 business list)
 
