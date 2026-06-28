@@ -122,7 +122,8 @@
                     "product-update:reconcile":  "node tools/reconcile-product-updates.mjs",
                     "product-update:audit-stories":  "node tools/audit-new-product-stories.mjs",
                     "product-update:audit-competitors":  "node tools/audit-competitor-coverage.mjs",
-                    "product-update:all":  "node tools/run-product-intelligence-update.mjs"
+                    "product-update:all":  "node tools/run-product-intelligence-update.mjs",
+                    "check:product-update-pipeline": "node tools/check-product-update-pipeline.mjs"
                 },
     "dependencies":  {
                          "@xyflow/react":  "^12.10.2",
