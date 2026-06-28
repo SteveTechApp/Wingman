@@ -3390,9 +3390,9 @@ function BestCandidateCard({
               <p>{candidate.product.family} - {candidate.product.productClass} - {candidate.product.role}</p>
               <p className="compare-native-match-anchor">{directionFit}</p>
               <CompareEvidenceList title="Why this WyreStorm product" items={wyrestorm.identityItems} />
-              <CompareEvidenceList title="Where it matches" items={candidate.matched.slice(0, 5)} />
+              <CompareEvidenceList title="Strong fit areas" items={candidate.matched.slice(0, 5)} />
               <CompareEvidenceList title="Deeper why this fits" items={candidate.partialMatches.slice(0, 4)} />
-              <CompareEvidenceList title="Where it does not match" items={candidate.mismatches.slice(0, 4)} className="compare-native-evidence--danger" />
+              <CompareEvidenceList title="Important differences" items={candidate.mismatches.slice(0, 4)} className="compare-native-evidence--danger" />
               <CompareEvidenceList title="Unknowns" items={uniqueText([...candidate.unknowns, ...candidate.checks, ...candidate.gaps], 6)} className="compare-native-evidence--warn" />
               <CompareEvidenceList title="Quote blockers" items={candidate.blockers.slice(0, 4)} className="compare-native-evidence--danger" />
               <CompareEvidenceList title="Required WyreStorm dependencies" items={candidate.dependencies.slice(0, 5)} />
@@ -3435,7 +3435,7 @@ function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
       <details className="compare-native-summary">
         <summary>Why this option was shortlisted</summary>
         <CompareEvidenceList title="Why this direction" items={candidate.matched.slice(0, 3)} />
-        <CompareEvidenceList title="Where it does not match" items={candidate.mismatches.slice(0, 2)} className="compare-native-evidence--danger" />
+        <CompareEvidenceList title="Important differences" items={candidate.mismatches.slice(0, 2)} className="compare-native-evidence--danger" />
         <CompareEvidenceList title="Commercial checks" items={uniqueText([...candidate.unknowns, ...candidate.checks, ...candidate.gaps, ...candidate.dependencies], 4)} className="compare-native-evidence--warn" />
       </details>
 
