@@ -86,6 +86,29 @@ describe("competitor compare runtime behaviour", () => {
     expect(leadSkus[0]).not.toMatch(/-TX\b/);
   });
 
+  it("keeps Blustream IP250UHD-TX runtime results on encoder-side NetworkHD 500, not decoder or 10G candidates", () => {
+    const result = runCompareRuntimePipeline("IP250UHD-TX", products, "Blustream", 12);
+    const leadSkus = skus(result.matches).slice(0, 5);
+
+    expect(result.competitor.brand).toBe("Blustream");
+    expect(leadSkus.length).toBeGreaterThan(0);
+    expectNoSupportItemsInLeadResults(result);
+    expect(leadSkus[0]).toBe("NHD-500-TX");
+    expect(leadSkus.some((item) => /-RX\b/.test(item))).toBe(false);
+    expect(leadSkus).not.toContain("NHD-600-TRX");
+  });
+
+  it("keeps Blustream IP250UHD-RX runtime results on decoder-side NetworkHD 500, not encoder or 10G candidates", () => {
+    const result = runCompareRuntimePipeline("IP250UHD-RX", products, "Blustream", 12);
+    const leadSkus = skus(result.matches).slice(0, 5);
+
+    expect(result.competitor.brand).toBe("Blustream");
+    expect(leadSkus.length).toBeGreaterThan(0);
+    expectNoSupportItemsInLeadResults(result);
+    expect(leadSkus[0]).toBe("NHD-500-RX");
+    expect(leadSkus.some((item) => /-TX\b/.test(item) && !/-TRX\b/.test(item))).toBe(false);
+    expect(leadSkus).not.toContain("NHD-600-TRX");
+  });
   it("keeps compact 4x2 matrix requests ahead of oversized 8x8 matrix package options", () => {
     const result = runCompareRuntimePipeline("MMX4x2-HDMI", products, "Lightware", 12);
     const leadSkus = skus(result.matches).slice(0, 4);
