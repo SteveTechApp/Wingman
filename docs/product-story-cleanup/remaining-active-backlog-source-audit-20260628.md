@@ -1,0 +1,464 @@
+# Remaining active backlog source audit - 2026-06-28
+
+Purpose: identify why the final active backlog SKUs should not be automatically converted into governed product stories.
+
+## Current remaining SKUs
+
+- HALO-WFA-130
+- HALO-WFA-290
+- MV-0401-PRO
+- MXV-0606-H2A-70
+- NHD-124-RACK-1U
+- NHD-500-E
+- SW-0X01-8K
+- SW-130-TX
+
+## Known treatment
+
+| SKU | Treatment | Reason |
+|---|---|---|
+| HALO-WFA-130 | Block pending source correction | Generated record appears polluted with FOCUS-100 facts |
+| HALO-WFA-290 | Block pending source correction | Generated record appears polluted with FOCUS-100 facts |
+| MV-0401-PRO | Block / remove from active catalogue | Invalid WyreStorm SKU; correct multiview SKU is NHD-0401-MV |
+| MXV-0606-H2A-70 | Review source record | Generated facts appear to describe a receiver companion rather than the matrix SKU |
+| NHD-124-RACK-1U | Do not story as lead product | Rack/accessory item, not primary sales story |
+| NHD-500-E | Review source record | Likely family/range placeholder; confirm saleable SKU handling |
+| SW-0X01-8K | Review source record | Looks like range placeholder, not exact saleable story SKU |
+| SW-130-TX | Block pending source correction | Generated record appears polluted with receiver/camera facts |
+
+## Repo references
+
+### HALO-WFA-130
+
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:623 — ## HALO-WFA-130
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:625 — - **sku:** HALO-WFA-130
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:626 — - **id:** HALO-WFA-130
+- .\docs\product-story-cleanup\active-story-backlog-review-notes-20260628.md:10 — - HALO-WFA-130 — generated record is polluted with FOCUS-100 webcam copy.
+- .\docs\product-story-coverage-backlog.md:13 — - [ ] HALO-WFA-130
+- .\public\product-intelligence-index.json:221197 — "id": "HALO-WFA-130",
+- .\public\product-intelligence-index.json:221200 — "sku": "HALO-WFA-130",
+- .\public\product-intelligence-index.json:221237 — "halo-wfa-130",
+- .\public\product-intelligence-index.json:221255 — "halo-wfa-130: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:221274 — "halo-wfa-130: deployment and commissioning view",
+- .\public\product-intelligence-index.json:221288 — "halo-wfa-130: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:221313 — "canonicalSku": "HALO-WFA-130",
+- .\public\product-intelligence-index.json:221333 — "detail": "https://www.wyrestorm.com/product/halo-wfa-130/"
+- .\public\product-intelligence-index.json:221402 — "officialProductUrl": "https://www.wyrestorm.com/product/halo-wfa-130/",
+- .\public\product-intelligence-index.json:221520 — "headline": "HALO-WFA-130: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:221549 — "headline": "HALO-WFA-130: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:221575 — "headline": "HALO-WFA-130: deployment and commissioning view",
+- .\public\product-intelligence-index.json:221603 — "headline": "HALO-WFA-130: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:221655 — "headline": "HALO-WFA-130: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:221684 — "headline": "HALO-WFA-130: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:221710 — "headline": "HALO-WFA-130: deployment and commissioning view",
+- .\public\product-intelligence-index.json:221738 — "headline": "HALO-WFA-130: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:221767 — "id": "HALO-WFA-130",
+- .\public\product-intelligence-index.json:221770 — "sku": "HALO-WFA-130",
+- .\public\product-intelligence-index.json:221773 — "url": "https://www.wyrestorm.com/product/halo-wfa-130/",
+- .\public\product-intelligence-index.json:221809 — "HALO-WFA-130",
+- .\public\product-intelligence-index.json:221824 — "HALO-WFA-130: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:221843 — "HALO-WFA-130: deployment and commissioning view",
+- .\public\product-intelligence-index.json:221857 — "HALO-WFA-130: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:221872 — "url": "https://www.wyrestorm.com/product/halo-wfa-130/",
+- .\public\product-intelligence-index.json:221932 — "officialProductUrl": "https://www.wyrestorm.com/product/halo-wfa-130/",
+- .\public\product-intelligence-index.json:222050 — "headline": "HALO-WFA-130: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:222079 — "headline": "HALO-WFA-130: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:222105 — "headline": "HALO-WFA-130: deployment and commissioning view",
+- .\public\product-intelligence-index.json:222133 — "headline": "HALO-WFA-130: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:222186 — "headline": "HALO-WFA-130: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:222215 — "headline": "HALO-WFA-130: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:222241 — "headline": "HALO-WFA-130: deployment and commissioning view",
+- .\public\product-intelligence-index.json:222269 — "headline": "HALO-WFA-130: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:222333 — "evidenceSource": "https://www.wyrestorm.com/product/halo-wfa-130/",
+- .\public\product-intelligence-index.json:222339 — "canonicalSku": "HALO-WFA-130",
+- .\public\product-intelligence-index.json:222359 — "detail": "https://www.wyrestorm.com/product/halo-wfa-130/"
+- .\public\product-intelligence-index.json:583405 — "HALO-WFA-130": "HALO-WFA-130",
+
+### HALO-WFA-290
+
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:654 — ## HALO-WFA-290
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:656 — - **sku:** HALO-WFA-290
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:657 — - **id:** HALO-WFA-290
+- .\docs\product-story-cleanup\active-story-backlog-review-notes-20260628.md:11 — - HALO-WFA-290 — generated record is polluted with FOCUS-100 webcam copy.
+- .\docs\product-story-coverage-backlog.md:14 — - [ ] HALO-WFA-290
+- .\public\product-intelligence-index.json:222392 — "id": "HALO-WFA-290",
+- .\public\product-intelligence-index.json:222395 — "sku": "HALO-WFA-290",
+- .\public\product-intelligence-index.json:222432 — "halo-wfa-290",
+- .\public\product-intelligence-index.json:222450 — "halo-wfa-290: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:222469 — "halo-wfa-290: deployment and commissioning view",
+- .\public\product-intelligence-index.json:222483 — "halo-wfa-290: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:222508 — "canonicalSku": "HALO-WFA-290",
+- .\public\product-intelligence-index.json:222528 — "detail": "https://www.wyrestorm.com/product/halo-wfa-290/"
+- .\public\product-intelligence-index.json:222597 — "officialProductUrl": "https://www.wyrestorm.com/product/halo-wfa-290/",
+- .\public\product-intelligence-index.json:222751 — "headline": "HALO-WFA-290: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:222780 — "headline": "HALO-WFA-290: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:222806 — "headline": "HALO-WFA-290: deployment and commissioning view",
+- .\public\product-intelligence-index.json:222834 — "headline": "HALO-WFA-290: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:222890 — "headline": "HALO-WFA-290: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:222919 — "headline": "HALO-WFA-290: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:222945 — "headline": "HALO-WFA-290: deployment and commissioning view",
+- .\public\product-intelligence-index.json:222973 — "headline": "HALO-WFA-290: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:223002 — "id": "HALO-WFA-290",
+- .\public\product-intelligence-index.json:223005 — "sku": "HALO-WFA-290",
+- .\public\product-intelligence-index.json:223008 — "url": "https://www.wyrestorm.com/product/halo-wfa-290/",
+- .\public\product-intelligence-index.json:223044 — "HALO-WFA-290",
+- .\public\product-intelligence-index.json:223059 — "HALO-WFA-290: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:223078 — "HALO-WFA-290: deployment and commissioning view",
+- .\public\product-intelligence-index.json:223092 — "HALO-WFA-290: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:223107 — "url": "https://www.wyrestorm.com/product/halo-wfa-290/",
+- .\public\product-intelligence-index.json:223167 — "officialProductUrl": "https://www.wyrestorm.com/product/halo-wfa-290/",
+- .\public\product-intelligence-index.json:223321 — "headline": "HALO-WFA-290: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:223350 — "headline": "HALO-WFA-290: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:223376 — "headline": "HALO-WFA-290: deployment and commissioning view",
+- .\public\product-intelligence-index.json:223404 — "headline": "HALO-WFA-290: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:223461 — "headline": "HALO-WFA-290: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:223490 — "headline": "HALO-WFA-290: helps remote viewers see the room clearly",
+- .\public\product-intelligence-index.json:223516 — "headline": "HALO-WFA-290: deployment and commissioning view",
+- .\public\product-intelligence-index.json:223544 — "headline": "HALO-WFA-290: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:223608 — "evidenceSource": "https://www.wyrestorm.com/product/halo-wfa-290/",
+- .\public\product-intelligence-index.json:223614 — "canonicalSku": "HALO-WFA-290",
+- .\public\product-intelligence-index.json:223634 — "detail": "https://www.wyrestorm.com/product/halo-wfa-290/"
+- .\public\product-intelligence-index.json:583406 — "HALO-WFA-290": "HALO-WFA-290",
+- .\public\product-intelligence-index.json:583697 — "1080P HD Webcam - Business USB Webcam w/ Mic | WyreStorm FOCUS 100 Webcam": "HALO-WFA-290",
+
+### MV-0401-PRO
+
+- .\src\wingman2\data\productPositioningCards.ts:1103 — sku: "MV-0401-PRO",
+- .\src\wingman2\lib\wyrestormCapabilityProfiles.ts:38 — "MV-0401-PRO": { capabilities: ["multiview", "ledWall"] },
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:685 — ## MV-0401-PRO
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:687 — - **sku:** MV-0401-PRO
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:688 — - **id:** MV-0401-PRO
+- .\docs\product-story-cleanup\active-story-backlog-review-notes-20260628.md:7 — - MV-0401-PRO — invalid WyreStorm SKU. Do not story. Correct multiview SKU for WyreStorm discussions is NHD-0401-MV.
+- .\docs\product-story-coverage-backlog.md:15 — - [ ] MV-0401-PRO
+- .\public\product-intelligence-index.json:254047 — "id": "MV-0401-PRO",
+- .\public\product-intelligence-index.json:254050 — "sku": "MV-0401-PRO",
+- .\public\product-intelligence-index.json:254143 — "mv-0401-pro",
+- .\public\product-intelligence-index.json:254181 — "mv-0401-pro: 4-input 4k60 multiview processor for networkhd",
+- .\public\product-intelligence-index.json:254239 — "canonicalSku": "MV-0401-PRO",
+- .\public\product-intelligence-index.json:254432 — "headline": "MV-0401-PRO: 4-Input 4K60 Multiview Processor for NetworkHD",
+- .\public\product-intelligence-index.json:254482 — "headline": "MV-0401-PRO: 4-Input 4K60 Multiview Processor for NetworkHD",
+- .\public\product-intelligence-index.json:254548 — "id": "MV-0401-PRO",
+- .\public\product-intelligence-index.json:254561 — "sku": "MV-0401-PRO",
+- .\public\product-intelligence-index.json:254802 — "headline": "MV-0401-PRO: 4-Input 4K60 Multiview Processor for NetworkHD",
+- .\public\product-intelligence-index.json:254852 — "headline": "MV-0401-PRO: 4-Input 4K60 Multiview Processor for NetworkHD",
+- .\public\product-intelligence-index.json:255008 — "canonicalSku": "MV-0401-PRO",
+- .\public\product-intelligence-index.json:583430 — "MV-0401-PRO": "MV-0401-PRO",
+- .\public\product-intelligence-index.json:583729 — "4-Input 4K60 Multiview Processor for NetworkHD": "MV-0401-PRO",
+- .\public\product-media-index.json:6497 — "sku": "MV-0401-PRO",
+- .\public\product-media-index.json:13470 — "MV-0401-PRO": {
+- .\public\product-media-index.json:13471 — "sku": "MV-0401-PRO",
+- .\tools\import-wyrestorm-product-guide.mjs:193 — "MV-0401-PRO": {
+
+### MXV-0606-H2A-70
+
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:781 — ## MXV-0606-H2A-70
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:783 — - **sku:** MXV-0606-H2A-70
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:784 — - **id:** MXV-0606-H2A-70
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:786 — - **description:** Consumer HDMI content is now breaking through the once comfortable HDBaseT ‘ceiling’ of 10Gbps, with HFR (High Frame Rate). HDR is here already in the form of Blu-Ray, Satellite & Cable (HLG) and gamin...
+- .\docs\product-story-cleanup\active-story-backlog-review-notes-20260628.md:8 — - MXV-0606-H2A-70 — generated record appears to describe a receiver companion rather than the matrix SKU itself.
+- .\docs\product-story-coverage-backlog.md:16 — - [ ] MXV-0606-H2A-70
+- .\public\product-call-card-practical-copy-audit.json:4403 — "sku": "MXV-0606-H2A-70",
+- .\public\product-call-card-practical-copy-audit.json:4407 — "description": "MXV-0606-H2A-70 belongs in the meeting-room workflow discussion. Position it around host device, USB path, camera/audio behaviour and how the room actually joins calls.",
+- .\public\product-call-card-practical-copy-audit.json:4409 — "openingLine": "MXV-0606-H2A-70 should be sold as part of the room meeting experience: what the user plugs into, what camera/audio they take over, and what still needs validation before quote.",
+- .\public\product-call-card-practical-copy-audit.json:4421 — "description": "MXV-0606-H2A-70 belongs in the meeting-room workflow discussion. Position it around host device, USB path, camera/audio behaviour and how the room actually joins calls.",
+- .\public\product-call-card-practical-copy-audit.json:4423 — "openingLine": "MXV-0606-H2A-70 should be sold as part of the room meeting experience: what the user plugs into, what camera/audio they take over, and what still needs validation before quote.",
+- .\public\product-call-card-practical-copy-audit.json:4431 — "followUp": "\"MXV-0606-H2A-70 is the room camera.\" The practical hooks are 4K60, HDR, USB 3.x. Then place it in the range: Part of the WyreStorm camera family. NDI models join network-video workflows; PTZ models give c...
+- .\public\product-call-card-products.json:11100 — "sku": "MXV-0606-H2A-70",
+- .\public\product-call-card-products.json:11104 — "description": "MXV-0606-H2A-70 belongs in the meeting-room workflow discussion. Position it around host device, USB path, camera/audio behaviour and how the room actually joins calls.",
+- .\public\product-call-card-products.json:11135 — "openingLine": "MXV-0606-H2A-70 should be sold as part of the room meeting experience: what the user plugs into, what camera/audio they take over, and what still needs validation before quote.",
+- .\public\product-call-card-products.json:11154 — "followUp": "\"MXV-0606-H2A-70 is the room camera.\" The practical hooks are 4K60, HDR, USB 3.x. Then place it in the range: Part of the WyreStorm camera family. NDI models join network-video workflows; PTZ models give c...
+- .\public\product-intelligence-index.json:303814 — "id": "MXV-0606-H2A-70",
+- .\public\product-intelligence-index.json:303817 — "sku": "MXV-0606-H2A-70",
+- .\public\product-intelligence-index.json:303819 — "description": "Consumer HDMI content is now breaking through the once comfortable HDBaseT ‘ceiling’ of 10Gbps, with HFR (High Frame Rate). HDR is here already in the form of Blu-Ray, Satellite & Cable (HLG) and gaming c...
+- .\public\product-intelligence-index.json:303820 — "summary": "Consumer HDMI content is now breaking through the once comfortable HDBaseT ‘ceiling’ of 10Gbps, with HFR (High Frame Rate). HDR is here already in the form of Blu-Ray, Satellite & Cable (HLG) and gaming conte...
+- .\public\product-intelligence-index.json:303879 — "mxv-0606-h2a-70",
+- .\public\product-intelligence-index.json:303882 — "consumer hdmi content is now breaking through the once comfortable hdbaset ‘ceiling’ of 10gbps, with hfr (high frame rate). hdr is here already in the form of blu-ray, satellite & cable (hlg) and gaming content. the rxv...
+- .\public\product-intelligence-index.json:303970 — "canonicalSku": "MXV-0606-H2A-70",
+- .\public\product-intelligence-index.json:304064 — "matrixSizeEvidence": "SKU evidence: MXV-0606-H2A-70",
+- .\public\product-intelligence-index.json:304824 — "sku": "MXV-0606-H2A-70",
+- .\public\product-intelligence-index.json:304828 — "description": "Consumer HDMI content is now breaking through the once comfortable HDBaseT ‘ceiling’ of 10Gbps, with HFR (High Frame Rate). HDR is here already in the form of Blu-Ray, Satellite & Cable (HLG) and gaming c...
+- .\public\product-intelligence-index.json:305828 — "matrixSizeEvidence": "SKU evidence: MXV-0606-H2A-70",
+- .\public\product-intelligence-index.json:305855 — "canonicalSku": "MXV-0606-H2A-70",
+- .\public\product-intelligence-index.json:324129 — "Designed for use with the MXV-0808-H2A-70 | MXV-0606-H2A-70",
+- .\public\product-intelligence-index.json:324162 — "Designed for use with the MXV-0808-H2A-70 | MXV-0606-H2A-70",
+- .\public\product-intelligence-index.json:325153 — "Designed for use with the MXV-0808-H2A-70 | MXV-0606-H2A-70",
+- .\public\product-intelligence-index.json:325186 — "Designed for use with the MXV-0808-H2A-70 | MXV-0606-H2A-70",
+- .\public\product-intelligence-index.json:483940 — "Designed for use with the MXV-0808-H2A-70 | MXV-0606-H2A-70",
+- .\public\product-intelligence-index.json:483973 — "Designed for use with the MXV-0808-H2A-70 | MXV-0606-H2A-70",
+- .\public\product-intelligence-index.json:484842 — "Designed for use with the MXV-0808-H2A-70 | MXV-0606-H2A-70",
+- .\public\product-intelligence-index.json:484875 — "Designed for use with the MXV-0808-H2A-70 | MXV-0606-H2A-70",
+- .\public\product-intelligence-index.json:583451 — "MXV-0606-H2A-70": "MXV-0606-H2A-70",
+- .\public\product-intelligence-index.json:583750 — "70m 4K60 HDBaseT Receiver for MXV - WyreStorm": "MXV-0606-H2A-70",
+- .\tools\repair-routed-io-evidence.mjs:52 — "MXV-0606-H2A-70": {
+- .\tools\repair-routed-io-evidence.mjs:55 — matrixSizeEvidence: "SKU evidence: MXV-0606-H2A-70",
+
+### NHD-124-RACK-1U
+
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:833 — ## NHD-124-RACK-1U
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:835 — - **sku:** NHD-124-RACK-1U
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:836 — - **id:** NHD-124-RACK-1U
+- .\docs\product-story-coverage-backlog.md:17 — - [ ] NHD-124-RACK-1U
+- .\public\product-call-card-accessory-language-audit.json:485 — "sku": "NHD-124-RACK-1U",
+- .\public\product-call-card-accessory-language-audit.json:490 — "description": "The NHD-124-RACK-1U is a 1U rack mount that provides a clean installation for up to 2 NetworkHD 100 Series NHD-124-TX quad encoders. The minimal rack unit height and compact mounting arrangement allows a ...
+- .\public\product-call-card-accessory-language-audit.json:492 — "openingLine": "NHD-124-RACK-1U sits in the NetworkHD 100 AV-over-IP conversation: use it when the customer needs flexible routing rather than a fixed matrix path.",
+- .\public\product-call-card-accessory-language-audit.json:510 — "description": "NHD-124-RACK-1U is a mounting accessory used to physically support a compatible WyreStorm product. Confirm the paired product and installation position before specifying it."
+- .\public\product-call-card-copy-repair-audit.json:968 — "sku": "NHD-124-RACK-1U",
+- .\public\product-call-card-practical-copy-audit.json:5162 — "sku": "NHD-124-RACK-1U",
+- .\public\product-call-card-practical-copy-audit.json:5166 — "description": "NHD-124-RACK-1U is a supporting accessory. Position it only in relation to the main product or installation job it completes.",
+- .\public\product-call-card-practical-copy-audit.json:5168 — "openingLine": "NHD-124-RACK-1U is an attach item, not the lead recommendation. Start by confirming which main product or installation detail it supports.",
+- .\public\product-call-card-practical-copy-audit.json:5180 — "description": "NHD-124-RACK-1U is a supporting accessory. Position it only in relation to the main product or installation job it completes.",
+- .\public\product-call-card-practical-copy-audit.json:5182 — "openingLine": "NHD-124-RACK-1U is an attach item, not the lead recommendation. Start by confirming which main product or installation detail it supports.",
+- .\public\product-call-card-practical-copy-audit.json:5190 — "followUp": "\"NHD-124-RACK-1U is the NetworkHD AV-over-IP endpoint.\" The practical hooks are Accessory, Mechanical, 1U rack mount. Then place it in the range: Part of the NetworkHD 100 series - H.264/H.265 over standar...
+- .\public\product-call-card-products.json:13158 — "sku": "NHD-124-RACK-1U",
+- .\public\product-call-card-products.json:13162 — "description": "NHD-124-RACK-1U is a supporting accessory. Position it only in relation to the main product or installation job it completes.",
+- .\public\product-call-card-products.json:13233 — "openingLine": "NHD-124-RACK-1U is an attach item, not the lead recommendation. Start by confirming which main product or installation detail it supports.",
+- .\public\product-call-card-products.json:13248 — "officialUrl": "https://www.wyrestorm.com/product/nhd-124-rack-1u/",
+- .\public\product-call-card-products.json:13257 — "followUp": "\"NHD-124-RACK-1U is the NetworkHD AV-over-IP endpoint.\" The practical hooks are Accessory, Mechanical, 1U rack mount. Then place it in the range: Part of the NetworkHD 100 series - H.264/H.265 over standar...
+- .\public\product-call-card-products.official-audit.json:1135 — "sku": "NHD-124-RACK-1U",
+- .\public\product-call-card-products.official-audit.json:1136 — "officialUrl": "https://www.wyrestorm.com/product/nhd-124-rack-1u/",
+- .\public\product-call-card-targeted-questions-audit.json:2198 — "sku": "NHD-124-RACK-1U",
+- .\public\product-intelligence-index.json:355085 — "id": "NHD-124-RACK-1U",
+- .\public\product-intelligence-index.json:355088 — "sku": "NHD-124-RACK-1U",
+- .\public\product-intelligence-index.json:355167 — "nhd-124-rack-1u",
+- .\public\product-intelligence-index.json:355200 — "nhd-124-rack-1u: 1u 2-slot rack mount for networkhd nhd-124-tx",
+- .\public\product-intelligence-index.json:355260 — "canonicalSku": "NHD-124-RACK-1U",
+- .\public\product-intelligence-index.json:355421 — "headline": "NHD-124-RACK-1U: 1U 2-Slot Rack Mount for NetworkHD NHD-124-TX",
+- .\public\product-intelligence-index.json:355470 — "headline": "NHD-124-RACK-1U: 1U 2-Slot Rack Mount for NetworkHD NHD-124-TX",
+- .\public\product-intelligence-index.json:355536 — "id": "NHD-124-RACK-1U",
+- .\public\product-intelligence-index.json:355545 — "sku": "NHD-124-RACK-1U",
+- .\public\product-intelligence-index.json:355744 — "headline": "NHD-124-RACK-1U: 1U 2-Slot Rack Mount for NetworkHD NHD-124-TX",
+- .\public\product-intelligence-index.json:355793 — "headline": "NHD-124-RACK-1U: 1U 2-Slot Rack Mount for NetworkHD NHD-124-TX",
+- .\public\product-intelligence-index.json:355949 — "canonicalSku": "NHD-124-RACK-1U",
+- .\public\product-intelligence-index.json:583475 — "NHD-124-RACK-1U": "NHD-124-RACK-1U",
+- .\public\product-intelligence-index.json:583774 — "1U 2-Slot Rack Mount for NetworkHD NHD-124-TX": "NHD-124-RACK-1U",
+- .\public\product-media-index.json:6599 — "sku": "NHD-124-RACK-1U",
+- .\public\product-media-index.json:13572 — "NHD-124-RACK-1U": {
+- .\public\product-media-index.json:13573 — "sku": "NHD-124-RACK-1U",
+- .\tools\import-wyrestorm-product-guide.mjs:225 — "NHD-124-RACK-1U": {
+
+### NHD-500-E
+
+- .\src\features\catalog\catalogIntelligence.ts:312 — recommended: ["NHD-500-E-TX", "NHD-500-E-RX", "NHD-600-TRX"],
+- .\src\features\catalog\catalogIntelligence.ts:588 — return { required: [], recommended: ["NHD-500-E-TX", "NHD-500-E-RX", "NHD-600-TRX"], compatibleHosts: [] };
+- .\src\wingman2\components\TemplateDiscoverySeedPanel.tsx:204 — productDirection: ["NHD-500-TX x50", "NHD-500-E-RX x8", "NHD-500-RX x4", "NHD-CTL-PRO v2"],
+- .\src\wingman2\components\TemplateDiscoverySeedPanel.tsx:424 — { qty: String(viewOnlyDisplays), item: "NHD-500-E-RX", role: "Provides view-only display endpoints.", notes: "Calculated from Displays minus 4 USB-KVM positions." },
+- .\src\wingman2\components\TemplateDiscoverySeedPanel.tsx:456 — { qty: displayQty, item: usbRequired ? "NHD-500-RX" : "NHD-500-E-RX", role: usbRequired ? "Decode routed video and support USB workflows at display/operator endpoints." : "Decode routed video at view-only display endpoin...
+- .\src\wingman2\data\productStories.ts:732 — sku: "NHD-500-E-TX",
+- .\src\wingman2\data\productStories.ts:737 — oneLinePosition: "NHD-500-E-TX is the value NetworkHD 500 encoder for source positions that need the picture quality without the extra connectivity.",
+- .\src\wingman2\data\productStories.ts:738 — whatItIs: "NHD-500-E-TX is a Lite NetworkHD 500-series 4K60 4:4:4 encoder over a standard 1GbE network, with audio de-embed and IR, powered over the network - a cost-focused encoder that keeps the 500-series image qualit...
+- .\src\wingman2\data\productStories.ts:747 — familyContext: "The value end of the NetworkHD 500 encoder range. Use NHD-500-E-TX for the many source positions that just need the picture on the network, and step up to NHD-510-TX or NHD-500-DNT-TX only where USB-C, lo...
+- .\src\wingman2\data\productStories.ts:752 — customerSafeWording: "Use NHD-500-E-TX as the cost-effective source-side encoder in a NetworkHD 500 system where most positions just need the source on the network at full picture quality.",
+- .\src\wingman2\data\productStories.ts:760 — sku: "NHD-500-E-RX",
+- .\src\wingman2\data\productStories.ts:765 — oneLinePosition: "NHD-500-E-RX is the value NetworkHD 500 decoder for displays that need the picture quality without the extra outputs.",
+- .\src\wingman2\data\productStories.ts:766 — whatItIs: "NHD-500-E-RX is a Lite NetworkHD 500-series 4K60 4:4:4 decoder over a standard 1GbE network, with RS232 and network power - a cost-focused decoder that keeps the 500-series image quality.",
+- .\src\wingman2\data\productStories.ts:775 — familyContext: "The value end of the NetworkHD 500 decoder range. Use NHD-500-E-RX for the many display points that just need a source on screen, and step up to NHD-500-RX where video wall, USB or audio de-embed are need...
+- .\src\wingman2\data\productStories.ts:780 — customerSafeWording: "Use NHD-500-E-RX as the cost-effective display-side decoder in a NetworkHD 500 system where most screens simply need to show a source at full picture quality.",
+- .\src\wingman2\lib\networkHdAvoipEquivalence.test.ts:21 — for (const sku of ["NHD-120-TX", "NHD-124-TX", "NHD-150-RX", "NHD-500-TX", "NHD-500-E-RX", "NHD-510-TX", "NHD-600-TRX", "NHD-610-TX"]) {
+- .\src\wingman2\lib\networkHdAvoipEquivalence.test.ts:128 — expect(recommendation.candidateSkus).toContain("NHD-500-E-RX");
+- .\src\wingman2\lib\networkHdAvoipEquivalence.ts:186 — { sku: "NHD-500-E-TX", role: "encoder", note: "4K60 4:4:4 lite encoder" },
+- .\src\wingman2\lib\networkHdAvoipEquivalence.ts:191 — { sku: "NHD-500-E-RX", role: "decoder", note: "4K60 4:4:4 lite decoder" },
+- .\src\wingman2\lib\productCallCommercialOverrides.ts:396 — "NHD-500-E": networkFlexibleEndpointOverride("NHD-500-E", "1GbE AVoIP", "This sounds like a broader 500-series NetworkHD design where endpoint flexibility and expansion are part of the brief. NHD-500-E may be relevant if...
+- .\src\wingman2\lib\productCallCommercialOverrides.ts:397 — "NHD-500-E-RX": networkDisplayOverride("NHD-500-E-RX", "1GbE", "This appears to be a display-side endpoint discussion inside a 500-series NetworkHD system. NHD-500-E-RX may be relevant if the display location needs to re...
+- .\src\wingman2\lib\productCallCommercialOverrides.ts:398 — "NHD-500-E-TX": networkSourceOverride("NHD-500-E-TX", "1GbE AVoIP", "This looks like a source-side endpoint decision inside a 500-series NetworkHD architecture. NHD-500-E-TX may be relevant if local room content has to j...
+- .\src\wingman2\lib\templateDiscoverySeeds.ts:264 — "NHD-500-E-RX x8",
+- .\src\wingman2\lib\wyrestormCapabilityProfiles.ts:43 — "NHD-500-E-RX": { capabilities: ["videoWall", "mosaicVideoWall"] },
+- .\src\wingman2\pages\ComparePageNew.tsx:1128 — if (upper === "NHD-500-E-TX") {
+- .\src\wingman2\pages\ComparePageNew.tsx:3028 — if (/NHD-500-E-TX/i.test(candidate.product.sku)) {
+- .\src\wingman2\pages\ProductPitchPage.tsx:182 — "NHD-500-E",
+- .\src\wingman2\pages\TemplatesPage.tsx:342 — direction: "Use NHD-500-TX x50, NHD-500-E-RX x8 and USB-capable NetworkHD 500 receiver endpoints for the four KVM positions.",
+- .\src\wingman2\pages\TemplatesPage.tsx:344 — dependencies: ["NHD-500-TX x50", "NHD-500-E-RX x8", "NHD-500-RX x4 assumed", "NHD-CTL-PRO v2"],
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:871 — ## NHD-500-E
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:873 — - **sku:** NHD-500-E
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:874 — - **id:** NHD-500-E
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:876 — - **description:** The NHD-500-E encoder and decoder enhance the NetworkHD 500 series by providing an economical 4K60 solution. The “E” variations remove many of the I/O found on the standard encoder and decoder and reta...
+- .\docs\product-story-coverage-backlog.md:18 — - [ ] NHD-500-E
+- .\public\product-call-card-copy-repair-audit.json:1028 — "sku": "NHD-500-E-RX",
+- .\public\product-call-card-copy-repair-audit.json:1038 — "sku": "NHD-500-E-TX",
+- .\public\product-call-card-practical-copy-audit.json:5665 — "sku": "NHD-500-E",
+- .\public\product-call-card-practical-copy-audit.json:5671 — "openingLine": "Lead with endpoint scale: NHD-500-E is the WyreStorm path when the customer needs a broader 500-series AVoIP architecture and the sale is about system flexibility, not a single transmitter or receiver in ...
+- .\public\product-call-card-practical-copy-audit.json:5685 — "openingLine": "Lead with endpoint scale: NHD-500-E is the WyreStorm path when the customer needs a broader 500-series AVoIP architecture and the sale is about system flexibility, not a single transmitter or receiver in ...
+- .\public\product-call-card-practical-copy-audit.json:5693 — "followUp": "This sounds like a broader 500-series NetworkHD design where endpoint flexibility and expansion are part of the brief. NHD-500-E may be relevant if the project needs repeatable endpoint growth, but we should...
+- .\public\product-call-card-practical-copy-audit.json:5695 — "If the customer says NHD-500-E is overkill, test whether they truly need endpoint flexibility or whether a fixed-role endpoint is cleaner.",
+- .\public\product-call-card-practical-copy-audit.json:5702 — "sku": "NHD-500-E-RX",
+- .\public\product-call-card-practical-copy-audit.json:5708 — "openingLine": "Lead with the destination role: NHD-500-E-RX is the WyreStorm path when a display endpoint has to receive content from a managed NetworkHD 500 system with a clean, supportable install. Bring it in when th...
+- .\public\product-call-card-practical-copy-audit.json:5722 — "openingLine": "Lead with the destination role: NHD-500-E-RX is the WyreStorm path when a display endpoint has to receive content from a managed NetworkHD 500 system with a clean, supportable install. Bring it in when th...
+- .\public\product-call-card-practical-copy-audit.json:5730 — "followUp": "This appears to be a display-side endpoint discussion inside a 500-series NetworkHD system. NHD-500-E-RX may be relevant if the display location needs to receive content from the wider AVoIP design, but we s...
+- .\public\product-call-card-practical-copy-audit.json:5732 — "If the customer says NHD-500-E-RX is interchangeable with any receiver, confirm the exact NetworkHD series and system design before agreeing.",
+- .\public\product-call-card-practical-copy-audit.json:5739 — "sku": "NHD-500-E-TX",
+- .\public\product-call-card-practical-copy-audit.json:5745 — "openingLine": "Lead with bringing sources onto the network: NHD-500-E-TX is the WyreStorm path when a local HDMI source has to become part of a 500-series NetworkHD design rather than stay in a local switcher or matrix....
+- .\public\product-call-card-practical-copy-audit.json:5759 — "openingLine": "Lead with bringing sources onto the network: NHD-500-E-TX is the WyreStorm path when a local HDMI source has to become part of a 500-series NetworkHD design rather than stay in a local switcher or matrix....
+- .\public\product-call-card-practical-copy-audit.json:5767 — "followUp": "This looks like a source-side endpoint decision inside a 500-series NetworkHD architecture. NHD-500-E-TX may be relevant if local room content has to join the wider AVoIP platform, but we should confirm sour...
+- .\public\product-call-card-practical-copy-audit.json:5769 — "If the customer says NHD-500-E-TX is just a transmitter, bring the discussion back to the wider NetworkHD system because the endpoint only makes sense inside the right architecture.",
+- .\public\product-call-card-products.json:14502 — "sku": "NHD-500-E",
+- .\public\product-call-card-products.json:14540 — "openingLine": "Lead with endpoint scale: NHD-500-E is the WyreStorm path when the customer needs a broader 500-series AVoIP architecture and the sale is about system flexibility, not a single transmitter or receiver in ...
+- .\public\product-call-card-products.json:14559 — "followUp": "This sounds like a broader 500-series NetworkHD design where endpoint flexibility and expansion are part of the brief. NHD-500-E may be relevant if the project needs repeatable endpoint growth, but we should...
+- .\public\product-call-card-products.json:14561 — "If the customer says NHD-500-E is overkill, test whether they truly need endpoint flexibility or whether a fixed-role endpoint is cleaner.",
+- .\public\product-call-card-products.json:14567 — "sku": "NHD-500-E-RX",
+- .\public\product-call-card-products.json:14597 — "NHD-500-E-RX",
+- .\public\product-call-card-products.json:14637 — "openingLine": "Lead with the destination role: NHD-500-E-RX is the WyreStorm path when a display endpoint has to receive content from a managed NetworkHD 500 system with a clean, supportable install. Bring it in when th...
+- .\public\product-call-card-products.json:14661 — "followUp": "This appears to be a display-side endpoint discussion inside a 500-series NetworkHD system. NHD-500-E-RX may be relevant if the display location needs to receive content from the wider AVoIP design, but we s...
+- .\public\product-call-card-products.json:14663 — "If the customer says NHD-500-E-RX is interchangeable with any receiver, confirm the exact NetworkHD series and system design before agreeing.",
+- .\public\product-call-card-products.json:14669 — "sku": "NHD-500-E-TX",
+- .\public\product-call-card-products.json:14703 — "NHD-500-E-TX",
+- .\public\product-call-card-products.json:14731 — "openingLine": "Lead with bringing sources onto the network: NHD-500-E-TX is the WyreStorm path when a local HDMI source has to become part of a 500-series NetworkHD design rather than stay in a local switcher or matrix....
+- .\public\product-call-card-products.json:14755 — "followUp": "This looks like a source-side endpoint decision inside a 500-series NetworkHD architecture. NHD-500-E-TX may be relevant if local room content has to join the wider AVoIP platform, but we should confirm sour...
+- .\public\product-call-card-products.json:14757 — "If the customer says NHD-500-E-TX is just a transmitter, bring the discussion back to the wider NetworkHD system because the endpoint only makes sense inside the right architecture.",
+- .\public\product-call-card-products.official-audit.json:1728 — "NHD-500-E-RX",
+- .\public\product-call-card-products.official-audit.json:1729 — "NHD-500-E-TX",
+- .\public\product-call-card-targeted-questions-audit.json:2402 — "sku": "NHD-500-E-RX",
+- .\public\product-call-card-targeted-questions-audit.json:2437 — "sku": "NHD-500-E-TX",
+- .\public\product-intelligence-index.json:388593 — "id": "NHD-500-E",
+- .\public\product-intelligence-index.json:388596 — "sku": "NHD-500-E",
+- .\public\product-intelligence-index.json:388598 — "description": "The NHD-500-E encoder and decoder enhance the NetworkHD 500 series by providing an economical 4K60 solution. The “E” variations remove many of the I/O found on the standard encoder and decoder and retain ...
+- .\public\product-intelligence-index.json:388599 — "summary": "The NHD-500-E encoder and decoder enhance the NetworkHD 500 series by providing an economical 4K60 solution. The “E” variations remove many of the I/O found on the standard encoder and decoder and retain only...
+- .\public\product-intelligence-index.json:388664 — "nhd-500-e",
+- .\public\product-intelligence-index.json:388667 — "the nhd-500-e encoder and decoder enhance the networkhd 500 series by providing an economical 4k60 solution. the “e” variations remove many of the i/o found on the standard encoder and decoder and retain only the core f...
+- .\public\product-intelligence-index.json:388698 — "nhd-500-e: moves av around the building using the network",
+- .\public\product-intelligence-index.json:388718 — "nhd-500-e: deployment and commissioning view",
+- .\public\product-intelligence-index.json:388732 — "nhd-500-e: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:388758 — "canonicalSku": "NHD-500-E",
+- .\public\product-intelligence-index.json:388778 — "detail": "https://www.wyrestorm.com/product/nhd-500-e/"
+
+### SW-0X01-8K
+
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:1168 — ## SW-0X01-8K
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:1170 — - **sku:** SW-0X01-8K
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:1171 — - **id:** SW-0X01-8K
+- .\docs\product-story-coverage-backlog.md:19 — - [ ] SW-0X01-8K
+- .\public\product-call-card-practical-copy-audit.json:6987 — "sku": "SW-0X01-8K",
+- .\public\product-call-card-practical-copy-audit.json:6991 — "description": "SW-0X01-8K is a supporting accessory. Position it only in relation to the main product or installation job it completes.",
+- .\public\product-call-card-practical-copy-audit.json:6993 — "openingLine": "SW-0X01-8K is an attach item, not the lead recommendation. Start by confirming which main product or installation detail it supports.",
+- .\public\product-call-card-practical-copy-audit.json:7005 — "description": "SW-0X01-8K is a supporting accessory. Position it only in relation to the main product or installation job it completes.",
+- .\public\product-call-card-practical-copy-audit.json:7007 — "openingLine": "SW-0X01-8K is an attach item, not the lead recommendation. Start by confirming which main product or installation detail it supports.",
+- .\public\product-call-card-practical-copy-audit.json:7015 — "followUp": "\"SW-0X01-8K is the video-wall processor.\" The practical hooks are 8K60, HDR, Video Wall. Then place it in the range: Sits in the dedicated video-wall processor family. SW-0204-VW is the simpler, preset-lay...
+- .\public\product-call-card-products.json:18448 — "sku": "SW-0X01-8K",
+- .\public\product-call-card-products.json:18452 — "description": "SW-0X01-8K is a supporting accessory. Position it only in relation to the main product or installation job it completes.",
+- .\public\product-call-card-products.json:18484 — "openingLine": "SW-0X01-8K is an attach item, not the lead recommendation. Start by confirming which main product or installation detail it supports.",
+- .\public\product-call-card-products.json:18503 — "followUp": "\"SW-0X01-8K is the video-wall processor.\" The practical hooks are 8K60, HDR, Video Wall. Then place it in the range: Sits in the dedicated video-wall processor family. SW-0204-VW is the simpler, preset-lay...
+- .\public\product-intelligence-index.json:501805 — "id": "SW-0X01-8K",
+- .\public\product-intelligence-index.json:501808 — "sku": "SW-0X01-8K",
+- .\public\product-intelligence-index.json:501872 — "sw-0x01-8k",
+- .\public\product-intelligence-index.json:501903 — "exp-sw-0x01-8k: makes the room easier for presenters to use",
+- .\public\product-intelligence-index.json:501925 — "exp-sw-0x01-8k: deployment and commissioning view",
+- .\public\product-intelligence-index.json:501939 — "exp-sw-0x01-8k: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:501965 — "canonicalSku": "SW-0X01-8K",
+- .\public\product-intelligence-index.json:501985 — "detail": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/"
+- .\public\product-intelligence-index.json:502055 — "officialProductUrl": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
+- .\public\product-intelligence-index.json:502231 — "8K EXP-SW-0X01-8K WyreStorm Essentials 8K60 HDM",
+- .\public\product-intelligence-index.json:502509 — "headline": "EXP-SW-0X01-8K: makes the room easier for presenters to use",
+- .\public\product-intelligence-index.json:502539 — "headline": "EXP-SW-0X01-8K: makes the room easier for presenters to use",
+- .\public\product-intelligence-index.json:502566 — "headline": "EXP-SW-0X01-8K: deployment and commissioning view",
+- .\public\product-intelligence-index.json:502595 — "headline": "EXP-SW-0X01-8K: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:502722 — "headline": "EXP-SW-0X01-8K: makes the room easier for presenters to use",
+- .\public\product-intelligence-index.json:502752 — "headline": "EXP-SW-0X01-8K: makes the room easier for presenters to use",
+- .\public\product-intelligence-index.json:502779 — "headline": "EXP-SW-0X01-8K: deployment and commissioning view",
+- .\public\product-intelligence-index.json:502808 — "headline": "EXP-SW-0X01-8K: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:502838 — "id": "EXP-SW-0X01-8K",
+- .\public\product-intelligence-index.json:502841 — "sku": "SW-0X01-8K",
+- .\public\product-intelligence-index.json:502844 — "url": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
+- .\public\product-intelligence-index.json:502941 — "EXP-SW-0X01-8K",
+- .\public\product-intelligence-index.json:502972 — "EXP-SW-0X01-8K: makes the room easier for presenters to use",
+- .\public\product-intelligence-index.json:502994 — "EXP-SW-0X01-8K: deployment and commissioning view",
+- .\public\product-intelligence-index.json:503008 — "EXP-SW-0X01-8K: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:503023 — "url": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
+- .\public\product-intelligence-index.json:503084 — "officialProductUrl": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
+- .\public\product-intelligence-index.json:503260 — "8K EXP-SW-0X01-8K WyreStorm Essentials 8K60 HDM",
+- .\public\product-intelligence-index.json:503538 — "headline": "EXP-SW-0X01-8K: makes the room easier for presenters to use",
+- .\public\product-intelligence-index.json:503568 — "headline": "EXP-SW-0X01-8K: makes the room easier for presenters to use",
+- .\public\product-intelligence-index.json:503595 — "headline": "EXP-SW-0X01-8K: deployment and commissioning view",
+- .\public\product-intelligence-index.json:503624 — "headline": "EXP-SW-0X01-8K: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:503752 — "headline": "EXP-SW-0X01-8K: makes the room easier for presenters to use",
+- .\public\product-intelligence-index.json:503782 — "headline": "EXP-SW-0X01-8K: makes the room easier for presenters to use",
+- .\public\product-intelligence-index.json:503809 — "headline": "EXP-SW-0X01-8K: deployment and commissioning view",
+- .\public\product-intelligence-index.json:503838 — "headline": "EXP-SW-0X01-8K: architecture fit and trade-off view",
+- .\public\product-intelligence-index.json:503903 — "evidenceSource": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
+- .\public\product-intelligence-index.json:503909 — "canonicalSku": "SW-0X01-8K",
+- .\public\product-intelligence-index.json:503929 — "detail": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/"
+- .\public\product-intelligence-index.json:583544 — "SW-0X01-8K": "SW-0X01-8K",
+- .\public\product-intelligence-index.json:583841 — "WyreStorm Essentials 8K60 HDMI Switcher - WyreStorm": "SW-0X01-8K",
+- .\public\wyrestorm-product-update-check.json:202 — "sku": "EXP-SW-0X01-8K",
+- .\public\wyrestorm-product-update-check.json:203 — "url": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
+
+### SW-130-TX
+
+- .\src\wingman2\components\WingmanGuruDrawer.tsx:90 — "Which receiver can I use with the SW-130-TX-UK?",
+- .\src\wingman2\components\WingmanGuruDrawer.tsx:91 — "Which receiver can I use with the SW-130-TX-UK if USB is not important and the run is 30m?",
+- .\src\wingman2\components\WingmanGuruDrawer.tsx:662 — return normalised === "SW-130-TX" || normalised === "SW-130-TX-UK" || normalised === "SW-130-TX-US";
+- .\src\wingman2\components\WingmanGuruDrawer.tsx:882 — return `Tell me the transmitter SKU and I'll identify the correct receiver path. For example: "Which receiver works with SW-130-TX-UK?"`;
+- .\src\wingman2\components\WingmanGuruDrawer.tsx:996 — "- SW-130-TX-UK / SW-130-TX-US with RX-500 for shorter USB-required runs or RX-700 for the longer SW-130 receive path.",
+- .\src\wingman2\components\WingmanGuruDrawer.tsx:1022 — "- SW-130-TX-UK / SW-130-TX-US with RX-500 for shorter USB-required runs or RX-700 for the longer SW-130 receive path.",
+- .\src\wingman2\data\productPositioningCards.ts:1269 — sku: "SW-130-TX-UK",
+- .\src\wingman2\data\productStories.ts:1591 — sku: "SW-130-TX-UK",
+- .\src\wingman2\data\productStories.ts:1596 — oneLinePosition: "SW-130-TX-UK is the in-wall switcher that lets a room choose between three sources and sends the picture down one long cable to a distant screen.",
+- .\src\wingman2\data\productStories.ts:1597 — whatItIs: "SW-130-TX-UK is a three-input 4K60 4:2:0 in-wall HDBaseT switcher with two HDMI and one USB-C input, CEC, in a two-gang plate, reaching a distant display at up to 100 metres.",
+- .\src\wingman2\data\productStories.ts:1612 — customerSafeWording: "Use SW-130-TX-UK to let a room choose between three sources at a wall plate and send the picture down one long cable to a distant screen.",
+- .\src\wingman2\data\productStories.ts:2399 — plainEnglishName: "HDBaseT receiver for SW-130-TX, 100m",
+- .\src\wingman2\data\productStories.ts:2403 — oneLinePosition: "RX-700 is the display-end receiver that completes a 100-metre link from the SW-130-TX in-wall switcher.",
+- .\src\wingman2\data\productStories.ts:2404 — whatItIs: "RX-700 is a 4K60 4:2:0 HDBaseT receiver with PoH power, USB 2.0, DSC, audio de-embed and RS232 and IR passthrough, reaching 100m at 4K, designed to pair with the SW-130-TX in-wall switcher.",
+- .\src\wingman2\data\productStories.ts:2405 — whatItDoes: "It sits at the screen, rebuilds the picture, USB and audio arriving from the SW-130-TX over a single cable up to 100 metres, and passes control through, completing the room link.",
+- .\src\wingman2\data\productStories.ts:2407 — salesTalkTrack: "Position it as the partner half of the SW-130-TX link: the screen-end receiver that completes a 100-metre run with USB and audio. Confirm it is quoted with the switcher and the run length.",
+- .\src\wingman2\data\productStories.ts:2410 — { sku: "SW-130-TX-UK", reason: "The in-wall switcher this receiver pairs with to complete the link." },
+- .\src\wingman2\data\productStories.ts:2413 — familyContext: "A companion receiver in the Synergy range, paired with the SW-130-TX in-wall switcher. It is the display-end half of a link, reaching further than the shorter Synergy receivers.",
+- .\src\wingman2\data\productStories.ts:2414 — whenToUse: ["An SW-130-TX in-wall switcher is in the design.", "The screen is up to 100 metres from the switcher.", "USB, audio or control is needed at the screen."],
+- .\src\wingman2\data\productStories.ts:2416 — discoveryQuestions: ["Is there an SW-130-TX in-wall switcher this needs to pair with?", "How far is the screen from that switcher?", "Does the screen end need USB, audio or control?", "Is the content fine enough that col...
+- .\src\wingman2\data\productStories.ts:2417 — quoteChecks: ["Confirm the matching SW-130-TX is in the quote.", "Confirm the run length against 100m at 4K.", "Confirm USB, audio and control needs.", "Confirm 4:2:0 is acceptable."],
+- .\src\wingman2\data\productStories.ts:2418 — customerSafeWording: "Use RX-700 at the screen to complete a 100-metre link from an SW-130-TX in-wall switcher, with USB and audio handled.",
+- .\src\wingman2\data\productStories.ts:2419 — internalRepGuidance: "Companion receiver - always quoted with the SW-130-TX. Confirm the run distance and USB/audio needs.",
+- .\src\wingman2\data\productStories.ts:2420 — keyFeatures: ["4K60 4:2:0 HDBaseT receiver", "Pairs with SW-130-TX, up to 100m", "USB 2.0 and audio de-embed", "PoH power", "RS232 and IR passthrough"],
+- .\src\wingman2\data\productStories.ts:2421 — diagramSource: "SW-130-TX in-wall switcher",
+- .\src\wingman2\data\productStories.ts:2579 — { sku: "SW-130-TX-UK", reason: "An in-wall switcher where several sources need selecting at the wall." }
+- .\src\wingman2\data\usbTierRules.ts:152 — sku: "SW-130-TX-UK",
+- .\src\wingman2\data\usbTierRules.ts:160 — sku: "SW-130-TX-US",
+- .\src\wingman2\data\usbTierRules.ts:179 — notes: ["Use with SW-130-TX series."],
+- .\src\wingman2\data\usbTierRules.ts:187 — notes: ["Use with SW-130-TX series."],
+- .\src\wingman2\lib\compareSkuNormalization.test.ts:41 — sku: "SW-130-TX-UK",
+- .\src\wingman2\lib\dependencyGovernance.ts:81 — label: "RX-500 short-distance receiver for SW-130-TX",
+- .\src\wingman2\lib\dependencyGovernance.ts:86 — sourceSkus: ["SW-130-TX", "SW-130-TX-UK", "SW-130-TX-US"],
+- .\src\wingman2\lib\dependencyGovernance.ts:92 — trigger: "SW-130-TX family transmitter selected with a short-distance receive path.",
+- .\src\wingman2\lib\dependencyGovernance.ts:101 — label: "RX-700 long-distance receiver for SW-130-TX",
+- .\src\wingman2\lib\dependencyGovernance.ts:106 — sourceSkus: ["SW-130-TX", "SW-130-TX-UK", "SW-130-TX-US"],
+- .\src\wingman2\lib\dependencyGovernance.ts:113 — trigger: "SW-130-TX family transmitter selected without a confirmed short-distance receiver path.",
+- .\src\wingman2\lib\dependencyGovernance.ts:114 — evidence: "Catalog receiver record identifies RX-700 as the longer-distance receiver path for SW-130-TX.",
+- .\src\wingman2\lib\dependencyGovernance.ts:117 — ruleSource: "WyreStorm 2026 catalog: RX-700 description includes [For SW-130-TX].",
+- .\src\wingman2\lib\dependencyGovernance.ts:334 — return normalised === "SW-130-TX" || normalised === "SW-130-TX-UK" || normalised === "SW-130-TX-US";
+- .\src\wingman2\lib\dependencyGovernance.ts:593 — trigger: "SW-130-TX family selected and USB transport is explicitly not required.",
+- .\src\wingman2\lib\productCallCommercialOverrides.ts:414 — "SW-130-TX-UK": presentationInputOverride("SW-130-TX-UK", "This looks like a user-facing presentation handoff requirement where the room needs to feel obvious for laptop users. SW-130-TX-UK may be relevant if the input p...
+- .\src\wingman2\lib\roomTemplates.ts:194 — sku: "SW-130-TX-UK",
+- .\src\wingman2\lib\roomTemplates.ts:1021 — sku: "SW-130-TX-UK",
+- .\src\wingman2\lib\roomTemplatesExtra.ts:411 — sku: "SW-130-TX-UK",
+- .\src\wingman2\lib\roomTemplatesExtra.ts:707 — sku: "SW-130-TX-UK",
+- .\src\wingman2\pages\FinderPage.tsx:292 — sku: "SW-130-TX-UK",
+- .\src\wingman2\pages\FinderPage.tsx:299 — searchText: "sw-130-tx-uk in wall hdmi usb-c usb hdbaset transmitter byod byom hdmi usb extender",
+- .\src\wingman2\pages\FinderPage.tsx:2329 — if (sku === "SW-130-TX-UK") return true;
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:1221 — ## SW-130-TX
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:1223 — - **sku:** SW-130-TX
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:1224 — - **id:** SW-130-TX
+- .\docs\product-story-cleanup\active-story-backlog-fact-pack-20260628.md:1226 — - **description:** The little sibling to the RX-700, the RX-500 also utilizes HDBaseT 2.0 technology extending 4K video, USB 2.0, audio and control point to point up to 35m/115ft. The RX-500 still maintains the ability s...
+- .\docs\product-story-cleanup\active-story-backlog-review-notes-20260628.md:9 — - SW-130-TX — generated record is polluted with RX-500 receiver copy and camera tags.
+- .\docs\product-story-coverage-backlog.md:20 — - [ ] SW-130-TX
+- .\docs\wyrestorm-lifecycle-reconciliation.md:111 — - [ ] SW-130-TX-US (do-not-spec)
+- .\public\product-call-card-copy-repair-audit.json:1298 — "sku": "SW-130-TX-UK",
+- .\public\product-call-card-copy-repair-audit.json:1308 — "sku": "SW-130-TX-US",
+- .\public\product-call-card-practical-copy-audit.json:7123 — "sku": "SW-130-TX",
+- .\public\product-call-card-practical-copy-audit.json:7127 — "description": "SW-130-TX belongs in the meeting-room workflow discussion. Position it around host device, USB path, camera/audio behaviour and how the room actually joins calls.",
+- .\public\product-call-card-practical-copy-audit.json:7129 — "openingLine": "SW-130-TX should be sold as part of the room meeting experience: what the user plugs into, what camera/audio they take over, and what still needs validation before quote.",
+- .\public\product-call-card-practical-copy-audit.json:7141 — "description": "SW-130-TX belongs in the meeting-room workflow discussion. Position it around host device, USB path, camera/audio behaviour and how the room actually joins calls.",
+- .\public\product-call-card-practical-copy-audit.json:7143 — "openingLine": "SW-130-TX should be sold as part of the room meeting experience: what the user plugs into, what camera/audio they take over, and what still needs validation before quote.",
+- .\public\product-call-card-practical-copy-audit.json:7151 — "followUp": "\"SW-130-TX is the room camera.\" The practical hooks are HDR, NDI, KVM. Then place it in the range: Part of the WyreStorm camera family. NDI models join network-video workflows; PTZ models give controllable...
+- .\public\product-call-card-practical-copy-audit.json:7156 — "sku": "SW-130-TX-UK",
+- .\public\product-call-card-practical-copy-audit.json:7160 — "description": "SW-130-TX-UK is best presented around the application: A useful front-of-room input plate when the customer needs a tidy local source connection point with switching. Keep the call focused on what the roo...
+- .\public\product-call-card-practical-copy-audit.json:7162 — "openingLine": "Lead with user connection simplicity: SW-130-TX-UK is the WyreStorm path when the room needs a straightforward in-room presentation handoff and the sale depends on making laptop connection feel obvious. B...
+- .\public\product-call-card-practical-copy-audit.json:7174 — "description": "SW-130-TX-UK is best presented around the application: A useful front-of-room input plate when the customer needs a tidy local source connection point with switching. Keep the call focused on what the roo...
+- .\public\product-call-card-practical-copy-audit.json:7176 — "openingLine": "Lead with user connection simplicity: SW-130-TX-UK is the WyreStorm path when the room needs a straightforward in-room presentation handoff and the sale depends on making laptop connection feel obvious. B...
+- .\public\product-call-card-practical-copy-audit.json:7184 — "followUp": "This looks like a user-facing presentation handoff requirement where the room needs to feel obvious for laptop users. SW-130-TX-UK may be relevant if the input point is the real pain point, but we should con...
+- .\public\product-call-card-practical-copy-audit.json:7186 — "If the customer says SW-130-TX-UK is just a wallplate, ask whether the current connection experience is already simple enough for everyday users.",
+- .\public\product-call-card-practical-copy-audit.json:7193 — "sku": "SW-130-TX-US",
+- .\public\product-call-card-practical-copy-audit.json:7197 — "description": "SW-130-TX-US belongs in the meeting-room workflow discussion. Position it around host device, USB path, camera/audio behaviour and how the room actually joins calls.",
+- .\public\product-call-card-practical-copy-audit.json:7199 — "openingLine": "SW-130-TX-US should be sold as part of the room meeting experience: what the user plugs into, what camera/audio they take over, and what still needs validation before quote.",
+- .\public\product-call-card-practical-copy-audit.json:7211 — "description": "SW-130-TX-US belongs in the meeting-room workflow discussion. Position it around host device, USB path, camera/audio behaviour and how the room actually joins calls.",
+- .\public\product-call-card-practical-copy-audit.json:7213 — "openingLine": "SW-130-TX-US should be sold as part of the room meeting experience: what the user plugs into, what camera/audio they take over, and what still needs validation before quote.",
+- .\public\product-call-card-practical-copy-audit.json:7221 — "followUp": "\"SW-130-TX-US is the video-wall processor.\" The practical hooks are HDR, Video Wall, USB 3.x. Then place it in the range: Sits in the dedicated video-wall processor family. SW-0204-VW is the simpler, prese...
+- .\public\product-call-card-products.json:17762 — "Compatible with SW-130-TX-US",
+- .\public\product-call-card-products.json:17763 — "Compatible with SW-130-TX-UK",
+- .\public\product-call-card-products.json:18060 — "Compatible with SW-130-TX-US",
+
