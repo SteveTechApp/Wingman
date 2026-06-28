@@ -1,4 +1,13 @@
 import { useEffect } from "react";
+function shouldSkipWorkflowAlphaFilter(): boolean {
+  if (typeof document === "undefined") {
+    return false;
+  }
+
+  const route = document.documentElement.getAttribute("data-wingman-route");
+
+  return route === "productCallCards" || route === "templates";
+}
 
 const TARGET_ROUTE_PARTS = [
   "/wingman/product-call-cards",
@@ -422,6 +431,10 @@ function refreshAlphaFilters(): void {
 
 export default function WorkflowAlphaNumericFilter(): null {
   useEffect(() => {
+    if (shouldSkipWorkflowAlphaFilter()) {
+      return;
+    }
+
     let frame = 0;
 
     const queueRefresh = () => {
