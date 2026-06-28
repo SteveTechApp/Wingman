@@ -2,16 +2,17 @@
 
 ## Current rule
 
-The app now uses one consolidated stylesheet:
+The app uses one consolidated style stack plus one app-wide redesign layer:
 
 - `wingman-style-stack.css`
+- `wingman-redesign-theme.css`, imported immediately after the stack
 
 The retired split stylesheets and legacy override folders have been archived out of the repo. Do not reintroduce page-level CSS imports.
 
 ## Current Rule
 
-1. `src/main.tsx` imports exactly one stylesheet.
-2. New app-wide layout, route, card, button, and form rules go into `wingman-style-stack.css`.
+1. `src/main.tsx` imports the style stack followed by the redesign theme.
+2. New app-wide layout, route, card, button, and form rules go into `wingman-style-stack.css`; visual-system overrides belong in `wingman-redesign-theme.css`.
 3. Page files must not import CSS directly.
 4. Prefer shared layout components before adding new selectors.
 5. Retire stale selectors after the page has been migrated and verified.
