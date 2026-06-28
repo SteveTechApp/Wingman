@@ -58,9 +58,11 @@ const comparePage = fs.readFileSync(path.join(root, "src/wingman2/pages/CompareP
 const requiredMarkers = [
   "function CompareEvidenceMatrix",
   "Comparison evidence matrix",
+  "Competitor product",
+  "WyreStorm candidate",
   "Why not 100%",
   "Check before quoting",
-  "<CompareEvidenceMatrix candidate={candidate} />"
+  "<CompareEvidenceMatrix candidate={candidate} competitor={competitor} />"
 ];
 
 for (const marker of requiredMarkers) {
