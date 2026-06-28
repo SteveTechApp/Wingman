@@ -86,6 +86,55 @@ describe("competitor compare runtime behaviour", () => {
     expect(leadSkus[0]).not.toMatch(/-TX\b/);
   });
 
+  it("keeps Blustream IP250UHD-TX runtime results on encoder-side NetworkHD 500, not decoder or 10G candidates", () => {
+    const result = runCompareRuntimePipeline("IP250UHD-TX", products, "Blustream", 12);
+    const leadSkus = skus(result.matches).slice(0, 5);
+
+    expect(result.competitor.brand).toBe("Blustream");
+    expect(leadSkus.length).toBeGreaterThan(0);
+    expectNoSupportItemsInLeadResults(result);
+    expect(leadSkus[0]).toBe("NHD-500-TX");
+    expect(leadSkus.some((item) => /-RX\b/.test(item))).toBe(false);
+    expect(leadSkus).not.toContain("NHD-600-TRX");
+  });
+
+  it("keeps Blustream IP250UHD-RX runtime results on decoder-side NetworkHD 500, not encoder or 10G candidates", () => {
+    const result = runCompareRuntimePipeline("IP250UHD-RX", products, "Blustream", 12);
+    const leadSkus = skus(result.matches).slice(0, 5);
+
+    expect(result.competitor.brand).toBe("Blustream");
+    expect(leadSkus.length).toBeGreaterThan(0);
+    expectNoSupportItemsInLeadResults(result);
+    expect(leadSkus[0]).toBe("NHD-500-RX");
+    expect(leadSkus.some((item) => /-TX\b/.test(item) && !/-TRX\b/.test(item))).toBe(false);
+    expect(leadSkus).not.toContain("NHD-600-TRX");
+  });
+  it("keeps verified 1G AVoIP runtime results away from NetworkHD 600 unless 10G or SDVoE is explicit", () => {
+    const scenarios: Array<[string, string | undefined]> = [
+      ["DMNVX350", "Crestron"],
+      ["IP250UHD-TX", "Blustream"],
+      ["IP250UHD-RX", "Blustream"],
+    ];
+
+    for (const [input, brand] of scenarios) {
+      const result = runCompareRuntimePipeline(input, products, brand, 12);
+      const leadSkus = skus(result.matches).slice(0, 5);
+
+      expect(leadSkus.length).toBeGreaterThan(0);
+      expect(leadSkus).not.toContain("NHD-600-TRX");
+      expect(leadSkus.some((item) => item.startsWith("NHD-500"))).toBe(true);
+    }
+  });
+
+  it("allows explicit 10G SDVoE runtime requests to lead with NetworkHD 600 rather than 1G NetworkHD 500", () => {
+    const result = runCompareRuntimePipeline("10G SDVoE AV over IP transceiver endpoint", products, undefined, 12);
+    const leadSkus = skus(result.matches).slice(0, 5);
+
+    expect(leadSkus.length).toBeGreaterThan(0);
+    expect(leadSkus[0]).toBe("NHD-600-TRX");
+    expect(leadSkus).not.toContain("NHD-500-TX");
+    expect(leadSkus).not.toContain("NHD-500-RX");
+  });
   it("keeps compact 4x2 matrix requests ahead of oversized 8x8 matrix package options", () => {
     const result = runCompareRuntimePipeline("MMX4x2-HDMI", products, "Lightware", 12);
     const leadSkus = skus(result.matches).slice(0, 4);
@@ -164,11 +213,41 @@ describe("competitor compare runtime behaviour", () => {
     expect(lead).toContain("NDI");
   });
 
-  it("leads wireless casting / UC presentation competitors with a WyreStorm Apollo (APO-) device", () => {
-    for (const [input, brand] of [["Solstice Gen3", "Mersive"], ["CX-50", "Barco ClickShare"]] as const) {
-      const result = runCompareRuntimePipeline(input, products, brand, 10);
-      expect(sku(result.matches[0])).toMatch(/^APO-/);
-    }
+  it("uses APO-210-UC with APO-DG2 for huddle-room wireless casting runtime results", () => {
+    const result = runCompareRuntimePipeline("small huddle room wireless casting with ClickShare style sharing", products, undefined, 12);
+    const leadSkus = skus(result.matches).slice(0, 5);
+
+    expect(leadSkus[0]).toBe("APO-210-UC");
+    expect(leadSkus).toContain("APO-DG2");
+    expect(leadSkus).not.toContain("SW-620-TX-W");
+    expect(leadSkus).not.toContain("SW-640-TX-W");
+  });
+
+  it("uses SW-620-TX-W with APO-DG2 for standard wireless casting runtime results", () => {
+    const result = runCompareRuntimePipeline("standard meeting room wireless casting ClickShare CX-50", products, "Barco ClickShare", 12);
+    const leadSkus = skus(result.matches).slice(0, 6);
+
+    expect(leadSkus[0]).toBe("SW-620-TX-W");
+    expect(leadSkus).toContain("APO-DG2");
+    expect(leadSkus).not.toContain("APO-210-UC");
+  });
+
+  it("uses SW-640-TX-W with APO-DG2 for larger wireless casting runtime results with six or more sources", () => {
+    const result = runCompareRuntimePipeline("training room wireless casting with 6 sources", products, undefined, 12);
+    const leadSkus = skus(result.matches).slice(0, 6);
+
+    expect(leadSkus[0]).toBe("SW-640-TX-W");
+    expect(leadSkus).toContain("APO-DG2");
+    expect(leadSkus).not.toContain("APO-210-UC");
+  });
+
+  it("adds IDB-300 as an option when wireless casting includes a desk connection", () => {
+    const result = runCompareRuntimePipeline("standard meeting room wireless casting with desk HDMI and USB connection", products, undefined, 12);
+    const leadSkus = skus(result.matches).slice(0, 8);
+
+    expect(leadSkus[0]).toBe("SW-620-TX-W");
+    expect(leadSkus).toContain("APO-DG2");
+    expect(leadSkus).toContain("IDB-300");
   });
 
   it("never positions end-of-life SKUs (CAM-200-PTZ, APO-200-UC, APO-210-UC) as compare candidates", () => {
