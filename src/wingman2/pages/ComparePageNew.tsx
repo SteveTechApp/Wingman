@@ -3251,6 +3251,81 @@ function CompareProductLookupInput(props: {
   );
 }
 
+
+function CompareEvidenceMatrix({ candidate }: { candidate: ScoredCandidate }) {
+  const first = (items: string[] | undefined, fallback: string) => {
+    const value = uniqueText(items ?? [], 1)[0];
+    return value && value.trim() ? value : fallback;
+  };
+
+  const joined = (items: string[] | undefined, fallback: string, limit = 2) => {
+    const values = uniqueText(items ?? [], limit).filter((item) => item.trim().length > 0);
+    return values.length ? values.join(" | ") : fallback;
+  };
+
+  const quoteChecks = uniqueText([
+    ...candidate.blockers,
+    ...candidate.unknowns,
+    ...candidate.checks,
+    ...candidate.gaps
+  ], 3);
+
+  const rows = [
+    {
+      label: "Product role",
+      evidence: `${candidate.product.family} - ${candidate.product.productClass} - ${candidate.product.role}`,
+      meaning: "Confirms whether Wingman is comparing against the right type of WyreStorm product."
+    },
+    {
+      label: "Why it scored",
+      evidence: first(candidate.matched, "No strong matched fact was captured."),
+      meaning: "The strongest direct reason this candidate was shortlisted."
+    },
+    {
+      label: "Confirmed fit",
+      evidence: joined(candidate.matched, "No confirmed fit evidence captured.", 2),
+      meaning: "Facts that make this a credible WyreStorm alternative."
+    },
+    {
+      label: "Important differences",
+      evidence: joined(candidate.mismatches, "No specific difference captured.", 2),
+      meaning: "Reasons the recommendation may not be a like-for-like replacement."
+    },
+    {
+      label: "Why not 100%",
+      evidence: first([...candidate.mismatches, ...candidate.gaps, ...candidate.unknowns], "The available evidence does not show a material gap."),
+      meaning: "Explains why the score should be treated as a fit indicator, not a guarantee."
+    },
+    {
+      label: "Check before quoting",
+      evidence: quoteChecks.length ? quoteChecks.join(" | ") : "Confirm source, display, USB, audio, control and distance requirements before quoting.",
+      meaning: "Commercial or technical checks needed before using this in a proposal."
+    },
+    {
+      label: "WyreStorm dependencies",
+      evidence: joined(candidate.dependencies, "No additional WyreStorm dependency captured.", 2),
+      meaning: "Items that may need adding to the system design or BOM."
+    }
+  ];
+
+  return (
+    <section className="compare-native-evidence-matrix" aria-label="Compare evidence matrix">
+      <div className="compare-native-evidence-matrix__header">
+        <h4>Comparison evidence matrix</h4>
+        <p>Plain-English explanation of the match result, gaps and quote checks.</p>
+      </div>
+      <div className="compare-native-evidence-matrix__grid">
+        {rows.map((row) => (
+          <div className="compare-native-evidence-matrix__row" key={row.label}>
+            <div className="compare-native-evidence-matrix__label">{row.label}</div>
+            <div className="compare-native-evidence-matrix__evidence">{row.evidence}</div>
+            <div className="compare-native-evidence-matrix__meaning">{row.meaning}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 function BestCandidateCard({
   candidate,
   competitor,
@@ -3390,6 +3465,7 @@ function BestCandidateCard({
               <p>{candidate.product.family} - {candidate.product.productClass} - {candidate.product.role}</p>
               <p className="compare-native-match-anchor">{directionFit}</p>
               <CompareEvidenceList title="Why this WyreStorm product" items={wyrestorm.identityItems} />
+              <CompareEvidenceMatrix candidate={candidate} />
               <CompareEvidenceList title="Strong fit areas" items={candidate.matched.slice(0, 5)} />
               <CompareEvidenceList title="Deeper why this fits" items={candidate.partialMatches.slice(0, 4)} />
               <CompareEvidenceList title="Important differences" items={candidate.mismatches.slice(0, 4)} className="compare-native-evidence--danger" />
