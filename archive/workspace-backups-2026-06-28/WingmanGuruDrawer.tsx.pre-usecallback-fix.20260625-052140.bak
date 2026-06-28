@@ -1,6 +1,6 @@
 import type { FormEvent } from "react";
 import { createPortal } from "react-dom";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Database, Send, Sparkles, X } from "lucide-react";
 import GuruAssistantAvatar from "./branding/GuruAssistantAvatar";
 import { GuruCallNotesInterpreter } from "./GuruCallNotesInterpreter";
@@ -211,7 +211,7 @@ const avGlossary: GlossaryEntry[] = [
     terms: ["byod", "bring your own device"],
     title: "BYOD",
     answer:
-      "BYOD means Bring Your Own Device. In AV, a participant brings a laptop and connects it to the room to share content or run the meeting.",
+      "BYOD means Bring Your Own Device. In AV, the user brings a laptop and connects it to the room to share content or run the meeting.",
     salesUse:
       "Ask whether the laptop only needs to share video, or whether it also needs access to the room camera, microphone, speakers, touch display, and network.",
     watchOut:
@@ -222,7 +222,7 @@ const avGlossary: GlossaryEntry[] = [
     terms: ["byom", "bring your own meeting"],
     title: "BYOD",
     answer:
-      "BYOM means Bring Your Own Meeting. A participant runs Teams, Zoom, Webex, or similar from their own laptop while using the room camera, microphone, speakers, and display.",
+      "BYOD means Bring Your Own Meeting. The user runs Teams, Zoom, Webex, or similar from their own laptop while using the room camera, microphone, speakers, and display.",
     salesUse:
       "BYOD normally requires USB routing as well as video routing.",
     watchOut:
@@ -235,7 +235,7 @@ const avGlossary: GlossaryEntry[] = [
     answer:
       "KVM stands for Keyboard, Video, Mouse. In AV it usually means transporting video and USB control/peripherals together so a user can operate a remote computer or device.",
     salesUse:
-      "Ask which computer is being controlled, where the operator is sitting, and what USB devices need to work.",
+      "Ask which computer is being controlled, where the user is sitting, and what USB devices need to work.",
     watchOut:
       "KVM can mean simple keyboard/mouse, but it can also involve cameras, touchscreens, or high-speed USB devices.",
     related: ["USB extender", "USB host", "USB device"],
@@ -1350,31 +1350,6 @@ export function WingmanGuruDrawer({
     return () => window.clearTimeout(timer);
   }, [open, messages]);
 
-  const sendMessage = useCallback(
-    async (raw: string) => {
-      const prompt = raw.trim();
-
-      if (!prompt) {
-        return;
-      }
-
-      const userMessage = createMessage("user", prompt);
-      const pendingMessage = createMessage("assistant", "Checking Guru knowledge...");
-
-      setMessages((current) => [...current, userMessage, pendingMessage]);
-      setDraft("");
-
-      const answer = await answerQuestion(prompt, products);
-
-      setMessages((current) =>
-        current.map((message) => (message.id === pendingMessage.id ? { ...message, content: answer } : message))
-      );
-
-      setMemoryCount(cacheCount());
-    },
-    [products],
-  );
-
   useEffect(() => {
     if (!open || !seedPrompt?.trim()) {
       return;
@@ -1387,6 +1362,28 @@ export function WingmanGuruDrawer({
   const helperText = useMemo(() => {
     return `${indexStatus} - Glossary: ${avGlossary.length} terms - Local Guru memory: ${memoryCount}`;
   }, [indexStatus, memoryCount]);
+
+  async function sendMessage(raw: string) {
+    const prompt = raw.trim();
+
+    if (!prompt) {
+      return;
+    }
+
+    const userMessage = createMessage("user", prompt);
+    const pendingMessage = createMessage("assistant", "Checking Guru knowledge...");
+
+    setMessages((current) => [...current, userMessage, pendingMessage]);
+    setDraft("");
+
+    const answer = await answerQuestion(prompt, products);
+
+    setMessages((current) =>
+      current.map((message) => (message.id === pendingMessage.id ? { ...message, content: answer } : message))
+    );
+
+    setMemoryCount(cacheCount());
+  }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

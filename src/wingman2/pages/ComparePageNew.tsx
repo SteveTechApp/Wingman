@@ -2033,7 +2033,7 @@ function buildCompetitorSummary(profile: CompetitorProfile, mustMatchFeatures: s
       ], 8),
       verifyItems: uniqueText([
         "Confirm required resolution, USB version, cable length and HDBaseT class before quoting.",
-        "Confirm whether the customer really needs point-to-point extension or has moved into switching/matrix architecture.",
+        "Confirm whether the customer really needs point-to-point extension or now needs switching/matrix architecture.",
         "Confirm control needs before positioning any alternative as direct replacement.",
       ], 8),
       outcomeLabel: exactLimitedDataWarning(profile) ? "Insufficient competitor data" : "Same product job",
@@ -3765,7 +3765,7 @@ function ComparePageNew() {
           <p className="compare-native-eyebrow wm-ui-kicker">Competitor Compare</p>
           <h1 className="wm-ui-title">Find the nearest WyreStorm product direction</h1>
           <p className="wm-ui-copy">
-            Move through the compare workflow one step at a time so the user sees the product direction first, then the deeper evidence only when needed, while Wingman keeps the result quote-safe.
+            Move through the compare workflow one step at a time so the salesperson sees the product direction first, then the deeper evidence only when needed, while Wingman keeps the result quote-safe.
           </p>
         </div>
         <button className="compare-native-reset wm-ui-button wm-ui-button-secondary" type="button" onClick={handleReset}>Reset compare</button>

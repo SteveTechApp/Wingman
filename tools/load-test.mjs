@@ -9,7 +9,7 @@
  *   node tools/load-test.mjs [options]
  *
  * Options:
- *   --url <url>           Base URL (default: http://localhost:8120)
+ *   --url <url>           Base URL (default: http://localhost:8787)
  *   --concurrency <n>     Number of concurrent requests (default: 10)
  *   --requests <n>        Total number of requests per endpoint (default: 100)
  *   --endpoints <list>    Comma-separated endpoints to test (default: all health endpoints)
@@ -19,7 +19,7 @@
 
 import { parseArgs } from "node:util";
 
-const DEFAULT_BASE_URL = "http://localhost:8120";
+const DEFAULT_BASE_URL = "http://localhost:8787";
 const DEFAULT_CONCURRENCY = 10;
 const DEFAULT_REQUESTS = 100;
 const DEFAULT_TIMEOUT = 5000;

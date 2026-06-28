@@ -125,7 +125,7 @@ SUPABASE_WINGMAN_TELEMETRY_TABLE=wingman_telemetry_events
 
 ### File Storage (`file`)
 
-- Data stored in `data/wingman-app-db.json`
+- Data stored in `data/runtime/wingman-app-db.json`
 - No external dependencies
 - Not suitable for multi-server deployments
 - Data lost if server storage is ephemeral
@@ -151,10 +151,10 @@ If you have existing data in file storage that you want to migrate:
 
 ### Step 1: Export Current Data
 
-The current state is stored in `data/wingman-app-db.json`. Make a backup:
+The current state is stored in `data/runtime/wingman-app-db.json`. Make a backup:
 
 ```bash
-cp data/wingman-app-db.json data/wingman-app-db.backup.json
+cp data/runtime/wingman-app-db.json data/runtime/wingman-app-db.backup.json
 ```
 
 ### Step 2: Run the Migration
@@ -197,7 +197,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-const data = JSON.parse(await fs.readFile("data/wingman-app-db.json", "utf8"));
+const data = JSON.parse(await fs.readFile("data/runtime/wingman-app-db.json", "utf8"));
 
 // Insert users
 for (const user of data.users) {
