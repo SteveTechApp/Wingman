@@ -7,7 +7,7 @@ import canonicalStore from "../../data/wingman-canonical-product-store.json";
 // (everything else falls back to auto-generated positioning flagged for review in
 // the UI). These baselines can only be RAISED: the point is that coverage never
 // silently regresses and the gap stays visible and managed.
-const MIN_TOTAL_STORIES = 107;
+const MIN_TOTAL_STORIES = 115;
 // Every ACTIVE catalogue SKU now has a governed story (catalogue-grounded copy was
 // authored for the whole active range, alias-deduped; cables, discontinued and
 // do-not-spec SKUs are deliberately excluded per productStoriesLifecycle). 96 is
