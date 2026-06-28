@@ -126,7 +126,8 @@
                     "check:product-update-pipeline": "node tools/check-product-update-pipeline.mjs",
                     "audit:product-update-sources": "node tools/audit-product-update-sources.mjs",
                     "check:product-update-sources:strict": "node tools/audit-product-update-sources.mjs --strict",
-                    "check:product-update-source-schema": "node tools/check-product-update-source-schema.mjs"
+                    "check:product-update-source-schema": "node tools/check-product-update-source-schema.mjs",
+                    "product-update:promote-incoming": "node tools/promote-product-update-incoming.mjs"
                 },
     "dependencies":  {
                          "@xyflow/react":  "^12.10.2",
