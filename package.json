@@ -132,7 +132,8 @@
                     "product-update:test-promote-incoming": "node tools/test-product-update-incoming-promotion.mjs",
                     "product-update:check-incoming": "node tools/check-product-update-incoming.mjs",
                     "product-update:ready-for-production": "node tools/check-product-update-production-readiness.mjs",
-                    "product-update:create-incoming-templates": "node tools/create-product-update-incoming-templates.mjs"
+                    "product-update:create-incoming-templates": "node tools/create-product-update-incoming-templates.mjs",
+                    "product-update:doctor": "node tools/product-update-doctor.mjs"
                 },
     "dependencies":  {
                          "@xyflow/react":  "^12.10.2",
