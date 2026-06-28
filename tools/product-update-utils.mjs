@@ -1,0 +1,175 @@
+import fs from "node:fs";
+import path from "node:path";
+
+export const root = process.cwd();
+
+export function ensureDir(dirPath) {
+  fs.mkdirSync(dirPath, { recursive: true });
+}
+
+export function writeText(relativePath, text) {
+  const absolute = path.join(root, relativePath);
+  ensureDir(path.dirname(absolute));
+  fs.writeFileSync(absolute, `${String(text).trimEnd()}\n`, "utf8");
+}
+
+export function writeJson(relativePath, value) {
+  writeText(relativePath, JSON.stringify(value, null, 2));
+}
+
+export function readTextIfExists(relativePath) {
+  const absolute = path.join(root, relativePath);
+  return fs.existsSync(absolute) ? fs.readFileSync(absolute, "utf8") : "";
+}
+
+export function readJsonIfExists(relativePath, fallback = null) {
+  const absolute = path.join(root, relativePath);
+  return fs.existsSync(absolute) ? JSON.parse(fs.readFileSync(absolute, "utf8")) : fallback;
+}
+
+export function clean(value) {
+  return String(value ?? "").trim();
+}
+
+export function normaliseSku(value) {
+  return clean(value).toUpperCase().replace(/\s+/g, "-");
+}
+
+export function normaliseKey(value) {
+  return clean(value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+
+export function truthy(value) {
+  return /^(true|yes|y|1|do-not-spec|do not spec)$/i.test(clean(value));
+}
+
+export function splitList(value) {
+  return clean(value).split(/[;|]/g).map((item) => clean(item)).filter(Boolean);
+}
+
+function normaliseHeader(header) {
+  return clean(header).toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let value = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i];
+    const next = text[i + 1];
+
+    if (char === '"' && inQuotes && next === '"') {
+      value += '"';
+      i += 1;
+      continue;
+    }
+
+    if (char === '"') {
+      inQuotes = !inQuotes;
+      continue;
+    }
+
+    if (char === "," && !inQuotes) {
+      row.push(value);
+      value = "";
+      continue;
+    }
+
+    if ((char === "\n" || char === "\r") && !inQuotes) {
+      if (char === "\r" && next === "\n") i += 1;
+      row.push(value);
+      value = "";
+      if (row.some((cell) => clean(cell))) rows.push(row);
+      row = [];
+      continue;
+    }
+
+    value += char;
+  }
+
+  row.push(value);
+  if (row.some((cell) => clean(cell))) rows.push(row);
+  return rows;
+}
+
+export function readCsv(relativePath) {
+  const text = fs.readFileSync(path.join(root, relativePath), "utf8");
+  const rows = parseCsv(text);
+  if (rows.length === 0) return [];
+
+  const headers = rows[0].map(normaliseHeader);
+
+  return rows.slice(1).map((row, rowIndex) => {
+    const record = { __row: rowIndex + 2 };
+    headers.forEach((header, index) => {
+      record[header] = clean(row[index]);
+    });
+    return record;
+  });
+}
+
+export function missingFields(record, requiredFields) {
+  return requiredFields.filter((field) => !clean(record[field]));
+}
+
+export function collectSkus(value, output = new Set()) {
+  if (!value || typeof value !== "object") return output;
+
+  if (Array.isArray(value)) {
+    value.forEach((item) => collectSkus(item, output));
+    return output;
+  }
+
+  for (const [key, item] of Object.entries(value)) {
+    if (/^(sku|productSku|product_sku|canonicalSku|canonical_sku)$/i.test(key) && typeof item === "string") {
+      const sku = normaliseSku(item);
+      if (sku) output.add(sku);
+    }
+
+    if (item && typeof item === "object") collectSkus(item, output);
+  }
+
+  return output;
+}
+
+export function markdownTable(headers, rows) {
+  const escape = (value) => String(value ?? "").replace(/\|/g, "\\|").replace(/\n/g, "<br>");
+  return [
+    `| ${headers.map(escape).join(" | ")} |`,
+    `| ${headers.map(() => "---").join(" | ")} |`,
+    ...rows.map((row) => `| ${headers.map((header) => escape(row[header])).join(" | ")} |`)
+  ].join("\n");
+}
+
+export const wyrestormRequiredFields = [
+  "sku",
+  "product_name",
+  "family",
+  "product_type",
+  "role",
+  "lifecycle_status",
+  "transport_type",
+  "resolution_bandwidth",
+  "application_fit",
+  "evidence_source",
+  "last_reviewed"
+];
+
+export const competitorRequiredFields = [
+  "manufacturer",
+  "model",
+  "product_class",
+  "role",
+  "input_count",
+  "output_count",
+  "transport_type",
+  "resolution_bandwidth",
+  "closest_wyrestorm_architecture",
+  "closest_wyrestorm_sku_or_family",
+  "confidence",
+  "evidence_source",
+  "last_reviewed"
+];
