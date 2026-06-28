@@ -4,6 +4,8 @@ import {
   missingFields,
   normaliseKey,
   readCsv,
+  stableFingerprint,
+  stableGeneratedNotice,
   writeJson,
   writeText
 } from "./product-update-utils.mjs";
@@ -44,7 +46,7 @@ const records = rows.map((record) => {
 const duplicateKeys = records.map((record) => record.key).filter((key, index, all) => all.indexOf(key) !== index);
 
 writeJson("generated/product-intelligence/competitor-fingerprints-normalized.json", {
-  generatedAt: new Date().toISOString(),
+  sourceFingerprint: stableFingerprint(records),
   counts: {
     total: records.length,
     knownProfile: records.filter((record) => record.status === "known-profile").length,
@@ -62,7 +64,7 @@ const reviewRows = records
 writeText("docs/competitor-fingerprint-coverage.md", `
 # Competitor fingerprint coverage
 
-Generated: ${new Date().toISOString()}
+Generated: ${stableGeneratedNotice}
 
 Competitor records are comparison-only. They must not be used in WyreStorm BOMs or proposal hardware lists.
 

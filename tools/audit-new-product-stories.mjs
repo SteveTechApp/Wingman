@@ -1,4 +1,10 @@
-import { markdownTable, readJsonIfExists, readTextIfExists, writeText } from "./product-update-utils.mjs";
+import {
+  markdownTable,
+  readJsonIfExists,
+  readTextIfExists,
+  stableGeneratedNotice,
+  writeText
+} from "./product-update-utils.mjs";
 
 const normalised = readJsonIfExists("generated/product-intelligence/wyrestorm-catalogue-normalized.json", { records: [] });
 
@@ -24,7 +30,7 @@ const missingRows = storyEligible
 writeText("docs/product-intelligence-story-review.md", `
 # Product intelligence story review
 
-Generated: ${new Date().toISOString()}
+Generated: ${stableGeneratedNotice}
 
 - Recommendation-capable records checked: ${storyEligible.length}
 - Missing story references: ${missingRows.length}
