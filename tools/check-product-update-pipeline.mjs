@@ -1,4 +1,4 @@
-import crypto from "node:crypto";
+﻿import crypto from "node:crypto";
 import fs from "node:fs";
 import { spawnSync } from "node:child_process";
 
@@ -9,6 +9,7 @@ const requiredFiles = [
   "data-imports/competitor-fingerprints-current.csv",
   "data-imports/competitor-review-notes.csv",
   "tools/product-update-utils.mjs",
+  "tools/check-product-update-source-schema.mjs",
   "tools/ingest-wyrestorm-catalogue.mjs",
   "tools/ingest-competitor-fingerprints.mjs",
   "tools/reconcile-product-updates.mjs",
@@ -23,7 +24,9 @@ const requiredScripts = [
   "product-update:reconcile",
   "product-update:audit-stories",
   "product-update:audit-competitors",
-  "product-update:all"
+  "product-update:all",
+  "check:product-update-source-schema",
+  "check:product-update-pipeline"
 ];
 
 const stableOutputs = [
@@ -53,11 +56,25 @@ function run(command, args) {
   const executable = process.platform === "win32" && command === "npm" ? "npm.cmd" : command;
 
   const result = spawnSync(executable, args, {
-    stdio: "inherit"
+    cwd: process.cwd(),
+    env: process.env,
+    encoding: "utf8"
   });
 
+  if (result.stdout) {
+    process.stdout.write(result.stdout);
+  }
+
+  if (result.stderr) {
+    process.stderr.write(result.stderr);
+  }
+
+  if (result.error) {
+    fail(`${command} ${args.join(" ")} failed to start: ${result.error.message}`);
+  }
+
   if (result.status !== 0) {
-    fail(`${command} ${args.join(" ")} failed.`);
+    fail(`${command} ${args.join(" ")} failed with exit code ${result.status}.`);
   }
 }
 
@@ -100,12 +117,14 @@ if (/shell:\s*(true|process\.platform)/.test(runnerText)) {
   fail("tools/run-product-intelligence-update.mjs still uses shell:true.");
 }
 
-console.log("[product-update-pipeline] Running product update pipeline once.");
-run("npm", ["run", "product-update:all"]);
+console.log("[product-update-pipeline] Running product update runner once.");
+
+run("node", ["tools/run-product-intelligence-update.mjs"]);
 const firstHashes = hashOutputs();
 
-console.log("[product-update-pipeline] Running product update pipeline again for stability check.");
-run("npm", ["run", "product-update:all"]);
+console.log("[product-update-pipeline] Running product update runner again for stability check.");
+
+run("node", ["tools/run-product-intelligence-update.mjs"]);
 const secondHashes = hashOutputs();
 
 const changed = [];
