@@ -858,7 +858,7 @@ export function getLanguageAwareWording(product: ProductCallProduct, context: Pr
       whatItDoes: `It helps the room work in a cleaner, easier way by supporting the main connection or presentation job the customer is trying to solve.`,
       whyItMatters: `It gives the salesperson a simple benefit to explain: the room is easier to use, easier to discuss and easier to support.${priorityText}`,
       salespersonAngle: `Lead with the outcome: “This is relevant because it helps make the room easier for the customer to use.”`,
-      customerBenefit: `The customer gets a clearer room solution rather than a confusing list of boxes and technical details.`
+      customerBenefit: `The customer gets a clearer room solution rather than an unexplained list of boxes and technical details.`
     };
   }
 

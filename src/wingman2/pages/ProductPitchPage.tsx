@@ -551,7 +551,7 @@ function SpecTab({ product }: { product: ProductSpec }) {
       <section className="rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-5">
         <h2 className={`${PRODUCT_PITCH_SECTION_TITLE_CLASS} text-white`}>Technical specification view</h2>
         <p className="mt-2 text-sm leading-6 text-white/70">
-          Use this tab to confirm details. It is separated from the sales view so the user is not forced to interpret technical data during a live conversation.
+          Use this tab to confirm details. It is separated from the sales view so the salesperson is not forced to interpret technical data during a live conversation.
         </p>
       </section>
 

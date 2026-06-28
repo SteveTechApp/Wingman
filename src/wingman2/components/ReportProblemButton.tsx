@@ -5,7 +5,7 @@ import { postWingmanJson } from "../api/wingmanApi";
 // product detail (e.g. a mis-parsed feature tag) can submit a correction. The
 // report is saved to a durable local queue immediately so it is never lost, and
 // optimistically POSTed to an API route so it reaches the product team the moment
-// a backend handler exists. The user can also copy it to send through any channel.
+// a backend handler exists. The salesperson can also copy it to send through any channel.
 
 export type ProductReport = {
   id: string;

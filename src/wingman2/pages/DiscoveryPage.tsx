@@ -13,7 +13,7 @@ import {
 
 import TemplateDiscoverySeedPanel from "../components/TemplateDiscoverySeedPanel";
 
-function hasActiveTemplateSolutionSeed(): boolean {
+function _hasActiveTemplateSolutionSeed(): boolean {
   if (typeof window === "undefined") {
     return false;
   }
@@ -431,7 +431,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       {
         value: "user-laptop-host",
         label: "User laptop hosts room peripherals",
-        help: "BYOD or BYOM workflow where the user device must own the room camera, mic, or speakerphone.",
+        help: "BYOD or BYOM workflow where a personal device must own the room camera, mic, or speakerphone.",
       },
       {
         value: "switchable-host-usb",
@@ -494,7 +494,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
   {
     id: "control",
     shortLabel: "Control",
-    question: "How should the user operate the system?",
+      question: "How should people in the room operate the system?",
     prompt: "Think about staff use, wall control, touch panels, third-party control, automation or simple source selection.",
     why: "Control affects usability, supportability and whether the solution is realistic for non-technical users.",
     required: true,
