@@ -89,6 +89,7 @@
                     "check:matrix-output-model":  "node tools/check-matrix-output-model.mjs",
                     "audit:compare-output-quality": "node tools/audit-compare-output-quality.mjs",
                     "check:compare-output-scenarios": "node tools/check-compare-output-scenarios.mjs",
+                    "check:wireless-casting-rules": "vitest run src/wingman2/lib/wirelessCastingRecommendationRules.test.ts",
                     "check:strict-matrix-audit":  "node tools/check-strict-matrix-audit.mjs",
                     "audit:matrix-output-topology":  "node tools/audit-matrix-output-topology.mjs",
                     "audit:product-database-quality":  "node tools/audit-product-database-quality.mjs",
