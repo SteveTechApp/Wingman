@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 
 const requiredFiles = [
-  path.join(projectRoot, "docs", "production-readiness-audit.md"),
+  path.join(projectRoot, "docs", "README.md"),
   path.join(projectRoot, "data-sources", "wyrestorm", "products.csv"),
   path.join(projectRoot, "data-sources", "wyrestorm", "lifecycle.csv"),
   path.join(projectRoot, "data", "wingman-canonical-product-store.json"),
