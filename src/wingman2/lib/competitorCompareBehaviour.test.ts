@@ -109,6 +109,32 @@ describe("competitor compare runtime behaviour", () => {
     expect(leadSkus.some((item) => /-TX\b/.test(item) && !/-TRX\b/.test(item))).toBe(false);
     expect(leadSkus).not.toContain("NHD-600-TRX");
   });
+  it("keeps verified 1G AVoIP runtime results away from NetworkHD 600 unless 10G or SDVoE is explicit", () => {
+    const scenarios: Array<[string, string | undefined]> = [
+      ["DMNVX350", "Crestron"],
+      ["IP250UHD-TX", "Blustream"],
+      ["IP250UHD-RX", "Blustream"],
+    ];
+
+    for (const [input, brand] of scenarios) {
+      const result = runCompareRuntimePipeline(input, products, brand, 12);
+      const leadSkus = skus(result.matches).slice(0, 5);
+
+      expect(leadSkus.length).toBeGreaterThan(0);
+      expect(leadSkus).not.toContain("NHD-600-TRX");
+      expect(leadSkus.some((item) => item.startsWith("NHD-500"))).toBe(true);
+    }
+  });
+
+  it("allows explicit 10G SDVoE runtime requests to lead with NetworkHD 600 rather than 1G NetworkHD 500", () => {
+    const result = runCompareRuntimePipeline("10G SDVoE AV over IP transceiver endpoint", products, undefined, 12);
+    const leadSkus = skus(result.matches).slice(0, 5);
+
+    expect(leadSkus.length).toBeGreaterThan(0);
+    expect(leadSkus[0]).toBe("NHD-600-TRX");
+    expect(leadSkus).not.toContain("NHD-500-TX");
+    expect(leadSkus).not.toContain("NHD-500-RX");
+  });
   it("keeps compact 4x2 matrix requests ahead of oversized 8x8 matrix package options", () => {
     const result = runCompareRuntimePipeline("MMX4x2-HDMI", products, "Lightware", 12);
     const leadSkus = skus(result.matches).slice(0, 4);
