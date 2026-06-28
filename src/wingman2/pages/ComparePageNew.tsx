@@ -3252,7 +3252,40 @@ function CompareProductLookupInput(props: {
 }
 
 
-function CompareEvidenceMatrix({ candidate }: { candidate: ScoredCandidate }) {
+function CompareEvidenceMatrix({ candidate, competitor }: { candidate: ScoredCandidate; competitor: unknown }) {
+  const readText = (source: unknown, keys: string[], fallback: string) => {
+    if (!source || typeof source !== "object") {
+      return fallback;
+    }
+
+    const record = source as Record<string, unknown>;
+
+    for (const key of keys) {
+      const value = record[key];
+
+      if (typeof value === "string" && value.trim()) {
+        return value.trim();
+      }
+
+      if (Array.isArray(value)) {
+        const joined = value
+          .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+          .slice(0, 3)
+          .join(" | ");
+
+        if (joined) {
+          return joined;
+        }
+      }
+    }
+
+    return fallback;
+  };
+
+  const competitorSku = readText(competitor, ["sku", "model", "partNumber", "name", "title"], "Competitor product not clearly identified");
+  const competitorBrand = readText(competitor, ["manufacturer", "brand", "vendor"], "Competitor brand not captured");
+  const competitorType = readText(competitor, ["productClass", "class", "category", "family", "type", "role"], "Competitor product type not captured");
+  const wyrestormType = `${candidate.product.family} - ${candidate.product.productClass} - ${candidate.product.role}`;
   const first = (items: string[] | undefined, fallback: string) => {
     const value = uniqueText(items ?? [], 1)[0];
     return value && value.trim() ? value : fallback;
@@ -3272,9 +3305,14 @@ function CompareEvidenceMatrix({ candidate }: { candidate: ScoredCandidate }) {
 
   const rows = [
     {
-      label: "Product role",
-      evidence: `${candidate.product.family} - ${candidate.product.productClass} - ${candidate.product.role}`,
-      meaning: "Confirms whether Wingman is comparing against the right type of WyreStorm product."
+      label: "Competitor product",
+      evidence: `${competitorBrand} - ${competitorSku} - ${competitorType}`,
+      meaning: "Identifies what the customer is actually asking Wingman to compare."
+    },
+    {
+      label: "WyreStorm candidate",
+      evidence: wyrestormType,
+      meaning: "Shows the WyreStorm product type being proposed, so sales can see whether it is the same class or an architecture alternative."
     },
     {
       label: "Why it scored",
@@ -3465,7 +3503,7 @@ function BestCandidateCard({
               <p>{candidate.product.family} - {candidate.product.productClass} - {candidate.product.role}</p>
               <p className="compare-native-match-anchor">{directionFit}</p>
               <CompareEvidenceList title="Why this WyreStorm product" items={wyrestorm.identityItems} />
-              <CompareEvidenceMatrix candidate={candidate} />
+              <CompareEvidenceMatrix candidate={candidate} competitor={competitor} />
               <CompareEvidenceList title="Strong fit areas" items={candidate.matched.slice(0, 5)} />
               <CompareEvidenceList title="Deeper why this fits" items={candidate.partialMatches.slice(0, 4)} />
               <CompareEvidenceList title="Important differences" items={candidate.mismatches.slice(0, 4)} className="compare-native-evidence--danger" />
