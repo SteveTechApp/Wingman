@@ -213,11 +213,41 @@ describe("competitor compare runtime behaviour", () => {
     expect(lead).toContain("NDI");
   });
 
-  it("leads wireless casting / UC presentation competitors with a WyreStorm Apollo (APO-) device", () => {
-    for (const [input, brand] of [["Solstice Gen3", "Mersive"], ["CX-50", "Barco ClickShare"]] as const) {
-      const result = runCompareRuntimePipeline(input, products, brand, 10);
-      expect(sku(result.matches[0])).toMatch(/^APO-/);
-    }
+  it("uses APO-210-UC with APO-DG2 for huddle-room wireless casting runtime results", () => {
+    const result = runCompareRuntimePipeline("small huddle room wireless casting with ClickShare style sharing", products, undefined, 12);
+    const leadSkus = skus(result.matches).slice(0, 5);
+
+    expect(leadSkus[0]).toBe("APO-210-UC");
+    expect(leadSkus).toContain("APO-DG2");
+    expect(leadSkus).not.toContain("SW-620-TX-W");
+    expect(leadSkus).not.toContain("SW-640-TX-W");
+  });
+
+  it("uses SW-620-TX-W with APO-DG2 for standard wireless casting runtime results", () => {
+    const result = runCompareRuntimePipeline("standard meeting room wireless casting ClickShare CX-50", products, "Barco ClickShare", 12);
+    const leadSkus = skus(result.matches).slice(0, 6);
+
+    expect(leadSkus[0]).toBe("SW-620-TX-W");
+    expect(leadSkus).toContain("APO-DG2");
+    expect(leadSkus).not.toContain("APO-210-UC");
+  });
+
+  it("uses SW-640-TX-W with APO-DG2 for larger wireless casting runtime results with six or more sources", () => {
+    const result = runCompareRuntimePipeline("training room wireless casting with 6 sources", products, undefined, 12);
+    const leadSkus = skus(result.matches).slice(0, 6);
+
+    expect(leadSkus[0]).toBe("SW-640-TX-W");
+    expect(leadSkus).toContain("APO-DG2");
+    expect(leadSkus).not.toContain("APO-210-UC");
+  });
+
+  it("adds IDB-300 as an option when wireless casting includes a desk connection", () => {
+    const result = runCompareRuntimePipeline("standard meeting room wireless casting with desk HDMI and USB connection", products, undefined, 12);
+    const leadSkus = skus(result.matches).slice(0, 8);
+
+    expect(leadSkus[0]).toBe("SW-620-TX-W");
+    expect(leadSkus).toContain("APO-DG2");
+    expect(leadSkus).toContain("IDB-300");
   });
 
   it("never positions end-of-life SKUs (CAM-200-PTZ, APO-200-UC, APO-210-UC) as compare candidates", () => {
