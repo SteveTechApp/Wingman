@@ -146,14 +146,15 @@ async function loadProducts() {
   }
 
   const paths = [
-    path.join(repoRoot, "data", "wyrestorm-product-intelligence.json"),
-    path.join(repoRoot, "public", "product-intelligence-index.json"),
+    path.join(repoRoot, "data", "wingman-canonical-product-store.json"),
   ];
 
   for (const filePath of paths) {
     try {
       const data = await fs.readFile(filePath, "utf8");
-      const products = JSON.parse(data);
+      const payload = JSON.parse(data);
+      const sourceProducts = Array.isArray(payload) ? payload : Array.isArray(payload?.products) ? payload.products : [];
+      const products = sourceProducts.filter((product) => product?.dataMaintenance?.approvedFor?.compare !== false);
       if (Array.isArray(products) && products.length > 0) {
         cachedProducts = products;
         productsLoadedAt = now;

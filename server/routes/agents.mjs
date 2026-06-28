@@ -4,9 +4,7 @@ import { getWingmanRequestAuth } from "../wingman-app-store.mjs";
 import {
   ROOT_DIR,
   PRODUCT_INTELLIGENCE_DB_FILE,
-  WYRESTORM_PRODUCT_INTELLIGENCE_FILE,
-  WYRESTORM_SEED_CATALOG_FILE,
-  WYRESTORM_SKU_MASTER_FILE,
+  WINGMAN_CANONICAL_PRODUCT_STORE_FILE,
 } from "../catalog/files.mjs";
 
 const WINGMAN_APP_DB_FILE = path.join(ROOT_DIR, "data", "wingman-app-db.json");
@@ -312,18 +310,14 @@ async function loadAppDb() {
 async function loadCatalogContext() {
   if (catalogCache) return catalogCache;
 
-  const [skuMaster, seedCatalog, productIntelligenceDb, wyrestormProductIntelligence] = await Promise.all([
-    readJsonFile(WYRESTORM_SKU_MASTER_FILE, []),
-    readJsonFile(WYRESTORM_SEED_CATALOG_FILE, []),
+  const [canonicalProducts, productIntelligenceDb] = await Promise.all([
+    readJsonFile(WINGMAN_CANONICAL_PRODUCT_STORE_FILE, []),
     readJsonFile(PRODUCT_INTELLIGENCE_DB_FILE, []),
-    readJsonFile(WYRESTORM_PRODUCT_INTELLIGENCE_FILE, []),
   ]);
 
   const records = dedupeRecords([
-    ...extractRecordsFromValue(skuMaster),
-    ...extractRecordsFromValue(seedCatalog),
+    ...extractRecordsFromValue(canonicalProducts),
     ...extractRecordsFromValue(productIntelligenceDb),
-    ...extractRecordsFromValue(wyrestormProductIntelligence),
   ]);
 
   const bySku = new Map(records.map((record) => [record.sku, record]));

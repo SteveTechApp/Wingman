@@ -4,13 +4,12 @@ import path from "node:path";
 const root = process.cwd();
 
 const expectations = [
-  ["data/catalog/wyrestormSkuCatalog.2026.json", "NHD-0401-MV", /multiview/i],
-  ["data/product-intelligence-db.json", "NHD-0401-MV", /multiview/i],
-  ["data/catalog/wyrestormSkuCatalog.2026.json", "SW-0204-VW", /video wall processor/i],
-  ["data/catalog/wyrestormSkuCatalog.2026.json", "SW-0206-VW", /video wall processor/i],
-  ["data/product-intelligence-db.json", "NHD-128-NDI-TRX", /av-over-ip|ndi bridge|networkhd/i],
+  ["data/wingman-canonical-product-store.json", "NHD-0401-MV", /multiview/i],
+  ["data/wingman-canonical-product-store.json", "SW-0204-VW", /video wall processor/i],
+  ["data/wingman-canonical-product-store.json", "SW-0206-VW", /video wall processor/i],
+  ["data/wingman-canonical-product-store.json", "NHD-128-NDI-TRX", /av-over-ip|ndi bridge|networkhd/i],
   ["public/product-call-card-products.json", "EXP-MX-0402-H2", /matrix/i],
-  ["data/product-intelligence-db.json", "EXP-SP-0102-8K", /splitter|distribution|signal management/i],
+  ["data/wingman-canonical-product-store.json", "EXP-SP-0102-8K", /splitter|distribution|signal management/i],
   ["public/product-call-card-products.json", "EXP-SP-0102-8K", /splitter|distribution|signal management/i],
   ["public/product-call-card-products.json", "EXP-SP-0102-H2", /splitter|distribution|signal management/i],
   ["public/product-call-card-products.json", "EXP-SP-0104-H2", /splitter|distribution|signal management/i],

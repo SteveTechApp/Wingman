@@ -1,0 +1,8 @@
+manufacturer,model,product_name,family,product_class,subcategory,role,approval_status,source_tier,transport_type,input_count,output_count,max_resolution,chroma,technology,topology,directionality,inputs_json,outputs_json,control_json,audio_json,features_json,specs_json,summary,known_limitations,closest_wyrestorm_architecture,closest_wyrestorm_sku_or_family,confidence,evidence_source,last_reviewed,reviewer,notes,aliases_json,routed_input_count,routed_output_count,physical_output_count,mirrored_output_count,io_evidence_status,matrix_size_evidence,quote_safety
+Sony,BRC-X1000,BRC-X1000,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+Sony,BRC-X400,BRC-X400,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+Sony,EVI-H100V,EVI-H100V,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+Sony,SRG-300H,SRG-300H,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+Sony,SRG-300SE,SRG-300SE,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+Sony,SRG-X120,SRG-X120,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+Sony,SRG-XP1,SRG-XP1,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,

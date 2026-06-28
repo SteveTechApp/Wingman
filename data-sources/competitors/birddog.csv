@@ -1,0 +1,10 @@
+manufacturer,model,product_name,family,product_class,subcategory,role,approval_status,source_tier,transport_type,input_count,output_count,max_resolution,chroma,technology,topology,directionality,inputs_json,outputs_json,control_json,audio_json,features_json,specs_json,summary,known_limitations,closest_wyrestorm_architecture,closest_wyrestorm_sku_or_family,confidence,evidence_source,last_reviewed,reviewer,notes,aliases_json,routed_input_count,routed_output_count,physical_output_count,mirrored_output_count,io_evidence_status,matrix_size_evidence,quote_safety
+BirdDog,4K EYE,4K EYE,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+BirdDog,Air 4K Quad,Air 4K Quad,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+BirdDog,Eyes HDMI,Eyes HDMI,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+BirdDog,Eyes SDI,Eyes SDI,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+BirdDog,FLEX 4K,FLEX 4K,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+BirdDog,MAKI ULTRA,MAKI ULTRA,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+BirdDog,P100,P100,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+BirdDog,P200,P200,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,
+BirdDog,P400,P400,,,,,needs-evidence,sku-seed,,,,,,,,,[],[],[],[],[],{},,,,,low,,,,,[],,,,,,,

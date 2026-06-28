@@ -1,7 +1,4 @@
-import activeSkuSource from "../../../WyreStorm Active SKU 2026.txt?raw";
-import cableSkuSource from "../../../Wyrestorm Cables 2026.txt?raw";
-import discontinuedSkuSource from "../../../WyreStorm Discon Products 2026.txt?raw";
-import doNotSpecSkuSource from "../../../Wyrestorm Do Not Spec List 2026.txt?raw";
+import lifecycleSource from "../../../data-sources/wyrestorm/lifecycle.csv?raw";
 import { normaliseSkuKey, resolveWyrestormSkuAlias } from "./skuAliasResolver";
 
 export type WyreStormSkuBusinessStatus =
@@ -15,43 +12,98 @@ function canonicalSkuKey(value: unknown): string {
   return normaliseSkuKey(resolveWyrestormSkuAlias(String(value ?? "")));
 }
 
-function parseSkuSource(source: string): Set<string> {
-  const values = source
-    .split(/\r?\n/g)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((sku) => canonicalSkuKey(sku))
-    .filter(Boolean);
-
-  return new Set(values);
+function sourceSkuKey(value: unknown): string {
+  return normaliseSkuKey(String(value ?? ""));
 }
 
-const ACTIVE_SKU_KEYS = parseSkuSource(activeSkuSource);
-const DISCONTINUED_SKU_KEYS = parseSkuSource(discontinuedSkuSource);
-const DO_NOT_SPEC_SKU_KEYS = parseSkuSource(doNotSpecSkuSource);
-const CABLE_SKU_KEYS = parseSkuSource(cableSkuSource);
+function parseCsv(source: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let value = "";
+  let quoted = false;
+  for (let index = 0; index < source.length; index += 1) {
+    const character = source[index];
+    if (character === '"' && quoted && source[index + 1] === '"') {
+      value += '"';
+      index += 1;
+    } else if (character === '"') {
+      quoted = !quoted;
+    } else if (character === "," && !quoted) {
+      row.push(value);
+      value = "";
+    } else if ((character === "\n" || character === "\r") && !quoted) {
+      if (character === "\r" && source[index + 1] === "\n") index += 1;
+      row.push(value);
+      if (row.some(Boolean)) rows.push(row);
+      row = [];
+      value = "";
+    } else {
+      value += character;
+    }
+  }
+  row.push(value);
+  if (row.some(Boolean)) rows.push(row);
+  return rows;
+}
+
+function records(source: string): Record<string, string>[] {
+  const [headers = [], ...rows] = parseCsv(source);
+  return rows.map((row) => Object.fromEntries(headers.map((header, index) => [header, row[index] ?? ""])));
+}
+
+const lifecycleRecords = records(lifecycleSource);
+const lifecycleBySku = new Map(
+  lifecycleRecords.map((row) => [sourceSkuKey(row.sku), row.lifecycle_status.toLowerCase()]),
+);
+const CABLE_SKU_KEYS = new Set(
+  lifecycleRecords
+    .filter((row) => row.business_status.toLowerCase() === "cable")
+    .map((row) => sourceSkuKey(row.sku)),
+);
+const ACTIVE_SKU_KEYS = new Set(
+  [...lifecycleBySku].filter(([, status]) => status === "active").map(([sku]) => sku),
+);
+const DISCONTINUED_SKU_KEYS = new Set(
+  [...lifecycleBySku]
+    .filter(([, status]) => ["discontinued", "eol", "superseded", "archive"].includes(status))
+    .map(([sku]) => sku),
+);
+const DO_NOT_SPEC_SKU_KEYS = new Set(
+  [...lifecycleBySku].filter(([, status]) => status === "do-not-spec").map(([sku]) => sku),
+);
+
+export function getWyreStormForbiddenBusinessSkus(): string[] {
+  return [
+    ...new Set([
+      ...lifecycleRecords.filter((row) => row.lifecycle_status === "do-not-spec").map((row) => row.sku),
+      ...lifecycleRecords.filter((row) => row.business_status.toLowerCase() === "cable").map((row) => row.sku),
+    ]),
+  ];
+}
 
 export function getWyreStormSkuBusinessStatus(sku: string): WyreStormSkuBusinessStatus {
-  const key = canonicalSkuKey(sku);
+  const exactKey = sourceSkuKey(sku);
+  const canonicalKey = canonicalSkuKey(sku);
+  const matches = (keys: Set<string>) => keys.has(exactKey) || (!lifecycleBySku.has(exactKey) && keys.has(canonicalKey));
 
-  if (!key) {
+  if (!exactKey) {
     return "unlisted";
   }
 
-  if (ACTIVE_SKU_KEYS.has(key)) {
-    return "active";
-  }
-
-  if (DISCONTINUED_SKU_KEYS.has(key)) {
+  if (matches(DISCONTINUED_SKU_KEYS)) {
     return "discontinued";
   }
 
-  if (DO_NOT_SPEC_SKU_KEYS.has(key)) {
+  if (matches(DO_NOT_SPEC_SKU_KEYS)) {
     return "do-not-spec";
   }
 
-  if (CABLE_SKU_KEYS.has(key)) {
+  if (matches(CABLE_SKU_KEYS)) {
     return "cable";
+  }
+
+  if (matches(ACTIVE_SKU_KEYS)) {
+    return "active";
   }
 
   return "unlisted";

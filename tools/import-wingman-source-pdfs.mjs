@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 
-const PRODUCT_DB_PATH = path.join(projectRoot, "data", "product-intelligence-db.json");
+const PRODUCT_ENRICHMENT_PATH = path.join(projectRoot, "data-sources", "wyrestorm", "enrichment.json");
 const SOURCE_OUTPUT_PATH = path.join(projectRoot, "data", "wingman-source-pdf-intelligence.json");
 
 const DEFAULT_DOCUMENTS = [
@@ -517,8 +517,9 @@ function enrichRecords(productDbRaw, mentions) {
 
 async function main() {
   const { dryRun } = parseArgs();
-  const productDbRaw = JSON.parse(await fs.readFile(PRODUCT_DB_PATH, "utf8"));
-  const records = Array.isArray(productDbRaw.records) ? productDbRaw.records : [];
+  const enrichmentRecords = JSON.parse(await fs.readFile(PRODUCT_ENRICHMENT_PATH, "utf8"));
+  const records = Array.isArray(enrichmentRecords) ? enrichmentRecords : [];
+  const productDbRaw = { records, meta: {} };
   const extractedDocuments = [];
 
   for (const document of DEFAULT_DOCUMENTS) {
@@ -573,10 +574,11 @@ async function main() {
     return;
   }
 
-  await fs.writeFile(PRODUCT_DB_PATH, `${JSON.stringify(productDb, null, 2)}\n`, "utf8");
+  await fs.writeFile(PRODUCT_ENRICHMENT_PATH, `${JSON.stringify(productDb.records, null, 2)}\n`, "utf8");
   await fs.writeFile(SOURCE_OUTPUT_PATH, `${JSON.stringify(sourceIntelligence, null, 2)}\n`, "utf8");
-  console.log(`[source-pdf-import] Wrote ${path.relative(projectRoot, PRODUCT_DB_PATH)}`);
+  console.log(`[source-pdf-import] Wrote ${path.relative(projectRoot, PRODUCT_ENRICHMENT_PATH)}`);
   console.log(`[source-pdf-import] Wrote ${path.relative(projectRoot, SOURCE_OUTPUT_PATH)}`);
+  console.log("[source-pdf-import] Run npm run data:sources:build to publish the updated source package.");
 }
 
 main().catch((error) => {

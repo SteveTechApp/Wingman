@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { PRODUCT_STORIES } from "./productStories";
-import { getWyreStormSkuBusinessStatus } from "../lib/wyrestormSkuBusinessStatus";
-import doNotSpecSource from "../../../Wyrestorm Do Not Spec List 2026.txt?raw";
-import cableSource from "../../../Wyrestorm Cables 2026.txt?raw";
+import {
+  getWyreStormForbiddenBusinessSkus,
+  getWyreStormSkuBusinessStatus,
+} from "../lib/wyrestormSkuBusinessStatus";
 
 // Enforcement guard: a governed sales story is "high confidence" copy a rep quotes
 // directly, so it must never lead with, or recommend as a companion, a SKU the
@@ -14,13 +15,12 @@ import cableSource from "../../../Wyrestorm Cables 2026.txt?raw";
 // story.
 const FORBIDDEN_IN_STORIES = new Set(["do-not-spec", "cable"]);
 
-// SKU-shaped tokens (contain a digit) from the do-not-spec and cable lists. Used to
+// SKU-shaped tokens (contain a digit) from the governed lifecycle source. Used to
 // guard customer-facing PROSE too: keyFeatures/whatItIs etc. are quoted directly, so
 // naming a do-not-spec SKU there steers a rep to it even though it never appears in
 // `sku`/`worksWith` (the two fields the checks above cover). e.g. the catalogue line
 // for APO-210-UC names the do-not-spec APO-DG1 dongle, which must not reach the copy.
-const FORBIDDEN_SKUS = [doNotSpecSource, cableSource]
-  .flatMap((source) => source.split(/\r?\n/).map((line) => line.trim()).filter(Boolean))
+const FORBIDDEN_SKUS = getWyreStormForbiddenBusinessSkus()
   .filter((sku) => /\d/.test(sku) && sku.length >= 4);
 
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

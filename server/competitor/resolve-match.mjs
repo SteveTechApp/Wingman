@@ -2,8 +2,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { resolveCompetitorLiveLookup } from "./live-lookup.mjs";
 import {
+  COMPETITOR_CATALOG_FILE,
   PRODUCT_INTELLIGENCE_DB_FILE,
-  WYRESTORM_PRODUCT_INTELLIGENCE_FILE,
+  WYRESTORM_PAGE_CACHE_FILE,
   WYRESTORM_SEED_CATALOG_FILE,
   WYRESTORM_SKU_MASTER_FILE,
 } from "../catalog/files.mjs";
@@ -853,10 +854,14 @@ function extractCompetitorProfileFromLivePayload(payload, manufacturer, model) {
 
 async function getWyreStormCatalog() {
   const primary = await readJsonFile(WYRESTORM_SKU_MASTER_FILE, null);
-  if (Array.isArray(primary) && primary.length) return primary;
+  const primaryRows = Array.isArray(primary) ? primary : Array.isArray(primary?.products) ? primary.products : [];
+  if (primaryRows.length) {
+    return primaryRows.filter((product) => product?.dataMaintenance?.approvedFor?.compare !== false);
+  }
 
   const fallback = await readJsonFile(WYRESTORM_SEED_CATALOG_FILE, []);
-  return Array.isArray(fallback) ? fallback : [];
+  const fallbackRows = Array.isArray(fallback) ? fallback : Array.isArray(fallback?.products) ? fallback.products : [];
+  return fallbackRows.filter((product) => product?.dataMaintenance?.approvedFor?.compare !== false);
 }
 
 function pickSku(row) {
@@ -973,13 +978,13 @@ function buildWyreStormProductUrl(sku) {
 }
 
 async function loadWyreStormPersistentCache() {
-  const rows = await readJsonFile(WYRESTORM_PRODUCT_INTELLIGENCE_FILE, {});
+  const rows = await readJsonFile(WYRESTORM_PAGE_CACHE_FILE, {});
   if (!rows || typeof rows !== "object") return {};
   return rows;
 }
 
 async function saveWyreStormPersistentCache(cache) {
-  await writeJsonFile(WYRESTORM_PRODUCT_INTELLIGENCE_FILE, cache);
+  await writeJsonFile(WYRESTORM_PAGE_CACHE_FILE, cache);
 }
 
 async function fetchWyreStormPage(sku) {
@@ -1601,7 +1606,12 @@ function buildBlobFromCompetitorIntelligence(record) {
 
 async function loadCompetitorIntelligenceRecord(manufacturer, model) {
   const db = await readJsonFile(PRODUCT_INTELLIGENCE_DB_FILE, null);
-  const records = Array.isArray(db?.records) ? db.records : [];
+  const operationalRecords = Array.isArray(db?.records) ? db.records : [];
+  const catalog = await readJsonFile(COMPETITOR_CATALOG_FILE, []);
+  const records = [
+    ...operationalRecords,
+    ...(Array.isArray(catalog) ? catalog : []),
+  ];
 
   if (records.length === 0) return null;
 

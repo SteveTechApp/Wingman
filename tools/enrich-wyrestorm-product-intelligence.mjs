@@ -6,8 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 
-const wyrestormSourcePath = path.join(projectRoot, "data", "wyrestorm-product-intelligence.json");
-const finderDbPath = path.join(projectRoot, "data", "product-intelligence-db.json");
+const wyrestormSourcePath = path.join(projectRoot, "data-sources", "wyrestorm", "enrichment.json");
 const reportPath = path.join(projectRoot, "reports", "wingman-product-technical-profile-summary.json");
 
 const PROFILE_VERSION = "wyrestorm-product-manager-v1";
@@ -2096,8 +2095,7 @@ function buildSummary(products, finderRecords, fetchResults) {
 
 async function main() {
   const sourceProducts = JSON.parse(await fs.readFile(wyrestormSourcePath, "utf8"));
-  const finderDb = JSON.parse(await fs.readFile(finderDbPath, "utf8"));
-  const finderRecords = Array.isArray(finderDb.records) ? finderDb.records : [];
+  const finderRecords = sourceProducts;
 
   console.log(`[wyrestorm-enrich] Profiling ${sourceProducts.length} WyreStorm source products${OFFLINE_MODE ? " in offline mode" : " with live official pages"}.`);
 
@@ -2137,22 +2135,13 @@ async function main() {
     })),
   ]);
 
-  finderDb.records = enrichedFinderRecords;
-  finderDb.meta = {
-    ...(finderDb.meta || {}),
-    technicalProfileVersion: PROFILE_VERSION,
-    technicalProfileUpdatedAt: summary.generatedAt,
-    technicalProfileNote: "Product-manager classification and technical profile generated from WyreStorm source records and official product pages when available.",
-  };
-
   await fs.writeFile(wyrestormSourcePath, JSON.stringify(enrichedSourceProducts, null, 2) + "\n", "utf8");
-  await fs.writeFile(finderDbPath, JSON.stringify(finderDb, null, 2) + "\n", "utf8");
   await fs.mkdir(path.dirname(reportPath), { recursive: true });
   await fs.writeFile(reportPath, JSON.stringify(summary, null, 2) + "\n", "utf8");
 
   console.log(`[wyrestorm-enrich] Wrote ${path.relative(projectRoot, wyrestormSourcePath)}`);
-  console.log(`[wyrestorm-enrich] Wrote ${path.relative(projectRoot, finderDbPath)}`);
   console.log(`[wyrestorm-enrich] Wrote ${path.relative(projectRoot, reportPath)}`);
+  console.log("[wyrestorm-enrich] Run npm run data:sources:build to publish the updated source package.");
   console.log("[wyrestorm-enrich] Category summary:");
   console.log(JSON.stringify(summary.categorySummary, null, 2));
 }

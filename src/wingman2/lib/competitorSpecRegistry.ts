@@ -22,7 +22,7 @@ import {
   type CompetitorTechnologyClass,
 } from "./competitorProductIntelligence";
 import { findCompetitorSourceProduct, type CompetitorSourceProduct } from "../data/competitorSourceFeeds";
-import competitorCompareCatalogRaw from "../../../data/catalog/competitor-catalog.phase4.json";
+import competitorCompareCatalogRaw from "../../../data/catalog/competitor-products.generated.json";
 
 export type CompetitorSpecTier = "verified-profile" | "family-rule" | "sku-only";
 
@@ -53,6 +53,8 @@ export type Fingerprint = {
   features?: Record<string, boolean>;
   specs?: CompareSpecFacts;
   datasheetUrl?: string;
+  approvalStatus?: "approved" | "review" | "draft" | "needs-evidence";
+  sourceTier?: string;
 };
 
 /** Canonical transport derived from the technology class. Keeping transport a
@@ -124,641 +126,12 @@ const AVOIP_ENDPOINT_IO = { inputCount: 1, outputCount: 1 } as const;
  * it is intentionally omitted so the classifier asks the user to verify rather
  * than asserting a wrong figure.
  */
-const FINGERPRINTS: Fingerprint[] = [
-  // ---- Crestron DM NVX (4K60 4:4:4 AV-over-IP endpoints, 1GbE, USB/KVM) ----
-  {
-    brand: "Crestron",
-    sku: "DM-NVX-350",
-    keys: ["dmnvx350", "dmnvx351", "dmnvx360", "dmnvx363"],
-    domain: "AVOIP",
-    role: "Transceiver",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    ...AVOIP_ENDPOINT_IO,
-    features: { usbRouting: true, usbC: false, dante: false, tenGig: false },
-    datasheetUrl: "https://www.crestron.com/Products/Video/DM-NVX-Series",
-  },
-  {
-    brand: "Crestron",
-    sku: "DM-NVX-E30",
-    keys: ["dmnvxe30", "dmnvxe31"],
-    domain: "AVOIP",
-    role: "Encoder",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    ...AVOIP_ENDPOINT_IO,
-    features: { usbRouting: true, tenGig: false },
-  },
-  {
-    brand: "Crestron",
-    sku: "DM-NVX-D30",
-    keys: ["dmnvxd30", "dmnvxd31"],
-    domain: "AVOIP",
-    role: "Decoder",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    ...AVOIP_ENDPOINT_IO,
-    features: { usbRouting: true, tenGig: false },
-  },
-  // ---- Extron NAV (PURE3 AV-over-IP, 4K60 4:4:4, 1GbE) ----
-  {
-    brand: "Extron",
-    sku: "NAV E 501",
-    keys: ["nave501", "nave121", "nave101"],
-    domain: "AVOIP",
-    role: "Encoder",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    ...AVOIP_ENDPOINT_IO,
-    features: { usbRouting: true, tenGig: false },
-  },
-  {
-    brand: "Extron",
-    sku: "NAV D 501",
-    keys: ["navd501", "navd121", "navd101"],
-    domain: "AVOIP",
-    role: "Decoder",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    ...AVOIP_ENDPOINT_IO,
-    features: { usbRouting: true, tenGig: false },
-  },
-  // ---- Extron DTP (HDBaseT-class twisted-pair extension) ----
-  {
-    brand: "Extron",
-    sku: "DTP2 T 211",
-    keys: ["dtp2t211", "dtp3t202", "dtp3t201"],
-    domain: "HDBASET",
-    role: "Transmitter",
-    maxResolution: "4K60",
-    features: { hdbtOutput: true },
-  },
-  {
-    brand: "Extron",
-    sku: "DTP2 R 211",
-    keys: ["dtp2r211", "dtp3r201"],
-    domain: "HDBASET",
-    role: "Receiver",
-    maxResolution: "4K60",
-    features: { receiverKit: true, hdbtOutput: true },
-  },
-  // ---- AMX SVSI N-Series (1G AV-over-IP) ----
-  {
-    brand: "AMX",
-    sku: "NMX-ENC-N2412A",
-    keys: ["nmxencn2412a", "nmxencn2612s", "nmxencn2615dwp"],
-    domain: "AVOIP",
-    role: "Encoder",
-    maxResolution: "4K60",
-    ...AVOIP_ENDPOINT_IO,
-    features: { usbRouting: true, tenGig: false },
-  },
-  {
-    brand: "AMX",
-    sku: "NMX-DEC-N2422A",
-    keys: ["nmxdecn2422a", "nmxdecn2622s", "nmxdecn2625dwp"],
-    domain: "AVOIP",
-    role: "Decoder",
-    maxResolution: "4K60",
-    ...AVOIP_ENDPOINT_IO,
-    features: { usbRouting: true, tenGig: false },
-  },
-  // ---- ZeeVee ZyPer4K (AV-over-IP) ----
-  {
-    brand: "ZeeVee",
-    sku: "ZyPer4K Encoder",
-    keys: ["zyper4kencoder", "zyperuhd60encoder", "zyperuhdencoder"],
-    domain: "AVOIP",
-    role: "Encoder",
-    maxResolution: "4K60",
-    ...AVOIP_ENDPOINT_IO,
-  },
-  {
-    brand: "ZeeVee",
-    sku: "ZyPer4K Decoder",
-    keys: ["zyper4kdecoder", "zyperuhd60decoder", "zyperuhddecoder"],
-    domain: "AVOIP",
-    role: "Decoder",
-    maxResolution: "4K60",
-    ...AVOIP_ENDPOINT_IO,
-  },
-  // ---- Blustream IP-series (AV-over-IP TX/RX) ----
-  {
-    brand: "Blustream",
-    sku: "IP300UHD-TX",
-    keys: ["ip200uhdtx", "ip250uhdtx", "ip300uhdtx", "ip350uhdtx"],
-    domain: "AVOIP",
-    role: "Transmitter",
-    maxResolution: "4K60",
-    ...AVOIP_ENDPOINT_IO,
-  },
-  {
-    brand: "Blustream",
-    sku: "IP300UHD-RX",
-    keys: ["ip200uhdrx", "ip250uhdrx", "ip300uhdrx", "ip350uhdrx"],
-    domain: "AVOIP",
-    role: "Receiver",
-    maxResolution: "4K60",
-    ...AVOIP_ENDPOINT_IO,
-    features: { receiverKit: true },
-  },
-  // ---- Kramer matrices ----
-  {
-    brand: "Kramer",
-    sku: "VS-88H2A",
-    keys: ["vs88h2a"],
-    domain: "MATRIX",
-    role: "Matrix",
-    maxResolution: "4K60",
-    inputCount: 8,
-    outputCount: 8,
-  },
-  {
-    brand: "Kramer",
-    sku: "VS-44H2A",
-    keys: ["vs44h2a"],
-    domain: "MATRIX",
-    role: "Matrix",
-    maxResolution: "4K60",
-    inputCount: 4,
-    outputCount: 4,
-  },
-  // ---- Lightware AV-over-IP ----
-  {
-    brand: "Lightware",
-    sku: "VINX-110-HDMI-ENC",
-    keys: ["vinx110hdmienc", "vinx120hdmienc"],
-    domain: "AVOIP",
-    role: "Encoder",
-    maxResolution: "4K60",
-    ...AVOIP_ENDPOINT_IO,
-  },
-  {
-    brand: "Lightware",
-    sku: "VINX-210AP-HDMI-DEC",
-    keys: ["vinx210aphdmidec", "vinx210hdmidec"],
-    domain: "AVOIP",
-    role: "Decoder",
-    maxResolution: "4K60",
-    ...AVOIP_ENDPOINT_IO,
-    features: { receiverKit: true },
-  },
-  // ---- AVPro Edge MXNet 10G transceiver (SDVoE-class, 4K60 4:4:4) ----
-  {
-    brand: "AVPro Edge",
-    sku: "MXNet-10G-TCVR",
-    keys: ["mxnet10gtcvr"],
-    domain: "AVOIP",
-    role: "Transceiver",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    ...AVOIP_ENDPOINT_IO,
-    features: { tenGig: true, zeroLatency: true, lossless: true, usbRouting: true },
-  },
-  // ---- Barco ClickShare (wireless presentation / conferencing) ----
-  {
-    brand: "Barco",
-    sku: "CX-50",
-    keys: ["cx50", "cx30", "cx20", "c5", "c10", "cx50gen2"],
-    domain: "WIRELESS_PRESENTATION",
-    role: "Wireless Presentation",
-    features: { wireless: true, usbC: true },
-  },
-
-  // ---- Crestron presentation / extension / matrix ----
-  {
-    brand: "Crestron",
-    // 4x2 switcher. The "hdmd4x4" alias was removed: it encoded a 4x4 I/O that
-    // does not match this 4x2 profile, so a typed HD-MD4X4 would have been
-    // reported with wrong 4x2 specs (the same overloaded-alias bug fixed for the
-    // Lightware MMX matrices). Safer to let an unknown variant fall through to
-    // VERIFY than to assert the wrong I/O. The integrity test enforces this.
-    sku: "HD-MD4X2-4KZ-E",
-    keys: ["hdmd4x24kze"],
-    domain: "MATRIX",
-    role: "Matrix",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    inputCount: 4,
-    outputCount: 2,
-  },
-  {
-    brand: "Crestron",
-    sku: "HD-TX-4KZ-211-2G",
-    keys: ["hdtx4kz2112g", "hdtx4kz211"],
-    domain: "HDBASET",
-    role: "transmitter",
-    maxResolution: "4K60",
-    features: { hdbtOutput: true },
-  },
-  {
-    brand: "Crestron",
-    sku: "HD-RX-4K-510-C-E",
-    keys: ["hdrx4k510ce", "hdrx4k510"],
-    domain: "HDBASET",
-    role: "receiver",
-    maxResolution: "4K60",
-    features: { hdbtOutput: true, receiverKit: true },
-  },
-  {
-    brand: "Crestron",
-    sku: "DMPS3-4K-350-C",
-    keys: ["dmps34k350c", "dmps34k250c", "dmps3"],
-    domain: "PRESENTATION",
-    role: "presentation switcher",
-    maxResolution: "4K30",
-    features: { usbRouting: true },
-  },
-  // ---- Extron presentation ----
-  {
-    brand: "Extron",
-    sku: "IN1608 xi",
-    keys: ["in1608xi", "in1608", "in1804", "in1606"],
-    domain: "PRESENTATION",
-    role: "presentation switcher",
-    inputCount: 8,
-    outputCount: 1,
-  },
-  // ---- Atlona OmniStream (AV-over-IP) ----
-  {
-    brand: "Atlona",
-    sku: "AT-OMNI-111",
-    keys: ["atomni111", "atomni121", "atomni141", "atomni232"],
-    domain: "AVOIP",
-    role: "Encoder",
-    maxResolution: "4K60",
-    ...AVOIP_ENDPOINT_IO,
-  },
-  {
-    brand: "Atlona",
-    sku: "AT-OMNI-112",
-    keys: ["atomni112", "atomni122", "atomni142", "atomni324"],
-    domain: "AVOIP",
-    role: "Decoder",
-    maxResolution: "4K60",
-    ...AVOIP_ENDPOINT_IO,
-  },
-  // ---- Atlona Omega presentation / collaboration switchers ----
-  {
-    brand: "Atlona",
-    sku: "AT-OME-MS42",
-    keys: ["atomems42", "atomems52", "atomems63"],
-    domain: "PRESENTATION",
-    role: "presentation switcher",
-    maxResolution: "4K60",
-    inputCount: 4,
-    outputCount: 2,
-    features: { usbC: true, usbRouting: true },
-  },
-  {
-    brand: "Atlona",
-    sku: "AT-OME-PS62",
-    keys: ["atomeps62"],
-    domain: "PRESENTATION",
-    role: "presentation switcher",
-    maxResolution: "4K60",
-    inputCount: 6,
-    outputCount: 2,
-    features: { usbC: true },
-  },
-  {
-    brand: "Atlona",
-    sku: "AT-OME-CS31-SA",
-    keys: ["atomecs31sa", "atomecs31", "atomecs51"],
-    domain: "PRESENTATION",
-    role: "presentation switcher",
-    maxResolution: "4K60",
-    inputCount: 3,
-    outputCount: 1,
-    features: { usbC: true },
-  },
-  // ---- Atlona HDBaseT extender kits (role left to verify; kit feature flagged) ----
-  {
-    brand: "Atlona",
-    sku: "AT-OME-EX-KIT",
-    keys: ["atomeexkit"],
-    domain: "HDBASET",
-    role: "transmitter",
-    maxResolution: "4K60",
-    features: { hdbtOutput: true, receiverKit: true, usbRouting: true },
-  },
-  {
-    brand: "Atlona",
-    sku: "AT-UHD-EX-100CE-KIT",
-    keys: ["atuhdex100cekit", "atuhdex70", "atuhdex100"],
-    domain: "HDBASET",
-    role: "transmitter",
-    maxResolution: "4K30",
-    features: { hdbtOutput: true, receiverKit: true },
-  },
-  {
-    brand: "Atlona",
-    sku: "AT-UHD-PRO3-88M",
-    keys: ["atuhdpro388m", "atuhdpro366m", "atuhdpro3"],
-    domain: "MATRIX",
-    role: "Matrix",
-    inputCount: 8,
-    outputCount: 8,
-  },
-  // ---- Kramer AV-over-IP endpoints ----
-  {
-    brand: "Kramer",
-    sku: "KDS-7-EN7",
-    keys: ["kds7en7", "kdsen6", "kds100"],
-    domain: "AVOIP",
-    role: "Encoder",
-    maxResolution: "4K60",
-    ...AVOIP_ENDPOINT_IO,
-  },
-  {
-    brand: "Kramer",
-    sku: "KDS-7-DEC7",
-    keys: ["kds7dec7", "kdsdec6"],
-    domain: "AVOIP",
-    role: "Decoder",
-    maxResolution: "4K60",
-    ...AVOIP_ENDPOINT_IO,
-  },
-  // ---- Kramer presentation switchers / scalers ----
-  {
-    brand: "Kramer",
-    sku: "VP-440X",
-    keys: ["vp440x", "vp551x", "vp554x", "vp440"],
-    domain: "PRESENTATION",
-    role: "presentation switcher",
-    maxResolution: "4K60",
-  },
-  // ---- Lightware ----
-  {
-    brand: "Lightware",
-    sku: "MMX8x8-HDMI-4K-A",
-    keys: ["mmx8x8hdmi4ka", "mmx8x8hdmi4k"],
-    domain: "MATRIX",
-    role: "Matrix",
-    maxResolution: "4K30",
-    inputCount: 8,
-    outputCount: 8,
-  },
-  {
-    brand: "Lightware",
-    sku: "MMX6x2-HT200",
-    keys: ["mmx6x2ht200", "mmx6x2ht210", "mmx6x2"],
-    domain: "MATRIX",
-    role: "Matrix",
-    maxResolution: "4K30",
-    inputCount: 6,
-    outputCount: 2,
-    features: { hdbtOutput: true, poc: true, control: true, audioDeEmbed: true },
-  },
-  {
-    brand: "Lightware",
-    sku: "MMX4x2-HDMI",
-    keys: ["mmx4x2hdmi", "mmx4x2"],
-    domain: "MATRIX",
-    role: "Matrix",
-    maxResolution: "4K30",
-    inputCount: 4,
-    outputCount: 2,
-  },
-  {
-    brand: "Lightware",
-    sku: "TAURUS UCX-2x1-HC30",
-    keys: ["taurusucx2x1hc30", "taurusucx2x1", "taurusucx"],
-    domain: "PRESENTATION",
-    role: "presentation switcher",
-    maxResolution: "4K60",
-    inputCount: 2,
-    outputCount: 1,
-    features: { usbC: true, usbRouting: true },
-  },
-  {
-    brand: "Lightware",
-    sku: "TAURUS UCX-4x2-HC30",
-    keys: ["taurusucx4x2hc30", "taurusucx4x2"],
-    domain: "PRESENTATION",
-    role: "presentation switcher",
-    maxResolution: "4K60",
-    inputCount: 4,
-    outputCount: 2,
-    features: { usbC: true, usbRouting: true },
-  },
-  {
-    brand: "Lightware",
-    sku: "UBEX-PRO20-HDMI-F100",
-    keys: ["ubexpro20hdmif100", "ubexpro20hdmif110", "ubexpro20"],
-    domain: "AVOIP",
-    role: "Transceiver",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    ...AVOIP_ENDPOINT_IO,
-    features: { tenGig: true, lossless: true, zeroLatency: true },
-  },
-  // ---- Blustream HDBaseT matrices / kits ----
-  {
-    brand: "Blustream",
-    sku: "HMX88-18G-KIT",
-    keys: ["hmx8818gkit", "c88cs", "pla88cs"],
-    domain: "MATRIX",
-    role: "Matrix",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    inputCount: 8,
-    outputCount: 8,
-    features: { hdbtOutput: true },
-  },
-  {
-    brand: "Blustream",
-    sku: "HMX44-18G-KIT",
-    keys: ["hmx4418gkit", "c44kit"],
-    domain: "MATRIX",
-    role: "Matrix",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    inputCount: 4,
-    outputCount: 4,
-    features: { hdbtOutput: true },
-  },
-  {
-    brand: "Blustream",
-    sku: "ACM210",
-    keys: ["acm210"],
-    domain: "CONTROL",
-    role: "controller",
-  },
-  // ---- AMX matrices / presentation / extension / AVoIP / control ----
-  {
-    brand: "AMX",
-    sku: "DGX1600-ENC",
-    keys: ["dgx1600enc", "dgx1600"],
-    domain: "MATRIX",
-    role: "Matrix",
-    inputCount: 16,
-    outputCount: 16,
-  },
-  {
-    brand: "AMX",
-    sku: "DGX6400-ENC",
-    keys: ["dgx6400enc", "dgx6400"],
-    domain: "MATRIX",
-    role: "Matrix",
-    inputCount: 64,
-    outputCount: 64,
-  },
-  {
-    brand: "AMX",
-    sku: "DVX-2265-4K",
-    keys: ["dvx22654k", "dvx2265", "dvx3266", "dvx2266"],
-    domain: "PRESENTATION",
-    role: "presentation switcher",
-    maxResolution: "4K30",
-  },
-  {
-    brand: "AMX",
-    sku: "DXL-TX-4K60",
-    keys: ["dxltx4k60", "dxltx"],
-    domain: "HDBASET",
-    role: "transmitter",
-    maxResolution: "4K60",
-    features: { hdbtOutput: true },
-  },
-  {
-    brand: "AMX",
-    sku: "DXL-RX-4K60",
-    keys: ["dxlrx4k60", "dxlrx"],
-    domain: "HDBASET",
-    role: "receiver",
-    maxResolution: "4K60",
-    features: { hdbtOutput: true, receiverKit: true },
-  },
-  {
-    brand: "AMX",
-    sku: "NMX-ENC-N3312D",
-    keys: ["nmxencn3312d", "nmxdecn3322", "nmxencn3300"],
-    domain: "AVOIP",
-    role: "Encoder",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    ...AVOIP_ENDPOINT_IO,
-    features: { tenGig: true, usbRouting: true },
-  },
-  {
-    brand: "AMX",
-    sku: "NX-2200",
-    keys: ["nx2200", "nx1200", "nx3200", "nx4200", "museautomator", "muse"],
-    domain: "CONTROL",
-    role: "controller",
-  },
-  // ---- AVPro Edge ----
-  {
-    brand: "AVPro Edge",
-    sku: "MXNet-1G-E",
-    keys: ["mxnet1ge"],
-    domain: "AVOIP",
-    role: "Encoder",
-    maxResolution: "4K60",
-    ...AVOIP_ENDPOINT_IO,
-    features: { usbRouting: true },
-  },
-  {
-    brand: "AVPro Edge",
-    sku: "MXNet-1G-D",
-    keys: ["mxnet1gd"],
-    domain: "AVOIP",
-    role: "Decoder",
-    maxResolution: "4K60",
-    ...AVOIP_ENDPOINT_IO,
-    features: { usbRouting: true },
-  },
-  {
-    brand: "AVPro Edge",
-    sku: "AC-MX-88",
-    keys: ["acmx88", "acmx1616", "acmx108"],
-    domain: "MATRIX",
-    role: "Matrix",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    inputCount: 8,
-    outputCount: 8,
-  },
-  {
-    brand: "AVPro Edge",
-    sku: "AC-MX-44HDBT",
-    keys: ["acmx44hdbt", "acmx42x", "acmx44"],
-    domain: "MATRIX",
-    role: "Matrix",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    inputCount: 4,
-    outputCount: 4,
-  },
-  {
-    brand: "AVPro Edge",
-    sku: "AC-EX70-444-KIT",
-    keys: ["acex70444kit", "acex70444r3", "acex40444kit", "acex70"],
-    domain: "HDBASET",
-    role: "transmitter",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    features: { hdbtOutput: true, receiverKit: true },
-  },
-  // ---- Binary (SnapAV) ----
-  {
-    brand: "Binary",
-    sku: "B-900-MOIP-4K-TX",
-    keys: ["b900moip4ktx", "b900moiptx"],
-    domain: "AVOIP",
-    role: "Transmitter",
-    ...AVOIP_ENDPOINT_IO,
-  },
-  {
-    brand: "Binary",
-    sku: "B-900-MOIP-4K-RX",
-    keys: ["b900moip4krx", "b900moiprx"],
-    domain: "AVOIP",
-    role: "Receiver",
-    ...AVOIP_ENDPOINT_IO,
-    features: { receiverKit: true },
-  },
-  {
-    brand: "Binary",
-    sku: "B-660-MTRX-8x8",
-    keys: ["b660mtrx8x8"],
-    domain: "MATRIX",
-    role: "Matrix",
-    inputCount: 8,
-    outputCount: 8,
-  },
-  {
-    brand: "Binary",
-    sku: "B-660-MTRX-4x4",
-    keys: ["b660mtrx4x4"],
-    domain: "MATRIX",
-    role: "Matrix",
-    inputCount: 4,
-    outputCount: 4,
-  },
-  {
-    brand: "Binary",
-    sku: "B-660-EXT-444-100A",
-    keys: ["b660ext444100a", "b660ext"],
-    domain: "HDBASET",
-    role: "transmitter",
-    maxResolution: "4K60",
-    chroma: "4:4:4",
-    features: { hdbtOutput: true, receiverKit: true },
-  },
-  {
-    brand: "Binary",
-    sku: "B-260-HDMI-CTRL",
-    keys: ["b260hdmictrl", "b260"],
-    domain: "CONTROL",
-    role: "controller",
-  },
-];
+// Runtime fingerprints are compiled from the authoritative manufacturer CSV sources.
+let FINGERPRINTS: Fingerprint[] = [];
 
 // Exported for the integrity test. The curated list is the high-trust tier a rep
 // quotes against, so its internal consistency is guarded automatically.
-export const CURATED_FINGERPRINTS: ReadonlyArray<Fingerprint> = FINGERPRINTS;
+export let CURATED_FINGERPRINTS: ReadonlyArray<Fingerprint> = FINGERPRINTS;
 
 export function normaliseFingerprintKey(value: string): string {
   return normKey(value);
@@ -1054,7 +427,8 @@ function parseSpecFacts(text: string, inputCount?: number, outputCount?: number,
   return Object.fromEntries(Object.entries(specs).filter(([, item]) => item !== undefined)) as CompareSpecFacts;
 }
 
-function sourceProductDomain(product: CompetitorSourceProduct): CompetitorTechnologyClass {
+function sourceProductDomain(product: CompetitorSourceProduct): CompetitorTechnologyClass | undefined {
+  if (product.domain === "UNKNOWN") return undefined;
   return product.domain === "WIRELESS_COLLAB" ? "WIRELESS_PRESENTATION" : product.domain;
 }
 
@@ -1076,7 +450,7 @@ function specsFromSourceProduct(product: CompetitorSourceProduct): CompareSpecFa
 }
 
 /* ------------------------------------------------------------------------- *
- * Structured competitor compare catalog (data/catalog/competitor-catalog.phase4.json)
+ * Structured competitor compare catalog (data/catalog/competitor-products.generated.json)
  *
  * This 79-product structured catalog was previously unused. Each entry is mapped
  * into the same Fingerprint shape the curated list uses, so any catalogued
@@ -1101,12 +475,16 @@ type CatalogEntry = {
   outputs?: CatalogPort[];
   control?: string[];
   audio?: string[];
-  features?: string[];
+  features?: string[] | Record<string, boolean>;
   video?: { maxResolution?: string; hdmi?: string; hdr?: boolean };
   matrixInputs?: number;
   matrixOutputs?: number;
   routedInputCount?: number;
   routedOutputCount?: number;
+  approvalStatus?: "approved" | "review" | "draft" | "needs-evidence";
+  sourceTier?: string;
+  aliases?: string[];
+  specs?: CompareSpecFacts & { video?: unknown };
 };
 
 const COMPETITOR_COMPARE_CATALOG = competitorCompareCatalogRaw as unknown as CatalogEntry[];
@@ -1192,11 +570,16 @@ function catalogEntryToFingerprint(entry: CatalogEntry): Fingerprint | null {
     ...(entry.inputs ?? []).map((p) => p.type ?? ""),
     ...(entry.outputs ?? []).map((p) => p.type ?? ""),
   ].join(" ");
+  const featureText = Array.isArray(entry.features)
+    ? entry.features.join(" ")
+    : entry.features && typeof entry.features === "object"
+      ? Object.entries(entry.features).filter(([, enabled]) => enabled === true).map(([name]) => name).join(" ")
+      : "";
   const blob = [
     entry.summary,
     entry.transport,
     entry.technology,
-    (entry.features ?? []).join(" "),
+    featureText,
     (entry.control ?? []).join(" "),
     (entry.audio ?? []).join(" "),
     portTypes,
@@ -1207,7 +590,10 @@ function catalogEntryToFingerprint(entry: CatalogEntry): Fingerprint | null {
   if (/usb-?c/i.test(portTypes)) features.usbC = true;
   if (/usb (host|device)/i.test(portTypes)) features.usbRouting = true;
 
-  const specs: CompareSpecFacts = { ...parseSpecFacts(blob, inputCount, outputCount, features) };
+  const specs: CompareSpecFacts = {
+    ...parseSpecFacts(blob, inputCount, outputCount, features),
+    ...(entry.specs && typeof entry.specs === "object" ? entry.specs : {}),
+  };
   const hdmiIn = countCatalogPorts(entry.inputs, /hdmi/i);
   const hdmiOut = countCatalogPorts(entry.outputs, /hdmi/i);
   if (hdmiIn) specs.hdmiInputs = hdmiIn;
@@ -1242,7 +628,7 @@ function catalogEntryToFingerprint(entry: CatalogEntry): Fingerprint | null {
   return {
     brand,
     sku,
-    keys: [normKey(sku)],
+    keys: Array.from(new Set([normKey(sku), ...(entry.aliases ?? []).map(normKey).filter(Boolean)])),
     domain,
     role: role ?? "",
     maxResolution: parseResolution([entry.video?.maxResolution, entry.summary].filter(Boolean).join(" ")),
@@ -1252,12 +638,16 @@ function catalogEntryToFingerprint(entry: CatalogEntry): Fingerprint | null {
     features: Object.keys(features).length ? features : undefined,
     specs: Object.keys(specs).length ? specs : undefined,
     datasheetUrl: entry.sourceUrl,
+    approvalStatus: entry.approvalStatus,
+    sourceTier: entry.sourceTier,
   };
 }
 
 const CATALOG_FINGERPRINTS: Fingerprint[] = COMPETITOR_COMPARE_CATALOG
   .map(catalogEntryToFingerprint)
   .filter((fp): fp is Fingerprint => Boolean(fp));
+FINGERPRINTS = CATALOG_FINGERPRINTS.filter((fingerprint) => fingerprint.approvalStatus === "approved");
+CURATED_FINGERPRINTS = FINGERPRINTS;
 
 const CATALOG_FINGERPRINT_BY_KEY = new Map<string, Fingerprint>();
 for (const fp of CATALOG_FINGERPRINTS) {
@@ -1307,14 +697,14 @@ export function resolveCompetitorSpecProfile(
   const sourceUrlText = textFromSourceUrl(sourceUrl);
   const sourceSkuCandidates = skuCandidatesFromSourceUrl(sourceUrl);
   const fingerprint =
-    lookupFingerprint(evidence.sku) ||
-    lookupFingerprint(canonicalInput) ||
-    lookupFingerprint(input) ||
-    lookupFingerprint(sourceUrlText) ||
     lookupCatalogFingerprint(evidence.sku) ||
     lookupCatalogFingerprint(canonicalInput) ||
     lookupCatalogFingerprint(input) ||
-    lookupCatalogFingerprint(sourceUrlText);
+    lookupCatalogFingerprint(sourceUrlText) ||
+    lookupFingerprint(evidence.sku) ||
+    lookupFingerprint(canonicalInput) ||
+    lookupFingerprint(input) ||
+    lookupFingerprint(sourceUrlText);
   // Separate catalogue lookup used only to backfill a real datasheet URL when a
   // hand-curated fingerprint wins but has no URL of its own.
   const catalogFingerprint =
@@ -1338,7 +728,7 @@ export function resolveCompetitorSpecProfile(
 
   const role =
     fingerprint?.role ||
-    sourceProduct?.role ||
+    (sourceProduct?.role && sourceProduct.role !== "Unknown" ? sourceProduct.role : undefined) ||
     (evidence.role && evidence.role !== "Unknown" ? evidence.role : undefined);
 
   const parsedIo = parseIoCounts(canonicalInput);
@@ -1396,8 +786,8 @@ export function resolveCompetitorSpecProfile(
     return false;
   }
   const familyLevelInput = isFamilyLevelCompetitorSpecInput(canonicalInput, evidence.sku, canonicalBrand || normalised?.brand || evidence.brand);
-  const hasVerifiedFingerprint = Boolean(fingerprint) && !familyLevelInput;
-  const hasVerifiedSourceProduct = Boolean(sourceProduct) && !familyLevelInput;
+  const hasVerifiedFingerprint = Boolean(fingerprint) && fingerprint?.approvalStatus === "approved" && !familyLevelInput;
+  const hasVerifiedSourceProduct = false;
 
   const specTier: CompetitorSpecTier = hasVerifiedFingerprint
     ? "verified-profile"
@@ -1431,7 +821,15 @@ export function resolveCompetitorSpecProfile(
     // metadata
     brand: sourceProduct?.manufacturer || normalised?.brand || fingerprint?.brand || evidence.brand,
     specTier,
-    readiness: hasVerifiedFingerprint || hasVerifiedSourceProduct ? "approved" : familyLevelInput ? "needs-evidence" : evidence.readiness,
+    readiness: hasVerifiedFingerprint
+      ? "approved"
+      : fingerprint?.approvalStatus === "review"
+        ? "usable-with-review"
+        : fingerprint
+          ? "needs-evidence"
+          : familyLevelInput
+            ? "needs-evidence"
+            : evidence.readiness,
     assumptions: hasVerifiedFingerprint || hasVerifiedSourceProduct ? [] : evidence.assumptions,
     whyNotDirectEquivalent: hasVerifiedFingerprint || hasVerifiedSourceProduct ? [] : evidence.whyNotDirectEquivalent,
     missingFacts: hasVerifiedFingerprint || hasVerifiedSourceProduct ? [] : familyLevelInput ? Array.from(new Set([...evidence.missingFacts, "Exact competitor model/SKU", "Datasheet or product page evidence"])) : evidence.missingFacts,

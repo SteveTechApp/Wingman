@@ -8,10 +8,11 @@ const projectRoot = path.resolve(__dirname, "..");
 
 const requiredFiles = [
   path.join(projectRoot, "docs", "production-readiness-audit.md"),
-  path.join(projectRoot, "data", "catalog", "wyrestormSkuCatalog.2026.json"),
-  path.join(projectRoot, "data", "catalog", "wyrestorm-catalog.phase1.json"),
-  path.join(projectRoot, "data", "catalog", "competitor-catalog.phase4.json"),
-  path.join(projectRoot, "data", "catalog", "competitor-compare.seed.json"),
+  path.join(projectRoot, "data-sources", "wyrestorm", "products.csv"),
+  path.join(projectRoot, "data-sources", "wyrestorm", "lifecycle.csv"),
+  path.join(projectRoot, "data", "wingman-canonical-product-store.json"),
+  path.join(projectRoot, "data", "catalog", "competitor-products.generated.json"),
+  path.join(projectRoot, "data", "catalog", "product-data-manifest.generated.json"),
   path.join(projectRoot, "data", "governance", "wingman-governance.json"),
   path.join(projectRoot, "public", "product-intelligence-index.json"),
 ];

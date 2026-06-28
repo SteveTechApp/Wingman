@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { PRODUCT_STORIES } from "../wingman2/data/productStories";
-import catalog2026 from "../../data/catalog/wyrestormSkuCatalog.2026.json";
+import canonicalStore from "../../data/wingman-canonical-product-store.json";
 
 // Coverage ratchet. Governed product stories are the "high confidence" sales copy
 // (everything else falls back to auto-generated positioning flagged for review in
@@ -16,7 +16,8 @@ const MIN_TOTAL_STORIES = 111;
 const MIN_CATALOG_SKUS_COVERED = 101;
 
 function catalogSkus(): string[] {
-  return (catalog2026 as Array<{ sku?: string }>)
+  return (canonicalStore.products as Array<{ sku?: string; doNotSpec?: boolean }>)
+    .filter((entry) => entry.doNotSpec !== true)
     .map((entry) => String(entry.sku ?? "").toUpperCase())
     .filter(Boolean);
 }

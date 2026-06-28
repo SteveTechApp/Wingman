@@ -14,7 +14,7 @@ The current `Wingman2` client has a routed application shell, generated product 
 - Route inventory and feature inventory are centralized.
 - Build, typecheck, lint, dependency audit, route-manifest checks, and readiness checks pass.
 - Local API starts and serves health, product intelligence, workspace/auth, and agent endpoints.
-- Product intelligence database exists and contains live records in `data/product-intelligence-db.json`.
+- Authoritative product sources live under `data-sources/` and compile into `data/wingman-canonical-product-store.json`.
 - Legacy competitor live lookup routes require an authenticated workspace session and only fetch approved HTTPS vendor hosts.
 - Guru provides real-time AV/WyreStorm technical Q&A from the local glossary, product index, rules, and local memory; external web lookup is disabled by default for privacy.
 - Discovery, Finder, Ingest, Compare, and Proposal can share active project context without forcing every standalone action into a proposal.

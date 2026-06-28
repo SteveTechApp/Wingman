@@ -7,22 +7,20 @@ const __dirname = path.dirname(__filename);
 const root = path.resolve(__dirname, "..");
 
 const source = readFileSync(path.join(root, "src/wingman2/lib/competitorProductIntelligence.ts"), "utf8");
+const competitorCatalog = JSON.parse(readFileSync(path.join(root, "data/catalog/competitor-products.generated.json"), "utf8"));
 
 function extractCatalogue() {
-  const start = source.indexOf("COMPETITOR_SKU_SEED_CATALOG");
-  const end = source.indexOf("const REQUIRED_FACTS", start);
-  const block = source.slice(start, end);
-  const results = [];
-  const brandRegex = /"([^"]+)"\s*:\s*\[([\s\S]*?)\]/g;
-  let match;
-
-  while ((match = brandRegex.exec(block)) !== null) {
-    const brand = match[1];
-    const skus = [...match[2].matchAll(/"([^"]+)"/g)].map((item) => item[1]);
-    results.push({ brand, count: skus.length, skus });
+  const byBrand = new Map();
+  for (const product of competitorCatalog) {
+    const brand = String(product.manufacturer || product.brand || "Unknown");
+    const sku = String(product.model || product.sku || "").trim();
+    if (!sku) continue;
+    if (!byBrand.has(brand)) byBrand.set(brand, []);
+    byBrand.get(brand).push(sku);
   }
-
-  return results;
+  return [...byBrand.entries()]
+    .map(([brand, skus]) => ({ brand, count: new Set(skus).size, skus: [...new Set(skus)].sort() }))
+    .sort((a, b) => a.brand.localeCompare(b.brand));
 }
 
 const brandCounts = extractCatalogue();

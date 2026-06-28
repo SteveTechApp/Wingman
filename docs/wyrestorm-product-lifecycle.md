@@ -6,15 +6,12 @@ their replacement.
 
 ## Sources of truth
 
-The authoritative inputs are the four WyreStorm business lists at the repo root,
-refreshed whenever WyreStorm publishes an update:
+The authoritative inputs are the governed WyreStorm source files:
 
 | File | Meaning |
 |------|---------|
-| `WyreStorm Active SKU 2026.txt` | Current, recommendable products |
-| `WyreStorm Discon Products 2026.txt` | Discontinued / end-of-life |
-| `Wyrestorm Do Not Spec List 2026.txt` | Must not be positioned as a lead |
-| `Wyrestorm Cables 2026.txt` | Cables / accessories (never a lead) |
+| `data-sources/wyrestorm/lifecycle.csv` | Active, review, discontinued, do-not-spec and cable business decisions |
+| `data-sources/wyrestorm/products.csv` | Product identity, classification and commercial facts |
 
 These are parsed by [`wyrestormSkuBusinessStatus.ts`](../src/wingman2/lib/wyrestormSkuBusinessStatus.ts)
 into a single `active | discontinued | do-not-spec | cable | unlisted` status.
@@ -39,18 +36,20 @@ successor is current.
    `node tools/check-wyrestorm-product-updates.mjs` crawls the WyreStorm sitemap and
    writes `public/wyrestorm-product-update-check.json` (products on the site but not
    in the index).
-2. **Refresh the business lists:** drop the latest WyreStorm exports into the four
-   `*.txt` files above.
+2. **Refresh lifecycle:** import the latest WyreStorm exports with
+   `npm run product-update:import-lifecycle -- <active.txt> <discontinued.txt> <do-not-spec.txt> <cables.txt>`,
+   then review the resulting source CSV diff. Raw lists are import inputs, not a
+   second runtime authority.
 3. **Reconcile:** `npm run lifecycle:reconcile`
    ([reconcile-wyrestorm-lifecycle.mjs](../tools/reconcile-wyrestorm-lifecycle.mjs))
-   diffs the lists against the live index and the governed stories and writes
+   diffs the governed lifecycle source against the live index and stories and writes
    [`docs/wyrestorm-lifecycle-reconciliation.md`](./wyrestorm-lifecycle-reconciliation.md)
    with five action lists:
 
    | Section | Action |
    |---------|--------|
    | **ARCHIVE** | Indexed products now discontinued or do-not-spec — archive with `node tools/archive-wingman-stale-data.mjs` and remove from active recommendation paths |
-   | **ADD** | Active products missing from the index — add to `data/wyrestorm-product-intelligence.json` and rebuild the index |
+   | **ADD** | Active products missing from the index — add to `data-sources/wyrestorm/products.csv` and `enrichment.json`, then rebuild |
    | **REVIEW** | Indexed products on no business list — verify status, then archive or confirm |
    | **SUPERSEDED** | Version families where a discontinued SKU has an active successor — promote into `WYRESTORM_SUPERSESSIONS` |
    | **STORIES** | Governed stories leading with or recommending a non-active SKU — update the story to the current SKU |

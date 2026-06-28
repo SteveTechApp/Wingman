@@ -9,13 +9,9 @@ const reportMdPath = path.join(reportsDir, "product-database-quality-audit.md");
 
 const sources = [
   { name: "canonical-product-store", path: "data/wingman-canonical-product-store.json", productKey: "products" },
-  { name: "wyrestorm-product-intelligence", path: "data/wyrestorm-product-intelligence.json" },
-  { name: "product-intelligence-db", path: "data/product-intelligence-db.json", productKey: "records" },
+  { name: "wyrestorm-source-enrichment", path: "data-sources/wyrestorm/enrichment.json" },
   { name: "public-product-intelligence-index", path: "public/product-intelligence-index.json", productKey: "products" },
-  { name: "wyrestorm-sku-catalog-2026", path: "data/catalog/wyrestormSkuCatalog.2026.json" },
-  { name: "wyrestorm-catalog-phase1", path: "data/catalog/wyrestorm-catalog.phase1.json" },
-  { name: "competitor-compare-seed", path: "data/catalog/competitor-compare.seed.json" },
-  { name: "competitor-catalog-phase4", path: "data/catalog/competitor-catalog.phase4.json" },
+  { name: "competitor-products-generated", path: "data/catalog/competitor-products.generated.json" },
 ];
 
 function clean(value) {
