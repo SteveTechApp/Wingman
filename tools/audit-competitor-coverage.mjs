@@ -1,4 +1,9 @@
-import { markdownTable, readJsonIfExists, writeText } from "./product-update-utils.mjs";
+import {
+  markdownTable,
+  readJsonIfExists,
+  stableGeneratedNotice,
+  writeText
+} from "./product-update-utils.mjs";
 
 const normalised = readJsonIfExists("generated/product-intelligence/competitor-fingerprints-normalized.json", { records: [] });
 const records = normalised.records ?? [];
@@ -26,7 +31,7 @@ const rows = [...blocked, ...partial].map((record) => ({
 writeText("docs/competitor-fingerprint-audit.md", `
 # Competitor fingerprint audit
 
-Generated: ${new Date().toISOString()}
+Generated: ${stableGeneratedNotice}
 
 - Known comparison profiles: ${known.length}
 - Partial profiles: ${partial.length}

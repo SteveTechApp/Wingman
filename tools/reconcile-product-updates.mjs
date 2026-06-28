@@ -1,4 +1,11 @@
-import { collectSkus, markdownTable, normaliseSku, readJsonIfExists, writeText } from "./product-update-utils.mjs";
+import {
+  collectSkus,
+  markdownTable,
+  normaliseSku,
+  readJsonIfExists,
+  stableGeneratedNotice,
+  writeText
+} from "./product-update-utils.mjs";
 
 const normalised = readJsonIfExists("generated/product-intelligence/wyrestorm-catalogue-normalized.json", { records: [] });
 const currentIndex = readJsonIfExists("public/product-intelligence-index.json", null);
@@ -28,7 +35,7 @@ const archiveRows = Array.from(indexedSkus)
 writeText("docs/product-intelligence-update-reconciliation.md", `
 # Product intelligence update reconciliation
 
-Generated: ${new Date().toISOString()}
+Generated: ${stableGeneratedNotice}
 
 - Imported WyreStorm records: ${imported.length}
 - Currently indexed SKUs found: ${indexedSkus.size}

@@ -3,9 +3,10 @@ import fs from "node:fs";
 
 function run(command, args) {
   console.log(`\n==> ${command} ${args.join(" ")}`);
-  const result = spawnSync(command, args, {
-    stdio: "inherit",
-    shell: process.platform === "win32"
+
+  const executable = process.platform === "win32" && command === "npm" ? "npm.cmd" : command;
+  const result = spawnSync(executable, args, {
+    stdio: "inherit"
   });
 
   if (result.status !== 0) {

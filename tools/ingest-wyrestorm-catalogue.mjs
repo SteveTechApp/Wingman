@@ -4,6 +4,8 @@ import {
   normaliseSku,
   readCsv,
   splitList,
+  stableFingerprint,
+  stableGeneratedNotice,
   truthy,
   writeJson,
   writeText,
@@ -65,7 +67,7 @@ const counts = {
 };
 
 writeJson("generated/product-intelligence/wyrestorm-catalogue-normalized.json", {
-  generatedAt: new Date().toISOString(),
+  sourceFingerprint: stableFingerprint(records),
   counts,
   records
 });
@@ -78,7 +80,7 @@ const reviewRows = records
 writeText("reports/wyrestorm-catalogue-ingest-report.md", `
 # WyreStorm catalogue ingest report
 
-Generated: ${new Date().toISOString()}
+Generated: ${stableGeneratedNotice}
 
 - Total records: ${counts.total}
 - Active records: ${counts.active}
