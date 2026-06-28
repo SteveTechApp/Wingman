@@ -116,7 +116,13 @@
                     "check:compare-evidence-led-wording":  "node tools/check-compare-evidence-led-wording.mjs",
                     "check:hdbaset-avoip-classification":  "node tools/check-hdbaset-avoip-classification.mjs",
                     "check:sales-facing-language":  "node tools/check-sales-facing-language.mjs",
-                    "check:call-coach-no-loop":  "node tools/check-call-coach-no-call-cards-loop.mjs"
+                    "check:call-coach-no-loop":  "node tools/check-call-coach-no-call-cards-loop.mjs",
+                    "data:ingest-wyrestorm":  "node tools/ingest-wyrestorm-catalogue.mjs",
+                    "data:ingest-competitors":  "node tools/ingest-competitor-fingerprints.mjs",
+                    "product-update:reconcile":  "node tools/reconcile-product-updates.mjs",
+                    "product-update:audit-stories":  "node tools/audit-new-product-stories.mjs",
+                    "product-update:audit-competitors":  "node tools/audit-competitor-coverage.mjs",
+                    "product-update:all":  "node tools/run-product-intelligence-update.mjs"
                 },
     "dependencies":  {
                          "@xyflow/react":  "^12.10.2",

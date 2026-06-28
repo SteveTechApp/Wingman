@@ -1,0 +1,2 @@
+manufacturer,model,product_class,role,input_count,output_count,transport_type,resolution_bandwidth,usb,audio,control,network_requirement,poe_power,known_limitations,closest_wyrestorm_architecture,closest_wyrestorm_sku_or_family,confidence,evidence_source,last_reviewed,reviewer
+Blustream,IP250UHD-TX,AV-over-IP endpoint,encoder,1,1,1GbE AVoIP,4K class,USB not assumed,Audio not assumed,IP control,Managed AV network,PoE check required,Confirm codec USB and PoE support,NetworkHD 500 encoder,NHD-500-TX,medium,Reviewed competitor profile,2026-06-28,Sales engineering

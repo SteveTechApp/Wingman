@@ -1,0 +1,45 @@
+{
+  "generatedAt": "2026-06-28T04:20:43.680Z",
+  "counts": {
+    "total": 1,
+    "active": 1,
+    "doNotSpec": 0,
+    "recommendationCapable": 1,
+    "needsReview": 0
+  },
+  "records": [
+    {
+      "sku": "NHD-500-TX",
+      "productName": "NetworkHD 500 Series Encoder",
+      "family": "NetworkHD 500",
+      "productType": "AV-over-IP endpoint",
+      "role": "encoder",
+      "lifecycleStatus": "active",
+      "doNotSpec": false,
+      "successor": "",
+      "inputs": "HDMI in",
+      "outputs": "NetworkHD stream",
+      "transportType": "1GbE JPEG-XS",
+      "resolutionBandwidth": "4K60 4:4:4 HDR",
+      "usb": "USB supported",
+      "audio": "Audio supported",
+      "control": "NetworkHD control",
+      "networkRequirement": "Managed AV network with IGMP",
+      "dependencies": [
+        "NHD-CTL-PRO",
+        "compatible receiver"
+      ],
+      "compatibleFamilies": [
+        "NetworkHD 500"
+      ],
+      "applicationFit": "Premium 1GbE AVoIP distribution",
+      "disqualifiers": "Do not mix with NetworkHD 100 or 600 on same logical system",
+      "quoteWarnings": "Confirm network switching USB and receiver count before quote",
+      "evidenceSource": "Official WyreStorm catalogue or datasheet",
+      "lastReviewed": "2026-06-28",
+      "reviewer": "Sales engineering",
+      "missingFields": [],
+      "recommendationCapable": true
+    }
+  ]
+}
