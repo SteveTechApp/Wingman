@@ -9,7 +9,10 @@ const allowed = new Set([
   "src/main.tsx"
 ]);
 
-const expectedMainCssImport = "./wingman2/styles/wingman-style-stack.css";
+const expectedMainCssImports = [
+  "./wingman2/styles/wingman-style-stack.css",
+  "./wingman2/styles/wingman-redesign-theme.css",
+];
 const retiredPageStyleFiles = [
   "discovery-output-preview.css",
   "product-pitch-safe-layout.css",
@@ -73,7 +76,7 @@ for (const file of walk(srcRoot)) {
 }
 
 if (offenders.length > 0) {
-  console.error("Blocked: CSS imports are only allowed through src/main.tsx -> wingman-style-stack.css");
+  console.error("Blocked: CSS imports are only allowed through the app-wide styles in src/main.tsx");
   console.error("");
 
   for (const offender of offenders) {
@@ -86,8 +89,11 @@ if (offenders.length > 0) {
 const mainRaw = fs.readFileSync(mainEntry, "utf8");
 const mainCssImports = [...mainRaw.matchAll(/import\s+["']([^"']+\.css)["'];/g)].map((match) => match[1]);
 
-if (mainCssImports.length !== 1 || mainCssImports[0] !== expectedMainCssImport) {
-  console.error("Blocked: src/main.tsx must import exactly one stylesheet: wingman-style-stack.css");
+if (
+  mainCssImports.length !== expectedMainCssImports.length
+  || mainCssImports.some((cssImport, index) => cssImport !== expectedMainCssImports[index])
+) {
+  console.error("Blocked: src/main.tsx must import the style stack followed by the redesign theme.");
   console.error(`Found: ${mainCssImports.length ? mainCssImports.join(", ") : "none"}`);
   process.exit(1);
 }
@@ -116,4 +122,4 @@ if (retiredFilesStillPresent.length > 0) {
   process.exit(1);
 }
 
-console.log("CSS import guard passed. Only main.tsx imports the Wingman style stack.");
+console.log("CSS import guard passed. Only main.tsx imports the Wingman style stack and redesign theme.");

@@ -1,0 +1,317 @@
+/* ==========================================================================
+   WINGMAN REDESIGN THEME  —  drop-in override layer
+   --------------------------------------------------------------------------
+   Applies the refreshed Wingman visual system WITHOUT touching any React
+   markup. It re-tunes the design tokens the rest of the stylesheet already
+   consumes via var(), then refines the highest-impact component rules
+   (shell, sidebar, nav, topbar, hero, cards, buttons).
+
+   HOW TO WIRE IT
+   In src/main.tsx, import this file immediately AFTER the main stylesheet
+   so it wins the cascade:
+
+       import "./wingman2/styles/wingman-style-stack.css";
+       import "./wingman2/styles/wingman-redesign-theme.css";   // <-- add
+
+   That single line is the whole installation. No component changes required.
+
+   WHAT CHANGES
+   - Calmer, higher-contrast dark palette (flat surfaces, no glow spam)
+   - Headings become near-white; aqua is reserved as an accent
+   - One consistent radius scale (8 / 10 / 12 / 14 / 16)
+   - Lighter, disciplined font weights (body 450, UI 600, heading 700)
+   - Hairline borders + a single subtle shadow instead of layered gradients
+   ========================================================================== */
+
+/* ---- 1. Design tokens -------------------------------------------------- */
+/* Re-declared after the base :root, so every var() consumer updates. */
+:root {
+  /* Surfaces */
+  --wm-bg-0: #070d15;
+  --wm-bg-1: #0a1019;
+  --wm-bg-2: #0b121c;
+  --wm-panel: #111b27;
+  --wm-panel-soft: #15212e;
+  --wm-surface: #f6fbff;
+  --wm-surface-strong: #ffffff;
+  --wm-surface-muted: #eef3fa;
+
+  /* Borders */
+  --wm-border-dark: rgba(150, 172, 196, 0.10);
+  --wm-border-light: rgba(150, 172, 196, 0.16);
+
+  /* Text */
+  --wm-text: #e8f0f8;
+  --wm-text-soft: #c4d3e2;
+  --wm-text-muted: #8597aa;
+
+  /* Accents — aqua is the brand accent; semantic colours kept distinct */
+  --wm-orange: #63f3ff;
+  --wm-orange-soft: rgba(99, 243, 255, 0.12);
+  --wm-orange-border: rgba(99, 243, 255, 0.32);
+  --wm-green: #35d39a;
+  --wm-red: #f2705f;
+  --wm-blue: #6492ff;
+
+  /* Brand-accent aliases used by the navhub fallbacks */
+  --wm-aqua: #5fd6d2;
+  --wm-aqua-soft: #5fd6d2;
+  --wm-soft: #9aacbe;
+  --wm-muted: #8597aa;
+  --wm-white: #eef5fb;
+  --wm-line: rgba(150, 172, 196, 0.12);
+  --wm-glow: none;
+
+  /* Radius — one disciplined scale */
+  --wm-radius-lg: 12px;
+  --wm-radius-xl: 14px;
+  --wm-radius-2xl: 16px;
+
+  /* Type weights — quieter hierarchy */
+  --wm-weight-body: 450;
+  --wm-weight-ui: 600;
+  --wm-weight-heading: 700;
+  --wm-weight-strong: 800;
+  --wm-tracking-heading: -0.02em;
+
+  /* Shadows — single, subtle */
+  --wm-shadow-panel: 0 10px 30px rgba(0, 0, 0, 0.32);
+  --wm-shadow-card: 0 8px 22px rgba(0, 0, 0, 0.22);
+
+  /* Authority-UI token set */
+  --wm-ui-page-bg: #0a1019;
+  --wm-ui-panel-bg: #0b121c;
+  --wm-ui-card-bg: #111b27;
+  --wm-ui-border: rgba(99, 243, 255, 0.22);
+  --wm-ui-border-muted: rgba(150, 172, 196, 0.14);
+  --wm-ui-heading: #eef5fb;
+  --wm-ui-body: #c4d3e2;
+  --wm-ui-muted: #8597aa;
+  --wm-ui-decision: #f5b740;
+  --wm-ui-decision-strong: #d99a30;
+  --wm-ui-forward: #35d39a;
+  --wm-ui-forward-strong: #1f9e6f;
+  --wm-ui-radius-sm: 8px;
+  --wm-ui-radius-md: 10px;
+  --wm-ui-radius-lg: 12px;
+  --wm-ui-shadow-card: 0 8px 22px rgba(0, 0, 0, 0.22);
+
+  /* "Uniform title" heading system — headings go near-white, aqua becomes
+     a soft accent reserved for small labels. */
+  --wm-uniform-title: #eef5fb;
+  --wm-uniform-title-soft: #7fd8e6;
+  --wm-uniform-text: #e8f0f8;
+  --wm-uniform-muted: rgba(226, 239, 250, 0.74);
+  --wm-uniform-border: rgba(99, 243, 255, 0.22);
+  --wm-uniform-border-strong: rgba(99, 243, 255, 0.40);
+  --wm-uniform-radius: 16px;
+}
+
+/* "Consistency" heading/panel system is scoped to the page host — override it
+   at the same selector so the later declaration wins. This is what turns the
+   aqua page headings near-white across every route. */
+html[data-wingman-route] .wingman-page-host {
+  --wm-consistency-title: #eef5fb;
+  --wm-consistency-title-soft: #7fd8e6;
+  --wm-consistency-text: #e8f0f8;
+  --wm-consistency-muted: rgba(226, 239, 250, 0.74);
+  --wm-consistency-border: rgba(99, 243, 255, 0.24);
+  --wm-consistency-border-strong: rgba(99, 243, 255, 0.42);
+  --wm-consistency-panel: #111b27;
+  --wm-consistency-panel-soft: #15212e;
+  --wm-consistency-hero: linear-gradient(135deg, #11212f 0%, #0c1622 70%);
+  --wm-consistency-shadow: 0 10px 30px rgba(0, 0, 0, 0.30);
+}
+
+/* ---- 2. Page & shell --------------------------------------------------- */
+body,
+.wingman-shell,
+.wingman-authority-shell {
+  background: #0a1019 !important;
+  color: var(--wm-text);
+}
+
+/* ---- 3. Sidebar -------------------------------------------------------- */
+.wingman-shell .wingman-sidebar {
+  background: #0b121c !important;
+  border-right: 1px solid var(--wm-border-dark) !important;
+  box-shadow: none !important;
+  padding: 16px 14px 14px !important;
+}
+
+/* Brand block: drop the bordered card, let the logo breathe */
+.wingman-shell .wingman-brand {
+  border: none !important;
+  background: transparent !important;
+  padding: 4px 6px 12px !important;
+  margin-bottom: 8px !important;
+  min-height: 0 !important;
+}
+
+.wingman-nav {
+  gap: 4px !important;
+}
+
+/* Nav links */
+.wingman-shell .wingman-nav-link {
+  min-height: 42px !important;
+  padding: 9px 11px !important;
+  border-radius: 10px !important;
+  border: 1px solid transparent !important;
+  color: var(--wm-text-muted) !important;
+  font-weight: 500 !important;
+  background: transparent !important;
+  transition: background .15s ease, color .15s ease, border-color .15s ease !important;
+}
+
+.wingman-shell .wingman-nav-link:hover {
+  background: rgba(255, 255, 255, 0.045) !important;
+  color: #d6e3f0 !important;
+}
+
+.wingman-shell .wingman-nav-link-active,
+.wingman-shell .wingman-nav-link.wingman-nav-link-active {
+  background: rgba(99, 243, 255, 0.10) !important;
+  border-color: rgba(99, 243, 255, 0.28) !important;
+  color: #bdf3f2 !important;
+  font-weight: 600 !important;
+}
+
+.wingman-shell .wingman-nav-link-active .wingman-nav-icon {
+  color: #7fe4e2 !important;
+}
+
+/* Sidebar profile / footer cards inherit the calmer panel look */
+.wingman-sidebar [class*="rounded"],
+.wingman-sidebar .wingman-panel {
+  border-radius: 12px !important;
+}
+
+/* ---- 4. Topbar --------------------------------------------------------- */
+.wingman-topbar {
+  background: #0b121c !important;
+  border-bottom: 1px solid var(--wm-border-dark) !important;
+  backdrop-filter: none !important;
+}
+
+.wingman-topbar-title p {
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
+  color: #eef5fb !important;
+}
+
+.wingman-topbar-title span {
+  color: var(--wm-text-muted) !important;
+}
+
+/* Primary action: aqua→blue gradient, dark ink */
+.wingman-new-project-button {
+  border-radius: 10px !important;
+  border: none !important;
+  color: #04121d !important;
+  font-weight: 600 !important;
+  background: linear-gradient(135deg, #63f3ff, #6492ff) !important;
+  box-shadow: none !important;
+}
+
+.wingman-new-project-button:hover {
+  filter: brightness(1.04) !important;
+}
+
+/* ---- 5. Panels & generic cards ---------------------------------------- */
+.wingman-panel,
+.wingman-page-hero {
+  background: var(--wm-panel) !important;
+  border: 1px solid var(--wm-border-light) !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+
+/* ---- 6. Dashboard / navigation hub ------------------------------------ */
+.wm-navhub-hero,
+.wm-navhub-secondary {
+  background: var(--wm-panel) !important;
+  border: 1px solid var(--wm-border-light) !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+
+/* Make the hero read as a hero: gradient surface, near-white headline */
+.wm-navhub-hero {
+  background: linear-gradient(135deg, #11212f 0%, #0c1622 70%) !important;
+}
+
+.wm-navhub-hero h1 {
+  color: #f3f8fc !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.wm-navhub-secondary h2 {
+  color: #eef5fb !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.015em !important;
+  font-size: clamp(1.2rem, 1.6vw, 1.45rem) !important;
+}
+
+.wm-navhub-hero p,
+.wm-navhub-secondary p {
+  color: var(--wm-text-soft) !important;
+}
+
+.wm-navhub-eyebrow,
+.wm-navhub-card-eyebrow {
+  color: #5fd6d2 !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.14em !important;
+}
+
+/* Destination cards */
+.wm-navhub-card,
+.wm-navhub-secondary-card {
+  background: var(--wm-panel) !important;
+  border: 1px solid var(--wm-border-light) !important;
+  border-radius: 15px !important;
+  box-shadow: none !important;
+  transition: transform .15s ease, border-color .15s ease, background .15s ease !important;
+}
+
+.wm-navhub-card:hover,
+.wm-navhub-card:focus-visible,
+.wm-navhub-secondary-card:hover,
+.wm-navhub-secondary-card:focus-visible {
+  transform: translateY(-2px) !important;
+  border-color: rgba(99, 243, 255, 0.40) !important;
+  background: #15212e !important;
+}
+
+.wm-navhub-card strong {
+  color: #eef5fb !important;
+  font-weight: 700 !important;
+  font-size: 1.05rem !important;
+}
+
+.wm-navhub-card p,
+.wm-navhub-card small {
+  color: #90a2b5 !important;
+}
+
+.wm-navhub-card-action {
+  color: #5fd6d2 !important;
+  font-weight: 600 !important;
+}
+
+/* Submode pills */
+.wm-navhub-submodes span {
+  border: 1px solid var(--wm-border-light) !important;
+  background: #16222f !important;
+  color: var(--wm-text-soft) !important;
+  border-radius: 999px !important;
+  font-weight: 500 !important;
+}
+
+/* ---- 7. Guru FAB ------------------------------------------------------- */
+.wingman-guru-fab,
+[class*="guru-fab"] {
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.45) !important;
+}
