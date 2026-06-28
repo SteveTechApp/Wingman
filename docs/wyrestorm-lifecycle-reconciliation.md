@@ -5,7 +5,7 @@
 - Governed lifecycle source: active 135, discontinued 73, do-not-spec 48, cable 30, review 24
 - Indexed products: 310 · Governed stories: 114
 
-## ARCHIVE — indexed but discontinued or do-not-spec (121)
+## BLOCKED — retained for history, excluded from recommendations (121)
 
 - [ ] APO-100-UC (discontinued)
 - [ ] APO-200-UC (discontinued)

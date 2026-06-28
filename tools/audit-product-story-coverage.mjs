@@ -132,7 +132,7 @@ lines.push(buckets["active-uncovered"].length
   ? buckets["active-uncovered"].sort().map((sku) => `- [ ] ${sku}`).join("\n")
   : "_None — every active SKU has a governed story._");
 lines.push("");
-lines.push("## Unlisted SKUs (in the catalogue but on no 2026 business list)");
+lines.push("## Review-gated SKUs (not confirmed by the governed lifecycle import)");
 lines.push("");
 lines.push("Confirm whether these are active before authoring a story; the compare engine treats them as unresolved risk.");
 lines.push("");

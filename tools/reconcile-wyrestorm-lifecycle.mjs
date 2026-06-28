@@ -10,7 +10,7 @@ import { readCsv } from "./product-update-utils.mjs";
  * ships - the product-intelligence index and the governed sales stories - and
  * reports the drift that a human needs to act on:
  *
- *   ARCHIVE   indexed products that are now discontinued or do-not-spec
+ *   BLOCKED   indexed products that are discontinued or do-not-spec
  *   ADD       active products missing from the index
  *   REVIEW    indexed products not on any business list (stale / unknown)
  *   SUPERSEDED version families where a discontinued SKU has an active successor
@@ -115,7 +115,7 @@ const section = (title, body) => {
 };
 
 section(
-  `ARCHIVE — indexed but discontinued or do-not-spec (${archive.length})`,
+  `BLOCKED — retained for history, excluded from recommendations (${archive.length})`,
   archive.sort().map((sku) => `- [ ] ${sku} (${statusOf(sku)})`).join("\n"),
 );
 section(
@@ -148,7 +148,7 @@ if (!existsSync(path.dirname(reportPath))) mkdirSync(path.dirname(reportPath), {
 writeFileSync(reportPath, lines.join("\n"));
 
 console.log("[lifecycle] WyreStorm lifecycle reconciliation");
-console.log(`[lifecycle]   ARCHIVE (indexed & EoL/do-not-spec): ${archive.length}`);
+console.log(`[lifecycle]   BLOCKED (indexed & EoL/do-not-spec): ${archive.length}`);
 console.log(`[lifecycle]   ADD (active & not indexed):          ${add.length}`);
 console.log(`[lifecycle]   REVIEW (indexed & unlisted):         ${review.length}`);
 console.log(`[lifecycle]   SUPERSEDED (version families):       ${superseded.length}`);
