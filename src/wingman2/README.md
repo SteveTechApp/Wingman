@@ -13,9 +13,11 @@ Structure:
 
 Canonical runtime data:
 
-- `data/catalog/`: catalog and seed data used by the active server runtime
+- `data-sources/`: authoritative editable WyreStorm and competitor sources
+- `data/catalog/`: compiled competitor catalogue and source manifest
 - `data/governance/`: governance and policy data used by the active server runtime
-- `data/*.json`: persisted runtime stores and product intelligence databases
+- `data/wingman-canonical-product-store.json`: generated WyreStorm runtime catalogue
+- `data/runtime/`: ignored operational state; never an editable product-data source
 
 Entry points:
 

@@ -118,7 +118,7 @@ function skuCandidatesFromSourceUrl(rawUrl: unknown): string[] {
 }
 
 // Endpoint feature defaults shared across AVoIP transceivers.
-const AVOIP_ENDPOINT_IO = { inputCount: 1, outputCount: 1 } as const;
+const _AVOIP_ENDPOINT_IO = { inputCount: 1, outputCount: 1 } as const;
 
 /**
  * Curated fingerprints for the most commonly compared competitor SKUs. Specs

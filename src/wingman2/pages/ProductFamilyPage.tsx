@@ -123,7 +123,7 @@ const familyGuides: ProductFamilyGuide[] = [
       "Control, operations and monitoring spaces that do not require 10G lossless transport.",
     ],
     discoveryQuestions: [
-      "Is USB transport part of the user workflow?",
+      "Is USB transport part of the room workflow?",
       "Is 4K60 4:4:4 or clear text/graphics important?",
       "Does the site allow a properly configured AV network?",
     ],
@@ -188,7 +188,7 @@ const familyGuides: ProductFamilyGuide[] = [
       "Budget-sensitive general distribution.",
       "Projects without 10G network approval.",
       "Simple meeting rooms or signage zones.",
-      "Systems where NetworkHD 500 already satisfies the user experience.",
+      "Systems where NetworkHD 500 already satisfies the required room experience.",
     ],
     salesRule:
       "Lead with NetworkHD 600 only when performance is the reason the customer will buy the system.",
@@ -314,7 +314,7 @@ const familyGuides: ProductFamilyGuide[] = [
     whatItIs:
       "A family of room-local switching, collaboration and conferencing products for everyday presentation and meeting workflows.",
     whyItExists:
-      "Most meeting rooms fail because the user experience is messy, not because the video specification is exotic.",
+      "Most meeting rooms fail because the room experience is messy, not because the video specification is exotic.",
     howItWorks:
       "Laptop, room source, camera, microphone and display paths are brought into a simpler room workflow, often with automatic or user-friendly switching.",
     roomFit:
@@ -356,7 +356,7 @@ const familyGuides: ProductFamilyGuide[] = [
       "A simple extender solves the whole requirement.",
     ],
     salesRule:
-      "For meeting rooms, sell the user workflow first and the transport technology second.",
+      "For meeting rooms, explain the participant workflow first and the transport technology second.",
   },
   {
     id: "hdbaset-extension",
@@ -420,7 +420,7 @@ const familyGuides: ProductFamilyGuide[] = [
     productSkus: ["EX-100-USB", "CAB-USB-3M", "CAB-USB-5M"],
     pitchQuery: "WyreStorm USB KVM extender",
     customerPitch:
-      "USB extension protects the user experience in conferencing and control rooms because cameras, microphones and touch devices must work from the correct host location.",
+      "USB extension protects the room experience in conferencing and control rooms because cameras, microphones and touch devices must work from the correct host location.",
     whatItIs:
       "A family for carrying USB or KVM-style interaction between users, host devices and peripherals.",
     whyItExists:
@@ -510,7 +510,7 @@ const familyGuides: ProductFamilyGuide[] = [
     discoveryQuestions: [
       "How many cameras or video sources need to be captured?",
       "Where does the output need to go: USB, HDMI, NDI, recording, streaming or AVoIP?",
-      "Does the user need camera switching, presets or multiview?",
+      "Does the customer need camera switching, presets or multiview?",
     ],
     positionAgainst:
       "Position camera products by workflow: capture, switch, bridge, stream, record or route. Do not sell a camera SKU before the destination is known.",
@@ -647,7 +647,7 @@ const familyGuides: ProductFamilyGuide[] = [
     howItWorks:
       "Control devices and management tools sit above the signal path, triggering presets, display control, source selection or support visibility.",
     roomFit:
-      "Touch panels and keypads go where the user operates the room - table, wall or lectern; gateways and management kit sit in the rack. The interface is what people see; the brains stay hidden.",
+      "Touch panels and keypads go where people operate the room - table, wall or lectern; gateways and management kit sit in the rack. The interface is what people see; the brains stay hidden.",
     connectivity: [
       "Network control connections.",
       "RS-232, IR, relay or other control paths where required by the device and system.",
@@ -685,7 +685,7 @@ const familyGuides: ProductFamilyGuide[] = [
       "The customer only asked for hardware replacement and no control change is allowed.",
     ],
     salesRule:
-      "Control should match the user journey: what does the person in the room need to press, see or avoid thinking about?",
+      "Control should match the room journey: what does the person in the room need to press, see or avoid thinking about?",
   },
 ];
 

@@ -177,7 +177,7 @@ export function IngestPage() {
       <PageHero
         eyebrow="Request Decoder"
         title="Turn emails, RFIs, RFQs, BOMs and rough notes into usable pre-sales direction."
-        purpose="Use this when the customer sends something ambiguous. Wingman extracts requirements, unknowns, system shape, response voice and next actions before the user jumps into product selection."
+        purpose="Use this when the customer sends something ambiguous. Wingman extracts requirements, unknowns, system shape, response voice and next actions before product selection begins."
         nextMove="Paste or upload the request, choose the request type, review what matters, then continue to Discovery, Compare, Product Finder, Response Pack or Schematic."
         actions={[
           { label: "Open discovery", to: routeCatalogByKey.discovery.path },

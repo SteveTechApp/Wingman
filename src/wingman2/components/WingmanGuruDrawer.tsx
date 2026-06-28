@@ -211,7 +211,7 @@ const avGlossary: GlossaryEntry[] = [
     terms: ["byod", "bring your own device"],
     title: "BYOD",
     answer:
-      "BYOD means Bring Your Own Device. In AV, the user brings a laptop and connects it to the room to share content or run the meeting.",
+      "BYOD means Bring Your Own Device. In AV, a participant brings a laptop and connects it to the room to share content or run the meeting.",
     salesUse:
       "Ask whether the laptop only needs to share video, or whether it also needs access to the room camera, microphone, speakers, touch display, and network.",
     watchOut:
@@ -222,7 +222,7 @@ const avGlossary: GlossaryEntry[] = [
     terms: ["byom", "bring your own meeting"],
     title: "BYOD",
     answer:
-      "BYOD means Bring Your Own Meeting. The user runs Teams, Zoom, Webex, or similar from their own laptop while using the room camera, microphone, speakers, and display.",
+      "BYOM means Bring Your Own Meeting. A participant runs Teams, Zoom, Webex, or similar from their own laptop while using the room camera, microphone, speakers, and display.",
     salesUse:
       "BYOD normally requires USB routing as well as video routing.",
     watchOut:
@@ -235,7 +235,7 @@ const avGlossary: GlossaryEntry[] = [
     answer:
       "KVM stands for Keyboard, Video, Mouse. In AV it usually means transporting video and USB control/peripherals together so a user can operate a remote computer or device.",
     salesUse:
-      "Ask which computer is being controlled, where the user is sitting, and what USB devices need to work.",
+      "Ask which computer is being controlled, where the operator is sitting, and what USB devices need to work.",
     watchOut:
       "KVM can mean simple keyboard/mouse, but it can also involve cameras, touchscreens, or high-speed USB devices.",
     related: ["USB extender", "USB host", "USB device"],

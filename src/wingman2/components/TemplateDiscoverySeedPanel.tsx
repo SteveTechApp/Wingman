@@ -485,7 +485,7 @@ function buildBom(seed: TemplateDiscoverySeed): { wyrestormBom: BomLine[]; proje
       wyrestormBom: [
         { qty: "1", item: family, role: "Provides the room presentation, UC or BYOD connection layer.", notes: "One presentation system is allocated to the room." },
         { qty: displayQty, item: "Display output path", role: "Connects the presentation system to the display estate.", notes: "Quantity follows the Displays value above." },
-        { qty: usbRequired ? "1" : "0", item: "USB device path", role: "Connects room USB devices to the user or room system.", notes: usbRequired ? "Included because USB is enabled above." : "Not required for the current assumptions." }
+        { qty: usbRequired ? "1" : "0", item: "USB device path", role: "Connects room USB devices to a participant device or room system.", notes: usbRequired ? "Included because USB is enabled above." : "Not required for the current assumptions." }
       ],
       projectScopeItems: [
         { qty: displayQty, item: "Room display hardware", role: "Display estate.", notes: "Quantity follows the Displays value above." },
