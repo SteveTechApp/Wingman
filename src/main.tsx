@@ -5,6 +5,7 @@ import "./wingman2/lib/guruDetachedPanel";
 import "./wingman2/lib/microphoneSafety";
 import "./wingman2/app/wingmanProductCallCardsCleanUi";
 import "./wingman2/app/wingmanDisplayScaleGuard";
+import "./wingman2/app/wingmanDashboardStandaloneGuard";
 
 const wingmanWindow = window as Window & { __wingmanNewProjectHandlerInstalled?: boolean };
 
