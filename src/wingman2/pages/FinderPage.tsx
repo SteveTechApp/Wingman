@@ -3678,7 +3678,7 @@ rankedMatches.length ? (
                                   </button>
 
                                   <div className="flex shrink-0 flex-col items-end gap-2">
-                                    <div className="rounded-full bg-[#0d2133] px-3 py-1 text-xs font-black text-white/70">
+                                    <div className="wm-finder-fit rounded-full bg-[#0d2133] px-3 py-1 text-xs font-black text-white/70">
                                       Fit score {Math.min(99, match.score)}%
                                     </div>
 
