@@ -1386,3 +1386,95 @@ html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-schematic-foot
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
 }
+
+/* WINGMAN DASHBOARD HERO FLOW REPAIR - START */
+/* Dashboard-only reset for the Home hero. Keeps intro text horizontal and places hero actions below copy. */
+
+html[data-wingman-route="dashboard"] .wingman-page-host .wm-navhub-hero,
+html[data-wingman-route="home"] .wingman-page-host .wm-navhub-hero,
+.wm-route-dashboard .wingman-page-host .wm-navhub-hero,
+.wm-home-page .wm-navhub-hero,
+main[data-wingman-page="home"] .wm-navhub-hero,
+main[data-wingman-home="true"] .wm-navhub-hero {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  gap: 22px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  padding: clamp(24px, 3vw, 40px) !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-page-host .wm-navhub-hero > *,
+html[data-wingman-route="home"] .wingman-page-host .wm-navhub-hero > *,
+.wm-route-dashboard .wingman-page-host .wm-navhub-hero > *,
+.wm-home-page .wm-navhub-hero > *,
+main[data-wingman-page="home"] .wm-navhub-hero > *,
+main[data-wingman-home="true"] .wm-navhub-hero > * {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  max-width: min(980px, 100%) !important;
+  min-width: 0 !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+  transform: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-page-host .wm-navhub-hero :is(h1, h2, h3, p, span, small, strong, em),
+html[data-wingman-route="home"] .wingman-page-host .wm-navhub-hero :is(h1, h2, h3, p, span, small, strong, em),
+.wm-route-dashboard .wingman-page-host .wm-navhub-hero :is(h1, h2, h3, p, span, small, strong, em),
+.wm-home-page .wm-navhub-hero :is(h1, h2, h3, p, span, small, strong, em),
+main[data-wingman-page="home"] .wm-navhub-hero :is(h1, h2, h3, p, span, small, strong, em),
+main[data-wingman-home="true"] .wm-navhub-hero :is(h1, h2, h3, p, span, small, strong, em) {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  hyphens: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-page-host .wm-navhub-hero :is(h1, h2),
+html[data-wingman-route="home"] .wingman-page-host .wm-navhub-hero :is(h1, h2),
+.wm-route-dashboard .wingman-page-host .wm-navhub-hero :is(h1, h2),
+.wm-home-page .wm-navhub-hero :is(h1, h2),
+main[data-wingman-page="home"] .wm-navhub-hero :is(h1, h2),
+main[data-wingman-home="true"] .wm-navhub-hero :is(h1, h2) {
+  width: 100% !important;
+  max-width: 980px !important;
+  margin: 0 !important;
+  line-height: 0.98 !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-page-host .wm-navhub-hero :is(p, [class*="copy"], [class*="intro"], [class*="summary"]),
+html[data-wingman-route="home"] .wingman-page-host .wm-navhub-hero :is(p, [class*="copy"], [class*="intro"], [class*="summary"]),
+.wm-route-dashboard .wingman-page-host .wm-navhub-hero :is(p, [class*="copy"], [class*="intro"], [class*="summary"]),
+.wm-home-page .wm-navhub-hero :is(p, [class*="copy"], [class*="intro"], [class*="summary"]),
+main[data-wingman-page="home"] .wm-navhub-hero :is(p, [class*="copy"], [class*="intro"], [class*="summary"]),
+main[data-wingman-home="true"] .wm-navhub-hero :is(p, [class*="copy"], [class*="intro"], [class*="summary"]) {
+  display: block !important;
+  width: 100% !important;
+  max-width: 760px !important;
+  min-width: min(360px, 100%) !important;
+  margin: 0 !important;
+  line-height: 1.45 !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-page-host .wm-navhub-hero :is([class*="actions"], [class*="ctas"], [class*="choices"]),
+html[data-wingman-route="home"] .wingman-page-host .wm-navhub-hero :is([class*="actions"], [class*="ctas"], [class*="choices"]),
+.wm-route-dashboard .wingman-page-host .wm-navhub-hero :is([class*="actions"], [class*="ctas"], [class*="choices"]),
+.wm-home-page .wm-navhub-hero :is([class*="actions"], [class*="ctas"], [class*="choices"]),
+main[data-wingman-page="home"] .wm-navhub-hero :is([class*="actions"], [class*="ctas"], [class*="choices"]),
+main[data-wingman-home="true"] .wm-navhub-hero :is([class*="actions"], [class*="ctas"], [class*="choices"]) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+  width: 100% !important;
+  max-width: 760px !important;
+  margin-top: 4px !important;
+}
+/* WINGMAN DASHBOARD HERO FLOW REPAIR - END */
