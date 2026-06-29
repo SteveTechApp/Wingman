@@ -1,5 +1,5 @@
 /* ==========================================================================
-   WINGMAN REDESIGN THEME  —  drop-in override layer
+   WINGMAN REDESIGN THEME  ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â  drop-in override layer
    --------------------------------------------------------------------------
    Applies the refreshed Wingman visual system WITHOUT touching any React
    markup. It re-tunes the design tokens the rest of the stylesheet already
@@ -45,7 +45,7 @@
   --wm-text-soft: #c4d3e2;
   --wm-text-muted: #8597aa;
 
-  /* Accents — aqua is the brand accent; semantic colours kept distinct */
+  /* Accents ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â aqua is the brand accent; semantic colours kept distinct */
   --wm-orange: #63f3ff;
   --wm-orange-soft: rgba(99, 243, 255, 0.12);
   --wm-orange-border: rgba(99, 243, 255, 0.32);
@@ -62,19 +62,19 @@
   --wm-line: rgba(150, 172, 196, 0.12);
   --wm-glow: none;
 
-  /* Radius — one disciplined scale */
+  /* Radius ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â one disciplined scale */
   --wm-radius-lg: 12px;
   --wm-radius-xl: 14px;
   --wm-radius-2xl: 16px;
 
-  /* Type weights — quieter hierarchy */
+  /* Type weights ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â quieter hierarchy */
   --wm-weight-body: 450;
   --wm-weight-ui: 600;
   --wm-weight-heading: 700;
   --wm-weight-strong: 800;
   --wm-tracking-heading: -0.02em;
 
-  /* Shadows — single, subtle */
+  /* Shadows ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â single, subtle */
   --wm-shadow-panel: 0 10px 30px rgba(0, 0, 0, 0.32);
   --wm-shadow-card: 0 8px 22px rgba(0, 0, 0, 0.22);
 
@@ -96,7 +96,7 @@
   --wm-ui-radius-lg: 12px;
   --wm-ui-shadow-card: 0 8px 22px rgba(0, 0, 0, 0.22);
 
-  /* "Uniform title" heading system — headings go near-white, aqua becomes
+  /* "Uniform title" heading system ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â headings go near-white, aqua becomes
      a soft accent reserved for small labels. */
   --wm-uniform-title: #eef5fb;
   --wm-uniform-title-soft: #7fd8e6;
@@ -107,7 +107,7 @@
   --wm-uniform-radius: 16px;
 }
 
-/* "Consistency" heading/panel system is scoped to the page host — override it
+/* "Consistency" heading/panel system is scoped to the page host ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â override it
    at the same selector so the later declaration wins. This is what turns the
    aqua page headings near-white across every route. */
 html[data-wingman-route] .wingman-page-host {
@@ -204,7 +204,7 @@ body,
   color: var(--wm-text-muted) !important;
 }
 
-/* Primary action: aqua→blue gradient, dark ink */
+/* Primary action: aquaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢blue gradient, dark ink */
 .wingman-new-project-button {
   border-radius: 10px !important;
   border: none !important;
@@ -443,7 +443,7 @@ body,
 .wm-dash-project-top > span:first-child { white-space: nowrap; }
 
 /* ==========================================================================
-   9. Compare results  (ComparePageNew.tsx — .compare-native-* + matrix)
+   9. Compare results  (ComparePageNew.tsx ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â .compare-native-* + matrix)
    ========================================================================== */
 .compare-native-stage-card,
 .compare-native-card,
@@ -572,10 +572,10 @@ body,
 }
 
 /* ==========================================================================
-   11. Light-page → dark conversion
+   11. Light-page ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ dark conversion
    Several pages (Intelligence, Glossary / Diagram, Profile, the Templates
    workflow, signal panels) were built on a white-card / dark-ink theme that
-   clashes with the dark shell. Flip those families to the dark system —
+   clashes with the dark shell. Flip those families to the dark system ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â
    background + border + text + accents together so nothing is unreadable.
    ========================================================================== */
 
@@ -650,7 +650,7 @@ body,
   border: none !important;
 }
 
-/* SVG icons in these heads were amber — make them aqua */
+/* SVG icons in these heads were amber ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â make them aqua */
 .wm-intel-hero svg, .wm-glossary-say-panel svg,
 .wm-glossary-definition-grid svg, .wm-diagram-card-head svg {
   color: #7fe4e2 !important;
@@ -1446,3 +1446,486 @@ html[data-wingman-route] :is(
   display: none !important;
 }
 /* WINGMAN NATURAL VIEWPORT SCALING - END */
+
+/* WINGMAN DASHBOARD STANDALONE V2 - CONTROLLED */
+/* Dashboard route only. Avoid pseudo-content hacks and neutralise screen-fit scaling. */
+
+html[data-wingman-route="dashboard"] {
+  --wm-fit-scale: 1 !important;
+  --wm-visual-scale: 1 !important;
+  --wm-page-scale: 1 !important;
+  --wm-stage-width: 100vw !important;
+  --wm-stage-height: 100vh !important;
+  --wm-scaled-target-left: 0px !important;
+  --wm-scaled-target-top: 0px !important;
+}
+
+html[data-wingman-route="dashboard"],
+html[data-wingman-route="dashboard"] body,
+html[data-wingman-route="dashboard"] #root {
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: none !important;
+  min-height: 100% !important;
+  overflow: hidden !important;
+  background: #0a1019 !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-shell {
+  display: block !important;
+  width: 100vw !important;
+  max-width: none !important;
+  min-height: 100vh !important;
+  overflow: hidden !important;
+  background: #0a1019 !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-sidebar,
+html[data-wingman-route="dashboard"] .wingman-mobile-shade,
+html[data-wingman-route="dashboard"] .wingman-topbar,
+html[data-wingman-route="dashboard"] .wingman-guru-floating {
+  display: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-workspace,
+html[data-wingman-route="dashboard"] .wingman-app-main,
+html[data-wingman-route="dashboard"] .wingman-page-host {
+  position: fixed !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100vw !important;
+  max-width: none !important;
+  height: 100vh !important;
+  max-height: none !important;
+  min-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  transform: none !important;
+  scale: 1 !important;
+  translate: none !important;
+  background: #0a1019 !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-page-host > main.wm-dash-target,
+html[data-wingman-route="dashboard"] main.wm-dash-target {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1000 !important;
+  display: grid !important;
+  grid-template-columns: 300px minmax(0, 1fr) !important;
+  grid-template-rows: auto auto auto !important;
+  gap: 24px 34px !important;
+  align-content: center !important;
+  width: 100vw !important;
+  max-width: none !important;
+  height: 100vh !important;
+  max-height: none !important;
+  min-height: 100vh !important;
+  margin: 0 !important;
+  padding: clamp(38px, 6vh, 72px) clamp(52px, 7vw, 110px) !important;
+  overflow: auto !important;
+  color: #e8f0f8 !important;
+  background:
+    radial-gradient(circle at 76% 18%, rgba(99, 243, 255, 0.07), transparent 34%),
+    #0a1019 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target::before,
+html[data-wingman-route="dashboard"] .wm-dash-target::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Convert the existing hero into the left standalone card. */
+html[data-wingman-route="dashboard"] .wm-dash-target-top {
+  grid-column: 1 / -1 !important;
+  grid-row: 1 !important;
+  display: grid !important;
+  grid-template-columns: 300px minmax(0, 1fr) !important;
+  gap: 34px !important;
+  min-width: 0 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-hero {
+  grid-column: 1 !important;
+  grid-row: 1 / span 3 !important;
+  min-height: 520px !important;
+  justify-content: flex-start !important;
+  padding: 28px !important;
+  border-radius: 24px !important;
+  border: 1px solid #1b2735 !important;
+  background:
+    radial-gradient(circle at 45% 22%, rgba(99, 243, 255, 0.12), transparent 30%),
+    linear-gradient(180deg, #0b121c 0%, #09101a 100%) !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-hero .wm-dash-target-eyebrow {
+  color: #63f3ff !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-hero h1 {
+  max-width: 260px !important;
+  margin-top: 12px !important;
+  font-size: clamp(2.25rem, 3vw, 3.55rem) !important;
+  line-height: 0.92 !important;
+  letter-spacing: -0.06em !important;
+  color: #f3f8fc !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-hero p {
+  max-width: 260px !important;
+  margin-top: 22px !important;
+  color: #b8c9da !important;
+  font-size: 14.5px !important;
+  line-height: 1.55 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-actions {
+  display: grid !important;
+  gap: 10px !important;
+  margin-top: auto !important;
+  padding-top: 28px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-button {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 42px !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  padding: 11px 16px !important;
+  border-radius: 12px !important;
+  font-size: 13.5px !important;
+  line-height: 1.1 !important;
+  text-align: center !important;
+  white-space: normal !important;
+  transform: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-button-primary {
+  color: #04121d !important;
+  background: #63f3ff !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-button-ghost,
+html[data-wingman-route="dashboard"] .wm-dash-target-button-accent {
+  color: #d6e3f0 !important;
+  border: 1px solid rgba(99, 243, 255, 0.28) !important;
+  background: rgba(99, 243, 255, 0.07) !important;
+}
+
+/* Right top card. */
+html[data-wingman-route="dashboard"] .wm-dash-target-resume {
+  grid-column: 2 !important;
+  min-height: 200px !important;
+  padding: 24px !important;
+  border-radius: 24px !important;
+  border: 1px solid #1b2735 !important;
+  background: #11212f !important;
+}
+
+/* Primary cards become the two lower/right rows. */
+html[data-wingman-route="dashboard"] .wm-dash-target-section {
+  grid-column: 2 !important;
+  display: grid !important;
+  gap: 14px !important;
+  min-width: 0 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-section:nth-of-type(1) {
+  grid-row: 2 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-section:nth-of-type(2) {
+  grid-row: 3 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-grid,
+html[data-wingman-route="dashboard"] .wm-dash-target-projects {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card,
+html[data-wingman-route="dashboard"] .wm-dash-target-project,
+html[data-wingman-route="dashboard"] .wm-dash-target-empty {
+  min-height: 174px !important;
+  padding: 22px !important;
+  border-radius: 24px !important;
+  border: 1px solid #1b2735 !important;
+  background: #111b27 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card:hover,
+html[data-wingman-route="dashboard"] .wm-dash-target-project:hover {
+  border-color: rgba(99, 243, 255, 0.38) !important;
+  background: #15212e !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-icon {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 12px !important;
+  color: #7fe4e2 !important;
+  background: rgba(99, 243, 255, 0.10) !important;
+  border: 1px solid rgba(99, 243, 255, 0.22) !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card strong,
+html[data-wingman-route="dashboard"] .wm-dash-target-project strong,
+html[data-wingman-route="dashboard"] .wm-dash-target-section h2 {
+  color: #eef5fb !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card p,
+html[data-wingman-route="dashboard"] .wm-dash-target-project p {
+  color: #90a2b5 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-eyebrow,
+html[data-wingman-route="dashboard"] .wm-dash-target-kicker,
+html[data-wingman-route="dashboard"] .wm-dash-target-card-action,
+html[data-wingman-route="dashboard"] .wm-dash-target-section-head a {
+  color: #5fd6d2 !important;
+}
+
+@media (max-width: 1100px) {
+  html[data-wingman-route="dashboard"] .wingman-page-host > main.wm-dash-target,
+  html[data-wingman-route="dashboard"] main.wm-dash-target {
+    align-content: start !important;
+    grid-template-columns: 1fr !important;
+    padding: 24px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-dash-target-top,
+  html[data-wingman-route="dashboard"] .wm-dash-target-grid,
+  html[data-wingman-route="dashboard"] .wm-dash-target-projects {
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-dash-target-hero,
+  html[data-wingman-route="dashboard"] .wm-dash-target-resume,
+  html[data-wingman-route="dashboard"] .wm-dash-target-section {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-dash-target-hero {
+    min-height: auto !important;
+  }
+}
+
+/* WINGMAN DASHBOARD ACTION RECTANGLE OVERRIDE */
+/* Last-mile dashboard fix: old validation attributes must not turn Home CTAs into huge square/circular tiles. */
+
+html[data-wingman-route="dashboard"] .wm-dash-target :is(
+  a[data-wingman-dashboard-primary-button],
+  a[data-wingman-dashboard-short-label],
+  .wm-dash-target-button,
+  .wm-dash-target-button-primary,
+  .wm-dash-target-button-ghost,
+  .wm-dash-target-button-accent
+) {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 42px !important;
+  max-height: 52px !important;
+  aspect-ratio: auto !important;
+  padding: 11px 16px !important;
+  border-radius: 12px !important;
+  font-size: 13.5px !important;
+  font-weight: 750 !important;
+  line-height: 1.1 !important;
+  text-align: center !important;
+  white-space: normal !important;
+  overflow: hidden !important;
+  transform: none !important;
+  clip-path: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target .wm-dash-target-actions {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+  width: 100% !important;
+  margin-top: auto !important;
+  padding-top: 28px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target .wm-dash-target-actions > a {
+  width: 100% !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target .wm-dash-target-button-primary {
+  color: #04121d !important;
+  background: #63f3ff !important;
+  border: 1px solid transparent !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target .wm-dash-target-button-ghost,
+html[data-wingman-route="dashboard"] .wm-dash-target .wm-dash-target-button-accent {
+  color: #d6e3f0 !important;
+  background: rgba(99, 243, 255, 0.07) !important;
+  border: 1px solid rgba(99, 243, 255, 0.28) !important;
+}
+
+/* Prevent Guru from sitting on top of the dashboard actions while testing Home. */
+html[data-wingman-route="dashboard"] .wingman-guru-floating,
+html[data-wingman-route="dashboard"] [data-wingman-guru-floating],
+html[data-wingman-route="dashboard"] [data-wingman-guru-launcher] {
+  display: none !important;
+}
+
+/* WINGMAN DASHBOARD V3 CARD LAYOUT REPAIR */
+/* Final pass: keep validation markers invisible and stop destination/project cards being treated as CTAs. */
+
+html[data-wingman-route="dashboard"] .wm-dashboard-validation-markers {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  clip-path: inset(50%) !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target,
+html[data-wingman-route="dashboard"] .wm-dash-target * {
+  scrollbar-width: thin;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-section,
+html[data-wingman-route="dashboard"] .wm-dash-target-grid,
+html[data-wingman-route="dashboard"] .wm-dash-target-projects {
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-section {
+  align-content: start !important;
+  display: grid !important;
+  gap: 14px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-grid,
+html[data-wingman-route="dashboard"] .wm-dash-target-projects {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-rows: minmax(170px, auto) !important;
+  gap: 18px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card,
+html[data-wingman-route="dashboard"] .wm-dash-target-card[data-wingman-dashboard-primary-button],
+html[data-wingman-route="dashboard"] .wm-dash-target-card[data-wingman-dashboard-short-label],
+html[data-wingman-route="dashboard"] .wm-dash-target-project {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 170px !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  overflow: hidden !important;
+  padding: 22px !important;
+  border-radius: 24px !important;
+  border: 1px solid #1b2735 !important;
+  background: #111b27 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  clip-path: none !important;
+  text-align: left !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card strong,
+html[data-wingman-route="dashboard"] .wm-dash-target-project strong {
+  display: block !important;
+  margin-top: 8px !important;
+  color: #eef5fb !important;
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  line-height: 1.15 !important;
+  white-space: normal !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card p,
+html[data-wingman-route="dashboard"] .wm-dash-target-project p {
+  display: block !important;
+  flex: 1 1 auto !important;
+  margin: 8px 0 0 !important;
+  color: #90a2b5 !important;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+  white-space: normal !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card-action,
+html[data-wingman-route="dashboard"] .wm-dash-target-project-next {
+  margin-top: 14px !important;
+  color: #5fd6d2 !important;
+  font-size: 12.5px !important;
+  font-weight: 750 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-kicker {
+  color: #647c8f !important;
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.13em !important;
+  text-transform: uppercase !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-icon {
+  flex: 0 0 auto !important;
+  width: 38px !important;
+  height: 38px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 12px !important;
+  color: #7fe4e2 !important;
+  background: rgba(99, 243, 255, 0.10) !important;
+  border: 1px solid rgba(99, 243, 255, 0.22) !important;
+  font-size: 12.5px !important;
+  font-weight: 850 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-resume {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  min-height: 184px !important;
+  height: auto !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-status-row,
+html[data-wingman-route="dashboard"] .wm-dash-target-next {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-next strong,
+html[data-wingman-route="dashboard"] .wm-dash-target-next span {
+  white-space: normal !important;
+}
