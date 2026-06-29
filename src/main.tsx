@@ -1,3 +1,5 @@
+import "./wingman2/styles/wingman-style-stack.css";
+import "./wingman2/styles/wingman-redesign-theme.css";
 import { installCompareManufacturerAssist } from "./wingman2/lib/compareManufacturerAssist";
 import "./wingman2/lib/guruDetachedPanel";
 import "./wingman2/lib/microphoneSafety";
@@ -47,8 +49,6 @@ import { installCsrfFetch } from "./wingman2/api/csrf";
 import ProductCallCardsStickyLayoutEnhancer from "./wingman2/components/workflow/ProductCallCardsStickyLayoutEnhancer";
 import ProductStoryLanguageEnhancer from "./wingman2/components/workflow/ProductStoryLanguageEnhancer";
 import WorkflowAlphaNumericFilter from "./wingman2/components/workflow/WorkflowAlphaNumericFilter";
-import "./wingman2/styles/wingman-style-stack.css";
-import "./wingman2/styles/wingman-redesign-theme.css";
 // Attach the X-CSRF-Token header to mutating API calls. No-op until the server
 // guard is enabled (WINGMAN_CSRF_ENFORCE=true).
 installCsrfFetch();

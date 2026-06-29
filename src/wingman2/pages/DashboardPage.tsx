@@ -1,5 +1,9 @@
+import { ArrowRight, ArrowRightCircle, Flag } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { StatusChip } from "../components/StatusChip";
+import { setActiveProjectId, useProjectStore, type ProjectStage } from "../data/projectStore";
+import type { StatusVariant } from "../types";
 
 
 
@@ -148,17 +152,80 @@ const primaryDestinations: DashboardDestination[] = [
   },
 ];
 
+const STAGE_NEXT_STEP: Partial<Record<ProjectStage, string>> = {
+  Discovery: "Continue the discovery brief",
+  "Competitor Compare": "Review the competitor match",
+  "Proposal Builder": "Finish the proposal and BOM",
+  Finder: "Shortlist the product family",
+  Templates: "Adapt the room template",
+  Support: "Pick up the open support thread",
+};
+
+const STATUS_LABEL: Record<StatusVariant, string> = {
+  recommended: "On track",
+  alternative: "In progress",
+  caution: "Needs review",
+};
+
+function nextStepFor(stage: ProjectStage) {
+  return STAGE_NEXT_STEP[stage] ?? "Continue this project";
+}
+
 export function DashboardPage() {
+  const { projects, activeProjectId } = useProjectStore();
+  const resume = projects.find((project) => project.id === activeProjectId) ?? projects[0];
+  const railProjects = projects.slice(0, 3);
+
   return (
-    <main className="wm-home-page wm-navhub-page" data-wingman-page="home" data-wingman-home="true">
-      <section className="wm-page-hero wm-navhub-hero" aria-labelledby="wingman-dashboard-title">
-        <p className="wm-navhub-eyebrow">WyreStorm Wingman</p>
-        <h1 id="wingman-dashboard-title">What are you trying to do?</h1>
-        <p>
-          Start from the customer task. Wingman will guide the conversation, product direction,
-          competitor comparison, document review or project follow-up from there.
-        </p>
-      </section>
+    <main className="wm-home-page wm-navhub-page wm-dash" data-wingman-page="home" data-wingman-home="true">
+      <div className="wm-dash-top">
+        <section className="wm-page-hero wm-navhub-hero" aria-labelledby="wingman-dashboard-title">
+          <p className="wm-navhub-eyebrow">WyreStorm Wingman</p>
+          <h1 id="wingman-dashboard-title">What are you trying to do?</h1>
+          <p>
+            Start from the customer task. Wingman will guide the conversation, product direction,
+            competitor comparison, document review or project follow-up from there.
+          </p>
+          <div className="wm-dash-hero-actions">
+            <Link to={routeCatalogByKey.callCoach.path} className="wm-dash-btn wm-dash-btn-primary">
+              Start guided discovery
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link to={routeCatalogByKey.compare.path} className="wm-dash-btn wm-dash-btn-ghost">
+              Compare a competitor
+            </Link>
+          </div>
+        </section>
+
+        {resume ? (
+          <aside className="wm-dash-resume" aria-label="Resume project">
+            <span className="wm-dash-resume-eyebrow">Pick up where you left off</span>
+            <strong className="wm-dash-resume-title">{resume.name}</strong>
+            <span className="wm-dash-resume-meta">
+              {resume.stage} · {resume.owner}
+            </span>
+            <div className="wm-dash-resume-status">
+              <StatusChip label={STATUS_LABEL[resume.status]} variant={resume.status} />
+              <span className="wm-dash-resume-updated">Updated {resume.updated}</span>
+            </div>
+            <div className="wm-dash-resume-next">
+              <Flag className="h-4 w-4" />
+              <div>
+                <span className="wm-dash-resume-next-label">Next step</span>
+                <span className="wm-dash-resume-next-text">{nextStepFor(resume.stage)}</span>
+              </div>
+            </div>
+            <Link
+              to={resume.resumeTo}
+              onClick={() => setActiveProjectId(resume.id)}
+              className="wm-dash-btn wm-dash-btn-accent wm-dash-resume-cta"
+            >
+              Continue project
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </aside>
+        ) : null}
+      </div>
 
       <section className="wm-navhub-secondary" aria-label="Wingman primary destinations">
         <div className="wm-navhub-section-heading">
@@ -177,6 +244,40 @@ export function DashboardPage() {
           ))}
         </div>
       </section>
+
+      {railProjects.length ? (
+        <section className="wm-dash-projects" aria-label="Active projects">
+          <div className="wm-dash-projects-head">
+            <h2>Active projects</h2>
+            <Link to={routeCatalogByKey.projects.path} className="wm-dash-viewall">
+              View all →
+            </Link>
+          </div>
+          <div className="wm-dash-projects-grid">
+            {railProjects.map((project) => (
+              <Link
+                key={project.id}
+                to={`${routeCatalogByKey.projects.path}/${project.id}`}
+                onClick={() => setActiveProjectId(project.id)}
+                className="wm-dash-project-card"
+              >
+                <div className="wm-dash-project-top">
+                  <StatusChip label={STATUS_LABEL[project.status]} variant={project.status} />
+                  <span className="wm-dash-project-updated">{project.updated}</span>
+                </div>
+                <strong className="wm-dash-project-name">{project.name}</strong>
+                <span className="wm-dash-project-meta">
+                  {project.stage} · {project.owner}
+                </span>
+                <div className="wm-dash-project-next">
+                  <ArrowRightCircle className="h-4 w-4" />
+                  <span>{nextStepFor(project.stage)}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </main>
   );
 }
