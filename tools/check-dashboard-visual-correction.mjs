@@ -10,7 +10,6 @@ const dashboard = fs.readFileSync(dashboardPath, "utf8");
 
 const start = "/* === WINGMAN DASHBOARD VISUAL CORRECTION PASS START === */";
 const end = "/* === WINGMAN DASHBOARD VISUAL CORRECTION PASS END === */";
-
 const startIndex = theme.indexOf(start);
 const endIndex = theme.indexOf(end, startIndex);
 
@@ -22,12 +21,12 @@ if (startIndex === -1 || endIndex === -1 || endIndex <= startIndex) {
   const block = theme.slice(startIndex, endIndex + end.length);
 
   const required = [
-    "wm-dashboard-visual-root",
-    ".wm-dashboard-visual-root .wm-ui-card",
-    ".wm-dashboard-visual-root .wm-ui-button",
-    "font-size: clamp(1.35rem",
-    "min-height: 42px",
-    "aspect-ratio: auto",
+    ".wm-dashboard-shell",
+    ".wm-dashboard-rail",
+    ".wm-dashboard-main",
+    ".wm-dashboard-grid",
+    ".wm-dashboard-project-grid",
+    ".wm-dashboard-action-button",
   ];
 
   const forbidden = [
@@ -53,10 +52,18 @@ if (!dashboard.includes("wm-dashboard-visual-root")) {
   errors.push("DashboardPage.tsx is missing wm-dashboard-visual-root.");
 }
 
+if (dashboard.includes("style={") || dashboard.includes("const styles")) {
+  errors.push("DashboardPage.tsx still contains inline style-driven layout.");
+}
+
+if (!dashboard.includes("wm-dashboard-shell") || !dashboard.includes("wm-dashboard-project-grid")) {
+  errors.push("DashboardPage.tsx is missing class-based Dashboard layout markup.");
+}
+
 if (errors.length) {
   console.error("[dashboard-visual] FAILED:");
   errors.forEach((error) => console.error(`- ${error}`));
   process.exit(1);
 }
 
-console.log("[dashboard-visual] Dashboard visual correction block is installed without route-scoped dashboard drift.");
+console.log("[dashboard-visual] Dashboard component uses class-based visual layout.");
