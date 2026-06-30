@@ -236,9 +236,9 @@ function DisplayList({ items, max = 6 }: { items: string[]; max?: number }) {
   const useful = cleanUsefulList(items, max);
 
   return (
-    <ul className="grid gap-2 text-sm leading-6 text-white/75">
+    <ul className="grid gap-2 text-sm leading-6 wm-ui-copy">
       {useful.map((item, index) => (
-        <li key={`${item}-${index}`} className="rounded-2xl border border-[#29465e] bg-[#081724] px-3 py-2">
+        <li key={`${item}-${index}`} className="rounded-2xl border px-3 py-2 wm-ui-card">
           {item}
         </li>
       ))}
@@ -256,11 +256,11 @@ function WorkCard({
   tone?: "standard" | "caution";
 }) {
   return (
-    <section className="wm-ui-card rounded-lg border p-5" data-ui-tone={tone}>
+    <section className="wm-ui-card rounded-lg border p-5 wm-ui-section" data-ui-tone={tone}>
       <h3 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} ${tone === "caution" ? "text-amber-200" : "text-cyan-300"}`}>
         {title}
       </h3>
-      <div className="mt-3 text-sm leading-6 text-white">{children}</div>
+      <div className="mt-3 text-sm leading-6 wm-ui-copy">{children}</div>
     </section>
   );
 }
@@ -309,12 +309,12 @@ function SelectionPage({
   }, [products, term, activeQuickFilter]);
 
   return (
-    <main className="grid gap-4 pb-6 text-white">
+    <main className="grid gap-4 pb-6 wm-ui-page wingman-page-host">
       <CompareBackToListButton />
       <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
         <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Product workspace</p>
         <h1 className={`${PRODUCT_PITCH_HERO_TITLE_CLASS} text-white`}>Select one product</h1>
-        <p className="mt-2 max-w-4xl text-sm leading-6 text-white/70">
+        <p className="mt-2 max-w-4xl text-sm leading-6 wm-ui-copy">
           Select a product first. The next page opens a single product workspace with Overview, Sales Cards, Technical Spec, Diagram and Room Visual tabs.
         </p>
       </section>
@@ -322,12 +322,12 @@ function SelectionPage({
       <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
         <label className="grid gap-2">
           <span className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Search by SKU, product name or application</span>
-          <input
+          <input className={["wm-ui-input", "min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-bold text-white outline-none focus:border-cyan-300"].filter(Boolean).join(" ")}
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
             placeholder="Example: CAM-210-NDI-PTZ, amplifier, HDMI extender, NetworkHD"
             type="search"
-            className="min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-bold text-white outline-none focus:border-cyan-300"
+
             autoFocus
           />
         </label>
@@ -339,19 +339,19 @@ function SelectionPage({
             const isDisabled = filter !== "All" && count === 0;
 
             return (
-              <button
-                key={filter}
-                type="button"
-                disabled={isDisabled}
-                onClick={() => setActiveQuickFilter(filter)}
-                title={isDisabled ? `No SKUs currently start with ${filter}` : `${count} matching SKU${count === 1 ? "" : "s"}`}
-                className={`min-h-8 rounded-xl border px-3 text-xs font-extrabold transition ${
+              <button className={["wm-ui-button wm-ui-button-secondary", `min-h-8 rounded-xl border px-3 text-xs font-extrabold transition ${
                   isActive
                     ? "border-cyan-200 bg-cyan-300 text-slate-950"
                     : isDisabled
                       ? "cursor-not-allowed border-slate-700 bg-slate-900/60 text-slate-600"
                       : "border-[#29465e] bg-[#081724] text-cyan-100 hover:border-cyan-300 hover:bg-cyan-500/10"
-                }`}
+                }`].filter(Boolean).join(" ")}
+                key={filter}
+                type="button"
+                disabled={isDisabled}
+                onClick={() => setActiveQuickFilter(filter)}
+                title={isDisabled ? `No SKUs currently start with ${filter}` : `${count} matching SKU${count === 1 ? "" : "s"}`}
+
               >
                 {filter}
               </button>
@@ -359,7 +359,7 @@ function SelectionPage({
           })}
         </div>
 
-        <p className="mt-3 text-xs font-semibold text-white/55">
+        <p className="mt-3 text-xs font-semibold wm-ui-copy">
           Showing {filtered.length} of {products.length} products
           {activeQuickFilter !== "All" ? ` · Filter: ${activeQuickFilter}` : ""}
           {term ? ` · Search: ${searchTerm.trim()}` : ""}
@@ -367,11 +367,11 @@ function SelectionPage({
 
         <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {filtered.map((product) => (
-            <button
+            <button className={["wm-ui-button wm-ui-button-secondary", "min-h-[92px] rounded-2xl border border-[#29465e] bg-[#081724] p-3 text-left transition hover:border-cyan-300 hover:bg-cyan-500/10"].filter(Boolean).join(" ")}
               key={product.sku}
               type="button"
               onClick={() => openProduct(product.sku)}
-              className="min-h-[92px] rounded-2xl border border-[#29465e] bg-[#081724] p-3 text-left transition hover:border-cyan-300 hover:bg-cyan-500/10"
+
             >
               <span className={`block ${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-300`}>{product.family}</span>
               <strong className="mt-1 block truncate text-lg font-extrabold text-white">{product.sku}</strong>
@@ -382,7 +382,7 @@ function SelectionPage({
         </div>
 
         {!filtered.length ? (
-          <div className="mt-5 rounded-2xl border border-amber-400/40 bg-amber-400/10 p-4 text-sm text-amber-100">
+          <div className="mt-5 rounded-2xl border p-4 text-sm wm-ui-card wm-ui-copy wm-ui-title">
             No matching product found. Clear the search or use a broader term.
           </div>
         ) : null}
@@ -420,16 +420,16 @@ function OverviewTab({ product, narrative }: { product: ProductSpec; narrative: 
 
   return (
     <div className="grid gap-4">
-      <section className="wm-ui-section rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-6">
+      <section className="wm-ui-section rounded-lg border p-6 wm-ui-card">
         <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-200`}>Sales guidance</p>
-        <h2 className="mt-2 text-2xl font-extrabold text-cyan-200">Product role</h2>
-        <p className="mt-2 max-w-5xl text-base font-bold leading-6 text-white">{narrative.headline}</p>
-        <p className="mt-2 max-w-5xl text-sm leading-6 text-white">{guidance.productRole}</p>
+        <h2 className="mt-2 text-2xl font-extrabold wm-ui-title">Product role</h2>
+        <p className="mt-2 max-w-5xl text-base font-bold leading-6 wm-ui-copy">{narrative.headline}</p>
+        <p className="mt-2 max-w-5xl text-sm leading-6 wm-ui-copy">{guidance.productRole}</p>
       </section>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <WorkCard title="Customer problem it solves">
-          <p>{guidance.customerProblem}</p>
+          <p className="wm-ui-copy">{guidance.customerProblem}</p>
         </WorkCard>
 
         <WorkCard title="Best-fit applications">
@@ -461,7 +461,7 @@ function OverviewTab({ product, narrative }: { product: ProductSpec; narrative: 
         </WorkCard>
 
         <WorkCard title="Customer-safe wording">
-          <p>{guidance.customerSafeWording}</p>
+          <p className="wm-ui-copy">{guidance.customerSafeWording}</p>
         </WorkCard>
 
         <WorkCard title="Internal sales notes" tone="caution">
@@ -478,11 +478,11 @@ function SalesTab({ product, narrative }: { product: ProductSpec; narrative: Pro
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <WorkCard title="Customer challenge">
-        <p>{narrative.customerChallenge}</p>
+        <p className="wm-ui-copy">{narrative.customerChallenge}</p>
       </WorkCard>
 
       <WorkCard title="Why this product helps">
-        <p>{narrative.whyItHelps}</p>
+        <p className="wm-ui-copy">{narrative.whyItHelps}</p>
       </WorkCard>
 
       <WorkCard title="Key features worth mentioning">
@@ -490,15 +490,15 @@ function SalesTab({ product, narrative }: { product: ProductSpec; narrative: Pro
       </WorkCard>
 
       <WorkCard title="Say it like this">
-        <p>{narrative.suggestedWording}</p>
+        <p className="wm-ui-copy">{narrative.suggestedWording}</p>
       </WorkCard>
 
       <WorkCard title="Suggest a demo / evaluation">
-        <p>{narrative.demoPrompt}</p>
+        <p className="wm-ui-copy">{narrative.demoPrompt}</p>
       </WorkCard>
 
       <WorkCard title="Do not oversell">
-        <p>Keep the conversation tied to the room, workflow and confirmed requirement. Do not promise unverified I/O, distance, USB, network, audio or control behaviour until checked.</p>
+        <p className="wm-ui-copy">Keep the conversation tied to the room, workflow and confirmed requirement. Do not promise unverified I/O, distance, USB, network, audio or control behaviour until checked.</p>
       </WorkCard>
     </div>
   );
@@ -519,16 +519,16 @@ function SpecTable({ product }: { product: ProductSpec }) {
   ] as const;
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-[#29465e] bg-[#071522]">
+    <div className="overflow-hidden rounded-3xl border wm-ui-card wm-ui-title">
       {rows.map(([label, rawItems]) => {
         const items = cleanUsefulList([...rawItems], 4);
 
         return (
-          <div key={label} className="grid gap-3 border-b border-[#29465e] p-4 last:border-b-0 lg:grid-cols-[220px_minmax(0,1fr)]">
-            <strong className="text-sm font-extrabold text-cyan-300">{label}</strong>
+          <div key={label} className="grid gap-3 border-b p-4 last:border-b-0 lg:grid-cols-[220px_minmax(0,1fr)] wm-ui-card wm-ui-title">
+            <strong className="text-sm font-extrabold wm-ui-copy">{label}</strong>
             <div className="flex flex-wrap gap-2">
               {items.map((item) => (
-                <span key={item} className="rounded-full border border-[#29465e] bg-[#081724] px-3 py-1.5 text-sm text-white/75">
+                <span key={item} className="rounded-full border px-3 py-1.5 text-sm wm-ui-card wm-ui-copy">
                   {item}
                 </span>
               ))}
@@ -548,9 +548,9 @@ function SpecTab({ product }: { product: ProductSpec }) {
 
   return (
     <div className="grid gap-4">
-      <section className="rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-5">
+      <section className="rounded-3xl border p-5 wm-ui-section wm-ui-card">
         <h2 className={`${PRODUCT_PITCH_SECTION_TITLE_CLASS} text-white`}>Technical specification view</h2>
-        <p className="mt-2 text-sm leading-6 text-white/70">
+        <p className="mt-2 text-sm leading-6 wm-ui-copy">
           Use this tab to confirm details. It is separated from the sales view so the salesperson is not forced to interpret technical data during a live conversation.
         </p>
       </section>
@@ -558,27 +558,27 @@ function SpecTab({ product }: { product: ProductSpec }) {
       {usbResult ? (
         <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
           <h3 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>USB path check</h3>
-          <p className="mt-1 text-sm leading-6 text-white/70">
+          <p className="mt-1 text-sm leading-6 wm-ui-copy">
             USB standard <strong className="text-white">{usbResult.usbStandardUsed}</strong> · up to{" "}
             {usbResult.maxAllowedTiers} cascaded tier{usbResult.maxAllowedTiers === 1 ? "" : "s"}
             {usbResult.downstreamHubLimit ? ` · hub limit ${usbResult.downstreamHubLimit}` : ""}.
           </p>
           {usbResult.warnings.length > 0 ? (
-            <ul className="mt-2 space-y-1 text-sm text-amber-200">
+            <ul className="mt-2 space-y-1 text-sm wm-ui-copy">
               {usbResult.warnings.map((warning) => (
                 <li key={warning}>⚠ {warning}</li>
               ))}
             </ul>
           ) : null}
           {usbResult.blockers.length > 0 ? (
-            <ul className="mt-2 space-y-1 text-sm text-rose-300">
+            <ul className="mt-2 space-y-1 text-sm wm-ui-copy">
               {usbResult.blockers.map((blocker) => (
                 <li key={blocker}>✕ {blocker}</li>
               ))}
             </ul>
           ) : null}
           {usbResult.recommendationImpact ? (
-            <p className="mt-2 text-sm leading-6 text-white/60">{usbResult.recommendationImpact}</p>
+            <p className="mt-2 text-sm leading-6 wm-ui-copy">{usbResult.recommendationImpact}</p>
           ) : null}
         </section>
       ) : null}
@@ -600,22 +600,22 @@ function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: P
       <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
         <h2 className={`${PRODUCT_PITCH_SECTION_TITLE_CLASS} text-cyan-300`}>Simple product connection view</h2>
         <div className="mt-5 grid items-stretch gap-3 lg:grid-cols-[1fr_80px_1fr_80px_1fr]">
-          <div className="rounded-3xl border border-[#29465e] bg-[#081724] p-5">
+          <div className="rounded-3xl border p-5 wm-ui-card">
             <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-white/45`}>Source / input side</p>
             <strong className="mt-2 block text-lg text-white">{narrative.diagramSource}</strong>
           </div>
 
           <div className="hidden items-center justify-center text-3xl font-extrabold text-cyan-300 lg:flex">→</div>
 
-          <div className="rounded-3xl border border-cyan-400 bg-cyan-500/10 p-5">
+          <div className="rounded-3xl border p-5 wm-ui-card">
             <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-200`}>WyreStorm product</p>
             <strong className="mt-2 block text-lg text-white">{product.sku}</strong>
-            <span className="mt-1 block text-sm text-white/65">{product.productType}</span>
+            <span className="mt-1 block text-sm wm-ui-copy">{product.productType}</span>
           </div>
 
           <div className="hidden items-center justify-center text-3xl font-extrabold text-cyan-300 lg:flex">→</div>
 
-          <div className="rounded-3xl border border-[#29465e] bg-[#081724] p-5">
+          <div className="rounded-3xl border p-5 wm-ui-card">
             <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-white/45`}>Output / destination side</p>
             <strong className="mt-2 block text-lg text-white">{narrative.diagramOutput}</strong>
           </div>
@@ -630,7 +630,7 @@ function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: P
 
       <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
         <h3 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Open full schematic</h3>
-        <p className="mt-2 text-sm leading-6 text-white/70">
+        <p className="mt-2 text-sm leading-6 wm-ui-copy">
           Use Schematic Builder for the full end-to-end system diagram with known WyreStorm devices, third-party devices and TBC blocks.
         </p>
         <Link
@@ -668,14 +668,14 @@ function VisualTab({ product, narrative }: { product: ProductSpec; narrative: Pr
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
       <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
         <h2 className={`${PRODUCT_PITCH_SECTION_TITLE_CLASS} text-cyan-300`}>Room visual prompt</h2>
-        <p className="mt-2 text-sm leading-6 text-white/70">
+        <p className="mt-2 text-sm leading-6 wm-ui-copy">
           Once discovery is complete, this can become a Generate room image action for proposal support. For now, this prompt can be copied or stored as product context.
         </p>
 
         <textarea
           readOnly
           value={narrative.visualPrompt}
-          className="mt-4 min-h-[220px] w-full rounded-3xl border border-[#29465e] bg-[#081724] p-4 text-sm leading-6 text-white/75"
+          className="mt-4 min-h-[220px] w-full rounded-3xl border p-4 text-sm leading-6 wm-ui-input wm-ui-card wm-ui-copy"
         />
 
         <div className="mt-4 flex flex-wrap gap-3">
@@ -697,9 +697,9 @@ function VisualTab({ product, narrative }: { product: ProductSpec; narrative: Pr
         </div>
       </section>
 
-      <aside className="rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-5">
+      <aside className="rounded-3xl border p-5 wm-ui-card">
         <h3 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-white`}>Future workflow</h3>
-        <ol className="mt-4 grid gap-3 text-sm leading-6 text-white/75">
+        <ol className="mt-4 grid gap-3 text-sm leading-6 wm-ui-copy">
           <li>1. Complete room discovery.</li>
           <li>2. Select the product and schematic.</li>
           <li>3. Generate a representative room image.</li>
@@ -745,21 +745,21 @@ function ProductWorkspace({
   }, [product.sku]);
 
   return (
-    <main className="grid gap-4 pb-6 text-white">
+    <main className="grid gap-4 pb-6 wm-ui-page wingman-page-host">
       <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Product positioning</p>
             <h1 className={`${PRODUCT_PITCH_HERO_TITLE_CLASS} text-cyan-200`}>{product.sku}</h1>
             <h2 className={`mt-1 ${PRODUCT_PITCH_SECTION_TITLE_CLASS} text-white`}>{product.name}</h2>
-            <p className="mt-3 max-w-4xl text-sm leading-6 text-white/70">{narrative.headline}</p>
+            <p className="mt-3 max-w-4xl text-sm leading-6 wm-ui-copy">{narrative.headline}</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <button
+            <button className={["wm-ui-button wm-ui-button-secondary", `${PRODUCT_PITCH_SMALL_PRIMARY_BUTTON_CLASS} transition hover:bg-cyan-200`].filter(Boolean).join(" ")}
               type="button"
               onClick={() => openProductCheatSheet(product, narrative, imageUrl)}
-              className={`${PRODUCT_PITCH_SMALL_PRIMARY_BUTTON_CLASS} transition hover:bg-cyan-200`}
+
             >
               Print cheat-sheet
             </button>
@@ -804,7 +804,7 @@ function ProductWorkspace({
                     ? "Cable / accessory"
                     : "Not on the current business list"}
           </p>
-          <p className="mt-1 max-w-4xl text-sm leading-6 text-white/75">{lifecycle.note}</p>
+          <p className="mt-1 max-w-4xl text-sm leading-6 wm-ui-copy">{lifecycle.note}</p>
         </section>
       ) : null}
 
@@ -823,7 +823,7 @@ function ProductWorkspace({
           >
             {narrative.confidence === "low" ? "⚠ Check before quoting" : "Auto-generated positioning"}
           </p>
-          <p className="mt-1 max-w-4xl text-sm leading-6 text-white/75">{narrative.reviewNote}</p>
+          <p className="mt-1 max-w-4xl text-sm leading-6 wm-ui-copy">{narrative.reviewNote}</p>
         </section>
       ) : null}
 
@@ -903,7 +903,7 @@ export function ProductPitchPage() {
 
   if (!loaded && !products.length) {
     return (
-      <main className="rounded-3xl border border-[#29465e] bg-[#071522] p-6 text-white">
+      <main className="rounded-3xl border p-6 wm-ui-page wingman-page-host wm-ui-card">
         Loading product workspace...
       </main>
     );
@@ -924,11 +924,11 @@ export function ProductPitchPage() {
 
   if (!selectedProduct) {
     return (
-      <main className="grid gap-4 pb-6 text-white">
-        <section className="rounded-3xl border border-amber-400/40 bg-amber-400/10 p-5">
+      <main className="grid gap-4 pb-6 wm-ui-page wingman-page-host">
+        <section className="rounded-3xl border p-5 wm-ui-section wm-ui-card">
           <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-amber-200`}>Product not found</p>
           <h1 className={PRODUCT_PITCH_HERO_TITLE_CLASS}>No product workspace found for {selectedSku}</h1>
-          <p className="mt-2 text-sm leading-6 text-white/70">
+          <p className="mt-2 text-sm leading-6 wm-ui-copy">
             Return to product selection and choose a current selectable WyreStorm product SKU. Family, regional, legacy, accessory and internal-control references are not selectable Product Pitch SKUs.
           </p>
           <button

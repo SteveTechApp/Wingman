@@ -443,12 +443,12 @@ export function DashboardPage() {
   const recentProjects = sourceProjects.slice(0, 3);
 
   return (
-    <main style={styles.page} className="wm-redesign-dashboard" data-wingman-page="home" data-wingman-home="true" aria-label="Wingman dashboard">
+    <main style={styles.page} className="wm-redesign-dashboard wm-ui-page wm-dashboard-visual-root wingman-page-host" data-wingman-page="home" data-wingman-home="true" aria-label="Wingman dashboard">
       <aside style={styles.rail}>
         <span style={styles.brand}>W</span>
         <span style={styles.eyebrow}>WyreStorm Wingman</span>
-        <h1 style={styles.railTitle}>What are you trying to do?</h1>
-        <p style={styles.railText}>
+        <h1 className="wm-ui-title" style={styles.railTitle}>What are you trying to do?</h1>
+        <p className="wm-ui-copy" style={styles.railText}>
           Start from the customer task. Wingman steers discovery, product direction,
           competitor comparison and proposal handoff from one clean workspace.
         </p>
@@ -464,7 +464,7 @@ export function DashboardPage() {
         </div>
       </aside>
 
-      <section style={styles.main}>
+      <section className="wm-ui-section wm-ui-card" style={styles.main}>
         <Link
           to={resume.resumeTo}
           onClick={() => setActiveProjectId(resume.id)}
@@ -487,9 +487,9 @@ export function DashboardPage() {
           </div>
         </Link>
 
-        <section style={styles.section} aria-label="Primary destinations">
+        <section className="wm-ui-section wm-ui-card" style={styles.section} aria-label="Primary destinations">
           <span style={styles.eyebrow}>Primary destinations</span>
-          <h2 style={styles.h2}>Grouped by what you need to do</h2>
+          <h2 className="wm-ui-title" style={styles.h2}>Grouped by what you need to do</h2>
 
           <div style={styles.grid}>
             {destinations.map((item) => {
@@ -502,7 +502,7 @@ export function DashboardPage() {
                   </span>
                   <span style={{ ...styles.eyebrow, color: "#647c8f", fontSize: 10.5 }}>{item.eyebrow}</span>
                   <strong style={styles.title}>{item.title}</strong>
-                  <p style={{ ...styles.body, flex: 1 }}>{item.description}</p>
+                  <p className="wm-ui-copy" style={{ ...styles.body, flex: 1 }}>{item.description}</p>
                   <span style={styles.linkText}>{item.action} &gt;</span>
                 </Link>
               );
@@ -510,9 +510,9 @@ export function DashboardPage() {
           </div>
         </section>
 
-        <section style={styles.section} aria-label="Active projects">
+        <section className="wm-ui-section wm-ui-card" style={styles.section} aria-label="Active projects">
           <div style={styles.sectionHead}>
-            <h2 style={styles.h2}>Active projects</h2>
+            <h2 className="wm-ui-title" style={styles.h2}>Active projects</h2>
             <Link to={routeCatalogByKey.projects.path} style={{ ...styles.linkText, textDecoration: "none" }}>
               View all &gt;
             </Link>

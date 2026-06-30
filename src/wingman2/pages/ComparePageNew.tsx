@@ -2081,8 +2081,8 @@ function CompareEvidenceList({ title, items, className = "" }: { title: string; 
 
   return (
     <div className={`compare-native-evidence-block ${className}`.trim()}>
-      <p className="compare-native-label compare-native-label--subtle">{title}</p>
-      <ul className="compare-native-bullet-list">
+      <p className="compare-native-label compare-native-label--subtle wm-ui-copy">{title}</p>
+      <ul className="compare-native-bullet-list wm-ui-card">
         {visibleItems.map((item) => (
           <li key={`${title}-${item}`}>{item}</li>
         ))}
@@ -3171,7 +3171,7 @@ function CompareManufacturerCombobox(props: {
   onBrandSelect: (brand: string) => void;
 }) {
   return (
-    <section className="compare-native-card compare-native-card--compact wm-ui-card">
+    <section className="compare-native-card compare-native-card--compact wm-ui-card wm-ui-section">
       <label className="compare-native-label wm-ui-kicker" htmlFor="compare-manufacturer">Manufacturer</label>
       <input
         id="compare-manufacturer"
@@ -3180,7 +3180,7 @@ function CompareManufacturerCombobox(props: {
         onChange={(event) => props.onBrandSelect(event.target.value)}
         placeholder="Type competitor brand"
       />
-      <div className="compare-native-chip-row" aria-label="Known manufacturers">
+      <div className="compare-native-chip-row wm-ui-card" aria-label="Known manufacturers">
         {props.brands.map((brand) => (
           <button
             key={brand}
@@ -3204,7 +3204,7 @@ function CompareProductLookupInput(props: {
   onSkuSelect: (sku: string) => void;
 }) {
   return (
-    <section className="compare-native-card compare-native-card--compact wm-ui-card" data-wingman-compare-auto-advance="true">
+    <section className="compare-native-card compare-native-card--compact wm-ui-card wm-ui-section" data-wingman-compare-auto-advance="true">
       <label className="compare-native-label wm-ui-kicker" htmlFor="compare-competitor-sku">Competitor SKU</label>
       <input
         id="compare-competitor-sku"
@@ -3216,30 +3216,30 @@ function CompareProductLookupInput(props: {
       />
 
       <div className="compare-native-sku-block">
-        <button className="compare-native-chip compare-native-chip--custom wm-ui-button wm-ui-button-secondary" type="button" onClick={() => props.onSkuSelect("CUSTOM / missing SKU")}>
+        <button className="compare-native-chip compare-native-chip--custom wm-ui-button wm-ui-button-secondary wm-ui-button-primary" type="button" onClick={() => props.onSkuSelect("CUSTOM / missing SKU")}>
           CUSTOM / missing SKU
         </button>
 
-        <p className="compare-native-label compare-native-label--subtle">Known SKUs for selected brand</p>
+        <p className="compare-native-label compare-native-label--subtle wm-ui-copy">Known SKUs for selected brand</p>
 
-        <div className="compare-native-chip-row">
+        <div className="compare-native-chip-row wm-ui-card">
           {props.knownSkus.length > 0 ? (
             props.knownSkus.map((skuOption) => (
-              <button key={skuOption} className="compare-native-chip wm-ui-button wm-ui-button-secondary" type="button" onClick={() => props.onSkuSelect(skuOption)}>
+              <button key={skuOption} className="compare-native-chip wm-ui-button wm-ui-button-secondary wm-ui-button-primary" type="button" onClick={() => props.onSkuSelect(skuOption)}>
                 {skuOption}
               </button>
             ))
           ) : (
-            <p className="compare-native-muted">No known SKUs are currently stored for this brand. Use CUSTOM / missing SKU and describe the must-match features.</p>
+            <p className="compare-native-muted wm-ui-copy">No known SKUs are currently stored for this brand. Use CUSTOM / missing SKU and describe the must-match features.</p>
           )}
         </div>
 
         {props.value.trim().length > 0 && props.suggestions.length > 0 ? (
           <div className="compare-native-typed-matches">
-            <p className="compare-native-label compare-native-label--subtle">Closest typed matches</p>
-            <div className="compare-native-chip-row">
+            <p className="compare-native-label compare-native-label--subtle wm-ui-copy">Closest typed matches</p>
+            <div className="compare-native-chip-row wm-ui-card">
               {props.suggestions.slice(0, 8).map((skuOption) => (
-                <button key={skuOption} className="compare-native-chip wm-ui-button wm-ui-button-secondary" type="button" onClick={() => props.onSkuSelect(skuOption)}>
+                <button key={skuOption} className="compare-native-chip wm-ui-button wm-ui-button-secondary wm-ui-button-primary" type="button" onClick={() => props.onSkuSelect(skuOption)}>
                   {skuOption}
                 </button>
               ))}
@@ -3402,14 +3402,14 @@ function CompareEvidenceMatrix({ candidate, competitor }: { candidate: ScoredCan
   ];
 
   return (
-    <section className="compare-native-evidence-matrix" aria-label="Compare evidence matrix">
+    <section className="compare-native-evidence-matrix wm-ui-section" aria-label="Compare evidence matrix">
       <div className="compare-native-evidence-matrix__header">
         <h4>Comparison evidence matrix</h4>
-        <p>Plain-English explanation of the match result, gaps and quote checks.</p>
+        <p className="wm-ui-copy">Plain-English explanation of the match result, gaps and quote checks.</p>
       </div>
       <div className="compare-native-evidence-matrix__grid">
         {rows.map((row) => (
-          <div className="compare-native-evidence-matrix__row" key={row.label}>
+          <div className="compare-native-evidence-matrix__row wm-ui-card" key={row.label}>
             <div className="compare-native-evidence-matrix__label">{row.label}</div>
             <div className="compare-native-evidence-matrix__evidence">{row.evidence}</div>
             <div className="compare-native-evidence-matrix__meaning">{row.meaning}</div>
@@ -3440,63 +3440,63 @@ function BestCandidateCard({
   const headerCaveat = compareHeaderCaveat(competitor, candidate);
 
   return (
-    <section className="compare-native-best-card">
-      <div className="compare-native-result-head">
+    <section className="compare-native-best-card wm-ui-section wm-ui-card">
+      <div className="compare-native-result-head wm-ui-card">
         <span className={`compare-native-verdict ${verdictClass(candidate.verdict)}`}>{candidate.verdict}</span>
         <span className="compare-native-score">{directionFit}</span>
         {headerCaveat ? <span className="compare-native-score compare-native-score--caveat">{headerCaveat}</span> : null}
       </div>
 
-      <div className="compare-native-product-card compare-native-product-card--best">
-        <div className="compare-native-result-summary">
-          <section className="compare-native-result-panel">
-            <p className="compare-native-label compare-native-label--subtle">Competitor matched against</p>
-            <h3>{competitor.heading}</h3>
+      <div className="compare-native-product-card compare-native-product-card--best wm-ui-card">
+        <div className="compare-native-result-summary wm-ui-card wm-ui-copy">
+          <section className="compare-native-result-panel wm-ui-section wm-ui-card">
+            <p className="compare-native-label compare-native-label--subtle wm-ui-copy">Competitor matched against</p>
+            <h3 className="wm-ui-title">{competitor.heading}</h3>
             <h4>{competitor.detail}</h4>
-            <p className="compare-native-match-anchor">{shortRoleLabel(competitor.role)} | {competitor.transport}</p>
+            <p className="compare-native-match-anchor wm-ui-copy">{shortRoleLabel(competitor.role)} | {competitor.transport}</p>
           </section>
 
-          <section className="compare-native-result-panel compare-native-result-panel--wyrestorm">
-            <p className="compare-native-label compare-native-label--subtle">Suggested WyreStorm direction</p>
-            <h3>{wyrestorm.heading}</h3>
+          <section className="compare-native-result-panel compare-native-result-panel--wyrestorm wm-ui-section wm-ui-card">
+            <p className="compare-native-label compare-native-label--subtle wm-ui-copy">Suggested WyreStorm direction</p>
+            <h3 className="wm-ui-title">{wyrestorm.heading}</h3>
             <h4>{wyrestorm.detail}</h4>
-            <p className="compare-native-match-anchor">{wyrestorm.family} | {wyrestorm.transport}</p>
-            <div className="compare-native-fact-row compare-native-fact-row--tight" aria-label="WyreStorm outcome facts">
+            <p className="compare-native-match-anchor wm-ui-copy">{wyrestorm.family} | {wyrestorm.transport}</p>
+            <div className="compare-native-fact-row compare-native-fact-row--tight wm-ui-card" aria-label="WyreStorm outcome facts">
               <span className="compare-native-fact-pill">{replacementConfidence}</span>
             </div>
           </section>
         </div>
 
         {coreFacts.length ? (
-          <section className="compare-native-core-facts" aria-label="Core comparison points">
-            <p className="compare-native-label compare-native-label--subtle">Key comparison matrix</p>
+          <section className="compare-native-core-facts wm-ui-section" aria-label="Core comparison points">
+            <p className="compare-native-label compare-native-label--subtle wm-ui-copy">Key comparison matrix</p>
             <div className="compare-native-core-matrix" role="table" aria-label="Competitor versus WyreStorm comparison matrix">
-              <div className="compare-native-core-matrix-header" role="rowgroup">
-                <div className="compare-native-core-matrix-row compare-native-core-matrix-row--header" role="row">
-                  <span className="compare-native-core-matrix-heading" role="columnheader">Comparison point</span>
-                  <span className="compare-native-core-matrix-heading" role="columnheader">Competitor</span>
-                  <span className="compare-native-core-matrix-heading" role="columnheader">WyreStorm</span>
-                  <span className="compare-native-core-matrix-heading" role="columnheader">Result</span>
+              <div className="compare-native-core-matrix-header wm-ui-card-header" role="rowgroup">
+                <div className="compare-native-core-matrix-row compare-native-core-matrix-row--header wm-ui-card wm-ui-card-header" role="row">
+                  <span className="compare-native-core-matrix-heading wm-ui-title" role="columnheader">Comparison point</span>
+                  <span className="compare-native-core-matrix-heading wm-ui-title" role="columnheader">Competitor</span>
+                  <span className="compare-native-core-matrix-heading wm-ui-title" role="columnheader">WyreStorm</span>
+                  <span className="compare-native-core-matrix-heading wm-ui-title" role="columnheader">Result</span>
                 </div>
               </div>
               <div className="compare-native-core-matrix-body" role="rowgroup">
                 {coreFacts.map((fact) => (
-                  <article key={`core-fact-${fact.label}`} className="compare-native-core-matrix-row" role="row">
+                  <article key={`core-fact-${fact.label}`} className="compare-native-core-matrix-row wm-ui-card" role="row">
                     <div className="compare-native-core-matrix-cell compare-native-core-matrix-cell--point" role="cell">
                       <span className="compare-native-core-matrix-mobile-label">Comparison point</span>
                       <strong>{fact.label}</strong>
                     </div>
                     <div className="compare-native-core-matrix-cell" role="cell">
                       <span className="compare-native-core-matrix-mobile-label">Competitor</span>
-                      <p>{fact.competitor || "Not verified locally"}</p>
+                      <p className="wm-ui-copy">{fact.competitor || "Not verified locally"}</p>
                     </div>
                     <div className="compare-native-core-matrix-cell compare-native-core-matrix-cell--wyrestorm" role="cell">
                       <span className="compare-native-core-matrix-mobile-label">WyreStorm</span>
-                      <p>{fact.wyrestorm || "Confirm in WyreStorm datasheet"}</p>
+                      <p className="wm-ui-copy">{fact.wyrestorm || "Confirm in WyreStorm datasheet"}</p>
                     </div>
-                    <div className="compare-native-core-matrix-cell compare-native-core-matrix-cell--result" role="cell">
+                    <div className="compare-native-core-matrix-cell compare-native-core-matrix-cell--result wm-ui-card" role="cell">
                       <span className="compare-native-core-matrix-mobile-label">Result</span>
-                      <p>{fact.result}</p>
+                      <p className="wm-ui-copy">{fact.result}</p>
                     </div>
                   </article>
                 ))}
@@ -3505,45 +3505,45 @@ function BestCandidateCard({
           </section>
         ) : null}
 
-        <section className="compare-native-decision-summary" aria-label="Decision summary">
-          <p className="compare-native-label compare-native-label--subtle">Decision summary</p>
-          <ul className="compare-native-decision-list">
+        <section className="compare-native-decision-summary wm-ui-section wm-ui-card wm-ui-copy" aria-label="Decision summary">
+          <p className="compare-native-label compare-native-label--subtle wm-ui-copy">Decision summary</p>
+          <ul className="compare-native-decision-list wm-ui-card">
             {decisionBullets.map((bullet) => (
               <li key={bullet}>{bullet}</li>
             ))}
           </ul>
         </section>
 
-        <details className="compare-native-summary">
+        <details className="compare-native-summary wm-ui-card wm-ui-copy">
           <summary>Quote checks</summary>
-          <CompareEvidenceList title="Check before quote" items={askCustomer} className="compare-native-evidence--warn" />
+          <CompareEvidenceList title="Check before quote" items={askCustomer} className="compare-native-evidence--warn wm-ui-title" />
         </details>
 
-        <details className="compare-native-summary">
+        <details className="compare-native-summary wm-ui-card wm-ui-copy">
           <summary>Why this fits</summary>
           <CompareEvidenceList title="Matched points" items={whyBullets} />
         </details>
 
-        <details className="compare-native-summary">
+        <details className="compare-native-summary wm-ui-card wm-ui-copy">
           <summary>Full evidence trace</summary>
           <div className="compare-native-compare-grid">
-            <div className="compare-native-product-card compare-native-product-card--competitor">
-              <p className="compare-native-label compare-native-label--subtle">Competitor detail</p>
-              <h3>{competitor.heading}</h3>
+            <div className="compare-native-product-card compare-native-product-card--competitor wm-ui-card">
+              <p className="compare-native-label compare-native-label--subtle wm-ui-copy">Competitor detail</p>
+              <h3 className="wm-ui-title">{competitor.heading}</h3>
               <h4>{competitor.detail}</h4>
-              <p className="compare-native-match-anchor">{competitor.outcomeLabel}</p>
+              <p className="compare-native-match-anchor wm-ui-copy">{competitor.outcomeLabel}</p>
               <CompareEvidenceList title="Verified product identity" items={competitorIdentityItems(competitor)} />
               {competitor.facts.length ? (
-                <div className="compare-native-fact-row" aria-label="Competitor headline facts">
+                <div className="compare-native-fact-row wm-ui-card wm-ui-title" aria-label="Competitor headline facts">
                   {competitor.facts.map((fact) => (
                     <span key={`${fact.label}-${fact.value}`} className="compare-native-fact-pill">{fact.label}: {fact.value}</span>
                   ))}
                 </div>
               ) : null}
               <CompareEvidenceList title="Known features" items={competitor.knownFeatures} />
-              <CompareEvidenceList title="Unknowns" items={competitor.unknownFeatures.slice(0, 5)} className="compare-native-evidence--warn" />
+              <CompareEvidenceList title="Unknowns" items={competitor.unknownFeatures.slice(0, 5)} className="compare-native-evidence--warn wm-ui-title" />
               {competitor.sourceUrl ? (
-                <div className="compare-native-action-row">
+                <div className="compare-native-action-row wm-ui-card">
                   <a className="compare-native-secondary-action" href={competitor.sourceUrl} target="_blank" rel="noreferrer">
                     Open competitor reference
                   </a>
@@ -3551,27 +3551,27 @@ function BestCandidateCard({
               ) : null}
             </div>
 
-            <div className="compare-native-product-card compare-native-product-card--best">
-              <p className="compare-native-label compare-native-label--subtle">WyreStorm detail</p>
-              <h3>{candidate.product.sku}</h3>
+            <div className="compare-native-product-card compare-native-product-card--best wm-ui-card">
+              <p className="compare-native-label compare-native-label--subtle wm-ui-copy">WyreStorm detail</p>
+              <h3 className="wm-ui-title">{candidate.product.sku}</h3>
               <h4>{candidate.product.name}</h4>
-              <p>{candidate.product.family} - {candidate.product.productClass} - {candidate.product.role}</p>
-              <p className="compare-native-match-anchor">{directionFit}</p>
+              <p className="wm-ui-copy">{candidate.product.family} - {candidate.product.productClass} - {candidate.product.role}</p>
+              <p className="compare-native-match-anchor wm-ui-copy">{directionFit}</p>
               <CompareEvidenceList title="Why this WyreStorm product" items={wyrestorm.identityItems} />
               <CompareEvidenceMatrix candidate={candidate} competitor={competitor} />
               <CompareEvidenceList title="Strong fit areas" items={candidate.matched.slice(0, 5)} />
               <CompareEvidenceList title="Deeper why this fits" items={candidate.partialMatches.slice(0, 4)} />
-              <CompareEvidenceList title="Important differences" items={candidate.mismatches.slice(0, 4)} className="compare-native-evidence--danger" />
-              <CompareEvidenceList title="Unknowns" items={uniqueText([...candidate.unknowns, ...candidate.checks, ...candidate.gaps], 6)} className="compare-native-evidence--warn" />
-              <CompareEvidenceList title="Quote blockers" items={candidate.blockers.slice(0, 4)} className="compare-native-evidence--danger" />
+              <CompareEvidenceList title="Important differences" items={candidate.mismatches.slice(0, 4)} className="compare-native-evidence--danger wm-ui-title" />
+              <CompareEvidenceList title="Unknowns" items={uniqueText([...candidate.unknowns, ...candidate.checks, ...candidate.gaps], 6)} className="compare-native-evidence--warn wm-ui-title" />
+              <CompareEvidenceList title="Quote blockers" items={candidate.blockers.slice(0, 4)} className="compare-native-evidence--danger wm-ui-title" />
               <CompareEvidenceList title="Required WyreStorm dependencies" items={candidate.dependencies.slice(0, 5)} />
             </div>
           </div>
         </details>
 
-        <div className="compare-native-action-row">
-          <button className="compare-native-secondary-action" type="button" onClick={onCopySummary}>Copy summary</button>
-          <button className="compare-native-secondary-action" type="button" onClick={() => openGuruForCompare(competitor, candidate)}>
+        <div className="compare-native-action-row wm-ui-card">
+          <button className="compare-native-secondary-action wm-ui-button wm-ui-button-primary" type="button" onClick={onCopySummary}>Copy summary</button>
+          <button className="compare-native-secondary-action wm-ui-button wm-ui-button-primary" type="button" onClick={() => openGuruForCompare(competitor, candidate)}>
             Ask Guru
           </button>
           <ProductMoreLink sku={candidate.product.sku} />
@@ -3583,32 +3583,32 @@ function BestCandidateCard({
 
 function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
   return (
-    <article className="compare-native-option-card">
+    <article className="compare-native-option-card wm-ui-card">
       <div>
-        <p className="compare-native-family">{candidate.product.family}</p>
-        <h3>{candidate.product.sku}</h3>
+        <p className="compare-native-family wm-ui-copy">{candidate.product.family}</p>
+        <h3 className="wm-ui-title">{candidate.product.sku}</h3>
         <h4>{candidate.product.name}</h4>
-        <p className="compare-native-muted">{candidate.product.transport}</p>
+        <p className="compare-native-muted wm-ui-copy">{candidate.product.transport}</p>
       </div>
 
-      <div className="compare-native-option-meta">
+      <div className="compare-native-option-meta wm-ui-card">
         <span className={`compare-native-verdict ${verdictClass(candidate.verdict)}`}>{candidate.verdict}</span>
         <span className="compare-native-score">{candidate.outcomeLabel}</span>
       </div>
 
-      <p className="compare-native-option-note">{commercializeCompareCopy(candidate.matched[0]) || "Closest role-compatible WyreStorm option from the current Compare data."}</p>
-      {candidate.partialMatches[0] ? <p className="compare-native-option-note">{commercializeCompareCopy(candidate.partialMatches[0])}</p> : null}
-      {candidate.mismatches[0] ? <p className="compare-native-option-check">{commercializeCompareCopy(candidate.mismatches[0])}</p> : null}
-      {!candidate.mismatches[0] && candidate.unknowns[0] ? <p className="compare-native-option-check">{commercializeCompareCopy(candidate.unknowns[0])}</p> : null}
+      <p className="compare-native-option-note wm-ui-copy wm-ui-card">{commercializeCompareCopy(candidate.matched[0]) || "Closest role-compatible WyreStorm option from the current Compare data."}</p>
+      {candidate.partialMatches[0] ? <p className="compare-native-option-note wm-ui-copy wm-ui-card">{commercializeCompareCopy(candidate.partialMatches[0])}</p> : null}
+      {candidate.mismatches[0] ? <p className="compare-native-option-check wm-ui-copy wm-ui-card">{commercializeCompareCopy(candidate.mismatches[0])}</p> : null}
+      {!candidate.mismatches[0] && candidate.unknowns[0] ? <p className="compare-native-option-check wm-ui-copy wm-ui-card">{commercializeCompareCopy(candidate.unknowns[0])}</p> : null}
 
-      <details className="compare-native-summary">
+      <details className="compare-native-summary wm-ui-card wm-ui-copy">
         <summary>Why this option was shortlisted</summary>
         <CompareEvidenceList title="Why this direction" items={candidate.matched.slice(0, 3)} />
-        <CompareEvidenceList title="Important differences" items={candidate.mismatches.slice(0, 2)} className="compare-native-evidence--danger" />
-        <CompareEvidenceList title="Commercial checks" items={uniqueText([...candidate.unknowns, ...candidate.checks, ...candidate.gaps, ...candidate.dependencies], 4)} className="compare-native-evidence--warn" />
+        <CompareEvidenceList title="Important differences" items={candidate.mismatches.slice(0, 2)} className="compare-native-evidence--danger wm-ui-title" />
+        <CompareEvidenceList title="Commercial checks" items={uniqueText([...candidate.unknowns, ...candidate.checks, ...candidate.gaps, ...candidate.dependencies], 4)} className="compare-native-evidence--warn wm-ui-title" />
       </details>
 
-      <div className="compare-native-action-row">
+      <div className="compare-native-action-row wm-ui-card">
         <ProductMoreLink sku={candidate.product.sku} />
       </div>
     </article>
@@ -3617,10 +3617,10 @@ function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
 
 function CompareSummaryPanel({ summary, requestLiveLookup, sourceUrl }: { summary: string; requestLiveLookup: boolean; sourceUrl: string }) {
   return (
-    <details className="compare-native-summary">
+    <details className="compare-native-summary wm-ui-card wm-ui-copy">
       <summary>Copyable summary</summary>
       <pre>{summary}</pre>
-      {requestLiveLookup ? <p className="compare-native-muted">Live lookup recommended for source validation. {sourceUrl}</p> : null}
+      {requestLiveLookup ? <p className="compare-native-muted wm-ui-copy">Live lookup recommended for source validation. {sourceUrl}</p> : null}
     </details>
   );
 }
@@ -3929,18 +3929,18 @@ function ComparePageNew() {
 
   return (
     <main className="compare-native-page wm-ui-page wingman-page-host" data-wingman-page="compare">
-      <section className="compare-native-hero wm-ui-hero">
+      <section className="compare-native-hero wm-ui-hero wm-ui-section">
         <div>
-          <p className="compare-native-eyebrow wm-ui-kicker">Competitor Compare</p>
+          <p className="compare-native-eyebrow wm-ui-kicker wm-ui-copy">Competitor Compare</p>
           <h1 className="wm-ui-title">Find the nearest WyreStorm product direction</h1>
           <p className="wm-ui-copy">
             Move through the compare workflow one step at a time so the salesperson sees the product direction first, then the deeper evidence only when needed, while Wingman keeps the result quote-safe.
           </p>
         </div>
-        <button className="compare-native-reset wm-ui-button wm-ui-button-secondary" type="button" onClick={handleReset}>Reset compare</button>
+        <button className="compare-native-reset wm-ui-button wm-ui-button-secondary wm-ui-button-primary" type="button" onClick={handleReset}>Reset compare</button>
       </section>
 
-      <nav className="compare-native-stage-rail" aria-label="Compare workflow steps">
+      <nav className="compare-native-stage-rail wm-ui-card" aria-label="Compare workflow steps">
         {COMPARE_STAGES.map((stage, index) => {
           const isActive = compareStage === stage.key;
           const currentIndex = COMPARE_STAGES.findIndex((item) => item.key === compareStage);
@@ -3962,7 +3962,7 @@ function ComparePageNew() {
               aria-current={isActive ? "step" : undefined}
               disabled={isLocked}
             >
-              <span className="compare-native-stage-step">{stage.step}</span>
+              <span className="compare-native-stage-step wm-ui-card">{stage.step}</span>
               <strong>{stage.title}</strong>
             </button>
           );
@@ -3970,21 +3970,21 @@ function ComparePageNew() {
       </nav>
 
       {compareStage === "brand" ? (
-        <section className="compare-native-results compare-native-results--stage wm-ui-section" aria-live="polite">
-          <div className="compare-native-section-title wm-ui-card-header">
+        <section className="compare-native-results compare-native-results--stage wm-ui-section wm-ui-card" aria-live="polite">
+          <div className="compare-native-section-title wm-ui-card-header wm-ui-card wm-ui-title">
             <h2 className="wm-ui-title">Choose competitor brand</h2>
             <p className="wm-ui-copy">Start with the manufacturer so Wingman can narrow the SKU list and compare against the right product family.</p>
           </div>
 
           <CompareManufacturerCombobox brands={compareManufacturerOptions} selectedBrand={selectedBrand} onBrandSelect={onBrandSelect} />
 
-          <section className="compare-native-card compare-native-card--compact compare-native-guidance-card">
-            <p className="compare-native-label compare-native-label--subtle">Why this step matters</p>
-            <p>Picking the brand first keeps the next screen shorter and avoids mixing unlike technologies before the actual competitor product has been chosen.</p>
+          <section className="compare-native-card compare-native-card--compact compare-native-guidance-card wm-ui-section wm-ui-card">
+            <p className="compare-native-label compare-native-label--subtle wm-ui-copy">Why this step matters</p>
+            <p className="wm-ui-copy">Picking the brand first keeps the next screen shorter and avoids mixing unlike technologies before the actual competitor product has been chosen.</p>
           </section>
 
           {isAddingManufacturer ? (
-            <section className="compare-native-card compare-native-card--compact wm-ui-card">
+            <section className="compare-native-card compare-native-card--compact wm-ui-card wm-ui-section">
               <label className="compare-native-label wm-ui-kicker" htmlFor="compare-custom-manufacturer">Missing manufacturer name</label>
               <input
                 id="compare-custom-manufacturer"
@@ -4002,15 +4002,15 @@ function ComparePageNew() {
                 placeholder="Example: AVPro Edge, AV Access, PureLink"
                 autoFocus
               />
-              <p className="compare-native-auto-note">
+              <p className="compare-native-auto-note wm-ui-copy">
                 Use this when the competitor brand is not listed. The next step will capture the missing model/SKU and the must-match features.
               </p>
-              <div className="compare-native-action-row wm-ui-action-row">
+              <div className="compare-native-action-row wm-ui-action-row wm-ui-card">
                 <button className="compare-native-more wm-ui-button wm-ui-button-primary" type="button" onClick={saveCustomManufacturer} disabled={customManufacturerInput.trim().length === 0}>
                   Use this manufacturer
                 </button>
                 <button
-                  className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
+                  className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary wm-ui-button-primary"
                   type="button"
                   onClick={() => {
                     setIsAddingManufacturer(false);
@@ -4022,11 +4022,11 @@ function ComparePageNew() {
               </div>
             </section>
           ) : null}
-          <div className="compare-native-action-row compare-native-action-row--between wm-ui-action-row">
-            <span className="compare-native-muted">Selected brand: {selectedBrand}</span>
-            <div className="compare-native-action-row wm-ui-action-row">
+          <div className="compare-native-action-row compare-native-action-row--between wm-ui-action-row wm-ui-card">
+            <span className="compare-native-muted wm-ui-copy">Selected brand: {selectedBrand}</span>
+            <div className="compare-native-action-row wm-ui-action-row wm-ui-card">
               <button
-                className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
+                className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary wm-ui-button-primary"
                 type="button"
                 onClick={() => {
                   setIsAddingManufacturer((current) => !current);
@@ -4035,7 +4035,7 @@ function ComparePageNew() {
               >
                 Add missing manufacturer
               </button>
-              <button className="compare-native-more wm-ui-button wm-ui-button-forward" type="button" onClick={() => setCompareStage("sku")}>
+              <button className="compare-native-more wm-ui-button wm-ui-button-forward wm-ui-button-primary" type="button" onClick={() => setCompareStage("sku")}>
                 Next: choose competitor product
               </button>
             </div>
@@ -4044,8 +4044,8 @@ function ComparePageNew() {
       ) : null}
 
       {compareStage === "sku" ? (
-        <form className="compare-native-results compare-native-results--stage wm-ui-section" onSubmit={handleSubmit}>
-          <div className="compare-native-section-title wm-ui-card-header">
+        <form className="compare-native-results compare-native-results--stage wm-ui-section wm-ui-card" onSubmit={handleSubmit}>
+          <div className="compare-native-section-title wm-ui-card-header wm-ui-card wm-ui-title">
             <h2 className="wm-ui-title">Choose competitor product</h2>
             <p className="wm-ui-copy">Pick a known SKU, or type a custom model and add only the details that change the product direction or quote risk.</p>
           </div>
@@ -4058,7 +4058,7 @@ function ComparePageNew() {
             onSkuSelect={onSkuSelect}
           />
 
-          <section className="compare-native-card compare-native-card--compact wm-ui-card">
+          <section className="compare-native-card compare-native-card--compact wm-ui-card wm-ui-section">
             <label className="compare-native-label wm-ui-kicker" htmlFor="compare-must-match">Known type or must-match features</label>
             <input
               id="compare-must-match"
@@ -4069,15 +4069,15 @@ function ComparePageNew() {
             />
           </section>
 
-          <p className="compare-native-auto-note">Clicking a known SKU will still open the result automatically. Typed entries can still use Enter, or use the review button below.</p>
+          <p className="compare-native-auto-note wm-ui-copy">Clicking a known SKU will still open the result automatically. Typed entries can still use Enter, or use the review button below.</p>
 
-          <div className="compare-native-action-row compare-native-action-row--between wm-ui-action-row">
-            <button className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" type="button" onClick={() => setCompareStage("brand")}>
+          <div className="compare-native-action-row compare-native-action-row--between wm-ui-action-row wm-ui-card">
+            <button className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary wm-ui-button-primary" type="button" onClick={() => setCompareStage("brand")}>
               Back to brand
             </button>
-            <div className="compare-native-action-row wm-ui-action-row">
+            <div className="compare-native-action-row wm-ui-action-row wm-ui-card">
               <button
-                className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
+                className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary wm-ui-button-primary"
                 type="button"
                 onClick={() => {
                   const customLabel = competitorInput.trim().length > 0 ? competitorInput.trim() : "Custom / missing SKU";
@@ -4088,28 +4088,28 @@ function ComparePageNew() {
               >
                 CUSTOM / missing SKU
               </button>
-              <button className="compare-native-more wm-ui-button wm-ui-button-forward" type="submit" disabled={!hasCompetitorSelection}>
+              <button className="compare-native-more wm-ui-button wm-ui-button-forward wm-ui-button-primary" type="submit" disabled={!hasCompetitorSelection}>
                 Review WyreStorm direction
               </button>
             </div>
           </div>
 
-          <button className="compare-native-hidden-submit" type="submit" aria-hidden="true" tabIndex={-1}>Run compare</button>
+          <button className="compare-native-hidden-submit wm-ui-button wm-ui-button-primary" type="submit" aria-hidden="true" tabIndex={-1}>Run compare</button>
         </form>
       ) : null}
 
       {compareStage === "results" ? (
-        <section className="compare-native-results" aria-live="polite">
-          <div className="compare-native-section-title compare-native-section-title--inline">
+        <section className="compare-native-results wm-ui-section" aria-live="polite">
+          <div className="compare-native-section-title compare-native-section-title--inline wm-ui-title">
             <div>
-              <h2>{workflowStep === "capture" ? "Start a new competitor comparison" : "Review WyreStorm product direction"}</h2>
-              <p>Answer first. Open supporting evidence only when you need to validate the quote.</p>
+              <h2 className="wm-ui-title">{workflowStep === "capture" ? "Start a new competitor comparison" : "Review WyreStorm product direction"}</h2>
+              <p className="wm-ui-copy">Answer first. Open supporting evidence only when you need to validate the quote.</p>
             </div>
-            <div className="compare-native-action-row">
-              <button className="compare-native-secondary-action" type="button" onClick={() => setCompareStage("sku")}>
+            <div className="compare-native-action-row wm-ui-card">
+              <button className="compare-native-secondary-action wm-ui-button wm-ui-button-primary" type="button" onClick={() => setCompareStage("sku")}>
                 Edit competitor details
               </button>
-              <button className="compare-native-secondary-action" type="button" onClick={handleReset}>
+              <button className="compare-native-secondary-action wm-ui-button wm-ui-button-primary" type="button" onClick={handleReset}>
                 Start new compare
               </button>
             </div>
@@ -4132,11 +4132,11 @@ function ComparePageNew() {
                 />
               </div>
             ) : (
-              <section className="compare-native-empty">
-                <h3>No suitable WyreStorm match found from the current data</h3>
-                <p>{competitorSummary.warning || "Add the competitor product type, I/O, video bandwidth, USB, audio, control or wall-processing requirement and try again."}</p>
+              <section className="compare-native-empty wm-ui-section">
+                <h3 className="wm-ui-title">No suitable WyreStorm match found from the current data</h3>
+                <p className="wm-ui-copy">{competitorSummary.warning || "Add the competitor product type, I/O, video bandwidth, USB, audio, control or wall-processing requirement and try again."}</p>
                 {competitorSummary.verifyItems.length ? (
-                  <ul className="compare-native-bullet-list">
+                  <ul className="compare-native-bullet-list wm-ui-card">
                     {competitorSummary.verifyItems.slice(0, 3).map((item) => (
                       <li key={`no-match-${item}`}>{item}</li>
                     ))}
@@ -4146,9 +4146,9 @@ function ComparePageNew() {
             )}
 
             {alternativeCandidates.length ? (
-              <details className="compare-native-summary compare-native-options">
+              <details className="compare-native-summary compare-native-options wm-ui-card wm-ui-copy">
                 <summary>Other possible WyreStorm options ({Math.min(alternativeCandidates.length, 3)})</summary>
-                <div className="compare-native-option-grid">
+                <div className="compare-native-option-grid wm-ui-card">
                   {alternativeCandidates.slice(0, 3).map((candidate) => (
                     <CandidateOptionCard key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} />
                   ))}
@@ -4159,16 +4159,16 @@ function ComparePageNew() {
             <CompareSummaryPanel summary={summary} requestLiveLookup={requestLiveLookup} sourceUrl={sourceUrl} />
 
             {best ? (
-              <section className="compare-native-card">
-                <div className="compare-native-section-title">
-                  <h2>Take this forward</h2>
-                  <p>Save {best.product.sku} to your project, or carry it straight into a proposal. The comparison and the quote-safety checks are saved with it.</p>
+              <section className="compare-native-card wm-ui-section wm-ui-card">
+                <div className="compare-native-section-title wm-ui-title">
+                  <h2 className="wm-ui-title">Take this forward</h2>
+                  <p className="wm-ui-copy">Save {best.product.sku} to your project, or carry it straight into a proposal. The comparison and the quote-safety checks are saved with it.</p>
                 </div>
-                <div className="compare-native-action-row">
-                  <button type="button" className="compare-native-more" onClick={() => handleCommit("proposal")}>
+                <div className="compare-native-action-row wm-ui-card">
+                  <button type="button" className="compare-native-more wm-ui-button wm-ui-button-primary" onClick={() => handleCommit("proposal")}>
                     Build proposal with {best.product.sku}
                   </button>
-                  <button type="button" className="compare-native-secondary-action" onClick={() => handleCommit("project")}>
+                  <button type="button" className="compare-native-secondary-action wm-ui-button wm-ui-button-primary" onClick={() => handleCommit("project")}>
                     Add to project
                   </button>
                   <Link
@@ -4179,7 +4179,7 @@ function ComparePageNew() {
                   </Link>
                 </div>
                 {committedSku === best.product.sku ? (
-                  <p className="compare-native-muted">
+                  <p className="compare-native-muted wm-ui-copy">
                     Saved to your project.{" "}
                     <Link to={routeCatalogByKey.projects.path}>Open projects</Link> or{" "}
                     <Link to={routeCatalogByKey.proposal.path}>build the proposal</Link>.

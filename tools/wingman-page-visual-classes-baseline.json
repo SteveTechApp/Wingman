@@ -1,0 +1,20 @@
+{
+  "updatedAt": "2026-06-30T07:22:30.525Z",
+  "rule": "Maximum allowed hard-coded visual colour utility count in migrated Wingman page files.",
+  "total": 202,
+  "files": {
+    "src/wingman2/pages/DashboardPage.tsx": 0,
+    "src/wingman2/pages/DiscoveryPage.tsx": 0,
+    "src/wingman2/pages/FinderPage.tsx": 56,
+    "src/wingman2/pages/ProductFamilyPage.tsx": 11,
+    "src/wingman2/pages/ProductPitchPage.tsx": 70,
+    "src/wingman2/pages/ProposalPage.tsx": 23,
+    "src/wingman2/pages/ComparePageNew.tsx": 0,
+    "src/wingman2/pages/TemplatesPage.tsx": 0,
+    "src/wingman2/pages/VideowallBuilderPage.tsx": 0,
+    "src/wingman2/pages/ProjectsPage.tsx": 11,
+    "src/wingman2/pages/ProjectDetailPage.tsx": 10,
+    "src/wingman2/pages/ProductCallCardsPage.tsx": 0,
+    "src/wingman2/pages/CatalogBrowserPage.tsx": 21
+  }
+}
