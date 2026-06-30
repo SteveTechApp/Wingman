@@ -1,0 +1,2421 @@
+/* ==========================================================================
+   WINGMAN REDESIGN THEME  ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â  drop-in override layer
+   --------------------------------------------------------------------------
+   Applies the refreshed Wingman visual system WITHOUT touching any React
+   markup. It re-tunes the design tokens the rest of the stylesheet already
+   consumes via var(), then refines the highest-impact component rules
+   (shell, sidebar, nav, topbar, hero, cards, buttons).
+
+   HOW TO WIRE IT
+   In src/main.tsx, import this file immediately AFTER the main stylesheet
+   so it wins the cascade:
+
+       import "./wingman2/styles/wingman-style-stack.css";
+       import "./wingman2/styles/wingman-redesign-theme.css";   // <-- add
+
+   That single line is the whole installation. No component changes required.
+
+   WHAT CHANGES
+   - Calmer, higher-contrast dark palette (flat surfaces, no glow spam)
+   - Headings become near-white; aqua is reserved as an accent
+   - One consistent radius scale (8 / 10 / 12 / 14 / 16)
+   - Lighter, disciplined font weights (body 450, UI 600, heading 700)
+   - Hairline borders + a single subtle shadow instead of layered gradients
+   ========================================================================== */
+
+/* ---- 1. Design tokens -------------------------------------------------- */
+/* Re-declared after the base :root, so every var() consumer updates. */
+:root {
+  /* Surfaces */
+  --wm-bg-0: #070d15;
+  --wm-bg-1: #0a1019;
+  --wm-bg-2: #0b121c;
+  --wm-panel: #111b27;
+  --wm-panel-soft: #15212e;
+  --wm-surface: #f6fbff;
+  --wm-surface-strong: #ffffff;
+  --wm-surface-muted: #eef3fa;
+
+  /* Borders */
+  --wm-border-dark: rgba(150, 172, 196, 0.10);
+  --wm-border-light: rgba(150, 172, 196, 0.16);
+
+  /* Text */
+  --wm-text: #e8f0f8;
+  --wm-text-soft: #c4d3e2;
+  --wm-text-muted: #8597aa;
+
+  /* Accents ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â aqua is the brand accent; semantic colours kept distinct */
+  --wm-orange: #63f3ff;
+  --wm-orange-soft: rgba(99, 243, 255, 0.12);
+  --wm-orange-border: rgba(99, 243, 255, 0.32);
+  --wm-green: #35d39a;
+  --wm-red: #f2705f;
+  --wm-blue: #6492ff;
+
+  /* Brand-accent aliases used by the navhub fallbacks */
+  --wm-aqua: #5fd6d2;
+  --wm-aqua-soft: #5fd6d2;
+  --wm-soft: #9aacbe;
+  --wm-muted: #8597aa;
+  --wm-white: #eef5fb;
+  --wm-line: rgba(150, 172, 196, 0.12);
+  --wm-glow: none;
+
+  /* Radius ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â one disciplined scale */
+  --wm-radius-lg: 12px;
+  --wm-radius-xl: 14px;
+  --wm-radius-2xl: 16px;
+
+  /* Type weights ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â quieter hierarchy */
+  --wm-weight-body: 450;
+  --wm-weight-ui: 600;
+  --wm-weight-heading: 700;
+  --wm-weight-strong: 800;
+  --wm-tracking-heading: -0.02em;
+
+  /* Shadows ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â single, subtle */
+  --wm-shadow-panel: 0 10px 30px rgba(0, 0, 0, 0.32);
+  --wm-shadow-card: 0 8px 22px rgba(0, 0, 0, 0.22);
+
+  /* Authority-UI token set */
+  --wm-ui-page-bg: #0a1019;
+  --wm-ui-panel-bg: #0b121c;
+  --wm-ui-card-bg: #111b27;
+  --wm-ui-border: rgba(99, 243, 255, 0.22);
+  --wm-ui-border-muted: rgba(150, 172, 196, 0.14);
+  --wm-ui-heading: #eef5fb;
+  --wm-ui-body: #c4d3e2;
+  --wm-ui-muted: #8597aa;
+  --wm-ui-decision: #f5b740;
+  --wm-ui-decision-strong: #d99a30;
+  --wm-ui-forward: #35d39a;
+  --wm-ui-forward-strong: #1f9e6f;
+  --wm-ui-radius-sm: 8px;
+  --wm-ui-radius-md: 10px;
+  --wm-ui-radius-lg: 12px;
+  --wm-ui-shadow-card: 0 8px 22px rgba(0, 0, 0, 0.22);
+
+  /* "Uniform title" heading system ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â headings go near-white, aqua becomes
+     a soft accent reserved for small labels. */
+  --wm-uniform-title: #eef5fb;
+  --wm-uniform-title-soft: #7fd8e6;
+  --wm-uniform-text: #e8f0f8;
+  --wm-uniform-muted: rgba(226, 239, 250, 0.74);
+  --wm-uniform-border: rgba(99, 243, 255, 0.22);
+  --wm-uniform-border-strong: rgba(99, 243, 255, 0.40);
+  --wm-uniform-radius: 16px;
+}
+
+/* "Consistency" heading/panel system is scoped to the page host ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â override it
+   at the same selector so the later declaration wins. This is what turns the
+   aqua page headings near-white across every route. */
+html[data-wingman-route] .wingman-page-host {
+  --wm-consistency-title: #eef5fb;
+  --wm-consistency-title-soft: #7fd8e6;
+  --wm-consistency-text: #e8f0f8;
+  --wm-consistency-muted: rgba(226, 239, 250, 0.74);
+  --wm-consistency-border: rgba(99, 243, 255, 0.24);
+  --wm-consistency-border-strong: rgba(99, 243, 255, 0.42);
+  --wm-consistency-panel: #111b27;
+  --wm-consistency-panel-soft: #15212e;
+  --wm-consistency-hero: linear-gradient(135deg, #11212f 0%, #0c1622 70%);
+  --wm-consistency-shadow: 0 10px 30px rgba(0, 0, 0, 0.30);
+}
+
+/* ---- 2. Page & shell --------------------------------------------------- */
+body,
+.wingman-shell,
+.wingman-authority-shell {
+  background: #0a1019 !important;
+  color: var(--wm-text);
+}
+
+/* ---- 3. Sidebar -------------------------------------------------------- */
+.wingman-shell .wingman-sidebar {
+  background: #0b121c !important;
+  border-right: 1px solid var(--wm-border-dark) !important;
+  box-shadow: none !important;
+  padding: 16px 14px 14px !important;
+}
+
+/* Brand block: drop the bordered card, let the logo breathe */
+.wingman-shell .wingman-brand {
+  border: none !important;
+  background: transparent !important;
+  padding: 4px 6px 12px !important;
+  margin-bottom: 8px !important;
+  min-height: 0 !important;
+}
+
+.wingman-nav {
+  gap: 4px !important;
+}
+
+/* Nav links */
+.wingman-shell .wingman-nav-link {
+  min-height: 42px !important;
+  padding: 9px 11px !important;
+  border-radius: 10px !important;
+  border: 1px solid transparent !important;
+  color: var(--wm-text-muted) !important;
+  font-weight: 500 !important;
+  background: transparent !important;
+  transition: background .15s ease, color .15s ease, border-color .15s ease !important;
+}
+
+.wingman-shell .wingman-nav-link:hover {
+  background: rgba(255, 255, 255, 0.045) !important;
+  color: #d6e3f0 !important;
+}
+
+.wingman-shell .wingman-nav-link-active,
+.wingman-shell .wingman-nav-link.wingman-nav-link-active {
+  background: rgba(99, 243, 255, 0.10) !important;
+  border-color: rgba(99, 243, 255, 0.28) !important;
+  color: #bdf3f2 !important;
+  font-weight: 600 !important;
+}
+
+.wingman-shell .wingman-nav-link-active .wingman-nav-icon {
+  color: #7fe4e2 !important;
+}
+
+/* Sidebar profile / footer cards inherit the calmer panel look */
+.wingman-sidebar [class*="rounded"],
+.wingman-sidebar .wingman-panel {
+  border-radius: 12px !important;
+}
+
+/* ---- 4. Topbar --------------------------------------------------------- */
+.wingman-topbar {
+  background: #0b121c !important;
+  border-bottom: 1px solid var(--wm-border-dark) !important;
+  backdrop-filter: none !important;
+}
+
+.wingman-topbar-title p {
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
+  color: #eef5fb !important;
+}
+
+.wingman-topbar-title span {
+  color: var(--wm-text-muted) !important;
+}
+
+/* Primary action: aquaÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¾ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢blue gradient, dark ink */
+.wingman-new-project-button {
+  border-radius: 10px !important;
+  border: none !important;
+  color: #04121d !important;
+  font-weight: 600 !important;
+  background: linear-gradient(135deg, #63f3ff, #6492ff) !important;
+  box-shadow: none !important;
+}
+
+.wingman-new-project-button:hover {
+  filter: brightness(1.04) !important;
+}
+
+/* ---- 5. Panels & generic cards ---------------------------------------- */
+.wingman-panel,
+.wingman-page-hero {
+  background: var(--wm-panel) !important;
+  border: 1px solid var(--wm-border-light) !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+
+/* ---- 6. Dashboard / navigation hub ------------------------------------ */
+.wm-navhub-hero,
+.wm-navhub-secondary {
+  background: var(--wm-panel) !important;
+  border: 1px solid var(--wm-border-light) !important;
+  border-radius: 16px !important;
+  box-shadow: none !important;
+}
+
+/* Make the hero read as a hero: gradient surface, near-white headline */
+.wm-navhub-hero {
+  background: linear-gradient(135deg, #11212f 0%, #0c1622 70%) !important;
+}
+
+.wm-navhub-hero h1 {
+  color: #f3f8fc !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.wm-navhub-secondary h2 {
+  color: #eef5fb !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.015em !important;
+  font-size: clamp(1.2rem, 1.6vw, 1.45rem) !important;
+}
+
+.wm-navhub-hero p,
+.wm-navhub-secondary p {
+  color: var(--wm-text-soft) !important;
+}
+
+.wm-navhub-eyebrow,
+.wm-navhub-card-eyebrow {
+  color: #5fd6d2 !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.14em !important;
+}
+
+/* Destination cards */
+.wm-navhub-card,
+.wm-navhub-secondary-card {
+  background: var(--wm-panel) !important;
+  border: 1px solid var(--wm-border-light) !important;
+  border-radius: 15px !important;
+  box-shadow: none !important;
+  transition: transform .15s ease, border-color .15s ease, background .15s ease !important;
+}
+
+.wm-navhub-card:hover,
+.wm-navhub-card:focus-visible,
+.wm-navhub-secondary-card:hover,
+.wm-navhub-secondary-card:focus-visible {
+  transform: translateY(-2px) !important;
+  border-color: rgba(99, 243, 255, 0.40) !important;
+  background: #15212e !important;
+}
+
+.wm-navhub-card strong {
+  color: #eef5fb !important;
+  font-weight: 700 !important;
+  font-size: 1.05rem !important;
+}
+
+.wm-navhub-card p,
+.wm-navhub-card small {
+  color: #90a2b5 !important;
+}
+
+.wm-navhub-card-action {
+  color: #5fd6d2 !important;
+  font-weight: 600 !important;
+}
+
+/* Submode pills */
+.wm-navhub-submodes span {
+  border: 1px solid var(--wm-border-light) !important;
+  background: #16222f !important;
+  color: var(--wm-text-soft) !important;
+  border-radius: 999px !important;
+  font-weight: 500 !important;
+}
+
+/* ---- 7. Guru FAB ------------------------------------------------------- */
+.wingman-guru-fab,
+[class*="guru-fab"] {
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* ==========================================================================
+   8. Structural dashboard  (DashboardPage.tsx)
+   Hero CTAs + "resume last project" card + active-projects rail.
+   ========================================================================== */
+
+/* Hero now sits beside a resume card */
+.wm-dash-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 20px;
+  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 1100px) {
+  .wm-dash-top { grid-template-columns: 1fr; }
+}
+
+.wm-dash .wm-navhub-hero {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.wm-dash-hero-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+/* Buttons */
+.wm-dash-btn {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 17px;
+  border-radius: 11px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none !important;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all .15s ease;
+}
+.wm-dash-btn-primary { color: #04121d !important; background: linear-gradient(135deg, #63f3ff, #6492ff) !important; }
+.wm-dash-btn-primary:hover { filter: brightness(1.04); }
+.wm-dash-btn-ghost { color: #d6e3f0 !important; border-color: rgba(150, 172, 196, 0.24) !important; background: transparent !important; }
+.wm-dash-btn-ghost:hover { background: rgba(255, 255, 255, 0.045) !important; }
+.wm-dash-btn-accent { color: #bdf3f2 !important; border-color: rgba(99, 243, 255, 0.30) !important; background: rgba(99, 243, 255, 0.08) !important; }
+
+/* Resume card */
+.wm-dash-resume {
+  display: flex;
+  flex-direction: column;
+  background: #111b27;
+  border: 1px solid var(--wm-border-light);
+  border-radius: 16px;
+  padding: 20px;
+}
+.wm-dash-resume-eyebrow {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #647c8f;
+}
+.wm-dash-resume-title { margin-top: 10px; font-size: 1.05rem; line-height: 1.2; }
+.wm-dash-resume-meta { margin-top: 4px; font-size: 0.8rem; color: var(--wm-text-muted); }
+.wm-dash-resume-status { display: flex; align-items: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+.wm-dash-resume-updated { font-size: 0.72rem; color: #647688; }
+.wm-dash-resume-next {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--wm-border-dark);
+  color: #5fd6d2;
+}
+.wm-dash-resume-next > div { display: flex; flex-direction: column; }
+.wm-dash-resume-next-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #647c8f; }
+.wm-dash-resume-next-text { margin-top: 3px; font-size: 0.82rem; color: #c4d3e2; }
+.wm-dash-resume-cta { margin-top: 18px; justify-content: center; }
+
+/* Active-projects rail */
+.wm-dash-projects { margin-top: 26px; }
+.wm-dash-projects-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.wm-dash-viewall { font-size: 0.8rem; font-weight: 600; color: #5fd6d2 !important; text-decoration: none !important; }
+.wm-dash-projects-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+
+@media (max-width: 1100px) {
+  .wm-dash-projects-grid { grid-template-columns: 1fr; }
+}
+
+.wm-dash-project-card {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 17px;
+  border-radius: 15px;
+  background: #111b27;
+  border: 1px solid var(--wm-border-light);
+  text-decoration: none !important;
+  transition: transform .15s ease, border-color .15s ease;
+}
+.wm-dash-project-card:hover { transform: translateY(-2px); border-color: rgba(99, 243, 255, 0.40); }
+.wm-dash-project-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.wm-dash-project-updated { font-size: 0.72rem; color: #647688; }
+.wm-dash-project-name { margin-top: 12px; font-size: 0.98rem; line-height: 1.2; }
+.wm-dash-project-meta { margin-top: 4px; font-size: 0.78rem; color: var(--wm-text-muted); }
+.wm-dash-project-next {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 13px;
+  padding-top: 13px;
+  border-top: 1px solid var(--wm-border-dark);
+  color: #9aacbe;
+  font-size: 0.78rem;
+}
+.wm-dash-project-next svg { color: #5fd6d2; flex: 0 0 auto; }
+
+/* Keep status chips on one line in the resume card and rail */
+.wm-dash-resume-status > span:first-child,
+.wm-dash-project-top > span:first-child { white-space: nowrap; }
+
+/* ==========================================================================
+   9. Compare results  (ComparePageNew.tsx ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â .compare-native-* + matrix)
+   ========================================================================== */
+.compare-native-stage-card,
+.compare-native-card,
+.compare-native-best-card,
+.compare-native-summary,
+.compare-native-product-card {
+  background: #111b27 !important;
+  border: 1px solid var(--wm-border-light) !important;
+  box-shadow: none !important;
+}
+.compare-native-results { border-radius: 16px !important; }
+.compare-native-card,
+.compare-native-stage-card,
+.compare-native-summary,
+.compare-native-product-card { border-radius: 14px !important; }
+
+/* Verdict banner card */
+.compare-native-best-card {
+  border-radius: 16px !important;
+  border-color: rgba(99, 243, 255, 0.30) !important;
+  background: linear-gradient(135deg, rgba(99, 243, 255, 0.06), #111b27 62%) !important;
+}
+.compare-native-section-title {
+  border: 1px solid var(--wm-border-light) !important;
+  background: #0e1722 !important;
+  border-radius: 12px !important;
+}
+
+/* Verdict + score pills */
+.compare-native-verdict,
+.compare-native-score {
+  border: 1px solid rgba(245, 183, 64, 0.32) !important;
+  background: rgba(245, 183, 64, 0.12) !important;
+  color: #f5c463 !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  white-space: nowrap !important;
+}
+.compare-native-verdict {
+  font-size: 0.82rem !important;
+  padding: 0.32rem 0.72rem !important;
+}
+.compare-native-verdict.is-good {
+  border-color: rgba(53, 211, 154, 0.42) !important;
+  background: rgba(53, 211, 154, 0.14) !important;
+  color: #5ee0ab !important;
+}
+.compare-native-verdict.is-partial {
+  border-color: rgba(245, 183, 64, 0.42) !important;
+  background: rgba(245, 183, 64, 0.14) !important;
+  color: #f5c463 !important;
+}
+.compare-native-verdict.is-no-match {
+  border-color: rgba(242, 112, 95, 0.42) !important;
+  background: rgba(242, 112, 95, 0.14) !important;
+  color: #ff9c8c !important;
+}
+.compare-native-score {
+  border-color: rgba(150, 172, 196, 0.20) !important;
+  background: #16222f !important;
+  color: var(--wm-text-soft) !important;
+  font-weight: 600 !important;
+}
+
+/* Product names near-white; option cards on the calm panel */
+.compare-native-product-card h3,
+.compare-native-option-card h3 { color: #eef5fb !important; }
+.compare-native-option-card {
+  border-radius: 14px !important;
+  background: #111b27 !important;
+  border-color: var(--wm-border-light) !important;
+}
+
+/* Specification matrix (CompareSpecificationMatrix.tsx) */
+[data-compare-matrix] {
+  background: #111b27 !important;
+  border: 1px solid var(--wm-border-light) !important;
+  box-shadow: none !important;
+  border-radius: 16px !important;
+}
+[data-compare-matrix] h4 { color: #7fe4e2 !important; }
+[data-wingman-comparison-matrix-scroll] { border-color: var(--wm-border-light) !important; }
+[data-compare-matrix] thead { background: #0e1722 !important; }
+[data-compare-matrix] tbody tr { background: #111b27 !important; }
+[data-compare-matrix] tbody tr:hover { background: #15212e !important; }
+
+/* ==========================================================================
+   10. Finder + legacy dark-palette retone
+   The Finder (and several other pages) style panels with Tailwind arbitrary
+   colours from the old palette. Retoning those utilities re-skins Finder and
+   improves consistency app-wide.
+   ========================================================================== */
+.bg-\[\#0d2133\] { background-color: #111b27 !important; }
+.bg-\[\#071522\] { background-color: #0e1722 !important; }
+.bg-\[\#081724\] { background-color: #111b27 !important; }
+.bg-\[\#10263a\] { background-color: #13243a !important; }
+.border-\[\#29465e\] { border-color: rgba(150, 172, 196, 0.16) !important; }
+
+/* Finder result cards + panels */
+.wm-finder-result-card {
+  background: #111b27 !important;
+  border: 1px solid var(--wm-border-light) !important;
+  border-radius: 14px !important;
+  box-shadow: none !important;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.wm-finder-result-card:hover { border-color: rgba(99, 243, 255, 0.40) !important; }
+.finder-active-step-panel,
+.wm-finder-results-panel { border-radius: 14px !important; }
+.finder-active-step-panel {
+  background: #111b27 !important;
+  border: 1px solid var(--wm-border-light) !important;
+  box-shadow: none !important;
+}
+.finder-family-ranking-note {
+  color: #7fe4e2 !important;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Fit-score pill reads as the card's accent metric */
+.wm-finder-fit {
+  background: rgba(99, 243, 255, 0.12) !important;
+  border: 1px solid rgba(99, 243, 255, 0.28) !important;
+  color: #9fe9e7 !important;
+}
+
+/* ==========================================================================
+   11. Light-page ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¾ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ dark conversion
+   Several pages (Intelligence, Glossary / Diagram, Profile, the Templates
+   workflow, signal panels) were built on a white-card / dark-ink theme that
+   clashes with the dark shell. Flip those families to the dark system ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â
+   background + border + text + accents together so nothing is unreadable.
+   ========================================================================== */
+
+/* --- surfaces (panels, cards, heros, editors) ------------------------- */
+.wm-intel-hero, .wm-intel-stats, .wm-intel-tabs, .wm-intel-record-list,
+.wm-intel-panel, .wm-intel-subsection, .wm-intel-approval-box,
+.wm-intel-guidance, .wm-intel-governance, .wm-intel-editor, .wm-intel-record,
+.wm-glossary-results-head, .wm-glossary-detail-head, .wm-glossary-search,
+.wm-glossary-say-panel, .wm-glossary-related, .wm-glossary-two-column section,
+.wm-glossary-definition-grid section, .wm-glossary-audience,
+.wm-diagram-card, .wm-diagram-card-head, .wm-diagram-preview,
+.wm-diagram-preview-head, .wm-diagram-next-action, .wm-diagram-review-grid section,
+.wm-profile-card, .wm-profile-grid, .wm-profile-hero,
+.wm-template-market-card, .wm-template-room-card, .wm-signal-warning-panel {
+  background: #111b27 !important;
+  border-color: var(--wm-border-light) !important;
+  box-shadow: none !important;
+}
+
+/* --- headings near-white ---------------------------------------------- */
+[class*="wm-intel-"] :is(h1, h2, h3, h4),
+[class*="wm-glossary-"] :is(h1, h2, h3, h4),
+[class*="wm-diagram-"] :is(h1, h2, h3, h4),
+[class*="wm-profile-"] :is(h1, h2, h3, h4),
+.wm-template-market-card :is(h2, h3, h4),
+.wm-template-room-card :is(h2, h3, h4) {
+  color: #eef5fb !important;
+}
+
+/* --- body / list / cell text soft ------------------------------------- */
+[class*="wm-intel-"] :is(p, li, td, strong, label, dd, dt),
+[class*="wm-glossary-"] :is(p, li, td, strong, label, dd, dt),
+[class*="wm-diagram-"] :is(p, li, td, strong, label),
+[class*="wm-profile-"] :is(p, li, td, strong, label),
+.wm-template-market-card :is(p, li, span),
+.wm-template-room-card :is(p, li, span) {
+  color: #9aacbe !important;
+}
+
+/* --- eyebrows / kickers become aqua accents --------------------------- */
+.wm-intel-hero p, .wm-intel-panel-head span, .wm-intel-subsection-head p,
+.wm-glossary-results-head span, .wm-glossary-detail-head span,
+.wm-diagram-card-head span, .wm-diagram-preview-head span,
+.wm-profile-hero span {
+  color: #5fd6d2 !important;
+}
+
+/* --- inputs / selects / textareas ------------------------------------- */
+[class*="wm-intel-"] :is(input, select, textarea),
+[class*="wm-glossary-"] :is(input, select, textarea),
+[class*="wm-diagram-"] :is(input, select, textarea),
+[class*="wm-profile-"] :is(input, select, textarea) {
+  background: #0e1722 !important;
+  color: #e8f0f8 !important;
+  border-color: var(--wm-border-light) !important;
+}
+
+/* --- small light pills / tags / chips inside these pages -------------- */
+[class*="wm-intel-"] [class*="tag"], [class*="wm-intel-"] [class*="chip"],
+[class*="wm-glossary-"] [class*="tag"], [class*="wm-glossary-"] [class*="chip"],
+[class*="wm-diagram-"] [class*="tag"], [class*="wm-profile-"] [class*="chip"] {
+  background: #16222f !important;
+  border-color: var(--wm-border-light) !important;
+  color: #c4d3e2 !important;
+}
+
+/* --- primary buttons on these pages keep the brand gradient ----------- */
+.wm-intel-primary-button, .wm-intel-hero button,
+.wm-glossary-audience button[aria-pressed="true"] {
+  background: linear-gradient(135deg, #63f3ff, #6492ff) !important;
+  color: #04121d !important;
+  border: none !important;
+}
+
+/* SVG icons in these heads were amber ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â make them aqua */
+.wm-intel-hero svg, .wm-glossary-say-panel svg,
+.wm-glossary-definition-grid svg, .wm-diagram-card-head svg {
+  color: #7fe4e2 !important;
+}
+
+/* ==========================================================================
+   12. Cross-route consistency repairs
+   Browser audit follow-ups for controls and headings that retained legacy
+   light surfaces or accent-heading rules after the dark conversion.
+   ========================================================================== */
+
+.wm-diagram-template-list button {
+  background: #0e1722 !important;
+  border-color: var(--wm-border-light) !important;
+  color: #9aacbe !important;
+}
+
+.wm-diagram-template-list button:hover {
+  background: #15212e !important;
+  border-color: rgba(99, 243, 255, 0.40) !important;
+}
+
+.wm-diagram-template-list button.is-active {
+  background: rgba(99, 243, 255, 0.10) !important;
+  border-color: rgba(99, 243, 255, 0.34) !important;
+  color: #eef5fb !important;
+}
+
+.wm-diagram-template-list button :is(strong, span) {
+  color: inherit !important;
+}
+
+.wm-glossary-detail-actions button {
+  background: #0e1722 !important;
+  border-color: var(--wm-border-light) !important;
+  color: #c4d3e2 !important;
+}
+
+.wm-glossary-detail-actions a {
+  background: rgba(99, 243, 255, 0.10) !important;
+  border-color: rgba(99, 243, 255, 0.30) !important;
+  color: #bdf3f2 !important;
+}
+
+html[data-wingman-route="salesHelper"] .wm-sh-page-hero h1 {
+  color: #eef5fb !important;
+}
+
+/* The live Intelligence route uses the longer wm-intelligence-* class family.
+   Give that real markup the same dark card system as the legacy wm-intel-* UI. */
+.wm-intelligence-page {
+  width: 100%;
+  display: grid !important;
+  gap: 16px !important;
+}
+
+html[data-wingman-route="intelligence"] .wingman-page-host .wm-intelligence-page > .wm-navhub-hero {
+  display: block !important;
+  padding: 24px !important;
+}
+
+html[data-wingman-route="intelligence"] .wingman-page-host .wm-intelligence-page > .wm-navhub-hero h1 {
+  position: static !important;
+  display: block !important;
+  width: 100% !important;
+  max-width: 820px !important;
+  margin: 5px 0 8px !important;
+  color: #eef5fb !important;
+  text-align: left !important;
+  float: none !important;
+}
+
+html[data-wingman-route="intelligence"] .wingman-page-host .wm-intelligence-page > .wm-navhub-hero p {
+  max-width: 820px;
+  margin: 0 !important;
+  color: #c4d3e2 !important;
+}
+
+html[data-wingman-route="intelligence"] .wingman-page-host .wm-intelligence-page > .wm-navhub-hero .wm-navhub-eyebrow {
+  margin-bottom: 6px !important;
+  color: #5fd6d2 !important;
+}
+
+.wm-intelligence-stats {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  padding: 12px !important;
+  background: #111b27 !important;
+  border: 1px solid var(--wm-border-light) !important;
+  border-radius: 14px !important;
+}
+
+.wm-intelligence-stat {
+  min-width: 0;
+  display: grid !important;
+  gap: 4px !important;
+  padding: 12px 14px !important;
+  background: #0e1722 !important;
+  border: 1px solid var(--wm-border-dark) !important;
+  border-radius: 10px !important;
+}
+
+.wm-intelligence-stat-value {
+  color: #eef5fb !important;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.wm-intelligence-stat-label {
+  color: #8597aa !important;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wm-intelligence-filters {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 190px) minmax(150px, 190px) !important;
+  gap: 12px !important;
+  align-items: end;
+  padding: 14px !important;
+  background: #111b27 !important;
+  border: 1px solid var(--wm-border-light) !important;
+  border-radius: 14px !important;
+}
+
+.wm-intelligence-search,
+.wm-intelligence-filter-group {
+  min-width: 0;
+}
+
+.wm-intelligence-filter-group {
+  display: grid !important;
+  gap: 6px !important;
+}
+
+.wm-intelligence-filter-group label {
+  color: #7fd8e6 !important;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wm-intelligence-search-input,
+.wm-intelligence-filter-select {
+  width: 100% !important;
+  min-height: 40px;
+  padding: 0 12px;
+  background: #0e1722 !important;
+  border: 1px solid rgba(99, 243, 255, 0.22) !important;
+  border-radius: 10px !important;
+  color: #e8f0f8 !important;
+}
+
+.wm-intelligence-records {
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.wm-intelligence-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: 12px !important;
+}
+
+.wm-intelligence-card {
+  min-width: 0;
+  display: grid !important;
+  align-content: start;
+  gap: 10px !important;
+  padding: 16px !important;
+  background: #111b27 !important;
+  border: 1px solid var(--wm-border-light) !important;
+  border-radius: 14px !important;
+}
+
+.wm-intelligence-card-header,
+.wm-intelligence-card-meta,
+.wm-intelligence-card-body,
+.wm-intelligence-approved-for {
+  display: flex !important;
+  align-items: center;
+  gap: 8px !important;
+  flex-wrap: wrap;
+}
+
+.wm-intelligence-card-header,
+.wm-intelligence-card-meta {
+  justify-content: space-between;
+}
+
+.wm-intelligence-card-body {
+  align-items: baseline;
+}
+
+.wm-intelligence-sku {
+  color: #eef5fb !important;
+  font-size: 1rem;
+}
+
+.wm-intelligence-name,
+.wm-intelligence-brand,
+.wm-intelligence-class,
+.wm-intelligence-confidence,
+.wm-intelligence-purpose,
+.wm-intelligence-notes {
+  color: #9aacbe !important;
+}
+
+.wm-intelligence-purpose,
+.wm-intelligence-notes {
+  margin: 0 !important;
+  line-height: 1.45;
+}
+
+.wm-intelligence-status,
+.wm-intelligence-source-type,
+.wm-intelligence-surface-tag {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  min-height: 24px;
+  padding: 3px 8px;
+  background: #16222f !important;
+  border: 1px solid var(--wm-border-light);
+  border-radius: 999px;
+  color: #c4d3e2 !important;
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.wm-intelligence-status.wm-status-approved {
+  background: rgba(53, 211, 154, 0.12) !important;
+  border-color: rgba(53, 211, 154, 0.32);
+  color: #5ee0ab !important;
+}
+
+.wm-intelligence-status.wm-status-needs-review {
+  background: rgba(245, 183, 64, 0.12) !important;
+  border-color: rgba(245, 183, 64, 0.32);
+  color: #f5c463 !important;
+}
+
+.wm-intelligence-status.wm-status-rejected {
+  background: rgba(242, 112, 95, 0.12) !important;
+  border-color: rgba(242, 112, 95, 0.32);
+  color: #ff9c8c !important;
+}
+
+.wm-intelligence-related {
+  padding: 16px !important;
+  background: #111b27 !important;
+  border: 1px solid var(--wm-border-light) !important;
+  border-radius: 14px !important;
+}
+
+.wm-intelligence-related h2 {
+  margin: 0 0 12px;
+  color: #eef5fb !important;
+}
+
+[data-wingman-voice-capture="true"] > button[aria-label^="Dictate"] {
+  background: #16222f !important;
+  border-color: rgba(99, 243, 255, 0.28) !important;
+  color: #7fe4e2 !important;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28) !important;
+}
+
+[data-wingman-voice-capture="true"] > button[aria-label^="Stop"] {
+  background: rgba(242, 112, 95, 0.18) !important;
+  border-color: rgba(242, 112, 95, 0.42) !important;
+  color: #ff9c8c !important;
+}
+
+@media (max-width: 900px) {
+  .wm-intelligence-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .wm-intelligence-filters {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 560px) {
+  .wm-intelligence-stats,
+  .wm-intelligence-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* The legacy home page forced every <a> to min-height:150px + pill radius
+   (it was a grid of big card-links). Neutralise that for the new buttons,
+   project cards and the "view all" link. */
+.wm-home-page a.wm-dash-btn,
+.wm-home-page a.wm-dash-project-card,
+.wm-home-page a.wm-dash-viewall,
+.wm-dash a.wm-dash-btn,
+.wm-dash a.wm-dash-project-card,
+.wm-dash a.wm-dash-viewall {
+  min-height: 0 !important;
+  height: auto !important;
+}
+.wm-home-page a.wm-dash-btn,
+.wm-dash a.wm-dash-btn { border-radius: 11px !important; }
+.wm-home-page a.wm-dash-project-card,
+.wm-dash a.wm-dash-project-card { border-radius: 15px !important; }
+
+/* ==========================================================================
+   13. Professional Visual Studio schematic sheet
+   Device symbols, orthogonal colour-coded signal paths, drawing metadata and
+   a compact engineering title block inspired by conventional AV schematics.
+   ========================================================================== */
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-layout {
+  grid-template-columns: minmax(180px, 210px) minmax(0, 1fr) minmax(180px, 220px) !important;
+  gap: 12px !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-canvas {
+  border-color: #94a3b8 !important;
+  border-radius: 8px !important;
+  background: #f8fafc !important;
+  box-shadow: 0 16px 34px rgba(1, 8, 15, 0.24) !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-canvas-stage {
+  isolation: isolate;
+  background:
+    linear-gradient(rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+    #f8fafc !important;
+  background-size: 24px 24px !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-canvas .react-flow__viewport {
+  transform-origin: 0 0 !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-canvas .react-flow__edges {
+  width: 100% !important;
+  height: 100% !important;
+  overflow: visible !important;
+  z-index: 2 !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-canvas .react-flow__nodes {
+  z-index: 3 !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-canvas .react-flow__edgelabel-renderer {
+  z-index: 4 !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-sheet-header {
+  position: absolute;
+  inset: 12px 12px auto;
+  z-index: 8;
+  min-height: 52px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 7px 10px;
+  border: 1px solid rgba(71, 85, 105, 0.52);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08);
+  color: #0f172a;
+  pointer-events: none;
+}
+
+.wm-vs-sheet-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wm-vs-sheet-brand > span {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: linear-gradient(145deg, #0e7490, #2563eb);
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.wm-vs-sheet-brand > div,
+.wm-vs-sheet-title,
+.wm-vs-sheet-number {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.wm-vs-sheet-brand strong,
+.wm-vs-sheet-title strong,
+.wm-vs-sheet-number strong {
+  overflow: hidden;
+  color: #0f172a !important;
+  font-size: 0.68rem;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-sheet-header .wm-vs-sheet-brand strong,
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-sheet-header .wm-vs-sheet-title strong,
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-sheet-header .wm-vs-sheet-number strong {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+.wm-vs-sheet-brand small,
+.wm-vs-sheet-title span,
+.wm-vs-sheet-number span {
+  overflow: hidden;
+  color: #64748b !important;
+  font-size: 0.52rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.06em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-sheet-header .wm-vs-sheet-brand small,
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-sheet-header .wm-vs-sheet-title span,
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-sheet-header .wm-vs-sheet-number span {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+.wm-vs-sheet-title {
+  padding-left: 12px;
+  border-left: 1px solid #cbd5e1;
+}
+
+.wm-vs-sheet-title strong {
+  font-size: 0.78rem;
+}
+
+.wm-vs-sheet-number {
+  justify-items: end;
+  padding-left: 12px;
+  border-left: 1px solid #cbd5e1;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-signal-legend {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 8px;
+  border: 1px solid rgba(100, 116, 139, 0.4);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #334155;
+  font-size: 0.55rem;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.wm-vs-signal-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wm-vs-signal-legend i {
+  width: 13px;
+  height: 3px;
+  display: inline-block;
+  border-radius: 999px;
+  background: #475569;
+}
+
+.wm-vs-signal-legend i[data-signal="video"] { background: #2563eb; }
+.wm-vs-signal-legend i[data-signal="usb"] { background: #7c3aed; }
+.wm-vs-signal-legend i[data-signal="network"] { background: #059669; }
+.wm-vs-signal-legend i[data-signal="audio"] { background: #d97706; }
+.wm-vs-signal-legend i[data-signal="control"] { background: #475569; }
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-flow-node {
+  width: 252px !important;
+  min-width: 252px !important;
+  max-width: 252px !important;
+  min-height: 142px;
+  border: 1px solid #64748b !important;
+  border-radius: 7px !important;
+  padding: 11px 12px 9px !important;
+  background: linear-gradient(180deg, #ffffff, #f1f5f9) !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 0 rgba(15, 23, 42, 0.16), 0 8px 18px rgba(15, 23, 42, 0.1) !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-flow-node.wm-vs-node-emphasis-primary {
+  width: 330px !important;
+  min-width: 330px !important;
+  max-width: 330px !important;
+  min-height: 164px;
+  border: 2px solid #0f766e !important;
+  padding: 13px 14px 11px !important;
+  background: linear-gradient(180deg, #ffffff, #ecfeff) !important;
+  box-shadow: 0 3px 0 rgba(15, 118, 110, 0.22), 0 12px 22px rgba(15, 23, 42, 0.12) !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-flow-node.wm-vs-node-emphasis-compact {
+  width: 218px !important;
+  min-width: 218px !important;
+  max-width: 218px !important;
+  min-height: 124px;
+}
+
+.wm-vs-node-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+
+.wm-vs-node-symbol {
+  width: 35px;
+  height: 31px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #94a3b8;
+  border-radius: 6px;
+  background: linear-gradient(145deg, #f8fafc, #e2e8f0);
+  color: #334155;
+}
+
+.wm-vs-node-reference {
+  color: #64748b !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-node-kicker {
+  color: #0e7490 !important;
+  font-size: 0.56rem !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-node-title {
+  margin-top: 4px !important;
+  color: #0f172a !important;
+  font-size: 0.94rem !important;
+  line-height: 1.12 !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-node-subtitle {
+  margin-top: 4px !important;
+  color: #475569 !important;
+  font-size: 0.67rem !important;
+  line-height: 1.28 !important;
+}
+
+.wm-vs-node-connections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px solid #cbd5e1;
+}
+
+.wm-vs-node-connections span {
+  max-width: 100%;
+  overflow: hidden;
+  padding: 3px 5px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #f8fafc;
+  color: #334155 !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.52rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wm-vs-node-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 0.54rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.wm-vs-node-status > span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #64748b;
+}
+
+.wm-vs-node-recommended .wm-vs-node-status > span { background: #059669; }
+.wm-vs-node-optional .wm-vs-node-status > span { background: #2563eb; }
+.wm-vs-node-missing .wm-vs-node-status > span { background: #d97706; }
+.wm-vs-node-risk .wm-vs-node-status > span { background: #c2410c; }
+
+.wm-vs-node-kind-display .wm-vs-node-symbol { color: #2563eb; }
+.wm-vs-node-kind-camera .wm-vs-node-symbol { color: #7c3aed; }
+.wm-vs-node-kind-network .wm-vs-node-symbol { color: #059669; }
+.wm-vs-node-kind-audio .wm-vs-node-symbol { color: #d97706; }
+.wm-vs-node-kind-usb .wm-vs-node-symbol { color: #7c3aed; }
+.wm-vs-node-kind-warning .wm-vs-node-symbol { color: #c2410c; }
+.wm-vs-node-kind-controller .wm-vs-node-symbol { color: #475569; }
+
+.wm-vs-node-handle {
+  width: 7px !important;
+  height: 7px !important;
+  border: 1px solid #ffffff !important;
+  background: #334155 !important;
+  opacity: 0.95;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-signal-video .react-flow__edge-path {
+  stroke: #2563eb !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-canvas .react-flow__edge-path {
+  stroke-width: 2.2px !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-signal-usb .react-flow__edge-path {
+  stroke: #7c3aed !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-signal-network .react-flow__edge-path {
+  stroke: #059669 !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-signal-audio .react-flow__edge-path {
+  stroke: #d97706 !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-signal-control .react-flow__edge-path {
+  stroke: #475569 !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-signal-validation .react-flow__edge-path {
+  stroke: #c2410c !important;
+  stroke-dasharray: 6 4 !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .react-flow__edge-textbg {
+  fill: rgba(255, 255, 255, 0.98) !important;
+  stroke-width: 0.75px !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .react-flow__edge-text {
+  fill: #1f2937 !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.015em !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-schematic-footer {
+  grid-template-columns: 1.15fr 0.9fr 1.8fr 1.15fr 1fr 1.4fr !important;
+  border-top: 2px solid #0f172a !important;
+  background: #ffffff !important;
+}
+
+html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-schematic-footer > div {
+  min-height: 50px;
+  padding: 7px 8px !important;
+  border-right: 1px solid #475569 !important;
+}
+
+.wm-vs-titleblock-brand {
+  background: linear-gradient(145deg, #f8fafc, #e2e8f0);
+}
+
+.wm-vs-titleblock-brand strong {
+  color: #0e7490 !important;
+  font-size: 0.74rem !important;
+}
+
+@media (max-width: 1400px) {
+  html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-flow-node {
+    width: 232px !important;
+    min-width: 232px !important;
+    max-width: 232px !important;
+  }
+
+  html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-flow-node.wm-vs-node-emphasis-primary {
+    width: 300px !important;
+    min-width: 300px !important;
+    max-width: 300px !important;
+  }
+
+  html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-flow-node.wm-vs-node-emphasis-compact {
+    width: 202px !important;
+    min-width: 202px !important;
+    max-width: 202px !important;
+  }
+}
+
+@media (max-width: 1050px) {
+  html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-sheet-header {
+    grid-template-columns: 1fr auto;
+  }
+
+  .wm-vs-sheet-brand {
+    display: none;
+  }
+
+  html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-schematic-footer {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+/* WINGMAN NATURAL VIEWPORT SCALING - START */
+/* Disable fixed 2K/4K design-canvas scaling. Wingman should respond naturally to the user's browser viewport. */
+
+html[data-wingman-route],
+html[data-wingman-screen-fit],
+html[data-wingman-canvas-scaling] {
+  --wm-target-width: 100vw !important;
+  --wm-target-height: 100vh !important;
+  --wm-physical-target-width: 100vw !important;
+  --wm-physical-target-height: 100vh !important;
+  --wm-stage-width: auto !important;
+  --wm-stage-height: auto !important;
+  --wm-fit-scale: 1 !important;
+  --wm-visual-scale: 1 !important;
+  --wm-page-scale: 1 !important;
+  --wm-screen-density: 1 !important;
+  --wm-fit-scale-percent: 100% !important;
+  --wm-visual-scale-percent: 100% !important;
+  --wm-scaled-target-left: 0px !important;
+  --wm-scaled-target-top: 0px !important;
+}
+
+html[data-wingman-route],
+html[data-wingman-route] body,
+html[data-wingman-route] #root,
+html[data-wingman-route] .wingman-shell,
+html[data-wingman-route] .wingman-workspace,
+html[data-wingman-route] .wingman-app-main,
+html[data-wingman-route] .wingman-page-host {
+  transform: none !important;
+  scale: 1 !important;
+  zoom: 1 !important;
+}
+
+html[data-wingman-route] .wingman-workspace,
+html[data-wingman-route] .wingman-app-main {
+  width: auto !important;
+  max-width: none !important;
+}
+
+html[data-wingman-route] .wingman-page-host {
+  width: min(100%, 1480px) !important;
+  max-width: 1480px !important;
+  margin-inline: auto !important;
+}
+
+/* Hide the removed viewport-fit selector UI if any stale markup remains mounted. */
+html[data-wingman-route] :is(
+  .wm-viewport-fit-control,
+  .wingman-viewport-fit-control,
+  .wm-screen-fit-control,
+  .wingman-screen-fit-control,
+  [data-wingman-fit-control],
+  [data-wingman-viewport-fit-control],
+  [data-wingman-screen-fit-control]
+) {
+  display: none !important;
+}
+/* WINGMAN NATURAL VIEWPORT SCALING - END */
+
+/* WINGMAN DASHBOARD STANDALONE V2 - CONTROLLED */
+/* Dashboard route only. Avoid pseudo-content hacks and neutralise screen-fit scaling. */
+
+html[data-wingman-route="dashboard"] {
+  --wm-fit-scale: 1 !important;
+  --wm-visual-scale: 1 !important;
+  --wm-page-scale: 1 !important;
+  --wm-stage-width: 100vw !important;
+  --wm-stage-height: 100vh !important;
+  --wm-scaled-target-left: 0px !important;
+  --wm-scaled-target-top: 0px !important;
+}
+
+html[data-wingman-route="dashboard"],
+html[data-wingman-route="dashboard"] body,
+html[data-wingman-route="dashboard"] #root {
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: none !important;
+  min-height: 100% !important;
+  overflow: hidden !important;
+  background: #0a1019 !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-shell {
+  display: block !important;
+  width: 100vw !important;
+  max-width: none !important;
+  min-height: 100vh !important;
+  overflow: hidden !important;
+  background: #0a1019 !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-sidebar,
+html[data-wingman-route="dashboard"] .wingman-mobile-shade,
+html[data-wingman-route="dashboard"] .wingman-topbar,
+html[data-wingman-route="dashboard"] .wingman-guru-floating {
+  display: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-workspace,
+html[data-wingman-route="dashboard"] .wingman-app-main,
+html[data-wingman-route="dashboard"] .wingman-page-host {
+  position: fixed !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100vw !important;
+  max-width: none !important;
+  height: 100vh !important;
+  max-height: none !important;
+  min-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  transform: none !important;
+  scale: 1 !important;
+  translate: none !important;
+  background: #0a1019 !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-page-host > main.wm-dash-target,
+html[data-wingman-route="dashboard"] main.wm-dash-target {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1000 !important;
+  display: grid !important;
+  grid-template-columns: 300px minmax(0, 1fr) !important;
+  grid-template-rows: auto auto auto !important;
+  gap: 24px 34px !important;
+  align-content: center !important;
+  width: 100vw !important;
+  max-width: none !important;
+  height: 100vh !important;
+  max-height: none !important;
+  min-height: 100vh !important;
+  margin: 0 !important;
+  padding: clamp(38px, 6vh, 72px) clamp(52px, 7vw, 110px) !important;
+  overflow: auto !important;
+  color: #e8f0f8 !important;
+  background:
+    radial-gradient(circle at 76% 18%, rgba(99, 243, 255, 0.07), transparent 34%),
+    #0a1019 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target::before,
+html[data-wingman-route="dashboard"] .wm-dash-target::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Convert the existing hero into the left standalone card. */
+html[data-wingman-route="dashboard"] .wm-dash-target-top {
+  grid-column: 1 / -1 !important;
+  grid-row: 1 !important;
+  display: grid !important;
+  grid-template-columns: 300px minmax(0, 1fr) !important;
+  gap: 34px !important;
+  min-width: 0 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-hero {
+  grid-column: 1 !important;
+  grid-row: 1 / span 3 !important;
+  min-height: 520px !important;
+  justify-content: flex-start !important;
+  padding: 28px !important;
+  border-radius: 24px !important;
+  border: 1px solid #1b2735 !important;
+  background:
+    radial-gradient(circle at 45% 22%, rgba(99, 243, 255, 0.12), transparent 30%),
+    linear-gradient(180deg, #0b121c 0%, #09101a 100%) !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-hero .wm-dash-target-eyebrow {
+  color: #63f3ff !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-hero h1 {
+  max-width: 260px !important;
+  margin-top: 12px !important;
+  font-size: clamp(2.25rem, 3vw, 3.55rem) !important;
+  line-height: 0.92 !important;
+  letter-spacing: -0.06em !important;
+  color: #f3f8fc !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-hero p {
+  max-width: 260px !important;
+  margin-top: 22px !important;
+  color: #b8c9da !important;
+  font-size: 14.5px !important;
+  line-height: 1.55 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-actions {
+  display: grid !important;
+  gap: 10px !important;
+  margin-top: auto !important;
+  padding-top: 28px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-button {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 42px !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  padding: 11px 16px !important;
+  border-radius: 12px !important;
+  font-size: 13.5px !important;
+  line-height: 1.1 !important;
+  text-align: center !important;
+  white-space: normal !important;
+  transform: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-button-primary {
+  color: #04121d !important;
+  background: #63f3ff !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-button-ghost,
+html[data-wingman-route="dashboard"] .wm-dash-target-button-accent {
+  color: #d6e3f0 !important;
+  border: 1px solid rgba(99, 243, 255, 0.28) !important;
+  background: rgba(99, 243, 255, 0.07) !important;
+}
+
+/* Right top card. */
+html[data-wingman-route="dashboard"] .wm-dash-target-resume {
+  grid-column: 2 !important;
+  min-height: 200px !important;
+  padding: 24px !important;
+  border-radius: 24px !important;
+  border: 1px solid #1b2735 !important;
+  background: #11212f !important;
+}
+
+/* Primary cards become the two lower/right rows. */
+html[data-wingman-route="dashboard"] .wm-dash-target-section {
+  grid-column: 2 !important;
+  display: grid !important;
+  gap: 14px !important;
+  min-width: 0 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-section:nth-of-type(1) {
+  grid-row: 2 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-section:nth-of-type(2) {
+  grid-row: 3 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-grid,
+html[data-wingman-route="dashboard"] .wm-dash-target-projects {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card,
+html[data-wingman-route="dashboard"] .wm-dash-target-project,
+html[data-wingman-route="dashboard"] .wm-dash-target-empty {
+  min-height: 174px !important;
+  padding: 22px !important;
+  border-radius: 24px !important;
+  border: 1px solid #1b2735 !important;
+  background: #111b27 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card:hover,
+html[data-wingman-route="dashboard"] .wm-dash-target-project:hover {
+  border-color: rgba(99, 243, 255, 0.38) !important;
+  background: #15212e !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-icon {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 12px !important;
+  color: #7fe4e2 !important;
+  background: rgba(99, 243, 255, 0.10) !important;
+  border: 1px solid rgba(99, 243, 255, 0.22) !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card strong,
+html[data-wingman-route="dashboard"] .wm-dash-target-project strong,
+html[data-wingman-route="dashboard"] .wm-dash-target-section h2 {
+  color: #eef5fb !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card p,
+html[data-wingman-route="dashboard"] .wm-dash-target-project p {
+  color: #90a2b5 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-eyebrow,
+html[data-wingman-route="dashboard"] .wm-dash-target-kicker,
+html[data-wingman-route="dashboard"] .wm-dash-target-card-action,
+html[data-wingman-route="dashboard"] .wm-dash-target-section-head a {
+  color: #5fd6d2 !important;
+}
+
+@media (max-width: 1100px) {
+  html[data-wingman-route="dashboard"] .wingman-page-host > main.wm-dash-target,
+  html[data-wingman-route="dashboard"] main.wm-dash-target {
+    align-content: start !important;
+    grid-template-columns: 1fr !important;
+    padding: 24px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-dash-target-top,
+  html[data-wingman-route="dashboard"] .wm-dash-target-grid,
+  html[data-wingman-route="dashboard"] .wm-dash-target-projects {
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-dash-target-hero,
+  html[data-wingman-route="dashboard"] .wm-dash-target-resume,
+  html[data-wingman-route="dashboard"] .wm-dash-target-section {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-dash-target-hero {
+    min-height: auto !important;
+  }
+}
+
+/* WINGMAN DASHBOARD ACTION RECTANGLE OVERRIDE */
+/* Last-mile dashboard fix: old validation attributes must not turn Home CTAs into huge square/circular tiles. */
+
+html[data-wingman-route="dashboard"] .wm-dash-target :is(
+  a[data-wingman-dashboard-primary-button],
+  a[data-wingman-dashboard-short-label],
+  .wm-dash-target-button,
+  .wm-dash-target-button-primary,
+  .wm-dash-target-button-ghost,
+  .wm-dash-target-button-accent
+) {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 42px !important;
+  max-height: 52px !important;
+  aspect-ratio: auto !important;
+  padding: 11px 16px !important;
+  border-radius: 12px !important;
+  font-size: 13.5px !important;
+  font-weight: 750 !important;
+  line-height: 1.1 !important;
+  text-align: center !important;
+  white-space: normal !important;
+  overflow: hidden !important;
+  transform: none !important;
+  clip-path: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target .wm-dash-target-actions {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+  width: 100% !important;
+  margin-top: auto !important;
+  padding-top: 28px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target .wm-dash-target-actions > a {
+  width: 100% !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target .wm-dash-target-button-primary {
+  color: #04121d !important;
+  background: #63f3ff !important;
+  border: 1px solid transparent !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target .wm-dash-target-button-ghost,
+html[data-wingman-route="dashboard"] .wm-dash-target .wm-dash-target-button-accent {
+  color: #d6e3f0 !important;
+  background: rgba(99, 243, 255, 0.07) !important;
+  border: 1px solid rgba(99, 243, 255, 0.28) !important;
+}
+
+/* Prevent Guru from sitting on top of the dashboard actions while testing Home. */
+html[data-wingman-route="dashboard"] .wingman-guru-floating,
+html[data-wingman-route="dashboard"] [data-wingman-guru-floating],
+html[data-wingman-route="dashboard"] [data-wingman-guru-launcher] {
+  display: none !important;
+}
+
+/* WINGMAN DASHBOARD V3 CARD LAYOUT REPAIR */
+/* Final pass: keep validation markers invisible and stop destination/project cards being treated as CTAs. */
+
+html[data-wingman-route="dashboard"] .wm-dashboard-validation-markers {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  clip-path: inset(50%) !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target,
+html[data-wingman-route="dashboard"] .wm-dash-target * {
+  scrollbar-width: thin;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-section,
+html[data-wingman-route="dashboard"] .wm-dash-target-grid,
+html[data-wingman-route="dashboard"] .wm-dash-target-projects {
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-section {
+  align-content: start !important;
+  display: grid !important;
+  gap: 14px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-grid,
+html[data-wingman-route="dashboard"] .wm-dash-target-projects {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-rows: minmax(170px, auto) !important;
+  gap: 18px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card,
+html[data-wingman-route="dashboard"] .wm-dash-target-card[data-wingman-dashboard-primary-button],
+html[data-wingman-route="dashboard"] .wm-dash-target-card[data-wingman-dashboard-short-label],
+html[data-wingman-route="dashboard"] .wm-dash-target-project {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 170px !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  overflow: hidden !important;
+  padding: 22px !important;
+  border-radius: 24px !important;
+  border: 1px solid #1b2735 !important;
+  background: #111b27 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  clip-path: none !important;
+  text-align: left !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card strong,
+html[data-wingman-route="dashboard"] .wm-dash-target-project strong {
+  display: block !important;
+  margin-top: 8px !important;
+  color: #eef5fb !important;
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  line-height: 1.15 !important;
+  white-space: normal !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card p,
+html[data-wingman-route="dashboard"] .wm-dash-target-project p {
+  display: block !important;
+  flex: 1 1 auto !important;
+  margin: 8px 0 0 !important;
+  color: #90a2b5 !important;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+  white-space: normal !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card-action,
+html[data-wingman-route="dashboard"] .wm-dash-target-project-next {
+  margin-top: 14px !important;
+  color: #5fd6d2 !important;
+  font-size: 12.5px !important;
+  font-weight: 750 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-kicker {
+  color: #647c8f !important;
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.13em !important;
+  text-transform: uppercase !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-icon {
+  flex: 0 0 auto !important;
+  width: 38px !important;
+  height: 38px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 12px !important;
+  color: #7fe4e2 !important;
+  background: rgba(99, 243, 255, 0.10) !important;
+  border: 1px solid rgba(99, 243, 255, 0.22) !important;
+  font-size: 12.5px !important;
+  font-weight: 850 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-resume {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  min-height: 184px !important;
+  height: auto !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-status-row,
+html[data-wingman-route="dashboard"] .wm-dash-target-next {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-next strong,
+html[data-wingman-route="dashboard"] .wm-dash-target-next span {
+  white-space: normal !important;
+}
+
+/* WINGMAN LANDING DASHBOARD - CLEAN STANDALONE */
+html[data-wingman-route="dashboard"],
+html[data-wingman-route="dashboard"] body,
+html[data-wingman-route="dashboard"] #root {
+  width: 100% !important;
+  min-height: 100% !important;
+  overflow: hidden !important;
+  background: #0a1019 !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-sidebar,
+html[data-wingman-route="dashboard"] .wingman-mobile-shade,
+html[data-wingman-route="dashboard"] .wingman-topbar,
+html[data-wingman-route="dashboard"] .wingman-guru-floating,
+html[data-wingman-route="dashboard"] [data-wingman-guru-launcher] {
+  display: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-shell,
+html[data-wingman-route="dashboard"] .wingman-workspace,
+html[data-wingman-route="dashboard"] .wingman-app-main,
+html[data-wingman-route="dashboard"] .wingman-page-host {
+  position: fixed !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100vw !important;
+  max-width: none !important;
+  height: 100vh !important;
+  max-height: none !important;
+  min-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  transform: none !important;
+  scale: 1 !important;
+  background: #0a1019 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-dashboard {
+  position: fixed !important;
+  inset: 0 !important;
+  display: grid !important;
+  grid-template-columns: 300px minmax(0, 1fr) !important;
+  gap: 34px !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: clamp(38px, 6vh, 72px) clamp(52px, 7vw, 110px) !important;
+  overflow: auto !important;
+  color: #e8f0f8 !important;
+  background:
+    radial-gradient(circle at 76% 18%, rgba(99, 243, 255, 0.07), transparent 34%),
+    #0a1019 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-validation-markers {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-rail {
+  min-height: 560px;
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  border: 1px solid #1b2735;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 44% 18%, rgba(99, 243, 255, 0.11), transparent 30%),
+    linear-gradient(180deg, #0b121c 0%, #09101a 100%);
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-eyebrow,
+html[data-wingman-route="dashboard"] .wm-landing-card-eyebrow {
+  color: #5fd6d2;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-rail h1 {
+  max-width: 250px;
+  margin: 16px 0 0;
+  color: #f3f8fc;
+  font-size: clamp(2.35rem, 3vw, 3.55rem);
+  line-height: 0.92;
+  letter-spacing: -0.06em;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-rail p {
+  max-width: 245px;
+  margin: 24px 0 0;
+  color: #b8c9da;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 28px;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-button-primary {
+  color: #04121d;
+  background: #63f3ff;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-button-secondary {
+  color: #d6e3f0;
+  border: 1px solid rgba(99, 243, 255, 0.28);
+  background: rgba(99, 243, 255, 0.07);
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-main {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 24px;
+  min-width: 0;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-resume,
+html[data-wingman-route="dashboard"] .wm-landing-card,
+html[data-wingman-route="dashboard"] .wm-landing-project {
+  border: 1px solid #1b2735;
+  border-radius: 24px;
+  background: #111b27;
+  text-decoration: none;
+  box-shadow: none;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-resume {
+  display: grid;
+  gap: 14px;
+  min-height: 176px;
+  padding: 24px;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-resume-grid {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-resume h2,
+html[data-wingman-route="dashboard"] .wm-landing-section h2,
+html[data-wingman-route="dashboard"] .wm-landing-card strong,
+html[data-wingman-route="dashboard"] .wm-landing-project strong {
+  margin: 0;
+  color: #eef5fb;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-resume p,
+html[data-wingman-route="dashboard"] .wm-landing-card p,
+html[data-wingman-route="dashboard"] .wm-landing-project p,
+html[data-wingman-route="dashboard"] .wm-landing-next span {
+  margin: 0;
+  color: #90a2b5;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-next {
+  display: grid;
+  gap: 4px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(150, 172, 196, 0.10);
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-next strong {
+  color: #eef5fb;
+  font-size: 13px;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-status {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: #7fe4e2;
+  border: 1px solid rgba(95, 214, 210, 0.34);
+  background: rgba(95, 214, 210, 0.12);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-section {
+  display: grid;
+  gap: 14px;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-section-head a,
+html[data-wingman-route="dashboard"] .wm-landing-card-action {
+  color: #5fd6d2;
+  font-size: 12.5px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-card-grid,
+html[data-wingman-route="dashboard"] .wm-landing-project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-card,
+html[data-wingman-route="dashboard"] .wm-landing-project {
+  min-height: 178px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 22px;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-card:hover,
+html[data-wingman-route="dashboard"] .wm-landing-project:hover {
+  border-color: rgba(99, 243, 255, 0.38);
+  background: #15212e;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-card-index {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  color: #7fe4e2;
+  background: rgba(99, 243, 255, 0.10);
+  border: 1px solid rgba(99, 243, 255, 0.22);
+  font-size: 12.5px;
+  font-weight: 850;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-card p {
+  flex: 1;
+}
+
+@media (max-width: 1180px) {
+  html[data-wingman-route="dashboard"] .wm-landing-dashboard {
+    grid-template-columns: 1fr !important;
+    align-content: start !important;
+    padding: 24px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-landing-rail {
+    min-height: auto;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-landing-card-grid,
+  html[data-wingman-route="dashboard"] .wm-landing-project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  html[data-wingman-route="dashboard"] .wm-landing-card-grid,
+  html[data-wingman-route="dashboard"] .wm-landing-project-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* WINGMAN DASHBOARD STANDALONE FINAL OVERRIDE */
+/* Imported last. Dashboard only. */
+
+html[data-wingman-dashboard-standalone="true"],
+html[data-wingman-dashboard-standalone="true"] body,
+html[data-wingman-dashboard-standalone="true"] #root {
+  width: 100vw !important;
+  height: 100vh !important;
+  min-width: 100vw !important;
+  min-height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  background: #0a1019 !important;
+  transform: none !important;
+  scale: 1 !important;
+  zoom: 1 !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wingman-sidebar,
+html[data-wingman-dashboard-standalone="true"] .wingman-mobile-shade,
+html[data-wingman-dashboard-standalone="true"] .wingman-topbar,
+html[data-wingman-dashboard-standalone="true"] .wingman-guru-floating,
+html[data-wingman-dashboard-standalone="true"] [data-wingman-guru-launcher] {
+  display: none !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wingman-shell,
+html[data-wingman-dashboard-standalone="true"] .wingman-workspace,
+html[data-wingman-dashboard-standalone="true"] .wingman-app-main,
+html[data-wingman-dashboard-standalone="true"] .wingman-page-host {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-width: 100vw !important;
+  min-height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  transform: none !important;
+  scale: 1 !important;
+  zoom: 1 !important;
+  background: #0a1019 !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-dashboard {
+  position: fixed !important;
+  inset: 0 !important;
+  display: grid !important;
+  grid-template-columns: 300px minmax(0, 1fr) !important;
+  gap: 34px !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: clamp(38px, 6vh, 72px) clamp(52px, 7vw, 110px) !important;
+  overflow: auto !important;
+  color: #e8f0f8 !important;
+  background:
+    radial-gradient(circle at 76% 18%, rgba(99, 243, 255, 0.07), transparent 34%),
+    #0a1019 !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-dashboard-validation-markers {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  clip-path: inset(50%) !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-rail {
+  min-height: 560px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 30px !important;
+  border: 1px solid #1b2735 !important;
+  border-radius: 24px !important;
+  background:
+    radial-gradient(circle at 44% 18%, rgba(99, 243, 255, 0.11), transparent 30%),
+    linear-gradient(180deg, #0b121c 0%, #09101a 100%) !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-main {
+  display: grid !important;
+  grid-template-rows: auto auto auto !important;
+  gap: 24px !important;
+  min-width: 0 !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-resume,
+html[data-wingman-dashboard-standalone="true"] .wm-landing-card,
+html[data-wingman-dashboard-standalone="true"] .wm-landing-project {
+  border: 1px solid #1b2735 !important;
+  border-radius: 24px !important;
+  background: #111b27 !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-card-grid,
+html[data-wingman-dashboard-standalone="true"] .wm-landing-project-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-card,
+html[data-wingman-dashboard-standalone="true"] .wm-landing-project {
+  min-height: 178px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding: 22px !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-rail h1 {
+  max-width: 250px !important;
+  margin: 16px 0 0 !important;
+  color: #f3f8fc !important;
+  font-size: clamp(2.35rem, 3vw, 3.55rem) !important;
+  line-height: 0.92 !important;
+  letter-spacing: -0.06em !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-rail p {
+  max-width: 245px !important;
+  margin: 24px 0 0 !important;
+  color: #b8c9da !important;
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-actions {
+  display: grid !important;
+  gap: 10px !important;
+  margin-top: auto !important;
+  padding-top: 28px !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 42px !important;
+  padding: 11px 16px !important;
+  border-radius: 12px !important;
+  font-size: 13.5px !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-button-primary {
+  color: #04121d !important;
+  background: #63f3ff !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-button-secondary {
+  color: #d6e3f0 !important;
+  border: 1px solid rgba(99, 243, 255, 0.28) !important;
+  background: rgba(99, 243, 255, 0.07) !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-eyebrow,
+html[data-wingman-dashboard-standalone="true"] .wm-landing-card-eyebrow,
+html[data-wingman-dashboard-standalone="true"] .wm-landing-card-action,
+html[data-wingman-dashboard-standalone="true"] .wm-landing-section-head a {
+  color: #5fd6d2 !important;
+}
+
+@media (max-width: 1180px) {
+  html[data-wingman-dashboard-standalone="true"] .wm-landing-dashboard {
+    grid-template-columns: 1fr !important;
+    align-content: start !important;
+    padding: 24px !important;
+  }
+
+  html[data-wingman-dashboard-standalone="true"] .wm-landing-card-grid,
+  html[data-wingman-dashboard-standalone="true"] .wm-landing-project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html[data-wingman-dashboard-standalone="true"] .wm-landing-card-grid,
+  html[data-wingman-dashboard-standalone="true"] .wm-landing-project-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

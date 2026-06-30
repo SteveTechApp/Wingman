@@ -1387,9 +1387,980 @@ html[data-wingman-route="visualStudio"] .wingman-page-host .wm-vs-schematic-foot
   }
 }
 
-/* ==========================================================================
-   REMOVED: app-wide canvas-scaling override + dashboard full-screen takeover.
-   Those rules disabled Wingman's native scaling on every route and forced the
-   dashboard to render as a fixed full-screen overlay while hiding the sidebar,
-   topbar and Guru. The dashboard now renders as a normal page inside the shell.
-   ========================================================================== */
+/* WINGMAN NATURAL VIEWPORT SCALING - REMOVED */
+/* App-wide canvas/screen-fit scaling override removed: it disabled Wingman's
+   native scaling engine on every route and broke the layout. The app's own
+   scaling system is restored. Dashboard-route scaling is handled below. */
+
+/* WINGMAN DASHBOARD STANDALONE V2 - CONTROLLED */
+/* Dashboard route only. Avoid pseudo-content hacks and neutralise screen-fit scaling. */
+
+html[data-wingman-route="dashboard"] {
+  --wm-fit-scale: 1 !important;
+  --wm-visual-scale: 1 !important;
+  --wm-page-scale: 1 !important;
+  --wm-stage-width: 100vw !important;
+  --wm-stage-height: 100vh !important;
+  --wm-scaled-target-left: 0px !important;
+  --wm-scaled-target-top: 0px !important;
+}
+
+html[data-wingman-route="dashboard"],
+html[data-wingman-route="dashboard"] body,
+html[data-wingman-route="dashboard"] #root {
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: none !important;
+  min-height: 100% !important;
+  overflow: hidden !important;
+  background: #0a1019 !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-shell {
+  display: block !important;
+  width: 100vw !important;
+  max-width: none !important;
+  min-height: 100vh !important;
+  overflow: hidden !important;
+  background: #0a1019 !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-sidebar,
+html[data-wingman-route="dashboard"] .wingman-mobile-shade,
+html[data-wingman-route="dashboard"] .wingman-topbar,
+html[data-wingman-route="dashboard"] .wingman-guru-floating {
+  display: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-workspace,
+html[data-wingman-route="dashboard"] .wingman-app-main,
+html[data-wingman-route="dashboard"] .wingman-page-host {
+  position: fixed !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100vw !important;
+  max-width: none !important;
+  height: 100vh !important;
+  max-height: none !important;
+  min-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  transform: none !important;
+  scale: 1 !important;
+  translate: none !important;
+  background: #0a1019 !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-page-host > main.wm-dash-target,
+html[data-wingman-route="dashboard"] main.wm-dash-target {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1000 !important;
+  display: grid !important;
+  grid-template-columns: 300px minmax(0, 1fr) !important;
+  grid-template-rows: auto auto auto !important;
+  gap: 24px 34px !important;
+  align-content: center !important;
+  width: 100vw !important;
+  max-width: none !important;
+  height: 100vh !important;
+  max-height: none !important;
+  min-height: 100vh !important;
+  margin: 0 !important;
+  padding: clamp(38px, 6vh, 72px) clamp(52px, 7vw, 110px) !important;
+  overflow: auto !important;
+  color: #e8f0f8 !important;
+  background:
+    radial-gradient(circle at 76% 18%, rgba(99, 243, 255, 0.07), transparent 34%),
+    #0a1019 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target::before,
+html[data-wingman-route="dashboard"] .wm-dash-target::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Convert the existing hero into the left standalone card. */
+html[data-wingman-route="dashboard"] .wm-dash-target-top {
+  grid-column: 1 / -1 !important;
+  grid-row: 1 !important;
+  display: grid !important;
+  grid-template-columns: 300px minmax(0, 1fr) !important;
+  gap: 34px !important;
+  min-width: 0 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-hero {
+  grid-column: 1 !important;
+  grid-row: 1 / span 3 !important;
+  min-height: 520px !important;
+  justify-content: flex-start !important;
+  padding: 28px !important;
+  border-radius: 24px !important;
+  border: 1px solid #1b2735 !important;
+  background:
+    radial-gradient(circle at 45% 22%, rgba(99, 243, 255, 0.12), transparent 30%),
+    linear-gradient(180deg, #0b121c 0%, #09101a 100%) !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-hero .wm-dash-target-eyebrow {
+  color: #63f3ff !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-hero h1 {
+  max-width: 260px !important;
+  margin-top: 12px !important;
+  font-size: clamp(2.25rem, 3vw, 3.55rem) !important;
+  line-height: 0.92 !important;
+  letter-spacing: -0.06em !important;
+  color: #f3f8fc !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-hero p {
+  max-width: 260px !important;
+  margin-top: 22px !important;
+  color: #b8c9da !important;
+  font-size: 14.5px !important;
+  line-height: 1.55 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-actions {
+  display: grid !important;
+  gap: 10px !important;
+  margin-top: auto !important;
+  padding-top: 28px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-button {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 42px !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  padding: 11px 16px !important;
+  border-radius: 12px !important;
+  font-size: 13.5px !important;
+  line-height: 1.1 !important;
+  text-align: center !important;
+  white-space: normal !important;
+  transform: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-button-primary {
+  color: #04121d !important;
+  background: #63f3ff !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-button-ghost,
+html[data-wingman-route="dashboard"] .wm-dash-target-button-accent {
+  color: #d6e3f0 !important;
+  border: 1px solid rgba(99, 243, 255, 0.28) !important;
+  background: rgba(99, 243, 255, 0.07) !important;
+}
+
+/* Right top card. */
+html[data-wingman-route="dashboard"] .wm-dash-target-resume {
+  grid-column: 2 !important;
+  min-height: 200px !important;
+  padding: 24px !important;
+  border-radius: 24px !important;
+  border: 1px solid #1b2735 !important;
+  background: #11212f !important;
+}
+
+/* Primary cards become the two lower/right rows. */
+html[data-wingman-route="dashboard"] .wm-dash-target-section {
+  grid-column: 2 !important;
+  display: grid !important;
+  gap: 14px !important;
+  min-width: 0 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-section:nth-of-type(1) {
+  grid-row: 2 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-section:nth-of-type(2) {
+  grid-row: 3 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-grid,
+html[data-wingman-route="dashboard"] .wm-dash-target-projects {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card,
+html[data-wingman-route="dashboard"] .wm-dash-target-project,
+html[data-wingman-route="dashboard"] .wm-dash-target-empty {
+  min-height: 174px !important;
+  padding: 22px !important;
+  border-radius: 24px !important;
+  border: 1px solid #1b2735 !important;
+  background: #111b27 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card:hover,
+html[data-wingman-route="dashboard"] .wm-dash-target-project:hover {
+  border-color: rgba(99, 243, 255, 0.38) !important;
+  background: #15212e !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-icon {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 12px !important;
+  color: #7fe4e2 !important;
+  background: rgba(99, 243, 255, 0.10) !important;
+  border: 1px solid rgba(99, 243, 255, 0.22) !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card strong,
+html[data-wingman-route="dashboard"] .wm-dash-target-project strong,
+html[data-wingman-route="dashboard"] .wm-dash-target-section h2 {
+  color: #eef5fb !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card p,
+html[data-wingman-route="dashboard"] .wm-dash-target-project p {
+  color: #90a2b5 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-eyebrow,
+html[data-wingman-route="dashboard"] .wm-dash-target-kicker,
+html[data-wingman-route="dashboard"] .wm-dash-target-card-action,
+html[data-wingman-route="dashboard"] .wm-dash-target-section-head a {
+  color: #5fd6d2 !important;
+}
+
+@media (max-width: 1100px) {
+  html[data-wingman-route="dashboard"] .wingman-page-host > main.wm-dash-target,
+  html[data-wingman-route="dashboard"] main.wm-dash-target {
+    align-content: start !important;
+    grid-template-columns: 1fr !important;
+    padding: 24px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-dash-target-top,
+  html[data-wingman-route="dashboard"] .wm-dash-target-grid,
+  html[data-wingman-route="dashboard"] .wm-dash-target-projects {
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-dash-target-hero,
+  html[data-wingman-route="dashboard"] .wm-dash-target-resume,
+  html[data-wingman-route="dashboard"] .wm-dash-target-section {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-dash-target-hero {
+    min-height: auto !important;
+  }
+}
+
+/* WINGMAN DASHBOARD ACTION RECTANGLE OVERRIDE */
+/* Last-mile dashboard fix: old validation attributes must not turn Home CTAs into huge square/circular tiles. */
+
+html[data-wingman-route="dashboard"] .wm-dash-target :is(
+  a[data-wingman-dashboard-primary-button],
+  a[data-wingman-dashboard-short-label],
+  .wm-dash-target-button,
+  .wm-dash-target-button-primary,
+  .wm-dash-target-button-ghost,
+  .wm-dash-target-button-accent
+) {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 42px !important;
+  max-height: 52px !important;
+  aspect-ratio: auto !important;
+  padding: 11px 16px !important;
+  border-radius: 12px !important;
+  font-size: 13.5px !important;
+  font-weight: 750 !important;
+  line-height: 1.1 !important;
+  text-align: center !important;
+  white-space: normal !important;
+  overflow: hidden !important;
+  transform: none !important;
+  clip-path: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target .wm-dash-target-actions {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+  width: 100% !important;
+  margin-top: auto !important;
+  padding-top: 28px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target .wm-dash-target-actions > a {
+  width: 100% !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target .wm-dash-target-button-primary {
+  color: #04121d !important;
+  background: #63f3ff !important;
+  border: 1px solid transparent !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target .wm-dash-target-button-ghost,
+html[data-wingman-route="dashboard"] .wm-dash-target .wm-dash-target-button-accent {
+  color: #d6e3f0 !important;
+  background: rgba(99, 243, 255, 0.07) !important;
+  border: 1px solid rgba(99, 243, 255, 0.28) !important;
+}
+
+/* Prevent Guru from sitting on top of the dashboard actions while testing Home. */
+html[data-wingman-route="dashboard"] .wingman-guru-floating,
+html[data-wingman-route="dashboard"] [data-wingman-guru-floating],
+html[data-wingman-route="dashboard"] [data-wingman-guru-launcher] {
+  display: none !important;
+}
+
+/* WINGMAN DASHBOARD V3 CARD LAYOUT REPAIR */
+/* Final pass: keep validation markers invisible and stop destination/project cards being treated as CTAs. */
+
+html[data-wingman-route="dashboard"] .wm-dashboard-validation-markers {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  clip-path: inset(50%) !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target,
+html[data-wingman-route="dashboard"] .wm-dash-target * {
+  scrollbar-width: thin;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-section,
+html[data-wingman-route="dashboard"] .wm-dash-target-grid,
+html[data-wingman-route="dashboard"] .wm-dash-target-projects {
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-section {
+  align-content: start !important;
+  display: grid !important;
+  gap: 14px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-grid,
+html[data-wingman-route="dashboard"] .wm-dash-target-projects {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-rows: minmax(170px, auto) !important;
+  gap: 18px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card,
+html[data-wingman-route="dashboard"] .wm-dash-target-card[data-wingman-dashboard-primary-button],
+html[data-wingman-route="dashboard"] .wm-dash-target-card[data-wingman-dashboard-short-label],
+html[data-wingman-route="dashboard"] .wm-dash-target-project {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 170px !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  overflow: hidden !important;
+  padding: 22px !important;
+  border-radius: 24px !important;
+  border: 1px solid #1b2735 !important;
+  background: #111b27 !important;
+  box-shadow: none !important;
+  transform: none !important;
+  clip-path: none !important;
+  text-align: left !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card strong,
+html[data-wingman-route="dashboard"] .wm-dash-target-project strong {
+  display: block !important;
+  margin-top: 8px !important;
+  color: #eef5fb !important;
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  line-height: 1.15 !important;
+  white-space: normal !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card p,
+html[data-wingman-route="dashboard"] .wm-dash-target-project p {
+  display: block !important;
+  flex: 1 1 auto !important;
+  margin: 8px 0 0 !important;
+  color: #90a2b5 !important;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+  white-space: normal !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-card-action,
+html[data-wingman-route="dashboard"] .wm-dash-target-project-next {
+  margin-top: 14px !important;
+  color: #5fd6d2 !important;
+  font-size: 12.5px !important;
+  font-weight: 750 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-kicker {
+  color: #647c8f !important;
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.13em !important;
+  text-transform: uppercase !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-icon {
+  flex: 0 0 auto !important;
+  width: 38px !important;
+  height: 38px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 12px !important;
+  color: #7fe4e2 !important;
+  background: rgba(99, 243, 255, 0.10) !important;
+  border: 1px solid rgba(99, 243, 255, 0.22) !important;
+  font-size: 12.5px !important;
+  font-weight: 850 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-resume {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  min-height: 184px !important;
+  height: auto !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-status-row,
+html[data-wingman-route="dashboard"] .wm-dash-target-next {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dash-target-next strong,
+html[data-wingman-route="dashboard"] .wm-dash-target-next span {
+  white-space: normal !important;
+}
+
+/* WINGMAN LANDING DASHBOARD - CLEAN STANDALONE */
+html[data-wingman-route="dashboard"],
+html[data-wingman-route="dashboard"] body,
+html[data-wingman-route="dashboard"] #root {
+  width: 100% !important;
+  min-height: 100% !important;
+  overflow: hidden !important;
+  background: #0a1019 !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-sidebar,
+html[data-wingman-route="dashboard"] .wingman-mobile-shade,
+html[data-wingman-route="dashboard"] .wingman-topbar,
+html[data-wingman-route="dashboard"] .wingman-guru-floating,
+html[data-wingman-route="dashboard"] [data-wingman-guru-launcher] {
+  display: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-shell,
+html[data-wingman-route="dashboard"] .wingman-workspace,
+html[data-wingman-route="dashboard"] .wingman-app-main,
+html[data-wingman-route="dashboard"] .wingman-page-host {
+  position: fixed !important;
+  inset: 0 !important;
+  display: block !important;
+  width: 100vw !important;
+  max-width: none !important;
+  height: 100vh !important;
+  max-height: none !important;
+  min-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  transform: none !important;
+  scale: 1 !important;
+  background: #0a1019 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-dashboard {
+  position: fixed !important;
+  inset: 0 !important;
+  display: grid !important;
+  grid-template-columns: 300px minmax(0, 1fr) !important;
+  gap: 34px !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: clamp(38px, 6vh, 72px) clamp(52px, 7vw, 110px) !important;
+  overflow: auto !important;
+  color: #e8f0f8 !important;
+  background:
+    radial-gradient(circle at 76% 18%, rgba(99, 243, 255, 0.07), transparent 34%),
+    #0a1019 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-validation-markers {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-rail {
+  min-height: 560px;
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  border: 1px solid #1b2735;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 44% 18%, rgba(99, 243, 255, 0.11), transparent 30%),
+    linear-gradient(180deg, #0b121c 0%, #09101a 100%);
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-eyebrow,
+html[data-wingman-route="dashboard"] .wm-landing-card-eyebrow {
+  color: #5fd6d2;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-rail h1 {
+  max-width: 250px;
+  margin: 16px 0 0;
+  color: #f3f8fc;
+  font-size: clamp(2.35rem, 3vw, 3.55rem);
+  line-height: 0.92;
+  letter-spacing: -0.06em;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-rail p {
+  max-width: 245px;
+  margin: 24px 0 0;
+  color: #b8c9da;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-actions {
+  display: grid;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 28px;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-button-primary {
+  color: #04121d;
+  background: #63f3ff;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-button-secondary {
+  color: #d6e3f0;
+  border: 1px solid rgba(99, 243, 255, 0.28);
+  background: rgba(99, 243, 255, 0.07);
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-main {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 24px;
+  min-width: 0;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-resume,
+html[data-wingman-route="dashboard"] .wm-landing-card,
+html[data-wingman-route="dashboard"] .wm-landing-project {
+  border: 1px solid #1b2735;
+  border-radius: 24px;
+  background: #111b27;
+  text-decoration: none;
+  box-shadow: none;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-resume {
+  display: grid;
+  gap: 14px;
+  min-height: 176px;
+  padding: 24px;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-resume-grid {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-resume h2,
+html[data-wingman-route="dashboard"] .wm-landing-section h2,
+html[data-wingman-route="dashboard"] .wm-landing-card strong,
+html[data-wingman-route="dashboard"] .wm-landing-project strong {
+  margin: 0;
+  color: #eef5fb;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-resume p,
+html[data-wingman-route="dashboard"] .wm-landing-card p,
+html[data-wingman-route="dashboard"] .wm-landing-project p,
+html[data-wingman-route="dashboard"] .wm-landing-next span {
+  margin: 0;
+  color: #90a2b5;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-next {
+  display: grid;
+  gap: 4px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(150, 172, 196, 0.10);
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-next strong {
+  color: #eef5fb;
+  font-size: 13px;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-status {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: #7fe4e2;
+  border: 1px solid rgba(95, 214, 210, 0.34);
+  background: rgba(95, 214, 210, 0.12);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-section {
+  display: grid;
+  gap: 14px;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-section-head a,
+html[data-wingman-route="dashboard"] .wm-landing-card-action {
+  color: #5fd6d2;
+  font-size: 12.5px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-card-grid,
+html[data-wingman-route="dashboard"] .wm-landing-project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-card,
+html[data-wingman-route="dashboard"] .wm-landing-project {
+  min-height: 178px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 22px;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-card:hover,
+html[data-wingman-route="dashboard"] .wm-landing-project:hover {
+  border-color: rgba(99, 243, 255, 0.38);
+  background: #15212e;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-card-index {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  color: #7fe4e2;
+  background: rgba(99, 243, 255, 0.10);
+  border: 1px solid rgba(99, 243, 255, 0.22);
+  font-size: 12.5px;
+  font-weight: 850;
+}
+
+html[data-wingman-route="dashboard"] .wm-landing-card p {
+  flex: 1;
+}
+
+@media (max-width: 1180px) {
+  html[data-wingman-route="dashboard"] .wm-landing-dashboard {
+    grid-template-columns: 1fr !important;
+    align-content: start !important;
+    padding: 24px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-landing-rail {
+    min-height: auto;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-landing-card-grid,
+  html[data-wingman-route="dashboard"] .wm-landing-project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  html[data-wingman-route="dashboard"] .wm-landing-card-grid,
+  html[data-wingman-route="dashboard"] .wm-landing-project-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* WINGMAN DASHBOARD STANDALONE FINAL OVERRIDE */
+/* Imported last. Dashboard only. */
+
+html[data-wingman-dashboard-standalone="true"],
+html[data-wingman-dashboard-standalone="true"] body,
+html[data-wingman-dashboard-standalone="true"] #root {
+  width: 100vw !important;
+  height: 100vh !important;
+  min-width: 100vw !important;
+  min-height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  overflow: hidden !important;
+  background: #0a1019 !important;
+  transform: none !important;
+  scale: 1 !important;
+  zoom: 1 !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wingman-sidebar,
+html[data-wingman-dashboard-standalone="true"] .wingman-mobile-shade,
+html[data-wingman-dashboard-standalone="true"] .wingman-topbar,
+html[data-wingman-dashboard-standalone="true"] .wingman-guru-floating,
+html[data-wingman-dashboard-standalone="true"] [data-wingman-guru-launcher] {
+  display: none !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wingman-shell,
+html[data-wingman-dashboard-standalone="true"] .wingman-workspace,
+html[data-wingman-dashboard-standalone="true"] .wingman-app-main,
+html[data-wingman-dashboard-standalone="true"] .wingman-page-host {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-width: 100vw !important;
+  min-height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  transform: none !important;
+  scale: 1 !important;
+  zoom: 1 !important;
+  background: #0a1019 !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-dashboard {
+  position: fixed !important;
+  inset: 0 !important;
+  display: grid !important;
+  grid-template-columns: 300px minmax(0, 1fr) !important;
+  gap: 34px !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: clamp(38px, 6vh, 72px) clamp(52px, 7vw, 110px) !important;
+  overflow: auto !important;
+  color: #e8f0f8 !important;
+  background:
+    radial-gradient(circle at 76% 18%, rgba(99, 243, 255, 0.07), transparent 34%),
+    #0a1019 !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-dashboard-validation-markers {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  clip-path: inset(50%) !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-rail {
+  min-height: 560px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 30px !important;
+  border: 1px solid #1b2735 !important;
+  border-radius: 24px !important;
+  background:
+    radial-gradient(circle at 44% 18%, rgba(99, 243, 255, 0.11), transparent 30%),
+    linear-gradient(180deg, #0b121c 0%, #09101a 100%) !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-main {
+  display: grid !important;
+  grid-template-rows: auto auto auto !important;
+  gap: 24px !important;
+  min-width: 0 !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-resume,
+html[data-wingman-dashboard-standalone="true"] .wm-landing-card,
+html[data-wingman-dashboard-standalone="true"] .wm-landing-project {
+  border: 1px solid #1b2735 !important;
+  border-radius: 24px !important;
+  background: #111b27 !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-card-grid,
+html[data-wingman-dashboard-standalone="true"] .wm-landing-project-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-card,
+html[data-wingman-dashboard-standalone="true"] .wm-landing-project {
+  min-height: 178px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding: 22px !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-rail h1 {
+  max-width: 250px !important;
+  margin: 16px 0 0 !important;
+  color: #f3f8fc !important;
+  font-size: clamp(2.35rem, 3vw, 3.55rem) !important;
+  line-height: 0.92 !important;
+  letter-spacing: -0.06em !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-rail p {
+  max-width: 245px !important;
+  margin: 24px 0 0 !important;
+  color: #b8c9da !important;
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-actions {
+  display: grid !important;
+  gap: 10px !important;
+  margin-top: auto !important;
+  padding-top: 28px !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 42px !important;
+  padding: 11px 16px !important;
+  border-radius: 12px !important;
+  font-size: 13.5px !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-button-primary {
+  color: #04121d !important;
+  background: #63f3ff !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-button-secondary {
+  color: #d6e3f0 !important;
+  border: 1px solid rgba(99, 243, 255, 0.28) !important;
+  background: rgba(99, 243, 255, 0.07) !important;
+}
+
+html[data-wingman-dashboard-standalone="true"] .wm-landing-eyebrow,
+html[data-wingman-dashboard-standalone="true"] .wm-landing-card-eyebrow,
+html[data-wingman-dashboard-standalone="true"] .wm-landing-card-action,
+html[data-wingman-dashboard-standalone="true"] .wm-landing-section-head a {
+  color: #5fd6d2 !important;
+}
+
+@media (max-width: 1180px) {
+  html[data-wingman-dashboard-standalone="true"] .wm-landing-dashboard {
+    grid-template-columns: 1fr !important;
+    align-content: start !important;
+    padding: 24px !important;
+  }
+
+  html[data-wingman-dashboard-standalone="true"] .wm-landing-card-grid,
+  html[data-wingman-dashboard-standalone="true"] .wm-landing-project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html[data-wingman-dashboard-standalone="true"] .wm-landing-card-grid,
+  html[data-wingman-dashboard-standalone="true"] .wm-landing-project-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
