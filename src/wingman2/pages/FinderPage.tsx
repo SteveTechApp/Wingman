@@ -2792,11 +2792,11 @@ function FieldSelect({
 }) {
   return (
     <label className="grid gap-1">
-      <span className="text-xs font-black uppercase tracking-[0.14em] text-white/55">{label}</span>
-      <select
+      <span className="text-xs font-black uppercase tracking-[0.14em] wm-ui-kicker">{label}</span>
+      <select className={["wm-ui-input", "h-9 rounded-xl border border-[#29465e] bg-[#0d2133] px-3 text-sm text-[#edf6ff] outline-none focus:border-cyan-400 focus:ring-4 focus:ring-amber-100"].filter(Boolean).join(" ")}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-9 rounded-xl border border-[#29465e] bg-[#0d2133] px-3 text-sm text-[#edf6ff] outline-none focus:border-cyan-400 focus:ring-4 focus:ring-amber-100"
+
       >
         <option value="">Any / not known</option>
         {options.map((option) => (
@@ -2819,7 +2819,7 @@ const FINDER_APPLICATION_LABEL: Record<string, string> = {
 
 // Situational steer for the architecture picker: read the application captured in
 // Discovery and tell the rep which product paths fit it (and flag a path that does
-// not). The Finder uses a native <select>, so we steer with a hint rather than
+// not). The Finder uses a native <select className="wm-ui-input">, so we steer with a hint rather than
 // greying individual options the way the Discovery buttons do.
 function FinderProductPathHint({ selectedPath }: { selectedPath: string }) {
   const application = useMemo(() => {
@@ -2836,8 +2836,8 @@ function FinderProductPathHint({ selectedPath }: { selectedPath: string }) {
   const selectedIsUnlikely = Boolean(selectedPath) && finderProductPathRelevance(application, selectedPath) === "unlikely";
 
   return (
-    <div className="md:col-span-2 rounded-xl border border-cyan-500/30 bg-cyan-500/5 px-3 py-2 text-xs leading-5 text-cyan-100/90">
-      <span className="font-bold uppercase tracking-[0.12em] text-cyan-200/80">Likely for {applicationLabel}: </span>
+    <div className="md:col-span-2 rounded-xl border px-3 py-2 text-xs leading-5 wm-ui-card wm-ui-copy">
+      <span className="font-bold uppercase tracking-[0.12em] wm-ui-kicker">Likely for {applicationLabel}: </span>
       {recommended.join(", ")}.
       {selectedIsUnlikely ? (
         <span className="mt-1 block text-amber-200/90">
@@ -2876,12 +2876,12 @@ function FinderStepFooter({
   const isLastStep = activeIndex === finderSteps.length - 1;
 
   return (
-    <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#29465e] pt-4">
+    <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t pt-4 wm-ui-card">
       <button
         type="button"
         onClick={onPrevious}
         disabled={isFirstStep}
-        className="inline-flex items-center gap-2 rounded-full border border-[#29465e] bg-[#0d2133] px-4 py-2 text-sm font-black text-white/70 transition hover:bg-[#0d2133] disabled:cursor-not-allowed disabled:opacity-40"
+        className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-40 wm-ui-button wm-ui-button-secondary wm-ui-card wm-ui-copy"
       >
         Previous
       </button>
@@ -2891,7 +2891,7 @@ function FinderStepFooter({
           <button
             type="button"
             onClick={onRecommendation}
-            className="rounded-full border border-cyan-300 bg-cyan-50 px-4 py-2 text-sm font-black text-cyan-800 transition hover:bg-cyan-100"
+            className="rounded-full border px-4 py-2 text-sm font-black transition wm-ui-button wm-ui-button-secondary wm-ui-card wm-ui-copy"
           >
             View recommendation
           </button>
@@ -2901,7 +2901,7 @@ function FinderStepFooter({
           type="button"
           onClick={onNext}
           disabled={isLastStep}
-          className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-40 wm-ui-button wm-ui-button-primary wm-ui-card wm-ui-copy"
         >
           Next
           <ChevronRight className="h-4 w-4" />
@@ -3447,18 +3447,18 @@ if (!leadingMatch) {
               const isComplete = index < activeStepIndex;
 
               return (
-                <button
-                  key={step.id}
-                  type="button"
-                  onClick={() => setActiveStep(step.id)}
-                  aria-current={isActive ? "step" : undefined}
-                  className={`flex min-h-[76px] items-start gap-3 rounded-2xl border p-3 text-left transition ${
+                <button className={["wm-ui-button wm-ui-button-secondary", `flex min-h-[76px] items-start gap-3 rounded-2xl border p-3 text-left transition ${
                     isActive
                       ? "border-slate-950 bg-slate-950 text-white shadow-lg"
                       : isComplete
                         ? "border-emerald-200 bg-emerald-50 text-[#edf6ff] hover:border-emerald-300"
                         : "border-[#29465e] bg-[#0d2133] text-white/70 hover:border-cyan-300 hover:bg-cyan-50"
-                  }`}
+                  }`].filter(Boolean).join(" ")}
+                  key={step.id}
+                  type="button"
+                  onClick={() => setActiveStep(step.id)}
+                  aria-current={isActive ? "step" : undefined}
+
                 >
                   <span
                     className={`mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-black ${
@@ -3468,7 +3468,7 @@ if (!leadingMatch) {
                     {isComplete ? <Check className="h-3.5 w-3.5" /> : index + 1}
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-sm font-black">{step.label}</span>
+                    <span className="block text-sm font-black wm-ui-copy">{step.label}</span>
                     <span className={`mt-1 block text-xs leading-4 ${isActive ? "text-slate-300" : "text-white/55"}`}>
                       {step.description}
                     </span>
@@ -3478,21 +3478,21 @@ if (!leadingMatch) {
             })}
           </nav>
 
-          <div className="finder-active-step-layout grid gap-4">
-            <section className="finder-active-step-panel rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 shadow-sm" aria-labelledby="finder-active-step-title">
-              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#29465e] pb-4">
+          <div className="finder-active-step-layout grid gap-4 wm-ui-card">
+            <section className="finder-active-step-panel rounded-2xl border p-4 wm-ui-section wm-ui-card wm-ui-title" aria-labelledby="finder-active-step-title">
+              <div className="flex flex-wrap items-start justify-between gap-3 border-b pb-4 wm-ui-card">
                 <div className="min-w-0">
-                  <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-700">{activeStepDefinition.eyebrow}</p>
-                  <h2 id="finder-active-step-title" className="mt-1 text-2xl font-black tracking-tight text-white">
+                  <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">{activeStepDefinition.eyebrow}</p>
+                  <h2 id="finder-active-step-title" className="mt-1 text-2xl font-black tracking-tight wm-ui-title wm-ui-card wm-ui-kicker">
                     {activeStepDefinition.label}
                   </h2>
-                  <p className="mt-1 max-w-none text-sm leading-6 text-white/60">{activeStepDefinition.description}</p>
+                  <p className="mt-1 max-w-none text-sm leading-6 wm-ui-copy">{activeStepDefinition.description}</p>
                 </div>
 
                 <button data-finder-reset-action="true"
                   type="button"
                   onClick={clearFinder}
-                  className="finder-reset-button inline-flex items-center gap-2 rounded-full border border-orange-300/90 bg-orange-500 px-3 py-2 text-xs font-black text-white shadow-[0_14px_32px_rgba(255,111,0,0.34)] transition hover:border-orange-200 hover:bg-orange-400"
+                  className="finder-reset-button inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-black shadow-[0_14px_32px_rgba(255,111,0,0.34)] transition wm-ui-button wm-ui-button-secondary wm-ui-card"
                   
                   data-reset-orange-inline="true"
 
@@ -3504,14 +3504,14 @@ if (!leadingMatch) {
 
               {activeStep === "start" ? (
                 <div className="mt-4 grid gap-4">
-                  <div className="wm-finder-quickstart grid gap-3 rounded-2xl border border-cyan-200 bg-cyan-50 p-4">
+                  <div className="wm-finder-quickstart grid gap-3 rounded-2xl border p-4 wm-ui-card">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <p className="text-sm font-black text-cyan-950">Quick-start filters</p>
-                        <p className="mt-1 text-xs leading-5 text-cyan-900">Choose the closest customer problem. Finder fills the need data and moves to the next useful step.</p>
+                        <p className="text-sm font-black wm-ui-copy">Quick-start filters</p>
+                        <p className="mt-1 text-xs leading-5 wm-ui-copy">Choose the closest customer problem. Finder fills the need data and moves to the next useful step.</p>
                       </div>
 
-                      <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300 bg-[#0d2133] px-3 py-1 text-xs font-black text-cyan-800">
+                      <div className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-black wm-ui-card">
                         <Database className="h-3.5 w-3.5" />
                         {indexState === "ready" ? `${products.length} indexed products` : indexState === "loading" ? "Loading index" : "Clean fallback library"}
                       </div>
@@ -3527,14 +3527,14 @@ if (!leadingMatch) {
                     </div>
                   </div>
 
-                  <div className="grid gap-3 rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 md:grid-cols-2">
-                    <label className="grid gap-1 text-xs font-bold uppercase tracking-[0.14em] text-white/55 md:col-span-2">
+                  <div className="grid gap-3 rounded-2xl border p-4 md:grid-cols-2 wm-ui-card">
+                    <label className="grid gap-1 text-xs font-bold uppercase tracking-[0.14em] md:col-span-2 wm-ui-kicker">
                       Technology Type
-                      <select
+                      <select className={["wm-ui-input", "min-h-11 rounded-xl border border-[#29465e] bg-[#0d2133] px-3 py-2 text-sm font-semibold normal-case tracking-normal text-[#edf6ff] shadow-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"].filter(Boolean).join(" ")}
                         id="finder-technology-type"
                         value={need.technologyType}
                         onChange={(event) => setNeedField("technologyType", event.target.value)}
-                        className="min-h-11 rounded-xl border border-[#29465e] bg-[#0d2133] px-3 py-2 text-sm font-semibold normal-case tracking-normal text-[#edf6ff] shadow-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"
+
                       >
                         {technologyTypeOptions.map((option) => (
                           <option key={option} value={option}>
@@ -3545,14 +3545,14 @@ if (!leadingMatch) {
                     </label>
 
                     <label className="grid gap-1 md:col-span-2">
-                      <span className="text-xs font-black uppercase tracking-[0.14em] text-white/55">Search SKU or requirement</span>
-                      <div className="flex items-center gap-2 rounded-xl border border-[#29465e] bg-[#0d2133] px-3">
-                        <Search className="h-4 w-4 text-slate-400" />
-                        <input
+                      <span className="text-xs font-black uppercase tracking-[0.14em] wm-ui-kicker">Search SKU or requirement</span>
+                      <div className="flex items-center gap-2 rounded-xl border px-3 wm-ui-card">
+                        <Search className="h-4 w-4 wm-ui-copy" />
+                        <input className={["wm-ui-input", "h-10 min-w-0 flex-1 border-0 bg-transparent px-0 text-sm text-[#edf6ff] outline-none"].filter(Boolean).join(" ")}
                           value={need.query}
                           onChange={(event) => setNeedField("query", event.target.value)}
                           placeholder="e.g. HDMI USB extender, NHD-150-RX, multiview"
-                          className="h-10 min-w-0 flex-1 border-0 bg-transparent px-0 text-sm text-[#edf6ff] outline-none"
+
                         />
                       </div>
                     </label>
@@ -3565,7 +3565,7 @@ if (!leadingMatch) {
               ) : null}
 
               {activeStep === "signal" ? (
-                <div className="mt-4 grid gap-3 rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 md:grid-cols-3">
+                <div className="mt-4 grid gap-3 rounded-2xl border p-4 md:grid-cols-3 wm-ui-card">
                   <FieldSelect label="Signal type" value={need.signalType} options={signalTypeOptions} onChange={(value) => setNeedField("signalType", value)} />
                   <FieldSelect label="Source connector" value={need.sourceConnector} options={connectorOptions} onChange={(value) => setNeedField("sourceConnector", value)} />
                   <FieldSelect label="Display / output" value={need.displayConnector} options={connectorOptions} onChange={(value) => setNeedField("displayConnector", value)} />
@@ -3573,7 +3573,7 @@ if (!leadingMatch) {
               ) : null}
 
               {activeStep === "size" ? (
-                <div className="mt-4 grid gap-3 rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 md:grid-cols-2 xl:grid-cols-4">
+                <div className="mt-4 grid gap-3 rounded-2xl border p-4 md:grid-cols-2 xl:grid-cols-4 wm-ui-card">
                   <FieldSelect label="Inputs" value={need.inputs} options={inputOptions} onChange={(value) => setNeedField("inputs", value)} />
                   <FieldSelect label="Outputs" value={need.outputs} options={outputOptions} onChange={(value) => setNeedField("outputs", value)} />
                   <FieldSelect label="Distance" value={need.distance} options={distanceOptions} onChange={(value) => setNeedField("distance", value)} />
@@ -3582,7 +3582,7 @@ if (!leadingMatch) {
               ) : null}
 
               {activeStep === "specialist" ? (
-                <div className="mt-4 grid gap-3 rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 md:grid-cols-2 xl:grid-cols-5">
+                <div className="mt-4 grid gap-3 rounded-2xl border p-4 md:grid-cols-2 xl:grid-cols-5 wm-ui-card">
                   <FieldSelect label="USB" value={need.usb} options={usbOptions} onChange={(value) => setNeedField("usb", value)} />
                   <FieldSelect label="Processing" value={need.processing} options={processingOptions} onChange={(value) => setNeedField("processing", value)} />
                   <FieldSelect label="Network" value={need.network} options={networkOptions} onChange={(value) => setNeedField("network", value)} />
@@ -3593,31 +3593,31 @@ if (!leadingMatch) {
 
               {activeStep === "results" ? (
                 <div className="mt-4 grid gap-4">
-                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 wm-ui-card">
                     <div>
-                      <p className="text-sm font-black text-white">Product results</p>
-                      <p className="mt-1 text-xs leading-5 text-white/55">
+                      <p className="text-sm font-black wm-ui-copy">Product results</p>
+                      <p className="mt-1 text-xs leading-5 wm-ui-copy">
                         {finderResultsSummary}
                       </p>
                     </div>
 
                     {bestMatch ? (
-                      <div className="rounded-full bg-[#0d2133] px-3 py-1 text-xs font-black text-white/70">
+                      <div className="rounded-full px-3 py-1 text-xs font-black wm-ui-card">
                         Best fit: {bestMatch.sku}
                       </div>
                     ) : null}
                   </div>
 
                   <div className="grid gap-4">
-                    <main className="wm-finder-results-panel grid content-start gap-3">
+                    <main className="wm-finder-results-panel grid content-start gap-3 wm-ui-page wingman-page-host wm-ui-card">
                       {finderMatchPlan.mode === "architecture" ? (
-                        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950" data-testid="finder-architecture-match-notice">
+                        <div className="rounded-2xl border p-4 text-sm leading-6 wm-ui-card wm-ui-copy" data-testid="finder-architecture-match-notice">
                           <strong className="block">Core architecture matched.</strong>
                           Wingman has carried the complete Discovery brief across. These products fit the switching or transport role; confirm the supporting audio, control, I/O quantity and install detail as the system is built out.
                         </div>
                       ) : null}
                       {finderMatchPlan.mode === "closest" ? (
-                        <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-4 text-sm leading-6 text-cyan-950" data-testid="finder-closest-match-notice">
+                        <div className="rounded-2xl border p-4 text-sm leading-6 wm-ui-card wm-ui-copy" data-testid="finder-closest-match-notice">
                           <strong className="block">Closest core product paths shown.</strong>
                           No single product satisfies every selected requirement. Start with one of these paths, then validate the outstanding constraints before adding it to a quote.
                         </div>
@@ -3628,11 +3628,11 @@ if (!leadingMatch) {
                         </div>
                       ) : null}
                       {!hasIntent ? (
-                        <div className="grid min-h-[220px] place-items-center rounded-2xl border border-dashed border-[#29465e] bg-[#0d2133] p-6 text-center">
+                        <div className="grid min-h-[220px] place-items-center rounded-2xl border border-dashed p-6 text-center wm-ui-card">
                           <div className="max-w-xl">
-                            <PackageSearch className="mx-auto h-12 w-12 text-slate-300" />
-                            <h3 className="mt-4 text-xl font-black text-white">No products shown yet</h3>
-                            <p className="mt-2 text-sm leading-6 text-white/55">
+                            <PackageSearch className="mx-auto h-12 w-12 wm-ui-copy" />
+                            <h3 className="mt-4 text-xl font-black wm-ui-title">No products shown yet</h3>
+                            <p className="mt-2 text-sm leading-6 wm-ui-copy">
                               Start with a quick-start path, SKU search, technical requirement, connector, distance, USB need, processing need, network requirement, audio path or control requirement. Finder will then show matching WyreStorm products.
                             </p>
                           </div>
@@ -3647,16 +3647,16 @@ rankedMatches.length ? (
                           const cautionLines = getCautionLines(match, need);
 
                           return (
-                            <article key={resultKey} className="wm-finder-result-card rounded-2xl border border-[#29465e] bg-[#0d2133] p-3 shadow-sm">
+                            <article key={resultKey} className="wm-finder-result-card rounded-2xl border p-3 wm-ui-card">
                               <div className="grid gap-3">
                                 <div className="flex flex-wrap items-start justify-between gap-3">
-                                  <button
+                                  <button className={["wm-ui-button wm-ui-button-secondary", "flex min-w-0 flex-1 items-start gap-3 text-left"].filter(Boolean).join(" ")}
                                     type="button"
                                     onClick={() => toggleExpandedResult(resultKey)}
-                                    className="flex min-w-0 flex-1 items-start gap-3 text-left"
+
                                     aria-expanded={isExpanded}
                                   >
-                                    <span className="mt-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-white/60">
+                                    <span className="mt-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border wm-ui-card">
                                       {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                                     </span>
 
@@ -3666,11 +3666,11 @@ rankedMatches.length ? (
                                         <StatusPill status={match.status} />
                                       </span>
 
-                                      <span className="mt-1 block text-sm font-semibold text-white/70">{match.title}</span>
+                                      <span className="mt-1 block text-sm font-semibold wm-ui-copy">{match.title}</span>
                                       <span className="mt-1 block text-xs text-white/55">{match.family} | {match.category}</span>
 
                                       {!isExpanded ? (
-                                        <span className="mt-2 block text-sm leading-5 text-white/60">
+                                        <span className="mt-2 block text-sm leading-5 wm-ui-copy">
                                           {finderSalesSummary(match)}
                                         </span>
                                       ) : null}
@@ -3678,14 +3678,14 @@ rankedMatches.length ? (
                                   </button>
 
                                   <div className="flex shrink-0 flex-col items-end gap-2">
-                                    <div className="wm-finder-fit rounded-full bg-[#0d2133] px-3 py-1 text-xs font-black text-white/70">
+                                    <div className="wm-finder-fit rounded-full px-3 py-1 text-xs font-black wm-ui-card">
                                       Fit score {Math.min(99, match.score)}%
                                     </div>
 
-                                    <button
+                                    <button className={["wm-ui-button wm-ui-button-secondary", "rounded-full border border-[#29465e] bg-[#0d2133] px-3 py-1 text-xs font-black text-white/70 transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-800"].filter(Boolean).join(" ")}
                                       type="button"
                                       onClick={() => toggleExpandedResult(resultKey)}
-                                      className="rounded-full border border-[#29465e] bg-[#0d2133] px-3 py-1 text-xs font-black text-white/70 transition hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-800"
+
                                     >
                                       {isExpanded ? "Close details" : "Open details"}
                                     </button>
@@ -3694,46 +3694,46 @@ rankedMatches.length ? (
 
                                 <div className="flex flex-wrap gap-2">
                                   {match.tags.slice(0, isExpanded ? 7 : 4).map((tag) => (
-                                    <span key={tag} className="rounded-full bg-[#0d2133] px-2.5 py-1 text-xs font-semibold text-white/60">
+                                    <span key={tag} className="rounded-full px-2.5 py-1 text-xs font-semibold wm-ui-card">
                                       {tag}
                                     </span>
                                   ))}
                                 </div>
 
                                 {isExpanded ? (
-                                  <div className="grid gap-3 border-t border-[#29465e] pt-3">
-                                    <p className="text-sm leading-6 text-white/70">{finderSalesSummary(match)}</p>
+                                  <div className="grid gap-3 border-t pt-3 wm-ui-card">
+                                    <p className="text-sm leading-6 wm-ui-copy">{finderSalesSummary(match)}</p>
 
                                     <ProductSalesKnowledgePanel product={match} mode="finder" />
 
                                     {match.salesLanguage ? (
-                                      <div className="rounded-2xl border border-sky-100 bg-[#10263a] p-3">
-                                        <p className="text-xs font-black uppercase tracking-[0.14em] text-sky-700">Sales read</p>
-                                        <p className="mt-2 text-sm font-black text-white">
+                                      <div className="rounded-2xl border p-3 wm-ui-card">
+                                        <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Sales read</p>
+                                        <p className="mt-2 text-sm font-black wm-ui-copy">
                                           {cleanDisplayText(match.salesLanguage.headline || match.salesLanguage.voices?.endUser?.headline || match.sku)}
                                         </p>
-                                        <p className="mt-1 text-sm leading-6 text-white/70">
+                                        <p className="mt-1 text-sm leading-6 wm-ui-copy">
                                           {cleanDisplayText(match.salesLanguage.salespersonCue || match.salesLanguage.customerValue || match.salesLanguage.realWorldApplication)}
                                         </p>
                                         {match.salesLanguage.thirdOutputUseCase ? (
-                                          <p className="mt-2 text-sm leading-6 text-sky-950">{cleanDisplayText(match.salesLanguage.thirdOutputUseCase)}</p>
+                                          <p className="mt-2 text-sm leading-6 wm-ui-copy">{cleanDisplayText(match.salesLanguage.thirdOutputUseCase)}</p>
                                         ) : null}
                                       </div>
                                     ) : null}
 
                                     <div className="grid gap-3 lg:grid-cols-2">
-                                      <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-3">
-                                        <p className="text-xs font-black uppercase tracking-[0.14em] text-emerald-700">Fit evidence</p>
-                                        <ul className="mt-2 space-y-1 text-sm leading-5 text-emerald-950">
+                                      <div className="rounded-2xl border p-3 wm-ui-card">
+                                        <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Fit evidence</p>
+                                        <ul className="mt-2 space-y-1 text-sm leading-5 wm-ui-copy">
                                           {reasonLines.map((reason) => (
                                             <li key={reason}>- {reason}</li>
                                           ))}
                                         </ul>
                                       </div>
 
-                                      <div className="rounded-2xl border border-cyan-100 bg-cyan-50 p-3">
-                                        <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-700">Cautions</p>
-                                        <ul className="mt-2 space-y-1 text-sm leading-5 text-cyan-950">
+                                      <div className="rounded-2xl border p-3 wm-ui-card">
+                                        <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Cautions</p>
+                                        <ul className="mt-2 space-y-1 text-sm leading-5 wm-ui-copy">
                                           {cautionLines.map((caution) => (
                                             <li key={caution}>- {caution}</li>
                                           ))}
@@ -3744,30 +3744,30 @@ rankedMatches.length ? (
                                 ) : null}
 
                                 <div className="flex flex-wrap gap-2">
-                                  <button
+                                  <button className={["wm-ui-button wm-ui-button-secondary", "rounded-full border border-[#29465e] px-4 py-2 text-sm font-black text-white/70 transition hover:bg-[#0d2133]"].filter(Boolean).join(" ")}
                                     type="button"
                                     onClick={() => addToStandaloneShortlist(match)}
-                                    className="rounded-full border border-[#29465e] px-4 py-2 text-sm font-black text-white/70 transition hover:bg-[#0d2133]"
+
                                   >
                                     Shortlist only
                                   </button>
 
-                                  <button
+                                  <button className={["wm-ui-button wm-ui-button-secondary", "inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white transition hover:bg-slate-800"].filter(Boolean).join(" ")}
                                     type="button"
                                     onClick={() => openAddPanel(match)}
-                                    className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white transition hover:bg-slate-800"
+
                                   >
                                     <FolderPlus className="h-4 w-4" />
                                     Add to project
                                   </button>
 
-                                  <Link to={routeCatalogByKey.compare.path} className="rounded-full border border-[#29465e] px-4 py-2 text-sm font-black text-white/70 transition hover:bg-[#0d2133]">
+                                  <Link to={routeCatalogByKey.compare.path} className="rounded-full border px-4 py-2 text-sm font-black transition wm-ui-card wm-ui-copy">
                                     Compare
                                   </Link>
 
                                   <Link
                                     to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(match.sku)}&source=finder`}
-                                    className="rounded-full border border-[#29465e] px-4 py-2 text-sm font-black text-white/70 transition hover:bg-[#0d2133]"
+                                    className="rounded-full border px-4 py-2 text-sm font-black transition wm-ui-card wm-ui-copy"
                                   >
                                     Pitch {match.sku}
                                   </Link>
@@ -3777,12 +3777,12 @@ rankedMatches.length ? (
                           );
                         })
                       ) : (
-                        <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-5">
+                        <div className="rounded-2xl border p-5 wm-ui-card">
                           <div className="flex items-center gap-2 text-cyan-900">
                             <AlertTriangle className="h-5 w-5" />
-                            <p className="font-black">No strong match yet</p>
+                            <p className="font-black wm-ui-copy">No strong match yet</p>
                           </div>
-                          <p className="mt-2 text-sm leading-6 text-cyan-900">
+                          <p className="mt-2 text-sm leading-6 wm-ui-copy">
                             Review the core technical requirement and product path, then adjust the Discovery brief or search by SKU. Wingman keeps supporting audio, control and install details as validation items rather than silently discarding them.
                           </p>
                         </div>
@@ -3796,15 +3796,15 @@ rankedMatches.length ? (
                           Selection logic
                         </summary>
 
-                        <p className="mt-3 text-sm leading-6 text-white/60">
+                        <p className="mt-3 text-sm leading-6 wm-ui-copy">
                           Finder first checks the product class and role, then scores eligible WyreStorm products by technical requirement, signal path, I/O count, source/output connector, distance, USB, resolution, processing, network, audio and control.
                         </p>
 
                         {bestMatch ? (
-                          <div className="mt-4 rounded-2xl border border-[#29465e] bg-[#0d2133] p-3">
-                            <p className="text-xs font-black uppercase tracking-[0.14em] text-white/55">Current best match</p>
-                            <p className="mt-2 text-lg font-black text-white">{bestMatch.sku}</p>
-                            <p className="mt-1 text-sm text-white/60">{bestMatch.title}</p>
+                          <div className="mt-4 rounded-2xl border p-3 wm-ui-card">
+                            <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Current best match</p>
+                            <p className="mt-2 text-lg font-black wm-ui-copy">{bestMatch.sku}</p>
+                            <p className="mt-1 text-sm wm-ui-copy">{bestMatch.title}</p>
                           </div>
                         ) : null}
                       </details>
@@ -3812,13 +3812,13 @@ rankedMatches.length ? (
                       {shortlist.length ? (
                         <details className="wm-decision-details">
                           <summary>Standalone shortlist</summary>
-                          <p className="mt-1 text-xs leading-5 text-white/55">Use this when there is no project yet.</p>
+                          <p className="mt-1 text-xs leading-5 wm-ui-copy">Use this when there is no project yet.</p>
 
                           <div className="mt-3 space-y-2">
                             {shortlist.slice(0, 6).map((item) => (
-                              <div key={`${item.sku}-${item.addedAt}`} className="rounded-xl border border-[#29465e] bg-[#0d2133] p-3">
-                                <p className="text-sm font-black text-[#edf6ff]">{item.sku}</p>
-                                <p className="mt-1 text-xs text-white/55">{item.title}</p>
+                              <div key={`${item.sku}-${item.addedAt}`} className="rounded-xl border p-3 wm-ui-card">
+                                <p className="text-sm font-black text-[#edf6ff] wm-ui-copy">{item.sku}</p>
+                                <p className="mt-1 text-xs wm-ui-copy">{item.title}</p>
                               </div>
                             ))}
                           </div>
@@ -3840,23 +3840,23 @@ rankedMatches.length ? (
             <aside className="grid content-start gap-3" aria-label="Finder guidance">
               <WingmanCoachPanel coach={finderCoach} compact showFunnel showVisuals={false} />
 
-              <div className="finder-active-step-panel rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 shadow-sm">
+              <div className="finder-active-step-panel rounded-2xl border p-4 wm-ui-card">
                 <div className="flex items-center gap-2">
                   <SlidersHorizontal className="h-4 w-4 text-white/55" />
-                  <p className="text-sm font-black text-white">Current need</p>
+                  <p className="text-sm font-black wm-ui-copy">Current need</p>
                 </div>
 
                 {needSummaryItems.length ? (
                   <dl className="mt-3 grid gap-2">
                     {needSummaryItems.slice(0, 9).map(([label, value]) => (
-                      <div key={label} className="rounded-xl border border-[#29465e] bg-[#0d2133] p-2">
-                        <dt className="text-[0.68rem] font-black uppercase tracking-[0.12em] text-white/55">{label}</dt>
-                        <dd className="mt-1 text-sm font-semibold text-[#edf6ff]">{value}</dd>
+                      <div key={label} className="rounded-xl border p-2 wm-ui-card">
+                        <dt className="text-[0.68rem] font-black uppercase tracking-[0.12em] wm-ui-kicker">{label}</dt>
+                        <dd className="mt-1 text-sm font-semibold text-[#edf6ff] wm-ui-copy">{value}</dd>
                       </div>
                     ))}
                   </dl>
                 ) : (
-                  <p className="mt-3 text-sm leading-6 text-white/55">No requirement selected yet. Start with a quick-start path or search by SKU.</p>
+                  <p className="mt-3 text-sm leading-6 wm-ui-copy">No requirement selected yet. Start with a quick-start path or search by SKU.</p>
                 )}
               </div>
             </aside>
@@ -3865,25 +3865,25 @@ rankedMatches.length ? (
       </SectionCard>
 
       {message ? (
-        <div className="fixed bottom-5 right-5 z-[130] max-w-md rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900 shadow-xl">
+        <div className="fixed bottom-5 right-5 z-[130] max-w-md rounded-2xl border px-4 py-3 text-sm font-semibold wm-ui-card wm-ui-copy">
           {message}
         </div>
       ) : null}
 
       {selectedProduct ? (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-2xl rounded-3xl border border-slate-700 bg-slate-950 p-5 text-white shadow-2xl">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center px-4 backdrop-blur-sm wm-ui-card">
+          <div className="w-full max-w-2xl rounded-3xl border p-5 wm-ui-card">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-300">Add WyreStorm product to project</p>
-                <h2 className="mt-2 text-2xl font-black tracking-tight">{selectedProduct.sku}</h2>
-                <p className="mt-1 text-sm text-slate-300">{selectedProduct.title}</p>
+                <p className="text-xs font-black uppercase tracking-[0.18em] wm-ui-copy wm-ui-kicker">Add WyreStorm product to project</p>
+                <h2 className="mt-2 text-2xl font-black tracking-tight wm-ui-title wm-ui-kicker">{selectedProduct.sku}</h2>
+                <p className="mt-1 text-sm wm-ui-copy">{selectedProduct.title}</p>
               </div>
 
               <button
                 type="button"
                 onClick={closeAddPanel}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-slate-200 transition hover:bg-[#0d2133]"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border transition wm-ui-button wm-ui-button-secondary wm-ui-card wm-ui-copy"
                 aria-label="Close add to project panel"
               >
                 <X className="h-5 w-5" />
@@ -3891,14 +3891,14 @@ rankedMatches.length ? (
             </div>
 
             <div className="mt-5 grid gap-4 lg:grid-cols-2">
-              <div className="rounded-2xl border border-[#29465e] bg-[#0d2133]/[0.04] p-4">
-                <p className="text-sm font-black">Add to existing project</p>
-                <p className="mt-1 text-xs leading-5 text-slate-400">Attach this product to an existing opportunity.</p>
+              <div className="rounded-2xl border bg-[#0d2133]/[0.04] p-4 wm-ui-card">
+                <p className="text-sm font-black wm-ui-copy">Add to existing project</p>
+                <p className="mt-1 text-xs leading-5 wm-ui-copy">Attach this product to an existing opportunity.</p>
 
-                <select
+                <select className={["wm-ui-input", "mt-4 h-11 w-full rounded-xl border border-[#29465e] bg-slate-900 px-3 text-sm text-white outline-none focus:border-cyan-400"].filter(Boolean).join(" ")}
                   value={selectedProjectId}
                   onChange={(event) => setSelectedProjectId(event.target.value)}
-                  className="mt-4 h-11 w-full rounded-xl border border-[#29465e] bg-slate-900 px-3 text-sm text-white outline-none focus:border-cyan-400"
+
                 >
                   {projects.map((project) => (
                     <option key={project.id} value={project.id}>
@@ -3911,35 +3911,35 @@ rankedMatches.length ? (
                   type="button"
                   onClick={addToExistingProject}
                   disabled={!selectedProjectId}
-                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-cyan-500 px-4 py-2 text-sm font-black text-white transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-40 wm-ui-button wm-ui-button-primary wm-ui-card wm-ui-copy"
                 >
                   <Plus className="h-4 w-4" />
                   Add to existing project
                 </button>
               </div>
 
-              <div className="rounded-2xl border border-[#29465e] bg-[#0d2133]/[0.04] p-4">
-                <p className="text-sm font-black">Create new project</p>
-                <p className="mt-1 text-xs leading-5 text-slate-400">Start a new Finder-stage project with this product attached.</p>
+              <div className="rounded-2xl border bg-[#0d2133]/[0.04] p-4 wm-ui-card">
+                <p className="text-sm font-black wm-ui-copy">Create new project</p>
+                <p className="mt-1 text-xs leading-5 wm-ui-copy">Start a new Finder-stage project with this product attached.</p>
 
-                <input
+                <input className={["wm-ui-input", "mt-4 h-11 w-full rounded-xl border border-[#29465e] bg-slate-900 px-3 text-sm text-white outline-none focus:border-cyan-400"].filter(Boolean).join(" ")}
                   value={newProjectName}
                   onChange={(event) => setNewProjectName(event.target.value)}
                   placeholder="Project name"
-                  className="mt-4 h-11 w-full rounded-xl border border-[#29465e] bg-slate-900 px-3 text-sm text-white outline-none focus:border-cyan-400"
+
                 />
 
-                <input
+                <input className={["wm-ui-input", "mt-3 h-11 w-full rounded-xl border border-[#29465e] bg-slate-900 px-3 text-sm text-white outline-none focus:border-cyan-400"].filter(Boolean).join(" ")}
                   value={newProjectOwner}
                   onChange={(event) => setNewProjectOwner(event.target.value)}
                   placeholder="Owner"
-                  className="mt-3 h-11 w-full rounded-xl border border-[#29465e] bg-slate-900 px-3 text-sm text-white outline-none focus:border-cyan-400"
+
                 />
 
                 <button
                   type="button"
                   onClick={addToNewProject}
-                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#0d2133] px-4 py-2 text-sm font-black text-white transition hover:bg-[#0d2133]"
+                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-black transition wm-ui-button wm-ui-button-secondary wm-ui-card wm-ui-copy"
                 >
                   <FolderPlus className="h-4 w-4" />
                   Create project and add</button>
@@ -3947,19 +3947,19 @@ rankedMatches.length ? (
             </div>
 
             <div className="mt-5 flex flex-wrap justify-end gap-3">
-              <button
+              <button className={["wm-ui-button wm-ui-button-secondary", "rounded-full border border-[#29465e] px-4 py-2 text-sm font-black text-slate-200 transition hover:bg-[#0d2133]"].filter(Boolean).join(" ")}
                 type="button"
                 onClick={() => addToStandaloneShortlist(selectedProduct)}
-                className="rounded-full border border-[#29465e] px-4 py-2 text-sm font-black text-slate-200 transition hover:bg-[#0d2133]"
+
               >
                 Shortlist only
               </button>
 
-              <Link to={routeCatalogByKey.projects.path} className="rounded-full border border-[#29465e] px-4 py-2 text-sm font-black text-slate-200 transition hover:bg-[#0d2133]">
+              <Link to={routeCatalogByKey.projects.path} className="rounded-full border px-4 py-2 text-sm font-black transition wm-ui-card wm-ui-copy">
                 Open projects
               </Link>
 
-              <Link to={routeCatalogByKey.proposal.path} className="rounded-full bg-[#0d2133] px-4 py-2 text-sm font-black text-white transition hover:bg-[#0d2133]">
+              <Link to={routeCatalogByKey.proposal.path} className="rounded-full px-4 py-2 text-sm font-black transition wm-ui-card wm-ui-copy">
                 Continue to proposal
               </Link>
             </div>

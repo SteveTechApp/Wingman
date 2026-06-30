@@ -424,9 +424,9 @@ function TemplatesPage() {
       data-wingman-page="templates"
       data-template-selection={stagedId ? "staged" : "idle"}
     >
-      <section className="wm-template-hero wm-ui-hero wingman-surface">
+      <section className="wm-template-hero wm-ui-hero wingman-surface wm-ui-section">
         <div>
-          <p className="wm-template-kicker wm-ui-kicker">Wingman / Templates</p>
+          <p className="wm-template-kicker wm-ui-kicker wm-ui-copy">Wingman / Templates</p>
           <h1 className="wm-ui-title">Start from a real AV application, not a blank form.</h1>
           <p className="wm-ui-copy">
             Choose a vertical-market template to seed discovery, architecture direction,
@@ -435,8 +435,8 @@ function TemplatesPage() {
         </div>
       </section>
 
-      <section className="wm-template-filter-panel wm-ui-section wingman-surface">
-        <label className="wm-template-search wm-ui-form-field">
+      <section className="wm-template-filter-panel wm-ui-section wingman-surface wm-ui-card">
+        <label className="wm-template-search wm-ui-form-field wm-ui-card">
           <span>Search templates</span>
           <input
             className="wm-ui-input"
@@ -461,31 +461,31 @@ function TemplatesPage() {
         </div>
       </section>
 
-      <section className="wm-template-results-header wm-ui-section">
+      <section className="wm-template-results-header wm-ui-section wm-ui-card-header">
         <div>
-          <p className="wm-template-kicker wm-ui-kicker">Template library</p>
+          <p className="wm-template-kicker wm-ui-kicker wm-ui-copy">Template library</p>
           <h2 className="wm-ui-title">{filtered.length} options</h2>
         </div>
         <p className="wm-ui-copy">Choose a starting point. Review before quotation.</p>
       </section>
 
-      <section className="wm-template-card-grid wm-ui-grid">
+      <section className="wm-template-card-grid wm-ui-grid wm-ui-section wm-ui-card">
         {filtered.map((template) => {
           const isStaged = stagedId === template.id;
           const isMuted = stagedId !== null && !isStaged;
 
           return (
           <article key={template.id} data-template-staged={isStaged ? "true" : "false"} className="wm-template-card wm-ui-card wingman-surface">
-            <div className="wm-template-card-top">
+            <div className="wm-template-card-top wm-ui-card">
               <span>{template.vertical}</span>
               <span>{template.application}</span>
             </div>
 
-            <h3>{template.title}</h3>
-            <p className="wm-template-summary">{template.summary}</p>
-            <p className="wm-template-direction">{template.direction}</p>
+            <h3 className="wm-ui-title">{template.title}</h3>
+            <p className="wm-template-summary wm-ui-copy wm-ui-card">{template.summary}</p>
+            <p className="wm-template-direction wm-ui-copy">{template.direction}</p>
 
-            <div className="wm-template-actions wm-ui-action-row">
+            <div className="wm-template-actions wm-ui-action-row wm-ui-card">
               <button
                 type="button"
                 className={`wm-ui-button ${isStaged ? "wm-ui-button-selected wm-ui-decision-sweep" : isMuted ? "wm-ui-button-muted" : "wm-ui-button-secondary"}`}

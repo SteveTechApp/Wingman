@@ -470,7 +470,7 @@ function renderWithGuruLinks(text: string, product?: ProductCard): ReactNode {
         <button
           key={`${matchedTerm}-${termStart}`}
           type="button"
-          className="wm-pcc-guru-term"
+          className="wm-pcc-guru-term wm-ui-button wm-ui-button-primary"
           onClick={() => askGuruAboutTerm(matchedTerm, product)}
           title={`Guru says: ${guruTerm.label}`}
         >
@@ -1213,7 +1213,7 @@ return () => {
     goTo(`/wingman/discovery?${params.toString()}`);
   }
 return (
-    <section className="wm-pcc-select-shell">
+    <section className="wm-pcc-select-shell wm-ui-section">
       <style>{`
         .wm-pcc-select-shell {
           --wm-pcc-weight-body: 500;
@@ -2004,21 +2004,21 @@ return (
 
       {activeGalleryItem && selectedProduct && (
         <div
-          className="wm-pcc-gallery-modal"
+          className="wm-pcc-gallery-modal wm-ui-title"
           role="dialog"
           aria-modal="true"
           aria-label={`${activeGalleryItem.title} gallery view`}
         >
-          <div className="wm-pcc-gallery-modal-card">
+          <div className="wm-pcc-gallery-modal-card wm-ui-card">
             <div className="wm-pcc-gallery-modal-head">
               <div>
-                <p className="wm-pcc-gallery-modal-kicker">Product gallery</p>
-                <h3 className="wm-pcc-gallery-modal-title">{activeGalleryItem.title}</h3>
+                <p className="wm-pcc-gallery-modal-kicker wm-ui-copy wm-ui-kicker">Product gallery</p>
+                <h3 className="wm-pcc-gallery-modal-title wm-ui-title">{activeGalleryItem.title}</h3>
               </div>
 
               <button
                 type="button"
-                className="wm-pcc-gallery-modal-close"
+                className="wm-pcc-gallery-modal-close wm-ui-button wm-ui-button-secondary"
                 onClick={() => setActiveGalleryItem(null)}
                 aria-label="Close product gallery"
               >
@@ -2030,7 +2030,7 @@ return (
               {activeGalleryItem.imageUrl ? (
                 <img src={activeGalleryItem.imageUrl} alt={activeGalleryItem.title} />
               ) : (
-                <div className="wm-pcc-gallery-device-card">
+                <div className="wm-pcc-gallery-device-card wm-ui-card">
                   <strong>{selectedProduct.sku}</strong>
                   <span>{activeGalleryItem.label}</span>
                 </div>
@@ -2044,13 +2044,13 @@ return (
         <aside className="wm-pcc-guru-says-popover" role="dialog" aria-live="polite">
           <div className="wm-pcc-guru-says-head">
             <div>
-              <p className="wm-pcc-guru-says-kicker">Guru says</p>
-              <h3 className="wm-pcc-guru-says-title">{activeTermLookup.label}</h3>
+              <p className="wm-pcc-guru-says-kicker wm-ui-copy wm-ui-kicker">Guru says</p>
+              <h3 className="wm-pcc-guru-says-title wm-ui-title">{activeTermLookup.label}</h3>
             </div>
 
             <button
               type="button"
-              className="wm-pcc-guru-says-close"
+              className="wm-pcc-guru-says-close wm-ui-button wm-ui-button-secondary"
               onClick={() => setActiveTermLookup(null)}
               aria-label="Close term explanation"
             >
@@ -2058,19 +2058,19 @@ return (
             </button>
           </div>
 
-          <p className="wm-pcc-guru-says-body">{activeTermLookup.meaning}</p>
+          <p className="wm-pcc-guru-says-body wm-ui-copy">{activeTermLookup.meaning}</p>
         </aside>
       )}
 
-      <header className="wm-pcc-header">
+      <header className="wm-pcc-header wm-ui-card-header">
         <div>
-          <p className="wm-pcc-eyebrow">Wingman workspace</p>
-          <h1 className="wm-pcc-title">Product Discussion</h1>
-          <p className="wm-pcc-subtitle">Discuss one product, then add it to a project only when needed.</p>
+          <p className="wm-pcc-eyebrow wm-ui-copy wm-ui-kicker">Wingman workspace</p>
+          <h1 className="wm-pcc-title wm-ui-title">Product Discussion</h1>
+          <p className="wm-pcc-subtitle wm-ui-copy">Discuss one product, then add it to a project only when needed.</p>
         </div>
 
         <input
-          className="wm-pcc-search"
+          className="wm-pcc-search wm-ui-input"
           aria-label="Search WyreStorm SKU or product type"
           placeholder="Search SKU, family, product type or application..."
           value={query}
@@ -2078,15 +2078,15 @@ return (
         />
       </header>
 
-      <main className="wm-pcc-grid">
-        <section className="wm-pcc-card wm-pcc-left">
+      <main className="wm-pcc-grid wm-ui-page wingman-page-host">
+        <section className="wm-pcc-card wm-pcc-left wm-ui-section wm-ui-card">
           <div className="wm-pcc-chips">
             {PRODUCT_CALL_CARD_HEADINGS.map((family) => (
-              <button
+              <button className={["wm-ui-button wm-ui-button-secondary", `wm-pcc-chip ${activeFamily === family ? "wm-pcc-chip-active" : ""}`].filter(Boolean).join(" ")}
                 key={family}
                 type="button"
                 onClick={() => setActiveFamily(family)}
-                className={`wm-pcc-chip ${activeFamily === family ? "wm-pcc-chip-active" : ""}`}
+
               >
                 {family}
               </button>
@@ -2098,7 +2098,9 @@ return (
               const isQuickDisabled = letter !== "All" && !availableQuickFinders.has(letter);
 
               return (
-                <button
+                <button className={["wm-ui-button wm-ui-button-secondary", `wm-pcc-quick-button ${letter === "All" || letter === "0-9" ? "wm-pcc-quick-button-wide" : ""} ${
+                    activeQuickFinder === letter ? "wm-pcc-quick-button-active" : ""
+                  } ${isQuickDisabled ? "wm-pcc-quick-button-disabled" : ""}`].filter(Boolean).join(" ")}
                   key={letter}
                   type="button"
                   disabled={isQuickDisabled}
@@ -2109,9 +2111,7 @@ return (
 
                     setActiveQuickFinder(letter);
                   }}
-                  className={`wm-pcc-quick-button ${letter === "All" || letter === "0-9" ? "wm-pcc-quick-button-wide" : ""} ${
-                    activeQuickFinder === letter ? "wm-pcc-quick-button-active" : ""
-                  } ${isQuickDisabled ? "wm-pcc-quick-button-disabled" : ""}`}
+
                   title={
                     isQuickDisabled
                       ? `No matching SKUs beginning with ${letter}`
@@ -2130,22 +2130,22 @@ return (
             </span>
 
             <div className="wm-pcc-pager">
-              <button
+              <button className={["wm-ui-button wm-ui-button-secondary", `wm-pcc-pager-button ${safePageIndex <= 0 ? "wm-pcc-disabled" : ""}`].filter(Boolean).join(" ")}
                 type="button"
                 onClick={() => setPageIndex(Math.max(0, safePageIndex - 1))}
                 disabled={safePageIndex <= 0}
-                className={`wm-pcc-pager-button ${safePageIndex <= 0 ? "wm-pcc-disabled" : ""}`}
+
               >
                 Previous
               </button>
 
               <span>Page {safePageIndex + 1} of {pageCount}</span>
 
-              <button
+              <button className={["wm-ui-button wm-ui-button-secondary", `wm-pcc-pager-button ${safePageIndex >= pageCount - 1 ? "wm-pcc-disabled" : ""}`].filter(Boolean).join(" ")}
                 type="button"
                 onClick={() => setPageIndex(Math.min(pageCount - 1, safePageIndex + 1))}
                 disabled={safePageIndex >= pageCount - 1}
-                className={`wm-pcc-pager-button ${safePageIndex >= pageCount - 1 ? "wm-pcc-disabled" : ""}`}
+
               >
                 Next
               </button>
@@ -2160,14 +2160,14 @@ return (
 
           <div className="wm-pcc-product-grid">
             {pageProducts.map((product) => (
-              <button
+              <button className={["wm-ui-button wm-ui-button-secondary", `wm-pcc-product ${selectedProduct?.sku === product.sku ? "wm-pcc-product-active" : ""}`].filter(Boolean).join(" ")}
                 key={product.sku}
                 type="button"
                 onClick={() => {
                   setSelectedSku(product.sku);
                   setActiveTermLookup(null);
                 }}
-                className={`wm-pcc-product ${selectedProduct?.sku === product.sku ? "wm-pcc-product-active" : ""}`}
+
               >
                 <span className="wm-pcc-sku">{product.sku}</span>
                 <span className="wm-pcc-family">
@@ -2186,12 +2186,12 @@ return (
           </div>
         </section>
 
-        <aside className="wm-pcc-card wm-pcc-preview">
+        <aside className="wm-pcc-card wm-pcc-preview wm-ui-card">
           <div>
-            <p className="wm-pcc-label">Product discussion</p>
-            {selectedProduct && <h2 className="wm-pcc-preview-sku">{selectedProduct.sku}</h2>}
+            <p className="wm-pcc-label wm-ui-copy">Product discussion</p>
+            {selectedProduct && <h2 className="wm-pcc-preview-sku wm-ui-title">{selectedProduct.sku}</h2>}
             {selectedProduct && (
-              <p className="wm-pcc-preview-family">
+              <p className="wm-pcc-preview-family wm-ui-copy">
                 {selectedProduct.family}
               </p>
             )}
@@ -2259,7 +2259,7 @@ return (
                 <button
                   key={item.id}
                   type="button"
-                  className="wm-pcc-gallery-tile"
+                  className="wm-pcc-gallery-tile wm-ui-button wm-ui-button-secondary wm-ui-card"
                   onClick={() => setActiveGalleryItem(item)}
                 >
                   <span className="wm-pcc-gallery-thumb" aria-hidden="true">
@@ -2273,7 +2273,7 @@ return (
                   </span>
 
                   <span>
-                    <span className="wm-pcc-gallery-title">{item.title}</span>
+                    <span className="wm-pcc-gallery-title wm-ui-title">{item.title}</span>
                     <span className="wm-pcc-gallery-label">{item.label}</span>
                   </span>
                 </button>
@@ -2281,7 +2281,7 @@ return (
 
               <button
                 type="button"
-                className="wm-pcc-visual-studio-button"
+                className="wm-pcc-visual-studio-button wm-ui-button wm-ui-button-secondary"
                 onClick={() => {
                   if (!selectedProduct) {
                     return;
@@ -2317,18 +2317,18 @@ return (
           )}
           <div className="wm-pcc-section-tabs" aria-label="Product discussion sections">
             {PRODUCT_PANEL_TABS.map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveProductPanel(tab.id)}
-                aria-pressed={activeProductPanel === tab.id}
-                className={[
+              <button className={["wm-ui-button wm-ui-button-secondary", [
                   "wm-pcc-section-tab",
                   tab.id !== "specification" ? "wm-pcc-section-tab-core" : "",
                   activeProductPanel === tab.id ? "wm-pcc-section-tab-active" : "",
                 ]
                   .filter(Boolean)
-                  .join(" ")}
+                  .join(" ")].filter(Boolean).join(" ")}
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveProductPanel(tab.id)}
+                aria-pressed={activeProductPanel === tab.id}
+
               >
                 <strong>{tab.label}</strong>
                 <span>{tab.hint}</span>
@@ -2343,11 +2343,11 @@ return (
           )}
 
           {selectedProduct && (
-            <section className="wm-pcc-focus-panel">
+            <section className="wm-pcc-focus-panel wm-ui-section wm-ui-card">
               {activeProductPanel === "whatItIs" && (
                 <>
-                  <h3 className="wm-pcc-section-heading">What it is</h3>
-                  <p className="wm-pcc-response-copy">
+                  <h3 className="wm-pcc-section-heading wm-ui-title">What it is</h3>
+                  <p className="wm-pcc-response-copy wm-ui-copy">
                     {renderWithGuruLinks(selectedProduct.description, selectedProduct)}
                   </p>
                 </>
@@ -2355,13 +2355,13 @@ return (
 
               {activeProductPanel === "whatItDoes" && (
                 <>
-                  <h3 className="wm-pcc-section-heading">What it does</h3>
-                  <p className="wm-pcc-response-copy">
+                  <h3 className="wm-pcc-section-heading wm-ui-title">What it does</h3>
+                  <p className="wm-pcc-response-copy wm-ui-copy">
                     {renderWithGuruLinks(selectedProduct.fit, selectedProduct)}
                   </p>
 
-                  <p className="wm-pcc-response-subhead">Check before using it</p>
-                  <ul className="wm-pcc-response-list">
+                  <p className="wm-pcc-response-subhead wm-ui-copy">Check before using it</p>
+                  <ul className="wm-pcc-response-list wm-ui-card">
                     {productChecks.slice(0, 3).map((check) => (
                       <li key={check}>{renderWithGuruLinks(check, selectedProduct)}</li>
                     ))}
@@ -2371,15 +2371,15 @@ return (
 
               {activeProductPanel === "howToSell" && (
                 <>
-                  <h3 className="wm-pcc-section-heading">How to sell</h3>
+                  <h3 className="wm-pcc-section-heading wm-ui-title">How to sell</h3>
 
-                  <p className="wm-pcc-response-subhead">Simple talk track</p>
-                  <p className="wm-pcc-response-copy">
+                  <p className="wm-pcc-response-subhead wm-ui-copy">Simple talk track</p>
+                  <p className="wm-pcc-response-copy wm-ui-copy">
                     {renderWithGuruLinks(selectedProduct.openingLine, selectedProduct)}
                   </p>
 
-                  <p className="wm-pcc-response-subhead">Questions to ask</p>
-                  <ul className="wm-pcc-response-list">
+                  <p className="wm-pcc-response-subhead wm-ui-copy">Questions to ask</p>
+                  <ul className="wm-pcc-response-list wm-ui-card">
                     {selectedProduct.questions.slice(0, 4).map((question) => (
                       <li key={question}>{renderWithGuruLinks(question, selectedProduct)}</li>
                     ))}
@@ -2389,7 +2389,7 @@ return (
                     `${selectedProduct.family} ${selectedProduct.category}`.toLowerCase().includes("audio") ||
                     `${selectedProduct.family} ${selectedProduct.category}`.toLowerCase().includes("amplifier")) && (
                     <>
-                      <p className="wm-pcc-response-subhead">Example system shapes</p>
+                      <p className="wm-pcc-response-subhead wm-ui-copy">Example system shapes</p>
                       <div className="wm-pcc-example-grid">
                         {[
                         {
@@ -2403,9 +2403,9 @@ return (
                             "Two amplifier channels can drive left and right low-impedance speakers, typically 4Ω or 8Ω. This suits a local room where stereo playback, clearer music reproduction or a pair of front speakers is required. Check speaker impedance, cable run, channel load and amplifier power per channel.",
                         },
                       ].map((example) => (
-                          <article key={example.title} className="wm-pcc-example-card">
-                            <h4 className="wm-pcc-example-title">{example.title}</h4>
-                            <p className="wm-pcc-example-body">
+                          <article key={example.title} className="wm-pcc-example-card wm-ui-card wm-ui-title">
+                            <h4 className="wm-pcc-example-title wm-ui-title">{example.title}</h4>
+                            <p className="wm-pcc-example-body wm-ui-copy">
                               {renderWithGuruLinks(example.body, selectedProduct)}
                             </p>
                           </article>
@@ -2418,9 +2418,9 @@ return (
 
               {activeProductPanel === "specification" && (
                 <>
-                  <h3 className="wm-pcc-section-heading">Specification</h3>
+                  <h3 className="wm-pcc-section-heading wm-ui-title">Specification</h3>
 
-                  <ul className="wm-pcc-response-list">
+                  <ul className="wm-pcc-response-list wm-ui-card">
                     {productSpecificationRows.map((row) => (
                       <li key={row.label}>
                         <strong>{row.label}:</strong> {renderWithGuruLinks(row.value, selectedProduct)}
@@ -2428,8 +2428,8 @@ return (
                     ))}
                   </ul>
 
-                  <p className="wm-pcc-response-subhead">Known product facts</p>
-                  <ul className="wm-pcc-response-list">
+                  <p className="wm-pcc-response-subhead wm-ui-copy">Known product facts</p>
+                  <ul className="wm-pcc-response-list wm-ui-card">
                     {selectedProduct.proofPoints.slice(0, 5).map((point) => (
                       <li key={point}>{renderWithGuruLinks(point, selectedProduct)}</li>
                     ))}
@@ -2449,7 +2449,7 @@ return (
               >
                 Add to project
               </button>
-              <p className="wm-pcc-action-help">Attach this SKU to an opportunity.</p>
+              <p className="wm-pcc-action-help wm-ui-copy">Attach this SKU to an opportunity.</p>
             </div>
 
             <div className="wm-pcc-action-wrap">
@@ -2461,7 +2461,7 @@ return (
               >
                 Start room builder
               </button>
-              <p className="wm-pcc-action-help">Move into room/system discovery.</p>
+              <p className="wm-pcc-action-help wm-ui-copy">Move into room/system discovery.</p>
             </div>
           </div>
         </aside>
