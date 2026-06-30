@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import { ArrowRight, ArrowRightCircle, FileText, Flag, FolderKanban, PackageCheck, Scale, Search, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
@@ -235,18 +236,22 @@ function projectScopeLine(project: { stage: ProjectStage; owner: string; scope?:
 
 const styles: Record<string, CSSProperties> = {
   page: {
-    position: "relative",
+    position: "fixed",
+    inset: 0,
+    zIndex: 2147483647,
     display: "grid",
     gridTemplateColumns: "300px minmax(0, 1fr)",
     gap: 34,
-    width: "100%",
-    minHeight: "100%",
-    padding: "clamp(24px, 3.5vh, 48px) clamp(24px, 3vw, 56px)",
+    width: "100vw",
+    height: "100vh",
+    padding: "clamp(38px, 6vh, 72px) clamp(52px, 7vw, 110px)",
+    overflow: "auto",
     color: "#e8f0f8",
     background: "radial-gradient(circle at 74% 14%, rgba(99, 243, 255, 0.08), transparent 34%), #0a1019",
     fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
-    borderRadius: 20,
     boxSizing: "border-box",
+    pointerEvents: "auto",
+    isolation: "isolate",
   },
   rail: {
     minHeight: 560,
@@ -442,7 +447,7 @@ export function DashboardPage() {
   const resume = sourceProjects.find((project) => project.id === activeProjectId) ?? sourceProjects[0];
   const recentProjects = sourceProjects.slice(0, 3);
 
-  return (
+  return createPortal(
     <main style={styles.page} className="wm-redesign-dashboard" data-wingman-page="home" data-wingman-home="true" aria-label="Wingman dashboard">
       <aside style={styles.rail}>
         <span style={styles.brand}>W</span>
@@ -557,7 +562,8 @@ export function DashboardPage() {
         <span>Position a specific WyreStorm product</span>
         <span>Review a document or BOM</span>
       </div>
-    </main>
+    </main>,
+    document.body,
   );
 }
 
