@@ -17445,6 +17445,267 @@ main [class*="text-red-"] {
 
 /* WINGMAN NAVIGATION CONSOLIDATION END */
 
+/* WINGMAN HOME SIGNAL SURFACE START */
+
+.wm-navhub-dashboard {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 100%;
+}
+
+.wm-navhub-dashboard::before,
+.wm-navhub-dashboard::after {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+}
+
+.wm-navhub-dashboard::before {
+  inset: 0;
+  background:
+    radial-gradient(circle at 76% 12%, rgba(56, 189, 248, 0.1), transparent 25rem),
+    radial-gradient(circle at 14% 80%, rgba(45, 212, 191, 0.065), transparent 28rem),
+    linear-gradient(125deg, transparent 0 61%, rgba(91, 215, 255, 0.025) 61% 62%, transparent 62% 100%);
+}
+
+.wm-navhub-dashboard::after {
+  right: clamp(1rem, 4vw, 4rem);
+  bottom: clamp(1rem, 4vw, 3rem);
+  width: min(34rem, 58vw);
+  height: 13rem;
+  opacity: 0.42;
+  background:
+    radial-gradient(circle at 8% 72%, rgba(99, 243, 255, 0.48) 0 2px, transparent 3px),
+    radial-gradient(circle at 43% 36%, rgba(99, 243, 255, 0.38) 0 2px, transparent 3px),
+    radial-gradient(circle at 78% 62%, rgba(99, 243, 255, 0.34) 0 2px, transparent 3px),
+    linear-gradient(90deg, transparent 8%, rgba(99, 243, 255, 0.16) 8% 43%, transparent 43%),
+    linear-gradient(145deg, transparent 48%, rgba(99, 243, 255, 0.13) 49% 50%, transparent 51%);
+  mask-image: linear-gradient(to left, black, transparent);
+}
+
+.wm-navhub-dashboard > .wm-navhub-hero,
+.wm-navhub-dashboard > .wm-navhub-secondary,
+.wm-navhub-dashboard .wm-navhub-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.wm-navhub-dashboard > .wm-navhub-hero::after,
+.wm-navhub-dashboard > .wm-navhub-secondary::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 9rem;
+  height: 5rem;
+  pointer-events: none;
+  opacity: 0.35;
+  background:
+    linear-gradient(90deg, transparent 25%, rgba(99, 243, 255, 0.15) 25% 26%, transparent 26% 50%, rgba(99, 243, 255, 0.1) 50% 51%, transparent 51%),
+    linear-gradient(0deg, transparent 30%, rgba(99, 243, 255, 0.13) 30% 32%, transparent 32% 64%, rgba(99, 243, 255, 0.09) 64% 66%, transparent 66%);
+  content: "";
+}
+
+.wm-navhub-dashboard .wm-navhub-card::after {
+  position: absolute;
+  inset: auto -3rem -4rem auto;
+  width: 9rem;
+  height: 9rem;
+  border: 1px solid rgba(99, 243, 255, 0.08);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 1.25rem rgba(99, 243, 255, 0.025),
+    0 0 0 2.5rem rgba(99, 243, 255, 0.018);
+  pointer-events: none;
+  content: "";
+}
+
+.wm-navhub-continuation-card {
+  gap: 0.65rem;
+}
+
+.wm-navhub-continuation-actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 0.2rem;
+}
+
+.wm-navhub-continuation-actions .wm-ui-button,
+.wm-navhub-start-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.45rem;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.82rem;
+  line-height: 1;
+}
+
+html body .wingman-page-host .wm-navhub-reset-action {
+  border-color: rgba(248, 113, 113, 0.28) !important;
+  background: rgba(80, 28, 38, 0.16) !important;
+  color: #d8c4c9 !important;
+}
+
+html body .wingman-page-host .wm-navhub-reset-action:hover,
+html body .wingman-page-host .wm-navhub-reset-action:focus-visible {
+  border-color: rgba(248, 113, 113, 0.72) !important;
+  background: rgba(185, 28, 28, 0.34) !important;
+  color: #fff1f2 !important;
+}
+
+.wm-navhub-resume.is-empty {
+  position: relative;
+  min-height: 15rem;
+  align-content: center;
+  overflow: hidden;
+}
+
+.wm-navhub-resume.is-empty::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.44;
+  background:
+    radial-gradient(circle at 74% 48%, rgba(45, 212, 191, 0.12), transparent 18rem),
+    linear-gradient(90deg, transparent 0 11%, rgba(99, 243, 255, 0.06) 11% 11.15%, transparent 11.15% 100%),
+    linear-gradient(0deg, transparent 0 72%, rgba(99, 243, 255, 0.045) 72% 72.5%, transparent 72.5% 100%);
+  content: "";
+}
+
+.wm-navhub-launch-layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(15rem, 0.75fr) minmax(31rem, 1.65fr);
+  gap: clamp(1.25rem, 3vw, 3rem);
+  align-items: center;
+  min-height: 13rem;
+  padding: clamp(0.65rem, 1.5vw, 1.25rem);
+}
+
+.wm-navhub-launch-intro {
+  display: grid;
+  justify-items: start;
+  gap: 0.7rem;
+}
+
+.wm-navhub-launch-intro h2,
+.wm-navhub-launch-intro p {
+  margin: 0;
+}
+
+.wm-navhub-launch-intro p {
+  max-width: 28rem;
+  color: #f7fbff !important;
+}
+
+.wm-navhub-launch-map {
+  display: grid;
+  gap: 1.4rem;
+  min-width: 0;
+  padding: 1.1rem;
+  border: 1px solid rgba(99, 243, 255, 0.12);
+  border-radius: 15px;
+  background:
+    radial-gradient(circle at 50% 0, rgba(99, 243, 255, 0.07), transparent 65%),
+    rgba(3, 15, 27, 0.42);
+}
+
+.wm-navhub-workflow {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wm-navhub-workflow::before {
+  position: absolute;
+  top: 0.62rem;
+  right: 10%;
+  left: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(99, 243, 255, 0.16), rgba(99, 243, 255, 0.58), rgba(99, 243, 255, 0.16));
+  box-shadow: 0 0 10px rgba(99, 243, 255, 0.15);
+  content: "";
+}
+
+.wm-navhub-workflow li {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  text-align: center;
+}
+
+.wm-navhub-workflow li::before {
+  z-index: 1;
+  width: 0.72rem;
+  height: 0.72rem;
+  border: 2px solid rgba(99, 243, 255, 0.62);
+  border-radius: 50%;
+  background: #071827;
+  box-shadow: 0 0 0 4px rgba(99, 243, 255, 0.055), 0 0 12px rgba(99, 243, 255, 0.18);
+  content: "";
+}
+
+.wm-navhub-workflow strong {
+  color: var(--wm-aqua, #63f3ff) !important;
+  font-size: clamp(0.72rem, 0.9vw, 0.86rem) !important;
+  line-height: 1.2 !important;
+}
+
+.wm-navhub-capabilities {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+html body .wingman-page-host .wm-navhub-capabilities span {
+  padding: 0.35rem 0.58rem;
+  border: 1px solid rgba(99, 243, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(99, 243, 255, 0.045);
+  color: #ffffff !important;
+  font-size: 0.7rem;
+  font-weight: 650;
+  line-height: 1;
+}
+
+@media (max-width: 920px) {
+  .wm-navhub-launch-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .wm-navhub-workflow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 1rem;
+  }
+
+  .wm-navhub-workflow::before {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wm-navhub-dashboard .wm-navhub-card {
+    transition: none;
+  }
+}
+
+/* WINGMAN HOME SIGNAL SURFACE END */
+
 /* WINGMAN PROFILE CONTRAST REPAIR START */
 
 html[data-wingman-route="profile"] .wm-profile-hero,
@@ -36986,3 +37247,277 @@ html[data-wingman-route="discovery"] .wm-ui-button {
     grid-template-columns: 1fr;
   }
 }
+
+/* === Wingman Compare Auto Identify: UC competitor pass === */
+.wm-compare-simplified-page {
+  display: grid;
+  gap: 1.25rem;
+  width: min(100%, 1440px);
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.wm-compare-auto-panel {
+  border: 1px solid rgba(98, 255, 218, 0.22);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(98, 255, 218, 0.12), transparent 34rem),
+    linear-gradient(145deg, rgba(7, 18, 32, 0.96), rgba(2, 8, 18, 0.98));
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  color: #f8fafc;
+  padding: clamp(1rem, 2vw, 1.75rem);
+}
+
+.wm-compare-auto-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.wm-compare-auto-header h1,
+.wm-compare-auto-card h2,
+.wm-compare-auto-card h3,
+.wm-compare-auto-warning-card h3,
+.wm-compare-advanced-heading h2 {
+  color: #62ffda;
+}
+
+.wm-compare-auto-header h1 {
+  margin: 0.15rem 0 0.4rem;
+  font-size: clamp(1.7rem, 3vw, 2.7rem);
+  line-height: 1;
+}
+
+.wm-compare-auto-header p,
+.wm-compare-auto-card dd,
+.wm-compare-auto-card li,
+.wm-compare-auto-warning-card,
+.wm-compare-auto-result-summary p,
+.wm-compare-auto-next,
+.wm-compare-advanced-heading p {
+  color: rgba(248, 250, 252, 0.88);
+}
+
+.wm-compare-auto-secondary,
+.wm-compare-auto-search-row button,
+.wm-compare-auto-examples button {
+  border: 1px solid rgba(98, 255, 218, 0.34);
+  border-radius: 14px;
+  background: rgba(98, 255, 218, 0.1);
+  color: #f8fafc;
+  cursor: pointer;
+  font-weight: 650;
+}
+
+.wm-compare-auto-secondary {
+  padding: 0.7rem 0.95rem;
+  white-space: nowrap;
+}
+
+.wm-compare-auto-search {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.wm-compare-auto-search label {
+  color: #62ffda;
+  font-weight: 700;
+}
+
+.wm-compare-auto-search-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.7rem;
+}
+
+.wm-compare-auto-search-row input {
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.78);
+  color: #ffffff;
+  padding: 0.95rem 1rem;
+  outline: none;
+}
+
+.wm-compare-auto-search-row input:focus {
+  border-color: rgba(98, 255, 218, 0.72);
+  box-shadow: 0 0 0 3px rgba(98, 255, 218, 0.12);
+}
+
+.wm-compare-auto-search-row button {
+  padding: 0.95rem 1.15rem;
+}
+
+.wm-compare-auto-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.wm-compare-auto-examples button {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.wm-compare-auto-results {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.wm-compare-auto-result-summary,
+.wm-compare-auto-card,
+.wm-compare-auto-warning-card,
+.wm-compare-auto-next,
+.wm-compare-advanced-shell {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.68);
+}
+
+.wm-compare-auto-result-summary {
+  display: grid;
+  gap: 0.55rem;
+  padding: 1rem;
+}
+
+.wm-compare-auto-result-summary p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.wm-compare-auto-badge {
+  width: fit-content;
+  border-radius: 999px;
+  padding: 0.28rem 0.62rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.wm-compare-auto-badge-high {
+  background: rgba(34, 197, 94, 0.16);
+  color: #bbf7d0;
+  border: 1px solid rgba(34, 197, 94, 0.32);
+}
+
+.wm-compare-auto-badge-medium {
+  background: rgba(250, 204, 21, 0.14);
+  color: #fef08a;
+  border: 1px solid rgba(250, 204, 21, 0.3);
+}
+
+.wm-compare-auto-badge-low,
+.wm-compare-auto-badge-none {
+  background: rgba(248, 113, 113, 0.14);
+  color: #fecaca;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+}
+
+.wm-compare-auto-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.wm-compare-auto-card {
+  padding: 1rem;
+}
+
+.wm-compare-auto-card h2 {
+  margin: 0.15rem 0 0.7rem;
+  font-size: 1.28rem;
+}
+
+.wm-compare-auto-card h3 {
+  margin: 1rem 0 0.4rem;
+  font-size: 0.95rem;
+}
+
+.wm-compare-auto-card dl {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.wm-compare-auto-card dl div {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.32fr) 1fr;
+  gap: 0.65rem;
+}
+
+.wm-compare-auto-card dt {
+  color: rgba(148, 163, 184, 0.92);
+  font-weight: 700;
+}
+
+.wm-compare-auto-card dd {
+  margin: 0;
+}
+
+.wm-compare-auto-card ul,
+.wm-compare-auto-warning-card ul,
+.wm-compare-auto-candidates ul {
+  margin: 0.4rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.wm-compare-auto-warning-card,
+.wm-compare-auto-next {
+  padding: 0.9rem 1rem;
+}
+
+.wm-compare-auto-warning-card h3 {
+  margin: 0 0 0.35rem;
+}
+
+.wm-compare-auto-warning-card p {
+  margin: 0;
+}
+
+.wm-compare-auto-candidates {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 16px;
+  padding: 0.85rem 1rem;
+  color: rgba(248, 250, 252, 0.88);
+}
+
+.wm-compare-auto-candidates summary {
+  color: #62ffda;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.wm-compare-advanced-shell {
+  padding: 1rem;
+}
+
+.wm-compare-advanced-heading {
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 880px) {
+  .wm-compare-auto-header,
+  .wm-compare-auto-search-row {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .wm-compare-auto-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-compare-auto-card dl div {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-compare-auto-secondary {
+    white-space: normal;
+  }
+}
+/* === End Wingman Compare Auto Identify: UC competitor pass === */

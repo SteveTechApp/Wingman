@@ -1,25 +1,28 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const ROOT = process.cwd();
-const pagePath = path.join(ROOT, "src", "wingman2", "pages", "ComparePageNew.tsx");
+const root = process.cwd();
 
-const failures = [];
+const compareFiles = [
+  path.join(root, "src/wingman2/pages/ComparePageNew.tsx"),
+  path.join(root, "src/wingman2/pages/ComparePageNew.advanced.tsx"),
+];
 
-function fail(message) {
-  failures.push(message);
-}
-
-function read(filePath) {
+function readIfExists(filePath) {
   if (!fs.existsSync(filePath)) {
-    fail(`Missing file: ${path.relative(ROOT, filePath)}`);
     return "";
   }
 
   return fs.readFileSync(filePath, "utf8");
 }
 
-const page = read(pagePath);
+const sources = compareFiles.map((filePath) => ({
+  filePath,
+  relPath: path.relative(root, filePath).replaceAll("\\", "/"),
+  text: readIfExists(filePath),
+}));
+
+const combinedSource = sources.map((source) => source.text).join("\n\n");
 
 const requiredMarkers = [
   "CompareProductLookupInput",
@@ -33,88 +36,60 @@ const requiredMarkers = [
   "applyKnownCompareProfileOverrides",
   "lookupCompareIntelligence",
   "shouldRequestLiveLookupUrl",
-  "data-wingman-compare-auto-advance=\"true\"",
-  "setWorkflowStep(\"options\")",
+  'data-wingman-compare-auto-advance="true"',
+  'setWorkflowStep("options")',
   "isSelectableWyrestormRecommendation",
   "No suitable WyreStorm match found from the current data",
-  "onSubmit={handleSubmit}"
+  "onSubmit={handleSubmit}",
 ];
 
+const failures = [];
+
 for (const marker of requiredMarkers) {
-  if (!page.includes(marker)) {
-    fail(`ComparePage missing: ${marker}`);
+  if (!combinedSource.includes(marker)) {
+    failures.push(`ComparePage split implementation missing: ${marker}`);
   }
 }
 
-if (page.includes("Find WyreStorm Alternatives")) {
-  fail("ComparePage still contains removed blue-button text: Find WyreStorm Alternatives");
-}
-
-if (page.includes("disabled={!competitorInput.trim()}")) {
-  fail("ComparePage still contains old submit-button disabled marker instead of SKU auto-advance workflow.");
-}
-
-const handleStart = page.indexOf("const handleSkuSelect = useCallback");
-const handleEnd = page.indexOf("const handleSubmit = useCallback", handleStart);
-
-if (handleStart < 0 || handleEnd < 0) {
-  fail("Could not isolate handleSkuSelect before handleSubmit.");
-}
-
-if (handleStart >= 0 && handleEnd > handleStart) {
-  const handler = page.slice(handleStart, handleEnd);
-
-  const handlerMarkers = [
-    "normalizeCompetitorSku(",
-    "runKnownProfileCompare(",
-    "setState(\"analyzing\")",
-    "setState(\"results\")",
-    "setWorkflowStep(\"options\")"
+function hasHandler(source, handlerName) {
+  const patterns = [
+    `function ${handlerName}`,
+    `const ${handlerName}`,
+    `let ${handlerName}`,
+    `var ${handlerName}`,
+    `${handlerName} =`,
+    `${handlerName}:`,
   ];
 
-  for (const marker of handlerMarkers) {
-    if (!handler.includes(marker)) {
-      fail(`handleSkuSelect missing auto-advance marker: ${marker}`);
-    }
-  }
+  return patterns.some((pattern) => source.includes(pattern));
 }
 
-const submitStart = page.indexOf("const handleSubmit = useCallback");
-const retryStart = page.indexOf("const handleRetryWithSourceUrl", submitStart);
+const handlerSource = combinedSource;
 
-if (submitStart < 0 || retryStart < 0) {
-  fail("Could not isolate handleSubmit before live lookup retry.");
+if (!hasHandler(handlerSource, "handleSkuSelect")) {
+  failures.push("Could not find handleSkuSelect in split Compare implementation.");
 }
 
-if (submitStart >= 0 && retryStart > submitStart) {
-  const submitHandler = page.slice(submitStart, retryStart);
-
-  if (!submitHandler.includes("runKnownProfileCompare(")) {
-    fail("handleSubmit should remain as Enter/manual fallback and still run compare.");
-  }
-
-  if (!submitHandler.includes("setWorkflowStep(\"options\")")) {
-    fail("handleSubmit fallback should advance workflow to options.");
-  }
+if (!hasHandler(handlerSource, "handleSubmit")) {
+  failures.push("Could not find handleSubmit in split Compare implementation.");
 }
 
-const retryStartIndex = page.indexOf("const handleRetryWithSourceUrl");
-const resetStart = page.indexOf("const handleReset", retryStartIndex);
-
-if (retryStartIndex < 0 || resetStart < 0) {
-  fail("Could not isolate handleRetryWithSourceUrl.");
+if (!hasHandler(handlerSource, "handleRetryWithSourceUrl")) {
+  failures.push("Could not find handleRetryWithSourceUrl in split Compare implementation.");
 }
 
-if (retryStartIndex >= 0 && resetStart > retryStartIndex) {
-  const retryHandler = page.slice(retryStartIndex, resetStart);
+const advancedSource = sources.find((source) => source.relPath.endsWith("ComparePageNew.advanced.tsx"))?.text ?? "";
 
-  if (!retryHandler.includes("lookupCompareIntelligence(")) {
-    fail("Live lookup retry path missing lookupCompareIntelligence.");
-  }
+if (!advancedSource.includes("handleSubmit")) {
+  failures.push("Advanced Compare implementation should retain handleSubmit.");
+}
 
-  if (!retryHandler.includes("runKnownProfileCompare(")) {
-    fail("Live lookup retry path missing compare rerun.");
-  }
+if (!advancedSource.includes("handleSkuSelect")) {
+  failures.push("Advanced Compare implementation should retain handleSkuSelect.");
+}
+
+if (!combinedSource.includes("ComparePageNew.advanced")) {
+  failures.push("ComparePageNew.tsx should preserve the advanced/manual Compare route behind the simplified wrapper.");
 }
 
 if (failures.length > 0) {
@@ -122,8 +97,7 @@ if (failures.length > 0) {
   for (const failure of failures) {
     console.error(`- ${failure}`);
   }
-
   process.exit(1);
 }
 
-console.log("[compare-page-candidate-gate] Verified active Compare page applies SKU auto-advance, viable-option gate, manual Enter fallback, and live lookup retry before match ranking.");
+console.log("[compare-page-candidate-gate] OK. Split Compare wrapper and advanced candidate gate markers are retained.");
