@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-06-30T06:39:02.838Z",
-  "rule": "Current totals become the maximum allowed style-drift counts. Future changes must not increase these counts.",
-  "totals": {
-    "hex": 2186,
-    "rgb": 2675,
-    "inlineStyle": 102,
-    "arbitraryTailwind": 489,
-    "pageSections": 2521,
-    "legacyPills": 4
-  }
+    "updatedAt":  "2026-07-01T20:15:52.5952412Z",
+    "rule":  "Current totals become the maximum allowed style-drift counts. Future changes must not increase these counts.",
+    "totals":  {
+                   "hex":  2186,
+                   "rgb":  2730,
+                   "inlineStyle":  102,
+                   "arbitraryTailwind":  489,
+                   "pageSections":  2602,
+                   "legacyPills":  4
+               }
 }
