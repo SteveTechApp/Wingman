@@ -37686,3 +37686,668 @@ html[data-wingman-route="discovery"] .wm-ui-button {
 .wm-legacy-schematic-shell:not([open]) .wm-legacy-schematic-body {
   display: none;
 }
+
+/* Wingman dashboard visual correction pass */
+.wm-dashboard-page,
+.wingman-dashboard-page,
+[data-wingman-page="dashboard"] {
+  --wm-dashboard-gap: 1rem;
+}
+
+/* Reduce oversized dashboard support panel behaviour */
+.wm-dashboard-page aside,
+.wingman-dashboard-page aside,
+[data-wingman-page="dashboard"] aside {
+  align-self: start;
+}
+
+/* Convert giant circular quick-action buttons into desktop-appropriate action cards */
+.wm-dashboard-page button,
+.wingman-dashboard-page button,
+[data-wingman-page="dashboard"] button {
+  min-height: auto;
+}
+
+.wm-dashboard-page button[class*="circle"],
+.wingman-dashboard-page button[class*="circle"],
+[data-wingman-page="dashboard"] button[class*="circle"],
+.wm-dashboard-page button[class*="rounded-full"],
+.wingman-dashboard-page button[class*="rounded-full"],
+[data-wingman-page="dashboard"] button[class*="rounded-full"] {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 4.5rem !important;
+  aspect-ratio: auto !important;
+  border-radius: 1rem !important;
+  padding: 1rem !important;
+}
+
+/* Make the left quick-start panel less dominant */
+.wm-dashboard-page [class*="quick"],
+.wingman-dashboard-page [class*="quick"],
+[data-wingman-page="dashboard"] [class*="quick"] {
+  gap: 0.75rem;
+}
+
+/* Active projects should not reserve a large empty canvas */
+.wm-dashboard-page section:has(h2),
+.wingman-dashboard-page section:has(h2),
+[data-wingman-page="dashboard"] section:has(h2) {
+  min-height: auto;
+}
+
+/* Specifically compress work-in-progress / active-project containers */
+.wm-dashboard-page [class*="project"],
+.wingman-dashboard-page [class*="project"],
+[data-wingman-page="dashboard"] [class*="project"] {
+  align-content: start;
+}
+
+.wm-dashboard-page [class*="active"] [class*="project"],
+.wingman-dashboard-page [class*="active"] [class*="project"],
+[data-wingman-page="dashboard"] [class*="active"] [class*="project"] {
+  margin-top: 0;
+}
+
+/* Avoid large empty cards inside active-project area */
+.wm-dashboard-page [class*="active"] > div,
+.wingman-dashboard-page [class*="active"] > div,
+[data-wingman-page="dashboard"] [class*="active"] > div {
+  min-height: auto;
+}
+
+/* Make dashboard cards denser and more desktop-native */
+.wm-dashboard-page .wm-ui-card,
+.wingman-dashboard-page .wm-ui-card,
+[data-wingman-page="dashboard"] .wm-ui-card {
+  padding-block: 1rem;
+}
+
+/* Reduce excessive vertical whitespace in dashboard sections */
+.wm-dashboard-page section,
+.wingman-dashboard-page section,
+[data-wingman-page="dashboard"] section {
+  margin-bottom: 0.85rem;
+}
+
+/* Primary destination cards should feel like compact workflow tiles */
+.wm-dashboard-page a[class*="card"],
+.wingman-dashboard-page a[class*="card"],
+[data-wingman-page="dashboard"] a[class*="card"],
+.wm-dashboard-page button[class*="card"],
+.wingman-dashboard-page button[class*="card"],
+[data-wingman-page="dashboard"] button[class*="card"] {
+  min-height: auto;
+}
+
+/* Keep active project cards near the section header */
+.wm-dashboard-page [class*="active"] ul,
+.wingman-dashboard-page [class*="active"] ul,
+[data-wingman-page="dashboard"] [class*="active"] ul,
+.wm-dashboard-page [class*="active"] [class*="grid"],
+.wingman-dashboard-page [class*="active"] [class*="grid"],
+[data-wingman-page="dashboard"] [class*="active"] [class*="grid"] {
+  align-items: start;
+  align-content: start;
+}
+
+/* Wingman dashboard targeted visual correction */
+.wm-dashboard-page {
+  align-items: start !important;
+  gap: 1rem !important;
+}
+
+.wm-dashboard-rail {
+  position: sticky;
+  top: 1rem;
+  display: grid !important;
+  gap: 0.85rem !important;
+  align-self: start !important;
+  max-width: 260px !important;
+  min-height: 0 !important;
+  padding: 1rem !important;
+}
+
+.wm-dashboard-brand {
+  width: 2.35rem !important;
+  height: 2.35rem !important;
+  min-width: 2.35rem !important;
+  font-size: 0.95rem !important;
+}
+
+.wm-dashboard-rail-title {
+  font-size: 1.05rem !important;
+  line-height: 1.18 !important;
+  margin: 0 !important;
+}
+
+.wm-dashboard-rail-copy {
+  font-size: 0.78rem !important;
+  line-height: 1.45 !important;
+  margin: 0 !important;
+}
+
+.wm-dashboard-rail-actions {
+  display: grid !important;
+  gap: 0.65rem !important;
+}
+
+.wm-dashboard-action-button {
+  width: 100% !important;
+  min-height: 3.2rem !important;
+  height: auto !important;
+  aspect-ratio: auto !important;
+  border-radius: 0.9rem !important;
+  padding: 0.8rem 0.9rem !important;
+  justify-content: space-between !important;
+  font-size: 0.82rem !important;
+  line-height: 1.2 !important;
+}
+
+.wm-dashboard-action-button::before,
+.wm-dashboard-action-button::after {
+  display: none !important;
+}
+
+.wm-dashboard-main {
+  display: grid !important;
+  gap: 0.9rem !important;
+  min-width: 0 !important;
+}
+
+.wm-dashboard-resume-card {
+  min-height: 0 !important;
+  padding: 1.15rem !important;
+}
+
+.wm-dashboard-resume-head {
+  align-items: start !important;
+  gap: 1rem !important;
+}
+
+.wm-dashboard-section {
+  min-height: 0 !important;
+  padding: 1rem !important;
+  margin: 0 !important;
+}
+
+.wm-dashboard-section-head {
+  align-items: start !important;
+  margin-bottom: 0.85rem !important;
+}
+
+.wm-dashboard-grid {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(160px, 1fr)) !important;
+  gap: 0.75rem !important;
+  align-items: stretch !important;
+}
+
+.wm-dashboard-destination-card {
+  min-height: 0 !important;
+  padding: 0.85rem !important;
+  gap: 0.55rem !important;
+}
+
+.wm-dashboard-destination-card h3,
+.wm-dashboard-destination-card strong {
+  font-size: 0.95rem !important;
+  line-height: 1.2 !important;
+}
+
+.wm-dashboard-destination-card p {
+  font-size: 0.74rem !important;
+  line-height: 1.35 !important;
+}
+
+.wm-dashboard-projects-section {
+  min-height: 0 !important;
+  max-height: none !important;
+  display: grid !important;
+  align-content: start !important;
+  padding-bottom: 1rem !important;
+}
+
+.wm-dashboard-projects-section::before,
+.wm-dashboard-projects-section::after {
+  display: none !important;
+}
+
+.wm-dashboard-project-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(180px, 240px)) !important;
+  gap: 0.75rem !important;
+  align-items: start !important;
+  align-content: start !important;
+  justify-content: start !important;
+  min-height: 0 !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.wm-dashboard-project-card {
+  min-height: 0 !important;
+  padding: 0.85rem !important;
+}
+
+.wm-dashboard-card-link {
+  font-size: 0.8rem !important;
+}
+
+@media (max-width: 1180px) {
+  .wm-dashboard-page {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wm-dashboard-rail {
+    position: relative;
+    top: auto;
+    max-width: none !important;
+  }
+
+  .wm-dashboard-rail-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .wm-dashboard-grid {
+    grid-template-columns: repeat(2, minmax(180px, 1fr)) !important;
+  }
+}
+
+/* Wingman dashboard real DOM correction */
+.wm-route-dashboard .wm-dashboard-shell,
+.wm-dashboard-visual-root[data-wingman-home="true"],
+.wingman-page-host[data-wingman-page="home"] {
+  display: grid !important;
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr) !important;
+  gap: 1rem !important;
+  align-items: start !important;
+  max-width: none !important;
+}
+
+/* Left task rail */
+.wm-route-dashboard .wm-dashboard-rail,
+.wm-dashboard-shell .wm-dashboard-rail,
+.wingman-page-host[data-wingman-page="home"] .wm-dashboard-rail {
+  position: sticky !important;
+  top: 1rem !important;
+  align-self: start !important;
+  display: grid !important;
+  gap: 0.85rem !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  padding: 1rem !important;
+  overflow: visible !important;
+}
+
+/* Stop the dashboard buttons becoming giant circles */
+.wm-route-dashboard .wm-dashboard-action-button,
+.wm-dashboard-shell .wm-dashboard-action-button,
+.wingman-page-host[data-wingman-page="home"] .wm-dashboard-action-button {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 3.4rem !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  border-radius: 0.95rem !important;
+  padding: 0.8rem 0.95rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  font-size: 0.84rem !important;
+  line-height: 1.2 !important;
+  text-align: left !important;
+  transform: none !important;
+}
+
+.wm-route-dashboard .wm-dashboard-action-button:first-child,
+.wm-dashboard-shell .wm-dashboard-action-button:first-child,
+.wingman-page-host[data-wingman-page="home"] .wm-dashboard-action-button:first-child {
+  min-height: 3.6rem !important;
+}
+
+/* Remove circular sizing from inherited button styles */
+.wm-route-dashboard .wm-dashboard-action-button.rounded-full,
+.wm-dashboard-shell .wm-dashboard-action-button.rounded-full,
+.wingman-page-host[data-wingman-page="home"] .wm-dashboard-action-button.rounded-full {
+  border-radius: 0.95rem !important;
+}
+
+/* Main dashboard density */
+.wm-route-dashboard .wm-dashboard-main,
+.wm-dashboard-shell .wm-dashboard-main,
+.wingman-page-host[data-wingman-page="home"] .wm-dashboard-main {
+  display: grid !important;
+  gap: 0.9rem !important;
+  min-width: 0 !important;
+}
+
+.wm-route-dashboard .wm-dashboard-resume-card,
+.wm-dashboard-shell .wm-dashboard-resume-card,
+.wingman-page-host[data-wingman-page="home"] .wm-dashboard-resume-card {
+  min-height: 0 !important;
+  padding: 1.1rem !important;
+}
+
+.wm-route-dashboard .wm-dashboard-section,
+.wm-dashboard-shell .wm-dashboard-section,
+.wingman-page-host[data-wingman-page="home"] .wm-dashboard-section {
+  min-height: 0 !important;
+  padding: 1rem !important;
+  margin: 0 !important;
+}
+
+/* Destination cards */
+.wm-route-dashboard .wm-dashboard-grid,
+.wm-dashboard-shell .wm-dashboard-grid,
+.wingman-page-host[data-wingman-page="home"] .wm-dashboard-grid {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(145px, 1fr)) !important;
+  gap: 0.75rem !important;
+}
+
+.wm-route-dashboard .wm-dashboard-destination-card,
+.wm-dashboard-shell .wm-dashboard-destination-card,
+.wingman-page-host[data-wingman-page="home"] .wm-dashboard-destination-card {
+  min-height: 0 !important;
+  padding: 0.85rem !important;
+  gap: 0.55rem !important;
+}
+
+/* Active projects: remove the dead void */
+.wm-route-dashboard .wm-dashboard-projects-section,
+.wm-dashboard-shell .wm-dashboard-projects-section,
+.wingman-page-host[data-wingman-page="home"] .wm-dashboard-projects-section {
+  display: grid !important;
+  align-content: start !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  padding: 1rem !important;
+  overflow: visible !important;
+}
+
+.wm-route-dashboard .wm-dashboard-project-grid,
+.wm-dashboard-shell .wm-dashboard-project-grid,
+.wingman-page-host[data-wingman-page="home"] .wm-dashboard-project-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(180px, 240px)) !important;
+  gap: 0.75rem !important;
+  align-items: start !important;
+  align-content: start !important;
+  justify-content: start !important;
+  min-height: 0 !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+.wm-route-dashboard .wm-dashboard-project-card,
+.wm-dashboard-shell .wm-dashboard-project-card,
+.wingman-page-host[data-wingman-page="home"] .wm-dashboard-project-card {
+  min-height: 0 !important;
+  padding: 0.85rem !important;
+}
+
+/* Prevent decorative overlays from creating empty visual mass */
+.wm-route-dashboard .wm-dashboard-projects-section::before,
+.wm-route-dashboard .wm-dashboard-projects-section::after,
+.wm-dashboard-shell .wm-dashboard-projects-section::before,
+.wm-dashboard-shell .wm-dashboard-projects-section::after,
+.wingman-page-host[data-wingman-page="home"] .wm-dashboard-projects-section::before,
+.wingman-page-host[data-wingman-page="home"] .wm-dashboard-projects-section::after {
+  display: none !important;
+}
+
+@media (max-width: 1180px) {
+  .wm-route-dashboard .wm-dashboard-shell,
+  .wm-dashboard-visual-root[data-wingman-home="true"],
+  .wingman-page-host[data-wingman-page="home"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wm-route-dashboard .wm-dashboard-rail,
+  .wm-dashboard-shell .wm-dashboard-rail,
+  .wingman-page-host[data-wingman-page="home"] .wm-dashboard-rail {
+    position: relative !important;
+    top: auto !important;
+  }
+
+  .wm-route-dashboard .wm-dashboard-rail-actions,
+  .wm-dashboard-shell .wm-dashboard-rail-actions,
+  .wingman-page-host[data-wingman-page="home"] .wm-dashboard-rail-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .wm-route-dashboard .wm-dashboard-grid,
+  .wm-dashboard-shell .wm-dashboard-grid,
+  .wingman-page-host[data-wingman-page="home"] .wm-dashboard-grid {
+    grid-template-columns: repeat(2, minmax(160px, 1fr)) !important;
+  }
+}
+
+/* Wingman dashboard final density override */
+.wm-dashboard-shell .wm-dashboard-rail {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.85rem !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 1rem !important;
+}
+
+.wm-dashboard-shell .wm-dashboard-rail-actions {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.65rem !important;
+  min-height: 0 !important;
+  height: auto !important;
+}
+
+.wm-dashboard-shell .wm-dashboard-rail-actions > a,
+.wm-dashboard-shell .wm-dashboard-action-button,
+.wm-dashboard-shell a.wm-dashboard-action-button {
+  box-sizing: border-box !important;
+  display: flex !important;
+  width: 100% !important;
+  height: 3.35rem !important;
+  min-height: 3.35rem !important;
+  max-height: 3.35rem !important;
+  aspect-ratio: auto !important;
+  border-radius: 0.9rem !important;
+  padding: 0.8rem 0.95rem !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  text-align: left !important;
+  font-size: 0.84rem !important;
+  line-height: 1.15 !important;
+  transform: none !important;
+}
+
+.wm-dashboard-shell .wm-dashboard-rail-actions > a:nth-child(1),
+.wm-dashboard-shell .wm-dashboard-rail-actions > a:nth-child(2) {
+  height: 3.35rem !important;
+  min-height: 3.35rem !important;
+  max-height: 3.35rem !important;
+  border-radius: 0.9rem !important;
+}
+
+.wm-dashboard-shell .wm-dashboard-rail-actions > a::before,
+.wm-dashboard-shell .wm-dashboard-rail-actions > a::after,
+.wm-dashboard-shell .wm-dashboard-action-button::before,
+.wm-dashboard-shell .wm-dashboard-action-button::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Active projects must not create a blank holding area */
+.wm-dashboard-shell .wm-dashboard-projects-section {
+  display: block !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  padding: 1rem !important;
+  overflow: visible !important;
+}
+
+.wm-dashboard-shell .wm-dashboard-projects-section .wm-dashboard-section-head {
+  margin-bottom: 0.85rem !important;
+}
+
+.wm-dashboard-shell .wm-dashboard-project-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(180px, 240px)) !important;
+  gap: 0.75rem !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  align-items: start !important;
+  align-content: start !important;
+  justify-content: start !important;
+  transform: none !important;
+}
+
+.wm-dashboard-shell .wm-dashboard-project-grid::before,
+.wm-dashboard-shell .wm-dashboard-project-grid::after,
+.wm-dashboard-shell .wm-dashboard-projects-section::before,
+.wm-dashboard-shell .wm-dashboard-projects-section::after {
+  content: none !important;
+  display: none !important;
+}
+
+.wm-dashboard-shell .wm-dashboard-project-card {
+  height: auto !important;
+  min-height: 8.5rem !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0.85rem !important;
+}
+
+/* Keep dashboard usable at larger app scale values */
+.wm-dashboard-shell .wm-dashboard-resume-card {
+  padding: 1rem !important;
+}
+
+.wm-dashboard-shell .wm-dashboard-section {
+  padding: 1rem !important;
+}
+
+.wm-dashboard-shell .wm-dashboard-grid {
+  gap: 0.75rem !important;
+}
+
+.wm-dashboard-shell .wm-dashboard-destination-card {
+  padding: 0.85rem !important;
+  min-height: 8.5rem !important;
+}
+
+/* Wingman dashboard hard layout override */
+.wm-dashboard-shell .wm-dashboard-rail-actions {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  grid-auto-rows: 3.35rem !important;
+  gap: 0.65rem !important;
+  height: auto !important;
+  min-height: 0 !important;
+  align-items: start !important;
+  align-content: start !important;
+}
+
+.wm-dashboard-shell .wm-dashboard-rail-actions > a.wm-dashboard-action-button,
+.wm-dashboard-shell .wm-dashboard-rail-actions > a.wm-ui-button,
+.wm-dashboard-shell .wm-dashboard-action-button {
+  flex: 0 0 3.35rem !important;
+  flex-grow: 0 !important;
+  flex-shrink: 0 !important;
+  flex-basis: 3.35rem !important;
+  block-size: 3.35rem !important;
+  inline-size: 100% !important;
+  width: 100% !important;
+  height: 3.35rem !important;
+  min-height: 3.35rem !important;
+  max-height: 3.35rem !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  aspect-ratio: unset !important;
+  border-radius: 0.9rem !important;
+  padding: 0.75rem 0.95rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  place-content: center space-between !important;
+  text-align: left !important;
+  white-space: normal !important;
+  overflow: hidden !important;
+}
+
+.wm-dashboard-shell .wm-dashboard-rail-actions > a.wm-dashboard-action-button:nth-child(1),
+.wm-dashboard-shell .wm-dashboard-rail-actions > a.wm-dashboard-action-button:nth-child(2) {
+  flex: 0 0 3.35rem !important;
+  block-size: 3.35rem !important;
+  height: 3.35rem !important;
+  min-height: 3.35rem !important;
+  max-height: 3.35rem !important;
+  border-radius: 0.9rem !important;
+}
+
+.wm-dashboard-shell .wm-dashboard-rail-actions > a.wm-dashboard-action-button * {
+  flex: 0 0 auto !important;
+}
+
+.wm-dashboard-shell .wm-dashboard-rail-actions > a.wm-dashboard-action-button::before,
+.wm-dashboard-shell .wm-dashboard-rail-actions > a.wm-dashboard-action-button::after {
+  content: none !important;
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Hard reset the active projects section so cards sit directly below the heading. */
+.wm-dashboard-shell .wm-dashboard-projects-section {
+  display: grid !important;
+  grid-template-rows: auto auto !important;
+  grid-auto-rows: auto !important;
+  align-items: start !important;
+  align-content: start !important;
+  justify-content: stretch !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  padding: 1rem !important;
+  gap: 0.85rem !important;
+  overflow: visible !important;
+}
+
+.wm-dashboard-shell .wm-dashboard-projects-section .wm-dashboard-section-head {
+  grid-row: 1 !important;
+  margin: 0 !important;
+}
+
+.wm-dashboard-shell .wm-dashboard-project-grid {
+  grid-row: 2 !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(180px, 240px)) !important;
+  grid-auto-rows: auto !important;
+  gap: 0.75rem !important;
+  align-items: start !important;
+  align-content: start !important;
+  justify-content: start !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+}
+
+.wm-dashboard-shell .wm-dashboard-project-grid > a,
+.wm-dashboard-shell .wm-dashboard-project-card {
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+  min-height: 8rem !important;
+  height: auto !important;
+}
