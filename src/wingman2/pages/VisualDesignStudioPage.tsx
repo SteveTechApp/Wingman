@@ -752,6 +752,12 @@ export function VisualDesignStudioPage() {
   return (
     <main className="wm-visual-design-page" data-wingman-schematic-builder="true">
       <WingmanGeneratedSchematicPanel />
+      <details className="wm-ui-card wm-legacy-schematic-shell">
+        <summary className="wm-legacy-schematic-summary">
+          <span>Legacy schematic scaffold</span>
+          <strong>Open older Visual Design builder</strong>
+        </summary>
+        <div className="wm-legacy-schematic-body">
       <PageHero
         eyebrow="Schematic Builder"
         title="Create an end-to-end AV schematic with WyreStorm devices and TBC products."
@@ -871,7 +877,9 @@ export function VisualDesignStudioPage() {
           <SchematicReviewPanel result={generated} />
         </section>
       </section>
-    </main>
+            </div>
+      </details>
+</main>
   );
 }
 

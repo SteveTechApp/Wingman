@@ -37644,3 +37644,45 @@ html[data-wingman-route="discovery"] .wm-ui-button {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* Visual Design legacy schematic scaffold */
+.wm-legacy-schematic-shell {
+  margin-top: 1rem;
+  border-color: #7dd3fc33;
+  background: #02061780;
+}
+
+.wm-legacy-schematic-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  cursor: pointer;
+  color: #e2e8f0;
+}
+
+.wm-legacy-schematic-summary span {
+  color: #7dd3fc;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wm-legacy-schematic-summary strong {
+  color: #ffffff;
+  font-size: 0.95rem;
+}
+
+.wm-legacy-schematic-body {
+  margin-top: 1rem;
+  opacity: 0.72;
+}
+
+.wm-legacy-schematic-shell:not([open]) {
+  padding: 1rem;
+}
+
+.wm-legacy-schematic-shell:not([open]) .wm-legacy-schematic-body {
+  display: none;
+}
