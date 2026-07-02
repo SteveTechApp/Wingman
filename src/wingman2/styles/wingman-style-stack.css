@@ -4034,7 +4034,7 @@ html[data-wingman-route="dashboard"] .wm-dashboard-card-slate .wm-dashboard-card
   display: block;
   margin-top: 2px;
   overflow: hidden;
-  color: rgba(226, 232, 240, 0.78);
+  color: #e2e8f0c7;
   font-size: 0.76rem;
   font-weight: 700;
   text-overflow: ellipsis;
@@ -12435,7 +12435,7 @@ table {
 }
 
 .wm-ai-rail-card-emphasis {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(20, 36, 56, 0.95));
+  background: linear-gradient(135deg, #0f172af2, rgba(20, 36, 56, 0.95));
 }
 
 .wm-ai-rail-card-emphasis span {
@@ -12504,7 +12504,7 @@ table {
   border-radius: 999px;
   padding: 0 9px;
   color: #334155;
-  background: rgba(226, 232, 240, 0.82);
+  background: #e2e8f0d1;
   font-size: 0.7rem;
   font-weight: 700;
 }
@@ -31667,7 +31667,7 @@ body .wm-pcc-preview .wm-pcc-section-tab-active.wm-pcc-section-tab span {
 
 .wm-product-family-rule-body {
   margin: 9px 0 0 !important;
-  color: rgba(226, 232, 240, 0.82) !important;
+  color: #e2e8f0d1 !important;
   font-size: 0.8rem !important;
   font-weight: 650 !important;
   line-height: 1.38 !important;
@@ -37521,3 +37521,126 @@ html[data-wingman-route="discovery"] .wm-ui-button {
   }
 }
 /* === End Wingman Compare Auto Identify: UC competitor pass === */
+
+/* Wingman native schematic preview */
+.wm-generated-schematic-panel {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.wm-generated-schematic-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.wm-generated-schematic-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.wm-generated-schematic-canvas {
+  overflow: auto;
+  min-height: 360px;
+  border: 1px solid #7dd3fc38;
+  border-radius: 1rem;
+  background:
+    linear-gradient(#7dd3fc0d 1px, transparent 1px),
+    linear-gradient(90deg, #7dd3fc0d 1px, transparent 1px),
+    #02061780;
+  background-size: 32px 32px;
+}
+
+.wm-generated-schematic-canvas__svg {
+  display: block;
+  width: 980px;
+  height: 520px;
+}
+
+.wm-generated-schematic-node {
+  fill: #0f172af2;
+  stroke: #7dd3fc80;
+  stroke-width: 1.5;
+}
+
+.wm-generated-schematic-node__label {
+  fill: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.wm-generated-schematic-node__meta {
+  fill: #e2e8f0c7;
+  font-size: 11px;
+}
+
+.wm-generated-schematic-connection path {
+  fill: none;
+  stroke: #7dd3fcb8;
+  stroke-width: 2;
+}
+
+.wm-generated-schematic-connection text {
+  fill: #e2e8f0d1;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.wm-generated-schematic-connection marker path,
+#wm-schematic-arrow path {
+  fill: #7dd3fce6;
+}
+
+.wm-generated-schematic-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.wm-generated-schematic-summary .wm-ui-card {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.wm-generated-schematic-summary strong {
+  color: #7dd3fc;
+  font-size: 1.35rem;
+}
+
+.wm-generated-schematic-summary span {
+  color: #e2e8f0d1;
+  font-size: 0.85rem;
+}
+
+.wm-generated-schematic-evidence {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.wm-generated-schematic-evidence ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #e2e8f0e6;
+}
+
+.wm-generated-schematic-evidence li + li {
+  margin-top: 0.35rem;
+}
+
+@media (max-width: 900px) {
+  .wm-generated-schematic-panel__header {
+    flex-direction: column;
+  }
+
+  .wm-generated-schematic-panel__actions {
+    justify-content: flex-start;
+  }
+
+  .wm-generated-schematic-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
