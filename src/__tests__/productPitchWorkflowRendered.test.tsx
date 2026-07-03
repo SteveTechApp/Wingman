@@ -94,7 +94,10 @@ describe("Product Pitch rendered workflow", () => {
     });
 
     [
-      "Product role",
+      "What it does",
+      "How it fits this application",
+      "Say it like this",
+      "Confirm this",
       "Customer problem it solves",
       "Best-fit applications",
       "Poor fit / avoid leading with this",
@@ -160,8 +163,24 @@ describe("Product Pitch rendered workflow", () => {
     expect(ucGuidance.customerSafeWording).not.toMatch(/Teams(?: Rooms?)? certified/i);
     expect(ucGuidance.doNotPromise.join(" ")).toMatch(/unless that certification is explicitly confirmed/i);
     expect(ucGuidance.discoveryQuestions.length).toBeGreaterThanOrEqual(5);
+    expect(ucGuidance.confirmationQuestion).toMatch(/Is that correct\?/i);
     expect(ucGuidance.quoteChecks.length).toBeGreaterThan(0);
     expect(ucGuidance.alternatives.length).toBeGreaterThan(0);
     expect(ucGuidance.attachProducts.length).toBeGreaterThan(0);
+  });
+
+  it("applies saved room context and asks for one simple confirmation", () => {
+    const guidance = buildProductPitchSalesGuidance(
+      makeProduct("MX-TEST", { applications: ["Meeting rooms"] }),
+      makeNarrative("matrix"),
+      { roomType: "Sports bar", application: "Route live sport to each screen" },
+    );
+
+    expect(guidance.scenarioFit).toBe(
+      "For Sports bar - Route live sport to each screen, use it to switch fixed sources to the required displays.",
+    );
+    expect(guidance.confirmationQuestion).toMatch(/^I'm treating this as Sports bar - Route live sport to each screen/);
+    expect(guidance.confirmationQuestion).toMatch(/Is that correct\?$/);
+    expect(guidance.discoveryQuestions.length).toBeGreaterThanOrEqual(5);
   });
 });

@@ -41,32 +41,36 @@ export function ProductCallCardsResponsePage({ sku }: ProductCallCardsResponsePa
   }, [context, product]);
 
   const generatedText = useMemo(() => {
-    const environment = context.environment || context.application || "the room";
+    const environment = context.roomType || context.environment || context.application || "the room";
     const requirement = context.knownRequirement || product.bestFor;
+    const confirmation = (product.checks[0] || "the product job and room requirement")
+      .replace(/^confirm\s+/i, "")
+      .replace(/[.!?]+$/, "")
+      .toLowerCase();
 
     return `${buildOutputLabel(outputType)}
 
 Product:
 ${product.sku} — ${product.name}
 
-Context:
-${environment}
+What it does:
+${product.whatItDoes}
 
-Known requirement:
-${requirement}
+How it fits here:
+For ${environment}, use it where the customer needs ${requirement}
 
-Suggested wording:
+Say it like this:
 ${wording.salespersonAngle}
 
-Why it matters:
-${wording.customerBenefit}
+Confirm this:
+I'm treating this as ${environment}. Can you confirm ${confirmation}?
 
-What to check before recommending:
-${product.checks.slice(0, 5).map((item) => `- ${item}`).join("\n")}
+Check before recommending:
+${product.checks.slice(0, 4).map((item) => `- ${item}`).join("\n")}
 
 Useful follow-up:
 ${product.followUp}`;
-  }, [context.application, context.environment, context.knownRequirement, outputType, product, wording]);
+  }, [context.application, context.environment, context.knownRequirement, context.roomType, outputType, product, wording]);
 
   const copyText = () => {
     if (!navigator.clipboard) {
