@@ -336,7 +336,7 @@ export function ProposalPageProjectMode() {
 
   if (!context.project) {
     return (
-      <div data-wingman-template-detail-page="true" className="pb-10">
+      <div data-wingman-template-detail-page="true" className="pb-10 wm-ui-page wingman-page-host">
         <PageHero
           eyebrow="Customer Proposal Builder"
           title="Open a project before building a proposal."
@@ -352,36 +352,36 @@ export function ProposalPageProjectMode() {
           title="No active project selected"
           subtitle="Proposal output must belong to a real project before Wingman can create a customer-safe proposal or BOM."
         >
-          <div className="rounded-3xl border border-cyan-200 bg-cyan-50 p-6 text-cyan-950">
+          <div className="rounded-3xl border p-6 wm-ui-card">
             <div className="flex flex-wrap items-start gap-4">
-              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#0d2133] text-cyan-700">
+              <div className="grid h-12 w-12 place-items-center rounded-2xl wm-ui-card">
                 <AlertTriangle className="h-6 w-6" />
               </div>
 
               <div className="min-w-0 flex-1">
-                <h2 className="text-2xl font-black text-cyan-950">Proposal Builder is inactive</h2>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-cyan-900">
+                <h2 className="text-2xl font-black wm-ui-title">Proposal Builder is inactive</h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 wm-ui-copy">
                   There is no current project in play. Open or create a project first so the proposal can use only that project's discovery brief, product shortlist, assumptions, BOM rows, and approval notes.
                 </p>
 
                 <div className="mt-5 flex flex-wrap gap-3">
                   <Link
                     to={routeCatalogByKey.projects.path}
-                    className="rounded-full bg-slate-950 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+                    className="rounded-full px-5 py-2 text-sm font-semibold transition wm-ui-card wm-ui-copy"
                   >
                     Open Project Management
                   </Link>
 
                   <Link
                     to={routeCatalogByKey.discovery.path}
-                    className="rounded-full border border-cyan-300 bg-[#0d2133] px-5 py-2 text-sm font-semibold text-cyan-900 transition hover:bg-cyan-100"
+                    className="rounded-full border px-5 py-2 text-sm font-semibold transition wm-ui-card wm-ui-copy"
                   >
                     Start Discovery
                   </Link>
 
                   <Link
                     to={routeCatalogByKey.finder.path}
-                    className="rounded-full border border-cyan-300 bg-[#0d2133] px-5 py-2 text-sm font-semibold text-cyan-900 transition hover:bg-cyan-100"
+                    className="rounded-full border px-5 py-2 text-sm font-semibold transition wm-ui-card wm-ui-copy"
                   >
                     Open Product Finder
                   </Link>
@@ -411,31 +411,31 @@ export function ProposalPageProjectMode() {
         subtitle="Use polished sectioning, recommendation logic, assumptions, and next steps for a customer-presentable SKU or BOM."
         rightSlot={
           <div className="flex flex-wrap gap-3">
-            <button
+            <button className={["wm-ui-button wm-ui-button-secondary", "inline-flex items-center gap-2 rounded-full border border-[#29465e] px-4 py-2 text-sm text-white/70 transition hover:bg-[#0d2133]"].filter(Boolean).join(" ")}
               type="button"
               onClick={() => exportProposalHtml(proposal, bomRows)}
-              className="inline-flex items-center gap-2 rounded-full border border-[#29465e] px-4 py-2 text-sm text-white/70 transition hover:bg-[#0d2133]"
+
             >
               <Download className="h-4 w-4" />
               Export proposal
             </button>
-            <button
+            <button className={["wm-ui-button wm-ui-button-secondary", "inline-flex items-center gap-2 rounded-full border border-[#29465e] px-4 py-2 text-sm text-white/70 transition hover:bg-[#0d2133]"].filter(Boolean).join(" ")}
               type="button"
               onClick={() => exportBomCsv(proposal, bomRows)}
-              className="inline-flex items-center gap-2 rounded-full border border-[#29465e] px-4 py-2 text-sm text-white/70 transition hover:bg-[#0d2133]"
+
             >
               <Table className="h-4 w-4" />
               Export BOM
             </button>
             <Link
               to={routeCatalogByKey.support.path}
-              className="rounded-full border border-[#29465e] px-4 py-2 text-sm text-white/70 transition hover:bg-[#0d2133]"
+              className="rounded-full border px-4 py-2 text-sm transition wm-ui-card wm-ui-copy"
             >
               Request review
             </Link>
             <Link
               to={routeCatalogByKey.projects.path}
-              className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+              className="rounded-full px-4 py-2 text-sm font-medium transition wm-ui-card wm-ui-copy"
             >
               Return to project
             </Link>
@@ -451,47 +451,47 @@ export function ProposalPageProjectMode() {
                   ? "border-cyan-200 bg-cyan-50 text-cyan-950"
                   : "border-emerald-200 bg-emerald-50 text-emerald-950"
             }`}>
-              <p className="wingman-kicker">{readinessLabel}</p>
-              <p className="mt-2 text-3xl font-black">{salesReadiness.readinessScore}%</p>
-              <p className="mt-2 text-sm leading-6">{readinessMessage}</p>
+              <p className="wingman-kicker wm-ui-copy wm-ui-kicker">{readinessLabel}</p>
+              <p className="mt-2 text-3xl font-black wm-ui-copy">{salesReadiness.readinessScore}%</p>
+              <p className="mt-2 text-sm leading-6 wm-ui-copy">{readinessMessage}</p>
             </div>
 
-            <div className="rounded-2xl border border-cyan-200 bg-[#10263a] p-4 text-cyan-950">
-              <p className="wingman-kicker">Lead direction</p>
-              <p className="mt-2 text-xl font-black">{leadingProductFamilyScore?.family || "Core path not confirmed"}</p>
-              <p className="mt-2 text-sm leading-6">
+            <div className="rounded-2xl border p-4 wm-ui-card">
+              <p className="wingman-kicker wm-ui-copy wm-ui-kicker">Lead direction</p>
+              <p className="mt-2 text-xl font-black wm-ui-copy">{leadingProductFamilyScore?.family || "Core path not confirmed"}</p>
+              <p className="mt-2 text-sm leading-6 wm-ui-copy">
                 {topProduct
                   ? `${topProduct.sku} - ${topProduct.title || topProduct.family || "Selected core product"}`
                   : "No WyreStorm core product is selected yet. Use Finder before exporting a customer proposal."}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
-              <p className="wingman-kicker">Customer summary</p>
-              <p className="mt-2 text-lg font-black text-white">{context.discovery.projectTitle}</p>
-              <p className="mt-2 text-sm leading-6 text-white/70">{context.discovery.summary}</p>
+            <div className="rounded-2xl border p-4 wm-ui-card">
+              <p className="wingman-kicker wm-ui-copy wm-ui-kicker">Customer summary</p>
+              <p className="mt-2 text-lg font-black wm-ui-copy">{context.discovery.projectTitle}</p>
+              <p className="mt-2 text-sm leading-6 wm-ui-copy">{context.discovery.summary}</p>
             </div>
 
-            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
-              <p className="wingman-kicker">Ask next</p>
-              <p className="mt-2 text-sm font-black text-white">{proposalCoach.nextQuestion}</p>
-              <p className="mt-2 text-sm leading-6 text-white/70">{proposalCoach.nextAction}</p>
+            <div className="rounded-2xl border p-4 wm-ui-card">
+              <p className="wingman-kicker wm-ui-copy wm-ui-kicker">Ask next</p>
+              <p className="mt-2 text-sm font-black wm-ui-copy">{proposalCoach.nextQuestion}</p>
+              <p className="mt-2 text-sm leading-6 wm-ui-copy">{proposalCoach.nextAction}</p>
             </div>
           </div>
 
           <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
+            <div className="rounded-2xl border p-4 wm-ui-card">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="wingman-kicker">Only what matters live</p>
-                  <p className="mt-1 text-sm leading-6 text-white/70">
+                  <p className="wingman-kicker wm-ui-copy wm-ui-kicker">Only what matters live</p>
+                  <p className="mt-1 text-sm leading-6 wm-ui-copy">
                     Keep the sales conversation on the room, the core WyreStorm path, and the blockers that still need confirming.
                   </p>
                 </div>
-                <button
+                <button className={["wm-ui-button wm-ui-button-secondary", "rounded-full border border-cyan-300 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-[#12314a]"].filter(Boolean).join(" ")}
                   type="button"
                   onClick={() => openGuruFromProposal(proposalGuruPrompt)}
-                  className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-semibold text-cyan-100 transition hover:bg-[#12314a]"
+
                 >
                   Ask Guru to explain this proposal
                 </button>
@@ -499,25 +499,25 @@ export function ProposalPageProjectMode() {
 
               <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {discoverySummaryItems.map(([label, value]) => (
-                  <div key={label} className="rounded-2xl border border-[#29465e] bg-[#0a1b29] p-3">
-                    <p className="text-[0.68rem] font-black uppercase tracking-[0.14em] text-white/55">{label}</p>
-                    <p className="mt-2 text-sm font-semibold text-[#edf6ff]">{value}</p>
+                  <div key={label} className="rounded-2xl border p-3 wm-ui-card">
+                    <p className="text-[0.68rem] font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">{label}</p>
+                    <p className="mt-2 text-sm font-semibold text-[#edf6ff] wm-ui-copy">{value}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-2xl border border-amber-200 bg-[#10263a] p-4 text-amber-950">
-              <p className="wingman-kicker">Validate before issue</p>
-              <ul className="mt-3 space-y-2 text-sm leading-6">
+            <div className="rounded-2xl border p-4 wm-ui-card">
+              <p className="wingman-kicker wm-ui-copy wm-ui-kicker">Validate before issue</p>
+              <ul className="mt-3 space-y-2 text-sm leading-6 wm-ui-copy">
                 {keyValidationItems.length ? (
                   keyValidationItems.map((item) => (
-                    <li key={item} className="rounded-2xl border border-amber-200 bg-[#0a1b29] p-3 text-white/75">
+                    <li key={item} className="rounded-2xl border p-3 wm-ui-card">
                       {item}
                     </li>
                   ))
                 ) : (
-                  <li className="rounded-2xl border border-amber-200 bg-[#0a1b29] p-3 text-white/75">
+                  <li className="rounded-2xl border p-3 wm-ui-card">
                     No major validation blockers are currently visible.
                   </li>
                 )}
@@ -526,24 +526,24 @@ export function ProposalPageProjectMode() {
           </div>
 
           <div className="grid gap-4 xl:grid-cols-[1fr_0.9fr]">
-            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
+            <div className="rounded-2xl border p-4 wm-ui-card">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="wingman-kicker">Core BOM view</p>
-                  <p className="mt-1 text-sm leading-6 text-white/70">Show only the first rows you need for the live conversation.</p>
+                  <p className="wingman-kicker wm-ui-copy wm-ui-kicker">Core BOM view</p>
+                  <p className="mt-1 text-sm leading-6 wm-ui-copy">Show only the first rows you need for the live conversation.</p>
                 </div>
-                <button
+                <button className={["wm-ui-button wm-ui-button-secondary", "rounded-full border border-[#29465e] px-4 py-2 text-sm font-semibold text-white/70 transition hover:bg-[#12314a]"].filter(Boolean).join(" ")}
                   type="button"
                   onClick={() => openGuruFromProposal(`${proposalGuruPrompt} Explain the BOM rows and dependencies in simple sales language.`)}
-                  className="rounded-full border border-[#29465e] px-4 py-2 text-sm font-semibold text-white/70 transition hover:bg-[#12314a]"
+
                 >
                   Ask Guru about BOM
                 </button>
               </div>
 
-              <div className="mt-4 overflow-hidden rounded-2xl border border-[#29465e] wm-template-detail-no-horizontal-scroll">
-                <table className="min-w-full text-left text-sm">
-                  <thead className="bg-[#0a1b29] text-white/60">
+              <div className="mt-4 overflow-hidden rounded-2xl border wm-template-detail-no-horizontal-scroll wm-ui-card">
+                <table className="min-w-full text-left text-sm wm-ui-copy">
+                  <thead className="wm-ui-card">
                     <tr>
                       <th className="px-4 py-3 font-semibold">SKU</th>
                       <th className="px-4 py-3 font-semibold">Role</th>
@@ -553,7 +553,7 @@ export function ProposalPageProjectMode() {
                   <tbody>
                     {bomRows.length ? (
                       bomRows.slice(0, 5).map((row) => (
-                        <tr key={`${row.item}-${row.sku}`} className="border-t border-[#29465e]">
+                        <tr key={`${row.item}-${row.sku}`} className="border-t wm-ui-card">
                           <td className="px-4 py-3 font-semibold text-[#edf6ff]">{row.sku}</td>
                           <td className="px-4 py-3 text-white/70">{row.role}</td>
                           <td className="px-4 py-3 text-white/70">{row.qty}</td>
@@ -571,20 +571,20 @@ export function ProposalPageProjectMode() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
-              <p className="wingman-kicker">Live talk track</p>
+            <div className="rounded-2xl border p-4 wm-ui-card">
+              <p className="wingman-kicker wm-ui-copy wm-ui-kicker">Live talk track</p>
               <div className="mt-3 space-y-3">
-                <div className="rounded-2xl border border-[#29465e] bg-[#0a1b29] p-3 text-sm leading-6 text-white/75">
-                  <p className="font-black text-white">Sales motion</p>
-                  <p className="mt-2">{salesReadiness.outputPurpose.motion}</p>
+                <div className="rounded-2xl border p-3 text-sm leading-6 wm-ui-card wm-ui-copy">
+                  <p className="font-black wm-ui-copy">Sales motion</p>
+                  <p className="mt-2 wm-ui-copy">{salesReadiness.outputPurpose.motion}</p>
                 </div>
-                <div className="rounded-2xl border border-[#29465e] bg-[#0a1b29] p-3 text-sm leading-6 text-white/75">
-                  <p className="font-black text-white">Customer-safe wording</p>
-                  <p className="mt-2">{context.recommendationEvidence?.customerSafeWording?.[0] || "Use the room outcome first, then the WyreStorm path, then the validation point."}</p>
+                <div className="rounded-2xl border p-3 text-sm leading-6 wm-ui-card wm-ui-copy">
+                  <p className="font-black wm-ui-copy">Customer-safe wording</p>
+                  <p className="mt-2 wm-ui-copy">{context.recommendationEvidence?.customerSafeWording?.[0] || "Use the room outcome first, then the WyreStorm path, then the validation point."}</p>
                 </div>
-                <div className="rounded-2xl border border-[#29465e] bg-[#0a1b29] p-3 text-sm leading-6 text-white/75">
-                  <p className="font-black text-white">Why this route fits</p>
-                  <p className="mt-2">{leadingProductFamilyScore?.reasons?.[0] || "Family path selected from the current recommendation evidence."}</p>
+                <div className="rounded-2xl border p-3 text-sm leading-6 wm-ui-card wm-ui-copy">
+                  <p className="font-black wm-ui-copy">Why this route fits</p>
+                  <p className="mt-2 wm-ui-copy">{leadingProductFamilyScore?.reasons?.[0] || "Family path selected from the current recommendation evidence."}</p>
                 </div>
               </div>
             </div>
@@ -600,49 +600,49 @@ export function ProposalPageProjectMode() {
 
           <details className="wm-decision-details">
             <summary>Open full proposal preview</summary>
-            <div className="mt-4 overflow-hidden rounded-3xl border border-[#29465e] bg-[#0d2133] shadow-sm wm-template-detail-no-horizontal-scroll">
-              <div className="bg-slate-950 px-8 py-8 text-white">
-                <p className="wingman-kicker text-slate-400">WyreStorm Wingman proposal</p>
-                <h2 className="wingman-display mt-3 text-4xl">{context.discovery.projectTitle}</h2>
-                <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300">{context.discovery.summary}</p>
+            <div className="mt-4 overflow-hidden rounded-3xl border wm-template-detail-no-horizontal-scroll wm-ui-card">
+              <div className="px-8 py-8 wm-ui-card">
+                <p className="wingman-kicker wm-ui-copy wm-ui-kicker">WyreStorm Wingman proposal</p>
+                <h2 className="wingman-display mt-3 text-4xl wm-ui-title">{context.discovery.projectTitle}</h2>
+                <p className="mt-4 max-w-2xl text-sm leading-7 wm-ui-copy">{context.discovery.summary}</p>
               </div>
               <div className="grid gap-6 p-6 lg:grid-cols-2">
                 <div>
-                  <p className="wingman-kicker">Executive summary</p>
-                  <p className="mt-2 text-sm leading-7 text-white/70">
+                  <p className="wingman-kicker wm-ui-copy wm-ui-kicker">Executive summary</p>
+                  <p className="mt-2 text-sm leading-7 wm-ui-copy">
                     Room size: {context.discovery.roomSize}. Display behaviour: {context.discovery.displays}. USB requirement: {context.discovery.usb}. Longest run: {context.discovery.distance}. Budget posture: {context.discovery.budget}.
                   </p>
                 </div>
                 <div>
-                  <p className="wingman-kicker">Recommended core products</p>
-                  <p className="mt-2 text-sm leading-7 text-white/70">
+                  <p className="wingman-kicker wm-ui-copy wm-ui-kicker">Recommended core products</p>
+                  <p className="mt-2 text-sm leading-7 wm-ui-copy">
                     {rankedProducts.length
                       ? rankedProducts.map((product) => `${product.sku} - ${product.title || product.family || product.category || "Selected product"}`).join("; ")
                       : "No WyreStorm product has been selected yet. Open Product Finder, choose the core product path, and add it to this project before exporting a customer proposal."}
                   </p>
                 </div>
                 <div className="lg:col-span-2">
-                  <div className="rounded-2xl border border-cyan-200 bg-[#10263a] p-4 text-cyan-950">
-                    <p className="wingman-kicker">Proposal product-family decision</p>
+                  <div className="rounded-2xl border p-4 wm-ui-card">
+                    <p className="wingman-kicker wm-ui-copy wm-ui-kicker">Proposal product-family decision</p>
                     {leadingProductFamilyScore ? (
                       <div className="mt-2 grid gap-4 lg:grid-cols-[220px_1fr]">
                         <div>
-                          <p className="text-2xl font-black">{leadingProductFamilyScore.family}</p>
-                          <p className="mt-2 text-sm font-semibold">{leadingProductFamilyScore.score}/100 family confidence before SKU selection</p>
+                          <p className="text-2xl font-black wm-ui-copy">{leadingProductFamilyScore.family}</p>
+                          <p className="mt-2 text-sm font-semibold wm-ui-copy">{leadingProductFamilyScore.score}/100 family confidence before SKU selection</p>
                         </div>
                         <div className="grid gap-3 md:grid-cols-2">
-                          <div className="rounded-2xl border border-cyan-200 bg-[#0a1b29] p-3 text-sm leading-6 text-white/70">
-                            <p className="font-black text-white">Why this route fits</p>
-                            <p className="mt-2">{leadingProductFamilyScore.reasons[0] || "Family path selected from recommendation evidence."}</p>
+                          <div className="rounded-2xl border p-3 text-sm leading-6 wm-ui-card wm-ui-copy">
+                            <p className="font-black wm-ui-copy">Why this route fits</p>
+                            <p className="mt-2 wm-ui-copy">{leadingProductFamilyScore.reasons[0] || "Family path selected from recommendation evidence."}</p>
                           </div>
-                          <div className="rounded-2xl border border-amber-200 bg-[#0a1b29] p-3 text-sm leading-6 text-white/70">
-                            <p className="font-black text-white">Validation before proposal issue</p>
-                            <p className="mt-2">{leadingProductFamilyScore.cautions[0] || "Validate datasheet, dependencies, firmware, lifecycle, regional suitability and accessories before customer issue."}</p>
+                          <div className="rounded-2xl border p-3 text-sm leading-6 wm-ui-card wm-ui-copy">
+                            <p className="font-black wm-ui-copy">Validation before proposal issue</p>
+                            <p className="mt-2 wm-ui-copy">{leadingProductFamilyScore.cautions[0] || "Validate datasheet, dependencies, firmware, lifecycle, regional suitability and accessories before customer issue."}</p>
                           </div>
                         </div>
                       </div>
                     ) : (
-                      <p className="mt-2 text-sm leading-6 text-white/70">
+                      <p className="mt-2 text-sm leading-6 wm-ui-copy">
                         No product-family decision has been stored yet. Rebuild recommendation evidence from Discovery or Finder before issuing a final proposal.
                       </p>
                     )}
@@ -655,11 +655,11 @@ export function ProposalPageProjectMode() {
           <details className="wm-decision-details">
             <summary>Open full BOM, governance and evidence</summary>
             <div className="mt-4 grid gap-4">
-              <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 text-indigo-950">
+              <div className="rounded-2xl border p-4 wm-ui-card">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <p className="wingman-kicker">Dependency governance</p>
-                    <p className="mt-2 text-sm leading-6">
+                    <p className="wingman-kicker wm-ui-copy wm-ui-kicker">Dependency governance</p>
+                    <p className="mt-2 text-sm leading-6 wm-ui-copy">
                       Exact rows come from governed SKU rules; prompt rows show what still needs design validation.
                     </p>
                   </div>
@@ -671,31 +671,31 @@ export function ProposalPageProjectMode() {
                       const governanceKind = dependency.governanceKind ?? (dependency.sku.startsWith("TBC-") ? "Prompt" : "Exact");
 
                       return (
-                        <div key={dependency.id} className="rounded-2xl border border-indigo-200 bg-[#0a1b29] p-3 text-sm leading-6">
+                        <div key={dependency.id} className="rounded-2xl border p-3 text-sm leading-6 wm-ui-card wm-ui-copy">
                           <div className="flex flex-wrap items-center justify-between gap-2">
-                            <p className="font-black text-indigo-950">{dependency.label}</p>
+                            <p className="font-black wm-ui-copy">{dependency.label}</p>
                             <div className="flex flex-wrap gap-2">
-                              <span className="rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-black text-indigo-700">{governanceKind}</span>
-                              <span className="rounded-full bg-[#0d2133] px-2.5 py-1 text-xs font-black text-white/70">{dependency.confidence}</span>
+                              <span className="rounded-full px-2.5 py-1 text-xs font-black wm-ui-card">{governanceKind}</span>
+                              <span className="rounded-full px-2.5 py-1 text-xs font-black wm-ui-card">{dependency.confidence}</span>
                             </div>
                           </div>
-                          <p className="mt-1 font-mono text-xs font-semibold text-indigo-700">{dependency.sku}</p>
-                          <p className="mt-2 text-indigo-800">{dependency.trigger}</p>
-                          <p className="mt-2 font-semibold text-indigo-950">{dependency.validationQuestion}</p>
+                          <p className="mt-1 font-mono text-xs font-semibold wm-ui-copy">{dependency.sku}</p>
+                          <p className="mt-2 wm-ui-copy">{dependency.trigger}</p>
+                          <p className="mt-2 font-semibold wm-ui-copy">{dependency.validationQuestion}</p>
                         </div>
                       );
                     })
                   ) : (
-                    <div className="rounded-2xl border border-indigo-200 bg-[#0a1b29] p-3 text-sm text-indigo-800">
+                    <div className="rounded-2xl border p-3 text-sm wm-ui-card wm-ui-copy">
                       No governed dependencies have been triggered yet.
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="overflow-hidden rounded-2xl border border-[#29465e] wm-template-detail-no-horizontal-scroll">
-                <table className="min-w-full text-left text-sm">
-                  <thead className="bg-[#0a1b29] text-white/60">
+              <div className="overflow-hidden rounded-2xl border wm-template-detail-no-horizontal-scroll wm-ui-card">
+                <table className="min-w-full text-left text-sm wm-ui-copy">
+                  <thead className="wm-ui-card">
                     <tr>
                       <th className="px-4 py-3 font-semibold">SKU</th>
                       <th className="px-4 py-3 font-semibold">Role</th>
@@ -706,7 +706,7 @@ export function ProposalPageProjectMode() {
                   <tbody>
                     {bomRows.length ? (
                       bomRows.map((row) => (
-                        <tr key={`${row.item}-${row.sku}`} className="border-t border-[#29465e]">
+                        <tr key={`${row.item}-${row.sku}`} className="border-t wm-ui-card">
                           <td className="px-4 py-3 font-semibold text-[#edf6ff]">{row.sku}</td>
                           <td className="px-4 py-3 text-white/70">{row.role}</td>
                           <td className="px-4 py-3 text-white/70">{row.qty}</td>
@@ -724,15 +724,15 @@ export function ProposalPageProjectMode() {
                 </table>
               </div>
 
-              <div className="grid gap-2 text-sm leading-6 text-white/70 md:grid-cols-2">
+              <div className="grid gap-2 text-sm leading-6 md:grid-cols-2 wm-ui-copy">
                 {context.recommendationEvidence ? (
-                  <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-3 text-cyan-950">
-                    <p className="font-black">Quote safety: {context.recommendationEvidence.quoteSafetyStatus === "quote-ready" ? "Quote-ready draft" : context.recommendationEvidence.quoteSafetyStatus === "validate-before-quote" ? "Validate before quote" : "Do not quote yet"}</p>
-                    <p className="mt-1">{context.recommendationEvidence.quoteSafetyMessage}</p>
+                  <div className="rounded-2xl border p-3 wm-ui-card">
+                    <p className="font-black wm-ui-copy">Quote safety: {context.recommendationEvidence.quoteSafetyStatus === "quote-ready" ? "Quote-ready draft" : context.recommendationEvidence.quoteSafetyStatus === "validate-before-quote" ? "Validate before quote" : "Do not quote yet"}</p>
+                    <p className="mt-1 wm-ui-copy">{context.recommendationEvidence.quoteSafetyMessage}</p>
                   </div>
                 ) : null}
                 {salesReadiness.evidence.slice(0, 8).map((item) => (
-                  <div key={item} className="rounded-2xl border border-[#29465e] bg-[#0a1b29] p-3">
+                  <div key={item} className="rounded-2xl border p-3 wm-ui-card">
                     {item}
                   </div>
                 ))}
@@ -743,11 +743,11 @@ export function ProposalPageProjectMode() {
           <details className="wm-decision-details">
             <summary>Open assumptions, sections and feedback</summary>
             <div className="mt-4 grid gap-4 xl:grid-cols-[260px_1fr]">
-              <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
-                <p className="text-sm font-semibold text-[#edf6ff]">Sections</p>
-                <div className="mt-4 space-y-2 text-sm">
+              <div className="rounded-2xl border p-4 wm-ui-card">
+                <p className="text-sm font-semibold text-[#edf6ff] wm-ui-copy">Sections</p>
+                <div className="mt-4 space-y-2 text-sm wm-ui-copy">
                   {sections.map((item) => (
-                    <div key={item} className="rounded-2xl border border-[#29465e] bg-[#0a1b29] px-4 py-3 text-white/70">
+                    <div key={item} className="rounded-2xl border px-4 py-3 wm-ui-card">
                       {item}
                     </div>
                   ))}
@@ -755,27 +755,27 @@ export function ProposalPageProjectMode() {
               </div>
 
               <div className="grid gap-4">
-                <div className="grid gap-2 text-sm leading-6 text-white/70 md:grid-cols-2">
+                <div className="grid gap-2 text-sm leading-6 md:grid-cols-2 wm-ui-copy">
                   {context.assumptions.map((assumption) => (
-                    <div key={assumption} className="rounded-2xl border border-[#29465e] bg-[#0a1b29] p-3">
+                    <div key={assumption} className="rounded-2xl border p-3 wm-ui-card">
                       {assumption}
                     </div>
                   ))}
                 </div>
 
-                <div className="rounded-2xl border border-[#29465e] bg-[#0a1b29] p-4">
-                  <p className="wingman-kicker">Recommendation feedback</p>
-                  <p className="mt-2 text-sm leading-6 text-white/70">
+                <div className="rounded-2xl border p-4 wm-ui-card">
+                  <p className="wingman-kicker wm-ui-copy wm-ui-kicker">Recommendation feedback</p>
+                  <p className="mt-2 text-sm leading-6 wm-ui-copy">
                     Save the rep's outcome on this proposal recommendation so the active project keeps a record of fit, missing items, and review pressure.
                   </p>
 
                   <div className="mt-4 flex flex-wrap gap-3">
                     {feedbackActions.map(({ rating, label, Icon }) => (
-                      <button
+                      <button className={["wm-ui-button wm-ui-button-secondary", "inline-flex items-center gap-2 rounded-full border border-[#29465e] px-4 py-2 text-sm font-semibold text-white/70 transition hover:bg-[#12314a]"].filter(Boolean).join(" ")}
                         key={rating}
                         type="button"
                         onClick={() => captureFeedback(rating, label)}
-                        className="inline-flex items-center gap-2 rounded-full border border-[#29465e] px-4 py-2 text-sm font-semibold text-white/70 transition hover:bg-[#12314a]"
+
                       >
                         <Icon className="h-4 w-4" />
                         {label}
@@ -783,7 +783,7 @@ export function ProposalPageProjectMode() {
                     ))}
                   </div>
 
-                  {feedbackMessage ? <p className="mt-3 text-sm font-semibold text-white/60">{feedbackMessage}</p> : null}
+                  {feedbackMessage ? <p className="mt-3 text-sm font-semibold wm-ui-copy">{feedbackMessage}</p> : null}
                 </div>
 
               </div>

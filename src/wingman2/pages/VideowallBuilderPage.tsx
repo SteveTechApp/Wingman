@@ -586,9 +586,9 @@ function ChoiceGrid(props: {
   onChange: (value: string) => void;
 }) {
   return (
-    <section className="vw2-question">
-      <p className="vw2-eyebrow">{props.eyebrow}</p>
-      <h3>{props.title}</h3>
+    <section className="vw2-question wm-ui-section">
+      <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">{props.eyebrow}</p>
+      <h3 className="wm-ui-title">{props.title}</h3>
       <div className="vw2-chip-grid">
         {props.options.map((option) => (
           <button
@@ -608,7 +608,7 @@ function ChoiceGrid(props: {
 
 function FieldRow(props: { label: string; value: string }) {
   return (
-    <div className="vw2-field-row">
+    <div className="vw2-field-row wm-ui-card">
       <span>{props.label}</span>
       <strong>{props.value}</strong>
     </div>
@@ -618,7 +618,7 @@ function FieldRow(props: { label: string; value: string }) {
 function AdviceCardView(props: { card: AdviceCard; active: boolean }) {
   return (
     <article className={`vw2-advice-card ${props.active ? "is-active" : ""}`}>
-      <p className="vw2-eyebrow">{props.active ? "Recommended path" : "Option"}</p>
+      <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">{props.active ? "Recommended path" : "Option"}</p>
       <h4>{props.card.title}</h4>
       <strong>{props.card.direction}</strong>
       <dl>
@@ -629,7 +629,7 @@ function AdviceCardView(props: { card: AdviceCard; active: boolean }) {
         <dt>Avoid</dt>
         <dd>{props.card.avoid}</dd>
       </dl>
-      <p className="vw2-safe-copy">{props.card.customerSafe}</p>
+      <p className="vw2-safe-copy wm-ui-copy">{props.card.customerSafe}</p>
     </article>
   );
 }
@@ -639,10 +639,10 @@ function ProductVisualCard(props: { bundle: VisualBundle }) {
   const isEndpoint = props.bundle.productForm === "endpoint";
 
   return (
-    <article className="vw2-visual-card">
-      <div className="vw2-visual-card-head">
-        <p className="vw2-eyebrow">WyreStorm product visual</p>
-        <h3>{props.bundle.sku}</h3>
+    <article className="vw2-visual-card wm-ui-card">
+      <div className="vw2-visual-card-head wm-ui-card">
+        <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">WyreStorm product visual</p>
+        <h3 className="wm-ui-title">{props.bundle.sku}</h3>
         <span>{props.bundle.productTitle}</span>
       </div>
 
@@ -696,7 +696,7 @@ function ProductVisualCard(props: { bundle: VisualBundle }) {
         </svg>
       </div>
 
-      <div className="vw2-badge-row">
+      <div className="vw2-badge-row wm-ui-card">
         <span className="vw2-badge">{props.bundle.productFamily}</span>
         <span className="vw2-badge">{props.bundle.productTitle}</span>
       </div>
@@ -706,17 +706,17 @@ function ProductVisualCard(props: { bundle: VisualBundle }) {
 
 function SchematicCard(props: { bundle: VisualBundle }) {
   return (
-    <article className="vw2-visual-card">
-      <div className="vw2-visual-card-head">
-        <p className="vw2-eyebrow">Real-world design schematic</p>
-        <h3>{props.bundle.designTitle}</h3>
+    <article className="vw2-visual-card wm-ui-card">
+      <div className="vw2-visual-card-head wm-ui-card">
+        <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Real-world design schematic</p>
+        <h3 className="wm-ui-title">{props.bundle.designTitle}</h3>
         <span>{props.bundle.designSummary}</span>
       </div>
 
       <div className="vw2-schematic-flow">
         {props.bundle.stages.map((stage, index) => (
-          <div key={`${stage.label}-${index}`} className="vw2-schematic-stage-wrap">
-            <div className="vw2-schematic-stage">
+          <div key={`${stage.label}-${index}`} className="vw2-schematic-stage-wrap wm-ui-card">
+            <div className="vw2-schematic-stage wm-ui-card">
               <span className="vw2-schematic-label">{stage.label}</span>
               <strong>{stage.title}</strong>
               <ul>
@@ -851,28 +851,28 @@ export function VideoWallPage() {
   }
 
   return (
-    <main className="vw2-page">
-      <section className="vw2-hero">
+    <main className="vw2-page wm-ui-page wingman-page-host">
+      <section className="vw2-hero wm-ui-section wm-ui-hero">
         <div>
-          <p className="vw2-eyebrow">LED / LCD videowall workflow</p>
-          <h1>Build the video wall route before choosing the product path.</h1>
-          <p>
+          <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">LED / LCD videowall workflow</p>
+          <h1 className="wm-ui-title">Build the video wall route before choosing the product path.</h1>
+          <p className="wm-ui-copy">
             Start with LED or LCD, then work through the key discovery questions. Wingman will
             separate LED processor feeds, LCD tile mode, direct-drive walls, dedicated wall
             processors, scaling matrix paths and AVoIP architectures.
           </p>
         </div>
-        <div className="vw2-hero-actions">
-          <button type="button" className="vw2-button" onClick={() => sendTo("/wingman/discovery")}>
+        <div className="vw2-hero-actions wm-ui-hero">
+          <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={() => sendTo("/wingman/discovery")}>
             Send to discovery
           </button>
-          <button type="button" className="vw2-button" onClick={() => sendTo("/wingman/proposal")}>
+          <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={() => sendTo("/wingman/proposal")}>
             Send to proposal
           </button>
         </div>
       </section>
 
-      <section className="vw2-path-grid">
+      <section className="vw2-path-grid wm-ui-section">
         <button
           type="button"
           className={`vw2-path-card ${wallType === "led" ? "is-selected" : ""}`}
@@ -894,13 +894,13 @@ export function VideoWallPage() {
         </button>
       </section>
 
-      <section className="vw2-workspace">
-        <div className="vw2-wizard-panel">
+      <section className="vw2-workspace wm-ui-section">
+        <div className="vw2-wizard-panel wm-ui-card">
           {!wallType ? (
             <div className="vw2-empty-state">
-              <p className="vw2-eyebrow">Start here</p>
-              <h2>Select LED or LCD</h2>
-              <p>
+              <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Start here</p>
+              <h2 className="wm-ui-title">Select LED or LCD</h2>
+              <p className="wm-ui-copy">
                 LED starts around the processor feed and windowing. LCD starts around screen
                 count, array configuration, tile mode versus direct drive, and source behaviour.
               </p>
@@ -909,9 +909,9 @@ export function VideoWallPage() {
 
           {wallType === "led" ? (
             <>
-              <div className="vw2-panel-title">
-                <p className="vw2-eyebrow">LED discovery</p>
-                <h2>Confirm how the LED wall needs to be fed.</h2>
+              <div className="vw2-panel-title wm-ui-card wm-ui-title">
+                <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">LED discovery</p>
+                <h2 className="wm-ui-title">Confirm how the LED wall needs to be fed.</h2>
               </div>
 
               <ChoiceGrid eyebrow="Step 1" title="What does the customer need the LED wall to show?" options={ledBehaviourOptions} value={ledAnswers.behaviour} onChange={(value) => updateLed("behaviour", value)} />
@@ -923,26 +923,26 @@ export function VideoWallPage() {
 
           {wallType === "lcd" ? (
             <>
-              <div className="vw2-panel-title">
-                <p className="vw2-eyebrow">LCD discovery</p>
-                <h2>Confirm array, drive method and source behaviour.</h2>
+              <div className="vw2-panel-title wm-ui-card wm-ui-title">
+                <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">LCD discovery</p>
+                <h2 className="wm-ui-title">Confirm array, drive method and source behaviour.</h2>
               </div>
 
               <ChoiceGrid eyebrow="Step 1" title="How many screens are in the LCD wall?" options={lcdScreenOptions} value={lcdAnswers.screenCount} onChange={(value) => updateLcd("screenCount", value)} />
 
               {lcdAnswers.screenCount === "custom" ? (
-                <label className="vw2-input-label">
+                <label className="vw2-input-label wm-ui-kicker">
                   Custom screen count
-                  <input value={lcdAnswers.customScreenCount} onChange={(event) => updateLcd("customScreenCount", event.target.value)} placeholder="Example: 15 screens" />
+                  <input className="wm-ui-input" value={lcdAnswers.customScreenCount} onChange={(event) => updateLcd("customScreenCount", event.target.value)} placeholder="Example: 15 screens" />
                 </label>
               ) : null}
 
               <ChoiceGrid eyebrow="Step 2" title="What is the screen array?" options={lcdArrayOptions} value={lcdAnswers.array} onChange={(value) => updateLcd("array", value)} />
 
               {lcdAnswers.array === "custom" ? (
-                <label className="vw2-input-label">
+                <label className="vw2-input-label wm-ui-kicker">
                   Custom array
-                  <input value={lcdAnswers.customArray} onChange={(event) => updateLcd("customArray", event.target.value)} placeholder="Example: 5x3" />
+                  <input className="wm-ui-input" value={lcdAnswers.customArray} onChange={(event) => updateLcd("customArray", event.target.value)} placeholder="Example: 5x3" />
                 </label>
               ) : null}
 
@@ -955,16 +955,16 @@ export function VideoWallPage() {
           ) : null}
         </div>
 
-        <aside className="vw2-result-panel">
-          <div className="vw2-result-head">
-            <p className="vw2-eyebrow">Recommended direction</p>
-            <h3>{recommendation.title}</h3>
+        <aside className="vw2-result-panel wm-ui-card">
+          <div className="vw2-result-head wm-ui-card">
+            <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Recommended direction</p>
+            <h3 className="wm-ui-title">{recommendation.title}</h3>
             <span className="vw2-status">{recommendation.quoteSafety}</span>
           </div>
 
-          <p>{recommendation.summary}</p>
+          <p className="wm-ui-copy">{recommendation.summary}</p>
 
-          <div className="vw2-summary-list">
+          <div className="vw2-summary-list wm-ui-card wm-ui-copy">
             <FieldRow label="Wall type" value={wallType ? wallType.toUpperCase() : "Not selected"} />
             <FieldRow label="Architecture" value={recommendation.architecture} />
             <FieldRow label="Suggested products" value={recommendation.products.length ? recommendation.products.join(" + ") : "Not ready"} />
@@ -984,43 +984,43 @@ export function VideoWallPage() {
                 {recommendation.missing.map((item) => <li key={item}>{item}</li>)}
               </ul>
             ) : (
-              <p>No critical discovery gaps for product direction.</p>
+              <p className="wm-ui-copy">No critical discovery gaps for product direction.</p>
             )}
           </div>
 
           <div className="vw2-mini-section">
             <h4>Customer-safe wording</h4>
-            <p>{recommendation.customerSafe}</p>
+            <p className="wm-ui-copy">{recommendation.customerSafe}</p>
           </div>
 
           <div className="vw2-action-grid">
-            <button type="button" className="vw2-button vw2-button-primary" onClick={() => sendTo("/wingman/discovery")}>Send to Discovery</button>
-            <button type="button" className="vw2-button" onClick={() => sendTo("/wingman/proposal")}>Send to Proposal</button>
-            <button type="button" className="vw2-button" onClick={saveToProject}>Save to Project</button>
-            <button type="button" className="vw2-button" onClick={copySummary}>Copy summary</button>
-            <button type="button" className="vw2-button" onClick={openProduct} disabled={!recommendation.products.length}>Open product</button>
-            <button type="button" className="vw2-button vw2-button-danger" onClick={restart}>Restart</button>
+            <button type="button" className="vw2-button vw2-button-primary wm-ui-button wm-ui-button-primary" onClick={() => sendTo("/wingman/discovery")}>Send to Discovery</button>
+            <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={() => sendTo("/wingman/proposal")}>Send to Proposal</button>
+            <button type="button" className="vw2-button wm-ui-button wm-ui-button-primary" onClick={saveToProject}>Save to Project</button>
+            <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={copySummary}>Copy summary</button>
+            <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={openProduct} disabled={!recommendation.products.length}>Open product</button>
+            <button type="button" className="vw2-button vw2-button-danger wm-ui-button wm-ui-button-primary" onClick={restart}>Restart</button>
           </div>
 
-          {message ? <p className="vw2-saved-message">{message}</p> : null}
+          {message ? <p className="vw2-saved-message wm-ui-copy">{message}</p> : null}
         </aside>
       </section>
 
       {visualBundle ? (
-        <section className="vw2-visual-grid">
+        <section className="vw2-visual-grid wm-ui-section">
           <ProductVisualCard bundle={visualBundle} />
           <SchematicCard bundle={visualBundle} />
         </section>
       ) : null}
 
       {wallType ? (
-        <section className="vw2-context-grid">
-          <article className="vw2-capture-card">
-            <p className="vw2-eyebrow">Captured answers</p>
-            <h3>Current wall summary</h3>
+        <section className="vw2-context-grid wm-ui-section">
+          <article className="vw2-capture-card wm-ui-card">
+            <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Captured answers</p>
+            <h3 className="wm-ui-title">Current wall summary</h3>
 
             {wallType === "led" ? (
-              <div className="vw2-summary-list">
+              <div className="vw2-summary-list wm-ui-card wm-ui-copy">
                 <FieldRow label="Wall behaviour" value={labelFor(ledBehaviourOptions, ledAnswers.behaviour)} />
                 <FieldRow label="Visible windows" value={labelFor(ledWindowOptions, ledAnswers.windows)} />
                 <FieldRow label="Source location" value={labelFor(sourceLocationOptions, ledAnswers.sourceLocation)} />
@@ -1029,7 +1029,7 @@ export function VideoWallPage() {
             ) : null}
 
             {wallType === "lcd" ? (
-              <div className="vw2-summary-list">
+              <div className="vw2-summary-list wm-ui-card wm-ui-copy">
                 <FieldRow label="Screen count" value={lcdAnswers.screenCount === "custom" ? lcdAnswers.customScreenCount || "Custom not entered" : labelFor(lcdScreenOptions, lcdAnswers.screenCount)} />
                 <FieldRow label="Array" value={lcdAnswers.array === "custom" ? lcdAnswers.customArray || "Custom not entered" : labelFor(lcdArrayOptions, lcdAnswers.array)} />
                 <FieldRow label="Orientation" value={labelFor(lcdOrientationOptions, lcdAnswers.orientation)} />
@@ -1041,16 +1041,16 @@ export function VideoWallPage() {
             ) : null}
           </article>
 
-          <article className="vw2-capture-card">
-            <p className="vw2-eyebrow">Sales guidance</p>
-            <h3>What to avoid</h3>
-            <p>{recommendation.avoid}</p>
-            <h3>Customer-safe explanation</h3>
-            <p>{recommendation.customerSafe}</p>
+          <article className="vw2-capture-card wm-ui-card">
+            <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Sales guidance</p>
+            <h3 className="wm-ui-title">What to avoid</h3>
+            <p className="wm-ui-copy">{recommendation.avoid}</p>
+            <h3 className="wm-ui-title">Customer-safe explanation</h3>
+            <p className="wm-ui-copy">{recommendation.customerSafe}</p>
             {visualBundle ? (
               <>
-                <h3>Typical application</h3>
-                <p>{visualBundle.application}</p>
+                <h3 className="wm-ui-title">Typical application</h3>
+                <p className="wm-ui-copy">{visualBundle.application}</p>
               </>
             ) : null}
           </article>
@@ -1058,7 +1058,7 @@ export function VideoWallPage() {
       ) : null}
 
       {wallType ? (
-        <section className="vw2-advice-grid">
+        <section className="vw2-advice-grid wm-ui-section">
           {adviceCards.map((card) => (
             <AdviceCardView key={card.id} card={card} active={card.id === recommendation.id} />
           ))}

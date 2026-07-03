@@ -18,6 +18,18 @@ function renderComparePage() {
 }
 
 function runKnownCompare(brand: string, sku: string) {
+  const visibleBrandButton = screen.queryByRole("button", { name: brand });
+
+  if (!visibleBrandButton) {
+    const manualCompareButton = screen.queryByRole("button", { name: /choose products manually/i });
+
+    if (!manualCompareButton) {
+      throw new Error("Manual compare button was not available before selecting a known competitor brand.");
+    }
+
+    fireEvent.click(manualCompareButton);
+  }
+
   fireEvent.click(screen.getByRole("button", { name: brand }));
   fireEvent.click(screen.getByRole("button", { name: sku }));
 }
@@ -116,6 +128,24 @@ describe("Compare rendered workflow", () => {
 
     if (nextProductStep) {
       fireEvent.click(nextProductStep);
+    }
+
+        if (!screen.queryByRole("heading", { name: /choose competitor product/i })) {
+      const manualCompareButton = screen.queryByRole("button", { name: /choose products manually/i });
+
+      if (!manualCompareButton) {
+        throw new Error("Manual compare button was not available before the known-SKU workflow check.");
+      }
+
+      fireEvent.click(manualCompareButton);
+    }
+
+        if (!screen.queryByRole("heading", { name: /choose competitor product/i })) {
+      const nextProductButton = screen.queryByRole("button", { name: /next:\s*choose competitor product/i });
+
+      if (nextProductButton) {
+        fireEvent.click(nextProductButton);
+      }
     }
 
     await screen.findByRole("heading", { name: /choose competitor product/i });

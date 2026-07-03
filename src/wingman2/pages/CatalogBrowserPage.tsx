@@ -142,20 +142,20 @@ export function CatalogBrowserPage() {
   const patch = (next: Partial<CatalogFilterState>) => setState((current) => ({ ...current, ...next }));
 
   return (
-    <main className="grid gap-4 pb-6 text-white">
+    <main className="grid gap-4 pb-6 wm-ui-page wingman-page-host">
       <section className={`${PANEL} p-5`}>
         <p className={`${KICKER} text-cyan-300`}>Catalogue browser</p>
-        <h1 className="mt-2 text-3xl font-extrabold tracking-tight">Browse the WyreStorm range</h1>
-        <p className="mt-2 max-w-4xl text-sm leading-6 text-white/70">
+        <h1 className="mt-2 text-3xl font-extrabold tracking-tight wm-ui-title wm-ui-kicker">Browse the WyreStorm range</h1>
+        <p className="mt-2 max-w-4xl text-sm leading-6 wm-ui-copy">
           Filter by family, role, technology and lifecycle. End-of-life and do-not-recommend products are hidden by
           default — turn that off to see the full range.
         </p>
-        <input
+        <input className={["wm-ui-input", "mt-4 min-h-12 w-full rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-bold text-white outline-none focus:border-cyan-300"].filter(Boolean).join(" ")}
           value={state.search}
           onChange={(event) => patch({ search: event.target.value })}
           placeholder="Search by SKU, name, application — e.g. NHD-500, UC, video wall, Dante"
           type="search"
-          className="mt-4 min-h-12 w-full rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-bold text-white outline-none focus:border-cyan-300"
+
         />
         <div className="mt-4 flex flex-wrap gap-2">
           <Toggle
@@ -175,14 +175,14 @@ export function CatalogBrowserPage() {
         <FacetGroup title="Technology" options={facets.technologies} selected={state.technologies} onToggle={(value) => patch({ technologies: toggle(state.technologies, value) })} />
       </section>
 
-      <section className="flex items-center justify-between px-1">
-        <p className="text-sm font-bold text-white/70">
+      <section className="flex items-center justify-between px-1 wm-ui-section">
+        <p className="text-sm font-bold wm-ui-copy">
           {loaded ? `${results.length} product${results.length === 1 ? "" : "s"}` : "Loading catalogue..."}
         </p>
-        <button
+        <button className={["wm-ui-button wm-ui-button-secondary", "rounded-full border border-[#29465e] px-3 py-1.5 text-xs font-bold text-cyan-100 hover:border-cyan-300"].filter(Boolean).join(" ")}
           type="button"
           onClick={() => setState(createDefaultCatalogFilterState())}
-          className="rounded-full border border-[#29465e] px-3 py-1.5 text-xs font-bold text-cyan-100 hover:border-cyan-300"
+
         >
           Reset filters
         </button>
@@ -203,8 +203,8 @@ export function CatalogBrowserPage() {
                 {product.family} · {product.series}
               </span>
               <strong className="mt-2 block text-lg font-extrabold text-white">{product.sku}</strong>
-              <span className="mt-1 block text-sm font-bold text-white/80">{product.name}</span>
-              {product.summary ? <p className="mt-2 line-clamp-2 text-xs leading-5 text-white/55">{product.summary}</p> : null}
+              <span className="mt-1 block text-sm font-bold wm-ui-copy">{product.name}</span>
+              {product.summary ? <p className="mt-2 line-clamp-2 text-xs leading-5 wm-ui-copy">{product.summary}</p> : null}
               {badges.length ? (
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {badges.map((badge) => (
@@ -221,15 +221,15 @@ export function CatalogBrowserPage() {
                   ))}
                 </div>
               ) : null}
-              <p className="mt-3 text-[11px] leading-4 text-white/45">{reasons.join("  ·  ")}</p>
-              {eol ? <p className="mt-1 text-[11px] font-bold text-rose-300">Suppressed from new recommendations</p> : null}
+              <p className="mt-3 text-[11px] leading-4 wm-ui-copy">{reasons.join("  ·  ")}</p>
+              {eol ? <p className="mt-1 text-[11px] font-bold wm-ui-copy">Suppressed from new recommendations</p> : null}
             </Link>
           );
         })}
       </div>
 
       {loaded && !results.length ? (
-        <div className="rounded-2xl border border-amber-400/40 bg-amber-400/10 p-4 text-sm text-amber-100">
+        <div className="rounded-2xl border p-4 text-sm wm-ui-card wm-ui-copy">
           No products match these filters. Reset filters or broaden the search.
         </div>
       ) : null}

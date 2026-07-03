@@ -1,5 +1,4 @@
-import type { CSSProperties } from "react";
-import { ArrowRight, ArrowRightCircle, FileText, Flag, FolderKanban, PackageCheck, Scale, Search, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowRightCircle, FileText, Flag, FolderKanban, PackageCheck, Scale } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { StatusChip } from "../components/StatusChip";
@@ -233,205 +232,6 @@ function projectScopeLine(project: { stage: ProjectStage; owner: string; scope?:
   return project.scope ?? `${project.stage} / ${project.owner}`;
 }
 
-const styles: Record<string, CSSProperties> = {
-  page: {
-    position: "relative",
-    display: "grid",
-    gridTemplateColumns: "300px minmax(0, 1fr)",
-    gap: 34,
-    width: "100%",
-    minHeight: "100%",
-    padding: "clamp(24px, 3.5vh, 48px) clamp(24px, 3vw, 56px)",
-    color: "#e8f0f8",
-    background: "radial-gradient(circle at 74% 14%, rgba(99, 243, 255, 0.08), transparent 34%), #0a1019",
-    fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
-    borderRadius: 20,
-    boxSizing: "border-box",
-  },
-  rail: {
-    minHeight: 560,
-    display: "flex",
-    flexDirection: "column",
-    padding: 30,
-    border: "1px solid #1b2735",
-    borderRadius: 24,
-    background: "radial-gradient(circle at 44% 18%, rgba(99, 243, 255, 0.11), transparent 30%), linear-gradient(180deg, #0b121c 0%, #09101a 100%)",
-  },
-  brand: {
-    width: 56,
-    height: 56,
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 26,
-    borderRadius: "50%",
-    color: "#04121d",
-    background: "linear-gradient(135deg, #63f3ff, #6492ff)",
-    fontWeight: 900,
-    fontSize: 24,
-  },
-  eyebrow: {
-    color: "#5fd6d2",
-    fontSize: 11,
-    fontWeight: 850,
-    letterSpacing: "0.13em",
-    textTransform: "uppercase",
-  },
-  railTitle: {
-    maxWidth: 250,
-    margin: "16px 0 0",
-    color: "#f3f8fc",
-    fontSize: "clamp(2.35rem, 3vw, 3.55rem)",
-    lineHeight: 0.92,
-    letterSpacing: "-0.06em",
-  },
-  railText: {
-    maxWidth: 245,
-    margin: "24px 0 0",
-    color: "#b8c9da",
-    fontSize: 14,
-    lineHeight: 1.55,
-  },
-  railActions: {
-    display: "grid",
-    gap: 10,
-    marginTop: "auto",
-    paddingTop: 28,
-  },
-  main: {
-    display: "grid",
-    gridTemplateRows: "auto auto auto",
-    gap: 24,
-    minWidth: 0,
-  },
-  resume: {
-    display: "grid",
-    gap: 14,
-    minHeight: 176,
-    padding: 24,
-    border: "1px solid #1b2735",
-    borderRadius: 24,
-    background: "#111b27",
-    textDecoration: "none",
-  },
-  resumeHead: {
-    display: "flex",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    gap: 16,
-  },
-  section: {
-    display: "grid",
-    gap: 14,
-  },
-  sectionHead: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-  },
-  h2: {
-    margin: 0,
-    color: "#eef5fb",
-    fontSize: 20,
-    fontWeight: 850,
-    letterSpacing: "-0.02em",
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-    gap: 18,
-  },
-  card: {
-    minHeight: 178,
-    display: "flex",
-    flexDirection: "column",
-    gap: 8,
-    padding: 22,
-    border: "1px solid #1b2735",
-    borderRadius: 24,
-    background: "#111b27",
-    textDecoration: "none",
-  },
-  icon: {
-    width: 40,
-    height: 40,
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 4,
-    border: "1px solid rgba(99, 243, 255, 0.22)",
-    borderRadius: 12,
-    background: "rgba(99, 243, 255, 0.10)",
-    color: "#7fe4e2",
-  },
-  title: {
-    color: "#eef5fb",
-    fontSize: 17,
-    fontWeight: 850,
-    letterSpacing: "-0.01em",
-  },
-  body: {
-    margin: 0,
-    color: "#90a2b5",
-    fontSize: 13,
-    lineHeight: 1.5,
-  },
-  linkText: {
-    color: "#5fd6d2",
-    fontSize: 12.5,
-    fontWeight: 850,
-  },
-  buttonPrimary: {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 7,
-    minHeight: 42,
-    padding: "0 17px",
-    borderRadius: 12,
-    color: "#04121d",
-    background: "#63f3ff",
-    fontSize: 13.5,
-    fontWeight: 850,
-    lineHeight: 1,
-    textDecoration: "none",
-  },
-  buttonSecondary: {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    minHeight: 42,
-    padding: "0 17px",
-    border: "1px solid rgba(99, 243, 255, 0.28)",
-    borderRadius: 12,
-    color: "#d6e3f0",
-    background: "rgba(99, 243, 255, 0.07)",
-    fontSize: 13.5,
-    fontWeight: 850,
-    lineHeight: 1,
-    textDecoration: "none",
-  },
-  projectNext: {
-    display: "flex",
-    gap: 8,
-    marginTop: "auto",
-    paddingTop: 13,
-    borderTop: "1px solid rgba(150, 172, 196, 0.10)",
-    color: "#9aacbe",
-    fontSize: 12.5,
-  },
-  hidden: {
-    position: "absolute",
-    width: 1,
-    height: 1,
-    overflow: "hidden",
-    opacity: 0,
-    pointerEvents: "none",
-    clipPath: "inset(50%)",
-  },
-};
-
 export function DashboardPage() {
   const { projects, activeProjectId } = useProjectStore();
 
@@ -443,97 +243,121 @@ export function DashboardPage() {
   const recentProjects = sourceProjects.slice(0, 3);
 
   return (
-    <main style={styles.page} className="wm-redesign-dashboard" data-wingman-page="home" data-wingman-home="true" aria-label="Wingman dashboard">
-      <aside style={styles.rail}>
-        <span style={styles.brand}>W</span>
-        <span style={styles.eyebrow}>WyreStorm Wingman</span>
-        <h1 style={styles.railTitle}>What are you trying to do?</h1>
-        <p style={styles.railText}>
+    <main
+      className="wm-ui-page wingman-page-host wm-dashboard-visual-root wm-dashboard-shell"
+      data-wingman-page="home"
+      data-wingman-home="true"
+      aria-label="Wingman dashboard"
+    >
+      <aside className="wm-ui-card wm-dashboard-rail">
+        <span className="wm-dashboard-brand">W</span>
+        <span className="wm-ui-kicker">WyreStorm Wingman</span>
+        <h1 className="wm-ui-title wm-dashboard-rail-title">What are you trying to do?</h1>
+        <p className="wm-ui-copy wm-dashboard-rail-copy">
           Start from the customer task. Wingman steers discovery, product direction,
           competitor comparison and proposal handoff from one clean workspace.
         </p>
 
-        <div style={styles.railActions}>
-          <Link to={routeCatalogByKey.discovery.path} style={styles.buttonPrimary}>
+        <div className="wm-dashboard-rail-actions">
+          <Link
+            to={routeCatalogByKey.discovery.path}
+            className="wm-ui-button wm-ui-button-primary wm-dashboard-action-button"
+            data-wingman-dashboard-primary-button="true"
+            data-wingman-dashboard-short-label="Discover"
+          >
             Start guided discovery
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
-          <Link to={routeCatalogByKey.compare.path} style={styles.buttonSecondary}>
+
+          <Link
+            to={routeCatalogByKey.compare.path}
+            className="wm-ui-button wm-ui-button-secondary wm-dashboard-action-button"
+            data-wingman-dashboard-primary-button="true"
+            data-wingman-dashboard-short-label="Compare"
+          >
             Compare a competitor
           </Link>
         </div>
       </aside>
 
-      <section style={styles.main}>
+      <section className="wm-dashboard-main">
         <Link
           to={resume.resumeTo}
           onClick={() => setActiveProjectId(resume.id)}
-          style={styles.resume}
+          className="wm-ui-hero wm-dashboard-resume-card"
         >
-          <span style={styles.eyebrow}>Pick up where you left off</span>
-          <div style={styles.resumeHead}>
-            <div>
-              <strong style={{ ...styles.title, display: "block", fontSize: 22 }}>{resume.name}</strong>
-              <span style={styles.body}>{projectScopeLine(resume)}</span>
+          <span className="wm-ui-kicker">Pick up where you left off</span>
+          <div className="wm-dashboard-resume-head">
+            <div className="wm-dashboard-resume-copy">
+              <strong className="wm-ui-title wm-dashboard-resume-title">{resume.name}</strong>
+              <span className="wm-ui-copy">{projectScopeLine(resume)}</span>
             </div>
             <StatusChip label={STATUS_LABEL[resume.status]} variant={resume.status} />
           </div>
-          <div style={styles.projectNext}>
-            <Flag className="h-4 w-4" style={{ color: "#5fd6d2", flex: "0 0 auto" }} />
+
+          <div className="wm-dashboard-next-step">
+            <Flag className="h-4 w-4" aria-hidden="true" />
             <div>
-              <span style={{ ...styles.eyebrow, color: "#647c8f", fontSize: 10.5 }}>Next step</span>
-              <strong style={{ ...styles.body, display: "block", color: "#c4d3e2" }}>{nextStepFor(resume.stage)}</strong>
+              <span className="wm-ui-kicker wm-dashboard-next-kicker">Next step</span>
+              <strong className="wm-ui-copy wm-dashboard-next-copy">{nextStepFor(resume.stage)}</strong>
             </div>
           </div>
         </Link>
 
-        <section style={styles.section} aria-label="Primary destinations">
-          <span style={styles.eyebrow}>Primary destinations</span>
-          <h2 style={styles.h2}>Grouped by what you need to do</h2>
+        <section className="wm-ui-section wm-dashboard-section" aria-label="Primary destinations">
+          <div className="wm-dashboard-section-head">
+            <div>
+              <span className="wm-ui-kicker">Primary destinations</span>
+              <h2 className="wm-ui-title">Grouped by what you need to do</h2>
+            </div>
+          </div>
 
-          <div style={styles.grid}>
+          <div className="wm-dashboard-grid">
             {destinations.map((item) => {
               const Icon = item.icon;
 
               return (
-                <Link key={item.path} to={item.path} style={styles.card}>
-                  <span style={styles.icon}>
-                    <Icon className="h-5 w-5" />
+                <Link key={item.path} to={item.path} className="wm-ui-card wm-dashboard-destination-card">
+                  <span className="wm-dashboard-icon">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
                   </span>
-                  <span style={{ ...styles.eyebrow, color: "#647c8f", fontSize: 10.5 }}>{item.eyebrow}</span>
-                  <strong style={styles.title}>{item.title}</strong>
-                  <p style={{ ...styles.body, flex: 1 }}>{item.description}</p>
-                  <span style={styles.linkText}>{item.action} &gt;</span>
+                  <span className="wm-ui-kicker">{item.eyebrow}</span>
+                  <strong className="wm-ui-title wm-dashboard-card-title">{item.title}</strong>
+                  <p className="wm-ui-copy wm-dashboard-card-copy">{item.description}</p>
+                  <span className="wm-dashboard-card-link">{item.action} &gt;</span>
                 </Link>
               );
             })}
           </div>
         </section>
 
-        <section style={styles.section} aria-label="Active projects">
-          <div style={styles.sectionHead}>
-            <h2 style={styles.h2}>Active projects</h2>
-            <Link to={routeCatalogByKey.projects.path} style={{ ...styles.linkText, textDecoration: "none" }}>
+        <section className="wm-ui-section wm-dashboard-section wm-dashboard-projects-section" aria-label="Active projects">
+          <div className="wm-dashboard-section-head">
+            <div>
+              <span className="wm-ui-kicker">Work in progress</span>
+              <h2 className="wm-ui-title">Active projects</h2>
+            </div>
+            <Link to={routeCatalogByKey.projects.path} className="wm-dashboard-card-link">
               View all &gt;
             </Link>
           </div>
 
-          <div style={styles.grid}>
+          <div className="wm-dashboard-project-grid">
             {recentProjects.map((project) => (
               <Link
                 key={project.id}
                 to={`${routeCatalogByKey.projects.path}/${project.id}`}
                 onClick={() => setActiveProjectId(project.id)}
-                style={{ ...styles.card, minHeight: 166 }}
+                className="wm-ui-card wm-dashboard-project-card"
               >
-                <div style={styles.sectionHead}>
+                <div className="wm-dashboard-project-head">
                   <StatusChip label={STATUS_LABEL[project.status]} variant={project.status} />
-                  <span style={styles.body}>{project.updated}</span>
+                  <span className="wm-ui-copy wm-dashboard-project-updated">{project.updated}</span>
                 </div>
-                <strong style={styles.title}>{project.name}</strong>
-                <span style={styles.body}>{projectScopeLine(project)}</span>
-                <div style={styles.projectNext}>
-                  <ArrowRightCircle className="h-4 w-4" style={{ color: "#5fd6d2", flex: "0 0 auto" }} />
+                <strong className="wm-ui-title wm-dashboard-card-title">{project.name}</strong>
+                <span className="wm-ui-copy">{projectScopeLine(project)}</span>
+                <div className="wm-dashboard-next-step">
+                  <ArrowRightCircle className="h-4 w-4" aria-hidden="true" />
                   <span>{nextStepFor(project.stage)}</span>
                 </div>
               </Link>
@@ -542,7 +366,7 @@ export function DashboardPage() {
         </section>
       </section>
 
-      <div style={styles.hidden} aria-hidden="true">
+      <div className="wm-dashboard-hidden-markers" aria-hidden="true">
         <span data-wingman-dashboard-primary-button="true" data-wingman-dashboard-short-label="Discover">
           Start guided discovery
         </span>

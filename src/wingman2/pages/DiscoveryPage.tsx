@@ -1566,28 +1566,28 @@ export function DiscoveryPage() {
     setIsListening(true);
   }
 return (
-    <main className="wm-discovery-capture-page" data-audit={discoveryAuditMarkers.join("|")}>
+    <main className="wm-discovery-capture-page wm-ui-page wingman-page-host" data-audit={discoveryAuditMarkers.join("|")}>
       <TemplateDiscoverySeedPanel />
-      <header className="wm-discovery-capture-hero">
+      <header className="wm-discovery-capture-hero wm-ui-hero">
         <div>
-          <p className="wm-discovery-eyebrow">Guided discovery - live call mode</p>
-          <h1>One question at a time</h1>
-          <p>
+          <p className="wm-discovery-eyebrow wm-ui-copy wm-ui-kicker">Guided discovery - live call mode</p>
+          <h1 className="wm-ui-title">One question at a time</h1>
+          <p className="wm-ui-copy">
             Capture the customer wording, choose the closest answer, then move forward. Use the capture box when the
             answer is not yet clear.
           </p>
         </div>
 
-        <div className="wm-discovery-completion-card" aria-label="Discovery completion">
+        <div className="wm-discovery-completion-card wm-ui-card" aria-label="Discovery completion">
           <strong>{completionPercent}%</strong>
           <span>{answeredCount} / {discoveryQuestions.length} captured</span>
         </div>
       </header>
 
-      <section className="wm-discovery-trail-card" aria-label="Discovery trail">
+      <section className="wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Discovery trail">
         <div className="wm-discovery-trail-topline">
           <span>Discovery trail</span>
-          <button type="button" onClick={resetDiscovery}>
+          <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={resetDiscovery}>
             Reset discovery
           </button>
         </div>
@@ -1596,7 +1596,7 @@ return (
           <span style={{ width: `${completionPercent}%` }} />
         </div>
 
-        <div className="wm-discovery-step-pills">
+        <div className="wm-discovery-step-pills wm-ui-card">
           {discoveryQuestions.map((step, index) => {
             const answer = answers[step.id];
             const isActive = index === activeIndex;
@@ -1626,44 +1626,44 @@ return (
       {isDiscoveryComplete ? (
         <section
           ref={completionPanelRef}
-          className="wm-discovery-finish-card"
+          className="wm-discovery-finish-card wm-ui-section wm-ui-card wm-ui-title"
           tabIndex={-1}
           aria-labelledby="discovery-complete-title"
         >
           <span>Discovery complete</span>
-          <h2 id="discovery-complete-title">All {discoveryQuestions.length} answers are captured. Choose the next move.</h2>
-          <p>
+          <h2 className="wm-ui-title" id="discovery-complete-title">All {discoveryQuestions.length} answers are captured. Choose the next move.</h2>
+          <p className="wm-ui-copy">
             Your complete room brief is ready. Finder will use the core architecture requirements to recommend products,
             while keeping supporting audio, control and installation details visible for validation.
           </p>
 
           <div className="wm-discovery-capture-actions wm-discovery-finish-actions">
-            <button type="button" onClick={() => moveForward("finder")}>Find matching products</button>
-            <button type="button" onClick={() => moveForward("proposal")}>Build proposal</button>
-            <button type="button" onClick={saveDiscoveryToProject}>Save to project</button>
+            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={() => moveForward("finder")}>Find matching products</button>
+            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={() => moveForward("proposal")}>Build proposal</button>
+            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={saveDiscoveryToProject}>Save to project</button>
           </div>
 
-          <p className="wm-discovery-finish-review">
+          <p className="wm-discovery-finish-review wm-ui-copy">
             Need to amend something? Select any completed stage in the Discovery trail above; every answer remains editable.
           </p>
 
-          {savedMessage && <p className="wm-discovery-muted-note">{savedMessage}</p>}
+          {savedMessage && <p className="wm-discovery-muted-note wm-ui-copy">{savedMessage}</p>}
         </section>
       ) : (
       <div className="wm-discovery-question-layout">
-        <section className="wm-discovery-question-card">
-          <div className="wm-discovery-question-heading">
+        <section className="wm-discovery-question-card wm-ui-section wm-ui-card">
+          <div className="wm-discovery-question-heading wm-ui-title">
             <span>{activeIndex + 1} / {discoveryQuestions.length}</span>
-            <h2>{currentStepView.question}</h2>
-            <p>{currentStepView.prompt}</p>
+            <h2 className="wm-ui-title">{currentStepView.question}</h2>
+            <p className="wm-ui-copy">{currentStepView.prompt}</p>
           </div>
 
-          <div className="wm-discovery-why-card">
+          <div className="wm-discovery-why-card wm-ui-card">
             <strong>Why this matters</strong>
-            <p>{currentStepView.why}</p>
+            <p className="wm-ui-copy">{currentStepView.why}</p>
           </div>
 
-          <div className="wm-discovery-option-list">
+          <div className="wm-discovery-option-list wm-ui-card">
             {currentStepView.options.map((option) => {
               const selected = Array.isArray(currentAnswer) ? currentAnswer.includes(option.value) : currentAnswer === option.value;
               // Situational awareness: de-emphasise options that do not fit the
@@ -1693,35 +1693,35 @@ return (
                     <strong>
                       {option.label}
                       {!selected && relevance === "recommended" ? (
-                        <span className="wm-discovery-option-flag wm-discovery-option-flag-fit">{isSuggestedDefault ? "Suggested" : "Likely fit"}</span>
+                        <span className="wm-discovery-option-flag wm-discovery-option-flag-fit wm-ui-card">{isSuggestedDefault ? "Suggested" : "Likely fit"}</span>
                       ) : null}
                       {!selected && relevance === "unlikely" ? (
-                        <span className="wm-discovery-option-flag wm-discovery-option-flag-uncommon">Uncommon here</span>
+                        <span className="wm-discovery-option-flag wm-discovery-option-flag-uncommon wm-ui-card">Uncommon here</span>
                       ) : null}
                     </strong>
                     <small>{option.help}</small>
-                    {unlikelyReason ? <small className="wm-discovery-option-reason">{unlikelyReason}</small> : null}
+                    {unlikelyReason ? <small className="wm-discovery-option-reason wm-ui-card">{unlikelyReason}</small> : null}
                   </span>
                 </button>
               );
             })}
           </div>
 
-          <div className="wm-discovery-navigation-row">
-            <button type="button" onClick={movePrevious} disabled={isFirstStep}>
+          <div className="wm-discovery-navigation-row wm-ui-card">
+            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={movePrevious} disabled={isFirstStep}>
               Previous
             </button>
-            <button type="button" onClick={moveNext} disabled={isLastStep}>
+            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={moveNext} disabled={isLastStep}>
               Skip / next
             </button>
           </div>
         </section>
 
-        <aside className="wm-discovery-capture-card">
-          <div className="wm-discovery-capture-heading">
+        <aside className="wm-discovery-capture-card wm-ui-card">
+          <div className="wm-discovery-capture-heading wm-ui-title">
             <div>
               <span>Capture box</span>
-              <h3>Customer wording / notes</h3>
+              <h3 className="wm-ui-title">Customer wording / notes</h3>
             </div>
 
             <button
@@ -1735,7 +1735,7 @@ return (
             </button>
           </div>
 
-          <textarea
+          <textarea className="wm-ui-input"
             value={currentNote}
             onChange={(event) => handleCaptureChange(event.target.value)}
             placeholder={currentStepView.capturePlaceholder}
@@ -1743,28 +1743,28 @@ return (
           />
 
           <div className="wm-discovery-capture-actions">
-            <button type="button" onClick={saveCaptureAsAnswer} disabled={!currentNote.trim()}>
+            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={saveCaptureAsAnswer} disabled={!currentNote.trim()}>
               Save capture and continue
             </button>
           </div>
 
           {!micSupported && (
-            <p className="wm-discovery-muted-note">
+            <p className="wm-discovery-muted-note wm-ui-copy">
               Microphone capture depends on browser support. Manual note capture is always available.
             </p>
           )}
 
-          {micError && <p className="wm-discovery-error-note">{micError}</p>}
+          {micError && <p className="wm-discovery-error-note wm-ui-copy">{micError}</p>}
 
           <div className="wm-discovery-live-tip">
             <strong>Ask this next</strong>
-            <p>{selectedApplicationGuidance?.askNext ?? selectedQuestionStrategy.askNext}</p>
+            <p className="wm-ui-copy">{selectedApplicationGuidance?.askNext ?? selectedQuestionStrategy.askNext}</p>
           </div>
 
           {selectedApplicationGuidance && (
             <div className="wm-discovery-live-tip wm-discovery-application-guidance">
               <strong>Application-specific discovery question guidance</strong>
-              <p>{selectedApplicationGuidance.likelyDirection}</p>
+              <p className="wm-ui-copy">{selectedApplicationGuidance.likelyDirection}</p>
               <ul>
                 {selectedApplicationGuidance.checkBeforeProduct.map((item) => (
                   <li key={item}>{item}</li>
@@ -1777,18 +1777,18 @@ return (
       )}
 
       {capturedSummary.length > 0 && (
-        <section className="wm-discovery-summary-card">
-          <div className="wm-discovery-summary-heading">
+        <section className="wm-discovery-summary-card wm-ui-section wm-ui-card wm-ui-copy">
+          <div className="wm-discovery-summary-heading wm-ui-card wm-ui-title wm-ui-copy">
             <span>Captured brief</span>
-            <p>Use this as the working discovery summary before moving into product direction.</p>
+            <p className="wm-ui-copy">Use this as the working discovery summary before moving into product direction.</p>
           </div>
 
-          <div className="wm-discovery-summary-grid">
+          <div className="wm-discovery-summary-grid wm-ui-card wm-ui-copy">
             {capturedSummary.map((item) => (
-              <article key={item.id}>
+              <article className="wm-ui-card" key={item.id}>
                 <strong>{item.label}</strong>
                 <span>{item.answer}</span>
-                {item.note && <p>{item.note}</p>}
+                {item.note && <p className="wm-ui-copy">{item.note}</p>}
               </article>
             ))}
           </div>
@@ -1796,17 +1796,17 @@ return (
       )}
 
       {capturedSummary.length > 0 && !isDiscoveryComplete && (
-        <section className="wm-discovery-summary-card">
-          <div className="wm-discovery-summary-heading">
+        <section className="wm-discovery-summary-card wm-ui-section wm-ui-card wm-ui-copy">
+          <div className="wm-discovery-summary-heading wm-ui-card wm-ui-title wm-ui-copy">
             <span>Next step</span>
-            <p>Carry this discovery into product selection or a proposal. The captured brief saves to your project, so the next step picks it up.</p>
+            <p className="wm-ui-copy">Carry this discovery into product selection or a proposal. The captured brief saves to your project, so the next step picks it up.</p>
           </div>
           <div className="wm-discovery-capture-actions">
-            <button type="button" onClick={() => moveForward("finder")}>Find matching products</button>
-            <button type="button" onClick={() => moveForward("proposal")}>Build proposal</button>
-            <button type="button" onClick={saveDiscoveryToProject}>Save to project</button>
+            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={() => moveForward("finder")}>Find matching products</button>
+            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={() => moveForward("proposal")}>Build proposal</button>
+            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={saveDiscoveryToProject}>Save to project</button>
           </div>
-          {savedMessage && <p className="wm-discovery-muted-note">{savedMessage}</p>}
+          {savedMessage && <p className="wm-discovery-muted-note wm-ui-copy">{savedMessage}</p>}
         </section>
       )}
     </main>

@@ -75,9 +75,9 @@ export function ProjectsPage() {
             </div>
           }
         >
-          <div className="overflow-hidden rounded-2xl border border-[#29465e] bg-[#0d2133]">
-            <table className="min-w-full text-left text-sm">
-              <thead className="bg-[#0d2133] text-[#edf6ff]">
+          <div className="overflow-hidden rounded-2xl border wm-ui-card">
+            <table className="min-w-full text-left text-sm wm-ui-copy">
+              <thead className="text-[#edf6ff] wm-ui-card">
                 <tr>
                   <th className="px-5 py-4 font-bold">Project</th>
                   <th className="px-5 py-4 font-bold">Owner</th>
@@ -90,7 +90,7 @@ export function ProjectsPage() {
               <tbody>
                 {projects.length ? (
                   projects.map((project) => (
-                    <tr key={project.id} className="border-t border-[#29465e]">
+                    <tr key={project.id} className="border-t wm-ui-card">
                       <td className="px-5 py-4 font-semibold text-[#edf6ff]">{project.name}</td>
                       <td className="px-5 py-4 text-[#edf6ff]">{project.owner}</td>
                       <td className="px-5 py-4 text-[#edf6ff]">{project.stage}</td>
@@ -119,20 +119,20 @@ export function ProjectsPage() {
                             {activeProjectId === project.id ? "Resume active" : "Resume workflow"}
                           </Link>
 
-                          <button
+                          <button className={["wm-ui-button wm-ui-button-secondary", `${PROJECTS_ICON_BUTTON_CLASS} hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]`].filter(Boolean).join(" ")}
                             type="button"
                             onClick={() => copyProject(project.id)}
-                            className={`${PROJECTS_ICON_BUTTON_CLASS} hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]`}
+
                             title={`Copy ${project.name}`}
                             aria-label={`Copy ${project.name}`}
                           >
                             <Copy className="h-4 w-4" />
                           </button>
 
-                          <button
+                          <button className={["wm-ui-button wm-ui-button-secondary", `${PROJECTS_ICON_BUTTON_CLASS} hover:border-[#ff8a8a] hover:bg-[#2a1020] hover:text-[#ff8a8a]`].filter(Boolean).join(" ")}
                             type="button"
                             onClick={() => deleteProject(project.id)}
-                            className={`${PROJECTS_ICON_BUTTON_CLASS} hover:border-[#ff8a8a] hover:bg-[#2a1020] hover:text-[#ff8a8a]`}
+
                             title={`Delete ${project.name}`}
                             aria-label={`Delete ${project.name}`}
                           >
@@ -161,28 +161,28 @@ export function ProjectsPage() {
           {proposalDrafts.length ? (
             <div className="grid gap-4 lg:grid-cols-3">
               {proposalDrafts.map((draft) => (
-                <div key={draft.id} className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-5 shadow-sm">
+                <div key={draft.id} className="rounded-2xl border p-5 wm-ui-card">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-sm text-[#cfe6f7]">{draft.customer}</p>
-                      <h3 className="mt-2 text-lg font-extrabold text-[#edf6ff]">{draft.name}</h3>
+                      <p className="text-sm text-[#cfe6f7] wm-ui-copy">{draft.customer}</p>
+                      <h3 className="mt-2 text-lg font-extrabold text-[#edf6ff] wm-ui-title">{draft.name}</h3>
                     </div>
 
                     <div className="flex shrink-0 items-center gap-2">
-                      <button
+                      <button className={["wm-ui-button wm-ui-button-secondary", `${PROJECTS_ICON_BUTTON_CLASS} hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]`].filter(Boolean).join(" ")}
                         type="button"
                         onClick={() => copyProposalDraft(draft.id)}
-                        className={`${PROJECTS_ICON_BUTTON_CLASS} hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]`}
+
                         title={`Copy ${draft.name}`}
                         aria-label={`Copy ${draft.name}`}
                       >
                         <Copy className="h-4 w-4" />
                       </button>
 
-                      <button
+                      <button className={["wm-ui-button wm-ui-button-secondary", `${PROJECTS_ICON_BUTTON_CLASS} hover:border-[#ff8a8a] hover:bg-[#2a1020] hover:text-[#ff8a8a]`].filter(Boolean).join(" ")}
                         type="button"
                         onClick={() => deleteProposalDraft(draft.id)}
-                        className={`${PROJECTS_ICON_BUTTON_CLASS} hover:border-[#ff8a8a] hover:bg-[#2a1020] hover:text-[#ff8a8a]`}
+
                         title={`Delete ${draft.name}`}
                         aria-label={`Delete ${draft.name}`}
                       >
@@ -191,7 +191,7 @@ export function ProjectsPage() {
                     </div>
                   </div>
 
-                  <p className="mt-3 text-sm text-[#edf6ff]">{draft.state}</p>
+                  <p className="mt-3 text-sm text-[#edf6ff] wm-ui-copy">{draft.state}</p>
 
                   <div className="mt-5">
                     <Link
@@ -205,7 +205,7 @@ export function ProjectsPage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-8 text-center text-sm text-[#cfe6f7]">
+            <div className="rounded-2xl border p-8 text-center text-sm text-[#cfe6f7] wm-ui-card wm-ui-copy">
               No proposal drafts are currently listed. Use Reset sample store to restore the starter examples.
             </div>
           )}
