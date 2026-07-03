@@ -12,11 +12,14 @@ interface CompareAutoIdentifyPanelProps {
 }
 
 const exampleQueries = [
+  "Blustream IP250UHD-TX",
+  "Atlona AT-OME-EX-KIT",
+  "Lightware LBN-4x3-HBT-PRO",
+  "Kramer VIA Connect2",
+  "Extron DTP HDMI 4K 330 Tx",
+  "Barco ClickShare CX-50",
   "Poly X52",
-  "Logitech Rally Camera",
-  "Yealink A30",
-  "Huddly IQ",
-  "Jabra PanaCast 50",
+  "Logitech Rally Camera"
 ];
 
 function ConfidenceBadge({ confidence }: { confidence: CompareAutoIdentifyResult["confidence"] }) {

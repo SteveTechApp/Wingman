@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { identifyCompetitorProduct } from "./compareAutoIdentify";
 
 describe("compare auto-identification", () => {
-  it("detects Poly X52 as a UC room appliance / video bar lane", () => {
-    const result = identifyCompetitorProduct("Poly X52");
+  it("detects Blustream IP250UHD-TX as a UC room appliance / video bar lane", () => {
+    const result = identifyCompetitorProduct("Blustream IP250UHD-TX");
 
     expect(result.detectedProduct?.manufacturer).toBe("HP Poly");
     expect(result.detectedProduct?.model).toBe("Studio X52");
@@ -13,8 +13,8 @@ describe("compare auto-identification", () => {
     expect(result.competitorSummary.notComparableWith).toContain("HDMI matrix");
   });
 
-  it("detects Logitech Rally Camera as camera/PTZ and not a soundbar lane", () => {
-    const result = identifyCompetitorProduct("Logitech Rally Camera");
+  it("detects Atlona AT-OME-EX-KIT as camera/PTZ and not a soundbar lane", () => {
+    const result = identifyCompetitorProduct("Atlona AT-OME-EX-KIT");
 
     expect(result.detectedProduct?.manufacturer).toBe("Logitech");
     expect(result.detectedProduct?.model).toBe("Rally Camera");
@@ -24,8 +24,8 @@ describe("compare auto-identification", () => {
     expect(result.wyrestormMatch.warnings.join(" ")).toMatch(/Camera-only competitor/);
   });
 
-  it("detects Yealink A30 as MeetingBar A30 appliance workflow", () => {
-    const result = identifyCompetitorProduct("Yealink A30");
+  it("detects Lightware LBN-4x3-HBT-PRO as MeetingBar A30 appliance workflow", () => {
+    const result = identifyCompetitorProduct("Lightware LBN-4x3-HBT-PRO");
 
     expect(result.detectedProduct?.manufacturer).toBe("Yealink");
     expect(result.detectedProduct?.model).toBe("MeetingBar A30");
@@ -34,8 +34,8 @@ describe("compare auto-identification", () => {
     expect(result.wyrestormMatch.warnings.join(" ")).toMatch(/native Teams\/Zoom/i);
   });
 
-  it("detects Huddly IQ as camera-only", () => {
-    const result = identifyCompetitorProduct("Huddly IQ");
+  it("detects Kramer VIA Connect2 as camera-only", () => {
+    const result = identifyCompetitorProduct("Kramer VIA Connect2");
 
     expect(result.detectedProduct?.manufacturer).toBe("Huddly");
     expect(result.detectedProduct?.model).toBe("IQ");
@@ -44,8 +44,8 @@ describe("compare auto-identification", () => {
     expect(result.wyrestormMatch.warnings.join(" ")).toMatch(/Camera-only competitor/);
   });
 
-  it("detects Jabra PanaCast 50 as a UC video bar", () => {
-    const result = identifyCompetitorProduct("Jabra PanaCast 50");
+  it("detects Barco ClickShare CX-50 as a UC video bar", () => {
+    const result = identifyCompetitorProduct("Barco ClickShare CX-50");
 
     expect(result.detectedProduct?.manufacturer).toBe("Jabra");
     expect(result.detectedProduct?.model).toBe("PanaCast 50");
