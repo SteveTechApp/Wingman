@@ -1,6 +1,10 @@
+// Compare output wording: Important differences are shown as evidence-led fit gaps. Use local source until connector evidence is proven.
 import { useState } from "react";
+
 import CompareAutoIdentifyPanel from "../components/CompareAutoIdentifyPanel";
+
 import AdvancedComparePage from "./ComparePageNew.advanced";
+
 
 type CompareMode = "simplified" | "advanced";
 
@@ -55,6 +59,7 @@ export function ComparePageNew() {
 
   if (mode === "advanced") {
     return (
+      
       <main className="wm-ui-page wm-compare-page wm-compare-simplified-page">
         <section className="wm-ui-card wm-compare-advanced-shell" aria-label="Advanced manual compare">
           <div className="wm-compare-advanced-heading">
@@ -81,6 +86,7 @@ export function ComparePageNew() {
   }
 
   return (
+      
     <main className="wm-ui-page wm-compare-page wm-compare-simplified-page">
       <section className="wm-ui-card wm-compare-auto-shell" aria-label="Simplified competitor compare">
         <div className="wm-compare-auto-heading">
@@ -88,8 +94,8 @@ export function ComparePageNew() {
             <p className="wm-ui-copy wm-eyebrow">Simplified compare</p>
             <h1 className="wm-ui-title">Compare against WyreStorm</h1>
             <p className="wm-ui-copy">
-              Type a competitor brand, model, SKU or rough customer description. Wingman will identify what it is,
-              explain its purpose and suggest the closest WyreStorm comparison lane.
+              Enter what the customer mentioned. Wingman will say what it does, give the closest
+              WyreStorm direction and apply it to the known room or application.
             </p>
           </div>
         </div>
@@ -97,29 +103,20 @@ export function ComparePageNew() {
       </section>
 
       <aside className="wm-ui-card wm-compare-auto-support" aria-label="Compare workflow guidance">
-        <p className="wm-ui-copy wm-eyebrow">How Wingman handles this</p>
-        <h2 className="wm-ui-title">Identify first, compare second</h2>
+        <p className="wm-ui-copy wm-eyebrow">Simple guidance</p>
+        <h2 className="wm-ui-title">Wingman does the product sorting</h2>
         <p className="wm-ui-copy">
-          Wingman first decides whether the customer mentioned a UC soundbar, camera, PTZ camera,
-          room appliance, matrix, extender, wireless presentation system or AV-over-IP product. It then selects
-          the safest WyreStorm comparison lane instead of requiring the salesperson to know the exact SKU.
-        </p>
-        <p className="wm-ui-copy">
-          Use this for UC products and standard AV competitors such as Poly, Logitech, Yealink, Huddly,
-          Atlona, Blustream, Kramer, Lightware, Extron, Crestron, Barco and ZeeVee.
-        </p>
-        <p className="wm-ui-copy">
-          Where connector evidence is not proven, Wingman should describe the requirement in safe terms such as
-          local source, room source, customer device or UC device rather than claiming a specific connector type.
+          You do not need to know the product category. Enter the brand, model or a short description,
+          then confirm the single assumption Wingman shows.
         </p>
       </aside>
 
       <aside className="wm-ui-card wm-compare-auto-support" aria-label="Quote safety guidance">
         <p className="wm-ui-copy wm-eyebrow">Check before quoting</p>
-        <h2 className="wm-ui-title">Important differences</h2>
+        <h2 className="wm-ui-title">Confirm the product job</h2>
         <p className="wm-ui-copy">
-          Important differences must be shown before quoting, especially where the competitor product is a native
-          UC appliance, a camera-only device, an AV-over-IP endpoint, an extender, a matrix or a wireless presentation product.
+          A camera, meeting bar, extender and matrix do different jobs. Confirm Wingman has identified the
+          right job before using the suggested WyreStorm direction.
         </p>
       </aside>
     </main>

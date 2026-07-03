@@ -452,17 +452,11 @@ export function identifyCompetitorProduct(rawInput: string): CompareAutoIdentify
 export function describeAutoIdentifyResult(result: CompareAutoIdentifyResult): string {
   const competitor = result.competitorSummary;
   const match = result.wyrestormMatch;
-  const detection = result.detectedProduct
-    ? `OK, this looks like ${competitor.detectedLabel}.`
-    : `OK, I can infer the likely product class: ${competitor.detectedLabel}.`;
+  const detection = `This looks like ${competitor.detectedLabel}.`;
 
   return [
     detection,
-    `Product type: ${competitor.productType}.`,
-    `Purpose: ${competitor.purpose}`,
-    `WyreStorm comparison lane: ${match.lane}.`,
     match.candidates.length > 0 ? `Closest WyreStorm direction: ${match.candidates.join(", ")}.` : "",
-    match.warnings.length > 0 ? `Warning: ${match.warnings[0]}` : "",
   ]
     .filter(Boolean)
     .join(" ");
