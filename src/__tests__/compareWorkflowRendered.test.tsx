@@ -34,6 +34,35 @@ function runKnownCompare(brand: string, sku: string) {
   fireEvent.click(screen.getByRole("button", { name: sku }));
 }
 
+function runCustomTextCompare(brand: string, description: string) {
+  const visibleBrandButton = screen.queryByRole("button", { name: brand });
+
+  if (!visibleBrandButton) {
+    const manualCompareButton = screen.queryByRole("button", { name: /choose products manually/i });
+
+    if (!manualCompareButton) {
+      throw new Error("Manual compare button was not available before selecting a known competitor brand.");
+    }
+
+    fireEvent.click(manualCompareButton);
+  }
+
+  fireEvent.click(screen.getByRole("button", { name: brand }));
+
+  const skuInput = screen.getByLabelText(/competitor sku/i);
+  fireEvent.change(skuInput, { target: { value: description } });
+
+  const reviewButton = screen
+    .getAllByRole("button", { name: /review wyrestorm direction/i })
+    .find((button) => button.textContent?.trim() === "Review WyreStorm direction");
+
+  if (!reviewButton) {
+    throw new Error("Review WyreStorm direction button was not available.");
+  }
+
+  fireEvent.click(reviewButton);
+}
+
 describe("Compare rendered workflow", () => {
   beforeAll(() => {
     HTMLElement.prototype.scrollIntoView = vi.fn();
@@ -211,5 +240,41 @@ describe("Compare rendered workflow", () => {
     expect(within(outputRow as HTMLElement).queryByText(/2x .*input/i)).not.toBeInTheDocument();
 
     expect(screen.queryByText("MX-0402-MST")).not.toBeInTheDocument();
+  });
+
+  it("recommends the Apollo UC video bar (not a bare PTZ camera) for a described all-in-one UC video bar competitor", async () => {
+    renderComparePage();
+
+    runCustomTextCompare("Barco", "XYZ888 UC video bar soundbar camera microphone speaker teams zoom BYOD");
+
+    await screen.findByText("Competitor matched against");
+
+    const wyrestormSection = screen.getByText("Suggested WyreStorm direction").closest("section");
+    expect(wyrestormSection).not.toBeNull();
+    expect(within(wyrestormSection as HTMLElement).getByText("APO-VX20-UC-V2")).toBeInTheDocument();
+  });
+
+  it("recommends the Apollo wireless casting dongle for a described wireless casting competitor", async () => {
+    renderComparePage();
+
+    runCustomTextCompare("Barco", "XYZ999 wireless casting dongle byod presentation");
+
+    await screen.findByText("Competitor matched against");
+
+    const wyrestormSection = screen.getByText("Suggested WyreStorm direction").closest("section");
+    expect(wyrestormSection).not.toBeNull();
+    expect(within(wyrestormSection as HTMLElement).getByText("APO-DG2")).toBeInTheDocument();
+  });
+
+  it("recommends a WyreStorm HDMI splitter for a described HDMI splitter/distribution amplifier competitor", async () => {
+    renderComparePage();
+
+    runCustomTextCompare("Barco", "SP14CS 1x4 4K HDMI splitter with audio breakout");
+
+    await screen.findByText("Competitor matched against");
+
+    const wyrestormSection = screen.getByText("Suggested WyreStorm direction").closest("section");
+    expect(wyrestormSection).not.toBeNull();
+    expect(within(wyrestormSection as HTMLElement).getByText("SP-0104-H2")).toBeInTheDocument();
   });
 });
