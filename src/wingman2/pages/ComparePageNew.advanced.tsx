@@ -3932,9 +3932,9 @@ function ComparePageNew() {
       <section className="compare-native-hero wm-ui-hero wm-ui-section">
         <div>
           <p className="compare-native-eyebrow wm-ui-kicker wm-ui-copy">Competitor Compare</p>
-          <h1 className="wm-ui-title">Find the nearest WyreStorm product direction</h1>
+          <h1 className="wm-ui-title">Advanced manual product comparison</h1>
           <p className="wm-ui-copy">
-            Move through the compare workflow one step at a time so the salesperson sees the product direction first, then the deeper evidence only when needed, while Wingman keeps the result quote-safe.
+            Use the structured manual workflow when the competitor product is already known. Wingman still keeps the comparison quote-safe and separates product direction from deeper evidence.
           </p>
         </div>
         <button className="compare-native-reset wm-ui-button wm-ui-button-secondary wm-ui-button-primary" type="button" onClick={handleReset}>Reset compare</button>
