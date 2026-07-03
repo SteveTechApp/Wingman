@@ -2,7 +2,11 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { getBestProductPositioningCardForSku } from "../data/productPositioningCards";
 import { getProductStory, productStoryRelatedText } from "../data/productStories";
-import { saveProductSelectionToCurrentProject } from "../data/projectStore";
+import {
+  getCurrentWorkflowProject,
+  readProjectStore,
+  saveProductSelectionToCurrentProject,
+} from "../data/projectStore";
 import { buildProductNarrative, normaliseProductRecord, type ProductNarrative } from "../lib/productStoryEngine";
 import {
   classifyProductCallCard,
@@ -11,6 +15,15 @@ import {
   type ClassifiedProductCallCardHeading,
 } from "../lib/productCallCardClassification";
 import { resolveWyrestormSkuAlias } from "../lib/skuAliasResolver";
+
+const productCallCardWorkflowGuide = [
+  "Product identifier",
+  "Scenario checkpoint",
+  "Objection helper",
+  "Confidence cue",
+  "Sales confidence",
+  "Create response wording",
+];
 
 // Reuse the role-aware Product Pitch engine so call-card copy is plain and
 // sales-focused (and consistent with the Pitch page) instead of the thin,
@@ -94,10 +107,10 @@ type QuickTermLookup = {
 let setProductTermLookup: ((lookup: QuickTermLookup) => void) | null = null;
 
 const PRODUCT_PANEL_TABS: Array<{ id: ProductPanelId; label: string; hint: string }> = [
-  { id: "whatItIs", label: "What it is", hint: "Product role" },
-  { id: "whatItDoes", label: "What it does", hint: "Customer use" },
-  { id: "howToSell", label: "How to sell", hint: "Talk track" },
-  { id: "specification", label: "Specification", hint: "Key facts" },
+  { id: "whatItIs", label: "What it does", hint: "Simple answer" },
+  { id: "whatItDoes", label: "How it fits here", hint: "Known application" },
+  { id: "howToSell", label: "What to say", hint: "One clear message" },
+  { id: "specification", label: "Technical detail", hint: "If needed" },
 ];
 
 const PAGE_SIZE = 14;
@@ -978,6 +991,17 @@ return () => {
     pageProducts[0] ||
     filteredProducts[0] ||
     null;
+  const knownApplication = useMemo(() => {
+    const project = getCurrentWorkflowProject(readProjectStore());
+    const roomModel = project?.discoveryBrief?.roomModel;
+    const values = [roomModel?.roomType, roomModel?.outcome, roomModel?.application]
+      .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+      .map((value) => value.trim())
+      .filter((value, index, all) => all.findIndex((item) => item.toLowerCase() === value.toLowerCase()) === index)
+      .slice(0, 2);
+
+    return values.join(" - ");
+  }, []);
   const selectedPositioningCard = useMemo(
     () => (selectedProduct ? getBestProductPositioningCardForSku(selectedProduct.sku) : undefined),
     [selectedProduct],
@@ -2022,7 +2046,7 @@ return (
                 onClick={() => setActiveGalleryItem(null)}
                 aria-label="Close product gallery"
               >
-                ×
+                ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â
               </button>
             </div>
 
@@ -2054,7 +2078,7 @@ return (
               onClick={() => setActiveTermLookup(null)}
               aria-label="Close term explanation"
             >
-              ×
+              ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â
             </button>
           </div>
 
@@ -2079,7 +2103,17 @@ return (
       </header>
 
       <main className="wm-pcc-grid wm-ui-page wingman-page-host">
-        <section className="wm-pcc-card wm-pcc-left wm-ui-section wm-ui-card">
+      <section className="wm-ui-card wm-pcc-workflow-guide" aria-label="Product Call Cards workflow guide">
+        <p className="wm-ui-title">How to use this call card</p>
+        <ul className="wm-ui-copy">
+          {productCallCardWorkflowGuide.map((term) => (
+            <li key={term}>{term}</li>
+          ))}
+        </ul>
+      </section>
+
+
+<section className="wm-pcc-card wm-pcc-left wm-ui-section wm-ui-card">
           <div className="wm-pcc-chips">
             {PRODUCT_CALL_CARD_HEADINGS.map((family) => (
               <button className={["wm-ui-button wm-ui-button-secondary", `wm-pcc-chip ${activeFamily === family ? "wm-pcc-chip-active" : ""}`].filter(Boolean).join(" ")}
@@ -2126,7 +2160,7 @@ return (
 
           <div className="wm-pcc-status">
             <span>
-              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching · {products.length} total · {curatedCount} curated{activeQuickFinder !== "All" ? ` · ${activeQuickFinder}` : ""}
+              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· {products.length} total ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· {curatedCount} curated{activeQuickFinder !== "All" ? ` ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· ${activeQuickFinder}` : ""}
             </span>
 
             <div className="wm-pcc-pager">
@@ -2171,7 +2205,7 @@ return (
               >
                 <span className="wm-pcc-sku">{product.sku}</span>
                 <span className="wm-pcc-family">
-                  {product.curated ? "Curated · " : ""}
+                  {product.curated ? "Curated ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· " : ""}
                   {product.family}
                 </span>
 
@@ -2346,8 +2380,12 @@ return (
             <section className="wm-pcc-focus-panel wm-ui-section wm-ui-card">
               {activeProductPanel === "whatItIs" && (
                 <>
-                  <h3 className="wm-pcc-section-heading wm-ui-title">What it is</h3>
+                  <h3 className="wm-pcc-section-heading wm-ui-title">What it does</h3>
                   <p className="wm-pcc-response-copy wm-ui-copy">
+                    {renderWithGuruLinks(selectedProduct.fit, selectedProduct)}
+                  </p>
+                  <p className="wm-pcc-response-copy wm-ui-copy">
+                    <strong>Technical description:</strong>{" "}
                     {renderWithGuruLinks(selectedProduct.description, selectedProduct)}
                   </p>
                 </>
@@ -2355,54 +2393,52 @@ return (
 
               {activeProductPanel === "whatItDoes" && (
                 <>
-                  <h3 className="wm-pcc-section-heading wm-ui-title">What it does</h3>
+                  <h3 className="wm-pcc-section-heading wm-ui-title">How it fits here</h3>
                   <p className="wm-pcc-response-copy wm-ui-copy">
-                    {renderWithGuruLinks(selectedProduct.fit, selectedProduct)}
+                    {knownApplication
+                      ? <>For <strong>{knownApplication}</strong>, {renderWithGuruLinks(selectedProduct.fit, selectedProduct)}</>
+                      : <>For this application, {renderWithGuruLinks(selectedProduct.fit, selectedProduct)}</>}
                   </p>
 
-                  <p className="wm-pcc-response-subhead wm-ui-copy">Check before using it</p>
-                  <ul className="wm-pcc-response-list wm-ui-card">
-                    {productChecks.slice(0, 3).map((check) => (
-                      <li key={check}>{renderWithGuruLinks(check, selectedProduct)}</li>
-                    ))}
-                  </ul>
+                  <p className="wm-pcc-response-subhead wm-ui-copy">Confirm this</p>
+                  <p className="wm-pcc-response-copy wm-ui-copy">
+                    I'm treating this as {knownApplication || "the application described"}.{" "}
+                    {renderWithGuruLinks(selectedProduct.questions[0] || productChecks[0], selectedProduct)}
+                  </p>
                 </>
               )}
 
               {activeProductPanel === "howToSell" && (
                 <>
-                  <h3 className="wm-pcc-section-heading wm-ui-title">How to sell</h3>
+                  <h3 className="wm-pcc-section-heading wm-ui-title">What to say</h3>
 
-                  <p className="wm-pcc-response-subhead wm-ui-copy">Simple talk track</p>
+                  <p className="wm-pcc-response-subhead wm-ui-copy">Say it like this</p>
                   <p className="wm-pcc-response-copy wm-ui-copy">
                     {renderWithGuruLinks(selectedProduct.openingLine, selectedProduct)}
                   </p>
 
-                  <p className="wm-pcc-response-subhead wm-ui-copy">Questions to ask</p>
-                  <ul className="wm-pcc-response-list wm-ui-card">
-                    {selectedProduct.questions.slice(0, 4).map((question) => (
-                      <li key={question}>{renderWithGuruLinks(question, selectedProduct)}</li>
-                    ))}
-                  </ul>
-
+                  <p className="wm-pcc-response-subhead wm-ui-copy">Confirm this</p>
+                  <p className="wm-pcc-response-copy wm-ui-copy">
+                    {renderWithGuruLinks(selectedProduct.questions[0] || productChecks[0], selectedProduct)}
+                  </p>
                   {(selectedProduct.sku.toUpperCase().startsWith("AMP-") ||
                     `${selectedProduct.family} ${selectedProduct.category}`.toLowerCase().includes("audio") ||
                     `${selectedProduct.family} ${selectedProduct.category}`.toLowerCase().includes("amplifier")) && (
-                    <>
-                      <p className="wm-pcc-response-subhead wm-ui-copy">Example system shapes</p>
+                    <details className="wm-pcc-response-list wm-ui-card">
+                      <summary className="wm-pcc-response-subhead wm-ui-copy">Example system shapes</summary>
                       <div className="wm-pcc-example-grid">
                         {[
-                        {
-                          title: "100V / High Z distributed speaker zone",
-                          body:
-                            "One amplifier channel can feed several 100V ceiling or wall speakers across a zone. Each speaker is set to a wattage tap, for example 3W, 6W or 10W. Add the taps together and leave amplifier headroom. This suits background audio, classrooms, corridors, retail areas and larger distributed zones.",
-                        },
-                        {
-                          title: "Low impedance stereo room",
-                          body:
-                            "Two amplifier channels can drive left and right low-impedance speakers, typically 4Ω or 8Ω. This suits a local room where stereo playback, clearer music reproduction or a pair of front speakers is required. Check speaker impedance, cable run, channel load and amplifier power per channel.",
-                        },
-                      ].map((example) => (
+                          {
+                            title: "100V / High Z distributed speaker zone",
+                            body:
+                              "One amplifier channel can feed several 100V ceiling or wall speakers across a zone. Each speaker is set to a wattage tap, for example 3W, 6W or 10W. Add the taps together and leave amplifier headroom. This suits background audio, classrooms, corridors, retail areas and larger distributed zones.",
+                          },
+                          {
+                            title: "Low impedance stereo room",
+                            body:
+                              "Two amplifier channels can drive left and right low-impedance speakers, typically 4 ohm or 8 ohm. This suits a local room where stereo playback, clearer music reproduction or a pair of front speakers is required. Check speaker impedance, cable run, channel load and amplifier power per channel.",
+                          },
+                        ].map((example) => (
                           <article key={example.title} className="wm-pcc-example-card wm-ui-card wm-ui-title">
                             <h4 className="wm-pcc-example-title wm-ui-title">{example.title}</h4>
                             <p className="wm-pcc-example-body wm-ui-copy">
@@ -2411,14 +2447,14 @@ return (
                           </article>
                         ))}
                       </div>
-                    </>
+                    </details>
                   )}
                 </>
               )}
 
               {activeProductPanel === "specification" && (
                 <>
-                  <h3 className="wm-pcc-section-heading wm-ui-title">Specification</h3>
+                  <h3 className="wm-pcc-section-heading wm-ui-title">Technical detail</h3>
 
                   <ul className="wm-pcc-response-list wm-ui-card">
                     {productSpecificationRows.map((row) => (
@@ -2428,9 +2464,9 @@ return (
                     ))}
                   </ul>
 
-                  <p className="wm-pcc-response-subhead wm-ui-copy">Known product facts</p>
+                  <p className="wm-pcc-response-subhead wm-ui-copy">Check before quoting</p>
                   <ul className="wm-pcc-response-list wm-ui-card">
-                    {selectedProduct.proofPoints.slice(0, 5).map((point) => (
+                    {productChecks.slice(0, 4).map((point) => (
                       <li key={point}>{renderWithGuruLinks(point, selectedProduct)}</li>
                     ))}
                   </ul>
@@ -2469,3 +2505,4 @@ return (
     </section>
   );
 }
+

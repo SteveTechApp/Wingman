@@ -1,6 +1,7 @@
-﻿import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { getCurrentWorkflowProject, readProjectStore } from "../data/projectStore";
 import { writeProductWorkspaceHandoff } from "../data/productWorkspaceHandoff";
 import {
   buildProductNarrative,
@@ -12,7 +13,10 @@ import {
   type ProductNarrative,
   type ProductSpec
 } from "../lib/productStoryEngine";
-import { buildProductPitchSalesGuidance } from "../lib/productPitchGuidance";
+import {
+  buildProductPitchSalesGuidance,
+  type ProductSalesContext,
+} from "../lib/productPitchGuidance";
 import { CompareBackToListButton } from "../components/compare/CompareBackToListButton";
 import { ReportProblemButton } from "../components/ReportProblemButton";
 import { ProductMediaPanel } from "../components/ProductMediaPanel";
@@ -265,6 +269,17 @@ function WorkCard({
   );
 }
 
+function currentProductSalesContext(): ProductSalesContext {
+  const project = getCurrentWorkflowProject(readProjectStore());
+  const roomModel = project?.discoveryBrief?.roomModel;
+  const text = (value: unknown) => typeof value === "string" ? value.trim() : "";
+
+  return {
+    roomType: text(roomModel?.roomType),
+    application: text(roomModel?.outcome) || text(roomModel?.application),
+  };
+}
+
 function SelectionPage({
   products,
   searchTerm,
@@ -361,8 +376,8 @@ function SelectionPage({
 
         <p className="mt-3 text-xs font-semibold wm-ui-copy">
           Showing {filtered.length} of {products.length} products
-          {activeQuickFilter !== "All" ? ` · Filter: ${activeQuickFilter}` : ""}
-          {term ? ` · Search: ${searchTerm.trim()}` : ""}
+          {activeQuickFilter !== "All" ? ` Â· Filter: ${activeQuickFilter}` : ""}
+          {term ? ` Â· Search: ${searchTerm.trim()}` : ""}
         </p>
 
         <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
@@ -415,90 +430,129 @@ function TabButton({
   );
 }
 
-function OverviewTab({ product, narrative }: { product: ProductSpec; narrative: ProductNarrative }) {
-  const guidance = buildProductPitchSalesGuidance(product, narrative);
+function OverviewTab({
+  product,
+  narrative,
+  context,
+}: {
+  product: ProductSpec;
+  narrative: ProductNarrative;
+  context: ProductSalesContext;
+}) {
+  const guidance = buildProductPitchSalesGuidance(product, narrative, context);
 
   return (
     <div className="grid gap-4">
       <section className="wm-ui-section rounded-lg border p-6 wm-ui-card">
-        <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-200`}>Sales guidance</p>
-        <h2 className="mt-2 text-2xl font-extrabold wm-ui-title">Product role</h2>
-        <p className="mt-2 max-w-5xl text-base font-bold leading-6 wm-ui-copy">{narrative.headline}</p>
-        <p className="mt-2 max-w-5xl text-sm leading-6 wm-ui-copy">{guidance.productRole}</p>
+        <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-200`}>Simple product answer</p>
+        <h2 className="mt-2 text-2xl font-extrabold wm-ui-title">What it does</h2>
+        <p className="mt-2 max-w-5xl text-base font-bold leading-6 wm-ui-copy">{guidance.plainDescription}</p>
+        <p className="mt-2 max-w-5xl text-sm leading-6 wm-ui-copy">
+          <strong>Technical description:</strong> {guidance.productRole}
+        </p>
       </section>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <WorkCard title="Customer problem it solves">
-          <p className="wm-ui-copy">{guidance.customerProblem}</p>
+        <WorkCard title="How it fits this application">
+          <p className="wm-ui-copy">{guidance.scenarioFit}</p>
         </WorkCard>
 
-        <WorkCard title="Best-fit applications">
-          <DisplayList items={guidance.bestFitApplications} max={8} />
-        </WorkCard>
-
-        <WorkCard title="Poor fit / avoid leading with this" tone="caution">
-          <DisplayList items={guidance.poorFitApplications} max={8} />
-        </WorkCard>
-
-        <WorkCard title="Discovery questions">
-          <DisplayList items={guidance.discoveryQuestions} max={8} />
-        </WorkCard>
-
-        <WorkCard title="Quote checks" tone="caution">
-          <DisplayList items={guidance.quoteChecks} max={8} />
-        </WorkCard>
-
-        <WorkCard title="What not to promise" tone="caution">
-          <DisplayList items={guidance.doNotPromise} max={6} />
-        </WorkCard>
-
-        <WorkCard title="Attach / companion products">
-          <DisplayList items={guidance.attachProducts} max={8} />
-        </WorkCard>
-
-        <WorkCard title="Alternatives inside WyreStorm">
-          <DisplayList items={guidance.alternatives} max={6} />
-        </WorkCard>
-
-        <WorkCard title="Customer-safe wording">
+        <WorkCard title="Say it like this">
           <p className="wm-ui-copy">{guidance.customerSafeWording}</p>
         </WorkCard>
 
-        <WorkCard title="Internal sales notes" tone="caution">
-          <DisplayList items={guidance.internalSalesNotes} max={8} />
+        <WorkCard title="Confirm this" tone="caution">
+          <p className="wm-ui-copy">{guidance.confirmationQuestion}</p>
+        </WorkCard>
+
+        <WorkCard title="Customer problem it solves">
+          <p className="wm-ui-copy">{guidance.customerProblem}</p>
         </WorkCard>
       </div>
+
+      <details className="wm-ui-card rounded-lg border p-5">
+        <summary className="cursor-pointer font-extrabold">
+          More product and quote detail
+        </summary>
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <WorkCard title="Best-fit applications">
+            <DisplayList items={guidance.bestFitApplications} max={4} />
+          </WorkCard>
+
+          <WorkCard title="Poor fit / avoid leading with this" tone="caution">
+            <DisplayList items={guidance.poorFitApplications} max={4} />
+          </WorkCard>
+
+          <WorkCard title="Discovery questions">
+            <DisplayList items={guidance.discoveryQuestions} max={6} />
+          </WorkCard>
+
+          <WorkCard title="Quote checks" tone="caution">
+            <DisplayList items={guidance.quoteChecks} max={4} />
+          </WorkCard>
+
+          <WorkCard title="What not to promise" tone="caution">
+            <DisplayList items={guidance.doNotPromise} max={4} />
+          </WorkCard>
+
+          <WorkCard title="Attach / companion products">
+            <DisplayList items={guidance.attachProducts} max={4} />
+          </WorkCard>
+
+          <WorkCard title="Alternatives inside WyreStorm">
+            <DisplayList items={guidance.alternatives} max={3} />
+          </WorkCard>
+
+          <WorkCard title="Customer-safe wording">
+            <p className="wm-ui-copy">{guidance.customerSafeWording}</p>
+          </WorkCard>
+
+          <WorkCard title="Internal sales notes" tone="caution">
+            <DisplayList items={guidance.internalSalesNotes} max={4} />
+          </WorkCard>
+        </div>
+      </details>
 
       <ProductMediaPanel sku={product.sku} title={product.name} />
     </div>
   );
 }
 
-function SalesTab({ product, narrative }: { product: ProductSpec; narrative: ProductNarrative }) {
+function SalesTab({
+  product,
+  narrative,
+  context,
+}: {
+  product: ProductSpec;
+  narrative: ProductNarrative;
+  context: ProductSalesContext;
+}) {
+  const guidance = buildProductPitchSalesGuidance(product, narrative, context);
+
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <WorkCard title="Customer challenge">
-        <p className="wm-ui-copy">{narrative.customerChallenge}</p>
+      <WorkCard title="What it does">
+        <p className="wm-ui-copy">{guidance.plainDescription}</p>
       </WorkCard>
 
-      <WorkCard title="Why this product helps">
-        <p className="wm-ui-copy">{narrative.whyItHelps}</p>
-      </WorkCard>
-
-      <WorkCard title="Key features worth mentioning">
-        <DisplayList items={product.keyFeatures} max={6} />
+      <WorkCard title="How it is used here">
+        <p className="wm-ui-copy">{guidance.scenarioFit}</p>
       </WorkCard>
 
       <WorkCard title="Say it like this">
-        <p className="wm-ui-copy">{narrative.suggestedWording}</p>
+        <p className="wm-ui-copy">{guidance.customerSafeWording}</p>
       </WorkCard>
 
-      <WorkCard title="Suggest a demo / evaluation">
-        <p className="wm-ui-copy">{narrative.demoPrompt}</p>
+      <WorkCard title="Confirm this" tone="caution">
+        <p className="wm-ui-copy">{guidance.confirmationQuestion}</p>
       </WorkCard>
 
       <WorkCard title="Do not oversell">
         <p className="wm-ui-copy">Keep the conversation tied to the room, workflow and confirmed requirement. Do not promise unverified I/O, distance, USB, network, audio or control behaviour until checked.</p>
+      </WorkCard>
+
+      <WorkCard title="Technical points if asked">
+        <DisplayList items={product.keyFeatures} max={4} />
       </WorkCard>
     </div>
   );
@@ -559,21 +613,21 @@ function SpecTab({ product }: { product: ProductSpec }) {
         <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
           <h3 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>USB path check</h3>
           <p className="mt-1 text-sm leading-6 wm-ui-copy">
-            USB standard <strong className="text-white">{usbResult.usbStandardUsed}</strong> · up to{" "}
+            USB standard <strong className="text-white">{usbResult.usbStandardUsed}</strong> Â· up to{" "}
             {usbResult.maxAllowedTiers} cascaded tier{usbResult.maxAllowedTiers === 1 ? "" : "s"}
-            {usbResult.downstreamHubLimit ? ` · hub limit ${usbResult.downstreamHubLimit}` : ""}.
+            {usbResult.downstreamHubLimit ? ` Â· hub limit ${usbResult.downstreamHubLimit}` : ""}.
           </p>
           {usbResult.warnings.length > 0 ? (
             <ul className="mt-2 space-y-1 text-sm wm-ui-copy">
               {usbResult.warnings.map((warning) => (
-                <li key={warning}>⚠ {warning}</li>
+                <li key={warning}>âš  {warning}</li>
               ))}
             </ul>
           ) : null}
           {usbResult.blockers.length > 0 ? (
             <ul className="mt-2 space-y-1 text-sm wm-ui-copy">
               {usbResult.blockers.map((blocker) => (
-                <li key={blocker}>✕ {blocker}</li>
+                <li key={blocker}>âœ• {blocker}</li>
               ))}
             </ul>
           ) : null}
@@ -605,7 +659,7 @@ function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: P
             <strong className="mt-2 block text-lg text-white">{narrative.diagramSource}</strong>
           </div>
 
-          <div className="hidden items-center justify-center text-3xl font-extrabold text-cyan-300 lg:flex">→</div>
+          <div className="hidden items-center justify-center text-3xl font-extrabold text-cyan-300 lg:flex">â†’</div>
 
           <div className="rounded-3xl border p-5 wm-ui-card">
             <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-200`}>WyreStorm product</p>
@@ -613,7 +667,7 @@ function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: P
             <span className="mt-1 block text-sm wm-ui-copy">{product.productType}</span>
           </div>
 
-          <div className="hidden items-center justify-center text-3xl font-extrabold text-cyan-300 lg:flex">→</div>
+          <div className="hidden items-center justify-center text-3xl font-extrabold text-cyan-300 lg:flex">â†’</div>
 
           <div className="rounded-3xl border p-5 wm-ui-card">
             <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-white/45`}>Output / destination side</p>
@@ -720,6 +774,7 @@ function ProductWorkspace({
   const [activeTab, setActiveTab] = useState<ProductTab>("overview");
   const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
   const narrative = useMemo(() => buildProductNarrative(product), [product]);
+  const salesContext = useMemo(() => currentProductSalesContext(), []);
   const lifecycle = useMemo(() => resolveProductLifecycle(product.sku), [product.sku]);
 
   useEffect(() => {
@@ -795,11 +850,11 @@ function ProductWorkspace({
             }`}
           >
             {lifecycle.supersededBy
-              ? "⚠ Superseded product"
+              ? "âš  Superseded product"
               : lifecycle.status === "discontinued"
-                ? "⚠ Discontinued product"
+                ? "âš  Discontinued product"
                 : lifecycle.status === "do-not-spec"
-                  ? "⚠ Do not specify"
+                  ? "âš  Do not specify"
                   : lifecycle.status === "cable"
                     ? "Cable / accessory"
                     : "Not on the current business list"}
@@ -821,7 +876,7 @@ function ProductWorkspace({
               narrative.confidence === "low" ? "text-amber-200" : "text-cyan-200"
             }`}
           >
-            {narrative.confidence === "low" ? "⚠ Check before quoting" : "Auto-generated positioning"}
+            {narrative.confidence === "low" ? "âš  Check before quoting" : "Auto-generated positioning"}
           </p>
           <p className="mt-1 max-w-4xl text-sm leading-6 wm-ui-copy">{narrative.reviewNote}</p>
         </section>
@@ -837,8 +892,8 @@ function ProductWorkspace({
         </div>
       </section>
 
-      {activeTab === "overview" ? <OverviewTab product={product} narrative={narrative} /> : null}
-      {activeTab === "sales" ? <SalesTab product={product} narrative={narrative} /> : null}
+      {activeTab === "overview" ? <OverviewTab product={product} narrative={narrative} context={salesContext} /> : null}
+      {activeTab === "sales" ? <SalesTab product={product} narrative={narrative} context={salesContext} /> : null}
       {activeTab === "spec" ? <SpecTab product={product} /> : null}
       {activeTab === "diagram" ? <DiagramTab product={product} narrative={narrative} /> : null}
       {activeTab === "visual" ? <VisualTab product={product} narrative={narrative} /> : null}
