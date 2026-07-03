@@ -22,8 +22,7 @@ import {
   requiresNetworkHdController,
 } from "./schematicProductRules";
 
-interface DraftConnection extends Omit<SchematicConnection, "points"> {}
-
+type DraftConnection = Omit<SchematicConnection, "points">;
 export function buildWingmanSchematic(brief: SchematicProjectBrief): SchematicModel {
   const assumptions: string[] = [];
   const warnings: SchematicWarning[] = [];
