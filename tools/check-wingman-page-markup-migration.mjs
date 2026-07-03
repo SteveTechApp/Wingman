@@ -33,7 +33,12 @@ function checkPage(relativePath, required = true) {
   const absolutePath = path.join(root, relativePath);
   if (!fs.existsSync(absolutePath)) {
     const message = `${relativePath} is missing`;
-    required ? errors.push(message) : warnings.push(message);
+    if (required) {
+      errors.push(message);
+      return;
+    }
+
+    warnings.push(message);
     return;
   }
 

@@ -82,6 +82,10 @@ export const PRODUCT_STORIES: ProductStory[] = [
     salesTalkTrack: "Position it as the multiview add-on inside a NetworkHD 100 design. Pair it with NHD-124-TX encoders and NetworkHD controller where a flexible 100-series multiview system is required.",
     idealApplications: ["NetworkHD 100 multiview", "Sports bar screen composition", "Lecture theatre source monitoring", "Signage and information display", "Control-room monitor"],
     worksWith: [
+    {
+      sku: "NHD-CTL-PRO",
+      reason: "Required controller for managed NetworkHD 100 routing, presets and system operation.",
+    },
       { sku: "NHD-124-TX", reason: "Encodes source devices into the NetworkHD 100 system." },
       { sku: "NHD-120-RX", reason: "Use where a standard single-source NetworkHD 100 receiver output is required." }
     ],
@@ -190,6 +194,10 @@ export const PRODUCT_STORIES: ProductStory[] = [
     salesTalkTrack: "Position NetworkHD 600 as the premium performance route, not the default AVoIP answer. Use it where 10G infrastructure and the application justify it.",
     idealApplications: ["Mission-critical AV", "High-performance 4K distribution", "Premium video walls", "Low-latency applications", "10G infrastructure projects"],
     worksWith: [
+    {
+      sku: "NHD-CTL-PRO",
+      reason: "Required controller for managed NetworkHD 600 routing, presets and system operation.",
+    },
       { sku: "NHD-500-TX", reason: "Commercial alternative where 1GbE premium AVoIP is sufficient and 10G is not justified." },
       { sku: "SW-0206-VW", reason: "Consider where a dedicated wall processor is cleaner than a 10G AVoIP wall design." }
     ],
@@ -3605,6 +3613,92 @@ export const PRODUCT_STORIES: ProductStory[] = [
     diagramSource: "Up to four HDMI sources",
     diagramOutput: "One HDMI display or downstream extender"
   },
+  {
+    sku: "NHD-CTL-PRO",
+    plainEnglishName: "NetworkHD system controller",
+    family: "NetworkHD",
+    category: "System controller",
+    productType: "AV-over-IP system controller",
+    oneLinePosition: "Required NetworkHD controller for managed AV-over-IP routing, presets and system operation.",
+    whatItIs: "A dedicated NetworkHD control appliance used to manage compatible NetworkHD encoders, decoders and transceivers across routed AV-over-IP systems.",
+    whatItDoes: "Provides the control layer for NetworkHD systems, allowing endpoints to be discovered, configured, routed and recalled through presets or user control.",
+    customerProblem: "The customer needs a managed NetworkHD system with reliable routing, presets and user control rather than a set of unmanaged AV-over-IP endpoints.",
+    salesTalkTrack: "When quoting NetworkHD, do not present endpoints alone as a complete managed system. Include NHD-CTL-PRO where the customer needs routing, presets, control integration or reliable day-to-day operation.",
+    idealApplications: ["Managed NetworkHD 100 systems", "NetworkHD 500 routed AV-over-IP systems", "NetworkHD 600 10G routing systems", "Projects needing presets, routing and user control"],
+    worksWith: [
+    {
+      sku: "NHD-150-RX",
+      reason: "Use with NetworkHD 100 multiview receiver systems where managed routing and presets are required.",
+    },
+    {
+      sku: "NHD-500-TX",
+      reason: "Use with NetworkHD 500 systems where encoders and decoders require managed routing and control.",
+    },
+    {
+      sku: "NHD-600-TRX",
+      reason: "Use with NetworkHD 600 systems where 10G transceivers require managed routing and presets.",
+    },
+  ],
+    familyContext: "This belongs in the NetworkHD 100 conversation. Do not mix it into NetworkHD 500 or NetworkHD 600 endpoint designs.",
+    whenToUse: ["The system is NetworkHD 100.", "Several sources need to appear together on one output.", "Bandwidth and cost position the project toward 100-series AVoIP."],
+    whenNotToUse: ["Do not use it for NetworkHD 500 or 600 systems.", "Do not use it where a dedicated standalone four-input multiview processor is simpler.", "Do not use it if the customer only needs one source on one screen."],
+    discoveryQuestions: [
+    "How many NetworkHD endpoints need to be routed through the system?",
+    "Does the customer need presets, user control or third-party control integration?",
+    "Which NetworkHD family is being used: 100, 500 or 600?",
+  ],
+    quoteChecks: [
+    "Include NHD-CTL-PRO on managed NetworkHD systems rather than quoting endpoints only.",
+    "Confirm the selected NetworkHD endpoint family is consistent across the system design.",
+    "Confirm the control requirement, presets and network readiness before proposal issue.",
+  ],
+    customerSafeWording: "Use NHD-150-RX when a NetworkHD 100 system needs a multiview output instead of a normal single-source receiver output.",
+    internalRepGuidance: "This is a 100-series multiview decoder. Keep it separate from the NHD-0401-MV story for NetworkHD 500 discussions.",
+    keyFeatures: ["NetworkHD 100 multiview output", "Works with 100-series encoders", "Requires NetworkHD controller", "Useful for monitoring and signage"],
+    diagramSource: "NetworkHD 100 encoders",
+    diagramOutput: "Single multiview display output"
+  },
+  {
+    sku: "SW-640-TX-W",
+    plainEnglishName: "Larger wireless presentation switcher",
+    family: "Presentation switchers",
+    category: "Wireless presentation switcher",
+    productType: "Wireless presentation switcher",
+    oneLinePosition: "Larger wireless presentation transmitter for meeting rooms and teaching spaces needing more source capacity.",
+    whatItIs: "A WyreStorm presentation switching transmitter for spaces where users need a practical mix of wired presentation and wireless casting from laptops or mobile devices.",
+    whatItDoes: "Combines room source switching and wireless presentation into a single presentation-led workflow, helping users connect content without treating the room as a fixed Teams appliance.",
+    customerProblem: "The customer needs a flexible presentation room where multiple users can connect wired or wirelessly without overcomplicating the system.",
+    salesTalkTrack: "Position SW-640-TX-W when the room needs a more capable presentation front end than a simple huddle-room switcher. It suits wired sources, wireless casting and a cleaner user workflow in one room design.",
+    idealApplications: ["Larger meeting rooms", "Teaching spaces", "Training rooms", "Presentation-led rooms needing wired and wireless source support"],
+    worksWith: [
+    {
+          sku: "APO-DG2",
+          reason: "Use where the wireless presentation workflow requires the WyreStorm dongle option.",
+        },
+    {
+          sku: "SYN-TOUCH10",
+          reason: "Use as a simple touch control option where users need clear room operation.",
+        }
+  ],
+    familyContext: "This is a presentation switcher conversation, not a whole-building routing platform.",
+    whenToUse: ["The room has local presentation sources.", "Wireless presentation is part of the requirement.", "The system should stay simpler than matrix or AVoIP."],
+    whenNotToUse: ["Do not use it for many-room source routing.", "Do not use it where a large matrix or AVoIP system is required.", "Do not ignore USB/BYOM requirements."],
+    discoveryQuestions: [
+    "How many wired presentation sources are required at the desk, lectern or room input position?",
+    "Does the room require wireless casting using Miracast, AirPlay or the WyreStorm dongle workflow?",
+    "Are one or two display outputs required, and should the room need simple user control?",
+  ],
+    quoteChecks: [
+    "Confirm the exact source count before selecting SW-640-TX-W over a smaller presentation switcher.",
+    "Include APO-DG2 where the wireless presentation workflow needs the WyreStorm dongle option.",
+    "Confirm any required desk or lectern input hardware before issuing the proposal.",
+  ],
+    customerSafeWording: "Use SW-620-TX-W where the room needs a compact wired/wireless presentation core without the complexity of matrix or AVoIP.",
+    internalRepGuidance: "Ask whether the room needs simple touch control; SYN-TOUCH10-V2 is a natural attachment question.",
+    keyFeatures: ["Presentation-led room core", "Wired and wireless sharing conversation", "Meeting and teaching room fit", "Pairs with SYN-TOUCH10-V2"],
+    diagramSource: "Laptop and room sources",
+    diagramOutput: "Room display / presentation output"
+  }
 ];
 
 export const PRODUCT_STORY_BY_SKU: Record<string, ProductStory> = PRODUCT_STORIES.reduce(
