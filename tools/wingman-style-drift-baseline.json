@@ -1,0 +1,12 @@
+{
+  "updatedAt": "2026-07-03T06:56:49.063Z",
+  "rule": "Current totals become the maximum allowed style-drift counts. Future changes must not increase these counts.",
+  "totals": {
+    "hex": 2186,
+    "rgb": 2730,
+    "inlineStyle": 102,
+    "arbitraryTailwind": 489,
+    "pageSections": 2646,
+    "legacyPills": 4
+  }
+}

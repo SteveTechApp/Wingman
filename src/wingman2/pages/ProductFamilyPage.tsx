@@ -713,7 +713,7 @@ export function ProductFamilyPage() {
   const activeFamily = useMemo(() => findGuide(activeFamilyId), [activeFamilyId]);
 
   return (
-    <div className="wm-product-family-page space-y-5 pb-6">
+    <div className="wm-product-family-page space-y-5 pb-6 wm-ui-page wingman-page-host">
       <PageHero
         eyebrow="Product families"
         title="WyreStorm range positioning for sales conversations"
@@ -732,12 +732,12 @@ export function ProductFamilyPage() {
       >
         <div className="wm-product-family-rules-grid">
           {decisionRules.map((rule, index) => (
-            <div key={rule} className="wm-product-family-rule-card">
+            <div key={rule} className="wm-product-family-rule-card wm-ui-card">
               <div className="wm-product-family-rule-head">
                 <span className="wm-product-family-rule-badge">{index + 1}</span>
                 <span className="wm-product-family-rule-label">Rule</span>
               </div>
-              <p className="wm-product-family-rule-body">{rule}</p>
+              <p className="wm-product-family-rule-body wm-ui-copy">{rule}</p>
             </div>
           ))}
         </div>
@@ -745,52 +745,52 @@ export function ProductFamilyPage() {
 
       <div className="grid gap-5 xl:grid-cols-[330px_minmax(0,1fr)]">
         <SectionCard title="Choose family" subtitle="Pick the family that best matches the customer application before discussing SKUs.">
-          <div className="wm-product-family-picker-list">
+          <div className="wm-product-family-picker-list wm-ui-card">
             {familyGuides.map((guide) => {
               const active = guide.id === activeFamily.id;
 
               return (
-                <button
+                <button className={["wm-ui-button wm-ui-button-secondary", [
+                    "wm-product-family-picker w-full rounded-2xl border p-4 text-left transition",
+                    active ? "border-cyan-300 bg-[#10263a] text-white" : "border-[#29465e] bg-[#0d2133] text-white/70 hover:border-[#29465e] hover:bg-[#0d2133]",
+                  ].join(" ")].filter(Boolean).join(" ")}
                   key={guide.id}
                   type="button"
                   onClick={() => setActiveFamilyId(guide.id)}
-                  className={[
-                    "wm-product-family-picker w-full rounded-2xl border p-4 text-left transition",
-                    active ? "border-cyan-300 bg-[#10263a] text-white" : "border-[#29465e] bg-[#0d2133] text-white/70 hover:border-[#29465e] hover:bg-[#0d2133]",
-                  ].join(" ")}
+
                 >
-                  <span className="flex items-center gap-2 text-sm font-black">
-                    {active ? <CheckCircle2 className="h-4 w-4 text-cyan-600" /> : <BookOpenCheck className="h-4 w-4 text-slate-400" />}
+                  <span className="flex items-center gap-2 text-sm font-black wm-ui-copy">
+                    {active ? <CheckCircle2 className="h-4 w-4 text-cyan-600" /> : <BookOpenCheck className="h-4 w-4 wm-ui-copy" />}
                     {guide.name}
                   </span>
-                  <span className="mt-2 block text-xs font-semibold leading-5 text-white/60">{guide.shortPosition}</span>
+                  <span className="mt-2 block text-xs font-semibold leading-5 wm-ui-copy">{guide.shortPosition}</span>
                 </button>
               );
             })}
           </div>
         </SectionCard>
 
-        <section className="wingman-section-card wingman-surface overflow-hidden rounded-3xl">
-          <header className="border-b border-[#29465e] p-5">
-            <p className="wingman-kicker">Family crib sheet</p>
-            <h2 className="mt-2 text-3xl font-black text-white">{activeFamily.name}</h2>
-            <p className="mt-3 max-w-4xl text-sm font-semibold leading-6 text-white/70">{activeFamily.customerPitch}</p>
+        <section className="wingman-section-card wingman-surface overflow-hidden rounded-3xl wm-ui-section wm-ui-card">
+          <header className="border-b p-5 wm-ui-card">
+            <p className="wingman-kicker wm-ui-copy wm-ui-kicker">Family crib sheet</p>
+            <h2 className="mt-2 text-3xl font-black wm-ui-title">{activeFamily.name}</h2>
+            <p className="mt-3 max-w-4xl text-sm font-semibold leading-6 wm-ui-copy">{activeFamily.customerPitch}</p>
           </header>
 
           <div className="space-y-5 p-5">
-            <div className="rounded-3xl border border-[#29465e] bg-[#0d2133] p-5 shadow-sm">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div className="rounded-3xl border p-5 wm-ui-card">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between wm-ui-card">
                 <div>
-                  <p className="wingman-kicker">Representative SKUs</p>
-                  <h3 className="mt-2 text-xl font-semibold text-white">Products to start the conversation</h3>
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">
+                  <p className="wingman-kicker wm-ui-copy wm-ui-kicker">Representative SKUs</p>
+                  <h3 className="mt-2 text-xl font-semibold wm-ui-title">Products to start the conversation</h3>
+                  <p className="mt-2 max-w-3xl text-sm leading-6 wm-ui-copy">
                     Use this as a quick range view. Open a specific SKU for a one-page pitch, or pitch the whole range when the exact model is not fixed yet.
                   </p>
                 </div>
 
                 <Link
                   to={productPitchRangePath(activeFamily.pitchQuery)}
-                  className="inline-flex shrink-0 items-center justify-center rounded-full border border-[#29465e] bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+                  className="inline-flex shrink-0 items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition wm-ui-card wm-ui-copy"
                 >
                   Pitch this range
                 </Link>
@@ -801,11 +801,11 @@ export function ProductFamilyPage() {
                   <Link
                     key={sku}
                     to={productPitchSkuPath(sku)}
-                    className="group rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 text-left transition hover:border-cyan-300 hover:bg-[#10263a]"
+                    className="group rounded-2xl border p-4 text-left transition wm-ui-card"
                   >
-                    <span className="block text-xs font-medium uppercase tracking-[0.22em] text-white/55">SKU</span>
-                    <strong className="mt-1 block text-base font-semibold text-white">{sku}</strong>
-                    <span className="mt-3 inline-flex text-sm font-medium text-cyan-700 group-hover:text-cyan-800">
+                    <span className="block text-xs font-medium uppercase tracking-[0.22em] wm-ui-kicker">SKU</span>
+                    <strong className="mt-1 block text-base font-semibold wm-ui-copy">{sku}</strong>
+                    <span className="mt-3 inline-flex text-sm font-medium wm-ui-copy">
                       Open pitch
                     </span>
                   </Link>
@@ -835,15 +835,15 @@ export function ProductFamilyPage() {
               </div>
 
               <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.72fr)]">
-                <div className="rounded-3xl border border-[#29465e] bg-[#0d2133] p-5">
-                  <h3 className="flex items-center gap-2 text-sm font-black text-white">
+                <div className="rounded-3xl border p-5 wm-ui-card">
+                  <h3 className="flex items-center gap-2 text-sm font-black wm-ui-title wm-ui-copy">
                     <Search className="h-4 w-4 text-cyan-600" />
                     Discovery questions
                   </h3>
                   <ul className="mt-3 space-y-2">
                     {activeFamily.discoveryQuestions.map((question) => (
-                      <li key={question} className="flex gap-2 text-sm font-semibold leading-6 text-white/70">
-                        <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-cyan-300" />
+                      <li key={question} className="flex gap-2 text-sm font-semibold leading-6 wm-ui-copy">
+                        <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full wm-ui-card" />
                         <span>{question}</span>
                       </li>
                     ))}
@@ -851,14 +851,14 @@ export function ProductFamilyPage() {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="rounded-3xl border border-[#29465e] bg-slate-950 p-5 text-white">
-                    <h3 className="text-sm font-black">Position against alternatives</h3>
-                    <p className="mt-3 text-sm font-semibold leading-6 text-slate-200">{activeFamily.positionAgainst}</p>
+                  <div className="rounded-3xl border p-5 wm-ui-card">
+                    <h3 className="text-sm font-black wm-ui-title wm-ui-copy">Position against alternatives</h3>
+                    <p className="mt-3 text-sm font-semibold leading-6 wm-ui-copy">{activeFamily.positionAgainst}</p>
                   </div>
 
-                  <div className="rounded-3xl border border-cyan-200 bg-[#10263a] p-5">
-                    <h3 className="text-sm font-black text-white">Sales rule</h3>
-                    <p className="mt-3 text-sm font-black leading-6 text-[#edf6ff]">{activeFamily.salesRule}</p>
+                  <div className="rounded-3xl border p-5 wm-ui-card">
+                    <h3 className="text-sm font-black wm-ui-title wm-ui-copy">Sales rule</h3>
+                    <p className="mt-3 text-sm font-black leading-6 text-[#edf6ff] wm-ui-copy">{activeFamily.salesRule}</p>
                   </div>
                 </div>
               </div>
@@ -872,27 +872,27 @@ export function ProductFamilyPage() {
 
 function FamilyTextBlock({ icon, title, text }: { icon: ReactNode; title: string; text: string }) {
   return (
-    <div className="rounded-3xl border border-[#29465e] bg-[#0d2133] p-5">
-      <h3 className="flex items-center gap-2 text-sm font-black text-white">
+    <div className="rounded-3xl border p-5 wm-ui-card">
+      <h3 className="flex items-center gap-2 text-sm font-black wm-ui-title wm-ui-copy">
         {icon}
         {title}
       </h3>
-      <p className="mt-3 text-sm font-semibold leading-6 text-white/70">{text}</p>
+      <p className="mt-3 text-sm font-semibold leading-6 wm-ui-copy">{text}</p>
     </div>
   );
 }
 
 function FamilyListBlock({ icon, title, items }: { icon?: ReactNode; title: string; items: string[] }) {
   return (
-    <div className="rounded-3xl border border-[#29465e] bg-[#0d2133] p-5">
-      <h3 className="flex items-center gap-2 text-sm font-black text-white">
+    <div className="rounded-3xl border p-5 wm-ui-card">
+      <h3 className="flex items-center gap-2 text-sm font-black wm-ui-title wm-ui-copy">
         {icon}
         {title}
       </h3>
       <ul className="mt-3 space-y-2">
         {items.map((item) => (
-          <li key={item} className="flex gap-2 text-sm font-semibold leading-6 text-white/70">
-            <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-cyan-300" />
+          <li key={item} className="flex gap-2 text-sm font-semibold leading-6 wm-ui-card wm-ui-copy">
+            <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full wm-ui-card" />
             <span>{item}</span>
           </li>
         ))}

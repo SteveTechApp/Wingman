@@ -65,24 +65,6 @@ function looksLikeSkuPickerArea(element: HTMLElement): boolean {
   return false;
 }
 
-function looksLikeProductDiscussionArea(element: HTMLElement): boolean {
-  const text = cleanText(element.textContent || "");
-
-  if (/PRODUCT DISCUSSION/i.test(text)) {
-    return true;
-  }
-
-  if (/WHAT IT IS/i.test(text) && /Add to project/i.test(text)) {
-    return true;
-  }
-
-  if (/How to sell/i.test(text) && /Specification/i.test(text)) {
-    return true;
-  }
-
-  return false;
-}
-
 function shouldSkipCandidate(element: HTMLElement): boolean {
   if (element.dataset.wingmanProductStoryEnhanced === "true") {
     return true;
@@ -240,7 +222,9 @@ function enhanceCandidate(container: HTMLElement): boolean {
     return false;
   }
 
-  if (isProductCallCardsRoute() && !looksLikeProductDiscussionArea(container)) {
+  // Product Call Cards now renders its own short, context-aware product story.
+  // Avoid injecting a second panel with repeated facts and question lists.
+  if (isProductCallCardsRoute()) {
     return false;
   }
 

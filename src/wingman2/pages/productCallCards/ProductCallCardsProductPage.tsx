@@ -62,25 +62,26 @@ function buildProductIdentity(product: ProductCallProduct, card?: ProductPositio
 }
 
 function buildScenarioCheckpoint(product: ProductCallProduct, context: ProductCallContext, card?: ProductPositioningCard) {
-  const scenario = firstText(
-    [
-      context.knownRequirement,
-      context.application,
-      context.environment,
-      card?.bestFitApplications?.[0],
-      product.goodFit[0],
-      product.bestFor,
-    ],
-    product.bestFor,
-  );
+  const knownContext = uniqueItems([
+    firstText([context.roomType, context.environment]),
+    firstText([context.application, context.knownRequirement]),
+  ], 2);
+  const scenario = knownContext.length > 0
+    ? knownContext.join(" - ")
+    : firstText([card?.bestFitApplications?.[0], product.goodFit[0], product.bestFor], product.bestFor);
 
-  const fitLine = firstText([card?.oneLinePositioning, product.bestFor], product.bestFor);
+  const productJob = product.whatItDoes.replace(/^it\s+/i, "").replace(/[.!?]+$/, "");
   const trigger = firstText([card?.listenForTriggers?.[0], product.conversationStarters[0]], product.askNext[0]);
   const confirmation = firstText([card?.reviewGates?.[0], card?.technicalCheckQuestions?.[0], product.checks[0]], product.checks[0]);
   const pausePoint = firstText([card?.disqualifiers?.[0], product.avoidSaying[0], product.avoidIf], product.avoidIf);
 
   return {
-    body: `Scenario: ${scenario}. Position ${product.sku} when the need matches this job: ${fitLine}`,
+    scenario,
+    body: `For ${scenario}, ${product.sku} ${productJob.charAt(0).toLowerCase()}${productJob.slice(1)}.`,
+    confirmation: `I'm treating this as ${scenario}. Can you confirm ${confirmation
+      .replace(/^confirm\s+/i, "")
+      .replace(/[.!?]+$/, "")
+      .toLowerCase()}?`,
     items: uniqueItems([
       `Listen for: ${trigger}`,
       `Confirm: ${confirmation}`,
@@ -145,7 +146,7 @@ export function ProductCallCardsProductPage({ sku }: ProductCallCardsProductPage
     <ProductCallCardsShell
       activeStep="product"
       title={`${product.sku} live product call card`}
-      intro="Use this one product card during a call. Keep the conversation focused on what to say, what to ask, and what to check before recommending."
+      intro="Use this during the call for a simple explanation, the application fit and one point to confirm."
     >
       <section className="wm-pcc-panel">
         <article className="wm-pcc-dashboard-hero">
@@ -162,77 +163,74 @@ export function ProductCallCardsProductPage({ sku }: ProductCallCardsProductPage
           </div>
         </article>
 
-        <section className="wm-pcc-helper-grid" aria-label={`${product.sku} sales helper cards`}>
+        <section className="wm-pcc-helper-grid" aria-label={`${product.sku} simple sales guidance`}>
           <article className="wm-pcc-helper-card">
-            <span>Product identifier</span>
-            <h2>Know what you are holding</h2>
-            <p>{firstText([positioningCard?.salientPoint, product.whatItIs], product.whatItIs)}</p>
-            <ListBlock items={productIdentity} />
+            <span>Simple answer</span>
+            <h2>What it does</h2>
+            <p>{product.whatItDoes}</p>
+            <p><strong>Technical description:</strong> {firstText([positioningCard?.salientPoint, product.whatItIs], product.whatItIs)}</p>
           </article>
 
           <article className="wm-pcc-helper-card">
-            <span>Scenario checkpoint</span>
-            <h2>Use it in the right conversation</h2>
+            <span>Known application</span>
+            <h2>How it fits here</h2>
             <p>{scenarioCheckpoint.body}</p>
-            <ListBlock items={scenarioCheckpoint.items} />
-          </article>
-
-          <article className="wm-pcc-helper-card wm-pcc-helper-card-objections">
-            <span>Objection helper</span>
-            <h2>Handle the likely pushback</h2>
-            <ul className="wm-pcc-objection-list">
-              {objectionHelpers.map((item) => (
-                <li key={`${item.objection}-${item.response}`}>
-                  <strong>{item.objection}</strong>
-                  <span>{item.response}</span>
-                </li>
-              ))}
-            </ul>
           </article>
 
           <article className="wm-pcc-helper-card">
-            <span>Confidence cue</span>
-            <h2>Keep the call under control</h2>
-            <p>
-              You can position this product confidently when you stay anchored to the product role, the scenario and the checks below before promising fit.
-            </p>
-            <ListBlock items={confidenceItems} />
-          </article>
-        </section>
-
-        <section className="wm-pcc-dashboard-overview">
-          <article className="wm-pcc-card">
-            <h2>Say this first</h2>
+            <span>Ready-to-use wording</span>
+            <h2>Say it like this</h2>
             <p>{wording.salespersonAngle}</p>
           </article>
 
-          <article className="wm-pcc-card">
-            <h2>Why the customer should care</h2>
-            <p>{wording.customerBenefit}</p>
-          </article>
-
-          <article className="wm-pcc-card">
-            <h2>Ask only what affects fit</h2>
-            <ListBlock items={product.askNext.slice(0, 5)} />
-          </article>
-
-          <article className="wm-pcc-card">
-            <h2>Checks before recommending</h2>
-            <ListBlock items={product.checks.slice(0, 5)} />
+          <article className="wm-pcc-helper-card">
+            <span>One question</span>
+            <h2>Confirm this</h2>
+            <p>{scenarioCheckpoint.confirmation}</p>
           </article>
         </section>
 
-        <section className="wm-pcc-dashboard-overview">
-          <article className="wm-pcc-card">
-            <h2>Good fit</h2>
-            <ListBlock items={product.goodFit.slice(0, 5)} />
-          </article>
+        <details className="wm-pcc-card">
+          <summary>More product and quote detail</summary>
+          <section className="wm-pcc-dashboard-overview">
+            <article className="wm-pcc-card">
+              <h2>Product detail</h2>
+              <ListBlock items={productIdentity} />
+            </article>
 
-          <article className="wm-pcc-card">
-            <h2>Do not over-position</h2>
-            <p>{product.avoidIf}</p>
-          </article>
-        </section>
+            <article className="wm-pcc-card">
+              <h2>Good fit</h2>
+              <ListBlock items={product.goodFit.slice(0, 4)} />
+            </article>
+
+            <article className="wm-pcc-card">
+              <h2>Checks before recommending</h2>
+              <ListBlock items={confidenceItems} />
+            </article>
+
+            <article className="wm-pcc-card">
+              <h2>Do not over-position</h2>
+              <p>{product.avoidIf}</p>
+            </article>
+
+            <article className="wm-pcc-card wm-pcc-helper-card-objections">
+              <h2>Objection help</h2>
+              <ul className="wm-pcc-objection-list">
+                {objectionHelpers.map((item) => (
+                  <li key={`${item.objection}-${item.response}`}>
+                    <strong>{item.objection}</strong>
+                    <span>{item.response}</span>
+                  </li>
+                ))}
+              </ul>
+            </article>
+
+            <article className="wm-pcc-card">
+              <h2>Other checks</h2>
+              <ListBlock items={scenarioCheckpoint.items} />
+            </article>
+          </section>
+        </details>
 
         <footer className="wm-pcc-actions">
           <button type="button" className="wm-pcc-secondary" onClick={() => navigateCallCardPage("/select")}>

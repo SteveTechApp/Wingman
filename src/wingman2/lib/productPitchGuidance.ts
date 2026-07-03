@@ -3,7 +3,10 @@ import type { ProductPositioningCard } from "../types/productPositioning";
 import { cleanUsefulList, productText, type ProductNarrative, type ProductRole, type ProductSpec } from "./productStoryEngine";
 
 export type ProductPitchSalesGuidance = {
+  plainDescription: string;
   productRole: string;
+  scenarioFit: string;
+  confirmationQuestion: string;
   bestFitApplications: string[];
   poorFitApplications: string[];
   customerProblem: string;
@@ -14,6 +17,11 @@ export type ProductPitchSalesGuidance = {
   customerSafeWording: string;
   internalSalesNotes: string[];
   doNotPromise: string[];
+};
+
+export type ProductSalesContext = {
+  roomType?: string;
+  application?: string;
 };
 
 const BANNED_FILLER_REPLACEMENTS: Array<[RegExp, string]> = [
@@ -32,6 +40,40 @@ function cleanSalesText(value: string): string {
 
 function safeList(values: string[], limit: number): string[] {
   return cleanUsefulList(values.map(cleanSalesText), limit);
+}
+
+function roleJob(role: ProductRole): string {
+  const jobs: Record<ProductRole, string> = {
+    avoip: "send selected sources to the right displays over the AV network",
+    matrix: "switch fixed sources to the required displays",
+    extension: "carry the source signal to a display that is too far away for a direct cable",
+    presentation: "connect room sources and put the selected content onto the room display",
+    wireless: "let users share content to the room display without a cable",
+    multiview: "show several sources together on one display",
+    videoWall: "place source content across the displays that make up the video wall",
+    camera: "capture the people in the room for a call, recording or stream",
+    audio: "power and manage the room audio",
+    general: "perform the product role shown in the current product record",
+  };
+
+  return jobs[role];
+}
+
+function confirmationForRole(role: ProductRole, scenario: string): string {
+  const checks: Record<ProductRole, string> = {
+    avoip: "the source count, display count and managed network are available",
+    matrix: "the number of sources and independently controlled displays is correct",
+    extension: "the cable distance and signals that must be carried are correct",
+    presentation: "the room sources, display count and USB requirement are correct",
+    wireless: "wireless sharing is allowed on the customer's network",
+    multiview: "several sources must be visible on one display at the same time",
+    videoWall: "the display count and required wall layouts are correct",
+    camera: "the camera coverage and connection back to the meeting host are correct",
+    audio: "the speaker load, room coverage and audio source are correct",
+    general: "this is the job the customer needs the product to perform",
+  };
+
+  return `I'm treating this as ${scenario}, and assuming ${checks[role]}. Is that correct?`;
 }
 
 function cardEvidenceText(card: ProductPositioningCard | undefined): string {
@@ -308,6 +350,7 @@ function specificSafetyGuidance(sku: string): Partial<ProductPitchSalesGuidance>
 export function buildProductPitchSalesGuidance(
   product: ProductSpec,
   narrative: ProductNarrative,
+  context: ProductSalesContext = {},
 ): ProductPitchSalesGuidance {
   const sku = product.sku.trim().toUpperCase();
   const card = getBestProductPositioningCardForSku(sku);
@@ -317,6 +360,13 @@ export function buildProductPitchSalesGuidance(
   const isUcProduct = /\b(?:APO|UC|BYOD|BYOM|CONFERENC)/i.test(evidence);
 
   const productRole = cleanSalesText(specific.productRole || card?.oneMinuteBrief || narrative.whatItIs);
+  const roomType = cleanSalesText(context.roomType || "");
+  const application = cleanSalesText(context.application || "");
+  const scenario = roomType && application && roomType.toLowerCase() !== application.toLowerCase()
+    ? `${roomType} - ${application}`
+    : roomType || application || cleanSalesText(product.applications[0] || "the customer's application");
+  const plainDescription = `This product is used to ${roleJob(narrative.role)}.`;
+  const scenarioFit = `For ${scenario}, use it to ${roleJob(narrative.role)}.`;
   const bestFitApplications = safeList([
     ...(card?.bestFitApplications ?? []),
     ...product.applications,
@@ -366,7 +416,10 @@ export function buildProductPitchSalesGuidance(
   ], 6);
 
   return {
+    plainDescription,
     productRole,
+    scenarioFit,
+    confirmationQuestion: confirmationForRole(narrative.role, scenario),
     bestFitApplications,
     poorFitApplications,
     customerProblem: cleanSalesText(card?.customerProblems[0] || narrative.customerChallenge),
