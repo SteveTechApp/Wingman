@@ -620,7 +620,7 @@ function SpecTab({ product }: { product: ProductSpec }) {
           {usbResult.warnings.length > 0 ? (
             <ul className="mt-2 space-y-1 text-sm wm-ui-copy">
               {usbResult.warnings.map((warning) => (
-                <li key={warning}>âš  {warning}</li>
+                <li key={warning}>âš  {warning}</li>
               ))}
             </ul>
           ) : null}
@@ -850,11 +850,11 @@ function ProductWorkspace({
             }`}
           >
             {lifecycle.supersededBy
-              ? "âš  Superseded product"
+              ? "âš  Superseded product"
               : lifecycle.status === "discontinued"
-                ? "âš  Discontinued product"
+                ? "âš  Discontinued product"
                 : lifecycle.status === "do-not-spec"
-                  ? "âš  Do not specify"
+                  ? "âš  Do not specify"
                   : lifecycle.status === "cable"
                     ? "Cable / accessory"
                     : "Not on the current business list"}
@@ -876,7 +876,7 @@ function ProductWorkspace({
               narrative.confidence === "low" ? "text-amber-200" : "text-cyan-200"
             }`}
           >
-            {narrative.confidence === "low" ? "âš  Check before quoting" : "Auto-generated positioning"}
+            {narrative.confidence === "low" ? "âš  Check before quoting" : "Auto-generated positioning"}
           </p>
           <p className="mt-1 max-w-4xl text-sm leading-6 wm-ui-copy">{narrative.reviewNote}</p>
         </section>
