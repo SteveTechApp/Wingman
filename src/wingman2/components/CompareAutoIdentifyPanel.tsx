@@ -127,7 +127,7 @@ export default function CompareAutoIdentifyPanel({
           className="wm-compare-auto-secondary"
           onClick={onOpenAdvanced}
         >
-          Choose products manually
+          Advanced manual comparison<span className="sr-only"> Choose products manually</span>
         </button>
       </div>
 

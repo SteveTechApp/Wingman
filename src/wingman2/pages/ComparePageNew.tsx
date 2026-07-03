@@ -65,7 +65,7 @@ export function ComparePageNew() {
           <div className="wm-compare-advanced-heading">
             <div>
               <p className="wm-ui-copy wm-eyebrow">Advanced compare</p>
-              <h1 className="wm-ui-title">Manual brand / SKU comparison</h1>
+              <h1 className="wm-ui-title">Advanced mode: choose known competitor product</h1>
               <p className="wm-ui-copy">
                 Use this mode when you already know the exact competitor and WyreStorm products.
                 Return to Simplified Compare when the salesperson only has a rough brand, model or customer description.
@@ -76,7 +76,7 @@ export function ComparePageNew() {
               className="wm-ui-button wm-compare-auto-secondary"
               onClick={() => setMode("simplified")}
             >
-              Back to simplified compare
+              Back to Simplified Compare
             </button>
           </div>
           <AdvancedComparePage />
