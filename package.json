@@ -149,7 +149,8 @@
     "audit:page-visual-classes:baseline": "node tools/check-wingman-page-visual-classes.mjs --update-baseline",
     "repair:duplicate-classnames": "node tools/repair-duplicate-jsx-classnames.mjs",
     "check:duplicate-classnames": "node tools/check-duplicate-jsx-classnames.mjs",
-    "check:dashboard-visual-correction": "node tools/check-dashboard-visual-correction.mjs"
+    "check:dashboard-visual-correction": "node tools/check-dashboard-visual-correction.mjs",
+    "lifecycle:manual-decisions": "node tools/check-wyrestorm-lifecycle-manual-decisions.mjs"
   },
   "dependencies": {
     "@xyflow/react": "^12.10.2",
