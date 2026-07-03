@@ -1,9 +1,14 @@
 import {
   UC_CATEGORY_LABELS,
   UC_COMPETITOR_PRODUCTS,
-  type UcCompetitorCategory,
   type UcCompetitorProduct,
 } from "../data/ucCompetitorProducts";
+import {
+  mapCompetitorToNetworkHdAvoip,
+  type AvoipEndpointRole,
+  type CompetitorAvoipClassification,
+  type NetworkHdAvoipRecommendation,
+} from "./networkHdAvoipEquivalence";
 
 export type CompareAutoIdentifyConfidence = "none" | "low" | "medium" | "high";
 
@@ -44,7 +49,8 @@ export interface CompareAutoIdentifyResult {
 }
 
 interface FallbackCategory {
-  category: UcCompetitorCategory;
+  category: string;
+  label: string;
   productType: string;
   purpose: string;
   wyrestormLane: string;
@@ -113,10 +119,11 @@ const SHORT_SPECIFIC_PRODUCT_TOKENS = new Set([
 const fallbackCategories: FallbackCategory[] = [
   {
     category: "uc-room-appliance",
+    label: UC_CATEGORY_LABELS["uc-room-appliance"],
     productType: "Native UC room appliance",
     purpose: "Meeting-room device that may run Teams/Zoom/Webex natively without a laptop.",
     wyrestormLane: "UC room workflow alternative",
-    wyrestormCandidates: ["APO-VX20-UC v2"],
+    wyrestormCandidates: ["APO-VX20-UC-V2"],
     optionalAddOns: ["Room PC or UC host if native appliance operation is required", "APO-DG2", "Presentation switcher"],
     warnings: [
       "Exact model not confirmed. Native room appliance products are not direct BYOD-only equivalents.",
@@ -125,10 +132,11 @@ const fallbackCategories: FallbackCategory[] = [
   },
   {
     category: "uc-video-bar",
+    label: UC_CATEGORY_LABELS["uc-video-bar"],
     productType: "UC video bar / soundbar",
     purpose: "Meeting-room camera, microphone and speaker in one device.",
     wyrestormLane: "UC soundbar / BYOD meeting room",
-    wyrestormCandidates: ["APO-VX20-UC v2"],
+    wyrestormCandidates: ["APO-VX20-UC-V2"],
     optionalAddOns: ["APO-DG2", "Presentation switcher", "USB extension"],
     warnings: [
       "Exact model not confirmed. Check whether this is BYOD USB, room PC or native appliance-led.",
@@ -137,6 +145,7 @@ const fallbackCategories: FallbackCategory[] = [
   },
   {
     category: "uc-camera-ptz",
+    label: UC_CATEGORY_LABELS["uc-camera-ptz"],
     productType: "PTZ / optical zoom UC camera",
     purpose: "Meeting-room camera where the microphone and speaker path is separate.",
     wyrestormLane: "Meeting-room camera / PTZ camera",
@@ -149,6 +158,7 @@ const fallbackCategories: FallbackCategory[] = [
   },
   {
     category: "uc-camera-fixed",
+    label: UC_CATEGORY_LABELS["uc-camera-fixed"],
     productType: "Fixed UC camera",
     purpose: "Meeting-room camera where room audio is handled separately.",
     wyrestormLane: "Meeting-room camera",
@@ -159,7 +169,207 @@ const fallbackCategories: FallbackCategory[] = [
     ],
     matchWords: ["webcam", "fixed camera", "usb camera", "huddly"],
   },
+  {
+    category: "wireless-casting",
+    label: "Wireless presentation / casting device",
+    productType: "Wireless presentation / casting device",
+    purpose: "Lets a laptop or phone share its screen to the room display without a cable.",
+    wyrestormLane: "Wireless presentation / casting alternative",
+    wyrestormCandidates: ["APO-DG2"],
+    optionalAddOns: [
+      "APO-VX20-UC-V2 if the room also needs a UC camera, microphone and speaker in one device",
+      "SW-640L-TX-W if the room needs both wired and wireless inputs on one switcher",
+    ],
+    warnings: [
+      "Exact model not confirmed. Confirm whether the customer needs casting only, or a full UC conferencing workflow as well.",
+    ],
+    matchWords: [
+      "clickshare",
+      "click share",
+      "solstice",
+      "airtame",
+      "screenbeam",
+      "wireless presentation",
+      "wireless casting",
+      "casting dongle",
+      "screen mirroring",
+    ],
+  },
+  {
+    category: "hdbaset-extender",
+    label: "HDBaseT / HDMI extender",
+    productType: "Point-to-point HDMI/HDBaseT extender",
+    purpose: "Carries a single HDMI source to one display over a CAT cable run.",
+    wyrestormLane: "HDBaseT extender alternative",
+    wyrestormCandidates: ["EX-70-H2"],
+    optionalAddOns: [
+      "EX-100-KVM if USB/KVM control is also required over the same run",
+      "MX-0808-KIT-V2 if more than one source or display is really needed",
+    ],
+    warnings: [
+      "Exact model not confirmed. Confirm cable distance, HDBaseT class and whether USB/KVM is required before quoting.",
+    ],
+    matchWords: [
+      "extender",
+      "extender kit",
+      "ex kit",
+      "hdbaset",
+      "hdbase-t",
+      "hdbase t",
+      "cat6 extender",
+      "cat5e extender",
+      "transmitter receiver kit",
+      "balun",
+      "dtp",
+    ],
+  },
+  {
+    category: "av-matrix",
+    label: "HDMI / AV matrix switcher",
+    productType: "HDMI / AV matrix switcher",
+    purpose: "Routes multiple sources to multiple displays from a central switcher.",
+    wyrestormLane: "Matrix switcher alternative",
+    wyrestormCandidates: ["MX-0808-KIT-V2"],
+    optionalAddOns: [
+      "MXV-0808-H2A-MK2 if HDBaseT distance is required to the displays",
+      "MX-0404-SCL for a smaller 4x4 room",
+    ],
+    warnings: [
+      "Exact model, input/output count and HDBaseT distance not confirmed. Confirm the real matrix size before quoting.",
+    ],
+    matchWords: [
+      "matrix switch",
+      "matrix switcher",
+      "hdmi matrix",
+      "av matrix",
+      "video matrix",
+      "presentation switcher",
+    ],
+  },
+  {
+    category: "videowall",
+    label: "Video wall processor",
+    productType: "Video wall processor",
+    purpose: "Splits and scales sources across a grid of displays to form one large video wall image.",
+    wyrestormLane: "Video wall processor alternative",
+    wyrestormCandidates: ["SW-0206-VW"],
+    optionalAddOns: ["SW-0204-VW for a fixed preset-layout wall"],
+    warnings: [
+      "Exact model, wall size and layout not confirmed. Confirm the grid size before quoting.",
+    ],
+    matchWords: ["video wall", "videowall", "wall processor"],
+  },
+  {
+    category: "hdmi-splitter",
+    label: "HDMI splitter / distribution amplifier",
+    productType: "HDMI splitter / distribution amplifier",
+    purpose: "Sends the same single source to every connected display. Unlike a matrix, every output always shows the same picture.",
+    wyrestormLane: "HDMI splitter / distribution amplifier alternative",
+    wyrestormCandidates: ["SP-0104-H2"],
+    optionalAddOns: [
+      "EXP-SP-0102-H2 for a smaller 1x2 room",
+      "SP-0108-SCL for an eight-output room with mixed displays",
+    ],
+    warnings: [
+      "Exact model and output count not confirmed. Confirm every display really needs the same source (splitter) rather than independent routing (matrix) before quoting.",
+    ],
+    matchWords: [
+      "splitter",
+      "distribution amplifier",
+      "distribution amp",
+      "duplicator",
+      "hdmi duplicator",
+      "av distribution",
+    ],
+  },
 ];
+
+const MATRIX_IO_CANDIDATES: Array<{ inputs: number; outputs: number; sku: string; note: string }> = [
+  { inputs: 4, outputs: 2, sku: "MX-0402-MST", note: "4x2 presentation switcher with MST" },
+  { inputs: 4, outputs: 3, sku: "MX-0403-H3-MST", note: "4x3 presentation switcher with MST and HDBaseT 3.0 output" },
+  { inputs: 4, outputs: 4, sku: "MX-0404-SCL", note: "4x4 seamless local matrix" },
+  { inputs: 8, outputs: 8, sku: "MX-0808-KIT-V2", note: "8x8 HDMI/HDBaseT matrix kit" },
+];
+
+function parseIoCount(text: string): { inputs: number; outputs: number } | null {
+  // Deliberately excludes runs where the digit groups are part of a longer digit
+  // sequence, so resolution strings like "3840x2160" or "1920x1080" are never
+  // misread as an input/output count.
+  const match = text.match(/(?<!\d)(\d{1,2})\s*x\s*(\d{1,2})(?!\d)/);
+  if (!match) {
+    return null;
+  }
+
+  return { inputs: Number(match[1]), outputs: Number(match[2]) };
+}
+
+function closestMatrixCandidate(io: { inputs: number; outputs: number } | null): { sku: string; note: string } {
+  if (!io) {
+    return {
+      sku: "MX-0808-KIT-V2",
+      note: "8x8 HDMI/HDBaseT matrix kit (size assumed as no input/output count was given; confirm the real count before quoting)",
+    };
+  }
+
+  let best = MATRIX_IO_CANDIDATES[0];
+  let bestDistance = Number.POSITIVE_INFINITY;
+
+  for (const candidate of MATRIX_IO_CANDIDATES) {
+    const distance = Math.abs(candidate.inputs - io.inputs) + Math.abs(candidate.outputs - io.outputs);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      best = candidate;
+    }
+  }
+
+  return best;
+}
+
+const SPLITTER_IO_CANDIDATES: Array<{ inputs: number; outputs: number; sku: string; note: string }> = [
+  { inputs: 1, outputs: 2, sku: "EXP-SP-0102-H2", note: "1x2 4K HDMI splitter" },
+  { inputs: 1, outputs: 4, sku: "SP-0104-H2", note: "1x4 4K HDMI splitter with EDID management" },
+  { inputs: 1, outputs: 8, sku: "SP-0108-SCL", note: "1x8 4K HDMI splitter with scaling" },
+];
+
+function closestSplitterCandidate(io: { inputs: number; outputs: number } | null): { sku: string; note: string } {
+  if (!io) {
+    return {
+      sku: "SP-0104-H2",
+      note: "1x4 4K HDMI splitter with EDID management (size assumed as no output count was given; confirm the real count before quoting)",
+    };
+  }
+
+  let best = SPLITTER_IO_CANDIDATES[0];
+  let bestDistance = Number.POSITIVE_INFINITY;
+
+  for (const candidate of SPLITTER_IO_CANDIDATES) {
+    const distance = Math.abs(candidate.inputs - io.inputs) + Math.abs(candidate.outputs - io.outputs);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      best = candidate;
+    }
+  }
+
+  return best;
+}
+
+/**
+ * Blustream's SP-series splitter naming embeds the input/output count directly
+ * in the SKU with no separator (e.g. "SP14CS" = 1 input, 4 outputs), unlike the
+ * generic "NxM" phrasing parseIoCount handles. Only matches an "sp" token
+ * followed by exactly two digits (+ known suffix) to avoid misreading unrelated
+ * model numbers.
+ */
+function parseBlustreamSplitterIo(input: string): { inputs: number; outputs: number } | null {
+  for (const token of tokenise(input)) {
+    const match = token.match(/^sp(\d)(\d)(?:cs|scl|h2)?$/);
+    if (match) {
+      return { inputs: Number(match[1]), outputs: Number(match[2]) };
+    }
+  }
+
+  return null;
+}
 
 export function normalizeCompareSearchText(value: string): string {
   return value
@@ -227,8 +437,24 @@ function termHasSpecificEvidence(term: string): boolean {
 function productSpecificTokens(product: UcCompetitorProduct): Set<string> {
   const tokens = new Set<string>();
 
+  // Manufacturer-name tokens (e.g. "crestron") must never count as model-specific
+  // evidence: they only prove the brand, not the exact product line, and a brand
+  // whose catalogue has one entry here would otherwise false-match every other
+  // product from that brand (e.g. an unrelated Crestron AVoIP/matrix SKU wrongly
+  // matching the single Crestron UC video bar entry).
+  const manufacturerTokens = new Set<string>();
+  for (const term of manufacturerSearchTerms(product)) {
+    for (const token of tokenise(term)) {
+      manufacturerTokens.add(token);
+    }
+  }
+
   for (const term of productModelSearchTerms(product)) {
     for (const token of tokenise(term)) {
+      if (manufacturerTokens.has(token)) {
+        continue;
+      }
+
       if (isSpecificProductToken(token)) {
         tokens.add(token);
       }
@@ -358,11 +584,45 @@ function inferFallback(input: string): FallbackCategory | null {
     }
   }
 
+  // Weak last-resort signal: a bare "NxM" count (e.g. "8x8", "4x4") with no other
+  // product-class words matched overwhelmingly describes a matrix/switcher or
+  // splitter requirement in an AV context. A single input feeding several
+  // outputs (1x4, 1x8...) reads as a splitter/distribution amplifier - a real
+  // matrix needs more than one input to switch between - so route those to the
+  // splitter lane and everything else to the matrix lane, rather than giving up.
+  const bareIoCount = parseIoCount(input);
+  if (bareIoCount) {
+    const category = bareIoCount.inputs === 1 && bareIoCount.outputs > 1 ? "hdmi-splitter" : "av-matrix";
+    return fallbackCategories.find((fallback) => fallback.category === category) ?? null;
+  }
+
+  return null;
+}
+
+function ioAwareCandidate(
+  category: string | undefined,
+  io: { inputs: number; outputs: number } | null,
+): { sku: string; note: string } | null {
+  if (category === "av-matrix") {
+    return closestMatrixCandidate(io);
+  }
+
+  if (category === "hdmi-splitter") {
+    return closestSplitterCandidate(io);
+  }
+
   return null;
 }
 
 function buildFallbackResult(rawInput: string, fallback: FallbackCategory | null): CompareAutoIdentifyResult {
-  const label = fallback ? UC_CATEGORY_LABELS[fallback.category] : "Unconfirmed competitor product";
+  const label = fallback?.label ?? "Unconfirmed competitor product";
+  const normalisedInput = normalizeCompareSearchText(rawInput);
+  const io =
+    fallback?.category === "av-matrix" || fallback?.category === "hdmi-splitter"
+      ? parseIoCount(normalisedInput) ?? parseBlustreamSplitterIo(normalisedInput)
+      : null;
+  const sizedPick = ioAwareCandidate(fallback?.category, io);
+  const wyrestormCandidates = sizedPick ? [sizedPick.sku] : fallback?.wyrestormCandidates ?? [];
 
   return {
     input: rawInput,
@@ -380,7 +640,9 @@ function buildFallbackResult(rawInput: string, fallback: FallbackCategory | null
       keyTechnicalPoints: fallback
         ? [
             "Product class inferred from the words entered.",
-            "Exact manufacturer/model was not confirmed.",
+            io
+              ? `Detected ${io.inputs}x${io.outputs} input/output count from the text entered.`
+              : "Exact manufacturer/model was not confirmed.",
             "Use Advanced compare or add the missing product if this is not correct.",
           ]
         : [
@@ -400,10 +662,14 @@ function buildFallbackResult(rawInput: string, fallback: FallbackCategory | null
     },
     wyrestormMatch: {
       lane: fallback?.wyrestormLane ?? "Needs product classification",
-      candidates: fallback?.wyrestormCandidates ?? [],
+      candidates: wyrestormCandidates,
       optionalAddOns: fallback?.optionalAddOns ?? [],
       notes: fallback
-        ? ["This is an inferred lane. Confirm the exact competitor model before using in a customer comparison."]
+        ? [
+            sizedPick
+              ? `Closest size match: ${sizedPick.note}.`
+              : "This is an inferred lane. Confirm the exact competitor model before using in a customer comparison.",
+          ]
         : ["No WyreStorm lane selected because the competitor product could not be classified."],
       warnings:
         fallback?.warnings ??
@@ -413,6 +679,96 @@ function buildFallbackResult(rawInput: string, fallback: FallbackCategory | null
       ? "Is this definitely the correct product class, or do you know the exact model?"
       : "What brand and model did the customer mention?",
   };
+}
+
+function buildAvoipFallbackResult(
+  rawInput: string,
+  classification: CompetitorAvoipClassification,
+  recommendation: NetworkHdAvoipRecommendation,
+): CompareAutoIdentifyResult {
+  const seriesLabel = recommendation.series ? `NetworkHD ${recommendation.series}` : "NetworkHD";
+  const roleLabel = describeAvoipRole(classification.role);
+  const confidence: CompareAutoIdentifyConfidence = recommendation.verifyCodec ? "low" : "medium";
+
+  const warnings = [recommendation.reason];
+  if (recommendation.verifyCodec) {
+    warnings.push(
+      "Codec class not confirmed from the text entered. Confirm before quoting in case the endpoint actually needs the NetworkHD 100 (H.264/H.265) series instead of 500.",
+    );
+  }
+  warnings.push(recommendation.controllerReminder);
+
+  return {
+    input: rawInput,
+    confidence,
+    detectedProduct: null,
+    candidates: [],
+    competitorSummary: {
+      detectedLabel: classification.knownFamily
+        ? `Likely ${classification.knownFamily} (${roleLabel})`
+        : `Likely competitor ${roleLabel}`,
+      manufacturer: "Unknown",
+      model: "Unknown",
+      productType: roleLabel,
+      purpose:
+        "Sends or receives video/audio/USB/control over a standard network switch instead of point-to-point cabling.",
+      keyTechnicalPoints: [
+        classification.networkClass === "10g"
+          ? "10GbE / SDVoE-class network requirement."
+          : "1GbE network requirement.",
+        classification.codec === "uncompressed-sdvoe"
+          ? "Uncompressed, zero-latency class codec."
+          : classification.codec === "h264_h265"
+            ? "H.264/H.265 (HEVC) compressed codec."
+            : classification.codec === "visually-lossless"
+              ? "Visually-lossless (JPEG2000/JPEG-XS/PURE3-class) codec."
+              : "Codec class not confirmed from the text entered.",
+        "Exact manufacturer/model was not confirmed - identified from AV-over-IP product signals only.",
+      ],
+      categories: ["AV-over-IP endpoint"],
+      warnings,
+      notComparableWith: ["UC video bar", "UC camera", "HDBaseT point-to-point extender", "Standalone HDMI matrix switcher"],
+    },
+    wyrestormMatch: {
+      lane: `${seriesLabel} AV-over-IP direction`,
+      candidates: recommendation.candidateSkus,
+      optionalAddOns: [],
+      notes: [recommendation.reason],
+      warnings,
+    },
+    nextQuestion: "Confirm the exact competitor model, and whether this network is 1GbE or 10GbE, before quoting.",
+  };
+}
+
+function describeAvoipRole(role: AvoipEndpointRole): string {
+  if (role === "encoder") return "AV-over-IP encoder / transmitter";
+  if (role === "decoder") return "AV-over-IP decoder / receiver";
+  if (role === "transceiver") return "AV-over-IP transceiver";
+  return "AV-over-IP endpoint";
+}
+
+function buildNonUcFallback(rawInput: string, input: string): CompareAutoIdentifyResult {
+  const keywordFallback = inferFallback(input);
+  if (keywordFallback) {
+    return buildFallbackResult(rawInput, keywordFallback);
+  }
+
+  // Blustream's SP-series splitter naming (e.g. "SP14CS") has no descriptive
+  // keyword and no AVoIP signal, so it needs its own SKU-shape check before
+  // falling through to "no confident match".
+  if (parseBlustreamSplitterIo(input)) {
+    return buildFallbackResult(
+      rawInput,
+      fallbackCategories.find((fallback) => fallback.category === "hdmi-splitter") ?? null,
+    );
+  }
+
+  const avoip = mapCompetitorToNetworkHdAvoip(rawInput);
+  if (avoip.classification.isAvoip && avoip.recommendation.applies) {
+    return buildAvoipFallbackResult(rawInput, avoip.classification, avoip.recommendation);
+  }
+
+  return buildFallbackResult(rawInput, null);
 }
 
 export function identifyCompetitorProduct(rawInput: string): CompareAutoIdentifyResult {
@@ -432,7 +788,7 @@ export function identifyCompetitorProduct(rawInput: string): CompareAutoIdentify
   const confidence = best ? confidenceFromScore(best.score) : "none";
 
   if (!best || confidence === "none" || !hasSpecificProductEvidence(best)) {
-    return buildFallbackResult(rawInput, inferFallback(input));
+    return buildNonUcFallback(rawInput, input);
   }
 
   return {
