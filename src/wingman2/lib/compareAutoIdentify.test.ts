@@ -51,7 +51,7 @@ describe("compare auto-identification", () => {
     expect(result.detectedProduct?.model).toBe("PanaCast 50");
     expect(result.detectedProduct?.categories).toContain("uc-video-bar");
     expect(result.wyrestormMatch.lane).toBe("UC soundbar / BYOD meeting room");
-    expect(result.wyrestormMatch.candidates).toContain("APO-VX20-UC v2");
+    expect(result.wyrestormMatch.candidates).toContain("APO-VX20-UC-V2");
   });
 
   it("infers a rough phrase without pretending exact certainty", () => {
@@ -61,5 +61,74 @@ describe("compare auto-identification", () => {
     expect(result.confidence).toBe("low");
     expect(result.wyrestormMatch.lane).toMatch(/UC/);
     expect(result.nextQuestion).toMatch(/exact model/i);
+  });
+
+  it("does not mistake an unrelated Crestron AVoIP SKU for the single Crestron UC video bar entry", () => {
+    // Regression test: manufacturer-name tokens (e.g. "crestron") must never count
+    // as model-specific evidence, or any product from a brand with only one
+    // catalogue entry here will wrongly match every other product from that brand.
+    const result = identifyCompetitorProduct("Crestron DM-NVX-363");
+
+    expect(result.detectedProduct).toBeNull();
+    expect(result.wyrestormMatch.lane).not.toBe("UC soundbar / BYOD meeting room");
+    expect(result.wyrestormMatch.lane).toBe("NetworkHD 500 AV-over-IP direction");
+    expect(result.wyrestormMatch.candidates).toContain("NHD-500-TX");
+  });
+
+  it("maps a Blustream AVoIP transmitter to the correct NetworkHD 500 series", () => {
+    const result = identifyCompetitorProduct("Blustream IP250UHD-TX");
+
+    expect(result.wyrestormMatch.lane).toBe("NetworkHD 500 AV-over-IP direction");
+    expect(result.wyrestormMatch.candidates.length).toBeGreaterThan(0);
+    expect(result.wyrestormMatch.candidates.every((sku) => !sku.startsWith("NHD-600"))).toBe(true);
+  });
+
+  it("maps a wireless casting competitor to the Apollo casting lane", () => {
+    const result = identifyCompetitorProduct("Barco ClickShare CX-30");
+
+    expect(result.wyrestormMatch.lane).toBe("Wireless presentation / casting alternative");
+    expect(result.wyrestormMatch.candidates).toContain("APO-DG2");
+  });
+
+  it("maps an HDBaseT extender kit (the compare placeholder example) to the extender lane", () => {
+    const result = identifyCompetitorProduct("Atlona AT-OME-EX-KIT");
+
+    expect(result.wyrestormMatch.lane).toBe("HDBaseT extender alternative");
+    expect(result.wyrestormMatch.candidates).toContain("EX-70-H2");
+  });
+
+  it("maps a described matrix size to the closest real WyreStorm matrix SKU", () => {
+    const eightByEight = identifyCompetitorProduct("customer wants an 8x8 matrix");
+    expect(eightByEight.wyrestormMatch.lane).toBe("Matrix switcher alternative");
+    expect(eightByEight.wyrestormMatch.candidates).toContain("MX-0808-KIT-V2");
+
+    const fourByTwo = identifyCompetitorProduct("Crestron HD-MD4X2");
+    expect(fourByTwo.wyrestormMatch.lane).toBe("Matrix switcher alternative");
+    expect(fourByTwo.wyrestormMatch.candidates).toContain("MX-0402-MST");
+  });
+
+  it("does not misread a resolution string as a matrix input/output count", () => {
+    const result = identifyCompetitorProduct("4K 3840x2160 60Hz source");
+
+    expect(result.wyrestormMatch.lane).not.toBe("Matrix switcher alternative");
+  });
+
+  it("maps a Blustream SP-series splitter (SKU-embedded IO count, no descriptive keyword) to the matching WyreStorm splitter", () => {
+    const oneByFour = identifyCompetitorProduct("Blustream SP14CS");
+    expect(oneByFour.wyrestormMatch.lane).toBe("HDMI splitter / distribution amplifier alternative");
+    expect(oneByFour.wyrestormMatch.candidates).toContain("SP-0104-H2");
+
+    const oneByEight = identifyCompetitorProduct("Blustream SP18CS");
+    expect(oneByEight.wyrestormMatch.lane).toBe("HDMI splitter / distribution amplifier alternative");
+    expect(oneByEight.wyrestormMatch.candidates).toContain("SP-0108-SCL");
+  });
+
+  it("maps a described splitter/distribution amplifier to the splitter lane, not the matrix lane", () => {
+    const described = identifyCompetitorProduct("customer wants a distribution amplifier");
+    expect(described.wyrestormMatch.lane).toBe("HDMI splitter / distribution amplifier alternative");
+
+    const bareOneByEight = identifyCompetitorProduct("1x8 HDMI splitter");
+    expect(bareOneByEight.wyrestormMatch.lane).toBe("HDMI splitter / distribution amplifier alternative");
+    expect(bareOneByEight.wyrestormMatch.candidates).toContain("SP-0108-SCL");
   });
 });
