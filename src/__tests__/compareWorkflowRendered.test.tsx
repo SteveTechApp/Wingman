@@ -82,6 +82,37 @@ describe("Compare rendered workflow", () => {
     expect(screen.queryByRole("button", { name: /open manual picker/i })).not.toBeInTheDocument();
   });
 
+  it("includes UC manufacturers and products in the structured selectors", async () => {
+    renderComparePage();
+
+    for (const brand of [
+      "AVer",
+      "Bose Professional",
+      "Cisco",
+      "Crestron",
+      "HP Poly",
+      "Huddly",
+      "Jabra",
+      "Logitech",
+      "Neat",
+      "Q-SYS",
+      "Yealink",
+    ]) {
+      expect(screen.getByRole("button", { name: brand })).toBeInTheDocument();
+    }
+
+    fireEvent.click(screen.getByRole("button", { name: "HP Poly" }));
+    expect(screen.getByRole("button", { name: "Studio R30" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Studio E70" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Studio R30" }));
+    await screen.findByText("Competitor matched against");
+
+    const wyrestormSection = screen.getByText("Suggested WyreStorm direction").closest("section");
+    expect(wyrestormSection).not.toBeNull();
+    expect(within(wyrestormSection as HTMLElement).getByText("APO-VX20-UC-V2")).toBeInTheDocument();
+  });
+
   it("saves a quote-safe competitor lookup and keeps the lead recommendation away from controller-only products", async () => {
     renderComparePage();
 
