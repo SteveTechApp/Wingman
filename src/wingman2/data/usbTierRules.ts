@@ -44,9 +44,7 @@ export const USB_PRODUCTS_WITH_ENHANCED_CASCADING = [
   "SWX-100-IW-UK",
   "EX-40-KVM-5K",
   "NHD-500-TX",
-  "NHD-500-TX V2",
   "NHD-500-RX",
-  "NHD-500-RX V2",
   "NHD-500-DNT-TX",
   "NHD-510-TX",
 ] as const;
@@ -281,8 +279,8 @@ export const USB_TIER_RULES: readonly UsbProductUsbRule[] = [
     ],
   },
   {
-    sku: "NHD-500-TX V2",
-    aliases: ["NHD-500-TX v2", "NHD-500-TX"],
+    sku: "NHD-500-TX",
+    aliases: ["NHD-500-TX V2", "NHD-500-TX v2"],
     family: "NetworkHD 500",
     supportsUsb: true,
     enhancedCascading: true,
@@ -291,8 +289,8 @@ export const USB_TIER_RULES: readonly UsbProductUsbRule[] = [
     ],
   },
   {
-    sku: "NHD-500-RX V2",
-    aliases: ["NHD-500-RX v2", "NHD-500-RX"],
+    sku: "NHD-500-RX",
+    aliases: ["NHD-500-RX V2", "NHD-500-RX v2"],
     family: "NetworkHD 500",
     supportsUsb: true,
     enhancedCascading: true,
@@ -320,7 +318,7 @@ export const USB_TIER_RULES: readonly UsbProductUsbRule[] = [
     ],
   },
   {
-    sku: "NHD-500-IW-TX",
+    sku: "NHD-500-IW-TX-V2",
     family: "NetworkHD 500",
     supportsUsb: true,
     tierRules: [

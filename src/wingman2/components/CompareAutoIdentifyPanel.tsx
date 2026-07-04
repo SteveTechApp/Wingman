@@ -1,10 +1,20 @@
 import { useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   describeAutoIdentifyResult,
   identifyCompetitorProduct,
   type CompareAutoIdentifyResult,
 } from "../lib/compareAutoIdentify";
-import { getCurrentWorkflowProject, readProjectStore } from "../data/projectStore";
+import {
+  getCurrentWorkflowProject,
+  readProjectStore,
+  saveCompareRunToProject,
+  saveProductSelectionToCurrentProject,
+  saveRecommendationEvidenceToProject,
+  type StoredProductSelection,
+} from "../data/projectStore";
+import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
+import { routeCatalogByKey } from "../app/routeCatalog";
 import {
   clearRecentCompareSearches,
   readRecentCompareSearches,
@@ -84,6 +94,10 @@ function applicationUse(result: CompareAutoIdentifyResult, application: string):
   return `For ${place}, use this direction to ${job}.`;
 }
 
+function leadWyrestormSku(result: CompareAutoIdentifyResult): string | null {
+  return result.wyrestormMatch.candidates[0] ?? null;
+}
+
 function confirmationQuestion(result: CompareAutoIdentifyResult, application: string): string {
   if (result.confidence === "none") {
     return result.nextQuestion || "What brand and model did the customer mention?";
@@ -100,8 +114,10 @@ export default function CompareAutoIdentifyPanel({
   initialQuery = "",
   onOpenAdvanced,
 }: CompareAutoIdentifyPanelProps) {
+  const navigate = useNavigate();
   const [query, setQuery] = useState(initialQuery);
   const [result, setResult] = useState<CompareAutoIdentifyResult | null>(null);
+  const [committedSku, setCommittedSku] = useState<string | null>(null);
   const [recentSearches, setRecentSearches] = useState<string[]>(() => readRecentCompareSearches());
   const application = useMemo(() => savedApplicationContext(), []);
 
@@ -113,6 +129,7 @@ export default function CompareAutoIdentifyPanel({
     const trimmed = value.trim();
     setQuery(value);
     setResult(identifyCompetitorProduct(value));
+    setCommittedSku(null);
 
     if (trimmed) {
       setRecentSearches(recordRecentCompareSearch(trimmed));
@@ -121,6 +138,56 @@ export default function CompareAutoIdentifyPanel({
 
   const clearHistory = () => {
     setRecentSearches(clearRecentCompareSearches());
+  };
+
+  const handleCommit = (target: "project" | "proposal") => {
+    if (!result) return;
+
+    const sku = leadWyrestormSku(result);
+    if (!sku) return;
+
+    const selection: StoredProductSelection = {
+      sku,
+      family: result.wyrestormMatch.lane,
+      status: result.confidence === "high" ? "recommended" : "alternative",
+      source: "Simplified Compare",
+      evidence: result.wyrestormMatch.notes,
+      cautions: result.wyrestormMatch.warnings,
+    };
+    const compareRun = {
+      competitorBrand: result.competitorSummary.manufacturer,
+      competitorSku: result.competitorSummary.model || result.input,
+      wyrestormSku: sku,
+      mode: "simplified-compare",
+      summary: plainEnglishSummary,
+      confidence: result.confidence,
+      warnings: result.wyrestormMatch.warnings,
+      evidence: result.wyrestormMatch.notes,
+      source: "Simplified Compare",
+    };
+
+    saveCompareRunToProject(compareRun);
+    saveProductSelectionToCurrentProject(selection);
+    saveRecommendationEvidenceToProject(
+      buildRecommendationEvidence({
+        source: "Simplified Compare",
+        query,
+        compare: compareRun,
+        product: {
+          sku,
+          title: sku,
+          family: result.wyrestormMatch.lane,
+          summary: result.wyrestormMatch.notes.join(" "),
+        },
+      }),
+      selection,
+    );
+
+    setCommittedSku(sku);
+
+    if (target === "proposal") {
+      navigate(routeCatalogByKey.proposal.path);
+    }
   };
 
   return (
@@ -250,6 +317,44 @@ export default function CompareAutoIdentifyPanel({
           <div className="wm-compare-auto-next">
             <strong>Confirm this:</strong> {confirmationQuestion(result, application)}
           </div>
+
+          {leadWyrestormSku(result) ? (
+            <section className="wm-compare-auto-forward wm-ui-section wm-ui-card">
+              <h2 className="wm-ui-title">Take this forward</h2>
+              <p className="wm-ui-copy">
+                Save {leadWyrestormSku(result)} to your project, or carry it straight into a proposal.
+              </p>
+              <div className="wm-compare-auto-forward-actions wm-ui-card">
+                <button
+                  type="button"
+                  className="wm-ui-button wm-ui-button-primary"
+                  onClick={() => handleCommit("proposal")}
+                >
+                  Build proposal with {leadWyrestormSku(result)}
+                </button>
+                <button
+                  type="button"
+                  className="wm-ui-button wm-ui-button-primary"
+                  onClick={() => handleCommit("project")}
+                >
+                  Add to project
+                </button>
+                <Link
+                  className="wm-ui-button"
+                  to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(leadWyrestormSku(result) ?? "")}&source=compare`}
+                >
+                  See full pitch
+                </Link>
+              </div>
+              {committedSku === leadWyrestormSku(result) ? (
+                <p className="wm-ui-copy">
+                  Saved to your project.{" "}
+                  <Link to={routeCatalogByKey.projects.path}>Open projects</Link> or{" "}
+                  <Link to={routeCatalogByKey.proposal.path}>build the proposal</Link>.
+                </p>
+              ) : null}
+            </section>
+          ) : null}
 
           <details className="wm-compare-auto-candidates">
             <summary>Technical and quote detail</summary>
