@@ -346,26 +346,14 @@ const templates: Template[] = [
   }
 ];
 
-const verticals = ["All", ...Array.from(new Set(templates.map((template) => template.vertical)))];
-
 function TemplatesPage() {
   const [query, setQuery] = useState("");
-  const [vertical, setVertical] = useState("All");
   const [stagedId, setStagedId] = useState<string | null>(null);
-
-  const counts = useMemo(() => {
-    return templates.reduce<Record<string, number>>((acc, template) => {
-      acc.All = (acc.All ?? 0) + 1;
-      acc[template.vertical] = (acc[template.vertical] ?? 0) + 1;
-      return acc;
-    }, { All: 0 });
-  }, []);
 
   const filtered = useMemo(() => {
     const search = query.trim().toLowerCase();
 
     return templates.filter((template) => {
-      const verticalMatch = vertical === "All" || template.vertical === vertical;
       const searchText = [
         template.vertical,
         template.application,
@@ -376,9 +364,9 @@ function TemplatesPage() {
         template.direction
       ].join(" ").toLowerCase();
 
-      return verticalMatch && (!search || searchText.includes(search));
+      return !search || searchText.includes(search);
     });
-  }, [query, vertical]);
+  }, [query]);
 
   function stageTemplate(template: Template) {
     const fallbackSeed: TemplateDiscoverySeed = {
@@ -445,28 +433,10 @@ function TemplatesPage() {
             placeholder="Search room, vertical, product family, application or technology..."
           />
         </label>
-
-        <div className="wm-template-filter-grid">
-          {verticals.map((item) => (
-            <button
-              key={item}
-              type="button"
-              className={item === vertical ? "is-active" : ""}
-              onClick={() => setVertical(item)}
-            >
-              <span>{item}</span>
-              <strong>{counts[item] ?? 0}</strong>
-            </button>
-          ))}
-        </div>
       </section>
 
       <section className="wm-template-results-header wm-ui-section wm-ui-card-header">
-        <div>
-          <p className="wm-template-kicker wm-ui-kicker wm-ui-copy">Template library</p>
-          <h2 className="wm-ui-title">{filtered.length} options</h2>
-        </div>
-        <p className="wm-ui-copy">Choose a starting point. Review before quotation.</p>
+        <h2 className="wm-ui-title">Template Library</h2>
       </section>
 
       <section className="wm-template-card-grid wm-ui-grid wm-ui-section wm-ui-card">
