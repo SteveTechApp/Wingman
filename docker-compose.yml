@@ -5,6 +5,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC: ${VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC:-true}
+        VITE_WINGMAN_ENABLE_GURU_EXTERNAL_LOOKUP: ${VITE_WINGMAN_ENABLE_GURU_EXTERNAL_LOOKUP:-false}
+        VITE_APP_VERSION: ${VITE_APP_VERSION:-}
+        VITE_APP_COMMIT: ${VITE_APP_COMMIT:-local}
     ports:
       - "3000:80"
     depends_on:

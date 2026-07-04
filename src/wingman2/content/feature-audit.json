@@ -26,7 +26,7 @@
   {
     "routeKey": "compare",
     "status": "partial",
-    "summary": "Compare now builds its review from saved discovery/Finder context, accepts editable competitor input, calls protected lookup and match resolver endpoints, shows scored evidence, and captures feedback only when an active project exists.",
+    "summary": "Compare accepts a plain competitor description or an exact manually selected SKU. The live manual results now run through the deterministic comparison classifier and eligibility ranking before a WyreStorm direction is shown.",
     "needed": [
       "Add approval/review workflow for accepted competitor replacements.",
       "Add comparison-only export that remains separate from proposal and BOM."
@@ -67,7 +67,7 @@
   {
     "routeKey": "profile",
     "status": "wired",
-    "summary": "Profile / Admin stores local user, company, language, and proposal branding settings that influence generated output and localisation-sensitive customer wording.",
+    "summary": "Settings stores local user, company, language and proposal branding details. Workspace sign-up, sign-in, sign-out and session recovery are connected to the backend; project synchronisation activates only in builds where it is enabled.",
     "needed": [
       "Add visible validation for incomplete branding fields before proposal export.",
       "Expose language and terminology preferences more directly in customer-facing copy tools."
@@ -164,7 +164,7 @@
   {
     "routeKey": "support",
     "status": "wired",
-    "summary": "Support now acts as the completion and escalation hub, including the current feature audit view. Guru remains available globally as a standalone real-time AV/WyreStorm technical assistant, not only as a proposal helper.",
+    "summary": "Support is the completion and escalation routing hub. Guru remains available globally and checks local Wingman knowledge first, then the authenticated grounded Guru service when available.",
     "needed": [
       "Connect escalation actions to real contacts, queues, or internal workflows.",
       "Track review outcomes and approval status against each project."
@@ -173,7 +173,7 @@
   {
     "routeKey": "intelligence",
     "status": "partial",
-    "summary": "Product Intelligence exposes the product data review surface for WyreStorm and competitor records so classifications, lifecycle notes, and generated sales-language fields can be checked before they affect customer-facing workflows.",
+    "summary": "Product Intelligence exposes a browser-local review surface for WyreStorm and competitor records. The protected server draft and approval APIs are not yet promoted into this screen.",
     "needed": [
       "Add reviewer assignment, approval history, and clearer duplicate-field warnings.",
       "Prioritise enrichment for repeated product-language fields that currently rely on family-level fallback copy."

@@ -23,9 +23,12 @@ import { resolveCompetitorSpecProfile, type ResolvedCompetitorProfile } from "..
 import { buildWyrestormCompareProfile } from "../lib/wyrestormCompareProfile";
 import { findKnownWyrestormCompareProfile, hydrateWyrestormCompareProfile } from "../lib/knownWyrestormCompareProfiles";
 import type { KnownWyrestormCompareProfile } from "../lib/knownWyrestormCompareProfiles";
-import type { CompareSpecFacts } from "../lib/competitorCompareDecision";
+import { classifyCompetitorCompareDecision, type CompareSpecFacts } from "../lib/competitorCompareDecision";
 import { isWyreStormSkuCompareLeadAllowed } from "../lib/wyrestormSkuBusinessStatus";
 import { resolveWyrestormSkuAlias, skuAliasMatches } from "../lib/skuAliasResolver";
+import type { RigorousCompareResult, RigorousMatch } from "../lib/rigorousCompare";
+import { applyCompareEligibilityRanking } from "../lib/compareEligibilityEngine";
+import { runCompareRuntimePipeline } from "../lib/compareRuntimePipeline";
 
 /*
   Compare workflow guard markers retained for scripts.
@@ -167,6 +170,43 @@ type ScoredCandidate = {
   dependencies: string[];
   outcomeLabel: string;
 };
+
+function rigorousMatchToCandidate(match: RigorousMatch, profile: CompetitorProfile): ScoredCandidate {
+  const product = WYRESTORM_PRODUCTS.find((candidate) => candidate.sku === match.sku) ?? {
+    sku: match.sku,
+    name: match.name,
+    family: match.family || "WyreStorm",
+    productClass: String(match.wyrestorm.domain || "Product"),
+    role: String(match.wyrestorm.role || "Confirm role"),
+    transport: String(match.wyrestorm.transport || "Confirm transport"),
+    tags: [],
+    caveat: "Confirm the product specification and required accessories before quoting.",
+  };
+  const verdict: Verdict =
+    match.decision.outcome === "GOOD MATCH"
+      ? "GOOD MATCH"
+      : match.decision.outcome === "NO MATCH"
+        ? "NO MATCH"
+        : "PARTIAL MATCH";
+
+  return applyCompareEquivalenceGuards(
+    {
+      product,
+      score: match.decision.confidence,
+      verdict,
+      matched: match.decision.matches,
+      checks: match.decision.verify,
+      gaps: match.decision.gaps,
+      partialMatches: match.decision.outcome === "PARTIAL MATCH" ? match.decision.matches : [],
+      mismatches: match.decision.outcome === "NO MATCH" ? match.decision.gaps : [],
+      unknowns: match.decision.verify,
+      blockers: match.decision.blockers,
+      dependencies: [product.caveat],
+      outcomeLabel: match.decision.summary,
+    },
+    profile,
+  );
+}
 
 type CompetitorSummary = {
   heading: string;
@@ -3727,7 +3767,6 @@ function ComparePageNew() {
     [competitorInput, effectiveBrand, mustMatchFeatures],
   );
 
-  const avoipProfile = useMemo(() => mapCompetitorToNetworkHdAvoip(profile.rawText), [profile.rawText]);
   const competitorSummary = useMemo(() => buildCompetitorSummary(profile, mustMatchFeatures), [mustMatchFeatures, profile]);
   const hasCompetitorSelection = competitorInput.trim().length > 0;
 
@@ -3736,8 +3775,9 @@ function ComparePageNew() {
     const newBrands = customManufacturerStore.filter((brand) => !seededBrands.has(brand.toLowerCase()));
     return [...newBrands, ...MANUFACTURER_SELECT_OPTIONS];
   }, [customManufacturerStore]);
-  const scoredCandidates = useMemo(() => {
-    const avoip = avoipProfile;
+
+  const legacyCandidates = useMemo(() => {
+    const avoip = mapCompetitorToNetworkHdAvoip(profile.rawText);
     const shouldUseAvoipFastPath = avoip.recommendation.applies && profile.productClass === "AV-over-IP";
 
     if (shouldUseAvoipFastPath) {
@@ -3756,8 +3796,115 @@ function ComparePageNew() {
       .map((product) => scoreProduct(profile, product))
       .filter((candidate) => isSelectableWyrestormRecommendation(candidate.product))
       .sort((a, b) => b.score - a.score)
+      .slice(0, 8);
+  }, [profile]);
+
+  const rigorousResult = useMemo(() => {
+    const inputText = [effectiveBrand, competitorInput, mustMatchFeatures].filter(Boolean).join(" ");
+    const result = runCompareRuntimePipeline(
+      inputText,
+      WYRESTORM_PRODUCTS,
+      effectiveBrand,
+      8,
+    ) as RigorousCompareResult;
+    const classifiedLegacyMatches: RigorousMatch[] = legacyCandidates.map((candidate) => {
+      const wyrestorm = buildWyrestormCompareProfile(candidate.product);
+      const classified = classifyCompetitorCompareDecision({
+        competitor: result.competitor,
+        wyrestorm,
+        score: candidate.score,
+        evidence: candidate.matched,
+        warnings: candidate.checks,
+      });
+      const lacksEnoughStructuredEvidence =
+        candidate.verdict !== "NO MATCH" &&
+        candidate.score >= 55 &&
+        classified.outcome === "NO MATCH";
+      const decision = lacksEnoughStructuredEvidence
+        ? {
+            ...classified,
+            outcome: "VERIFY" as const,
+            confidence: candidate.score,
+            blockers: [],
+            verify: uniqueSkuOptions([
+              ...classified.verify,
+              ...classified.blockers,
+              "The local product direction is plausible, but the structured evidence is not complete enough to call it a direct match.",
+            ]),
+            summary: `Verify before quoting. ${classified.summary}`,
+          }
+        : {
+            ...classified,
+            confidence: candidate.score,
+          };
+
+      return {
+        sku: candidate.product.sku,
+        name: candidate.product.name,
+        family: candidate.product.family,
+        heuristicScore: candidate.score,
+        wyrestorm,
+        decision,
+      };
+    });
+    const seen = new Set<string>();
+    const matches = [...classifiedLegacyMatches, ...result.matches].filter((match) => {
+      const key = match.sku.toUpperCase();
+
+      if (seen.has(key)) {
+        return false;
+      }
+
+      seen.add(key);
+      return true;
+    });
+
+    const ranked = applyCompareEligibilityRanking({ ...result, matches }, WYRESTORM_PRODUCTS, inputText);
+    const unresolvedCompetitor =
+      /custom\s*\/\s*missing sku/i.test(competitorInput) ||
+      (
+        result.topOutcome === "NONE" &&
+        result.matches.length === 0 &&
+        result.analysis.confidence === "low" &&
+        (!result.competitor.domain || result.competitor.domain === "UNKNOWN")
+      );
+
+    if (unresolvedCompetitor) {
+      return {
+        ...ranked,
+        matches: [],
+        topOutcome: "NONE" as const,
+        recommendation: result.recommendation,
+        nextSteps: result.nextSteps,
+      };
+    }
+
+    if (ranked.matches.length > 0) {
+      return ranked;
+    }
+
+    const guardedFallbacks = classifiedLegacyMatches
+      .filter((match) => match.decision.outcome !== "NO MATCH" && match.heuristicScore >= 55)
       .slice(0, 5);
-  }, [avoipProfile, profile]);
+
+    return guardedFallbacks.length > 0
+      ? {
+          ...ranked,
+          matches: guardedFallbacks,
+          topOutcome: "VERIFY" as const,
+          recommendation: "The eligibility pass found no fully proven direct match. Show the strongest locally classified direction as verify-only.",
+        }
+      : ranked;
+  }, [competitorInput, effectiveBrand, legacyCandidates, mustMatchFeatures]);
+
+  const scoredCandidates = useMemo(
+    () =>
+      rigorousResult.matches
+        .map((match) => rigorousMatchToCandidate(match, profile))
+        .filter((candidate) => isSelectableWyrestormRecommendation(candidate.product))
+        .slice(0, 5),
+    [profile, rigorousResult],
+  );
 
   const viableCandidates = useMemo(
     () => scoredCandidates.filter((candidate) => candidate.verdict !== "NO MATCH"),

@@ -6,6 +6,7 @@ import {
   WINGMAN_APP_DB_FILE,
   WINGMAN_CANONICAL_PRODUCT_STORE_FILE,
 } from "../catalog/files.mjs";
+import { runGuruAgent } from "../server/agents/guruAgent.mjs";
 
 const UI_HOST = String(process.env.WINGMAN_UI_HOST || "127.0.0.1").trim() || "127.0.0.1";
 const parsedUiPort = Number(process.env.WINGMAN_UI_PORT || 3000);
@@ -982,8 +983,7 @@ export async function handleAgentsRoute(req, res) {
       sendJson(res, 200, {
         ok: true,
         phase: "guru",
-        note: "Guru phase scaffold is mounted but not yet connected to grounded product intelligence answering.",
-        received: body,
+        data: await runGuruAgent(body),
         timestamp: nowIso(),
       });
     } catch (error) {
