@@ -40,16 +40,18 @@ Run each end to end on staging, signed in and (where relevant) as a guest:
 
 ## 4. Production Infrastructure (Blocker)
 
-Deployment wiring is in `.github/workflows/deploy.yml`. It publishes separate frontend
-and backend images, calls `DEPLOY_WEBHOOK_URL`, then checks `DEPLOY_HEALTH_URL`.
-Configure those values in each GitHub Environment. Use `.env.production.example` for
-the runtime secret manager and follow the migration runbook in `OPERATIONS.md` §8.
+Deployment wiring is defined in the root `render.yaml` Blueprint. Render creates the
+frontend and backend services together, links them over its private network, waits for
+GitHub checks before automatic deployment, and checks `/` plus `/api/ready`.
+Use `.env.production.example` when promoting the trial deployment to persistent
+Supabase-backed production storage and follow the migration runbook in `OPERATIONS.md` §8.
 
 - [ ] Supabase project provisioned; `001_initial_schema.sql` applied.
 - [ ] File-store data migrated and verified (row counts + sample project); backup retained.
 - [ ] `WINGMAN_STORAGE_MODE=supabase-tables` and app exercised under concurrent use.
 - [ ] All secrets in the host secret manager (no committed `.env`).
-- [ ] Hosting webhook configured with `DEPLOY_WEBHOOK_URL`, `DEPLOY_WEBHOOK_TOKEN`, and `DEPLOY_HEALTH_URL`.
+- [ ] Render Blueprint created from `render.yaml`; both services are healthy.
+- [ ] Supabase credentials added to `wingman-api` before production data is stored.
 - [ ] Hosting, domain and TLS live; HTTPS enforced end to end.
 - [ ] Health check (`/api/health`) wired to an uptime monitor; error-rate alert configured.
 - [ ] Load test run against staging at target concurrency — passed.

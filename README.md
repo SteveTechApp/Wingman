@@ -15,6 +15,15 @@ For faster local validation during UI work, run:
 npm run typecheck
 npm run build
 
+## Deploy on Render
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/SteveTechApp/Wingman)
+
+The repository includes `render.yaml`, which creates the Wingman frontend and
+backend together. Render deploys `main` after its GitHub checks pass. The initial
+free configuration is suitable for evaluation; configure Supabase-backed storage
+before relying on workspace data for production.
+
 ## Styling governance
 
 Wingman uses a consolidated stylesheet stack imported from src/main.tsx.
