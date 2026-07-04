@@ -25,8 +25,8 @@
     "data-sources/competitors/zeevee.csv"
   ],
   "hashes": {
-    "data-sources/wyrestorm/products.csv": "1cd1eb0e38f5c5cdfe4c207e22659bfc8219c0338b3d5829b073401ca1f1173c",
-    "data-sources/wyrestorm/lifecycle.csv": "1660345b97b68438151bffe62a48ed242ebc9327041b9f3aacf7db949c03daac",
+    "data-sources/wyrestorm/products.csv": "fcbdf8d36ef43be5046d00a410c862d978ad72534686ce27facfbe6cfe02dd19",
+    "data-sources/wyrestorm/lifecycle.csv": "3e0ceb15cb6d76bb5ee021d5b8197f322f6c3268e38002c873e80d0bed604136",
     "data-sources/wyrestorm/enrichment.json": "9d5eef87646a8a790cdd6d7245e22193079ee6ad6bebfc83ec894f459411cadd",
     "data-sources/competitors/airtame.csv": "67194759b725ec62b9914e1eddb5882d2658f3930bfb9944d792d2118d2097b3",
     "data-sources/competitors/amx.csv": "5841088acbd2cc4b4796cf963d520d5c318b12e81558e70b44e3552333c78900",

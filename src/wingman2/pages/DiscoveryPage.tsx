@@ -147,7 +147,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "av-over-ip",
-        label: "Distributed AV / AV-over-IP",
+        label: "Distributed video (many rooms or long distances)",
         help: "Many-to-many routing, long distance, campus, flexible source/display routing.",
       },
       {
@@ -162,7 +162,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     shortLabel: "Scale",
     question: "What is the approximate room or system scale?",
     prompt: "Pick the closest scale. Exact dimensions can be captured in the notes box.",
-    why: "Scale affects whether the design is likely to be local switching, HDBaseT, matrix, or AV-over-IP.",
+    why: "Scale affects whether this needs a simple cable run, a local switcher, or a networked system reaching more rooms.",
     required: true,
     capturePlaceholder: "Example: Single boardroom, 8 people, one display around 10 metres from the table.",
     options: [
@@ -220,7 +220,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       {
         value: "nine-plus-sources",
         label: "9+ sources",
-        help: "Matrix or AV-over-IP should be considered.",
+        help: "A matrix switcher or a networked system should be considered.",
       },
       {
         value: "unknown-sources",
@@ -270,7 +270,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     shortLabel: "Displays",
     question: "How many displays or outputs are needed?",
     prompt: "Include projectors, confidence monitors, overflow displays, video walls and LED processors.",
-    why: "Output count is a major divider between simple switching, matrix and AV-over-IP.",
+    why: "Output count is a major divider between simple switching, matrix and a networked system.",
     required: true,
     capturePlaceholder: "Example: 1 main display, 1 confidence display and 4 overflow TVs.",
     options: [
@@ -287,12 +287,12 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       {
         value: "three-eight-displays",
         label: "3-8 displays / outputs",
-        help: "Matrix switching or small AV-over-IP system should be considered.",
+        help: "Matrix switching or a small networked system should be considered.",
       },
       {
         value: "nine-plus-displays",
         label: "9+ displays / outputs",
-        help: "AV-over-IP or larger matrix design likely.",
+        help: "A networked system or a larger matrix design likely.",
       },
       {
         value: "video-wall-output",
@@ -454,7 +454,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     id: "audio",
     shortLabel: "Audio",
     question: "What audio requirement is likely? Select all that apply.",
-    prompt: "Capture whether audio is display speakers, room speakers, amplifier, DSP, Dante or microphone-led.",
+    prompt: "Capture how sound will actually work in the room — through the screen itself, separate room speakers, or microphones for calls.",
     why: "Audio is often missed in first-pass discovery but affects product choice and dependencies.",
     required: true,
     capturePlaceholder: "Example: Ceiling speakers and table microphones, with audio into Teams and local playback.",
@@ -462,27 +462,27 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       {
         value: "display-audio",
         label: "Display audio only",
-        help: "Simpler embedded audio path.",
+        help: "Simplest option — sound just comes from the screen's own speakers.",
       },
       {
         value: "source-audio-deembed",
-        label: "De-embed audio from encoder / source",
-        help: "Extract embedded HDMI/source audio for amplifier, DSP, Dante, recording or local audio feed.",
+        label: "Pull sound out separately",
+        help: "Sound needs to be taken out of the cable run to feed a soundbar, amplifier or recording system.",
       },
       {
         value: "room-audio",
         label: "Room speakers / amplifier",
-        help: "Check analogue output, amplifier, DSP and control needs.",
+        help: "Check what speakers are already in the room and how the volume/source will be controlled.",
       },
       {
         value: "mic-conferencing",
         label: "Microphones / conferencing audio",
-        help: "USB, DSP, echo cancellation and host ownership need checking.",
+        help: "Check how the microphones connect, whether echo needs cancelling, and who owns the room's call device.",
       },
       {
         value: "dante-network-audio",
-        label: "Dante / network audio",
-        help: "Check network ownership and audio routing requirements.",
+        label: "Sound needs to reach other rooms",
+        help: "Check whether the building's network can carry sound between spaces, and who owns that network.",
       },
       {
         value: "unknown-audio",
@@ -532,7 +532,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     shortLabel: "Distance",
     question: "What is the installed cable distance?",
     prompt: "Choose the closest longest run between sources, switching, and displays.",
-    why: "Distance should be captured explicitly before Wingman decides between local switching, HDBaseT, or networked transport.",
+    why: "Distance should be captured explicitly before deciding between a simple cable run, a booster/extender, or a networked system.",
     required: true,
     capturePlaceholder: "Example: Table to display under 5m, or rack to projector around 35m, or distributed displays over building network.",
     options: [
@@ -549,7 +549,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       {
         value: "10-35m",
         label: "10-35m",
-        help: "Medium extension range where HDBaseT or structured transport may matter.",
+        help: "Medium range where a signal booster/extender is likely needed.",
       },
       {
         value: "35-70m",
@@ -572,25 +572,25 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     id: "infrastructure",
     shortLabel: "Infrastructure",
     question: "What infrastructure is available?",
-    prompt: "Capture cable distances, network availability, rack location and whether IT will support AV-over-IP.",
-    why: "Infrastructure decides whether HDMI, HDBaseT, fibre, matrix or AV-over-IP is practical.",
+    prompt: "Capture cable distances, network availability, rack location and whether IT will support a networked video system.",
+    why: "Infrastructure decides whether a simple cable, a booster/extender, fibre, a switcher, or a networked system is practical.",
     required: true,
-    capturePlaceholder: "Example: Sources in rack, displays up to 60m away, managed network available but IT needs IGMP details.",
+    capturePlaceholder: "Example: Sources in rack, displays up to 60m away, managed network available but IT needs to confirm capacity.",
     options: [
       {
         value: "short-hdmi",
-        label: "Short local HDMI",
+        label: "Short local cable run",
         help: "Contained room, short cable paths and local switching likely.",
       },
       {
         value: "hdbaset-distance",
-        label: "Medium distance / HDBaseT",
-        help: "Point-to-point extension or matrix with HDBaseT outputs likely.",
+        label: "Medium distance (needs a booster/extender)",
+        help: "Likely needs a signal booster/extender, possibly alongside a switcher.",
       },
       {
         value: "managed-network",
-        label: "Managed AV network available",
-        help: "AV-over-IP may be practical if multicast, IGMP and switch capacity are suitable.",
+        label: "A managed network is available",
+        help: "A networked video system may be practical if the network and switches can handle it — IT will need to confirm this.",
       },
       {
         value: "new-cabling-needed",
@@ -608,38 +608,38 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
 
 const avoipProfileQuestion: DiscoveryQuestion = {
   id: "avoip-profile",
-  shortLabel: "AVoIP fit",
-  question: "Which AVoIP performance profile sounds closest?",
-  prompt: "Keep this commercial rather than deeply technical. Choose the closest fit for bandwidth, latency, USB, and multiview expectations.",
+  shortLabel: "Performance fit",
+  question: "Which of these sounds closest to what the customer needs?",
+  prompt: "Keep this in plain terms — pick whichever is closest to what matters most: cost, image quality, connecting devices, or showing several sources on one screen at once.",
   why: "This is the shortest reliable way to separate NetworkHD 100, 500, and 600 conversations before Finder recommends a family.",
   required: true,
   capturePlaceholder:
-    "Example: 1Gb H.265 is fine for lower bandwidth, or premium 1Gb with better USB/quality, or zero-latency 10Gb SDVoE. Note multiview if several sources must appear on one output.",
+    "Example: the standard option is fine on cost, or they want better image quality and device connections, or they need the very best zero-delay option. Note if several sources need to show on one screen at once.",
   options: [
     {
       value: "networkhd-100",
-      label: "Low bandwidth / 1Gb / H.264-H.265",
-      help: "Best when bandwidth efficiency matters more than ultra-low latency and the system suits a cost-sensitive 1Gb AVoIP path.",
+      label: "Standard / most economical",
+      help: "Best when cost matters more than an ultra-fast response, and a standard network connection is fine.",
     },
     {
       value: "networkhd-500",
-      label: "Premium 1Gb / low latency / stronger USB",
-      help: "Use when image quality, lower latency, stronger USB handling, or Dante-ready discussions matter while staying on 1Gb switching.",
+      label: "Premium quality / faster response",
+      help: "Use when image quality, a faster response, better device connections, or keeping sound in sync across rooms matter, while still using a standard network connection.",
     },
     {
       value: "networkhd-600",
-      label: "Zero latency / lossless / 10Gb / SDVoE",
-      help: "Use when the project genuinely needs highest-performance 10Gb AV-over-IP and validated 10Gb switching.",
+      label: "Highest performance / zero delay",
+      help: "Use when the project genuinely needs the very best, zero-delay picture quality and a higher-capacity network is available.",
     },
     {
       value: "multiview-avoip",
-      label: "Multiview required",
-      help: "Use when several sources must appear on one output or monitoring canvas; the exact NetworkHD series still needs validating.",
+      label: "Several sources on one screen",
+      help: "Use when several sources must appear on one screen or monitoring wall at once; exactly which product family still needs confirming.",
     },
     {
       value: "unknown-avoip-profile",
       label: "Unknown",
-      help: "If unclear, capture the customer wording and validate bandwidth, latency, USB, multiview, and 1Gb versus 10Gb next.",
+      help: "If unclear, capture the customer's own words and check cost vs quality vs speed priorities, device connections, and whether several sources need to show at once.",
     },
   ],
 };
@@ -685,30 +685,30 @@ const applicationSpecificDiscoveryQuestionGuidance: Record<string, ApplicationSp
       "TV/output count",
       "Sky/media/signage source count",
       "Staff control simplicity",
-      "Contained matrix vs expandable AV-over-IP",
+      "Contained matrix vs. an expandable networked system",
     ],
   },
   "video-wall": {
-    likelyDirection: "Clarify LCD vs LED, full-canvas vs multiview vs signage before choosing AV-over-IP or a dedicated wall processor.",
+    likelyDirection: "Clarify LCD vs LED, full-canvas vs multiview vs signage before choosing a networked system or a dedicated wall processor.",
     askNext: "Is the wall showing one full image, different content per screen, signage presets, or multiple sources at the same time?",
     checkBeforeProduct: [
       "LCD wall or LED processor feed",
       "Wall layout",
       "Full canvas, per-display routing or multiview",
-      "Dedicated processor vs AV-over-IP trade-off",
+      "Dedicated processor vs. networked-system trade-off",
     ],
   },
   "av-over-ip": {
-    likelyDirection: "Use one extra AVoIP qualifier to separate NetworkHD 100, 500, and 600 before Finder recommends the product family.",
-    askNext: "Will IT allow NetworkHD on the managed customer network, or should we default to dedicated AV switching while we validate the performance tier?",
+    likelyDirection: "Use one extra question to separate the NetworkHD 100, 500, and 600 product families before Finder recommends one.",
+    askNext: "Will IT allow this to run on the customer's existing network, or should we plan for a separate dedicated network while we confirm the performance level needed?",
     checkBeforeProduct: [
       "Network ownership",
-      "1G vs 10G requirement",
-      "Low bandwidth vs low latency priority",
+      "Standard vs. highest-performance network requirement",
+      "Cost vs. speed-of-response priority",
       "Multiview requirement",
       "Encoder and decoder count",
-      "USB, Dante/audio and control requirements",
-      "NHD-CTL-PRO dependency",
+      "Device connections, room-to-room sound, and control requirements",
+      "Needs one system controller",
     ],
   },
   "not-sure": {
@@ -738,7 +738,7 @@ const baseQuestionStrategyByStep: Record<string, ApplicationSpecificDiscoveryQue
     ],
   },
   scale: {
-    likelyDirection: "Scale helps separate local switching, matrix switching, HDBaseT and AV-over-IP.",
+    likelyDirection: "Scale helps decide between a simple local switcher, a bigger matrix switcher, a signal booster/extender, or a networked system.",
     askNext: "Is this one room, several rooms, or a wider building/campus requirement?",
     checkBeforeProduct: [
       "Room count",
@@ -765,7 +765,7 @@ const baseQuestionStrategyByStep: Record<string, ApplicationSpecificDiscoveryQue
     ],
   },
   displays: {
-    likelyDirection: "Display/output count is one of the main dividers between switcher, matrix and AV-over-IP design.",
+    likelyDirection: "Display/output count is one of the main dividers between switcher, matrix and networked-system design.",
     askNext: "How many displays, projectors, confidence monitors, overflow displays or wall processor feeds are needed?",
     checkBeforeProduct: [
       "Output count",
@@ -810,16 +810,16 @@ const baseQuestionStrategyByStep: Record<string, ApplicationSpecificDiscoveryQue
     ],
   },
   audio: {
-    likelyDirection: "Audio requirements affect product dependencies, DSP/amplifier needs and conferencing design.",
+    likelyDirection: "Audio requirements affect product dependencies, amplifier needs and conferencing design.",
     askNext: "Where should sound be heard, and are microphones or conferencing audio required?",
     checkBeforeProduct: [
       "Display audio versus room audio",
       "Microphone requirement",
-      "DSP, amplifier or Dante requirement",
+      "Amplifier requirement, or whether sound needs to reach other rooms",
     ],
   },
   distance: {
-    likelyDirection: "Distance should be captured directly so local switching, HDBaseT, fibre, and AV-over-IP are judged on real path length rather than assumption.",
+    likelyDirection: "Distance should be captured directly so a simple cable run, a booster/extender, fibre, and a networked system are judged on real path length rather than assumption.",
     askNext: "What is the longest installed run between the source side, switching core, and display side?",
     checkBeforeProduct: [
       "Longest installed run",
@@ -837,20 +837,20 @@ const baseQuestionStrategyByStep: Record<string, ApplicationSpecificDiscoveryQue
     ],
   },
   infrastructure: {
-    likelyDirection: "Cable path, rack position and network ownership decide whether HDMI, HDBaseT, fibre or AV-over-IP is realistic.",
+    likelyDirection: "Cable path, rack position and network ownership decide whether a simple cable, a booster/extender, fibre or a networked system is realistic.",
     askNext: "Where are the sources and displays physically located, and what cabling or network is available?",
     checkBeforeProduct: [
       "Cable distance",
       "Rack location",
-      "Managed network, multicast and IGMP availability",
+      "Whether a suitable managed network is available (IT will need to confirm capacity)",
     ],
   },
   "avoip-profile": {
-    likelyDirection: "AVoIP profile selection shapes whether Wingman should steer toward NetworkHD 100, 500, or 600 and whether multiview must be part of the conversation.",
-    askNext: "Is the driver lower bandwidth, premium 1Gb quality/USB, zero-latency 10Gb performance, or a multiview output requirement?",
+    likelyDirection: "This choice shapes whether Wingman steers toward the NetworkHD 100, 500, or 600 family, and whether showing several sources on one screen must be part of the conversation.",
+    askNext: "Is the driver cost, better quality and device connections, the best possible zero-delay performance, or showing several sources on one screen?",
     checkBeforeProduct: [
-      "Low bandwidth versus low latency priority",
-      "1Gb versus 10Gb network availability",
+      "Cost versus speed-of-response priority",
+      "Standard versus highest-performance network availability",
       "USB and audio integration need",
       "Multiview requirement",
     ],
@@ -872,13 +872,13 @@ function getQuestionStrategy(stepId: string, selectedApplication: string): Appli
   if (stepId === "infrastructure" && selectedApplication === "av-over-ip") {
     return {
       likelyDirection:
-        "For a known AV-over-IP project, this step is no longer about HDMI or HDBaseT distance classes. The real decision is whether NetworkHD uses the customer managed network or dedicated AV switching.",
+        "Since this is already a networked video project, this step is no longer about cable distance classes. The real decision is whether NetworkHD uses the customer's existing network or a separate dedicated one.",
       askNext:
-        "Will IT allow NetworkHD on the managed customer network, or should we carry dedicated AV switch(es) as the default design?",
+        "Will IT allow NetworkHD on the customer's existing network, or should we carry a separate dedicated network as the default design?",
       checkBeforeProduct: [
-        "Customer managed network versus dedicated AV switch(es)",
-        "IGMP, multicast and AV VLAN support",
-        "1G versus 10G NetworkHD family requirement",
+        "Customer's existing network versus a separate dedicated one",
+        "Whether IT's network can carry this kind of video traffic",
+        "Standard versus highest-performance NetworkHD family requirement",
         "Controller and switch dependency",
       ],
     };
@@ -887,13 +887,13 @@ function getQuestionStrategy(stepId: string, selectedApplication: string): Appli
   if (stepId === "avoip-profile" && selectedApplication === "av-over-ip") {
     return {
       likelyDirection:
-        "Use this single step to separate low-bandwidth 1Gb (NetworkHD 100), premium 1Gb (NetworkHD 500), and zero-latency 10Gb (NetworkHD 600) conversations, while keeping multiview visible.",
+        "Use this single step to separate the standard (NetworkHD 100), premium (NetworkHD 500), and highest-performance (NetworkHD 600) conversations, while keeping the several-sources-on-one-screen option visible.",
       askNext:
-        "Is the priority lower bandwidth, premium 1Gb quality and USB, or true zero-latency 10Gb performance, and is multiview part of the requirement?",
+        "Is the priority cost, premium quality and device connections, or true top-end zero-delay performance — and does the customer need several sources shown on one screen?",
       checkBeforeProduct: [
-        "H.264/H.265 style low-bandwidth 1Gb path",
-        "Premium 1Gb quality, stronger USB, or Dante-ready path",
-        "Zero-latency 10Gb / SDVoE path",
+        "Standard, most economical path",
+        "Premium quality, stronger device connections, or room-to-room sound path",
+        "Highest-performance, zero-delay path",
         "Multiview or composed-output requirement",
       ],
     };
@@ -910,21 +910,21 @@ function getQuestionView(step: DiscoveryQuestion, selectedApplication: string): 
   return {
     ...step,
     prompt:
-      "AV-over-IP is already established. Capture whether NetworkHD uses the customer managed network or dedicated AV switch infrastructure.",
+      "A networked video system is already established. Capture whether NetworkHD uses the customer's existing network or a dedicated switch setup.",
     why:
-      "Once the design is known to be AV-over-IP, the main infrastructure decision is managed customer network versus dedicated AV switching, plus IT ownership and multicast readiness.",
+      "Once the design is known to be a networked video system, the main infrastructure decision is the customer's existing network versus a dedicated one, plus who in IT owns that decision.",
     capturePlaceholder:
-      "Example: NetworkHD will use the customer managed network if IT supports IGMP and AV VLANs, otherwise carry dedicated AV switches.",
+      "Example: NetworkHD will use the customer's existing network if IT confirms it can handle this kind of video traffic, otherwise plan for a separate dedicated network.",
     options: [
       {
         value: "customer-managed-network",
         label: "Use existing customer network",
-        help: "Use the customer managed network only if IT supports NetworkHD switching, multicast, IGMP and AV VLAN requirements.",
+        help: "Use the customer's existing network only if IT confirms it can support this kind of video traffic.",
       },
       {
         value: "dedicated-av-switching",
         label: "Specify dedicated AV network switch(es)",
-        help: "Default-safe AVoIP path when network ownership is restricted, unclear or easier to keep separate from IT.",
+        help: "Default-safe path when network ownership is restricted, unclear or easier to keep separate from IT.",
       },
       {
         value: "unknown-assume-dedicated-av-switching",
@@ -966,7 +966,7 @@ function getAvoipSeriesHint(profile: string): string {
     case "networkhd-600":
       return "NetworkHD 600";
     case "multiview-avoip":
-      return "AVoIP multiview";
+      return "Several sources on one screen";
     default:
       return "";
   }
@@ -975,13 +975,13 @@ function getAvoipSeriesHint(profile: string): string {
 function getAvoipDirection(profile: string, fallback: string): string {
   switch (profile) {
     case "networkhd-100":
-      return "NetworkHD 100 direction: lower-bandwidth 1Gb H.264/H.265 style AVoIP where flexible routing matters more than premium low-latency performance.";
+      return "NetworkHD 100 direction: the standard, most economical option, where flexible routing matters more than the fastest possible response.";
     case "networkhd-500":
-      return "NetworkHD 500 direction: premium 1Gb AVoIP where better image quality, lower latency, stronger USB handling, or Dante-ready workflows matter.";
+      return "NetworkHD 500 direction: the premium option, where better image quality, a faster response, stronger device connections, or room-to-room sound matter.";
     case "networkhd-600":
-      return "NetworkHD 600 direction: lossless zero-latency 10Gb / SDVoE class AVoIP for the highest-performance routing environments.";
+      return "NetworkHD 600 direction: the highest-performance, zero-delay option for the most demanding routing environments.";
     case "multiview-avoip":
-      return "AVoIP multiview direction: confirm whether the customer needs multiple sources on one output, then validate whether the correct fit is a 100-series multiview decoder, 500-series multiview processor, or a higher-performance path.";
+      return "Several-sources-on-one-screen direction: confirm whether the customer needs multiple sources on one output, then validate whether the correct fit is a 100-series multiview decoder, 500-series multiview processor, or a higher-performance path.";
     default:
       return fallback;
   }
@@ -990,13 +990,13 @@ function getAvoipDirection(profile: string, fallback: string): string {
 function getAvoipNextQuestion(profile: string, fallback: string): string {
   switch (profile) {
     case "networkhd-100":
-      return "Is the low-bandwidth 1Gb H.264/H.265 route acceptable, and are USB or premium low-latency expectations definitely not required?";
+      return "Is the standard, most economical route acceptable, and are device connections or premium speed definitely not required?";
     case "networkhd-500":
-      return "Does the project need premium 1Gb quality, lower latency, stronger USB handling, or Dante-ready conversations, and is the 1Gb network validated?";
+      return "Does the project need premium quality, a faster response, stronger device connections, or room-to-room sound, and is the standard network validated?";
     case "networkhd-600":
-      return "Which 10GbE switch path, cabling, and SDVoE-class zero-latency requirement justify a NetworkHD 600 design?";
+      return "Which higher-performance switch path, cabling, and zero-delay requirement justify a NetworkHD 600 design?";
     case "multiview-avoip":
-      return "How many sources must appear on one output, and is the multiview requirement inside a 1Gb or 10Gb AVoIP design?";
+      return "How many sources must appear on one output, and does the multiview requirement fit the standard or the highest-performance network?";
     default:
       return fallback;
   }

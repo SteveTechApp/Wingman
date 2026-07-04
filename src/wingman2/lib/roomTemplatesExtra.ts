@@ -386,7 +386,7 @@ export const extraRoomTemplates: RoomTemplate[] = [
     bom: [
       {
         id: "hotel-meet-apollo",
-        sku: "APO-VX20-UC",
+        sku: "APO-VX20-UC-V2",
         description: "Apollo video bar and switcher",
         role: "Room UC and presentation core",
         qty: 1,
@@ -861,7 +861,7 @@ export const extraRoomTemplates: RoomTemplate[] = [
     bom: [
       {
         id: "telemed-apollo",
-        sku: "APO-VX20-UC",
+        sku: "APO-VX20-UC-V2",
         description: "Apollo video bar and switcher",
         role: "Telemedicine UC and presentation core",
         qty: 1,

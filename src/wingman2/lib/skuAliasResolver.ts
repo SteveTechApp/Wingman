@@ -45,6 +45,11 @@ export const WYRESTORM_CANONICAL_SKU_ALIASES: readonly CanonicalSkuAlias[] = [
     aliases: ["APO-VX20-UC", "APOVX20UC", "APO VX20 UC", "APO-VX20-UC-V2", "APOVX20UCV2"],
     note: "Resolve Apollo VX20 UC references to the current V2 SKU.",
   },
+  {
+    canonicalSku: "NHD-100",
+    aliases: ["NHD-100", "NHD100", "NHD-100-TX", "NHD100TX", "NHD-100-RX", "NHD100RX"],
+    note: "Resolve legacy NetworkHD 100 (banned series) TX/RX variants to the discontinued base SKU so business-status lookups classify them as discontinued instead of unlisted.",
+  },
 ];
 
 export function normaliseSkuKey(value: unknown): string {

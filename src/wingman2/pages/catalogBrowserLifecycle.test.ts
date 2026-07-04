@@ -27,9 +27,11 @@ describe("catalogue browser lifecycle filtering", () => {
 
   it("does not surface a suppressed SKU even on an exact smart-find search", () => {
     // P2: smart-find returns score>0 matches; the hard lifecycle filter must
-    // still exclude a suppressed SKU (APO-210-UC is do-not-recommend).
-    const state = { ...createDefaultCatalogFilterState(), search: "APO-210-UC" };
-    expect(has(selectCatalogResults(catalog, state), "APO-210-UC")).toBe(false);
+    // still exclude a suppressed SKU (CAM-200-PTZ is discontinued/suppressed;
+    // APO-210-UC was previously suppressed here in error - confirmed 2026-07-04
+    // to be a current, recommendable larger-room product and no longer excluded).
+    const state = { ...createDefaultCatalogFilterState(), search: "CAM-200-PTZ" };
+    expect(has(selectCatalogResults(catalog, state), "CAM-200-PTZ")).toBe(false);
   });
 
   it("reveals end-of-life products when the hide toggle is off", () => {

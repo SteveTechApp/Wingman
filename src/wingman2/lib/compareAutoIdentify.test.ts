@@ -51,7 +51,7 @@ describe("compare auto-identification", () => {
     expect(result.detectedProduct?.model).toBe("PanaCast 50");
     expect(result.detectedProduct?.categories).toContain("uc-video-bar");
     expect(result.wyrestormMatch.lane).toBe("UC soundbar / BYOD meeting room");
-    expect(result.wyrestormMatch.candidates).toContain("APO-VX20-UC v2");
+    expect(result.wyrestormMatch.candidates).toContain("APO-VX20-UC-V2");
   });
 
   it("infers a rough phrase without pretending exact certainty", () => {

@@ -185,7 +185,7 @@ export const NETWORKHD_AVOIP_FAMILIES: Record<NetworkHdAvoipSeries, NetworkHdSer
       { sku: "NHD-500-TX", role: "encoder", note: "4K60 4:4:4 1GbE encoder" },
       { sku: "NHD-500-E-TX", role: "encoder", note: "4K60 4:4:4 lite encoder" },
       { sku: "NHD-510-TX", role: "encoder", note: "4K60 4:4:4 encoder with Dante AV-A" },
-      { sku: "NHD-500-IW-TX", role: "encoder", note: "4K60 4:4:4 in-wall encoder" },
+      { sku: "NHD-500-IW-TX-V2", role: "encoder", note: "4K60 4:4:4 in-wall encoder" },
       { sku: "NHD-500-DNT-TX", role: "encoder", note: "4K60 4:4:4 encoder with Dante/AES67" },
       { sku: "NHD-500-RX", role: "decoder", note: "4K60 4:4:4 1GbE decoder" },
       { sku: "NHD-500-E-RX", role: "decoder", note: "4K60 4:4:4 lite decoder" },
