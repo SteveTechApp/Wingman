@@ -12,6 +12,9 @@ services:
         VITE_APP_COMMIT: ${VITE_APP_COMMIT:-local}
     ports:
       - "3000:80"
+    environment:
+      - BACKEND_HOST=backend
+      - BACKEND_PORT=8787
     depends_on:
       - backend
     networks:

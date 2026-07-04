@@ -22,7 +22,8 @@ const files = {
   guru: read("src/wingman2/components/WingmanGuruDrawer.tsx"),
   agentRoutes: read("server/routes/agents.mjs"),
   dockerfile: read("Dockerfile"),
-  deploy: read(".github/workflows/deploy.yml"),
+  nginx: read("nginx/default.conf.template"),
+  render: read("render.yaml"),
 };
 
 const checks = [
@@ -42,8 +43,11 @@ const checks = [
   ["Guru calls the protected grounded service", files.guru.includes('"/api/wingman/agents/guru"')],
   ["Guru server route executes the agent", files.agentRoutes.includes("await runGuruAgent(body)")],
   ["Frontend container compiles project sync configuration", files.dockerfile.includes("ARG VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC=true")],
-  ["Deployment builds the backend image", files.deploy.includes("file: Dockerfile.server")],
-  ["Deployment uses a configured trigger instead of a placeholder", files.deploy.includes("DEPLOY_WEBHOOK_URL") && !files.deploy.includes("Deploy (placeholder)")],
+  ["Frontend proxy uses its configured backend service", files.nginx.includes("http://${BACKEND_HOST}:${BACKEND_PORT}/api/")],
+  ["Render Blueprint builds both application images", files.render.includes("dockerfilePath: ./Dockerfile") && files.render.includes("dockerfilePath: ./Dockerfile.server")],
+  ["Render links the frontend to the backend private address", files.render.includes("property: host") && files.render.includes("property: port")],
+  ["Render deploys only after GitHub checks pass", (files.render.match(/autoDeployTrigger: checksPass/g) || []).length === 2],
+  ["Render health-checks the frontend and backend", files.render.includes("healthCheckPath: /") && files.render.includes("healthCheckPath: /api/ready")],
 ];
 
 const failed = checks.filter(([, passes]) => !passes);
