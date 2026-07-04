@@ -154,7 +154,7 @@ export const DEFAULT_CATALOG_FILTER_STATE: CatalogFilterState = {
 };
 
 const MANUAL_OVERRIDES: Record<string, ProductOverride> = {
-  "APO-VX20-UC V2": {
+  "APO-VX20-UC-V2": {
     family: "Apollo",
     series: "Apollo",
     category: "UC Video Bar",
@@ -187,14 +187,14 @@ const MANUAL_OVERRIDES: Record<string, ProductOverride> = {
     category: "UC Switcher",
     families: ["Unified Communication", "Presentation Switching", "Synergy"],
     roles: ["presentation-switcher", "uc-endpoint", "usb-peripheral-host", "audio-endpoint"],
-    technologies: ["speaker", "microphone", "hdmi", "hdbaset", "wireless-casting", "multiview", "usb-c"],
+    technologies: ["camera", "speaker", "microphone", "hdmi", "hdbaset", "wireless-casting", "multiview", "usb-c"],
     deploymentRole: "standalone-core",
     standalone: true,
-    dependencies: { required: [], recommended: ["APO-DG2"], compatibleHosts: [] },
-    lifecycle: { publicStatus: "active", internalStatus: "eol-soon", excludeFromNewRecommendations: true },
+    dependencies: { required: [], recommended: ["CAM-420-PTZ", "CAM-210-PTZ", "APO-COM-MIC"], compatibleHosts: [] },
+    lifecycle: { publicStatus: "active", internalStatus: "active", excludeFromNewRecommendations: false },
     summary:
-      "Conference speakerphone and presentation switcher crossover product retained for reference but suppressed from new recommendations.",
-    tags: ["UC", "Wireless presentation", "Speakerphone", "Legacy planning"],
+      "Table-top UC video and audio switcher for rooms larger than APO-VX20-UC-V2 can cover, pairing with a dedicated PTZ camera (CAM-420-PTZ or CAM-210-PTZ). Supports wireless casting of video/audio presentation content, but is not compatible with the APO-DG2 dongle - APO-DG2's wireless data connectivity to mic, speakers and camera is exclusive to APO-VX20-UC-V2.",
+    tags: ["UC", "PTZ camera pairing", "Larger room", "Table-top", "Wireless presentation casting"],
   },
   "APO-UC210": {
     family: "Apollo",
@@ -202,11 +202,11 @@ const MANUAL_OVERRIDES: Record<string, ProductOverride> = {
     category: "UC Switcher",
     families: ["Unified Communication", "Presentation Switching", "Synergy"],
     roles: ["presentation-switcher", "uc-endpoint", "usb-peripheral-host", "audio-endpoint"],
-    technologies: ["speaker", "microphone", "hdmi", "hdbaset", "wireless-casting", "multiview", "usb-c"],
+    technologies: ["camera", "speaker", "microphone", "hdmi", "hdbaset", "wireless-casting", "multiview", "usb-c"],
     deploymentRole: "standalone-core",
     standalone: true,
-    dependencies: { required: [], recommended: ["APO-DG2"], compatibleHosts: [] },
-    lifecycle: { publicStatus: "active", internalStatus: "eol-soon", excludeFromNewRecommendations: true },
+    dependencies: { required: [], recommended: ["CAM-420-PTZ", "CAM-210-PTZ", "APO-COM-MIC"], compatibleHosts: [] },
+    lifecycle: { publicStatus: "active", internalStatus: "active", excludeFromNewRecommendations: false },
   },
   "APO-DG2": {
     family: "Apollo",
@@ -220,7 +220,7 @@ const MANUAL_OVERRIDES: Record<string, ProductOverride> = {
     dependencies: {
       required: ["Compatible host"],
       recommended: [],
-      compatibleHosts: ["SW-620-TX-W", "SW-640L-TX-W", "APO-VX20-UC V2", "APO-VX20-UC", "APO-210-UC"],
+      compatibleHosts: ["SW-620-TX-W", "SW-640L-TX-W", "APO-VX20-UC-V2", "APO-VX20-UC"],
     },
     lifecycle: { publicStatus: "active", internalStatus: "active", excludeFromNewRecommendations: false },
     summary:
@@ -239,7 +239,7 @@ const MANUAL_OVERRIDES: Record<string, ProductOverride> = {
     dependencies: {
       required: ["Compatible host"],
       recommended: [],
-      compatibleHosts: ["SW-620-TX-W", "SW-640L-TX-W", "APO-VX20-UC V2", "APO-VX20-UC"],
+      compatibleHosts: ["SW-620-TX-W", "SW-640L-TX-W", "APO-VX20-UC-V2", "APO-VX20-UC"],
     },
     lifecycle: { publicStatus: "active", internalStatus: "active", excludeFromNewRecommendations: false },
   },
@@ -576,7 +576,7 @@ function inferDependencies(product: {
     return {
       required: ["Compatible host"],
       recommended: [],
-      compatibleHosts: ["SW-620-TX-W", "SW-640L-TX-W", "APO-VX20-UC V2", "APO-VX20-UC", "APO-210-UC"],
+      compatibleHosts: ["SW-620-TX-W", "SW-640L-TX-W", "APO-VX20-UC-V2", "APO-VX20-UC"],
     };
   }
 

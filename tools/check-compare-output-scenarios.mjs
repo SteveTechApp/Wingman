@@ -5,10 +5,11 @@ const root = process.cwd();
 
 const files = {
   comparePage: "src/wingman2/pages/ComparePageNew.tsx",
+  advancedComparePage: "src/wingman2/pages/ComparePageNew.advanced.tsx",
   outputAudit: "tools/audit-compare-output-quality.mjs",
-  knownProfiles: "src/wingman2/lib/knownCompareProfiles.ts",
-  eligibilityTest: "src/wingman2/lib/compareEligibilityEngine.test.ts",
-  behaviourTest: "src/wingman2/lib/competitorCompareBehaviour.test.ts",
+  autoIdentify: "src/wingman2/lib/compareAutoIdentify.ts",
+  knownWyrestormProfiles: "src/wingman2/lib/knownWyrestormCompareProfiles.ts",
+  matrixOutputModel: "src/wingman2/logic/matrixOutputModel.ts",
   decisionTest: "src/wingman2/lib/competitorCompareDecision.test.ts"
 };
 

@@ -16,15 +16,14 @@ function read(relativePath) {
 }
 
 const comparePage = read("src/wingman2/pages/ComparePageNew.tsx");
-const engine = read("src/wingman2/lib/compareEligibilityEngine.ts");
-const combined = comparePage + "\n\n" + engine;
+const advancedComparePage = read("src/wingman2/pages/ComparePageNew.advanced.tsx");
+const combined = comparePage + "\n\n" + advancedComparePage;
 
 const requiredMarkers = [
   "AT-OME-EX-KIT",
   "ATOMEEXKIT",
   "HDBaseT extender",
   "ARCHITECTURE ALTERNATIVE",
-  "architecture-alternative",
   "EX-100-KVM",
   "MX-0403-H3-MST"
 ];

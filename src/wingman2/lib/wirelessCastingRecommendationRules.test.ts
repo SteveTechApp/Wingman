@@ -8,13 +8,13 @@ import {
 } from "./wirelessCastingRecommendationRules";
 
 describe("wireless casting recommendation rules", () => {
-  it("uses APO-210-UC with APO-DG2 for small and huddle meeting rooms", () => {
+  it("uses APO-VX20-UC-V2 with APO-DG2 for small and huddle meeting rooms", () => {
     const result = recommendWirelessCastingSkus({
       roomType: "small huddle meeting room",
       participantCount: 4,
     });
 
-    expect(result.primarySkus).toEqual(["APO-210-UC", "APO-DG2"]);
+    expect(result.primarySkus).toEqual(["APO-VX20-UC-V2", "APO-DG2"]);
     expect(result.primarySkus).not.toContain("SW-620-TX-W");
     expect(result.primarySkus).not.toContain("SW-640-TX-W");
   });
@@ -27,7 +27,7 @@ describe("wireless casting recommendation rules", () => {
     });
 
     expect(result.primarySkus).toEqual(["SW-620-TX-W", "APO-DG2"]);
-    expect(result.primarySkus).not.toContain("APO-210-UC");
+    expect(result.primarySkus).not.toContain("APO-VX20-UC-V2");
   });
 
   it("uses SW-640-TX-W with APO-DG2 for larger wireless casting rooms with more sources", () => {
@@ -38,7 +38,7 @@ describe("wireless casting recommendation rules", () => {
     });
 
     expect(result.primarySkus).toEqual(["SW-640-TX-W", "APO-DG2"]);
-    expect(result.primarySkus).not.toContain("APO-210-UC");
+    expect(result.primarySkus).not.toContain("APO-VX20-UC-V2");
   });
 
   it("adds IDB-300 as an optional desk connection item when desk connectivity is present", () => {
