@@ -15,6 +15,11 @@ import {
 } from "../data/projectStore";
 import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import {
+  clearRecentCompareSearches,
+  readRecentCompareSearches,
+  recordRecentCompareSearch,
+} from "../lib/compareRecentSearches";
 
 interface CompareAutoIdentifyPanelProps {
   initialQuery?: string;
@@ -113,6 +118,7 @@ export default function CompareAutoIdentifyPanel({
   const [query, setQuery] = useState(initialQuery);
   const [result, setResult] = useState<CompareAutoIdentifyResult | null>(null);
   const [committedSku, setCommittedSku] = useState<string | null>(null);
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => readRecentCompareSearches());
   const application = useMemo(() => savedApplicationContext(), []);
 
   const plainEnglishSummary = useMemo(() => {
@@ -120,9 +126,18 @@ export default function CompareAutoIdentifyPanel({
   }, [result]);
 
   const runIdentify = (value = query) => {
+    const trimmed = value.trim();
     setQuery(value);
     setResult(identifyCompetitorProduct(value));
     setCommittedSku(null);
+
+    if (trimmed) {
+      setRecentSearches(recordRecentCompareSearch(trimmed));
+    }
+  };
+
+  const clearHistory = () => {
+    setRecentSearches(clearRecentCompareSearches());
   };
 
   const handleCommit = (target: "project" | "proposal") => {
@@ -213,6 +228,19 @@ export default function CompareAutoIdentifyPanel({
             Identify and compare
           </button>
         </div>
+        {recentSearches.length > 0 ? (
+          <div className="wm-compare-auto-recent" aria-label="Recent competitor searches">
+            <span className="wm-compare-auto-recent-label">Recent searches</span>
+            {recentSearches.map((recent) => (
+              <button key={recent} type="button" onClick={() => runIdentify(recent)}>
+                {recent}
+              </button>
+            ))}
+            <button type="button" className="wm-compare-auto-recent-clear" onClick={clearHistory}>
+              Clear
+            </button>
+          </div>
+        ) : null}
         <div className="wm-compare-auto-examples" aria-label="Example competitor searches">
           {exampleQueries.map((example) => (
             <button key={example} type="button" onClick={() => runIdentify(example)}>
@@ -236,54 +264,50 @@ export default function CompareAutoIdentifyPanel({
               <h3>What it does</h3>
               <p>{result.competitorSummary.purpose}</p>
               <dl className="wm-compare-auto-definition-list">
-
-                <div>
-
-                  <dt>Brand</dt>
-
-                  <dd>{result.competitorSummary.manufacturer}</dd>
-
-                </div>
-
-                <div>
-
-                  <dt>Model</dt>
-
-                  <dd>{result.competitorSummary.model}</dd>
-
-                </div>
-
-                <div>
-
-                  <dt>Product type</dt>
-
-                  <dd>{result.competitorSummary.productType}</dd>
-
-                </div>
-
+                {result.competitorSummary.manufacturer !== "Unknown" ? (
+                  <div>
+                    <dt>Brand</dt>
+                    <dd>{result.competitorSummary.manufacturer}</dd>
+                  </div>
+                ) : null}
+                {result.competitorSummary.model !== "Unknown" ? (
+                  <div>
+                    <dt>Model</dt>
+                    <dd>{result.competitorSummary.model}</dd>
+                  </div>
+                ) : null}
+                {!result.competitorSummary.detectedLabel
+                  .toLowerCase()
+                  .includes(result.competitorSummary.productType.toLowerCase()) ? (
+                  <div>
+                    <dt>Product type</dt>
+                    <dd>{result.competitorSummary.productType}</dd>
+                  </div>
+                ) : null}
               </dl>
 
-
               <h3>Key technical points</h3>
-
               <ul>
-
-                {result.competitorSummary.keyTechnicalPoints.slice(0, 3).map((point) => (
-
+                {result.competitorSummary.keyTechnicalPoints.slice(0, 4).map((point) => (
                   <li key={point}>{point}</li>
-
                 ))}
-
               </ul>
             </article>
 
             <article className="wm-compare-auto-card">
               <p className="wm-eyebrow">WyreStorm direction</p>
-              <h2>
-                {result.wyrestormMatch.candidates.length > 0
-                  ? result.wyrestormMatch.candidates.join(", ")
-                  : result.wyrestormMatch.lane}
-              </h2>
+              {result.wyrestormMatch.candidates.length > 0 ? (
+                <>
+                  <h2>{result.wyrestormMatch.candidates[0]}</h2>
+                  {result.wyrestormMatch.candidates.length > 1 ? (
+                    <p className="wm-compare-auto-also-fits">
+                      <strong>Also fits:</strong> {result.wyrestormMatch.candidates.slice(1).join(", ")}
+                    </p>
+                  ) : null}
+                </>
+              ) : (
+                <h2>{result.wyrestormMatch.lane}</h2>
+              )}
               <h3>How it fits here</h3>
               <p>{applicationUse(result, application)}</p>
               <p><strong>Technical direction:</strong> {result.wyrestormMatch.lane}</p>
@@ -334,13 +358,6 @@ export default function CompareAutoIdentifyPanel({
 
           <details className="wm-compare-auto-candidates">
             <summary>Technical and quote detail</summary>
-
-            <h3>Key technical points</h3>
-            <ul>
-              {result.competitorSummary.keyTechnicalPoints.slice(0, 4).map((point) => (
-                <li key={point}>{point}</li>
-              ))}
-            </ul>
 
             {result.wyrestormMatch.optionalAddOns.length > 0 ? (
               <>

@@ -37362,6 +37362,41 @@ html[data-wingman-route="discovery"] .wm-ui-button {
   font-size: 0.9rem;
 }
 
+.wm-compare-auto-recent {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wm-compare-auto-recent-label {
+  color: rgba(248, 250, 252, 0.6);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.wm-compare-auto-recent button {
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 14px;
+  background: rgba(148, 163, 184, 0.12);
+  color: #f8fafc;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.wm-compare-auto-recent-clear {
+  border: none !important;
+  background: transparent !important;
+  color: rgba(248, 250, 252, 0.55) !important;
+  text-decoration: underline;
+  font-weight: 500 !important;
+  padding: 0.5rem 0.25rem !important;
+}
+
 .wm-compare-auto-results {
   display: grid;
   gap: 1rem;
