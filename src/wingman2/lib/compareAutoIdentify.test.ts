@@ -131,4 +131,53 @@ describe("compare auto-identification", () => {
     expect(bareOneByEight.wyrestormMatch.lane).toBe("HDMI splitter / distribution amplifier alternative");
     expect(bareOneByEight.wyrestormMatch.candidates).toContain("SP-0108-SCL");
   });
+
+  it("never under-sizes a matrix pick below the required input/output count", () => {
+    // Regression: a pure nearest-distance metric reads 6x2 as "closer" to the
+    // 4x2 MX-0402-MST than the 8x8 MX-0808-KIT-V2, but MX-0402-MST only has 4
+    // inputs and cannot actually serve 6 sources.
+    const result = identifyCompetitorProduct("customer wants a 6x2 matrix");
+    expect(result.wyrestormMatch.candidates).toContain("MX-0808-KIT-V2");
+    expect(result.wyrestormMatch.candidates).not.toContain("MX-0402-MST");
+  });
+
+  it("never under-sizes a splitter pick below the required output count", () => {
+    // Regression: 1x6 is numerically equidistant between 1x4 (SP-0104-H2) and
+    // 1x8 (SP-0108-SCL); the tie previously resolved to the smaller, under-
+    // sized 1x4 splitter since it was found first in array order.
+    const result = identifyCompetitorProduct("customer wants a 1x6 HDMI splitter");
+    expect(result.wyrestormMatch.candidates).toContain("SP-0108-SCL");
+    expect(result.wyrestormMatch.candidates).not.toContain("SP-0104-H2");
+  });
+
+  it("flags a requirement larger than any known matrix/splitter option for review instead of silently under-sizing", () => {
+    const result = identifyCompetitorProduct("customer wants a 16x16 matrix");
+    expect(result.wyrestormMatch.candidates).toContain("MX-0808-KIT-V2");
+    expect(result.wyrestormMatch.notes.join(" ")).toMatch(/needs review/i);
+  });
+
+  it("checks AVoIP family signals before generic hardware keywords like 'extender'", () => {
+    // Regression: "Crestron DM-NVX-350 extender" and "SDVoE extender" are both
+    // AVoIP endpoints, but the word "extender" alone used to win the keyword
+    // fallback loop before the AVoIP classifier ever ran.
+    const dmNvx = identifyCompetitorProduct("Crestron DM-NVX-350 extender");
+    expect(dmNvx.wyrestormMatch.lane).toBe("NetworkHD 500 AV-over-IP direction");
+
+    const sdvoe = identifyCompetitorProduct("SDVoE extender");
+    expect(sdvoe.wyrestormMatch.lane).toBe("NetworkHD 600 AV-over-IP direction");
+  });
+
+  it("prefers matrix intent over the bare 'hdbaset' token", () => {
+    // Regression: "hdbaset" alone matched the extender fallback before the
+    // matrix fallback (and its I/O sizing) ever ran, so "8x8 HDBaseT matrix"
+    // was misread as a point-to-point extender kit.
+    const result = identifyCompetitorProduct("8x8 HDBaseT matrix");
+    expect(result.wyrestormMatch.lane).toBe("Matrix switcher alternative");
+    expect(result.wyrestormMatch.candidates).toContain("MX-0808-KIT-V2");
+
+    // A genuine point-to-point extender with no matrix wording must still
+    // route to the extender lane.
+    const extender = identifyCompetitorProduct("Atlona AT-OME-EX-KIT");
+    expect(extender.wyrestormMatch.lane).toBe("HDBaseT extender alternative");
+  });
 });
