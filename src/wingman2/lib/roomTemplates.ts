@@ -47,7 +47,7 @@ const coreRoomTemplates: RoomTemplate[] = [
     bom: [
       {
         id: "apollovx20",
-        sku: "APO-VX20-UC",
+        sku: "APO-VX20-UC-V2",
         description: "Apollo video bar and switcher",
         role: "Room UC and presentation core",
         qty: 1,
@@ -925,7 +925,7 @@ const coreRoomTemplates: RoomTemplate[] = [
     customerNarrative:
       "The room supports a more professional hybrid meeting experience by combining multiple camera views with a WyreStorm camera bridge workflow, allowing the room to capture presenter, audience, and table activity more effectively.",
     architecture:
-      "Room presentation and conferencing are handled locally, with multiple cameras feeding a camera bridge/mixer before connection into the room UC workflow. Wireless collaboration dongles can be added where users need faster BYOD/BYOD access.",
+      "Room presentation and conferencing are handled locally, with multiple cameras feeding a camera bridge/mixer before connection into the room UC workflow. APO-210-UC supports wireless casting of video/audio presentation content on its own, but is not compatible with the APO-DG2 dongle — that dongle's wireless connectivity to mic, speakers and camera is exclusive to APO-VX20-UC-V2, so it is not an add-on option here.",
     bom: [
       {
         id: "apo210uc",
@@ -982,25 +982,15 @@ const coreRoomTemplates: RoomTemplate[] = [
         evidence: "Medium rooms often need improved far-end audio pickup beyond a front-of-room device.",
         notes: "Confirm table size, seating layout, and acoustic conditions.",
       },
-      {
-        id: "apodg2",
-        sku: "APO-DG2",
-        description: "Apollo wireless conferencing dongle",
-        role: "Wireless BYOD endpoint",
-        qty: 2,
-        type: "Optional",
-        status: "optional",
-        evidence: "Wireless BYOD dongles simplify user access in shared meeting rooms.",
-        notes: "Confirm whether the customer wants managed dongles, wired-only USB-C, or app-based workflows.",
-      },
     ],
     designNotes: [
       { label: "Camera coverage", description: "Define presenter, audience, table, and whiteboard camera views before selecting final camera locations." },
       { label: "USB workflow", description: "Confirm which device is the USB host and whether the camera bridge is feeding a room PC, user laptop, or appliance." },
       { label: "Audio", description: "Confirm whether Apollo audio is sufficient or whether DSP, ceiling microphones, and loudspeakers are in scope." },
       { label: "Control", description: "Camera presets and source selection may need a touch panel or third-party control system." },
+      { label: "Wireless casting", description: "APO-210-UC supports wireless video/audio presentation casting on its own, but is not compatible with the APO-DG2 dongle. If the room specifically needs APO-DG2, that requires APO-VX20-UC-V2 as a separate, smaller-room path — not an add-on to this template." },
     ],
-    assumptions: ["Two camera positions", "One conferencing host path", "Wireless BYOD optional", "Room audio may need separate validation"],
+    assumptions: ["Two camera positions", "One conferencing host path", "APO-DG2 dongle is not compatible with this template's core device", "Room audio may need separate validation"],
     validationItems: ["Camera sightlines", "USB host location", "Audio pickup", "Camera preset control", "Platform compatibility"],
     upgradePaths: ["Use CAM-0402-NDI-BRG where NDI camera workflows are required", "Add NetworkHD 500 if video routing expands beyond the room", "Add a dedicated control interface for camera preset selection"],
   },

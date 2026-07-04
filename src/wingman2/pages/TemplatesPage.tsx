@@ -29,7 +29,7 @@ const templates: Template[] = [
     roomType: "Boardroom / divisible meeting room",
     direction: "Use NetworkHD 500 where flexible 4K60 routing, USB planning and expansion are required.",
     askNext: ["How many sources and displays?", "Is USB conferencing required?", "Is the AV network dedicated?"],
-    dependencies: ["NHD-CTL-PRO v2", "Managed network switch", "USB path review"],
+    dependencies: ["NHD-CTL-PRO-V2", "Managed network switch", "USB path review"],
     status: "Pre-sales review"
   },
   {
@@ -81,7 +81,7 @@ const templates: Template[] = [
     roomType: "Lecture theatre",
     direction: "Use NetworkHD 500 where routing flexibility, display quality and future expansion matter.",
     askNext: ["Lecture capture required?", "Confidence monitor required?", "Any USB camera or annotation workflow?"],
-    dependencies: ["NHD-CTL-PRO v2", "Managed network switch", "Capture/streaming review"],
+    dependencies: ["NHD-CTL-PRO-V2", "Managed network switch", "Capture/streaming review"],
     status: "Pre-sales review"
   },
   {
@@ -94,7 +94,7 @@ const templates: Template[] = [
     roomType: "Collaborative classroom",
     direction: "Use NetworkHD 500 for flexible many-to-many routing; use matrix if fixed and local.",
     askNext: ["How many group tables?", "Can any table show on any display?", "Is touchback or USB needed?"],
-    dependencies: ["Control interface", "NHD-CTL-PRO v2 if AVoIP", "Display receiver count"],
+    dependencies: ["Control interface", "NHD-CTL-PRO-V2 if AVoIP", "Display receiver count"],
     status: "Pre-sales review"
   },
   {
@@ -118,9 +118,9 @@ const templates: Template[] = [
     summary: "Multi-screen venue where several live sports or signage feeds route to different zones.",
     technology: "NetworkHD 100",
     roomType: "Sports bar / multi-zone venue",
-    direction: "Use NetworkHD 100 with NHD-CTL-PRO v2 for cost-effective flexible AV distribution.",
+    direction: "Use NetworkHD 100 with NHD-CTL-PRO-V2 for cost-effective flexible AV distribution.",
     askNext: ["How many screens and sources?", "Are screens grouped into zones?", "Who controls source changes?"],
-    dependencies: ["NHD-CTL-PRO v2", "Managed switch with multicast support", "Simple control interface"],
+    dependencies: ["NHD-CTL-PRO-V2", "Managed switch with multicast support", "Simple control interface"],
     status: "Discovery ready"
   },
   {
@@ -224,7 +224,7 @@ const templates: Template[] = [
     roomType: "Simulation lab",
     direction: "Use NetworkHD 500 for AV routing; include NDI bridge/camera direction where required.",
     askNext: ["Are cameras HDMI, USB or NDI?", "Is recording required?", "Multiple observer views needed?"],
-    dependencies: ["Camera workflow", "Audio capture", "NHD-CTL-PRO v2 if AVoIP"],
+    dependencies: ["Camera workflow", "Audio capture", "NHD-CTL-PRO-V2 if AVoIP"],
     status: "Pre-sales review"
   },
   {
@@ -237,7 +237,7 @@ const templates: Template[] = [
     roomType: "Worship space",
     direction: "Use NetworkHD 100 for cost-effective distribution or NetworkHD 500 for lower-latency premium routing.",
     askNext: ["Is IMAG latency critical?", "How many overflow displays?", "Camera format and streaming workflow?"],
-    dependencies: ["Network switching", "NHD-CTL-PRO v2", "Audio/camera integration"],
+    dependencies: ["Network switching", "NHD-CTL-PRO-V2", "Audio/camera integration"],
     status: "Pre-sales review"
   },
   {
@@ -315,7 +315,7 @@ const templates: Template[] = [
     roomType: "Large command and control room",
     direction: "Use NetworkHD 600 as the high-performance 10G AV-over-IP layer for the main control room, with LED wall feed design through the NovaStar processor.",
     askNext: ["How many data sources?", "How many gold and silver command displays?", "Does NovaStar need one feed or multiple feeds?"],
-    dependencies: ["NetworkHD 600 endpoints", "NHD-CTL-PRO v2", "10G managed switch", "NovaStar processor"],
+    dependencies: ["NetworkHD 600 endpoints", "NHD-CTL-PRO-V2", "10G managed switch", "NovaStar processor"],
     status: "Pre-sales review"
   },
   {
@@ -328,7 +328,7 @@ const templates: Template[] = [
     roomType: "Security office / monitoring room",
     direction: "Use NHD-124-TX and NHD-150-RX as a separate NetworkHD 100 monitoring subsystem.",
     askNext: ["How many feeds?", "How many monitoring displays?", "Fixed or user-selectable multiview layouts?"],
-    dependencies: ["NHD-124-TX", "NHD-150-RX", "NHD-CTL-PRO v2", "1GbE managed switch"],
+    dependencies: ["NHD-124-TX", "NHD-150-RX", "NHD-CTL-PRO-V2", "1GbE managed switch"],
     status: "Pre-sales review"
   },
   {
@@ -341,7 +341,7 @@ const templates: Template[] = [
     roomType: "Operations centre / control desk",
     direction: "Use NHD-500-TX x50, NHD-500-E-RX x8 and USB-capable NetworkHD 500 receiver endpoints for the four KVM positions.",
     askNext: ["Can all users access all 50 PCs?", "Are KVM positions single-screen or multi-screen?", "Are view-only screens fixed or routable?"],
-    dependencies: ["NHD-500-TX x50", "NHD-500-E-RX x8", "NHD-500-RX x4 assumed", "NHD-CTL-PRO v2"],
+    dependencies: ["NHD-500-TX x50", "NHD-500-E-RX x8", "NHD-500-RX x4 assumed", "NHD-CTL-PRO-V2"],
     status: "Pre-sales review"
   }
 ];

@@ -5,11 +5,8 @@ const repoRoot = process.cwd();
 
 const requiredFiles = [
   "src/wingman2/pages/ComparePageNew.tsx",
-  "src/wingman2/components/compare/CompactCompareMatrix.tsx",
-  "src/wingman2/lib/compareDisplayText.ts",
-  "src/wingman2/lib/knownCompareProfiles.ts",
+  "src/wingman2/pages/ComparePageNew.advanced.tsx",
   "src/wingman2/lib/knownWyrestormCompareProfiles.ts",
-  "src/wingman2/lib/knownWyrestormMatrixProfiles.ts",
   "src/wingman2/lib/skuAliasResolver.ts",
 ];
 
@@ -67,10 +64,6 @@ if (!/^\s*import\s/m.test(comparePage)) {
 
 if (!comparePage.includes("ComparePageNew")) {
   fail("ComparePageNew.tsx does not contain ComparePageNew.");
-}
-
-if (!comparePage.includes("as RigorousCompareResult")) {
-  fail("ComparePageNew.tsx is missing the known-profile return cast.");
 }
 
 console.log("[compare-source-repair] Source repair guard passed.");

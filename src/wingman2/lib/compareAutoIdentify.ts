@@ -116,7 +116,7 @@ const fallbackCategories: FallbackCategory[] = [
     productType: "Native UC room appliance",
     purpose: "Meeting-room device that may run Teams/Zoom/Webex natively without a laptop.",
     wyrestormLane: "UC room workflow alternative",
-    wyrestormCandidates: ["APO-VX20-UC v2"],
+    wyrestormCandidates: ["APO-VX20-UC-V2"],
     optionalAddOns: ["Room PC or UC host if native appliance operation is required", "APO-DG2", "Presentation switcher"],
     warnings: [
       "Exact model not confirmed. Native room appliance products are not direct BYOD-only equivalents.",
@@ -128,7 +128,7 @@ const fallbackCategories: FallbackCategory[] = [
     productType: "UC video bar / soundbar",
     purpose: "Meeting-room camera, microphone and speaker in one device.",
     wyrestormLane: "UC soundbar / BYOD meeting room",
-    wyrestormCandidates: ["APO-VX20-UC v2"],
+    wyrestormCandidates: ["APO-VX20-UC-V2"],
     optionalAddOns: ["APO-DG2", "Presentation switcher", "USB extension"],
     warnings: [
       "Exact model not confirmed. Check whether this is BYOD USB, room PC or native appliance-led.",
