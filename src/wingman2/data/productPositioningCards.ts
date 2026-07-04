@@ -726,50 +726,51 @@ const CORE_PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
   },
   {
     sku: "APO-210-UC",
-    productName: "Table UC microphone / speaker solution",
-    productFamily: "APO UC Audio",
-    technologyType: "UC table audio",
-    salientPoint: "A meeting-room UC audio option where table pickup and speaker coverage are central to the room experience.",
-    oneLinePositioning: "Use this when the room needs a more capable table audio experience for UC calls.",
-    oneMinuteBrief: "The APO-210-UC handles meeting-room call audio - picking up voices around the table and playing the far end clearly back into the room - so a BYOD or UC space sounds as good as it looks on screen. Pair it with camera, presentation-switcher and BYOD/BYOM conversations where audio would otherwise be the weak point.",
-    bestFitApplications: ["meeting rooms", "training rooms", "BYOD/BYOM spaces", "rooms needing table audio pickup"],
-    weakFitApplications: ["large DSP-led rooms", "auditoriums", "audio-only installations without UC need"],
-    customerProblems: ["Participants cannot be heard clearly.", "The room needs a table microphone/speaker approach.", "The customer is building a BYOD/BYOM room."],
-    wyrestormFit: ["Gives the rep a stronger meeting-table audio answer when the room is beyond basic speakerphone pickup.", "Creates a natural reason to qualify the call experience before the project is sold as finished."],
-    openingQuestions: ["How many people use the room?", "What is the table size?", "Is the room BYOD/BYOM?", "What camera is specified?", "Is there existing room audio?"],
-    qualificationQuestions: ["What pickup range is needed?", "Is expansion needed?", "Is the room acoustically difficult?", "Is a DSP specified?", "What host device is used?"],
-    technicalCheckQuestions: ["Confirm pickup distance.", "Confirm USB/audio path.", "Confirm room size.", "Confirm platform/host.", "Confirm whether DSP/audio design is required."],
-    listenForTriggers: ["People at the far end of the table are not being heard.", "The room works until more people join the call.", "They need better table coverage, not a whole new system.", "Speakerphone audio is the complaint."],
-    disqualifiers: ["Do not position as a full DSP system.", "Do not ignore room acoustics.", "Do not use for large rooms without review."],
-    caveats: ["Audio performance depends on room size, acoustics and user placement.", "WyreStorm UC is Zoom-certified, not Teams-certified; Teams rooms must be tested before install.", "Escalate complex spaces."],
+    productName: "Table-top UC video and audio switcher (PTZ camera pairing)",
+    productFamily: "Apollo UC",
+    technologyType: "UC video and audio switcher",
+    salientPoint: "The larger-room step up from APO-VX20-UC-V2. A table-top device that pairs with a dedicated PTZ camera (CAM-420-PTZ or CAM-210-PTZ) once the room outgrows the VX20's built-in camera coverage. Supports wireless casting of video/audio presentation content, but is not compatible with the APO-DG2 dongle.",
+    oneLinePositioning: "Use this when the room is too big for APO-VX20-UC-V2's built-in camera and needs a dedicated PTZ camera instead.",
+    oneMinuteBrief: "APO-210-UC is a table-top UC video and audio switcher for rooms that have outgrown APO-VX20-UC-V2. Instead of a bar with a fixed built-in camera, it pairs with a separate PTZ camera (CAM-420-PTZ or CAM-210-PTZ) so the room gets proper pan/tilt/zoom coverage, with optional extension microphones for larger tables. Users can wirelessly cast video/audio presentation content to it, but it is not compatible with the APO-DG2 dongle - APO-DG2's wireless data connectivity to a room's mic, speakers and camera is exclusive to APO-VX20-UC-V2.",
+    bestFitApplications: ["meeting rooms larger than VX20's coverage", "rooms needing a dedicated PTZ camera", "boardrooms and training rooms with a UC video/audio requirement"],
+    weakFitApplications: ["small huddle rooms already covered by APO-VX20-UC-V2", "rooms specifically needing the APO-DG2 dongle (that's APO-VX20-UC-V2 only)"],
+    customerProblems: ["The room is bigger than a compact video bar can properly cover.", "The camera needs to pan/tilt/zoom to reach people further from the table.", "The table is large enough that built-in mic pickup on a bar isn't enough."],
+    wyrestormFit: ["Gives the rep the larger-room upgrade path once VX20 stops being a fit.", "Pairs with CAM-420-PTZ/CAM-210-PTZ for real PTZ camera coverage instead of a fixed bar camera."],
+    openingQuestions: ["How many people and how large is the room?", "Does the camera need to pan, tilt or zoom to reach people further away?", "Does the room need the APO-DG2 dongle specifically, or just general wireless presentation casting?", "Where will the table unit and camera sit?"],
+    qualificationQuestions: ["Is APO-VX20-UC-V2's built-in camera enough, or does the room need a separate PTZ camera?", "Does the customer specifically need APO-DG2, since that dongle only works with APO-VX20-UC-V2?", "Are extension microphones needed for a larger table?"],
+    technicalCheckQuestions: ["Confirm room size against VX20's coverage before stepping up.", "Confirm PTZ camera choice (CAM-420-PTZ or CAM-210-PTZ).", "Confirm extension microphone requirement for table size.", "Confirm the room doesn't specifically need APO-DG2 - if it does, that's APO-VX20-UC-V2 only."],
+    listenForTriggers: ["The room is bigger than a small meeting or huddle room.", "They want a camera that can properly pan/tilt/zoom, not a fixed bar camera.", "They mention the APO-DG2 dongle by name (confirm that's VX20-only before quoting)."],
+    disqualifiers: ["Do not position with APO-DG2 - that dongle is not compatible with this device (APO-VX20-UC-V2 only).", "Do not position for small huddle rooms already served by APO-VX20-UC-V2."],
+    caveats: ["Supports wireless casting of video/audio presentation content, but not the APO-DG2 dongle.", "Requires a separate PTZ camera (CAM-420-PTZ or CAM-210-PTZ), sold separately.", "Sits on the table; confirm cable routing and optional extension microphone count.", "WyreStorm UC is Zoom-certified, not Teams-certified; Teams rooms must be tested before install."],
     objectionHandling: [
-      { objection: "Why not use the laptop microphone?", response: "Laptop microphones are not designed for a meeting table. A room audio product gives a more reliable experience for participants." }
+      { objection: "Why not just use APO-VX20-UC-V2?", response: "APO-VX20-UC-V2's built-in camera is sized for smaller rooms. Once the room is too big for that coverage, APO-210-UC pairs with a dedicated PTZ camera (CAM-420-PTZ or CAM-210-PTZ) to properly frame a larger space." },
+      { objection: "Can we add the APO-DG2 dongle to this room?", response: "Not on this device - APO-DG2 is only compatible with APO-VX20-UC-V2. APO-210-UC still supports wireless casting of video/audio presentation content on its own, just not through the DG2 dongle." }
     ],
     attachProducts: [
-      { productFamily: "SW wireless/presentation switchers", reason: "Attach to BYOD/BYOM meeting rooms." },
-      { productFamily: "CAM cameras", reason: "Attach with room camera requirement." }
+      { productFamily: "CAM-420-PTZ / CAM-210-PTZ", reason: "Required PTZ camera pairing for larger-room coverage." },
+      { productFamily: "APO-COM-MIC", reason: "Optional extension microphone for larger tables." }
     ],
     competitorAngles: [
-      { competitorCategory: "UC table audio", positioningNote: "Compare pickup distance, table size, USB path, expansion and room suitability.", compareSearchTerms: ["UC table microphone", "speakerphone"] }
+      { competitorCategory: "UC video bar / camera bridge", positioningNote: "Compare camera coverage, PTZ range, table size, and whether the APO-DG2 dongle is specifically required (VX20 only).", compareSearchTerms: ["PTZ conferencing camera", "UC video switcher"] }
     ],
     audienceNotes: {
-      DISTRIBUTOR: "Good attach opportunity with meeting-room products.",
-      DEALER: "Lead with meeting experience, not only video.",
-      INTEGRATOR: "Validate room acoustics and USB path.",
-      CONSULTANT: "Frame as UC table audio, not installed DSP.",
-      END_USER: "Explain that it improves how people hear and are heard in calls."
+      DISTRIBUTOR: "Good attach opportunity with CAM-420-PTZ/CAM-210-PTZ for larger-room refreshes.",
+      DEALER: "Lead with room size and camera coverage, not audio alone.",
+      INTEGRATOR: "Validate PTZ camera placement and cable routing before quote.",
+      CONSULTANT: "Frame as the larger-room step up from APO-VX20-UC-V2, not a standalone audio product.",
+      END_USER: "Explain that the room gets a proper zoom/pan camera instead of a fixed bar camera."
     },
     callModeNotes: {
-      INBOUND_SUPPORT: "Ask table size and user count early.",
-      PRODUCT_CALLOUT: "Attach to meeting-room refresh campaigns.",
-      COMPETITOR_DISPLACEMENT: "Compare real room suitability.",
-      PROJECT_DISCOVERY: "Capture room size, user count, host and acoustics.",
-      TRAINING: "Use to teach audio qualification."
+      INBOUND_SUPPORT: "Ask room size and current camera coverage early.",
+      PRODUCT_CALLOUT: "Attach to larger meeting-room refresh campaigns already running APO-VX20-UC-V2 elsewhere.",
+      COMPETITOR_DISPLACEMENT: "Compare real room/camera suitability, not audio alone.",
+      PROJECT_DISCOVERY: "Capture room size, camera coverage needs, and whether the APO-DG2 dongle is specifically required.",
+      TRAINING: "Use to teach the VX20-to-210 upgrade path and the APO-DG2 compatibility caveat."
     },
-    followUpWording: "This sounds like a table-coverage issue rather than a switching issue. APO-210-UC is the right WyreStorm path when the room needs a more credible meeting-table audio experience without immediately moving into full DSP audio. Before quote, confirm room size, table layout, participant count, host path and whether the room has really crossed into a larger audio-design requirement.",
-    reviewGates: ["Confirm room size/table layout.", "Confirm USB host path.", "Confirm whether DSP/audio design is needed."],
-    dataConfidence: "MEDIUM",
-    lastReviewed: "2026-06-04"
+    followUpWording: "This sounds like the room has outgrown APO-VX20-UC-V2's built-in camera. APO-210-UC is the right WyreStorm path once the room needs a dedicated PTZ camera (CAM-420-PTZ or CAM-210-PTZ). It still supports wireless casting of video/audio presentation content, but if the customer specifically needs the APO-DG2 dongle, that's APO-VX20-UC-V2 only. Before quote, confirm room size, camera coverage needs, table layout and whether APO-DG2 is genuinely required.",
+    reviewGates: ["Confirm room size exceeds APO-VX20-UC-V2 coverage.", "Confirm PTZ camera pairing (CAM-420-PTZ or CAM-210-PTZ).", "Confirm whether APO-DG2 is required - if so, scope APO-VX20-UC-V2 instead."],
+    dataConfidence: "HIGH",
+    lastReviewed: "2026-07-04"
   }
 ];
 
@@ -955,7 +956,7 @@ const EXPANDED_PRODUCT_POSITIONING_SEEDS: CuratedSkuSeed[] = [
     caveats: ["WyreStorm UC is Zoom-certified, not Teams-certified; Teams rooms must be tested before install.", "Confirm compatibility with the selected Apollo host product."],
     listenForTriggers: ["People around the table are not being heard clearly.", "The room audio is close, but still missing the far end.", "They need better pickup without rebuilding the room.", "The call problem is the microphone coverage."],
     attachProducts: [
-      { sku: "APO-210-UC", reason: "Primary UC table audio context for companion microphone discussions." },
+      { sku: "APO-210-UC", reason: "Larger-room table unit whose extension microphone is optional when the table exceeds built-in pickup range." },
       { sku: "APO-VX20-UC-V2", reason: "Consider where the room needs a compact UC audio path instead." },
     ],
     competitorCategory: "UC expansion microphone",

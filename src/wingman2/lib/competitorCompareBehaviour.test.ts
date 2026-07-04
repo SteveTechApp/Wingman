@@ -213,11 +213,11 @@ describe("competitor compare runtime behaviour", () => {
     expect(lead).toContain("NDI");
   });
 
-  it("uses APO-210-UC with APO-DG2 for huddle-room wireless casting runtime results", () => {
+  it("uses APO-VX20-UC-V2 with APO-DG2 for huddle-room wireless casting runtime results", () => {
     const result = runCompareRuntimePipeline("small huddle room wireless casting with ClickShare style sharing", products, undefined, 12);
     const leadSkus = skus(result.matches).slice(0, 5);
 
-    expect(leadSkus[0]).toBe("APO-210-UC");
+    expect(leadSkus[0]).toBe("APO-VX20-UC-V2");
     expect(leadSkus).toContain("APO-DG2");
     expect(leadSkus).not.toContain("SW-620-TX-W");
     expect(leadSkus).not.toContain("SW-640-TX-W");
@@ -229,7 +229,6 @@ describe("competitor compare runtime behaviour", () => {
 
     expect(leadSkus[0]).toBe("SW-620-TX-W");
     expect(leadSkus).toContain("APO-DG2");
-    expect(leadSkus).not.toContain("APO-210-UC");
   });
 
   it("uses SW-640-TX-W with APO-DG2 for larger wireless casting runtime results with six or more sources", () => {
@@ -238,7 +237,6 @@ describe("competitor compare runtime behaviour", () => {
 
     expect(leadSkus[0]).toBe("SW-640-TX-W");
     expect(leadSkus).toContain("APO-DG2");
-    expect(leadSkus).not.toContain("APO-210-UC");
   });
 
   it("adds IDB-300 as an option when wireless casting includes a desk connection", () => {
@@ -250,8 +248,8 @@ describe("competitor compare runtime behaviour", () => {
     expect(leadSkus).toContain("IDB-300");
   });
 
-  it("never positions end-of-life SKUs (CAM-200-PTZ, APO-200-UC, APO-210-UC) as compare candidates", () => {
-    const eolSkus = ["CAM-200-PTZ", "APO-200-UC", "APO-210-UC"];
+  it("never positions end-of-life SKUs (CAM-200-PTZ, APO-200-UC) as compare candidates", () => {
+    const eolSkus = ["CAM-200-PTZ", "APO-200-UC"];
     const scenarios: Array<[string, string | undefined]> = [
       ["SRG-X120", "Sony"],
       ["BRC-X400", "Sony"],
