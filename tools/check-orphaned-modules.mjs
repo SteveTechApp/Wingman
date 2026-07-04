@@ -25,19 +25,7 @@ const DYNAMIC_IMPORT = /import\(\s*["']([^"']+)["']\s*\)/g;
 // trace (e.g. behind a dynamic import(), or referenced only from a build
 // tool/CI script rather than another src/ file). Keep this list short and
 // explain each entry — it should shrink over time, not grow.
-const KNOWN_DYNAMIC_ALLOWLIST = new Set([
-  // Their only consumer (src/wingman2/pages/productCallCards/store.ts, the
-  // parallel/duplicate Product Call Cards implementation) was correctly
-  // deleted for being unreachable via real navigation. That deletion is
-  // right, but it orphaned two files with real, non-duplicated content
-  // (per-SKU objection-handling scripts; sales tone options) that the live
-  // ProductCallCardsPage.tsx has no equivalent for. Deliberately kept and
-  // allowlisted rather than deleted, pending a dedicated task to wire them
-  // into ProductCallCardsPage.tsx directly. Do not delete without checking
-  // whether that wiring has happened.
-  "src/wingman2/lib/productCallCommercialOverrides.ts",
-  "src/wingman2/lib/salesConversationTone.ts",
-]);
+const KNOWN_DYNAMIC_ALLOWLIST = new Set([]);
 
 function isTestFile(filePath) {
   return /\.test\.tsx?$/.test(filePath);
