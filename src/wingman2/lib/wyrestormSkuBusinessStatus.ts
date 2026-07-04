@@ -81,28 +81,46 @@ export function getWyreStormForbiddenBusinessSkus(): string[] {
   ];
 }
 
+function isDefinitiveKey(key: string): boolean {
+  return (
+    ACTIVE_SKU_KEYS.has(key) || DISCONTINUED_SKU_KEYS.has(key) || DO_NOT_SPEC_SKU_KEYS.has(key) || CABLE_SKU_KEYS.has(key)
+  );
+}
+
 export function getWyreStormSkuBusinessStatus(sku: string): WyreStormSkuBusinessStatus {
   const exactKey = sourceSkuKey(sku);
   const canonicalKey = canonicalSkuKey(sku);
-  const matches = (keys: Set<string>) => keys.has(exactKey) || (!lifecycleBySku.has(exactKey) && keys.has(canonicalKey));
 
   if (!exactKey) {
     return "unlisted";
   }
 
-  if (matches(DISCONTINUED_SKU_KEYS)) {
+  // The raw/typed SKU's own explicit lifecycle status wins whenever the CSV
+  // gives one of the four definitive statuses (active/discontinued/do-not-spec/
+  // cable) - a SKU's real recorded status must never be overridden by an alias.
+  // Only when the raw key is either absent entirely, or present with a
+  // non-definitive placeholder status (the CSV importer writes a "review" row
+  // whenever it couldn't find the exact legacy string in the source business
+  // lists), do we fall through to the alias-resolved canonical SKU. Without
+  // this, a legacy alias with a vague import placeholder (e.g. "NHD-610-TX",
+  // whose canonical replacement "NHD-610-TX-V2" is confirmed active) would be
+  // reported as unresolved forever, even though skuAliasResolver.ts already
+  // knows exactly what current product it maps to.
+  const effectiveKey = isDefinitiveKey(exactKey) ? exactKey : canonicalKey;
+
+  if (DISCONTINUED_SKU_KEYS.has(effectiveKey)) {
     return "discontinued";
   }
 
-  if (matches(DO_NOT_SPEC_SKU_KEYS)) {
+  if (DO_NOT_SPEC_SKU_KEYS.has(effectiveKey)) {
     return "do-not-spec";
   }
 
-  if (matches(CABLE_SKU_KEYS)) {
+  if (CABLE_SKU_KEYS.has(effectiveKey)) {
     return "cable";
   }
 
-  if (matches(ACTIVE_SKU_KEYS)) {
+  if (ACTIVE_SKU_KEYS.has(effectiveKey)) {
     return "active";
   }
 
