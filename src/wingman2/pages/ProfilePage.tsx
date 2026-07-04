@@ -1,4 +1,16 @@
 import { useEffect, useRef, useState } from "react";
+import {
+  getWingmanSession,
+  loginWingmanWorkspace,
+  logoutWingmanWorkspace,
+  signUpWingmanWorkspace,
+  type WingmanWorkspaceSession,
+} from "../api/wingmanApi";
+import {
+  hydrateProjectStoreFromBackend,
+  projectBackendSyncEnabled,
+  resetProjectBackendSyncSessionState,
+} from "../data/projectStore";
 
 type ProfileSettings = {
   companyName: string;
@@ -87,6 +99,7 @@ function readStoredProfile(): ProfileSettings {
         return {
           ...defaultProfile,
           ...parsed,
+          workspacePassword: "",
         };
       }
     } catch {
@@ -101,9 +114,22 @@ export function ProfilePage() {
   const logoInputRef = useRef<HTMLInputElement | null>(null);
   const [profile, setProfile] = useState<ProfileSettings>(defaultProfile);
   const [status, setStatus] = useState("Local settings ready.");
+  const [session, setSession] = useState<WingmanWorkspaceSession | null>(null);
+  const [workspaceBusy, setWorkspaceBusy] = useState(false);
 
   useEffect(() => {
     setProfile(readStoredProfile());
+
+    getWingmanSession()
+      .then((response) => {
+        setSession(response.session ?? null);
+        if (response.session?.user) {
+          setStatus(`Signed in as ${response.session.user.email || response.session.user.name || "Wingman user"}.`);
+        }
+      })
+      .catch(() => {
+        setSession(null);
+      });
   }, []);
 
   function updateField<K extends keyof ProfileSettings>(field: K, value: ProfileSettings[K]) {
@@ -114,7 +140,7 @@ export function ProfilePage() {
   }
 
   function saveProfile() {
-    const payload = JSON.stringify(profile);
+    const payload = JSON.stringify({ ...profile, workspacePassword: "" });
 
     for (const key of storageKeys) {
       window.localStorage.setItem(key, payload);
@@ -164,15 +190,80 @@ export function ProfilePage() {
     setStatus("Logo removed.");
   }
 
-  function handleSyncAction() {
-    const projectSyncReadinessMarkers = [
-      "hydrateProjectStoreFromBackend",
-      "resetProjectBackendSyncSessionState",
-    ] as const;
+  async function activateWorkspace(responseSession: WingmanWorkspaceSession | undefined, action: string) {
+    setSession(responseSession ?? null);
+    resetProjectBackendSyncSessionState();
 
-    void projectSyncReadinessMarkers;
+    if (projectBackendSyncEnabled()) {
+      await hydrateProjectStoreFromBackend();
+      setStatus(`${action}. Workspace projects are now synchronised.`);
+      return;
+    }
 
-    setStatus("Workspace sync is currently local-only until backend storage is enabled.");
+    setStatus(`${action}. Project sync is disabled for this build, so projects remain in this browser.`);
+  }
+
+  async function handleSignIn() {
+    if (!profile.workspaceEmail.trim() || !profile.workspacePassword) {
+      setStatus("Enter your workspace email and password.");
+      return;
+    }
+
+    setWorkspaceBusy(true);
+    try {
+      const response = await loginWingmanWorkspace({
+        email: profile.workspaceEmail.trim(),
+        password: profile.workspacePassword,
+      });
+      await activateWorkspace(response.session, "Signed in");
+      updateField("workspacePassword", "");
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Sign in failed.");
+    } finally {
+      setWorkspaceBusy(false);
+    }
+  }
+
+  async function handleCreateWorkspace() {
+    const email = profile.workspaceEmail.trim() || profile.email.trim();
+    const name = profile.displayName.trim() || profile.preparedBy.trim();
+    const company = profile.companyName.trim();
+
+    if (!name || !company || !email || !profile.workspacePassword) {
+      setStatus("Enter your name, company, workspace email and a password of at least 10 characters.");
+      return;
+    }
+
+    setWorkspaceBusy(true);
+    try {
+      const response = await signUpWingmanWorkspace({
+        name,
+        company,
+        email,
+        password: profile.workspacePassword,
+      });
+      await activateWorkspace(response.session, "Workspace created");
+      updateField("workspaceEmail", email);
+      updateField("workspacePassword", "");
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Workspace creation failed.");
+    } finally {
+      setWorkspaceBusy(false);
+    }
+  }
+
+  async function handleSignOut() {
+    setWorkspaceBusy(true);
+    try {
+      await logoutWingmanWorkspace();
+      setSession(null);
+      resetProjectBackendSyncSessionState();
+      setStatus("Signed out. Projects remain available in this browser.");
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Sign out failed.");
+    } finally {
+      setWorkspaceBusy(false);
+    }
   }
 
   return (
@@ -334,8 +425,14 @@ export function ProfilePage() {
           </div>
 
           <div className="wm-profile-info-box">
-            <strong>Local mode</strong>
-            <span>Backend sync remains guarded until project storage is enabled.</span>
+            <strong>{session?.workspace?.name || (projectBackendSyncEnabled() ? "Workspace available" : "Local mode")}</strong>
+            <span>
+              {session?.user
+                ? `Signed in as ${session.user.email || session.user.name}.`
+                : projectBackendSyncEnabled()
+                  ? "Sign in to recover projects across devices."
+                  : "This build saves projects in this browser. You can still sign in, but project sync is disabled."}
+            </span>
           </div>
 
           <div className="wm-profile-two-col">
@@ -362,8 +459,14 @@ export function ProfilePage() {
           </label>
 
           <div className="wm-profile-button-row">
-            <button type="button" onClick={handleSyncAction}>Sign in</button>
-            <button type="button" onClick={handleSyncAction}>Create workspace</button>
+            {session?.user ? (
+              <button type="button" onClick={handleSignOut} disabled={workspaceBusy}>Sign out</button>
+            ) : (
+              <>
+                <button type="button" onClick={handleSignIn} disabled={workspaceBusy}>Sign in</button>
+                <button type="button" onClick={handleCreateWorkspace} disabled={workspaceBusy}>Create workspace</button>
+              </>
+            )}
           </div>
         </section>
       </div>

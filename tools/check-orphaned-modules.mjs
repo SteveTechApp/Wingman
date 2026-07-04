@@ -25,9 +25,7 @@ const DYNAMIC_IMPORT = /import\(\s*["']([^"']+)["']\s*\)/g;
 // trace (e.g. behind a dynamic import(), or referenced only from a build
 // tool/CI script rather than another src/ file). Keep this list short and
 // explain each entry — it should shrink over time, not grow.
-const KNOWN_DYNAMIC_ALLOWLIST = new Set([
-  // (none yet)
-]);
+const KNOWN_DYNAMIC_ALLOWLIST = new Set([]);
 
 function isTestFile(filePath) {
   return /\.test\.tsx?$/.test(filePath);

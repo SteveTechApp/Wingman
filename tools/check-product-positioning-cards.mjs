@@ -5,10 +5,9 @@ const repoRoot = process.cwd();
 const dataPath = path.join(repoRoot, "src", "wingman2", "data", "productPositioningCards.ts");
 const typePath = path.join(repoRoot, "src", "wingman2", "types", "productPositioning.ts");
 const pagePath = path.join(repoRoot, "src", "wingman2", "pages", "ProductCallCardsPage.tsx");
-const pagesDir = path.join(repoRoot, "src", "wingman2", "pages", "productCallCards");
 const callCardJsonPath = path.join(repoRoot, "public", "product-call-card-products.json");
 
-const requiredFiles = [dataPath, typePath, pagePath, pagesDir, callCardJsonPath];
+const requiredFiles = [dataPath, typePath, pagePath, callCardJsonPath];
 
 for (const file of requiredFiles) {
   if (!fs.existsSync(file)) {
@@ -52,12 +51,7 @@ for (const field of requiredFields) {
   }
 }
 
-const pageFiles = fs.readdirSync(pagesDir)
-  .filter((file) => file.endsWith(".tsx") || file.endsWith(".ts"))
-  .map((file) => path.join(pagesDir, file));
-const pageText = [pagePath, ...pageFiles]
-  .map((file) => fs.readFileSync(file, "utf8"))
-  .join("\n");
+const pageText = fs.readFileSync(pagePath, "utf8");
 const requiredPageTerms = [
   "Product Call Cards",
   "Product identifier",

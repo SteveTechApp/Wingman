@@ -196,6 +196,36 @@ const fallbackCategories: FallbackCategory[] = [
     ],
   },
   {
+    // Checked ahead of hdbaset-extender below: "hdbaset" alone is ambiguous -
+    // it describes both point-to-point extenders AND HDBaseT-based matrix
+    // switchers (WyreStorm's own MXV matrix mainframes are described exactly
+    // that way). A bare "matrix" word is a strong, specific signal that this
+    // is routing/switching, not a point-to-point extender kit, so it must win
+    // before the generic "hdbaset" token below gets a chance to match.
+    category: "av-matrix",
+    label: "HDMI / AV matrix switcher",
+    productType: "HDMI / AV matrix switcher",
+    purpose: "Routes multiple sources to multiple displays from a central switcher.",
+    wyrestormLane: "Matrix switcher alternative",
+    wyrestormCandidates: ["MX-0808-KIT-V2"],
+    optionalAddOns: [
+      "MXV-0808-H2A-MK2 if HDBaseT distance is required to the displays",
+      "MX-0404-SCL for a smaller 4x4 room",
+    ],
+    warnings: [
+      "Exact model, input/output count and HDBaseT distance not confirmed. Confirm the real matrix size before quoting.",
+    ],
+    matchWords: [
+      "matrix",
+      "matrix switch",
+      "matrix switcher",
+      "hdmi matrix",
+      "av matrix",
+      "video matrix",
+      "presentation switcher",
+    ],
+  },
+  {
     category: "hdbaset-extender",
     label: "HDBaseT / HDMI extender",
     productType: "Point-to-point HDMI/HDBaseT extender",
@@ -221,29 +251,6 @@ const fallbackCategories: FallbackCategory[] = [
       "transmitter receiver kit",
       "balun",
       "dtp",
-    ],
-  },
-  {
-    category: "av-matrix",
-    label: "HDMI / AV matrix switcher",
-    productType: "HDMI / AV matrix switcher",
-    purpose: "Routes multiple sources to multiple displays from a central switcher.",
-    wyrestormLane: "Matrix switcher alternative",
-    wyrestormCandidates: ["MX-0808-KIT-V2"],
-    optionalAddOns: [
-      "MXV-0808-H2A-MK2 if HDBaseT distance is required to the displays",
-      "MX-0404-SCL for a smaller 4x4 room",
-    ],
-    warnings: [
-      "Exact model, input/output count and HDBaseT distance not confirmed. Confirm the real matrix size before quoting.",
-    ],
-    matchWords: [
-      "matrix switch",
-      "matrix switcher",
-      "hdmi matrix",
-      "av matrix",
-      "video matrix",
-      "presentation switcher",
     ],
   },
   {
@@ -303,6 +310,44 @@ function parseIoCount(text: string): { inputs: number; outputs: number } | null 
   return { inputs: Number(match[1]), outputs: Number(match[2]) };
 }
 
+type SizedCandidate = { inputs: number; outputs: number; sku: string; note: string };
+
+/**
+ * Picks the closest sized candidate that can actually cover the requested
+ * input/output count. A pure nearest-distance metric can under-size (e.g. a
+ * 6x2 requirement is numerically "closer" to a 4x2 candidate than an 8x8 one,
+ * but a 4x2 product cannot serve 6 inputs) - restrict to candidates that meet
+ * or exceed both counts first, and only fall back to the overall nearest
+ * (flagged for review) when nothing in the list is big enough.
+ */
+function pickSizedCandidate(
+  candidates: SizedCandidate[],
+  io: { inputs: number; outputs: number },
+): SizedCandidate {
+  const covering = candidates.filter((candidate) => candidate.inputs >= io.inputs && candidate.outputs >= io.outputs);
+  const pool = covering.length > 0 ? covering : candidates;
+
+  let best = pool[0];
+  let bestDistance = Number.POSITIVE_INFINITY;
+
+  for (const candidate of pool) {
+    const distance = Math.abs(candidate.inputs - io.inputs) + Math.abs(candidate.outputs - io.outputs);
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      best = candidate;
+    }
+  }
+
+  if (covering.length === 0) {
+    return {
+      ...best,
+      note: `${best.note} (largest known option; it does not cover the full ${io.inputs}x${io.outputs} requirement - this needs review before quoting)`,
+    };
+  }
+
+  return best;
+}
+
 function closestMatrixCandidate(io: { inputs: number; outputs: number } | null): { sku: string; note: string } {
   if (!io) {
     return {
@@ -311,18 +356,7 @@ function closestMatrixCandidate(io: { inputs: number; outputs: number } | null):
     };
   }
 
-  let best = MATRIX_IO_CANDIDATES[0];
-  let bestDistance = Number.POSITIVE_INFINITY;
-
-  for (const candidate of MATRIX_IO_CANDIDATES) {
-    const distance = Math.abs(candidate.inputs - io.inputs) + Math.abs(candidate.outputs - io.outputs);
-    if (distance < bestDistance) {
-      bestDistance = distance;
-      best = candidate;
-    }
-  }
-
-  return best;
+  return pickSizedCandidate(MATRIX_IO_CANDIDATES, io);
 }
 
 const SPLITTER_IO_CANDIDATES: Array<{ inputs: number; outputs: number; sku: string; note: string }> = [
@@ -339,18 +373,7 @@ function closestSplitterCandidate(io: { inputs: number; outputs: number } | null
     };
   }
 
-  let best = SPLITTER_IO_CANDIDATES[0];
-  let bestDistance = Number.POSITIVE_INFINITY;
-
-  for (const candidate of SPLITTER_IO_CANDIDATES) {
-    const distance = Math.abs(candidate.inputs - io.inputs) + Math.abs(candidate.outputs - io.outputs);
-    if (distance < bestDistance) {
-      bestDistance = distance;
-      best = candidate;
-    }
-  }
-
-  return best;
+  return pickSizedCandidate(SPLITTER_IO_CANDIDATES, io);
 }
 
 /**
@@ -748,6 +771,17 @@ function describeAvoipRole(role: AvoipEndpointRole): string {
 }
 
 function buildNonUcFallback(rawInput: string, input: string): CompareAutoIdentifyResult {
+  // AVoIP family/signal detection runs ahead of the generic keyword fallback
+  // categories below: a competitor description can legitimately combine a
+  // known AVoIP family marker with generic hardware wording (e.g. "Crestron
+  // DM-NVX-350 extender", "SDVoE extender") - if the keyword fallback ran
+  // first, a generic word like "extender" would win the category loop and
+  // the curated NetworkHD series truth table would never be consulted.
+  const avoip = mapCompetitorToNetworkHdAvoip(rawInput);
+  if (avoip.classification.isAvoip && avoip.recommendation.applies) {
+    return buildAvoipFallbackResult(rawInput, avoip.classification, avoip.recommendation);
+  }
+
   const keywordFallback = inferFallback(input);
   if (keywordFallback) {
     return buildFallbackResult(rawInput, keywordFallback);
@@ -761,11 +795,6 @@ function buildNonUcFallback(rawInput: string, input: string): CompareAutoIdentif
       rawInput,
       fallbackCategories.find((fallback) => fallback.category === "hdmi-splitter") ?? null,
     );
-  }
-
-  const avoip = mapCompetitorToNetworkHdAvoip(rawInput);
-  if (avoip.classification.isAvoip && avoip.recommendation.applies) {
-    return buildAvoipFallbackResult(rawInput, avoip.classification, avoip.recommendation);
   }
 
   return buildFallbackResult(rawInput, null);

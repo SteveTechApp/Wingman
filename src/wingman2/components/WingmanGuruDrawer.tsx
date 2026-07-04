@@ -5,6 +5,7 @@ import { Database, Send, Sparkles, X } from "lucide-react";
 import GuruAssistantAvatar from "./branding/GuruAssistantAvatar";
 import { GuruCallNotesInterpreter } from "./GuruCallNotesInterpreter";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { postWingmanJson } from "../api/wingmanApi";
 
 type WingmanGuruDrawerProps = {
   open: boolean;
@@ -1190,6 +1191,28 @@ async function liveLookup(question: string) {
       "",
       `Local Guru memory: reused cached answer saved ${new Date(cached.savedAt).toLocaleString()}.`,
     ].join("\n");
+  }
+
+  try {
+    const response = await postWingmanJson<{
+      ok: boolean;
+      data?: {
+        answer?: string;
+        bullets?: string[];
+        confidence?: number;
+      };
+    }>("/api/wingman/agents/guru", { question });
+    const answer = response.data?.answer?.trim() || "";
+    const confidence = Number(response.data?.confidence || 0);
+
+    if (answer && confidence >= 0.75) {
+      return [
+        answer,
+        ...(response.data?.bullets || []).slice(0, 4).map((item) => `- ${item}`),
+      ].join("\n");
+    }
+  } catch {
+    // The signed-in agent service is optional. Continue to the configured safe fallback.
   }
 
   if (!GURU_EXTERNAL_LOOKUP_ENABLED) {
