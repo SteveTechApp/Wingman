@@ -17,6 +17,7 @@ import {
   saveRecommendationEvidenceToProject,
   type StoredProductSelection,
 } from "../data/projectStore";
+import { findUcCompetitorProduct, UC_COMPETITOR_PRODUCTS } from "../data/ucCompetitorProducts";
 import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
 import { competitorSkuSeeds } from "../lib/competitorProductIntelligence";
 import { resolveCompetitorSpecProfile, type ResolvedCompetitorProfile } from "../lib/competitorSpecRegistry";
@@ -72,6 +73,16 @@ const COMPETITOR_SKU_SEED_CATALOG: Record<string, string[]> = competitorSkuSeeds
 
   return catalog;
 }, {});
+
+for (const product of UC_COMPETITOR_PRODUCTS) {
+  const models = COMPETITOR_SKU_SEED_CATALOG[product.manufacturer] ?? [];
+
+  if (!models.includes(product.model)) {
+    models.push(product.model);
+  }
+
+  COMPETITOR_SKU_SEED_CATALOG[product.manufacturer] = models;
+}
 
 COMPETITOR_SKU_SEED_CATALOG.CUSTOM = [];
 
@@ -814,10 +825,12 @@ function transportFromTags(tags: string[]): string {
 function buildCompetitorProfile(brand: string, sku: string, description: string): CompetitorProfile {
   const normalizedSku = normalizeCompetitorSku(sku);
   const resolvedSpec = normalizedSku ? resolveCompetitorSpecProfile(normalizedSku, brand) : null;
+  const ucProduct = findUcCompetitorProduct(brand, normalizedSku);
   const rawText = [
     brand,
     normalizedSku,
     description,
+    ucProduct?.comparisonText,
     resolvedSpec?.title,
     resolvedSpec?.transport,
     resolvedSpec?.role,
