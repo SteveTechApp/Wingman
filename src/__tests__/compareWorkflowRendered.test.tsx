@@ -73,6 +73,15 @@ describe("Compare rendered workflow", () => {
     window.sessionStorage.clear();
   });
 
+  it("opens directly on the structured competitor product workflow", () => {
+    renderComparePage();
+
+    expect(screen.getByRole("heading", { name: "Compare competitor products" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Choose competitor brand" })).toBeInTheDocument();
+    expect(screen.queryByText(/Enter what the customer mentioned/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /open manual picker/i })).not.toBeInTheDocument();
+  });
+
   it("saves a quote-safe competitor lookup and keeps the lead recommendation away from controller-only products", async () => {
     renderComparePage();
 

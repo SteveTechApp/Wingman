@@ -7,7 +7,6 @@ const files = {
   comparePage: "src/wingman2/pages/ComparePageNew.tsx",
   advancedComparePage: "src/wingman2/pages/ComparePageNew.advanced.tsx",
   outputAudit: "tools/audit-compare-output-quality.mjs",
-  autoIdentify: "src/wingman2/lib/compareAutoIdentify.ts",
   knownWyrestormProfiles: "src/wingman2/lib/knownWyrestormCompareProfiles.ts",
   matrixOutputModel: "src/wingman2/logic/matrixOutputModel.ts",
   decisionTest: "src/wingman2/lib/competitorCompareDecision.test.ts"
