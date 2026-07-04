@@ -27,6 +27,8 @@
  * This module is pure logic. Do not import React, CSS, routing or page code here.
  */
 
+import { isWyreStormSkuCompareLeadAllowed } from "./wyrestormSkuBusinessStatus";
+
 export type NetworkHdAvoipSeries = "100" | "500" | "600";
 export type AvoipNetworkClass = "1g" | "10g" | "unknown";
 export type AvoipCodecClass =
@@ -202,7 +204,7 @@ export const NETWORKHD_AVOIP_FAMILIES: Record<NetworkHdAvoipSeries, NetworkHdSer
     members: [
       { sku: "NHD-600-TRX", role: "transceiver", note: "10G SDVoE transceiver" },
       { sku: "NHD-600-TRXF", role: "transceiver", note: "10G SDVoE fibre transceiver" },
-      { sku: "NHD-610-TX", role: "encoder", note: "10G SDVoE encoder" },
+      { sku: "NHD-610-TX-V2", role: "encoder", note: "10G SDVoE encoder" },
       { sku: "NHD-610-RX", role: "decoder", note: "10G SDVoE decoder" },
     ],
   },
@@ -547,7 +549,14 @@ export function recommendNetworkHdAvoip(
 
   const series = pickSeries(classification);
   const profile = NETWORKHD_AVOIP_FAMILIES[series];
-  const roleMembers = stripBannedNetworkHdSkus(membersForRole(profile, classification.role));
+  // Defence in depth: a family member can be individually discontinued/do-not-spec
+  // in the 2026 business list even though its series is current (e.g. a 500-series
+  // SKU superseded by a -V2 revision). Never let that reach Compare as a lead or
+  // alternative, regardless of whether the hardcoded member list above has been
+  // updated to the current SKU yet.
+  const roleMembers = stripBannedNetworkHdSkus(membersForRole(profile, classification.role)).filter((member) =>
+    isWyreStormSkuCompareLeadAllowed(member.sku),
+  );
   const candidateSkus = roleMembers.map((member) => member.sku);
   const verifyCodec = series === "500" && classification.codec === "unknown";
 

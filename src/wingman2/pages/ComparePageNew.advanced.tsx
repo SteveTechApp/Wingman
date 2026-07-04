@@ -435,6 +435,56 @@ const WYRESTORM_PRODUCTS: WyreStormProduct[] = [
     caveat: "Specialist room core for large single rooms or linked rooms. Confirm hybrid teaching, master/slave room sharing, amp/DSP, mic input and inter-room transport requirements before quoting.",
     compareSuitability: "specialist",
   },
+  {
+    sku: "APO-VX20-UC-V2",
+    name: "All-in-one UC video bar (camera, microphone, speaker)",
+    family: "Apollo UC",
+    productClass: "USB conferencing",
+    role: "Conference bar / USB conferencing",
+    transport: "USB / HDMI / network collaboration",
+    tags: ["usb conferencing", "usb", "byod", "byom", "camera", "conferencing", "soundbar", "video bar", "teams", "zoom", "meeting room"],
+    caveat: "Confirm room size, participant count, host platform (BYOD/BYOM/native appliance) and mounting before quoting. Pair with APO-DG2 if wireless casting is also needed.",
+  },
+  {
+    sku: "APO-DG2",
+    name: "Wireless presentation / casting dongle",
+    family: "Apollo UC",
+    productClass: "Wireless casting",
+    role: "Wireless casting",
+    transport: "Wireless presentation / Wi-Fi",
+    tags: ["wireless casting", "wireless", "byod", "casting", "presentation"],
+    caveat: "Confirm whether the customer needs casting only, or a full UC conferencing workflow (pair with APO-VX20-UC-V2) as well.",
+  },
+  {
+    sku: "SP-0104-H2",
+    name: "1x4 4K HDMI splitter with EDID management",
+    family: "HDMI Distribution",
+    productClass: "HDMI splitter",
+    role: "Distribution amplifier",
+    transport: "HDMI distribution",
+    tags: ["splitter", "1x4", "hdmi", "4k60", "444", "edid"],
+    caveat: "A splitter duplicates one source to every output - it cannot route independent sources. Confirm the customer does not actually need independent per-display routing (that would be a matrix instead).",
+  },
+  {
+    sku: "EXP-SP-0102-H2",
+    name: "1x2 4K HDMI splitter",
+    family: "HDMI Distribution",
+    productClass: "HDMI splitter",
+    role: "Distribution amplifier",
+    transport: "HDMI distribution",
+    tags: ["splitter", "1x2", "hdmi", "4k60"],
+    caveat: "Smaller 1x2 splitter for a two-display room. Confirm the customer does not actually need independent per-display routing (that would be a matrix instead).",
+  },
+  {
+    sku: "SP-0108-SCL",
+    name: "1x8 4K HDMI splitter with scaling",
+    family: "HDMI Distribution",
+    productClass: "HDMI splitter",
+    role: "Distribution amplifier",
+    transport: "HDMI distribution",
+    tags: ["splitter", "1x8", "hdmi", "4k60", "scaling", "mixed displays"],
+    caveat: "Use when more than four displays need the same source, or displays have mixed native resolutions requiring scaling. Confirm the customer does not actually need independent per-display routing (that would be a matrix instead).",
+  },
 ];
 
 function normalizeCompetitorSku(value: string): string {
@@ -639,6 +689,7 @@ function extractTags(text: string): string[] {
   if (includesAny(text, ["TRX", "TRANSCEIVER"])) tags.push("transceiver");
   if (includesAny(text, ["EXTENDER", "EXTENSION", "POINT-TO-POINT", "TX/RX KIT", "TX RX KIT", "TRANSMITTER RECEIVER"])) tags.push("extender");
   if (includesAny(text, ["MATRIX", "8X8", "4X4", "16X16", "MATRIX SWITCHER"])) tags.push("matrix");
+  if (includesAny(text, ["SPLITTER", "DISTRIBUTION AMPLIFIER", "DISTRIBUTION AMP", "DUPLICATOR"])) tags.push("splitter");
   if (includesAny(text, ["VIDEO WALL", "VIDEOWALL", "WALL PROCESSOR", "LCD WALL", "LED WALL"])) tags.push("video wall");
   if (includesAny(text, ["MULTIVIEW", "MULTI VIEW", "QUAD VIEW", "4 INPUT"])) tags.push("multiview");
   if (includesAny(text, ["NDI", "BIRDDOG", "MARSHALL CV", "NDI CAMERA"])) tags.push("ndi camera");
@@ -663,13 +714,19 @@ function extractTags(text: string): string[] {
 function productClassFromTags(tags: string[]): string {
   if (tags.includes("ndi camera")) return "NDI camera";
   if (tags.includes("ptz camera")) return "PTZ camera";
-  if (tags.includes("camera")) return "PTZ camera";
+  // Checked ahead of the generic "camera" fallback below: a genuine UC video
+  // bar / soundbar competitor description almost always mentions "camera" as
+  // one of its built-in components (e.g. "camera, microphone and speaker in
+  // one device"), which would otherwise misclassify it as a bare PTZ camera
+  // instead of the all-in-one conferencing device it actually is.
   if (tags.includes("usb conferencing")) return "USB conferencing";
+  if (tags.includes("camera")) return "PTZ camera";
   if (tags.includes("network audio")) return "Network audio";
   if (tags.includes("wireless casting")) return "Wireless casting";
   if (tags.includes("video wall")) return "Video wall";
   if (tags.includes("multiview")) return "Multiview";
   if (tags.includes("matrix")) return "Matrix";
+  if (tags.includes("splitter")) return "HDMI splitter";
   if (tags.includes("hdbaset") || tags.includes("extender")) return "HDBaseT extender";
   if (tags.includes("avoip")) return "AV-over-IP";
   if (tags.includes("usb")) return "Presentation switcher";
@@ -679,8 +736,11 @@ function productClassFromTags(tags: string[]): string {
 function roleFromTags(tags: string[]): string {
   if (tags.includes("ndi camera")) return "NDI Camera";
   if (tags.includes("ptz camera")) return "PTZ Camera";
-  if (tags.includes("camera")) return "Camera";
+  // Same "usb conferencing" vs bare "camera" ordering as productClassFromTags
+  // above - keep both in sync so role/productClass never disagree about
+  // whether this is an all-in-one conferencing device or a bare camera.
   if (tags.includes("usb conferencing")) return "Conference bar / USB conferencing";
+  if (tags.includes("camera")) return "Camera";
   if (tags.includes("network audio")) return "Audio processor";
   if (tags.includes("wireless casting")) return "Wireless casting";
   if (tags.includes("transceiver")) return "Transceiver";
@@ -689,6 +749,7 @@ function roleFromTags(tags: string[]): string {
   if (tags.includes("encoder")) return "Encoder / transmitter";
   if (tags.includes("decoder")) return "Decoder / receiver";
   if (tags.includes("matrix")) return "Switcher";
+  if (tags.includes("splitter")) return "Distribution amplifier";
   if (tags.includes("usb")) return "Switcher";
   if (tags.includes("video wall") || tags.includes("multiview")) return "Processor";
   return "Unknown";
@@ -697,13 +758,15 @@ function roleFromTags(tags: string[]): string {
 function transportFromTags(tags: string[]): string {
   if (tags.includes("ndi camera")) return "NDI / HDMI";
   if (tags.includes("ptz camera")) return "HDMI / USB / IP";
-  if (tags.includes("camera")) return "HDMI / USB / IP";
+  // Same ordering as productClassFromTags/roleFromTags above.
   if (tags.includes("usb conferencing")) return "USB / HDMI / network collaboration";
+  if (tags.includes("camera")) return "HDMI / USB / IP";
   if (tags.includes("network audio")) return "Dante / AES67 / network audio";
   if (tags.includes("wireless casting")) return "Wi-Fi / Ethernet";
   if (tags.includes("10g")) return "10GbE AVoIP";
   if (tags.includes("avoip")) return "1GbE AVoIP";
   if (tags.includes("hdbaset")) return "HDBaseT";
+  if (tags.includes("splitter")) return "HDMI distribution";
   if (tags.includes("matrix") || tags.includes("video wall") || tags.includes("multiview")) return "HDMI / processing";
   return "Unknown";
 }
@@ -1321,9 +1384,13 @@ function buildMatrixCandidates(profile: CompetitorProfile): ScoredCandidate[] | 
   const classA = wantsClassA(profile);
   const leadSku = classA ? "MXV-0808-H2A-70-V3" : "MXV-0808-H2A-MK2";
   const alternateSku = classA ? "MXV-0808-H2A-MK2" : "MXV-0808-H2A-70-V3";
-  const lead = findWyrestormProduct(leadSku);
-  const alternate = findWyrestormProduct(alternateSku);
-  const fallback = findWyrestormProduct("MX-0808-KIT-V2");
+  // Unlike the generic scoring path below, this hardcoded matrix shortcut built its
+  // own candidates without the isWyreStormSkuCompareLeadAllowed business-status
+  // gate - a future discontinued/do-not-spec matrix SKU would still be shown as a
+  // lead. Guard it the same way here.
+  const lead = isWyreStormSkuCompareLeadAllowed(leadSku) ? findWyrestormProduct(leadSku) : undefined;
+  const alternate = isWyreStormSkuCompareLeadAllowed(alternateSku) ? findWyrestormProduct(alternateSku) : undefined;
+  const fallback = isWyreStormSkuCompareLeadAllowed("MX-0808-KIT-V2") ? findWyrestormProduct("MX-0808-KIT-V2") : undefined;
 
   const leadMatched = [
         `18Gbps 8x8 HDBaseT matrix path is a closer WyreStorm fit than the kit-style MX matrix path.`,
@@ -3528,9 +3595,7 @@ function BestCandidateCard({
           <summary>Full evidence trace</summary>
           <div className="compare-native-compare-grid">
             <div className="compare-native-product-card compare-native-product-card--competitor wm-ui-card">
-              <p className="compare-native-label compare-native-label--subtle wm-ui-copy">Competitor detail</p>
-              <h3 className="wm-ui-title">{competitor.heading}</h3>
-              <h4>{competitor.detail}</h4>
+              <p className="compare-native-label compare-native-label--subtle wm-ui-copy">Competitor detail (see {competitor.heading} above)</p>
               <p className="compare-native-match-anchor wm-ui-copy">{competitor.outcomeLabel}</p>
               <CompareEvidenceList title="Verified product identity" items={competitorIdentityItems(competitor)} />
               {competitor.facts.length ? (
@@ -3552,9 +3617,7 @@ function BestCandidateCard({
             </div>
 
             <div className="compare-native-product-card compare-native-product-card--best wm-ui-card">
-              <p className="compare-native-label compare-native-label--subtle wm-ui-copy">WyreStorm detail</p>
-              <h3 className="wm-ui-title">{candidate.product.sku}</h3>
-              <h4>{candidate.product.name}</h4>
+              <p className="compare-native-label compare-native-label--subtle wm-ui-copy">WyreStorm detail (see {candidate.product.sku} above)</p>
               <p className="wm-ui-copy">{candidate.product.family} - {candidate.product.productClass} - {candidate.product.role}</p>
               <p className="compare-native-match-anchor wm-ui-copy">{directionFit}</p>
               <CompareEvidenceList title="Why this WyreStorm product" items={wyrestorm.identityItems} />
