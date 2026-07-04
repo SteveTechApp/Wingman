@@ -22,6 +22,13 @@ const recommendedPages = [
   "src/wingman2/pages/CatalogBrowserPage.tsx",
 ];
 
+const routedPageSources = {
+  "src/wingman2/pages/ComparePageNew.tsx": [
+    "src/wingman2/pages/ComparePageNew.tsx",
+    "src/wingman2/pages/ComparePageNew.advanced.tsx",
+  ],
+};
+
 const errors = [];
 const warnings = [];
 
@@ -42,7 +49,10 @@ function checkPage(relativePath, required = true) {
     return;
   }
 
-  const text = fs.readFileSync(absolutePath, "utf8");
+  const sourcePaths = routedPageSources[relativePath] ?? [relativePath];
+  const text = sourcePaths
+    .map((sourcePath) => fs.readFileSync(path.join(root, sourcePath), "utf8"))
+    .join("\n");
   const counts = {
     page: count(text, "wm-ui-page"),
     card: count(text, "wm-ui-card"),
