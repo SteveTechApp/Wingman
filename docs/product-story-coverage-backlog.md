@@ -4,13 +4,14 @@
 > Coverage is measured against active governed lifecycle rows only; SKUs are alias-resolved.
 
 - Governed stories: **129** (reviewed **43**, catalogue-grounded **86**)
-- Active catalogue SKUs (alias-deduped): **124**
-- Active covered: **124 (100%)** Ã‚Â· Active uncovered: **0**
-- Excluded (deliberately not storied): cable **30**, discontinued **0**, do-not-spec **0**, unlisted **31**, source-hygiene **1**
+- Active catalogue SKUs (alias-deduped): **126**
+- Active covered: **124 (98%)** Ã‚Â· Active uncovered: **2**
+- Excluded (deliberately not storied): cable **30**, discontinued **0**, do-not-spec **0**, unlisted **30**, source-hygiene **1**
 
 ## Active SKUs still needing a governed story
 
-_None Ã¢â‚¬â€ every active SKU has a governed story._
+- [ ] APO-210-UC
+- [ ] NHD-CTL-PRO-V2
 
 ## Source-hygiene exclusions
 
@@ -22,7 +23,6 @@ These active catalogue records are deliberately excluded from lead-story backlog
 
 Confirm whether these are active before authoring a story; the compare engine treats them as unresolved risk.
 
-- [ ] APO-210-UC
 - [ ] APO-VX20-UC-V2
 - [ ] CAB-HAOC-FRL-XX
 - [ ] CAB-HAOC-XX

@@ -55,6 +55,11 @@ export const WYRESTORM_SUPERSESSIONS: readonly WyreStormSupersession[] = [
     successor: "NHD-500-IW-TX-V2",
     reason: "NHD-500-IW-TX is discontinued; NHD-500-IW-TX-V2 is the current in-wall 500-series encoder.",
   },
+  {
+    predecessor: "APO-VX20-UC",
+    successor: "APO-VX20-UC-V2",
+    reason: "APO-VX20-UC is discontinued; APO-VX20-UC-V2 is the current Apollo video bar/UC switcher.",
+  },
 ];
 
 const SUPERSESSION_BY_KEY = new Map<string, WyreStormSupersession>();

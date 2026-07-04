@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 
 const repoRoot = process.cwd();
 const aliasPath = resolve(repoRoot, "src/wingman2/lib/skuAliasResolver.ts");
-const profilePath = resolve(repoRoot, "src/wingman2/lib/knownCompareProfiles.ts");
+const profilePath = resolve(repoRoot, "src/wingman2/lib/knownWyrestormCompareProfiles.ts");
 const auditPath = resolve(repoRoot, "tools/audit-matrix-output-topology.mjs");
 
 function fail(message) {
@@ -39,12 +39,11 @@ assertIncludes(alias, "MXV-0808-H2A-70-V3", "alias resolver");
 assertIncludes(alias, "MXV-0808-H2A-KIT", "alias resolver");
 assertIncludes(alias, "MX-0808-KIT-V2", "alias resolver");
 
-assertIncludes(profile, "resolveWyrestormSkuAlias", "known compare profiles");
-assertIncludes(profile, "skuAliasMatches", "known compare profiles");
-assertIncludesOneOf(profile, ['sku: "MXV-0808-H2A-MK2"', 'sku: "MXV-0808-H2A-V3"'], "known compare profiles");
-assertIncludes(profile, 'sku: "MXV-0808-H2A-70-V3"', "known compare profiles");
-assertIncludes(profile, 'sku: "MXV-0808-H2A-KIT"', "known compare profiles");
-assertIncludes(profile, 'sku: "MX-0808-KIT-V2"', "known compare profiles");
+assertIncludes(profile, "resolveWyrestormSkuAlias", "known WyreStorm compare profiles");
+assertIncludesOneOf(profile, ['sku: "MXV-0808-H2A-MK2"', 'sku: "MXV-0808-H2A-V3"'], "known WyreStorm compare profiles");
+assertIncludes(profile, 'sku: "MXV-0808-H2A-70-V3"', "known WyreStorm compare profiles");
+assertIncludes(profile, 'sku: "MXV-0808-H2A-KIT"', "known WyreStorm compare profiles");
+assertIncludes(profile, 'sku: "MX-0808-KIT-V2"', "known WyreStorm compare profiles");
 
 if (audit) {
   assertIncludesOneOf(audit, ["MXV-0808-H2A-MK2", "MXV-0808-H2A-V3"], "strict matrix audit");

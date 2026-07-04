@@ -336,8 +336,8 @@ const EXPLICIT_PRODUCT_STORIES: Record<string, ProductStory> = {
       "Explain this as the display-end of NetworkHD 500. The transmitter puts content on the network; this device gets that content back out to the display.",
   }),
 
-  "NHD-500-IW-TX": story({
-    sku: "NHD-500-IW-TX",
+  "NHD-500-IW-TX-V2": story({
+    sku: "NHD-500-IW-TX-V2",
     family: "NetworkHD 500",
     productRole: "NetworkHD 500 in-wall transmitter",
     whatItIs:

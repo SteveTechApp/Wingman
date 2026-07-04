@@ -376,7 +376,26 @@ function controlOverride(sku: string, followUp: string): ProductCallCommercialOv
 const PRODUCT_CALL_COMMERCIAL_OVERRIDES: Record<string, ProductCallCommercialOverride> = {
   "AMP-2120-DNT": audioAmpOverride("AMP-2120-DNT", "This sounds like an installed room-audio discussion where Dante and loudspeaker power have to be treated as part of the full AV design, not as an afterthought. AMP-2120-DNT may be the right path if the room needs a supportable amplifier choice, but we should confirm loudspeaker load, source path, Dante ownership and commissioning before quote."),
   "AMP-260-DNT": audioAmpOverride("AMP-260-DNT", "This looks like a compact installed-audio requirement where the room still needs a proper loudspeaker and Dante-aware design story. AMP-260-DNT may be relevant if the room needs a tidier network-audio amplifier path, but we should confirm loudspeaker load, source feed, control and commissioning before quote."),
-  "APO-210-UC": apolloAudioOverride("APO-210-UC", "This sounds like a small-room call-quality problem rather than a switching problem. APO-210-UC may be the right conversation if the room needs better pickup and speaker coverage without moving into full DSP audio, but we should confirm room size, table layout, host workflow and whether the audio requirement is actually larger."),
+  "APO-210-UC": {
+    conversationStarters: [
+      "Has the room outgrown a compact video bar's built-in camera coverage?",
+      "Does the camera need to pan, tilt or zoom to reach people further from the table?",
+      "Does the customer specifically need the APO-DG2 dongle, or just general wireless presentation casting?",
+      "Is the table large enough that built-in bar-microphone pickup is no longer enough?",
+    ],
+    askNext: [
+      "How many people use the room and how large is it compared to a standard huddle room?",
+      "Is APO-VX20-UC-V2's built-in camera coverage genuinely insufficient here?",
+      "Is the APO-DG2 dongle specifically required? It's only compatible with APO-VX20-UC-V2, not APO-210-UC.",
+      "Does the table need an extension microphone, and which PTZ camera (CAM-420-PTZ or CAM-210-PTZ) fits the room?",
+    ],
+    objections: [
+      "If the customer says they just need better audio, check whether the room has actually outgrown APO-VX20-UC-V2's camera coverage - that's the real reason to move to APO-210-UC, not audio alone.",
+      "If they ask about the APO-DG2 dongle, be direct: it's not compatible with APO-210-UC, only APO-VX20-UC-V2. APO-210-UC still supports wireless casting of video/audio presentation content on its own.",
+      "If price pressure pushes toward keeping the compact bar, confirm the camera coverage gap is real before defending the larger-room upgrade.",
+    ],
+    followUp: "This sounds like the room has outgrown APO-VX20-UC-V2's built-in camera coverage rather than a pure audio problem. APO-210-UC is the right conversation once the room needs a dedicated PTZ camera (CAM-420-PTZ or CAM-210-PTZ). It still supports wireless casting of video/audio presentation content, but the APO-DG2 dongle itself is APO-VX20-UC-V2 only. Confirm room size, camera coverage gap, table layout and whether APO-DG2 is specifically required before quote.",
+  },
   "APO-COM-MIC": apolloAudioOverride("APO-COM-MIC", "This looks like an Apollo room that is close to working but still short on microphone coverage. APO-COM-MIC may be relevant if the issue is pickup across the table rather than video, but we should confirm compatibility, seating layout, cable path and whether one companion mic is enough."),
   "APO-DG2-PRO": apolloAudioOverride("APO-DG2-PRO", "This sounds like a user-experience problem around guest presentation and BYOD flow rather than a raw signal problem. APO-DG2-PRO may be relevant if the room needs cleaner sharing and less friction at the table, but we should confirm Apollo fit, wireless policy and the host-device expectation before quote."),
   "CAM-420-PTZ": cameraOverride("CAM-420-PTZ", "This looks like a camera-role decision where framing, placement and control matter more than a generic resolution comparison. CAM-420-PTZ may be relevant if the room needs a controlled PTZ workflow, but we should confirm field of view, mounting position, output path and whether a bridge workflow is also needed."),
