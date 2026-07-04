@@ -4,7 +4,7 @@ const decisionsPath = "data/wyrestorm-lifecycle-manual-decisions.json";
 const productStoriesPath = "src/wingman2/data/productStories.ts";
 const backlogPath = "docs/product-story-coverage-backlog.md";
 
-const decisions = JSON.parse(readFileSync(decisionsPath, "utf8"));
+const decisions = JSON.parse(readFileSync(decisionsPath, "utf8").replace(/^\uFEFF/, ""));
 const keep = decisions.keep.map((sku) => sku.toUpperCase());
 const doNotUse = decisions.doNotUse.map((sku) => sku.toUpperCase());
 
@@ -23,7 +23,12 @@ if (doNotUse.includes("SW-0X01-8K")) {
 }
 
 const productStories = readFileSync(productStoriesPath, "utf8").toUpperCase();
-const storyOffenders = doNotUse.filter((sku) => productStories.includes(sku));
+// Match whole SKU-shaped tokens rather than raw substrings - a naive
+// `.includes()` check flags false positives whenever a do-not-use SKU is a
+// dash-separated prefix of a different, legitimately storied SKU (e.g.
+// "NHD-500" inside "NHD-500-E-TX", or "NHD-500-T" inside "NHD-500-TXRX-V2").
+const skuTokens = new Set(productStories.match(/\b[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+\b/g) || []);
+const storyOffenders = doNotUse.filter((sku) => skuTokens.has(sku));
 
 if (storyOffenders.length > 0) {
   throw new Error(`Do-not-use SKUs still referenced in productStories.ts: ${storyOffenders.join(", ")}`);
