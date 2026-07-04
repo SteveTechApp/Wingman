@@ -9,6 +9,7 @@ import {
   NETWORKHD_CONTROLLER_SKU,
   stripBannedNetworkHdSkus,
 } from "./networkHdAvoipEquivalence";
+import { isWyreStormSkuCompareLeadAllowed } from "./wyrestormSkuBusinessStatus";
 
 describe("isBannedNetworkHdSku", () => {
   it("bans the retired legacy families and their variants", () => {
@@ -38,6 +39,16 @@ describe("NetworkHD AVoIP family truth", () => {
   it("contains no banned SKUs", () => {
     const all = Object.values(NETWORKHD_AVOIP_FAMILIES).flatMap((family) => family.members.map((member) => member.sku));
     expect(all.filter(isBannedNetworkHdSku)).toEqual([]);
+  });
+
+  it("never lists a discontinued/do-not-spec/unlisted member SKU (2026 business list)", () => {
+    // Regression: NHD-500-IW-TX was discontinued (successor NHD-500-IW-TX-V2) and
+    // NHD-610-TX is a legacy alias of NHD-610-TX-V2; both slipped through the
+    // "not banned legacy series" check because that only guards retired series
+    // numbers, not individually-discontinued/aliased current-series SKUs.
+    const all = Object.values(NETWORKHD_AVOIP_FAMILIES).flatMap((family) => family.members.map((member) => member.sku));
+    const blocked = all.filter((sku) => !isWyreStormSkuCompareLeadAllowed(sku));
+    expect(blocked).toEqual([]);
   });
 
   it("keeps 100/500 on 1G and 600 on 10G", () => {

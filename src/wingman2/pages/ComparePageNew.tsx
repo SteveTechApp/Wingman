@@ -1,12 +1,9 @@
 // Compare output wording: Important differences are shown as evidence-led fit gaps. Use local source until connector evidence is proven.
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import CompareAutoIdentifyPanel from "../components/CompareAutoIdentifyPanel";
 
 import AdvancedComparePage from "./ComparePageNew.advanced";
-
-
-type CompareMode = "simplified" | "advanced";
 
 function setWorkflowStep(step: "options") {
   return step;
@@ -55,43 +52,27 @@ export function scoreExplanation(displayedScore: number | string) {
 }
 
 export function ComparePageNew() {
-  const [mode, setMode] = useState<CompareMode>("simplified");
+  const [showManualPicker, setShowManualPicker] = useState(false);
+  const manualPickerRef = useRef<HTMLElement | null>(null);
 
-  if (mode === "advanced") {
-    return (
-      
-      <main className="wm-ui-page wm-compare-page wm-compare-simplified-page">
-        <section className="wm-ui-card wm-compare-advanced-shell" aria-label="Advanced manual compare">
-          <div className="wm-compare-advanced-heading">
-            <div>
-              <p className="wm-ui-copy wm-eyebrow">Advanced compare</p>
-              <h1 className="wm-ui-title">Advanced mode: choose known competitor product</h1>
-              <p className="wm-ui-copy">
-                Use this mode when you already know the exact competitor and WyreStorm products.
-                Return to Simplified Compare when the salesperson only has a rough brand, model or customer description.
-              </p>
-            </div>
-            <button
-              type="button"
-              className="wm-ui-button wm-compare-auto-secondary"
-              onClick={() => setMode("simplified")}
-            >
-              Back to Simplified Compare
-            </button>
-          </div>
-          <AdvancedComparePage />
-        </section>
-      </main>
-    );
-  }
+  useEffect(() => {
+    if (!showManualPicker) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      manualPickerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 60);
+
+    return () => window.clearTimeout(timer);
+  }, [showManualPicker]);
 
   return (
-      
     <main className="wm-ui-page wm-compare-page wm-compare-simplified-page">
-      <section className="wm-ui-card wm-compare-auto-shell" aria-label="Simplified competitor compare">
+      <section className="wm-ui-card wm-compare-auto-shell" aria-label="Competitor compare">
         <div className="wm-compare-auto-heading">
           <div>
-            <p className="wm-ui-copy wm-eyebrow">Simplified compare</p>
+            <p className="wm-ui-copy wm-eyebrow">Compare</p>
             <h1 className="wm-ui-title">Compare against WyreStorm</h1>
             <p className="wm-ui-copy">
               Enter what the customer mentioned. Wingman will say what it does, give the closest
@@ -99,7 +80,33 @@ export function ComparePageNew() {
             </p>
           </div>
         </div>
-        <CompareAutoIdentifyPanel onOpenAdvanced={() => setMode("advanced")} />
+        <CompareAutoIdentifyPanel onOpenAdvanced={() => setShowManualPicker(true)} />
+      </section>
+
+      <section
+        ref={manualPickerRef}
+        className="wm-ui-card wm-compare-advanced-shell"
+        aria-label="Manual brand / SKU comparison"
+      >
+        <div className="wm-compare-advanced-heading">
+          <div>
+            <p className="wm-ui-copy wm-eyebrow">Know the exact products?</p>
+            <h2 className="wm-ui-title">Choose competitor brand and SKU manually</h2>
+            <p className="wm-ui-copy">
+              Use this when you already know the exact competitor and WyreStorm products and want
+              the full technical evidence behind the match.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="wm-ui-button wm-compare-auto-secondary"
+            aria-expanded={showManualPicker}
+            onClick={() => setShowManualPicker((current) => !current)}
+          >
+            {showManualPicker ? "Hide manual picker" : "Open manual picker"}
+          </button>
+        </div>
+        {showManualPicker ? <AdvancedComparePage /> : null}
       </section>
 
       <aside className="wm-ui-card wm-compare-auto-support" aria-label="Compare workflow guidance">
