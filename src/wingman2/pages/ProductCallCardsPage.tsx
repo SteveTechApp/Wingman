@@ -15,6 +15,40 @@ import {
   type ClassifiedProductCallCardHeading,
 } from "../lib/productCallCardClassification";
 import { resolveWyrestormSkuAlias } from "../lib/skuAliasResolver";
+import { getProductCallCommercialOverride } from "../lib/productCallCommercialOverrides";
+import {
+  DEFAULT_SALES_CONVERSATION_TONE_ID,
+  LEGACY_SALES_CONVERSATION_STORAGE_KEYS,
+  SALES_CONVERSATION_TYPE_STORAGE_KEY,
+  buildSalesConversationToneCopy,
+  normalizeSalesConversationToneId,
+  salesConversationToneOptions,
+  type SalesConversationToneId,
+} from "../lib/salesConversationTone";
+
+function readStoredSalesConversationToneId(): SalesConversationToneId {
+  if (typeof window === "undefined" || typeof window.localStorage === "undefined") {
+    return DEFAULT_SALES_CONVERSATION_TONE_ID;
+  }
+
+  try {
+    const stored = window.localStorage.getItem(SALES_CONVERSATION_TYPE_STORAGE_KEY);
+    if (stored) {
+      return normalizeSalesConversationToneId(stored);
+    }
+
+    for (const legacyKey of LEGACY_SALES_CONVERSATION_STORAGE_KEYS) {
+      const legacyValue = window.localStorage.getItem(legacyKey);
+      if (legacyValue) {
+        return normalizeSalesConversationToneId(legacyValue);
+      }
+    }
+  } catch {
+    // Storage may be unavailable (private browsing, quota).
+  }
+
+  return DEFAULT_SALES_CONVERSATION_TONE_ID;
+}
 
 const productCallCardWorkflowGuide = [
   "Product identifier",
@@ -523,6 +557,35 @@ function normaliseSku(value: string): string {
   return resolveWyrestormSkuAlias(value).trim().toUpperCase().replace(/\s+/g, "");
 }
 
+// Some seed rows carry a superseded SKU (e.g. "APO-VX20-UC") alongside its
+// alias-resolved successor (e.g. "APO-VX20-UC-V2") as a separate product
+// record. Both normalise to the same canonical SKU, which produced duplicate
+// list entries (and a duplicate React key) for the same physical product.
+// Prefer whichever seed's own SKU already matches the canonical form.
+function dedupeProductSeedsBySku(seeds: ProductSeed[]): ProductSeed[] {
+  const bySku = new Map<string, ProductSeed>();
+
+  seeds.forEach((seed) => {
+    const canonicalSku = normaliseSku(seed.sku);
+    const existing = bySku.get(canonicalSku);
+
+    if (!existing) {
+      bySku.set(canonicalSku, seed);
+      return;
+    }
+
+    const seedIsAuthoritative = String(seed.sku || "").trim().toUpperCase().replace(/\s+/g, "") === canonicalSku;
+    const existingIsAuthoritative =
+      String(existing.sku || "").trim().toUpperCase().replace(/\s+/g, "") === canonicalSku;
+
+    if (seedIsAuthoritative && !existingIsAuthoritative) {
+      bySku.set(canonicalSku, seed);
+    }
+  });
+
+  return Array.from(bySku.values());
+}
+
 function unique(values: string[]): string[] {
   const seen = new Set<string>();
   const output: string[] = [];
@@ -900,6 +963,9 @@ export default function ProductCallCardsPage() {
   const [activeProductPanel, setActiveProductPanel] = useState<ProductPanelId>("whatItIs");
   const [activeGalleryItem, setActiveGalleryItem] = useState<ProductGalleryItem | null>(null);
   const [activeTermLookup, setActiveTermLookup] = useState<QuickTermLookup | null>(null);
+  const [conversationToneId, setConversationToneId] = useState<SalesConversationToneId>(
+    readStoredSalesConversationToneId,
+  );
 
   useEffect(() => {
     setProductTermLookup = setActiveTermLookup;
@@ -920,7 +986,7 @@ return () => {
         return;
       }
 
-      const cards = seeds
+      const cards = dedupeProductSeedsBySku(seeds)
         .map(toProductCard)
         .filter((product) => product.sku)
         .sort((a, b) => a.sku.localeCompare(b.sku));
@@ -1006,6 +1072,28 @@ return () => {
     () => (selectedProduct ? getBestProductPositioningCardForSku(selectedProduct.sku) : undefined),
     [selectedProduct],
   );
+  const commercialOverride = useMemo(
+    () => (selectedProduct ? getProductCallCommercialOverride(selectedProduct.sku) : null),
+    [selectedProduct],
+  );
+  const conversationToneCopy = useMemo(
+    () => buildSalesConversationToneCopy("callCards", conversationToneId),
+    [conversationToneId],
+  );
+
+  function selectConversationTone(toneId: SalesConversationToneId): void {
+    setConversationToneId(toneId);
+
+    if (typeof window === "undefined" || typeof window.localStorage === "undefined") {
+      return;
+    }
+
+    try {
+      window.localStorage.setItem(SALES_CONVERSATION_TYPE_STORAGE_KEY, toneId);
+    } catch {
+      // Storage may be unavailable (private browsing, quota).
+    }
+  }
 
   const productChecks = useMemo(() => {
     if (!selectedProduct) {
@@ -1778,6 +1866,30 @@ return (
           margin-top: 0.34rem;
         }
 
+        .wm-pcc-tone-select {
+          margin: 0 0 0.7rem;
+        }
+
+        .wm-pcc-tone-options {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.32rem;
+          margin-bottom: 0.34rem;
+        }
+
+        .wm-pcc-tone-button {
+          min-height: 1.7rem;
+          border-radius: 0.6rem;
+          padding: 0.24rem 0.5rem;
+          font-size: 0.62rem;
+        }
+
+        .wm-pcc-tone-button-active {
+          border-color: #67e8f9;
+          background: rgba(13, 116, 139, 0.38);
+          box-shadow: inset 0 0 0 1px rgba(103, 232, 249, 0.22);
+        }
+
         .wm-pcc-example-grid {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2421,6 +2533,82 @@ return (
                   <p className="wm-pcc-response-copy wm-ui-copy">
                     {renderWithGuruLinks(selectedProduct.questions[0] || productChecks[0], selectedProduct)}
                   </p>
+
+                  <div className="wm-pcc-tone-select" role="group" aria-label="Conversation tone">
+                    <p className="wm-pcc-response-subhead wm-ui-copy">Frame this for</p>
+                    <div className="wm-pcc-tone-options">
+                      {salesConversationToneOptions.map((option) => (
+                        <button
+                          key={option.id}
+                          type="button"
+                          className={`wm-ui-button wm-ui-button-secondary wm-pcc-tone-button ${
+                            conversationToneId === option.id ? "wm-pcc-tone-button-active" : ""
+                          }`}
+                          aria-pressed={conversationToneId === option.id}
+                          title={option.shortDescription}
+                          onClick={() => selectConversationTone(option.id)}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="wm-pcc-response-copy wm-ui-copy">{conversationToneCopy.opener}</p>
+                  </div>
+
+                  {commercialOverride?.conversationStarters?.length ? (
+                    <>
+                      <p className="wm-pcc-response-subhead wm-ui-copy">Conversation openers</p>
+                      <ul className="wm-pcc-response-list wm-ui-card">
+                        {commercialOverride.conversationStarters.map((line) => (
+                          <li key={line}>{renderWithGuruLinks(line, selectedProduct)}</li>
+                        ))}
+                      </ul>
+                    </>
+                  ) : null}
+
+                  {commercialOverride?.askNext?.length ? (
+                    <>
+                      <p className="wm-pcc-response-subhead wm-ui-copy">Ask next</p>
+                      <ul className="wm-pcc-response-list wm-ui-card">
+                        {commercialOverride.askNext.map((line) => (
+                          <li key={line}>{renderWithGuruLinks(line, selectedProduct)}</li>
+                        ))}
+                      </ul>
+                    </>
+                  ) : null}
+
+                  {commercialOverride?.objections?.length ? (
+                    <>
+                      <p className="wm-pcc-response-subhead wm-ui-copy">If they push back</p>
+                      <ul className="wm-pcc-response-list wm-ui-card">
+                        {commercialOverride.objections.map((line) => (
+                          <li key={line}>{renderWithGuruLinks(line, selectedProduct)}</li>
+                        ))}
+                      </ul>
+                    </>
+                  ) : selectedPositioningCard?.objectionHandling?.length ? (
+                    <>
+                      <p className="wm-pcc-response-subhead wm-ui-copy">If they push back</p>
+                      <ul className="wm-pcc-response-list wm-ui-card">
+                        {selectedPositioningCard.objectionHandling.map((entry) => (
+                          <li key={entry.objection}>
+                            <strong>{entry.objection}</strong>{" "}
+                            {renderWithGuruLinks(entry.response, selectedProduct)}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  ) : null}
+
+                  {commercialOverride?.followUp ? (
+                    <>
+                      <p className="wm-pcc-response-subhead wm-ui-copy">Follow-up wording</p>
+                      <p className="wm-pcc-response-copy wm-ui-copy">
+                        {renderWithGuruLinks(commercialOverride.followUp, selectedProduct)}
+                      </p>
+                    </>
+                  ) : null}
+
                   {(selectedProduct.sku.toUpperCase().startsWith("AMP-") ||
                     `${selectedProduct.family} ${selectedProduct.category}`.toLowerCase().includes("audio") ||
                     `${selectedProduct.family} ${selectedProduct.category}`.toLowerCase().includes("amplifier")) && (
