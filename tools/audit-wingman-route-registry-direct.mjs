@@ -109,18 +109,17 @@ for (const item of routeImports) {
 
 console.log("");
 console.log("== Product Call Cards ownership ==");
-const productCallCardFiles = [
-  "src/wingman2/pages/ProductCallCardsPage.tsx",
-  "src/wingman2/pages/productCallCards/ProductCallCardsSetupPage.tsx",
-  "src/wingman2/pages/productCallCards/ProductCallCardsSelectPage.tsx",
-  "src/wingman2/pages/productCallCards/ProductCallCardsProductPage.tsx",
-  "src/wingman2/pages/productCallCards/ProductCallCardsResponsePage.tsx",
-  "src/wingman2/pages/productCallCards/store.ts",
-];
+const canonicalProductCallCardsFile = "src/wingman2/pages/ProductCallCardsPage.tsx";
+const legacyProductCallCardsDirectory = "src/wingman2/pages/productCallCards";
+const canonicalExists = fs.existsSync(path.join(repo, canonicalProductCallCardsFile));
+const legacyDirectoryPath = path.join(repo, legacyProductCallCardsDirectory);
+const legacyExists = fs.existsSync(legacyDirectoryPath) && walk(legacyDirectoryPath).length > 0;
 
-for (const file of productCallCardFiles) {
-  const exists = fs.existsSync(path.join(repo, file));
-  console.log(`${exists ? "OK" : "MISSING"}  ${file}`);
+console.log(`${canonicalExists ? "OK" : "MISSING"}  ${canonicalProductCallCardsFile}`);
+console.log(`${legacyExists ? "STALE" : "OK"}  one routed implementation; no legacy multi-page duplicate`);
+
+if (!canonicalExists || legacyExists) {
+  process.exitCode = 1;
 }
 
 console.log("");
@@ -132,11 +131,7 @@ for (const file of allFiles) {
   const relFile = path.relative(repo, file).replaceAll("\\", "/");
 
   if (
-    text.includes("ProductCallCardsPage") ||
-    text.includes("ProductCallCardsSetupPage") ||
-    text.includes("ProductCallCardsSelectPage") ||
-    text.includes("ProductCallCardsProductPage") ||
-    text.includes("ProductCallCardsResponsePage")
+    text.includes("ProductCallCardsPage")
   ) {
     console.log(relFile);
   }
