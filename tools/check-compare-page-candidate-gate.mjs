@@ -89,7 +89,7 @@ if (!advancedSource.includes("handleSkuSelect")) {
 }
 
 if (!combinedSource.includes("ComparePageNew.advanced")) {
-  failures.push("ComparePageNew.tsx should preserve the advanced/manual Compare route behind the simplified wrapper.");
+  failures.push("ComparePageNew.tsx should route directly to the structured Compare implementation.");
 }
 
 if (failures.length > 0) {
@@ -100,4 +100,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log("[compare-page-candidate-gate] OK. Split Compare wrapper and advanced candidate gate markers are retained.");
+console.log("[compare-page-candidate-gate] OK. The routed Compare page uses the structured candidate workflow.");

@@ -44,7 +44,7 @@ for (const marker of requiredMarkers) {
 }
 
 if (!wrapperSource.includes("ComparePageNew.advanced")) {
-  failures.push("Compare wrapper should retain the advanced/manual Compare implementation.");
+  failures.push("Compare entry point should retain the structured Compare implementation.");
 }
 
 const handleSkuSelectIndex = splitSource.indexOf("handleSkuSelect");
@@ -66,4 +66,4 @@ if (failures.length > 0) {
   fail(failures);
 }
 
-console.log("[compare-sku-auto-advance] Verified split Compare SKU auto-advance markers and manual workflow wiring.");
+console.log("[compare-sku-auto-advance] Verified Compare SKU auto-advance and product workflow wiring.");
