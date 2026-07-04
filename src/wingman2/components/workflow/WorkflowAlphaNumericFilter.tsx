@@ -5,15 +5,17 @@ function shouldSkipWorkflowAlphaFilter(): boolean {
   }
 
   const route = document.documentElement.getAttribute("data-wingman-route");
+  const path = window.location.pathname.toLowerCase();
 
-  return route === "productCallCards" || route === "templates";
+  return route === "productCallCards"
+    || route === "templates"
+    || path.includes("/wingman/templates");
 }
 
 const TARGET_ROUTE_PARTS = [
   "/wingman/product-call-cards",
   "/wingman/products",
   "/wingman/product-finder",  "/wingman/projects",
-  "/wingman/templates",
 ];
 
 const ORDERED_BUCKETS = [
