@@ -40,15 +40,18 @@ Run each end to end on staging, signed in and (where relevant) as a guest:
 
 ## 4. Production Infrastructure (Blocker)
 
-Scaffolding in place: `.github/workflows/deploy.yml` (fill in the provider deploy step),
-`.env.production.example` (copy to the secret manager), `/api/health` + `/api/ready`
-endpoints, and the migration runbook in `OPERATIONS.md` §8.
+Deployment wiring is defined in the root `render.yaml` Blueprint. Render creates the
+frontend and backend services together, links them over its private network, waits for
+GitHub checks before automatic deployment, and checks `/` plus `/api/ready`.
+Use `.env.production.example` when promoting the trial deployment to persistent
+Supabase-backed production storage and follow the migration runbook in `OPERATIONS.md` §8.
 
 - [ ] Supabase project provisioned; `001_initial_schema.sql` applied.
 - [ ] File-store data migrated and verified (row counts + sample project); backup retained.
 - [ ] `WINGMAN_STORAGE_MODE=supabase-tables` and app exercised under concurrent use.
 - [ ] All secrets in the host secret manager (no committed `.env`).
-- [ ] Hosting chosen and the `deploy.yml` deploy step wired to it.
+- [ ] Render Blueprint created from `render.yaml`; both services are healthy.
+- [ ] Supabase credentials added to `wingman-api` before production data is stored.
 - [ ] Hosting, domain and TLS live; HTTPS enforced end to end.
 - [ ] Health check (`/api/health`) wired to an uptime monitor; error-rate alert configured.
 - [ ] Load test run against staging at target concurrency — passed.

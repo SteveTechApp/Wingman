@@ -22,11 +22,9 @@ import {
 import { exportBomCsv, exportProposalHtml } from "../lib/proposalExport";
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
 import { roomTemplates, type RoomTemplate, type TemplateBomRow } from "../lib/roomTemplates";
-import { extraRoomTemplates } from "../lib/roomTemplatesExtra";
 import type { SalesBomRow } from "../lib/salesReadiness";
 
 const includedStatuses = new Set(["included", "optional", "validate"]);
-const allRoomTemplates: RoomTemplate[] = [...roomTemplates, ...extraRoomTemplates];
 function templateVisualPath(fileName: string): string {
   const base = String(import.meta.env.BASE_URL || "/");
   const cleanBase = base.endsWith("/") ? base : `${base}/`;
@@ -212,7 +210,7 @@ function buildTemplateProject(template: RoomTemplate, rows: TemplateBomRow[]): S
 export function TemplateReviewPage() {
   const { templateId } = useParams();
   const selectedTemplate = useMemo(
-    () => allRoomTemplates.find((template) => template.id === templateId) ?? allRoomTemplates[0],
+    () => roomTemplates.find((template) => template.id === templateId),
     [templateId],
   );
 
@@ -242,6 +240,7 @@ export function TemplateReviewPage() {
     );
   }
 
+  const activeTemplate = selectedTemplate;
   const bomRows = templateBomRows(selectedTemplate, selectedRows);
   const requiredCount = selectedRows.filter((row) => row.type === "Required" && includedStatuses.has(row.status)).length;
   const optionalCount = selectedRows.filter((row) => row.type !== "Required" && includedStatuses.has(row.status)).length;
@@ -286,20 +285,20 @@ export function TemplateReviewPage() {
   }
 
   function resetTemplateBom() {
-    setSelectedRows(cloneRows(selectedTemplate.bom));
+    setSelectedRows(cloneRows(activeTemplate.bom));
   }
 
   function exportTemplateBom() {
-    exportBomCsv(buildTemplateProposal(selectedTemplate, selectedRows), bomRows);
+    exportBomCsv(buildTemplateProposal(activeTemplate, selectedRows), bomRows);
   }
 
   function exportTemplateProposal() {
-    const proposal = buildTemplateProposal(selectedTemplate, selectedRows);
+    const proposal = buildTemplateProposal(activeTemplate, selectedRows);
     exportProposalHtml(proposal, bomRows);
   }
 
   function saveTemplateProject() {
-    const project = upsertStoredProject(buildTemplateProject(selectedTemplate, selectedRows));
+    const project = upsertStoredProject(buildTemplateProject(activeTemplate, selectedRows));
     setSavedProjectPath(`/wingman/projects/${project.id}`);
   }
 
@@ -505,4 +504,3 @@ Editable WyreStorm BOM</p>
     </div>
   );
 }
-

@@ -1,0 +1,65 @@
+services:
+  - type: web
+    name: wingman
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeployTrigger: checksPass
+    healthCheckPath: /
+    envVars:
+      - key: BACKEND_HOST
+        fromService:
+          type: web
+          name: wingman-api
+          property: host
+      - key: BACKEND_PORT
+        fromService:
+          type: web
+          name: wingman-api
+          property: port
+      - key: VITE_WINGMAN_ENABLE_PROJECT_BACKEND_SYNC
+        value: "true"
+      - key: VITE_WINGMAN_ENABLE_GURU_EXTERNAL_LOOKUP
+        value: "false"
+
+  - type: web
+    name: wingman-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: main
+    dockerfilePath: ./Dockerfile.server
+    dockerContext: .
+    autoDeployTrigger: checksPass
+    healthCheckPath: /api/ready
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: "10000"
+      - key: NODE_ENV
+        value: production
+      - key: WINGMAN_CORS_ALLOW_ORIGIN
+        fromService:
+          type: web
+          name: wingman
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: WINGMAN_SESSION_COOKIE_SECURE
+        value: "true"
+      - key: WINGMAN_SESSION_COOKIE_SAMESITE
+        value: Strict
+      - key: WINGMAN_ENABLE_SECURITY_HEADERS
+        value: "true"
+      - key: WINGMAN_STORAGE_MODE
+        value: file
+      - key: WINGMAN_STORAGE_FAIL_CLOSED
+        value: "false"
+      - key: SUPABASE_WINGMAN_TABLES_ENABLED
+        value: "false"
+      - key: LOOKUP_ENABLE_LIVE_ENRICHMENT
+        value: "true"
+      - key: WINGMAN_AGENT_FORCE_MOCK
+        value: "true"
