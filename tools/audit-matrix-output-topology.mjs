@@ -112,7 +112,7 @@ function extractMatrixSize(text, sku) {
   const combined = `${sku} ${text}`;
 
   const patterns = [
-    /(\d{1,2})\s*[xXÃ—]\s*(\d{1,2})/,
+    /(\d{1,2})\s*[xX×]\s*(\d{1,2})/,
     /(\d{1,2})\s+by\s+(\d{1,2})/i,
     /(\d{1,2})\s*in(?:put)?s?\s*(?:\/|and|to|-)\s*(\d{1,2})\s*out(?:put)?s?/i,
   ];

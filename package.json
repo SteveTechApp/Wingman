@@ -139,7 +139,11 @@
     "repair:duplicate-classnames": "node tools/repair-duplicate-jsx-classnames.mjs",
     "check:duplicate-classnames": "node tools/check-duplicate-jsx-classnames.mjs",
     "check:dashboard-visual-correction": "node tools/check-dashboard-visual-correction.mjs",
-    "lifecycle:manual-decisions": "node tools/check-wyrestorm-lifecycle-manual-decisions.mjs"
+    "lifecycle:manual-decisions": "node tools/check-wyrestorm-lifecycle-manual-decisions.mjs",
+    "text:hygiene": "node tools/audit-text-hygiene.mjs",
+    "text:hygiene:fix:active": "node tools/audit-text-hygiene.mjs --write",
+    "text:hygiene:full": "node tools/audit-text-hygiene.mjs --full",
+    "text:hygiene:fix:full": "node tools/audit-text-hygiene.mjs --full --write"
   },
   "dependencies": {
     "@xyflow/react": "^12.10.2",

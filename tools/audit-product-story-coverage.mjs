@@ -139,14 +139,14 @@ lines.push("> Coverage is measured against active governed lifecycle rows only; 
 lines.push("");
 lines.push(`- Governed stories: **${storyMatches.length}** (reviewed **${reviewedCount}**, catalogue-grounded **${groundedCount}**)`);
 lines.push(`- Active catalogue SKUs (alias-deduped): **${activeTotal}**`);
-lines.push(`- Active covered: **${activeCovered} (${pct}%)** Ã‚Â· Active uncovered: **${buckets["active-uncovered"].length}**`);
+lines.push(`- Active covered: **${activeCovered} (${pct}%)** · Active uncovered: **${buckets["active-uncovered"].length}**`);
 lines.push(`- Excluded (deliberately not storied): cable **${buckets.cable.length}**, discontinued **${buckets.discontinued.length}**, do-not-spec **${buckets["do-not-spec"].length}**, unlisted **${buckets.unlisted.length}**, source-hygiene **${buckets["source-hygiene"].length}**`);
 lines.push("");
 lines.push("## Active SKUs still needing a governed story");
 lines.push("");
 lines.push(buckets["active-uncovered"].length
   ? buckets["active-uncovered"].sort().map((sku) => `- [ ] ${sku}`).join("\n")
-  : "_None Ã¢â‚¬â€ every active SKU has a governed story._");
+  : "_None — every active SKU has a governed story._");
 lines.push("");
 lines.push("## Source-hygiene exclusions");
 lines.push("");
