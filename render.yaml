@@ -54,11 +54,13 @@ services:
       - key: WINGMAN_ENABLE_SECURITY_HEADERS
         value: "true"
       - key: WINGMAN_STORAGE_MODE
-        value: file
+        value: supabase-tables
       - key: WINGMAN_STORAGE_FAIL_CLOSED
-        value: "false"
-      - key: SUPABASE_WINGMAN_TABLES_ENABLED
-        value: "false"
+        value: "true"
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
       - key: LOOKUP_ENABLE_LIVE_ENRICHMENT
         value: "true"
       - key: WINGMAN_AGENT_FORCE_MOCK

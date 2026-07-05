@@ -152,6 +152,35 @@ function getSupabaseAdmin() {
   }
 }
 
+export async function getStorageReadiness() {
+  let mode;
+  try {
+    mode = configuredStorageMode();
+  } catch (error) {
+    return { ready: false, mode: "error", error: error instanceof Error ? error.message : "Storage configuration error." };
+  }
+
+  if (mode !== "supabase" && mode !== "supabase-tables") {
+    return { ready: true, mode };
+  }
+
+  const client = getSupabaseAdmin();
+  if (!client) {
+    return { ready: false, mode, error: "Supabase client could not be constructed." };
+  }
+
+  const table = mode === "supabase-tables" ? SUPABASE_WINGMAN_USERS_TABLE : SUPABASE_WINGMAN_STATE_TABLE;
+  try {
+    const { error } = await client.from(table).select("*", { head: true, count: "exact" });
+    if (error) {
+      return { ready: false, mode, error: error.message };
+    }
+    return { ready: true, mode };
+  } catch (error) {
+    return { ready: false, mode, error: error instanceof Error ? error.message : "Supabase connectivity check failed." };
+  }
+}
+
 function emptyDb() {
   return {
     version: 1,

@@ -20,9 +20,20 @@ npm run build
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/SteveTechApp/Wingman)
 
 The repository includes `render.yaml`, which creates the Wingman frontend and
-backend together. Render deploys `main` after its GitHub checks pass. The initial
-free configuration is suitable for evaluation; configure Supabase-backed storage
-before relying on workspace data for production.
+backend together. Render deploys `main` after its GitHub checks pass. The backend
+is configured to require Supabase-backed storage (`WINGMAN_STORAGE_MODE=supabase-tables`,
+`WINGMAN_STORAGE_FAIL_CLOSED=true`), so it fails loudly on startup rather than
+silently falling back to the container's ephemeral filesystem. Before the first
+deploy:
+
+1. Create a Supabase project.
+2. Run `server/migrations/001_initial_schema.sql` against it (paste into the
+   Supabase SQL Editor, or apply with the Supabase CLI).
+3. In the Render dashboard, set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`
+   on the `wingman-api` service (these are marked `sync: false` in `render.yaml`
+   and are never committed to the repo).
+4. Deploy. If the credentials are missing or wrong, the API will refuse to
+   start rather than persist workspace data to disk.
 
 ## Styling governance
 
