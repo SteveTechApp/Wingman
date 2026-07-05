@@ -52,6 +52,7 @@ const suspectPatterns = [
   { name: "replacement-character", regex: /�/g },
   { name: "double-encoded-mojibake", regex: /Ãƒ|Ã‚|Ã¢/g },
   { name: "utf8-mojibake", regex: /Ã|Â|â€|â€“|â€”|â€¦|â„¢|â€˜|â€™|â€œ|â€�/g },
+  // eslint-disable-next-line no-control-regex -- detecting stray control characters is this tool's job
   { name: "control-character", regex: /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g },
 ];
 
@@ -79,6 +80,7 @@ const encodingRepairs = [
   [/Â°/g, "°"],
   [/Â±/g, "±"],
   [/Â·/g, "·"],
+  // eslint-disable-next-line no-control-regex -- detecting stray control characters is this tool's job
   [/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, ""],
 ];
 
