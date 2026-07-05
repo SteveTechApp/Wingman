@@ -523,7 +523,23 @@ function baseClassification(product, text) {
     });
   }
 
-  if (/^CAM-/.test(sku) || /^FOCUS/.test(sku) || includesAny(identityText, ["ptz camera", "camera bridge", "ndi camera", "webcam"])) {
+  // The bare word "webcam" also appears in HDBaseT extender / AVoIP transceiver
+  // descriptions as an example of a USB device the product can pass through
+  // (e.g. RX-700: "supports data transmission of USB 2.0 devices like HD
+  // webcams..."; NHD-600-TRXF: "...webcams, touchscreens, and media storage"),
+  // not because the product itself is a camera. Every genuine WyreStorm
+  // webcam/camera product's own description is free of extender/transceiver
+  // language, so require the absence of that language before trusting the
+  // bare "webcam" keyword.
+  const mentionsWebcamAsPassthroughExample = includesAny(identityText, ["webcam"])
+    && includesAny(identityText, ["hdbaset", "receiver", "transmitter", "transceiver", "extender", "sdvoe"]);
+
+  if (
+    /^CAM-/.test(sku) ||
+    /^FOCUS/.test(sku) ||
+    includesAny(identityText, ["ptz camera", "camera bridge", "ndi camera"]) ||
+    (includesAny(identityText, ["webcam"]) && !mentionsWebcamAsPassthroughExample)
+  ) {
     return make({
       primaryCategory: "Camera / Capture",
       category: "Camera endpoint",

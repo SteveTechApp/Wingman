@@ -79,6 +79,13 @@ function detectDomain(product: WyrestormProduct, blob: string): string | undefin
     return "WIRELESS_PRESENTATION";
   }
   if (/^SW-/.test(sku) || blob.includes("presentation") || blob.includes("switcher")) return "PRESENTATION";
+  // Checked ahead of the generic AUDIO "amplifier" check below: a video/HDMI
+  // splitter's role is literally named "distribution amplifier" in this
+  // catalogue (e.g. SP-0104-H2), which would otherwise false-match the bare
+  // "amplifier" keyword and misclassify a splitter as audio equipment.
+  if (/^SP-/.test(sku) || /^EXP-SP-/.test(sku) || blob.includes("splitter") || blob.includes("distribution amplifier") || blob.includes("duplicator")) {
+    return "SPLITTER";
+  }
   if (/^AMP-/.test(sku) || blob.includes("dante") || blob.includes("amplifier") || blob.includes("audio /")) {
     return "AUDIO";
   }

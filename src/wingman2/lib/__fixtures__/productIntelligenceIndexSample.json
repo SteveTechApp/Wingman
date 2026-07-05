@@ -1,0 +1,1590 @@
+{
+  "meta": {
+    "count": 10
+  },
+  "products": [
+    {
+      "sku": "AMP-2120",
+      "name": "Advanced 2 or 4 Channel Amplifier",
+      "category": "Audio",
+      "primarySystemFamily": "Audio",
+      "description": "Advanced 2 or 4 channel amplifier with flexible 240W output, built-in DSP processing, analog and digital I/O, LAN / RS-232 control, professional protection, and trigger input for paging or automation.",
+      "summary": "Advanced 2 or 4 channel amplifier with flexible 240W output, built-in DSP processing, analog and digital I/O, LAN / RS-232 control, professional protection, and trigger input for paging or automation.",
+      "technologies": [
+        "Audio / Control",
+        "Analog audio",
+        "Network",
+        "Control",
+        "Audio",
+        "Power"
+      ],
+      "connectors": [
+        "Speaker output",
+        "Mic/Line input",
+        "Line output",
+        "LAN"
+      ],
+      "features": [
+        "Audio / Control",
+        "240W flexible amplifier output",
+        "Built-in DSP processing",
+        "Mic/Line and line-level audio I/O",
+        "LAN and RS-232 control",
+        "Paging and automation trigger input"
+      ],
+      "tags": [
+        "Audio / Control",
+        "Analog audio",
+        "Network",
+        "Control",
+        "Audio",
+        "Power",
+        "240W flexible amplifier output",
+        "Built-in DSP processing",
+        "Mic/Line and line-level audio I/O",
+        "LAN and RS-232 control"
+      ],
+      "classificationPath": [
+        "Audio",
+        "Amplification",
+        "DSP amplifier",
+        "Network amplifier"
+      ],
+      "productClassification": {
+        "primaryCategory": "Audio",
+        "category": "Amplification",
+        "subCategory": "DSP amplifier",
+        "productType": "Network amplifier"
+      },
+      "productRole": "primary-hardware",
+      "lifecycleStatus": "active",
+      "doNotSpec": false,
+      "technicalProfile": {
+        "io": {
+          "ports": [
+            {
+              "count": 1,
+              "connector": "Speaker output",
+              "direction": "unspecified",
+              "category": "other",
+              "evidence": "Speaker output"
+            },
+            {
+              "count": 1,
+              "connector": "Mic/Line input",
+              "direction": "unspecified",
+              "category": "other",
+              "evidence": "Mic/Line input"
+            },
+            {
+              "count": 1,
+              "connector": "Line output",
+              "direction": "unspecified",
+              "category": "other",
+              "evidence": "Line output"
+            },
+            {
+              "count": 1,
+              "connector": "LAN",
+              "direction": "unspecified",
+              "category": "other",
+              "evidence": "LAN"
+            },
+            {
+              "count": 1,
+              "connector": "RS-232",
+              "direction": "unspecified",
+              "category": "other",
+              "evidence": "RS-232"
+            },
+            {
+              "count": 1,
+              "connector": "Trigger input",
+              "direction": "unspecified",
+              "category": "other",
+              "evidence": "Trigger input"
+            }
+          ],
+          "video": [],
+          "audio": [],
+          "usb": [],
+          "network": [],
+          "control": [],
+          "power": []
+        }
+      }
+    },
+    {
+      "sku": "CAM-200-PTZ",
+      "name": "1080p HD PTZ Conference Camera with USB 3.0 & Network Output - WyreStorm",
+      "category": "Camera / capture",
+      "primarySystemFamily": "Camera / Capture",
+      "description": "DISCONTINUED Part of the Unified Communication line of products, the CAM-200-PTZ offers a premium video conferencing experience. HD 1080p video ensures users appear crystal clear in their meetings. A ",
+      "summary": "DISCONTINUED Part of the Unified Communication line of products, the CAM-200-PTZ offers a premium video conferencing experience. HD 1080p video ensures users appear crystal clear in their meetings. A ",
+      "technologies": [],
+      "connectors": [],
+      "features": [
+        "USB",
+        "Camera / Capture",
+        "Camera endpoint",
+        "PTZ camera",
+        "1080p camera",
+        "DSP audio processing"
+      ],
+      "tags": [
+        "USB",
+        "Camera / Capture",
+        "Camera endpoint",
+        "PTZ camera",
+        "1080p camera",
+        "camera",
+        "ptz",
+        "DSP audio processing",
+        "USB 3.x",
+        "Ethernet / LAN"
+      ],
+      "classificationPath": [
+        "Camera / Capture",
+        "Camera endpoint",
+        "PTZ camera",
+        "1080p camera"
+      ],
+      "productClassification": {
+        "primaryCategory": "Camera / Capture",
+        "category": "Camera endpoint",
+        "subCategory": "PTZ camera",
+        "productType": "Camera endpoint"
+      },
+      "productRole": "primary-hardware",
+      "lifecycleStatus": "discontinued",
+      "doNotSpec": true,
+      "technicalProfile": {
+        "io": {
+          "ports": [
+            {
+              "count": 1,
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "1x USB 3.0 Type B female"
+            },
+            {
+              "count": 1,
+              "connector": "RJ45 / Ethernet",
+              "direction": "output",
+              "category": "network",
+              "evidence": "1x RJ45 8-pin LAN"
+            },
+            {
+              "count": 1,
+              "connector": "RJ-45 Female 1x  RJ-45 Female",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x 8-pin RJ-45 Female"
+            },
+            {
+              "count": 1,
+              "connector": "Mini Din 1x  Mini Din (max length 30m)",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x 8-pin Mini Din (max length 30m)"
+            },
+            {
+              "count": 12,
+              "connector": "SFP / fibre",
+              "direction": "output",
+              "category": "video",
+              "evidence": "12x optical and 4x digital zoom"
+            },
+            {
+              "count": 1,
+              "connector": "CAM-200-PTZ camera 1x CAM-200-PTZ camera",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x CAM-200-PTZ camera"
+            },
+            {
+              "count": 1,
+              "connector": "12V DC 1.5A Power Supply 1x 12V DC 1.5A Power Supply (US/UK/EU/AU)",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x 12V DC 1.5A Power Supply (US/UK/EU/AU)"
+            },
+            {
+              "count": 1,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x IR Remote"
+            },
+            {
+              "count": 1,
+              "connector": "Wall Mount 1x Wall Mount",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x Wall Mount"
+            },
+            {
+              "count": 1,
+              "connector": "RS-232",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x 2m 8 pin Mini Din RS-232 cable"
+            },
+            {
+              "count": 1,
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "1x 1.5m USB 3.0 Type B host cable"
+            },
+            {
+              "count": 1,
+              "connector": "QuickStart Guide 1x QuickStart Guide",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x QuickStart Guide"
+            }
+          ],
+          "video": [
+            {
+              "count": 12,
+              "connector": "SFP / fibre",
+              "direction": "output",
+              "category": "video",
+              "evidence": "12x optical and 4x digital zoom"
+            }
+          ],
+          "audio": [],
+          "usb": [
+            {
+              "count": 1,
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "1x USB 3.0 Type B female"
+            },
+            {
+              "count": 1,
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "1x 1.5m USB 3.0 Type B host cable"
+            }
+          ],
+          "network": [
+            {
+              "count": 1,
+              "connector": "RJ45 / Ethernet",
+              "direction": "output",
+              "category": "network",
+              "evidence": "1x RJ45 8-pin LAN"
+            }
+          ],
+          "control": [
+            {
+              "count": 1,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x IR Remote"
+            },
+            {
+              "count": 1,
+              "connector": "RS-232",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x 2m 8 pin Mini Din RS-232 cable"
+            }
+          ],
+          "other": [
+            {
+              "count": 1,
+              "connector": "RJ-45 Female 1x  RJ-45 Female",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x 8-pin RJ-45 Female"
+            },
+            {
+              "count": 1,
+              "connector": "Mini Din 1x  Mini Din (max length 30m)",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x 8-pin Mini Din (max length 30m)"
+            },
+            {
+              "count": 1,
+              "connector": "CAM-200-PTZ camera 1x CAM-200-PTZ camera",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x CAM-200-PTZ camera"
+            },
+            {
+              "count": 1,
+              "connector": "12V DC 1.5A Power Supply 1x 12V DC 1.5A Power Supply (US/UK/EU/AU)",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x 12V DC 1.5A Power Supply (US/UK/EU/AU)"
+            },
+            {
+              "count": 1,
+              "connector": "Wall Mount 1x Wall Mount",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x Wall Mount"
+            },
+            {
+              "count": 1,
+              "connector": "QuickStart Guide 1x QuickStart Guide",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x QuickStart Guide"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "sku": "CAM-210-PTZ",
+      "name": "PTZ Camera with AI Tracking | CAM-210-PTZ 1080p – WyreStorm",
+      "category": "Camera / capture",
+      "primarySystemFamily": "Camera / Capture",
+      "description": "Buy the CAM-210-PTZ 1080p PTZ camera with AI tracking, USB 3.0 and HDMI outputs, delivering precise pan/tilt/zoom control for professional AV, conferencing, and live streaming installations.",
+      "summary": "1080p60 PTZ Camera | USB 3.0 | Network Streaming | 12x optical zoom | A.I. Auto-Framing | HDMI Out",
+      "technologies": [
+        "HDMI",
+        "USB 3.0",
+        "PTZ",
+        "Camera",
+        "UC / conferencing",
+        "Camera / Capture",
+        "USB",
+        "Network"
+      ],
+      "connectors": [
+        "HDMI",
+        "USB-A/B",
+        "RJ45 / network",
+        "USB"
+      ],
+      "features": [
+        "USB",
+        "HDMI",
+        "Camera / Capture",
+        "Camera endpoint",
+        "PTZ camera",
+        "1080p camera"
+      ],
+      "tags": [
+        "USB",
+        "HDMI",
+        "Camera / Capture",
+        "Camera endpoint",
+        "PTZ camera",
+        "1080p camera",
+        "camera",
+        "ptz",
+        "USB-C video input",
+        "DSP audio processing"
+      ],
+      "classificationPath": [
+        "Camera / Capture",
+        "Camera endpoint",
+        "PTZ camera",
+        "1080p camera"
+      ],
+      "productClassification": {
+        "primaryCategory": "Camera / Capture",
+        "category": "Camera endpoint",
+        "subCategory": "PTZ camera",
+        "productType": "Camera endpoint"
+      },
+      "productRole": "primary-hardware",
+      "lifecycleStatus": "active",
+      "doNotSpec": false,
+      "technicalProfile": {
+        "io": {
+          "ports": [
+            {
+              "count": 1,
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "1x USB 3.0 Type C female"
+            },
+            {
+              "count": 1,
+              "connector": "HDMI",
+              "direction": "output",
+              "category": "video",
+              "evidence": "1x HDMI female Type A"
+            },
+            {
+              "count": 1,
+              "connector": "RJ-45 Female 1x RJ-45 Female",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x RJ-45 Female | 10/100Base-T"
+            },
+            {
+              "count": 1,
+              "connector": "Mini Din 1x  Mini Din (max length 30m)",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x 8-pin Mini Din (max length 30m)"
+            },
+            {
+              "count": 12,
+              "connector": "SFP / fibre",
+              "direction": "output",
+              "category": "video",
+              "evidence": "12x optical and 16x digital zoom"
+            },
+            {
+              "count": 1,
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "1x USB 3.0 Type B female"
+            },
+            {
+              "count": 1,
+              "connector": "RJ45 / Ethernet",
+              "direction": "output",
+              "category": "network",
+              "evidence": "1x RJ45 8-pin LAN"
+            },
+            {
+              "count": 1,
+              "connector": "RJ-45 Female 1x  RJ-45 Female",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x 8-pin RJ-45 Female"
+            },
+            {
+              "count": 12,
+              "connector": "SFP / fibre",
+              "direction": "output",
+              "category": "video",
+              "evidence": "12x optical and 4x digital zoom"
+            },
+            {
+              "count": 1,
+              "connector": "CAM-210-PTZ camera 1x CAM-210-PTZ camera",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x CAM-210-PTZ camera"
+            },
+            {
+              "count": 1,
+              "connector": "12V DC 1A Power Supply 1x 12V DC 1A Power Supply (US/UK/EU/AU)",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x 12V DC 1A Power Supply (US/UK/EU/AU)"
+            },
+            {
+              "count": 1,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x IR Remote"
+            },
+            {
+              "count": 1,
+              "connector": "Wall Mount 1x Wall Mount",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x Wall Mount"
+            },
+            {
+              "count": 1,
+              "connector": "RS-232",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x 2m 8 pin Mini Din RS-232 cable"
+            },
+            {
+              "count": 1,
+              "connector": "USB-C",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "1x USB 3.0 Type-C to A cable"
+            },
+            {
+              "count": 1,
+              "connector": "QuickStart Guide 1x QuickStart Guide",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x QuickStart Guide"
+            }
+          ],
+          "video": [
+            {
+              "count": 1,
+              "connector": "HDMI",
+              "direction": "output",
+              "category": "video",
+              "evidence": "1x HDMI female Type A"
+            },
+            {
+              "count": 12,
+              "connector": "SFP / fibre",
+              "direction": "output",
+              "category": "video",
+              "evidence": "12x optical and 16x digital zoom"
+            },
+            {
+              "count": 12,
+              "connector": "SFP / fibre",
+              "direction": "output",
+              "category": "video",
+              "evidence": "12x optical and 4x digital zoom"
+            }
+          ],
+          "audio": [],
+          "usb": [
+            {
+              "count": 1,
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "1x USB 3.0 Type C female"
+            },
+            {
+              "count": 1,
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "1x USB 3.0 Type B female"
+            },
+            {
+              "count": 1,
+              "connector": "USB-C",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "1x USB 3.0 Type-C to A cable"
+            }
+          ],
+          "network": [
+            {
+              "count": 1,
+              "connector": "RJ45 / Ethernet",
+              "direction": "output",
+              "category": "network",
+              "evidence": "1x RJ45 8-pin LAN"
+            }
+          ],
+          "control": [
+            {
+              "count": 1,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x IR Remote"
+            },
+            {
+              "count": 1,
+              "connector": "RS-232",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x 2m 8 pin Mini Din RS-232 cable"
+            }
+          ],
+          "other": [
+            {
+              "count": 1,
+              "connector": "RJ-45 Female 1x RJ-45 Female",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x RJ-45 Female | 10/100Base-T"
+            },
+            {
+              "count": 1,
+              "connector": "Mini Din 1x  Mini Din (max length 30m)",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x 8-pin Mini Din (max length 30m)"
+            },
+            {
+              "count": 1,
+              "connector": "RJ-45 Female 1x  RJ-45 Female",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x 8-pin RJ-45 Female"
+            },
+            {
+              "count": 1,
+              "connector": "CAM-210-PTZ camera 1x CAM-210-PTZ camera",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x CAM-210-PTZ camera"
+            },
+            {
+              "count": 1,
+              "connector": "12V DC 1A Power Supply 1x 12V DC 1A Power Supply (US/UK/EU/AU)",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x 12V DC 1A Power Supply (US/UK/EU/AU)"
+            },
+            {
+              "count": 1,
+              "connector": "Wall Mount 1x Wall Mount",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x Wall Mount"
+            },
+            {
+              "count": 1,
+              "connector": "QuickStart Guide 1x QuickStart Guide",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x QuickStart Guide"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "sku": "MX-0808-KIT-V2",
+      "name": "8x8 4K UHD HDBaseT Matrix Kit - WyreStorm",
+      "category": "Matrix switching",
+      "primarySystemFamily": "Matrix / Routing",
+      "description": "The MX-0808-KIT v2 gets a make over, sharing many of the same powerful features of version 1, but with a vision of lite commercial installations in mind. Offering the same transmissions of 4K UHD up t",
+      "summary": "4K60Hz 4:2:0 8x8 HDBaseT TM Matrix | PoH | Includes 8 Receivers | 4x Mirrored HDMI | Audio De-embed (4K: 35m/114ft, 1080p: 70m/228ft)",
+      "technologies": [
+        "HDBaseT",
+        "HDMI",
+        "Audio",
+        "Control",
+        "PoE/PoH",
+        "4K60",
+        "Matrix / routing",
+        "Matrix"
+      ],
+      "connectors": [
+        "HDMI",
+        "HDBaseT",
+        "Audio analogue",
+        "RJ45 / Ethernet"
+      ],
+      "features": [
+        "Matrix",
+        "Switching",
+        "HDBaseT",
+        "HDMI",
+        "Matrix / Routing",
+        "HDBaseT matrix"
+      ],
+      "tags": [
+        "Matrix",
+        "Switching",
+        "HDBaseT",
+        "HDMI",
+        "Matrix / Routing",
+        "HDBaseT matrix",
+        "Matrix with HDBaseT extension",
+        "Matrix routing core",
+        "HDR",
+        "Analog audio"
+      ],
+      "classificationPath": [
+        "Matrix / Routing",
+        "HDBaseT matrix",
+        "Matrix with HDBaseT extension",
+        "Matrix routing core"
+      ],
+      "productClassification": {
+        "primaryCategory": "Matrix / Routing",
+        "category": "HDBaseT matrix",
+        "subCategory": "Matrix with HDBaseT extension",
+        "productType": "Matrix routing core"
+      },
+      "productRole": "primary-hardware",
+      "lifecycleStatus": "active",
+      "doNotSpec": false,
+      "technicalProfile": {
+        "io": {
+          "ports": [
+            {
+              "count": 4,
+              "connector": "RJ45 / Ethernet",
+              "direction": "output",
+              "category": "audio",
+              "evidence": "4x 5-pin Balanced Analog Audio"
+            },
+            {
+              "count": 8,
+              "connector": "HDBaseT",
+              "direction": "output",
+              "category": "video",
+              "evidence": "True 8x8 matrix with 8 HDBaseT zones and 4"
+            },
+            {
+              "count": 1,
+              "connector": "MX-0808-KIT Matrix 1x MX-0808-KIT Matrix",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x MX-0808-KIT Matrix"
+            },
+            {
+              "count": 8,
+              "connector": "MX-KIT-RX Receivers 8x MX-KIT-RX Receivers",
+              "direction": "output",
+              "category": "other",
+              "evidence": "8x MX-KIT-RX Receivers"
+            },
+            {
+              "count": 1,
+              "connector": "AC Power Cord 1x AC Power Cord (UK/US/EU)",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x AC Power Cord (UK/US/EU)"
+            },
+            {
+              "count": 1,
+              "connector": "Remote 1 x Remote (Battery not included)",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1 x Remote (Battery not included)"
+            },
+            {
+              "count": 8,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "8x IR Emitters"
+            },
+            {
+              "count": 8,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "8x IR Receivers"
+            },
+            {
+              "count": 2,
+              "connector": "Matrix Mounting Brackets 2x Matrix Mounting Brackets (2 per RX)",
+              "direction": "output",
+              "category": "other",
+              "evidence": "2x Matrix Mounting Brackets (2 per RX)"
+            },
+            {
+              "count": 1,
+              "connector": "Quickstart Guide 1x Quickstart Guide",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x Quickstart Guide"
+            }
+          ],
+          "video": [
+            {
+              "count": 8,
+              "connector": "HDBaseT",
+              "direction": "output",
+              "category": "video",
+              "evidence": "True 8x8 matrix with 8 HDBaseT zones and 4"
+            }
+          ],
+          "audio": [
+            {
+              "count": 4,
+              "connector": "RJ45 / Ethernet",
+              "direction": "output",
+              "category": "audio",
+              "evidence": "4x 5-pin Balanced Analog Audio"
+            }
+          ],
+          "usb": [],
+          "network": [],
+          "control": [
+            {
+              "count": 8,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "8x IR Emitters"
+            },
+            {
+              "count": 8,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "8x IR Receivers"
+            }
+          ],
+          "other": [
+            {
+              "count": 1,
+              "connector": "MX-0808-KIT Matrix 1x MX-0808-KIT Matrix",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x MX-0808-KIT Matrix"
+            },
+            {
+              "count": 8,
+              "connector": "MX-KIT-RX Receivers 8x MX-KIT-RX Receivers",
+              "direction": "output",
+              "category": "other",
+              "evidence": "8x MX-KIT-RX Receivers"
+            },
+            {
+              "count": 1,
+              "connector": "AC Power Cord 1x AC Power Cord (UK/US/EU)",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x AC Power Cord (UK/US/EU)"
+            },
+            {
+              "count": 1,
+              "connector": "Remote 1 x Remote (Battery not included)",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1 x Remote (Battery not included)"
+            },
+            {
+              "count": 2,
+              "connector": "Matrix Mounting Brackets 2x Matrix Mounting Brackets (2 per RX)",
+              "direction": "output",
+              "category": "other",
+              "evidence": "2x Matrix Mounting Brackets (2 per RX)"
+            },
+            {
+              "count": 1,
+              "connector": "Quickstart Guide 1x Quickstart Guide",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x Quickstart Guide"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "sku": "NHD-500-TX",
+      "name": "4K60Hz 4:4:4 Encoder",
+      "category": "AVoIP",
+      "primarySystemFamily": "NetworkHD AV over IP",
+      "description": "4K60Hz 4:4:4 Encoder | 1GbE | Dolby Vision & HDR | PoE | USB 2.0 | Audio De-embed | ARC | S/PDIF | SFP | IR & RS232 Routing",
+      "summary": "4K60Hz 4:4:4 Encoder | 1GbE | Dolby Vision & HDR | PoE | USB 2.0 | Audio De-embed | ARC | S/PDIF | SFP | IR & RS232 Routing",
+      "technologies": [
+        "NetworkHD 500",
+        "AVoIP",
+        "USB 2.0",
+        "Audio",
+        "Control",
+        "PoE/PoH",
+        "4K60",
+        "1G Ethernet"
+      ],
+      "connectors": [
+        "USB-A/B",
+        "RJ45 / network",
+        "Fibre",
+        "RS-232"
+      ],
+      "features": [
+        "Encoder / transmitter",
+        "Audio de-embed",
+        "USB transport",
+        "Remote power",
+        "Control passthrough",
+        "AVoIP"
+      ],
+      "tags": [
+        "AVoIP",
+        "NetworkHD 500",
+        "USB 2.0",
+        "Audio",
+        "Control",
+        "PoE/PoH",
+        "4K60",
+        "USB-A/B",
+        "RJ45 / network",
+        "Fibre"
+      ],
+      "classificationPath": [
+        "NetworkHD AV over IP",
+        "NetworkHD 500",
+        "Encoder",
+        "AVoIP endpoint",
+        "4K60 transport"
+      ],
+      "productClassification": {
+        "primaryCategory": "NetworkHD AV over IP",
+        "category": "NetworkHD 500",
+        "subCategory": "Encoder",
+        "productType": "AVoIP endpoint"
+      },
+      "productRole": "endpoint-hardware",
+      "lifecycleStatus": "active",
+      "doNotSpec": false,
+      "technicalProfile": {
+        "io": {
+          "ports": [
+            {
+              "count": 1,
+              "connector": "HDMI",
+              "direction": "input",
+              "category": "video",
+              "evidence": "1 x HDMI 2.0b"
+            },
+            {
+              "count": 1,
+              "connector": "RJ45 / Ethernet",
+              "direction": "input",
+              "category": "audio",
+              "evidence": "1 x 5-pin Balanced Audio"
+            },
+            {
+              "count": 1,
+              "connector": "S/PDIF 1 x S/PDIF (Toslink)",
+              "direction": "input",
+              "category": "other",
+              "evidence": "1 x S/PDIF (Toslink)"
+            },
+            {
+              "count": 1,
+              "connector": "S/PDIF Digital 1 x S/PDIF Digital",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1 x S/PDIF Digital"
+            },
+            {
+              "count": 1,
+              "connector": "RJ45 / Ethernet",
+              "direction": "output",
+              "category": "network",
+              "evidence": "1x 1GbE 8-Pin RJ45"
+            },
+            {
+              "count": 1,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x IR TX 3.5mm TS Mono Jack | API Programmable"
+            },
+            {
+              "count": 1,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x IR RX 3.5mm TRS Stereo Jack | API Programmable"
+            },
+            {
+              "count": 1,
+              "connector": "Analog audio",
+              "direction": "output",
+              "category": "audio",
+              "evidence": "1x 3-Pin Phoenix Connector | 2-way | API Programmable"
+            },
+            {
+              "count": 1,
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "1 x USB 2.0 Type B"
+            },
+            {
+              "count": 2,
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "2 x USB HID Type A"
+            },
+            {
+              "count": 2,
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "2 x USB 2.0 Type A (up to 200Mbps upstream)"
+            },
+            {
+              "count": 1,
+              "connector": "HDMI",
+              "direction": "output",
+              "category": "video",
+              "evidence": "1 x HDMI 2.0"
+            },
+            {
+              "count": 1,
+              "connector": "Analog audio",
+              "direction": "output",
+              "category": "audio",
+              "evidence": "1 x 3.5mm TRS Audio"
+            },
+            {
+              "count": 1,
+              "connector": "SFP / fibre",
+              "direction": "output",
+              "category": "video",
+              "evidence": "1x 1Gb SFP (1000BaseT-SX: 550m using OM3 MMF)"
+            },
+            {
+              "count": 1,
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "1 x USB 2.0 Type Host"
+            },
+            {
+              "count": 1,
+              "connector": "NHD-500-TX or NHD-500-RX 1x NHD-500-TX or NHD-500-RX",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x NHD-500-TX or NHD-500-RX"
+            },
+            {
+              "count": 1,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1 x IR Emitter"
+            },
+            {
+              "count": 1,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x IR Receiver"
+            },
+            {
+              "count": 1,
+              "connector": "Pair of Rack Brackets 1x Pair of Rack Brackets",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x Pair of Rack Brackets"
+            },
+            {
+              "count": 2,
+              "connector": "Pair of Wall Brackets 2x Pair of Wall Brackets",
+              "direction": "output",
+              "category": "control",
+              "evidence": "2x Pair of Wall Brackets"
+            },
+            {
+              "count": 1,
+              "connector": "Terminal Block 1x  Terminal Block",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x 3-pin Terminal Block"
+            },
+            {
+              "count": 1,
+              "connector": "Terminal Block 1x  Terminal Block",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x 5-pin Terminal Block"
+            }
+          ],
+          "video": [
+            {
+              "count": 1,
+              "connector": "HDMI",
+              "direction": "input",
+              "category": "video",
+              "evidence": "1 x HDMI 2.0b"
+            },
+            {
+              "count": 1,
+              "connector": "HDMI",
+              "direction": "output",
+              "category": "video",
+              "evidence": "1 x HDMI 2.0"
+            },
+            {
+              "count": 1,
+              "connector": "SFP / fibre",
+              "direction": "output",
+              "category": "video",
+              "evidence": "1x 1Gb SFP (1000BaseT-SX: 550m using OM3 MMF)"
+            }
+          ],
+          "audio": [
+            {
+              "count": 1,
+              "connector": "RJ45 / Ethernet",
+              "direction": "input",
+              "category": "audio",
+              "evidence": "1 x 5-pin Balanced Audio"
+            },
+            {
+              "count": 1,
+              "connector": "Analog audio",
+              "direction": "output",
+              "category": "audio",
+              "evidence": "1x 3-Pin Phoenix Connector | 2-way | API Programmable"
+            },
+            {
+              "count": 1,
+              "connector": "Analog audio",
+              "direction": "output",
+              "category": "audio",
+              "evidence": "1 x 3.5mm TRS Audio"
+            }
+          ],
+          "usb": [
+            {
+              "count": 1,
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "1 x USB 2.0 Type B"
+            },
+            {
+              "count": 2,
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "2 x USB HID Type A"
+            },
+            {
+              "count": 2,
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "2 x USB 2.0 Type A (up to 200Mbps upstream)"
+            },
+            {
+              "count": 1,
+              "connector": "USB",
+              "direction": "output",
+              "category": "usb",
+              "evidence": "1 x USB 2.0 Type Host"
+            }
+          ],
+          "network": [
+            {
+              "count": 1,
+              "connector": "RJ45 / Ethernet",
+              "direction": "output",
+              "category": "network",
+              "evidence": "1x 1GbE 8-Pin RJ45"
+            }
+          ],
+          "control": [
+            {
+              "count": 1,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x IR TX 3.5mm TS Mono Jack | API Programmable"
+            },
+            {
+              "count": 1,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x IR RX 3.5mm TRS Stereo Jack | API Programmable"
+            },
+            {
+              "count": 1,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1 x IR Emitter"
+            },
+            {
+              "count": 1,
+              "connector": "IR",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x IR Receiver"
+            },
+            {
+              "count": 1,
+              "connector": "Pair of Rack Brackets 1x Pair of Rack Brackets",
+              "direction": "output",
+              "category": "control",
+              "evidence": "1x Pair of Rack Brackets"
+            },
+            {
+              "count": 2,
+              "connector": "Pair of Wall Brackets 2x Pair of Wall Brackets",
+              "direction": "output",
+              "category": "control",
+              "evidence": "2x Pair of Wall Brackets"
+            }
+          ],
+          "other": [
+            {
+              "count": 1,
+              "connector": "S/PDIF 1 x S/PDIF (Toslink)",
+              "direction": "input",
+              "category": "other",
+              "evidence": "1 x S/PDIF (Toslink)"
+            },
+            {
+              "count": 1,
+              "connector": "S/PDIF Digital 1 x S/PDIF Digital",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1 x S/PDIF Digital"
+            },
+            {
+              "count": 1,
+              "connector": "NHD-500-TX or NHD-500-RX 1x NHD-500-TX or NHD-500-RX",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x NHD-500-TX or NHD-500-RX"
+            },
+            {
+              "count": 1,
+              "connector": "Terminal Block 1x  Terminal Block",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x 3-pin Terminal Block"
+            },
+            {
+              "count": 1,
+              "connector": "Terminal Block 1x  Terminal Block",
+              "direction": "output",
+              "category": "other",
+              "evidence": "1x 5-pin Terminal Block"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "sku": "SP-0104-H2",
+      "name": "4K HDMI Splitter – High-Quality HDMI Signal Distribution",
+      "category": "General AV",
+      "primarySystemFamily": "Distribution",
+      "description": "4K HDMI Splitter for seamless signal distribution to multiple displays. Enjoy sharp, crisp visuals with easy setup for home or office use.",
+      "summary": "4K60Hz 4:4:4 1x4 HDMI Splitter | Dolby Vision & HDR | EDID Management",
+      "technologies": [
+        "HDMI",
+        "4K60",
+        "Splitter / Distribution",
+        "Video",
+        "Audio"
+      ],
+      "connectors": [
+        "HDMI",
+        "2160 Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz"
+      ],
+      "features": [
+        "HDMI",
+        "Seamless Switching",
+        "Splitter / Distribution",
+        "Distribution",
+        "Splitter / distribution amplifier",
+        "HDMI splitter"
+      ],
+      "tags": [
+        "HDMI",
+        "Seamless Switching",
+        "Splitter / Distribution",
+        "Distribution",
+        "Splitter / distribution amplifier",
+        "HDMI splitter",
+        "One-to-many distribution",
+        "splitter",
+        "Duplicate one source to multiple displays",
+        "4K60"
+      ],
+      "classificationPath": [
+        "Distribution",
+        "Splitter / distribution amplifier",
+        "HDMI splitter",
+        "One-to-many distribution"
+      ],
+      "productClassification": {
+        "primaryCategory": "Distribution",
+        "category": "Splitter / distribution amplifier",
+        "subCategory": "HDMI splitter",
+        "productType": "One-to-many distribution"
+      },
+      "productRole": "primary-hardware",
+      "lifecycleStatus": "active",
+      "doNotSpec": false,
+      "technicalProfile": {
+        "io": {
+          "ports": [
+            {
+              "count": 3840,
+              "connector": "2160 Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz",
+              "direction": "unspecified",
+              "category": "other",
+              "evidence": "Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz"
+            },
+            {
+              "count": 4096,
+              "connector": "2160 Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz",
+              "direction": "unspecified",
+              "category": "other",
+              "evidence": "Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz"
+            }
+          ],
+          "video": [],
+          "audio": [],
+          "usb": [],
+          "network": [],
+          "control": [],
+          "other": [
+            {
+              "count": 3840,
+              "connector": "2160 Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz",
+              "direction": "unspecified",
+              "category": "other",
+              "evidence": "Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz"
+            },
+            {
+              "count": 4096,
+              "connector": "2160 Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz",
+              "direction": "unspecified",
+              "category": "other",
+              "evidence": "Supports resolutions up to 4K@60Hz, including 3840x2160 (HDR) and 4096x2160 (DCI) and 1920x1080p@60Hz"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "sku": "CAB-DAOC-10-C",
+      "name": "32Gbps 8K 60Hz DisplayPort 1.4 Active Optical Cable with DP++ Support (10m/32ft) CPR, CL3 Approvals - WyreStorm",
+      "category": "Cables",
+      "primarySystemFamily": "Cable / Connectivity",
+      "productRole": "cable",
+      "lifecycleStatus": "discontinued",
+      "doNotSpec": true,
+      "tags": []
+    },
+    {
+      "sku": "NHD-600-TRXF",
+      "name": "NetworkHD 600 Series 4K60 4:4:4 10Gb SDVoE Fiber Transceiver - WyreStorm",
+      "category": "AV-over-IP",
+      "primarySystemFamily": "NetworkHD AV over IP",
+      "description": "The NHD-600-TRXF is a SDVoE fiber transceiver capable of lossless, latency-free 4K60 over a 10Gb network. The TRXF allows you to transmit and receive A/V simultaneous through a single device or be programmed to act as a dedicated TX or RX. The SFP+ c",
+      "summary": "4K60Hz 4:4:4 SDVoE Fiber Transceiver | 10G SFP+ | Dolby Vision & HDR | Video Wall | Multiview | Ethernet Passthrough | Audio De-embed | USB 2.0 | IR&RS232",
+      "technologies": [
+        "NetworkHD 600",
+        "AVoIP",
+        "USB 2.0",
+        "Multiview",
+        "Video Wall",
+        "Audio",
+        "Control",
+        "4K60",
+        "10G",
+        "Camera / Capture",
+        "USB",
+        "HDMI",
+        "Network",
+        "KVM / USB extension",
+        "USB 3.x",
+        "NetworkHD AV over IP",
+        "Video"
+      ],
+      "connectors": [
+        "USB-A/B",
+        "RJ45 / network",
+        "Fibre",
+        "RS-232"
+      ],
+      "features": [
+        "AVoIP",
+        "NetworkHD",
+        "USB",
+        "HDMI",
+        "HDR",
+        "Analog audio",
+        "Audio breakout",
+        "KVM / USB extension",
+        "USB 2.0",
+        "USB 3.x"
+      ],
+      "tags": [
+        "AVoIP",
+        "NetworkHD",
+        "USB",
+        "HDMI",
+        "HDR",
+        "Analog audio",
+        "Audio breakout",
+        "KVM / USB extension",
+        "USB 2.0",
+        "USB 3.x",
+        "Ethernet / LAN",
+        "NetworkHD AV over IP",
+        "SFP / fibre",
+        "CEC control",
+        "IP / web control"
+      ],
+      "classificationPath": [
+        "NetworkHD AV over IP",
+        "NetworkHD 600",
+        "Transceiver",
+        "AVoIP endpoint",
+        "10G lossless transport"
+      ],
+      "productClassification": {
+        "primaryCategory": "NetworkHD AV over IP",
+        "category": "NetworkHD 600",
+        "subCategory": "Transceiver",
+        "productType": "AVoIP endpoint"
+      },
+      "productRole": "primary-hardware",
+      "lifecycleStatus": "active",
+      "doNotSpec": false
+    },
+    {
+      "sku": "RX-700",
+      "name": "100m 4K60 HDBaseT DSC Receiver with USB - WyreStorm",
+      "category": "Cables",
+      "primarySystemFamily": "Extension",
+      "description": "Utilizing the best in HDBaseT technology, the RX-700 extends 5-Play functionality to your display device over 100m/328ft of Cat6 cable. Using DSC (display stream compression) the RX-700 can support HDMI video up to 2160p 4:4:4 at 60Hz without any vis",
+      "summary": "4K60Hz 4:2:0 HDBaseT Receiver | PoH | USB 2.0 | DSC | Audio De-embed | RS232 & IR Passthrough (4K: 100m/328ft) [For SW-130-TX]",
+      "technologies": [
+        "HDBaseT",
+        "USB 2.0",
+        "Audio",
+        "Control",
+        "PoE/PoH",
+        "4K60",
+        "HDBaseT extender",
+        "Camera / Capture",
+        "USB",
+        "NDI",
+        "HDMI",
+        "DisplayPort",
+        "USB-C video input",
+        "KVM / USB extension",
+        "USB routing / switching",
+        "USB-C",
+        "USB-C power delivery",
+        "Video",
+        "Network"
+      ],
+      "connectors": [
+        "USB-A/B",
+        "HDBaseT",
+        "RS-232",
+        "IR"
+      ],
+      "features": [
+        "HDBaseT",
+        "USB",
+        "HDMI",
+        "DisplayPort",
+        "HDR",
+        "USB-C video input",
+        "Analog audio",
+        "DSP audio processing",
+        "KVM / USB extension",
+        "USB 2.0"
+      ],
+      "tags": [
+        "HDBaseT",
+        "USB",
+        "HDMI",
+        "DisplayPort",
+        "HDR",
+        "USB-C video input",
+        "Analog audio",
+        "DSP audio processing",
+        "KVM / USB extension",
+        "USB 2.0",
+        "USB routing / switching",
+        "USB-C",
+        "USB-C power delivery",
+        "Ethernet / LAN",
+        "CEC control"
+      ],
+      "classificationPath": [
+        "Extension",
+        "USB / KVM extender",
+        "Receiver",
+        "Signal extension endpoint"
+      ],
+      "productClassification": {
+        "primaryCategory": "Extension",
+        "category": "USB / KVM extender",
+        "subCategory": "Receiver",
+        "productType": "Signal extension endpoint"
+      },
+      "productRole": "primary-hardware",
+      "lifecycleStatus": "active",
+      "doNotSpec": false
+    },
+    {
+      "sku": "RX3-100",
+      "name": "4K HDR 4:4:4 60Hz HDBaseT3.0 Receiver with USB Device Inputs, Audio De-embed & PoH 100m/328ft over Cat6 - WyreStorm",
+      "category": "Extension",
+      "primarySystemFamily": "Extension",
+      "description": "Introducing the RX3-100, an uncompressed 18G HDBaseT 3.0 receiver that achieves signal transmission up to 100m/328ft at 4K@60Hz via Cat.6A cable. With HDBaseT 3.0, experience USB data transfers of up to 300Mbps, nearly doubling HDBaseT 2.0's capabili",
+      "summary": "4K60Hz 4:4:4,5K30Hz 4:4:4 HDBaseT 3.0 Receiver | PoH | USB2.0 | CEC | RS232 passthrough | audio De-embed (4K: 100m/328ft) [For SW-120-TX3 & MX-1007-HYB]",
+      "technologies": [
+        "HDBaseT",
+        "HDBaseT 3.0",
+        "USB 2.0",
+        "Audio",
+        "Control",
+        "PoE/PoH",
+        "4K60",
+        "Matrix / routing",
+        "Camera / Capture",
+        "USB",
+        "HDMI",
+        "DisplayPort",
+        "USB-C video input",
+        "KVM / USB extension",
+        "USB routing / switching",
+        "USB-C",
+        "USB-C power delivery",
+        "Video",
+        "Network"
+      ],
+      "connectors": [
+        "USB-A/B",
+        "HDBaseT",
+        "RS-232",
+        "Audio analogue"
+      ],
+      "features": [
+        "HDBaseT",
+        "USB",
+        "Seamless Switching",
+        "DisplayPort",
+        "HDBaseT 3.0",
+        "HDMI",
+        "HDR",
+        "USB-C video input",
+        "Analog audio",
+        "Audio breakout"
+      ],
+      "tags": [
+        "HDBaseT",
+        "USB",
+        "Seamless Switching",
+        "DisplayPort",
+        "HDBaseT 3.0",
+        "HDMI",
+        "HDR",
+        "USB-C video input",
+        "Analog audio",
+        "Audio breakout",
+        "DSP audio processing",
+        "KVM / USB extension",
+        "USB 2.0",
+        "USB routing / switching",
+        "USB-C"
+      ],
+      "classificationPath": [
+        "Extension",
+        "USB / KVM extender",
+        "Receiver",
+        "Signal extension endpoint"
+      ],
+      "productClassification": {
+        "primaryCategory": "Extension",
+        "category": "USB / KVM extender",
+        "subCategory": "Receiver",
+        "productType": "Signal extension endpoint"
+      },
+      "productRole": "primary-hardware",
+      "lifecycleStatus": "active",
+      "doNotSpec": false
+    }
+  ]
+}

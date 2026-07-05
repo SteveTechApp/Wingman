@@ -200466,16 +200466,12 @@
     "description": "The NHD-600-TRXF is a SDVoE fiber transceiver capable of lossless, latency-free 4K60 over a 10Gb network. The TRXF allows you to transmit and receive A/V simultaneous through a single device or be programmed to act as a dedicated TX or RX. The SFP+ connector supports up to 300m (984ft), 10Gbps transmission distance for extremely long reach commercial applications. 3x High-Speed USB 2.0 ports allow extension for keyboard mouse applications and even compatibility with webcams, touchscreens, and media storage.",
     "family": "NetworkHD 600",
     "role": "NetworkHD 600 10G AV-over-IP endpoint",
-    "productRole": "primary-hardware",
+    "productRole": "endpoint-hardware",
     "catalogVisibility": "default",
     "features": [
       "AVoIP",
       "NetworkHD",
       "USB",
-      "Camera / Capture",
-      "Camera endpoint",
-      "USB camera",
-      "4K camera",
       "HDMI",
       "HDR",
       "Analog audio",
@@ -200493,20 +200489,20 @@
       "HDCP support",
       "Scaling",
       "Rack installation",
-      "Camera",
       "Transceiver",
       "Video wall processing",
       "Multiview",
       "Audio de-embed",
       "USB transport",
-      "Control passthrough"
+      "Control passthrough",
+      "NetworkHD 600",
+      "AVoIP endpoint",
+      "10G lossless transport"
     ],
     "featureTags": [
       "AVoIP",
       "NetworkHD",
       "USB",
-      "Camera / Capture",
-      "camera",
       "HDMI",
       "HDR",
       "Analog audio",
@@ -200523,17 +200519,14 @@
       "RS-232 control",
       "HDCP support",
       "Scaling",
-      "Rack installation"
+      "Rack installation",
+      "networkhd-600",
+      "transceiver"
     ],
     "tags": [
       "AVoIP",
       "NetworkHD",
       "USB",
-      "Camera / Capture",
-      "Camera endpoint",
-      "USB camera",
-      "4K camera",
-      "camera",
       "HDMI",
       "HDR",
       "Analog audio",
@@ -200600,7 +200593,10 @@
       "Unified communications",
       "Large venue",
       "Product selection",
-      "SKU lookup"
+      "SKU lookup",
+      "AVoIP endpoint",
+      "10G lossless transport",
+      "networkhd-600"
     ],
     "capabilities": [
       "AVoIP",
@@ -200635,13 +200631,8 @@
       "AVoIP",
       "NetworkHD",
       "USB",
-      "Camera / Capture",
       "Primary hardware",
-      "Camera endpoint",
-      "USB camera",
-      "4K camera",
       "Image capture endpoint",
-      "camera",
       "HDMI",
       "HDR",
       "Analog audio",
@@ -200706,7 +200697,11 @@
       "Is the system expected to grow, change rooms, add endpoints, record, stream or integrate with a wider AV platform?",
       "Use for architectural judgement, product-family selection and proposal-safe trade-off language.",
       "Be explicit when the product is technically possible but unlikely to be the most natural choice.",
-      "Do not let a feature match override the real application, architecture or operational requirement."
+      "Do not let a feature match override the real application, architecture or operational requirement.",
+      "NetworkHD 600",
+      "Transceiver",
+      "AVoIP endpoint",
+      "networkhd-600"
     ],
     "source": {
       "type": "official-product-page",
@@ -200729,45 +200724,42 @@
     "roleCorrectionSource": "product-manager-profile:wyrestorm-product-manager-v1",
     "productClassification": {
       "taxonomyVersion": "wyrestorm-product-manager-v1",
-      "primaryCategory": "Camera / Capture",
-      "category": "Camera endpoint",
-      "subCategory": "USB camera",
-      "productType": "Camera endpoint",
-      "productSubType": "4K camera",
-      "systemRole": "Image capture endpoint",
-      "applicationRole": "UC, lecture capture and streaming workflows",
+      "primaryCategory": "NetworkHD AV over IP",
+      "category": "NetworkHD 600",
+      "subCategory": "Transceiver",
+      "productType": "AVoIP endpoint",
+      "productSubType": "10G lossless transport",
+      "systemRole": "Transceiver",
+      "applicationRole": "Distributed AV routing, video wall, multiview or AVoIP transport",
       "transportClass": [
-        "USB",
-        "HDMI",
-        "Network"
+        "AVoIP",
+        "NetworkHD 600",
+        "10G Ethernet"
       ],
       "signalDomains": [
         "Video",
-        "USB",
         "Network",
-        "Control"
+        "Control",
+        "USB"
       ],
       "subClassifications": [
-        "camera"
-      ],
-      "classificationPath": [
-        "Camera / Capture",
-        "Camera endpoint",
-        "USB camera",
-        "4K camera"
+        "networkhd-600",
+        "transceiver"
       ],
       "confidence": 0.95,
-      "productRole": "primary-hardware",
+      "productRole": "endpoint-hardware",
       "catalogVisibility": "default"
     },
     "classificationPath": [
-      "Camera / Capture",
-      "Camera endpoint",
-      "USB camera",
-      "4K camera"
+      "NetworkHD AV over IP",
+      "NetworkHD 600",
+      "Transceiver",
+      "AVoIP endpoint",
+      "10G lossless transport"
     ],
     "subClassifications": [
-      "camera"
+      "networkhd-600",
+      "transceiver"
     ],
     "technicalProfile": {
       "profileVersion": "wyrestorm-product-manager-v1",
@@ -221441,16 +221433,12 @@
     "description": "Utilizing the best in HDBaseT technology, the RX-700 extends 5-Play functionality to your display device over 100m/328ft of Cat6 cable. Using DSC (display stream compression) the RX-700 can support HDMI video up to 2160p 4:4:4 at 60Hz without any visual loss in quality or latency. With HID’s and data transfer in mind, the RX-700 supports data transmission of USB 2.0 devices like HD webcams, smart whiteboards and flash drives alike.",
     "family": "Cable",
     "role": "Cable / active optical cable",
-    "productRole": "primary-hardware",
+    "productRole": "endpoint-hardware",
     "catalogVisibility": "default",
     "features": [
       "HDBaseT",
       "USB",
       "HDMI",
-      "Camera / Capture",
-      "Camera endpoint",
-      "USB camera",
-      "4K camera",
       "DisplayPort",
       "HDR",
       "USB-C video input",
@@ -221468,19 +221456,20 @@
       "EDID management",
       "HDCP support",
       "PoE / PoH / PoC",
-      "Camera",
       "Signal extension",
       "Audio de-embed",
       "USB transport",
       "Remote power",
-      "Control passthrough"
+      "Control passthrough",
+      "Extension",
+      "USB / KVM extender",
+      "Receiver",
+      "Signal extension endpoint"
     ],
     "featureTags": [
       "HDBaseT",
       "USB",
       "HDMI",
-      "Camera / Capture",
-      "camera",
       "DisplayPort",
       "HDR",
       "USB-C video input",
@@ -221497,17 +221486,15 @@
       "RS-232 control",
       "EDID management",
       "HDCP support",
-      "PoE / PoH / PoC"
+      "PoE / PoH / PoC",
+      "extender",
+      "usb-kvm",
+      "receiver"
     ],
     "tags": [
       "HDBaseT",
       "USB",
       "HDMI",
-      "Camera / Capture",
-      "Camera endpoint",
-      "USB camera",
-      "4K camera",
-      "camera",
       "DisplayPort",
       "HDR",
       "USB-C video input",
@@ -221577,7 +221564,13 @@
       "Compatible with SW-120-TX3-US",
       "Compatible with SW-120-TX3-UK",
       "Compatibility chart page 6",
-      "Compatible with SW-510-TX"
+      "Compatible with SW-510-TX",
+      "Extension",
+      "USB / KVM extender",
+      "Receiver",
+      "Signal extension endpoint",
+      "extender",
+      "usb-kvm"
     ],
     "capabilities": [
       "HDBaseT",
@@ -221611,13 +221604,8 @@
       "HDBaseT",
       "USB",
       "HDMI",
-      "Camera / Capture",
       "Primary hardware",
-      "Camera endpoint",
-      "USB camera",
-      "4K camera",
       "Image capture endpoint",
-      "camera",
       "DisplayPort",
       "HDR",
       "USB-C video input",
@@ -221682,7 +221670,14 @@
       "Is the system expected to grow, change rooms, add endpoints, record, stream or integrate with a wider AV platform?",
       "Use for architectural judgement, product-family selection and proposal-safe trade-off language.",
       "Be explicit when the product is technically possible but unlikely to be the most natural choice.",
-      "Do not let a feature match override the real application, architecture or operational requirement."
+      "Do not let a feature match override the real application, architecture or operational requirement.",
+      "Extension",
+      "USB / KVM extender",
+      "Receiver",
+      "Signal extension endpoint",
+      "Point-to-point extension",
+      "extender",
+      "usb-kvm"
     ],
     "source": {
       "type": "official-product-page",
@@ -221705,45 +221700,42 @@
     "roleCorrectionSource": "product-manager-profile:wyrestorm-product-manager-v1",
     "productClassification": {
       "taxonomyVersion": "wyrestorm-product-manager-v1",
-      "primaryCategory": "Camera / Capture",
-      "category": "Camera endpoint",
-      "subCategory": "USB camera",
-      "productType": "Camera endpoint",
-      "productSubType": "4K camera",
-      "systemRole": "Image capture endpoint",
-      "applicationRole": "UC, lecture capture and streaming workflows",
+      "primaryCategory": "Extension",
+      "category": "USB / KVM extender",
+      "subCategory": "Receiver",
+      "productType": "Signal extension endpoint",
+      "productSubType": "",
+      "systemRole": "Point-to-point extension",
+      "applicationRole": "Long-distance video, USB, control and network transport",
       "transportClass": [
-        "USB",
-        "NDI",
-        "HDMI"
+        "HDBaseT",
+        "USB"
       ],
       "signalDomains": [
         "Video",
         "USB",
-        "Network",
-        "Control"
+        "Control",
+        "Network"
       ],
       "subClassifications": [
-        "camera"
+        "extender",
+        "usb-kvm",
+        "receiver"
       ],
-      "classificationPath": [
-        "Camera / Capture",
-        "Camera endpoint",
-        "USB camera",
-        "4K camera"
-      ],
-      "confidence": 0.95,
-      "productRole": "primary-hardware",
+      "confidence": 0.94,
+      "productRole": "endpoint-hardware",
       "catalogVisibility": "default"
     },
     "classificationPath": [
-      "Camera / Capture",
-      "Camera endpoint",
-      "USB camera",
-      "4K camera"
+      "Extension",
+      "USB / KVM extender",
+      "Receiver",
+      "Signal extension endpoint"
     ],
     "subClassifications": [
-      "camera"
+      "extender",
+      "usb-kvm",
+      "receiver"
     ],
     "technicalProfile": {
       "profileVersion": "wyrestorm-product-manager-v1",
@@ -222820,16 +222812,12 @@
     "description": "Introducing the RX3-100, an uncompressed 18G HDBaseT 3.0 receiver that achieves signal transmission up to 100m/328ft at 4K@60Hz via Cat.6A cable. With HDBaseT 3.0, experience USB data transfers of up to 300Mbps, nearly doubling HDBaseT 2.0's capability of 190Mbps. This heightened capacity supports high-speed connections to 4K webcams, whiteboards, and data drives. The RX3-100 seamlessly pairs with any of WyreStorm's HDBaseT 3.0 transmitter options, such as the SW-120-TX3 and SW-120-TX3-Ux for a powerful switching e...",
     "family": "Extender",
     "role": "Signal extender",
-    "productRole": "primary-hardware",
+    "productRole": "endpoint-hardware",
     "catalogVisibility": "default",
     "features": [
       "HDBaseT",
       "USB",
       "Seamless Switching",
-      "Camera / Capture",
-      "Camera endpoint",
-      "USB camera",
-      "4K camera",
       "DisplayPort",
       "HDBaseT 3.0",
       "HDMI",
@@ -222850,20 +222838,21 @@
       "EDID management",
       "HDCP support",
       "PoE / PoH / PoC",
-      "Camera",
       "Video bar",
       "Signal extension",
       "Audio de-embed",
       "USB transport",
       "Remote power",
-      "Control passthrough"
+      "Control passthrough",
+      "Extension",
+      "USB / KVM extender",
+      "Receiver",
+      "Signal extension endpoint"
     ],
     "featureTags": [
       "HDBaseT",
       "USB",
       "Seamless Switching",
-      "Camera / Capture",
-      "camera",
       "DisplayPort",
       "HDBaseT 3.0",
       "HDMI",
@@ -222884,17 +222873,15 @@
       "EDID management",
       "HDCP support",
       "PoE / PoH / PoC",
-      "Video bar"
+      "Video bar",
+      "extender",
+      "usb-kvm",
+      "receiver"
     ],
     "tags": [
       "HDBaseT",
       "USB",
       "Seamless Switching",
-      "Camera / Capture",
-      "Camera endpoint",
-      "USB camera",
-      "4K camera",
-      "camera",
       "DisplayPort",
       "HDBaseT 3.0",
       "HDMI",
@@ -222995,7 +222982,13 @@
       "Compatible with SW-130-TX-UK",
       "Compatible with SW-120-TX3",
       "Compatible with SW-120-TX3-US",
-      "Compatible with SW-120-TX3-UK"
+      "Compatible with SW-120-TX3-UK",
+      "Extension",
+      "USB / KVM extender",
+      "Receiver",
+      "Signal extension endpoint",
+      "extender",
+      "usb-kvm"
     ],
     "capabilities": [
       "HDBaseT",
@@ -223033,13 +223026,8 @@
       "HDBaseT",
       "USB",
       "Seamless Switching",
-      "Camera / Capture",
       "Primary hardware",
-      "Camera endpoint",
-      "USB camera",
-      "4K camera",
       "Image capture endpoint",
-      "camera",
       "DisplayPort",
       "HDBaseT 3.0",
       "HDMI",
@@ -223109,7 +223097,14 @@
       "Is the system expected to grow, change rooms, add endpoints, record, stream or integrate with a wider AV platform?",
       "Use for architectural judgement, product-family selection and proposal-safe trade-off language.",
       "Be explicit when the product is technically possible but unlikely to be the most natural choice.",
-      "Do not let a feature match override the real application, architecture or operational requirement."
+      "Do not let a feature match override the real application, architecture or operational requirement.",
+      "Extension",
+      "USB / KVM extender",
+      "Receiver",
+      "Signal extension endpoint",
+      "Point-to-point extension",
+      "extender",
+      "usb-kvm"
     ],
     "source": {
       "type": "official-product-page",
@@ -223132,44 +223127,42 @@
     "roleCorrectionSource": "product-manager-profile:wyrestorm-product-manager-v1",
     "productClassification": {
       "taxonomyVersion": "wyrestorm-product-manager-v1",
-      "primaryCategory": "Camera / Capture",
-      "category": "Camera endpoint",
-      "subCategory": "USB camera",
-      "productType": "Camera endpoint",
-      "productSubType": "4K camera",
-      "systemRole": "Image capture endpoint",
-      "applicationRole": "UC, lecture capture and streaming workflows",
+      "primaryCategory": "Extension",
+      "category": "USB / KVM extender",
+      "subCategory": "Receiver",
+      "productType": "Signal extension endpoint",
+      "productSubType": "",
+      "systemRole": "Point-to-point extension",
+      "applicationRole": "Long-distance video, USB, control and network transport",
       "transportClass": [
-        "USB",
-        "HDMI"
+        "HDBaseT",
+        "USB"
       ],
       "signalDomains": [
         "Video",
         "USB",
-        "Network",
-        "Control"
+        "Control",
+        "Network"
       ],
       "subClassifications": [
-        "camera"
+        "extender",
+        "usb-kvm",
+        "receiver"
       ],
-      "classificationPath": [
-        "Camera / Capture",
-        "Camera endpoint",
-        "USB camera",
-        "4K camera"
-      ],
-      "confidence": 0.95,
-      "productRole": "primary-hardware",
+      "confidence": 0.94,
+      "productRole": "endpoint-hardware",
       "catalogVisibility": "default"
     },
     "classificationPath": [
-      "Camera / Capture",
-      "Camera endpoint",
-      "USB camera",
-      "4K camera"
+      "Extension",
+      "USB / KVM extender",
+      "Receiver",
+      "Signal extension endpoint"
     ],
     "subClassifications": [
-      "camera"
+      "extender",
+      "usb-kvm",
+      "receiver"
     ],
     "technicalProfile": {
       "profileVersion": "wyrestorm-product-manager-v1",
