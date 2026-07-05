@@ -341,6 +341,13 @@ function classifyProductGranularity(product) {
   };
 }
 
+// Deliberately does NOT include a `raw: { ...item }` copy of the source
+// record (removed - it was ~50% of this file's total size on disk, a near-
+// exact duplicate of the fields already returned below, and no client page
+// nor build tool reads it - the two dev-tooling scripts that briefly did
+// (check-wyrestorm-product-updates.mjs, generate-product-media-index.mjs)
+// only used it as a redundant fallback after already checking the same data
+// at the top level).
 function normalizeProduct(item, index, sourceFile) {
   const brand =
     asString(item?.brand) ||
@@ -543,15 +550,6 @@ function normalizeProduct(item, index, sourceFile) {
     technicalProfile,
     salesLanguage,
     source: path.relative(projectRoot, sourceFile).replace(/\\/g, "/"),
-    raw: {
-      ...item,
-      commercialRole: granularity.commercialRole,
-      finderVisibility: granularity.finderVisibility,
-      bomRole: granularity.bomRole,
-      dependencyType: granularity.dependencyType,
-      primarySystemFamily: granularity.primarySystemFamily,
-      showWhenRequestedBy: granularity.showWhenRequestedBy,
-    },
   };
 }
 
@@ -721,7 +719,11 @@ async function main() {
     const absoluteOutputPath = path.join(projectRoot, target.path);
 
     if (target.type === "json") {
-      await writeFileEnsured(absoluteOutputPath, JSON.stringify(index, null, 2) + "\n");
+      // Minified: this file is fetched by the browser (see
+      // src/wingman2/lib/productIntelligenceIndexCache.ts) and nobody reads
+      // it by eye - pretty-printing it was costing ~7MB (25%) of transfer
+      // and parse weight for no benefit.
+      await writeFileEnsured(absoluteOutputPath, `${JSON.stringify(index)}\n`);
     }
 
     if (target.type !== "json") {
