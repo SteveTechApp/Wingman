@@ -376,8 +376,8 @@ function SelectionPage({
 
         <p className="mt-3 text-xs font-semibold wm-ui-copy">
           Showing {filtered.length} of {products.length} products
-          {activeQuickFilter !== "All" ? ` Â· Filter: ${activeQuickFilter}` : ""}
-          {term ? ` Â· Search: ${searchTerm.trim()}` : ""}
+          {activeQuickFilter !== "All" ? ` · Filter: ${activeQuickFilter}` : ""}
+          {term ? ` · Search: ${searchTerm.trim()}` : ""}
         </p>
 
         <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
@@ -613,9 +613,9 @@ function SpecTab({ product }: { product: ProductSpec }) {
         <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
           <h3 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>USB path check</h3>
           <p className="mt-1 text-sm leading-6 wm-ui-copy">
-            USB standard <strong className="text-white">{usbResult.usbStandardUsed}</strong> Â· up to{" "}
+            USB standard <strong className="text-white">{usbResult.usbStandardUsed}</strong> · up to{" "}
             {usbResult.maxAllowedTiers} cascaded tier{usbResult.maxAllowedTiers === 1 ? "" : "s"}
-            {usbResult.downstreamHubLimit ? ` Â· hub limit ${usbResult.downstreamHubLimit}` : ""}.
+            {usbResult.downstreamHubLimit ? ` · hub limit ${usbResult.downstreamHubLimit}` : ""}.
           </p>
           {usbResult.warnings.length > 0 ? (
             <ul className="mt-2 space-y-1 text-sm wm-ui-copy">

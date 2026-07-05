@@ -5,7 +5,7 @@
 
 - Governed stories: **129** (reviewed **43**, catalogue-grounded **86**)
 - Active catalogue SKUs (alias-deduped): **126**
-- Active covered: **124 (98%)** Ã‚Â· Active uncovered: **2**
+- Active covered: **124 (98%)** · Active uncovered: **2**
 - Excluded (deliberately not storied): cable **30**, discontinued **0**, do-not-spec **0**, unlisted **30**, source-hygiene **1**
 
 ## Active SKUs still needing a governed story

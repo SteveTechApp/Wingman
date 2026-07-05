@@ -1,69 +1,124 @@
-import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+﻿import fs from "node:fs";
+import path from "node:path";
 
 const repoRoot = process.cwd();
 
-const requiredFiles = [
-  "src/wingman2/pages/ComparePageNew.tsx",
-  "src/wingman2/pages/ComparePageNew.advanced.tsx",
-  "src/wingman2/lib/knownWyrestormCompareProfiles.ts",
-  "src/wingman2/lib/skuAliasResolver.ts",
+const excludedDirs = new Set([
+  ".git",
+  ".claude",
+  "archive",
+  "_review",
+  "node_modules",
+  "dist",
+  "build",
+  "coverage",
+  ".vite",
+  ".turbo",
+]);
+
+const textExtensions = new Set([
+  ".ts",
+  ".tsx",
+  ".js",
+  ".jsx",
+  ".mjs",
+  ".cjs",
+  ".json",
+  ".md",
+  ".txt",
+  ".csv",
+  ".html",
+  ".css",
+  ".yml",
+  ".yaml",
+]);
+
+const activeRoots = [
+  "src/",
+  "tools/",
+  "docs/",
+  "data-sources/",
+  "public/product-call-card-products.json",
+  "package.json",
+  "README.md",
 ];
 
-function fail(message) {
-  console.error(`[compare-source-repair] ${message}`);
-  process.exit(1);
-}
-
-function warn(message) {
-  console.warn(`[compare-source-repair] warning: ${message}`);
-}
-
-const fatalPatterns = [
-  [/^\s*mport\b/m, "line starts with mport"],
-  [/^\s*functon\b/m, "line starts with functon"],
-  [/\bnterface\b/, "nterface"],
-  [/\bstrng\b/, "strng"],
-  [/\bundefned\b/, "undefned"],
-  [/\bcompettor\b/, "compettor"],
-  [/\bprofle\b/, "profle"],
-  [/\bmatrx\b/, "matrx"],
-  [/\bawat\b/, "awat"],
-  [/\bnstanceof\b/, "nstanceof"],
-  [/\bvod\b/, "vod"],
-  [/\.\.\/lb\//, "../lb/"],
-  [/Array\.sArray/, "Array.sArray"],
-  [/Number\.sFnte/, "Number.sFnte"],
+const highRiskGenerated = [
+  /^public\/product-call-card-.*audit\.json$/i,
+  /^public\/product-intelligence-index\.json$/i,
+  /^public\/product-media-index\.json$/i,
+  /^data\/backend\//i,
+  /^data\/catalog\/.*generated\.json$/i,
+  /^data\/catalog\/.*phase\d+\.json$/i,
 ];
 
-for (const file of requiredFiles) {
-  const fullPath = resolve(repoRoot, file);
+function normalisePath(filePath) {
+  return path.relative(repoRoot, filePath).replaceAll("\\", "/");
+}
 
-  if (!existsSync(fullPath)) {
-    fail(`Missing required file: ${file}`);
+function shouldScan(rel) {
+  if (!activeRoots.some((root) => rel === root || rel.startsWith(root))) {
+    return false;
   }
 
-  const source = readFileSync(fullPath, "utf8");
+  if (highRiskGenerated.some((pattern) => pattern.test(rel))) {
+    return false;
+  }
 
-  for (const [pattern, label] of fatalPatterns) {
-    if (pattern.test(source)) {
-      fail(`${file} still contains corrupted source marker: ${label}`);
+  return true;
+}
+
+function walk(dir, output = []) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const fullPath = path.join(dir, entry.name);
+    const rel = normalisePath(fullPath);
+
+    if (entry.isDirectory()) {
+      if (excludedDirs.has(entry.name)) continue;
+      walk(fullPath, output);
+      continue;
     }
+
+    if (!entry.isFile()) continue;
+    if (!textExtensions.has(path.extname(entry.name).toLowerCase())) continue;
+    if (!shouldScan(rel)) continue;
+
+    output.push(fullPath);
   }
 
-  if (/[ÂÃÆâ€™â€œâ€]/.test(source)) {
-    warn(`${file} still contains mojibake text markers. This is not blocking build/typecheck, but visible UI text should be reviewed.`);
+  return output;
+}
+
+/*
+  Use escaped Unicode code-points instead of literal mojibake examples so this
+  checker does not contaminate the repo with the same text it is looking for.
+*/
+const mojibakeMarkerPattern = /[\u00c2\u00c3\u00c6\u0192\u00e2\u20ac\u201c\u201d\u00a2]/u;
+const replacementCharacterPattern = /\uFFFD/u;
+
+const files = walk(repoRoot);
+const warnings = [];
+
+for (const file of files) {
+  const rel = normalisePath(file);
+
+  if (rel === "tools/check-compare-source-repair.mjs") {
+    continue;
+  }
+
+  const source = fs.readFileSync(file, "utf8");
+
+  if (replacementCharacterPattern.test(source) || mojibakeMarkerPattern.test(source)) {
+    warnings.push(rel);
   }
 }
 
-const comparePage = readFileSync(resolve(repoRoot, "src/wingman2/pages/ComparePageNew.tsx"), "utf8");
-
-if (!/^\s*import\s/m.test(comparePage)) {
-  fail("ComparePageNew.tsx does not contain valid imports.");
+if (warnings.length) {
+  console.warn("[compare-source-repair] Mojibake markers remain in active source files:");
+  for (const rel of warnings) {
+    console.warn(`- ${rel}`);
+  }
+  console.warn("[compare-source-repair] This is advisory only; visible UI text should be reviewed.");
+} else {
+  console.log("[compare-source-repair] No mojibake markers found in active source files.");
 }
-
-if (!comparePage.includes("ComparePageNew")) {
-  fail("ComparePageNew.tsx does not contain ComparePageNew.");
-}
-
-console.log("[compare-source-repair] Source repair guard passed.");

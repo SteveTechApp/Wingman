@@ -2158,7 +2158,7 @@ return (
                 onClick={() => setActiveGalleryItem(null)}
                 aria-label="Close product gallery"
               >
-                ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â
+                ×
               </button>
             </div>
 
@@ -2190,7 +2190,7 @@ return (
               onClick={() => setActiveTermLookup(null)}
               aria-label="Close term explanation"
             >
-              ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â
+              ×
             </button>
           </div>
 
@@ -2272,7 +2272,7 @@ return (
 
           <div className="wm-pcc-status">
             <span>
-              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· {products.length} total ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· {curatedCount} curated{activeQuickFinder !== "All" ? ` ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· ${activeQuickFinder}` : ""}
+              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching · {products.length} total · {curatedCount} curated{activeQuickFinder !== "All" ? ` · ${activeQuickFinder}` : ""}
             </span>
 
             <div className="wm-pcc-pager">
@@ -2317,7 +2317,7 @@ return (
               >
                 <span className="wm-pcc-sku">{product.sku}</span>
                 <span className="wm-pcc-family">
-                  {product.curated ? "Curated ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· " : ""}
+                  {product.curated ? "Curated · " : ""}
                   {product.family}
                 </span>
 

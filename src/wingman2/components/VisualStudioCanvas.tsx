@@ -286,11 +286,11 @@ function VisualStudioCanvasInner({ model, mode }: VisualStudioCanvasProps) {
           </div>
           <div>
             <span>Issue</span>
-            <strong>Rev A Â· {issueDate}</strong>
+            <strong>Rev A · {issueDate}</strong>
           </div>
           <div>
             <span>Status</span>
-            <strong>{mode === "technical" ? "Technical Â· Review before quote" : "Customer concept Â· Draft"}</strong>
+            <strong>{mode === "technical" ? "Technical · Review before quote" : "Customer concept · Draft"}</strong>
           </div>
         </div>
       </div>

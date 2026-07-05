@@ -236,7 +236,7 @@ function addCandidatesByPredicate(
 }
 
 function extractMatrixSizeFromText(text: string): { inputs?: number; outputs?: number } {
-  const readable = text.replace(/[Ã—]/g, "x");
+  const readable = text.replace(/[×]/g, "x");
   const explicit = readable.match(/(?:^|[^0-9])(\d{1,2})\s*x\s*(\d{1,2})(?:[^0-9]|$)/i);
 
   if (explicit) {
