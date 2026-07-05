@@ -17,6 +17,7 @@ import {
   handleProductIntelligenceUpsertPost,
 } from "./product-intelligence-store.mjs";
 import {
+  getStorageReadiness,
   getWingmanRequestAuth,
   handleWingmanAuditGet,
   handleWingmanInvitationAcceptPost,
@@ -338,7 +339,13 @@ async function writeJsonFile(filePath, value) {
 
 // Persist a user-submitted product data correction from the "Report a problem"
 // button. Appends to data/wingman-product-reports.json for the product team to review.
-async function handleProductReportPost(req, res, helpers) {
+async function handleProductReportPost(req, res, url, helpers) {
+  const auth = await requireWingmanPermission(req, res, url, {
+    permission: "canViewDiagnostics",
+    deniedMessage: "Reporting a product problem requires an authenticated Wingman workspace session.",
+  });
+  if (!auth) return;
+
   let body;
   try {
     body = await helpers.parseJsonBody(req);
@@ -364,7 +371,7 @@ async function handleProductReportPost(req, res, helpers) {
     detail: String(body?.detail ?? "").trim(),
     problem,
     correction: String(body?.correction ?? "").trim(),
-    reporter: String(body?.reporter ?? "").trim(),
+    reporter: auth.user.email,
     source: String(body?.source ?? "").trim(),
     status: "new",
   };
@@ -2052,6 +2059,8 @@ function allowLocalIntelligenceDraftBypass(req, url) {
     host.startsWith("localhost:")
   );
 }
+let shuttingDown = false;
+
 const server = http.createServer(async (req, res) => {
   const method = req.method || "GET";
   const url = new URL(req.url || "/", `http://${req.headers.host || `${HOST}:${PORT}`}`);
@@ -2166,20 +2175,33 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (method === "GET" && url.pathname === "/api/ready") {
-    // Kubernetes-style readiness check - verify server is ready to accept traffic
-    const isReady = server.listening;
-    if (isReady) {
-      sendJson(res, 200, {
-        ready: true,
-        timestamp: nowIso(),
-      });
-    } else {
+    // Kubernetes-style readiness check - verify the server is accepting connections
+    // AND, when Supabase-backed storage is configured, that Supabase is reachable.
+    if (!server.listening || shuttingDown) {
       sendJson(res, 503, {
         ready: false,
         timestamp: nowIso(),
         error: "Server is not ready to accept traffic.",
       });
+      return;
     }
+
+    const storage = await getStorageReadiness();
+    if (!storage.ready) {
+      sendJson(res, 503, {
+        ready: false,
+        timestamp: nowIso(),
+        storageMode: storage.mode,
+        error: storage.error || "Storage is not ready.",
+      });
+      return;
+    }
+
+    sendJson(res, 200, {
+      ready: true,
+      timestamp: nowIso(),
+      storageMode: storage.mode,
+    });
     return;
   }
 
@@ -2214,7 +2236,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (method === "POST" && url.pathname === "/api/wingman/product-report") {
-    await runProtectedRoute(res, () => handleProductReportPost(req, res, { sendJson, parseJsonBody }));
+    await runProtectedRoute(res, () => handleProductReportPost(req, res, url, { sendJson, parseJsonBody }));
     return;
   }
 
@@ -2478,3 +2500,29 @@ server.listen(PORT, HOST, () => {
   console.log(`[wingman-api] listening on http://${HOST}:${PORT}`);
   console.log(`[wingman-api] health: ${health.lookupEndpoint.replace("/api/competitor-lookup", "/api/health")}`);
 });
+
+function gracefulShutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`[wingman-api] ${signal} received, draining in-flight requests...`);
+
+  const forceExitTimer = setTimeout(() => {
+    console.error("[wingman-api] shutdown timed out, forcing exit.");
+    process.exit(1);
+  }, 10000);
+  forceExitTimer.unref();
+
+  server.close((error) => {
+    clearTimeout(forceExitTimer);
+    if (error) {
+      console.error(`[wingman-api] error during shutdown: ${error.message}`);
+      process.exit(1);
+      return;
+    }
+    console.log("[wingman-api] shutdown complete.");
+    process.exit(0);
+  });
+}
+
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));

@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "postinstall": "node tools/setup-git-hooks.mjs",
     "archive:data-sources": "node tools/archive-wingman-stale-data.mjs",
     "archive:data-sources:apply": "node tools/archive-wingman-stale-data.mjs --apply",
     "audit:compare-candidate-gate": "node --experimental-strip-types tools/audit-compare-candidate-gate.mjs",
