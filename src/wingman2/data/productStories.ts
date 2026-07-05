@@ -83,7 +83,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["NetworkHD 100 multiview", "Sports bar screen composition", "Lecture theatre source monitoring", "Signage and information display", "Control-room monitor"],
     worksWith: [
     {
-      sku: "NHD-CTL-PRO",
+      sku: "NHD-CTL-PRO-V2",
       reason: "Required controller for managed NetworkHD 100 routing, presets and system operation.",
     },
       { sku: "NHD-124-TX", reason: "Encodes source devices into the NetworkHD 100 system." },
@@ -195,7 +195,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["Mission-critical AV", "High-performance 4K distribution", "Premium video walls", "Low-latency applications", "10G infrastructure projects"],
     worksWith: [
     {
-      sku: "NHD-CTL-PRO",
+      sku: "NHD-CTL-PRO-V2",
       reason: "Required controller for managed NetworkHD 600 routing, presets and system operation.",
     },
       { sku: "NHD-500-TX", reason: "Commercial alternative where 1GbE premium AVoIP is sufficient and 10G is not justified." },
@@ -266,6 +266,34 @@ export const PRODUCT_STORIES: ProductStory[] = [
     keyFeatures: ["Wireless presentation attachment", "USB-C casting conversation", "Visitor-friendly room workflow", "Pairs with APO-VX20-UC-V2"],
     diagramSource: "Laptop or mobile user",
     diagramOutput: "Meeting-room display path"
+  },
+  {
+    sku: "APO-210-UC",
+    plainEnglishName: "Apollo 210 UC table-top switcher with PTZ camera pairing",
+    family: "Apollo / UC",
+    category: "BYOD meeting room",
+    productType: "Table-top UC video and audio switcher",
+    oneLinePosition: "APO-210-UC is the larger-room step up from APO-VX20-UC-V2, once the room needs a dedicated PTZ camera instead of a built-in one.",
+    whatItIs: "APO-210-UC is a table-top Apollo UC device that pairs with a separate PTZ camera (CAM-420-PTZ or CAM-210-PTZ) rather than relying on a built-in bar camera.",
+    whatItDoes: "It gives a larger meeting room a proper pan/tilt/zoom camera path plus optional extension microphones, once the room has outgrown a compact all-in-one video bar.",
+    customerProblem: "The room is bigger than a compact video bar can cover well: the camera can't reach everyone and the table is too big for built-in microphone pickup.",
+    salesTalkTrack: "Position it as the upgrade path once APO-VX20-UC-V2's built-in camera coverage stops being enough. Confirm PTZ camera choice and whether extension microphones are needed, and be upfront that the APO-DG2 dongle is VX20-only, not compatible here.",
+    idealApplications: ["Boardrooms", "Training rooms", "Meeting rooms larger than a huddle room", "Rooms needing a proper pan/tilt/zoom camera"],
+    worksWith: [
+      { sku: "CAM-420-PTZ", reason: "Dedicated PTZ camera pairing for larger-room coverage, sold separately." },
+      { sku: "CAM-210-PTZ", reason: "Alternative PTZ camera pairing where a smaller/lower-cost option fits the room." },
+      { sku: "APO-VX20-UC-V2", reason: "The smaller-room device to use instead when built-in camera coverage is already enough." }
+    ],
+    familyContext: "This sits above APO-VX20-UC-V2 in the Apollo UC range for rooms that need a real PTZ camera rather than a fixed bar camera. It is not compatible with the APO-DG2 dongle, which is APO-VX20-UC-V2 only.",
+    whenToUse: ["The room is bigger than APO-VX20-UC-V2's built-in camera can cover.", "The camera needs to pan, tilt or zoom to reach people further from the table.", "The table is large enough that built-in bar-microphone pickup isn't enough."],
+    whenNotToUse: ["Do not use it for small huddle rooms already served by APO-VX20-UC-V2.", "Do not pair it with the APO-DG2 dongle - that's only compatible with APO-VX20-UC-V2.", "Do not quote it without also scoping the required PTZ camera, which is sold separately."],
+    discoveryQuestions: ["How many people use the room and how big is it compared to a standard huddle room?", "Does the camera need to pan, tilt or zoom to reach people further away?", "Is the table large enough that a fixed bar microphone wouldn't pick everyone up?", "Does the customer specifically need the APO-DG2 dongle, or just general wireless presentation casting?"],
+    quoteChecks: ["Confirm room size genuinely exceeds APO-VX20-UC-V2's coverage.", "Confirm PTZ camera choice (CAM-420-PTZ or CAM-210-PTZ) and include it as a separate line item.", "Confirm whether extension microphones are needed for the table size.", "Confirm the room does not specifically need the APO-DG2 dongle - if it does, scope APO-VX20-UC-V2 instead."],
+    customerSafeWording: "Use APO-210-UC where the room has outgrown a compact video bar and needs a dedicated PTZ camera to properly cover a larger table.",
+    internalRepGuidance: "This still supports wireless casting of video/audio presentation content on its own - the caveat is specifically the APO-DG2 dongle, which only works with APO-VX20-UC-V2. Don't tell the customer it has no wireless casting at all.",
+    keyFeatures: ["Table-top UC switcher", "Pairs with a dedicated PTZ camera (sold separately)", "Optional extension microphones for larger tables", "Supports wireless casting of video/audio presentation content"],
+    diagramSource: "BYOD laptop or room host, plus dedicated PTZ camera",
+    diagramOutput: "Display and UC call participants"
   },
   {
     sku: "SYN-TOUCH10-V2",
@@ -3614,7 +3642,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     diagramOutput: "One HDMI display or downstream extender"
   },
   {
-    sku: "NHD-CTL-PRO",
+    sku: "NHD-CTL-PRO-V2",
     plainEnglishName: "NetworkHD system controller",
     family: "NetworkHD",
     category: "System controller",
@@ -3623,7 +3651,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     whatItIs: "A dedicated NetworkHD control appliance used to manage compatible NetworkHD encoders, decoders and transceivers across routed AV-over-IP systems.",
     whatItDoes: "Provides the control layer for NetworkHD systems, allowing endpoints to be discovered, configured, routed and recalled through presets or user control.",
     customerProblem: "The customer needs a managed NetworkHD system with reliable routing, presets and user control rather than a set of unmanaged AV-over-IP endpoints.",
-    salesTalkTrack: "When quoting NetworkHD, do not present endpoints alone as a complete managed system. Include NHD-CTL-PRO where the customer needs routing, presets, control integration or reliable day-to-day operation.",
+    salesTalkTrack: "When quoting NetworkHD, do not present endpoints alone as a complete managed system. Include NHD-CTL-PRO-V2 where the customer needs routing, presets, control integration or reliable day-to-day operation.",
     idealApplications: ["Managed NetworkHD 100 systems", "NetworkHD 500 routed AV-over-IP systems", "NetworkHD 600 10G routing systems", "Projects needing presets, routing and user control"],
     worksWith: [
     {
@@ -3648,15 +3676,15 @@ export const PRODUCT_STORIES: ProductStory[] = [
     "Which NetworkHD family is being used: 100, 500 or 600?",
   ],
     quoteChecks: [
-    "Include NHD-CTL-PRO on managed NetworkHD systems rather than quoting endpoints only.",
+    "Include NHD-CTL-PRO-V2 on managed NetworkHD systems rather than quoting endpoints only.",
     "Confirm the selected NetworkHD endpoint family is consistent across the system design.",
     "Confirm the control requirement, presets and network readiness before proposal issue.",
   ],
-    customerSafeWording: "Use NHD-150-RX when a NetworkHD 100 system needs a multiview output instead of a normal single-source receiver output.",
-    internalRepGuidance: "This is a 100-series multiview decoder. Keep it separate from the NHD-0401-MV story for NetworkHD 500 discussions.",
-    keyFeatures: ["NetworkHD 100 multiview output", "Works with 100-series encoders", "Requires NetworkHD controller", "Useful for monitoring and signage"],
-    diagramSource: "NetworkHD 100 encoders",
-    diagramOutput: "Single multiview display output"
+    customerSafeWording: "Use NHD-CTL-PRO-V2 whenever the NetworkHD design needs routing, presets or day-to-day control rather than just a set of independent endpoints.",
+    internalRepGuidance: "Treat this as a required line item on any managed NetworkHD 100/500/600 quote, not an optional extra. Do not quote endpoints alone and assume the customer already owns a controller.",
+    keyFeatures: ["Central control for NetworkHD 100/500/600", "Endpoint discovery and routing", "Presets and scene recall", "Third-party control integration"],
+    diagramSource: "NetworkHD endpoints across the system",
+    diagramOutput: "Routing, presets and user control"
   },
   {
     sku: "SW-640-TX-W",
