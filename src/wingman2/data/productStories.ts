@@ -3651,7 +3651,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     whatItIs: "A dedicated NetworkHD control appliance used to manage compatible NetworkHD encoders, decoders and transceivers across routed AV-over-IP systems.",
     whatItDoes: "Provides the control layer for NetworkHD systems, allowing endpoints to be discovered, configured, routed and recalled through presets or user control.",
     customerProblem: "The customer needs a managed NetworkHD system with reliable routing, presets and user control rather than a set of unmanaged AV-over-IP endpoints.",
-    salesTalkTrack: "When quoting NetworkHD, do not present endpoints alone as a complete managed system. Include NHD-CTL-PRO where the customer needs routing, presets, control integration or reliable day-to-day operation.",
+    salesTalkTrack: "When quoting NetworkHD, do not present endpoints alone as a complete managed system. Include NHD-CTL-PRO-V2 where the customer needs routing, presets, control integration or reliable day-to-day operation.",
     idealApplications: ["Managed NetworkHD 100 systems", "NetworkHD 500 routed AV-over-IP systems", "NetworkHD 600 10G routing systems", "Projects needing presets, routing and user control"],
     worksWith: [
     {
