@@ -395,17 +395,23 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
   const competitorTrusted = hasTrustedCompetitorProfile(competitor);
   const competitorIntelligence = buildCompetitorDecisionEvidence(competitor);
 
-  if (isUnknown(competitor.domain) || isUnknown(wyrestorm.domain)) {
+  const domainKnown = !isUnknown(competitor.domain) && !isUnknown(wyrestorm.domain);
+  const domainMatches = domainKnown && lower(competitor.domain) === lower(wyrestorm.domain);
+
+  if (!domainKnown) {
     addUnique(verify, "Technology class needs verification.");
-  } else if (lower(competitor.domain) !== lower(wyrestorm.domain)) {
+  } else if (!domainMatches) {
     addUnique(blockers, "Technology class mismatch: competitor is " + clean(competitor.domain) + ", WyreStorm candidate is " + clean(wyrestorm.domain) + ".");
   } else {
     addUnique(matches, "Technology class matches.");
   }
 
-  if (isUnknown(competitor.role) || isUnknown(wyrestorm.role)) {
+  const roleKnown = !isUnknown(competitor.role) && !isUnknown(wyrestorm.role);
+  const roleMatchesFlag = roleKnown && rolesMatch(competitor.role, wyrestorm.role);
+
+  if (!roleKnown) {
     addUnique(verify, "Product role needs verification.");
-  } else if (!rolesMatch(competitor.role, wyrestorm.role)) {
+  } else if (!roleMatchesFlag) {
     addUnique(blockers, "Product role mismatch: competitor is " + clean(competitor.role) + ", WyreStorm candidate is " + clean(wyrestorm.role) + ".");
   } else {
     addUnique(matches, "Product role matches.");
@@ -414,9 +420,36 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
   if (isUnknown(competitor.transport) || isUnknown(wyrestorm.transport)) {
     addUnique(verify, "Transport needs verification.");
   } else if (!transportMatches(competitor.transport, wyrestorm.transport)) {
-    addUnique(blockers, "Transport mismatch: competitor uses " + clean(competitor.transport) + ", WyreStorm candidate uses " + clean(wyrestorm.transport) + ".");
+    // Transport wording is brand-specific (e.g. Lightware's "TPS" for its own
+    // category-cable extension stage) and does not normalise onto WyreStorm's
+    // vocabulary the way domain/role do. Once technology class AND role are
+    // both independently confirmed to match, a wording-only transport
+    // difference is evidence to verify, not grounds to reject the candidate
+    // outright - otherwise a real match gets hard-blocked by vocabulary alone.
+    if (domainMatches && roleMatchesFlag) {
+      addUnique(gaps, "Transport wording differs: competitor uses " + clean(competitor.transport) + ", WyreStorm candidate uses " + clean(wyrestorm.transport) + ". Confirm the underlying transport is compatible.");
+    } else {
+      addUnique(blockers, "Transport mismatch: competitor uses " + clean(competitor.transport) + ", WyreStorm candidate uses " + clean(wyrestorm.transport) + ".");
+    }
   } else {
     addUnique(matches, "Transport path matches required competitor transport.");
+  }
+
+  // If Wingman has NO classification signal at all for the competitor product -
+  // no domain, no role, and no transport - there is nothing to compare against,
+  // and no specific WyreStorm SKU should be presented as even a partial match.
+  // Callers are expected to backfill domain/role/transport from any classifier
+  // they have available (e.g. keyword/tag matching on free text) before calling
+  // this function, so reaching this branch means every available signal - both
+  // the curated/structured lookup AND any free-text fallback - came up empty.
+  // Without this gate, an unrecognised bare SKU (no curated fingerprint, no
+  // keyword evidence anywhere) could still reach PARTIAL MATCH purely because
+  // the WyreStorm side of the comparison happens to have good data.
+  const competitorCompletelyUnclassified =
+    isUnknown(competitor.domain) && isUnknown(competitor.role) && isUnknown(competitor.transport);
+
+  if (competitorCompletelyUnclassified) {
+    addUnique(blockers, "Competitor product could not be classified at all (no technology class, role or transport evidence) - run a live lookup or confirm the product type before recommending any WyreStorm SKU.");
   }
 
   // Single-stream endpoints (encoder/decoder/transceiver/transmitter/receiver) do

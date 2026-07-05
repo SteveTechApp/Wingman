@@ -30,6 +30,7 @@ import { resolveWyrestormSkuAlias, skuAliasMatches } from "../lib/skuAliasResolv
 import type { RigorousCompareResult, RigorousMatch } from "../lib/rigorousCompare";
 import { applyCompareEligibilityRanking } from "../lib/compareEligibilityEngine";
 import { runCompareRuntimePipeline } from "../lib/compareRuntimePipeline";
+import { runCompetitorLookup, WingmanApiError, type CompetitorLookupResponse } from "../api/wingmanApi";
 
 /*
   Compare workflow guard markers retained for scripts.
@@ -124,7 +125,7 @@ type CompetitorProfile = {
   resolvedSpec: ResolvedCompetitorProfile | null;
 };
 
-type WyreStormProduct = {
+export type WyreStormProduct = {
   sku: string;
   name: string;
   family: string;
@@ -167,6 +168,54 @@ function productClassFromResolvedDomain(domain?: string): string | null {
   }
 }
 
+// Inverse of productClassFromResolvedDomain(), used to backfill a structured
+// competitor profile's domain when resolveCompetitorSpecProfile() couldn't
+// classify it (no curated fingerprint/family rule) but the page's own tag
+// classifier (extractTags/productClassFromTags) already did, from well-described
+// free text. Values here are chosen to match what wyrestormCompareProfile.ts's
+// detectDomain() actually produces for the real WyreStorm catalogue, NOT just
+// the conceptually "nicest" label - e.g. every WyreStorm Apollo product (both
+// UC conferencing bars and wireless-casting dongles) is detected as
+// "WIRELESS_PRESENTATION" (matched on its APO- SKU prefix), so both "USB
+// conferencing" and "Wireless casting" map there too. Mapping to a
+// domain string the WyreStorm side can never produce (e.g. a distinct
+// "WIRELESS_CASTING"/"USB_CONFERENCING") would turn a previously-benign
+// "domain unknown, verify" into a false "domain mismatch" blocker instead.
+// "HDMI splitter" -> "SPLITTER" is safe since detectDomain() has its own
+// matching SPLITTER branch (added alongside this fix).
+function domainFromProductClass(productClass: string): string | undefined {
+  switch (productClass) {
+    case "AV-over-IP":
+      return "AVOIP";
+    case "Network audio":
+      return "AUDIO";
+    case "Video wall":
+      return "VIDEO_WALL";
+    case "Multiview":
+      return "MULTIVIEW";
+    case "Matrix":
+      return "MATRIX";
+    case "HDBaseT extender":
+      return "HDBASET";
+    case "Presentation switcher":
+      return "PRESENTATION";
+    case "Wireless casting":
+      return "WIRELESS_PRESENTATION";
+    case "NDI camera":
+      return "NDI_CAMERA";
+    case "PTZ camera":
+      return "PTZ_CAMERA";
+    case "Control accessory":
+      return "CONTROL";
+    case "USB conferencing":
+      return "WIRELESS_PRESENTATION";
+    case "HDMI splitter":
+      return "SPLITTER";
+    default:
+      return undefined;
+  }
+}
+
 type ScoredCandidate = {
   product: WyreStormProduct;
   score: number;
@@ -183,7 +232,7 @@ type ScoredCandidate = {
 };
 
 function rigorousMatchToCandidate(match: RigorousMatch, profile: CompetitorProfile): ScoredCandidate {
-  const product = WYRESTORM_PRODUCTS.find((candidate) => candidate.sku === match.sku) ?? {
+  const product = ACTIVE_WYRESTORM_PRODUCTS.find((candidate) => candidate.sku === match.sku) ?? {
     sku: match.sku,
     name: match.name,
     family: match.family || "WyreStorm",
@@ -538,6 +587,287 @@ const WYRESTORM_PRODUCTS: WyreStormProduct[] = [
   },
 ];
 
+/*
+ * Real WyreStorm catalogue integration.
+ *
+ * WYRESTORM_PRODUCTS above is a ~45-item hand-typed subset with only free-text
+ * productClass/role/transport/tags - it drove every compare recommendation,
+ * while the real, structured 310-product catalogue at
+ * public/product-intelligence-index.json (generated from
+ * data/wingman-canonical-product-store.json, already loaded via
+ * loadProductIntelligenceIndex() below but previously discarded) sat unused.
+ * Every real entry also carries a `technicalProfile` with genuine port-level
+ * I/O data that buildWyrestormCompareProfile() (wyrestormCompareProfile.ts)
+ * already knows how to read - it was just never given real data to read.
+ *
+ * ACTIVE_WYRESTORM_PRODUCTS starts as WYRESTORM_PRODUCTS and is upgraded once
+ * (via mergeRealWyrestormCatalog(), called from the component's index-load
+ * effect) to include the real catalogue, with real entries winning on SKU
+ * collision. It is intentionally a module-level mutable list rather than
+ * component state so the module-level helper functions below
+ * (rigorousMatchToCandidate, findWyrestormProduct) - which run outside any
+ * component and cannot receive props - keep working unchanged; the page
+ * component separately tracks a `catalogVersion` counter to know when to
+ * recompute its memoised candidate lists after the upgrade happens.
+ */
+let ACTIVE_WYRESTORM_PRODUCTS: WyreStormProduct[] = WYRESTORM_PRODUCTS;
+
+export type ProductIntelligenceIndexEntry = {
+  sku?: unknown;
+  name?: unknown;
+  title?: unknown;
+  description?: unknown;
+  summary?: unknown;
+  category?: unknown;
+  primarySystemFamily?: unknown;
+  technologies?: unknown;
+  connectors?: unknown;
+  features?: unknown;
+  tags?: unknown;
+  classificationPath?: unknown;
+  productClassification?: {
+    primaryCategory?: unknown;
+    category?: unknown;
+    subCategory?: unknown;
+    productType?: unknown;
+  };
+  subClassifications?: unknown;
+  productRole?: unknown;
+  lifecycleStatus?: unknown;
+  doNotSpec?: unknown;
+  technicalProfile?: unknown;
+};
+
+// Only these productRole values represent a genuine standalone product a
+// customer's competitor product could sensibly be "replaced" by - cables,
+// mounting brackets, power accessories and other request-only line items are
+// never a valid lead compare recommendation on their own.
+const REAL_CATALOG_LEAD_ELIGIBLE_ROLES = new Set([
+  "primary-hardware",
+  "endpoint-hardware",
+  "workflow-endpoint",
+  "system-controller",
+]);
+
+export function isRealCatalogEntryLeadEligible(entry: ProductIntelligenceIndexEntry): boolean {
+  if (entry.doNotSpec === true) return false;
+  if (String(entry.lifecycleStatus ?? "").toLowerCase() === "discontinued") return false;
+  if (!REAL_CATALOG_LEAD_ELIGIBLE_ROLES.has(String(entry.productRole ?? ""))) return false;
+
+  // Belt-and-braces: a handful of real entries have an internally
+  // inconsistent productRole of "primary-hardware" despite their own
+  // primarySystemFamily/productClassification explicitly saying "Accessory"
+  // (e.g. IDB-300-BTN, a cable box button accessory) - trust the more
+  // specific classification taxonomy over the coarser top-level role field.
+  const category = String(entry.productClassification?.category ?? "");
+  if (String(entry.primarySystemFamily ?? "") === "Accessory / Other" || category.toLowerCase() === "accessory") {
+    return false;
+  }
+
+  return true;
+}
+
+function stringListFrom(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+}
+
+// Builds the same kind of free-text blob buildCompetitorProfile() builds for a
+// typed competitor description, so the real catalogue can be classified with
+// the SAME extractTags/productClassFromTags/roleFromTags/transportFromTags
+// functions already used for the competitor side - directly addressing the
+// "WyreStorm and competitor data aren't classified the same way" gap.
+function realCatalogEntryText(entry: ProductIntelligenceIndexEntry): string {
+  const classification = entry.productClassification;
+
+  return [
+    entry.sku,
+    entry.name,
+    entry.title,
+    entry.category,
+    entry.primarySystemFamily,
+    entry.description,
+    entry.summary,
+    ...stringListFrom(entry.technologies),
+    ...stringListFrom(entry.connectors),
+    ...stringListFrom(entry.features),
+    ...stringListFrom(entry.tags),
+    ...stringListFrom(entry.classificationPath),
+    classification?.primaryCategory,
+    classification?.category,
+    classification?.subCategory,
+    classification?.productType,
+  ]
+    .filter((item): item is string | number => typeof item === "string" || typeof item === "number")
+    .join(" ")
+    .toUpperCase();
+}
+
+// Classifies a real catalogue entry's productClass from WyreStorm's own
+// curated taxonomy (primarySystemFamily / productClassification /
+// subClassifications) rather than extractTags() run over the full free-text
+// blob. This matters because real WyreStorm datasheet copy routinely lists
+// downstream USE CASES alongside the product's own nature (e.g. an AVoIP
+// encoder's description legitimately says it supports "video wall, multiview
+// or AVoIP transport" as applications) - extractTags() over that combined
+// text can match a use-case keyword before it reaches the product's actual
+// category. The taxonomy fields are WyreStorm's own per-product
+// classification, not marketing prose, so they don't have this problem.
+// Returns null when the taxonomy doesn't map cleanly, so the caller can fall
+// back to the shared extractTags-based heuristic (same as the competitor side).
+function productClassFromRealCatalogTaxonomy(entry: ProductIntelligenceIndexEntry): string | null {
+  const classification = entry.productClassification;
+  const family = String(entry.primarySystemFamily ?? "");
+  const combined = [
+    classification?.category,
+    classification?.subCategory,
+    classification?.productType,
+    ...stringListFrom(entry.subClassifications),
+  ]
+    .filter((item): item is string => typeof item === "string")
+    .join(" ")
+    .toLowerCase();
+
+  if (family === "Camera / Capture") {
+    return combined.includes("ndi") ? "NDI camera" : "PTZ camera";
+  }
+
+  if (family === "Unified Communications") {
+    return combined.includes("wireless") || combined.includes("dongle") || combined.includes("casting")
+      ? "Wireless casting"
+      : "USB conferencing";
+  }
+
+  if (family === "Audio") return "Network audio";
+  if (combined.includes("video wall")) return "Video wall";
+  if (combined.includes("multiview") || combined.includes("multi-view")) return "Multiview";
+  if (combined.includes("splitter") || combined.includes("distribution amplifier")) return "HDMI splitter";
+  if (combined.includes("hdbaset") && !combined.includes("matrix")) return "HDBaseT extender";
+  if (combined.includes("matrix")) return "Matrix";
+
+  if (family === "NetworkHD AV over IP" || combined.includes("avoip") || combined.includes("av-over-ip") || combined.includes("av over ip")) {
+    return "AV-over-IP";
+  }
+
+  if (family === "Presentation / Room Core" || combined.includes("presentation")) return "Presentation switcher";
+
+  // "Extension" family covers both HDBaseT and USB/KVM point-to-point
+  // extenders (e.g. EX-100-KVM-IP's own category is "USB / KVM extender",
+  // which doesn't contain the literal word "hdbaset" and would otherwise fall
+  // through to the noisy extractTags fallback below - real KVM-extender copy
+  // often mentions "camera"/"webcam" as a downstream use case, which
+  // previously misclassified these as PTZ/NDI cameras). "HDBaseT extender" is
+  // the existing generic point-to-point-extender bucket in this file's
+  // vocabulary (see the hand-typed EX-60-USB2 USB extender entry above, which
+  // uses the same productClass with role "USB extender" to stay specific).
+  if (family === "Extension") return "HDBaseT extender";
+
+  // "Control" family covers keypads, touch panels and control processors -
+  // never a sensible lead compare recommendation for any of this file's other
+  // product classes, so give it its own bucket rather than falling through.
+  if (family === "Control") return "Control accessory";
+
+  return null;
+}
+
+// Companion to productClassFromRealCatalogTaxonomy(): derives role from the
+// same curated taxonomy fields for the two families empirically found to
+// need it (Extension, NetworkHD AV over IP). Real "Extension"-family
+// descriptions routinely mention "webcam"/"camera" as a USB pass-through
+// example (e.g. RX-700's own datasheet: "supports data transmission of USB
+// 2.0 devices like HD webcams, smart whiteboards..."), which previously
+// leaked into `technologies`/`tags` upstream in
+// tools/enrich-wyrestorm-product-intelligence.mjs and made the extractTags()
+// -based roleFromTags() fallback below mislabel these products' role as
+// "PTZ Camera"/"NDI Camera" even after productClass itself was fixed to
+// "HDBaseT extender". Returns null for every other family so the existing
+// tag-based derivation (unaffected by this specific contamination) is used.
+function roleFromRealCatalogTaxonomy(entry: ProductIntelligenceIndexEntry): string | null {
+  const family = String(entry.primarySystemFamily ?? "");
+  const subCategory = String(entry.productClassification?.subCategory ?? "").toLowerCase();
+
+  if (family === "Extension") return "TX/RX extender kit";
+
+  if (family === "NetworkHD AV over IP") {
+    if (subCategory.includes("encoder")) return "Encoder / transmitter";
+    if (subCategory.includes("decoder")) return "Decoder / receiver";
+    if (subCategory.includes("transceiver")) return "Transceiver";
+    if (subCategory.includes("controller")) return "Controller";
+    if (subCategory.includes("multiview")) return "Multiview processor";
+    return "Endpoint";
+  }
+
+  return null;
+}
+
+export function mapRealCatalogEntryToCompareCandidate(entry: ProductIntelligenceIndexEntry): WyreStormProduct | null {
+  const sku = String(entry.sku ?? "").trim();
+  if (!sku) return null;
+
+  const text = realCatalogEntryText(entry);
+  const tags = extractTags(text);
+  const family = String(entry.primarySystemFamily ?? entry.category ?? "WyreStorm");
+  const name = String(entry.name ?? entry.title ?? sku);
+  const productClass = productClassFromRealCatalogTaxonomy(entry) ?? productClassFromTags(tags);
+
+  const candidate: WyreStormProduct = {
+    sku,
+    name,
+    family,
+    productClass,
+    role: roleFromRealCatalogTaxonomy(entry) ?? roleFromTags(tags),
+    transport: transportFromTags(tags),
+    tags,
+    caveat: "Confirm the current specification and required accessories against the datasheet before quoting.",
+  };
+
+  // buildWyrestormCompareProfile() (wyrestormCompareProfile.ts) reads a
+  // `technicalProfile` field when present to derive real structured I/O
+  // instead of inferring from text - WyreStormProduct doesn't declare this
+  // field, so it's attached via a permissive cast rather than widening the
+  // shared type everywhere it's used.
+  if (entry.technicalProfile) {
+    return { ...candidate, technicalProfile: entry.technicalProfile } as WyreStormProduct;
+  }
+
+  return candidate;
+}
+
+export function buildRealWyrestormCandidates(indexPayload: unknown): WyreStormProduct[] {
+  const products = (indexPayload as { products?: unknown })?.products;
+  if (!Array.isArray(products)) return [];
+
+  const candidates: WyreStormProduct[] = [];
+
+  for (const entry of products as ProductIntelligenceIndexEntry[]) {
+    if (!isRealCatalogEntryLeadEligible(entry)) continue;
+
+    const candidate = mapRealCatalogEntryToCompareCandidate(entry);
+    if (candidate) candidates.push(candidate);
+  }
+
+  return candidates;
+}
+
+// Real catalogue entries win on SKU collision - they carry genuine structured
+// data, while the hand-typed list is a hand-maintained approximation. Any
+// hand-typed entry whose SKU isn't in the real catalogue (e.g. synthesized
+// AVoIP-family placeholders) is kept as-is rather than dropped.
+export function mergeRealWyrestormCatalog(base: WyreStormProduct[], real: WyreStormProduct[]): WyreStormProduct[] {
+  if (real.length === 0) return base;
+
+  const bySku = new Map<string, WyreStormProduct>();
+
+  for (const product of base) {
+    bySku.set(compareSkuKey(product.sku), product);
+  }
+
+  for (const product of real) {
+    bySku.set(compareSkuKey(product.sku), product);
+  }
+
+  return Array.from(bySku.values());
+}
+
 function normalizeCompetitorSku(value: string): string {
   return value.trim().toUpperCase();
 }
@@ -695,7 +1025,16 @@ function lookupCompareIntelligence(sku: string): Record<string, unknown> | null 
 }
 
 function shouldRequestLiveLookupUrl(profile: CompetitorProfile): boolean {
-  return profile.sku.length > 0 && profile.knownProfile === null;
+  // lookupCompareIntelligence() always returns a non-null wrapper object once a
+  // SKU is typed (even when nothing was actually resolved), so `knownProfile
+  // === null` can never be true here - that made this function permanently
+  // return false regardless of input. The real signal for "local data is too
+  // thin to trust" is the competitor's own resolved spec/classification: no
+  // productClass could be determined, or the curated registry has nothing
+  // better than a bare SKU-only guess for it.
+  if (!profile.sku.trim()) return false;
+
+  return profile.productClass === "Unknown" || profile.resolvedSpec?.specTier === "sku-only";
 }
 
 function isSelectableWyrestormRecommendation(candidate: WyreStormProduct | null | undefined): boolean {
@@ -748,7 +1087,17 @@ function extractTags(text: string): string[] {
   if (includesAny(text, ["CAMERA", "HUDDLY", "VADDIO", "RALLY BAR", "MEETUP", "BRIO", "WEBCAM"])) tags.push("camera");
   if (includesAny(text, ["WIRELESS", "CLICKSHARE", "SOLSTICE", "MERSIVE", "AIRTAME", "AIRPLAY", "MIRACAST", "CHROMECAST"])) tags.push("wireless casting");
   if (includesAny(text, ["SPEAKERPHONE", "SOUNDBAR", "VIDEO BAR", "CONFERENCING BAR", "USB CAMERA", "CONFERENCE CAMERA"])) tags.push("usb conferencing");
-  if (includesAny(text, ["DANTE", "AES67", "AUDIO DSP", "NETWORK AUDIO", "Q-SYS", "QSYS", "TESIRA", "DEVIO", "AMPLIFIER", "AUDIO PROCESSOR"])) tags.push("network audio");
+  // The bare word "AMPLIFIER" also appears in "distribution amplifier" - the
+  // real product-naming convention for HDMI/video splitters (e.g. WyreStorm's
+  // own SP-0104-H2 datasheet describes its role as "Distribution amplifier"),
+  // not an audio amp. Excluded here so a splitter doesn't get misclassified as
+  // network audio equipment; the "splitter" tag above already covers it.
+  if (
+    includesAny(text, ["DANTE", "AES67", "AUDIO DSP", "NETWORK AUDIO", "Q-SYS", "QSYS", "TESIRA", "DEVIO", "AUDIO PROCESSOR"]) ||
+    (text.includes("AMPLIFIER") && !text.includes("DISTRIBUTION AMPLIFIER") && !text.includes("DISTRIBUTION AMP"))
+  ) {
+    tags.push("network audio");
+  }
   if (includesAny(text, ["USB", "UC", "BYOD", "BYOM", "TEAMS", "ZOOM", "USB-C"])) tags.push("usb");
   if (includesAny(text, ["HDBASET", "DTP"])) tags.push("hdbaset");
   if (includesAny(text, ["4K60", "60HZ", "HDMI 2.0"])) tags.push("4k60");
@@ -772,7 +1121,13 @@ function productClassFromTags(tags: string[]): string {
   // instead of the all-in-one conferencing device it actually is.
   if (tags.includes("usb conferencing")) return "USB conferencing";
   if (tags.includes("camera")) return "PTZ camera";
-  if (tags.includes("network audio")) return "Network audio";
+  // Checked ahead of the generic "network audio" tag below: a real AV-over-IP
+  // product commonly ALSO carries embedded/de-embedded Dante or AES67 audio as
+  // one feature among many (e.g. WyreStorm's own NHD-500 series datasheet
+  // explicitly lists AES67) - that must not outrank the product's actual
+  // architecture. Same for matrix/video-wall/multiview/splitter/extender,
+  // which can equally carry an incidental audio feature without being audio
+  // products themselves.
   if (tags.includes("wireless casting")) return "Wireless casting";
   if (tags.includes("video wall")) return "Video wall";
   if (tags.includes("multiview")) return "Multiview";
@@ -780,6 +1135,7 @@ function productClassFromTags(tags: string[]): string {
   if (tags.includes("splitter")) return "HDMI splitter";
   if (tags.includes("hdbaset") || tags.includes("extender")) return "HDBaseT extender";
   if (tags.includes("avoip")) return "AV-over-IP";
+  if (tags.includes("network audio")) return "Network audio";
   if (tags.includes("usb")) return "Presentation switcher";
   return "Unknown";
 }
@@ -792,15 +1148,24 @@ function roleFromTags(tags: string[]): string {
   // whether this is an all-in-one conferencing device or a bare camera.
   if (tags.includes("usb conferencing")) return "Conference bar / USB conferencing";
   if (tags.includes("camera")) return "Camera";
-  if (tags.includes("network audio")) return "Audio processor";
   if (tags.includes("wireless casting")) return "Wireless casting";
   if (tags.includes("transceiver")) return "Transceiver";
   if (tags.includes("extender") && tags.includes("usb")) return "USB extender";
   if (tags.includes("extender") || tags.includes("hdbaset")) return "TX/RX extender kit";
+  // Checked ahead of encoder/decoder: a splitter's own description often
+  // contains generic wording like "one source to multiple displays", which
+  // false-matches the bare "SOURCE"/"DISPLAY" keywords those tags are built
+  // from. A product already confirmed as a splitter should never be
+  // relabelled an AVoIP encoder/decoder because of that wording.
+  if (tags.includes("splitter")) return "Distribution amplifier";
+  // Also checked ahead of "network audio": a real AVoIP encoder/decoder that
+  // also carries embedded/de-embedded Dante or AES67 audio (a common real
+  // feature, not a distinct product) must keep its actual transport role
+  // rather than being relabelled a bare audio processor.
   if (tags.includes("encoder")) return "Encoder / transmitter";
   if (tags.includes("decoder")) return "Decoder / receiver";
   if (tags.includes("matrix")) return "Switcher";
-  if (tags.includes("splitter")) return "Distribution amplifier";
+  if (tags.includes("network audio")) return "Audio processor";
   if (tags.includes("usb")) return "Switcher";
   if (tags.includes("video wall") || tags.includes("multiview")) return "Processor";
   return "Unknown";
@@ -812,13 +1177,15 @@ function transportFromTags(tags: string[]): string {
   // Same ordering as productClassFromTags/roleFromTags above.
   if (tags.includes("usb conferencing")) return "USB / HDMI / network collaboration";
   if (tags.includes("camera")) return "HDMI / USB / IP";
-  if (tags.includes("network audio")) return "Dante / AES67 / network audio";
   if (tags.includes("wireless casting")) return "Wi-Fi / Ethernet";
+  // Checked ahead of "network audio": a real AVoIP product's transport is its
+  // network video path, even when it also carries embedded Dante/AES67 audio.
   if (tags.includes("10g")) return "10GbE AVoIP";
   if (tags.includes("avoip")) return "1GbE AVoIP";
   if (tags.includes("hdbaset")) return "HDBaseT";
   if (tags.includes("splitter")) return "HDMI distribution";
   if (tags.includes("matrix") || tags.includes("video wall") || tags.includes("multiview")) return "HDMI / processing";
+  if (tags.includes("network audio")) return "Dante / AES67 / network audio";
   return "Unknown";
 }
 
@@ -865,6 +1232,33 @@ function buildCompetitorProfile(brand: string, sku: string, description: string)
   });
 }
 
+// Product-class pairings that already receive bespoke, evidence-specific
+// scoring elsewhere in scoreProduct() below (both bonuses for legitimate
+// architecture alternatives and their own dedicated mismatch penalties).
+// Anything NOT in this list falls through to the generic mismatch penalty,
+// so a category this function's authors never anticipated (e.g. a splitter
+// or video-wall competitor product) cannot slip past on transport/tag
+// coincidence alone just because nobody wrote a bespoke rule for it.
+function isProductClassMismatchAlreadyHandled(profile: CompetitorProfile, product: WyreStormProduct): boolean {
+  const competitorClass = profile.productClass;
+  const candidateClass = product.productClass;
+
+  // Camera-family and wireless-casting requirements already have an
+  // exhaustive "else" branch below that penalises every non-matching
+  // candidate class, so every pairing under these requirements is covered.
+  if (["NDI camera", "PTZ camera", "Wireless casting"].includes(competitorClass)) {
+    return true;
+  }
+
+  if (competitorClass === "AV-over-IP" && candidateClass !== "AV-over-IP") return true;
+  if (competitorClass === "USB conferencing" && candidateClass === "AV-over-IP") return true;
+  if (competitorClass === "Network audio" && candidateClass === "AV-over-IP") return true;
+  if (competitorClass === "Matrix" && candidateClass === "HDBaseT extender") return true;
+  if (competitorClass === "HDBaseT extender" && candidateClass === "Matrix") return true;
+
+  return false;
+}
+
 function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): ScoredCandidate {
   let score = 12;
   const matched: string[] = [];
@@ -891,6 +1285,19 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
   if (profile.productClass !== "Unknown" && product.productClass === profile.productClass) {
     score += 28;
     matched.push(`Same product class: ${product.productClass}`);
+  } else if (
+    profile.productClass !== "Unknown" &&
+    product.productClass !== "Unknown" &&
+    !isProductClassMismatchAlreadyHandled(profile, product)
+  ) {
+    // Default guard: a different product class is not automatically a valid
+    // comparison just because it happens to share a transport keyword or two.
+    // Without this, an uncovered pairing (e.g. splitter vs AVoIP, video wall
+    // vs presentation switcher) could still cross the match thresholds on
+    // transport/tag/IO coincidence alone.
+    score -= 60;
+    mismatches.push(`Competitor product class is ${profile.productClass}, but this WyreStorm candidate is ${product.productClass}.`);
+    blockers.push("Do not present this as an equivalent without confirming the customer's actual requirement changed.");
   }
 
   if (profile.role !== "Unknown" && product.role === profile.role) {
@@ -1170,7 +1577,23 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
   checks.push("Do not place competitor products in a WyreStorm BOM.");
   unknowns.push(...compareUnknownFeatureSummary(profile).slice(0, 4));
 
-  const boundedScore = Math.max(0, Math.min(100, score));
+  // When Wingman could not classify the competitor product's own technology
+  // type at all (no resolved spec domain and no keyword/tag match), there is
+  // no basis to gate this candidate against a wrong-category recommendation -
+  // the class-match bonus and the generic mismatch penalty above both require
+  // a known productClass to run. Rather than let a specific WyreStorm SKU win
+  // on transport/tag/IO coincidence alone, cap this below the match thresholds
+  // so an unclassified competitor product surfaces as "no confident match"
+  // (prompting manual classification or live lookup) instead of a wrong-tech
+  // recommendation reaching a customer quote.
+  const competitorClassUnknown = profile.productClass === "Unknown";
+
+  if (competitorClassUnknown) {
+    unknowns.push("Wingman could not determine the competitor product's technology class, so no specific WyreStorm SKU can be confidently recommended yet.");
+    blockers.push("Classify the competitor product (or run a live lookup) before treating any WyreStorm SKU as an equivalent.");
+  }
+
+  const boundedScore = competitorClassUnknown ? Math.min(38, Math.max(0, score)) : Math.max(0, Math.min(100, score));
   const verdict: Verdict = boundedScore >= 72 ? "GOOD MATCH" : boundedScore >= 42 ? "PARTIAL MATCH" : "NO MATCH";
   const requiredDependencies = candidateRequiredDependencies(product, profile);
 
@@ -1198,7 +1621,7 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
 function findWyrestormProduct(sku: string): WyreStormProduct | undefined {
   const canonicalSku = resolveWyrestormSkuAlias(sku);
   const key = compareSkuKey(canonicalSku);
-  return WYRESTORM_PRODUCTS.find((product) => compareSkuKey(product.sku) === key || skuAliasMatches(product.sku, canonicalSku));
+  return ACTIVE_WYRESTORM_PRODUCTS.find((product) => compareSkuKey(product.sku) === key || skuAliasMatches(product.sku, canonicalSku));
 }
 
 function synthAvoipProduct(sku: string): WyreStormProduct {
@@ -3731,6 +4154,80 @@ function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
   );
 }
 
+// Fetches a real manufacturer product page via the existing (previously unwired)
+// server-side live lookup route (server/competitor-lookup-server.mjs, brand
+// adapters for Crestron/Extron/Atlona/Lightware/Blustream/Kramer/ZeeVee/Barco).
+// This is informational evidence for the rep to confirm the product type - it
+// deliberately does NOT feed a fetched result back into the match scoring, so
+// it can't introduce a new, untested source of wrong-category recommendations.
+function LiveLookupPanel({ brand, sku }: { brand: string; sku: string }) {
+  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [result, setResult] = useState<CompetitorLookupResponse | null>(null);
+  const [error, setError] = useState("");
+
+  const runLookup = useCallback(async () => {
+    setStatus("loading");
+    setError("");
+
+    try {
+      const response = await runCompetitorLookup({ brand, sku });
+      setResult(response);
+      setStatus("done");
+    } catch (lookupError) {
+      setError(
+        lookupError instanceof WingmanApiError
+          ? lookupError.message
+          : "Live lookup failed. Confirm the product on the manufacturer's site directly.",
+      );
+      setStatus("error");
+    }
+  }, [brand, sku]);
+
+  if (!sku.trim()) return null;
+
+  return (
+    <section className="compare-native-card wm-ui-section wm-ui-card">
+      <h3 className="wm-ui-title">Live lookup</h3>
+      <p className="wm-ui-copy">
+        Wingman has limited local data for this competitor product. Fetch the manufacturer's own product page to confirm what it actually is before quoting.
+      </p>
+      <button
+        type="button"
+        className="compare-native-secondary-action wm-ui-button wm-ui-button-primary"
+        onClick={() => { void runLookup(); }}
+        disabled={status === "loading"}
+      >
+        {status === "loading" ? "Looking up..." : "Run live lookup"}
+      </button>
+      {status === "error" ? <p className="compare-native-muted wm-ui-copy">{error}</p> : null}
+      {status === "done" && result ? (
+        result.ok && result.record ? (
+          <div className="wm-ui-card">
+            <p className="wm-ui-copy"><strong>{result.record.name || sku}</strong></p>
+            {result.record.summary ? <p className="wm-ui-copy">{result.record.summary}</p> : null}
+            {result.record.sourceUrl ? (
+              <a className="compare-native-secondary-action" href={result.record.sourceUrl} target="_blank" rel="noreferrer">
+                View manufacturer source
+              </a>
+            ) : null}
+            {result.warnings?.length ? (
+              <ul className="compare-native-bullet-list wm-ui-card">
+                {result.warnings.slice(0, 3).map((warning) => (
+                  <li key={warning}>{warning}</li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        ) : (
+          <p className="compare-native-muted wm-ui-copy">
+            No manufacturer page could be resolved automatically. Confirm the product type manually before quoting.
+          </p>
+        )
+      ) : null}
+    </section>
+  );
+}
+
 function CompareSummaryPanel({ summary, requestLiveLookup, sourceUrl }: { summary: string; requestLiveLookup: boolean; sourceUrl: string }) {
   return (
     <details className="compare-native-summary wm-ui-card wm-ui-copy">
@@ -3761,12 +4258,29 @@ function ComparePageNew() {
   const [customManufacturerInput, setCustomManufacturerInput] = useState("");
   const [isAddingManufacturer, setIsAddingManufacturer] = useState(false);
   const [committedSku, setCommittedSku] = useState<string | null>(null);
+  const [catalogVersion, setCatalogVersion] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadProductIntelligenceIndex().catch(() => {
-      // Non-fatal: the built-in WyreStorm product set still drives comparison.
-    });
+    let cancelled = false;
+
+    loadProductIntelligenceIndex()
+      .then((indexPayload) => {
+        if (cancelled) return;
+
+        const realCandidates = buildRealWyrestormCandidates(indexPayload);
+        if (realCandidates.length === 0) return;
+
+        ACTIVE_WYRESTORM_PRODUCTS = mergeRealWyrestormCatalog(WYRESTORM_PRODUCTS, realCandidates);
+        setCatalogVersion((version) => version + 1);
+      })
+      .catch(() => {
+        // Non-fatal: the built-in WyreStorm product set still drives comparison.
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
 
@@ -3803,53 +4317,70 @@ function ComparePageNew() {
       return matrixCandidates;
     }
 
-    return WYRESTORM_PRODUCTS
+    return ACTIVE_WYRESTORM_PRODUCTS
       .filter((product) => !isBannedNetworkHdSku(product.sku))
       .filter((product) => isWyreStormSkuCompareLeadAllowed(product.sku))
       .map((product) => scoreProduct(profile, product))
       .filter((candidate) => isSelectableWyrestormRecommendation(candidate.product))
       .sort((a, b) => b.score - a.score)
       .slice(0, 8);
-  }, [profile]);
+  }, [profile, catalogVersion]);
 
   const rigorousResult = useMemo(() => {
     const inputText = [effectiveBrand, competitorInput, mustMatchFeatures].filter(Boolean).join(" ");
     const result = runCompareRuntimePipeline(
       inputText,
-      WYRESTORM_PRODUCTS,
+      ACTIVE_WYRESTORM_PRODUCTS,
       effectiveBrand,
       8,
     ) as RigorousCompareResult;
+    // resolveCompetitorSpecProfile() (result.competitor) only classifies SKUs it has
+    // curated/family-rule evidence for. The page's own tag classifier
+    // (extractTags/productClassFromTags, feeding `profile`) recognises far more
+    // from well-described free text, so use it to backfill domain ONLY where the
+    // structured profile has nothing - this lets a well-described-but-uncurated
+    // product (e.g. a typed "PTZ camera" or "HDMI splitter" description) still
+    // be classified as known, while a bare SKU with zero evidence anywhere
+    // (e.g. "SP14CS" alone) stays genuinely unknown.
+    // Deliberately domain-only: role/transport are NOT backfilled from the
+    // page's own roleFromTags()/transportFromTags() vocabulary here, because it
+    // doesn't align with wyrestormCompareProfile.ts's coarser detectRole()/
+    // canonicalTransport() output (e.g. every WyreStorm Apollo product gets the
+    // same bare "wireless presentation" role and "Wireless" transport regardless
+    // of whether it's a UC bar or a casting dongle) - backfilling those too
+    // turned real matches into false role/transport-mismatch blockers.
+    const isUnknownCompareField = (value?: string): boolean => {
+      const text = String(value ?? "").trim().toLowerCase();
+      return !text || text === "unknown" || text === "verify" || text === "n/a";
+    };
+    const competitorForClassification: typeof result.competitor = {
+      ...result.competitor,
+      domain: isUnknownCompareField(result.competitor.domain)
+        ? (domainFromProductClass(profile.productClass) ?? result.competitor.domain)
+        : result.competitor.domain,
+    };
+
     const classifiedLegacyMatches: RigorousMatch[] = legacyCandidates.map((candidate) => {
       const wyrestorm = buildWyrestormCompareProfile(candidate.product);
       const classified = classifyCompetitorCompareDecision({
-        competitor: result.competitor,
+        competitor: competitorForClassification,
         wyrestorm,
         score: candidate.score,
         evidence: candidate.matched,
         warnings: candidate.checks,
       });
-      const lacksEnoughStructuredEvidence =
-        candidate.verdict !== "NO MATCH" &&
-        candidate.score >= 55 &&
-        classified.outcome === "NO MATCH";
-      const decision = lacksEnoughStructuredEvidence
-        ? {
-            ...classified,
-            outcome: "VERIFY" as const,
-            confidence: candidate.score,
-            blockers: [],
-            verify: uniqueSkuOptions([
-              ...classified.verify,
-              ...classified.blockers,
-              "The local product direction is plausible, but the structured evidence is not complete enough to call it a direct match.",
-            ]),
-            summary: `Verify before quoting. ${classified.summary}`,
-          }
-        : {
-            ...classified,
-            confidence: candidate.score,
-          };
+      // classifyCompetitorCompareDecision only ever returns "NO MATCH" when it found
+      // at least one real blocker (technology-class, role, transport or capacity
+      // mismatch - see competitorCompareDecision.ts). A high legacy keyword-heuristic
+      // score must never override that: doing so is exactly how a wrong-technology
+      // candidate (e.g. an AVoIP encoder recommended for a splitter/extender brief)
+      // could reach the customer as a "verify-only" candidate instead of being
+      // rejected. Always respect the classifier's outcome; only carry the legacy
+      // score through as the displayed confidence.
+      const decision = {
+        ...classified,
+        confidence: candidate.score,
+      };
 
       return {
         sku: candidate.product.sku,
@@ -3872,7 +4403,7 @@ function ComparePageNew() {
       return true;
     });
 
-    const ranked = applyCompareEligibilityRanking({ ...result, matches }, WYRESTORM_PRODUCTS, inputText);
+    const ranked = applyCompareEligibilityRanking({ ...result, matches }, ACTIVE_WYRESTORM_PRODUCTS, inputText);
     const unresolvedCompetitor =
       /custom\s*\/\s*missing sku/i.test(competitorInput) ||
       (
@@ -3908,7 +4439,7 @@ function ComparePageNew() {
           recommendation: "The eligibility pass found no fully proven direct match. Show the strongest locally classified direction as verify-only.",
         }
       : ranked;
-  }, [competitorInput, effectiveBrand, legacyCandidates, mustMatchFeatures]);
+  }, [competitorInput, effectiveBrand, legacyCandidates, mustMatchFeatures, catalogVersion]);
 
   const scoredCandidates = useMemo(
     () =>
@@ -4340,6 +4871,10 @@ function ComparePageNew() {
 
           {hasCompared ? (
           <>
+            {requestLiveLookup ? (
+              <LiveLookupPanel brand={effectiveBrand} sku={competitorInput} />
+            ) : null}
+
             {best ? (
               <div
                 ref={bestMatchRef}
