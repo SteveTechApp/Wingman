@@ -5,6 +5,7 @@ WORKDIR /app
 
 # Copy package files first for better layer caching
 COPY package.json package-lock.json ./
+COPY tools/setup-git-hooks.mjs ./tools/setup-git-hooks.mjs
 
 # Install dependencies
 RUN npm ci

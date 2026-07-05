@@ -46,7 +46,7 @@ const checks = [
   ["Frontend proxy uses its configured backend service", files.nginx.includes("http://${BACKEND_HOST}:${BACKEND_PORT}/api/")],
   ["Render Blueprint builds both application images", files.render.includes("dockerfilePath: ./Dockerfile") && files.render.includes("dockerfilePath: ./Dockerfile.server")],
   ["Render links the frontend to the backend private address", files.render.includes("property: host") && files.render.includes("property: port")],
-  ["Render deploys only after GitHub checks pass", (files.render.match(/autoDeployTrigger: checksPass/g) || []).length === 2],
+  ["Render never deploys on every push without a checks gate or an explicit pause", (files.render.match(/autoDeploy: false|autoDeployTrigger: checksPass/g) || []).length === 2],
   ["Render health-checks the frontend and backend", files.render.includes("healthCheckPath: /") && files.render.includes("healthCheckPath: /api/ready")],
 ];
 

@@ -7,7 +7,7 @@ services:
     branch: main
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    autoDeployTrigger: checksPass
+    autoDeploy: false
     healthCheckPath: /
     envVars:
       - key: BACKEND_HOST
@@ -33,7 +33,7 @@ services:
     branch: main
     dockerfilePath: ./Dockerfile.server
     dockerContext: .
-    autoDeployTrigger: checksPass
+    autoDeploy: false
     healthCheckPath: /api/ready
     envVars:
       - key: HOST
