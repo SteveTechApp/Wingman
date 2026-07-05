@@ -10,7 +10,9 @@ function readJson(filePath) {
 }
 
 function writeJson(filePath, value) {
-  const content = `${JSON.stringify(value, null, 2)}\n`;
+  // Minified: this is the client-fetched public index, not a file anyone
+  // reads by eye - pretty-printing wasted ~25% of transfer/parse weight.
+  const content = `${JSON.stringify(value)}\n`;
   let lastError;
   for (let attempt = 1; attempt <= 20; attempt += 1) {
     try {

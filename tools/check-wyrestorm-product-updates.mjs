@@ -131,7 +131,7 @@ async function readIndexedSkus() {
   const skus = new Set();
 
   for (const product of products) {
-    const sku = normaliseSku(product?.sku || product?.id || product?.raw?.sku || "");
+    const sku = normaliseSku(product?.sku || product?.id || "");
     if (sku) skus.add(sku);
   }
 

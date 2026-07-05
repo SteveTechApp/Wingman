@@ -27,7 +27,6 @@ function text(value) {
 function officialProductUrl(product) {
   return (
     product?.technicalProfile?.sourceQuality?.officialProductUrl ||
-    product?.raw?.technicalProfile?.sourceQuality?.officialProductUrl ||
     product?.url ||
     ""
   );
