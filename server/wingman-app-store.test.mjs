@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+// wingman-app-store.mjs dynamically imports this only when Supabase-backed
+// storage is actually used; these tests exercise file-mode and fail-closed-
+// without-credentials paths, so a mock avoids depending on server/'s
+// separately-installed node_modules being present.
+vi.mock("@supabase/supabase-js", () => ({ createClient: vi.fn() }));
+
 const files = new Map();
 
 function makeEnoent() {
