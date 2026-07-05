@@ -6,7 +6,7 @@ const prioritySkus = [
   "NHD-0401-MV",
   "NHD-150-RX",
   "NHD-124-TX",
-  "NHD-CTL-PRO",
+  "NHD-CTL-PRO-V2",
   "NHD-500-TX",
   "NHD-500-RX",
   "NHD-600-TRX",
