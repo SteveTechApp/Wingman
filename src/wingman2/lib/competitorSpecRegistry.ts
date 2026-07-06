@@ -68,6 +68,8 @@ export function canonicalTransport(domain?: string): string | undefined {
       return "HDBaseT";
     case "MATRIX":
       return "HDMI matrix";
+    case "DISTRIBUTION":
+      return "HDMI";
     case "PRESENTATION":
       return "HDMI";
     case "VIDEO_WALL":
@@ -502,7 +504,7 @@ function catalogDomain(entry: CatalogEntry): CompetitorTechnologyClass | undefin
   if (tech.includes("matrix") || category === "matrix") return "MATRIX";
   if (tech.includes("wireless") || category === "wireless presentation") return "WIRELESS_PRESENTATION";
   if (tech.includes("control") || category === "control") return "CONTROL";
-  if (tech.includes("distribution") || category === "distribution") return "MATRIX";
+  if (tech.includes("distribution") || category === "distribution") return "DISTRIBUTION";
   if (tech.includes("presentation") || tech.includes("unified communications") || category === "switcher" || category === "uc") {
     return "PRESENTATION";
   }
@@ -522,7 +524,8 @@ function catalogRole(entry: CatalogEntry): string | undefined {
   if (role === "tx") return "transmitter";
   if (role === "rx") return "receiver";
   if (role === "extender" || role === "extender kit") return "transmitter";
-  if (role === "matrix switcher" || role === "distribution amplifier") return "matrix";
+  if (role === "matrix switcher") return "matrix";
+  if (role === "distribution amplifier") return "distribution amplifier";
   if (role.startsWith("wireless")) return "wireless presentation";
   if (role === "video bar") return "presentation switcher";
   return role;

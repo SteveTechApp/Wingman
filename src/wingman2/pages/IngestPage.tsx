@@ -5,6 +5,11 @@ import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 import { saveIngestAnalysisToProject } from "../data/projectStore";
 import { extractDocuments } from "../lib/documentExtract";
+import {
+  analyzeMultiSkuCompetitorDocument,
+  buildMultiSkuResponseDraft,
+  type MultiSkuCompetitorAnalysis,
+} from "../lib/documentIngest/multiSkuCompetitorIngest";
 import { analyzeRequirementsText } from "../lib/requirementsParser";
 
 type RequestType = "Email / message" | "RFI / information request" | "Formal RFQ" | "BOM / competitor list" | "Multi-space scope" | "Rough notes";
@@ -14,6 +19,7 @@ type IngestAnalysis = {
   unknowns: string[];
   skippedFiles: string[];
   files: string[];
+  multiSkuIntelligence?: MultiSkuCompetitorAnalysis;
 };
 
 const requestTypes: RequestType[] = [
@@ -106,6 +112,10 @@ export function IngestPage() {
   const [extractState, setExtractState] = useState<"idle" | "extracting" | "complete" | "error">("idle");
   const [requestType, setRequestType] = useState<RequestType>("Email / message");
   const [pastedText, setPastedText] = useState("");
+  const [saveMessage, setSaveMessage] = useState("");
+  const [showBatchChecks, setShowBatchChecks] = useState(false);
+  const [showResponseDraft, setShowResponseDraft] = useState(false);
+  const [showDiscoveryQuestions, setShowDiscoveryQuestions] = useState(false);
   const [analysis, setAnalysis] = useState<IngestAnalysis>({
     requirements: [],
     unknowns: ["Paste a customer message, RFQ, RFI, notes or upload readable files to decode the request."],
@@ -119,18 +129,39 @@ export function IngestPage() {
   const requirements = cleanList(analysis.requirements, ["No requirements extracted yet."]);
   const unknowns = cleanList(analysis.unknowns, ["No missing details extracted yet."]);
   const systemShape = useMemo(() => buildSystemShape(analysis.requirements, analysis.unknowns), [analysis.requirements, analysis.unknowns]);
+  const multiSkuIntelligence = analysis.multiSkuIntelligence;
 
   const analyseText = (text: string, warnings: string[] = [], files: string[] = []) => {
     const parsed = analyzeRequirementsText(text, warnings);
+    const structured = analyzeMultiSkuCompetitorDocument(text);
+    const multiSku = structured.documentType === "multi_sku_competitor_list" ? structured : undefined;
     const nextAnalysis: IngestAnalysis = {
-      requirements: parsed.requirements,
-      unknowns: parsed.unknowns,
+      requirements: multiSku
+        ? [
+            `${multiSku.skuCount} competitor SKU(s) detected across ${multiSku.productSets.length} related product sets.`,
+            `Manufacturer: ${multiSku.manufacturer}.`,
+            `Account/customer: ${multiSku.accountCustomer}.`,
+            ...parsed.requirements,
+          ]
+        : parsed.requirements,
+      unknowns: multiSku ? cleanList([...multiSku.quoteRisks, ...parsed.unknowns], multiSku.quoteRisks) : parsed.unknowns,
       skippedFiles: [],
       files,
+      multiSkuIntelligence: multiSku,
     };
 
+    if (multiSku) setRequestType("BOM / competitor list");
     setAnalysis(nextAnalysis);
-    saveIngestAnalysisToProject(nextAnalysis, { requireExistingProject: true });
+    setSaveMessage("");
+    setShowBatchChecks(false);
+    setShowResponseDraft(false);
+    setShowDiscoveryQuestions(false);
+    saveIngestAnalysisToProject({
+      requirements: nextAnalysis.requirements,
+      unknowns: nextAnalysis.unknowns,
+      skippedFiles: nextAnalysis.skippedFiles,
+      files: nextAnalysis.files,
+    }, { requireExistingProject: true });
     setExtractState("complete");
   };
 
@@ -157,19 +188,58 @@ export function IngestPage() {
     }
 
     const parsed = analyzeRequirementsText(combinedText, extractionWarnings);
+    const structured = analyzeMultiSkuCompetitorDocument(combinedText);
+    const multiSku = structured.documentType === "multi_sku_competitor_list" ? structured : undefined;
     const nextAnalysis: IngestAnalysis = {
-      ...parsed,
+      requirements: multiSku
+        ? [
+            `${multiSku.skuCount} competitor SKU(s) detected across ${multiSku.productSets.length} related product sets.`,
+            `Manufacturer: ${multiSku.manufacturer}.`,
+            `Account/customer: ${multiSku.accountCustomer}.`,
+            ...parsed.requirements,
+          ]
+        : parsed.requirements,
+      unknowns: multiSku ? cleanList([...multiSku.quoteRisks, ...parsed.unknowns], multiSku.quoteRisks) : parsed.unknowns,
       skippedFiles,
       files: files.map((file) => file.name),
+      multiSkuIntelligence: multiSku,
     };
 
+    if (multiSku) setRequestType("BOM / competitor list");
     setAnalysis(nextAnalysis);
-    saveIngestAnalysisToProject(nextAnalysis, { requireExistingProject: true });
+    setSaveMessage("");
+    setShowBatchChecks(false);
+    setShowResponseDraft(false);
+    setShowDiscoveryQuestions(false);
+    saveIngestAnalysisToProject({
+      requirements: nextAnalysis.requirements,
+      unknowns: nextAnalysis.unknowns,
+      skippedFiles: nextAnalysis.skippedFiles,
+      files: nextAnalysis.files,
+    }, { requireExistingProject: true });
     setExtractState(extractionWarnings.length && !text ? "error" : "complete");
   };
 
   const runPasteAnalysis = () => {
     analyseText(pastedText, [], selectedFiles);
+  };
+
+  const saveMultiSkuOpportunity = () => {
+    if (!multiSkuIntelligence) return;
+    const project = saveIngestAnalysisToProject(analysis);
+    setSaveMessage(project
+      ? `Saved ${multiSkuIntelligence.skuCount} extracted competitor SKUs to ${project.name}. Competitor SKUs were not added to the WyreStorm BOM.`
+      : "Choose or create an active project before saving this intelligence.");
+  };
+
+  const compareLink = (item: MultiSkuCompetitorAnalysis["skus"][number]) => {
+    const params = new URLSearchParams({
+      brand: multiSkuIntelligence?.manufacturer ?? "",
+      sku: item.sku,
+      context: [item.classLabel, item.description, item.role].filter(Boolean).join(" | "),
+      source: "document-ingest-batch",
+    });
+    return `${routeCatalogByKey.compare.path}?${params.toString()}`;
   };
 
   return (
@@ -306,6 +376,148 @@ export function IngestPage() {
           </aside>
         </div>
       </SectionCard>
+
+      {multiSkuIntelligence ? (
+        <SectionCard
+          title="Multi-SKU competitor intelligence"
+          subtitle="Grouped product-set opportunities and quote-safety checks. Competitor SKUs remain reference data and are never added to a WyreStorm BOM."
+        >
+          <div className="grid gap-4">
+            <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+              {[
+                ["Document type", multiSkuIntelligence.documentType],
+                ["Manufacturer", multiSkuIntelligence.manufacturer],
+                ["Account / customer", multiSkuIntelligence.accountCustomer],
+                ["SKUs detected", String(multiSkuIntelligence.skuCount)],
+                ["Source", multiSkuIntelligence.sourceKind.replace(/_/g, " ")],
+              ].map(([label, value]) => (
+                <article key={label} className="rounded-2xl border border-[#29465e] bg-[#071522] p-4">
+                  <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-300">{label}</p>
+                  <p className="mt-2 break-words text-sm font-bold text-white">{value}</p>
+                </article>
+              ))}
+            </section>
+
+            {multiSkuIntelligence.senderContext || multiSkuIntelligence.subject ? (
+              <section className="rounded-2xl border border-[#29465e] bg-[#071522] p-4">
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-300">Sender context</p>
+                <p className="mt-2 text-sm leading-6 text-white/75">
+                  {[multiSkuIntelligence.senderContext, multiSkuIntelligence.subject && `Subject: ${multiSkuIntelligence.subject}`].filter(Boolean).join(" | ")}
+                </p>
+              </section>
+            ) : null}
+
+            <section className="overflow-hidden rounded-3xl border border-[#29465e] bg-[#071522]">
+              <div className="border-b border-[#29465e] p-5">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Extracted competitor SKU table</p>
+                <p className="mt-2 text-sm text-white/60">TX, RX, KIT and accessory roles are preserved as comparison gates.</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-left text-sm">
+                  <thead className="bg-[#0d2133] text-xs uppercase tracking-[0.12em] text-cyan-200">
+                    <tr>
+                      <th className="px-4 py-3">SKU</th>
+                      <th className="px-4 py-3">Description</th>
+                      <th className="px-4 py-3">Product class</th>
+                      <th className="px-4 py-3">Role</th>
+                      <th className="px-4 py-3">Confidence</th>
+                      <th className="px-4 py-3">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#29465e] text-white/75">
+                    {multiSkuIntelligence.skus.map((item) => (
+                      <tr key={item.sku}>
+                        <td className="px-4 py-3 font-black text-white">{item.sku}</td>
+                        <td className="min-w-[260px] px-4 py-3">{item.description || "Description not supplied"}</td>
+                        <td className="min-w-[220px] px-4 py-3">{item.classLabel}</td>
+                        <td className="px-4 py-3">{item.role}</td>
+                        <td className="px-4 py-3">{item.confidence}</td>
+                        <td className="px-4 py-3">
+                          {item.eligibleAsLead ? (
+                            <Link className="font-black text-cyan-200 underline" to={compareLink(item)}>
+                              Compare SKU
+                            </Link>
+                          ) : (
+                            <span className="font-bold text-amber-200">Supporting only</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section className="grid gap-4 lg:grid-cols-2">
+              {multiSkuIntelligence.productSets.map((group) => (
+                <article key={group.id} className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-300">Product-set opportunity</p>
+                      <h3 className="mt-2 text-lg font-black text-white">{group.title}</h3>
+                    </div>
+                    <span className="rounded-full border border-cyan-500/30 px-3 py-1 text-xs font-black text-cyan-100">
+                      {group.skuCount} SKU{group.skuCount === 1 ? "" : "s"}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-white/70">{group.summary}</p>
+                  <p className="mt-3 text-sm font-bold leading-6 text-cyan-100">{group.salesDirection}</p>
+                  <p className="mt-3 text-xs font-black uppercase tracking-[0.12em] text-white/45">{group.skus.join(" · ")}</p>
+                  {showBatchChecks ? (
+                    <ul className="mt-4 space-y-2 text-sm text-white/70">
+                      {group.checks.map((check) => <li key={check}>• {check}</li>)}
+                    </ul>
+                  ) : null}
+                </article>
+              ))}
+            </section>
+
+            <section className="grid gap-4 lg:grid-cols-2">
+              <article className="rounded-3xl border border-amber-500/30 bg-amber-500/10 p-5">
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-amber-200">Missing information / quote risks</p>
+                <ul className="mt-4 space-y-2 text-sm leading-6 text-white/75">
+                  {multiSkuIntelligence.quoteRisks.map((risk) => <li key={risk}>• {risk}</li>)}
+                </ul>
+              </article>
+              <article className="rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-5">
+                <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-200">Recommended WyreStorm sales directions</p>
+                <ul className="mt-4 space-y-2 text-sm leading-6 text-white/75">
+                  {multiSkuIntelligence.recommendedSalesDirections.map((direction) => <li key={direction}>• {direction}</li>)}
+                </ul>
+              </article>
+            </section>
+
+            <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-300">Batch actions</p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <button type="button" onClick={() => setShowBatchChecks((current) => !current)} className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100">
+                  Batch compare grouped sets
+                </button>
+                <button type="button" onClick={saveMultiSkuOpportunity} className="rounded-full bg-cyan-300 px-4 py-2 text-sm font-black text-slate-950">
+                  Create opportunity / save intelligence
+                </button>
+                <button type="button" onClick={() => setShowResponseDraft((current) => !current)} className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100">
+                  Generate response
+                </button>
+                <button type="button" onClick={() => setShowDiscoveryQuestions((current) => !current)} className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100">
+                  Create discovery questions
+                </button>
+              </div>
+              {saveMessage ? <p className="mt-4 text-sm font-bold text-cyan-100">{saveMessage}</p> : null}
+              {showResponseDraft ? (
+                <div className="mt-4 rounded-2xl border border-[#29465e] bg-[#081724] p-4 text-sm leading-6 text-white/75">
+                  {buildMultiSkuResponseDraft(multiSkuIntelligence)}
+                </div>
+              ) : null}
+              {showDiscoveryQuestions ? (
+                <ul className="mt-4 space-y-2 rounded-2xl border border-[#29465e] bg-[#081724] p-4 text-sm leading-6 text-white/75">
+                  {multiSkuIntelligence.discoveryQuestions.map((question) => <li key={question}>• {question}</li>)}
+                </ul>
+              ) : null}
+            </section>
+          </div>
+        </SectionCard>
+      ) : null}
     </div>
   );
 }
