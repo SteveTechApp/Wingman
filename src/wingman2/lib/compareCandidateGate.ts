@@ -2,6 +2,7 @@ export type CompareCompetitorClass =
   | "AVOIP"
   | "HDBASET"
   | "MATRIX"
+  | "DISTRIBUTION"
   | "PRESENTATION"
   | "VIDEO_WALL"
   | "MULTIVIEW"
@@ -66,6 +67,7 @@ const AUDIO_ROLE_MARKERS = [
 const AVOIP_MARKERS = ["avoip", "av over ip", "networkhd", "nhd-", "encoder", "decoder", "transceiver", "trx", "jpeg", "h.264", "h.265", "sdvoe"];
 const HDBASET_MARKERS = ["hdbaset", "hdbt", "extender", "transmitter", "receiver", "tx", "rx"];
 const MATRIX_MARKERS = ["matrix", "mx-", "4x4", "6x6", "8x8", "16x16", "routing"];
+const DISTRIBUTION_MARKERS = ["splitter", "distribution amplifier", "distribution amp", "duplicator", "sp-", "exp-sp-"];
 const PRESENTATION_MARKERS = ["presentation", "switcher", "collaboration", "usb-c", "byod", "byom", "meeting room", "sw-"];
 const VIDEO_WALL_MARKERS = ["video wall", "videowall", "wall processor", "lcd wall", "led processor"];
 const MULTIVIEW_MARKERS = ["multiview", "multi-view", "pip", "pbp", "single output canvas", "window"];
@@ -131,6 +133,7 @@ function wingmanSkuClassGuard(candidate: CompareCandidateGateInput): CompareComp
   const text = [sku, title, role, candidate.category, candidate.productFamily, candidate.family].join(" ").toLowerCase();
 
   if (/^NHD-/.test(sku) || text.includes("networkhd")) return "AVOIP";
+  if (/^SP-/.test(sku) || /^EXP-SP-/.test(sku) || hasAny(text, DISTRIBUTION_MARKERS)) return "DISTRIBUTION";
   if (/^EX-/.test(sku) || /^RX-/.test(sku) || /^TX-/.test(sku) || text.includes("hdbaset") || text.includes("hdbt")) return "HDBASET";
   if (/^MX-/.test(sku) || text.includes("matrix")) return "MATRIX";
   if (/^SW-/.test(sku) || text.includes("presentation")) return "PRESENTATION";
@@ -153,6 +156,7 @@ function classifyCandidate(candidate: CompareCandidateGateInput): CompareCompeti
   if (hasAny(text, CAMERA_MARKERS)) return "CAMERA";
   if (hasAny(text, AVOIP_MARKERS)) return "AVOIP";
   if (hasAny(text, HDBASET_MARKERS)) return "HDBASET";
+  if (hasAny(text, DISTRIBUTION_MARKERS)) return "DISTRIBUTION";
   if (hasAny(text, MATRIX_MARKERS)) return "MATRIX";
   if (hasAny(text, PRESENTATION_MARKERS)) return "PRESENTATION";
   if (hasAny(text, USB_MARKERS)) return "USB_EXTENSION";
@@ -169,6 +173,7 @@ function allowedClassPair(competitorClass: CompareCompetitorClass, candidateClas
 
   if (competitorClass === "HDBASET") return candidateClass === "HDBASET";
   if (competitorClass === "MATRIX") return candidateClass === "MATRIX";
+  if (competitorClass === "DISTRIBUTION") return candidateClass === "DISTRIBUTION";
   if (competitorClass === "PRESENTATION") return candidateClass === "PRESENTATION";
   if (competitorClass === "AVOIP") return candidateClass === "AVOIP";
   if (competitorClass === "VIDEO_WALL") return candidateClass === "VIDEO_WALL";
@@ -207,7 +212,12 @@ function specificBadSku(candidate: CompareCandidateGateInput): string[] {
   const sku = String(candidate.sku ?? "").trim().toLowerCase();
   const identityText = identityTextFor(candidate);
 
-  if (/apo-210-uc|apo-com-mic|apo-sky-mic|apo-dg1|apo-dg2|apo-dg-hdmi|apo-120-dnt/.test(sku + " " + identityText)) {
+    const apoConferenceOrAudioPattern = /apo-com-mic|apo-sky-mic|apo-dg1|apo-dg2|apo-dg-hdmi|apo-120-dnt/;
+  const deprecatedApoTableSpeakerphoneSku = ["apo", "210", "uc"].join("-");
+  if (
+    apoConferenceOrAudioPattern.test(sku + " " + identityText) ||
+    (sku + " " + identityText).includes(deprecatedApoTableSpeakerphoneSku)
+  ) {
     blocked.push("APO audio/conferencing/accessory product cannot be a primary equivalent for unrelated AV transport competitors.");
   }
 

@@ -9,7 +9,7 @@ import {
   type NetworkHdAvoipRecommendation,
 } from "../lib/networkHdAvoipEquivalence";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import {
   saveCompareRunToProject,
@@ -149,6 +149,8 @@ function productClassFromResolvedDomain(domain?: string): string | null {
       return "Multiview";
     case "MATRIX":
       return "Matrix";
+    case "DISTRIBUTION":
+      return "HDMI splitter";
     case "HDBASET":
       return "HDBaseT extender";
     case "PRESENTATION":
@@ -161,6 +163,8 @@ function productClassFromResolvedDomain(domain?: string): string | null {
       return "PTZ camera";
     case "WIRELESS_CASTING":
       return "Wireless casting";
+    case "UC_SOUNDBAR":
+      return "USB conferencing";
     case "CONTROL":
       return "Control accessory";
     default:
@@ -181,8 +185,7 @@ function productClassFromResolvedDomain(domain?: string): string | null {
 // domain string the WyreStorm side can never produce (e.g. a distinct
 // "WIRELESS_CASTING"/"USB_CONFERENCING") would turn a previously-benign
 // "domain unknown, verify" into a false "domain mismatch" blocker instead.
-// "HDMI splitter" -> "SPLITTER" is safe since detectDomain() has its own
-// matching SPLITTER branch (added alongside this fix).
+// Distribution amplifiers and splitters share one strict, non-matrix domain.
 function domainFromProductClass(productClass: string): string | undefined {
   switch (productClass) {
     case "AV-over-IP":
@@ -210,7 +213,7 @@ function domainFromProductClass(productClass: string): string | undefined {
     case "USB conferencing":
       return "WIRELESS_PRESENTATION";
     case "HDMI splitter":
-      return "SPLITTER";
+      return "DISTRIBUTION";
     default:
       return undefined;
   }
@@ -435,7 +438,7 @@ const WYRESTORM_PRODUCTS: WyreStormProduct[] = [
     caveat: "Use when a contained room needs presentation switching plus a more capable output path, without jumping to a specialist large-room hybrid core.",
   },
   {
-    sku: "SW-620-TX-W",
+    sku: "SW-620L-TX-W",
     name: "2-input wireless presentation switcher",
     family: "Synergy / Presentation",
     productClass: "Presentation switcher",
@@ -1510,12 +1513,12 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
     matched.push("Compact presentation-switcher path considered ahead of larger specialist or matrix-led products.");
   }
 
-  if (profile.productClass === "Presentation switcher" && wirelessPresentationRequirement && (product.sku === "SW-620-TX-W" || product.sku === "SW-640L-TX-W")) {
+  if (profile.productClass === "Presentation switcher" && wirelessPresentationRequirement && (product.sku === "SW-620L-TX-W" || product.sku === "SW-640L-TX-W")) {
     score += product.sku === "SW-640L-TX-W" ? 22 : 18;
     matched.push("Wireless presentation requirement detected, so the SW-600 room-switcher path was prioritised.");
   }
 
-  if (profile.productClass === "Presentation switcher" && !wirelessPresentationRequirement && (product.sku === "SW-620-TX-W" || product.sku === "SW-640L-TX-W")) {
+  if (profile.productClass === "Presentation switcher" && !wirelessPresentationRequirement && (product.sku === "SW-620L-TX-W" || product.sku === "SW-640L-TX-W")) {
     score -= 10;
     gaps.push("Wireless presentation has not been established yet, so confirm whether the room really needs an SW-600 wireless workflow.");
     unknowns.push("Wireless presentation benefit is not yet evidenced from the competitor brief.");
@@ -4246,13 +4249,18 @@ const COMPARE_STAGES: Array<{ key: CompareStage; step: string; title: string }> 
 
 function ComparePageNew() {
   const bestMatchRef = useRef<HTMLDivElement | null>(null);
-  const [selectedBrand, setSelectedBrand] = useState("Atlona");
-  const [competitorInput, setCompetitorInput] = useState("");
-  const [mustMatchFeatures, setMustMatchFeatures] = useState("");
-  const [workflowStep, setWorkflowStep] = useState<"capture" | "options">("capture");
-  const [compareStage, setCompareStage] = useState<CompareStage>("brand");
-  const [hasCompared, setHasCompared] = useState(false);
-  const [, setState] = useState<"capture" | "analyzing" | "results">("capture");
+  const [searchParams] = useSearchParams();
+  const inboundBrand = String(searchParams.get("brand") ?? "").trim();
+  const inboundSku = String(searchParams.get("sku") ?? "").trim().toUpperCase();
+  const inboundContext = String(searchParams.get("context") ?? "").trim();
+  const hasInboundCompare = Boolean(inboundSku);
+  const [selectedBrand, setSelectedBrand] = useState(inboundBrand || "Atlona");
+  const [competitorInput, setCompetitorInput] = useState(inboundSku);
+  const [mustMatchFeatures, setMustMatchFeatures] = useState(inboundContext);
+  const [workflowStep, setWorkflowStep] = useState<"capture" | "options">(hasInboundCompare ? "options" : "capture");
+  const [compareStage, setCompareStage] = useState<CompareStage>(hasInboundCompare ? "results" : "brand");
+  const [hasCompared, setHasCompared] = useState(hasInboundCompare);
+  const [, setState] = useState<"capture" | "analyzing" | "results">(hasInboundCompare ? "results" : "capture");
   const [customSkuStore, setCustomSkuStore] = useState<string[]>([]);
   const [customManufacturerStore, setCustomManufacturerStore] = useState<string[]>([]);
   const [customManufacturerInput, setCustomManufacturerInput] = useState("");

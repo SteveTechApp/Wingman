@@ -110,6 +110,7 @@ const ROLE_EQUIVALENTS: Record<string, string[]> = {
   receiver: ["decoder", "display endpoint", "rx"],
   transceiver: ["encoder", "decoder", "transmitter", "receiver", "encoder/decoder", "trx"],
   matrix: ["matrix switcher"],
+  "distribution amplifier": ["splitter", "hdmi splitter", "distribution amp"],
   controller: ["control processor", "control module"],
   "presentation switcher": ["presentation scaler", "room switcher", "collaboration switcher"],
   "video wall processor": ["wall processor", "videowall processor"],

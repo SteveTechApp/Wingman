@@ -1,4 +1,4 @@
-﻿import type { ProductPositioningAttachProduct, ProductPositioningCard } from "../types/productPositioning";
+import type { ProductPositioningAttachProduct, ProductPositioningCard } from "../types/productPositioning";
 
 import { resolveWyrestormSkuAlias } from "../lib/skuAliasResolver";
 
@@ -389,13 +389,13 @@ const CORE_PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     lastReviewed: "2026-06-04"
   },
   {
-    sku: "SW-620-TX-W",
+    sku: "SW-620L-TX-W",
     productName: "Wireless presentation switcher",
     productFamily: "Presentation Switcher",
     technologyType: "Wireless / wired presentation switching",
     salientPoint: "A strong meeting-room product when users need wired and wireless presentation in a single room workflow.",
     oneLinePositioning: "Use this when the customer wants a meeting-room presentation switcher with wireless sharing support.",
-    oneMinuteBrief: "The SW-620-TX-W lets people share in a meeting room either by plugging in a laptop or casting wirelessly, and sends the chosen source to the screen. Reach for it when easy wired-and-wireless sharing is what the room is really about, not routing many sources to many screens.",
+    oneMinuteBrief: "The SW-620L-TX-W lets people share in a meeting room either by plugging in a laptop or casting wirelessly, and sends the chosen source to the screen. Reach for it when easy wired-and-wireless sharing is what the room is really about, not routing many sources to many screens.",
     bestFitApplications: ["meeting rooms", "boardrooms", "training rooms", "BYOD presentation spaces", "dealer demo rooms"],
     weakFitApplications: ["large AV distribution", "rooms needing many outputs", "Teams-certified appliance requirement"],
     customerProblems: ["Users want to present wirelessly.", "Guests need easy laptop connection.", "The room has both wired and wireless presentation needs."],
@@ -432,7 +432,7 @@ const CORE_PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
       PROJECT_DISCOVERY: "Capture sources, displays, wireless, USB and network policy.",
       TRAINING: "Use to explain BYOD versus certified UC room."
     },
-    followUpWording: "This sounds like a meeting-room presentation requirement with wireless sharing. SW-620-TX-W may be relevant if the customer needs a combination of wired and wireless presentation in a BYOD/BYOM style room. We should confirm required wireless platforms, USB/conferencing expectations, display outputs, network policy and whether a certified UC appliance is required.",
+    followUpWording: "This sounds like a meeting-room presentation requirement with wireless sharing. SW-620L-TX-W may be relevant if the customer needs a combination of wired and wireless presentation in a BYOD/BYOM style room. We should confirm required wireless platforms, USB/conferencing expectations, display outputs, network policy and whether a certified UC appliance is required.",
     reviewGates: ["Confirm BYOD/BYOM vs certified UC appliance.", "Confirm wireless platform support.", "Confirm IT/network policy."],
     dataConfidence: "MEDIUM",
     lastReviewed: "2026-06-04"
@@ -443,8 +443,8 @@ const CORE_PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     productFamily: "Presentation Switcher",
     technologyType: "Wireless / wired presentation switching",
     salientPoint: "A step-up presentation switcher for rooms needing more inputs, output flexibility or a stronger meeting-room workflow.",
-    oneLinePositioning: "Use this when SW-620-TX-W style wireless presentation is relevant but the room needs more capability.",
-    oneMinuteBrief: "The SW-640-TX-W does the same wired-and-wireless room sharing as the SW-620-TX-W but takes more inputs and handles busier rooms - for example more sources or a second display. Reach for it when a compact presentation switcher would run short on connections.",
+    oneLinePositioning: "Use this when SW-620L-TX-W style wireless presentation is relevant but the room needs more capability.",
+    oneMinuteBrief: "The SW-640-TX-W does the same wired-and-wireless room sharing as the SW-620L-TX-W but takes more inputs and handles busier rooms - for example more sources or a second display. Reach for it when a compact presentation switcher would run short on connections.",
     bestFitApplications: ["larger meeting rooms", "boardrooms", "training rooms", "dual-display presentation", "BYOD/BYOM spaces"],
     weakFitApplications: ["single-input rooms", "large distributed AV", "certified Teams Room appliance replacement"],
     customerProblems: ["Users need flexible wired and wireless presentation.", "The room has more than a basic single-display requirement.", "Guest and fixed sources need to be handled cleanly."],
@@ -460,7 +460,7 @@ const CORE_PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
       { objection: "Does this replace a UC codec?", response: "No. It supports BYOD/BYOM room workflows; check whether the customer needs a certified UC appliance." }
     ],
     attachProducts: [
-      { sku: "SW-620-TX-W", reason: "Use where the requirement is smaller or simpler." },
+      { sku: "SW-620L-TX-W", reason: "Use where the requirement is smaller or simpler." },
       { productFamily: "CAM cameras", reason: "Attach for BYOD/BYOM camera needs." },
       { productFamily: "APO UC audio", reason: "Attach for room microphone/speaker needs." }
     ],
@@ -725,13 +725,13 @@ const CORE_PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     lastReviewed: "2026-06-04"
   },
   {
-    sku: "APO-210-UC",
+    sku: "APO-VX20-UC",
     productName: "Table-top UC video and audio switcher (PTZ camera pairing)",
     productFamily: "Apollo UC",
     technologyType: "UC video and audio switcher",
     salientPoint: "The larger-room step up from APO-VX20-UC-V2. A table-top device that pairs with a dedicated PTZ camera (CAM-420-PTZ or CAM-210-PTZ) once the room outgrows the VX20's built-in camera coverage. Supports wireless casting of video/audio presentation content, but is not compatible with the APO-DG2 dongle.",
     oneLinePositioning: "Use this when the room is too big for APO-VX20-UC-V2's built-in camera and needs a dedicated PTZ camera instead.",
-    oneMinuteBrief: "APO-210-UC is a table-top UC video and audio switcher for rooms that have outgrown APO-VX20-UC-V2. Instead of a bar with a fixed built-in camera, it pairs with a separate PTZ camera (CAM-420-PTZ or CAM-210-PTZ) so the room gets proper pan/tilt/zoom coverage, with optional extension microphones for larger tables. Users can wirelessly cast video/audio presentation content to it, but it is not compatible with the APO-DG2 dongle - APO-DG2's wireless data connectivity to a room's mic, speakers and camera is exclusive to APO-VX20-UC-V2.",
+    oneMinuteBrief: "APO-VX20-UC is a table-top UC video and audio switcher for rooms that have outgrown APO-VX20-UC-V2. Instead of a bar with a fixed built-in camera, it pairs with a separate PTZ camera (CAM-420-PTZ or CAM-210-PTZ) so the room gets proper pan/tilt/zoom coverage, with optional extension microphones for larger tables. Users can wirelessly cast video/audio presentation content to it, but it is not compatible with the APO-DG2 dongle - APO-DG2's wireless data connectivity to a room's mic, speakers and camera is exclusive to APO-VX20-UC-V2.",
     bestFitApplications: ["meeting rooms larger than VX20's coverage", "rooms needing a dedicated PTZ camera", "boardrooms and training rooms with a UC video/audio requirement"],
     weakFitApplications: ["small huddle rooms already covered by APO-VX20-UC-V2", "rooms specifically needing the APO-DG2 dongle (that's APO-VX20-UC-V2 only)"],
     customerProblems: ["The room is bigger than a compact video bar can properly cover.", "The camera needs to pan/tilt/zoom to reach people further from the table.", "The table is large enough that built-in mic pickup on a bar isn't enough."],
@@ -743,8 +743,8 @@ const CORE_PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
     disqualifiers: ["Do not position with APO-DG2 - that dongle is not compatible with this device (APO-VX20-UC-V2 only).", "Do not position for small huddle rooms already served by APO-VX20-UC-V2."],
     caveats: ["Supports wireless casting of video/audio presentation content, but not the APO-DG2 dongle.", "Requires a separate PTZ camera (CAM-420-PTZ or CAM-210-PTZ), sold separately.", "Sits on the table; confirm cable routing and optional extension microphone count.", "WyreStorm UC is Zoom-certified, not Teams-certified; Teams rooms must be tested before install."],
     objectionHandling: [
-      { objection: "Why not just use APO-VX20-UC-V2?", response: "APO-VX20-UC-V2's built-in camera is sized for smaller rooms. Once the room is too big for that coverage, APO-210-UC pairs with a dedicated PTZ camera (CAM-420-PTZ or CAM-210-PTZ) to properly frame a larger space." },
-      { objection: "Can we add the APO-DG2 dongle to this room?", response: "Not on this device - APO-DG2 is only compatible with APO-VX20-UC-V2. APO-210-UC still supports wireless casting of video/audio presentation content on its own, just not through the DG2 dongle." }
+      { objection: "Why not just use APO-VX20-UC-V2?", response: "APO-VX20-UC-V2's built-in camera is sized for smaller rooms. Once the room is too big for that coverage, APO-VX20-UC pairs with a dedicated PTZ camera (CAM-420-PTZ or CAM-210-PTZ) to properly frame a larger space." },
+      { objection: "Can we add the APO-DG2 dongle to this room?", response: "Not on this device - APO-DG2 is only compatible with APO-VX20-UC-V2. APO-VX20-UC still supports wireless casting of video/audio presentation content on its own, just not through the DG2 dongle." }
     ],
     attachProducts: [
       { productFamily: "CAM-420-PTZ / CAM-210-PTZ", reason: "Required PTZ camera pairing for larger-room coverage." },
@@ -767,7 +767,7 @@ const CORE_PRODUCT_POSITIONING_CARDS: ProductPositioningCard[] = [
       PROJECT_DISCOVERY: "Capture room size, camera coverage needs, and whether the APO-DG2 dongle is specifically required.",
       TRAINING: "Use to teach the VX20-to-210 upgrade path and the APO-DG2 compatibility caveat."
     },
-    followUpWording: "This sounds like the room has outgrown APO-VX20-UC-V2's built-in camera. APO-210-UC is the right WyreStorm path once the room needs a dedicated PTZ camera (CAM-420-PTZ or CAM-210-PTZ). It still supports wireless casting of video/audio presentation content, but if the customer specifically needs the APO-DG2 dongle, that's APO-VX20-UC-V2 only. Before quote, confirm room size, camera coverage needs, table layout and whether APO-DG2 is genuinely required.",
+    followUpWording: "This sounds like the room has outgrown APO-VX20-UC-V2's built-in camera. APO-VX20-UC is the right WyreStorm path once the room needs a dedicated PTZ camera (CAM-420-PTZ or CAM-210-PTZ). It still supports wireless casting of video/audio presentation content, but if the customer specifically needs the APO-DG2 dongle, that's APO-VX20-UC-V2 only. Before quote, confirm room size, camera coverage needs, table layout and whether APO-DG2 is genuinely required.",
     reviewGates: ["Confirm room size exceeds APO-VX20-UC-V2 coverage.", "Confirm PTZ camera pairing (CAM-420-PTZ or CAM-210-PTZ).", "Confirm whether APO-DG2 is required - if so, scope APO-VX20-UC-V2 instead."],
     dataConfidence: "HIGH",
     lastReviewed: "2026-07-04"
@@ -956,7 +956,7 @@ const EXPANDED_PRODUCT_POSITIONING_SEEDS: CuratedSkuSeed[] = [
     caveats: ["WyreStorm UC is Zoom-certified, not Teams-certified; Teams rooms must be tested before install.", "Confirm compatibility with the selected Apollo host product."],
     listenForTriggers: ["People around the table are not being heard clearly.", "The room audio is close, but still missing the far end.", "They need better pickup without rebuilding the room.", "The call problem is the microphone coverage."],
     attachProducts: [
-      { sku: "APO-210-UC", reason: "Larger-room table unit whose extension microphone is optional when the table exceeds built-in pickup range." },
+      { sku: "APO-VX20-UC", reason: "Larger-room table unit whose extension microphone is optional when the table exceeds built-in pickup range." },
       { sku: "APO-VX20-UC-V2", reason: "Consider where the room needs a compact UC audio path instead." },
     ],
     competitorCategory: "UC expansion microphone",

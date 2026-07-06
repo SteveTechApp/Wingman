@@ -5,12 +5,13 @@
 
 - Governed stories: **130** (reviewed **44**, catalogue-grounded **86**)
 - Active catalogue SKUs (alias-deduped): **126**
-- Active covered: **126 (100%)** · Active uncovered: **0**
+- Active covered: **124 (98%)** · Active uncovered: **2**
 - Excluded (deliberately not storied): cable **30**, discontinued **0**, do-not-spec **0**, unlisted **30**, source-hygiene **1**
 
 ## Active SKUs still needing a governed story
 
-_None — every active SKU has a governed story._
+- [ ] APO-210-UC
+- [ ] SW-620-TX-W
 
 ## Source-hygiene exclusions
 

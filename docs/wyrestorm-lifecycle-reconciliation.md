@@ -173,7 +173,10 @@ _None._
 - NHD-CTL-PRO → **NHD-CTL-PRO-V2**
 - SYN-TOUCH10 → **SYN-TOUCH10-V2**
 
-## STORIES — governed stories referencing a non-active SKU (2)
+## STORIES — governed stories referencing a non-active SKU (5)
 
+- APO-VX20-UC — story lead — `unlisted`
+- SW-620L-TX-W — story lead — `unlisted`
+- SW-620L-TX-W — worksWith — `unlisted`
 - SW-640-TX-W — story lead — `unlisted`
 - SYN-TOUCH10 — worksWith — `discontinued`
