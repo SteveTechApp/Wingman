@@ -716,32 +716,13 @@ export function ProductFamilyPage() {
     <div className="wm-product-family-page space-y-5 pb-6 wm-ui-page wingman-page-host">
       <PageHero
         eyebrow="Product families"
-        title="WyreStorm range positioning for sales conversations"
-        purpose="Use this page to explain what each WyreStorm product family does, why it exists, how it connects, and when to position it."
-        nextMove="Start with the application and room behaviour, choose the right family, then move into Product Positioning or Finder for SKU-level output."
+        title="Choose a family, then open the right SKU."
+        purpose="Start with the customer application and move quickly from product family to representative WyreStorm SKUs."
+        nextMove="Choose a family below, then open a SKU in Product Positioning."
         actions={[
           { label: "Open Product Positioning", to: routeCatalogByKey.productPitch.path },
-          { label: "Open Finder", to: routeCatalogByKey.finder.path, variant: "secondary" },
-          { label: "Build proposal", to: routeCatalogByKey.proposal.path, variant: "secondary" },
         ]}
       />
-
-      <SectionCard
-        title="Fast architecture rules"
-        subtitle="Use these before choosing a family, especially when deciding between AVoIP, matrix, HDBaseT and UC products."
-      >
-        <div className="wm-product-family-rules-grid">
-          {decisionRules.map((rule, index) => (
-            <div key={rule} className="wm-product-family-rule-card wm-ui-card">
-              <div className="wm-product-family-rule-head">
-                <span className="wm-product-family-rule-badge">{index + 1}</span>
-                <span className="wm-product-family-rule-label">Rule</span>
-              </div>
-              <p className="wm-product-family-rule-body wm-ui-copy">{rule}</p>
-            </div>
-          ))}
-        </div>
-      </SectionCard>
 
       <div className="grid gap-5 xl:grid-cols-[330px_minmax(0,1fr)]">
         <SectionCard title="Choose family" subtitle="Pick the family that best matches the customer application before discussing SKUs.">
@@ -866,6 +847,26 @@ export function ProductFamilyPage() {
           </div>
         </section>
       </div>
+
+      <details className="wm-decision-details">
+        <summary>Architecture guidance</summary>
+        <SectionCard
+          title="Fast architecture rules"
+          subtitle="Use these only when the family choice needs validation."
+        >
+          <div className="wm-product-family-rules-grid">
+            {decisionRules.map((rule, index) => (
+              <div key={rule} className="wm-product-family-rule-card wm-ui-card">
+                <div className="wm-product-family-rule-head">
+                  <span className="wm-product-family-rule-badge">{index + 1}</span>
+                  <span className="wm-product-family-rule-label">Rule</span>
+                </div>
+                <p className="wm-product-family-rule-body wm-ui-copy">{rule}</p>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+      </details>
     </div>
   );
 }

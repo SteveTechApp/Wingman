@@ -397,13 +397,9 @@ export function ProposalPageProjectMode() {
     <div className="pb-10">
       <PageHero
         eyebrow="Proposal Builder"
-        title="Turn requirements into SKUs and BOMs a salesperson can present."
-        purpose="This page packages competitor replacement, one-off outcome, and full-room tender work into WyreStorm-first outputs with evidence, dependencies, and customer-safe assumptions."
-        nextMove="Confirm the sales motion, tighten the assumptions, and finalize the SKU or BOM output for customer presentation or internal approval."
-        actions={[
-          { label: "Open support", to: routeCatalogByKey.support.path },
-          { label: "Back to projects", to: routeCatalogByKey.projects.path, variant: "secondary" },
-        ]}
+        title="Review the WyreStorm SKU and BOM, then export."
+        purpose="The core products and proposal readiness are shown first. Supporting evidence stays collapsed."
+        nextMove="Resolve any highlighted blocker, then export the proposal."
       />
 
       <SectionCard
@@ -427,23 +423,11 @@ export function ProposalPageProjectMode() {
               <Table className="h-4 w-4" />
               Export BOM
             </button>
-            <Link
-              to={routeCatalogByKey.support.path}
-              className="rounded-full border px-4 py-2 text-sm transition wm-ui-card wm-ui-copy"
-            >
-              Request review
-            </Link>
-            <Link
-              to={routeCatalogByKey.projects.path}
-              className="rounded-full px-4 py-2 text-sm font-medium transition wm-ui-card wm-ui-copy"
-            >
-              Return to project
-            </Link>
           </div>
         }
       >
-        <div className="grid gap-4">
-          <div className="grid gap-4 xl:grid-cols-4">
+        <div className="flex flex-col gap-4">
+          <div className="order-0 grid gap-4 xl:grid-cols-2">
             <div className={`rounded-2xl border p-4 ${
               !hasCoreProducts
                 ? "border-rose-200 bg-rose-50 text-rose-950"
@@ -466,20 +450,9 @@ export function ProposalPageProjectMode() {
               </p>
             </div>
 
-            <div className="rounded-2xl border p-4 wm-ui-card">
-              <p className="wingman-kicker wm-ui-copy wm-ui-kicker">Customer summary</p>
-              <p className="mt-2 text-lg font-black wm-ui-copy">{context.discovery.projectTitle}</p>
-              <p className="mt-2 text-sm leading-6 wm-ui-copy">{context.discovery.summary}</p>
-            </div>
-
-            <div className="rounded-2xl border p-4 wm-ui-card">
-              <p className="wingman-kicker wm-ui-copy wm-ui-kicker">Ask next</p>
-              <p className="mt-2 text-sm font-black wm-ui-copy">{proposalCoach.nextQuestion}</p>
-              <p className="mt-2 text-sm leading-6 wm-ui-copy">{proposalCoach.nextAction}</p>
-            </div>
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+          <div className="order-2 grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
             <div className="rounded-2xl border p-4 wm-ui-card">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
@@ -525,7 +498,7 @@ export function ProposalPageProjectMode() {
             </div>
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-[1fr_0.9fr]">
+          <div className="order-1 grid gap-4 xl:grid-cols-[1fr_0.9fr]">
             <div className="rounded-2xl border p-4 wm-ui-card">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
@@ -590,7 +563,7 @@ export function ProposalPageProjectMode() {
             </div>
           </div>
 
-          <details className="wm-decision-details">
+          <details className="order-3 wm-decision-details">
             <summary>Open coach and response-pack support</summary>
             <div className="mt-4 grid gap-4">
               <WingmanCoachPanel coach={proposalCoach} compact showFunnel={false} showVisuals />
@@ -598,7 +571,7 @@ export function ProposalPageProjectMode() {
             </div>
           </details>
 
-          <details className="wm-decision-details">
+          <details className="order-3 wm-decision-details">
             <summary>Open full proposal preview</summary>
             <div className="mt-4 overflow-hidden rounded-3xl border wm-template-detail-no-horizontal-scroll wm-ui-card">
               <div className="px-8 py-8 wm-ui-card">
@@ -652,7 +625,7 @@ export function ProposalPageProjectMode() {
             </div>
           </details>
 
-          <details className="wm-decision-details">
+          <details className="order-3 wm-decision-details">
             <summary>Open full BOM, governance and evidence</summary>
             <div className="mt-4 grid gap-4">
               <div className="rounded-2xl border p-4 wm-ui-card">
@@ -740,7 +713,7 @@ export function ProposalPageProjectMode() {
             </div>
           </details>
 
-          <details className="wm-decision-details">
+          <details className="order-3 wm-decision-details">
             <summary>Open assumptions, sections and feedback</summary>
             <div className="mt-4 grid gap-4 xl:grid-cols-[260px_1fr]">
               <div className="rounded-2xl border p-4 wm-ui-card">

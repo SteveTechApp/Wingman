@@ -4683,6 +4683,8 @@ function ComparePageNew() {
 
   return (
     <main className="compare-native-page wm-ui-page wingman-page-host" data-wingman-page="compare">
+      {compareStage !== "results" ? (
+      <>
       <section className="compare-native-hero wm-ui-hero wm-ui-section">
         <div>
           <p className="compare-native-eyebrow wm-ui-kicker wm-ui-copy">Competitor Compare</p>
@@ -4722,6 +4724,8 @@ function ComparePageNew() {
           );
         })}
       </nav>
+      </>
+      ) : null}
 
       {compareStage === "brand" ? (
         <section className="compare-native-results compare-native-results--stage wm-ui-section wm-ui-card" aria-live="polite">
@@ -4871,10 +4875,6 @@ function ComparePageNew() {
 
           {hasCompared ? (
           <>
-            {requestLiveLookup ? (
-              <LiveLookupPanel brand={effectiveBrand} sku={competitorInput} />
-            ) : null}
-
             {best ? (
               <div
                 ref={bestMatchRef}
@@ -4903,24 +4903,11 @@ function ComparePageNew() {
               </section>
             )}
 
-            {alternativeCandidates.length ? (
-              <details className="compare-native-summary compare-native-options wm-ui-card wm-ui-copy">
-                <summary>Other possible WyreStorm options ({Math.min(alternativeCandidates.length, 3)})</summary>
-                <div className="compare-native-option-grid wm-ui-card">
-                  {alternativeCandidates.slice(0, 3).map((candidate) => (
-                    <CandidateOptionCard key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} />
-                  ))}
-                </div>
-              </details>
-            ) : null}
-
-            <CompareSummaryPanel summary={summary} requestLiveLookup={requestLiveLookup} sourceUrl={sourceUrl} />
-
             {best ? (
               <section className="compare-native-card wm-ui-section wm-ui-card">
                 <div className="compare-native-section-title wm-ui-title">
-                  <h2 className="wm-ui-title">Take this forward</h2>
-                  <p className="wm-ui-copy">Save {best.product.sku} to your project, or carry it straight into a proposal. The comparison and the quote-safety checks are saved with it.</p>
+                  <h2 className="wm-ui-title">Next step</h2>
+                  <p className="wm-ui-copy">Carry {best.product.sku} into the proposal, or save it to the active project.</p>
                 </div>
                 <div className="compare-native-action-row wm-ui-card">
                   <button type="button" className="compare-native-more wm-ui-button wm-ui-button-primary" onClick={() => handleCommit("proposal")}>
@@ -4938,12 +4925,30 @@ function ComparePageNew() {
                 </div>
                 {committedSku === best.product.sku ? (
                   <p className="compare-native-muted wm-ui-copy">
-                    Saved to your project.{" "}
-                    <Link to={routeCatalogByKey.projects.path}>Open projects</Link> or{" "}
-                    <Link to={routeCatalogByKey.proposal.path}>build the proposal</Link>.
+                    Saved. <Link to={routeCatalogByKey.projects.path}>Open projects</Link>.
                   </p>
                 ) : null}
               </section>
+            ) : null}
+
+            {alternativeCandidates.length ? (
+              <details className="compare-native-summary compare-native-options wm-ui-card wm-ui-copy">
+                <summary>Other possible WyreStorm options ({Math.min(alternativeCandidates.length, 3)})</summary>
+                <div className="compare-native-option-grid wm-ui-card">
+                  {alternativeCandidates.slice(0, 3).map((candidate) => (
+                    <CandidateOptionCard key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} />
+                  ))}
+                </div>
+              </details>
+            ) : null}
+
+            <CompareSummaryPanel summary={summary} requestLiveLookup={requestLiveLookup} sourceUrl={sourceUrl} />
+
+            {requestLiveLookup ? (
+              <details className="compare-native-summary wm-ui-card wm-ui-copy">
+                <summary>Source validation</summary>
+                <LiveLookupPanel brand={effectiveBrand} sku={competitorInput} />
+              </details>
             ) : null}
           </>
           ) : null}
