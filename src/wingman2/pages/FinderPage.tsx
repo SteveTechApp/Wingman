@@ -32,6 +32,7 @@ import { finderProductPathRelevance, opportunityFromLabel } from "../lib/situati
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
 import { getProductFamilyRankingReason, rankProductsByFamilyScores } from "../lib/productFamilyShortlistRanking";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { isSkuAdminBlocked } from "../lib/adminProductOverrides";
 import {
   wyrestormCapabilityFallbackTerms,
   wyrestormCapabilityVerdict,
@@ -1969,9 +1970,10 @@ function finderFeatureMatches(
     .sort((a, b) => b.score - a.score || a.sku.localeCompare(b.sku));
 }
 
-function buildFinderMatchPlan(products: FinderProduct[], need: FinderNeed, hasIntent: boolean): FinderMatchPlan {
+function buildFinderMatchPlan(allProducts: FinderProduct[], need: FinderNeed, hasIntent: boolean): FinderMatchPlan {
   if (!hasIntent) return { matches: [], mode: "none" };
 
+  const products = allProducts.filter((product) => !isSkuAdminBlocked(product.sku));
   const featureFilters = getActiveFeatureFilters(need);
 
   if (!featureFilters.length) {

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
+import { isSkuAdminBlocked } from "../lib/adminProductOverrides";
 
 type ProductFamilyGuide = {
   id: string;
@@ -778,7 +779,7 @@ export function ProductFamilyPage() {
               </div>
 
               <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {activeFamily.productSkus.map((sku) => (
+                {activeFamily.productSkus.filter((sku) => !isSkuAdminBlocked(sku)).map((sku) => (
                   <Link
                     key={sku}
                     to={productPitchSkuPath(sku)}

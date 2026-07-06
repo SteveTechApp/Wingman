@@ -41,4 +41,17 @@ describe("wyrestorm product lifecycle", () => {
     expect(life.recommendable).toBe(true);
     expect(life.supersededBy).toBeUndefined();
   });
+
+  it("blocks a SKU the admin has manually marked doNotUse, even though it is otherwise unresolved", () => {
+    const life = resolveProductLifecycle("SW-740-TX");
+    expect(life.adminBlocked).toBe(true);
+    expect(life.recommendable).toBe(false);
+    expect(life.note).toMatch(/admin override/i);
+  });
+
+  it("does not block an otherwise-active SKU that the admin has explicitly approved", () => {
+    const life = resolveProductLifecycle("APO-VX20-UC-V2");
+    expect(life.adminBlocked).toBe(false);
+    expect(life.recommendable).toBe(true);
+  });
 });
