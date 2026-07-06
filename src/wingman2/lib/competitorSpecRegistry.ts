@@ -69,7 +69,7 @@ export function canonicalTransport(domain?: string): string | undefined {
     case "MATRIX":
       return "HDMI matrix";
     case "DISTRIBUTION":
-      return "HDMI";
+      return "HDMI distribution";
     case "PRESENTATION":
       return "HDMI";
     case "VIDEO_WALL":
@@ -80,10 +80,18 @@ export function canonicalTransport(domain?: string): string | undefined {
       return "USB";
     case "WIRELESS_PRESENTATION":
       return "Wireless";
+    case "WIRELESS_CASTING":
+      return "Wireless";
     case "AUDIO":
       return "Audio";
     case "CONTROL":
       return "Control";
+    case "NDI_CAMERA":
+      return "NDI / HDMI";
+    case "PTZ_CAMERA":
+      return "HDMI / SDI / IP";
+    case "UC_SOUNDBAR":
+      return "USB / HDMI";
     default:
       return undefined;
   }

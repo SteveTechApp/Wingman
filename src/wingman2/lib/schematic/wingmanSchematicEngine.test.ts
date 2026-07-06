@@ -10,7 +10,7 @@ describe("Wingman native schematic engine", () => {
       displays: [{ label: "Room display" }],
       cameras: [{ label: "APO-VX20-UC-V2", sku: "APO-VX20-UC-V2" }],
       products: [
-        { sku: "SW-620-TX-W" },
+        { sku: "SW-620L-TX-W" },
         { sku: "APO-DG2" },
       ],
       usbRequired: true,
@@ -19,7 +19,7 @@ describe("Wingman native schematic engine", () => {
       maxSignalDistanceM: 7,
     });
 
-    expect(schematic.nodes.some((node) => node.kind === "switcher" && node.sku === "SW-620-TX-W")).toBe(true);
+    expect(schematic.nodes.some((node) => node.kind === "switcher" && node.sku === "SW-620L-TX-W")).toBe(true);
     expect(schematic.connections.some((connection) => connection.signal === "video")).toBe(true);
     expect(schematic.connections.some((connection) => connection.signal === "usb")).toBe(true);
     expect(schematic.bomHints.some((hint) => hint.sku === "NHD-CTL-PRO")).toBe(false);

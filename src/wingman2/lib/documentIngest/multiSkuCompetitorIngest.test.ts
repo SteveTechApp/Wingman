@@ -3,7 +3,7 @@ import {
   analyzeMultiSkuCompetitorDocument,
   extractSkuTokens,
 } from "./multiSkuCompetitorIngest";
-import { BLUSTREAM_PACIFIC_EMAIL_FIXTURE } from "./blustreamPacific.fixture";
+import { BLUSTREAM_PACIFIC_EMAIL_FIXTURE } from "../../../__tests__/fixtures/documentIngest/blustreamPacific.fixture";
 
 function bySku(analysis: ReturnType<typeof analyzeMultiSkuCompetitorDocument>, sku: string) {
   return analysis.skus.find((item) => item.sku === sku);
