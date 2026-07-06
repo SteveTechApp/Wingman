@@ -61,6 +61,7 @@ export type MultiSkuCompetitorAnalysis = {
   discoveryQuestions: string[];
   sourceKind: "email" | "csv_or_table" | "pasted_list" | "document";
   isSellOutList: boolean;
+  triage: DocumentSkuTriageAnalysis;
   analyzedAt: string;
 };
 
@@ -80,6 +81,17 @@ const MANUFACTURERS = [
   "Marshall",
   "Mersive",
   "Sony",
+  "CYP",
+  "SY",
+  "Aurora",
+  "AV Access",
+  "HDAnywhere",
+  "Just Add Power",
+  "MuxLab",
+  "Gefen",
+  "Hall Technologies",
+  "Black Box",
+  "ATEN",
 ] as const;
 
 const NON_SKU_TOKENS = new Set([
@@ -137,12 +149,15 @@ function looksLikeSku(token: string): boolean {
   if (!/[A-Z]/.test(normalized) || !/\d/.test(normalized)) return false;
   if (NON_SKU_TOKENS.has(normalized)) return false;
   if (/^\d+(?:V|W|A|MM|M|GBPS|HZ)$/i.test(normalized)) return false;
+  if (/^\d+-?(?:INCH|IN|CM|MM|M|FT)$/i.test(normalized)) return false;
+  if (/^\d+-?(?:WAY|PORT|CHANNEL|ZONE|INPUT|OUTPUT)S?$/i.test(normalized)) return false;
   if (/^(?:19|20)\d{2}$/.test(normalized)) return false;
-  return /^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*$/.test(normalized);
+  if (/^\d/.test(normalized) && (normalized.match(/[A-Z]/g) ?? []).length < 2) return false;
+  return /^[A-Z0-9][A-Z0-9]*(?:-[A-Z0-9]+)*$/.test(normalized);
 }
 
 export function extractSkuTokens(value: string): string[] {
-  const tokens = value.toUpperCase().match(/\b[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*\b/g) ?? [];
+  const tokens = value.toUpperCase().match(/\b[A-Z0-9][A-Z0-9]*(?:-[A-Z0-9]+)*\b/g) ?? [];
   return unique(tokens.filter(looksLikeSku).map((token) => token.replace(/[),.;:'"]+$/g, "")));
 }
 
@@ -447,6 +462,7 @@ function normalizedAnalysis(value: MultiSkuCompetitorAnalysis): MultiSkuCompetit
     recommendedSalesDirections: unique(value.recommendedSalesDirections),
     quoteRisks: unique(value.quoteRisks),
     discoveryQuestions: unique(value.discoveryQuestions),
+    triage: normalizeDocumentSkuTriage(value.triage) ?? triageDocumentSkuRows("", value.skus),
   };
 }
 
@@ -500,6 +516,7 @@ export function analyzeMultiSkuCompetitorDocument(text: string): MultiSkuCompeti
       ? "single_sku_competitor_enquiry"
       : "general_document";
   const productSets = buildProductSets(skus);
+  const triage = triageDocumentSkuRows(normalizedText, skus);
   const quoteRisks = unique([
     ...(documentType === "multi_sku_competitor_list"
       ? ["This is a product list, not a confirmed project design. Do not treat every line as a required like-for-like replacement."]
@@ -537,6 +554,7 @@ export function analyzeMultiSkuCompetitorDocument(text: string): MultiSkuCompeti
     discoveryQuestions: buildDiscoveryQuestions(skus, isSellOutList),
     sourceKind,
     isSellOutList,
+    triage,
     analyzedAt: new Date().toISOString(),
   });
 }
@@ -545,8 +563,14 @@ export function buildMultiSkuResponseDraft(analysis: MultiSkuCompetitorAnalysis)
   const account = analysis.accountCustomer !== "Not confirmed" ? ` for ${analysis.accountCustomer}` : "";
   return [
     `Thanks for sending the ${analysis.manufacturer} product list${account}.`,
-    `We identified ${analysis.skuCount} competitor SKUs across ${analysis.productSets.length} related product sets.`,
+    `We identified ${analysis.skuCount} competitor SKUs across ${analysis.productSets.length} related product sets; ${analysis.triage.wyrestormCandidateCount} are governed WyreStorm candidates and ${analysis.triage.architectureAlternativeCount} need an architecture-led review.`,
+    `${analysis.triage.ignoredNoiseCount} non-addressable item(s) were retained separately as project context and excluded from comparison.`,
     "Before proposing WyreStorm alternatives, we need to confirm which lines belong to a live customer design, the required quantities, endpoint pairings, distances, routed I/O and must-have USB/audio/control features.",
     "We will treat TX, RX, KIT and accessory lines separately and will not position an item as a direct equivalent unless the product class and critical specifications are confirmed.",
   ].join(" ");
 }
+import {
+  normalizeDocumentSkuTriage,
+  triageDocumentSkuRows,
+  type DocumentSkuTriageAnalysis,
+} from "./skuTriage";

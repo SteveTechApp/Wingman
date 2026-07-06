@@ -18,6 +18,7 @@ describe("multi-SKU competitor document ingest", () => {
     expect(skus).toContain("PLA88CS");
     expect(skus).toContain("PS122");
     expect(skus).not.toContain("HDMI2");
+    expect(extractSkuTokens("LG,55UH5J,55-inch commercial display")).toContain("55UH5J");
   });
 
   it("classifies the Blustream/Pacific email as a structured multi-SKU enquiry", () => {
@@ -79,5 +80,41 @@ describe("multi-SKU competitor document ingest", () => {
     expect(analysis.quoteRisks.join(" ")).toMatch(/sell-out|stock movement/i);
     expect(analysis.quoteRisks.join(" ")).toMatch(/not a confirmed project design/i);
     expect(analysis.quoteRisks.join(" ")).toMatch(/must not be added to a WyreStorm BOM/i);
+  });
+
+  it("triages candidates, architecture paths, dependencies, noise and unknown rows before compare", () => {
+    const analysis = analyzeMultiSkuCompetitorDocument(`
+Manufacturer,SKU,Description
+Blustream,HEX100CS-KIT,100m HDMI HDBaseT extender kit
+Blustream,C44CS-KIT,4x4 HDBaseT matrix kit
+Blustream,PS122,12V power supply
+Samsung,QM55B,55-inch commercial display
+Chief,XTM1U,display wall bracket
+Generic 42U equipment rack
+CAT6 cable 100m
+Unknown,ABC-999,mystery product
+`);
+    const byTriageSku = (sku: string) => analysis.triage.rows.find((row) => row.sku === sku);
+
+    expect(analysis.documentType).toBe("multi_sku_competitor_list");
+    expect(byTriageSku("HEX100CS-KIT")?.status).toBe("wyrestorm_candidate");
+    expect(byTriageSku("C44CS-KIT")?.status).toBe("architecture_alternative");
+    expect(byTriageSku("PS122")).toMatchObject({
+      status: "accessory_dependency",
+      batchCompareEligible: false,
+      defaultIncluded: false,
+    });
+    expect(byTriageSku("QM55B")?.status).toBe("not_wyrestorm_addressable");
+    expect(byTriageSku("XTM1U")?.status).toBe("not_wyrestorm_addressable");
+    expect(byTriageSku("ABC-999")).toMatchObject({
+      status: "unknown_review_required",
+      wyrestormDirection: "Request an official datasheet or product URL before comparison.",
+    });
+    expect(analysis.triage.ignoredNoiseCount).toBeGreaterThanOrEqual(4);
+    expect(analysis.triage.batchEligibleRowIds).toEqual(
+      expect.arrayContaining([byTriageSku("HEX100CS-KIT")!.id, byTriageSku("C44CS-KIT")!.id]),
+    );
+    expect(analysis.triage.batchEligibleRowIds).not.toContain(byTriageSku("PS122")!.id);
+    expect(analysis.triage.batchEligibleRowIds).not.toContain(byTriageSku("QM55B")!.id);
   });
 });
