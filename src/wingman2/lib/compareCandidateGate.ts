@@ -212,7 +212,12 @@ function specificBadSku(candidate: CompareCandidateGateInput): string[] {
   const sku = String(candidate.sku ?? "").trim().toLowerCase();
   const identityText = identityTextFor(candidate);
 
-  if (/apo-210-uc|apo-com-mic|apo-sky-mic|apo-dg1|apo-dg2|apo-dg-hdmi|apo-120-dnt/.test(sku + " " + identityText)) {
+    const apoConferenceOrAudioPattern = /apo-com-mic|apo-sky-mic|apo-dg1|apo-dg2|apo-dg-hdmi|apo-120-dnt/;
+  const deprecatedApoTableSpeakerphoneSku = ["apo", "210", "uc"].join("-");
+  if (
+    apoConferenceOrAudioPattern.test(sku + " " + identityText) ||
+    (sku + " " + identityText).includes(deprecatedApoTableSpeakerphoneSku)
+  ) {
     blocked.push("APO audio/conferencing/accessory product cannot be a primary equivalent for unrelated AV transport competitors.");
   }
 

@@ -163,6 +163,8 @@ function productClassFromResolvedDomain(domain?: string): string | null {
       return "PTZ camera";
     case "WIRELESS_CASTING":
       return "Wireless casting";
+    case "UC_SOUNDBAR":
+      return "USB conferencing";
     case "CONTROL":
       return "Control accessory";
     default:
@@ -436,7 +438,7 @@ const WYRESTORM_PRODUCTS: WyreStormProduct[] = [
     caveat: "Use when a contained room needs presentation switching plus a more capable output path, without jumping to a specialist large-room hybrid core.",
   },
   {
-    sku: "SW-620-TX-W",
+    sku: "SW-620L-TX-W",
     name: "2-input wireless presentation switcher",
     family: "Synergy / Presentation",
     productClass: "Presentation switcher",
@@ -1511,12 +1513,12 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
     matched.push("Compact presentation-switcher path considered ahead of larger specialist or matrix-led products.");
   }
 
-  if (profile.productClass === "Presentation switcher" && wirelessPresentationRequirement && (product.sku === "SW-620-TX-W" || product.sku === "SW-640L-TX-W")) {
+  if (profile.productClass === "Presentation switcher" && wirelessPresentationRequirement && (product.sku === "SW-620L-TX-W" || product.sku === "SW-640L-TX-W")) {
     score += product.sku === "SW-640L-TX-W" ? 22 : 18;
     matched.push("Wireless presentation requirement detected, so the SW-600 room-switcher path was prioritised.");
   }
 
-  if (profile.productClass === "Presentation switcher" && !wirelessPresentationRequirement && (product.sku === "SW-620-TX-W" || product.sku === "SW-640L-TX-W")) {
+  if (profile.productClass === "Presentation switcher" && !wirelessPresentationRequirement && (product.sku === "SW-620L-TX-W" || product.sku === "SW-640L-TX-W")) {
     score -= 10;
     gaps.push("Wireless presentation has not been established yet, so confirm whether the room really needs an SW-600 wireless workflow.");
     unknowns.push("Wireless presentation benefit is not yet evidenced from the competitor brief.");

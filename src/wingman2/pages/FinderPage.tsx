@@ -1530,7 +1530,7 @@ function isUcCentricSwitcher(product: FinderProduct) {
   const sku = product.sku.toUpperCase();
   const text = getFinderMatchText(product);
 
-  return sku === "APO-210-UC" || sku.startsWith("APO-") && text.includes("speakerphone") && text.includes("switcher");
+  return sku === "APO-VX20-UC" || sku.startsWith("APO-") && text.includes("speakerphone") && text.includes("switcher");
 }
 
 function isAllowedFeatureSearchProduct(product: FinderProduct, need: FinderNeed) {
