@@ -45,6 +45,7 @@ const MULTIVIEW_CANVAS_BLOCKER = "Multiview requires multi-source single-output 
 export type CompareIntentKind =
   | "matrix"
   | "hdbaset-matrix"
+  | "distribution-amplifier"
   | "av-over-ip"
   | "av-over-ip-encoder"
   | "av-over-ip-decoder"
@@ -331,6 +332,8 @@ function intentFromResolvedDomain(resultOrInput: unknown): CompareIntentKind | n
     case "WIRELESS_CASTING":
     case "WIRELESS_PRESENTATION":
       return "wireless-casting";
+    case "DISTRIBUTION":
+      return "distribution-amplifier";
     default:
       return null;
   }
@@ -366,6 +369,10 @@ export function classifyCompareIntent(resultOrInput: unknown, inputText = ""): C
 
   if (/\b(ptz|pan[\s-]tilt[\s-]zoom|visca|pelco[\s-]?d|sony\s*ev[ic]|sony\s*brc|aver\s*cam|huddly|logitech\s*(rally|meetup|brio)|vaddio)\b/i.test(text)) {
     return "ptz-camera";
+  }
+
+  if (/\b(hdmi\s*)?(splitter|distribution\s+amplifier|distribution\s+amp|duplicator)\b/i.test(text) || /^SP\d+/.test(compact)) {
+    return "distribution-amplifier";
   }
 
   if (/\b(dante|aes67|audio\s*dsp|network\s*audio|q-sys|qsys|tesira|devio|audio processor|amplifier|avio)\b/i.test(text)) {
@@ -729,6 +736,19 @@ export function evaluateProductEligibility(args: {
     return direct(args.intent, ["Matrix/switching candidate with compatible routed I/O direction."], penalty + matrixBonus);
   }
 
+  if (args.intent === "distribution-amplifier") {
+    if (/^SP|^EXPSP/.test(key) || /\b(splitter|distribution amplifier|distribution amp|duplicator)\b/i.test(combined)) {
+      const penalty = matrixFitPenalty(args.competitorText, sku, combined);
+      return direct(args.intent, ["HDMI distribution amplifier candidate with a one-source, mirrored-output topology."], penalty);
+    }
+
+    if (/^MX|^NHD/.test(key) || /\b(matrix|routed|networkhd|av-over-ip)\b/i.test(combined)) {
+      return alternative(args.intent, ["Architecture alternative only: routed switching is not a direct replacement for a mirrored HDMI distribution amplifier."], 100);
+    }
+
+    return blocked(sku, args.intent, ["Candidate is not an HDMI splitter or distribution amplifier."]);
+  }
+
   if (args.intent === "presentation-switcher" || args.intent === "uc-byod") {
     if (/^SW|^MX|^APO(?:100|200|210|VX20)UC/.test(key) || /\b(presentation|switcher|usb-c|byod|byom|unified communications?|video bar)\b/i.test(combined)) {
       return direct(args.intent, ["Presentation/switching candidate for meeting-room workflow."], 0);
@@ -914,11 +934,24 @@ function ensureEligibilityCandidatePool(
     }
   }
 
+  if (intent === "distribution-amplifier") {
+    addCandidateBySku(nextMatches, products, "SP-0104-H2", "Eligibility correction: four-output HDMI distribution amplifier inserted for mirrored distribution.", 88);
+    addCandidateBySku(nextMatches, products, "SP-0108-SCL", "Eligibility correction: eight-output HDMI distribution amplifier inserted for mirrored distribution.", 90);
+    addCandidatesByPredicate(
+      nextMatches,
+      products,
+      (product) => /^SP|^EXPSP/.test(skuKey(product.sku)) || /\b(splitter|distribution amplifier)\b/i.test(productText(product)),
+      "Eligibility correction: same-topology HDMI distribution candidate inserted.",
+      4,
+      84,
+    );
+  }
+
   if (intent === "presentation-switcher" || intent === "uc-byod") {
     addCandidateBySku(nextMatches, products, "MX-0402-MST", "Eligibility correction: presentation switcher candidate inserted for compact meeting-room switching workflow.", 86);
     addCandidateBySku(nextMatches, products, "MX-0403-H3-MST", "Eligibility correction: presentation switcher candidate inserted for presentation rooms that also need a stronger room-core output path.", 84);
     addCandidateBySku(nextMatches, products, "SW-640L-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for BYOD/BYOM workflow.", 84);
-    addCandidateBySku(nextMatches, products, "SW-620-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for meeting-room collaboration workflow.", 82);
+    addCandidateBySku(nextMatches, products, "SW-620L-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for meeting-room collaboration workflow.", 82);
     addCandidateBySku(nextMatches, products, "APO-VX20-UC-V2", "Eligibility correction: UC room hardware candidate inserted for conferencing workflow comparison.", 78);
   }
 

@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import {
+  normalizeMultiSkuCompetitorAnalysis,
+  type MultiSkuCompetitorAnalysis,
+} from "../lib/documentIngest/multiSkuCompetitorIngest";
 import type { StatusVariant } from "../types";
 
 export type ProjectStage =
@@ -61,6 +65,7 @@ export type StoredIngestAnalysis = {
   unknowns: string[];
   skippedFiles: string[];
   files: string[];
+  multiSkuIntelligence?: MultiSkuCompetitorAnalysis;
   updatedAt: string;
 };
 
@@ -510,6 +515,7 @@ function normalizeIngestAnalysis(value: unknown): StoredIngestAnalysis | undefin
     unknowns: stringArray(record.unknowns),
     skippedFiles: stringArray(record.skippedFiles),
     files: stringArray(record.files),
+    multiSkuIntelligence: normalizeMultiSkuCompetitorAnalysis(record.multiSkuIntelligence),
     updatedAt: stringValue(record.updatedAt, nowIso()),
   };
 }
@@ -1424,7 +1430,15 @@ function projectNameFromDiscoveryBrief(brief: StoredDiscoveryBrief) {
   return customer ? `${customer} ${roomType}` : `${roomType} Project`;
 }
 
-function projectNameFromIngest(files: string[]) {
+function projectNameFromIngest(files: string[], intelligence?: MultiSkuCompetitorAnalysis) {
+  if (intelligence?.documentType === "multi_sku_competitor_list") {
+    const account = intelligence.accountCustomer !== "Not confirmed"
+      ? intelligence.accountCustomer
+      : intelligence.manufacturer !== "Not confirmed"
+        ? intelligence.manufacturer
+        : "Competitor";
+    return `${account} Multi-SKU Opportunity`;
+  }
   if (files.length === 1) return `${files[0]} Requirements`;
   return files.length > 1 ? `${files[0]} + ${files.length - 1} file(s)` : "Imported Requirements";
 }
@@ -1601,35 +1615,40 @@ export function saveIngestAnalysisToProject(
     unknowns: input.unknowns,
     skippedFiles: input.skippedFiles,
     files: input.files,
+    multiSkuIntelligence: input.multiSkuIntelligence,
     updatedAt: timestamp,
   };
   const snapshot = readProjectStore();
   const existing = options.requireExistingProject ? getActiveProject(snapshot) : getCurrentWorkflowProject(snapshot);
   if (!existing && options.requireExistingProject) return null;
 
+  const isMultiSku = input.multiSkuIntelligence?.documentType === "multi_sku_competitor_list";
   const workflow: StoredWorkflowState = {
     source: "Document Ingest",
-    lastStep: "Requirements imported",
-    nextRoute: routeCatalogByKey.discovery.path,
+    lastStep: isMultiSku ? "Multi-SKU competitor intelligence saved" : "Requirements imported",
+    nextRoute: isMultiSku ? routeCatalogByKey.compare.path : routeCatalogByKey.discovery.path,
     updatedAt: timestamp,
   };
 
   const project = existing
     ? {
         ...existing,
-        stage: "Discovery" as const,
+        stage: isMultiSku ? "Competitor Compare" as const : "Discovery" as const,
         status: input.unknowns.length ? "alternative" as const : "recommended" as const,
         updated: "Just now",
-        resumeTo: routeCatalogByKey.discovery.path,
+        resumeTo: isMultiSku ? routeCatalogByKey.ingest.path : routeCatalogByKey.discovery.path,
         updatedAt: timestamp,
         ingest,
         workflow,
       }
     : createWorkflowProject({
-        name: projectNameFromIngest(input.files),
-        stage: "Discovery",
+        name: projectNameFromIngest(input.files, input.multiSkuIntelligence),
+        owner: input.multiSkuIntelligence?.accountCustomer !== "Not confirmed"
+          ? input.multiSkuIntelligence?.accountCustomer
+          : undefined,
+        stage: isMultiSku ? "Competitor Compare" : "Discovery",
         status: input.unknowns.length ? "alternative" : "recommended",
-        resumeTo: routeCatalogByKey.discovery.path,
+        resumeTo: isMultiSku ? routeCatalogByKey.ingest.path : routeCatalogByKey.discovery.path,
         ingest,
         workflow,
       });

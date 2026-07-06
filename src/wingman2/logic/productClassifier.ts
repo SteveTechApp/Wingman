@@ -16,6 +16,7 @@ export type EndpointRole =
   | "tx_rx_kit"
   | "matrix_with_rx_kit"
   | "matrix_switcher"
+  | "distribution_amplifier"
   | "controller"
   | "processor"
   | "accessory"
@@ -28,6 +29,7 @@ export type ProductClass =
   | "hdmi_extender"
   | "hdmi_extender_kit"
   | "hdmi_matrix"
+  | "hdmi_distribution_amplifier"
   | "hdbaset_matrix"
   | "hdbaset_matrix_kit"
   | "av_over_ip_endpoint"
@@ -219,6 +221,20 @@ export function classifySkuPackage(input: ProductClassificationInput | string): 
     notComparableWith = ["tx", "rx", "trx", "tx_rx_kit", "matrix_with_rx_kit", "matrix_switcher", "controller", "processor"];
     leadEligibility = "request_only";
     hardBlockerTags.push("cable_not_lead_recommendation");
+  }
+
+  if (
+    endpointRole === "unknown" &&
+    (/^SP-/.test(sku) || /^EXP-SP-/.test(sku) || text.includes("splitter") || text.includes("distribution amplifier"))
+  ) {
+    commercialPackageType = "standalone";
+    endpointRole = "distribution_amplifier";
+    productClass = "hdmi_distribution_amplifier";
+    technologyFamily = "HDMI Distribution";
+    topology = "one_source_to_many_mirrored_displays";
+    comparableClasses = ["hdmi_distribution_amplifier"];
+    notComparableWith = ["tx", "rx", "trx", "tx_rx_kit", "matrix_with_rx_kit", "matrix_switcher", "controller", "accessory", "cable"];
+    leadEligibility = "default";
   }
 
   if (endpointRole === "unknown" && sku.startsWith("MX-")) {
