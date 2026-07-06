@@ -116,6 +116,29 @@ export function IngestPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const requestGuidance = useMemo(() => requestTypeGuidance(requestType), [requestType]);
+  const nextStep = useMemo(() => {
+    if (requestType === "BOM / competitor list") {
+      return {
+        label: "Next: build proposal",
+        path: routeCatalogByKey.proposal.path,
+        summary: "Take the extracted product requirement straight into the proposal workflow.",
+      };
+    }
+
+    if (requestType === "Multi-space scope") {
+      return {
+        label: "Next: complete discovery",
+        path: routeCatalogByKey.discovery.path,
+        summary: "Confirm the remaining room and workflow details before product selection.",
+      };
+    }
+
+    return {
+      label: "Next: create response",
+      path: routeCatalogByKey.responsePack.path,
+      summary: "Turn the decoded request into a concise customer response.",
+    };
+  }, [requestType]);
   const requirements = cleanList(analysis.requirements, ["No requirements extracted yet."]);
   const unknowns = cleanList(analysis.unknowns, ["No missing details extracted yet."]);
   const systemShape = useMemo(() => buildSystemShape(analysis.requirements, analysis.unknowns), [analysis.requirements, analysis.unknowns]);
@@ -176,12 +199,11 @@ export function IngestPage() {
     <div className="pb-8" data-wingman-request-decoder="true">
       <PageHero
         eyebrow="Request Decoder"
-        title="Turn emails, RFIs, RFQs, BOMs and rough notes into usable pre-sales direction."
-        purpose="Use this when the customer sends something ambiguous. Wingman extracts requirements, unknowns, system shape, response voice and next actions before product selection begins."
-        nextMove="Paste or upload the request, choose the request type, review what matters, then continue to Discovery, Compare, Product Finder, Response Pack or Schematic."
+        title="Decode the request, review the result, then take one clear next step."
+        purpose="Paste or upload the customer request. Wingman separates usable requirements from missing information."
+        nextMove={nextStep.summary}
         actions={[
-          { label: "Open discovery", to: routeCatalogByKey.discovery.path },
-          { label: "Create response pack", to: routeCatalogByKey.responsePack.path, variant: "secondary" },
+          { label: nextStep.label, to: nextStep.path },
         ]}
       />
 
@@ -295,13 +317,14 @@ export function IngestPage() {
             </article>
 
             <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Continue</p>
-              <div className="mt-4 grid gap-2">
-                <Link to={routeCatalogByKey.discovery.path} className="rounded-full border border-cyan-300 px-4 py-2 text-center text-sm font-black text-cyan-100">Open Discovery</Link>
-                <Link to={routeCatalogByKey.finder.path} className="rounded-full border border-cyan-300 px-4 py-2 text-center text-sm font-black text-cyan-100">Open Product Finder</Link>
-                <Link to={routeCatalogByKey.compare.path} className="rounded-full border border-cyan-300 px-4 py-2 text-center text-sm font-black text-cyan-100">Compare competitor items</Link>
-                <Link to={routeCatalogByKey.responsePack.path} className="rounded-full bg-cyan-300 px-4 py-2 text-center text-sm font-black text-slate-950">Create Response Pack</Link>
-              </div>
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Next step</p>
+              <p className="mt-3 text-sm leading-6 text-white/75">{nextStep.summary}</p>
+              <Link
+                to={nextStep.path}
+                className="mt-4 block rounded-full bg-cyan-300 px-4 py-3 text-center text-sm font-black text-slate-950"
+              >
+                {nextStep.label}
+              </Link>
             </article>
           </aside>
         </div>

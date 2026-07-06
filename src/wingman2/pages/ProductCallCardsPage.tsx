@@ -2215,14 +2215,14 @@ return (
       </header>
 
       <main className="wm-pcc-grid wm-ui-page wingman-page-host">
-      <section className="wm-ui-card wm-pcc-workflow-guide" aria-label="Product Call Cards workflow guide">
-        <p className="wm-ui-title">How to use this call card</p>
+      <details className="wm-ui-card wm-pcc-workflow-guide" aria-label="Product Call Cards workflow guide">
+        <summary className="wm-ui-title">How to use this call card</summary>
         <ul className="wm-ui-copy">
           {productCallCardWorkflowGuide.map((term) => (
             <li key={term}>{term}</li>
           ))}
         </ul>
-      </section>
+      </details>
 
 
 <section className="wm-pcc-card wm-pcc-left wm-ui-section wm-ui-card">
@@ -2693,4 +2693,3 @@ return (
     </section>
   );
 }
-
