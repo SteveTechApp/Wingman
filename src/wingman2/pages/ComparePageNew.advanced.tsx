@@ -4739,10 +4739,10 @@ function ComparePageNew() {
 
           <CompareManufacturerCombobox brands={compareManufacturerOptions} selectedBrand={selectedBrand} onBrandSelect={onBrandSelect} />
 
-          <section className="compare-native-card compare-native-card--compact compare-native-guidance-card wm-ui-section wm-ui-card wm-ui-guidance-card">
-            <p className="compare-native-label compare-native-label--subtle wm-ui-copy">Why this step matters</p>
+          <details className="compare-native-card compare-native-card--compact compare-native-guidance-card wm-ui-section wm-ui-card wm-ui-guidance-card">
+            <summary>Why this step matters</summary>
             <p className="wm-ui-copy">Picking the brand first keeps the next screen shorter and avoids mixing unlike technologies before the actual competitor product has been chosen.</p>
-          </section>
+          </details>
 
           {isAddingManufacturer ? (
             <section className="compare-native-card compare-native-card--compact wm-ui-card wm-ui-section wm-ui-centered-card">
