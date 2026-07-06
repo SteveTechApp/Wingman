@@ -10,6 +10,7 @@ import {
   buildMultiSkuResponseDraft,
   type MultiSkuCompetitorAnalysis,
 } from "../lib/documentIngest/multiSkuCompetitorIngest";
+import type { DocumentSkuTriageRow } from "../lib/documentIngest/skuTriage";
 import { analyzeRequirementsText } from "../lib/requirementsParser";
 
 type RequestType = "Email / message" | "RFI / information request" | "Formal RFQ" | "BOM / competitor list" | "Multi-space scope" | "Rough notes";
@@ -116,6 +117,9 @@ export function IngestPage() {
   const [showBatchChecks, setShowBatchChecks] = useState(false);
   const [showResponseDraft, setShowResponseDraft] = useState(false);
   const [showDiscoveryQuestions, setShowDiscoveryQuestions] = useState(false);
+  const [showIgnoredRows, setShowIgnoredRows] = useState(false);
+  const [showBatchQueue, setShowBatchQueue] = useState(false);
+  const [selectedTriageRowIds, setSelectedTriageRowIds] = useState<string[]>([]);
   const [analysis, setAnalysis] = useState<IngestAnalysis>({
     requirements: [],
     unknowns: ["Paste a customer message, RFQ, RFI, notes or upload readable files to decode the request."],
@@ -130,6 +134,10 @@ export function IngestPage() {
   const unknowns = cleanList(analysis.unknowns, ["No missing details extracted yet."]);
   const systemShape = useMemo(() => buildSystemShape(analysis.requirements, analysis.unknowns), [analysis.requirements, analysis.unknowns]);
   const multiSkuIntelligence = analysis.multiSkuIntelligence;
+  const triage = multiSkuIntelligence?.triage;
+  const mainTriageRows = triage?.rows.filter((row) => row.status !== "not_wyrestorm_addressable") ?? [];
+  const ignoredTriageRows = triage?.rows.filter((row) => row.status === "not_wyrestorm_addressable") ?? [];
+  const selectedTriageRows = triage?.rows.filter((row) => selectedTriageRowIds.includes(row.id) && row.batchCompareEligible) ?? [];
 
   const analyseText = (text: string, warnings: string[] = [], files: string[] = []) => {
     const parsed = analyzeRequirementsText(text, warnings);
@@ -156,6 +164,9 @@ export function IngestPage() {
     setShowBatchChecks(false);
     setShowResponseDraft(false);
     setShowDiscoveryQuestions(false);
+    setShowIgnoredRows(false);
+    setShowBatchQueue(false);
+    setSelectedTriageRowIds(multiSku?.triage.batchEligibleRowIds ?? []);
     saveIngestAnalysisToProject({
       requirements: nextAnalysis.requirements,
       unknowns: nextAnalysis.unknowns,
@@ -211,6 +222,9 @@ export function IngestPage() {
     setShowBatchChecks(false);
     setShowResponseDraft(false);
     setShowDiscoveryQuestions(false);
+    setShowIgnoredRows(false);
+    setShowBatchQueue(false);
+    setSelectedTriageRowIds(multiSku?.triage.batchEligibleRowIds ?? []);
     saveIngestAnalysisToProject({
       requirements: nextAnalysis.requirements,
       unknowns: nextAnalysis.unknowns,
@@ -226,20 +240,38 @@ export function IngestPage() {
 
   const saveMultiSkuOpportunity = () => {
     if (!multiSkuIntelligence) return;
-    const project = saveIngestAnalysisToProject(analysis);
+    const eligibleSelectedIds = selectedTriageRowIds.filter((id) =>
+      multiSkuIntelligence.triage.rows.some((row) => row.id === id && row.batchCompareEligible));
+    const project = saveIngestAnalysisToProject({
+      ...analysis,
+      multiSkuIntelligence: {
+        ...multiSkuIntelligence,
+        triage: {
+          ...multiSkuIntelligence.triage,
+          batchEligibleRowIds: eligibleSelectedIds,
+        },
+      },
+    });
     setSaveMessage(project
-      ? `Saved ${multiSkuIntelligence.skuCount} extracted competitor SKUs to ${project.name}. Competitor SKUs were not added to the WyreStorm BOM.`
+      ? `Saved ${eligibleSelectedIds.length} selected candidate row(s) and the full triage context to ${project.name}. Competitor SKUs were not added to the WyreStorm BOM.`
       : "Choose or create an active project before saving this intelligence.");
   };
 
-  const compareLink = (item: MultiSkuCompetitorAnalysis["skus"][number]) => {
+  const compareLink = (item: DocumentSkuTriageRow) => {
     const params = new URLSearchParams({
-      brand: multiSkuIntelligence?.manufacturer ?? "",
+      brand: item.brand !== "Not confirmed" ? item.brand : multiSkuIntelligence?.manufacturer ?? "",
       sku: item.sku,
-      context: [item.classLabel, item.description, item.role].filter(Boolean).join(" | "),
+      context: [item.productClass, item.rawItem, item.status, item.wyrestormDirection].filter(Boolean).join(" | "),
       source: "document-ingest-batch",
     });
     return `${routeCatalogByKey.compare.path}?${params.toString()}`;
+  };
+
+  const toggleTriageRow = (row: DocumentSkuTriageRow) => {
+    if (!row.batchCompareEligible) return;
+    setSelectedTriageRowIds((current) => current.includes(row.id)
+      ? current.filter((id) => id !== row.id)
+      : [...current, row.id]);
   };
 
   return (
@@ -301,7 +333,7 @@ export function IngestPage() {
                   multiple
                   className="hidden"
                   onChange={handleFileChange}
-                  accept=".pdf,.doc,.docx,.txt,.rtf,.md,.csv,.eml"
+                  accept=".pdf,.doc,.docx,.txt,.rtf,.md,.csv,.xlsx,.eml"
                 />
                 <p className="text-sm font-black text-white">Upload readable files</p>
                 <p className="mt-1 text-sm leading-6 text-white/55">
@@ -383,13 +415,16 @@ export function IngestPage() {
           subtitle="Grouped product-set opportunities and quote-safety checks. Competitor SKUs remain reference data and are never added to a WyreStorm BOM."
         >
           <div className="grid gap-4">
-            <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+            <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               {[
-                ["Document type", multiSkuIntelligence.documentType],
-                ["Manufacturer", multiSkuIntelligence.manufacturer],
-                ["Account / customer", multiSkuIntelligence.accountCustomer],
-                ["SKUs detected", String(multiSkuIntelligence.skuCount)],
-                ["Source", multiSkuIntelligence.sourceKind.replace(/_/g, " ")],
+                ["Detected document type", multiSkuIntelligence.documentType],
+                ["Extracted row count", String(multiSkuIntelligence.triage.extractedRowCount)],
+                ["WyreStorm candidate count", String(multiSkuIntelligence.triage.wyrestormCandidateCount)],
+                ["Architecture alternative count", String(multiSkuIntelligence.triage.architectureAlternativeCount)],
+                ["Accessory / dependency count", String(multiSkuIntelligence.triage.accessoryDependencyCount)],
+                ["Ignored / noise count", String(multiSkuIntelligence.triage.ignoredNoiseCount)],
+                ["Unknown / review count", String(multiSkuIntelligence.triage.unknownReviewCount)],
+                ["Manufacturer / account", `${multiSkuIntelligence.manufacturer} / ${multiSkuIntelligence.accountCustomer}`],
               ].map(([label, value]) => (
                 <article key={label} className="rounded-2xl border border-[#29465e] bg-[#071522] p-4">
                   <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-300">{label}</p>
@@ -409,36 +444,57 @@ export function IngestPage() {
 
             <section className="overflow-hidden rounded-3xl border border-[#29465e] bg-[#071522]">
               <div className="border-b border-[#29465e] p-5">
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Extracted competitor SKU table</p>
-                <p className="mt-2 text-sm text-white/60">TX, RX, KIT and accessory roles are preserved as comparison gates.</p>
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Main candidate table</p>
+                <p className="mt-2 text-sm text-white/60">Only governed candidates and architecture alternatives can enter the batch compare queue.</p>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full text-left text-sm">
                   <thead className="bg-[#0d2133] text-xs uppercase tracking-[0.12em] text-cyan-200">
                     <tr>
+                      <th className="px-4 py-3">Include</th>
+                      <th className="px-4 py-3">Raw item</th>
                       <th className="px-4 py-3">SKU</th>
-                      <th className="px-4 py-3">Description</th>
+                      <th className="px-4 py-3">Brand</th>
                       <th className="px-4 py-3">Product class</th>
-                      <th className="px-4 py-3">Role</th>
+                      <th className="px-4 py-3">WyreStorm status</th>
+                      <th className="px-4 py-3">WyreStorm SKU / family / direction</th>
+                      <th className="px-4 py-3">Match type</th>
                       <th className="px-4 py-3">Confidence</th>
+                      <th className="px-4 py-3">Reason</th>
                       <th className="px-4 py-3">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#29465e] text-white/75">
-                    {multiSkuIntelligence.skus.map((item) => (
-                      <tr key={item.sku}>
-                        <td className="px-4 py-3 font-black text-white">{item.sku}</td>
-                        <td className="min-w-[260px] px-4 py-3">{item.description || "Description not supplied"}</td>
-                        <td className="min-w-[220px] px-4 py-3">{item.classLabel}</td>
-                        <td className="px-4 py-3">{item.role}</td>
-                        <td className="px-4 py-3">{item.confidence}</td>
+                    {mainTriageRows.map((item) => (
+                      <tr key={item.id}>
                         <td className="px-4 py-3">
-                          {item.eligibleAsLead ? (
+                          <input
+                            type="checkbox"
+                            aria-label={`Include ${item.sku || item.rawItem}`}
+                            checked={selectedTriageRowIds.includes(item.id)}
+                            disabled={!item.batchCompareEligible}
+                            onChange={() => toggleTriageRow(item)}
+                            className="size-4 accent-cyan-300 disabled:opacity-30"
+                          />
+                        </td>
+                        <td className="min-w-[260px] px-4 py-3">{item.rawItem}</td>
+                        <td className="px-4 py-3 font-black text-white">{item.sku || "—"}</td>
+                        <td className="px-4 py-3">{item.brand}</td>
+                        <td className="min-w-[190px] px-4 py-3">{item.productClass.replace(/-/g, " ")}</td>
+                        <td className="min-w-[210px] px-4 py-3 font-bold text-cyan-100">{item.status}</td>
+                        <td className="min-w-[280px] px-4 py-3">{item.wyrestormDirection}</td>
+                        <td className="px-4 py-3">{item.matchType.replace(/_/g, " ")}</td>
+                        <td className="px-4 py-3">{item.confidence}</td>
+                        <td className="min-w-[300px] px-4 py-3">{item.reason}</td>
+                        <td className="px-4 py-3">
+                          {item.batchCompareEligible && item.sku ? (
                             <Link className="font-black text-cyan-200 underline" to={compareLink(item)}>
                               Compare SKU
                             </Link>
+                          ) : item.status === "accessory_dependency" ? (
+                            <span className="font-bold text-amber-200">Dependency only</span>
                           ) : (
-                            <span className="font-bold text-amber-200">Supporting only</span>
+                            <span className="font-bold text-amber-200">Review required</span>
                           )}
                         </td>
                       </tr>
@@ -446,6 +502,51 @@ export function IngestPage() {
                   </tbody>
                 </table>
               </div>
+            </section>
+
+            <section className="overflow-hidden rounded-3xl border border-[#29465e] bg-[#071522]">
+              <button
+                type="button"
+                aria-expanded={showIgnoredRows}
+                onClick={() => setShowIgnoredRows((current) => !current)}
+                className="flex w-full items-center justify-between gap-4 p-5 text-left"
+              >
+                <span>
+                  <span className="block text-xs font-black uppercase tracking-[0.16em] text-amber-200">Ignored / noisy items</span>
+                  <span className="mt-2 block text-sm text-white/60">{ignoredTriageRows.length} row(s) excluded from batch compare; useful context is retained.</span>
+                </span>
+                <span className="font-black text-cyan-100">{showIgnoredRows ? "Hide" : "Review"}</span>
+              </button>
+              {showIgnoredRows ? (
+                <div className="overflow-x-auto border-t border-[#29465e]">
+                  <table className="min-w-full text-left text-sm">
+                    <thead className="bg-[#0d2133] text-xs uppercase tracking-[0.12em] text-cyan-200">
+                      <tr>
+                        <th className="px-4 py-3">Raw item</th>
+                        <th className="px-4 py-3">SKU</th>
+                        <th className="px-4 py-3">Brand</th>
+                        <th className="px-4 py-3">Product class</th>
+                        <th className="px-4 py-3">Context</th>
+                        <th className="px-4 py-3">Confidence</th>
+                        <th className="px-4 py-3">Reason</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#29465e] text-white/70">
+                      {ignoredTriageRows.map((item) => (
+                        <tr key={item.id}>
+                          <td className="min-w-[260px] px-4 py-3">{item.rawItem}</td>
+                          <td className="px-4 py-3">{item.sku || "—"}</td>
+                          <td className="px-4 py-3">{item.brand}</td>
+                          <td className="px-4 py-3">{item.productClass}</td>
+                          <td className="px-4 py-3">{item.retainAsProjectContext ? "Retain" : "Suppress"}</td>
+                          <td className="px-4 py-3">{item.confidence}</td>
+                          <td className="min-w-[300px] px-4 py-3">{item.reason}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : null}
             </section>
 
             <section className="grid gap-4 lg:grid-cols-2">
@@ -490,20 +591,41 @@ export function IngestPage() {
             <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
               <p className="text-xs font-black uppercase tracking-[0.14em] text-cyan-300">Batch actions</p>
               <div className="mt-4 flex flex-wrap gap-3">
-                <button type="button" onClick={() => setShowBatchChecks((current) => !current)} className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100">
-                  Batch compare grouped sets
+                <button
+                  type="button"
+                  disabled={!selectedTriageRows.length}
+                  onClick={() => {
+                    setShowBatchChecks(true);
+                    setShowBatchQueue((current) => !current);
+                  }}
+                  className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Batch compare selected candidates ({selectedTriageRows.length})
                 </button>
                 <button type="button" onClick={saveMultiSkuOpportunity} className="rounded-full bg-cyan-300 px-4 py-2 text-sm font-black text-slate-950">
-                  Create opportunity / save intelligence
+                  Create opportunity from candidates
                 </button>
                 <button type="button" onClick={() => setShowResponseDraft((current) => !current)} className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100">
-                  Generate response
+                  Generate sales response
                 </button>
                 <button type="button" onClick={() => setShowDiscoveryQuestions((current) => !current)} className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100">
-                  Create discovery questions
+                  Generate discovery questions
                 </button>
               </div>
               {saveMessage ? <p className="mt-4 text-sm font-bold text-cyan-100">{saveMessage}</p> : null}
+              {showBatchQueue ? (
+                <div className="mt-4 rounded-2xl border border-cyan-500/30 bg-cyan-500/10 p-4">
+                  <p className="text-sm font-black text-white">Eligible batch compare queue</p>
+                  <ul className="mt-3 space-y-2 text-sm text-white/75">
+                    {selectedTriageRows.map((row) => (
+                      <li key={row.id} className="flex flex-wrap items-center justify-between gap-3">
+                        <span>{row.brand} {row.sku} — {row.wyrestormDirection}</span>
+                        <Link className="font-black text-cyan-100 underline" to={compareLink(row)}>Open comparison</Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
               {showResponseDraft ? (
                 <div className="mt-4 rounded-2xl border border-[#29465e] bg-[#081724] p-4 text-sm leading-6 text-white/75">
                   {buildMultiSkuResponseDraft(multiSkuIntelligence)}
