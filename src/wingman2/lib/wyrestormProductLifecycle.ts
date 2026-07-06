@@ -23,6 +23,9 @@ import {
   getWyreStormSkuBusinessStatus,
   type WyreStormSkuBusinessStatus,
 } from "./wyrestormSkuBusinessStatus";
+import { getAdminProductOverride, type AdminProductOverride } from "./adminProductOverrides";
+
+export type { AdminProductOverride } from "./adminProductOverrides";
 
 export type WyreStormSupersession = {
   predecessor: string;
@@ -76,6 +79,10 @@ export type ProductLifecycle = {
   supersededBy?: string;
   /** Plain-language guidance for the rep. */
   note: string;
+  /** True when an admin has manually blocked this SKU (doNotUse or hidden visibility). */
+  adminBlocked: boolean;
+  /** The admin's override record, if one exists (blocked or not). */
+  adminOverride?: AdminProductOverride;
 };
 
 /**
@@ -94,10 +101,16 @@ export function getWyreStormSupersession(sku: string): WyreStormSupersession | n
 export function resolveProductLifecycle(sku: string): ProductLifecycle {
   const status = getWyreStormSkuBusinessStatus(sku);
   const supersession = getWyreStormSupersession(sku);
-  const recommendable = status === "active" && !supersession;
+  const adminOverride = getAdminProductOverride(sku) ?? undefined;
+  const adminBlocked = Boolean(adminOverride?.doNotUse) || adminOverride?.visibility === "hidden";
+  const recommendable = status === "active" && !supersession && !adminBlocked;
 
   let note: string;
-  if (supersession) {
+  if (adminBlocked) {
+    note = adminOverride?.adminNotes?.trim()
+      ? `${sku} is blocked by an admin override: ${adminOverride.adminNotes.trim()}`
+      : `${sku} is blocked by an admin override - do not position it as a current lead.`;
+  } else if (supersession) {
     note = `${sku} is superseded - position ${supersession.successor} instead.`;
   } else {
     switch (status) {
@@ -126,5 +139,7 @@ export function resolveProductLifecycle(sku: string): ProductLifecycle {
     recommendable,
     supersededBy: supersession?.successor,
     note,
+    adminBlocked,
+    adminOverride,
   };
 }

@@ -1,5 +1,6 @@
 import lifecycleSource from "../../../data-sources/wyrestorm/lifecycle.csv?raw";
 import { normaliseSkuKey, resolveWyrestormSkuAlias } from "./skuAliasResolver";
+import { isSkuAdminBlocked } from "./adminProductOverrides";
 
 export type WyreStormSkuBusinessStatus =
   | "active"
@@ -128,10 +129,14 @@ export function getWyreStormSkuBusinessStatus(sku: string): WyreStormSkuBusiness
 }
 
 export function isWyreStormSkuCompareLeadAllowed(sku: string): boolean {
-  return getWyreStormSkuBusinessStatus(sku) === "active";
+  return getWyreStormSkuBusinessStatus(sku) === "active" && !isSkuAdminBlocked(sku);
 }
 
 export function getWyreStormCompareLeadBlockReason(sku: string): string | null {
+  if (isSkuAdminBlocked(sku)) {
+    return `${sku} is blocked by an admin override and must not be suggested as a current compare lead.`;
+  }
+
   switch (getWyreStormSkuBusinessStatus(sku)) {
     case "active":
       return null;

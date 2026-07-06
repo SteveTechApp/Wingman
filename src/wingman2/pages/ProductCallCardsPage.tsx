@@ -16,6 +16,7 @@ import {
 } from "../lib/productCallCardClassification";
 import { resolveWyrestormSkuAlias } from "../lib/skuAliasResolver";
 import { getProductCallCommercialOverride } from "../lib/productCallCommercialOverrides";
+import { isSkuAdminBlocked } from "../lib/adminProductOverrides";
 import {
   DEFAULT_SALES_CONVERSATION_TONE_ID,
   LEGACY_SALES_CONVERSATION_STORAGE_KEYS,
@@ -988,7 +989,7 @@ return () => {
 
       const cards = dedupeProductSeedsBySku(seeds)
         .map(toProductCard)
-        .filter((product) => product.sku)
+        .filter((product) => product.sku && !isSkuAdminBlocked(product.sku))
         .sort((a, b) => a.sku.localeCompare(b.sku));
 
       setProducts(cards);

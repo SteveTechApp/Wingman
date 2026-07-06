@@ -54,4 +54,9 @@ describe("getWyreStormSkuBusinessStatus", () => {
   it("returns unlisted for an empty SKU", () => {
     expect(getWyreStormSkuBusinessStatus("")).toBe("unlisted");
   });
+
+  it("blocks a compare lead the admin has manually marked doNotUse", () => {
+    expect(isWyreStormSkuCompareLeadAllowed("SW-740-TX")).toBe(false);
+    expect(getWyreStormCompareLeadBlockReason("SW-740-TX")).toMatch(/admin override/i);
+  });
 });
