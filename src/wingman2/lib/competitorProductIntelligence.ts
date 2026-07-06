@@ -12,6 +12,7 @@ export type CompetitorTechnologyClass =
   | "HDBASET"
   | "MATRIX"
   | "PRESENTATION"
+  | "DISTRIBUTION"
   | "VIDEO_WALL"
   | "MULTIVIEW"
   | "USB_EXTENSION"
@@ -21,6 +22,7 @@ export type CompetitorTechnologyClass =
   | "NDI_CAMERA"
   | "PTZ_CAMERA"
   | "WIRELESS_CASTING"
+  | "UC_SOUNDBAR"
   | "CABLE"
   | "UNKNOWN";
 
@@ -32,6 +34,7 @@ export type CompetitorRole =
   | "Receiver"
   | "Matrix"
   | "Presentation Switcher"
+  | "Distribution Amplifier"
   | "Video Wall Processor"
   | "Multiview Processor"
   | "USB/KVM Extender"
@@ -41,6 +44,7 @@ export type CompetitorRole =
   | "Audio Processor"
   | "NDI Camera"
   | "PTZ Camera"
+  | "UC Soundbar"
   | "Cable"
   | "Unknown";
 
@@ -102,6 +106,7 @@ const REQUIRED_FACTS: Record<CompetitorTechnologyClass, string[]> = {
   HDBASET: ["TX/RX role or kit status", "distance class", "max resolution", "HDCP/HDMI generation", "power method", "control/USB support"],
   MATRIX: ["input count", "output count", "output transport", "max resolution", "HDCP/HDMI generation", "receiver dependency"],
   PRESENTATION: ["input types", "output types", "USB-C/USB behaviour", "scaling", "audio support", "control support"],
+  DISTRIBUTION: ["output count", "max resolution", "HDCP/HDMI generation", "EDID management", "audio passthrough", "mirrored vs routed outputs"],
   VIDEO_WALL: ["wall layout", "output count", "source handling", "scaling/layout presets", "control method"],
   MULTIVIEW: ["single output canvas proof", "source window count", "layout modes", "output resolution"],
   USB_EXTENSION: ["USB version", "host/peripheral direction", "bandwidth", "distance/topology"],
@@ -111,6 +116,7 @@ const REQUIRED_FACTS: Record<CompetitorTechnologyClass, string[]> = {
   NDI_CAMERA: ["NDI version (NDI 5 / HX2 / HX3)", "PTZ protocol (VISCA-over-IP / Pelco-D)", "sensor resolution", "frame rate", "zoom range", "PoE class"],
   PTZ_CAMERA: ["PTZ protocol (VISCA / Pelco-D / ONVIF)", "sensor resolution", "frame rate", "optical zoom", "PoE class", "IP control method"],
   WIRELESS_CASTING: ["wireless standard (Wi-Fi 5 / Wi-Fi 6)", "screen mirroring protocols (Miracast / AirPlay / Chromecast)", "max simultaneous users", "4K wireless support", "moderation workflow"],
+  UC_SOUNDBAR: ["room size class", "camera field of view/zoom", "microphone pickup range", "native app vs USB/BYOD mode", "auto-framing capability", "display output count"],
   CABLE: ["cable category or fiber type", "max rated distance", "shielding (UTP / STP / SFTP)", "connector type", "plenum/LSOH rating"],
   UNKNOWN: ["technology class", "product role", "transport", "I/O count", "max resolution"],
 };
@@ -245,16 +251,81 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
   },
   {
     brand: "Crestron",
-    match: /^dmps|^hdmd|^hdtx|^hdrx/i,
+    match: /^dmps|^hdps/i,
     tier: "family-rule",
     domain: "PRESENTATION",
     role: "Presentation Switcher",
     transport: "HDMI / HDBaseT",
-    action: "Compare against WyreStorm SW/MX room switching or extension direction depending on I/O.",
+    action: "Compare against WyreStorm SW/MX room switching direction.",
     requiredFacts: REQUIRED_FACTS.PRESENTATION,
     presentFacts: ["brand family", "transport family"],
-    assumptions: ["Crestron DMPS/HD-MD/HD-TX/HD-RX patterns indicate presentation or extension family."],
+    assumptions: ["Crestron DMPS/HD-PS patterns indicate an all-in-one presentation switching system."],
     whyNotDirectEquivalent: ["Exact I/O, USB and control behaviour needs datasheet confirmation."],
+  },
+  {
+    brand: "Crestron",
+    match: /^hdmd/i,
+    tier: "family-rule",
+    domain: "MATRIX",
+    role: "Matrix",
+    transport: "HDMI matrix",
+    action: "Compare against WyreStorm matrix direction.",
+    requiredFacts: REQUIRED_FACTS.MATRIX,
+    presentFacts: ["brand family", "transport family"],
+    assumptions: ["Crestron HD-MD pattern indicates a fixed HDMI matrix switcher, not a presentation system."],
+    whyNotDirectEquivalent: ["Exact I/O, output transport and HDCP/HDMI generation must be verified."],
+  },
+  {
+    brand: "Crestron",
+    match: /^hdtx|^hdrx/i,
+    tier: "family-rule",
+    domain: "HDBASET",
+    role: "Transmitter",
+    transport: "HDBaseT extension",
+    action: "Compare against WyreStorm HDBaseT extension once TX/RX pairing and distance are confirmed.",
+    requiredFacts: REQUIRED_FACTS.HDBASET,
+    presentFacts: ["brand family", "transport family"],
+    assumptions: ["Crestron HD-TX/HD-RX patterns indicate a point-to-point HDBaseT extender kit, not a switcher."],
+    whyNotDirectEquivalent: ["Distance class, TX/RX kit status and USB/control support must be verified."],
+  },
+  {
+    brand: "Crestron",
+    match: /^hdda/i,
+    tier: "family-rule",
+    domain: "DISTRIBUTION",
+    role: "Distribution Amplifier",
+    transport: "HDMI distribution",
+    action: "Compare against WyreStorm HDMI splitter direction - confirm the requirement is genuinely one-to-many mirroring, not independent routing (that would be a matrix instead).",
+    requiredFacts: REQUIRED_FACTS.DISTRIBUTION,
+    presentFacts: ["brand family"],
+    assumptions: ["Crestron HD-DA pattern indicates the HDMI distribution amplifier family."],
+    whyNotDirectEquivalent: ["Output count, max resolution and EDID management behaviour must be verified."],
+  },
+  {
+    brand: "Crestron",
+    match: /^ucsb/i,
+    tier: "family-rule",
+    domain: "UC_SOUNDBAR",
+    role: "UC Soundbar",
+    transport: "USB / HDMI",
+    action: "Compare against WyreStorm Apollo UC video bar direction.",
+    requiredFacts: REQUIRED_FACTS.UC_SOUNDBAR,
+    presentFacts: ["brand family"],
+    assumptions: ["Crestron UC-SB pattern indicates a Crestron Flex all-in-one UC soundbar/video bar."],
+    whyNotDirectEquivalent: ["Room size class, camera FOV/zoom, mic pickup range and native-app vs USB/BYOD mode must be verified."],
+  },
+  {
+    brand: "Crestron",
+    match: /^am(?:tx)?\d|^amtx/i,
+    tier: "family-rule",
+    domain: "WIRELESS_CASTING",
+    role: "Wireless Casting",
+    transport: "Wi-Fi / Wireless presentation",
+    action: "Crestron AirMedia wireless casting — compare against WyreStorm Apollo series for wireless casting workflow.",
+    requiredFacts: REQUIRED_FACTS.WIRELESS_CASTING,
+    presentFacts: ["wireless protocol", "brand family"],
+    assumptions: ["Crestron AM/AM-TX pattern indicates the AirMedia wireless presentation/casting family."],
+    whyNotDirectEquivalent: ["Confirm Apollo wireless protocols, user count and cloud management against AirMedia before quoting."],
   },
   {
     brand: "Extron",
@@ -283,6 +354,22 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     whyNotDirectEquivalent: ["Exact NAV codec/network class and feature set must be verified."],
   },
   {
+    // Must be checked before the generic "^dtp" HDBaseT-extender rule below -
+    // Extron's DTP CrossPoint / DTP3 CrossPoint line shares the "DTP" prefix
+    // but is a matrix switcher, not a point-to-point extender kit.
+    brand: "Extron",
+    match: /^dtp3?crosspoint/i,
+    tier: "family-rule",
+    domain: "MATRIX",
+    role: "Matrix",
+    transport: "DTP / HDBaseT matrix",
+    action: "Compare against WyreStorm matrix direction, not a point-to-point extender.",
+    requiredFacts: REQUIRED_FACTS.MATRIX,
+    presentFacts: ["role family", "transport family"],
+    assumptions: ["DTP CrossPoint / DTP3 CrossPoint pattern indicates Extron's DTP-based matrix switcher family."],
+    whyNotDirectEquivalent: ["Exact I/O, output transport and built-in control/audio features must be verified."],
+  },
+  {
     brand: "Extron",
     match: /^dtp/i,
     tier: "family-rule",
@@ -294,6 +381,19 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     presentFacts: ["transport family", "extension family"],
     assumptions: ["DTP pattern indicates Extron twisted-pair extension family."],
     whyNotDirectEquivalent: ["DTP and HDBaseT interoperability/details should not be assumed."],
+  },
+  {
+    brand: "Extron",
+    match: /^da\d/i,
+    tier: "family-rule",
+    domain: "DISTRIBUTION",
+    role: "Distribution Amplifier",
+    transport: "HDMI distribution",
+    action: "Compare against WyreStorm HDMI splitter direction - confirm the requirement is genuinely one-to-many mirroring, not independent routing (that would be a matrix instead).",
+    requiredFacts: REQUIRED_FACTS.DISTRIBUTION,
+    presentFacts: ["role family"],
+    assumptions: ["DA-prefixed model (e.g. DA2/DA4/DA6 HD 4K PLUS, DA HD 8K L) indicates Extron's HDMI distribution amplifier family."],
+    whyNotDirectEquivalent: ["Output count, max resolution/bandwidth and EDID management behaviour must be verified."],
   },
   {
     brand: "Extron",
@@ -335,6 +435,19 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     whyNotDirectEquivalent: ["USB host/peripheral behaviour and exact output topology need confirmation."],
   },
   {
+    brand: "Atlona",
+    match: /^athdda/i,
+    tier: "family-rule",
+    domain: "DISTRIBUTION",
+    role: "Distribution Amplifier",
+    transport: "HDMI distribution",
+    action: "Compare against WyreStorm HDMI splitter direction - confirm the requirement is genuinely one-to-many mirroring, not independent routing (that would be a matrix instead).",
+    requiredFacts: REQUIRED_FACTS.DISTRIBUTION,
+    presentFacts: ["brand family"],
+    assumptions: ["AT-HDDA pattern indicates Atlona's HDMI distribution amplifier family."],
+    whyNotDirectEquivalent: ["Output count, max resolution and EDID management behaviour must be verified."],
+  },
+  {
     brand: "Kramer",
     match: /^kds/i,
     tier: "family-rule",
@@ -374,6 +487,19 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     whyNotDirectEquivalent: ["Exact I/O, HDCP, HDMI and audio/control features must be verified."],
   },
   {
+    brand: "Kramer",
+    match: /^vm/i,
+    tier: "family-rule",
+    domain: "DISTRIBUTION",
+    role: "Distribution Amplifier",
+    transport: "HDMI distribution",
+    action: "Compare against WyreStorm HDMI splitter direction - confirm the requirement is genuinely one-to-many mirroring, not independent routing (that would be a matrix instead).",
+    requiredFacts: REQUIRED_FACTS.DISTRIBUTION,
+    presentFacts: ["role family"],
+    assumptions: ["VM pattern indicates Kramer's HDMI distribution amplifier family."],
+    whyNotDirectEquivalent: ["Output count, max resolution/bandwidth and EDID management behaviour must be verified."],
+  },
+  {
     brand: "Lightware",
     match: /^ubex|^vinx/i,
     tier: "family-rule",
@@ -400,6 +526,19 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     whyNotDirectEquivalent: ["USB version, host/peripheral topology and output behaviour must be verified."],
   },
   {
+    brand: "Lightware",
+    match: /^da\d/i,
+    tier: "family-rule",
+    domain: "DISTRIBUTION",
+    role: "Distribution Amplifier",
+    transport: "HDMI distribution",
+    action: "Compare against WyreStorm HDMI splitter direction - confirm the requirement is genuinely one-to-many mirroring, not independent routing (that would be a matrix instead).",
+    requiredFacts: REQUIRED_FACTS.DISTRIBUTION,
+    presentFacts: ["role family"],
+    assumptions: ["DA-prefixed model (e.g. DA4/DA8-HDMI20-C) indicates Lightware's HDMI distribution amplifier family."],
+    whyNotDirectEquivalent: ["Output count, max resolution and EDID management behaviour must be verified."],
+  },
+  {
     brand: "Blustream",
     match: /^ip\d+/i,
     tier: "family-rule",
@@ -424,6 +563,45 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     presentFacts: ["role family", "transport family"],
     assumptions: ["HMX/C/PLA patterns indicate Blustream matrix family."],
     whyNotDirectEquivalent: ["Kit contents, receiver dependencies and audio/control details must be verified."],
+  },
+  {
+    brand: "Blustream",
+    match: /^sp\d/i,
+    tier: "family-rule",
+    domain: "DISTRIBUTION",
+    role: "Distribution Amplifier",
+    transport: "HDMI distribution",
+    action: "Compare against WyreStorm HDMI splitter direction - confirm the requirement is genuinely one-to-many mirroring, not independent routing (that would be a matrix instead).",
+    requiredFacts: REQUIRED_FACTS.DISTRIBUTION,
+    presentFacts: ["role family"],
+    assumptions: ["SP-prefixed model (e.g. SP14CS/SP18CS) indicates Blustream's HDMI splitter/distribution amplifier family."],
+    whyNotDirectEquivalent: ["Output count, max resolution and audio-breakout behaviour must be verified."],
+  },
+  {
+    brand: "Blustream",
+    match: /^uex/i,
+    tier: "family-rule",
+    domain: "USB_EXTENSION",
+    role: "USB/KVM Extender",
+    transport: "USB extension",
+    action: "Compare against WyreStorm USB/KVM extension direction.",
+    requiredFacts: REQUIRED_FACTS.USB_EXTENSION,
+    presentFacts: ["role family"],
+    assumptions: ["UEX pattern indicates Blustream's USB extender family."],
+    whyNotDirectEquivalent: ["USB version, host/peripheral direction and distance must be verified."],
+  },
+  {
+    brand: "Blustream",
+    match: /^wmf/i,
+    tier: "family-rule",
+    domain: "WIRELESS_CASTING",
+    role: "Wireless Casting",
+    transport: "Wi-Fi / USB-C",
+    action: "Compare against WyreStorm Apollo series for wireless casting workflow.",
+    requiredFacts: REQUIRED_FACTS.WIRELESS_CASTING,
+    presentFacts: ["wireless protocol", "brand family"],
+    assumptions: ["WMF pattern indicates Blustream's wireless presentation family."],
+    whyNotDirectEquivalent: ["Confirm Apollo wireless protocols and simultaneous-user support against the WMF model before quoting."],
   },
   {
     brand: "Barco",
@@ -491,6 +669,19 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     whyNotDirectEquivalent: ["Exact I/O, output transport and kit dependencies need verification."],
   },
   {
+    brand: "AVPro Edge",
+    match: /^acda/i,
+    tier: "family-rule",
+    domain: "DISTRIBUTION",
+    role: "Distribution Amplifier",
+    transport: "HDMI distribution",
+    action: "Compare against WyreStorm HDMI splitter direction - confirm the requirement is genuinely one-to-many mirroring, not independent routing (that would be a matrix instead).",
+    requiredFacts: REQUIRED_FACTS.DISTRIBUTION,
+    presentFacts: ["role family"],
+    assumptions: ["AC-DA pattern indicates AVPro Edge's HDMI distribution amplifier family."],
+    whyNotDirectEquivalent: ["Output count, max resolution/bandwidth and EDID management behaviour must be verified."],
+  },
+  {
     brand: "Binary",
     match: /^b900moip/i,
     tier: "family-rule",
@@ -528,6 +719,19 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     presentFacts: ["transport family", "extension family"],
     assumptions: ["B-660-EXT pattern indicates Binary extension family."],
     whyNotDirectEquivalent: ["Distance, TX/RX kit status and feature support must be verified."],
+  },
+  {
+    brand: "Binary",
+    match: /^b260/i,
+    tier: "family-rule",
+    domain: "DISTRIBUTION",
+    role: "Distribution Amplifier",
+    transport: "HDMI distribution",
+    action: "Compare against WyreStorm HDMI splitter direction - confirm the requirement is genuinely one-to-many mirroring, not independent routing (that would be a matrix instead).",
+    requiredFacts: REQUIRED_FACTS.DISTRIBUTION,
+    presentFacts: ["role family"],
+    assumptions: ["B-260 pattern indicates Binary's HDMI splitter/distribution amplifier family."],
+    whyNotDirectEquivalent: ["Output count, max resolution and EDID control behaviour must be verified."],
   },
   {
     brand: "BirdDog",
@@ -575,7 +779,7 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     domain: "WIRELESS_CASTING",
     role: "Wireless Casting",
     transport: "Wi-Fi / Ethernet",
-    action: "Mersive Solstice wireless presentation — compare against WyreStorm Apollo series for wireless casting workflow.",
+    action: "Mersive Solstice wireless presentation — compare against WyreStorm Apollo series for wireless casting workflow.",
     requiredFacts: REQUIRED_FACTS.WIRELESS_CASTING,
     presentFacts: ["wireless protocol", "simultaneous users", "brand family"],
     assumptions: ["Mersive Solstice uses software-defined wireless presentation over Wi-Fi. Apollo series is the closest WyreStorm alternative."],
@@ -588,7 +792,7 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     domain: "WIRELESS_CASTING",
     role: "Wireless Casting",
     transport: "Wi-Fi / USB dongle",
-    action: "Barco ClickShare wireless presentation — compare against WyreStorm Apollo series for wireless casting workflow.",
+    action: "Barco ClickShare wireless presentation — compare against WyreStorm Apollo series for wireless casting workflow.",
     requiredFacts: REQUIRED_FACTS.WIRELESS_CASTING,
     presentFacts: ["wireless protocol", "USB dongle workflow", "brand family"],
     assumptions: ["ClickShare uses USB dongle plus Wi-Fi. Apollo series comparison should confirm dongle vs. app-based workflow."],
@@ -601,11 +805,63 @@ const FAMILY_RULES: CompetitorFamilyRule[] = [
     domain: "WIRELESS_CASTING",
     role: "Wireless Casting",
     transport: "Wi-Fi",
-    action: "Airtame wireless screen sharing — compare against WyreStorm Apollo series.",
+    action: "Airtame wireless screen sharing — compare against WyreStorm Apollo series.",
     requiredFacts: REQUIRED_FACTS.WIRELESS_CASTING,
     presentFacts: ["wireless protocol", "brand family"],
     assumptions: ["Airtame is an app-based wireless casting platform."],
     whyNotDirectEquivalent: ["Confirm Apollo wireless protocols, user count and cloud management against Airtame before quoting."],
+  },
+  {
+    brand: "Visionary",
+    match: /^[ed][45]\d\d/i,
+    tier: "family-rule",
+    domain: "AVOIP",
+    role: "Transceiver",
+    transport: "AVoIP",
+    action: "Compare against NetworkHD AVoIP architecture and validate encoder/decoder role.",
+    requiredFacts: REQUIRED_FACTS.AVOIP,
+    presentFacts: ["transport", "brand family"],
+    assumptions: ["E/D4xxx and E/D5xxx pattern indicates Visionary's PacketAV encoder/decoder family."],
+    whyNotDirectEquivalent: ["Exact codec, network class, USB/audio capability and Dante/AES67 module status must be verified."],
+  },
+  {
+    brand: "Visionary",
+    match: /^duet/i,
+    tier: "family-rule",
+    domain: "AVOIP",
+    role: "Transceiver",
+    transport: "AVoIP",
+    action: "Compare against NetworkHD AVoIP architecture and validate encoder/decoder role.",
+    requiredFacts: REQUIRED_FACTS.AVOIP,
+    presentFacts: ["transport", "brand family"],
+    assumptions: ["Duet pattern indicates Visionary's PacketAV Duet converged AVoIP platform."],
+    whyNotDirectEquivalent: ["Exact codec, network class and Dante/AES67 support must be verified."],
+  },
+  {
+    brand: "Poly",
+    match: /^(studio|polystudio)/i,
+    tier: "family-rule",
+    domain: "UC_SOUNDBAR",
+    role: "UC Soundbar",
+    transport: "USB / Native cloud video apps",
+    action: "Compare against WyreStorm Apollo UC video bar direction.",
+    requiredFacts: REQUIRED_FACTS.UC_SOUNDBAR,
+    presentFacts: ["brand family"],
+    assumptions: ["Poly Studio X-series pattern indicates an all-in-one UC video bar."],
+    whyNotDirectEquivalent: ["Room size class, camera FOV/zoom, mic pickup range and native-app vs USB/BYOD mode must be verified."],
+  },
+  {
+    brand: "Logitech",
+    match: /^rallybar/i,
+    tier: "family-rule",
+    domain: "UC_SOUNDBAR",
+    role: "UC Soundbar",
+    transport: "HDMI / USB",
+    action: "Compare against WyreStorm Apollo UC video bar direction.",
+    requiredFacts: REQUIRED_FACTS.UC_SOUNDBAR,
+    presentFacts: ["brand family"],
+    assumptions: ["Rally Bar / Rally Bar Mini pattern indicates an all-in-one UC video bar."],
+    whyNotDirectEquivalent: ["Room size class, camera FOV/zoom, mic pickup range and HDMI passthrough resolution must be verified."],
   },
 ];
 

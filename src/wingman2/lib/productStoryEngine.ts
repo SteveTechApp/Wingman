@@ -1,4 +1,4 @@
-﻿import { getProductStory, productStoryRelatedText } from "../data/productStories";
+import { getProductStory, productStoryRelatedText } from "../data/productStories";
 export type ProductRole =
   | "camera"
   | "audio"
@@ -574,7 +574,7 @@ function familyRelationship(product: ProductSpec, role: ProductRole): string {
   }
 
   if (/^SW-?6/.test(sku) || (role === "presentation" && /^SW/.test(sku))) {
-    return "Part of the room presentation-switcher family. SW-620-TX-W is the compact core; SW-640-TX-W is the step up for more inputs or dual-output rooms. Pair either with SYN-TOUCH10 when the room needs a clean touch interface, or add an Apollo bar when video calls matter as much as presenting. Move up to a matrix or NetworkHD only when the job becomes multi-room routing.";
+    return "Part of the room presentation-switcher family. SW-620L-TX-W is the compact core; SW-640-TX-W is the step up for more inputs or dual-output rooms. Pair either with SYN-TOUCH10 when the room needs a clean touch interface, or add an Apollo bar when video calls matter as much as presenting. Move up to a matrix or NetworkHD only when the job becomes multi-room routing.";
   }
 
   if (role === "presentation") {
@@ -648,7 +648,7 @@ function purposePhrase(product: ProductSpec): string | null {
 // True only for products that actually drive loudspeakers or process installed
 // room audio (amplifiers, DSP). Self-contained audio devices that merely have
 // their own speaker - speakerphones, microphones, video-speakerphones such as
-// APO-210-UC - are role "audio" too (the description mentions "speaker"), but must
+// APO-VX20-UC - are role "audio" too (the description mentions "speaker"), but must
 // NOT be described as "powering the room's speakers", or the quote-facing copy is
 // false. Those fall back to a generic audio clause.
 function drivesRoomSpeakers(product: ProductSpec): boolean {

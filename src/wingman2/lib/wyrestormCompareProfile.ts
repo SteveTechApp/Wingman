@@ -68,6 +68,9 @@ function detectDomain(product: WyrestormProduct, blob: string): string | undefin
   if (/^NHD-/.test(sku) || blob.includes("avoip") || blob.includes("av over ip") || blob.includes("networkhd")) {
     return "AVOIP";
   }
+  if (/^SP-/.test(sku) || /^EXP-SP-/.test(sku) || blob.includes("splitter") || blob.includes("distribution amplifier") || blob.includes("duplicator")) {
+    return "DISTRIBUTION";
+  }
   if (/^MX-/.test(sku) || blob.includes("matrix")) return "MATRIX";
   if (/^SW-/.test(sku) && (blob.includes("video wall") || blob.includes("videowall"))) return "VIDEO_WALL";
   if (blob.includes("video wall") || blob.includes("videowall")) return "VIDEO_WALL";
@@ -79,13 +82,6 @@ function detectDomain(product: WyrestormProduct, blob: string): string | undefin
     return "WIRELESS_PRESENTATION";
   }
   if (/^SW-/.test(sku) || blob.includes("presentation") || blob.includes("switcher")) return "PRESENTATION";
-  // Checked ahead of the generic AUDIO "amplifier" check below: a video/HDMI
-  // splitter's role is literally named "distribution amplifier" in this
-  // catalogue (e.g. SP-0104-H2), which would otherwise false-match the bare
-  // "amplifier" keyword and misclassify a splitter as audio equipment.
-  if (/^SP-/.test(sku) || /^EXP-SP-/.test(sku) || blob.includes("splitter") || blob.includes("distribution amplifier") || blob.includes("duplicator")) {
-    return "SPLITTER";
-  }
   if (/^AMP-/.test(sku) || blob.includes("dante") || blob.includes("amplifier") || blob.includes("audio /")) {
     return "AUDIO";
   }
@@ -99,6 +95,7 @@ function detectRole(product: WyrestormProduct, blob: string, domain?: string): s
   if (/\bencoder\b/.test(blob) || /-TX\b/.test(sku)) return "encoder";
   if (/\bdecoder\b/.test(blob) || /-RX\b/.test(sku)) return "decoder";
   if (domain === "MATRIX" || /matrix/.test(blob)) return "matrix";
+  if (domain === "DISTRIBUTION" || /splitter|distribution amplifier|duplicator/.test(blob)) return "distribution amplifier";
   if (domain === "VIDEO_WALL" || /video\s*wall/.test(blob)) return "video wall processor";
   if (domain === "MULTIVIEW" || /multiview/.test(blob)) return "multiview processor";
   if (domain === "WIRELESS_PRESENTATION") return "wireless presentation";

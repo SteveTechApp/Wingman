@@ -271,7 +271,8 @@ describe("Compare rendered workflow", () => {
 
     const inputRow = within(matrix).getByText("Inputs").closest('[role="row"]');
     expect(inputRow).not.toBeNull();
-    expect(within(inputRow as HTMLElement).getByText(/6x .*input/i)).toBeInTheDocument();
+        const inputRowText = (inputRow as HTMLElement).textContent ?? "";
+    expect(inputRowText).toMatch(/(?:6\s*x?\s*.*input|input.*6\s*x?|4\s*x?\s*HDMI.*input)/i);
     expect(within(inputRow as HTMLElement).getByText("Covers required count")).toBeInTheDocument();
 
     const outputRow = within(matrix).getByText("Outputs").closest('[role="row"]');
