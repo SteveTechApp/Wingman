@@ -226,7 +226,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["Huddle room", "Small meeting room", "BYOD room", "Collaboration space", "Simple UC upgrade"],
     worksWith: [
       { sku: "APO-DG2", reason: "Adds simple wireless presentation / casting to the meeting-room workflow." },
-      { sku: "SW-620-TX-W", reason: "Use when the room needs more source switching or presentation inputs." },
+      { sku: "SW-620L-TX-W", reason: "Use when the room needs more source switching or presentation inputs." },
       { sku: "SYN-TOUCH10-V2", reason: "Use where simple room control or mode selection is required." }
     ],
     familyContext: "This is a meeting-room user-experience product. It is not a full control platform and not a complex DSP/camera installation.",
@@ -254,7 +254,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["BYOD meeting rooms", "Visitor presentation", "Small collaboration rooms", "Cable-light presentation"],
     worksWith: [
       { sku: "APO-VX20-UC-V2", reason: "Complements the UC video bar with wireless presentation." },
-      { sku: "SW-620-TX-W", reason: "Use a switcher instead where the room needs more source management." }
+      { sku: "SW-620L-TX-W", reason: "Use a switcher instead where the room needs more source management." }
     ],
     familyContext: "DG2 is part of the meeting-room experience conversation. It should be positioned as a workflow add-on, not as a full AV switching system.",
     whenToUse: ["Wireless presentation is requested.", "The customer wants a simple visitor-friendly workflow.", "The meeting room already has or is considering an Apollo UC path."],
@@ -268,13 +268,13 @@ export const PRODUCT_STORIES: ProductStory[] = [
     diagramOutput: "Meeting-room display path"
   },
   {
-    sku: "APO-210-UC",
+    sku: "APO-VX20-UC",
     plainEnglishName: "Apollo 210 UC table-top switcher with PTZ camera pairing",
     family: "Apollo / UC",
     category: "BYOD meeting room",
     productType: "Table-top UC video and audio switcher",
-    oneLinePosition: "APO-210-UC is the larger-room step up from APO-VX20-UC-V2, once the room needs a dedicated PTZ camera instead of a built-in one.",
-    whatItIs: "APO-210-UC is a table-top Apollo UC device that pairs with a separate PTZ camera (CAM-420-PTZ or CAM-210-PTZ) rather than relying on a built-in bar camera.",
+    oneLinePosition: "APO-VX20-UC is the larger-room step up from APO-VX20-UC-V2, once the room needs a dedicated PTZ camera instead of a built-in one.",
+    whatItIs: "APO-VX20-UC is a table-top Apollo UC device that pairs with a separate PTZ camera (CAM-420-PTZ or CAM-210-PTZ) rather than relying on a built-in bar camera.",
     whatItDoes: "It gives a larger meeting room a proper pan/tilt/zoom camera path plus optional extension microphones, once the room has outgrown a compact all-in-one video bar.",
     customerProblem: "The room is bigger than a compact video bar can cover well: the camera can't reach everyone and the table is too big for built-in microphone pickup.",
     salesTalkTrack: "Position it as the upgrade path once APO-VX20-UC-V2's built-in camera coverage stops being enough. Confirm PTZ camera choice and whether extension microphones are needed, and be upfront that the APO-DG2 dongle is VX20-only, not compatible here.",
@@ -289,7 +289,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     whenNotToUse: ["Do not use it for small huddle rooms already served by APO-VX20-UC-V2.", "Do not pair it with the APO-DG2 dongle - that's only compatible with APO-VX20-UC-V2.", "Do not quote it without also scoping the required PTZ camera, which is sold separately."],
     discoveryQuestions: ["How many people use the room and how big is it compared to a standard huddle room?", "Does the camera need to pan, tilt or zoom to reach people further away?", "Is the table large enough that a fixed bar microphone wouldn't pick everyone up?", "Does the customer specifically need the APO-DG2 dongle, or just general wireless presentation casting?"],
     quoteChecks: ["Confirm room size genuinely exceeds APO-VX20-UC-V2's coverage.", "Confirm PTZ camera choice (CAM-420-PTZ or CAM-210-PTZ) and include it as a separate line item.", "Confirm whether extension microphones are needed for the table size.", "Confirm the room does not specifically need the APO-DG2 dongle - if it does, scope APO-VX20-UC-V2 instead."],
-    customerSafeWording: "Use APO-210-UC where the room has outgrown a compact video bar and needs a dedicated PTZ camera to properly cover a larger table.",
+    customerSafeWording: "Use APO-VX20-UC where the room has outgrown a compact video bar and needs a dedicated PTZ camera to properly cover a larger table.",
     internalRepGuidance: "This still supports wireless casting of video/audio presentation content on its own - the caveat is specifically the APO-DG2 dongle, which only works with APO-VX20-UC-V2. Don't tell the customer it has no wireless casting at all.",
     keyFeatures: ["Table-top UC switcher", "Pairs with a dedicated PTZ camera (sold separately)", "Optional extension microphones for larger tables", "Supports wireless casting of video/audio presentation content"],
     diagramSource: "BYOD laptop or room host, plus dedicated PTZ camera",
@@ -308,7 +308,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     salesTalkTrack: "Position it as the user interface layer, not as a full control-platform promise. Tie it to the devices and actions that need controlling.",
     idealApplications: ["Meeting room control", "Teaching space control", "Presentation switcher operation", "Simple room mode selection"],
     worksWith: [
-      { sku: "SW-620-TX-W", reason: "Good fit where a presentation switcher needs a cleaner user interface." },
+      { sku: "SW-620L-TX-W", reason: "Good fit where a presentation switcher needs a cleaner user interface." },
       { sku: "APO-VX20-UC-V2", reason: "Can support a simpler room user-experience conversation where control is part of the requirement." }
     ],
     familyContext: "This is a simple room interface story. Do not position it as a Crestron/Extron-style full building control platform.",
@@ -464,13 +464,13 @@ export const PRODUCT_STORIES: ProductStory[] = [
     diagramOutput: "NetworkHD system, multiview output or AV distribution path"
   },
   {
-    sku: "SW-620-TX-W",
+    sku: "SW-620L-TX-W",
     plainEnglishName: "Wireless presentation switcher",
     family: "Presentation",
     category: "BYOD/BYOM presentation switcher",
     productType: "Wireless and wired presentation switcher",
-    oneLinePosition: "SW-620-TX-W is the compact presentation-room core when the customer needs wired and wireless sharing.",
-    whatItIs: "SW-620-TX-W is a presentation switcher for rooms where users need to connect laptops and present without building a full matrix or AVoIP system.",
+    oneLinePosition: "SW-620L-TX-W is the compact presentation-room core when the customer needs wired and wireless sharing.",
+    whatItIs: "SW-620L-TX-W is a presentation switcher for rooms where users need to connect laptops and present without building a full matrix or AVoIP system.",
     whatItDoes: "It centralises the local presentation workflow so wired sources, wireless presentation and room output behaviour are easier for the user to manage.",
     customerProblem: "Users need to present from different devices, but the room should stay simple.",
     salesTalkTrack: "Use it when the room is presentation-led. Add SYN-TOUCH10-V2 where the user interface needs to be cleaner and more guided.",
@@ -484,7 +484,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     whenNotToUse: ["Do not use it for many-room source routing.", "Do not use it where a large matrix or AVoIP system is required.", "Do not ignore USB/BYOM requirements."],
     discoveryQuestions: ["How many local sources are needed?", "Is wireless presentation required?", "Is the room also used for video calls?", "How many displays need outputs?"],
     quoteChecks: ["Confirm input count.", "Confirm wireless presentation workflow.", "Confirm USB/BYOM path.", "Confirm whether SYN-TOUCH10-V2 should be included."],
-    customerSafeWording: "Use SW-620-TX-W where the room needs a compact wired/wireless presentation core without the complexity of matrix or AVoIP.",
+    customerSafeWording: "Use SW-620L-TX-W where the room needs a compact wired/wireless presentation core without the complexity of matrix or AVoIP.",
     internalRepGuidance: "Ask whether the room needs simple touch control; SYN-TOUCH10-V2 is a natural attachment question.",
     keyFeatures: ["Presentation-led room core", "Wired and wireless sharing conversation", "Meeting and teaching room fit", "Pairs with SYN-TOUCH10-V2"],
     diagramSource: "Laptop and room sources",
@@ -1060,7 +1060,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["Medium meeting rooms", "Lecture and training rooms", "Hybrid teaching", "Streaming and recording"],
     worksWith: [
       { sku: "HALO 80", reason: "Adds clear room call audio to go with the camera." },
-      { sku: "SW-620-TX-W", reason: "A presentation switcher for the room the camera serves." },
+      { sku: "SW-620L-TX-W", reason: "A presentation switcher for the room the camera serves." },
       { sku: "NHD-USB-TRX", reason: "Carries the camera's USB back to a room PC that sits in the rack." }
     ],
     familyContext: "Part of the WyreStorm camera range. CAM-210-PTZ is the controllable, AI-framing option with USB, HDMI and streaming; an all-in-one video bar suits smaller rooms, and a camera bridge is the step up when several cameras must become one feed.",
@@ -1146,7 +1146,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["Meeting rooms", "Boardrooms", "Huddle spaces with two screens", "BYOD rooms"],
     worksWith: [
       { sku: "SYN-TOUCH10-V2", reason: "A touch interface to switch sources and run the room simply." },
-      { sku: "SW-620-TX-W", reason: "Steps the conversation to wireless sharing where casting is the main need." },
+      { sku: "SW-620L-TX-W", reason: "Steps the conversation to wireless sharing where casting is the main need." },
       { sku: "MX-0403-H3-MST", reason: "The step up when the room needs a third output or an HDBaseT display run." }
     ],
     familyContext: "The compact end of the Synergy matrix range. MX-0402-MST suits small rooms with two screens; step up to MX-0403-H3-MST for a third output and a long HDBaseT display run, or a larger matrix when source and screen counts grow.",
@@ -1551,7 +1551,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     idealApplications: ["Larger meeting rooms", "Boardrooms", "Hybrid rooms", "Training rooms with two screens"],
     worksWith: [
       { sku: "SYN-TOUCH10-V2", reason: "A touch interface to switch sources and run the room." },
-      { sku: "SW-620-TX-W", reason: "The smaller wireless presentation switcher for simpler rooms." }
+      { sku: "SW-620L-TX-W", reason: "The smaller wireless presentation switcher for simpler rooms." }
     ],
     familyContext: "The capable end of the Synergy presentation-switcher range, adding more inputs, dual outputs and quad view to the wireless-sharing story. Move to a matrix or networked AV when the job grows into multi-room routing.",
     whenToUse: ["A room needs several wired inputs plus wireless sharing.", "Two screens are used, sometimes showing different things.", "Quad view or USB-C charging is wanted."],
@@ -3721,7 +3721,7 @@ export const PRODUCT_STORIES: ProductStory[] = [
     "Include APO-DG2 where the wireless presentation workflow needs the WyreStorm dongle option.",
     "Confirm any required desk or lectern input hardware before issuing the proposal.",
   ],
-    customerSafeWording: "Use SW-620-TX-W where the room needs a compact wired/wireless presentation core without the complexity of matrix or AVoIP.",
+    customerSafeWording: "Use SW-620L-TX-W where the room needs a compact wired/wireless presentation core without the complexity of matrix or AVoIP.",
     internalRepGuidance: "Ask whether the room needs simple touch control; SYN-TOUCH10-V2 is a natural attachment question.",
     keyFeatures: ["Presentation-led room core", "Wired and wireless sharing conversation", "Meeting and teaching room fit", "Pairs with SYN-TOUCH10-V2"],
     diagramSource: "Laptop and room sources",

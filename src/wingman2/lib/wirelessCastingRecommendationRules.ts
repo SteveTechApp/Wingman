@@ -60,13 +60,13 @@ export function recommendWirelessCastingSkus(input: WirelessCastingRecommendatio
       primarySkus: ["APO-VX20-UC-V2", "APO-DG2"],
       optionalSkus,
       rationale:
-        "Small and huddle meeting rooms should use APO-VX20-UC-V2 with APO-DG2 for a compact wireless casting and UC-led room workflow. APO-210-UC is not compatible with the APO-DG2 dongle, so it is not an option here even though it is the larger-room step up from APO-VX20-UC-V2.",
+        "Small and huddle meeting rooms should use APO-VX20-UC-V2 with APO-DG2 for a compact wireless casting and UC-led room workflow. APO-VX20-UC is not compatible with the APO-DG2 dongle, so it is not an option here even though it is the larger-room step up from APO-VX20-UC-V2.",
     };
   }
 
   const switcherSku = typeof input.sourceCount === "number" && input.sourceCount >= 6
     ? "SW-640-TX-W"
-    : "SW-620-TX-W";
+    : "SW-620L-TX-W";
 
   return {
     primarySkus: [switcherSku, "APO-DG2"],

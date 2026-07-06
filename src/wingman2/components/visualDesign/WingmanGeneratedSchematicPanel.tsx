@@ -20,10 +20,10 @@ const DEFAULT_BRIEF: SchematicProjectBrief = {
     { label: "Room camera", sku: "APO-VX20-UC-V2" },
   ],
   speakerphones: [
-    { label: "Table speakerphone", sku: "APO-210-UC" },
+    { label: "Table speakerphone", sku: "APO-VX20-UC" },
   ],
   products: [
-    { sku: "SW-620-TX-W" },
+    { sku: "SW-620L-TX-W" },
     { sku: "APO-DG2" },
   ],
   usbRequired: true,

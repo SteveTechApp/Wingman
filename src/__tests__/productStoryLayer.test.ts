@@ -1,4 +1,4 @@
-﻿import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { PRODUCT_STORIES, getProductStory, productStoryRelatedText } from "../wingman2/data/productStories";
 import { applyProductStoryToSpec, buildProductNarrative, type ProductSpec } from "../wingman2/lib/productStoryEngine";
 
@@ -15,7 +15,7 @@ const prioritySkus = [
   "SYN-TOUCH10-V2",
   "SW-0206-VW",
   "SW-0204-VW",
-  "SW-620-TX-W",
+  "SW-620L-TX-W",
   "SW-640-TX-W",
 ];
 
@@ -66,7 +66,7 @@ describe("product story layer", () => {
     expect(productStoryRelatedText(getProductStory("APO-VX20-UC-V2")!).join(" ")).toContain("APO-DG2");
     expect(productStoryRelatedText(getProductStory("NHD-150-RX")!).join(" ")).toContain("NHD-124-TX");
     expect(productStoryRelatedText(getProductStory("NHD-150-RX")!).join(" ")).toContain("NHD-CTL-PRO");
-    expect(productStoryRelatedText(getProductStory("SW-620-TX-W")!).join(" ")).toContain("SYN-TOUCH10");
+    expect(productStoryRelatedText(getProductStory("SW-620L-TX-W")!).join(" ")).toContain("SYN-TOUCH10");
     expect(productStoryRelatedText(getProductStory("NHD-500-TX")!).join(" ")).toContain("NHD-0401-MV");
     expect(productStoryRelatedText(getProductStory("NHD-600-TRX")!).join(" ")).toContain("NHD-CTL-PRO");
   });

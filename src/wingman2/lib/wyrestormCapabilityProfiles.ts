@@ -26,7 +26,7 @@ const CAPABILITY_PROFILES: Record<string, CapabilityProfile> = {
   "SW-640L-TX-W": {
     capabilities: ["mst", "multiview", "wirelessCasting", "airplay", "miracast", "chromecast", "wirelessDongle"],
   },
-  "SW-620-TX-W": {
+  "SW-620L-TX-W": {
     capabilities: ["mst", "multiview", "wirelessCasting", "airplay", "miracast", "wirelessDongle"],
   },
   "MX-0402-MST": { capabilities: ["mst"] },
