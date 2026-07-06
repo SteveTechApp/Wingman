@@ -3714,7 +3714,7 @@ function CompareManufacturerCombobox(props: {
   onBrandSelect: (brand: string) => void;
 }) {
   return (
-    <section className="compare-native-card compare-native-card--compact wm-ui-card wm-ui-section">
+    <section className="compare-native-card compare-native-card--compact wm-ui-card wm-ui-section wm-ui-centered-card">
       <label className="compare-native-label wm-ui-kicker" htmlFor="compare-manufacturer">Manufacturer</label>
       <input
         id="compare-manufacturer"
@@ -3747,7 +3747,7 @@ function CompareProductLookupInput(props: {
   onSkuSelect: (sku: string) => void;
 }) {
   return (
-    <section className="compare-native-card compare-native-card--compact wm-ui-card wm-ui-section" data-wingman-compare-auto-advance="true">
+    <section className="compare-native-card compare-native-card--compact wm-ui-card wm-ui-section wm-ui-centered-card" data-wingman-compare-auto-advance="true">
       <label className="compare-native-label wm-ui-kicker" htmlFor="compare-competitor-sku">Competitor SKU</label>
       <input
         id="compare-competitor-sku"
@@ -3759,7 +3759,7 @@ function CompareProductLookupInput(props: {
       />
 
       <div className="compare-native-sku-block">
-        <button className="compare-native-chip compare-native-chip--custom wm-ui-button wm-ui-button-secondary wm-ui-button-primary" type="button" onClick={() => props.onSkuSelect("CUSTOM / missing SKU")}>
+        <button className="compare-native-chip compare-native-chip--custom wm-ui-button wm-ui-button-secondary" type="button" onClick={() => props.onSkuSelect("CUSTOM / missing SKU")}>
           CUSTOM / missing SKU
         </button>
 
@@ -3768,7 +3768,7 @@ function CompareProductLookupInput(props: {
         <div className="compare-native-chip-row wm-ui-card">
           {props.knownSkus.length > 0 ? (
             props.knownSkus.map((skuOption) => (
-              <button key={skuOption} className="compare-native-chip wm-ui-button wm-ui-button-secondary wm-ui-button-primary" type="button" onClick={() => props.onSkuSelect(skuOption)}>
+              <button key={skuOption} className="compare-native-chip wm-ui-button wm-ui-button-secondary" type="button" onClick={() => props.onSkuSelect(skuOption)}>
                 {skuOption}
               </button>
             ))
@@ -3782,7 +3782,7 @@ function CompareProductLookupInput(props: {
             <p className="compare-native-label compare-native-label--subtle wm-ui-copy">Closest typed matches</p>
             <div className="compare-native-chip-row wm-ui-card">
               {props.suggestions.slice(0, 8).map((skuOption) => (
-                <button key={skuOption} className="compare-native-chip wm-ui-button wm-ui-button-secondary wm-ui-button-primary" type="button" onClick={() => props.onSkuSelect(skuOption)}>
+                <button key={skuOption} className="compare-native-chip wm-ui-button wm-ui-button-secondary" type="button" onClick={() => props.onSkuSelect(skuOption)}>
                   {skuOption}
                 </button>
               ))}
@@ -4693,7 +4693,7 @@ function ComparePageNew() {
             Choose the competitor brand and product. Wingman will show the closest WyreStorm direction and the important differences to check.
           </p>
         </div>
-        <button className="compare-native-reset wm-ui-button wm-ui-button-secondary wm-ui-button-primary" type="button" onClick={handleReset}>Reset compare</button>
+        <button className="compare-native-reset wm-ui-button wm-ui-button-secondary wm-ui-quiet-action" type="button" onClick={handleReset}>Reset compare</button>
       </section>
 
       <nav className="compare-native-stage-rail wm-ui-card" aria-label="Compare workflow steps">
@@ -4720,6 +4720,9 @@ function ComparePageNew() {
             >
               <span className="compare-native-stage-step wm-ui-card">{stage.step}</span>
               <strong>{stage.title}</strong>
+              <span className="wm-ui-step-status">
+                {isActive ? "Current step" : isComplete ? "Complete" : isLocked ? "Available after selection" : "Up next"}
+              </span>
             </button>
           );
         })}
@@ -4736,13 +4739,13 @@ function ComparePageNew() {
 
           <CompareManufacturerCombobox brands={compareManufacturerOptions} selectedBrand={selectedBrand} onBrandSelect={onBrandSelect} />
 
-          <section className="compare-native-card compare-native-card--compact compare-native-guidance-card wm-ui-section wm-ui-card">
+          <section className="compare-native-card compare-native-card--compact compare-native-guidance-card wm-ui-section wm-ui-card wm-ui-guidance-card">
             <p className="compare-native-label compare-native-label--subtle wm-ui-copy">Why this step matters</p>
             <p className="wm-ui-copy">Picking the brand first keeps the next screen shorter and avoids mixing unlike technologies before the actual competitor product has been chosen.</p>
           </section>
 
           {isAddingManufacturer ? (
-            <section className="compare-native-card compare-native-card--compact wm-ui-card wm-ui-section">
+            <section className="compare-native-card compare-native-card--compact wm-ui-card wm-ui-section wm-ui-centered-card">
               <label className="compare-native-label wm-ui-kicker" htmlFor="compare-custom-manufacturer">Missing manufacturer name</label>
               <input
                 id="compare-custom-manufacturer"
@@ -4768,7 +4771,7 @@ function ComparePageNew() {
                   Use this manufacturer
                 </button>
                 <button
-                  className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary wm-ui-button-primary"
+                  className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
                   type="button"
                   onClick={() => {
                     setIsAddingManufacturer(false);
@@ -4780,11 +4783,11 @@ function ComparePageNew() {
               </div>
             </section>
           ) : null}
-          <div className="compare-native-action-row compare-native-action-row--between wm-ui-action-row wm-ui-card">
+          <div className="compare-native-action-row compare-native-action-row--between wm-ui-action-row wm-ui-card wm-ui-centered-actions">
             <span className="compare-native-muted wm-ui-copy">Selected brand: {selectedBrand}</span>
             <div className="compare-native-action-row wm-ui-action-row wm-ui-card">
               <button
-                className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary wm-ui-button-primary"
+                className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
                 type="button"
                 onClick={() => {
                   setIsAddingManufacturer((current) => !current);
@@ -4816,7 +4819,7 @@ function ComparePageNew() {
             onSkuSelect={onSkuSelect}
           />
 
-          <section className="compare-native-card compare-native-card--compact wm-ui-card wm-ui-section">
+          <section className="compare-native-card compare-native-card--compact wm-ui-card wm-ui-section wm-ui-centered-card">
             <label className="compare-native-label wm-ui-kicker" htmlFor="compare-must-match">Known type or must-match features</label>
             <input
               id="compare-must-match"
@@ -4829,13 +4832,13 @@ function ComparePageNew() {
 
           <p className="compare-native-auto-note wm-ui-copy">Clicking a known SKU will still open the result automatically. Typed entries can still use Enter, or use the review button below.</p>
 
-          <div className="compare-native-action-row compare-native-action-row--between wm-ui-action-row wm-ui-card">
-            <button className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary wm-ui-button-primary" type="button" onClick={() => setCompareStage("brand")}>
+          <div className="compare-native-action-row compare-native-action-row--between wm-ui-action-row wm-ui-card wm-ui-centered-actions">
+            <button className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" type="button" onClick={() => setCompareStage("brand")}>
               Back to brand
             </button>
             <div className="compare-native-action-row wm-ui-action-row wm-ui-card">
               <button
-                className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary wm-ui-button-primary"
+                className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
                 type="button"
                 onClick={() => {
                   const customLabel = competitorInput.trim().length > 0 ? competitorInput.trim() : "Custom / missing SKU";
