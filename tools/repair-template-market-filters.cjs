@@ -1,8 +1,30 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+const fs = require("fs");
 
-import { routeCatalogByKey } from "../app/routeCatalog";
-import { roomTemplates, roomTemplateVerticals, type RoomTemplate } from "../lib/roomTemplates";
+const path = "src/wingman2/pages/TemplatesPage.tsx";
+let text = fs.readFileSync(path, "utf8");
+
+function fail(message) {
+  throw new Error(message);
+}
+
+function replaceRequired(search, replacement, label) {
+  if (!text.includes(search)) {
+    fail(`Missing expected source for ${label}`);
+  }
+  text = text.replace(search, replacement);
+}
+
+replaceRequired(
+  `import { roomTemplates } from "../lib/roomTemplates";`,
+  `import { roomTemplates, roomTemplateVerticals, type RoomTemplate } from "../lib/roomTemplates";`,
+  "roomTemplates import"
+);
+
+replaceRequired(
+  `import { roomTemplates, roomTemplateVerticals, type RoomTemplate } from "../lib/roomTemplates";
+
+export function TemplatesPage() {`,
+  `import { roomTemplates, roomTemplateVerticals, type RoomTemplate } from "../lib/roomTemplates";
 
 type ApplicationFilter = {
   label: string;
@@ -44,7 +66,38 @@ function applicationMatches(template: RoomTemplate, filter: ApplicationFilter) {
   return filter.terms.some((term) => text.includes(term));
 }
 
-export function TemplatesPage() {
+export function TemplatesPage() {`,
+  "helper block"
+);
+
+const oldLogic = `export function TemplatesPage() {
+  const [query, setQuery] = useState("");
+
+  const filteredTemplates = useMemo(() => {
+    const search = query.trim().toLowerCase();
+
+    if (!search) {
+      return roomTemplates;
+    }
+
+    return roomTemplates.filter((template) =>
+      [
+        template.name,
+        template.vertical,
+        template.application,
+        template.scale,
+        template.summary,
+        template.customerNarrative,
+        template.architecture,
+        ...template.bom.flatMap((row) => [row.sku, row.description, row.role]),
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(search),
+    );
+  }, [query]);`;
+
+const newLogic = `export function TemplatesPage() {
   const [query, setQuery] = useState("");
   const [activeVertical, setActiveVertical] = useState("All");
   const [activeApplication, setActiveApplication] = useState("All");
@@ -97,21 +150,23 @@ export function TemplatesPage() {
     setQuery("");
     setActiveVertical("All");
     setActiveApplication("All");
-  };
+  };`;
 
-  return (
-    <main className="wm-templates-page wm-page wingman-page-host" data-wingman-page="templates">
-      <section className="wm-template-hero wm-page-hero">
-        <div>
-          <p className="wm-template-kicker">Wingman / Templates</p>
-          <h1 className="wm-page-title">Start with a proven room design.</h1>
-          <p className="wm-copy">
-            Choose the closest room or application, then adjust the products and quantities for the customer.
-          </p>
-        </div>
-      </section>
+replaceRequired(oldLogic, newLogic, "TemplatesPage state and filtering");
 
-      <section className="wm-section-card wm-template-filter-panel">
+const oldFilterPanel = `      <section className="wm-section-card wm-template-filter-panel">
+        <label className="wm-field wm-template-search">
+          <span>Search templates</span>
+          <input
+            className="wm-input"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search room, application or product..."
+          />
+        </label>
+      </section>`;
+
+const newFilterPanel = `      <section className="wm-section-card wm-template-filter-panel">
         <div className="grid gap-4">
           <label className="wm-field wm-template-search">
             <span>Search templates</span>
@@ -177,55 +232,47 @@ export function TemplatesPage() {
             </div>
           </div>
         </div>
-      </section>
+      </section>`;
 
-      <section className="wm-page-header wm-template-results-header">
+replaceRequired(oldFilterPanel, newFilterPanel, "filter panel");
+
+replaceRequired(
+  `      <section className="wm-page-header wm-template-results-header">
+        <h2 className="wm-section-title">Template Library</h2>
+      </section>`,
+  `      <section className="wm-page-header wm-template-results-header">
         <div>
           <h2 className="wm-section-title">Template Library</h2>
           <p className="wm-copy">
             Showing {filteredTemplates.length} of {roomTemplates.length} templates
-            {activeVertical !== "All" ? ` in ${activeVertical}` : ""}
-            {activeApplication !== "All" ? ` for ${activeApplication.toLowerCase()}` : ""}.
+            {activeVertical !== "All" ? \` in \${activeVertical}\` : ""}
+            {activeApplication !== "All" ? \` for \${activeApplication.toLowerCase()}\` : ""}.
           </p>
         </div>
-      </section>
+      </section>`,
+  "results header"
+);
 
-      <section className="wm-section wm-template-card-grid">
-        {filteredTemplates.map((template) => (
-          <article key={template.id} className="wm-action-card wm-template-card">
-            <div className="wm-template-card-top">
-              <span className="wm-badge">{template.vertical}</span>
-              <span className="wm-badge">{template.scale}</span>
-            </div>
-
-            <h3 className="wm-card-title">{template.name}</h3>
-            <p className="wm-copy wm-template-summary">{template.summary}</p>
-            <p className="wm-copy wm-template-direction">{template.application}</p>
-
-            <div className="wm-template-actions wm-action-row">
-              <Link
-                className="wm-button wm-button-primary"
-                to={`${routeCatalogByKey.templates.path}/${template.id}`}
-                data-template-build-pack="true"
-              >
-                Review template
-              </Link>
-            </div>
-          </article>
-        ))}
-      </section>
-
-      {filteredTemplates.length === 0 ? (
-        <section className="wm-output-panel" aria-live="polite">
+replaceRequired(
+  `        <section className="wm-output-panel" aria-live="polite">
+          <h2 className="wm-section-title">No matching template</h2>
+          <p className="wm-copy">Try a room type, application or product name.</p>
+        </section>`,
+  `        <section className="wm-output-panel" aria-live="polite">
           <h2 className="wm-section-title">No matching template</h2>
           <p className="wm-copy">Try another market, vertical, application, room type or product name.</p>
           <button type="button" className="wm-button wm-button-primary" onClick={clearFilters}>
             Reset filters
           </button>
-        </section>
-      ) : null}
-    </main>
-  );
+        </section>`,
+  "empty state"
+);
+
+for (const marker of ["<<<<<<<", "=======", ">>>>>>>"]) {
+  if (text.includes(marker)) {
+    fail("Conflict marker found: " + marker);
+  }
 }
 
-export default TemplatesPage;
+fs.writeFileSync(path, text, "utf8");
+console.log("Templates market/application filters applied.");
