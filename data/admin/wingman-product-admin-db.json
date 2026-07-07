@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "records": {
+    "SW-740-TX": {
+      "sku": "SW-740-TX",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "Invalid/non-current SKU. Suppress from recommendations.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-06T13:31:53.958Z"
+    },
+    "APO-VX20-UC-V2": {
+      "sku": "APO-VX20-UC-V2",
+      "statusOverride": "live",
+      "doNotUse": false,
+      "visibility": "default",
+      "adminNotes": "Approved APO-DG2 compatible host.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-06T13:31:54.021Z"
+    }
+  }
+}

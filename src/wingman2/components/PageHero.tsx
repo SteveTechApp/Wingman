@@ -32,7 +32,10 @@ export function PageHero({ eyebrow, title, purpose, nextMove, actions }: PageHer
         <p id="wingman-page-purpose" className="wingman-hero-purpose">
           {purpose}
         </p>
-        <p className="sr-only">Next move: {nextMove}</p>
+        <div className="wingman-hero-next" role="note" aria-label="Recommended next step">
+          <span>Next step</span>
+          <strong>{nextMove}</strong>
+        </div>
       </div>
 
       {actions?.length ? (

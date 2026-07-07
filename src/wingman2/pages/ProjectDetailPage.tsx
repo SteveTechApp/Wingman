@@ -124,6 +124,7 @@ export function ProjectDetailPage() {
   );
   const [requirements, setRequirements] = useState<StoredRequirementRecord[]>(initialRequirements);
   const [message, setMessage] = useState("");
+  const [showSupportingDetails, setShowSupportingDetails] = useState(false);
   const readiness = useMemo(() => requirementReadiness(requirements), [requirements]);
   const recommendationEvidence = useMemo(
     () =>
@@ -439,15 +440,57 @@ export function ProjectDetailPage() {
       <PageHero
         eyebrow="Project Detail"
         title={project.name}
-        purpose="Review the opportunity record before Wingman turns it into a SKU, replacement recommendation, or customer-presentable BOM."
-        nextMove="Confirm or edit the requirements, then continue into Discovery, Finder, Compare, or Proposal with a cleaner basis."
+        purpose="See the current product direction, readiness and next action."
+        nextMove="Use the highlighted action below; open supporting project detail only when needed."
         actions={[
           { label: "Back to projects", to: routeCatalogByKey.projects.path, variant: "secondary" },
-          { label: "Open proposal", to: routeCatalogByKey.proposal.path },
         ]}
       />
 
       <div className="space-y-6">
+        <section className="rounded-3xl border p-5 wm-ui-card">
+          <div className="grid gap-4 lg:grid-cols-[1fr_280px] lg:items-center">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-kicker">Current result</p>
+              <h2 className="mt-2 text-3xl font-black wm-ui-title">
+                {selectedProducts[0]?.sku || leadingProductFamilyScore?.family || "No product direction selected"}
+              </h2>
+              <p className="mt-2 text-sm leading-6 wm-ui-copy">
+                {selectedProducts[0]?.title || selectedProducts[0]?.family || projectReadinessGate.summary}
+              </p>
+              {selectedProducts.length > 1 ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {selectedProducts.slice(1, 6).map((product) => (
+                    <span key={product.sku} className="rounded-full border px-3 py-1 text-xs font-black wm-ui-card wm-ui-copy">
+                      {product.sku}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+            <div className="rounded-2xl border p-4 wm-ui-section wm-ui-card">
+              <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-kicker">Next step</p>
+              <p className="mt-2 font-black wm-ui-copy">{projectReadinessGate.status}</p>
+              <Link
+                to={projectReadinessGate.route}
+                className="mt-3 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-black wm-ui-button wm-ui-button-primary"
+              >
+                {projectReadinessGate.route === routeCatalogByKey.proposal.path ? "Continue to proposal" : "Resolve project blockers"}
+              </Link>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowSupportingDetails((current) => !current)}
+            className="mt-4 rounded-full border px-4 py-2 text-sm font-black wm-ui-button wm-ui-button-secondary"
+            aria-expanded={showSupportingDetails}
+          >
+            {showSupportingDetails ? "Hide project detail" : "Review project detail"}
+          </button>
+        </section>
+
+        {showSupportingDetails ? (
+        <>
         <SectionCard
           title="Opportunity record"
           subtitle="This is the editable project layer between raw discovery and recommendation output."
@@ -875,10 +918,11 @@ export function ProjectDetailPage() {
             </div>
           </div>
         </SectionCard>
+        </>
+        ) : null}
       </div>
     </div>
   );
 }
 
 export default ProjectDetailPage;
-

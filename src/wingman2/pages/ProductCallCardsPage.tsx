@@ -16,6 +16,7 @@ import {
 } from "../lib/productCallCardClassification";
 import { resolveWyrestormSkuAlias } from "../lib/skuAliasResolver";
 import { getProductCallCommercialOverride } from "../lib/productCallCommercialOverrides";
+import { isSkuAdminBlocked } from "../lib/adminProductOverrides";
 import {
   DEFAULT_SALES_CONVERSATION_TONE_ID,
   LEGACY_SALES_CONVERSATION_STORAGE_KEYS,
@@ -988,7 +989,7 @@ return () => {
 
       const cards = dedupeProductSeedsBySku(seeds)
         .map(toProductCard)
-        .filter((product) => product.sku)
+        .filter((product) => product.sku && !isSkuAdminBlocked(product.sku))
         .sort((a, b) => a.sku.localeCompare(b.sku));
 
       setProducts(cards);
@@ -2215,14 +2216,14 @@ return (
       </header>
 
       <main className="wm-pcc-grid wm-ui-page wingman-page-host">
-      <section className="wm-ui-card wm-pcc-workflow-guide" aria-label="Product Call Cards workflow guide">
-        <p className="wm-ui-title">How to use this call card</p>
+      <details className="wm-ui-card wm-pcc-workflow-guide" aria-label="Product Call Cards workflow guide">
+        <summary className="wm-ui-title">How to use this call card</summary>
         <ul className="wm-ui-copy">
           {productCallCardWorkflowGuide.map((term) => (
             <li key={term}>{term}</li>
           ))}
         </ul>
-      </section>
+      </details>
 
 
 <section className="wm-pcc-card wm-pcc-left wm-ui-section wm-ui-card">
@@ -2693,4 +2694,3 @@ return (
     </section>
   );
 }
-

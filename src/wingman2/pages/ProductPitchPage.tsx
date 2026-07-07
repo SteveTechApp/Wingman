@@ -833,7 +833,10 @@ function ProductWorkspace({
       {!lifecycle.recommendable ? (
         <section
           className={`rounded-3xl border p-4 ${
-            lifecycle.status === "discontinued" || lifecycle.status === "do-not-spec" || lifecycle.status === "cable"
+            lifecycle.adminBlocked ||
+            lifecycle.status === "discontinued" ||
+            lifecycle.status === "do-not-spec" ||
+            lifecycle.status === "cable"
               ? "border-rose-400/50 bg-rose-500/10"
               : lifecycle.supersededBy
                 ? "border-amber-400/50 bg-amber-400/10"
@@ -842,22 +845,27 @@ function ProductWorkspace({
         >
           <p
             className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} ${
-              lifecycle.status === "discontinued" || lifecycle.status === "do-not-spec" || lifecycle.status === "cable"
+              lifecycle.adminBlocked ||
+              lifecycle.status === "discontinued" ||
+              lifecycle.status === "do-not-spec" ||
+              lifecycle.status === "cable"
                 ? "text-rose-200"
                 : lifecycle.supersededBy
                   ? "text-amber-200"
                   : "text-cyan-200"
             }`}
           >
-            {lifecycle.supersededBy
-              ? "âš  Superseded product"
-              : lifecycle.status === "discontinued"
-                ? "âš  Discontinued product"
-                : lifecycle.status === "do-not-spec"
-                  ? "âš  Do not specify"
-                  : lifecycle.status === "cable"
-                    ? "Cable / accessory"
-                    : "Not on the current business list"}
+            {lifecycle.adminBlocked
+              ? "âš  Admin blocked"
+              : lifecycle.supersededBy
+                ? "âš  Superseded product"
+                : lifecycle.status === "discontinued"
+                  ? "âš  Discontinued product"
+                  : lifecycle.status === "do-not-spec"
+                    ? "âš  Do not specify"
+                    : lifecycle.status === "cable"
+                      ? "Cable / accessory"
+                      : "Not on the current business list"}
           </p>
           <p className="mt-1 max-w-4xl text-sm leading-6 wm-ui-copy">{lifecycle.note}</p>
         </section>
