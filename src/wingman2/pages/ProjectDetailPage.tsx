@@ -8,6 +8,7 @@ import { StatusChip } from "../components/StatusChip";
 import {
   saveProjectRequirementsToProject,
   setActiveProjectId,
+  type StoredProject,
   type StoredRequirementRecord,
   type StoredRequirementStatus,
   useProjectStore,
@@ -21,6 +22,12 @@ const statusOptions: StoredRequirementStatus[] = ["confirmed", "review", "unknow
 function statusLabel(status: StoredRequirementStatus) {
   if (status === "confirmed") return "Confirmed";
   if (status === "unknown") return "Unknown";
+  return "Needs review";
+}
+
+function projectStatusLabel(status: StoredProject["status"]) {
+  if (status === "recommended") return "On track";
+  if (status === "alternative") return "In progress";
   return "Needs review";
 }
 
@@ -527,7 +534,7 @@ export function ProjectDetailPage() {
               <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Status</p>
               <div className="mt-2">
                 <StatusChip
-                  label={project.status === "recommended" ? "On track" : "Needs review"}
+                  label={projectStatusLabel(project.status)}
                   variant={project.status}
                 />
               </div>
