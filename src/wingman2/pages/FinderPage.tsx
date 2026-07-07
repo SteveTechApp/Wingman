@@ -32,6 +32,7 @@ import { finderProductPathRelevance, opportunityFromLabel } from "../lib/situati
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
 import { getProductFamilyRankingReason, rankProductsByFamilyScores } from "../lib/productFamilyShortlistRanking";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { isSkuAdminBlocked } from "../lib/adminProductOverrides";
 import {
   wyrestormCapabilityFallbackTerms,
   wyrestormCapabilityVerdict,
@@ -1969,9 +1970,10 @@ function finderFeatureMatches(
     .sort((a, b) => b.score - a.score || a.sku.localeCompare(b.sku));
 }
 
-function buildFinderMatchPlan(products: FinderProduct[], need: FinderNeed, hasIntent: boolean): FinderMatchPlan {
+function buildFinderMatchPlan(allProducts: FinderProduct[], need: FinderNeed, hasIntent: boolean): FinderMatchPlan {
   if (!hasIntent) return { matches: [], mode: "none" };
 
+  const products = allProducts.filter((product) => !isSkuAdminBlocked(product.sku));
   const featureFilters = getActiveFeatureFilters(need);
 
   if (!featureFilters.length) {
@@ -3425,22 +3427,41 @@ if (!leadingMatch) {
 
   return (
     <div className="wm-finder-redesign-page pb-0">
-      <PageHero
-        eyebrow="Product Finder"
-        title="Start from the customer problem, then find the safest WyreStorm product path."
-        purpose="Use this when the salesperson does not yet know the right product. Start with the customer problem, reveal only the questions that affect the recommendation, then review a shortlist with cautions."
-        nextMove="Choose a quick-start path or search term, then move through each step. The recommendation step stays available whenever you want to check products."
-        actions={[
-          { label: "Load Discovery brief", variant: "secondary", onClick: applyDiscoveryBrief },
-          { label: "Open projects", to: routeCatalogByKey.projects.path, variant: "secondary" },
-        ]}
-      />
+      {activeStep === "results" ? (
+        <section className="mb-4 flex flex-wrap items-center justify-between gap-4 rounded-3xl border p-5 wm-ui-card">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-kicker">Product Finder result</p>
+            <h1 className="mt-1 text-3xl font-black wm-ui-title">{bestMatch?.sku || "Recommended WyreStorm products"}</h1>
+            <p className="mt-1 max-w-3xl text-sm leading-6 wm-ui-copy">{finderResultsSummary}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setActiveStep("start")}
+            className="rounded-full border px-4 py-2 text-sm font-black wm-ui-button wm-ui-button-secondary"
+          >
+            Edit requirement
+          </button>
+        </section>
+      ) : (
+        <PageHero
+          eyebrow="Product Finder"
+          title="Describe the requirement and get a WyreStorm shortlist."
+          purpose="Start with the customer problem. Wingman asks only for details that change the recommendation."
+          nextMove="Choose a quick-start path or search term."
+          actions={[
+            { label: "Load Discovery brief", variant: "secondary", onClick: applyDiscoveryBrief },
+          ]}
+        />
+      )}
 
       <SectionCard
-        title="Customer problem to product path"
-        subtitle="Choose the closest customer problem first. Wingman can then expose the signal, I/O, USB, audio, network and control details only where they change the outcome."
+        title={activeStep === "results" ? "Recommended products" : "Customer problem to product path"}
+        subtitle={activeStep === "results"
+          ? "Review the SKU shortlist first. Open supporting evidence only where needed."
+          : "Choose the closest customer problem first; only relevant technical questions follow."}
       >
         <div className="grid gap-4">
+          {activeStep !== "results" ? (
           <nav className="grid gap-2 md:grid-cols-5" aria-label="Finder workflow steps">
             {finderSteps.map((step, index) => {
               const isActive = step.id === activeStep;
@@ -3477,9 +3498,11 @@ if (!leadingMatch) {
               );
             })}
           </nav>
+          ) : null}
 
           <div className="finder-active-step-layout grid gap-4 wm-ui-card">
             <section className="finder-active-step-panel rounded-2xl border p-4 wm-ui-section wm-ui-card wm-ui-title" aria-labelledby="finder-active-step-title">
+              {activeStep !== "results" ? (
               <div className="flex flex-wrap items-start justify-between gap-3 border-b pb-4 wm-ui-card">
                 <div className="min-w-0">
                   <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">{activeStepDefinition.eyebrow}</p>
@@ -3501,6 +3524,7 @@ if (!leadingMatch) {
                   Reset
                 </button>
               </div>
+              ) : null}
 
               {activeStep === "start" ? (
                 <div className="mt-4 grid gap-4">

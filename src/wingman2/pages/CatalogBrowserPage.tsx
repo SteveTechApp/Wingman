@@ -23,7 +23,7 @@ import { resolveProductLifecycle } from "../lib/wyrestormProductLifecycle";
 export function withBusinessLifecycle(product: CatalogProduct): CatalogProduct {
   if (product.lifecycle.excludeFromNewRecommendations) return product;
   const life = resolveProductLifecycle(product.sku);
-  const suppress = life.status === "discontinued" || life.status === "do-not-spec" || Boolean(life.supersededBy);
+  const suppress = life.status === "discontinued" || life.status === "do-not-spec" || Boolean(life.supersededBy) || life.adminBlocked;
   if (!suppress) return product;
   return { ...product, lifecycle: { ...product.lifecycle, excludeFromNewRecommendations: true } };
 }
