@@ -1,0 +1,256 @@
+﻿src/wingman2/components/GuruCallNotesInterpreter.tsx:145:  const [status, setStatus] = useState("Paste call notes, or use browser speech capture where supported.");
+src/wingman2/components/GuruCallNotesInterpreter.tsx:163:      setStatus("Speech capture is not available in this browser. Paste the call notes or transcript instead.");
+src/wingman2/components/GuruCallNotesInterpreter.tsx:185:      setStatus("Speech capture stopped. Check microphone permission, or paste the transcript manually.");
+src/wingman2/components/GuruCallNotesInterpreter.tsx:196:    setStatus("Listening. Confirm you have permission to capture this conversation.");
+src/wingman2/components/GuruCallNotesInterpreter.tsx:203:    setStatus("Listening stopped. Review the transcript before using it in Discovery.");
+src/wingman2/components/GuruCallNotesInterpreter.tsx:235:      <p className="wingman-guru-call-status">{status}</p>
+src/wingman2/components/ProductMediaPanel.tsx:3:import type { ProductMediaAsset, ProductMediaSet, ProductMediaStatus } from "../types/productPositioning";
+src/wingman2/components/ProductMediaPanel.tsx:12:const statusLabels: Record<ProductMediaStatus, string> = {
+src/wingman2/components/ProductMediaPanel.tsx:21:function mediaStatusLabel(status: ProductMediaStatus): string {
+src/wingman2/components/ProductMediaPanel.tsx:22:  return statusLabels[status] ?? "Imagery needs review";
+src/wingman2/components/ProductMediaPanel.tsx:117:        <strong>{mediaStatusLabel(media.status)}</strong>
+src/wingman2/components/StatusChip.tsx:2:import type { StatusVariant } from "../types";
+src/wingman2/components/StatusChip.tsx:4:type StatusChipProps = {
+src/wingman2/components/StatusChip.tsx:6:  variant?: StatusChipVariant;
+src/wingman2/components/StatusChip.tsx:12:export type StatusChipVariant =
+src/wingman2/components/StatusChip.tsx:13:  | StatusVariant
+src/wingman2/components/StatusChip.tsx:25:const variantClasses: Record<StatusChipVariant, string> = {
+src/wingman2/components/StatusChip.tsx:26:  recommended: "wm-status-on-track",
+src/wingman2/components/StatusChip.tsx:27:  alternative: "wm-status-progress",
+src/wingman2/components/StatusChip.tsx:28:  caution: "wm-status-warning",
+src/wingman2/components/StatusChip.tsx:29:  neutral: "wm-status-neutral",
+src/wingman2/components/StatusChip.tsx:30:  default: "wm-status-neutral",
+src/wingman2/components/StatusChip.tsx:31:  ready: "wm-status-ready",
+src/wingman2/components/StatusChip.tsx:32:  "on-track": "wm-status-on-track",
+src/wingman2/components/StatusChip.tsx:33:  "in-progress": "wm-status-progress",
+src/wingman2/components/StatusChip.tsx:34:  progress: "wm-status-progress",
+src/wingman2/components/StatusChip.tsx:35:  warning: "wm-status-warning",
+src/wingman2/components/StatusChip.tsx:36:  danger: "wm-status-danger",
+src/wingman2/components/StatusChip.tsx:37:  success: "wm-status-success",
+src/wingman2/components/StatusChip.tsx:38:  review: "wm-status-review",
+src/wingman2/components/StatusChip.tsx:41:export function StatusChip({ label, variant = "neutral", title, className = "", icon }: StatusChipProps) {
+src/wingman2/components/StatusChip.tsx:43:    <span className={["wm-status-chip", "wm-status", variantClasses[variant], className].filter(Boolean).join(" ")} title={title}>
+src/wingman2/components/StatusChip.tsx:45:      <span className="wm-status-chip-label">{label}</span>
+src/wingman2/components/TemplateSchematic.tsx:21:  return rows.filter((row) => row.qty > 0 && row.status !== "excluded");
+src/wingman2/components/VisualStudioCanvas.tsx:87:const statusLabel: Record<string, string> = {
+src/wingman2/components/VisualStudioCanvas.tsx:99:  const status = String(nodeData.status);
+src/wingman2/components/VisualStudioCanvas.tsx:132:      <div className="wm-vs-node-status">
+src/wingman2/components/VisualStudioCanvas.tsx:134:        {statusLabel[status] ?? "System device"}
+src/wingman2/components/VisualStudioCanvas.tsx:292:            <span>Status</span>
+src/wingman2/components/WingmanGuruDrawer.tsx:1329:  const [indexStatus, setIndexStatus] = useState("Loading product intelligence...");
+src/wingman2/components/WingmanGuruDrawer.tsx:1347:        setIndexStatus(`Product index loaded: ${parsed.length} entries`);
+src/wingman2/components/WingmanGuruDrawer.tsx:1355:        setIndexStatus("Product index unavailable - using built-in AV rules and glossary");
+src/wingman2/components/WingmanGuruDrawer.tsx:1411:    return `${indexStatus} - Glossary: ${avGlossary.length} terms - Local Guru memory: ${memoryCount}`;
+src/wingman2/components/WingmanGuruDrawer.tsx:1412:  }, [indexStatus, memoryCount]);
+src/wingman2/components/WingmanWorkspacePage.tsx:5:  badge: string;
+src/wingman2/components/WingmanWorkspacePage.tsx:15:  badge,
+src/wingman2/components/WingmanWorkspacePage.tsx:29:            <div className="wm20-badge wm-ui-badge">
+src/wingman2/components/WingmanWorkspacePage.tsx:31:              {badge}
+src/wingman2/components/compare/CompareCandidateShortlist.tsx:124:  "status",
+src/wingman2/components/compare/CompareCandidateShortlist.tsx:208:  badge: {
+src/wingman2/components/compare/CompareCandidateShortlist.tsx:748:                    ...styles.badge,
+src/wingman2/pages/CatalogBrowserPage.tsx:11:  getCatalogBadges,
+src/wingman2/pages/CatalogBrowserPage.tsx:26:  const suppress = life.status === "discontinued" || life.status === "do-not-spec" || Boolean(life.supersededBy) || life.adminBlocked;
+src/wingman2/pages/CatalogBrowserPage.tsx:193:          const badges = getCatalogBadges(product);
+src/wingman2/pages/CatalogBrowserPage.tsx:208:              {badges.length ? (
+src/wingman2/pages/CatalogBrowserPage.tsx:210:                  {badges.map((badge) => (
+src/wingman2/pages/CatalogBrowserPage.tsx:212:                      key={badge}
+src/wingman2/pages/CatalogBrowserPage.tsx:214:                        badge === "Legacy / suppress"
+src/wingman2/pages/CatalogBrowserPage.tsx:219:                      {badge}
+src/wingman2/pages/ComparePageNew.advanced.tsx:28:import { isWyreStormSkuCompareLeadAllowed } from "../lib/wyrestormSkuBusinessStatus";
+src/wingman2/pages/ComparePageNew.advanced.tsx:639:  lifecycleStatus?: unknown;
+src/wingman2/pages/ComparePageNew.advanced.tsx:657:  if (String(entry.lifecycleStatus ?? "").toLowerCase() === "discontinued") return false;
+src/wingman2/pages/ComparePageNew.advanced.tsx:1867:  // own candidates without the isWyreStormSkuCompareLeadAllowed business-status
+src/wingman2/pages/ComparePageNew.advanced.tsx:3609:function _salesOutcomeBadges(competitor: CompetitorSummary, candidate: ScoredCandidate): string[] {
+src/wingman2/pages/ComparePageNew.advanced.tsx:3610:  const badges: string[] = [];
+src/wingman2/pages/ComparePageNew.advanced.tsx:3612:  if (candidate.outcomeLabel !== "Wrong product type" && candidate.outcomeLabel !== "Insufficient competitor data") badges.push("Correct product direction");
+src/wingman2/pages/ComparePageNew.advanced.tsx:3613:  if (candidate.matched.some((item) => /Same endpoint role/i.test(item))) badges.push("Same product job");
+src/wingman2/pages/ComparePageNew.advanced.tsx:3614:  if (candidate.matched.some((item) => /Same product class|Same product class: point-to-point HDBaseT extender path|Same NetworkHD 500 source-side encoder architecture|matrix/i.test(item))) badges.push("Same system type");
+src/wingman2/pages/ComparePageNew.advanced.tsx:3615:  if (candidate.mismatches.length > 0 || candidate.blockers.length > 0) badges.push("Not drop-in compatible");
+src/wingman2/pages/ComparePageNew.advanced.tsx:3616:  if (candidate.unknowns.length > 0 || competitor.warning) badges.push("Feature check needed");
+src/wingman2/pages/ComparePageNew.advanced.tsx:3617:  if (candidate.outcomeLabel === "Wrong product type") badges.push("Wrong product type");
+src/wingman2/pages/ComparePageNew.advanced.tsx:3618:  if (candidate.outcomeLabel === "Insufficient competitor data") badges.push("Insufficient competitor data");
+src/wingman2/pages/ComparePageNew.advanced.tsx:3620:  return uniqueText(badges, 5);
+src/wingman2/pages/ComparePageNew.advanced.tsx:4167:  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+src/wingman2/pages/ComparePageNew.advanced.tsx:4172:    setStatus("loading");
+src/wingman2/pages/ComparePageNew.advanced.tsx:4178:      setStatus("done");
+src/wingman2/pages/ComparePageNew.advanced.tsx:4185:      setStatus("error");
+src/wingman2/pages/ComparePageNew.advanced.tsx:4201:        disabled={status === "loading"}
+src/wingman2/pages/ComparePageNew.advanced.tsx:4203:        {status === "loading" ? "Looking up..." : "Run live lookup"}
+src/wingman2/pages/ComparePageNew.advanced.tsx:4205:      {status === "error" ? <p className="compare-native-muted wm-ui-copy">{error}</p> : null}
+src/wingman2/pages/ComparePageNew.advanced.tsx:4206:      {status === "done" && result ? (
+src/wingman2/pages/ComparePageNew.advanced.tsx:4562:      const status =
+src/wingman2/pages/ComparePageNew.advanced.tsx:4568:        status,
+src/wingman2/pages/ComparePageNew.advanced.tsx:4731:              <span className="wm-ui-step-status">
+src/wingman2/pages/DashboardPage.tsx:4:import { StatusChip } from "../components/StatusChip";
+src/wingman2/pages/DashboardPage.tsx:6:import type { StatusVariant } from "../types";
+src/wingman2/pages/DashboardPage.tsx:131:  status: StatusVariant;
+src/wingman2/pages/DashboardPage.tsx:186:    status: "recommended",
+src/wingman2/pages/DashboardPage.tsx:196:    status: "alternative",
+src/wingman2/pages/DashboardPage.tsx:206:    status: "recommended",
+src/wingman2/pages/DashboardPage.tsx:221:const STATUS_LABEL: Record<StatusVariant, string> = {
+src/wingman2/pages/DashboardPage.tsx:289:          <span className="wm-badge">Pick up where you left off</span>
+src/wingman2/pages/DashboardPage.tsx:295:            <StatusChip label={STATUS_LABEL[resume.status]} variant={resume.status} />
+src/wingman2/pages/DashboardPage.tsx:310:              <span className="wm-badge">Primary destinations</span>
+src/wingman2/pages/DashboardPage.tsx:337:              <span className="wm-badge">Work in progress</span>
+src/wingman2/pages/DashboardPage.tsx:354:                  <StatusChip label={STATUS_LABEL[project.status]} variant={project.status} />
+src/wingman2/pages/DiscoveryPage.tsx:1487:      quoteSafetyStatus: recommendationEvidence.quoteSafetyStatus,
+src/wingman2/pages/FinderPage.tsx:42:type MatchStatus = "recommended" | "alternative" | "caution";
+src/wingman2/pages/FinderPage.tsx:114:  status: MatchStatus;
+src/wingman2/pages/FinderPage.tsx:122:  status: MatchStatus;
+src/wingman2/pages/FinderPage.tsx:1096:    status: "caution",
+src/wingman2/pages/FinderPage.tsx:1123:    status: "caution",
+src/wingman2/pages/FinderPage.tsx:1131:    status: "recommended",
+src/wingman2/pages/FinderPage.tsx:2203:    status: "caution",
+src/wingman2/pages/FinderPage.tsx:2226:    status: strictMatch && score >= 72 ? "recommended" : score >= 52 ? "alternative" : "caution",
+src/wingman2/pages/FinderPage.tsx:2519:      status: "caution",
+src/wingman2/pages/FinderPage.tsx:2592:  const status: MatchStatus = finalScore >= 72 ? "recommended" : finalScore >= 42 ? "alternative" : "caution";
+src/wingman2/pages/FinderPage.tsx:2597:    status,
+src/wingman2/pages/FinderPage.tsx:2697:    status: "status" in product ? product.status : "alternative",
+src/wingman2/pages/FinderPage.tsx:2730:    status: "status" in product ? product.status : "alternative",
+src/wingman2/pages/FinderPage.tsx:2853:function StatusPill({ status }: { status: MatchStatus }) {
+src/wingman2/pages/FinderPage.tsx:2854:  const label = status === "recommended" ? "Recommended" : status === "alternative" ? "Alternative" : "Check fit";
+src/wingman2/pages/FinderPage.tsx:2856:    status === "recommended"
+src/wingman2/pages/FinderPage.tsx:2858:      : status === "alternative"
+src/wingman2/pages/FinderPage.tsx:3690:                                        <StatusPill status={match.status} />
+src/wingman2/pages/GlossaryPage.tsx:49:  const [copyStatus, setCopyStatus] = useState("");
+src/wingman2/pages/GlossaryPage.tsx:108:      setCopyStatus("Copied customer-safe wording.");
+src/wingman2/pages/GlossaryPage.tsx:109:      window.setTimeout(() => setCopyStatus(""), 1800);
+src/wingman2/pages/GlossaryPage.tsx:111:      setCopyStatus("Copy unavailable in this browser.");
+src/wingman2/pages/GlossaryPage.tsx:239:              {copyStatus ? <span role="status">{copyStatus}</span> : null}
+src/wingman2/pages/IntelligencePage.tsx:7:  type IntelligenceReviewStatus,
+src/wingman2/pages/IntelligencePage.tsx:10:const STATUS_LABELS: Record<IntelligenceReviewStatus, string> = {
+src/wingman2/pages/IntelligencePage.tsx:17:const STATUS_COLORS: Record<IntelligenceReviewStatus, string> = {
+src/wingman2/pages/IntelligencePage.tsx:18:  draft: "wm-status-draft",
+src/wingman2/pages/IntelligencePage.tsx:19:  "needs-review": "wm-status-needs-review",
+src/wingman2/pages/IntelligencePage.tsx:20:  approved: "wm-status-approved",
+src/wingman2/pages/IntelligencePage.tsx:21:  rejected: "wm-status-rejected",
+src/wingman2/pages/IntelligencePage.tsx:32:        <span className={`wm-intelligence-status ${STATUS_COLORS[record.reviewStatus]}`}>
+src/wingman2/pages/IntelligencePage.tsx:33:          {STATUS_LABELS[record.reviewStatus]}
+src/wingman2/pages/IntelligencePage.tsx:73:  const [filterStatus, setFilterStatus] = useState<IntelligenceReviewStatus | "all">("all");
+src/wingman2/pages/IntelligencePage.tsx:78:    if (filterStatus !== "all" && record.reviewStatus !== filterStatus) return false;
+src/wingman2/pages/IntelligencePage.tsx:137:          <label htmlFor="filter-status">Status:</label>
+src/wingman2/pages/IntelligencePage.tsx:139:            id="filter-status"
+src/wingman2/pages/IntelligencePage.tsx:140:            value={filterStatus}
+src/wingman2/pages/IntelligencePage.tsx:141:            onChange={(e) => setFilterStatus(e.target.value as IntelligenceReviewStatus | "all")}
+src/wingman2/pages/ProductCallCardsPage.tsx:105:  officialCopyStatus?: string;
+src/wingman2/pages/ProductCallCardsPage.tsx:1495:        .wm-pcc-status {
+src/wingman2/pages/ProductCallCardsPage.tsx:2274:          <div className="wm-pcc-status">
+src/wingman2/pages/ProductFamilyPage.tsx:862:                  <span className="wm-product-family-rule-badge">{index + 1}</span>
+src/wingman2/pages/ProductPitchPage.tsx:837:            lifecycle.status === "discontinued" ||
+src/wingman2/pages/ProductPitchPage.tsx:838:            lifecycle.status === "do-not-spec" ||
+src/wingman2/pages/ProductPitchPage.tsx:839:            lifecycle.status === "cable"
+src/wingman2/pages/ProductPitchPage.tsx:849:              lifecycle.status === "discontinued" ||
+src/wingman2/pages/ProductPitchPage.tsx:850:              lifecycle.status === "do-not-spec" ||
+src/wingman2/pages/ProductPitchPage.tsx:851:              lifecycle.status === "cable"
+src/wingman2/pages/ProductPitchPage.tsx:862:                : lifecycle.status === "discontinued"
+src/wingman2/pages/ProductPitchPage.tsx:864:                  : lifecycle.status === "do-not-spec"
+src/wingman2/pages/ProductPitchPage.tsx:866:                    : lifecycle.status === "cable"
+src/wingman2/pages/ProfilePage.tsx:14:import { StatusChip } from "../components/StatusChip";
+src/wingman2/pages/ProfilePage.tsx:117:  const [status, setStatus] = useState("Local settings ready.");
+src/wingman2/pages/ProfilePage.tsx:128:          setStatus(`Signed in as ${response.session.user.email || response.session.user.name || "Wingman user"}.`);
+src/wingman2/pages/ProfilePage.tsx:150:    setStatus(`Saved locally at ${new Date().toLocaleTimeString()}.`);
+src/wingman2/pages/ProfilePage.tsx:165:    setStatus("Local profile reset.");
+src/wingman2/pages/ProfilePage.tsx:183:      setStatus(`Logo loaded locally: ${file.name}`);
+src/wingman2/pages/ProfilePage.tsx:191:    setStatus("Logo removed.");
+src/wingman2/pages/ProfilePage.tsx:200:      setStatus(`${action}. Workspace projects are now synchronised.`);
+src/wingman2/pages/ProfilePage.tsx:204:    setStatus(`${action}. Project sync is disabled for this build, so projects remain in this browser.`);
+src/wingman2/pages/ProfilePage.tsx:209:      setStatus("Enter your workspace email and password.");
+src/wingman2/pages/ProfilePage.tsx:222:      setStatus(error instanceof Error ? error.message : "Sign in failed.");
+src/wingman2/pages/ProfilePage.tsx:234:      setStatus("Enter your name, company, workspace email and a password of at least 10 characters.");
+src/wingman2/pages/ProfilePage.tsx:250:      setStatus(error instanceof Error ? error.message : "Workspace creation failed.");
+src/wingman2/pages/ProfilePage.tsx:262:      setStatus("Signed out. Projects remain available in this browser.");
+src/wingman2/pages/ProfilePage.tsx:264:      setStatus(error instanceof Error ? error.message : "Sign out failed.");
+src/wingman2/pages/ProfilePage.tsx:292:      <div className="wm-output-panel wm-profile-status-strip">
+src/wingman2/pages/ProfilePage.tsx:293:        <StatusChip label="Status" variant="ready" />
+src/wingman2/pages/ProfilePage.tsx:294:        <strong>{status}</strong>
+src/wingman2/pages/ProjectDetailPage.tsx:7:import { StatusChip } from "../components/StatusChip";
+src/wingman2/pages/ProjectDetailPage.tsx:13:  type StoredRequirementStatus,
+src/wingman2/pages/ProjectDetailPage.tsx:20:const statusOptions: StoredRequirementStatus[] = ["confirmed", "review", "unknown"];
+src/wingman2/pages/ProjectDetailPage.tsx:22:function statusLabel(status: StoredRequirementStatus) {
+src/wingman2/pages/ProjectDetailPage.tsx:23:  if (status === "confirmed") return "Confirmed";
+src/wingman2/pages/ProjectDetailPage.tsx:24:  if (status === "unknown") return "Unknown";
+src/wingman2/pages/ProjectDetailPage.tsx:28:function projectStatusLabel(status: StoredProject["status"]) {
+src/wingman2/pages/ProjectDetailPage.tsx:29:  if (status === "recommended") return "On track";
+src/wingman2/pages/ProjectDetailPage.tsx:30:  if (status === "alternative") return "In progress";
+src/wingman2/pages/ProjectDetailPage.tsx:93:  status: string;
+src/wingman2/pages/ProjectDetailPage.tsx:100:  status: "Do not quote yet" | "Validate before proposal" | "Proposal-ready draft";
+src/wingman2/pages/ProjectDetailPage.tsx:126:  const { projects, syncStatus } = useProjectStore();
+src/wingman2/pages/ProjectDetailPage.tsx:177:      .filter((requirement) => requirement.status === "unknown" || requirement.status === "review")
+src/wingman2/pages/ProjectDetailPage.tsx:250:        status:
+src/wingman2/pages/ProjectDetailPage.tsx:268:        status:
+src/wingman2/pages/ProjectDetailPage.tsx:269:          recommendationEvidence.quoteSafetyStatus === "quote-ready"
+src/wingman2/pages/ProjectDetailPage.tsx:271:            : recommendationEvidence.quoteSafetyStatus === "validate-before-quote"
+src/wingman2/pages/ProjectDetailPage.tsx:288:        status: product.status === "recommended" ? "Recommended" : product.status || "Selected",
+src/wingman2/pages/ProjectDetailPage.tsx:305:        status: compareRun.confidence || compareRun.matchType || "Comparison saved",
+src/wingman2/pages/ProjectDetailPage.tsx:321:        status: `${project.ingest.files.length} file${project.ingest.files.length === 1 ? "" : "s"} analysed`,
+src/wingman2/pages/ProjectDetailPage.tsx:336:        status:
+src/wingman2/pages/ProjectDetailPage.tsx:354:    const unknownRequirementCount = requirements.filter((requirement) => requirement.status === "unknown").length;
+src/wingman2/pages/ProjectDetailPage.tsx:355:    const reviewRequirementCount = requirements.filter((requirement) => requirement.status === "review").length;
+src/wingman2/pages/ProjectDetailPage.tsx:359:    const quoteSafetyStatus = projectField(recommendationEvidence, "quoteSafetyStatus");
+src/wingman2/pages/ProjectDetailPage.tsx:369:      quoteSafetyStatus === "do-not-quote-yet" ? "Recommendation evidence is marked do not quote." : null,
+src/wingman2/pages/ProjectDetailPage.tsx:374:        status: "Do not quote yet",
+src/wingman2/pages/ProjectDetailPage.tsx:383:    if (quoteSafetyStatus === "validate-before-quote" || reviewRequirementCount > 0 || (proposalScore !== null && proposalScore < 80)) {
+src/wingman2/pages/ProjectDetailPage.tsx:385:        status: "Validate before proposal",
+src/wingman2/pages/ProjectDetailPage.tsx:389:          quoteSafetyStatus === "validate-before-quote" ? "Recommendation evidence asks for validation before quote." : null,
+src/wingman2/pages/ProjectDetailPage.tsx:399:      status: "Proposal-ready draft",
+src/wingman2/pages/ProjectDetailPage.tsx:480:              <p className="mt-2 font-black wm-ui-copy">{projectReadinessGate.status}</p>
+src/wingman2/pages/ProjectDetailPage.tsx:534:              <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Status</p>
+src/wingman2/pages/ProjectDetailPage.tsx:536:                <StatusChip
+src/wingman2/pages/ProjectDetailPage.tsx:537:                  label={projectStatusLabel(project.status)}
+src/wingman2/pages/ProjectDetailPage.tsx:538:                  variant={project.status}
+src/wingman2/pages/ProjectDetailPage.tsx:544:              <p className="mt-2 text-sm font-semibold text-[#edf6ff] wm-ui-copy">{syncStatus.message}</p>
+src/wingman2/pages/ProjectDetailPage.tsx:577:          subtitle="Single view of the live project record: discovery status, product direction, compare evidence, proposal readiness, missing information, and next workflow handoff."
+src/wingman2/pages/ProjectDetailPage.tsx:703:                <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Current status</p>
+src/wingman2/pages/ProjectDetailPage.tsx:704:                <p className="mt-2 text-2xl font-black text-[#edf6ff] wm-ui-copy">{projectReadinessGate.status}</p>
+src/wingman2/pages/ProjectDetailPage.tsx:745:                      <p className="text-sm font-semibold text-[#edf6ff] wm-ui-copy">{item.status}</p>
+src/wingman2/pages/ProjectDetailPage.tsx:790:                    <span className="text-xs font-black uppercase tracking-[0.14em] wm-ui-copy wm-ui-kicker">Status</span>
+src/wingman2/pages/ProjectDetailPage.tsx:792:                      value={requirement.status}
+src/wingman2/pages/ProjectDetailPage.tsx:794:                        updateRequirement(requirement.id, { status: event.target.value as StoredRequirementStatus })
+src/wingman2/pages/ProjectDetailPage.tsx:798:                      {statusOptions.map((status) => (
+src/wingman2/pages/ProjectDetailPage.tsx:799:                        <option key={status} value={status}>
+src/wingman2/pages/ProjectDetailPage.tsx:800:                          {statusLabel(status)}
+src/wingman2/pages/ProjectDetailPage.tsx:820:                  {recommendationEvidence.quoteSafetyStatus === "quote-ready"
+src/wingman2/pages/ProjectDetailPage.tsx:822:                    : recommendationEvidence.quoteSafetyStatus === "validate-before-quote"
+src/wingman2/pages/ProjectsPage.tsx:6:import { StatusChip, type StatusChipVariant } from "../components/StatusChip";
+src/wingman2/pages/ProjectsPage.tsx:7:import { setActiveProjectId, useProjectStore, type StoredProject, type StoredProjectSyncStatus } from "../data/projectStore";
+src/wingman2/pages/ProjectsPage.tsx:16:function projectStatusLabel(status: StoredProject["status"]) {
+src/wingman2/pages/ProjectsPage.tsx:17:  if (status === "recommended") return "On track";
+src/wingman2/pages/ProjectsPage.tsx:18:  if (status === "alternative") return "In progress";
+src/wingman2/pages/ProjectsPage.tsx:22:function syncStatusVariant(state: StoredProjectSyncStatus["state"]): StatusChipVariant {
+src/wingman2/pages/ProjectsPage.tsx:33:    syncStatus,
+src/wingman2/pages/ProjectsPage.tsx:60:              <StatusChip
+src/wingman2/pages/ProjectsPage.tsx:62:                variant={syncStatusVariant(syncStatus.state)}
+src/wingman2/pages/ProjectsPage.tsx:63:                label={syncStatus.message}
+src/wingman2/pages/ProjectsPage.tsx:64:                title={syncStatus.message}
+src/wingman2/pages/ProjectsPage.tsx:65:                icon={syncStatus.state === "synced" ? (
+src/wingman2/pages/ProjectsPage.tsx:67:                ) : syncStatus.state === "error" || syncStatus.state === "conflict" ? (
+src/wingman2/pages/ProjectsPage.tsx:91:                  <th className="px-5 py-4 font-bold">Status</th>
+src/wingman2/pages/ProjectsPage.tsx:104:                        <StatusChip
+src/wingman2/pages/ProjectsPage.tsx:105:                          label={projectStatusLabel(project.status)}
+src/wingman2/pages/ProjectsPage.tsx:106:                          variant={project.status}
+src/wingman2/pages/ProposalPage.tsx:209:        status: row.status,
+src/wingman2/pages/ProposalPage.tsx:299:        ...(context.recommendationEvidence?.quoteSafetyStatus === "do-not-quote-yet"
+src/wingman2/pages/ProposalPage.tsx:703:                    <p className="font-black wm-ui-copy">Quote safety: {context.recommendationEvidence.quoteSafetyStatus === "quote-ready" ? "Quote-ready draft" : context.recommendationEvidence.quoteSafetyStatus === "validate-before-quote" ? "Validate before quote" : "Do not quote yet"}</p>
+src/wingman2/pages/TemplateReviewPage.tsx:27:const includedStatuses = new Set(["included", "optional", "validate"]);
+src/wingman2/pages/TemplateReviewPage.tsx:100:    .filter((row) => includedStatuses.has(row.status) && row.qty > 0)
+src/wingman2/pages/TemplateReviewPage.tsx:108:      status: row.status,
+src/wingman2/pages/TemplateReviewPage.tsx:116:    .filter((row) => includedStatuses.has(row.status) && row.qty > 0)
+src/wingman2/pages/TemplateReviewPage.tsx:121:      status: row.type === "Required" ? "recommended" : "alternative",
+src/wingman2/pages/TemplateReviewPage.tsx:194:    status: "recommended",
+src/wingman2/pages/TemplateReviewPage.tsx:245:  const requiredCount = selectedRows.filter((row) => row.type === "Required" && includedStatuses.has(row.status)).length;
+src/wingman2/pages/TemplateReviewPage.tsx:246:  const optionalCount = selectedRows.filter((row) => row.type !== "Required" && includedStatuses.has(row.status)).length;
+src/wingman2/pages/TemplateReviewPage.tsx:257:              status:
+src/wingman2/pages/TemplateReviewPage.tsx:260:                  : row.status === "excluded"
+src/wingman2/pages/TemplateReviewPage.tsx:264:                    : row.status,
+src/wingman2/pages/TemplateReviewPage.tsx:276:        const nextStatus = row.status === "excluded" ? (row.type === "Required" ? "included" : row.type.toLowerCase()) : "excluded";
+src/wingman2/pages/TemplateReviewPage.tsx:280:          status: nextStatus,
+src/wingman2/pages/TemplateReviewPage.tsx:281:          qty: nextStatus === "excluded" ? 0 : Math.max(1, row.qty),
+src/wingman2/pages/TemplateReviewPage.tsx:451:                      const enabled = includedStatuses.has(row.status);
+src/wingman2/pages/TemplatesPage.tsx:66:              <span className="wm-badge">{template.vertical}</span>
+src/wingman2/pages/TemplatesPage.tsx:67:              <span className="wm-badge">{template.scale}</span>
+src/wingman2/pages/VideowallBuilderPage.tsx:699:      <div className="vw2-badge-row wm-ui-card">
+src/wingman2/pages/VideowallBuilderPage.tsx:700:        <span className="vw2-badge">{props.bundle.productFamily}</span>
+src/wingman2/pages/VideowallBuilderPage.tsx:701:        <span className="vw2-badge">{props.bundle.productTitle}</span>
+src/wingman2/pages/VideowallBuilderPage.tsx:962:            <span className="vw2-status">{recommendation.quoteSafety}</span>
+src/wingman2/pages/catalogBrowserLifecycle.test.ts:12:  it("overlays business-list status so discontinued SKUs are flagged even without a catalog override", () => {

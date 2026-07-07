@@ -11,6 +11,7 @@ import {
   projectBackendSyncEnabled,
   resetProjectBackendSyncSessionState,
 } from "../data/projectStore";
+import { StatusChip } from "../components/StatusChip";
 
 type ProfileSettings = {
   companyName: string;
@@ -289,7 +290,7 @@ export function ProfilePage() {
       </header>
 
       <div className="wm-output-panel wm-profile-status-strip">
-        <span>Status</span>
+        <StatusChip label="Status" variant="ready" />
         <strong>{status}</strong>
       </div>
 

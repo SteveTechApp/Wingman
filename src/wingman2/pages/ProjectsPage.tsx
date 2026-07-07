@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
-import { StatusChip } from "../components/StatusChip";
-import { setActiveProjectId, useProjectStore } from "../data/projectStore";
+import { StatusChip, type StatusChipVariant } from "../components/StatusChip";
+import { setActiveProjectId, useProjectStore, type StoredProject, type StoredProjectSyncStatus } from "../data/projectStore";
 
 const PROJECTS_PILL_BUTTON_CLASS =
   "rounded-full border border-[#29465e] bg-[#0d2133] px-4 py-2 text-xs font-bold text-[#edf6ff] transition";
@@ -12,6 +12,18 @@ const PROJECTS_ICON_BUTTON_CLASS =
   "inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-[#edf6ff] transition";
 const PROJECTS_DARK_BUTTON_CLASS = "rounded-full bg-slate-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-slate-800";
 const PROJECTS_DARK_BUTTON_XS_CLASS = "rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-slate-800";
+
+function projectStatusLabel(status: StoredProject["status"]) {
+  if (status === "recommended") return "On track";
+  if (status === "alternative") return "In progress";
+  return "Needs review";
+}
+
+function syncStatusVariant(state: StoredProjectSyncStatus["state"]): StatusChipVariant {
+  if (state === "synced") return "success";
+  if (state === "error" || state === "conflict") return "danger";
+  return "neutral";
+}
 
 export function ProjectsPage() {
   const {
@@ -45,25 +57,19 @@ export function ProjectsPage() {
           subtitle="Use this table to reopen active opportunities, copy useful examples, or remove stale project lines."
           rightSlot={
             <div className="flex flex-wrap items-center gap-3">
-              <div
-                className={`inline-flex max-w-xl items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold ${
-                  syncStatus.state === "synced"
-                    ? "border-[#29465e] bg-[#0d2133] text-emerald-800"
-                    : syncStatus.state === "error" || syncStatus.state === "conflict"
-                      ? "border-[#29465e] bg-[#0d2133] text-rose-800"
-                      : "border-[#29465e] bg-[#0d2133] text-[#edf6ff]"
-                }`}
+              <StatusChip
+                className="max-w-xl"
+                variant={syncStatusVariant(syncStatus.state)}
+                label={syncStatus.message}
                 title={syncStatus.message}
-              >
-                {syncStatus.state === "synced" ? (
+                icon={syncStatus.state === "synced" ? (
                   <Check className="h-4 w-4" />
                 ) : syncStatus.state === "error" || syncStatus.state === "conflict" ? (
                   <AlertTriangle className="h-4 w-4" />
                 ) : (
                   <Cloud className="h-4 w-4" />
                 )}
-                <span className="truncate">{syncStatus.message}</span>
-              </div>
+              />
               <button
                 type="button"
                 onClick={resetStore}
@@ -96,7 +102,7 @@ export function ProjectsPage() {
                       <td className="px-5 py-4 text-[#edf6ff]">{project.stage}</td>
                       <td className="px-5 py-4">
                         <StatusChip
-                          label={project.status === "recommended" ? "On track" : "Needs review"}
+                          label={projectStatusLabel(project.status)}
                           variant={project.status}
                         />
                       </td>
@@ -216,5 +222,3 @@ export function ProjectsPage() {
 }
 
 export default ProjectsPage;
-
-
