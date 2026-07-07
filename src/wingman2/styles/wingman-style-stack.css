@@ -3886,7 +3886,7 @@ html[data-wingman-route="dashboard"] .wm-dashboard-card-slate .wm-dashboard-card
   display: block;
   margin-top: 2px;
   overflow: hidden;
-  color: var(--wm-consistency-text)c7;
+  color: color-mix(in srgb, var(--wm-consistency-text) 78%, transparent);
   font-size: 0.76rem;
   font-weight: 700;
   text-overflow: ellipsis;
@@ -9218,7 +9218,7 @@ table {
   border-radius: 999px;
   padding: 0 9px;
   color: #334155;
-  background: var(--wm-consistency-text)d1;
+  background: color-mix(in srgb, var(--wm-consistency-text) 82%, transparent);
   font-size: 0.7rem;
   font-weight: 700;
 }
@@ -27696,7 +27696,7 @@ body .wm-pcc-preview .wm-pcc-section-tab-active.wm-pcc-section-tab span {
 
 .wm-product-family-rule-body {
   margin: 9px 0 0 !important;
-  color: var(--wm-consistency-text)d1 !important;
+  color: color-mix(in srgb, var(--wm-consistency-text) 82%, transparent) !important;
   font-size: 0.8rem !important;
   font-weight: 650 !important;
   line-height: 1.38 !important;
@@ -34038,7 +34038,7 @@ button[data-wingman-guru-launcher="true"],
   min-height: 1rem !important;
   pointer-events: none !important;
   background:
-    radial-gradient(circle at 50% 100%, var(--wm-consistency-accent, currentColor)12 0, transparent 36%),
+    radial-gradient(circle at 50% 100%, color-mix(in srgb, var(--wm-consistency-accent, currentColor) 7%, transparent) 0, transparent 36%),
     linear-gradient(180deg, transparent 0%, transparent 100%) !important;
 }
 
