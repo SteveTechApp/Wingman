@@ -158,4 +158,79 @@ describe("Wingman native schematic engine", () => {
     expect(schematic.connections.some((connection) => connection.label.includes("local source"))).toBe(true);
     expect(schematic.assumptions.some((assumption) => assumption.includes("Transport is shown generically"))).toBe(true);
   });
+
+  it("lets a single NHD-510-TX absorb two sources via its switchable HDMI + USB-C inputs, without a missing-encoder warning", () => {
+    const schematic = buildWingmanSchematic({
+      title: "BYOD room with dual-input encoder",
+      sources: [{ label: "HDMI laptop" }, { label: "USB-C laptop" }],
+      displays: [{ label: "Room display" }],
+      products: [
+        { sku: "NHD-510-TX" },
+        { sku: "NHD-500-RX" },
+      ],
+    });
+
+    const encoderNode = schematic.nodes.find((node) => node.sku === "NHD-510-TX");
+    expect(encoderNode).toBeDefined();
+    expect(encoderNode!.kind).toBe("av-over-ip-encoder");
+
+    const sourceIds = schematic.nodes.filter((node) => node.kind === "source").map((node) => node.id);
+    const videoConnectionsFromSources = schematic.connections.filter(
+      (connection) => sourceIds.includes(connection.from) && connection.signal === "video",
+    );
+    expect(videoConnectionsFromSources).toHaveLength(2);
+    // Both sources land on the same physical 510-TX - that's correct, not a bug.
+    expect(new Set(videoConnectionsFromSources.map((connection) => connection.to)).size).toBe(1);
+    expect(videoConnectionsFromSources.every((connection) => connection.to === encoderNode!.id)).toBe(true);
+
+    expect(schematic.warnings.some((warning) => warning.title === "Missing AV-over-IP encoder")).toBe(false);
+  });
+
+  it("classifies an NHD-600-TRX as a transceiver, not a plain encoder, and lets it serve as both encoder and decoder", () => {
+    const schematic = buildWingmanSchematic({
+      title: "Single-room TRX loop",
+      sources: [{ label: "Local source" }],
+      displays: [{ label: "Local display" }],
+      products: [{ sku: "NHD-600-TRX" }],
+    });
+
+    const trxNode = schematic.nodes.find((node) => node.sku === "NHD-600-TRX");
+    expect(trxNode).toBeDefined();
+    expect(trxNode!.kind).toBe("av-over-ip-transceiver");
+
+    const sourceId = schematic.nodes.find((node) => node.kind === "source")!.id;
+    const displayId = schematic.nodes.find((node) => node.kind === "display")!.id;
+
+    const intoTrx = schematic.connections.find((connection) => connection.from === sourceId && connection.signal === "video");
+    expect(intoTrx?.to).toBe(trxNode!.id);
+
+    const outOfTrx = schematic.connections.find((connection) => connection.to === displayId && connection.signal === "video");
+    expect(outOfTrx?.from).toBe(trxNode!.id);
+
+    // The transceiver still joins the shared AV network, same as a plain encoder/decoder would.
+    expect(schematic.connections.some((connection) => connection.from === trxNode!.id && connection.signal === "network")).toBe(true);
+
+    expect(schematic.warnings.some((warning) => warning.severity === "blocker")).toBe(false);
+  });
+
+  it("still warns when a second source has no encoder input, even with a 510-TX in the room", () => {
+    const schematic = buildWingmanSchematic({
+      title: "Under-specced dual-input room",
+      sources: [{ label: "HDMI laptop" }, { label: "USB-C laptop" }, { label: "Third source" }],
+      displays: [{ label: "Room display" }],
+      products: [
+        { sku: "NHD-510-TX" },
+        { sku: "NHD-500-RX" },
+      ],
+    });
+
+    expect(schematic.warnings.some((warning) => warning.severity === "blocker" && warning.title === "Missing AV-over-IP encoder")).toBe(true);
+
+    const sourceIds = schematic.nodes.filter((node) => node.kind === "source").map((node) => node.id);
+    const videoConnectionsFromSources = schematic.connections.filter(
+      (connection) => sourceIds.includes(connection.from) && connection.signal === "video",
+    );
+    // Exactly two of the three sources got the 510-TX's two slots.
+    expect(videoConnectionsFromSources).toHaveLength(2);
+  });
 });

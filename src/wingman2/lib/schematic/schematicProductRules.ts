@@ -42,6 +42,16 @@ export function productNodeKind(product: SchematicProductBrief): SchematicNodeKi
     return "av-over-ip-controller";
   }
 
+  // Must be checked before the plain -TX/-T check below: "NHD-600-TRX"
+  // contains "-T" as a substring, so without this it silently classified as
+  // a plain encoder and lost its local decode/display capability entirely.
+  // A transceiver (TRX) transmits its local HDMI input AND can drive its
+  // local HDMI output from any encoder on the network, simultaneously or as
+  // a dedicated TX/RX - see schematicEndpointCapacity().
+  if (sku.includes("-TRX") && isNetworkHdSku(sku)) {
+    return "av-over-ip-transceiver";
+  }
+
   if (sku.includes("-TX") || sku.includes("-T")) {
     if (isNetworkHdSku(sku)) {
       return "av-over-ip-encoder";
@@ -83,6 +93,52 @@ export function productNodeKind(product: SchematicProductBrief): SchematicNodeKi
   }
 
   return "accessory";
+}
+
+export interface SchematicEndpointCapacity {
+  /** How many independent local sources this one physical device can accept. */
+  localInputs: number;
+  /** How many independent local displays this one physical device can drive. */
+  localOutputs: number;
+  /** Connector types of each local input slot, in order - only set when localInputs > 1 and the ports differ. */
+  inputConnectorTypes?: string[];
+}
+
+/**
+ * Most NetworkHD endpoints are single-port: one encoder takes exactly one
+ * local source, one decoder drives exactly one local display - see the
+ * topology comment in wingmanSchematicEngine.ts for why that matters. A few
+ * specific models are genuine exceptions with more than one physical port on
+ * one box, and treating them as single-port would wrongly demand an extra
+ * device (or, worse, silently share a port that doesn't exist):
+ *
+ * - NHD-510-TX: one encoder, but two switchable local inputs (HDMI + USB-C)
+ *   that auto-switch in under a second - it legitimately serves two
+ *   independent local sources on its own.
+ * - Any NetworkHD transceiver (TRX): transmits its local HDMI input AND can
+ *   drive its local HDMI output from any encoder on the network - one box,
+ *   one source-side slot and one display-side slot.
+ */
+export function schematicEndpointCapacity(product: SchematicProductBrief, kind: SchematicNodeKind): SchematicEndpointCapacity {
+  const sku = normaliseSku(product.sku);
+
+  if (sku === "NHD-510-TX") {
+    return { localInputs: 2, localOutputs: 0, inputConnectorTypes: ["hdmi", "usb-c"] };
+  }
+
+  if (kind === "av-over-ip-transceiver") {
+    return { localInputs: 1, localOutputs: 1 };
+  }
+
+  if (kind === "av-over-ip-encoder") {
+    return { localInputs: 1, localOutputs: 0 };
+  }
+
+  if (kind === "av-over-ip-decoder") {
+    return { localInputs: 0, localOutputs: 1 };
+  }
+
+  return { localInputs: 0, localOutputs: 0 };
 }
 
 export function defaultTransportForDistance(distanceM: number | undefined): SchematicTransportKind {

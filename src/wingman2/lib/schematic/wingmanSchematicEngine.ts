@@ -20,6 +20,7 @@ import {
   productNodeKind,
   proposalSafeSourceLabel,
   requiresNetworkHdController,
+  schematicEndpointCapacity,
 } from "./schematicProductRules";
 
 type DraftConnection = Omit<SchematicConnection, "points">;
@@ -156,27 +157,35 @@ export function buildWingmanSchematic(brief: SchematicProjectBrief): SchematicMo
 
   // A matrix/switcher/video-wall-processor node genuinely has multiple physical
   // input and output ports built into one box, so every source/display sharing
-  // that single node is correct. An AV-over-IP encoder or decoder is a
+  // that single node is correct. A plain AV-over-IP encoder or decoder is a
   // single-port endpoint device - it has exactly one local HDMI in (encoder) or
-  // out (decoder) - so every source needs its own encoder and every display
-  // needs its own decoder. Wiring every source/display to one shared encoder
-  // node (as the pre-fix version of this function did) draws a topology no
-  // real installer would build: two independent HDMI sources cannot both plug
-  // into the same encoder's single HDMI input.
-  const encoderNodes = productNodes.filter((node) => node.kind === "av-over-ip-encoder");
-  const decoderNodes = productNodes.filter((node) => node.kind === "av-over-ip-decoder");
-  const hasConfirmedAvoipEndpoints = usesAvoip && (encoderNodes.length > 0 || decoderNodes.length > 0);
+  // out (decoder) - so every source normally needs its own encoder and every
+  // display needs its own decoder. Wiring every source/display to one shared
+  // encoder node (as the pre-fix version of this function did) draws a
+  // topology no real installer would build: two independent HDMI sources
+  // cannot both plug into the same encoder's single HDMI input.
+  //
+  // A few specific NetworkHD models are genuine exceptions with more than one
+  // physical port on one box (NHD-510-TX's switchable HDMI+USB-C inputs, any
+  // transceiver's simultaneous local in+out) - schematicEndpointCapacity()
+  // says how many source/display slots each product node actually offers, and
+  // buildEndpointSlots() expands that into one slot per real port so a single
+  // 510-TX or TRX unit can legitimately absorb more than one connection
+  // without a warning, while a plain single-port encoder still can't.
+  const encoderInputSlots = buildEndpointSlots(productNodes, "localInputs");
+  const decoderOutputSlots = buildEndpointSlots(productNodes, "localOutputs");
+  const hasConfirmedAvoipEndpoints = usesAvoip && (encoderInputSlots.length > 0 || decoderOutputSlots.length > 0);
 
   if (hasConfirmedAvoipEndpoints) {
     sourceNodes.forEach((source, index) => {
-      const encoder = encoderNodes[index];
-      if (encoder) {
-        connections.push(makeConnection(source, encoder, "video", "hdmi", `${proposalSafeSourceLabel(source.label)} to encoder`));
+      const slot = encoderInputSlots[index];
+      if (slot) {
+        connections.push(makeConnection(source, slot.node, "video", "hdmi", `${proposalSafeSourceLabel(source.label)} to encoder`));
       } else {
         warnings.push({
           severity: "blocker",
           title: "Missing AV-over-IP encoder",
-          message: `"${source.label}" has no dedicated NetworkHD encoder in the product list. Every source needs its own encoder - add one before quoting.`,
+          message: `"${source.label}" has no dedicated NetworkHD encoder input in the product list. Every source needs its own encoder input - add one before quoting.`,
         });
       }
     });
@@ -192,14 +201,14 @@ export function buildWingmanSchematic(brief: SchematicProjectBrief): SchematicMo
 
   if (hasConfirmedAvoipEndpoints) {
     displayNodes.forEach((display, index) => {
-      const decoder = decoderNodes[index];
-      if (decoder) {
-        connections.push(makeConnection(decoder, display, "video", "hdmi", "Decoder to display"));
+      const slot = decoderOutputSlots[index];
+      if (slot) {
+        connections.push(makeConnection(slot.node, display, "video", "hdmi", "Decoder to display"));
       } else {
         warnings.push({
           severity: "blocker",
           title: "Missing AV-over-IP decoder",
-          message: `"${display.label}" has no dedicated NetworkHD decoder in the product list. Every display needs its own decoder - add one before quoting.`,
+          message: `"${display.label}" has no dedicated NetworkHD decoder output in the product list. Every display needs its own decoder output - add one before quoting.`,
         });
       }
     });
@@ -368,6 +377,38 @@ function chooseSwitchingNode(
     ?? productNodes.find((node) => node.kind === "video-wall-processor");
 }
 
+interface EndpointSlot {
+  node: SchematicNode;
+  slotIndex: number;
+  connectorType?: string;
+}
+
+/**
+ * Expands each product node into one slot per physical port it actually has
+ * (per schematicEndpointCapacity()), so a single NHD-510-TX contributes two
+ * source-side slots and a transceiver contributes one source-side slot and
+ * one display-side slot, instead of every product node being assumed to have
+ * exactly one port.
+ */
+function buildEndpointSlots(productNodes: SchematicNode[], direction: "localInputs" | "localOutputs"): EndpointSlot[] {
+  const slots: EndpointSlot[] = [];
+
+  for (const node of productNodes) {
+    const capacity = schematicEndpointCapacity({ sku: node.sku ?? "" }, node.kind);
+    const count = direction === "localInputs" ? capacity.localInputs : capacity.localOutputs;
+
+    for (let slotIndex = 0; slotIndex < count; slotIndex += 1) {
+      slots.push({
+        node,
+        slotIndex,
+        connectorType: direction === "localInputs" ? capacity.inputConnectorTypes?.[slotIndex] : undefined,
+      });
+    }
+  }
+
+  return slots;
+}
+
 function wireAvoipNetwork(nodes: SchematicNode[], connections: DraftConnection[]) {
   const network = nodes.find((node) => node.kind === "network-switch");
   if (!network) {
@@ -378,6 +419,7 @@ function wireAvoipNetwork(nodes: SchematicNode[], connections: DraftConnection[]
     if (
       node.kind === "av-over-ip-encoder"
       || node.kind === "av-over-ip-decoder"
+      || node.kind === "av-over-ip-transceiver"
       || node.kind === "av-over-ip-controller"
     ) {
       connections.push(makeConnection(node, network, "network", "network", "AV network"));
