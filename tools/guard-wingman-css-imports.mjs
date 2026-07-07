@@ -9,10 +9,7 @@ const allowed = new Set([
   "src/main.tsx"
 ]);
 
-const expectedMainCssImports = [
-  "./wingman2/styles/wingman-style-stack.css",
-  "./wingman2/styles/wingman-redesign-theme.css",
-];
+const expectedMainCssImports = ["./wingman2/styles/wingman-style-stack.css"];
 const retiredPageStyleFiles = [
   "discovery-output-preview.css",
   "product-pitch-safe-layout.css",
@@ -93,7 +90,7 @@ if (
   mainCssImports.length !== expectedMainCssImports.length
   || mainCssImports.some((cssImport, index) => cssImport !== expectedMainCssImports[index])
 ) {
-  console.error("Blocked: src/main.tsx must import the style stack followed by the redesign theme.");
+  console.error("Blocked: src/main.tsx must import only the consolidated Wingman style stack.");
   console.error(`Found: ${mainCssImports.length ? mainCssImports.join(", ") : "none"}`);
   process.exit(1);
 }
@@ -122,4 +119,4 @@ if (retiredFilesStillPresent.length > 0) {
   process.exit(1);
 }
 
-console.log("CSS import guard passed. Only main.tsx imports the Wingman style stack and redesign theme.");
+console.log("CSS import guard passed. Only main.tsx imports the consolidated Wingman style stack.");

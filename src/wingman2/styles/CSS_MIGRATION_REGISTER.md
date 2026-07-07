@@ -2,17 +2,16 @@
 
 ## Current rule
 
-The app uses one consolidated style stack plus one app-wide redesign layer:
+The app uses one consolidated style stack:
 
 - `wingman-style-stack.css`
-- `wingman-redesign-theme.css`, imported immediately after the stack
 
 The retired split stylesheets and legacy override folders have been archived out of the repo. Do not reintroduce page-level CSS imports.
 
 ## Current Rule
 
-1. `src/main.tsx` imports the style stack followed by the redesign theme.
-2. New app-wide layout, route, card, button, and form rules go into `wingman-style-stack.css`; visual-system overrides belong in `wingman-redesign-theme.css`.
+1. `src/main.tsx` imports only the consolidated style stack.
+2. New app-wide layout, route, card, button, form and visual-system rules go into `wingman-style-stack.css`.
 3. Page files must not import CSS directly.
 4. Prefer shared layout components before adding new selectors.
 5. Retire stale selectors after the page has been migrated and verified.
@@ -60,7 +59,7 @@ Required visual target:
 - cards and panels use dark navy surfaces;
 - buttons are clean rectangular controls, not heavy orange pills;
 - page-level CSS imports remain banned;
-- visual-system overrides live in `wingman-redesign-theme.css`;
+- visual-system rules live in the consolidated `wingman-style-stack.css`;
 - `check:style-drift-baseline` fails if hard-coded colour, inline style, arbitrary Tailwind, page-specific CSS, or legacy pill drift increases.
 
 Migration order remains:
@@ -74,20 +73,18 @@ Migration order remains:
 
 ## Page markup migration pass
 
-Affected pages now use shared `wm-ui-*` classes directly in page markup rather than relying only on late CSS overrides.
+Affected pages now use shared `wm-*` / compatibility `wm-ui-*` classes directly in page markup rather than relying only on late CSS overrides.
 
 Required shared primitives:
 
-- `wm-ui-page` for page roots;
-- `wm-ui-hero` for primary page hero panels;
-- `wm-ui-section` for major content groups;
-- `wm-ui-card` for panels, options, results, tiles and cards;
-- `wm-ui-card-header` for card and section header rows;
-- `wm-ui-title` for page, section and card headings;
-- `wm-ui-copy` for explanatory text;
-- `wm-ui-kicker` for eyebrow labels;
-- `wm-ui-button` plus primary/secondary button variants;
-- `wm-ui-input` for inputs, selects and textareas.
+- `wm-page` for page roots;
+- `wm-page-header` / `wm-page-hero` for page headers;
+- `wm-section` / `wm-section-card` for major content groups;
+- `wm-card` / `wm-action-card` for panels, options, results, tiles and cards;
+- `wm-button` plus primary/secondary/ghost button variants;
+- `wm-form-grid`, `wm-field`, `wm-input`, `wm-select` and `wm-textarea` for forms;
+- `wm-output-panel` for generated output/result panels;
+- `wm-badge` and `wm-status` only for genuine state/meta labels.
 
 `check:page-markup-migration` must pass before merge. The check is deliberately structural: it confirms the affected page files contain shared visual primitives, not just page-specific selectors.
 
