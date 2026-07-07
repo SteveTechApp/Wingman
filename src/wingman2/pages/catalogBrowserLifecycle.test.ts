@@ -38,4 +38,15 @@ describe("catalogue browser lifecycle filtering", () => {
     const state = { ...createDefaultCatalogFilterState(), excludeEolSoon: false, search: "CAM-200-PTZ" };
     expect(has(selectCatalogResults(catalog, state), "CAM-200-PTZ")).toBe(true);
   });
+
+  it("suppresses a SKU the admin has manually blocked, even one otherwise unsuppressed", () => {
+    // SW-740-TX is not in the real catalogue index at all (it's an invalid/stale
+    // SKU string, per its admin note) - build a synthetic product carrying an
+    // otherwise-clean lifecycle to isolate the admin-override behaviour itself.
+    const base = catalog.find((product) => !product.lifecycle.excludeFromNewRecommendations);
+    expect(base, "at least one non-suppressed catalog product exists as a base").toBeTruthy();
+
+    const blocked = withBusinessLifecycle({ ...base!, sku: "SW-740-TX" });
+    expect(blocked.lifecycle.excludeFromNewRecommendations).toBe(true);
+  });
 });

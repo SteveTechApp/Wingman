@@ -53,14 +53,18 @@
   --wm-orange-soft: rgba(99, 243, 255, 0.12);
   --wm-orange-border: rgba(99, 243, 255, 0.32);
 
-  --wm-radius-sm: 8px;
-  --wm-radius-md: 10px;
-  --wm-radius-lg: 12px;
-  --wm-radius-xl: 14px;
-  --wm-radius-2xl: 16px;
+  --wm-radius-sm: 10px;
+  --wm-radius-md: 12px;
+  --wm-radius-lg: 16px;
+  --wm-radius-xl: 18px;
+  --wm-radius-2xl: 22px;
 
-  --wm-shadow-panel: 0 14px 34px rgba(0, 0, 0, 0.34);
-  --wm-shadow-card: 0 10px 24px rgba(0, 0, 0, 0.26);
+  --wm-shadow-panel:
+    0 24px 64px color-mix(in srgb, var(--wm-bg-0) 74%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--wm-text) 7%, transparent);
+  --wm-shadow-card:
+    0 14px 34px color-mix(in srgb, var(--wm-bg-0) 62%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--wm-text) 5%, transparent);
 
   --wm-weight-body: 450;
   --wm-weight-ui: 600;
@@ -133,13 +137,18 @@ body,
   color: var(--wm-text) !important;
 }
 
+body {
+  line-height: 1.55;
+}
+
 .wingman-app-main {
-  padding: clamp(0.75rem, 1.6vw, 1.25rem) !important;
+  padding: clamp(1rem, 1.8vw, 1.75rem) !important;
 }
 
 .wingman-page-host {
   color: var(--wm-text) !important;
   max-width: 100% !important;
+  line-height: 1.55;
 }
 
 /* Sidebar */
@@ -195,7 +204,7 @@ body,
   min-height: 56px !important;
   background: rgba(7, 17, 29, 0.96) !important;
   border-bottom: 1px solid var(--wm-border-dark) !important;
-  box-shadow: none !important;
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--wm-bg-0) 55%, transparent) !important;
   backdrop-filter: blur(10px);
 }
 
@@ -315,7 +324,13 @@ body,
 .wingman-page-host [class*="panel"] {
   border-color: var(--wm-border-light) !important;
   border-radius: var(--wm-radius-xl) !important;
-  background: linear-gradient(180deg, rgba(15, 32, 48, 0.96), rgba(10, 23, 36, 0.96)) !important;
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--wm-aqua) 7%, transparent), transparent 60%),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--wm-card-soft) 82%, var(--wm-bg-1)),
+      color-mix(in srgb, var(--wm-card) 82%, var(--wm-bg-0))
+    ) !important;
   box-shadow: var(--wm-shadow-card) !important;
   color: var(--wm-text) !important;
 }
@@ -324,8 +339,15 @@ body,
 .compare-native-section-title,
 .wingman-page-host [class*="card-header"],
 .wingman-page-host [class*="section-title"] {
+  display: grid !important;
+  min-height: 96px;
+  align-content: center !important;
+  justify-items: center !important;
+  gap: 0.4rem;
+  padding: clamp(1rem, 1.4vw, 1.35rem) !important;
   border-color: var(--wm-border-dark) !important;
   color: var(--wm-text) !important;
+  text-align: center !important;
 }
 
 /* Override common arbitrary Tailwind background utilities used as page panels. */
@@ -353,13 +375,25 @@ body,
 .compare-native-chip,
 .wingman-page-host button,
 .wingman-page-host a[role="button"] {
+  display: inline-flex !important;
+  min-height: 44px;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.68rem 1rem !important;
   border-radius: 10px !important;
   border: 1px solid rgba(99, 243, 255, 0.24) !important;
   background: rgba(99, 243, 255, 0.09) !important;
   color: var(--wm-text) !important;
   box-shadow: none !important;
   font-weight: 650 !important;
+  line-height: 1.25 !important;
+  text-align: center !important;
   text-decoration: none !important;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease !important;
 }
 
 .wingman-page-host button:hover,
@@ -369,6 +403,7 @@ body,
   border-color: rgba(99, 243, 255, 0.48) !important;
   background: rgba(99, 243, 255, 0.15) !important;
   color: #ffffff !important;
+  transform: translateY(-1px);
 }
 
 .wm-ui-button-primary,
@@ -378,6 +413,7 @@ body,
   border-color: rgba(99, 243, 255, 0.55) !important;
   background: linear-gradient(135deg, #63f3ff, #3eb6d6) !important;
   color: #03121c !important;
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--wm-aqua) 24%, transparent) !important;
 }
 
 .wm-ui-button-secondary,
@@ -393,6 +429,10 @@ body,
   border-color: rgba(99, 243, 255, 0.62) !important;
   background: rgba(99, 243, 255, 0.17) !important;
   color: var(--wm-heading) !important;
+  box-shadow:
+    var(--wm-shadow-card),
+    0 0 0 2px color-mix(in srgb, var(--wm-aqua) 16%, transparent) !important;
+  transform: translateY(-2px);
 }
 
 .compare-native-stage-card[disabled],
@@ -420,11 +460,14 @@ body,
 .wingman-page-host input,
 .wingman-page-host select,
 .wingman-page-host textarea {
+  min-height: 46px;
+  padding: 0.72rem 0.85rem !important;
   border: 1px solid rgba(127, 216, 230, 0.24) !important;
   border-radius: 10px !important;
   background: rgba(3, 12, 22, 0.72) !important;
   color: var(--wm-text) !important;
   box-shadow: none !important;
+  line-height: 1.45;
 }
 
 .wingman-page-host input::placeholder,
@@ -446,42 +489,63 @@ body,
 
 .compare-native-page {
   display: grid !important;
-  gap: 1rem !important;
+  gap: 1.25rem !important;
 }
 
 .compare-native-stage-rail {
   display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 0.75rem !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0.9rem !important;
+  padding: 0.9rem !important;
 }
 
 .compare-native-stage-card {
-  min-height: 74px !important;
-  padding: 0.9rem !important;
-  text-align: left !important;
+  min-height: 112px !important;
+  align-content: center !important;
+  justify-items: center !important;
+  gap: 0.45rem !important;
+  padding: 1.15rem !important;
+  text-align: center !important;
 }
 
 .compare-native-stage-card strong {
   color: inherit !important;
+  font-size: 1rem !important;
+  line-height: 1.3 !important;
 }
 
 .compare-native-stage-step {
   color: var(--wm-heading-soft) !important;
+  display: inline-flex !important;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.65rem;
+  border: 1px solid var(--wm-border-light);
+  border-radius: 999px !important;
+  background: color-mix(in srgb, var(--wm-aqua) 8%, transparent) !important;
 }
 
-.compare-native-chip-row {
-  gap: 0.45rem !important;
+.wingman-page-host .compare-native-chip-row,
+.wingman-page-host .compare-native-action-row {
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 0.65rem !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
 }
 
 .compare-native-chip {
-  min-height: 34px !important;
-  padding: 0.42rem 0.7rem !important;
-  line-height: 1.15 !important;
+  min-height: 42px !important;
+  padding: 0.62rem 0.9rem !important;
+  line-height: 1.2 !important;
 }
 
 .compare-native-results--stage {
   display: grid !important;
-  gap: 1rem !important;
+  gap: 1.25rem !important;
+  padding: clamp(1.1rem, 1.6vw, 1.6rem) !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -812,3 +876,277 @@ body,
   }
 }
 /* === WINGMAN DASHBOARD VISUAL CORRECTION PASS END === */
+
+/* --------------------------------------------------------------------------
+   Shared guided-workflow polish
+   -------------------------------------------------------------------------- */
+
+.wm-ui-hero:not(.wm-dashboard-resume-card) {
+  display: grid !important;
+  min-height: 168px;
+  place-items: center !important;
+  gap: 1rem !important;
+  padding: clamp(1.35rem, 2vw, 2rem) !important;
+  text-align: center !important;
+}
+
+.wm-ui-hero:not(.wm-dashboard-resume-card) > :first-child {
+  display: grid;
+  justify-items: center;
+  gap: 0.55rem;
+  width: min(100%, 72rem);
+}
+
+.wingman-page-hero.wingman-page-hero-compact {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  min-height: 176px !important;
+  place-items: center !important;
+  gap: 1rem !important;
+  padding: clamp(1.4rem, 2.2vw, 2.25rem) !important;
+  text-align: center !important;
+}
+
+.wingman-page-hero-compact .wingman-hero-copy {
+  display: grid !important;
+  justify-items: center !important;
+  gap: 0.55rem !important;
+  width: min(100%, 74rem) !important;
+  max-width: none !important;
+}
+
+.wingman-page-hero-compact .wingman-display,
+.wingman-page-hero-compact .wingman-hero-purpose {
+  max-width: 64rem;
+  margin-inline: auto !important;
+  text-align: center !important;
+}
+
+.wingman-hero-next {
+  display: grid;
+  width: min(100%, 58rem);
+  min-height: 64px;
+  align-content: center;
+  justify-items: center;
+  gap: 0.25rem;
+  margin-top: 0.55rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--wm-border-light);
+  border-radius: var(--wm-radius-lg);
+  background: color-mix(in srgb, var(--wm-aqua) 7%, var(--wm-bg-1));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--wm-text) 6%, transparent);
+  text-align: center;
+}
+
+.wingman-hero-next span {
+  color: var(--wm-heading-soft) !important;
+  font-size: 0.7rem;
+  font-weight: var(--wm-weight-strong);
+  letter-spacing: var(--wm-tracking-kicker);
+  text-transform: uppercase;
+}
+
+.wingman-hero-next strong {
+  color: var(--wm-text) !important;
+  font-size: 0.92rem;
+  font-weight: var(--wm-weight-heading);
+  line-height: 1.45;
+}
+
+.wingman-page-hero-compact .wingman-hero-actions {
+  display: flex !important;
+  width: 100% !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.75rem !important;
+}
+
+.wingman-page-hero-compact .wingman-hero-action {
+  min-height: 46px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.72rem 1.15rem !important;
+  text-align: center !important;
+}
+
+.wingman-section-card {
+  overflow: clip;
+  border-color: var(--wm-border-light) !important;
+  border-radius: var(--wm-radius-2xl) !important;
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--wm-aqua) 7%, transparent), transparent 52%),
+    linear-gradient(180deg, var(--wm-card-soft), var(--wm-panel)) !important;
+  box-shadow: var(--wm-shadow-panel) !important;
+}
+
+.wingman-section-card-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  min-height: 118px;
+  place-items: center !important;
+  gap: 0.75rem !important;
+  padding: clamp(1.15rem, 1.7vw, 1.65rem) !important;
+  border-bottom: 1px solid var(--wm-border-dark);
+  background: color-mix(in srgb, var(--wm-card-soft) 72%, transparent);
+  text-align: center !important;
+}
+
+.wingman-section-card-header > div,
+.wingman-section-card-title-row,
+.wingman-section-card-title-row > div {
+  display: grid !important;
+  justify-items: center !important;
+  gap: 0.35rem !important;
+  width: 100%;
+  text-align: center !important;
+}
+
+.wingman-section-card-header p:not(.wingman-kicker) {
+  max-width: 70ch;
+  margin-inline: auto !important;
+  line-height: 1.6 !important;
+}
+
+.wingman-section-card-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.65rem !important;
+}
+
+.wingman-section-card-body {
+  padding: clamp(1.15rem, 1.7vw, 1.75rem) !important;
+}
+
+.wm-ui-centered-card,
+.wm-ui-guidance-card {
+  display: grid !important;
+  min-height: 112px;
+  align-content: center !important;
+  justify-items: center !important;
+  gap: 0.65rem !important;
+  padding: clamp(1.1rem, 1.6vw, 1.55rem) !important;
+  text-align: center !important;
+}
+
+.wm-ui-centered-card > *,
+.wm-ui-guidance-card > * {
+  max-width: 76rem;
+}
+
+.wm-ui-centered-card :is(input, select, textarea) {
+  width: 100%;
+  text-align: center;
+}
+
+.wm-ui-centered-card p,
+.wm-ui-guidance-card p {
+  margin-inline: auto !important;
+  line-height: 1.65 !important;
+}
+
+details.wm-ui-guidance-card:not([open]) {
+  min-height: 72px;
+}
+
+.wm-ui-guidance-card > summary {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1rem;
+  color: var(--wm-heading-soft);
+  font-weight: var(--wm-weight-heading);
+  line-height: 1.3;
+  text-align: center;
+  cursor: pointer;
+  list-style: none;
+}
+
+.wm-ui-guidance-card > summary::after {
+  content: "+";
+  margin-left: 0.55rem;
+  color: var(--wm-aqua);
+  font-size: 1.1rem;
+}
+
+.wm-ui-guidance-card[open] > summary::after {
+  content: "−";
+}
+
+.wingman-page-host .wm-ui-centered-actions {
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 0.8rem !important;
+  padding: 1rem !important;
+  text-align: center !important;
+}
+
+.wm-ui-centered-actions > .wm-ui-action-row {
+  justify-content: center !important;
+}
+
+.wingman-page-host .wm-ui-action-row {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.wingman-page-host .wm-ui-action-row.wm-ui-centered-actions {
+  border: 1px solid var(--wm-border-light) !important;
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--wm-aqua) 7%, transparent), transparent 62%),
+    color-mix(in srgb, var(--wm-card) 90%, var(--wm-bg-1)) !important;
+  box-shadow: var(--wm-shadow-card) !important;
+}
+
+.wm-ui-step-status {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  color: var(--wm-text-muted) !important;
+  font-size: 0.68rem;
+  font-weight: var(--wm-weight-ui);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.wm-ui-quiet-action {
+  width: auto !important;
+  min-width: 9rem;
+  justify-self: center;
+}
+
+.wingman-page-host :is(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--wm-aqua) 58%, transparent) !important;
+  outline-offset: 3px !important;
+}
+
+.wingman-page-host :is(button.wm-ui-card, a.wm-ui-card):hover {
+  border-color: var(--wm-border-strong) !important;
+  box-shadow:
+    var(--wm-shadow-card),
+    0 0 0 1px color-mix(in srgb, var(--wm-aqua) 12%, transparent) !important;
+}
+
+@media (max-width: 900px) {
+  .wingman-page-hero.wingman-page-hero-compact {
+    min-height: 0 !important;
+    padding: 1.15rem !important;
+  }
+
+  .wingman-page-hero-compact .wingman-hero-actions {
+    flex-direction: column !important;
+  }
+
+  .wingman-page-hero-compact .wingman-hero-action {
+    width: 100% !important;
+  }
+
+  .wingman-section-card-header,
+  .wingman-section-card-body {
+    padding: 1rem !important;
+  }
+}
