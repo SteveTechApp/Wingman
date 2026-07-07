@@ -28,6 +28,7 @@ export type SchematicNodeKind =
   | "matrix"
   | "av-over-ip-encoder"
   | "av-over-ip-decoder"
+  | "av-over-ip-transceiver"
   | "av-over-ip-controller"
   | "network-switch"
   | "video-wall-processor"

@@ -33328,6 +33328,7 @@ html[data-wingman-route="discovery"] .wm-ui-button {
    Wingman (video = blue, audio = pink, control = teal, network = orange). */
 .wm-generated-schematic-node--av-over-ip-encoder,
 .wm-generated-schematic-node--av-over-ip-decoder,
+.wm-generated-schematic-node--av-over-ip-transceiver,
 .wm-generated-schematic-node--switcher,
 .wm-generated-schematic-node--matrix,
 .wm-generated-schematic-node--video-wall-processor {
