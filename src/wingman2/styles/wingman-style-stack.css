@@ -37082,7 +37082,7 @@ details.wm-ui-guidance-card:not([open]) {
 }
 
 .wm-ui-guidance-card[open] > summary::after {
-  content: "âˆ’";
+  content: "Ã¢Ë†â€™";
 }
 
 .wingman-page-host .wm-ui-centered-actions {
@@ -37902,3 +37902,130 @@ html body .wm-profile-page .wm-profile-status-strip :is(.wm-status-danger) {
 }
 
 /* === Wingman status chip contrast contract END === */
+
+/* === Templates page compact scale START === */
+
+/*
+  Templates page compactness pass.
+  Goal: reduce visible object scale by roughly 20% without relying on browser zoom.
+*/
+
+.wm-templates-page {
+  --wm-template-scale-gap: 0.8;
+  --wm-template-scale-pad: 0.8;
+  --wm-template-scale-type: 0.86;
+}
+
+.wm-templates-page .wm-template-hero {
+  padding: 1.35rem 1.6rem !important;
+  min-height: unset !important;
+}
+
+.wm-templates-page .wm-template-hero .wm-page-title,
+.wm-templates-page .wm-template-hero h1 {
+  font-size: clamp(2rem, 2.7vw, 3rem) !important;
+  line-height: 1.05 !important;
+}
+
+.wm-templates-page .wm-template-hero .wm-copy,
+.wm-templates-page .wm-template-hero p {
+  font-size: 0.95rem !important;
+  line-height: 1.45 !important;
+}
+
+.wm-templates-page .wm-template-filter-panel,
+.wm-templates-page .wm-template-results-header,
+.wm-templates-page .wm-section-card,
+.wm-templates-page .wm-output-panel {
+  padding: 0.9rem 1rem !important;
+}
+
+.wm-templates-page .wm-template-search span,
+.wm-templates-page .wm-template-kicker {
+  font-size: 0.72rem !important;
+  line-height: 1.1 !important;
+}
+
+.wm-templates-page .wm-input {
+  min-height: 2.4rem !important;
+  padding: 0.55rem 0.8rem !important;
+  font-size: 0.9rem !important;
+}
+
+.wm-templates-page .wm-action-row {
+  gap: 0.55rem !important;
+  flex-wrap: wrap !important;
+}
+
+.wm-templates-page .wm-button {
+  min-height: 2.2rem !important;
+  padding: 0.48rem 0.8rem !important;
+  font-size: 0.82rem !important;
+  line-height: 1.1 !important;
+}
+
+.wm-templates-page .wm-badge {
+  padding: 0.18rem 0.42rem !important;
+  font-size: 0.7rem !important;
+  min-height: 1.35rem !important;
+}
+
+.wm-templates-page .wm-template-card-grid,
+.wm-templates-page .wm-section.wm-template-card-grid {
+  gap: 0.8rem !important;
+}
+
+.wm-templates-page .wm-template-card,
+.wm-templates-page .wm-action-card.wm-template-card {
+  padding: 0.9rem !important;
+  border-radius: 1.1rem !important;
+}
+
+.wm-templates-page .wm-template-card-top {
+  gap: 0.35rem !important;
+  margin-bottom: 0.55rem !important;
+}
+
+.wm-templates-page .wm-card-title,
+.wm-templates-page .wm-template-card h3 {
+  font-size: 1rem !important;
+  line-height: 1.08 !important;
+  margin-bottom: 0.45rem !important;
+}
+
+.wm-templates-page .wm-template-summary,
+.wm-templates-page .wm-template-direction,
+.wm-templates-page .wm-copy {
+  font-size: 0.84rem !important;
+  line-height: 1.42 !important;
+}
+
+.wm-templates-page .wm-template-actions {
+  margin-top: 0.7rem !important;
+}
+
+.wm-templates-page .wm-template-actions .wm-button,
+.wm-templates-page .wm-template-card .wm-button {
+  min-height: 2rem !important;
+  padding: 0.45rem 0.8rem !important;
+  font-size: 0.8rem !important;
+}
+
+.wm-templates-page .wm-section-title,
+.wm-templates-page .wm-template-results-header h2 {
+  font-size: 1.05rem !important;
+  line-height: 1.1 !important;
+}
+
+.wm-templates-page .wm-template-results-header .wm-copy {
+  font-size: 0.84rem !important;
+}
+
+/* Keep the page feeling tighter on larger desktop widths */
+@media (min-width: 1200px) {
+  .wm-templates-page .wm-template-card-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+  }
+}
+
+/* === Templates page compact scale END === */
