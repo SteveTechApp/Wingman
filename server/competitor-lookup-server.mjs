@@ -1151,8 +1151,44 @@ function metadataMatchesSearchTerm(metadata, sourceUrl, searchTerm) {
   return Boolean(normalizedTerm && blob.includes(normalizedTerm));
 }
 
+// A fetch can return HTTP 200 with a title/description from a bot-block or
+// WAF challenge page rather than the actual product page (seen live: Extron's
+// site returned "Request Rejected" for an automated request). Without this
+// check that garbage title reads as "usable metadata" and gets surfaced to
+// the rep as if it were the real product name.
+const BLOCK_PAGE_TITLE_PATTERNS = [
+  /request rejected/i,
+  /access denied/i,
+  /forbidden/i,
+  /attention required/i,
+  /just a moment/i,
+  /are you a human/i,
+  /please verify you are a human/i,
+  /pardon our interruption/i,
+  /unusual traffic/i,
+  /captcha/i,
+  /bot detection/i,
+  /reference #/i,
+  /^error$/i,
+  /^403$/i,
+  /^404/i,
+];
+
+function looksLikeBlockPage(metadata) {
+  const title = String(metadata?.title || "").trim();
+  const description = String(metadata?.description || "").trim();
+
+  if (BLOCK_PAGE_TITLE_PATTERNS.some((pattern) => pattern.test(title))) return true;
+  // A real product page title is essentially never this short with no
+  // description backing it up - block/challenge pages commonly are.
+  if (title.length > 0 && title.length < 8 && !description) return true;
+
+  return false;
+}
+
 function hasUsefulMetadata(metadata, searchTerm, sourceUrl, kind) {
   if (!metadata?.title && !metadata?.description) return false;
+  if (looksLikeBlockPage(metadata)) return false;
   if (kind === "product") return true;
   if (metadataMatchesSearchTerm(metadata, sourceUrl, searchTerm) && !isLikelySearchResultsUrl(sourceUrl)) {
     return true;
