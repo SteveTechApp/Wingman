@@ -37082,7 +37082,7 @@ details.wm-ui-guidance-card:not([open]) {
 }
 
 .wm-ui-guidance-card[open] > summary::after {
-  content: "−";
+  content: "âˆ’";
 }
 
 .wingman-page-host .wm-ui-centered-actions {
@@ -37635,3 +37635,270 @@ html body .wm-profile-page .wm-profile-status-strip :is(.wm-status-danger) {
   }
 }
 /* WINGMAN CONSOLIDATED GOVERNED VISUAL SYSTEM END */
+
+/* === Wingman status chip contrast contract START === */
+
+/*
+  Shared status/badge contrast contract.
+
+  Purpose:
+  - Prevent light status pills with pale text.
+  - Keep status labels readable on /home, /projects, /settings and other pages.
+  - Status chips must not rely on inherited text colour.
+  - Real status chips remain visibly different from action buttons.
+*/
+
+:where(
+  .wm-status-chip,
+  .wm-status,
+  .wm-badge,
+  .wm-chip,
+  .status-chip,
+  [class*="status-chip"],
+  [class*="StatusChip"]
+) {
+  --wm-status-text: #dffbff;
+  --wm-status-bg: rgba(7, 29, 46, 0.92);
+  --wm-status-border: rgba(103, 232, 249, 0.34);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: fit-content;
+  min-width: max-content;
+  min-height: 1.85rem;
+  padding: 0.34rem 0.72rem;
+  border-radius: 999px;
+  border: 1px solid var(--wm-status-border);
+  background: var(--wm-status-bg);
+  color: var(--wm-status-text);
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+}
+
+/* Do not allow nested spans/strong text inside status chips to inherit pale text. */
+:where(
+  .wm-status-chip,
+  .wm-status,
+  .wm-badge,
+  .wm-chip,
+  .status-chip,
+  [class*="status-chip"],
+  [class*="StatusChip"]
+) :where(span, strong, em, small) {
+  color: inherit;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+/* Neutral/default/readiness labels */
+:where(
+  .wm-status-chip,
+  .wm-status,
+  .wm-badge,
+  .wm-chip,
+  .status-chip,
+  [class*="status-chip"],
+  [class*="StatusChip"]
+):where(
+  .neutral,
+  .default,
+  .ready,
+  .wm-status-neutral,
+  .wm-status-default,
+  .wm-status-ready,
+  [data-status="neutral"],
+  [data-status="default"],
+  [data-status="ready"]
+) {
+  --wm-status-text: #dffbff;
+  --wm-status-bg: rgba(8, 31, 49, 0.94);
+  --wm-status-border: rgba(103, 232, 249, 0.36);
+}
+
+/* On-track / success */
+:where(
+  .wm-status-chip,
+  .wm-status,
+  .wm-badge,
+  .wm-chip,
+  .status-chip,
+  [class*="status-chip"],
+  [class*="StatusChip"]
+):where(
+  .success,
+  .on-track,
+  .ontrack,
+  .wm-status-success,
+  .wm-status-on-track,
+  .wm-status-ontrack,
+  [data-status="success"],
+  [data-status="on-track"],
+  [data-status="ontrack"]
+) {
+  --wm-status-text: #d9fff0;
+  --wm-status-bg: rgba(5, 58, 45, 0.86);
+  --wm-status-border: rgba(110, 231, 183, 0.46);
+}
+
+/* In progress / active */
+:where(
+  .wm-status-chip,
+  .wm-status,
+  .wm-badge,
+  .wm-chip,
+  .status-chip,
+  [class*="status-chip"],
+  [class*="StatusChip"]
+):where(
+  .progress,
+  .in-progress,
+  .active,
+  .wm-status-progress,
+  .wm-status-in-progress,
+  .wm-status-active,
+  [data-status="progress"],
+  [data-status="in-progress"],
+  [data-status="active"]
+) {
+  --wm-status-text: #dffbff;
+  --wm-status-bg: rgba(8, 56, 74, 0.9);
+  --wm-status-border: rgba(34, 211, 238, 0.5);
+}
+
+/* Warning / review */
+:where(
+  .wm-status-chip,
+  .wm-status,
+  .wm-badge,
+  .wm-chip,
+  .status-chip,
+  [class*="status-chip"],
+  [class*="StatusChip"]
+):where(
+  .warning,
+  .review,
+  .attention,
+  .wm-status-warning,
+  .wm-status-review,
+  .wm-status-attention,
+  [data-status="warning"],
+  [data-status="review"],
+  [data-status="attention"]
+) {
+  --wm-status-text: #fff4d6;
+  --wm-status-bg: rgba(83, 54, 7, 0.88);
+  --wm-status-border: rgba(251, 191, 36, 0.52);
+}
+
+/* Danger / blocked / error */
+:where(
+  .wm-status-chip,
+  .wm-status,
+  .wm-badge,
+  .wm-chip,
+  .status-chip,
+  [class*="status-chip"],
+  [class*="StatusChip"]
+):where(
+  .danger,
+  .error,
+  .blocked,
+  .failed,
+  .wm-status-danger,
+  .wm-status-error,
+  .wm-status-blocked,
+  .wm-status-failed,
+  [data-status="danger"],
+  [data-status="error"],
+  [data-status="blocked"],
+  [data-status="failed"]
+) {
+  --wm-status-text: #ffe4e6;
+  --wm-status-bg: rgba(88, 28, 35, 0.88);
+  --wm-status-border: rgba(251, 113, 133, 0.5);
+}
+
+/*
+  Legacy light pill repair:
+  If an older page creates a light badge/status pill, force a safe readable
+  status style rather than allowing pale text on pale background.
+*/
+:where(
+  .wm-status-chip,
+  .wm-status,
+  .wm-badge,
+  .wm-chip,
+  .status-chip,
+  [class*="status-chip"],
+  [class*="StatusChip"]
+):where(
+  .bg-white,
+  .bg-stone-50,
+  .bg-slate-50,
+  .bg-zinc-50,
+  .bg-neutral-50,
+  .bg-amber-50,
+  .bg-yellow-50,
+  .bg-cyan-50,
+  .bg-emerald-50
+) {
+  background: var(--wm-status-bg);
+  color: var(--wm-status-text);
+  border-color: var(--wm-status-border);
+}
+
+/* Tailwind light-background status pills in pages/components. */
+:where(
+  .wm-dashboard-page,
+  .wm-projects-page,
+  .wm-settings-page,
+  .settings-page,
+  .wm-page
+) :where(
+  [class*="status"],
+  [class*="Status"],
+  [class*="badge"],
+  [class*="Badge"]
+):where(
+  .bg-white,
+  .bg-stone-50,
+  .bg-slate-50,
+  .bg-zinc-50,
+  .bg-neutral-50,
+  .bg-amber-50,
+  .bg-yellow-50,
+  .bg-cyan-50,
+  .bg-emerald-50
+) {
+  background: rgba(8, 31, 49, 0.94);
+  color: #dffbff;
+  border-color: rgba(103, 232, 249, 0.36);
+}
+
+/* Specific STATUS label strip protection. */
+:where(
+  .wm-dashboard-page,
+  .wm-projects-page,
+  .wm-settings-page,
+  .settings-page,
+  .wm-page
+) :where(
+  .wm-status-label,
+  .wm-status-kicker,
+  [data-status-label],
+  [aria-label="Status"],
+  [aria-label="STATUS"]
+) {
+  color: #dffbff;
+  background: rgba(8, 31, 49, 0.94);
+  border-color: rgba(103, 232, 249, 0.36);
+}
+
+/* === Wingman status chip contrast contract END === */
