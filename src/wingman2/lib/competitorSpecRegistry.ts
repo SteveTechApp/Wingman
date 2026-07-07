@@ -34,7 +34,7 @@ export type ResolvedCompetitorProfile = CompareDecisionProfile & {
   whyNotDirectEquivalent: string[];
   missingFacts: string[];
   confidencePenalty: number;
-  source: "fingerprint" | "family-rule" | "typed-text";
+  source: "fingerprint" | "family-rule" | "typed-text" | "user-saved";
   datasheetUrl?: string;
 };
 
@@ -694,6 +694,14 @@ export function resolveCompetitorSpecProfile(
   rawInput: string,
   providedBrand?: string,
   sourceUrl?: string,
+  /**
+   * A rep-confirmed record from savedCompetitorSpecs.ts (manual entry, or a
+   * live-lookup result the rep reviewed and saved). Trusted at the same tier
+   * as a curated fingerprint since it's specific, human-confirmed data for
+   * this exact SKU - callers look this up and pass it in explicitly so this
+   * module stays free of any localStorage/browser dependency.
+   */
+  userSavedProduct?: CompetitorSourceProduct | null,
 ): ResolvedCompetitorProfile {
   const input = String(rawInput ?? "").trim();
   const normalised = normalizeCompetitorSku(input, providedBrand);
@@ -723,7 +731,7 @@ export function resolveCompetitorSpecProfile(
     lookupCatalogFingerprint(canonicalInput) ||
     lookupCatalogFingerprint(input) ||
     lookupCatalogFingerprint(sourceUrlText);
-  const sourceProduct = findCompetitorSourceProduct(
+  const sourceProduct = userSavedProduct || findCompetitorSourceProduct(
     canonicalBrand || evidence.brand,
     evidence.sku || canonicalInput,
     sourceUrl || input,
@@ -798,7 +806,10 @@ export function resolveCompetitorSpecProfile(
   }
   const familyLevelInput = isFamilyLevelCompetitorSpecInput(canonicalInput, evidence.sku, canonicalBrand || normalised?.brand || evidence.brand);
   const hasVerifiedFingerprint = Boolean(fingerprint) && fingerprint?.approvalStatus === "approved" && !familyLevelInput;
-  const hasVerifiedSourceProduct = false;
+  // Only a rep-confirmed saved spec is trusted at verified tier here - a plain
+  // sourceProduct match from the generated competitor catalogue is evidence,
+  // not a human-confirmed fact, so it stays at whatever tier evidence.tier gives it.
+  const hasVerifiedSourceProduct = Boolean(userSavedProduct);
 
   const specTier: CompetitorSpecTier = hasVerifiedFingerprint
     ? "verified-profile"
@@ -832,7 +843,7 @@ export function resolveCompetitorSpecProfile(
     // metadata
     brand: sourceProduct?.manufacturer || normalised?.brand || fingerprint?.brand || evidence.brand,
     specTier,
-    readiness: hasVerifiedFingerprint
+    readiness: hasVerifiedFingerprint || hasVerifiedSourceProduct
       ? "approved"
       : fingerprint?.approvalStatus === "review"
         ? "usable-with-review"
@@ -845,7 +856,7 @@ export function resolveCompetitorSpecProfile(
     whyNotDirectEquivalent: hasVerifiedFingerprint || hasVerifiedSourceProduct ? [] : evidence.whyNotDirectEquivalent,
     missingFacts: hasVerifiedFingerprint || hasVerifiedSourceProduct ? [] : familyLevelInput ? Array.from(new Set([...evidence.missingFacts, "Exact competitor model/SKU", "Datasheet or product page evidence"])) : evidence.missingFacts,
     confidencePenalty: hasVerifiedFingerprint || hasVerifiedSourceProduct ? 0 : familyLevelInput ? Math.max(evidence.confidencePenalty, 12) : evidence.confidencePenalty,
-    source: hasVerifiedFingerprint ? "fingerprint" : hasVerifiedSourceProduct ? "fingerprint" : evidence.tier === "family-rule" || familyLevelInput ? "family-rule" : "typed-text",
+    source: userSavedProduct ? "user-saved" : hasVerifiedFingerprint ? "fingerprint" : evidence.tier === "family-rule" || familyLevelInput ? "family-rule" : "typed-text",
     datasheetUrl: fingerprint?.datasheetUrl || catalogFingerprint?.datasheetUrl || sourceProduct?.sourceUrl,
     sourceLabel: sourceProduct ? `${sourceProduct.sourceName}: ${sourceProduct.sourceCollection}` : undefined,
   };
