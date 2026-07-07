@@ -144,7 +144,9 @@
     "text:hygiene": "node tools/audit-text-hygiene.mjs",
     "text:hygiene:fix:active": "node tools/audit-text-hygiene.mjs --write",
     "text:hygiene:full": "node tools/audit-text-hygiene.mjs --full",
-    "text:hygiene:fix:full": "node tools/audit-text-hygiene.mjs --full --write"
+    "text:hygiene:fix:full": "node tools/audit-text-hygiene.mjs --full --write",
+    "admin:db": "node tools/admin-product-db.mjs",
+    "admin:db:validate": "node tools/admin-product-db.mjs validate"
   },
   "dependencies": {
     "@xyflow/react": "^12.10.2",

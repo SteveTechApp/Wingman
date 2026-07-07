@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -127,6 +127,11 @@ describe("Project Detail rendered workflow evidence", () => {
     );
 
     expect(mockSetActiveProjectId).toHaveBeenCalledWith("project-1");
+    expect(screen.getByText("MX-0808-KIT")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Resolve project blockers" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Review project detail" }));
+
     expect(screen.getByText("Product-family decision")).toBeInTheDocument();
     expect(screen.getAllByText("Matrix / HDBaseT").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Hospitality / sports bar routing").length).toBeGreaterThan(0);

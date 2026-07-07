@@ -78,6 +78,13 @@ describe("Compare rendered workflow", () => {
 
     expect(screen.getByRole("heading", { name: "Compare competitor products" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Choose competitor brand" })).toBeInTheDocument();
+    expect(screen.getByText("Current step")).toBeInTheDocument();
+    expect(screen.getByText("Up next")).toBeInTheDocument();
+    expect(screen.getByText("Available after selection")).toBeInTheDocument();
+
+    const stepGuidance = screen.getByText("Why this step matters").closest("details") as HTMLDetailsElement | null;
+    expect(stepGuidance?.open).toBe(false);
+
     expect(screen.queryByText(/Enter what the customer mentioned/i)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /open manual picker/i })).not.toBeInTheDocument();
   });

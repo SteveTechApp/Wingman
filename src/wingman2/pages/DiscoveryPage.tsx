@@ -1638,7 +1638,7 @@ return (
           </p>
 
           <div className="wm-discovery-capture-actions wm-discovery-finish-actions">
-            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={() => moveForward("finder")}>Find matching products</button>
+            <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => moveForward("finder")}>Next: find matching products</button>
             <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={() => moveForward("proposal")}>Build proposal</button>
             <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={saveDiscoveryToProject}>Save to project</button>
           </div>
@@ -1802,9 +1802,8 @@ return (
             <p className="wm-ui-copy">Carry this discovery into product selection or a proposal. The captured brief saves to your project, so the next step picks it up.</p>
           </div>
           <div className="wm-discovery-capture-actions">
-            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={() => moveForward("finder")}>Find matching products</button>
-            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={() => moveForward("proposal")}>Build proposal</button>
-            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={saveDiscoveryToProject}>Save to project</button>
+            <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={moveNext}>Next discovery question</button>
+            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={saveDiscoveryToProject}>Save progress</button>
           </div>
           {savedMessage && <p className="wm-discovery-muted-note wm-ui-copy">{savedMessage}</p>}
         </section>
@@ -1814,7 +1813,6 @@ return (
 }
 
 export default DiscoveryPage;
-
 
 
 
