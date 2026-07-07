@@ -33301,11 +33301,11 @@ html[data-wingman-route="discovery"] .wm-ui-button {
 .wm-generated-schematic-canvas {
   overflow: auto;
   min-height: 360px;
-  border: 1px solid var(--wm-consistency-accent, currentColor)38;
+  border: 1px solid color-mix(in srgb, var(--wm-consistency-accent, currentColor) 22%, transparent);
   border-radius: 1rem;
   background:
-    linear-gradient(var(--wm-consistency-accent, currentColor)0d 1px, transparent 1px),
-    linear-gradient(90deg, var(--wm-consistency-accent, currentColor)0d 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--wm-consistency-accent, currentColor) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--wm-consistency-accent, currentColor) 5%, transparent) 1px, transparent 1px),
     transparent;
   background-size: 32px 32px;
 }
@@ -33318,8 +33318,38 @@ html[data-wingman-route="discovery"] .wm-ui-button {
 
 .wm-generated-schematic-node {
   fill: #0f172af2;
-  stroke: var(--wm-consistency-accent, currentColor)80;
+  stroke: color-mix(in srgb, var(--wm-consistency-accent, currentColor) 50%, transparent);
   stroke-width: 1.5;
+}
+
+/* Signal-carrying device kinds pick up the colour of the signal they mainly
+   handle, so the node border and its connection lines read as one system -
+   the same convention used across the room-schematic legend elsewhere in
+   Wingman (video = blue, audio = pink, control = teal, network = orange). */
+.wm-generated-schematic-node--av-over-ip-encoder,
+.wm-generated-schematic-node--av-over-ip-decoder,
+.wm-generated-schematic-node--switcher,
+.wm-generated-schematic-node--matrix,
+.wm-generated-schematic-node--video-wall-processor {
+  stroke: #378ADD;
+}
+
+.wm-generated-schematic-node--network-switch,
+.wm-generated-schematic-node--av-over-ip-controller {
+  stroke: #D85A30;
+}
+
+.wm-generated-schematic-node--usb-bridge {
+  stroke: #7F77DD;
+}
+
+.wm-generated-schematic-node--audio-device {
+  stroke: #D4537E;
+}
+
+.wm-generated-schematic-node--control-device,
+.wm-generated-schematic-node--touch-panel {
+  stroke: #1D9E75;
 }
 
 .wm-generated-schematic-node__label {
@@ -33329,26 +33359,71 @@ html[data-wingman-route="discovery"] .wm-ui-button {
 }
 
 .wm-generated-schematic-node__meta {
-  fill: var(--wm-consistency-text)c7;
+  fill: color-mix(in srgb, var(--wm-consistency-text) 78%, transparent);
   font-size: 11px;
 }
 
 .wm-generated-schematic-connection path {
   fill: none;
-  stroke: var(--wm-consistency-accent, currentColor)b8;
+  stroke: color-mix(in srgb, var(--wm-consistency-accent, currentColor) 72%, transparent);
   stroke-width: 2;
 }
 
 .wm-generated-schematic-connection text {
-  fill: var(--wm-consistency-text)d1;
+  fill: color-mix(in srgb, var(--wm-consistency-text) 82%, transparent);
   font-size: 11px;
   text-transform: uppercase;
 }
 
-.wm-generated-schematic-connection marker path,
-#wm-schematic-arrow path {
-  fill: var(--wm-consistency-accent, currentColor)e6;
+.wm-generated-schematic-connection marker path {
+  fill: context-stroke;
 }
+
+#wm-generated-schematic-arrow path {
+  fill: color-mix(in srgb, var(--wm-consistency-accent, currentColor) 90%, transparent);
+}
+
+/* Signal-type colour coding - matches the legend rendered above the canvas. */
+.wm-generated-schematic-connection--video path { stroke: #378ADD; }
+.wm-generated-schematic-connection--audio path { stroke: #D4537E; }
+.wm-generated-schematic-connection--control path { stroke: #1D9E75; stroke-dasharray: 5 4; }
+.wm-generated-schematic-connection--network path { stroke: #D85A30; }
+.wm-generated-schematic-connection--usb path { stroke: #7F77DD; }
+.wm-generated-schematic-connection--power path { stroke: #B4B2A9; stroke-dasharray: 2 3; }
+
+.wm-generated-schematic-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wm-generated-schematic-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: color-mix(in srgb, var(--wm-consistency-text) 85%, transparent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.wm-generated-schematic-legend__swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.wm-generated-schematic-legend__item--video .wm-generated-schematic-legend__swatch { background: #378ADD; }
+.wm-generated-schematic-legend__item--audio .wm-generated-schematic-legend__swatch { background: #D4537E; }
+.wm-generated-schematic-legend__item--control .wm-generated-schematic-legend__swatch { background: #1D9E75; }
+.wm-generated-schematic-legend__item--network .wm-generated-schematic-legend__swatch { background: #D85A30; }
+.wm-generated-schematic-legend__item--usb .wm-generated-schematic-legend__swatch { background: #7F77DD; }
+.wm-generated-schematic-legend__item--power .wm-generated-schematic-legend__swatch { background: #B4B2A9; }
 
 .wm-generated-schematic-summary {
   display: grid;
@@ -33367,7 +33442,7 @@ html[data-wingman-route="discovery"] .wm-ui-button {
 }
 
 .wm-generated-schematic-summary span {
-  color: var(--wm-consistency-text)d1;
+  color: color-mix(in srgb, var(--wm-consistency-text) 82%, transparent);
   font-size: 0.85rem;
 }
 
@@ -33379,7 +33454,7 @@ html[data-wingman-route="discovery"] .wm-ui-button {
 .wm-generated-schematic-evidence ul {
   margin: 0;
   padding-left: 1.1rem;
-  color: var(--wm-consistency-text)e6;
+  color: color-mix(in srgb, var(--wm-consistency-text) 90%, transparent);
 }
 
 .wm-generated-schematic-evidence li + li {
