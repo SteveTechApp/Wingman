@@ -37082,7 +37082,7 @@ details.wm-ui-guidance-card:not([open]) {
 }
 
 .wm-ui-guidance-card[open] > summary::after {
-  content: "Ã¢Ë†â€™";
+  content: "ÃƒÂ¢Ã‹â€ Ã¢â‚¬â„¢";
 }
 
 .wingman-page-host .wm-ui-centered-actions {
@@ -38029,3 +38029,40 @@ html body .wm-profile-page .wm-profile-status-strip :is(.wm-status-danger) {
 }
 
 /* === Templates page compact scale END === */
+
+/* === Templates card action alignment START === */
+
+/*
+  Keep template card CTA buttons aligned at the bottom of each card.
+  This prevents different summary/application text lengths from causing
+  Review template buttons to float at uneven heights.
+*/
+
+.wm-templates-page .wm-template-card,
+.wm-templates-page .wm-action-card.wm-template-card {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+}
+
+.wm-templates-page .wm-template-summary {
+  flex: 0 0 auto !important;
+}
+
+.wm-templates-page .wm-template-direction {
+  flex: 1 1 auto !important;
+}
+
+.wm-templates-page .wm-template-actions,
+.wm-templates-page .wm-template-card .wm-template-actions {
+  margin-top: auto !important;
+  padding-top: 0.75rem !important;
+  align-items: flex-end !important;
+}
+
+.wm-templates-page .wm-template-actions .wm-button,
+.wm-templates-page .wm-template-card .wm-button {
+  align-self: center !important;
+}
+
+/* === Templates card action alignment END === */
