@@ -25,7 +25,10 @@ function actionClass(variant: PageHeroAction["variant"]) {
 
 export function PageHero({ eyebrow, title, purpose, nextMove, actions }: PageHeroProps) {
   return (
-    <section className="wingman-page-hero wingman-page-hero-compact wingman-panel wingman-grid" aria-describedby="wingman-page-purpose">
+    <section
+      className="wm-page-hero wingman-page-hero wingman-page-hero-compact wingman-panel wingman-grid"
+      aria-describedby="wingman-page-purpose"
+    >
       <div className="wingman-hero-copy">
         <p className="wingman-kicker">{eyebrow}</p>
         <h1 className="wingman-display">{title}</h1>

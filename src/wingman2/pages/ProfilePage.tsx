@@ -267,8 +267,12 @@ export function ProfilePage() {
   }
 
   return (
-    <section className="wm-profile-page wm-profile-page-compact" data-wingman-settings-page="true">
-      <header className="wm-profile-hero">
+    <main
+      className="wm-page wm-settings-page wm-profile-page wm-profile-page-compact"
+      data-wingman-page="settings"
+      data-wingman-settings-page="true"
+    >
+      <header className="wm-page-header wm-profile-hero">
         <div>
           <p className="wm-profile-kicker">Wingman settings</p>
           <h1>Local profile and proposal settings</h1>
@@ -278,19 +282,19 @@ export function ProfilePage() {
         </div>
 
         <div className="wm-profile-hero-actions" aria-label="Profile actions">
-          <button type="button" onClick={saveProfile}>Save</button>
-          <button type="button" onClick={printProfile}>Print</button>
-          <button type="button" onClick={resetProfile}>Reset</button>
+          <button className="wm-button wm-button-primary" type="button" onClick={saveProfile}>Save</button>
+          <button className="wm-button wm-button-secondary" type="button" onClick={printProfile}>Print</button>
+          <button className="wm-button wm-button-ghost" type="button" onClick={resetProfile}>Reset</button>
         </div>
       </header>
 
-      <div className="wm-profile-status-strip">
+      <div className="wm-output-panel wm-profile-status-strip">
         <span>Status</span>
         <strong>{status}</strong>
       </div>
 
-      <div className="wm-profile-grid">
-        <section className="wm-profile-card wm-profile-brand-card">
+      <div className="wm-form-grid wm-profile-grid">
+        <section className="wm-section-card wm-profile-card wm-profile-brand-card">
           <div className="wm-profile-card-head">
             <p className="wm-profile-card-label">Brand and company</p>
             <h2>Default proposal identity</h2>
@@ -298,7 +302,7 @@ export function ProfilePage() {
 
           <div className="wm-profile-brand-row">
             <button
-              className="wm-profile-logo-box"
+              className="wm-button wm-button-ghost wm-profile-logo-box"
               type="button"
               onClick={() => logoInputRef.current?.click()}
               aria-label="Upload company logo"
@@ -311,8 +315,8 @@ export function ProfilePage() {
             </button>
 
             <div className="wm-profile-brand-actions">
-              <button type="button" onClick={() => logoInputRef.current?.click()}>Upload</button>
-              <button type="button" onClick={clearLogo}>Clear</button>
+              <button className="wm-button wm-button-secondary" type="button" onClick={() => logoInputRef.current?.click()}>Upload</button>
+              <button className="wm-button wm-button-ghost" type="button" onClick={clearLogo}>Clear</button>
             </div>
           </div>
 
@@ -324,107 +328,107 @@ export function ProfilePage() {
             onChange={(event) => uploadLogo(event.target.files?.[0])}
           />
 
-          <div className="wm-profile-two-col">
-            <label>
+          <div className="wm-form-grid wm-profile-two-col">
+            <label className="wm-field">
               Company
-              <input value={profile.companyName} onChange={(event) => updateField("companyName", event.target.value)} />
+              <input className="wm-input" value={profile.companyName} onChange={(event) => updateField("companyName", event.target.value)} />
             </label>
 
-            <label>
+            <label className="wm-field">
               Market
-              <input value={profile.regionMarket} onChange={(event) => updateField("regionMarket", event.target.value)} />
+              <input className="wm-input" value={profile.regionMarket} onChange={(event) => updateField("regionMarket", event.target.value)} />
             </label>
 
-            <label>
+            <label className="wm-field">
               Prepared by
-              <input value={profile.preparedBy} onChange={(event) => updateField("preparedBy", event.target.value)} />
+              <input className="wm-input" value={profile.preparedBy} onChange={(event) => updateField("preparedBy", event.target.value)} />
             </label>
 
-            <label>
+            <label className="wm-field">
               Audience
-              <select value={profile.defaultAudience} onChange={(event) => updateField("defaultAudience", event.target.value)}>
+              <select className="wm-select" value={profile.defaultAudience} onChange={(event) => updateField("defaultAudience", event.target.value)}>
                 {audienceOptions.map((option) => <option key={option}>{option}</option>)}
               </select>
             </label>
           </div>
         </section>
 
-        <section className="wm-profile-card">
+        <section className="wm-section-card wm-profile-card">
           <div className="wm-profile-card-head">
             <p className="wm-profile-card-label">User</p>
             <h2>Contact and output details</h2>
           </div>
 
-          <div className="wm-profile-two-col">
-            <label>
+          <div className="wm-form-grid wm-profile-two-col">
+            <label className="wm-field">
               Name
-              <input value={profile.displayName} onChange={(event) => updateField("displayName", event.target.value)} />
+              <input className="wm-input" value={profile.displayName} onChange={(event) => updateField("displayName", event.target.value)} />
             </label>
 
-            <label>
+            <label className="wm-field">
               Role
-              <input value={profile.role} onChange={(event) => updateField("role", event.target.value)} />
+              <input className="wm-input" value={profile.role} onChange={(event) => updateField("role", event.target.value)} />
             </label>
 
-            <label>
+            <label className="wm-field">
               Email
-              <input value={profile.email} onChange={(event) => updateField("email", event.target.value)} />
+              <input className="wm-input" value={profile.email} onChange={(event) => updateField("email", event.target.value)} />
             </label>
 
-            <label>
+            <label className="wm-field">
               Phone
-              <input value={profile.phone} onChange={(event) => updateField("phone", event.target.value)} />
+              <input className="wm-input" value={profile.phone} onChange={(event) => updateField("phone", event.target.value)} />
             </label>
           </div>
 
-          <label className="wm-profile-wide-field">
+          <label className="wm-field wm-profile-wide-field">
             Proposal footer
-            <textarea value={profile.footerText} onChange={(event) => updateField("footerText", event.target.value)} />
+            <textarea className="wm-textarea" value={profile.footerText} onChange={(event) => updateField("footerText", event.target.value)} />
           </label>
         </section>
 
-        <section className="wm-profile-card">
+        <section className="wm-section-card wm-profile-card">
           <div className="wm-profile-card-head">
             <p className="wm-profile-card-label">Defaults</p>
             <h2>Language and intelligence control</h2>
           </div>
 
-          <div className="wm-profile-two-col">
-            <label>
+          <div className="wm-form-grid wm-profile-two-col">
+            <label className="wm-field">
               Region
-              <select value={profile.regionPreference} onChange={(event) => updateField("regionPreference", event.target.value)}>
+              <select className="wm-select" value={profile.regionPreference} onChange={(event) => updateField("regionPreference", event.target.value)}>
                 {languageOptions.map((option) => <option key={option}>{option}</option>)}
               </select>
             </label>
 
-            <label>
+            <label className="wm-field">
               Speech
-              <select value={profile.speechLanguage} onChange={(event) => updateField("speechLanguage", event.target.value)}>
+              <select className="wm-select" value={profile.speechLanguage} onChange={(event) => updateField("speechLanguage", event.target.value)}>
                 {languageOptions.map((option) => <option key={option}>{option}</option>)}
               </select>
             </label>
           </div>
 
-          <label className="wm-profile-wide-field">
+          <label className="wm-field wm-profile-wide-field">
             Product intelligence mode
-            <select value={profile.productUpdateMode} onChange={(event) => updateField("productUpdateMode", event.target.value)}>
+            <select className="wm-select" value={profile.productUpdateMode} onChange={(event) => updateField("productUpdateMode", event.target.value)}>
               {updateModeOptions.map((option) => <option key={option}>{option}</option>)}
             </select>
           </label>
 
-          <div className="wm-profile-info-box">
+          <div className="wm-output-panel wm-profile-info-box">
             <strong>Recommended</strong>
             <span>Stage new product and competitor findings for review before Finder, Compare or Proposal use them as trusted data.</span>
           </div>
         </section>
 
-        <section className="wm-profile-card">
+        <section className="wm-section-card wm-profile-card">
           <div className="wm-profile-card-head">
             <p className="wm-profile-card-label">Workspace sync</p>
             <h2>Live-call recovery</h2>
           </div>
 
-          <div className="wm-profile-info-box">
+          <div className="wm-output-panel wm-profile-info-box">
             <strong>{session?.workspace?.name || (projectBackendSyncEnabled() ? "Workspace available" : "Local mode")}</strong>
             <span>
               {session?.user
@@ -435,23 +439,24 @@ export function ProfilePage() {
             </span>
           </div>
 
-          <div className="wm-profile-two-col">
-            <label>
+          <div className="wm-form-grid wm-profile-two-col">
+            <label className="wm-field">
               Mode
-              <select value={profile.workspaceSyncMode} onChange={(event) => updateField("workspaceSyncMode", event.target.value)}>
+              <select className="wm-select" value={profile.workspaceSyncMode} onChange={(event) => updateField("workspaceSyncMode", event.target.value)}>
                 {syncModeOptions.map((option) => <option key={option}>{option}</option>)}
               </select>
             </label>
 
-            <label>
+            <label className="wm-field">
               Email
-              <input value={profile.workspaceEmail} onChange={(event) => updateField("workspaceEmail", event.target.value)} />
+              <input className="wm-input" value={profile.workspaceEmail} onChange={(event) => updateField("workspaceEmail", event.target.value)} />
             </label>
           </div>
 
-          <label>
+          <label className="wm-field">
             Password
             <input
+              className="wm-input"
               type="password"
               value={profile.workspacePassword}
               onChange={(event) => updateField("workspacePassword", event.target.value)}
@@ -460,17 +465,17 @@ export function ProfilePage() {
 
           <div className="wm-profile-button-row">
             {session?.user ? (
-              <button type="button" onClick={handleSignOut} disabled={workspaceBusy}>Sign out</button>
+              <button className="wm-button wm-button-secondary" type="button" onClick={handleSignOut} disabled={workspaceBusy}>Sign out</button>
             ) : (
               <>
-                <button type="button" onClick={handleSignIn} disabled={workspaceBusy}>Sign in</button>
-                <button type="button" onClick={handleCreateWorkspace} disabled={workspaceBusy}>Create workspace</button>
+                <button className="wm-button wm-button-secondary" type="button" onClick={handleSignIn} disabled={workspaceBusy}>Sign in</button>
+                <button className="wm-button wm-button-primary" type="button" onClick={handleCreateWorkspace} disabled={workspaceBusy}>Create workspace</button>
               </>
             )}
           </div>
         </section>
       </div>
-    </section>
+    </main>
   );
 }
 

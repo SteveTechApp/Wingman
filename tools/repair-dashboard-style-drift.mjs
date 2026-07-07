@@ -4,7 +4,7 @@ import path from "node:path";
 const root = process.cwd();
 
 const dashboardPath = path.join(root, "src/wingman2/pages/DashboardPage.tsx");
-const themePath = path.join(root, "src/wingman2/styles/wingman-redesign-theme.css");
+const themePath = path.join(root, "src/wingman2/styles/wingman-style-stack.css");
 const checkPath = path.join(root, "tools/check-dashboard-visual-correction.mjs");
 
 const start = "/* === WINGMAN DASHBOARD VISUAL CORRECTION PASS START === */";
@@ -50,7 +50,7 @@ function replaceDashboardCssBlock() {
   }
 
   if (theme.includes('html[data-wingman-route="dashboard"]')) {
-    throw new Error('wingman-redesign-theme.css still contains html[data-wingman-route="dashboard"]. Remove the old route-scoped dashboard block before continuing.');
+    throw new Error('wingman-style-stack.css still contains html[data-wingman-route="dashboard"]. Remove the old route-scoped dashboard block before continuing.');
   }
 
   const block = `
@@ -230,7 +230,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
-const themePath = path.join(root, "src/wingman2/styles/wingman-redesign-theme.css");
+const themePath = path.join(root, "src/wingman2/styles/wingman-style-stack.css");
 const dashboardPath = path.join(root, "src/wingman2/pages/DashboardPage.tsx");
 
 const theme = fs.readFileSync(themePath, "utf8");
@@ -274,7 +274,7 @@ if (startIndex === -1 || endIndex === -1 || endIndex <= startIndex) {
 }
 
 if (theme.includes('html[data-wingman-route="dashboard"]')) {
-  errors.push('wingman-redesign-theme.css still contains html[data-wingman-route="dashboard"].');
+  errors.push('wingman-style-stack.css still contains html[data-wingman-route="dashboard"].');
 }
 
 if (!dashboard.includes("wm-dashboard-visual-root")) {

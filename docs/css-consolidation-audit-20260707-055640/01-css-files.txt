@@ -1,0 +1,4 @@
+﻿C:\Users\steve\wingman\src\styles\wingman-discovery-builder-layout.css
+C:\Users\steve\wingman\src\wingman2\components\discovery\SourceDeviceCollator.css
+C:\Users\steve\wingman\src\wingman2\styles\wingman-redesign-theme.css
+C:\Users\steve\wingman\src\wingman2\styles\wingman-style-stack.css

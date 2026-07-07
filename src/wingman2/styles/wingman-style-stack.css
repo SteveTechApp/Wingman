@@ -637,12 +637,12 @@ svg.react-flow__connectionline {
 
 @tailwind utilities;
 
-/* ==========================================================================
+/* ------------------------------------------------------------------------
    Wingman UI Authority Layer
    Purpose: prevent page-by-page styling drift by forcing one shared shell,
    page host, card system, form treatment, colour palette and density scale.
    This block intentionally sits after Tailwind utilities so it wins.
-   ========================================================================== */
+   ------------------------------------------------------------------------ */
 
 :root {
   --wm-bg-0: #050b13;
@@ -9009,7 +9009,7 @@ table {
 
 
 /* WINGMAN CENTRALISED DASHBOARD REDESIGN CSS START
-   Centralised because main.tsx may only import wingman-style-stack.css.
+   Centralised because main.tsx loads only wingman-style-stack.css.
 */
 
 /* ---- Inlined from wingman-ui-redesign.css ---- */
@@ -12490,14 +12490,14 @@ html[data-wingman-route="finder"] .wingman-page-host .flex.border :where(p, span
 
 /* WINGMAN MERGED GLOBAL UNIFORMITY START */
 
-/* ==========================================================================
+/* ------------------------------------------------------------------------
    WINGMAN GLOBAL UNIFORMITY LAYER
    Imported last from src/main.tsx.
 
    Purpose:
    Reduce page-to-page visual drift while local TSX/Tailwind styling is
    gradually replaced with semantic Wingman classes.
-   ========================================================================== */
+   ------------------------------------------------------------------------ */
 
 :root {
   --wm-uniform-bg-0: #020817;
@@ -12742,10 +12742,10 @@ main [class*="text-red-"] {
   color: #fca5a5 !important;
 }
 
-/* ==========================================================================
+/* ------------------------------------------------------------------------
    TEMPLATE LIBRARY COMPACT REDESIGN
    Global layout rules for /wingman/templates.
-   ========================================================================== */
+   ------------------------------------------------------------------------ */
 
 .wm-template-library-page {
   display: grid;
@@ -16314,10 +16314,10 @@ html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-toolbar .bg-s
   color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* =========================================================
+/* ------------------------------------------------------------------------
    Wingman page unification: Glossary + Intelligence
    Match Call Coach dark mission-control styling
-   ========================================================= */
+   ------------------------------------------------------------------------ */
 
 html[data-wingman-route="glossary"] main,
 html[data-wingman-route="intelligence"] main,
@@ -16828,10 +16828,10 @@ main[data-wingman-page="settings"] footer,
   }
 }
 
-/* =========================================================
+/* ------------------------------------------------------------------------
    FORCE Settings page into Wingman dark theme
    Overrides old white/admin ProfilePage settings cards
-   ========================================================= */
+   ------------------------------------------------------------------------ */
 
 html[data-wingman-route="settings"] .wingman-page-host main,
 html[data-wingman-route="settings"] main,
@@ -33460,12 +33460,12 @@ html[data-wingman-route="compare"] [data-wingman-page="compare"] a:last-child {
 }
 
 
-/* ==========================================================================
+/* ------------------------------------------------------------------------
    Governed Wingman visual consistency layer
    New work should compose these primitives instead of adding page-local
    colour, radius, spacing or decision-state rules. The Compare and Templates
    selectors below are transitional bridges for their existing markup.
-   ========================================================================== */
+   ------------------------------------------------------------------------ */
 
 .wm-ui-page {
   width: 100%;
@@ -36007,3 +36007,1530 @@ main.wm-dashboard-shell .wm-guru-fab {
   right: auto !important;
   transform: none !important;
 }
+
+/* WINGMAN CONSOLIDATED GOVERNED VISUAL SYSTEM START */
+/* ------------------------------------------------------------------------
+   WINGMAN REDESIGN THEME
+   Final override layer for the shared Wingman visual system.
+
+   Intent:
+   - Keep the existing consolidated style stack.
+   - Win the cascade by loading after wingman-style-stack.css.
+   - Make the visible app feel consistent without adding page-level CSS imports.
+   - White / near-white body copy.
+   - Aquamarine section headings and titles.
+   - Dark navy surfaces.
+   - Clean rectangular buttons.
+   - Reduced orange dominance.
+   ------------------------------------------------------------------------ */
+
+/* --------------------------------------------------------------------------
+   1. Core tokens
+   -------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: dark;
+
+  --wm-bg-0: #050b14;
+  --wm-bg-1: #07111d;
+  --wm-bg-2: #091827;
+
+  --wm-panel: #0b1724;
+  --wm-panel-soft: #102235;
+  --wm-card: #0f2030;
+  --wm-card-soft: #13293c;
+
+  --wm-border-dark: rgba(127, 216, 230, 0.13);
+  --wm-border-light: rgba(127, 216, 230, 0.22);
+  --wm-border-strong: rgba(99, 243, 255, 0.42);
+
+  --wm-text: #f4fbff;
+  --wm-text-soft: #dcecf6;
+  --wm-text-muted: #a9bdca;
+  --wm-heading: #63f3ff;
+  --wm-heading-soft: #7fd8e6;
+
+  --wm-aqua: #63f3ff;
+  --wm-aqua-soft: rgba(99, 243, 255, 0.12);
+  --wm-aqua-border: rgba(99, 243, 255, 0.34);
+
+  --wm-green: #35d39a;
+  --wm-green-soft: rgba(53, 211, 154, 0.12);
+  --wm-red: #f2705f;
+  --wm-amber: #f5b740;
+  --wm-blue: #6492ff;
+
+  --wm-orange: #63f3ff;
+  --wm-orange-soft: rgba(99, 243, 255, 0.12);
+  --wm-orange-border: rgba(99, 243, 255, 0.32);
+
+  --wm-radius-sm: 10px;
+  --wm-radius-md: 12px;
+  --wm-radius-lg: 16px;
+  --wm-radius-xl: 18px;
+  --wm-radius-2xl: 22px;
+
+  --wm-shadow-panel:
+    0 24px 64px color-mix(in srgb, var(--wm-bg-0) 74%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--wm-text) 7%, transparent);
+  --wm-shadow-card:
+    0 14px 34px color-mix(in srgb, var(--wm-bg-0) 62%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--wm-text) 5%, transparent);
+
+  --wm-weight-body: 450;
+  --wm-weight-ui: 600;
+  --wm-weight-heading: 750;
+  --wm-weight-strong: 800;
+
+  --wm-tracking-heading: -0.025em;
+  --wm-tracking-kicker: 0.08em;
+
+  --wm-ui-page-bg: var(--wm-bg-0);
+  --wm-ui-panel-bg: var(--wm-panel);
+  --wm-ui-card-bg: var(--wm-card);
+  --wm-ui-border: var(--wm-aqua-border);
+  --wm-ui-border-muted: var(--wm-border-dark);
+  --wm-ui-heading: var(--wm-heading);
+  --wm-ui-body: var(--wm-text);
+  --wm-ui-muted: var(--wm-text-muted);
+  --wm-ui-decision: var(--wm-aqua);
+  --wm-ui-decision-strong: #38cfe0;
+  --wm-ui-forward: var(--wm-green);
+  --wm-ui-forward-strong: #22ad7c;
+  --wm-ui-radius-sm: var(--wm-radius-sm);
+  --wm-ui-radius-md: var(--wm-radius-md);
+  --wm-ui-radius-lg: var(--wm-radius-lg);
+  --wm-ui-shadow-card: var(--wm-shadow-card);
+
+  --wm-uniform-title: var(--wm-heading);
+  --wm-uniform-title-soft: var(--wm-heading-soft);
+  --wm-uniform-text: var(--wm-text);
+  --wm-uniform-muted: rgba(220, 236, 246, 0.78);
+  --wm-uniform-border: var(--wm-aqua-border);
+  --wm-uniform-border-strong: var(--wm-border-strong);
+  --wm-uniform-radius: var(--wm-radius-2xl);
+}
+
+/* Route host tokens. AppShell already sets html[data-wingman-route]. */
+html[data-wingman-route] .wingman-page-host {
+  --wm-consistency-title: var(--wm-heading);
+  --wm-consistency-title-soft: var(--wm-heading-soft);
+  --wm-consistency-text: var(--wm-text);
+  --wm-consistency-muted: rgba(220, 236, 246, 0.78);
+  --wm-consistency-border: var(--wm-aqua-border);
+  --wm-consistency-border-strong: var(--wm-border-strong);
+  --wm-consistency-panel: var(--wm-card);
+  --wm-consistency-panel-soft: var(--wm-card-soft);
+  --wm-consistency-hero: linear-gradient(135deg, #0f2435 0%, #07111d 100%);
+  --wm-consistency-shadow: var(--wm-shadow-panel);
+}
+
+/* --------------------------------------------------------------------------
+   2. App shell
+   -------------------------------------------------------------------------- */
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--wm-bg-0) !important;
+  color: var(--wm-text) !important;
+}
+
+body,
+.wingman-shell,
+.wingman-authority-shell,
+.wingman-workspace,
+.wingman-app-main {
+  background:
+    radial-gradient(circle at top right, rgba(99, 243, 255, 0.08), transparent 28rem),
+    linear-gradient(180deg, var(--wm-bg-1), var(--wm-bg-0)) !important;
+  color: var(--wm-text) !important;
+}
+
+body {
+  line-height: 1.55;
+}
+
+.wingman-app-main {
+  padding: clamp(1rem, 1.8vw, 1.75rem) !important;
+}
+
+.wingman-page-host {
+  color: var(--wm-text) !important;
+  max-width: 100% !important;
+  line-height: 1.55;
+}
+
+/* Sidebar */
+.wingman-shell .wingman-sidebar {
+  background: #07111d !important;
+  border-right: 1px solid var(--wm-border-dark) !important;
+  box-shadow: none !important;
+  padding: 14px 12px !important;
+}
+
+.wingman-shell .wingman-brand {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 4px 6px 12px !important;
+  margin-bottom: 8px !important;
+}
+
+.wingman-nav {
+  gap: 4px !important;
+}
+
+.wingman-shell .wingman-nav-link {
+  min-height: 40px !important;
+  padding: 8px 10px !important;
+  border-radius: 10px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--wm-text-muted) !important;
+  font-weight: 560 !important;
+}
+
+.wingman-shell .wingman-nav-link:hover {
+  background: rgba(99, 243, 255, 0.07) !important;
+  border-color: rgba(99, 243, 255, 0.14) !important;
+  color: var(--wm-text) !important;
+}
+
+.wingman-shell .wingman-nav-link-active,
+.wingman-shell .wingman-nav-link.wingman-nav-link-active {
+  background: rgba(99, 243, 255, 0.12) !important;
+  border-color: rgba(99, 243, 255, 0.34) !important;
+  color: var(--wm-heading) !important;
+  font-weight: 700 !important;
+}
+
+.wingman-shell .wingman-nav-icon {
+  color: currentColor !important;
+}
+
+/* Topbar */
+.wingman-topbar {
+  min-height: 56px !important;
+  background: rgba(7, 17, 29, 0.96) !important;
+  border-bottom: 1px solid var(--wm-border-dark) !important;
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--wm-bg-0) 55%, transparent) !important;
+  backdrop-filter: blur(10px);
+}
+
+.wingman-topbar-title p {
+  color: var(--wm-heading) !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.wingman-topbar-title span {
+  color: var(--wm-text-muted) !important;
+}
+
+/* --------------------------------------------------------------------------
+   3. Typography
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host h1,
+.wingman-page-host h2,
+.wingman-page-host h3,
+.wingman-page-host h4,
+.wm-ui-title,
+.compare-native-page h1,
+.compare-native-page h2,
+.compare-native-page h3,
+.wm-navhub-page h1,
+.wm-navhub-page h2,
+.wm-navhub-page h3 {
+  color: var(--wm-heading) !important;
+  font-weight: var(--wm-weight-heading) !important;
+  letter-spacing: var(--wm-tracking-heading) !important;
+}
+
+.wingman-page-host p,
+.wingman-page-host li,
+.wingman-page-host dd,
+.wingman-page-host dt,
+.wingman-page-host label,
+.wingman-page-host span,
+.wm-ui-copy,
+.compare-native-page p,
+.compare-native-page label,
+.wm-navhub-page p {
+  color: var(--wm-text) !important;
+}
+
+.wingman-page-host small,
+.wingman-page-host .text-slate-400,
+.wingman-page-host .text-slate-500,
+.wingman-page-host .compare-native-muted,
+.wingman-page-host .wm-ui-muted,
+.wingman-page-host [class*="muted"],
+.wingman-page-host [class*="subtitle"],
+.wingman-page-host [class*="summary"] {
+  color: var(--wm-text-muted) !important;
+}
+
+.wm-ui-kicker,
+.compare-native-eyebrow,
+.compare-native-label,
+.wingman-page-host [class*="eyebrow"],
+.wingman-page-host [class*="kicker"] {
+  color: var(--wm-heading-soft) !important;
+  font-size: 0.74rem !important;
+  font-weight: 800 !important;
+  letter-spacing: var(--wm-tracking-kicker) !important;
+  text-transform: uppercase !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. Shared page surfaces
+   -------------------------------------------------------------------------- */
+
+.wm-ui-page,
+.compare-native-page,
+.wm-templates-page,
+.wm-projects-page,
+.wm-finder-page,
+.wm-discovery-page,
+.wm-proposal-page,
+.wm-product-pitch-page,
+.wm-product-family-page,
+.wm-navhub-page,
+[data-wingman-page] {
+  background: transparent !important;
+  color: var(--wm-text) !important;
+}
+
+.wm-ui-hero,
+.compare-native-hero,
+.wm-template-hero,
+.wingman-page-host [class*="hero"] {
+  border: 1px solid var(--wm-aqua-border) !important;
+  border-radius: var(--wm-radius-2xl) !important;
+  background:
+    radial-gradient(circle at top right, rgba(99, 243, 255, 0.14), transparent 30rem),
+    linear-gradient(135deg, rgba(15, 36, 53, 0.96), rgba(7, 17, 29, 0.98)) !important;
+  box-shadow: var(--wm-shadow-panel) !important;
+  color: var(--wm-text) !important;
+}
+
+.wm-ui-section,
+.compare-native-results,
+.compare-native-form,
+.wingman-page-host section,
+.wingman-page-host article {
+  color: var(--wm-text) !important;
+}
+
+.wm-ui-card,
+.compare-native-card,
+.compare-native-stage-card,
+.compare-native-results,
+.wingman-page-host .wingman-card,
+.wingman-page-host .wingman-panel,
+.wingman-page-host [class*="card"],
+.wingman-page-host [class*="panel"] {
+  border-color: var(--wm-border-light) !important;
+  border-radius: var(--wm-radius-xl) !important;
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--wm-aqua) 7%, transparent), transparent 60%),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--wm-card-soft) 82%, var(--wm-bg-1)),
+      color-mix(in srgb, var(--wm-card) 82%, var(--wm-bg-0))
+    ) !important;
+  box-shadow: var(--wm-shadow-card) !important;
+  color: var(--wm-text) !important;
+}
+
+.wm-ui-card-header,
+.compare-native-section-title,
+.wingman-page-host [class*="card-header"],
+.wingman-page-host [class*="section-title"] {
+  display: grid !important;
+  min-height: 96px;
+  align-content: center !important;
+  justify-items: center !important;
+  gap: 0.4rem;
+  padding: clamp(1rem, 1.4vw, 1.35rem) !important;
+  border-color: var(--wm-border-dark) !important;
+  color: var(--wm-text) !important;
+  text-align: center !important;
+}
+
+/* Override common arbitrary Tailwind background utilities used as page panels. */
+.wingman-page-host main[class*="bg-["],
+.wingman-page-host section[class*="bg-["],
+.wingman-page-host article[class*="bg-["],
+.wingman-page-host div[class*="bg-[#0d2133]"],
+.wingman-page-host div[class*="bg-[#071521]"],
+.wingman-page-host div[class*="bg-slate"],
+.wingman-page-host section[class*="bg-slate"],
+.wingman-page-host article[class*="bg-slate"] {
+  background: linear-gradient(180deg, rgba(15, 32, 48, 0.96), rgba(10, 23, 36, 0.96)) !important;
+  color: var(--wm-text) !important;
+}
+
+/* --------------------------------------------------------------------------
+   5. Buttons and action controls
+   -------------------------------------------------------------------------- */
+
+.wm-ui-button,
+.wingman-new-project-button,
+.compare-native-reset,
+.compare-native-more,
+.compare-native-secondary-action,
+.compare-native-chip,
+.wingman-page-host button,
+.wingman-page-host a[role="button"] {
+  display: inline-flex !important;
+  min-height: 44px;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.68rem 1rem !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(99, 243, 255, 0.24) !important;
+  background: rgba(99, 243, 255, 0.09) !important;
+  color: var(--wm-text) !important;
+  box-shadow: none !important;
+  font-weight: 650 !important;
+  line-height: 1.25 !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease !important;
+}
+
+.wingman-page-host button:hover,
+.wingman-page-host a[role="button"]:hover,
+.wm-ui-button:hover,
+.compare-native-chip:hover {
+  border-color: rgba(99, 243, 255, 0.48) !important;
+  background: rgba(99, 243, 255, 0.15) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+.wm-ui-button-primary,
+.wm-ui-button-forward,
+.compare-native-more,
+.wingman-new-project-button {
+  border-color: rgba(99, 243, 255, 0.55) !important;
+  background: linear-gradient(135deg, #63f3ff, #3eb6d6) !important;
+  color: #03121c !important;
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--wm-aqua) 24%, transparent) !important;
+}
+
+.wm-ui-button-secondary,
+.compare-native-secondary-action,
+.compare-native-reset {
+  background: rgba(255, 255, 255, 0.045) !important;
+  color: var(--wm-text) !important;
+}
+
+.wm-ui-button-selected,
+.compare-native-chip.is-active,
+.compare-native-stage-card.is-active {
+  border-color: rgba(99, 243, 255, 0.62) !important;
+  background: rgba(99, 243, 255, 0.17) !important;
+  color: var(--wm-heading) !important;
+  box-shadow:
+    var(--wm-shadow-card),
+    0 0 0 2px color-mix(in srgb, var(--wm-aqua) 16%, transparent) !important;
+  transform: translateY(-2px);
+}
+
+.compare-native-stage-card[disabled],
+.wingman-page-host button[disabled],
+.wingman-page-host button[aria-disabled="true"] {
+  opacity: 0.48 !important;
+  cursor: not-allowed !important;
+}
+
+/* Keep destructive/negative controls visually distinct where present. */
+.wingman-page-host button[class*="danger"],
+.wingman-page-host button[class*="delete"],
+.wingman-page-host button[class*="remove"] {
+  border-color: rgba(242, 112, 95, 0.42) !important;
+  background: rgba(242, 112, 95, 0.12) !important;
+  color: #ffd8d2 !important;
+}
+
+/* --------------------------------------------------------------------------
+   6. Inputs and forms
+   -------------------------------------------------------------------------- */
+
+.wm-ui-input,
+.compare-native-input,
+.wingman-page-host input,
+.wingman-page-host select,
+.wingman-page-host textarea {
+  min-height: 46px;
+  padding: 0.72rem 0.85rem !important;
+  border: 1px solid rgba(127, 216, 230, 0.24) !important;
+  border-radius: 10px !important;
+  background: rgba(3, 12, 22, 0.72) !important;
+  color: var(--wm-text) !important;
+  box-shadow: none !important;
+  line-height: 1.45;
+}
+
+.wingman-page-host input::placeholder,
+.wingman-page-host textarea::placeholder {
+  color: rgba(220, 236, 246, 0.48) !important;
+}
+
+.wingman-page-host input:focus,
+.wingman-page-host select:focus,
+.wingman-page-host textarea:focus {
+  outline: none !important;
+  border-color: rgba(99, 243, 255, 0.66) !important;
+  box-shadow: 0 0 0 3px rgba(99, 243, 255, 0.12) !important;
+}
+
+/* --------------------------------------------------------------------------
+   7. Compare page refinement
+   -------------------------------------------------------------------------- */
+
+.compare-native-page {
+  display: grid !important;
+  gap: 1.25rem !important;
+}
+
+.compare-native-stage-rail {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0.9rem !important;
+  padding: 0.9rem !important;
+}
+
+.compare-native-stage-card {
+  min-height: 112px !important;
+  align-content: center !important;
+  justify-items: center !important;
+  gap: 0.45rem !important;
+  padding: 1.15rem !important;
+  text-align: center !important;
+}
+
+.compare-native-stage-card strong {
+  color: inherit !important;
+  font-size: 1rem !important;
+  line-height: 1.3 !important;
+}
+
+.compare-native-stage-step {
+  color: var(--wm-heading-soft) !important;
+  display: inline-flex !important;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.65rem;
+  border: 1px solid var(--wm-border-light);
+  border-radius: 999px !important;
+  background: color-mix(in srgb, var(--wm-aqua) 8%, transparent) !important;
+}
+
+.wingman-page-host .compare-native-chip-row,
+.wingman-page-host .compare-native-action-row {
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 0.65rem !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.compare-native-chip {
+  min-height: 42px !important;
+  padding: 0.62rem 0.9rem !important;
+  line-height: 1.2 !important;
+}
+
+.compare-native-results--stage {
+  display: grid !important;
+  gap: 1.25rem !important;
+  padding: clamp(1.1rem, 1.6vw, 1.6rem) !important;
+}
+
+/* --------------------------------------------------------------------------
+   8. Discovery / Finder / Proposal / Product pages
+   -------------------------------------------------------------------------- */
+
+.wm-route-discovery .wingman-page-host,
+.wm-route-finder .wingman-page-host,
+.wm-route-product-pitch .wingman-page-host,
+.wm-route-proposal .wingman-page-host,
+.wm-route-compare .wingman-page-host {
+  max-width: min(100%, 1480px) !important;
+  margin-inline: auto !important;
+}
+
+.wm-route-discovery .wingman-page-host [class*="choice"],
+.wm-route-discovery .wingman-page-host [class*="option"],
+.wm-route-finder .wingman-page-host [class*="result"],
+.wm-route-product-pitch .wingman-page-host [class*="result"],
+.wm-route-proposal .wingman-page-host [class*="result"] {
+  border-color: var(--wm-border-light) !important;
+  background: rgba(15, 32, 48, 0.92) !important;
+  color: var(--wm-text) !important;
+}
+
+/* Prevent legacy light cards from resurfacing. */
+.wingman-page-host .bg-white,
+.wingman-page-host .bg-slate-50,
+.wingman-page-host .bg-slate-100,
+.wingman-page-host .text-slate-900,
+.wingman-page-host .text-slate-800,
+.wingman-page-host .text-slate-700 {
+  color: var(--wm-text) !important;
+}
+
+.wingman-page-host .bg-white,
+.wingman-page-host .bg-slate-50,
+.wingman-page-host .bg-slate-100 {
+  background: rgba(15, 32, 48, 0.96) !important;
+}
+
+/* --------------------------------------------------------------------------
+   9. Remove duplicated header/helper pill rows
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host .wingman-info-pills,
+.wingman-page-host .wm-info-pills,
+.wingman-page-host .wingman-page-info-pills,
+.wingman-page-host .wm-page-info-pills,
+.wingman-page-host .wingman-shortcut-pills,
+.wingman-page-host .wm-shortcut-pills,
+.wingman-page-host .wingman-quick-links,
+.wingman-page-host .wm-quick-links,
+.wingman-page-host .wingman-jump-links,
+.wingman-page-host .wm-jump-links,
+.wingman-page-host .wingman-page-nav-pills,
+.wingman-page-host .wm-page-nav-pills,
+.wingman-page-host .wingman-section-nav-pills,
+.wingman-page-host .wm-section-nav-pills,
+.wingman-page-host .wingman-mode-pills,
+.wingman-page-host .wm-mode-pills,
+.wm-navhub-submodes {
+  display: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   10. Scrollbar and clipping cleanup
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host h1,
+.wingman-page-host h2,
+.wingman-page-host h3,
+.wingman-page-host h4,
+.wingman-page-host [class*="title"],
+.wingman-page-host [class*="heading"] {
+  overflow: visible !important;
+  line-height: 1.14 !important;
+}
+
+.wingman-page-host {
+  scrollbar-color: rgba(99, 243, 255, 0.38) rgba(7, 17, 29, 0.5);
+}
+
+.wingman-page-host ::selection {
+  background: rgba(99, 243, 255, 0.24);
+  color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   11. Mobile density
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .wingman-app-main {
+    padding: 0.75rem !important;
+  }
+
+  .compare-native-stage-rail {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wm-ui-hero,
+  .compare-native-hero,
+  .wingman-page-host [class*="hero"] {
+    padding: 1rem !important;
+  }
+}
+
+/* === WINGMAN DASHBOARD VISUAL CORRECTION PASS START === */
+.wm-dashboard-shell {
+  --wm-dashboard-border-subtle: color-mix(in srgb, var(--wm-aqua) 18%, transparent);
+  --wm-dashboard-border-medium: color-mix(in srgb, var(--wm-aqua) 32%, transparent);
+  --wm-dashboard-panel: color-mix(in srgb, var(--wm-card) 88%, var(--wm-bg-0));
+  --wm-dashboard-panel-hover: color-mix(in srgb, var(--wm-card-soft) 88%, var(--wm-bg-0));
+  --wm-dashboard-hero: linear-gradient(135deg, var(--wm-panel-soft), var(--wm-bg-1));
+  --wm-dashboard-action: linear-gradient(135deg, var(--wm-aqua), var(--wm-heading-soft));
+
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: clamp(0.85rem, 1.2vw, 1.25rem);
+  width: 100%;
+  max-width: 1780px;
+  min-height: 0;
+  margin-inline: auto;
+  padding: clamp(0.75rem, 1vw, 1.15rem);
+  color: var(--wm-text);
+}
+
+.wm-dashboard-main {
+  display: grid;
+  gap: clamp(0.85rem, 1.1vw, 1.2rem);
+  min-width: 0;
+}
+
+.wm-dashboard-rail {
+  align-self: start;
+  min-height: 0;
+  padding: clamp(0.9rem, 1vw, 1.15rem);
+  border-color: var(--wm-dashboard-border-subtle);
+  background: var(--wm-dashboard-panel);
+}
+
+.wm-dashboard-brand {
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.9rem;
+  border-radius: 999px;
+  color: var(--wm-bg-0);
+  background: var(--wm-dashboard-action);
+  font-size: 1.2rem;
+  font-weight: var(--wm-weight-strong);
+}
+
+.wm-dashboard-rail-title {
+  max-width: 14rem;
+  margin-block: 0.55rem 0;
+  font-size: clamp(1.45rem, 1.4vw, 2rem);
+  line-height: 1.02;
+}
+
+.wm-dashboard-rail-copy {
+  margin-block: 0.8rem 0;
+  color: var(--wm-text-soft);
+}
+
+.wm-dashboard-rail-actions {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1rem;
+}
+
+.wm-dashboard-action-button {
+  min-height: 42px;
+  width: 100%;
+  justify-content: center;
+  gap: 0.45rem;
+  aspect-ratio: auto;
+}
+
+.wm-dashboard-resume-card {
+  display: grid;
+  gap: 0.85rem;
+  min-height: 0;
+  padding: clamp(0.95rem, 1.15vw, 1.25rem);
+  text-decoration: none;
+  background: var(--wm-dashboard-hero);
+}
+
+.wm-dashboard-resume-head,
+.wm-dashboard-section-head,
+.wm-dashboard-project-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.85rem;
+}
+
+.wm-dashboard-resume-copy {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.wm-dashboard-resume-title {
+  display: block;
+  font-size: clamp(1.05rem, 1vw, 1.25rem);
+}
+
+.wm-dashboard-section {
+  display: grid;
+  gap: 0.8rem;
+  padding: clamp(0.9rem, 1vw, 1.15rem);
+  border-color: var(--wm-dashboard-border-subtle);
+}
+
+.wm-dashboard-grid,
+.wm-dashboard-project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.75rem, 1vw, 1rem);
+}
+
+.wm-dashboard-destination-card,
+.wm-dashboard-project-card {
+  display: grid;
+  gap: 0.55rem;
+  min-height: 132px;
+  padding: clamp(0.85rem, 1vw, 1rem);
+  text-decoration: none;
+  border-color: var(--wm-dashboard-border-subtle);
+  background: var(--wm-dashboard-panel);
+}
+
+.wm-dashboard-destination-card:hover,
+.wm-dashboard-project-card:hover {
+  border-color: var(--wm-dashboard-border-medium);
+  background: var(--wm-dashboard-panel-hover);
+}
+
+.wm-dashboard-icon {
+  display: inline-flex;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--wm-dashboard-border-subtle);
+  border-radius: 12px;
+  color: var(--wm-heading-soft);
+  background: color-mix(in srgb, var(--wm-aqua) 10%, transparent);
+}
+
+.wm-dashboard-card-title {
+  font-size: 1rem;
+  line-height: 1.18;
+}
+
+.wm-dashboard-card-copy {
+  margin: 0;
+  color: var(--wm-text-soft);
+}
+
+.wm-dashboard-card-link {
+  align-self: end;
+  color: var(--wm-heading-soft);
+  font-weight: var(--wm-weight-heading);
+  text-decoration: none;
+}
+
+.wm-dashboard-next-step {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--wm-dashboard-border-subtle);
+  color: var(--wm-text-soft);
+}
+
+.wm-dashboard-next-step svg {
+  flex: 0 0 auto;
+  color: var(--wm-heading-soft);
+}
+
+.wm-dashboard-next-kicker,
+.wm-dashboard-next-copy {
+  display: block;
+}
+
+.wm-dashboard-project-updated {
+  white-space: nowrap;
+  color: var(--wm-text-muted);
+}
+
+.wm-dashboard-hidden-markers {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: inset(50%);
+}
+
+@media (max-width: 1320px) {
+  .wm-dashboard-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-dashboard-rail {
+    position: static;
+  }
+
+  .wm-dashboard-rail-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .wm-dashboard-grid,
+  .wm-dashboard-project-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-dashboard-rail-actions {
+    grid-template-columns: 1fr;
+  }
+}
+/* === WINGMAN DASHBOARD VISUAL CORRECTION PASS END === */
+
+/* --------------------------------------------------------------------------
+   Shared guided-workflow polish
+   -------------------------------------------------------------------------- */
+
+.wm-ui-hero:not(.wm-dashboard-resume-card) {
+  display: grid !important;
+  min-height: 168px;
+  place-items: center !important;
+  gap: 1rem !important;
+  padding: clamp(1.35rem, 2vw, 2rem) !important;
+  text-align: center !important;
+}
+
+.wm-ui-hero:not(.wm-dashboard-resume-card) > :first-child {
+  display: grid;
+  justify-items: center;
+  gap: 0.55rem;
+  width: min(100%, 72rem);
+}
+
+.wingman-page-hero.wingman-page-hero-compact {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  min-height: 176px !important;
+  place-items: center !important;
+  gap: 1rem !important;
+  padding: clamp(1.4rem, 2.2vw, 2.25rem) !important;
+  text-align: center !important;
+}
+
+.wingman-page-hero-compact .wingman-hero-copy {
+  display: grid !important;
+  justify-items: center !important;
+  gap: 0.55rem !important;
+  width: min(100%, 74rem) !important;
+  max-width: none !important;
+}
+
+.wingman-page-hero-compact .wingman-display,
+.wingman-page-hero-compact .wingman-hero-purpose {
+  max-width: 64rem;
+  margin-inline: auto !important;
+  text-align: center !important;
+}
+
+.wingman-hero-next {
+  display: grid;
+  width: min(100%, 58rem);
+  min-height: 64px;
+  align-content: center;
+  justify-items: center;
+  gap: 0.25rem;
+  margin-top: 0.55rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--wm-border-light);
+  border-radius: var(--wm-radius-lg);
+  background: color-mix(in srgb, var(--wm-aqua) 7%, var(--wm-bg-1));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--wm-text) 6%, transparent);
+  text-align: center;
+}
+
+.wingman-hero-next span {
+  color: var(--wm-heading-soft) !important;
+  font-size: 0.7rem;
+  font-weight: var(--wm-weight-strong);
+  letter-spacing: var(--wm-tracking-kicker);
+  text-transform: uppercase;
+}
+
+.wingman-hero-next strong {
+  color: var(--wm-text) !important;
+  font-size: 0.92rem;
+  font-weight: var(--wm-weight-heading);
+  line-height: 1.45;
+}
+
+.wingman-page-hero-compact .wingman-hero-actions {
+  display: flex !important;
+  width: 100% !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.75rem !important;
+}
+
+.wingman-page-hero-compact .wingman-hero-action {
+  min-height: 46px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0.72rem 1.15rem !important;
+  text-align: center !important;
+}
+
+.wingman-section-card {
+  overflow: clip;
+  border-color: var(--wm-border-light) !important;
+  border-radius: var(--wm-radius-2xl) !important;
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--wm-aqua) 7%, transparent), transparent 52%),
+    linear-gradient(180deg, var(--wm-card-soft), var(--wm-panel)) !important;
+  box-shadow: var(--wm-shadow-panel) !important;
+}
+
+.wingman-section-card-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  min-height: 118px;
+  place-items: center !important;
+  gap: 0.75rem !important;
+  padding: clamp(1.15rem, 1.7vw, 1.65rem) !important;
+  border-bottom: 1px solid var(--wm-border-dark);
+  background: color-mix(in srgb, var(--wm-card-soft) 72%, transparent);
+  text-align: center !important;
+}
+
+.wingman-section-card-header > div,
+.wingman-section-card-title-row,
+.wingman-section-card-title-row > div {
+  display: grid !important;
+  justify-items: center !important;
+  gap: 0.35rem !important;
+  width: 100%;
+  text-align: center !important;
+}
+
+.wingman-section-card-header p:not(.wingman-kicker) {
+  max-width: 70ch;
+  margin-inline: auto !important;
+  line-height: 1.6 !important;
+}
+
+.wingman-section-card-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.65rem !important;
+}
+
+.wingman-section-card-body {
+  padding: clamp(1.15rem, 1.7vw, 1.75rem) !important;
+}
+
+.wm-ui-centered-card,
+.wm-ui-guidance-card {
+  display: grid !important;
+  min-height: 112px;
+  align-content: center !important;
+  justify-items: center !important;
+  gap: 0.65rem !important;
+  padding: clamp(1.1rem, 1.6vw, 1.55rem) !important;
+  text-align: center !important;
+}
+
+.wm-ui-centered-card > *,
+.wm-ui-guidance-card > * {
+  max-width: 76rem;
+}
+
+.wm-ui-centered-card :is(input, select, textarea) {
+  width: 100%;
+  text-align: center;
+}
+
+.wm-ui-centered-card p,
+.wm-ui-guidance-card p {
+  margin-inline: auto !important;
+  line-height: 1.65 !important;
+}
+
+details.wm-ui-guidance-card:not([open]) {
+  min-height: 72px;
+}
+
+.wm-ui-guidance-card > summary {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1rem;
+  color: var(--wm-heading-soft);
+  font-weight: var(--wm-weight-heading);
+  line-height: 1.3;
+  text-align: center;
+  cursor: pointer;
+  list-style: none;
+}
+
+.wm-ui-guidance-card > summary::after {
+  content: "+";
+  margin-left: 0.55rem;
+  color: var(--wm-aqua);
+  font-size: 1.1rem;
+}
+
+.wm-ui-guidance-card[open] > summary::after {
+  content: "−";
+}
+
+.wingman-page-host .wm-ui-centered-actions {
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 0.8rem !important;
+  padding: 1rem !important;
+  text-align: center !important;
+}
+
+.wm-ui-centered-actions > .wm-ui-action-row {
+  justify-content: center !important;
+}
+
+.wingman-page-host .wm-ui-action-row {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.wingman-page-host .wm-ui-action-row.wm-ui-centered-actions {
+  border: 1px solid var(--wm-border-light) !important;
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--wm-aqua) 7%, transparent), transparent 62%),
+    color-mix(in srgb, var(--wm-card) 90%, var(--wm-bg-1)) !important;
+  box-shadow: var(--wm-shadow-card) !important;
+}
+
+.wm-ui-step-status {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  color: var(--wm-text-muted) !important;
+  font-size: 0.68rem;
+  font-weight: var(--wm-weight-ui);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.wm-ui-quiet-action {
+  width: auto !important;
+  min-width: 9rem;
+  justify-self: center;
+}
+
+.wingman-page-host :is(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--wm-aqua) 58%, transparent) !important;
+  outline-offset: 3px !important;
+}
+
+.wingman-page-host :is(button.wm-ui-card, a.wm-ui-card):hover {
+  border-color: var(--wm-border-strong) !important;
+  box-shadow:
+    var(--wm-shadow-card),
+    0 0 0 1px color-mix(in srgb, var(--wm-aqua) 12%, transparent) !important;
+}
+
+@media (max-width: 900px) {
+  .wingman-page-hero.wingman-page-hero-compact {
+    min-height: 0 !important;
+    padding: 1.15rem !important;
+  }
+
+  .wingman-page-hero-compact .wingman-hero-actions {
+    flex-direction: column !important;
+  }
+
+  .wingman-page-hero-compact .wingman-hero-action {
+    width: 100% !important;
+  }
+
+  .wingman-section-card-header,
+  .wingman-section-card-body {
+    padding: 1rem !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Governed primitive aliases
+   These are the page/component contracts new Wingman UI should use directly.
+   Keep ordinary text transparent; only real badges/statuses/buttons receive
+   visible chip/button surfaces.
+   -------------------------------------------------------------------------- */
+
+html[data-wingman-route] .wingman-page-host .wm-page,
+.wm-page {
+  display: grid;
+  gap: clamp(0.9rem, 1.2vw, 1.3rem);
+  width: 100%;
+  max-width: min(100%, 1560px);
+  margin-inline: auto;
+  color: var(--wm-text);
+  background: transparent;
+}
+
+.wm-page-header,
+.wm-page-hero,
+.wm-section,
+.wm-section-card,
+.wm-card,
+.wm-action-card,
+.wm-output-panel {
+  border: 1px solid var(--wm-border-light);
+  border-radius: var(--wm-radius-xl);
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--wm-aqua) 7%, transparent), transparent 58%),
+    linear-gradient(180deg, color-mix(in srgb, var(--wm-card-soft) 88%, transparent), var(--wm-card));
+  box-shadow: var(--wm-shadow-card);
+  color: var(--wm-text);
+}
+
+.wm-page-header,
+.wm-page-hero {
+  display: grid;
+  min-height: clamp(8rem, 11vw, 11rem);
+  place-items: center;
+  gap: 0.8rem;
+  padding: clamp(1.4rem, 2vw, 2.1rem);
+  text-align: center;
+}
+
+.wm-page-header > *,
+.wm-page-hero > * {
+  max-width: 76rem;
+}
+
+.wm-section,
+.wm-section-card,
+.wm-card,
+.wm-action-card,
+.wm-output-panel {
+  padding: clamp(1rem, 1.4vw, 1.45rem);
+}
+
+.wm-section {
+  display: grid;
+  gap: clamp(0.8rem, 1vw, 1.1rem);
+}
+
+.wm-section-card,
+.wm-card,
+.wm-action-card {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+}
+
+.wm-action-card {
+  min-height: 8rem;
+  text-decoration: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease,
+    background 160ms ease;
+}
+
+.wm-action-card:hover,
+.wm-action-card:focus-visible {
+  transform: translateY(-1px);
+  border-color: var(--wm-border-strong);
+  box-shadow:
+    var(--wm-shadow-card),
+    0 0 0 1px color-mix(in srgb, var(--wm-aqua) 14%, transparent);
+}
+
+.wm-page :is(h1, h2, h3, h4),
+.wm-page-header :is(h1, h2, h3, h4),
+.wm-page-hero :is(h1, h2, h3, h4),
+.wm-section :is(h1, h2, h3, h4),
+.wm-section-card :is(h1, h2, h3, h4),
+.wm-card :is(h1, h2, h3, h4),
+.wm-action-card :is(h1, h2, h3, h4, strong),
+.wm-output-panel :is(h1, h2, h3, h4, strong) {
+  margin: 0;
+  color: var(--wm-heading);
+  line-height: 1.14;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.wm-page :is(p, li, dd, dt),
+.wm-page-header :is(p, span:not(.wm-badge):not(.wm-status)),
+.wm-page-hero :is(p, span:not(.wm-badge):not(.wm-status)),
+.wm-section :is(p, li, dd, dt, span:not(.wm-badge):not(.wm-status)),
+.wm-section-card :is(p, li, dd, dt, span:not(.wm-badge):not(.wm-status)),
+.wm-card :is(p, li, dd, dt, span:not(.wm-badge):not(.wm-status)),
+.wm-action-card :is(p, span:not(.wm-badge):not(.wm-status)),
+.wm-output-panel :is(p, span:not(.wm-badge):not(.wm-status)) {
+  margin: 0;
+  color: var(--wm-text-soft);
+  line-height: 1.55;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.wm-button,
+.wm-button-primary,
+.wm-button-secondary,
+.wm-button-ghost,
+.wm-page a.wm-button,
+.wm-page button.wm-button {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.68rem 1.05rem;
+  border: 1px solid var(--wm-border-light);
+  border-radius: var(--wm-radius-md);
+  color: var(--wm-text);
+  background: color-mix(in srgb, var(--wm-aqua) 9%, transparent);
+  box-shadow: none;
+  font-weight: var(--wm-weight-ui);
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.wm-button:hover:not(:disabled),
+.wm-button:focus-visible:not(:disabled) {
+  border-color: var(--wm-border-strong);
+  background: color-mix(in srgb, var(--wm-aqua) 15%, transparent);
+}
+
+.wm-button-primary {
+  border-color: color-mix(in srgb, var(--wm-aqua) 70%, transparent);
+  background: linear-gradient(135deg, var(--wm-aqua), var(--wm-heading-soft));
+  color: var(--wm-bg-0);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--wm-aqua) 22%, transparent);
+}
+
+.wm-button-secondary {
+  background: color-mix(in srgb, var(--wm-card-soft) 74%, transparent);
+}
+
+.wm-button-ghost {
+  background: transparent;
+  box-shadow: none;
+}
+
+.wm-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: clamp(0.8rem, 1vw, 1rem);
+}
+
+.wm-field {
+  display: grid;
+  align-content: start;
+  gap: 0.42rem;
+  color: var(--wm-heading-soft);
+  font-size: 0.74rem;
+  font-weight: var(--wm-weight-heading);
+  letter-spacing: var(--wm-tracking-kicker);
+  text-transform: uppercase;
+}
+
+.wm-input,
+.wm-select,
+.wm-textarea {
+  width: 100%;
+  min-height: 2.85rem;
+  padding: 0.72rem 0.85rem;
+  border: 1px solid var(--wm-border-light);
+  border-radius: var(--wm-radius-md);
+  background: color-mix(in srgb, var(--wm-bg-0) 72%, transparent);
+  color: var(--wm-text);
+  line-height: 1.45;
+}
+
+.wm-textarea {
+  min-height: 5.2rem;
+  resize: vertical;
+}
+
+.wm-input:focus,
+.wm-select:focus,
+.wm-textarea:focus {
+  outline: 3px solid color-mix(in srgb, var(--wm-aqua) 20%, transparent);
+  outline-offset: 2px;
+  border-color: var(--wm-border-strong);
+}
+
+.wm-output-panel {
+  display: grid;
+  align-content: center;
+  gap: 0.45rem;
+  min-height: 4rem;
+}
+
+.wm-badge,
+.wm-status {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 1.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.7rem;
+  border: 1px solid var(--wm-border-light);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--wm-aqua) 9%, transparent);
+  color: var(--wm-heading-soft);
+  font-size: 0.72rem;
+  font-weight: var(--wm-weight-heading);
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  box-shadow: none;
+}
+
+.wm-status-recommended {
+  border-color: color-mix(in srgb, var(--wm-green) 55%, transparent);
+  background: var(--wm-green-soft);
+  color: var(--wm-text);
+}
+
+.wm-status-alternative {
+  border-color: color-mix(in srgb, var(--wm-amber) 52%, transparent);
+  background: color-mix(in srgb, var(--wm-amber) 14%, transparent);
+  color: var(--wm-text);
+}
+
+.wm-status-caution {
+  border-color: color-mix(in srgb, var(--wm-red) 52%, transparent);
+  background: color-mix(in srgb, var(--wm-red) 14%, transparent);
+  color: var(--wm-text);
+}
+
+.wm-action-row,
+.wm-section-card-actions,
+.wm-profile-hero-actions,
+.wm-profile-button-row,
+.wm-profile-brand-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.wm-template-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: clamp(0.8rem, 1vw, 1rem);
+}
+
+.wm-template-card-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.wm-template-summary,
+.wm-template-direction,
+.wm-dashboard-card-copy {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.wm-settings-page {
+  max-width: min(100%, 1640px);
+}
+
+.wm-settings-page .wm-page-header {
+  grid-template-columns: minmax(0, 1fr) auto;
+  place-items: center stretch;
+  text-align: left;
+}
+
+.wm-settings-page .wm-page-header > div:first-child {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.wm-settings-page .wm-profile-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+}
+
+.wm-settings-page .wm-profile-two-col {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wm-profile-status-strip {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+}
+
+.wm-profile-status-strip > span {
+  color: var(--wm-heading-soft);
+  font-size: 0.72rem;
+  font-weight: var(--wm-weight-heading);
+  letter-spacing: var(--wm-tracking-kicker);
+  text-transform: uppercase;
+}
+
+.wm-profile-brand-row {
+  display: grid;
+  grid-template-columns: minmax(5rem, 7rem) minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.wm-profile-logo-box {
+  min-height: 4.75rem;
+  border-style: dashed;
+}
+
+.wm-profile-logo-box img {
+  max-width: 100%;
+  max-height: 4rem;
+  object-fit: contain;
+}
+
+.wm-profile-file-input {
+  display: none;
+}
+
+.wm-dashboard-shell .wm-dashboard-rail,
+.wm-dashboard-shell .wm-dashboard-section,
+.wm-dashboard-shell .wm-dashboard-destination-card,
+.wm-dashboard-shell .wm-dashboard-project-card,
+.wm-dashboard-shell .wm-dashboard-resume-card {
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--wm-aqua) 6%, transparent), transparent 58%),
+    linear-gradient(180deg, color-mix(in srgb, var(--wm-card-soft) 82%, transparent), var(--wm-card)) !important;
+}
+
+.wm-dashboard-shell :is(.wm-dashboard-card-title, .wm-dashboard-card-eyebrow, .wm-dashboard-card-copy, .wm-dashboard-card-link) {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 900px) {
+  .wm-settings-page .wm-page-header,
+  .wm-settings-page .wm-profile-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+/* WINGMAN CONSOLIDATED GOVERNED VISUAL SYSTEM END */

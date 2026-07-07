@@ -244,16 +244,16 @@ export function DashboardPage() {
 
   return (
     <main
-      className="wm-ui-page wingman-page-host wm-dashboard-visual-root wm-dashboard-shell"
+      className="wm-page wingman-page-host wm-dashboard-visual-root wm-dashboard-shell"
       data-wingman-page="home"
       data-wingman-home="true"
       aria-label="Wingman dashboard"
     >
-      <aside className="wm-ui-card wm-dashboard-rail">
+      <aside className="wm-section-card wm-dashboard-rail">
         <span className="wm-dashboard-brand">W</span>
         <span className="wm-ui-kicker">WyreStorm Wingman</span>
-        <h1 className="wm-ui-title wm-dashboard-rail-title">What are you trying to do?</h1>
-        <p className="wm-ui-copy wm-dashboard-rail-copy">
+        <h1 className="wm-page-title wm-dashboard-rail-title">What are you trying to do?</h1>
+        <p className="wm-copy wm-dashboard-rail-copy">
           Start from the customer task. Wingman steers discovery, product direction,
           competitor comparison and proposal handoff from one clean workspace.
         </p>
@@ -261,7 +261,7 @@ export function DashboardPage() {
         <div className="wm-dashboard-rail-actions">
           <Link
             to={routeCatalogByKey.discovery.path}
-            className="wm-ui-button wm-ui-button-primary wm-dashboard-action-button"
+            className="wm-button wm-button-primary wm-dashboard-action-button"
             data-wingman-dashboard-primary-button="true"
             data-wingman-dashboard-short-label="Discover"
           >
@@ -271,7 +271,7 @@ export function DashboardPage() {
 
           <Link
             to={routeCatalogByKey.compare.path}
-            className="wm-ui-button wm-ui-button-secondary wm-dashboard-action-button"
+            className="wm-button wm-button-secondary wm-dashboard-action-button"
             data-wingman-dashboard-primary-button="true"
             data-wingman-dashboard-short-label="Compare"
           >
@@ -284,13 +284,13 @@ export function DashboardPage() {
         <Link
           to={resume.resumeTo}
           onClick={() => setActiveProjectId(resume.id)}
-          className="wm-ui-hero wm-dashboard-resume-card"
+          className="wm-action-card wm-dashboard-resume-card"
         >
-          <span className="wm-ui-kicker">Pick up where you left off</span>
+          <span className="wm-badge">Pick up where you left off</span>
           <div className="wm-dashboard-resume-head">
             <div className="wm-dashboard-resume-copy">
-              <strong className="wm-ui-title wm-dashboard-resume-title">{resume.name}</strong>
-              <span className="wm-ui-copy">{projectScopeLine(resume)}</span>
+              <strong className="wm-dashboard-resume-title">{resume.name}</strong>
+              <span>{projectScopeLine(resume)}</span>
             </div>
             <StatusChip label={STATUS_LABEL[resume.status]} variant={resume.status} />
           </div>
@@ -298,17 +298,17 @@ export function DashboardPage() {
           <div className="wm-dashboard-next-step">
             <Flag className="h-4 w-4" aria-hidden="true" />
             <div>
-              <span className="wm-ui-kicker wm-dashboard-next-kicker">Next step</span>
-              <strong className="wm-ui-copy wm-dashboard-next-copy">{nextStepFor(resume.stage)}</strong>
+              <span className="wm-dashboard-next-kicker">Next step</span>
+              <strong className="wm-dashboard-next-copy">{nextStepFor(resume.stage)}</strong>
             </div>
           </div>
         </Link>
 
-        <section className="wm-ui-section wm-dashboard-section" aria-label="Primary destinations">
+        <section className="wm-section wm-dashboard-section" aria-label="Primary destinations">
           <div className="wm-dashboard-section-head">
             <div>
-              <span className="wm-ui-kicker">Primary destinations</span>
-              <h2 className="wm-ui-title">Grouped by what you need to do</h2>
+              <span className="wm-badge">Primary destinations</span>
+              <h2 className="wm-section-title">Grouped by what you need to do</h2>
             </div>
           </div>
 
@@ -317,13 +317,13 @@ export function DashboardPage() {
               const Icon = item.icon;
 
               return (
-                <Link key={item.path} to={item.path} className="wm-ui-card wm-dashboard-destination-card">
+                <Link key={item.path} to={item.path} className="wm-action-card wm-dashboard-destination-card">
                   <span className="wm-dashboard-icon">
                     <Icon className="h-5 w-5" aria-hidden="true" />
                   </span>
-                  <span className="wm-ui-kicker">{item.eyebrow}</span>
-                  <strong className="wm-ui-title wm-dashboard-card-title">{item.title}</strong>
-                  <p className="wm-ui-copy wm-dashboard-card-copy">{item.description}</p>
+                  <span className="wm-dashboard-card-eyebrow">{item.eyebrow}</span>
+                  <strong className="wm-card-title wm-dashboard-card-title">{item.title}</strong>
+                  <p className="wm-copy wm-dashboard-card-copy">{item.description}</p>
                   <span className="wm-dashboard-card-link">{item.action} &gt;</span>
                 </Link>
               );
@@ -331,11 +331,11 @@ export function DashboardPage() {
           </div>
         </section>
 
-        <section className="wm-ui-section wm-dashboard-section wm-dashboard-projects-section" aria-label="Active projects">
+        <section className="wm-section wm-dashboard-section wm-dashboard-projects-section" aria-label="Active projects">
           <div className="wm-dashboard-section-head">
             <div>
-              <span className="wm-ui-kicker">Work in progress</span>
-              <h2 className="wm-ui-title">Active projects</h2>
+              <span className="wm-badge">Work in progress</span>
+              <h2 className="wm-section-title">Active projects</h2>
             </div>
             <Link to={routeCatalogByKey.projects.path} className="wm-dashboard-card-link">
               View all &gt;
@@ -348,14 +348,14 @@ export function DashboardPage() {
                 key={project.id}
                 to={`${routeCatalogByKey.projects.path}/${project.id}`}
                 onClick={() => setActiveProjectId(project.id)}
-                className="wm-ui-card wm-dashboard-project-card"
+                className="wm-action-card wm-dashboard-project-card"
               >
                 <div className="wm-dashboard-project-head">
                   <StatusChip label={STATUS_LABEL[project.status]} variant={project.status} />
-                  <span className="wm-ui-copy wm-dashboard-project-updated">{project.updated}</span>
+                  <span className="wm-dashboard-project-updated">{project.updated}</span>
                 </div>
-                <strong className="wm-ui-title wm-dashboard-card-title">{project.name}</strong>
-                <span className="wm-ui-copy">{projectScopeLine(project)}</span>
+                <strong className="wm-card-title wm-dashboard-card-title">{project.name}</strong>
+                <span>{projectScopeLine(project)}</span>
                 <div className="wm-dashboard-next-step">
                   <ArrowRightCircle className="h-4 w-4" aria-hidden="true" />
                   <span>{nextStepFor(project.stage)}</span>
