@@ -7892,249 +7892,6 @@ body.wm-product-finder-active main :is(.text-amber-500, .text-amber-600, .text-o
 /* WINGMAN-LANGUAGE-SUPPORT-END */
 
 
-/* WINGMAN-PROFILE-AND-SAFE-LANGUAGE-START */
-/*
-  Drops emoji flags in favour of safe country/market code badges.
-  Adds styling for local profile/admin page.
-*/
-
-.wm-language-select-shell {
-  grid-template-columns: 2.1rem minmax(0, 1fr) !important;
-}
-
-.wm-language-select-shell strong {
-  display: inline-grid !important;
-  place-items: center !important;
-  width: 1.85rem !important;
-  height: 1.85rem !important;
-  min-width: 1.85rem !important;
-  border-radius: 999px !important;
-  color: #475569 !important;
-  background: #f1f5f9 !important;
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif !important;
-  font-size: 0.68rem !important;
-  line-height: 1 !important;
-  font-weight: 900 !important;
-  letter-spacing: 0.03em !important;
-}
-
-.wm-language-select-shell select {
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
-
-.wm-profile-page {
-  min-height: calc(100vh - var(--wm-topbar-height) - 24px) !important;
-  display: grid !important;
-  gap: 14px !important;
-  padding-bottom: 24px !important;
-}
-
-.wm-profile-hero {
-  border: 1px solid rgba(148, 163, 184, 0.24) !important;
-  border-radius: 24px !important;
-  background: linear-gradient(180deg, rgba(7, 24, 40, 0.97), rgba(4, 13, 24, 0.97));
-  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08) !important;
-  padding: 18px 20px !important;
-}
-
-.wm-profile-hero p,
-.wm-profile-card > p {
-  margin: 0 !important;
-  color: #b45309 !important;
-  font-size: 0.7rem !important;
-  font-weight: 850 !important;
-  letter-spacing: 0.14em !important;
-  text-transform: uppercase !important;
-}
-
-.wm-profile-hero h1 {
-  margin: 5px 0 0 !important;
-  color: #0f172a !important;
-  font-size: clamp(1.55rem, 2.7vw, 2.5rem) !important;
-  line-height: 1.02 !important;
-  font-weight: 850 !important;
-  letter-spacing: -0.045em !important;
-}
-
-.wm-profile-hero span {
-  display: block !important;
-  max-width: 920px !important;
-  margin-top: 7px !important;
-  color: #64748b !important;
-  font-size: 0.9rem !important;
-  line-height: 1.42 !important;
-}
-
-.wm-profile-grid {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
-  gap: 14px !important;
-}
-
-.wm-profile-card {
-  display: grid !important;
-  align-content: start !important;
-  gap: 12px !important;
-  border: 1px solid rgba(148, 163, 184, 0.24) !important;
-  border-radius: 22px !important;
-  background: var(--wm-consistency-text) !important;
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08) !important;
-  padding: 16px !important;
-}
-
-.wm-profile-card h2 {
-  margin: 4px 0 0 !important;
-  color: #0f172a !important;
-  font-size: 1.12rem !important;
-  line-height: 1.15 !important;
-  font-weight: 850 !important;
-}
-
-.wm-profile-card span,
-.wm-profile-note {
-  color: #64748b !important;
-  font-size: 0.82rem !important;
-  line-height: 1.42 !important;
-}
-
-.wm-profile-form-grid,
-.wm-profile-language-grid {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)) !important;
-  gap: 10px !important;
-}
-
-.wm-profile-card label {
-  display: grid !important;
-  gap: 6px !important;
-  color: #64748b !important;
-  font-size: 0.68rem !important;
-  font-weight: 850 !important;
-  letter-spacing: 0.1em !important;
-  text-transform: uppercase !important;
-}
-
-.wm-profile-card input,
-.wm-profile-card select,
-.wm-profile-card textarea {
-  width: 100% !important;
-  border: 1px solid rgba(148, 163, 184, 0.34) !important;
-  border-radius: 14px !important;
-  background: var(--wm-consistency-text) !important;
-  color: #0f172a !important;
-  font-size: 0.86rem !important;
-  font-weight: 600 !important;
-  outline: none !important;
-}
-
-.wm-profile-card input,
-.wm-profile-card select {
-  height: 38px !important;
-  padding: 0 11px !important;
-}
-
-.wm-profile-card textarea {
-  min-height: 110px !important;
-  padding: 11px !important;
-  line-height: 1.42 !important;
-  resize: vertical !important;
-}
-
-.wm-profile-logo-preview {
-  min-height: 130px !important;
-  display: grid !important;
-  place-items: center !important;
-  overflow: hidden !important;
-  border: 1px dashed rgba(100, 116, 139, 0.35) !important;
-  border-radius: 18px !important;
-  background: #f8fafc !important;
-}
-
-.wm-profile-logo-preview img {
-  max-width: 100% !important;
-  max-height: 120px !important;
-  object-fit: contain !important;
-}
-
-.wm-profile-logo-preview strong {
-  color: #64748b !important;
-  font-size: 0.84rem !important;
-}
-
-.wm-profile-file-button,
-.wm-profile-primary-button,
-.wm-profile-secondary-button,
-.wm-profile-actions button {
-  min-height: 36px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  border: 1px solid rgba(148, 163, 184, 0.34) !important;
-  border-radius: 999px !important;
-  background: #f8fafc !important;
-  color: #0f172a !important;
-  padding: 0 13px !important;
-  font-size: 0.78rem !important;
-  font-weight: 850 !important;
-  letter-spacing: 0 !important;
-  text-transform: none !important;
-  cursor: pointer !important;
-}
-
-.wm-profile-primary-button {
-  border-color: rgba(180, 83, 9, 0.42) !important;
-  background: linear-gradient(180deg, rgba(7, 24, 40, 0.97), rgba(4, 13, 24, 0.97));
-  color: #111827 !important;
-  gap: 8px !important;
-}
-
-.wm-profile-file-button input {
-  display: none !important;
-}
-
-.wm-profile-info-list {
-  display: grid !important;
-  gap: 5px !important;
-  border: 1px solid rgba(74, 245, 230, 0.26) !important;
-  border-radius: 16px !important;
-  background: #fffaf3 !important;
-  padding: 12px !important;
-}
-
-.wm-profile-info-list strong {
-  color: #0f172a !important;
-  font-size: 0.84rem !important;
-}
-
-.wm-profile-actions {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 10px !important;
-}
-
-.wm-profile-save-status {
-  color: #d1fae5 !important;
-  font-size: 0.82rem !important;
-  font-weight: 800 !important;
-}
-
-@media (max-width: 720px) {
-  .wm-profile-grid,
-  .wm-profile-form-grid,
-  .wm-profile-language-grid {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-/* WINGMAN-PROFILE-AND-SAFE-LANGUAGE-END */
-
-
-
-
 
 /* WINGMAN-GLOBAL-SCROLL-SAFETY-START */
 /*
@@ -8200,7 +7957,6 @@ body,
 
 .wm-simple-discovery-page,
 .wm-intel-page,
-.wm-profile-page,
 .wm-template-page,
 .wm-templates-page,
 .wm-product-finder-page,
@@ -8235,7 +7991,6 @@ body,
 .wm-intel-record-list,
 .wm-intel-editor,
 .wm-intel-panel,
-.wm-profile-grid,
 .wm-template-workspace,
 .wm-template-results,
 .wm-finder-workspace,
@@ -8411,62 +8166,6 @@ table {
 
 @keyframes wmCompareSpin {
   to { transform: rotate(360deg); }
-}
-
-.wm-profile-evidence-card {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr) !important;
-  gap: 14px !important;
-  border: 1px solid rgba(14, 165, 233, 0.22) !important;
-  border-radius: 20px !important;
-  background: #f0f9ff !important;
-  padding: 16px !important;
-}
-
-.wm-profile-evidence-card h3 {
-  margin: 4px 0 0 !important;
-  color: #0f172a !important;
-  font-size: 1.2rem !important;
-  line-height: 1.15 !important;
-  font-weight: 900 !important;
-}
-
-.wm-profile-evidence-card span {
-  display: block !important;
-  margin-top: 6px !important;
-  color: #334155 !important;
-  font-size: 0.86rem !important;
-  line-height: 1.45 !important;
-}
-
-.wm-profile-evidence-card dl {
-  display: grid !important;
-  gap: 8px !important;
-  margin: 0 !important;
-}
-
-.wm-profile-evidence-card dl div {
-  border: 1px solid rgba(14, 165, 233, 0.18) !important;
-  border-radius: 14px !important;
-  background: var(--wm-consistency-text) !important;
-  padding: 10px !important;
-}
-
-.wm-profile-evidence-card dt {
-  margin: 0 !important;
-  color: #0369a1 !important;
-  font-size: 0.66rem !important;
-  font-weight: 900 !important;
-  letter-spacing: 0.11em !important;
-  text-transform: uppercase !important;
-}
-
-.wm-profile-evidence-card dd {
-  margin: 4px 0 0 !important;
-  color: #0f172a !important;
-  font-size: 0.82rem !important;
-  line-height: 1.35 !important;
-  font-weight: 750 !important;
 }
 
 .wm-feature-audit[open] {
@@ -17112,7 +16811,6 @@ html[data-wingman-route] .wingman-page-host :is(
   .wm20-panel[data-wingman-discovery-capture="true"],
   .wm-product-call-cards-hero,
   .wm-product-pitch-hero,
-  .wm-profile-hero,
   .wm-intel-hero,
   .wm-template-detail-hero,
   .wm-vs-header-card
@@ -17141,7 +16839,6 @@ html[data-wingman-route] .wingman-page-host :is(
   .wm20-panel[data-wingman-discovery-capture="true"],
   .wm-product-call-cards-hero,
   .wm-product-pitch-hero,
-  .wm-profile-hero,
   .wm-intel-hero,
   .wm-template-detail-hero,
   .wm-vs-header-card
@@ -17159,8 +16856,6 @@ html[data-wingman-route] .wingman-page-host :is(
   .wm-cr-eyebrow,
   .cca-header p,
   .wm20-eyebrow,
-  .wm-profile-kicker,
-  .wm-profile-card-label,
   .wm-intel-hero span,
   .wm-product-call-card-selector-label,
   .wm-template-library-header .wm-section-kicker,
@@ -17185,7 +16880,6 @@ html[data-wingman-route] .wingman-page-host :is(
   .wm20-panel[data-wingman-discovery-capture="true"],
   .wm-product-call-cards-hero,
   .wm-product-pitch-hero,
-  .wm-profile-hero,
   .wm-intel-hero,
   .wm-template-detail-hero,
   .wm-vs-header-card
@@ -17225,8 +16919,6 @@ html[data-wingman-route] .wingman-page-host :is(
   .wm-product-pitch-main-card,
   .wm-product-conversation-panel,
   .wm-product-conversation-card,
-  .wm-profile-card,
-  .wm-profile-status-strip,
   .wm-intel-stats,
   .wm-intel-tabs,
   .wm-intel-record-list,
@@ -17271,7 +16963,6 @@ html[data-wingman-route] .wingman-page-host :is(
   .wm-product-call-card-panel,
   .wm-product-pitch-main-card,
   .wm-product-conversation-card,
-  .wm-profile-card,
   .wm-intel-record-list button,
   .rounded-xl.border,
   .rounded-2xl.border,
@@ -17311,7 +17002,6 @@ html[data-wingman-route] .wingman-page-host :is(
   .wm-navhub-card strong,
   .wm-template-card h3,
   .wm-intel-panel-head h2,
-  .wm-profile-card h2,
   .wm-product-call-card-selector h2,
   .wm-product-call-card-result h2,
   .wm-product-pitch-main-card h3
@@ -17386,7 +17076,6 @@ html[data-wingman-route] .wingman-page-host :is(
   .wm-cr-button-secondary,
   .wingman-hero-action-secondary,
   .wm-secondary-action,
-  .wm-profile-page button,
   .cca-headerActions button,
   .cca-questionActions button
 ) {
@@ -17443,7 +17132,6 @@ html[data-wingman-route] .wingman-page-host :is(td) {
     .wm20-panel[data-wingman-discovery-capture="true"],
     .wm-product-call-cards-hero,
     .wm-product-pitch-hero,
-    .wm-profile-hero,
     .wm-intel-hero,
     .wm-template-detail-hero,
     .wm-vs-header-card
@@ -17462,7 +17150,6 @@ html[data-wingman-route] .wingman-page-host :is(td) {
     .wm20-panel[data-wingman-discovery-capture="true"],
     .wm-product-call-cards-hero,
     .wm-product-pitch-hero,
-    .wm-profile-hero,
     .wm-intel-hero,
     .wm-template-detail-hero,
     .wm-vs-header-card
@@ -17693,43 +17380,6 @@ html[data-wingman-route="templates"] .wingman-page-host .wm-template-detail-shel
 }
 
 /* WINGMAN_TEMPLATE_REVIEW_DARK_DETAIL_END */
-
-/* WINGMAN_SETTINGS_2X2_GRID_START */
-/* Settings should scan as four equal cards: identity/user on row one,
-   defaults/workspace sync on row two. */
-
-html[data-wingman-route="profile"] .wingman-page-host .wm-profile-page .wm-profile-grid,
-.wm-route-settings .wingman-page-host .wm-profile-page .wm-profile-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 12px !important;
-  padding: 12px !important;
-  align-items: stretch !important;
-}
-
-html[data-wingman-route="profile"] .wingman-page-host .wm-profile-page .wm-profile-card,
-.wm-route-settings .wingman-page-host .wm-profile-page .wm-profile-card {
-  min-height: 210px !important;
-  padding: 13px !important;
-}
-
-html[data-wingman-route="profile"] .wingman-page-host .wm-profile-page .wm-profile-card-head,
-.wm-route-settings .wingman-page-host .wm-profile-page .wm-profile-card-head {
-  min-height: 40px !important;
-}
-
-@media (max-width: 760px) {
-  html[data-wingman-route="profile"] .wingman-page-host .wm-profile-page .wm-profile-grid,
-  .wm-route-settings .wingman-page-host .wm-profile-page .wm-profile-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  html[data-wingman-route="profile"] .wingman-page-host .wm-profile-page .wm-profile-card,
-  .wm-route-settings .wingman-page-host .wm-profile-page .wm-profile-card {
-    min-height: 0 !important;
-  }
-}
-
-/* WINGMAN_SETTINGS_2X2_GRID_END */
 
 /* WINGMAN_COMPACT_HERO_DEPTH_START */
 /* Keep page headers shallow across the legacy and shared hero variants. */
@@ -36853,54 +36503,44 @@ html[data-wingman-route] .wingman-page-host .wm-page,
 }
 
 html[data-wingman-route] .wingman-page-host .wm-status,
-html[data-wingman-route] .wingman-page-host .wm-status-chip,
-html body .wm-profile-page .wm-profile-status-strip .wm-status,
-html body .wm-profile-page .wm-profile-status-strip .wm-status-chip {
+html[data-wingman-route] .wingman-page-host .wm-status-chip {
   border-color: rgba(154, 205, 230, 0.36) !important;
   background: rgba(11, 34, 52, 0.94) !important;
   color: #edf6ff !important;
 }
 
-html[data-wingman-route] .wingman-page-host :is(.wm-status-ready),
-html body .wm-profile-page .wm-profile-status-strip :is(.wm-status-ready) {
+html[data-wingman-route] .wingman-page-host :is(.wm-status-ready) {
   border-color: rgba(103, 232, 249, 0.62) !important;
   background: rgba(8, 84, 105, 0.58) !important;
   color: #dffcff !important;
 }
 
-html[data-wingman-route] .wingman-page-host :is(.wm-status-on-track, .wm-status-success, .wm-status-recommended),
-html body .wm-profile-page .wm-profile-status-strip :is(.wm-status-on-track, .wm-status-success, .wm-status-recommended) {
+html[data-wingman-route] .wingman-page-host :is(.wm-status-on-track, .wm-status-success, .wm-status-recommended) {
   border-color: rgba(74, 222, 128, 0.62) !important;
   background: rgba(11, 88, 60, 0.66) !important;
   color: #e7fff4 !important;
 }
 
-html[data-wingman-route] .wingman-page-host :is(.wm-status-progress, .wm-status-alternative),
-html body .wm-profile-page .wm-profile-status-strip :is(.wm-status-progress, .wm-status-alternative) {
+html[data-wingman-route] .wingman-page-host :is(.wm-status-progress, .wm-status-alternative) {
   border-color: rgba(96, 165, 250, 0.62) !important;
   background: rgba(29, 78, 146, 0.66) !important;
   color: #eaf4ff !important;
 }
 
-html[data-wingman-route] .wingman-page-host :is(.wm-status-warning, .wm-status-review, .wm-status-caution),
-html body .wm-profile-page .wm-profile-status-strip :is(.wm-status-warning, .wm-status-review, .wm-status-caution) {
+html[data-wingman-route] .wingman-page-host :is(.wm-status-warning, .wm-status-review, .wm-status-caution) {
   border-color: rgba(251, 191, 36, 0.68) !important;
   background: rgba(113, 63, 18, 0.72) !important;
   color: #fff4d5 !important;
 }
 
-html[data-wingman-route] .wingman-page-host :is(.wm-status-danger),
-html body .wm-profile-page .wm-profile-status-strip :is(.wm-status-danger) {
+html[data-wingman-route] .wingman-page-host :is(.wm-status-danger) {
   border-color: rgba(248, 113, 113, 0.68) !important;
   background: rgba(127, 29, 29, 0.72) !important;
   color: #ffe5e5 !important;
 }
 
 .wm-action-row,
-.wm-section-card-actions,
-.wm-profile-hero-actions,
-.wm-profile-button-row,
-.wm-profile-brand-actions {
+.wm-section-card-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -36931,64 +36571,6 @@ html body .wm-profile-page .wm-profile-status-strip :is(.wm-status-danger) {
   box-shadow: none;
 }
 
-.wm-settings-page {
-  max-width: min(100%, 1640px);
-}
-
-.wm-settings-page .wm-page-header {
-  grid-template-columns: minmax(0, 1fr) auto;
-  place-items: center stretch;
-  text-align: left;
-}
-
-.wm-settings-page .wm-page-header > div:first-child {
-  display: grid;
-  gap: 0.45rem;
-}
-
-.wm-settings-page .wm-profile-grid {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
-}
-
-.wm-settings-page .wm-profile-two-col {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.wm-profile-status-strip {
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-}
-
-.wm-profile-status-strip > span {
-  color: var(--wm-heading-soft);
-  font-size: 0.72rem;
-  font-weight: var(--wm-weight-heading);
-  letter-spacing: var(--wm-tracking-kicker);
-  text-transform: uppercase;
-}
-
-.wm-profile-brand-row {
-  display: grid;
-  grid-template-columns: minmax(5rem, 7rem) minmax(0, 1fr);
-  gap: 0.75rem;
-  align-items: center;
-}
-
-.wm-profile-logo-box {
-  min-height: 4.75rem;
-  border-style: dashed;
-}
-
-.wm-profile-logo-box img {
-  max-width: 100%;
-  max-height: 4rem;
-  object-fit: contain;
-}
-
-.wm-profile-file-input {
-  display: none;
-}
-
 .wm-dashboard-shell .wm-dashboard-rail,
 .wm-dashboard-shell .wm-dashboard-section,
 .wm-dashboard-shell .wm-dashboard-destination-card,
@@ -37005,12 +36587,6 @@ html body .wm-profile-page .wm-profile-status-strip :is(.wm-status-danger) {
   box-shadow: none !important;
 }
 
-@media (max-width: 900px) {
-  .wm-settings-page .wm-page-header,
-  .wm-settings-page .wm-profile-two-col {
-    grid-template-columns: 1fr;
-  }
-}
 /* WINGMAN CONSOLIDATED GOVERNED VISUAL SYSTEM END */
 
 /* === Wingman status chip contrast contract START === */
@@ -37235,7 +36811,6 @@ html body .wm-profile-page .wm-profile-status-strip :is(.wm-status-danger) {
 :where(
   .wm-dashboard-page,
   .wm-projects-page,
-  .wm-settings-page,
   .settings-page,
   .wm-page
 ) :where(
@@ -37263,7 +36838,6 @@ html body .wm-profile-page .wm-profile-status-strip :is(.wm-status-danger) {
 :where(
   .wm-dashboard-page,
   .wm-projects-page,
-  .wm-settings-page,
   .settings-page,
   .wm-page
 ) :where(
