@@ -4,7 +4,17 @@ import {
   type SchematicConnection,
   type SchematicModel,
   type SchematicProjectBrief,
+  type SchematicSignalKind,
 } from "../../lib/schematic";
+
+const SCHEMATIC_LEGEND_ITEMS: Array<{ signal: SchematicSignalKind; label: string }> = [
+  { signal: "video", label: "Video" },
+  { signal: "audio", label: "Audio" },
+  { signal: "control", label: "Control" },
+  { signal: "network", label: "Network" },
+  { signal: "usb", label: "USB" },
+  { signal: "power", label: "Power" },
+];
 
 const DEFAULT_BRIEF: SchematicProjectBrief = {
   title: "Generated meeting-room schematic",
@@ -79,6 +89,15 @@ export function WingmanGeneratedSchematicPanel({
         </div>
       </div>
 
+      <ul className="wm-generated-schematic-legend" aria-label="Signal type legend">
+        {SCHEMATIC_LEGEND_ITEMS.map((item) => (
+          <li key={item.signal} className={`wm-generated-schematic-legend__item wm-generated-schematic-legend__item--${item.signal}`}>
+            <span className="wm-generated-schematic-legend__swatch" aria-hidden="true" />
+            {item.label}
+          </li>
+        ))}
+      </ul>
+
       <div className="wm-generated-schematic-canvas" role="img" aria-label={`Generated schematic for ${schematic.title}`}>
         <svg
           className="wm-generated-schematic-canvas__svg"
@@ -87,7 +106,7 @@ export function WingmanGeneratedSchematicPanel({
         >
           <defs>
             <marker
-              id="wm-schematic-arrow"
+              id="wm-generated-schematic-arrow"
               markerWidth="8"
               markerHeight="8"
               refX="7"
@@ -199,7 +218,7 @@ function SchematicConnectionPath({ connection }: { connection: SchematicConnecti
 
   return (
     <g className={`wm-generated-schematic-connection wm-generated-schematic-connection--${connection.signal}`}>
-      <path d={path} markerEnd="url(#wm-schematic-arrow)" />
+      <path d={path} markerEnd="url(#wm-generated-schematic-arrow)" />
       <text x={labelPoint.x + 8} y={labelPoint.y - 8}>
         {connection.signal}
       </text>

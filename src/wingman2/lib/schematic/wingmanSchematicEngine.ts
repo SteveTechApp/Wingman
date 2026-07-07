@@ -154,8 +154,34 @@ export function buildWingmanSchematic(brief: SchematicProjectBrief): SchematicMo
     });
   }
 
-  for (const source of sourceNodes) {
-    if (effectiveSwitchingNode) {
+  // A matrix/switcher/video-wall-processor node genuinely has multiple physical
+  // input and output ports built into one box, so every source/display sharing
+  // that single node is correct. An AV-over-IP encoder or decoder is a
+  // single-port endpoint device - it has exactly one local HDMI in (encoder) or
+  // out (decoder) - so every source needs its own encoder and every display
+  // needs its own decoder. Wiring every source/display to one shared encoder
+  // node (as the pre-fix version of this function did) draws a topology no
+  // real installer would build: two independent HDMI sources cannot both plug
+  // into the same encoder's single HDMI input.
+  const encoderNodes = productNodes.filter((node) => node.kind === "av-over-ip-encoder");
+  const decoderNodes = productNodes.filter((node) => node.kind === "av-over-ip-decoder");
+  const hasConfirmedAvoipEndpoints = usesAvoip && (encoderNodes.length > 0 || decoderNodes.length > 0);
+
+  if (hasConfirmedAvoipEndpoints) {
+    sourceNodes.forEach((source, index) => {
+      const encoder = encoderNodes[index];
+      if (encoder) {
+        connections.push(makeConnection(source, encoder, "video", "hdmi", `${proposalSafeSourceLabel(source.label)} to encoder`));
+      } else {
+        warnings.push({
+          severity: "blocker",
+          title: "Missing AV-over-IP encoder",
+          message: `"${source.label}" has no dedicated NetworkHD encoder in the product list. Every source needs its own encoder - add one before quoting.`,
+        });
+      }
+    });
+  } else if (effectiveSwitchingNode) {
+    for (const source of sourceNodes) {
       connections.push(makeConnection(source, effectiveSwitchingNode, "video", transport, `${proposalSafeSourceLabel(source.label)} to system`));
     }
   }
@@ -164,7 +190,20 @@ export function buildWingmanSchematic(brief: SchematicProjectBrief): SchematicMo
     wireAvoipNetwork(nodes, connections);
   }
 
-  if (effectiveSwitchingNode) {
+  if (hasConfirmedAvoipEndpoints) {
+    displayNodes.forEach((display, index) => {
+      const decoder = decoderNodes[index];
+      if (decoder) {
+        connections.push(makeConnection(decoder, display, "video", "hdmi", "Decoder to display"));
+      } else {
+        warnings.push({
+          severity: "blocker",
+          title: "Missing AV-over-IP decoder",
+          message: `"${display.label}" has no dedicated NetworkHD decoder in the product list. Every display needs its own decoder - add one before quoting.`,
+        });
+      }
+    });
+  } else if (effectiveSwitchingNode) {
     for (const display of displayNodes) {
       connections.push(makeConnection(effectiveSwitchingNode, display, "video", transport, "Video to display"));
     }
