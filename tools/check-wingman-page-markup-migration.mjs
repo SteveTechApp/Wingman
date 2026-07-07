@@ -36,6 +36,10 @@ function count(value, token) {
   return value.match(new RegExp(`\\b${token}\\b`, "g"))?.length ?? 0;
 }
 
+function countAny(value, tokens) {
+  return tokens.reduce((total, token) => total + count(value, token), 0);
+}
+
 function checkPage(relativePath, required = true) {
   const absolutePath = path.join(root, relativePath);
   if (!fs.existsSync(absolutePath)) {
@@ -54,18 +58,18 @@ function checkPage(relativePath, required = true) {
     .map((sourcePath) => fs.readFileSync(path.join(root, sourcePath), "utf8"))
     .join("\n");
   const counts = {
-    page: count(text, "wm-ui-page"),
-    card: count(text, "wm-ui-card"),
-    title: count(text, "wm-ui-title"),
-    copy: count(text, "wm-ui-copy"),
-    button: count(text, "wm-ui-button"),
-    input: count(text, "wm-ui-input"),
+    page: countAny(text, ["wm-ui-page", "wm-page"]),
+    card: countAny(text, ["wm-ui-card", "wm-card", "wm-section-card", "wm-action-card", "wm-output-panel"]),
+    title: countAny(text, ["wm-ui-title", "wm-page-title", "wm-section-title", "wm-card-title"]),
+    copy: countAny(text, ["wm-ui-copy", "wm-copy"]),
+    button: countAny(text, ["wm-ui-button", "wm-button"]),
+    input: countAny(text, ["wm-ui-input", "wm-input", "wm-select", "wm-textarea"]),
   };
 
-  if (required && counts.page < 1) errors.push(`${relativePath} has no wm-ui-page root class`);
-  if (required && counts.card < 3) errors.push(`${relativePath} has too few wm-ui-card surfaces (${counts.card})`);
-  if (required && counts.title < 2) errors.push(`${relativePath} has too few wm-ui-title headings (${counts.title})`);
-  if (required && counts.copy < 2) errors.push(`${relativePath} has too few wm-ui-copy text blocks (${counts.copy})`);
+  if (required && counts.page < 1) errors.push(`${relativePath} has no shared wm-page root class`);
+  if (required && counts.card < 3) errors.push(`${relativePath} has too few shared card surfaces (${counts.card})`);
+  if (required && counts.title < 2) errors.push(`${relativePath} has too few shared title classes (${counts.title})`);
+  if (required && counts.copy < 2) errors.push(`${relativePath} has too few shared copy text blocks (${counts.copy})`);
 
   console.log(
     `[page-markup] ${relativePath}: page=${counts.page}, card=${counts.card}, title=${counts.title}, copy=${counts.copy}, button=${counts.button}, input=${counts.input}`,

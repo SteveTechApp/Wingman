@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
-const themePath = path.join(root, "src/wingman2/styles/wingman-redesign-theme.css");
+const themePath = path.join(root, "src/wingman2/styles/wingman-style-stack.css");
 const dashboardPath = path.join(root, "src/wingman2/pages/DashboardPage.tsx");
 
 const theme = fs.readFileSync(themePath, "utf8");
@@ -44,8 +44,10 @@ if (startIndex === -1 || endIndex === -1 || endIndex <= startIndex) {
   }
 }
 
-if (theme.includes('html[data-wingman-route="dashboard"]')) {
-  errors.push('wingman-redesign-theme.css still contains html[data-wingman-route="dashboard"].');
+const block = startIndex === -1 || endIndex === -1 || endIndex <= startIndex ? "" : theme.slice(startIndex, endIndex + end.length);
+
+if (block.includes('html[data-wingman-route="dashboard"]')) {
+  errors.push('Dashboard correction block still contains html[data-wingman-route="dashboard"].');
 }
 
 if (!dashboard.includes("wm-dashboard-visual-root")) {

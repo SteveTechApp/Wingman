@@ -6,15 +6,11 @@ type StatusChipProps = {
 };
 
 const classes: Record<StatusVariant, string> = {
-  recommended: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  alternative: "bg-amber-100 text-amber-700 border-amber-200",
-  caution: "bg-rose-100 text-rose-700 border-rose-200",
+  recommended: "wm-status wm-status-recommended",
+  alternative: "wm-status wm-status-alternative",
+  caution: "wm-status wm-status-caution",
 };
 
 export function StatusChip({ label, variant }: StatusChipProps) {
-  return (
-    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${classes[variant]}`}>
-      {label}
-    </span>
-  );
+  return <span className={classes[variant]}>{label}</span>;
 }
