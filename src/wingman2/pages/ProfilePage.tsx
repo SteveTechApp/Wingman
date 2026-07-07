@@ -268,42 +268,37 @@ export function ProfilePage() {
   }
 
   return (
-    <main
-      className="wm-page wm-settings-page wm-profile-page wm-profile-page-compact"
-      data-wingman-page="settings"
-      data-wingman-settings-page="true"
-    >
-      <header className="wm-page-header wm-profile-hero">
+    <main className="wm-page">
+      <header className="wm-page-header">
         <div>
-          <p className="wm-profile-kicker">Wingman settings</p>
-          <h1>Local profile and proposal settings</h1>
-          <p>
+          <p className="wm-ui-kicker">Wingman settings</p>
+          <h1 className="wm-page-title">Local profile and proposal settings</h1>
+          <p className="wm-copy">
             Compact local setup for branding, user details, region defaults, speech capture and workspace recovery.
           </p>
         </div>
 
-        <div className="wm-profile-hero-actions" aria-label="Profile actions">
+        <div className="wm-action-row" aria-label="Profile actions">
           <button className="wm-button wm-button-primary" type="button" onClick={saveProfile}>Save</button>
           <button className="wm-button wm-button-secondary" type="button" onClick={printProfile}>Print</button>
           <button className="wm-button wm-button-ghost" type="button" onClick={resetProfile}>Reset</button>
         </div>
       </header>
 
-      <div className="wm-output-panel wm-profile-status-strip">
+      <div className="wm-output-panel">
         <StatusChip label="Status" variant="ready" />
         <strong>{status}</strong>
       </div>
 
-      <div className="wm-form-grid wm-profile-grid">
-        <section className="wm-section-card wm-profile-card wm-profile-brand-card">
-          <div className="wm-profile-card-head">
-            <p className="wm-profile-card-label">Brand and company</p>
-            <h2>Default proposal identity</h2>
-          </div>
+      <div className="wm-form-grid" role="group" aria-label="Settings sections">
+        <section className="wm-section-card" aria-labelledby="wingman-settings-brand">
+          <p className="wm-ui-kicker">Brand and company</p>
+          <h2 id="wingman-settings-brand" className="wm-card-title">Default proposal identity</h2>
+          <p className="wm-copy">Set the company defaults used when Wingman prepares proposals and response packs.</p>
 
-          <div className="wm-profile-brand-row">
+          <div className="wm-form-grid">
             <button
-              className="wm-button wm-button-ghost wm-profile-logo-box"
+              className="wm-button wm-button-ghost"
               type="button"
               onClick={() => logoInputRef.current?.click()}
               aria-label="Upload company logo"
@@ -311,11 +306,11 @@ export function ProfilePage() {
               {profile.logoDataUrl ? (
                 <img src={profile.logoDataUrl} alt="Company logo preview" />
               ) : (
-                <span>Logo</span>
+                <span>Logo preview</span>
               )}
             </button>
 
-            <div className="wm-profile-brand-actions">
+            <div className="wm-action-row">
               <button className="wm-button wm-button-secondary" type="button" onClick={() => logoInputRef.current?.click()}>Upload</button>
               <button className="wm-button wm-button-ghost" type="button" onClick={clearLogo}>Clear</button>
             </div>
@@ -323,13 +318,13 @@ export function ProfilePage() {
 
           <input
             ref={logoInputRef}
-            className="wm-profile-file-input"
+            hidden
             type="file"
             accept="image/*"
             onChange={(event) => uploadLogo(event.target.files?.[0])}
           />
 
-          <div className="wm-form-grid wm-profile-two-col">
+          <div className="wm-form-grid">
             <label className="wm-field">
               Company
               <input className="wm-input" value={profile.companyName} onChange={(event) => updateField("companyName", event.target.value)} />
@@ -354,13 +349,12 @@ export function ProfilePage() {
           </div>
         </section>
 
-        <section className="wm-section-card wm-profile-card">
-          <div className="wm-profile-card-head">
-            <p className="wm-profile-card-label">User</p>
-            <h2>Contact and output details</h2>
-          </div>
+        <section className="wm-section-card" aria-labelledby="wingman-settings-user">
+          <p className="wm-ui-kicker">User details</p>
+          <h2 id="wingman-settings-user" className="wm-card-title">Contact and output details</h2>
+          <p className="wm-copy">Keep the visible author and contact information consistent across generated sales material.</p>
 
-          <div className="wm-form-grid wm-profile-two-col">
+          <div className="wm-form-grid">
             <label className="wm-field">
               Name
               <input className="wm-input" value={profile.displayName} onChange={(event) => updateField("displayName", event.target.value)} />
@@ -382,19 +376,18 @@ export function ProfilePage() {
             </label>
           </div>
 
-          <label className="wm-field wm-profile-wide-field">
+          <label className="wm-field">
             Proposal footer
             <textarea className="wm-textarea" value={profile.footerText} onChange={(event) => updateField("footerText", event.target.value)} />
           </label>
         </section>
 
-        <section className="wm-section-card wm-profile-card">
-          <div className="wm-profile-card-head">
-            <p className="wm-profile-card-label">Defaults</p>
-            <h2>Language and intelligence control</h2>
-          </div>
+        <section className="wm-section-card" aria-labelledby="wingman-settings-defaults">
+          <p className="wm-ui-kicker">Defaults</p>
+          <h2 id="wingman-settings-defaults" className="wm-card-title">Language and intelligence control</h2>
+          <p className="wm-copy">Choose the regional defaults and how new product intelligence is handled.</p>
 
-          <div className="wm-form-grid wm-profile-two-col">
+          <div className="wm-form-grid">
             <label className="wm-field">
               Region
               <select className="wm-select" value={profile.regionPreference} onChange={(event) => updateField("regionPreference", event.target.value)}>
@@ -410,26 +403,25 @@ export function ProfilePage() {
             </label>
           </div>
 
-          <label className="wm-field wm-profile-wide-field">
+          <label className="wm-field">
             Product intelligence mode
             <select className="wm-select" value={profile.productUpdateMode} onChange={(event) => updateField("productUpdateMode", event.target.value)}>
               {updateModeOptions.map((option) => <option key={option}>{option}</option>)}
             </select>
           </label>
 
-          <div className="wm-output-panel wm-profile-info-box">
+          <div className="wm-output-panel">
             <strong>Recommended</strong>
             <span>Stage new product and competitor findings for review before Finder, Compare or Proposal use them as trusted data.</span>
           </div>
         </section>
 
-        <section className="wm-section-card wm-profile-card">
-          <div className="wm-profile-card-head">
-            <p className="wm-profile-card-label">Workspace sync</p>
-            <h2>Live-call recovery</h2>
-          </div>
+        <section className="wm-section-card" aria-labelledby="wingman-settings-workspace">
+          <p className="wm-ui-kicker">Workspace sync</p>
+          <h2 id="wingman-settings-workspace" className="wm-card-title">Live-call recovery</h2>
+          <p className="wm-copy">Control workspace sign-in for project recovery without changing local saved settings.</p>
 
-          <div className="wm-output-panel wm-profile-info-box">
+          <div className="wm-output-panel">
             <strong>{session?.workspace?.name || (projectBackendSyncEnabled() ? "Workspace available" : "Local mode")}</strong>
             <span>
               {session?.user
@@ -440,7 +432,7 @@ export function ProfilePage() {
             </span>
           </div>
 
-          <div className="wm-form-grid wm-profile-two-col">
+          <div className="wm-form-grid">
             <label className="wm-field">
               Mode
               <select className="wm-select" value={profile.workspaceSyncMode} onChange={(event) => updateField("workspaceSyncMode", event.target.value)}>
@@ -464,7 +456,7 @@ export function ProfilePage() {
             />
           </label>
 
-          <div className="wm-profile-button-row">
+          <div className="wm-action-row">
             {session?.user ? (
               <button className="wm-button wm-button-secondary" type="button" onClick={handleSignOut} disabled={workspaceBusy}>Sign out</button>
             ) : (
