@@ -17115,7 +17115,7 @@ html body .wm-profile-page .wm-profile-hero {
 
 html body .wm-profile-page .wm-profile-kicker,
 html body .wm-profile-page .wm-profile-card-label,
-html body .wm-profile-page .wm-profile-status-strip span {
+html body .wm-profile-page .wm-profile-status-strip > span:not(.wm-status):not(.wm-status-chip) {
   margin: 0 !important;
   color: var(--wm-profile-heading) !important;
   font-size: 0.64rem !important;
@@ -37379,8 +37379,7 @@ html[data-wingman-route] .wingman-page-host .wm-page,
   min-height: 4rem;
 }
 
-.wm-badge,
-.wm-status {
+.wm-badge {
   display: inline-flex;
   width: fit-content;
   min-height: 1.75rem;
@@ -37388,10 +37387,10 @@ html[data-wingman-route] .wingman-page-host .wm-page,
   justify-content: center;
   gap: 0.3rem;
   padding: 0.28rem 0.7rem;
-  border: 1px solid var(--wm-border-light);
+  border: 1px solid color-mix(in srgb, var(--wm-aqua) 34%, transparent) !important;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--wm-aqua) 9%, transparent);
-  color: var(--wm-heading-soft);
+  background: color-mix(in srgb, var(--wm-bg-0) 78%, var(--wm-aqua) 10%) !important;
+  color: var(--wm-heading-soft) !important;
   font-size: 0.72rem;
   font-weight: var(--wm-weight-heading);
   letter-spacing: 0.04em;
@@ -37400,22 +37399,124 @@ html[data-wingman-route] .wingman-page-host .wm-page,
   box-shadow: none;
 }
 
+.wm-status,
+.wm-status-chip {
+  display: inline-flex !important;
+  width: fit-content !important;
+  max-width: 100%;
+  min-height: 1.8rem !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.38rem !important;
+  padding: 0.34rem 0.78rem !important;
+  border: 1px solid rgba(154, 205, 230, 0.36) !important;
+  border-radius: 999px !important;
+  background: rgba(11, 34, 52, 0.94) !important;
+  color: #edf6ff !important;
+  font-size: 0.72rem !important;
+  font-weight: var(--wm-weight-heading) !important;
+  letter-spacing: 0.04em !important;
+  line-height: 1.12 !important;
+  text-transform: uppercase !important;
+  box-shadow: none !important;
+  white-space: nowrap;
+}
+
+.wm-status > *,
+.wm-status-chip > * {
+  color: inherit !important;
+}
+
+.wm-status-chip-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wm-status-neutral,
+.wm-status-default {
+  border-color: rgba(154, 205, 230, 0.38) !important;
+  background: rgba(11, 34, 52, 0.94) !important;
+  color: #edf6ff !important;
+}
+
+.wm-status-ready {
+  border-color: rgba(103, 232, 249, 0.62) !important;
+  background: rgba(8, 84, 105, 0.58) !important;
+  color: #dffcff !important;
+}
+
+.wm-status-on-track,
+.wm-status-success,
 .wm-status-recommended {
-  border-color: color-mix(in srgb, var(--wm-green) 55%, transparent);
-  background: var(--wm-green-soft);
-  color: var(--wm-text);
+  border-color: rgba(74, 222, 128, 0.62) !important;
+  background: rgba(11, 88, 60, 0.66) !important;
+  color: #e7fff4 !important;
 }
 
+.wm-status-progress,
 .wm-status-alternative {
-  border-color: color-mix(in srgb, var(--wm-amber) 52%, transparent);
-  background: color-mix(in srgb, var(--wm-amber) 14%, transparent);
-  color: var(--wm-text);
+  border-color: rgba(96, 165, 250, 0.62) !important;
+  background: rgba(29, 78, 146, 0.66) !important;
+  color: #eaf4ff !important;
 }
 
+.wm-status-warning,
+.wm-status-review,
 .wm-status-caution {
-  border-color: color-mix(in srgb, var(--wm-red) 52%, transparent);
-  background: color-mix(in srgb, var(--wm-red) 14%, transparent);
-  color: var(--wm-text);
+  border-color: rgba(251, 191, 36, 0.68) !important;
+  background: rgba(113, 63, 18, 0.72) !important;
+  color: #fff4d5 !important;
+}
+
+.wm-status-danger {
+  border-color: rgba(248, 113, 113, 0.68) !important;
+  background: rgba(127, 29, 29, 0.72) !important;
+  color: #ffe5e5 !important;
+}
+
+html[data-wingman-route] .wingman-page-host .wm-status,
+html[data-wingman-route] .wingman-page-host .wm-status-chip,
+html body .wm-profile-page .wm-profile-status-strip .wm-status,
+html body .wm-profile-page .wm-profile-status-strip .wm-status-chip {
+  border-color: rgba(154, 205, 230, 0.36) !important;
+  background: rgba(11, 34, 52, 0.94) !important;
+  color: #edf6ff !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(.wm-status-ready),
+html body .wm-profile-page .wm-profile-status-strip :is(.wm-status-ready) {
+  border-color: rgba(103, 232, 249, 0.62) !important;
+  background: rgba(8, 84, 105, 0.58) !important;
+  color: #dffcff !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(.wm-status-on-track, .wm-status-success, .wm-status-recommended),
+html body .wm-profile-page .wm-profile-status-strip :is(.wm-status-on-track, .wm-status-success, .wm-status-recommended) {
+  border-color: rgba(74, 222, 128, 0.62) !important;
+  background: rgba(11, 88, 60, 0.66) !important;
+  color: #e7fff4 !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(.wm-status-progress, .wm-status-alternative),
+html body .wm-profile-page .wm-profile-status-strip :is(.wm-status-progress, .wm-status-alternative) {
+  border-color: rgba(96, 165, 250, 0.62) !important;
+  background: rgba(29, 78, 146, 0.66) !important;
+  color: #eaf4ff !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(.wm-status-warning, .wm-status-review, .wm-status-caution),
+html body .wm-profile-page .wm-profile-status-strip :is(.wm-status-warning, .wm-status-review, .wm-status-caution) {
+  border-color: rgba(251, 191, 36, 0.68) !important;
+  background: rgba(113, 63, 18, 0.72) !important;
+  color: #fff4d5 !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(.wm-status-danger),
+html body .wm-profile-page .wm-profile-status-strip :is(.wm-status-danger) {
+  border-color: rgba(248, 113, 113, 0.68) !important;
+  background: rgba(127, 29, 29, 0.72) !important;
+  color: #ffe5e5 !important;
 }
 
 .wm-action-row,
