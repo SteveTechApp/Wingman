@@ -12237,3 +12237,821 @@ details.wm-ui-guidance-card:not([open]) {
 .wm-templates-page .wm-template-card .wm-button {
   align-self: center !important;
 }
+
+
+/* ==========================================================================
+   Remaining unstyled pages, built from the shared design tokens/patterns
+   already used across the rest of the app (wm-card / wm-badge / wm-button
+   look) rather than one-off bespoke styling.
+   ========================================================================== */
+
+.wm-eyebrow {
+  color: var(--wm-heading-2);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.wm-status-draft,
+.wm-status-needs-review,
+.wm-status-approved,
+.wm-status-rejected {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+}
+
+.wm-status-draft {
+  color: var(--wm-muted);
+  background: rgba(148, 163, 184, 0.16);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.wm-status-needs-review {
+  color: var(--wm-warning);
+  background: rgba(251, 191, 36, 0.14);
+  border: 1px solid rgba(251, 191, 36, 0.32);
+}
+
+.wm-status-approved {
+  color: var(--wm-success);
+  background: rgba(52, 211, 153, 0.14);
+  border: 1px solid rgba(52, 211, 153, 0.32);
+}
+
+.wm-status-rejected {
+  color: var(--wm-danger);
+  background: rgba(251, 113, 133, 0.14);
+  border: 1px solid rgba(251, 113, 133, 0.32);
+}
+
+/* --------------------------------------------------------------------------
+   Intelligence page
+   -------------------------------------------------------------------------- */
+
+.wm-intelligence-page {
+  display: grid;
+  gap: 16px;
+  padding: clamp(16px, 2vw, 24px);
+  color: var(--wm-text);
+}
+
+.wm-intelligence-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.wm-intelligence-stat {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-md);
+  background: linear-gradient(180deg, rgba(16, 31, 52, 0.96), rgba(8, 18, 32, 0.96));
+  box-shadow: var(--wm-shadow-sm);
+  padding: 14px 16px;
+}
+
+.wm-intelligence-stat-value {
+  color: var(--wm-heading);
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.wm-intelligence-stat-label {
+  color: var(--wm-muted);
+  font-size: 0.76rem;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.wm-intelligence-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-md);
+  background: rgba(15, 23, 42, 0.5);
+  padding: 12px 16px;
+}
+
+.wm-intelligence-search {
+  flex: 1 1 240px;
+}
+
+.wm-intelligence-search-input {
+  width: 100%;
+  min-height: 38px;
+  color: var(--wm-text);
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-sm);
+  padding: 8px 12px;
+}
+
+.wm-intelligence-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--wm-text-soft);
+  font-size: 0.85rem;
+}
+
+.wm-intelligence-filter-select {
+  min-height: 34px;
+  color: var(--wm-text);
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-sm);
+  padding: 4px 10px;
+}
+
+.wm-intelligence-empty {
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  min-height: 160px;
+  padding: 24px;
+  color: var(--wm-muted);
+  text-align: center;
+  border: 1px dashed rgba(125, 211, 252, 0.22);
+  border-radius: var(--wm-radius-lg);
+  background: rgba(15, 23, 42, 0.36);
+}
+
+.wm-intelligence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.wm-intelligence-card {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-md);
+  background: linear-gradient(180deg, rgba(16, 31, 52, 0.96), rgba(8, 18, 32, 0.96));
+  box-shadow: var(--wm-shadow-sm);
+  padding: 14px 16px;
+}
+
+.wm-intelligence-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wm-intelligence-source-type {
+  color: var(--wm-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.wm-intelligence-card-body {
+  display: grid;
+  gap: 2px;
+}
+
+.wm-intelligence-sku {
+  color: var(--wm-heading);
+  font-size: 1.02rem;
+  line-height: 1.2;
+}
+
+.wm-intelligence-name,
+.wm-intelligence-brand {
+  color: var(--wm-text-soft);
+  font-size: 0.84rem;
+}
+
+.wm-intelligence-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: var(--wm-muted);
+  font-size: 0.78rem;
+}
+
+.wm-intelligence-purpose,
+.wm-intelligence-notes {
+  margin: 0;
+  color: var(--wm-text-soft);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.wm-intelligence-approved-for {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  color: var(--wm-muted);
+  font-size: 0.78rem;
+}
+
+.wm-intelligence-surface-tag {
+  display: inline-flex;
+  border: 1px solid var(--wm-border);
+  border-radius: 999px;
+  background: rgba(20, 184, 166, 0.14);
+  color: var(--wm-heading);
+  font-size: 0.72rem;
+  font-weight: 650;
+  padding: 2px 9px;
+}
+
+.wm-intelligence-related {
+  display: grid;
+  gap: 10px;
+}
+
+.wm-intelligence-related h2 {
+  margin: 0;
+  color: var(--wm-heading);
+}
+
+/* --------------------------------------------------------------------------
+   Support landing page
+   -------------------------------------------------------------------------- */
+
+.wm-support-landing {
+  display: grid;
+  gap: 20px;
+  padding: clamp(16px, 2vw, 24px);
+  color: var(--wm-text);
+}
+
+.wm-support-landing__hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-lg);
+  background: linear-gradient(135deg, rgba(16, 31, 52, 0.96), rgba(8, 18, 32, 0.96));
+  box-shadow: var(--wm-shadow-sm);
+  padding: 22px;
+}
+
+.wm-support-landing__hero h1 {
+  margin: 8px 0 0;
+  color: var(--wm-heading);
+  font-size: clamp(1.4rem, 2.6vw, 2rem);
+}
+
+.wm-support-landing__hero p {
+  max-width: 46rem;
+  margin: 10px 0 0;
+  color: var(--wm-text-soft);
+}
+
+.wm-support-landing__eyebrow {
+  margin: 0;
+  color: var(--wm-heading-2);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.wm-support-landing__heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.wm-support-landing__heroActions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 9px 14px;
+  color: #ecfeff;
+  font-weight: 650;
+  text-decoration: none;
+  background: linear-gradient(135deg, var(--wm-primary-strong), var(--wm-primary));
+  border: 1px solid rgba(94, 234, 212, 0.52);
+  border-radius: var(--wm-radius-sm);
+}
+
+.wm-support-landing__sectionHeader {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.wm-support-landing__sectionHeader h2 {
+  margin: 0;
+  color: var(--wm-heading);
+}
+
+.wm-support-landing__quickGrid,
+.wm-support-landing__menuGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+}
+
+.wm-support-landing__quickCard,
+.wm-support-landing__menuCard {
+  display: grid;
+  align-content: space-between;
+  gap: 12px;
+  min-height: 9.5rem;
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-md);
+  background: linear-gradient(180deg, rgba(16, 31, 52, 0.96), rgba(8, 18, 32, 0.96));
+  box-shadow: var(--wm-shadow-sm);
+  padding: 16px;
+}
+
+.wm-support-landing__quickCard h3,
+.wm-support-landing__menuCard h3 {
+  margin: 0 0 4px;
+  color: var(--wm-text);
+  font-size: 1rem;
+}
+
+.wm-support-landing__quickCard p,
+.wm-support-landing__menuCard p {
+  margin: 0;
+  color: var(--wm-text-soft);
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.wm-support-landing__menuCard span {
+  display: block;
+  margin-top: 4px;
+  color: var(--wm-muted);
+  font-size: 0.76rem;
+}
+
+.wm-support-landing__quickCard a,
+.wm-support-landing__menuCard a {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 7px 12px;
+  color: var(--wm-text);
+  font-weight: 650;
+  font-size: 0.84rem;
+  text-decoration: none;
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-sm);
+}
+
+.wm-support-landing__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(240px, 0.9fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.wm-support-landing__aside {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-lg);
+  background: rgba(15, 23, 42, 0.5);
+  padding: 18px;
+}
+
+.wm-support-landing__aside h2 {
+  margin: 0;
+  color: var(--wm-heading);
+  font-size: 1.05rem;
+}
+
+.wm-support-landing__aside ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.wm-support-landing__aside li {
+  color: var(--wm-text-soft);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.wm-support-landing__aside a {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 7px 12px;
+  color: var(--wm-text);
+  font-weight: 650;
+  font-size: 0.84rem;
+  text-decoration: none;
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-sm);
+}
+
+@media (max-width: 900px) {
+  .wm-support-landing__body {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Visual Studio canvas — node detail & schematic sheet header
+   (kept in the same html[data-wingman-route] / !important convention as the
+   rest of the Visual Studio rules already in this file)
+   -------------------------------------------------------------------------- */
+
+html[data-wingman-route] .wm-vs-node-handle {
+  width: 8px !important;
+  height: 8px !important;
+  border: 1px solid rgba(103, 232, 249, 0.6) !important;
+  background: #06111d !important;
+}
+
+html[data-wingman-route] .wm-vs-node-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+}
+
+html[data-wingman-route] .wm-vs-node-symbol {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #67e8f9 !important;
+}
+
+html[data-wingman-route] .wm-vs-node-reference {
+  color: rgba(226, 242, 255, 0.68) !important;
+  font-size: 0.72rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.04em !important;
+}
+
+html[data-wingman-route] .wm-vs-node-connections {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 4px !important;
+  margin-top: 6px !important;
+}
+
+html[data-wingman-route] .wm-vs-node-connections span {
+  border: 1px solid rgba(103, 232, 249, 0.22) !important;
+  border-radius: 999px !important;
+  background: rgba(3, 18, 31, 0.8) !important;
+  color: rgba(226, 242, 255, 0.78) !important;
+  font-size: 0.64rem !important;
+  font-weight: 700 !important;
+  padding: 2px 8px !important;
+}
+
+html[data-wingman-route] .wm-vs-node-status {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  margin-top: 8px !important;
+  color: rgba(226, 242, 255, 0.7) !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+}
+
+html[data-wingman-route] .wm-vs-node-status span {
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 999px !important;
+  background: #34d399 !important;
+}
+
+html[data-wingman-route="visualStudio"] .wm-vs-sheet-header {
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  align-items: center !important;
+  gap: 14px !important;
+  padding: 10px 12px !important;
+  border-bottom: 1.5px solid #1f2937 !important;
+  background: var(--wm-consistency-text) !important;
+}
+
+html[data-wingman-route="visualStudio"] .wm-vs-sheet-brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+html[data-wingman-route="visualStudio"] .wm-vs-sheet-brand span {
+  display: grid !important;
+  place-items: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 8px !important;
+  background: linear-gradient(135deg, #0f766e, #14b8a6) !important;
+  color: #ecfeff !important;
+  font-weight: 900 !important;
+}
+
+html[data-wingman-route="visualStudio"] .wm-vs-sheet-brand strong {
+  display: block !important;
+  color: #111827 !important;
+  font-size: 0.78rem !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+}
+
+html[data-wingman-route="visualStudio"] .wm-vs-sheet-brand small {
+  display: block !important;
+  color: #64748b !important;
+  font-size: 0.56rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+}
+
+html[data-wingman-route="visualStudio"] .wm-vs-sheet-title {
+  min-width: 0 !important;
+  text-align: center !important;
+}
+
+html[data-wingman-route="visualStudio"] .wm-vs-sheet-title strong {
+  display: block !important;
+  color: #111827 !important;
+  font-size: 0.86rem !important;
+  font-weight: 900 !important;
+  line-height: 1.15 !important;
+}
+
+html[data-wingman-route="visualStudio"] .wm-vs-sheet-title span {
+  display: block !important;
+  margin-top: 2px !important;
+  color: #64748b !important;
+  font-size: 0.68rem !important;
+}
+
+html[data-wingman-route="visualStudio"] .wm-vs-sheet-number {
+  text-align: right !important;
+}
+
+html[data-wingman-route="visualStudio"] .wm-vs-sheet-number span {
+  display: block !important;
+  color: #64748b !important;
+  font-size: 0.56rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+}
+
+html[data-wingman-route="visualStudio"] .wm-vs-sheet-number strong {
+  display: block !important;
+  margin-top: 2px !important;
+  color: #111827 !important;
+  font-size: 0.74rem !important;
+  font-weight: 900 !important;
+}
+
+html[data-wingman-route="visualStudio"] .wm-vs-signal-legend {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+  padding: 6px 12px !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+  background: rgba(255, 255, 255, 0.7) !important;
+}
+
+html[data-wingman-route="visualStudio"] .wm-vs-signal-legend span {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  color: #475569 !important;
+  font-size: 0.64rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: uppercase !important;
+}
+
+html[data-wingman-route="visualStudio"] .wm-vs-signal-legend i {
+  display: inline-block !important;
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 3px !important;
+  background: #94a3b8 !important;
+}
+
+html[data-wingman-route="visualStudio"] .wm-vs-signal-legend i[data-signal="video"] { background: #2563eb !important; }
+html[data-wingman-route="visualStudio"] .wm-vs-signal-legend i[data-signal="usb"] { background: #f59e0b !important; }
+html[data-wingman-route="visualStudio"] .wm-vs-signal-legend i[data-signal="network"] { background: #22d3ee !important; }
+html[data-wingman-route="visualStudio"] .wm-vs-signal-legend i[data-signal="audio"] { background: #a855f7 !important; }
+html[data-wingman-route="visualStudio"] .wm-vs-signal-legend i[data-signal="control"] { background: #34d399 !important; }
+
+html[data-wingman-route="visualStudio"] .wm-vs-titleblock-brand span {
+  display: block !important;
+  color: #64748b !important;
+  font-size: 0.55rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+}
+
+html[data-wingman-route="visualStudio"] .wm-vs-titleblock-brand strong {
+  display: block !important;
+  margin-top: 4px !important;
+  color: #0f766e !important;
+  font-size: 0.7rem !important;
+  font-weight: 900 !important;
+}
+
+/* --------------------------------------------------------------------------
+   AV signal flow diagram — track detail
+   -------------------------------------------------------------------------- */
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"] .wm-av-flow-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 16px 8px;
+}
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"] .wm-av-flow-header span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(20, 184, 166, 0.3);
+  background: rgba(236, 253, 245, 0.95);
+  color: #047857;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"] .wm-av-flow-header h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1rem;
+}
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"] .wm-av-flow-header p {
+  margin: 4px 0 0;
+  color: rgba(15, 23, 42, 0.64);
+  font-size: 0.82rem;
+}
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"] .wm-av-flow-track {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0;
+  padding: 8px 16px 16px;
+}
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"] .wm-av-flow-step {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"] .wm-av-flow-node {
+  display: grid;
+  gap: 4px;
+  min-width: 150px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 14px;
+  background: rgba(248, 250, 252, 0.9);
+  padding: 12px 14px;
+}
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"] .wm-av-flow-glyph {
+  display: inline-flex;
+  align-items: center;
+  color: #0f766e;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"] .wm-av-flow-node strong {
+  color: #0f172a;
+  font-size: 0.88rem;
+  line-height: 1.2;
+}
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"] .wm-av-flow-node small {
+  color: rgba(15, 23, 42, 0.6);
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"] .wm-av-flow-arrow {
+  width: 26px;
+  height: 2px;
+  margin: 0 4px;
+  background: repeating-linear-gradient(90deg, #14b8a6 0 6px, transparent 6px 10px);
+  align-self: center;
+}
+
+@media (max-width: 720px) {
+  .wm-av-flow-shell[data-wingman-optional-visual-support="true"] .wm-av-flow-track {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .wm-av-flow-shell[data-wingman-optional-visual-support="true"] .wm-av-flow-step {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .wm-av-flow-shell[data-wingman-optional-visual-support="true"] .wm-av-flow-arrow {
+    width: 2px;
+    height: 20px;
+    margin: 4px 0 4px 20px;
+    background: repeating-linear-gradient(180deg, #14b8a6 0 6px, transparent 6px 10px);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Small remaining polish
+   -------------------------------------------------------------------------- */
+
+.wm-discovery-finish-review {
+  color: var(--wm-muted);
+  font-size: 0.82rem;
+}
+
+.wm-finder-fit {
+  color: var(--wm-heading);
+  border: 1px solid var(--wm-border-strong);
+  background: var(--wm-primary-soft);
+}
+
+.wm-pcc-workflow-guide {
+  margin-top: 10px;
+}
+
+.wm-pcc-workflow-guide summary {
+  cursor: pointer;
+}
+
+.wm-visual-context-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--wm-border);
+  border-radius: 999px;
+  background: rgba(20, 184, 166, 0.14);
+  color: var(--wm-heading);
+  font-size: 0.8rem;
+  font-weight: 650;
+  padding: 6px 12px;
+}
+
+/* --------------------------------------------------------------------------
+   Final small gaps found on re-audit
+   -------------------------------------------------------------------------- */
+
+.wm-discovery-finish-card {
+  border-color: var(--wm-border-strong);
+}
+
+.wm-discovery-finish-actions {
+  flex-wrap: wrap;
+}
+
+.wm-intelligence-status {
+  display: inline-flex;
+}
+
+.wm-intelligence-class,
+.wm-intelligence-confidence {
+  display: inline-flex;
+  align-items: center;
+}
+
+.wm-intelligence-records {
+  display: block;
+}
+
+.wm-support-landing__quick,
+.wm-support-landing__menu {
+  display: grid;
+  gap: 4px;
+}
