@@ -3729,16 +3729,40 @@ export const PRODUCT_STORIES: ProductStory[] = [
   }
 ];
 
+function literalStorySkuKey(value: string): string {
+  return value.trim().toUpperCase().replace(/\s+/g, "");
+}
+
+// Keyed by each story's own literal SKU (no alias resolution), so a
+// discontinued predecessor and its successor - e.g. APO-VX20-UC and
+// APO-VX20-UC-V2, which both alias-resolve to the same canonical SKU for
+// business-status purposes - each keep their own dedicated, reachable story
+// instead of one silently overwriting the other during construction.
 export const PRODUCT_STORY_BY_SKU: Record<string, ProductStory> = PRODUCT_STORIES.reduce(
   (accumulator, story) => {
-    accumulator[normaliseStorySku(story.sku)] = story;
+    accumulator[literalStorySkuKey(story.sku)] = story;
+    return accumulator;
+  },
+  {} as Record<string, ProductStory>,
+);
+
+// Fallback for callers passing a legacy/alias SKU that has no dedicated story
+// of its own (e.g. "NHD-610-TX" has no separate entry, only "NHD-610-TX-V2"
+// does). First entry to claim an alias-resolved key wins, so this never
+// clobbers a SKU that already has its own literal entry above.
+const PRODUCT_STORY_BY_ALIAS_SKU: Record<string, ProductStory> = PRODUCT_STORIES.reduce(
+  (accumulator, story) => {
+    const aliasKey = normaliseStorySku(story.sku);
+    if (!(aliasKey in accumulator)) {
+      accumulator[aliasKey] = story;
+    }
     return accumulator;
   },
   {} as Record<string, ProductStory>,
 );
 
 export function getProductStory(sku: string): ProductStory | undefined {
-  return PRODUCT_STORY_BY_SKU[normaliseStorySku(sku)];
+  return PRODUCT_STORY_BY_SKU[literalStorySkuKey(sku)] ?? PRODUCT_STORY_BY_ALIAS_SKU[normaliseStorySku(sku)];
 }
 
 export function hasProductStory(sku: string): boolean {
