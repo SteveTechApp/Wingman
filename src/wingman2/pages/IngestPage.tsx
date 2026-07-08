@@ -1,11 +1,17 @@
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 import { saveIngestAnalysisToProject } from "../data/projectStore";
 import { extractDocuments } from "../lib/documentExtract";
 import { analyzeRequirementsText } from "../lib/requirementsParser";
+import {
+  analyzeMultiSkuCompetitorDocument,
+  buildMultiSkuResponseDraft,
+  type MultiSkuCompetitorAnalysis,
+} from "../lib/documentIngest/multiSkuCompetitorIngest";
+import type { DocumentSkuTriageRow } from "../lib/documentIngest/skuTriage";
 
 type RequestType = "Email / message" | "RFI / information request" | "Formal RFQ" | "BOM / competitor list" | "Multi-space scope" | "Rough notes";
 
@@ -102,10 +108,12 @@ function cleanList(items: string[], fallback: string[]) {
 }
 
 export function IngestPage() {
+  const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [extractState, setExtractState] = useState<"idle" | "extracting" | "complete" | "error">("idle");
   const [requestType, setRequestType] = useState<RequestType>("Email / message");
   const [pastedText, setPastedText] = useState("");
+  const [bulkAnalysis, setBulkAnalysis] = useState<MultiSkuCompetitorAnalysis | null>(null);
   const [analysis, setAnalysis] = useState<IngestAnalysis>({
     requirements: [],
     unknowns: ["Paste a customer message, RFQ, RFI, notes or upload readable files to decode the request."],
@@ -152,9 +160,32 @@ export function IngestPage() {
       files,
     };
 
+    const multiSku = analyzeMultiSkuCompetitorDocument(text);
+    const isBulk = multiSku.documentType === "multi_sku_competitor_list";
+
     setAnalysis(nextAnalysis);
-    saveIngestAnalysisToProject(nextAnalysis, { requireExistingProject: true });
+    setBulkAnalysis(isBulk ? multiSku : null);
+    saveIngestAnalysisToProject(
+      { ...nextAnalysis, multiSkuIntelligence: isBulk ? multiSku : undefined },
+      { requireExistingProject: true },
+    );
     setExtractState("complete");
+  };
+
+  const saveBulkOpportunity = () => {
+    if (!bulkAnalysis) return;
+    saveIngestAnalysisToProject({
+      requirements: analysis.requirements,
+      unknowns: analysis.unknowns,
+      skippedFiles: analysis.skippedFiles,
+      files: analysis.files,
+      multiSkuIntelligence: bulkAnalysis,
+    });
+  };
+
+  const continueBulkToProposal = () => {
+    saveBulkOpportunity();
+    navigate(routeCatalogByKey.proposal.path);
   };
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -186,14 +217,44 @@ export function IngestPage() {
       files: files.map((file) => file.name),
     };
 
+    const multiSku = analyzeMultiSkuCompetitorDocument(combinedText);
+    const isBulk = multiSku.documentType === "multi_sku_competitor_list";
+
     setAnalysis(nextAnalysis);
-    saveIngestAnalysisToProject(nextAnalysis, { requireExistingProject: true });
+    setBulkAnalysis(isBulk ? multiSku : null);
+    saveIngestAnalysisToProject(
+      { ...nextAnalysis, multiSkuIntelligence: isBulk ? multiSku : undefined },
+      { requireExistingProject: true },
+    );
     setExtractState(extractionWarnings.length && !text ? "error" : "complete");
   };
 
   const runPasteAnalysis = () => {
     analyseText(pastedText, [], selectedFiles);
   };
+
+  if (bulkAnalysis) {
+    return (
+      <div className="pb-8" data-wingman-request-decoder="true">
+        <PageHero
+          eyebrow="Request Decoder"
+          title="Bulk enquiry ready"
+          purpose="Wingman separated the competitor product list from supporting analysis. Review the WyreStorm direction, then carry it into the proposal."
+          nextMove="Carry the batch-eligible items into the proposal workflow."
+          actions={[{ label: "Continue to proposal", onClick: continueBulkToProposal }]}
+        />
+        <BulkEnquiryResults
+          analysis={bulkAnalysis}
+          onSave={saveBulkOpportunity}
+          onReset={() => {
+            setBulkAnalysis(null);
+            setPastedText("");
+            setExtractState("idle");
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="pb-8" data-wingman-request-decoder="true">
@@ -330,5 +391,243 @@ export function IngestPage() {
         </div>
       </SectionCard>
     </div>
+  );
+}
+
+type BulkTab = "products" | "groups" | "risks" | "source";
+
+const BULK_TABS: Array<{ id: BulkTab; label: string }> = [
+  { id: "products", label: "Products" },
+  { id: "groups", label: "Product groups" },
+  { id: "risks", label: "Risks & response" },
+  { id: "source", label: "Source details" },
+];
+
+function statusLabel(status: DocumentSkuTriageRow["status"]): string {
+  return status.replace(/_/g, " ");
+}
+
+function BulkEnquiryResults({
+  analysis,
+  onSave,
+  onReset,
+}: {
+  analysis: MultiSkuCompetitorAnalysis;
+  onSave: () => void;
+  onReset: () => void;
+}) {
+  const [activeTab, setActiveTab] = useState<BulkTab>("products");
+  const [showQueue, setShowQueue] = useState(false);
+  const [showIgnored, setShowIgnored] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [responseDraft, setResponseDraft] = useState("");
+  const [showDiscoveryQuestions, setShowDiscoveryQuestions] = useState(false);
+
+  const { triage } = analysis;
+  const productRows = triage.rows.filter((row) => row.status !== "not_wyrestorm_addressable");
+  const queueRows = triage.rows.filter((row) => row.batchCompareEligible);
+  const ignoredRows = triage.rows.filter((row) => row.status === "not_wyrestorm_addressable" && row.retainAsProjectContext);
+
+  return (
+    <SectionCard
+      title="Review the bulk enquiry"
+      subtitle="Competitor SKUs are intelligence inputs only - review the WyreStorm direction before quoting."
+      rightSlot={
+        <button type="button" className="wingman-hero-action wingman-hero-action-secondary" onClick={onReset}>
+          Start over
+        </button>
+      }
+    >
+      <div
+        role="tablist"
+        aria-label="Bulk enquiry sections"
+        className="mb-4 flex flex-wrap gap-2"
+      >
+        {BULK_TABS.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={
+              activeTab === tab.id
+                ? "rounded-full bg-cyan-300 px-4 py-2 text-sm font-black text-slate-950"
+                : "rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100"
+            }
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === "products" ? (
+        <div role="tabpanel" aria-label="Products" className="grid gap-4">
+          <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Product selection</p>
+            <p className="mt-1 text-sm leading-6 text-white/55">
+              Every extracted line, classified by WyreStorm-addressable direction. Noise and non-addressable context is kept out by default.
+            </p>
+            <div className="mt-4 max-h-96 overflow-y-auto rounded-2xl border border-[#29465e]">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr>
+                    <th className="p-2 text-xs font-black uppercase tracking-[0.1em] text-cyan-300">SKU</th>
+                    <th className="p-2 text-xs font-black uppercase tracking-[0.1em] text-cyan-300">Description</th>
+                    <th className="p-2 text-xs font-black uppercase tracking-[0.1em] text-cyan-300">Status</th>
+                    <th className="p-2 text-xs font-black uppercase tracking-[0.1em] text-cyan-300">WyreStorm direction</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {productRows.map((row) => (
+                    <tr key={row.id} className="border-t border-[#29465e]">
+                      <td className="p-2 font-semibold text-white">{row.sku}</td>
+                      <td className="p-2 text-white/70">{row.rawItem}</td>
+                      <td className="p-2 text-white/70">{statusLabel(row.status)}</td>
+                      <td className="p-2 text-white/70">{row.wyrestormDirection}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <div className="wingman-action-row flex flex-wrap gap-3">
+            <button
+              type="button"
+              className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100"
+              onClick={() => setShowQueue((current) => !current)}
+            >
+              {showQueue ? "Hide selected comparisons" : `Review selected comparisons (${queueRows.length})`}
+            </button>
+            <button
+              type="button"
+              className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100"
+              onClick={() => setShowIgnored((current) => !current)}
+            >
+              {showIgnored ? "Hide ignored items" : "Review ignored items"}
+            </button>
+          </div>
+
+          {showQueue ? (
+            <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Selected comparison queue</p>
+              <ul className="mt-4 space-y-2 text-sm leading-6 text-white/75">
+                {queueRows.map((row) => (
+                  <li key={row.id} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">
+                    <p className="font-semibold text-white">{row.sku}</p>
+                    <p>{row.wyrestormDirection}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {showIgnored ? (
+            <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Ignored items (retained as project context)</p>
+              <ul className="mt-4 space-y-2 text-sm leading-6 text-white/75">
+                {ignoredRows.map((row) => (
+                  <li key={row.id} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">
+                    <p className="font-semibold text-white">{row.sku || row.rawItem}</p>
+                    <p>{row.reason}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+        </div>
+      ) : null}
+
+      {activeTab === "groups" ? (
+        <div role="tabpanel" aria-label="Product groups" className="grid gap-3">
+          {analysis.productSets.map((group) => (
+            <article key={group.id} className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+              <p className="text-sm font-black text-white">{group.title}</p>
+              <p className="mt-1 text-sm leading-6 text-white/70">{group.summary}</p>
+              <p className="mt-3 text-sm leading-6 text-white/75">{group.salesDirection}</p>
+            </article>
+          ))}
+        </div>
+      ) : null}
+
+      {activeTab === "risks" ? (
+        <div role="tabpanel" aria-label="Risks and response" className="grid gap-4">
+          <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Quote risks</p>
+            <ul className="mt-4 space-y-2 text-sm leading-6 text-white/75">
+              {analysis.quoteRisks.map((risk) => (
+                <li key={risk} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">{risk}</li>
+              ))}
+            </ul>
+          </article>
+
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100"
+              onClick={() => setResponseDraft(buildMultiSkuResponseDraft(analysis))}
+            >
+              Generate sales response
+            </button>
+            <button
+              type="button"
+              className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100"
+              onClick={() => setShowDiscoveryQuestions(true)}
+            >
+              Generate discovery questions
+            </button>
+          </div>
+
+          {responseDraft ? (
+            <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Sales response draft</p>
+              <p className="mt-3 text-sm leading-6 text-white/75">{responseDraft}</p>
+            </article>
+          ) : null}
+
+          {showDiscoveryQuestions ? (
+            <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Discovery questions</p>
+              <ul className="mt-4 space-y-2 text-sm leading-6 text-white/75">
+                {analysis.discoveryQuestions.map((question) => (
+                  <li key={question} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">{question}</li>
+                ))}
+              </ul>
+            </article>
+          ) : null}
+        </div>
+      ) : null}
+
+      {activeTab === "source" ? (
+        <div role="tabpanel" aria-label="Source details" className="grid gap-2">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Document type</p>
+          <p className="text-sm text-white/75">{analysis.documentType}</p>
+          <p className="text-sm text-white/75">{analysis.manufacturer} / {analysis.accountCustomer}</p>
+          {analysis.senderContext ? <p className="text-sm text-white/60">{analysis.senderContext}</p> : null}
+          {analysis.subject ? <p className="text-sm text-white/60">Subject: {analysis.subject}</p> : null}
+          <p className="text-sm text-white/60">Source kind: {analysis.sourceKind}</p>
+        </div>
+      ) : null}
+
+      <div className="mt-6 grid gap-3 rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-5">
+        <p className="text-sm leading-6 text-white/85">
+          Competitor SKUs were not added to the WyreStorm BOM or product selections - they remain intelligence inputs until confirmed.
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            className="rounded-full bg-cyan-300 px-4 py-2 text-sm font-black text-slate-950"
+            onClick={() => {
+              onSave();
+              setSaved(true);
+            }}
+          >
+            Save opportunity
+          </button>
+          {saved ? <span className="text-sm font-semibold text-cyan-200">Saved.</span> : null}
+        </div>
+      </div>
+    </SectionCard>
   );
 }
