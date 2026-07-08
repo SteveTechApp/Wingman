@@ -244,7 +244,7 @@ export function DashboardPage() {
 
   return (
     <main
-      className="wm-page wingman-page-host wm-dashboard-visual-root wm-dashboard-shell"
+      className="wm-dashboard-page wm-page wingman-page-host wm-dashboard-visual-root wm-dashboard-shell"
       data-wingman-page="home"
       data-wingman-home="true"
       aria-label="Wingman dashboard"

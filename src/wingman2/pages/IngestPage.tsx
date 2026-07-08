@@ -1,13 +1,32 @@
 import { useMemo, useRef, useState, type ChangeEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 import { saveIngestAnalysisToProject } from "../data/projectStore";
 import { extractDocuments } from "../lib/documentExtract";
 import { analyzeRequirementsText } from "../lib/requirementsParser";
+import {
+  analyzeMultiSkuCompetitorDocument,
+  buildMultiSkuResponseDraft,
+  type MultiSkuCompetitorAnalysis,
+} from "../lib/documentIngest/multiSkuCompetitorIngest";
+import type { DocumentSkuTriageRow } from "../lib/documentIngest/skuTriage";
+import {
+  analyzeVisualAttachment,
+  isSupportedVisualAttachment,
+  type VisualAttachmentAnalysis,
+} from "../lib/visionAttachments";
 
-type RequestType = "Email / message" | "RFI / information request" | "Formal RFQ" | "BOM / competitor list" | "Multi-space scope" | "Rough notes";
+type RequestType =
+  | "Email / message"
+  | "RFI / information request"
+  | "Formal RFQ"
+  | "BOM / competitor list"
+  | "Room brief / feature list"
+  | "Multi-space scope"
+  | "Direct competitor comparison"
+  | "Rough notes";
 
 type IngestAnalysis = {
   requirements: string[];
@@ -21,9 +40,25 @@ const requestTypes: RequestType[] = [
   "RFI / information request",
   "Formal RFQ",
   "BOM / competitor list",
+  "Room brief / feature list",
   "Multi-space scope",
+  "Direct competitor comparison",
   "Rough notes",
 ];
+
+// "auto" exists only for the "Email / message" default: an email is a delivery
+// channel, not a content shape, so it keeps the heuristic instead of forcing a
+// pipeline. Every other type is a rep's explicit statement of document shape
+// and is trusted outright - see IngestPage.multiSku.test.tsx for the case this
+// preserves (default type, no explicit selection, still auto-detects a bulk list).
+type IngestPipeline = "plain" | "bulk" | "compare" | "auto";
+
+function pipelineForRequestType(type: RequestType): IngestPipeline {
+  if (type === "BOM / competitor list" || type === "Formal RFQ") return "bulk";
+  if (type === "Direct competitor comparison") return "compare";
+  if (type === "Email / message") return "auto";
+  return "plain";
+}
 
 function requestTypeGuidance(type: RequestType) {
   if (type === "Email / message") {
@@ -44,8 +79,8 @@ function requestTypeGuidance(type: RequestType) {
 
   if (type === "Formal RFQ") {
     return {
-      title: "Formal request review",
-      output: "Separate firm requirements from assumptions, verification gates and technical review items.",
+      title: "Tender / RFQ product review",
+      output: "Treat the named product lines as a defined bill of materials: identify WyreStorm relevance, substitution paths and items needing comparison, same as a BOM.",
       voice: "Controlled, cautious and review-ready."
     };
   }
@@ -58,11 +93,27 @@ function requestTypeGuidance(type: RequestType) {
     };
   }
 
+  if (type === "Room brief / feature list") {
+    return {
+      title: "Room brief decoder",
+      output: "Turn a described range of features and capabilities into firm requirements, an implied system shape and the gaps to confirm before product selection.",
+      voice: "Design-consultant style, capability-led not product-led."
+    };
+  }
+
   if (type === "Multi-space scope") {
     return {
       title: "Project splitter",
       output: "Split requirements by space, show missing information and prepare project handoff.",
       voice: "Design-consultant style with clear next actions."
+    };
+  }
+
+  if (type === "Direct competitor comparison") {
+    return {
+      title: "Direct comparison handoff",
+      output: "Detect the named competitor brand/product and hand straight off to Compare - no requirement analysis needed for a like-for-like ask.",
+      voice: "Fast, single-purpose handoff."
     };
   }
 
@@ -101,23 +152,37 @@ function cleanList(items: string[], fallback: string[]) {
   return fallback;
 }
 
+function resolveBulkAnalysis(pipeline: IngestPipeline, text: string): MultiSkuCompetitorAnalysis | null {
+  if (pipeline === "bulk") return analyzeMultiSkuCompetitorDocument(text);
+  if (pipeline !== "auto") return null;
+
+  const detected = analyzeMultiSkuCompetitorDocument(text);
+  return detected.documentType === "multi_sku_competitor_list" ? detected : null;
+}
+
 export function IngestPage() {
+  const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [extractState, setExtractState] = useState<"idle" | "extracting" | "complete" | "error">("idle");
   const [requestType, setRequestType] = useState<RequestType>("Email / message");
   const [pastedText, setPastedText] = useState("");
+  const [bulkAnalysis, setBulkAnalysis] = useState<MultiSkuCompetitorAnalysis | null>(null);
   const [analysis, setAnalysis] = useState<IngestAnalysis>({
     requirements: [],
     unknowns: ["Paste a customer message, RFQ, RFI, notes or upload readable files to decode the request."],
     skippedFiles: [],
     files: [],
   });
+  const [visualAttachments, setVisualAttachments] = useState<VisualAttachmentAnalysis[]>([]);
+  const [attachmentStatus, setAttachmentStatus] = useState<"idle" | "analyzing" | "error">("idle");
+  const [attachmentError, setAttachmentError] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const attachmentInputRef = useRef<HTMLInputElement | null>(null);
 
   const requestGuidance = useMemo(() => requestTypeGuidance(requestType), [requestType]);
   const nextStep = useMemo(() => {
-    if (requestType === "BOM / competitor list") {
+    if (requestType === "BOM / competitor list" || requestType === "Formal RFQ") {
       return {
         label: "Next: build proposal",
         path: routeCatalogByKey.proposal.path,
@@ -133,6 +198,14 @@ export function IngestPage() {
       };
     }
 
+    if (requestType === "Direct competitor comparison") {
+      return {
+        label: "Next: open Compare",
+        path: routeCatalogByKey.compare.path,
+        summary: "Decode to detect the competitor brand/product and jump straight into Compare.",
+      };
+    }
+
     return {
       label: "Next: create response",
       path: routeCatalogByKey.responsePack.path,
@@ -143,7 +216,38 @@ export function IngestPage() {
   const unknowns = cleanList(analysis.unknowns, ["No missing details extracted yet."]);
   const systemShape = useMemo(() => buildSystemShape(analysis.requirements, analysis.unknowns), [analysis.requirements, analysis.unknowns]);
 
+  const redirectToCompare = (text: string) => {
+    if (!text.trim()) return false;
+
+    const detected = analyzeMultiSkuCompetitorDocument(text);
+    const sku = detected.skus[0]?.sku;
+    if (!sku) return false;
+
+    const params = new URLSearchParams();
+    if (detected.manufacturer && detected.manufacturer !== "Not confirmed") {
+      params.set("brand", detected.manufacturer);
+    }
+    params.set("sku", sku);
+    navigate(`${routeCatalogByKey.compare.path}?${params.toString()}`);
+    return true;
+  };
+
   const analyseText = (text: string, warnings: string[] = [], files: string[] = []) => {
+    const pipeline = pipelineForRequestType(requestType);
+
+    if (pipeline === "compare") {
+      if (redirectToCompare(text)) return;
+      setBulkAnalysis(null);
+      setAnalysis({
+        requirements: [],
+        unknowns: ["No competitor brand or SKU could be detected in this text. Add the product name/SKU, or open Compare directly."],
+        skippedFiles: [],
+        files,
+      });
+      setExtractState("error");
+      return;
+    }
+
     const parsed = analyzeRequirementsText(text, warnings);
     const nextAnalysis: IngestAnalysis = {
       requirements: parsed.requirements,
@@ -152,9 +256,77 @@ export function IngestPage() {
       files,
     };
 
+    const multiSku = resolveBulkAnalysis(pipeline, text);
+
     setAnalysis(nextAnalysis);
-    saveIngestAnalysisToProject(nextAnalysis, { requireExistingProject: true });
+    setBulkAnalysis(multiSku);
+    saveIngestAnalysisToProject(
+      { ...nextAnalysis, multiSkuIntelligence: multiSku ?? undefined, visualContext: visualAttachments },
+      { requireExistingProject: true },
+    );
     setExtractState("complete");
+  };
+
+  const updateBulkRowQuantity = (rowId: string, quantity: number) => {
+    setBulkAnalysis((current) =>
+      current
+        ? {
+            ...current,
+            triage: {
+              ...current.triage,
+              rows: current.triage.rows.map((row) => (row.id === rowId ? { ...row, quantity } : row)),
+            },
+          }
+        : current,
+    );
+  };
+
+  const saveBulkOpportunity = () => {
+    if (!bulkAnalysis) return;
+    saveIngestAnalysisToProject({
+      requirements: analysis.requirements,
+      unknowns: analysis.unknowns,
+      skippedFiles: analysis.skippedFiles,
+      files: analysis.files,
+      multiSkuIntelligence: bulkAnalysis,
+      visualContext: visualAttachments,
+    });
+  };
+
+  const continueBulkToProposal = () => {
+    saveBulkOpportunity();
+    navigate(routeCatalogByKey.proposal.path);
+  };
+
+  const handleAttachmentChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []).filter(isSupportedVisualAttachment);
+    if (!files.length) return;
+
+    setAttachmentStatus("analyzing");
+    setAttachmentError("");
+
+    try {
+      const results = await Promise.all(files.map((file) => analyzeVisualAttachment(file, requestType)));
+      const nextAttachments = [...visualAttachments, ...results];
+      setVisualAttachments(nextAttachments);
+      saveIngestAnalysisToProject(
+        {
+          requirements: analysis.requirements,
+          unknowns: analysis.unknowns,
+          skippedFiles: analysis.skippedFiles,
+          files: analysis.files,
+          multiSkuIntelligence: bulkAnalysis ?? undefined,
+          visualContext: nextAttachments,
+        },
+        { requireExistingProject: true },
+      );
+      setAttachmentStatus("idle");
+    } catch (error) {
+      setAttachmentError(error instanceof Error ? error.message : "Could not analyze the attached image.");
+      setAttachmentStatus("error");
+    } finally {
+      if (attachmentInputRef.current) attachmentInputRef.current.value = "";
+    }
   };
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -179,6 +351,21 @@ export function IngestPage() {
       return;
     }
 
+    const pipeline = pipelineForRequestType(requestType);
+
+    if (pipeline === "compare") {
+      if (redirectToCompare(combinedText)) return;
+      setBulkAnalysis(null);
+      setAnalysis({
+        requirements: [],
+        unknowns: ["No competitor brand or SKU could be detected in this file. Add the product name/SKU, or open Compare directly."],
+        skippedFiles,
+        files: files.map((file) => file.name),
+      });
+      setExtractState("error");
+      return;
+    }
+
     const parsed = analyzeRequirementsText(combinedText, extractionWarnings);
     const nextAnalysis: IngestAnalysis = {
       ...parsed,
@@ -186,14 +373,45 @@ export function IngestPage() {
       files: files.map((file) => file.name),
     };
 
+    const multiSku = resolveBulkAnalysis(pipeline, combinedText);
+
     setAnalysis(nextAnalysis);
-    saveIngestAnalysisToProject(nextAnalysis, { requireExistingProject: true });
+    setBulkAnalysis(multiSku);
+    saveIngestAnalysisToProject(
+      { ...nextAnalysis, multiSkuIntelligence: multiSku ?? undefined, visualContext: visualAttachments },
+      { requireExistingProject: true },
+    );
     setExtractState(extractionWarnings.length && !text ? "error" : "complete");
   };
 
   const runPasteAnalysis = () => {
     analyseText(pastedText, [], selectedFiles);
   };
+
+  if (bulkAnalysis) {
+    return (
+      <div className="pb-8" data-wingman-request-decoder="true">
+        <PageHero
+          eyebrow="Request Decoder"
+          title="Bulk enquiry ready"
+          purpose="Wingman separated the competitor product list from supporting analysis. Review the WyreStorm direction, then carry it into the proposal."
+          nextMove="Carry the batch-eligible items into the proposal workflow."
+          actions={[{ label: "Continue to proposal", onClick: continueBulkToProposal }]}
+        />
+        <BulkEnquiryResults
+          analysis={bulkAnalysis}
+          visualAttachments={visualAttachments}
+          onSave={saveBulkOpportunity}
+          onQuantityChange={updateBulkRowQuantity}
+          onReset={() => {
+            setBulkAnalysis(null);
+            setPastedText("");
+            setExtractState("idle");
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="pb-8" data-wingman-request-decoder="true">
@@ -276,6 +494,41 @@ export function IngestPage() {
                   </ul>
                 ) : null}
               </div>
+
+              <div className="rounded-2xl border-2 border-dashed border-[#29465e] bg-[#081724] p-4">
+                <input
+                  ref={attachmentInputRef}
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={handleAttachmentChange}
+                  accept="image/*"
+                />
+                <p className="text-sm font-black text-white">Supporting attachments (photos, diagrams)</p>
+                <p className="mt-1 text-sm leading-6 text-white/55">
+                  Add a photo of the room or an existing schematic diagram. Wingman reads it for context alongside the decoded request - it does not replace the product requirement.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => attachmentInputRef.current?.click()}
+                  disabled={attachmentStatus === "analyzing"}
+                  className="mt-3 rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100 disabled:opacity-40"
+                >
+                  {attachmentStatus === "analyzing" ? "Analyzing..." : "Add attachment"}
+                </button>
+
+                {attachmentStatus === "error" && attachmentError ? (
+                  <p className="mt-3 text-sm leading-6 text-rose-300">{attachmentError}</p>
+                ) : null}
+
+                {visualAttachments.length ? (
+                  <ul className="mt-3 space-y-1 text-sm text-white/60">
+                    {visualAttachments.map((item) => (
+                      <li key={item.id}>{item.fileName}</li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
             </div>
           </section>
 
@@ -295,6 +548,20 @@ export function IngestPage() {
               <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Likely system shape</p>
               <p className="mt-3 text-sm leading-6 text-white/75">{systemShape}</p>
             </article>
+
+            {visualAttachments.length ? (
+              <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Visual context</p>
+                <ul className="mt-4 space-y-3 text-sm leading-6 text-white/75">
+                  {visualAttachments.map((item) => (
+                    <li key={item.id} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">
+                      <p className="font-semibold text-white">{item.fileName}</p>
+                      <p className="mt-1 text-white/60">{item.summary}</p>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            ) : null}
           </section>
 
           <aside className="grid gap-4">
@@ -330,5 +597,298 @@ export function IngestPage() {
         </div>
       </SectionCard>
     </div>
+  );
+}
+
+type BulkTab = "products" | "groups" | "risks" | "source";
+
+const BULK_TABS: Array<{ id: BulkTab; label: string }> = [
+  { id: "products", label: "Products" },
+  { id: "groups", label: "Product groups" },
+  { id: "risks", label: "Risks & response" },
+  { id: "source", label: "Source details" },
+];
+
+function statusLabel(status: DocumentSkuTriageRow["status"]): string {
+  return status.replace(/_/g, " ");
+}
+
+const SOURCE_ROLES = new Set(["transmitter", "kit"]);
+const DISPLAY_ROLES = new Set(["receiver", "kit"]);
+
+function BulkEnquiryResults({
+  analysis,
+  visualAttachments,
+  onSave,
+  onReset,
+  onQuantityChange,
+}: {
+  analysis: MultiSkuCompetitorAnalysis;
+  visualAttachments: VisualAttachmentAnalysis[];
+  onSave: () => void;
+  onReset: () => void;
+  onQuantityChange: (rowId: string, quantity: number) => void;
+}) {
+  const [activeTab, setActiveTab] = useState<BulkTab>("products");
+  const [showQueue, setShowQueue] = useState(false);
+  const [showIgnored, setShowIgnored] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [responseDraft, setResponseDraft] = useState("");
+  const [showDiscoveryQuestions, setShowDiscoveryQuestions] = useState(false);
+  const { triage } = analysis;
+  const productRows = triage.rows.filter((row) => row.status !== "not_wyrestorm_addressable");
+  const queueRows = triage.rows.filter((row) => row.batchCompareEligible);
+  const ignoredRows = triage.rows.filter((row) => row.status === "not_wyrestorm_addressable" && row.retainAsProjectContext);
+
+  const setQuantity = (rowId: string, value: number) => {
+    const clamped = Number.isFinite(value) && value >= 0 ? Math.min(999, Math.round(value)) : 0;
+    onQuantityChange(rowId, clamped);
+  };
+
+  const inferredSourceCount = productRows
+    .filter((row) => SOURCE_ROLES.has(row.role))
+    .reduce((total, row) => total + (row.quantity ?? 1), 0);
+  const inferredDisplayCount = productRows
+    .filter((row) => DISPLAY_ROLES.has(row.role))
+    .reduce((total, row) => total + (row.quantity ?? 1), 0);
+  const uncountedRowCount = productRows.filter((row) => !SOURCE_ROLES.has(row.role) && !DISPLAY_ROLES.has(row.role)).length;
+
+  return (
+    <SectionCard
+      title="Review the bulk enquiry"
+      subtitle="Competitor SKUs are intelligence inputs only - review the WyreStorm direction before quoting."
+      rightSlot={
+        <button type="button" className="wingman-hero-action wingman-hero-action-secondary" onClick={onReset}>
+          Start over
+        </button>
+      }
+    >
+      <div
+        role="tablist"
+        aria-label="Bulk enquiry sections"
+        className="mb-4 flex flex-wrap gap-2"
+      >
+        {BULK_TABS.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={
+              activeTab === tab.id
+                ? "rounded-full bg-cyan-300 px-4 py-2 text-sm font-black text-slate-950"
+                : "rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100"
+            }
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === "products" ? (
+        <div role="tabpanel" aria-label="Products" className="grid gap-4">
+          <section className="rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-5">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-200">Inferred room design</p>
+            <p className="mt-2 text-sm leading-6 text-white/85">
+              Sources: {inferredSourceCount} · Displays: {inferredDisplayCount}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-white/60">
+              Inferred from BOM roles - one transmitter or extender kit counts as one source, one receiver or extender kit counts as one display. Shared infrastructure (matrix), accessories and unclear items ({uncountedRowCount}) are not counted. Edit the quantities below before committing this to the design.
+            </p>
+          </section>
+
+          <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Product selection</p>
+            <p className="mt-1 text-sm leading-6 text-white/55">
+              Every extracted line, classified by WyreStorm-addressable direction. Noise and non-addressable context is kept out by default. Edit quantities to correct the inferred count.
+            </p>
+            <div className="mt-4 max-h-96 overflow-y-auto rounded-2xl border border-[#29465e]">
+              <table className="w-full text-left text-sm">
+                <thead>
+                  <tr>
+                    <th className="p-2 text-xs font-black uppercase tracking-[0.1em] text-cyan-300">SKU</th>
+                    <th className="p-2 text-xs font-black uppercase tracking-[0.1em] text-cyan-300">Description</th>
+                    <th className="p-2 text-xs font-black uppercase tracking-[0.1em] text-cyan-300">Qty</th>
+                    <th className="p-2 text-xs font-black uppercase tracking-[0.1em] text-cyan-300">Status</th>
+                    <th className="p-2 text-xs font-black uppercase tracking-[0.1em] text-cyan-300">WyreStorm direction</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {productRows.map((row) => (
+                    <tr key={row.id} className="border-t border-[#29465e]">
+                      <td className="p-2 font-semibold text-white">{row.sku}</td>
+                      <td className="p-2 text-white/70">{row.rawItem}</td>
+                      <td className="p-2 text-white/70">
+                        <input
+                          type="number"
+                          min={0}
+                          max={999}
+                          value={row.quantity ?? 1}
+                          onChange={(event) => setQuantity(row.id, Number(event.target.value))}
+                          aria-label={`Quantity for ${row.sku || row.rawItem}`}
+                          className="w-16 rounded-lg border border-[#29465e] bg-[#081724] px-2 py-1 text-sm text-white"
+                        />
+                      </td>
+                      <td className="p-2 text-white/70">{statusLabel(row.status)}</td>
+                      <td className="p-2 text-white/70">{row.wyrestormDirection}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <div className="wingman-action-row flex flex-wrap gap-3">
+            <button
+              type="button"
+              className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100"
+              onClick={() => setShowQueue((current) => !current)}
+            >
+              {showQueue ? "Hide selected comparisons" : `Review selected comparisons (${queueRows.length})`}
+            </button>
+            <button
+              type="button"
+              className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100"
+              onClick={() => setShowIgnored((current) => !current)}
+            >
+              {showIgnored ? "Hide ignored items" : "Review ignored items"}
+            </button>
+          </div>
+
+          {showQueue ? (
+            <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Selected comparison queue</p>
+              <ul className="mt-4 space-y-2 text-sm leading-6 text-white/75">
+                {queueRows.map((row) => (
+                  <li key={row.id} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">
+                    <p className="font-semibold text-white">{row.sku}</p>
+                    <p>{row.wyrestormDirection}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {showIgnored ? (
+            <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Ignored items (retained as project context)</p>
+              <ul className="mt-4 space-y-2 text-sm leading-6 text-white/75">
+                {ignoredRows.map((row) => (
+                  <li key={row.id} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">
+                    <p className="font-semibold text-white">{row.sku || row.rawItem}</p>
+                    <p>{row.reason}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+        </div>
+      ) : null}
+
+      {activeTab === "groups" ? (
+        <div role="tabpanel" aria-label="Product groups" className="grid gap-3">
+          {analysis.productSets.map((group) => (
+            <article key={group.id} className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+              <p className="text-sm font-black text-white">{group.title}</p>
+              <p className="mt-1 text-sm leading-6 text-white/70">{group.summary}</p>
+              <p className="mt-3 text-sm leading-6 text-white/75">{group.salesDirection}</p>
+            </article>
+          ))}
+        </div>
+      ) : null}
+
+      {activeTab === "risks" ? (
+        <div role="tabpanel" aria-label="Risks and response" className="grid gap-4">
+          <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Quote risks</p>
+            <ul className="mt-4 space-y-2 text-sm leading-6 text-white/75">
+              {analysis.quoteRisks.map((risk) => (
+                <li key={risk} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">{risk}</li>
+              ))}
+            </ul>
+          </article>
+
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100"
+              onClick={() => setResponseDraft(buildMultiSkuResponseDraft(analysis))}
+            >
+              Generate sales response
+            </button>
+            <button
+              type="button"
+              className="rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100"
+              onClick={() => setShowDiscoveryQuestions(true)}
+            >
+              Generate discovery questions
+            </button>
+          </div>
+
+          {responseDraft ? (
+            <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Sales response draft</p>
+              <p className="mt-3 text-sm leading-6 text-white/75">{responseDraft}</p>
+            </article>
+          ) : null}
+
+          {showDiscoveryQuestions ? (
+            <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Discovery questions</p>
+              <ul className="mt-4 space-y-2 text-sm leading-6 text-white/75">
+                {analysis.discoveryQuestions.map((question) => (
+                  <li key={question} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">{question}</li>
+                ))}
+              </ul>
+            </article>
+          ) : null}
+        </div>
+      ) : null}
+
+      {activeTab === "source" ? (
+        <div role="tabpanel" aria-label="Source details" className="grid gap-2">
+          <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Document type</p>
+          <p className="text-sm text-white/75">{analysis.documentType}</p>
+          <p className="text-sm text-white/75">{analysis.manufacturer} / {analysis.accountCustomer}</p>
+          {analysis.senderContext ? <p className="text-sm text-white/60">{analysis.senderContext}</p> : null}
+          {analysis.subject ? <p className="text-sm text-white/60">Subject: {analysis.subject}</p> : null}
+          <p className="text-sm text-white/60">Source kind: {analysis.sourceKind}</p>
+
+          {visualAttachments.length ? (
+            <div className="mt-4 grid gap-2">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Visual context</p>
+              <ul className="grid gap-2">
+                {visualAttachments.map((item) => (
+                  <li key={item.id} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">
+                    <p className="font-semibold text-white">{item.fileName}</p>
+                    <p className="mt-1 text-sm text-white/60">{item.summary}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      <div className="mt-6 grid gap-3 rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-5">
+        <p className="text-sm leading-6 text-white/85">
+          Competitor SKUs were not added to the WyreStorm BOM or product selections - they remain intelligence inputs until confirmed.
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            className="rounded-full bg-cyan-300 px-4 py-2 text-sm font-black text-slate-950"
+            onClick={() => {
+              onSave();
+              setSaved(true);
+            }}
+          >
+            Save opportunity
+          </button>
+          {saved ? <span className="text-sm font-semibold text-cyan-200">Saved.</span> : null}
+        </div>
+      </div>
+    </SectionCard>
   );
 }
