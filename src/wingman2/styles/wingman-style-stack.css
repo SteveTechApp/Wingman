@@ -13095,3 +13095,23 @@ main.wm-page,
     padding: 14px !important;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Compare page audit/guard markers - retained in the DOM for source-level
+   scripts (npm run audit:compare-candidate-gate etc.) but must never be
+   visible. aria-hidden alone only hides them from assistive tech, not
+   sighted users - this class had no CSS at all, so the raw marker strings
+   were rendering as visible garbled text at the bottom of the Compare page.
+   -------------------------------------------------------------------------- */
+
+.compare-native-marker {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
