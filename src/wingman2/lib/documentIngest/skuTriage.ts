@@ -131,6 +131,44 @@ const GOVERNED_SKUS: Record<string, { sku: string; reason: string }> = {
   },
 };
 
+// Default, no-frills WyreStorm SKU for each governed product class - a real
+// recommendation the rep can quote or swap out, not a vague "family" pointer.
+// Verified active/not-do-not-spec against data-sources/wyrestorm/products.csv.
+const DEFAULT_CLASS_SKUS: Record<string, { sku: string; reason: string }> = {
+  "hdbaset-extender-kit": {
+    sku: "EX-70-G2",
+    reason: "WyreStorm's standard value HDBaseT extender set (4K, HDCP2.2, 2-way PoH) for a single source-to-display run.",
+  },
+  "hdbaset-transmitter": {
+    sku: "EX-70-G2",
+    reason: "WyreStorm sells this as a matched TX+RX set rather than a standalone transmitter - EX-70-G2 covers this line and its paired receiver.",
+  },
+  "hdbaset-receiver": {
+    sku: "EX-70-G2",
+    reason: "WyreStorm sells this as a matched TX+RX set rather than a standalone receiver - EX-70-G2 covers this line and its paired transmitter.",
+  },
+  "hdmi-splitter": {
+    sku: "SP-0104-H2",
+    reason: "WyreStorm's standard 1x4 HDMI distribution amplifier - confirm the required output count against the source line before quoting.",
+  },
+  "hdmi-switcher": {
+    sku: "SW-0401-H2",
+    reason: "WyreStorm's standard 4x1 local HDMI switcher - self-contained, no matrix or receiver required.",
+  },
+  "presentation-switcher": {
+    sku: "MX-0402-MST",
+    reason: "WyreStorm's entry Synergy presentation switcher (4x2 HDMI/USB-C with MST) - self-contained, no receiver pairing required.",
+  },
+  "usb-extender": {
+    sku: "EX-60-USB2",
+    reason: "WyreStorm's standard USB 2.0 extender - the everyday choice unless higher-bandwidth USB 3 is required.",
+  },
+  "usb-kvm": {
+    sku: "EX-100-KVM",
+    reason: "WyreStorm's standard HDMI + USB KVM extender set.",
+  },
+};
+
 function clean(value: unknown): string {
   return String(value ?? "").replace(/\s+/g, " ").trim();
 }
@@ -191,26 +229,25 @@ function directionForProductClass(productClass: string, role: string): {
     };
   }
 
-  const familyDirections: Record<string, string> = {
-    "hdbaset-extender-kit": "WyreStorm HDBaseT extender kit family",
-    "hdbaset-transmitter": "WyreStorm source-side HDBaseT transmitter family",
-    "hdbaset-receiver": "WyreStorm display-side HDBaseT receiver family",
-    "hdmi-splitter": "WyreStorm HDMI distribution amplifier family",
-    "hdmi-switcher": "WyreStorm HDMI switcher family",
-    "presentation-switcher": "WyreStorm presentation switcher family",
-    "usb-extender": "WyreStorm USB extension family",
-    "usb-kvm": "WyreStorm USB/KVM extension family",
-    "signal-manager": "WyreStorm signal-management family",
-  };
-  const direction = familyDirections[productClass];
+  const defaultClassSku = DEFAULT_CLASS_SKUS[productClass];
 
-  if (direction) {
+  if (defaultClassSku) {
     return {
       status: "wyrestorm_candidate",
-      direction,
+      direction: defaultClassSku.sku,
       matchType: "family_direction",
       confidence: role === "unknown" ? "medium" : "high",
-      reason: `The row is in a governed WyreStorm-addressable product class; ${role === "unknown" ? "role still needs review" : `${role} role is preserved`}.`,
+      reason: defaultClassSku.reason,
+    };
+  }
+
+  if (productClass === "signal-manager") {
+    return {
+      status: "wyrestorm_candidate",
+      direction: "WyreStorm signal-management / compact matrix range - confirm the specific routing or scaling function before naming a SKU.",
+      matchType: "architecture_direction",
+      confidence: "low",
+      reason: "No single WyreStorm SKU maps cleanly to a generic signal-manager line item; the right range depends on the routing/scaling function needed.",
     };
   }
 
