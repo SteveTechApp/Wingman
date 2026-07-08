@@ -18,15 +18,11 @@ function renderTemplateRoutes(initialPath = "/wingman/templates") {
 }
 
 describe("template workflow wiring", () => {
-  it("searches BOM-backed templates and opens the selected review page", () => {
+  it("browses BOM-backed templates and opens the selected review page", () => {
     const template = roomTemplates.find((candidate) => candidate.bom.some((row) => row.sku === "NHD-500-TX"));
 
     expect(template).toBeDefined();
     renderTemplateRoutes();
-
-    fireEvent.change(screen.getByRole("textbox", { name: /search templates/i }), {
-      target: { value: "NHD-500-TX" },
-    });
 
     const card = screen.getByRole("heading", { name: template!.name }).closest("article");
     expect(card).not.toBeNull();

@@ -13,7 +13,15 @@ import {
 } from "../lib/documentIngest/multiSkuCompetitorIngest";
 import type { DocumentSkuTriageRow } from "../lib/documentIngest/skuTriage";
 
-type RequestType = "Email / message" | "RFI / information request" | "Formal RFQ" | "BOM / competitor list" | "Multi-space scope" | "Rough notes";
+type RequestType =
+  | "Email / message"
+  | "RFI / information request"
+  | "Formal RFQ"
+  | "BOM / competitor list"
+  | "Room brief / feature list"
+  | "Multi-space scope"
+  | "Direct competitor comparison"
+  | "Rough notes";
 
 type IngestAnalysis = {
   requirements: string[];
@@ -27,9 +35,25 @@ const requestTypes: RequestType[] = [
   "RFI / information request",
   "Formal RFQ",
   "BOM / competitor list",
+  "Room brief / feature list",
   "Multi-space scope",
+  "Direct competitor comparison",
   "Rough notes",
 ];
+
+// "auto" exists only for the "Email / message" default: an email is a delivery
+// channel, not a content shape, so it keeps the heuristic instead of forcing a
+// pipeline. Every other type is a rep's explicit statement of document shape
+// and is trusted outright - see IngestPage.multiSku.test.tsx for the case this
+// preserves (default type, no explicit selection, still auto-detects a bulk list).
+type IngestPipeline = "plain" | "bulk" | "compare" | "auto";
+
+function pipelineForRequestType(type: RequestType): IngestPipeline {
+  if (type === "BOM / competitor list" || type === "Formal RFQ") return "bulk";
+  if (type === "Direct competitor comparison") return "compare";
+  if (type === "Email / message") return "auto";
+  return "plain";
+}
 
 function requestTypeGuidance(type: RequestType) {
   if (type === "Email / message") {
@@ -50,8 +74,8 @@ function requestTypeGuidance(type: RequestType) {
 
   if (type === "Formal RFQ") {
     return {
-      title: "Formal request review",
-      output: "Separate firm requirements from assumptions, verification gates and technical review items.",
+      title: "Tender / RFQ product review",
+      output: "Treat the named product lines as a defined bill of materials: identify WyreStorm relevance, substitution paths and items needing comparison, same as a BOM.",
       voice: "Controlled, cautious and review-ready."
     };
   }
@@ -64,11 +88,27 @@ function requestTypeGuidance(type: RequestType) {
     };
   }
 
+  if (type === "Room brief / feature list") {
+    return {
+      title: "Room brief decoder",
+      output: "Turn a described range of features and capabilities into firm requirements, an implied system shape and the gaps to confirm before product selection.",
+      voice: "Design-consultant style, capability-led not product-led."
+    };
+  }
+
   if (type === "Multi-space scope") {
     return {
       title: "Project splitter",
       output: "Split requirements by space, show missing information and prepare project handoff.",
       voice: "Design-consultant style with clear next actions."
+    };
+  }
+
+  if (type === "Direct competitor comparison") {
+    return {
+      title: "Direct comparison handoff",
+      output: "Detect the named competitor brand/product and hand straight off to Compare - no requirement analysis needed for a like-for-like ask.",
+      voice: "Fast, single-purpose handoff."
     };
   }
 
@@ -107,6 +147,14 @@ function cleanList(items: string[], fallback: string[]) {
   return fallback;
 }
 
+function resolveBulkAnalysis(pipeline: IngestPipeline, text: string): MultiSkuCompetitorAnalysis | null {
+  if (pipeline === "bulk") return analyzeMultiSkuCompetitorDocument(text);
+  if (pipeline !== "auto") return null;
+
+  const detected = analyzeMultiSkuCompetitorDocument(text);
+  return detected.documentType === "multi_sku_competitor_list" ? detected : null;
+}
+
 export function IngestPage() {
   const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
@@ -125,7 +173,7 @@ export function IngestPage() {
 
   const requestGuidance = useMemo(() => requestTypeGuidance(requestType), [requestType]);
   const nextStep = useMemo(() => {
-    if (requestType === "BOM / competitor list") {
+    if (requestType === "BOM / competitor list" || requestType === "Formal RFQ") {
       return {
         label: "Next: build proposal",
         path: routeCatalogByKey.proposal.path,
@@ -141,6 +189,14 @@ export function IngestPage() {
       };
     }
 
+    if (requestType === "Direct competitor comparison") {
+      return {
+        label: "Next: open Compare",
+        path: routeCatalogByKey.compare.path,
+        summary: "Decode to detect the competitor brand/product and jump straight into Compare.",
+      };
+    }
+
     return {
       label: "Next: create response",
       path: routeCatalogByKey.responsePack.path,
@@ -151,7 +207,38 @@ export function IngestPage() {
   const unknowns = cleanList(analysis.unknowns, ["No missing details extracted yet."]);
   const systemShape = useMemo(() => buildSystemShape(analysis.requirements, analysis.unknowns), [analysis.requirements, analysis.unknowns]);
 
+  const redirectToCompare = (text: string) => {
+    if (!text.trim()) return false;
+
+    const detected = analyzeMultiSkuCompetitorDocument(text);
+    const sku = detected.skus[0]?.sku;
+    if (!sku) return false;
+
+    const params = new URLSearchParams();
+    if (detected.manufacturer && detected.manufacturer !== "Not confirmed") {
+      params.set("brand", detected.manufacturer);
+    }
+    params.set("sku", sku);
+    navigate(`${routeCatalogByKey.compare.path}?${params.toString()}`);
+    return true;
+  };
+
   const analyseText = (text: string, warnings: string[] = [], files: string[] = []) => {
+    const pipeline = pipelineForRequestType(requestType);
+
+    if (pipeline === "compare") {
+      if (redirectToCompare(text)) return;
+      setBulkAnalysis(null);
+      setAnalysis({
+        requirements: [],
+        unknowns: ["No competitor brand or SKU could be detected in this text. Add the product name/SKU, or open Compare directly."],
+        skippedFiles: [],
+        files,
+      });
+      setExtractState("error");
+      return;
+    }
+
     const parsed = analyzeRequirementsText(text, warnings);
     const nextAnalysis: IngestAnalysis = {
       requirements: parsed.requirements,
@@ -160,13 +247,12 @@ export function IngestPage() {
       files,
     };
 
-    const multiSku = analyzeMultiSkuCompetitorDocument(text);
-    const isBulk = multiSku.documentType === "multi_sku_competitor_list";
+    const multiSku = resolveBulkAnalysis(pipeline, text);
 
     setAnalysis(nextAnalysis);
-    setBulkAnalysis(isBulk ? multiSku : null);
+    setBulkAnalysis(multiSku);
     saveIngestAnalysisToProject(
-      { ...nextAnalysis, multiSkuIntelligence: isBulk ? multiSku : undefined },
+      { ...nextAnalysis, multiSkuIntelligence: multiSku ?? undefined },
       { requireExistingProject: true },
     );
     setExtractState("complete");
@@ -210,6 +296,21 @@ export function IngestPage() {
       return;
     }
 
+    const pipeline = pipelineForRequestType(requestType);
+
+    if (pipeline === "compare") {
+      if (redirectToCompare(combinedText)) return;
+      setBulkAnalysis(null);
+      setAnalysis({
+        requirements: [],
+        unknowns: ["No competitor brand or SKU could be detected in this file. Add the product name/SKU, or open Compare directly."],
+        skippedFiles,
+        files: files.map((file) => file.name),
+      });
+      setExtractState("error");
+      return;
+    }
+
     const parsed = analyzeRequirementsText(combinedText, extractionWarnings);
     const nextAnalysis: IngestAnalysis = {
       ...parsed,
@@ -217,13 +318,12 @@ export function IngestPage() {
       files: files.map((file) => file.name),
     };
 
-    const multiSku = analyzeMultiSkuCompetitorDocument(combinedText);
-    const isBulk = multiSku.documentType === "multi_sku_competitor_list";
+    const multiSku = resolveBulkAnalysis(pipeline, combinedText);
 
     setAnalysis(nextAnalysis);
-    setBulkAnalysis(isBulk ? multiSku : null);
+    setBulkAnalysis(multiSku);
     saveIngestAnalysisToProject(
-      { ...nextAnalysis, multiSkuIntelligence: isBulk ? multiSku : undefined },
+      { ...nextAnalysis, multiSkuIntelligence: multiSku ?? undefined },
       { requireExistingProject: true },
     );
     setExtractState(extractionWarnings.length && !text ? "error" : "complete");

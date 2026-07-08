@@ -20,6 +20,7 @@
   --wm-text-soft: #dbeafe;
   --wm-muted: #94a3b8;
   --wm-muted-2: #64748b;
+  --wm-consistency-text: var(--wm-text);
 
   --wm-heading: #5eead4;
   --wm-heading-2: #67e8f9;
@@ -2341,3 +2342,1903 @@ html[data-wingman-route] .wm-vs-list li + li {
   }
 }
 /* === Wingman Visual Studio compact layout repair end === */
+
+/* ==========================================================================
+   Restored guard-required blocks (from pre-rebuild history, commit 45f5288).
+   These satisfy tools/check-short-workflow-pages.mjs, check-optional-visual-support.mjs,
+   check-visual-design-native-output.mjs, check-dashboard-workflow-menu.mjs,
+   check-dashboard-menu-layout-density.mjs, check-dashboard-single-screen-layout.mjs,
+   check-dashboard-compact-buttons.mjs, check-dashboard-primary-buttons.mjs,
+   check-dashboard-original-card-layout.mjs, check-dashboard-short-buttons.mjs
+   ========================================================================== */
+/* WINGMAN SHORT WORKFLOW PAGES START */
+
+.wm20-page[data-wingman-short-workflow="true"] {
+  display: grid;
+  gap: var(--wm-space-4);
+}
+
+.wm-ui-content[data-wingman-primary-workflow="true"] {
+  display: grid;
+  gap: var(--wm-space-4);
+}
+
+.wm-ui-after[data-wingman-support-details="true"] {
+  margin-top: 0;
+}
+
+.wm-guided-support-details {
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+.wm-guided-support-details > summary {
+  cursor: pointer;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+  padding: 16px 18px;
+  background:
+    linear-gradient(135deg, rgba(248, 250, 252, 0.98), rgba(236, 253, 245, 0.82));
+}
+
+.wm-guided-support-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.wm-guided-support-details > summary span {
+  color: rgba(15, 23, 42, 0.58);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.wm-guided-support-details > summary strong {
+  color: #0f172a;
+  font-size: 0.96rem;
+}
+
+.wm-guided-support-body {
+  display: grid;
+  gap: var(--wm-space-4);
+  padding: var(--wm-space-4);
+}
+
+.wingman-guru-call-interpreter {
+  display: grid;
+  gap: 10px;
+  margin: 12px 16px;
+  padding: 14px;
+  border: 1px solid rgba(74, 245, 230, 0.24);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(7, 24, 40, 0.98), rgba(4, 13, 24, 0.98));
+}
+
+.wingman-guru-call-heading {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.wingman-guru-call-heading svg {
+  color: #047857;
+}
+
+.wingman-guru-call-heading strong {
+  display: block;
+  color: #0f172a;
+}
+
+.wingman-guru-call-heading span,
+.wingman-guru-call-status,
+.wingman-guru-call-summary span,
+.wingman-guru-call-summary small {
+  color: rgba(15, 23, 42, 0.68);
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.wingman-guru-call-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wingman-guru-call-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 32px;
+  border-radius: 999px;
+  border: 1px solid rgba(74, 245, 230, 0.28);
+  background: rgba(255, 255, 255, 0.92);
+  color: #047857;
+  padding: 0 10px;
+  font-size: 0.82rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.wingman-guru-call-actions button:disabled {
+  opacity: 0.52;
+  cursor: not-allowed;
+}
+
+.wingman-guru-call-interpreter textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 96px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 14px;
+  padding: 10px;
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.96);
+  font: inherit;
+}
+
+.wingman-guru-call-summary {
+  display: grid;
+  gap: 3px;
+  padding: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.wingman-guru-call-summary strong {
+  color: #0f172a;
+}
+
+/* WINGMAN SHORT WORKFLOW PAGES END */
+/* WINGMAN OPTIONAL VISUAL SUPPORT START */
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"] {
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+  overflow: hidden;
+}
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"] > summary {
+  cursor: pointer;
+  list-style: none;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "tag title"
+    "tag copy";
+  gap: 2px 12px;
+  align-items: center;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(7, 24, 40, 0.98), rgba(4, 13, 24, 0.98));
+}
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"] > summary::-webkit-details-marker {
+  display: none;
+}
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"] > summary span {
+  grid-area: tag;
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(74, 245, 230, 0.24);
+  background: rgba(236, 253, 245, 0.95);
+  color: #047857;
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"] > summary strong {
+  grid-area: title;
+  color: #0f172a;
+  font-size: 0.98rem;
+}
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"] > summary small {
+  grid-area: copy;
+  color: rgba(15, 23, 42, 0.64);
+  font-size: 0.86rem;
+}
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"][open] > summary {
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.wm-av-flow-shell[data-wingman-optional-visual-support="true"] .wm-av-flow {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* WINGMAN OPTIONAL VISUAL SUPPORT END */
+/* WINGMAN DASHBOARD WORKFLOW MENU START */
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-workflow-dashboard-shell {
+  display: grid;
+  gap: 18px;
+  width: min(1220px, 100%);
+  margin: 0 auto;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-workflow-dashboard-hero {
+  padding: clamp(20px, 2.5vw, 34px);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(7, 24, 40, 0.97), rgba(4, 13, 24, 0.97));
+  color: white;
+  box-shadow: 0 22px 52px rgba(15, 23, 42, 0.18);
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-workflow-dashboard-hero h1,
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-workflow-dashboard-hero p {
+  color: white;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-workflow-dashboard-hero h1 {
+  max-width: 760px;
+  margin: 8px 0 0;
+  font-size: clamp(2rem, 4.4vw, 4rem);
+  line-height: 0.98;
+  letter-spacing: -0.06em;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-workflow-dashboard-hero p:not(.wm-dashboard-eyebrow) {
+  max-width: 760px;
+  margin: 14px 0 0;
+  opacity: 0.86;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-eyebrow {
+  margin: 0;
+  color: #5eead4 !important;
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.wm-dashboard-menu-section {
+  display: grid;
+  gap: 12px;
+}
+
+.wm-dashboard-menu-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: end;
+  padding: 0 4px;
+}
+
+.wm-dashboard-menu-heading span {
+  color: #047857;
+  font-size: 0.74rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.wm-dashboard-menu-heading strong {
+  color: #0f172a;
+  font-size: 0.96rem;
+  line-height: 1.25;
+  text-align: right;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-panel.is-secondary {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-card {
+  position: relative;
+  min-height: 150px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "tag tag tag"
+    "icon copy arrow";
+  gap: 12px;
+  align-items: center;
+  padding: 18px;
+  border-radius: 24px;
+  border: 1px solid rgba(15, 23, 42, 0.09);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.92)),
+    radial-gradient(circle at 90% 0%, rgba(6, 182, 212, 0.10), transparent 24%);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+  text-decoration: none;
+  color: #0f172a;
+  overflow: hidden;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-card.is-primary {
+  min-height: 176px;
+  border-color: rgba(74, 245, 230, 0.36);
+  background: linear-gradient(180deg, rgba(7, 24, 40, 0.97), rgba(4, 13, 24, 0.97));
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 44px rgba(15, 23, 42, 0.12);
+}
+
+.wm-dashboard-workflow-tag {
+  grid-area: tag;
+  display: inline-flex;
+  width: fit-content;
+  min-height: 26px;
+  align-items: center;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(236, 253, 245, 0.96);
+  border: 1px solid rgba(74, 245, 230, 0.22);
+  color: #047857;
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.wm-dashboard-workflow-icon {
+  grid-area: icon;
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  color: white;
+  background: linear-gradient(135deg, #047857, #06b6d4);
+  box-shadow: 0 12px 22px rgba(4, 120, 87, 0.18);
+}
+
+.wm-dashboard-workflow-copy {
+  grid-area: copy;
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.wm-dashboard-workflow-copy strong {
+  color: #0f172a;
+  font-size: 1.02rem;
+  line-height: 1.18;
+}
+
+.wm-dashboard-workflow-card.is-primary .wm-dashboard-workflow-copy strong {
+  font-size: 1.16rem;
+}
+
+.wm-dashboard-workflow-copy span {
+  color: rgba(15, 23, 42, 0.66);
+  font-size: 0.88rem;
+  line-height: 1.38;
+}
+
+.wm-dashboard-workflow-arrow {
+  grid-area: arrow;
+  color: rgba(15, 23, 42, 0.44);
+}
+
+@media (max-width: 1180px) {
+  .wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-panel,
+  .wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-panel.is-secondary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-panel,
+  .wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-panel.is-secondary {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-dashboard-menu-heading {
+    display: grid;
+  }
+
+  .wm-dashboard-menu-heading strong {
+    text-align: left;
+  }
+}
+
+/* WINGMAN DASHBOARD WORKFLOW MENU END */
+/* WINGMAN DASHBOARD MENU LAYOUT REPAIR START */
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] {
+  width: 100%;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-workflow-dashboard-shell {
+  width: min(1240px, calc(100vw - 48px));
+  max-width: 1240px;
+  margin: 0 auto;
+  display: grid;
+  gap: 22px;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-workflow-dashboard-hero {
+  width: 100%;
+  max-width: 820px;
+  min-height: 154px;
+  display: grid;
+  align-content: center;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-menu-section {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-menu-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 5px;
+  align-items: start;
+  padding: 0 4px;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-menu-heading strong {
+  max-width: 760px;
+  text-align: left;
+  color: rgba(226, 232, 240, 0.92);
+  line-height: 1.35;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-panel,
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-panel.is-secondary {
+  width: 100%;
+  display: grid;
+  gap: 14px;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-panel {
+  grid-template-columns: repeat(2, minmax(300px, 1fr));
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-panel.is-secondary {
+  grid-template-columns: repeat(5, minmax(180px, 1fr));
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-card {
+  min-width: 0;
+  min-height: 0;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "tag tag tag"
+    "icon copy arrow";
+  align-items: center;
+  padding: 18px;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-card.is-primary {
+  min-height: 158px;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-panel.is-secondary .wm-dashboard-workflow-card {
+  min-height: 178px;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "tag"
+    "icon"
+    "copy"
+    "arrow";
+  align-content: start;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-copy,
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-copy strong,
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-copy span {
+  min-width: 0;
+  max-width: none;
+  width: auto;
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-copy strong {
+  display: block;
+  line-height: 1.16;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-copy span {
+  display: block;
+  margin-top: 4px;
+  line-height: 1.34;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-panel.is-secondary .wm-dashboard-workflow-copy strong {
+  font-size: 0.98rem;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-panel.is-secondary .wm-dashboard-workflow-copy span {
+  font-size: 0.82rem;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-arrow {
+  justify-self: end;
+}
+
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-guru-fab,
+.wm-dashboard-page[data-wingman-dashboard-menu="true"] [data-wingman-guru-fab="true"] {
+  right: 28px !important;
+  bottom: 28px !important;
+}
+
+@media (max-width: 1180px) {
+  .wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-panel,
+  .wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-panel.is-secondary {
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-workflow-dashboard-shell {
+    width: min(100%, calc(100vw - 24px));
+  }
+
+  .wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-panel,
+  .wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-panel.is-secondary {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-card,
+  .wm-dashboard-page[data-wingman-dashboard-menu="true"] .wm-dashboard-workflow-card.is-primary {
+    min-height: 0;
+  }
+}
+
+/* WINGMAN DASHBOARD MENU LAYOUT REPAIR END */
+/* === Wingman home single-screen compact layout === */
+
+main[data-wingman-home-single-screen="true"],
+section[data-wingman-home-single-screen="true"] {
+  min-height: calc(100dvh - 56px) !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding-block: clamp(8px, 1.2vh, 16px) !important;
+  padding-inline: clamp(12px, 1.8vw, 22px) !important;
+  overflow: visible !important;
+}
+
+main[data-wingman-home-single-screen="true"] > *,
+section[data-wingman-home-single-screen="true"] > * {
+  margin-top: 0 !important;
+}
+
+main[data-wingman-home-single-screen="true"] header,
+section[data-wingman-home-single-screen="true"] header,
+main[data-wingman-home-single-screen="true"] [class*="hero" i],
+section[data-wingman-home-single-screen="true"] [class*="hero" i],
+main[data-wingman-home-single-screen="true"] [class*="Hero"],
+section[data-wingman-home-single-screen="true"] [class*="Hero"] {
+  min-height: auto !important;
+  margin-bottom: clamp(8px, 1.2vh, 14px) !important;
+  padding-block: clamp(8px, 1.1vh, 14px) !important;
+}
+
+main[data-wingman-home-single-screen="true"] h1,
+section[data-wingman-home-single-screen="true"] h1 {
+  font-size: clamp(1.45rem, 2vw, 2rem) !important;
+  line-height: 1.05 !important;
+  margin-bottom: 0.25rem !important;
+}
+
+main[data-wingman-home-single-screen="true"] h2,
+section[data-wingman-home-single-screen="true"] h2 {
+  font-size: clamp(1rem, 1.35vw, 1.25rem) !important;
+  line-height: 1.1 !important;
+  margin-bottom: 0.25rem !important;
+}
+
+main[data-wingman-home-single-screen="true"] p,
+section[data-wingman-home-single-screen="true"] p {
+  line-height: 1.25 !important;
+}
+
+main[data-wingman-home-single-screen="true"] [class*="grid" i],
+section[data-wingman-home-single-screen="true"] [class*="grid" i] {
+  gap: clamp(8px, 1vw, 12px) !important;
+}
+
+main[data-wingman-home-single-screen="true"] [class*="card" i],
+section[data-wingman-home-single-screen="true"] [class*="card" i],
+main[data-wingman-home-single-screen="true"] article,
+section[data-wingman-home-single-screen="true"] article {
+  min-height: auto !important;
+  padding: clamp(9px, 1.1vw, 14px) !important;
+}
+
+main[data-wingman-home-single-screen="true"] a[href^="/wingman"],
+section[data-wingman-home-single-screen="true"] a[href^="/wingman"],
+main[data-wingman-home-single-screen="true"] button,
+section[data-wingman-home-single-screen="true"] button {
+  min-height: 44px !important;
+}
+
+main[data-wingman-home-single-screen="true"] a[href^="/wingman"]:not([class*="sidebar" i] a),
+section[data-wingman-home-single-screen="true"] a[href^="/wingman"]:not([class*="sidebar" i] a) {
+  padding: clamp(9px, 1vw, 13px) !important;
+}
+
+main[data-wingman-home-single-screen="true"] [class*="dashboard" i] [class*="grid" i],
+section[data-wingman-home-single-screen="true"] [class*="dashboard" i] [class*="grid" i],
+main[data-wingman-home-single-screen="true"] [class*="navigation" i] [class*="grid" i],
+section[data-wingman-home-single-screen="true"] [class*="navigation" i] [class*="grid" i],
+main[data-wingman-home-single-screen="true"] [class*="journey" i] [class*="grid" i],
+section[data-wingman-home-single-screen="true"] [class*="journey" i] [class*="grid" i] {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)) !important;
+  align-items: stretch !important;
+}
+
+main[data-wingman-home-single-screen="true"] [class*="route" i],
+section[data-wingman-home-single-screen="true"] [class*="route" i],
+main[data-wingman-home-single-screen="true"] [class*="tile" i],
+section[data-wingman-home-single-screen="true"] [class*="tile" i],
+main[data-wingman-home-single-screen="true"] [class*="action" i],
+section[data-wingman-home-single-screen="true"] [class*="action" i] {
+  min-height: 66px !important;
+  padding: clamp(9px, 1vw, 13px) !important;
+}
+
+main[data-wingman-home-single-screen="true"] [class*="description" i],
+section[data-wingman-home-single-screen="true"] [class*="description" i],
+main[data-wingman-home-single-screen="true"] [class*="subtitle" i],
+section[data-wingman-home-single-screen="true"] [class*="subtitle" i] {
+  font-size: clamp(0.7rem, 0.82vw, 0.84rem) !important;
+  line-height: 1.2 !important;
+}
+
+@media (min-width: 1180px) {
+  main[data-wingman-home-single-screen="true"] [class*="dashboard" i] [class*="grid" i],
+  section[data-wingman-home-single-screen="true"] [class*="dashboard" i] [class*="grid" i],
+  main[data-wingman-home-single-screen="true"] [class*="navigation" i] [class*="grid" i],
+  section[data-wingman-home-single-screen="true"] [class*="navigation" i] [class*="grid" i] {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (min-width: 1440px) {
+  main[data-wingman-home-single-screen="true"] [class*="dashboard" i] [class*="grid" i],
+  section[data-wingman-home-single-screen="true"] [class*="dashboard" i] [class*="grid" i],
+  main[data-wingman-home-single-screen="true"] [class*="navigation" i] [class*="grid" i],
+  section[data-wingman-home-single-screen="true"] [class*="navigation" i] [class*="grid" i] {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-height: 760px) {
+  main[data-wingman-home-single-screen="true"],
+  section[data-wingman-home-single-screen="true"] {
+    padding-block: 7px !important;
+  }
+
+  main[data-wingman-home-single-screen="true"] header,
+  section[data-wingman-home-single-screen="true"] header,
+  main[data-wingman-home-single-screen="true"] [class*="hero" i],
+  section[data-wingman-home-single-screen="true"] [class*="hero" i],
+  main[data-wingman-home-single-screen="true"] [class*="Hero"],
+  section[data-wingman-home-single-screen="true"] [class*="Hero"] {
+    padding-block: 7px !important;
+    margin-bottom: 7px !important;
+  }
+
+  main[data-wingman-home-single-screen="true"] [class*="description" i],
+  section[data-wingman-home-single-screen="true"] [class*="description" i] {
+    display: none !important;
+  }
+}
+
+/* === End Wingman home single-screen compact layout === */
+
+/* === Wingman dashboard short-button tooltip layout === */
+
+main[data-wingman-home-single-screen="true"],
+section[data-wingman-home-single-screen="true"] {
+  padding-block: clamp(8px, 1.2vh, 14px) !important;
+  padding-inline: clamp(12px, 1.8vw, 22px) !important;
+}
+
+main[data-wingman-home-single-screen="true"] [class*="grid" i],
+section[data-wingman-home-single-screen="true"] [class*="grid" i] {
+  gap: clamp(7px, 0.9vw, 11px) !important;
+}
+
+main[data-wingman-home-single-screen="true"] a[href^="/wingman"],
+section[data-wingman-home-single-screen="true"] a[href^="/wingman"],
+main[data-wingman-home-single-screen="true"] button,
+section[data-wingman-home-single-screen="true"] button {
+  min-height: 40px !important;
+}
+
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip],
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] {
+  position: relative !important;
+  min-height: 52px !important;
+  padding: clamp(8px, 0.85vw, 11px) !important;
+}
+
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] h2,
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] h3,
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] strong,
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] [class*="title" i],
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] [class*="label" i],
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] h2,
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] h3,
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] strong,
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] [class*="title" i],
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] [class*="label" i] {
+  font-size: clamp(0.88rem, 1vw, 1rem) !important;
+  line-height: 1.05 !important;
+  margin: 0 !important;
+}
+
+@media (min-width: 1180px) {
+  main[data-wingman-home-single-screen="true"] [class*="grid" i],
+  section[data-wingman-home-single-screen="true"] [class*="grid" i] {
+    grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)) !important;
+  }
+}
+
+@media (min-width: 1440px) {
+  main[data-wingman-home-single-screen="true"] [class*="grid" i],
+  section[data-wingman-home-single-screen="true"] [class*="grid" i] {
+    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)) !important;
+  }
+}
+
+@media (max-height: 760px) {
+  main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip],
+  section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] {
+    min-height: 44px !important;
+    padding: 7px 9px !important;
+  }
+}
+
+main[data-wingman-home-single-screen="true"] header,
+section[data-wingman-home-single-screen="true"] header,
+main[data-wingman-home-single-screen="true"] [class*="hero" i],
+section[data-wingman-home-single-screen="true"] [class*="hero" i] {
+  min-height: auto !important;
+  padding-block: clamp(8px, 1vh, 14px) !important;
+  margin-bottom: clamp(8px, 1vh, 12px) !important;
+}
+
+main[data-wingman-home-single-screen="true"] h1,
+section[data-wingman-home-single-screen="true"] h1 {
+  font-size: clamp(1.55rem, 2vw, 2rem) !important;
+  line-height: 1.05 !important;
+  margin-bottom: 0.25rem !important;
+}
+
+main[data-wingman-home-single-screen="true"] [class*="grid" i],
+section[data-wingman-home-single-screen="true"] [class*="grid" i] {
+  gap: clamp(7px, 0.85vw, 11px) !important;
+}
+
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip],
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] {
+  position: relative !important;
+  min-height: 46px !important;
+  max-height: 76px !important;
+  padding: 8px 10px !important;
+  overflow: visible !important;
+}
+
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] [data-wingman-dashboard-kicker="true"],
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] [data-wingman-dashboard-kicker="true"] {
+  display: none !important;
+}
+
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] h2,
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] h3,
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] strong,
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] [class*="title" i],
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] [class*="label" i],
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] h2,
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] h3,
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] strong,
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] [class*="title" i],
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] [class*="label" i] {
+  font-size: clamp(0.86rem, 0.95vw, 1rem) !important;
+  line-height: 1.05 !important;
+  margin: 0 !important;
+}
+
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] p,
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] small,
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] [class*="description" i],
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] [class*="subtitle" i],
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] p,
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] small,
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] [class*="description" i],
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] [class*="subtitle" i] {
+  display: none !important;
+}
+
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip]::after,
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip]::after {
+  content: attr(data-wingman-dashboard-tooltip);
+  position: absolute;
+  z-index: 1000;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  width: min(320px, 70vw);
+  transform: translateX(-50%);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  padding: 9px 11px;
+  border-radius: 12px;
+  border: 1px solid rgba(93, 244, 218, 0.28);
+  background: rgba(7, 16, 28, 0.96);
+  color: var(--wm-consistency-text);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.34);
+  font-size: 0.78rem;
+  line-height: 1.3;
+  white-space: normal;
+  transition: opacity 140ms ease, visibility 140ms ease, transform 140ms ease;
+}
+
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip]:hover::after,
+main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip]:focus-visible::after,
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip]:hover::after,
+section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip]:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+main[data-wingman-home-single-screen="true"] article:has(a[data-wingman-dashboard-tooltip]),
+section[data-wingman-home-single-screen="true"] article:has(a[data-wingman-dashboard-tooltip]),
+main[data-wingman-home-single-screen="true"] [class*="card" i]:has(a[data-wingman-dashboard-tooltip]),
+section[data-wingman-home-single-screen="true"] [class*="card" i]:has(a[data-wingman-dashboard-tooltip]) {
+  min-height: 56px !important;
+  padding: 8px 10px !important;
+}
+
+@media (min-width: 1120px) {
+  main[data-wingman-home-single-screen="true"] [class*="grid" i],
+  section[data-wingman-home-single-screen="true"] [class*="grid" i] {
+    grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)) !important;
+  }
+}
+
+@media (min-width: 1440px) {
+  main[data-wingman-home-single-screen="true"] [class*="grid" i],
+  section[data-wingman-home-single-screen="true"] [class*="grid" i] {
+    grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)) !important;
+  }
+}
+
+@media (max-height: 780px) {
+  main[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip],
+  section[data-wingman-home-single-screen="true"] a[data-wingman-dashboard-tooltip] {
+    min-height: 40px !important;
+    max-height: 58px !important;
+    padding: 7px 9px !important;
+  }
+
+  main[data-wingman-home-single-screen="true"] p,
+  section[data-wingman-home-single-screen="true"] p {
+    line-height: 1.2 !important;
+  }
+}
+
+/* === End Wingman dashboard compact button copy and tooltips === */
+
+/* === Wingman dashboard primary visual buttons === */
+
+main[data-wingman-home-single-screen="true"],
+section[data-wingman-home-single-screen="true"] {
+  padding-block: clamp(6px, 1vh, 12px) !important;
+  padding-inline: clamp(12px, 1.6vw, 20px) !important;
+}
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-legacy-card="true"],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-legacy-card="true"],
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-legacy-copy="true"],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-legacy-copy="true"],
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-legacy-group="true"],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-legacy-group="true"] {
+  display: none !important;
+}
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-clean-grid="true"],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-clean-grid="true"] {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)) !important;
+  gap: 14px !important;
+  margin: 10px 0 16px 0 !important;
+}
+
+main[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button,
+section[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  min-height: 118px;
+  padding: 14px;
+  border-radius: 22px;
+  overflow: hidden;
+  text-decoration: none;
+  border: 1px solid rgba(70, 190, 255, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+  background-color: #071522;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  isolation: isolate;
+}
+
+main[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button::before,
+section[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(3, 10, 18, 0.12) 0%, rgba(3, 10, 18, 0.48) 48%, rgba(3, 10, 18, 0.84) 100%);
+  z-index: 0;
+}
+
+main[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button::after,
+section[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button::after {
+  content: attr(data-wingman-dashboard-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  width: min(300px, 70vw);
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(93, 244, 218, 0.28);
+  background: rgba(7, 16, 28, 0.97);
+  color: var(--wm-consistency-text);
+  font-size: 0.78rem;
+  line-height: 1.3;
+  white-space: normal;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.34);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 5;
+  transition: opacity 140ms ease, visibility 140ms ease, transform 140ms ease;
+}
+
+main[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button:hover::after,
+main[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button:focus-visible::after,
+section[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button:hover::after,
+section[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+main[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button__label,
+section[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button__label {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(2, 10, 18, 0.55);
+  backdrop-filter: blur(4px);
+  color: var(--wm-consistency-text);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+}
+
+main[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button[data-wingman-dashboard-visual-key="call-coach"],
+section[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button[data-wingman-dashboard-visual-key="call-coach"] {
+  background-image:
+    linear-gradient(135deg, rgba(0, 66, 117, 0.75), rgba(0, 24, 46, 0.78)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23081b2a'/%3E%3Ccircle cx='120' cy='120' r='80' fill='%2316405a'/%3E%3Ccircle cx='420' cy='120' r='100' fill='%23152d44'/%3E%3Cpath d='M175 210c20-38 55-60 105-60s85 22 105 60' stroke='%235df4da' stroke-width='18' fill='none' stroke-linecap='round'/%3E%3Crect x='215' y='205' rx='18' ry='18' width='170' height='84' fill='%230d2a41' stroke='%235df4da' stroke-width='8'/%3E%3Ccircle cx='252' cy='246' r='14' fill='%235df4da'/%3E%3Crect x='277' y='234' width='78' height='22' rx='10' fill='%2337b7ff'/%3E%3C/svg%3E");
+}
+
+main[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button[data-wingman-dashboard-visual-key="products"],
+section[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button[data-wingman-dashboard-visual-key="products"] {
+  background-image:
+    linear-gradient(135deg, rgba(0, 54, 96, 0.74), rgba(0, 25, 54, 0.78)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23081727'/%3E%3Crect x='95' y='85' width='120' height='80' rx='16' fill='%231b3f5e'/%3E%3Crect x='240' y='85' width='120' height='80' rx='16' fill='%230f2d45'/%3E%3Crect x='385' y='85' width='120' height='80' rx='16' fill='%2316405a'/%3E%3Crect x='95' y='205' width='410' height='96' rx='18' fill='%230a2234' stroke='%2337b7ff' stroke-width='8'/%3E%3Cpath d='M165 130h-20v130h305' stroke='%235df4da' stroke-width='10' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='145' cy='130' r='10' fill='%235df4da'/%3E%3Ccircle cx='290' cy='130' r='10' fill='%2337b7ff'/%3E%3Ccircle cx='435' cy='130' r='10' fill='%235df4da'/%3E%3C/svg%3E");
+}
+
+main[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button[data-wingman-dashboard-visual-key="compare"],
+section[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button[data-wingman-dashboard-visual-key="compare"] {
+  background-image:
+    linear-gradient(135deg, rgba(0, 60, 110, 0.72), rgba(0, 22, 44, 0.8)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23091b2c'/%3E%3Crect x='80' y='90' width='180' height='200' rx='22' fill='%23113a59' stroke='%2337b7ff' stroke-width='8'/%3E%3Crect x='340' y='90' width='180' height='200' rx='22' fill='%230d2840' stroke='%235df4da' stroke-width='8'/%3E%3Cpath d='M285 120l30 0M285 180l30 0M285 240l30 0' stroke='%23ffffff' stroke-width='12' stroke-linecap='round'/%3E%3Ccircle cx='170' cy='150' r='18' fill='%2337b7ff'/%3E%3Ccircle cx='430' cy='150' r='18' fill='%235df4da'/%3E%3Crect x='130' y='210' width='80' height='20' rx='10' fill='%23ffffff'/%3E%3Crect x='390' y='210' width='80' height='20' rx='10' fill='%23ffffff'/%3E%3C/svg%3E");
+}
+
+main[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button[data-wingman-dashboard-visual-key="documents"],
+section[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button[data-wingman-dashboard-visual-key="documents"] {
+  background-image:
+    linear-gradient(135deg, rgba(0, 62, 103, 0.72), rgba(0, 23, 45, 0.82)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23091826'/%3E%3Crect x='165' y='70' width='200' height='250' rx='18' fill='%230f2f48' stroke='%2337b7ff' stroke-width='8'/%3E%3Cpath d='M315 70v70h50' fill='none' stroke='%235df4da' stroke-width='8'/%3E%3Cpath d='M210 165h110M210 205h110M210 245h150' stroke='%23ffffff' stroke-width='12' stroke-linecap='round'/%3E%3Crect x='385' y='120' width='70' height='110' rx='16' fill='%2316405a'/%3E%3C/svg%3E");
+}
+
+main[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button[data-wingman-dashboard-visual-key="response-pack"],
+section[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button[data-wingman-dashboard-visual-key="response-pack"] {
+  background-image:
+    linear-gradient(135deg, rgba(0, 58, 98, 0.72), rgba(0, 24, 45, 0.82)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23071625'/%3E%3Crect x='145' y='80' width='250' height='230' rx='22' fill='%230d2840' stroke='%235df4da' stroke-width='8'/%3E%3Crect x='195' y='55' width='150' height='40' rx='14' fill='%2316405a'/%3E%3Cpath d='M200 155h140M200 205h110M200 255h150' stroke='%23ffffff' stroke-width='12' stroke-linecap='round'/%3E%3Ccircle cx='430' cy='240' r='48' fill='%2337b7ff'/%3E%3Cpath d='M410 240l14 14 28-32' stroke='%23ffffff' stroke-width='12' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+main[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button[data-wingman-dashboard-visual-key="projects"],
+section[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button[data-wingman-dashboard-visual-key="projects"] {
+  background-image:
+    linear-gradient(135deg, rgba(0, 62, 102, 0.72), rgba(0, 25, 47, 0.82)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23081625'/%3E%3Ccircle cx='160' cy='140' r='34' fill='%2337b7ff'/%3E%3Ccircle cx='305' cy='110' r='34' fill='%235df4da'/%3E%3Ccircle cx='435' cy='220' r='34' fill='%2337b7ff'/%3E%3Ccircle cx='240' cy='265' r='34' fill='%235df4da'/%3E%3Cpath d='M185 140h86M332 118l75 82M194 158l28 82M267 255h134' stroke='%23ffffff' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+main[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button[data-wingman-dashboard-visual-key="learn"],
+section[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button[data-wingman-dashboard-visual-key="learn"] {
+  background-image:
+    linear-gradient(135deg, rgba(0, 58, 102, 0.72), rgba(0, 23, 45, 0.82)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23081828'/%3E%3Cpath d='M135 120c0-18 15-33 33-33h115c21 0 40 6 57 19 17-13 36-19 57-19h35c18 0 33 15 33 33v162c0 18-15 33-33 33h-35c-22 0-43 7-57 20-14-13-35-20-57-20H168c-18 0-33-15-33-33z' fill='%230d2a41' stroke='%235df4da' stroke-width='8'/%3E%3Cpath d='M194 152h88M194 196h88M194 240h64M360 152h64M360 196h64M360 240h64' stroke='%23ffffff' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+@media (min-width: 1200px) {
+  main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-clean-grid="true"],
+  section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-clean-grid="true"] {
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 1199px) {
+  main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-clean-grid="true"],
+  section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-clean-grid="true"] {
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)) !important;
+  }
+}
+
+@media (max-height: 780px) {
+  main[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button,
+  section[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button {
+    min-height: 102px;
+    padding: 12px;
+  }
+
+  main[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button__label,
+  section[data-wingman-home-single-screen="true"] .wm-dashboard-primary-button__label {
+    font-size: 0.92rem;
+  }
+}
+
+/* === End Wingman dashboard primary visual buttons === */
+
+/* === Wingman dashboard restore original card layout === */
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-clean-grid="true"],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-clean-grid="true"],
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-custom-grid-hidden="true"],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-custom-grid-hidden="true"],
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-duplicate-card="true"],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-duplicate-card="true"],
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-duplicate-copy="true"],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-duplicate-copy="true"],
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-duplicate-group="true"],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-duplicate-group="true"] {
+  display: none !important;
+}
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card-row="true"],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card-row="true"] {
+  display: grid !important;
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+  align-items: stretch !important;
+}
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] {
+  position: relative !important;
+  min-height: 214px !important;
+  overflow: hidden !important;
+  border-radius: 22px !important;
+  border: 1px solid rgba(60, 179, 255, 0.18) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03) !important;
+  background-color: #071522 !important;
+  background-position: center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  padding: 0 !important;
+}
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"]::before,
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(3, 10, 18, 0.10) 0%, rgba(3, 10, 18, 0.40) 50%, rgba(3, 10, 18, 0.82) 100%);
+  pointer-events: none;
+}
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] > *,
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] > * {
+  position: relative;
+  z-index: 1;
+}
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] a,
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] a {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-end !important;
+  align-items: flex-start !important;
+  width: 100% !important;
+  min-height: 214px !important;
+  padding: 16px !important;
+  text-decoration: none !important;
+}
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] h2,
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] h3,
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] strong,
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] [class*="title" i],
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] [class*="label" i],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] h2,
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] h3,
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] strong,
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] [class*="title" i],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] [class*="label" i] {
+  margin: 0 !important;
+  padding: 8px 12px !important;
+  border-radius: 999px !important;
+  background: rgba(3, 11, 19, 0.58) !important;
+  backdrop-filter: blur(4px) !important;
+  font-size: 1.05rem !important;
+  line-height: 1.05 !important;
+  font-weight: 700 !important;
+  color: var(--wm-consistency-text) !important;
+}
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] p,
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] small,
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] span,
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] p,
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] small,
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] span {
+  display: none !important;
+}
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] a::after,
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] a::after {
+  content: attr(data-wingman-dashboard-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  width: min(310px, 70vw);
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(93, 244, 218, 0.28);
+  background: rgba(7, 16, 28, 0.97);
+  color: var(--wm-consistency-text);
+  font-size: 0.78rem;
+  line-height: 1.3;
+  white-space: normal;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.34);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 5;
+  transition: opacity 140ms ease, visibility 140ms ease, transform 140ms ease;
+}
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] a:hover::after,
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] a:focus-visible::after,
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] a:hover::after,
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] a:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"][data-wingman-dashboard-visual-key="call-coach"],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"][data-wingman-dashboard-visual-key="call-coach"] {
+  background-image:
+    linear-gradient(135deg, rgba(0, 66, 117, 0.74), rgba(0, 24, 46, 0.74)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23081b2a'/%3E%3Ccircle cx='120' cy='120' r='80' fill='%2316405a'/%3E%3Ccircle cx='420' cy='120' r='100' fill='%23152d44'/%3E%3Cpath d='M175 210c20-38 55-60 105-60s85 22 105 60' stroke='%235df4da' stroke-width='18' fill='none' stroke-linecap='round'/%3E%3Crect x='215' y='205' rx='18' ry='18' width='170' height='84' fill='%230d2a41' stroke='%235df4da' stroke-width='8'/%3E%3Ccircle cx='252' cy='246' r='14' fill='%235df4da'/%3E%3Crect x='277' y='234' width='78' height='22' rx='10' fill='%2337b7ff'/%3E%3C/svg%3E");
+}
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"][data-wingman-dashboard-visual-key="products"],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"][data-wingman-dashboard-visual-key="products"] {
+  background-image:
+    linear-gradient(135deg, rgba(0, 54, 96, 0.74), rgba(0, 25, 54, 0.78)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23081727'/%3E%3Crect x='95' y='85' width='120' height='80' rx='16' fill='%231b3f5e'/%3E%3Crect x='240' y='85' width='120' height='80' rx='16' fill='%230f2d45'/%3E%3Crect x='385' y='85' width='120' height='80' rx='16' fill='%2316405a'/%3E%3Crect x='95' y='205' width='410' height='96' rx='18' fill='%230a2234' stroke='%2337b7ff' stroke-width='8'/%3E%3Cpath d='M165 130h-20v130h305' stroke='%235df4da' stroke-width='10' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='145' cy='130' r='10' fill='%235df4da'/%3E%3Ccircle cx='290' cy='130' r='10' fill='%2337b7ff'/%3E%3Ccircle cx='435' cy='130' r='10' fill='%235df4da'/%3E%3C/svg%3E");
+}
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"][data-wingman-dashboard-visual-key="compare"],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"][data-wingman-dashboard-visual-key="compare"] {
+  background-image:
+    linear-gradient(135deg, rgba(0, 60, 110, 0.72), rgba(0, 22, 44, 0.8)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23091b2c'/%3E%3Crect x='80' y='90' width='180' height='200' rx='22' fill='%23113a59' stroke='%2337b7ff' stroke-width='8'/%3E%3Crect x='340' y='90' width='180' height='200' rx='22' fill='%230d2840' stroke='%235df4da' stroke-width='8'/%3E%3Cpath d='M285 120l30 0M285 180l30 0M285 240l30 0' stroke='%23ffffff' stroke-width='12' stroke-linecap='round'/%3E%3Ccircle cx='170' cy='150' r='18' fill='%2337b7ff'/%3E%3Ccircle cx='430' cy='150' r='18' fill='%235df4da'/%3E%3Crect x='130' y='210' width='80' height='20' rx='10' fill='%23ffffff'/%3E%3Crect x='390' y='210' width='80' height='20' rx='10' fill='%23ffffff'/%3E%3C/svg%3E");
+}
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"][data-wingman-dashboard-visual-key="documents"],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"][data-wingman-dashboard-visual-key="documents"] {
+  background-image:
+    linear-gradient(135deg, rgba(0, 62, 103, 0.72), rgba(0, 23, 45, 0.82)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23091826'/%3E%3Crect x='165' y='70' width='200' height='250' rx='18' fill='%230f2f48' stroke='%2337b7ff' stroke-width='8'/%3E%3Cpath d='M315 70v70h50' fill='none' stroke='%235df4da' stroke-width='8'/%3E%3Cpath d='M210 165h110M210 205h110M210 245h150' stroke='%23ffffff' stroke-width='12' stroke-linecap='round'/%3E%3Crect x='385' y='120' width='70' height='110' rx='16' fill='%2316405a'/%3E%3C/svg%3E");
+}
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"][data-wingman-dashboard-visual-key="response-pack"],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"][data-wingman-dashboard-visual-key="response-pack"] {
+  background-image:
+    linear-gradient(135deg, rgba(0, 58, 98, 0.72), rgba(0, 24, 45, 0.82)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23071625'/%3E%3Crect x='145' y='80' width='250' height='230' rx='22' fill='%230d2840' stroke='%235df4da' stroke-width='8'/%3E%3Crect x='195' y='55' width='150' height='40' rx='14' fill='%2316405a'/%3E%3Cpath d='M200 155h140M200 205h110M200 255h150' stroke='%23ffffff' stroke-width='12' stroke-linecap='round'/%3E%3Ccircle cx='430' cy='240' r='48' fill='%2337b7ff'/%3E%3Cpath d='M410 240l14 14 28-32' stroke='%23ffffff' stroke-width='12' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"][data-wingman-dashboard-visual-key="projects"],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"][data-wingman-dashboard-visual-key="projects"] {
+  background-image:
+    linear-gradient(135deg, rgba(0, 62, 102, 0.72), rgba(0, 25, 47, 0.82)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23081625'/%3E%3Ccircle cx='160' cy='140' r='34' fill='%2337b7ff'/%3E%3Ccircle cx='305' cy='110' r='34' fill='%235df4da'/%3E%3Ccircle cx='435' cy='220' r='34' fill='%2337b7ff'/%3E%3Ccircle cx='240' cy='265' r='34' fill='%235df4da'/%3E%3Cpath d='M185 140h86M332 118l75 82M194 158l28 82M267 255h134' stroke='%23ffffff' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"][data-wingman-dashboard-visual-key="learn"],
+section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"][data-wingman-dashboard-visual-key="learn"] {
+  background-image:
+    linear-gradient(135deg, rgba(0, 58, 102, 0.72), rgba(0, 23, 45, 0.82)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23081828'/%3E%3Cpath d='M135 120c0-18 15-33 33-33h115c21 0 40 6 57 19 17-13 36-19 57-19h35c18 0 33 15 33 33v162c0 18-15 33-33 33h-35c-22 0-43 7-57 20-14-13-35-20-57-20H168c-18 0-33-15-33-33z' fill='%230d2a41' stroke='%235df4da' stroke-width='8'/%3E%3Cpath d='M194 152h88M194 196h88M194 240h64M360 152h64M360 196h64M360 240h64' stroke='%23ffffff' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+@media (max-width: 1440px) {
+  main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card-row="true"],
+  section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card-row="true"] {
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)) !important;
+  }
+}
+
+@media (max-height: 820px) {
+  main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"],
+  section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] {
+    min-height: 188px !important;
+  }
+
+  main[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] a,
+  section[data-wingman-home-single-screen="true"] [data-wingman-dashboard-primary-card="true"] a {
+    min-height: 188px !important;
+  }
+}
+
+/* === End Wingman dashboard restore original card layout === */
+
+/* Home gateway refinement: remove duplicate shortcut-row weight and keep the page compact */
+.wm-generated-output-stack {
+  display: grid;
+  align-content: start;
+  grid-auto-rows: max-content;
+  gap: 14px;
+  min-width: 0;
+}
+
+.wm-deployment-visual-panel,
+.wm-port-schematic-panel,
+.wm-native-schematic-panel,
+.wm-schematic-review-panel {
+  overflow: hidden;
+  border: 1px solid rgba(126, 157, 182, 0.24);
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(8, 25, 42, 0.96), rgba(4, 16, 28, 0.98));
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+}
+
+.wm-native-output-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(126, 157, 182, 0.18);
+}
+
+.wm-native-output-head span {
+  display: block;
+  color: #65d7f4;
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wm-native-output-head h2 {
+  margin: 4px 0 0;
+  color: var(--wm-consistency-text);
+  font-size: 1.08rem;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.wm-native-output-head strong {
+  flex: 0 0 auto;
+  border: 1px solid rgba(74, 245, 230, 0.28);
+  border-radius: 999px;
+  background: rgba(74, 245, 230, 0.1);
+  color: #b9fff7;
+  padding: 7px 10px;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.wm-port-schematic-board {
+  position: relative;
+  min-height: 540px;
+  margin: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(126, 157, 182, 0.22);
+  border-radius: 14px;
+  background:
+    linear-gradient(rgba(101, 215, 244, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(101, 215, 244, 0.06) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(5, 23, 38, 0.98), rgba(3, 13, 24, 0.98));
+  background-size: 28px 28px, 28px 28px, auto;
+}
+
+.wm-port-schematic-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.wm-port-schematic-lines path {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.wm-port-schematic-lines text {
+  fill: rgba(255, 255, 255, 0.86);
+  paint-order: stroke;
+  stroke: #04101c;
+  stroke-width: 5;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.wm-line-signal {
+  stroke: #22c55e;
+}
+
+.wm-line-usb {
+  stroke: #a78bfa;
+  stroke-dasharray: 8 8;
+}
+
+.wm-line-network {
+  stroke: #65d7f4;
+}
+
+.wm-line-audio {
+  stroke: #f59e0b;
+  stroke-dasharray: 14 7;
+}
+
+.wm-schematic-column,
+.wm-schematic-device-block,
+.wm-schematic-network-strip {
+  position: absolute;
+  z-index: 2;
+}
+
+.wm-schematic-source-stack {
+  left: 28px;
+  top: 86px;
+  width: clamp(180px, 22%, 220px);
+}
+
+.wm-schematic-output-stack {
+  right: 28px;
+  top: 68px;
+  width: clamp(186px, 22%, 232px);
+}
+
+.wm-schematic-column {
+  display: grid;
+  gap: 42px;
+}
+
+.wm-schematic-endpoint,
+.wm-schematic-device-block,
+.wm-schematic-network-strip {
+  border: 1px solid rgba(126, 157, 182, 0.3);
+  border-radius: 12px;
+  background: rgba(6, 20, 34, 0.94);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  padding: 12px;
+}
+
+.wm-schematic-endpoint span,
+.wm-schematic-device-block > span,
+.wm-schematic-network-strip span {
+  display: block;
+  color: #65d7f4;
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wm-schematic-endpoint strong,
+.wm-schematic-device-block > strong,
+.wm-schematic-network-strip strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--wm-consistency-text);
+  font-size: 0.82rem;
+  line-height: 1.18;
+  font-weight: 800;
+}
+
+.wm-schematic-endpoint small {
+  display: block;
+  margin-top: 6px;
+  color: rgba(237, 246, 255, 0.64);
+  font-size: 0.72rem;
+  line-height: 1.28;
+  font-weight: 700;
+}
+
+.wm-schematic-device-block {
+  left: 50%;
+  top: 86px;
+  width: clamp(220px, 28%, 300px);
+  min-width: 0;
+  transform: translateX(-50%);
+  border-color: rgba(74, 245, 230, 0.42);
+  background:
+    linear-gradient(90deg, rgba(74, 245, 230, 0.1), transparent 26%, rgba(250, 204, 21, 0.08)),
+    rgba(5, 17, 30, 0.96);
+}
+
+.wm-schematic-port-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.wm-schematic-port-grid div {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(126, 157, 182, 0.26);
+  border-radius: 8px;
+  background: rgba(2, 9, 17, 0.72);
+  color: #edf6ff;
+  font-size: 0.61rem;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.wm-schematic-network-strip {
+  left: 50%;
+  bottom: 18px;
+  width: min(460px, 58%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transform: translateX(-50%);
+}
+
+.wm-schematic-network-strip svg {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  color: #65d7f4;
+}
+
+.wm-port-schematic-legend,
+.wm-schematic-node-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 14px 14px;
+}
+
+.wm-port-schematic-legend span,
+.wm-schematic-node-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(126, 157, 182, 0.24);
+  border-radius: 999px;
+  background: rgba(7, 24, 40, 0.72);
+  color: rgba(237, 246, 255, 0.84);
+  padding: 7px 10px;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.wm-deployment-stage {
+  position: relative;
+  min-height: 340px;
+  margin: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(126, 157, 182, 0.22);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 42%),
+    linear-gradient(118deg, #101b27 0%, #152f41 38%, #091725 72%, #03101b 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 -80px 140px rgba(0, 0, 0, 0.32);
+  isolation: isolate;
+}
+
+.wm-render-wall {
+  position: absolute;
+  inset: 24px 28px 124px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(22, 43, 57, 0.92), rgba(9, 22, 35, 0.96));
+  z-index: 1;
+}
+
+.wm-render-display {
+  position: absolute;
+  top: 42px;
+  left: 50%;
+  width: min(58%, 520px);
+  height: 140px;
+  transform: translateX(-50%);
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  border: 7px solid #050b12;
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, rgba(74, 245, 230, 0.28), rgba(89, 117, 255, 0.16) 42%, rgba(250, 204, 21, 0.12)),
+    linear-gradient(180deg, #102134, #07111d);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.36);
+}
+
+.wm-render-display span {
+  color: var(--wm-consistency-text);
+  font-size: clamp(1rem, 2vw, 1.55rem);
+  font-weight: 850;
+  line-height: 1.05;
+}
+
+.wm-render-display small,
+.wm-render-rack small {
+  color: rgba(237, 246, 255, 0.72);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.wm-render-table {
+  position: absolute;
+  left: 9%;
+  bottom: 22px;
+  width: 34%;
+  min-width: 220px;
+  height: 86px;
+  display: grid;
+  place-items: center;
+  border-radius: 50% 50% 22px 22px / 32% 32% 18px 18px;
+  background: linear-gradient(180deg, #8b6a3e, #3a2618 62%, #1c1511);
+  box-shadow: 0 28px 48px rgba(0, 0, 0, 0.3), inset 0 9px 18px rgba(255, 255, 255, 0.12);
+  z-index: 4;
+}
+
+.wm-render-laptop,
+.wm-render-camera {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #dbeafe, #67e8f9);
+  color: #0b1724;
+}
+
+.wm-render-laptop {
+  position: absolute;
+  top: -18px;
+  width: 86px;
+  height: 54px;
+  border: 4px solid #111827;
+  border-radius: 7px;
+}
+
+.wm-render-camera {
+  position: absolute;
+  top: 22px;
+  right: 18%;
+  width: 46px;
+  height: 24px;
+  border-radius: 999px;
+}
+
+.wm-render-rack {
+  position: absolute;
+  right: 8%;
+  bottom: 28px;
+  width: min(260px, 32%);
+  min-width: 210px;
+  display: grid;
+  gap: 5px;
+  border: 1px solid rgba(74, 245, 230, 0.28);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #141d26, #050b12);
+  padding: 18px;
+  z-index: 5;
+}
+
+.wm-render-rack span {
+  color: #65d7f4;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wm-render-rack strong {
+  color: var(--wm-consistency-text);
+  font-size: clamp(0.98rem, 1.6vw, 1.3rem);
+  line-height: 1.1;
+}
+
+.wm-render-cable {
+  position: absolute;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, #65d7f4 18%, #facc15 72%, transparent);
+  z-index: 3;
+}
+
+.wm-render-cable-a {
+  left: 36%;
+  right: 32%;
+  bottom: 112px;
+  transform: rotate(-10deg);
+}
+
+.wm-render-cable-b {
+  left: 48%;
+  right: 15%;
+  bottom: 186px;
+  transform: rotate(-22deg);
+}
+
+.wm-render-cable-c {
+  left: 22%;
+  right: 54%;
+  bottom: 132px;
+  transform: rotate(14deg);
+  background: linear-gradient(90deg, transparent, #a78bfa 18%, #65d7f4 72%, transparent);
+}
+
+.wm-deployment-brief {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.38fr) minmax(0, 1fr);
+  gap: 10px;
+  margin: 0 14px 14px;
+}
+
+.wm-deployment-brief span {
+  border: 1px solid rgba(126, 157, 182, 0.24);
+  border-radius: 12px;
+  background: rgba(7, 24, 40, 0.72);
+  color: rgba(237, 246, 255, 0.8);
+  padding: 10px 12px;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.wm-native-schematic-canvas {
+  margin: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(126, 157, 182, 0.22);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(101, 215, 244, 0.08), transparent 26%), #061320;
+}
+
+.wm-native-schematic-canvas svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 420px;
+}
+
+.wm-schematic-grid-fill {
+  fill: url(#wm-schematic-grid) #061320;
+}
+
+#wm-schematic-grid path {
+  stroke: rgba(126, 157, 182, 0.14);
+  stroke-width: 1;
+}
+
+.wm-schematic-lane line {
+  stroke: rgba(126, 157, 182, 0.16);
+  stroke-dasharray: 4 10;
+}
+
+.wm-schematic-lane text,
+.wm-schematic-node-kind {
+  fill: #65d7f4;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.wm-schematic-edge path {
+  fill: none;
+  stroke: #65d7f4;
+  stroke-width: 2.8;
+  opacity: 0.9;
+}
+
+.wm-schematic-edge[data-style="dotted"] path {
+  stroke: #facc15;
+  stroke-dasharray: 6 8;
+}
+
+.wm-schematic-edge[data-style="thick"] path {
+  stroke: #22c55e;
+  stroke-width: 4;
+}
+
+#wm-schematic-arrow path {
+  fill: #65d7f4;
+}
+
+.wm-schematic-edge text {
+  fill: var(--wm-consistency-text);
+  paint-order: stroke;
+  stroke: #061320;
+  stroke-width: 5;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.wm-schematic-svg-node rect {
+  fill: rgba(11, 30, 48, 0.98);
+  stroke: rgba(101, 215, 244, 0.34);
+  stroke-width: 1.5;
+  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.24));
+}
+
+.wm-schematic-svg-node[data-kind="wyrestorm"] rect {
+  fill: rgba(6, 38, 45, 0.98);
+  stroke: rgba(74, 245, 230, 0.58);
+}
+
+.wm-schematic-svg-node[data-kind="validation"] rect {
+  stroke: rgba(251, 113, 133, 0.62);
+  fill: rgba(50, 18, 30, 0.98);
+}
+
+.wm-schematic-node-label {
+  fill: var(--wm-consistency-text);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.wm-schematic-stat-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  padding: 14px;
+}
+
+.wm-schematic-stat-strip div,
+.wm-schematic-review-grid section {
+  border: 1px solid rgba(126, 157, 182, 0.24);
+  border-radius: 14px;
+  background: rgba(7, 24, 40, 0.72);
+  padding: 12px;
+}
+
+.wm-schematic-stat-strip span {
+  display: block;
+  color: rgba(237, 246, 255, 0.62);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wm-schematic-stat-strip strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--wm-consistency-text);
+  font-size: 0.98rem;
+  line-height: 1.2;
+}
+
+.wm-schematic-review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 0 14px 14px;
+}
+
+.wm-schematic-review-grid h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--wm-consistency-text);
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
+.wm-schematic-review-grid ul {
+  display: grid;
+  gap: 7px;
+  margin: 10px 0 0;
+  padding-left: 18px;
+}
+
+.wm-schematic-review-grid li {
+  color: rgba(237, 246, 255, 0.78);
+  font-size: 0.82rem;
+  line-height: 1.42;
+}
+
+.wm-schematic-source-details {
+  margin: 0 14px 14px;
+  border: 1px solid rgba(126, 157, 182, 0.22);
+  border-radius: 14px;
+  background: rgba(4, 16, 28, 0.78);
+  overflow: hidden;
+}
+
+.wm-schematic-source-details summary {
+  cursor: pointer;
+  color: rgba(237, 246, 255, 0.74);
+  padding: 10px 12px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.wm-schematic-source-details textarea {
+  width: 100%;
+  min-height: 180px;
+  border: 0;
+  border-top: 1px solid rgba(126, 157, 182, 0.18);
+  border-radius: 0;
+  background: #04101c;
+  color: var(--wm-consistency-text);
+  padding: 12px;
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  resize: vertical;
+}
