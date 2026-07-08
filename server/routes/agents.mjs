@@ -7,6 +7,7 @@ import {
   WINGMAN_CANONICAL_PRODUCT_STORE_FILE,
 } from "../catalog/files.mjs";
 import { runGuruAgent } from "../server/agents/guruAgent.mjs";
+import { runVisionContextAgent } from "../server/agents/visionContextAgent.mjs";
 
 const UI_HOST = String(process.env.WINGMAN_UI_HOST || "127.0.0.1").trim() || "127.0.0.1";
 const parsedUiPort = Number(process.env.WINGMAN_UI_PORT || 3000);
@@ -876,7 +877,7 @@ export async function handleAgentsRoute(req, res) {
       service: "wingman-agents",
       runtime: "node:http",
       mode: "phase1-real-data-pipeline",
-      phases: ["discovery", "architect", "validate", "proposal", "guru", "competitor"],
+      phases: ["discovery", "architect", "validate", "proposal", "guru", "competitor", "vision-context"],
       catalogRecords: Number(catalogContext?.counts?.records || 0),
       timestamp: nowIso(),
     });
@@ -990,6 +991,25 @@ export async function handleAgentsRoute(req, res) {
       sendJson(res, 400, {
         ok: false,
         phase: "guru",
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return true;
+  }
+
+  if (pathname === "/api/wingman/agents/vision-context" && method === "POST") {
+    try {
+      const body = await parseJsonBody(req);
+      sendJson(res, 200, {
+        ok: true,
+        phase: "vision-context",
+        data: await runVisionContextAgent(body),
+        timestamp: nowIso(),
+      });
+    } catch (error) {
+      sendJson(res, 400, {
+        ok: false,
+        phase: "vision-context",
         error: error instanceof Error ? error.message : String(error),
       });
     }

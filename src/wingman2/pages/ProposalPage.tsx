@@ -147,7 +147,10 @@ export function ProposalPageProjectMode() {
           ...recommendationEvidence.missingInformation.map((item) => `Missing for quote: ${item}`),
         ]
       : [];
-    const assumptions = [...ingestUnknowns, ...compareWarnings, ...evidenceWarnings].slice(0, 8);
+    const visualContextNotes = (project?.ingest?.visualContext ?? []).map(
+      (item) => `Visual context (${item.fileName}): ${item.summary}`,
+    );
+    const assumptions = [...ingestUnknowns, ...compareWarnings, ...evidenceWarnings, ...visualContextNotes].slice(0, 8);
 
     return {
       project,
