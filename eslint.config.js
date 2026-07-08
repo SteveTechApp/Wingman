@@ -39,6 +39,16 @@ export default [
   },
 
   {
+    // .cjs is CommonJS by file-extension convention (Node treats it as such
+    // regardless of "type": "module" in package.json) - require() is the
+    // correct, intended syntax there, not a lint violation to fix.
+    files: ["**/*.cjs"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
+
+  {
     files: ["**/*.ts", "**/*.tsx"],
     plugins: {
       react,
