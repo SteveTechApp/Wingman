@@ -13055,3 +13055,43 @@ html[data-wingman-route="visualStudio"] .wm-vs-titleblock-brand strong {
   display: grid;
   gap: 4px;
 }
+
+/* ==========================================================================
+   Page frame consistency sweep
+   Several pages never got the shared "wingman-page-host" outer frame
+   (consistent width/padding/min-height) that most routes already use -
+   each was left to invent its own outer spacing, which is the root cause
+   of pages visually not lining up with each other. Giving these the same
+   frame as every other route, without touching their JSX/markup.
+   ========================================================================== */
+
+.wm-glossary-page,
+.wm-intelligence-page,
+.wm-navhub-page,
+.wm-support-landing,
+.wm-sh-page,
+main.wm-page,
+[data-wingman-page="projects"],
+[data-wingman-template-detail-page="true"],
+[data-wingman-request-decoder="true"] {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  min-height: 100vh !important;
+  padding: 20px 24px 64px !important;
+  overflow: visible !important;
+}
+
+@media (max-width: 980px) {
+  .wm-glossary-page,
+  .wm-intelligence-page,
+  .wm-navhub-page,
+  .wm-support-landing,
+  .wm-sh-page,
+  main.wm-page,
+  [data-wingman-page="projects"],
+  [data-wingman-template-detail-page="true"],
+  [data-wingman-request-decoder="true"] {
+    padding: 14px !important;
+  }
+}
