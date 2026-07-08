@@ -93,6 +93,14 @@ describe("product story layer", () => {
   });
 
   it("resolves active SKU aliases to the same product story", () => {
-    expect(getProductStory("APO-VX20-UC")?.sku).toBe("APO-VX20-UC-V2");
+    // NHD-610-TX has no dedicated story of its own, so it should fall through
+    // to its alias-resolved canonical, NHD-610-TX-V2. APO-VX20-UC is NOT a
+    // good example here even though it aliases to APO-VX20-UC-V2 for business
+    // status purposes: it has its own dedicated story (see the discontinued
+    // Apollo VX20 UC v1 vs current v2 positioning above), which correctly
+    // takes priority over the alias so that story stays reachable rather than
+    // being silently shadowed by the v2 entry.
+    expect(getProductStory("NHD-610-TX")?.sku).toBe("NHD-610-TX-V2");
+    expect(getProductStory("APO-VX20-UC")?.sku).toBe("APO-VX20-UC");
   });
 });
