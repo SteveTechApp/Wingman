@@ -384,6 +384,18 @@ export function deriveGuruAnswer({ question: _question, brief, architecture }) {
   };
 }
 
+export function deriveVisionContext({ fileName }) {
+  return {
+    visionVersion: "1.0",
+    attachmentKind: "unclear",
+    summary: `"${fileName || "Attachment"}" was saved, but live image analysis is not configured (no GEMINI_API_KEY). Review it manually and note anything relevant.`,
+    roomObservations: [],
+    visibleEquipment: [],
+    layoutNotes: [],
+    confidence: 0,
+  };
+}
+
 export function deriveCompetitorMatch({ competitorVendor, competitorSku, notes }) {
   return {
     competitorVersion: "1.0",

@@ -12,6 +12,11 @@ import {
   type MultiSkuCompetitorAnalysis,
 } from "../lib/documentIngest/multiSkuCompetitorIngest";
 import type { DocumentSkuTriageRow } from "../lib/documentIngest/skuTriage";
+import {
+  analyzeVisualAttachment,
+  isSupportedVisualAttachment,
+  type VisualAttachmentAnalysis,
+} from "../lib/visionAttachments";
 
 type RequestType =
   | "Email / message"
@@ -168,8 +173,12 @@ export function IngestPage() {
     skippedFiles: [],
     files: [],
   });
+  const [visualAttachments, setVisualAttachments] = useState<VisualAttachmentAnalysis[]>([]);
+  const [attachmentStatus, setAttachmentStatus] = useState<"idle" | "analyzing" | "error">("idle");
+  const [attachmentError, setAttachmentError] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const attachmentInputRef = useRef<HTMLInputElement | null>(null);
 
   const requestGuidance = useMemo(() => requestTypeGuidance(requestType), [requestType]);
   const nextStep = useMemo(() => {
@@ -252,10 +261,24 @@ export function IngestPage() {
     setAnalysis(nextAnalysis);
     setBulkAnalysis(multiSku);
     saveIngestAnalysisToProject(
-      { ...nextAnalysis, multiSkuIntelligence: multiSku ?? undefined },
+      { ...nextAnalysis, multiSkuIntelligence: multiSku ?? undefined, visualContext: visualAttachments },
       { requireExistingProject: true },
     );
     setExtractState("complete");
+  };
+
+  const updateBulkRowQuantity = (rowId: string, quantity: number) => {
+    setBulkAnalysis((current) =>
+      current
+        ? {
+            ...current,
+            triage: {
+              ...current.triage,
+              rows: current.triage.rows.map((row) => (row.id === rowId ? { ...row, quantity } : row)),
+            },
+          }
+        : current,
+    );
   };
 
   const saveBulkOpportunity = () => {
@@ -266,12 +289,44 @@ export function IngestPage() {
       skippedFiles: analysis.skippedFiles,
       files: analysis.files,
       multiSkuIntelligence: bulkAnalysis,
+      visualContext: visualAttachments,
     });
   };
 
   const continueBulkToProposal = () => {
     saveBulkOpportunity();
     navigate(routeCatalogByKey.proposal.path);
+  };
+
+  const handleAttachmentChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []).filter(isSupportedVisualAttachment);
+    if (!files.length) return;
+
+    setAttachmentStatus("analyzing");
+    setAttachmentError("");
+
+    try {
+      const results = await Promise.all(files.map((file) => analyzeVisualAttachment(file, requestType)));
+      const nextAttachments = [...visualAttachments, ...results];
+      setVisualAttachments(nextAttachments);
+      saveIngestAnalysisToProject(
+        {
+          requirements: analysis.requirements,
+          unknowns: analysis.unknowns,
+          skippedFiles: analysis.skippedFiles,
+          files: analysis.files,
+          multiSkuIntelligence: bulkAnalysis ?? undefined,
+          visualContext: nextAttachments,
+        },
+        { requireExistingProject: true },
+      );
+      setAttachmentStatus("idle");
+    } catch (error) {
+      setAttachmentError(error instanceof Error ? error.message : "Could not analyze the attached image.");
+      setAttachmentStatus("error");
+    } finally {
+      if (attachmentInputRef.current) attachmentInputRef.current.value = "";
+    }
   };
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -323,7 +378,7 @@ export function IngestPage() {
     setAnalysis(nextAnalysis);
     setBulkAnalysis(multiSku);
     saveIngestAnalysisToProject(
-      { ...nextAnalysis, multiSkuIntelligence: multiSku ?? undefined },
+      { ...nextAnalysis, multiSkuIntelligence: multiSku ?? undefined, visualContext: visualAttachments },
       { requireExistingProject: true },
     );
     setExtractState(extractionWarnings.length && !text ? "error" : "complete");
@@ -345,7 +400,9 @@ export function IngestPage() {
         />
         <BulkEnquiryResults
           analysis={bulkAnalysis}
+          visualAttachments={visualAttachments}
           onSave={saveBulkOpportunity}
+          onQuantityChange={updateBulkRowQuantity}
           onReset={() => {
             setBulkAnalysis(null);
             setPastedText("");
@@ -437,6 +494,41 @@ export function IngestPage() {
                   </ul>
                 ) : null}
               </div>
+
+              <div className="rounded-2xl border-2 border-dashed border-[#29465e] bg-[#081724] p-4">
+                <input
+                  ref={attachmentInputRef}
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={handleAttachmentChange}
+                  accept="image/*"
+                />
+                <p className="text-sm font-black text-white">Supporting attachments (photos, diagrams)</p>
+                <p className="mt-1 text-sm leading-6 text-white/55">
+                  Add a photo of the room or an existing schematic diagram. Wingman reads it for context alongside the decoded request - it does not replace the product requirement.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => attachmentInputRef.current?.click()}
+                  disabled={attachmentStatus === "analyzing"}
+                  className="mt-3 rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100 disabled:opacity-40"
+                >
+                  {attachmentStatus === "analyzing" ? "Analyzing..." : "Add attachment"}
+                </button>
+
+                {attachmentStatus === "error" && attachmentError ? (
+                  <p className="mt-3 text-sm leading-6 text-rose-300">{attachmentError}</p>
+                ) : null}
+
+                {visualAttachments.length ? (
+                  <ul className="mt-3 space-y-1 text-sm text-white/60">
+                    {visualAttachments.map((item) => (
+                      <li key={item.id}>{item.fileName}</li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
             </div>
           </section>
 
@@ -456,6 +548,20 @@ export function IngestPage() {
               <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Likely system shape</p>
               <p className="mt-3 text-sm leading-6 text-white/75">{systemShape}</p>
             </article>
+
+            {visualAttachments.length ? (
+              <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Visual context</p>
+                <ul className="mt-4 space-y-3 text-sm leading-6 text-white/75">
+                  {visualAttachments.map((item) => (
+                    <li key={item.id} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">
+                      <p className="font-semibold text-white">{item.fileName}</p>
+                      <p className="mt-1 text-white/60">{item.summary}</p>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            ) : null}
           </section>
 
           <aside className="grid gap-4">
@@ -507,14 +613,21 @@ function statusLabel(status: DocumentSkuTriageRow["status"]): string {
   return status.replace(/_/g, " ");
 }
 
+const SOURCE_ROLES = new Set(["transmitter", "kit"]);
+const DISPLAY_ROLES = new Set(["receiver", "kit"]);
+
 function BulkEnquiryResults({
   analysis,
+  visualAttachments,
   onSave,
   onReset,
+  onQuantityChange,
 }: {
   analysis: MultiSkuCompetitorAnalysis;
+  visualAttachments: VisualAttachmentAnalysis[];
   onSave: () => void;
   onReset: () => void;
+  onQuantityChange: (rowId: string, quantity: number) => void;
 }) {
   const [activeTab, setActiveTab] = useState<BulkTab>("products");
   const [showQueue, setShowQueue] = useState(false);
@@ -522,11 +635,23 @@ function BulkEnquiryResults({
   const [saved, setSaved] = useState(false);
   const [responseDraft, setResponseDraft] = useState("");
   const [showDiscoveryQuestions, setShowDiscoveryQuestions] = useState(false);
-
   const { triage } = analysis;
   const productRows = triage.rows.filter((row) => row.status !== "not_wyrestorm_addressable");
   const queueRows = triage.rows.filter((row) => row.batchCompareEligible);
   const ignoredRows = triage.rows.filter((row) => row.status === "not_wyrestorm_addressable" && row.retainAsProjectContext);
+
+  const setQuantity = (rowId: string, value: number) => {
+    const clamped = Number.isFinite(value) && value >= 0 ? Math.min(999, Math.round(value)) : 0;
+    onQuantityChange(rowId, clamped);
+  };
+
+  const inferredSourceCount = productRows
+    .filter((row) => SOURCE_ROLES.has(row.role))
+    .reduce((total, row) => total + (row.quantity ?? 1), 0);
+  const inferredDisplayCount = productRows
+    .filter((row) => DISPLAY_ROLES.has(row.role))
+    .reduce((total, row) => total + (row.quantity ?? 1), 0);
+  const uncountedRowCount = productRows.filter((row) => !SOURCE_ROLES.has(row.role) && !DISPLAY_ROLES.has(row.role)).length;
 
   return (
     <SectionCard
@@ -563,10 +688,20 @@ function BulkEnquiryResults({
 
       {activeTab === "products" ? (
         <div role="tabpanel" aria-label="Products" className="grid gap-4">
+          <section className="rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-5">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-200">Inferred room design</p>
+            <p className="mt-2 text-sm leading-6 text-white/85">
+              Sources: {inferredSourceCount} · Displays: {inferredDisplayCount}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-white/60">
+              Inferred from BOM roles - one transmitter or extender kit counts as one source, one receiver or extender kit counts as one display. Shared infrastructure (matrix), accessories and unclear items ({uncountedRowCount}) are not counted. Edit the quantities below before committing this to the design.
+            </p>
+          </section>
+
           <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
             <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Product selection</p>
             <p className="mt-1 text-sm leading-6 text-white/55">
-              Every extracted line, classified by WyreStorm-addressable direction. Noise and non-addressable context is kept out by default.
+              Every extracted line, classified by WyreStorm-addressable direction. Noise and non-addressable context is kept out by default. Edit quantities to correct the inferred count.
             </p>
             <div className="mt-4 max-h-96 overflow-y-auto rounded-2xl border border-[#29465e]">
               <table className="w-full text-left text-sm">
@@ -574,6 +709,7 @@ function BulkEnquiryResults({
                   <tr>
                     <th className="p-2 text-xs font-black uppercase tracking-[0.1em] text-cyan-300">SKU</th>
                     <th className="p-2 text-xs font-black uppercase tracking-[0.1em] text-cyan-300">Description</th>
+                    <th className="p-2 text-xs font-black uppercase tracking-[0.1em] text-cyan-300">Qty</th>
                     <th className="p-2 text-xs font-black uppercase tracking-[0.1em] text-cyan-300">Status</th>
                     <th className="p-2 text-xs font-black uppercase tracking-[0.1em] text-cyan-300">WyreStorm direction</th>
                   </tr>
@@ -583,6 +719,17 @@ function BulkEnquiryResults({
                     <tr key={row.id} className="border-t border-[#29465e]">
                       <td className="p-2 font-semibold text-white">{row.sku}</td>
                       <td className="p-2 text-white/70">{row.rawItem}</td>
+                      <td className="p-2 text-white/70">
+                        <input
+                          type="number"
+                          min={0}
+                          max={999}
+                          value={row.quantity ?? 1}
+                          onChange={(event) => setQuantity(row.id, Number(event.target.value))}
+                          aria-label={`Quantity for ${row.sku || row.rawItem}`}
+                          className="w-16 rounded-lg border border-[#29465e] bg-[#081724] px-2 py-1 text-sm text-white"
+                        />
+                      </td>
                       <td className="p-2 text-white/70">{statusLabel(row.status)}</td>
                       <td className="p-2 text-white/70">{row.wyrestormDirection}</td>
                     </tr>
@@ -707,6 +854,20 @@ function BulkEnquiryResults({
           {analysis.senderContext ? <p className="text-sm text-white/60">{analysis.senderContext}</p> : null}
           {analysis.subject ? <p className="text-sm text-white/60">Subject: {analysis.subject}</p> : null}
           <p className="text-sm text-white/60">Source kind: {analysis.sourceKind}</p>
+
+          {visualAttachments.length ? (
+            <div className="mt-4 grid gap-2">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Visual context</p>
+              <ul className="grid gap-2">
+                {visualAttachments.map((item) => (
+                  <li key={item.id} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">
+                    <p className="font-semibold text-white">{item.fileName}</p>
+                    <p className="mt-1 text-sm text-white/60">{item.summary}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
         </div>
       ) : null}
 
