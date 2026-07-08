@@ -60,12 +60,25 @@ export type StoredProductSelection = {
   cautions?: string[];
 };
 
+export type StoredIngestVisualAttachment = {
+  id: string;
+  fileName: string;
+  kind: "room_photo" | "schematic_diagram" | "unclear";
+  summary: string;
+  roomObservations: string[];
+  visibleEquipment: string[];
+  layoutNotes: string[];
+  confidence: number;
+  analyzedAt: string;
+};
+
 export type StoredIngestAnalysis = {
   requirements: string[];
   unknowns: string[];
   skippedFiles: string[];
   files: string[];
   multiSkuIntelligence?: MultiSkuCompetitorAnalysis;
+  visualContext?: StoredIngestVisualAttachment[];
   updatedAt: string;
 };
 
@@ -506,6 +519,37 @@ function normalizeDiscoveryBrief(value: unknown): StoredDiscoveryBrief | undefin
   };
 }
 
+function normalizeIngestVisualAttachmentKind(value: unknown): StoredIngestVisualAttachment["kind"] {
+  return value === "room_photo" || value === "schematic_diagram" ? value : "unclear";
+}
+
+function normalizeIngestVisualContext(value: unknown): StoredIngestVisualAttachment[] {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .map((item): StoredIngestVisualAttachment | null => {
+      const record = objectRecord(item);
+      if (!record) return null;
+
+      const summary = stringValue(record.summary);
+      const fileName = stringValue(record.fileName);
+      if (!summary && !fileName) return null;
+
+      return {
+        id: stringValue(record.id, createId("visual-attachment")),
+        fileName,
+        kind: normalizeIngestVisualAttachmentKind(record.kind),
+        summary,
+        roomObservations: stringArray(record.roomObservations),
+        visibleEquipment: stringArray(record.visibleEquipment),
+        layoutNotes: stringArray(record.layoutNotes),
+        confidence: Number.isFinite(Number(record.confidence)) ? Number(record.confidence) : 0,
+        analyzedAt: stringValue(record.analyzedAt, nowIso()),
+      };
+    })
+    .filter((item): item is StoredIngestVisualAttachment => Boolean(item));
+}
+
 function normalizeIngestAnalysis(value: unknown): StoredIngestAnalysis | undefined {
   const record = objectRecord(value);
   if (!record) return undefined;
@@ -516,6 +560,7 @@ function normalizeIngestAnalysis(value: unknown): StoredIngestAnalysis | undefin
     skippedFiles: stringArray(record.skippedFiles),
     files: stringArray(record.files),
     multiSkuIntelligence: normalizeMultiSkuCompetitorAnalysis(record.multiSkuIntelligence),
+    visualContext: normalizeIngestVisualContext(record.visualContext),
     updatedAt: stringValue(record.updatedAt, nowIso()),
   };
 }
@@ -1616,6 +1661,7 @@ export function saveIngestAnalysisToProject(
     skippedFiles: input.skippedFiles,
     files: input.files,
     multiSkuIntelligence: input.multiSkuIntelligence,
+    visualContext: input.visualContext,
     updatedAt: timestamp,
   };
   const snapshot = readProjectStore();

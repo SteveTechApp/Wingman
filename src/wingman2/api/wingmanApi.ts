@@ -181,6 +181,28 @@ export function runCompetitorMatch(input: { manufacturer: string; model: string;
   });
 }
 
+export type VisionContextAttachmentKind = "room_photo" | "schematic_diagram" | "unclear";
+
+export type VisionContextResult = {
+  visionVersion?: string;
+  attachmentKind?: VisionContextAttachmentKind;
+  summary?: string;
+  roomObservations?: string[];
+  visibleEquipment?: string[];
+  layoutNotes?: string[];
+  confidence?: number;
+};
+
+export type VisionContextResponse = {
+  ok: boolean;
+  phase?: string;
+  data?: VisionContextResult;
+};
+
+export function runVisionContextAnalysis(input: { fileName: string; mimeType: string; base64Data: string; hint?: string }) {
+  return postWingmanJson<VisionContextResponse>("/api/wingman/agents/vision-context", input);
+}
+
 export function getWingmanSession() {
   return getWingmanJson<WingmanSessionResponse>("/api/wingman/auth/session");
 }

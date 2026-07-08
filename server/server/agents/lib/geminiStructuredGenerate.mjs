@@ -9,6 +9,7 @@ export async function geminiStructuredGenerate({
   userPayload,
   responseJsonSchema,
   temperature = 0.2,
+  images = [],
 }) {
   if (!apiKey) {
     throw new Error("Missing GEMINI_API_KEY for structured generation.");
@@ -18,6 +19,10 @@ export async function geminiStructuredGenerate({
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
+    const imageParts = images
+      .filter((image) => image?.base64Data && image?.mimeType)
+      .map((image) => ({ inlineData: { mimeType: image.mimeType, data: image.base64Data } }));
+
     const response = await fetch(`${baseUrl}/${model}:generateContent?key=${apiKey}`, {
       method: "POST",
       headers: {
@@ -31,7 +36,7 @@ export async function geminiStructuredGenerate({
         contents: [
           {
             role: "user",
-            parts: [{ text: stringifyPretty(userPayload) }],
+            parts: [{ text: stringifyPretty(userPayload) }, ...imageParts],
           },
         ],
         generationConfig: {

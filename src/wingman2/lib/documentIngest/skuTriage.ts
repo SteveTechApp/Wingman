@@ -21,6 +21,8 @@ export type DocumentSkuTriageRow = {
   sku: string;
   brand: string;
   productClass: string;
+  role: string;
+  quantity: number;
   status: WyreStormTriageStatus;
   wyrestormDirection: string;
   matchType: WyreStormMatchType;
@@ -49,6 +51,7 @@ export type ParsedSkuForTriage = {
   productClass: string;
   role: string;
   sourceLine: string;
+  quantity?: number;
 };
 
 const COMPETITOR_BRANDS = [
@@ -235,6 +238,8 @@ function candidateRow(item: ParsedSkuForTriage, index: number): DocumentSkuTriag
   const brand = detectBrand(rawItem, item.manufacturer);
   const noise = inferNoise(`${rawItem} ${item.description}`, brand);
 
+  const quantity = Number.isFinite(Number(item.quantity)) && Number(item.quantity) >= 1 ? Math.round(Number(item.quantity)) : 1;
+
   if (noise) {
     return {
       id: `row-${index}-${skuKey(item.sku) || "context"}`,
@@ -242,6 +247,8 @@ function candidateRow(item: ParsedSkuForTriage, index: number): DocumentSkuTriag
       sku: clean(item.sku).toUpperCase(),
       brand,
       productClass: noise.productClass,
+      role: item.role,
+      quantity,
       status: "not_wyrestorm_addressable",
       wyrestormDirection: "No WyreStorm candidate",
       matchType: "not_applicable",
@@ -261,6 +268,8 @@ function candidateRow(item: ParsedSkuForTriage, index: number): DocumentSkuTriag
       sku: clean(item.sku).toUpperCase(),
       brand,
       productClass: item.productClass,
+      role: item.role,
+      quantity,
       status: "wyrestorm_candidate",
       wyrestormDirection: governed.sku,
       matchType: "governed_sku",
@@ -280,6 +289,8 @@ function candidateRow(item: ParsedSkuForTriage, index: number): DocumentSkuTriag
     sku: clean(item.sku).toUpperCase(),
     brand,
     productClass: item.productClass,
+    role: item.role,
+    quantity,
     status: direction.status,
     wyrestormDirection: direction.direction,
     matchType: direction.matchType,
@@ -308,6 +319,8 @@ function contextNoiseRows(text: string, existingRows: DocumentSkuTriageRow[], pa
         sku: "",
         brand,
         productClass: noise.productClass,
+        role: "unknown",
+        quantity: 1,
         status: "not_wyrestorm_addressable" as const,
         wyrestormDirection: "No WyreStorm candidate",
         matchType: "not_applicable" as const,
@@ -340,7 +353,13 @@ export function normalizeDocumentSkuTriage(value: unknown): DocumentSkuTriageAna
   if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
   const candidate = value as Partial<DocumentSkuTriageAnalysis>;
   if (!Array.isArray(candidate.rows)) return undefined;
-  const rows = candidate.rows.filter((row): row is DocumentSkuTriageRow => Boolean(row && typeof row === "object"));
+  const rows = candidate.rows
+    .filter((row): row is DocumentSkuTriageRow => Boolean(row && typeof row === "object"))
+    .map((row) => ({
+      ...row,
+      role: typeof row.role === "string" && row.role ? row.role : "unknown",
+      quantity: Number.isFinite(Number(row.quantity)) && Number(row.quantity) >= 1 ? Math.round(Number(row.quantity)) : 1,
+    }));
   const eligibleIds = new Set(rows.filter((row) => row.batchCompareEligible).map((row) => row.id));
   const requestedIds = Array.isArray(candidate.batchEligibleRowIds)
     ? candidate.batchEligibleRowIds.filter((id): id is string => typeof id === "string" && eligibleIds.has(id))

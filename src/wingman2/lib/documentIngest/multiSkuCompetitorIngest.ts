@@ -33,6 +33,7 @@ export type ExtractedCompetitorSku = {
   workflowTags: string[];
   eligibleAsLead: boolean;
   quoteRisks: string[];
+  quantity: number;
 };
 
 export type ProductSetOpportunity = {
@@ -183,6 +184,28 @@ function descriptionForLine(lines: string[], lineIndex: number, sku: string): st
   }
 
   return "";
+}
+
+function extractQuantity(sourceLine: string): number {
+  const line = String(sourceLine ?? "");
+  const patterns = [
+    /\bqty\.?\s*[:=]?\s*(\d{1,3})\b/i,
+    /\bquantity\s*[:=]?\s*(\d{1,3})\b/i,
+    /\b(\d{1,3})\s*(?:off|no\.?)\b/i,
+    /\bx\s*(\d{1,3})\b/i,
+    /\b(\d{1,3})\s*x\b/i,
+    /\(\s*(\d{1,3})\s*\)/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = line.match(pattern);
+    if (match) {
+      const value = Number(match[1]);
+      if (Number.isFinite(value) && value >= 1 && value <= 999) return value;
+    }
+  }
+
+  return 1;
 }
 
 function detectManufacturer(text: string, skus: string[]): string {
@@ -457,6 +480,7 @@ function normalizedAnalysis(value: MultiSkuCompetitorAnalysis): MultiSkuCompetit
       workflowTags: unique(item.workflowTags),
       quoteRisks: unique(item.quoteRisks),
       eligibleAsLead: item.productClass !== "accessory-power" && item.productClass !== "unknown",
+      quantity: Number.isFinite(Number(item.quantity)) && Number(item.quantity) >= 1 ? Math.round(Number(item.quantity)) : 1,
     })),
     productSets: value.productSets,
     recommendedSalesDirections: unique(value.recommendedSalesDirections),
@@ -504,6 +528,7 @@ export function analyzeMultiSkuCompetitorDocument(text: string): MultiSkuCompeti
       workflowTags: classification.workflowTags,
       eligibleAsLead: classification.productClass !== "accessory-power" && classification.productClass !== "unknown",
       quoteRisks,
+      quantity: extractQuantity(occurrence.sourceLine),
     };
   });
 
