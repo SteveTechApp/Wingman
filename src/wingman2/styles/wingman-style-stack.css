@@ -1,4 +1,4 @@
-/* ==========================================================================
+﻿/* ==========================================================================
    WyreStorm Wingman Style Stack
    Compact governed rebuild
    ========================================================================== */
@@ -49,6 +49,48 @@
   --wm-content-max: 1480px;
 
   --wm-font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Compatibility aliases consumed by the later consolidated route blocks. */
+  --wm-bg-0: var(--wm-bg);
+  --wm-bg-1: var(--wm-bg-2);
+  --wm-card: var(--wm-surface);
+  --wm-card-soft: var(--wm-surface-2);
+  --wm-panel-soft: var(--wm-surface-2);
+  --wm-heading-soft: var(--wm-heading-2);
+  --wm-text-muted: var(--wm-muted);
+  --wm-aqua: var(--wm-primary);
+  --wm-aqua-soft: var(--wm-heading-2);
+  --wm-aqua-border: var(--wm-border-strong);
+  --wm-border-light: var(--wm-border);
+  --wm-border-dark: rgba(125, 211, 252, 0.12);
+  --wm-line: rgba(125, 211, 252, 0.16);
+  --wm-soft: var(--wm-text-soft);
+  --wm-white: var(--wm-text);
+  --wm-glow: var(--wm-shadow-sm);
+  --wm-shadow-card: var(--wm-shadow-sm);
+  --wm-shadow-panel: var(--wm-shadow-md);
+  --wm-radius-2xl: var(--wm-radius-xl);
+  --wm-weight-body: 500;
+  --wm-weight-ui: 650;
+  --wm-weight-heading: 760;
+  --wm-weight-strong: 850;
+  --wm-tracking-heading: 0;
+  --wm-tracking-kicker: 0.08em;
+  --wm-consistency-title: var(--wm-heading);
+  --wm-consistency-title-soft: var(--wm-heading-2);
+  --wm-consistency-muted: var(--wm-muted);
+  --wm-consistency-border: var(--wm-border);
+  --wm-consistency-border-strong: var(--wm-border-strong);
+  --wm-consistency-panel: var(--wm-surface);
+  --wm-consistency-panel-soft: var(--wm-surface-2);
+  --wm-consistency-hero: linear-gradient(135deg, var(--wm-surface-2), var(--wm-bg-2));
+  --wm-consistency-shadow: var(--wm-shadow-sm);
+  --wm-uniform-title: var(--wm-heading);
+  --wm-uniform-text: var(--wm-text);
+  --wm-uniform-muted: var(--wm-text-soft);
+  --wm-uniform-border: var(--wm-border);
+  --wm-uniform-radius: var(--wm-radius-lg);
+  --wm-uniform-glow: var(--wm-shadow-sm);
 }
 
 /* --------------------------------------------------------------------------
@@ -11879,7 +11921,7 @@ details.wm-ui-guidance-card:not([open]) {
 }
 
 .wm-ui-guidance-card[open] > summary::after {
-  content: "ÃƒÂ¢Ã‹â€ Ã¢â‚¬â„¢";
+  content: "ÃƒÆ’Ã‚Â¢Ãƒâ€¹Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢";
 }
 
 .wingman-page-host .wm-ui-centered-actions {
@@ -12673,7 +12715,7 @@ details.wm-ui-guidance-card:not([open]) {
 }
 
 /* --------------------------------------------------------------------------
-   Visual Studio canvas — node detail & schematic sheet header
+   Visual Studio canvas â€” node detail & schematic sheet header
    (kept in the same html[data-wingman-route] / !important convention as the
    rest of the Visual Studio rules already in this file)
    -------------------------------------------------------------------------- */
@@ -12877,7 +12919,7 @@ html[data-wingman-route="visualStudio"] .wm-vs-titleblock-brand strong {
 }
 
 /* --------------------------------------------------------------------------
-   AV signal flow diagram — track detail
+   AV signal flow diagram â€” track detail
    -------------------------------------------------------------------------- */
 
 .wm-av-flow-shell[data-wingman-optional-visual-support="true"] .wm-av-flow-header {
@@ -13117,7 +13159,7 @@ main.wm-page,
 }
 
 /* ==========================================================================
-   Product Call Cards page — moved out of an inline <style>{`...`}</style>
+   Product Call Cards page â€” moved out of an inline <style>{`...`}</style>
    block in ProductCallCardsPage.tsx (810 lines embedded directly in the
    component). Page files should not carry their own CSS per the project's
    styling-governance rule; this is the same CSS, relocated verbatim into
@@ -13931,3 +13973,1380 @@ main.wm-page,
           background: rgba(251, 191, 36, 0.08);
           color: rgba(255, 245, 210, 0.88);
         }
+
+/* ==========================================================================
+   Dashboard layout restore
+   Keeps the active class-based dashboard clear of older single-screen patches.
+   ========================================================================== */
+
+html[data-wingman-route="dashboard"] main.wm-dashboard-shell.wm-dashboard-visual-root,
+main.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] {
+  display: grid !important;
+  grid-template-columns: minmax(240px, 300px) minmax(0, 1fr) !important;
+  grid-template-rows: auto !important;
+  align-items: start !important;
+  gap: clamp(18px, 2vw, 28px) !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: calc(100vh - var(--wm-header)) !important;
+  height: auto !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: clamp(16px, 2vw, 28px) !important;
+  overflow: visible !important;
+  color: var(--wm-text) !important;
+  background: transparent !important;
+}
+
+html[data-wingman-route="dashboard"] main.wm-dashboard-shell > aside.wm-dashboard-rail,
+main.wm-dashboard-shell[data-wingman-page="home"] > aside.wm-dashboard-rail {
+  position: relative !important;
+  top: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.85rem !important;
+  align-self: start !important;
+  min-width: 0 !important;
+  width: auto !important;
+  min-height: min(620px, calc(100vh - 120px)) !important;
+  padding: clamp(20px, 2vw, 30px) !important;
+  border: 1px solid var(--wm-border) !important;
+  border-radius: var(--wm-radius-xl) !important;
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--wm-primary) 12%, transparent), transparent 58%),
+    linear-gradient(180deg, var(--wm-surface-2), var(--wm-surface)) !important;
+  box-shadow: var(--wm-shadow-sm) !important;
+}
+
+html[data-wingman-route="dashboard"] main.wm-dashboard-shell > aside.wm-dashboard-rail .wm-dashboard-brand,
+html[data-wingman-route="dashboard"] main.wm-dashboard-shell > aside.wm-dashboard-rail .wm-ui-kicker,
+main.wm-dashboard-shell[data-wingman-page="home"] > aside.wm-dashboard-rail .wm-dashboard-brand,
+main.wm-dashboard-shell[data-wingman-page="home"] > aside.wm-dashboard-rail .wm-ui-kicker {
+  display: inline-flex !important;
+}
+
+html[data-wingman-route="dashboard"] main.wm-dashboard-shell > aside.wm-dashboard-rail :is(.wm-ui-kicker, .wm-dashboard-rail-title, .wm-dashboard-rail-copy),
+main.wm-dashboard-shell[data-wingman-page="home"] > aside.wm-dashboard-rail :is(.wm-ui-kicker, .wm-dashboard-rail-title, .wm-dashboard-rail-copy) {
+  grid-column: auto !important;
+  max-width: 100% !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-brand,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-brand {
+  width: 3rem !important;
+  height: 3rem !important;
+  margin: 0 0 0.4rem !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 999px !important;
+  color: #03111b !important;
+  background: linear-gradient(135deg, var(--wm-heading-2), var(--wm-primary)) !important;
+  font-size: 1.35rem !important;
+  font-weight: var(--wm-weight-strong) !important;
+  line-height: 1 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-rail-title,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-rail-title {
+  margin: 0.25rem 0 0 !important;
+  color: var(--wm-heading) !important;
+  font-size: clamp(1.75rem, 2.1vw, 2.65rem) !important;
+  line-height: 1.02 !important;
+  letter-spacing: 0 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-rail-copy,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-rail-copy {
+  margin: 0.35rem 0 0 !important;
+  color: var(--wm-text-soft) !important;
+  font-size: 0.95rem !important;
+  line-height: 1.55 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-rail-actions,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-rail-actions {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 0.7rem !important;
+  width: 100% !important;
+  margin-top: auto !important;
+  padding-top: 1.4rem !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-action-button,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-action-button {
+  display: inline-flex !important;
+  width: 100% !important;
+  min-height: 2.8rem !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  border-radius: var(--wm-radius-sm) !important;
+  text-align: center !important;
+  white-space: normal !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-main,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-main {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: clamp(16px, 1.6vw, 24px) !important;
+  min-width: 0 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-resume-card,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-resume-card {
+  display: grid !important;
+  gap: 0.9rem !important;
+  min-height: 10rem !important;
+  padding: clamp(18px, 1.6vw, 24px) !important;
+  border: 1px solid var(--wm-border) !important;
+  border-radius: var(--wm-radius-xl) !important;
+  background:
+    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--wm-heading-2) 12%, transparent), transparent 34rem),
+    linear-gradient(135deg, var(--wm-surface-2), var(--wm-surface)) !important;
+  text-decoration: none !important;
+  box-shadow: var(--wm-shadow-sm) !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-resume-card > .wm-badge,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-resume-card > .wm-badge {
+  width: auto !important;
+  justify-self: start !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-section,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-section {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-areas: none !important;
+  gap: 1rem !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  padding: clamp(18px, 1.6vw, 24px) !important;
+  overflow: visible !important;
+  border: 1px solid var(--wm-border) !important;
+  border-radius: var(--wm-radius-xl) !important;
+  background: linear-gradient(180deg, var(--wm-surface-2), var(--wm-surface)) !important;
+  box-shadow: var(--wm-shadow-sm) !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-section-head,
+html[data-wingman-route="dashboard"] .wm-dashboard-projects-section > .wm-dashboard-section-head,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-section-head,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-projects-section > .wm-dashboard-section-head {
+  grid-area: auto !important;
+  display: flex !important;
+  width: auto !important;
+  min-width: 0 !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-grid,
+html[data-wingman-route="dashboard"] .wm-dashboard-project-grid,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-grid,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+  gap: clamp(12px, 1.2vw, 18px) !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-destination-card,
+html[data-wingman-route="dashboard"] .wm-dashboard-project-card,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-destination-card,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-card {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 0.65rem !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 10.5rem !important;
+  height: auto !important;
+  max-height: none !important;
+  padding: clamp(16px, 1.35vw, 20px) !important;
+  overflow: hidden !important;
+  border: 1px solid var(--wm-border) !important;
+  border-radius: var(--wm-radius-lg) !important;
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--wm-primary) 8%, transparent), transparent 62%),
+    linear-gradient(180deg, var(--wm-surface-2), var(--wm-surface)) !important;
+  color: var(--wm-text) !important;
+  text-align: left !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-destination-card > *,
+html[data-wingman-route="dashboard"] .wm-dashboard-project-card > *,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-destination-card > *,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-card > * {
+  min-width: 0 !important;
+  max-width: none !important;
+  transform: none !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  white-space: normal !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-card-title,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-card-title {
+  color: var(--wm-heading) !important;
+  font-size: 1.05rem !important;
+  line-height: 1.15 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-card-copy,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-card-copy {
+  margin: 0 !important;
+  color: var(--wm-text-soft) !important;
+  font-size: 0.92rem !important;
+  line-height: 1.5 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-next-step,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-next-step {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.55rem !important;
+  margin-top: auto !important;
+  padding-top: 0.75rem !important;
+  border-top: 1px solid var(--wm-border) !important;
+  color: var(--wm-text-soft) !important;
+}
+
+@media (max-width: 1180px) {
+  html[data-wingman-route="dashboard"] main.wm-dashboard-shell.wm-dashboard-visual-root,
+  main.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-wingman-route="dashboard"] main.wm-dashboard-shell > aside.wm-dashboard-rail,
+  main.wm-dashboard-shell[data-wingman-page="home"] > aside.wm-dashboard-rail {
+    position: relative !important;
+    top: auto !important;
+    min-height: 0 !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-dashboard-rail-actions,
+  main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-rail-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html[data-wingman-route="dashboard"] .wm-dashboard-rail-actions,
+  html[data-wingman-route="dashboard"] .wm-dashboard-grid,
+  html[data-wingman-route="dashboard"] .wm-dashboard-project-grid,
+  main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-rail-actions,
+  main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-grid,
+  main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ==========================================================================
+   Active redesign foundation
+   Uniform full-width workspace, styled sidebar nav and focused color cues.
+   ========================================================================== */
+
+#root > .wingman-shell,
+.wingman-shell.wingman-authority-shell {
+  background:
+    radial-gradient(circle at 18% 0%, color-mix(in srgb, var(--wm-primary) 12%, transparent), transparent 34rem),
+    linear-gradient(135deg, #030712 0%, #06111f 48%, #081827 100%) !important;
+}
+
+.wingman-workspace {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 0 !important;
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--wm-bg-2) 88%, transparent), var(--wm-bg)) !important;
+}
+
+.wingman-app-main {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+.wingman-app-main > .wingman-page-host,
+main.wingman-app-main > .wingman-page-host,
+.wingman-page-host {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+
+.wingman-page-host > :is(main, section, article) {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+#root > .wingman-shell > .wingman-sidebar,
+.wingman-shell > .wingman-sidebar,
+.wingman-authority-shell > .wingman-sidebar,
+.wingman-sidebar {
+  background:
+    radial-gradient(circle at 0% 0%, color-mix(in srgb, var(--wm-heading-2) 12%, transparent), transparent 18rem),
+    linear-gradient(180deg, #071221 0%, #030712 100%) !important;
+  border-right: 1px solid color-mix(in srgb, var(--wm-heading-2) 22%, transparent) !important;
+  box-shadow: inset -1px 0 0 color-mix(in srgb, var(--wm-primary) 10%, transparent) !important;
+}
+
+.wingman-brand {
+  display: grid !important;
+  justify-items: start !important;
+  gap: 0.4rem !important;
+  width: 100% !important;
+  padding: 0.25rem 0.15rem 1rem !important;
+  margin: 0 0 0.4rem !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.wingman-brand-image {
+  display: block !important;
+  width: min(100%, 235px) !important;
+  height: auto !important;
+}
+
+.wingman-nav {
+  display: grid !important;
+  gap: 0.45rem !important;
+  width: 100% !important;
+}
+
+.wingman-nav-link {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.7rem !important;
+  width: 100% !important;
+  min-height: 2.8rem !important;
+  padding: 0.65rem 0.75rem !important;
+  border: 1px solid transparent !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  color: var(--wm-text-soft) !important;
+  text-decoration: none !important;
+  isolation: isolate !important;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease !important;
+}
+
+.wingman-nav-link::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 auto 0 0 !important;
+  width: 3px !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  transition: background 160ms ease, box-shadow 160ms ease !important;
+}
+
+.wingman-nav-link:hover,
+.wingman-nav-link:focus-visible {
+  border-color: color-mix(in srgb, var(--wm-heading-2) 22%, transparent) !important;
+  background: color-mix(in srgb, var(--wm-heading-2) 8%, transparent) !important;
+  color: var(--wm-text) !important;
+  transform: translateX(1px) !important;
+  outline: none !important;
+}
+
+.wingman-nav-link-active,
+.wingman-nav-link[aria-current="page"] {
+  border-color: color-mix(in srgb, var(--wm-heading-2) 34%, transparent) !important;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--wm-primary) 20%, transparent), color-mix(in srgb, var(--wm-heading-2) 10%, transparent)) !important;
+  color: var(--wm-text) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--wm-heading-2) 8%, transparent) !important;
+}
+
+.wingman-nav-link-active::before,
+.wingman-nav-link[aria-current="page"]::before {
+  background: linear-gradient(180deg, var(--wm-heading-2), var(--wm-primary)) !important;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--wm-heading-2) 38%, transparent) !important;
+}
+
+.wingman-nav-icon {
+  flex: 0 0 auto !important;
+  width: 1.05rem !important;
+  height: 1.05rem !important;
+  color: color-mix(in srgb, var(--wm-heading-2) 72%, var(--wm-text-soft)) !important;
+}
+
+.wingman-nav-copy {
+  display: block !important;
+  min-width: 0 !important;
+  color: inherit !important;
+  font-size: 0.94rem !important;
+  font-weight: var(--wm-weight-ui) !important;
+  line-height: 1.18 !important;
+}
+
+.wingman-nav-copy > span {
+  display: block !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.wingman-nav-tooltip {
+  position: absolute !important;
+  top: 50% !important;
+  left: calc(100% + 0.65rem) !important;
+  z-index: 9000 !important;
+  width: min(17rem, calc(100vw - var(--wm-sidebar-width) - 2rem)) !important;
+  max-width: 17rem !important;
+  padding: 0.65rem 0.75rem !important;
+  border: 1px solid color-mix(in srgb, var(--wm-heading-2) 28%, transparent) !important;
+  border-radius: 12px !important;
+  background: color-mix(in srgb, var(--wm-bg) 94%, var(--wm-surface-2)) !important;
+  color: var(--wm-text-soft) !important;
+  box-shadow: var(--wm-shadow-sm) !important;
+  font-size: 0.78rem !important;
+  line-height: 1.35 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translate(-0.25rem, -50%) !important;
+  transition:
+    opacity 140ms ease,
+    visibility 140ms ease,
+    transform 140ms ease !important;
+}
+
+.wingman-nav-link:hover .wingman-nav-tooltip,
+.wingman-nav-link:focus-visible .wingman-nav-tooltip {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translate(0, -50%) !important;
+}
+
+.wingman-topbar {
+  min-height: var(--wm-header) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--wm-heading-2) 18%, transparent) !important;
+  background: color-mix(in srgb, var(--wm-bg) 88%, transparent) !important;
+}
+
+.wingman-mobile-nav-button {
+  display: none !important;
+}
+
+.wingman-topbar-title p {
+  color: var(--wm-text) !important;
+}
+
+.wingman-topbar-title span {
+  color: var(--wm-text-soft) !important;
+}
+
+@media (max-width: 980px) {
+  .wingman-mobile-nav-button {
+    display: inline-flex !important;
+  }
+
+  .wingman-nav-tooltip {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   Active compact density pass
+   Reduces the live Wingman UI footprint while preserving per-page scrolling.
+   ========================================================================== */
+
+:root {
+  --wm-ui-density: 0.75;
+  --wm-sidebar-width: 210px;
+  --wm-sidebar: 210px;
+  --wm-header: 48px;
+  --wm-topbar-height: 48px;
+  --wm-density-page-pad: clamp(10px, 1vw, 16px);
+  --wm-density-card-pad: clamp(12px, 1vw, 16px);
+  --wm-density-gap: clamp(10px, 1vw, 16px);
+}
+
+html,
+body,
+#root {
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  overflow: hidden !important;
+}
+
+body[data-gptw] {
+  margin: 0 !important;
+}
+
+#root > .wingman-shell,
+.wingman-shell,
+.wingman-shell.wingman-authority-shell,
+.wingman-authority-shell {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: 100vh !important;
+  min-height: 0 !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+  font-size: 13px !important;
+}
+
+.wingman-workspace {
+  height: 100vh !important;
+  min-height: 0 !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+}
+
+.wingman-workspace .wingman-app-main,
+main.wingman-app-main {
+  flex: 1 1 auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  scrollbar-gutter: stable !important;
+}
+
+.wingman-app-main > .wingman-page-host,
+main.wingman-app-main > .wingman-page-host {
+  min-height: 100% !important;
+  padding: var(--wm-density-page-pad) !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-app-main > .wingman-page-host,
+html[data-wingman-route="home"] .wingman-app-main > .wingman-page-host {
+  padding: 0 !important;
+}
+
+.wingman-page-host > :is(main, section, article) {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+#root > .wingman-shell > .wingman-sidebar,
+.wingman-shell > .wingman-sidebar,
+.wingman-authority-shell > .wingman-sidebar,
+.wingman-sidebar,
+.wm-sidebar {
+  flex: 0 0 var(--wm-sidebar-width) !important;
+  width: var(--wm-sidebar-width) !important;
+  min-width: var(--wm-sidebar-width) !important;
+  max-width: var(--wm-sidebar-width) !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  padding: 12px 10px !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  scrollbar-gutter: stable !important;
+}
+
+.wingman-brand {
+  gap: 0.25rem !important;
+  padding: 0.1rem 0.05rem 0.65rem !important;
+  margin: 0 0 0.2rem !important;
+}
+
+.wingman-brand-image {
+  width: min(100%, 178px) !important;
+}
+
+.wingman-nav,
+.wingman-sidebar nav,
+.wm-sidebar nav,
+.wingman-sidebar .wm-nav,
+.wm-sidebar .wm-nav {
+  gap: 0.28rem !important;
+}
+
+.wingman-nav-link,
+.wingman-sidebar .wm-nav-link,
+.wm-sidebar .wm-nav-link,
+.wingman-sidebar a[href^="/wingman"],
+.wm-sidebar a[href^="/wingman"] {
+  min-height: 2.15rem !important;
+  gap: 0.5rem !important;
+  padding: 0.42rem 0.55rem !important;
+  border-radius: 8px !important;
+}
+
+.wingman-nav-icon {
+  width: 0.88rem !important;
+  height: 0.88rem !important;
+}
+
+.wingman-nav-copy {
+  font-size: 0.82rem !important;
+  line-height: 1.12 !important;
+}
+
+.wingman-nav-tooltip {
+  left: calc(100% + 0.45rem) !important;
+  width: min(15rem, calc(100vw - var(--wm-sidebar-width) - 1.25rem)) !important;
+  max-width: 15rem !important;
+  padding: 0.5rem 0.6rem !important;
+  border-radius: 8px !important;
+  font-size: 0.72rem !important;
+}
+
+.wingman-topbar,
+.wm-topbar,
+header.wm-header {
+  flex: 0 0 var(--wm-topbar-height) !important;
+  display: flex !important;
+  min-height: var(--wm-topbar-height) !important;
+  height: var(--wm-topbar-height) !important;
+  align-items: center !important;
+  gap: 0.65rem !important;
+  padding: 7px 14px !important;
+}
+
+.wingman-topbar-title {
+  min-width: 0 !important;
+}
+
+.wingman-topbar-title span {
+  display: block !important;
+  overflow: hidden !important;
+  color: var(--wm-text-soft) !important;
+  font-size: 0.82rem !important;
+  line-height: 1.2 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.wingman-new-project-button {
+  min-height: 34px !important;
+  gap: 0.35rem !important;
+  padding: 0.42rem 0.68rem !important;
+  border-radius: 8px !important;
+  font-size: 0.82rem !important;
+}
+
+.wingman-new-project-button svg,
+.wingman-mobile-nav-button svg {
+  width: 0.95rem !important;
+  height: 0.95rem !important;
+}
+
+.wm-ui-button,
+.wingman-page-host button,
+.wingman-page-host a[role="button"],
+.wingman-page-host .wm-button {
+  min-height: 36px !important;
+  padding: 0.48rem 0.75rem !important;
+  border-radius: 8px !important;
+  font-size: 0.85rem !important;
+}
+
+.wm-ui-input,
+.compare-native-input,
+.wingman-page-host input,
+.wingman-page-host select,
+.wingman-page-host textarea {
+  min-height: 38px !important;
+  padding: 0.5rem 0.65rem !important;
+  border-radius: 8px !important;
+  font-size: 0.86rem !important;
+}
+
+.wm-ui-card-header,
+.compare-native-section-title,
+.wingman-page-host [class*="card-header"],
+.wingman-page-host [class*="section-title"] {
+  min-height: 72px !important;
+  padding: var(--wm-density-card-pad) !important;
+}
+
+html[data-wingman-route="dashboard"] main.wm-dashboard-shell.wm-dashboard-visual-root,
+main.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] {
+  grid-template-columns: minmax(190px, 225px) minmax(0, 1fr) !important;
+  gap: var(--wm-density-gap) !important;
+  min-height: calc(100vh - var(--wm-topbar-height)) !important;
+  padding: var(--wm-density-page-pad) !important;
+  align-content: start !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route="dashboard"] main.wm-dashboard-shell > aside.wm-dashboard-rail,
+main.wm-dashboard-shell[data-wingman-page="home"] > aside.wm-dashboard-rail {
+  gap: 0.55rem !important;
+  min-height: min(450px, calc(100vh - 76px)) !important;
+  padding: clamp(14px, 1.1vw, 18px) !important;
+  border-radius: 16px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-brand,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-brand {
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  margin: 0 0 0.2rem !important;
+  font-size: 1rem !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-rail-title,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-rail-title {
+  font-size: clamp(1.35rem, 1.45vw, 1.9rem) !important;
+  line-height: 1.03 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-rail-copy,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-rail-copy {
+  font-size: 0.78rem !important;
+  line-height: 1.42 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-rail-actions,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-rail-actions {
+  gap: 0.45rem !important;
+  padding-top: 0.85rem !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-action-button,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-action-button {
+  min-height: 2.15rem !important;
+  gap: 0.35rem !important;
+  padding: 0.42rem 0.65rem !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-main,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-main {
+  gap: var(--wm-density-gap) !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-resume-card,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-resume-card {
+  gap: 0.55rem !important;
+  min-height: 7.25rem !important;
+  padding: var(--wm-density-card-pad) !important;
+  border-radius: 16px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-section,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-section {
+  gap: 0.7rem !important;
+  padding: var(--wm-density-card-pad) !important;
+  border-radius: 16px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-section-head,
+html[data-wingman-route="dashboard"] .wm-dashboard-projects-section > .wm-dashboard-section-head,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-section-head,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-projects-section > .wm-dashboard-section-head {
+  gap: 0.7rem !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-grid,
+html[data-wingman-route="dashboard"] .wm-dashboard-project-grid,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-grid,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-grid {
+  grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)) !important;
+  gap: clamp(8px, 0.8vw, 12px) !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-destination-card,
+html[data-wingman-route="dashboard"] .wm-dashboard-project-card,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-destination-card,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-card {
+  gap: 0.42rem !important;
+  min-height: 7.7rem !important;
+  padding: clamp(11px, 0.85vw, 14px) !important;
+  border-radius: 12px !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-icon,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-icon {
+  width: 1.55rem !important;
+  height: 1.55rem !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-icon svg,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-icon svg {
+  width: 0.95rem !important;
+  height: 0.95rem !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-badge,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-badge {
+  min-height: 1.35rem !important;
+  padding: 0.16rem 0.45rem !important;
+  border-radius: 999px !important;
+  font-size: 0.68rem !important;
+  line-height: 1.1 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-section-title,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-section-title {
+  margin-top: 0.45rem !important;
+  font-size: 0.95rem !important;
+  line-height: 1.2 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-card-eyebrow,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-card-eyebrow,
+html[data-wingman-route="dashboard"] .wm-dashboard-next-kicker,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-next-kicker {
+  font-size: 0.64rem !important;
+  line-height: 1.1 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-card-title,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-card-title,
+html[data-wingman-route="dashboard"] .wm-dashboard-resume-title,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-resume-title {
+  font-size: 0.9rem !important;
+  line-height: 1.15 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-card-copy,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-card-copy,
+html[data-wingman-route="dashboard"] .wm-dashboard-project-card span,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-project-card span,
+html[data-wingman-route="dashboard"] .wm-dashboard-resume-copy span,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-resume-copy span {
+  font-size: 0.74rem !important;
+  line-height: 1.35 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-next-step,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-next-step {
+  gap: 0.38rem !important;
+  padding-top: 0.45rem !important;
+  font-size: 0.76rem !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-next-step svg,
+main.wm-dashboard-shell[data-wingman-page="home"] .wm-dashboard-next-step svg {
+  width: 0.95rem !important;
+  height: 0.95rem !important;
+}
+
+@media (max-width: 1180px) {
+  html[data-wingman-route="dashboard"] main.wm-dashboard-shell.wm-dashboard-visual-root,
+  main.wm-dashboard-shell.wm-dashboard-visual-root[data-wingman-page="home"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  html[data-wingman-route="dashboard"] main.wm-dashboard-shell > aside.wm-dashboard-rail,
+  main.wm-dashboard-shell[data-wingman-page="home"] > aside.wm-dashboard-rail {
+    min-height: 0 !important;
+  }
+}
+
+@media (max-width: 980px) {
+  :root {
+    --wm-sidebar-width: 100vw;
+    --wm-sidebar: 100vw;
+    --wm-header: 46px;
+    --wm-topbar-height: 46px;
+  }
+
+  html,
+  body,
+  #root {
+    overflow: hidden !important;
+  }
+
+  #root > .wingman-shell,
+  .wingman-shell,
+  .wingman-shell.wingman-authority-shell,
+  .wingman-authority-shell {
+    height: 100vh !important;
+    min-height: 0 !important;
+    max-height: 100vh !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  .wingman-workspace {
+    height: auto !important;
+    min-height: 100vh !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .wingman-workspace .wingman-app-main,
+  main.wingman-app-main {
+    overflow: visible !important;
+  }
+
+  .wingman-app-main > .wingman-page-host,
+  main.wingman-app-main > .wingman-page-host {
+    padding: 10px !important;
+  }
+}
+
+/* Final viewport tightening: remove legacy workspace gutters from the live shell. */
+html[data-wingman-route] .wingman-workspace,
+.wingman-workspace {
+  padding: 0 !important;
+  padding-inline: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.wingman-workspace .wingman-app-main,
+main.wingman-app-main,
+#root > .wingman-shell > .wingman-sidebar,
+.wingman-shell > .wingman-sidebar,
+.wingman-authority-shell > .wingman-sidebar,
+.wingman-sidebar,
+.wm-sidebar {
+  scrollbar-gutter: auto !important;
+}
+
+/* ==========================================================================
+   Active page controls and settings/templates corrections
+   ========================================================================== */
+
+html[data-wingman-route] .wingman-new-project-button,
+html[data-wingman-route] .wingman-page-host :is(
+  button,
+  .wm-button,
+  .wm-ui-button,
+  .wingman-hero-action,
+  a[role="button"],
+  a.rounded-full
+) {
+  min-height: 28px !important;
+  padding-block: 0.2rem !important;
+  padding-inline: 0.55rem !important;
+  border-radius: 7px !important;
+  font-size: 0.78rem !important;
+  line-height: 1.08 !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(button, .wm-button, .wm-ui-button, .wingman-hero-action) svg,
+html[data-wingman-route] .wingman-new-project-button svg {
+  width: 0.82rem !important;
+  height: 0.82rem !important;
+}
+
+html[data-wingman-route] .wingman-page-host :is(.wm-icon-button, button[aria-label]:not(.wm-settings-logo-button)) {
+  min-width: 28px !important;
+}
+
+.wm-templates-page {
+  display: grid !important;
+  gap: 0.7rem !important;
+  width: 100% !important;
+  max-width: none !important;
+  padding: var(--wm-density-page-pad) !important;
+}
+
+.wm-templates-page .wm-template-hero,
+.wm-templates-page .wm-template-filter-panel,
+.wm-templates-page .wm-template-results-header {
+  width: 100% !important;
+  margin: 0 !important;
+  border-radius: 14px !important;
+}
+
+.wm-templates-page .wm-template-hero {
+  min-height: 5.25rem !important;
+  place-items: center start !important;
+  padding: 0.85rem 1rem !important;
+  text-align: left !important;
+}
+
+.wm-templates-page .wm-template-hero > * {
+  max-width: 72rem !important;
+}
+
+.wm-templates-page .wm-template-hero .wm-page-title {
+  font-size: clamp(1.35rem, 1.6vw, 2rem) !important;
+}
+
+.wm-templates-page .wm-template-filter-panel {
+  display: grid !important;
+  grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1fr) minmax(0, 1fr) !important;
+  align-items: end !important;
+  gap: 0.7rem !important;
+  padding: 0.75rem !important;
+}
+
+.wm-template-search,
+.wm-template-filter-group {
+  min-width: 0 !important;
+}
+
+.wm-template-filter-group {
+  display: grid !important;
+  gap: 0.32rem !important;
+}
+
+.wm-template-filter-label {
+  color: var(--wm-heading-soft) !important;
+  font-size: 0.64rem !important;
+  font-weight: var(--wm-weight-heading) !important;
+  letter-spacing: var(--wm-tracking-kicker) !important;
+  text-transform: uppercase !important;
+}
+
+.wm-template-filter-strip {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.32rem !important;
+  max-height: 4.4rem !important;
+  overflow-y: auto !important;
+}
+
+.wm-filter-chip {
+  width: auto !important;
+  min-height: 24px !important;
+  padding: 0.16rem 0.48rem !important;
+  border: 1px solid var(--wm-border) !important;
+  border-radius: 999px !important;
+  background: color-mix(in srgb, var(--wm-surface-2) 76%, transparent) !important;
+  color: var(--wm-text-soft) !important;
+  font-size: 0.7rem !important;
+  font-weight: var(--wm-weight-ui) !important;
+}
+
+.wm-filter-chip.is-active,
+.wm-filter-chip[aria-pressed="true"] {
+  border-color: var(--wm-border-strong) !important;
+  background: color-mix(in srgb, var(--wm-primary) 18%, var(--wm-surface-2)) !important;
+  color: var(--wm-text) !important;
+}
+
+.wm-templates-page .wm-template-results-header {
+  display: flex !important;
+  min-height: 0 !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.7rem !important;
+  padding: 0.7rem 0.85rem !important;
+  text-align: left !important;
+}
+
+.wm-templates-page .wm-template-results-header .wm-section-title {
+  display: block !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+}
+
+.wm-templates-page .wm-template-card-grid,
+.wm-templates-page .wm-section.wm-template-card-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+  gap: 0.7rem !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.wm-templates-page .wm-template-card,
+.wm-templates-page .wm-action-card.wm-template-card {
+  min-height: 13.25rem !important;
+  padding: 0.8rem !important;
+}
+
+.wm-templates-page .wm-template-card .wm-button {
+  justify-self: center !important;
+  min-height: 26px !important;
+  padding-block: 0.16rem !important;
+}
+
+.wm-settings-page {
+  display: grid !important;
+  gap: 0.7rem !important;
+  width: 100% !important;
+  max-width: none !important;
+  padding: var(--wm-density-page-pad) !important;
+}
+
+.wm-settings-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  min-height: 4.25rem !important;
+  align-items: center !important;
+  justify-items: stretch !important;
+  gap: 0.75rem !important;
+  padding: 0.75rem 0.9rem !important;
+  text-align: left !important;
+}
+
+.wm-settings-header > * {
+  max-width: none !important;
+}
+
+.wm-settings-header .wm-page-title {
+  font-size: clamp(1.2rem, 1.35vw, 1.75rem) !important;
+}
+
+.wm-settings-layout {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0.75rem !important;
+  align-items: start !important;
+}
+
+.wm-settings-column {
+  display: grid !important;
+  min-width: 0 !important;
+  align-content: start !important;
+  gap: 0.75rem !important;
+}
+
+.wm-settings-page :is(.wm-section-card, .wm-output-panel) {
+  min-height: 0 !important;
+  padding: 0.75rem !important;
+  border-radius: 12px !important;
+}
+
+.wm-settings-page .wm-form-grid {
+  gap: 0.5rem !important;
+}
+
+.wm-settings-page .wm-field {
+  gap: 0.25rem !important;
+  font-size: 0.64rem !important;
+}
+
+.wm-settings-page :is(.wm-input, .wm-select, .wm-textarea) {
+  min-height: 30px !important;
+  padding: 0.3rem 0.45rem !important;
+  border-radius: 7px !important;
+  font-size: 0.76rem !important;
+}
+
+.wm-settings-page .wm-textarea {
+  min-height: 4.6rem !important;
+}
+
+.wm-settings-page .wm-settings-status {
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  align-items: center !important;
+}
+
+html[data-wingman-route] .wingman-page-host .wm-settings-logo-button {
+  min-height: 4.25rem !important;
+  padding: 0.55rem !important;
+}
+
+.wm-settings-logo-button img {
+  max-width: 100% !important;
+  max-height: 3.5rem !important;
+  object-fit: contain !important;
+}
+
+@media (max-width: 1180px) {
+  .wm-settings-layout,
+  .wm-templates-page .wm-template-filter-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .wm-template-search {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .wm-settings-header,
+  .wm-settings-layout,
+  .wm-templates-page .wm-template-filter-panel {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .wm-settings-header .wm-action-row {
+    justify-content: flex-start !important;
+  }
+}
+
+html[data-wingman-route] .wingman-page-host button.wm-settings-logo-button.wm-settings-logo-button {
+  min-height: 4.25rem !important;
+  padding: 0.55rem !important;
+}
+
+.wm-custom-template-panel {
+  display: grid !important;
+  grid-template-columns: minmax(220px, 0.62fr) minmax(0, 1.38fr) auto !important;
+  align-items: end !important;
+  gap: 0.75rem !important;
+  padding: 0.75rem !important;
+}
+
+.wm-custom-template-copy {
+  min-width: 0 !important;
+}
+
+.wm-custom-template-copy .wm-copy {
+  margin-top: 0.25rem !important;
+}
+
+.wm-custom-template-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 0.5rem !important;
+  min-width: 0 !important;
+}
+
+.wm-custom-template-wide {
+  grid-column: span 1 !important;
+}
+
+.wm-custom-template-panel .wm-field {
+  gap: 0.22rem !important;
+  font-size: 0.64rem !important;
+}
+
+.wm-custom-template-panel :is(.wm-input, .wm-button) {
+  min-height: 28px !important;
+}
+
+.wm-custom-template-panel .wm-action-row {
+  align-self: stretch !important;
+  align-content: end !important;
+  justify-content: flex-end !important;
+}
+
+.wm-templates-page .wm-template-card[data-custom-template="true"] {
+  border-color: color-mix(in srgb, var(--wm-primary) 54%, var(--wm-border)) !important;
+  background:
+    linear-gradient(140deg, color-mix(in srgb, var(--wm-primary) 10%, transparent), transparent 46%),
+    var(--wm-surface-2) !important;
+}
+
+.wm-template-custom-badge {
+  border-color: color-mix(in srgb, var(--wm-primary) 64%, var(--wm-border)) !important;
+  background: color-mix(in srgb, var(--wm-primary) 18%, var(--wm-surface-2)) !important;
+  color: var(--wm-heading) !important;
+}
+
+@media (max-width: 1180px) {
+  .wm-custom-template-panel {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .wm-custom-template-panel .wm-action-row {
+    justify-content: flex-start !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .wm-custom-template-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
+
+/* Wingman settings 2x2 grid override - START */
+main.wm-settings-page .wm-settings-layout {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-template-rows: auto repeat(2, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: min(760px, calc(100vh - 170px)) !important;
+}
+
+main.wm-settings-page .wm-settings-column {
+  display: contents !important;
+}
+
+/* Status strip across the top */
+main.wm-settings-page .wm-settings-layout > .wm-settings-column:first-child > .wm-output-panel:first-child {
+  grid-column: 1 / -1 !important;
+  grid-row: 1 !important;
+  order: 0 !important;
+  min-height: 42px !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* Equal desktop cards */
+main.wm-settings-page .wm-settings-layout > .wm-settings-column > .wm-section-card {
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: auto !important;
+  border-radius: 18px !important;
+}
+
+/* Top left: Default proposal identity */
+main.wm-settings-page .wm-settings-layout > .wm-settings-column:nth-child(1) > .wm-section-card {
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+  order: 1 !important;
+}
+
+/* Top right: Contact and output details */
+main.wm-settings-page .wm-settings-layout > .wm-settings-column:nth-child(2) > .wm-section-card:first-of-type {
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  order: 2 !important;
+}
+
+/* Bottom left: Language and intelligence control */
+main.wm-settings-page .wm-settings-layout > .wm-settings-column:nth-child(2) > .wm-section-card:nth-of-type(2) {
+  grid-column: 1 !important;
+  grid-row: 3 !important;
+  order: 3 !important;
+}
+
+/* Bottom right: Live-call recovery / workspace sync */
+main.wm-settings-page .wm-settings-layout > .wm-settings-column:nth-child(3) > .wm-section-card {
+  grid-column: 2 !important;
+  grid-row: 3 !important;
+  order: 4 !important;
+}
+
+main.wm-settings-page .wm-section-card input,
+main.wm-settings-page .wm-section-card select,
+main.wm-settings-page .wm-section-card textarea {
+  min-height: 34px !important;
+}
+
+main.wm-settings-page .wm-section-card textarea {
+  min-height: 76px !important;
+}
+
+main.wm-settings-page .wm-section-card h2,
+main.wm-settings-page .wm-section-card h3 {
+  color: #5ff5e8 !important;
+}
+
+@media (max-width: 1100px) {
+  main.wm-settings-page .wm-settings-layout {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto !important;
+    min-height: 0 !important;
+  }
+
+  main.wm-settings-page .wm-settings-layout > .wm-settings-column:first-child > .wm-output-panel:first-child,
+  main.wm-settings-page .wm-settings-layout > .wm-settings-column > .wm-section-card {
+    grid-column: auto !important;
+    grid-row: auto !important;
+    min-height: auto !important;
+  }
+}
+/* Wingman settings 2x2 grid override - END */
+
