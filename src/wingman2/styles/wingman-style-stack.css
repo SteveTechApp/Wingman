@@ -11921,7 +11921,7 @@ details.wm-ui-guidance-card:not([open]) {
 }
 
 .wm-ui-guidance-card[open] > summary::after {
-  content: "ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã¢â‚¬Â¹ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢";
+  content: "ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¹ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¾ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢";
 }
 
 .wingman-page-host .wm-ui-centered-actions {
@@ -12715,7 +12715,7 @@ details.wm-ui-guidance-card:not([open]) {
 }
 
 /* --------------------------------------------------------------------------
-   Visual Studio canvas Ã¢â‚¬â€ node detail & schematic sheet header
+   Visual Studio canvas ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â node detail & schematic sheet header
    (kept in the same html[data-wingman-route] / !important convention as the
    rest of the Visual Studio rules already in this file)
    -------------------------------------------------------------------------- */
@@ -12919,7 +12919,7 @@ html[data-wingman-route="visualStudio"] .wm-vs-titleblock-brand strong {
 }
 
 /* --------------------------------------------------------------------------
-   AV signal flow diagram Ã¢â‚¬â€ track detail
+   AV signal flow diagram ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â track detail
    -------------------------------------------------------------------------- */
 
 .wm-av-flow-shell[data-wingman-optional-visual-support="true"] .wm-av-flow-header {
@@ -13159,7 +13159,7 @@ main.wm-page,
 }
 
 /* ==========================================================================
-   Product Call Cards page Ã¢â‚¬â€ moved out of an inline <style>{`...`}</style>
+   Product Call Cards page ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â moved out of an inline <style>{`...`}</style>
    block in ProductCallCardsPage.tsx (810 lines embedded directly in the
    component). Page files should not carry their own CSS per the project's
    styling-governance rule; this is the same CSS, relocated verbatim into
@@ -15696,3 +15696,185 @@ html[data-wingman-route] .wingman-page-host [class*="NavHubCard"] {
   }
 }
 /* Wingman templates compact filter panel - END */
+
+/* Wingman compare template-aligned layout - START */
+
+/*
+  Compare page should follow the Templates page rhythm:
+  compact left-led hero, compact control panels, readable stepper, no centred splash layout.
+*/
+
+html[data-wingman-route="compare"] main.compare-native-page,
+html[data-wingman-route="compare"] main.wm-compare-page,
+.wm-route-compare main.compare-native-page,
+.wm-route-compare main.wm-compare-page,
+main[data-wingman-page="compare"] {
+  display: grid !important;
+  gap: 12px !important;
+  align-content: start !important;
+  justify-items: stretch !important;
+  width: 100% !important;
+  max-width: none !important;
+  padding: 20px 24px 64px !important;
+  text-align: left !important;
+}
+
+/* Match Templates hero behaviour */
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] > header,
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .compare-native-hero,
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-header,
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-hero,
+.wm-route-compare main[data-wingman-page="compare"] > header,
+.wm-route-compare main[data-wingman-page="compare"] > .compare-native-hero,
+.wm-route-compare main[data-wingman-page="compare"] > .wm-page-header,
+.wm-route-compare main[data-wingman-page="compare"] > .wm-page-hero {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 16px !important;
+  align-items: center !important;
+  justify-items: stretch !important;
+  min-height: 112px !important;
+  max-height: 150px !important;
+  padding: 18px 20px !important;
+  margin: 0 !important;
+  text-align: left !important;
+}
+
+/* Force all hero text left */
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] > header :is(div, p, h1, h2, span),
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .compare-native-hero :is(div, p, h1, h2, span),
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-header :is(div, p, h1, h2, span),
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-hero :is(div, p, h1, h2, span),
+.wm-route-compare main[data-wingman-page="compare"] > header :is(div, p, h1, h2, span),
+.wm-route-compare main[data-wingman-page="compare"] > .compare-native-hero :is(div, p, h1, h2, span),
+.wm-route-compare main[data-wingman-page="compare"] > .wm-page-header :is(div, p, h1, h2, span),
+.wm-route-compare main[data-wingman-page="compare"] > .wm-page-hero :is(div, p, h1, h2, span) {
+  text-align: left !important;
+  justify-self: start !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  max-width: none !important;
+}
+
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] h1,
+.wm-route-compare main[data-wingman-page="compare"] h1 {
+  font-size: clamp(2.3rem, 3.2vw, 3.45rem) !important;
+  line-height: 1.02 !important;
+  margin: 0 !important;
+}
+
+/* Reset button should be a compact action, not a large panel */
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] > header button,
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .compare-native-hero button,
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-header button,
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] > .wm-page-hero button,
+.wm-route-compare main[data-wingman-page="compare"] > header button,
+.wm-route-compare main[data-wingman-page="compare"] > .compare-native-hero button,
+.wm-route-compare main[data-wingman-page="compare"] > .wm-page-header button,
+.wm-route-compare main[data-wingman-page="compare"] > .wm-page-hero button {
+  justify-self: end !important;
+  align-self: center !important;
+  width: auto !important;
+  min-width: 120px !important;
+  max-width: 180px !important;
+  min-height: 34px !important;
+  height: 34px !important;
+  padding: 0 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+/* Stepper: separate the words instead of concatenating them */
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.compare-stepper, .wm-stepper, [class*="stepper"], [class*="Stepper"]),
+.wm-route-compare main[data-wingman-page="compare"] :is(.compare-stepper, .wm-stepper, [class*="stepper"], [class*="Stepper"]) {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  align-items: stretch !important;
+  margin: 0 !important;
+}
+
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.compare-stepper, .wm-stepper, [class*="stepper"], [class*="Stepper"]) > *,
+.wm-route-compare main[data-wingman-page="compare"] :is(.compare-stepper, .wm-stepper, [class*="stepper"], [class*="Stepper"]) > * {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  gap: 8px !important;
+  align-items: center !important;
+  min-height: 34px !important;
+  padding: 7px 10px !important;
+  white-space: normal !important;
+  text-align: left !important;
+}
+
+/* Current step and compare cards */
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] > section,
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] > article,
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.compare-native-form, .compare-native-results, .wm-section-card, .wm-output-panel),
+.wm-route-compare main[data-wingman-page="compare"] > section,
+.wm-route-compare main[data-wingman-page="compare"] > article,
+.wm-route-compare main[data-wingman-page="compare"] :is(.compare-native-form, .compare-native-results, .wm-section-card, .wm-output-panel) {
+  min-height: auto !important;
+  height: auto !important;
+  padding: 16px 18px !important;
+  margin: 0 !important;
+  text-align: left !important;
+  justify-items: stretch !important;
+  align-items: stretch !important;
+}
+
+/* Remove internal centred content */
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.text-center, [class*="text-center"]),
+.wm-route-compare main[data-wingman-page="compare"] :is(.text-center, [class*="text-center"]) {
+  text-align: left !important;
+}
+
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.justify-center, [class*="justify-center"]),
+.wm-route-compare main[data-wingman-page="compare"] :is(.justify-center, [class*="justify-center"]) {
+  justify-content: flex-start !important;
+}
+
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.items-center, [class*="items-center"]),
+.wm-route-compare main[data-wingman-page="compare"] :is(.items-center, [class*="items-center"]) {
+  align-items: flex-start !important;
+}
+
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(.mx-auto, [class*="mx-auto"]),
+.wm-route-compare main[data-wingman-page="compare"] :is(.mx-auto, [class*="mx-auto"]) {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Manufacturer label/input/chip group should behave like Templates filter controls */
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is(label, input, select, textarea),
+.wm-route-compare main[data-wingman-page="compare"] :is(label, input, select, textarea) {
+  text-align: left !important;
+}
+
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is([role="group"], [aria-label*="Manufacturer"], [aria-label*="manufacturer"], [aria-label*="Brand"], [aria-label*="brand"], .wm-filter-strip, .wm-chip-strip),
+.wm-route-compare main[data-wingman-page="compare"] :is([role="group"], [aria-label*="Manufacturer"], [aria-label*="manufacturer"], [aria-label*="Brand"], [aria-label*="brand"], .wm-filter-strip, .wm-chip-strip) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  gap: 7px !important;
+  text-align: left !important;
+}
+
+/* Compact help and selected-brand areas */
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] :is([class*="help"], [class*="Help"], [class*="footer"], [class*="Footer"], [class*="action"], [class*="Action"]),
+.wm-route-compare main[data-wingman-page="compare"] :is([class*="help"], [class*="Help"], [class*="footer"], [class*="Footer"], [class*="action"], [class*="Action"]) {
+  min-height: auto !important;
+  padding: 10px 12px !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+
+/* Keep button labels centred internally */
+html[data-wingman-route="compare"] main[data-wingman-page="compare"] button,
+.wm-route-compare main[data-wingman-page="compare"] button {
+  text-align: center !important;
+}
+
+/* Wingman compare template-aligned layout - END */
