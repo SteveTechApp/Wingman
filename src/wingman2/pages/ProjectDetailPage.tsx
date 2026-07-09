@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, CheckCircle2, Save, ShieldCheck } from "lucide-react";
+import { ArrowLeft, CheckCircle2, LayoutTemplate, Save, ShieldCheck } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
@@ -14,6 +14,7 @@ import {
   useProjectStore,
 } from "../data/projectStore";
 import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
+import { saveProjectAsRoomTemplate } from "../lib/customRoomTemplates";
 import { getProjectRequirementRecords, requirementReadiness } from "../lib/projectRequirements";
 import { getProductFamilyRankingReason } from "../lib/productFamilyShortlistRanking";
 
@@ -131,6 +132,7 @@ export function ProjectDetailPage() {
   );
   const [requirements, setRequirements] = useState<StoredRequirementRecord[]>(initialRequirements);
   const [message, setMessage] = useState("");
+  const [savedTemplatePath, setSavedTemplatePath] = useState("");
   const [showSupportingDetails, setShowSupportingDetails] = useState(false);
   const readiness = useMemo(() => requirementReadiness(requirements), [requirements]);
   const recommendationEvidence = useMemo(
@@ -408,6 +410,7 @@ export function ProjectDetailPage() {
   useEffect(() => {
     setRequirements(initialRequirements);
     setMessage("");
+    setSavedTemplatePath("");
   }, [initialRequirements]);
 
   useEffect(() => {
@@ -426,6 +429,14 @@ export function ProjectDetailPage() {
     if (!project) return;
     saveProjectRequirementsToProject(project.id, requirements);
     setMessage("Project requirements saved.");
+  }
+
+  function saveCurrentProjectAsTemplate() {
+    if (!project) return;
+
+    const template = saveProjectAsRoomTemplate(project);
+    setSavedTemplatePath(`${routeCatalogByKey.templates.path}/${template.id}`);
+    setMessage("Project saved as a custom room template.");
   }
 
   if (!project) {
@@ -451,10 +462,23 @@ export function ProjectDetailPage() {
         nextMove="Use the highlighted action below; open supporting project detail only when needed."
         actions={[
           { label: "Back to projects", to: routeCatalogByKey.projects.path, variant: "secondary" },
+          { label: "Save as template", onClick: saveCurrentProjectAsTemplate },
         ]}
       />
 
       <div className="space-y-6">
+        {savedTemplatePath ? (
+          <section className="rounded-2xl border p-3 text-sm wm-output-panel">
+            <div className="flex flex-wrap items-center gap-3">
+              <CheckCircle2 className="h-4 w-4" />
+              <span className="font-semibold">This project is now available as a custom room template.</span>
+              <Link to={savedTemplatePath} className="rounded-full border px-3 py-1 font-semibold wm-ui-button wm-ui-button-secondary">
+                Open template
+              </Link>
+            </div>
+          </section>
+        ) : null}
+
         <section className="rounded-3xl border p-5 wm-ui-card">
           <div className="grid gap-4 lg:grid-cols-[1fr_280px] lg:items-center">
             <div>
@@ -517,6 +541,14 @@ export function ProjectDetailPage() {
               >
                 <Save className="h-4 w-4" />
                 Save requirements
+              </button>
+              <button
+                type="button"
+                onClick={saveCurrentProjectAsTemplate}
+                className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition wm-ui-button wm-ui-button-secondary wm-ui-card wm-ui-copy"
+              >
+                <LayoutTemplate className="h-4 w-4" />
+                Save as template
               </button>
             </div>
           }

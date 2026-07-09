@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { roomTemplates } from "../wingman2/lib/roomTemplates";
 import { TemplateReviewPage } from "../wingman2/pages/TemplateReviewPage";
@@ -18,6 +18,10 @@ function renderTemplateRoutes(initialPath = "/wingman/templates") {
 }
 
 describe("template workflow wiring", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
   it("browses BOM-backed templates and opens the selected review page", () => {
     const template = roomTemplates.find((candidate) => candidate.bom.some((row) => row.sku === "NHD-500-TX"));
 
@@ -36,5 +40,33 @@ describe("template workflow wiring", () => {
 
     expect(screen.getByRole("heading", { name: "Template not found." })).toBeInTheDocument();
     expect(screen.queryByText(roomTemplates[0].name)).not.toBeInTheDocument();
+  });
+    fireEvent.change(screen.getByLabelText("Application"), {
+      target: { value: "Hybrid civic meetings" },
+    });
+    fireEvent.change(screen.getByLabelText("Summary"), {
+      target: { value: "Reusable chamber design starting point." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Create template" }));
+
+    const card = screen.getByRole("heading", { name: "Council chamber custom room" }).closest("article");
+    expect(card).not.toBeNull();
+    expect(screen.getByText("1 custom template saved in this browser.")).toBeInTheDocument();
+
+    fireEvent.click(within(card!).getByRole("link", { name: "Review template" }));
+    expect(screen.getByRole("heading", { name: "Council chamber custom room", level: 1 })).toBeInTheDocument();
+  });
+
+  it("saves an adjusted room design as a reusable custom template", () => {
+    const template = roomTemplates[0];
+    renderTemplateRoutes(`/wingman/templates/${template.id}`);
+
+    fireEvent.click(screen.getByRole("button", { name: "Save as template" }));
+
+    expect(screen.getByText("Room design saved as a custom template.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open template" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("/wingman/templates/custom-"),
+    );
   });
 });
