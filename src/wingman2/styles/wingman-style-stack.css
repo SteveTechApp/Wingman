@@ -11921,7 +11921,7 @@ details.wm-ui-guidance-card:not([open]) {
 }
 
 .wm-ui-guidance-card[open] > summary::after {
-  content: "ÃƒÆ’Ã‚Â¢Ãƒâ€¹Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢";
+  content: "ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã¢â‚¬Â¹ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢";
 }
 
 .wingman-page-host .wm-ui-centered-actions {
@@ -12715,7 +12715,7 @@ details.wm-ui-guidance-card:not([open]) {
 }
 
 /* --------------------------------------------------------------------------
-   Visual Studio canvas â€” node detail & schematic sheet header
+   Visual Studio canvas Ã¢â‚¬â€ node detail & schematic sheet header
    (kept in the same html[data-wingman-route] / !important convention as the
    rest of the Visual Studio rules already in this file)
    -------------------------------------------------------------------------- */
@@ -12919,7 +12919,7 @@ html[data-wingman-route="visualStudio"] .wm-vs-titleblock-brand strong {
 }
 
 /* --------------------------------------------------------------------------
-   AV signal flow diagram â€” track detail
+   AV signal flow diagram Ã¢â‚¬â€ track detail
    -------------------------------------------------------------------------- */
 
 .wm-av-flow-shell[data-wingman-optional-visual-support="true"] .wm-av-flow-header {
@@ -13159,7 +13159,7 @@ main.wm-page,
 }
 
 /* ==========================================================================
-   Product Call Cards page â€” moved out of an inline <style>{`...`}</style>
+   Product Call Cards page Ã¢â‚¬â€ moved out of an inline <style>{`...`}</style>
    block in ProductCallCardsPage.tsx (810 lines embedded directly in the
    component). Page files should not carry their own CSS per the project's
    styling-governance rule; this is the same CSS, relocated verbatim into
