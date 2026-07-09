@@ -13,7 +13,6 @@ import { WingmanGuruFab } from "../components/WingmanGuruFab";
 import { WingmanViewportFitControl } from "../components/WingmanViewportFitControl";
 import { clearActiveProject } from "../data/projectStore";
 import { useWingmanLanguage } from "../data/wingmanLanguage";
-import { useWingmanProfile } from "../data/wingmanProfile";
 import wingmanBrandLogo from "../../assets/branding/wingman-brand-logo.png";
 
 const WingmanGuruDrawer = lazy(() => import("../components/WingmanGuruDrawer"));
@@ -199,7 +198,6 @@ export function AppShell({ children }: AppShellProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { uiText } = useWingmanLanguage();
-  const { profile } = useWingmanProfile();
 
   const activeRoute = useMemo(() => routeByPath(location.pathname), [location.pathname]);
   const activeLabel = activeRoute?.label ?? "Home";
@@ -207,13 +205,6 @@ export function AppShell({ children }: AppShellProps) {
   const activeRouteClass = activeRoute ? `wm-route-${activeRoute.segment}` : "wm-route-dashboard";
   const guruSupportCue = activeRoute ? GURU_SUPPORT_BY_ROUTE[activeRoute.key] : undefined;
   const primaryNav = useMemo(() => consolidatedPrimaryNavKeys.map((key) => routeCatalogByKey[key]), []);
-  const topbarGreeting = useMemo(() => {
-    const displayName = profile.userName.trim() || profile.reportPreparedBy.trim() || "Wingman";
-
-    return uiText.goodMorning.includes("Wingman")
-      ? uiText.goodMorning.replace("Wingman", displayName)
-      : `${uiText.goodMorning}, ${displayName}`;
-  }, [profile.reportPreparedBy, profile.userName, uiText.goodMorning]);
 
   useEffect(() => {
     if (typeof document === "undefined") {
@@ -319,7 +310,6 @@ export function AppShell({ children }: AppShellProps) {
           </button>
 
           <div className="wingman-topbar-title wm-balanced-topbar-title" title={`${activeLabel}: ${activeSummary}`}>
-            <p>{topbarGreeting}</p>
             <span>
               {activeLabel}: {activeSummary}
             </span>
