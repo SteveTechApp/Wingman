@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    WyreStorm Wingman Style Stack
    Compact governed rebuild
    ========================================================================== */
@@ -15601,3 +15601,98 @@ html[data-wingman-route] .wingman-page-host [class*="NavHubCard"] {
 }
 
 /* Wingman compact navigation hub pages - END */
+
+
+/* Wingman templates compact filter panel - START */
+.wm-template-filter-panel {
+  display: grid !important;
+  grid-template-columns: minmax(320px, 420px) minmax(0, 1fr) !important;
+  gap: 12px 16px !important;
+  align-items: end !important;
+  padding: 12px 16px !important;
+  min-height: auto !important;
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.wm-template-filter-panel .wm-template-search {
+  grid-column: 1 !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+}
+
+.wm-template-filter-panel .wm-template-search .wm-input,
+.wm-template-filter-panel .wm-template-search input {
+  min-height: 36px !important;
+  height: 36px !important;
+}
+
+.wm-template-filter-panel .wm-template-filter-group[aria-label="Vertical filter"] {
+  grid-column: 2 !important;
+  display: grid !important;
+  gap: 6px !important;
+  align-self: end !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+}
+
+.wm-template-filter-panel .wm-template-filter-group[aria-label="Scale filter"] {
+  display: none !important;
+}
+
+.wm-template-filter-panel .wm-template-filter-label {
+  display: block !important;
+  margin: 0 !important;
+  font-size: 0.68rem !important;
+  line-height: 1 !important;
+  letter-spacing: 0.08em !important;
+}
+
+.wm-template-filter-panel .wm-template-filter-strip {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 7px !important;
+  align-items: center !important;
+  align-content: center !important;
+  min-height: 34px !important;
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  scrollbar-width: none !important;
+}
+
+.wm-template-filter-panel .wm-template-filter-strip::-webkit-scrollbar,
+.wm-template-filter-panel .wm-template-filter-strip::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.wm-template-filter-panel .wm-filter-chip {
+  min-height: 30px !important;
+  height: 30px !important;
+  padding: 5px 9px !important;
+  border-radius: 10px !important;
+  font-size: 0.74rem !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 1450px) {
+  .wm-template-filter-panel {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wm-template-filter-panel .wm-template-search,
+  .wm-template-filter-panel .wm-template-filter-group[aria-label="Vertical filter"] {
+    grid-column: 1 !important;
+  }
+
+  .wm-template-filter-panel .wm-template-filter-strip {
+    flex-wrap: wrap !important;
+  }
+}
+/* Wingman templates compact filter panel - END */
