@@ -48,6 +48,8 @@ $RECYCLE.BIN/
 *.bak-*
 *.backup
 *.backup-*
+*.DISCARDED
+*.DISCARDED/
 *.old
 *.orig
 *.rej
@@ -88,6 +90,8 @@ _AUDITS/
 _backup*/
 _backups/
 backups/
+.DISCARDED/
+_review/
 .codex/
 lighthouse-reports/
 reports/

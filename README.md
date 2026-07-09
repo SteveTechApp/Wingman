@@ -4,49 +4,64 @@ WyreStorm Wingman is an internal sales, discovery, product-selection and proposa
 
 The application helps sales and pre-sales users move from customer requirements to a practical AV system direction using guided workflows, product intelligence, comparison support, project storage and proposal-ready outputs.
 
-## Core development checks
+## Active App Files
 
-Before committing changes, run:
+- App entry: `src/main.tsx`
+- Route shell: `src/wingman2/layout/AppShell.tsx`
+- Route registry: `src/wingman2/app/routes.tsx` and `src/wingman2/app/routeCatalog.ts`
+- Pages: `src/wingman2/pages/`
+- Shared components: `src/wingman2/components/`
+- Consolidated styling: `src/wingman2/styles/wingman-style-stack.css`
 
-npm run verify
+Do not edit root-level drop-in page files or archived backup copies. The active runtime is under `src/wingman2`, and `src/main.tsx` intentionally imports only the consolidated Wingman style stack.
+
+## Current Redesign Direction
+
+The active redesign is focused on making Wingman feel like one cohesive workspace instead of a set of separately patched pages:
+
+- Pages should fill the available workspace width and use a consistent frame.
+- The sidebar should behave like styled navigation: clear labels, hidden hover tooltips, active-state color, and no long summary copy in the rail.
+- Primary user actions should be visually steered with restrained aqua/cyan highlights and state cues.
+- Cards, panels, headings and buttons should share a consistent dark WyreStorm visual system.
+- Visual interest should support task direction, not add decorative noise.
+
+## Development
+
+```bash
+npm run dev
+```
+
+Open `http://127.0.0.1:3000/wingman`.
 
 For faster local validation during UI work, run:
 
+```bash
 npm run typecheck
 npm run build
+```
 
-## Deploy on Render
+Before committing larger changes, run:
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/SteveTechApp/Wingman)
+```bash
+npm run verify
+```
 
-The repository includes `render.yaml`, which creates the Wingman frontend and
-backend together. Auto-deploy is currently **off** (`autoDeploy: false`) on both
-services, so pushes to `main` no longer deploy by themselves - trigger deploys
-manually from the Render dashboard. This is deliberate: the backend is configured
-to require Supabase-backed storage (`WINGMAN_STORAGE_MODE=supabase-tables`,
-`WINGMAN_STORAGE_FAIL_CLOSED=true`), so it fails loudly on startup rather than
-silently falling back to the container's ephemeral filesystem - and that's only
-safe once Supabase is actually wired up. Before deploying:
+## Styling Governance
 
-1. Create a Supabase project.
-2. Run `server/migrations/001_initial_schema.sql` against it (paste into the
-   Supabase SQL Editor, or apply with the Supabase CLI).
-3. In the Render dashboard, set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`
-   on the `wingman-api` service (these are marked `sync: false` in `render.yaml`
-   and are never committed to the repo).
-4. Trigger a manual deploy in the Render dashboard. If the credentials are
-   missing or wrong, the API will refuse to start rather than persist
-   workspace data to disk.
-5. Once you're confident in the Supabase setup, switch `autoDeploy: false`
-   back to `autoDeployTrigger: checksPass` in `render.yaml` to resume
-   deploy-on-green-CI.
+Wingman uses one consolidated stylesheet: `src/wingman2/styles/wingman-style-stack.css`.
 
-## Styling governance
+Page files should not import their own CSS. Visual work should use the shared `wm-*` primitives and add route-specific rules to the consolidated stack only when needed.
 
-Wingman uses a consolidated stylesheet stack imported from src/main.tsx.
+## Cleanup Archive
 
-Page files should not import their own CSS. Visual migration work should use shared wm-ui-* primitives and the redesign theme layer rather than scattered page-level overrides.
+Old backups, discarded install files, root-level drop-ins and generated zip/log artifacts have been moved out of the active tree to:
+
+```text
+archive/repo-cleanup-20260709-050830/
+```
+
+That archive includes `MOVED_FILES.md` with the full inventory. Keep new scratch files, generated bundles and one-off backups out of active source folders so future debugging starts from the real runtime files.
 
 ## Documentation
 
-Root-level project documentation is kept intentionally short. Detailed feature, launch, migration and audit notes live under the docs and archive folders.
+Detailed feature, launch, migration and audit notes live under `docs/` and existing dated folders in `archive/`.
