@@ -15925,3 +15925,140 @@ html[data-wingman-route="compare"] main[data-wingman-page="compare"] button,
 }
 
 /* Wingman Product Pitch tester-readiness safety panel - END */
+
+/* Wingman Compare result matrix repair - START */
+
+/*
+  The Compare result matrix must not inherit the generic wm-ui-card-header /
+  [class*="card-header"] card layout rules. Those rules are correct for cards,
+  but they flatten comparison rows and make the matrix unreadable.
+*/
+
+html[data-wingman-route="compare"] .compare-native-core-matrix {
+  display: grid !important;
+  gap: 0 !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  border: 1px solid var(--wm-border) !important;
+  border-radius: var(--wm-radius-lg) !important;
+  background: rgba(8, 22, 38, 0.62) !important;
+}
+
+html[data-wingman-route="compare"] .compare-native-core-matrix-header,
+html[data-wingman-route="compare"] .compare-native-core-matrix-body,
+html[data-wingman-route="compare"] .compare-native-core-facts,
+html[data-wingman-route="compare"] .compare-native-core-fact {
+  display: grid !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-align: left !important;
+  align-items: stretch !important;
+  align-content: stretch !important;
+  justify-items: stretch !important;
+  justify-content: stretch !important;
+}
+
+/* Header row: comparison point / competitor / WyreStorm / result */
+html[data-wingman-route="compare"] .compare-native-core-matrix-header {
+  grid-template-columns: minmax(180px, 1.2fr) minmax(160px, 1fr) minmax(160px, 1fr) minmax(140px, 0.8fr) !important;
+  gap: 0 !important;
+  border-bottom: 1px solid var(--wm-border) !important;
+  background: rgba(11, 31, 52, 0.86) !important;
+}
+
+html[data-wingman-route="compare"] .compare-native-core-matrix-header > * {
+  display: flex !important;
+  min-height: 40px !important;
+  padding: 10px 12px !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  border-right: 1px solid rgba(125, 211, 252, 0.14) !important;
+  color: var(--wm-heading) !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+}
+
+html[data-wingman-route="compare"] .compare-native-core-matrix-header > *:last-child {
+  border-right: 0 !important;
+}
+
+/* Body rows */
+html[data-wingman-route="compare"] .compare-native-core-matrix-body {
+  display: grid !important;
+}
+
+html[data-wingman-route="compare"] .compare-native-core-facts {
+  display: grid !important;
+  grid-template-columns: minmax(180px, 1.2fr) minmax(160px, 1fr) minmax(160px, 1fr) minmax(140px, 0.8fr) !important;
+  gap: 0 !important;
+  border-bottom: 1px solid rgba(125, 211, 252, 0.12) !important;
+}
+
+html[data-wingman-route="compare"] .compare-native-core-facts:last-child {
+  border-bottom: 0 !important;
+}
+
+html[data-wingman-route="compare"] .compare-native-core-fact {
+  display: block !important;
+  min-height: 48px !important;
+  padding: 10px 12px !important;
+  border-right: 1px solid rgba(125, 211, 252, 0.10) !important;
+  color: var(--wm-text) !important;
+  line-height: 1.35 !important;
+  white-space: normal !important;
+}
+
+html[data-wingman-route="compare"] .compare-native-core-fact:last-child {
+  border-right: 0 !important;
+}
+
+html[data-wingman-route="compare"] .compare-native-core-fact :is(p, span, strong, b) {
+  text-align: left !important;
+  margin: 0 !important;
+}
+
+/* Keep result/status text readable */
+html[data-wingman-route="compare"] .compare-native-core-fact strong,
+html[data-wingman-route="compare"] .compare-native-core-fact b {
+  color: var(--wm-heading) !important;
+}
+
+/* Compact result page spacing */
+html[data-wingman-route="compare"] .compare-native-results,
+html[data-wingman-route="compare"] .compare-native-best-card,
+html[data-wingman-route="compare"] .compare-native-product-card-best,
+html[data-wingman-route="compare"] .compare-native-result-summary,
+html[data-wingman-route="compare"] .compare-native-decision-summary {
+  text-align: left !important;
+  justify-items: stretch !important;
+  align-items: stretch !important;
+}
+
+/* Mobile fallback */
+@media (max-width: 980px) {
+  html[data-wingman-route="compare"] .compare-native-core-matrix-header {
+    display: none !important;
+  }
+
+  html[data-wingman-route="compare"] .compare-native-core-facts {
+    grid-template-columns: 1fr !important;
+    border-bottom: 1px solid var(--wm-border) !important;
+  }
+
+  html[data-wingman-route="compare"] .compare-native-core-fact {
+    border-right: 0 !important;
+    border-bottom: 1px solid rgba(125, 211, 252, 0.10) !important;
+  }
+
+  html[data-wingman-route="compare"] .compare-native-core-fact:last-child {
+    border-bottom: 0 !important;
+  }
+}
+
+/* Wingman Compare result matrix repair - END */
