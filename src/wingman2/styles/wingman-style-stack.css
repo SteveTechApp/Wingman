@@ -16145,8 +16145,11 @@ html[data-wingman-route="projects"] .wm-projects-page {
 /* Wingman Projects compact workspace layout - START */
 
 /*
-  Projects should follow the shared Wingman page rhythm:
-  compact full-width header, table-led workspace, minimal vertical waste.
+  Projects page repair:
+  - no clipped hero
+  - no overlap between hero and active projects
+  - full-width compact page rhythm
+  - compact draft rows
 */
 
 html[data-wingman-route="projects"] .wingman-page-host,
@@ -16154,85 +16157,130 @@ html[data-wingman-route="projects"] main,
 html[data-wingman-route="projects"] .wm-projects-page,
 html[data-wingman-route="projects"] [data-wingman-page="projects"] {
   display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
   gap: 10px !important;
   align-content: start !important;
   justify-items: stretch !important;
   width: 100% !important;
   max-width: none !important;
-  padding: 14px 20px 44px !important;
+  min-height: 0 !important;
+  padding: 10px 18px 36px !important;
+  overflow: visible !important;
   text-align: left !important;
 }
 
-/* Main project management hero/header */
-html[data-wingman-route="projects"] .wm-projects-page > :is(header, section):first-child,
-html[data-wingman-route="projects"] main > :is(header, section):first-child,
-html[data-wingman-route="projects"] [data-wingman-page="projects"] > :is(header, section):first-child {
+/* Top page hero */
+html[data-wingman-route="projects"] .wingman-page-host > section:first-of-type,
+html[data-wingman-route="projects"] main > section:first-of-type,
+html[data-wingman-route="projects"] .wm-projects-page > section:first-of-type,
+html[data-wingman-route="projects"] [data-wingman-page="projects"] > section:first-of-type {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) auto !important;
-  gap: 16px !important;
+  gap: 14px !important;
   align-items: center !important;
-  justify-items: stretch !important;
-  min-height: 108px !important;
-  max-height: 148px !important;
-  padding: 16px 18px !important;
-  margin: 0 !important;
-  text-align: left !important;
-  border-radius: var(--wm-radius-xl) !important;
-}
-
-/* Remove centred nested splash card behaviour */
-html[data-wingman-route="projects"] .wm-projects-page > :is(header, section):first-child :is(div, p, h1, h2, h3, span),
-html[data-wingman-route="projects"] main > :is(header, section):first-child :is(div, p, h1, h2, h3, span),
-html[data-wingman-route="projects"] [data-wingman-page="projects"] > :is(header, section):first-child :is(div, p, h1, h2, h3, span) {
-  text-align: left !important;
-  justify-self: start !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
+  width: 100% !important;
   max-width: none !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 14px 16px !important;
+  overflow: visible !important;
+  border-radius: var(--wm-radius-xl) !important;
+  text-align: left !important;
 }
 
-html[data-wingman-route="projects"] .wm-projects-page h1,
-html[data-wingman-route="projects"] main h1,
-html[data-wingman-route="projects"] [data-wingman-page="projects"] h1 {
-  max-width: 880px !important;
+/* Stop the narrow centred hero-card effect */
+html[data-wingman-route="projects"] .wingman-page-host > section:first-of-type > *,
+html[data-wingman-route="projects"] main > section:first-of-type > *,
+html[data-wingman-route="projects"] .wm-projects-page > section:first-of-type > *,
+html[data-wingman-route="projects"] [data-wingman-page="projects"] > section:first-of-type > * {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
   margin: 0 !important;
-  font-size: clamp(2rem, 2.8vw, 3.2rem) !important;
+  justify-self: stretch !important;
+  text-align: left !important;
+}
+
+/* Hero copy block */
+html[data-wingman-route="projects"] .wingman-page-host > section:first-of-type :is(h1, h2, h3, p, span, div),
+html[data-wingman-route="projects"] main > section:first-of-type :is(h1, h2, h3, p, span, div),
+html[data-wingman-route="projects"] .wm-projects-page > section:first-of-type :is(h1, h2, h3, p, span, div),
+html[data-wingman-route="projects"] [data-wingman-page="projects"] > section:first-of-type :is(h1, h2, h3, p, span, div) {
+  max-width: none !important;
+  text-align: left !important;
+}
+
+html[data-wingman-route="projects"] .wingman-page-host h1,
+html[data-wingman-route="projects"] main h1,
+html[data-wingman-route="projects"] .wm-projects-page h1,
+html[data-wingman-route="projects"] [data-wingman-page="projects"] h1 {
+  margin: 0 !important;
+  font-size: clamp(1.65rem, 2.1vw, 2.45rem) !important;
   line-height: 1.03 !important;
   color: var(--wm-heading) !important;
 }
 
-html[data-wingman-route="projects"] .wm-projects-page h2,
+html[data-wingman-route="projects"] .wingman-page-host h2,
 html[data-wingman-route="projects"] main h2,
+html[data-wingman-route="projects"] .wm-projects-page h2,
 html[data-wingman-route="projects"] [data-wingman-page="projects"] h2 {
   margin: 0 !important;
+  font-size: clamp(1.15rem, 1.35vw, 1.55rem) !important;
+  line-height: 1.15 !important;
   color: var(--wm-heading) !important;
 }
 
-/* Hero support copy should be short, left-led and not boxed as a second hero */
-html[data-wingman-route="projects"] .wm-projects-page > :is(header, section):first-child :is(.wm-copy, p),
-html[data-wingman-route="projects"] main > :is(header, section):first-child :is(.wm-copy, p),
-html[data-wingman-route="projects"] [data-wingman-page="projects"] > :is(header, section):first-child :is(.wm-copy, p) {
-  max-width: 960px !important;
-  margin-top: 6px !important;
-  font-size: 0.95rem !important;
+html[data-wingman-route="projects"] .wingman-page-host p,
+html[data-wingman-route="projects"] main p,
+html[data-wingman-route="projects"] .wm-projects-page p,
+html[data-wingman-route="projects"] [data-wingman-page="projects"] p {
   line-height: 1.35 !important;
 }
 
-/* Header action area: right side, compact buttons */
-html[data-wingman-route="projects"] .wm-projects-page > :is(header, section):first-child :is(.wm-action-row, [class*="action"], [class*="Action"]),
-html[data-wingman-route="projects"] main > :is(header, section):first-child :is(.wm-action-row, [class*="action"], [class*="Action"]),
-html[data-wingman-route="projects"] [data-wingman-page="projects"] > :is(header, section):first-child :is(.wm-action-row, [class*="action"], [class*="Action"]) {
+/* Put top hero actions on the right without floating into the content */
+html[data-wingman-route="projects"] .wingman-page-host > section:first-of-type :is(.wm-action-row, [class*="action"], [class*="Action"]),
+html[data-wingman-route="projects"] main > section:first-of-type :is(.wm-action-row, [class*="action"], [class*="Action"]),
+html[data-wingman-route="projects"] .wm-projects-page > section:first-of-type :is(.wm-action-row, [class*="action"], [class*="Action"]),
+html[data-wingman-route="projects"] [data-wingman-page="projects"] > section:first-of-type :is(.wm-action-row, [class*="action"], [class*="Action"]) {
   justify-self: end !important;
   align-self: center !important;
+  width: auto !important;
   display: flex !important;
   flex-wrap: wrap !important;
   justify-content: flex-end !important;
   gap: 8px !important;
-  min-height: auto !important;
   padding: 0 !important;
 }
 
-/* General Projects buttons */
+/* Compact all following workspace cards without overlap */
+html[data-wingman-route="projects"] .wingman-page-host > section:not(:first-of-type),
+html[data-wingman-route="projects"] main > section:not(:first-of-type),
+html[data-wingman-route="projects"] .wm-projects-page > section:not(:first-of-type),
+html[data-wingman-route="projects"] [data-wingman-page="projects"] > section:not(:first-of-type) {
+  display: grid !important;
+  gap: 10px !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 12px 14px !important;
+  overflow: visible !important;
+  text-align: left !important;
+}
+
+/* Section headers */
+html[data-wingman-route="projects"] :is(.wm-ui-card-header, [class*="card-header"], [class*="section-title"], [class*="SectionTitle"]) {
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 0 6px !important;
+  text-align: left !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+}
+
+/* Buttons */
 html[data-wingman-route="projects"] button,
 html[data-wingman-route="projects"] a[role="button"],
 html[data-wingman-route="projects"] .wm-button {
@@ -16256,32 +16304,7 @@ html[data-wingman-route="projects"] .wm-button:hover {
   border-color: var(--wm-heading) !important;
 }
 
-/* Compact all major project cards/sections */
-html[data-wingman-route="projects"] .wm-section-card,
-html[data-wingman-route="projects"] .wm-ui-card,
-html[data-wingman-route="projects"] section,
-html[data-wingman-route="projects"] article {
-  min-height: auto !important;
-  padding: 12px 14px !important;
-  margin: 0 !important;
-  text-align: left !important;
-}
-
-/* Active projects section should sit directly under hero */
-html[data-wingman-route="projects"] :is(.wm-projects-active, [class*="active"], [class*="Active"]) {
-  min-height: auto !important;
-}
-
-/* Active projects heading area compact */
-html[data-wingman-route="projects"] :is(.wm-ui-card-header, [class*="card-header"], [class*="section-title"], [class*="SectionTitle"]) {
-  min-height: auto !important;
-  padding: 8px 10px !important;
-  text-align: left !important;
-  justify-content: flex-start !important;
-  align-items: flex-start !important;
-}
-
-/* Project table density */
+/* Active projects table */
 html[data-wingman-route="projects"] table {
   width: 100% !important;
   border-collapse: collapse !important;
@@ -16302,33 +16325,26 @@ html[data-wingman-route="projects"] th {
   text-transform: uppercase !important;
 }
 
-/* Proposal drafts: make rows compact and use available width */
+/* Proposal draft rows */
+html[data-wingman-route="projects"] :is(.wm-project-draft-card, [class*="draft-card"], [class*="DraftCard"]) {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 10px !important;
+  align-items: center !important;
+  min-height: 46px !important;
+  padding: 9px 12px !important;
+  border-radius: var(--wm-radius-md) !important;
+}
+
 html[data-wingman-route="projects"] :is([class*="draft"], [class*="Draft"]) {
   text-align: left !important;
 }
 
 html[data-wingman-route="projects"] :is([class*="draft"], [class*="Draft"]) > :is(article, div, li) {
-  min-height: auto !important;
+  min-height: 0 !important;
 }
 
-/* Draft cards: compact horizontal row */
-html[data-wingman-route="projects"] :is(.wm-project-draft-card, [class*="draft-card"], [class*="DraftCard"]) {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) auto !important;
-  gap: 12px !important;
-  align-items: center !important;
-  min-height: 52px !important;
-  padding: 10px 12px !important;
-  border-radius: var(--wm-radius-md) !important;
-}
-
-/* If drafts are plain nested blocks, reduce their vertical bulk */
-html[data-wingman-route="projects"] .wm-section-card > div,
-html[data-wingman-route="projects"] .wm-ui-card > div {
-  min-height: auto !important;
-}
-
-/* Remove oversized centred help/empty panels inside Projects */
+/* Help/details controls */
 html[data-wingman-route="projects"] :is(details, summary) {
   margin: 0 !important;
 }
@@ -16340,45 +16356,39 @@ html[data-wingman-route="projects"] summary {
   gap: 6px !important;
 }
 
-/* Single-page target on normal desktop */
+/* Desktop single-page tuning */
 @media (min-width: 1200px) {
   html[data-wingman-route="projects"] .wingman-page-host,
   html[data-wingman-route="projects"] main,
   html[data-wingman-route="projects"] .wm-projects-page,
   html[data-wingman-route="projects"] [data-wingman-page="projects"] {
     gap: 8px !important;
+    padding-top: 8px !important;
+  }
+
+  html[data-wingman-route="projects"] .wingman-page-host > section:first-of-type,
+  html[data-wingman-route="projects"] main > section:first-of-type,
+  html[data-wingman-route="projects"] .wm-projects-page > section:first-of-type,
+  html[data-wingman-route="projects"] [data-wingman-page="projects"] > section:first-of-type {
     padding-top: 12px !important;
-  }
-
-  html[data-wingman-route="projects"] .wm-projects-page > :is(header, section):first-child,
-  html[data-wingman-route="projects"] main > :is(header, section):first-child,
-  html[data-wingman-route="projects"] [data-wingman-page="projects"] > :is(header, section):first-child {
-    min-height: 96px !important;
-    max-height: 132px !important;
-  }
-
-  html[data-wingman-route="projects"] .wm-section-card,
-  html[data-wingman-route="projects"] .wm-ui-card,
-  html[data-wingman-route="projects"] section,
-  html[data-wingman-route="projects"] article {
-    padding-top: 10px !important;
-    padding-bottom: 10px !important;
+    padding-bottom: 12px !important;
   }
 }
 
 /* Mobile/tablet fallback */
 @media (max-width: 980px) {
-  html[data-wingman-route="projects"] .wm-projects-page > :is(header, section):first-child,
-  html[data-wingman-route="projects"] main > :is(header, section):first-child,
-  html[data-wingman-route="projects"] [data-wingman-page="projects"] > :is(header, section):first-child {
+  html[data-wingman-route="projects"] .wingman-page-host > section:first-of-type,
+  html[data-wingman-route="projects"] main > section:first-of-type,
+  html[data-wingman-route="projects"] .wm-projects-page > section:first-of-type,
+  html[data-wingman-route="projects"] [data-wingman-page="projects"] > section:first-of-type {
     grid-template-columns: 1fr !important;
-    max-height: none !important;
   }
 
-  html[data-wingman-route="projects"] .wm-projects-page h1,
+  html[data-wingman-route="projects"] .wingman-page-host h1,
   html[data-wingman-route="projects"] main h1,
+  html[data-wingman-route="projects"] .wm-projects-page h1,
   html[data-wingman-route="projects"] [data-wingman-page="projects"] h1 {
-    font-size: clamp(1.8rem, 8vw, 2.5rem) !important;
+    font-size: clamp(1.7rem, 8vw, 2.2rem) !important;
   }
 }
 
