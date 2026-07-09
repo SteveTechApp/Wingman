@@ -1,7 +1,6 @@
 import { AlertTriangle, Check, Cloud, Copy, RotateCcw, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
-import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 import { StatusChip, type StatusChipVariant } from "../components/StatusChip";
 import { setActiveProjectId, useProjectStore, type StoredProject, type StoredProjectSyncStatus } from "../data/projectStore";
@@ -40,16 +39,30 @@ export function ProjectsPage() {
 
   return (
     <div data-wingman-page="projects" className="pb-10">
-      <PageHero
-        eyebrow="Project Management"
-        title="Keep live opportunities, drafts, and next actions in one place."
-        purpose="This page now uses the Wingman project store, so copy, delete, resume, and requirement review actions persist after refresh instead of only changing the current screen."
-        nextMove="Open the priority project detail record, review requirements, then continue into Discovery, Finder, Compare, or Proposal."
-        actions={[
-          { label: "Start discovery", to: routeCatalogByKey.discovery.path },
-          { label: "Open proposal", to: routeCatalogByKey.proposal.path, variant: "secondary" },
-        ]}
-      />
+      <section className="wm-projects-compact-hero wm-ui-card" aria-labelledby="projects-page-title">
+        <div className="wm-projects-compact-hero-copy">
+          <p className="wm-ui-kicker">Project Management</p>
+          <h1 id="projects-page-title" className="wm-projects-compact-title">
+            Keep live opportunities, drafts, and next actions in one place.
+          </h1>
+          <p className="wm-copy">
+            Review saved opportunities, captured customer requirements, proposal drafts, and persistent next actions.
+          </p>
+          <p className="wm-projects-next-step wm-copy">
+            <span>Next step</span>
+            <strong>Open the priority project detail record, review requirements, then continue into Discovery, Finder, Compare, or Proposal.</strong>
+          </p>
+        </div>
+
+        <div className="wm-projects-compact-actions">
+          <Link to={routeCatalogByKey.discovery.path} className="wm-ui-button wm-ui-button-forward">
+            Start discovery
+          </Link>
+          <Link to={routeCatalogByKey.proposal.path} className="wm-ui-button wm-ui-button-secondary">
+            Open proposal
+          </Link>
+        </div>
+      </section>
 
       <div className="space-y-3">
         <SectionCard
