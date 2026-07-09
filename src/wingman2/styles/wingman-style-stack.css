@@ -15350,3 +15350,254 @@ main.wm-settings-page .wm-section-card h3 {
 }
 /* Wingman settings 2x2 grid override - END */
 
+/* Wingman compact navigation pages - START */
+.wm-route-call-coach main.wm-page,
+html[data-wingman-route="call-coach"] main.wm-page {
+  gap: 14px !important;
+}
+
+/* Reduce oversized Call Coach hero/header card */
+.wm-route-call-coach main.wm-page > section:first-of-type,
+html[data-wingman-route="call-coach"] main.wm-page > section:first-of-type,
+.wm-route-call-coach .wm-page-hero,
+html[data-wingman-route="call-coach"] .wm-page-hero,
+.wm-route-call-coach .wm-hero-panel,
+html[data-wingman-route="call-coach"] .wm-hero-panel {
+  min-height: 190px !important;
+  max-height: 240px !important;
+  padding: 24px !important;
+  align-content: center !important;
+}
+
+/* Keep Call Coach title readable but not oversized */
+.wm-route-call-coach main.wm-page h1,
+html[data-wingman-route="call-coach"] main.wm-page h1 {
+  font-size: clamp(2rem, 3vw, 3.1rem) !important;
+  line-height: 1.05 !important;
+}
+
+/* Stop action cards stretching to excessive height */
+.wm-route-call-coach main.wm-page > div,
+html[data-wingman-route="call-coach"] main.wm-page > div {
+  align-items: stretch !important;
+}
+
+.wm-route-call-coach main.wm-page > div > section,
+html[data-wingman-route="call-coach"] main.wm-page > div > section,
+.wm-route-call-coach main.wm-page > div > article,
+html[data-wingman-route="call-coach"] main.wm-page > div > article,
+.wm-route-call-coach .wm-section-card,
+html[data-wingman-route="call-coach"] .wm-section-card {
+  min-height: 210px !important;
+  height: auto !important;
+  padding: 20px !important;
+}
+
+/* Make card grids compact where the route uses generic grid classes */
+.wm-route-call-coach main.wm-page [class*="grid"],
+html[data-wingman-route="call-coach"] main.wm-page [class*="grid"] {
+  align-items: stretch !important;
+  gap: 14px !important;
+}
+
+/* Keep compact layout on smaller screens */
+@media (max-width: 1100px) {
+  .wm-route-call-coach main.wm-page > section:first-of-type,
+  html[data-wingman-route="call-coach"] main.wm-page > section:first-of-type,
+  .wm-route-call-coach .wm-page-hero,
+  html[data-wingman-route="call-coach"] .wm-page-hero,
+  .wm-route-call-coach .wm-hero-panel,
+  html[data-wingman-route="call-coach"] .wm-hero-panel {
+    min-height: auto !important;
+    max-height: none !important;
+  }
+
+  .wm-route-call-coach main.wm-page > div > section,
+  html[data-wingman-route="call-coach"] main.wm-page > div > section,
+  .wm-route-call-coach main.wm-page > div > article,
+  html[data-wingman-route="call-coach"] main.wm-page > div > article,
+  .wm-route-call-coach .wm-section-card,
+  html[data-wingman-route="call-coach"] .wm-section-card {
+    min-height: auto !important;
+  }
+}
+/* Wingman compact navigation pages - END */
+
+/* Wingman compact action/utility pages - START */
+
+/* Prevent simple landing/action pages from stretching panels vertically */
+.wingman-workspace main.wm-page:not(.wm-settings-page) {
+  align-content: start !important;
+}
+
+/* Compact the oversized first hero/card panel on utility pages such as Call Coach */
+.wingman-workspace main.wm-page:not(.wm-settings-page) > section.wm-section-card:first-of-type,
+.wingman-workspace main.wm-page:not(.wm-settings-page) > .wm-page-hero:first-child,
+.wingman-workspace main.wm-page:not(.wm-settings-page) > .wm-hero-panel:first-child {
+  min-height: 190px !important;
+  max-height: 240px !important;
+  height: auto !important;
+  padding: 24px !important;
+  display: grid !important;
+  align-content: center !important;
+}
+
+/* Reduce very large page titles inside compact utility hero cards */
+.wingman-workspace main.wm-page:not(.wm-settings-page) > section.wm-section-card:first-of-type h1,
+.wingman-workspace main.wm-page:not(.wm-settings-page) > .wm-page-hero:first-child h1,
+.wingman-workspace main.wm-page:not(.wm-settings-page) > .wm-hero-panel:first-child h1 {
+  font-size: clamp(2rem, 3vw, 3.1rem) !important;
+  line-height: 1.05 !important;
+}
+
+/* Compact immediate card rows below the hero */
+.wingman-workspace main.wm-page:not(.wm-settings-page) > div {
+  align-items: stretch !important;
+  align-content: start !important;
+}
+
+/* Stop action cards filling the entire lower viewport */
+.wingman-workspace main.wm-page:not(.wm-settings-page) > div > section.wm-section-card,
+.wingman-workspace main.wm-page:not(.wm-settings-page) > div > article.wm-section-card,
+.wingman-workspace main.wm-page:not(.wm-settings-page) > div > a.wm-section-card {
+  min-height: 210px !important;
+  max-height: 280px !important;
+  height: auto !important;
+  padding: 20px !important;
+  overflow: auto !important;
+}
+
+/* If the page uses a generic grid class, keep it tight */
+.wingman-workspace main.wm-page:not(.wm-settings-page) > [class*="grid"] {
+  gap: 14px !important;
+  align-items: stretch !important;
+  align-content: start !important;
+}
+
+/* Prevent this compact rule from damaging complex working pages */
+.wingman-workspace main.wm-page.wm-discovery-page > section.wm-section-card:first-of-type,
+.wingman-workspace main.wm-page.wm-compare-page > section.wm-section-card:first-of-type,
+.wingman-workspace main.wm-page.wm-product-pitch-page > section.wm-section-card:first-of-type,
+.wingman-workspace main.wm-page.wm-project-detail-page > section.wm-section-card:first-of-type {
+  min-height: revert !important;
+  max-height: revert !important;
+}
+
+@media (max-width: 1100px) {
+  .wingman-workspace main.wm-page:not(.wm-settings-page) > section.wm-section-card:first-of-type,
+  .wingman-workspace main.wm-page:not(.wm-settings-page) > .wm-page-hero:first-child,
+  .wingman-workspace main.wm-page:not(.wm-settings-page) > .wm-hero-panel:first-child,
+  .wingman-workspace main.wm-page:not(.wm-settings-page) > div > section.wm-section-card,
+  .wingman-workspace main.wm-page:not(.wm-settings-page) > div > article.wm-section-card,
+  .wingman-workspace main.wm-page:not(.wm-settings-page) > div > a.wm-section-card {
+    min-height: auto !important;
+    max-height: none !important;
+  }
+}
+
+/* Wingman compact action/utility pages - END */
+
+/* Wingman compact navigation hub pages - START */
+
+/* Applies to Call Coach, Products, Documents, Learn and other nav-hub style pages */
+html[data-wingman-route] .wingman-page-host .wm-navhub-page {
+  display: grid !important;
+  grid-template-rows: auto auto !important;
+  grid-auto-rows: max-content !important;
+  align-content: start !important;
+  gap: 14px !important;
+  padding: 16px 22px !important;
+  min-height: 0 !important;
+  height: auto !important;
+}
+
+/* Compact the large hero panel */
+html[data-wingman-route] .wingman-page-host .wm-navhub-hero {
+  min-height: 150px !important;
+  max-height: 220px !important;
+  height: auto !important;
+  padding: 18px 20px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  align-content: center !important;
+  gap: 16px !important;
+}
+
+/* Prevent oversized hero headings */
+html[data-wingman-route] .wingman-page-host .wm-navhub-hero h1,
+html[data-wingman-route] .wingman-page-host .wm-navhub-hero [class*="title"],
+html[data-wingman-route] .wingman-page-host .wm-navhub-hero [class*="Title"] {
+  font-size: clamp(2rem, 3vw, 3.1rem) !important;
+  line-height: 1.05 !important;
+  margin: 0 !important;
+}
+
+/* Keep hero intro copy compact */
+html[data-wingman-route] .wingman-page-host .wm-navhub-hero p {
+  margin: 0 !important;
+  max-width: 980px !important;
+}
+
+/* Compact card grids below the hero */
+html[data-wingman-route] .wingman-page-host .wm-navhub-page > div,
+html[data-wingman-route] .wingman-page-host .wm-navhub-grid,
+html[data-wingman-route] .wingman-page-host [class*="navhub"][class*="grid"],
+html[data-wingman-route] .wingman-page-host [class*="NavHub"][class*="grid"] {
+  display: grid !important;
+  gap: 14px !important;
+  align-items: stretch !important;
+  align-content: start !important;
+  grid-auto-rows: max-content !important;
+}
+
+/* Stop action cards stretching down the page */
+html[data-wingman-route] .wingman-page-host .wm-navhub-page > div > section,
+html[data-wingman-route] .wingman-page-host .wm-navhub-page > div > article,
+html[data-wingman-route] .wingman-page-host .wm-navhub-page > div > a,
+html[data-wingman-route] .wingman-page-host .wm-navhub-card,
+html[data-wingman-route] .wingman-page-host [class*="navhub-card"],
+html[data-wingman-route] .wingman-page-host [class*="NavHubCard"] {
+  min-height: 180px !important;
+  max-height: 260px !important;
+  height: auto !important;
+  padding: 18px 20px !important;
+  align-self: start !important;
+  overflow: auto !important;
+}
+
+/* Keep 4-card hub pages in a clean row on desktop */
+@media (min-width: 1101px) {
+  html[data-wingman-route] .wingman-page-host .wm-navhub-page > div,
+  html[data-wingman-route] .wingman-page-host .wm-navhub-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  html[data-wingman-route] .wingman-page-host .wm-navhub-page {
+    padding: 14px !important;
+  }
+
+  html[data-wingman-route] .wingman-page-host .wm-navhub-hero {
+    max-height: none !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-wingman-route] .wingman-page-host .wm-navhub-page > div,
+  html[data-wingman-route] .wingman-page-host .wm-navhub-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-wingman-route] .wingman-page-host .wm-navhub-page > div > section,
+  html[data-wingman-route] .wingman-page-host .wm-navhub-page > div > article,
+  html[data-wingman-route] .wingman-page-host .wm-navhub-page > div > a,
+  html[data-wingman-route] .wingman-page-host .wm-navhub-card,
+  html[data-wingman-route] .wingman-page-host [class*="navhub-card"],
+  html[data-wingman-route] .wingman-page-host [class*="NavHubCard"] {
+    min-height: auto !important;
+    max-height: none !important;
+  }
+}
+
+/* Wingman compact navigation hub pages - END */
