@@ -268,8 +268,8 @@ export function ProfilePage() {
   }
 
   return (
-    <main className="wm-page">
-      <header className="wm-page-header">
+    <main className="wm-page wm-settings-page" data-wingman-page="settings">
+      <header className="wm-page-header wm-settings-header">
         <div>
           <p className="wm-ui-kicker">Wingman settings</p>
           <h1 className="wm-page-title">Local profile and proposal settings</h1>
@@ -285,12 +285,13 @@ export function ProfilePage() {
         </div>
       </header>
 
-      <div className="wm-output-panel">
-        <StatusChip label="Status" variant="ready" />
-        <strong>{status}</strong>
-      </div>
+      <div className="wm-settings-layout" role="group" aria-label="Settings sections">
+        <div className="wm-settings-column">
+          <div className="wm-output-panel wm-settings-status">
+            <StatusChip label="Status" variant="ready" />
+            <strong>{status}</strong>
+          </div>
 
-      <div className="wm-form-grid" role="group" aria-label="Settings sections">
         <section className="wm-section-card" aria-labelledby="wingman-settings-brand">
           <p className="wm-ui-kicker">Brand and company</p>
           <h2 id="wingman-settings-brand" className="wm-card-title">Default proposal identity</h2>
@@ -298,7 +299,7 @@ export function ProfilePage() {
 
           <div className="wm-form-grid">
             <button
-              className="wm-button wm-button-ghost"
+              className="wm-button wm-button-ghost wm-settings-logo-button"
               type="button"
               onClick={() => logoInputRef.current?.click()}
               aria-label="Upload company logo"
@@ -348,7 +349,9 @@ export function ProfilePage() {
             </label>
           </div>
         </section>
+        </div>
 
+        <div className="wm-settings-column">
         <section className="wm-section-card" aria-labelledby="wingman-settings-user">
           <p className="wm-ui-kicker">User details</p>
           <h2 id="wingman-settings-user" className="wm-card-title">Contact and output details</h2>
@@ -415,7 +418,9 @@ export function ProfilePage() {
             <span>Stage new product and competitor findings for review before Finder, Compare or Proposal use them as trusted data.</span>
           </div>
         </section>
+        </div>
 
+        <div className="wm-settings-column">
         <section className="wm-section-card" aria-labelledby="wingman-settings-workspace">
           <p className="wm-ui-kicker">Workspace sync</p>
           <h2 id="wingman-settings-workspace" className="wm-card-title">Live-call recovery</h2>
@@ -467,6 +472,7 @@ export function ProfilePage() {
             )}
           </div>
         </section>
+        </div>
       </div>
     </main>
   );
