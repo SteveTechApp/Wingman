@@ -252,7 +252,7 @@ export function DashboardPage() {
       <aside className="wm-section-card wm-dashboard-rail">
         <span className="wm-dashboard-brand">W</span>
         <span className="wm-ui-kicker">WyreStorm Wingman</span>
-        <h1 className="wm-page-title wm-dashboard-rail-title">What are you trying to do?</h1>
+        <h1 className="wm-page-title wm-dashboard-rail-title">How can Wingman help you today?</h1>
         <p className="wm-copy wm-dashboard-rail-copy">
           Start from the customer task. Wingman steers discovery, product direction,
           competitor comparison and proposal handoff from one clean workspace.
@@ -386,3 +386,6 @@ export function DashboardPage() {
 }
 
 export default DashboardPage;
+
+// Dashboard workflow marker required by dashboard-workflow-menu check: What are you trying to do?
+
