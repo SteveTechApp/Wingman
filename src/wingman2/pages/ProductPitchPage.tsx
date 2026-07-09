@@ -1002,6 +1002,49 @@ export function ProductPitchPage() {
             Back to product selection
           </button>
         </section>
+
+        {/* Product Pitch tester-readiness safety panel - START */}
+        <section className="wm-section-card wm-product-pitch-safety-panel" aria-labelledby="product-pitch-safety-title">
+          <div className="wm-product-pitch-safety-header">
+            <div>
+              <p className="wm-ui-kicker">Tester safety</p>
+              <h2 id="product-pitch-safety-title" className="wm-card-title">
+                Product Pitch safety review
+              </h2>
+              <p className="wm-copy">
+                Use this page as product-direction guidance for a sales conversation. It is not a final engineered design or quote.
+              </p>
+            </div>
+          </div>
+
+          <div className="wm-product-pitch-safety-grid">
+            <article className="wm-product-pitch-safety-item">
+              <h3 className="wm-card-title">Product direction</h3>
+              <p className="wm-copy">
+                Treat the selected product as the likely WyreStorm direction only after the customer requirement, application,
+                signal path, source/display count, USB, audio, control, distance and infrastructure needs have been checked.
+              </p>
+            </article>
+
+            <article className="wm-product-pitch-safety-item">
+              <h3 className="wm-card-title">Why this fits</h3>
+              <p className="wm-copy">
+                A product fit should be supported by clear evidence: product class, core signal format, routing or extension
+                requirement, endpoint role, required dependencies and any known gaps against the customer brief.
+              </p>
+            </article>
+
+            <article className="wm-product-pitch-safety-item">
+              <h3 className="wm-card-title">Pre-sales review warning</h3>
+              <p className="wm-copy">
+                Escalate for pre-sales review before quotation where the requirement includes AV-over-IP, USB transport,
+                video wall processing, competitor substitution, incomplete room information, unclear network ownership,
+                or any non-standard system behaviour.
+              </p>
+            </article>
+          </div>
+        </section>
+        {/* Product Pitch tester-readiness safety panel - END */}
       </main>
     );
   }
