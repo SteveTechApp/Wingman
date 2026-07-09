@@ -620,14 +620,14 @@ function SpecTab({ product }: { product: ProductSpec }) {
           {usbResult.warnings.length > 0 ? (
             <ul className="mt-2 space-y-1 text-sm wm-ui-copy">
               {usbResult.warnings.map((warning) => (
-                <li key={warning}>âš  {warning}</li>
+                <li key={warning}>Warning: {warning}</li>
               ))}
             </ul>
           ) : null}
           {usbResult.blockers.length > 0 ? (
             <ul className="mt-2 space-y-1 text-sm wm-ui-copy">
               {usbResult.blockers.map((blocker) => (
-                <li key={blocker}>âœ• {blocker}</li>
+                <li key={blocker}>Blocked: {blocker}</li>
               ))}
             </ul>
           ) : null}
@@ -659,7 +659,7 @@ function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: P
             <strong className="mt-2 block text-lg text-white">{narrative.diagramSource}</strong>
           </div>
 
-          <div className="hidden items-center justify-center text-3xl font-extrabold text-cyan-300 lg:flex">â†’</div>
+          <div className="hidden items-center justify-center text-3xl font-extrabold text-cyan-300 lg:flex">-&gt;</div>
 
           <div className="rounded-3xl border p-5 wm-ui-card">
             <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-200`}>WyreStorm product</p>
@@ -667,7 +667,7 @@ function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: P
             <span className="mt-1 block text-sm wm-ui-copy">{product.productType}</span>
           </div>
 
-          <div className="hidden items-center justify-center text-3xl font-extrabold text-cyan-300 lg:flex">â†’</div>
+          <div className="hidden items-center justify-center text-3xl font-extrabold text-cyan-300 lg:flex">-&gt;</div>
 
           <div className="rounded-3xl border p-5 wm-ui-card">
             <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-white/45`}>Output / destination side</p>
@@ -856,13 +856,13 @@ function ProductWorkspace({
             }`}
           >
             {lifecycle.adminBlocked
-              ? "âš  Admin blocked"
+              ? "Admin blocked"
               : lifecycle.supersededBy
-                ? "âš  Superseded product"
+                ? "Superseded product"
                 : lifecycle.status === "discontinued"
-                  ? "âš  Discontinued product"
+                  ? "Discontinued product"
                   : lifecycle.status === "do-not-spec"
-                    ? "âš  Do not specify"
+                    ? "Do not specify"
                     : lifecycle.status === "cable"
                       ? "Cable / accessory"
                       : "Not on the current business list"}
@@ -884,11 +884,13 @@ function ProductWorkspace({
               narrative.confidence === "low" ? "text-amber-200" : "text-cyan-200"
             }`}
           >
-            {narrative.confidence === "low" ? "âš  Check before quoting" : "Auto-generated positioning"}
+            {narrative.confidence === "low" ? "Check before quoting" : "Auto-generated positioning"}
           </p>
           <p className="mt-1 max-w-4xl text-sm leading-6 wm-ui-copy">{narrative.reviewNote}</p>
         </section>
       ) : null}
+
+      <ProductPitchSafetyPanel />
 
       <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-4`}>
         <div className="flex flex-wrap gap-2">
@@ -906,6 +908,48 @@ function ProductWorkspace({
       {activeTab === "diagram" ? <DiagramTab product={product} narrative={narrative} /> : null}
       {activeTab === "visual" ? <VisualTab product={product} narrative={narrative} /> : null}
     </main>
+  );
+}
+
+
+function ProductPitchSafetyPanel() {
+  return (
+    <section className="wm-section-card wm-product-pitch-safety-panel" aria-labelledby="product-pitch-safety-title">
+      <div className="wm-product-pitch-safety-header">
+        <div>
+          <p className="wm-ui-kicker">Tester safety</p>
+          <h2 id="product-pitch-safety-title" className="wm-card-title">
+            Product Pitch safety review
+          </h2>
+          <p className="wm-copy">
+            Use this page as product-direction guidance for a sales conversation. It is not a final engineered design or quote.
+          </p>
+        </div>
+      </div>
+
+      <div className="wm-product-pitch-safety-grid">
+        <article className="wm-product-pitch-safety-item">
+          <h3 className="wm-card-title">Product direction</h3>
+          <p className="wm-copy">
+            Treat the selected product as the likely WyreStorm direction only after the customer requirement, application, signal path, source/display count, USB, audio, control, distance and infrastructure needs have been checked.
+          </p>
+        </article>
+
+        <article className="wm-product-pitch-safety-item">
+          <h3 className="wm-card-title">Why this fits</h3>
+          <p className="wm-copy">
+            A product fit should be supported by clear evidence: product class, core signal format, routing or extension requirement, endpoint role, required dependencies and any known gaps against the customer brief.
+          </p>
+        </article>
+
+        <article className="wm-product-pitch-safety-item">
+          <h3 className="wm-card-title">Pre-sales review warning</h3>
+          <p className="wm-copy">
+            Escalate for pre-sales review before quotation where the requirement includes AV-over-IP, USB transport, video wall processing, competitor substitution, incomplete room information, unclear network ownership, or any non-standard system behaviour.
+          </p>
+        </article>
+      </div>
+    </section>
   );
 }
 
@@ -1002,49 +1046,6 @@ export function ProductPitchPage() {
             Back to product selection
           </button>
         </section>
-
-        {/* Product Pitch tester-readiness safety panel - START */}
-        <section className="wm-section-card wm-product-pitch-safety-panel" aria-labelledby="product-pitch-safety-title">
-          <div className="wm-product-pitch-safety-header">
-            <div>
-              <p className="wm-ui-kicker">Tester safety</p>
-              <h2 id="product-pitch-safety-title" className="wm-card-title">
-                Product Pitch safety review
-              </h2>
-              <p className="wm-copy">
-                Use this page as product-direction guidance for a sales conversation. It is not a final engineered design or quote.
-              </p>
-            </div>
-          </div>
-
-          <div className="wm-product-pitch-safety-grid">
-            <article className="wm-product-pitch-safety-item">
-              <h3 className="wm-card-title">Product direction</h3>
-              <p className="wm-copy">
-                Treat the selected product as the likely WyreStorm direction only after the customer requirement, application,
-                signal path, source/display count, USB, audio, control, distance and infrastructure needs have been checked.
-              </p>
-            </article>
-
-            <article className="wm-product-pitch-safety-item">
-              <h3 className="wm-card-title">Why this fits</h3>
-              <p className="wm-copy">
-                A product fit should be supported by clear evidence: product class, core signal format, routing or extension
-                requirement, endpoint role, required dependencies and any known gaps against the customer brief.
-              </p>
-            </article>
-
-            <article className="wm-product-pitch-safety-item">
-              <h3 className="wm-card-title">Pre-sales review warning</h3>
-              <p className="wm-copy">
-                Escalate for pre-sales review before quotation where the requirement includes AV-over-IP, USB transport,
-                video wall processing, competitor substitution, incomplete room information, unclear network ownership,
-                or any non-standard system behaviour.
-              </p>
-            </article>
-          </div>
-        </section>
-        {/* Product Pitch tester-readiness safety panel - END */}
       </main>
     );
   }
