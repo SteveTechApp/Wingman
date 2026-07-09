@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Download,
   FileText,
+  LayoutTemplate,
   RotateCcw,
   Save,
   SlidersHorizontal,
@@ -21,6 +22,7 @@ import {
 } from "../data/projectStore";
 import { exportBomCsv, exportProposalHtml } from "../lib/proposalExport";
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
+import { saveRoomTemplateCopy, useCustomRoomTemplates } from "../lib/customRoomTemplates";
 import { roomTemplates, type RoomTemplate, type TemplateBomRow } from "../lib/roomTemplates";
 import type { SalesBomRow } from "../lib/salesReadiness";
 
@@ -209,20 +211,24 @@ function buildTemplateProject(template: RoomTemplate, rows: TemplateBomRow[]): S
 
 export function TemplateReviewPage() {
   const { templateId } = useParams();
+  const customTemplates = useCustomRoomTemplates();
+  const availableTemplates = useMemo(() => [...customTemplates, ...roomTemplates], [customTemplates]);
   const selectedTemplate = useMemo(
-    () => roomTemplates.find((template) => template.id === templateId),
-    [templateId],
+    () => availableTemplates.find((template) => template.id === templateId),
+    [availableTemplates, templateId],
   );
 
   const [selectedRows, setSelectedRows] = useState<TemplateBomRow[]>(() =>
     selectedTemplate ? cloneRows(selectedTemplate.bom) : [],
   );
   const [savedProjectPath, setSavedProjectPath] = useState("");
+  const [savedTemplatePath, setSavedTemplatePath] = useState("");
 
   useEffect(() => {
     if (selectedTemplate) {
       setSelectedRows(cloneRows(selectedTemplate.bom));
       setSavedProjectPath("");
+      setSavedTemplatePath("");
     }
   }, [selectedTemplate]);
 
@@ -302,6 +308,11 @@ export function TemplateReviewPage() {
     setSavedProjectPath(`/wingman/projects/${project.id}`);
   }
 
+  function saveTemplateDesign() {
+    const template = saveRoomTemplateCopy(activeTemplate, selectedRows);
+    setSavedTemplatePath(`${routeCatalogByKey.templates.path}/${template.id}`);
+  }
+
   return (
     <div className="pb-10">
       <PageHero
@@ -357,6 +368,10 @@ export function TemplateReviewPage() {
                   <FileText className="h-5 w-5" />
                   <span>Export proposal</span>
                 </button>
+                <button type="button" onClick={saveTemplateDesign}>
+                  <LayoutTemplate className="h-5 w-5" />
+                  <span>Save as template</span>
+                </button>
                 <button type="button" onClick={saveTemplateProject} className="wm-template-action-primary">
                   <Save className="h-5 w-5" />
                   <span>Save project</span>
@@ -364,13 +379,25 @@ export function TemplateReviewPage() {
               </div>
             </div>
 
-            {savedProjectPath ? (
+            {savedProjectPath || savedTemplatePath ? (
               <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-950">
                 <CheckCircle2 className="h-4 w-4" />
-                <span className="font-semibold">Template saved as a standalone project.</span>
-                <Link to={savedProjectPath} className="rounded-full border border-emerald-300 px-3 py-1 font-semibold hover:bg-[#0d2133]">
-                  Open project
-                </Link>
+                {savedProjectPath ? (
+                  <>
+                    <span className="font-semibold">Template saved as a standalone project.</span>
+                    <Link to={savedProjectPath} className="rounded-full border border-emerald-300 px-3 py-1 font-semibold hover:bg-[#0d2133]">
+                      Open project
+                    </Link>
+                  </>
+                ) : null}
+                {savedTemplatePath ? (
+                  <>
+                    <span className="font-semibold">Room design saved as a custom template.</span>
+                    <Link to={savedTemplatePath} className="rounded-full border border-emerald-300 px-3 py-1 font-semibold hover:bg-[#0d2133]">
+                      Open template
+                    </Link>
+                  </>
+                ) : null}
               </div>
             ) : null}
 
