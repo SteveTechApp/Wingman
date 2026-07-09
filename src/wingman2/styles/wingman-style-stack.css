@@ -15878,3 +15878,50 @@ html[data-wingman-route="compare"] main[data-wingman-page="compare"] button,
 }
 
 /* Wingman compare template-aligned layout - END */
+
+/* Wingman Product Pitch tester-readiness safety panel - START */
+
+.wm-product-pitch-safety-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.wm-product-pitch-safety-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.wm-product-pitch-safety-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.wm-product-pitch-safety-item {
+  display: grid;
+  gap: 8px;
+  min-height: 0;
+  padding: 14px;
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-md);
+  background: rgba(8, 22, 38, 0.72);
+}
+
+.wm-product-pitch-safety-item .wm-card-title {
+  margin: 0;
+  color: var(--wm-heading);
+}
+
+.wm-product-pitch-safety-item .wm-copy {
+  margin: 0;
+}
+
+@media (max-width: 1180px) {
+  .wm-product-pitch-safety-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Wingman Product Pitch tester-readiness safety panel - END */
