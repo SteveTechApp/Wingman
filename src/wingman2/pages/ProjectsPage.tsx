@@ -51,7 +51,7 @@ export function ProjectsPage() {
         ]}
       />
 
-      <div className="space-y-6">
+      <div className="space-y-3">
         <SectionCard
           title="Active projects"
           subtitle="Use this table to reopen active opportunities, copy useful examples, or remove stale project lines."
@@ -165,47 +165,42 @@ export function ProjectsPage() {
           subtitle="Draft copy/delete actions also persist using the same project store."
         >
           {proposalDrafts.length ? (
-            <div className="grid gap-4 lg:grid-cols-3">
+            <div className="wm-project-draft-grid">
               {proposalDrafts.map((draft) => (
-                <div key={draft.id} className="rounded-2xl border p-5 wm-ui-card">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-sm text-[#cfe6f7] wm-ui-copy">{draft.customer}</p>
-                      <h3 className="mt-2 text-lg font-extrabold text-[#edf6ff] wm-ui-title">{draft.name}</h3>
-                    </div>
-
-                    <div className="flex shrink-0 items-center gap-2">
-                      <button className={["wm-ui-button wm-ui-button-secondary", `${PROJECTS_ICON_BUTTON_CLASS} hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]`].filter(Boolean).join(" ")}
-                        type="button"
-                        onClick={() => copyProposalDraft(draft.id)}
-
-                        title={`Copy ${draft.name}`}
-                        aria-label={`Copy ${draft.name}`}
-                      >
-                        <Copy className="h-4 w-4" />
-                      </button>
-
-                      <button className={["wm-ui-button wm-ui-button-secondary", `${PROJECTS_ICON_BUTTON_CLASS} hover:border-[#ff8a8a] hover:bg-[#2a1020] hover:text-[#ff8a8a]`].filter(Boolean).join(" ")}
-                        type="button"
-                        onClick={() => deleteProposalDraft(draft.id)}
-
-                        title={`Delete ${draft.name}`}
-                        aria-label={`Delete ${draft.name}`}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
+                <div key={draft.id} className="wm-project-draft-tile wm-ui-card">
+                  <div className="wm-project-draft-main">
+                    <p className="wm-project-draft-customer wm-ui-copy">{draft.customer}</p>
+                    <h3 className="wm-project-draft-title wm-ui-title">{draft.name}</h3>
+                    <p className="wm-project-draft-state wm-ui-copy">{draft.state}</p>
                   </div>
 
-                  <p className="mt-3 text-sm text-[#edf6ff] wm-ui-copy">{draft.state}</p>
-
-                  <div className="mt-5">
+                  <div className="wm-project-draft-actions">
                     <Link
                       to={routeCatalogByKey.proposal.path}
-                      className={PROJECTS_DARK_BUTTON_CLASS}
+                      className={`wm-project-draft-open ${PROJECTS_DARK_BUTTON_CLASS}`}
                     >
-                      Open draft
+                      Open
                     </Link>
+
+                    <button
+                      className={["wm-ui-button wm-ui-button-secondary", `${PROJECTS_ICON_BUTTON_CLASS} hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]`].filter(Boolean).join(" ")}
+                      type="button"
+                      onClick={() => copyProposalDraft(draft.id)}
+                      title={`Copy ${draft.name}`}
+                      aria-label={`Copy ${draft.name}`}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </button>
+
+                    <button
+                      className={["wm-ui-button wm-ui-button-secondary", `${PROJECTS_ICON_BUTTON_CLASS} hover:border-[#ff8a8a] hover:bg-[#2a1020] hover:text-[#ff8a8a]`].filter(Boolean).join(" ")}
+                      type="button"
+                      onClick={() => deleteProposalDraft(draft.id)}
+                      title={`Delete ${draft.name}`}
+                      aria-label={`Delete ${draft.name}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
               ))}
