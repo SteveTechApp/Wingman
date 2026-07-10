@@ -301,6 +301,7 @@ export function WingmanGuruFab({ open, onClick, hasContextualTransfer = false }:
     "--wingman-guru-right": "auto",
     "--wingman-guru-bottom": "auto",
     "--wingman-guru-transform": "none",
+    "--wingman-guru-cursor": dragRef.current.pointerId === null ? "grab" : "grabbing",
     cursor: dragRef.current.pointerId === null ? "grab" : "grabbing",
     touchAction: "none",
     userSelect: "none",

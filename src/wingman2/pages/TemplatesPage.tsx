@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { createBlankCustomRoomTemplate, saveCustomRoomTemplate, useCustomRoomTemplates } from "../lib/customRoomTemplates";
 import { roomTemplates } from "../lib/roomTemplates";
 
 const allTemplatesFilter = "All";
@@ -13,16 +14,25 @@ function uniqueSorted(values: string[]) {
 export function TemplatesPage() {
   const [query, setQuery] = useState("");
   const [vertical, setVertical] = useState(allTemplatesFilter);
+  const customTemplates = useCustomRoomTemplates();
+
+  const [newTemplateName, setNewTemplateName] = useState("");
+  const [newTemplateVertical, setNewTemplateVertical] = useState("");
+  const [newTemplateApplication, setNewTemplateApplication] = useState("");
+  const [newTemplateScale, setNewTemplateScale] = useState("");
+  const [newTemplateSummary, setNewTemplateSummary] = useState("");
+
+  const allTemplates = useMemo(() => [...customTemplates, ...roomTemplates], [customTemplates]);
 
   const verticals = useMemo(
-    () => [allTemplatesFilter, ...uniqueSorted(roomTemplates.map((template) => template.vertical))],
-    [],
+    () => [allTemplatesFilter, ...uniqueSorted(allTemplates.map((template) => template.vertical))],
+    [allTemplates],
   );
 
   const filteredTemplates = useMemo(() => {
     const search = query.trim().toLowerCase();
 
-    return roomTemplates.filter((template) => {
+    return allTemplates.filter((template) => {
       const verticalMatch = vertical === allTemplatesFilter || template.vertical === vertical;
       const searchableText = [
         template.name,
@@ -39,13 +49,37 @@ export function TemplatesPage() {
 
       return verticalMatch && (!search || searchableText.includes(search));
     });
-  }, [query, vertical]);
+  }, [allTemplates, query, vertical]);
 
   const hasActiveFilters = query.trim() || vertical !== allTemplatesFilter;
 
   function resetFilters() {
     setQuery("");
     setVertical(allTemplatesFilter);
+  }
+
+  function createTemplateFromScratch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!newTemplateName.trim()) {
+      return;
+    }
+
+    const created = createBlankCustomRoomTemplate({
+      name: newTemplateName,
+      vertical: newTemplateVertical,
+      application: newTemplateApplication,
+      scale: newTemplateScale,
+      summary: newTemplateSummary,
+    });
+
+    saveCustomRoomTemplate(created, { id: created.id });
+
+    setNewTemplateName("");
+    setNewTemplateVertical("");
+    setNewTemplateApplication("");
+    setNewTemplateScale("");
+    setNewTemplateSummary("");
   }
 
   return (
@@ -90,11 +124,89 @@ export function TemplatesPage() {
         </div>
       </section>
 
+      <section className="wm-section-card wm-template-create-panel" aria-label="Create a custom template">
+        <div>
+          <p className="wm-template-kicker wm-ui-kicker">Start from scratch</p>
+          <h2 className="wm-section-title">Create a custom template</h2>
+          <p className="wm-copy">
+            Save a brand-new reusable room template in this browser, then build out its BOM from the review page.
+          </p>
+        </div>
+
+        <form className="wm-template-create-form" onSubmit={createTemplateFromScratch}>
+          <label className="wm-field">
+            Name
+            <input
+              className="wm-input"
+              type="text"
+              value={newTemplateName}
+              onChange={(event) => setNewTemplateName(event.target.value)}
+              placeholder="e.g. Council chamber custom room"
+              required
+            />
+          </label>
+
+          <label className="wm-field">
+            Vertical
+            <input
+              className="wm-input"
+              type="text"
+              value={newTemplateVertical}
+              onChange={(event) => setNewTemplateVertical(event.target.value)}
+              placeholder="e.g. Government"
+            />
+          </label>
+
+          <label className="wm-field">
+            Application
+            <input
+              className="wm-input"
+              type="text"
+              value={newTemplateApplication}
+              onChange={(event) => setNewTemplateApplication(event.target.value)}
+              placeholder="e.g. Hybrid civic meetings"
+            />
+          </label>
+
+          <label className="wm-field">
+            Scale
+            <input
+              className="wm-input"
+              type="text"
+              value={newTemplateScale}
+              onChange={(event) => setNewTemplateScale(event.target.value)}
+              placeholder="e.g. Custom"
+            />
+          </label>
+
+          <label className="wm-field wm-template-create-summary">
+            Summary
+            <textarea
+              className="wm-input"
+              value={newTemplateSummary}
+              onChange={(event) => setNewTemplateSummary(event.target.value)}
+              placeholder="Short description of this room design starting point."
+              rows={2}
+            />
+          </label>
+
+          <button type="submit" className="wm-button wm-button-primary">
+            Create template
+          </button>
+        </form>
+
+        {customTemplates.length > 0 ? (
+          <p className="wm-copy wm-template-create-confirmation" role="status">
+            {customTemplates.length} custom template{customTemplates.length === 1 ? "" : "s"} saved in this browser.
+          </p>
+        ) : null}
+      </section>
+
       <section className="wm-template-results-header wm-section-card">
         <div>
           <p className="wm-template-kicker wm-ui-kicker">Template library</p>
           <h2 className="wm-section-title">
-            {filteredTemplates.length} of {roomTemplates.length} templates
+            {filteredTemplates.length} of {allTemplates.length} templates
           </h2>
         </div>
 
@@ -109,6 +221,7 @@ export function TemplatesPage() {
         {filteredTemplates.map((template) => (
           <article key={template.id} className="wm-action-card wm-template-card">
             <div className="wm-template-card-top">
+              {"customTemplate" in template && template.customTemplate ? <span className="wm-badge">Custom</span> : null}
               <span className="wm-badge">{template.vertical}</span>
               <span className="wm-badge">{template.scale}</span>
             </div>

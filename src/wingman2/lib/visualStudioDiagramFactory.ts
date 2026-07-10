@@ -27,8 +27,8 @@ const statusClass: Record<VisualNodeStatus, string> = {
   risk: "wm-vs-node-risk"
 };
 
-const VISUAL_STUDIO_COLUMN_GAP = 356;
-const VISUAL_STUDIO_ROW_GAP = 214;
+const VISUAL_STUDIO_COLUMN_GAP = 300;
+const VISUAL_STUDIO_ROW_GAP = 158;
 const emphasisClass: Record<VisualNodeEmphasis, string> = {
   primary: "wm-vs-node-emphasis-primary",
   support: "wm-vs-node-emphasis-support",
@@ -157,7 +157,7 @@ function connectionLabels(model: VisualDiagramModel, nodeId: string): string[] {
       .filter((edge) => edge.source === nodeId || edge.target === nodeId)
       .map((edge) => edge.label?.trim())
       .filter((label): label is string => Boolean(label)),
-  )].slice(0, 3);
+  )].slice(0, 4);
 }
 
 function edgeHandles(
@@ -230,7 +230,10 @@ export function buildReactFlowModel(
       target: edge.target,
       sourceHandle: handles.sourceHandle,
       targetHandle: handles.targetHandle,
-      label: mode === "technical" ? `${signalReference[family]}-${sequence}` : edge.label,
+      label:
+        mode === "technical"
+          ? `${signalReference[family]} · ${edge.label?.trim() || "Signal path"}`
+          : edge.label?.trim() || "Connection",
       type: "smoothstep",
       pathOptions: {
         borderRadius: mode === "technical" ? 4 : 12,
@@ -240,18 +243,18 @@ export function buildReactFlowModel(
       className: `${edgeClass(edge)} wm-vs-signal-${family}`,
       style: {
         stroke: colour,
-        strokeWidth: mode === "technical" ? 2.2 : 2.6,
+        strokeWidth: mode === "technical" ? 3 : 3.2,
       },
       markerEnd: {
         type: MarkerType.ArrowClosed,
-        width: 16,
-        height: 16,
+        width: 18,
+        height: 18,
         color: colour,
       },
       labelStyle: {
         fill: "#1f2937",
-        fontSize: 11,
-        fontWeight: 700,
+        fontSize: 12,
+        fontWeight: 800,
       },
       labelBgStyle: {
         fill: "#ffffff",
