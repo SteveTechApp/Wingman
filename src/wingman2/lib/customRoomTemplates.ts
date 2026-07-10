@@ -134,8 +134,16 @@ function normalizeTemplate(template: unknown, index: number): CustomRoomTemplate
           })
           .filter((item): item is { label: string; description: string } => Boolean(item))
       : [{ label: "Custom template", description: "Created by a Wingman user and saved locally." }],
-    assumptions: safeStringArray(record.assumptions, ["Confirm site constraints, cable paths and product availability."]),
-    validationItems: safeStringArray(record.validationItems, ["Validate the saved design before using it for a live customer proposal."]),
+    assumptions: safeStringArray(record.assumptions, []),
+    validationItems: safeStringArray(record.validationItems, []),
+    designParameters: safeStringArray(
+      record.designParameters,
+      safeStringArray(record.assumptions, []),
+    ),
+    deploymentConditions: safeStringArray(
+      record.deploymentConditions,
+      safeStringArray(record.validationItems, []),
+    ),
     upgradePaths: safeStringArray(record.upgradePaths, ["Add optional enhancements after the base room requirement is confirmed."]),
     customTemplate: true,
     createdAt: safeString(record.createdAt, timestamp),
@@ -247,7 +255,7 @@ export function saveRoomTemplateCopy(template: RoomTemplate, rows?: TemplateBomR
       summary: `Custom copy of ${template.name}. ${template.summary}`,
       bom: rows?.length ? rows.map((row) => ({ ...row })) : template.bom.map((row) => ({ ...row })),
     },
-    { sourceTemplateId: template.id },
+    { sourceTemplateId: (template as CustomRoomTemplate).sourceTemplateId || template.id },
   );
 }
 

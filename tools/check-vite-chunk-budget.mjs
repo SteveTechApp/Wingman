@@ -5,6 +5,7 @@ const distAssets = path.join(process.cwd(), "dist", "assets");
 
 const reviewKb = Number(process.env.WM_CHUNK_REVIEW_KB ?? 500);
 const failKb = Number(process.env.WM_CHUNK_FAIL_KB ?? 850);
+const advisoryMode = process.argv.includes("--advisory") || process.env.WM_CHUNK_BUDGET_ADVISORY === "1";
 
 const ignoredLargeAssets = [
   /^pdf\.worker-.*\.mjs$/,
@@ -54,6 +55,18 @@ if (failingRows.length) {
   for (const row of failingRows) {
     console.error(`- ${row.file} ${row.sizeKb.toFixed(2)} kB`);
   }
+
+  if (advisoryMode) {
+    console.warn("");
+    console.warn(
+      "[chunk-budget] Advisory mode: the oversized chunks remain visible, but they do not fail this build.",
+    );
+    console.warn(
+      "[chunk-budget] Run npm run check:vite-chunk-budget for the strict performance gate.",
+    );
+    process.exit(0);
+  }
+
   process.exit(1);
 }
 
