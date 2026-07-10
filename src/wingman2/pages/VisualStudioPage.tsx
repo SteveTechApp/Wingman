@@ -94,47 +94,6 @@ export default function VisualStudioPage() {
       </header>
 
       <section className="wm-vs-layout">
-        <aside className="wm-vs-left-rail">
-          <div className="wm-vs-panel">
-            <p className="wm-vs-eyebrow">Diagram type</p>
-            <div className="wm-vs-diagram-list">
-              {visualStudioDiagrams.map((diagram) => (
-                <button
-                  key={diagram.id}
-                  type="button"
-                  className={`wm-vs-choice ${selectedDiagramId === diagram.id ? "is-active" : ""}`}
-                  onClick={() => setSelectedDiagramId(diagram.id)}
-                >
-                  <span>{diagram.title}</span>
-                  <small>{diagram.subtitle}</small>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="wm-vs-panel">
-            <p className="wm-vs-eyebrow">View mode</p>
-            <div className="wm-vs-mode-grid">
-              <button
-                type="button"
-                className={`wm-vs-mode ${mode === "technical" ? "is-active" : ""}`}
-                onClick={() => setMode("technical")}
-              >
-                <span>Technical</span>
-                <small>Shows devices, paths and quote checks.</small>
-              </button>
-              <button
-                type="button"
-                className={`wm-vs-mode ${mode === "customer" ? "is-active" : ""}`}
-                onClick={() => setMode("customer")}
-              >
-                <span>Customer</span>
-                <small>Simplifies the graphic for discussion.</small>
-              </button>
-            </div>
-          </div>
-        </aside>
-
         <VisualStudioCanvas model={selectedDiagram} mode={mode} />
 
         <aside className="wm-vs-right-rail">

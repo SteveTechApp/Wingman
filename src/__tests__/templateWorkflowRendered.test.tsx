@@ -41,8 +41,21 @@ describe("template workflow wiring", () => {
     expect(screen.getByRole("heading", { name: "Template not found." })).toBeInTheDocument();
     expect(screen.queryByText(roomTemplates[0].name)).not.toBeInTheDocument();
   });
+
+  it("creates and reviews a brand-new custom room template", () => {
+    renderTemplateRoutes();
+
+    fireEvent.change(screen.getByLabelText("Name"), {
+      target: { value: "Council chamber custom room" },
+    });
+    fireEvent.change(screen.getByLabelText("Vertical"), {
+      target: { value: "Government" },
+    });
     fireEvent.change(screen.getByLabelText("Application"), {
       target: { value: "Hybrid civic meetings" },
+    });
+    fireEvent.change(screen.getByLabelText("Scale"), {
+      target: { value: "Custom" },
     });
     fireEvent.change(screen.getByLabelText("Summary"), {
       target: { value: "Reusable chamber design starting point." },
