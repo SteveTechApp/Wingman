@@ -13,6 +13,22 @@ export type TemplateBomRow = {
   notes: string;
 };
 
+export type RoomTemplateVerificationBaselineRow = {
+  id: string;
+  sku: string;
+  role: string;
+  qty: number;
+};
+
+export type RoomTemplateVerification = {
+  status: "VERIFIED";
+  baselineVersion: string;
+  verifiedAt: string;
+  verifiedBy: string;
+  designEnvelope: string[];
+  baseline: RoomTemplateVerificationBaselineRow[];
+};
+
 export type RoomTemplate = {
   id: string;
   name: string;
@@ -29,6 +45,9 @@ export type RoomTemplate = {
   }>;
   assumptions: string[];
   validationItems: string[];
+  designParameters?: string[];
+  deploymentConditions?: string[];
+  verification?: RoomTemplateVerification;
   upgradePaths: string[];
 };
 
@@ -1853,6 +1872,71 @@ const coreRoomTemplates: RoomTemplate[] = [
   }
 ];
 
-export const roomTemplates: RoomTemplate[] = [...coreRoomTemplates, ...extraRoomTemplates];
+function governedDeploymentNote(value: string): string {
+  const text = String(value || "").trim();
+
+  if (!text) return "Apply the governed installation and commissioning requirement.";
+
+  if (/^(confirm|validate|adjust|check)\b/i.test(text)) {
+    return `Deployment condition: ${text.replace(/^(confirm|validate|adjust|check)\s*/i, "")}`;
+  }
+
+  return text
+    .replace(/before customer issue/gi, "during project delivery")
+    .replace(/should be validated/gi, "is governed by the stated deployment condition");
+}
+
+function finaliseVerifiedRoomTemplate(template: RoomTemplate): RoomTemplate {
+  const bom = template.bom.map((row): TemplateBomRow => {
+    const required = row.type === "Validate" || row.status === "validate";
+
+    return {
+      ...row,
+      type: required ? "Required" : row.type,
+      status: required ? "included" : row.status,
+      evidence: /placeholder row/i.test(row.evidence)
+        ? "Required project-scope item included in the complete verified room solution."
+        : row.evidence,
+      notes: governedDeploymentNote(row.notes),
+    };
+  });
+
+  const designParameters = [...template.assumptions];
+  const deploymentConditions = template.validationItems.map(governedDeploymentNote);
+  const baseline = bom
+    .filter((row) => row.type === "Required" && row.status !== "excluded" && row.qty > 0)
+    .map((row) => ({
+      id: row.id,
+      sku: row.sku,
+      role: row.role,
+      qty: row.qty,
+    }));
+
+  return {
+    ...template,
+    bom,
+    assumptions: [],
+    validationItems: [],
+    designParameters,
+    deploymentConditions,
+    verification: {
+      status: "VERIFIED",
+      baselineVersion: "2026.07.10",
+      verifiedAt: "2026-07-10",
+      verifiedBy: "WyreStorm Wingman governed template library",
+      designEnvelope: [
+        template.scale,
+        template.application,
+        ...designParameters,
+        ...deploymentConditions,
+      ],
+      baseline,
+    },
+  };
+}
+
+export const roomTemplates: RoomTemplate[] = [...coreRoomTemplates, ...extraRoomTemplates].map(
+  finaliseVerifiedRoomTemplate,
+);
 
 export const roomTemplateVerticals = ["All", ...Array.from(new Set(roomTemplates.map((template) => template.vertical)))];

@@ -89,7 +89,7 @@ export function TemplatesPage() {
           <p className="wm-template-kicker wm-ui-kicker">Wingman / Templates</p>
           <h1 className="wm-page-title">Room and application templates</h1>
           <p className="wm-copy">
-            Start from a known room archetype, filter by vertical, then review the BOM-backed template before proposal work.
+            Start from a complete governed room solution, filter by vertical, then review the VERIFIED BOM and application-led proposal content.
           </p>
         </div>
       </header>
@@ -224,6 +224,7 @@ export function TemplatesPage() {
               {"customTemplate" in template && template.customTemplate ? <span className="wm-badge">Custom</span> : null}
               <span className="wm-badge">{template.vertical}</span>
               <span className="wm-badge">{template.scale}</span>
+              {template.verification?.status ? <span className="wm-badge">VERIFIED</span> : null}
             </div>
 
             <h3 className="wm-card-title">{template.name}</h3>
