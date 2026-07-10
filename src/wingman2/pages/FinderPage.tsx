@@ -2770,7 +2770,7 @@ function writeStandaloneShortlist(items: ProductSelection[]) {
 function ChipButton({ active, label, onClick }: { active: boolean; label: string; onClick: () => void }) {
   return (
     <button
-      className={`inline-flex min-h-[30px] items-center gap-2 rounded-full border px-3 py-1 text-xs font-black transition ${
+      className={`finder-chip inline-flex min-h-[30px] items-center gap-2 rounded-full border px-3 py-1 text-xs font-black transition ${
         active
           ? "border-slate-950 bg-slate-950 text-white"
           : "border-[#29465e] bg-[#0d2133] text-white/70 hover:border-cyan-300 hover:bg-cyan-50 hover:text-cyan-800"
@@ -2793,7 +2793,7 @@ function FieldSelect({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="grid gap-1">
+    <label className="finder-field grid gap-1">
       <span className="text-xs font-black uppercase tracking-[0.14em] wm-ui-kicker">{label}</span>
       <select className={["wm-ui-input", "h-9 rounded-xl border border-[#29465e] bg-[#0d2133] px-3 text-sm text-[#edf6ff] outline-none focus:border-cyan-400 focus:ring-4 focus:ring-amber-100"].filter(Boolean).join(" ")}
         value={value}
@@ -2838,7 +2838,7 @@ function FinderProductPathHint({ selectedPath }: { selectedPath: string }) {
   const selectedIsUnlikely = Boolean(selectedPath) && finderProductPathRelevance(application, selectedPath) === "unlikely";
 
   return (
-    <div className="md:col-span-2 rounded-xl border px-3 py-2 text-xs leading-5 wm-ui-card wm-ui-copy">
+    <div className="finder-path-hint md:col-span-2 rounded-xl border px-3 py-2 text-xs leading-5 wm-ui-card wm-ui-copy">
       <span className="font-bold uppercase tracking-[0.12em] wm-ui-kicker">Likely for {applicationLabel}: </span>
       {recommended.join(", ")}.
       {selectedIsUnlikely ? (
@@ -2878,7 +2878,7 @@ function FinderStepFooter({
   const isLastStep = activeIndex === finderSteps.length - 1;
 
   return (
-    <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t pt-4 wm-ui-card">
+    <div className="finder-step-footer mt-5 flex flex-wrap items-center justify-between gap-3 border-t pt-4 wm-ui-card">
       <button
         type="button"
         onClick={onPrevious}
@@ -2915,132 +2915,8 @@ function FinderStepFooter({
 
 export function FinderPage() {
 
-useEffect(() => {
-    function applyFinderHeaderAndGuruCleanup() {
-      const main = document.querySelector("main");
 
-      if (!main) {
-        return;
-      }
 
-      const titleElements = Array.from(main.querySelectorAll("h1, h2, h3, p, div, span")).filter((item) => {
-        const element = item instanceof HTMLElement ? item : null;
-
-        if (!element) {
-          return false;
-        }
-
-        return element.textContent?.trim() === "Customer problem to product path";
-      });
-
-      titleElements.forEach((titleElement) => {
-        const title = titleElement instanceof HTMLElement ? titleElement : null;
-
-        if (!title) {
-          return;
-        }
-
-        title.style.lineHeight = "1.35";
-        title.style.minHeight = "30px";
-        title.style.display = "inline-flex";
-        title.style.alignItems = "center";
-
-        let parent = title.parentElement;
-        let depth = 0;
-
-        while (parent && depth < 5) {
-          parent.style.minHeight = depth === 0 ? "46px" : parent.style.minHeight;
-          parent.style.paddingTop = depth <= 1 ? "4px" : parent.style.paddingTop;
-          parent.style.paddingBottom = depth <= 1 ? "14px" : parent.style.paddingBottom;
-          parent.style.overflow = "visible";
-
-          parent.querySelectorAll("input[type='number'], input[role='spinbutton']").forEach((control) => {
-            const controlElement = control instanceof HTMLElement ? control : null;
-
-            if (!controlElement) {
-              return;
-            }
-
-            controlElement.style.display = "none";
-          });
-
-          Array.from(parent.children).forEach((child) => {
-            const childElement = child instanceof HTMLElement ? child : null;
-
-            if (!childElement) {
-              return;
-            }
-
-            if (childElement === title) {
-              return;
-            }
-
-            const rect = childElement.getBoundingClientRect();
-            const text = childElement.textContent?.trim() || "";
-            const looksLikeStraySpinner = text.length === 0 && rect.width <= 32 && rect.height <= 32;
-
-            if (!looksLikeStraySpinner) {
-              return;
-            }
-
-            childElement.style.display = "none";
-          });
-
-          parent = parent.parentElement;
-          depth += 1;
-        }
-      });
-
-      const guruCandidates = Array.from(document.body.querySelectorAll("button, [role='button'], a, div")).filter((item) => {
-        const element = item instanceof HTMLElement ? item : null;
-
-        if (!element) {
-          return false;
-        }
-
-        const rect = element.getBoundingClientRect();
-        const className = String(element.className || "").toLowerCase();
-        const html = element.innerHTML.toLowerCase();
-        const text = element.textContent?.toLowerCase() || "";
-        const isBottomRight = rect.right > window.innerWidth - 180 && rect.bottom > window.innerHeight - 190;
-        const isRoundLauncher = Math.abs(rect.width - rect.height) <= 18 && rect.width >= 44 && rect.width <= 96;
-        const looksLikeGuru = className.includes("guru") || html.includes("guru") || html.includes("wingman") || text.includes("guru");
-
-        return isBottomRight && isRoundLauncher && looksLikeGuru;
-      });
-
-      guruCandidates.forEach((candidate) => {
-        const guru = candidate instanceof HTMLElement ? candidate : null;
-
-        if (!guru) {
-          return;
-        }
-
-        guru.style.position = "fixed";
-        guru.style.top = "50%";
-        guru.style.right = "24px";
-        guru.style.bottom = "auto";
-        guru.style.zIndex = "240";
-        guru.style.transform = "translateY(-50%)";
-        guru.style.margin = "0";
-      });
-    }
-
-    applyFinderHeaderAndGuruCleanup();
-
-    const firstFrame = window.requestAnimationFrame(applyFinderHeaderAndGuruCleanup);
-    const secondFrame = window.setTimeout(applyFinderHeaderAndGuruCleanup, 300);
-    const thirdFrame = window.setTimeout(applyFinderHeaderAndGuruCleanup, 900);
-
-    window.addEventListener("resize", applyFinderHeaderAndGuruCleanup);
-
-    return () => {
-      window.cancelAnimationFrame(firstFrame);
-      window.clearTimeout(secondFrame);
-      window.clearTimeout(thirdFrame);
-      window.removeEventListener("resize", applyFinderHeaderAndGuruCleanup);
-    };
-  }, []);
 
 
   const discoveryHandoffAppliedRef = useRef(false);
@@ -3462,7 +3338,7 @@ if (!leadingMatch) {
       >
         <div className="grid gap-4">
           {activeStep !== "results" ? (
-          <nav className="grid gap-2 md:grid-cols-5" aria-label="Finder workflow steps">
+          <nav className="finder-stepper grid gap-2 md:grid-cols-5" aria-label="Finder workflow steps">
             {finderSteps.map((step, index) => {
               const isActive = step.id === activeStep;
               const isComplete = index < activeStepIndex;
@@ -3551,8 +3427,8 @@ if (!leadingMatch) {
                     </div>
                   </div>
 
-                  <div className="grid gap-3 rounded-2xl border p-4 md:grid-cols-2 wm-ui-card">
-                    <label className="grid gap-1 text-xs font-bold uppercase tracking-[0.14em] md:col-span-2 wm-ui-kicker">
+                  <div className="finder-start-form grid gap-3 rounded-2xl border p-4 md:grid-cols-2 wm-ui-card">
+                    <label className="finder-field finder-field-span-2 grid gap-1 text-xs font-bold uppercase tracking-[0.14em] md:col-span-2 wm-ui-kicker">
                       Technology Type
                       <select className={["wm-ui-input", "min-h-11 rounded-xl border border-[#29465e] bg-[#0d2133] px-3 py-2 text-sm font-semibold normal-case tracking-normal text-[#edf6ff] shadow-sm outline-none transition focus:border-sky-400 focus:ring-2 focus:ring-sky-100"].filter(Boolean).join(" ")}
                         id="finder-technology-type"
@@ -3568,9 +3444,9 @@ if (!leadingMatch) {
                       </select>
                     </label>
 
-                    <label className="grid gap-1 md:col-span-2">
+                    <label className="finder-field finder-field-span-2 grid gap-1 md:col-span-2">
                       <span className="text-xs font-black uppercase tracking-[0.14em] wm-ui-kicker">Search SKU or requirement</span>
-                      <div className="flex items-center gap-2 rounded-xl border px-3 wm-ui-card">
+                      <div className="finder-search-control flex items-center gap-2 rounded-xl border px-3 wm-ui-card">
                         <Search className="h-4 w-4 wm-ui-copy" />
                         <input className={["wm-ui-input", "h-10 min-w-0 flex-1 border-0 bg-transparent px-0 text-sm text-[#edf6ff] outline-none"].filter(Boolean).join(" ")}
                           value={need.query}
@@ -3589,7 +3465,7 @@ if (!leadingMatch) {
               ) : null}
 
               {activeStep === "signal" ? (
-                <div className="mt-4 grid gap-3 rounded-2xl border p-4 md:grid-cols-3 wm-ui-card">
+                <div className="finder-signal-grid mt-4 grid gap-3 rounded-2xl border p-4 md:grid-cols-3 wm-ui-card">
                   <FieldSelect label="Signal type" value={need.signalType} options={signalTypeOptions} onChange={(value) => setNeedField("signalType", value)} />
                   <FieldSelect label="Source connector" value={need.sourceConnector} options={connectorOptions} onChange={(value) => setNeedField("sourceConnector", value)} />
                   <FieldSelect label="Display / output" value={need.displayConnector} options={connectorOptions} onChange={(value) => setNeedField("displayConnector", value)} />
@@ -3597,7 +3473,7 @@ if (!leadingMatch) {
               ) : null}
 
               {activeStep === "size" ? (
-                <div className="mt-4 grid gap-3 rounded-2xl border p-4 md:grid-cols-2 xl:grid-cols-4 wm-ui-card">
+                <div className="finder-size-grid mt-4 grid gap-3 rounded-2xl border p-4 md:grid-cols-2 xl:grid-cols-4 wm-ui-card">
                   <FieldSelect label="Inputs" value={need.inputs} options={inputOptions} onChange={(value) => setNeedField("inputs", value)} />
                   <FieldSelect label="Outputs" value={need.outputs} options={outputOptions} onChange={(value) => setNeedField("outputs", value)} />
                   <FieldSelect label="Distance" value={need.distance} options={distanceOptions} onChange={(value) => setNeedField("distance", value)} />
@@ -3606,7 +3482,7 @@ if (!leadingMatch) {
               ) : null}
 
               {activeStep === "specialist" ? (
-                <div className="mt-4 grid gap-3 rounded-2xl border p-4 md:grid-cols-2 xl:grid-cols-5 wm-ui-card">
+                <div className="finder-specialist-grid mt-4 grid gap-3 rounded-2xl border p-4 md:grid-cols-2 xl:grid-cols-5 wm-ui-card">
                   <FieldSelect label="USB" value={need.usb} options={usbOptions} onChange={(value) => setNeedField("usb", value)} />
                   <FieldSelect label="Processing" value={need.processing} options={processingOptions} onChange={(value) => setNeedField("processing", value)} />
                   <FieldSelect label="Network" value={need.network} options={networkOptions} onChange={(value) => setNeedField("network", value)} />
