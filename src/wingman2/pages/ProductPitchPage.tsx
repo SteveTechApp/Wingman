@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { getCurrentWorkflowProject, readProjectStore } from "../data/projectStore";
-import { writeProductWorkspaceHandoff } from "../data/productWorkspaceHandoff";
+import { readProductWorkspaceHandoff, writeProductWorkspaceHandoff } from "../data/productWorkspaceHandoff";
 import {
   buildProductNarrative,
   applyProductStoryToSpec,
@@ -82,6 +82,7 @@ const PRODUCT_PITCH_SECONDARY_BUTTON_CLASS = "rounded-full border border-cyan-30
 const PRODUCT_PITCH_SMALL_PRIMARY_BUTTON_CLASS = "rounded-full bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950";
 const PRODUCT_PITCH_SMALL_SECONDARY_BUTTON_CLASS = "rounded-full border border-cyan-300 px-4 py-2 text-sm font-bold text-cyan-100";
 const PRODUCT_PITCH_FORWARD_BUTTON_CLASS = "wm-ui-button wm-ui-button-forward px-4 py-2 text-sm font-bold";
+const PRODUCT_PITCH_RESULT_LIMIT = 16;
 
 const fallbackProducts: ProductSpec[] = [
   {
@@ -236,6 +237,125 @@ function productMatchesProductPitchFilter(product: ProductSpec, filter: ProductP
   return lead === filter;
 }
 
+function normaliseSelectorText(value: string | undefined) {
+  return String(value || "").trim().replace(/\s+/g, " ");
+}
+
+function normaliseSelectorSku(value: string | undefined) {
+  return normaliseSelectorText(value).toUpperCase();
+}
+
+function selectorSearchText(product: ProductSpec) {
+  return [
+    product.sku,
+    product.name,
+    product.family,
+    product.category,
+    product.productType,
+    product.description,
+    product.purpose,
+    product.summary,
+    ...product.keyFeatures,
+    ...product.applications,
+    ...product.ioSummary,
+    ...product.video,
+    ...product.usb,
+    ...product.network,
+    ...product.control,
+  ].join(" ").toLowerCase();
+}
+
+function productHasAnyTerm(product: ProductSpec, terms: RegExp[]) {
+  const text = selectorSearchText(product);
+  return terms.some((term) => term.test(text));
+}
+
+function isCableProduct(product: ProductSpec) {
+  const lifecycle = resolveProductLifecycle(product.sku);
+  const sku = normaliseSelectorSku(product.sku);
+
+  if (lifecycle.status === "cable") return true;
+  if (/^(CAB|CBL)-/.test(sku) || sku.includes("HAOC")) return true;
+
+  return productHasAnyTerm(product, [
+    /\b(active\s+optical|aoc|hdmi|usb-c?|cat\s*[5-8]|category|fiber|fibre|patch)\s+cable\b/i,
+    /\bcable\s*(assembly|lead|loom|tail|box)\b/i,
+  ]);
+}
+
+function isAccessoryProduct(product: ProductSpec) {
+  if (isCableProduct(product)) return false;
+
+  const text = selectorSearchText(product);
+  const sku = normaliseSelectorSku(product.sku);
+
+  if (/^(PSU|PWR|RACK|RMK|BRK|CAB)-/.test(sku)) return true;
+
+  return /\b(accessory|bracket|mount|dongle|remote|microphone|companion\s+mic|control\s+hub|touch\s?panel|rack\s?mount|power\s+supply|psu)\b/i.test(text);
+}
+
+function isLeadSolutionProduct(product: ProductSpec) {
+  return productHasAnyTerm(product, [
+    /\b(av\s?over\s?ip|avoip|networkhd|ndi|sdvoe)\b/i,
+    /\b(matrix|switcher|switching|presentation|uc|byod|byom|usb|kvm|hdbaset|extender|extension|transmitter|receiver|video\s?wall|multiview|control|processor)\b/i,
+    /\b(camera|ptz|amplifier|dante|audio|encoder|decoder)\b/i,
+  ]);
+}
+
+function productLifecycleLabel(product: ProductSpec) {
+  const lifecycle = resolveProductLifecycle(product.sku);
+  if (lifecycle.recommendable) return "Active";
+  if (lifecycle.supersededBy) return `Superseded by ${lifecycle.supersededBy}`;
+  if (lifecycle.status === "cable") return "Cable / accessory";
+  if (lifecycle.status === "unlisted") return "Needs verification";
+  return lifecycle.status.replace(/-/g, " ");
+}
+
+function productCategoryFamily(product: ProductSpec) {
+  const category = normaliseSelectorText(product.category || product.productType || "Product");
+  const family = normaliseSelectorText(product.family);
+
+  if (!family || /^wyrestorm$/i.test(family) || family.toLowerCase() === category.toLowerCase()) {
+    return category;
+  }
+
+  return `${category} / ${family}`;
+}
+
+function productSelectorScore(product: ProductSpec, term: string, activeQuickFilter: ProductPitchQuickFilter) {
+  const lifecycle = resolveProductLifecycle(product.sku);
+  const sku = normaliseSelectorSku(product.sku);
+  const compactSku = sku.replace(/[^A-Z0-9]/g, "");
+  const compactTerm = term.toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const haystack = selectorSearchText(product);
+  const isCable = isCableProduct(product);
+  const isAccessory = isAccessoryProduct(product);
+  let score = 0;
+
+  if (lifecycle.status === "active") score += 70;
+  if (lifecycle.recommendable) score += 55;
+  if (isLeadSolutionProduct(product)) score += 50;
+  if (activeQuickFilter !== "All") score += 8;
+  if (isAccessory) score -= 45;
+  if (isCable) score -= 70;
+
+  if (term) {
+    if (sku.toLowerCase() === term) score += 240;
+    if (compactTerm && compactSku === compactTerm) score += 220;
+    if (sku.toLowerCase().includes(term)) score += 120;
+    if (compactTerm && compactSku.includes(compactTerm)) score += 110;
+    if (normaliseSelectorText(product.name).toLowerCase().includes(term)) score += 80;
+    if (normaliseSelectorText(product.family).toLowerCase().includes(term)) score += 50;
+    if (normaliseSelectorText(product.category).toLowerCase().includes(term)) score += 35;
+
+    term.split(/\s+/).filter(Boolean).forEach((token) => {
+      if (haystack.includes(token)) score += 12;
+    });
+  }
+
+  return score;
+}
+
 function DisplayList({ items, max = 6 }: { items: string[]; max?: number }) {
   const useful = cleanUsefulList(items, max);
 
@@ -286,6 +406,10 @@ function SelectionPage({
   setSearchTerm,
   activeQuickFilter,
   setActiveQuickFilter,
+  includeAccessories,
+  setIncludeAccessories,
+  includeCables,
+  setIncludeCables,
   openProduct
 }: {
   products: ProductSpec[];
@@ -293,9 +417,43 @@ function SelectionPage({
   setSearchTerm: (value: string) => void;
   activeQuickFilter: ProductPitchQuickFilter;
   setActiveQuickFilter: (value: ProductPitchQuickFilter) => void;
+  includeAccessories: boolean;
+  setIncludeAccessories: (value: boolean) => void;
+  includeCables: boolean;
+  setIncludeCables: (value: boolean) => void;
   openProduct: (sku: string) => void;
 }) {
   const term = searchTerm.trim().toLowerCase();
+  const currentProject = useMemo(() => getCurrentWorkflowProject(readProjectStore()), []);
+  const recentSku = useMemo(() => readProductWorkspaceHandoff()?.sku ?? "", []);
+  const suggestedProducts = useMemo(() => {
+    const selections = currentProject?.productSelections ?? currentProject?.proposal?.products ?? [];
+    const skus = selections.map((selection) => normaliseSelectorSku(selection.sku)).filter(Boolean);
+    return skus
+      .map((sku) => products.find((product) => normaliseSelectorSku(product.sku) === sku))
+      .filter((product): product is ProductSpec => Boolean(product))
+      .slice(0, 3);
+  }, [currentProject, products]);
+  const recentProducts = useMemo(() => {
+    const sku = normaliseSelectorSku(recentSku);
+    if (!sku) return [];
+    const recent = products.find((product) => normaliseSelectorSku(product.sku) === sku);
+    return recent ? [recent] : [];
+  }, [products, recentSku]);
+  const browseFamilies = useMemo(() => {
+    const counts = new Map<string, number>();
+    products.forEach((product) => {
+      if (isCableProduct(product) || isAccessoryProduct(product)) return;
+      const family = normaliseSelectorText(product.family);
+      const label = family && !/^wyrestorm$/i.test(family) ? family : normaliseSelectorText(product.category || product.productType);
+      if (!label) return;
+      counts.set(label, (counts.get(label) ?? 0) + 1);
+    });
+
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .slice(0, 8);
+  }, [products]);
 
   const quickFilterCounts = useMemo(() => {
     const counts = new Map<ProductPitchQuickFilter, number>();
@@ -315,39 +473,91 @@ function SelectionPage({
     return counts;
   }, [products]);
 
-  const filtered = useMemo(() => {
-    const quickFiltered = products.filter((product) => productMatchesProductPitchFilter(product, activeQuickFilter));
+  const matchingProducts = useMemo(() => {
+    const candidates = products.filter((product) => {
+      if (!includeCables && isCableProduct(product)) return false;
+      if (!includeAccessories && isAccessoryProduct(product)) return false;
+      if (!productMatchesProductPitchFilter(product, activeQuickFilter)) return false;
+      if (!term) return true;
+      return includesProduct(product, term);
+    });
 
-    if (!term) return quickFiltered;
+    return candidates
+      .map((product) => ({
+        product,
+        score: productSelectorScore(product, term, activeQuickFilter),
+      }))
+      .sort((a, b) => b.score - a.score || a.product.sku.localeCompare(b.product.sku))
+      .map((entry) => entry.product);
+  }, [products, includeAccessories, includeCables, term, activeQuickFilter]);
 
-    return quickFiltered.filter((product) => includesProduct(product, term));
-  }, [products, term, activeQuickFilter]);
+  const visibleResults = matchingProducts.slice(0, PRODUCT_PITCH_RESULT_LIMIT);
+  const hiddenCount = Math.max(0, matchingProducts.length - visibleResults.length);
+
+  const openFamily = (family: string) => {
+    setSearchTerm(family);
+    setActiveQuickFilter("All");
+  };
+
+  const ResultButton = ({ product }: { product: ProductSpec }) => (
+    <button
+      className="wm-product-pitch-result-card wm-ui-button wm-ui-button-secondary"
+      type="button"
+      onClick={() => openProduct(product.sku)}
+    >
+      <span className="wm-product-pitch-result-sku"><span>SKU:</span>{" "}{product.sku}{" "}</span>
+      <span className="wm-product-pitch-result-name"><span>Name:</span>{" "}{product.name}{" "}</span>
+      <span className="wm-product-pitch-result-family"><span>Category:</span>{" "}{productCategoryFamily(product)}{" "}</span>
+      <span className="wm-product-pitch-result-status"><span>Status:</span>{" "}{productLifecycleLabel(product)}</span>
+    </button>
+  );
 
   return (
-    <main className="grid gap-4 pb-6 wm-ui-page wingman-page-host">
+    <main className="grid gap-4 pb-6 wm-ui-page wingman-page-host wm-product-pitch-page">
       <CompareBackToListButton />
       <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
         <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Product workspace</p>
-        <h1 className={`${PRODUCT_PITCH_HERO_TITLE_CLASS} text-white`}>Select one product</h1>
+        <h1 className={`${PRODUCT_PITCH_HERO_TITLE_CLASS} text-white`}>Find the right product workspace</h1>
         <p className="mt-2 max-w-4xl text-sm leading-6 wm-ui-copy">
-          Select a product first. The next page opens a single product workspace with Overview, Sales Cards, Technical Spec, Diagram and Room Visual tabs.
+          Search by SKU, product name, product family or application. Selecting a result opens the product workspace immediately.
         </p>
       </section>
 
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
+      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5 wm-product-pitch-selector`}>
         <label className="grid gap-2">
-          <span className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Search by SKU, product name or application</span>
+          <span className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Search products</span>
           <input className={["wm-ui-input", "min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-bold text-white outline-none focus:border-cyan-300"].filter(Boolean).join(" ")}
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="Example: CAM-210-NDI-PTZ, amplifier, HDMI extender, NetworkHD"
+            placeholder="Example: MXV-0404-H2A-KIT, NetworkHD, HDMI extender, USB KVM, video wall"
             type="search"
 
             autoFocus
           />
         </label>
 
-        <div className="mt-4 flex flex-wrap gap-2" aria-label="Product quick filter">
+        <div className="mt-4 flex flex-wrap gap-3" aria-label="Catalogue include controls">
+          <label className="wm-product-pitch-toggle">
+            <input
+              type="checkbox"
+              checked={includeAccessories}
+              onChange={(event) => setIncludeAccessories(event.target.checked)}
+            />
+            <span>Include accessories</span>
+          </label>
+          <label className="wm-product-pitch-toggle">
+            <input
+              type="checkbox"
+              checked={includeCables}
+              onChange={(event) => setIncludeCables(event.target.checked)}
+            />
+            <span>Include cables</span>
+          </label>
+        </div>
+
+        <details className="mt-4 wm-product-pitch-browse">
+          <summary className="cursor-pointer text-xs font-extrabold uppercase text-cyan-200">Browse A-Z</summary>
+          <div className="mt-3 flex flex-wrap gap-2" aria-label="Product quick filter">
           {PRODUCT_PITCH_FILTERS.map((filter) => {
             const count = quickFilterCounts.get(filter) || 0;
             const isActive = activeQuickFilter === filter;
@@ -372,36 +582,67 @@ function SelectionPage({
               </button>
             );
           })}
-        </div>
+          </div>
+        </details>
 
         <p className="mt-3 text-xs font-semibold wm-ui-copy">
-          Showing {filtered.length} of {products.length} products
+          Showing {visibleResults.length} of {matchingProducts.length} matching products
           {activeQuickFilter !== "All" ? ` · Filter: ${activeQuickFilter}` : ""}
           {term ? ` · Search: ${searchTerm.trim()}` : ""}
+          {hiddenCount ? ` · ${hiddenCount} more available with a narrower search` : ""}
         </p>
 
-        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-          {filtered.map((product) => (
-            <button className={["wm-ui-button wm-ui-button-secondary", "min-h-[92px] rounded-2xl border border-[#29465e] bg-[#081724] p-3 text-left transition hover:border-cyan-300 hover:bg-cyan-500/10"].filter(Boolean).join(" ")}
-              key={product.sku}
-              type="button"
-              onClick={() => openProduct(product.sku)}
-
-            >
-              <span className={`block ${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-300`}>{product.family}</span>
-              <strong className="mt-1 block truncate text-lg font-extrabold text-white">{product.sku}</strong>
-              <span className="mt-1 block line-clamp-2 text-xs font-bold text-white/80">{product.name}</span>
-              <span className="mt-2 block truncate text-[0.68rem] text-white/50">{product.productType}</span>
-            </button>
+        <div className="mt-4 wm-product-pitch-result-list" role="list" aria-label="Product results">
+          {visibleResults.map((product) => (
+            <ResultButton key={product.sku} product={product} />
           ))}
         </div>
 
-        {!filtered.length ? (
+        {!matchingProducts.length ? (
           <div className="mt-5 rounded-2xl border p-4 text-sm wm-ui-card wm-ui-copy wm-ui-title">
-            No matching product found. Clear the search or use a broader term.
+            No matching product found. Try a broader term, or include accessories and cables if you are looking for supporting items.
           </div>
         ) : null}
       </section>
+
+      {!term ? (
+        <section className="wm-product-pitch-guidance-grid">
+          <div className="wm-ui-card rounded-3xl border p-4">
+            <h2 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Suggested from current project</h2>
+            <div className="mt-3 grid gap-2">
+              {suggestedProducts.length ? suggestedProducts.map((product) => <ResultButton key={product.sku} product={product} />) : (
+                <p className="text-sm wm-ui-copy">No saved project product selection yet.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="wm-ui-card rounded-3xl border p-4">
+            <h2 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Recently viewed</h2>
+            <div className="mt-3 grid gap-2">
+              {recentProducts.length ? recentProducts.map((product) => <ResultButton key={product.sku} product={product} />) : (
+                <p className="text-sm wm-ui-copy">No recent product workspace yet.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="wm-ui-card rounded-3xl border p-4 wm-product-pitch-family-panel">
+            <h2 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Browse by product family</h2>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {browseFamilies.map(([family, count]) => (
+                <button
+                  key={family}
+                  type="button"
+                  className="wm-ui-button wm-ui-button-secondary wm-product-pitch-family-button"
+                  onClick={() => openFamily(family)}
+                >
+                  <span>{family}</span>
+                  <strong>{count}</strong>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
     </main>
   );
 }
@@ -800,7 +1041,7 @@ function ProductWorkspace({
   }, [product.sku]);
 
   return (
-    <main className="grid gap-4 pb-6 wm-ui-page wingman-page-host">
+    <main className="grid gap-4 pb-6 wm-ui-page wingman-page-host wm-product-pitch-page">
       <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -824,7 +1065,7 @@ function ProductWorkspace({
               onClick={backToSelection}
               className={PRODUCT_PITCH_SMALL_SECONDARY_BUTTON_CLASS}
             >
-              Back to product selection
+              Change product
             </button>
           </div>
         </div>
@@ -962,6 +1203,8 @@ export function ProductPitchPage() {
   const [products, setProducts] = useState<ProductSpec[]>(fallbackProducts);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeQuickFilter, setActiveQuickFilter] = useState<ProductPitchQuickFilter>("All");
+  const [includeAccessories, setIncludeAccessories] = useState(false);
+  const [includeCables, setIncludeCables] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -997,8 +1240,8 @@ export function ProductPitchPage() {
   const selectedProduct = useMemo(() => {
     if (!selectedSku) return null;
 
-    return availableProducts.find((product) => product.sku.toLowerCase() === selectedSku.toLowerCase()) || null;
-  }, [availableProducts, selectedSku]);
+    return products.find((product) => product.sku.toLowerCase() === selectedSku.toLowerCase()) || null;
+  }, [products, selectedSku]);
 
   const openProduct = (sku: string) => {
     navigate(`/wingman/product-pitch?sku=${encodeURIComponent(sku)}`);
@@ -1024,6 +1267,10 @@ export function ProductPitchPage() {
         setSearchTerm={setSearchTerm}
         activeQuickFilter={activeQuickFilter}
         setActiveQuickFilter={setActiveQuickFilter}
+        includeAccessories={includeAccessories}
+        setIncludeAccessories={setIncludeAccessories}
+        includeCables={includeCables}
+        setIncludeCables={setIncludeCables}
         openProduct={openProduct}
       />
     );
@@ -1031,7 +1278,7 @@ export function ProductPitchPage() {
 
   if (!selectedProduct) {
     return (
-      <main className="grid gap-4 pb-6 wm-ui-page wingman-page-host">
+      <main className="grid gap-4 pb-6 wm-ui-page wingman-page-host wm-product-pitch-page">
         <section className="rounded-3xl border p-5 wm-ui-section wm-ui-card">
           <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-amber-200`}>Product not found</p>
           <h1 className={PRODUCT_PITCH_HERO_TITLE_CLASS}>No product workspace found for {selectedSku}</h1>
@@ -1043,7 +1290,7 @@ export function ProductPitchPage() {
             onClick={backToSelection}
             className={`mt-4 ${PRODUCT_PITCH_SMALL_SECONDARY_BUTTON_CLASS}`}
           >
-            Back to product selection
+            Change product
           </button>
         </section>
       </main>

@@ -3,6 +3,7 @@ import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { readProductWorkspaceHandoff } from "@/wingman2/data/productWorkspaceHandoff";
+import { loadProductIntelligenceIndex } from "@/wingman2/lib/productIntelligenceIndexCache";
 import { buildProductPitchSalesGuidance } from "@/wingman2/lib/productPitchGuidance";
 import type { ProductNarrative, ProductSpec } from "@/wingman2/lib/productStoryEngine";
 import ProductPitchPage from "@/wingman2/pages/ProductPitchPage";
@@ -72,6 +73,8 @@ function guidanceText(guidance: ReturnType<typeof buildProductPitchSalesGuidance
 describe("Product Pitch rendered workflow", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    vi.mocked(loadProductIntelligenceIndex).mockReset();
+    vi.mocked(loadProductIntelligenceIndex).mockRejectedValue(new Error("offline test fallback"));
   });
 
   it("renders a useful NDI camera story and writes product handoff evidence for the next workflow", async () => {
@@ -182,5 +185,149 @@ describe("Product Pitch rendered workflow", () => {
     expect(guidance.confirmationQuestion).toMatch(/^I'm treating this as Sports bar - Route live sport to each screen/);
     expect(guidance.confirmationQuestion).toMatch(/Is that correct\?$/);
     expect(guidance.discoveryQuestions.length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("hides cables and accessories by default while keeping core AV results focused", async () => {
+    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+      products: [
+        makeProduct("MXV-0404-H2A-KIT", {
+          name: "4x4 HDBaseT Matrix Kit",
+          family: "MXV",
+          category: "Matrix / HDBaseT",
+          productType: "Matrix switcher",
+          applications: ["Meeting room", "matrix switching"],
+        }),
+        makeProduct("CAB-HAOC-10M", {
+          name: "Active optical HDMI cable",
+          family: "Cables",
+          category: "Cable",
+          productType: "Cable",
+        }),
+        makeProduct("APO-COM-MIC", {
+          name: "Apollo companion microphone",
+          family: "Apollo",
+          category: "Accessory",
+          productType: "Companion microphone accessory",
+        }),
+      ],
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/wingman/product-pitch"]}>
+        <ProductPitchPage />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByText("MXV-0404-H2A-KIT")).toBeInTheDocument();
+    expect(screen.queryByText("CAB-HAOC-10M")).not.toBeInTheDocument();
+    expect(screen.queryByText("APO-COM-MIC")).not.toBeInTheDocument();
+  });
+
+  it("supports direct and partial SKU search with separated result metadata", async () => {
+    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+      products: [
+        makeProduct("MXV-0404-H2A-KIT", {
+          name: "4x4 HDBaseT Matrix Kit",
+          family: "MXV",
+          category: "Matrix / HDBaseT",
+          productType: "Matrix switcher",
+        }),
+        makeProduct("NHD-600-TRX", {
+          name: "NetworkHD 600 Series Transceiver",
+          family: "NetworkHD 600",
+          category: "AVoIP",
+          productType: "10GbE SDVoE transceiver",
+        }),
+      ],
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/wingman/product-pitch"]}>
+        <ProductPitchPage />
+      </MemoryRouter>,
+    );
+
+    const search = await screen.findByRole("searchbox");
+    fireEvent.change(search, { target: { value: "MXV-0404-H2A-KIT" } });
+
+    const exactResult = await screen.findByRole("button", { name: /MXV-0404-H2A-KIT/i });
+    expect(exactResult).toHaveTextContent(/SKU:\s*MXV-0404-H2A-KIT\s*Name:\s*4x4 HDBaseT Matrix Kit\s*Category:\s*Matrix \/ HDBaseT \/ MXV/i);
+    expect(exactResult).not.toHaveTextContent(/WyreStormMXV-0404-H2A-KIT|MXV-0404-H2A-KIT4x4/i);
+
+    fireEvent.change(search, { target: { value: "600-TRX" } });
+    expect(await screen.findByRole("button", { name: /NHD-600-TRX/i })).toBeInTheDocument();
+  });
+
+  it("opens the workspace when a result is selected and lets the rep change product", async () => {
+    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+      products: [
+        makeProduct("NHD-600-TRX", {
+          name: "NetworkHD 600 Series Transceiver",
+          family: "NetworkHD 600",
+          category: "AVoIP",
+          productType: "10GbE SDVoE transceiver",
+        }),
+      ],
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/wingman/product-pitch"]}>
+        <ProductPitchPage />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(await screen.findByRole("button", { name: /NHD-600-TRX/i }));
+
+    expect(await screen.findByRole("heading", { name: "NHD-600-TRX", level: 1 })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Change product/i }));
+
+    expect(await screen.findByRole("heading", { name: /Find the right product workspace/i })).toBeInTheDocument();
+  });
+
+  it("opens a supplied SKU directly without rendering the selector first", async () => {
+    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+      products: [
+        makeProduct("NHD-600-TRX", {
+          name: "NetworkHD 600 Series Transceiver",
+          family: "NetworkHD 600",
+          category: "AVoIP",
+          productType: "10GbE SDVoE transceiver",
+        }),
+      ],
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/wingman/product-pitch?sku=NHD-600-TRX"]}>
+        <ProductPitchPage />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByRole("heading", { name: "NHD-600-TRX", level: 1 })).toBeInTheDocument();
+    expect(screen.queryByRole("searchbox")).not.toBeInTheDocument();
+  });
+
+  it("limits initial rendered catalogue results", async () => {
+    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+      products: Array.from({ length: 24 }, (_, index) => makeProduct(`NHD-6${String(index).padStart(2, "0")}-TRX`, {
+        name: `NetworkHD result ${index}`,
+        family: "NetworkHD",
+        category: "AVoIP",
+        productType: "AVoIP transceiver",
+        applications: ["AV-over-IP", "video distribution"],
+      })),
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/wingman/product-pitch"]}>
+        <ProductPitchPage />
+      </MemoryRouter>,
+    );
+
+    await screen.findByText("NHD-600-TRX");
+
+    const results = screen.getByRole("list", { name: /Product results/i });
+    expect(results.querySelectorAll(".wm-product-pitch-result-card")).toHaveLength(16);
+    expect(screen.getByText(/8 more available with a narrower search/i)).toBeInTheDocument();
   });
 });

@@ -2828,6 +2828,11 @@ function safeCompareValue(value: string | undefined): string {
   return String(value ?? "").trim();
 }
 
+function displayCompareValue(value: string | undefined): string {
+  const cleaned = commercializeCompareCopy(safeCompareValue(value));
+  return cleaned || "Needs verification";
+}
+
 function commercializeCompareCopy(value: string | undefined): string {
   const input = String(value ?? "").trim();
 
@@ -3059,6 +3064,52 @@ function compareSharesToken(value: string, tokens: string[]): boolean {
   return tokens.some((token) => normalized.includes(token));
 }
 
+function compareOutputMode(value: string): "mirrored" | "loop" | "local-monitor" | "routed" | "unknown" {
+  const normalized = normalizeCompareValue(value);
+  if (normalized.includes("mirrored")) return "mirrored";
+  if (normalized.includes("loop")) return "loop";
+  if (normalized.includes("local monitor")) return "local-monitor";
+  if (normalized.includes("routed") || normalized.includes("display zone")) return "routed";
+  return "unknown";
+}
+
+function compareOutputFamilies(value: string): string[] {
+  const normalized = normalizeCompareValue(value);
+  const families: string[] = [];
+  if (normalized.includes("hdbaset") || normalized.includes("tps")) families.push("hdbaset");
+  if (normalized.includes("hdmi")) families.push("hdmi");
+  if (normalized.includes("network") || normalized.includes("lan") || normalized.includes("avoip")) families.push("network");
+  if (normalized.includes("displayport")) families.push("displayport");
+  if (normalized.includes("dvi")) families.push("dvi");
+  if (normalized.includes("sdi")) families.push("sdi");
+  return families;
+}
+
+function compareOutputEvidenceResult(competitor: string, wyrestorm: string): string | null {
+  const competitorMode = compareOutputMode(competitor);
+  const wyrestormMode = compareOutputMode(wyrestorm);
+
+  if (
+    competitorMode !== "unknown"
+    && wyrestormMode !== "unknown"
+    && competitorMode !== wyrestormMode
+  ) {
+    return "Output behaviour differs - verify";
+  }
+
+  const competitorFamilies = compareOutputFamilies(competitor);
+  const wyrestormFamilies = compareOutputFamilies(wyrestorm);
+
+  if (competitorFamilies.length && wyrestormFamilies.length) {
+    const familyOverlap = competitorFamilies.some((family) => wyrestormFamilies.includes(family));
+    if (!familyOverlap) {
+      return "Output type differs - verify";
+    }
+  }
+
+  return null;
+}
+
 function compareRowResult(label: string, competitor: string, wyrestorm: string): string {
   const competitorValue = commercializeCompareCopy(competitor);
   const wyrestormValue = commercializeCompareCopy(wyrestorm);
@@ -3068,7 +3119,7 @@ function compareRowResult(label: string, competitor: string, wyrestorm: string):
   }
 
   if (!competitorValue || !wyrestormValue) {
-    return "Needs checking";
+    return "Needs verification";
   }
 
   if (normalizeCompareValue(competitorValue) === normalizeCompareValue(wyrestormValue)) {
@@ -3078,6 +3129,11 @@ function compareRowResult(label: string, competitor: string, wyrestorm: string):
   if (label === "Inputs" || label === "Outputs") {
     const competitorCount = compareValueCount(competitorValue);
     const wyrestormCount = compareValueCount(wyrestormValue);
+
+    if (label === "Outputs") {
+      const outputEvidenceResult = compareOutputEvidenceResult(competitorValue, wyrestormValue);
+      if (outputEvidenceResult) return outputEvidenceResult;
+    }
 
     if (competitorCount !== null && wyrestormCount !== null) {
       if (wyrestormCount < competitorCount) return "Too few ports";
@@ -3453,6 +3509,12 @@ function buildCoreComparisonFacts(
       result: "",
     },
     {
+      label: "Other video I/O",
+      competitor: safeCompareValue(competitorFacts.get("Other video I/O")),
+      wyrestorm: safeCompareValue(wyrestormFacts.get("Other video I/O")),
+      result: "",
+    },
+    {
       label: "USB",
       competitor: safeCompareValue(competitorFacts.get("USB")),
       wyrestorm: safeCompareValue(wyrestormFacts.get("USB")),
@@ -3485,11 +3547,10 @@ function buildCoreComparisonFacts(
   ];
 
   return entries
-    .filter((entry) => entry.competitor || entry.wyrestorm)
     .map((entry) => ({
       ...entry,
-      competitor: commercializeCompareCopy(entry.competitor),
-      wyrestorm: commercializeCompareCopy(entry.wyrestorm),
+      competitor: displayCompareValue(entry.competitor),
+      wyrestorm: displayCompareValue(entry.wyrestorm),
       result: entry.result || compareRowResult(entry.label, entry.competitor, entry.wyrestorm),
     }));
 }
@@ -4036,11 +4097,11 @@ function BestCandidateCard({
                     </div>
                     <div className="compare-native-core-matrix-cell" role="cell">
                       <span className="compare-native-core-matrix-mobile-label">Competitor</span>
-                      <p className="wm-ui-copy">{fact.competitor || "Not verified locally"}</p>
+                      <p className="wm-ui-copy">{fact.competitor || "Needs verification"}</p>
                     </div>
                     <div className="compare-native-core-matrix-cell compare-native-core-matrix-cell--wyrestorm" role="cell">
                       <span className="compare-native-core-matrix-mobile-label">WyreStorm</span>
-                      <p className="wm-ui-copy">{fact.wyrestorm || "Confirm in WyreStorm datasheet"}</p>
+                      <p className="wm-ui-copy">{fact.wyrestorm || "Needs verification"}</p>
                     </div>
                     <div className="compare-native-core-matrix-cell compare-native-core-matrix-cell--result wm-ui-card" role="cell">
                       <span className="compare-native-core-matrix-mobile-label">Result</span>
@@ -4856,7 +4917,7 @@ function ComparePageNew() {
   handleRetryWithSourceUrl("");
 
   return (
-    <main className="compare-native-page wm-ui-page wingman-page-host" data-wingman-page="compare">
+    <main className="compare-native-page wm-compare-page wm-ui-page wingman-page-host" data-wingman-page="compare">
       {compareStage !== "results" ? (
       <>
       <section className="compare-native-hero wm-ui-hero wm-ui-section">

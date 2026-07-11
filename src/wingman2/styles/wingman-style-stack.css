@@ -15926,28 +15926,235 @@ html[data-wingman-route="compare"] main[data-wingman-page="compare"] button,
 
 /* Wingman Product Pitch tester-readiness safety panel - END */
 
+/* Wingman Product Pitch guided selector - START */
+
+.wm-product-pitch-page .wm-product-pitch-selector {
+  display: grid;
+  gap: 0;
+}
+
+.wm-product-pitch-page .wm-product-pitch-toggle {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-sm);
+  background: rgba(8, 22, 38, 0.72);
+  padding: 7px 10px;
+  color: var(--wm-copy);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.wm-product-pitch-page .wm-product-pitch-toggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--wm-accent);
+}
+
+.wm-product-pitch-page .wm-product-pitch-browse {
+  border: 1px solid rgba(77, 238, 224, 0.16);
+  border-radius: var(--wm-radius-sm);
+  background: rgba(6, 18, 31, 0.44);
+  padding: 10px 12px;
+}
+
+.wm-product-pitch-page .wm-product-pitch-result-list {
+  display: grid;
+  max-height: min(430px, 44vh);
+  gap: 8px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.wm-product-pitch-page .wm-product-pitch-result-card {
+  display: grid !important;
+  grid-template-columns: minmax(120px, 0.55fr) minmax(240px, 1.35fr) minmax(190px, 0.9fr) minmax(110px, 0.5fr);
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  min-height: 58px;
+  border: 1px solid var(--wm-border) !important;
+  border-radius: var(--wm-radius-sm) !important;
+  background: rgba(8, 22, 38, 0.82) !important;
+  padding: 11px 13px !important;
+  text-align: left !important;
+}
+
+.wm-product-pitch-page .wm-product-pitch-result-card:hover {
+  border-color: rgba(77, 238, 224, 0.72) !important;
+  background: rgba(20, 184, 166, 0.12) !important;
+}
+
+.wm-product-pitch-page .wm-product-pitch-result-sku,
+.wm-product-pitch-page .wm-product-pitch-result-name,
+.wm-product-pitch-page .wm-product-pitch-result-family,
+.wm-product-pitch-page .wm-product-pitch-result-status {
+  display: block;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.25;
+}
+
+.wm-product-pitch-page .wm-product-pitch-result-card :is(.wm-product-pitch-result-sku, .wm-product-pitch-result-name, .wm-product-pitch-result-family, .wm-product-pitch-result-status) > span {
+  display: block;
+  margin-bottom: 2px;
+  color: rgba(191, 232, 255, 0.55);
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wm-product-pitch-page .wm-product-pitch-result-sku {
+  color: var(--wm-heading);
+  font-size: 0.98rem;
+  font-weight: 950;
+}
+
+.wm-product-pitch-page .wm-product-pitch-result-name {
+  color: var(--wm-text);
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.wm-product-pitch-page .wm-product-pitch-result-family {
+  color: var(--wm-copy);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.wm-product-pitch-page .wm-product-pitch-result-status {
+  justify-self: end;
+  border: 1px solid rgba(77, 238, 224, 0.24);
+  border-radius: 999px;
+  background: rgba(77, 238, 224, 0.08);
+  padding: 5px 8px;
+  color: var(--wm-heading);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.wm-product-pitch-page .wm-product-pitch-guidance-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+}
+
+.wm-product-pitch-page .wm-product-pitch-family-panel {
+  grid-column: 1 / -1;
+}
+
+.wm-product-pitch-page .wm-product-pitch-family-button {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--wm-border) !important;
+  border-radius: var(--wm-radius-sm) !important;
+  padding: 8px 10px !important;
+  color: var(--wm-text) !important;
+}
+
+.wm-product-pitch-page .wm-product-pitch-family-button strong {
+  color: var(--wm-heading);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 900px) {
+  .wm-product-pitch-page .wm-product-pitch-result-card {
+    grid-template-columns: minmax(110px, 0.8fr) minmax(0, 1.2fr);
+  }
+
+  .wm-product-pitch-page .wm-product-pitch-result-family,
+  .wm-product-pitch-page .wm-product-pitch-result-status {
+    justify-self: start;
+  }
+
+  .wm-product-pitch-page .wm-product-pitch-guidance-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Wingman Product Pitch guided selector - END */
+
 /* Wingman Compare result matrix repair - START */
 
-/*
-  The Compare result matrix must not inherit the generic wm-ui-card-header /
-  [class*="card-header"] card layout rules. Those rules are correct for cards,
-  but they flatten comparison rows and make the matrix unreadable.
-*/
+.wm-compare-page .compare-native-results,
+.wm-compare-page .compare-native-best-card,
+.wm-compare-page .compare-native-product-card--best,
+.wm-compare-page .compare-native-result-head,
+.wm-compare-page .compare-native-result-summary,
+.wm-compare-page .compare-native-core-facts,
+.wm-compare-page .compare-native-decision-summary,
+.wm-compare-page .compare-native-action-row {
+  width: 100% !important;
+  max-width: none !important;
+  text-align: left !important;
+  justify-items: stretch !important;
+  align-items: stretch !important;
+}
 
-html[data-wingman-route="compare"] .compare-native-core-matrix {
+.wm-compare-page .compare-native-best-card,
+.wm-compare-page .compare-native-product-card--best {
+  display: grid !important;
+  gap: 16px !important;
+}
+
+.wm-compare-page .compare-native-result-head {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+  min-height: 0 !important;
+}
+
+.wm-compare-page .compare-native-result-summary {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.wm-compare-page .compare-native-result-panel {
+  display: grid !important;
+  align-content: start !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+  padding: 18px !important;
+}
+
+.wm-compare-page .compare-native-result-panel :is(h3, h4, p) {
+  min-width: 0 !important;
+  margin: 0 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.wm-compare-page .compare-native-core-facts {
+  display: grid !important;
+  gap: 10px !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  padding-bottom: 2px !important;
+}
+
+.wm-compare-page .compare-native-core-matrix {
   display: grid !important;
   gap: 0 !important;
   width: 100% !important;
-  overflow: hidden !important;
+  min-width: 880px !important;
+  overflow: visible !important;
   border: 1px solid var(--wm-border) !important;
   border-radius: var(--wm-radius-lg) !important;
   background: rgba(8, 22, 38, 0.62) !important;
 }
 
-html[data-wingman-route="compare"] .compare-native-core-matrix-header,
-html[data-wingman-route="compare"] .compare-native-core-matrix-body,
-html[data-wingman-route="compare"] .compare-native-core-facts,
-html[data-wingman-route="compare"] .compare-native-core-fact {
+.wm-compare-page .compare-native-core-matrix-header,
+.wm-compare-page .compare-native-core-matrix-body {
   display: grid !important;
   width: 100% !important;
   min-height: 0 !important;
@@ -15956,108 +16163,86 @@ html[data-wingman-route="compare"] .compare-native-core-fact {
   border: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
-  text-align: left !important;
-  align-items: stretch !important;
-  align-content: stretch !important;
-  justify-items: stretch !important;
-  justify-content: stretch !important;
 }
 
-/* Header row: comparison point / competitor / WyreStorm / result */
-html[data-wingman-route="compare"] .compare-native-core-matrix-header {
-  grid-template-columns: minmax(180px, 1.2fr) minmax(160px, 1fr) minmax(160px, 1fr) minmax(140px, 0.8fr) !important;
-  gap: 0 !important;
-  border-bottom: 1px solid var(--wm-border) !important;
-  background: rgba(11, 31, 52, 0.86) !important;
-}
-
-html[data-wingman-route="compare"] .compare-native-core-matrix-header > * {
-  display: flex !important;
-  min-height: 40px !important;
-  padding: 10px 12px !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  text-align: left !important;
-  border-right: 1px solid rgba(125, 211, 252, 0.14) !important;
-  color: var(--wm-heading) !important;
-  font-weight: 800 !important;
-  line-height: 1.2 !important;
-}
-
-html[data-wingman-route="compare"] .compare-native-core-matrix-header > *:last-child {
-  border-right: 0 !important;
-}
-
-/* Body rows */
-html[data-wingman-route="compare"] .compare-native-core-matrix-body {
+.wm-compare-page .compare-native-core-matrix-row {
   display: grid !important;
-}
-
-html[data-wingman-route="compare"] .compare-native-core-facts {
-  display: grid !important;
-  grid-template-columns: minmax(180px, 1.2fr) minmax(160px, 1fr) minmax(160px, 1fr) minmax(140px, 0.8fr) !important;
+  grid-template-columns: minmax(180px, 0.9fr) minmax(230px, 1.2fr) minmax(230px, 1.2fr) minmax(160px, 0.75fr) !important;
   gap: 0 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
   border-bottom: 1px solid rgba(125, 211, 252, 0.12) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
-html[data-wingman-route="compare"] .compare-native-core-facts:last-child {
+.wm-compare-page .compare-native-core-matrix-row:last-child {
   border-bottom: 0 !important;
 }
 
-html[data-wingman-route="compare"] .compare-native-core-fact {
-  display: block !important;
-  min-height: 48px !important;
-  padding: 10px 12px !important;
-  border-right: 1px solid rgba(125, 211, 252, 0.10) !important;
-  color: var(--wm-text) !important;
-  line-height: 1.35 !important;
-  white-space: normal !important;
+.wm-compare-page .compare-native-core-matrix-row--header {
+  min-height: 42px !important;
+  border-bottom: 1px solid var(--wm-border) !important;
+  background: rgba(11, 31, 52, 0.88) !important;
 }
 
-html[data-wingman-route="compare"] .compare-native-core-fact:last-child {
+.wm-compare-page .compare-native-core-matrix-heading,
+.wm-compare-page .compare-native-core-matrix-cell {
+  display: block !important;
+  align-self: stretch !important;
+  justify-self: stretch !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 12px 14px !important;
+  border-right: 1px solid rgba(125, 211, 252, 0.12) !important;
+  color: var(--wm-text) !important;
+  line-height: 1.35 !important;
+  text-align: left !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
+.wm-compare-page .compare-native-core-matrix-heading:last-child,
+.wm-compare-page .compare-native-core-matrix-cell:last-child {
   border-right: 0 !important;
 }
 
-html[data-wingman-route="compare"] .compare-native-core-fact :is(p, span, strong, b) {
-  text-align: left !important;
-  margin: 0 !important;
+.wm-compare-page .compare-native-core-matrix-heading {
+  color: var(--wm-heading) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
 }
 
-/* Keep result/status text readable */
-html[data-wingman-route="compare"] .compare-native-core-fact strong,
-html[data-wingman-route="compare"] .compare-native-core-fact b {
+.wm-compare-page .compare-native-core-matrix-cell--point strong {
   color: var(--wm-heading) !important;
 }
 
-/* Compact result page spacing */
-html[data-wingman-route="compare"] .compare-native-results,
-html[data-wingman-route="compare"] .compare-native-best-card,
-html[data-wingman-route="compare"] .compare-native-product-card-best,
-html[data-wingman-route="compare"] .compare-native-result-summary,
-html[data-wingman-route="compare"] .compare-native-decision-summary {
-  text-align: left !important;
-  justify-items: stretch !important;
-  align-items: stretch !important;
+.wm-compare-page .compare-native-core-matrix-cell--result {
+  background: rgba(24, 82, 105, 0.22) !important;
+  border-radius: 0 !important;
 }
 
-/* Mobile fallback */
-@media (max-width: 980px) {
-  html[data-wingman-route="compare"] .compare-native-core-matrix-header {
-    display: none !important;
-  }
+.wm-compare-page .compare-native-core-matrix-cell :is(p, span, strong, b) {
+  margin: 0 !important;
+  text-align: left !important;
+}
 
-  html[data-wingman-route="compare"] .compare-native-core-facts {
+.wm-compare-page .compare-native-core-matrix-mobile-label {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  .wm-compare-page .compare-native-result-summary {
     grid-template-columns: 1fr !important;
-    border-bottom: 1px solid var(--wm-border) !important;
   }
 
-  html[data-wingman-route="compare"] .compare-native-core-fact {
-    border-right: 0 !important;
-    border-bottom: 1px solid rgba(125, 211, 252, 0.10) !important;
-  }
-
-  html[data-wingman-route="compare"] .compare-native-core-fact:last-child {
-    border-bottom: 0 !important;
+  .wm-compare-page .compare-native-core-matrix {
+    min-width: 860px !important;
   }
 }
 
