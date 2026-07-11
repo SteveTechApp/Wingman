@@ -41,21 +41,6 @@ describe("template workflow wiring", () => {
     expect(screen.getByRole("heading", { name: "Template not found." })).toBeInTheDocument();
     expect(screen.queryByText(roomTemplates[0].name)).not.toBeInTheDocument();
   });
-    fireEvent.change(screen.getByLabelText("Application"), {
-      target: { value: "Hybrid civic meetings" },
-    });
-    fireEvent.change(screen.getByLabelText("Summary"), {
-      target: { value: "Reusable chamber design starting point." },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Create template" }));
-
-    const card = screen.getByRole("heading", { name: "Council chamber custom room" }).closest("article");
-    expect(card).not.toBeNull();
-    expect(screen.getByText("1 custom template saved in this browser.")).toBeInTheDocument();
-
-    fireEvent.click(within(card!).getByRole("link", { name: "Review template" }));
-    expect(screen.getByRole("heading", { name: "Council chamber custom room", level: 1 })).toBeInTheDocument();
-  });
 
   it("saves an adjusted room design as a reusable custom template", () => {
     const template = roomTemplates[0];
