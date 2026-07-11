@@ -82,7 +82,7 @@ const PRODUCT_PITCH_SECONDARY_BUTTON_CLASS = "rounded-full border border-cyan-30
 const PRODUCT_PITCH_SMALL_PRIMARY_BUTTON_CLASS = "rounded-full bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950";
 const PRODUCT_PITCH_SMALL_SECONDARY_BUTTON_CLASS = "rounded-full border border-cyan-300 px-4 py-2 text-sm font-bold text-cyan-100";
 const PRODUCT_PITCH_FORWARD_BUTTON_CLASS = "wm-ui-button wm-ui-button-forward px-4 py-2 text-sm font-bold";
-const PRODUCT_PITCH_RESULT_LIMIT = 16;
+const PRODUCT_PITCH_RESULT_LIMIT = 12;
 
 const fallbackProducts: ProductSpec[] = [
   {
@@ -305,7 +305,8 @@ function isLeadSolutionProduct(product: ProductSpec) {
 function productLifecycleLabel(product: ProductSpec) {
   const lifecycle = resolveProductLifecycle(product.sku);
   if (lifecycle.recommendable) return "Active";
-  if (lifecycle.supersededBy) return `Superseded by ${lifecycle.supersededBy}`;
+  if (lifecycle.supersededBy) return `Discontinued - use ${lifecycle.supersededBy}`;
+  if (lifecycle.status === "discontinued") return "Discontinued";
   if (lifecycle.status === "cable") return "Cable / accessory";
   if (lifecycle.status === "unlisted") return "Needs verification";
   return lifecycle.status.replace(/-/g, " ");
@@ -320,6 +321,10 @@ function productCategoryFamily(product: ProductSpec) {
   }
 
   return `${category} / ${family}`;
+}
+
+function displayProductResultName(product: ProductSpec) {
+  return normaliseSelectorText(product.name).replace(/^WyreStorm\s+/i, "");
 }
 
 function productSelectorScore(product: ProductSpec, term: string, activeQuickFilter: ProductPitchQuickFilter) {
@@ -354,6 +359,14 @@ function productSelectorScore(product: ProductSpec, term: string, activeQuickFil
   }
 
   return score;
+}
+
+function isCurrentSuggestionProduct(product: ProductSpec) {
+  return resolveProductLifecycle(product.sku).recommendable && !isCableProduct(product) && !isAccessoryProduct(product);
+}
+
+function usefulSearchLength(value: string) {
+  return value.replace(/[^a-z0-9]/gi, "").length;
 }
 
 function DisplayList({ items, max = 6 }: { items: string[]; max?: number }) {
@@ -424,6 +437,9 @@ function SelectionPage({
   openProduct: (sku: string) => void;
 }) {
   const term = searchTerm.trim().toLowerCase();
+  const [selectedFamily, setSelectedFamily] = useState("");
+  const [browseAll, setBrowseAll] = useState(false);
+  const [visibleLimit, setVisibleLimit] = useState(PRODUCT_PITCH_RESULT_LIMIT);
   const currentProject = useMemo(() => getCurrentWorkflowProject(readProjectStore()), []);
   const recentSku = useMemo(() => readProductWorkspaceHandoff()?.sku ?? "", []);
   const suggestedProducts = useMemo(() => {
@@ -431,7 +447,10 @@ function SelectionPage({
     const skus = selections.map((selection) => normaliseSelectorSku(selection.sku)).filter(Boolean);
     return skus
       .map((sku) => products.find((product) => normaliseSelectorSku(product.sku) === sku))
-      .filter((product): product is ProductSpec => Boolean(product))
+      .filter((product): product is ProductSpec => {
+        if (!product) return false;
+        return isCurrentSuggestionProduct(product);
+      })
       .slice(0, 3);
   }, [currentProject, products]);
   const recentProducts = useMemo(() => {
@@ -478,6 +497,11 @@ function SelectionPage({
       if (!includeCables && isCableProduct(product)) return false;
       if (!includeAccessories && isAccessoryProduct(product)) return false;
       if (!productMatchesProductPitchFilter(product, activeQuickFilter)) return false;
+      if (selectedFamily) {
+        const family = normaliseSelectorText(product.family);
+        const category = normaliseSelectorText(product.category || product.productType);
+        if (family !== selectedFamily && category !== selectedFamily) return false;
+      }
       if (!term) return true;
       return includesProduct(product, term);
     });
@@ -489,14 +513,40 @@ function SelectionPage({
       }))
       .sort((a, b) => b.score - a.score || a.product.sku.localeCompare(b.product.sku))
       .map((entry) => entry.product);
-  }, [products, includeAccessories, includeCables, term, activeQuickFilter]);
+  }, [products, includeAccessories, includeCables, term, activeQuickFilter, selectedFamily]);
 
-  const visibleResults = matchingProducts.slice(0, PRODUCT_PITCH_RESULT_LIMIT);
+  const searchIsUseful = usefulSearchLength(term) >= 2;
+  const shouldShowResults = searchIsUseful || Boolean(selectedFamily) || activeQuickFilter !== "All" || browseAll;
+  const visibleResults = shouldShowResults ? matchingProducts.slice(0, visibleLimit) : [];
   const hiddenCount = Math.max(0, matchingProducts.length - visibleResults.length);
 
   const openFamily = (family: string) => {
-    setSearchTerm(family);
+    setSelectedFamily(family);
     setActiveQuickFilter("All");
+    setBrowseAll(false);
+    setVisibleLimit(PRODUCT_PITCH_RESULT_LIMIT);
+  };
+
+  const updateSearchTerm = (value: string) => {
+    setSearchTerm(value);
+    setSelectedFamily("");
+    setBrowseAll(false);
+    setVisibleLimit(PRODUCT_PITCH_RESULT_LIMIT);
+  };
+
+  const chooseQuickFilter = (filter: ProductPitchQuickFilter) => {
+    setActiveQuickFilter(filter);
+    setSelectedFamily("");
+    setBrowseAll(false);
+    setVisibleLimit(PRODUCT_PITCH_RESULT_LIMIT);
+  };
+
+  const showBrowseAll = () => {
+    setSearchTerm("");
+    setSelectedFamily("");
+    setActiveQuickFilter("All");
+    setBrowseAll(true);
+    setVisibleLimit(PRODUCT_PITCH_RESULT_LIMIT);
   };
 
   const ResultButton = ({ product }: { product: ProductSpec }) => (
@@ -505,10 +555,10 @@ function SelectionPage({
       type="button"
       onClick={() => openProduct(product.sku)}
     >
-      <span className="wm-product-pitch-result-sku"><span>SKU:</span>{" "}{product.sku}{" "}</span>
-      <span className="wm-product-pitch-result-name"><span>Name:</span>{" "}{product.name}{" "}</span>
-      <span className="wm-product-pitch-result-family"><span>Category:</span>{" "}{productCategoryFamily(product)}{" "}</span>
-      <span className="wm-product-pitch-result-status"><span>Status:</span>{" "}{productLifecycleLabel(product)}</span>
+      <span className="wm-product-pitch-result-sku" data-label="SKU">{product.sku}{" "}</span>
+      <span className="wm-product-pitch-result-name" data-label="Product name">{displayProductResultName(product)}{" "}</span>
+      <span className="wm-product-pitch-result-family" data-label="Category">{productCategoryFamily(product)}{" "}</span>
+      <span className="wm-product-pitch-result-status" data-label="Status">{productLifecycleLabel(product)}</span>
     </button>
   );
 
@@ -528,7 +578,7 @@ function SelectionPage({
           <span className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Search products</span>
           <input className={["wm-ui-input", "min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-bold text-white outline-none focus:border-cyan-300"].filter(Boolean).join(" ")}
             value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
+            onChange={(event) => updateSearchTerm(event.target.value)}
             placeholder="Example: MXV-0404-H2A-KIT, NetworkHD, HDMI extender, USB KVM, video wall"
             type="search"
 
@@ -574,7 +624,7 @@ function SelectionPage({
                 key={filter}
                 type="button"
                 disabled={isDisabled}
-                onClick={() => setActiveQuickFilter(filter)}
+                onClick={() => chooseQuickFilter(filter)}
                 title={isDisabled ? `No SKUs currently start with ${filter}` : `${count} matching SKU${count === 1 ? "" : "s"}`}
 
               >
@@ -585,29 +635,9 @@ function SelectionPage({
           </div>
         </details>
 
-        <p className="mt-3 text-xs font-semibold wm-ui-copy">
-          Showing {visibleResults.length} of {matchingProducts.length} matching products
-          {activeQuickFilter !== "All" ? ` · Filter: ${activeQuickFilter}` : ""}
-          {term ? ` · Search: ${searchTerm.trim()}` : ""}
-          {hiddenCount ? ` · ${hiddenCount} more available with a narrower search` : ""}
-        </p>
-
-        <div className="mt-4 wm-product-pitch-result-list" role="list" aria-label="Product results">
-          {visibleResults.map((product) => (
-            <ResultButton key={product.sku} product={product} />
-          ))}
-        </div>
-
-        {!matchingProducts.length ? (
-          <div className="mt-5 rounded-2xl border p-4 text-sm wm-ui-card wm-ui-copy wm-ui-title">
-            No matching product found. Try a broader term, or include accessories and cables if you are looking for supporting items.
-          </div>
-        ) : null}
-      </section>
-
-      {!term ? (
-        <section className="wm-product-pitch-guidance-grid">
-          <div className="wm-ui-card rounded-3xl border p-4">
+        {!shouldShowResults ? (
+          <div className="wm-product-pitch-empty-state">
+            <div className="wm-ui-card rounded-3xl border p-4">
             <h2 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Suggested from current project</h2>
             <div className="mt-3 grid gap-2">
               {suggestedProducts.length ? suggestedProducts.map((product) => <ResultButton key={product.sku} product={product} />) : (
@@ -616,7 +646,7 @@ function SelectionPage({
             </div>
           </div>
 
-          <div className="wm-ui-card rounded-3xl border p-4">
+            <div className="wm-ui-card rounded-3xl border p-4">
             <h2 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Recently viewed</h2>
             <div className="mt-3 grid gap-2">
               {recentProducts.length ? recentProducts.map((product) => <ResultButton key={product.sku} product={product} />) : (
@@ -625,7 +655,7 @@ function SelectionPage({
             </div>
           </div>
 
-          <div className="wm-ui-card rounded-3xl border p-4 wm-product-pitch-family-panel">
+            <div className="wm-ui-card rounded-3xl border p-4 wm-product-pitch-family-panel">
             <h2 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Browse by product family</h2>
             <div className="mt-3 flex flex-wrap gap-2">
               {browseFamilies.map(([family, count]) => (
@@ -641,8 +671,87 @@ function SelectionPage({
               ))}
             </div>
           </div>
-        </section>
-      ) : null}
+
+            <div className="wm-ui-card rounded-3xl border p-4">
+              <h2 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Search guidance</h2>
+              <p className="mt-2 text-sm leading-6 wm-ui-copy">
+                Type at least two characters from a SKU, product name, family or application to search the current product index.
+              </p>
+            </div>
+
+            <div className="wm-ui-card rounded-3xl border p-4">
+              <h2 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Browse all products</h2>
+              <p className="mt-2 text-sm leading-6 wm-ui-copy">
+                Use this only when you want a wider catalogue browse instead of a focused product lookup.
+              </p>
+              <button type="button" className="mt-3 wm-ui-button wm-ui-button-secondary wm-product-pitch-browse-all" onClick={showBrowseAll}>
+                Browse all
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            {suggestedProducts.length || recentProducts.length ? (
+              <div className="wm-product-pitch-result-prelude">
+                {suggestedProducts.length ? (
+                  <div className="wm-ui-card rounded-3xl border p-4">
+                    <h2 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Suggested from current project</h2>
+                    <div className="mt-3 grid gap-2">
+                      {suggestedProducts.map((product) => <ResultButton key={product.sku} product={product} />)}
+                    </div>
+                  </div>
+                ) : null}
+                {recentProducts.length ? (
+                  <div className="wm-ui-card rounded-3xl border p-4">
+                    <h2 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Recently viewed</h2>
+                    <div className="mt-3 grid gap-2">
+                      {recentProducts.map((product) => <ResultButton key={product.sku} product={product} />)}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+
+            <p className="mt-3 text-xs font-semibold wm-ui-copy">
+              Showing {visibleResults.length} of {matchingProducts.length} matching products
+              {activeQuickFilter !== "All" ? ` · Filter: ${activeQuickFilter}` : ""}
+              {selectedFamily ? ` · Family: ${selectedFamily}` : ""}
+              {browseAll ? " · Browse all" : ""}
+              {term ? ` · Search: ${searchTerm.trim()}` : ""}
+            </p>
+
+            <div className="mt-4 wm-product-pitch-result-table">
+              <div className="wm-product-pitch-result-header" aria-hidden="true">
+                <span>SKU</span>
+                <span>Product name</span>
+                <span>Category</span>
+                <span>Status</span>
+              </div>
+              <div className="wm-product-pitch-result-list" role="list" aria-label="Product results">
+                {visibleResults.map((product) => (
+                  <ResultButton key={product.sku} product={product} />
+                ))}
+              </div>
+            </div>
+
+            {hiddenCount ? (
+              <button
+                type="button"
+                className="mt-3 wm-ui-button wm-ui-button-secondary wm-product-pitch-show-more"
+                onClick={() => setVisibleLimit((value) => value + PRODUCT_PITCH_RESULT_LIMIT)}
+              >
+                Show more
+              </button>
+            ) : null}
+
+            {!matchingProducts.length ? (
+              <div className="mt-5 rounded-2xl border p-4 text-sm wm-ui-card wm-ui-copy wm-ui-title">
+                No matching product found. Try a broader term, or include accessories and cables if you are looking for supporting items.
+              </div>
+            ) : null}
+          </>
+        )}
+      </section>
     </main>
   );
 }
@@ -1235,8 +1344,6 @@ export function ProductPitchPage() {
     };
   }, []);
 
-  const availableProducts = useMemo(() => products.filter(isVisibleProductPitchProduct), [products]);
-
   const selectedProduct = useMemo(() => {
     if (!selectedSku) return null;
 
@@ -1262,7 +1369,7 @@ export function ProductPitchPage() {
   if (!selectedSku) {
     return (
       <SelectionPage
-        products={availableProducts}
+        products={products}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
         activeQuickFilter={activeQuickFilter}
