@@ -169,6 +169,10 @@ const PRODUCT_PITCH_FILTERS = [
 type ProductPitchQuickFilter = (typeof PRODUCT_PITCH_FILTERS)[number];
 
 const PRODUCT_PITCH_BLOCKED_SKUS = new Set([
+  "SW-0X01-8K",
+  "SW-120-TX3-US",
+  "SW-130-TX-US",
+  "SW-540-TX-W",
   "NHD-100",
   "NHD-250-RX",
   "NHD-300-TX",
@@ -365,7 +369,10 @@ function productSelectorScore(product: ProductSpec, term: string, activeQuickFil
 }
 
 function isCurrentSuggestionProduct(product: ProductSpec) {
-  return resolveProductLifecycle(product.sku).recommendable && !isCableProduct(product) && !isAccessoryProduct(product);
+  return isVisibleProductPitchProduct(product)
+    && resolveProductLifecycle(product.sku).recommendable
+    && !isCableProduct(product)
+    && !isAccessoryProduct(product);
 }
 
 function usefulSearchLength(value: string) {
@@ -465,6 +472,7 @@ function SelectionPage({
   const browseFamilies = useMemo(() => {
     const counts = new Map<string, number>();
     products.forEach((product) => {
+      if (!isVisibleProductPitchProduct(product)) return;
       if (isCableProduct(product) || isAccessoryProduct(product)) return;
       const family = normaliseSelectorText(product.family);
       const label = family && !/^wyrestorm$/i.test(family) ? family : normaliseSelectorText(product.category || product.productType);
@@ -485,6 +493,7 @@ function SelectionPage({
     });
 
     products.forEach((product) => {
+      if (!isVisibleProductPitchProduct(product)) return;
       PRODUCT_PITCH_FILTERS.forEach((filter) => {
         if (productMatchesProductPitchFilter(product, filter)) {
           counts.set(filter, (counts.get(filter) || 0) + 1);
@@ -497,6 +506,7 @@ function SelectionPage({
 
   const matchingProducts = useMemo(() => {
     const candidates = products.filter((product) => {
+      if (!isVisibleProductPitchProduct(product)) return false;
       if (!includeCables && isCableProduct(product)) return false;
       if (!includeAccessories && isAccessoryProduct(product)) return false;
       if (!productMatchesProductPitchFilter(product, activeQuickFilter)) return false;
