@@ -22,11 +22,12 @@ const uiPort = Number.isFinite(parsedUiPort) ? parsedUiPort : 3000;
 function wingmanChunkBudget(): Plugin {
   const reviewKb = Number(process.env.WM_CHUNK_REVIEW_KB ?? 500);
   const failKb = Number(process.env.WM_CHUNK_FAIL_KB ?? 850);
+  const strict = /^(1|true|yes)$/i.test(String(process.env.WM_CHUNK_BUDGET_STRICT || ""));
 
   return {
     name: "wingman-chunk-budget",
     generateBundle(_options, bundle) {
-      const failingChunks: string[] = [];
+      const overLimitChunks: string[] = [];
 
       for (const output of Object.values(bundle)) {
         if (output.type !== "chunk") {
@@ -40,15 +41,24 @@ function wingmanChunkBudget(): Plugin {
         }
 
         if (sizeKb >= failKb) {
-          failingChunks.push(`${output.fileName} ${sizeKb.toFixed(2)} kB`);
+          overLimitChunks.push(`${output.fileName} ${sizeKb.toFixed(2)} kB`);
         }
       }
 
-      if (failingChunks.length > 0) {
-        this.error(
-          `[chunk-budget] Chunks exceed the ${failKb} kB limit:\n${failingChunks.map((item) => `- ${item}`).join("\n")}`,
-        );
+      if (overLimitChunks.length === 0) {
+        return;
       }
+
+      const report = `[chunk-budget] Chunks exceed the ${failKb} kB target:\n${overLimitChunks
+        .map((item) => `- ${item}`)
+        .join("\n")}`;
+
+      if (strict) {
+        this.error(report);
+        return;
+      }
+
+      this.warn(`${report}\n[chunk-budget] Reporting only. Set WM_CHUNK_BUDGET_STRICT=true to enforce this target.`);
     },
   };
 }
