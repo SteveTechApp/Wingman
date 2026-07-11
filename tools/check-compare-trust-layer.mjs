@@ -2,34 +2,30 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
-const ledgerPath = path.join(
-  root,
-  "data/governance/competitor-match-decisions.json",
-);
-const schemaPath = path.join(
-  root,
-  "data/schemas/competitor-match-decision.schema.json",
-);
-const runtimePath = path.join(
-  root,
-  "src/wingman2/lib/competitorMatchDecisionLedger.ts",
-);
-const testPath = path.join(
-  root,
-  "src/wingman2/lib/competitorMatchDecisionLedger.test.ts",
-);
+const files = {
+  ledger: "data/governance/competitor-match-decisions.json",
+  schema: "data/schemas/competitor-match-decision.schema.json",
+  storage: "src/wingman2/lib/competitorMatchDecisionLedger.ts",
+  storageTest: "src/wingman2/lib/competitorMatchDecisionLedger.test.ts",
+  runtime: "src/wingman2/lib/governedCompareRuntime.ts",
+  runtimeTest: "src/wingman2/lib/governedCompareRuntime.test.ts",
+  comparePage: "src/wingman2/pages/ComparePageNew.advanced.tsx",
+  orphanGuard: "tools/check-orphaned-modules.mjs",
+};
 
 const failures = [];
+const read = (relativePath) =>
+  fs.readFileSync(path.join(root, relativePath), "utf8");
 
-for (const filePath of [ledgerPath, schemaPath, runtimePath, testPath]) {
-  if (!fs.existsSync(filePath)) {
-    failures.push(`Missing Compare Trust Layer file: ${path.relative(root, filePath)}`);
+for (const relativePath of Object.values(files)) {
+  if (!fs.existsSync(path.join(root, relativePath))) {
+    failures.push(`Missing Compare Trust Layer file: ${relativePath}`);
   }
 }
 
-if (fs.existsSync(ledgerPath)) {
+if (failures.length === 0) {
   try {
-    const ledger = JSON.parse(fs.readFileSync(ledgerPath, "utf8"));
+    const ledger = JSON.parse(read(files.ledger));
 
     if (ledger.version !== 1) {
       failures.push("Competitor match ledger version must be 1.");
@@ -37,8 +33,7 @@ if (fs.existsSync(ledgerPath)) {
 
     if (!Array.isArray(ledger.decisions)) {
       failures.push("Competitor match ledger decisions must be an array.");
-    }
-    else {
+    } else {
       const identities = new Set();
 
       for (const decision of ledger.decisions) {
@@ -84,9 +79,40 @@ if (fs.existsSync(ledgerPath)) {
         }
       }
     }
-  }
-  catch (error) {
+  } catch (error) {
     failures.push(`Unable to parse competitor match ledger: ${error.message}`);
+  }
+
+  const comparePage = read(files.comparePage);
+  const requiredRuntimeMarkers = [
+    "readCompetitorMatchDecisionLedger",
+    "resolveApprovedGovernedDecision",
+    "applyGovernedCandidateOrder",
+    "GovernedDecisionPanel",
+    "data-wingman-governed-decision",
+    "no-suitable-match",
+  ];
+
+  for (const marker of requiredRuntimeMarkers) {
+    if (!comparePage.includes(marker)) {
+      failures.push(`Live Compare page missing governed runtime marker: ${marker}`);
+    }
+  }
+
+  const runtime = read(files.runtime);
+  if (!runtime.includes("governedDecisionSuppressesCandidates")) {
+    failures.push("Governed runtime does not implement no-match suppression.");
+  }
+
+  const orphanGuard = read(files.orphanGuard);
+  if (
+    orphanGuard.includes(
+      '"src/wingman2/lib/competitorMatchDecisionLedger.ts"',
+    )
+  ) {
+    failures.push(
+      "Competitor match ledger is still allowlisted as an orphan instead of being live-wired.",
+    );
   }
 }
 
@@ -96,4 +122,6 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log("[compare-trust-layer] Governed decision ledger check passed.");
+console.log(
+  "[compare-trust-layer] Governed decision ledger and live Compare wiring passed.",
+);

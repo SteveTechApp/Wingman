@@ -207,6 +207,24 @@ function transportMatches(competitorTransport: unknown, wyrestormTransport: unkn
   return competitor.every((token) => wyrestorm.has(token));
 }
 
+type CompareNetworkClass = "1g" | "10g";
+
+function compareNetworkClass(profile: CompareDecisionProfile): CompareNetworkClass | null {
+  const text = [
+    profile.transport,
+    profile.specs?.networkSpeed,
+    profile.features?.tenGig ? "10g" : "",
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  if (/\b10\s*g(?:be|bps)?\b|sdvoe/.test(text)) return "10g";
+  if (/\b1\s*g(?:be|bps)?\b|gigabit|jpeg[\s-]?xs|h\.?26[45]/.test(text)) return "1g";
+
+  return null;
+}
+
 function resolutionRank(value: unknown): number {
   const text = lower(value);
 
@@ -418,7 +436,23 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
     addUnique(matches, "Product role matches.");
   }
 
-  if (isUnknown(competitor.transport) || isUnknown(wyrestorm.transport)) {
+  const competitorNetworkClass = compareNetworkClass(competitor);
+  const wyrestormNetworkClass = compareNetworkClass(wyrestorm);
+  const networkClassMismatch =
+    competitorNetworkClass !== null &&
+    wyrestormNetworkClass !== null &&
+    competitorNetworkClass !== wyrestormNetworkClass;
+
+  if (networkClassMismatch) {
+    addUnique(
+      blockers,
+      "Network class mismatch: competitor requires " +
+        competitorNetworkClass.toUpperCase() +
+        ", WyreStorm candidate is " +
+        wyrestormNetworkClass.toUpperCase() +
+        ".",
+    );
+  } else if (isUnknown(competitor.transport) || isUnknown(wyrestorm.transport)) {
     addUnique(verify, "Transport needs verification.");
   } else if (!transportMatches(competitor.transport, wyrestorm.transport)) {
     // Transport wording is brand-specific (e.g. Lightware's "TPS" for its own

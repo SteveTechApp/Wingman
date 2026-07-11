@@ -121,3 +121,16 @@ as proof of behaviour.
 - Mirrored and loop outputs are not counted as routed outputs.
 - Missing-SKU results stay quarantined until reviewed.
 - Typecheck, Compare tests, full verification and production build pass.
+## Runtime wiring completed
+
+- The live Compare page reads approved decisions before heuristic ordering.
+- Approved no-match decisions suppress recurring automatic suggestions.
+- Reviewed WyreStorm SKUs are promoted ahead of heuristic candidates.
+- Reviewer controls can save confirmed equivalents, closest technical matches,
+  architecture alternatives, review-required records and no-match decisions.
+- Confirmed equivalents require a blocker-free good match, reviewer and source
+  URL.
+- 1G and 10G AV-over-IP network classes are an absolute blocker.
+- The temporary orphan allowlist was removed.
+- Behavioural tests execute governance precedence, no-match suppression,
+  transmitter/receiver gating and 1G/10G gating.
