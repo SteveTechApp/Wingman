@@ -104,7 +104,7 @@
     "check:compare-sku-auto-advance": "node tools/check-compare-sku-auto-advance.mjs",
     "check:fingerprint-integrity": "vitest run src/wingman2/lib/competitorSpecRegistry.integrity.test.ts",
     "check:story-coverage": "vitest run src/__tests__/productStoryCoverage.test.ts",
-    "check:product-lifecycle": "vitest run src/wingman2/lib/wyrestormProductLifecycle.test.ts src/wingman2/data/productStoriesLifecycle.test.ts",
+    "check:product-lifecycle": "vitest run src/wingman2/lib/wyrestormProductLifecycle.test.ts src/wingman2/data/productStoriesLifecycle.test.ts src/__tests__/productPitchActiveCatalogue.test.ts",
     "check:route-registry-direct": "node tools/audit-wingman-route-registry-direct.mjs && npm run check:runtime-wiring",
     "check:runtime-wiring": "node tools/check-wingman-runtime-wiring.mjs",
     "check:recommendation-accuracy": "node tools/audit-recommendation-accuracy-priority3.mjs",
