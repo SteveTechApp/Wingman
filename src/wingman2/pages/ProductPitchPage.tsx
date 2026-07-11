@@ -566,7 +566,7 @@ function SelectionPage({
   );
 
   return (
-    <main className="grid gap-4 pb-6 wm-ui-page wingman-page-host wm-product-pitch-page">
+    <main data-product-pitch-view="selector" className="grid gap-4 pb-6 wm-ui-page wingman-page-host wm-product-pitch-page">
       <CompareBackToListButton />
       <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
         <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Product workspace</p>
@@ -1153,7 +1153,7 @@ function ProductWorkspace({
   }, [product.sku]);
 
   return (
-    <main className="grid gap-4 pb-6 wm-ui-page wingman-page-host wm-product-pitch-page">
+    <main data-product-pitch-view="workspace" className="grid gap-4 pb-6 wm-ui-page wingman-page-host wm-product-pitch-page">
       <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -1245,7 +1245,7 @@ function ProductWorkspace({
 
       <ProductPitchSafetyPanel />
 
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-4`}>
+      <section data-product-pitch-tabs className={`${PRODUCT_PITCH_PANEL_CLASS} p-4`}>
         <div className="flex flex-wrap gap-2">
           <TabButton label="Overview" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
           <TabButton label="Sales Cards" active={activeTab === "sales"} onClick={() => setActiveTab("sales")} />
