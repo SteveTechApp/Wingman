@@ -5,6 +5,7 @@
 
 import type { ProductNarrative, ProductSpec } from "./productStoryEngine";
 import { buildRoomSchematicSvg } from "./roomSchematic";
+import { buildProductTopologyProfile } from "./productTopology";
 
 export type CheatSheetOptions = {
   product: ProductSpec;
@@ -37,12 +38,10 @@ function block(title: string, body: string): string {
 
 export function buildProductCheatSheetHtml(options: CheatSheetOptions): string {
   const { product, narrative, imageUrl, generatedOn } = options;
+  const topology = buildProductTopologyProfile(product, narrative);
   const schematic = buildRoomSchematicSvg({
     sku: product.sku,
-    productType: product.productType,
-    role: narrative.role,
-    source: narrative.diagramSource,
-    output: narrative.diagramOutput,
+    profile: topology,
   });
 
   const imageMarkup = imageUrl
