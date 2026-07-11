@@ -1,7 +1,7 @@
 import type { FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Database, Send, Sparkles, X } from "lucide-react";
+import { ClipboardCopy, Database, MessageSquareText, RotateCcw, Send, Sparkles, X } from "lucide-react";
 import GuruAssistantAvatar from "./branding/GuruAssistantAvatar";
 import { GuruCallNotesInterpreter } from "./GuruCallNotesInterpreter";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
@@ -1302,6 +1302,154 @@ async function answerQuestion(question: string, products: ProductEntry[]) {
   return liveLookup(question);
 }
 
+
+const GURU_STRUCTURED_CONVERSATION_UI_V2 = "GURU_STRUCTURED_CONVERSATION_UI_V2";
+
+type GuruContentBlock =
+  | { type: "heading"; text: string }
+  | { type: "paragraph"; text: string }
+  | { type: "list"; items: string[] };
+
+function isGuruSectionHeading(line: string, index: number, lines: string[]) {
+  const text = line.replace(/:$/, "").trim();
+
+  if (!text || text.length > 72) {
+    return false;
+  }
+
+  if (line.endsWith(":")) {
+    return true;
+  }
+
+  return index === 0 && lines[index + 1] === "" && !/[.!?]$/.test(line);
+}
+
+function buildGuruContentBlocks(content: string): GuruContentBlock[] {
+  const lines = content
+    .replace(/\r/g, "")
+    .replace(/\s+-\s+(?=(?:Is|What|Which|Where|How|Why|Confirm|Check|Use|Ask|Do|Does)\b)/g, "\n- ")
+    .split("\n")
+    .map((line) => line.trim());
+
+  const blocks: GuruContentBlock[] = [];
+  let paragraph: string[] = [];
+  let list: string[] = [];
+
+  const flushParagraph = () => {
+    const text = paragraph.join(" ").trim();
+
+    if (text) {
+      blocks.push({ type: "paragraph", text });
+    }
+
+    paragraph = [];
+  };
+
+  const flushList = () => {
+    if (list.length) {
+      blocks.push({ type: "list", items: [...list] });
+    }
+
+    list = [];
+  };
+
+  lines.forEach((line, index) => {
+    if (!line) {
+      flushParagraph();
+      flushList();
+      return;
+    }
+
+    const bullet = line.match(/^[-*â€¢]\s+(.+)$/);
+
+    if (bullet) {
+      flushParagraph();
+      list.push(bullet[1].trim());
+      return;
+    }
+
+    flushList();
+
+    if (isGuruSectionHeading(line, index, lines)) {
+      flushParagraph();
+      blocks.push({ type: "heading", text: line.replace(/:$/, "").trim() });
+      return;
+    }
+
+    paragraph.push(line);
+  });
+
+  flushParagraph();
+  flushList();
+
+  return blocks.length ? blocks : [{ type: "paragraph", text: content.trim() }];
+}
+
+function guruMessageTone(content: string) {
+  const text = content.toLowerCase();
+
+  if (text.includes("checking guru knowledge")) {
+    return "loading";
+  }
+
+  if (
+    /do not know|do not have a confirmed|not confirmed|needs verification|wrong tx\/rx|before quoting|before customer issue|confirm:/.test(
+      text,
+    )
+  ) {
+    return "caution";
+  }
+
+  if (/recommended answer|why this fits|sales use|practical selection rule|use .* with/.test(text)) {
+    return "guidance";
+  }
+
+  return "standard";
+}
+
+function GuruMessageContent({ content }: { content: string }) {
+  const blocks = buildGuruContentBlocks(content);
+  const loading = guruMessageTone(content) === "loading";
+
+  if (loading) {
+    return (
+      <div className="wingman-guru-loading" role="status">
+        <span className="wingman-guru-loading-dot" />
+        <span>Checking local Guru knowledge...</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="wingman-guru-rich-content">
+      {blocks.map((block, index) => {
+        if (block.type === "heading") {
+          return (
+            <h4 key={`heading-${index}-${block.text}`} className="wingman-guru-rich-heading">
+              {block.text}
+            </h4>
+          );
+        }
+
+        if (block.type === "list") {
+          return (
+            <ul key={`list-${index}`} className="wingman-guru-rich-list">
+              {block.items.map((item) => (
+                <li key={`${index}-${item}`}>{item}</li>
+              ))}
+            </ul>
+          );
+        }
+
+        return (
+          <p key={`paragraph-${index}-${block.text.slice(0, 24)}`} className="wingman-guru-rich-paragraph">
+            {block.text}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
 const openingMessage = createMessage(
   "assistant",
   GURU_EXTERNAL_LOOKUP_ENABLED
@@ -1328,8 +1476,10 @@ export function WingmanGuruDrawer({
   const [products, setProducts] = useState<ProductEntry[]>([]);
   const [indexStatus, setIndexStatus] = useState("Loading product intelligence...");
   const [memoryCount, setMemoryCount] = useState(0);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const messagesRef = useRef<HTMLDivElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const handledSeedPromptRef = useRef<string | null>(null);
 
   useEffect(() => {
     setMemoryCount(cacheCount());
@@ -1399,11 +1549,19 @@ export function WingmanGuruDrawer({
   );
 
   useEffect(() => {
-    if (!open || !seedPrompt?.trim()) {
+    const prompt = seedPrompt?.trim() ?? "";
+
+    if (!prompt) {
+      handledSeedPromptRef.current = null;
       return;
     }
 
-    void sendMessage(seedPrompt);
+    if (!open || handledSeedPromptRef.current === prompt) {
+      return;
+    }
+
+    handledSeedPromptRef.current = prompt;
+    void sendMessage(prompt);
     onSeedHandled?.();
   }, [open, onSeedHandled, seedPrompt, sendMessage]);
 
@@ -1429,6 +1587,41 @@ export function WingmanGuruDrawer({
     ]);
   }
 
+  function clearConversation() {
+    setMessages([openingMessage]);
+    setCopiedMessageId(null);
+  }
+
+  async function copyGuruMessage(message: GuruMessage) {
+    try {
+      await navigator.clipboard.writeText(message.content);
+      setCopiedMessageId(message.id);
+      window.setTimeout(() => {
+        setCopiedMessageId((current) => (current === message.id ? null : current));
+      }, 1800);
+    } catch {
+      setCopiedMessageId(null);
+    }
+  }
+
+  function useGuruMessageInDiscovery(message: GuruMessage) {
+    const handoff = [
+      "Guru assistant handoff",
+      "",
+      message.content,
+      "",
+      "Use this as discovery context only. Validate the room, signal path, USB, audio, control, distance and product dependencies before quoting.",
+    ].join("\n");
+
+    window.sessionStorage.setItem("wingman-guru-call-notes-transcript", handoff);
+    window.dispatchEvent(
+      new CustomEvent("wingman:use-call-notes-in-discovery", {
+        detail: handoff,
+      }),
+    );
+    window.location.href = "/wingman/discovery";
+  }
+
   return portalReady
     ? createPortal(
         <>
@@ -1445,103 +1638,204 @@ export function WingmanGuruDrawer({
         data-wingman-guru-drawer="true"
         data-open={open ? "true" : "false"}
       >
-        <header className="wingman-guru-drawer-header">
+                <header className="wingman-guru-drawer-header">
           <div className="wingman-guru-drawer-heading">
             <GuruAssistantAvatar size={42} />
-            <div>
-              <h2>Guru</h2>
-              <p>Real-time AV and WyreStorm technical Q&A for standalone questions, discovery support, and proposal checks.</p>
-              <p style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 6 }}>
-                <Database className="h-3.5 w-3.5" />
-                {helperText}
-              </p>
+            <div className="wingman-guru-title-stack">
+              <div className="wingman-guru-title-row">
+                <h2>Guru</h2>
+                <span className="wingman-guru-mode-badge">
+                  <Database className="h-3.5 w-3.5" />
+                  {GURU_EXTERNAL_LOOKUP_ENABLED ? "Live lookup enabled" : "Local knowledge"}
+                </span>
+              </div>
+              <p>AV and WyreStorm technical assistant</p>
+              <small>{helperText}</small>
             </div>
           </div>
 
-          <button
-            type="button"
-            className="wingman-guru-close"
-            onClick={onClose}
-            aria-label="Close Guru assistant"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          <div className="wingman-guru-header-actions">
+            {messages.length > 1 ? (
+              <button
+                type="button"
+                className="wingman-guru-header-button"
+                onClick={clearConversation}
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                <span>Clear chat</span>
+              </button>
+            ) : null}
+
+            <button
+              type="button"
+              className="wingman-guru-close"
+              onClick={onClose}
+              aria-label="Close Guru assistant"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </header>
 
+        <section className="wingman-guru-quick-section" aria-label="Quick Guru questions">
+          <div className="wingman-guru-section-label">
+            <strong>Quick asks</strong>
+            <span>Select a prompt or type your own question below.</span>
+          </div>
+
+          <div className="wingman-guru-quick-prompts">
+            {quickPrompts.map((prompt) => (
+              <button
+                key={prompt}
+                type="button"
+                className="wingman-guru-quick-prompt"
+                onClick={() => handleQuickPrompt(prompt)}
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>{prompt}</span>
+              </button>
+            ))}
+
+            {memoryCount > 0 ? (
+              <button
+                type="button"
+                className="wingman-guru-quick-prompt wingman-guru-quick-prompt--quiet"
+                onClick={clearGuruMemory}
+              >
+                Clear local memory
+              </button>
+            ) : null}
+          </div>
+        </section>
+
         {supportCue ? (
-          <section className="wingman-guru-context-card" aria-label="Guru workflow support">
-            <p className="wingman-guru-context-kicker">{supportCue.label}</p>
-            <h3>{contextLabel ? `${contextLabel} support` : "Workflow support"}</h3>
-            <p>{supportCue.summary}</p>
-            {contextSummary ? <small>Current page: {contextSummary}</small> : null}
-            <div className="wingman-guru-context-prompts">
-              {supportCue.prompts.map((prompt) => (
-                <button
-                  key={prompt}
-                  type="button"
-                  className="wingman-guru-context-prompt"
-                  onClick={() => handleQuickPrompt(prompt)}
-                >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>{prompt}</span>
-                </button>
-              ))}
+          <details className="wingman-guru-support-drawer">
+            <summary>
+              <span>{supportCue.label}</span>
+              <small>{contextLabel ? `${contextLabel} workflow support` : "Workflow support"}</small>
+            </summary>
+            <div className="wingman-guru-support-content">
+              <p>{supportCue.summary}</p>
+              {contextSummary ? <small>Current page: {contextSummary}</small> : null}
+              <div className="wingman-guru-context-prompts">
+                {supportCue.prompts.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    className="wingman-guru-context-prompt"
+                    onClick={() => handleQuickPrompt(prompt)}
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    <span>{prompt}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-          </section>
+          </details>
         ) : null}
 
-        <div className="wingman-guru-quick-prompts">
-          {quickPrompts.map((prompt) => (
-            <button
-              key={prompt}
-              type="button"
-              className="wingman-guru-quick-prompt"
-              onClick={() => handleQuickPrompt(prompt)}
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>{prompt}</span>
-            </button>
-          ))}
+        <details className="wingman-guru-tool-drawer">
+          <summary>
+            <span>Call notes interpreter</span>
+            <small>Optional: capture or paste call notes and send them into Discovery.</small>
+          </summary>
+          <div className="wingman-guru-tool-content">
+            <GuruCallNotesInterpreter />
+          </div>
+        </details>
 
-          {memoryCount > 0 ? (
-            <button type="button" className="wingman-guru-quick-prompt" onClick={clearGuruMemory}>
-              Clear Guru memory
-            </button>
-          ) : null}
-        </div>
-
-        <GuruCallNotesInterpreter />
-
-        <div className="wingman-guru-messages" ref={messagesRef}>
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={[
-                "wingman-guru-message",
-                message.role === "assistant" ? "wingman-guru-message-assistant" : "wingman-guru-message-user",
-              ].join(" ")}
-            >
-              <div className="wingman-guru-message-meta">
-                <span>{message.role === "assistant" ? "Guru" : "You"}</span>
-                <small>{message.time}</small>
-              </div>
-              <div className="wingman-guru-message-bubble">{message.content}</div>
+        <section className="wingman-guru-conversation" aria-label="Guru conversation">
+          <div className="wingman-guru-conversation-header">
+            <MessageSquareText className="h-4 w-4" />
+            <div>
+              <strong>Conversation</strong>
+              <small>Guru answers are guidance. Confirm product data and dependencies before quoting.</small>
             </div>
-          ))}
-        </div>
+          </div>
+
+          <div className="wingman-guru-messages" ref={messagesRef}>
+            {messages.map((message) => {
+              const tone = guruMessageTone(message.content);
+              const isPending = tone === "loading";
+
+              return (
+                <article
+                  key={message.id}
+                  className={[
+                    "wingman-guru-message",
+                    message.role === "assistant"
+                      ? "wingman-guru-message-assistant"
+                      : "wingman-guru-message-user",
+                  ].join(" ")}
+                  data-message-role={message.role}
+                  data-message-tone={tone}
+                >
+                  <div className="wingman-guru-message-meta">
+                    <span>{message.role === "assistant" ? "Guru" : "You"}</span>
+                    <small>{message.time}</small>
+                  </div>
+
+                  <div className="wingman-guru-message-bubble">
+                    <GuruMessageContent content={message.content} />
+                  </div>
+
+                  {message.role === "assistant" && !isPending ? (
+                    <div className="wingman-guru-message-actions">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          void copyGuruMessage(message);
+                        }}
+                      >
+                        <ClipboardCopy className="h-3.5 w-3.5" />
+                        <span>{copiedMessageId === message.id ? "Copied" : "Copy answer"}</span>
+                      </button>
+                      <button type="button" onClick={() => useGuruMessageInDiscovery(message)}>
+                        Use in Discovery
+                      </button>
+                    </div>
+                  ) : null}
+                </article>
+              );
+            })}
+          </div>
+        </section>
 
         <form className="wingman-guru-composer" onSubmit={handleSubmit}>
-          <input
-            ref={inputRef}
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            className="wingman-guru-input"
-            placeholder="Ask Guru a product, AV term, acronym, or system question..."
-          />
-          <button type="submit" className="wingman-guru-send" aria-label="Send question">
+          <div className="wingman-guru-input-shell">
+            <label className="sr-only" htmlFor="wingman-guru-question">
+              Ask Guru
+            </label>
+            <textarea
+              id="wingman-guru-question"
+              ref={inputRef}
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && !event.shiftKey) {
+                  event.preventDefault();
+
+                  if (draft.trim()) {
+                    void sendMessage(draft);
+                  }
+                }
+              }}
+              className="wingman-guru-input"
+              placeholder="Ask Guru a product, AV term, acronym, or system question..."
+              rows={2}
+            />
+            <small>Enter to send Â· Shift+Enter for a new line</small>
+          </div>
+          <button
+            type="submit"
+            className="wingman-guru-send"
+            aria-label="Send question"
+            disabled={!draft.trim()}
+          >
             <Send className="h-4 w-4" />
             <span>Send</span>
-          </button>        </form>
+          </button>
+        </form>
       </aside>
         </>,
         document.body,
