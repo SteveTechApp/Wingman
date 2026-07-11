@@ -17860,45 +17860,23 @@ body.wm-product-pitch-page-open .wm-product-pitch-browse-all {
 /* WINGMAN PRODUCT PITCH VIEWPORT FILL START */
 
 /*
-  Fill the desktop workspace without stretching individual empty-state cards.
-  The selector panel owns the remaining viewport height. Its content stays
-  compact at the top, while a restrained mission-control treatment uses the
-  otherwise empty lower area.
+  Selector and selected-product workspace share .wm-product-pitch-page.
+  Viewport-fill behaviour must therefore be explicitly scoped to the selector.
 */
-body.wm-product-pitch-page-open .wingman-app-main {
-  display: flex !important;
-  flex-direction: column !important;
-  min-height: 100dvh !important;
-}
-
-body.wm-product-pitch-page-open .wingman-app-main > .wingman-topbar {
-  flex: 0 0 auto !important;
-}
-
-body.wm-product-pitch-page-open .wingman-app-main > .wingman-page-host {
-  display: flex !important;
-  flex: 1 1 auto !important;
-  flex-direction: column !important;
-  width: 100% !important;
-  min-height: 0 !important;
-}
-
-body.wm-product-pitch-page-open
-  .wingman-app-main
-  > .wingman-page-host
-  > main.wm-product-pitch-page {
+main.wm-product-pitch-page[data-product-pitch-view="selector"] {
+  position: relative !important;
+  isolation: isolate !important;
   display: grid !important;
-  flex: 1 1 auto !important;
   grid-template-rows: auto minmax(0, 1fr) !important;
   align-content: stretch !important;
-  gap: 1rem !important;
   width: 100% !important;
   max-width: none !important;
-  min-height: 0 !important;
+  min-height: calc(100dvh - 7.25rem) !important;
   padding-bottom: 1rem !important;
 }
 
-body.wm-product-pitch-page-open .wm-product-pitch-selector {
+main.wm-product-pitch-page[data-product-pitch-view="selector"]
+  .wm-product-pitch-selector {
   position: relative !important;
   isolation: isolate !important;
   display: grid !important;
@@ -17910,22 +17888,24 @@ body.wm-product-pitch-page-open .wm-product-pitch-selector {
   overflow: hidden !important;
 }
 
-/* Keep every real control and card above the decorative fill. */
-body.wm-product-pitch-page-open .wm-product-pitch-selector > * {
+main.wm-product-pitch-page[data-product-pitch-view="selector"]
+  .wm-product-pitch-selector > * {
   position: relative !important;
   z-index: 1 !important;
 }
 
-/* Use the spare panel area without turning it into oversized empty cards. */
-body.wm-product-pitch-page-open .wm-product-pitch-selector::before,
-body.wm-product-pitch-page-open .wm-product-pitch-selector::after {
+main.wm-product-pitch-page[data-product-pitch-view="selector"]
+  .wm-product-pitch-selector::before,
+main.wm-product-pitch-page[data-product-pitch-view="selector"]
+  .wm-product-pitch-selector::after {
   content: "" !important;
   position: absolute !important;
   z-index: 0 !important;
   pointer-events: none !important;
 }
 
-body.wm-product-pitch-page-open .wm-product-pitch-selector::before {
+main.wm-product-pitch-page[data-product-pitch-view="selector"]
+  .wm-product-pitch-selector::before {
   right: -8rem !important;
   bottom: -9rem !important;
   width: min(46vw, 40rem) !important;
@@ -17942,7 +17922,8 @@ body.wm-product-pitch-page-open .wm-product-pitch-selector::before {
   opacity: 0.78 !important;
 }
 
-body.wm-product-pitch-page-open .wm-product-pitch-selector::after {
+main.wm-product-pitch-page[data-product-pitch-view="selector"]
+  .wm-product-pitch-selector::after {
   left: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
@@ -17963,7 +17944,8 @@ body.wm-product-pitch-page-open .wm-product-pitch-selector::after {
   opacity: 0.65 !important;
 }
 
-body.wm-product-pitch-page-open .wm-product-pitch-empty-state {
+main.wm-product-pitch-page[data-product-pitch-view="selector"]
+  .wm-product-pitch-empty-state {
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   grid-template-rows: auto auto auto !important;
@@ -17975,62 +17957,123 @@ body.wm-product-pitch-page-open .wm-product-pitch-empty-state {
   margin-top: 1rem !important;
 }
 
-body.wm-product-pitch-page-open .wm-product-pitch-empty-state > .wm-ui-card,
-body.wm-product-pitch-page-open
-  .wm-product-pitch-empty-state
-  > .wm-ui-card:nth-child(-n + 2) {
+main.wm-product-pitch-page[data-product-pitch-view="selector"]
+  .wm-product-pitch-empty-state > .wm-ui-card {
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+/*
+  The selected-product page must use normal document flow. This prevents the
+  safety panel, tabs and tab content from sharing or collapsing into a single
+  constrained viewport row.
+*/
+main.wm-product-pitch-page[data-product-pitch-view="workspace"] {
+  display: grid !important;
+  grid-template-rows: none !important;
+  grid-auto-rows: max-content !important;
+  align-content: start !important;
+  gap: 1rem !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding-bottom: 6rem !important;
+  overflow: visible !important;
+}
+
+main.wm-product-pitch-page[data-product-pitch-view="workspace"] > * {
+  position: relative !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+}
+
+main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+  .wm-product-pitch-safety-panel {
+  display: grid !important;
+  grid-template-rows: auto auto !important;
+  gap: 0.875rem !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  height: auto !important;
+  padding: 1rem !important;
+  overflow: visible !important;
+}
+
+main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+  .wm-product-pitch-safety-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  grid-auto-rows: auto !important;
+  gap: 0.75rem !important;
+  min-height: 0 !important;
+  height: auto !important;
+}
+
+main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+  .wm-product-pitch-safety-item {
   display: grid !important;
   align-content: start !important;
-  align-self: start !important;
+  min-width: 0 !important;
   min-height: 0 !important;
   height: auto !important;
+  padding: 0.875rem !important;
+  overflow: visible !important;
 }
 
-body.wm-product-pitch-page-open .wm-product-pitch-family-panel {
-  grid-column: 1 / -1 !important;
+main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+  [data-product-pitch-tabs] {
+  position: relative !important;
+  z-index: 2 !important;
+  display: block !important;
   min-height: 0 !important;
   height: auto !important;
+  padding: 0.75rem !important;
+  overflow: visible !important;
 }
 
-body.wm-product-pitch-page-open .wm-product-pitch-browse-all {
-  justify-self: start !important;
-  width: auto !important;
+main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+  [data-product-pitch-tabs] > div {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  min-height: 0 !important;
+}
+
+main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+  :is(section, article, aside, details) {
+  max-height: none !important;
 }
 
 @media (max-width: 980px) {
-  body.wm-product-pitch-page-open .wingman-app-main {
+  main.wm-product-pitch-page[data-product-pitch-view="selector"] {
     min-height: auto !important;
   }
 
-  body.wm-product-pitch-page-open .wingman-app-main > .wingman-page-host {
-    min-height: auto !important;
-  }
-
-  body.wm-product-pitch-page-open
-    .wingman-app-main
-    > .wingman-page-host
-    > main.wm-product-pitch-page {
-    grid-template-rows: auto !important;
-    min-height: auto !important;
-  }
-
-  body.wm-product-pitch-page-open .wm-product-pitch-selector {
+  main.wm-product-pitch-page[data-product-pitch-view="selector"]
+    .wm-product-pitch-selector {
     height: auto !important;
     overflow: visible !important;
   }
 
-  body.wm-product-pitch-page-open .wm-product-pitch-selector::before,
-  body.wm-product-pitch-page-open .wm-product-pitch-selector::after {
+  main.wm-product-pitch-page[data-product-pitch-view="selector"]
+    .wm-product-pitch-selector::before,
+  main.wm-product-pitch-page[data-product-pitch-view="selector"]
+    .wm-product-pitch-selector::after {
     display: none !important;
   }
 
-  body.wm-product-pitch-page-open .wm-product-pitch-empty-state {
+  main.wm-product-pitch-page[data-product-pitch-view="selector"]
+    .wm-product-pitch-empty-state {
     grid-template-columns: minmax(0, 1fr) !important;
-    grid-template-rows: auto !important;
   }
 
-  body.wm-product-pitch-page-open .wm-product-pitch-family-panel {
-    grid-column: auto !important;
+  main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+    .wm-product-pitch-safety-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
   }
 }
 
