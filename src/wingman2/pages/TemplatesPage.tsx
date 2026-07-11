@@ -1,52 +1,16 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { useCustomRoomTemplates } from "../lib/customRoomTemplates";
 import { roomTemplates } from "../lib/roomTemplates";
 
-const allTemplatesFilter = "All";
-
-function uniqueSorted(values: string[]) {
-  return Array.from(new Set(values)).sort((first, second) => first.localeCompare(second));
-}
-
 export function TemplatesPage() {
-  const [query, setQuery] = useState("");
-  const [vertical, setVertical] = useState(allTemplatesFilter);
-
-  const verticals = useMemo(
-    () => [allTemplatesFilter, ...uniqueSorted(roomTemplates.map((template) => template.vertical))],
-    [],
+  const customTemplates = useCustomRoomTemplates();
+  const availableTemplates = useMemo(
+    () => [...customTemplates, ...roomTemplates],
+    [customTemplates],
   );
-
-  const filteredTemplates = useMemo(() => {
-    const search = query.trim().toLowerCase();
-
-    return roomTemplates.filter((template) => {
-      const verticalMatch = vertical === allTemplatesFilter || template.vertical === vertical;
-      const searchableText = [
-        template.name,
-        template.vertical,
-        template.scale,
-        template.summary,
-        template.application,
-        template.customerNarrative,
-        template.architecture,
-        ...template.bom.flatMap((row) => [row.sku, row.description, row.role]),
-      ]
-        .join(" ")
-        .toLowerCase();
-
-      return verticalMatch && (!search || searchableText.includes(search));
-    });
-  }, [query, vertical]);
-
-  const hasActiveFilters = query.trim() || vertical !== allTemplatesFilter;
-
-  function resetFilters() {
-    setQuery("");
-    setVertical(allTemplatesFilter);
-  }
 
   return (
     <main className="wm-templates-page wm-page wingman-page-host" data-wingman-page="templates">
@@ -55,89 +19,50 @@ export function TemplatesPage() {
           <p className="wm-template-kicker wm-ui-kicker">Wingman / Templates</p>
           <h1 className="wm-page-title">Room and application templates</h1>
           <p className="wm-copy">
-            Start from a known room archetype, filter by vertical, then review the BOM-backed template before proposal work.
+            Browse known room archetypes, expand a card for more detail, or reopen a room design saved as a reusable template.
           </p>
         </div>
       </header>
 
-      <section className="wm-section-card wm-template-filter-panel" aria-label="Template filters">
-        <label className="wm-field wm-template-search">
-          Search templates
-          <input
-            className="wm-input"
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search room, vertical, SKU or application"
-          />
-        </label>
-
-        <div className="wm-template-filter-group" aria-label="Vertical filter">
-          <span className="wm-template-filter-label">Vertical</span>
-          <div className="wm-template-filter-strip">
-            {verticals.map((item) => (
-              <button
-                key={item}
-                type="button"
-                className={`wm-filter-chip${item === vertical ? " is-active" : ""}`}
-                onClick={() => setVertical(item)}
-                aria-pressed={item === vertical}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="wm-template-results-header wm-section-card">
         <div>
           <p className="wm-template-kicker wm-ui-kicker">Template library</p>
-          <h2 className="wm-section-title">
-            {filteredTemplates.length} of {roomTemplates.length} templates
-          </h2>
+          <h2 className="wm-section-title">{availableTemplates.length} templates</h2>
+          {customTemplates.length > 0 ? (
+            <p className="wm-copy">{customTemplates.length} saved custom template{customTemplates.length === 1 ? "" : "s"} included.</p>
+          ) : null}
         </div>
-
-        {hasActiveFilters ? (
-          <button type="button" className="wm-button wm-button-secondary" onClick={resetFilters}>
-            Reset filters
-          </button>
-        ) : null}
       </section>
 
       <section className="wm-section wm-template-card-grid" aria-label="Room templates">
-        {filteredTemplates.map((template) => (
-          <article key={template.id} className="wm-action-card wm-template-card">
-            <div className="wm-template-card-top">
-              <span className="wm-badge">{template.vertical}</span>
-              <span className="wm-badge">{template.scale}</span>
-            </div>
+        {availableTemplates.map((template) => {
+          const isCustom = "customTemplate" in template && template.customTemplate === true;
 
-            <h3 className="wm-card-title">{template.name}</h3>
-            <p className="wm-copy wm-template-summary">{template.summary}</p>
-            <p className="wm-copy wm-template-direction">{template.application}</p>
+          return (
+            <article key={template.id} className="wm-action-card wm-template-card">
+              <div className="wm-template-card-top">
+                {isCustom ? <span className="wm-badge">Saved template</span> : null}
+                <span className="wm-badge">{template.vertical}</span>
+                <span className="wm-badge">{template.scale}</span>
+              </div>
 
-            <div className="wm-template-actions wm-action-row">
-              <Link
-                className="wm-button wm-button-primary"
-                to={`${routeCatalogByKey.templates.path}/${template.id}`}
-                data-template-build-pack="true"
-              >
-                Review template
-              </Link>
-            </div>
-          </article>
-        ))}
+              <h3 className="wm-card-title">{template.name}</h3>
+              <p className="wm-copy wm-template-summary">{template.summary}</p>
+              <p className="wm-copy wm-template-direction">{template.application}</p>
+
+              <div className="wm-template-actions wm-action-row">
+                <Link
+                  className="wm-button wm-button-primary"
+                  to={`${routeCatalogByKey.templates.path}/${template.id}`}
+                  data-template-build-pack="true"
+                >
+                  Review template
+                </Link>
+              </div>
+            </article>
+          );
+        })}
       </section>
-
-      {filteredTemplates.length === 0 ? (
-        <section className="wm-output-panel" aria-live="polite">
-          <h2 className="wm-section-title">Nothing matches those filters</h2>
-          <p className="wm-copy">Adjust the search or vertical filter to show more room archetypes.</p>
-        </section>
-      ) : null}
     </main>
   );
 }
-
-export default TemplatesPage;
