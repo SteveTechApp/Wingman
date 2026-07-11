@@ -22581,6 +22581,7 @@ html[data-wingman-route] .wingman-page-host
 }
 
 .wm-route-product-pitch .wm-product-pitch-overview {
+  display: grid !important;
   gap: 8px !important;
 }
 
@@ -22612,6 +22613,7 @@ html[data-wingman-route] .wingman-page-host
 }
 
 .wm-route-product-pitch .wm-product-pitch-key-answer-grid {
+  display: grid !important;
   grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   gap: 8px !important;
 }
