@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it } from "vitest";
 
+import { saveRoomTemplateCopy } from "../wingman2/lib/customRoomTemplates";
 import { roomTemplates } from "../wingman2/lib/roomTemplates";
 import { TemplateReviewPage } from "../wingman2/pages/TemplateReviewPage";
 import { TemplatesPage } from "../wingman2/pages/TemplatesPage";
@@ -53,5 +54,19 @@ describe("template workflow wiring", () => {
       "href",
       expect.stringContaining("/wingman/templates/custom-"),
     );
+  });
+
+  it("shows saved custom templates in the library and opens their review page", () => {
+    const savedTemplate = saveRoomTemplateCopy(roomTemplates[0]);
+    renderTemplateRoutes();
+
+    expect(screen.getByText("1 saved custom template included.")).toBeInTheDocument();
+
+    const card = screen.getByRole("heading", { name: savedTemplate.name }).closest("article");
+    expect(card).not.toBeNull();
+    expect(within(card!).getByText("Saved template")).toBeInTheDocument();
+
+    fireEvent.click(within(card!).getByRole("link", { name: "Review template" }));
+    expect(screen.getByRole("heading", { name: savedTemplate.name, level: 1 })).toBeInTheDocument();
   });
 });
