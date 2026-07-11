@@ -71,113 +71,198 @@ export function classifyProductCallCard(
   product: ProductCallCardClassificationInput,
 ): ClassifiedProductCallCardHeading[] {
   const sku = fieldText(product.sku).toUpperCase();
-  const text = productCallCardClassificationText(product);
+
+  // Classification must describe what the product is, not every application,
+  // feature or alternative mentioned in its marketing copy.
+  const identityText = [
+    product.sku,
+    product.name,
+    product.title,
+    product.family,
+    product.category,
+    product.productType,
+    product.role,
+    product.productRole,
+  ]
+    .map(fieldText)
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
   const headings = new Set<ClassifiedProductCallCardHeading>();
+  const identityHas = (terms: RegExp[]) =>
+    terms.some((term) => term.test(identityText));
 
-  const unifiedComms = hasAny(text, [
-    /\bunified comm(?:s|unications?)\b/,
-    /\busb conferenc(?:e|ing)\b/,
-    /\bspeakerphone\b/,
-    /\bteams\b/,
-    /\bzoom\b/,
-    /\bbyod\b/,
-    /\bbyom\b/,
-    /\b(?:ptz )?camera\b/,
-    /\bmicrophone\b/,
-  ]) || /^APO-.*(?:UC|MIC)/.test(sku) || /^CAM-/.test(sku);
+  const isNetworkHd = /^NHD-/.test(sku);
+  const isCamera = /^CAM-/.test(sku);
+  const isApollo =
+    /^APO-/.test(sku) &&
+    !/^APO-DG/.test(sku);
+  const isHaloVideoBar = /^HALO-VX10(?:-UC)?-V2$/.test(sku);
 
-  if (unifiedComms) {
+  const isUnifiedComms =
+    isCamera ||
+    isApollo ||
+    isHaloVideoBar ||
+    identityHas([
+      /\bunified comm(?:s|unications?)\b/,
+      /\bvideo bar\b/,
+      /\bconference camera\b/,
+      /\bconferencing camera\b/,
+      /\bspeakerphone\b/,
+      /\buc switcher\b/,
+      /\bptz camera\b/,
+    ]);
+
+  if (isUnifiedComms) {
     headings.add("Unified Comms");
   }
 
-  const audioCore = /^AMP-/.test(sku) || hasAny(text, [/\bamplifier\b/, /\bdante\b/, /\bdsp\b/]);
-  const audioPeripheral = hasAny(text, [/\baudio\b/, /\bspeaker\b/, /\bmicrophone\b/, /\bmic\b/]);
+  const isAudioProduct =
+    /^AMP-/.test(sku) ||
+    identityHas([
+      /\baudio amplifier\b/,
+      /\bnetwork amplifier\b/,
+      /\bdante amplifier\b/,
+      /\bdsp amplifier\b/,
+      /\baudio processor\b/,
+      /\baudio converter\b/,
+      /\baudio breakout\b/,
+      /\baudio extractor\b/,
+      /\baudio de-?embed(?:der|ding)?\b/,
+    ]);
 
-  if (audioCore || (audioPeripheral && !unifiedComms)) {
+  if (isAudioProduct) {
     headings.add("Audio");
   }
 
-  if (
-    /(?:^|-)(?:KIT)(?:-|$)/.test(sku) ||
-    hasAny(text, [
-      /\bextender kit\b/,
-      /\bhdbaset kit\b/,
-      /\bhdmi (?:extension|extender) kit\b/,
-      /\btx\s*\/\s*rx pair\b/,
-      /\btransmitter\s*(?:and|\/)\s*receiver (?:kit|pair)\b/,
-    ])
-  ) {
+  const hasKitSku = /(?:^|-)KIT(?:-|$)/.test(sku);
+  const extenderIdentity = identityHas([
+    /\bextender kit\b/,
+    /\bhdbaset kit\b/,
+    /\bhdmi (?:extension|extender) kit\b/,
+    /\btx\s*\/\s*rx pair\b/,
+    /\btransmitter\s*(?:and|\/)\s*receiver (?:kit|pair)\b/,
+  ]);
+  const kitCapableSku =
+    /^(?:EXP-)?(?:EX|MX|MXV)-/.test(sku);
+
+  if ((hasKitSku && kitCapableSku) || extenderIdentity) {
     headings.add("Extender Kits");
   }
 
-  if (
+  const isDistributionAmplifier =
     /^(?:EXP-)?SP-/.test(sku) ||
     /(?:^|[-/])DA(?:[-/]|$)/.test(sku) ||
-    hasAny(text, [/\bsplitter\b/, /\bdistribution amplifier\b/, /\bhdmi splitter\b/])
-  ) {
+    identityHas([
+      /\bsplitter\b/,
+      /\bdistribution amplifier\b/,
+      /\bhdmi splitter\b/,
+    ]);
+
+  if (isDistributionAmplifier) {
     headings.add("DA / Splitters");
   }
 
-  const swMeetingSwitcher =
+  const isVideoWallSku = /(?:^|-)VW(?:-|$)/.test(sku);
+  const isPresentationSwitcherSku =
     /^(?:EXP-)?SW-/.test(sku) &&
-    !/(?:^|-)VW(?:-|$)/.test(sku) &&
-    hasAny(text, [/\bpresentation\b/, /\bswitcher\b/, /\bmeeting room\b/, /\bclassroom\b/, /\busb-c\b/]);
+    !isVideoWallSku;
+  const isPresentationMatrixSku =
+    /^(?:EXP-)?MX(?:V)?-/.test(sku) &&
+    /(?:^|-)(?:MST|EDU)(?:-|$)/.test(sku);
+  const isPresentationIdentity = identityHas([
+    /\bpresentation switcher\b/,
+    /\broom switcher\b/,
+    /\bclassroom switcher\b/,
+    /\busb-c switcher\b/,
+    /\bmeeting-room switcher\b/,
+  ]);
 
   if (
-    swMeetingSwitcher ||
-    /(?:^|-)MST(?:-|$)/.test(sku) ||
-    /(?:^|-)EDU(?:-|$)/.test(sku) ||
-    hasAny(text, [
-      /\bpresentation switcher\b/,
-      /\broom switching\b/,
-      /\bmeeting-room switcher\b/,
-      /\busb-c presentation\b/,
-      /\bbyod\b/,
-      /\bbyom\b/,
-    ])
+    (isPresentationSwitcherSku &&
+      identityHas([
+        /\bpresentation\b/,
+        /\bswitcher\b/,
+        /\bmeeting room\b/,
+        /\bclassroom\b/,
+        /\busb-c\b/,
+      ])) ||
+    isPresentationMatrixSku ||
+    isPresentationIdentity
   ) {
     headings.add("Presentation Switchers");
   }
 
-  if (
+  const isMatrix =
     /^(?:EXP-)?MX(?:V)?-/.test(sku) ||
-    hasAny(text, [/\bmatrix switcher\b/, /\bseamless matrix\b/, /\bfixed i\/o switching\b/])
-  ) {
+    identityHas([
+      /\bmatrix switcher\b/,
+      /\bseamless matrix\b/,
+      /\bfixed i\/o matrix\b/,
+      /\brouting matrix\b/,
+    ]);
+
+  if (isMatrix) {
     headings.add("Matrix Switchers");
   }
 
-  if (
+  const isWirelessCastingHost = [
+    "APO-VX20-UC-V2",
+    "HALO-VX10-V2",
+  ].includes(sku);
+
+  const isWirelessCasting =
+    isWirelessCastingHost ||
     /^APO-DG/.test(sku) ||
-    /(?:^|-)DG2?(?:-|$)/.test(sku) ||
-    hasAny(text, [/\bwireless presentation\b/, /\bwireless casting\b/, /\bcasting\b/, /\bairplay\b/, /\bmiracast\b/]) ||
-    (/-W$/.test(sku) && hasAny(text, [/\bwireless\b/, /\bpresentation\b/]))
-  ) {
+    (
+      /-W$/.test(sku) &&
+      /^(?:EXP-)?(?:SW|MX|MXV)-/.test(sku)
+    ) ||
+    identityHas([
+      /\bwireless casting dongle\b/,
+      /\bwireless presentation dongle\b/,
+      /\bwireless presentation receiver\b/,
+      /\bwireless casting receiver\b/,
+    ]);
+
+  if (isWirelessCasting) {
     headings.add("Wireless Casting");
   }
 
-  const networkHdRelated = /^NHD-/.test(sku) || hasAny(text, [/\bnetworkhd\b/, /\bav(?:-|\s*)over(?:-|\s*)ip\b/, /\bavoip\b/]);
-
-  if (
-    networkHdRelated ||
-    (hasAny(text, [/\bencoder\b/, /\bdecoder\b/, /\bcontroller\b/]) && hasAny(text, [/\bnetworkhd\b/, /\bnhd\b/]))
-  ) {
+  // The AVoIP filter is the governed NetworkHD family. Descriptions that merely
+  // mention an AVoIP application or alternative must not add this heading.
+  if (isNetworkHd) {
     headings.add("AVoIP");
   }
 
-  if (
+  const isVideoWall =
     ["NHD-0401-MV", "NHD-150-RX", "SW-0204-VW", "SW-0206-VW"].includes(sku) ||
-    /(?:^|-)VW(?:-|$)/.test(sku) ||
-    hasAny(text, [/\bvideo wall\b/, /\bvideowall\b/, /\bmultiview\b/, /\bmulti-view\b/])
-  ) {
+    isVideoWallSku ||
+    identityHas([
+      /\bvideo wall processor\b/,
+      /\bvideowall processor\b/,
+      /\bmultiview processor\b/,
+      /\bmulti-view processor\b/,
+      /\bmultiview decoder\b/,
+    ]);
+
+  if (isVideoWall) {
     headings.add("Video Wall");
   }
 
-  if (
+  const isControl =
     /^SYN-TOUCH/.test(sku) ||
     /^NHD-(?:000-)?CTL/.test(sku) ||
-    hasAny(text, [/\btouch panel\b/, /\btouchpad controller\b/, /\bcontrol interface\b/]) ||
-    (/\bcontroller\b/.test(text) && hasAny(text, [/\bcontrol\b/, /\bnetworkhd\b/, /\bnhd\b/]))
-  ) {
+    identityHas([
+      /\btouch panel\b/,
+      /\btouchpad controller\b/,
+      /\bcontrol interface\b/,
+      /\broom controller\b/,
+      /\bav controller\b/,
+    ]);
+
+  if (isControl) {
     headings.add("Control");
   }
 

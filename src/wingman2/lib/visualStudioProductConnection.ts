@@ -382,9 +382,29 @@ function familyConnectors(connectors: string[], family: SignalFamily): string[] 
 // ---------------------------------------------------------------------------
 // Deployment archetype classification
 //
-// Prefers productClassification (already computed upstream from the
-// datasheet/PDF corpus) over guessing from the SKU alone, but always falls
-// back to SKU + text pattern matching so older/thinner records still work.
+// IMPORTANT: productClassification.{primaryCategory,category,subCategory,
+// productType} is a governed, controlled-vocabulary taxonomy computed
+// upstream by the product-intelligence pipeline (confidence-scored against
+// the datasheet/PDF corpus). It must be checked BEFORE any free-text
+// marketing-copy matching, not after: real catalog data shows that words
+// like "distribute"/"duplicate" appear in the sales prose of the vast
+// majority of matrix and AVoIP products ("distribute 4K video across your
+// network", "duplicate content to every zone" etc.), and "multiview" is a
+// common feature callout even on single-source endpoints. Checking the full
+// free-text blob first previously misrouted the large majority of NetworkHD
+// AV-over-IP products and a meaningful share of matrix products into the
+// "distribution" (dumb splitter) archetype - a severe, catalog-wide
+// misclassification.
+//
+// The narrow `structured` text below is built ONLY from the governed
+// classification fields (short, controlled-vocabulary phrases such as
+// "Splitter / distribution amplifier" or "AVoIP endpoint"), never from the
+// summary/description marketing prose, so keyword matching against it does
+// not suffer the same false-positive collisions.
+//
+// The free-text `blob` (SKU + summary/description/connectors/technologies)
+// is only consulted as a last-resort fallback for older/thinner records that
+// have no productClassification at all.
 // ---------------------------------------------------------------------------
 
 function classifyArchetype(
@@ -392,17 +412,96 @@ function classifyArchetype(
   classification: ProductClassificationFacts,
   blob: string,
 ): DeploymentArchetype {
-  const text = [
+  const primary = classification.primaryCategory;
+  const structured = [
     classification.primaryCategory,
     classification.category,
     classification.subCategory,
     classification.productType,
     classification.systemRole,
     classification.applicationRole,
-    blob,
   ]
     .join(" ")
     .toLowerCase();
+
+  if (primary) {
+    if (primary === "Distribution" || /distribution amplifier|\bsplitter\b/.test(structured)) {
+      return "distribution";
+    }
+
+    const isAvoip = primary === "NetworkHD AV over IP" || /\bav over ip\b/.test(structured);
+
+    if (isAvoip) {
+      if (/\btransceiver\b/.test(structured) || /-TRX/i.test(sku)) {
+        return "avoip-transceiver";
+      }
+
+      if (/\bencoder\b/.test(structured)) {
+        return "avoip-encoder";
+      }
+
+      if (/\bdecoder\b/.test(structured)) {
+        return "avoip-decoder";
+      }
+
+      if (/multiview/.test(structured)) {
+        return "multiview";
+      }
+
+      if (/controller|control interface|control application/.test(structured)) {
+        return "control-processor";
+      }
+
+      if (/network switch/.test(structured)) {
+        // Pre-configured AV-over-IP network infrastructure, not itself a
+        // video/USB/audio signal endpoint - fall through to a generic
+        // connectivity view rather than an AVoIP source/destination shape.
+        return "generic";
+      }
+
+      return "avoip-endpoint";
+    }
+
+    if (primary === "Matrix / Routing" || /matrix switching|\bhdmi matrix\b/.test(structured)) {
+      return "matrix";
+    }
+
+    if (primary === "Camera / Capture" || /camera\s*\/\s*capture/.test(structured)) {
+      return "camera";
+    }
+
+    if (primary === "Video Processing" || /video\s*wall/.test(structured)) {
+      return "video-wall";
+    }
+
+    if (/multiview|multi-view/.test(structured)) {
+      return "multiview";
+    }
+
+    if (primary === "Audio" || /amplification|dsp amplifier/.test(structured)) {
+      return "audio-processor";
+    }
+
+    if (primary === "Control" || /control interface|software control|signal management/.test(structured)) {
+      return "control-processor";
+    }
+
+    if (primary === "Extension" || /hdbaset extender|usb\s*\/\s*kvm extender|\bkvm extender\b/.test(structured)) {
+      return "hdbaset-extender";
+    }
+
+    if (
+      primary === "Presentation / Room Core" ||
+      primary === "Unified Communications" ||
+      /presentation switcher|room switcher|room source switcher|speakerphone switcher/.test(structured)
+    ) {
+      return "presentation-switcher";
+    }
+  }
+
+  // Fallback: legacy/thin records without a governed productClassification -
+  // guess from the SKU and free-text marketing blob, same as before.
+  const text = [structured, blob].join(" ").toLowerCase();
 
   if (/distribut|splitter|duplicat/.test(text)) {
     return "distribution";
@@ -412,11 +511,9 @@ function classifyArchetype(
     return "matrix";
   }
 
-  const isAvoip =
-    classification.primaryCategory === "NetworkHD AV over IP" ||
-    /avoip|networkhd|av[- ]over[- ]ip/.test(text);
+  const isAvoipFallback = /avoip|networkhd|av[- ]over[- ]ip/.test(text);
 
-  if (isAvoip) {
+  if (isAvoipFallback) {
     if (/transceiver|\btrx\b/.test(text) || /-TRX/i.test(sku)) {
       return "avoip-transceiver";
     }
@@ -440,7 +537,7 @@ function classifyArchetype(
     return "multiview";
   }
 
-  if (classification.primaryCategory === "Camera / Capture" || /\bcamera\b|\bptz\b/.test(text)) {
+  if (/\bcamera\b|\bptz\b/.test(text)) {
     return "camera";
   }
 
@@ -452,16 +549,8 @@ function classifyArchetype(
     return "presentation-switcher";
   }
 
-  if (classification.primaryCategory === "Audio" || /amplifier|dsp\b|audio processor/.test(text)) {
+  if (/amplifier|dsp\b|audio processor/.test(text)) {
     return "audio-processor";
-  }
-
-  if (classification.primaryCategory === "Control") {
-    return "control-processor";
-  }
-
-  if (classification.primaryCategory === "Extension") {
-    return "extension";
   }
 
   return "generic";
@@ -731,7 +820,7 @@ function buildProductNode(facts: ProductConnectionFacts): VisualDiagramNode {
     id: "wyrestorm-product",
     label: facts.sku,
     subtitle: subtitleParts.join(" | "),
-    kind: "switching",
+    kind: facts.archetype === "camera" ? "camera" : "switching",
     status: "recommended",
     emphasis: "primary",
     column: 2.25,
@@ -762,20 +851,39 @@ function buildVideoEndpoints(facts: ProductConnectionFacts): GenericEndpointDefi
   const connectorText = videoConnectorText(facts);
   const endpoints: GenericEndpointDefinition[] = [];
 
+  // Most camera archetype products are pure single-output source devices (a
+  // PTZ or USB camera has no video inputs at all), so the source endpoint is
+  // suppressed by default. Some cameras are actually camera bridges/mixers
+  // (e.g. CAM-0402-BRG: 2x HDMI in, 1x HDMI out) with real documented input
+  // ports - those must still show their upstream camera/source feeds.
+  const isCameraWithRealInputs = archetype === "camera" && facts.video.inputPorts.length > 0;
+
   const showSource =
     archetype !== "avoip-decoder" &&
-    archetype !== "camera" &&
+    (archetype !== "camera" || isCameraWithRealInputs) &&
     (facts.video.inputPorts.length > 0 ||
       facts.matrixDimensions !== null ||
-      (facts.video.present && archetype !== "avoip-encoder" && archetype !== "avoip-transceiver"));
+      (facts.video.present &&
+        archetype !== "avoip-encoder" &&
+        archetype !== "avoip-transceiver"));
 
   const showDestination =
     archetype !== "avoip-encoder" &&
-    (facts.video.outputPorts.length > 0 || facts.matrixDimensions !== null || (facts.video.present && archetype !== "camera") || archetype === "camera");
+    (
+      facts.video.outputPorts.length > 0 ||
+      (
+        archetype !== "camera" &&
+        (
+          facts.matrixDimensions !== null ||
+          facts.video.present
+        )
+      )
+    );
 
   if (showSource) {
-    const routingNote =
-      archetype === "distribution"
+    const routingNote = isCameraWithRealInputs
+      ? "Upstream camera or source feeds into this camera bridge/mixer before its single combined output."
+      : archetype === "distribution"
         ? "This is the single upstream source that will be duplicated to every output."
         : "Independently switchable source input.";
 
@@ -784,8 +892,9 @@ function buildVideoEndpoints(facts: ProductConnectionFacts): GenericEndpointDefi
       label: videoRouting.inputCount
         ? `${videoRouting.inputCount} × Generic source device${videoRouting.inputCount === 1 ? "" : "s"}`
         : "Generic source device(s)",
-      subtitle:
-        `Third-party laptops, media players, cameras or source equipment. ${quantityLabel(videoRouting.inputCount, "source input")} · ${connectorText}. ${routingNote}`,
+      subtitle: isCameraWithRealInputs
+        ? `Third-party cameras, document cameras or other video sources feeding this camera bridge/mixer. ${quantityLabel(videoRouting.inputCount, "source input")} · ${connectorText}. ${routingNote}`
+        : `Third-party laptops, media players, cameras or source equipment. ${quantityLabel(videoRouting.inputCount, "source input")} · ${connectorText}. ${routingNote}`,
       kind: "source",
       status: "normal",
       column: 0,
@@ -797,27 +906,35 @@ function buildVideoEndpoints(facts: ProductConnectionFacts): GenericEndpointDefi
 
   if (showDestination) {
     const isDistribution = archetype === "distribution";
-    const label = videoRouting.outputCount
-      ? `${videoRouting.outputCount} × Generic display destination${videoRouting.outputCount === 1 ? "" : "s"}`
-      : "Generic display destination(s)";
+    const label =
+      archetype === "camera"
+        ? "Video destination / capture input"
+        : videoRouting.outputCount
+          ? `${videoRouting.outputCount} × Generic display destination${videoRouting.outputCount === 1 ? "" : "s"}`
+          : "Generic display destination(s)";
 
     const routingNote = isDistribution
       ? "All outputs show an identical duplicated copy of the single source - they are not independently routable displays or zones."
       : archetype === "camera"
-        ? "Receives the camera's local HDMI/video output (a capture device, switcher input, or local monitor)."
+        ? "Receives the camera's evidenced local HDMI/video output (capture device, switcher input, UC appliance or local monitor)."
         : "Verify independent, mirrored and loop-output behaviour per output.";
 
     endpoints.push({
       id: "generic-video-destinations",
       label,
       subtitle:
-        `Third-party displays, projectors, LED processors or downstream video equipment. ${quantityLabel(videoRouting.outputCount, "display output")} · ${connectorText}. ${routingNote}`,
+        archetype === "camera"
+          ? `Third-party UC appliance, capture device, switcher input or local monitor receiving the camera video output. ${connectorText}. ${routingNote}`
+          : `Third-party displays, projectors, LED processors or downstream video equipment. ${quantityLabel(videoRouting.outputCount, "display output")} · ${connectorText}. ${routingNote}`,
       kind: "display",
       status: isDistribution ? "risk" : "normal",
       column: 4.5,
       row: 0.7,
       edgeDirection: "from-product",
-      edgeLabel: `VIDEO · WyreStorm output to display destination · ${connectorText}${isDistribution ? " (duplicated)" : ""}`,
+      edgeLabel:
+        archetype === "camera"
+          ? `VIDEO · Camera output to capture / display destination · ${connectorText}`
+          : `VIDEO · WyreStorm output to display destination · ${connectorText}${isDistribution ? " (duplicated)" : ""}`,
       edgeStatus: isDistribution ? "risk" : undefined,
     });
   }
@@ -838,10 +955,64 @@ function buildUsbEndpoints(facts: ProductConnectionFacts): GenericEndpointDefini
     return [];
   }
 
-  const versionNote = usb.versions.length > 0 ? ` (${summarize(usb.versions, "", 2)})` : "";
-  const connectorText = summarize([...usbChips, ...usb.hostPorts.map((p) => p.connector), ...usb.devicePorts.map((p) => p.connector)], "USB connector and host/device role TBC", 4);
-  const roleNote = usb.roles.length > 0 ? ` Role: ${summarize(usb.roles, "", 2)}.` : "";
-  const powerNote = usb.powerDelivery ? " Supports USB-C power delivery to the connected endpoint." : "";
+  const versionNote =
+    usb.versions.length > 0
+      ? ` (${summarize(usb.versions, "", 2)})`
+      : "";
+  const connectorText = summarize(
+    [
+      ...usbChips,
+      ...usb.hostPorts.map((port) => port.connector),
+      ...usb.devicePorts.map((port) => port.connector),
+    ],
+    "USB connector and host/device role TBC",
+    4,
+  );
+  const roleNote =
+    usb.roles.length > 0
+      ? ` Role: ${summarize(usb.roles, "", 2)}.`
+      : "";
+  const powerNote = usb.powerDelivery
+    ? " Supports USB-C power delivery to the connected endpoint."
+    : "";
+
+  if (facts.archetype === "camera") {
+    const cameraEndpoints: GenericEndpointDefinition[] = [
+      {
+        id: "camera-usb-host",
+        label: "UC host / room computer",
+        subtitle:
+          `Third-party PC, room computer or conferencing appliance receiving USB video from the camera. ${connectorText}${versionNote}.${roleNote} Confirm the host port, USB bandwidth and cable distance.`,
+        kind: "usb",
+        status: "normal",
+        column: 4.15,
+        row: 2.5,
+        edgeDirection: "from-product",
+        edgeLabel: `USB · Camera device connection to host · ${connectorText}`,
+      },
+    ];
+
+    // A plain PTZ/USB camera only sends USB video out to a host. A camera
+    // bridge/mixer (e.g. CAM-0402-BRG) also has real documented USB input
+    // ports for other camera/source feeds - that inbound direction must
+    // still be shown when the port evidence says so.
+    if (facts.usb.hostPorts.length > 0) {
+      cameraEndpoints.push({
+        id: "generic-usb-device",
+        label: "Generic USB camera / source",
+        subtitle:
+          `Third-party USB camera or video source feeding this camera bridge/mixer. ${connectorText}${versionNote}.${roleNote} Confirm USB version and cable distance.`,
+        kind: "usb",
+        status: "normal",
+        column: 0.35,
+        row: 2.5,
+        edgeDirection: "to-product",
+        edgeLabel: `USB · USB camera/source to camera bridge · ${connectorText}`,
+      });
+    }
+
+    return cameraEndpoints;
+  }
 
   return [
     {
@@ -882,14 +1053,33 @@ function buildAudioEndpoints(facts: ProductConnectionFacts): GenericEndpointDefi
   const audioChips = familyConnectors(facts.connectorChips, "audio");
   const endpoints: GenericEndpointDefinition[] = [];
 
+  // Embedded microphone/audio capability on a camera is not evidence of a
+  // separately routable output to a generic DSP, amplifier or loudspeaker.
+  if (facts.archetype === "camera") {
+    return [];
+  }
+
   const hasNetworkAudio = audio.networkAudio.length > 0;
   const hasAnalogAudio = audio.present || audioChips.length > 0;
 
   if (hasAnalogAudio) {
-    const signalText = summarize([...audioChips, ...audio.formats], "Audio format and connector TBC", 4);
-    const micNote = audio.microphone.length > 0 ? " Includes microphone/mic-array input." : "";
-    const embedNote = audio.deEmbed ? " Audio de-embed: extracts audio from the video signal for local amplification." : audio.embed ? " Audio embed: inserts local audio into the outgoing video signal." : "";
-    const arcNote = audio.arc ? " Supports ARC/eARC return audio from a display." : "";
+    const signalText = summarize(
+      [...audioChips, ...audio.formats],
+      "Audio format and connector TBC",
+      4,
+    );
+    const micNote =
+      audio.microphone.length > 0
+        ? " Includes microphone/mic-array input."
+        : "";
+    const embedNote = audio.deEmbed
+      ? " Audio de-embed: extracts audio from the video signal for local amplification."
+      : audio.embed
+        ? " Audio embed: inserts local audio into the outgoing video signal."
+        : "";
+    const arcNote = audio.arc
+      ? " Supports ARC/eARC return audio from a display."
+      : "";
 
     endpoints.push({
       id: "generic-audio-system",
@@ -946,15 +1136,24 @@ function buildNetworkEndpoint(facts: ProductConnectionFacts): GenericEndpointDef
   const networkText = summarize([...networkChips, ...network.interfaces], "LAN interface TBC", 4);
 
   if (network.carriesAvSignal) {
-    const protocolText = summarize(relevantProtocols, "NetworkHD", 3);
+    const protocolText = summarize(
+      relevantProtocols,
+      archetype === "camera" ? "NDI / IP video" : "NetworkHD",
+      3,
+    );
 
     return [
       {
         id: "generic-avoip-network",
-        label: "NetworkHD / AV-over-IP network",
+        label:
+          archetype === "camera"
+            ? "NDI / IP video network"
+            : "NetworkHD / AV-over-IP network",
         subtitle:
-          `Dedicated (or VLAN-isolated) managed network switch carrying live AV traffic between NetworkHD/AVoIP endpoints. Protocol: ${protocolText}. ${networkText}. ` +
-          "Do not treat this as a general office/guest LAN - confirm bandwidth, multicast/IGMP snooping and switch model before quoting.",
+          archetype === "camera"
+            ? `Managed network carrying NDI/IP video from the camera. Protocol: ${protocolText}. ${networkText}. Confirm switch bandwidth, multicast/QoS requirements and the receiving NDI/IP endpoint before quoting.`
+            : `Dedicated (or VLAN-isolated) managed network switch carrying live AV traffic between NetworkHD/AVoIP endpoints. Protocol: ${protocolText}. ${networkText}. ` +
+              "Do not treat this as a general office/guest LAN - confirm bandwidth, multicast/IGMP snooping and switch model before quoting.",
         kind: "network",
         status: "normal",
         column: 2.65,
@@ -1140,6 +1339,7 @@ export function buildProductConnectionDiagram(
     : `Official product URL is not yet attached for ${facts.sku}.`;
 
   const isDistribution = facts.archetype === "distribution";
+  const isCamera = facts.archetype === "camera";
 
   const matrixEvidence = facts.matrixSizeEvidence
     ? facts.matrixSizeEvidence
@@ -1210,15 +1410,21 @@ export function buildProductConnectionDiagram(
 
   return {
     ...fallbackModel,
-    title: `${facts.sku} Connectivity Flow`,
-    subtitle: "Generic third-party equipment connected to the governed WyreStorm product and its documented signal families.",
-    customerSummary:
-      `${facts.sku} is shown as the central WyreStorm product. ` +
-      "Generic source, display, audio, USB, network and control boxes represent third-party equipment outside WyreStorm supply.",
-    technicalSummary:
-      `${facts.name} is the governed central device (${archetypeLabel(facts.archetype)}). ` +
-      "External boxes are deliberately generic and do not imply a particular third-party manufacturer or model. " +
-      "Every visible cable represents a documented or explicitly TBC signal family.",
+    title: isCamera
+      ? `${facts.sku} Connection Options`
+      : `${facts.sku} Connectivity Flow`,
+    subtitle: isCamera
+      ? "Camera-source view showing evidenced video, USB, network and inbound PTZ control paths."
+      : "Generic third-party equipment connected to the governed WyreStorm product and its documented signal families.",
+    customerSummary: isCamera
+      ? `${facts.sku} is shown as a WyreStorm PTZ camera source. Connected host, capture, network and control boxes represent third-party equipment outside WyreStorm supply.`
+      : `${facts.sku} is shown as the central WyreStorm product. ` +
+        "Generic source, display, audio, USB, network and control boxes represent third-party equipment outside WyreStorm supply.",
+    technicalSummary: isCamera
+      ? `${facts.name} is treated as a camera/source endpoint, not a switching or central-processing device. USB, HDMI and IP video leave the camera; PTZ control enters the camera. Only evidenced connection families are drawn.`
+      : `${facts.name} is the governed central device (${archetypeLabel(facts.archetype)}). ` +
+        "External boxes are deliberately generic and do not imply a particular third-party manufacturer or model. " +
+        "Every visible cable represents a documented or explicitly TBC signal family.",
     assumptions,
     missingInformation,
     quoteRisks,

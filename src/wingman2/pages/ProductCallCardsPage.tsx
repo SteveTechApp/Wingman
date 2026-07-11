@@ -17,6 +17,7 @@ import {
 import { resolveWyrestormSkuAlias } from "../lib/skuAliasResolver";
 import { getProductCallCommercialOverride } from "../lib/productCallCommercialOverrides";
 import { isSkuAdminBlocked } from "../lib/adminProductOverrides";
+import { resolveProductLifecycle } from "../lib/wyrestormProductLifecycle";
 import {
   DEFAULT_SALES_CONVERSATION_TONE_ID,
   LEGACY_SALES_CONVERSATION_STORAGE_KEYS,
@@ -860,34 +861,81 @@ function extractProductSeeds(value: unknown): ProductSeed[] {
   return [];
 }
 
+const REQUIRED_CURRENT_PRODUCT_CALL_CARD_SEEDS: ProductSeed[] = [
+  {
+    sku: "APO-VX20-UC-V2",
+    name: "Apollo VX20 Video Bar for Conference Rooms",
+    title: "Apollo VX20 Video Bar for Conference Rooms",
+    family: "Unified Comms",
+    category: "Unified Comms",
+    productType: "Video bar / UC switcher",
+    description:
+      "Current Apollo VX20 v2 meeting-room video bar and UC product. Confirm the current room workflow, USB path and wireless-casting requirements before quoting.",
+    tags: [
+      "Unified Comms",
+      "Video bar",
+      "BYOD",
+      "BYOM",
+      "Wireless casting",
+      "APO-DG2 compatible host",
+    ],
+    applications: [
+      "Meeting room",
+      "Hybrid conferencing",
+      "Wireless presentation",
+    ],
+  },
+  {
+    sku: "HALO-VX10-V2",
+    name: "HALO VX10 Video Bar",
+    title: "HALO VX10 Video Bar",
+    family: "Unified Comms",
+    category: "Unified Comms",
+    productType: "Video bar",
+    description:
+      "Current HALO VX10 v2 meeting-room video bar. Confirm the current conferencing, USB and wireless-casting workflow before quoting.",
+    tags: [
+      "Unified Comms",
+      "Video bar",
+      "Wireless casting",
+      "HALO-VX10-UC-V2",
+    ],
+    applications: [
+      "Meeting room",
+      "Hybrid conferencing",
+      "Wireless presentation",
+    ],
+  },
+];
+
 async function loadProductSeeds(): Promise<ProductSeed[]> {
+  const mergedSeeds: ProductSeed[] = [];
+
   try {
-    const response = await fetch(PRODUCT_CALL_CARD_ENDPOINT, { cache: "no-store" });
+    const response = await fetch(PRODUCT_CALL_CARD_ENDPOINT, {
+      cache: "no-store",
+    });
 
     if (response.ok) {
       const payload = await response.json();
-      const seeds = extractProductSeeds(payload);
-
-      if (seeds.length > 0) {
-        return seeds;
-      }
+      mergedSeeds.push(...extractProductSeeds(payload));
     }
   } catch {
-    // Fall through to the shared product-intelligence index.
+    // Continue to the shared product-intelligence index.
   }
 
   try {
     const payload = await loadProductIntelligenceIndex();
-    const seeds = extractProductSeeds(payload);
-
-    if (seeds.length > 0) {
-      return seeds;
-    }
+    mergedSeeds.push(...extractProductSeeds(payload));
   } catch {
-    // Fall through to curated fallback products.
+    // Continue to the current-product fallback seeds.
   }
 
-  return FALLBACK_PRODUCTS;
+  mergedSeeds.push(...REQUIRED_CURRENT_PRODUCT_CALL_CARD_SEEDS);
+
+  const merged = dedupeProductSeedsBySku(mergedSeeds);
+
+  return merged.length > 0 ? merged : FALLBACK_PRODUCTS;
 }
 
 function matchesFamily(product: ProductCard, family: string): boolean {
@@ -971,8 +1019,7 @@ export default function ProductCallCardsPage() {
   useEffect(() => {
     setProductTermLookup = setActiveTermLookup;
 
-
-return () => {
+    return () => {
       setProductTermLookup = null;
     };
   }, []);
@@ -989,7 +1036,13 @@ return () => {
 
       const cards = dedupeProductSeedsBySku(seeds)
         .map(toProductCard)
-        .filter((product) => product.sku && !isSkuAdminBlocked(product.sku))
+        .filter((product) => {
+          if (!product.sku || isSkuAdminBlocked(product.sku)) {
+            return false;
+          }
+
+          return resolveProductLifecycle(product.sku).recommendable;
+        })
         .sort((a, b) => a.sku.localeCompare(b.sku));
 
       setProducts(cards);
@@ -1048,6 +1101,25 @@ return () => {
   const filteredProducts = useMemo(() => {
     return products.filter((product) => productMatches(product, query, activeFamily, activeQuickFinder));
   }, [products, query, activeFamily, activeQuickFinder]);
+
+  // Keep the selected discussion product inside the active filter.
+  // Switching to AVoIP must immediately select an NHD product rather
+  // than leaving an unrelated product visible in the discussion panel.
+  useEffect(() => {
+    if (filteredProducts.length === 0) {
+      return;
+    }
+
+    if (
+      filteredProducts.some(
+        (product) => product.sku === selectedSku,
+      )
+    ) {
+      return;
+    }
+
+    setSelectedSku(filteredProducts[0].sku);
+  }, [filteredProducts, selectedSku]);
 
   const pageCount = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
   const safePageIndex = Math.min(pageIndex, pageCount - 1);
@@ -1144,7 +1216,7 @@ return () => {
       return [
         "Confirm wall type: LCD wall, LED processor input, projector blend or other display canvas.",
         "Confirm source count and required layouts.",
-      "Check whether the customer needs fixed presets, full canvas, multiview or per-display content.",
+        "Check whether the customer needs fixed presets, full canvas, multiview or per-display content.",
         "Confirm whether a dedicated processor is better than an AV-over-IP wall approach.",
       ];
     }
@@ -1153,14 +1225,14 @@ return () => {
       return [
         "Confirm how many sources need to appear on the same output at the same time.",
         "Confirm whether the output feeds a display, projector, recorder, streamer or LED processor.",
-      "Check whether the customer needs fixed layouts or live layout control.",
+        "Check whether the customer needs fixed layouts or live layout control.",
         "Do not confuse multiview with simply having multiple HDMI outputs.",
       ];
     }
 
     if (sku.startsWith("SW-") || family.includes("presentation")) {
       return [
-      "Confirm how people connect: HDMI, USB-C, wireless or a mix.",
+        "Confirm how people connect: HDMI, USB-C, wireless or a mix.",
         "Confirm whether the room is presentation-only, BYOD/BYOM conferencing or mixed use.",
         "Confirm display count and whether the outputs need mirrored or independent behaviour.",
         "Check whether USB device switching, room control or touch-panel operation is required.",
@@ -1207,7 +1279,7 @@ return () => {
       return [
         "Confirm which devices need to be controlled.",
         "Confirm control method: IP, RS-232, IR, relay or GPIO.",
-      "Check whether the customer needs simple presets, room mode selection or full device control.",
+        "Check whether the customer needs simple presets, room mode selection or full device control.",
         "Confirm who will configure and maintain the control interface.",
       ];
     }
@@ -1252,7 +1324,8 @@ return () => {
     }
 
     return rows;
-  }, [selectedProduct]);  const firstVisible = filteredProducts.length === 0 ? 0 : safePageIndex * PAGE_SIZE + 1;
+  }, [selectedProduct]);
+  const firstVisible = filteredProducts.length === 0 ? 0 : safePageIndex * PAGE_SIZE + 1;
   const lastVisible = Math.min(filteredProducts.length, (safePageIndex + 1) * PAGE_SIZE);
   const curatedCount = products.filter((product) => product.curated).length;
 
@@ -1325,7 +1398,7 @@ return () => {
 
     goTo(`/wingman/discovery?${params.toString()}`);
   }
-return (
+  return (
     <section className="wm-pcc-select-shell wm-ui-section">
 
       {activeGalleryItem && selectedProduct && (
@@ -1348,7 +1421,7 @@ return (
                 onClick={() => setActiveGalleryItem(null)}
                 aria-label="Close product gallery"
               >
-                ×
+                &times;
               </button>
             </div>
 
@@ -1380,7 +1453,7 @@ return (
               onClick={() => setActiveTermLookup(null)}
               aria-label="Close term explanation"
             >
-              ×
+              &times;
             </button>
           </div>
 
@@ -1462,7 +1535,7 @@ return (
 
           <div className="wm-pcc-status">
             <span>
-              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching · {products.length} total · {curatedCount} curated{activeQuickFinder !== "All" ? ` · ${activeQuickFinder}` : ""}
+              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching &middot; {products.length} total &middot; {curatedCount} curated{activeQuickFinder !== "All" ? ` &middot; ${activeQuickFinder}` : ""}
             </span>
 
             <div className="wm-pcc-pager">
@@ -1507,7 +1580,7 @@ return (
               >
                 <span className="wm-pcc-sku">{product.sku}</span>
                 <span className="wm-pcc-family">
-                  {product.curated ? "Curated · " : ""}
+                  {product.curated ? "Curated &middot; " : ""}
                   {product.family}
                 </span>
 

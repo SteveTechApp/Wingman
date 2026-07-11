@@ -92,4 +92,36 @@ describe("competitor compare decision", () => {
     expect(result.summary).toContain("differences must be explained");
     expect(result.nextAction).toContain("partial alternative");
   });
+
+  it("preserves a partial-match validation warning when routed matrix evidence is incomplete", () => {
+    const result = classifyCompetitorCompareDecision({
+      score: 76,
+      warnings: ["Routed output behaviour needs verification before treating this as equivalent."],
+      competitor: {
+        sku: "Example 4x4 HDBaseT Matrix",
+        domain: "MATRIX",
+        role: "Matrix",
+        transport: "HDBaseT matrix switching",
+        inputCount: 4,
+        outputCount: 4,
+        maxResolution: "4K60",
+        specTier: "verified-profile",
+      },
+      wyrestorm: {
+        sku: "MXV-0404-H2A-KIT",
+        domain: "MATRIX",
+        role: "Matrix",
+        transport: "HDBaseT matrix switching",
+        inputCount: 4,
+        outputCount: 4,
+        maxResolution: "4K60",
+        sourceTier: "official-structured",
+        profileWarnings: ["Confirm routed HDBaseT zone outputs against the competitor output topology."],
+      },
+    });
+
+    expect(result.outcome).toBe("PARTIAL MATCH");
+    expect(result.verify.join(" ")).toMatch(/Routed output behaviour needs verification/i);
+    expect(result.verify.join(" ")).toMatch(/routed HDBaseT zone outputs/i);
+  });
 });
