@@ -33,6 +33,7 @@ export type ProductTopologyBranch = ProductTopologyEndpoint & {
   slot: "top" | "bottom";
   signal: ProductTopologySignal;
   label: string;
+  target?: "product" | "source" | "output";
 };
 
 export type ProductTopologyProfile = {
@@ -471,16 +472,16 @@ function networkHdProfile(
       product: { tag: "MV RX", detail: "100-series multiview receiver" },
       source: {
         tag: "NETWORK",
-        title: "NetworkHD 100 streams",
-        detail: "Encoded sources from compatible 100-series transmitters",
+        title: "Managed 1GbE AV network switch",
+        detail: "NetworkHD 100 streams from compatible encoders",
       },
       output: {
         tag: "DISPLAY",
         title: "Single multiview display",
         detail: "Composed output showing several streams",
       },
-      sourceEdge: { signal: "network", label: "NetworkHD 100 streams" },
-      outputEdge: { signal: "video", label: "Multiview display output" },
+      sourceEdge: { signal: "network", label: "RJ-45 / Cat6 Ethernet" },
+      outputEdge: { signal: "video", label: "HDMI multiview output" },
       branches: [
         {
           slot: "top",
@@ -488,7 +489,8 @@ function networkHdProfile(
           title: "NHD-CTL-PRO-V2",
           detail: "Routing, presets and system control",
           signal: "control",
-          label: "NetworkHD control",
+          label: "LAN control",
+          target: "source",
         },
       ],
       checks: [
@@ -536,7 +538,10 @@ function networkHdProfile(
 
   const role = endpointRole(product.sku);
   const series = sku.match(/^NHD-(1|4|5|6)/)?.[1];
-  const networkLabel = series === "6" ? "10GbE AV network" : "1GbE AV network";
+  const networkLabel =
+    series === "6"
+      ? "Managed 10GbE AV network switch"
+      : "Managed 1GbE AV network switch";
   const seriesLabel =
     series === "1"
       ? "NetworkHD 100"
@@ -569,8 +574,8 @@ function networkHdProfile(
         title: networkLabel,
         detail: "Routes to compatible same-series decoders",
       },
-      sourceEdge: { signal: "video", label: "Local source input" },
-      outputEdge: { signal: "network", label: `${seriesLabel} encoded stream` },
+      sourceEdge: { signal: "video", label: "HDMI" },
+      outputEdge: { signal: "network", label: "RJ-45 / Cat6 Ethernet" },
       branches: [
         {
           slot: "top",
@@ -578,7 +583,8 @@ function networkHdProfile(
           title: "NHD-CTL-PRO-V2",
           detail: "Routing and system control",
           signal: "control",
-          label: "Control",
+          label: "LAN control",
+          target: "output",
         },
       ],
       checks: [
@@ -612,8 +618,8 @@ function networkHdProfile(
         title: "Display / projector / processor",
         detail: "Local display-side video output",
       },
-      sourceEdge: { signal: "network", label: `${seriesLabel} stream` },
-      outputEdge: { signal: "video", label: "Local display output" },
+      sourceEdge: { signal: "network", label: "RJ-45 / Cat6 Ethernet" },
+      outputEdge: { signal: "video", label: "HDMI" },
       branches: [
         {
           slot: "top",
@@ -621,7 +627,8 @@ function networkHdProfile(
           title: "NHD-CTL-PRO-V2",
           detail: "Routing and system control",
           signal: "control",
-          label: "Control",
+          label: "LAN control",
+          target: "source",
         },
       ],
       checks: [
@@ -655,8 +662,8 @@ function networkHdProfile(
         title: networkLabel,
         detail: "Compatible same-series AV-over-IP system",
       },
-      sourceEdge: { signal: "video", label: "Encode or decode edge" },
-      outputEdge: { signal: "network", label: `${seriesLabel} network link` },
+      sourceEdge: { signal: "video", label: "HDMI edge connection" },
+      outputEdge: { signal: "network", label: "RJ-45 / Ethernet network link" },
       branches: [
         {
           slot: "top",
@@ -664,7 +671,8 @@ function networkHdProfile(
           title: "NHD-CTL-PRO-V2",
           detail: "Routing and operating-mode control",
           signal: "control",
-          label: "Control",
+          label: "LAN control",
+          target: "output",
         },
       ],
       checks: [

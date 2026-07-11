@@ -134,7 +134,19 @@ describe("product topology", () => {
     expect(encoder.archetype).toBe("avoip-encoder");
     expect(encoder.output.title).toContain("1GbE");
     expect(decoder.archetype).toBe("avoip-decoder");
-    expect(decoder.source.title).toContain("1GbE");
+    expect(decoder.source.title).toBe("Managed 1GbE AV network switch");
+    expect(decoder.sourceEdge.label).toBe("RJ-45 / Cat6 Ethernet");
+    expect(decoder.outputEdge.label).toBe("HDMI");
+    expect(decoder.branches[0]?.target).toBe("source");
+
+    const decoderSvg = buildRoomSchematicSvg({
+      sku: "NHD-500-RX",
+      profile: decoder,
+    });
+
+    expect(decoderSvg).toContain('data-branch-target="source"');
+    expect(decoderSvg).toContain("RJ-45 / Cat6 Ethernet");
+    expect(decoderSvg).toContain(">HDMI<");
   });
 
   it("withholds unknown topology instead of inventing a generic signal chain", () => {
