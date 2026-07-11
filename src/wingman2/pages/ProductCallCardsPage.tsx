@@ -17,6 +17,7 @@ import {
 import { resolveWyrestormSkuAlias } from "../lib/skuAliasResolver";
 import { getProductCallCommercialOverride } from "../lib/productCallCommercialOverrides";
 import { isSkuAdminBlocked } from "../lib/adminProductOverrides";
+import { getCompetitorLandscape } from "../lib/competitorLandscape";
 import {
   DEFAULT_SALES_CONVERSATION_TONE_ID,
   LEGACY_SALES_CONVERSATION_STORAGE_KEYS,
@@ -125,7 +126,7 @@ type ProductPayload = {
   products?: ProductSeed[];
 };
 
-type ProductPanelId = "whatItIs" | "whatItDoes" | "howToSell" | "specification";
+type ProductPanelId = "whatItIs" | "whatItDoes" | "howToSell" | "competitors" | "specification";
 
 type ProductGalleryItem = {
   id: string;
@@ -145,6 +146,7 @@ const PRODUCT_PANEL_TABS: Array<{ id: ProductPanelId; label: string; hint: strin
   { id: "whatItIs", label: "What it does", hint: "Simple answer" },
   { id: "whatItDoes", label: "How it fits here", hint: "Known application" },
   { id: "howToSell", label: "What to say", hint: "One clear message" },
+  { id: "competitors", label: "Competitors", hint: "Brand SKUs" },
   { id: "specification", label: "Technical detail", hint: "If needed" },
 ];
 
@@ -1058,6 +1060,10 @@ return () => {
     pageProducts[0] ||
     filteredProducts[0] ||
     null;
+  const competitorLandscape = useMemo(
+    () => (selectedProduct ? getCompetitorLandscape(selectedProduct) : null),
+    [selectedProduct],
+  );
   const knownApplication = useMemo(() => {
     const project = getCurrentWorkflowProject(readProjectStore());
     const roomModel = project?.discoveryBrief?.roomModel;
@@ -1827,6 +1833,28 @@ return (
                       </div>
                     </details>
                   )}
+                </>
+              )}
+
+              {activeProductPanel === "competitors" && competitorLandscape && (
+                <>
+                  <h3 className="wm-pcc-section-heading wm-ui-title">Known competitors &amp; brand SKUs</h3>
+                  <p className="wm-pcc-response-copy wm-ui-copy">{competitorLandscape.note}</p>
+
+                  {competitorLandscape.entries.length ? (
+                    <ul className="wm-pcc-response-list wm-ui-card">
+                      {competitorLandscape.entries.map((entry) => (
+                        <li key={`${entry.brand}-${entry.sku}`}>
+                          <strong>{entry.brand} {entry.sku}</strong>
+                          {entry.category ? <> - {entry.category}</> : null}
+                          {entry.summary ? <>. {entry.summary}</> : null}
+                          {entry.knownLimitations ? <> Known limitation: {entry.knownLimitations}</> : null}
+                          {entry.wingmanEquivalent ? <> Logged WyreStorm equivalent: {entry.wingmanEquivalent}.</> : null}
+                          {" "}(Evidence confidence: {entry.confidence})
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
                 </>
               )}
 
