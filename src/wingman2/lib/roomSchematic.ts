@@ -146,6 +146,79 @@ function connector(
   return `${line}${edgeLabel(midx, midy, labelText, color)}`;
 }
 
+type BlockGeometry = { x: number; y: number; w: number; h: number };
+
+function polylineConnector(
+  points: Array<[number, number]>,
+  signal: ProductTopologySignal,
+  labelText: string,
+  labelX: number,
+  labelY: number,
+  target: "product" | "source" | "output",
+): string {
+  const { color, dash } = SIGNAL[signal];
+  const dashAttr = dash ? ` stroke-dasharray="${dash}"` : "";
+  const pointText = points.map(([x, y]) => `${x},${y}`).join(" ");
+
+  return `<g data-branch-target="${target}">
+    <polyline points="${pointText}" fill="none" stroke="${color}" stroke-width="2.5" marker-end="url(#wm-arrow-${signal})"${dashAttr}/>
+    ${edgeLabel(labelX, labelY, labelText, color)}
+  </g>`;
+}
+
+function branchConnector(
+  branch: ProductTopologyBranch,
+  branchBox: BlockGeometry,
+  sourceBox: BlockGeometry,
+  productBox: BlockGeometry,
+  outputBox: BlockGeometry,
+  slot: "top" | "bottom",
+): string {
+  const target = branch.target ?? "product";
+  const targetBox =
+    target === "source" ? sourceBox : target === "output" ? outputBox : productBox;
+  const branchX = branchBox.x + branchBox.w / 2;
+  const targetX = targetBox.x + targetBox.w / 2;
+
+  if (slot === "top") {
+    const startY = branchBox.y + branchBox.h;
+    const routeY = Math.min(targetBox.y - 32, startY + 38);
+    const endY = targetBox.y;
+
+    return polylineConnector(
+      [
+        [branchX, startY],
+        [branchX, routeY],
+        [targetX, routeY],
+        [targetX, endY],
+      ],
+      branch.signal,
+      branch.label,
+      (branchX + targetX) / 2,
+      routeY - 15,
+      target,
+    );
+  }
+
+  const startY = branchBox.y;
+  const routeY = Math.max(targetBox.y + targetBox.h + 32, startY - 38);
+  const endY = targetBox.y + targetBox.h;
+
+  return polylineConnector(
+    [
+      [branchX, startY],
+      [branchX, routeY],
+      [targetX, routeY],
+      [targetX, endY],
+    ],
+    branch.signal,
+    branch.label,
+    (branchX + targetX) / 2,
+    routeY + 15,
+    target,
+  );
+}
+
 function markerDefinitions(): string {
   return Object.entries(SIGNAL)
     .map(
@@ -203,11 +276,11 @@ export function buildRoomSchematicSvg(input: RoomSchematicInput): string {
     return buildReviewRequiredSvg(input);
   }
 
-  const product = { x: 355, y: 230, w: 210, h: 116 };
-  const source = { x: 50, y: 238, w: 220, h: 102 };
-  const output = { x: 650, y: 238, w: 220, h: 102 };
-  const top = { x: 337, y: 72, w: 246, h: 100 };
-  const bottom = { x: 337, y: 400, w: 246, h: 100 };
+  const product = { x: 360, y: 230, w: 200, h: 116 };
+  const source = { x: 40, y: 238, w: 200, h: 102 };
+  const output = { x: 680, y: 238, w: 200, h: 102 };
+  const top = { x: 335, y: 72, w: 250, h: 100 };
+  const bottom = { x: 335, y: 400, w: 250, h: 100 };
 
   const topBranch = profile.branches.find((branch) => branch.slot === "top");
   const bottomBranch = profile.branches.find((branch) => branch.slot === "bottom");
@@ -264,24 +337,10 @@ export function buildRoomSchematicSvg(input: RoomSchematicInput): string {
       profile.outputEdge.label,
     ),
     topBranch
-      ? connector(
-          top.x + top.w / 2,
-          top.y + top.h,
-          product.x + product.w / 2,
-          product.y,
-          topBranch.signal,
-          topBranch.label,
-        )
+      ? branchConnector(topBranch, top, source, product, output, "top")
       : "",
     bottomBranch
-      ? connector(
-          bottom.x + bottom.w / 2,
-          bottom.y,
-          product.x + product.w / 2,
-          product.y + product.h,
-          bottomBranch.signal,
-          bottomBranch.label,
-        )
+      ? branchConnector(bottomBranch, bottom, source, product, output, "bottom")
       : "",
   ].join("");
 
