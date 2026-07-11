@@ -1,6 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import dns from "node:dns/promises";
+import net from "node:net";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..", "..");
@@ -181,28 +183,155 @@ function buildDirectVendorUrls(brand, sku, productUrl) {
   return uniqueBy(urls, (item) => item.url);
 }
 
+function isPrivateOrReservedIp(address, family) {
+  if (family === 6 || address.includes(":")) {
+    const normalised = address.toLowerCase();
+
+    if (normalised === "::1" || normalised === "::") {
+      return true;
+    }
+
+    if (normalised.startsWith("fe80:") || normalised.startsWith("fc") || normalised.startsWith("fd")) {
+      return true;
+    }
+
+    const mapped = normalised.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/);
+
+    if (mapped) {
+      return isPrivateOrReservedIp(mapped[1], 4);
+    }
+
+    return false;
+  }
+
+  const parts = address.split(".").map(Number);
+
+  if (parts.length !== 4 || parts.some((part) => Number.isNaN(part))) {
+    return true;
+  }
+
+  const [a, b] = parts;
+
+  if (a === 0 || a === 127 || a === 10 || a === 169 && b === 254 || a === 100 && b >= 64 && b <= 127) {
+    return true;
+  }
+
+  if (a === 172 && b >= 16 && b <= 31) {
+    return true;
+  }
+
+  if (a === 192 && b === 168) {
+    return true;
+  }
+
+  if (a === 192 && b === 0 && (parts[2] === 0 || parts[2] === 2)) {
+    return true;
+  }
+
+  if (a === 198 && (b === 18 || b === 19)) {
+    return true;
+  }
+
+  if (a >= 224) {
+    return true;
+  }
+
+  return false;
+}
+
+async function assertSafeFetchTarget(urlString) {
+  let parsed;
+
+  try {
+    parsed = new URL(urlString);
+  } catch {
+    throw new Error("Refusing to fetch: invalid URL");
+  }
+
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    throw new Error("Refusing to fetch: unsupported protocol");
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+
+  if (hostname === "localhost" || hostname.endsWith(".localhost") || hostname.endsWith(".local")) {
+    throw new Error("Refusing to fetch: local hostname");
+  }
+
+  if (net.isIP(hostname)) {
+    if (isPrivateOrReservedIp(hostname, net.isIP(hostname))) {
+      throw new Error("Refusing to fetch: private or reserved address");
+    }
+
+    return;
+  }
+
+  let records;
+
+  try {
+    records = await dns.lookup(hostname, { all: true, verbatim: true });
+  } catch {
+    throw new Error("Refusing to fetch: DNS resolution failed");
+  }
+
+  if (records.length === 0 || records.some((record) => isPrivateOrReservedIp(record.address, record.family))) {
+    throw new Error("Refusing to fetch: address resolves to a private or reserved range");
+  }
+}
+
 async function fetchText(url, options = {}) {
+  try {
+    await assertSafeFetchTarget(url);
+  } catch (error) {
+    return {
+      ok: false,
+      status: 0,
+      finalUrl: url,
+      text: "",
+      error: error?.message || String(error)
+    };
+  }
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
 
   try {
-    const response = await fetch(url, {
-      redirect: "follow",
-      signal: controller.signal,
-      headers: {
-        "user-agent": "Mozilla/5.0 WingmanCompare/1.0",
-        "accept": "text/html,application/xhtml+xml,application/xml,text/plain,*/*",
-        "accept-language": "en-GB,en;q=0.9"
-      }
-    });
+    let currentUrl = url;
 
-    const text = await response.text();
+    for (let redirectCount = 0; redirectCount <= 5; redirectCount += 1) {
+      const response = await fetch(currentUrl, {
+        redirect: "manual",
+        signal: controller.signal,
+        headers: {
+          "user-agent": "Mozilla/5.0 WingmanCompare/1.0",
+          "accept": "text/html,application/xhtml+xml,application/xml,text/plain,*/*",
+          "accept-language": "en-GB,en;q=0.9"
+        }
+      });
+
+      if (response.status >= 300 && response.status < 400 && response.headers.get("location")) {
+        const nextUrl = new URL(response.headers.get("location"), currentUrl).toString();
+        await assertSafeFetchTarget(nextUrl);
+        currentUrl = nextUrl;
+        continue;
+      }
+
+      const text = await response.text();
+
+      return {
+        ok: response.ok,
+        status: response.status,
+        finalUrl: currentUrl,
+        text
+      };
+    }
 
     return {
-      ok: response.ok,
-      status: response.status,
-      finalUrl: response.url,
-      text
+      ok: false,
+      status: 0,
+      finalUrl: currentUrl,
+      text: "",
+      error: "Too many redirects"
     };
   } catch (error) {
     return {

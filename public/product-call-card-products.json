@@ -1,7 +1,7 @@
 {
   "generatedAt": "2026-06-12T07:48:04.188Z",
   "source": "product-intelligence-index.json",
-  "count": 240,
+  "count": 239,
   "products": [
     {
       "sku": "AMP-2120",
@@ -20017,70 +20017,6 @@
         "If they think a basic HDMI switch is enough, ask whether it still covers wireless sharing, USB expectations and day-to-day ease of use.",
         "If the room is drifting toward a bigger hybrid or matrix requirement, be willing to move up rather than force a smaller switcher."
       ]
-    },
-    {
-      "sku": "SW-740-TX",
-      "name": "4-Input 4K60 DSC HDBaseT Switcher with USB - WyreStorm",
-      "family": "Presentation Switcher",
-      "category": "Presentation switching",
-      "description": "SW-740-TX belongs in the meeting-room workflow discussion. Position it around host device, USB path, camera/audio behaviour and how the room actually joins calls.",
-      "tags": [
-        "Video Wall",
-        "Processing",
-        "HDBaseT",
-        "USB-C",
-        "USB",
-        "HDMI",
-        "Presentation / Room Core",
-        "Presentation switcher",
-        "HDBaseT room switcher",
-        "Room source switcher",
-        "presentation-switcher",
-        "USB-C video input",
-        "Analog audio",
-        "KVM / USB extension",
-        "USB 2.0",
-        "USB 3.x",
-        "USB routing / switching",
-        "USB-C power delivery",
-        "Ethernet / LAN",
-        "CEC control",
-        "IP / web control",
-        "IR control",
-        "RS-232 control",
-        "EDID management",
-        "HDCP support",
-        "Scaling",
-        "PoE / PoH / PoC",
-        "BYOD presentation",
-        "Meeting room, classroom and BYOD presentation workflows",
-        "primary-hardware",
-        "primary-device",
-        "Presentation switching",
-        "4-Input 4K60 DSC HDBaseT Switcher with USB - WyreStorm"
-      ],
-      "fit": "Use when the room needs a reliable conferencing or BYOD/BYOM path, not just local video switching. Confirm host location, USB device path, room size and call workflow before quote.",
-      "openingLine": "SW-740-TX should be sold as part of the room meeting experience: what the user plugs into, what camera/audio they take over, and what still needs validation before quote.",
-      "questions": [
-        "Is the room BYOD, BYOM, room PC, Teams appliance or mixed use?",
-        "Which camera, microphone, speakerphone or USB device needs to connect?",
-        "Where are the host laptop or room PC and the room peripherals physically located?",
-        "Is USB extension, switching or wireless presentation part of the workflow?",
-        "How many screens make up the wall, and how are they arranged (for example 2 by 2)?"
-      ],
-      "proofPoints": [
-        "USB and UC products live or die on the host/peripheral path, not on headline features alone.",
-        "Camera, microphone and speakerphone compatibility should be confirmed before recommendation.",
-        "A strong UC recommendation explains the day-to-day room workflow, not just the SKU.",
-        "Cables should be selected around the actual signal path and installation route, not on connector type alone.",
-        "Long runs and high-bandwidth formats need validation before the cable is treated as safe to quote."
-      ],
-      "copyRefreshStatus": "practical-sales-copy-refreshed",
-      "copyRefreshSource": "profile-fallback",
-      "copyRefreshProfile": "uc",
-      "copyRefreshRule": "Product helper text must explain role, workflow, dependencies and quote checks in practical sales-engineer language.",
-      "followUp": "\"SW-740-TX is the video-wall processor.\" The practical hooks are 4K60, Video Wall, KVM. Then place it in the range: Sits in the dedicated video-wall processor family. SW-0204-VW is the simpler, preset-layout step; SW-0206-VW is the more capable step up. Both are the non-networked alternative to building the wall through NetworkHD AV-over-IP - reach for AVoIP only when routing flexibility and expansion outweigh the simplicity of a dedicated processor.",
-      "objectionHandling": []
     },
     {
       "sku": "SYN-CTL-HUB",
