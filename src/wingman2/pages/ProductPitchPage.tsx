@@ -25,6 +25,7 @@ import { RoomSchematicDiagram } from "../components/RoomSchematicDiagram";
 import { validateUsbPath, usbValidationIsRequired } from "../logic/usbPathValidator";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { buildProductCheatSheetHtml } from "../lib/productCheatSheet";
+import { buildProductTopologyProfile } from "../lib/productTopology";
 import { resolveProductLifecycle } from "../lib/wyrestormProductLifecycle";
 import { getProductMediaBySku, loadProductMediaIndex } from "../data/productMedia";
 
@@ -1006,49 +1007,109 @@ function SpecTab({ product }: { product: ProductSpec }) {
 }
 
 function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: ProductNarrative }) {
+  const topology = useMemo(
+    () => buildProductTopologyProfile(product, narrative),
+    [narrative, product],
+  );
+
   const saveHandoff = () => {
     writeProductWorkspaceHandoff(product, narrative);
   };
 
   return (
     <div className="grid gap-4">
-      <RoomSchematicDiagram product={product} narrative={narrative} />
-
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
-        <h2 className={`${PRODUCT_PITCH_SECTION_TITLE_CLASS} text-cyan-300`}>Simple product connection view</h2>
-        <div className="mt-5 grid items-stretch gap-3 lg:grid-cols-[1fr_80px_1fr_80px_1fr]">
-          <div className="rounded-3xl border p-5 wm-ui-card">
-            <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-white/45`}>Source / input side</p>
-            <strong className="mt-2 block text-lg text-white">{narrative.diagramSource}</strong>
-          </div>
-
-          <div className="hidden items-center justify-center text-3xl font-extrabold text-cyan-300 lg:flex">-&gt;</div>
-
-          <div className="rounded-3xl border p-5 wm-ui-card">
-            <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-200`}>WyreStorm product</p>
-            <strong className="mt-2 block text-lg text-white">{product.sku}</strong>
-            <span className="mt-1 block text-sm wm-ui-copy">{product.productType}</span>
-          </div>
-
-          <div className="hidden items-center justify-center text-3xl font-extrabold text-cyan-300 lg:flex">-&gt;</div>
-
-          <div className="rounded-3xl border p-5 wm-ui-card">
-            <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-white/45`}>Output / destination side</p>
-            <strong className="mt-2 block text-lg text-white">{narrative.diagramOutput}</strong>
-          </div>
-        </div>
-      </section>
-
-      <AVSignalFlowDiagram
-        mode={product.category || product.productType}
-        title="Typical signal flow"
-        subtitle={`Where ${product.sku} sits in the chain`}
+      <RoomSchematicDiagram
+        product={product}
+        narrative={narrative}
+        profile={topology}
       />
 
       <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
-        <h3 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Open full schematic</h3>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className={`${PRODUCT_PITCH_SECTION_TITLE_CLASS} text-cyan-300`}>
+              Product connection summary
+            </h2>
+            <p className="mt-1 max-w-3xl text-sm leading-6 wm-ui-copy">
+              {topology.summary}
+            </p>
+          </div>
+          <span className="rounded-lg border px-2 py-1 text-xs font-bold wm-ui-card wm-ui-copy">
+            {topology.label}
+          </span>
+        </div>
+
+        <div className="mt-5 grid items-stretch gap-3 lg:grid-cols-[1fr_54px_1fr_54px_1fr]">
+          <div className="rounded-xl border p-5 wm-ui-card">
+            <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-white/45`}>
+              {topology.source.tag}
+            </p>
+            <strong className="mt-2 block text-lg text-white">
+              {topology.source.title}
+            </strong>
+            <span className="mt-1 block text-sm wm-ui-copy">
+              {topology.source.detail}
+            </span>
+            <small className="mt-3 block text-cyan-200">
+              {topology.sourceEdge.label}
+            </small>
+          </div>
+
+          <div className="hidden items-center justify-center text-2xl font-extrabold text-cyan-300 lg:flex">
+            -&gt;
+          </div>
+
+          <div className="rounded-xl border p-5 wm-ui-card">
+            <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-200`}>
+              {topology.product.tag}
+            </p>
+            <strong className="mt-2 block text-lg text-white">{product.sku}</strong>
+            <span className="mt-1 block text-sm wm-ui-copy">
+              {topology.product.detail}
+            </span>
+          </div>
+
+          <div className="hidden items-center justify-center text-2xl font-extrabold text-cyan-300 lg:flex">
+            -&gt;
+          </div>
+
+          <div className="rounded-xl border p-5 wm-ui-card">
+            <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-white/45`}>
+              {topology.output.tag}
+            </p>
+            <strong className="mt-2 block text-lg text-white">
+              {topology.output.title}
+            </strong>
+            <span className="mt-1 block text-sm wm-ui-copy">
+              {topology.output.detail}
+            </span>
+            <small className="mt-3 block text-cyan-200">
+              {topology.outputEdge.label}
+            </small>
+          </div>
+        </div>
+
+        {!topology.renderable ? (
+          <div className="mt-4 rounded-xl border border-amber-400/35 bg-amber-400/10 p-3 text-sm leading-5 text-amber-100">
+            No connection diagram has been asserted for this product. Confirm its actual
+            ports, signal direction and dependencies first.
+          </div>
+        ) : null}
+      </section>
+
+      <AVSignalFlowDiagram
+        mode={topology.mode}
+        title="Typical system role"
+        subtitle={`Where ${product.sku} sits in the chain as ${topology.label.toLowerCase()}`}
+      />
+
+      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
+        <h3 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>
+          Open full schematic
+        </h3>
         <p className="mt-2 text-sm leading-6 wm-ui-copy">
-          Use Schematic Builder for the full end-to-end system diagram with known WyreStorm devices, third-party devices and TBC blocks.
+          Use Schematic Builder for the complete end-to-end design after product role,
+          connector direction, dependencies and customer requirements have been confirmed.
         </p>
         <Link
           to={routeCatalogByKey.visualDesign.path}
