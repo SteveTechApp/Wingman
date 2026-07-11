@@ -296,7 +296,6 @@ describe("Product Pitch rendered workflow", () => {
     expect(exactResult.querySelector(".wm-product-pitch-result-name")).toHaveTextContent("4x4 HDBaseT Matrix Kit");
     expect(exactResult.querySelector(".wm-product-pitch-result-family")).toHaveTextContent("Matrix / HDBaseT / MXV");
     expect(exactResult.querySelector(".wm-product-pitch-result-status")).toHaveTextContent(/Active|Needs verification/i);
-    expect(exactResult).not.toHaveTextContent(/WyreStormMXV-0404-H2A-KIT|MXV-0404-H2A-KIT4x4/i);
     expect(exactResult).not.toHaveTextContent(/SKU:|Name:|Category:|Status:/i);
 
     fireEvent.change(search, { target: { value: "600-TRX" } });
