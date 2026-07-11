@@ -66,4 +66,268 @@ describe("Product Call Cards classification", () => {
 
     expect(headings).toEqual(expect.arrayContaining(["Extender Kits", "Matrix Switchers"]));
   });
+
+  it("keeps AVoIP exclusive to NHD SKUs", () => {
+    expect(
+      classifyProductCallCard({
+        sku: "SW-0206-VW",
+        name: "Video wall processor",
+        description: "Dedicated non-AVoIP video wall processor.",
+      }),
+    ).not.toContain("AVoIP");
+
+    expect(
+      classifyProductCallCard({
+        sku: "CAM-420-PTZ",
+        name: "PTZ camera",
+        applications: ["AV-over-IP and NDI workflows"],
+      }),
+    ).not.toContain("AVoIP");
+
+    expect(
+      classifyProductCallCard({
+        sku: "MX-1007-HYB",
+        name: "Hybrid matrix switcher",
+        summary: "Can be considered alongside an AVoIP design.",
+      }),
+    ).not.toContain("AVoIP");
+
+    expect(
+      classifyProductCallCard({
+        sku: "NHD-500-TX",
+        name: "NetworkHD 500 encoder",
+      }),
+    ).toContain("AVoIP");
+  });
+});
+
+
+describe("Product Call Cards strict filter boundaries", () => {
+  it("does not classify by incidental application wording", () => {
+    expect(
+      classifyProductCallCard({
+        sku: "CAM-420-PTZ",
+        name: "PTZ camera",
+        applications: ["AV-over-IP, BYOD and video-wall workflows"],
+        summary: "Can be used with NetworkHD and presentation switchers.",
+      }),
+    ).toEqual(["Unified Comms"]);
+
+    expect(
+      classifyProductCallCard({
+        sku: "NHD-500-DNT-TX",
+        name: "NetworkHD 500 encoder with Dante support",
+        description: "Includes Dante audio integration.",
+      }),
+    ).toEqual(["AVoIP"]);
+
+    expect(
+      classifyProductCallCard({
+        sku: "MX-1007-HYB",
+        name: "Hybrid matrix switcher",
+        summary: "Can be considered alongside AVoIP and wireless casting.",
+      }),
+    ).toEqual(["Matrix Switchers"]);
+  });
+
+  it("keeps representative products in their governed groups", () => {
+    expect(
+      classifyProductCallCard({
+        sku: "AMP-260-DNT",
+        name: "Network amplifier",
+      }),
+    ).toContain("Audio");
+
+    expect(
+      classifyProductCallCard({
+        sku: "EXP-MX-0808-KIT",
+        name: "8x8 HDBaseT matrix kit",
+      }),
+    ).toEqual(
+      expect.arrayContaining(["Extender Kits", "Matrix Switchers"]),
+    );
+
+    expect(
+      classifyProductCallCard({
+        sku: "SP-0104-H2",
+        name: "1x4 HDMI splitter",
+      }),
+    ).toContain("DA / Splitters");
+
+    expect(
+      classifyProductCallCard({
+        sku: "SW-0401-H2",
+        name: "Presentation switcher",
+      }),
+    ).toContain("Presentation Switchers");
+
+    expect(
+      classifyProductCallCard({
+        sku: "APO-DG2",
+        name: "Wireless casting dongle",
+      }),
+    ).toEqual(["Wireless Casting"]);
+
+    expect(
+      classifyProductCallCard({
+        sku: "APO-VX20-UC-V2",
+        name: "Video bar for conference rooms",
+      }),
+    ).toEqual(
+      expect.arrayContaining(["Unified Comms", "Wireless Casting"]),
+    );
+
+    expect(
+      classifyProductCallCard({
+        sku: "NHD-0401-MV",
+        name: "NetworkHD multiview processor",
+      }),
+    ).toEqual(expect.arrayContaining(["AVoIP", "Video Wall"]));
+
+    expect(
+      classifyProductCallCard({
+        sku: "NHD-CTL-PRO-V2",
+        name: "NetworkHD controller",
+      }),
+    ).toEqual(expect.arrayContaining(["AVoIP", "Control"]));
+  });
+
+  it("keeps every AVoIP result inside the NHD family", () => {
+    const avoipSkus = productIndex.products
+      .filter((product) =>
+        classifyProductCallCard(product).includes("AVoIP"),
+      )
+      .map((product) => product.sku);
+
+    expect(avoipSkus.length).toBeGreaterThan(0);
+    expect(
+      avoipSkus.every((sku) => String(sku).toUpperCase().startsWith("NHD-")),
+    ).toBe(true);
+  });
+
+  it("does not leak obvious cross-family products into strict groups", () => {
+    for (const product of productIndex.products) {
+      const sku = String(product.sku || "").toUpperCase();
+      const headings = classifyProductCallCard(product);
+
+      if (headings.includes("Audio")) {
+        expect(
+          /^AMP-/.test(sku) ||
+            /audio amplifier|network amplifier|dante amplifier|dsp amplifier|audio processor|audio converter|audio breakout|audio extractor|audio de-?embed(?:der|ding)?/i.test(
+              [
+                product.name,
+                product.title,
+                product.family,
+                product.category,
+                product.productType,
+                product.role,
+                product.productRole,
+              ]
+                .filter(Boolean)
+                .join(" "),
+            ),
+        ).toBe(true);
+      }
+
+      if (headings.includes("Matrix Switchers")) {
+        expect(
+          /^(?:EXP-)?MX(?:V)?-/.test(sku) ||
+            /matrix switcher|seamless matrix|fixed i\/o matrix|routing matrix/i.test(
+              [
+                product.name,
+                product.title,
+                product.family,
+                product.category,
+                product.productType,
+                product.role,
+                product.productRole,
+              ]
+                .filter(Boolean)
+                .join(" "),
+            ),
+        ).toBe(true);
+      }
+
+      if (headings.includes("Wireless Casting")) {
+        expect(
+          ["APO-VX20-UC-V2", "HALO-VX10-V2"].includes(sku) ||
+            ["APO-VX20-UC-V2", "HALO-VX10-V2"].includes(sku) ||
+            /^APO-DG/.test(sku) ||
+            (/-W$/.test(sku) && /^(?:EXP-)?(?:SW|MX|MXV)-/.test(sku)) ||
+            /wireless casting dongle|wireless presentation dongle|wireless presentation receiver|wireless casting receiver/i.test(
+              [
+                product.name,
+                product.title,
+                product.family,
+                product.category,
+                product.productType,
+                product.role,
+                product.productRole,
+              ]
+                .filter(Boolean)
+                .join(" "),
+            ),
+        ).toBe(true);
+      }
+    }
+  });
+});
+
+
+describe("Product Call Cards current wireless products", () => {
+  it("includes the current Apollo and HALO video bars in the correct groups", () => {
+    expect(
+      classifyProductCallCard({
+        sku: "APO-VX20-UC-V2",
+        name: "Apollo VX20 Video Bar for Conference Rooms",
+        productType: "Video bar / UC switcher",
+      }),
+    ).toEqual(
+      expect.arrayContaining(["Unified Comms", "Wireless Casting"]),
+    );
+
+    expect(
+      classifyProductCallCard({
+        sku: "HALO-VX10-V2",
+        name: "HALO VX10 Video Bar",
+        productType: "Video bar",
+      }),
+    ).toEqual(
+      expect.arrayContaining(["Unified Comms", "Wireless Casting"]),
+    );
+  });
+
+  it("does not classify retired wireless products as current replacements", () => {
+    const retired = [
+      "APO-100-UC",
+      "APO-200-UC",
+      "APO-DG1",
+      "APO-DG2-PRO",
+      "HALO-VX10-V1",
+      "SW-510-TX-W",
+    ];
+
+    const adminDb = JSON.parse(
+      readFileSync(
+        join(
+          process.cwd(),
+          "data/admin/wingman-product-admin-db.json",
+        ),
+        "utf8",
+      ),
+    ) as {
+      records: Record<
+        string,
+        {
+          doNotUse?: boolean;
+          visibility?: string;
+        }
+      >;
+    };
+
+    retired.forEach((sku) => {
+      expect(adminDb.records[sku]?.doNotUse, sku).toBe(true);
+      expect(adminDb.records[sku]?.visibility, sku).toBe("hidden");
+    });
+  });
 });

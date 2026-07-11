@@ -1325,6 +1325,13 @@ export default function TechnicalConnectivitySchematic({
   );
 
   const product = productPosition(productNode);
+
+  // A camera is a source endpoint rather than a central switching processor.
+  if (productNode.kind === "camera") {
+    product.x = 150;
+    product.y = 265;
+  }
+
   const sources = sourcePositions(sourceNodes);
   const destinations = destinationPositions(destinationNodes);
   const services = servicePositions(serviceNodes);
@@ -1502,7 +1509,9 @@ export default function TechnicalConnectivitySchematic({
           y="126"
           className="wm-ts-zone-label"
         >
-          SOURCE DEVICES
+          {productNode.kind === "camera"
+            ? "WYRESTORM CAMERA SOURCE"
+            : "SOURCE DEVICES"}
         </text>
 
         <text
@@ -1511,7 +1520,9 @@ export default function TechnicalConnectivitySchematic({
           textAnchor="middle"
           className="wm-ts-zone-label"
         >
-          WYRESTORM PROCESSING
+          {productNode.kind === "camera"
+            ? "CAMERA CONNECTION PATHS"
+            : "WYRESTORM PROCESSING"}
         </text>
 
         <text

@@ -15,6 +15,7 @@ export function TemplatesPage() {
   const [query, setQuery] = useState("");
   const [vertical, setVertical] = useState(allTemplatesFilter);
   const customTemplates = useCustomRoomTemplates();
+  const [showCustomTemplate, setShowCustomTemplate] = useState(false);
 
   const [newTemplateName, setNewTemplateName] = useState("");
   const [newTemplateVertical, setNewTemplateVertical] = useState("");
@@ -79,19 +80,21 @@ export function TemplatesPage() {
     setNewTemplateVertical("");
     setNewTemplateApplication("");
     setNewTemplateScale("");
-    setNewTemplateSummary("");
+    setNewTemplateSummary("");    setShowCustomTemplate(false);
+
   }
 
   return (
     <main className="wm-templates-page wm-page wingman-page-host" data-wingman-page="templates">
-      <header className="wm-page-header wm-template-hero">
-        <div>
+      <header className="wm-page-header wm-template-hero wm-template-products-style-header">
+        <div className="wm-template-products-style-copy">
           <p className="wm-template-kicker wm-ui-kicker">Wingman / Templates</p>
-          <h1 className="wm-page-title">Room and application templates</h1>
           <p className="wm-copy">
             Start from a complete governed room solution, filter by vertical, then review the VERIFIED BOM and application-led proposal content.
           </p>
         </div>
+
+        <h1 className="wm-page-title wm-template-products-style-title">Templates</h1>
       </header>
 
       <section className="wm-section-card wm-template-filter-panel" aria-label="Template filters">
@@ -122,85 +125,123 @@ export function TemplatesPage() {
             ))}
           </div>
         </div>
-      </section>
 
-      <section className="wm-section-card wm-template-create-panel" aria-label="Create a custom template">
-        <div>
-          <p className="wm-template-kicker wm-ui-kicker">Start from scratch</p>
-          <h2 className="wm-section-title">Create a custom template</h2>
-          <p className="wm-copy">
-            Save a brand-new reusable room template in this browser, then build out its BOM from the review page.
-          </p>
-        </div>
+        <div className="wm-template-filter-actions">
+          {customTemplates.length > 0 ? (
+            <span className="wm-template-custom-count">
+              {customTemplates.length} custom
+            </span>
+          ) : null}
 
-        <form className="wm-template-create-form" onSubmit={createTemplateFromScratch}>
-          <label className="wm-field">
-            Name
-            <input
-              className="wm-input"
-              type="text"
-              value={newTemplateName}
-              onChange={(event) => setNewTemplateName(event.target.value)}
-              placeholder="e.g. Council chamber custom room"
-              required
-            />
-          </label>
-
-          <label className="wm-field">
-            Vertical
-            <input
-              className="wm-input"
-              type="text"
-              value={newTemplateVertical}
-              onChange={(event) => setNewTemplateVertical(event.target.value)}
-              placeholder="e.g. Government"
-            />
-          </label>
-
-          <label className="wm-field">
-            Application
-            <input
-              className="wm-input"
-              type="text"
-              value={newTemplateApplication}
-              onChange={(event) => setNewTemplateApplication(event.target.value)}
-              placeholder="e.g. Hybrid civic meetings"
-            />
-          </label>
-
-          <label className="wm-field">
-            Scale
-            <input
-              className="wm-input"
-              type="text"
-              value={newTemplateScale}
-              onChange={(event) => setNewTemplateScale(event.target.value)}
-              placeholder="e.g. Custom"
-            />
-          </label>
-
-          <label className="wm-field wm-template-create-summary">
-            Summary
-            <textarea
-              className="wm-input"
-              value={newTemplateSummary}
-              onChange={(event) => setNewTemplateSummary(event.target.value)}
-              placeholder="Short description of this room design starting point."
-              rows={2}
-            />
-          </label>
-
-          <button type="submit" className="wm-button wm-button-primary">
-            Create template
+          <button
+            type="button"
+            className="wm-button wm-button-secondary"
+            onClick={() => setShowCustomTemplate((current) => !current)}
+            aria-expanded={showCustomTemplate}
+            aria-controls="custom-template-panel"
+          >
+            {showCustomTemplate ? "Close custom template" : "Create custom template"}
           </button>
-        </form>
-
-        {customTemplates.length > 0 ? (
-          <p className="wm-copy wm-template-create-confirmation" role="status">
-            {customTemplates.length} custom template{customTemplates.length === 1 ? "" : "s"} saved in this browser.
-          </p>
-        ) : null}
+        </div>
       </section>
+
+      {showCustomTemplate ? (
+        <section
+          id="custom-template-panel"
+          className="wm-section-card wm-template-create-panel wm-template-create-panel-collapsible"
+          aria-label="Create a custom template"
+        >
+          <div className="wm-template-create-heading">
+            <div>
+              <p className="wm-template-kicker wm-ui-kicker">Optional</p>
+              <h2 className="wm-section-title">Create a custom template</h2>
+              <p className="wm-copy">
+                Create a reusable starting point only when none of the governed templates fit the opportunity.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="wm-button wm-button-ghost"
+              onClick={() => setShowCustomTemplate(false)}
+            >
+              Cancel
+            </button>
+          </div>
+
+          <form className="wm-template-create-form wm-template-create-form-compact" onSubmit={createTemplateFromScratch}>
+            <label className="wm-field wm-template-create-name">
+              Name
+              <input
+                className="wm-input"
+                type="text"
+                value={newTemplateName}
+                onChange={(event) => setNewTemplateName(event.target.value)}
+                placeholder="e.g. Council chamber custom room"
+                required
+                autoFocus
+              />
+            </label>
+
+            <label className="wm-field">
+              Vertical
+              <input
+                className="wm-input"
+                type="text"
+                value={newTemplateVertical}
+                onChange={(event) => setNewTemplateVertical(event.target.value)}
+                placeholder="e.g. Government"
+              />
+            </label>
+
+            <label className="wm-field">
+              Application
+              <input
+                className="wm-input"
+                type="text"
+                value={newTemplateApplication}
+                onChange={(event) => setNewTemplateApplication(event.target.value)}
+                placeholder="e.g. Hybrid civic meetings"
+              />
+            </label>
+
+            <label className="wm-field">
+              Scale
+              <input
+                className="wm-input"
+                type="text"
+                value={newTemplateScale}
+                onChange={(event) => setNewTemplateScale(event.target.value)}
+                placeholder="e.g. Custom"
+              />
+            </label>
+
+            <label className="wm-field wm-template-create-summary">
+              Summary
+              <textarea
+                className="wm-input"
+                value={newTemplateSummary}
+                onChange={(event) => setNewTemplateSummary(event.target.value)}
+                placeholder="Short description of this room design starting point."
+                rows={2}
+              />
+            </label>
+
+            <div className="wm-template-create-actions">
+              <button type="submit" className="wm-button wm-button-primary">
+                Create template
+              </button>
+              <button
+                type="button"
+                className="wm-button wm-button-secondary"
+                onClick={() => setShowCustomTemplate(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </section>
+      ) : null}
 
       <section className="wm-template-results-header wm-section-card">
         <div>

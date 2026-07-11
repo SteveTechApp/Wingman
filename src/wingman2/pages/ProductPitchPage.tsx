@@ -69,7 +69,7 @@ function openProductCheatSheet(product: ProductSpec, narrative: ProductNarrative
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-type ProductTab = "overview" | "sales" | "spec" | "diagram" | "visual";
+type ProductTab = "overview" | "sales" | "spec" | "diagram";
 
 const PRODUCT_PITCH_PANEL_CLASS = "rounded-3xl border border-[#29465e] bg-[#071522]";
 const PRODUCT_PITCH_KICKER_CLASS = "text-xs font-bold uppercase tracking-[0.12em]";
@@ -280,6 +280,105 @@ function currentProductSalesContext(): ProductSalesContext {
   };
 }
 
+/* Wingman product selector helpers - START */
+
+const PRODUCT_PITCH_CATEGORY_FILTERS = [
+  "All",
+  "AV over IP",
+  "Matrix",
+  "Extenders",
+  "UC",
+  "Cameras",
+  "Video wall",
+  "Audio",
+  "Control",
+  "Other",
+] as const;
+
+type ProductPitchCategoryFilter =
+  (typeof PRODUCT_PITCH_CATEGORY_FILTERS)[number];
+
+const PRODUCT_PITCH_INITIAL_RESULT_LIMIT = 24;
+
+function productPitchCategory(product: ProductSpec): ProductPitchCategoryFilter {
+  const text = productText(product);
+
+  if (/\b(camera|ptz|capture|ndi)\b/.test(text)) {
+    return "Cameras";
+  }
+
+  if (
+    /\b(networkhd|av[- ]?over[- ]?ip|avoip|sdvoe|jpeg[- ]?xs)\b/.test(text) ||
+    /\b(encoder|decoder|transceiver)\b/.test(text)
+  ) {
+    return "AV over IP";
+  }
+
+  if (/\b(video wall|videowall|multi[- ]?view|multiview)\b/.test(text) || /-vw\b/.test(text)) {
+    return "Video wall";
+  }
+
+  if (/\b(matrix|matrix switcher|routing matrix)\b/.test(text) || /^mx-/.test(product.sku.toLowerCase())) {
+    return "Matrix";
+  }
+
+  if (/\b(hdbaset|hdbt|extender|extension|balun)\b/.test(text)) {
+    return "Extenders";
+  }
+
+  if (
+    /\b(unified comms|unified communications|meeting room|conference|conferencing|byod|byom|speakerphone|video bar|presentation switcher)\b/.test(text) ||
+    /\buc\b/.test(text)
+  ) {
+    return "UC";
+  }
+
+  if (/\b(amplifier|audio|dante|aes67|speaker|dsp|microphone|soundbar)\b/.test(text)) {
+    return "Audio";
+  }
+
+  if (/\b(control|controller|touch panel|automation|gpio|rs-232)\b/.test(text)) {
+    return "Control";
+  }
+
+  return "Other";
+}
+
+function isPassiveProductPitchItem(product: ProductSpec): boolean {
+  const sku = product.sku.trim().toLowerCase();
+  const category = String(product.category || "").toLowerCase();
+  const type = String(product.productType || "").toLowerCase();
+  const name = String(product.name || "").toLowerCase();
+  const combined = `${category} ${type} ${name}`;
+
+  if (sku.startsWith("cab-")) return true;
+  if (/\b(cable|aoc|patch lead|patch cable)\b/.test(combined)) return true;
+
+  const isAccessoryCategory = /\b(accessory|accessories|mounting)\b/.test(
+    `${category} ${type}`,
+  );
+
+  if (
+    isAccessoryCategory &&
+    /\b(mount|bracket|rack|shelf|plate|faceplate|bezel|stand|feet|foot|remote control|power supply|psu|replacement)\b/.test(
+      combined,
+    )
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+function productMatchesCategory(
+  product: ProductSpec,
+  filter: ProductPitchCategoryFilter,
+): boolean {
+  return filter === "All" || productPitchCategory(product) === filter;
+}
+
+/* Wingman product selector helpers - END */
+
 function SelectionPage({
   products,
   searchTerm,
@@ -296,109 +395,255 @@ function SelectionPage({
   openProduct: (sku: string) => void;
 }) {
   const term = searchTerm.trim().toLowerCase();
+  const [activeCategory, setActiveCategory] =
+    useState<ProductPitchCategoryFilter>("All");
+  const [includePassiveItems, setIncludePassiveItems] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(
+    PRODUCT_PITCH_INITIAL_RESULT_LIMIT,
+  );
 
-  const quickFilterCounts = useMemo(() => {
-    const counts = new Map<ProductPitchQuickFilter, number>();
+  const baseProducts = useMemo(
+    () =>
+      products.filter(
+        (product) => includePassiveItems || !isPassiveProductPitchItem(product),
+      ),
+    [products, includePassiveItems],
+  );
 
-    PRODUCT_PITCH_FILTERS.forEach((filter) => {
-      counts.set(filter, 0);
-    });
+  const categoryCounts = useMemo(() => {
+    const counts = new Map<ProductPitchCategoryFilter, number>();
 
-    products.forEach((product) => {
-      PRODUCT_PITCH_FILTERS.forEach((filter) => {
-        if (productMatchesProductPitchFilter(product, filter)) {
-          counts.set(filter, (counts.get(filter) || 0) + 1);
-        }
-      });
+    PRODUCT_PITCH_CATEGORY_FILTERS.forEach((filter) => {
+      counts.set(
+        filter,
+        baseProducts.filter((product) =>
+          productMatchesCategory(product, filter),
+        ).length,
+      );
     });
 
     return counts;
-  }, [products]);
+  }, [baseProducts]);
+
+  const quickFilterCounts = useMemo(() => {
+    const counts = new Map<ProductPitchQuickFilter, number>();
+    const categoryProducts = baseProducts.filter((product) =>
+      productMatchesCategory(product, activeCategory),
+    );
+
+    PRODUCT_PITCH_FILTERS.forEach((filter) => {
+      counts.set(
+        filter,
+        categoryProducts.filter((product) =>
+          productMatchesProductPitchFilter(product, filter),
+        ).length,
+      );
+    });
+
+    return counts;
+  }, [baseProducts, activeCategory]);
 
   const filtered = useMemo(() => {
-    const quickFiltered = products.filter((product) => productMatchesProductPitchFilter(product, activeQuickFilter));
+    const categoryFiltered = baseProducts.filter((product) =>
+      productMatchesCategory(product, activeCategory),
+    );
+    const quickFiltered = categoryFiltered.filter((product) =>
+      productMatchesProductPitchFilter(product, activeQuickFilter),
+    );
 
     if (!term) return quickFiltered;
 
     return quickFiltered.filter((product) => includesProduct(product, term));
-  }, [products, term, activeQuickFilter]);
+  }, [baseProducts, term, activeCategory, activeQuickFilter]);
+
+  useEffect(() => {
+    setVisibleCount(PRODUCT_PITCH_INITIAL_RESULT_LIMIT);
+  }, [term, activeCategory, activeQuickFilter, includePassiveItems]);
+
+  const visibleProducts = filtered.slice(0, visibleCount);
+  const hiddenCount = Math.max(0, filtered.length - visibleProducts.length);
 
   return (
-    <main className="grid gap-4 pb-6 wm-ui-page wingman-page-host">
+    <main className="wm-product-pitch-selection-page grid gap-4 pb-6 wm-ui-page wingman-page-host">
       <CompareBackToListButton />
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
-        <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Product workspace</p>
-        <h1 className={`${PRODUCT_PITCH_HERO_TITLE_CLASS} text-white`}>Select one product</h1>
-        <p className="mt-2 max-w-4xl text-sm leading-6 wm-ui-copy">
-          Select a product first. The next page opens a single product workspace with Overview, Sales Cards, Technical Spec, Diagram and Room Visual tabs.
+
+      <section className={`${PRODUCT_PITCH_PANEL_CLASS} wm-product-pitch-selection-hero`}>
+        <div>
+          <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>
+            Product workspace
+          </p>
+          <h1 className={`${PRODUCT_PITCH_HERO_TITLE_CLASS} text-white`}>
+            Select one product
+          </h1>
+        </div>
+        <p className="wm-product-pitch-selection-intro wm-ui-copy">
+          Search the current WyreStorm catalogue, select one product, then
+          continue directly into its Overview, Sales Cards, Technical Spec,
+          Diagram and Room Visual workspace.
         </p>
       </section>
 
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
-        <label className="grid gap-2">
-          <span className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Search by SKU, product name or application</span>
-          <input className={["wm-ui-input", "min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-bold text-white outline-none focus:border-cyan-300"].filter(Boolean).join(" ")}
+      <section className={`${PRODUCT_PITCH_PANEL_CLASS} wm-product-pitch-selector`}>
+        <label className="wm-product-pitch-search-label">
+          <span className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>
+            Search by SKU, product name or application
+          </span>
+          <input
+            className="wm-product-pitch-search wm-ui-input"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="Example: CAM-210-NDI-PTZ, amplifier, HDMI extender, NetworkHD"
+            placeholder="Example: CAM-420-PTZ, NetworkHD, HDMI extender, meeting room"
             type="search"
-
             autoFocus
           />
         </label>
 
-        <div className="mt-4 flex flex-wrap gap-2" aria-label="Product quick filter">
-          {PRODUCT_PITCH_FILTERS.map((filter) => {
-            const count = quickFilterCounts.get(filter) || 0;
-            const isActive = activeQuickFilter === filter;
+        <div
+          className="wm-product-pitch-category-filters"
+          aria-label="Product category filter"
+        >
+          {PRODUCT_PITCH_CATEGORY_FILTERS.map((filter) => {
+            const count = categoryCounts.get(filter) || 0;
+            const isActive = activeCategory === filter;
             const isDisabled = filter !== "All" && count === 0;
 
             return (
-              <button className={["wm-ui-button wm-ui-button-secondary", `min-h-8 rounded-xl border px-3 text-xs font-extrabold transition ${
-                  isActive
-                    ? "border-cyan-200 bg-cyan-300 text-slate-950"
-                    : isDisabled
-                      ? "cursor-not-allowed border-slate-700 bg-slate-900/60 text-slate-600"
-                      : "border-[#29465e] bg-[#081724] text-cyan-100 hover:border-cyan-300 hover:bg-cyan-500/10"
-                }`].filter(Boolean).join(" ")}
+              <button
                 key={filter}
                 type="button"
+                className="wm-product-pitch-category-button"
+                data-active={isActive ? "true" : "false"}
                 disabled={isDisabled}
-                onClick={() => setActiveQuickFilter(filter)}
-                title={isDisabled ? `No SKUs currently start with ${filter}` : `${count} matching SKU${count === 1 ? "" : "s"}`}
-
+                onClick={() => {
+                  setActiveCategory(filter);
+                  setActiveQuickFilter("All");
+                }}
               >
-                {filter}
+                <span>{filter}</span>
+                <small>{count}</small>
               </button>
             );
           })}
+
+          <button
+            type="button"
+            className="wm-product-pitch-accessory-toggle"
+            data-active={includePassiveItems ? "true" : "false"}
+            onClick={() => setIncludePassiveItems((current) => !current)}
+          >
+            {includePassiveItems
+              ? "Hide cables and passive accessories"
+              : "Include cables and passive accessories"}
+          </button>
         </div>
 
-        <p className="mt-3 text-xs font-semibold wm-ui-copy">
-          Showing {filtered.length} of {products.length} products
-          {activeQuickFilter !== "All" ? ` · Filter: ${activeQuickFilter}` : ""}
-          {term ? ` · Search: ${searchTerm.trim()}` : ""}
-        </p>
+        <div className="wm-product-pitch-alpha-row">
+          <div
+            className="wm-product-pitch-alpha"
+            aria-label="Alphabetical SKU filter"
+          >
+            {PRODUCT_PITCH_FILTERS.map((filter) => {
+              const count = quickFilterCounts.get(filter) || 0;
+              const isActive = activeQuickFilter === filter;
+              const isDisabled = filter !== "All" && count === 0;
 
-        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-          {filtered.map((product) => (
-            <button className={["wm-ui-button wm-ui-button-secondary", "min-h-[92px] rounded-2xl border border-[#29465e] bg-[#081724] p-3 text-left transition hover:border-cyan-300 hover:bg-cyan-500/10"].filter(Boolean).join(" ")}
-              key={product.sku}
+              return (
+                <button
+                  key={filter}
+                  type="button"
+                  className="wm-product-pitch-alpha-button"
+                  data-active={isActive ? "true" : "false"}
+                  disabled={isDisabled}
+                  onClick={() => setActiveQuickFilter(filter)}
+                  title={
+                    isDisabled
+                      ? `No matching SKUs start with ${filter}`
+                      : `${count} matching SKU${count === 1 ? "" : "s"}`
+                  }
+                >
+                  {filter}
+                </button>
+              );
+            })}
+          </div>
+
+          <p className="wm-product-pitch-results-summary wm-ui-copy">
+            <strong>{filtered.length}</strong> matching product
+            {filtered.length === 1 ? "" : "s"}
+            {activeCategory !== "All" ? ` · ${activeCategory}` : ""}
+            {activeQuickFilter !== "All"
+              ? ` · Starts with ${activeQuickFilter}`
+              : ""}
+          </p>
+        </div>
+
+        <div
+          className="wm-product-pitch-results"
+          aria-live="polite"
+          aria-label="Product search results"
+        >
+          {visibleProducts.map((product) => {
+            const category = productPitchCategory(product);
+
+            return (
+              <button
+                className="wm-product-pitch-result"
+                key={product.sku}
+                type="button"
+                onClick={() => openProduct(product.sku)}
+              >
+                <span className="wm-product-pitch-result-main">
+                  <span className="wm-product-pitch-result-heading">
+                    <strong>{product.sku}</strong>
+                    <span className="wm-product-pitch-result-category">
+                      {category}
+                    </span>
+                  </span>
+                  <span className="wm-product-pitch-result-name">
+                    {product.name}
+                  </span>
+                  <span className="wm-product-pitch-result-description">
+                    {product.summary ||
+                      product.description ||
+                      product.productType ||
+                      "Open the product workspace for governed positioning and technical detail."}
+                  </span>
+                </span>
+
+                <span className="wm-product-pitch-result-action">
+                  Select product
+                  <span aria-hidden="true">&rarr;</span>
+                </span>
+              </button>
+            );
+          })}
+
+          {!filtered.length ? (
+            <div className="wm-product-pitch-empty wm-ui-copy">
+              <strong>No matching product found.</strong>
+              <span>
+                Clear the search, select All, or include cables and passive
+                accessories.
+              </span>
+            </div>
+          ) : null}
+        </div>
+
+        {hiddenCount > 0 ? (
+          <div className="wm-product-pitch-load-more">
+            <span className="wm-ui-copy">
+              Showing {visibleProducts.length} of {filtered.length}
+            </span>
+            <button
               type="button"
-              onClick={() => openProduct(product.sku)}
-
+              onClick={() =>
+                setVisibleCount((current) =>
+                  Math.min(current + PRODUCT_PITCH_INITIAL_RESULT_LIMIT, filtered.length),
+                )
+              }
             >
-              <span className={`block ${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-300`}>{product.family}</span>
-              <strong className="mt-1 block truncate text-lg font-extrabold text-white">{product.sku}</strong>
-              <span className="mt-1 block line-clamp-2 text-xs font-bold text-white/80">{product.name}</span>
-              <span className="mt-2 block truncate text-[0.68rem] text-white/50">{product.productType}</span>
+              Show {Math.min(PRODUCT_PITCH_INITIAL_RESULT_LIMIT, hiddenCount)} more
             </button>
-          ))}
-        </div>
-
-        {!filtered.length ? (
-          <div className="mt-5 rounded-2xl border p-4 text-sm wm-ui-card wm-ui-copy wm-ui-title">
-            No matching product found. Clear the search or use a broader term.
           </div>
         ) : null}
       </section>
@@ -442,8 +687,8 @@ function OverviewTab({
   const guidance = buildProductPitchSalesGuidance(product, narrative, context);
 
   return (
-    <div className="grid gap-4">
-      <section className="wm-ui-section rounded-lg border p-6 wm-ui-card">
+    <div className="wm-product-pitch-overview grid gap-4">
+      <section className="wm-product-pitch-answer-card wm-ui-section rounded-lg border p-6 wm-ui-card">
         <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-200`}>Simple product answer</p>
         <h2 className="mt-2 text-2xl font-extrabold wm-ui-title">What it does</h2>
         <p className="mt-2 max-w-5xl text-base font-bold leading-6 wm-ui-copy">{guidance.plainDescription}</p>
@@ -452,7 +697,7 @@ function OverviewTab({
         </p>
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="wm-product-pitch-key-answer-grid grid gap-4 lg:grid-cols-2">
         <WorkCard title="How it fits this application">
           <p className="wm-ui-copy">{guidance.scenarioFit}</p>
         </WorkCard>
@@ -513,7 +758,7 @@ function OverviewTab({
         </div>
       </details>
 
-      <ProductMediaPanel sku={product.sku} title={product.name} />
+      <ProductMediaPanel sku={product.sku} title={product.name} compact />
     </div>
   );
 }
@@ -699,71 +944,6 @@ function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: P
   );
 }
 
-function VisualTab({ product, narrative }: { product: ProductSpec; narrative: ProductNarrative }) {
-  const [copied, setCopied] = useState(false);
-  const [saved, setSaved] = useState(false);
-
-  const copyPrompt = () => {
-    if (!navigator.clipboard) return;
-
-    void navigator.clipboard.writeText(narrative.visualPrompt).then(() => {
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1500);
-    });
-  };
-
-  const saveHandoff = () => {
-    writeProductWorkspaceHandoff(product, narrative);
-    setSaved(true);
-    window.setTimeout(() => setSaved(false), 1500);
-  };
-
-  return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
-        <h2 className={`${PRODUCT_PITCH_SECTION_TITLE_CLASS} text-cyan-300`}>Room visual prompt</h2>
-        <p className="mt-2 text-sm leading-6 wm-ui-copy">
-          Once discovery is complete, this can become a Generate room image action for proposal support. For now, this prompt can be copied or stored as product context.
-        </p>
-
-        <textarea
-          readOnly
-          value={narrative.visualPrompt}
-          className="mt-4 min-h-[220px] w-full rounded-3xl border p-4 text-sm leading-6 wm-ui-input wm-ui-card wm-ui-copy"
-        />
-
-        <div className="mt-4 flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={copyPrompt}
-            className={PRODUCT_PITCH_PRIMARY_BUTTON_CLASS}
-          >
-            {copied ? "Copied" : "Copy room image prompt"}
-          </button>
-
-          <button
-            type="button"
-            onClick={saveHandoff}
-            className={PRODUCT_PITCH_SECONDARY_BUTTON_CLASS}
-          >
-            {saved ? "Saved" : "Save visual context"}
-          </button>
-        </div>
-      </section>
-
-      <aside className="rounded-3xl border p-5 wm-ui-card">
-        <h3 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-white`}>Future workflow</h3>
-        <ol className="mt-4 grid gap-3 text-sm leading-6 wm-ui-copy">
-          <li>1. Complete room discovery.</li>
-          <li>2. Select the product and schematic.</li>
-          <li>3. Generate a representative room image.</li>
-          <li>4. Add the image to the response pack or proposal.</li>
-        </ol>
-      </aside>
-    </div>
-  );
-}
-
 function ProductWorkspace({
   product,
   backToSelection
@@ -800,8 +980,8 @@ function ProductWorkspace({
   }, [product.sku]);
 
   return (
-    <main className="grid gap-4 pb-6 wm-ui-page wingman-page-host">
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
+    <main className="wm-product-pitch-workspace grid gap-4 pb-6 wm-ui-page wingman-page-host">
+      <section className={`${PRODUCT_PITCH_PANEL_CLASS} wm-product-pitch-workspace-hero p-5`}>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Product positioning</p>
@@ -832,7 +1012,7 @@ function ProductWorkspace({
 
       {!lifecycle.recommendable ? (
         <section
-          className={`rounded-3xl border p-4 ${
+          className={`wm-product-pitch-notice rounded-3xl border p-4 ${
             lifecycle.adminBlocked ||
             lifecycle.status === "discontinued" ||
             lifecycle.status === "do-not-spec" ||
@@ -873,7 +1053,7 @@ function ProductWorkspace({
 
       {narrative.confidence && narrative.confidence !== "high" && narrative.reviewNote ? (
         <section
-          className={`rounded-3xl border p-4 ${
+          className={`wm-product-pitch-notice rounded-3xl border p-4 ${
             narrative.confidence === "low"
               ? "border-amber-400/50 bg-amber-400/10"
               : "border-cyan-400/40 bg-cyan-500/5"
@@ -890,15 +1070,12 @@ function ProductWorkspace({
         </section>
       ) : null}
 
-      <ProductPitchSafetyPanel />
-
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-4`}>
+      <section className={`${PRODUCT_PITCH_PANEL_CLASS} wm-product-pitch-tabs p-4`}>
         <div className="flex flex-wrap gap-2">
           <TabButton label="Overview" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
           <TabButton label="Sales Cards" active={activeTab === "sales"} onClick={() => setActiveTab("sales")} />
           <TabButton label="Technical Spec" active={activeTab === "spec"} onClick={() => setActiveTab("spec")} />
           <TabButton label="Diagram" active={activeTab === "diagram"} onClick={() => setActiveTab("diagram")} />
-          <TabButton label="Room Visual" active={activeTab === "visual"} onClick={() => setActiveTab("visual")} />
         </div>
       </section>
 
@@ -906,7 +1083,8 @@ function ProductWorkspace({
       {activeTab === "sales" ? <SalesTab product={product} narrative={narrative} context={salesContext} /> : null}
       {activeTab === "spec" ? <SpecTab product={product} /> : null}
       {activeTab === "diagram" ? <DiagramTab product={product} narrative={narrative} /> : null}
-      {activeTab === "visual" ? <VisualTab product={product} narrative={narrative} /> : null}
+
+      <ProductPitchSafetyPanel />
     </main>
   );
 }
@@ -914,8 +1092,8 @@ function ProductWorkspace({
 
 function ProductPitchSafetyPanel() {
   return (
-    <section className="wm-section-card wm-product-pitch-safety-panel" aria-labelledby="product-pitch-safety-title">
-      <div className="wm-product-pitch-safety-header">
+    <details className="wm-section-card wm-product-pitch-safety-panel" aria-labelledby="product-pitch-safety-title">
+      <summary className="wm-product-pitch-safety-summary">
         <div>
           <p className="wm-ui-kicker">Tester safety</p>
           <h2 id="product-pitch-safety-title" className="wm-card-title">
@@ -925,7 +1103,8 @@ function ProductPitchSafetyPanel() {
             Use this page as product-direction guidance for a sales conversation. It is not a final engineered design or quote.
           </p>
         </div>
-      </div>
+        <span aria-hidden="true">Review</span>
+      </summary>
 
       <div className="wm-product-pitch-safety-grid">
         <article className="wm-product-pitch-safety-item">
@@ -949,7 +1128,7 @@ function ProductPitchSafetyPanel() {
           </p>
         </article>
       </div>
-    </section>
+    </details>
   );
 }
 

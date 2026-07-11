@@ -158,6 +158,17 @@ export function ProjectDetailPage() {
   );
   const leadingProductFamilyScore = productFamilyScores[0] ?? null;
 
+  const visualStudioLink = useMemo(() => {
+    const seedSku = selectedProducts[0]?.sku;
+
+    if (!seedSku) {
+      return routeCatalogByKey.visualStudio.path;
+    }
+
+    const params = new URLSearchParams({ seedSku, source: "product-discussion" });
+    return `${routeCatalogByKey.visualStudio.path}?${params.toString()}`;
+  }, [selectedProducts]);
+
   const selectedProductRankingReasons = useMemo(
     () =>
       selectedProducts
@@ -706,7 +717,7 @@ export function ProjectDetailPage() {
                 <Link to={routeCatalogByKey.productPitch.path} className="rounded-full border px-4 py-2 text-sm font-semibold text-[#edf6ff] wm-ui-card wm-ui-copy">
                   Product Positioning
                 </Link>
-                <Link to={routeCatalogByKey.visualStudio.path} className="rounded-full border px-4 py-2 text-sm font-semibold text-[#9ffcf4] wm-ui-card wm-ui-copy">
+                <Link to={visualStudioLink} className="rounded-full border px-4 py-2 text-sm font-semibold text-[#9ffcf4] wm-ui-card wm-ui-copy">
                   Visual Studio
                 </Link>
                 <Link to={routeCatalogByKey.proposal.path} className="rounded-full px-4 py-2 text-sm font-semibold wm-ui-card wm-ui-copy">

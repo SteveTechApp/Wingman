@@ -155,6 +155,11 @@ describe("Compare rendered workflow", () => {
     runKnownCompare("Blustream", "IP350UHD-TX");
 
     const matrix = await screen.findByRole("table", { name: /competitor versus wyrestorm comparison matrix/i });
+    const competitorSection = screen.getByText("Competitor matched against").closest("section");
+    const wyrestormSection = screen.getByText("Suggested WyreStorm direction").closest("section");
+
+    expect(competitorSection).not.toBeNull();
+    expect(wyrestormSection).not.toBeNull();
 
     expect(within(matrix).getAllByRole("columnheader").map((node) => node.textContent)).toEqual([
       "Comparison point",
@@ -172,6 +177,20 @@ describe("Compare rendered workflow", () => {
     expect(transportRow).not.toBeNull();
     expect(within(transportRow as HTMLElement).getAllByText(/AVoIP/i).length).toBeGreaterThanOrEqual(1);
     expect(within(transportRow as HTMLElement).getByText(/1GbE JPEG-XS AVoIP/i)).toBeInTheDocument();
+  });
+
+  it("labels routed and mirrored matrix outputs distinctly without inventing NDI", async () => {
+    renderComparePage();
+
+    runKnownCompare("Lightware", "MMX6x2-HT200");
+
+    const matrix = await screen.findByRole("table", { name: /competitor versus wyrestorm comparison matrix/i });
+    const outputRow = within(matrix).getByText("Outputs").closest('[role="row"]');
+
+    expect(outputRow).not.toBeNull();
+    expect((outputRow as HTMLElement).textContent).toMatch(/routed display outputs/i);
+    expect((outputRow as HTMLElement).textContent).toMatch(/HDBaseT/i);
+    expect((outputRow as HTMLElement).textContent).not.toMatch(/NDI/i);
   });
 
   it("keeps supporting evidence collapsed by default on the result screen", async () => {
