@@ -324,7 +324,10 @@ function productCategoryFamily(product: ProductSpec) {
 }
 
 function displayProductResultName(product: ProductSpec) {
-  return normaliseSelectorText(product.name).replace(/^WyreStorm\s+/i, "");
+  const sku = normaliseSelectorSku(product.sku).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return normaliseSelectorText(product.name)
+    .replace(/^WyreStorm\s+/i, "")
+    .replace(new RegExp(`^${sku}\\s*[-:/]?\\s*`, "i"), "");
 }
 
 function productSelectorScore(product: ProductSpec, term: string, activeQuickFilter: ProductPitchQuickFilter) {
@@ -638,7 +641,7 @@ function SelectionPage({
         {!shouldShowResults ? (
           <div className="wm-product-pitch-empty-state">
             <div className="wm-ui-card rounded-3xl border p-4">
-            <h2 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Suggested from current project</h2>
+            <h2 className="wm-card-title">Suggested from current project</h2>
             <div className="mt-3 grid gap-2">
               {suggestedProducts.length ? suggestedProducts.map((product) => <ResultButton key={product.sku} product={product} />) : (
                 <p className="text-sm wm-ui-copy">No saved project product selection yet.</p>
@@ -647,7 +650,7 @@ function SelectionPage({
           </div>
 
             <div className="wm-ui-card rounded-3xl border p-4">
-            <h2 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Recently viewed</h2>
+            <h2 className="wm-card-title">Recently viewed</h2>
             <div className="mt-3 grid gap-2">
               {recentProducts.length ? recentProducts.map((product) => <ResultButton key={product.sku} product={product} />) : (
                 <p className="text-sm wm-ui-copy">No recent product workspace yet.</p>
@@ -656,7 +659,7 @@ function SelectionPage({
           </div>
 
             <div className="wm-ui-card rounded-3xl border p-4 wm-product-pitch-family-panel">
-            <h2 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Browse by product family</h2>
+            <h2 className="wm-card-title">Browse by product family</h2>
             <div className="mt-3 flex flex-wrap gap-2">
               {browseFamilies.map(([family, count]) => (
                 <button
@@ -673,14 +676,14 @@ function SelectionPage({
           </div>
 
             <div className="wm-ui-card rounded-3xl border p-4">
-              <h2 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Search guidance</h2>
+              <h2 className="wm-card-title">Search guidance</h2>
               <p className="mt-2 text-sm leading-6 wm-ui-copy">
                 Type at least two characters from a SKU, product name, family or application to search the current product index.
               </p>
             </div>
 
             <div className="wm-ui-card rounded-3xl border p-4">
-              <h2 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Browse all products</h2>
+              <h2 className="wm-card-title">Browse all products</h2>
               <p className="mt-2 text-sm leading-6 wm-ui-copy">
                 Use this only when you want a wider catalogue browse instead of a focused product lookup.
               </p>
@@ -695,7 +698,7 @@ function SelectionPage({
               <div className="wm-product-pitch-result-prelude">
                 {suggestedProducts.length ? (
                   <div className="wm-ui-card rounded-3xl border p-4">
-                    <h2 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Suggested from current project</h2>
+                    <h2 className="wm-card-title">Suggested from current project</h2>
                     <div className="mt-3 grid gap-2">
                       {suggestedProducts.map((product) => <ResultButton key={product.sku} product={product} />)}
                     </div>
@@ -703,7 +706,7 @@ function SelectionPage({
                 ) : null}
                 {recentProducts.length ? (
                   <div className="wm-ui-card rounded-3xl border p-4">
-                    <h2 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>Recently viewed</h2>
+                    <h2 className="wm-card-title">Recently viewed</h2>
                     <div className="mt-3 grid gap-2">
                       {recentProducts.map((product) => <ResultButton key={product.sku} product={product} />)}
                     </div>
