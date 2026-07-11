@@ -608,7 +608,7 @@ function SelectionPage({
           </label>
         </div>
 
-        <details className="mt-4 wm-product-pitch-browse">
+        <details className="mt-4 wm-product-pitch-browse" open>
           <summary className="cursor-pointer text-xs font-extrabold uppercase text-cyan-200">Browse A-Z</summary>
           <div className="mt-3 flex flex-wrap gap-2" aria-label="Product quick filter">
           {PRODUCT_PITCH_FILTERS.map((filter) => {
