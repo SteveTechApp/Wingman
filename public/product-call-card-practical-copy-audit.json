@@ -1,11 +1,11 @@
 {
   "generatedAt": "2026-06-18T18:01:56.116Z",
-  "repairedCount": 240,
+  "repairedCount": 239,
   "sourceCounts": {
     "story": 17,
     "positioning-card": 41,
     "narrative": 4,
-    "profile-fallback": 178
+    "profile-fallback": 177
   },
   "audit": [
     {
@@ -7426,39 +7426,6 @@
           "If they think a basic HDMI switch is enough, ask whether it still covers wireless sharing, USB expectations and day-to-day ease of use.",
           "If the room is drifting toward a bigger hybrid or matrix requirement, be willing to move up rather than force a smaller switcher."
         ]
-      }
-    },
-    {
-      "sku": "SW-740-TX",
-      "profile": "uc",
-      "source": "profile-fallback",
-      "before": {
-        "description": "SW-740-TX belongs in the meeting-room workflow discussion. Position it around host device, USB path, camera/audio behaviour and how the room actually joins calls.",
-        "fit": "Use when the room needs a reliable conferencing or BYOD/BYOM path, not just local video switching. Confirm host location, USB device path, room size and call workflow before quote.",
-        "openingLine": "SW-740-TX should be sold as part of the room meeting experience: what the user plugs into, what camera/audio they take over, and what still needs validation before quote.",
-        "questions": [
-          "Is the room BYOD, BYOM, room PC, Teams appliance or mixed use?",
-          "Which camera, microphone, speakerphone or USB device needs to connect?",
-          "Where are the host laptop or room PC and the room peripherals physically located?",
-          "Is USB extension, switching or wireless presentation part of the workflow?",
-          "How many screens make up the wall, and how are they arranged (for example 2 by 2)?"
-        ],
-        "followUp": "",
-        "objectionHandling": []
-      },
-      "after": {
-        "description": "SW-740-TX belongs in the meeting-room workflow discussion. Position it around host device, USB path, camera/audio behaviour and how the room actually joins calls.",
-        "fit": "Use when the room needs a reliable conferencing or BYOD/BYOM path, not just local video switching. Confirm host location, USB device path, room size and call workflow before quote.",
-        "openingLine": "SW-740-TX should be sold as part of the room meeting experience: what the user plugs into, what camera/audio they take over, and what still needs validation before quote.",
-        "questions": [
-          "Is the room BYOD, BYOM, room PC, Teams appliance or mixed use?",
-          "Which camera, microphone, speakerphone or USB device needs to connect?",
-          "Where are the host laptop or room PC and the room peripherals physically located?",
-          "Is USB extension, switching or wireless presentation part of the workflow?",
-          "How many screens make up the wall, and how are they arranged (for example 2 by 2)?"
-        ],
-        "followUp": "\"SW-740-TX is the video-wall processor.\" The practical hooks are 4K60, Video Wall, KVM. Then place it in the range: Sits in the dedicated video-wall processor family. SW-0204-VW is the simpler, preset-layout step; SW-0206-VW is the more capable step up. Both are the non-networked alternative to building the wall through NetworkHD AV-over-IP - reach for AVoIP only when routing flexibility and expansion outweigh the simplicity of a dedicated processor.",
-        "objectionHandling": []
       }
     },
     {
