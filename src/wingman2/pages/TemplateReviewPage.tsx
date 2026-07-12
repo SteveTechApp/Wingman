@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   CheckCircle2,
+  Compass,
   Download,
   FileText,
   LayoutTemplate,
@@ -23,6 +24,7 @@ import {
 import { exportBomCsv, exportProposalHtml } from "../lib/proposalExport";
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
 import { saveRoomTemplateCopy, useCustomRoomTemplates } from "../lib/customRoomTemplates";
+import { buildDiscoveryHandoffFromTemplate, writeDiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
 import { roomTemplates, type RoomTemplate, type TemplateBomRow } from "../lib/roomTemplates";
 import type { SalesBomRow } from "../lib/salesReadiness";
 
@@ -211,6 +213,7 @@ function buildTemplateProject(template: RoomTemplate, rows: TemplateBomRow[]): S
 
 export function TemplateReviewPage() {
   const { templateId } = useParams();
+  const navigate = useNavigate();
   const customTemplates = useCustomRoomTemplates();
   const availableTemplates = useMemo(() => [...customTemplates, ...roomTemplates], [customTemplates]);
   const selectedTemplate = useMemo(
@@ -313,6 +316,11 @@ export function TemplateReviewPage() {
     setSavedTemplatePath(`${routeCatalogByKey.templates.path}/${template.id}`);
   }
 
+  function sendTemplateToDiscovery() {
+    writeDiscoveryHandoff(buildDiscoveryHandoffFromTemplate(activeTemplate));
+    navigate(routeCatalogByKey.discovery.path);
+  }
+
   return (
     <div className="pb-10">
       <PageHero
@@ -371,6 +379,10 @@ export function TemplateReviewPage() {
                 <button type="button" onClick={saveTemplateDesign}>
                   <LayoutTemplate className="h-5 w-5" />
                   <span>Save as template</span>
+                </button>
+                <button type="button" onClick={sendTemplateToDiscovery}>
+                  <Compass className="h-5 w-5" />
+                  <span>Use template</span>
                 </button>
                 <button type="button" onClick={saveTemplateProject} className="wm-template-action-primary">
                   <Save className="h-5 w-5" />
