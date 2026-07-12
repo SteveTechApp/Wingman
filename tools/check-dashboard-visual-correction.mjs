@@ -8,58 +8,67 @@ const dashboardPath = path.join(root, "src/wingman2/pages/DashboardPage.tsx");
 const theme = fs.readFileSync(themePath, "utf8");
 const dashboard = fs.readFileSync(dashboardPath, "utf8");
 
-const start = "/* === WINGMAN DASHBOARD VISUAL CORRECTION PASS START === */";
-const end = "/* === WINGMAN DASHBOARD VISUAL CORRECTION PASS END === */";
+const start = "/* === WINGMAN DASHBOARD CANONICAL LAYOUT START === */";
+const end = "/* === WINGMAN DASHBOARD CANONICAL LAYOUT END === */";
 const startIndex = theme.indexOf(start);
 const endIndex = theme.indexOf(end, startIndex);
-
 const errors = [];
 
 if (startIndex === -1 || endIndex === -1 || endIndex <= startIndex) {
-  errors.push("Dashboard correction block missing.");
+  errors.push("Dashboard canonical layout block missing.");
 } else {
   const block = theme.slice(startIndex, endIndex + end.length);
 
-  const required = [
-    ".wm-dashboard-shell",
-    ".wm-dashboard-rail",
-    ".wm-dashboard-main",
-    ".wm-dashboard-grid",
-    ".wm-dashboard-project-grid",
-    ".wm-dashboard-action-button",
-  ];
-
-  const forbidden = [
-    'html[data-wingman-route="dashboard"]',
-    "rgba(",
-    "rgb(",
-  ];
-
-  for (const item of required) {
-    if (!block.includes(item)) errors.push(`Missing ${item}`);
-  }
-
-  for (const item of forbidden) {
-    if (block.includes(item)) errors.push(`Dashboard correction block must not contain ${item}`);
-  }
+  [
+    ".wingman-app-main > .wingman-page-host:has(> main.wm-dashboard-shell)",
+    "height: calc(100dvh - var(--wm-header))",
+    "main.wm-dashboard-shell.wm-dashboard-visual-root",
+    "display: grid",
+    "grid-template-columns: minmax(230px, 300px) minmax(0, 1fr)",
+    "align-items: stretch",
+    "overflow: hidden",
+    "main.wm-dashboard-shell > .wm-dashboard-rail",
+    "height: 100%",
+    "main.wm-dashboard-shell .wm-dashboard-main",
+    "overflow-y: auto",
+    "main.wm-dashboard-shell .wm-dashboard-project-grid",
+  ].forEach((marker) => {
+    if (!block.includes(marker)) errors.push(`Canonical CSS missing ${marker}`);
+  });
 }
 
-const block = startIndex === -1 || endIndex === -1 || endIndex <= startIndex ? "" : theme.slice(startIndex, endIndex + end.length);
+[
+  "wm-dashboard-page",
+  "wm-page",
+  "wm-section-card",
+  "wm-action-card",
+  "wm-page-title",
+  "wm-section-title",
+  "wm-card-title",
+  "wm-dashboard-shell",
+  "wm-dashboard-rail",
+  "wm-dashboard-main",
+  "wm-dashboard-project-grid",
+].forEach((marker) => {
+  if (!dashboard.includes(marker)) errors.push(`DashboardPage.tsx missing ${marker}`);
+});
 
-if (block.includes('html[data-wingman-route="dashboard"]')) {
-  errors.push('Dashboard correction block still contains html[data-wingman-route="dashboard"].');
-}
+["wm-ui-hero", "wm-ui-card"].forEach((marker) => {
+  if (dashboard.includes(marker)) errors.push(`DashboardPage.tsx still contains obsolete visual class ${marker}`);
+});
 
-if (!dashboard.includes("wm-dashboard-visual-root")) {
-  errors.push("DashboardPage.tsx is missing wm-dashboard-visual-root.");
-}
+[
+  "data-wingman-home-single-screen",
+  "data-wingman-dashboard-primary-card",
+  "data-wingman-dashboard-primary-card-row",
+  "DashboardRestoreOriginalCardsSupport",
+].forEach((marker) => {
+  if (dashboard.includes(marker)) errors.push(`DashboardPage.tsx still contains obsolete marker ${marker}`);
+  if (theme.includes(marker)) errors.push(`wingman-style-stack.css still contains obsolete marker ${marker}`);
+});
 
 if (dashboard.includes("style={") || dashboard.includes("const styles")) {
   errors.push("DashboardPage.tsx still contains inline style-driven layout.");
-}
-
-if (!dashboard.includes("wm-dashboard-shell") || !dashboard.includes("wm-dashboard-project-grid")) {
-  errors.push("DashboardPage.tsx is missing class-based Dashboard layout markup.");
 }
 
 if (errors.length) {
@@ -68,4 +77,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log("[dashboard-visual] Dashboard component uses class-based visual layout.");
+console.log("[dashboard-visual] Dashboard uses the canonical class-based two-column layout.");
