@@ -6,7 +6,7 @@
 - Governed stories: **130** (reviewed **44**, catalogue-grounded **86**)
 - Active catalogue SKUs (alias-deduped): **133**
 - Active covered: **124 (93%)** · Active uncovered: **9**
-- Excluded (deliberately not storied): cable **30**, discontinued **0**, do-not-spec **0**, unlisted **6**, source-hygiene **1**
+- Excluded (deliberately not storied): cable **30**, discontinued **0**, do-not-spec **0**, unlisted **5**, source-hygiene **1**
 
 ## Active SKUs still needing a governed story
 
@@ -32,7 +32,6 @@ Confirm whether these are active before authoring a story; the compare engine tr
 
 - [ ] APO-VX20-UC-V2
 - [ ] MX-0808-SCL-V2
-- [ ] NETWORKHDTOUCHTM
 - [ ] NHD-610-TX-V2
 - [ ] SW-0X01-8K
 - [ ] SW-130-TX
