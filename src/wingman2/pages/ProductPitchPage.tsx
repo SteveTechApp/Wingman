@@ -169,55 +169,6 @@ const PRODUCT_PITCH_FILTERS = [
 
 type ProductPitchQuickFilter = (typeof PRODUCT_PITCH_FILTERS)[number];
 
-const PRODUCT_PITCH_BLOCKED_SKUS = new Set([
-  "NHD-100",
-  "NHD-250-RX",
-  "NHD-300-TX",
-  "APO-100-UC",
-  "APO-200-UC",
-  "APO-DG2-PRO",
-  "APO-VX20-UC",
-  "HALO-VX10-V1",
-  "MX-1010-H2XC",
-  "MX-1616-H2XC",
-  "NHD-000-RACK3",
-  "NHD-000-CTL",
-  "NHD-110-RX",
-  "NHD-110-TX",
-  "NHD-110-RX-S",
-  "NHD-500-E",
-  "NHD-500-T",
-  "NHD-610",
-  "NHD-600-TXRX",
-  "NHD-CTL-PRO",
-  "NHD-CTL-PRO-T",
-  "NHD-TOUCH",
-  "NHD-TOUCHPLUS",
-  "OFFICE-KIT",
-  "SYN-TOUCH10"
-]);
-
-function isH2hcTxCardSku(sku: string) {
-  const value = String(sku || "").trim().toUpperCase();
-  return value.includes("H2HC") && /(^|-)TX($|-)/.test(value);
-}
-
-function isBlockedProductPitchSku(sku: string) {
-  const value = String(sku || "").trim().toUpperCase();
-
-  if (!value) return true;
-  if (PRODUCT_PITCH_BLOCKED_SKUS.has(value)) return true;
-  if (value.endsWith("-US")) return true;
-  if (value === "NHD-400" || value.startsWith("NHD-400-")) return true;
-  if (isH2hcTxCardSku(value)) return true;
-
-  return false;
-}
-
-function isVisibleProductPitchProduct(product: ProductSpec) {
-  return !isBlockedProductPitchSku(product.sku);
-}
-
 function getProductPitchFilterLead(product: ProductSpec) {
   const sku = product.sku?.trim().toUpperCase() || "";
   const name = product.name?.trim().toUpperCase() || "";

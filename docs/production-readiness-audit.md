@@ -44,7 +44,7 @@ The current `Wingman2` client has a routed application shell, generated product 
 
 ### Backend truth and drift
 
-- Active server routes live in `server/routes/agents.mjs`, while a second unused agent router still exists in `server/server/routes/agents.mjs`.
+- Active server routes live in `server/routes/agents.mjs`; the unused duplicate agent router has been retired.
 - Product intelligence and governance paths now use the canonical `data/` tree in readiness checks.
 
 ### Agent readiness
