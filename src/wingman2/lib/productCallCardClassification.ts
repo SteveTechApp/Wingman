@@ -63,15 +63,55 @@ export function productCallCardClassificationText(product: ProductCallCardClassi
     .toLowerCase();
 }
 
+// `tags` and `applications` are often populated from a shared, generic list of every
+// vertical-market/room-type a product could conceivably appear in (e.g. an AVoIP
+// decoder tagged "Unified communications", "Boardroom", "Video wall" alongside a dozen
+// other markets) rather than a description of what the product itself is. Matching
+// those fields word-for-word makes almost every networked product look like it
+// belongs under every family heading. Heading classification instead uses only the
+// fields that actually describe the product: identity, category and prose text.
+function productCallCardHeadingSignalText(product: ProductCallCardClassificationInput): string {
+  return [
+    product.sku,
+    product.name,
+    product.title,
+    product.family,
+    product.category,
+    product.productType,
+    product.role,
+    product.productRole,
+    product.description,
+    product.summary,
+  ]
+    .map(fieldText)
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
 function hasAny(text: string, terms: RegExp[]): boolean {
   return terms.some((term) => term.test(text));
+}
+
+// A passive cable's "applications" copy (meeting room, video wall, UC space, ...)
+// describes rooms it might be used in, not what the cable itself is - matching that
+// free text would wrongly surface a cable under a family filter like "Video Wall" or
+// "Unified Comms". Cables get no specific heading; they still show under "All".
+function isCableProduct(sku: string, category: string): boolean {
+  return /^(?:EXP-)?CAB-/.test(sku) || /\bcables?\b/.test(category.toLowerCase());
 }
 
 export function classifyProductCallCard(
   product: ProductCallCardClassificationInput,
 ): ClassifiedProductCallCardHeading[] {
   const sku = fieldText(product.sku).toUpperCase();
-  const text = productCallCardClassificationText(product);
+  const category = fieldText(product.category);
+
+  if (isCableProduct(sku, category)) {
+    return [];
+  }
+
+  const text = productCallCardHeadingSignalText(product);
   const headings = new Set<ClassifiedProductCallCardHeading>();
 
   const unifiedComms = hasAny(text, [
