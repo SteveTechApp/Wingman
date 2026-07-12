@@ -2,8 +2,6 @@ import { useMemo, useState, type ReactNode } from "react";
 import { BookOpenCheck, Cable, CheckCircle2, HelpCircle, MapPin, Network, Search, Sparkles, Workflow } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
-import { PageHero } from "../components/PageHero";
-import { SectionCard } from "../components/SectionCard";
 import { isSkuAdminBlocked } from "../lib/adminProductOverrides";
 
 type ProductFamilyGuide = {
@@ -714,133 +712,181 @@ export function ProductFamilyPage() {
   const activeFamily = useMemo(() => findGuide(activeFamilyId), [activeFamilyId]);
 
   return (
-    <div className="wm-product-family-page space-y-5 pb-6 wm-ui-page wingman-page-host">
-      <PageHero
-        eyebrow="Product families"
-        title="Choose a family, then open the right SKU."
-        purpose="Start with the customer application and move quickly from product family to representative WyreStorm SKUs."
-        nextMove="Choose a family below, then open a SKU in Product Positioning."
-        actions={[
-          { label: "Open Product Positioning", to: routeCatalogByKey.productPitch.path },
-        ]}
-      />
+    <main className="wm-product-family-page wm-ui-page wingman-page-host">
+      <section className="wm-product-family-hero wm-ui-card">
+        <div className="wm-product-family-hero-copy">
+          <p className="wm-product-family-eyebrow">Product families</p>
+          <h1 className="wm-page-title">Choose a family, then open the right SKU.</h1>
+          <p className="wm-ui-copy">
+            Start with the customer application and move from the correct architecture
+            to representative WyreStorm products.
+          </p>
+        </div>
 
-      <div className="grid gap-5 xl:grid-cols-[330px_minmax(0,1fr)]">
-        <SectionCard title="Choose family" subtitle="Pick the family that best matches the customer application before discussing SKUs.">
-          <div className="wm-product-family-picker-list wm-ui-card">
+        <div className="wm-product-family-hero-action">
+          <span>Next: choose a family, then open a product workspace.</span>
+          <Link to={routeCatalogByKey.productPitch.path}>
+            Open Product Positioning
+          </Link>
+        </div>
+      </section>
+
+      <div className="wm-product-family-workspace">
+        <aside className="wm-product-family-nav wm-ui-card" aria-label="WyreStorm product families">
+          <header className="wm-product-family-nav-header">
+            <p>Wingman workspace</p>
+            <h2 className="wm-section-title">Choose family</h2>
+            <span className="wm-ui-copy">
+              Pick the family that best matches the customer application before
+              discussing SKUs.
+            </span>
+          </header>
+
+          <div className="wm-product-family-picker-list">
             {familyGuides.map((guide) => {
               const active = guide.id === activeFamily.id;
 
               return (
-                <button className={["wm-ui-button wm-ui-button-secondary", [
-                    "wm-product-family-picker w-full rounded-2xl border p-4 text-left transition",
-                    active ? "border-cyan-300 bg-[#10263a] text-white" : "border-[#29465e] bg-[#0d2133] text-white/70 hover:border-[#29465e] hover:bg-[#0d2133]",
-                  ].join(" ")].filter(Boolean).join(" ")}
+                <button
+                  className={`wm-product-family-picker${active ? " is-active" : ""}`}
                   key={guide.id}
                   type="button"
+                  aria-pressed={active}
                   onClick={() => setActiveFamilyId(guide.id)}
-
                 >
-                  <span className="flex items-center gap-2 text-sm font-black wm-ui-copy">
-                    {active ? <CheckCircle2 className="h-4 w-4 text-cyan-600" /> : <BookOpenCheck className="h-4 w-4 wm-ui-copy" />}
-                    {guide.name}
+                  <span className="wm-product-family-picker-title">
+                    {active ? (
+                      <CheckCircle2 aria-hidden="true" />
+                    ) : (
+                      <BookOpenCheck aria-hidden="true" />
+                    )}
+                    <strong>{guide.name}</strong>
                   </span>
-                  <span className="mt-2 block text-xs font-semibold leading-5 wm-ui-copy">{guide.shortPosition}</span>
+                  <span className="wm-product-family-picker-copy">
+                    {guide.shortPosition}
+                  </span>
                 </button>
               );
             })}
           </div>
-        </SectionCard>
+        </aside>
 
-        <section className="wingman-section-card wingman-surface overflow-hidden rounded-3xl wm-ui-section wm-ui-card">
-          <header className="border-b p-5 wm-ui-card">
-            <p className="wingman-kicker wm-ui-copy wm-ui-kicker">Family crib sheet</p>
-            <h2 className="mt-2 text-3xl font-black wm-ui-title">{activeFamily.name}</h2>
-            <p className="mt-3 max-w-4xl text-sm font-semibold leading-6 wm-ui-copy">{activeFamily.customerPitch}</p>
+        <section className="wm-product-family-detail wm-ui-card" aria-live="polite">
+          <header className="wm-product-family-detail-header">
+            <p>Family crib sheet</p>
+            <h2 className="wm-section-title">{activeFamily.name}</h2>
+            <span className="wm-ui-copy">{activeFamily.customerPitch}</span>
           </header>
 
-          <div className="space-y-5 p-5">
-            <div className="rounded-3xl border p-5 wm-ui-card">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between wm-ui-card">
+          <div className="wm-product-family-detail-body">
+            <section className="wm-product-family-products wm-ui-card">
+              <div className="wm-product-family-products-header">
                 <div>
-                  <p className="wingman-kicker wm-ui-copy wm-ui-kicker">Representative SKUs</p>
-                  <h3 className="mt-2 text-xl font-semibold wm-ui-title">Products to start the conversation</h3>
-                  <p className="mt-2 max-w-3xl text-sm leading-6 wm-ui-copy">
-                    Use this as a quick range view. Open a specific SKU for a one-page pitch, or pitch the whole range when the exact model is not fixed yet.
-                  </p>
+                  <p>Representative SKUs</p>
+                  <h3 className="wm-card-title">Products to start the conversation</h3>
+                  <span>
+                    Open a specific SKU for a product workspace, or browse the family
+                    when the exact model is not fixed.
+                  </span>
                 </div>
 
                 <Link
                   to={productPitchRangePath(activeFamily.pitchQuery)}
-                  className="inline-flex shrink-0 items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition wm-ui-card wm-ui-copy"
+                  className="wm-product-family-range-link"
                 >
                   Pitch this range
                 </Link>
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                {activeFamily.productSkus.filter((sku) => !isSkuAdminBlocked(sku)).map((sku) => (
-                  <Link
-                    key={sku}
-                    to={productPitchSkuPath(sku)}
-                    className="group rounded-2xl border p-4 text-left transition wm-ui-card"
-                  >
-                    <span className="block text-xs font-medium uppercase tracking-[0.22em] wm-ui-kicker">SKU</span>
-                    <strong className="mt-1 block text-base font-semibold wm-ui-copy">{sku}</strong>
-                    <span className="mt-3 inline-flex text-sm font-medium wm-ui-copy">
-                      Open pitch
-                    </span>
-                  </Link>
-                ))}
+              <div className="wm-product-family-sku-grid">
+                {activeFamily.productSkus
+                  .filter((sku) => !isSkuAdminBlocked(sku))
+                  .map((sku) => (
+                    <Link
+                      key={sku}
+                      to={productPitchSkuPath(sku)}
+                      className="wm-product-family-sku-card"
+                    >
+                      <span>SKU</span>
+                      <strong>{sku}</strong>
+                      <small>Open product workspace</small>
+                    </Link>
+                  ))}
               </div>
+            </section>
+
+            <div className="wm-product-family-summary-grid">
+              <FamilyTextBlock
+                icon={<Sparkles aria-hidden="true" />}
+                title="What it is"
+                text={activeFamily.whatItIs}
+              />
+              <FamilyTextBlock
+                icon={<HelpCircle aria-hidden="true" />}
+                title="Why it exists"
+                text={activeFamily.whyItExists}
+              />
+              <FamilyTextBlock
+                icon={<Workflow aria-hidden="true" />}
+                title="How it works"
+                text={activeFamily.howItWorks}
+              />
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-3">
-              <FamilyTextBlock icon={<Sparkles className="h-4 w-4 text-cyan-600" />} title="What it is" text={activeFamily.whatItIs} />
-              <FamilyTextBlock icon={<HelpCircle className="h-4 w-4 text-sky-600" />} title="Why it exists" text={activeFamily.whyItExists} />
-              <FamilyTextBlock icon={<Workflow className="h-4 w-4 text-emerald-600" />} title="How it works" text={activeFamily.howItWorks} />
-            </div>
+            <FamilyTextBlock
+              icon={<MapPin aria-hidden="true" />}
+              title="Where it sits in the room"
+              text={activeFamily.roomFit}
+            />
 
-            <FamilyTextBlock icon={<MapPin className="h-4 w-4 text-cyan-600" />} title="Where it sits in the room" text={activeFamily.roomFit} />
-
-            <details className="wm-decision-details">
+            <details className="wm-product-family-more">
               <summary>More product detail</summary>
-              <div className="mt-4 grid gap-4 xl:grid-cols-2">
-                <FamilyListBlock icon={<Cable className="h-4 w-4 text-cyan-600" />} title="Connectivity" items={activeFamily.connectivity} />
-                <FamilyListBlock icon={<Network className="h-4 w-4 text-sky-600" />} title="Useful functionality" items={activeFamily.usefulFunctionality} />
-              </div>
 
-              <div className="mt-4 grid gap-4 xl:grid-cols-3">
-                <FamilyListBlock title="Special features" items={activeFamily.specialFeatures} />
-                <FamilyListBlock title="Best-fit applications" items={activeFamily.bestFit} />
-                <FamilyListBlock title="When not to lead" items={activeFamily.whenNotToLead} />
-              </div>
-
-              <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.72fr)]">
-                <div className="rounded-3xl border p-5 wm-ui-card">
-                  <h3 className="flex items-center gap-2 text-sm font-black wm-ui-title wm-ui-copy">
-                    <Search className="h-4 w-4 text-cyan-600" />
-                    Discovery questions
-                  </h3>
-                  <ul className="mt-3 space-y-2">
-                    {activeFamily.discoveryQuestions.map((question) => (
-                      <li key={question} className="flex gap-2 text-sm font-semibold leading-6 wm-ui-copy">
-                        <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full wm-ui-card" />
-                        <span>{question}</span>
-                      </li>
-                    ))}
-                  </ul>
+              <div className="wm-product-family-more-body">
+                <div className="wm-product-family-two-up">
+                  <FamilyListBlock
+                    icon={<Cable aria-hidden="true" />}
+                    title="Connectivity"
+                    items={activeFamily.connectivity}
+                  />
+                  <FamilyListBlock
+                    icon={<Network aria-hidden="true" />}
+                    title="Useful functionality"
+                    items={activeFamily.usefulFunctionality}
+                  />
                 </div>
 
-                <div className="space-y-4">
-                  <div className="rounded-3xl border p-5 wm-ui-card">
-                    <h3 className="text-sm font-black wm-ui-title wm-ui-copy">Position against alternatives</h3>
-                    <p className="mt-3 text-sm font-semibold leading-6 wm-ui-copy">{activeFamily.positionAgainst}</p>
-                  </div>
+                <div className="wm-product-family-summary-grid">
+                  <FamilyListBlock
+                    title="Special features"
+                    items={activeFamily.specialFeatures}
+                  />
+                  <FamilyListBlock
+                    title="Best-fit applications"
+                    items={activeFamily.bestFit}
+                  />
+                  <FamilyListBlock
+                    title="When not to lead"
+                    items={activeFamily.whenNotToLead}
+                  />
+                </div>
 
-                  <div className="rounded-3xl border p-5 wm-ui-card">
-                    <h3 className="text-sm font-black wm-ui-title wm-ui-copy">Sales rule</h3>
-                    <p className="mt-3 text-sm font-black leading-6 text-[#edf6ff] wm-ui-copy">{activeFamily.salesRule}</p>
+                <div className="wm-product-family-decision-grid">
+                  <FamilyListBlock
+                    icon={<Search aria-hidden="true" />}
+                    title="Discovery questions"
+                    items={activeFamily.discoveryQuestions}
+                  />
+
+                  <div className="wm-product-family-decision-stack">
+                    <FamilyTextBlock
+                      title="Position against alternatives"
+                      text={activeFamily.positionAgainst}
+                    />
+                    <FamilyTextBlock
+                      title="Sales rule"
+                      text={activeFamily.salesRule}
+                    />
                   </div>
                 </div>
               </div>
@@ -849,57 +895,68 @@ export function ProductFamilyPage() {
         </section>
       </div>
 
-      <details className="wm-decision-details">
+      <details className="wm-product-family-architecture">
         <summary>Architecture guidance</summary>
-        <SectionCard
-          title="Fast architecture rules"
-          subtitle="Use these only when the family choice needs validation."
-        >
-          <div className="wm-product-family-rules-grid">
-            {decisionRules.map((rule, index) => (
-              <div key={rule} className="wm-product-family-rule-card wm-ui-card">
-                <div className="wm-product-family-rule-head">
-                  <span className="wm-product-family-rule-badge">{index + 1}</span>
-                  <span className="wm-product-family-rule-label">Rule</span>
-                </div>
-                <p className="wm-product-family-rule-body wm-ui-copy">{rule}</p>
+        <div className="wm-product-family-rules-grid">
+          {decisionRules.map((rule, index) => (
+            <article key={rule} className="wm-product-family-rule-card">
+              <span>{index + 1}</span>
+              <div>
+                <strong>Rule</strong>
+                <p>{rule}</p>
               </div>
-            ))}
-          </div>
-        </SectionCard>
+            </article>
+          ))}
+        </div>
       </details>
-    </div>
+    </main>
   );
 }
 
-function FamilyTextBlock({ icon, title, text }: { icon: ReactNode; title: string; text: string }) {
+function FamilyTextBlock({
+  icon,
+  title,
+  text,
+}: {
+  icon?: ReactNode;
+  title: string;
+  text: string;
+}) {
   return (
-    <div className="rounded-3xl border p-5 wm-ui-card">
-      <h3 className="flex items-center gap-2 text-sm font-black wm-ui-title wm-ui-copy">
+    <article className="wm-product-family-text-block">
+      <h3>
         {icon}
-        {title}
+        <span>{title}</span>
       </h3>
-      <p className="mt-3 text-sm font-semibold leading-6 wm-ui-copy">{text}</p>
-    </div>
+      <p>{text}</p>
+    </article>
   );
 }
 
-function FamilyListBlock({ icon, title, items }: { icon?: ReactNode; title: string; items: string[] }) {
+function FamilyListBlock({
+  icon,
+  title,
+  items,
+}: {
+  icon?: ReactNode;
+  title: string;
+  items: string[];
+}) {
   return (
-    <div className="rounded-3xl border p-5 wm-ui-card">
-      <h3 className="flex items-center gap-2 text-sm font-black wm-ui-title wm-ui-copy">
+    <article className="wm-product-family-list-block">
+      <h3>
         {icon}
-        {title}
+        <span>{title}</span>
       </h3>
-      <ul className="mt-3 space-y-2">
+      <ul>
         {items.map((item) => (
-          <li key={item} className="flex gap-2 text-sm font-semibold leading-6 wm-ui-card wm-ui-copy">
-            <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full wm-ui-card" />
-            <span>{item}</span>
+          <li key={item}>
+            <span aria-hidden="true" />
+            <p>{item}</p>
           </li>
         ))}
       </ul>
-    </div>
+    </article>
   );
 }
 

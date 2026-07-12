@@ -134,6 +134,7 @@
       "Airtame Cloud remote device management"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K 60Hz",
       "hdmiOutputs": 2
     },
@@ -275,6 +276,7 @@
       "PoE+ powered (46-57V, 30W max) or external DC adapter"
     ],
     "video": {
+      "hdmi": "1.4",
       "maxResolution": "4K",
       "hdmiVersion": "1.4",
       "hdmiOutputs": 2
@@ -795,6 +797,7 @@
       "Resolutions up to 4096x2160"
     ],
     "video": {
+      "usbStandard": "USB 2.0",
       "maxResolution": "4K60 4:4:4 (MWC) / 1080p (H.26x)"
     },
     "matrixOutputs": 1,
@@ -1075,6 +1078,7 @@
       "Virtual Network USB Hub"
     ],
     "video": {
+      "usbStandard": "USB 2.0",
       "maxResolution": "4K60 4:4:4 (MWC) / 1080p (H.26x)"
     },
     "matrixInputs": 1,
@@ -1148,6 +1152,7 @@
       "NA and EU/UK versions"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K (4096x2160), HDR10/HDR10+",
       "hdr": true,
       "latencyMs": 2
@@ -3815,6 +3820,7 @@
       "Third-party control driver support"
     ],
     "video": {
+      "hdmi": "2.1",
       "maxResolution": "8K60 4:2:0 / 8K30 4:4:4 / 4K120",
       "bandwidthGbps": 40,
       "hdcp": "2.3"
@@ -4164,6 +4170,7 @@
       "2.4/5GHz wireless, 30m range"
     ],
     "video": {
+      "usbStandard": "USB 3.0",
       "maxResolution": "4K UHD @30Hz"
     },
     "matrixOutputs": 1,
@@ -5807,6 +5814,7 @@
       "PoE++"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K (14.2MP, 12x-24x zoom range)",
       "bitDepth": 10
     },
@@ -5975,6 +5983,7 @@
       "PoE+"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4Kp60"
     },
     "matrixInputs": 1,
@@ -6055,6 +6064,7 @@
       "PoE+"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4Kp60"
     },
     "matrixInputs": 1,
@@ -6299,6 +6309,7 @@
       "PoE+ (802.3at)"
     ],
     "video": {
+      "usbStandard": "USB 2.0",
       "maxResolution": "1080p60"
     },
     "matrixOutputs": 1,
@@ -6855,6 +6866,7 @@
       "Web browser control"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K60 4:4:4"
     },
     "matrixInputs": 8,
@@ -7241,7 +7253,9 @@
     "outputs": [],
     "control": [],
     "audio": [],
-    "features": [],
+    "features": [
+      "PoE"
+    ],
     "video": {
       "maxResolution": "4K class"
     },
@@ -7686,6 +7700,7 @@
       "2U rack-mountable"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K60 4:4:4 (HDMI2.0, 18Gbps)",
       "bandwidthGbps": 18,
       "hdr": true
@@ -7768,6 +7783,7 @@
       "Automatic video down-conversion per output for mixed-capability displays"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K60 4:4:4",
       "hdmiVersion": "2.0",
       "hdcp": "2.2"
@@ -7852,6 +7868,7 @@
       "Digital (S/PDIF) and analog audio breakout"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K60 4:4:4",
       "hdmiVersion": "2.0",
       "hdcp": "2.2"
@@ -7944,8 +7961,8 @@
       "Room switching"
     ],
     "video": {
-      "maxResolution": "4K60 4:4:4",
       "hdmi": "2.0",
+      "maxResolution": "4K60 4:4:4",
       "hdcp": "2.2"
     },
     "matrixInputs": 4,
@@ -8022,7 +8039,9 @@
       "Bidirectional PoC power",
       "Up to 2.5A combined power output"
     ],
-    "video": {},
+    "video": {
+      "usbStandard": "USB 3.2"
+    },
     "matrixInputs": 1,
     "routedInputs": 1,
     "routedInputCount": 1,
@@ -8694,6 +8713,7 @@
       "AES67"
     ],
     "video": {
+      "usbStandard": "USB 2.0",
       "maxResolution": "4K60 4:4:4",
       "hdmi": "2.0",
       "bandwidthGbps": 18,
@@ -11389,7 +11409,9 @@
       }
     ],
     "control": [],
-    "audio": [],
+    "audio": [
+      "AES67"
+    ],
     "features": [
       "PURE3 codec, visually lossless 4K60 4:4:4",
       "10Gbps Ethernet, adjustable bitrate for 1Gb NAV compatibility",
@@ -11398,6 +11420,7 @@
       "USB 2.0 (IP over USB config port)"
     ],
     "video": {
+      "usbStandard": "USB 2.0",
       "maxResolution": "4K60 4:4:4",
       "chroma": "4:4:4"
     },
@@ -11874,7 +11897,9 @@
       }
     ],
     "control": [],
-    "audio": [],
+    "audio": [
+      "AES67"
+    ],
     "features": [
       "PURE3 codec, 4K@60 4:4:4/4:2:2/4:2:0, up to 18Gbps",
       "1Gb PoE+ NAV port + Extension port",
@@ -11969,6 +11994,7 @@
       "Distributed AV encoder"
     ],
     "video": {
+      "usbStandard": "USB 2.0",
       "maxResolution": "4K60 4:4:4",
       "hdmi": "2.0b",
       "bandwidthGbps": 18,
@@ -12811,7 +12837,9 @@
       "Up to 7 decoders per encoder/host",
       "5V/500mA per decoder port"
     ],
-    "video": {},
+    "video": {
+      "usbStandard": "USB 2.0"
+    },
     "matrixInputs": 1,
     "routedInputs": 1,
     "routedInputCount": 1,
@@ -13789,6 +13817,7 @@
       "Half-rack-sized"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K60 4:4:4",
       "hdcp": "2.2",
       "chroma": "4:4:4"
@@ -14864,6 +14893,8 @@
       "SSH/SSL/HTTPS secure control"
     ],
     "video": {
+      "hdmi": "2.0",
+      "usbStandard": "USB 3.1",
       "maxResolution": "UHD/4K@60Hz 4:4:4",
       "bandwidthGbps": 18,
       "hdcp": "2.2"
@@ -14952,6 +14983,7 @@
       "FIPS 140-3 CryptoCore variant (HC40-LCC) available"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "UHD/4K@60Hz 4:4:4",
       "chroma": "4:4:4"
     },
@@ -15036,6 +15068,7 @@
       "Noiseless (fanless)"
     ],
     "video": {
+      "usbStandard": "USB 3.1",
       "maxResolution": "UHD/4K@60Hz 4:4:4 (5K120 supported)",
       "bandwidthGbps": 18
     },
@@ -15124,6 +15157,7 @@
       "FIPS 140-3 CryptoCore variant available"
     ],
     "video": {
+      "usbStandard": "USB 3.1",
       "maxResolution": "UHD/4K@60Hz 4:4:4 (dual-screen)"
     },
     "matrixInputs": 4,
@@ -15573,6 +15607,7 @@
       "Aluminum alloy body"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K60"
     },
     "matrixOutputs": 1,
@@ -15645,6 +15680,7 @@
       "PoE"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K30 (UHD, HDMI) / 4K60 (IP triple-stream)"
     },
     "matrixOutputs": 1,
@@ -16058,6 +16094,7 @@
       "PoE++ (802.3bt)"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K60 (UHD 3840x2160)"
     },
     "matrixOutputs": 1,
@@ -16298,6 +16335,7 @@
       "Enterprise-manageable via Solstice Dashboard"
     ],
     "video": {
+      "usbStandard": "USB 3.0",
       "singleDisplay": "4K",
       "dualDisplay": "1080p",
       "maxResolution": "4K (single display) / 1080p (dual display)"
@@ -17290,6 +17328,7 @@
       "Optional NDI license"
     ],
     "video": {
+      "usbStandard": "USB 3.0",
       "maxResolution": "4K60 (UHD)"
     },
     "matrixOutputs": 1,
@@ -17612,6 +17651,7 @@
       "Dual 1G LAN ports for redundancy"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K60 4:4:4 (4096x2160)",
       "hdcp": "2.3",
       "networkSpeed": "1 Gbps (dual LAN)"
@@ -18204,6 +18244,7 @@
       "Requires ZyPerUHD decoder + management platform"
     ],
     "video": {
+      "hdmi": "2.0a",
       "maxResolution": "4K60 4:2:0"
     },
     "matrixInputs": 1,

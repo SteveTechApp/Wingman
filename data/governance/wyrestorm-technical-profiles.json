@@ -1,0 +1,625 @@
+{
+  "version": 1,
+  "updatedAt": "2026-07-11",
+  "policy": {
+    "purpose": "Source-controlled, reviewed WyreStorm technical facts shared by Product Pitch, Compare, Finder and proposal workflows.",
+    "precedence": [
+      "exact governed profile",
+      "official structured enrichment",
+      "canonical source catalogue",
+      "text inference",
+      "missing"
+    ],
+    "comparisonRule": "A product without a sufficiently complete verified or official structured profile is review-only and must not be presented as an automatic equivalent."
+  },
+  "profiles": [
+    {
+      "sku": "APO-DG2",
+      "status": "review-required",
+      "productClass": "WIRELESS_PRESENTATION",
+      "role": "wireless casting dongle",
+      "productType": "Apollo USB-C wireless casting dongle",
+      "transport": [
+        "USB-C host connection",
+        "Wireless presentation to a compatible WyreStorm receiver/base device"
+      ],
+      "inputCount": 1,
+      "outputCount": 0,
+      "ports": [
+        {
+          "count": 1,
+          "connector": "USB-C",
+          "direction": "bidirectional",
+          "category": "usb",
+          "detail": "Host connection for the wireless casting workflow"
+        }
+      ],
+      "video": [
+        "Wireless casting workflow; displayed output capability is determined by the compatible receiver/base device"
+      ],
+      "audio": [],
+      "usb": [
+        "USB-C host connection"
+      ],
+      "network": [
+        "Wireless link to a compatible WyreStorm receiver/base device"
+      ],
+      "control": [],
+      "power": [
+        "Powered through the USB-C host connection; confirm current datasheet detail before quotation"
+      ],
+      "physical": [
+        "Portable wireless casting dongle"
+      ],
+      "dependencies": [
+        "A compatible WyreStorm receiver/base device is mandatory",
+        "Compatible host examples include APO-VX20-UC-V2 and supported -W presentation switchers",
+        "Supported -W examples include SW-620L-TX-W and SW-640-TX-W"
+      ],
+      "compatibleFamilies": [
+        "Apollo",
+        "Synergy wireless presentation"
+      ],
+      "features": {
+        "wireless": true,
+        "wirelessCasting": true,
+        "usbC": true,
+        "requiresCompatibleHost": true
+      },
+      "specs": {
+        "usbHostPorts": 1,
+        "usbTotalPorts": 1,
+        "externalPsu": false
+      },
+      "checks": [
+        "Do not recommend APO-DG2 as a standalone complete wireless casting solution.",
+        "Confirm the selected receiver/base device is explicitly compatible with APO-DG2.",
+        "Confirm required operating-system, display-output and room-workflow behaviour before quotation."
+      ],
+      "warnings": [
+        "APO-DG2 is a workflow endpoint and requires a compatible receiver/base device."
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-dg2/",
+          "reviewedOn": "2026-06-28",
+          "reviewer": "Wingman source migration (review required)",
+          "note": "Official WyreStorm product identity and current lifecycle source; exact operating limits remain review-required."
+        }
+      ]
+    },
+    {
+      "sku": "NHD-120-RX",
+      "status": "verified",
+      "productClass": "AVOIP",
+      "role": "decoder",
+      "productType": "NetworkHD 100 display-side decoder",
+      "transport": [
+        "NetworkHD 100",
+        "1GbE",
+        "H.264/H.265",
+        "multicast IP"
+      ],
+      "maxResolution": "3840x2160p @ 30Hz",
+      "chroma": "4:2:0 8-bit",
+      "latency": "1080p: approximately 80-250ms; 4K: approximately 150-300ms",
+      "inputCount": 1,
+      "outputCount": 2,
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ-45",
+          "direction": "input",
+          "category": "network",
+          "detail": "10/100/1000Base-T; IEEE 802.3af PoE"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI Type A",
+          "direction": "output",
+          "category": "video",
+          "detail": "HDMI 1.4; HDCP 2.2; EDID; CEC"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin Phoenix",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Analogue audio output / de-embed"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin Phoenix",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232 API control from NetworkHD controller"
+        },
+        {
+          "count": 1,
+          "connector": "3.5mm TS",
+          "direction": "output",
+          "category": "control",
+          "detail": "IR TX"
+        },
+        {
+          "count": 1,
+          "connector": "3.5mm TS",
+          "direction": "input",
+          "category": "control",
+          "detail": "IR RX"
+        },
+        {
+          "count": 1,
+          "connector": "12V DC",
+          "direction": "input",
+          "category": "power",
+          "detail": "12V DC 1A"
+        }
+      ],
+      "video": [
+        "Maximum 3840x2160p @ 30Hz, 4:2:0 8-bit",
+        "HDMI 1.4 and HDCP 2.2",
+        "Built-in scaling for mixed 4K and 1080p displays",
+        "Video wall support up to 16x16, including rotation and mosaic layouts"
+      ],
+      "audio": [
+        "LPCM / MPEG4 AAC stereo at 48kHz",
+        "Analogue audio output with independent audio routing"
+      ],
+      "usb": [],
+      "network": [
+        "1 x RJ-45 network input",
+        "10/100/1000Base-T",
+        "IEEE 802.3af PoE",
+        "AES-128, SSH and HTTPS security"
+      ],
+      "control": [
+        "NHD-CTL-PRO-V2 system controller required for routing and API control",
+        "RS-232, IR and CEC control",
+        "Breakaway routing of video, audio, IR and RS-232"
+      ],
+      "power": [
+        "12V DC 1A",
+        "IEEE 802.3af PoE",
+        "3.6W maximum stated consumption using DC adapter"
+      ],
+      "physical": [
+        "Wall and rack mounting brackets included"
+      ],
+      "dependencies": [
+        "NHD-CTL-PRO-V2",
+        "Compatible NetworkHD 100 encoder such as NHD-120-TX or NHD-124-TX",
+        "Managed 1GbE network switch suitable for multicast AV"
+      ],
+      "compatibleFamilies": [
+        "NetworkHD 100"
+      ],
+      "features": {
+        "videoWall": true,
+        "scaling": true,
+        "seamlessSwitching": true,
+        "audioDeEmbed": true,
+        "control": true,
+        "poe": true,
+        "cec": true,
+        "rs232": true,
+        "ir": true
+      },
+      "specs": {
+        "hdmiOutputs": 1,
+        "hdmiVersion": "1.4",
+        "hdcpVersion": "2.2",
+        "audioOutputs": 1,
+        "networkPorts": 1,
+        "networkSpeed": "1GbE",
+        "controlPorts": 3,
+        "rs232": true,
+        "ir": true,
+        "cec": true,
+        "ethernetControl": true,
+        "audioDeEmbed": true,
+        "analogAudio": true,
+        "poe": true,
+        "externalPsu": true,
+        "powerSupply": "12V DC 1A or IEEE 802.3af PoE"
+      },
+      "checks": [
+        "Keep the system within NetworkHD 100; do not mix endpoint families.",
+        "Confirm multicast switch configuration, controller and encoder count.",
+        "Confirm whether 4K30 4:2:0 and the stated latency suit the application."
+      ],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-120-rx/",
+          "reviewedOn": "2026-07-11",
+          "reviewer": "Wingman technical data foundation",
+          "note": "Official product page technical specification section."
+        }
+      ]
+    },
+    {
+      "sku": "NHD-120-TX",
+      "status": "verified",
+      "productClass": "AVOIP",
+      "role": "encoder",
+      "productType": "NetworkHD 100 source-side encoder",
+      "transport": [
+        "NetworkHD 100",
+        "1GbE",
+        "H.264/H.265",
+        "multicast IP"
+      ],
+      "maxResolution": "3840x2160p @ 30Hz",
+      "chroma": "4:2:0 8-bit",
+      "latency": "1080p: approximately 80-250ms; 4K: approximately 150-300ms",
+      "inputCount": 1,
+      "outputCount": 2,
+      "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI Type A",
+          "direction": "input",
+          "category": "video",
+          "detail": "HDMI 1.4; HDCP 2.2; EDID; CEC"
+        },
+        {
+          "count": 1,
+          "connector": "RJ-45",
+          "direction": "output",
+          "category": "network",
+          "detail": "10/100/1000Base-T; IEEE 802.3af PoE"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin Phoenix",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Analogue audio de-embed from HDMI input"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin Phoenix",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232 API control from NetworkHD controller"
+        },
+        {
+          "count": 1,
+          "connector": "3.5mm TS",
+          "direction": "output",
+          "category": "control",
+          "detail": "IR TX"
+        },
+        {
+          "count": 1,
+          "connector": "3.5mm TS",
+          "direction": "input",
+          "category": "control",
+          "detail": "IR RX"
+        },
+        {
+          "count": 1,
+          "connector": "12V DC",
+          "direction": "input",
+          "category": "power",
+          "detail": "12V DC 1A"
+        }
+      ],
+      "video": [
+        "Maximum 3840x2160p @ 30Hz, 4:2:0 8-bit",
+        "H.264/H.265 encoding",
+        "HDMI 1.4 and HDCP 2.2"
+      ],
+      "audio": [
+        "LPCM / MPEG4 AAC stereo at 48kHz",
+        "Analogue audio de-embed output"
+      ],
+      "usb": [],
+      "network": [
+        "1 x RJ-45 network output",
+        "10/100/1000Base-T",
+        "IEEE 802.3af PoE",
+        "AES-128, SSH and HTTPS security"
+      ],
+      "control": [
+        "NHD-CTL-PRO-V2 required",
+        "RS-232, IR and CEC control"
+      ],
+      "power": [
+        "12V DC 1A",
+        "IEEE 802.3af PoE",
+        "3.6W maximum stated consumption using DC adapter"
+      ],
+      "physical": [
+        "Wall and rack mounting brackets included"
+      ],
+      "dependencies": [
+        "NHD-CTL-PRO-V2",
+        "Compatible NetworkHD 100 decoder such as NHD-120-RX or NHD-150-RX",
+        "Managed 1GbE network switch suitable for multicast AV"
+      ],
+      "compatibleFamilies": [
+        "NetworkHD 100"
+      ],
+      "features": {
+        "audioDeEmbed": true,
+        "control": true,
+        "poe": true,
+        "cec": true,
+        "rs232": true,
+        "ir": true
+      },
+      "specs": {
+        "hdmiInputs": 1,
+        "hdmiVersion": "1.4",
+        "hdcpVersion": "2.2",
+        "audioOutputs": 1,
+        "networkPorts": 1,
+        "networkSpeed": "1GbE",
+        "controlPorts": 3,
+        "rs232": true,
+        "ir": true,
+        "cec": true,
+        "ethernetControl": true,
+        "audioDeEmbed": true,
+        "analogAudio": true,
+        "poe": true,
+        "externalPsu": true,
+        "powerSupply": "12V DC 1A or IEEE 802.3af PoE"
+      },
+      "checks": [
+        "Keep the system within NetworkHD 100.",
+        "Confirm multicast switch configuration, controller and decoder count.",
+        "Confirm whether 4K30 4:2:0 and the stated latency suit the application."
+      ],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/",
+          "reviewedOn": "2026-07-11",
+          "reviewer": "Wingman technical data foundation",
+          "note": "Official product page technical specification section."
+        }
+      ]
+    },
+    {
+      "sku": "NHD-124-TX",
+      "status": "review-required",
+      "productClass": "AVOIP",
+      "role": "encoder",
+      "productType": "NetworkHD 100 four-channel encoder",
+      "transport": [
+        "NetworkHD 100",
+        "1GbE",
+        "low-bandwidth multicast IP"
+      ],
+      "maxResolution": "3840x2160p @ 30Hz",
+      "latency": "1080p: approximately 80-250ms; 4K: approximately 150-300ms",
+      "inputCount": 4,
+      "outputCount": 1,
+      "ports": [
+        {
+          "count": 4,
+          "connector": "HDMI Type A",
+          "direction": "input",
+          "category": "video",
+          "detail": "HDMI 1.4; HDCP 2.2; EDID"
+        },
+        {
+          "count": 1,
+          "connector": "RJ-45",
+          "direction": "output",
+          "category": "network",
+          "detail": "Official page contains both 10/100/1000Base-T and 10/100Base-T wording"
+        },
+        {
+          "count": 1,
+          "connector": "12V DC",
+          "direction": "input",
+          "category": "power",
+          "detail": "12V DC 3A"
+        }
+      ],
+      "video": [
+        "4 x HDMI inputs",
+        "Maximum 3840x2160p @ 30Hz",
+        "HDMI 1.4 and HDCP 2.2"
+      ],
+      "audio": [
+        "LPCM / MPEG4 AAC stereo at 48kHz"
+      ],
+      "usb": [],
+      "network": [
+        "1 x RJ-45 network output",
+        "NetworkHD 100 low-bandwidth multicast AV"
+      ],
+      "control": [
+        "NHD-CTL-PRO-V2 required",
+        "Live preview streams supported for NetworkHD control UI"
+      ],
+      "power": [
+        "12V DC 3A",
+        "Official product page also contains IEEE 802.3af PoE wording; confirm hardware revision"
+      ],
+      "physical": [],
+      "dependencies": [
+        "NHD-CTL-PRO-V2",
+        "Compatible NetworkHD 100 decoder",
+        "Managed 1GbE network switch suitable for multicast AV"
+      ],
+      "compatibleFamilies": [
+        "NetworkHD 100",
+        "NHD-150-RX"
+      ],
+      "features": {
+        "control": true,
+        "poe": true
+      },
+      "specs": {
+        "hdmiInputs": 4,
+        "hdmiVersion": "1.4",
+        "hdcpVersion": "2.2",
+        "networkPorts": 1,
+        "networkSpeed": "1GbE",
+        "poe": true,
+        "externalPsu": true,
+        "powerSupply": "12V DC 3A; PoE wording requires revision confirmation"
+      },
+      "checks": [
+        "Confirm the exact hardware revision and whether PoE applies.",
+        "Keep the system within NetworkHD 100.",
+        "Confirm the required number of simultaneous encoded inputs."
+      ],
+      "warnings": [
+        "Official product-page network-speed and PoE wording is internally inconsistent; confirm the shipping hardware revision before quotation."
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-124-tx/",
+          "reviewedOn": "2026-07-11",
+          "reviewer": "Wingman technical data foundation",
+          "note": "Official product page technical specification section; contradictory revision wording retained as a warning."
+        }
+      ]
+    },
+    {
+      "sku": "NHD-150-RX",
+      "status": "verified",
+      "productClass": "AVOIP",
+      "role": "multiview decoder",
+      "productType": "NetworkHD 100 multiview decoder / processor",
+      "transport": [
+        "NetworkHD 100",
+        "1GbE",
+        "H.264/H.265",
+        "multicast IP"
+      ],
+      "maxResolution": "3840x2160p @ 60Hz output",
+      "chroma": "4:2:0 stated in product title",
+      "latency": "1080p: approximately 80-250ms; 4K: approximately 150-300ms",
+      "inputCount": 1,
+      "outputCount": 2,
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ-45",
+          "direction": "input",
+          "category": "network",
+          "detail": "1GbE; IEEE 802.3af PoE"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "HDMI 1.4; HDCP 2.2; EDID; CEC"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin terminal block",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Analogue audio de-embed"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin Phoenix",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232 API control"
+        },
+        {
+          "count": 1,
+          "connector": "12V DC",
+          "direction": "input",
+          "category": "power",
+          "detail": "12V DC 1A"
+        }
+      ],
+      "video": [
+        "4K60 multiview output",
+        "Up to 9 windows for incoming video at or below 1080p",
+        "Up to 8 windows for incoming video above 1080p",
+        "HDMI 1.4 and HDCP 2.2"
+      ],
+      "audio": [
+        "LPCM / MPEG4 AAC stereo at 48kHz",
+        "Analogue audio de-embed output"
+      ],
+      "usb": [],
+      "network": [
+        "1 x 1GbE RJ-45 input",
+        "IEEE 802.3af PoE",
+        "AES-128, SSH and HTTPS security"
+      ],
+      "control": [
+        "NHD-CTL-PRO-V2 required",
+        "RS-232 and CEC display control"
+      ],
+      "power": [
+        "12V DC 1A",
+        "IEEE 802.3af PoE",
+        "3.6W maximum stated consumption using DC adapter"
+      ],
+      "physical": [
+        "Wall and rack mounting brackets included",
+        "Compatible with NHD-000-RACK4"
+      ],
+      "dependencies": [
+        "NHD-CTL-PRO-V2",
+        "Compatible NetworkHD 120 Series encoder",
+        "Managed 1GbE network switch suitable for multicast AV"
+      ],
+      "compatibleFamilies": [
+        "NetworkHD 100",
+        "NHD-120-TX",
+        "NHD-124-TX"
+      ],
+      "features": {
+        "multiview": true,
+        "audioDeEmbed": true,
+        "control": true,
+        "poe": true,
+        "cec": true,
+        "rs232": true
+      },
+      "specs": {
+        "hdmiOutputs": 1,
+        "hdmiVersion": "1.4",
+        "hdcpVersion": "2.2",
+        "audioOutputs": 1,
+        "networkPorts": 1,
+        "networkSpeed": "1GbE",
+        "controlPorts": 1,
+        "rs232": true,
+        "cec": true,
+        "ethernetControl": true,
+        "audioDeEmbed": true,
+        "analogAudio": true,
+        "poe": true,
+        "externalPsu": true,
+        "powerSupply": "12V DC 1A or IEEE 802.3af PoE"
+      },
+      "checks": [
+        "Confirm source count, source resolutions and required multiview layout.",
+        "Keep the system within NetworkHD 100.",
+        "Confirm multicast switch configuration and controller."
+      ],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-150-rx/",
+          "reviewedOn": "2026-07-11",
+          "reviewer": "Wingman technical data foundation",
+          "note": "Official product page technical specification section."
+        }
+      ]
+    }
+  ]
+}

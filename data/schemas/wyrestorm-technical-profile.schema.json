@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wingman.local/schemas/wyrestorm-technical-profile.schema.json",
+  "title": "WyreStorm governed technical profiles",
+  "type": "object",
+  "required": [
+    "version",
+    "profiles"
+  ],
+  "properties": {
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "updatedAt": {
+      "type": "string"
+    },
+    "policy": {
+      "type": "object"
+    },
+    "profiles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "sku",
+          "status",
+          "productClass",
+          "role",
+          "productType",
+          "transport",
+          "ports",
+          "dependencies",
+          "checks",
+          "warnings",
+          "evidence"
+        ],
+        "properties": {
+          "sku": {
+            "type": "string",
+            "minLength": 2
+          },
+          "status": {
+            "enum": [
+              "verified",
+              "verified-with-warning",
+              "review-required"
+            ]
+          },
+          "productClass": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "productType": {
+            "type": "string"
+          },
+          "transport": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "maxResolution": {
+            "type": "string"
+          },
+          "chroma": {
+            "type": "string"
+          },
+          "latency": {
+            "type": "string"
+          },
+          "inputCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "outputCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "ports": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "count",
+                "connector",
+                "direction",
+                "category"
+              ],
+              "properties": {
+                "count": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "connector": {
+                  "type": "string"
+                },
+                "direction": {
+                  "enum": [
+                    "input",
+                    "output",
+                    "bidirectional",
+                    "unspecified"
+                  ]
+                },
+                "category": {
+                  "enum": [
+                    "video",
+                    "audio",
+                    "usb",
+                    "network",
+                    "control",
+                    "power",
+                    "other"
+                  ]
+                },
+                "detail": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "video": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "audio": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "usb": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "network": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "control": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "power": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "physical": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "compatibleFamilies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "features": {
+            "type": "object"
+          },
+          "specs": {
+            "type": "object"
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "sourceType",
+                "sourceUrl",
+                "reviewedOn",
+                "reviewer"
+              ],
+              "properties": {
+                "sourceType": {
+                  "type": "string"
+                },
+                "sourceUrl": {
+                  "type": "string"
+                },
+                "reviewedOn": {
+                  "type": "string"
+                },
+                "reviewer": {
+                  "type": "string"
+                },
+                "note": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

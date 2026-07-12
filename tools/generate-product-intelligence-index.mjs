@@ -548,6 +548,7 @@ function normalizeProduct(item, index, sourceFile) {
     subClassifications,
     ...routedIoFields,
     technicalProfile,
+    sourceCatalog: item?.sourceCatalog,
     salesLanguage,
     source: path.relative(projectRoot, sourceFile).replace(/\\/g, "/"),
   };

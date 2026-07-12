@@ -13,6 +13,8 @@ import {
   type CatalogFilterState,
   type CatalogProduct,
 } from "../../features/catalog/catalogIntelligence";
+import { selectWingmanProducts } from "../lib/productSelectorEngine";
+import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { resolveProductLifecycle } from "../lib/wyrestormProductLifecycle";
 
 // The catalog engine infers lifecycle from text/manual overrides only. Overlay the
@@ -33,7 +35,21 @@ export function withBusinessLifecycle(product: CatalogProduct): CatalogProduct {
 // strictMatch rejected it, so without this an exact search for a suppressed SKU
 // would still render while "Hide end-of-life" is on. Exported for testing.
 export function selectCatalogResults(catalog: CatalogProduct[], state: CatalogFilterState): CatalogProduct[] {
+  const allowedSkus = new Set(
+    selectWingmanProducts(catalog, {
+      mode: "catalogue",
+      includeAccessories: state.includeAccessories,
+      includeDependencies: state.includeAccessories,
+      includeCables: state.includeAccessories,
+      includeBrowseOnly: !state.excludeEolSoon,
+      includeDiscontinued: !state.excludeEolSoon,
+    })
+      .filter((decision) => decision.eligible)
+      .map((decision) => normaliseSkuKey(decision.sku)),
+  );
+
   return filterCatalogProducts(catalog, state).filter((product) => {
+    if (!allowedSkus.has(normaliseSkuKey(product.sku))) return false;
     if (state.excludeEolSoon && product.lifecycle.excludeFromNewRecommendations) return false;
     if (!state.includeAccessories && (product.deploymentRole === "accessory" || product.deploymentRole === "companion")) {
       return false;

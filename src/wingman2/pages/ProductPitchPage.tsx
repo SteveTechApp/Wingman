@@ -9,7 +9,6 @@ import {
   cleanUsefulList,
   extractRawProducts,
   normaliseProductRecord,
-  productText,
   type ProductNarrative,
   type ProductSpec
 } from "../lib/productStoryEngine";
@@ -26,6 +25,9 @@ import { validateUsbPath, usbValidationIsRequired } from "../logic/usbPathValida
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { buildProductCheatSheetHtml } from "../lib/productCheatSheet";
 import { buildProductTopologyProfile } from "../lib/productTopology";
+import { hydrateProductSpecWithTechnicalData } from "../lib/governedProductTechnicalData";
+import { selectWingmanProducts, type ProductSelectorDecision } from "../lib/productSelectorEngine";
+import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { resolveProductLifecycle } from "../lib/wyrestormProductLifecycle";
 import { getProductMediaBySku, loadProductMediaIndex } from "../data/productMedia";
 
@@ -132,10 +134,6 @@ const fallbackProducts: ProductSpec[] = [
   }
 ];
 
-function includesProduct(product: ProductSpec, term: string) {
-  return productText(product).includes(term);
-}
-
 const PRODUCT_PITCH_FILTERS = [
   "All",
   "1-9",
@@ -169,152 +167,12 @@ const PRODUCT_PITCH_FILTERS = [
 
 type ProductPitchQuickFilter = (typeof PRODUCT_PITCH_FILTERS)[number];
 
-const PRODUCT_PITCH_BLOCKED_SKUS = new Set([
-  "SW-0X01-8K",
-  "SW-120-TX3-US",
-  "SW-130-TX-US",
-  "SW-540-TX-W",
-  "NHD-100",
-  "NHD-250-RX",
-  "NHD-300-TX",
-  "APO-100-UC",
-  "APO-200-UC",
-  "APO-DG2-PRO",
-  "APO-VX20-UC",
-  "HALO-VX10-V1",
-  "MX-1010-H2XC",
-  "MX-1616-H2XC",
-  "NHD-000-RACK3",
-  "NHD-000-CTL",
-  "NHD-110-RX",
-  "NHD-110-TX",
-  "NHD-110-RX-S",
-  "NHD-500-E",
-  "NHD-500-T",
-  "NHD-610",
-  "NHD-600-TXRX",
-  "NHD-CTL-PRO",
-  "NHD-CTL-PRO-T",
-  "NHD-TOUCH",
-  "NHD-TOUCHPLUS",
-  "OFFICE-KIT",
-  "SYN-TOUCH10"
-]);
-
-function isH2hcTxCardSku(sku: string) {
-  const value = String(sku || "").trim().toUpperCase();
-  return value.includes("H2HC") && /(^|-)TX($|-)/.test(value);
-}
-
-function isBlockedProductPitchSku(sku: string) {
-  const value = String(sku || "").trim().toUpperCase();
-
-  if (!value) return true;
-  if (PRODUCT_PITCH_BLOCKED_SKUS.has(value)) return true;
-  if (value.endsWith("-US")) return true;
-  if (value === "NHD-400" || value.startsWith("NHD-400-")) return true;
-  if (isH2hcTxCardSku(value)) return true;
-
-  return false;
-}
-
-function isVisibleProductPitchProduct(product: ProductSpec) {
-  return !isBlockedProductPitchSku(product.sku);
-}
-
-function getProductPitchFilterLead(product: ProductSpec) {
-  const sku = product.sku?.trim().toUpperCase() || "";
-  const name = product.name?.trim().toUpperCase() || "";
-  const value = sku || name;
-
-  return value.charAt(0);
-}
-
-function productMatchesProductPitchFilter(product: ProductSpec, filter: ProductPitchQuickFilter) {
-  if (filter === "All") return true;
-
-  const lead = getProductPitchFilterLead(product);
-
-  if (filter === "1-9") {
-    return /^[1-9]$/.test(lead);
-  }
-
-  return lead === filter;
-}
-
 function normaliseSelectorText(value: string | undefined) {
   return String(value || "").trim().replace(/\s+/g, " ");
 }
 
 function normaliseSelectorSku(value: string | undefined) {
   return normaliseSelectorText(value).toUpperCase();
-}
-
-function selectorSearchText(product: ProductSpec) {
-  return [
-    product.sku,
-    product.name,
-    product.family,
-    product.category,
-    product.productType,
-    product.description,
-    product.purpose,
-    product.summary,
-    ...product.keyFeatures,
-    ...product.applications,
-    ...product.ioSummary,
-    ...product.video,
-    ...product.usb,
-    ...product.network,
-    ...product.control,
-  ].join(" ").toLowerCase();
-}
-
-function productHasAnyTerm(product: ProductSpec, terms: RegExp[]) {
-  const text = selectorSearchText(product);
-  return terms.some((term) => term.test(text));
-}
-
-function isCableProduct(product: ProductSpec) {
-  const lifecycle = resolveProductLifecycle(product.sku);
-  const sku = normaliseSelectorSku(product.sku);
-
-  if (lifecycle.status === "cable") return true;
-  if (/^(CAB|CBL)-/.test(sku) || sku.includes("HAOC")) return true;
-
-  return productHasAnyTerm(product, [
-    /\b(active\s+optical|aoc|hdmi|usb-c?|cat\s*[5-8]|category|fiber|fibre|patch)\s+cable\b/i,
-    /\bcable\s*(assembly|lead|loom|tail|box)\b/i,
-  ]);
-}
-
-function isAccessoryProduct(product: ProductSpec) {
-  if (isCableProduct(product)) return false;
-
-  const text = selectorSearchText(product);
-  const sku = normaliseSelectorSku(product.sku);
-
-  if (/^(PSU|PWR|RACK|RMK|BRK|CAB)-/.test(sku)) return true;
-
-  return /\b(accessory|bracket|mount|dongle|remote|microphone|companion\s+mic|control\s+hub|touch\s?panel|rack\s?mount|power\s+supply|psu)\b/i.test(text);
-}
-
-function isLeadSolutionProduct(product: ProductSpec) {
-  return productHasAnyTerm(product, [
-    /\b(av\s?over\s?ip|avoip|networkhd|ndi|sdvoe)\b/i,
-    /\b(matrix|switcher|switching|presentation|uc|byod|byom|usb|kvm|hdbaset|extender|extension|transmitter|receiver|video\s?wall|multiview|control|processor)\b/i,
-    /\b(camera|ptz|amplifier|dante|audio|encoder|decoder)\b/i,
-  ]);
-}
-
-function productLifecycleLabel(product: ProductSpec) {
-  const lifecycle = resolveProductLifecycle(product.sku);
-  if (lifecycle.recommendable) return "Active";
-  if (lifecycle.supersededBy) return `Discontinued - use ${lifecycle.supersededBy}`;
-  if (lifecycle.status === "discontinued") return "Discontinued";
-  if (lifecycle.status === "cable") return "Cable / accessory";
-  if (lifecycle.status === "unlisted") return "Needs verification";
-  return lifecycle.status.replace(/-/g, " ");
 }
 
 function productCategoryFamily(product: ProductSpec) {
@@ -333,47 +191,6 @@ function displayProductResultName(product: ProductSpec) {
   return normaliseSelectorText(product.name)
     .replace(/^WyreStorm\s+/i, "")
     .replace(new RegExp(`^${sku}\\s*[-:/]?\\s*`, "i"), "");
-}
-
-function productSelectorScore(product: ProductSpec, term: string, activeQuickFilter: ProductPitchQuickFilter) {
-  const lifecycle = resolveProductLifecycle(product.sku);
-  const sku = normaliseSelectorSku(product.sku);
-  const compactSku = sku.replace(/[^A-Z0-9]/g, "");
-  const compactTerm = term.toUpperCase().replace(/[^A-Z0-9]/g, "");
-  const haystack = selectorSearchText(product);
-  const isCable = isCableProduct(product);
-  const isAccessory = isAccessoryProduct(product);
-  let score = 0;
-
-  if (lifecycle.status === "active") score += 70;
-  if (lifecycle.recommendable) score += 55;
-  if (isLeadSolutionProduct(product)) score += 50;
-  if (activeQuickFilter !== "All") score += 8;
-  if (isAccessory) score -= 45;
-  if (isCable) score -= 70;
-
-  if (term) {
-    if (sku.toLowerCase() === term) score += 240;
-    if (compactTerm && compactSku === compactTerm) score += 220;
-    if (sku.toLowerCase().includes(term)) score += 120;
-    if (compactTerm && compactSku.includes(compactTerm)) score += 110;
-    if (normaliseSelectorText(product.name).toLowerCase().includes(term)) score += 80;
-    if (normaliseSelectorText(product.family).toLowerCase().includes(term)) score += 50;
-    if (normaliseSelectorText(product.category).toLowerCase().includes(term)) score += 35;
-
-    term.split(/\s+/).filter(Boolean).forEach((token) => {
-      if (haystack.includes(token)) score += 12;
-    });
-  }
-
-  return score;
-}
-
-function isCurrentSuggestionProduct(product: ProductSpec) {
-  return isVisibleProductPitchProduct(product)
-    && resolveProductLifecycle(product.sku).recommendable
-    && !isCableProduct(product)
-    && !isAccessoryProduct(product);
 }
 
 function usefulSearchLength(value: string) {
@@ -453,17 +270,49 @@ function SelectionPage({
   const [visibleLimit, setVisibleLimit] = useState(PRODUCT_PITCH_RESULT_LIMIT);
   const currentProject = useMemo(() => getCurrentWorkflowProject(readProjectStore()), []);
   const recentSku = useMemo(() => readProductWorkspaceHandoff()?.sku ?? "", []);
+  const searchIsUseful = usefulSearchLength(term) >= 2;
+  const baseDecisions = useMemo(
+    () =>
+      selectWingmanProducts(products, {
+        mode: "product-pitch",
+        includeAccessories,
+        includeCables,
+        includeDependencies: includeAccessories,
+        includeBrowseOnly: true,
+      }),
+    [products, includeAccessories, includeCables],
+  );
+  const defaultLeadDecisions = useMemo(
+    () =>
+      selectWingmanProducts(products, {
+        mode: "product-pitch",
+        includeBrowseOnly: false,
+      }),
+    [products],
+  );
+  const decisionBySku = useMemo(() => {
+    const map = new Map<string, ProductSelectorDecision<ProductSpec>>();
+    baseDecisions.forEach((decision) => {
+      map.set(normaliseSkuKey(decision.sku), decision);
+      map.set(normaliseSkuKey(decision.product.sku), decision);
+    });
+    return map;
+  }, [baseDecisions]);
   const suggestedProducts = useMemo(() => {
     const selections = currentProject?.productSelections ?? currentProject?.proposal?.products ?? [];
     const skus = selections.map((selection) => normaliseSelectorSku(selection.sku)).filter(Boolean);
+    const leadBySku = new Map(defaultLeadDecisions.map((decision) => [normaliseSkuKey(decision.sku), decision]));
+
     return skus
-      .map((sku) => products.find((product) => normaliseSelectorSku(product.sku) === sku))
+      .map((sku) => {
+        const decision = leadBySku.get(normaliseSkuKey(sku));
+        return decision?.eligible && decision.status === "compatible" ? decision.product : null;
+      })
       .filter((product): product is ProductSpec => {
-        if (!product) return false;
-        return isCurrentSuggestionProduct(product);
+        return Boolean(product);
       })
       .slice(0, 3);
-  }, [currentProject, products]);
+  }, [currentProject, defaultLeadDecisions]);
   const recentProducts = useMemo(() => {
     const sku = normaliseSelectorSku(recentSku);
     if (!sku) return [];
@@ -472,9 +321,9 @@ function SelectionPage({
   }, [products, recentSku]);
   const browseFamilies = useMemo(() => {
     const counts = new Map<string, number>();
-    products.forEach((product) => {
-      if (!isVisibleProductPitchProduct(product)) return;
-      if (isCableProduct(product) || isAccessoryProduct(product)) return;
+    defaultLeadDecisions.forEach((decision) => {
+      if (!decision.eligible || decision.status !== "compatible") return;
+      const product = decision.product;
       const family = normaliseSelectorText(product.family);
       const label = family && !/^wyrestorm$/i.test(family) ? family : normaliseSelectorText(product.category || product.productType);
       if (!label) return;
@@ -484,7 +333,7 @@ function SelectionPage({
     return [...counts.entries()]
       .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
       .slice(0, 8);
-  }, [products]);
+  }, [defaultLeadDecisions]);
 
   const quickFilterCounts = useMemo(() => {
     const counts = new Map<ProductPitchQuickFilter, number>();
@@ -493,43 +342,36 @@ function SelectionPage({
       counts.set(filter, 0);
     });
 
-    products.forEach((product) => {
-      if (!isVisibleProductPitchProduct(product)) return;
-      PRODUCT_PITCH_FILTERS.forEach((filter) => {
-        if (productMatchesProductPitchFilter(product, filter)) {
-          counts.set(filter, (counts.get(filter) || 0) + 1);
-        }
-      });
+    PRODUCT_PITCH_FILTERS.forEach((filter) => {
+      const count = selectWingmanProducts(products, {
+        mode: "product-pitch",
+        alphaFilter: filter,
+        includeAccessories,
+        includeCables,
+        includeDependencies: includeAccessories,
+        includeBrowseOnly: true,
+      }).filter((decision) => decision.eligible).length;
+      counts.set(filter, count);
     });
 
     return counts;
-  }, [products]);
+  }, [products, includeAccessories, includeCables]);
 
   const matchingProducts = useMemo(() => {
-    const candidates = products.filter((product) => {
-      if (!isVisibleProductPitchProduct(product)) return false;
-      if (!includeCables && isCableProduct(product)) return false;
-      if (!includeAccessories && isAccessoryProduct(product)) return false;
-      if (!productMatchesProductPitchFilter(product, activeQuickFilter)) return false;
-      if (selectedFamily) {
-        const family = normaliseSelectorText(product.family);
-        const category = normaliseSelectorText(product.category || product.productType);
-        if (family !== selectedFamily && category !== selectedFamily) return false;
-      }
-      if (!term) return true;
-      return includesProduct(product, term);
-    });
+    return selectWingmanProducts(products, {
+      mode: "product-pitch",
+      query: searchIsUseful ? term : "",
+      family: selectedFamily,
+      alphaFilter: activeQuickFilter,
+      includeAccessories,
+      includeCables,
+      includeDependencies: includeAccessories,
+      includeBrowseOnly: true,
+    })
+      .filter((decision) => decision.eligible)
+      .map((decision) => decision.product);
+  }, [products, includeAccessories, includeCables, term, searchIsUseful, activeQuickFilter, selectedFamily]);
 
-    return candidates
-      .map((product) => ({
-        product,
-        score: productSelectorScore(product, term, activeQuickFilter),
-      }))
-      .sort((a, b) => b.score - a.score || a.product.sku.localeCompare(b.product.sku))
-      .map((entry) => entry.product);
-  }, [products, includeAccessories, includeCables, term, activeQuickFilter, selectedFamily]);
-
-  const searchIsUseful = usefulSearchLength(term) >= 2;
   const shouldShowResults = searchIsUseful || Boolean(selectedFamily) || activeQuickFilter !== "All" || browseAll;
   const visibleResults = shouldShowResults ? matchingProducts.slice(0, visibleLimit) : [];
   const hiddenCount = Math.max(0, matchingProducts.length - visibleResults.length);
@@ -572,7 +414,9 @@ function SelectionPage({
       <span className="wm-product-pitch-result-sku" data-label="SKU">{product.sku}{" "}</span>
       <span className="wm-product-pitch-result-name" data-label="Product name">{displayProductResultName(product)}{" "}</span>
       <span className="wm-product-pitch-result-family" data-label="Category">{productCategoryFamily(product)}{" "}</span>
-      <span className="wm-product-pitch-result-status" data-label="Status">{productLifecycleLabel(product)}</span>
+      <span className="wm-product-pitch-result-status" data-label="Status">
+        {decisionBySku.get(normaliseSkuKey(product.sku))?.lifecycleLabel ?? "Needs verification"}
+      </span>
     </button>
   );
 
@@ -923,7 +767,17 @@ function SalesTab({
 }
 
 function SpecTable({ product }: { product: ProductSpec }) {
+  const technical = product.technicalData;
   const rows = [
+    [
+      "Data status",
+      technical
+        ? [`${technical.statusLabel} - ${technical.completeness}% complete`]
+        : [],
+    ],
+    ["Product class", technical?.productClass ? [technical.productClass] : []],
+    ["Endpoint / system role", technical?.role ? [technical.role] : []],
+    ["Transport", technical?.transport ?? []],
     ["Product type", [product.productType]],
     ["I/O summary", product.ioSummary],
     ["Video / signal", product.video],
@@ -933,20 +787,28 @@ function SpecTable({ product }: { product: ProductSpec }) {
     ["Control / integration", product.control],
     ["Power", product.power],
     ["Physical / install", product.physical],
-    ["Checks before recommending", product.checks]
+    ["Required dependencies", technical?.dependencies ?? []],
+    ["Compatible families", technical?.compatibleFamilies ?? []],
+    ["Evidence", technical?.evidence ?? []],
+    [
+      "Missing / needs review",
+      [...(technical?.missingFields ?? []), ...(technical?.warnings ?? [])],
+    ],
+    ["Checks before recommending", product.checks],
   ] as const;
 
   return (
     <div className="overflow-hidden rounded-3xl border wm-ui-card wm-ui-title">
       {rows.map(([label, rawItems]) => {
-        const items = cleanUsefulList([...rawItems], 4);
+        const items = cleanUsefulList([...rawItems], 8);
+        const displayItems = items.length ? items : ["Not confirmed"];
 
         return (
           <div key={label} className="grid gap-3 border-b p-4 last:border-b-0 lg:grid-cols-[220px_minmax(0,1fr)] wm-ui-card wm-ui-title">
             <strong className="text-sm font-extrabold wm-ui-copy">{label}</strong>
             <div className="flex flex-wrap gap-2">
-              {items.map((item) => (
-                <span key={item} className="rounded-full border px-3 py-1.5 text-sm wm-ui-card wm-ui-copy">
+              {displayItems.map((item) => (
+                <span key={item} className="rounded-lg border px-3 py-1.5 text-sm wm-ui-card wm-ui-copy">
                   {item}
                 </span>
               ))}
@@ -972,6 +834,17 @@ function SpecTab({ product }: { product: ProductSpec }) {
           Use this tab to confirm details. It is separated from the sales view so the salesperson is not forced to interpret technical data during a live conversation.
         </p>
       </section>
+
+      {product.technicalData && !product.technicalData.compareReady ? (
+        <section className="rounded-3xl border p-5 wm-ui-section wm-ui-card">
+          <h3 className={PRODUCT_PITCH_CARD_TITLE_CLASS}>Technical data review required</h3>
+          <p className="mt-2 text-sm leading-6 wm-ui-copy">
+            This SKU does not yet have enough verified structured data for automatic
+            competitor-equivalence use. Product Pitch may show available official facts,
+            but Compare must remain review-only until the missing fields are resolved.
+          </p>
+        </section>
+      ) : null}
 
       {usbResult ? (
         <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
@@ -1398,7 +1271,12 @@ export function ProductPitchPage() {
         if (cancelled) return;
 
         const indexed = extractRawProducts(data)
-          .map((entry, index) => normaliseProductRecord(entry, index))
+          .map((entry, index) => {
+            const normalised = normaliseProductRecord(entry, index);
+            return normalised
+              ? hydrateProductSpecWithTechnicalData(normalised, entry)
+              : null;
+          })
           .filter((product): product is ProductSpec => Boolean(product));
 
         if (indexed.length) {

@@ -177,6 +177,7 @@ function productClassFromResolvedDomain(domain?: string): string | null {
       return "PTZ camera";
     case "WIRELESS_CASTING":
       return "Wireless casting";
+    case "UC":
     case "UC_SOUNDBAR":
       return "USB conferencing";
     case "CONTROL":
@@ -225,7 +226,7 @@ function domainFromProductClass(productClass: string): string | undefined {
     case "Control accessory":
       return "CONTROL";
     case "USB conferencing":
-      return "WIRELESS_PRESENTATION";
+      return "UC";
     case "HDMI splitter":
       return "DISTRIBUTION";
     default:
