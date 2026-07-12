@@ -37,7 +37,7 @@ export function TemplatesPage() {
     navigate(routeCatalogByKey.discovery.path);
   }
 
-  function useTemplateForProject(template: RoomTemplate | CustomRoomTemplate) {
+  function applyTemplateToDiscovery(template: RoomTemplate | CustomRoomTemplate) {
     writeDiscoveryHandoff(buildDiscoveryHandoffFromTemplate(template));
     navigate(routeCatalogByKey.discovery.path);
   }
@@ -143,7 +143,7 @@ export function TemplatesPage() {
                 >
                   Review template
                 </Link>
-                <button type="button" className="wm-button wm-button-secondary" onClick={() => useTemplateForProject(template)}>
+                <button type="button" className="wm-button wm-button-secondary" onClick={() => applyTemplateToDiscovery(template)}>
                   Use template
                 </button>
 
