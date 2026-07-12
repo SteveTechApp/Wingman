@@ -60,11 +60,11 @@ describe("template workflow wiring", () => {
     const savedTemplate = saveRoomTemplateCopy(roomTemplates[0]);
     renderTemplateRoutes();
 
-    expect(screen.getByText("1 saved custom template included.")).toBeInTheDocument();
+    expect(screen.getByText(`${roomTemplates.length + 1} total, 1 custom.`)).toBeInTheDocument();
 
     const card = screen.getByRole("heading", { name: savedTemplate.name }).closest("article");
     expect(card).not.toBeNull();
-    expect(within(card!).getByText("Saved template")).toBeInTheDocument();
+    expect(within(card!).getByText("Custom")).toBeInTheDocument();
 
     fireEvent.click(within(card!).getByRole("link", { name: "Review template" }));
     expect(screen.getByRole("heading", { name: savedTemplate.name, level: 1 })).toBeInTheDocument();

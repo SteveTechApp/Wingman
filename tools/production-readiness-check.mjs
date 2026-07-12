@@ -213,8 +213,10 @@ for (const marker of [
   }
 }
 
-if (templatesPageSource.includes("routeCatalogByKey.discovery.path")) {
-  errors.push("Templates page still routes through Discovery.");
+// Templates intentionally reuse the Discovery workflow for "Use template" and
+// "New Custom Template" instead of a separate custom-template questionnaire.
+if (!templatesPageSource.includes("routeCatalogByKey.discovery.path")) {
+  errors.push("Templates page no longer routes through Discovery for the template-to-Discovery handoff.");
 }
 
 for (const marker of ["Corporate", "Education", "Retail", "Hospitality", "Healthcare", "Government", "Venue", "Transport"]) {
