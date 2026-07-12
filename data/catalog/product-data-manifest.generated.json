@@ -27,9 +27,9 @@
     "data-sources/competitors/zeevee.csv"
   ],
   "hashes": {
-    "data-sources/wyrestorm/products.csv": "d43171ccdddb5dd784cbe3800e8bf0b838a8acf8db7f326c678219362698c9ec",
-    "data-sources/wyrestorm/lifecycle.csv": "4f1cde7eb6553d7f0867781fdd2905a886b36016b34e90af024e5a6f7762d667",
-    "data-sources/wyrestorm/enrichment.json": "65df72271f80b30cd7a5e4baa594022955335483e500eea24c5ffc606dc4ff0e",
+    "data-sources/wyrestorm/products.csv": "5441ba05746092f4315f7d01382720bee0813ccae371390cb27fcca206901f01",
+    "data-sources/wyrestorm/lifecycle.csv": "38280e8b3a58db83e06bcf2b6ef9eb44bc20a0cca7cbc013101426e782247ed7",
+    "data-sources/wyrestorm/enrichment.json": "c05c21c39baf459593b2afae5f958b24c577425abc8fca56769bc04ee0180069",
     "data-sources/competitors/airtame.csv": "288d7c263d6293614a8e35dbc145dae057dfc38916cde8322c45cb2c82de7648",
     "data-sources/competitors/amx.csv": "c2c0d6511de303b346e4cde9ed313bf7f127ef3a917a68d292d5ee16b2354492",
     "data-sources/competitors/atlona.csv": "5eb0862eea195e649fbe7397cc40b019c4b3e29ee9b22483475e4fa6f7d11808",
@@ -52,7 +52,7 @@
   },
   "counts": {
     "wyrestorm": 310,
-    "wyrestormBlocked": 120,
+    "wyrestormBlocked": 138,
     "competitor": 241,
     "competitorApproved": 15,
     "competitorManufacturers": 19
