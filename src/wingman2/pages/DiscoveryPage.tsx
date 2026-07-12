@@ -12,6 +12,13 @@ import {
 } from "../lib/situationalConstraints";
 
 import TemplateDiscoverySeedPanel from "../components/TemplateDiscoverySeedPanel";
+import { createBlankCustomRoomTemplate, saveCustomRoomTemplate } from "../lib/customRoomTemplates";
+import {
+  clearDiscoveryHandoff,
+  readDiscoveryHandoff,
+  type DiscoveryHandoffMode,
+} from "../lib/discoveryTemplateHandoff";
+import { TEMPLATE_MARKETS } from "../lib/templateMarkets";
 
 function _hasActiveTemplateSolutionSeed(): boolean {
   if (typeof window === "undefined") {
@@ -1091,6 +1098,13 @@ export function DiscoveryPage() {
   const [micSupported, setMicSupported] = useState(false);
   const [micError, setMicError] = useState("");
   const [savedMessage, setSavedMessage] = useState("");
+  const [discoveryMode, setDiscoveryMode] = useState<DiscoveryHandoffMode>("standard");
+  const [templateEditId, setTemplateEditId] = useState<string | undefined>(undefined);
+  const [templateDraftName, setTemplateDraftName] = useState("");
+  const [templateDraftMarket, setTemplateDraftMarket] = useState<string>(TEMPLATE_MARKETS[0]);
+  const [sourceTemplateId, setSourceTemplateId] = useState<string | undefined>(undefined);
+  const [sourceTemplateName, setSourceTemplateName] = useState<string | undefined>(undefined);
+  const [templateSavedMessage, setTemplateSavedMessage] = useState("");
   const navigate = useNavigate();
 
   const recogniserRef = useRef<DiscoverySpeechRecognitionLike | null>(null);
@@ -1170,6 +1184,34 @@ export function DiscoveryPage() {
   useEffect(() => {
     activeStepIdRef.current = currentStep.id;
   }, [currentStep.id]);
+
+  useEffect(() => {
+    // Template creation/editing and "Use Template" handoff: pre-populate this
+    // Discovery session from a template instead of starting blank, and switch
+    // into the matching Discovery mode. Consumed once, then cleared.
+    const handoff = readDiscoveryHandoff();
+
+    if (!handoff) {
+      return;
+    }
+
+    if (handoff.answers && Object.keys(handoff.answers).length > 0) {
+      setAnswers(handoff.answers as DiscoveryAnswers);
+    }
+
+    if (handoff.notes && Object.keys(handoff.notes).length > 0) {
+      setNotes(handoff.notes as DiscoveryNotes);
+    }
+
+    setDiscoveryMode(handoff.mode);
+    setTemplateEditId(handoff.templateId);
+    setTemplateDraftName(handoff.templateName ?? "");
+    setTemplateDraftMarket(handoff.templateMarket || TEMPLATE_MARKETS[0]);
+    setSourceTemplateId(handoff.sourceTemplateId);
+    setSourceTemplateName(handoff.sourceTemplateName);
+
+    clearDiscoveryHandoff();
+  }, []);
 
 
   useEffect(() => {
@@ -1335,6 +1377,7 @@ export function DiscoveryPage() {
     window.sessionStorage.removeItem("wingman.roomBuilderSeedProduct");
     window.sessionStorage.removeItem("wingman:template-discovery-seed");
     window.sessionStorage.removeItem("wingman:template-discovery-seed-updated");
+    clearDiscoveryHandoff();
 
     setIsListening(false);
     setMicError("");
@@ -1342,6 +1385,13 @@ export function DiscoveryPage() {
     setNotes({});
     setActiveIndex(0);
     setSavedMessage("");
+    setDiscoveryMode("standard");
+    setTemplateEditId(undefined);
+    setTemplateDraftName("");
+    setTemplateDraftMarket(TEMPLATE_MARKETS[0]);
+    setSourceTemplateId(undefined);
+    setSourceTemplateName(undefined);
+    setTemplateSavedMessage("");
 
     navigate("/wingman/discovery", { replace: true });
 
@@ -1467,6 +1517,8 @@ export function DiscoveryPage() {
         nextBestQuestion,
         notes: allNotes.join(" | "),
         summary: summaryText,
+        sourceTemplateId: sourceTemplateId || "",
+        sourceTemplateName: sourceTemplateName || "",
       },
       inference: {
         summary: summaryText,
@@ -1492,6 +1544,46 @@ export function DiscoveryPage() {
   function saveDiscoveryToProject(): void {
     saveDiscoveryBriefToProject(buildDiscoveryBrief());
     setSavedMessage("Discovery saved to your project. Continue to product selection or a proposal when ready.");
+  }
+
+  const canSaveCustomTemplate = templateDraftName.trim().length > 0 && wmDiscoveryHasAnswer(answers.opportunity);
+
+  function saveAsCustomTemplate(): void {
+    if (!canSaveCustomTemplate) {
+      setTemplateSavedMessage("Add a template name and answer the application/room type question before saving.");
+      return;
+    }
+
+    const brief = buildDiscoveryBrief();
+    const roomModel = (brief.roomModel ?? {}) as Record<string, unknown>;
+    const summary = String(roomModel.summary || brief.inference?.summary || "Custom room template created in Discovery.");
+
+    const draft = createBlankCustomRoomTemplate({
+      name: templateDraftName.trim(),
+      vertical: templateDraftMarket || "Custom",
+      application: String(roomModel.application || selectedApplication || "Custom application"),
+      scale: String(roomModel.scale || "Custom"),
+      summary,
+      customerNarrative: String(roomModel.outcome || summary),
+      architecture: String(roomModel.designDirection || ""),
+      assumptions: brief.missingInformation,
+      validationItems: brief.missingInformation,
+      discoveryAnswers: answers,
+      discoveryNotes: notes,
+    });
+
+    saveCustomRoomTemplate(draft, {
+      id: templateEditId,
+      sourceTemplateId,
+    });
+
+    clearDiscoveryHandoff();
+    navigate(routeCatalogByKey.templates.path);
+  }
+
+  function cancelTemplateMode(): void {
+    clearDiscoveryHandoff();
+    navigate(routeCatalogByKey.templates.path);
   }
 
   function moveForward(target: "finder" | "proposal"): void {
@@ -1583,6 +1675,23 @@ return (
           <span>{answeredCount} / {discoveryQuestions.length} captured</span>
         </div>
       </header>
+
+      {discoveryMode !== "standard" ? (
+        <section className="wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Discovery template mode" data-discovery-mode={discoveryMode}>
+          <strong>{discoveryMode === "template-edit" ? "Editing custom template" : "Creating a new custom template"}</strong>
+          <p className="wm-ui-copy">
+            Answer discovery questions to capture this reusable room design. Saving creates a template only — it will
+            not create a project.
+          </p>
+        </section>
+      ) : sourceTemplateName ? (
+        <section className="wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Discovery template source">
+          <strong>Pre-populated from template: {sourceTemplateName}</strong>
+          <p className="wm-ui-copy">
+            Answers below were carried over from that template. Adjust anything that differs for this project.
+          </p>
+        </section>
+      ) : null}
 
       <section className="wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Discovery trail">
         <div className="wm-discovery-trail-topline">
@@ -1808,6 +1917,56 @@ return (
           {savedMessage && <p className="wm-discovery-muted-note wm-ui-copy">{savedMessage}</p>}
         </section>
       )}
+
+      {discoveryMode !== "standard" ? (
+        <section className="wm-section-card wm-custom-template-panel" aria-label="Custom template details">
+          <div className="wm-custom-template-copy">
+            <p className="wm-template-kicker wm-ui-kicker">Custom template</p>
+            <h2 className="wm-section-title">Review, then save this template</h2>
+            <p className="wm-copy">
+              Review the captured brief above, name the template and set its vertical market, then save. This does not
+              create a project.
+            </p>
+          </div>
+
+          <div className="wm-custom-template-grid">
+            <label className="wm-field">
+              Template name
+              <input
+                className="wm-input"
+                value={templateDraftName}
+                onChange={(event) => setTemplateDraftName(event.target.value)}
+                placeholder="e.g. Council chamber hybrid meeting"
+              />
+            </label>
+            <label className="wm-field wm-custom-template-wide">
+              Vertical market
+              <select
+                className="wm-input"
+                value={templateDraftMarket}
+                onChange={(event) => setTemplateDraftMarket(event.target.value)}
+              >
+                {TEMPLATE_MARKETS.map((market) => (
+                  <option key={market} value={market}>
+                    {market}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="wm-template-actions wm-action-row">
+            <button type="button" className="wm-button wm-button-primary" onClick={saveAsCustomTemplate} disabled={!canSaveCustomTemplate}>
+              Save Custom Template
+            </button>
+            <button type="button" className="wm-button wm-button-secondary" onClick={cancelTemplateMode}>
+              Cancel
+            </button>
+          </div>
+
+          {templateSavedMessage && <p className="wm-copy">{templateSavedMessage}</p>}
+        </section>
+      ) : null}
     </main>
   );
 }

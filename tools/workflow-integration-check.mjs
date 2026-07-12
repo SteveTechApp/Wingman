@@ -138,12 +138,15 @@ for (const marker of ["Editable WyreStorm BOM", "saveTemplateProject", "exportTe
     errors.push(`Template workflow is missing marker: ${marker}`);
   }
 }
+// Templates intentionally reuse the Discovery workflow: "Use template" and
+// "New Custom Template" both hand off into Discovery (see discoveryTemplateHandoff.ts)
+// instead of duplicating Discovery's question/recommendation logic.
 if (
-  readFileSync(path.join(projectRoot, "src/wingman2/pages/TemplatesPage.tsx"), "utf8").includes(
+  !readFileSync(path.join(projectRoot, "src/wingman2/pages/TemplatesPage.tsx"), "utf8").includes(
     "routeCatalogByKey.discovery.path",
   )
 ) {
-  errors.push("Templates page still routes through Discovery.");
+  errors.push("Templates page no longer routes through Discovery for the template-to-Discovery handoff.");
 }
 assertSourceContains("src/wingman2/lib/roomTemplates.ts", [
   "Corporate",
