@@ -316,7 +316,7 @@ export function TemplateReviewPage() {
     setSavedTemplatePath(`${routeCatalogByKey.templates.path}/${template.id}`);
   }
 
-  function useTemplateInDiscovery() {
+  function sendTemplateToDiscovery() {
     writeDiscoveryHandoff(buildDiscoveryHandoffFromTemplate(activeTemplate));
     navigate(routeCatalogByKey.discovery.path);
   }
@@ -380,7 +380,7 @@ export function TemplateReviewPage() {
                   <LayoutTemplate className="h-5 w-5" />
                   <span>Save as template</span>
                 </button>
-                <button type="button" onClick={useTemplateInDiscovery}>
+                <button type="button" onClick={sendTemplateToDiscovery}>
                   <Compass className="h-5 w-5" />
                   <span>Use template</span>
                 </button>
