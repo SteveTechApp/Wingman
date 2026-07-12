@@ -244117,112 +244117,73 @@
     "successor": ""
   },
   {
-    "id": "RX-500",
+    "id": "SW-130-TX",
     "brand": "WyreStorm",
     "vendorType": "wyrestorm",
     "sku": "SW-130-TX",
-    "name": "35m 4K HDBaseT Receiver with USB - WyreStorm",
-    "title": "35m 4K HDBaseT Receiver with USB - WyreStorm",
-    "url": "https://www.wyrestorm.com/product/rx-500/",
-    "description": "The little sibling to the RX-700, the RX-500 also utilizes HDBaseT 2.0 technology extending 4K video, USB 2.0, audio and control point to point up to 35m/115ft. The RX-500 still maintains the ability send HID’s and data back to the transmitter with USB 2.0 compatible devices such as HD webcams, smart white boards and data drives alike. Ideally suited for small meeting spaces and conference rooms, the RX-500 pairs perfectly with WyreStorm’s popular line of Presentation Solutions, such as the SW-130-TX or SW-510-TX t...",
+    "name": "3-Input In-wall HDBaseT Transmitter (SW-130-TX family) - WyreStorm",
+    "title": "3-Input In-wall HDBaseT Transmitter (SW-130-TX family) - WyreStorm",
+    "url": "https://www.wyrestorm.com/product/sw-130-tx-us/",
+    "description": "SW-130-TX is WyreStorm's 3-input in-wall HDBaseT transmitter family (2 HDMI + USB-C), sold as regional variants SW-130-TX-US and SW-130-TX-UK rather than as a single standalone SKU. Supports up to 4K/30 4:4:4 or 4K/60 4:2:0 8-bit with HDR-10 and Dolby Vision at 30Hz, HDCP 2.2, HD multichannel audio up to DTS:X and Dolby Atmos, a USB-C alt-mode input with device charging (5V/2A), a USB 2.0 host port for far-end peripherals, automatic/manual CEC display triggering, and PoH (Power over HDBaseT) so it can be passively powered from a compatible receiver.",
     "family": "Presentation Switcher",
-    "role": "Presentation switcher / room transmitter",
+    "role": "In-wall HDBaseT transmitter (regional-variant family)",
     "productRole": "primary-hardware",
     "catalogVisibility": "default",
     "features": [
       "HDBaseT",
-      "USB",
-      "Camera / Capture",
-      "Camera endpoint",
-      "USB camera",
-      "NDI camera endpoint",
-      "4K camera",
-      "DisplayPort",
+      "In-wall transmitter",
+      "USB-C",
+      "USB 2.0 host",
       "HDMI",
-      "HDR",
-      "Analog audio",
-      "Audio breakout",
-      "KVM / USB extension",
-      "USB 2.0",
-      "USB routing / switching",
-      "Ethernet / LAN",
+      "HDR-10",
+      "Dolby Vision",
+      "HDCP 2.2",
+      "Dolby Atmos",
+      "DTS:X",
       "CEC control",
-      "IR control",
-      "RS-232 control",
-      "EDID management",
-      "HDCP support",
-      "PoE / PoH / PoC",
-      "Camera"
+      "PoH (Power over HDBaseT)"
     ],
     "featureTags": [
       "HDBaseT",
-      "USB",
-      "Camera / Capture",
-      "camera",
-      "DisplayPort",
+      "In-wall transmitter",
+      "USB-C",
+      "USB 2.0 host",
       "HDMI",
-      "HDR",
-      "Analog audio",
-      "Audio breakout",
-      "KVM / USB extension",
-      "USB 2.0",
-      "USB routing / switching",
-      "Ethernet / LAN",
+      "HDR-10",
+      "Dolby Vision",
+      "HDCP 2.2",
+      "Dolby Atmos",
+      "DTS:X",
       "CEC control",
-      "IR control",
-      "RS-232 control",
-      "EDID management",
-      "HDCP support",
-      "PoE / PoH / PoC"
+      "PoH (Power over HDBaseT)"
     ],
     "tags": [
       "HDBaseT",
-      "USB",
-      "Camera / Capture",
-      "Camera endpoint",
-      "USB camera",
-      "NDI camera endpoint",
-      "4K camera",
-      "camera",
-      "DisplayPort",
+      "In-wall transmitter",
+      "USB-C",
+      "USB 2.0 host",
       "HDMI",
-      "HDR",
-      "Analog audio",
-      "Audio breakout",
-      "KVM / USB extension",
-      "USB 2.0",
-      "USB routing / switching",
-      "Ethernet / LAN",
+      "HDR-10",
+      "Dolby Vision",
+      "HDCP 2.2",
+      "Dolby Atmos",
+      "DTS:X",
       "CEC control",
-      "IR control",
-      "RS-232 control",
-      "EDID management",
-      "HDCP support",
-      "PoE / PoH / PoC",
-      "Meeting room",
-      "BYOM / UC",
-      "UC, lecture capture and streaming workflows"
+      "PoH (Power over HDBaseT)"
     ],
     "capabilities": [
       "HDBaseT",
-      "USB",
-      "Camera / Capture",
-      "DisplayPort",
+      "In-wall transmitter",
+      "USB-C",
+      "USB 2.0 host",
       "HDMI",
-      "HDR",
-      "Analog audio",
-      "Audio breakout",
-      "KVM / USB extension",
-      "USB 2.0",
-      "USB routing / switching",
-      "Ethernet / LAN",
+      "HDR-10",
+      "Dolby Vision",
+      "HDCP 2.2",
+      "Dolby Atmos",
+      "DTS:X",
       "CEC control",
-      "IR control",
-      "RS-232 control",
-      "EDID management",
-      "HDCP support",
-      "PoE / PoH / PoC",
-      "Camera"
+      "PoH (Power over HDBaseT)"
     ],
     "searchTerms": [
       "RX-500",
@@ -244368,632 +244329,6 @@
       "camera",
       "ndi"
     ],
-    "technicalProfile": {
-      "profileVersion": "wyrestorm-product-manager-v1",
-      "sourceQuality": {
-        "officialProductUrl": "https://www.wyrestorm.com/product/rx-500/",
-        "officialPageStatus": 200,
-        "livePageUsed": true,
-        "capturedTechnicalLineCount": 63
-      },
-      "signalDomains": [
-        "Video",
-        "USB",
-        "Network",
-        "Control",
-        "Audio",
-        "Processing",
-        "Power",
-        "Collaboration"
-      ],
-      "transports": [
-        "USB",
-        "NDI",
-        "HDMI",
-        "DisplayPort",
-        "HDBaseT",
-        "KVM / USB extension",
-        "USB 2.0",
-        "USB routing / switching"
-      ],
-      "io": {
-        "ports": [
-          {
-            "count": 4,
-            "connector": "4x  (Device)",
-            "direction": "input",
-            "category": "other",
-            "evidence": "4x Type A (Device)"
-          },
-          {
-            "count": 1,
-            "connector": "RX-500 Receiver 1x RX-500 Receiver",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x RX-500 Receiver"
-          },
-          {
-            "count": 1,
-            "connector": "12V DC 2A PSU with 1x 12V DC 2A PSU with (US/UK/EU/AU)",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x 12V DC 2A PSU with (US/UK/EU/AU)"
-          },
-          {
-            "count": 2,
-            "connector": "Mounting Brackets with Screws 2x Mounting Brackets with Screws",
-            "direction": "output",
-            "category": "other",
-            "evidence": "2x Mounting Brackets with Screws"
-          },
-          {
-            "count": 1,
-            "connector": "Terminal Block 1x  Terminal Block",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x 3-pin Terminal Block"
-          },
-          {
-            "count": 1,
-            "connector": "QuickStart Guide 1x QuickStart Guide",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x QuickStart Guide"
-          }
-        ],
-        "video": [],
-        "audio": [],
-        "usb": [],
-        "network": [],
-        "control": [],
-        "other": [
-          {
-            "count": 4,
-            "connector": "4x  (Device)",
-            "direction": "input",
-            "category": "other",
-            "evidence": "4x Type A (Device)"
-          },
-          {
-            "count": 1,
-            "connector": "RX-500 Receiver 1x RX-500 Receiver",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x RX-500 Receiver"
-          },
-          {
-            "count": 1,
-            "connector": "12V DC 2A PSU with 1x 12V DC 2A PSU with (US/UK/EU/AU)",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x 12V DC 2A PSU with (US/UK/EU/AU)"
-          },
-          {
-            "count": 2,
-            "connector": "Mounting Brackets with Screws 2x Mounting Brackets with Screws",
-            "direction": "output",
-            "category": "other",
-            "evidence": "2x Mounting Brackets with Screws"
-          },
-          {
-            "count": 1,
-            "connector": "Terminal Block 1x  Terminal Block",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x 3-pin Terminal Block"
-          },
-          {
-            "count": 1,
-            "connector": "QuickStart Guide 1x QuickStart Guide",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x QuickStart Guide"
-          }
-        ]
-      },
-      "video": {
-        "present": true,
-        "maxResolutions": [
-          "4K HDBaseT Receiver with USB - WyreStorm 35m 4K",
-          "4K video, USB 2",
-          "3840x2160p @30Hz 10bit HDR 4:2:0 3840x2160p @60Hz 8bit 4:2:0",
-          "1920x1080p @60Hz 12bit Supported Standards DCI",
-          "4K UHD content and sources HD Multichannel audi"
-        ],
-        "standards": [
-          "HDMI",
-          "HDCP 2.2",
-          "HDCP",
-          "Dolby Vision",
-          "HDR"
-        ],
-        "bandwidth": [
-          "10.2Gbps"
-        ],
-        "distance": [
-          "35m",
-          "35m/115ft"
-        ],
-        "processing": [
-          "EDID management"
-        ],
-        "evidence": [
-          "AUDIO & VIDEO",
-          "1x HDMI Out: 19-pin Type A Female",
-          "2x Audio Out/De-embed: 3.5mm (1/8in) TRS Stereo | 2ch audio over HDBaseT | 1-way from TX",
-          "Output Video Encoding",
-          "HDBaseT Class C",
-          "HDMI Out: 2ch Analog/PCM | Multichannel: LPCM up to DTS-X and Dolby Atmos",
-          "Video Resolution (Max)",
-          "Maximum Pixel Clock",
-          "HDMI",
-          "HDMI | HDCP 2.2 | EDID | CEC Pass-through | DVI/D supported with adapter (not included)",
-          "HDBaseT",
-          "HDMI | USB | HDCP 2.2 | EDID | 1-way PoH (RX powers TX) | Bidirectional RS-232 | CEC",
-          "HDBaseT Receiver supporting:",
-          "HDCP 22 encryption technology ensuring compatibility with the latest 4K UHD content and sources",
-          "HD Multichannel audio up to DTS:X and Dolby Atmos via HDMI",
-          "2160p 4:2:0 60Hz HDR content from a source to a display or projector using HDBaseT up to 35m/115ft",
-          "Supports analog audio de-embed from HDMI output",
-          "Backwards compatible with HDBaseT 1.0 transmission and receiving devices (lowest denominator takes priority)",
-          "The little sibling to the RX-700, the RX-500 also utilizes HDBaseT 2.0 technology extending 4K video, USB 2.0, audio and control point to point up to 35m/115ft. The RX-500 still maintains the ability send HID’s and data back to the transmitter with USB 2.0 compatible devices such as HD webcams, smart white boards and data drives alike. Ideally suited for small meeting spaces and conference rooms, the RX-500 pairs perfectly with WyreStorm’s popular line of Presentation Solutions, such as the SW-130-TX or SW-510-TX to meet all of your presentation needs.",
-          "The main feature of the RX-500 is the 4 device ports, which are capable of USB 2.0 pass-through, which offers not only KVM functionality for extension of a keyboard/mouse or touchscreen, but also transfers the highest data rate that HDBaseT has to offer of 190Mbps, for webcams, white boards and USB data drives."
-        ]
-      },
-      "audio": {
-        "present": true,
-        "formats": [
-          "PCM",
-          "DTS-X and Dolby Atmos Audio Out",
-          "Dolby Vision",
-          "Dolby Vision at 30Hz HDCP 22 encryption technology ensuring compatibility with the latest 4K UHD content and sources HD Multichannel audio up to DTS",
-          "Dolby Atmos via HDMI 2160p 4"
-        ],
-        "networkAudio": [],
-        "amplifierPower": [],
-        "microphone": [
-          "USB 2.0 passthrough offering 190Mbps transfer and HID extension",
-          "Supports analog audio pass-through from transmitter to receiver",
-          "Backwards compatible with HDBaseT 1.0 transmission and receiving devices (lowest denominator takes priority)",
-          "The little sibling to the RX-700, the RX-500 also utilizes HDBaseT 2.0 technology extending 4K video, USB 2.0, audio and control point to point up to 35m/115ft. The RX-500 still maintains the ability send HID’s and data back to the transmitter with USB 2.0 compatible devices such as HD webcams, smart white boards and data drives alike. Ideally suited for small meeting spaces and conference rooms, the RX-500 pairs perfectly with WyreStorm’s popular line of Presentation Solutions, such as the SW-130-TX or SW-510-TX to meet all of your presentation needs.",
-          "The main feature of the RX-500 is the 4 device ports, which are capable of USB 2.0 pass-through, which offers not only KVM functionality for extension of a keyboard/mouse or touchscreen, but also transfers the highest data rate that HDBaseT has to offer of 190Mbps, for webcams, white boards and USB data drives."
-        ],
-        "speaker": [],
-        "processing": [
-          "ANS"
-        ]
-      },
-      "usb": {
-        "present": true,
-        "versions": [
-          "USB 2.0"
-        ],
-        "connectors": [],
-        "roles": [
-          "USB device",
-          "KVM / HID"
-        ],
-        "bandwidth": [],
-        "powerDelivery": false
-      },
-      "network": {
-        "present": true,
-        "interfaces": [
-          "1x HDBT In: 8-pin RJ45"
-        ],
-        "protocols": [
-          "NDI"
-        ],
-        "linkSpeeds": [],
-        "powerOverNetwork": [
-          "PoH"
-        ]
-      },
-      "control": {
-        "present": true,
-        "protocols": [
-          "RS-232",
-          "IR",
-          "CEC",
-          "EDID"
-        ],
-        "evidence": [
-          "1x RS-232: 3-pin Phoenix",
-          "COMMUNICATION & CONTROL",
-          "HDMI | HDCP 2.2 | EDID | CEC Pass-through | DVI/D supported with adapter (not included)",
-          "HDMI | USB | HDCP 2.2 | EDID | 1-way PoH (RX powers TX) | Bidirectional RS-232 | CEC",
-          "RS-232",
-          "Bidirectional RS-232 and CEC pass-through communication",
-          "The little sibling to the RX-700, the RX-500 also utilizes HDBaseT 2.0 technology extending 4K video, USB 2.0, audio and control point to point up to 35m/115ft. The RX-500 still maintains the ability send HID’s and data back to the transmitter with USB 2.0 compatible devices such as HD webcams, smart white boards and data drives alike. Ideally suited for small meeting spaces and conference rooms, the RX-500 pairs perfectly with WyreStorm’s popular line of Presentation Solutions, such as the SW-130-TX or SW-510-TX to meet all of your presentation needs."
-        ]
-      },
-      "processing": [
-        "EDID management",
-        "HDCP support"
-      ],
-      "power": {
-        "poe": true,
-        "powerDelivery": false,
-        "evidence": [
-          "DCI | RGB | HDR | HDR10 | Dolby Vision | HLG | BT.2020 | BT.2100",
-          "HDMI | HDCP 2.2 | EDID | CEC Pass-through | DVI/D supported with adapter (not included)",
-          "HDMI | USB | HDCP 2.2 | EDID | 1-way PoH (RX powers TX) | Bidirectional RS-232 | CEC",
-          "POWER",
-          "Power Supply",
-          "12V DC 2A",
-          "Max Power Consumption",
-          "HDCP 22 encryption technology ensuring compatibility with the latest 4K UHD content and sources",
-          "PoH from RX&gt;TX",
-          "1x 12V DC 2A PSU with (US/UK/EU/AU)"
-        ]
-      },
-      "mechanical": {
-        "installation": [],
-        "evidence": [
-          "2x Mounting Brackets with Screws"
-        ]
-      },
-      "featureGroups": {
-        "Video": [
-          "DisplayPort",
-          "HDBaseT",
-          "HDMI",
-          "HDR"
-        ],
-        "Audio": [
-          "Analog audio",
-          "Audio breakout"
-        ],
-        "USB": [
-          "KVM / USB extension",
-          "USB 2.0",
-          "USB routing / switching"
-        ],
-        "Network": [
-          "Ethernet / LAN",
-          "NDI"
-        ],
-        "Control": [
-          "CEC control",
-          "IR control",
-          "RS-232 control"
-        ],
-        "Processing": [
-          "EDID management",
-          "HDCP support"
-        ],
-        "Power": [
-          "PoE / PoH / PoC"
-        ],
-        "Collaboration": [
-          "Camera"
-        ]
-      },
-      "features": [
-        {
-          "id": "displayport",
-          "label": "DisplayPort",
-          "group": "Video",
-          "evidence": "Compatible with DVI-I and DP++ v1.3 signals from compatible devices",
-          "confidence": 0.94
-        },
-        {
-          "id": "hdbaset",
-          "label": "HDBaseT",
-          "group": "Video",
-          "evidence": "2x Audio Out/De-embed: 3.5mm (1/8in) TRS Stereo | 2ch audio over HDBaseT | 1-way from TX",
-          "confidence": 0.94
-        },
-        {
-          "id": "hdmi",
-          "label": "HDMI",
-          "group": "Video",
-          "evidence": "1x HDMI Out: 19-pin Type A Female",
-          "confidence": 0.94
-        },
-        {
-          "id": "hdr",
-          "label": "HDR",
-          "group": "Video",
-          "evidence": "3840x2160p @30Hz 10bit HDR 4:2:0",
-          "confidence": 0.94
-        },
-        {
-          "id": "analog-audio",
-          "label": "Analog audio",
-          "group": "Audio",
-          "evidence": "Supports analog audio pass-through from transmitter to receiver",
-          "confidence": 0.94
-        },
-        {
-          "id": "audio-breakout",
-          "label": "Audio breakout",
-          "group": "Audio",
-          "evidence": "Supports analog audio de-embed from HDMI output",
-          "confidence": 0.94
-        },
-        {
-          "id": "kvm",
-          "label": "KVM / USB extension",
-          "group": "USB",
-          "evidence": "USB 2.0 passthrough offering 190Mbps transfer and HID extension",
-          "confidence": 0.94
-        },
-        {
-          "id": "usb-20",
-          "label": "USB 2.0",
-          "group": "USB",
-          "evidence": "USB 2.0 passthrough offering 190Mbps transfer and HID extension",
-          "confidence": 0.94
-        },
-        {
-          "id": "usb-routing",
-          "label": "USB routing / switching",
-          "group": "USB",
-          "evidence": "Features 4 USB device ports",
-          "confidence": 0.94
-        },
-        {
-          "id": "ethernet",
-          "label": "Ethernet / LAN",
-          "group": "Network",
-          "evidence": "1x HDBT In: 8-pin RJ45",
-          "confidence": 0.94
-        },
-        {
-          "id": "cec",
-          "label": "CEC control",
-          "group": "Control",
-          "evidence": "HDMI | HDCP 2.2 | EDID | CEC Pass-through | DVI/D supported with adapter (not included)",
-          "confidence": 0.94
-        },
-        {
-          "id": "ir",
-          "label": "IR control",
-          "group": "Control",
-          "evidence": "HDMI | USB | HDCP 2.2 | EDID | 1-way PoH (RX powers TX) | Bidirectional RS-232 | CEC",
-          "confidence": 0.94
-        },
-        {
-          "id": "rs232",
-          "label": "RS-232 control",
-          "group": "Control",
-          "evidence": "1x RS-232: 3-pin Phoenix",
-          "confidence": 0.94
-        },
-        {
-          "id": "edid",
-          "label": "EDID management",
-          "group": "Processing",
-          "evidence": "HDMI | HDCP 2.2 | EDID | CEC Pass-through | DVI/D supported with adapter (not included)",
-          "confidence": 0.94
-        },
-        {
-          "id": "hdcp",
-          "label": "HDCP support",
-          "group": "Processing",
-          "evidence": "HDMI | HDCP 2.2 | EDID | CEC Pass-through | DVI/D supported with adapter (not included)",
-          "confidence": 0.94
-        },
-        {
-          "id": "poe",
-          "label": "PoE / PoH / PoC",
-          "group": "Power",
-          "evidence": "HDMI | USB | HDCP 2.2 | EDID | 1-way PoH (RX powers TX) | Bidirectional RS-232 | CEC",
-          "confidence": 0.94
-        },
-        {
-          "id": "camera",
-          "label": "Camera",
-          "group": "Collaboration",
-          "evidence": "camera",
-          "confidence": 0.72
-        }
-      ],
-      "applications": [
-        "Meeting room",
-        "BYOM / UC",
-        "UC, lecture capture and streaming workflows"
-      ],
-      "selectionGuidance": {
-        "recommendedWhen": [
-          "UC, lecture capture and streaming workflows"
-        ],
-        "cautionWhen": [],
-        "betterAlternativesWhen": []
-      },
-      "salesLanguage": {
-        "voiceVersion": "wingman-sales-language-v1",
-        "headline": "RX-500: helps remote viewers see the room clearly",
-        "plainEnglishSummary": "Use this when the room, presenter, audience or content needs to be captured for meetings, teaching, streaming or recording.",
-        "customerValue": "It improves the quality of the image being sent to remote participants or recording systems.",
-        "realWorldApplication": "Meeting rooms, classrooms, lecture capture, training spaces and streaming workflows.",
-        "salespersonCue": "Ask what needs to be seen and where that video needs to go.",
-        "talkTrack": [
-          "It is about image capture and the viewer experience.",
-          "The right choice depends on room size, mounting position and output path."
-        ],
-        "discoveryPrompts": [
-          "What needs to be captured: presenter, table, audience or whiteboard?",
-          "Where will the camera be mounted?",
-          "Does the signal go to USB, HDMI, NDI, recording or conferencing?"
-        ],
-        "positioningNotes": [
-          "Use when camera quality and capture path matter."
-        ],
-        "avoidPositioningAs": [
-          "Do not treat camera products as generic video routing hardware."
-        ],
-        "marketApplications": [
-          "Meeting room",
-          "BYOM / UC",
-          "UC, lecture capture and streaming workflows"
-        ],
-        "voices": {
-          "endUser": {
-            "label": "End user",
-            "audience": "Customer stakeholder",
-            "headline": "RX-500: helps remote viewers see the room clearly",
-            "pitch": "Use this when the room, presenter, audience or content needs to be captured for meetings, teaching, streaming or recording.",
-            "value": "It improves the quality of the image being sent to remote participants or recording systems.",
-            "talkTrack": [
-              "Ask what needs to be seen and where that video needs to go.",
-              "Meeting rooms, classrooms, lecture capture, training spaces and streaming workflows.",
-              "It is about image capture and the viewer experience.",
-              "The right choice depends on room size, mounting position and output path."
-            ],
-            "discoveryPrompts": [
-              "What do users need to do when they walk into the room?",
-              "What would make the room feel easier or more reliable for everyday use?",
-              "What needs to be captured: presenter, table, audience or whiteboard?",
-              "Where will the camera be mounted?"
-            ],
-            "positioningNotes": [
-              "Keep the language about outcomes and the user experience before talking about ports.",
-              "Use when camera quality and capture path matter."
-            ],
-            "avoidPositioningAs": [
-              "Do not treat camera products as generic video routing hardware."
-            ]
-          },
-          "systemIntegrator": {
-            "label": "SI / installer",
-            "audience": "Installer or system integrator",
-            "headline": "RX-500: deployment and commissioning view",
-            "pitch": "Use this view when the installer needs to confirm camera position, field of view, mounting, USB/HDMI/NDI path and how the signal reaches conferencing or recording.",
-            "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
-            "talkTrack": [
-              "Check the practical signal path around USB, NDI, HDMI, DisplayPort before finalising the design.",
-              "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
-              "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
-            ],
-            "discoveryPrompts": [
-              "Where will the product physically live: table, wall, display, rack, lectern or network closet?",
-              "What cable type, distance and route are available between each endpoint?",
-              "Which products, receivers, USB devices, controllers or network switches must be present for this to work?",
-              "What needs to be captured: presenter, table, audience or whiteboard?",
-              "Where will the camera be mounted?"
-            ],
-            "positioningNotes": [
-              "Good installer language should make dependencies visible before a quote is issued.",
-              "Call out install risk early when the product depends on USB bandwidth, network design, endpoint pairing or control integration.",
-              "Use when camera quality and capture path matter."
-            ],
-            "avoidPositioningAs": [
-              "Do not imply it is plug-and-play where cable distance, USB class, endpoint compatibility, network design or control programming still needs validation.",
-              "Do not treat camera products as generic video routing hardware."
-            ]
-          },
-          "consultant": {
-            "label": "Consultant / technical",
-            "audience": "Consultant or technical designer",
-            "headline": "RX-500: architecture fit and trade-off view",
-            "pitch": "Use this view to validate the capture objective, camera coverage, output format and whether the wider system can receive the chosen signal.",
-            "value": "Helps separate a technically possible product choice from the strongest design choice for the application, budget, risk and future expansion.",
-            "talkTrack": [
-              "Validate the application first, then decide whether this product family is the cleanest architecture.",
-              "Compare against simpler or more scalable alternatives where the requirement is fixed, expandable, distance-led or conferencing-led.",
-              "Use the specification as evidence after the room workflow and signal architecture are clear."
-            ],
-            "discoveryPrompts": [
-              "Is this requirement driven by user experience, source/display routing, distance, USB, collaboration, network distribution, processing or control?",
-              "What would make this product the wrong choice even if it technically works?",
-              "Is the system expected to grow, change rooms, add endpoints, record, stream or integrate with a wider AV platform?",
-              "What needs to be captured: presenter, table, audience or whiteboard?",
-              "Where will the camera be mounted?"
-            ],
-            "positioningNotes": [
-              "Use for architectural judgement, product-family selection and proposal-safe trade-off language.",
-              "Be explicit when the product is technically possible but unlikely to be the most natural choice.",
-              "Use when camera quality and capture path matter."
-            ],
-            "avoidPositioningAs": [
-              "Do not let a feature match override the real application, architecture or operational requirement.",
-              "Do not treat camera products as generic video routing hardware."
-            ]
-          }
-        }
-      },
-      "evidence": {
-        "technicalLines": [
-          "Additional Features",
-          "AUDIO & VIDEO",
-          "Inputs",
-          "1x HDBT In: 8-pin RJ45",
-          "4x Type A (Device)",
-          "1x RS-232: 3-pin Phoenix",
-          "Outputs",
-          "1x HDMI Out: 19-pin Type A Female",
-          "2x Audio Out/De-embed: 3.5mm (1/8in) TRS Stereo | 2ch audio over HDBaseT | 1-way from TX",
-          "Output Video Encoding",
-          "HDBaseT Class C",
-          "Encoding Data Rate",
-          "10.2Gbps",
-          "End to End Latency",
-          "10μs (micro seconds)",
-          "Audio Formats",
-          "HDMI Out: 2ch Analog/PCM | Multichannel: LPCM up to DTS-X and Dolby Atmos",
-          "Audio Out/De-embed: 2ch Analog/PCM",
-          "Video Resolution (Max)",
-          "5120x1440 @60Hz 4:2:0",
-          "5120x1440 @30Hz",
-          "3840x2160p @30Hz 10bit HDR 4:2:0",
-          "3840x2160p @60Hz 8bit 4:2:0",
-          "1920x1080p @60Hz 12bit",
-          "Supported Standards",
-          "DCI | RGB | HDR | HDR10 | Dolby Vision | HLG | BT.2020 | BT.2100",
-          "Maximum Pixel Clock",
-          "297MHz",
-          "COMMUNICATION & CONTROL",
-          "HDMI",
-          "HDMI | HDCP 2.2 | EDID | CEC Pass-through | DVI/D supported with adapter (not included)",
-          "HDBaseT",
-          "HDMI | USB | HDCP 2.2 | EDID | 1-way PoH (RX powers TX) | Bidirectional RS-232 | CEC",
-          "RS-232",
-          "USB",
-          "USB hub compatible | Maximum: 7 devices, 23 endpoints",
-          "Maximum uplink speed: 190Mbps",
-          "POWER",
-          "Power Supply",
-          "12V DC 2A",
-          "Max Power Consumption",
-          "8W",
-          "HDBaseT Receiver supporting:",
-          "Content up to 5K/60 4:2:0 & RGB 8-bit",
-          "The latest HDR standards, including HDR-10, HLG and Dolby Vision at 30Hz",
-          "HDCP 22 encryption technology ensuring compatibility with the latest 4K UHD content and sources",
-          "HD Multichannel audio up to DTS:X and Dolby Atmos via HDMI",
-          "2160p 4:2:0 60Hz HDR content from a source to a display or projector using HDBaseT up to 35m/115ft",
-          "Compatible with DVI-I and DP++ v1.3 signals from compatible devices",
-          "USB 2.0 passthrough offering 190Mbps transfer and HID extension",
-          "Features 4 USB device ports",
-          "Supports analog audio pass-through from transmitter to receiver",
-          "Supports analog audio de-embed from HDMI output",
-          "Bidirectional RS-232 and CEC pass-through communication",
-          "Backwards compatible with HDBaseT 1.0 transmission and receiving devices (lowest denominator takes priority)",
-          "PoH from RX&gt;TX",
-          "In the Box",
-          "1x RX-500 Receiver",
-          "1x 12V DC 2A PSU with (US/UK/EU/AU)",
-          "2x Mounting Brackets with Screws",
-          "1x 3-pin Terminal Block",
-          "1x QuickStart Guide",
-          "Product Resources"
-        ],
-        "featureLines": [
-          "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
-          "The little sibling to the RX-700, the RX-500 also utilizes HDBaseT 2.0 technology extending 4K video, USB 2.0, audio and control point to point up to 35m/115ft. The RX-500 still maintains the ability send HID’s and data back to the transmitter with USB 2.0 compatible devices such as HD webcams, smart white boards and data drives alike. Ideally suited for small meeting spaces and conference rooms, the RX-500 pairs perfectly with WyreStorm’s popular line of Presentation Solutions, such as the SW-130-TX or SW-510-TX to meet all of your presentation needs.",
-          "The main feature of the RX-500 is the 4 device ports, which are capable of USB 2.0 pass-through, which offers not only KVM functionality for extension of a keyboard/mouse or touchscreen, but also transfers the highest data rate that HDBaseT has to offer of 190Mbps, for webcams, white boards and USB data drives.",
-          "Compatible with DVI-I and DP++ v1.3 signals from compatible devices",
-          "Supports analog audio pass-through from transmitter to receiver",
-          "Supports analog audio de-embed from HDMI output",
-          "Backwards compatible with HDBaseT 1.0 transmission and receiving devices (lowest denominator takes priority)",
-          "Supported file types: jpg, jpeg, png, txt, pdf, doc, docx",
-          "WyreStorm Technologies is committed to protecting and respecting your privacy, and we’ll only use your personal information to administer your account and to provide the products and services you requested from us. From time to time, we would like to contact you about our products and services, as well as other content that may be of interest to you. You can unsubscribe from these communications at any time. For more information on how to unsubscribe, our privacy policies, and how we are committed to protecting and respecting your privacy, please review our privacy policy .",
-          "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
-        ]
-      }
-    },
     "activeSku": "Yes",
     "salesLanguage": {
       "voiceVersion": "wingman-sales-language-v1",
