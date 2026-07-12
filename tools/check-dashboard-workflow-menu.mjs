@@ -2,7 +2,6 @@ import fs from "node:fs";
 import path from "node:path";
 
 const repoRoot = process.cwd();
-
 const files = {
   dashboard: path.join(repoRoot, "src", "wingman2", "pages", "DashboardPage.tsx"),
   css: path.join(repoRoot, "src", "wingman2", "styles", "wingman-style-stack.css"),
@@ -31,26 +30,41 @@ const css = read(files.css);
 const packageJson = JSON.parse(read(files.packageJson) || "{}");
 
 [
-  "What are you trying to do?",
-  "Guide a customer call",
-  "Position a specific WyreStorm product",
-  "Compare a competitor",
-  "Review a document or BOM",
-  "Create a response pack",
-  "Continue a project",
-  "routeCatalogByKey.callCoach.path",
+  "How can Wingman help you today?",
+  "Start guided discovery",
+  "Products",
+  "Compare",
+  "Documents",
+  "Response Pack",
+  "Projects",
+  "Active projects",
+  "routeCatalogByKey.discovery.path",
   "routeCatalogByKey.products.path",
+  "routeCatalogByKey.compare.path",
   "routeCatalogByKey.documents.path",
   "routeCatalogByKey.responsePack.path",
+  "routeCatalogByKey.projects.path",
 ].forEach((marker) => requireMarker("DashboardPage.tsx", dashboard, marker));
 
 [
-  "WINGMAN DASHBOARD WORKFLOW MENU START",
-  ".wm-dashboard-page[data-wingman-dashboard-menu=\"true\"]",
-  ".wm-dashboard-menu-section",
-  ".wm-dashboard-workflow-card.is-primary",
-  "WINGMAN DASHBOARD WORKFLOW MENU END",
+  "WINGMAN DASHBOARD CANONICAL LAYOUT START",
+  "main.wm-dashboard-shell .wm-dashboard-grid",
+  "main.wm-dashboard-shell .wm-dashboard-project-grid",
+  "repeat(auto-fit, minmax(min(100%, 210px), 1fr))",
+  "WINGMAN DASHBOARD CANONICAL LAYOUT END",
 ].forEach((marker) => requireMarker("wingman-style-stack.css", css, marker));
+
+[
+  "What are you trying to do?",
+  "Guide a customer call",
+  "DASHBOARD_WORKFLOW_MENU_ROUTE_GUARD",
+  "data-wingman-dashboard-menu",
+  "WINGMAN DASHBOARD WORKFLOW MENU START",
+].forEach((marker) => {
+  if (dashboard.includes(marker) || css.includes(marker)) {
+    errors.push(`Obsolete workflow-menu marker must not return: ${marker}`);
+  }
+});
 
 const activeImports = css
   .split(/\r?\n/)
@@ -81,4 +95,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log("[dashboard-workflow-menu] Verified Dashboard is a focused workflow menu.");
+console.log("[dashboard-workflow-menu] Verified current Dashboard destinations and workflow routes.");

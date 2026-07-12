@@ -5,114 +5,6 @@ import { StatusChip } from "../components/StatusChip";
 import { setActiveProjectId, useProjectStore, type ProjectStage } from "../data/projectStore";
 import type { StatusVariant } from "../types";
 
-export const DASHBOARD_SHORT_BUTTON_COPY = [
-  {
-    shortLabel: "Discover",
-    fullLabel: "Start guided discovery",
-    marker: "data-wingman-dashboard-short-label",
-  },
-  {
-    shortLabel: "Compare",
-    fullLabel: "Compare a competitor",
-    marker: "data-wingman-dashboard-short-label",
-  },
-  {
-    shortLabel: "Respond",
-    fullLabel: "Create a response pack",
-    marker: "data-wingman-dashboard-short-label",
-  },
-  {
-    shortLabel: "Continue",
-    fullLabel: "Continue a project",
-    marker: "data-wingman-dashboard-short-label",
-  },
-] as const;
-
-export const DashboardShortButtonSupport = {
-  marker: "DashboardShortButtonSupport",
-  dataAttribute: "data-wingman-dashboard-short-label",
-  purpose: "Dashboard action buttons use short labels to preserve compact single-screen layout.",
-} as const;
-
-export function DashboardElementTypingSupport() {
-  const foundCards: Element[] = [];
-  const typedCards = foundCards as HTMLAnchorElement[];
-
-  return typedCards;
-}
-
-export const DASHBOARD_RESTORE_ROUTE_MAP = {
-  discovery: "/wingman/discovery",
-  productFinder: "/wingman/finder",
-  competitorCompare: "/wingman/compare",
-  proposalSupport: "/wingman/proposal",
-  projects: "/wingman/projects",
-} as const;
-
-export const DashboardRestoreOriginalCardsSupport = {
-  marker: "DashboardRestoreOriginalCardsSupport",
-  routeMap: "DASHBOARD_RESTORE_ROUTE_MAP",
-  purpose: "Dashboard keeps the restored original card-style workflow layout while preserving route handoff targets.",
-} as const;
-
-export const DASHBOARD_PRIMARY_BUTTONS = true;
-
-export const DashboardPrimaryButtons = [
-  {
-    label: "Start guided discovery",
-    marker: "data-wingman-dashboard-primary-button",
-  },
-  {
-    label: "Compare a competitor",
-    marker: "data-wingman-dashboard-primary-button",
-  },
-  {
-    label: "Create a response pack",
-    marker: "data-wingman-dashboard-primary-button",
-  },
-] as const;
-
-export const DashboardPrimaryButtonsSupport = {
-  marker: "DashboardPrimaryButtonsSupport",
-  dataAttribute: "data-wingman-dashboard-primary-button",
-  purpose: "Dashboard primary actions are compact, visible and marked for workflow validation.",
-} as const;
-
-export const DASHBOARD_COMPACT_BUTTONS = true;
-
-export const DashboardCompactButtonSupport = {
-  marker: "DashboardCompactButtonSupport",
-  purpose: "Dashboard primary actions use compact button sizing for single-screen layout.",
-} as const;
-
-export const dashboardWorkflowMenuLabels = [
-  "Position a specific WyreStorm product",
-  "Compare a competitor",
-  "Review a document or BOM",
-  "Create a response pack",
-  "Continue a project",
-] as const;
-
-export const DASHBOARD_WORKFLOW_MENU_ROUTE_GUARD = {
-  marker: "DashboardWorkflowMenuRouteGuard",
-  purpose: "Preserves workflow-menu validation markers while the visible dashboard follows the supplied redesign.",
-  labels: [
-    "Guide a customer call",
-    "Position a specific WyreStorm product",
-    "Compare a competitor",
-    "Review a document or BOM",
-    "Create a response pack",
-    "Continue a project",
-  ],
-  routes: [
-    routeCatalogByKey.callCoach.path,
-    routeCatalogByKey.products.path,
-    routeCatalogByKey.documents.path,
-    routeCatalogByKey.responsePack.path,
-    routeCatalogByKey.projects.path,
-  ],
-} as const;
-
 type DashboardDestination = {
   eyebrow: string;
   title: string;
@@ -365,27 +257,9 @@ export function DashboardPage() {
           </div>
         </section>
       </section>
-
-      <div className="wm-dashboard-hidden-markers" aria-hidden="true">
-        <span data-wingman-dashboard-primary-button="true" data-wingman-dashboard-short-label="Discover">
-          Start guided discovery
-        </span>
-        <span data-wingman-dashboard-primary-button="true" data-wingman-dashboard-short-label="Compare">
-          Compare a competitor
-        </span>
-        <span data-wingman-dashboard-primary-button="true" data-wingman-dashboard-short-label="Respond">
-          Create a response pack
-        </span>
-        <span data-wingman-dashboard-short-label="Continue">Continue a project</span>
-        <span>Guide a customer call</span>
-        <span>Position a specific WyreStorm product</span>
-        <span>Review a document or BOM</span>
-      </div>
     </main>
   );
 }
 
 export default DashboardPage;
-
-// Dashboard workflow marker required by dashboard-workflow-menu check: What are you trying to do?
 
