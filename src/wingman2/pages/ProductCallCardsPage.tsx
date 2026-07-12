@@ -16,7 +16,7 @@ import {
 } from "../lib/productCallCardClassification";
 import { resolveWyrestormSkuAlias } from "../lib/skuAliasResolver";
 import { getProductCallCommercialOverride } from "../lib/productCallCommercialOverrides";
-import { isSkuAdminBlocked } from "../lib/adminProductOverrides";
+import { selectWingmanProducts } from "../lib/productSelectorEngine";
 import {
   DEFAULT_SALES_CONVERSATION_TONE_ID,
   LEGACY_SALES_CONVERSATION_STORAGE_KEYS,
@@ -103,6 +103,8 @@ type ProductSeed = {
   proofPoints?: string[];
   officialUrl?: string;
   officialCopyStatus?: string;
+  technicalProfile?: unknown;
+  sourceCatalog?: unknown;
 };
 
 type ProductCard = {
@@ -119,6 +121,8 @@ type ProductCard = {
   headings: ClassifiedProductCallCardHeading[];
   sourceSearchText: string;
   curated: boolean;
+  technicalProfile?: unknown;
+  sourceCatalog?: unknown;
 };
 
 type ProductPayload = {
@@ -809,6 +813,8 @@ function toProductCard(seed: ProductSeed): ProductCard {
     headings: [],
     sourceSearchText: "",
     curated: Boolean(CURATED[sku] || story),
+    technicalProfile: seed.technicalProfile,
+    sourceCatalog: seed.sourceCatalog,
   };
 
   const classificationSource = {
@@ -831,6 +837,119 @@ function toProductCard(seed: ProductSeed): ProductCard {
   }
 
   return base;
+}
+
+// Renders only the technical fields that actually have sourced evidence -
+// no "N/A" placeholder rows for gaps in the underlying data.
+function technicalProfileRows(profile: unknown): Array<{ label: string; value: string }> {
+  if (!profile || typeof profile !== "object") {
+    return [];
+  }
+
+  const p = profile as Record<string, unknown>;
+  const rows: Array<{ label: string; value: string }> = [];
+
+  const asRecord = (value: unknown): Record<string, unknown> | undefined =>
+    value && typeof value === "object" ? (value as Record<string, unknown>) : undefined;
+  const asStringArray = (value: unknown): string[] =>
+    Array.isArray(value) ? value.map((item) => cleanText(String(item))).filter(Boolean) : [];
+  const joinUnique = (values: string[]): string => unique(values).join(", ");
+
+  const video = asRecord(p.video);
+  if (video?.present) {
+    const bits = joinUnique([
+      ...asStringArray(video.standards),
+      ...asStringArray(video.maxResolutions),
+      ...asStringArray(video.bandwidth),
+    ]);
+    if (bits) {
+      rows.push({ label: "Resolution / HDMI", value: bits });
+    }
+  }
+
+  const hdbaset = asRecord(p.hdbaset);
+  if (hdbaset?.present) {
+    const bits = joinUnique([
+      hdbaset.version ? `HDBaseT ${cleanText(String(hdbaset.version))}` : "",
+      ...asStringArray(hdbaset.distance),
+    ]);
+    if (bits) {
+      rows.push({ label: "HDBaseT", value: bits });
+    }
+  }
+
+  const usb = asRecord(p.usb);
+  if (usb?.present) {
+    const bits = joinUnique([
+      ...asStringArray(usb.versions),
+      ...asStringArray(usb.connectors),
+      ...asStringArray(usb.roles),
+      usb.powerDelivery ? "Power delivery" : "",
+    ]);
+    if (bits) {
+      rows.push({ label: "USB", value: bits });
+    }
+  }
+
+  const network = asRecord(p.network);
+  if (network?.present) {
+    const bits = joinUnique([
+      ...asStringArray(network.protocols),
+      ...asStringArray(network.linkSpeeds),
+      ...asStringArray(network.powerOverNetwork),
+    ]);
+    if (bits) {
+      rows.push({ label: "Network", value: bits });
+    }
+  }
+
+  const control = asRecord(p.control);
+  if (control?.present) {
+    const bits = joinUnique(asStringArray(control.protocols));
+    if (bits) {
+      rows.push({ label: "Control protocols", value: bits });
+    }
+  }
+
+  const audio = asRecord(p.audio);
+  if (audio?.present) {
+    const bits = joinUnique([
+      ...asStringArray(audio.formats),
+      ...asStringArray(audio.networkAudio),
+      ...asStringArray(audio.processing),
+    ]);
+    if (bits) {
+      rows.push({ label: "Audio", value: bits });
+    }
+  }
+
+  const features = Array.isArray(p.features) ? p.features : [];
+  const featureLabels = features
+    .map((feature) => (feature && typeof feature === "object" ? cleanText(String((feature as Record<string, unknown>).label ?? "")) : cleanText(String(feature))))
+    .filter(Boolean);
+
+  const wirelessCasting = featureLabels.filter((label) => /wireless|airplay|miracast|chromecast/i.test(label));
+  if (wirelessCasting.length) {
+    rows.push({ label: "Wireless casting", value: joinUnique(wirelessCasting) });
+  }
+
+  const multiview = featureLabels.filter((label) => /multi[-\s]?view/i.test(label));
+  if (multiview.length) {
+    rows.push({ label: "Multiview", value: joinUnique(multiview) });
+  }
+
+  const io = asRecord(p.io);
+  const ports = Array.isArray(io?.ports) ? (io?.ports as Array<Record<string, unknown>>) : [];
+  if (ports.length) {
+    const portSummary = joinUnique(
+      ports.map((port) => `${cleanText(String(port.count ?? ""))}x ${cleanText(String(port.connector ?? ""))}`.trim()),
+    );
+    if (portSummary) {
+      rows.push({ label: "I/O ports", value: portSummary });
+    }
+  }
+
+  return rows;
 }
 
 function isProductSeed(value: unknown): value is ProductSeed {
@@ -860,31 +979,69 @@ function extractProductSeeds(value: unknown): ProductSeed[] {
   return [];
 }
 
+// The product-call-card-products.json generator merges in new SKUs but never
+// refreshes fields on entries that already exist, so it never carries the
+// richer technicalProfile/sourceCatalog data added to the product
+// intelligence index later. Merge those two fields in by SKU from the
+// intelligence index so "Technical detail" has real data to show, without
+// disturbing the curated call-card copy those seeds already carry.
+function mergeTechnicalData(seeds: ProductSeed[], enrichedSeeds: ProductSeed[]): ProductSeed[] {
+  if (enrichedSeeds.length === 0) {
+    return seeds;
+  }
+
+  const enrichedBySku = new Map<string, ProductSeed>();
+  for (const enriched of enrichedSeeds) {
+    const sku = normaliseSku(enriched.sku);
+    if (sku) {
+      enrichedBySku.set(sku, enriched);
+    }
+  }
+
+  return seeds.map((seed) => {
+    if (seed.technicalProfile) {
+      return seed;
+    }
+    const enriched = enrichedBySku.get(normaliseSku(seed.sku));
+    if (!enriched) {
+      return seed;
+    }
+    return {
+      ...seed,
+      technicalProfile: enriched.technicalProfile,
+      sourceCatalog: enriched.sourceCatalog,
+    };
+  });
+}
+
 async function loadProductSeeds(): Promise<ProductSeed[]> {
+  let intelligenceSeeds: ProductSeed[] = [];
+
+  try {
+    const payload = await loadProductIntelligenceIndex();
+    intelligenceSeeds = extractProductSeeds(payload);
+  } catch {
+    // Fall through to curated fallback products.
+  }
+
+  let enrichmentSeeds: ProductSeed[] = [];
   try {
     const response = await fetch(PRODUCT_CALL_CARD_ENDPOINT, { cache: "no-store" });
 
     if (response.ok) {
       const payload = await response.json();
-      const seeds = extractProductSeeds(payload);
-
-      if (seeds.length > 0) {
-        return seeds;
-      }
+      enrichmentSeeds = extractProductSeeds(payload);
     }
   } catch {
-    // Fall through to the shared product-intelligence index.
+    // The call-card overlay is enrichment only; keep the governed catalogue.
   }
 
-  try {
-    const payload = await loadProductIntelligenceIndex();
-    const seeds = extractProductSeeds(payload);
+  if (intelligenceSeeds.length > 0) {
+    return mergeTechnicalData(intelligenceSeeds, enrichmentSeeds);
+  }
 
-    if (seeds.length > 0) {
-      return seeds;
-    }
-  } catch {
-    // Fall through to curated fallback products.
+  if (enrichmentSeeds.length > 0) {
+    return mergeTechnicalData(enrichmentSeeds, []);
   }
 
   return FALLBACK_PRODUCTS;
@@ -898,7 +1055,7 @@ function matchesFamily(product: ProductCard, family: string): boolean {
   return product.headings.includes(family as ClassifiedProductCallCardHeading);
 }
 
-function productMatches(product: ProductCard, query: string, family: string, quickFinder: string): boolean {
+function productPresentationMatches(product: ProductCard, query: string, family: string, quickFinder: string): boolean {
   const firstSkuChar = product.sku.charAt(0).toUpperCase();
 
   if (quickFinder === "0-9" && !/^[0-9]$/.test(firstSkuChar)) {
@@ -989,7 +1146,7 @@ return () => {
 
       const cards = dedupeProductSeedsBySku(seeds)
         .map(toProductCard)
-        .filter((product) => product.sku && !isSkuAdminBlocked(product.sku))
+        .filter((product) => product.sku)
         .sort((a, b) => a.sku.localeCompare(b.sku));
 
       setProducts(cards);
@@ -1015,8 +1172,16 @@ return () => {
     const available = new Set<string>();
     available.add("All");
 
-    products
-      .filter((product) => productMatches(product, query, activeFamily, "All"))
+    const governedProducts = selectWingmanProducts(products, {
+      mode: "call-card",
+      query,
+      includeBrowseOnly: true,
+    })
+      .filter((decision) => decision.eligible)
+      .map((decision) => decision.product);
+
+    governedProducts
+      .filter((product) => productPresentationMatches(product, query, activeFamily, "All"))
       .forEach((product) => {
         const firstSkuChar = product.sku.charAt(0).toUpperCase();
 
@@ -1046,7 +1211,15 @@ return () => {
   }, [activeQuickFinder, availableQuickFinders]);
 
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => productMatches(product, query, activeFamily, activeQuickFinder));
+    const governedProducts = selectWingmanProducts(products, {
+      mode: "call-card",
+      query,
+      includeBrowseOnly: true,
+    })
+      .filter((decision) => decision.eligible)
+      .map((decision) => decision.product);
+
+    return governedProducts.filter((product) => productPresentationMatches(product, query, activeFamily, activeQuickFinder));
   }, [products, query, activeFamily, activeQuickFinder]);
 
   const pageCount = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
@@ -1251,8 +1424,11 @@ return () => {
       });
     }
 
+    rows.push(...technicalProfileRows(selectedProduct.technicalProfile));
+
     return rows;
-  }, [selectedProduct]);  const firstVisible = filteredProducts.length === 0 ? 0 : safePageIndex * PAGE_SIZE + 1;
+  }, [selectedProduct]);
+  const firstVisible = filteredProducts.length === 0 ? 0 : safePageIndex * PAGE_SIZE + 1;
   const lastVisible = Math.min(filteredProducts.length, (safePageIndex + 1) * PAGE_SIZE);
   const curatedCount = products.filter((product) => product.curated).length;
 
@@ -1348,7 +1524,7 @@ return (
                 onClick={() => setActiveGalleryItem(null)}
                 aria-label="Close product gallery"
               >
-                ×
+                ×
               </button>
             </div>
 
@@ -1380,7 +1556,7 @@ return (
               onClick={() => setActiveTermLookup(null)}
               aria-label="Close term explanation"
             >
-              ×
+              ×
             </button>
           </div>
 

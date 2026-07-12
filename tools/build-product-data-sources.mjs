@@ -179,6 +179,47 @@ function getProfilePorts(product) {
   ]);
 }
 
+// The products.csv inputs/outputs/resolution_bandwidth/usb/audio/control/
+// network_requirement columns are optional and, for the large majority of
+// SKUs, were never filled in. Rather than ship an empty quick-glance summary
+// for every product, fall back to a concise summary derived from the richer
+// technicalProfile.video/audio/usb/network/control sub-profiles and the
+// (accessory-filtered) io.ports list, which already carry real, sourced
+// evidence. A CSV value - once someone curates one - always wins over this
+// derived fallback.
+function deriveSourceCatalogFallback(product) {
+  const profile = product?.technicalProfile && typeof product.technicalProfile === "object" ? product.technicalProfile : {};
+  const io = profile.io && typeof profile.io === "object" ? profile.io : {};
+  const ports = Array.isArray(io.ports) ? io.ports : [];
+  const hasDirection = ports.some((port) => port.direction === "input" || port.direction === "output");
+  const portsWithDirection = (direction) => ports.filter((port) => port.direction === direction);
+  const formatPorts = (list) => list.map((port) => `${port.count}x ${port.connector}`).join(", ");
+
+  const inputs = hasDirection
+    ? formatPorts(portsWithDirection("input"))
+    : ports.length
+      ? `${formatPorts(ports)} (direction not specified in source)`
+      : "";
+  const outputs = hasDirection ? formatPorts(portsWithDirection("output")) : "";
+
+  const video = profile.video;
+  const resolutionBandwidth = video?.present
+    ? unique([...(video.standards || []), ...(video.maxResolutions || []), ...(video.bandwidth || [])]).slice(0, 6).join(", ")
+    : "";
+  const usb = profile.usb?.present
+    ? unique([...(profile.usb.versions || []), ...(profile.usb.connectors || []), ...(profile.usb.roles || []), profile.usb.powerDelivery ? "Power delivery" : ""]).slice(0, 6).join(", ")
+    : "";
+  const audio = profile.audio?.present
+    ? unique([...(profile.audio.formats || []), ...(profile.audio.networkAudio || []), ...(profile.audio.processing || [])]).slice(0, 6).join(", ")
+    : "";
+  const control = profile.control?.present ? unique(profile.control.protocols || []).join(", ") : "";
+  const networkRequirement = profile.network?.present
+    ? unique([...(profile.network.protocols || []), ...(profile.network.linkSpeeds || []), ...(profile.network.powerOverNetwork || [])]).slice(0, 6).join(", ")
+    : "";
+
+  return { inputs, outputs, resolutionBandwidth, usb, audio, control, networkRequirement };
+}
+
 function featureCount(product) {
   const profileFeatures = Array.isArray(product?.technicalProfile?.features)
     ? product.technicalProfile.features.map((feature) => feature?.label || feature?.name || feature)
@@ -265,15 +306,17 @@ function buildWyrestormProducts(productSourceRows, lifecycleRows, enrichmentRows
         businessStatus,
         doNotSpec,
         successor: clean(lifecycle.successor || sourceRow.successor),
-        sourceCatalog: {
-          inputs: clean(sourceRow.inputs),
-          outputs: clean(sourceRow.outputs),
+        sourceCatalog: (() => {
+          const fallback = deriveSourceCatalogFallback(enrichment);
+          return {
+          inputs: clean(sourceRow.inputs) || fallback.inputs,
+          outputs: clean(sourceRow.outputs) || fallback.outputs,
           transportType: clean(sourceRow.transport_type),
-          resolutionBandwidth: clean(sourceRow.resolution_bandwidth),
-          usb: clean(sourceRow.usb),
-          audio: clean(sourceRow.audio),
-          control: clean(sourceRow.control),
-          networkRequirement: clean(sourceRow.network_requirement),
+          resolutionBandwidth: clean(sourceRow.resolution_bandwidth) || fallback.resolutionBandwidth,
+          usb: clean(sourceRow.usb) || fallback.usb,
+          audio: clean(sourceRow.audio) || fallback.audio,
+          control: clean(sourceRow.control) || fallback.control,
+          networkRequirement: clean(sourceRow.network_requirement) || fallback.networkRequirement,
           dependencies: splitList(sourceRow.dependencies),
           compatibleFamilies: splitList(sourceRow.compatible_families),
           applicationFit: clean(sourceRow.application_fit),
@@ -283,7 +326,8 @@ function buildWyrestormProducts(productSourceRows, lifecycleRows, enrichmentRows
           lastReviewed: clean(sourceRow.last_reviewed || lifecycle.last_reviewed),
           reviewer: clean(sourceRow.reviewer || lifecycle.reviewer),
           lifecycleReason: clean(lifecycle.reason),
-        },
+          };
+        })(),
       };
       const confidence = confidenceFor(product, lifecycleStatus, doNotSpec);
       const officialSourcePass = Boolean(sourceUrl(product, sourceRow));
@@ -358,6 +402,80 @@ function numberOrUndefined(value) {
   return clean(value) && Number.isFinite(parsed) ? parsed : undefined;
 }
 
+// Competitor rows are hand-curated per manufacturer, and control_json/audio_json/
+// features_json/specs_json are optional columns that are frequently left blank
+// even when the summary/notes text already states the fact in prose (e.g. a
+// summary that says "RS-232 and IR control" but has no control_json entry).
+// These helpers mine ONLY the free text already present on the row (summary,
+// known_limitations, notes, technology, max_resolution) for the same signal
+// categories the WyreStorm sourceCatalog fallback covers, so nothing here is
+// invented - a feature/control/audio line only appears if its trigger phrase
+// is literally present in already-curated text.
+const COMPETITOR_FEATURE_PATTERNS = [
+  { label: "USB-C", pattern: /usb-?c/i },
+  { label: "USB routing / KVM", pattern: /\bkvm\b|usb routing|usb host|usb 2\.0|usb 3\.\d/i },
+  { label: "Dante", pattern: /\bdante\b/i },
+  { label: "AES67", pattern: /aes67/i },
+  { label: "Multiview", pattern: /multi[-\s]?view/i },
+  { label: "Video wall", pattern: /video\s*wall|videowall/i },
+  { label: "Wireless casting / presentation", pattern: /wireless (casting|presentation|screen ?sharing)|airplay|miracast|clickshare|screen mirroring/i },
+  { label: "Casting dongle", pattern: /\bdongle\b|clickshare button/i },
+  { label: "10G / SDVoE", pattern: /\b10g\b|sdvoe/i },
+  { label: "HDBaseT output", pattern: /hdbaset|hdbt/i },
+  { label: "PoE", pattern: /\bpoe\b|power over ethernet/i },
+];
+
+function deriveCompetitorFeatures(text) {
+  return COMPETITOR_FEATURE_PATTERNS.filter((entry) => entry.pattern.test(text)).map((entry) => entry.label);
+}
+
+const COMPETITOR_CONTROL_PATTERNS = [
+  { label: "RS-232", pattern: /rs-?232/i },
+  { label: "IR", pattern: /\bir\b|infrared/i },
+  { label: "CEC", pattern: /\bcec\b/i },
+  { label: "Relay / contact closure", pattern: /\brelay\b|contact closure/i },
+  { label: "GPIO", pattern: /\bgpio\b/i },
+  { label: "TCP/IP", pattern: /tcp\/ip|ip control|ethernet control/i },
+  { label: "Web UI", pattern: /web ui|web interface/i },
+  { label: "API", pattern: /\bapi\b/i },
+  { label: "Telnet", pattern: /\btelnet\b/i },
+];
+
+function deriveCompetitorControl(text) {
+  return COMPETITOR_CONTROL_PATTERNS.filter((entry) => entry.pattern.test(text)).map((entry) => entry.label);
+}
+
+const COMPETITOR_AUDIO_PATTERNS = [
+  { label: "Embedded audio", pattern: /audio\s*embed|embedded audio/i },
+  { label: "De-embedded audio", pattern: /de-?embed/i },
+  { label: "Dante", pattern: /\bdante\b/i },
+  { label: "AES67", pattern: /aes67/i },
+  { label: "Analog audio", pattern: /analog(ue)? audio|line (in|out)|phoenix audio/i },
+  { label: "USB audio", pattern: /usb audio/i },
+  { label: "ARC / eARC", pattern: /\bearc\b|\barc\b/i },
+];
+
+function deriveCompetitorAudio(text) {
+  return COMPETITOR_AUDIO_PATTERNS.filter((entry) => entry.pattern.test(text)).map((entry) => entry.label);
+}
+
+// Structured HDMI/HDBaseT/USB version facts, only populated when a version
+// token is literally present in the source text (never inferred from
+// product class or brand reputation).
+function deriveCompetitorVideoDetail(text) {
+  const result = {};
+  const hdmi = text.match(/\bhdmi\s*(2\.1|2\.0[ab]?|1\.4|1\.3)\b/i);
+  if (hdmi) result.hdmi = hdmi[1];
+  const hdbaset = text.match(/\bhdbaset\s*(3\.0|2\.0|1\.0)\b/i);
+  if (hdbaset) result.hdbaset = `HDBaseT ${hdbaset[1]}`;
+  const hdbasetClass =
+    text.match(/\bhdbaset[^.]{0,24}\bclass\s*([abc])\b/i) || text.match(/\bclass\s*([abc])\b[^.]{0,24}\bhdbaset\b/i);
+  if (hdbasetClass) result.hdbasetClass = `Class ${hdbasetClass[1].toUpperCase()}`;
+  const usb = text.match(/\busb\s*(3\.2|3\.1|3\.0|2\.0)\b/i);
+  if (usb) result.usbStandard = `USB ${usb[1]}`;
+  return result;
+}
+
 function compileCompetitorRow(row, sourceFile) {
   const manufacturer = clean(row.manufacturer);
   const model = clean(row.model);
@@ -392,6 +510,21 @@ function compileCompetitorRow(row, sourceFile) {
   const physicalOutputCount = numberOrUndefined(row.physical_output_count);
   const mirroredOutputCount = numberOrUndefined(row.mirrored_output_count);
 
+  const fallbackBlob = [
+    row.summary,
+    row.known_limitations,
+    row.notes,
+    row.technology,
+    row.max_resolution,
+  ].map(clean).filter(Boolean).join(" | ");
+  const derivedFeatures = deriveCompetitorFeatures(fallbackBlob);
+  const derivedControl = deriveCompetitorControl(fallbackBlob);
+  const derivedAudio = deriveCompetitorAudio(fallbackBlob);
+  const derivedVideoDetail = deriveCompetitorVideoDetail(fallbackBlob);
+  const featureListEmpty = Array.isArray(featureValue)
+    ? featureValue.length === 0
+    : !featureValue || (typeof featureValue === "object" && Object.keys(featureValue).length === 0);
+
   return {
     sku: model,
     model,
@@ -417,10 +550,11 @@ function compileCompetitorRow(row, sourceFile) {
     directionality: clean(row.directionality),
     inputs,
     outputs,
-    control,
-    audio,
-    features: featureValue,
+    control: control.length ? control : derivedControl,
+    audio: audio.length ? audio : derivedAudio,
+    features: featureListEmpty ? derivedFeatures : featureValue,
     video: {
+      ...derivedVideoDetail,
       ...(specs.video && typeof specs.video === "object" ? specs.video : {}),
       ...(clean(row.max_resolution) ? { maxResolution: clean(row.max_resolution) } : {}),
       ...(clean(row.chroma) ? { chroma: clean(row.chroma) } : {}),

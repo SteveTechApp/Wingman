@@ -11,6 +11,24 @@ export type ProductRole =
   | "wireless"
   | "general";
 
+export type ProductTechnicalDataSummary = {
+  status: "verified" | "official-structured" | "inferred" | "missing";
+  statusLabel: string;
+  completeness: number;
+  compareReady: boolean;
+  sourceTier: "verified-profile" | "official-structured" | "text-inferred" | "missing";
+  productClass?: string;
+  role?: string;
+  transport: string[];
+  maxResolution?: string;
+  chroma?: string;
+  dependencies: string[];
+  compatibleFamilies: string[];
+  evidence: string[];
+  missingFields: string[];
+  warnings: string[];
+};
+
 export type ProductSpec = {
   sku: string;
   name: string;
@@ -33,6 +51,7 @@ export type ProductSpec = {
   physical: string[];
   checks: string[];
   related: string[];
+  technicalData?: ProductTechnicalDataSummary;
 };
 
 // How much of this narrative is trusted, governed copy versus auto-generated
