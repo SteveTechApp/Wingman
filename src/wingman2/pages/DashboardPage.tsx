@@ -310,9 +310,7 @@ export function DashboardPage() {
                         <progress className="wm-reference-progress-track" max={100} value={progress.value} />
                         <strong>{progress.value}%</strong>
                       </div>
-                    ) : (
-                      <div className="wm-reference-project-next">{nextStepFor(project.stage)}</div>
-                    )}
+                    ) : null}
                     <div className="wm-reference-project-next">{nextStepFor(project.stage)}</div>
                   </Link>
                 );
