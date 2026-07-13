@@ -5,11 +5,15 @@ const root = process.cwd();
 const srcRoot = path.join(root, "src");
 const mainEntry = path.join(root, "src", "main.tsx");
 const styleStack = path.join(root, "src", "wingman2", "styles", "wingman-style-stack.css");
+const referenceTheme = path.join(root, "src", "wingman2", "styles", "wingman-reference-theme.css");
 const allowed = new Set([
-  "src/main.tsx"
+  "src/main.tsx",
 ]);
 
-const expectedMainCssImports = ["./wingman2/styles/wingman-style-stack.css"];
+const expectedMainCssImports = [
+  "./wingman2/styles/wingman-style-stack.css",
+  "./wingman2/styles/wingman-reference-theme.css",
+];
 const retiredPageStyleFiles = [
   "discovery-output-preview.css",
   "product-pitch-safe-layout.css",
@@ -90,17 +94,24 @@ if (
   mainCssImports.length !== expectedMainCssImports.length
   || mainCssImports.some((cssImport, index) => cssImport !== expectedMainCssImports[index])
 ) {
-  console.error("Blocked: src/main.tsx must import only the consolidated Wingman style stack.");
+  console.error("Blocked: src/main.tsx must import only the governed Wingman global styles in the required order.");
   console.error(`Found: ${mainCssImports.length ? mainCssImports.join(", ") : "none"}`);
   process.exit(1);
 }
 
-const styleStackRaw = fs.readFileSync(styleStack, "utf8");
+for (const globalStyle of [styleStack, referenceTheme]) {
+  if (!fs.existsSync(globalStyle)) {
+    console.error(`Blocked: missing governed global stylesheet ${rel(globalStyle)}.`);
+    process.exit(1);
+  }
 
-if (/@import\s+["']/.test(styleStackRaw)) {
-  console.error("Blocked: wingman-style-stack.css must not import page, route, or patch stylesheets.");
-  console.error("Keep the Wingman design system central in the style stack.");
-  process.exit(1);
+  const raw = fs.readFileSync(globalStyle, "utf8");
+
+  if (/@import\s+["']/.test(raw)) {
+    console.error(`Blocked: ${rel(globalStyle)} must not import route or patch stylesheets.`);
+    console.error("Keep Wingman styling governed through the two app-wide layers.");
+    process.exit(1);
+  }
 }
 
 const retiredFilesStillPresent = retiredPageStyleFiles
@@ -119,4 +130,4 @@ if (retiredFilesStillPresent.length > 0) {
   process.exit(1);
 }
 
-console.log("CSS import guard passed. Only main.tsx imports the consolidated Wingman style stack.");
+console.log("CSS import guard passed. Wingman uses the governed base stack and reference theme only.");
