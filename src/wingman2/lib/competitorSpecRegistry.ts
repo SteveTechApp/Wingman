@@ -289,7 +289,7 @@ function quantityFromLabel(text: string, labels: string[]): number | undefined {
   return undefined;
 }
 
-function parseResolution(text: string): string | undefined {
+export function parseResolution(text: string): string | undefined {
   const value = text.toLowerCase();
   if (/8k|4320/.test(value)) return "8K";
   if (/4k\s*60|4k60|2160p\s*60|60\s*hz.*4k|4k.*60\s*hz/.test(value)) return "4K60";
@@ -310,7 +310,7 @@ function parseFirstMatch(text: string, patterns: RegExp[], formatter?: (value: s
   return undefined;
 }
 
-function parseFeatures(text: string): Record<string, boolean> {
+export function parseFeatures(text: string): Record<string, boolean> {
   const value = text.toLowerCase();
   const features: Record<string, boolean> = {};
   if (/usb-?c/.test(value)) features.usbC = true;
@@ -332,7 +332,7 @@ function parseFeatures(text: string): Record<string, boolean> {
   return features;
 }
 
-function parseSpecFacts(text: string, inputCount?: number, outputCount?: number, features: Record<string, boolean> = {}): CompareSpecFacts {
+export function parseSpecFacts(text: string, inputCount?: number, outputCount?: number, features: Record<string, boolean> = {}): CompareSpecFacts {
   const value = text.toLowerCase();
   const specs: CompareSpecFacts = {};
 
@@ -435,6 +435,50 @@ function parseSpecFacts(text: string, inputCount?: number, outputCount?: number,
   else if (specs.internalPsu) specs.powerSupply = "Internal PSU";
 
   return Object.fromEntries(Object.entries(specs).filter(([, item]) => item !== undefined)) as CompareSpecFacts;
+}
+
+const SPEC_FACT_INPUT_FIELDS: Array<keyof CompareSpecFacts> = [
+  "hdmiInputs", "displayPortInputs", "dviInputs", "vgaInputs", "sdiInputs", "compositeInputs", "componentInputs",
+];
+const SPEC_FACT_OUTPUT_FIELDS: Array<keyof CompareSpecFacts> = [
+  "hdmiOutputs", "displayPortOutputs", "dviOutputs", "sdiOutputs", "compositeOutputs", "componentOutputs",
+];
+
+function sumSpecFactPorts(specs: CompareSpecFacts, fields: Array<keyof CompareSpecFacts>): number | undefined {
+  const total = fields.reduce((sum, field) => {
+    const value = specs[field];
+    return typeof value === "number" ? sum + value : sum;
+  }, 0);
+  return total > 0 ? total : undefined;
+}
+
+/**
+ * Best-effort pre-fill for the Compare "add product data" form from free text
+ * (e.g. a competitor PDF datasheet extracted client-side). Deliberately does
+ * NOT infer domain/role - those use a different vocabulary than this parser's
+ * feature/spec keywords and stay rep-picked from the existing dropdowns. Only
+ * suggests values a human should still confirm before saving.
+ */
+export function inferSpecFormFieldsFromText(text: string): {
+  maxResolution?: string;
+  chroma?: string;
+  inputCount?: number;
+  outputCount?: number;
+  notesExcerpt?: string;
+} {
+  const trimmed = text.trim();
+  if (!trimmed) return {};
+
+  const features = parseFeatures(trimmed);
+  const specs = parseSpecFacts(trimmed, undefined, undefined, features);
+
+  return {
+    maxResolution: parseResolution(trimmed),
+    chroma: /4:4:4/.test(trimmed) ? "4:4:4" : /4:2:2/.test(trimmed) ? "4:2:2" : /4:2:0/.test(trimmed) ? "4:2:0" : undefined,
+    inputCount: sumSpecFactPorts(specs, SPEC_FACT_INPUT_FIELDS),
+    outputCount: sumSpecFactPorts(specs, SPEC_FACT_OUTPUT_FIELDS),
+    notesExcerpt: trimmed.length > 500 ? `${trimmed.slice(0, 500)}…` : trimmed,
+  };
 }
 
 function sourceProductDomain(product: CompetitorSourceProduct): CompetitorTechnologyClass | undefined {
