@@ -1,5 +1,6 @@
 import "./wingman2/styles/wingman-style-stack.css";
 import "./wingman2/styles/wingman-reference-theme.css";
+import "./wingman2/styles/wingman-workflow-theme.css";
 import { installCompareManufacturerAssist } from "./wingman2/lib/compareManufacturerAssist";
 import "./wingman2/lib/guruDetachedPanel";
 import "./wingman2/lib/microphoneSafety";
