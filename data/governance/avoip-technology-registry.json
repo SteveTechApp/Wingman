@@ -1,0 +1,324 @@
+{
+  "version": 1,
+  "updatedAt": "2026-07-13",
+  "policy": {
+    "networkSpeedValues": [
+      "1GbE",
+      "10GbE"
+    ],
+    "chipsetRule": "Record a physical AVoIP chipset only when an official manufacturer source names it. Codec or ecosystem names such as JPEG2000 and SDVoE must not be stored as chipsets.",
+    "unknownChipsetValue": null
+  },
+  "rules": [
+    {
+      "vendor": "WyreStorm",
+      "skuPattern": "^NHD-(?:110|120|124|128|140|150|250)(?:-|$)",
+      "networkSpeed": "1GbE",
+      "codec": "H.264/H.265",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
+    },
+    {
+      "vendor": "WyreStorm",
+      "skuPattern": "^NHD-0401-MV$",
+      "networkSpeed": "1GbE",
+      "codec": "NetworkHD 500 JPEG2000 stream processing",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-0401-mv/"
+    },
+    {
+      "vendor": "WyreStorm",
+      "skuPattern": "^NHD-(?:300|400|500|510)(?:-|$)",
+      "networkSpeed": "1GbE",
+      "codec": "JPEG2000",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    {
+      "vendor": "WyreStorm",
+      "skuPattern": "^NHD-(?:600|610)(?:-|$)",
+      "networkSpeed": "10GbE",
+      "codec": "SDVoE Pixel Pipeline",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
+    },
+    {
+      "vendor": "Blustream",
+      "skuPattern": "^IP(?:200|250|300|350)UHD-(?:TX|RX)$",
+      "networkSpeed": "1GbE",
+      "codec": "Visually lossless proprietary compression",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "evidenceUrl": "https://www.blustream-us.com/video-over-ip-extenders-ip250uhd-tx"
+    },
+    {
+      "vendor": "Crestron",
+      "skuPattern": "^DM-NVX-",
+      "networkSpeed": "1GbE",
+      "codec": "Pixel Perfect Processing",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed"
+    },
+    {
+      "vendor": "Extron",
+      "skuPattern": "^NAV(?:-|$)",
+      "networkSpeed": "1GbE",
+      "codec": "PURE3",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed"
+    },
+    {
+      "vendor": "Atlona",
+      "skuPattern": "^AT-OMNI-",
+      "networkSpeed": "1GbE",
+      "codec": "VC-2 / SMPTE 2042",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed"
+    },
+    {
+      "vendor": "Lightware",
+      "skuPattern": "^VINX-",
+      "networkSpeed": "1GbE",
+      "codec": "Light compression",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed"
+    },
+    {
+      "vendor": "Just Add Power",
+      "skuPattern": "^(?:VBS|VBS-HDIP|3G|2G|MC)-",
+      "networkSpeed": "1GbE",
+      "codec": "Proprietary visually lossless compression",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed"
+    },
+    {
+      "vendor": "ZeeVee",
+      "skuPattern": "^ZYPER4K",
+      "networkSpeed": "10GbE",
+      "codec": "Uncompressed / light compression",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed"
+    },
+    {
+      "vendor": "ZeeVee",
+      "skuPattern": "^ZYPERUHD",
+      "networkSpeed": "1GbE",
+      "codec": "Visually lossless compression",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed"
+    }
+  ],
+  "exactPortProfiles": {
+    "NHD-500-TX": {
+      "role": "encoder",
+      "routedInputCount": 1,
+      "routedOutputCount": 1,
+      "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI Type A",
+          "direction": "input",
+          "category": "video",
+          "detail": "HDMI 2.0b source input"
+        },
+        {
+          "count": 1,
+          "connector": "5-pin Phoenix",
+          "direction": "input",
+          "category": "audio",
+          "detail": "Balanced analogue audio input"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI Type A",
+          "direction": "output",
+          "category": "video",
+          "detail": "HDMI 2.0b local loop output"
+        },
+        {
+          "count": 1,
+          "connector": "5-pin Phoenix",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Balanced analogue audio output"
+        },
+        {
+          "count": 1,
+          "connector": "Toslink",
+          "direction": "output",
+          "category": "audio",
+          "detail": "S/PDIF digital audio output"
+        },
+        {
+          "count": 1,
+          "connector": "RJ-45",
+          "direction": "output",
+          "category": "network",
+          "detail": "1GbE AV network connection"
+        },
+        {
+          "count": 1,
+          "connector": "SFP",
+          "direction": "output",
+          "category": "network",
+          "detail": "1Gb optical AV network connection"
+        },
+        {
+          "count": 1,
+          "connector": "USB 2.0 Type B",
+          "direction": "input",
+          "category": "usb",
+          "detail": "Host-computer USB connection"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin Phoenix",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232"
+        },
+        {
+          "count": 1,
+          "connector": "3.5mm TS",
+          "direction": "output",
+          "category": "control",
+          "detail": "IR TX"
+        },
+        {
+          "count": 1,
+          "connector": "3.5mm TRS",
+          "direction": "input",
+          "category": "control",
+          "detail": "IR RX"
+        },
+        {
+          "count": 1,
+          "connector": "12V DC",
+          "direction": "input",
+          "category": "power",
+          "detail": "Local PSU alternative to PoE"
+        }
+      ],
+      "specs": {
+        "hdmiInputs": 1,
+        "hdmiOutputs": 1,
+        "usbHostPorts": 1,
+        "usbDevicePorts": 0,
+        "usbTotalPorts": 1,
+        "audioInputs": 1,
+        "audioOutputs": 2,
+        "networkPorts": 2,
+        "controlPorts": 3,
+        "networkSpeed": "1GbE",
+        "avoipCodec": "JPEG2000",
+        "avoipChip": null,
+        "avoipChipStatus": "not-publicly-confirmed"
+      },
+      "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "NHD-500-RX": {
+      "role": "decoder",
+      "routedInputCount": 1,
+      "routedOutputCount": 1,
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ-45",
+          "direction": "input",
+          "category": "network",
+          "detail": "1GbE AV network connection"
+        },
+        {
+          "count": 1,
+          "connector": "SFP",
+          "direction": "input",
+          "category": "network",
+          "detail": "1Gb optical AV network connection"
+        },
+        {
+          "count": 1,
+          "connector": "Toslink",
+          "direction": "input",
+          "category": "audio",
+          "detail": "S/PDIF audio return input"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI Type A",
+          "direction": "output",
+          "category": "video",
+          "detail": "HDMI 2.0b display output"
+        },
+        {
+          "count": 1,
+          "connector": "5-pin Phoenix",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Balanced analogue audio output"
+        },
+        {
+          "count": 2,
+          "connector": "USB 1.1 Type A",
+          "direction": "output",
+          "category": "usb",
+          "detail": "HID peripheral ports"
+        },
+        {
+          "count": 2,
+          "connector": "USB 2.0 Type A",
+          "direction": "output",
+          "category": "usb",
+          "detail": "USB peripheral ports, up to 200Mbps upstream"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin Phoenix",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232"
+        },
+        {
+          "count": 1,
+          "connector": "3.5mm TS",
+          "direction": "output",
+          "category": "control",
+          "detail": "IR TX"
+        },
+        {
+          "count": 1,
+          "connector": "3.5mm TRS",
+          "direction": "input",
+          "category": "control",
+          "detail": "IR RX"
+        },
+        {
+          "count": 1,
+          "connector": "12V DC",
+          "direction": "input",
+          "category": "power",
+          "detail": "Local PSU alternative to PoE"
+        }
+      ],
+      "specs": {
+        "hdmiInputs": 0,
+        "hdmiOutputs": 1,
+        "usbHostPorts": 0,
+        "usbDevicePorts": 4,
+        "usbTotalPorts": 4,
+        "audioInputs": 1,
+        "audioOutputs": 1,
+        "networkPorts": 2,
+        "controlPorts": 3,
+        "networkSpeed": "1GbE",
+        "avoipCodec": "JPEG2000",
+        "avoipChip": null,
+        "avoipChipStatus": "not-publicly-confirmed"
+      },
+      "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    }
+  }
+}

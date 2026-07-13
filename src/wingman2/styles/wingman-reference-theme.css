@@ -1173,3 +1173,132 @@ button.wm-reference-quick-card {
     animation: none !important;
   }
 }
+
+/* WINGMAN_GURU_FORCED_MOTION_START */
+
+/*
+   Animate the complete fixed Guru launcher.
+
+   The independent CSS translate property avoids conflict with the inline
+   transform used to preserve the draggable screen position.
+*/
+.wingman-guru-fab[data-dragging="false"] {
+  animation:
+    wm-guru-forced-flight 3.2s cubic-bezier(0.45, 0, 0.55, 1) infinite
+    !important;
+  will-change: translate;
+}
+
+.wingman-guru-fab[data-dragging="true"] {
+  animation: none !important;
+  translate: 0 0 !important;
+}
+
+.wingman-guru-fab-image {
+  animation:
+    wm-guru-forced-tilt 2.4s ease-in-out infinite
+    !important;
+  transform-origin: 50% 60% !important;
+  will-change: transform;
+}
+
+.wingman-guru-fab-glow {
+  animation:
+    wm-guru-forced-glow 1.8s ease-in-out infinite
+    !important;
+}
+
+.wingman-guru-fab-sweep {
+  animation:
+    wm-guru-forced-orbit 3.8s linear infinite
+    !important;
+}
+
+@keyframes wm-guru-forced-flight {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  20% {
+    translate: -9px -12px;
+  }
+
+  45% {
+    translate: 5px -23px;
+  }
+
+  68% {
+    translate: 13px -11px;
+  }
+
+  84% {
+    translate: 7px -4px;
+  }
+}
+
+@keyframes wm-guru-forced-tilt {
+  0%,
+  100% {
+    transform: rotate(-3deg) scale(1);
+  }
+
+  50% {
+    transform: rotate(4deg) scale(1.04);
+  }
+}
+
+@keyframes wm-guru-forced-glow {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.88);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes wm-guru-forced-orbit {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/*
+   The user has specifically requested visible Guru movement, so retain
+   movement even when the operating system reports reduced motion.
+*/
+@media (prefers-reduced-motion: reduce) {
+  .wingman-guru-fab[data-dragging="false"] {
+    animation:
+      wm-guru-forced-flight 3.2s cubic-bezier(0.45, 0, 0.55, 1) infinite
+      !important;
+  }
+
+  .wingman-guru-fab-image {
+    animation:
+      wm-guru-forced-tilt 2.4s ease-in-out infinite
+      !important;
+  }
+
+  .wingman-guru-fab-glow {
+    animation:
+      wm-guru-forced-glow 1.8s ease-in-out infinite
+      !important;
+  }
+
+  .wingman-guru-fab-sweep {
+    animation:
+      wm-guru-forced-orbit 3.8s linear infinite
+      !important;
+  }
+}
+
+/* WINGMAN_GURU_FORCED_MOTION_END */

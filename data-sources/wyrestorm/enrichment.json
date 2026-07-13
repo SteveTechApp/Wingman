@@ -160234,7 +160234,9 @@
           "NetworkHD",
           "API"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": []
       },
       "control": {
@@ -160605,6 +160607,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "NetworkHD 500 JPEG2000 stream processing",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-0401-mv/"
       }
     },
     "activeSku": "Yes",
@@ -160907,7 +160916,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "NetworkHD 500 JPEG2000 stream processing",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-0401-mv/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "NetworkHD 500 JPEG2000 stream processing"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "NetworkHD 500 JPEG2000 stream processing"
+    }
   },
   {
     "id": "COMPANIONCONTROL",
@@ -162313,7 +162342,9 @@
           "NetworkHD",
           "API"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -162820,6 +162851,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "H.264/H.265",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
       }
     },
     "activeSku": "Yes",
@@ -163071,7 +163109,27 @@
     ],
     "lifecycleStatus": "discontinued",
     "doNotSpec": true,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "H.264/H.265",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    }
   },
   {
     "id": "NHD-110-RX-S",
@@ -163622,7 +163680,9 @@
           "NetworkHD",
           "API"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -164070,6 +164130,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "H.264/H.265",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
       }
     },
     "activeSku": "Yes",
@@ -164209,7 +164276,27 @@
     },
     "lifecycleStatus": "discontinued",
     "doNotSpec": true,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "H.264/H.265",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    }
   },
   {
     "id": "NHD-110-TX",
@@ -164821,7 +164908,9 @@
           "NetworkHD",
           "API"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -165283,6 +165372,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "H.264/H.265",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
       }
     },
     "activeSku": "Yes",
@@ -165421,7 +165517,27 @@
     },
     "lifecycleStatus": "discontinued",
     "doNotSpec": true,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "H.264/H.265",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    }
   },
   {
     "id": "NHD-120-IW-TX",
@@ -166065,7 +166181,9 @@
         "protocols": [
           "NetworkHD"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -166501,6 +166619,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "H.264/H.265",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
       }
     },
     "activeSku": "Yes",
@@ -166759,7 +166884,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "H.264/H.265",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    }
   },
   {
     "id": "NHD-120-RX",
@@ -167563,7 +167708,7 @@
           "API"
         ],
         "linkSpeeds": [
-          "1000Base-T"
+          "1GbE"
         ],
         "powerOverNetwork": [
           "PoE"
@@ -168062,6 +168207,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "H.264/H.265",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
       }
     },
     "activeSku": "Yes",
@@ -168452,7 +168604,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "H.264/H.265",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    }
   },
   {
     "id": "NHD-120-RX-S",
@@ -169102,7 +169274,7 @@
           "API"
         ],
         "linkSpeeds": [
-          "1000Base-T"
+          "1GbE"
         ],
         "powerOverNetwork": [
           "PoE"
@@ -169580,6 +169752,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "H.264/H.265",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
       }
     },
     "activeSku": "Yes",
@@ -169829,7 +170008,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "H.264/H.265",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    }
   },
   {
     "id": "NHD-120-TX",
@@ -170619,7 +170818,9 @@
           "NetworkHD",
           "API"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -171110,6 +171311,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "H.264/H.265",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
       }
     },
     "activeSku": "Yes",
@@ -171491,7 +171699,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "H.264/H.265",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    }
   },
   {
     "id": "NHD-124-RACK-1U",
@@ -171775,7 +172003,9 @@
         "protocols": [
           "NetworkHD"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": []
       },
       "control": {
@@ -171786,6 +172016,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "H.264/H.265",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
       }
     },
     "salesLanguage": {
@@ -171924,7 +172161,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "H.264/H.265",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    }
   },
   {
     "id": "NHD-124-TX",
@@ -172494,7 +172751,7 @@
           "NetworkHD"
         ],
         "linkSpeeds": [
-          "1000Base-T"
+          "1GbE"
         ],
         "powerOverNetwork": [
           "PoE"
@@ -172861,6 +173118,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "H.264/H.265",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
       }
     },
     "activeSku": "Yes",
@@ -173165,7 +173429,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "H.264/H.265",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    }
   },
   {
     "id": "NHD-128-NDI-TRX",
@@ -173601,7 +173885,9 @@
           "Telnet",
           "API"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -173949,6 +174235,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "H.264/H.265",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
       }
     },
     "activeSku": "Yes",
@@ -174153,7 +174446,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "H.264/H.265",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    }
   },
   {
     "id": "NHD-140-RACK-1U",
@@ -174548,7 +174861,9 @@
         "protocols": [
           "NetworkHD"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": []
       },
       "control": {
@@ -174796,6 +175111,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "H.264/H.265",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
       }
     },
     "activeSku": "Yes",
@@ -174990,7 +175312,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "H.264/H.265",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    }
   },
   {
     "id": "NHD-150-RX",
@@ -175704,7 +176046,7 @@
           "API"
         ],
         "linkSpeeds": [
-          "1000Base-T"
+          "1GbE"
         ],
         "powerOverNetwork": [
           "PoE"
@@ -176150,6 +176492,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "H.264/H.265",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
       }
     },
     "activeSku": "Yes",
@@ -176533,7 +176882,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "H.264/H.265",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    }
   },
   {
     "id": "NHD-250-RX",
@@ -177055,7 +177424,7 @@
           "NDI"
         ],
         "linkSpeeds": [
-          "1000Base-T"
+          "1GbE"
         ],
         "powerOverNetwork": [
           "PoE"
@@ -177485,6 +177854,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "H.264/H.265",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
       }
     },
     "activeSku": "Yes",
@@ -177623,7 +177999,27 @@
     },
     "lifecycleStatus": "discontinued",
     "doNotSpec": true,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "H.264/H.265",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    }
   },
   {
     "id": "NHD-300-TX",
@@ -178095,7 +178491,7 @@
           "NetworkHD"
         ],
         "linkSpeeds": [
-          "1000Base-T"
+          "1GbE"
         ],
         "powerOverNetwork": [
           "PoE"
@@ -178430,6 +178826,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "activeSku": "EOL",
@@ -178567,7 +178970,27 @@
       "routingClass": "NetworkHD 400 distributed routing"
     },
     "doNotSpec": true,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    }
   },
   {
     "id": "NHD-400-DNT-TX",
@@ -179162,7 +179585,7 @@
           "NDI"
         ],
         "linkSpeeds": [
-          "1000BASE-T"
+          "1GbE"
         ],
         "powerOverNetwork": [
           "PoE"
@@ -179666,6 +180089,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "activeSku": "EOL",
@@ -179805,7 +180235,27 @@
       "routingClass": "NetworkHD 400 distributed routing"
     },
     "doNotSpec": true,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    }
   },
   {
     "id": "NHD-400-E-RX",
@@ -180373,7 +180823,7 @@
           "API"
         ],
         "linkSpeeds": [
-          "1000Base-T"
+          "1GbE"
         ],
         "powerOverNetwork": [
           "PoE"
@@ -180808,6 +181258,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "activeSku": "EOL",
@@ -180946,7 +181403,27 @@
       "routingClass": "NetworkHD 400 distributed routing"
     },
     "doNotSpec": true,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    }
   },
   {
     "id": "NHD-400-E-TX",
@@ -181474,7 +181951,7 @@
           "API"
         ],
         "linkSpeeds": [
-          "1000Base-T"
+          "1GbE"
         ],
         "powerOverNetwork": [
           "PoE"
@@ -181910,6 +182387,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "activeSku": "EOL",
@@ -182048,7 +182532,27 @@
       "routingClass": "NetworkHD 400 distributed routing"
     },
     "doNotSpec": true,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    }
   },
   {
     "id": "NHD-400-RX",
@@ -182613,7 +183117,7 @@
           "NetworkHD"
         ],
         "linkSpeeds": [
-          "1000Base-T"
+          "1GbE"
         ],
         "powerOverNetwork": [
           "PoE"
@@ -183086,6 +183590,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "activeSku": "EOL",
@@ -183225,7 +183736,27 @@
       "routingClass": "NetworkHD 400 distributed routing"
     },
     "doNotSpec": true,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    }
   },
   {
     "id": "NHD-400-TX",
@@ -183804,7 +184335,9 @@
         "protocols": [
           "NetworkHD"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -184269,6 +184802,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "activeSku": "EOL",
@@ -184407,7 +184947,27 @@
       "routingClass": "NetworkHD 400 distributed routing"
     },
     "doNotSpec": true,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    }
   },
   {
     "id": "NHD-400-TX-IW",
@@ -184958,7 +185518,7 @@
           "NDI"
         ],
         "linkSpeeds": [
-          "1000Base-T"
+          "1GbE"
         ],
         "powerOverNetwork": [
           "PoE"
@@ -185399,6 +185959,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "activeSku": "EOL",
@@ -185537,7 +186104,27 @@
       "routingClass": "NetworkHD 400 distributed routing"
     },
     "doNotSpec": true,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    }
   },
   {
     "id": "NHD-500",
@@ -186160,7 +186747,9 @@
           "NDI",
           "API"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -186623,6 +187212,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "activeSku": "Yes",
@@ -186762,7 +187358,27 @@
     },
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    }
   },
   {
     "id": "NHD-500-DNT-TX",
@@ -187546,7 +188162,9 @@
           "AES67",
           "API"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -188021,6 +188639,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "activeSku": "Yes",
@@ -188281,7 +188906,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    }
   },
   {
     "id": "NHD-500-E",
@@ -188879,7 +189524,9 @@
           "NetworkHD",
           "API"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -189295,6 +189942,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "activeSku": "Yes",
@@ -189431,7 +190085,27 @@
     },
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    }
   },
   {
     "brand": "WyreStorm",
@@ -189714,7 +190388,9 @@
         "protocols": [
           "NetworkHD"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -189915,6 +190591,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "salesLanguage": {
@@ -190138,7 +190821,27 @@
     "compatibilityReferences": [],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    }
   },
   {
     "brand": "WyreStorm",
@@ -190400,7 +191103,9 @@
         "protocols": [
           "NetworkHD"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -190611,6 +191316,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "salesLanguage": {
@@ -190794,7 +191506,27 @@
     "compatibilityReferences": [],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    }
   },
   {
     "id": "NHD-500-IW-TX",
@@ -191446,7 +192178,9 @@
           "NetworkHD",
           "API"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -191875,6 +192609,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "activeSku": "Yes",
@@ -192183,7 +192924,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    }
   },
   {
     "id": "NHD-500-IW-TX-V2",
@@ -192747,7 +193508,9 @@
           "NetworkHD",
           "API"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -193179,6 +193942,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "activeSku": "Yes",
@@ -193318,7 +194088,27 @@
     },
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    }
   },
   {
     "brand": "WyreStorm",
@@ -193347,12 +194137,17 @@
       "USB"
     ],
     "connectors": [
-      "USB-A/B",
-      "RJ45 / network",
-      "Fibre",
-      "RS-232",
-      "IR",
-      "Audio analogue"
+      "RJ-45",
+      "SFP",
+      "Toslink",
+      "HDMI Type A",
+      "5-pin Phoenix",
+      "USB 1.1 Type A",
+      "USB 2.0 Type A",
+      "3-pin Phoenix",
+      "3.5mm TS",
+      "3.5mm TRS",
+      "12V DC"
     ],
     "features": [
       "Decoder / receiver",
@@ -193657,13 +194452,196 @@
         "NetworkHD AV over IP"
       ],
       "io": {
-        "ports": [],
-        "video": [],
-        "audio": [],
-        "usb": [],
-        "network": [],
-        "control": [],
-        "other": []
+        "ports": [
+          {
+            "count": 1,
+            "connector": "RJ-45",
+            "direction": "input",
+            "category": "network",
+            "detail": "1GbE AV network connection",
+            "evidence": "1GbE AV network connection"
+          },
+          {
+            "count": 1,
+            "connector": "SFP",
+            "direction": "input",
+            "category": "network",
+            "detail": "1Gb optical AV network connection",
+            "evidence": "1Gb optical AV network connection"
+          },
+          {
+            "count": 1,
+            "connector": "Toslink",
+            "direction": "input",
+            "category": "audio",
+            "detail": "S/PDIF audio return input",
+            "evidence": "S/PDIF audio return input"
+          },
+          {
+            "count": 1,
+            "connector": "HDMI Type A",
+            "direction": "output",
+            "category": "video",
+            "detail": "HDMI 2.0b display output",
+            "evidence": "HDMI 2.0b display output"
+          },
+          {
+            "count": 1,
+            "connector": "5-pin Phoenix",
+            "direction": "output",
+            "category": "audio",
+            "detail": "Balanced analogue audio output",
+            "evidence": "Balanced analogue audio output"
+          },
+          {
+            "count": 2,
+            "connector": "USB 1.1 Type A",
+            "direction": "output",
+            "category": "usb",
+            "detail": "HID peripheral ports",
+            "evidence": "HID peripheral ports"
+          },
+          {
+            "count": 2,
+            "connector": "USB 2.0 Type A",
+            "direction": "output",
+            "category": "usb",
+            "detail": "USB peripheral ports, up to 200Mbps upstream",
+            "evidence": "USB peripheral ports, up to 200Mbps upstream"
+          },
+          {
+            "count": 1,
+            "connector": "3-pin Phoenix",
+            "direction": "bidirectional",
+            "category": "control",
+            "detail": "RS-232",
+            "evidence": "RS-232"
+          },
+          {
+            "count": 1,
+            "connector": "3.5mm TS",
+            "direction": "output",
+            "category": "control",
+            "detail": "IR TX",
+            "evidence": "IR TX"
+          },
+          {
+            "count": 1,
+            "connector": "3.5mm TRS",
+            "direction": "input",
+            "category": "control",
+            "detail": "IR RX",
+            "evidence": "IR RX"
+          },
+          {
+            "count": 1,
+            "connector": "12V DC",
+            "direction": "input",
+            "category": "power",
+            "detail": "Local PSU alternative to PoE",
+            "evidence": "Local PSU alternative to PoE"
+          }
+        ],
+        "video": [
+          {
+            "count": 1,
+            "connector": "HDMI Type A",
+            "direction": "output",
+            "category": "video",
+            "detail": "HDMI 2.0b display output",
+            "evidence": "HDMI 2.0b display output"
+          }
+        ],
+        "audio": [
+          {
+            "count": 1,
+            "connector": "Toslink",
+            "direction": "input",
+            "category": "audio",
+            "detail": "S/PDIF audio return input",
+            "evidence": "S/PDIF audio return input"
+          },
+          {
+            "count": 1,
+            "connector": "5-pin Phoenix",
+            "direction": "output",
+            "category": "audio",
+            "detail": "Balanced analogue audio output",
+            "evidence": "Balanced analogue audio output"
+          }
+        ],
+        "usb": [
+          {
+            "count": 2,
+            "connector": "USB 1.1 Type A",
+            "direction": "output",
+            "category": "usb",
+            "detail": "HID peripheral ports",
+            "evidence": "HID peripheral ports"
+          },
+          {
+            "count": 2,
+            "connector": "USB 2.0 Type A",
+            "direction": "output",
+            "category": "usb",
+            "detail": "USB peripheral ports, up to 200Mbps upstream",
+            "evidence": "USB peripheral ports, up to 200Mbps upstream"
+          }
+        ],
+        "network": [
+          {
+            "count": 1,
+            "connector": "RJ-45",
+            "direction": "input",
+            "category": "network",
+            "detail": "1GbE AV network connection",
+            "evidence": "1GbE AV network connection"
+          },
+          {
+            "count": 1,
+            "connector": "SFP",
+            "direction": "input",
+            "category": "network",
+            "detail": "1Gb optical AV network connection",
+            "evidence": "1Gb optical AV network connection"
+          }
+        ],
+        "control": [
+          {
+            "count": 1,
+            "connector": "3-pin Phoenix",
+            "direction": "bidirectional",
+            "category": "control",
+            "detail": "RS-232",
+            "evidence": "RS-232"
+          },
+          {
+            "count": 1,
+            "connector": "3.5mm TS",
+            "direction": "output",
+            "category": "control",
+            "detail": "IR TX",
+            "evidence": "IR TX"
+          },
+          {
+            "count": 1,
+            "connector": "3.5mm TRS",
+            "direction": "input",
+            "category": "control",
+            "detail": "IR RX",
+            "evidence": "IR RX"
+          }
+        ],
+        "power": [
+          {
+            "count": 1,
+            "connector": "12V DC",
+            "direction": "input",
+            "category": "power",
+            "detail": "Local PSU alternative to PoE",
+            "evidence": "Local PSU alternative to PoE"
+          }
+        ]
       },
       "video": {
         "present": true,
@@ -193696,22 +194674,27 @@
       "usb": {
         "present": true,
         "versions": [
+          "USB 1.1",
           "USB 2.0"
         ],
-        "connectors": [],
-        "roles": [],
-        "bandwidth": [],
-        "powerDelivery": true
+        "connectors": [
+          "USB 1.1 Type A",
+          "USB 2.0 Type A"
+        ],
+        "roles": [
+          "HID peripheral ports",
+          "USB peripheral ports, up to 200Mbps upstream"
+        ],
+        "totalPorts": 4
       },
       "network": {
         "present": true,
-        "interfaces": [],
-        "protocols": [
-          "NetworkHD"
+        "linkSpeeds": [
+          "1GbE"
         ],
-        "linkSpeeds": [],
-        "powerOverNetwork": [
-          "PoE"
+        "ports": [
+          "1 x RJ-45 input - 1GbE AV network connection",
+          "1 x SFP input - 1Gb optical AV network connection"
         ]
       },
       "control": {
@@ -193978,6 +194961,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "salesLanguage": {
@@ -194295,7 +195285,52 @@
     "compatibilityReferences": [],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000",
+      "hdmiInputs": 0,
+      "hdmiOutputs": 1,
+      "usbHostPorts": 0,
+      "usbDevicePorts": 4,
+      "usbTotalPorts": 4,
+      "audioInputs": 1,
+      "audioOutputs": 1,
+      "networkPorts": 2,
+      "controlPorts": 3
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000",
+      "inputs": [
+        "1 x RJ-45 input - 1GbE AV network connection",
+        "1 x SFP input - 1Gb optical AV network connection",
+        "1 x Toslink input - S/PDIF audio return input"
+      ],
+      "outputs": [
+        "1 x HDMI Type A output - HDMI 2.0b display output",
+        "1 x 5-pin Phoenix output - Balanced analogue audio output",
+        "2 x USB 1.1 Type A output - HID peripheral ports",
+        "2 x USB 2.0 Type A output - USB peripheral ports, up to 200Mbps upstream"
+      ],
+      "usb": "2 x USB 1.1 Type A output - HID peripheral ports; 2 x USB 2.0 Type A output - USB peripheral ports, up to 200Mbps upstream"
+    },
+    "routedInputCount": 1,
+    "routedOutputCount": 1,
+    "inputCount": 1,
+    "outputCount": 1
   },
   {
     "id": "NHD-500-T",
@@ -195051,7 +196086,9 @@
           "Telnet",
           "API"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -195501,6 +196538,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "activeSku": "Yes",
@@ -195638,7 +196682,27 @@
     },
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    }
   },
   {
     "brand": "WyreStorm",
@@ -195669,23 +196733,16 @@
       "USB"
     ],
     "connectors": [
-      "USB-A/B",
-      "RJ45 / network",
-      "Fibre",
-      "RS-232",
-      "IR",
-      "Audio analogue",
-      "HDMI",
-      "RJ45 / Ethernet",
-      "S/PDIF 1 x S/PDIF (Toslink)",
-      "S/PDIF Digital 1 x S/PDIF Digital",
-      "Analog audio",
-      "USB",
-      "SFP / fibre",
-      "NHD-500-TX or NHD-500-RX 1x NHD-500-TX or NHD-500-RX",
-      "Pair of Rack Brackets 1x Pair of Rack Brackets",
-      "Pair of Wall Brackets 2x Pair of Wall Brackets",
-      "Terminal Block 1x Terminal Block"
+      "HDMI Type A",
+      "5-pin Phoenix",
+      "Toslink",
+      "RJ-45",
+      "SFP",
+      "USB 2.0 Type B",
+      "3-pin Phoenix",
+      "3.5mm TS",
+      "3.5mm TRS",
+      "12V DC"
     ],
     "features": [
       "Encoder / transmitter",
@@ -195997,360 +197054,207 @@
         "ports": [
           {
             "count": 1,
-            "connector": "HDMI",
+            "connector": "HDMI Type A",
             "direction": "input",
             "category": "video",
-            "evidence": "1 x HDMI 2.0b"
+            "detail": "HDMI 2.0b source input",
+            "evidence": "HDMI 2.0b source input"
           },
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "5-pin Phoenix",
             "direction": "input",
             "category": "audio",
-            "evidence": "1 x 5-pin Balanced Audio"
+            "detail": "Balanced analogue audio input",
+            "evidence": "Balanced analogue audio input"
           },
           {
             "count": 1,
-            "connector": "S/PDIF 1 x S/PDIF (Toslink)",
-            "direction": "input",
-            "category": "other",
-            "evidence": "1 x S/PDIF (Toslink)"
-          },
-          {
-            "count": 1,
-            "connector": "S/PDIF Digital 1 x S/PDIF Digital",
+            "connector": "HDMI Type A",
             "direction": "output",
-            "category": "other",
-            "evidence": "1 x S/PDIF Digital"
+            "category": "video",
+            "detail": "HDMI 2.0b local loop output",
+            "evidence": "HDMI 2.0b local loop output"
           },
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "5-pin Phoenix",
+            "direction": "output",
+            "category": "audio",
+            "detail": "Balanced analogue audio output",
+            "evidence": "Balanced analogue audio output"
+          },
+          {
+            "count": 1,
+            "connector": "Toslink",
+            "direction": "output",
+            "category": "audio",
+            "detail": "S/PDIF digital audio output",
+            "evidence": "S/PDIF digital audio output"
+          },
+          {
+            "count": 1,
+            "connector": "RJ-45",
             "direction": "output",
             "category": "network",
-            "evidence": "1x 1GbE 8-Pin RJ45"
+            "detail": "1GbE AV network connection",
+            "evidence": "1GbE AV network connection"
           },
           {
             "count": 1,
-            "connector": "IR",
+            "connector": "SFP",
             "direction": "output",
-            "category": "control",
-            "evidence": "1x IR TX 3.5mm TS Mono Jack | API Programmable"
+            "category": "network",
+            "detail": "1Gb optical AV network connection",
+            "evidence": "1Gb optical AV network connection"
           },
           {
             "count": 1,
-            "connector": "IR",
-            "direction": "output",
-            "category": "control",
-            "evidence": "1x IR RX 3.5mm TRS Stereo Jack | API Programmable"
-          },
-          {
-            "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "evidence": "1x 3-Pin Phoenix Connector | 2-way | API Programmable"
-          },
-          {
-            "count": 1,
-            "connector": "USB",
-            "direction": "output",
+            "connector": "USB 2.0 Type B",
+            "direction": "input",
             "category": "usb",
-            "evidence": "1 x USB 2.0 Type B"
-          },
-          {
-            "count": 2,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "evidence": "2 x USB HID Type A"
-          },
-          {
-            "count": 2,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "evidence": "2 x USB 2.0 Type A (up to 200Mbps upstream)"
+            "detail": "Host-computer USB connection",
+            "evidence": "Host-computer USB connection"
           },
           {
             "count": 1,
-            "connector": "HDMI",
-            "direction": "output",
-            "category": "video",
-            "evidence": "1 x HDMI 2.0"
+            "connector": "3-pin Phoenix",
+            "direction": "bidirectional",
+            "category": "control",
+            "detail": "RS-232",
+            "evidence": "RS-232"
           },
           {
             "count": 1,
-            "connector": "Analog audio",
-            "direction": "output",
-            "category": "audio",
-            "evidence": "1 x 3.5mm TRS Audio"
-          },
-          {
-            "count": 1,
-            "connector": "SFP / fibre",
-            "direction": "output",
-            "category": "video",
-            "evidence": "1x 1Gb SFP (1000BaseT-SX: 550m using OM3 MMF)"
-          },
-          {
-            "count": 1,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "evidence": "1 x USB 2.0 Type Host"
-          },
-          {
-            "count": 1,
-            "connector": "IR",
+            "connector": "3.5mm TS",
             "direction": "output",
             "category": "control",
-            "evidence": "1 x IR Emitter"
+            "detail": "IR TX",
+            "evidence": "IR TX"
           },
           {
             "count": 1,
-            "connector": "IR",
-            "direction": "output",
+            "connector": "3.5mm TRS",
+            "direction": "input",
             "category": "control",
-            "evidence": "1x IR Receiver"
+            "detail": "IR RX",
+            "evidence": "IR RX"
           },
           {
             "count": 1,
-            "connector": "NHD-500-TX or NHD-500-RX 1x NHD-500-TX or NHD-500-RX",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x NHD-500-TX or NHD-500-RX"
-          },
-          {
-            "count": 1,
-            "connector": "Pair of Rack Brackets 1x Pair of Rack Brackets",
-            "direction": "output",
-            "category": "control",
-            "evidence": "1x Pair of Rack Brackets"
-          },
-          {
-            "count": 2,
-            "connector": "Pair of Wall Brackets 2x Pair of Wall Brackets",
-            "direction": "output",
-            "category": "control",
-            "evidence": "2x Pair of Wall Brackets"
-          },
-          {
-            "count": 1,
-            "connector": "Terminal Block 1x  Terminal Block",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x 3-pin Terminal Block"
-          },
-          {
-            "count": 1,
-            "connector": "Terminal Block 1x  Terminal Block",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x 5-pin Terminal Block"
+            "connector": "12V DC",
+            "direction": "input",
+            "category": "power",
+            "detail": "Local PSU alternative to PoE",
+            "evidence": "Local PSU alternative to PoE"
           }
         ],
         "video": [
           {
             "count": 1,
-            "connector": "HDMI",
+            "connector": "HDMI Type A",
             "direction": "input",
             "category": "video",
-            "evidence": "1 x HDMI 2.0b"
+            "detail": "HDMI 2.0b source input",
+            "evidence": "HDMI 2.0b source input"
           },
           {
             "count": 1,
-            "connector": "HDMI",
+            "connector": "HDMI Type A",
             "direction": "output",
             "category": "video",
-            "evidence": "1 x HDMI 2.0"
-          },
-          {
-            "count": 1,
-            "connector": "SFP / fibre",
-            "direction": "output",
-            "category": "video",
-            "evidence": "1x 1Gb SFP (1000BaseT-SX: 550m using OM3 MMF)"
+            "detail": "HDMI 2.0b local loop output",
+            "evidence": "HDMI 2.0b local loop output"
           }
         ],
         "audio": [
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "5-pin Phoenix",
             "direction": "input",
             "category": "audio",
-            "evidence": "1 x 5-pin Balanced Audio"
+            "detail": "Balanced analogue audio input",
+            "evidence": "Balanced analogue audio input"
           },
           {
             "count": 1,
-            "connector": "Analog audio",
+            "connector": "5-pin Phoenix",
             "direction": "output",
             "category": "audio",
-            "evidence": "1x 3-Pin Phoenix Connector | 2-way | API Programmable"
+            "detail": "Balanced analogue audio output",
+            "evidence": "Balanced analogue audio output"
           },
           {
             "count": 1,
-            "connector": "Analog audio",
+            "connector": "Toslink",
             "direction": "output",
             "category": "audio",
-            "evidence": "1 x 3.5mm TRS Audio"
+            "detail": "S/PDIF digital audio output",
+            "evidence": "S/PDIF digital audio output"
           }
         ],
         "usb": [
           {
             "count": 1,
-            "connector": "USB",
-            "direction": "output",
+            "connector": "USB 2.0 Type B",
+            "direction": "input",
             "category": "usb",
-            "evidence": "1 x USB 2.0 Type B"
-          },
-          {
-            "count": 2,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "evidence": "2 x USB HID Type A"
-          },
-          {
-            "count": 2,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "evidence": "2 x USB 2.0 Type A (up to 200Mbps upstream)"
-          },
-          {
-            "count": 1,
-            "connector": "USB",
-            "direction": "output",
-            "category": "usb",
-            "evidence": "1 x USB 2.0 Type Host"
+            "detail": "Host-computer USB connection",
+            "evidence": "Host-computer USB connection"
           }
         ],
         "network": [
           {
             "count": 1,
-            "connector": "RJ45 / Ethernet",
+            "connector": "RJ-45",
             "direction": "output",
             "category": "network",
-            "evidence": "1x 1GbE 8-Pin RJ45"
+            "detail": "1GbE AV network connection",
+            "evidence": "1GbE AV network connection"
+          },
+          {
+            "count": 1,
+            "connector": "SFP",
+            "direction": "output",
+            "category": "network",
+            "detail": "1Gb optical AV network connection",
+            "evidence": "1Gb optical AV network connection"
           }
         ],
         "control": [
           {
             "count": 1,
-            "connector": "IR",
-            "direction": "output",
+            "connector": "3-pin Phoenix",
+            "direction": "bidirectional",
             "category": "control",
-            "evidence": "1x IR TX 3.5mm TS Mono Jack | API Programmable"
+            "detail": "RS-232",
+            "evidence": "RS-232"
           },
           {
             "count": 1,
-            "connector": "IR",
+            "connector": "3.5mm TS",
             "direction": "output",
             "category": "control",
-            "evidence": "1x IR RX 3.5mm TRS Stereo Jack | API Programmable"
+            "detail": "IR TX",
+            "evidence": "IR TX"
           },
           {
             "count": 1,
-            "connector": "IR",
-            "direction": "output",
-            "category": "control",
-            "evidence": "1 x IR Emitter"
-          },
-          {
-            "count": 1,
-            "connector": "IR",
-            "direction": "output",
-            "category": "control",
-            "evidence": "1x IR Receiver"
-          },
-          {
-            "count": 1,
-            "connector": "Pair of Rack Brackets 1x Pair of Rack Brackets",
-            "direction": "output",
-            "category": "control",
-            "evidence": "1x Pair of Rack Brackets"
-          },
-          {
-            "count": 2,
-            "connector": "Pair of Wall Brackets 2x Pair of Wall Brackets",
-            "direction": "output",
-            "category": "control",
-            "evidence": "2x Pair of Wall Brackets"
-          }
-        ],
-        "other": [
-          {
-            "count": 1,
-            "connector": "S/PDIF 1 x S/PDIF (Toslink)",
+            "connector": "3.5mm TRS",
             "direction": "input",
-            "category": "other",
-            "evidence": "1 x S/PDIF (Toslink)"
-          },
-          {
-            "count": 1,
-            "connector": "S/PDIF Digital 1 x S/PDIF Digital",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1 x S/PDIF Digital"
-          },
-          {
-            "count": 1,
-            "connector": "NHD-500-TX or NHD-500-RX 1x NHD-500-TX or NHD-500-RX",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x NHD-500-TX or NHD-500-RX"
-          },
-          {
-            "count": 1,
-            "connector": "Terminal Block 1x  Terminal Block",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x 3-pin Terminal Block"
-          },
-          {
-            "count": 1,
-            "connector": "Terminal Block 1x  Terminal Block",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x 5-pin Terminal Block"
+            "category": "control",
+            "detail": "IR RX",
+            "evidence": "IR RX"
           }
         ],
-        "accessories": [
+        "power": [
           {
             "count": 1,
-            "connector": "NHD-500-TX or NHD-500-RX 1x NHD-500-TX or NHD-500-RX",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x NHD-500-TX or NHD-500-RX"
-          },
-          {
-            "count": 1,
-            "connector": "Pair of Rack Brackets 1x Pair of Rack Brackets",
-            "direction": "output",
-            "category": "control",
-            "evidence": "1x Pair of Rack Brackets"
-          },
-          {
-            "count": 2,
-            "connector": "Pair of Wall Brackets 2x Pair of Wall Brackets",
-            "direction": "output",
-            "category": "control",
-            "evidence": "2x Pair of Wall Brackets"
-          },
-          {
-            "count": 1,
-            "connector": "Terminal Block 1x  Terminal Block",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x 3-pin Terminal Block"
-          },
-          {
-            "count": 1,
-            "connector": "Terminal Block 1x  Terminal Block",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x 5-pin Terminal Block"
+            "connector": "12V DC",
+            "direction": "input",
+            "category": "power",
+            "detail": "Local PSU alternative to PoE",
+            "evidence": "Local PSU alternative to PoE"
           }
         ]
       },
@@ -196423,37 +197327,22 @@
         "versions": [
           "USB 2.0"
         ],
-        "connectors": [],
-        "roles": [
-          "KVM / HID"
+        "connectors": [
+          "USB 2.0 Type B"
         ],
-        "bandwidth": [],
-        "powerDelivery": true
+        "roles": [
+          "Host-computer USB connection"
+        ],
+        "totalPorts": 1
       },
       "network": {
         "present": true,
-        "interfaces": [
-          "1 x 5-pin Balanced Audio",
-          "LAN",
-          "1x 1GbE 8-Pin RJ45",
-          "1x 1Gb SFP:",
-          "1x 1Gb SFP (1000BaseT-SX: 550m using OM3 MMF)",
-          "The NetworkHD 500s series is an HDMI 2.0 AV over IP solution. Capable of encoding up to 4K60 including Dolby Vision, HDR10 and HLG content. The 500 series comes loaded with a number of advanced features such as the flexibility of Ethernet or Fiber as a transport method. Ultra-low latency encoding and incredibly fast matrix switching speeds enhance the experience. A powerful routing engine allows audio, video, USB and control signals to be discretely sent to any endpoint. Create captivating video walls up to 16x16 in size and control them with the tap of a button in the amazing NetworkHD Touch control app.",
-          "Capable of encoding full HDMI 2.0 content. This includes 4K60 4:4:4 8bit and high dynamic range video including Dolby Vision, HDR10 & HLG up to 12bit 4:2:2 at 60Hz over a 1GbE network. NHD-500-TX v2 comes with HDMI loop out for local monitor.",
-          "Capable of encoding full HDMI 2.0 content. This includes 4K60 4:4:4 8bit and high dynamic range video including Dolby Vision, HDR10 & HLG up to 12bit 4:2:2 at 60Hz over a 1GbE network.",
-          "Equipped with both Ethernet and Fiber outputs, the 500 series offers flexibility for any installation. Ethernet can support transmissions up to 100m (328ft) and fiber is capable of a stunning 550m (1800ft) using OM3 MMF.",
-          "Audio Return Channel (ARC) via HDMI allows audio from a display to transmit over the network to a 500 series encoder for connection to a compatible AVR. ARC supports up to Dolby Digital Plus and DTS 5.1 formats. Have an older display? Take advantage of the Toslink passthrough to transmit audio in the same way.",
-          "The 500s are fully compatible with the NetworkHD Touch control app. Effortlessly control matrix and video wall switching with preview streams of each encoder."
+        "linkSpeeds": [
+          "1GbE"
         ],
-        "protocols": [
-          "NetworkHD",
-          "Dante",
-          "AES67",
-          "API"
-        ],
-        "linkSpeeds": [],
-        "powerOverNetwork": [
-          "PoE"
+        "ports": [
+          "1 x RJ-45 output - 1GbE AV network connection",
+          "1 x SFP output - 1Gb optical AV network connection"
         ]
       },
       "control": {
@@ -196913,6 +197802,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "salesLanguage": {
@@ -197191,7 +198087,53 @@
     "compatibilityReferences": [],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000",
+      "hdmiInputs": 1,
+      "hdmiOutputs": 1,
+      "usbHostPorts": 1,
+      "usbDevicePorts": 0,
+      "usbTotalPorts": 1,
+      "audioInputs": 1,
+      "audioOutputs": 2,
+      "networkPorts": 2,
+      "controlPorts": 3
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000",
+      "inputs": [
+        "1 x HDMI Type A input - HDMI 2.0b source input",
+        "1 x 5-pin Phoenix input - Balanced analogue audio input",
+        "1 x USB 2.0 Type B input - Host-computer USB connection"
+      ],
+      "outputs": [
+        "1 x HDMI Type A output - HDMI 2.0b local loop output",
+        "1 x 5-pin Phoenix output - Balanced analogue audio output",
+        "1 x Toslink output - S/PDIF digital audio output",
+        "1 x RJ-45 output - 1GbE AV network connection",
+        "1 x SFP output - 1Gb optical AV network connection"
+      ],
+      "usb": "1 x USB 2.0 Type B input - Host-computer USB connection"
+    },
+    "routedInputCount": 1,
+    "routedOutputCount": 1,
+    "inputCount": 1,
+    "outputCount": 1
   },
   {
     "id": "NHD-500-TXRX-V2",
@@ -197973,7 +198915,9 @@
           "AES67",
           "API"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -198448,6 +199392,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "activeSku": "Yes",
@@ -198586,7 +199537,27 @@
     },
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    }
   },
   {
     "id": "NHD-510-TX",
@@ -199462,7 +200433,9 @@
           "Dante",
           "API"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -199921,6 +200894,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "JPEG2000",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
       }
     },
     "activeSku": "Yes",
@@ -200333,7 +201313,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "JPEG2000",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
+    }
   },
   {
     "id": "NHD-600-E-RX",
@@ -200686,6 +201686,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "10GbE",
+        "codec": "SDVoE Pixel Pipeline",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
       }
     },
     "salesLanguage": {
@@ -200788,7 +201795,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "10GbE",
+      "networkRequirement": "10GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "SDVoE Pixel Pipeline",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
+    },
+    "specs": {
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "10GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    }
   },
   {
     "id": "NHD-600-E-TX",
@@ -201141,6 +202168,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "10GbE",
+        "codec": "SDVoE Pixel Pipeline",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
       }
     },
     "salesLanguage": {
@@ -201243,7 +202277,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "10GbE",
+      "networkRequirement": "10GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "SDVoE Pixel Pipeline",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
+    },
+    "specs": {
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "10GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    }
   },
   {
     "id": "NHD-600-E-TXRX",
@@ -202279,6 +203333,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "10GbE",
+        "codec": "SDVoE Pixel Pipeline",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
       }
     },
     "activeSku": "Yes",
@@ -202416,7 +203477,27 @@
     },
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "10GbE",
+      "networkRequirement": "10GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "SDVoE Pixel Pipeline",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
+    },
+    "specs": {
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "10GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    }
   },
   {
     "id": "NHD-600-RX",
@@ -202899,6 +203980,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "10GbE",
+        "codec": "SDVoE Pixel Pipeline",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
       }
     },
     "activeSku": "Yes",
@@ -203035,7 +204123,27 @@
     },
     "lifecycleStatus": "discontinued",
     "doNotSpec": true,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "10GbE",
+      "networkRequirement": "10GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "SDVoE Pixel Pipeline",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
+    },
+    "specs": {
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "10GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    }
   },
   {
     "id": "NHD-600-TRX",
@@ -204251,6 +205359,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "10GbE",
+        "codec": "SDVoE Pixel Pipeline",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
       }
     },
     "activeSku": "Yes",
@@ -204598,7 +205713,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "10GbE",
+      "networkRequirement": "10GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "SDVoE Pixel Pipeline",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
+    },
+    "specs": {
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "10GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    }
   },
   {
     "id": "NHD-600-TRXF",
@@ -205400,7 +206535,7 @@
           "API"
         ],
         "linkSpeeds": [
-          "10Gbps"
+          "10GbE"
         ],
         "powerOverNetwork": []
       },
@@ -205854,6 +206989,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "10GbE",
+        "codec": "SDVoE Pixel Pipeline",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
       }
     },
     "activeSku": "Yes",
@@ -206119,7 +207261,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "10GbE",
+      "networkRequirement": "10GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "SDVoE Pixel Pipeline",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
+    },
+    "specs": {
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "10GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    }
   },
   {
     "id": "NHD-600-TX",
@@ -206599,6 +207761,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "10GbE",
+        "codec": "SDVoE Pixel Pipeline",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
       }
     },
     "activeSku": "Yes",
@@ -206735,7 +207904,27 @@
     },
     "lifecycleStatus": "discontinued",
     "doNotSpec": true,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "10GbE",
+      "networkRequirement": "10GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "SDVoE Pixel Pipeline",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
+    },
+    "specs": {
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "10GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    }
   },
   {
     "id": "NHD-610",
@@ -208018,6 +209207,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "10GbE",
+        "codec": "SDVoE Pixel Pipeline",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
       }
     },
     "activeSku": "Yes",
@@ -208156,7 +209352,27 @@
     },
     "lifecycleStatus": "discontinued",
     "doNotSpec": true,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "10GbE",
+      "networkRequirement": "10GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "SDVoE Pixel Pipeline",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
+    },
+    "specs": {
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "10GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    }
   },
   {
     "brand": "WyreStorm",
@@ -208396,7 +209612,7 @@
           "NetworkHD"
         ],
         "linkSpeeds": [
-          "10G"
+          "10GbE"
         ],
         "powerOverNetwork": [
           "PoE"
@@ -208658,6 +209874,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "10GbE",
+        "codec": "SDVoE Pixel Pipeline",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
       }
     },
     "salesLanguage": {
@@ -208775,7 +209998,27 @@
     },
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "10GbE",
+      "networkRequirement": "10GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "SDVoE Pixel Pipeline",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
+    },
+    "specs": {
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "10GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    }
   },
   {
     "brand": "WyreStorm",
@@ -209511,7 +210754,6 @@
           "API"
         ],
         "linkSpeeds": [
-          "10G",
           "10GbE"
         ],
         "powerOverNetwork": [
@@ -209991,6 +211233,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "10GbE",
+        "codec": "SDVoE Pixel Pipeline",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
       }
     },
     "salesLanguage": {
@@ -210205,7 +211454,27 @@
     "compatibilityReferences": [],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "10GbE",
+      "networkRequirement": "10GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "SDVoE Pixel Pipeline",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
+    },
+    "specs": {
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "10GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    }
   },
   {
     "id": "NHD-610-TX-V2",
@@ -211495,6 +212764,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "10GbE",
+        "codec": "SDVoE Pixel Pipeline",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
       }
     },
     "activeSku": "Yes",
@@ -211790,7 +213066,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "10GbE",
+      "networkRequirement": "10GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "SDVoE Pixel Pipeline",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/"
+    },
+    "specs": {
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "10GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    }
   },
   {
     "id": "NHD-CTL-PRO",
@@ -212192,7 +213488,9 @@
         "protocols": [
           "NetworkHD"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -212538,6 +213836,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": null,
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": null
       }
     },
     "activeSku": "Yes",
@@ -212675,7 +213980,25 @@
     },
     "lifecycleStatus": "discontinued",
     "doNotSpec": true,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": null,
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-ctl-pro/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    }
   },
   {
     "id": "NHD-CTL-PRO-T",
@@ -213113,7 +214436,9 @@
         "protocols": [
           "NetworkHD"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -213451,6 +214776,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": null,
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": null
       }
     },
     "activeSku": "Yes",
@@ -213588,7 +214920,25 @@
     },
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": null,
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-ctl-pro-t/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    }
   },
   {
     "id": "NHD-CTL-PRO-V2",
@@ -214139,7 +215489,9 @@
         "protocols": [
           "NetworkHD"
         ],
-        "linkSpeeds": [],
+        "linkSpeeds": [
+          "1GbE"
+        ],
         "powerOverNetwork": [
           "PoE"
         ]
@@ -214475,6 +215827,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": null,
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": null
       }
     },
     "activeSku": "Yes",
@@ -214878,7 +216237,25 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": null,
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-ctl-pro-v2/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    }
   },
   {
     "id": "NHD-RACK-1U",
@@ -218347,7 +219724,7 @@
           "API"
         ],
         "linkSpeeds": [
-          "10Gbps"
+          "1GbE"
         ],
         "powerOverNetwork": [
           "PoE"
@@ -218924,6 +220301,13 @@
         "present": false,
         "version": "",
         "distance": []
+      },
+      "avoip": {
+        "networkSpeed": "1GbE",
+        "codec": "H.264/H.265",
+        "chipset": null,
+        "chipsetStatus": "not-publicly-confirmed",
+        "evidenceUrl": null
       }
     },
     "activeSku": "Yes",
@@ -219280,7 +220664,27 @@
     ],
     "lifecycleStatus": "review",
     "doNotSpec": false,
-    "successor": ""
+    "successor": "",
+    "avoip": {
+      "networkSpeed": "1GbE",
+      "networkRequirement": "1GbE managed AV network",
+      "chipset": null,
+      "chipsetStatus": "not-publicly-confirmed",
+      "codec": "H.264/H.265",
+      "evidenceUrl": "https://www.wyrestorm.com/product/nhd-usb-trx/"
+    },
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    },
+    "sourceCatalog": {
+      "networkRequirement": "1GbE managed AV network",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
+    }
   },
   {
     "id": "OFFICE-KIT",
