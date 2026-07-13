@@ -229,66 +229,76 @@ export function DashboardPage() {
       data-wingman-dashboard-layout="viewport-split"
       aria-label="Wingman dashboard"
     >
-      <aside
-        className="wm-section-card wm-dashboard-rail"
-        data-wingman-dashboard-rail="viewport-depth"
-        data-wm-accent="discovery"
-        data-wm-card-level="primary"
-      >
-        <div className="wm-dashboard-hero-copy">
-          <div className="wm-dashboard-brand-row">
-            <span className="wm-dashboard-brand">W</span>
-            <span className="wm-ui-kicker">WyreStorm Wingman</span>
+      <section className="wm-dashboard-command-band" data-wingman-dashboard-command-centre="true">
+        <aside
+          className="wm-section-card wm-dashboard-rail"
+          data-wingman-dashboard-rail="viewport-depth"
+          data-wm-accent="discovery"
+          data-wm-card-level="primary"
+        >
+          <div className="wm-dashboard-command-copy">
+            <div className="wm-dashboard-brand-row">
+              <span className="wm-dashboard-brand">W</span>
+              <span className="wm-ui-kicker">WyreStorm Wingman</span>
+            </div>
+            <h1 className="wm-page-title wm-dashboard-rail-title">How can Wingman help you today?</h1>
+            <p className="wm-copy wm-dashboard-rail-copy">
+              Start from the customer task. Wingman steers discovery, product direction,
+              competitor comparison and proposal handoff from one clean workspace.
+            </p>
+
+            <div className="wm-dashboard-flow" aria-label="Wingman workflow">
+              {workflowSteps.map((step, index) => (
+                <span key={step} className="wm-dashboard-flow-step">
+                  <span className="wm-dashboard-flow-index">{index + 1}</span>
+                  <span>{step}</span>
+                </span>
+              ))}
+            </div>
+
+            <div className="wm-dashboard-system-strip" aria-hidden="true">
+              <span>Customer need</span>
+              <span>Signal path</span>
+              <span>WyreStorm fit</span>
+              <span>Proposal handoff</span>
+            </div>
           </div>
-          <h1 className="wm-page-title wm-dashboard-rail-title">How can Wingman help you today?</h1>
-          <p className="wm-copy wm-dashboard-rail-copy">
-            Start from the customer task. Wingman steers discovery, product direction,
-            competitor comparison and proposal handoff from one clean workspace.
-          </p>
 
-          <div className="wm-dashboard-flow" aria-label="Wingman workflow">
-            {workflowSteps.map((step) => (
-              <span key={step} className="wm-dashboard-flow-step">
-                {step}
-              </span>
-            ))}
+          <div className="wm-dashboard-signal-map" aria-hidden="true">
+            <span className="wm-dashboard-signal-line wm-dashboard-signal-line-a" />
+            <span className="wm-dashboard-signal-line wm-dashboard-signal-line-b" />
+            <span className="wm-dashboard-signal-line wm-dashboard-signal-line-c" />
+            <span className="wm-dashboard-signal-node wm-dashboard-signal-node-a" />
+            <span className="wm-dashboard-signal-node wm-dashboard-signal-node-b" />
+            <span className="wm-dashboard-signal-node wm-dashboard-signal-node-c" />
+            <span className="wm-dashboard-signal-node wm-dashboard-signal-node-d" />
+            <span className="wm-dashboard-signal-node wm-dashboard-signal-node-e" />
           </div>
-        </div>
 
-        <div className="wm-dashboard-signal-map" aria-hidden="true">
-          <span className="wm-dashboard-signal-line wm-dashboard-signal-line-a" />
-          <span className="wm-dashboard-signal-line wm-dashboard-signal-line-b" />
-          <span className="wm-dashboard-signal-node wm-dashboard-signal-node-a" />
-          <span className="wm-dashboard-signal-node wm-dashboard-signal-node-b" />
-          <span className="wm-dashboard-signal-node wm-dashboard-signal-node-c" />
-          <span className="wm-dashboard-signal-node wm-dashboard-signal-node-d" />
-        </div>
+          <div className="wm-dashboard-rail-actions">
+            <Link
+              to={routeCatalogByKey.discovery.path}
+              className="wm-button wm-button-primary wm-dashboard-action-button wm-dashboard-primary-action"
+              data-wingman-dashboard-primary-button="true"
+              data-wingman-dashboard-short-label="Discover"
+              data-wm-accent="discovery"
+            >
+              Start guided discovery
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
 
-        <div className="wm-dashboard-rail-actions">
-          <Link
-            to={routeCatalogByKey.discovery.path}
-            className="wm-button wm-button-primary wm-dashboard-action-button wm-dashboard-primary-action"
-            data-wingman-dashboard-primary-button="true"
-            data-wingman-dashboard-short-label="Discover"
-            data-wm-accent="discovery"
-          >
-            Start guided discovery
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </Link>
+            <Link
+              to={routeCatalogByKey.compare.path}
+              className="wm-button wm-button-secondary wm-dashboard-action-button wm-dashboard-secondary-action"
+              data-wingman-dashboard-primary-button="true"
+              data-wingman-dashboard-short-label="Compare"
+              data-wm-accent="compare"
+            >
+              Compare a competitor
+            </Link>
+          </div>
+        </aside>
 
-          <Link
-            to={routeCatalogByKey.compare.path}
-            className="wm-button wm-button-secondary wm-dashboard-action-button wm-dashboard-secondary-action"
-            data-wingman-dashboard-primary-button="true"
-            data-wingman-dashboard-short-label="Compare"
-            data-wm-accent="compare"
-          >
-            Compare a competitor
-          </Link>
-        </div>
-      </aside>
-
-      <section className="wm-dashboard-main" data-wingman-dashboard-main="viewport-depth">
         <article
           className="wm-action-card wm-dashboard-resume-card"
           data-wm-accent="projects"
@@ -313,7 +323,7 @@ export function DashboardPage() {
           <div className="wm-dashboard-next-step">
             <Flag className="h-4 w-4" aria-hidden="true" />
             <div>
-              <span className="wm-dashboard-next-kicker">Next step</span>
+              <span className="wm-dashboard-next-kicker">Recommended next step</span>
               <strong className="wm-dashboard-next-copy">{nextStepFor(resume.stage)}</strong>
             </div>
           </div>
@@ -344,7 +354,9 @@ export function DashboardPage() {
             </Link>
           </div>
         </article>
+      </section>
 
+      <section className="wm-dashboard-main" data-wingman-dashboard-main="viewport-depth">
         <section className="wm-section wm-dashboard-section" aria-label="Primary destinations">
           <div className="wm-dashboard-section-head">
             <div>
