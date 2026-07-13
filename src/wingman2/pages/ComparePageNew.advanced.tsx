@@ -21,7 +21,7 @@ import { findUcCompetitorProduct, UC_COMPETITOR_PRODUCTS } from "../data/ucCompe
 import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
 import { competitorSkuSeeds } from "../lib/competitorProductIntelligence";
 import { resolveCompetitorSpecProfile, type ResolvedCompetitorProfile } from "../lib/competitorSpecRegistry";
-import { findSavedCompetitorSpec, saveCompetitorSpec, type SavedCompetitorSpec } from "../lib/savedCompetitorSpecs";
+import { findSavedCompetitorSpec } from "../lib/savedCompetitorSpecs";
 import { buildWyrestormCompareProfile } from "../lib/wyrestormCompareProfile";
 import { findKnownWyrestormCompareProfile, hydrateWyrestormCompareProfile } from "../lib/knownWyrestormCompareProfiles";
 import type { KnownWyrestormCompareProfile } from "../lib/knownWyrestormCompareProfiles";
@@ -31,7 +31,7 @@ import { resolveWyrestormSkuAlias, skuAliasMatches } from "../lib/skuAliasResolv
 import type { RigorousCompareResult, RigorousMatch } from "../lib/rigorousCompare";
 import { applyCompareEligibilityRanking } from "../lib/compareEligibilityEngine";
 import { runCompareRuntimePipeline } from "../lib/compareRuntimePipeline";
-import { runCompetitorLookup, WingmanApiError, type CompetitorLookupResponse } from "../api/wingmanApi";
+import { CompetitorEvidencePanel } from "./compare/CompetitorEvidencePanel";
 
 /*
   Compare workflow guard markers retained for scripts.
@@ -4220,241 +4220,6 @@ function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
   );
 }
 
-const SAVED_SPEC_DOMAIN_OPTIONS: Array<{ value: SavedCompetitorSpec["domain"]; label: string }> = [
-  { value: "UNKNOWN", label: "Not sure yet" },
-  { value: "AVOIP", label: "AV-over-IP" },
-  { value: "HDBASET", label: "HDBaseT" },
-  { value: "PRESENTATION", label: "Presentation switcher" },
-  { value: "MATRIX", label: "Matrix switcher" },
-  { value: "VIDEO_WALL", label: "Video wall processor" },
-  { value: "MULTIVIEW", label: "Multiview processor" },
-  { value: "USB_EXTENSION", label: "USB extension" },
-  { value: "CONTROL", label: "Control" },
-  { value: "WIRELESS_COLLAB", label: "Wireless collaboration" },
-];
-
-const SAVED_SPEC_ROLE_OPTIONS: Array<SavedCompetitorSpec["role"]> = [
-  "Unknown", "Transceiver", "Encoder", "Decoder", "Presentation Switcher", "Matrix",
-  "Video Wall Processor", "Multiview Processor", "Extender", "USB Extender", "Controller", "Wireless Collaboration",
-];
-
-type SavedSpecFormState = {
-  title: string;
-  domain: SavedCompetitorSpec["domain"];
-  role: SavedCompetitorSpec["role"];
-  transport: string;
-  maxResolution: string;
-  chroma: string;
-  inputCount: string;
-  outputCount: string;
-  notes: string;
-  sourceUrl: string;
-};
-
-function emptySavedSpecForm(): SavedSpecFormState {
-  return { title: "", domain: "UNKNOWN", role: "Unknown", transport: "", maxResolution: "", chroma: "", inputCount: "", outputCount: "", notes: "", sourceUrl: "" };
-}
-
-function savedSpecToForm(spec: SavedCompetitorSpec): SavedSpecFormState {
-  return {
-    title: spec.title,
-    domain: spec.domain,
-    role: spec.role,
-    transport: spec.transport,
-    maxResolution: spec.maxResolution,
-    chroma: spec.chroma,
-    inputCount: spec.inputCount != null ? String(spec.inputCount) : "",
-    outputCount: spec.outputCount != null ? String(spec.outputCount) : "",
-    notes: spec.notes,
-    sourceUrl: spec.sourceUrl || "",
-  };
-}
-
-// Fetches a real manufacturer product page via the existing (previously unwired)
-// server-side live lookup route (server/competitor-lookup-server.mjs, brand
-// adapters for Crestron/Extron/Atlona/Lightware/Blustream/Kramer/ZeeVee/Barco).
-// The fetched title/summary/source link are informational pre-fill only - they
-// deliberately do NOT feed match scoring directly, since an automated scrape
-// can be wrong (including hitting a bot-block page and "succeeding" with junk
-// text). Scoring is only fed once the rep reviews and explicitly saves a spec
-// below, which is a human-confirmed fact rather than an unvalidated scrape.
-function LiveLookupPanel({ brand, sku, onSaved }: { brand: string; sku: string; onSaved: () => void }) {
-  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
-  const [result, setResult] = useState<CompetitorLookupResponse | null>(null);
-  const [error, setError] = useState<{ message: string; needsSignIn: boolean } | null>(null);
-  const [form, setForm] = useState<SavedSpecFormState>(emptySavedSpecForm);
-  const [savedAt, setSavedAt] = useState<string | null>(null);
-
-  const existingSaved = useMemo(() => findSavedCompetitorSpec(brand, sku), [brand, sku]);
-
-  useEffect(() => {
-    setForm(existingSaved ? savedSpecToForm(existingSaved) : emptySavedSpecForm());
-    setResult(null);
-    setError(null);
-    setStatus("idle");
-    setSavedAt(null);
-  }, [brand, sku, existingSaved]);
-
-  const runLookup = useCallback(async () => {
-    setStatus("loading");
-    setError(null);
-
-    try {
-      const response = await runCompetitorLookup({ brand, sku });
-      setResult(response);
-      setStatus("done");
-
-      if (response.ok && response.record) {
-        setForm((current) => ({
-          ...current,
-          title: current.title || response.record?.name || sku,
-          notes: current.notes || response.record?.summary || response.record?.description || "",
-          sourceUrl: current.sourceUrl || response.record?.sourceUrl || "",
-        }));
-      }
-    } catch (lookupError) {
-      const needsSignIn = lookupError instanceof WingmanApiError && lookupError.status === 401;
-      setError({
-        needsSignIn,
-        message: needsSignIn
-          ? "Fetching the manufacturer's page needs a signed-in Wingman workspace (Settings > Workspace sync). You can still enter the product details manually below."
-          : lookupError instanceof WingmanApiError
-            ? lookupError.message
-            : "Live lookup failed. Confirm the product on the manufacturer's site directly.",
-      });
-      setStatus("error");
-    }
-  }, [brand, sku]);
-
-  function updateForm<K extends keyof SavedSpecFormState>(field: K, value: SavedSpecFormState[K]) {
-    setForm((current) => ({ ...current, [field]: value }));
-  }
-
-  function saveForm() {
-    saveCompetitorSpec({
-      manufacturer: brand,
-      sku,
-      title: form.title,
-      domain: form.domain,
-      role: form.role,
-      transport: form.transport,
-      maxResolution: form.maxResolution,
-      chroma: form.chroma,
-      inputCount: form.inputCount.trim() ? Number(form.inputCount) : undefined,
-      outputCount: form.outputCount.trim() ? Number(form.outputCount) : undefined,
-      notes: form.notes,
-      sourceUrl: form.sourceUrl,
-      savedFrom: result?.ok ? "live-lookup" : "manual",
-    });
-    setSavedAt(new Date().toLocaleTimeString());
-    onSaved();
-  }
-
-  if (!sku.trim()) return null;
-
-  const canSave = form.title.trim().length > 0 || form.domain !== "UNKNOWN";
-
-  return (
-    <section className="compare-native-card wm-ui-section wm-ui-card">
-      <h3 className="wm-ui-title">Live lookup and saved product data</h3>
-      <p className="wm-ui-copy">
-        Wingman has limited local data for this competitor product. Fetch the manufacturer's own product page for reference, then confirm the details below and save them - saved details are reused automatically the next time this SKU comes up in Compare.
-      </p>
-      <button
-        type="button"
-        className="compare-native-secondary-action wm-ui-button wm-ui-button-primary"
-        onClick={() => { void runLookup(); }}
-        disabled={status === "loading"}
-      >
-        {status === "loading" ? "Looking up..." : "Run live lookup"}
-      </button>
-      {error ? <p className="compare-native-muted wm-ui-copy">{error.message}</p> : null}
-      {status === "done" && result ? (
-        result.ok && result.record ? (
-          <div className="wm-ui-card">
-            <p className="wm-ui-copy"><strong>{result.record.name || sku}</strong></p>
-            {result.record.summary ? <p className="wm-ui-copy">{result.record.summary}</p> : null}
-            {result.record.sourceUrl ? (
-              <a className="compare-native-secondary-action" href={result.record.sourceUrl} target="_blank" rel="noreferrer">
-                View manufacturer source
-              </a>
-            ) : null}
-            {result.warnings?.length ? (
-              <ul className="compare-native-bullet-list wm-ui-card">
-                {result.warnings.slice(0, 3).map((warning) => (
-                  <li key={warning}>{warning}</li>
-                ))}
-              </ul>
-            ) : null}
-          </div>
-        ) : (
-          <p className="compare-native-muted wm-ui-copy">
-            No manufacturer page could be resolved automatically. Confirm the product type manually below.
-          </p>
-        )
-      ) : null}
-
-      <div className="wm-ui-card">
-        <p className="wm-ui-copy">
-          <strong>{existingSaved ? "Update saved product data" : "Add product data"}</strong> - only fill in what you actually know; leave the rest blank.
-        </p>
-        <div className="wm-form-grid">
-          <label className="wm-field">
-            Product name
-            <input className="wm-input" value={form.title} onChange={(event) => updateForm("title", event.target.value)} placeholder={sku} />
-          </label>
-          <label className="wm-field">
-            Product type
-            <select className="wm-select" value={form.domain} onChange={(event) => updateForm("domain", event.target.value as SavedCompetitorSpec["domain"])}>
-              {SAVED_SPEC_DOMAIN_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-            </select>
-          </label>
-          <label className="wm-field">
-            Role
-            <select className="wm-select" value={form.role} onChange={(event) => updateForm("role", event.target.value as SavedCompetitorSpec["role"])}>
-              {SAVED_SPEC_ROLE_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
-            </select>
-          </label>
-          <label className="wm-field">
-            Transport
-            <input className="wm-input" value={form.transport} onChange={(event) => updateForm("transport", event.target.value)} placeholder="e.g. HDBaseT, 1GbE AVoIP" />
-          </label>
-          <label className="wm-field">
-            Max resolution
-            <input className="wm-input" value={form.maxResolution} onChange={(event) => updateForm("maxResolution", event.target.value)} placeholder="e.g. 4K60" />
-          </label>
-          <label className="wm-field">
-            Chroma
-            <input className="wm-input" value={form.chroma} onChange={(event) => updateForm("chroma", event.target.value)} placeholder="e.g. 4:4:4" />
-          </label>
-          <label className="wm-field">
-            Inputs
-            <input className="wm-input" type="number" min="0" value={form.inputCount} onChange={(event) => updateForm("inputCount", event.target.value)} />
-          </label>
-          <label className="wm-field">
-            Outputs
-            <input className="wm-input" type="number" min="0" value={form.outputCount} onChange={(event) => updateForm("outputCount", event.target.value)} />
-          </label>
-        </div>
-        <label className="wm-field">
-          Source link
-          <input className="wm-input" value={form.sourceUrl} onChange={(event) => updateForm("sourceUrl", event.target.value)} placeholder="Manufacturer product page" />
-        </label>
-        <label className="wm-field">
-          Notes
-          <textarea className="wm-textarea" value={form.notes} onChange={(event) => updateForm("notes", event.target.value)} />
-        </label>
-        <div className="compare-native-action-row wm-ui-card">
-          <button type="button" className="compare-native-more wm-ui-button wm-ui-button-primary" onClick={saveForm} disabled={!canSave}>
-            Save for next time
-          </button>
-          {savedAt ? <p className="compare-native-muted wm-ui-copy">Saved at {savedAt}. This SKU will use your saved data next time.</p> : null}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function CompareSummaryPanel({ summary, requestLiveLookup, sourceUrl }: { summary: string; requestLiveLookup: boolean; sourceUrl: string }) {
   return (
     <details className="compare-native-summary wm-ui-card wm-ui-copy">
@@ -4523,8 +4288,8 @@ function ComparePageNew() {
 
   const profile = useMemo(
     // catalogVersion is bumped after a rep saves a competitor spec (see
-    // LiveLookupPanel) so this - and everything downstream that scores
-    // against it - recomputes using the newly saved data immediately.
+    // CompetitorEvidencePanel) so this - and everything downstream that
+    // scores against it - recomputes using the newly saved data immediately.
     () => buildCompetitorProfile(effectiveBrand, competitorInput, mustMatchFeatures),
     [competitorInput, effectiveBrand, mustMatchFeatures, catalogVersion],
   );
@@ -5128,17 +4893,24 @@ function ComparePageNew() {
                 />
               </div>
             ) : (
-              <section className="compare-native-empty wm-ui-section">
-                <h3 className="wm-ui-title">No suitable WyreStorm match found from the current data</h3>
-                <p className="wm-ui-copy">{competitorSummary.warning || "Add the competitor product type, I/O, video bandwidth, USB, audio, control or wall-processing requirement and try again."}</p>
-                {competitorSummary.verifyItems.length ? (
-                  <ul className="compare-native-bullet-list wm-ui-card">
-                    {competitorSummary.verifyItems.slice(0, 3).map((item) => (
-                      <li key={`no-match-${item}`}>{item}</li>
-                    ))}
-                  </ul>
-                ) : null}
-              </section>
+              <>
+                <section className="compare-native-empty wm-ui-section">
+                  <h3 className="wm-ui-title">No suitable WyreStorm match found from the current data</h3>
+                  <p className="wm-ui-copy">{competitorSummary.warning || "Add the competitor product type, I/O, video bandwidth, USB, audio, control or wall-processing requirement and try again."}</p>
+                  {competitorSummary.verifyItems.length ? (
+                    <ul className="compare-native-bullet-list wm-ui-card">
+                      {competitorSummary.verifyItems.slice(0, 3).map((item) => (
+                        <li key={`no-match-${item}`}>{item}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </section>
+                <CompetitorEvidencePanel
+                  brand={effectiveBrand}
+                  sku={competitorInput}
+                  onSaved={() => setCatalogVersion((version) => version + 1)}
+                />
+              </>
             )}
 
             {best ? (
@@ -5182,10 +4954,10 @@ function ComparePageNew() {
 
             <CompareSummaryPanel summary={summary} requestLiveLookup={requestLiveLookup} sourceUrl={sourceUrl} />
 
-            {requestLiveLookup ? (
+            {requestLiveLookup && best ? (
               <details className="compare-native-summary wm-ui-card wm-ui-copy">
                 <summary>Source validation</summary>
-                <LiveLookupPanel
+                <CompetitorEvidencePanel
                   brand={effectiveBrand}
                   sku={competitorInput}
                   onSaved={() => setCatalogVersion((version) => version + 1)}
