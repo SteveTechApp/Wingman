@@ -273,11 +273,11 @@ describe("Product Pitch rendered workflow", () => {
           category: "Matrix / HDBaseT",
           productType: "Matrix switcher",
         }),
-        makeProduct("NHD-600-TRX", {
-          name: "NetworkHD 600 Series Transceiver",
+        makeProduct("NHD-600-TRXF", {
+          name: "NetworkHD 600 Series Fiber Transceiver",
           family: "NetworkHD 600",
           category: "AVoIP",
-          productType: "10GbE SDVoE transceiver",
+          productType: "10GbE SDVoE fiber transceiver",
         }),
       ],
     });
@@ -298,8 +298,8 @@ describe("Product Pitch rendered workflow", () => {
     expect(exactResult.querySelector(".wm-product-pitch-result-status")).toHaveTextContent(/Active|Needs verification/i);
     expect(exactResult).not.toHaveTextContent(/SKU:|Name:|Category:|Status:/i);
 
-    fireEvent.change(search, { target: { value: "600-TRX" } });
-    expect(await screen.findByRole("button", { name: /NHD-600-TRX/i })).toBeInTheDocument();
+    fireEvent.change(search, { target: { value: "600-TRXF" } });
+    expect(await screen.findByRole("button", { name: /NHD-600-TRXF/i })).toBeInTheDocument();
   });
 
   it("renders project suggestions and recently viewed before general results", async () => {
@@ -309,11 +309,11 @@ describe("Product Pitch rendered workflow", () => {
       category: "NDI / camera",
       productType: "PTZ camera",
     });
-    const recentProduct = makeProduct("NHD-600-TRX", {
-      name: "NetworkHD 600 Series Transceiver",
+    const recentProduct = makeProduct("NHD-600-TRXF", {
+      name: "NetworkHD 600 Series Fiber Transceiver",
       family: "NetworkHD 600",
       category: "AVoIP",
-      productType: "10GbE SDVoE transceiver",
+      productType: "10GbE SDVoE fiber transceiver",
     });
     vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
       products: [
@@ -379,11 +379,11 @@ describe("Product Pitch rendered workflow", () => {
   it("opens the workspace when a result is selected and lets the rep change product", async () => {
     vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
       products: [
-        makeProduct("NHD-600-TRX", {
-          name: "NetworkHD 600 Series Transceiver",
+        makeProduct("NHD-600-TRXF", {
+          name: "NetworkHD 600 Series Fiber Transceiver",
           family: "NetworkHD 600",
           category: "AVoIP",
-          productType: "10GbE SDVoE transceiver",
+          productType: "10GbE SDVoE fiber transceiver",
         }),
       ],
     });
@@ -395,9 +395,9 @@ describe("Product Pitch rendered workflow", () => {
     );
 
     fireEvent.change(await screen.findByRole("searchbox"), { target: { value: "NHD" } });
-    fireEvent.click(await screen.findByRole("button", { name: /NHD-600-TRX/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /NHD-600-TRXF/i }));
 
-    expect(await screen.findByRole("heading", { name: "NHD-600-TRX", level: 1 })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "NHD-600-TRXF", level: 1 })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Change product/i }));
 
@@ -407,33 +407,33 @@ describe("Product Pitch rendered workflow", () => {
   it("opens a supplied SKU directly without rendering the selector first", async () => {
     vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
       products: [
-        makeProduct("NHD-600-TRX", {
-          name: "NetworkHD 600 Series Transceiver",
+        makeProduct("NHD-600-TRXF", {
+          name: "NetworkHD 600 Series Fiber Transceiver",
           family: "NetworkHD 600",
           category: "AVoIP",
-          productType: "10GbE SDVoE transceiver",
+          productType: "10GbE SDVoE fiber transceiver",
         }),
       ],
     });
 
     render(
-      <MemoryRouter initialEntries={["/wingman/product-pitch?sku=NHD-600-TRX"]}>
+      <MemoryRouter initialEntries={["/wingman/product-pitch?sku=NHD-600-TRXF"]}>
         <ProductPitchPage />
       </MemoryRouter>,
     );
 
-    expect(await screen.findByRole("heading", { name: "NHD-600-TRX", level: 1 })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "NHD-600-TRXF", level: 1 })).toBeInTheDocument();
     expect(screen.queryByRole("searchbox")).not.toBeInTheDocument();
   });
 
   it("limits initial rendered catalogue results and show more reveals additional products", async () => {
     vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
-      products: Array.from({ length: 24 }, (_, index) => makeProduct(`NHD-6${String(index).padStart(2, "0")}-TRX`, {
-        name: `NetworkHD result ${index}`,
-        family: "NetworkHD",
-        category: "AVoIP",
-        productType: "AVoIP transceiver",
-        applications: ["AV-over-IP", "video distribution"],
+      products: Array.from({ length: 24 }, (_, index) => makeProduct(`MX-9${String(index).padStart(3, "0")}-SCL`, {
+        name: `Matrix result ${index}`,
+        family: "MX",
+        category: "Matrix / routing",
+        productType: "Matrix switcher",
+        applications: ["matrix switching", "video distribution"],
       })),
     });
 

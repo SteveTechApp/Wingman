@@ -5174,7 +5174,7 @@ function ComparePageNew() {
           ) : null}
           <div className="compare-native-action-row compare-native-action-row--between wm-ui-action-row wm-ui-card wm-ui-centered-actions">
             <span className="compare-native-muted wm-ui-copy">Selected brand: {selectedBrand}</span>
-            <div className="compare-native-action-row wm-ui-action-row wm-ui-card">
+            <div className="compare-native-action-row compare-native-action-row--equal wm-ui-action-row wm-ui-card">
               <button
                 className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
                 type="button"
@@ -5195,6 +5195,10 @@ function ComparePageNew() {
 
       {compareStage === "sku" ? (
         <form className="compare-native-results compare-native-results--stage wm-ui-section wm-ui-card" onSubmit={handleSubmit}>
+          <div className="compare-native-stage-brand-badge" aria-label={`Selected brand ${selectedBrand}`}>
+            <span>Selected brand</span>
+            <strong>{selectedBrand}</strong>
+          </div>
           <div className="compare-native-section-title wm-ui-card-header wm-ui-card wm-ui-title">
             <h2 className="wm-ui-title">Choose competitor product</h2>
             <p className="wm-ui-copy">Pick a known SKU, or type a custom model and add only the details that change the product direction or quote risk.</p>
@@ -5225,7 +5229,7 @@ function ComparePageNew() {
             <button className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" type="button" onClick={() => setCompareStage("brand")}>
               Back to brand
             </button>
-            <div className="compare-native-action-row wm-ui-action-row wm-ui-card">
+            <div className="compare-native-action-row compare-native-action-row--equal wm-ui-action-row wm-ui-card">
               <button
                 className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
                 type="button"

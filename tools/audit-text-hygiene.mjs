@@ -4,9 +4,13 @@ import path from "node:path";
 const repoRoot = process.cwd();
 const write = process.argv.includes("--write");
 const full = process.argv.includes("--full") || process.argv.includes("--scope=full");
+const MAX_TEXT_FILE_BYTES = 64 * 1024 * 1024;
 
 const EXCLUDED_DIRS = new Set([
   ".git",
+  ".wingman-backups",
+  "archive",
+  "backups",
   "node_modules",
   "dist",
   "build",
@@ -16,6 +20,7 @@ const EXCLUDED_DIRS = new Set([
   ".turbo",
   "out",
   "_review",
+  "reports",
 ]);
 
 const ACTIVE_EXCLUDED_DIRS = new Set([
@@ -52,11 +57,16 @@ const suspectPatterns = [
   { name: "replacement-character", regex: /�/g },
   { name: "double-encoded-mojibake", regex: /Ãƒ|Ã‚|Ã¢/g },
   { name: "utf8-mojibake", regex: /Ã|Â|â€|â€“|â€”|â€¦|â„¢|â€˜|â€™|â€œ|â€�/g },
+  { name: "box-drawing-mojibake", regex: /├â|╞Æ|ΓÇ|Γé¼|┬[áó]|╛|╣|₧/g },
   // eslint-disable-next-line no-control-regex -- detecting stray control characters is this tool's job
   { name: "control-character", regex: /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g },
 ];
 
 const encodingRepairs = [
+  [/content:\s*"├â[^"]*";/g, 'content: "-";'],
+  [/Visual Studio canvas ├â[^\r\n]*node detail & schematic sheet header/g, "Visual Studio canvas - node detail & schematic sheet header"],
+  [/AV signal flow diagram ├â[^\r\n]*track detail/g, "AV signal flow diagram - track detail"],
+  [/Product Call Cards page ├â[^\r\n]*moved out/g, "Product Call Cards page - moved out"],
   [/ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â/g, "×"],
   [/ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â·/g, "·"],
   [/Ã‚Â·/g, "·"],
@@ -74,6 +84,8 @@ const encodingRepairs = [
   [/â€“/g, "–"],
   [/â€”/g, "—"],
   [/â€¦/g, "…"],
+  [/â€¢/g, "•"],
+  [/âˆ’/g, "-"],
   [/Â£/g, "£"],
   [/Â®/g, "®"],
   [/Â©/g, "©"],
@@ -157,10 +169,18 @@ function repairEncodingOnly(value) {
 
 const files = walk(repoRoot);
 const findings = [];
+const skippedOversized = [];
 let changedCount = 0;
 
 for (const file of files) {
   const rel = relative(file);
+  const stats = fs.statSync(file);
+
+  if (stats.size > MAX_TEXT_FILE_BYTES) {
+    skippedOversized.push(`${rel} :: ${stats.size} bytes`);
+    continue;
+  }
+
   const original = fs.readFileSync(file, "utf8");
 
   if (!hasSuspectEncoding(original)) {
@@ -209,10 +229,14 @@ fs.writeFileSync(
     "",
     findings.length ? findings.map((line) => `- ${line}`).join("\n") : "_None._",
     "",
+    "## Skipped oversized files",
+    "",
+    skippedOversized.length ? skippedOversized.map((line) => `- ${line}`).join("\n") : "_None._",
+    "",
     "## Scope note",
     "",
     full
-      ? "Full scope includes archives and broad generated data. Use only for deliberate audit work."
+      ? "Full scope includes broad generated data, but skips historical backup/report directories that are not proposal-facing source."
       : "Active scope excludes `.claude/`, `archive/`, `_review/` and high-risk generated data by default.",
     "",
     "## Rule",
@@ -232,4 +256,3 @@ console.log("[text-hygiene] Report written to docs/text-hygiene-report.md");
 if (!write && findings.length) {
   process.exitCode = 1;
 }
-

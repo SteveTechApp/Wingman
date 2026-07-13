@@ -117,6 +117,8 @@ export type StoredProjectProposal = {
   validationNotes?: string[];
   visualBlocks?: StoredProposalVisualBlock[];
   readinessScore?: number;
+  verification?: StoredProposalVerification;
+  applicationProposal?: StoredApplicationProposal;
   companyName?: string;
   preparedBy?: string;
   proposalFooter?: string;
@@ -184,6 +186,43 @@ export type StoredProposalVisualBlock = {
   summary: string;
   proposalUse: string;
   exportLabel: string;
+};
+
+export type StoredProposalVerification = {
+  status: "VERIFIED" | "NOT VERIFIED";
+  baselineVersion?: string;
+  verifiedAt?: string;
+  verifiedBy?: string;
+  sourceTemplateId?: string;
+  acknowledged: boolean;
+  summary: string;
+  issues: string[];
+};
+
+export type StoredApplicationProposalBenefit = {
+  title: string;
+  detail: string;
+};
+
+export type StoredApplicationProposalVisualBrief = {
+  title: string;
+  purpose: string;
+};
+
+export type StoredApplicationProposal = {
+  vertical: string;
+  application: string;
+  executiveSummary: string;
+  customerNeed: string;
+  solutionOverview: string;
+  benefits: StoredApplicationProposalBenefit[];
+  userJourney: string[];
+  technicalFacts: string[];
+  architectureDiagram: string;
+  acceptanceCriteria: string[];
+  visualBriefs: StoredApplicationProposalVisualBrief[];
+  verifiedDesignParameters: string[];
+  deploymentConditions: string[];
 };
 
 export type StoredWorkflowState = {

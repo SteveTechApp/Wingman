@@ -194,7 +194,7 @@ export function ProposalPageProjectMode() {
       buildSalesReadinessPackage({
         products: rankedProducts,
         discovery: context.discovery,
-        assumptions: context.assumptions,
+        assumptions: context.project?.proposal?.verification ? context.project.proposal.assumptions : context.assumptions,
         ingest: context.ingest,
         compareRun: context.compareRun,
       }),
@@ -225,23 +225,36 @@ export function ProposalPageProjectMode() {
         discovery: context.discovery,
         selectedProducts: context.products,
         bomRows,
-        assumptions: context.assumptions,
+        assumptions: context.project?.proposal?.verification ? context.project.proposal.assumptions : context.assumptions,
         readinessScore: salesReadiness.readinessScore,
         compareRun: context.compareRun,
       }),
-    [bomRows, context.assumptions, context.compareRun, context.discovery, context.products, salesReadiness.readinessScore],
+    [bomRows, context.project, context.assumptions, context.compareRun, context.discovery, context.products, salesReadiness.readinessScore],
   );
   const hasCoreProducts = rankedProducts.length > 0;
-  const readinessLabel = !hasCoreProducts
-    ? "Not proposal ready"
-    : salesReadiness.reviewRequired
-      ? "Review required"
-      : "Proposal draft readiness";
-  const readinessMessage = !hasCoreProducts
-    ? "Discovery is saved, but no WyreStorm core products have been selected. Open Product Finder and add the recommended product path before export."
-    : salesReadiness.reviewRequired
-      ? "Resolve validate items before this is treated as customer-ready."
-      : "Suitable for proposal drafting after final validation checks.";
+  const storedVerification = context.project?.proposal?.verification;
+  const isVerifiedTemplate = storedVerification?.status === "VERIFIED";
+  const isUnverifiedTemplate = storedVerification?.status === "NOT VERIFIED";
+  const displayedReadinessScore =
+    context.project?.proposal?.readinessScore ?? salesReadiness.readinessScore;
+  const readinessLabel = isVerifiedTemplate
+    ? "VERIFIED room solution"
+    : isUnverifiedTemplate
+      ? "NOT VERIFIED"
+      : !hasCoreProducts
+        ? "Not proposal ready"
+        : salesReadiness.reviewRequired
+          ? "Review required"
+          : "Proposal draft readiness";
+  const readinessMessage = isVerifiedTemplate
+    ? "This project matches the complete governed room-template baseline."
+    : isUnverifiedTemplate
+      ? "The room template has been edited and must not be used for real-world deployment until its integrity issues are corrected or approved."
+      : !hasCoreProducts
+        ? "Discovery is saved, but no WyreStorm core products have been selected. Open Product Finder and add the recommended product path before export."
+        : salesReadiness.reviewRequired
+          ? "Resolve validate items before this is treated as customer-ready."
+          : "Suitable for proposal drafting after final validation checks.";
   const topProduct = rankedProducts[0] ?? null;
   const discoverySummaryItems = [
     ["Application", context.discovery.projectTitle],
@@ -284,12 +297,12 @@ export function ProposalPageProjectMode() {
     () => ({
       title: context.discovery.projectTitle,
       summary: context.discovery.summary,
-      sections,
+      sections: context.project?.proposal?.sections?.length ? context.project.proposal.sections : sections,
       products: rankedProducts,
       productFamilyScores,
-      assumptions: context.assumptions,
-      outputPurpose: salesReadiness.outputPurpose,
-      governedDependencies: salesReadiness.governedDependencies,
+      assumptions: context.project?.proposal?.verification ? context.project.proposal.assumptions : context.assumptions,
+      outputPurpose: context.project?.proposal?.outputPurpose ?? salesReadiness.outputPurpose,
+      governedDependencies: context.project?.proposal?.governedDependencies ?? salesReadiness.governedDependencies,
       bomRows,
       evidence: Array.from(new Set([...salesReadiness.evidence, ...(context.recommendationEvidence?.evidenceUsed ?? [])])),
       repGuidance: [
@@ -298,15 +311,23 @@ export function ProposalPageProjectMode() {
         ...(context.recommendationEvidence?.internalGuidance ?? []),
         ...salesReadiness.repGuidance,
       ].slice(0, 10),
-      governanceWarnings: Array.from(new Set([
-        ...(context.recommendationEvidence?.quoteSafetyStatus === "do-not-quote-yet"
-          ? [context.recommendationEvidence.quoteSafetyMessage]
-          : []),
-        ...salesReadiness.governanceWarnings,
-      ])),
-      validationNotes: salesReadiness.validationNotes,
-      visualBlocks: proposalCoach.visualBlocks,
-      readinessScore: salesReadiness.readinessScore,
+      governanceWarnings: context.project?.proposal?.verification
+        ? context.project.proposal.governanceWarnings ?? []
+        : Array.from(new Set([
+            ...(context.recommendationEvidence?.quoteSafetyStatus === "do-not-quote-yet"
+              ? [context.recommendationEvidence.quoteSafetyMessage]
+              : []),
+            ...salesReadiness.governanceWarnings,
+          ])),
+      validationNotes: context.project?.proposal?.verification
+        ? context.project.proposal.validationNotes ?? []
+        : salesReadiness.validationNotes,
+      visualBlocks: context.project?.proposal?.verification
+        ? context.project.proposal.visualBlocks ?? []
+        : proposalCoach.visualBlocks,
+      readinessScore: context.project?.proposal?.readinessScore ?? salesReadiness.readinessScore,
+      verification: context.project?.proposal?.verification,
+      applicationProposal: context.project?.proposal?.applicationProposal,
       companyName: context.profile.companyName,
       preparedBy: context.profile.reportPreparedBy || context.profile.userName,
       proposalFooter: context.profile.proposalFooter,
@@ -315,7 +336,7 @@ export function ProposalPageProjectMode() {
       contactPhone: context.profile.phone,
       updatedAt: new Date().toISOString(),
     }),
-    [bomRows, context.assumptions, context.discovery.projectTitle, context.discovery.summary, rankedProducts, context.profile, context.recommendationEvidence, productFamilyScores, proposalCoach, salesReadiness, sections],
+    [bomRows, context.project, context.assumptions, context.discovery.projectTitle, context.discovery.summary, rankedProducts, context.profile, context.recommendationEvidence, productFamilyScores, proposalCoach, salesReadiness, sections],
   );
 
   useEffect(() => {
@@ -412,7 +433,13 @@ export function ProposalPageProjectMode() {
           <div className="flex flex-wrap gap-3">
             <button className={["wm-ui-button wm-ui-button-secondary", "inline-flex items-center gap-2 rounded-full border border-[#29465e] px-4 py-2 text-sm text-white/70 transition hover:bg-[#0d2133]"].filter(Boolean).join(" ")}
               type="button"
-              onClick={() => exportProposalHtml(proposal, bomRows)}
+              onClick={() => {
+                if (proposal.verification?.status === "NOT VERIFIED" && !proposal.verification.acknowledged) {
+                  window.alert("This edited room design is NOT VERIFIED. Return to the template review, acknowledge the warning, or restore the governed baseline.");
+                  return;
+                }
+                exportProposalHtml(proposal, bomRows);
+              }}
 
             >
               <Download className="h-4 w-4" />
@@ -420,7 +447,13 @@ export function ProposalPageProjectMode() {
             </button>
             <button className={["wm-ui-button wm-ui-button-secondary", "inline-flex items-center gap-2 rounded-full border border-[#29465e] px-4 py-2 text-sm text-white/70 transition hover:bg-[#0d2133]"].filter(Boolean).join(" ")}
               type="button"
-              onClick={() => exportBomCsv(proposal, bomRows)}
+              onClick={() => {
+                if (proposal.verification?.status === "NOT VERIFIED" && !proposal.verification.acknowledged) {
+                  window.alert("This edited room design is NOT VERIFIED. Return to the template review, acknowledge the warning, or restore the governed baseline.");
+                  return;
+                }
+                exportBomCsv(proposal, bomRows);
+              }}
 
             >
               <Table className="h-4 w-4" />
@@ -439,7 +472,7 @@ export function ProposalPageProjectMode() {
                   : "border-emerald-200 bg-emerald-50 text-emerald-950"
             }`}>
               <p className="wingman-kicker wm-ui-copy wm-ui-kicker">{readinessLabel}</p>
-              <p className="mt-2 text-3xl font-black wm-ui-copy">{salesReadiness.readinessScore}%</p>
+              <p className="mt-2 text-3xl font-black wm-ui-copy">{displayedReadinessScore}%</p>
               <p className="mt-2 text-sm leading-6 wm-ui-copy">{readinessMessage}</p>
             </div>
 

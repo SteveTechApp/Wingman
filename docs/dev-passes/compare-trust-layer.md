@@ -1,4 +1,4 @@
-# Development pass â€” Compare Trust Layer and governed match decisions
+# Development pass - Compare Trust Layer and governed match decisions
 
 ## Goal
 
