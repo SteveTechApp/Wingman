@@ -337,7 +337,67 @@ const PAGE_AVOIP_ROLE_LABEL: Record<string, string> = {
 function avoipTransportLabel(series: "100" | "500" | "600"): string {
   if (series === "600") return "10GbE SDVoE AVoIP";
   if (series === "100") return "1GbE H.264/H.265 AVoIP";
-  return "1GbE JPEG-XS AVoIP";
+  return "1GbE JPEG2000 AVoIP";
+}
+
+function compareCodecLabel(specs: CompareSpecFacts | undefined, transport: string): string {
+  if (specs?.avoipCodec) return specs.avoipCodec;
+
+  const value = transport.toLowerCase();
+  if (/\bsdvoe\b/.test(value)) return "SDVoE";
+  if (/jpeg\s*-?\s*2000|jpeg2000/.test(value)) return "JPEG2000";
+  if (/jpeg\s*-?\s*xs|jpegxs/.test(value)) return "JPEG XS";
+  if (/h\.?265|hevc/.test(value)) return "H.265";
+  if (/h\.?264|avc/.test(value)) return "H.264";
+  return "";
+}
+
+function compareNetworkClassLabel(
+  specs: CompareSpecFacts | undefined,
+  transport: string,
+  isAvoip: boolean,
+): string {
+  const speed = String(specs?.networkSpeed || "").trim();
+  const confidence = specs?.networkSpeedConfidence;
+  const codec = compareCodecLabel(specs, transport);
+
+  if (speed) {
+    if (confidence === "inferred") {
+      return `${speed} â€” inferred from ${codec || "available codec evidence"}`;
+    }
+
+    if (confidence === "verify") {
+      return "Network class â€” verify";
+    }
+
+    return `${speed} â€” confirmed`;
+  }
+
+  if (/\bipmx\b/i.test(transport)) {
+    return "Network class â€” verify";
+  }
+
+  if (codec === "SDVoE") return "10GbE â€” inferred from SDVoE";
+  if (["JPEG2000", "JPEG XS", "H.264", "H.265"].includes(codec)) {
+    return `1GbE â€” inferred from ${codec}`;
+  }
+
+  return isAvoip ? "Network class â€” verify" : "";
+}
+
+function compareNetworkClassResult(competitorValue: string, wyrestormValue: string): string {
+  const speed = (value: string) => value.match(/\b(?:1|10)GbE\b/i)?.[0]?.toUpperCase() || "";
+  const competitorSpeed = speed(competitorValue);
+  const wyrestormSpeed = speed(wyrestormValue);
+  const inferred = /inferred/i.test(competitorValue) || /inferred/i.test(wyrestormValue);
+  const verify = /verify/i.test(competitorValue) || /verify/i.test(wyrestormValue);
+
+  if (verify || !competitorSpeed || !wyrestormSpeed) return "Verify network class";
+  if (competitorSpeed === wyrestormSpeed) {
+    return inferred ? "Likely same network class â€” verify source" : "Network class matches";
+  }
+
+  return inferred ? "Potential network mismatch â€” review" : "Network class mismatch";
 }
 
 function avoipRoleTags(role: NetworkHdAvoipMember["role"]): string[] {
@@ -2820,6 +2880,14 @@ function buildWyrestormSummary(candidate: ScoredCandidate): WyreStormSummary {
       { label: "USB", value: usbFacts },
       { label: "HDBaseT / distance", value: hdbasetFacts },
       { label: "Max resolution", value: knownProfile?.maxResolution || resolution },
+      {
+        label: "Network class",
+        value: compareNetworkClassLabel(
+          profile.specs,
+          candidate.product.transport,
+          /networkhd|av-over-ip/i.test(`${candidate.product.family} ${candidate.product.productClass}`),
+        ),
+      },
       { label: "Control / network", value: controlFacts },
       { label: "Other video I/O", value: otherVideoIo },
     ].filter((entry) => entry.value),
@@ -3547,6 +3615,23 @@ function buildCoreComparisonFacts(
       result: "",
     },
     {
+      label: "Network class",
+      competitor: compareNetworkClassLabel(
+        profile.resolvedSpec?.specs,
+        competitor.transport,
+        profile.resolvedSpec?.domain === "AVOIP" || /av-over-ip/i.test(competitor.recognisedClass),
+      ),
+      wyrestorm: safeCompareValue(wyrestormFacts.get("Network class")),
+      result: compareNetworkClassResult(
+        compareNetworkClassLabel(
+          profile.resolvedSpec?.specs,
+          competitor.transport,
+          profile.resolvedSpec?.domain === "AVOIP" || /av-over-ip/i.test(competitor.recognisedClass),
+        ),
+        safeCompareValue(wyrestormFacts.get("Network class")),
+      ),
+    },
+    {
       label: "Signal direction",
       competitor: safeCompareValue(competitor.signalDirection),
       wyrestorm: safeCompareValue(wyrestorm.signalDirection),
@@ -4042,6 +4127,23 @@ function CompareEvidenceMatrix({ candidate, competitor }: { candidate: ScoredCan
     </section>
   );
 }
+function candidateDecisionTone(candidate: ScoredCandidate): CompareDecisionTone {
+  if (candidate.outcomeLabel === "Insufficient competitor data") return "review";
+  if (candidate.verdict === "GOOD MATCH") return "good";
+  if (candidate.verdict === "ARCHITECTURE ALTERNATIVE") return "alternative";
+  if (candidate.verdict === "NO MATCH") return "reject";
+  return "partial";
+}
+
+function candidateDecisionIcon(candidate: ScoredCandidate): string {
+  const tone = candidateDecisionTone(candidate);
+  if (tone === "good") return "âœ“";
+  if (tone === "partial") return "â‰ˆ";
+  if (tone === "alternative") return "â‡„";
+  if (tone === "reject") return "Ã—";
+  return "!";
+}
+
 function BestCandidateCard({
   candidate,
   competitor,
@@ -4063,9 +4165,12 @@ function BestCandidateCard({
   const headerCaveat = compareHeaderCaveat(competitor, candidate);
 
   return (
-    <section className="compare-native-best-card wm-ui-section wm-ui-card">
-      <div className="compare-native-result-head wm-ui-card">
-        <span className={`compare-native-verdict ${verdictClass(candidate.verdict)}`}>{candidate.verdict}</span>
+    <section className={`compare-native-best-card wm-ui-section wm-ui-card compare-decision-surface compare-decision-surface--${candidateDecisionTone(candidate)}`}>
+      <div className={`compare-native-result-head wm-ui-card compare-decision-result-strip compare-decision-result-strip--${candidateDecisionTone(candidate)}`}>
+        <span className={`compare-native-verdict ${verdictClass(candidate.verdict)}`}>
+          <span className="compare-decision-icon" aria-hidden="true">{candidateDecisionIcon(candidate)}</span>
+          {candidate.verdict}
+        </span>
         <span className="compare-native-score">{directionFit}</span>
         {headerCaveat ? <span className="compare-native-score compare-native-score--caveat">{headerCaveat}</span> : null}
       </div>
@@ -4288,6 +4393,33 @@ function isGovernedEvidenceUrl(value: string): boolean {
   }
 }
 
+type CompareDecisionTone = "good" | "partial" | "alternative" | "review" | "reject";
+
+function compareDecisionTone(decisionType?: CompareDecisionType | null): CompareDecisionTone {
+  if (decisionType === "confirmed-equivalent") return "good";
+  if (decisionType === "closest-technical-match") return "partial";
+  if (decisionType === "architecture-alternative") return "alternative";
+  if (decisionType === "no-suitable-match") return "reject";
+  return "review";
+}
+
+function compareDecisionIcon(decisionType?: CompareDecisionType | null): string {
+  if (decisionType === "confirmed-equivalent") return "âœ“";
+  if (decisionType === "closest-technical-match") return "â‰ˆ";
+  if (decisionType === "architecture-alternative") return "â‡„";
+  if (decisionType === "no-suitable-match") return "Ã—";
+  return "!";
+}
+
+function compareDecisionButtonClass(
+  decisionType: CompareDecisionType,
+  existingDecision?: CompetitorMatchDecision | null,
+): string {
+  const tone = compareDecisionTone(decisionType);
+  const selected = existingDecision?.decisionType === decisionType ? " is-selected" : "";
+  return `compare-decision-button compare-decision-button--${tone}${selected}`;
+}
+
 function GovernedDecisionPanel({
   profile,
   candidate,
@@ -4432,7 +4564,8 @@ function GovernedDecisionPanel({
       </div>
 
       {existingDecision ? (
-        <p className="wm-ui-copy">
+        <p className={`wm-ui-copy compare-governed-status compare-governed-status--${compareDecisionTone(existingDecision.decisionType)}`}>
+          <span className="compare-decision-icon" aria-hidden="true">{compareDecisionIcon(existingDecision.decisionType)}</span>
           <strong>Current decision:</strong> {governedDecisionLabel(existingDecision)}
           {existingDecision.wyrestormSku ? ` - ${existingDecision.wyrestormSku}` : ""}
           {existingDecision.reviewer ? ` | Reviewer: ${existingDecision.reviewer}` : ""}
@@ -4467,40 +4600,50 @@ function GovernedDecisionPanel({
       <div className="compare-native-action-row wm-ui-action-row wm-ui-card">
         <button
           type="button"
-          className="compare-native-more wm-ui-button wm-ui-button-primary"
+          className={`compare-native-secondary-action wm-ui-button ${compareDecisionButtonClass("confirmed-equivalent", existingDecision)}`}
           disabled={!equivalentAllowed}
           onClick={() => saveDecision("confirmed-equivalent")}
+          aria-pressed={existingDecision?.decisionType === "confirmed-equivalent"}
         >
+          <span className="compare-decision-icon" aria-hidden="true">âœ“</span>
           Confirm equivalent
         </button>
         <button
           type="button"
-          className="compare-native-secondary-action wm-ui-button wm-ui-button-primary"
+          className={`compare-native-secondary-action wm-ui-button ${compareDecisionButtonClass("closest-technical-match", existingDecision)}`}
           disabled={!candidate}
           onClick={() => saveDecision("closest-technical-match")}
+          aria-pressed={existingDecision?.decisionType === "closest-technical-match"}
         >
+          <span className="compare-decision-icon" aria-hidden="true">â‰ˆ</span>
           Approve closest match
         </button>
         <button
           type="button"
-          className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
+          className={`compare-native-secondary-action wm-ui-button ${compareDecisionButtonClass("architecture-alternative", existingDecision)}`}
           disabled={!candidate}
           onClick={() => saveDecision("architecture-alternative")}
+          aria-pressed={existingDecision?.decisionType === "architecture-alternative"}
         >
+          <span className="compare-decision-icon" aria-hidden="true">â‡„</span>
           Approve architecture alternative
         </button>
         <button
           type="button"
-          className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
+          className={`compare-native-secondary-action wm-ui-button ${compareDecisionButtonClass("review-required", existingDecision)}`}
           onClick={() => saveDecision("review-required", "pending-review")}
+          aria-pressed={existingDecision?.decisionType === "review-required"}
         >
+          <span className="compare-decision-icon" aria-hidden="true">!</span>
           Mark review required
         </button>
         <button
           type="button"
-          className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
+          className={`compare-native-secondary-action wm-ui-button ${compareDecisionButtonClass("no-suitable-match", existingDecision)}`}
           onClick={() => saveDecision("no-suitable-match")}
+          aria-pressed={existingDecision?.decisionType === "no-suitable-match"}
         >
+          <span className="compare-decision-icon" aria-hidden="true">Ã—</span>
           Reject: no suitable match
         </button>
       </div>
@@ -4596,6 +4739,23 @@ function ComparePageNew() {
       readCompetitorMatchDecisionLedger(window.localStorage),
       effectiveBrand,
       competitorInput,
+    );
+  }, [competitorInput, decisionRevision, effectiveBrand]);
+
+  const displayedDecision = useMemo(() => {
+    if (typeof window === "undefined" || !competitorInput.trim()) {
+      return null;
+    }
+
+    const manufacturer = effectiveBrand.trim().toLowerCase();
+    const sku = competitorInput.trim().toUpperCase();
+
+    return (
+      readCompetitorMatchDecisionLedger(window.localStorage).decisions.find(
+        (decision) =>
+          decision.competitorManufacturer.trim().toLowerCase() === manufacturer &&
+          decision.competitorSku.trim().toUpperCase() === sku,
+      ) ?? null
     );
   }, [competitorInput, decisionRevision, effectiveBrand]);
 
@@ -5366,10 +5526,10 @@ function ComparePageNew() {
           {hasCompared ? (
           <>
             <GovernedDecisionPanel
-              key={`${effectiveBrand}:${competitorInput}:${governedDecision?.updatedAt ?? decisionRevision}`}
+              key={`${effectiveBrand}:${competitorInput}:${displayedDecision?.updatedAt ?? decisionRevision}`}
               profile={profile}
               candidate={best ?? heuristicCandidates[0] ?? null}
-              existingDecision={governedDecision}
+              existingDecision={displayedDecision}
               onSaved={() => setDecisionRevision((revision) => revision + 1)}
             />
 

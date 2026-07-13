@@ -56,6 +56,8 @@ export type CompareSpecFacts = {
   hdbasetClass?: string;
   hdbasetDistance?: number;
   networkSpeed?: string;
+  networkSpeedConfidence?: "confirmed" | "inferred" | "verify";
+  networkSpeedEvidence?: string;
   avoipChip?: string | null;
   avoipChipStatus?: "known" | "not-publicly-confirmed" | "verify";
   avoipCodec?: string;
@@ -211,21 +213,84 @@ function transportMatches(competitorTransport: unknown, wyrestormTransport: unkn
 }
 
 type CompareNetworkClass = "1g" | "10g";
+type CompareNetworkConfidence = "confirmed" | "inferred" | "verify";
 
-function compareNetworkClass(profile: CompareDecisionProfile): CompareNetworkClass | null {
-  const text = [
-    profile.transport,
-    profile.specs?.networkSpeed,
-    profile.features?.tenGig ? "10g" : "",
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
+type CompareNetworkClassResult = {
+  value: CompareNetworkClass | null;
+  confidence: CompareNetworkConfidence;
+  evidence: string;
+};
 
-  if (/\b10\s*g(?:be|bps)?\b|sdvoe/.test(text)) return "10g";
-  if (/\b1\s*g(?:be|bps)?\b|gigabit|jpeg[\s-]?xs|h\.?26[45]/.test(text)) return "1g";
+function normaliseNetworkConfidence(value: unknown): CompareNetworkConfidence {
+  const confidence = lower(value);
+  if (confidence === "confirmed" || confidence === "inferred") return confidence;
+  return "verify";
+}
 
-  return null;
+function compareNetworkClass(profile: CompareDecisionProfile): CompareNetworkClassResult {
+  const declaredSpeed = lower(profile.specs?.networkSpeed);
+  const transport = lower(profile.transport);
+  const declaredConfidence = profile.specs?.networkSpeedConfidence
+    ? normaliseNetworkConfidence(profile.specs.networkSpeedConfidence)
+    : "confirmed";
+  const declaredEvidence = clean(profile.specs?.networkSpeedEvidence);
+
+  const declaredText = [declaredSpeed, transport].filter(Boolean).join(" ");
+
+  if (/\b10\s*g(?:be|bit ethernet|igabit ethernet)\b|\b10gbe\b|\b10-gigabit ethernet\b|\b10\s*gb(?:e|ps)?\s+(?:managed\s+)?network\b/.test(declaredText)) {
+    return {
+      value: "10g",
+      confidence: declaredConfidence,
+      evidence: declaredEvidence || "Explicit 10GbE network requirement.",
+    };
+  }
+
+  if (/\b1\s*g(?:be|bit ethernet|igabit ethernet)\b|\b1gbe\b|\bgigabit ethernet\b|\b1000base(?:-t|x)?\b|\b1\s*gb(?:e|ps)?\s+(?:managed\s+)?network\b/.test(declaredText)) {
+    return {
+      value: "1g",
+      confidence: declaredConfidence,
+      evidence: declaredEvidence || "Explicit 1GbE network requirement.",
+    };
+  }
+
+  const codec = lower(profile.specs?.avoipCodec || profile.transport);
+
+  if (/\bipmx\b/.test(codec)) {
+    return {
+      value: null,
+      confidence: "verify",
+      evidence: "IPMX can be deployed across different network rates; confirm the product requirement.",
+    };
+  }
+
+  if (/\bsdvoe\b/.test(codec)) {
+    return {
+      value: "10g",
+      confidence: "inferred",
+      evidence: "Inferred from SDVoE.",
+    };
+  }
+
+  if (/jpeg\s*-?\s*2000|jpeg2000|jpeg\s*-?\s*xs|jpegxs|h\.?26[45]|hevc|avc/.test(codec)) {
+    const codecLabel = clean(profile.specs?.avoipCodec) || "the stated AVoIP codec";
+    return {
+      value: "1g",
+      confidence: "inferred",
+      evidence: `Inferred from ${codecLabel}.`,
+    };
+  }
+
+  return {
+    value: null,
+    confidence: "verify",
+    evidence: "Network class is not stated and cannot be safely inferred.",
+  };
+}
+
+function networkClassText(result: CompareNetworkClassResult): string {
+  if (!result.value) return "network class not verified";
+  const speed = result.value === "10g" ? "10GbE" : "1GbE";
+  return `${speed} (${result.confidence})`;
 }
 
 function resolutionRank(value: unknown): number {
@@ -444,35 +509,66 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
   const competitorNetworkClass = compareNetworkClass(competitor);
   const wyrestormNetworkClass = compareNetworkClass(wyrestorm);
   const networkClassMismatch =
-    competitorNetworkClass !== null &&
-    wyrestormNetworkClass !== null &&
-    competitorNetworkClass !== wyrestormNetworkClass;
+    competitorNetworkClass.value !== null &&
+    wyrestormNetworkClass.value !== null &&
+    competitorNetworkClass.value !== wyrestormNetworkClass.value;
+  const networkClassConfirmedMismatch =
+    networkClassMismatch &&
+    competitorNetworkClass.confidence === "confirmed" &&
+    wyrestormNetworkClass.confidence === "confirmed";
 
-  if (networkClassMismatch) {
+  if (networkClassConfirmedMismatch) {
     addUnique(
       blockers,
       "Network class mismatch: competitor requires " +
-        competitorNetworkClass.toUpperCase() +
+        networkClassText(competitorNetworkClass) +
         ", WyreStorm candidate is " +
-        wyrestormNetworkClass.toUpperCase() +
+        networkClassText(wyrestormNetworkClass) +
         ".",
     );
-  } else if (isUnknown(competitor.transport) || isUnknown(wyrestorm.transport)) {
-    addUnique(verify, "Transport needs verification.");
-  } else if (!transportMatches(competitor.transport, wyrestorm.transport)) {
-    // Transport wording is brand-specific (e.g. Lightware's "TPS" for its own
-    // category-cable extension stage) and does not normalise onto WyreStorm's
-    // vocabulary the way domain/role do. Once technology class AND role are
-    // both independently confirmed to match, a wording-only transport
-    // difference is evidence to verify, not grounds to reject the candidate
-    // outright - otherwise a real match gets hard-blocked by vocabulary alone.
-    if (domainMatches && roleMatchesFlag) {
-      addUnique(gaps, "Transport wording differs: competitor uses " + clean(competitor.transport) + ", WyreStorm candidate uses " + clean(wyrestorm.transport) + ". Confirm the underlying transport is compatible.");
-    } else {
-      addUnique(blockers, "Transport mismatch: competitor uses " + clean(competitor.transport) + ", WyreStorm candidate uses " + clean(wyrestorm.transport) + ".");
-    }
+  } else if (networkClassMismatch) {
+    addUnique(
+      gaps,
+      "Potential network class mismatch: competitor is " +
+        networkClassText(competitorNetworkClass) +
+        ", WyreStorm candidate is " +
+        networkClassText(wyrestormNetworkClass) +
+        ".",
+    );
+    addUnique(
+      verify,
+      "At least one network class is inferred; confirm the manufacturer network requirement before approval.",
+    );
   } else {
-    addUnique(matches, "Transport path matches required competitor transport.");
+    if (competitorNetworkClass.value && wyrestormNetworkClass.value) {
+      addUnique(
+        matches,
+        "Network class aligns: " +
+          networkClassText(competitorNetworkClass) +
+          " versus " +
+          networkClassText(wyrestormNetworkClass) +
+          ".",
+      );
+    } else if (
+      lower(competitor.domain) === "avoip" ||
+      lower(wyrestorm.domain) === "avoip"
+    ) {
+      addUnique(verify, "AVoIP network class needs verification.");
+    }
+
+    if (isUnknown(competitor.transport) || isUnknown(wyrestorm.transport)) {
+      addUnique(verify, "Transport needs verification.");
+    } else if (!transportMatches(competitor.transport, wyrestorm.transport)) {
+      // Transport wording is brand-specific. If technology class and role agree,
+      // a wording difference remains a review item rather than a hard rejection.
+      if (domainMatches && roleMatchesFlag) {
+        addUnique(gaps, "Transport wording differs: competitor uses " + clean(competitor.transport) + ", WyreStorm candidate uses " + clean(wyrestorm.transport) + ". Confirm the underlying transport is compatible.");
+      } else {
+        addUnique(blockers, "Transport mismatch: competitor uses " + clean(competitor.transport) + ", WyreStorm candidate uses " + clean(wyrestorm.transport) + ".");
+      }
+    } else {
+      addUnique(matches, "Transport path matches required competitor transport.");
+    }
   }
 
   // If Wingman has NO classification signal at all for the competitor product -
