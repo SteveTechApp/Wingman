@@ -133,11 +133,14 @@ export function isWyreStormSkuCompareLeadAllowed(sku: string): boolean {
 }
 
 export function getWyreStormCompareLeadBlockReason(sku: string): string | null {
-  if (isSkuAdminBlocked(sku)) {
+  const status = getWyreStormSkuBusinessStatus(sku);
+  const adminBlocked = isSkuAdminBlocked(sku);
+
+  if ((status === "active" || status === "unlisted") && adminBlocked) {
     return `${sku} is blocked by an admin override and must not be suggested as a current compare lead.`;
   }
 
-  switch (getWyreStormSkuBusinessStatus(sku)) {
+  switch (status) {
     case "active":
       return null;
     case "discontinued":

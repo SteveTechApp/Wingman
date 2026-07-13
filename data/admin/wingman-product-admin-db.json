@@ -243,13 +243,13 @@
     },
     "NHD-600-TRX": {
       "sku": "NHD-600-TRX",
-      "statusOverride": "do-not-use",
-      "doNotUse": true,
-      "visibility": "hidden",
-      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "statusOverride": "live",
+      "doNotUse": false,
+      "visibility": "default",
+      "adminNotes": "Current NetworkHD 600 transceiver retained for 10G SDVoE compare and Finder flows.",
       "evidenceUrl": "",
       "updatedBy": "admin",
-      "updatedAt": "2026-07-10T15:38:51.507Z"
+      "updatedAt": "2026-07-13T12:59:00.000Z"
     },
     "NHD-600-TX": {
       "sku": "NHD-600-TX",
