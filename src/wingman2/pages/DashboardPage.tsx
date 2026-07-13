@@ -1,17 +1,11 @@
 import {
   ArrowRight,
-  Bot,
   CheckCircle2,
-  ClipboardList,
   Compass,
-  FileSearch,
-  FileText,
   FolderKanban,
   LayoutTemplate,
   MoreVertical,
-  PackageSearch,
   Scale,
-  Sparkles,
   Target,
   Zap,
 } from "lucide-react";
@@ -26,15 +20,7 @@ import {
 } from "../data/projectStore";
 import type { StatusVariant } from "../types";
 
-type DashboardAccent =
-  | "discovery"
-  | "compare"
-  | "templates"
-  | "projects"
-  | "products"
-  | "documents"
-  | "response"
-  | "guru";
+type DashboardAccent = "discovery" | "compare" | "templates" | "projects";
 
 type DashboardAction = {
   title: string;
@@ -93,37 +79,6 @@ const primaryActions: DashboardAction[] = [
     path: routeCatalogByKey.projects.path,
     accent: "projects",
     icon: FolderKanban,
-  },
-];
-
-const quickActions: DashboardAction[] = [
-  {
-    title: "Product Finder",
-    description: "Find the right SKU",
-    path: routeCatalogByKey.finder.path,
-    accent: "products",
-    icon: PackageSearch,
-  },
-  {
-    title: "Call Coach",
-    description: "Prepare the next question",
-    path: routeCatalogByKey.callCoach.path,
-    accent: "discovery",
-    icon: ClipboardList,
-  },
-  {
-    title: "Response Pack",
-    description: "Build a customer response",
-    path: routeCatalogByKey.responsePack.path,
-    accent: "response",
-    icon: FileText,
-  },
-  {
-    title: "Document Assistant",
-    description: "Review and extract",
-    path: routeCatalogByKey.documents.path,
-    accent: "documents",
-    icon: FileSearch,
   },
 ];
 
@@ -257,22 +212,13 @@ function readDisplayName() {
   return "Steve";
 }
 
-function openGuru() {
-  window.dispatchEvent(
-    new CustomEvent("wingman:open-guru", {
-      detail: { prompt: "Help me choose the right Wingman workflow for this customer request." },
-    }),
-  );
-}
-
 export function DashboardPage() {
-  const { projects, activeProjectId } = useProjectStore();
+  const { projects } = useProjectStore();
 
   const sourceProjects: DashboardProject[] = projects.length
     ? projects.map((project) => ({ ...project, scope: projectScopeLine(project) }))
     : fallbackProjects;
 
-  const resume = sourceProjects.find((project) => project.id === activeProjectId) ?? sourceProjects[0];
   const recentProjects = sourceProjects.slice(0, 3);
   const displayName = readDisplayName();
 
@@ -294,9 +240,12 @@ export function DashboardPage() {
         </div>
       </header>
 
-      <div className="wm-reference-dashboard-layout">
-        <div className="wm-reference-dashboard-main">
-          <section className="wm-reference-primary-grid" aria-label="Primary Wingman actions">
+      <div
+        className="wm-reference-dashboard-layout min-h-0"
+        style={{ minHeight: "calc(100dvh - 190px)" }}
+      >
+        <div className="wm-reference-dashboard-main h-full grid-rows-2">
+          <section className="wm-reference-primary-grid h-full" aria-label="Primary Wingman actions">
             {primaryActions.map((action) => {
               const Icon = action.icon;
 
@@ -304,7 +253,7 @@ export function DashboardPage() {
                 <Link
                   key={action.path}
                   to={action.path}
-                  className="wm-reference-primary-card"
+                  className="wm-reference-primary-card h-full"
                   data-wm-accent={action.accent}
                 >
                   <span className="wm-reference-action-icon">
@@ -322,7 +271,7 @@ export function DashboardPage() {
             })}
           </section>
 
-          <section className="wm-reference-section" aria-label="Recent projects">
+          <section className="wm-reference-section h-full" aria-label="Recent projects">
             <div className="wm-reference-section-heading">
               <h2>Recent Projects</h2>
               <Link to={routeCatalogByKey.projects.path}>
@@ -331,7 +280,7 @@ export function DashboardPage() {
               </Link>
             </div>
 
-            <div className="wm-reference-project-grid">
+            <div className="wm-reference-project-grid h-full">
               {recentProjects.map((project) => {
                 const progress = projectProgress(project);
 
@@ -340,7 +289,7 @@ export function DashboardPage() {
                     key={project.id}
                     to={`${routeCatalogByKey.projects.path}/${project.id}`}
                     onClick={() => setActiveProjectId(project.id)}
-                    className="wm-reference-project-card"
+                    className="wm-reference-project-card h-full"
                     data-wm-status={project.status}
                   >
                     <div className="wm-reference-project-topline">
@@ -358,60 +307,22 @@ export function DashboardPage() {
                     </div>
                     {progress ? (
                       <div className="wm-reference-progress" aria-label={`${progress.label}: ${progress.value}%`}>
-                        <span className="wm-reference-progress-track">
-                          <span style={{ width: `${progress.value}%` }} />
-                        </span>
+                        <progress className="wm-reference-progress-track" max={100} value={progress.value} />
                         <strong>{progress.value}%</strong>
                       </div>
                     ) : (
                       <div className="wm-reference-project-next">{nextStepFor(project.stage)}</div>
                     )}
+                    <div className="wm-reference-project-next">{nextStepFor(project.stage)}</div>
                   </Link>
                 );
               })}
-            </div>
-          </section>
-
-          <section className="wm-reference-section" aria-label="Quick actions">
-            <div className="wm-reference-section-heading">
-              <h2>Quick Actions</h2>
-            </div>
-
-            <div className="wm-reference-quick-grid">
-              {quickActions.map((action) => {
-                const Icon = action.icon;
-
-                return (
-                  <Link
-                    key={action.path}
-                    to={action.path}
-                    className="wm-reference-quick-card"
-                    data-wm-accent={action.accent}
-                  >
-                    <Icon aria-hidden="true" />
-                    <span>
-                      <strong>{action.title}</strong>
-                      <small>{action.description}</small>
-                    </span>
-                    <ArrowRight aria-hidden="true" />
-                  </Link>
-                );
-              })}
-
-              <button type="button" className="wm-reference-quick-card" data-wm-accent="guru" onClick={openGuru}>
-                <Bot aria-hidden="true" />
-                <span>
-                  <strong>Ask Guru</strong>
-                  <small>Get contextual AV help</small>
-                </span>
-                <ArrowRight aria-hidden="true" />
-              </button>
             </div>
           </section>
         </div>
 
-        <aside className="wm-reference-dashboard-rail" aria-label="Dashboard focus panel">
-          <section className="wm-reference-rail-card wm-reference-focus-card">
+        <aside className="wm-reference-dashboard-rail h-full grid-rows-2" aria-label="Dashboard focus panel">
+          <section className="wm-reference-rail-card wm-reference-focus-card h-full">
             <div className="wm-reference-rail-title">
               <Target aria-hidden="true" />
               <h2>Today&apos;s Focus</h2>
@@ -437,26 +348,13 @@ export function DashboardPage() {
             </Link>
           </section>
 
-          <section className="wm-reference-rail-card wm-reference-spotlight-card">
-            <div className="wm-reference-rail-title">
-              <Sparkles aria-hidden="true" />
-              <h2>Product Spotlight</h2>
-            </div>
-            <span className="wm-reference-product-badge">Hybrid system</span>
-            <strong>MX-1007-HYB</strong>
-            <p>NHD 500, USB host, DSP and amplification in one platform.</p>
-            <Link to={routeCatalogByKey.products.path} className="wm-reference-text-link">
-              View products
-              <ArrowRight aria-hidden="true" />
-            </Link>
-          </section>
-
-          <section className="wm-reference-rail-card wm-reference-news-card">
+          <section className="wm-reference-rail-card wm-reference-news-card h-full">
             <div className="wm-reference-rail-title">
               <Zap aria-hidden="true" />
               <h2>What&apos;s New</h2>
             </div>
             <p>Room templates and guided workflows have been refreshed.</p>
+            <p>The dashboard now prioritises active work and core starting points, with all other tools available from the Wingman menu.</p>
             <Link to={routeCatalogByKey.templates.path} className="wm-reference-text-link">
               Explore templates
               <ArrowRight aria-hidden="true" />
