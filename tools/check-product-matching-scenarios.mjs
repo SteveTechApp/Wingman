@@ -4,12 +4,7 @@ import process from "node:process";
 
 const repoRoot = process.cwd();
 const indexPath = path.join(repoRoot, "public", "product-intelligence-index.json");
-const domainFiles = [
-  path.join(repoRoot, "src", "wingman2", "productMatching", "types.ts"),
-  path.join(repoRoot, "src", "wingman2", "productMatching", "text.ts"),
-  path.join(repoRoot, "src", "wingman2", "productMatching", "featureFilters.ts"),
-  path.join(repoRoot, "src", "wingman2", "productMatching", "index.ts"),
-];
+const finderPagePath = path.join(repoRoot, "src", "wingman2", "pages", "FinderPage.tsx");
 
 const neutralValues = new Set(["", "unknown", "no audio requirement", "no processing", "no control", "not required"]);
 
@@ -109,25 +104,33 @@ function readProducts() {
   return products;
 }
 
-function verifyDomainFiles() {
-  const missing = domainFiles.filter((filePath) => !fs.existsSync(filePath));
-
-  if (missing.length) {
-    throw new Error(`Missing recovered domain file(s): ${missing.map((filePath) => path.relative(repoRoot, filePath)).join(", ")}`);
+function verifyLiveFinderMatching() {
+  if (!fs.existsSync(finderPagePath)) {
+    throw new Error(`Missing live Finder page: ${path.relative(repoRoot, finderPagePath)}`);
   }
 
-  const featureFilters = fs.readFileSync(path.join(repoRoot, "src", "wingman2", "productMatching", "featureFilters.ts"), "utf8");
-  const expectedExports = [
+  const finderPage = fs.readFileSync(finderPagePath, "utf8");
+  const expectedFunctions = [
     "getActiveFeatureFilters",
     "toFeatureSearchMatch",
     "isAllowedFeatureSearchProduct",
     "productSupportsIoCount",
     "expectedProductPathForRequirement",
   ];
-  const missingExports = expectedExports.filter((name) => !featureFilters.includes(`function ${name}`));
+  const missingFunctions = expectedFunctions.filter((name) => !finderPage.includes(`function ${name}`));
 
-  if (missingExports.length) {
-    throw new Error(`Recovered featureFilters.ts is missing expected export(s): ${missingExports.join(", ")}`);
+  if (missingFunctions.length) {
+    throw new Error(`Live Finder product matching is missing expected function(s): ${missingFunctions.join(", ")}`);
+  }
+
+  for (const marker of [
+    "const featureFilters = getActiveFeatureFilters(need)",
+    "isAllowedFeatureSearchProduct(product, need)",
+    "toFeatureSearchMatch(product,",
+  ]) {
+    if (!finderPage.includes(marker)) {
+      throw new Error(`Live Finder product matching is missing usage marker: ${marker}`);
+    }
   }
 }
 
@@ -304,7 +307,7 @@ const scenarios = [
 ];
 
 try {
-  verifyDomainFiles();
+  verifyLiveFinderMatching();
   const products = readProducts();
   const results = scenarios.map((scenario) => runScenario(products, scenario));
   const failures = results.filter((result) => !result.passed);

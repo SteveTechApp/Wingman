@@ -4,7 +4,13 @@ import path from "node:path";
 const repoRoot = process.cwd();
 
 const files = {
-  css: path.join(repoRoot, "src", "wingman2", "styles", "wingman-style-stack.css"),
+  css: path.join(
+    repoRoot,
+    "src",
+    "wingman2",
+    "styles",
+    "wingman-style-stack.css",
+  ),
   packageJson: path.join(repoRoot, "package.json"),
 };
 
@@ -25,16 +31,55 @@ function requireMarker(label, source, marker) {
   }
 }
 
+function forbidMarker(label, source, marker) {
+  if (source.includes(marker)) {
+    errors.push(`${label} contains obsolete marker: ${marker}`);
+  }
+}
+
 const css = read(files.css);
 const packageJson = JSON.parse(read(files.packageJson) || "{}");
 
 [
+  "WINGMAN DASHBOARD VIEWPORT CONTRACT START",
+  ".wm-dashboard-shell",
+  "grid-template-columns: minmax(280px, 0.34fr) minmax(0, 1fr)",
+  "align-items: stretch",
+  "height: calc(100dvh - var(--wm-header))",
+  "overflow: hidden",
+  ".wm-dashboard-rail",
+  "align-self: stretch",
+  "height: 100%",
+  ".wm-dashboard-main",
+  "overflow-y: auto",
+  ".wm-dashboard-grid",
+  "grid-template-columns: repeat(5, minmax(0, 1fr))",
+  ".wm-dashboard-project-grid",
+  "grid-template-columns: repeat(3, minmax(0, 1fr))",
+  "gap: 0.75rem",
+  "@media (max-width: 1380px)",
+  "@media (max-width: 1180px)",
+  "grid-template-columns: minmax(0, 1fr)",
+  "WINGMAN DASHBOARD VIEWPORT CONTRACT END",
+].forEach((marker) => {
+  requireMarker("wingman-style-stack.css", css, marker);
+});
+
+[
+  "WINGMAN DASHBOARD CANONICAL LAYOUT START",
+  "WINGMAN DASHBOARD CANONICAL LAYOUT END",
+  "main.wm-dashboard-shell .wm-dashboard-main",
+  "main.wm-dashboard-shell .wm-dashboard-grid",
+  "main.wm-dashboard-shell .wm-dashboard-project-grid",
+  "repeat(auto-fit, minmax(min(100%, 210px), 1fr))",
+  "data-wingman-dashboard-menu",
   "WINGMAN DASHBOARD MENU LAYOUT REPAIR START",
-  ".wm-dashboard-page[data-wingman-dashboard-menu=\"true\"] .wm-dashboard-workflow-copy",
-  "word-break: normal",
+  ".wm-dashboard-workflow-card",
+  ".wm-dashboard-workflow-panel",
   "grid-template-columns: repeat(5, minmax(180px, 1fr))",
-  "WINGMAN DASHBOARD MENU LAYOUT REPAIR END",
-].forEach((marker) => requireMarker("wingman-style-stack.css", css, marker));
+].forEach((marker) => {
+  forbidMarker("wingman-style-stack.css", css, marker);
+});
 
 const activeImports = css
   .split(/\r?\n/)
@@ -42,23 +87,37 @@ const activeImports = css
   .filter((line) => line.startsWith("@import"));
 
 if (activeImports.length) {
-  errors.push("wingman-style-stack.css must not contain active @import lines.");
+  errors.push(
+    "wingman-style-stack.css must not contain active @import lines.",
+  );
 }
 
 if (!packageJson.scripts?.["check:dashboard-menu-layout-density"]) {
-  errors.push("package.json missing check:dashboard-menu-layout-density script.");
+  errors.push(
+    "package.json missing check:dashboard-menu-layout-density script.",
+  );
 }
 
-if (!String(packageJson.scripts?.verify || "").includes("check:dashboard-menu-layout-density")) {
-  errors.push("package.json verify script missing check:dashboard-menu-layout-density.");
+if (
+  !String(packageJson.scripts?.verify || "").includes(
+    "check:dashboard-menu-layout-density",
+  )
+) {
+  errors.push(
+    "package.json verify script missing check:dashboard-menu-layout-density.",
+  );
 }
 
 if (errors.length) {
   console.error("[dashboard-menu-layout-density] Check failed:");
+
   for (const error of errors) {
     console.error(`- ${error}`);
   }
+
   process.exit(1);
 }
 
-console.log("[dashboard-menu-layout-density] Verified Dashboard menu card text and grid density safeguards.");
+console.log(
+  "[dashboard-menu-layout-density] Verified current Dashboard viewport grid density safeguards.",
+);

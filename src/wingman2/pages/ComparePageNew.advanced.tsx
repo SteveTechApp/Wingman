@@ -45,6 +45,7 @@ import {
   governedDecisionLabel,
   resolveApprovedGovernedDecision,
 } from "../lib/governedCompareRuntime";
+import { CompetitorEvidencePanel } from "./compare/CompetitorEvidencePanel";
 
 /*
   Compare workflow guard markers retained for scripts.
@@ -4813,8 +4814,8 @@ function ComparePageNew() {
 
   const profile = useMemo(
     // catalogVersion is bumped after a rep saves a competitor spec (see
-    // LiveLookupPanel) so this - and everything downstream that scores
-    // against it - recomputes using the newly saved data immediately.
+    // CompetitorEvidencePanel) so this - and everything downstream that
+    // scores against it - recomputes using the newly saved data immediately.
     () => buildCompetitorProfile(effectiveBrand, competitorInput, mustMatchFeatures),
     [competitorInput, effectiveBrand, mustMatchFeatures, catalogVersion],
   );
@@ -5524,25 +5525,32 @@ function ComparePageNew() {
                 />
               </div>
             ) : (
-              <section className="compare-native-empty wm-ui-section">
-                <h3 className="wm-ui-title">
-                  {governedDecision?.decisionType === "no-suitable-match"
-                    ? "Reviewed decision: no suitable WyreStorm match"
-                    : "No suitable WyreStorm match found from the current data"}
-                </h3>
-                <p className="wm-ui-copy">
-                  {governedDecision?.decisionType === "no-suitable-match"
-                    ? `This no-match decision was approved${governedDecision.reviewer ? ` by ${governedDecision.reviewer}` : ""} and suppresses recurring automatic suggestions for this SKU.`
-                    : competitorSummary.warning || "Add the competitor product type, I/O, video bandwidth, USB, audio, control or wall-processing requirement and try again."}
-                </p>
-                {competitorSummary.verifyItems.length ? (
-                  <ul className="compare-native-bullet-list wm-ui-card">
-                    {competitorSummary.verifyItems.slice(0, 3).map((item) => (
-                      <li key={`no-match-${item}`}>{item}</li>
-                    ))}
-                  </ul>
-                ) : null}
-              </section>
+              <>
+                <section className="compare-native-empty wm-ui-section">
+                  <h3 className="wm-ui-title">
+                    {governedDecision?.decisionType === "no-suitable-match"
+                      ? "Reviewed decision: no suitable WyreStorm match"
+                      : "No suitable WyreStorm match found from the current data"}
+                  </h3>
+                  <p className="wm-ui-copy">
+                    {governedDecision?.decisionType === "no-suitable-match"
+                      ? `This no-match decision was approved${governedDecision.reviewer ? ` by ${governedDecision.reviewer}` : ""} and suppresses recurring automatic suggestions for this SKU.`
+                      : competitorSummary.warning || "Add the competitor product type, I/O, video bandwidth, USB, audio, control or wall-processing requirement and try again."}
+                  </p>
+                  {competitorSummary.verifyItems.length ? (
+                    <ul className="compare-native-bullet-list wm-ui-card">
+                      {competitorSummary.verifyItems.slice(0, 3).map((item) => (
+                        <li key={`no-match-${item}`}>{item}</li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </section>
+                <CompetitorEvidencePanel
+                  brand={effectiveBrand}
+                  sku={competitorInput}
+                  onSaved={() => setCatalogVersion((version) => version + 1)}
+                />
+              </>
             )}
 
             {best ? (
@@ -5586,10 +5594,10 @@ function ComparePageNew() {
 
             <CompareSummaryPanel summary={summary} requestLiveLookup={requestLiveLookup} sourceUrl={sourceUrl} />
 
-            {requestLiveLookup ? (
+            {requestLiveLookup && best ? (
               <details className="compare-native-summary wm-ui-card wm-ui-copy">
                 <summary>Source validation</summary>
-                <LiveLookupPanel
+                <CompetitorEvidencePanel
                   brand={effectiveBrand}
                   sku={competitorInput}
                   onSaved={() => setCatalogVersion((version) => version + 1)}

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ProductInSituDiagram } from "./ProductInSituDiagram";
 import { getProductSalesKnowledge, type ProductSalesKnowledgeProduct, type ResolvedProductSalesKnowledge } from "../data/productSalesKnowledge";
+import { getCompetitorLandscape, type CompetitorLandscape } from "../lib/competitorLandscape";
 
 type ProductSalesKnowledgePanelProps = {
   product: ProductSalesKnowledgeProduct;
@@ -9,6 +10,7 @@ type ProductSalesKnowledgePanelProps = {
 
 type ConversationKind =
   | "explain"
+  | "competitors"
   | "endUser"
   | "dealer"
   | "consultant"
@@ -48,6 +50,13 @@ function buildConversationCards(knowledge: ResolvedProductSalesKnowledge): Conve
       title: "What is it?",
       summary: `Plain-English explanation of ${knowledge.classLabel.toLowerCase()} and where it sits in an AV system.`,
       cta: "Explain product",
+    },
+    {
+      kind: "competitors",
+      eyebrow: "Market context",
+      title: "Known competitors & brand SKUs",
+      summary: "Who else gets asked for in this product class, and which of their SKUs are logged against it.",
+      cta: "Open competitor SKUs",
     },
     {
       kind: "endUser",
@@ -104,14 +113,17 @@ function buildConversationCards(knowledge: ResolvedProductSalesKnowledge): Conve
 function ConversationModal({
   kind,
   knowledge,
+  competitors,
   onClose,
 }: {
   kind: ConversationKind;
   knowledge: ResolvedProductSalesKnowledge;
+  competitors: CompetitorLandscape;
   onClose: () => void;
 }) {
   const titleMap: Record<ConversationKind, string> = {
     explain: "Explain the product",
+    competitors: "Known competitors & brand SKUs",
     endUser: "Talk to an end user",
     dealer: "Support a dealer / installer",
     consultant: "Answer a technical consultant",
@@ -164,6 +176,25 @@ function ConversationModal({
               {knowledge.featureHints.length ? (
                 <ListBlock title="Feature notes to explain carefully" items={knowledge.featureHints} />
               ) : null}
+            </div>
+          ) : null}
+
+          {kind === "competitors" ? (
+            <div className="wm-product-conversation-script">
+              <p className="wm-product-conversation-readout">{competitors.note}</p>
+              {competitors.entries.map((entry) => (
+                <article className="wm-product-conversation-list" key={`${entry.brand}-${entry.sku}`}>
+                  <h4>{entry.brand} {entry.sku}</h4>
+                  <ul>
+                    {entry.name && entry.name !== entry.sku ? <li>{entry.name}</li> : null}
+                    {entry.category ? <li>Category: {entry.category}</li> : null}
+                    {entry.summary ? <li>{entry.summary}</li> : null}
+                    {entry.knownLimitations ? <li>Known limitation: {entry.knownLimitations}</li> : null}
+                    {entry.wingmanEquivalent ? <li>Logged WyreStorm equivalent: {entry.wingmanEquivalent}</li> : null}
+                    <li>Evidence confidence: {entry.confidence}{entry.sourceUrl ? " (sourced from published specification)" : ""}</li>
+                  </ul>
+                </article>
+              ))}
             </div>
           ) : null}
 
@@ -231,12 +262,13 @@ function ConversationModal({
 
 export function ProductSalesKnowledgePanel({ product, mode = "pitch" }: ProductSalesKnowledgePanelProps) {
   const knowledge = getProductSalesKnowledge(product);
+  const competitors = useMemo(() => getCompetitorLandscape(product), [product]);
   const [activeConversation, setActiveConversation] = useState<ConversationKind | null>(null);
 
   const cards = useMemo(() => buildConversationCards(knowledge), [knowledge]);
 
   const visibleCards = mode === "finder"
-    ? cards.filter((card) => ["explain", "endUser", "validate", "diagram"].includes(card.kind))
+    ? cards.filter((card) => ["explain", "competitors", "endUser", "validate", "diagram"].includes(card.kind))
     : cards;
 
   return (
@@ -290,6 +322,7 @@ export function ProductSalesKnowledgePanel({ product, mode = "pitch" }: ProductS
         <ConversationModal
           kind={activeConversation}
           knowledge={knowledge}
+          competitors={competitors}
           onClose={() => setActiveConversation(null)}
         />
       ) : null}

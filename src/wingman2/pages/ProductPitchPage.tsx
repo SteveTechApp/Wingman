@@ -30,6 +30,7 @@ import { selectWingmanProducts, type ProductSelectorDecision } from "../lib/prod
 import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { resolveProductLifecycle } from "../lib/wyrestormProductLifecycle";
 import { getProductMediaBySku, loadProductMediaIndex } from "../data/productMedia";
+import { getCompetitorLandscape } from "../lib/competitorLandscape";
 
 
 function useProductPitchDensityClass() {
@@ -72,7 +73,7 @@ function openProductCheatSheet(product: ProductSpec, narrative: ProductNarrative
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-type ProductTab = "overview" | "sales" | "spec" | "diagram" | "visual";
+type ProductTab = "overview" | "sales" | "competitors" | "spec" | "diagram" | "visual";
 
 const PRODUCT_PITCH_PANEL_CLASS = "rounded-3xl border border-[#29465e] bg-[#071522]";
 const PRODUCT_PITCH_KICKER_CLASS = "text-xs font-bold uppercase tracking-[0.12em]";
@@ -166,6 +167,26 @@ const PRODUCT_PITCH_FILTERS = [
 ] as const;
 
 type ProductPitchQuickFilter = (typeof PRODUCT_PITCH_FILTERS)[number];
+
+function getProductPitchFilterLead(product: ProductSpec) {
+  const sku = product.sku?.trim().toUpperCase() || "";
+  const name = product.name?.trim().toUpperCase() || "";
+  const value = sku || name;
+
+  return value.charAt(0);
+}
+
+function productMatchesProductPitchFilter(product: ProductSpec, filter: ProductPitchQuickFilter) {
+  if (filter === "All") return true;
+
+  const lead = getProductPitchFilterLead(product);
+
+  if (filter === "1-9") {
+    return /^[1-9]$/.test(lead);
+  }
+
+  return lead === filter;
+}
 
 function normaliseSelectorText(value: string | undefined) {
   return String(value || "").trim().replace(/\s+/g, " ");
@@ -766,6 +787,38 @@ function SalesTab({
   );
 }
 
+function CompetitorsTab({ product }: { product: ProductSpec }) {
+  const landscape = useMemo(() => getCompetitorLandscape(product), [product]);
+
+  return (
+    <div className="grid gap-4">
+      <WorkCard title="Market context">
+        <p className="wm-ui-copy">{landscape.note}</p>
+      </WorkCard>
+
+      {landscape.entries.length ? (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {landscape.entries.map((entry) => (
+            <WorkCard title={`${entry.brand} ${entry.sku}`} key={`${entry.brand}-${entry.sku}`}>
+              <div className="grid gap-2">
+                {entry.category ? <p className="wm-ui-copy"><strong>Category:</strong> {entry.category}</p> : null}
+                {entry.summary ? <p className="wm-ui-copy">{entry.summary}</p> : null}
+                {entry.knownLimitations ? (
+                  <p className="wm-ui-copy"><strong>Known limitation:</strong> {entry.knownLimitations}</p>
+                ) : null}
+                {entry.wingmanEquivalent ? (
+                  <p className="wm-ui-copy"><strong>Logged WyreStorm equivalent:</strong> {entry.wingmanEquivalent}</p>
+                ) : null}
+                <p className="wm-ui-copy text-xs opacity-80">Evidence confidence: {entry.confidence}</p>
+              </div>
+            </WorkCard>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function SpecTable({ product }: { product: ProductSpec }) {
   const technical = product.technicalData;
   const rows = [
@@ -1193,6 +1246,7 @@ function ProductWorkspace({
         <div className="flex flex-wrap gap-2">
           <TabButton label="Overview" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
           <TabButton label="Sales Cards" active={activeTab === "sales"} onClick={() => setActiveTab("sales")} />
+          <TabButton label="Competitors" active={activeTab === "competitors"} onClick={() => setActiveTab("competitors")} />
           <TabButton label="Technical Spec" active={activeTab === "spec"} onClick={() => setActiveTab("spec")} />
           <TabButton label="Diagram" active={activeTab === "diagram"} onClick={() => setActiveTab("diagram")} />
           <TabButton label="Room Visual" active={activeTab === "visual"} onClick={() => setActiveTab("visual")} />
@@ -1201,6 +1255,7 @@ function ProductWorkspace({
 
       {activeTab === "overview" ? <OverviewTab product={product} narrative={narrative} context={salesContext} /> : null}
       {activeTab === "sales" ? <SalesTab product={product} narrative={narrative} context={salesContext} /> : null}
+      {activeTab === "competitors" ? <CompetitorsTab product={product} /> : null}
       {activeTab === "spec" ? <SpecTab product={product} /> : null}
       {activeTab === "diagram" ? <DiagramTab product={product} narrative={narrative} /> : null}
       {activeTab === "visual" ? <VisualTab product={product} narrative={narrative} /> : null}

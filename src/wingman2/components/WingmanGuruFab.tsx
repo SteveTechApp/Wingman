@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent, type PointerEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type MouseEvent,
+  type PointerEvent,
+} from "react";
 
 type WingmanGuruFabProps = {
   open: boolean;
@@ -11,13 +19,22 @@ type GuruPosition = {
   top: number;
 };
 
+type DragState = {
+  pointerId: number | null;
+  startX: number;
+  startY: number;
+  startLeft: number;
+  startTop: number;
+  moved: boolean;
+};
+
 const storageKey = "wingmanGuruPosition";
 const dragThreshold = 4;
-const mouseDragId = -1;
-const clickDelayMs = 320;
+const clickDelayMs = 280;
+const viewportInset = 12;
 
-function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max);
+function clamp(value: number, minimum: number, maximum: number) {
+  return Math.min(Math.max(value, minimum), maximum);
 }
 
 function readStoredPosition(): GuruPosition | null {
@@ -30,7 +47,6 @@ function readStoredPosition(): GuruPosition | null {
     if (!raw) return null;
 
     const parsed = JSON.parse(raw) as Partial<GuruPosition>;
-
     if (typeof parsed.left !== "number" || typeof parsed.top !== "number") {
       return null;
     }
@@ -45,7 +61,7 @@ function saveStoredPosition(position: GuruPosition) {
   try {
     window.localStorage.setItem(storageKey, JSON.stringify(position));
   } catch {
-    return;
+    // Storage can be unavailable in private or restricted browser contexts.
   }
 }
 
@@ -53,7 +69,7 @@ function clearStoredPosition() {
   try {
     window.localStorage.removeItem(storageKey);
   } catch {
-    return;
+    // Storage can be unavailable in private or restricted browser contexts.
   }
 }
 
@@ -62,149 +78,108 @@ function defaultGuruPosition(button?: HTMLButtonElement | null): GuruPosition {
     return { left: 24, top: 180 };
   }
 
-  const width = button?.getBoundingClientRect().width ?? 72;
-  const height = button?.getBoundingClientRect().height ?? 72;
+  const rect = button?.getBoundingClientRect();
+  const width = rect?.width || 72;
+  const height = rect?.height || 72;
+  const narrowViewport = window.matchMedia("(max-width: 980px)").matches;
 
   return {
-    left: clamp(window.innerWidth - width - 28, 12, Math.max(12, window.innerWidth - width - 12)),
-    top: clamp(Math.round(window.innerHeight * 0.44), 96, Math.max(96, window.innerHeight - height - 24)),
+    left: clamp(
+      window.innerWidth - width - (narrowViewport ? 18 : 28),
+      viewportInset,
+      Math.max(viewportInset, window.innerWidth - width - viewportInset),
+    ),
+    top: narrowViewport
+      ? clamp(
+          window.innerHeight - height - 18,
+          viewportInset,
+          Math.max(viewportInset, window.innerHeight - height - viewportInset),
+        )
+      : clamp(
+          Math.round(window.innerHeight * 0.44),
+          96,
+          Math.max(96, window.innerHeight - height - 24),
+        ),
   };
 }
 
-
-export function WingmanGuruFab({ open, onClick, hasContextualTransfer = false }: WingmanGuruFabProps) {
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const dragRef = useRef({
-    pointerId: null as number | null,
+function emptyDragState(): DragState {
+  return {
+    pointerId: null,
     startX: 0,
     startY: 0,
     startLeft: 0,
     startTop: 0,
     moved: false,
-  });
+  };
+}
+
+export function WingmanGuruFab({
+  open,
+  onClick,
+  hasContextualTransfer = false,
+}: WingmanGuruFabProps) {
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const dragRef = useRef<DragState>(emptyDragState());
+  const positionRef = useRef<GuruPosition | null>(readStoredPosition());
   const suppressClickRef = useRef(false);
   const clickTimerRef = useRef<number | null>(null);
-  const [position, setPosition] = useState<GuruPosition | null>(() => readStoredPosition());
+  const [position, setPosition] = useState<GuruPosition | null>(positionRef.current);
+  const [dragging, setDragging] = useState(false);
+
+  const updatePosition = useCallback((nextPosition: GuruPosition) => {
+    positionRef.current = nextPosition;
+    setPosition(nextPosition);
+  }, []);
+
+  const clampPosition = useCallback(
+    (button: HTMLButtonElement, left: number, top: number): GuruPosition => {
+      const rect = button.getBoundingClientRect();
+      const width = rect.width || 72;
+      const height = rect.height || 72;
+
+      return {
+        left: clamp(
+          left,
+          viewportInset,
+          Math.max(viewportInset, window.innerWidth - width - viewportInset),
+        ),
+        top: clamp(
+          top,
+          viewportInset,
+          Math.max(viewportInset, window.innerHeight - height - viewportInset),
+        ),
+      };
+    },
+    [],
+  );
 
   useEffect(() => {
-    // Initialise Guru as a true floating page launcher, not a bottom navigation button.
-    if (position) {
+    if (positionRef.current) {
       return;
     }
 
-    const button = buttonRef.current;
-    setPosition(defaultGuruPosition(button));
-  }, [position]);
-
-
-  const buttonPosition = useCallback((button: HTMLButtonElement, left: number, top: number): GuruPosition => {
-    const rect = button.getBoundingClientRect();
-
-    return {
-      left: clamp(left, 12, Math.max(12, window.innerWidth - rect.width - 12)),
-      top: clamp(top, 12, Math.max(12, window.innerHeight - rect.height - 12)),
-    };
-  }, []);
-
-  const startDrag = useCallback((button: HTMLButtonElement, clientX: number, clientY: number, pointerId: number) => {
-    const rect = button.getBoundingClientRect();
-
-    dragRef.current = {
-      pointerId,
-      startX: clientX,
-      startY: clientY,
-      startLeft: rect.left,
-      startTop: rect.top,
-      moved: false,
-    };
-  }, []);
-
-  const moveDrag = useCallback(
-    (
-      button: HTMLButtonElement,
-      clientX: number,
-      clientY: number,
-      event?: { preventDefault: () => void },
-    ) => {
-      const drag = dragRef.current;
-
-      if (drag.pointerId === null) {
-        return;
-      }
-
-      const dx = clientX - drag.startX;
-      const dy = clientY - drag.startY;
-
-      if (Math.abs(dx) > dragThreshold || Math.abs(dy) > dragThreshold) {
-        drag.moved = true;
-      }
-
-      if (!drag.moved) {
-        return;
-      }
-
-      event?.preventDefault();
-      setPosition(buttonPosition(button, drag.startLeft + dx, drag.startTop + dy));
-    },
-    [buttonPosition],
-  );
-
-  const finishDrag = useCallback(
-    (button: HTMLButtonElement) => {
-      const drag = dragRef.current;
-
-      if (drag.pointerId === null) {
-        return;
-      }
-
-      if (drag.moved) {
-        const rect = button.getBoundingClientRect();
-        const nextPosition = buttonPosition(button, rect.left, rect.top);
-        setPosition(nextPosition);
-        saveStoredPosition(nextPosition);
-        suppressClickRef.current = true;
-
-        window.setTimeout(() => {
-          suppressClickRef.current = false;
-        }, 150);
-      }
-
-      dragRef.current = {
-        pointerId: null,
-        startX: 0,
-        startY: 0,
-        startLeft: 0,
-        startTop: 0,
-        moved: false,
-      };
-    },
-    [buttonPosition],
-  );
+    const nextPosition = defaultGuruPosition(buttonRef.current);
+    updatePosition(nextPosition);
+  }, [updatePosition]);
 
   useEffect(() => {
     function handleResize() {
       const button = buttonRef.current;
+      const current = positionRef.current;
 
-      if (!button || !position) {
+      if (!button || !current) {
         return;
       }
 
-      const rect = button.getBoundingClientRect();
-      const nextPosition = {
-        left: clamp(position.left, 12, Math.max(12, window.innerWidth - rect.width - 12)),
-        top: clamp(position.top, 12, Math.max(12, window.innerHeight - rect.height - 12)),
-      };
-
-      setPosition(nextPosition);
+      const nextPosition = clampPosition(button, current.left, current.top);
+      updatePosition(nextPosition);
       saveStoredPosition(nextPosition);
     }
 
     window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [position]);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [clampPosition, updatePosition]);
 
   useEffect(() => {
     return () => {
@@ -213,74 +188,6 @@ export function WingmanGuruFab({ open, onClick, hasContextualTransfer = false }:
       }
     };
   }, []);
-
-  useEffect(() => {
-    function handleMouseMove(event: globalThis.MouseEvent) {
-      if (dragRef.current.pointerId !== mouseDragId) {
-        return;
-      }
-
-      const button = buttonRef.current;
-
-      if (!button) {
-        return;
-      }
-
-      moveDrag(button, event.clientX, event.clientY, event);
-    }
-
-    function handleMouseUp() {
-      if (dragRef.current.pointerId !== mouseDragId) {
-        return;
-      }
-
-      const button = buttonRef.current;
-
-      if (!button) {
-        return;
-      }
-
-      finishDrag(button);
-    }
-
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [finishDrag, moveDrag]);
-
-  useEffect(() => {
-    if (open) {
-      return undefined;
-    }
-
-    const button = buttonRef.current;
-
-    if (!button) {
-      return undefined;
-    }
-
-    function handleNativeMouseDown(event: globalThis.MouseEvent) {
-      if (event.button !== 0 || dragRef.current.pointerId !== null) {
-        return;
-      }
-
-      if (!button) {
-        return;
-      }
-
-      startDrag(button, event.clientX, event.clientY, mouseDragId);
-    }
-
-    button.addEventListener("mousedown", handleNativeMouseDown);
-
-    return () => {
-      button.removeEventListener("mousedown", handleNativeMouseDown);
-    };
-  }, [open, startDrag]);
 
   if (open) {
     return null;
@@ -301,68 +208,81 @@ export function WingmanGuruFab({ open, onClick, hasContextualTransfer = false }:
     "--wingman-guru-right": "auto",
     "--wingman-guru-bottom": "auto",
     "--wingman-guru-transform": "none",
-    cursor: dragRef.current.pointerId === null ? "grab" : "grabbing",
-    touchAction: "none",
-    userSelect: "none",
   } as CSSProperties;
 
   function handlePointerDown(event: PointerEvent<HTMLButtonElement>) {
-    if (!event.pointerType || event.pointerType === "mouse" || event.button !== 0) {
+    if (!event.isPrimary || event.button !== 0 || dragRef.current.pointerId !== null) {
       return;
     }
 
-    startDrag(event.currentTarget, event.clientX, event.clientY, event.pointerId);
+    const rect = event.currentTarget.getBoundingClientRect();
+
+    dragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      startLeft: rect.left,
+      startTop: rect.top,
+      moved: false,
+    };
+
     event.currentTarget.setPointerCapture(event.pointerId);
   }
 
   function handlePointerMove(event: PointerEvent<HTMLButtonElement>) {
     const drag = dragRef.current;
 
-    if (drag.pointerId !== event.pointerId) {
+    if (!event.isPrimary || drag.pointerId !== event.pointerId) {
       return;
     }
 
-    moveDrag(event.currentTarget, event.clientX, event.clientY, event);
+    const deltaX = event.clientX - drag.startX;
+    const deltaY = event.clientY - drag.startY;
+
+    if (
+      !drag.moved &&
+      (Math.abs(deltaX) > dragThreshold || Math.abs(deltaY) > dragThreshold)
+    ) {
+      drag.moved = true;
+      setDragging(true);
+    }
+
+    if (!drag.moved) {
+      return;
+    }
+
+    event.preventDefault();
+    updatePosition(
+      clampPosition(
+        event.currentTarget,
+        drag.startLeft + deltaX,
+        drag.startTop + deltaY,
+      ),
+    );
   }
 
-  function handlePointerUp(event: PointerEvent<HTMLButtonElement>) {
+  function finishPointerDrag(event: PointerEvent<HTMLButtonElement>) {
     const drag = dragRef.current;
 
     if (drag.pointerId !== event.pointerId) {
       return;
     }
 
-    try {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
-    } catch {
-      return;
-    } finally {
-      finishDrag(event.currentTarget);
-    }
-  }
-
-  function handleMouseDown(event: MouseEvent<HTMLButtonElement>) {
-    if (event.button !== 0 || dragRef.current.pointerId !== null) {
-      return;
     }
 
-    startDrag(event.currentTarget, event.clientX, event.clientY, mouseDragId);
-  }
+    if (drag.moved && positionRef.current) {
+      saveStoredPosition(positionRef.current);
+      suppressClickRef.current = true;
 
-  function handleMouseMove(event: MouseEvent<HTMLButtonElement>) {
-    if (dragRef.current.pointerId !== mouseDragId) {
-      return;
+      window.setTimeout(() => {
+        suppressClickRef.current = false;
+      }, 150);
     }
 
-    moveDrag(event.currentTarget, event.clientX, event.clientY, event);
-  }
-
-  function handleMouseUp(event: MouseEvent<HTMLButtonElement>) {
-    if (dragRef.current.pointerId !== mouseDragId) {
-      return;
-    }
-
-    finishDrag(event.currentTarget);
+    dragRef.current = emptyDragState();
+    setDragging(false);
   }
 
   function handleClick(event: MouseEvent<HTMLButtonElement>) {
@@ -370,20 +290,6 @@ export function WingmanGuruFab({ open, onClick, hasContextualTransfer = false }:
       event.preventDefault();
       event.stopPropagation();
       suppressClickRef.current = false;
-      return;
-    }
-
-    if (event.detail > 1) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (clickTimerRef.current !== null) {
-        window.clearTimeout(clickTimerRef.current);
-        clickTimerRef.current = null;
-      }
-
-      clearStoredPosition();
-      setPosition(null);
       return;
     }
 
@@ -407,35 +313,48 @@ export function WingmanGuruFab({ open, onClick, hasContextualTransfer = false }:
     }
 
     clearStoredPosition();
-    setPosition(null);
+    const nextPosition = defaultGuruPosition(buttonRef.current);
+    updatePosition(nextPosition);
   }
 
   return (
     <button
-      data-wingman-guru-launcher="true"
-      data-wingman-guru-floating-active="true"
       ref={buttonRef}
       type="button"
+      className="wingman-guru-fab"
+      data-wingman-guru-launcher="true"
+      data-wingman-guru-floating-active="true"
+      data-wingman-guru-fab="true"
+      data-open={open ? "true" : "false"}
+      data-dragging={dragging ? "true" : "false"}
+      data-context-transfer={hasContextualTransfer ? "true" : "false"}
+      aria-label={
+        hasContextualTransfer
+          ? "Open Guru technical assistant. Context is available."
+          : "Open Guru technical assistant"
+      }
+      aria-pressed={open ? "true" : "false"}
+      style={style}
+      title="Drag Guru to move. Double-click to reset."
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      aria-label={hasContextualTransfer ? "Open Guru technical assistant. Context is available." : "Open Guru technical assistant"}
-      aria-pressed={open ? "true" : "false"}
-      className="wingman-guru-fab"
-      data-wingman-guru-fab="true"
-      data-open={open ? "true" : "false"}
-      data-context-transfer={hasContextualTransfer ? "true" : "false"}
-      style={style}
-      title="Drag Guru to move. Double-click to reset."
+      onPointerUp={finishPointerDrag}
+      onPointerCancel={finishPointerDrag}
     >
       <span className="wingman-guru-fab-sweep" aria-hidden="true" />
       <span className="wingman-guru-fab-glow" aria-hidden="true" />
-      <img src="/wingman-guru-icon.png" alt="Guru" className="wingman-guru-fab-image" width={64} height={64} decoding="async" loading="eager" />
+      <img
+        src="/wingman-guru-icon.png"
+        alt="Guru"
+        className="wingman-guru-fab-image"
+        width={64}
+        height={64}
+        decoding="async"
+        loading="eager"
+        draggable={false}
+      />
     </button>
   );
 }
