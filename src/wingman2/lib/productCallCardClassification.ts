@@ -89,6 +89,23 @@ function productCallCardHeadingSignalText(product: ProductCallCardClassification
     .toLowerCase();
 }
 
+function productCallCardIdentityText(product: ProductCallCardClassificationInput): string {
+  return [
+    product.sku,
+    product.name,
+    product.title,
+    product.family,
+    product.category,
+    product.productType,
+    product.role,
+    product.productRole,
+  ]
+    .map(fieldText)
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
 function hasAny(text: string, terms: RegExp[]): boolean {
   return terms.some((term) => term.test(text));
 }
@@ -112,11 +129,13 @@ export function classifyProductCallCard(
   }
 
   const text = productCallCardHeadingSignalText(product);
+  const identityText = productCallCardIdentityText(product);
   const headings = new Set<ClassifiedProductCallCardHeading>();
 
   const unifiedComms = hasAny(text, [
     /\bunified comm(?:s|unications?)\b/,
     /\busb conferenc(?:e|ing)\b/,
+    /\bvideo bar\b/,
     /\bspeakerphone\b/,
     /\bteams\b/,
     /\bzoom\b/,
@@ -130,8 +149,23 @@ export function classifyProductCallCard(
     headings.add("Unified Comms");
   }
 
-  const audioCore = /^AMP-/.test(sku) || hasAny(text, [/\bamplifier\b/, /\bdante\b/, /\bdsp\b/]);
-  const audioPeripheral = hasAny(text, [/\baudio\b/, /\bspeaker\b/, /\bmicrophone\b/, /\bmic\b/]);
+  const networkHdSku = /^NHD-/.test(sku);
+  const audioCore =
+    !networkHdSku &&
+    (/^AMP-/.test(sku) ||
+      hasAny(identityText, [
+        /\baudio amplifier\b/,
+        /\bnetwork amplifier\b/,
+        /\bdante amplifier\b/,
+        /\bdsp amplifier\b/,
+        /\baudio processor\b/,
+        /\baudio converter\b/,
+        /\baudio breakout\b/,
+        /\baudio extractor\b/,
+        /\baudio de-?embed(?:der|ding)?\b/,
+      ]));
+  const audioPeripheral =
+    !networkHdSku && hasAny(identityText, [/\bspeakerphone\b/, /\bmicrophone\b/, /\bmic\b/]);
 
   if (audioCore || (audioPeripheral && !unifiedComms)) {
     headings.add("Audio");
@@ -181,26 +215,22 @@ export function classifyProductCallCard(
 
   if (
     /^(?:EXP-)?MX(?:V)?-/.test(sku) ||
-    hasAny(text, [/\bmatrix switcher\b/, /\bseamless matrix\b/, /\bfixed i\/o switching\b/])
+    hasAny(identityText, [/\bmatrix switcher\b/, /\bseamless matrix\b/, /\bfixed i\/o matrix\b/, /\brouting matrix\b/])
   ) {
     headings.add("Matrix Switchers");
   }
 
   if (
     /^APO-DG/.test(sku) ||
+    ["APO-VX20-UC-V2", "HALO-VX10-V2"].includes(sku) ||
     /(?:^|-)DG2?(?:-|$)/.test(sku) ||
-    hasAny(text, [/\bwireless presentation\b/, /\bwireless casting\b/, /\bcasting\b/, /\bairplay\b/, /\bmiracast\b/]) ||
-    (/-W$/.test(sku) && hasAny(text, [/\bwireless\b/, /\bpresentation\b/]))
+    hasAny(identityText, [/\bwireless presentation\b/, /\bwireless casting\b/, /\bcasting\b/, /\bairplay\b/, /\bmiracast\b/]) ||
+    (/-W$/.test(sku) && hasAny(identityText, [/\bwireless\b/, /\bpresentation\b/]))
   ) {
     headings.add("Wireless Casting");
   }
 
-  const networkHdRelated = /^NHD-/.test(sku) || hasAny(text, [/\bnetworkhd\b/, /\bav(?:-|\s*)over(?:-|\s*)ip\b/, /\bavoip\b/]);
-
-  if (
-    networkHdRelated ||
-    (hasAny(text, [/\bencoder\b/, /\bdecoder\b/, /\bcontroller\b/]) && hasAny(text, [/\bnetworkhd\b/, /\bnhd\b/]))
-  ) {
+  if (networkHdSku) {
     headings.add("AVoIP");
   }
 

@@ -309,10 +309,13 @@ export function AppShell({ children }: AppShellProps) {
             {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
 
-          <div className="wingman-topbar-title wm-balanced-topbar-title" title={`${activeLabel}: ${activeSummary}`}>
-            <span>
-              {activeLabel}: {activeSummary}
-            </span>
+          <div
+            className="wingman-topbar-title wm-balanced-topbar-title"
+            data-wingman-page-header="true"
+            title={`${activeLabel}: ${activeSummary}`}
+          >
+            <strong className="wingman-topbar-page-label">{activeLabel}</strong>
+            <span className="wingman-topbar-page-summary">{activeSummary}</span>
           </div>
 
           <WingmanViewportFitControl />
@@ -323,7 +326,13 @@ export function AppShell({ children }: AppShellProps) {
         </header>
 
         <main className="wingman-app-main">
-          <div data-wingman-visual-root="true" className="wingman-page-host" key={`${location.pathname}-${pageResetVersion}`}>
+          <div
+            data-wingman-visual-root="true"
+            data-wingman-page-style="governed"
+            data-wingman-page-key={activeRoute?.key ?? "dashboard"}
+            className="wingman-page-host wm-app-page-frame"
+            key={`${location.pathname}-${pageResetVersion}`}
+          >
             {children ?? <Outlet />}
           </div>
         </main>

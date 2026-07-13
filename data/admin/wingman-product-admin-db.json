@@ -16,10 +16,370 @@
       "statusOverride": "live",
       "doNotUse": false,
       "visibility": "default",
-      "adminNotes": "Approved APO-DG2 compatible host.",
+      "adminNotes": "Current Apollo VX20 v2 UC/wireless-casting host product.",
       "evidenceUrl": "",
       "updatedBy": "admin",
-      "updatedAt": "2026-07-06T13:31:54.021Z"
+      "updatedAt": "2026-07-10T16:01:04.097Z"
+    },
+    "NHD-000-CTL": {
+      "sku": "NHD-000-CTL",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:49.908Z"
+    },
+    "NHD-000-RACK3": {
+      "sku": "NHD-000-RACK3",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:49.985Z"
+    },
+    "NHD-110": {
+      "sku": "NHD-110",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:50.055Z"
+    },
+    "NHD-110-RX": {
+      "sku": "NHD-110-RX",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:50.125Z"
+    },
+    "NHD-110-RX-S": {
+      "sku": "NHD-110-RX-S",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:50.235Z"
+    },
+    "NHD-110-TX": {
+      "sku": "NHD-110-TX",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:50.301Z"
+    },
+    "NHD-120-RX-S": {
+      "sku": "NHD-120-RX-S",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:50.368Z"
+    },
+    "NHD-140-RACK-1U": {
+      "sku": "NHD-140-RACK-1U",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:50.433Z"
+    },
+    "NHD-250-RX": {
+      "sku": "NHD-250-RX",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:50.500Z"
+    },
+    "NHD-300-TX": {
+      "sku": "NHD-300-TX",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:50.569Z"
+    },
+    "NHD-400-DNT-TX": {
+      "sku": "NHD-400-DNT-TX",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:50.638Z"
+    },
+    "NHD-400-E-RX": {
+      "sku": "NHD-400-E-RX",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:50.706Z"
+    },
+    "NHD-400-E-TX": {
+      "sku": "NHD-400-E-TX",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:50.781Z"
+    },
+    "NHD-400-RX": {
+      "sku": "NHD-400-RX",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:50.854Z"
+    },
+    "NHD-400-TX": {
+      "sku": "NHD-400-TX",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:50.924Z"
+    },
+    "NHD-400-TX-IW": {
+      "sku": "NHD-400-TX-IW",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:50.998Z"
+    },
+    "NHD-500": {
+      "sku": "NHD-500",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:51.075Z"
+    },
+    "NHD-500-IW-TX": {
+      "sku": "NHD-500-IW-TX",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:51.148Z"
+    },
+    "NHD-500-T": {
+      "sku": "NHD-500-T",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:51.219Z"
+    },
+    "NHD-500-TXRX-V2": {
+      "sku": "NHD-500-TXRX-V2",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:51.289Z"
+    },
+    "NHD-600-E-TXRX": {
+      "sku": "NHD-600-E-TXRX",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:51.357Z"
+    },
+    "NHD-600-RX": {
+      "sku": "NHD-600-RX",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:51.433Z"
+    },
+    "NHD-600-TRX": {
+      "sku": "NHD-600-TRX",
+      "statusOverride": "live",
+      "doNotUse": false,
+      "visibility": "default",
+      "adminNotes": "Current NetworkHD 600 transceiver retained for 10G SDVoE compare and Finder flows.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-13T12:59:00.000Z"
+    },
+    "NHD-600-TX": {
+      "sku": "NHD-600-TX",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:51.575Z"
+    },
+    "NHD-610": {
+      "sku": "NHD-610",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:51.646Z"
+    },
+    "NHD-CTL-PRO": {
+      "sku": "NHD-CTL-PRO",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:51.710Z"
+    },
+    "NHD-CTL-PRO-T": {
+      "sku": "NHD-CTL-PRO-T",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:51.775Z"
+    },
+    "NHD-TOUCH": {
+      "sku": "NHD-TOUCH",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:51.843Z"
+    },
+    "NHD-TOUCHPLUS": {
+      "sku": "NHD-TOUCHPLUS",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed invalid, superseded or end-of-life SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T15:38:51.905Z"
+    },
+    "APO-100-UC": {
+      "sku": "APO-100-UC",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed retired, invalid or non-current SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T16:01:04.097Z"
+    },
+    "APO-200-UC": {
+      "sku": "APO-200-UC",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed retired, invalid or non-current SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T16:01:04.097Z"
+    },
+    "APO-DG1": {
+      "sku": "APO-DG1",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed retired, invalid or non-current SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T16:01:04.097Z"
+    },
+    "APO-DG2-PRO": {
+      "sku": "APO-DG2-PRO",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed retired, invalid or non-current SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T16:01:04.097Z"
+    },
+    "HALO-VX10-V1": {
+      "sku": "HALO-VX10-V1",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed retired, invalid or non-current SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T16:01:04.097Z"
+    },
+    "SW-510-TX-W": {
+      "sku": "SW-510-TX-W",
+      "statusOverride": "do-not-use",
+      "doNotUse": true,
+      "visibility": "hidden",
+      "adminNotes": "User-confirmed retired, invalid or non-current SKU. Hide from Wingman search, selection and recommendation surfaces.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T16:01:04.097Z"
+    },
+    "HALO-VX10-V2": {
+      "sku": "HALO-VX10-V2",
+      "statusOverride": "live",
+      "doNotUse": false,
+      "visibility": "default",
+      "adminNotes": "Current HALO VX10 v2 UC/wireless-casting host product.",
+      "evidenceUrl": "",
+      "updatedBy": "admin",
+      "updatedAt": "2026-07-10T16:01:04.097Z"
     }
   }
 }

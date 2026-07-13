@@ -1,4 +1,4 @@
-import type { VisualDiagramModel, VisualDiagramNode } from "./visualStudioTypes";
+import type { VisualDiagramEdge, VisualDiagramModel, VisualDiagramNode } from "./visualStudioTypes";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -47,6 +47,37 @@ function summarize(values: string[], fallback: string): string {
   }
 
   return values.slice(0, 3).join(" | ");
+}
+
+function factText(facts: ProductConnectionFacts): string {
+  return [
+    facts.sku,
+    facts.name,
+    facts.category,
+    facts.summary,
+    facts.matrixSize,
+    facts.transports.join(" "),
+    facts.connectors.join(" "),
+    facts.videoProcessing.join(" "),
+    facts.networkInterfaces.join(" "),
+    facts.audioSignals.join(" "),
+  ].join(" ").toLowerCase();
+}
+
+function hasAvoipTransport(facts: ProductConnectionFacts): boolean {
+  return /^NHD-/i.test(facts.sku) || /\b(networkhd|av-?over-?ip|avoip|multicast|10g av|sdvoe)\b/i.test(factText(facts));
+}
+
+function hasNetworkAudio(facts: ProductConnectionFacts): boolean {
+  return /\b(dante|aes67|network audio|audio network)\b/i.test(factText(facts));
+}
+
+function hasUsbTransport(facts: ProductConnectionFacts): boolean {
+  return /\b(usb|uc|byom|byod|camera|ptz|video bar|webcam)\b/i.test(factText(facts));
+}
+
+function hasCameraUsbEndpoint(facts: ProductConnectionFacts): boolean {
+  return /\b(camera|ptz|video bar|webcam)\b/i.test(factText(facts));
 }
 
 function sentenceCaseQuoteSafety(value: string): string {
@@ -108,6 +139,64 @@ function collectFacts(seedSku: string, product: UnknownRecord | null): ProductCo
       ...asStringList(audio.networkAudio),
     ],
   };
+}
+
+function buildGeneratedEndpointNodes(facts: ProductConnectionFacts): VisualDiagramNode[] {
+  const nodes: VisualDiagramNode[] = [];
+
+  if (hasAvoipTransport(facts)) {
+    nodes.push({
+      id: "generic-avoip-network",
+      label: "AVoIP Network",
+      subtitle: "NetworkHD / multicast transport path. Confirm switch, VLAN and bandwidth before quote.",
+      kind: "network",
+      status: "recommended",
+      emphasis: "support",
+      column: 2.1,
+      row: 0.18,
+    });
+  }
+
+  if (hasNetworkAudio(facts)) {
+    nodes.push({
+      id: "generic-audio-network",
+      label: "Audio Network",
+      subtitle: "Dante / network-audio path. Confirm clocking, routing and DSP ownership.",
+      kind: "audio",
+      status: "optional",
+      emphasis: "compact",
+      column: 1.25,
+      row: 3.82,
+    });
+  }
+
+  if (hasUsbTransport(facts)) {
+    nodes.push({
+      id: "generic-usb-host",
+      label: "USB Host",
+      subtitle: "Room PC, BYOM laptop or UC platform that owns the USB session.",
+      kind: "usb",
+      status: "missing",
+      emphasis: "compact",
+      column: 0.2,
+      row: 3.82,
+    });
+  }
+
+  if (hasCameraUsbEndpoint(facts)) {
+    nodes.push({
+      id: "generic-usb-camera-endpoint",
+      label: "Camera USB Endpoint",
+      subtitle: "Camera / video-bar USB device side. Confirm host path and bandwidth.",
+      kind: "camera",
+      status: "missing",
+      emphasis: "compact",
+      column: 2.3,
+      row: 3.82,
+    });
+  }
+
+  return nodes;
 }
 
 function buildNodes(facts: ProductConnectionFacts): VisualDiagramNode[] {
@@ -233,7 +322,54 @@ function buildNodes(facts: ProductConnectionFacts): VisualDiagramNode[] {
       column: 5.38,
       row: 2.56,
     },
+    ...buildGeneratedEndpointNodes(facts),
   ];
+}
+
+function buildGeneratedEndpointEdges(facts: ProductConnectionFacts): VisualDiagramEdge[] {
+  const edges: VisualDiagramEdge[] = [];
+
+  if (hasAvoipTransport(facts)) {
+    edges.push({
+      id: "e-avoip-network",
+      source: "device",
+      target: "generic-avoip-network",
+      label: "AVoIP transport / multicast network",
+      status: "recommended",
+    });
+  }
+
+  if (hasNetworkAudio(facts)) {
+    edges.push({
+      id: "e-audio-network",
+      source: "device",
+      target: "generic-audio-network",
+      label: "Dante / network audio",
+      status: "optional",
+    });
+  }
+
+  if (hasUsbTransport(facts)) {
+    edges.push({
+      id: "e-usb-host",
+      source: "generic-usb-host",
+      target: "device",
+      label: "USB host / device ownership",
+      status: "missing",
+    });
+  }
+
+  if (hasCameraUsbEndpoint(facts)) {
+    edges.push({
+      id: "e-usb-camera-endpoint",
+      source: "device",
+      target: "generic-usb-camera-endpoint",
+      label: "Camera USB endpoint",
+      status: "missing",
+    });
+  }
+
+  return edges;
 }
 
 export function buildProductConnectionDiagram(
@@ -287,6 +423,7 @@ export function buildProductConnectionDiagram(
       { id: "e7", source: "device", target: "network", label: "IP / service lane", status: "optional" },
       { id: "e8", source: "device", target: "accessories", label: "Supporting items", status: "optional" },
       { id: "e9", source: "device", target: "quote-checks", label: "Confirm before quote", status: "risk" },
+      ...buildGeneratedEndpointEdges(facts),
     ],
   };
 }
