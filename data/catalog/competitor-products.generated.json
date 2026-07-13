@@ -951,7 +951,11 @@
       "routedInputCount": 1,
       "routedOutputCount": 1,
       "physicalOutputCount": 1,
-      "mirroredOutputCount": 1
+      "mirroredOutputCount": 1,
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
     },
     "aliases": [],
     "knownLimitations": "4K30 (not 4K60) at this bitrate/network tier; JPEG2000 codec trades some efficiency for very low latency versus H.264/H.265-based competitors.",
@@ -1039,7 +1043,11 @@
       "latencyMs": 8,
       "power": {
         "poe": "802.3at Type 2 (PoE+)"
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
     },
     "aliases": [
       "nmxdecn2422a"
@@ -1118,7 +1126,9 @@
       },
       "audio": {
         "danteAvA": true
-      }
+      },
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -1186,7 +1196,9 @@
     "specs": {
       "video": {
         "maxResolution": "4096x2160"
-      }
+      },
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -1276,7 +1288,11 @@
       "routedInputCount": 1,
       "routedOutputCount": 1,
       "physicalOutputCount": 1,
-      "mirroredOutputCount": 1
+      "mirroredOutputCount": 1,
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
     },
     "aliases": [],
     "knownLimitations": "4K30 (not 4K60) at this bitrate/network tier; JPEG2000 codec trades some efficiency for very low latency versus H.264/H.265-based competitors.",
@@ -1374,7 +1390,11 @@
       "latencyMs": 8,
       "power": {
         "poe": "802.3at Type 2 (PoE+)"
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
     },
     "aliases": [
       "nmxencn2412a"
@@ -1445,7 +1465,9 @@
     "specs": {
       "video": {
         "maxResolution": "4096x2160"
-      }
+      },
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -1526,7 +1548,9 @@
       },
       "power": {
         "poe": "PoE+"
-      }
+      },
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -1628,7 +1652,10 @@
       "latencyMs": 110,
       "power": {
         "poe": "802.3at Type 2 (PoE+)"
-      }
+      },
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
     },
     "aliases": [
       "nmxencn3312d",
@@ -2931,7 +2958,11 @@
       },
       "distance": {
         "meters": 100
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "VC-2 / SMPTE 2042"
     },
     "aliases": [
       "atomni111",
@@ -3024,7 +3055,11 @@
       },
       "distance": {
         "meters": 100
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "VC-2 / SMPTE 2042"
     },
     "aliases": [
       "atomni112",
@@ -3108,7 +3143,11 @@
       },
       "distance": {
         "meters": 100
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "VC-2 / SMPTE 2042"
     },
     "aliases": [
       "omnistreamatomni121"
@@ -3187,7 +3226,11 @@
       },
       "security": {
         "encryption": "AES-128"
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "VC-2 / SMPTE 2042"
     },
     "aliases": [],
     "knownLimitations": "Discontinued; Atlona's official recommended replacement is two AT-OMNI-121 single-channel decoders.",
@@ -3252,7 +3295,11 @@
     "specs": {
       "distance": {
         "meters": 100
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "VC-2 / SMPTE 2042"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -3317,7 +3364,11 @@
     "specs": {
       "distance": {
         "meters": 100
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "VC-2 / SMPTE 2042"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -3909,7 +3960,9 @@
       },
       "distance": {
         "meters": 100
-      }
+      },
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -4757,7 +4810,11 @@
       "power": {
         "poeStandard": "IEEE 802.3af",
         "poeWatts": 15.4
-      }
+      },
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
     },
     "aliases": [
       "mxnet10gtcvr"
@@ -4864,7 +4921,10 @@
       "power": {
         "poeStandard": "IEEE 802.3af",
         "poeWatts": 15.4
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
     },
     "aliases": [
       "mxnet1gd"
@@ -4977,7 +5037,10 @@
       "power": {
         "poeStandard": "IEEE 802.3af",
         "poeWatts": 15.4
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
     },
     "aliases": [
       "mxnet1ge"
@@ -6885,7 +6948,10 @@
         "maxW": 7.5,
         "poe": true
       },
-      "latency": "1 frame (16ms@60Hz, 33ms@30Hz)"
+      "latency": "1 frame (16ms@60Hz, 33ms@30Hz)",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Visually lossless compression"
     },
     "aliases": [
       "b900moip4krx",
@@ -6987,7 +7053,10 @@
         "maxW": 7.5,
         "poe": true
       },
-      "latency": "1 frame (16ms@60Hz, 33ms@30Hz)"
+      "latency": "1 frame (16ms@60Hz, 33ms@30Hz)",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Visually lossless compression"
     },
     "aliases": [
       "b900moip4ktx",
@@ -7156,7 +7225,10 @@
       "network": {
         "ports": 4,
         "sfpPlus": true
-      }
+      },
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
     },
     "aliases": [],
     "knownLimitations": "CSV model name 'Air 4K Quad' matches BirdDog's '4K QUAD' (BD4KQUAD) multi-channel encoder/decoder; the 'Air' prefix could not be independently confirmed as a distinct product line — verify exact SKU before quoting.",
@@ -7237,7 +7309,10 @@
     "specs": {
       "video": {
         "maxResolution": "4Kp60"
-      }
+      },
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
     },
     "aliases": [],
     "knownLimitations": "CSV model 'Eyes HDMI' matches BirdDog's '4K HDMI' (BD4KHDMI) converter, marketed under the historical 'BirdDog Eyes' product branding; verify exact SKU before quoting.",
@@ -7318,7 +7393,10 @@
     "specs": {
       "video": {
         "maxResolution": "4Kp60"
-      }
+      },
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
     },
     "aliases": [],
     "knownLimitations": "CSV model 'Eyes SDI' matches BirdDog's '4K SDI' (BD4KSDI) converter, marketed under the historical 'BirdDog Eyes' product branding; verify exact SKU before quoting.",
@@ -7408,7 +7486,9 @@
       "physical": {
         "dimensionsMm": "107x63x31",
         "weightG": 140
-      }
+      },
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -8439,7 +8519,11 @@
       },
       "distance": {
         "meters": 100
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Visually lossless proprietary compression"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -8515,7 +8599,11 @@
       },
       "power": {
         "poe": true
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Visually lossless proprietary compression"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -8593,7 +8681,11 @@
       "network": {
         "lanPorts": 2,
         "sfp": true
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Visually lossless proprietary compression"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -8702,7 +8794,11 @@
         "poe": true,
         "poeDrawW": 8,
         "poeMaxW": 9.2
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Visually lossless proprietary compression"
     },
     "aliases": [],
     "knownLimitations": "USB/KVM connectivity noted by Blustream as limited to bulk-mode USB devices (e.g. bulk mode cameras); not confirmed to support isochronous USB data transfer for video-conferencing cameras.",
@@ -8788,7 +8884,11 @@
       },
       "distance": {
         "meters": 100
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Visually lossless proprietary compression"
     },
     "aliases": [
       "ip300uhdrx"
@@ -8879,7 +8979,11 @@
       },
       "distance": {
         "meters": 100
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Visually lossless proprietary compression"
     },
     "aliases": [
       "ip300uhdtx"
@@ -8968,7 +9072,11 @@
       },
       "power": {
         "maxW": 12
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Visually lossless proprietary compression"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -9065,7 +9173,11 @@
       },
       "power": {
         "maxW": 12
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Visually lossless proprietary compression"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -10006,7 +10118,11 @@
       },
       "power": {
         "poe": "802.3bt Type 3 Class 5 (60W)"
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Pixel Perfect Processing"
     },
     "aliases": [
       "dmnvx350"
@@ -10098,7 +10214,11 @@
       "network": {
         "ports": 2,
         "speed": "1000Base-T"
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Pixel Perfect Processing"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -10215,7 +10335,11 @@
       },
       "distance": {
         "meters": 100
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Pixel Perfect Processing"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -10300,7 +10424,11 @@
       },
       "audio": {
         "dante": true
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Pixel Perfect Processing"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -10401,7 +10529,11 @@
       "routedInputCount": 4,
       "routedOutputCount": 1,
       "physicalOutputCount": 1,
-      "mirroredOutputCount": 1
+      "mirroredOutputCount": 1,
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Pixel Perfect Processing"
     },
     "aliases": [],
     "knownLimitations": "5K support is 21:9 ultrawide-specific; standard 16:9 ceiling remains 4K60 4:4:4 in line with the rest of the DM NVX platform.",
@@ -10489,7 +10621,11 @@
       },
       "power": {
         "poe": "802.3at Type 2 PoE+ Class 4 (25.5W)"
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Pixel Perfect Processing"
     },
     "aliases": [
       "dmnvxd30",
@@ -10554,7 +10690,11 @@
         "maxDomains": 20,
         "builtInEthernetPorts": 1,
         "maxUsbEthernetAdapters": 3
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Pixel Perfect Processing"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -10645,7 +10785,11 @@
       },
       "distance": {
         "meters": 100
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Pixel Perfect Processing"
     },
     "aliases": [
       "dmnvxe30",
@@ -13228,7 +13372,11 @@
       },
       "network": {
         "speed": "10Gb"
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "PURE3"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -13312,7 +13460,11 @@
       },
       "network": {
         "speed": "10Gb"
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "PURE3"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -13384,7 +13536,11 @@
       },
       "network": {
         "speed": "1Gb"
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "PURE3"
     },
     "aliases": [],
     "knownLimitations": "Extron's official 101-tier NAV decoder naming is 'NAV SD 101' (scaling) / 'NAV 10SD 101' (10G scaling); no distinct non-scaling 'NAV D 101' was found (the non-scaling compact decoder is 'NAV D 121'). Verify exact SKU before quoting.",
@@ -13456,7 +13612,11 @@
       },
       "physical": {
         "formFactor": "1/4 rack width, 1in H"
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "PURE3"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -13507,7 +13667,10 @@
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
-    "specs": {},
+    "specs": {
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    },
     "aliases": [
       "navd501"
     ],
@@ -13587,7 +13750,11 @@
       "distance": {
         "feet": 328,
         "meters": 100
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "PURE3"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -13686,7 +13853,11 @@
       "usb": {
         "standard": "USB 2.0",
         "connector": "USB-C"
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "PURE3"
     },
     "aliases": [
       "nave501"
@@ -13778,7 +13949,11 @@
       "usb": {
         "standard": "USB 2.0",
         "connector": "USB-C"
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "PURE3"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -13868,7 +14043,11 @@
       },
       "distance": {
         "meters": 100
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "PURE3"
     },
     "aliases": [
       "NAV E 121"
@@ -13950,7 +14129,11 @@
       },
       "distance": {
         "meters": 100
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "PURE3"
     },
     "aliases": [
       "NAV SD 121"
@@ -13971,8 +14154,8 @@
     "family": "NAV",
     "category": "Control",
     "subcategory": "",
-    "status": "approved",
-    "approvalStatus": "approved",
+    "status": "review",
+    "approvalStatus": "review",
     "sourceTier": "structured-catalog",
     "summary": "AV over IP system manager that configures, controls, and monitors NAV encoders and decoders from an embedded web interface.",
     "sourceUrl": "https://www.extron.com/product/navigator",
@@ -14011,12 +14194,16 @@
       "System orchestration"
     ],
     "video": {},
-    "specs": {},
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    },
     "aliases": [],
     "knownLimitations": "",
     "closestWyrestormArchitecture": "No direct WyreStorm hardware equivalent",
     "closestWyrestormSkuOrFamily": "Central AVoIP domain-management software suite; WyreStorm's NHD-CTL-PRO-V2 controls a single NetworkHD system, not a multi-domain estate",
-    "notes": "Official Extron NAVigator page. | data/product-intelligence-db.json#31 merged into deployed competitor catalog. | data/product-intelligence-db.json#40 merged into deployed competitor catalog. | data/product-intelligence-db.json#64 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Extron NAVigator is the management and control platform for Extron NAV AVoIP deployments. | Treat NAVigator as the control plane for NAV systems, not as an AV endpoint. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#62 merged into deployed competitor catalog. | Verified via official Extron NAVigator product page: browser-based AVoIP system manager for configuring/controlling/monitoring NAV encoders and decoders.",
+    "notes": "Official Extron NAVigator page. | data/product-intelligence-db.json#31 merged into deployed competitor catalog. | data/product-intelligence-db.json#40 merged into deployed competitor catalog. | data/product-intelligence-db.json#64 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Extron NAVigator is the management and control platform for Extron NAV AVoIP deployments. | Treat NAVigator as the control plane for NAV systems, not as an AV endpoint. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#62 merged into deployed competitor catalog. | Verified via official Extron NAVigator product page: browser-based AVoIP system manager for configuring/controlling/monitoring NAV encoders and decoders. | AVoIP network speed requires 1GbE/10GbE verification before approval.",
     "sourceFile": "data-sources/competitors/extron.csv",
     "comparisonOnly": true
   },
@@ -14176,7 +14363,10 @@
       "hdcp": [
         "1.4",
         "2.2"
-      ]
+      ],
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.264/H.265"
     },
     "aliases": [],
     "knownLimitations": "Kramer markets separate KDS-100DEC (decoder) and KDS-100EN (encoder) SKUs; source feed model 'KDS-100' is treated here as the decoder — verify exact part suffix before quoting.",
@@ -14258,7 +14448,9 @@
       },
       "power": {
         "weightKg": 0.7
-      }
+      },
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
     },
     "aliases": [
       "kds7dec7"
@@ -14361,7 +14553,10 @@
       },
       "videoWall": {
         "maxGrid": "16x16"
-      }
+      },
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.265"
     },
     "aliases": [
       "kds7en7"
@@ -14451,7 +14646,10 @@
       },
       "videoWall": {
         "maxScreens": 256
-      }
+      },
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
     },
     "aliases": [],
     "knownLimitations": "Discontinued/superseded by KDS-DEC7 per Kramer product pages.",
@@ -14470,8 +14668,8 @@
     "family": "KDS",
     "category": "AVoIP",
     "subcategory": "AV over IP decoder",
-    "status": "approved",
-    "approvalStatus": "approved",
+    "status": "review",
+    "approvalStatus": "review",
     "sourceTier": "structured-catalog",
     "summary": "Kramer KDS-DEC7 high-performance AVoIP decoder for 4K60 4:2:0 over 1G networks with HDR10 support, USB/IR/RS-232/CEC-over-IP, and video walls up to 16x16.",
     "sourceUrl": "https://www1.kramerav.com/product/KDS-DEC7",
@@ -14520,6 +14718,7 @@
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
+    "quoteSafety": "comparison-only-verify",
     "specs": {
       "video": {
         "maxResolution": "4K60 4:2:0",
@@ -14530,13 +14729,15 @@
       },
       "power": {
         "weightKg": 0.7
-      }
+      },
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
     },
     "aliases": [],
     "knownLimitations": "",
     "closestWyrestormArchitecture": "NetworkHD 500 (premium AVoIP decoder)",
     "closestWyrestormSkuOrFamily": "NHD-500-RX",
-    "notes": "Official Kramer KDS-DEC7 page. | src/competitor/competitors.json#6 merged into deployed competitor catalog. | data/product-intelligence-db.json#33 merged into deployed competitor catalog. | data/product-intelligence-db.json#42 merged into deployed competitor catalog. | data/product-intelligence-db.json#67 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Kramer KDS products are AV-over-IP endpoints for distributed routing, with some edge models adding local switching. | Compare KDS EN, DEC, and SW endpoints against AVoIP products by endpoint role, not against plain matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#65 merged into deployed competitor catalog. | Verified via Kramer official/distributor KDS-DEC7 data: 4K60 4:2:0 with HDR10, 16x16 video wall, USB/IR/RS232/CEC over IP, PoE, current-generation replacement for KDS-DEC6.",
+    "notes": "Official Kramer KDS-DEC7 page. | src/competitor/competitors.json#6 merged into deployed competitor catalog. | data/product-intelligence-db.json#33 merged into deployed competitor catalog. | data/product-intelligence-db.json#42 merged into deployed competitor catalog. | data/product-intelligence-db.json#67 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Kramer KDS products are AV-over-IP endpoints for distributed routing, with some edge models adding local switching. | Compare KDS EN, DEC, and SW endpoints against AVoIP products by endpoint role, not against plain matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#65 merged into deployed competitor catalog. | Verified via Kramer official/distributor KDS-DEC7 data: 4K60 4:2:0 with HDR10, 16x16 video wall, USB/IR/RS232/CEC over IP, PoE, current-generation replacement for KDS-DEC6. | AVoIP network speed requires 1GbE/10GbE verification before approval.",
     "sourceFile": "data-sources/competitors/kramer.csv",
     "comparisonOnly": true
   },
@@ -14624,7 +14825,10 @@
         "peakMbps": 850,
         "avg4kMbps": 350,
         "avg1080pMbps": 250
-      }
+      },
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -14643,8 +14847,8 @@
     "family": "KDS",
     "category": "AVoIP",
     "subcategory": "AV over IP encoder",
-    "status": "approved",
-    "approvalStatus": "approved",
+    "status": "review",
+    "approvalStatus": "review",
     "sourceTier": "structured-catalog",
     "summary": "Kramer KDS-EN7 high-performance H.265 AVoIP encoder for 4K60 4:2:0 input with 33ms latency, up to 999-channel scalability, 16x16 video walls, and 802.1x/TLS security.",
     "sourceUrl": "https://www1.kramerav.com/product/kds-en7",
@@ -14709,6 +14913,7 @@
     "matrixInputs": 1,
     "routedInputs": 1,
     "routedInputCount": 1,
+    "quoteSafety": "comparison-only-verify",
     "specs": {
       "video": {
         "maxInputResolution": "4K60 4:2:0",
@@ -14722,13 +14927,16 @@
       },
       "videoWall": {
         "maxGrid": "16x16"
-      }
+      },
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.265"
     },
     "aliases": [],
     "knownLimitations": "",
     "closestWyrestormArchitecture": "NetworkHD 500 (premium AVoIP encoder)",
     "closestWyrestormSkuOrFamily": "NHD-500-TX",
-    "notes": "Official Kramer KDS-EN7 page. | src/competitor/competitors.json#5 merged into deployed competitor catalog. | data/product-intelligence-db.json#34 merged into deployed competitor catalog. | data/product-intelligence-db.json#43 merged into deployed competitor catalog. | data/product-intelligence-db.json#68 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Kramer KDS products are AV-over-IP endpoints for distributed routing, with some edge models adding local switching. | Compare KDS EN, DEC, and SW endpoints against AVoIP products by endpoint role, not against plain matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#66 merged into deployed competitor catalog. | Verified via Kramer official/distributor KDS-EN7 data: H.265, 4K60 4:2:0 in, 33ms latency, 16x16 video wall, 802.1x/TLS.",
+    "notes": "Official Kramer KDS-EN7 page. | src/competitor/competitors.json#5 merged into deployed competitor catalog. | data/product-intelligence-db.json#34 merged into deployed competitor catalog. | data/product-intelligence-db.json#43 merged into deployed competitor catalog. | data/product-intelligence-db.json#68 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Kramer KDS products are AV-over-IP endpoints for distributed routing, with some edge models adding local switching. | Compare KDS EN, DEC, and SW endpoints against AVoIP products by endpoint role, not against plain matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#66 merged into deployed competitor catalog. | Verified via Kramer official/distributor KDS-EN7 data: H.265, 4K60 4:2:0 in, 33ms latency, 16x16 video wall, 802.1x/TLS. | AVoIP network speed requires 1GbE/10GbE verification before approval.",
     "sourceFile": "data-sources/competitors/kramer.csv",
     "comparisonOnly": true
   },
@@ -16802,7 +17010,11 @@
       },
       "power": {
         "dc": "48V"
-      }
+      },
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -16892,7 +17104,11 @@
         "maxKm": 80
       },
       "matrixInputs": 2,
-      "matrixOutputs": 2
+      "matrixOutputs": 2,
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Uncompressed"
     },
     "aliases": [
       "ubexpro20hdmif100",
@@ -16980,7 +17196,11 @@
       "distance": {
         "minMeters": 400,
         "maxKm": 80
-      }
+      },
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Uncompressed"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -17070,7 +17290,11 @@
       "routedInputCount": 1,
       "routedOutputCount": 2,
       "physicalOutputCount": 2,
-      "mirroredOutputCount": 0
+      "mirroredOutputCount": 0,
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Uncompressed"
     },
     "aliases": [],
     "knownLimitations": "Requires 10G optical SFP+ network infrastructure (not standard 1G copper Ethernet); higher cost/complexity tier than compressed AVoIP alternatives.",
@@ -17468,7 +17692,12 @@
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
-    "specs": {},
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Light compression"
+    },
     "aliases": [
       "vinx110hdmienc"
     ],
@@ -17551,7 +17780,11 @@
       "physical": {
         "dimensionsMm": "140x119x26",
         "weightG": 310
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Light compression"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -17600,7 +17833,12 @@
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
-    "specs": {},
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Light compression"
+    },
     "aliases": [
       "vinx210aphdmidec",
       "vinx210hdmidec"
@@ -19668,7 +19906,10 @@
         "bandwidthGbps": 1,
         "poe": "802.3af / PoE+",
         "maxPowerW": 15.4
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -19777,7 +20018,11 @@
       "routedInputCount": 3,
       "routedOutputCount": 1,
       "physicalOutputCount": 1,
-      "mirroredOutputCount": 0
+      "mirroredOutputCount": 0,
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "JPEG2000"
     },
     "aliases": [],
     "knownLimitations": "Standard 1G Ethernet tier (not 10G); Dante/AES67 module is a separately purchased upgrade, not included standard.",
@@ -19796,8 +20041,8 @@
     "family": "ZyPer Management Platform",
     "category": "Control",
     "subcategory": "",
-    "status": "approved",
-    "approvalStatus": "approved",
+    "status": "review",
+    "approvalStatus": "review",
     "sourceTier": "structured-catalog",
     "summary": "AV over IP management platform for ZyPer systems with browser-based setup, drag-and-drop routing, monitoring, and system management for encoders and decoders.",
     "sourceUrl": "https://www.zeevee.com/z4kmp48-data-sheet/",
@@ -19834,12 +20079,16 @@
       "System orchestration"
     ],
     "video": {},
-    "specs": {},
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    },
     "aliases": [],
     "knownLimitations": "",
     "closestWyrestormArchitecture": "No direct WyreStorm hardware equivalent",
     "closestWyrestormSkuOrFamily": "AVoIP fleet-management appliance; NHD-CTL-PRO-V2 controls a single NetworkHD system, not a multi-appliance fleet manager",
-    "notes": "Official ZeeVee ZyPer Management Platform product page. | data/product-intelligence-db.json#43 merged into deployed competitor catalog. | data/product-intelligence-db.json#53 merged into deployed competitor catalog. | data/product-intelligence-db.json#78 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | ZeeVee ZyPer management platforms are the control plane for ZyPer AVoIP ecosystems. | Treat ZyPer management platforms as AVoIP control systems, not as media endpoints. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#76 merged into deployed competitor catalog. | Verified via official ZeeVee Z4KMP48 data sheet: browser-based ZyPer management platform for routing, monitoring, and configuration of ZyPer encoders/decoders.",
+    "notes": "Official ZeeVee ZyPer Management Platform product page. | data/product-intelligence-db.json#43 merged into deployed competitor catalog. | data/product-intelligence-db.json#53 merged into deployed competitor catalog. | data/product-intelligence-db.json#78 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | ZeeVee ZyPer management platforms are the control plane for ZyPer AVoIP ecosystems. | Treat ZyPer management platforms as AVoIP control systems, not as media endpoints. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#76 merged into deployed competitor catalog. | Verified via official ZeeVee Z4KMP48 data sheet: browser-based ZyPer management platform for routing, monitoring, and configuration of ZyPer encoders/decoders. | AVoIP network speed requires 1GbE/10GbE verification before approval.",
     "sourceFile": "data-sources/competitors/zeevee.csv",
     "comparisonOnly": true
   },
@@ -19924,7 +20173,10 @@
       "routedInputCount": 1,
       "routedOutputCount": 1,
       "physicalOutputCount": 1,
-      "mirroredOutputCount": 0
+      "mirroredOutputCount": 0,
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
     },
     "aliases": [],
     "knownLimitations": "Compressed (not uncompressed/zero-latency) AVoIP codec, trading some image fidelity/latency versus higher-tier uncompressed platforms.",
@@ -20014,7 +20266,10 @@
       "routedInputCount": 1,
       "routedOutputCount": 1,
       "physicalOutputCount": 1,
-      "mirroredOutputCount": 0
+      "mirroredOutputCount": 0,
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
     },
     "aliases": [],
     "knownLimitations": "Compressed (not uncompressed/zero-latency) AVoIP codec, trading some image fidelity/latency versus higher-tier uncompressed platforms.",
@@ -20097,7 +20352,10 @@
       },
       "network": {
         "lanPorts": 2
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -20172,7 +20430,11 @@
       },
       "network": {
         "sdvoe": true
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -20247,7 +20509,11 @@
       },
       "network": {
         "sdvoe": true
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -20325,7 +20591,11 @@
       },
       "network": {
         "sdvoe": true
-      }
+      },
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Uncompressed / light compression"
     },
     "aliases": [
       "zyper4kdecoder"
@@ -20405,7 +20675,11 @@
       },
       "network": {
         "sdvoe": true
-      }
+      },
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Uncompressed / light compression"
     },
     "aliases": [
       "zyper4kencoder"
@@ -20481,7 +20755,11 @@
       },
       "network": {
         "speed": "1Gb copper"
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Visually lossless compression"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -20564,7 +20842,11 @@
       },
       "network": {
         "speed": "1Gb copper"
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Visually lossless compression"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -20648,7 +20930,11 @@
       "security": {
         "streamEncryption": "AES-256",
         "hdcp": "2.3"
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Visually lossless compression"
     },
     "aliases": [],
     "knownLimitations": "",
@@ -20730,7 +21016,11 @@
       "security": {
         "streamEncryption": "AES-256",
         "hdcp": "2.3"
-      }
+      },
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Visually lossless compression"
     },
     "aliases": [],
     "knownLimitations": "",
