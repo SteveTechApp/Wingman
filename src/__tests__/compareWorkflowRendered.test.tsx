@@ -49,7 +49,7 @@ function runCustomTextCompare(brand: string, description: string) {
 
   fireEvent.click(screen.getByRole("button", { name: brand }));
 
-  const skuInput = screen.getByLabelText(/competitor sku/i);
+  const skuInput = screen.getByRole("textbox", { name: /^Competitor SKU$/i });
   fireEvent.change(skuInput, { target: { value: description } });
 
   const reviewButton = screen
@@ -79,7 +79,7 @@ describe("Compare rendered workflow", () => {
     expect(screen.getByRole("heading", { name: "Compare competitor products" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Choose competitor brand" })).toBeInTheDocument();
     expect(screen.getByText("Current step")).toBeInTheDocument();
-    expect(screen.getByText("Up next")).toBeInTheDocument();
+    expect(screen.getByText("Next")).toBeInTheDocument();
     expect(screen.getByText("Available after selection")).toBeInTheDocument();
 
     const stepGuidance = screen.getByText("Why this step matters").closest("details") as HTMLDetailsElement | null;
@@ -176,7 +176,7 @@ describe("Compare rendered workflow", () => {
     const transportRow = within(matrix).getByText("Transport").closest('[role="row"]');
     expect(transportRow).not.toBeNull();
     expect(within(transportRow as HTMLElement).getAllByText(/AVoIP/i).length).toBeGreaterThanOrEqual(1);
-    expect(within(transportRow as HTMLElement).getByText(/1GbE JPEG-XS AVoIP/i)).toBeInTheDocument();
+    expect(within(transportRow as HTMLElement).getByText(/1GbE JPEG2000 AVoIP/i)).toBeInTheDocument();
   });
 
   it("labels routed matrix outputs distinctly without inventing NDI", async () => {
@@ -225,7 +225,7 @@ describe("Compare rendered workflow", () => {
       fireEvent.click(nextProductStep);
     }
 
-        if (!screen.queryByRole("heading", { name: /choose competitor product/i })) {
+        if (!screen.queryByRole("heading", { name: /choose the competitor sku/i })) {
       const manualCompareButton = screen.queryByRole("button", { name: /choose products manually/i });
 
       if (!manualCompareButton) {
@@ -235,7 +235,7 @@ describe("Compare rendered workflow", () => {
       fireEvent.click(manualCompareButton);
     }
 
-        if (!screen.queryByRole("heading", { name: /choose competitor product/i })) {
+        if (!screen.queryByRole("heading", { name: /choose the competitor sku/i })) {
       const nextProductButton = screen.queryByRole("button", { name: /next:\s*choose competitor product/i });
 
       if (nextProductButton) {
@@ -243,7 +243,7 @@ describe("Compare rendered workflow", () => {
       }
     }
 
-    await screen.findByRole("heading", { name: /choose competitor product/i });
+    await screen.findByRole("heading", { name: /choose the competitor sku/i });
 
     const customSkuButtons = await screen.findAllByRole("button", { name: /custom \/ missing sku/i });
     fireEvent.click(customSkuButtons[0]);

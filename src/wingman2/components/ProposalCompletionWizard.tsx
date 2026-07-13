@@ -1,4 +1,4 @@
-﻿import {
+import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -523,7 +523,7 @@ function ProposalCompletionWizardContent({
       return;
     }
 
-    setExportMessage("Generating formatted DOCXÃ¢â‚¬Â¦");
+    setExportMessage("Generating formatted DOCX...");
 
     try {
       await exportProposalDocx(
