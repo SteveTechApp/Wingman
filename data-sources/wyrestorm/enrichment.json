@@ -96721,10 +96721,26 @@
       ],
       "transports": [],
       "io": {
-        "ports": [],
+        "ports": [
+          {
+            "count": 1,
+            "connector": "USB-A",
+            "direction": "output",
+            "category": "usb",
+            "evidence": "Captive USB-A cable connects the webcam to the host PC/laptop USB-A port (plug-and-play, no drivers required)."
+          }
+        ],
         "video": [],
         "audio": [],
-        "usb": [],
+        "usb": [
+          {
+            "count": 1,
+            "connector": "USB-A",
+            "direction": "output",
+            "category": "usb",
+            "evidence": "Captive USB-A cable connects the webcam to the host PC/laptop USB-A port (plug-and-play, no drivers required)."
+          }
+        ],
         "network": [],
         "control": [],
         "other": []
@@ -99204,10 +99220,26 @@
         "USB-C"
       ],
       "io": {
-        "ports": [],
+        "ports": [
+          {
+            "count": 1,
+            "connector": "USB-C",
+            "direction": "output",
+            "category": "usb",
+            "evidence": "USB Type-C cable connects into the port at the base of the speakerphone for wired host connection (no Bluetooth on this model)."
+          }
+        ],
         "video": [],
         "audio": [],
-        "usb": [],
+        "usb": [
+          {
+            "count": 1,
+            "connector": "USB-C",
+            "direction": "output",
+            "category": "usb",
+            "evidence": "USB Type-C cable connects into the port at the base of the speakerphone for wired host connection (no Bluetooth on this model)."
+          }
+        ],
         "network": [],
         "control": [],
         "other": []
@@ -228508,12 +228540,87 @@
         "NDI"
       ],
       "io": {
-        "ports": [],
-        "video": [],
-        "audio": [],
+        "ports": [
+          {
+            "count": 1,
+            "connector": "HDMI",
+            "direction": "output",
+            "category": "video",
+            "evidence": "HDMI output to the display, HDCP 2.2 supported."
+          },
+          {
+            "count": 1,
+            "connector": "RJ45 / HDBaseT",
+            "direction": "input",
+            "category": "network",
+            "evidence": "RJ45 HDBaseT input from the transmitter/matrix, PoH (Power over HDBaseT) receive."
+          },
+          {
+            "count": 1,
+            "connector": "S/PDIF (TOSLINK)",
+            "direction": "input",
+            "category": "audio",
+            "evidence": "S/PDIF TOSLINK digital optical audio input, used for the ARC/audio-return path."
+          },
+          {
+            "count": 1,
+            "connector": "RS-232",
+            "direction": "output",
+            "category": "control",
+            "evidence": "3-pin RS-232 for third-party control/firmware update, no hardware flow control."
+          },
+          {
+            "count": 1,
+            "connector": "IR",
+            "direction": "output",
+            "category": "control",
+            "evidence": "Bi-directional IR pass-through as part of HDBaseT 5Play."
+          }
+        ],
+        "video": [
+          {
+            "count": 1,
+            "connector": "HDMI",
+            "direction": "output",
+            "category": "video",
+            "evidence": "HDMI output to the display, HDCP 2.2 supported."
+          }
+        ],
+        "audio": [
+          {
+            "count": 1,
+            "connector": "S/PDIF (TOSLINK)",
+            "direction": "input",
+            "category": "audio",
+            "evidence": "S/PDIF TOSLINK digital optical audio input, used for the ARC/audio-return path."
+          }
+        ],
         "usb": [],
-        "network": [],
-        "control": [],
+        "network": [
+          {
+            "count": 1,
+            "connector": "RJ45 / HDBaseT",
+            "direction": "input",
+            "category": "network",
+            "evidence": "RJ45 HDBaseT input from the transmitter/matrix, PoH (Power over HDBaseT) receive."
+          }
+        ],
+        "control": [
+          {
+            "count": 1,
+            "connector": "RS-232",
+            "direction": "output",
+            "category": "control",
+            "evidence": "3-pin RS-232 for third-party control/firmware update, no hardware flow control."
+          },
+          {
+            "count": 1,
+            "connector": "IR",
+            "direction": "output",
+            "category": "control",
+            "evidence": "Bi-directional IR pass-through as part of HDBaseT 5Play."
+          }
+        ],
         "other": []
       },
       "video": {
