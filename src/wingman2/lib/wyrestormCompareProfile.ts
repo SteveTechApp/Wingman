@@ -10,6 +10,7 @@
 import type { CompareDecisionProfile, CompareSpecFacts } from "./competitorCompareDecision";
 import type { WyrestormProduct } from "./competitorMatchEngine";
 import { canonicalTransport } from "./competitorSpecRegistry";
+import { resolveProductTechnicalData } from "./governedProductTechnicalData";
 
 type TechnicalPort = {
   count?: number;
@@ -391,34 +392,56 @@ function sourceLabelFor(tier: CompareDecisionProfile["sourceTier"]): string {
 }
 
 export function buildWyrestormCompareProfile(product: WyrestormProduct): CompareDecisionProfile {
+  const governed = resolveProductTechnicalData(product);
   const blob = text(product);
-  const domain = detectDomain(product, blob);
-  const role = detectRole(product, blob, domain);
+  const fallbackDomain = detectDomain(product, blob);
+  const domain = governed.compare.domain ?? fallbackDomain;
+  const fallbackRole = detectRole(product, blob, domain);
+  const role = governed.compare.role ?? fallbackRole;
   const io = structuredIo(product, blob);
-  const specs = buildSpecFacts(product, blob, io.inputCount, io.outputCount);
-  const features = detectStructuredFeatures(product, blob);
-  const tier = sourceTier(product, io.usedStructuredPorts, io.warnings);
-  const transports = [
+  const fallbackSpecs = buildSpecFacts(product, blob, io.inputCount, io.outputCount);
+  const specs = {
+    ...fallbackSpecs,
+    ...governed.compare.specs,
+  };
+  const fallbackFeatures = detectStructuredFeatures(product, blob);
+  const features = {
+    ...fallbackFeatures,
+    ...(governed.compare.features ?? {}),
+  };
+  const tier = governed.sourceTier;
+  const fallbackTransports = [
     canonicalTransport(domain),
     technicalProfile(product)?.transports?.join(" / "),
   ].filter(Boolean).join(" / ");
+  const warnings = Array.from(new Set([
+    ...io.warnings,
+    ...governed.warnings,
+    ...governed.missingFields.map((field) => `Missing mandatory WyreStorm technical field: ${field}.`),
+  ].filter(Boolean)));
+  const evidence = Array.from(new Set([
+    ...io.evidence,
+    ...governed.evidence,
+  ].filter(Boolean)));
 
   return {
     sku: product.sku,
     title: product.name || product.title || product.sku,
     domain,
     role,
-    transport: transports || canonicalTransport(domain),
-    inputCount: io.inputCount,
-    outputCount: io.outputCount,
-    maxResolution: detectResolution(blob),
-    chroma: detectChroma(blob),
+    transport: governed.compare.transport || fallbackTransports || canonicalTransport(domain),
+    inputCount: governed.compare.inputCount ?? io.inputCount,
+    outputCount: governed.compare.outputCount ?? io.outputCount,
+    maxResolution: governed.compare.maxResolution ?? detectResolution(blob),
+    chroma: governed.compare.chroma ?? detectChroma(blob),
+    latency: governed.compare.latency,
     features: Object.keys(features).length > 0 ? features : undefined,
     specs,
-    sourceUrl: technicalProfile(product)?.sourceQuality?.officialProductUrl,
+    sourceUrl: governed.sourceUrl ?? technicalProfile(product)?.sourceQuality?.officialProductUrl,
     sourceTier: tier,
-    sourceLabel: sourceLabelFor(tier),
-    profileEvidence: io.evidence,
-    profileWarnings: io.warnings,
+    sourceLabel: governed.statusLabel || sourceLabelFor(tier),
+    profileEvidence: evidence,
+    profileWarnings: warnings,
+    readiness: governed.compareReady ? "compare-ready" : "verify-only",
   };
 }

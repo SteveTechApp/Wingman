@@ -32,7 +32,7 @@ import { finderProductPathRelevance, opportunityFromLabel } from "../lib/situati
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
 import { getProductFamilyRankingReason, rankProductsByFamilyScores } from "../lib/productFamilyShortlistRanking";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
-import { isSkuAdminBlocked } from "../lib/adminProductOverrides";
+import { selectWingmanProducts } from "../lib/productSelectorEngine";
 import {
   wyrestormCapabilityFallbackTerms,
   wyrestormCapabilityVerdict,
@@ -1977,7 +1977,12 @@ function finderFeatureMatches(
 function buildFinderMatchPlan(allProducts: FinderProduct[], need: FinderNeed, hasIntent: boolean): FinderMatchPlan {
   if (!hasIntent) return { matches: [], mode: "none" };
 
-  const products = allProducts.filter((product) => !isSkuAdminBlocked(product.sku));
+  const products = selectWingmanProducts(allProducts, {
+    mode: "finder",
+    includeArchitectureAlternatives: true,
+  })
+    .filter((decision) => decision.eligible)
+    .map((decision) => decision.product);
   const featureFilters = getActiveFeatureFilters(need);
 
   if (!featureFilters.length) {

@@ -81,18 +81,25 @@ function defaultGuruPosition(button?: HTMLButtonElement | null): GuruPosition {
   const rect = button?.getBoundingClientRect();
   const width = rect?.width || 72;
   const height = rect?.height || 72;
+  const narrowViewport = window.matchMedia("(max-width: 980px)").matches;
 
   return {
     left: clamp(
-      window.innerWidth - width - 28,
+      window.innerWidth - width - (narrowViewport ? 18 : 28),
       viewportInset,
       Math.max(viewportInset, window.innerWidth - width - viewportInset),
     ),
-    top: clamp(
-      Math.round(window.innerHeight * 0.44),
-      96,
-      Math.max(96, window.innerHeight - height - 24),
-    ),
+    top: narrowViewport
+      ? clamp(
+          window.innerHeight - height - 18,
+          viewportInset,
+          Math.max(viewportInset, window.innerHeight - height - viewportInset),
+        )
+      : clamp(
+          Math.round(window.innerHeight * 0.44),
+          96,
+          Math.max(96, window.innerHeight - height - 24),
+        ),
   };
 }
 

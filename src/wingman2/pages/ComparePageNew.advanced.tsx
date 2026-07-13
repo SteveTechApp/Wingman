@@ -21,7 +21,7 @@ import { findUcCompetitorProduct, UC_COMPETITOR_PRODUCTS } from "../data/ucCompe
 import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
 import { competitorSkuSeeds } from "../lib/competitorProductIntelligence";
 import { resolveCompetitorSpecProfile, type ResolvedCompetitorProfile } from "../lib/competitorSpecRegistry";
-import { findSavedCompetitorSpec } from "../lib/savedCompetitorSpecs";
+import { findSavedCompetitorSpec, saveCompetitorSpec, type SavedCompetitorSpec } from "../lib/savedCompetitorSpecs";
 import { buildWyrestormCompareProfile } from "../lib/wyrestormCompareProfile";
 import { findKnownWyrestormCompareProfile, hydrateWyrestormCompareProfile } from "../lib/knownWyrestormCompareProfiles";
 import type { KnownWyrestormCompareProfile } from "../lib/knownWyrestormCompareProfiles";
@@ -31,6 +31,20 @@ import { resolveWyrestormSkuAlias, skuAliasMatches } from "../lib/skuAliasResolv
 import type { RigorousCompareResult, RigorousMatch } from "../lib/rigorousCompare";
 import { applyCompareEligibilityRanking } from "../lib/compareEligibilityEngine";
 import { runCompareRuntimePipeline } from "../lib/compareRuntimePipeline";
+import { runCompetitorLookup, WingmanApiError, type CompetitorLookupResponse } from "../api/wingmanApi";
+import {
+  readCompetitorMatchDecisionLedger,
+  saveCompetitorMatchDecision,
+  type CompareDecisionType,
+  type CompareEndpointRole,
+  type CompareTransportClass,
+  type CompetitorMatchDecision,
+} from "../lib/competitorMatchDecisionLedger";
+import {
+  applyGovernedCandidateOrder,
+  governedDecisionLabel,
+  resolveApprovedGovernedDecision,
+} from "../lib/governedCompareRuntime";
 import { CompetitorEvidencePanel } from "./compare/CompetitorEvidencePanel";
 
 /*
@@ -164,6 +178,7 @@ function productClassFromResolvedDomain(domain?: string): string | null {
       return "PTZ camera";
     case "WIRELESS_CASTING":
       return "Wireless casting";
+    case "UC":
     case "UC_SOUNDBAR":
       return "USB conferencing";
     case "CONTROL":
@@ -212,7 +227,7 @@ function domainFromProductClass(productClass: string): string | undefined {
     case "Control accessory":
       return "CONTROL";
     case "USB conferencing":
-      return "WIRELESS_PRESENTATION";
+      return "UC";
     case "HDMI splitter":
       return "DISTRIBUTION";
     default:
@@ -4220,6 +4235,516 @@ function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
   );
 }
 
+const SAVED_SPEC_DOMAIN_OPTIONS: Array<{ value: SavedCompetitorSpec["domain"]; label: string }> = [
+  { value: "UNKNOWN", label: "Not sure yet" },
+  { value: "AVOIP", label: "AV-over-IP" },
+  { value: "HDBASET", label: "HDBaseT" },
+  { value: "PRESENTATION", label: "Presentation switcher" },
+  { value: "MATRIX", label: "Matrix switcher" },
+  { value: "VIDEO_WALL", label: "Video wall processor" },
+  { value: "MULTIVIEW", label: "Multiview processor" },
+  { value: "USB_EXTENSION", label: "USB extension" },
+  { value: "CONTROL", label: "Control" },
+  { value: "WIRELESS_COLLAB", label: "Wireless collaboration" },
+];
+
+const SAVED_SPEC_ROLE_OPTIONS: Array<SavedCompetitorSpec["role"]> = [
+  "Unknown", "Transceiver", "Encoder", "Decoder", "Presentation Switcher", "Matrix",
+  "Video Wall Processor", "Multiview Processor", "Extender", "USB Extender", "Controller", "Wireless Collaboration",
+];
+
+type SavedSpecFormState = {
+  title: string;
+  domain: SavedCompetitorSpec["domain"];
+  role: SavedCompetitorSpec["role"];
+  transport: string;
+  maxResolution: string;
+  chroma: string;
+  inputCount: string;
+  outputCount: string;
+  notes: string;
+  sourceUrl: string;
+};
+
+function emptySavedSpecForm(): SavedSpecFormState {
+  return { title: "", domain: "UNKNOWN", role: "Unknown", transport: "", maxResolution: "", chroma: "", inputCount: "", outputCount: "", notes: "", sourceUrl: "" };
+}
+
+function savedSpecToForm(spec: SavedCompetitorSpec): SavedSpecFormState {
+  return {
+    title: spec.title,
+    domain: spec.domain,
+    role: spec.role,
+    transport: spec.transport,
+    maxResolution: spec.maxResolution,
+    chroma: spec.chroma,
+    inputCount: spec.inputCount != null ? String(spec.inputCount) : "",
+    outputCount: spec.outputCount != null ? String(spec.outputCount) : "",
+    notes: spec.notes,
+    sourceUrl: spec.sourceUrl || "",
+  };
+}
+
+// Fetches a real manufacturer product page via the existing (previously unwired)
+// server-side live lookup route (server/competitor-lookup-server.mjs, brand
+// adapters for Crestron/Extron/Atlona/Lightware/Blustream/Kramer/ZeeVee/Barco).
+// The fetched title/summary/source link are informational pre-fill only - they
+// deliberately do NOT feed match scoring directly, since an automated scrape
+// can be wrong (including hitting a bot-block page and "succeeding" with junk
+// text). Scoring is only fed once the rep reviews and explicitly saves a spec
+// below, which is a human-confirmed fact rather than an unvalidated scrape.
+function LiveLookupPanel({ brand, sku, onSaved }: { brand: string; sku: string; onSaved: () => void }) {
+  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [result, setResult] = useState<CompetitorLookupResponse | null>(null);
+  const [error, setError] = useState<{ message: string; needsSignIn: boolean } | null>(null);
+  const [form, setForm] = useState<SavedSpecFormState>(emptySavedSpecForm);
+  const [savedAt, setSavedAt] = useState<string | null>(null);
+
+  const existingSaved = useMemo(() => findSavedCompetitorSpec(brand, sku), [brand, sku]);
+
+  useEffect(() => {
+    setForm(existingSaved ? savedSpecToForm(existingSaved) : emptySavedSpecForm());
+    setResult(null);
+    setError(null);
+    setStatus("idle");
+    setSavedAt(null);
+  }, [brand, sku, existingSaved]);
+
+  const runLookup = useCallback(async () => {
+    setStatus("loading");
+    setError(null);
+
+    try {
+      const response = await runCompetitorLookup({ brand, sku });
+      setResult(response);
+      setStatus("done");
+
+      if (response.ok && response.record) {
+        setForm((current) => ({
+          ...current,
+          title: current.title || response.record?.name || sku,
+          notes: current.notes || response.record?.summary || response.record?.description || "",
+          sourceUrl: current.sourceUrl || response.record?.sourceUrl || "",
+        }));
+      }
+    } catch (lookupError) {
+      const needsSignIn = lookupError instanceof WingmanApiError && lookupError.status === 401;
+      setError({
+        needsSignIn,
+        message: needsSignIn
+          ? "Fetching the manufacturer's page needs a signed-in Wingman workspace (Settings > Workspace sync). You can still enter the product details manually below."
+          : lookupError instanceof WingmanApiError
+            ? lookupError.message
+            : "Live lookup failed. Confirm the product on the manufacturer's site directly.",
+      });
+      setStatus("error");
+    }
+  }, [brand, sku]);
+
+  function updateForm<K extends keyof SavedSpecFormState>(field: K, value: SavedSpecFormState[K]) {
+    setForm((current) => ({ ...current, [field]: value }));
+  }
+
+  function saveForm() {
+    saveCompetitorSpec({
+      manufacturer: brand,
+      sku,
+      title: form.title,
+      domain: form.domain,
+      role: form.role,
+      transport: form.transport,
+      maxResolution: form.maxResolution,
+      chroma: form.chroma,
+      inputCount: form.inputCount.trim() ? Number(form.inputCount) : undefined,
+      outputCount: form.outputCount.trim() ? Number(form.outputCount) : undefined,
+      notes: form.notes,
+      sourceUrl: form.sourceUrl,
+      savedFrom: result?.ok ? "live-lookup" : "manual",
+    });
+    setSavedAt(new Date().toLocaleTimeString());
+    onSaved();
+  }
+
+  if (!sku.trim()) return null;
+
+  const canSave = form.title.trim().length > 0 || form.domain !== "UNKNOWN";
+
+  return (
+    <section className="compare-native-card wm-ui-section wm-ui-card">
+      <h3 className="wm-ui-title">Live lookup and saved product data</h3>
+      <p className="wm-ui-copy">
+        Wingman has limited local data for this competitor product. Fetch the manufacturer's own product page for reference, then confirm the details below and save them - saved details are reused automatically the next time this SKU comes up in Compare.
+      </p>
+      <button
+        type="button"
+        className="compare-native-secondary-action wm-ui-button wm-ui-button-primary"
+        onClick={() => { void runLookup(); }}
+        disabled={status === "loading"}
+      >
+        {status === "loading" ? "Looking up..." : "Run live lookup"}
+      </button>
+      {error ? <p className="compare-native-muted wm-ui-copy">{error.message}</p> : null}
+      {status === "done" && result ? (
+        result.ok && result.record ? (
+          <div className="wm-ui-card">
+            <p className="wm-ui-copy"><strong>{result.record.name || sku}</strong></p>
+            {result.record.summary ? <p className="wm-ui-copy">{result.record.summary}</p> : null}
+            {result.record.sourceUrl ? (
+              <a className="compare-native-secondary-action" href={result.record.sourceUrl} target="_blank" rel="noreferrer">
+                View manufacturer source
+              </a>
+            ) : null}
+            {result.warnings?.length ? (
+              <ul className="compare-native-bullet-list wm-ui-card">
+                {result.warnings.slice(0, 3).map((warning) => (
+                  <li key={warning}>{warning}</li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        ) : (
+          <p className="compare-native-muted wm-ui-copy">
+            No manufacturer page could be resolved automatically. Confirm the product type manually below.
+          </p>
+        )
+      ) : null}
+
+      <div className="wm-ui-card">
+        <p className="wm-ui-copy">
+          <strong>{existingSaved ? "Update saved product data" : "Add product data"}</strong> - only fill in what you actually know; leave the rest blank.
+        </p>
+        <div className="wm-form-grid">
+          <label className="wm-field">
+            Product name
+            <input className="wm-input" value={form.title} onChange={(event) => updateForm("title", event.target.value)} placeholder={sku} />
+          </label>
+          <label className="wm-field">
+            Product type
+            <select className="wm-select" value={form.domain} onChange={(event) => updateForm("domain", event.target.value as SavedCompetitorSpec["domain"])}>
+              {SAVED_SPEC_DOMAIN_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            </select>
+          </label>
+          <label className="wm-field">
+            Role
+            <select className="wm-select" value={form.role} onChange={(event) => updateForm("role", event.target.value as SavedCompetitorSpec["role"])}>
+              {SAVED_SPEC_ROLE_OPTIONS.map((option) => <option key={option} value={option}>{option}</option>)}
+            </select>
+          </label>
+          <label className="wm-field">
+            Transport
+            <input className="wm-input" value={form.transport} onChange={(event) => updateForm("transport", event.target.value)} placeholder="e.g. HDBaseT, 1GbE AVoIP" />
+          </label>
+          <label className="wm-field">
+            Max resolution
+            <input className="wm-input" value={form.maxResolution} onChange={(event) => updateForm("maxResolution", event.target.value)} placeholder="e.g. 4K60" />
+          </label>
+          <label className="wm-field">
+            Chroma
+            <input className="wm-input" value={form.chroma} onChange={(event) => updateForm("chroma", event.target.value)} placeholder="e.g. 4:4:4" />
+          </label>
+          <label className="wm-field">
+            Inputs
+            <input className="wm-input" type="number" min="0" value={form.inputCount} onChange={(event) => updateForm("inputCount", event.target.value)} />
+          </label>
+          <label className="wm-field">
+            Outputs
+            <input className="wm-input" type="number" min="0" value={form.outputCount} onChange={(event) => updateForm("outputCount", event.target.value)} />
+          </label>
+        </div>
+        <label className="wm-field">
+          Source link
+          <input className="wm-input" value={form.sourceUrl} onChange={(event) => updateForm("sourceUrl", event.target.value)} placeholder="Manufacturer product page" />
+        </label>
+        <label className="wm-field">
+          Notes
+          <textarea className="wm-textarea" value={form.notes} onChange={(event) => updateForm("notes", event.target.value)} />
+        </label>
+        <div className="compare-native-action-row wm-ui-card">
+          <button type="button" className="compare-native-more wm-ui-button wm-ui-button-primary" onClick={saveForm} disabled={!canSave}>
+            Save for next time
+          </button>
+          {savedAt ? <p className="compare-native-muted wm-ui-copy">Saved at {savedAt}. This SKU will use your saved data next time.</p> : null}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function governedEndpointRole(profile: CompetitorProfile): CompareEndpointRole {
+  const role = `${profile.role} ${profile.productClass}`.toLowerCase();
+
+  if (/transceiver|encoder\/decoder|trx/.test(role)) return "transceiver";
+  if (/encoder|transmitter|\btx\b/.test(role)) return "transmitter";
+  if (/decoder|receiver|\brx\b/.test(role)) return "receiver";
+  if (/matrix/.test(role)) return "matrix";
+  if (/switcher|presentation/.test(role)) return "switcher";
+  if (/extender|tx\/rx/.test(role)) return "extender-kit";
+  if (/processor|multiview|video wall/.test(role)) return "processor";
+  if (/controller|control/.test(role)) return "controller";
+  if (/accessory|cable|mount|power supply/.test(role)) return "accessory";
+
+  return "unknown";
+}
+
+function governedTransportClass(profile: CompetitorProfile): CompareTransportClass {
+  const transport = [
+    profile.transport,
+    profile.resolvedSpec?.transport,
+    profile.resolvedSpec?.specs?.networkSpeed,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  if (/\b10\s*g(?:be|bps)?\b|sdvoe/.test(transport)) return "avoip-10g";
+  if (/\b1\s*g(?:be|bps)?\b|avoip|jpeg[\s-]?xs|h\.?26[45]/.test(transport)) return "avoip-1g";
+  if (/hdbaset|hdbt|tps/.test(transport)) return "hdbaset";
+  if (/usb/.test(transport) && /hdmi|video|hdbaset|wireless/.test(transport)) return "hybrid";
+  if (/usb/.test(transport)) return "usb";
+  if (/hdmi/.test(transport)) return "hdmi";
+
+  return "unknown";
+}
+
+function governedDecisionIdPart(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "unknown";
+}
+
+function isGovernedEvidenceUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "https:" || parsed.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+function GovernedDecisionPanel({
+  profile,
+  candidate,
+  existingDecision,
+  onSaved,
+}: {
+  profile: CompetitorProfile;
+  candidate: ScoredCandidate | null;
+  existingDecision: CompetitorMatchDecision | null;
+  onSaved: () => void;
+}) {
+  const [reviewer, setReviewer] = useState(existingDecision?.reviewer ?? "");
+  const [evidenceUrl, setEvidenceUrl] = useState(
+    existingDecision?.evidence[0]?.sourceUrl ??
+      profile.resolvedSpec?.sourceUrl ??
+      "",
+  );
+  const [message, setMessage] = useState("");
+
+  function saveDecision(
+    decisionType: CompareDecisionType,
+    reviewStatus: "approved" | "pending-review" = "approved",
+  ): void {
+    if (typeof window === "undefined") return;
+
+    const reviewerName = reviewer.trim();
+    const requiresApprovedReviewer = reviewStatus === "approved";
+
+    if (requiresApprovedReviewer && !reviewerName) {
+      setMessage("Enter the reviewer name before approving this decision.");
+      return;
+    }
+
+    if (
+      decisionType === "confirmed-equivalent" &&
+      (!candidate ||
+        candidate.verdict !== "GOOD MATCH" ||
+        candidate.blockers.length > 0)
+    ) {
+      setMessage("Confirmed equivalent is only available for a blocker-free good match.");
+      return;
+    }
+
+    if (
+      decisionType === "confirmed-equivalent" &&
+      !isGovernedEvidenceUrl(evidenceUrl.trim())
+    ) {
+      setMessage("Add a valid manufacturer or datasheet source URL before confirming equivalence.");
+      return;
+    }
+
+    if (
+      decisionType !== "no-suitable-match" &&
+      decisionType !== "review-required" &&
+      !candidate
+    ) {
+      setMessage("No WyreStorm candidate is available for this decision.");
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const wyrestormSku =
+      decisionType === "no-suitable-match" ? null : candidate?.product.sku ?? null;
+    const sourceUrl = evidenceUrl.trim();
+    const specs = profile.resolvedSpec?.specs;
+
+    const governedDecision: CompetitorMatchDecision = {
+      id: [
+        governedDecisionIdPart(profile.brand),
+        governedDecisionIdPart(profile.sku),
+        governedDecisionIdPart(wyrestormSku ?? decisionType),
+      ].join("--"),
+      competitorManufacturer: profile.brand,
+      competitorSku: profile.sku,
+      fingerprint: {
+        productClass: profile.productClass || "Unknown product class",
+        endpointRole: governedEndpointRole(profile),
+        transportClass: governedTransportClass(profile),
+        codec: profile.requestedTags.find((tag) => /jpeg|h\.?26|sdvoe/i.test(tag)) ?? null,
+        maxResolution: profile.resolvedSpec?.maxResolution ?? null,
+        chroma: profile.resolvedSpec?.chroma ?? null,
+        hdr: profile.videoTags.some((tag) => /hdr/i.test(tag)) || null,
+        inputCount: profile.resolvedSpec?.inputCount ?? null,
+        routedOutputCount: profile.resolvedSpec?.outputCount ?? null,
+        mirroredOutputCount: null,
+        loopOutputCount: null,
+        usb: specs?.usbStandard ?? (profile.requestedTags.includes("usb") ? "USB requirement present" : null),
+        audio: specs?.dante ? "Dante" : specs?.audioDeEmbed ? "Audio de-embed" : null,
+        control: specs?.ethernetControl ? "Ethernet control" : specs?.rs232 ? "RS-232" : null,
+        distanceMetres: specs?.hdbasetDistance ?? null,
+        dependencies: candidate?.dependencies ?? [],
+        notes: profile.resolvedSpec?.profileWarnings ?? [],
+      },
+      wyrestormSku,
+      decisionType,
+      reviewStatus,
+      reviewer: reviewerName || null,
+      reviewedAt: reviewStatus === "approved" ? now : null,
+      matchedPoints: candidate?.matched ?? [],
+      importantDifferences: uniqueText([
+        ...(candidate?.mismatches ?? []),
+        ...(candidate?.partialMatches ?? []),
+        ...(candidate?.gaps ?? []),
+      ], 12),
+      dependencies: candidate?.dependencies ?? [],
+      quoteBlockers: candidate?.blockers ?? [],
+      evidence: isGovernedEvidenceUrl(sourceUrl)
+        ? [
+            {
+              sourceUrl,
+              sourceType: "manufacturer",
+              checkedAt: now,
+              note: "Reviewed from the Compare decision desk.",
+            },
+          ]
+        : [],
+      createdAt: existingDecision?.createdAt ?? now,
+      updatedAt: now,
+    };
+
+    saveCompetitorMatchDecision(window.localStorage, governedDecision);
+    setMessage(
+      reviewStatus === "pending-review"
+        ? "Saved as review required. It will not override heuristic matching until approved."
+        : `${governedDecisionLabel(governedDecision)} saved and applied.`,
+    );
+    onSaved();
+  }
+
+  const equivalentAllowed =
+    Boolean(candidate) &&
+    candidate?.verdict === "GOOD MATCH" &&
+    candidate.blockers.length === 0;
+
+  return (
+    <section className="compare-native-card wm-ui-section wm-ui-card" data-wingman-governed-decision>
+      <div className="compare-native-section-title wm-ui-title">
+        <h3 className="wm-ui-title">Governed match decision</h3>
+        <p className="wm-ui-copy">
+          A reviewed decision overrides automatic ranking for this manufacturer and SKU.
+        </p>
+      </div>
+
+      {existingDecision ? (
+        <p className="wm-ui-copy">
+          <strong>Current decision:</strong> {governedDecisionLabel(existingDecision)}
+          {existingDecision.wyrestormSku ? ` - ${existingDecision.wyrestormSku}` : ""}
+          {existingDecision.reviewer ? ` | Reviewer: ${existingDecision.reviewer}` : ""}
+        </p>
+      ) : (
+        <p className="wm-ui-copy">
+          No approved decision is stored yet. Automatic results remain advisory until reviewed.
+        </p>
+      )}
+
+      <div className="wm-form-grid">
+        <label className="wm-field">
+          Reviewer
+          <input
+            className="wm-input"
+            value={reviewer}
+            onChange={(event) => setReviewer(event.target.value)}
+            placeholder="Name of technical reviewer"
+          />
+        </label>
+        <label className="wm-field">
+          Manufacturer or datasheet source
+          <input
+            className="wm-input"
+            value={evidenceUrl}
+            onChange={(event) => setEvidenceUrl(event.target.value)}
+            placeholder="https://manufacturer.example/product"
+          />
+        </label>
+      </div>
+
+      <div className="compare-native-action-row wm-ui-action-row wm-ui-card">
+        <button
+          type="button"
+          className="compare-native-more wm-ui-button wm-ui-button-primary"
+          disabled={!equivalentAllowed}
+          onClick={() => saveDecision("confirmed-equivalent")}
+        >
+          Confirm equivalent
+        </button>
+        <button
+          type="button"
+          className="compare-native-secondary-action wm-ui-button wm-ui-button-primary"
+          disabled={!candidate}
+          onClick={() => saveDecision("closest-technical-match")}
+        >
+          Approve closest match
+        </button>
+        <button
+          type="button"
+          className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
+          disabled={!candidate}
+          onClick={() => saveDecision("architecture-alternative")}
+        >
+          Approve architecture alternative
+        </button>
+        <button
+          type="button"
+          className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
+          onClick={() => saveDecision("review-required", "pending-review")}
+        >
+          Mark review required
+        </button>
+        <button
+          type="button"
+          className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
+          onClick={() => saveDecision("no-suitable-match")}
+        >
+          Reject: no suitable match
+        </button>
+      </div>
+
+      {message ? <p className="compare-native-muted wm-ui-copy">{message}</p> : null}
+    </section>
+  );
+}
+
 function CompareSummaryPanel({ summary, requestLiveLookup, sourceUrl }: { summary: string; requestLiveLookup: boolean; sourceUrl: string }) {
   return (
     <details className="compare-native-summary wm-ui-card wm-ui-copy">
@@ -4256,6 +4781,7 @@ function ComparePageNew() {
   const [isAddingManufacturer, setIsAddingManufacturer] = useState(false);
   const [committedSku, setCommittedSku] = useState<string | null>(null);
   const [catalogVersion, setCatalogVersion] = useState(0);
+  const [decisionRevision, setDecisionRevision] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -4296,6 +4822,17 @@ function ComparePageNew() {
 
   const competitorSummary = useMemo(() => buildCompetitorSummary(profile, mustMatchFeatures), [mustMatchFeatures, profile]);
   const hasCompetitorSelection = competitorInput.trim().length > 0;
+  const governedDecision = useMemo(() => {
+    if (typeof window === "undefined" || !competitorInput.trim()) {
+      return null;
+    }
+
+    return resolveApprovedGovernedDecision(
+      readCompetitorMatchDecisionLedger(window.localStorage),
+      effectiveBrand,
+      competitorInput,
+    );
+  }, [competitorInput, decisionRevision, effectiveBrand]);
 
   const compareManufacturerOptions = useMemo(() => {
     const seededBrands = new Set(MANUFACTURER_SELECT_OPTIONS.map((brand) => brand.toLowerCase()));
@@ -4441,7 +4978,7 @@ function ComparePageNew() {
       : ranked;
   }, [competitorInput, effectiveBrand, legacyCandidates, mustMatchFeatures, catalogVersion]);
 
-  const scoredCandidates = useMemo(
+  const heuristicCandidates = useMemo(
     () =>
       rigorousResult.matches
         .map((match) => rigorousMatchToCandidate(match, profile))
@@ -4449,6 +4986,88 @@ function ComparePageNew() {
         .slice(0, 5),
     [profile, rigorousResult],
   );
+
+  const governedCandidate = useMemo(() => {
+    if (
+      !governedDecision?.wyrestormSku ||
+      governedDecision.decisionType === "no-suitable-match"
+    ) {
+      return null;
+    }
+
+    const targetSku = governedDecision.wyrestormSku.toUpperCase();
+    const existing = heuristicCandidates.find(
+      (candidate) => candidate.product.sku.toUpperCase() === targetSku,
+    );
+    const product =
+      existing?.product ??
+      ACTIVE_WYRESTORM_PRODUCTS.find(
+        (candidate) => candidate.sku.toUpperCase() === targetSku,
+      );
+
+    if (!product) return null;
+
+    const base = existing ?? scoreProduct(profile, product);
+    const verdict: Verdict =
+      governedDecision.decisionType === "confirmed-equivalent"
+        ? "GOOD MATCH"
+        : governedDecision.decisionType === "architecture-alternative"
+          ? "ARCHITECTURE ALTERNATIVE"
+          : "PARTIAL MATCH";
+
+    return {
+      ...base,
+      score: Math.max(
+        base.score,
+        governedDecision.decisionType === "confirmed-equivalent" ? 100 : 95,
+      ),
+      verdict,
+      matched: uniqueText([
+        ...governedDecision.matchedPoints,
+        ...base.matched,
+      ], 12),
+      gaps: uniqueText([
+        ...governedDecision.importantDifferences,
+        ...base.gaps,
+      ], 12),
+      partialMatches: uniqueText([
+        ...governedDecision.importantDifferences,
+        ...base.partialMatches,
+      ], 12),
+      mismatches: uniqueText([
+        ...governedDecision.importantDifferences,
+        ...base.mismatches,
+      ], 12),
+      blockers: uniqueText([
+        ...governedDecision.quoteBlockers,
+        ...base.blockers,
+      ], 12),
+      dependencies: uniqueText([
+        ...governedDecision.dependencies,
+        ...base.dependencies,
+      ], 12),
+      outcomeLabel: governedDecisionLabel(governedDecision),
+    };
+  }, [governedDecision, heuristicCandidates, profile]);
+
+  const scoredCandidates = useMemo(() => {
+    const candidates = governedCandidate
+      ? [
+          governedCandidate,
+          ...heuristicCandidates.filter(
+            (candidate) =>
+              candidate.product.sku.toUpperCase() !==
+              governedCandidate.product.sku.toUpperCase(),
+          ),
+        ]
+      : heuristicCandidates;
+
+    return applyGovernedCandidateOrder(
+      candidates,
+      governedDecision,
+      (candidate) => candidate.product.sku,
+    );
+  }, [governedCandidate, governedDecision, heuristicCandidates]);
 
   const viableCandidates = useMemo(
     () => scoredCandidates.filter((candidate) => candidate.verdict !== "NO MATCH"),
@@ -4525,6 +5144,10 @@ function ComparePageNew() {
 
   const summary = useMemo(() => {
     if (!best) {
+      if (governedDecision?.decisionType === "no-suitable-match") {
+        return `${effectiveBrand} ${competitorInput}: approved no suitable WyreStorm match. Reviewer: ${governedDecision.reviewer || "not recorded"}.`;
+      }
+
       return "No suitable WyreStorm direction found from the current data.";
     }
 
@@ -4536,6 +5159,7 @@ function ComparePageNew() {
 
     return [
       `${competitorSummary.heading} appears to be a ${shortRoleLabel(competitorSummary.role)}.`,
+      ...(governedDecision ? [`Governed decision: ${governedDecisionLabel(governedDecision)}${governedDecision.reviewer ? ` by ${governedDecision.reviewer}` : ""}.`] : []),
       ...identityItems.map((line) => line),
       `The closest WyreStorm direction is ${best.product.sku} because it performs the same basic job in a ${best.product.family} system.`,
       `${directionFit}. ${replacementConfidence}.`,
@@ -4545,7 +5169,7 @@ function ComparePageNew() {
       "Ask the customer before quoting:",
       ...askCustomer.slice(0, 4).map((line) => `- ${line}`),
     ].join("\n");
-  }, [best, competitorSummary, profile]);
+  }, [best, competitorInput, competitorSummary, effectiveBrand, governedDecision, profile]);
 
   const handleCommit = useCallback(
     (target: "project" | "proposal"): void => {
@@ -4878,6 +5502,14 @@ function ComparePageNew() {
 
           {hasCompared ? (
           <>
+            <GovernedDecisionPanel
+              key={`${effectiveBrand}:${competitorInput}:${governedDecision?.updatedAt ?? decisionRevision}`}
+              profile={profile}
+              candidate={best ?? heuristicCandidates[0] ?? null}
+              existingDecision={governedDecision}
+              onSaved={() => setDecisionRevision((revision) => revision + 1)}
+            />
+
             {best ? (
               <div
                 ref={bestMatchRef}
@@ -4895,8 +5527,16 @@ function ComparePageNew() {
             ) : (
               <>
                 <section className="compare-native-empty wm-ui-section">
-                  <h3 className="wm-ui-title">No suitable WyreStorm match found from the current data</h3>
-                  <p className="wm-ui-copy">{competitorSummary.warning || "Add the competitor product type, I/O, video bandwidth, USB, audio, control or wall-processing requirement and try again."}</p>
+                  <h3 className="wm-ui-title">
+                    {governedDecision?.decisionType === "no-suitable-match"
+                      ? "Reviewed decision: no suitable WyreStorm match"
+                      : "No suitable WyreStorm match found from the current data"}
+                  </h3>
+                  <p className="wm-ui-copy">
+                    {governedDecision?.decisionType === "no-suitable-match"
+                      ? `This no-match decision was approved${governedDecision.reviewer ? ` by ${governedDecision.reviewer}` : ""} and suppresses recurring automatic suggestions for this SKU.`
+                      : competitorSummary.warning || "Add the competitor product type, I/O, video bandwidth, USB, audio, control or wall-processing requirement and try again."}
+                  </p>
                   {competitorSummary.verifyItems.length ? (
                     <ul className="compare-native-bullet-list wm-ui-card">
                       {competitorSummary.verifyItems.slice(0, 3).map((item) => (
