@@ -50,6 +50,23 @@ describe("domainFromStructuredCategory", () => {
     expect(domain).toBe("MATRIX");
   });
 
+  it("resolves an HDBaseT matrix to MATRIX, not EXTENDER", () => {
+    // Regression caught by Codex review on this PR: tools/enrich-wyrestorm-
+    // product-intelligence.mjs generates exactly this shape for HDBaseT
+    // matrix products (primaryCategory "Matrix / Routing", category
+    // "HDBaseT matrix", transportClass including "HDBaseT"). EXTENDER was
+    // originally checked before MATRIX, so these matched EXTENDER first -
+    // the product's HDBaseT extension transport isn't its identity, the
+    // matrix routing is. Same precedence bug already fixed once this
+    // session for the same product class in competitorSpecRegistry.ts.
+    const domain = domainFromStructuredCategory({
+      primaryCategory: "Matrix / Routing",
+      category: "HDBaseT matrix",
+      transportClass: ["HDBaseT"],
+    });
+    expect(domain).toBe("MATRIX");
+  });
+
   it("returns undefined (falls back to blob detection) when given no curated fields", () => {
     expect(domainFromStructuredCategory({})).toBeUndefined();
     expect(domainFromStructuredCategory(undefined)).toBeUndefined();
@@ -144,5 +161,21 @@ describe("buildCandidateFromCatalog (WyreStorm canonical rows)", () => {
     expect(candidate.comparisonDomain).toBe("EXTENDER");
     expect(candidate.role).toBe("Decoder");
     expect(candidate.comparisonDomain).not.toBe("MATRIX");
+  });
+
+  it("classifies an HDBaseT matrix as MATRIX, not EXTENDER", () => {
+    const candidate = buildCandidateFromCatalog({
+      sku: "MXV-0606-H2A",
+      name: "6x6 HDBaseT Matrix Switcher",
+      productClassification: {
+        primaryCategory: "Matrix / Routing",
+        category: "HDBaseT matrix",
+        subCategory: "Fixed I/O matrix",
+        transportClass: ["HDBaseT"],
+      },
+      technologyType: "HDBaseT",
+    });
+    expect(candidate.comparisonDomain).toBe("MATRIX");
+    expect(candidate.role).toBe("Matrix");
   });
 });
