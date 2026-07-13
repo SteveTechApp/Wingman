@@ -1,0 +1,1175 @@
+/* ========================================================================== 
+   Wingman reference theme
+   Unified action-led visual language derived from the approved dashboard.
+   Loaded after wingman-style-stack.css so this file governs the final UI.
+   ========================================================================== */
+
+:root {
+  --wm-ref-bg: #030914;
+  --wm-ref-bg-soft: #071221;
+  --wm-ref-sidebar: #020914;
+  --wm-ref-panel: rgba(10, 24, 42, 0.9);
+  --wm-ref-panel-strong: rgba(13, 31, 52, 0.96);
+  --wm-ref-panel-soft: rgba(8, 19, 34, 0.76);
+  --wm-ref-border: rgba(120, 190, 228, 0.22);
+  --wm-ref-border-strong: rgba(45, 212, 191, 0.48);
+  --wm-ref-text: #f7fbff;
+  --wm-ref-copy: #c6d3e1;
+  --wm-ref-muted: #8798aa;
+  --wm-ref-aqua: #18d9c2;
+  --wm-ref-cyan: #38bdf8;
+  --wm-ref-purple: #9b72ff;
+  --wm-ref-amber: #f5a524;
+  --wm-ref-green: #24d6a3;
+  --wm-ref-red: #fb7185;
+  --wm-ref-radius: 15px;
+  --wm-ref-radius-small: 11px;
+  --wm-ref-sidebar-width: 232px;
+  --wm-ref-page-max: 1660px;
+  --wm-ref-shadow: 0 18px 55px rgba(0, 0, 0, 0.28);
+  --wm-ref-shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.2);
+
+  --wm-bg: var(--wm-ref-bg);
+  --wm-bg-2: var(--wm-ref-bg-soft);
+  --wm-surface: #0a182a;
+  --wm-surface-2: #0d2035;
+  --wm-surface-3: #112943;
+  --wm-border: var(--wm-ref-border);
+  --wm-border-strong: var(--wm-ref-border-strong);
+  --wm-text: var(--wm-ref-text);
+  --wm-text-soft: var(--wm-ref-copy);
+  --wm-muted: var(--wm-ref-muted);
+  --wm-heading: var(--wm-ref-text);
+  --wm-heading-2: #d9faff;
+  --wm-primary: var(--wm-ref-aqua);
+  --wm-primary-strong: #079987;
+  --wm-primary-soft: rgba(24, 217, 194, 0.14);
+  --wm-sidebar-width: var(--wm-ref-sidebar-width);
+  --wm-content-max: var(--wm-ref-page-max);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--wm-ref-bg) !important;
+}
+
+body {
+  color: var(--wm-ref-text);
+  background:
+    radial-gradient(70rem 22rem at 68% 0%, rgba(26, 163, 212, 0.16), transparent 64%),
+    radial-gradient(44rem 28rem at 82% 18%, rgba(24, 217, 194, 0.1), transparent 62%),
+    linear-gradient(135deg, #020713 0%, #04101e 48%, #061426 100%) !important;
+}
+
+/* --------------------------------------------------------------------------
+   App shell and navigation
+   -------------------------------------------------------------------------- */
+
+.wingman-shell,
+.wingman-authority-shell {
+  position: relative !important;
+  display: flex !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 100vh !important;
+  overflow: hidden !important;
+  isolation: isolate;
+  background: transparent !important;
+}
+
+.wingman-shell::before,
+.wingman-shell::after {
+  position: fixed;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+}
+
+.wingman-shell::before {
+  inset: 0;
+  background:
+    radial-gradient(58rem 17rem at 64% 5%, rgba(36, 189, 233, 0.16), transparent 65%),
+    radial-gradient(42rem 14rem at 68% 7%, rgba(24, 217, 194, 0.13), transparent 70%);
+}
+
+.wingman-shell::after {
+  top: 0;
+  right: 0;
+  width: 60%;
+  height: 42%;
+  opacity: 0.22;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.55) 0 1px, transparent 1.4px);
+  background-size: 58px 58px;
+  mask-image: linear-gradient(to bottom left, #000, transparent 76%);
+}
+
+.wingman-shell > .wingman-sidebar,
+.wingman-authority-shell > .wingman-sidebar,
+.wingman-sidebar {
+  position: relative !important;
+  top: auto !important;
+  z-index: 90 !important;
+  flex: 0 0 var(--wm-ref-sidebar-width) !important;
+  width: var(--wm-ref-sidebar-width) !important;
+  min-width: var(--wm-ref-sidebar-width) !important;
+  max-width: var(--wm-ref-sidebar-width) !important;
+  height: 100vh !important;
+  padding: 24px 16px 18px !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  background: linear-gradient(180deg, rgba(2, 9, 20, 0.99), rgba(2, 8, 18, 0.97)) !important;
+  border: 0 !important;
+  border-right: 1px solid rgba(115, 178, 214, 0.2) !important;
+  box-shadow: 16px 0 40px rgba(0, 0, 0, 0.12);
+}
+
+.wingman-brand {
+  display: flex !important;
+  min-height: 66px !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  margin: 0 8px 20px !important;
+  padding: 0 !important;
+}
+
+.wingman-brand-image {
+  width: 168px !important;
+  height: auto !important;
+  max-height: 60px !important;
+  object-fit: contain !important;
+  object-position: left center !important;
+}
+
+.wingman-nav {
+  display: grid !important;
+  gap: 7px !important;
+}
+
+.wingman-nav-link {
+  position: relative;
+  display: flex !important;
+  min-height: 44px !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 10px 13px !important;
+  color: #c9d5e2 !important;
+  font-size: 0.93rem !important;
+  font-weight: 620 !important;
+  text-decoration: none !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.wingman-nav-link:hover {
+  color: var(--wm-ref-text) !important;
+  background: rgba(20, 57, 78, 0.52) !important;
+  border-color: rgba(69, 178, 199, 0.22) !important;
+  transform: translateX(2px);
+}
+
+.wingman-nav-link-active,
+.wingman-nav-link[aria-current="page"] {
+  color: var(--wm-ref-text) !important;
+  background: linear-gradient(90deg, rgba(15, 74, 89, 0.74), rgba(10, 35, 52, 0.86)) !important;
+  border-color: rgba(34, 202, 190, 0.24) !important;
+  box-shadow: inset 3px 0 0 var(--wm-ref-aqua);
+}
+
+.wingman-nav-icon {
+  width: 19px !important;
+  height: 19px !important;
+  flex: 0 0 auto;
+  color: #d8e6f2 !important;
+  stroke-width: 1.8;
+}
+
+.wingman-nav-link-active .wingman-nav-icon,
+.wingman-nav-link[aria-current="page"] .wingman-nav-icon {
+  color: var(--wm-ref-aqua) !important;
+}
+
+.wingman-nav-tooltip {
+  display: none !important;
+}
+
+.wingman-workspace {
+  display: grid !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  height: 100vh !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  overflow: hidden !important;
+}
+
+.wingman-topbar {
+  position: relative !important;
+  top: auto !important;
+  z-index: 60 !important;
+  display: flex !important;
+  min-height: 70px !important;
+  align-items: center !important;
+  gap: 16px !important;
+  padding: 16px 38px 8px !important;
+  background: linear-gradient(180deg, rgba(3, 9, 20, 0.74), rgba(3, 9, 20, 0)) !important;
+  border: 0 !important;
+  backdrop-filter: none !important;
+}
+
+.wingman-topbar-title {
+  display: grid !important;
+  flex: 1 1 auto !important;
+  gap: 2px !important;
+  min-width: 0;
+}
+
+.wingman-topbar-page-label {
+  color: var(--wm-ref-text) !important;
+  font-size: 1rem !important;
+  font-weight: 720 !important;
+}
+
+.wingman-topbar-page-summary {
+  max-width: 780px;
+  overflow: hidden;
+  color: var(--wm-ref-muted) !important;
+  font-size: 0.78rem !important;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html[data-wingman-route="dashboard"] .wingman-topbar-title {
+  visibility: hidden;
+}
+
+.wingman-new-project-button {
+  display: inline-flex !important;
+  min-height: 42px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 9px !important;
+  padding: 10px 16px !important;
+  color: var(--wm-ref-text) !important;
+  font-weight: 680 !important;
+  background: linear-gradient(135deg, rgba(10, 59, 71, 0.94), rgba(8, 30, 47, 0.94)) !important;
+  border: 1px solid var(--wm-ref-aqua) !important;
+  border-radius: 9px !important;
+  box-shadow: 0 0 24px rgba(24, 217, 194, 0.12) !important;
+}
+
+.wingman-new-project-button:hover {
+  background: linear-gradient(135deg, rgba(12, 91, 91, 0.98), rgba(8, 42, 58, 0.98)) !important;
+  box-shadow: 0 0 30px rgba(24, 217, 194, 0.2) !important;
+}
+
+.wingman-mobile-nav-button {
+  color: var(--wm-ref-text) !important;
+  background: var(--wm-ref-panel) !important;
+  border: 1px solid var(--wm-ref-border) !important;
+}
+
+.wingman-app-main {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  background: transparent !important;
+  scrollbar-color: rgba(69, 197, 205, 0.48) rgba(5, 14, 25, 0.5);
+  scrollbar-width: thin;
+}
+
+.wingman-app-main > .wingman-page-host {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 100% !important;
+  padding: 8px 38px 46px !important;
+  overflow: visible !important;
+}
+
+.wingman-app-main > .wingman-page-host > .wm-page,
+.wingman-app-main > .wingman-page-host > .wingman-page,
+.wingman-app-main > .wingman-page-host > main {
+  width: min(100%, var(--wm-ref-page-max)) !important;
+  max-width: var(--wm-ref-page-max) !important;
+  min-height: 0 !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Global page language
+   -------------------------------------------------------------------------- */
+
+.wingman-page-host h1,
+.wingman-page-host h2,
+.wingman-page-host h3,
+.wingman-page-host h4,
+.wingman-page-host .wm-page-title,
+.wingman-page-host .wm-section-title,
+.wingman-page-host .wm-card-title {
+  color: var(--wm-ref-text) !important;
+  letter-spacing: -0.025em !important;
+}
+
+.wingman-page-host h1,
+.wingman-page-host .wm-page-title {
+  font-size: clamp(1.8rem, 2.2vw, 2.65rem) !important;
+  line-height: 1.05 !important;
+  font-weight: 760 !important;
+}
+
+.wingman-page-host h2,
+.wingman-page-host .wm-section-title {
+  font-size: clamp(1.05rem, 1.15vw, 1.35rem) !important;
+  font-weight: 720 !important;
+}
+
+.wingman-page-host p,
+.wingman-page-host .wm-copy,
+.wingman-page-host .wm-page-description,
+.wingman-page-host .wm-card-copy,
+.wingman-page-host .wm-section-copy {
+  color: var(--wm-ref-copy) !important;
+}
+
+.wingman-page-host small,
+.wingman-page-host .wm-muted,
+.wingman-page-host .wm-meta,
+.wingman-page-host .wm-caption,
+.wingman-page-host .wm-page-description {
+  color: var(--wm-ref-muted) !important;
+}
+
+.wingman-page-host .wm-page-header,
+.wingman-page-host .wingman-page-header {
+  display: grid !important;
+  gap: 7px !important;
+  margin: 0 0 22px !important;
+}
+
+.wingman-page-host :where(
+  .wm-card,
+  .wm-panel,
+  .wm-section,
+  .wm-section-card,
+  .wm-action-card,
+  .wingman-card,
+  .wingman-panel,
+  .card,
+  .panel,
+  [data-wm-card-level]
+) {
+  color: var(--wm-ref-text) !important;
+  background: linear-gradient(145deg, rgba(13, 31, 52, 0.92), rgba(7, 18, 32, 0.92)) !important;
+  border: 1px solid var(--wm-ref-border) !important;
+  border-radius: var(--wm-ref-radius) !important;
+  box-shadow: var(--wm-ref-shadow-soft) !important;
+}
+
+.wingman-page-host :where(
+  .wm-card,
+  .wm-action-card,
+  .wingman-card,
+  [data-wm-card-level]
+):hover {
+  border-color: rgba(74, 209, 211, 0.42) !important;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.26) !important;
+}
+
+.wingman-page-host :where(.bg-white, .bg-slate-50, .bg-slate-100, .bg-gray-50, .bg-gray-100) {
+  color: var(--wm-ref-text) !important;
+  background: var(--wm-ref-panel) !important;
+}
+
+.wingman-page-host :where(.text-slate-900, .text-gray-900, .text-black) {
+  color: var(--wm-ref-text) !important;
+}
+
+.wingman-page-host :where(.text-slate-600, .text-slate-500, .text-gray-600, .text-gray-500) {
+  color: var(--wm-ref-muted) !important;
+}
+
+.wingman-page-host :where(.border-slate-200, .border-slate-300, .border-gray-200, .border-gray-300) {
+  border-color: var(--wm-ref-border) !important;
+}
+
+.wingman-page-host :where(.wm-button, .wm-btn, .button, button[class*="wm-button"]) {
+  min-height: 40px !important;
+  gap: 8px !important;
+  padding: 9px 14px !important;
+  color: var(--wm-ref-text) !important;
+  font-weight: 660 !important;
+  background: rgba(9, 24, 40, 0.92) !important;
+  border: 1px solid var(--wm-ref-border) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+}
+
+.wingman-page-host :where(.wm-button, .wm-btn, .button, button[class*="wm-button"]):hover {
+  color: var(--wm-ref-text) !important;
+  background: rgba(15, 53, 68, 0.9) !important;
+  border-color: rgba(45, 212, 191, 0.5) !important;
+}
+
+.wingman-page-host :where(.wm-button-primary, .wm-btn-primary, .button-primary, .btn-primary) {
+  background: linear-gradient(135deg, #0f887d, #16b6a5) !important;
+  border-color: rgba(91, 244, 222, 0.62) !important;
+}
+
+.wingman-page-host :where(input, select, textarea, .wm-input, .wm-select, .wm-textarea) {
+  color: var(--wm-ref-text) !important;
+  background: rgba(2, 10, 20, 0.76) !important;
+  border: 1px solid rgba(121, 176, 207, 0.28) !important;
+  border-radius: 9px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02) !important;
+}
+
+.wingman-page-host :where(input, select, textarea, .wm-input, .wm-select, .wm-textarea):focus {
+  border-color: var(--wm-ref-aqua) !important;
+  box-shadow: 0 0 0 3px rgba(24, 217, 194, 0.12) !important;
+}
+
+.wingman-page-host :where(.wm-tab, .wm-step, [role="tab"]) {
+  color: var(--wm-ref-copy) !important;
+  background: rgba(7, 20, 35, 0.88) !important;
+  border: 1px solid var(--wm-ref-border) !important;
+  border-radius: 9px !important;
+}
+
+.wingman-page-host :where(.wm-tab.active, .wm-step.active, .wm-tab[aria-selected="true"], .wm-step[aria-current="step"], [role="tab"][aria-selected="true"]) {
+  color: var(--wm-ref-text) !important;
+  background: rgba(14, 94, 93, 0.34) !important;
+  border-color: rgba(45, 212, 191, 0.5) !important;
+}
+
+.wingman-page-host :where(.wm-status-chip, .wm-status, .wm-badge, .wm-chip) {
+  min-height: 24px !important;
+  padding: 4px 9px !important;
+  color: #dce8f3 !important;
+  font-size: 0.72rem !important;
+  font-weight: 680 !important;
+  background: rgba(7, 19, 33, 0.9) !important;
+  border: 1px solid var(--wm-ref-border) !important;
+  border-radius: 999px !important;
+}
+
+.wingman-page-host .wm-status-on-track,
+.wingman-page-host .wm-status-ready,
+.wingman-page-host .wm-status-success {
+  color: #b8ffeb !important;
+  background: rgba(14, 119, 101, 0.26) !important;
+  border-color: rgba(36, 214, 163, 0.4) !important;
+}
+
+.wingman-page-host .wm-status-progress {
+  color: #d7c9ff !important;
+  background: rgba(85, 55, 164, 0.28) !important;
+  border-color: rgba(155, 114, 255, 0.38) !important;
+}
+
+.wingman-page-host .wm-status-warning,
+.wingman-page-host .wm-status-review {
+  color: #ffe1a7 !important;
+  background: rgba(157, 94, 8, 0.24) !important;
+  border-color: rgba(245, 165, 36, 0.4) !important;
+}
+
+.wingman-page-host :where(.wm-table-wrap, .table-wrap) {
+  overflow: auto !important;
+  background: rgba(5, 16, 29, 0.72) !important;
+  border: 1px solid var(--wm-ref-border) !important;
+  border-radius: var(--wm-ref-radius-small) !important;
+}
+
+.wingman-page-host table {
+  color: var(--wm-ref-copy) !important;
+  background: transparent !important;
+}
+
+.wingman-page-host table th {
+  color: #d9faff !important;
+  background: rgba(13, 34, 55, 0.94) !important;
+  border-color: var(--wm-ref-border) !important;
+}
+
+.wingman-page-host table td {
+  border-color: rgba(120, 190, 228, 0.13) !important;
+}
+
+.wingman-page-host table tr:hover td {
+  background: rgba(24, 217, 194, 0.045) !important;
+}
+
+[data-wm-accent="discovery"] { --wm-reference-accent: var(--wm-ref-aqua); --wm-reference-accent-rgb: 24, 217, 194; }
+[data-wm-accent="products"] { --wm-reference-accent: #22d3ee; --wm-reference-accent-rgb: 34, 211, 238; }
+[data-wm-accent="compare"] { --wm-reference-accent: var(--wm-ref-purple); --wm-reference-accent-rgb: 155, 114, 255; }
+[data-wm-accent="templates"] { --wm-reference-accent: var(--wm-ref-cyan); --wm-reference-accent-rgb: 56, 189, 248; }
+[data-wm-accent="projects"] { --wm-reference-accent: var(--wm-ref-amber); --wm-reference-accent-rgb: 245, 165, 36; }
+[data-wm-accent="documents"] { --wm-reference-accent: #55d8ff; --wm-reference-accent-rgb: 85, 216, 255; }
+[data-wm-accent="response"] { --wm-reference-accent: #b976ff; --wm-reference-accent-rgb: 185, 118, 255; }
+[data-wm-accent="guru"] { --wm-reference-accent: #20e0bd; --wm-reference-accent-rgb: 32, 224, 189; }
+
+/* --------------------------------------------------------------------------
+   Dashboard
+   -------------------------------------------------------------------------- */
+
+.wm-reference-dashboard {
+  display: grid;
+  gap: 26px;
+  color: var(--wm-ref-text);
+}
+
+.wm-reference-dashboard-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  min-height: 84px;
+}
+
+.wm-reference-kicker {
+  display: none;
+  color: var(--wm-ref-aqua);
+  font-size: 0.72rem;
+  font-weight: 760;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.wm-reference-dashboard-header h1 {
+  margin: 0;
+  color: var(--wm-ref-text) !important;
+  font-size: clamp(2rem, 2.5vw, 3rem) !important;
+  font-weight: 740 !important;
+  letter-spacing: -0.04em !important;
+}
+
+.wm-reference-dashboard-header p {
+  margin: 9px 0 0;
+  color: var(--wm-ref-copy) !important;
+  font-size: 1rem;
+}
+
+.wm-reference-dashboard-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 270px;
+  gap: 18px;
+  align-items: start;
+}
+
+.wm-reference-dashboard-main {
+  display: grid;
+  gap: 26px;
+  min-width: 0;
+}
+
+.wm-reference-primary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.wm-reference-primary-card {
+  position: relative;
+  display: flex;
+  min-height: 245px;
+  flex-direction: column;
+  gap: 20px;
+  padding: 26px;
+  overflow: hidden;
+  color: var(--wm-ref-text) !important;
+  text-decoration: none !important;
+  background:
+    radial-gradient(circle at 25% 15%, rgba(var(--wm-reference-accent-rgb), 0.14), transparent 44%),
+    linear-gradient(145deg, rgba(12, 31, 52, 0.94), rgba(7, 18, 33, 0.94));
+  border: 1px solid rgba(var(--wm-reference-accent-rgb), 0.34);
+  border-radius: var(--wm-ref-radius);
+  box-shadow: var(--wm-ref-shadow-soft);
+  transition: transform 170ms ease, border-color 170ms ease, box-shadow 170ms ease;
+}
+
+.wm-reference-primary-card::after {
+  position: absolute;
+  inset: auto -30% -48% 18%;
+  height: 58%;
+  content: "";
+  background: radial-gradient(circle, rgba(var(--wm-reference-accent-rgb), 0.12), transparent 70%);
+  pointer-events: none;
+}
+
+.wm-reference-primary-card:hover {
+  color: var(--wm-ref-text) !important;
+  text-decoration: none !important;
+  border-color: rgba(var(--wm-reference-accent-rgb), 0.72);
+  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.3), 0 0 26px rgba(var(--wm-reference-accent-rgb), 0.08);
+  transform: translateY(-3px);
+}
+
+.wm-reference-action-icon {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  color: var(--wm-reference-accent);
+  background: radial-gradient(circle, rgba(var(--wm-reference-accent-rgb), 0.2), rgba(4, 16, 29, 0.84));
+  border: 1px solid rgba(var(--wm-reference-accent-rgb), 0.68);
+  border-radius: 999px;
+  box-shadow: 0 0 28px rgba(var(--wm-reference-accent-rgb), 0.15);
+}
+
+.wm-reference-action-icon svg {
+  width: 29px;
+  height: 29px;
+  stroke-width: 1.7;
+}
+
+.wm-reference-primary-copy {
+  display: grid;
+  gap: 10px;
+}
+
+.wm-reference-primary-copy strong {
+  color: var(--wm-ref-text);
+  font-size: 1.16rem;
+  font-weight: 720;
+}
+
+.wm-reference-primary-copy > span {
+  color: var(--wm-ref-copy);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.wm-reference-round-arrow {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  color: var(--wm-reference-accent);
+  background: rgba(5, 17, 30, 0.82);
+  border: 1px solid rgba(var(--wm-reference-accent-rgb), 0.5);
+  border-radius: 999px;
+}
+
+.wm-reference-round-arrow svg {
+  width: 20px;
+  height: 20px;
+}
+
+.wm-reference-section {
+  display: grid;
+  gap: 13px;
+}
+
+.wm-reference-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wm-reference-section-heading h2 {
+  margin: 0;
+  color: var(--wm-ref-text) !important;
+  font-size: 1.2rem !important;
+}
+
+.wm-reference-section-heading a,
+.wm-reference-text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--wm-ref-aqua) !important;
+  font-size: 0.83rem;
+  font-weight: 660;
+  text-decoration: none !important;
+}
+
+.wm-reference-section-heading svg,
+.wm-reference-text-link svg {
+  width: 17px;
+  height: 17px;
+}
+
+.wm-reference-project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.wm-reference-project-card {
+  display: grid;
+  min-height: 168px;
+  gap: 13px;
+  padding: 18px;
+  color: var(--wm-ref-text) !important;
+  text-decoration: none !important;
+  background: linear-gradient(145deg, rgba(12, 28, 48, 0.92), rgba(7, 18, 32, 0.92));
+  border: 1px solid var(--wm-ref-border);
+  border-radius: var(--wm-ref-radius-small);
+  transition: transform 150ms ease, border-color 150ms ease;
+}
+
+.wm-reference-project-card:hover {
+  color: var(--wm-ref-text) !important;
+  text-decoration: none !important;
+  border-color: rgba(45, 212, 191, 0.4);
+  transform: translateY(-2px);
+}
+
+.wm-reference-project-topline,
+.wm-reference-project-name,
+.wm-reference-progress {
+  display: flex;
+  align-items: center;
+}
+
+.wm-reference-project-topline {
+  justify-content: space-between;
+}
+
+.wm-reference-project-topline > svg {
+  width: 18px;
+  height: 18px;
+  color: var(--wm-ref-muted);
+}
+
+.wm-reference-project-name {
+  gap: 11px;
+  min-width: 0;
+}
+
+.wm-reference-project-icon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--wm-ref-aqua);
+  background: rgba(24, 217, 194, 0.12);
+  border: 1px solid rgba(24, 217, 194, 0.2);
+  border-radius: 8px;
+}
+
+.wm-reference-project-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.wm-reference-project-name > span:last-child {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.wm-reference-project-name strong {
+  overflow: hidden;
+  color: var(--wm-ref-text);
+  font-size: 0.91rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wm-reference-project-name small {
+  overflow: hidden;
+  color: var(--wm-ref-muted) !important;
+  font-size: 0.74rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wm-reference-progress {
+  gap: 11px;
+  margin-top: auto;
+}
+
+.wm-reference-progress-track {
+  display: block;
+  height: 6px;
+  flex: 1 1 auto;
+  overflow: hidden;
+  background: rgba(82, 119, 148, 0.18);
+  border-radius: 999px;
+}
+
+.wm-reference-progress-track > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--wm-ref-aqua), var(--wm-ref-cyan));
+  border-radius: inherit;
+}
+
+.wm-reference-progress strong {
+  color: var(--wm-ref-text);
+  font-size: 0.78rem;
+}
+
+.wm-reference-project-next {
+  margin-top: auto;
+  color: var(--wm-ref-copy);
+  font-size: 0.78rem;
+}
+
+.wm-reference-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 11px;
+}
+
+.wm-reference-quick-card {
+  display: grid;
+  min-height: 96px;
+  grid-template-columns: 32px minmax(0, 1fr) 18px;
+  gap: 10px;
+  align-items: center;
+  padding: 15px;
+  color: var(--wm-ref-text) !important;
+  text-align: left;
+  text-decoration: none !important;
+  background: linear-gradient(145deg, rgba(11, 27, 47, 0.9), rgba(7, 17, 30, 0.9));
+  border: 1px solid var(--wm-ref-border);
+  border-radius: var(--wm-ref-radius-small);
+}
+
+button.wm-reference-quick-card {
+  width: 100%;
+  font: inherit;
+  cursor: pointer;
+}
+
+.wm-reference-quick-card:hover {
+  color: var(--wm-ref-text) !important;
+  text-decoration: none !important;
+  border-color: rgba(var(--wm-reference-accent-rgb), 0.52);
+}
+
+.wm-reference-quick-card > svg:first-child {
+  width: 25px;
+  height: 25px;
+  color: var(--wm-reference-accent);
+}
+
+.wm-reference-quick-card > svg:last-child {
+  width: 17px;
+  height: 17px;
+  color: var(--wm-reference-accent);
+}
+
+.wm-reference-quick-card > span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.wm-reference-quick-card strong {
+  color: var(--wm-ref-text);
+  font-size: 0.86rem;
+}
+
+.wm-reference-quick-card small {
+  overflow: hidden;
+  color: var(--wm-ref-muted) !important;
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wm-reference-dashboard-rail {
+  display: grid;
+  gap: 14px;
+}
+
+.wm-reference-rail-card {
+  display: grid;
+  gap: 15px;
+  padding: 18px;
+  background: linear-gradient(145deg, rgba(12, 29, 49, 0.94), rgba(7, 18, 32, 0.94));
+  border: 1px solid var(--wm-ref-border);
+  border-radius: var(--wm-ref-radius-small);
+  box-shadow: var(--wm-ref-shadow-soft);
+}
+
+.wm-reference-rail-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.wm-reference-rail-title svg {
+  width: 19px;
+  height: 19px;
+  color: var(--wm-ref-text);
+}
+
+.wm-reference-rail-title h2 {
+  margin: 0;
+  color: var(--wm-ref-text) !important;
+  font-size: 0.91rem !important;
+}
+
+.wm-reference-focus-list {
+  display: grid;
+  gap: 10px;
+}
+
+.wm-reference-focus-list a {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 8px 0;
+  color: var(--wm-ref-text) !important;
+  text-decoration: none !important;
+}
+
+.wm-reference-focus-marker {
+  width: 12px;
+  height: 12px;
+  margin-top: 4px;
+  background: var(--wm-ref-aqua);
+  border-radius: 4px;
+  box-shadow: 0 0 12px rgba(24, 217, 194, 0.28);
+  transform: rotate(45deg);
+}
+
+.wm-reference-focus-list a:nth-child(2) .wm-reference-focus-marker {
+  background: var(--wm-ref-purple);
+}
+
+.wm-reference-focus-list a:nth-child(3) .wm-reference-focus-marker {
+  background: var(--wm-ref-amber);
+}
+
+.wm-reference-focus-list a > span:last-child {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.wm-reference-focus-list strong {
+  color: var(--wm-ref-text);
+  font-size: 0.78rem;
+}
+
+.wm-reference-focus-list small {
+  overflow: hidden;
+  color: var(--wm-ref-muted) !important;
+  font-size: 0.69rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wm-reference-spotlight-card strong {
+  color: var(--wm-ref-text);
+  font-size: 1.05rem;
+}
+
+.wm-reference-spotlight-card p,
+.wm-reference-news-card p {
+  margin: 0;
+  color: var(--wm-ref-copy) !important;
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.wm-reference-product-badge {
+  width: max-content;
+  padding: 4px 8px;
+  color: #b9fff1;
+  font-size: 0.66rem;
+  font-weight: 720;
+  background: rgba(24, 217, 194, 0.13);
+  border: 1px solid rgba(24, 217, 194, 0.28);
+  border-radius: 999px;
+}
+
+.wm-reference-news-card .wm-reference-rail-title svg {
+  color: var(--wm-ref-amber);
+}
+
+/* --------------------------------------------------------------------------
+   Guru motion and presence
+   -------------------------------------------------------------------------- */
+
+.wingman-guru-fab {
+  width: 78px !important;
+  height: 78px !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  cursor: grab !important;
+  touch-action: none;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+
+.wingman-guru-fab:active,
+.wingman-guru-fab[data-dragging="true"] {
+  cursor: grabbing !important;
+}
+
+.wingman-guru-fab-image {
+  position: relative;
+  z-index: 3;
+  width: 68px !important;
+  height: 68px !important;
+  object-fit: contain;
+  user-select: none;
+  filter: drop-shadow(0 10px 17px rgba(0, 0, 0, 0.38)) drop-shadow(0 0 12px rgba(24, 217, 194, 0.42));
+  animation: wm-reference-guru-float 3.6s ease-in-out infinite;
+}
+
+.wingman-guru-fab-glow {
+  position: absolute;
+  inset: 7px;
+  z-index: 1;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(24, 217, 194, 0.38), rgba(24, 217, 194, 0.08) 48%, transparent 72%);
+  filter: blur(7px);
+  animation: wm-reference-guru-pulse 2.5s ease-in-out infinite;
+}
+
+.wingman-guru-fab-sweep {
+  position: absolute;
+  inset: -4px;
+  z-index: 2;
+  border: 1px solid rgba(45, 212, 191, 0.38);
+  border-right-color: transparent;
+  border-bottom-color: rgba(56, 189, 248, 0.18);
+  border-radius: 999px;
+  animation: wm-reference-guru-orbit 6.5s linear infinite;
+}
+
+.wingman-guru-fab[data-context-transfer="true"] .wingman-guru-fab-glow {
+  background: radial-gradient(circle, rgba(24, 217, 194, 0.5), rgba(56, 189, 248, 0.12) 52%, transparent 74%);
+}
+
+.wingman-guru-fab[data-dragging="true"] .wingman-guru-fab-image,
+.wingman-guru-fab[data-dragging="true"] .wingman-guru-fab-glow,
+.wingman-guru-fab[data-dragging="true"] .wingman-guru-fab-sweep {
+  animation-play-state: paused;
+}
+
+@keyframes wm-reference-guru-float {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-1.5deg); }
+  45% { transform: translate3d(0, -8px, 0) rotate(1.5deg); }
+  70% { transform: translate3d(0, -4px, 0) rotate(0deg); }
+}
+
+@keyframes wm-reference-guru-pulse {
+  0%, 100% { opacity: 0.58; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.14); }
+}
+
+@keyframes wm-reference-guru-orbit {
+  to { transform: rotate(360deg); }
+}
+
+/* --------------------------------------------------------------------------
+   Responsive behaviour
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1320px) {
+  .wm-reference-primary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wm-reference-primary-card {
+    min-height: 210px;
+  }
+
+  .wm-reference-quick-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1100px) {
+  .wm-reference-dashboard-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-reference-dashboard-rail {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .wm-reference-project-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px) {
+  .wingman-shell > .wingman-sidebar,
+  .wingman-authority-shell > .wingman-sidebar,
+  .wingman-sidebar {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    transform: translateX(-102%);
+    transition: transform 180ms ease;
+  }
+
+  .wingman-sidebar[data-mobile-open="true"] {
+    transform: translateX(0);
+  }
+
+  .wingman-mobile-shade[data-mobile-open="true"] {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: block;
+    background: rgba(0, 5, 12, 0.7);
+    backdrop-filter: blur(4px);
+  }
+
+  .wingman-workspace {
+    width: 100%;
+  }
+
+  .wingman-topbar {
+    padding-inline: 18px !important;
+  }
+
+  .wingman-app-main > .wingman-page-host {
+    padding: 8px 18px 34px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .wingman-topbar-page-summary {
+    display: none !important;
+  }
+
+  .wingman-new-project-button span {
+    display: none;
+  }
+
+  .wm-reference-primary-grid,
+  .wm-reference-quick-grid,
+  .wm-reference-dashboard-rail {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-reference-primary-card {
+    min-height: 190px;
+  }
+
+  .wm-reference-dashboard-header {
+    min-height: 58px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wingman-guru-fab-image,
+  .wingman-guru-fab-glow,
+  .wingman-guru-fab-sweep {
+    animation: none !important;
+  }
+}
