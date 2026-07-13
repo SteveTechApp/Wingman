@@ -1,4 +1,4 @@
-import {
+﻿import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -222,15 +222,33 @@ export function ProposalCompletionWizard() {
     );
   }
 
+  return (
+    <ProposalCompletionWizardContent
+      project={project}
+      profile={profile}
+    />
+  );
+}
+
+function ProposalCompletionWizardContent({
+  project,
+  profile,
+}: {
+  project: StoredProject;
+  profile: ReturnType<typeof getStoredWingmanProfile>;
+}) {
   const discovery = useMemo(() => readDiscovery(project), [project]);
   const assumptions = useMemo(
     () => standardAssumptions(project),
     [project],
   );
-  const familyScores =
-    project.recommendationEvidence?.productFamilyScores ??
-    project.discoveryBrief?.recommendationEvidence?.productFamilyScores ??
-    [];
+  const familyScores = useMemo(
+    () =>
+      project.recommendationEvidence?.productFamilyScores ??
+      project.discoveryBrief?.recommendationEvidence?.productFamilyScores ??
+      [],
+    [project],
+  );
   const selectedProducts = useMemo(
     () =>
       rankProductsByFamilyScores(
@@ -505,7 +523,7 @@ export function ProposalCompletionWizard() {
       return;
     }
 
-    setExportMessage("Generating formatted DOCXâ€¦");
+    setExportMessage("Generating formatted DOCXÃ¢â‚¬Â¦");
 
     try {
       await exportProposalDocx(
