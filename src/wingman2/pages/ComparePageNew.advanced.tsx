@@ -4137,10 +4137,10 @@ function candidateDecisionTone(candidate: ScoredCandidate): CompareDecisionTone 
 
 function candidateDecisionIcon(candidate: ScoredCandidate): string {
   const tone = candidateDecisionTone(candidate);
-  if (tone === "good") return "âœ“";
-  if (tone === "partial") return "â‰ˆ";
-  if (tone === "alternative") return "â‡„";
-  if (tone === "reject") return "Ã—";
+  if (tone === "good") return "\u2713";
+  if (tone === "partial") return "\u2248";
+  if (tone === "alternative") return "\u21C4";
+  if (tone === "reject") return "\u00D7";
   return "!";
 }
 
@@ -4404,10 +4404,10 @@ function compareDecisionTone(decisionType?: CompareDecisionType | null): Compare
 }
 
 function compareDecisionIcon(decisionType?: CompareDecisionType | null): string {
-  if (decisionType === "confirmed-equivalent") return "âœ“";
-  if (decisionType === "closest-technical-match") return "â‰ˆ";
-  if (decisionType === "architecture-alternative") return "â‡„";
-  if (decisionType === "no-suitable-match") return "Ã—";
+  if (decisionType === "confirmed-equivalent") return "\u2713";
+  if (decisionType === "closest-technical-match") return "\u2248";
+  if (decisionType === "architecture-alternative") return "\u21C4";
+  if (decisionType === "no-suitable-match") return "\u00D7";
   return "!";
 }
 
