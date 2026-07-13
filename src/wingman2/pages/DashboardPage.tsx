@@ -139,9 +139,10 @@ export function DashboardPage() {
       className="wm-dashboard-page wm-page wingman-page-host wm-dashboard-visual-root wm-dashboard-shell"
       data-wingman-page="home"
       data-wingman-home="true"
+      data-wingman-dashboard-layout="viewport-split"
       aria-label="Wingman dashboard"
     >
-      <aside className="wm-section-card wm-dashboard-rail">
+      <aside className="wm-section-card wm-dashboard-rail" data-wingman-dashboard-rail="viewport-depth">
         <span className="wm-dashboard-brand">W</span>
         <span className="wm-ui-kicker">WyreStorm Wingman</span>
         <h1 className="wm-page-title wm-dashboard-rail-title">How can Wingman help you today?</h1>
@@ -172,7 +173,7 @@ export function DashboardPage() {
         </div>
       </aside>
 
-      <section className="wm-dashboard-main">
+      <section className="wm-dashboard-main" data-wingman-dashboard-main="viewport-depth">
         <Link
           to={resume.resumeTo}
           onClick={() => setActiveProjectId(resume.id)}
