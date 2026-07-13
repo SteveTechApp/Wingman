@@ -82,7 +82,9 @@ function defaultGuruPosition(button?: HTMLButtonElement | null): GuruPosition {
   const width = rect?.width || 72;
   const height = rect?.height || 72;
   const narrowViewport =
-    typeof window.matchMedia === "function" && window.matchMedia("(max-width: 980px)").matches;
+    typeof window.matchMedia === "function"
+      ? window.matchMedia("(max-width: 980px)").matches
+      : window.innerWidth <= 980;
 
   return {
     left: clamp(
