@@ -82,16 +82,22 @@ export function TemplatesPage() {
         </div>
       </header>
 
-      <section className="wm-template-results-header wm-section-card">
-        <div>
+      <section
+        className="wm-template-library-toolbar wm-section-card"
+        aria-label="Template library summary"
+      >
+        <div className="wm-template-library-summary">
           <p className="wm-template-kicker wm-ui-kicker">Template library</p>
-          <h2 className="wm-section-title">{filteredTemplates.length} templates</h2>
-          <p className="wm-copy">
-            {availableTemplates.length} total{customTemplates.length > 0 ? `, ${customTemplates.length} custom` : ""}.
-          </p>
+          <h2 className="wm-template-library-count" aria-live="polite">
+            {filteredTemplates.length} templates
+          </h2>
         </div>
 
-        <button type="button" className="wm-button wm-button-primary" onClick={startNewCustomTemplate}>
+        <button
+          type="button"
+          className="wm-button wm-button-primary wm-template-library-create"
+          onClick={startNewCustomTemplate}
+        >
           + New Custom Template
         </button>
       </section>
