@@ -11,6 +11,24 @@ export type ProductRole =
   | "wireless"
   | "general";
 
+export type ProductTechnicalDataSummary = {
+  status: "verified" | "official-structured" | "inferred" | "missing";
+  statusLabel: string;
+  completeness: number;
+  compareReady: boolean;
+  sourceTier: "verified-profile" | "official-structured" | "text-inferred" | "missing";
+  productClass?: string;
+  role?: string;
+  transport: string[];
+  maxResolution?: string;
+  chroma?: string;
+  dependencies: string[];
+  compatibleFamilies: string[];
+  evidence: string[];
+  missingFields: string[];
+  warnings: string[];
+};
+
 export type ProductSpec = {
   sku: string;
   name: string;
@@ -33,6 +51,7 @@ export type ProductSpec = {
   physical: string[];
   checks: string[];
   related: string[];
+  technicalData?: ProductTechnicalDataSummary;
 };
 
 // How much of this narrative is trusted, governed copy versus auto-generated
@@ -263,6 +282,10 @@ export function productText(product: ProductSpec) {
 export function inferProductRole(product: ProductSpec): ProductRole {
   const text = productText(product);
 
+  // Exact UC identity takes precedence over loose words such as speaker, audio,
+  // camera or USB-C. Those words describe capabilities, not the system role.
+  if (isUcRoomProduct(product)) return "presentation";
+
   if (text.includes("multiview") || text.includes("multi-view") || text.includes("quad")) return "multiview";
   if (text.includes("video wall") || text.includes("videowall") || text.includes("led wall")) return "videoWall";
   if (text.includes("amplifier") || text.includes("dante") || text.includes("dsp") || text.includes("speaker")) return "audio";
@@ -322,8 +345,46 @@ function isCameraBridgeProduct(product: ProductSpec): boolean {
   return /\bbrg\b/.test(text) || text.includes("camera bridge") || text.includes("multi-camera video bridge");
 }
 
+function isUcRoomProduct(product: ProductSpec): boolean {
+  const sku = product.sku.toUpperCase();
+  const text = productText(product);
+
+  if (/^HALO-(30|60|80|90)$/.test(sku)) return true;
+  if (/^(HALO-VX10|APO-VX20)/.test(sku)) return true;
+  if (sku === "APO-210-UC") return true;
+
+  return /conference speakerphone|video[\s-]?speakerphone|video[\s-]?bar/.test(text);
+}
+
+function isDockingSpeakerphone(product: ProductSpec): boolean {
+  return product.sku.toUpperCase() === "HALO-90";
+}
+
+function isConferenceSpeakerphone(product: ProductSpec): boolean {
+  const sku = product.sku.toUpperCase();
+  const text = productText(product);
+
+  return /^HALO-(30|60|80|90)$/.test(sku) || /conference speakerphone/.test(text);
+}
+
 function productKind(product: ProductSpec, role: ProductRole): string {
   const endpoint = endpointRole(product.sku);
+
+  if (isDockingSpeakerphone(product)) {
+    return "USB-C docking conference speakerphone";
+  }
+
+  if (isConferenceSpeakerphone(product)) {
+    return "conference speakerphone";
+  }
+
+  if (/^(HALO-VX10|APO-VX20)/i.test(product.sku)) {
+    return "all-in-one UC video bar";
+  }
+
+  if (product.sku.toUpperCase() === "APO-210-UC") {
+    return "video-speakerphone room switcher";
+  }
 
   // Apollo (APO-) is WyreStorm's UC / wireless collaboration line, not a camera,
   // even though a video bar has an integrated camera the records mention.
@@ -663,6 +724,18 @@ function drivesRoomSpeakers(product: ProductSpec): boolean {
 // the room"), which described the sales conversation rather than the product.
 function plainFunctionClause(product: ProductSpec, role: ProductRole): string {
   const endpoint = endpointRole(product.sku);
+
+  if (isDockingSpeakerphone(product)) {
+    return " It combines the room's conference speakerphone with a USB-C dock, carrying call audio, display video, USB peripherals and laptop charging through the intended host connection.";
+  }
+
+  if (isConferenceSpeakerphone(product)) {
+    return " It connects to the meeting host and provides the room microphone pickup and call loudspeaker in one tabletop device.";
+  }
+
+  if (/^(HALO-VX10|APO-VX20)/i.test(product.sku)) {
+    return " It combines camera, microphones and loudspeakers at the display and presents them to the room PC or BYOD laptop as the room conferencing device.";
+  }
 
   switch (role) {
     case "avoip":

@@ -1,0 +1,182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wingman.local/schemas/competitor-match-decision.schema.json",
+  "title": "Wingman competitor match decision ledger",
+  "type": "object",
+  "required": ["version", "decisions"],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "updatedAt": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/decision"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "fingerprint": {
+      "type": "object",
+      "required": ["productClass", "endpointRole", "transportClass"],
+      "properties": {
+        "productClass": { "type": "string", "minLength": 1 },
+        "endpointRole": {
+          "enum": [
+            "transmitter",
+            "receiver",
+            "transceiver",
+            "matrix",
+            "switcher",
+            "extender-kit",
+            "processor",
+            "controller",
+            "accessory",
+            "unknown"
+          ]
+        },
+        "transportClass": {
+          "enum": [
+            "hdmi",
+            "hdbaset",
+            "avoip-1g",
+            "avoip-10g",
+            "usb",
+            "hybrid",
+            "unknown"
+          ]
+        },
+        "codec": { "type": ["string", "null"] },
+        "maxResolution": { "type": ["string", "null"] },
+        "chroma": { "type": ["string", "null"] },
+        "hdr": { "type": ["boolean", "null"] },
+        "inputCount": { "type": ["integer", "null"], "minimum": 0 },
+        "routedOutputCount": { "type": ["integer", "null"], "minimum": 0 },
+        "mirroredOutputCount": { "type": ["integer", "null"], "minimum": 0 },
+        "loopOutputCount": { "type": ["integer", "null"], "minimum": 0 },
+        "usb": { "type": ["string", "null"] },
+        "audio": { "type": ["string", "null"] },
+        "control": { "type": ["string", "null"] },
+        "distanceMetres": { "type": ["number", "null"], "minimum": 0 },
+        "dependencies": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "notes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["sourceUrl", "sourceType", "checkedAt"],
+      "properties": {
+        "sourceUrl": { "type": "string", "format": "uri" },
+        "sourceType": {
+          "enum": ["manufacturer", "datasheet", "manual", "distributor", "review", "other"]
+        },
+        "checkedAt": { "type": "string", "format": "date-time" },
+        "note": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "decision": {
+      "type": "object",
+      "required": [
+        "id",
+        "competitorManufacturer",
+        "competitorSku",
+        "fingerprint",
+        "decisionType",
+        "reviewStatus",
+        "matchedPoints",
+        "importantDifferences",
+        "dependencies",
+        "quoteBlockers",
+        "evidence",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "competitorManufacturer": { "type": "string", "minLength": 1 },
+        "competitorSku": { "type": "string", "minLength": 1 },
+        "fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "wyrestormSku": { "type": ["string", "null"] },
+        "decisionType": {
+          "enum": [
+            "confirmed-equivalent",
+            "closest-technical-match",
+            "architecture-alternative",
+            "review-required",
+            "no-suitable-match"
+          ]
+        },
+        "reviewStatus": {
+          "enum": ["draft", "pending-review", "approved", "rejected"]
+        },
+        "reviewer": { "type": ["string", "null"] },
+        "reviewedAt": { "type": ["string", "null"], "format": "date-time" },
+        "matchedPoints": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "importantDifferences": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "dependencies": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "quoteBlockers": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "evidence": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/evidence" }
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "decisionType": { "const": "confirmed-equivalent" }
+            }
+          },
+          "then": {
+            "properties": {
+              "reviewStatus": { "const": "approved" },
+              "wyrestormSku": { "type": "string", "minLength": 1 },
+              "reviewer": { "type": "string", "minLength": 1 },
+              "reviewedAt": { "type": "string", "format": "date-time" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "decisionType": { "const": "no-suitable-match" }
+            }
+          },
+          "then": {
+            "properties": {
+              "wyrestormSku": { "type": "null" }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

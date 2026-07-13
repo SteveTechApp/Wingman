@@ -182,6 +182,17 @@ export const extraRoomTemplates: RoomTemplate[] = [
         notes: "Confirm distance, cable type and endpoint location.",
       },
       {
+        id: "corp-training-camndi",
+        sku: "CAM-210-PTZ",
+        description: "PTZ camera",
+        role: "Trainer-tracking camera feeding the capture bridge",
+        qty: 1,
+        type: "Optional",
+        status: "optional",
+        evidence: "CAM-0402-BRG requires a camera source; add this PTZ camera when hybrid/recording is selected.",
+        notes: "Add only when CAM-0402-BRG is included. Confirm camera count and mounting position.",
+      },
+      {
         id: "corp-training-cambridge",
         sku: "CAM-0402-BRG",
         description: "Camera bridge / mixer",
@@ -190,7 +201,7 @@ export const extraRoomTemplates: RoomTemplate[] = [
         type: "Optional",
         status: "optional",
         evidence: "Hybrid training or recording may require a clean camera/capture feed.",
-        notes: "Confirm camera count, USB host, HDMI/USB output and meeting platform.",
+        notes: "Confirm camera count, USB host, HDMI/USB output and meeting platform. Requires CAM-210-PTZ (or equivalent) as its camera source.",
       },
       ...completeDesignPlaceholders("corp-training", [
         byOthersRow(
@@ -474,12 +485,12 @@ export const extraRoomTemplates: RoomTemplate[] = [
         id: "restaurant-nhd150",
         sku: "NHD-150-RX",
         description: "NetworkHD 100 multiview decoder",
-        role: "Alternative feature-screen multiview path",
+        role: "Alternative feature-screen multiview path (separate AVoIP sub-system, not fed by the matrix)",
         qty: 1,
         type: "Optional",
         status: "optional",
-        evidence: "Some bars want a feature screen showing multiple games at once.",
-        notes: "Use only if the design includes NetworkHD 100 or a planned AVoIP expansion path.",
+        evidence: "Some bars want a feature screen showing multiple games at once via NetworkHD multiview.",
+        notes: "This decoder needs its own NetworkHD 100 encoders (NHD-120-TX) and an NHD-CTL-PRO-V2 controller to function - it does not connect to the matrix. Only add this whole encoder/decoder/controller set together as a parallel system, or omit entirely if the matrix already meets the feature-screen need.",
       },
       {
         id: "restaurant-aoc",
@@ -572,7 +583,7 @@ export const extraRoomTemplates: RoomTemplate[] = [
         type: "Optional",
         status: "optional",
         evidence: "Some menu boards behave as a combined display canvas rather than independent screens.",
-        notes: "Use only where the menu board wall needs a processor-style canvas rather than independent display feeds.",
+        notes: "Use only where the menu board wall needs a processor-style canvas rather than independent display feeds. If added, the SW-0204-VW drives its own wall of displays directly and reduces the number of standalone NHD-120-RX decoders required for that wall - it does not add to the 8x NHD-120-RX count. Confirm final RX quantity once the wall vs. independent-screen split is set.",
       },
       ...completeDesignPlaceholders("qsr-menu", [
         byOthersRow(
@@ -647,7 +658,7 @@ export const extraRoomTemplates: RoomTemplate[] = [
         type: "Optional",
         status: "optional",
         evidence: "A fixed showroom feature wall may be better served by a dedicated processor.",
-        notes: "Confirm wall size, canvas behaviour and whether per-display routing is needed.",
+        notes: "Confirm wall size, canvas behaviour and whether per-display routing is needed. If added, the SW-0206-VW drives the feature wall directly and reduces the number of standalone NHD-500-RX decoders required for that wall - it does not add to the 8x NHD-500-RX count. Confirm final RX quantity once the wall vs. independent-display split is set.",
       },
       {
         id: "showroom-mv",
@@ -714,14 +725,14 @@ export const extraRoomTemplates: RoomTemplate[] = [
         notes: "Confirm physical wall/furniture format and USB requirement.",
       },
       {
-        id: "court-rx3100",
-        sku: "RX3-100",
-        description: "HDBaseT 3.0 receiver",
+        id: "court-rx700",
+        sku: "RX-700",
+        description: "HDBaseT receiver",
         role: "Remote display or receive path",
         qty: 3,
         type: "Validate",
         status: "validate",
-        evidence: "Courtroom displays may be remote from the rack or evidence desk.",
+        evidence: "Courtroom displays may be remote from the rack or evidence desk. RX-700 is the correct receiver generation for the SW-130-TX-UK transmitter above (RX3-100 is a different HDBaseT 3.0 generation and is not a compatible pairing).",
         notes: "Confirm cable distance and endpoint compatibility.",
       },
       {
@@ -976,14 +987,14 @@ export const extraRoomTemplates: RoomTemplate[] = [
       },
       {
         id: "theatre-cam",
-        sku: "CAM-210-NDI-PTZ",
-        description: "NDI PTZ camera",
+        sku: "CAM-210-PTZ",
+        description: "PTZ camera",
         role: "Optional training camera",
         qty: 2,
         type: "Validate",
         status: "validate",
-        evidence: "Training rooms may need controlled camera views if approved by the clinical team.",
-        notes: "Validate NDI/network policy, privacy, infection-control mounting and clinical approval.",
+        evidence: "Training rooms may need controlled camera views if approved by the clinical team. Uses the HDMI PTZ camera (not the NDI variant) since it feeds NetworkHD 500 TX encoders directly - the NDI version would require an NHD-128-NDI-TRX bridge, which is not included in this design.",
+        notes: "Validate network policy, privacy, infection-control mounting and clinical approval.",
       },
       ...completeDesignPlaceholders("theatre-observation", [
         byOthersRow(

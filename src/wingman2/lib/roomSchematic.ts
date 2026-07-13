@@ -1,111 +1,27 @@
-// Visio-style room-connectivity schematic generator.
-//
-// Produces a standalone SVG string that shows where a WyreStorm product sits
-// inside the wider room scheme: the source side, the product itself, the output
-// side, and the control / network / USB / audio branches that matter for its
-// role. One source of truth - the same SVG is shown on the Diagram tab, embedded
-// in the printable cheat-sheet, and offered as a downloadable .svg file.
+import type {
+  ProductTopologyBranch,
+  ProductTopologyEndpoint,
+  ProductTopologyProfile,
+  ProductTopologySignal,
+} from "./productTopology";
 
 export type RoomSchematicInput = {
   sku: string;
-  productType: string;
-  role: string;
-  source: string;
-  output: string;
+  profile: ProductTopologyProfile;
 };
 
-type SignalKey = "video" | "network" | "usb" | "control" | "audio" | "capture";
-
-const SIGNAL: Record<SignalKey, { color: string; label: string; dash?: string }> = {
-  video: { color: "#2563eb", label: "HDMI / video" },
-  network: { color: "#0e9f6e", label: "Network (Cat / fibre)" },
-  usb: { color: "#d97706", label: "USB peripherals" },
+const SIGNAL: Record<
+  ProductTopologySignal,
+  { color: string; label: string; dash?: string }
+> = {
+  video: { color: "#2563eb", label: "Video" },
+  network: { color: "#0e9f6e", label: "Network / category / fibre" },
+  usb: { color: "#d97706", label: "USB / host / peripherals" },
   control: { color: "#7c3aed", label: "Control", dash: "7 5" },
   audio: { color: "#db2777", label: "Audio" },
-  capture: { color: "#64748b", label: "Captured view", dash: "2 6" },
+  power: { color: "#dc2626", label: "Power delivery", dash: "9 4" },
+  capture: { color: "#64748b", label: "Room capture", dash: "2 6" },
 };
-
-type Edge = { sig: SignalKey; label?: string };
-type Branch = { slot: "top" | "bottom"; tag: string; title: string; detail: string; sig: SignalKey; label?: string };
-type RoleConfig = { tag: string; sourceEdge: Edge; outputEdge: Edge; branches: Branch[] };
-
-function roleConfig(role: string): RoleConfig {
-  switch (role) {
-    case "avoip":
-      return {
-        tag: "AVoIP",
-        sourceEdge: { sig: "video" },
-        outputEdge: { sig: "network", label: "Network → decoders" },
-        branches: [
-          { slot: "top", tag: "CTL", title: "NHD-CTL-PRO", detail: "Routing, presets, system control", sig: "control" },
-          { slot: "bottom", tag: "NET", title: "Managed AV switch", detail: "VLAN, multicast, PoE", sig: "network" },
-        ],
-      };
-    case "matrix":
-      return {
-        tag: "MATRIX",
-        sourceEdge: { sig: "video", label: "HDMI in" },
-        outputEdge: { sig: "video", label: "HDMI / HDBaseT" },
-        branches: [{ slot: "top", tag: "CTL", title: "Control / presets", detail: "Keypad, app or 3rd-party", sig: "control" }],
-      };
-    case "videoWall":
-      return {
-        tag: "WALL",
-        sourceEdge: { sig: "video" },
-        outputEdge: { sig: "video", label: "Per-display feeds" },
-        branches: [{ slot: "top", tag: "CTL", title: "Layout control", detail: "Presets & source select", sig: "control" }],
-      };
-    case "multiview":
-      return {
-        tag: "MV",
-        sourceEdge: { sig: "video", label: "Multiple sources" },
-        outputEdge: { sig: "video", label: "Composed output" },
-        branches: [{ slot: "top", tag: "CTL", title: "Layout control", detail: "Window presets", sig: "control" }],
-      };
-    case "presentation":
-      return {
-        tag: "ROOM",
-        sourceEdge: { sig: "video", label: "HDMI / USB-C" },
-        outputEdge: { sig: "video", label: "To display" },
-        branches: [{ slot: "bottom", tag: "USB", title: "USB peripherals", detail: "Camera, mic, touch", sig: "usb" }],
-      };
-    case "extension":
-      return {
-        tag: "EXT",
-        sourceEdge: { sig: "video" },
-        outputEdge: { sig: "video", label: "To remote display" },
-        branches: [{ slot: "bottom", tag: "CAT", title: "Category / fibre run", detail: "Distance-rated cable", sig: "network", label: "Transport" }],
-      };
-    case "wireless":
-      return {
-        tag: "CAST",
-        sourceEdge: { sig: "network", label: "Wireless cast" },
-        outputEdge: { sig: "video", label: "To display" },
-        branches: [{ slot: "top", tag: "NET", title: "Network / IT policy", detail: "Guest access rules", sig: "network" }],
-      };
-    case "audio":
-      return {
-        tag: "AUDIO",
-        sourceEdge: { sig: "audio", label: "Audio in" },
-        outputEdge: { sig: "audio", label: "To speakers" },
-        branches: [{ slot: "bottom", tag: "DSP", title: "DSP / Dante network", detail: "Mics & processing", sig: "audio" }],
-      };
-    case "camera":
-      return {
-        tag: "CAM",
-        sourceEdge: { sig: "capture", label: "Captured view" },
-        outputEdge: { sig: "video", label: "USB / HDMI / NDI" },
-        branches: [{ slot: "bottom", tag: "NET", title: "Network (NDI)", detail: "If network-video workflow", sig: "network" }],
-      };
-    default:
-      return {
-        tag: "AV",
-        sourceEdge: { sig: "video" },
-        outputEdge: { sig: "video" },
-        branches: [{ slot: "top", tag: "CTL", title: "Control", detail: "User or control system", sig: "control" }],
-      };
-  }
-}
 
 function escapeXml(value: string): string {
   return String(value ?? "")
@@ -122,6 +38,7 @@ function wrapText(text: string, maxChars: number, maxLines: number): string[] {
 
   for (const word of words) {
     const candidate = line ? `${line} ${word}` : word;
+
     if (candidate.length > maxChars && line) {
       lines.push(line);
       line = word;
@@ -133,139 +50,343 @@ function wrapText(text: string, maxChars: number, maxLines: number): string[] {
 
   if (line && lines.length < maxLines) lines.push(line);
 
-  const used = lines.join(" ").length;
-  if (used < String(text ?? "").trim().length && lines.length) {
+  if (lines.join(" ").length < String(text ?? "").trim().length && lines.length) {
     lines[lines.length - 1] = `${lines[lines.length - 1]}…`;
   }
 
   return lines.slice(0, maxLines);
 }
 
-function block(opts: {
+function endpointBlock(options: {
+  endpoint: ProductTopologyEndpoint;
   x: number;
   y: number;
   w: number;
   h: number;
-  tag: string;
-  title: string;
-  detail: string;
   accent: string;
   emphasis?: boolean;
 }): string {
-  const { x, y, w, h, tag, title, detail, accent, emphasis } = opts;
+  const { endpoint, x, y, w, h, accent, emphasis } = options;
   const fill = emphasis ? "#ecfeff" : "#ffffff";
   const stroke = emphasis ? "#0891b2" : accent;
   const strokeWidth = emphasis ? 2.5 : 1.5;
-  const titleLines = wrapText(title, emphasis ? 22 : 20, 1);
-  const detailLines = wrapText(detail, 26, 2);
+  const titleLines = wrapText(endpoint.title, emphasis ? 26 : 24, 2);
+  const detailLines = wrapText(endpoint.detail, 31, 2);
 
+  const titleMarkup = titleLines
+    .map(
+      (line, index) =>
+        `<text x="${x + 14}" y="${y + 40 + index * 15}" font-size="${
+          emphasis ? 15 : 13
+        }" font-weight="700" fill="#0f172a">${escapeXml(line)}</text>`,
+    )
+    .join("");
+
+  const detailStart = y + 40 + titleLines.length * 15 + 5;
   const detailMarkup = detailLines
-    .map((line, index) => `<text x="${x + 13}" y="${y + 52 + index * 14}" font-size="11" fill="#475569">${escapeXml(line)}</text>`)
+    .map(
+      (line, index) =>
+        `<text x="${x + 14}" y="${detailStart + index * 14}" font-size="10.5" fill="#475569">${escapeXml(
+          line,
+        )}</text>`,
+    )
     .join("");
 
   return `
   <g>
     <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="11" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"/>
-    <path d="M${x},${y + 11} a11,11 0 0 1 11,-11 h${w - 22} a11,11 0 0 1 11,11 v13 h-${w} z" fill="${accent}"/>
-    <text x="${x + 13}" y="${y + 17}" font-size="11" font-weight="700" letter-spacing="0.5" fill="#ffffff">${escapeXml(tag)}</text>
-    <text x="${x + 13}" y="${y + 38}" font-size="${emphasis ? 15 : 13.5}" font-weight="700" fill="#0f172a">${escapeXml(titleLines[0] || "")}</text>
+    <path d="M${x},${y + 11} a11,11 0 0 1 11,-11 h${
+      w - 22
+    } a11,11 0 0 1 11,11 v23 h-${w} z" fill="${accent}"/>
+    <text x="${x + 14}" y="${y + 19}" font-size="11" font-weight="750" letter-spacing="0.55" fill="#ffffff">${escapeXml(
+      endpoint.tag,
+    )}</text>
+    ${titleMarkup}
     ${detailMarkup}
   </g>`;
 }
 
+function branchBlock(
+  branch: ProductTopologyBranch,
+  geometry: { x: number; y: number; w: number; h: number },
+): string {
+  return endpointBlock({
+    endpoint: branch,
+    ...geometry,
+    accent: SIGNAL[branch.signal].color,
+  });
+}
+
 function edgeLabel(cx: number, cy: number, text: string, color: string): string {
-  const width = text.length * 6.3 + 16;
+  const width = Math.min(270, Math.max(88, text.length * 5.9 + 18));
+
   return `
     <g>
-      <rect x="${cx - width / 2}" y="${cy - 11}" width="${width}" height="22" rx="7" fill="#ffffff" stroke="${color}" stroke-opacity="0.45"/>
-      <text x="${cx}" y="${cy + 4}" font-size="11" font-weight="600" text-anchor="middle" fill="${color}">${escapeXml(text)}</text>
+      <rect x="${cx - width / 2}" y="${cy - 12}" width="${width}" height="24" rx="7" fill="#ffffff" stroke="${color}" stroke-opacity="0.46"/>
+      <text x="${cx}" y="${cy + 4}" font-size="10.4" font-weight="650" text-anchor="middle" fill="${color}">${escapeXml(
+        text,
+      )}</text>
     </g>`;
 }
 
-function connector(x1: number, y1: number, x2: number, y2: number, sig: SignalKey, labelText: string): string {
-  const { color, dash } = SIGNAL[sig];
+function connector(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  signal: ProductTopologySignal,
+  labelText: string,
+): string {
+  const { color, dash } = SIGNAL[signal];
   const dashAttr = dash ? ` stroke-dasharray="${dash}"` : "";
-  const line = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="2.5" marker-end="url(#wm-arrow)"${dashAttr}/>`;
+  const line = `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="2.5" marker-end="url(#wm-arrow-${signal})"${dashAttr}/>`;
   const midx = (x1 + x2) / 2;
   const midy = (y1 + y2) / 2;
+
   return `${line}${edgeLabel(midx, midy, labelText, color)}`;
 }
 
+type BlockGeometry = { x: number; y: number; w: number; h: number };
+
+function polylineConnector(
+  points: Array<[number, number]>,
+  signal: ProductTopologySignal,
+  labelText: string,
+  labelX: number,
+  labelY: number,
+  target: "product" | "source" | "output",
+): string {
+  const { color, dash } = SIGNAL[signal];
+  const dashAttr = dash ? ` stroke-dasharray="${dash}"` : "";
+  const pointText = points.map(([x, y]) => `${x},${y}`).join(" ");
+
+  return `<g data-branch-target="${target}">
+    <polyline points="${pointText}" fill="none" stroke="${color}" stroke-width="2.5" marker-end="url(#wm-arrow-${signal})"${dashAttr}/>
+    ${edgeLabel(labelX, labelY, labelText, color)}
+  </g>`;
+}
+
+function branchConnector(
+  branch: ProductTopologyBranch,
+  branchBox: BlockGeometry,
+  sourceBox: BlockGeometry,
+  productBox: BlockGeometry,
+  outputBox: BlockGeometry,
+  slot: "top" | "bottom",
+): string {
+  const target = branch.target ?? "product";
+  const targetBox =
+    target === "source" ? sourceBox : target === "output" ? outputBox : productBox;
+  const branchX = branchBox.x + branchBox.w / 2;
+  const targetX = targetBox.x + targetBox.w / 2;
+
+  if (slot === "top") {
+    const startY = branchBox.y + branchBox.h;
+    const routeY = Math.min(targetBox.y - 32, startY + 38);
+    const endY = targetBox.y;
+
+    return polylineConnector(
+      [
+        [branchX, startY],
+        [branchX, routeY],
+        [targetX, routeY],
+        [targetX, endY],
+      ],
+      branch.signal,
+      branch.label,
+      (branchX + targetX) / 2,
+      routeY - 15,
+      target,
+    );
+  }
+
+  const startY = branchBox.y;
+  const routeY = Math.max(targetBox.y + targetBox.h + 32, startY - 38);
+  const endY = targetBox.y + targetBox.h;
+
+  return polylineConnector(
+    [
+      [branchX, startY],
+      [branchX, routeY],
+      [targetX, routeY],
+      [targetX, endY],
+    ],
+    branch.signal,
+    branch.label,
+    (branchX + targetX) / 2,
+    routeY + 15,
+    target,
+  );
+}
+
+function markerDefinitions(): string {
+  return Object.entries(SIGNAL)
+    .map(
+      ([key, signal]) => `
+      <marker id="wm-arrow-${key}" markerWidth="11" markerHeight="11" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L8,3 L0,6 Z" fill="${signal.color}"/>
+      </marker>`,
+    )
+    .join("");
+}
+
+function confidenceLabel(profile: ProductTopologyProfile): string {
+  if (profile.confidence === "verified") return "Verified topology";
+  if (profile.confidence === "inferred") return "Family/type topology";
+  return "Review required";
+}
+
+function buildReviewRequiredSvg(input: RoomSchematicInput): string {
+  const checks = input.profile.checks.slice(0, 3);
+  const warning = input.profile.warnings[0] || "Topology evidence is incomplete.";
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 520" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" role="img" aria-label="Topology review required for ${escapeXml(
+    input.sku,
+  )}">
+    <rect width="920" height="520" fill="#f8fafc"/>
+    <rect x="54" y="50" width="812" height="405" rx="22" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+    <text x="84" y="98" font-size="13" font-weight="750" letter-spacing="1" fill="#c2410c">TOPOLOGY REVIEW REQUIRED</text>
+    <text x="84" y="142" font-size="28" font-weight="800" fill="#0f172a">${escapeXml(
+      input.sku,
+    )}</text>
+    <text x="84" y="177" font-size="16" font-weight="650" fill="#334155">${escapeXml(
+      input.profile.product.detail,
+    )}</text>
+    <text x="84" y="223" font-size="14" fill="#9a3412">${escapeXml(
+      wrapText(warning, 92, 1)[0] || warning,
+    )}</text>
+    <text x="84" y="272" font-size="13" font-weight="750" fill="#0f172a">Confirm before drawing:</text>
+    ${checks
+      .map(
+        (check, index) =>
+          `<circle cx="93" cy="${306 + index * 38}" r="4" fill="#f97316"/>
+           <text x="110" y="${311 + index * 38}" font-size="12.5" fill="#334155">${escapeXml(
+             wrapText(check, 90, 1)[0] || check,
+           )}</text>`,
+      )
+      .join("")}
+    <text x="84" y="432" font-size="11" fill="#64748b">Wingman has withheld a connection diagram rather than inventing ports, direction or dependencies.</text>
+  </svg>`;
+}
+
 export function buildRoomSchematicSvg(input: RoomSchematicInput): string {
-  const config = roleConfig(input.role);
-  const topBranch = config.branches.find((branch) => branch.slot === "top");
-  const bottomBranch = config.branches.find((branch) => branch.slot === "bottom");
+  const profile = input.profile;
 
-  const sourceEdge = config.sourceEdge;
-  const outputEdge = config.outputEdge;
+  if (!profile.renderable) {
+    return buildReviewRequiredSvg(input);
+  }
 
-  const usedSignals = new Set<SignalKey>([sourceEdge.sig, outputEdge.sig, ...config.branches.map((branch) => branch.sig)]);
+  const product = { x: 360, y: 230, w: 200, h: 116 };
+  const source = { x: 40, y: 238, w: 200, h: 102 };
+  const output = { x: 680, y: 238, w: 200, h: 102 };
+  const top = { x: 335, y: 72, w: 250, h: 100 };
+  const bottom = { x: 335, y: 400, w: 250, h: 100 };
 
-  // --- block geometry (canvas 920 x 600) ---
-  const product = { x: 355, y: 250, w: 210, h: 96 };
-  const source = { x: 60, y: 256, w: 178, h: 88 };
-  const output = { x: 682, y: 256, w: 178, h: 88 };
-  const top = { x: 350, y: 126, w: 220, h: 74 };
-  const bottom = { x: 340, y: 370, w: 240, h: 74 };
+  const topBranch = profile.branches.find((branch) => branch.slot === "top");
+  const bottomBranch = profile.branches.find((branch) => branch.slot === "bottom");
 
-  const productCy = product.y + 48;
+  const productEndpoint: ProductTopologyEndpoint = {
+    tag: profile.product.tag,
+    title: input.sku,
+    detail: profile.product.detail,
+  };
+
+  const productCy = product.y + product.h / 2;
+  const usedSignals = new Set<ProductTopologySignal>([
+    profile.sourceEdge.signal,
+    profile.outputEdge.signal,
+    ...profile.branches.map((branch) => branch.signal),
+  ]);
 
   const blocks = [
-    block({ ...source, tag: "SRC", title: input.source, detail: "Source side of the system", accent: SIGNAL[sourceEdge.sig].color }),
-    block({ ...output, tag: "OUT", title: input.output, detail: "Output / destination side", accent: SIGNAL[outputEdge.sig].color }),
-    topBranch
-      ? block({ ...top, tag: topBranch.tag, title: topBranch.title, detail: topBranch.detail, accent: SIGNAL[topBranch.sig].color })
-      : "",
-    bottomBranch
-      ? block({ ...bottom, tag: bottomBranch.tag, title: bottomBranch.title, detail: bottomBranch.detail, accent: SIGNAL[bottomBranch.sig].color })
-      : "",
-    block({ ...product, tag: config.tag, title: input.sku, detail: input.productType, accent: "#0891b2", emphasis: true }),
+    endpointBlock({
+      endpoint: profile.source,
+      ...source,
+      accent: SIGNAL[profile.sourceEdge.signal].color,
+    }),
+    endpointBlock({
+      endpoint: profile.output,
+      ...output,
+      accent: SIGNAL[profile.outputEdge.signal].color,
+    }),
+    topBranch ? branchBlock(topBranch, top) : "",
+    bottomBranch ? branchBlock(bottomBranch, bottom) : "",
+    endpointBlock({
+      endpoint: productEndpoint,
+      ...product,
+      accent: "#0891b2",
+      emphasis: true,
+    }),
   ].join("");
 
   const connectors = [
-    connector(source.x + source.w, productCy, product.x, productCy, sourceEdge.sig, sourceEdge.label || SIGNAL[sourceEdge.sig].label),
-    connector(product.x + product.w, productCy, output.x, productCy, outputEdge.sig, outputEdge.label || SIGNAL[outputEdge.sig].label),
-    topBranch ? connector(top.x + top.w / 2, top.y + top.h, top.x + top.w / 2, product.y, topBranch.sig, topBranch.label || SIGNAL[topBranch.sig].label) : "",
+    connector(
+      source.x + source.w,
+      productCy,
+      product.x,
+      productCy,
+      profile.sourceEdge.signal,
+      profile.sourceEdge.label,
+    ),
+    connector(
+      product.x + product.w,
+      productCy,
+      output.x,
+      productCy,
+      profile.outputEdge.signal,
+      profile.outputEdge.label,
+    ),
+    topBranch
+      ? branchConnector(topBranch, top, source, product, output, "top")
+      : "",
     bottomBranch
-      ? connector(bottom.x + bottom.w / 2, bottom.y, bottom.x + bottom.w / 2, product.y + product.h, bottomBranch.sig, bottomBranch.label || SIGNAL[bottomBranch.sig].label)
+      ? branchConnector(bottomBranch, bottom, source, product, output, "bottom")
       : "",
   ].join("");
 
-  // --- legend ---
-  const legendItems = Array.from(usedSignals);
-  const legend = legendItems
-    .map((sig, index) => {
-      const lx = 60 + index * 168;
-      const { color, label, dash } = SIGNAL[sig];
-      const dashAttr = dash ? ` stroke-dasharray="${dash}"` : "";
+  const legend = Array.from(usedSignals)
+    .map((signal, index) => {
+      const lx = 52 + index * 166;
+      const definition = SIGNAL[signal];
+      const dashAttr = definition.dash
+        ? ` stroke-dasharray="${definition.dash}"`
+        : "";
+
       return `
-        <line x1="${lx}" y1="546" x2="${lx + 28}" y2="546" stroke="${color}" stroke-width="3"${dashAttr}/>
-        <text x="${lx + 36}" y="550" font-size="11.5" fill="#334155">${escapeXml(label)}</text>`;
+        <line x1="${lx}" y1="566" x2="${lx + 28}" y2="566" stroke="${definition.color}" stroke-width="3"${dashAttr}/>
+        <text x="${lx + 36}" y="570" font-size="10.7" fill="#334155">${escapeXml(
+          definition.label,
+        )}</text>`;
     })
     .join("");
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 600" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" role="img" aria-label="Room connectivity schematic for ${escapeXml(input.sku)}">
-  <defs>
-    <marker id="wm-arrow" markerWidth="11" markerHeight="11" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
-      <path d="M0,0 L8,3 L0,6 Z" fill="#334155"/>
-    </marker>
-  </defs>
-  <rect x="0" y="0" width="920" height="600" fill="#f8fafc"/>
+  const primaryWarning = profile.warnings[0] || profile.checks[0] || "";
+  const footerText = primaryWarning
+    ? `Check: ${primaryWarning}`
+    : "Indicative connectivity — confirm ports, distance, power, USB topology and dependencies before quoting.";
 
-  <rect x="24" y="18" width="872" height="50" rx="10" fill="#0f172a"/>
-  <text x="40" y="40" font-size="16" font-weight="800" fill="#ffffff">${escapeXml(input.sku)}</text>
-  <text x="40" y="58" font-size="11.5" fill="#94a3b8">Room connectivity schematic — where this product sits in the wider room scheme</text>
-  <text x="880" y="48" font-size="11" font-weight="700" fill="#22d3ee" text-anchor="end">WyreStorm Wingman</text>
-
-  <rect x="30" y="88" width="860" height="384" rx="14" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 6"/>
-  <text x="48" y="108" font-size="11" font-weight="700" letter-spacing="1" fill="#64748b">ROOM LAYOUT</text>
-
-  ${connectors}
-  ${blocks}
-
-  ${legend}
-  <text x="60" y="582" font-size="10.5" fill="#94a3b8">Indicative connectivity — confirm distances, power, USB topology and any by-others / TBC items against the current datasheet before quoting.</text>
-</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 610" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" role="img" aria-label="Product-aware room connectivity schematic for ${escapeXml(
+    input.sku,
+  )}">
+    <defs>${markerDefinitions()}</defs>
+    <rect width="920" height="610" fill="#f8fafc"/>
+    <rect x="26" y="24" width="868" height="514" rx="22" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6 6"/>
+    <text x="48" y="54" font-size="11" font-weight="750" letter-spacing="0.8" fill="#0891b2">${escapeXml(
+      profile.label.toUpperCase(),
+    )}</text>
+    <rect x="720" y="36" width="150" height="26" rx="8" fill="${
+      profile.confidence === "verified" ? "#dcfce7" : "#e0f2fe"
+    }" stroke="${profile.confidence === "verified" ? "#16a34a" : "#0284c7"}"/>
+    <text x="795" y="53" font-size="10.5" font-weight="700" text-anchor="middle" fill="${
+      profile.confidence === "verified" ? "#166534" : "#075985"
+    }">${escapeXml(confidenceLabel(profile))}</text>
+    ${connectors}
+    ${blocks}
+    ${legend}
+    <text x="52" y="597" font-size="10.4" fill="#64748b">${escapeXml(
+      wrapText(footerText, 132, 1)[0] || footerText,
+    )}</text>
+  </svg>`;
 }
 
 export default buildRoomSchematicSvg;

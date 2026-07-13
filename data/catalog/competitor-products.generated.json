@@ -134,6 +134,7 @@
       "Airtame Cloud remote device management"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K 60Hz",
       "hdmiOutputs": 2
     },
@@ -275,6 +276,7 @@
       "PoE+ powered (46-57V, 30W max) or external DC adapter"
     ],
     "video": {
+      "hdmi": "1.4",
       "maxResolution": "4K",
       "hdmiVersion": "1.4",
       "hdmiOutputs": 2
@@ -328,30 +330,81 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "AMX Enova DGX1600-ENC is a modular 16x16 max digital media matrix switcher enclosure with an integrated NetLinx NX controller, supporting 4K60 4:4:4/UHD, InstaGate Pro HDCP management, SmartScale auto-scaling, and DXLink twisted-pair/fiber distribution up to 100m (copper) or 10km (fiber).",
+    "sourceUrl": "https://www.amx.com/en-US/site_elements/data-sheet-dgx1600-enc",
+    "evidenceSource": "https://www.amx.com/en-US/site_elements/data-sheet-dgx1600-enc",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Matrix",
     "transport": "",
     "technology": "MATRIX",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": [],
-    "video": {},
+    "inputs": [
+      {
+        "type": "Modular I/O (HDMI/DVI/DXLink)",
+        "count": 16
+      }
+    ],
+    "outputs": [
+      {
+        "type": "Modular I/O (HDMI/DVI/DXLink)",
+        "count": 16
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "802.1X",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "De-Embedded Audio"
+    ],
+    "features": [
+      "Modular Enova DGX matrix enclosure (4 video input + 4 video output board slots, 4 connections per board, max 16x16)",
+      "InstaGate Pro HDCP management",
+      "SmartScale automatic output scaling",
+      "4K60 4:4:4 / UHD ready",
+      "HDCP over fiber up to 10km (single mode) / 300m (multimode)",
+      "AV + control + power over twisted pair up to 100m via DXLink",
+      "Integrated NetLinx NX controller with embedded Ethernet switch",
+      "Dual NIC network isolation, 802.1X, LDAP security",
+      "Automatic DXLink endpoint setup",
+      "Audio breakaway via optional Audio Switching Boards",
+      "Hot-swappable I/O boards",
+      "Redundant power supplies"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
     "matrixInputs": 16,
     "routedInputs": 16,
     "routedInputCount": 16,
     "matrixOutputs": 16,
     "routedOutputs": 16,
     "routedOutputCount": 16,
-    "specs": {},
+    "specs": {
+      "matrix": {
+        "maxInputs": 16,
+        "maxOutputs": 16,
+        "connectionsPerBoard": 4,
+        "inputBoardSlots": 4,
+        "outputBoardSlots": 4
+      },
+      "fiber": {
+        "singleModeKm": 10,
+        "multimodeMeters": 300
+      },
+      "twistedPair": {
+        "maxMeters": 100
+      },
+      "rackUnits": 4,
+      "weightLbs": 55
+    },
     "aliases": [
       "dgx1600enc",
       "dgx1600"
@@ -375,30 +428,88 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "AMX Enova DGX6400-ENC is a modular 64x64 max digital media matrix switcher enclosure with an integrated NetLinx NX controller, 26Gbps switching, 4K60 4:4:4/UHD support, InstaGate Pro HDCP management, SmartScale auto-scaling, and DXLink twisted-pair/fiber distribution up to 100m (copper) or 10km (fiber).",
+    "sourceUrl": "https://www.amx.com/en-US/product_documents/dgx-6400-enc-datasheet-pdf",
+    "evidenceSource": "https://www.amx.com/en-US/product_documents/dgx-6400-enc-datasheet-pdf",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Matrix",
     "transport": "",
     "technology": "MATRIX",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": [],
-    "video": {},
+    "inputs": [
+      {
+        "type": "Modular I/O (HDMI/DVI/DXLink)",
+        "count": 64
+      }
+    ],
+    "outputs": [
+      {
+        "type": "Modular I/O (HDMI/DVI/DXLink)",
+        "count": 64
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "802.1X",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "De-Embedded Audio"
+    ],
+    "features": [
+      "Modular Enova DGX matrix enclosure (16 video input + 16 video output board slots, 4 connections per board, max 64x64)",
+      "InstaGate Pro HDCP management",
+      "SmartScale automatic output scaling",
+      "4K60 4:4:4 / UHD ready",
+      "HDCP over fiber up to 10km (single mode) / 300m (multimode)",
+      "AV + control + power over twisted pair up to 100m via DXLink",
+      "Integrated NetLinx NX controller with embedded 64-port Ethernet switch",
+      "Dual NIC network isolation, 802.1X, LDAP security",
+      "Automatic DXLink endpoint setup",
+      "Audio breakaway via Audio Switching Boards",
+      "Hot-swappable I/O boards",
+      "Fully redundant power supplies",
+      "26 Gbps high-speed digital switching",
+      "3D and Deep Color pass-through"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
     "matrixInputs": 64,
     "routedInputs": 64,
     "routedInputCount": 64,
     "matrixOutputs": 64,
     "routedOutputs": 64,
     "routedOutputCount": 64,
-    "specs": {},
+    "specs": {
+      "matrix": {
+        "maxInputs": 64,
+        "maxOutputs": 64,
+        "connectionsPerBoard": 4,
+        "inputBoardSlots": 16,
+        "outputBoardSlots": 16
+      },
+      "fiber": {
+        "singleModeKm": 10,
+        "multimodeMeters": 300
+      },
+      "twistedPair": {
+        "maxMeters": 100
+      },
+      "rackUnits": 13,
+      "weightLbs": 150,
+      "dataRateGbps": 26,
+      "memory": {
+        "sdramMB": 512,
+        "flashGB": 8
+      }
+    },
     "aliases": [
       "dgx6400enc",
       "dgx6400"
@@ -422,26 +533,103 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "AMX Enova DVX-2265-4K is an all-in-one 6x2+1 4K60 4:4:4 presentation switcher combining a NetLinx NX controller, matrix video/audio switching, a 120W Crown DriveCore amplifier, Dante 8x8 IP audio, and DXLink twisted-pair extension, with 4 HDMI + 2 DXLink inputs and 2 HDMI + 1 mirrored DXLink output.",
+    "sourceUrl": "https://www.amx.com/en-US/site_elements/amx-data-sheet-dvx-2265-4k",
+    "evidenceSource": "https://www.amx.com/en-US/site_elements/amx-data-sheet-dvx-2265-4k",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "presentation switcher",
     "transport": "",
     "technology": "PRESENTATION",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": [],
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 4
+      },
+      {
+        "type": "DXLink",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "DXLink",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR",
+      "Relay",
+      "GPIO",
+      "Web UI",
+      "Telnet"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "De-Embedded Audio",
+      "Dante",
+      "AES67",
+      "Analog Audio"
+    ],
+    "features": [
+      "6x2+1 4K60 4:4:4 all-in-one presentation switcher",
+      "HDMI 2.0, HDCP 2.2, HDR10, 36-bit Deep Color",
+      "Dante Audio 8x8 IP audio channels",
+      "Crown DriveCore 120W/ch amplifier (stereo 4/8 ohm or 70/100V mono)",
+      "BSS DSP with 10-band parametric EQ",
+      "dbx AFS2 feedback suppression",
+      "DXLink twisted-pair extension up to 100m (video/audio/USB2.0/Ethernet/control)",
+      "USB 2.0 routing",
+      "Audio breakaway / de-embedding",
+      "SmartScale automatic output scaling",
+      "802.1X, LDAP, dual NIC network security",
+      "HTML5 web interface"
+    ],
     "video": {
-      "maxResolution": "4K30"
+      "maxResolution": "4K60 4:4:4",
+      "hdmiVersion": "HDMI 2.0",
+      "hdcp": "2.2",
+      "dataRateGbps": 18,
+      "chroma": "4:4:4"
     },
-    "specs": {},
+    "matrixInputs": 6,
+    "routedInputs": 6,
+    "routedInputCount": 6,
+    "matrixOutputs": 2,
+    "routedOutputs": 2,
+    "routedOutputCount": 2,
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "hdmiVersion": "HDMI 2.0",
+        "hdcp": "2.2",
+        "dataRateGbps": 18
+      },
+      "amplifier": {
+        "powerWattsPerChannel": 120,
+        "impedanceOhms": "4-8",
+        "mono70_100V": 120
+      },
+      "dante": {
+        "inputs": 8,
+        "outputs": 8
+      },
+      "matrix": {
+        "videoInputs": 6,
+        "videoOutputs": 2,
+        "audioInputs": 12,
+        "audioOutputs": 4
+      }
+    },
     "aliases": [
       "dvx22654k",
       "dvx2265",
@@ -467,29 +655,71 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "AMX DXL-RX-4K60 is a DXLite HDBaseT-based receiver module that delivers 4K60 4:4:4 HDMI 2.0/HDCP 2.2 video plus USB 2.0, RS-232, and IR control over a single twisted-pair cable up to 80m (4K) from an Incite/DVX presentation switcher.",
+    "sourceUrl": "https://www.amx.com/en-US/site_elements/data-sheet-dxl-rx-4k60",
+    "evidenceSource": "https://www.amx.com/en-US/site_elements/data-sheet-dxl-rx-4k60",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "receiver",
     "transport": "",
     "technology": "HDBASET",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "hdbtOutput": true,
-      "receiverKit": true
-    },
+    "inputs": [
+      {
+        "type": "HDBaseT (DXLite)",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "IR"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "features": [
+      "4K60 4:4:4, HDMI 2.0, HDCP 2.2 support",
+      "Single-cable audio/video/USB2.0/control/power over twisted pair",
+      "Distance transport up to 80m (4K) / 100m (1080p)",
+      "USB 2.0 pass-through",
+      "Native NetLinx IR/RS-232 control of destination devices"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "hdmi": "2.0",
+      "usbStandard": "USB 2.0",
+      "maxResolution": "4K60 4:4:4",
+      "hdcp": "2.2",
+      "dataRateGbps": 10.2,
+      "pixelClockMhzMax": 600,
+      "chroma": "4:4:4"
     },
-    "specs": {},
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "hdcp": "2.2",
+        "dataRateGbps": 10.2,
+        "pixelClockMhzMax": 600
+      },
+      "distance": {
+        "metersUpTo4K": 80,
+        "metersUpTo1080p": 100
+      },
+      "cableType": "Shielded Cat6A/Cat7"
+    },
     "aliases": [
       "dxlrx4k60",
       "dxlrx"
@@ -513,28 +743,70 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "AMX DXL-TX-4K60 is an HDBaseT-based DXLite transmitter that extends HDMI video up to 4K60 4:4:4 with HDCP 2.2, HDR10/Dolby Vision, embedded audio, USB 2.0, and RS-232/IR control over a single Cat6A/7 cable up to 100m.",
+    "sourceUrl": "https://www.amx.com/ja/site_elements/amx-data-sheet-dxl-tx-4k60",
+    "evidenceSource": "https://www.amx.com/ja/site_elements/amx-data-sheet-dxl-tx-4k60",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "transmitter",
     "transport": "",
     "technology": "HDBASET",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "hdbtOutput": true
-    },
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDBaseT (DXLite)",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "IR"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "features": [
+      "4K60 4:4:4 and HDCP 2.2 over HDBaseT with Display Stream Compression",
+      "Power over HDBaseT from receiving device",
+      "USB 2.0 transmission (host or peripheral, switchable)",
+      "HDR10 and Dolby Vision support (under 10.2 Gbps)",
+      "Distance transport up to 100m over Cat6/6A/7"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "usbStandard": "USB 2.0",
+      "maxResolution": "4K60 4:4:4",
+      "hdcp": "2.2",
+      "dataRateGbps": 10.2,
+      "pixelClockMhzMax": 600,
+      "chroma": "4:4:4"
     },
-    "specs": {},
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "hdcp": "2.2",
+        "dataRateGbps": 10.2,
+        "pixelClockMhzMax": 600
+      },
+      "distance": {
+        "metersMax": 100
+      },
+      "cableType": "Shielded Cat6, Cat6A, Cat7",
+      "technology": "HDBaseT"
+    },
     "aliases": [
       "dxltx4k60",
       "dxltx"
@@ -701,27 +973,56 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "AMX NMX-DEC-N2422A is a JPEG2000-based SVSI 4K60 4:4:4 HDR video-over-IP decoder with PoE+, KVM/USB, AES67 audio, and sub-frame (8ms) latency over standard 1Gb Ethernet or SFP fiber.",
+    "sourceUrl": "https://www.amx.com/en-US/site_elements/amx-data-sheet-nmx-dec-n2422a",
+    "evidenceSource": "https://www.amx.com/en-US/site_elements/amx-data-sheet-nmx-dec-n2422a",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Decoder",
     "transport": "",
     "technology": "AVOIP",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "usbRouting": true,
-      "tenGig": false
-    },
+    "inputs": [
+      {
+        "type": "LAN (RJ45)",
+        "count": 1
+      },
+      {
+        "type": "SFP",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "IR",
+      "802.1X",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "AES67"
+    ],
+    "features": [
+      "JPEG2000 4K60 4:4:4 & HDR (HDR10) video-over-IP decoder",
+      "Sub-frame latency (8ms at 60fps)",
+      "PoE+ powered",
+      "KVM (USB) capable",
+      "1Gb Ethernet (RJ45) or 1G SFP fiber network video",
+      "Active Directory / 802.1X enterprise network security"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "maxResolution": "4K60 4:4:4",
+      "hdr": "HDR10",
+      "hdcp": "2.2",
+      "chroma": "4:4:4"
     },
     "matrixInputs": 1,
     "routedInputs": 1,
@@ -729,7 +1030,17 @@
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "hdr": "HDR10",
+        "hdcp": "2.2"
+      },
+      "latencyMs": 8,
+      "power": {
+        "poe": "802.3at Type 2 (PoE+)"
+      }
+    },
     "aliases": [
       "nmxdecn2422a"
     ],
@@ -795,6 +1106,7 @@
       "Resolutions up to 4096x2160"
     ],
     "video": {
+      "usbStandard": "USB 2.0",
       "maxResolution": "4K60 4:4:4 (MWC) / 1080p (H.26x)"
     },
     "matrixOutputs": 1,
@@ -986,35 +1298,84 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "AMX NMX-ENC-N2412A is a JPEG2000-based SVSI 4K60 4:4:4 HDR video-over-IP encoder with HDMI and VGA/component analog inputs, PoE+, KVM/USB, AES67 audio, and sub-frame (8ms) latency over standard 1Gb Ethernet or SFP fiber.",
+    "sourceUrl": "https://www.amx.com/en-US/site_elements/data-sheet-nmx-enc-n2412a",
+    "evidenceSource": "https://www.amx.com/en-US/site_elements/data-sheet-nmx-enc-n2412a",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Encoder",
     "transport": "",
     "technology": "AVOIP",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "usbRouting": true,
-      "tenGig": false
-    },
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "VGA (HD-15)",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "LAN (RJ45)",
+        "count": 1
+      },
+      {
+        "type": "SFP",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "IR",
+      "802.1X",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Analog Audio",
+      "AES67"
+    ],
+    "features": [
+      "JPEG2000 4K60 4:4:4 & HDR (HDR10) video-over-IP encoder",
+      "Sub-frame latency (8ms at 60fps)",
+      "PoE+ powered",
+      "KVM (USB) capable",
+      "1Gb Ethernet (RJ45) or 1G SFP fiber network video",
+      "Active Directory / 802.1X enterprise network security",
+      "Analog VGA/Component input support"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "maxResolution": "4K60 4:4:4",
+      "hdr": "HDR10",
+      "hdcp": "2.2",
+      "chroma": "4:4:4"
     },
-    "matrixInputs": 1,
-    "routedInputs": 1,
-    "routedInputCount": 1,
+    "matrixInputs": 2,
+    "routedInputs": 2,
+    "routedInputCount": 2,
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "hdr": "HDR10",
+        "hdcp": "2.2"
+      },
+      "latencyMs": 8,
+      "power": {
+        "poe": "802.3at Type 2 (PoE+)"
+      }
+    },
     "aliases": [
       "nmxencn2412a"
     ],
@@ -1075,6 +1436,7 @@
       "Virtual Network USB Hub"
     ],
     "video": {
+      "usbStandard": "USB 2.0",
       "maxResolution": "4K60 4:4:4 (MWC) / 1080p (H.26x)"
     },
     "matrixInputs": 1,
@@ -1148,6 +1510,7 @@
       "NA and EU/UK versions"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K (4096x2160), HDR10/HDR10+",
       "hdr": true,
       "latencyMs": 2
@@ -1185,36 +1548,88 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "AMX NMX-ENC-N3312D is a dual-stream AVoIP encoder delivering a primary 4K60 4:4:4 H.264/H.265 or Dante AV-H stream plus a secondary low-bandwidth 1080p H.26x stream, with 2 HDMI inputs, USB 3.0 recording, PoE+ powering, and 110ms end-to-end latency.",
+    "sourceUrl": "https://www.amx.com/en-US/site_elements/amx-data-sheet-nmx-enc-n3312d",
+    "evidenceSource": "https://www.amx.com/en-US/site_elements/amx-data-sheet-nmx-enc-n3312d",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Encoder",
     "transport": "",
     "technology": "AVOIP",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "tenGig": true,
-      "usbRouting": true
-    },
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "LAN (RJ45)",
+        "count": 2
+      }
+    ],
+    "control": [
+      "RS-232",
+      "IR"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Analog Audio",
+      "Dante"
+    ],
+    "features": [
+      "4K60 H.26x (H.264/H.265) and Dante AV-H dual-stream encoder",
+      "Simultaneous 4K60 primary + 1080p H.26x secondary stream",
+      "USB 3.0 video recording (up to 2TB, non-HDCP)",
+      "PoE+ powered with low-power mode",
+      "Built-in web interface video preview",
+      "Audio breakaway"
+    ],
     "video": {
-      "maxResolution": "4K60",
+      "usbStandard": "USB 3.0",
+      "maxResolution": "4K60 4:4:4",
+      "hdcp": "2.2",
+      "hdmiVersion": "HDMI 2.0",
       "chroma": "4:4:4"
     },
-    "matrixInputs": 1,
-    "routedInputs": 1,
-    "routedInputCount": 1,
+    "matrixInputs": 2,
+    "routedInputs": 2,
+    "routedInputCount": 2,
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "hdcp": "2.2",
+        "hdmiVersion": "HDMI 2.0"
+      },
+      "streaming": {
+        "protocols": [
+          "RTP",
+          "RTSP",
+          "RTMP",
+          "RTMP/S",
+          "SRTP",
+          "Dante AV-H"
+        ],
+        "bitrateRangeMbps": [
+          0.5,
+          32
+        ]
+      },
+      "latencyMs": 110,
+      "power": {
+        "poe": "802.3at Type 2 (PoE+)"
+      }
+    },
     "aliases": [
       "nmxencn3312d",
       "nmxdecn3322",
@@ -1302,11 +1717,11 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "AMX NX-2200 is a NetLinx NX integrated control processor for medium-sized rooms and multi-room applications, with dual NIC network isolation, 4 RS-232/serial ports, 4 IR/serial ports, 4 relays, 4 digital I/O, and enterprise security (802.1X, LDAP, TLS/SSH, FIPS 140-2).",
+    "sourceUrl": "https://www.amx.com/en-US/product_documents/nx-2200-datasheet-pdf",
+    "evidenceSource": "https://www.amx.com/en-US/product_documents/nx-2200-datasheet-pdf",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "controller",
     "transport": "",
@@ -1315,11 +1730,45 @@
     "directionality": "",
     "inputs": [],
     "outputs": [],
-    "control": [],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR",
+      "Relay",
+      "GPIO",
+      "Telnet",
+      "Web UI"
+    ],
     "audio": [],
-    "features": [],
+    "features": [
+      "NetLinx NX integrated controller for medium rooms/multi-room",
+      "Dual NIC (LAN + isolated ICSLan)",
+      "IPv6, 802.1X, X.509 certificates, LDAP integration",
+      "TLS/SSH client, FIPS 140-2 cryptographic support",
+      "1600 MIPS processor, 512MB RAM, 8GB flash",
+      "1 AxLink port, 1 RS-232/422/485 port, 3 RS-232 ports, 4 IR/Serial ports, 4 relay ports, 4 digital I/O ports",
+      "1RU rack-mountable"
+    ],
     "video": {},
-    "specs": {},
+    "specs": {
+      "memory": {
+        "ramMB": 512,
+        "nvramMB": 1,
+        "flashGB": 8
+      },
+      "processorMips": 1600,
+      "power": {
+        "consumptionWatts": 4.2,
+        "dcVoltage": 12
+      },
+      "ports": {
+        "rs232_422_485": 1,
+        "rs232Only": 3,
+        "irSerial": 4,
+        "relay": 4,
+        "digitalIO": 4
+      }
+    },
     "aliases": [
       "nx2200",
       "nx3200",
@@ -1847,30 +2296,78 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Atlona AT-OME-EX-KIT (discontinued): HDBaseT extender kit for HDMI, embedded audio, USB 2.0, Ethernet pass-through, and RS-232/IR control up to 330 feet (100 meters), with the transmitter remotely powered by the receiver over HDBaseT; replaced by the AT-OME-EX-TX and AT-OME-EX-RX.",
+    "sourceUrl": "https://atlona.com/product/at-ome-ex-kit/",
+    "evidenceSource": "https://atlona.com/product/at-ome-ex-kit/",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "transmitter",
     "transport": "",
     "technology": "HDBASET",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "hdbtOutput": true,
-      "receiverKit": true,
-      "usbRouting": true
-    },
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB",
+        "count": 3
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDBaseT",
+        "count": 1
+      },
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB",
+        "count": 2
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "features": [
+      "HDBaseT",
+      "USB 2.0 Extension",
+      "HDCP 2.2",
+      "Receiver-Powered Transmitter",
+      "Ethernet Pass-Through"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "usbStandard": "USB 2.0",
+      "maxResolution": "4K60 4:2:0",
+      "altMode": "4K30 4:4:4",
+      "hdcp": "2.2",
+      "chroma": "4:2:0"
     },
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:2:0",
+        "altMode": "4K30 4:4:4",
+        "hdcp": "2.2"
+      },
+      "distance": {
+        "meters": 100,
+        "feet": 330
+      },
+      "usb": {
+        "standard": "USB 2.0",
+        "maxDataRateMbps": 120
+      }
+    },
     "aliases": [
       "atomeexkit"
     ],
@@ -2921,30 +3418,75 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Atlona AT-UHD-PRO3-88M (discontinued): dual-distance 8x8 HDMI to HDBaseT matrix switcher supporting 4K/UHD 60Hz 4:2:0 with HDCP 2.2, PoE-powered HDBaseT outputs (100m/70m), two selectable mirror/matrix HDMI outputs, and analog audio de-embedding with 5-band EQ; TCP/IP, RS-232, and IR control.",
+    "sourceUrl": "https://atlona.com/product/at-uhd-pro3-88m/",
+    "evidenceSource": "https://atlona.com/product/at-uhd-pro3-88m/",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Matrix",
     "transport": "",
     "technology": "MATRIX",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": [],
-    "video": {},
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 8
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDBaseT",
+        "count": 8
+      },
+      {
+        "type": "HDMI",
+        "count": 2
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR",
+      "Web UI"
+    ],
+    "audio": [
+      "De-Embedded Audio",
+      "Analog Audio"
+    ],
+    "features": [
+      "PoE",
+      "HDBaseT",
+      "Dual-Distance Extension (100m/70m)",
+      "Selectable Mirror/Matrix HDMI Outputs",
+      "5-Band EQ Audio De-Embedding",
+      "EDID Management",
+      "HDCP 2.2"
+    ],
+    "video": {
+      "maxResolution": "4K/UHD 60Hz 4:2:0",
+      "hdcp": "2.2",
+      "chroma": "4:2:0"
+    },
     "matrixInputs": 8,
     "routedInputs": 8,
     "routedInputCount": 8,
     "matrixOutputs": 8,
     "routedOutputs": 8,
     "routedOutputCount": 8,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K/UHD 60Hz 4:2:0",
+        "hdcp": "2.2"
+      },
+      "distance": {
+        "metersLong": 100,
+        "metersShort": 70
+      },
+      "matrixInputs": 8,
+      "matrixOutputs": 8
+    },
     "aliases": [
       "atuhdpro388m",
       "atuhdpro366m",
@@ -3308,7 +3850,7 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "structured-catalog",
-    "summary": "AV over IP Decoder legacy competitor reference record.",
+    "summary": "AV over IP decoder for HDMI output up to 4K60 4:4:4 and HDR with ultra-fast switching, video wall processing, multiview support, and PoE operation (duplicate legacy SKU-seed record for AT-OMNI-121).",
     "sourceUrl": "https://atlona.com/product/at-omni-121/",
     "evidenceSource": "https://atlona.com/product/at-omni-121/",
     "lastReviewed": "2026-07-13",
@@ -3331,8 +3873,16 @@
         "count": 1
       }
     ],
-    "control": [],
-    "audio": [],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR",
+      "Web GUI",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
     "features": [
       "AVoIP decoder",
       "Ultra-fast switching",
@@ -3365,7 +3915,7 @@
     "knownLimitations": "",
     "closestWyrestormArchitecture": "NetworkHD 100 (standard 1GbE AVoIP)",
     "closestWyrestormSkuOrFamily": "NHD-120-RX",
-    "notes": "src/competitor/competitors.json#7 merged into deployed competitor catalog. | data/product-intelligence-db.json#7 merged into deployed competitor catalog. | data/product-intelligence-db.json#18 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | OmniStream 121 is a networked AV decoder that can also support multiview and video-wall compositions at the endpoint. | Compare OmniStream 121 as an AVoIP decoder with endpoint processing rather than recategorising it as a standalone wall processor. | Official competitor family guidance applied during canonical sync. | Verified against official Atlona AT-OMNI-121 product page (duplicate SKU-seed row of 'AT-OMNI-121' in this file): AVoIP decoder, 4K60 4:4:4/HDR, video wall, multiview, PoE. | Duplicate row for the same physical product as the approved Atlona::AT-OMNI-121 record; that record now carries this SKU text as an alias (omnistreamatomni121). Left in review rather than promoted separately to avoid a redundant approved duplicate.",
+    "notes": "src/competitor/competitors.json#7 merged into deployed competitor catalog. | data/product-intelligence-db.json#7 merged into deployed competitor catalog. | data/product-intelligence-db.json#18 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | OmniStream 121 is a networked AV decoder that can also support multiview and video-wall compositions at the endpoint. | Compare OmniStream 121 as an AVoIP decoder with endpoint processing rather than recategorising it as a standalone wall processor. | Official competitor family guidance applied during canonical sync. | Verified against official Atlona AT-OMNI-121 product page (duplicate SKU-seed row of 'AT-OMNI-121' in this file): AVoIP decoder, 4K60 4:4:4/HDR, video wall, multiview, PoE.",
     "sourceFile": "data-sources/competitors/atlona.csv",
     "comparisonOnly": true
   },
@@ -3638,30 +4188,82 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "AVPro Edge AC-EX70-444-KIT 18Gbps HDBaseT extender kit (TX+RX) delivering 4K60 4:4:4 HDR over CAT6a up to 100m (330ft), with EDID management, downscaling, bidirectional IR/RS-232, and dual 10/100 Ethernet for LAN extension.",
+    "sourceUrl": "https://www.avproglobal.com/products/ac-ex70-444-kit",
+    "evidenceSource": "https://www.avproglobal.com/products/ac-ex70-444-kit",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "transmitter",
     "transport": "",
     "technology": "HDBASET",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "hdbtOutput": true,
-      "receiverKit": true
-    },
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDBaseT (CAT5e/6a/7)",
+        "count": 1
+      },
+      {
+        "type": "HDMI (local loop, receiver side)",
+        "count": 1
+      }
+    ],
+    "control": [
+      "IR (bidirectional)",
+      "RS-232 (bidirectional)",
+      "10/100 Ethernet (x2, LAN extension)"
+    ],
+    "audio": [
+      "PCM 2ch",
+      "LPCM 5.1/7.1",
+      "Dolby Digital",
+      "DTS 5.1",
+      "Dolby Digital Plus",
+      "Dolby TrueHD",
+      "DTS-HD Master",
+      "DTS-X",
+      "Dolby Atmos"
+    ],
+    "features": [
+      "18Gbps via Invisible Compression Technology (ICT)",
+      "100m (330ft) at 4K60 4:4:4 via CAT6a; 150m (492ft) Long-Range Mode at 1080p",
+      "EDID management, 4K-to-1080p downscaling",
+      "Onboard test pattern generator (TX+RX)",
+      "HDR10, HDR10+, Dolby Vision, HLG",
+      "Cascade Mode for extended distance"
+    ],
     "video": {
-      "maxResolution": "4K60",
+      "maxResolution": "4K60 4:4:4",
+      "bandwidthGbps": 18,
+      "hdcp": "2.3",
       "chroma": "4:4:4"
     },
-    "specs": {},
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "bandwidthGbps": 18,
+        "hdcp": "2.3"
+      },
+      "distance": {
+        "metersAt4k": 100,
+        "feetAt4k": 330,
+        "metersLongRange1080p": 150,
+        "feetLongRange1080p": 492
+      }
+    },
     "aliases": [
       "acex70444kit",
       "acex70"
@@ -3817,6 +4419,7 @@
       "Third-party control driver support"
     ],
     "video": {
+      "hdmi": "2.1",
       "maxResolution": "8K60 4:2:0 / 8K30 4:4:4 / 4K120",
       "bandwidthGbps": 40,
       "hdcp": "2.3"
@@ -3858,24 +4461,73 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "AVPro Edge AC-MX-44HDBT 4x4 HDMI/HDBaseT matrix switcher with four HDMI inputs and four mirrored HDMI+HDBaseT output blocks, supporting 4K60 4:4:4 (18Gbps HDMI, 18Gbps via ICT on HDBaseT), full EDID/audio management, and third-party control driver support (Control4/RTI/ELAN/Crestron/URC).",
+    "sourceUrl": "https://www.avproglobal.com/products/ac-mx-44hdbt",
+    "evidenceSource": "https://www.avproglobal.com/products/ac-mx-44hdbt",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Matrix",
     "transport": "",
     "technology": "MATRIX",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": [],
+    "inputs": [
+      {
+        "type": "HDMI 2.0(a/b)",
+        "count": 4
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 4
+      },
+      {
+        "type": "HDBaseT",
+        "count": 4
+      }
+    ],
+    "control": [
+      "LAN",
+      "RS-232",
+      "IR",
+      "Control4",
+      "RTI",
+      "ELAN",
+      "Crestron",
+      "URC"
+    ],
+    "audio": [
+      "PCM 2.0 Ch",
+      "LPCM 5.1/7.1",
+      "Dolby Digital",
+      "DTS 5.1",
+      "Dolby Digital Plus",
+      "Dolby TrueHD",
+      "DTS-HD Master",
+      "DTS-X",
+      "Dolby Atmos",
+      "TOSLINK De-Embedded Audio (7CH LPCM/Dolby Digital/Dolby Digital+/DTS/DTS-HD Master)",
+      "Analog De-Embedded Audio (2CH PCM)"
+    ],
+    "features": [
+      "4x4 HDMI/HDBaseT matrix with mirrored HDMI+HDBaseT output blocks",
+      "18Gbps uncompressed HDMI bandwidth; 18Gbps via ICT on HDBaseT outputs (HDBT-C mode down to 10.2Gbps)",
+      "HDR10, HDR10+, Dolby Vision, HLG",
+      "Built-in scalers (1080p-to-4K on HDMI outputs, 4K-to-1080p on HDBaseT outputs)",
+      "29 onboard EDID presets plus EDID learning",
+      "Per-output audio delay up to 630ms",
+      "Built-in test pattern generator per output",
+      "PoH (power over HDBaseT) on all outputs",
+      "Third-party control driver support (Control4/RTI/ELAN/Crestron/URC)"
+    ],
     "video": {
-      "maxResolution": "4K60",
+      "maxResolution": "4K60 4:4:4",
+      "vesaResolution": "DCI 4K (4096x2160)",
+      "bandwidthGbpsHdmi": 18,
+      "bandwidthGbpsHdbaset": 18,
+      "hdcp": "2.2",
       "chroma": "4:4:4"
     },
     "matrixInputs": 4,
@@ -3884,7 +4536,25 @@
     "matrixOutputs": 4,
     "routedOutputs": 4,
     "routedOutputCount": 4,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "vesaResolution": "DCI 4K (4096x2160)",
+        "bandwidthGbpsHdmi": 18,
+        "bandwidthGbpsHdbaset": 18,
+        "hdcp": "2.2"
+      },
+      "distance": {
+        "hdbasetMetersAt4k60444": 70,
+        "hdbasetFeetAt4k60444": 230,
+        "hdbasetMetersAt1080p": 100,
+        "hdbasetFeetAt1080p": 330
+      },
+      "matrixInputs": 4,
+      "matrixOutputs": 4,
+      "routedInputCount": 4,
+      "routedOutputCount": 4
+    },
     "aliases": [
       "acmx44hdbt",
       "acmx44"
@@ -3908,24 +4578,68 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "AVPro Edge AC-MX-88 8x8 HDMI matrix switcher with 18Gbps uncompressed bandwidth, HDCP 2.3, full HDR support, built-in scalers and EDID management, and third-party control driver support (Control4/RTI/ELAN/Crestron/URC).",
+    "sourceUrl": "https://www.avproglobal.com/products/ac-mx-88",
+    "evidenceSource": "https://www.avproglobal.com/products/ac-mx-88",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Matrix",
     "transport": "",
     "technology": "MATRIX",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": [],
+    "inputs": [
+      {
+        "type": "HDMI 2.0(a/b)",
+        "count": 8
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 8
+      }
+    ],
+    "control": [
+      "LAN",
+      "RS-232",
+      "IR",
+      "Control4",
+      "RTI",
+      "ELAN",
+      "Crestron",
+      "URC"
+    ],
+    "audio": [
+      "PCM 2.0 Ch",
+      "LPCM 5.1/7.1",
+      "Dolby Digital",
+      "DTS 5.1",
+      "Dolby Digital Plus",
+      "Dolby TrueHD",
+      "DTS-HD Master",
+      "DTS-X",
+      "Dolby Atmos",
+      "TOSLINK De-Embedded Audio (7CH LPCM, Dolby Digital, Dolby Digital+)",
+      "Analog De-Embedded Audio (2CH PCM)"
+    ],
+    "features": [
+      "8x8 HDMI-only matrix switcher (no HDBaseT outputs)",
+      "18Gbps uncompressed HDMI bandwidth",
+      "HDR10, HDR10+, Dolby Vision, HLG",
+      "Built-in per-output scalers (4K-to-1080p, 4:4:4-to-4:2:0)",
+      "29 onboard EDID presets plus EDID learning",
+      "Per-output audio delay up to 630ms",
+      "Built-in test pattern generator",
+      "Web-based AVPro Edge User Interface",
+      "Third-party control driver support (Control4/RTI/ELAN/Crestron/URC)"
+    ],
     "video": {
-      "maxResolution": "4K60",
+      "maxResolution": "4K60 4:4:4",
+      "vesaResolution": "DCI 4K (4096x2160)",
+      "bandwidthGbpsHdmi": 18,
+      "hdcp": "2.3",
       "chroma": "4:4:4"
     },
     "matrixInputs": 8,
@@ -3934,7 +4648,18 @@
     "matrixOutputs": 8,
     "routedOutputs": 8,
     "routedOutputCount": 8,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "vesaResolution": "DCI 4K (4096x2160)",
+        "bandwidthGbpsHdmi": 18,
+        "hdcp": "2.3"
+      },
+      "matrixInputs": 8,
+      "matrixOutputs": 8,
+      "routedInputCount": 8,
+      "routedOutputCount": 8
+    },
     "aliases": [
       "acmx88",
       "acmx1616",
@@ -3959,29 +4684,52 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "AVPro Edge AC-MXNET-10G-TCVR is a single-SKU SDVoE transceiver, field-selectable as HDMI encoder or decoder, delivering zero-frame-latency 4K60 4:4:4 AV-over-IP over 10G copper (100m) or fiber (up to 20km single-mode), with bidirectional IR/RS-232/USB control and PoE.",
+    "sourceUrl": "https://www.avproglobal.com/products/ac-mxnet-10g-tcvr",
+    "evidenceSource": "https://www.avproglobal.com/products/ac-mxnet-10g-tcvr",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Transceiver",
     "transport": "",
     "technology": "AVOIP",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "tenGig": true,
-      "zeroLatency": true,
-      "lossless": true,
-      "usbRouting": true
-    },
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "control": [
+      "IR",
+      "RS-232"
+    ],
+    "audio": [
+      "Embedded Audio (HDMI, up to 8ch LPCM 24-bit/192kHz, Dolby Atmos, DTS:X)",
+      "De-Embedded Audio (breakaway, 8ch LPCM or 2ch downmix)",
+      "Analog Audio (stereo, up to 24-bit/48kHz)"
+    ],
+    "features": [
+      "10GbE SDVoE AV-over-IP transceiver (dual-use encoder/decoder, single SKU)",
+      "Zero frame latency, zero compression up to 4K/30fps 4:4:4 8-bit; visually lossless 4K/60fps 4:4:4 8-bit (1.3:1 light compression)",
+      "Genlock Mode: <=0.1ms latency, matches traditional matrix switch",
+      "Fast switching (1-2 frames, ~17-34ms) with up/down scaling in decoder mode",
+      "10G SFP+ fiber (up to 20km single-mode) or Cat6A copper (100m) transport",
+      "USB-B host / KVM routing",
+      "AES-128 stream encryption",
+      "PoE (IEEE 802.3af)",
+      "Video wall and MultiView support via MXnet ecosystem"
+    ],
     "video": {
-      "maxResolution": "4K60",
+      "maxResolution": "4K60 4:4:4",
+      "compressionRatio": "1.3:1 (visually lossless above 4K/30 4:4:4 8-bit)",
       "chroma": "4:4:4"
     },
     "matrixInputs": 1,
@@ -3990,7 +4738,27 @@
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "compressionRatio": "1.3:1 (visually lossless above 4K/30 4:4:4 8-bit)"
+      },
+      "network": {
+        "sdvoeEthernetGbps": 10,
+        "localEthernetGbps": 1,
+        "sfpPlus": true
+      },
+      "distance": {
+        "copperMeters": 100,
+        "copperFeet": 330,
+        "fiberMultimodeMeters": 550,
+        "fiberSinglemodeKm": 20
+      },
+      "power": {
+        "poeStandard": "IEEE 802.3af",
+        "poeWatts": 15.4
+      }
+    },
     "aliases": [
       "mxnet10gtcvr"
     ],
@@ -4013,26 +4781,63 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "AVPro Edge AC-MXNET-1G-D is a MXnet 1G family HDMI-over-1GbE decoder that outputs up to 4K/30fps 4:2:0 (or 1080p/720p) with near-zero latency, SFP fiber support, RS-232/IR passthrough, USB/KVM extension, and PoE power.",
+    "sourceUrl": "https://www.avproglobal.com/products/ac-mxnet-1g-d",
+    "evidenceSource": "https://www.avproglobal.com/products/ac-mxnet-1g-d",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Decoder",
     "transport": "",
     "technology": "AVOIP",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "usbRouting": true
-    },
+    "inputs": [
+      {
+        "type": "1G Ethernet (RJ45, PoE)",
+        "count": 1
+      },
+      {
+        "type": "SFP (1G fiber)",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "IR",
+      "CEC"
+    ],
+    "audio": [
+      "PCM 2/5.1/7.1 Channel",
+      "Dolby Digital 5.1",
+      "Dolby Digital Plus",
+      "DTS 5.1",
+      "DTS-ES",
+      "DTS-HD High Resolution"
+    ],
+    "features": [
+      "4K/30fps 4:2:0 HDMI-over-1GbE decoder (MXnet 1G family)",
+      "Near-zero latency (16ms@60Hz)",
+      "SFP fiber support for long runs (1000BASE-SX/LX)",
+      "RS-232 and IR direct-routing endpoint; encapsulated RS-232-over-IP passthrough",
+      "USB 2.0 extension and KVM support (2x USB-A)",
+      "Full external light control (disable status LEDs/OLED)",
+      "PoE powered (IEEE 802.3af)",
+      "Part of MXnet ecosystem with MENTOR software (EDID management, video walls, scaling)"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "maxResolution": "4K30 4:2:0",
+      "signalType": "DVI 1.0 ingested / HDMI 2.0b out",
+      "bitDepth": "8/10-bit (compresses to 8-bit output)",
+      "latencyMs": "16ms@60Hz",
+      "hdcp": "2.2",
+      "chroma": "4:2:0"
     },
     "matrixInputs": 1,
     "routedInputs": 1,
@@ -4040,7 +4845,27 @@
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K30 4:2:0",
+        "signalType": "DVI 1.0 ingested / HDMI 2.0b out",
+        "bitDepth": "8/10-bit (compresses to 8-bit output)",
+        "latencyMs": "16ms@60Hz",
+        "hdcp": "2.2"
+      },
+      "network": {
+        "ethernetGbps": 1,
+        "sfp": true
+      },
+      "distance": {
+        "ethernetMeters": 100,
+        "ethernetFeet": 330
+      },
+      "power": {
+        "poeStandard": "IEEE 802.3af",
+        "poeWatts": 15.4
+      }
+    },
     "aliases": [
       "mxnet1gd"
     ],
@@ -4063,26 +4888,69 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "AVPro Edge AC-MXNET-1G-E is a MXnet 1G family HDMI-over-1GbE encoder that ingests HDMI up to 4K/30fps 4:4:4, with an HDMI loop-out, near-zero latency, SFP fiber support, RS-232/IR routing, USB/KVM host connection, and PoE power.",
+    "sourceUrl": "https://www.avproglobal.com/products/ac-mxnet-1g-e",
+    "evidenceSource": "https://www.avproglobal.com/products/ac-mxnet-1g-e",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Encoder",
     "transport": "",
     "technology": "AVOIP",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "usbRouting": true
-    },
+    "inputs": [
+      {
+        "type": "HDMI 2.0b",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI (local loop out)",
+        "count": 1
+      },
+      {
+        "type": "1G Ethernet (RJ45, PoE)",
+        "count": 1
+      },
+      {
+        "type": "SFP (1G fiber)",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "IR"
+    ],
+    "audio": [
+      "PCM 2/5.1/7.1 Channel",
+      "Dolby Digital 5.1",
+      "Dolby Digital Plus",
+      "DTS 5.1",
+      "DTS-ES",
+      "DTS-HD High Resolution",
+      "Dolby MAT 8-CH (HDMI loopout)",
+      "De-Embedded Analog Audio (balanced stereo, 5-pin Phoenix)"
+    ],
+    "features": [
+      "4K/30fps 4:4:4 HDMI-over-1GbE encoder (MXnet 1G family)",
+      "Proprietary Motion JPEG-based codec",
+      "HDMI loop-out plus 1GbE/SFP network output",
+      "USB-B host + KVM routing to designated decoder",
+      "SFP fiber support for long runs (1000BASE-SX/LX)",
+      "RS-232 and IR control signal routing to decoders via network",
+      "Full external light control (disable status LEDs/OLED)",
+      "PoE powered (IEEE 802.3af)",
+      "Part of MXnet ecosystem with MENTOR software (EDID/HDCP management, scaling, video walls)"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "maxResolution": "4K30 4:4:4",
+      "signalType": "DVI 1.0 ingested / HDMI 2.0b in",
+      "bitDepth": "8/10-bit (compresses to 8-bit output)",
+      "latencyMs": "16ms@60Hz",
+      "hdcp": "2.3",
+      "chroma": "4:4:4"
     },
     "matrixInputs": 1,
     "routedInputs": 1,
@@ -4090,7 +4958,27 @@
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K30 4:4:4",
+        "signalType": "DVI 1.0 ingested / HDMI 2.0b in",
+        "bitDepth": "8/10-bit (compresses to 8-bit output)",
+        "latencyMs": "16ms@60Hz",
+        "hdcp": "2.3"
+      },
+      "network": {
+        "ethernetGbps": 1,
+        "sfp": true
+      },
+      "distance": {
+        "ethernetMeters": 100,
+        "ethernetFeet": 330
+      },
+      "power": {
+        "poeStandard": "IEEE 802.3af",
+        "poeWatts": 15.4
+      }
+    },
     "aliases": [
       "mxnet1ge"
     ],
@@ -4166,6 +5054,7 @@
       "2.4/5GHz wireless, 30m range"
     ],
     "video": {
+      "usbStandard": "USB 3.0",
       "maxResolution": "4K UHD @30Hz"
     },
     "matrixOutputs": 1,
@@ -5195,27 +6084,106 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Barco ClickShare CX-50 (1st generation) is a high-end wireless conferencing hub for large meeting spaces and boardrooms, with 4K UHD30 HDMI output, 1080p30 HDMI input for touchback/annotation, dual Wi-Fi, Gigabit Ethernet, and support for up to 2 simultaneous on-screen sources; end-of-life, replaced by CX-50 Gen2.",
+    "sourceUrl": "https://assets.barco.com/m/2432bd9acc4a8b7a/original/ClickShare-CX-50-en-Spec-sheet.pdf",
+    "evidenceSource": "https://assets.barco.com/m/2432bd9acc4a8b7a/original/ClickShare-CX-50-en-Spec-sheet.pdf",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Wireless Presentation",
     "transport": "",
     "technology": "WIRELESS_PRESENTATION",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "wireless": true,
-      "usbC": true
+    "inputs": [
+      {
+        "type": "Wireless",
+        "count": 1
+      },
+      {
+        "type": "HDMI 1.4b (input)",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI 1.4b",
+        "count": 1
+      },
+      {
+        "type": "Ethernet LAN",
+        "count": 1
+      },
+      {
+        "type": "USB-C 2.0",
+        "count": 1
+      },
+      {
+        "type": "USB-A 2.0",
+        "count": 3
+      },
+      {
+        "type": "Analog Audio (3.5mm)",
+        "count": 1
+      },
+      {
+        "type": "S/PDIF",
+        "count": 1
+      }
+    ],
+    "control": [
+      "XMS Cloud"
+    ],
+    "audio": [
+      "USB Audio",
+      "S/PDIF",
+      "Analog Audio",
+      "HDMI Embedded Audio"
+    ],
+    "features": [
+      "Interactive touchback, annotation, and blackboarding",
+      "2 sources simultaneously on screen",
+      "Dual Wi-Fi network + AV integration",
+      "HDMI input for high-quality content sharing",
+      "Secure-by-design, cloud managed",
+      "AirPlay, Google Cast, Miracast",
+      "Kensington lock"
+    ],
+    "video": {
+      "outputMaxResolution": "3840x2160@30Hz",
+      "inputMaxResolution": "1920x1080@30Hz",
+      "maxResolution": "4K UHD @30Hz (out) / 1080p30 (in)"
     },
-    "video": {},
-    "specs": {},
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "specs": {
+      "video": {
+        "outputMaxResolution": "3840x2160@30Hz",
+        "inputMaxResolution": "1920x1080@30Hz"
+      },
+      "wireless": {
+        "rangeMeters": 30,
+        "bands": [
+          "2.4GHz",
+          "5GHz (DFS)"
+        ],
+        "protocol": "IEEE 802.11 a/g/n/ac"
+      },
+      "network": {
+        "lanGbit": 1
+      },
+      "power": {
+        "consumptionW": "50 max"
+      },
+      "physical": {
+        "dimensionsMm": "39x200x202",
+        "weightG": 900
+      }
+    },
     "aliases": [
       "cx50"
     ],
@@ -5489,24 +6457,68 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Binary B-260-HDMI-CTRL is a compact 1x1 HDMI in-line controller/EDID emulator supporting 4K60 4:4:4 8-bit and HDCP 2.2, with a 15-preset rotary EDID switch and automatic CEC, RS-232, and relay triggering for displays, projectors, and screens.",
+    "sourceUrl": "https://www.snapav.com/shop/en/snapav/binary-trade;-260-series-4k-hdr-in-line-controller-b-260-hdmi-ctrl-a",
+    "evidenceSource": "https://www.snapav.com/shop/en/snapav/binary-trade;-260-series-4k-hdr-in-line-controller-b-260-hdmi-ctrl-a",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "controller",
     "transport": "",
     "technology": "CONTROL",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": [],
-    "video": {},
-    "specs": {},
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "CEC",
+      "Relay"
+    ],
+    "audio": [
+      "De-Embedded Audio",
+      "Analog Audio"
+    ],
+    "features": [
+      "Rotary EDID switch with 15 EDID presets for in-line EDID emulation",
+      "Auto-detects input signal to trigger CEC display on/off commands",
+      "Pre-loaded RS-232 commands for projector power on/standby",
+      "Relay control for projection screen on/off",
+      "ESD/surge protection exceeding CE Level 3 (15kV ESD, 1600V surge)"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4 8-bit",
+      "hdcp": "2.2",
+      "bandwidthGbps": 18,
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4 8-bit",
+        "hdcp": "2.2",
+        "bandwidthGbps": 18
+      },
+      "power": {
+        "input": "DC 12V 2A",
+        "consumptionW": 2
+      }
+    },
     "aliases": [
       "b260hdmictrl",
       "b260"
@@ -5514,7 +6526,7 @@
     "knownLimitations": "",
     "closestWyrestormArchitecture": "No direct WyreStorm hardware equivalent",
     "closestWyrestormSkuOrFamily": "Third-party control processor for a residential automation ecosystem; no WyreStorm equivalent",
-    "notes": "",
+    "notes": "Verified via official SnapAV/Snap One B-260-HDMI-CTRL product page and installation manual.",
     "sourceFile": "data-sources/competitors/binary.csv",
     "comparisonOnly": true
   },
@@ -5530,30 +6542,75 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Binary B-660-EXT-444-100A is a 4K HDR HDBaseT extender (TX/RX pair) supporting 4K60 4:4:4 8-bit and HDCP 2.2, extending HDMI up to 100m over Cat6a/7 (70m for 4K over Cat5e/6), with bi-directional PoC, IR/RS-232/CEC/Ethernet pass-through, and digital/analog audio de-embedding.",
+    "sourceUrl": "https://www.snapav.com/wcsstore/ExtendedSitesCatalogAssetStore/attachments/documents/MediaDistribution/ManualsAndGuides/UM_B-660-EXT-444-100A(EX0101-N619&N620-S00)_V1.0.8.pdf",
+    "evidenceSource": "https://www.snapav.com/wcsstore/ExtendedSitesCatalogAssetStore/attachments/documents/MediaDistribution/ManualsAndGuides/UM_B-660-EXT-444-100A(EX0101-N619&N620-S00)_V1.0.8.pdf",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "transmitter",
     "transport": "",
     "technology": "HDBASET",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "hdbtOutput": true,
-      "receiverKit": true
-    },
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDBaseT (RJ45)",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "IR",
+      "CEC",
+      "Ethernet"
+    ],
+    "audio": [
+      "De-Embedded Audio",
+      "Analog Audio"
+    ],
+    "features": [
+      "4K60 4:4:4 8-bit HDBaseT extension up to 100m (Cat6a/7) or 70m 4K/100m 1080p (Cat5e/6)",
+      "Bi-directional PoC (single power adapter needed)",
+      "Bi-directional IR, RS-232, CEC, and Ethernet pass-through",
+      "HDR10, HLG (up to 4K60) and Dolby Vision (up to 4K30) support",
+      "Digital (SPDIF) and analog (3.5mm) audio de-embedding",
+      "DIP-switch EDID management"
+    ],
     "video": {
-      "maxResolution": "4K60",
+      "maxResolution": "4K60 4:4:4 8-bit",
+      "hdcp": "2.2",
+      "bandwidthGbps": 18,
       "chroma": "4:4:4"
     },
-    "specs": {},
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4 8-bit",
+        "hdcp": "2.2",
+        "bandwidthGbps": 18
+      },
+      "distance": {
+        "metersCat5e6_1080p": 100,
+        "metersCat5e6_4k": 70,
+        "metersCat6a7": 100
+      },
+      "power": {
+        "poc": true,
+        "consumptionW": 24.05
+      }
+    },
     "aliases": [
       "b660ext444100a",
       "b660ext"
@@ -5561,7 +6618,7 @@
     "knownLimitations": "",
     "closestWyrestormArchitecture": "100m HDBaseT extender",
     "closestWyrestormSkuOrFamily": "EX-100-G2",
-    "notes": "",
+    "notes": "Verified via official SnapAV/Snap One B-660-EXT-444-100A installation manual.",
     "sourceFile": "data-sources/competitors/binary.csv",
     "comparisonOnly": true
   },
@@ -5577,37 +6634,80 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Binary B-660-MTRX-4x4 is a 4x4 HDMI matrix switcher supporting 4K60 4:4:4 8-bit video with HDR10/HLG/Dolby Vision and HDCP 2.2, analog audio de-embedding on each output, and IR/RS-232/Telnet/Web UI control with Control4 SDDP certification.",
+    "sourceUrl": "https://www.snapav.com/wcsstore/ExtendedSitesCatalogAssetStore/attachments/documents/MediaDistribution/ManualsAndGuides/UM_B-660-MTRX-4x4_v1.0.4.2_400424.pdf",
+    "evidenceSource": "https://www.snapav.com/wcsstore/ExtendedSitesCatalogAssetStore/attachments/documents/MediaDistribution/ManualsAndGuides/UM_B-660-MTRX-4x4_v1.0.4.2_400424.pdf",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Matrix",
     "transport": "",
     "technology": "MATRIX",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": [],
-    "video": {},
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 4
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 4
+      }
+    ],
+    "control": [
+      "RS-232",
+      "IR",
+      "CEC",
+      "TCP/IP",
+      "Web UI",
+      "Telnet"
+    ],
+    "audio": [
+      "De-Embedded Audio",
+      "Analog Audio"
+    ],
+    "features": [
+      "4x4 HDMI matrix switcher, 1U rack",
+      "Control4 certified with built-in SDDP",
+      "L/R analog audio de-embedding (2ch PCM) from each HDMI output",
+      "Supports HDR10, HLG, Dolby Vision up to 4K60",
+      "IR, RS-232, Telnet, and Web UI control with API command set",
+      "OvrC enabled"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4 8-bit",
+      "hdcp": "2.2",
+      "bandwidthGbps": 18,
+      "chroma": "4:4:4"
+    },
     "matrixInputs": 4,
     "routedInputs": 4,
     "routedInputCount": 4,
     "matrixOutputs": 4,
     "routedOutputs": 4,
     "routedOutputCount": 4,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4 8-bit",
+        "hdcp": "2.2",
+        "bandwidthGbps": 18
+      },
+      "power": {
+        "maxConsumptionW": 26
+      },
+      "matrixInputs": 4,
+      "matrixOutputs": 4
+    },
     "aliases": [
       "b660mtrx4x4"
     ],
     "knownLimitations": "",
     "closestWyrestormArchitecture": "4x4 HDBaseT matrix",
     "closestWyrestormSkuOrFamily": "MXV-0404-H2A-KIT-V2",
-    "notes": "",
+    "notes": "Verified via official SnapAV/Snap One B-660-MTRX-4x4 installation manual.",
     "sourceFile": "data-sources/competitors/binary.csv",
     "comparisonOnly": true
   },
@@ -5623,37 +6723,81 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Binary B-660-MTRX-8x8 is an 8x8 HDMI matrix switcher supporting 4K60 4:4:4 8-bit video with HDR10/HLG/Dolby Vision and HDCP 2.2, per-output 4K-to-1080p downscaling, analog and ARC audio outputs, and IR/RS-232/Telnet/Web UI control with Control4 SDDP certification.",
+    "sourceUrl": "https://www.snapav.com/wcsstore/ExtendedSitesCatalogAssetStore/attachments/documents/MediaDistribution/ManualsAndGuides/B-660-MTRX-8x8_v1.0.2-Install-manual.pdf",
+    "evidenceSource": "https://www.snapav.com/wcsstore/ExtendedSitesCatalogAssetStore/attachments/documents/MediaDistribution/ManualsAndGuides/B-660-MTRX-8x8_v1.0.2-Install-manual.pdf",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Matrix",
     "transport": "",
     "technology": "MATRIX",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": [],
-    "video": {},
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 8
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 8
+      }
+    ],
+    "control": [
+      "RS-232",
+      "IR",
+      "CEC",
+      "TCP/IP",
+      "Web UI",
+      "Telnet"
+    ],
+    "audio": [
+      "De-Embedded Audio",
+      "Analog Audio",
+      "ARC"
+    ],
+    "features": [
+      "8x8 HDMI matrix switcher, 1U rack",
+      "Independent 4K-to-1080P downscaler on each HDMI output",
+      "8x RCA analog audio outputs + 2x 5-pin Phoenix balanced audio outputs (7&8)",
+      "HDMI ARC audio return per output (CEC-enabled displays)",
+      "Supports HDR10, HLG, Dolby Vision up to 4K60",
+      "Control4 certified with built-in SDDP, OvrC enabled"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4 8-bit",
+      "hdcp": "2.2",
+      "bandwidthGbps": 18,
+      "chroma": "4:4:4"
+    },
     "matrixInputs": 8,
     "routedInputs": 8,
     "routedInputCount": 8,
     "matrixOutputs": 8,
     "routedOutputs": 8,
     "routedOutputCount": 8,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4 8-bit",
+        "hdcp": "2.2",
+        "bandwidthGbps": 18
+      },
+      "power": {
+        "maxConsumptionW": 31
+      },
+      "matrixInputs": 8,
+      "matrixOutputs": 8
+    },
     "aliases": [
       "b660mtrx8x8"
     ],
     "knownLimitations": "",
     "closestWyrestormArchitecture": "8x8 HDBaseT matrix",
     "closestWyrestormSkuOrFamily": "MXV-0808-H2A-KIT",
-    "notes": "",
+    "notes": "Verified via official SnapAV/Snap One B-660-MTRX-8x8 installation manual.",
     "sourceFile": "data-sources/competitors/binary.csv",
     "comparisonOnly": true
   },
@@ -5669,32 +6813,80 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Binary B-900-MOIP-4K-RX is a Media over IP receiver that pairs with B-900-MOIP-4K-TX transmitters and a B-900-MOIP-4K-CTRL controller to deliver visually-lossless 4K HDR video over a Gigabit PoE network, with integrated 4K/1080p scaling, video wall support, and RS-232/IR/CEC control.",
+    "sourceUrl": "https://www.snapav.com/shop/en/snapav/binary-900-series-4k-ultra-hd-media-over-ip-receiver-b-900-moip-4k-rx-a",
+    "evidenceSource": "https://www.snapav.com/shop/en/snapav/binary-900-series-4k-ultra-hd-media-over-ip-receiver-b-900-moip-4k-rx-a",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Receiver",
     "transport": "",
     "technology": "AVOIP",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "receiverKit": true
+    "inputs": [
+      {
+        "type": "Network (RJ45, PoE)",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "IR",
+      "CEC"
+    ],
+    "audio": [
+      "De-Embedded Audio",
+      "Analog Audio"
+    ],
+    "features": [
+      "Media over IP (MoIP) receiver for scalable AVoIP systems (pairs with B-900-MOIP-4K-TX and B-900-MOIP-4K-CTRL)",
+      "Integrated 4K/1080p video scaler with mixed-resolution display support",
+      "Video wall support (2x2, 3x3, 4x4)",
+      "1-frame (16ms@60Hz/33ms@30Hz) ultra-low latency, visually lossless compression",
+      "PoE or 12VDC powered, OvrC remote management",
+      "Analog stereo audio breakout (2ch)"
+    ],
+    "video": {
+      "maxResolution": "4K UHD 30Hz 4:4:4 8-bit",
+      "altModes": [
+        "4K HDR 30Hz 4:2:2",
+        "4K HDR 30Hz 10-bit"
+      ],
+      "hdcp": "2.2 (source)/1.4 (display)",
+      "chroma": "4:4:4"
     },
-    "video": {},
     "matrixInputs": 1,
     "routedInputs": 1,
     "routedInputCount": 1,
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K UHD 30Hz 4:4:4 8-bit",
+        "altModes": [
+          "4K HDR 30Hz 4:2:2",
+          "4K HDR 30Hz 10-bit"
+        ],
+        "hdcp": "2.2 (source)/1.4 (display)"
+      },
+      "network": {
+        "portGbps": 1,
+        "maxDistanceM": 100
+      },
+      "power": {
+        "maxW": 7.5,
+        "poe": true
+      },
+      "latency": "1 frame (16ms@60Hz, 33ms@30Hz)"
+    },
     "aliases": [
       "b900moip4krx",
       "b900moiprx"
@@ -5702,7 +6894,7 @@
     "knownLimitations": "",
     "closestWyrestormArchitecture": "NetworkHD 100 (standard 1GbE AVoIP decoder)",
     "closestWyrestormSkuOrFamily": "NHD-120-RX",
-    "notes": "",
+    "notes": "Verified via official SnapAV/Snap One B-900-MOIP-4K-RX product page.",
     "sourceFile": "data-sources/competitors/binary.csv",
     "comparisonOnly": true
   },
@@ -5718,30 +6910,85 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Binary B-900-MOIP-4K-TX is a Media over IP transmitter that pairs with B-900-MOIP-4K-RX receivers and a B-900-MOIP-4K-CTRL controller to deliver visually-lossless 4K HDR video over a Gigabit PoE network, with HDMI loop-out, audio injection/breakout, and RS-232/IR/CEC control.",
+    "sourceUrl": "https://www.snapav.com/shop/en/snapav/binary-900-series-4k-ultra-hd-media-over-ip-transmitter-b-900-moip-4k-tx-a",
+    "evidenceSource": "https://www.snapav.com/shop/en/snapav/binary-900-series-4k-ultra-hd-media-over-ip-transmitter-b-900-moip-4k-tx-a",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Transmitter",
     "transport": "",
     "technology": "AVOIP",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": [],
-    "video": {},
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI (loopback)",
+        "count": 1
+      },
+      {
+        "type": "Network (RJ45, PoE)",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "IR",
+      "CEC"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Analog Audio"
+    ],
+    "features": [
+      "Media over IP (MoIP) transmitter for scalable AVoIP systems (pairs with B-900-MOIP-4K-RX and B-900-MOIP-4K-CTRL)",
+      "HDMI loop-out and stereo audio injection/breakout",
+      "1-frame (16ms@60Hz/33ms@30Hz) ultra-low latency, visually lossless compression",
+      "PoE or 12VDC powered, OvrC remote management",
+      "Video wall support (2x2, 3x3, 4x4)"
+    ],
+    "video": {
+      "maxResolution": "4K UHD 30Hz 4:4:4 8-bit",
+      "altModes": [
+        "4K HDR 30Hz 4:2:2",
+        "4K HDR 30Hz 10-bit"
+      ],
+      "hdcp": "2.2 (source)/1.4 (display)",
+      "pixelClockMHz": 297,
+      "chroma": "4:4:4"
+    },
     "matrixInputs": 1,
     "routedInputs": 1,
     "routedInputCount": 1,
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K UHD 30Hz 4:4:4 8-bit",
+        "altModes": [
+          "4K HDR 30Hz 4:2:2",
+          "4K HDR 30Hz 10-bit"
+        ],
+        "hdcp": "2.2 (source)/1.4 (display)",
+        "pixelClockMHz": 297
+      },
+      "network": {
+        "portGbps": 1,
+        "maxDistanceM": 100
+      },
+      "power": {
+        "maxW": 7.5,
+        "poe": true
+      },
+      "latency": "1 frame (16ms@60Hz, 33ms@30Hz)"
+    },
     "aliases": [
       "b900moip4ktx",
       "b900moiptx"
@@ -5749,7 +6996,7 @@
     "knownLimitations": "",
     "closestWyrestormArchitecture": "NetworkHD 100 (standard 1GbE AVoIP encoder)",
     "closestWyrestormSkuOrFamily": "NHD-120-TX",
-    "notes": "",
+    "notes": "Verified via official SnapAV/Snap One B-900-MOIP-4K-TX product page.",
     "sourceFile": "data-sources/competitors/binary.csv",
     "comparisonOnly": true
   },
@@ -5809,6 +7056,7 @@
       "PoE++"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K (14.2MP, 12x-24x zoom range)",
       "bitDepth": 10
     },
@@ -5977,6 +7225,7 @@
       "PoE+"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4Kp60"
     },
     "matrixInputs": 1,
@@ -6057,6 +7306,7 @@
       "PoE+"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4Kp60"
     },
     "matrixInputs": 1,
@@ -6301,6 +7551,7 @@
       "PoE+ (802.3at)"
     ],
     "video": {
+      "usbStandard": "USB 2.0",
       "maxResolution": "1080p60"
     },
     "matrixOutputs": 1,
@@ -6690,11 +7941,11 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Blustream ACM210 Advanced Control Module Gen 2 providing advanced third-party control (TCP/IP, RS-232, IR) of Blustream IP50HD/IP200UHD/IP250UHD/IP300UHD/IP350UHD Multicast AVoIP systems, with a web-based drag-and-drop control interface and PoE power.",
+    "sourceUrl": "https://www.blustream-us.com/video-over-ip-extenders-acm210",
+    "evidenceSource": "https://www.blustream-us.com/video-over-ip-extenders-acm210",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "controller",
     "transport": "",
@@ -6703,11 +7954,31 @@
     "directionality": "",
     "inputs": [],
     "outputs": [],
-    "control": [],
+    "control": [
+      "RS-232",
+      "TCP/IP",
+      "IR"
+    ],
     "audio": [],
-    "features": [],
+    "features": [
+      "Web GUI",
+      "PoE",
+      "Drag And Drop Source Selection",
+      "GPIO"
+    ],
     "video": {},
-    "specs": {},
+    "specs": {
+      "ports": {
+        "lan": 2,
+        "rs232": 1,
+        "gpio": 1,
+        "irInput": 1
+      },
+      "power": {
+        "poe": true,
+        "poeConsumptionW": 4
+      }
+    },
     "aliases": [
       "acm210"
     ],
@@ -6857,6 +8128,7 @@
       "Web browser control"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K60 4:4:4"
     },
     "matrixInputs": 8,
@@ -6899,26 +8171,65 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Blustream HMX44-18G-KIT 4x4 uncompressed HDBaseT 3 matrix delivering HDMI2.0 18Gbps 4K60 4:4:4 (HDR10/10+) up to 100m over CAT6A, with simultaneous HDMI+HDBaseT on output 1, an independent 14x4 audio matrix, ARC, and bundled 4x RX18G receivers.",
+    "sourceUrl": "https://www.blustream-us.com/4x4-hdbaset-matrix-hmx44-18g-kit",
+    "evidenceSource": "https://www.blustream-us.com/4x4-hdbaset-matrix-hmx44-18g-kit",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Matrix",
     "transport": "",
     "technology": "MATRIX",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "hdbtOutput": true
-    },
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 4
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDBaseT",
+        "count": 4
+      },
+      {
+        "type": "HDMI (local, output 1)",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "TCP/IP",
+      "IR",
+      "Web GUI"
+    ],
+    "audio": [
+      "HDMI Embedded Audio",
+      "Analog Audio",
+      "Optical S/PDIF Audio",
+      "ARC"
+    ],
+    "features": [
+      "4x4 independent HDMI to HDBaseT routing",
+      "Simultaneous HDMI+HDBaseT on output 1",
+      "14x4 independent audio matrix",
+      "HDR10/10+ support",
+      "PoC (Power over Cable)",
+      "HDBaseT 3",
+      "Includes 4x RX18G receivers",
+      "1U rackmountable"
+    ],
     "video": {
-      "maxResolution": "4K60",
+      "hdmi": "2.0",
+      "maxResolution": "4K60 4:4:4",
+      "hdmiVersion": "2.0",
+      "bandwidthGbps": 18,
+      "hdcp": "2.3/2.2",
+      "hdr": [
+        "HDR10",
+        "HDR10+"
+      ],
       "chroma": "4:4:4"
     },
     "matrixInputs": 4,
@@ -6927,7 +8238,26 @@
     "matrixOutputs": 4,
     "routedOutputs": 4,
     "routedOutputCount": 4,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "hdmiVersion": "2.0",
+        "bandwidthGbps": 18,
+        "hdcp": "2.3/2.2",
+        "hdr": [
+          "HDR10",
+          "HDR10+"
+        ]
+      },
+      "distance": {
+        "meters": 100
+      },
+      "audioMatrix": "14x4",
+      "matrixInputs": 4,
+      "matrixOutputs": 4,
+      "routedInputCount": 4,
+      "routedOutputCount": 4
+    },
     "aliases": [
       "hmx4418gkit"
     ],
@@ -6950,26 +8280,64 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Blustream HMX88-18G 8x8 uncompressed HDBaseT 3 matrix delivering HDMI2.0 18Gbps 4K60 4:4:4 (HDR10/10+) up to 100m over CAT6A, with simultaneous HDMI+HDBaseT on outputs 1 & 2 and an independent 26x8 audio matrix with ARC.",
+    "sourceUrl": "https://www.blustream-us.com/hmxl88arc-2",
+    "evidenceSource": "https://www.blustream-us.com/hmxl88arc-2",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Matrix",
     "transport": "",
     "technology": "MATRIX",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "hdbtOutput": true
-    },
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 8
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDBaseT",
+        "count": 8
+      },
+      {
+        "type": "HDMI (local, outputs 1 & 2)",
+        "count": 2
+      }
+    ],
+    "control": [
+      "RS-232",
+      "TCP/IP",
+      "IR",
+      "Web GUI"
+    ],
+    "audio": [
+      "HDMI Embedded Audio",
+      "Analog Audio",
+      "Optical S/PDIF Audio",
+      "ARC"
+    ],
+    "features": [
+      "8x8 independent HDMI to HDBaseT routing",
+      "Simultaneous HDMI+HDBaseT on outputs 1 & 2",
+      "26x8 independent audio matrix",
+      "HDR10/10+ support",
+      "PoC (Power over Cable)",
+      "HDBaseT 3",
+      "2U rackmountable"
+    ],
     "video": {
-      "maxResolution": "4K60",
+      "hdmi": "2.0",
+      "maxResolution": "4K60 4:4:4",
+      "hdmiVersion": "2.0",
+      "bandwidthGbps": 18,
+      "hdcp": "2.3/2.2",
+      "hdr": [
+        "HDR10",
+        "HDR10+"
+      ],
       "chroma": "4:4:4"
     },
     "matrixInputs": 8,
@@ -6978,11 +8346,30 @@
     "matrixOutputs": 8,
     "routedOutputs": 8,
     "routedOutputCount": 8,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "hdmiVersion": "2.0",
+        "bandwidthGbps": 18,
+        "hdcp": "2.3/2.2",
+        "hdr": [
+          "HDR10",
+          "HDR10+"
+        ]
+      },
+      "distance": {
+        "meters": 100
+      },
+      "audioMatrix": "26x8",
+      "matrixInputs": 8,
+      "matrixOutputs": 8,
+      "routedInputCount": 8,
+      "routedOutputCount": 8
+    },
     "aliases": [
       "hmx8818gkit"
     ],
-    "knownLimitations": "",
+    "knownLimitations": "Could not confirm a distinct 'HMX88-18G-KIT' SKU; Blustream's current site lists the matrix as 'HMX88-18G' whose box contents do not include bundled RX18G receivers (unlike the HMX44-18G-KIT, which ships with 4 receivers). Data reflects the HMX88-18G base unit — verify exact kit/bundle contents before quoting.",
     "closestWyrestormArchitecture": "8x8 HDMI matrix kit",
     "closestWyrestormSkuOrFamily": "MX-0808-KIT-V2",
     "notes": "",
@@ -7228,24 +8615,69 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "reviewed-import",
-    "summary": "",
-    "sourceUrl": "Reviewed competitor profile",
-    "evidenceSource": "Reviewed competitor profile",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Sales engineering",
+    "summary": "Blustream IP250UHD-TX 4K HDCP2.2 AVoIP transmitter delivering visually-lossless 10Gb HDMI plus 2-channel Dante audio over a 1Gb network (100m copper or SFP fiber uplink), with HDMI loop-out, USB/KVM and RS-232/IR extension, and PoE power.",
+    "sourceUrl": "https://www.blustream-us.com/video-over-ip-extenders-ip250uhd-tx",
+    "evidenceSource": "https://www.blustream-us.com/video-over-ip-extenders-ip250uhd-tx",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "encoder",
     "transport": "1GbE AVoIP",
     "technology": "AV-over-IP endpoint",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": [],
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "Analog Audio (5-pin Phoenix)",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "LAN (dual RJ45)",
+        "count": 2
+      },
+      {
+        "type": "SFP Fiber",
+        "count": 1
+      },
+      {
+        "type": "HDMI (loop-out)",
+        "count": 1
+      },
+      {
+        "type": "Analog Audio (5-pin Phoenix)",
+        "count": 1
+      }
+    ],
+    "control": [
+      "IR (bidirectional)",
+      "RS-232",
+      "USB/KVM (USB-B)"
+    ],
+    "audio": [
+      "HDMI Embedded Audio",
+      "Dante (2ch TX/RX)",
+      "Analog Audio"
+    ],
+    "features": [
+      "10Gb HDMI over 1Gb network (visually lossless)",
+      "Dante integration",
+      "SFP fiber uplink",
+      "PoE",
+      "HDMI loop-out",
+      "OLED front panel display",
+      "4 operational modes (Matrix/Video Wall/1:1/1:many)",
+      "USB/KVM extension",
+      "1-frame latency"
+    ],
     "video": {
-      "maxResolution": "4K class"
+      "maxResolution": "4K60 4:2:0 / 4K30 4:4:4",
+      "hdr": true
     },
     "matrixInputs": 1,
     "routedInputs": 1,
@@ -7253,9 +8685,27 @@
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:2:0 / 4K30 4:4:4",
+        "hdr": true
+      },
+      "distance": {
+        "meters": 100
+      },
+      "network": {
+        "lanPorts": 2,
+        "sfp": true
+      },
+      "latency": "1 frame (16-33ms)",
+      "power": {
+        "poe": true,
+        "poeDrawW": 8,
+        "poeMaxW": 9.2
+      }
+    },
     "aliases": [],
-    "knownLimitations": "Confirm codec USB and PoE support",
+    "knownLimitations": "USB/KVM connectivity noted by Blustream as limited to bulk-mode USB devices (e.g. bulk mode cameras); not confirmed to support isochronous USB data transfer for video-conferencing cameras.",
     "closestWyrestormArchitecture": "NetworkHD 500 encoder",
     "closestWyrestormSkuOrFamily": "NHD-500-TX",
     "notes": "",
@@ -7688,6 +9138,7 @@
       "2U rack-mountable"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K60 4:4:4 (HDMI2.0, 18Gbps)",
       "bandwidthGbps": 18,
       "hdr": true
@@ -7770,6 +9221,7 @@
       "Automatic video down-conversion per output for mixed-capability displays"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K60 4:4:4",
       "hdmiVersion": "2.0",
       "hdcp": "2.2"
@@ -7854,6 +9306,7 @@
       "Digital (S/PDIF) and analog audio breakout"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K60 4:4:4",
       "hdmiVersion": "2.0",
       "hdcp": "2.2"
@@ -7946,8 +9399,8 @@
       "Room switching"
     ],
     "video": {
-      "maxResolution": "4K60 4:4:4",
       "hdmi": "2.0",
+      "maxResolution": "4K60 4:4:4",
       "hdcp": "2.2"
     },
     "matrixInputs": 4,
@@ -8024,7 +9477,9 @@
       "Bidirectional PoC power",
       "Up to 2.5A combined power output"
     ],
-    "video": {},
+    "video": {
+      "usbStandard": "USB 3.2"
+    },
     "matrixInputs": 1,
     "routedInputs": 1,
     "routedInputCount": 1,
@@ -8140,7 +9595,7 @@
     "lastReviewed": "2026-07-05",
     "reviewer": "Claude research pass",
     "confidence": "high",
-    "role": "wireless-presentation-switcher",
+    "role": "presentation-switcher",
     "transport": "Local",
     "technology": "Wireless Presentation",
     "topology": "collaboration appliance",
@@ -8478,38 +9933,81 @@
     "status": "approved",
     "approvalStatus": "approved",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "https://www.crestron.com/Products/Video/DM-NVX-Series",
-    "evidenceSource": "https://www.crestron.com/Products/Video/DM-NVX-Series",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Crestron DM-NVX-350 is a 4K60 4:4:4 HDR AV-over-IP encoder/decoder with 2 HDMI inputs, 1 HDMI output, dual GbE + SFP ports, built-in scaling/video wall processing, USB 2.0 routing, and PoE++ powering.",
+    "sourceUrl": "https://docs.crestron.com/en-us/9496/Content/Topics/Specifications/Specifications-350.htm",
+    "evidenceSource": "https://docs.crestron.com/en-us/9496/Content/Topics/Specifications/Specifications-350.htm",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "high",
     "role": "Transceiver",
     "transport": "",
     "technology": "AVOIP",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "usbRouting": true,
-      "usbC": false,
-      "dante": false,
-      "tenGig": false
-    },
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "LAN",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "LAN",
+        "count": 2
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR",
+      "802.1X",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Analog Audio",
+      "AES67"
+    ],
+    "features": [
+      "4K60 4:4:4 HDR over 1GbE",
+      "HDCP 2.2",
+      "Built-in scaling and video wall processing up to 8x8",
+      "USB 2.0 host/device routing",
+      "Optional SFP fiber connectivity",
+      "PoE++ (802.3bt) powered",
+      "2x HDMI in, 1x HDMI out"
+    ],
     "video": {
-      "maxResolution": "4K60",
+      "usbStandard": "USB 2.0",
+      "maxResolution": "4K60 4:4:4",
+      "hdr": true,
+      "bandwidthGbps": 18,
       "chroma": "4:4:4"
     },
-    "matrixInputs": 1,
-    "routedInputs": 1,
-    "routedInputCount": 1,
+    "matrixInputs": 2,
+    "routedInputs": 2,
+    "routedInputCount": 2,
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "hdr": true,
+        "bandwidthGbps": 18
+      },
+      "power": {
+        "poe": "802.3bt Type 3 Class 5 (60W)"
+      }
+    },
     "aliases": [
       "dmnvx350"
     ],
@@ -8696,6 +10194,7 @@
       "AES67"
     ],
     "video": {
+      "usbStandard": "USB 2.0",
       "maxResolution": "4K60 4:4:4",
       "hdmi": "2.0",
       "bandwidthGbps": 18,
@@ -8924,11 +10423,11 @@
     "status": "approved",
     "approvalStatus": "approved",
     "sourceTier": "curated-fingerprint",
-    "summary": "AV over IP Decoder legacy competitor reference record.",
-    "sourceUrl": "https://www.crestron.com/Products/Catalog/AV-Over-IP/DM-NVX-AV-Over-IP/Video-Endpoint/DM-NVX-D30",
-    "evidenceSource": "https://www.crestron.com/Products/Catalog/AV-Over-IP/DM-NVX-AV-Over-IP/Video-Endpoint/DM-NVX-D30",
+    "summary": "Crestron DM-NVX-D30 is a compact 4K60 4:4:4 HDR AV-over-IP decoder with a single HDMI output, analog audio de-embed, PoE+ powering, sub-1-frame latency, HDCP 2.3, and 802.1X network security.",
+    "sourceUrl": "https://docs.crestron.com/en-us/9496/Content/Topics/Specifications/Specifications-D30.htm",
+    "evidenceSource": "https://docs.crestron.com/en-us/9496/Content/Topics/Specifications/Specifications-D30.htm",
     "lastReviewed": "2026-07-13",
-    "reviewer": "Wingman curated fingerprint migration",
+    "reviewer": "Claude research pass",
     "confidence": "high",
     "role": "Decoder",
     "transport": "AVoIP",
@@ -8947,17 +10446,32 @@
         "count": 1
       }
     ],
-    "control": [],
-    "audio": [],
-    "features": {
-      "usbRouting": true,
-      "tenGig": false
-    },
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR",
+      "802.1X",
+      "CEC",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Analog Audio",
+      "AES67"
+    ],
+    "features": [
+      "4K60 4:4:4 HDR AV-over-IP decoder",
+      "On-board scaling",
+      "HDCP 2.3",
+      "PoE+ powered",
+      "Sub-1-frame latency decode",
+      "802.1X network security"
+    ],
     "video": {
-      "maxResolution": "4K60",
-      "hdmi": "2.0",
-      "bandwidthGbps": 18,
+      "maxResolution": "4K60 4:4:4",
       "hdr": true,
+      "bandwidthGbps": 18,
+      "hdcp": "2.3",
       "chroma": "4:4:4"
     },
     "matrixInputs": 1,
@@ -8969,12 +10483,12 @@
     "specs": {
       "video": {
         "maxResolution": "4K60 4:4:4",
-        "hdmi": "2.0",
+        "hdr": true,
         "bandwidthGbps": 18,
-        "hdr": true
+        "hdcp": "2.3"
       },
-      "distance": {
-        "meters": 100
+      "power": {
+        "poe": "802.3at Type 2 PoE+ Class 4 (25.5W)"
       }
     },
     "aliases": [
@@ -9008,7 +10522,7 @@
     "confidence": "high",
     "role": "controller",
     "transport": "AVoIP",
-    "technology": "Control",
+    "technology": "AVoIP",
     "topology": "controller",
     "directionality": "bidirectional",
     "inputs": [
@@ -9156,28 +10670,102 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Crestron DMPS3-4K-350-C is an all-in-one 3-Series control processor, 9x4 4K matrix switcher, video scaler, 6-channel mic mixer/DSP, and 25W amplifier for classrooms and boardrooms, with 6 HDMI + 2 HDBaseT (DM 8G+) inputs, 2 HDMI + 2 HDBaseT outputs, and optional AirMedia wireless presentation.",
+    "sourceUrl": "https://www.crestron.com/getmedia/58340198-962c-44a7-8470-82048f413191/ss_dmps3-4k-350-c",
+    "evidenceSource": "https://www.crestron.com/getmedia/58340198-962c-44a7-8470-82048f413191/ss_dmps3-4k-350-c",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "presentation switcher",
     "transport": "",
     "technology": "PRESENTATION",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "usbRouting": true
-    },
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 6
+      },
+      {
+        "type": "HDBaseT",
+        "count": 2
+      },
+      {
+        "type": "LAN",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "HDBaseT",
+        "count": 2
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR",
+      "Relay",
+      "GPIO",
+      "CEC",
+      "Web UI",
+      "802.1X"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Analog Audio",
+      "De-Embedded Audio"
+    ],
+    "features": [
+      "9x4 matrix switcher",
+      "4K/60 video scaling",
+      "6-channel mic mixer with DSP",
+      "Built-in amplifier 25W/ch @ 8 ohm or 50W @ 70/100V mono",
+      "AirMedia wireless presentation (license required)",
+      "H.264/MJPEG streaming decoder up to 1080p60",
+      "HDBaseT / DM 8G+ connectivity",
+      "USB HID signal routing",
+      "EDID management",
+      "Integrated 3-Series control system",
+      "CEC device control",
+      "PoE/PoDM+ power sourcing"
+    ],
     "video": {
-      "maxResolution": "4K30"
+      "maxResolution": "4K60 4:2:0",
+      "hdcp": "2.2",
+      "chroma": "4:2:0"
     },
-    "specs": {},
+    "matrixInputs": 9,
+    "routedInputs": 9,
+    "routedInputCount": 9,
+    "matrixOutputs": 4,
+    "routedOutputs": 4,
+    "routedOutputCount": 4,
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:2:0",
+        "hdcp": "2.2"
+      },
+      "matrix": {
+        "inputs": 9,
+        "outputs": 4
+      },
+      "amplifier": {
+        "powerWattsPerChannel": 25,
+        "impedanceOhms": 8,
+        "mono70_100V": 50
+      },
+      "control": {
+        "irPorts": 4,
+        "comPorts": 2,
+        "relayPorts": 4,
+        "digitalInputs": 4
+      }
+    },
     "aliases": [
       "dmps34k350c",
       "dmps34k250c",
@@ -9475,29 +11063,87 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Crestron HD-RX-4K-510-C-E is a DMPS Lite 5x1 4K AV switch and receiver with 2 HDMI + 3 DM Lite inputs, a scaling HDMI output, 6x2 audio mixer with 25W built-in amplifier, and native Cisco Webex/Touch 10 integration for huddle and conference rooms.",
+    "sourceUrl": "https://www.crestron.com/getmedia/1ad60426-e132-4f0f-a60e-817ec2a3fcff/ss_HD-RX-4K-510-C-E",
+    "evidenceSource": "https://www.crestron.com/getmedia/1ad60426-e132-4f0f-a60e-817ec2a3fcff/ss_HD-RX-4K-510-C-E",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "receiver",
     "transport": "",
     "technology": "HDBASET",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "hdbtOutput": true,
-      "receiverKit": true
-    },
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "DM Lite",
+        "count": 3
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "RS-232",
+      "IR",
+      "Relay",
+      "GPIO",
+      "CEC",
+      "Web UI"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "Analog Audio",
+      "De-Embedded Audio"
+    ],
+    "features": [
+      "5x1 auto-switching AV switcher",
+      "4K video scaler on HDMI output",
+      "6x2 audio mixer",
+      "Built-in amplifier 25W/ch @ 4/8 ohm stereo",
+      "2 mic inputs with 48V phantom power",
+      "EDID management",
+      "HDCP 2.2",
+      "Native Cisco Webex/Touch 10 integration",
+      "Compact surface-mountable design"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "maxResolution": "4K60 4:2:0",
+      "hdcp": "2.2",
+      "chroma": "4:2:0"
     },
-    "specs": {},
+    "matrixInputs": 5,
+    "routedInputs": 5,
+    "routedInputCount": 5,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:2:0",
+        "hdcp": "2.2"
+      },
+      "matrix": {
+        "inputs": 5,
+        "outputs": 1
+      },
+      "amplifier": {
+        "powerWattsPerChannel": 25,
+        "impedanceOhms": "4-8"
+      },
+      "distance": {
+        "metersUpTo2K": 70,
+        "metersUpTo4K": 40
+      }
+    },
     "aliases": [
       "hdrx4k510ce",
       "hdrx4k510"
@@ -9521,28 +11167,79 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Crestron HD-TX-4KZ-211-2G is a DM Essentials wall-plate transmitter that extends HDMI or USB-C DisplayPort Alt Mode signals up to 4K60 4:4:4 with HDR10/HDR10+/Dolby Vision over CATx cable to a paired DM Essentials receiver or DMPS Essentials switcher.",
+    "sourceUrl": "https://www.crestron.com/getmedia/95c2c43a-8aff-4c77-9cf0-d47ffe4ea6a1/ss_HD-TX-4KZ-211-2G",
+    "evidenceSource": "https://www.crestron.com/getmedia/95c2c43a-8aff-4c77-9cf0-d47ffe4ea6a1/ss_HD-TX-4KZ-211-2G",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "transmitter",
     "transport": "",
     "technology": "HDBASET",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "hdbtOutput": true
-    },
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "DM Essentials",
+        "count": 1
+      }
+    ],
+    "control": [
+      "CEC"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "features": [
+      "4K60 4:4:4 with HDR10/HDR10+/Dolby Vision support",
+      "2x1 auto-switching HDMI + USB-C DisplayPort Alt Mode inputs",
+      "CEC pass-through",
+      "2-gang wall plate form factor",
+      "HDCP 2.3",
+      "Extension over CAT5e+ up to 130ft (4K) / 230ft (1080p)"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "maxResolution": "4K60 4:4:4",
+      "hdcp": "2.3",
+      "hdr": [
+        "HDR10",
+        "HDR10+",
+        "Dolby Vision"
+      ],
+      "chroma": "4:4:4"
     },
-    "specs": {},
+    "matrixInputs": 2,
+    "routedInputs": 2,
+    "routedInputCount": 2,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "hdcp": "2.3",
+        "hdr": [
+          "HDR10",
+          "HDR10+",
+          "Dolby Vision"
+        ]
+      },
+      "distance": {
+        "metersUpTo4K": 40,
+        "metersUpTo1080p": 70
+      },
+      "cableType": "CAT5e or higher"
+    },
     "aliases": [
       "hdtx4kz2112g",
       "hdtx4kz211"
@@ -10410,7 +12107,7 @@
     "summary": "Extron DTP T USW 233 3-input (2 HDMI + 1 RGBHV/component) switcher with integrated DTP transmitter, extending signals up to 230ft (70m) with audio breakout.",
     "sourceUrl": "https://www.extron.com/product/dtptusw233",
     "evidenceSource": "https://www.extron.com/product/dtptusw233",
-    "lastReviewed": "2026-07-05",
+    "lastReviewed": "2026-07-12",
     "reviewer": "Claude research pass",
     "confidence": "high",
     "role": "transmitter",
@@ -10434,7 +12131,9 @@
         "count": 1
       }
     ],
-    "control": [],
+    "control": [
+      "RS-232"
+    ],
     "audio": [
       "Balanced/Unbalanced Analog Audio"
     ],
@@ -10485,29 +12184,71 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Extron DTP2 R 211 is a long-distance HDMI DTP2 receiver delivering 4K/60 4:4:4 video with audio de-embedding and bidirectional RS-232/IR pass-through up to 330ft (100m) over shielded twisted-pair cable.",
+    "sourceUrl": "https://www.extron.com/product/dtp2r211",
+    "evidenceSource": "https://www.extron.com/product/dtp2r211",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Receiver",
     "transport": "",
     "technology": "HDBASET",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "receiverKit": true,
-      "hdbtOutput": true
-    },
+    "inputs": [
+      {
+        "type": "HDBaseT",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "Analog Audio",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "IR"
+    ],
+    "audio": [
+      "De-Embedded Audio"
+    ],
+    "features": [
+      "4K/60 4:4:4 HDMI receiver",
+      "HDCP 2.3",
+      "18Gbps max video data rate",
+      "330ft (100m) DTP2 extension",
+      "Bidirectional RS-232/IR pass-through",
+      "Audio de-embedding"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "maxResolution": "4K60 4:4:4",
+      "hdcp": "2.3",
+      "bandwidthGbps": 18,
+      "chroma": "4:4:4"
     },
-    "specs": {},
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "hdcp": "2.3",
+        "bandwidthGbps": 18
+      },
+      "distance": {
+        "feet": 330,
+        "meters": 100
+      }
+    },
     "aliases": [
       "dtp2r211"
     ],
@@ -10530,28 +12271,67 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Extron DTP2 T 211 is a long-distance HDMI DTP2 transmitter delivering 4K/60 4:4:4 video with embedded analog audio and bidirectional RS-232/IR pass-through up to 330ft (100m) over shielded twisted-pair cable.",
+    "sourceUrl": "https://www.extron.com/product/dtp2t211",
+    "evidenceSource": "https://www.extron.com/product/dtp2t211",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Transmitter",
     "transport": "",
     "technology": "HDBASET",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "hdbtOutput": true
-    },
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDBaseT",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "IR"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "features": [
+      "4K/60 4:4:4 HDMI transmitter",
+      "HDCP 2.3",
+      "18Gbps max video data rate",
+      "330ft (100m) DTP2 extension",
+      "Bidirectional RS-232/IR pass-through",
+      "Analog audio embedding"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "maxResolution": "4K60 4:4:4",
+      "hdcp": "2.3",
+      "bandwidthGbps": 18,
+      "chroma": "4:4:4"
     },
-    "specs": {},
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "hdcp": "2.3",
+        "bandwidthGbps": 18
+      },
+      "distance": {
+        "feet": 330,
+        "meters": 100
+      }
+    },
     "aliases": [
       "dtp2t211",
       "dtp3t201"
@@ -10576,8 +12356,8 @@
     "approvalStatus": "approved",
     "sourceTier": "structured-catalog",
     "summary": "4x2 presentation matrix with USB-C, HDMI, DTP3 extension, scaling, and local HDMI output alongside an extension output.",
-    "sourceUrl": "https://www.extron.com/product/dtp3crosspointusb",
-    "evidenceSource": "https://www.extron.com/product/dtp3crosspointusb",
+    "sourceUrl": "https://www.extron.com/product/dtp3crosspoint42",
+    "evidenceSource": "https://www.extron.com/product/dtp3crosspoint42",
     "lastReviewed": "2026-07-13",
     "reviewer": "Claude research pass",
     "confidence": "high",
@@ -10602,7 +12382,11 @@
         "count": 2
       }
     ],
-    "control": [],
+    "control": [
+      "RS-232",
+      "TCP/IP",
+      "Web UI"
+    ],
     "audio": [
       "Audio De-embed"
     ],
@@ -10665,7 +12449,7 @@
     "summary": "Extron DTP3 T 202 4K/60 HDMI DTP3 transmitter with HDMI loop-through for local monitoring, HDCP 2.3, and 18Gbps video bandwidth.",
     "sourceUrl": "https://www.extron.com/product/dtp3t202",
     "evidenceSource": "https://www.extron.com/product/dtp3t202",
-    "lastReviewed": "2026-07-05",
+    "lastReviewed": "2026-07-12",
     "reviewer": "Claude research pass",
     "confidence": "high",
     "role": "transmitter",
@@ -10689,7 +12473,9 @@
         "count": 1
       }
     ],
-    "control": [],
+    "control": [
+      "RS-232"
+    ],
     "audio": [
       "HDMI De-embedded Digital Audio"
     ],
@@ -10742,8 +12528,8 @@
     "summary": "Long-distance DTP3 receiver for HDMI and audio output with RS-232 pass-through and support for 4K60 4:4:4 signals over shielded twisted pair.",
     "sourceUrl": "https://www.extron.com/product/dtp3r201",
     "evidenceSource": "https://www.extron.com/product/dtp3r201",
-    "lastReviewed": "",
-    "reviewer": "",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "low",
     "role": "extender",
     "transport": "HDBaseT",
@@ -11236,7 +13022,12 @@
         "count": 2
       }
     ],
-    "control": [],
+    "control": [
+      "RS-232",
+      "IR",
+      "TCP/IP",
+      "Web UI"
+    ],
     "audio": [
       "DSP"
     ],
@@ -11316,8 +13107,13 @@
         "count": 1
       }
     ],
-    "control": [],
-    "audio": [],
+    "control": [
+      "RS-232",
+      "TCP/IP"
+    ],
+    "audio": [
+      "Analog Audio"
+    ],
     "features": [
       "4-window 4K/60 multi-window processor",
       "Extron Vector 4K scaling + LinkLicense annotation",
@@ -11382,24 +13178,43 @@
       {
         "type": "HDMI",
         "count": 1
+      },
+      {
+        "type": "Analog Audio",
+        "count": 1
+      },
+      {
+        "type": "USB-C",
+        "count": 1
       }
     ],
     "outputs": [
+      {
+        "type": "HDMI (loop-through)",
+        "count": 1
+      },
       {
         "type": "LAN",
         "count": 1
       }
     ],
-    "control": [],
-    "audio": [],
+    "control": [
+      "RS-232",
+      "IR"
+    ],
+    "audio": [
+      "Analog Audio",
+      "AES67"
+    ],
     "features": [
       "PURE3 codec, visually lossless 4K60 4:4:4",
       "10Gbps Ethernet, adjustable bitrate for 1Gb NAV compatibility",
       "AES67 audio over IP",
       "HDMI loop-through",
-      "USB 2.0 (IP over USB config port)"
+      "USB 2.0 (Type-C)"
     ],
     "video": {
+      "usbStandard": "USB 2.0",
       "maxResolution": "4K60 4:4:4",
       "chroma": "4:4:4"
     },
@@ -11456,17 +13271,32 @@
       {
         "type": "HDMI",
         "count": 1
+      },
+      {
+        "type": "Analog Audio",
+        "count": 1
+      },
+      {
+        "type": "USB-C",
+        "count": 1
       }
     ],
-    "control": [],
+    "control": [
+      "RS-232",
+      "IR",
+      "CEC"
+    ],
     "audio": [
+      "Analog Audio",
       "AES67"
     ],
     "features": [
       "PURE3 codec, visually lossless 4K60 4:4:4",
       "10Gbps Ethernet, compatible with 1Gb NAV endpoints",
       "AES67 audio over IP",
-      "Scaling HDMI output"
+      "Scaling HDMI output",
+      "USB 2.0 (Type-C)",
+      "CEC control of display"
     ],
     "video": {
       "maxResolution": "4K60 4:4:4",
@@ -11779,11 +13609,11 @@
     "status": "approved",
     "approvalStatus": "approved",
     "sourceTier": "curated-fingerprint",
-    "summary": "AV over IP Encoder legacy competitor reference record.",
+    "summary": "Extron NAV E 501 is a 1G Pro AV over IP encoder delivering PURE3-codec 4K60 4:4:4 video with HDMI loop-through, analog audio input, embedded HDMI audio, AES67 audio over IP, and a USB 2.0 Type-C port.",
     "sourceUrl": "https://www.extron.com/product/nave501",
     "evidenceSource": "https://www.extron.com/product/nave501",
     "lastReviewed": "2026-07-13",
-    "reviewer": "Wingman curated fingerprint migration",
+    "reviewer": "Claude research pass",
     "confidence": "high",
     "role": "Encoder",
     "transport": "AVoIP",
@@ -11794,22 +13624,46 @@
       {
         "type": "HDMI",
         "count": 1
+      },
+      {
+        "type": "Analog Audio",
+        "count": 1
+      },
+      {
+        "type": "USB-C",
+        "count": 1
       }
     ],
     "outputs": [
+      {
+        "type": "HDMI (loop-through)",
+        "count": 1
+      },
       {
         "type": "LAN",
         "count": 1
       }
     ],
-    "control": [],
-    "audio": [],
-    "features": {
-      "usbRouting": true,
-      "tenGig": false
-    },
+    "control": [
+      "RS-232",
+      "IR"
+    ],
+    "audio": [
+      "Analog Audio",
+      "Embedded Audio",
+      "AES67"
+    ],
+    "features": [
+      "PURE3 codec, 4K60 4:4:4, ultra-low latency",
+      "1Gb PoE+ Ethernet",
+      "HDMI loop-through",
+      "USB 2.0 (Type-C)",
+      "AES67 audio over IP",
+      "Analog audio input"
+    ],
     "video": {
-      "maxResolution": "4K60",
+      "usbStandard": "USB 2.0",
+      "maxResolution": "4K60 4:4:4",
       "hdmi": "2.0",
       "hdr": true,
       "chroma": "4:4:4"
@@ -11822,12 +13676,16 @@
     "routedOutputCount": 1,
     "specs": {
       "video": {
-        "maxResolution": "4K60",
+        "maxResolution": "4K60 4:4:4",
         "hdmi": "2.0",
         "hdr": true
       },
       "distance": {
         "meters": 100
+      },
+      "usb": {
+        "standard": "USB 2.0",
+        "connector": "USB-C"
       }
     },
     "aliases": [
@@ -11852,7 +13710,7 @@
     "status": "approved",
     "approvalStatus": "approved",
     "sourceTier": "structured-catalog",
-    "summary": "AV over IP Decoder legacy competitor reference record.",
+    "summary": "Extron NAV SD 501 is a 1G Pro AV over IP scaling decoder delivering PURE3-codec 4K60 up to 4:4:4 video with HDMI output, analog de-embedded audio, AES67 audio over IP, and a USB 2.0 Type-C port.",
     "sourceUrl": "https://www.extron.com/product/navsd501",
     "evidenceSource": "https://www.extron.com/product/navsd501",
     "lastReviewed": "2026-07-13",
@@ -11873,20 +13731,37 @@
       {
         "type": "HDMI",
         "count": 1
+      },
+      {
+        "type": "Analog Audio",
+        "count": 1
+      },
+      {
+        "type": "USB-C",
+        "count": 1
       }
     ],
-    "control": [],
-    "audio": [],
+    "control": [
+      "RS-232",
+      "IR"
+    ],
+    "audio": [
+      "Analog Audio",
+      "AES67"
+    ],
     "features": [
       "PURE3 codec, 4K@60 4:4:4/4:2:2/4:2:0, up to 18Gbps",
       "1Gb PoE+ NAV port + Extension port",
       "AES67 audio over IP",
-      "HDCP 1.4/2.3"
+      "HDCP 1.4/2.3",
+      "USB 2.0 (Type-C)"
     ],
     "video": {
-      "maxResolution": "4K60",
+      "usbStandard": "USB 2.0",
+      "maxResolution": "4K60 4:4:4",
       "bandwidthGbps": 18,
-      "hdcp": "2.3"
+      "hdcp": "2.3",
+      "chroma": "4:4:4"
     },
     "matrixOutputs": 1,
     "routedOutputs": 1,
@@ -11899,6 +13774,10 @@
       },
       "network": {
         "speed": "1Gb"
+      },
+      "usb": {
+        "standard": "USB 2.0",
+        "connector": "USB-C"
       }
     },
     "aliases": [],
@@ -11971,6 +13850,7 @@
       "Distributed AV encoder"
     ],
     "video": {
+      "usbStandard": "USB 2.0",
       "maxResolution": "4K60 4:4:4",
       "hdmi": "2.0b",
       "bandwidthGbps": 18,
@@ -12102,7 +13982,7 @@
     "confidence": "high",
     "role": "controller",
     "transport": "AVoIP",
-    "technology": "Control",
+    "technology": "AVoIP",
     "topology": "controller",
     "directionality": "bidirectional",
     "inputs": [
@@ -12318,24 +14198,49 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Kramer KDS-DEC7 (KDS-7 family decoder) is a high-performance AVoIP decoder for 4K60 4:2:0 over 1G networks with HDR10 support, USB/IR/RS-232/CEC-over-IP, and video walls up to 16x16.",
+    "sourceUrl": "https://www1.kramerav.com/product/KDS-DEC7",
+    "evidenceSource": "https://www1.kramerav.com/product/KDS-DEC7",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Decoder",
     "transport": "",
     "technology": "AVOIP",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": [],
+    "inputs": [
+      {
+        "type": "LAN",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "control": [
+      "USB over IP",
+      "IR over IP",
+      "RS-232 over IP",
+      "CEC over IP"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "features": [
+      "High-performance, highly-scalable AVoIP decoder",
+      "HDR10 support",
+      "Unicast/multicast",
+      "Video wall up to 16x16",
+      "PoE",
+      "1G network"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "maxResolution": "4K60 4:2:0 (HDR10 up to 4K30 4:2:2 12-bit)",
+      "hdr": true
     },
     "matrixInputs": 1,
     "routedInputs": 1,
@@ -12343,7 +14248,18 @@
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:2:0",
+        "hdr": true
+      },
+      "videoWall": {
+        "maxGrid": "16x16"
+      },
+      "power": {
+        "weightKg": 0.7
+      }
+    },
     "aliases": [
       "kds7dec7"
     ],
@@ -12366,24 +14282,65 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Kramer KDS-EN7 (KDS-7 family encoder) is a high-performance H.265 AVoIP encoder for 4K60 4:2:0 input with 33ms latency, up to 999-channel scalability, 16x16 video walls, and 802.1x/TLS security.",
+    "sourceUrl": "https://www1.kramerav.com/product/kds-en7",
+    "evidenceSource": "https://www1.kramerav.com/product/kds-en7",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Encoder",
     "transport": "",
     "technology": "AVOIP",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": [],
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "Balanced Audio",
+        "count": 1
+      },
+      {
+        "type": "USB-B",
+        "count": 1
+      },
+      {
+        "type": "IR",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "LAN",
+        "count": 2
+      }
+    ],
+    "control": [
+      "RS-232",
+      "802.1x",
+      "HTTPS/TLS"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "features": [
+      "H.265 (HEVC) compression",
+      "33ms end-to-end latency",
+      "Up to 999 channels / 16x16 video walls",
+      "1-second switching",
+      "802.1x, HTTPS/TLS security"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "maxInputResolution": "4K60 4:2:0",
+      "maxOutputResolution": "4K30 4:4:4",
+      "latencyMs": 33,
+      "maxResolution": "In: 4K60 4:2:0 / Out: 4K30 4:4:4"
     },
     "matrixInputs": 1,
     "routedInputs": 1,
@@ -12391,7 +14348,21 @@
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxInputResolution": "4K60 4:2:0",
+        "maxOutputResolution": "4K30 4:4:4",
+        "latencyMs": 33
+      },
+      "network": {
+        "peakMbps": 850,
+        "avg4kMbps": 350,
+        "avg1080pMbps": 250
+      },
+      "videoWall": {
+        "maxGrid": "16x16"
+      }
+    },
     "aliases": [
       "kds7en7"
     ],
@@ -12813,7 +14784,9 @@
       "Up to 7 decoders per encoder/host",
       "5V/500mA per decoder port"
     ],
-    "video": {},
+    "video": {
+      "usbStandard": "USB 2.0"
+    },
     "matrixInputs": 1,
     "routedInputs": 1,
     "routedInputCount": 1,
@@ -12936,7 +14909,7 @@
     "lastReviewed": "2026-07-05",
     "reviewer": "Claude research pass",
     "confidence": "high",
-    "role": "wireless-presentation-hub",
+    "role": "receiver / hub",
     "transport": "Wireless",
     "technology": "PRESENTATION",
     "topology": "wireless presentation",
@@ -13104,26 +15077,105 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Kramer VP-440X is an 18G 4K presentation switcher/scaler with 4 HDMI and 1 VGA input, scaling up to 4K@60Hz 4:4:4 with simultaneous HDMI and HDBaseT (4:2:0, up to 40m) outputs, HDCP 1.4/2.2, HDR10, and analog/mic audio embedding with DSP.",
+    "sourceUrl": "https://www1.kramerav.com/product/vp-440x",
+    "evidenceSource": "https://www1.kramerav.com/product/vp-440x",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "presentation switcher",
     "transport": "",
     "technology": "PRESENTATION",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": [],
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 4
+      },
+      {
+        "type": "VGA",
+        "count": 1
+      },
+      {
+        "type": "Stereo Analog Audio (3.5mm)",
+        "count": 5
+      },
+      {
+        "type": "Microphone (6.3mm)",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "HDBaseT",
+        "count": 1
+      },
+      {
+        "type": "Stereo Analog Audio (3.5mm)",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "Web UI",
+      "CEC",
+      "Relay"
+    ],
+    "audio": [
+      "Analog Audio",
+      "Embedded Audio"
+    ],
+    "features": [
+      "18G 4K HDR presentation switcher/scaler",
+      "HDBaseT extension up to 40m at 4K60 4:2:0 (70m at 1080p60)",
+      "HDCP 1.4/2.2, HDR10 support",
+      "CEC display power control",
+      "Audio DSP (EQ, mixing, delay, mic talk-over/ducking)",
+      "Bidirectional RS-232 extension",
+      "EDID pass-through"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "maxResolution": "4K60 4:4:4 (HDMI) / 4K60 4:2:0 (HDBaseT)",
+      "hdmiOutputMax": "4K@60Hz 4:4:4",
+      "hdbtOutputMax": "4K@60Hz 4:2:0",
+      "hdcp": [
+        "1.4",
+        "2.2"
+      ],
+      "hdr": true
     },
-    "specs": {},
+    "matrixInputs": 5,
+    "routedInputs": 5,
+    "routedInputCount": 5,
+    "matrixOutputs": 2,
+    "routedOutputs": 2,
+    "routedOutputCount": 2,
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "hdmiOutputMax": "4K@60Hz 4:4:4",
+        "hdbtOutputMax": "4K@60Hz 4:2:0",
+        "hdcp": [
+          "1.4",
+          "2.2"
+        ],
+        "hdr": true
+      },
+      "hdbaset": {
+        "compliance": "HDBaseT 1.0",
+        "maxRangeM4k60": 40,
+        "maxRangeM1080p60": 70
+      },
+      "power": {
+        "dc": "5V",
+        "consumptionW": "18-19"
+      }
+    },
     "aliases": [
       "vp440x",
       "vp440"
@@ -13435,24 +15487,70 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Kramer VS-44H2A is a 4x4 18G 4K@60Hz 4:4:4 HDR HDMI matrix switcher with HDCP 2.2/1.4 compliance, per-output balanced/S-PDIF audio de-embedding, individual EDID management, and Kramer Step-In collaboration support.",
+    "sourceUrl": "https://www1.kramerav.com/us/product/vs-44h2a",
+    "evidenceSource": "https://www1.kramerav.com/us/product/vs-44h2a",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Matrix",
     "transport": "",
     "technology": "MATRIX",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": [],
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 4
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 4
+      },
+      {
+        "type": "S/PDIF",
+        "count": 4
+      },
+      {
+        "type": "Balanced Stereo Audio",
+        "count": 4
+      }
+    ],
+    "control": [
+      "RS-232",
+      "TCP/IP",
+      "Web UI",
+      "API",
+      "IR"
+    ],
+    "audio": [
+      "De-Embedded Audio",
+      "S/PDIF",
+      "Balanced Stereo Audio",
+      "Dolby TrueHD",
+      "DTS-HD Master Audio"
+    ],
+    "features": [
+      "4x4 HDMI matrix switching",
+      "Analog and digital audio de-embedding (S/PDIF + balanced stereo)",
+      "Kramer Equalization & reKlocking Technology",
+      "Individual EDID management per input",
+      "Selectable HDCP per input",
+      "Step-In collaboration support",
+      "4 preset configuration recall",
+      "HDR10, xvYCC, 3D support"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "maxResolution": "4K60 4:4:4",
+      "maxDataRateGbps": 18,
+      "hdcp": [
+        "1.4",
+        "2.2"
+      ],
+      "hdmiVersion": "2.0",
+      "hdr": true
     },
     "matrixInputs": 4,
     "routedInputs": 4,
@@ -13460,7 +15558,20 @@
     "matrixOutputs": 4,
     "routedOutputs": 4,
     "routedOutputCount": 4,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "maxDataRateGbps": 18,
+        "hdcp": [
+          "1.4",
+          "2.2"
+        ],
+        "hdmiVersion": "2.0",
+        "hdr": true
+      },
+      "matrixInputs": 4,
+      "matrixOutputs": 4
+    },
     "aliases": [
       "vs44h2a"
     ],
@@ -13791,6 +15902,7 @@
       "Half-rack-sized"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K60 4:4:4",
       "hdcp": "2.2",
       "chroma": "4:4:4"
@@ -13813,7 +15925,7 @@
     "knownLimitations": "",
     "closestWyrestormArchitecture": "4x1 HDMI switcher",
     "closestWyrestormSkuOrFamily": "EXP-SW-0401-8K / SW-0401-H2",
-    "notes": "AVITdirect source feed: MMX2-4x1-H20 is a compact 4x1 HDMI 2.0 switcher. | Verified via official Lightware MMX2-4x1-H20 page: 4x1 HDMI2.0 switcher, 4K60 4:4:4/HDCP2.2, occupancy sensor, GPIO/RS-232. | Left in review: the SKU name concatenates sub-product model numbers/generation digits that ioFromKey (shared integrity-check regex) misreads as a different NxM ratio than the declared I/O - a code-level SKU-naming limitation, not a data error. Not safe to promote without either renaming the SKU (would misrepresent the product) or changing shared parsing logic (out of scope here).",
+    "notes": "AVITdirect source feed: MMX2-4x1-H20 is a compact 4x1 HDMI 2.0 switcher. | Verified via official Lightware MMX2-4x1-H20 page: 4x1 HDMI2.0 switcher, 4K60 4:4:4/HDCP2.2, occupancy sensor, GPIO/RS-232.",
     "sourceFile": "data-sources/competitors/lightware.csv",
     "comparisonOnly": true
   },
@@ -13924,7 +16036,7 @@
     "confidence": "high",
     "role": "matrix switcher",
     "transport": "HDBaseT",
-    "technology": "Matrix",
+    "technology": "HDBASET",
     "topology": "matrix",
     "directionality": "many-to-many",
     "inputs": [
@@ -14012,7 +16124,7 @@
     "confidence": "high",
     "role": "matrix switcher",
     "transport": "HDBaseT",
-    "technology": "Matrix",
+    "technology": "HDBASET",
     "topology": "matrix",
     "directionality": "many-to-many",
     "inputs": [
@@ -14105,7 +16217,7 @@
     "confidence": "high",
     "role": "matrix switcher",
     "transport": "HDBaseT",
-    "technology": "Matrix",
+    "technology": "HDBASET",
     "topology": "matrix",
     "directionality": "many-to-many",
     "inputs": [
@@ -14187,7 +16299,7 @@
     "confidence": "high",
     "role": "matrix switcher",
     "transport": "HDBaseT",
-    "technology": "Matrix",
+    "technology": "HDBASET",
     "topology": "matrix",
     "directionality": "many-to-many",
     "inputs": [
@@ -14271,24 +16383,50 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Lightware MMX8x8-HDMI-4K-A is a standalone 2RU 8x8 HDMI matrix switcher supporting 4K/UHD (30Hz RGB 4:4:4, 60Hz YCbCr 4:2:0) with HDCP and 3D, 4+2 Phoenix audio embed/de-embed ports, and RS-232/Ethernet/USB control with a built-in Event Manager.",
+    "sourceUrl": "https://www.lightware.com/mmx8x8-hdmi-4k-a",
+    "evidenceSource": "https://www.lightware.com/mmx8x8-hdmi-4k-a",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Matrix",
     "transport": "",
     "technology": "MATRIX",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": [],
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 8
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 8
+      }
+    ],
+    "control": [
+      "RS-232",
+      "Ethernet",
+      "USB",
+      "IR"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "De-Embedded Audio"
+    ],
+    "features": [
+      "8x8 standalone HDMI matrix switcher, 2RU",
+      "4+2 balanced bi-directional 5-pole Phoenix audio ports for embed/de-embed",
+      "Advanced EDID Management (factory/custom/transparent emulation)",
+      "Built-in Event Manager for room control via RS-232/IR",
+      "RS-232/Serial/IR command injection to endpoints",
+      "Cisco VC room integration"
+    ],
     "video": {
-      "maxResolution": "4K30"
+      "maxResolution": "4K/UHD 30Hz 4:4:4 / 60Hz 4:2:0",
+      "chroma": "4:4:4 at supported UHD modes"
     },
     "matrixInputs": 8,
     "routedInputs": 8,
@@ -14296,7 +16434,15 @@
     "matrixOutputs": 8,
     "routedOutputs": 8,
     "routedOutputCount": 8,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K/UHD 30Hz 4:4:4 / 60Hz 4:2:0"
+      },
+      "matrixInputs": 8,
+      "matrixOutputs": 8,
+      "routedInputCount": 8,
+      "routedOutputCount": 8
+    },
     "aliases": [
       "mmx8x8hdmi4ka",
       "mmx8x8hdmi4k"
@@ -14304,7 +16450,7 @@
     "knownLimitations": "",
     "closestWyrestormArchitecture": "8x8 HDMI matrix switcher",
     "closestWyrestormSkuOrFamily": "MX-0808-H2A-MK2",
-    "notes": "",
+    "notes": "Verified via official Lightware MMX8x8-HDMI-4K-A product page.",
     "sourceFile": "data-sources/competitors/lightware.csv",
     "comparisonOnly": true
   },
@@ -14320,27 +16466,56 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Lightware Taurus UCX-2x1-HC30 is a 2x1 USB-C/HDMI 2.0 universal switcher for small meeting rooms (4-8 people), supporting up to 4K60 4:4:4 at 18Gbps with HDCP 2.2, GPIO/RS-232/occupancy-sensor automation, and secure SSH/SSL/HTTPS Ethernet control.",
+    "sourceUrl": "https://lightware.com/ucx-2x1-hc30",
+    "evidenceSource": "https://lightware.com/ucx-2x1-hc30",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "presentation switcher",
     "transport": "",
     "technology": "PRESENTATION",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "usbC": true,
-      "usbRouting": true
-    },
+    "inputs": [
+      {
+        "type": "USB-C",
+        "count": 1
+      },
+      {
+        "type": "HDMI 2.0",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI 2.0",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "GPIO",
+      "TCP/IP",
+      "USB"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "De-Embedded Audio"
+    ],
+    "features": [
+      "2x1 universal switcher with USB-C + HDMI 2.0 for 2 hosts (4-8 person rooms)",
+      "USB-C: up to 5Gbps USB 3.1 Gen1 video/data/power",
+      "GPIO/RS-232/occupancy sensor room automation",
+      "Secure Ethernet (SSH/SSL/HTTPS)",
+      "Noiseless (fanless) operation"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "hdmi": "2.0",
+      "maxResolution": "UHD/4K@60Hz 4:4:4",
+      "bandwidthGbps": 18,
+      "hdcp": "2.2",
+      "chroma": "4:4:4"
     },
     "matrixInputs": 2,
     "routedInputs": 2,
@@ -14348,7 +16523,18 @@
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "UHD 4K60 4:4:4",
+        "bandwidthGbps": 18,
+        "hdcp": "2.2"
+      },
+      "power": {
+        "externalSupplyW": 120
+      },
+      "matrixInputs": 2,
+      "matrixOutputs": 1
+    },
     "aliases": [
       "taurusucx2x1hc30",
       "taurusucx2x1",
@@ -14357,7 +16543,7 @@
     "knownLimitations": "",
     "closestWyrestormArchitecture": "USB-C/HDMI conferencing presentation switcher",
     "closestWyrestormSkuOrFamily": "SW-120-TX3",
-    "notes": "",
+    "notes": "Verified via official Lightware UCX-2x1-HC30 datasheet/product page.",
     "sourceFile": "data-sources/competitors/lightware.csv",
     "comparisonOnly": true
   },
@@ -14373,27 +16559,57 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Lightware Taurus UCX-4x2-HC30 is a 4x2 USB-C/HDMI 2.0 universal switcher supporting up to 4K60 4:4:4 at 18Gbps with HDCP 2.2, up to 60W USB-C charging per port, GPIO/RS-232/occupancy-sensor automation, and Tempest SDIP27 Level B certification.",
+    "sourceUrl": "https://www.lightware.com/en/products/matrix-switchers/ucx-4x2-hc30",
+    "evidenceSource": "https://www.lightware.com/en/products/matrix-switchers/ucx-4x2-hc30",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "presentation switcher",
     "transport": "",
     "technology": "PRESENTATION",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "usbC": true,
-      "usbRouting": true
-    },
+    "inputs": [
+      {
+        "type": "HDMI 2.0",
+        "count": 2
+      },
+      {
+        "type": "USB-C (DP Alt Mode)",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI 2.0",
+        "count": 2
+      }
+    ],
+    "control": [
+      "RS-232",
+      "GPIO",
+      "TCP/IP",
+      "USB"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "De-Embedded Audio"
+    ],
+    "features": [
+      "4x2 universal USB-C/HDMI 2.0 switcher for up to 4 hosts",
+      "USB-C: 18Gbps video, 5Gbps USB 3.1 Gen1, up to 60W charging (2x60W)",
+      "GPIO/RS-232/occupancy sensor room automation",
+      "Tempest SDIP27 Level B certified",
+      "Secure Ethernet (SSH/SSL/HTTPS)",
+      "Noiseless (fanless) operation"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "hdmi": "2.0",
+      "maxResolution": "UHD/4K@60Hz 4:4:4",
+      "bandwidthGbps": 18,
+      "hdcp": "2.2",
+      "chroma": "4:4:4"
     },
     "matrixInputs": 4,
     "routedInputs": 4,
@@ -14401,7 +16617,23 @@
     "matrixOutputs": 2,
     "routedOutputs": 2,
     "routedOutputCount": 2,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "UHD 4K60 4:4:4",
+        "bandwidthGbps": 18,
+        "hdcp": "2.2"
+      },
+      "usbC": {
+        "chargeW": 60,
+        "dataGbps": 5
+      },
+      "power": {
+        "externalSupplyW": 160,
+        "maxConsumptionW": 137.3
+      },
+      "matrixInputs": 4,
+      "matrixOutputs": 2
+    },
     "aliases": [
       "taurusucx4x2hc30",
       "taurusucx4x2"
@@ -14409,7 +16641,7 @@
     "knownLimitations": "",
     "closestWyrestormArchitecture": "USB-C/HDMI conferencing presentation switcher",
     "closestWyrestormSkuOrFamily": "SW-510-TX",
-    "notes": "",
+    "notes": "Verified via official Lightware UCX-4x2-HC30 product page/spec table.",
     "sourceFile": "data-sources/competitors/lightware.csv",
     "comparisonOnly": true
   },
@@ -14495,7 +16727,7 @@
     "knownLimitations": "",
     "closestWyrestormArchitecture": "USB-C/HDMI switcher/extension bundle",
     "closestWyrestormSkuOrFamily": "SW-120-TX3 + EX-100-KVM",
-    "notes": "AVITdirect source feed: TPX bundle extends video, USB, Ethernet and control over CAT up to 100m. | Classified as extension/transport, not a matrix or AVoIP endpoint. | Verified via official Lightware TPX-2x1-TX20/UCX-3x3-TPX-RX20 bundle page: 100m CAT6A, PoE+ 25.4W, USB host switching (8 devices), 3x GbE on receiver. | Left in review: the SKU name concatenates sub-product model numbers/generation digits that ioFromKey (shared integrity-check regex) misreads as a different NxM ratio than the declared I/O - a code-level SKU-naming limitation, not a data error. Not safe to promote without either renaming the SKU (would misrepresent the product) or changing shared parsing logic (out of scope here).",
+    "notes": "AVITdirect source feed: TPX bundle extends video, USB, Ethernet and control over CAT up to 100m. | Classified as extension/transport, not a matrix or AVoIP endpoint. | Verified via official Lightware TPX-2x1-TX20/UCX-3x3-TPX-RX20 bundle page: 100m CAT6A, PoE+ 25.4W, USB host switching (8 devices), 3x GbE on receiver.",
     "sourceFile": "data-sources/competitors/lightware.csv",
     "comparisonOnly": true
   },
@@ -14592,37 +16824,76 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Lightware UBEX-PRO20-HDMI-F100 is an optical AVoIP transceiver (usable as TX, RX, or TRX) with 2x HDMI 2.0 video ports per unit, delivering uncompressed 4K UHD60 4:4:4 over a 20G-capable 10G SFP+ optical link, with reach from 400m to 80km depending on installed optical modules and Tempest SDIP27 Level B certification.",
+    "sourceUrl": "https://www.lightware.com/ubex-pro20-hdmi-f100",
+    "evidenceSource": "https://www.lightware.com/ubex-pro20-hdmi-f100",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Transceiver",
     "transport": "",
     "technology": "AVOIP",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": {
-      "tenGig": true,
-      "lossless": true,
-      "zeroLatency": true
-    },
+    "inputs": [
+      {
+        "type": "HDMI 2.0",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI 2.0",
+        "count": 2
+      },
+      {
+        "type": "SFP+ Optical (10G)",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "IR",
+      "TCP/IP"
+    ],
+    "audio": [
+      "Embedded Audio",
+      "De-Embedded Audio"
+    ],
+    "features": [
+      "Optical AVoIP scaling extender with latency-free multistreaming over 10G Ethernet",
+      "Field-exchangeable 10Gbps SFP+ optical modules (SM/MM/BiDi)",
+      "2x HDMI 2.0 video ports per transmitter/receiver/transceiver unit",
+      "Operable as transmitter, receiver, or transceiver",
+      "Tempest SDIP27 Level B certified",
+      "Reach 400m-80km depending on optical module type",
+      "Virtual matrix scalability via standard Ethernet switch + UBEX-MMU-X200"
+    ],
     "video": {
-      "maxResolution": "4K60",
+      "hdmi": "2.0",
+      "maxResolution": "4K UHD@60Hz 4:4:4",
       "chroma": "4:4:4"
     },
-    "matrixInputs": 1,
-    "routedInputs": 1,
-    "routedInputCount": 1,
-    "matrixOutputs": 1,
-    "routedOutputs": 1,
-    "routedOutputCount": 1,
-    "specs": {},
+    "matrixInputs": 2,
+    "routedInputs": 2,
+    "routedInputCount": 2,
+    "matrixOutputs": 2,
+    "routedOutputs": 2,
+    "routedOutputCount": 2,
+    "specs": {
+      "video": {
+        "maxResolution": "4K UHD@60Hz 4:4:4"
+      },
+      "network": {
+        "linkGbps": 20
+      },
+      "distance": {
+        "minMeters": 400,
+        "maxKm": 80
+      },
+      "matrixInputs": 2,
+      "matrixOutputs": 2
+    },
     "aliases": [
       "ubexpro20hdmif100",
       "ubexpro20"
@@ -14630,7 +16901,7 @@
     "knownLimitations": "",
     "closestWyrestormArchitecture": "NetworkHD 600-class (10G optical AVoIP)",
     "closestWyrestormSkuOrFamily": "NHD-600-TRXF (10G fibre transceiver)",
-    "notes": "",
+    "notes": "Verified via official Lightware UBEX-PRO20-HDMI-F100 product page.",
     "sourceFile": "data-sources/competitors/lightware.csv",
     "comparisonOnly": true
   },
@@ -14866,6 +17137,8 @@
       "SSH/SSL/HTTPS secure control"
     ],
     "video": {
+      "hdmi": "2.0",
+      "usbStandard": "USB 3.1",
       "maxResolution": "UHD/4K@60Hz 4:4:4",
       "bandwidthGbps": 18,
       "hdcp": "2.2"
@@ -14954,6 +17227,7 @@
       "FIPS 140-3 CryptoCore variant (HC40-LCC) available"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "UHD/4K@60Hz 4:4:4",
       "chroma": "4:4:4"
     },
@@ -15038,6 +17312,7 @@
       "Noiseless (fanless)"
     ],
     "video": {
+      "usbStandard": "USB 3.1",
       "maxResolution": "UHD/4K@60Hz 4:4:4 (5K120 supported)",
       "bandwidthGbps": 18
     },
@@ -15126,6 +17401,7 @@
       "FIPS 140-3 CryptoCore variant available"
     ],
     "video": {
+      "usbStandard": "USB 3.1",
       "maxResolution": "UHD/4K@60Hz 4:4:4 (dual-screen)"
     },
     "matrixInputs": 4,
@@ -15575,6 +17851,7 @@
       "Aluminum alloy body"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K60"
     },
     "matrixOutputs": 1,
@@ -15647,6 +17924,7 @@
       "PoE"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K30 (UHD, HDMI) / 4K60 (IP triple-stream)"
     },
     "matrixOutputs": 1,
@@ -16060,6 +18338,7 @@
       "PoE++ (802.3bt)"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K60 (UHD 3840x2160)"
     },
     "matrixOutputs": 1,
@@ -16300,6 +18579,7 @@
       "Enterprise-manageable via Solstice Dashboard"
     ],
     "video": {
+      "usbStandard": "USB 3.0",
       "singleDisplay": "4K",
       "dualDisplay": "1080p",
       "maxResolution": "4K (single display) / 1080p (dual display)"
@@ -17292,6 +19572,7 @@
       "Optional NDI license"
     ],
     "video": {
+      "usbStandard": "USB 3.0",
       "maxResolution": "4K60 (UHD)"
     },
     "matrixOutputs": 1,
@@ -17526,7 +19807,7 @@
     "confidence": "high",
     "role": "controller",
     "transport": "AVoIP",
-    "technology": "Control",
+    "technology": "AVoIP",
     "topology": "controller",
     "directionality": "bidirectional",
     "inputs": [
@@ -17614,6 +19895,7 @@
       "Dual 1G LAN ports for redundancy"
     ],
     "video": {
+      "hdmi": "2.0",
       "maxResolution": "4K60 4:4:4 (4096x2160)",
       "hdcp": "2.3",
       "networkSpeed": "1 Gbps (dual LAN)"
@@ -17837,7 +20119,7 @@
     "status": "approved",
     "approvalStatus": "approved",
     "sourceTier": "structured-catalog",
-    "summary": "Zero-frame-latency 10Gb HDMI-over-IP decoder delivering up to 4K60 video with USB, audio, and video-wall workflows on managed networks.",
+    "summary": "Zero-frame-latency one-gigabit HDMI-over-IP decoder delivering up to 4K60 video with USB, audio, and video-wall workflows on managed networks.",
     "sourceUrl": "https://www.zeevee.com/products/zyper4k/",
     "evidenceSource": "https://www.zeevee.com/products/zyper4k/",
     "lastReviewed": "2026-07-05",
@@ -17987,24 +20269,48 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Zero-frame-latency one-gigabit HDMI-over-IP decoder delivering up to 4K60 video with USB, audio, and video-wall workflows on managed networks.",
+    "sourceUrl": "https://www.zeevee.com/products/zyper4k/",
+    "evidenceSource": "https://www.zeevee.com/products/zyper4k/",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Decoder",
     "transport": "",
     "technology": "AVOIP",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": [],
+    "inputs": [
+      {
+        "type": "LAN (SDVoE, 10Gb)",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "features": [
+      "AVoIP decoder",
+      "Zero-frame latency",
+      "PoE+",
+      "Video wall",
+      "USB extension",
+      "Managed-network multicast",
+      "SDVoE",
+      "High-bandwidth AVoIP"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "maxResolution": "4K60 4:4:4",
+      "latency": "zero-frame"
     },
     "matrixInputs": 1,
     "routedInputs": 1,
@@ -18012,7 +20318,15 @@
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "latency": "zero-frame"
+      },
+      "network": {
+        "sdvoe": true
+      }
+    },
     "aliases": [
       "zyper4kdecoder"
     ],
@@ -18035,24 +20349,48 @@
     "status": "review",
     "approvalStatus": "review",
     "sourceTier": "curated-fingerprint",
-    "summary": "",
-    "sourceUrl": "",
-    "evidenceSource": "",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "summary": "Zero-frame-latency one-gigabit HDMI-over-IP encoder delivering up to 4K60 video with USB, audio, and video-wall workflows on managed networks.",
+    "sourceUrl": "https://www.zeevee.com/products/zyper4k/",
+    "evidenceSource": "https://www.zeevee.com/products/zyper4k/",
+    "lastReviewed": "2026-07-12",
+    "reviewer": "Claude research pass",
     "confidence": "medium",
     "role": "Encoder",
     "transport": "",
     "technology": "AVOIP",
     "topology": "",
     "directionality": "",
-    "inputs": [],
-    "outputs": [],
-    "control": [],
-    "audio": [],
-    "features": [],
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "LAN (SDVoE, 10Gb)",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP"
+    ],
+    "audio": [
+      "Embedded Audio"
+    ],
+    "features": [
+      "AVoIP encoder",
+      "Zero-frame latency",
+      "PoE+",
+      "Video wall",
+      "USB extension",
+      "Managed-network multicast",
+      "SDVoE",
+      "High-bandwidth AVoIP"
+    ],
     "video": {
-      "maxResolution": "4K60"
+      "maxResolution": "4K60 4:4:4",
+      "latency": "zero-frame"
     },
     "matrixInputs": 1,
     "routedInputs": 1,
@@ -18060,7 +20398,15 @@
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
-    "specs": {},
+    "specs": {
+      "video": {
+        "maxResolution": "4K60 4:4:4",
+        "latency": "zero-frame"
+      },
+      "network": {
+        "sdvoe": true
+      }
+    },
     "aliases": [
       "zyper4kencoder"
     ],
@@ -18206,6 +20552,7 @@
       "Requires ZyPerUHD decoder + management platform"
     ],
     "video": {
+      "hdmi": "2.0a",
       "maxResolution": "4K60 4:2:0"
     },
     "matrixInputs": 1,

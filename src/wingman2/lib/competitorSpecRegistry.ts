@@ -170,12 +170,12 @@ function ioFromKey(key: string): { inputs: number; outputs: number } | null {
 // Order matters: /wireless/ is checked before /presentation/ so a
 // "Wireless Presentation" role is not captured by the presentation rule.
 const ROLE_DOMAIN_RULES: Array<{ role: RegExp; domains: CompetitorTechnologyClass[] }> = [
-  { role: /matrix/i, domains: ["MATRIX", "VIDEO_WALL"] },
+  { role: /matrix/i, domains: ["MATRIX", "VIDEO_WALL", "HDBASET"] },
   { role: /encoder|decoder|transceiver/i, domains: ["AVOIP"] },
-  { role: /transmitter|receiver/i, domains: ["AVOIP", "HDBASET", "USB_EXTENSION"] },
+  { role: /transmitter|receiver/i, domains: ["AVOIP", "HDBASET", "USB_EXTENSION", "WIRELESS_PRESENTATION"] },
   { role: /wireless/i, domains: ["WIRELESS_PRESENTATION"] },
-  { role: /presentation/i, domains: ["PRESENTATION"] },
-  { role: /controller/i, domains: ["CONTROL"] },
+  { role: /presentation/i, domains: ["PRESENTATION", "WIRELESS_PRESENTATION"] },
+  { role: /controller/i, domains: ["CONTROL", "AVOIP"] },
 ];
 
 /**
