@@ -1677,8 +1677,13 @@ function isApprovedCompetitorIntelligenceRecord(record) {
 // Checked in priority order; first match wins.
 const STRUCTURED_DOMAIN_RULES = [
   { domain: "AVOIP", pattern: /\bavoip\b|\bav[\s-]?over[\s-]?ip\b|\bnetworkhd\b|\bnvx\b|\bjpeg2000\b|\bsdvoe\b|\bndi\b/i },
-  { domain: "EXTENDER", pattern: /\bextension\b|\bextender\b|\bhdbaset\b|\bhdbt\b|\bpoint-to-point\b/i },
+  // MATRIX checked before EXTENDER: an HDBaseT matrix (primaryCategory
+  // "Matrix / Routing" with transportClass including "HDBaseT") is primarily
+  // a matrix - HDBaseT is just its extension transport, not its identity.
+  // Same precedence bug already fixed once this session for the same product
+  // class in competitorSpecRegistry.ts's catalogDomain().
   { domain: "MATRIX", pattern: /\bmatrix\b|\brouting core\b/i },
+  { domain: "EXTENDER", pattern: /\bextension\b|\bextender\b|\bhdbaset\b|\bhdbt\b|\bpoint-to-point\b/i },
   { domain: "DISTRIBUTION", pattern: /\bdistribution\b|\bsplitter\b|\bdistribution amplifier\b/i },
   { domain: "VIDEO_WALL", pattern: /\bvideo\s*wall\b|\bwall processor\b/i },
   { domain: "PRESENTATION", pattern: /\bpresentation\b|\bcollaboration\b|\bbyod\b|\bwireless\b/i },
