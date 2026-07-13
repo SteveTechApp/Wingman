@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+type WingmanCardLevel = "primary" | "standard" | "quiet";
+
 type WingmanCardProps = {
   title?: string;
   subtitle?: string;
@@ -7,6 +9,8 @@ type WingmanCardProps = {
   children?: ReactNode;
   actions?: ReactNode;
   selected?: boolean;
+  level?: WingmanCardLevel;
+  accent?: string;
   className?: string;
 };
 
@@ -17,12 +21,14 @@ export function WingmanCard({
   children,
   actions,
   selected = false,
+  level = "standard",
+  accent,
   className = ""
 }: WingmanCardProps) {
   const classes = ["wm-card", selected ? "wm-card--selected" : "", className].filter(Boolean).join(" ");
 
   return (
-    <article className={classes}>
+    <article className={classes} data-wm-card-level={level} data-wm-accent={accent}>
       {meta ? <p className="wm-card__meta">{meta}</p> : null}
       {title ? <h3>{title}</h3> : null}
       {subtitle ? <p className="wm-card__subtitle">{subtitle}</p> : null}

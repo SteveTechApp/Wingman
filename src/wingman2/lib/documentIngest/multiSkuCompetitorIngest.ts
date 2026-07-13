@@ -231,8 +231,8 @@ function captureHeader(text: string, header: string): string {
 }
 
 function detectAccount(text: string): string {
-  const labelled = text.match(/^(?:account|customer|client|end customer|opportunity)\s*[:\-]\s*(.+)$/im)?.[1];
-  if (labelled) return clean(labelled).replace(/[<(\[].*$/, "").replace(/\s+-\s+.*$/, "");
+  const labelled = text.match(/^(?:account|customer|client|end customer|opportunity)\s*[:-]\s*(.+)$/im)?.[1];
+  if (labelled) return clean(labelled).replace(/[<([].*$/, "").replace(/\s+-\s+.*$/, "");
 
   const recipient = captureHeader(text, "To");
   if (recipient && !/@(?:blustream|wyrestorm)\b/i.test(recipient)) {

@@ -62,7 +62,10 @@ export type CompetitorMatchCandidate = {
     status?: string;
     summary?: string;
     blockers?: string[];
-    cautions?: string[];
+    warnings?: string[];
+    strengths?: string[];
+    nextActions?: string[];
+    reviewRequired?: boolean;
   };
   breakdown?: Record<string, number>;
 };

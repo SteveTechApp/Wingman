@@ -1,16 +1,74 @@
-import { useMemo } from "react";
-import { Link } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 import { routeCatalogByKey } from "../app/routeCatalog";
-import { useCustomRoomTemplates } from "../lib/customRoomTemplates";
-import { roomTemplates } from "../lib/roomTemplates";
+import {
+  deleteCustomRoomTemplate,
+  duplicateCustomRoomTemplate,
+  useCustomRoomTemplates,
+  type CustomRoomTemplate,
+} from "../lib/customRoomTemplates";
+import { buildDiscoveryHandoffFromTemplate, writeDiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
+import { roomTemplates, type RoomTemplate } from "../lib/roomTemplates";
+import { ALL_MARKET_FILTER, TEMPLATE_MARKET_FILTERS, templateMatchesMarketFilter } from "../lib/templateMarkets";
+
+function isCustomRoomTemplate(template: RoomTemplate | CustomRoomTemplate): template is CustomRoomTemplate {
+  return "customTemplate" in template && template.customTemplate === true;
+}
 
 export function TemplatesPage() {
   const customTemplates = useCustomRoomTemplates();
+  const navigate = useNavigate();
+  const [marketFilter, setMarketFilter] = useState<string>(ALL_MARKET_FILTER);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
   const availableTemplates = useMemo(
     () => [...customTemplates, ...roomTemplates],
     [customTemplates],
   );
+
+  const filteredTemplates = useMemo(
+    () => availableTemplates.filter((template) => templateMatchesMarketFilter(template, marketFilter)),
+    [availableTemplates, marketFilter],
+  );
+
+  function startNewCustomTemplate() {
+    writeDiscoveryHandoff({ mode: "template-create" });
+    navigate(routeCatalogByKey.discovery.path);
+  }
+
+  function applyTemplateToDiscovery(template: RoomTemplate | CustomRoomTemplate) {
+    writeDiscoveryHandoff(buildDiscoveryHandoffFromTemplate(template));
+    navigate(routeCatalogByKey.discovery.path);
+  }
+
+  function editCustomTemplate(template: CustomRoomTemplate) {
+    writeDiscoveryHandoff({
+      mode: "template-edit",
+      templateId: template.id,
+      templateName: template.name,
+      templateMarket: template.vertical,
+      sourceTemplateId: template.sourceTemplateId,
+      sourceTemplateName: template.name,
+      answers: template.discoveryAnswers,
+      notes: template.discoveryNotes,
+    });
+    navigate(routeCatalogByKey.discovery.path);
+  }
+
+  function duplicateTemplate(template: CustomRoomTemplate) {
+    duplicateCustomRoomTemplate(template.id);
+  }
+
+  function confirmDelete(template: CustomRoomTemplate) {
+    if (confirmDeleteId === template.id) {
+      deleteCustomRoomTemplate(template.id);
+      setConfirmDeleteId(null);
+      return;
+    }
+
+    setConfirmDeleteId(template.id);
+  }
 
   return (
     <main className="wm-templates-page wm-page wingman-page-host" data-wingman-page="templates">
@@ -27,21 +85,48 @@ export function TemplatesPage() {
       <section className="wm-template-results-header wm-section-card">
         <div>
           <p className="wm-template-kicker wm-ui-kicker">Template library</p>
-          <h2 className="wm-section-title">{availableTemplates.length} templates</h2>
-          {customTemplates.length > 0 ? (
-            <p className="wm-copy">{customTemplates.length} saved custom template{customTemplates.length === 1 ? "" : "s"} included.</p>
-          ) : null}
+          <h2 className="wm-section-title">{filteredTemplates.length} templates</h2>
+          <p className="wm-copy">
+            {availableTemplates.length} total{customTemplates.length > 0 ? `, ${customTemplates.length} custom` : ""}.
+          </p>
+        </div>
+
+        <button type="button" className="wm-button wm-button-primary" onClick={startNewCustomTemplate}>
+          + New Custom Template
+        </button>
+      </section>
+
+      <section className="wm-section-card" aria-label="Template filters">
+        <div className="wm-template-filter-group" aria-label="Vertical filter">
+          <span className="wm-template-filter-label">Vertical market</span>
+          <div className="wm-template-filter-strip">
+            {TEMPLATE_MARKET_FILTERS.map((market) => (
+              <button
+                key={market}
+                type="button"
+                className={`wm-filter-chip${market === marketFilter ? " is-active" : ""}`}
+                onClick={() => setMarketFilter(market)}
+                aria-pressed={market === marketFilter}
+              >
+                {market}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
       <section className="wm-section wm-template-card-grid" aria-label="Room templates">
-        {availableTemplates.map((template) => {
-          const isCustom = "customTemplate" in template && template.customTemplate === true;
+        {filteredTemplates.map((template) => {
+          const isCustom = isCustomRoomTemplate(template);
 
           return (
-            <article key={template.id} className="wm-action-card wm-template-card">
+            <article
+              key={template.id}
+              className="wm-action-card wm-template-card"
+              data-custom-template={isCustom ? "true" : undefined}
+            >
               <div className="wm-template-card-top">
-                {isCustom ? <span className="wm-badge">Saved template</span> : null}
+                {isCustom ? <span className="wm-badge wm-template-custom-badge">Custom</span> : null}
                 <span className="wm-badge">{template.vertical}</span>
                 <span className="wm-badge">{template.scale}</span>
               </div>
@@ -58,11 +143,46 @@ export function TemplatesPage() {
                 >
                   Review template
                 </Link>
+                <button type="button" className="wm-button wm-button-secondary" onClick={() => applyTemplateToDiscovery(template)}>
+                  Use template
+                </button>
+
+                {isCustom ? (
+                  <>
+                    <button type="button" className="wm-button wm-button-secondary" onClick={() => editCustomTemplate(template)}>
+                      Edit
+                    </button>
+                    <button type="button" className="wm-button wm-button-secondary" onClick={() => duplicateTemplate(template)}>
+                      Duplicate
+                    </button>
+                    <button
+                      type="button"
+                      className="wm-button wm-button-secondary"
+                      onClick={() => confirmDelete(template)}
+                    >
+                      {confirmDeleteId === template.id ? "Confirm delete?" : "Delete"}
+                    </button>
+                    {confirmDeleteId === template.id ? (
+                      <button type="button" className="wm-button wm-button-secondary" onClick={() => setConfirmDeleteId(null)}>
+                        Keep template
+                      </button>
+                    ) : null}
+                  </>
+                ) : null}
               </div>
             </article>
           );
         })}
       </section>
+
+      {filteredTemplates.length === 0 ? (
+        <section className="wm-output-panel" aria-live="polite">
+          <h2 className="wm-section-title">Nothing matches that filter</h2>
+          <p className="wm-copy">Choose a different vertical market, or create a new custom template.</p>
+        </section>
+      ) : null}
     </main>
   );
 }
+
+export default TemplatesPage;
