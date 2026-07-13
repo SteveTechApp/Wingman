@@ -82,6 +82,26 @@ describe("single Guru entry point", () => {
     vi.useRealTimers();
   });
 
+  it("renders a dedicated moving layer so Guru idle motion does not depend only on CSS media settings", async () => {
+    await act(async () => {
+      root.render(
+        createElement(WingmanGuruFab, {
+          open: false,
+          onClick: vi.fn(),
+        }),
+      );
+    });
+
+    const motionLayer = container.querySelector<HTMLElement>(".wingman-guru-fab-motion");
+    const sweep = container.querySelector<HTMLElement>(".wingman-guru-fab-sweep");
+    const glow = container.querySelector<HTMLElement>(".wingman-guru-fab-glow");
+
+    expect(motionLayer).not.toBeNull();
+    expect(sweep).not.toBeNull();
+    expect(glow).not.toBeNull();
+    expect(motionLayer?.style.willChange).toBe("transform");
+  });
+
   it("moves with pointer events, persists its position and suppresses the drag click", async () => {
     const onClick = vi.fn();
 

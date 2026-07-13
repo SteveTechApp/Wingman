@@ -123,6 +123,10 @@ export function WingmanGuruFab({
   hasContextualTransfer = false,
 }: WingmanGuruFabProps) {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const motionRef = useRef<HTMLSpanElement | null>(null);
+  const glowRef = useRef<HTMLSpanElement | null>(null);
+  const sweepRef = useRef<HTMLSpanElement | null>(null);
+  const motionFrameRef = useRef<number | null>(null);
   const dragRef = useRef<DragState>(emptyDragState());
   const positionRef = useRef<GuruPosition | null>(readStoredPosition());
   const suppressClickRef = useRef(false);
@@ -192,6 +196,65 @@ export function WingmanGuruFab({
     };
   }, []);
 
+  useEffect(() => {
+    const motion = motionRef.current;
+    const glow = glowRef.current;
+    const sweep = sweepRef.current;
+
+    if (motionFrameRef.current !== null) {
+      window.cancelAnimationFrame(motionFrameRef.current);
+      motionFrameRef.current = null;
+    }
+
+    if (!motion) {
+      return;
+    }
+
+    if (open || dragging) {
+      motion.style.transform = "translate3d(0, 0, 0) rotate(0deg)";
+      if (glow) {
+        glow.style.opacity = "0.72";
+        glow.style.transform = "scale(1)";
+      }
+      return;
+    }
+
+    const startedAt = window.performance.now();
+
+    function animate(timestamp: number) {
+      const elapsed = (timestamp - startedAt) / 1000;
+      const horizontalDrift = Math.sin(elapsed * 1.65) * 4.5;
+      const verticalDrift = -5 + Math.sin(elapsed * 2.15) * 7.5;
+      const tilt = Math.sin(elapsed * 1.3) * 2.4;
+      const glowScale = 0.94 + ((Math.sin(elapsed * 2.5) + 1) / 2) * 0.18;
+      const glowOpacity = 0.54 + ((Math.sin(elapsed * 2.5) + 1) / 2) * 0.4;
+
+      if (motionRef.current) {
+        motionRef.current.style.transform = `translate3d(${horizontalDrift}px, ${verticalDrift}px, 0) rotate(${tilt}deg)`;
+      }
+
+      if (glowRef.current) {
+        glowRef.current.style.transform = `scale(${glowScale})`;
+        glowRef.current.style.opacity = `${glowOpacity}`;
+      }
+
+      if (sweepRef.current) {
+        sweepRef.current.style.transform = `rotate(${elapsed * 72}deg)`;
+      }
+
+      motionFrameRef.current = window.requestAnimationFrame(animate);
+    }
+
+    motionFrameRef.current = window.requestAnimationFrame(animate);
+
+    return () => {
+      if (motionFrameRef.current !== null) {
+        window.cancelAnimationFrame(motionFrameRef.current);
+        motionFrameRef.current = null;
+      }
+    };
+  }, [dragging, open]);
+
   if (open) {
     return null;
   }
@@ -211,6 +274,16 @@ export function WingmanGuruFab({
     "--wingman-guru-right": "auto",
     "--wingman-guru-bottom": "auto",
     "--wingman-guru-transform": "none",
+  } as CSSProperties;
+
+  const motionStyle = {
+    position: "absolute",
+    inset: 0,
+    display: "grid",
+    placeItems: "center",
+    pointerEvents: "none",
+    willChange: "transform",
+    transformOrigin: "50% 55%",
   } as CSSProperties;
 
   function handlePointerDown(event: PointerEvent<HTMLButtonElement>) {
@@ -346,18 +419,20 @@ export function WingmanGuruFab({
       onPointerUp={finishPointerDrag}
       onPointerCancel={finishPointerDrag}
     >
-      <span className="wingman-guru-fab-sweep" aria-hidden="true" />
-      <span className="wingman-guru-fab-glow" aria-hidden="true" />
-      <img
-        src="/wingman-guru-icon.png"
-        alt="Guru"
-        className="wingman-guru-fab-image"
-        width={64}
-        height={64}
-        decoding="async"
-        loading="eager"
-        draggable={false}
-      />
+      <span ref={motionRef} className="wingman-guru-fab-motion" style={motionStyle} aria-hidden="true">
+        <span ref={sweepRef} className="wingman-guru-fab-sweep" />
+        <span ref={glowRef} className="wingman-guru-fab-glow" />
+        <img
+          src="/wingman-guru-icon.png"
+          alt=""
+          className="wingman-guru-fab-image"
+          width={64}
+          height={64}
+          decoding="async"
+          loading="eager"
+          draggable={false}
+        />
+      </span>
     </button>
   );
 }

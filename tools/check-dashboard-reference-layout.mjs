@@ -4,6 +4,7 @@ import path from "node:path";
 const root = process.cwd();
 const dashboardPath = path.join(root, "src", "wingman2", "pages", "DashboardPage.tsx");
 const themePath = path.join(root, "src", "wingman2", "styles", "wingman-reference-theme.css");
+const workflowThemePath = path.join(root, "src", "wingman2", "styles", "wingman-workflow-theme.css");
 const mainPath = path.join(root, "src", "main.tsx");
 const errors = [];
 
@@ -30,6 +31,7 @@ function forbidMarker(label, source, marker) {
 
 const dashboard = read(dashboardPath);
 const theme = read(themePath);
+const workflowTheme = read(workflowThemePath);
 const main = read(mainPath);
 
 [
@@ -42,18 +44,14 @@ const main = read(mainPath);
   "Browse Templates",
   "My Projects",
   "Recent Projects",
-  "Quick Actions",
-  "Today's Focus",
-  "Product Spotlight",
-  "Ask Guru",
+  "Today&apos;s Focus",
+  "What&apos;s New",
+  "grid-rows-2",
+  "calc(100dvh - 190px)",
   "routeCatalogByKey.discovery.path",
   "routeCatalogByKey.compare.path",
   "routeCatalogByKey.templates.path",
   "routeCatalogByKey.projects.path",
-  "routeCatalogByKey.finder.path",
-  "routeCatalogByKey.callCoach.path",
-  "routeCatalogByKey.documents.path",
-  "routeCatalogByKey.responsePack.path",
 ].forEach((marker) => requireMarker("DashboardPage.tsx", dashboard, marker));
 
 [
@@ -65,7 +63,6 @@ const main = read(mainPath);
   ".wm-reference-primary-grid",
   ".wm-reference-primary-card",
   ".wm-reference-project-grid",
-  ".wm-reference-quick-grid",
   ".wm-reference-dashboard-rail",
   ".wingman-guru-fab-image",
   "@keyframes wm-reference-guru-float",
@@ -74,10 +71,15 @@ const main = read(mainPath);
 ].forEach((marker) => requireMarker("wingman-reference-theme.css", theme, marker));
 
 requireMarker(
-  "src/main.tsx",
-  main,
-  'import "./wingman2/styles/wingman-reference-theme.css";',
+  "wingman-workflow-theme.css",
+  workflowTheme,
+  'html[data-wingman-route="discovery"]',
 );
+
+[
+  'import "./wingman2/styles/wingman-reference-theme.css";',
+  'import "./wingman2/styles/wingman-workflow-theme.css";',
+].forEach((marker) => requireMarker("src/main.tsx", main, marker));
 
 [
   "How can Wingman help you today?",
@@ -85,6 +87,12 @@ requireMarker(
   "wm-dashboard-command-band",
   "wm-dashboard-rail",
   "wm-dashboard-main",
+  "Quick Actions",
+  "Product Spotlight",
+  "Ask Guru",
+  "quickActions",
+  "wm-reference-quick-grid",
+  "wm-reference-quick-card",
 ].forEach((marker) => forbidMarker("DashboardPage.tsx", dashboard, marker));
 
 if (errors.length) {
@@ -94,5 +102,5 @@ if (errors.length) {
 }
 
 console.log(
-  "[dashboard-reference-layout] Verified the approved action-led dashboard, unified theme and Guru motion contract.",
+  "[dashboard-reference-layout] Verified the simplified dashboard, expanded priority content and governed workflow theme.",
 );
