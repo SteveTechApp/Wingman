@@ -821,8 +821,8 @@ function toStructuredProfile(input) {
       : detectFeatures(blob),
     keySpecs: Array.isArray(input.keySpecs) ? input.keySpecs : [],
     formFactor: tidy(input.formFactor || detectFormFactor(blob, input.model)),
-    comparisonDomain: detectComparisonDomain(blob),
-    comparisonUseCase: detectComparisonUseCase(blob, detectComparisonDomain(blob)),
+    comparisonDomain: input.comparisonDomain || detectComparisonDomain(blob),
+    comparisonUseCase: detectComparisonUseCase(blob, input.comparisonDomain || detectComparisonDomain(blob)),
     hdbtGeneration: detectHdbtGeneration(blob),
     sourceUrl: tidy(input.sourceUrl || input.resolvedUrl),
     rawText: tidy(input.rawText || blob),
@@ -900,12 +900,35 @@ function buildCandidateFromCatalog(row) {
   const sku = pickSku(row);
   const name = pickName(row);
   const blob = pickBlob(row);
+
+  // Prefer the canonical store's own curated classification
+  // (productClassification.*, hardwareType, technologyType) over blob
+  // keyword-matching when it's present. The blob concatenates every string
+  // field on the row, including broad "applications"/"tags" marketing copy
+  // (e.g. an AVoIP encoder's applications text mentioning it can feed a
+  // video wall) that previously got mistaken for the product's own type.
+  const classification = row?.productClassification && typeof row.productClassification === "object" ? row.productClassification : {};
+  const structuredFields = {
+    primaryCategory: classification.primaryCategory,
+    category: classification.category,
+    subCategory: classification.subCategory,
+    productType: classification.productType,
+    systemRole: classification.systemRole,
+    hardwareType: row?.hardwareType,
+    technologyType: row?.technologyType,
+    transportClass: classification.transportClass,
+  };
+  const comparisonDomain = domainFromStructuredCategory(structuredFields);
+  const role = roleFromStructuredCategory(structuredFields);
+
   const base = toStructuredProfile({
     manufacturer: "WyreStorm",
     model: sku,
     title: name,
     summary: blob,
     rawText: blob,
+    comparisonDomain,
+    role,
   });
 
   return {
@@ -915,10 +938,10 @@ function buildCandidateFromCatalog(row) {
     comparisonUseCase: base.comparisonUseCase,
     hdbtGeneration: base.hdbtGeneration,
     deviceClass: detectDeviceClass(blob, sku),
-    transport: detectTransport(blob),
-    subtype: detectSubtype(blob),
-    role: detectRole(blob),
-    category: detectCategory(blob),
+    transport: base.transport,
+    subtype: base.subtype,
+    role: base.role,
+    category: base.role !== "Unknown" ? base.role : detectCategory(blob),
     video: detectVideo(blob),
     ports: detectPortCounts(blob),
     ioProfile: buildNormalizedIoProfile({ manufacturer: "WyreStorm", model: sku, title: name, ports: detectPortCounts(blob), rawText: blob }),
@@ -1631,10 +1654,88 @@ async function loadCompetitorIntelligenceRecord(manufacturer, model) {
 }
 
 function isApprovedCompetitorIntelligenceRecord(record) {
-  if (normalise(record?.vendorType) !== "competitor") return false;
+  // vendorType only exists on records from product-intelligence-store.mjs's
+  // schema (data/product-intelligence-state.json). Records merged in from
+  // COMPETITOR_CATALOG_FILE (data/catalog/competitor-products.generated.json,
+  // the CSV-driven canonical competitor catalogue) never carry this field -
+  // that file is competitor-only by construction, so its absence shouldn't
+  // disqualify a record. Requiring it unconditionally silently rejected every
+  // record from that catalogue, forcing every lookup through the live-scrape
+  // path even when high-confidence structured data already existed.
+  if (record?.vendorType !== undefined && normalise(record.vendorType) !== "competitor") return false;
   if (Boolean(record?.archived)) return false;
   if (normalise(record?.status) !== "approved") return false;
   return true;
+}
+
+// Domains resolved from a small set of curated, structurally-trustworthy
+// category/type fields, NOT from a free-text blob. Kept deliberately
+// separate from detectComparisonDomain()'s blob-based fallback: broad
+// marketing/application text (e.g. an AVoIP encoder's "applications" copy
+// mentioning it can feed a video wall) previously caused confident
+// misclassification when treated as if it described the product's own type.
+// Checked in priority order; first match wins.
+const STRUCTURED_DOMAIN_RULES = [
+  { domain: "AVOIP", pattern: /\bavoip\b|\bav[\s-]?over[\s-]?ip\b|\bnetworkhd\b|\bnvx\b|\bjpeg2000\b|\bsdvoe\b|\bndi\b/i },
+  // MATRIX checked before EXTENDER: an HDBaseT matrix (primaryCategory
+  // "Matrix / Routing" with transportClass including "HDBaseT") is primarily
+  // a matrix - HDBaseT is just its extension transport, not its identity.
+  // Same precedence bug already fixed once this session for the same product
+  // class in competitorSpecRegistry.ts's catalogDomain().
+  { domain: "MATRIX", pattern: /\bmatrix\b|\brouting core\b/i },
+  { domain: "EXTENDER", pattern: /\bextension\b|\bextender\b|\bhdbaset\b|\bhdbt\b|\bpoint-to-point\b/i },
+  { domain: "DISTRIBUTION", pattern: /\bdistribution\b|\bsplitter\b|\bdistribution amplifier\b/i },
+  { domain: "VIDEO_WALL", pattern: /\bvideo\s*wall\b|\bwall processor\b/i },
+  { domain: "PRESENTATION", pattern: /\bpresentation\b|\bcollaboration\b|\bbyod\b|\bwireless\b/i },
+  { domain: "CONTROL", pattern: /\bcontroller\b|\bmanagement platform\b|\bdirector\b|\bcontrol\b/i },
+];
+
+/**
+ * Resolve a comparisonDomain from curated category/type text only (never
+ * free-text features/applications/tags, which is where false positives like
+ * an "EDID management" feature line wrongly triggering CONTROL came from).
+ * Returns undefined (falls back to blob detection) if nothing matches.
+ */
+function domainFromStructuredCategory(fields) {
+  const text = Object.values(fields || {})
+    .flatMap((value) => (Array.isArray(value) ? value : [value]))
+    .filter((value) => typeof value === "string" && value.trim())
+    .join(" ");
+  if (!text) return undefined;
+
+  const rule = STRUCTURED_DOMAIN_RULES.find((entry) => entry.pattern.test(text));
+  return rule?.domain;
+}
+
+// Same rationale as domainFromStructuredCategory(): curated fields only, so a
+// "splitter" role is never lost to a "matrix" mention buried in unrelated
+// marketing copy. "Distribution Amplifier" is a new bucket - detectRole()'s
+// blob-based vocabulary had none, so every splitter/DA fell through to
+// "Unknown" (or worse, matched a later rule on unrelated blob text).
+const STRUCTURED_ROLE_RULES = [
+  { role: "Distribution Amplifier", pattern: /\bsplitter\b|\bdistribution amplifier\b|\bdistribution\b/i },
+  { role: "Multiview Decoder", pattern: /\bmultiview\b|\bmulti-view\b/i },
+  { role: "Matrix", pattern: /\bmatrix\b/i },
+  { role: "Presentation Switcher", pattern: /\bpresentation switcher\b/i },
+  { role: "Switcher", pattern: /\bswitcher\b/i },
+  { role: "Controller", pattern: /\bcontroller\b|\bmanagement platform\b|\bdirector\b/i },
+  // Encoder/Decoder checked before the generic Extender catch-all: an
+  // HDBaseT "receiver" is more precisely a Decoder than a bare "Extender",
+  // matching detectRole()'s original decoder-before-extender ordering.
+  { role: "Encoder", pattern: /\bencoder\b|\btransmitter\b|\btx\b/i },
+  { role: "Decoder", pattern: /\bdecoder\b|\breceiver\b|\brx\b/i },
+  { role: "Extender", pattern: /\bextender\b|\bextension\b/i },
+];
+
+function roleFromStructuredCategory(fields) {
+  const text = Object.values(fields || {})
+    .flatMap((value) => (Array.isArray(value) ? value : [value]))
+    .filter((value) => typeof value === "string" && value.trim())
+    .join(" ");
+  if (!text) return undefined;
+
+  const rule = STRUCTURED_ROLE_RULES.find((entry) => entry.pattern.test(text));
+  return rule?.role;
 }
 
 function buildCompetitorProfileFromIntelligenceRecord(record) {
@@ -1650,6 +1751,15 @@ function buildCompetitorProfileFromIntelligenceRecord(record) {
     lan: sumPortsByType([...(Array.isArray(record?.inputs) ? record.inputs : []), ...(Array.isArray(record?.outputs) ? record.outputs : [])], ["rj45", "lan", "ethernet"]),
   };
 
+  const structuredFields = {
+    category: record?.category,
+    technology: record?.technology,
+    transport: record?.transport,
+    role: record?.role,
+  };
+  const comparisonDomain = domainFromStructuredCategory(structuredFields);
+  const role = roleFromStructuredCategory(structuredFields);
+
   return enrichProfile(toStructuredProfile({
     manufacturer: tidy(record?.brand),
     model: tidy(record?.sku),
@@ -1657,6 +1767,8 @@ function buildCompetitorProfileFromIntelligenceRecord(record) {
     summary: tidy(record?.summary),
     category: tidy(record?.category),
     transport: tidy(record?.transport),
+    comparisonDomain,
+    role,
     keySpecs: [
       ...(Array.isArray(record?.features) ? record.features : []),
       ...(Array.isArray(record?.control) ? record.control : []),
@@ -1803,4 +1915,9 @@ export const compareInternals = {
   toStructuredProfile,
   enrichProfile,
   scoreProfiles,
+  domainFromStructuredCategory,
+  roleFromStructuredCategory,
+  isApprovedCompetitorIntelligenceRecord,
+  buildCandidateFromCatalog,
+  buildCompetitorProfileFromIntelligenceRecord,
 };
