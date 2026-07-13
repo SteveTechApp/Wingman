@@ -265,5 +265,5 @@ describe("competitor compare runtime behaviour", () => {
         expect(matchSkus).not.toContain(eol);
       }
     }
-  });
+  }, 20000); // 6 sequential runCompareRuntimePipeline calls at ~900ms each now exceed the 5000ms default
 });
