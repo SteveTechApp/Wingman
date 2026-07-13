@@ -1,0 +1,624 @@
+/* ========================================================================== 
+   Wingman workflow theme
+   Compact, action-led styling for guided workflow pages.
+   This governed layer is loaded after the shared reference theme.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Discovery workspace
+   -------------------------------------------------------------------------- */
+
+html[data-wingman-route="discovery"] .wingman-app-main > .wingman-page-host {
+  padding-top: 6px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-capture-page {
+  display: grid !important;
+  gap: 14px !important;
+  width: min(100%, var(--wm-ref-page-max)) !important;
+  max-width: var(--wm-ref-page-max) !important;
+  margin: 0 auto !important;
+  padding: 0 0 36px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-capture-hero {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 24px !important;
+  align-items: center !important;
+  min-height: 0 !important;
+  padding: 17px 21px !important;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--wm-ref-aqua) 15%, transparent), transparent 44%),
+    linear-gradient(145deg, var(--wm-ref-panel-strong), var(--wm-ref-panel-soft)) !important;
+  border: 1px solid var(--wm-ref-border) !important;
+  border-radius: var(--wm-ref-radius) !important;
+  box-shadow: var(--wm-ref-shadow-soft) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-capture-hero > div:first-child {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-eyebrow {
+  margin: 0 !important;
+  color: var(--wm-ref-aqua) !important;
+  font-size: 0.67rem !important;
+  font-weight: 760 !important;
+  letter-spacing: 0.09em !important;
+  text-transform: uppercase;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-capture-hero h1 {
+  margin: 0 !important;
+  color: var(--wm-ref-text) !important;
+  font-size: clamp(1.45rem, 2vw, 2rem) !important;
+  line-height: 1.08 !important;
+  letter-spacing: -0.035em !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-capture-hero p:last-child {
+  max-width: 800px;
+  margin: 2px 0 0 !important;
+  color: var(--wm-ref-copy) !important;
+  font-size: 0.83rem !important;
+  line-height: 1.45 !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-completion-card {
+  display: grid !important;
+  min-width: 138px !important;
+  min-height: 72px !important;
+  place-content: center !important;
+  gap: 1px !important;
+  padding: 10px 17px !important;
+  text-align: center !important;
+  background: color-mix(in srgb, var(--wm-ref-aqua) 8%, var(--wm-ref-panel)) !important;
+  border: 1px solid color-mix(in srgb, var(--wm-ref-aqua) 42%, transparent) !important;
+  border-radius: var(--wm-ref-radius-small) !important;
+  box-shadow: 0 0 22px color-mix(in srgb, var(--wm-ref-aqua) 9%, transparent) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-completion-card strong {
+  color: var(--wm-ref-aqua) !important;
+  font-size: 1.65rem !important;
+  line-height: 1 !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-completion-card span {
+  color: var(--wm-ref-muted) !important;
+  font-size: 0.68rem !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-trail-card {
+  display: grid !important;
+  gap: 9px !important;
+  padding: 12px 14px !important;
+  background: linear-gradient(145deg, var(--wm-ref-panel), var(--wm-ref-panel-soft)) !important;
+  border: 1px solid var(--wm-ref-border) !important;
+  border-radius: var(--wm-ref-radius-small) !important;
+  box-shadow: var(--wm-ref-shadow-soft) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-trail-topline {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-trail-topline > span {
+  color: var(--wm-ref-text) !important;
+  font-size: 0.74rem !important;
+  font-weight: 760 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-trail-topline button {
+  min-height: 32px !important;
+  padding: 6px 10px !important;
+  font-size: 0.7rem !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-progress-bar {
+  height: 4px !important;
+  overflow: hidden !important;
+  background: color-mix(in srgb, var(--wm-ref-border) 55%, transparent) !important;
+  border-radius: 999px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-progress-bar > span {
+  display: block !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, var(--wm-ref-aqua), var(--wm-ref-cyan)) !important;
+  border-radius: inherit !important;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--wm-ref-aqua) 38%, transparent) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-step-pills {
+  display: grid !important;
+  grid-auto-flow: column !important;
+  grid-auto-columns: minmax(116px, 1fr) !important;
+  gap: 7px !important;
+  padding: 0 0 5px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  scrollbar-color: color-mix(in srgb, var(--wm-ref-aqua) 45%, transparent) transparent;
+  scrollbar-width: thin;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-step-pill {
+  display: grid !important;
+  min-height: 44px !important;
+  grid-template-columns: 24px minmax(0, 1fr) !important;
+  gap: 7px !important;
+  align-items: center !important;
+  padding: 7px 9px !important;
+  color: var(--wm-ref-muted) !important;
+  text-align: left !important;
+  background: color-mix(in srgb, var(--wm-ref-panel-soft) 86%, transparent) !important;
+  border: 1px solid var(--wm-ref-border) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-step-pill > span:first-child {
+  display: grid !important;
+  width: 22px !important;
+  height: 22px !important;
+  place-items: center !important;
+  color: var(--wm-ref-muted) !important;
+  font-size: 0.65rem !important;
+  font-weight: 760 !important;
+  background: color-mix(in srgb, var(--wm-ref-border) 38%, transparent) !important;
+  border-radius: 999px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-step-pill strong {
+  overflow: hidden !important;
+  color: inherit !important;
+  font-size: 0.68rem !important;
+  font-weight: 680 !important;
+  line-height: 1.15 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-step-pill small {
+  display: none !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-step-pill.is-captured {
+  color: var(--wm-ref-copy) !important;
+  background: color-mix(in srgb, var(--wm-ref-green) 7%, var(--wm-ref-panel-soft)) !important;
+  border-color: color-mix(in srgb, var(--wm-ref-green) 28%, var(--wm-ref-border)) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-step-pill.is-captured > span:first-child {
+  color: var(--wm-ref-green) !important;
+  background: color-mix(in srgb, var(--wm-ref-green) 13%, transparent) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-step-pill.is-active {
+  color: var(--wm-ref-text) !important;
+  background: color-mix(in srgb, var(--wm-ref-aqua) 12%, var(--wm-ref-panel)) !important;
+  border-color: color-mix(in srgb, var(--wm-ref-aqua) 58%, transparent) !important;
+  box-shadow: inset 0 -2px 0 var(--wm-ref-aqua), 0 0 15px color-mix(in srgb, var(--wm-ref-aqua) 9%, transparent) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-step-pill.is-active > span:first-child {
+  color: var(--wm-ref-bg) !important;
+  background: var(--wm-ref-aqua) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-question-layout {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 370px) !important;
+  gap: 14px !important;
+  align-items: start !important;
+  min-width: 0 !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-question-card,
+html[data-wingman-route="discovery"] .wm-discovery-capture-card {
+  background: linear-gradient(145deg, var(--wm-ref-panel-strong), var(--wm-ref-panel-soft)) !important;
+  border: 1px solid var(--wm-ref-border) !important;
+  border-radius: var(--wm-ref-radius) !important;
+  box-shadow: var(--wm-ref-shadow-soft) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-question-card {
+  display: grid !important;
+  gap: 12px !important;
+  padding: 18px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-question-heading {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  gap: 4px 11px !important;
+  align-items: center !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-question-heading > span {
+  display: inline-flex !important;
+  min-height: 27px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 4px 9px !important;
+  color: var(--wm-ref-aqua) !important;
+  font-size: 0.69rem !important;
+  font-weight: 760 !important;
+  background: color-mix(in srgb, var(--wm-ref-aqua) 10%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--wm-ref-aqua) 30%, transparent) !important;
+  border-radius: 999px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-question-heading h2 {
+  margin: 0 !important;
+  color: var(--wm-ref-text) !important;
+  font-size: clamp(1.25rem, 1.65vw, 1.75rem) !important;
+  line-height: 1.12 !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-question-heading > p {
+  grid-column: 2 !important;
+  margin: 0 !important;
+  color: var(--wm-ref-copy) !important;
+  font-size: 0.78rem !important;
+  line-height: 1.4 !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-why-card {
+  display: grid !important;
+  grid-template-columns: 112px minmax(0, 1fr) !important;
+  gap: 12px !important;
+  align-items: center !important;
+  padding: 10px 13px !important;
+  background: color-mix(in srgb, var(--wm-ref-cyan) 5%, var(--wm-ref-panel-soft)) !important;
+  border: 1px solid color-mix(in srgb, var(--wm-ref-cyan) 18%, var(--wm-ref-border)) !important;
+  border-left: 3px solid var(--wm-ref-cyan) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-why-card strong {
+  color: var(--wm-ref-cyan) !important;
+  font-size: 0.72rem !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-why-card p {
+  margin: 0 !important;
+  color: var(--wm-ref-copy) !important;
+  font-size: 0.74rem !important;
+  line-height: 1.35 !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-option-list {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 9px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-option {
+  display: grid !important;
+  min-height: 76px !important;
+  grid-template-columns: 20px minmax(0, 1fr) !important;
+  gap: 10px !important;
+  align-items: start !important;
+  padding: 12px 13px !important;
+  color: var(--wm-ref-copy) !important;
+  text-align: left !important;
+  background: color-mix(in srgb, var(--wm-ref-panel) 86%, transparent) !important;
+  border: 1px solid var(--wm-ref-border) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-option:hover {
+  background: color-mix(in srgb, var(--wm-ref-aqua) 6%, var(--wm-ref-panel)) !important;
+  border-color: color-mix(in srgb, var(--wm-ref-aqua) 42%, var(--wm-ref-border)) !important;
+  transform: translateY(-1px) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-option > span:last-child {
+  display: grid !important;
+  gap: 4px !important;
+  min-width: 0 !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-option strong {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 5px 8px !important;
+  align-items: center !important;
+  color: var(--wm-ref-text) !important;
+  font-size: 0.78rem !important;
+  line-height: 1.25 !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-option small {
+  display: block !important;
+  color: var(--wm-ref-muted) !important;
+  font-size: 0.68rem !important;
+  line-height: 1.35 !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-option-radio,
+html[data-wingman-route="discovery"] .wm-discovery-option-checkbox {
+  display: grid !important;
+  width: 17px !important;
+  height: 17px !important;
+  margin-top: 1px !important;
+  place-items: center !important;
+  background: color-mix(in srgb, var(--wm-ref-bg) 70%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--wm-ref-muted) 52%, transparent) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-option-radio {
+  border-radius: 999px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-option-checkbox {
+  border-radius: 4px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-option.is-selected {
+  color: var(--wm-ref-text) !important;
+  background: color-mix(in srgb, var(--wm-ref-aqua) 12%, var(--wm-ref-panel)) !important;
+  border-color: color-mix(in srgb, var(--wm-ref-aqua) 66%, transparent) !important;
+  box-shadow: inset 3px 0 0 var(--wm-ref-aqua), 0 0 16px color-mix(in srgb, var(--wm-ref-aqua) 7%, transparent) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-option.is-selected .wm-discovery-option-radio,
+html[data-wingman-route="discovery"] .wm-discovery-option.is-selected .wm-discovery-option-checkbox {
+  background: var(--wm-ref-aqua) !important;
+  border-color: var(--wm-ref-aqua) !important;
+  box-shadow: inset 0 0 0 4px var(--wm-ref-panel-strong) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-option.is-recommended,
+html[data-wingman-route="discovery"] .wm-discovery-option.is-suggested {
+  border-color: color-mix(in srgb, var(--wm-ref-green) 42%, var(--wm-ref-border)) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-option.is-unlikely {
+  opacity: 0.68 !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-option.is-unlikely:hover {
+  opacity: 0.9 !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-option-flag {
+  display: inline-flex !important;
+  min-height: 20px !important;
+  align-items: center !important;
+  padding: 3px 7px !important;
+  font-size: 0.59rem !important;
+  font-weight: 730 !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-option-flag-fit {
+  color: color-mix(in srgb, var(--wm-ref-green) 82%, white) !important;
+  background: color-mix(in srgb, var(--wm-ref-green) 11%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--wm-ref-green) 32%, transparent) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-option-flag-uncommon {
+  color: color-mix(in srgb, var(--wm-ref-amber) 85%, white) !important;
+  background: color-mix(in srgb, var(--wm-ref-amber) 10%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--wm-ref-amber) 28%, transparent) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-navigation-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  padding: 2px 0 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-navigation-row button {
+  min-width: 118px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-capture-card {
+  position: sticky !important;
+  top: 8px !important;
+  display: grid !important;
+  gap: 12px !important;
+  padding: 17px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-capture-heading {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-capture-heading > div {
+  display: grid !important;
+  gap: 1px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-capture-heading span {
+  color: var(--wm-ref-aqua) !important;
+  font-size: 0.65rem !important;
+  font-weight: 760 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-capture-heading h3 {
+  margin: 0 !important;
+  color: var(--wm-ref-text) !important;
+  font-size: 0.9rem !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-mic-button {
+  min-height: 32px !important;
+  padding: 6px 10px !important;
+  color: var(--wm-ref-copy) !important;
+  font-size: 0.7rem !important;
+  font-weight: 680 !important;
+  background: color-mix(in srgb, var(--wm-ref-cyan) 8%, var(--wm-ref-panel)) !important;
+  border: 1px solid color-mix(in srgb, var(--wm-ref-cyan) 30%, var(--wm-ref-border)) !important;
+  border-radius: 8px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-mic-button.is-listening {
+  color: var(--wm-ref-text) !important;
+  background: color-mix(in srgb, var(--wm-ref-red) 16%, var(--wm-ref-panel)) !important;
+  border-color: color-mix(in srgb, var(--wm-ref-red) 48%, transparent) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-capture-card textarea {
+  min-height: 168px !important;
+  max-height: 235px !important;
+  padding: 12px !important;
+  resize: vertical !important;
+  color: var(--wm-ref-text) !important;
+  font-size: 0.78rem !important;
+  line-height: 1.45 !important;
+  background: color-mix(in srgb, var(--wm-ref-bg) 76%, transparent) !important;
+  border: 1px solid var(--wm-ref-border) !important;
+  border-radius: 9px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-capture-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-capture-card .wm-discovery-capture-actions button {
+  width: 100% !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-live-tip {
+  display: grid !important;
+  gap: 5px !important;
+  padding: 12px 13px !important;
+  background: color-mix(in srgb, var(--wm-ref-purple) 7%, var(--wm-ref-panel-soft)) !important;
+  border: 1px solid color-mix(in srgb, var(--wm-ref-purple) 24%, var(--wm-ref-border)) !important;
+  border-left: 3px solid var(--wm-ref-purple) !important;
+  border-radius: 8px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-live-tip strong {
+  color: color-mix(in srgb, var(--wm-ref-purple) 72%, white) !important;
+  font-size: 0.7rem !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-live-tip p,
+html[data-wingman-route="discovery"] .wm-discovery-live-tip li {
+  margin: 0 !important;
+  color: var(--wm-ref-copy) !important;
+  font-size: 0.7rem !important;
+  line-height: 1.4 !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-live-tip ul {
+  display: grid !important;
+  gap: 4px !important;
+  margin: 2px 0 0 !important;
+  padding-left: 18px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-summary-card,
+html[data-wingman-route="discovery"] .wm-discovery-finish-card {
+  padding: 18px !important;
+  background: linear-gradient(145deg, var(--wm-ref-panel-strong), var(--wm-ref-panel-soft)) !important;
+  border: 1px solid var(--wm-ref-border) !important;
+  border-radius: var(--wm-ref-radius) !important;
+  box-shadow: var(--wm-ref-shadow-soft) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-summary-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 9px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-summary-grid article {
+  padding: 12px !important;
+  background: color-mix(in srgb, var(--wm-ref-panel) 88%, transparent) !important;
+  border: 1px solid var(--wm-ref-border) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 1180px) {
+  html[data-wingman-route="discovery"] .wm-discovery-question-layout {
+    grid-template-columns: minmax(0, 1fr) 320px !important;
+  }
+
+  html[data-wingman-route="discovery"] .wm-discovery-option-list {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 960px) {
+  html[data-wingman-route="discovery"] .wm-discovery-question-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-wingman-route="discovery"] .wm-discovery-capture-card {
+    position: relative !important;
+    top: auto !important;
+  }
+
+  html[data-wingman-route="discovery"] .wm-discovery-option-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 700px) {
+  html[data-wingman-route="discovery"] .wm-discovery-capture-hero {
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-wingman-route="discovery"] .wm-discovery-completion-card {
+    width: 100% !important;
+    min-height: 58px !important;
+  }
+
+  html[data-wingman-route="discovery"] .wm-discovery-question-heading {
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-wingman-route="discovery"] .wm-discovery-question-heading > p {
+    grid-column: 1 !important;
+  }
+
+  html[data-wingman-route="discovery"] .wm-discovery-why-card,
+  html[data-wingman-route="discovery"] .wm-discovery-option-list,
+  html[data-wingman-route="discovery"] .wm-discovery-summary-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
