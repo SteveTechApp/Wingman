@@ -114,22 +114,36 @@ describe("product story backlog hygiene", () => {
   });
 
   it("reports only genuine uncovered lead products with deterministic counts", () => {
-    const firstOutput = runCoverageAudit();
-    const firstDocument = fs.readFileSync(backlogPath, "utf8");
-    const secondOutput = runCoverageAudit();
-    const secondDocument = fs.readFileSync(backlogPath, "utf8");
+    // The audit script writes docs/product-story-coverage-backlog.md for real
+    // (it's the same tool `npm run audit:story-coverage` runs), and it fully
+    // overwrites that file rather than preserving the separate
+    // "<!-- lifecycle-manual-decisions -->" section that
+    // `npm run lifecycle:manual-decisions` appends afterwards. Running this
+    // test standalone would otherwise leave the tracked doc missing that
+    // section. Snapshot and restore it so this test's real side effect never
+    // leaks into the working tree, regardless of what order/isolation it runs
+    // under.
+    const originalDocument = fs.readFileSync(backlogPath, "utf8");
+    try {
+      const firstOutput = runCoverageAudit();
+      const firstDocument = fs.readFileSync(backlogPath, "utf8");
+      const secondOutput = runCoverageAudit();
+      const secondDocument = fs.readFileSync(backlogPath, "utf8");
 
-    expect(secondOutput).toBe(firstOutput);
-    expect(secondDocument).toBe(firstDocument);
-    expect(readActiveBacklog(firstDocument)).toEqual(EXPECTED_ACTIVE_BACKLOG);
+      expect(secondOutput).toBe(firstOutput);
+      expect(secondDocument).toBe(firstDocument);
+      expect(readActiveBacklog(firstDocument)).toEqual(EXPECTED_ACTIVE_BACKLOG);
 
-    for (const sku of EXPECTED_DEPENDENCY_CLASSIFICATIONS.keys()) {
-      expect(readActiveBacklog(firstDocument)).not.toContain(sku);
+      for (const sku of EXPECTED_DEPENDENCY_CLASSIFICATIONS.keys()) {
+        expect(readActiveBacklog(firstDocument)).not.toContain(sku);
+      }
+
+      expect(firstDocument).toContain("Active catalogue SKUs (alias-deduped): **129**");
+      expect(firstDocument).toContain("Active covered: **124 (96%)** · Active uncovered: **5**");
+      expect(firstDocument).toContain("cable **34**, dependency-only **1**");
+      expect(firstDocument).toContain("NHD-124-RACK-1U — rack:");
+    } finally {
+      fs.writeFileSync(backlogPath, originalDocument);
     }
-
-    expect(firstDocument).toContain("Active catalogue SKUs (alias-deduped): **129**");
-    expect(firstDocument).toContain("Active covered: **124 (96%)** · Active uncovered: **5**");
-    expect(firstDocument).toContain("cable **34**, dependency-only **1**");
-    expect(firstDocument).toContain("NHD-124-RACK-1U — rack:");
   });
 });
