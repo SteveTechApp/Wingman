@@ -279,9 +279,9 @@ export function buildProductConnectionDiagram(
     nodes: buildNodes(facts),
     edges: [
       { id: "e1", source: "inputs", target: "device", label: "Source-side routing" },
-      { id: "e2", source: "input-check", target: "device", label: "Validate ownership", status: "missing" },
+      { id: "e2", source: "input-check", target: "inputs", label: "Validate ownership", status: "missing" },
       { id: "e3", source: "device", target: "outputs", label: "Display-side outputs" },
-      { id: "e4", source: "device", target: "output-check", label: "Output behaviour", status: "optional" },
+      { id: "e4", source: "output-check", target: "outputs", label: "Output behaviour", status: "optional" },
       { id: "e5", source: "device", target: "audio", label: "Audio dependency", status: "optional" },
       { id: "e6", source: "device", target: "control", label: "Control path", status: "optional" },
       { id: "e7", source: "device", target: "network", label: "IP / service lane", status: "optional" },

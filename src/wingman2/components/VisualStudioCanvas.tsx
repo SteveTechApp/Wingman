@@ -1,9 +1,7 @@
 import { memo, useMemo, useRef } from "react";
 import {
-  Background,
   Controls,
   Handle,
-  MiniMap,
   Position,
   ReactFlow,
   ReactFlowProvider,
@@ -112,6 +110,43 @@ const WingmanVisualNode = memo(function WingmanVisualNode({ data }: NodeProps) {
       <Handle type="source" id="source-top" position={Position.Top} className="wm-vs-node-handle" />
       <Handle type="target" id="target-bottom" position={Position.Bottom} className="wm-vs-node-handle" />
       <Handle type="source" id="source-bottom" position={Position.Bottom} className="wm-vs-node-handle" />
+      {/* === WINGMAN PRODUCT PORT FANOUT HANDLES START === */}
+      <Handle
+        type="source"
+        id="source-bottom-1"
+        position={Position.Bottom}
+        className="wm-vs-node-handle wm-vs-node-handle-fanout"
+        style={{ left: "14%" }}
+      />
+      <Handle
+        type="source"
+        id="source-bottom-2"
+        position={Position.Bottom}
+        className="wm-vs-node-handle wm-vs-node-handle-fanout"
+        style={{ left: "32%" }}
+      />
+      <Handle
+        type="source"
+        id="source-bottom-3"
+        position={Position.Bottom}
+        className="wm-vs-node-handle wm-vs-node-handle-fanout"
+        style={{ left: "50%" }}
+      />
+      <Handle
+        type="source"
+        id="source-bottom-4"
+        position={Position.Bottom}
+        className="wm-vs-node-handle wm-vs-node-handle-fanout"
+        style={{ left: "68%" }}
+      />
+      <Handle
+        type="source"
+        id="source-bottom-5"
+        position={Position.Bottom}
+        className="wm-vs-node-handle wm-vs-node-handle-fanout"
+        style={{ left: "86%" }}
+      />
+      {/* === WINGMAN PRODUCT PORT FANOUT HANDLES END === */}
 
       <div className="wm-vs-node-header">
         <span className="wm-vs-node-symbol" aria-hidden="true">
@@ -159,7 +194,7 @@ function VisualStudioCanvasInner({ model, mode }: VisualStudioCanvasProps) {
     let secondFrame = 0;
     const firstFrame = requestAnimationFrame(() => {
       secondFrame = requestAnimationFrame(() => {
-        void fitView({ padding: 0.18, minZoom: 0.2, maxZoom: 0.92, duration: 0 });
+        void fitView({ padding: 0.04, minZoom: 0.52, maxZoom: 1.05, duration: 0 });
       });
     });
 
@@ -174,7 +209,7 @@ function VisualStudioCanvasInner({ model, mode }: VisualStudioCanvasProps) {
       return;
     }
 
-    await fitView({ padding: 0.18, minZoom: 0.2, maxZoom: 0.92, duration: 0 });
+    await fitView({ padding: 0.04, minZoom: 0.52, maxZoom: 1.05, duration: 0 });
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
     const dataUrl = await toPng(exportRef.current, {
@@ -191,7 +226,7 @@ function VisualStudioCanvasInner({ model, mode }: VisualStudioCanvasProps) {
       return;
     }
 
-    await fitView({ padding: 0.18, minZoom: 0.2, maxZoom: 0.92, duration: 0 });
+    await fitView({ padding: 0.04, minZoom: 0.52, maxZoom: 1.05, duration: 0 });
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
     const dataUrl = await toSvg(exportRef.current, {
@@ -251,19 +286,18 @@ function VisualStudioCanvasInner({ model, mode }: VisualStudioCanvasProps) {
             key={`${model.id}-${mode}`}
             nodes={flowModel.nodes}
             edges={flowModel.edges}
+            defaultEdgeOptions={{ zIndex: 6 }}
             nodeTypes={nodeTypes}
             fitView
-            fitViewOptions={{ padding: 0.18, maxZoom: 0.92, minZoom: 0.2 }}
-            minZoom={0.2}
-            maxZoom={1.9}
+            fitViewOptions={{ padding: 0.04, minZoom: 0.52, maxZoom: 1.05 }}
+            minZoom={0.35}
+            maxZoom={1.5}
             nodesDraggable={false}
             nodesConnectable={false}
             elementsSelectable
             panOnScroll
           >
-            <Background gap={24} size={1} />
-            <MiniMap pannable zoomable />
-            <Controls showInteractive={false} />
+<Controls showInteractive={false} />
           </ReactFlow>
         </div>
 
