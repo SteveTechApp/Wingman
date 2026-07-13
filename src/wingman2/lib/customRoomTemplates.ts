@@ -7,12 +7,26 @@ export const CUSTOM_ROOM_TEMPLATE_EVENT = "wingman:custom-room-templates-updated
 const CUSTOM_ROOM_TEMPLATE_KEY = "wingman-custom-room-templates-v1";
 const defaultTemplateBomType: TemplateBomType = "Validate";
 
+// Bump when the CustomRoomTemplate shape gains fields that older saved records
+// won't have. normalizeTemplate() always fills safe defaults for missing fields,
+// so older records keep loading; this just records what was captured.
+export const CUSTOM_ROOM_TEMPLATE_SCHEMA_VERSION = 2;
+
+export type DiscoveryAnswerMap = Record<string, string | string[]>;
+export type DiscoveryNoteMap = Record<string, string>;
+
 export type CustomRoomTemplate = RoomTemplate & {
   customTemplate: true;
   createdAt: string;
   updatedAt: string;
+  schemaVersion: number;
   sourceTemplateId?: string;
   sourceProjectId?: string;
+  // Raw Discovery question answers/notes captured when this template was
+  // created or edited via Discovery's template-creation mode. Reusing
+  // Discovery's own answer shape avoids a second, parallel room-data model.
+  discoveryAnswers: DiscoveryAnswerMap;
+  discoveryNotes: DiscoveryNoteMap;
 };
 
 export type CreateCustomRoomTemplateInput = {
@@ -21,6 +35,12 @@ export type CreateCustomRoomTemplateInput = {
   application: string;
   scale: string;
   summary: string;
+  customerNarrative?: string;
+  architecture?: string;
+  assumptions?: string[];
+  validationItems?: string[];
+  discoveryAnswers?: DiscoveryAnswerMap;
+  discoveryNotes?: DiscoveryNoteMap;
 };
 
 function nowIso() {
@@ -60,6 +80,45 @@ function safeStringArray(value: unknown, fallback: string[]) {
 
 function safeBomType(value: unknown): TemplateBomType {
   return value === "Required" || value === "Optional" || value === "Validate" ? value : defaultTemplateBomType;
+}
+
+function safeSchemaVersion(value: unknown): number {
+  const num = Number(value);
+  return Number.isFinite(num) && num > 0 ? num : 1;
+}
+
+function safeDiscoveryAnswers(value: unknown): DiscoveryAnswerMap {
+  if (!value || typeof value !== "object") return {};
+
+  const record = value as Record<string, unknown>;
+  const result: DiscoveryAnswerMap = {};
+
+  for (const [key, raw] of Object.entries(record)) {
+    if (Array.isArray(raw)) {
+      const values = raw.map((item) => String(item ?? "").trim()).filter(Boolean);
+      if (values.length) result[key] = values;
+      continue;
+    }
+
+    const text = String(raw ?? "").trim();
+    if (text) result[key] = text;
+  }
+
+  return result;
+}
+
+function safeDiscoveryNotes(value: unknown): DiscoveryNoteMap {
+  if (!value || typeof value !== "object") return {};
+
+  const record = value as Record<string, unknown>;
+  const result: DiscoveryNoteMap = {};
+
+  for (const [key, raw] of Object.entries(record)) {
+    const text = String(raw ?? "").trim();
+    if (text) result[key] = text;
+  }
+
+  return result;
 }
 
 function normalizeBomRow(row: unknown, index: number): TemplateBomRow | null {
@@ -134,22 +193,17 @@ function normalizeTemplate(template: unknown, index: number): CustomRoomTemplate
           })
           .filter((item): item is { label: string; description: string } => Boolean(item))
       : [{ label: "Custom template", description: "Created by a Wingman user and saved locally." }],
-    assumptions: safeStringArray(record.assumptions, []),
-    validationItems: safeStringArray(record.validationItems, []),
-    designParameters: safeStringArray(
-      record.designParameters,
-      safeStringArray(record.assumptions, []),
-    ),
-    deploymentConditions: safeStringArray(
-      record.deploymentConditions,
-      safeStringArray(record.validationItems, []),
-    ),
+    assumptions: safeStringArray(record.assumptions, ["Confirm site constraints, cable paths and product availability."]),
+    validationItems: safeStringArray(record.validationItems, ["Validate the saved design before using it for a live customer proposal."]),
     upgradePaths: safeStringArray(record.upgradePaths, ["Add optional enhancements after the base room requirement is confirmed."]),
     customTemplate: true,
     createdAt: safeString(record.createdAt, timestamp),
     updatedAt: safeString(record.updatedAt, timestamp),
+    schemaVersion: safeSchemaVersion(record.schemaVersion),
     sourceTemplateId: safeString(record.sourceTemplateId, ""),
     sourceProjectId: safeString(record.sourceProjectId, ""),
+    discoveryAnswers: safeDiscoveryAnswers(record.discoveryAnswers),
+    discoveryNotes: safeDiscoveryNotes(record.discoveryNotes),
   };
 }
 
@@ -200,6 +254,7 @@ export function createBlankCustomRoomTemplate(input: CreateCustomRoomTemplateInp
   const existingTemplates = readCustomTemplates();
   const id = createCustomTemplateId(input.name, existingTemplates);
   const timestamp = nowIso();
+  const summary = safeString(input.summary, "A reusable room template created by the Wingman user.");
 
   return {
     id,
@@ -207,21 +262,30 @@ export function createBlankCustomRoomTemplate(input: CreateCustomRoomTemplateInp
     vertical: safeString(input.vertical, "Custom"),
     application: safeString(input.application, "User-created room design"),
     scale: safeString(input.scale, "Custom"),
-    summary: safeString(input.summary, "A reusable room template created by the Wingman user."),
-    customerNarrative: safeString(input.summary, "Start from this saved room design, then confirm customer-specific changes."),
-    architecture: "Add sources, displays, routing, control, USB, audio and network notes as the room design matures.",
+    summary,
+    customerNarrative: safeString(input.customerNarrative, summary),
+    architecture: safeString(
+      input.architecture,
+      "Add sources, displays, routing, control, USB, audio and network notes as the room design matures.",
+    ),
     bom: [placeholderBomRow(id)],
     designNotes: [{ label: "Custom starting point", description: "Replace the placeholder row with confirmed products and design notes." }],
-    assumptions: ["Room details are user-created and should be validated before proposal output."],
-    validationItems: ["Confirm product fit, quantities, dependencies and installation scope."],
+    assumptions: input.assumptions?.length ? input.assumptions : ["Room details are user-created and should be validated before proposal output."],
+    validationItems: input.validationItems?.length ? input.validationItems : ["Confirm product fit, quantities, dependencies and installation scope."],
     upgradePaths: ["Add optional expansion paths once the base room is confirmed."],
     customTemplate: true,
     createdAt: timestamp,
     updatedAt: timestamp,
+    schemaVersion: CUSTOM_ROOM_TEMPLATE_SCHEMA_VERSION,
+    discoveryAnswers: input.discoveryAnswers ?? {},
+    discoveryNotes: input.discoveryNotes ?? {},
   };
 }
 
-export function saveCustomRoomTemplate(template: RoomTemplate, options: { id?: string; sourceTemplateId?: string; sourceProjectId?: string } = {}) {
+export function saveCustomRoomTemplate(
+  template: RoomTemplate & { discoveryAnswers?: DiscoveryAnswerMap; discoveryNotes?: DiscoveryNoteMap },
+  options: { id?: string; sourceTemplateId?: string; sourceProjectId?: string } = {},
+) {
   const existingTemplates = readCustomTemplates();
   const timestamp = nowIso();
   const id = options.id || createCustomTemplateId(template.name, existingTemplates);
@@ -233,8 +297,11 @@ export function saveCustomRoomTemplate(template: RoomTemplate, options: { id?: s
       customTemplate: true,
       createdAt: existingTemplate?.createdAt || timestamp,
       updatedAt: timestamp,
-      sourceTemplateId: options.sourceTemplateId,
-      sourceProjectId: options.sourceProjectId,
+      schemaVersion: CUSTOM_ROOM_TEMPLATE_SCHEMA_VERSION,
+      sourceTemplateId: options.sourceTemplateId ?? existingTemplate?.sourceTemplateId,
+      sourceProjectId: options.sourceProjectId ?? existingTemplate?.sourceProjectId,
+      discoveryAnswers: template.discoveryAnswers ?? existingTemplate?.discoveryAnswers,
+      discoveryNotes: template.discoveryNotes ?? existingTemplate?.discoveryNotes,
     },
     existingTemplates.length,
   );
@@ -247,6 +314,39 @@ export function saveCustomRoomTemplate(template: RoomTemplate, options: { id?: s
   return customTemplate;
 }
 
+export function duplicateCustomRoomTemplate(templateId: string): CustomRoomTemplate {
+  const existingTemplates = readCustomTemplates();
+  const source = existingTemplates.find((template) => template.id === templateId);
+
+  if (!source) {
+    throw new Error("Custom template not found.");
+  }
+
+  const timestamp = nowIso();
+  const name = `${source.name} Copy`;
+  const id = createCustomTemplateId(name, existingTemplates);
+
+  const duplicate: CustomRoomTemplate = {
+    ...source,
+    id,
+    name,
+    bom: source.bom.map((row) => ({ ...row })),
+    designNotes: source.designNotes.map((note) => ({ ...note })),
+    assumptions: [...source.assumptions],
+    validationItems: [...source.validationItems],
+    upgradePaths: [...source.upgradePaths],
+    discoveryAnswers: { ...source.discoveryAnswers },
+    discoveryNotes: { ...source.discoveryNotes },
+    customTemplate: true,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+    schemaVersion: CUSTOM_ROOM_TEMPLATE_SCHEMA_VERSION,
+  };
+
+  writeCustomTemplates([duplicate, ...existingTemplates]);
+  return duplicate;
+}
+
 export function saveRoomTemplateCopy(template: RoomTemplate, rows?: TemplateBomRow[]) {
   return saveCustomRoomTemplate(
     {
@@ -255,7 +355,7 @@ export function saveRoomTemplateCopy(template: RoomTemplate, rows?: TemplateBomR
       summary: `Custom copy of ${template.name}. ${template.summary}`,
       bom: rows?.length ? rows.map((row) => ({ ...row })) : template.bom.map((row) => ({ ...row })),
     },
-    { sourceTemplateId: (template as CustomRoomTemplate).sourceTemplateId || template.id },
+    { sourceTemplateId: template.id },
   );
 }
 

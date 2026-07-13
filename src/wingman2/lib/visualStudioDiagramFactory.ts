@@ -27,8 +27,8 @@ const statusClass: Record<VisualNodeStatus, string> = {
   risk: "wm-vs-node-risk"
 };
 
-const VISUAL_STUDIO_COLUMN_GAP = 300;
-const VISUAL_STUDIO_ROW_GAP = 158;
+const VISUAL_STUDIO_COLUMN_GAP = 245;
+const VISUAL_STUDIO_ROW_GAP = 138;
 const emphasisClass: Record<VisualNodeEmphasis, string> = {
   primary: "wm-vs-node-emphasis-primary",
   support: "wm-vs-node-emphasis-support",
@@ -40,6 +40,71 @@ const emphasisWidth: Record<VisualNodeEmphasis, number> = {
   support: 252,
   compact: 218,
 };
+
+/* === WINGMAN PRODUCT PORT DETERMINISTIC LAYOUT START === */
+const PRODUCT_PORT_NODE_POSITIONS: Record<string, { x: number; y: number }> = {
+  "input-check": { x: 20, y: 20 },
+  inputs: { x: 20, y: 250 },
+  device: { x: 480, y: 195 },
+  outputs: { x: 980, y: 250 },
+  "output-check": { x: 1014, y: 20 },
+  audio: { x: 20, y: 540 },
+  control: { x: 276, y: 540 },
+  network: { x: 532, y: 540 },
+  accessories: { x: 788, y: 540 },
+  "quote-checks": { x: 1044, y: 540 },
+};
+
+function resolveVisualStudioNodePosition(
+  model: VisualDiagramModel,
+  node: VisualDiagramNode,
+): { x: number; y: number } {
+  if (model.id === "product-port-view") {
+    const governedPosition = PRODUCT_PORT_NODE_POSITIONS[node.id];
+
+    if (governedPosition) {
+      return governedPosition;
+    }
+  }
+
+  return {
+    x: node.column * VISUAL_STUDIO_COLUMN_GAP,
+    y: node.row * VISUAL_STUDIO_ROW_GAP,
+  };
+}
+
+function productPortEdgeHandles(
+  modelId: string,
+  edge: VisualDiagramEdge,
+): { sourceHandle: string; targetHandle: string } | null {
+  if (modelId !== "product-port-view") {
+    return null;
+  }
+
+  switch (edge.id) {
+    case "e1":
+      return { sourceHandle: "source-right", targetHandle: "target-left" };
+    case "e2":
+      return { sourceHandle: "source-bottom", targetHandle: "target-top" };
+    case "e3":
+      return { sourceHandle: "source-right", targetHandle: "target-left" };
+    case "e4":
+      return { sourceHandle: "source-bottom", targetHandle: "target-top" };
+    case "e5":
+      return { sourceHandle: "source-bottom-1", targetHandle: "target-top" };
+    case "e6":
+      return { sourceHandle: "source-bottom-2", targetHandle: "target-top" };
+    case "e7":
+      return { sourceHandle: "source-bottom-3", targetHandle: "target-top" };
+    case "e8":
+      return { sourceHandle: "source-bottom-4", targetHandle: "target-top" };
+    case "e9":
+      return { sourceHandle: "source-bottom-5", targetHandle: "target-top" };
+    default:
+      return null;
+  }
+}
+/* === WINGMAN PRODUCT PORT DETERMINISTIC LAYOUT END === */
 
 const _kindLabel: Record<string, string> = {
   customer: "Customer",
@@ -157,7 +222,7 @@ function connectionLabels(model: VisualDiagramModel, nodeId: string): string[] {
       .filter((edge) => edge.source === nodeId || edge.target === nodeId)
       .map((edge) => edge.label?.trim())
       .filter((label): label is string => Boolean(label)),
-  )].slice(0, 4);
+  )].slice(0, 3);
 }
 
 function edgeHandles(
@@ -191,10 +256,7 @@ export function buildReactFlowModel(
     return {
       id: node.id,
       type: "wingmanVisualNode",
-      position: {
-        x: node.column * VISUAL_STUDIO_COLUMN_GAP,
-        y: node.row * VISUAL_STUDIO_ROW_GAP
-      },
+      position: resolveVisualStudioNodePosition(model, node),
       style: {
         width: emphasisWidth[emphasis],
       },
@@ -216,9 +278,11 @@ export function buildReactFlowModel(
   const edges: Edge[] = model.edges.map((edge) => {
     const source = nodesById.get(edge.source);
     const target = nodesById.get(edge.target);
-    const handles = source && target
-      ? edgeHandles(source, target)
-      : { sourceHandle: "source-right", targetHandle: "target-left" };
+    const handles =
+      productPortEdgeHandles(model.id, edge) ??
+      (source && target
+        ? edgeHandles(source, target)
+        : { sourceHandle: "source-right", targetHandle: "target-left" });
     const family = signalFamily(edge.label, edge.status);
     const colour = signalColour[family];
     const sequence = (signalSequence.get(family) ?? 0) + 1;
@@ -230,31 +294,25 @@ export function buildReactFlowModel(
       target: edge.target,
       sourceHandle: handles.sourceHandle,
       targetHandle: handles.targetHandle,
-      label:
-        mode === "technical"
-          ? `${signalReference[family]} · ${edge.label?.trim() || "Signal path"}`
-          : edge.label?.trim() || "Connection",
-      type: "smoothstep",
-      pathOptions: {
-        borderRadius: mode === "technical" ? 4 : 12,
-        offset: mode === "technical" ? 28 : 20,
-      },
+      label: mode === "technical" ? `${signalReference[family]}-${sequence}` : edge.label,
+      type: "straight",
       animated: false,
+      zIndex: 6,
       className: `${edgeClass(edge)} wm-vs-signal-${family}`,
       style: {
         stroke: colour,
-        strokeWidth: mode === "technical" ? 3 : 3.2,
+        strokeWidth: mode === "technical" ? 2.2 : 2.6,
       },
       markerEnd: {
         type: MarkerType.ArrowClosed,
-        width: 18,
-        height: 18,
+        width: 16,
+        height: 16,
         color: colour,
       },
       labelStyle: {
         fill: "#1f2937",
-        fontSize: 12,
-        fontWeight: 800,
+        fontSize: 11,
+        fontWeight: 700,
       },
       labelBgStyle: {
         fill: "#ffffff",

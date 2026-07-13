@@ -207,6 +207,24 @@ function transportMatches(competitorTransport: unknown, wyrestormTransport: unkn
   return competitor.every((token) => wyrestorm.has(token));
 }
 
+type CompareNetworkClass = "1g" | "10g";
+
+function compareNetworkClass(profile: CompareDecisionProfile): CompareNetworkClass | null {
+  const text = [
+    profile.transport,
+    profile.specs?.networkSpeed,
+    profile.features?.tenGig ? "10g" : "",
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  if (/\b10\s*g(?:be|bps)?\b|sdvoe/.test(text)) return "10g";
+  if (/\b1\s*g(?:be|bps)?\b|gigabit|jpeg[\s-]?xs|h\.?26[45]/.test(text)) return "1g";
+
+  return null;
+}
+
 function resolutionRank(value: unknown): number {
   const text = lower(value);
 
@@ -351,6 +369,8 @@ function hasTrustedCompetitorProfile(profile: CompareDecisionProfile): boolean {
 }
 
 function hasUsableWyrestormProfile(profile: CompareDecisionProfile): boolean {
+  if (profile.readiness && profile.readiness !== "compare-ready") return false;
+
   return profile.sourceTier === "verified-profile" ||
     (profile.sourceTier === "official-structured" && (profile.profileWarnings?.length ?? 0) <= 1);
 }
@@ -418,7 +438,23 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
     addUnique(matches, "Product role matches.");
   }
 
-  if (isUnknown(competitor.transport) || isUnknown(wyrestorm.transport)) {
+  const competitorNetworkClass = compareNetworkClass(competitor);
+  const wyrestormNetworkClass = compareNetworkClass(wyrestorm);
+  const networkClassMismatch =
+    competitorNetworkClass !== null &&
+    wyrestormNetworkClass !== null &&
+    competitorNetworkClass !== wyrestormNetworkClass;
+
+  if (networkClassMismatch) {
+    addUnique(
+      blockers,
+      "Network class mismatch: competitor requires " +
+        competitorNetworkClass.toUpperCase() +
+        ", WyreStorm candidate is " +
+        wyrestormNetworkClass.toUpperCase() +
+        ".",
+    );
+  } else if (isUnknown(competitor.transport) || isUnknown(wyrestorm.transport)) {
     addUnique(verify, "Transport needs verification.");
   } else if (!transportMatches(competitor.transport, wyrestorm.transport)) {
     // Transport wording is brand-specific (e.g. Lightware's "TPS" for its own
@@ -533,13 +569,21 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
   const trustedCompetitor = competitorTrusted;
   const usableWyrestorm = hasUsableWyrestormProfile(wyrestorm);
 
+  if (!trustedCompetitor) {
+    addUnique(verify, "Competitor technical profile is not verified; automatic equivalence is blocked.");
+  }
+
+  if (!usableWyrestorm) {
+    addUnique(verify, "WyreStorm technical profile is incomplete or review-only; automatic equivalence is blocked.");
+  }
+
   let outcome: CompareDecisionOutcome = "VERIFY";
 
   if (blockers.length > 0) {
     outcome = "NO MATCH";
   } else if (trustedCompetitor && usableWyrestorm && confidence >= 78 && gaps.length === 0 && verify.length <= 3) {
     outcome = "GOOD MATCH";
-  } else if (confidence >= 55 && gaps.length <= 4 && (trustedCompetitor || usableWyrestorm)) {
+  } else if (confidence >= 55 && gaps.length <= 4 && trustedCompetitor && usableWyrestorm) {
     outcome = "PARTIAL MATCH";
   }
 

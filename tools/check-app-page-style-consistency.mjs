@@ -26,6 +26,10 @@ function count(source, pattern) {
   return source.match(pattern)?.length ?? 0;
 }
 
+function displayPath(...segments) {
+  return path.join(...segments).split(path.sep).join("/");
+}
+
 const manifest = JSON.parse(read("src/wingman2/app/route-manifest.json") || "[]");
 const appShell = read("src/wingman2/layout/AppShell.tsx");
 const css = read("src/wingman2/styles/wingman-style-stack.css");
@@ -83,6 +87,7 @@ const rows = [];
 
 for (const [pageFile, routes] of [...routesByFile.entries()].sort(([a], [b]) => a.localeCompare(b))) {
   const relativePath = path.join("src", "wingman2", "pages", pageFile);
+  const reportRelativePath = displayPath("src", "wingman2", "pages", pageFile);
   const absolutePath = path.join(root, relativePath);
 
   if (!fs.existsSync(absolutePath)) {
@@ -115,15 +120,15 @@ for (const [pageFile, routes] of [...routesByFile.entries()].sort(([a], [b]) => 
   );
 
   if (h1Count === 0) {
-    warnings.push(`${relativePath} has no explicit <h1>; confirm that its routed hub/header still supplies a meaningful page title.`);
+    warnings.push(`${reportRelativePath} has no explicit <h1>; confirm that its routed hub/header still supplies a meaningful page title.`);
   }
 
   if (rootCount === 0) {
-    warnings.push(`${relativePath} has no internal shared page-root class; it is currently governed only by AppShell.`);
+    warnings.push(`${reportRelativePath} has no internal shared page-root class; it is currently governed only by AppShell.`);
   }
 
   if (hardLightCount > 0) {
-    warnings.push(`${relativePath} contains ${hardLightCount} light-theme utility class occurrence(s); the final governed layer overrides these surfaces, but the markup should be normalised when next edited.`);
+    warnings.push(`${reportRelativePath} contains ${hardLightCount} light-theme utility class occurrence(s); the final governed layer overrides these surfaces, but the markup should be normalised when next edited.`);
   }
 
   rows.push({
@@ -149,7 +154,7 @@ const supplementalFiles = allPageFiles
 const report = [
   "# Wingman app page style consistency audit",
   "",
-  `Generated: ${new Date().toISOString()}`,
+  "Generated: deterministic static analysis report",
   "",
   "## Governed visual contract",
   "",
@@ -187,7 +192,7 @@ fs.writeFileSync(reportPath, `${report.join("\n")}\n`, "utf8");
 console.log(
   `[app-page-style] Covered ${manifest.length} routes across ${routesByFile.size} routed page implementation(s).`,
 );
-console.log(`[app-page-style] Audit written to ${path.relative(root, reportPath)}.`);
+console.log(`[app-page-style] Audit written to ${displayPath(path.relative(root, reportPath))}.`);
 
 if (warnings.length > 0) {
   console.warn(`[app-page-style] ${warnings.length} non-blocking markup warning(s) recorded in the audit.`);

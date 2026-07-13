@@ -5,6 +5,7 @@ import {
   type AvoipNetworkClass,
   type NetworkHdAvoipRecommendation,
 } from "./networkHdAvoipEquivalence";
+import { selectWingmanProducts } from "./productSelectorEngine";
 import { getWyreStormCompareLeadBlockReason } from "./wyrestormSkuBusinessStatus";
 
 const AVOIP_ENDPOINT_INTENTS = new Set<CompareIntentKind>([
@@ -1061,6 +1062,13 @@ export function applyCompareEligibilityRanking<T extends { matches?: LooseMatch[
   const recommendedSkuKeys = new Set(avoipRecommendation.candidateSkus.map((sku) => skuKey(sku)));
 
   const matches = ensureEligibilityCandidatePool(rawMatches, products, intent, competitorText, avoipRecommendation);
+  const selectorDecisions = selectWingmanProducts(products, {
+    mode: "compare",
+    query: competitorText,
+    technicalRequirement: competitorText,
+    includeArchitectureAlternatives: true,
+  });
+  const selectorDecisionBySku = new Map(selectorDecisions.map((decision) => [skuKey(decision.sku), decision]));
 
   const evaluated = matches.map((match, index) => {
     const product = getProduct(match, products);
@@ -1078,14 +1086,26 @@ export function applyCompareEligibilityRanking<T extends { matches?: LooseMatch[
       baseEligibility.eligibility === "direct" && recommendedSkuKeys.has(skuKey(getSku(match)))
         ? { ...baseEligibility, fitPenalty: baseEligibility.fitPenalty - 40 }
         : baseEligibility;
+    const selectorDecision = selectorDecisionBySku.get(skuKey(getSku(match))) || selectorDecisionBySku.get(skuKey(getSku(product)));
+    const selectorGatedEligibility = selectorDecision && !selectorDecision.eligible
+      ? {
+          ...compareEligibility,
+          eligibility: "blocked" as const,
+          fitPenalty: Math.max(compareEligibility.fitPenalty, 900),
+          reasons: [
+            ...compareEligibility.reasons,
+            ...selectorDecision.rejectionReasons.map((reason) => `Shared selector gate: ${reason}`),
+          ],
+        }
+      : compareEligibility;
 
     return {
       match: {
         ...match,
-        compareEligibility,
-        eligibility: compareEligibility,
+        compareEligibility: selectorGatedEligibility,
+        eligibility: selectorGatedEligibility,
       },
-      compareEligibility,
+      compareEligibility: selectorGatedEligibility,
       index,
     };
   });

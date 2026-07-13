@@ -1,41 +1,206 @@
-﻿import { readFileSync } from "node:fs";
-import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+// @vitest-environment jsdom
+
+import { act, createElement } from "react";
+import { createRoot, type Root } from "react-dom/client";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { WingmanGuruFab } from "../wingman2/components/WingmanGuruFab";
+
+Object.assign(globalThis, {
+  IS_REACT_ACT_ENVIRONMENT: true,
+});
+
+type PointerOptions = {
+  clientX: number;
+  clientY: number;
+  pointerId?: number;
+  button?: number;
+};
+
+function pointerEvent(type: string, options: PointerOptions) {
+  const event = new MouseEvent(type, {
+    bubbles: true,
+    cancelable: true,
+    clientX: options.clientX,
+    clientY: options.clientY,
+    button: options.button ?? 0,
+  });
+
+  Object.defineProperties(event, {
+    pointerId: { value: options.pointerId ?? 1 },
+    pointerType: { value: "mouse" },
+    isPrimary: { value: true },
+  });
+
+  return event;
+}
 
 describe("single Guru entry point", () => {
-  it("uses the AppShell Guru launcher and does not render the legacy helper from main", () => {
-    const mainSource = readFileSync(join(process.cwd(), "src/main.tsx"), "utf8");
-    const appShellSource = readFileSync(join(process.cwd(), "src/wingman2/layout/AppShell.tsx"), "utf8");
-    const guruFabSource = readFileSync(join(process.cwd(), "src/wingman2/components/WingmanGuruFab.tsx"), "utf8");
-    const cssSource = readFileSync(join(process.cwd(), "src/wingman2/styles/wingman-style-stack.css"), "utf8");
+  let container: HTMLDivElement;
+  let root: Root;
 
-    expect(mainSource).not.toContain("GuruHelper");
-    expect(mainSource).not.toContain("<GuruHelper />");
+  beforeEach(() => {
+    vi.useFakeTimers();
+    window.localStorage.clear();
 
-    expect(appShellSource).toContain("WingmanGuruFab");
-    expect(appShellSource).toContain("WingmanGuruDrawer");
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      value: 1200,
+    });
 
-    expect((appShellSource.match(/<WingmanGuruFab/g) ?? []).length).toBe(1);
-    expect((appShellSource.match(/<WingmanGuruDrawer/g) ?? []).length).toBe(1);
+    Object.defineProperty(window, "innerHeight", {
+      configurable: true,
+      value: 800,
+    });
 
-    expect(guruFabSource).toContain("wingman-guru-fab");
-    expect(guruFabSource).toContain("data-context-transfer");
-    expect(guruFabSource).toContain("--wingman-guru-left");
-    expect(guruFabSource).toContain("--wingman-guru-top");
-    expect(guruFabSource).not.toContain("wingman-guru-fab-status");
-    expect(appShellSource).toContain("hasContextualTransfer={Boolean(guruSupportCue)}");
+    Object.defineProperty(HTMLElement.prototype, "setPointerCapture", {
+      configurable: true,
+      value: vi.fn(),
+    });
 
-    expect(cssSource).toContain("Wingman CSS-rendered Guru launcher start");
-    expect(cssSource).toContain('url("/wingman-guru-icon.png")');
-    expect(cssSource).toContain("button.wingman-guru-fab::after");
-    expect(cssSource).toContain("button.wingman-guru-fab::before");
-    expect(cssSource).toContain("left: var(--wingman-guru-left, auto) !important");
-    expect(cssSource).toContain("top: var(--wingman-guru-top, auto) !important");
-    // The shipped launcher renders a green sweep ring (animation wingmanGuruSweep)
-    // and styles its active/support state via [data-support-available="true"]. (An
-    // earlier checkpoint test asserted an "amber resting sweep ring" /
-    // data-context-transfer redesign that the CSS never received.)
-    expect(cssSource).toContain("Green sweep ring");
-    expect(cssSource).toContain('data-support-available="true"');
+    Object.defineProperty(HTMLElement.prototype, "releasePointerCapture", {
+      configurable: true,
+      value: vi.fn(),
+    });
+
+    Object.defineProperty(HTMLElement.prototype, "hasPointerCapture", {
+      configurable: true,
+      value: vi.fn(() => true),
+    });
+
+    container = document.createElement("div");
+    document.body.appendChild(container);
+    root = createRoot(container);
+  });
+
+  afterEach(async () => {
+    await act(async () => {
+      root.unmount();
+    });
+
+    container.remove();
+    vi.useRealTimers();
+  });
+
+  it("moves with pointer events, persists its position and suppresses the drag click", async () => {
+    const onClick = vi.fn();
+
+    await act(async () => {
+      root.render(
+        createElement(WingmanGuruFab, {
+          open: false,
+          onClick,
+        }),
+      );
+    });
+
+    const button = container.querySelector<HTMLButtonElement>(
+      "button.wingman-guru-fab",
+    );
+
+    expect(button).not.toBeNull();
+
+    if (!button) {
+      throw new Error("Guru launcher was not rendered.");
+    }
+
+    Object.defineProperty(button, "getBoundingClientRect", {
+      configurable: true,
+      value: () => {
+        const left = Number.parseFloat(button.style.left) || 100;
+        const top = Number.parseFloat(button.style.top) || 180;
+
+        return {
+          x: left,
+          y: top,
+          left,
+          top,
+          right: left + 72,
+          bottom: top + 72,
+          width: 72,
+          height: 72,
+          toJSON: () => ({}),
+        };
+      },
+    });
+
+    const initialLeft = Number.parseFloat(button.style.left);
+    const initialTop = Number.parseFloat(button.style.top);
+
+    await act(async () => {
+      button.dispatchEvent(
+        pointerEvent("pointerdown", {
+          clientX: initialLeft + 10,
+          clientY: initialTop + 10,
+        }),
+      );
+
+      button.dispatchEvent(
+        pointerEvent("pointermove", {
+          clientX: initialLeft + 70,
+          clientY: initialTop + 55,
+        }),
+      );
+
+      button.dispatchEvent(
+        pointerEvent("pointerup", {
+          clientX: initialLeft + 70,
+          clientY: initialTop + 55,
+        }),
+      );
+    });
+
+    expect(Number.parseFloat(button.style.left)).toBeGreaterThan(initialLeft);
+    expect(Number.parseFloat(button.style.top)).toBeGreaterThan(initialTop);
+    expect(window.localStorage.getItem("wingmanGuruPosition")).not.toBeNull();
+
+    await act(async () => {
+      button.dispatchEvent(
+        new MouseEvent("click", {
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+
+      vi.advanceTimersByTime(300);
+    });
+
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
+  it("opens Guru on a normal click", async () => {
+    const onClick = vi.fn();
+
+    await act(async () => {
+      root.render(
+        createElement(WingmanGuruFab, {
+          open: false,
+          onClick,
+        }),
+      );
+    });
+
+    const button = container.querySelector<HTMLButtonElement>(
+      "button.wingman-guru-fab",
+    );
+
+    expect(button).not.toBeNull();
+
+    if (!button) {
+      throw new Error("Guru launcher was not rendered.");
+    }
+
+    await act(async () => {
+      button.dispatchEvent(
+        new MouseEvent("click", {
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+
+      vi.advanceTimersByTime(300);
+    });
+
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 });

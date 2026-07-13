@@ -1,21 +1,28 @@
-import { readFileSync } from "node:fs";
+import fs from "node:fs";
 
-const dashboard = readFileSync("src/wingman2/pages/DashboardPage.tsx", "utf8");
-const css = readFileSync("src/wingman2/styles/wingman-style-stack.css", "utf8");
+const dashboard = fs.readFileSync("src/wingman2/pages/DashboardPage.tsx", "utf8");
+const css = fs.readFileSync("src/wingman2/styles/wingman-style-stack.css", "utf8");
 
 const required = [
-  "data-wingman-home-single-screen",
-  "Wingman home single-screen compact layout",
-  "grid-template-columns: repeat(auto-fit, minmax(170px, 1fr))",
-  "@media (max-height: 760px)",
+  'data-wingman-dashboard-layout="viewport-split"',
+  'data-wingman-dashboard-rail="viewport-depth"',
+  'data-wingman-dashboard-main="viewport-depth"',
+  "height: calc(100dvh - var(--wm-header))",
+  "align-items: stretch",
+  "overflow: hidden",
+  "@media (max-width: 1180px)",
+  "height: auto",
+  "overflow: visible",
 ];
 
-const missing = required.filter((marker) => !dashboard.includes(marker) && !css.includes(marker));
+const missing = required.filter(
+  (marker) => !dashboard.includes(marker) && !css.includes(marker),
+);
 
 if (missing.length) {
   console.error("[dashboard-single-screen-layout] Check failed:");
-  for (const marker of missing) console.error("- Missing marker: " + marker);
+  missing.forEach((marker) => console.error(`- Missing marker: ${marker}`));
   process.exit(1);
 }
 
-console.log("[dashboard-single-screen-layout] Verified compact single-screen /wingman dashboard layout markers.");
+console.log("[dashboard-single-screen-layout] Verified viewport-depth desktop layout and responsive natural scrolling.");

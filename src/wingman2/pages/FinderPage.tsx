@@ -32,7 +32,7 @@ import { finderProductPathRelevance, opportunityFromLabel } from "../lib/situati
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
 import { getProductFamilyRankingReason, rankProductsByFamilyScores } from "../lib/productFamilyShortlistRanking";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
-import { isSkuAdminBlocked } from "../lib/adminProductOverrides";
+import { selectWingmanProducts } from "../lib/productSelectorEngine";
 import {
   wyrestormCapabilityFallbackTerms,
   wyrestormCapabilityVerdict,
@@ -753,15 +753,19 @@ function collectProductRecords(value: unknown, output: UnknownRecord[] = [], dep
 
 function classifyProduct(product: FinderProduct) {
   const text = normaliseText(`${product.sku} ${product.title} ${product.description} ${product.searchText}`);
+  // "sw"/"rx"/"tx"/"cam" are SKU prefixes, not safe free-text substrings - "sw" alone
+  // matches words like "answer" or "software", so those signals check the SKU prefix
+  // directly instead of textIncludesAny's plain substring search.
+  const sku = String(product.sku ?? "").toUpperCase();
 
   if (textIncludesAny(text, ["video wall", "lcd wall", "wall processor", "sw 0206 vw", "sw 0204 vw"])) return "Video wall";
-  if (textIncludesAny(text, ["ndi", "camera", "ptz", "cam"])) return "NDI / camera";
+  if (textIncludesAny(text, ["ndi", "camera", "ptz"]) || sku.startsWith("CAM-")) return "NDI / camera";
   if (textIncludesAny(text, ["networkhd", "nhd", "avoip", "av over ip", "encoder", "decoder", "transceiver"])) return "AVoIP";
   if (textIncludesAny(text, ["matrix", "routing", "mx 0404", "mx 0808", "mx 0812"])) return "Matrix / routing";
-  if (textIncludesAny(text, ["hdbaset", "rx", "tx", "extender", "kvm"])) return "HDBaseT extender";
+  if (textIncludesAny(text, ["hdbaset", "extender", "kvm"]) || sku.startsWith("RX-") || sku.startsWith("TX-")) return "HDBaseT extender";
   if (textIncludesAny(text, ["wireless", "miracast", "airplay"])) return "Wireless presentation";
   if (textIncludesAny(text, ["usb", "conference", "byom", "byod", "speakerphone", "microphone"])) return "UC / conferencing";
-  if (textIncludesAny(text, ["presentation", "switcher", "usb c", "sw"])) return "Presentation switcher";
+  if (textIncludesAny(text, ["presentation", "switcher", "usb c"]) || sku.startsWith("SW-")) return "Presentation switcher";
 
   return product.category || "Other";
 }
@@ -1973,7 +1977,12 @@ function finderFeatureMatches(
 function buildFinderMatchPlan(allProducts: FinderProduct[], need: FinderNeed, hasIntent: boolean): FinderMatchPlan {
   if (!hasIntent) return { matches: [], mode: "none" };
 
-  const products = allProducts.filter((product) => !isSkuAdminBlocked(product.sku));
+  const products = selectWingmanProducts(allProducts, {
+    mode: "finder",
+    includeArchitectureAlternatives: true,
+  })
+    .filter((decision) => decision.eligible)
+    .map((decision) => decision.product);
   const featureFilters = getActiveFeatureFilters(need);
 
   if (!featureFilters.length) {

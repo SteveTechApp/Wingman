@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it } from "vitest";
 
+import { saveRoomTemplateCopy } from "../wingman2/lib/customRoomTemplates";
 import { roomTemplates } from "../wingman2/lib/roomTemplates";
 import { TemplateReviewPage } from "../wingman2/pages/TemplateReviewPage";
 import { TemplatesPage } from "../wingman2/pages/TemplatesPage";
@@ -42,34 +43,6 @@ describe("template workflow wiring", () => {
     expect(screen.queryByText(roomTemplates[0].name)).not.toBeInTheDocument();
   });
 
-  it("creates and reviews a brand-new custom room template", () => {
-    renderTemplateRoutes();
-
-    fireEvent.change(screen.getByLabelText("Name"), {
-      target: { value: "Council chamber custom room" },
-    });
-    fireEvent.change(screen.getByLabelText("Vertical"), {
-      target: { value: "Government" },
-    });
-    fireEvent.change(screen.getByLabelText("Application"), {
-      target: { value: "Hybrid civic meetings" },
-    });
-    fireEvent.change(screen.getByLabelText("Scale"), {
-      target: { value: "Custom" },
-    });
-    fireEvent.change(screen.getByLabelText("Summary"), {
-      target: { value: "Reusable chamber design starting point." },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Create template" }));
-
-    const card = screen.getByRole("heading", { name: "Council chamber custom room" }).closest("article");
-    expect(card).not.toBeNull();
-    expect(screen.getByText("1 custom template saved in this browser.")).toBeInTheDocument();
-
-    fireEvent.click(within(card!).getByRole("link", { name: "Review template" }));
-    expect(screen.getByRole("heading", { name: "Council chamber custom room", level: 1 })).toBeInTheDocument();
-  });
-
   it("saves an adjusted room design as a reusable custom template", () => {
     const template = roomTemplates[0];
     renderTemplateRoutes(`/wingman/templates/${template.id}`);
@@ -81,5 +54,19 @@ describe("template workflow wiring", () => {
       "href",
       expect.stringContaining("/wingman/templates/custom-"),
     );
+  });
+
+  it("shows saved custom templates in the library and opens their review page", () => {
+    const savedTemplate = saveRoomTemplateCopy(roomTemplates[0]);
+    renderTemplateRoutes();
+
+    expect(screen.getByText(`${roomTemplates.length + 1} total, 1 custom.`)).toBeInTheDocument();
+
+    const card = screen.getByRole("heading", { name: savedTemplate.name }).closest("article");
+    expect(card).not.toBeNull();
+    expect(within(card!).getByText("Custom")).toBeInTheDocument();
+
+    fireEvent.click(within(card!).getByRole("link", { name: "Review template" }));
+    expect(screen.getByRole("heading", { name: savedTemplate.name, level: 1 })).toBeInTheDocument();
   });
 });

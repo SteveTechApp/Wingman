@@ -16,8 +16,9 @@ import {
 } from "../lib/productCallCardClassification";
 import { resolveWyrestormSkuAlias } from "../lib/skuAliasResolver";
 import { getProductCallCommercialOverride } from "../lib/productCallCommercialOverrides";
+import { selectWingmanProducts } from "../lib/productSelectorEngine";
 import { isSkuAdminBlocked } from "../lib/adminProductOverrides";
-import { resolveProductLifecycle } from "../lib/wyrestormProductLifecycle";
+import { getCompetitorLandscape } from "../lib/competitorLandscape";
 import {
   DEFAULT_SALES_CONVERSATION_TONE_ID,
   LEGACY_SALES_CONVERSATION_STORAGE_KEYS,
@@ -104,6 +105,8 @@ type ProductSeed = {
   proofPoints?: string[];
   officialUrl?: string;
   officialCopyStatus?: string;
+  technicalProfile?: unknown;
+  sourceCatalog?: unknown;
 };
 
 type ProductCard = {
@@ -120,13 +123,15 @@ type ProductCard = {
   headings: ClassifiedProductCallCardHeading[];
   sourceSearchText: string;
   curated: boolean;
+  technicalProfile?: unknown;
+  sourceCatalog?: unknown;
 };
 
 type ProductPayload = {
   products?: ProductSeed[];
 };
 
-type ProductPanelId = "whatItIs" | "whatItDoes" | "howToSell" | "specification";
+type ProductPanelId = "whatItIs" | "whatItDoes" | "howToSell" | "competitors" | "specification";
 
 type ProductGalleryItem = {
   id: string;
@@ -146,6 +151,7 @@ const PRODUCT_PANEL_TABS: Array<{ id: ProductPanelId; label: string; hint: strin
   { id: "whatItIs", label: "What it does", hint: "Simple answer" },
   { id: "whatItDoes", label: "How it fits here", hint: "Known application" },
   { id: "howToSell", label: "What to say", hint: "One clear message" },
+  { id: "competitors", label: "Competitors", hint: "Brand SKUs" },
   { id: "specification", label: "Technical detail", hint: "If needed" },
 ];
 
@@ -810,6 +816,8 @@ function toProductCard(seed: ProductSeed): ProductCard {
     headings: [],
     sourceSearchText: "",
     curated: Boolean(CURATED[sku] || story),
+    technicalProfile: seed.technicalProfile,
+    sourceCatalog: seed.sourceCatalog,
   };
 
   const classificationSource = {
@@ -832,6 +840,119 @@ function toProductCard(seed: ProductSeed): ProductCard {
   }
 
   return base;
+}
+
+// Renders only the technical fields that actually have sourced evidence -
+// no "N/A" placeholder rows for gaps in the underlying data.
+function technicalProfileRows(profile: unknown): Array<{ label: string; value: string }> {
+  if (!profile || typeof profile !== "object") {
+    return [];
+  }
+
+  const p = profile as Record<string, unknown>;
+  const rows: Array<{ label: string; value: string }> = [];
+
+  const asRecord = (value: unknown): Record<string, unknown> | undefined =>
+    value && typeof value === "object" ? (value as Record<string, unknown>) : undefined;
+  const asStringArray = (value: unknown): string[] =>
+    Array.isArray(value) ? value.map((item) => cleanText(String(item))).filter(Boolean) : [];
+  const joinUnique = (values: string[]): string => unique(values).join(", ");
+
+  const video = asRecord(p.video);
+  if (video?.present) {
+    const bits = joinUnique([
+      ...asStringArray(video.standards),
+      ...asStringArray(video.maxResolutions),
+      ...asStringArray(video.bandwidth),
+    ]);
+    if (bits) {
+      rows.push({ label: "Resolution / HDMI", value: bits });
+    }
+  }
+
+  const hdbaset = asRecord(p.hdbaset);
+  if (hdbaset?.present) {
+    const bits = joinUnique([
+      hdbaset.version ? `HDBaseT ${cleanText(String(hdbaset.version))}` : "",
+      ...asStringArray(hdbaset.distance),
+    ]);
+    if (bits) {
+      rows.push({ label: "HDBaseT", value: bits });
+    }
+  }
+
+  const usb = asRecord(p.usb);
+  if (usb?.present) {
+    const bits = joinUnique([
+      ...asStringArray(usb.versions),
+      ...asStringArray(usb.connectors),
+      ...asStringArray(usb.roles),
+      usb.powerDelivery ? "Power delivery" : "",
+    ]);
+    if (bits) {
+      rows.push({ label: "USB", value: bits });
+    }
+  }
+
+  const network = asRecord(p.network);
+  if (network?.present) {
+    const bits = joinUnique([
+      ...asStringArray(network.protocols),
+      ...asStringArray(network.linkSpeeds),
+      ...asStringArray(network.powerOverNetwork),
+    ]);
+    if (bits) {
+      rows.push({ label: "Network", value: bits });
+    }
+  }
+
+  const control = asRecord(p.control);
+  if (control?.present) {
+    const bits = joinUnique(asStringArray(control.protocols));
+    if (bits) {
+      rows.push({ label: "Control protocols", value: bits });
+    }
+  }
+
+  const audio = asRecord(p.audio);
+  if (audio?.present) {
+    const bits = joinUnique([
+      ...asStringArray(audio.formats),
+      ...asStringArray(audio.networkAudio),
+      ...asStringArray(audio.processing),
+    ]);
+    if (bits) {
+      rows.push({ label: "Audio", value: bits });
+    }
+  }
+
+  const features = Array.isArray(p.features) ? p.features : [];
+  const featureLabels = features
+    .map((feature) => (feature && typeof feature === "object" ? cleanText(String((feature as Record<string, unknown>).label ?? "")) : cleanText(String(feature))))
+    .filter(Boolean);
+
+  const wirelessCasting = featureLabels.filter((label) => /wireless|airplay|miracast|chromecast/i.test(label));
+  if (wirelessCasting.length) {
+    rows.push({ label: "Wireless casting", value: joinUnique(wirelessCasting) });
+  }
+
+  const multiview = featureLabels.filter((label) => /multi[-\s]?view/i.test(label));
+  if (multiview.length) {
+    rows.push({ label: "Multiview", value: joinUnique(multiview) });
+  }
+
+  const io = asRecord(p.io);
+  const ports = Array.isArray(io?.ports) ? (io?.ports as Array<Record<string, unknown>>) : [];
+  if (ports.length) {
+    const portSummary = joinUnique(
+      ports.map((port) => `${cleanText(String(port.count ?? ""))}x ${cleanText(String(port.connector ?? ""))}`.trim()),
+    );
+    if (portSummary) {
+      rows.push({ label: "I/O ports", value: portSummary });
+    }
+  }
+
+  return rows;
 }
 
 function isProductSeed(value: unknown): value is ProductSeed {
@@ -861,81 +982,72 @@ function extractProductSeeds(value: unknown): ProductSeed[] {
   return [];
 }
 
-const REQUIRED_CURRENT_PRODUCT_CALL_CARD_SEEDS: ProductSeed[] = [
-  {
-    sku: "APO-VX20-UC-V2",
-    name: "Apollo VX20 Video Bar for Conference Rooms",
-    title: "Apollo VX20 Video Bar for Conference Rooms",
-    family: "Unified Comms",
-    category: "Unified Comms",
-    productType: "Video bar / UC switcher",
-    description:
-      "Current Apollo VX20 v2 meeting-room video bar and UC product. Confirm the current room workflow, USB path and wireless-casting requirements before quoting.",
-    tags: [
-      "Unified Comms",
-      "Video bar",
-      "BYOD",
-      "BYOM",
-      "Wireless casting",
-      "APO-DG2 compatible host",
-    ],
-    applications: [
-      "Meeting room",
-      "Hybrid conferencing",
-      "Wireless presentation",
-    ],
-  },
-  {
-    sku: "HALO-VX10-V2",
-    name: "HALO VX10 Video Bar",
-    title: "HALO VX10 Video Bar",
-    family: "Unified Comms",
-    category: "Unified Comms",
-    productType: "Video bar",
-    description:
-      "Current HALO VX10 v2 meeting-room video bar. Confirm the current conferencing, USB and wireless-casting workflow before quoting.",
-    tags: [
-      "Unified Comms",
-      "Video bar",
-      "Wireless casting",
-      "HALO-VX10-UC-V2",
-    ],
-    applications: [
-      "Meeting room",
-      "Hybrid conferencing",
-      "Wireless presentation",
-    ],
-  },
-];
+// The product-call-card-products.json generator merges in new SKUs but never
+// refreshes fields on entries that already exist, so it never carries the
+// richer technicalProfile/sourceCatalog data added to the product
+// intelligence index later. Merge those two fields in by SKU from the
+// intelligence index so "Technical detail" has real data to show, without
+// disturbing the curated call-card copy those seeds already carry.
+function mergeTechnicalData(seeds: ProductSeed[], enrichedSeeds: ProductSeed[]): ProductSeed[] {
+  if (enrichedSeeds.length === 0) {
+    return seeds;
+  }
+
+  const enrichedBySku = new Map<string, ProductSeed>();
+  for (const enriched of enrichedSeeds) {
+    const sku = normaliseSku(enriched.sku);
+    if (sku) {
+      enrichedBySku.set(sku, enriched);
+    }
+  }
+
+  return seeds.map((seed) => {
+    if (seed.technicalProfile) {
+      return seed;
+    }
+    const enriched = enrichedBySku.get(normaliseSku(seed.sku));
+    if (!enriched) {
+      return seed;
+    }
+    return {
+      ...seed,
+      technicalProfile: enriched.technicalProfile,
+      sourceCatalog: enriched.sourceCatalog,
+    };
+  });
+}
 
 async function loadProductSeeds(): Promise<ProductSeed[]> {
-  const mergedSeeds: ProductSeed[] = [];
-
-  try {
-    const response = await fetch(PRODUCT_CALL_CARD_ENDPOINT, {
-      cache: "no-store",
-    });
-
-    if (response.ok) {
-      const payload = await response.json();
-      mergedSeeds.push(...extractProductSeeds(payload));
-    }
-  } catch {
-    // Continue to the shared product-intelligence index.
-  }
+  let intelligenceSeeds: ProductSeed[] = [];
 
   try {
     const payload = await loadProductIntelligenceIndex();
-    mergedSeeds.push(...extractProductSeeds(payload));
+    intelligenceSeeds = extractProductSeeds(payload);
   } catch {
-    // Continue to the current-product fallback seeds.
+    // Fall through to curated fallback products.
   }
 
-  mergedSeeds.push(...REQUIRED_CURRENT_PRODUCT_CALL_CARD_SEEDS);
+  let enrichmentSeeds: ProductSeed[] = [];
+  try {
+    const response = await fetch(PRODUCT_CALL_CARD_ENDPOINT, { cache: "no-store" });
 
-  const merged = dedupeProductSeedsBySku(mergedSeeds);
+    if (response.ok) {
+      const payload = await response.json();
+      enrichmentSeeds = extractProductSeeds(payload);
+    }
+  } catch {
+    // The call-card overlay is enrichment only; keep the governed catalogue.
+  }
 
-  return merged.length > 0 ? merged : FALLBACK_PRODUCTS;
+  if (intelligenceSeeds.length > 0) {
+    return mergeTechnicalData(intelligenceSeeds, enrichmentSeeds);
+  }
+
+  if (enrichmentSeeds.length > 0) {
+    return mergeTechnicalData(enrichmentSeeds, []);
+  }
+
+  return FALLBACK_PRODUCTS;
 }
 
 function matchesFamily(product: ProductCard, family: string): boolean {
@@ -946,7 +1058,7 @@ function matchesFamily(product: ProductCard, family: string): boolean {
   return product.headings.includes(family as ClassifiedProductCallCardHeading);
 }
 
-function productMatches(product: ProductCard, query: string, family: string, quickFinder: string): boolean {
+function productPresentationMatches(product: ProductCard, query: string, family: string, quickFinder: string): boolean {
   const firstSkuChar = product.sku.charAt(0).toUpperCase();
 
   if (quickFinder === "0-9" && !/^[0-9]$/.test(firstSkuChar)) {
@@ -1019,7 +1131,8 @@ export default function ProductCallCardsPage() {
   useEffect(() => {
     setProductTermLookup = setActiveTermLookup;
 
-    return () => {
+
+return () => {
       setProductTermLookup = null;
     };
   }, []);
@@ -1036,13 +1149,7 @@ export default function ProductCallCardsPage() {
 
       const cards = dedupeProductSeedsBySku(seeds)
         .map(toProductCard)
-        .filter((product) => {
-          if (!product.sku || isSkuAdminBlocked(product.sku)) {
-            return false;
-          }
-
-          return resolveProductLifecycle(product.sku).recommendable;
-        })
+        .filter((product) => product.sku)
         .sort((a, b) => a.sku.localeCompare(b.sku));
 
       setProducts(cards);
@@ -1068,8 +1175,16 @@ export default function ProductCallCardsPage() {
     const available = new Set<string>();
     available.add("All");
 
-    products
-      .filter((product) => productMatches(product, query, activeFamily, "All"))
+    const governedProducts = selectWingmanProducts(products, {
+      mode: "call-card",
+      query,
+      includeBrowseOnly: true,
+    })
+      .filter((decision) => decision.eligible)
+      .map((decision) => decision.product);
+
+    governedProducts
+      .filter((product) => productPresentationMatches(product, query, activeFamily, "All"))
       .forEach((product) => {
         const firstSkuChar = product.sku.charAt(0).toUpperCase();
 
@@ -1099,27 +1214,16 @@ export default function ProductCallCardsPage() {
   }, [activeQuickFinder, availableQuickFinders]);
 
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => productMatches(product, query, activeFamily, activeQuickFinder));
+    const governedProducts = selectWingmanProducts(products, {
+      mode: "call-card",
+      query,
+      includeBrowseOnly: true,
+    })
+      .filter((decision) => decision.eligible)
+      .map((decision) => decision.product);
+
+    return governedProducts.filter((product) => productPresentationMatches(product, query, activeFamily, activeQuickFinder));
   }, [products, query, activeFamily, activeQuickFinder]);
-
-  // Keep the selected discussion product inside the active filter.
-  // Switching to AVoIP must immediately select an NHD product rather
-  // than leaving an unrelated product visible in the discussion panel.
-  useEffect(() => {
-    if (filteredProducts.length === 0) {
-      return;
-    }
-
-    if (
-      filteredProducts.some(
-        (product) => product.sku === selectedSku,
-      )
-    ) {
-      return;
-    }
-
-    setSelectedSku(filteredProducts[0].sku);
-  }, [filteredProducts, selectedSku]);
 
   const pageCount = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
   const safePageIndex = Math.min(pageIndex, pageCount - 1);
@@ -1130,6 +1234,10 @@ export default function ProductCallCardsPage() {
     pageProducts[0] ||
     filteredProducts[0] ||
     null;
+  const competitorLandscape = useMemo(
+    () => (selectedProduct ? getCompetitorLandscape(selectedProduct) : null),
+    [selectedProduct],
+  );
   const knownApplication = useMemo(() => {
     const project = getCurrentWorkflowProject(readProjectStore());
     const roomModel = project?.discoveryBrief?.roomModel;
@@ -1216,7 +1324,7 @@ export default function ProductCallCardsPage() {
       return [
         "Confirm wall type: LCD wall, LED processor input, projector blend or other display canvas.",
         "Confirm source count and required layouts.",
-        "Check whether the customer needs fixed presets, full canvas, multiview or per-display content.",
+      "Check whether the customer needs fixed presets, full canvas, multiview or per-display content.",
         "Confirm whether a dedicated processor is better than an AV-over-IP wall approach.",
       ];
     }
@@ -1225,14 +1333,14 @@ export default function ProductCallCardsPage() {
       return [
         "Confirm how many sources need to appear on the same output at the same time.",
         "Confirm whether the output feeds a display, projector, recorder, streamer or LED processor.",
-        "Check whether the customer needs fixed layouts or live layout control.",
+      "Check whether the customer needs fixed layouts or live layout control.",
         "Do not confuse multiview with simply having multiple HDMI outputs.",
       ];
     }
 
     if (sku.startsWith("SW-") || family.includes("presentation")) {
       return [
-        "Confirm how people connect: HDMI, USB-C, wireless or a mix.",
+      "Confirm how people connect: HDMI, USB-C, wireless or a mix.",
         "Confirm whether the room is presentation-only, BYOD/BYOM conferencing or mixed use.",
         "Confirm display count and whether the outputs need mirrored or independent behaviour.",
         "Check whether USB device switching, room control or touch-panel operation is required.",
@@ -1279,7 +1387,7 @@ export default function ProductCallCardsPage() {
       return [
         "Confirm which devices need to be controlled.",
         "Confirm control method: IP, RS-232, IR, relay or GPIO.",
-        "Check whether the customer needs simple presets, room mode selection or full device control.",
+      "Check whether the customer needs simple presets, room mode selection or full device control.",
         "Confirm who will configure and maintain the control interface.",
       ];
     }
@@ -1322,6 +1430,8 @@ export default function ProductCallCardsPage() {
         value: usefulTags,
       });
     }
+
+    rows.push(...technicalProfileRows(selectedProduct.technicalProfile));
 
     return rows;
   }, [selectedProduct]);
@@ -1398,7 +1508,7 @@ export default function ProductCallCardsPage() {
 
     goTo(`/wingman/discovery?${params.toString()}`);
   }
-  return (
+return (
     <section className="wm-pcc-select-shell wm-ui-section">
 
       {activeGalleryItem && selectedProduct && (
@@ -1421,7 +1531,7 @@ export default function ProductCallCardsPage() {
                 onClick={() => setActiveGalleryItem(null)}
                 aria-label="Close product gallery"
               >
-                &times;
+                ×
               </button>
             </div>
 
@@ -1453,7 +1563,7 @@ export default function ProductCallCardsPage() {
               onClick={() => setActiveTermLookup(null)}
               aria-label="Close term explanation"
             >
-              &times;
+              ×
             </button>
           </div>
 
@@ -1535,7 +1645,7 @@ export default function ProductCallCardsPage() {
 
           <div className="wm-pcc-status">
             <span>
-              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching &middot; {products.length} total &middot; {curatedCount} curated{activeQuickFinder !== "All" ? ` &middot; ${activeQuickFinder}` : ""}
+              Showing {firstVisible}-{lastVisible} of {filteredProducts.length} matching · {products.length} total · {curatedCount} curated{activeQuickFinder !== "All" ? ` · ${activeQuickFinder}` : ""}
             </span>
 
             <div className="wm-pcc-pager">
@@ -1580,7 +1690,7 @@ export default function ProductCallCardsPage() {
               >
                 <span className="wm-pcc-sku">{product.sku}</span>
                 <span className="wm-pcc-family">
-                  {product.curated ? "Curated &middot; " : ""}
+                  {product.curated ? "Curated · " : ""}
                   {product.family}
                 </span>
 
@@ -1900,6 +2010,28 @@ export default function ProductCallCardsPage() {
                       </div>
                     </details>
                   )}
+                </>
+              )}
+
+              {activeProductPanel === "competitors" && competitorLandscape && (
+                <>
+                  <h3 className="wm-pcc-section-heading wm-ui-title">Known competitors &amp; brand SKUs</h3>
+                  <p className="wm-pcc-response-copy wm-ui-copy">{competitorLandscape.note}</p>
+
+                  {competitorLandscape.entries.length ? (
+                    <ul className="wm-pcc-response-list wm-ui-card">
+                      {competitorLandscape.entries.map((entry) => (
+                        <li key={`${entry.brand}-${entry.sku}`}>
+                          <strong>{entry.brand} {entry.sku}</strong>
+                          {entry.category ? <> - {entry.category}</> : null}
+                          {entry.summary ? <>. {entry.summary}</> : null}
+                          {entry.knownLimitations ? <> Known limitation: {entry.knownLimitations}</> : null}
+                          {entry.wingmanEquivalent ? <> Logged WyreStorm equivalent: {entry.wingmanEquivalent}.</> : null}
+                          {" "}(Evidence confidence: {entry.confidence})
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
                 </>
               )}
 
