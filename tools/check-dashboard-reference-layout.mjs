@@ -42,18 +42,14 @@ const main = read(mainPath);
   "Browse Templates",
   "My Projects",
   "Recent Projects",
-  "Quick Actions",
-  "Today's Focus",
-  "Product Spotlight",
-  "Ask Guru",
+  "Today&apos;s Focus",
+  "What&apos;s New",
+  "grid-rows-2",
+  "calc(100dvh - 190px)",
   "routeCatalogByKey.discovery.path",
   "routeCatalogByKey.compare.path",
   "routeCatalogByKey.templates.path",
   "routeCatalogByKey.projects.path",
-  "routeCatalogByKey.finder.path",
-  "routeCatalogByKey.callCoach.path",
-  "routeCatalogByKey.documents.path",
-  "routeCatalogByKey.responsePack.path",
 ].forEach((marker) => requireMarker("DashboardPage.tsx", dashboard, marker));
 
 [
@@ -65,7 +61,6 @@ const main = read(mainPath);
   ".wm-reference-primary-grid",
   ".wm-reference-primary-card",
   ".wm-reference-project-grid",
-  ".wm-reference-quick-grid",
   ".wm-reference-dashboard-rail",
   ".wingman-guru-fab-image",
   "@keyframes wm-reference-guru-float",
@@ -85,6 +80,12 @@ requireMarker(
   "wm-dashboard-command-band",
   "wm-dashboard-rail",
   "wm-dashboard-main",
+  "Quick Actions",
+  "Product Spotlight",
+  "Ask Guru",
+  "quickActions",
+  "wm-reference-quick-grid",
+  "wm-reference-quick-card",
 ].forEach((marker) => forbidMarker("DashboardPage.tsx", dashboard, marker));
 
 if (errors.length) {
@@ -94,5 +95,5 @@ if (errors.length) {
 }
 
 console.log(
-  "[dashboard-reference-layout] Verified the approved action-led dashboard, unified theme and Guru motion contract.",
+  "[dashboard-reference-layout] Verified the simplified dashboard, expanded priority content and Guru motion contract.",
 );
