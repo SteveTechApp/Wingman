@@ -3,14 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { saveDiscoveryBriefToProject, type StoredDiscoveryBrief } from "../data/projectStore";
 import { buildDiscoveryRecommendationEvidence } from "../lib/recommendationEvidence";
-import {
-
-
-  optionRelevance,
-  optionUnlikelyReason,
-  suggestedDefaultOption,
-} from "../lib/situationalConstraints";
-
 import TemplateDiscoverySeedPanel from "../components/TemplateDiscoverySeedPanel";
 import { createBlankCustomRoomTemplate, saveCustomRoomTemplate } from "../lib/customRoomTemplates";
 import {
@@ -44,6 +36,9 @@ type DiscoveryQuestion = {
   prompt: string;
   why: string;
   required: boolean;
+  selectionMode?: "single" | "multiple";
+  exclusiveValues?: string[];
+  selectAllValue?: string;
   capturePlaceholder: string;
   options: DiscoveryOption[];
 };
@@ -240,9 +235,12 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     id: "source-connection",
     shortLabel: "Source type",
     question: "What are the source connector types?",
-    prompt: "Capture whether sources are fixed HDMI devices, USB-C laptops, cameras, wireless inputs, or network streams.",
+    prompt: "Capture whether sources are fixed HDMI devices, USB-C laptops, cameras, wireless inputs, network streams, or a combination of these.",
     why: "Source connector type changes the viable product family, especially when USB-C, wireless input, NDI, or network video is involved.",
     required: true,
+    selectionMode: "multiple",
+    exclusiveValues: ["unknown-source-connectors"],
+    selectAllValue: "all-source-types",
     capturePlaceholder: "Example: Two HDMI media players in rack, one USB-C laptop at table, plus NDI camera feeds.",
     options: [
       {
@@ -266,6 +264,10 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
         help: "Capture, broadcast, PTZ, NDI, or other network-video inputs are part of the conversation.",
       },
       {
+        value: "all-source-types",
+        label: "Combination of all source types",
+        help: "Fixed HDMI, USB-C laptops, wireless presentation, cameras, NDI and network streams are all required.",
+      },      {
         value: "unknown-source-connectors",
         label: "Unknown",
         help: "Ask whether the sources are fixed devices, laptops, USB-C, HDMI, wireless, or network streams.",
@@ -315,6 +317,8 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     prompt: "Capture whether outputs mirror, route independently, feed a wall processor, or show multiple sources on one canvas.",
     why: "Display behaviour is the difference between simple distribution, matrix routing, multiview, and wall-processing conversations.",
     required: true,
+    selectionMode: "multiple",
+    exclusiveValues: ["unknown-display-behaviour"],
     capturePlaceholder: "Example: All TVs show the same source, or each zone routes independently, or one LED processor needs a multiview feed.",
     options: [
       {
@@ -351,6 +355,8 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     prompt: "Choose the closest resolution and compatibility requirement. Use notes for any HDR, HDCP, or EDID nuance.",
     why: "Resolution, HDR, HDCP, and EDID expectations often decide whether a proposal is actually safe to quote.",
     required: true,
+    selectionMode: "multiple",
+    exclusiveValues: ["unknown-signal-standard"],
     capturePlaceholder: "Example: 4K60 HDR with HDCP 2.2 displays, or mixed legacy screens with EDID sensitivity.",
     options: [
       {
@@ -387,6 +393,8 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     prompt: "Only say yes if cameras, speakerphones, touch displays or BYOD/BYOM are involved.",
     why: "USB changes the architecture. HDMI-only designs are unsafe when conferencing devices are part of the workflow.",
     required: true,
+    selectionMode: "multiple",
+    exclusiveValues: ["no-usb", "unknown-usb"],
     capturePlaceholder: "Example: Users bring laptops and need the room camera and speakerphone for Teams.",
     options: [
       {
@@ -423,6 +431,8 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     prompt: "Capture who owns USB, where the peripherals sit, and whether USB 2.0 or 3.x bandwidth matters.",
     why: "USB ownership and bandwidth are often the real blockers in conferencing, BYOM, and camera workflows.",
     required: true,
+    selectionMode: "multiple",
+    exclusiveValues: ["no-usb-path-needed", "unknown-usb-path"],
     capturePlaceholder: "Example: User laptop hosts room camera and speakerphone over switched USB, or room PC hosts local USB 2.0 peripherals.",
     options: [
       {
@@ -464,12 +474,14 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     prompt: "Capture how sound will actually work in the room — through the screen itself, separate room speakers, or microphones for calls.",
     why: "Audio is often missed in first-pass discovery but affects product choice and dependencies.",
     required: true,
+    selectionMode: "multiple",
+    exclusiveValues: ["unknown-audio"],
     capturePlaceholder: "Example: Ceiling speakers and table microphones, with audio into Teams and local playback.",
     options: [
       {
         value: "display-audio",
-        label: "Display audio only",
-        help: "Simplest option — sound just comes from the screen's own speakers.",
+        label: "Display audio",
+        help: "Sound from the display speakers is part of the design; select additional audio paths where required.",
       },
       {
         value: "source-audio-deembed",
@@ -505,6 +517,8 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     prompt: "Think about staff use, wall control, touch panels, third-party control, automation or simple source selection.",
     why: "Control affects usability, supportability and whether the solution is realistic for non-technical users.",
     required: true,
+    selectionMode: "multiple",
+    exclusiveValues: ["unknown-control"],
     capturePlaceholder: "Example: Reception staff need to choose Sky, signage or laptop on each TV without calling IT.",
     options: [
       {
@@ -582,6 +596,8 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     prompt: "Capture cable distances, network availability, rack location and whether IT will support a networked video system.",
     why: "Infrastructure decides whether a simple cable, a booster/extender, fibre, a switcher, or a networked system is practical.",
     required: true,
+    selectionMode: "multiple",
+    exclusiveValues: ["unknown-infrastructure"],
     capturePlaceholder: "Example: Sources in rack, displays up to 60m away, managed network available but IT needs to confirm capacity.",
     options: [
       {
@@ -916,6 +932,9 @@ function getQuestionView(step: DiscoveryQuestion, selectedApplication: string): 
 
   return {
     ...step,
+    selectionMode: "single",
+    exclusiveValues: undefined,
+    selectAllValue: undefined,
     prompt:
       "A networked video system is already established. Capture whether NetworkHD uses the customer's existing network or a dedicated switch setup.",
     why:
@@ -944,6 +963,16 @@ function getQuestionView(step: DiscoveryQuestion, selectedApplication: string): 
 
 function getOptionLabel(step: DiscoveryQuestion, value: DiscoveryAnswerValue, selectedApplication = ""): string {
   if (Array.isArray(value)) {
+    if (step.selectAllValue && value.includes(step.selectAllValue)) {
+      const selectAllOption = getQuestionView(step, selectedApplication).options.find(
+        (candidate) => candidate.value === step.selectAllValue,
+      );
+
+      if (selectAllOption) {
+        return selectAllOption.label;
+      }
+    }
+
     return value
       .map((item) => getOptionLabel(step, item, selectedApplication))
       .filter(Boolean)
@@ -1032,18 +1061,19 @@ function signalQualityTags(signalStandard: string): string[] {
 }
 
 
-// WINGMAN_DISCOVERY_AUDIO_MULTISELECT_RUNTIME_FIX_START
-function wmDiscoveryIsAudioMultiSelectStep(step: { id?: string } | undefined): boolean {
-  return step?.id === "audio";
-}
-
-function wmDiscoveryIsUnknownAudioValue(value: unknown): boolean {
-  return typeof value === "string" && value === "unknown-audio";
+// WINGMAN_DISCOVERY_MULTISELECT_RUNTIME_START
+function wmDiscoveryIsMultiSelectStep(
+  step: DiscoveryQuestion | undefined,
+): boolean {
+  return step?.selectionMode === "multiple";
 }
 
 function wmDiscoveryNormaliseAnswerList(value: unknown): string[] {
   if (Array.isArray(value)) {
-    return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+    return value.filter(
+      (item): item is string =>
+        typeof item === "string" && item.trim().length > 0,
+    );
   }
 
   if (typeof value === "string" && value.trim().length > 0) {
@@ -1053,20 +1083,50 @@ function wmDiscoveryNormaliseAnswerList(value: unknown): string[] {
   return [];
 }
 
-function wmDiscoveryToggleAudioAnswer(currentValue: unknown, nextValue: string): string[] {
-  if (wmDiscoveryIsUnknownAudioValue(nextValue)) {
+function wmDiscoveryIsExclusiveValue(
+  step: DiscoveryQuestion,
+  value: string,
+): boolean {
+  return step.exclusiveValues?.includes(value) ?? false;
+}
+
+function wmDiscoveryToggleMultiSelectAnswer(
+  step: DiscoveryQuestion,
+  currentValue: unknown,
+  nextValue: string,
+): string[] {
+  const currentList = wmDiscoveryNormaliseAnswerList(currentValue);
+
+  if (step.selectAllValue === nextValue) {
+    if (currentList.includes(nextValue)) {
+      return [];
+    }
+
+    const concreteValues = step.options
+      .map((option) => option.value)
+      .filter((value) => value !== step.selectAllValue)
+      .filter((value) => !wmDiscoveryIsExclusiveValue(step, value));
+
+    return [nextValue, ...concreteValues];
+  }
+
+  if (wmDiscoveryIsExclusiveValue(step, nextValue)) {
+    if (currentList.length === 1 && currentList[0] === nextValue) {
+      return [];
+    }
+
     return [nextValue];
   }
 
-  const currentList = wmDiscoveryNormaliseAnswerList(currentValue).filter(
-    (item) => !wmDiscoveryIsUnknownAudioValue(item),
-  );
+  const compatibleValues = currentList
+    .filter((value) => !wmDiscoveryIsExclusiveValue(step, value))
+    .filter((value) => value !== step.selectAllValue);
 
-  if (currentList.includes(nextValue)) {
-    return currentList.filter((item) => item !== nextValue);
+  if (compatibleValues.includes(nextValue)) {
+    return compatibleValues.filter((value) => value !== nextValue);
   }
 
-  return [...currentList, nextValue];
+  return [...compatibleValues, nextValue];
 }
 
 function wmDiscoveryHasAnswer(value: unknown): boolean {
@@ -1079,7 +1139,12 @@ function wmDiscoveryHasAnswer(value: unknown): boolean {
 
 function wmDiscoveryAnswerToText(value: unknown): string {
   if (Array.isArray(value)) {
-    return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0).join(", ");
+    return value
+      .filter(
+        (item): item is string =>
+          typeof item === "string" && item.trim().length > 0,
+      )
+      .join(", ");
   }
 
   if (typeof value === "string") {
@@ -1088,7 +1153,18 @@ function wmDiscoveryAnswerToText(value: unknown): string {
 
   return "";
 }
-// WINGMAN_DISCOVERY_AUDIO_MULTISELECT_RUNTIME_FIX_END
+
+function wmDiscoveryAnswerIncludes(
+  value: unknown,
+  expectedValue: string,
+): boolean {
+  if (Array.isArray(value)) {
+    return value.includes(expectedValue);
+  }
+
+  return value === expectedValue;
+}
+// WINGMAN_DISCOVERY_MULTISELECT_RUNTIME_END
 
 export function DiscoveryPage() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -1288,11 +1364,11 @@ export function DiscoveryPage() {
   }
 
   function handleSelectAnswer(value: string): void {
-    if (wmDiscoveryIsAudioMultiSelectStep(currentStep)) {
+    if (wmDiscoveryIsMultiSelectStep(currentStep)) {
 
       setAnswers((previous) => {
         const updated = { ...previous };
-        const nextList = wmDiscoveryToggleAudioAnswer(previous[currentStep.id], value);
+        const nextList = wmDiscoveryToggleMultiSelectAnswer(currentStep, previous[currentStep.id], value);
 
         if (wmDiscoveryHasAnswer(nextList)) {
           updated[currentStep.id] = nextList;
@@ -1405,6 +1481,32 @@ export function DiscoveryPage() {
       const step = discoveryQuestions.find((candidate) => candidate.id === stepId);
       return step && wmDiscoveryHasAnswer(answers[stepId]) ? getOptionLabel(step, answers[stepId], selectedApplication) : "";
     };
+    const answerLabels = (stepId: string): string[] => {
+      const step = discoveryQuestions.find(
+        (candidate) => candidate.id === stepId,
+      );
+
+      if (!step) {
+        return [];
+      }
+
+      let selectedValues = wmDiscoveryNormaliseAnswerList(answers[stepId]);
+
+      if (
+        step.selectAllValue &&
+        selectedValues.includes(step.selectAllValue)
+      ) {
+        selectedValues = step.options
+          .map((option) => option.value)
+          .filter((value) => value !== step.selectAllValue)
+          .filter((value) => !wmDiscoveryIsExclusiveValue(step, value));
+      }
+
+      return selectedValues
+        .map((value) => getOptionLabel(step, value, selectedApplication))
+        .filter(Boolean);
+    };
+
     const application = answerLabel("opportunity") || wmDiscoveryAnswerToText(answers.opportunity) || "Discovery";
     const avoipProfile = answerLabel("avoip-profile");
     const avoipProfileValue = wmDiscoveryAnswerToText(answers["avoip-profile"]);
@@ -1431,11 +1533,17 @@ export function DiscoveryPage() {
     const usbPath = answerLabel("usb-path");
     const audio = answerLabel("audio");
     const control = answerLabel("control");
+    const sourceConnections = answerLabels("source-connection");
+    const usbNeeds = Array.from(
+      new Set([...answerLabels("usb"), ...answerLabels("usb-path")]),
+    );
+    const audioNeeds = answerLabels("audio");
+    const controlNeeds = answerLabels("control");
     const qualityTags = signalQualityTags(signalStandard);
     const distanceInfrastructureNotes = [distance, infrastructure].filter(Boolean).join(" | ");
     const processingNeeds = [
-      answers["display-behaviour"] === "video-wall-or-processor-feed" || answers.displays === "video-wall-output" ? "Video wall processing" : "",
-      answers["display-behaviour"] === "multiview-on-one-output" ? "Multiview" : "",
+      wmDiscoveryAnswerIncludes(answers["display-behaviour"], "video-wall-or-processor-feed") || wmDiscoveryAnswerIncludes(answers.displays, "video-wall-output") ? "Video wall processing" : "",
+      wmDiscoveryAnswerIncludes(answers["display-behaviour"], "multiview-on-one-output") ? "Multiview" : "",
       avoipProfileValue === "multiview-avoip" ? "Multiview" : "",
     ].filter(Boolean);
     const missingInformation = discoveryQuestions.flatMap((step) => {
@@ -1454,7 +1562,7 @@ export function DiscoveryPage() {
       return [];
     });
 
-    if (selectedApplication === "av-over-ip" && answers.infrastructure === "unknown-assume-dedicated-av-switching") {
+    if (selectedApplication === "av-over-ip" && wmDiscoveryAnswerIncludes(answers.infrastructure, "unknown-assume-dedicated-av-switching")) {
       missingInformation.push("Confirm whether NetworkHD will use the customer managed network or a dedicated AV switch design.");
     }
 
@@ -1475,9 +1583,9 @@ export function DiscoveryPage() {
         outcome: notes.opportunity?.trim() || application,
         customerWording: notes.opportunity?.trim() || allNotes[0] || "",
         scale: answerLabel("scale"),
-        devices: [sourceCount, sourceConnection].filter(Boolean),
-        sourceTypes: [sourceConnection].filter(Boolean),
-        sourceConnections: [sourceConnection].filter(Boolean),
+        devices: [sourceCount, ...sourceConnections].filter(Boolean),
+        sourceTypes: sourceConnections,
+        sourceConnections,
         sourceCount,
         displayCount,
         displays: displayCount,
@@ -1490,10 +1598,10 @@ export function DiscoveryPage() {
         usbOwnership: usb,
         usbTransport: usbPath || usb,
         usbTopologyRisk: usbPath,
-        usbNeeds: [usbPath || usb].filter(Boolean),
+        usbNeeds,
         audioPath: audio,
-        audioNeeds: [audio].filter(Boolean),
-        controlNeeds: [control].filter(Boolean),
+        audioNeeds,
+        controlNeeds,
         cableRun: distance,
         longestRun: distance,
         distanceInfrastructureNotes,
@@ -1502,13 +1610,13 @@ export function DiscoveryPage() {
         processingNeeds,
         processingRequirement: processingNeeds[0] ?? "",
         videoWallRequirement:
-          answers["display-behaviour"] === "video-wall-or-processor-feed" || answers.displays === "video-wall-output"
+          wmDiscoveryAnswerIncludes(answers["display-behaviour"], "video-wall-or-processor-feed") || wmDiscoveryAnswerIncludes(answers.displays, "video-wall-output")
             ? displayBehaviour
             : "Not indicated",
         avoipProfile,
         avoipSeriesHint,
         multiviewRequirement:
-          avoipProfileValue === "multiview-avoip" || answers["display-behaviour"] === "multiview-on-one-output"
+          avoipProfileValue === "multiview-avoip" || wmDiscoveryAnswerIncludes(answers["display-behaviour"], "multiview-on-one-output")
             ? "Multiview required"
             : "Not indicated",
         designDirection: inferredDirection,
@@ -1765,6 +1873,11 @@ return (
             <span>{activeIndex + 1} / {discoveryQuestions.length}</span>
             <h2 className="wm-ui-title">{currentStepView.question}</h2>
             <p className="wm-ui-copy">{currentStepView.prompt}</p>
+            {wmDiscoveryIsMultiSelectStep(currentStep) && (
+              <small className="wm-discovery-multi-select-note">
+                Select one or more options, then choose Continue.
+              </small>
+            )}
           </div>
 
           <div className="wm-discovery-why-card wm-ui-card">
@@ -1775,18 +1888,8 @@ return (
           <div className="wm-discovery-option-list wm-ui-card">
             {currentStepView.options.map((option) => {
               const selected = Array.isArray(currentAnswer) ? currentAnswer.includes(option.value) : currentAnswer === option.value;
-              // Situational awareness: de-emphasise options that do not fit the
-              // context captured so far, and highlight the likely fit. We never hide
-              // an option - the steer is purely visual.
-              const relevance = optionRelevance(currentStep.id, option.value, answers);
-              const isSuggestedDefault = !selected && option.value === suggestedDefaultOption(currentStep.id, answers);
-              const unlikelyReason = !selected && relevance === "unlikely" ? optionUnlikelyReason(currentStep.id, option.value, answers) : "";
               const optionClassNames = ["wm-discovery-option"];
               if (selected) optionClassNames.push("is-selected");
-              if (!selected && relevance === "recommended") optionClassNames.push("is-recommended");
-              if (!selected && relevance === "unlikely") optionClassNames.push("is-unlikely");
-              if (isSuggestedDefault) optionClassNames.push("is-suggested");
-
               return (
                 <button
                   key={option.value}
@@ -1794,22 +1897,13 @@ return (
                   className={optionClassNames.join(" ")}
                   onClick={() => handleSelectAnswer(option.value)}
                   aria-pressed={selected}
-                  data-relevance={relevance}
-                  title={unlikelyReason || undefined}
                 >
-                  <span className={wmDiscoveryIsAudioMultiSelectStep(currentStep) ? "wm-discovery-option-checkbox" : "wm-discovery-option-radio"} aria-hidden="true" />
+                  <span className={wmDiscoveryIsMultiSelectStep(currentStep) ? "wm-discovery-option-checkbox" : "wm-discovery-option-radio"} aria-hidden="true" />
                   <span>
                     <strong>
                       {option.label}
-                      {!selected && relevance === "recommended" ? (
-                        <span className="wm-discovery-option-flag wm-discovery-option-flag-fit wm-ui-card">{isSuggestedDefault ? "Suggested" : "Likely fit"}</span>
-                      ) : null}
-                      {!selected && relevance === "unlikely" ? (
-                        <span className="wm-discovery-option-flag wm-discovery-option-flag-uncommon wm-ui-card">Uncommon here</span>
-                      ) : null}
                     </strong>
                     <small>{option.help}</small>
-                    {unlikelyReason ? <small className="wm-discovery-option-reason wm-ui-card">{unlikelyReason}</small> : null}
                   </span>
                 </button>
               );
@@ -1821,7 +1915,7 @@ return (
               Previous
             </button>
             <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={moveNext} disabled={isLastStep}>
-              Skip / next
+              {wmDiscoveryIsMultiSelectStep(currentStep) ? "Continue" : "Skip / next"}
             </button>
           </div>
         </section>

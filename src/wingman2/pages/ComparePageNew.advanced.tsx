@@ -5085,18 +5085,30 @@ function ComparePageNew() {
         <button className="compare-native-reset wm-ui-button wm-ui-button-secondary wm-ui-quiet-action" type="button" onClick={handleReset}>Reset compare</button>
       </section>
 
-      <nav className="compare-native-stage-rail wm-ui-card" aria-label="Compare workflow steps">
+      <nav
+        className="compare-native-stage-rail wm-compare-step-rail"
+        aria-label="Compare workflow steps"
+      >
         {COMPARE_STAGES.map((stage, index) => {
           const isActive = compareStage === stage.key;
-          const currentIndex = COMPARE_STAGES.findIndex((item) => item.key === compareStage);
+          const currentIndex = COMPARE_STAGES.findIndex(
+            (item) => item.key === compareStage,
+          );
           const isComplete = currentIndex > index;
           const isLocked = stage.key === "results" && !hasCompared;
+          const statusLabel = isActive
+            ? "Current step"
+            : isComplete
+              ? "Complete"
+              : isLocked
+                ? "Available after selection"
+                : "Next";
 
           return (
             <button
               key={stage.key}
               type="button"
-              className={`compare-native-stage-card wm-ui-card${isActive ? " is-active" : ""}${isComplete ? " is-complete" : ""}`}
+              className={`compare-native-stage-card wm-compare-step${isActive ? " is-active" : ""}${isComplete ? " is-complete" : ""}${isLocked ? " is-locked" : ""}`}
               onClick={() => {
                 if (isLocked) {
                   return;
@@ -5107,10 +5119,16 @@ function ComparePageNew() {
               aria-current={isActive ? "step" : undefined}
               disabled={isLocked}
             >
-              <span className="compare-native-stage-step wm-ui-card">{stage.step}</span>
-              <strong>{stage.title}</strong>
-              <span className="wm-ui-step-status">
-                {isActive ? "Current step" : isComplete ? "Complete" : isLocked ? "Available after selection" : "Up next"}
+              <span
+                className="compare-native-stage-step wm-compare-step-number"
+                aria-hidden="true"
+              >
+                {isComplete ? "\u2713" : index + 1}
+              </span>
+
+              <span className="wm-compare-step-copy">
+                <strong>{stage.title}</strong>
+                <small>{statusLabel}</small>
               </span>
             </button>
           );
@@ -5128,7 +5146,7 @@ function ComparePageNew() {
 
           <CompareManufacturerCombobox brands={compareManufacturerOptions} selectedBrand={selectedBrand} onBrandSelect={onBrandSelect} />
 
-          <details className="compare-native-card compare-native-card--compact compare-native-guidance-card wm-ui-section wm-ui-card wm-ui-guidance-card">
+          <details className="compare-native-guidance-row wm-ui-card">
             <summary>Why this step matters</summary>
             <p className="wm-ui-copy">Picking the brand first keeps the next screen shorter and avoids mixing unlike technologies before the actual competitor product has been chosen.</p>
           </details>
@@ -5194,61 +5212,137 @@ function ComparePageNew() {
       ) : null}
 
       {compareStage === "sku" ? (
-        <form className="compare-native-results compare-native-results--stage wm-ui-section wm-ui-card" onSubmit={handleSubmit}>
-          <div className="compare-native-stage-brand-badge" aria-label={`Selected brand ${selectedBrand}`}>
-            <span>Selected brand</span>
-            <strong>{selectedBrand}</strong>
+        <form
+          className="compare-native-results compare-native-results--stage compare-native-sku-stage wm-ui-section wm-ui-card"
+          onSubmit={handleSubmit}
+        >
+          <header className="wm-compare-sku-header">
+            <div
+              className="compare-native-stage-brand-badge wm-compare-selected-brand"
+              aria-label={`Selected brand ${selectedBrand}`}
+            >
+              <span>Selected brand</span>
+              <strong>{selectedBrand}</strong>
+            </div>
+
+            <div className="wm-compare-sku-heading">
+              <span>Competitor product</span>
+              <h2 className="wm-ui-title">Choose the competitor SKU</h2>
+              <p className="wm-ui-copy">
+                Select a known model or type a custom SKU. Add only the
+                requirements that materially change the WyreStorm direction.
+              </p>
+            </div>
+          </header>
+
+          <div className="wm-compare-sku-workspace">
+            <section
+              className="wm-compare-sku-lookup"
+              aria-label="Competitor SKU lookup"
+            >
+              <div className="wm-compare-panel-heading">
+                <span>1</span>
+                <div>
+                  <strong>Find the competitor product</strong>
+                  <small>
+                    Search the selected manufacturer's known products or enter
+                    a model manually.
+                  </small>
+                </div>
+              </div>
+
+              <CompareProductLookupInput
+                value={competitorInput}
+                knownSkus={knownBrandSkus}
+                suggestions={skuSuggestions}
+                onInputChange={setCompetitorInput}
+                onSkuSelect={onSkuSelect}
+              />
+
+              <p className="wm-compare-sku-note">
+                Selecting a known SKU opens the comparison automatically.
+                Typed entries can use Enter or the review button.
+              </p>
+            </section>
+
+            <aside
+              className="wm-compare-match-requirements"
+              aria-label="Must-match competitor requirements"
+            >
+              <div className="wm-compare-panel-heading">
+                <span>2</span>
+                <div>
+                  <strong>Add must-match requirements</strong>
+                  <small>
+                    Optional. Use this only for evidence that affects product
+                    class, I/O, bandwidth, USB, control or quote risk.
+                  </small>
+                </div>
+              </div>
+
+              <label
+                className="wm-compare-requirement-field"
+                htmlFor="compare-must-match"
+              >
+                <span>Known type or essential features</span>
+                <textarea
+                  id="compare-must-match"
+                  className="compare-native-input wm-ui-input"
+                  value={mustMatchFeatures}
+                  onChange={(event) =>
+                    setMustMatchFeatures(event.target.value)
+                  }
+                  placeholder="Example: AV-over-IP transmitter, HDMI 2.0, 4K60 4:4:4 HDR and USB"
+                  rows={5}
+                />
+              </label>
+
+              <div className="wm-compare-requirement-examples">
+                <span>Useful details</span>
+                <small>Encoder / decoder role</small>
+                <small>Input and output quantities</small>
+                <small>USB host or device path</small>
+                <small>HDBaseT distance or AVoIP network class</small>
+              </div>
+            </aside>
           </div>
-          <div className="compare-native-section-title wm-ui-card-header wm-ui-card wm-ui-title">
-            <h2 className="wm-ui-title">Choose competitor product</h2>
-            <p className="wm-ui-copy">Pick a known SKU, or type a custom model and add only the details that change the product direction or quote risk.</p>
-          </div>
 
-          <CompareProductLookupInput
-            value={competitorInput}
-            knownSkus={knownBrandSkus}
-            suggestions={skuSuggestions}
-            onInputChange={setCompetitorInput}
-            onSkuSelect={onSkuSelect}
-          />
-
-          <section className="compare-native-card compare-native-card--compact wm-ui-card wm-ui-section wm-ui-centered-card">
-            <label className="compare-native-label wm-ui-kicker" htmlFor="compare-must-match">Known type or must-match features</label>
-            <input
-              id="compare-must-match"
-              className="compare-native-input wm-ui-input"
-              value={mustMatchFeatures}
-              onChange={(event) => setMustMatchFeatures(event.target.value)}
-              placeholder="Example: AV-over-IP transmitter HDMI 2.0 4K60 4:4:4 HDR USB"
-            />
-          </section>
-
-          <p className="compare-native-auto-note wm-ui-copy">Clicking a known SKU will still open the result automatically. Typed entries can still use Enter, or use the review button below.</p>
-
-          <div className="compare-native-action-row compare-native-action-row--between wm-ui-action-row wm-ui-card wm-ui-centered-actions">
-            <button className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" type="button" onClick={() => setCompareStage("brand")}>
+          <footer className="wm-compare-sku-actions">
+            <button
+              className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
+              type="button"
+              onClick={() => setCompareStage("brand")}
+            >
               Back to brand
             </button>
-            <div className="compare-native-action-row compare-native-action-row--equal wm-ui-action-row wm-ui-card">
-              <button
-                className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
-                type="button"
-                onClick={() => {
-                  const customLabel = competitorInput.trim().length > 0 ? competitorInput.trim() : "Custom / missing SKU";
-                  setCompetitorInput(customLabel);
-                  setCommittedSku(customLabel);
-                  setCustomSkuStore((current) => current.includes(customLabel) ? current : [customLabel, ...current].slice(0, 8));
-                }}
-              >
-                CUSTOM / missing SKU
-              </button>
-              <button className="compare-native-more wm-ui-button wm-ui-button-forward wm-ui-button-primary" type="submit" disabled={!hasCompetitorSelection}>
-                Review WyreStorm direction
-              </button>
-            </div>
-          </div>
 
-          <button className="compare-native-hidden-submit wm-ui-button wm-ui-button-primary" type="submit" aria-hidden="true" tabIndex={-1}>Run compare</button>
+            <div className="wm-compare-sku-action-copy">
+              <span>{competitorInput || "No competitor SKU selected"}</span>
+              <small>
+                {hasCompetitorSelection
+                  ? "Ready to review the WyreStorm direction."
+                  : "Select or enter a competitor SKU to continue."}
+              </small>
+            </div>
+
+            <button
+              className="compare-native-more wm-ui-button wm-ui-button-forward wm-ui-button-primary"
+              type="submit"
+              disabled={!hasCompetitorSelection}
+            >
+              Review WyreStorm direction
+            </button>
+          </footer>
+
+          <button
+            className="compare-native-hidden-submit"
+            type="submit"
+            aria-hidden="true"
+            tabIndex={-1}
+            hidden
+          >
+            Run compare
+          </button>
         </form>
       ) : null}
 

@@ -250,58 +250,12 @@ function findSkuStepTarget(): HTMLElement | null {
 }
 
 function updateManufacturerBadge(): void {
-  if (!isCompareRoute()) {
-    removeManufacturerBadge();
-    return;
-  }
-
-  const target = findSkuStepTarget();
-
-  if (!target) {
-    removeManufacturerBadge();
-    return;
-  }
-
-  const manufacturer = getSelectedManufacturer();
-
-  if (!manufacturer) {
-    removeManufacturerBadge();
-    return;
-  }
-
-  const existing = target.querySelector<HTMLElement>(`.${BADGE_CLASS}`);
-
-  if (existing) {
-    const strong = existing.querySelector("strong");
-
-    if (strong) {
-      strong.textContent = manufacturer;
-    }
-
-    return;
-  }
-
+  /*
+    The React Compare page now owns the selected-brand display.
+    Remove legacy injected badges so stale session or inferred values cannot
+    duplicate or contradict the active selectedBrand state.
+  */
   removeManufacturerBadge();
-
-  const badge = document.createElement("div");
-  badge.className = `${BADGE_CLASS} wm-ui-badge wm-ui-badge-selected`;
-  badge.setAttribute("aria-label", `Selected manufacturer ${manufacturer}`);
-  const label = document.createElement("span");
-  label.textContent = "Selected manufacturer";
-  const value = document.createElement("strong");
-  value.textContent = manufacturer;
-  badge.append(label, value);
-
-  const heading = Array.from(target.querySelectorAll<HTMLElement>("h1, h2, h3")).find((item) =>
-    normaliseText(item.textContent).toLowerCase().includes("competitor")
-  );
-
-  if (heading) {
-    heading.insertAdjacentElement("afterend", badge);
-    return;
-  }
-
-  target.insertAdjacentElement("afterbegin", badge);
 }
 
 function flashSelectAndAdvance(event: MouseEvent): void {

@@ -56,6 +56,9 @@ export type CompareSpecFacts = {
   hdbasetClass?: string;
   hdbasetDistance?: number;
   networkSpeed?: string;
+  avoipChip?: string | null;
+  avoipChipStatus?: "known" | "not-publicly-confirmed" | "verify";
+  avoipCodec?: string;
   ndiVersion?: string;
   ptzProtocol?: string;
   wirelessStandard?: string;
