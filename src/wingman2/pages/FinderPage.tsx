@@ -1977,9 +1977,19 @@ function finderFeatureMatches(
 function buildFinderMatchPlan(allProducts: FinderProduct[], need: FinderNeed, hasIntent: boolean): FinderMatchPlan {
   if (!hasIntent) return { matches: [], mode: "none" };
 
+  // Cables/accessories/dependencies are allowed through here unconditionally;
+  // isFinderStrictClassAllowed()/needExplicitlyRequestsSupportClass() below is
+  // the actual gate that only lets them through when `need` explicitly asks
+  // for one (technology type or keyword match). Filtering them out at this
+  // stage instead would mean that downstream check never runs, so typing
+  // "cable"/"accessory"/"dongle" as the Finder request could never surface a
+  // matching support product at all.
   const products = selectWingmanProducts(allProducts, {
     mode: "finder",
     includeArchitectureAlternatives: true,
+    includeCables: true,
+    includeAccessories: true,
+    includeDependencies: true,
   })
     .filter((decision) => decision.eligible)
     .map((decision) => decision.product);

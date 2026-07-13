@@ -1604,7 +1604,7 @@ export function WingmanGuruDrawer({
     }
   }
 
-  function useGuruMessageInDiscovery(message: GuruMessage) {
+  function sendGuruMessageToDiscovery(message: GuruMessage) {
     const handoff = [
       "Guru assistant handoff",
       "",
@@ -1790,7 +1790,7 @@ export function WingmanGuruDrawer({
                         <ClipboardCopy className="h-3.5 w-3.5" />
                         <span>{copiedMessageId === message.id ? "Copied" : "Copy answer"}</span>
                       </button>
-                      <button type="button" onClick={() => useGuruMessageInDiscovery(message)}>
+                      <button type="button" onClick={() => sendGuruMessageToDiscovery(message)}>
                         Use in Discovery
                       </button>
                     </div>
