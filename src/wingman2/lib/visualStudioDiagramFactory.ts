@@ -53,6 +53,10 @@ const PRODUCT_PORT_NODE_POSITIONS: Record<string, { x: number; y: number }> = {
   network: { x: 532, y: 540 },
   accessories: { x: 788, y: 540 },
   "quote-checks": { x: 1044, y: 540 },
+  "generic-avoip-network": { x: 532, y: 20 },
+  "generic-usb-host": { x: 20, y: 720 },
+  "generic-audio-network": { x: 276, y: 720 },
+  "generic-usb-camera-endpoint": { x: 532, y: 720 },
 };
 
 function resolveVisualStudioNodePosition(
@@ -100,6 +104,14 @@ function productPortEdgeHandles(
       return { sourceHandle: "source-bottom-4", targetHandle: "target-top" };
     case "e9":
       return { sourceHandle: "source-bottom-5", targetHandle: "target-top" };
+    case "e-avoip-network":
+      return { sourceHandle: "source-top", targetHandle: "target-bottom" };
+    case "e-usb-host":
+      return { sourceHandle: "source-right", targetHandle: "target-bottom" };
+    case "e-audio-network":
+      return { sourceHandle: "source-bottom-1", targetHandle: "target-top" };
+    case "e-usb-camera-endpoint":
+      return { sourceHandle: "source-bottom-2", targetHandle: "target-top" };
     default:
       return null;
   }

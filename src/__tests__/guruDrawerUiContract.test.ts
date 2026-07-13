@@ -29,7 +29,7 @@ describe("Guru structured conversation UI", () => {
   it("provides a scrollable conversation and persistent composer contract", () => {
     expect(drawerSource).toContain('className="wingman-guru-conversation"');
     expect(drawerSource).toContain('className="wingman-guru-composer"');
-    expect(drawerSource).toContain("Enter to send Â· Shift+Enter for a new line");
+    expect(drawerSource).toContain("Enter to send - Shift+Enter for a new line");
     expect(cssSource).toContain("flex: 1 1 auto");
     expect(cssSource).toContain("overflow-y: auto !important");
   });

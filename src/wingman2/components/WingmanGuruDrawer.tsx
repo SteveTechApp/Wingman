@@ -1360,7 +1360,7 @@ function buildGuruContentBlocks(content: string): GuruContentBlock[] {
       return;
     }
 
-    const bullet = line.match(/^[-*â€¢]\s+(.+)$/);
+    const bullet = line.match(/^[-*\u2022]\s+(.+)$/);
 
     if (bullet) {
       flushParagraph();
@@ -1824,7 +1824,7 @@ export function WingmanGuruDrawer({
               placeholder="Ask Guru a product, AV term, acronym, or system question..."
               rows={2}
             />
-            <small>Enter to send Â· Shift+Enter for a new line</small>
+            <small>Enter to send - Shift+Enter for a new line</small>
           </div>
           <button
             type="submit"

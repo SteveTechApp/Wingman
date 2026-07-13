@@ -7,6 +7,10 @@ const appShellPath = path.join(root, "src", "wingman2", "layout", "AppShell.tsx"
 const cssPath = path.join(root, "src", "wingman2", "styles", "wingman-style-stack.css");
 const pagesDirectory = path.join(root, "src", "wingman2", "pages");
 const reportPath = path.join(root, "docs", "app-page-style-consistency-audit.md");
+const shouldWriteReport =
+  process.argv.includes("--write") ||
+  process.argv.includes("--update") ||
+  process.argv.includes("--update-report");
 
 const errors = [];
 const warnings = [];
@@ -186,13 +190,30 @@ const report = [
   "",
 ];
 
-fs.mkdirSync(path.dirname(reportPath), { recursive: true });
-fs.writeFileSync(reportPath, `${report.join("\n")}\n`, "utf8");
+const reportContent = `${report.join("\n")}\n`;
+const existingReport = fs.existsSync(reportPath) ? fs.readFileSync(reportPath, "utf8") : "";
+const reportIsCurrent = existingReport === reportContent;
+
+if (shouldWriteReport) {
+  fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+
+  if (!reportIsCurrent) {
+    fs.writeFileSync(reportPath, reportContent, "utf8");
+  }
+} else if (!reportIsCurrent) {
+  errors.push(
+    `App page style audit is out of date: ${displayPath(path.relative(root, reportPath))}. Run node tools/check-app-page-style-consistency.mjs --write to update it.`,
+  );
+}
 
 console.log(
   `[app-page-style] Covered ${manifest.length} routes across ${routesByFile.size} routed page implementation(s).`,
 );
-console.log(`[app-page-style] Audit written to ${displayPath(path.relative(root, reportPath))}.`);
+console.log(
+  shouldWriteReport
+    ? `[app-page-style] Audit ${reportIsCurrent ? "already current" : "written"} at ${displayPath(path.relative(root, reportPath))}.`
+    : `[app-page-style] Audit checked at ${displayPath(path.relative(root, reportPath))}.`,
+);
 
 if (warnings.length > 0) {
   console.warn(`[app-page-style] ${warnings.length} non-blocking markup warning(s) recorded in the audit.`);
