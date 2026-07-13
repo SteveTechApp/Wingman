@@ -4,6 +4,7 @@ import path from "node:path";
 const root = process.cwd();
 const dashboardPath = path.join(root, "src", "wingman2", "pages", "DashboardPage.tsx");
 const themePath = path.join(root, "src", "wingman2", "styles", "wingman-reference-theme.css");
+const workflowThemePath = path.join(root, "src", "wingman2", "styles", "wingman-workflow-theme.css");
 const mainPath = path.join(root, "src", "main.tsx");
 const errors = [];
 
@@ -30,6 +31,7 @@ function forbidMarker(label, source, marker) {
 
 const dashboard = read(dashboardPath);
 const theme = read(themePath);
+const workflowTheme = read(workflowThemePath);
 const main = read(mainPath);
 
 [
@@ -69,10 +71,15 @@ const main = read(mainPath);
 ].forEach((marker) => requireMarker("wingman-reference-theme.css", theme, marker));
 
 requireMarker(
-  "src/main.tsx",
-  main,
-  'import "./wingman2/styles/wingman-reference-theme.css";',
+  "wingman-workflow-theme.css",
+  workflowTheme,
+  'html[data-wingman-route="discovery"]',
 );
+
+[
+  'import "./wingman2/styles/wingman-reference-theme.css";',
+  'import "./wingman2/styles/wingman-workflow-theme.css";',
+].forEach((marker) => requireMarker("src/main.tsx", main, marker));
 
 [
   "How can Wingman help you today?",
@@ -95,5 +102,5 @@ if (errors.length) {
 }
 
 console.log(
-  "[dashboard-reference-layout] Verified the simplified dashboard, expanded priority content and Guru motion contract.",
+  "[dashboard-reference-layout] Verified the simplified dashboard, expanded priority content and governed workflow theme.",
 );
