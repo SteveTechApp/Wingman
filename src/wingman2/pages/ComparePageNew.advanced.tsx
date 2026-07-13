@@ -4415,9 +4415,14 @@ function compareDecisionButtonClass(
   decisionType: CompareDecisionType,
   existingDecision?: CompetitorMatchDecision | null,
 ): string {
+  const isSelected = existingDecision?.decisionType === decisionType;
+
+  if (!isSelected) {
+    return "compare-decision-button compare-decision-button--neutral";
+  }
+
   const tone = compareDecisionTone(decisionType);
-  const selected = existingDecision?.decisionType === decisionType ? " is-selected" : "";
-  return `compare-decision-button compare-decision-button--${tone}${selected}`;
+  return `compare-decision-button compare-decision-button--${tone} is-selected`;
 }
 
 function GovernedDecisionPanel({
