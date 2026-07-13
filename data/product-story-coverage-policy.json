@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "dependencyOnly": [
+    {
+      "sku": "CAB-HAOC-FRL-XX",
+      "classification": "cable",
+      "reason": "Generic active optical HDMI cable family retained for catalogue, compatibility and BOM use; not a lead product story."
+    },
+    {
+      "sku": "CAB-HAOC-XX",
+      "classification": "cable",
+      "reason": "Generic active optical HDMI cable family retained for catalogue, compatibility and BOM use; not a lead product story."
+    },
+    {
+      "sku": "CAB-HAOC-XX-C",
+      "classification": "cable",
+      "reason": "Generic active optical HDMI cable family retained for catalogue, compatibility and BOM use; not a lead product story."
+    },
+    {
+      "sku": "CAB-HAOC-XX-P",
+      "classification": "cable",
+      "reason": "Generic active optical HDMI cable family retained for catalogue, compatibility and BOM use; not a lead product story."
+    },
+    {
+      "sku": "NHD-124-RACK-1U",
+      "classification": "rack",
+      "reason": "Rack accessory dependency retained for catalogue and BOM use; not a lead product story."
+    }
+  ]
+}
