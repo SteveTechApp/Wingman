@@ -13,22 +13,6 @@ export type TemplateBomRow = {
   notes: string;
 };
 
-export type RoomTemplateVerificationBaselineRow = {
-  id: string;
-  sku: string;
-  role: string;
-  qty: number;
-};
-
-export type RoomTemplateVerification = {
-  status: "VERIFIED";
-  baselineVersion: string;
-  verifiedAt: string;
-  verifiedBy: string;
-  designEnvelope: string[];
-  baseline: RoomTemplateVerificationBaselineRow[];
-};
-
 export type RoomTemplate = {
   id: string;
   name: string;
@@ -45,9 +29,6 @@ export type RoomTemplate = {
   }>;
   assumptions: string[];
   validationItems: string[];
-  designParameters?: string[];
-  deploymentConditions?: string[];
-  verification?: RoomTemplateVerification;
   upgradePaths: string[];
 };
 
@@ -223,23 +204,12 @@ const coreRoomTemplates: RoomTemplate[] = [
         id: "rx500",
         sku: "RX-500",
         description: "Short-distance HDBaseT receiver with USB",
-        role: "Receiver path for shorter USB-required runs",
+        role: "Receiver path for the single display/projector position",
         qty: 1,
         type: "Validate",
         status: "validate",
         evidence: "RX-500 can be used for shorter SW-130 receiver connections where USB is required.",
-        notes: "If USB is not required, value-engineer to any compatible WyreStorm HDBT 2.0 receiver that fits distance and resolution.",
-      },
-      {
-        id: "rx700",
-        sku: "RX-700",
-        description: "Longer-distance HDBaseT receiver with USB",
-        role: "Receiver path for longer USB-required runs",
-        qty: 1,
-        type: "Optional",
-        status: "optional",
-        evidence: "RX-700 is the longer-distance SW-130 receiver path.",
-        notes: "Use when the cable run or design requirement needs the longer SW-130 receive path.",
+        notes: "Single-run alternative: swap this one row for RX-700 if the cable run exceeds RX-500's rated distance. Do not add both — there is only one receive position in this template.",
       },
       {
         id: "cam210",
@@ -259,8 +229,8 @@ const coreRoomTemplates: RoomTemplate[] = [
       { label: "Control", description: "Simple display power/input control or third-party room control by others." },
       { label: "Cabling", description: "Certified category cabling and containment between wall plate and display/projector." },
     ],
-    assumptions: ["Single teaching display path", "One lecturer input point", "USB may or may not be required"],
-    validationItems: ["USB requirement", "Cable distance", "Display type", "Control scope", "Room audio owner"],
+    assumptions: ["Single teaching display path", "One lecturer input point", "USB may or may not be required", "RX-500 (short run) or RX-700 (long run) — one receiver, not both"],
+    validationItems: ["USB requirement", "Cable distance (determines RX-500 vs RX-700)", "Display type", "Control scope", "Room audio owner"],
     upgradePaths: ["Use SW-120-TX3 with RX3-100 for HDBaseT 3.0 performance", "Add camera and USB extension for hybrid teaching", "Move to NetworkHD 100/500 for multi-room routing"],
   },
   {
@@ -321,14 +291,14 @@ const coreRoomTemplates: RoomTemplate[] = [
       },
       {
         id: "camndi",
-        sku: "CAM-210-NDI-PTZ",
-        description: "NDI PTZ camera",
+        sku: "CAM-210-PTZ",
+        description: "PTZ camera with HDMI output",
         role: "Lecture capture camera",
         qty: 1,
         type: "Optional",
         status: "optional",
-        evidence: "Lecture capture may require a PTZ camera with network workflow support.",
-        notes: "Confirm NDI, USB, HDMI, or capture appliance input path.",
+        evidence: "Lecture capture may require a PTZ camera. This template's encoders (NHD-120-TX) are HDMI-only, so the camera's HDMI output feeds an NHD-120-TX encoder directly.",
+        notes: "If an NDI-workflow camera (CAM-210-NDI-PTZ) is preferred instead, also add an NHD-128-NDI-TRX bridge — NDI cannot feed an NHD-120-TX encoder directly.",
       },
     ],
     designNotes: [
@@ -337,7 +307,7 @@ const coreRoomTemplates: RoomTemplate[] = [
       { label: "Network", description: "Managed AV VLAN, multicast handling, PoE budget, and AV/IT commissioning window." },
     ],
     assumptions: ["Three source endpoints", "Four display endpoints", "One multiview support monitor", "Managed AV network"],
-    validationItems: ["Capture workflow", "Camera output format", "Source count", "Display count", "Network readiness", "Audio handoff"],
+    validationItems: ["Capture workflow", "Camera output format (HDMI vs NDI — NDI requires an NHD-128-NDI-TRX bridge)", "Source count", "Display count", "Network readiness", "Audio handoff"],
     upgradePaths: ["Move to NetworkHD 500 for 4K60 4:4:4 and stronger USB workflows", "Add more NHD-150-RX decoders for multiple monitoring positions", "Use NetworkHD 600 where lossless zero-latency routing is required"],
   },
   {
@@ -422,23 +392,23 @@ const coreRoomTemplates: RoomTemplate[] = [
         id: "sw0204",
         sku: "SW-0204-VW",
         description: "Preset-layout video wall processor",
-        role: "Basic wall processor",
+        role: "Basic wall processor (default — one processor per wall, not both)",
         qty: 1,
         type: "Required",
         status: "included",
         evidence: "Basic 1x4 or 2x2 LCD walls can be served by a dedicated preset-layout processor.",
-        notes: "Use when layouts are simple and fixed.",
+        notes: "Use when layouts are simple and fixed. This is the default processor for the wall; do not also add SW-0206-VW.",
       },
       {
         id: "sw0206",
         sku: "SW-0206-VW",
         description: "Flexible 6-output video wall processor",
-        role: "Alternative wall processor",
+        role: "Replacement processor for larger/flexible walls (replaces SW-0204-VW, do not add both)",
         qty: 1,
         type: "Optional",
         status: "optional",
         evidence: "More flexible fixed walls may need the larger dedicated processor path.",
-        notes: "Use instead of SW-0204-VW when output count or layout flexibility requires it.",
+        notes: "Swap in place of SW-0204-VW (remove that row) when output count or layout flexibility requires it — the wall only needs one processor.",
       },
       {
         id: "exp0401",
@@ -651,14 +621,14 @@ const coreRoomTemplates: RoomTemplate[] = [
       },
       {
         id: "camndi",
-        sku: "CAM-210-NDI-PTZ",
-        description: "NDI PTZ camera",
+        sku: "CAM-210-PTZ",
+        description: "PTZ camera with HDMI output",
         role: "Training camera",
         qty: 2,
         type: "Optional",
         status: "optional",
-        evidence: "Simulation labs often need multiple controllable camera views.",
-        notes: "Confirm NDI/HDMI/USB capture path and medical privacy requirements.",
+        evidence: "Simulation labs often need multiple controllable camera views. This template's encoders (NHD-500-TX) take HDMI input, so a standard HDMI PTZ camera feeds them directly.",
+        notes: "If an NDI-workflow camera (CAM-210-NDI-PTZ) is preferred instead, an NDI-to-NetworkHD bridge or NDI-native capture path must be added separately — NDI cannot feed an NHD-500-TX encoder directly. Confirm medical privacy requirements either way.",
       },
     ],
     designNotes: [
@@ -667,7 +637,7 @@ const coreRoomTemplates: RoomTemplate[] = [
       { label: "Network/security", description: "Clinical network approval, VLANs, user access, and data handling by customer IT." },
     ],
     assumptions: ["Three routed feeds", "Three display endpoints", "Observation room included", "Recording system by others"],
-    validationItems: ["Camera count", "Recording platform inputs", "Privacy requirements", "Audio capture", "Network/security approval"],
+    validationItems: ["Camera count", "Camera output format (HDMI vs NDI)", "Recording platform inputs", "Privacy requirements", "Audio capture", "Network/security approval"],
     upgradePaths: ["Move to NetworkHD 600 for lossless zero-latency critical review", "Add NHD-USB-TRX for USB peripheral sharing", "Add more NHD-0401-MV outputs for multi-room observation"],
   },
   {
@@ -794,14 +764,14 @@ const coreRoomTemplates: RoomTemplate[] = [
       },
       {
         id: "camndi",
-        sku: "CAM-210-NDI-PTZ",
-        description: "NDI PTZ camera",
+        sku: "CAM-210-PTZ",
+        description: "PTZ camera with HDMI output",
         role: "Venue camera",
         qty: 1,
         type: "Optional",
         status: "optional",
-        evidence: "PTZ camera can support overflow and recording workflows.",
-        notes: "Confirm camera control and production switcher integration.",
+        evidence: "PTZ camera can support overflow and recording workflows. This template's encoders (NHD-500-TX) take HDMI input, so a standard HDMI PTZ camera feeds them directly.",
+        notes: "Confirm camera control and production switcher integration. If an NDI-workflow camera (CAM-210-NDI-PTZ) is preferred instead, add an NDI-to-NetworkHD bridge — NDI cannot feed an NHD-500-TX encoder directly.",
       },
     ],
     designNotes: [
@@ -810,7 +780,7 @@ const coreRoomTemplates: RoomTemplate[] = [
       { label: "Network", description: "Managed AV network and any separation from general venue IT by others." },
     ],
     assumptions: ["Three production feeds", "Five display endpoints", "Managed AV network", "Audio handled by venue system"],
-    validationItems: ["Production source outputs", "Display count", "Network readiness", "Camera control", "Audio embedding/de-embedding needs"],
+    validationItems: ["Production source outputs", "Display count", "Network readiness", "Camera control and output format", "Audio embedding/de-embedding needs"],
     upgradePaths: ["Move to NetworkHD 600 for zero-latency high-performance routing", "Add more NHD-0401-MV monitoring positions", "Use dedicated HDMI/HDBaseT extension for simple point-to-point overflow"],
   },
   {
@@ -983,12 +953,12 @@ const coreRoomTemplates: RoomTemplate[] = [
         id: "cam0402brg",
         sku: "CAM-0402-BRG",
         description: "Camera bridge and mixer",
-        role: "Camera aggregation and USB conferencing bridge",
+        role: "Camera aggregation and USB conferencing bridge (only needed if the rear camera is added)",
         qty: 1,
-        type: "Validate",
-        status: "validate",
-        evidence: "A bridge/mixer is required where multiple cameras need to be presented cleanly to the conferencing host.",
-        notes: "Validate camera inputs, USB host location, platform compatibility, and whether an NDI bridge variant is required.",
+        type: "Optional",
+        status: "optional",
+        evidence: "A bridge/mixer is only required once a second (rear/audience) camera is added — a single front camera can feed the room UC core directly with no bridge. This row tracks with cam420rear, not with the base template.",
+        notes: "Add this alongside cam420rear (the optional second camera) — do not add on its own with only one camera. Validate camera inputs, USB host location, platform compatibility, and whether an NDI bridge variant is required.",
       },
       {
         id: "apocommic",
@@ -1040,23 +1010,12 @@ const coreRoomTemplates: RoomTemplate[] = [
         id: "rx700",
         sku: "RX-700",
         description: "HDBaseT receiver",
-        role: "Projector / display receiver",
+        role: "Projector / display receiver (single receive position — do not also add RX-500)",
         qty: 1,
         type: "Validate",
         status: "validate",
-        evidence: "A receiver is required at the projector or display end of the HDBaseT path.",
-        notes: "Validate exact receiver model against distance, resolution, USB requirement, and the selected transmitter.",
-      },
-      {
-        id: "rx500",
-        sku: "RX-500",
-        description: "Shorter-distance HDBaseT receiver",
-        role: "Alternative receiver path",
-        qty: 1,
-        type: "Optional",
-        status: "optional",
-        evidence: "Shorter cable runs may be served by a smaller receiver option where the requirement allows it.",
-        notes: "Use only after confirming cable distance and USB requirement.",
+        evidence: "A receiver is required at the projector or display end of the HDBaseT path. This is the default long-distance option for a school hall run.",
+        notes: "Single-run alternative: swap this row for RX-500 if the cable run is short enough to allow the smaller receiver. Validate exact receiver model against distance, resolution, USB requirement, and the selected transmitter — do not add both receivers.",
       },
       {
         id: "cam210ptz",
@@ -1216,14 +1175,14 @@ const coreRoomTemplates: RoomTemplate[] = [
       },
       {
         id: "cam210ndi",
-        sku: "CAM-210-NDI-PTZ",
-        description: "NDI PTZ camera",
+        sku: "CAM-210-PTZ",
+        description: "PTZ camera with HDMI output",
         role: "Hybrid teaching camera",
         qty: 1,
         type: "Optional",
         status: "optional",
-        evidence: "Hybrid teaching needs a camera path for remote learners.",
-        notes: "Confirm whether the camera path is NDI, USB, HDMI, or into a lecture capture appliance.",
+        evidence: "Hybrid teaching needs a camera path for remote learners. This template's encoders (NHD-500-TX) take HDMI input, so a standard HDMI PTZ camera feeds them directly.",
+        notes: "Confirm whether the camera path is HDMI (feeds NHD-500-TX directly), USB, or into a lecture capture appliance. If an NDI-workflow camera (CAM-210-NDI-PTZ) is preferred, add an NDI-to-NetworkHD bridge — NDI cannot feed an NHD-500-TX encoder directly.",
       },
       {
         id: "nhd0401mv",
@@ -1403,6 +1362,28 @@ const coreRoomTemplates: RoomTemplate[] = [
         evidence: "Premium venues may need Dante-capable audio zones linked to video presets.",
         notes: "Validate audio-follow-video, DSP, speaker zoning, and Dante network ownership.",
       },
+      {
+        id: "sportsbarrack",
+        sku: "NHD-000-RACK4",
+        description: "NetworkHD rack mount",
+        role: "Endpoint rack mounting",
+        qty: 4,
+        type: "Validate",
+        status: "validate",
+        evidence: "34 NetworkHD endpoints (8 encoders + 24 decoders + 2 multiview) need organized rack mounting at the source/central rack; display-side decoders are typically local, but source-side hardware must be racked.",
+        notes: "Confirm actual rack count against source-rack endpoint density and available rack space.",
+      },
+      {
+        id: "sportsbarswitch",
+        sku: "BY-OTHERS-NETWORK-INFRASTRUCTURE",
+        description: "Managed network switch, VLAN, PoE, fibre, optics and network configuration",
+        role: "Required AV network infrastructure",
+        qty: 1,
+        type: "Validate",
+        status: "validate",
+        evidence: "A 34-endpoint NetworkHD 500 deployment requires a managed AV-capable switch with adequate PoE budget and multicast support — this is required infrastructure, not an afterthought.",
+        notes: "Specify the approved switch model(s), VLAN plan, PoE budget, multicast configuration, and commissioning responsibility.",
+      },
     ],
     designNotes: [
       { label: "Display zones", description: "Define bar, booth, restaurant, private hire, feature wall, and outside terrace zones before final endpoint count." },
@@ -1535,6 +1516,28 @@ const coreRoomTemplates: RoomTemplate[] = [
         status: "validate",
         evidence: "Large venues may need separate control points for operations and hospitality managers.",
         notes: "Confirm user roles, locked presets, and whether third-party BMS/control is involved.",
+      },
+      {
+        id: "casinorack",
+        sku: "NHD-000-RACK4",
+        description: "NetworkHD rack mount",
+        role: "Endpoint rack mounting",
+        qty: 6,
+        type: "Validate",
+        status: "validate",
+        evidence: "64 NetworkHD endpoints (16 encoders + 48 decoders) across gaming floor, VIP, and signage zones need organized, zoned rack mounting.",
+        notes: "Confirm rack count and locations against the final zone map — casinos usually need multiple distributed racks, not one central rack.",
+      },
+      {
+        id: "casinonetwork",
+        sku: "BY-OTHERS-NETWORK-INFRASTRUCTURE",
+        description: "Managed switch stack, VLAN, PoE, fibre, optics and resilient network configuration",
+        role: "Required AV network infrastructure",
+        qty: 1,
+        type: "Validate",
+        status: "validate",
+        evidence: "A 64-endpoint estate-wide NetworkHD 500 deployment requires a resilient managed switch stack — the design notes already call out 'switch stack' and 'resilience' as requirements, so this must be a tracked BOM line, not just prose.",
+        notes: "Specify the switch stack topology, VLAN plan, PoE budget, multicast configuration, redundancy/failover approach, and commissioning responsibility across zones.",
       },
     ],
     designNotes: [
@@ -1703,6 +1706,28 @@ const coreRoomTemplates: RoomTemplate[] = [
         evidence: "Operations teams may need source preview or zone monitoring.",
         notes: "Confirm whether multiview is required in event control, broadcast support, or hospitality operations.",
       },
+      {
+        id: "stadiumrack",
+        sku: "NHD-000-RACK4",
+        description: "NetworkHD rack mount",
+        role: "Endpoint rack mounting",
+        qty: 8,
+        type: "Validate",
+        status: "validate",
+        evidence: "76 NetworkHD endpoints (12 encoders + 40 concourse decoders + 24 VIP decoders) spread across a stadium estate need zoned rack mounting near each concourse/VIP cluster.",
+        notes: "Confirm rack count and concourse/VIP telecom-room locations against the final zone map.",
+      },
+      {
+        id: "stadiumnetwork",
+        sku: "BY-OTHERS-NETWORK-INFRASTRUCTURE",
+        description: "Structured switch topology, VLANs, multicast plan, and fibre uplinks",
+        role: "Required AV network infrastructure",
+        qty: 1,
+        type: "Validate",
+        status: "validate",
+        evidence: "The design notes already call for 'structured switch topology' and 'fibre uplinks' for this stadium-scale estate — this must be a tracked BOM line, not just prose, given 76 endpoints across concourse and VIP zones.",
+        notes: "Specify switch topology, fibre backbone/uplink counts between concourse and VIP telecom rooms, VLAN plan, multicast configuration, and resilience strategy.",
+      },
     ],
     designNotes: [
       { label: "Zone model", description: "Separate concourse, hospitality, VIP, sponsor, wayfinding, and operations zones." },
@@ -1780,6 +1805,28 @@ const coreRoomTemplates: RoomTemplate[] = [
         status: "optional",
         evidence: "Some wall displays may need full-screen single-source views rather than multiview.",
         notes: "Adjust to confirmed display wall and desk monitor count.",
+      },
+      {
+        id: "securityrack",
+        sku: "NHD-000-RACK4",
+        description: "NetworkHD rack mount",
+        role: "Endpoint rack mounting",
+        qty: 3,
+        type: "Validate",
+        status: "validate",
+        evidence: "24 NetworkHD endpoints (6 encoders + 4 bridges + 6 multiview decoders + up to 8 single-view decoders) in a command room need secure, organized rack mounting.",
+        notes: "Confirm rack location relative to the security-network segregation boundary.",
+      },
+      {
+        id: "securitynetwork",
+        sku: "BY-OTHERS-NETWORK-INFRASTRUCTURE",
+        description: "Managed, segregated network switch and configuration",
+        role: "Required AV network infrastructure",
+        qty: 1,
+        type: "Validate",
+        status: "validate",
+        evidence: "A security command room with camera/network-video bridging needs a managed, segregated switch with a defined security policy — this is required infrastructure for a 24-endpoint deployment, not an implicit assumption.",
+        notes: "Specify switch model, VLAN/segregation plan between camera, corporate, and AV networks, PoE budget, and commissioning access controls.",
       },
     ],
     designNotes: [
@@ -1872,71 +1919,6 @@ const coreRoomTemplates: RoomTemplate[] = [
   }
 ];
 
-function governedDeploymentNote(value: string): string {
-  const text = String(value || "").trim();
-
-  if (!text) return "Apply the governed installation and commissioning requirement.";
-
-  if (/^(confirm|validate|adjust|check)\b/i.test(text)) {
-    return `Deployment condition: ${text.replace(/^(confirm|validate|adjust|check)\s*/i, "")}`;
-  }
-
-  return text
-    .replace(/before customer issue/gi, "during project delivery")
-    .replace(/should be validated/gi, "is governed by the stated deployment condition");
-}
-
-function finaliseVerifiedRoomTemplate(template: RoomTemplate): RoomTemplate {
-  const bom = template.bom.map((row): TemplateBomRow => {
-    const required = row.type === "Validate" || row.status === "validate";
-
-    return {
-      ...row,
-      type: required ? "Required" : row.type,
-      status: required ? "included" : row.status,
-      evidence: /placeholder row/i.test(row.evidence)
-        ? "Required project-scope item included in the complete verified room solution."
-        : row.evidence,
-      notes: governedDeploymentNote(row.notes),
-    };
-  });
-
-  const designParameters = [...template.assumptions];
-  const deploymentConditions = template.validationItems.map(governedDeploymentNote);
-  const baseline = bom
-    .filter((row) => row.type === "Required" && row.status !== "excluded" && row.qty > 0)
-    .map((row) => ({
-      id: row.id,
-      sku: row.sku,
-      role: row.role,
-      qty: row.qty,
-    }));
-
-  return {
-    ...template,
-    bom,
-    assumptions: [],
-    validationItems: [],
-    designParameters,
-    deploymentConditions,
-    verification: {
-      status: "VERIFIED",
-      baselineVersion: "2026.07.10",
-      verifiedAt: "2026-07-10",
-      verifiedBy: "WyreStorm Wingman governed template library",
-      designEnvelope: [
-        template.scale,
-        template.application,
-        ...designParameters,
-        ...deploymentConditions,
-      ],
-      baseline,
-    },
-  };
-}
-
-export const roomTemplates: RoomTemplate[] = [...coreRoomTemplates, ...extraRoomTemplates].map(
-  finaliseVerifiedRoomTemplate,
-);
+export const roomTemplates: RoomTemplate[] = [...coreRoomTemplates, ...extraRoomTemplates];
 
 export const roomTemplateVerticals = ["All", ...Array.from(new Set(roomTemplates.map((template) => template.vertical)))];

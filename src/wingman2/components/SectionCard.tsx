@@ -10,7 +10,7 @@ type SectionCardProps = {
 
 export function SectionCard({ title, subtitle, children, rightSlot }: SectionCardProps) {
   return (
-    <section className="wingman-section-card wingman-surface">
+    <section className="wingman-section-card wingman-surface" data-wm-card-level="standard">
       <header className="wingman-section-card-header">
         <div>
           <p className="wingman-kicker">Wingman workspace</p>

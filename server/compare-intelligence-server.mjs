@@ -5,17 +5,29 @@ import { resolveCompetitorIntelligence } from "./competitor/compare-intelligence
 const port = Number(process.env.COMPARE_INTELLIGENCE_PORT || process.env.PORT || 13000);
 const host = process.env.COMPARE_INTELLIGENCE_HOST || "127.0.0.1";
 
-function sendJson(res, statusCode, payload, origin = "*") {
-  const body = JSON.stringify(payload, null, 2);
+const DEFAULT_ALLOWED_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"];
+const ALLOWED_ORIGINS = new Set(
+  (process.env.COMPARE_INTELLIGENCE_ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .concat(DEFAULT_ALLOWED_ORIGINS),
+);
 
-  res.writeHead(statusCode, {
+function sendJson(res, statusCode, payload, origin) {
+  const body = JSON.stringify(payload, null, 2);
+  const headers = {
     "content-type": "application/json; charset=utf-8",
-    "access-control-allow-origin": origin,
     "access-control-allow-methods": "GET,POST,OPTIONS",
     "access-control-allow-headers": "Content-Type,Authorization",
     "vary": "Origin",
-  });
+  };
 
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    headers["access-control-allow-origin"] = origin;
+  }
+
+  res.writeHead(statusCode, headers);
   res.end(body);
 }
 
@@ -61,7 +73,7 @@ function queryToPayload(url) {
 }
 
 const server = http.createServer(async (req, res) => {
-  const origin = req.headers.origin || "*";
+  const origin = req.headers.origin;
   const url = new URL(req.url || "/", `http://${req.headers.host || `${host}:${port}`}`);
 
   if (req.method === "OPTIONS") {

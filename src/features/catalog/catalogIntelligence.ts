@@ -392,6 +392,41 @@ function getSearchableHaystack(product: CatalogProduct): string {
     .toLowerCase();
 }
 
+function isCableSku(sku: string, category: string): boolean {
+  return /^(?:EXP-)?CAB-/i.test(sku) || containsToken(category.toLowerCase(), "cable") || containsToken(category.toLowerCase(), "cables");
+}
+
+// A passive cable's generic "applications" copy (meeting room, video wall, UC space, ...)
+// describes rooms it might be *used in*, not what the cable *is* - so it should never
+// itself carry a system-role family/role that would surface it under those filter chips.
+const SYSTEM_ROLE_FAMILIES = new Set<CatalogFamily>([
+  "Unified Communication",
+  "Presentation Switching",
+  "Synergy",
+  "Matrix Switching",
+  "AV over IP",
+  "Video Walls",
+  "Multiview",
+  "Audio",
+  "Control",
+]);
+
+const SYSTEM_ROLE_ROLES = new Set<CatalogRole>([
+  "presentation-switcher",
+  "matrix-switcher",
+  "wireless-casting-host",
+  "av-over-ip-encoder",
+  "av-over-ip-decoder",
+  "av-over-ip-transceiver",
+  "video-wall-processor",
+  "multiview-processor",
+  "uc-endpoint",
+  "camera",
+  "audio-endpoint",
+  "video-bar",
+  "room-core",
+]);
+
 function inferFamilies(input: {
   sku: string;
   name: string;
@@ -414,45 +449,50 @@ function inferFamilies(input: {
     .toLowerCase();
 
   const families: CatalogFamily[] = [];
+  const has = (token: string) => containsToken(text, token);
 
-  if (text.includes("apollo") || text.includes("conference") || text.includes("teams") || containsToken(text, "uc")) {
+  if (has("apollo") || has("conference") || has("teams") || has("uc")) {
     families.push("Unified Communication");
   }
-  if (text.includes("presentation") || text.includes("byod") || text.includes("byom") || text.includes("switcher")) {
+  if (has("presentation") || has("byod") || has("byom") || has("switcher")) {
     families.push("Presentation Switching");
   }
-  if (text.includes("synergy") || text.includes("wireless host") || text.includes("wireless casting")) {
+  if (has("synergy") || has("wireless host") || has("wireless casting")) {
     families.push("Synergy");
   }
-  if (text.includes("matrix") || text.includes("hyb")) {
+  if (has("matrix") || has("hyb")) {
     families.push("Matrix Switching");
   }
-  if (text.includes("nhd") || text.includes("avoip") || text.includes("av over ip")) {
+  if (has("nhd") || has("avoip") || has("av over ip")) {
     families.push("AV over IP");
   }
-  if (text.includes("video wall") || text.includes("vw") || text.includes("mosaic")) {
+  if (has("video wall") || has("vw") || has("mosaic")) {
     families.push("Video Walls");
   }
-  if (text.includes("multiview")) {
+  if (has("multiview")) {
     families.push("Multiview");
   }
-  if (text.includes("wireless")) {
+  if (has("wireless")) {
     families.push("Wireless Presentation");
   }
-  if (text.includes("usb")) {
+  if (has("usb")) {
     families.push("USB Extension");
   }
-  if (text.includes("dante") || text.includes("speaker") || text.includes("microphone") || text.includes("audio")) {
+  if (has("dante") || has("speaker") || has("microphone") || has("audio")) {
     families.push("Audio");
   }
-  if (text.includes("control") || text.includes("ndi")) {
+  if (has("control") || has("ndi")) {
     families.push("Control");
   }
-  if (text.includes("led")) {
+  if (has("led wall") || has("led processor") || has("led cabinet") || has("led display") || has("led tile")) {
     families.push("LED");
   }
-  if (text.includes("dongle") || text.includes("accessory")) {
+  if (has("dongle") || has("accessory")) {
     families.push("Accessories");
+  }
+
+  if (isCableSku(input.sku, input.category)) {
+    return uniqueStrings(families.filter((family) => !SYSTEM_ROLE_FAMILIES.has(family)).concat("Accessories"));
   }
 
   return uniqueStrings(families);
@@ -467,24 +507,29 @@ function inferRoles(input: {
 }): CatalogRole[] {
   const text = [input.sku, input.name, input.category, input.summary, ...input.tags].join(" ").toLowerCase();
   const roles: CatalogRole[] = [];
+  const has = (token: string) => containsToken(text, token);
 
-  if (text.includes("video bar")) roles.push("video-bar");
-  if (text.includes("presentation") || text.includes("switcher")) roles.push("presentation-switcher");
-  if (text.includes("matrix")) roles.push("matrix-switcher");
-  if (text.includes("wireless host")) roles.push("wireless-casting-host");
-  if (text.includes("dongle")) roles.push("wireless-casting-dongle");
-  if (text.includes("encoder")) roles.push("av-over-ip-encoder");
-  if (text.includes("decoder")) roles.push("av-over-ip-decoder");
-  if (text.includes("transceiver") || text.includes("trx")) roles.push("av-over-ip-transceiver");
-  if (text.includes("video wall")) roles.push("video-wall-processor");
-  if (text.includes("multiview")) roles.push("multiview-processor");
-  if (text.includes("usb")) roles.push("usb-peripheral-host");
-  if (containsToken(text, "uc") || text.includes("conference")) roles.push("uc-endpoint");
-  if (text.includes("accessory") || text.includes("dongle")) roles.push("accessory");
-  if (text.includes("camera") || text.includes("ptz")) roles.push("camera");
-  if (text.includes("speaker") || text.includes("microphone")) roles.push("audio-endpoint");
-  if (text.includes("extender")) roles.push("extender");
+  if (has("video bar")) roles.push("video-bar");
+  if (has("presentation") || has("switcher")) roles.push("presentation-switcher");
+  if (has("matrix")) roles.push("matrix-switcher");
+  if (has("wireless host")) roles.push("wireless-casting-host");
+  if (has("dongle")) roles.push("wireless-casting-dongle");
+  if (has("encoder")) roles.push("av-over-ip-encoder");
+  if (has("decoder")) roles.push("av-over-ip-decoder");
+  if (has("transceiver") || has("trx")) roles.push("av-over-ip-transceiver");
+  if (has("video wall")) roles.push("video-wall-processor");
+  if (has("multiview")) roles.push("multiview-processor");
+  if (has("usb")) roles.push("usb-peripheral-host");
+  if (has("uc") || has("conference")) roles.push("uc-endpoint");
+  if (has("accessory") || has("dongle")) roles.push("accessory");
+  if (has("camera") || has("ptz")) roles.push("camera");
+  if (has("speaker") || has("microphone")) roles.push("audio-endpoint");
+  if (has("extender")) roles.push("extender");
   if (roles.includes("presentation-switcher") || roles.includes("matrix-switcher")) roles.push("room-core");
+
+  if (isCableSku(input.sku, input.category)) {
+    return uniqueStrings(roles.filter((role) => !SYSTEM_ROLE_ROLES.has(role)).concat("accessory"));
+  }
 
   return uniqueStrings(roles);
 }
@@ -497,23 +542,26 @@ function inferTechnologies(input: {
 }): CatalogTechnology[] {
   const text = [input.sku, input.name, input.summary, ...input.tags].join(" ").toLowerCase();
   const technologies: CatalogTechnology[] = [];
+  const has = (token: string) => containsToken(text, token);
 
-  if (text.includes("camera") || text.includes("ptz")) technologies.push("camera");
-  if (text.includes("speaker")) technologies.push("speaker");
-  if (text.includes("microphone") || text.includes("mic")) technologies.push("microphone");
-  if (text.includes("hdmi")) technologies.push("hdmi");
-  if (text.includes("usb-c")) technologies.push("usb-c");
-  if (text.includes("usb")) technologies.push("usb");
-  if (text.includes("wireless")) technologies.push("wireless-casting");
-  if (text.includes("hdbaset")) technologies.push("hdbaset");
-  if (text.includes("networkhd")) technologies.push("networkhd");
-  if (text.includes("dante")) technologies.push("dante");
-  if (text.includes("multiview")) technologies.push("multiview");
-  if (text.includes("video wall") || text.includes("mosaic")) technologies.push("video-wall-processing");
-  if (text.includes("dual display") || text.includes("dual output")) technologies.push("dual-display");
-  if (text.includes("ndi")) technologies.push("ndi");
-  if (text.includes("led")) technologies.push("led-processing");
-  if (text.includes("10gb")) technologies.push("10gb");
+  if (has("camera") || has("ptz")) technologies.push("camera");
+  if (has("speaker")) technologies.push("speaker");
+  if (has("microphone") || has("mic")) technologies.push("microphone");
+  if (has("hdmi")) technologies.push("hdmi");
+  if (has("usb-c")) technologies.push("usb-c");
+  if (has("usb")) technologies.push("usb");
+  if (has("wireless")) technologies.push("wireless-casting");
+  if (has("hdbaset")) technologies.push("hdbaset");
+  if (has("networkhd")) technologies.push("networkhd");
+  if (has("dante")) technologies.push("dante");
+  if (has("multiview")) technologies.push("multiview");
+  if (has("video wall") || has("mosaic")) technologies.push("video-wall-processing");
+  if (has("dual display") || has("dual output")) technologies.push("dual-display");
+  if (has("ndi")) technologies.push("ndi");
+  if (has("led wall") || has("led processor") || has("led cabinet") || has("led display") || has("led tile")) {
+    technologies.push("led-processing");
+  }
+  if (has("10gb")) technologies.push("10gb");
 
   return uniqueStrings(technologies);
 }
@@ -554,7 +602,7 @@ function inferLifecycle(product: {
 }): CatalogLifecycle {
   const text = [product.sku, product.name, product.summary, ...product.tags].join(" ").toLowerCase();
 
-  if (text.includes("eol") || text.includes("do not recommend")) {
+  if (containsToken(text, "eol") || text.includes("do not recommend")) {
     return { publicStatus: "active", internalStatus: "do-not-recommend", excludeFromNewRecommendations: true };
   }
   if (text.includes("legacy")) {
@@ -692,7 +740,13 @@ export function buildFacetIndex(products: CatalogProduct[]): CatalogFacetIndex {
   };
 }
 
-function strictMatch(product: CatalogProduct, state: CatalogFilterState): boolean {
+// Facet chips (family/role/technology/series/category/deployment role) and the
+// accessory/standalone/EOL toggles are explicit, deliberate selections - they must
+// always hard-exclude non-matching products, in both "Strict filter" and "Smart find"
+// mode. Only free-text fields (search/application/roomType/budgetBand) get fuzzy
+// scoring in "find" mode; a "Video Walls" chip should never let an unrelated cable
+// back in just because it also happens to be an accessory or score a stray text point.
+function passesStructuredFilters(product: CatalogProduct, state: CatalogFilterState): boolean {
   if (state.families.length > 0 && !intersects(product.families, state.families)) return false;
   if (state.series.length > 0 && !state.series.includes(product.series)) return false;
   if (state.categories.length > 0 && !state.categories.includes(product.category)) return false;
@@ -714,6 +768,12 @@ function strictMatch(product: CatalogProduct, state: CatalogFilterState): boolea
     const matchesDependency = state.dependencySkus.some((sku) => dependencyHaystack.includes(normalizeSku(sku)));
     if (!matchesDependency) return false;
   }
+
+  return true;
+}
+
+function strictMatch(product: CatalogProduct, state: CatalogFilterState): boolean {
+  if (!passesStructuredFilters(product, state)) return false;
 
   if (state.application.trim()) {
     const applicationHaystack = `${product.summary} ${product.tags.join(" ")} ${product.name}`.toLowerCase();
@@ -780,22 +840,24 @@ function scoreProduct(product: CatalogProduct, state: CatalogFilterState): numbe
   if (state.roomType.trim() && containsText(`${product.summary} ${product.tags.join(" ")}`, state.roomType)) score += 12;
   if (state.budgetBand.trim() && containsText(`${product.summary} ${product.tags.join(" ")}`, state.budgetBand)) score += 8;
 
-  if (q.includes("uc") || q.includes("teams") || q.includes("conference") || q.includes("byom")) {
+  const qHas = (token: string) => containsToken(q, token);
+
+  if (qHas("uc") || qHas("teams") || qHas("conference") || qHas("byom")) {
     if (product.families.includes("Unified Communication")) score += 18;
   }
-  if (q.includes("wireless") || q.includes("dg2") || q.includes("casting")) {
+  if (qHas("wireless") || qHas("dg2") || qHas("casting")) {
     if (product.families.includes("Wireless Presentation") || product.roles.includes("wireless-casting-host")) score += 18;
   }
-  if (q.includes("video wall") || q.includes("mosaic")) {
+  if (qHas("video wall") || qHas("mosaic")) {
     if (product.families.includes("Video Walls")) score += 20;
   }
-  if (q.includes("matrix") || q.includes("hyb")) {
+  if (qHas("matrix") || qHas("hyb")) {
     if (product.families.includes("Matrix Switching")) score += 18;
   }
-  if (q.includes("multiview")) {
+  if (qHas("multiview")) {
     if (product.families.includes("Multiview")) score += 18;
   }
-  if (q.includes("dante")) {
+  if (qHas("dante")) {
     if (product.technologies.includes("dante")) score += 18;
   }
 
@@ -804,6 +866,7 @@ function scoreProduct(product: CatalogProduct, state: CatalogFilterState): numbe
 
 export function filterCatalogProducts(products: CatalogProduct[], state: CatalogFilterState): CatalogProduct[] {
   const ranked = products
+    .filter((product) => passesStructuredFilters(product, state))
     .map((product) => ({
       product,
       strict: strictMatch(product, state),

@@ -2,7 +2,9 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { readProductWorkspaceHandoff } from "@/wingman2/data/productWorkspaceHandoff";
+import { saveProductSelectionToCurrentProject } from "@/wingman2/data/projectStore";
+import { readProductWorkspaceHandoff, writeProductWorkspaceHandoff } from "@/wingman2/data/productWorkspaceHandoff";
+import { loadProductIntelligenceIndex } from "@/wingman2/lib/productIntelligenceIndexCache";
 import { buildProductPitchSalesGuidance } from "@/wingman2/lib/productPitchGuidance";
 import type { ProductNarrative, ProductSpec } from "@/wingman2/lib/productStoryEngine";
 import ProductPitchPage from "@/wingman2/pages/ProductPitchPage";
@@ -72,6 +74,8 @@ function guidanceText(guidance: ReturnType<typeof buildProductPitchSalesGuidance
 describe("Product Pitch rendered workflow", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    vi.mocked(loadProductIntelligenceIndex).mockReset();
+    vi.mocked(loadProductIntelligenceIndex).mockRejectedValue(new Error("offline test fallback"));
   });
 
   it("renders a useful NDI camera story and writes product handoff evidence for the next workflow", async () => {
@@ -182,5 +186,271 @@ describe("Product Pitch rendered workflow", () => {
     expect(guidance.confirmationQuestion).toMatch(/^I'm treating this as Sports bar - Route live sport to each screen/);
     expect(guidance.confirmationQuestion).toMatch(/Is that correct\?$/);
     expect(guidance.discoveryQuestions.length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("empty search does not render the general catalogue list", async () => {
+    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+      products: [
+        makeProduct("MXV-0404-H2A-KIT", {
+          name: "4x4 HDBaseT Matrix Kit",
+          family: "MXV",
+          category: "Matrix / HDBaseT",
+          productType: "Matrix switcher",
+          applications: ["Meeting room", "matrix switching"],
+        }),
+        makeProduct("CAB-HAOC-10M", {
+          name: "Active optical HDMI cable",
+          family: "Cables",
+          category: "Cable",
+          productType: "Cable",
+        }),
+        makeProduct("APO-COM-MIC", {
+          name: "Apollo companion microphone",
+          family: "Apollo",
+          category: "Accessory",
+          productType: "Companion microphone accessory",
+        }),
+      ],
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/wingman/product-pitch"]}>
+        <ProductPitchPage />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByText("Suggested from current project")).toBeInTheDocument();
+    expect(screen.queryByRole("list", { name: /Product results/i })).not.toBeInTheDocument();
+    expect(screen.queryByText("CAB-HAOC-10M")).not.toBeInTheDocument();
+    expect(screen.queryByText("APO-COM-MIC")).not.toBeInTheDocument();
+  });
+
+  it("two-character search activates results while hiding cables and accessories by default", async () => {
+    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+      products: [
+        makeProduct("MXV-0404-H2A-KIT", {
+          name: "4x4 HDBaseT Matrix Kit",
+          family: "MXV",
+          category: "Matrix / HDBaseT",
+          productType: "Matrix switcher",
+          applications: ["Meeting room", "matrix switching"],
+        }),
+        makeProduct("CAB-HAOC-10M", {
+          name: "Active optical HDMI cable",
+          family: "Cables",
+          category: "Cable",
+          productType: "Cable",
+        }),
+        makeProduct("APO-COM-MIC", {
+          name: "Apollo companion microphone",
+          family: "Apollo",
+          category: "Accessory",
+          productType: "Companion microphone accessory",
+        }),
+      ],
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/wingman/product-pitch"]}>
+        <ProductPitchPage />
+      </MemoryRouter>,
+    );
+
+    fireEvent.change(await screen.findByRole("searchbox"), { target: { value: "MX" } });
+
+    expect(await screen.findByRole("list", { name: /Product results/i })).toBeInTheDocument();
+    expect(screen.getByText("MXV-0404-H2A-KIT")).toBeInTheDocument();
+    expect(screen.queryByText("CAB-HAOC-10M")).not.toBeInTheDocument();
+    expect(screen.queryByText("APO-COM-MIC")).not.toBeInTheDocument();
+  });
+
+  it("supports direct and partial SKU search with separated result metadata", async () => {
+    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+      products: [
+        makeProduct("MXV-0404-H2A-KIT", {
+          name: "4x4 HDBaseT Matrix Kit",
+          family: "MXV",
+          category: "Matrix / HDBaseT",
+          productType: "Matrix switcher",
+        }),
+        makeProduct("NHD-600-TRXF", {
+          name: "NetworkHD 600 Series Fiber Transceiver",
+          family: "NetworkHD 600",
+          category: "AVoIP",
+          productType: "10GbE SDVoE fiber transceiver",
+        }),
+      ],
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/wingman/product-pitch"]}>
+        <ProductPitchPage />
+      </MemoryRouter>,
+    );
+
+    const search = await screen.findByRole("searchbox");
+    fireEvent.change(search, { target: { value: "MXV-0404-H2A-KIT" } });
+
+    const exactResult = await screen.findByRole("button", { name: /MXV-0404-H2A-KIT/i });
+    expect(exactResult.querySelector(".wm-product-pitch-result-sku")).toHaveTextContent("MXV-0404-H2A-KIT");
+    expect(exactResult.querySelector(".wm-product-pitch-result-name")).toHaveTextContent("4x4 HDBaseT Matrix Kit");
+    expect(exactResult.querySelector(".wm-product-pitch-result-family")).toHaveTextContent("Matrix / HDBaseT / MXV");
+    expect(exactResult.querySelector(".wm-product-pitch-result-status")).toHaveTextContent(/Active|Needs verification/i);
+    expect(exactResult).not.toHaveTextContent(/SKU:|Name:|Category:|Status:/i);
+
+    fireEvent.change(search, { target: { value: "600-TRXF" } });
+    expect(await screen.findByRole("button", { name: /NHD-600-TRXF/i })).toBeInTheDocument();
+  });
+
+  it("renders project suggestions and recently viewed before general results", async () => {
+    const projectProduct = makeProduct("CAM-210-NDI-PTZ", {
+      name: "1080p60 PTZ Camera",
+      family: "Camera",
+      category: "NDI / camera",
+      productType: "PTZ camera",
+    });
+    const recentProduct = makeProduct("NHD-600-TRXF", {
+      name: "NetworkHD 600 Series Fiber Transceiver",
+      family: "NetworkHD 600",
+      category: "AVoIP",
+      productType: "10GbE SDVoE fiber transceiver",
+    });
+    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+      products: [
+        projectProduct,
+        recentProduct,
+        makeProduct("SW-740-TX", {
+          name: "Presentation Switcher",
+          family: "Presentation",
+          category: "Switching",
+          productType: "Presentation switcher",
+        }),
+      ],
+    });
+    saveProductSelectionToCurrentProject({ sku: projectProduct.sku, title: projectProduct.name });
+    writeProductWorkspaceHandoff(recentProduct, makeNarrative("avoip"));
+
+    render(
+      <MemoryRouter initialEntries={["/wingman/product-pitch"]}>
+        <ProductPitchPage />
+      </MemoryRouter>,
+    );
+
+    const suggested = await screen.findByRole("heading", { name: "Suggested from current project" });
+    const recent = screen.getByRole("heading", { name: "Recently viewed" });
+    expect(suggested.compareDocumentPosition(recent) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: /Browse all/i }));
+
+    const resultSuggested = await screen.findByRole("heading", { name: "Suggested from current project" });
+    const resultRecent = screen.getByRole("heading", { name: "Recently viewed" });
+    const results = await screen.findByRole("list", { name: /Product results/i });
+    expect(resultSuggested.compareDocumentPosition(results) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(resultRecent.compareDocumentPosition(results) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("does not use discontinued products as current project suggestions but keeps them in recently viewed", async () => {
+    const discontinued = makeProduct("SYN-TOUCH10", {
+      name: "Legacy Touch Panel",
+      family: "Synergy",
+      category: "Control",
+      productType: "Touch panel",
+    });
+    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+      products: [discontinued],
+    });
+    saveProductSelectionToCurrentProject({ sku: discontinued.sku, title: discontinued.name });
+    writeProductWorkspaceHandoff(discontinued, makeNarrative("general"));
+
+    render(
+      <MemoryRouter initialEntries={["/wingman/product-pitch"]}>
+        <ProductPitchPage />
+      </MemoryRouter>,
+    );
+
+    const suggestedPanel = (await screen.findByRole("heading", { name: "Suggested from current project" })).closest(".wm-ui-card");
+    const recentPanel = screen.getByRole("heading", { name: "Recently viewed" }).closest(".wm-ui-card");
+
+    expect(suggestedPanel).not.toHaveTextContent("SYN-TOUCH10");
+    expect(recentPanel).toHaveTextContent("SYN-TOUCH10");
+    expect(recentPanel).toHaveTextContent(/Discontinued/i);
+  });
+
+  it("opens the workspace when a result is selected and lets the rep change product", async () => {
+    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+      products: [
+        makeProduct("NHD-600-TRXF", {
+          name: "NetworkHD 600 Series Fiber Transceiver",
+          family: "NetworkHD 600",
+          category: "AVoIP",
+          productType: "10GbE SDVoE fiber transceiver",
+        }),
+      ],
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/wingman/product-pitch"]}>
+        <ProductPitchPage />
+      </MemoryRouter>,
+    );
+
+    fireEvent.change(await screen.findByRole("searchbox"), { target: { value: "NHD" } });
+    fireEvent.click(await screen.findByRole("button", { name: /NHD-600-TRXF/i }));
+
+    expect(await screen.findByRole("heading", { name: "NHD-600-TRXF", level: 1 })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Change product/i }));
+
+    expect(await screen.findByRole("heading", { name: /Find the right product workspace/i })).toBeInTheDocument();
+  });
+
+  it("opens a supplied SKU directly without rendering the selector first", async () => {
+    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+      products: [
+        makeProduct("NHD-600-TRXF", {
+          name: "NetworkHD 600 Series Fiber Transceiver",
+          family: "NetworkHD 600",
+          category: "AVoIP",
+          productType: "10GbE SDVoE fiber transceiver",
+        }),
+      ],
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/wingman/product-pitch?sku=NHD-600-TRXF"]}>
+        <ProductPitchPage />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByRole("heading", { name: "NHD-600-TRXF", level: 1 })).toBeInTheDocument();
+    expect(screen.queryByRole("searchbox")).not.toBeInTheDocument();
+  });
+
+  it("limits initial rendered catalogue results and show more reveals additional products", async () => {
+    vi.mocked(loadProductIntelligenceIndex).mockResolvedValue({
+      products: Array.from({ length: 24 }, (_, index) => makeProduct(`MX-9${String(index).padStart(3, "0")}-SCL`, {
+        name: `Matrix result ${index}`,
+        family: "MX",
+        category: "Matrix / routing",
+        productType: "Matrix switcher",
+        applications: ["matrix switching", "video distribution"],
+      })),
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/wingman/product-pitch"]}>
+        <ProductPitchPage />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(await screen.findByRole("button", { name: /Browse all/i }));
+
+    const results = screen.getByRole("list", { name: /Product results/i });
+    expect(results.querySelectorAll(".wm-product-pitch-result-card")).toHaveLength(12);
+    expect(screen.getByRole("button", { name: /Show more/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Show more/i }));
+
+    expect(results.querySelectorAll(".wm-product-pitch-result-card")).toHaveLength(24);
   });
 });

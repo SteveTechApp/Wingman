@@ -179,7 +179,7 @@ describe("Compare rendered workflow", () => {
     expect(within(transportRow as HTMLElement).getByText(/1GbE JPEG-XS AVoIP/i)).toBeInTheDocument();
   });
 
-  it("labels routed and mirrored matrix outputs distinctly without inventing NDI", async () => {
+  it("labels routed matrix outputs distinctly without inventing NDI", async () => {
     renderComparePage();
 
     runKnownCompare("Lightware", "MMX6x2-HT200");
