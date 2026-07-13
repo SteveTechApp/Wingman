@@ -32,29 +32,29 @@
     "data-sources/wyrestorm/enrichment.json": "d270fec67cfd06b9681b5ab103a509748a5b75a5a6cc2d006dc6af8d45aeb450",
     "data-sources/competitors/airtame.csv": "e72aa132a31e522f857d9c71982e2269812e8a8c2244e81d082ad592b3f1bd7b",
     "data-sources/competitors/amx.csv": "ef067ec0347fb4e402411e9c6c21d39cfc424a61cca4c7c270b78d5e6f8de688",
-    "data-sources/competitors/atlona.csv": "936a7d7608e0c52dea87ffd2937d1bc5d343977afea585a1d075ba8b6ea343dd",
+    "data-sources/competitors/atlona.csv": "e3b41b3c54caf29af70b37d5b77631dfb19ab1fd09c045879aa6039a4ec68e5e",
     "data-sources/competitors/avpro-edge.csv": "e40e8da68eb2931ef71c85dcbb398f48bef56ea0b1cbce877e266cd39a8e4341",
     "data-sources/competitors/barco.csv": "de27d6ce6a2d149736e6001c04d72dae7a64cab7243912b72fb99f158af88dde",
     "data-sources/competitors/binary.csv": "4f1311e054d927b1579200c161f261099405031bdb3bcd4e1e83fd33eb39deeb",
     "data-sources/competitors/birddog.csv": "7e01e6c99463ff467da6caa48e11ce98a3fc1beb8d71169a70847c47cde6c3a5",
-    "data-sources/competitors/blustream.csv": "2ebb4ecb065bf0b4695f2645d076cf209a377f7a0eac0b83f59f67f2c5286fbf",
-    "data-sources/competitors/crestron.csv": "e526b330fe7bbb818915160b612f3c5efa0ff47be6147f687445f69e6880d907",
-    "data-sources/competitors/extron.csv": "b577d4ddc7410cd68c7b2c05bffb5d4688b2001eac6a13821f1b2d8ea7f29388",
-    "data-sources/competitors/kramer.csv": "650e2a887645456ea441714dda4fe4ddc1183d0a2232946b12a0de9e82da4e00",
-    "data-sources/competitors/lightware.csv": "812bf3567c8f5ade7e54720c623ec7796535d72a5823c9d5c5669b922b3873c1",
+    "data-sources/competitors/blustream.csv": "033d3e0abad25ffea76885d7779ca078529e8336fd87ec19333e2e9652d205aa",
+    "data-sources/competitors/crestron.csv": "b99091d33dfa476ad3f7e6f24ecff90aa06627e8d3408c3f8d502c20fe2c9b0e",
+    "data-sources/competitors/extron.csv": "f5d289d5a46d005e5fdf4608b696071116933259b70711ba71560846b1ee568f",
+    "data-sources/competitors/kramer.csv": "1d2ad5e2fcdd0be2411698a4d47d22a5602ebad5e62175bb272830b9a1b38fd2",
+    "data-sources/competitors/lightware.csv": "e0c271de03aff8d5f8f6d58dacfca52068476f139e8c093e904e69664eb30e02",
     "data-sources/competitors/logitech.csv": "b88370896ea8028cb47e9ccee95686022bcdf95f2dbbe6663879e625d55eb0a0",
     "data-sources/competitors/marshall.csv": "e1023a6dae8eaf5d74ea9081178c39d95cd62e46e7939f36b10476bd75c566a7",
     "data-sources/competitors/mersive.csv": "3cb23bfd68d9a183ee83b3068da15ae15051a1330cc3ff56bc812d48b338397d",
     "data-sources/competitors/poly.csv": "a031250f9d0209d6e423edcbc72481aa43ac59d93af6dc0da9b6bc8ee7153474",
     "data-sources/competitors/sony.csv": "63a245283f2dc541485f44d6f148ab98d8fdb8ebb7f7cd7e3c468ee141e60623",
-    "data-sources/competitors/visionary.csv": "d0b7ca0884b6725fbcd12489d0355ab7c4593eaaf045b6db33173c40f1859d00",
-    "data-sources/competitors/zeevee.csv": "228b4eb63202d194f05a0bdad5bb6b3707a37439eef1f0a838cd8717bd4b069c"
+    "data-sources/competitors/visionary.csv": "aa78facf2df91f6aeb9fbc4150f61028864d75290338f557641544cb3bc0771d",
+    "data-sources/competitors/zeevee.csv": "3f82df5dd2a49cc9e2aa0c799920bd993ff2a73ef3395c9f2dca493d6005abe1"
   },
   "counts": {
     "wyrestorm": 310,
     "wyrestormBlocked": 138,
     "competitor": 241,
-    "competitorApproved": 98,
+    "competitorApproved": 116,
     "competitorManufacturers": 19
   }
 }
