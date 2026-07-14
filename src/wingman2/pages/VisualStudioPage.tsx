@@ -1,12 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import VisualStudioCanvas from "../components/VisualStudioCanvas";
+import { useProjectStore } from "../data/projectStore";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { buildWholeProjectVisualDiagram } from "../lib/schematic/wholeProjectVisualDiagram";
 import {
   buildProductConnectionDiagram,
   findProductIntelligenceEntry,
 } from "../lib/visualStudioProductConnection";
 import { getVisualDiagramById, visualStudioDiagrams } from "../lib/visualStudioSamples";
-import type { VisualDiagramMode } from "../lib/visualStudioTypes";
+import type { VisualDiagramMode, VisualDiagramModel } from "../lib/visualStudioTypes";
+
+const WHOLE_PROJECT_DIAGRAM_ID = "whole-project";
+
+// "product-port-view" is a base template inside visualStudioDiagrams that is
+// only ever reached via a seedSku deep link (see buildProductConnectionDiagram),
+// so it's excluded from the general sample picker below.
+const SAMPLE_DIAGRAMS = visualStudioDiagrams.filter((diagram) => diagram.id !== "product-port-view");
 
 function readVisualStudioSearchParams(): URLSearchParams {
   if (typeof window === "undefined") {
@@ -21,7 +30,7 @@ function readSeedSku(): string {
   return (searchParams.get("seedSku") || searchParams.get("sku") || "").trim().toUpperCase();
 }
 
-function getInitialVisualStudioDiagramId(): string {
+function getInitialVisualStudioDiagramId(hasActiveProject: boolean): string {
   const searchParams = readVisualStudioSearchParams();
   const seedSku = readSeedSku();
   const source = (searchParams.get("source") || "").trim().toLowerCase();
@@ -30,12 +39,19 @@ function getInitialVisualStudioDiagramId(): string {
     return getVisualDiagramById("product-port-view") ? "product-port-view" : visualStudioDiagrams[0].id;
   }
 
+  if (hasActiveProject) {
+    return WHOLE_PROJECT_DIAGRAM_ID;
+  }
+
   return visualStudioDiagrams[0].id;
 }
 
 export default function VisualStudioPage() {
   const seedSku = useMemo(() => readSeedSku(), []);
-  const [selectedDiagramId, setSelectedDiagramId] = useState(() => getInitialVisualStudioDiagramId());
+  const { activeProject } = useProjectStore();
+  const [selectedDiagramId, setSelectedDiagramId] = useState(() =>
+    getInitialVisualStudioDiagramId(Boolean(activeProject)),
+  );
   const [mode, setMode] = useState<VisualDiagramMode>("technical");
   const [productIntelligenceIndex, setProductIntelligenceIndex] = useState<unknown>(null);
 
@@ -63,12 +79,16 @@ export default function VisualStudioPage() {
     };
   }, [seedSku]);
 
-  const selectedDiagram = useMemo(() => {
+  const selectedDiagram = useMemo<VisualDiagramModel>(() => {
+    if (selectedDiagramId === WHOLE_PROJECT_DIAGRAM_ID) {
+      return buildWholeProjectVisualDiagram(activeProject);
+    }
+
     const baseModel = getVisualDiagramById(selectedDiagramId);
     const productRecord = findProductIntelligenceEntry(productIntelligenceIndex, seedSku);
 
     return buildProductConnectionDiagram(baseModel, seedSku, productRecord);
-  }, [productIntelligenceIndex, selectedDiagramId, seedSku]);
+  }, [activeProject, productIntelligenceIndex, selectedDiagramId, seedSku]);
 
   return (
     <main className="wm-vs-page">
@@ -94,6 +114,71 @@ export default function VisualStudioPage() {
       </header>
 
       <section className="wm-vs-layout">
+        <aside className="wm-vs-left-rail">
+          <div className="wm-vs-panel">
+            <p className="wm-vs-eyebrow">Diagram source</p>
+            <div className="wm-vs-diagram-list">
+              <button
+                type="button"
+                className={`wm-vs-choice${selectedDiagramId === WHOLE_PROJECT_DIAGRAM_ID ? " is-active" : ""}`}
+                onClick={() => setSelectedDiagramId(WHOLE_PROJECT_DIAGRAM_ID)}
+              >
+                <span>Whole project</span>
+                <small>
+                  {activeProject
+                    ? `Generated from ${activeProject.name}'s saved products`
+                    : "No active project yet - shows generic placeholders"}
+                </small>
+              </button>
+
+              {seedSku ? (
+                <button
+                  type="button"
+                  className={`wm-vs-choice${selectedDiagramId === "product-port-view" ? " is-active" : ""}`}
+                  onClick={() => setSelectedDiagramId("product-port-view")}
+                >
+                  <span>{seedSku} product view</span>
+                  <small>Signal ownership for the seeded SKU</small>
+                </button>
+              ) : null}
+
+              {SAMPLE_DIAGRAMS.map((diagram) => (
+                <button
+                  key={diagram.id}
+                  type="button"
+                  className={`wm-vs-choice${selectedDiagramId === diagram.id ? " is-active" : ""}`}
+                  onClick={() => setSelectedDiagramId(diagram.id)}
+                >
+                  <span>{diagram.title}</span>
+                  <small>{diagram.subtitle}</small>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="wm-vs-panel">
+            <p className="wm-vs-eyebrow">Output mode</p>
+            <div className="wm-vs-mode-grid">
+              <button
+                type="button"
+                className={`wm-vs-mode${mode === "technical" ? " is-active" : ""}`}
+                onClick={() => setMode("technical")}
+              >
+                <span>Technical schematic</span>
+                <small>Signal references and part codes</small>
+              </button>
+              <button
+                type="button"
+                className={`wm-vs-mode${mode === "customer" ? " is-active" : ""}`}
+                onClick={() => setMode("customer")}
+              >
+                <span>Customer concept</span>
+                <small>Plain-language walkthrough</small>
+              </button>
+            </div>
+          </div>
+        </aside>
+
         <VisualStudioCanvas model={selectedDiagram} mode={mode} />
 
         <aside className="wm-vs-right-rail">

@@ -294,6 +294,21 @@ function networkClassText(result: CompareNetworkClassResult): string {
   return `${speed} (${result.confidence})`;
 }
 
+// Chroma subsampling fidelity, ranked low-to-high. A product stated at a
+// given resolution tier with lower chroma fidelity is delivering a visibly
+// different (compressed-color) image than one at full 4:4:4, even though
+// resolutionRank() above would score them identically - that distinction
+// otherwise goes completely unweighted in match scoring.
+const CHROMA_RANK: Record<string, number> = { "4:2:0": 1, "4:2:2": 2, "4:4:4": 3 };
+
+function normaliseChroma(value: unknown): string | undefined {
+  const text = lower(value);
+  if (/4:4:4/.test(text)) return "4:4:4";
+  if (/4:2:2/.test(text)) return "4:2:2";
+  if (/4:2:0/.test(text)) return "4:2:0";
+  return undefined;
+}
+
 function resolutionRank(value: unknown): number {
   const text = lower(value);
 
@@ -614,6 +629,29 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
     }
   } else {
     addUnique(verify, "Resolution capability needs verification.");
+  }
+
+  // Chroma is only compared when BOTH sides have a known value - staying
+  // silent (no gap, no match note) rather than adding verify-noise whenever
+  // one side simply hasn't documented chroma subsampling.
+  const competitorChroma = normaliseChroma(competitor.chroma);
+  const wyrestormChroma = normaliseChroma(wyrestorm.chroma);
+
+  if (competitorChroma && wyrestormChroma) {
+    const competitorChromaRank = CHROMA_RANK[competitorChroma] ?? 0;
+    const wyrestormChromaRank = CHROMA_RANK[wyrestormChroma] ?? 0;
+
+    if (wyrestormChromaRank < competitorChromaRank) {
+      addUnique(
+        gaps,
+        "Competitor delivers " + competitorChroma + " chroma; WyreStorm candidate is stated at " + wyrestormChroma +
+          " (more chroma-subsampled) at a comparable resolution tier - confirm this meets the color-fidelity requirement.",
+      );
+    } else if (wyrestormChromaRank > competitorChromaRank) {
+      addUnique(matches, "Chroma fidelity meets or exceeds competitor (WyreStorm " + wyrestormChroma + " vs competitor " + competitorChroma + ").");
+    } else {
+      addUnique(matches, "Chroma fidelity matches (" + competitorChroma + ").");
+    }
   }
 
   for (const feature of HARD_FEATURES) {

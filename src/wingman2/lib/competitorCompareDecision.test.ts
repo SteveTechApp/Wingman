@@ -124,4 +124,131 @@ describe("competitor compare decision", () => {
     expect(result.verify.join(" ")).toMatch(/Routed output behaviour needs verification/i);
     expect(result.verify.join(" ")).toMatch(/routed HDBaseT zone outputs/i);
   });
+
+  it("downgrades an otherwise-good match to partial when the WyreStorm candidate is chroma-subsampled versus the competitor", () => {
+    const result = classifyCompetitorCompareDecision({
+      score: 88,
+      competitor: {
+        sku: "Atlona AT-OME-CS31-SA",
+        domain: "PRESENTATION",
+        role: "Presentation Switcher",
+        transport: "HDMI presentation switching",
+        inputCount: 3,
+        outputCount: 1,
+        maxResolution: "4K60",
+        chroma: "4:4:4",
+        specTier: "verified-profile",
+      },
+      wyrestorm: {
+        sku: "SW-320-TX",
+        domain: "PRESENTATION",
+        role: "Presentation Switcher",
+        transport: "HDMI presentation switching",
+        inputCount: 3,
+        outputCount: 1,
+        maxResolution: "4K60",
+        chroma: "4:2:0",
+        sourceTier: "verified-profile",
+      },
+    });
+
+    expect(result.outcome).toBe("PARTIAL MATCH");
+    expect(result.blockers).toHaveLength(0);
+    expect(result.gaps.join(" ")).toMatch(/4:4:4 chroma.*4:2:0/i);
+    expect(result.gaps.join(" ")).toMatch(/color-fidelity/i);
+  });
+
+  it("keeps a good match when chroma fidelity matches or the WyreStorm candidate meets/exceeds it", () => {
+    const matching = classifyCompetitorCompareDecision({
+      score: 88,
+      competitor: {
+        sku: "Atlona AT-OME-CS31-SA",
+        domain: "PRESENTATION",
+        role: "Presentation Switcher",
+        transport: "HDMI presentation switching",
+        inputCount: 3,
+        outputCount: 1,
+        maxResolution: "4K60",
+        chroma: "4:4:4",
+        specTier: "verified-profile",
+      },
+      wyrestorm: {
+        sku: "SW-320-TX",
+        domain: "PRESENTATION",
+        role: "Presentation Switcher",
+        transport: "HDMI presentation switching",
+        inputCount: 3,
+        outputCount: 1,
+        maxResolution: "4K60",
+        chroma: "4:4:4",
+        sourceTier: "verified-profile",
+      },
+    });
+
+    expect(matching.outcome).toBe("GOOD MATCH");
+    expect(matching.gaps).toHaveLength(0);
+    expect(matching.matches.join(" ")).toMatch(/Chroma fidelity matches/i);
+
+    const exceeding = classifyCompetitorCompareDecision({
+      score: 88,
+      competitor: {
+        sku: "Some Competitor",
+        domain: "PRESENTATION",
+        role: "Presentation Switcher",
+        transport: "HDMI presentation switching",
+        inputCount: 3,
+        outputCount: 1,
+        maxResolution: "4K60",
+        chroma: "4:2:0",
+        specTier: "verified-profile",
+      },
+      wyrestorm: {
+        sku: "SW-320-TX",
+        domain: "PRESENTATION",
+        role: "Presentation Switcher",
+        transport: "HDMI presentation switching",
+        inputCount: 3,
+        outputCount: 1,
+        maxResolution: "4K60",
+        chroma: "4:4:4",
+        sourceTier: "verified-profile",
+      },
+    });
+
+    expect(exceeding.outcome).toBe("GOOD MATCH");
+    expect(exceeding.gaps).toHaveLength(0);
+    expect(exceeding.matches.join(" ")).toMatch(/Chroma fidelity meets or exceeds competitor/i);
+  });
+
+  it("does not penalise or add noise when chroma is unknown on either side", () => {
+    const result = classifyCompetitorCompareDecision({
+      score: 88,
+      competitor: {
+        sku: "Some Competitor",
+        domain: "PRESENTATION",
+        role: "Presentation Switcher",
+        transport: "HDMI presentation switching",
+        inputCount: 3,
+        outputCount: 1,
+        maxResolution: "4K60",
+        specTier: "verified-profile",
+      },
+      wyrestorm: {
+        sku: "SW-320-TX",
+        domain: "PRESENTATION",
+        role: "Presentation Switcher",
+        transport: "HDMI presentation switching",
+        inputCount: 3,
+        outputCount: 1,
+        maxResolution: "4K60",
+        chroma: "4:2:0",
+        sourceTier: "verified-profile",
+      },
+    });
+
+    expect(result.outcome).toBe("GOOD MATCH");
+    expect(result.gaps).toHaveLength(0);
+    expect(result.gaps.join(" ")).not.toMatch(/chroma/i);
+    expect(result.matches.join(" ")).not.toMatch(/chroma/i);
+  });
 });

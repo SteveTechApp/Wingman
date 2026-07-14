@@ -46,7 +46,7 @@ const PRODUCT_PORT_NODE_POSITIONS: Record<string, { x: number; y: number }> = {
   "input-check": { x: 20, y: 20 },
   inputs: { x: 20, y: 205 },
   device: { x: 360, y: 190 },
-  "generic-avoip-network": { x: 715, y: 205 },
+  "generic-avoip-network": { x: 532, y: 20 },
   outputs: { x: 1035, y: 205 },
   "output-check": { x: 1035, y: 20 },
 
@@ -56,9 +56,9 @@ const PRODUCT_PORT_NODE_POSITIONS: Record<string, { x: number; y: number }> = {
   accessories: { x: 730, y: 455 },
   "quote-checks": { x: 960, y: 455 },
 
-  "generic-usb-host": { x: 245, y: 620 },
+  "generic-usb-host": { x: 20, y: 720 },
   "generic-audio-network": { x: 500, y: 620 },
-  "generic-usb-camera-endpoint": { x: 755, y: 620 },
+  "generic-usb-camera-endpoint": { x: 532, y: 720 },
 };
 
 function resolveVisualStudioNodePosition(
@@ -90,10 +90,14 @@ function productPortEdgeHandles(
   switch (edge.id) {
     case "e1":
     case "e3":
-    case "e-avoip-network":
       return {
         sourceHandle: "source-right",
         targetHandle: "target-left",
+      };
+    case "e-avoip-network":
+      return {
+        sourceHandle: "source-top",
+        targetHandle: "target-bottom",
       };
     case "e2":
     case "e4":
@@ -160,7 +164,8 @@ const _kindLabel: Record<string, string> = {
   camera: "Camera",
   processor: "Processor",
   warning: "Check",
-  output: "Output"
+  output: "Output",
+  "third-party": "By Others"
 };
 
 function makeNodeLabel(node: VisualDiagramNode, _mode: VisualDiagramMode): string {
@@ -229,6 +234,7 @@ const nodeReferencePrefix: Record<string, string> = {
   processor: "PRC",
   warning: "CHK",
   output: "OUT",
+  "third-party": "OTH",
 };
 
 function signalFamily(label = "", status?: VisualNodeStatus): SignalFamily {

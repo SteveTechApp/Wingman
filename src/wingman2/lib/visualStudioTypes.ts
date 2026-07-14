@@ -6,7 +6,8 @@ export type VisualDiagramKind =
   | "proposal-overview"
   | "competitor-map"
   | "room-wiring"
-  | "product-connection";
+  | "product-connection"
+  | "whole-project";
 
 export type VisualDiagramMode = "technical" | "customer";
 
@@ -23,7 +24,8 @@ export type VisualNodeKind =
   | "camera"
   | "processor"
   | "warning"
-  | "output";
+  | "output"
+  | "third-party";
 
 export type VisualNodeStatus = "normal" | "recommended" | "optional" | "missing" | "risk";
 

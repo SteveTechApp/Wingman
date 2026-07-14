@@ -1173,4 +1173,68 @@ button.wm-reference-quick-card {
     animation: none !important;
   }
 }
+/* WINGMAN_DASHBOARD_LEFT_INSET_START */
+/*
+  Adds a controlled desktop inset to the dashboard heading and left content
+  column. The Today's Focus / What's New rail remains in its existing position.
+*/
+@media (min-width: 900px) {
+  html[data-wingman-route="dashboard"] .wm-reference-dashboard-header,
+  html[data-wingman-route="dashboard"] .wm-reference-dashboard-main {
+    box-sizing: border-box;
+    padding-left: 25px !important;
+  }
+}
+/* WINGMAN_DASHBOARD_LEFT_INSET_END */
+/* WINGMAN_GURU_GLOBAL_DRAG_START */
+.wingman-shell > button.wingman-guru-fab[data-wingman-guru-floating-active="true"],
+button.wingman-guru-fab[data-wingman-guru-floating-active="true"] {
+  position: fixed !important;
+  inset: auto !important;
+  left: var(--wingman-guru-left) !important;
+  top: var(--wingman-guru-top) !important;
+  right: auto !important;
+  bottom: auto !important;
+  display: block !important;
+  width: 78px !important;
+  height: 78px !important;
+  min-width: 78px !important;
+  min-height: 78px !important;
+  max-width: 78px !important;
+  max-height: 78px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  translate: none !important;
+  z-index: 2147483000 !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+  touch-action: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  cursor: grab !important;
+  contain: none !important;
+}
 
+button.wingman-guru-fab[data-wingman-guru-floating-active="true"][data-dragging="true"] {
+  cursor: grabbing !important;
+}
+
+button.wingman-guru-fab[data-wingman-guru-floating-active="true"] > .wingman-guru-fab-motion {
+  position: absolute !important;
+  inset: 0 !important;
+  display: grid !important;
+  width: 100% !important;
+  height: 100% !important;
+  place-items: center !important;
+  pointer-events: none !important;
+}
+
+button.wingman-guru-fab[data-wingman-guru-floating-active="true"] *,
+button.wingman-guru-fab[data-wingman-guru-floating-active="true"] img {
+  pointer-events: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -webkit-user-drag: none !important;
+}
+/* WINGMAN_GURU_GLOBAL_DRAG_END */

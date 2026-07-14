@@ -1,4 +1,5 @@
 import type { VisualDiagramEdge, VisualDiagramModel, VisualDiagramNode } from "./visualStudioTypes";
+import { resolveProductTechnicalData } from "./governedProductTechnicalData";
 
 type UnknownRecord = Record<string, unknown>;
 
@@ -17,6 +18,8 @@ interface ProductConnectionFacts {
   controlProtocols: string[];
   networkInterfaces: string[];
   audioSignals: string[];
+  role: string;
+  signalTransport: string[];
 }
 
 function asRecord(value: unknown): UnknownRecord {
@@ -80,6 +83,30 @@ function hasCameraUsbEndpoint(facts: ProductConnectionFacts): boolean {
   return /\b(camera|ptz|video bar|webcam)\b/i.test(factText(facts));
 }
 
+/*
+ * Wyrestorm RX units (decoders/receivers) are HDMI-output-only; their only
+ * input is the transport link (HDBaseT or AV-over-LAN/AVoIP) coming from a
+ * paired TX. TX units (encoders/transmitters) are the mirror image: HDMI
+ * input only, transport-side output. Transceivers/matrix/unknown roles keep
+ * both a real source-side input and a real display-side output, so they are
+ * excluded here.
+ */
+function isReceiveOnlyRole(facts: ProductConnectionFacts): boolean {
+  return /\b(decoder|receiver)\b/.test(facts.role) && !/\b(transceiver|trx)\b/.test(facts.role);
+}
+
+function isTransmitOnlyRole(facts: ProductConnectionFacts): boolean {
+  return /\b(encoder|transmitter)\b/.test(facts.role) && !/\b(transceiver|trx)\b/.test(facts.role);
+}
+
+function transportLinkLabel(transport: string[]): string {
+  if (transport.length === 0) {
+    return "HDBaseT / AV-over-LAN";
+  }
+
+  return transport.slice(0, 2).join(" / ");
+}
+
 function sentenceCaseQuoteSafety(value: string): string {
   if (!value) {
     return "Verify before quote";
@@ -115,6 +142,7 @@ function collectFacts(seedSku: string, product: UnknownRecord | null): ProductCo
   const control = asRecord(technicalProfile.control);
   const network = asRecord(technicalProfile.network);
   const audio = asRecord(technicalProfile.audio);
+  const resolvedTechnical = resolveProductTechnicalData(product ?? {});
 
   return {
     sku: asString(product?.sku) || seedSku,
@@ -138,6 +166,8 @@ function collectFacts(seedSku: string, product: UnknownRecord | null): ProductCo
       ...asStringList(audio.processing),
       ...asStringList(audio.networkAudio),
     ],
+    role: (resolvedTechnical.role ?? "").toLowerCase(),
+    signalTransport: resolvedTechnical.transport ?? [],
   };
 }
 
@@ -201,6 +231,9 @@ function buildGeneratedEndpointNodes(facts: ProductConnectionFacts): VisualDiagr
 
 function buildNodes(facts: ProductConnectionFacts): VisualDiagramNode[] {
   const isAvoip = hasAvoipTransport(facts);
+  const isReceiveOnly = isReceiveOnlyRole(facts);
+  const isTransmitOnly = isTransmitOnlyRole(facts) && !isReceiveOnly;
+  const transportLabel = transportLinkLabel(facts.signalTransport);
   const hasMatrixEvidence = Boolean(facts.matrixSize);
   const hasVideoProcessing = facts.videoProcessing.length > 0;
   const hasAudio = facts.audioSignals.length > 0;
@@ -210,10 +243,12 @@ function buildNodes(facts: ProductConnectionFacts): VisualDiagramNode[] {
   return [
     {
       id: "inputs",
-      label: "Sources / Inputs",
-      subtitle: hasMatrixEvidence
-        ? `${facts.matrixSize} source-side direction shown from product evidence. Verify exact port count against datasheet.`
-        : "Confirm source count and connector mix before quote.",
+      label: isReceiveOnly ? `Transport Input (${transportLabel})` : "Sources / Inputs",
+      subtitle: isReceiveOnly
+        ? `Receives ${transportLabel} signal from the paired transmitter/encoder. This receiver has no direct source-side HDMI input.`
+        : hasMatrixEvidence
+          ? `${facts.matrixSize} source-side direction shown from product evidence. Verify exact port count against datasheet.`
+          : "Confirm source count and connector mix before quote.",
       kind: "source",
       status: "normal",
       emphasis: "support",
@@ -222,8 +257,10 @@ function buildNodes(facts: ProductConnectionFacts): VisualDiagramNode[] {
     },
     {
       id: "input-check",
-      label: "Input ownership",
-      subtitle: "Confirm which sources must switch seamlessly and which can be static.",
+      label: isReceiveOnly ? "Transport link check" : "Input ownership",
+      subtitle: isReceiveOnly
+        ? "Confirm HDBaseT/AV-LAN cable distance, PoH/PoE budget and any extension chain before quote."
+        : "Confirm which sources must switch seamlessly and which can be static.",
       kind: "warning",
       status: "missing",
       emphasis: "compact",
@@ -244,14 +281,22 @@ function buildNodes(facts: ProductConnectionFacts): VisualDiagramNode[] {
     },
     {
       id: "outputs",
-      label: isAvoip
-        ? "NetworkHD Decoder / Display"
-        : "Displays / Outputs",
-      subtitle: isAvoip
-        ? "Compatible NetworkHD decoder and display destination. Confirm decoder quantity, controller and managed-network design."
-        : hasVideoProcessing
-          ? `${summarize(facts.videoProcessing, "Output behaviour")} | verify against datasheet.`
-          : "Confirm display count, sink formats and output behaviour before quote.",
+      label: isReceiveOnly
+        ? "Displays / Outputs"
+        : isTransmitOnly && !isAvoip
+          ? `Transport Output (${transportLabel})`
+          : isAvoip
+            ? "NetworkHD Decoder / Display"
+            : "Displays / Outputs",
+      subtitle: isReceiveOnly
+        ? "This receiver's only physical output is HDMI to the display. Confirm resolution/HDCP support at the display before quote."
+        : isTransmitOnly && !isAvoip
+          ? `Sends ${transportLabel} signal to the paired receiver. This unit has no direct display output.`
+          : isAvoip
+            ? "Compatible NetworkHD decoder and display destination. Confirm decoder quantity, controller and managed-network design."
+            : hasVideoProcessing
+              ? `${summarize(facts.videoProcessing, "Output behaviour")} | verify against datasheet.`
+              : "Confirm display count, sink formats and output behaviour before quote.",
       kind: "display",
       status: "normal",
       emphasis: "support",
@@ -260,8 +305,10 @@ function buildNodes(facts: ProductConnectionFacts): VisualDiagramNode[] {
     },
     {
       id: "output-check",
-      label: "Display behaviour",
-      subtitle: "Confirm whether the project needs scaling, multiview, video wall or simple matrix routing.",
+      label: isTransmitOnly && !isAvoip ? "Transport link check" : "Display behaviour",
+      subtitle: isTransmitOnly && !isAvoip
+        ? "Confirm HDBaseT/AV-LAN cable distance, PoH/PoE budget and any extension chain before quote."
+        : "Confirm whether the project needs scaling, multiview, video wall or simple matrix routing.",
       kind: "output",
       status: hasVideoProcessing ? "optional" : "missing",
       emphasis: "compact",
@@ -377,6 +424,22 @@ function buildGeneratedEndpointEdges(facts: ProductConnectionFacts): VisualDiagr
   return edges;
 }
 
+function directionalityAssumption(facts: ProductConnectionFacts): string | null {
+  const isReceiveOnly = isReceiveOnlyRole(facts);
+  const isTransmitOnly = isTransmitOnlyRole(facts) && !isReceiveOnly;
+  const transportLabel = transportLinkLabel(facts.signalTransport);
+
+  if (isReceiveOnly) {
+    return `${facts.sku} is a receiver: HDMI display output only. Video/data arrives via ${transportLabel} from the paired transmitter.`;
+  }
+
+  if (isTransmitOnly) {
+    return `${facts.sku} is a transmitter: HDMI source input only. Video/data leaves via ${transportLabel} to the paired receiver.`;
+  }
+
+  return null;
+}
+
 export function buildProductConnectionDiagram(
   fallbackModel: VisualDiagramModel,
   seedSku: string,
@@ -393,6 +456,7 @@ export function buildProductConnectionDiagram(
   const sourceLine = facts.officialProductUrl
     ? `Official product evidence is available for ${facts.sku}.`
     : `Official product URL is not yet attached for ${facts.sku}.`;
+  const directionalityNote = directionalityAssumption(facts);
 
   return {
     ...fallbackModel,
@@ -404,6 +468,7 @@ export function buildProductConnectionDiagram(
       sourceLine,
       facts.matrixSizeEvidence || "Port count still needs validating against the product page or datasheet.",
       "Support lanes such as audio, network, control and accessories are shown as dependencies, not as the primary architecture.",
+      ...(directionalityNote ? [directionalityNote] : []),
     ],
     missingInformation: [
       "Exact front and rear connector orientation.",
@@ -424,7 +489,12 @@ export function buildProductConnectionDiagram(
     edges: [
       { id: "e1", source: "inputs", target: "device", label: "Source-side routing" },
       { id: "e2", source: "input-check", target: "inputs", label: "Validate ownership", status: "missing" },
-      { id: "e3", source: mainOutputSource, target: "outputs", label: hasAvoipTransport(facts) ? "Decoder / display path" : "Display-side outputs" },
+      {
+        id: "e3",
+        source: mainOutputSource,
+        target: "outputs",
+        label: hasAvoipTransport(facts) ? "Decoder / display path" : "Display-side outputs",
+      },
       { id: "e4", source: "output-check", target: "outputs", label: "Output behaviour", status: "optional" },
       { id: "e5", source: "device", target: "audio", label: "Audio dependency", status: "optional" },
       { id: "e6", source: "device", target: "control", label: "Control path", status: "optional" },

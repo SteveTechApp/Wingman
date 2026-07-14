@@ -103,6 +103,61 @@ describe("visual studio product connection diagram", () => {
     });
   });
 
+  it("shows a receiver (RX) with a transport input and a real HDMI display output, not a fake source-side input", () => {
+    const baseModel = getVisualDiagramById("product-port-view");
+    const product = {
+      sku: "EX-70-RX",
+      name: "18Gbps 4K HDR HDBaseT Receiver",
+      category: "Extender",
+      quoteSafety: "verify-before-quote",
+    };
+
+    const diagram = buildProductConnectionDiagram(baseModel, "EX-70-RX", product);
+    const inputs = diagram.nodes.find((node) => node.id === "inputs");
+    const outputs = diagram.nodes.find((node) => node.id === "outputs");
+
+    expect(inputs?.label).toMatch(/Transport Input/);
+    expect(inputs?.subtitle).toMatch(/no direct source-side HDMI input/i);
+    expect(outputs?.label).toBe("Displays / Outputs");
+    expect(diagram.assumptions.join(" ")).toMatch(/EX-70-RX is a receiver: HDMI display output only/i);
+  });
+
+  it("shows a transmitter (TX) with a real HDMI source input and a transport output, not a fake display output", () => {
+    const baseModel = getVisualDiagramById("product-port-view");
+    const product = {
+      sku: "EX-70-TX",
+      name: "18Gbps 4K HDR HDBaseT Transmitter",
+      category: "Extender",
+      quoteSafety: "verify-before-quote",
+    };
+
+    const diagram = buildProductConnectionDiagram(baseModel, "EX-70-TX", product);
+    const inputs = diagram.nodes.find((node) => node.id === "inputs");
+    const outputs = diagram.nodes.find((node) => node.id === "outputs");
+
+    expect(inputs?.label).toBe("Sources / Inputs");
+    expect(outputs?.label).toMatch(/Transport Output/);
+    expect(outputs?.subtitle).toMatch(/no direct display output/i);
+    expect(diagram.assumptions.join(" ")).toMatch(/EX-70-TX is a transmitter: HDMI source input only/i);
+  });
+
+  it("keeps a transceiver's real source input and network-mediated display output on both sides", () => {
+    const baseModel = getVisualDiagramById("product-port-view");
+    const product = {
+      sku: "NHD-600-TRX",
+      name: "NetworkHD 600 Series Transceiver",
+      category: "AVoIP",
+      quoteSafety: "verify-before-quote",
+    };
+
+    const diagram = buildProductConnectionDiagram(baseModel, "NHD-600-TRX", product);
+    const inputs = diagram.nodes.find((node) => node.id === "inputs");
+    const outputs = diagram.nodes.find((node) => node.id === "outputs");
+
+    expect(inputs?.label).toBe("Sources / Inputs");
+    expect(outputs?.label).toBe("NetworkHD Decoder / Display");
+  });
+
   it("keeps camera USB endpoints positioned when a UC camera product is selected", () => {
     const baseModel = getVisualDiagramById("product-port-view");
     const product = {

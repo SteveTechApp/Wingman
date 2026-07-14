@@ -2263,12 +2263,14 @@ html[data-wingman-route] .wm-vs-flow-node {
   width: 246px !important;
   min-width: 246px !important;
   max-width: 246px !important;
+  max-height: 122px !important;
   border: 1px solid rgba(103, 232, 249, 0.34) !important;
   border-radius: 16px !important;
   background: rgba(4, 21, 35, 0.96) !important;
   color: var(--wm-consistency-text) !important;
   padding: 14px 15px !important;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28) !important;
+  overflow: hidden !important;
 }
 
 html[data-wingman-route] .wm-vs-node-kicker {
@@ -2292,12 +2294,19 @@ html[data-wingman-route] .wm-vs-node-subtitle {
   font-size: 0.78rem !important;
   line-height: 1.24 !important;
   margin-top: 5px !important;
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  line-clamp: 2 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 html[data-wingman-route] .wm-vs-node-emphasis-primary {
   width: 332px !important;
   min-width: 332px !important;
   max-width: 332px !important;
+  max-height: 132px !important;
   padding: 18px 20px !important;
   border-color: rgba(103, 232, 249, 0.72) !important;
   box-shadow:
@@ -2316,12 +2325,15 @@ html[data-wingman-route] .wm-vs-node-emphasis-primary .wm-vs-node-title {
 
 html[data-wingman-route] .wm-vs-node-emphasis-primary .wm-vs-node-subtitle {
   font-size: 0.84rem !important;
+  -webkit-line-clamp: 3 !important;
+  line-clamp: 3 !important;
 }
 
 html[data-wingman-route] .wm-vs-node-emphasis-compact {
   width: 214px !important;
   min-width: 214px !important;
   max-width: 214px !important;
+  max-height: 108px !important;
   padding: 12px 13px !important;
 }
 
@@ -2384,6 +2396,68 @@ html[data-wingman-route] .wm-vs-list li + li {
   }
 }
 /* === Wingman Visual Studio compact layout repair end === */
+
+/* === Wingman Visual Studio print / A4-A3 scale-to-fit start === */
+/* Default page: A4 landscape. Diagrams too large for A4 are switched to a
+   named A3-landscape page (see .wm-vs-canvas[data-print-page="A3"] below) via
+   the CSS Paged Media "page" property, computed in VisualStudioCanvas.tsx by
+   chooseSchematicPrintLayout(). Support for the named-page "page" property
+   varies by print engine (Chromium-based browsers honour it; some engines
+   fall back to the default @page rule), so the scale-to-fit transform below
+   is the guarantee that nothing is ever clipped even if the named page is
+   ignored. */
+@page {
+  size: A4 landscape;
+  margin: 10mm;
+}
+
+@page wm-vs-a3-landscape {
+  size: A3 landscape;
+  margin: 10mm;
+}
+
+@media print {
+  html[data-wingman-route] body * {
+    visibility: hidden !important;
+  }
+
+  html[data-wingman-route] .wm-vs-canvas,
+  html[data-wingman-route] .wm-vs-canvas * {
+    visibility: visible !important;
+  }
+
+  html[data-wingman-route] .wm-vs-left-rail,
+  html[data-wingman-route] .wm-vs-right-rail,
+  html[data-wingman-route] .wm-vs-canvas-toolbar,
+  html[data-wingman-route] .react-flow__controls,
+  html[data-wingman-route] .react-flow__attribution {
+    display: none !important;
+  }
+
+  html[data-wingman-route] .wm-vs-canvas {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+
+  html[data-wingman-route] .wm-vs-canvas[data-print-page="A3"] {
+    page: wm-vs-a3-landscape;
+  }
+
+  html[data-wingman-route] .wm-vs-canvas .wm-vs-canvas-stage {
+    transform: scale(var(--wm-vs-print-scale, 1));
+    transform-origin: top left;
+  }
+
+  html[data-wingman-route] .wm-vs-canvas .react-flow {
+    background: #ffffff !important;
+  }
+}
+/* === Wingman Visual Studio print / A4-A3 scale-to-fit end === */
 
 /* ==========================================================================
    Restored guard-required blocks (from pre-rebuild history, commit 45f5288).
