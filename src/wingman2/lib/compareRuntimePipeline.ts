@@ -103,6 +103,22 @@ function runtimeSku(value: unknown): string {
   return String(record?.sku ?? record?.wyrestorm?.sku ?? "").toUpperCase();
 }
 
+function runtimeSkuKey(value: unknown): string {
+  return runtimeSku(value).replace(/[^A-Z0-9]+/g, "");
+}
+
+const RUNTIME_DISPLAY_SKU_ALIASES: Record<string, readonly string[]> = {
+  SW620LTXW: ["SW620TXW"],
+  SW620TXW: ["SW620LTXW"],
+  SW640TXW: ["SW640LTXW"],
+  SW640LTXW: ["SW640TXW"],
+};
+
+function runtimeSkuLookupKeys(value: unknown): string[] {
+  const key = String(value ?? "").toUpperCase().replace(/[^A-Z0-9]+/g, "");
+  return key ? Array.from(new Set([key, ...(RUNTIME_DISPLAY_SKU_ALIASES[key] ?? [])])) : [];
+}
+
 function wirelessRuntimeText(value: unknown): string {
   if (!value || typeof value !== "object") {
     return "";
@@ -152,11 +168,11 @@ function inferWirelessSourceCount(inputText: string, result: unknown): number | 
 }
 
 function findRuntimeProductBySku(products: readonly WirelessRuntimeRecord[], sku: string): WirelessRuntimeRecord {
-  const target = sku.toUpperCase();
-  const found = products.find((product) => runtimeSku(product) === target);
+  const targetKeys = runtimeSkuLookupKeys(sku);
+  const found = products.find((product) => targetKeys.includes(runtimeSkuKey(product)));
 
   if (found) {
-    return found;
+    return runtimeSkuKey(found) === runtimeSkuLookupKeys(sku)[0] ? found : { ...found, sku };
   }
 
   return {

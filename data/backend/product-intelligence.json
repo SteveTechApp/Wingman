@@ -6,7 +6,7 @@
     "sku": "NHD-500-TX v2",
     "name": "NHD-500-TX v2",
     "status": "approved",
-    "summary": "4K60 4:4:4 AV over IP encoder with ultra-low latency.",
+    "summary": "4K60 4:4:4 AV over IP encoder with ultra-low latency. | HDMI Loop out",
     "topology": "encoder",
     "role": "source",
     "transport": "AVoIP",
@@ -17,7 +17,106 @@
     "confidence": 0.95,
     "evidence": [],
     "reviewFlags": [],
-    "tags": ["AVoIP", "Encoder", "4K60"]
+    "tags": [
+      "AVoIP",
+      "Encoder",
+      "4K60"
+    ],
+    "description": "4K60 4:4:4 AV over IP encoder with ultra-low latency. | HDMI Loop out",
+    "connectors": [
+      "HDMI",
+      "RJ45 / network",
+      "Fibre"
+    ],
+    "sourceCatalog": {
+      "inputs": "1x HDMI source input",
+      "outputs": "1x NetworkHD 1GbE routed stream output; 1x local HDMI loop output (non-routed)",
+      "usb": "USB 2.0 supported; physical host/device connector quantity requires verification; 2 hub tiers; up to 7 devices; endpoints <=21",
+      "quoteWarnings": "HDMI loop output is local/non-routed. USB topology limits are not physical port counts."
+    },
+    "technicalProfile": {
+      "io": {
+        "ports": [
+          {
+            "count": 1,
+            "connector": "HDMI Type A",
+            "direction": "input",
+            "category": "video",
+            "detail": "Local source input",
+            "evidence": "Current NHD-500-TX v2 product record"
+          },
+          {
+            "count": 1,
+            "connector": "RJ-45",
+            "direction": "output",
+            "category": "network",
+            "detail": "Primary NetworkHD 500 1GbE routed stream output",
+            "evidence": "Current NHD-500-TX v2 product record"
+          },
+          {
+            "count": 1,
+            "connector": "HDMI Type A",
+            "direction": "output",
+            "category": "video",
+            "detail": "Local HDMI loop output; non-routed",
+            "evidence": "Current NHD-500-TX v2 product record"
+          },
+          {
+            "count": 1,
+            "connector": "SFP",
+            "direction": "bidirectional",
+            "category": "network",
+            "detail": "Fibre network interface; confirm current deployment requirements",
+            "evidence": "Current NHD-500-TX v2 product record"
+          }
+        ],
+        "video": [],
+        "usb": [],
+        "network": []
+      },
+      "video": {
+        "present": true,
+        "maxResolutions": [
+          "3840x2160p @ 60Hz"
+        ],
+        "standards": [
+          "4K60 4:4:4"
+        ]
+      },
+      "usb": {
+        "present": true,
+        "versions": [
+          "USB 2.0"
+        ],
+        "connectors": [],
+        "roles": [],
+        "topologyLimits": {
+          "hubTiers": 2,
+          "devices": 7,
+          "endpoints": 21,
+          "note": "Topology limits only. Do not convert these values into physical USB port counts."
+        },
+        "physicalConnectorCountStatus": "requires-verification"
+      },
+      "portCountGovernance": {
+        "routedVideoInputs": 1,
+        "routedNetworkOutputs": 1,
+        "localHdmiLoopOutputs": 1,
+        "usbPhysicalPortCounts": "requires-verification",
+        "rule": "Local loop outputs and USB topology/device limits must not increase routed or physical port counts.",
+        "reviewedOn": "2026-07-13"
+      }
+    },
+    "portCountAudit": {
+      "status": "repaired",
+      "routedInputs": 1,
+      "routedOutputs": 1,
+      "localLoopOutputs": 1,
+      "usbStandard": "USB 2.0",
+      "usbPhysicalConnectorCounts": "requires-verification",
+      "repairedOn": "2026-07-13",
+      "source": "Current NHD-500-TX v2 product record and USB & Hub Technical Document Rev 1.0"
+    }
   },
   {
     "id": "wyrestorm-nhd-500-rx-v2",
@@ -37,6 +136,10 @@
     "confidence": 0.95,
     "evidence": [],
     "reviewFlags": [],
-    "tags": ["AVoIP", "Decoder", "4K60"]
+    "tags": [
+      "AVoIP",
+      "Decoder",
+      "4K60"
+    ]
   }
 ]

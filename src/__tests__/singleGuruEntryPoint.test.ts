@@ -99,7 +99,7 @@ describe("single Guru entry point", () => {
     expect(motionLayer).not.toBeNull();
     expect(sweep).not.toBeNull();
     expect(glow).not.toBeNull();
-    expect(motionLayer?.style.willChange).toBe("transform");
+    expect(motionLayer?.style.willChange).toBe("left, top, transform");
   });
 
   it("moves with pointer events, persists its position and suppresses the drag click", async () => {

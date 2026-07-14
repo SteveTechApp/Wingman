@@ -286,6 +286,60 @@ function rigorousMatchToCandidate(match: RigorousMatch, profile: CompetitorProfi
   );
 }
 
+type RankedMatchWithOptionalDecision = Partial<RigorousMatch> & {
+  sku: string;
+  name?: string;
+  family?: string;
+  confidence?: number;
+  score?: number;
+  why?: string;
+  compareEligibility?: { reasons?: string[] };
+  eligibility?: { reasons?: string[] };
+};
+
+function normalizeRankedRigorousMatches(
+  matches: RigorousMatch[],
+  competitor: ResolvedCompetitorProfile,
+): RigorousMatch[] {
+  return matches.map((rawMatch) => {
+    const match = rawMatch as RankedMatchWithOptionalDecision;
+
+    if (match.decision && match.wyrestorm) {
+      return rawMatch;
+    }
+
+    const product = findWyrestormProduct(match.sku);
+    const wyrestorm = match.wyrestorm ??
+      (product
+        ? buildWyrestormCompareProfile(product)
+        : {
+            sku: match.sku,
+            title: match.name || match.sku,
+            sourceTier: "missing" as const,
+          });
+    const score = Number(match.heuristicScore ?? match.confidence ?? match.score ?? 72);
+    const evidence = uniqueText([
+      ...(match.compareEligibility?.reasons ?? []),
+      ...(match.eligibility?.reasons ?? []),
+      match.why || "",
+    ], 8);
+
+    return {
+      sku: match.sku,
+      name: match.name || product?.name || match.sku,
+      family: match.family || product?.family || "WyreStorm",
+      heuristicScore: Number.isFinite(score) ? score : 72,
+      wyrestorm,
+      decision: classifyCompetitorCompareDecision({
+        competitor,
+        wyrestorm,
+        score: Number.isFinite(score) ? score : 72,
+        evidence,
+      }),
+    };
+  });
+}
+
 type CompetitorSummary = {
   heading: string;
   detail: string;
@@ -513,7 +567,7 @@ const WYRESTORM_PRODUCTS: WyreStormProduct[] = [
     caveat: "Use when a contained room needs presentation switching plus a more capable output path, without jumping to a specialist large-room hybrid core.",
   },
   {
-    sku: "SW-620L-TX-W",
+    sku: "SW-620-TX-W",
     name: "2-input wireless presentation switcher",
     family: "Synergy / Presentation",
     productClass: "Presentation switcher",
@@ -1589,12 +1643,14 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
     matched.push("Compact presentation-switcher path considered ahead of larger specialist or matrix-led products.");
   }
 
-  if (profile.productClass === "Presentation switcher" && wirelessPresentationRequirement && (product.sku === "SW-620L-TX-W" || product.sku === "SW-640L-TX-W")) {
-    score += product.sku === "SW-640L-TX-W" ? 22 : 18;
+  const wirelessSwitcherSkuKey = compareSkuKey(product.sku);
+
+  if (profile.productClass === "Presentation switcher" && wirelessPresentationRequirement && ["SW620LTXW", "SW620TXW", "SW640TXW", "SW640LTXW"].includes(wirelessSwitcherSkuKey)) {
+    score += ["SW640TXW", "SW640LTXW"].includes(wirelessSwitcherSkuKey) ? 22 : 18;
     matched.push("Wireless presentation requirement detected, so the SW-600 room-switcher path was prioritised.");
   }
 
-  if (profile.productClass === "Presentation switcher" && !wirelessPresentationRequirement && (product.sku === "SW-620L-TX-W" || product.sku === "SW-640L-TX-W")) {
+  if (profile.productClass === "Presentation switcher" && !wirelessPresentationRequirement && ["SW620LTXW", "SW620TXW", "SW640TXW", "SW640LTXW"].includes(wirelessSwitcherSkuKey)) {
     score -= 10;
     gaps.push("Wireless presentation has not been established yet, so confirm whether the room really needs an SW-600 wireless workflow.");
     unknowns.push("Wireless presentation benefit is not yet evidenced from the competitor brief.");
@@ -2818,12 +2874,21 @@ function buildWyrestormSummary(candidate: ScoredCandidate): WyreStormSummary {
     knownProfile?.hdmiVersion,
     knownProfile?.hdcpVersion,
   ].filter((item) => item && !/^verify datasheet$/i.test(item)));
+  const hasVerifiedUsbPhysicalCounts = Boolean(
+    profile.specs?.usbCPorts ||
+      profile.specs?.usbHostPorts ||
+      profile.specs?.usbDevicePorts ||
+      profile.specs?.usbTotalPorts,
+  );
   const usbFacts = joinCommercialFactParts([
     profile.specs?.usbCPorts ? `${profile.specs.usbCPorts}x USB-C` : "",
     profile.specs?.usbHostPorts ? `${profile.specs.usbHostPorts}x USB host` : "",
     profile.specs?.usbDevicePorts ? `${profile.specs.usbDevicePorts}x USB device` : "",
     profile.specs?.usbTotalPorts ? `${profile.specs.usbTotalPorts}x USB total` : "",
     profile.specs?.usbStandard || "",
+    profile.specs?.usbStandard && !hasVerifiedUsbPhysicalCounts
+      ? "physical connector count requires verification"
+      : "",
     !profile.specs?.usbTotalPorts && knownProfile?.inputTypes.includes("USB-C") ? "USB-C source input path" : "",
   ]);
   const hdbasetFacts = joinCommercialFactParts([
@@ -2844,8 +2909,10 @@ function buildWyrestormSummary(candidate: ScoredCandidate): WyreStormSummary {
       ? `${knownProfile.mirroredOutputCount}x mirrored ${knownProfile.mirroredOutputTypes.join(" / ")} output${knownProfile.mirroredOutputCount === 1 ? "" : "s"}`
       : "",
     knownProfile?.loopOutputCount
-      ? `${knownProfile.loopOutputCount}x loop ${knownProfile.loopOutputTypes.join(" / ")} output${knownProfile.loopOutputCount === 1 ? "" : "s"}`
-      : "",
+      ? `${knownProfile.loopOutputCount}x local ${knownProfile.loopOutputTypes.join(" / ")} loop output${knownProfile.loopOutputCount === 1 ? "" : "s"} (non-routed)`
+      : profile.specs?.hdmiLoopOutputs
+        ? `${profile.specs.hdmiLoopOutputs}x local HDMI loop output${profile.specs.hdmiLoopOutputs === 1 ? "" : "s"} (non-routed)`
+        : "",
   ]);
   const identityItems = uniqueText([
     `This WyreStorm option is a ${candidate.product.productClass.toLowerCase()} in the ${candidate.product.family} family.`,
@@ -5027,6 +5094,11 @@ function ComparePageNew() {
     });
 
     const ranked = applyCompareEligibilityRanking({ ...result, matches }, ACTIVE_WYRESTORM_PRODUCTS, inputText);
+    const rankedWithDecisions: RigorousCompareResult = {
+      ...ranked,
+      matches: normalizeRankedRigorousMatches(ranked.matches, competitorForClassification),
+      rejected: normalizeRankedRigorousMatches(ranked.rejected, competitorForClassification),
+    };
     const unresolvedCompetitor =
       /custom\s*\/\s*missing sku/i.test(competitorInput) ||
       (
@@ -5038,7 +5110,7 @@ function ComparePageNew() {
 
     if (unresolvedCompetitor) {
       return {
-        ...ranked,
+        ...rankedWithDecisions,
         matches: [],
         topOutcome: "NONE" as const,
         recommendation: result.recommendation,
@@ -5046,8 +5118,8 @@ function ComparePageNew() {
       };
     }
 
-    if (ranked.matches.length > 0) {
-      return ranked;
+    if (rankedWithDecisions.matches.length > 0) {
+      return rankedWithDecisions;
     }
 
     const guardedFallbacks = classifiedLegacyMatches
@@ -5056,12 +5128,12 @@ function ComparePageNew() {
 
     return guardedFallbacks.length > 0
       ? {
-          ...ranked,
+          ...rankedWithDecisions,
           matches: guardedFallbacks,
           topOutcome: "VERIFY" as const,
           recommendation: "The eligibility pass found no fully proven direct match. Show the strongest locally classified direction as verify-only.",
         }
-      : ranked;
+      : rankedWithDecisions;
   }, [competitorInput, effectiveBrand, legacyCandidates, mustMatchFeatures, catalogVersion]);
 
   const heuristicCandidates = useMemo(

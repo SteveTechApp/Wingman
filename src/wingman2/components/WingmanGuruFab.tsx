@@ -211,7 +211,9 @@ export function WingmanGuruFab({
     }
 
     if (open || dragging) {
-      motion.style.transform = "translate3d(0, 0, 0) rotate(0deg)";
+      motion.style.left = "0px";
+      motion.style.top = "0px";
+      motion.style.transform = "rotate(0deg)";
       if (glow) {
         glow.style.opacity = "0.72";
         glow.style.transform = "scale(1)";
@@ -223,14 +225,16 @@ export function WingmanGuruFab({
 
     function animate(timestamp: number) {
       const elapsed = (timestamp - startedAt) / 1000;
-      const horizontalDrift = Math.sin(elapsed * 1.65) * 4.5;
-      const verticalDrift = -5 + Math.sin(elapsed * 2.15) * 7.5;
-      const tilt = Math.sin(elapsed * 1.3) * 2.4;
+      const horizontalDrift = Math.sin(elapsed * 1.55) * 12;
+      const verticalDrift = -10 + Math.sin(elapsed * 2.05) * 16;
+      const tilt = Math.sin(elapsed * 1.3) * 3.2;
       const glowScale = 0.94 + ((Math.sin(elapsed * 2.5) + 1) / 2) * 0.18;
       const glowOpacity = 0.54 + ((Math.sin(elapsed * 2.5) + 1) / 2) * 0.4;
 
       if (motionRef.current) {
-        motionRef.current.style.transform = `translate3d(${horizontalDrift}px, ${verticalDrift}px, 0) rotate(${tilt}deg)`;
+        motionRef.current.style.left = `${horizontalDrift}px`;
+        motionRef.current.style.top = `${verticalDrift}px`;
+        motionRef.current.style.transform = `rotate(${tilt}deg)`;
       }
 
       if (glowRef.current) {
@@ -278,11 +282,14 @@ export function WingmanGuruFab({
 
   const motionStyle = {
     position: "absolute",
-    inset: 0,
+    left: 0,
+    top: 0,
+    width: "100%",
+    height: "100%",
     display: "grid",
     placeItems: "center",
     pointerEvents: "none",
-    willChange: "transform",
+    willChange: "left, top, transform",
     transformOrigin: "50% 55%",
   } as CSSProperties;
 

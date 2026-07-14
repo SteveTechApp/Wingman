@@ -64,9 +64,9 @@ export function recommendWirelessCastingSkus(input: WirelessCastingRecommendatio
     };
   }
 
-  const switcherSku = typeof input.sourceCount === "number" && input.sourceCount >= 6
-    ? "SW-640-TX-W"
-    : "SW-620L-TX-W";
+  const switcherSku = typeof input.sourceCount === "number" && input.sourceCount >= 4
+    ? "SW-640L-TX-W"
+    : "SW-620-TX-W";
 
   return {
     primarySkus: [switcherSku, "APO-DG2"],

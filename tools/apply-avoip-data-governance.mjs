@@ -48,11 +48,53 @@ function stableJson(value) {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
 
+function sleep(milliseconds) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, milliseconds);
+}
+
+function writeFileWithRetry(filePath, nextText, label) {
+  const retryableCodes = new Set(["UNKNOWN", "EBUSY", "EPERM", "EACCES"]);
+  let lastError;
+
+  for (let attempt = 1; attempt <= 100; attempt += 1) {
+    try {
+      if (fs.existsSync(filePath)) {
+        try {
+          fs.chmodSync(filePath, 0o666);
+        } catch {
+          // Windows ACLs and antivirus products can ignore chmod. The retry loop
+          // below remains the authoritative recovery path.
+        }
+      }
+
+      fs.writeFileSync(filePath, nextText, "utf8");
+      return;
+    } catch (error) {
+      lastError = error;
+      const retryable = retryableCodes.has(error?.code);
+
+      if (!retryable || attempt === 100) {
+        break;
+      }
+
+      if (attempt === 1 || attempt % 10 === 0) {
+        console.warn(
+          `[avoip-governance] Waiting for file access: ${label} (${error?.code ?? "unknown"}, attempt ${attempt}/100)`,
+        );
+      }
+
+      sleep(Math.min(500, 50 + attempt * 10));
+    }
+  }
+
+  throw lastError;
+}
+
 function writeIfChanged(filePath, nextText, label) {
   const current = fs.existsSync(filePath) ? fs.readFileSync(filePath, "utf8") : "";
   if (current === nextText) return false;
   if (checkOnly) fail(`${label} is not normalised. Run npm run data:canonical-products.`);
-  fs.writeFileSync(filePath, nextText, "utf8");
+  writeFileWithRetry(filePath, nextText, label);
   console.log(`[avoip-governance] Updated ${path.relative(root, filePath)}`);
   return true;
 }

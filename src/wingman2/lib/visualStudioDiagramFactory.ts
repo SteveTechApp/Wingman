@@ -36,27 +36,29 @@ const emphasisClass: Record<VisualNodeEmphasis, string> = {
 };
 
 const emphasisWidth: Record<VisualNodeEmphasis, number> = {
-  primary: 330,
-  support: 252,
-  compact: 218,
+  primary: 290,
+  support: 220,
+  compact: 195,
 };
 
 /* === WINGMAN PRODUCT PORT DETERMINISTIC LAYOUT START === */
 const PRODUCT_PORT_NODE_POSITIONS: Record<string, { x: number; y: number }> = {
   "input-check": { x: 20, y: 20 },
-  inputs: { x: 20, y: 250 },
-  device: { x: 480, y: 195 },
-  outputs: { x: 980, y: 250 },
-  "output-check": { x: 1014, y: 20 },
-  audio: { x: 20, y: 540 },
-  control: { x: 276, y: 540 },
-  network: { x: 532, y: 540 },
-  accessories: { x: 788, y: 540 },
-  "quote-checks": { x: 1044, y: 540 },
-  "generic-avoip-network": { x: 532, y: 20 },
-  "generic-usb-host": { x: 20, y: 720 },
-  "generic-audio-network": { x: 276, y: 720 },
-  "generic-usb-camera-endpoint": { x: 532, y: 720 },
+  inputs: { x: 20, y: 205 },
+  device: { x: 360, y: 190 },
+  "generic-avoip-network": { x: 715, y: 205 },
+  outputs: { x: 1035, y: 205 },
+  "output-check": { x: 1035, y: 20 },
+
+  audio: { x: 40, y: 455 },
+  control: { x: 270, y: 455 },
+  network: { x: 500, y: 455 },
+  accessories: { x: 730, y: 455 },
+  "quote-checks": { x: 960, y: 455 },
+
+  "generic-usb-host": { x: 245, y: 620 },
+  "generic-audio-network": { x: 500, y: 620 },
+  "generic-usb-camera-endpoint": { x: 755, y: 620 },
 };
 
 function resolveVisualStudioNodePosition(
@@ -87,31 +89,58 @@ function productPortEdgeHandles(
 
   switch (edge.id) {
     case "e1":
-      return { sourceHandle: "source-right", targetHandle: "target-left" };
-    case "e2":
-      return { sourceHandle: "source-bottom", targetHandle: "target-top" };
     case "e3":
-      return { sourceHandle: "source-right", targetHandle: "target-left" };
-    case "e4":
-      return { sourceHandle: "source-bottom", targetHandle: "target-top" };
-    case "e5":
-      return { sourceHandle: "source-bottom-1", targetHandle: "target-top" };
-    case "e6":
-      return { sourceHandle: "source-bottom-2", targetHandle: "target-top" };
-    case "e7":
-      return { sourceHandle: "source-bottom-3", targetHandle: "target-top" };
-    case "e8":
-      return { sourceHandle: "source-bottom-4", targetHandle: "target-top" };
-    case "e9":
-      return { sourceHandle: "source-bottom-5", targetHandle: "target-top" };
     case "e-avoip-network":
-      return { sourceHandle: "source-top", targetHandle: "target-bottom" };
+      return {
+        sourceHandle: "source-right",
+        targetHandle: "target-left",
+      };
+    case "e2":
+    case "e4":
+      return {
+        sourceHandle: "source-bottom",
+        targetHandle: "target-top",
+      };
+    case "e5":
+      return {
+        sourceHandle: "source-bottom-1",
+        targetHandle: "target-top",
+      };
+    case "e6":
+      return {
+        sourceHandle: "source-bottom-2",
+        targetHandle: "target-top",
+      };
+    case "e7":
+      return {
+        sourceHandle: "source-bottom-3",
+        targetHandle: "target-top",
+      };
+    case "e8":
+      return {
+        sourceHandle: "source-bottom-4",
+        targetHandle: "target-top",
+      };
+    case "e9":
+      return {
+        sourceHandle: "source-bottom-5",
+        targetHandle: "target-top",
+      };
     case "e-usb-host":
-      return { sourceHandle: "source-right", targetHandle: "target-bottom" };
+      return {
+        sourceHandle: "source-top",
+        targetHandle: "target-bottom",
+      };
     case "e-audio-network":
-      return { sourceHandle: "source-bottom-1", targetHandle: "target-top" };
+      return {
+        sourceHandle: "source-bottom-2",
+        targetHandle: "target-top",
+      };
     case "e-usb-camera-endpoint":
-      return { sourceHandle: "source-bottom-2", targetHandle: "target-top" };
+      return {
+        sourceHandle: "source-bottom-3",
+        targetHandle: "target-top",
+      };
     default:
       return null;
   }
@@ -309,16 +338,18 @@ export function buildReactFlowModel(
       label: mode === "technical" ? `${signalReference[family]}-${sequence}` : edge.label,
       type: "straight",
       animated: false,
+      interactionWidth: 24,
+      selectable: false,
       zIndex: 6,
       className: `${edgeClass(edge)} wm-vs-signal-${family}`,
       style: {
         stroke: colour,
-        strokeWidth: mode === "technical" ? 2.2 : 2.6,
+        strokeWidth: mode === "technical" ? 3.2 : 3.6,
       },
       markerEnd: {
         type: MarkerType.ArrowClosed,
-        width: 16,
-        height: 16,
+        width: 18,
+        height: 18,
         color: colour,
       },
       labelStyle: {

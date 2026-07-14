@@ -9,7 +9,7 @@ describe("WyreStorm workflow capability truth", () => {
     expect(wyrestormCapabilityVerdict("MX-0402-MST", "mst")).toBe(true);
     expect(wyrestormCapabilityVerdict("MX-0402-MST", "multiview")).toBe(false);
     expect(wyrestormCapabilityVerdict("SW-640L-TX-W", "chromecast")).toBe(true);
-    expect(wyrestormCapabilityVerdict("SW-620L-TX-W", "chromecast")).toBe(false);
+    expect(wyrestormCapabilityVerdict("SW-620-TX-W", "chromecast")).toBe(false);
     expect(wyrestormCapabilityVerdict("NHD-600-TRX", "multiview")).toBe(true);
     expect(wyrestormCapabilityVerdict("NHD-600-TRX", "mosaicVideoWall")).toBe(false);
     expect(wyrestormCapabilityVerdict("SW-0206-VW", "videoWall")).toBe(true);

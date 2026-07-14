@@ -9781,7 +9781,7 @@
     "aliases": [],
     "knownLimitations": "",
     "closestWyrestormArchitecture": "Wireless/HDMI presentation switcher",
-    "closestWyrestormSkuOrFamily": "APO-VX20-UC-V2 + APO-DG2",
+    "closestWyrestormSkuOrFamily": "SW-620-TX-W / SW-640L-TX-W",
     "notes": "Official Blustream WMF72 launch page. | data/product-intelligence-db.json#18 merged into deployed competitor catalog. | data/product-intelligence-db.json#20 merged into deployed competitor catalog. | data/product-intelligence-db.json#31 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Blustream WMF products are multiformat collaboration switchers with wired and wireless presentation workflows. | Compare WMF products against collaboration switchers and wireless presentation appliances, not generic matrices. | Official competitor family guidance applied during canonical sync. | Verified via official Blustream WMF72 page: HDMI/USB-C/AirPlay/Miracast/Chromecast in, dual HDMI out, multiview up to 5 sources, dual GbE, 2.4/5GHz WiFi hotspot, 24V/5A.",
     "sourceFile": "data-sources/competitors/blustream.csv",
     "comparisonOnly": true

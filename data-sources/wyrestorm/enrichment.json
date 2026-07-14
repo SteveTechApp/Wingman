@@ -196710,8 +196710,8 @@
     "sku": "NHD-500-TX",
     "name": "4K60Hz 4:4:4 Encoder",
     "title": "4K60Hz 4:4:4 Encoder",
-    "description": "4K60Hz 4:4:4 Encoder | 1GbE | Dolby Vision & HDR | PoE | USB 2.0 | Audio De-embed | ARC | S/PDIF | SFP | IR & RS232 Routing",
-    "summary": "4K60Hz 4:4:4 Encoder | 1GbE | Dolby Vision & HDR | PoE | USB 2.0 | Audio De-embed | ARC | S/PDIF | SFP | IR & RS232 Routing",
+    "description": "4K60Hz 4:4:4 Encoder | 1GbE | Dolby Vision & HDR | PoE | USB 2.0 | Audio De-embed | ARC | S/PDIF | SFP | IR & RS232 Routing | HDMI Loop out",
+    "summary": "4K60Hz 4:4:4 Encoder | 1GbE | Dolby Vision & HDR | PoE | USB 2.0 | Audio De-embed | ARC | S/PDIF | SFP | IR & RS232 Routing | HDMI Loop out",
     "category": "AVoIP",
     "family": "NetworkHD AVoIP",
     "technologies": [
@@ -197264,14 +197264,16 @@
           "4K60Hz 4:4:4 Encoder 4K60Hz 4:4:4 Encoder 4K60H",
           "4K60Hz 4:4:4 Encoder",
           "4096x2160p @ 60Hz 8bit 4:4:4 or RGB 3840x2160p @ 60Hz 1",
-          "1920x1080p @60Hz 12bit Audio Formats Passthrough: 2ch P"
+          "1920x1080p @60Hz 12bit Audio Formats Passthrough: 2ch P",
+          "3840x2160p @ 60Hz"
         ],
         "standards": [
           "HDMI",
           "HDMI 2.0",
           "HDCP 2.2",
           "Dolby Vision",
-          "HDR"
+          "HDR",
+          "4K60 4:4:4"
         ],
         "bandwidth": [],
         "distance": [
@@ -197809,6 +197811,14 @@
         "chipset": null,
         "chipsetStatus": "not-publicly-confirmed",
         "evidenceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/"
+      },
+      "portCountGovernance": {
+        "routedVideoInputs": 1,
+        "routedNetworkOutputs": 1,
+        "localHdmiLoopOutputs": 1,
+        "usbPhysicalPortCounts": "requires-verification",
+        "rule": "Local loop outputs and USB topology/device limits must not increase routed or physical port counts.",
+        "reviewedOn": "2026-07-13"
       }
     },
     "salesLanguage": {
@@ -198101,15 +198111,15 @@
       "avoipChip": null,
       "avoipChipStatus": "not-publicly-confirmed",
       "avoipCodec": "JPEG2000",
+      "audioInputs": 1,
+      "audioOutputs": 2,
+      "networkPorts": 2,
+      "controlPorts": 3,
       "hdmiInputs": 1,
       "hdmiOutputs": 1,
       "usbHostPorts": 1,
       "usbDevicePorts": 0,
-      "usbTotalPorts": 1,
-      "audioInputs": 1,
-      "audioOutputs": 2,
-      "networkPorts": 2,
-      "controlPorts": 3
+      "usbTotalPorts": 1
     },
     "sourceCatalog": {
       "networkRequirement": "1GbE managed AV network",
@@ -198128,12 +198138,23 @@
         "1 x RJ-45 output - 1GbE AV network connection",
         "1 x SFP output - 1Gb optical AV network connection"
       ],
-      "usb": "1 x USB 2.0 Type B input - Host-computer USB connection"
+      "usb": "1 x USB 2.0 Type B input - Host-computer USB connection",
+      "quoteWarnings": "HDMI loop output is local/non-routed. USB topology limits are not physical port counts."
     },
     "routedInputCount": 1,
     "routedOutputCount": 1,
     "inputCount": 1,
-    "outputCount": 1
+    "outputCount": 1,
+    "portCountAudit": {
+      "status": "repaired",
+      "routedInputs": 1,
+      "routedOutputs": 1,
+      "localLoopOutputs": 1,
+      "usbStandard": "USB 2.0",
+      "usbPhysicalConnectorCounts": "requires-verification",
+      "repairedOn": "2026-07-13",
+      "source": "Current NHD-500-TX v2 product record and USB & Hub Technical Document Rev 1.0"
+    }
   },
   {
     "id": "NHD-500-TXRX-V2",

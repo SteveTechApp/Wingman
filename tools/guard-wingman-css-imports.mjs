@@ -12,6 +12,7 @@ const allowed = new Set([
 ]);
 
 const expectedMainCssImports = [
+  "@xyflow/react/dist/style.css",
   "./wingman2/styles/wingman-style-stack.css",
   "./wingman2/styles/wingman-reference-theme.css",
   "./wingman2/styles/wingman-workflow-theme.css",

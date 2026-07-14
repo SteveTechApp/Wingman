@@ -1,3 +1,4 @@
+import "@xyflow/react/dist/style.css";
 import "./wingman2/styles/wingman-style-stack.css";
 import "./wingman2/styles/wingman-reference-theme.css";
 import "./wingman2/styles/wingman-workflow-theme.css";

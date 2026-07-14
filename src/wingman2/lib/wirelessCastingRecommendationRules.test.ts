@@ -15,40 +15,40 @@ describe("wireless casting recommendation rules", () => {
     });
 
     expect(result.primarySkus).toEqual(["APO-VX20-UC-V2", "APO-DG2"]);
-    expect(result.primarySkus).not.toContain("SW-620L-TX-W");
-    expect(result.primarySkus).not.toContain("SW-640-TX-W");
+    expect(result.primarySkus).not.toContain("SW-620-TX-W");
+    expect(result.primarySkus).not.toContain("SW-640L-TX-W");
   });
 
-  it("uses SW-620L-TX-W with APO-DG2 for standard wireless casting rooms", () => {
+  it("uses SW-620-TX-W with APO-DG2 for standard wireless casting rooms", () => {
     const result = recommendWirelessCastingSkus({
       roomType: "standard meeting room",
       participantCount: 10,
-      sourceCount: 4,
+      sourceCount: 2,
     });
 
-    expect(result.primarySkus).toEqual(["SW-620L-TX-W", "APO-DG2"]);
+    expect(result.primarySkus).toEqual(["SW-620-TX-W", "APO-DG2"]);
     expect(result.primarySkus).not.toContain("APO-VX20-UC-V2");
   });
 
-  it("uses SW-640-TX-W with APO-DG2 for larger wireless casting rooms with more sources", () => {
+  it("uses SW-640L-TX-W with APO-DG2 for larger wireless casting rooms with more sources", () => {
     const result = recommendWirelessCastingSkus({
       roomType: "training room",
       participantCount: 18,
-      sourceCount: 6,
+      sourceCount: 4,
     });
 
-    expect(result.primarySkus).toEqual(["SW-640-TX-W", "APO-DG2"]);
+    expect(result.primarySkus).toEqual(["SW-640L-TX-W", "APO-DG2"]);
     expect(result.primarySkus).not.toContain("APO-VX20-UC-V2");
   });
 
   it("adds IDB-300 as an optional desk connection item when desk connectivity is present", () => {
     const result = recommendWirelessCastingSkus({
       roomType: "meeting room",
-      sourceCount: 4,
+      sourceCount: 2,
       deskConnection: true,
     });
 
-    expect(result.primarySkus).toEqual(["SW-620L-TX-W", "APO-DG2"]);
+    expect(result.primarySkus).toEqual(["SW-620-TX-W", "APO-DG2"]);
     expect(result.optionalSkus).toContain("IDB-300");
     expect(recommendDeskConnectionOptions({ connectionLocation: "in-desk table cubby" })).toEqual(["IDB-300"]);
   });
@@ -73,14 +73,14 @@ describe("APO-DG2 dependency rule", () => {
     const ruleText = [
       "APO-DG2 requires a compatible receiver/base device",
       "APO-VX20-UC v2",
-      "SW-620L-TX-W",
-      "SW-640-TX-W",
+      "SW-620-TX-W",
+      "SW-640L-TX-W",
     ].join(" ");
 
     expect(ruleText).toContain("APO-DG2");
     expect(ruleText).toContain("APO-VX20-UC v2");
-    expect(ruleText).toContain("SW-620L-TX-W");
-    expect(ruleText).toContain("SW-640-TX-W");
+    expect(ruleText).toContain("SW-620-TX-W");
+    expect(ruleText).toContain("SW-640L-TX-W");
     expect(ruleText).toContain("APO-VX20-UC v2");
   });
 });
