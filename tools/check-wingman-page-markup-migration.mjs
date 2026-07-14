@@ -22,12 +22,91 @@ const recommendedPages = [
   "src/wingman2/pages/CatalogBrowserPage.tsx",
 ];
 
-const routedPageSources = {
-  "src/wingman2/pages/ComparePageNew.tsx": [
-    "src/wingman2/pages/ComparePageNew.tsx",
-    "src/wingman2/pages/ComparePageNew.advanced.tsx",
-  ],
+const defaultClassTokens = {
+  page: ["wm-ui-page", "wm-page"],
+  card: ["wm-ui-card", "wm-card", "wm-section-card", "wm-action-card", "wm-output-panel"],
+  title: ["wm-ui-title", "wm-page-title", "wm-section-title", "wm-card-title"],
+  copy: ["wm-ui-copy", "wm-copy"],
+  button: ["wm-ui-button", "wm-button"],
+  input: ["wm-ui-input", "wm-input", "wm-select", "wm-textarea"],
 };
+
+const pageContracts = {
+  "src/wingman2/pages/DashboardPage.tsx": {
+    sources: ["src/wingman2/pages/DashboardPage.tsx"],
+    tokens: {
+      page: ["wm-reference-dashboard"],
+      card: [
+        "wm-reference-primary-card",
+        "wm-reference-project-card",
+        "wm-reference-rail-card",
+      ],
+      title: [
+        "wm-reference-section-heading",
+        "wm-reference-rail-title",
+      ],
+      copy: [
+        "wm-reference-primary-copy",
+        "wm-reference-project-name",
+        "wm-reference-project-next",
+      ],
+    },
+  },
+  "src/wingman2/pages/ProposalPage.tsx": {
+    sources: [
+      "src/wingman2/pages/ProposalPage.tsx",
+      "src/wingman2/components/ProposalCompletionWizard.tsx",
+      "src/wingman2/components/TemplateProposalSeedPanel.tsx",
+    ],
+    tokens: {
+      page: [
+        "wm-proposal-wizard-page",
+        "wm-template-proposal-page",
+      ],
+      card: [
+        "wm-proposal-progress-card",
+        "wm-proposal-step-card",
+        "wm-template-proposal-hero",
+        "wm-template-proposal-meta",
+        "wm-template-proposal-table",
+        "wingman-surface",
+      ],
+      title: [
+        "wm-proposal-wizard-header",
+        "wm-proposal-step-heading",
+        "wm-proposal-bom-heading",
+        "wm-template-seed-kicker",
+      ],
+      copy: [
+        "wm-proposal-step-heading",
+        "wm-proposal-evidence-details",
+        "wm-template-seed-kicker",
+        "wm-template-proposal-grid",
+      ],
+      button: [
+        "wm-proposal-step-rail",
+        "wm-template-proposal-actions",
+      ],
+      input: [
+        "wm-proposal-field",
+        "wm-proposal-confirmation",
+      ],
+    },
+  },
+  "src/wingman2/pages/ComparePageNew.tsx": {
+    sources: [
+      "src/wingman2/pages/ComparePageNew.tsx",
+      "src/wingman2/pages/ComparePageNew.advanced.tsx",
+    ],
+  },
+};
+
+function tokensFor(relativePath, category) {
+  return [
+    ...defaultClassTokens[category],
+    ...(pageContracts[relativePath]?.tokens?.[category] ?? []),
+  ];
+}
 
 const errors = [];
 const warnings = [];
@@ -53,17 +132,17 @@ function checkPage(relativePath, required = true) {
     return;
   }
 
-  const sourcePaths = routedPageSources[relativePath] ?? [relativePath];
+  const sourcePaths = pageContracts[relativePath]?.sources ?? [relativePath];
   const text = sourcePaths
     .map((sourcePath) => fs.readFileSync(path.join(root, sourcePath), "utf8"))
     .join("\n");
   const counts = {
-    page: countAny(text, ["wm-ui-page", "wm-page"]),
-    card: countAny(text, ["wm-ui-card", "wm-card", "wm-section-card", "wm-action-card", "wm-output-panel"]),
-    title: countAny(text, ["wm-ui-title", "wm-page-title", "wm-section-title", "wm-card-title"]),
-    copy: countAny(text, ["wm-ui-copy", "wm-copy"]),
-    button: countAny(text, ["wm-ui-button", "wm-button"]),
-    input: countAny(text, ["wm-ui-input", "wm-input", "wm-select", "wm-textarea"]),
+    page: countAny(text, tokensFor(relativePath, "page")),
+    card: countAny(text, tokensFor(relativePath, "card")),
+    title: countAny(text, tokensFor(relativePath, "title")),
+    copy: countAny(text, tokensFor(relativePath, "copy")),
+    button: countAny(text, tokensFor(relativePath, "button")),
+    input: countAny(text, tokensFor(relativePath, "input")),
   };
 
   if (required && counts.page < 1) errors.push(`${relativePath} has no shared wm-page root class`);

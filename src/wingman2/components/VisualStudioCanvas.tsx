@@ -28,6 +28,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { buildReactFlowModel, type WingmanFlowNodeData } from "../lib/visualStudioDiagramFactory";
+import { buildVsdxBlob } from "../lib/visioExport";
+import { chooseSchematicPrintLayout } from "../lib/visualStudioPrintLayout";
 import type { VisualDiagramMode, VisualDiagramModel } from "../lib/visualStudioTypes";
 
 interface VisualStudioCanvasProps {
@@ -40,6 +42,15 @@ function downloadDataUrl(dataUrl: string, filename: string): void {
   link.download = filename;
   link.href = dataUrl;
   link.click();
+}
+
+function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.download = filename;
+  link.href = url;
+  link.click();
+  requestAnimationFrame(() => URL.revokeObjectURL(url));
 }
 
 function safeFileName(value: string): string {
@@ -190,6 +201,8 @@ function VisualStudioCanvasInner({ model, mode }: VisualStudioCanvasProps) {
     return buildReactFlowModel(model, mode);
   }, [model, mode]);
 
+  const printLayout = useMemo(() => chooseSchematicPrintLayout(flowModel.nodes), [flowModel]);
+
   useEffect(() => {
     let secondFrame = 0;
     const firstFrame = requestAnimationFrame(() => {
@@ -236,6 +249,11 @@ const exportPng = async () => {
     downloadDataUrl(dataUrl, `${safeFileName(model.title)}-${mode}.svg`);
   };
 
+  const exportVsdx = async () => {
+    const blob = await buildVsdxBlob(model);
+    downloadBlob(blob, `${safeFileName(model.title)}.vsdx`);
+  };
+
   return (
     <section className={`wm-vs-canvas-shell wm-vs-canvas-shell-${mode}`}>
       <div className="wm-vs-canvas-toolbar">
@@ -250,10 +268,32 @@ const exportPng = async () => {
           <button type="button" className="wm-vs-button wm-vs-button-primary" onClick={exportPng}>
             Export PNG
           </button>
+          <button
+            type="button"
+            className="wm-vs-button wm-vs-button-secondary"
+            onClick={() => window.print()}
+            title={`Prints on ${printLayout.page} landscape, scaled to fit every device on the page.`}
+          >
+            Print ({printLayout.page})
+          </button>
+          <button
+            type="button"
+            className="wm-vs-button wm-vs-button-secondary"
+            onClick={exportVsdx}
+            title="Downloads a .vsdx file with generic rectangle shapes (not official WyreStorm stencils) that opens in Microsoft Visio."
+          >
+            Export Visio (.vsdx)
+          </button>
         </div>
       </div>
 
-      <div className={`wm-vs-canvas wm-vs-canvas-${mode}`} ref={exportRef} data-diagram-id={model.id}>
+      <div
+        className={`wm-vs-canvas wm-vs-canvas-${mode}`}
+        ref={exportRef}
+        data-diagram-id={model.id}
+        data-print-page={printLayout.page}
+        style={{ ["--wm-vs-print-scale" as string]: printLayout.scale }}
+      >
         <div className="wm-vs-canvas-stage">
           <div className="wm-vs-sheet-header" aria-hidden="true">
             <div className="wm-vs-sheet-brand">
