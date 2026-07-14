@@ -26,7 +26,7 @@ const CAPABILITY_PROFILES: Record<string, CapabilityProfile> = {
   "SW-640L-TX-W": {
     capabilities: ["mst", "multiview", "wirelessCasting", "airplay", "miracast", "chromecast", "wirelessDongle"],
   },
-  "SW-620L-TX-W": {
+  "SW-620-TX-W": {
     capabilities: ["mst", "multiview", "wirelessCasting", "airplay", "miracast", "wirelessDongle"],
   },
   "MX-0402-MST": { capabilities: ["mst"] },
@@ -56,10 +56,16 @@ function canonicalSku(value: unknown) {
     .replace(/^-+|-+$/g, "");
 }
 
+const CAPABILITY_SKU_ALIASES: Record<string, string> = {
+  "SW-620L-TX-W": "SW-620-TX-W",
+  "SW-640-TX-W": "SW-640L-TX-W",
+};
+
 export function getWyrestormCapabilityProfile(sku: unknown): CapabilityProfile | null {
   const canonical = canonicalSku(sku);
   const withoutRevision = canonical.replace(/-V\d+$/, "");
-  return CAPABILITY_PROFILES[canonical] ?? CAPABILITY_PROFILES[withoutRevision] ?? null;
+  const aliased = CAPABILITY_SKU_ALIASES[canonical] ?? CAPABILITY_SKU_ALIASES[withoutRevision];
+  return CAPABILITY_PROFILES[canonical] ?? CAPABILITY_PROFILES[withoutRevision] ?? (aliased ? CAPABILITY_PROFILES[aliased] : undefined) ?? null;
 }
 
 /**

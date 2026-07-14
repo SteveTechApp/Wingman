@@ -27,9 +27,9 @@
     "data-sources/competitors/zeevee.csv"
   ],
   "hashes": {
-    "data-sources/wyrestorm/products.csv": "6031aa41cbe5069f424005c46be8fa211deb84f41421be1335a29b44c8b52cf6",
+    "data-sources/wyrestorm/products.csv": "430b13fa8b08d4dd49d302663b503e73323a6da8978f07cccbdb32d7bc433bad",
     "data-sources/wyrestorm/lifecycle.csv": "38280e8b3a58db83e06bcf2b6ef9eb44bc20a0cca7cbc013101426e782247ed7",
-    "data-sources/wyrestorm/enrichment.json": "e6b2135d5772d351092fd991b81fa22633f6a0ee1285f0aad0910d9953dc2f07",
+    "data-sources/wyrestorm/enrichment.json": "b69c17c36538b7fe210623593e322a50f2606b50d217107888dd0c5fb4f0425c",
     "data-sources/competitors/airtame.csv": "e72aa132a31e522f857d9c71982e2269812e8a8c2244e81d082ad592b3f1bd7b",
     "data-sources/competitors/amx.csv": "f382bda00d796e41e22d48de2cf51ddb99b6876f26747fb101916ffb47e0cf7e",
     "data-sources/competitors/atlona.csv": "e9cf4d1c1eacb5f90ae389e291b61208b94db921f1e68ed09db3da8c3d45813a",
@@ -37,7 +37,7 @@
     "data-sources/competitors/barco.csv": "31f43e801cc11832b05686dbd83bae41032ca42539140153a1bca2c7f412aff8",
     "data-sources/competitors/binary.csv": "bbdb3579a16c5d19b1f5dd8788834e9a6a9797d88ddbbd9a8ff4fe126541ee49",
     "data-sources/competitors/birddog.csv": "46b82015cb46e62155caaa1cc50a81359d8bba55b566da8631255776ce165c1c",
-    "data-sources/competitors/blustream.csv": "8ad641646a574332e6cf4c7335318547e2b5594bdf0ce3b59c807808d849e82a",
+    "data-sources/competitors/blustream.csv": "4b924d59e8ade3d7d2815c1b0529e0920df794f74b9f03b86d4a52eaf6839af0",
     "data-sources/competitors/crestron.csv": "7a93e0b9647e600d5f5430ed7e21b6ae1511154c50b6a9ea79fcceb483d2e8f8",
     "data-sources/competitors/extron.csv": "b661ccc09be076d534a75decc58d328a82a74cf6fa16412a0acf3cf29b8ba3e2",
     "data-sources/competitors/kramer.csv": "b0561454d7733245517088ddbb77c4543eb3d218883d71701f1995bc787096f9",

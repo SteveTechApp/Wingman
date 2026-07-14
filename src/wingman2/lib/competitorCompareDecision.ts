@@ -4,6 +4,7 @@ export type CompareDecisionOutcome = "GOOD MATCH" | "PARTIAL MATCH" | "NO MATCH"
 export type CompareSpecFacts = {
   hdmiInputs?: number;
   hdmiOutputs?: number;
+  hdmiLoopOutputs?: number;
   hdmiVersion?: string;
   hdcpVersion?: string;
   displayPortInputs?: number;

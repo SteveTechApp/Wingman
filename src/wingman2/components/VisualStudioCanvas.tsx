@@ -194,7 +194,7 @@ function VisualStudioCanvasInner({ model, mode }: VisualStudioCanvasProps) {
     let secondFrame = 0;
     const firstFrame = requestAnimationFrame(() => {
       secondFrame = requestAnimationFrame(() => {
-        void fitView({ padding: 0.04, minZoom: 0.52, maxZoom: 1.05, duration: 0 });
+        void fitView({ padding: 0.12, minZoom: 0.45, maxZoom: 0.95, duration: 0 });
       });
     });
 
@@ -203,13 +203,12 @@ function VisualStudioCanvasInner({ model, mode }: VisualStudioCanvasProps) {
       if (secondFrame) cancelAnimationFrame(secondFrame);
     };
   }, [fitView, flowModel.nodes.length, mode, model.id]);
-
-  const exportPng = async () => {
+const exportPng = async () => {
     if (!exportRef.current) {
       return;
     }
 
-    await fitView({ padding: 0.04, minZoom: 0.52, maxZoom: 1.05, duration: 0 });
+    await fitView({ padding: 0.12, minZoom: 0.45, maxZoom: 0.95, duration: 0 });
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
     const dataUrl = await toPng(exportRef.current, {
@@ -226,7 +225,7 @@ function VisualStudioCanvasInner({ model, mode }: VisualStudioCanvasProps) {
       return;
     }
 
-    await fitView({ padding: 0.04, minZoom: 0.52, maxZoom: 1.05, duration: 0 });
+    await fitView({ padding: 0.12, minZoom: 0.45, maxZoom: 0.95, duration: 0 });
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
 
     const dataUrl = await toSvg(exportRef.current, {
@@ -289,9 +288,9 @@ function VisualStudioCanvasInner({ model, mode }: VisualStudioCanvasProps) {
             defaultEdgeOptions={{ zIndex: 6 }}
             nodeTypes={nodeTypes}
             fitView
-            fitViewOptions={{ padding: 0.04, minZoom: 0.52, maxZoom: 1.05 }}
-            minZoom={0.35}
-            maxZoom={1.5}
+            fitViewOptions={{ padding: 0.12, minZoom: 0.45, maxZoom: 0.95 }}
+            minZoom={0.4}
+            maxZoom={1.2}
             nodesDraggable={false}
             nodesConnectable={false}
             elementsSelectable

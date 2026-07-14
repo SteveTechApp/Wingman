@@ -200,6 +200,7 @@ function buildGeneratedEndpointNodes(facts: ProductConnectionFacts): VisualDiagr
 }
 
 function buildNodes(facts: ProductConnectionFacts): VisualDiagramNode[] {
+  const isAvoip = hasAvoipTransport(facts);
   const hasMatrixEvidence = Boolean(facts.matrixSize);
   const hasVideoProcessing = facts.videoProcessing.length > 0;
   const hasAudio = facts.audioSignals.length > 0;
@@ -243,10 +244,14 @@ function buildNodes(facts: ProductConnectionFacts): VisualDiagramNode[] {
     },
     {
       id: "outputs",
-      label: "Displays / Outputs",
-      subtitle: hasVideoProcessing
-        ? `${summarize(facts.videoProcessing, "Output behaviour")} | verify against datasheet.`
-        : "Confirm display count, sink formats and output behaviour before quote.",
+      label: isAvoip
+        ? "NetworkHD Decoder / Display"
+        : "Displays / Outputs",
+      subtitle: isAvoip
+        ? "Compatible NetworkHD decoder and display destination. Confirm decoder quantity, controller and managed-network design."
+        : hasVideoProcessing
+          ? `${summarize(facts.videoProcessing, "Output behaviour")} | verify against datasheet.`
+          : "Confirm display count, sink formats and output behaviour before quote.",
       kind: "display",
       status: "normal",
       emphasis: "support",
@@ -334,7 +339,7 @@ function buildGeneratedEndpointEdges(facts: ProductConnectionFacts): VisualDiagr
       id: "e-avoip-network",
       source: "device",
       target: "generic-avoip-network",
-      label: "AVoIP transport / multicast network",
+      label: "1GbE NetworkHD stream",
       status: "recommended",
     });
   }
@@ -382,6 +387,9 @@ export function buildProductConnectionDiagram(
   }
 
   const facts = collectFacts(seedSku, product);
+  const mainOutputSource = hasAvoipTransport(facts)
+    ? "generic-avoip-network"
+    : "device";
   const sourceLine = facts.officialProductUrl
     ? `Official product evidence is available for ${facts.sku}.`
     : `Official product URL is not yet attached for ${facts.sku}.`;
@@ -416,7 +424,7 @@ export function buildProductConnectionDiagram(
     edges: [
       { id: "e1", source: "inputs", target: "device", label: "Source-side routing" },
       { id: "e2", source: "input-check", target: "inputs", label: "Validate ownership", status: "missing" },
-      { id: "e3", source: "device", target: "outputs", label: "Display-side outputs" },
+      { id: "e3", source: mainOutputSource, target: "outputs", label: hasAvoipTransport(facts) ? "Decoder / display path" : "Display-side outputs" },
       { id: "e4", source: "output-check", target: "outputs", label: "Output behaviour", status: "optional" },
       { id: "e5", source: "device", target: "audio", label: "Audio dependency", status: "optional" },
       { id: "e6", source: "device", target: "control", label: "Control path", status: "optional" },

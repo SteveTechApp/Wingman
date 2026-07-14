@@ -300,6 +300,102 @@ function technicalFeatures(raw: UnknownRecord): Array<{ label: string; group: st
     .filter((feature) => feature.label);
 }
 
+// WINGMAN_PORT_COUNT_GOVERNANCE_START
+function wmPortText(port: TechnicalPort): string {
+  return [port.connector, port.detail, port.evidence, port.category, port.direction]
+    .map(asText)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function wmIsCapabilityOnlyUsbPort(port: TechnicalPort): boolean {
+  const value = wmPortText(port);
+  if (!/\busb\b|usb-[abc]|usb[abc]\b/.test(value)) return false;
+
+  const explicitConnector =
+    /usb\s*(?:type\s*)?[- ]?[abc]\b|usb-[abc]\b|type\s*[- ]?[abc]\s+usb|\b(?:host|device|client|peripheral|upstream|downstream)\s+(?:usb\s+)?(?:port|connector|socket)|\busb\s+(?:host|device|client|peripheral|upstream|downstream)\b|\b(?:receptacle|connector|socket)\b/.test(value);
+
+  if (explicitConnector) return false;
+
+  return /\busb\s*(?:1\.1|2\.0|3(?:\.0|\.1|\.2)?|4(?:\.0)?)\b|\btiers?\b|\bup to\s+\d+\s+devices?\b|\bendpoints?\s*[â‰¤<]=?\s*\d+\b|\bdevice\s+limit\b|\bhub\s+limit\b|\bmax(?:imum)?\s+hubs?\b|\bbandwidth\b|\bversion\b|\bstandard\b/.test(value);
+}
+
+function wmIsExplicitUsbConnector(port: TechnicalPort): boolean {
+  const value = wmPortText(port);
+  return !wmIsCapabilityOnlyUsbPort(port) &&
+    /usb\s*(?:type\s*)?[- ]?[abc]\b|usb-[abc]\b|type\s*[- ]?[abc]\s+usb|\busb\s+(?:host|device|client|peripheral|upstream|downstream)\b|\b(?:host|device|client|peripheral|upstream|downstream)\s+usb\b/.test(value);
+}
+
+function wmIsNonRoutedVideoOutput(port: TechnicalPort): boolean {
+  return /\b(loop|loop-through|loop through|mirrored|mirror|parallel|duplicate|duplicated|local monitor|monitor out|preview|aux)\b/.test(
+    wmPortText(port),
+  );
+}
+
+function wmPortFamily(port: TechnicalPort): string {
+  const value = wmPortText(port);
+  if (/\bhdmi\b/.test(value)) return "hdmi";
+  if (/displayport|\bdp\b/.test(value)) return "displayport";
+  if (/\bhdbaset\b|\bhdbt\b/.test(value)) return "hdbaset";
+  if (/\bsdi\b/.test(value)) return "sdi";
+  if (/usb\s*(?:type\s*)?[- ]?c\b|usb-c\b/.test(value)) return "usb-c";
+  if (/usb\s*(?:type\s*)?[- ]?b\b|usb-b\b/.test(value)) return "usb-b";
+  if (/usb\s*(?:type\s*)?[- ]?a\b|usb-a\b/.test(value)) return "usb-a";
+  if (/\busb\b/.test(value)) return "usb";
+  if (/\brj-?45\b|ethernet|\blan\b|network/.test(value)) return "rj45";
+  if (/\bsfp\b|fibre|fiber/.test(value)) return "sfp";
+  if (/rs-?232/.test(value)) return "rs232";
+  if (/\bir\b|infrared/.test(value)) return "ir";
+  return asText(port.connector || port.evidence).toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
+
+function wmPortRole(port: TechnicalPort): string {
+  const value = wmPortText(port);
+  if (wmIsNonRoutedVideoOutput(port)) return "local-loop";
+  if (/\bhost\b|\bupstream\b/.test(value)) return "host";
+  if (/\bdevice\b|\bclient\b|\bperipheral\b|\bdownstream\b/.test(value)) return "device";
+  return "";
+}
+
+function wmDedupeTechnicalPorts(ports: TechnicalPort[]): TechnicalPort[] {
+  const byKey = new Map<string, TechnicalPort>();
+
+  for (const port of ports) {
+    if (wmIsCapabilityOnlyUsbPort(port)) continue;
+
+    const direction = asText(port.direction).toLowerCase() || "unspecified";
+    const detail = asText(port.detail)
+      .toLowerCase()
+      .replace(/\b(?:official|product guide|datasheet|page|pages)\b.*$/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    const key = [wmPortFamily(port), direction, wmPortRole(port), detail].join("|");
+    const current = byKey.get(key);
+
+    if (!current) {
+      byKey.set(key, { ...port, count: Number(port.count) || 1 });
+      continue;
+    }
+
+    byKey.set(key, {
+      ...current,
+      count: Math.max(Number(current.count) || 1, Number(port.count) || 1),
+      connector: current.connector || port.connector,
+      detail: current.detail || port.detail,
+      evidence: current.evidence || port.evidence,
+      category:
+        asText(current.category).toLowerCase() === "other"
+          ? port.category || current.category
+          : current.category,
+    });
+  }
+
+  return Array.from(byKey.values());
+}
+// WINGMAN_PORT_COUNT_GOVERNANCE_END
+
 function technicalPorts(raw: UnknownRecord): TechnicalPort[] {
   const profile = technicalProfile(raw);
   const io = asRecord(profile.io);
@@ -311,29 +407,35 @@ function technicalPorts(raw: UnknownRecord): TechnicalPort[] {
 
     for (const entry of entries) {
       if (typeof entry === "string") {
-        output.push({
+        const port: TechnicalPort = {
           count: 1,
           connector: entry,
           direction: "unspecified",
           category: bucket === "ports" ? "other" : bucket,
           evidence: entry,
-        });
+        };
+
+        if (!wmIsCapabilityOnlyUsbPort(port)) output.push(port);
         continue;
       }
 
       const record = asRecord(entry);
-      output.push({
+      const port: TechnicalPort = {
         count: Number(record.count) || 1,
         connector: asText(record.connector || record.name || record.label),
         direction: asText(record.direction) || "unspecified",
         category: asText(record.category) || (bucket === "ports" ? "other" : bucket),
         detail: asText(record.detail),
         evidence: asText(record.evidence),
-      });
+      };
+
+      if (!wmIsCapabilityOnlyUsbPort(port)) output.push(port);
     }
   }
 
-  return output.filter((port) => port.connector || port.evidence);
+  return wmDedupeTechnicalPorts(
+    output.filter((port) => port.connector || port.evidence),
+  );
 }
 
 function classifyPort(port: TechnicalPort): "video" | "audio" | "usb" | "network" | "control" | "power" | "other" {
@@ -525,25 +627,35 @@ function requiredCoverage(input: {
 }
 
 function deriveSpecs(ports: TechnicalPort[], text: string): CompareSpecFacts {
+  const physicalPorts = wmDedupeTechnicalPorts(ports);
+
   const count = (
     category: ReturnType<typeof classifyPort>,
     direction?: "input" | "output",
     matcher?: RegExp,
+    reject?: (port: TechnicalPort) => boolean,
   ): number | undefined => {
-    const total = ports
+    const total = physicalPorts
       .filter((port) => classifyPort(port) === category)
+      .filter((port) => category !== "usb" || wmIsExplicitUsbConnector(port))
       .filter((port) => !direction || asText(port.direction).toLowerCase() === direction)
-      .filter((port) => !matcher || matcher.test([port.connector, port.detail, port.evidence].map(asText).join(" ").toLowerCase()))
+      .filter((port) => !matcher || matcher.test(wmPortText(port)))
+      .filter((port) => !reject || !reject(port))
       .reduce((sum, port) => sum + (Number(port.count) || 1), 0);
+
     return total > 0 ? total : undefined;
   };
 
+  const usbStandardMatch = text.match(/\busb\s*(1\.1|2\.0|3(?:\.0|\.1|\.2)?|4(?:\.0)?)\b/i);
   const specs: CompareSpecFacts = {
     hdmiInputs: count("video", "input", /\bhdmi\b/),
-    hdmiOutputs: count("video", "output", /\bhdmi\b/),
-    usbHostPorts: count("usb", undefined, /\bhost\b/),
-    usbDevicePorts: count("usb", undefined, /\bdevice|peripheral|client\b/),
+    hdmiOutputs: count("video", "output", /\bhdmi\b/, wmIsNonRoutedVideoOutput),
+    hdmiLoopOutputs: count("video", "output", /\bhdmi\b/, (port) => !wmIsNonRoutedVideoOutput(port)),
+    usbHostPorts: count("usb", undefined, /\bhost\b|\bupstream\b/),
+    usbDevicePorts: count("usb", undefined, /\bdevice\b|\bperipheral\b|\bclient\b|\bdownstream\b/),
     usbTotalPorts: count("usb"),
+    usbCPorts: count("usb", undefined, /usb\s*(?:type\s*)?[- ]?c\b|usb-c\b/),
+    usbStandard: usbStandardMatch ? `USB ${usbStandardMatch[1]}` : undefined,
     audioInputs: count("audio", "input"),
     audioOutputs: count("audio", "output"),
     networkPorts: count("network"),

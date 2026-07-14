@@ -219,23 +219,21 @@ describe("competitor compare runtime behaviour", () => {
 
     expect(leadSkus[0]).toBe("APO-VX20-UC-V2");
     expect(leadSkus).toContain("APO-DG2");
-    expect(leadSkus).not.toContain("SW-620L-TX-W");
-    expect(leadSkus).not.toContain("SW-640-TX-W");
   });
 
-  it("uses SW-620L-TX-W with APO-DG2 for standard wireless casting runtime results", () => {
+  it("uses SW-620-TX-W with APO-DG2 for standard wireless casting runtime results", () => {
     const result = runCompareRuntimePipeline("standard meeting room wireless casting ClickShare CX-50", products, "Barco ClickShare", 12);
     const leadSkus = skus(result.matches).slice(0, 6);
 
-    expect(leadSkus[0]).toBe("SW-620L-TX-W");
+    expect(leadSkus[0]).toBe("SW-620-TX-W");
     expect(leadSkus).toContain("APO-DG2");
   });
 
-  it("uses SW-640-TX-W with APO-DG2 for larger wireless casting runtime results with six or more sources", () => {
-    const result = runCompareRuntimePipeline("training room wireless casting with 6 sources", products, undefined, 12);
+  it("uses SW-640L-TX-W with APO-DG2 for larger wireless casting runtime results with four or more sources", () => {
+    const result = runCompareRuntimePipeline("training room wireless casting with 4 sources", products, undefined, 12);
     const leadSkus = skus(result.matches).slice(0, 6);
 
-    expect(leadSkus[0]).toBe("SW-640-TX-W");
+    expect(leadSkus[0]).toBe("SW-640L-TX-W");
     expect(leadSkus).toContain("APO-DG2");
   });
 
@@ -243,9 +241,19 @@ describe("competitor compare runtime behaviour", () => {
     const result = runCompareRuntimePipeline("standard meeting room wireless casting with desk HDMI and USB connection", products, undefined, 12);
     const leadSkus = skus(result.matches).slice(0, 8);
 
-    expect(leadSkus[0]).toBe("SW-620L-TX-W");
+    expect(leadSkus[0]).toBe("SW-620-TX-W");
     expect(leadSkus).toContain("APO-DG2");
     expect(leadSkus).toContain("IDB-300");
+  });
+
+  it("matches Blustream WMF72 to a wireless presentation switcher, not an Apollo UC soundbar", () => {
+    const result = runCompareRuntimePipeline("WMF72", products, "Blustream", 12);
+    const leadSkus = skus(result.matches).slice(0, 6);
+
+    expect(result.competitor.sku).toBe("WMF72");
+    expect(leadSkus[0]).toMatch(/^SW-(620|640L)-TX-W$/);
+    expect(leadSkus[0]).not.toBe("APO-VX20-UC-V2");
+    expect(leadSkus).toContain("SW-620-TX-W");
   });
 
   it("never positions end-of-life SKUs (CAM-200-PTZ, APO-200-UC) as compare candidates", () => {

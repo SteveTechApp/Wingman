@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "updatedAt": "2026-07-11",
+  "version": 2,
+  "updatedAt": "2026-07-14",
   "policy": {
     "purpose": "Source-controlled, reviewed WyreStorm technical facts shared by Product Pitch, Compare, Finder and proposal workflows.",
     "precedence": [
@@ -54,7 +54,7 @@
       "dependencies": [
         "A compatible WyreStorm receiver/base device is mandatory",
         "Compatible host examples include APO-VX20-UC-V2 and supported -W presentation switchers",
-        "Supported -W examples include SW-620L-TX-W and SW-640-TX-W"
+        "Supported -W examples include SW-620-TX-W and SW-640L-TX-W"
       ],
       "compatibleFamilies": [
         "Apollo",
@@ -618,6 +618,374 @@
           "reviewedOn": "2026-07-11",
           "reviewer": "Wingman technical data foundation",
           "note": "Official product page technical specification section."
+        }
+      ]
+    },
+    {
+      "sku": "NHD-500-TX",
+      "status": "verified",
+      "productClass": "AVOIP",
+      "role": "encoder",
+      "productType": "NetworkHD 500 source-side encoder",
+      "transport": [
+        "NetworkHD 500",
+        "1GbE",
+        "JPEG2000",
+        "multicast IP"
+      ],
+      "maxResolution": "3840x2160p @ 60Hz",
+      "chroma": "4:4:4",
+      "inputCount": 1,
+      "outputCount": 1,
+      "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI Type A",
+          "direction": "input",
+          "category": "video",
+          "detail": "HDMI 2.0b source input"
+        },
+        {
+          "count": 1,
+          "connector": "5-pin Phoenix",
+          "direction": "input",
+          "category": "audio",
+          "detail": "Balanced analogue audio input"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI Type A",
+          "direction": "output",
+          "category": "video",
+          "detail": "HDMI 2.0b local loop output; non-routed"
+        },
+        {
+          "count": 1,
+          "connector": "5-pin Phoenix",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Balanced analogue audio output"
+        },
+        {
+          "count": 1,
+          "connector": "Toslink",
+          "direction": "output",
+          "category": "audio",
+          "detail": "S/PDIF digital audio output"
+        },
+        {
+          "count": 1,
+          "connector": "RJ-45",
+          "direction": "output",
+          "category": "network",
+          "detail": "1GbE AV network connection"
+        },
+        {
+          "count": 1,
+          "connector": "SFP",
+          "direction": "output",
+          "category": "network",
+          "detail": "1Gb optical AV network connection"
+        },
+        {
+          "count": 1,
+          "connector": "USB 2.0 Type B",
+          "direction": "input",
+          "category": "usb",
+          "detail": "Host-computer USB connection"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin Phoenix",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232"
+        },
+        {
+          "count": 1,
+          "connector": "3.5mm TS",
+          "direction": "output",
+          "category": "control",
+          "detail": "IR TX"
+        },
+        {
+          "count": 1,
+          "connector": "3.5mm TRS",
+          "direction": "input",
+          "category": "control",
+          "detail": "IR RX"
+        },
+        {
+          "count": 1,
+          "connector": "12V DC",
+          "direction": "input",
+          "category": "power",
+          "detail": "Local PSU alternative to PoE"
+        }
+      ],
+      "video": [
+        "1 x HDMI 2.0b source input",
+        "1 x local HDMI 2.0b loop output; non-routed",
+        "Maximum 3840x2160p @ 60Hz, 4:4:4"
+      ],
+      "audio": [
+        "1 x balanced analogue audio input",
+        "1 x balanced analogue audio output",
+        "1 x Toslink S/PDIF digital audio output"
+      ],
+      "usb": [
+        "1 x USB 2.0 Type-B host-computer connection"
+      ],
+      "network": [
+        "1 x RJ-45 1GbE AV network connection",
+        "1 x SFP 1Gb optical AV network connection"
+      ],
+      "control": [
+        "1 x RS-232",
+        "1 x IR TX",
+        "1 x IR RX"
+      ],
+      "power": [
+        "12V DC local PSU alternative",
+        "Confirm PoE support from current product documentation"
+      ],
+      "physical": [
+        "The HDMI loop output is local and is not an independently routed NetworkHD destination"
+      ],
+      "dependencies": [
+        "NHD-CTL-PRO or current compatible NetworkHD controller",
+        "Compatible NetworkHD 500 decoder(s)",
+        "Managed 1GbE multicast network designed for NetworkHD"
+      ],
+      "compatibleFamilies": [
+        "NetworkHD 500"
+      ],
+      "features": {
+        "audioDeEmbed": true,
+        "control": true,
+        "localLoopOutput": true,
+        "usbRouting": true
+      },
+      "specs": {
+        "hdmiInputs": 1,
+        "hdmiOutputs": 1,
+        "hdmiLoopOutputs": 1,
+        "usbHostPorts": 1,
+        "usbDevicePorts": 0,
+        "usbTotalPorts": 1,
+        "usbStandard": "USB 2.0",
+        "audioInputs": 1,
+        "audioOutputs": 2,
+        "networkPorts": 2,
+        "controlPorts": 3,
+        "networkSpeed": "1GbE",
+        "rs232": true,
+        "ir": true,
+        "analogAudio": true,
+        "audioDeEmbed": true,
+        "externalPsu": true,
+        "powerSupply": "12V DC or supported network power"
+      },
+      "checks": [
+        "Count one routed source input and one routed NetworkHD stream output.",
+        "Show the HDMI loop output separately as local and non-routed.",
+        "Count one physical USB 2.0 Type-B host connection.",
+        "Do not turn USB hub tiers, device limits or endpoint limits into additional USB ports."
+      ],
+      "warnings": [
+        "The physical HDMI loop output must not increase routed output count."
+      ],
+      "evidence": [
+        {
+          "sourceType": "central-avoip-governance-registry",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/",
+          "reviewedOn": "2026-07-14",
+          "reviewer": "Wingman port-count recovery",
+          "note": "Exact NHD-500-TX port topology mirrored from data/governance/avoip-technology-registry.json."
+        }
+      ]
+    },
+    {
+      "sku": "NHD-500-TX-V2",
+      "status": "verified",
+      "productClass": "AVOIP",
+      "role": "encoder",
+      "productType": "NetworkHD 500 source-side encoder, v2 alias",
+      "transport": [
+        "NetworkHD 500",
+        "1GbE",
+        "JPEG2000",
+        "multicast IP"
+      ],
+      "maxResolution": "3840x2160p @ 60Hz",
+      "chroma": "4:4:4",
+      "inputCount": 1,
+      "outputCount": 1,
+      "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI Type A",
+          "direction": "input",
+          "category": "video",
+          "detail": "HDMI 2.0b source input"
+        },
+        {
+          "count": 1,
+          "connector": "5-pin Phoenix",
+          "direction": "input",
+          "category": "audio",
+          "detail": "Balanced analogue audio input"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI Type A",
+          "direction": "output",
+          "category": "video",
+          "detail": "HDMI 2.0b local loop output; non-routed"
+        },
+        {
+          "count": 1,
+          "connector": "5-pin Phoenix",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Balanced analogue audio output"
+        },
+        {
+          "count": 1,
+          "connector": "Toslink",
+          "direction": "output",
+          "category": "audio",
+          "detail": "S/PDIF digital audio output"
+        },
+        {
+          "count": 1,
+          "connector": "RJ-45",
+          "direction": "output",
+          "category": "network",
+          "detail": "1GbE AV network connection"
+        },
+        {
+          "count": 1,
+          "connector": "SFP",
+          "direction": "output",
+          "category": "network",
+          "detail": "1Gb optical AV network connection"
+        },
+        {
+          "count": 1,
+          "connector": "USB 2.0 Type B",
+          "direction": "input",
+          "category": "usb",
+          "detail": "Host-computer USB connection"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin Phoenix",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232"
+        },
+        {
+          "count": 1,
+          "connector": "3.5mm TS",
+          "direction": "output",
+          "category": "control",
+          "detail": "IR TX"
+        },
+        {
+          "count": 1,
+          "connector": "3.5mm TRS",
+          "direction": "input",
+          "category": "control",
+          "detail": "IR RX"
+        },
+        {
+          "count": 1,
+          "connector": "12V DC",
+          "direction": "input",
+          "category": "power",
+          "detail": "Local PSU alternative to PoE"
+        }
+      ],
+      "video": [
+        "1 x HDMI 2.0b source input",
+        "1 x local HDMI 2.0b loop output; non-routed",
+        "Maximum 3840x2160p @ 60Hz, 4:4:4"
+      ],
+      "audio": [
+        "1 x balanced analogue audio input",
+        "1 x balanced analogue audio output",
+        "1 x Toslink S/PDIF digital audio output"
+      ],
+      "usb": [
+        "1 x USB 2.0 Type-B host-computer connection"
+      ],
+      "network": [
+        "1 x RJ-45 1GbE AV network connection",
+        "1 x SFP 1Gb optical AV network connection"
+      ],
+      "control": [
+        "1 x RS-232",
+        "1 x IR TX",
+        "1 x IR RX"
+      ],
+      "power": [
+        "12V DC local PSU alternative",
+        "Confirm PoE support from current product documentation"
+      ],
+      "physical": [
+        "The HDMI loop output is local and is not an independently routed NetworkHD destination"
+      ],
+      "dependencies": [
+        "NHD-CTL-PRO or current compatible NetworkHD controller",
+        "Compatible NetworkHD 500 decoder(s)",
+        "Managed 1GbE multicast network designed for NetworkHD"
+      ],
+      "compatibleFamilies": [
+        "NetworkHD 500"
+      ],
+      "features": {
+        "audioDeEmbed": true,
+        "control": true,
+        "localLoopOutput": true,
+        "usbRouting": true
+      },
+      "specs": {
+        "hdmiInputs": 1,
+        "hdmiOutputs": 1,
+        "hdmiLoopOutputs": 1,
+        "usbHostPorts": 1,
+        "usbDevicePorts": 0,
+        "usbTotalPorts": 1,
+        "usbStandard": "USB 2.0",
+        "audioInputs": 1,
+        "audioOutputs": 2,
+        "networkPorts": 2,
+        "controlPorts": 3,
+        "networkSpeed": "1GbE",
+        "rs232": true,
+        "ir": true,
+        "analogAudio": true,
+        "audioDeEmbed": true,
+        "externalPsu": true,
+        "powerSupply": "12V DC or supported network power"
+      },
+      "checks": [
+        "Count one routed source input and one routed NetworkHD stream output.",
+        "Show the HDMI loop output separately as local and non-routed.",
+        "Count one physical USB 2.0 Type-B host connection.",
+        "Do not turn USB hub tiers, device limits or endpoint limits into additional USB ports."
+      ],
+      "warnings": [
+        "The physical HDMI loop output must not increase routed output count."
+      ],
+      "evidence": [
+        {
+          "sourceType": "central-avoip-governance-registry",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/",
+          "reviewedOn": "2026-07-14",
+          "reviewer": "Wingman port-count recovery",
+          "note": "Exact NHD-500-TX port topology mirrored from data/governance/avoip-technology-registry.json."
         }
       ]
     }

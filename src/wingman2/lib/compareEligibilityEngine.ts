@@ -99,6 +99,18 @@ function skuKey(value: unknown): string {
   return String(value ?? "").toUpperCase().replace(/[^A-Z0-9]+/g, "");
 }
 
+const DISPLAY_SKU_LOOKUP_ALIASES: Record<string, readonly string[]> = {
+  SW620LTXW: ["SW620TXW"],
+  SW620TXW: ["SW620LTXW"],
+  SW640TXW: ["SW640LTXW"],
+  SW640LTXW: ["SW640TXW"],
+};
+
+function skuLookupKeys(value: unknown): string[] {
+  const key = skuKey(value);
+  return key ? Array.from(new Set([key, ...(DISPLAY_SKU_LOOKUP_ALIASES[key] ?? [])])) : [];
+}
+
 function getSku(value: LooseRecord): string {
   return String(value?.sku ?? value?.wyrestorm?.sku ?? value?.model ?? value?.partNumber ?? value?.title ?? "");
 }
@@ -140,13 +152,13 @@ function productNameFromRecord(product: LooseRecord): string {
 }
 
 function findProductBySku(products: LooseRecord[], sku: string): LooseRecord | undefined {
-  const wanted = skuKey(sku);
+  const wanted = skuLookupKeys(sku);
 
-  if (!wanted) {
+  if (wanted.length === 0) {
     return undefined;
   }
 
-  return products.find((product) => skuKey(product?.sku ?? product?.model ?? product?.partNumber) === wanted);
+  return products.find((product) => wanted.includes(skuKey(product?.sku ?? product?.model ?? product?.partNumber)));
 }
 
 function _hasSku(products: LooseRecord[], sku: string): boolean {
@@ -157,8 +169,8 @@ function _productLooksLike(product: LooseRecord, pattern: RegExp): boolean {
   return pattern.test(`${getSku(product)} ${productText(product)}`);
 }
 
-function makeEligibilityCandidateFromProduct(product: LooseRecord, reason: string, confidence = 72): LooseMatch {
-  const sku = String(product.sku ?? product.model ?? product.partNumber ?? "");
+function makeEligibilityCandidateFromProduct(product: LooseRecord, reason: string, confidence = 72, displaySku?: string): LooseMatch {
+  const sku = String(displaySku || product.sku || product.model || product.partNumber || "");
   const name = productNameFromRecord(product) || sku;
 
   return {
@@ -187,12 +199,15 @@ function makeEligibilityCandidateFromProduct(product: LooseRecord, reason: strin
 
 function addCandidateBySku(matches: LooseMatch[], products: LooseRecord[], sku: string, reason: string, confidence = 72): void {
   const wanted = skuKey(sku);
+  const wantedKeys = skuLookupKeys(sku);
 
   if (!wanted) {
     return;
   }
 
-  if (matches.some((match) => skuKey(getSku(match)) === wanted)) {
+  const existingMatch = matches.find((match) => wantedKeys.includes(skuKey(getSku(match))));
+  if (existingMatch) {
+    existingMatch.sku = sku;
     return;
   }
 
@@ -202,7 +217,7 @@ function addCandidateBySku(matches: LooseMatch[], products: LooseRecord[], sku: 
     return;
   }
 
-  matches.push(makeEligibilityCandidateFromProduct(product, reason, confidence));
+  matches.push(makeEligibilityCandidateFromProduct(product, reason, confidence, sku));
 }
 
 function addCandidatesByPredicate(
@@ -324,14 +339,23 @@ function intentFromResolvedDomain(resultOrInput: unknown): CompareIntentKind | n
   }
 
   const domain = String((resultOrInput as LooseRecord).domain ?? "").toUpperCase();
+  const roleText = normalise([
+    (resultOrInput as LooseRecord).role,
+    (resultOrInput as LooseRecord).title,
+    (resultOrInput as LooseRecord).summary,
+    (resultOrInput as LooseRecord).technology,
+  ]);
 
   switch (domain) {
     case "NDI_CAMERA":
       return "ndi-camera";
     case "PTZ_CAMERA":
       return "ptz-camera";
-    case "WIRELESS_CASTING":
     case "WIRELESS_PRESENTATION":
+      return /\b(switcher|collaboration appliance|room switch)\b/i.test(roleText)
+        ? "presentation-switcher"
+        : "wireless-casting";
+    case "WIRELESS_CASTING":
       return "wireless-casting";
     case "DISTRIBUTION":
       return "distribution-amplifier";
@@ -527,7 +551,7 @@ function invalidLeadReasonForIntent(supportOnlyReason: string | null, intent: Co
     return null;
   }
 
-  if ((intent === "wireless-casting" || intent === "uc-byod" || intent === "usb-audio") && supportOnlyReason.startsWith("UC/audio")) {
+  if ((intent === "uc-byod" || intent === "usb-audio") && supportOnlyReason.startsWith("UC/audio")) {
     return null;
   }
 
@@ -628,9 +652,10 @@ export function evaluateProductEligibility(args: {
   }
 
   const supportOnlyReason = productIsSupportOnly(sku, combined);
+  const isApolloUcHardware = /^APO(?:100|200|210|VX20)UC/.test(key);
   const isRoleMatchedPrimaryProduct =
     ((args.intent === "ndi-camera" || args.intent === "ptz-camera") && /^CAM/.test(key)) ||
-    ((args.intent === "wireless-casting" || args.intent === "uc-byod" || args.intent === "usb-audio") && /^APO/.test(key));
+    ((args.intent === "uc-byod" || args.intent === "usb-audio") && isApolloUcHardware);
   const invalidLeadReason = isRoleMatchedPrimaryProduct
     ? null
     : invalidLeadReasonForIntent(supportOnlyReason, args.intent);
@@ -751,7 +776,24 @@ export function evaluateProductEligibility(args: {
   }
 
   if (args.intent === "presentation-switcher" || args.intent === "uc-byod") {
-    if (/^SW|^MX|^APO(?:100|200|210|VX20)UC/.test(key) || /\b(presentation|switcher|usb-c|byod|byom|unified communications?|video bar)\b/i.test(combined)) {
+    const competitorNeedsUcHardware = /\b(byom|teams|zoom|unified\s*communications?|uc\s*room|video\s*bar|conference\s*(bar|room|system)|speakerphone)\b/i.test(args.competitorText);
+    const wirelessPresentationSwitcher = /^SW/.test(key) && /\b(wireless|casting|miracast|airplay|chromecast|presentation|switcher|byod|byom)\b/i.test(combined);
+
+    if (wirelessPresentationSwitcher) {
+      const size = extractMatrixSizeFromText(args.competitorText);
+      const prefersCompactSwitcher = Boolean(size.inputs && size.inputs <= 2);
+      const prefersLargerSwitcher = Boolean(size.inputs && size.inputs >= 4);
+      const is620 = key === "SW620TXW" || key === "SW620LTXW";
+      const is640 = key === "SW640LTXW" || key === "SW640TXW";
+      const fitPenalty = (prefersCompactSwitcher && is620) || (prefersLargerSwitcher && is640) ? -110 : -90;
+      return direct(args.intent, ["Wireless presentation switcher candidate."], fitPenalty);
+    }
+
+    if (args.intent === "presentation-switcher" && isApolloUcHardware && !competitorNeedsUcHardware) {
+      return alternative(args.intent, ["Apollo UC hardware is a conferencing-room alternative, not the lead wireless presentation switcher match."], 45);
+    }
+
+    if (/^SW|^MX/.test(key) || (args.intent === "uc-byod" && isApolloUcHardware) || /\b(presentation|switcher|usb-c|byod|byom|unified communications?|video bar)\b/i.test(combined)) {
       return direct(args.intent, ["Presentation/switching candidate for meeting-room workflow."], 0);
     }
 
@@ -803,8 +845,12 @@ export function evaluateProductEligibility(args: {
       return blocked(sku, args.intent, ["This is a wireless presentation workflow, not an AVoIP endpoint comparison. Do not lead with NetworkHD here."]);
     }
 
+    if (/^SW/.test(key) && /\b(wireless|casting|miracast|airplay|chromecast|presentation)\b/i.test(combined)) {
+      return direct(args.intent, ["Wireless presentation switcher candidate."], -90);
+    }
+
     if (/\b(apollo|wireless|casting|miracast|airplay|chromecast)\b/i.test(combined) || /^APO/.test(key)) {
-      return direct(args.intent, ["Wireless casting or collaboration candidate."], /^APO/.test(key) ? -100 : 0);
+      return direct(args.intent, ["Wireless casting or collaboration candidate."], /^APOVX20UC/.test(key) ? 15 : 45);
     }
 
     return related(args.intent, ["No confirmed wireless casting capability."], 75);
@@ -951,8 +997,8 @@ function ensureEligibilityCandidatePool(
   if (intent === "presentation-switcher" || intent === "uc-byod") {
     addCandidateBySku(nextMatches, products, "MX-0402-MST", "Eligibility correction: presentation switcher candidate inserted for compact meeting-room switching workflow.", 86);
     addCandidateBySku(nextMatches, products, "MX-0403-H3-MST", "Eligibility correction: presentation switcher candidate inserted for presentation rooms that also need a stronger room-core output path.", 84);
-    addCandidateBySku(nextMatches, products, "SW-640L-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for BYOD/BYOM workflow.", 84);
-    addCandidateBySku(nextMatches, products, "SW-620L-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for meeting-room collaboration workflow.", 82);
+    addCandidateBySku(nextMatches, products, "SW-620-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for meeting-room collaboration workflow.", 84);
+    addCandidateBySku(nextMatches, products, "SW-640L-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for BYOD/BYOM workflow.", 82);
     addCandidateBySku(nextMatches, products, "APO-VX20-UC-V2", "Eligibility correction: UC room hardware candidate inserted for conferencing workflow comparison.", 78);
   }
 
@@ -1002,8 +1048,10 @@ function ensureEligibilityCandidatePool(
   }
 
   if (intent === "wireless-casting") {
-    addCandidateBySku(nextMatches, products, "APO-VX20-UC-V2", "Eligibility correction: current Apollo collaboration product inserted for wireless casting comparison.", 88);
-    addCandidateBySku(nextMatches, products, "APO-DG2", "Eligibility correction: Apollo wireless presentation product inserted for casting comparison.", 86);
+    addCandidateBySku(nextMatches, products, "SW-620-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for wireless casting comparison.", 88);
+    addCandidateBySku(nextMatches, products, "SW-640L-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for multi-source wireless presentation comparison.", 86);
+    addCandidateBySku(nextMatches, products, "APO-DG2", "Eligibility correction: Apollo wireless presentation accessory inserted for casting comparison.", 72);
+    addCandidateBySku(nextMatches, products, "APO-VX20-UC-V2", "Eligibility correction: Apollo collaboration product retained as a UC-room alternative, not the default switcher match.", 70);
     addCandidatesByPredicate(
       nextMatches,
       products,
