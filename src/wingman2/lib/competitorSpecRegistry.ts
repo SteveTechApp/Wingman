@@ -310,6 +310,93 @@ function parseFirstMatch(text: string, patterns: RegExp[], formatter?: (value: s
   return undefined;
 }
 
+function detectAvoipCodec(text: string): string | undefined {
+  const value = text.toLowerCase();
+
+  if (/\bsdvoe\b/.test(value)) return "SDVoE";
+  if (/\bjpeg\s*-?\s*2000\b|\bjpeg2000\b/.test(value)) return "JPEG2000";
+  if (/\bjpeg\s*-?\s*xs\b|\bjpegxs\b/.test(value)) return "JPEG XS";
+  if (/\bh\.?265\b|\bhevc\b/.test(value)) return "H.265";
+  if (/\bh\.?264\b|\bavc\b/.test(value)) return "H.264";
+
+  return undefined;
+}
+
+function explicitAvoipNetworkSpeed(text: string): { speed: "1GbE" | "10GbE"; evidence: string } | null {
+  const value = text.toLowerCase();
+
+  if (
+    /\b10\s*g(?:be|bit ethernet|igabit ethernet)\b|\b10gbe\b|\b10-gigabit ethernet\b|\b10\s*gb(?:e|ps)?\s+(?:managed\s+)?network\b/.test(value)
+  ) {
+    return { speed: "10GbE", evidence: "Explicit 10GbE manufacturer/network statement." };
+  }
+
+  if (
+    /\b1\s*g(?:be|bit ethernet|igabit ethernet)\b|\b1gbe\b|\bgigabit ethernet\b|\b1000base(?:-t|x)?\b|\b1\s*gb(?:e|ps)?\s+(?:managed\s+)?network\b|\bover\s+(?:a\s+)?(?:managed\s+)?1\s*gb(?:e|ps)?\s+network\b/.test(value)
+  ) {
+    return { speed: "1GbE", evidence: "Explicit 1GbE manufacturer/network statement." };
+  }
+
+  return null;
+}
+
+function finaliseAvoipNetworkFacts(
+  specs: CompareSpecFacts,
+  text: string,
+  isAvoip: boolean,
+): CompareSpecFacts {
+  const output: CompareSpecFacts = { ...specs };
+  const codec = output.avoipCodec || detectAvoipCodec(text);
+  const ipmx = /\bipmx\b/i.test(text);
+
+  if (codec) output.avoipCodec = codec;
+
+  if (output.networkSpeed) {
+    output.networkSpeedConfidence = output.networkSpeedConfidence || "confirmed";
+    output.networkSpeedEvidence =
+      output.networkSpeedEvidence || "Structured manufacturer or governed product-family network value.";
+    return output;
+  }
+
+  const explicit = explicitAvoipNetworkSpeed(text);
+  if (explicit) {
+    output.networkSpeed = explicit.speed;
+    output.networkSpeedConfidence = "confirmed";
+    output.networkSpeedEvidence = explicit.evidence;
+    return output;
+  }
+
+  if (!isAvoip && !codec && !ipmx) {
+    return output;
+  }
+
+  if (ipmx) {
+    output.networkSpeedConfidence = "verify";
+    output.networkSpeedEvidence =
+      "IPMX can use 1GbE, 10GbE or higher-rate network infrastructure; confirm the product specification.";
+    return output;
+  }
+
+  if (codec === "SDVoE") {
+    output.networkSpeed = "10GbE";
+    output.networkSpeedConfidence = "inferred";
+    output.networkSpeedEvidence = "Inferred from SDVoE; confirm where the manufacturer does not state network speed.";
+    return output;
+  }
+
+  if (codec && ["JPEG2000", "JPEG XS", "H.264", "H.265"].includes(codec)) {
+    output.networkSpeed = "1GbE";
+    output.networkSpeedConfidence = "inferred";
+    output.networkSpeedEvidence = `Inferred from ${codec}; confirm where the manufacturer does not state network speed.`;
+    return output;
+  }
+
+  output.networkSpeedConfidence = "verify";
+  output.networkSpeedEvidence =
+    "AVoIP product identified, but neither an explicit network speed nor a safe codec-based inference is available.";
+  return output;
+}
+
 export function parseFeatures(text: string): Record<string, boolean> {
   const value = text.toLowerCase();
   const features: Record<string, boolean> = {};
@@ -434,7 +521,18 @@ export function parseSpecFacts(text: string, inputCount?: number, outputCount?: 
   else if (specs.externalPsu) specs.powerSupply = "External PSU";
   else if (specs.internalPsu) specs.powerSupply = "Internal PSU";
 
-  return Object.fromEntries(Object.entries(specs).filter(([, item]) => item !== undefined)) as CompareSpecFacts;
+  const cleanedSpecs = Object.fromEntries(
+    Object.entries(specs).filter(([, item]) => item !== undefined),
+  ) as CompareSpecFacts;
+
+  return finaliseAvoipNetworkFacts(
+    cleanedSpecs,
+    value,
+    Boolean(
+      detectAvoipCodec(value) ||
+      /\bav[\s-]?over[\s-]?ip\b|\bavoip\b|\bsdvoe\b|\bipmx\b/.test(value)
+    ),
+  );
 }
 
 const SPEC_FACT_INPUT_FIELDS: Array<keyof CompareSpecFacts> = [
@@ -487,20 +585,26 @@ function sourceProductDomain(product: CompetitorSourceProduct): CompetitorTechno
 }
 
 function specsFromSourceProduct(product: CompetitorSourceProduct): CompareSpecFacts {
-  return {
-    ...parseSpecFacts([product.summary, ...product.evidence].join(" "), product.inputCount, product.outputCount, product.features),
-    hdmiInputs: product.inputCount,
-    hdmiOutputs: product.outputCount,
-    dante: product.features.dante,
-    aes67: product.features.aes67,
-    audioDeEmbed: product.features.audioDeEmbed,
-    audioEmbed: product.features.audioEmbed,
-    poc: product.features.poc,
-    poe: product.features.poe,
-    poh: product.features.poh,
-    rs232: product.features.irRs232,
-    controlPorts: product.features.control ? 1 : undefined,
-  };
+  const sourceText = [product.summary, ...product.evidence].join(" ");
+
+  return finaliseAvoipNetworkFacts(
+    {
+      ...parseSpecFacts(sourceText, product.inputCount, product.outputCount, product.features),
+      hdmiInputs: product.inputCount,
+      hdmiOutputs: product.outputCount,
+      dante: product.features.dante,
+      aes67: product.features.aes67,
+      audioDeEmbed: product.features.audioDeEmbed,
+      audioEmbed: product.features.audioEmbed,
+      poc: product.features.poc,
+      poe: product.features.poe,
+      poh: product.features.poh,
+      rs232: product.features.irRs232,
+      controlPorts: product.features.control ? 1 : undefined,
+    },
+    sourceText,
+    product.domain === "AVOIP",
+  );
 }
 
 /* ------------------------------------------------------------------------- *
@@ -645,10 +749,14 @@ function catalogEntryToFingerprint(entry: CatalogEntry): Fingerprint | null {
   if (/usb-?c/i.test(portTypes)) features.usbC = true;
   if (/usb (host|device)/i.test(portTypes)) features.usbRouting = true;
 
-  const specs: CompareSpecFacts = {
-    ...parseSpecFacts(blob, inputCount, outputCount, features),
-    ...(entry.specs && typeof entry.specs === "object" ? entry.specs : {}),
-  };
+  const specs = finaliseAvoipNetworkFacts(
+    {
+      ...parseSpecFacts(blob, inputCount, outputCount, features),
+      ...(entry.specs && typeof entry.specs === "object" ? entry.specs : {}),
+    },
+    blob,
+    domain === "AVOIP",
+  );
   const hdmiIn = countCatalogPorts(entry.inputs, /hdmi/i);
   const hdmiOut = countCatalogPorts(entry.outputs, /hdmi/i);
   if (hdmiIn) specs.hdmiInputs = hdmiIn;

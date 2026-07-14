@@ -60,7 +60,7 @@ describe("template workflow wiring", () => {
     const savedTemplate = saveRoomTemplateCopy(roomTemplates[0]);
     renderTemplateRoutes();
 
-    expect(screen.getByText(`${roomTemplates.length + 1} total, 1 custom.`)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: `${roomTemplates.length + 1} templates` })).toBeInTheDocument();
 
     const card = screen.getByRole("heading", { name: savedTemplate.name }).closest("article");
     expect(card).not.toBeNull();

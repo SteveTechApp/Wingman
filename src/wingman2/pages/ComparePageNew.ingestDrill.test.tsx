@@ -14,7 +14,6 @@ it("opens a single-SKU Compare drill-down from document ingest query parameters"
     </MemoryRouter>,
   );
 
-  expect(await screen.findByText("Competitor matched against")).not.toBeNull();
+  expect(await screen.findByLabelText(/Main WyreStorm match: SP-0108-SCL/i)).not.toBeNull();
   expect(screen.getAllByText(/Blustream SP18CS/i).length).toBeGreaterThan(0);
-  expect(screen.getByLabelText(/Main WyreStorm match: SP-0108-SCL/i)).not.toBeNull();
 });
