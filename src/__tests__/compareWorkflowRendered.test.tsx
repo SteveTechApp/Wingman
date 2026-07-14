@@ -34,6 +34,31 @@ function runKnownCompare(brand: string, sku: string) {
   fireEvent.click(screen.getByRole("button", { name: sku }));
 }
 
+function openTechnicalComparisonDetails() {
+  const summary = screen.getByText("Technical comparison details");
+  const details = summary.closest("details") as HTMLDetailsElement | null;
+
+  if (details && !details.open) {
+    fireEvent.click(summary);
+  }
+}
+
+async function findMainCompareResult(): Promise<HTMLElement> {
+  return screen.findByLabelText(/Main WyreStorm match:/i);
+}
+
+function getMainCompareProductSection(
+  label: "Competitor" | "WyreStorm direction",
+): HTMLElement | null {
+  const result = screen.getByLabelText(/Main WyreStorm match:/i);
+
+  return within(result)
+    .getByText(label, {
+      selector: ".compare-compact-result__product > span",
+    })
+    .closest("section");
+}
+
 function runCustomTextCompare(brand: string, description: string) {
   const visibleBrandButton = screen.queryByRole("button", { name: brand });
 
@@ -49,7 +74,7 @@ function runCustomTextCompare(brand: string, description: string) {
 
   fireEvent.click(screen.getByRole("button", { name: brand }));
 
-  const skuInput = screen.getByLabelText(/competitor sku/i);
+  const skuInput = screen.getByRole("textbox", { name: /^Competitor SKU$/i });
   fireEvent.change(skuInput, { target: { value: description } });
 
   const reviewButton = screen
@@ -79,7 +104,7 @@ describe("Compare rendered workflow", () => {
     expect(screen.getByRole("heading", { name: "Compare competitor products" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Choose competitor brand" })).toBeInTheDocument();
     expect(screen.getByText("Current step")).toBeInTheDocument();
-    expect(screen.getByText("Up next")).toBeInTheDocument();
+    expect(screen.getByText("Next")).toBeInTheDocument();
     expect(screen.getByText("Available after selection")).toBeInTheDocument();
 
     const stepGuidance = screen.getByText("Why this step matters").closest("details") as HTMLDetailsElement | null;
@@ -113,9 +138,9 @@ describe("Compare rendered workflow", () => {
     expect(screen.getByRole("button", { name: "Studio E70" })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Studio R30" }));
-    await screen.findByText("Competitor matched against");
+    await findMainCompareResult();
 
-    const wyrestormSection = screen.getByText("Suggested WyreStorm direction").closest("section");
+    const wyrestormSection = getMainCompareProductSection("WyreStorm direction");
     expect(wyrestormSection).not.toBeNull();
     expect(within(wyrestormSection as HTMLElement).getByText("APO-VX20-UC-V2")).toBeInTheDocument();
   });
@@ -125,10 +150,10 @@ describe("Compare rendered workflow", () => {
 
     runKnownCompare("Crestron", "DM-NVX-350");
 
-    await screen.findByText("Competitor matched against");
+    await findMainCompareResult();
 
     const addToProjectButton = screen.getByRole("button", { name: /Add to project/i });
-    const pitchLink = screen.getByRole("link", { name: /See full pitch/i });
+    const pitchLink = screen.getByRole("link", { name: /Product details/i });
 
     fireEvent.click(addToProjectButton);
 
@@ -154,9 +179,11 @@ describe("Compare rendered workflow", () => {
 
     runKnownCompare("Blustream", "IP350UHD-TX");
 
+    openTechnicalComparisonDetails();
+
     const matrix = await screen.findByRole("table", { name: /competitor versus wyrestorm comparison matrix/i });
-    const competitorSection = screen.getByText("Competitor matched against").closest("section");
-    const wyrestormSection = screen.getByText("Suggested WyreStorm direction").closest("section");
+    const competitorSection = getMainCompareProductSection("Competitor");
+    const wyrestormSection = getMainCompareProductSection("WyreStorm direction");
 
     expect(competitorSection).not.toBeNull();
     expect(wyrestormSection).not.toBeNull();
@@ -176,13 +203,15 @@ describe("Compare rendered workflow", () => {
     const transportRow = within(matrix).getByText("Transport").closest('[role="row"]');
     expect(transportRow).not.toBeNull();
     expect(within(transportRow as HTMLElement).getAllByText(/AVoIP/i).length).toBeGreaterThanOrEqual(1);
-    expect(within(transportRow as HTMLElement).getByText(/1GbE JPEG-XS AVoIP/i)).toBeInTheDocument();
+    expect(within(transportRow as HTMLElement).getByText(/1GbE JPEG2000 AVoIP/i)).toBeInTheDocument();
   });
 
   it("labels routed matrix outputs distinctly without inventing NDI", async () => {
     renderComparePage();
 
     runKnownCompare("Lightware", "MMX6x2-HT200");
+
+    openTechnicalComparisonDetails();
 
     const matrix = await screen.findByRole("table", { name: /competitor versus wyrestorm comparison matrix/i });
     const outputRow = within(matrix).getByText("Outputs").closest('[role="row"]');
@@ -193,27 +222,54 @@ describe("Compare rendered workflow", () => {
     expect((outputRow as HTMLElement).textContent).not.toMatch(/NDI/i);
   });
 
-  it("keeps supporting evidence collapsed by default on the result screen", async () => {
+  it("shows one reported result colour and keeps technical detail collapsed", async () => {
     renderComparePage();
 
     runKnownCompare("Atlona", "AT-OMNI-111");
 
-    await screen.findByRole("table", { name: /competitor versus wyrestorm comparison matrix/i });
+    await findMainCompareResult();
 
-    const quoteChecks = screen.getByText("Quote checks").closest("details") as HTMLDetailsElement | null;
-    const whyThisFits = screen.getByText("Why this fits").closest("details") as HTMLDetailsElement | null;
-    const fullEvidenceTrace = screen.getByText("Full evidence trace").closest("details") as HTMLDetailsElement | null;
-    const copyableSummary = screen.getByText("Copyable summary").closest("details") as HTMLDetailsElement | null;
-    const otherOptions = screen.getByText(/Other possible WyreStorm options/i).closest("details") as HTMLDetailsElement | null;
+    const statusRail = screen.getByRole("list", { name: /comparison result status/i });
+    const activeStatuses = within(statusRail)
+      .getAllByRole("listitem")
+      .filter((item) => item.classList.contains("is-active"));
 
-    expect(quoteChecks?.open).toBe(false);
-    expect(whyThisFits?.open).toBe(false);
-    expect(fullEvidenceTrace?.open).toBe(false);
-    expect(copyableSummary?.open).toBe(false);
-    expect(otherOptions?.open).toBe(false);
+    expect(activeStatuses).toHaveLength(1);
+    expect(activeStatuses[0]).toHaveTextContent("Further checks required");
+    expect(activeStatuses[0]).toHaveClass("compare-reported-status--checks");
 
+    const technicalDetails = screen
+      .getByText("Technical comparison details")
+      .closest("details") as HTMLDetailsElement | null;
+
+    const supportDetails = screen
+      .getByText("Technical review controls and other options")
+      .closest("details") as HTMLDetailsElement | null;
+
+    expect(technicalDetails?.open).toBe(false);
+    expect(supportDetails?.open).toBe(false);
+    expect(screen.getByRole("button", { name: "More info from Guru" })).toBeInTheDocument();
     expect(screen.queryByText("Ask the customer")).not.toBeInTheDocument();
-    expect(screen.queryByText("More detail")).not.toBeInTheDocument();
+  });
+
+  it("sends the concise result context directly to Guru", async () => {
+    const guruListener = vi.fn();
+    window.addEventListener("wingman:open-guru", guruListener as EventListener);
+
+    renderComparePage();
+    runKnownCompare("Atlona", "AT-OMNI-111");
+
+    const guruButton = await screen.findByRole("button", { name: "More info from Guru" });
+    fireEvent.click(guruButton);
+
+    expect(guruListener).toHaveBeenCalledTimes(1);
+
+    const event = guruListener.mock.calls[0]?.[0] as CustomEvent;
+    expect(event.detail?.source).toBe("competitor-compare");
+    expect(event.detail?.prompt).toMatch(/technical reason/i);
+    expect(event.detail?.prompt).toMatch(/next two questions/i);
+
+    window.removeEventListener("wingman:open-guru", guruListener as EventListener);
   });
 
   it("uses concrete limited-data wording instead of the old generic guidance phrasing", async () => {
@@ -225,7 +281,7 @@ describe("Compare rendered workflow", () => {
       fireEvent.click(nextProductStep);
     }
 
-        if (!screen.queryByRole("heading", { name: /choose competitor product/i })) {
+        if (!screen.queryByRole("heading", { name: /choose the competitor sku/i })) {
       const manualCompareButton = screen.queryByRole("button", { name: /choose products manually/i });
 
       if (!manualCompareButton) {
@@ -235,7 +291,7 @@ describe("Compare rendered workflow", () => {
       fireEvent.click(manualCompareButton);
     }
 
-        if (!screen.queryByRole("heading", { name: /choose competitor product/i })) {
+        if (!screen.queryByRole("heading", { name: /choose the competitor sku/i })) {
       const nextProductButton = screen.queryByRole("button", { name: /next:\s*choose competitor product/i });
 
       if (nextProductButton) {
@@ -243,7 +299,7 @@ describe("Compare rendered workflow", () => {
       }
     }
 
-    await screen.findByRole("heading", { name: /choose competitor product/i });
+    await screen.findByRole("heading", { name: /choose the competitor sku/i });
 
     const customSkuButtons = await screen.findAllByRole("button", { name: /custom \/ missing sku/i });
     fireEvent.click(customSkuButtons[0]);
@@ -260,7 +316,7 @@ describe("Compare rendered workflow", () => {
 
     runKnownCompare("Marshall", "VS-PTC-200NDI");
 
-    await screen.findByText("Competitor matched against");
+    await findMainCompareResult();
 
     expect(screen.getAllByText("Marshall VS-PTC-200NDI").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("NDI camera").length).toBeGreaterThanOrEqual(1);
@@ -273,6 +329,8 @@ describe("Compare rendered workflow", () => {
     renderComparePage();
 
     runKnownCompare("Atlona", "AT-OME-CS31-SA");
+
+    openTechnicalComparisonDetails();
 
     const matrix = await screen.findByRole("table", { name: /competitor versus wyrestorm comparison matrix/i });
 
@@ -292,6 +350,8 @@ describe("Compare rendered workflow", () => {
     renderComparePage();
 
     runKnownCompare("Lightware", "MMX6x2-HT200");
+
+    openTechnicalComparisonDetails();
 
     const matrix = await screen.findByRole("table", { name: /competitor versus wyrestorm comparison matrix/i });
 
@@ -314,9 +374,9 @@ describe("Compare rendered workflow", () => {
 
     runCustomTextCompare("Barco", "XYZ888 UC video bar soundbar camera microphone speaker teams zoom BYOD");
 
-    await screen.findByText("Competitor matched against");
+    await findMainCompareResult();
 
-    const wyrestormSection = screen.getByText("Suggested WyreStorm direction").closest("section");
+    const wyrestormSection = getMainCompareProductSection("WyreStorm direction");
     expect(wyrestormSection).not.toBeNull();
     expect(within(wyrestormSection as HTMLElement).getByText("APO-VX20-UC-V2")).toBeInTheDocument();
   });
@@ -326,9 +386,9 @@ describe("Compare rendered workflow", () => {
 
     runCustomTextCompare("Barco", "XYZ999 wireless casting dongle byod presentation");
 
-    await screen.findByText("Competitor matched against");
+    await findMainCompareResult();
 
-    const wyrestormSection = screen.getByText("Suggested WyreStorm direction").closest("section");
+    const wyrestormSection = getMainCompareProductSection("WyreStorm direction");
     expect(wyrestormSection).not.toBeNull();
     expect(within(wyrestormSection as HTMLElement).getByText("APO-DG2")).toBeInTheDocument();
   });
@@ -338,9 +398,9 @@ describe("Compare rendered workflow", () => {
 
     runCustomTextCompare("Barco", "SP14CS 1x4 4K HDMI splitter with audio breakout");
 
-    await screen.findByText("Competitor matched against");
+    await findMainCompareResult();
 
-    const wyrestormSection = screen.getByText("Suggested WyreStorm direction").closest("section");
+    const wyrestormSection = getMainCompareProductSection("WyreStorm direction");
     expect(wyrestormSection).not.toBeNull();
     expect(within(wyrestormSection as HTMLElement).getByText("SP-0104-H2")).toBeInTheDocument();
   });
