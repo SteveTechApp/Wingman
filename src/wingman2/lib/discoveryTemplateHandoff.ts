@@ -1,5 +1,6 @@
 import type { CustomRoomTemplate } from "./customRoomTemplates";
 import type { RoomTemplate, TemplateBomRow } from "./roomTemplates";
+import type { ProjectTopology } from "./projectTopology";
 
 export type DiscoveryHandoffMode = "standard" | "template-create" | "template-edit";
 export type DiscoveryHandoffAnswers = Record<string, string | string[]>;
@@ -14,6 +15,7 @@ export type DiscoveryHandoff = {
   sourceTemplateName?: string;
   answers?: DiscoveryHandoffAnswers;
   notes?: DiscoveryHandoffNotes;
+  topology?: ProjectTopology;
 };
 
 const DISCOVERY_HANDOFF_KEY = "wingman:discovery-handoff";
@@ -102,7 +104,7 @@ export function buildDiscoveryNotesFromTemplate(template: RoomTemplate): Discove
   if (control) notes.control = control;
 
   const network = designNotesMatching(template, ["network"]);
-  if (network) notes.infrastructure = network;
+  if (network) notes["locations-connections"] = network;
 
   return notes;
 }
@@ -121,6 +123,7 @@ export function buildDiscoveryHandoffFromTemplate(template: RoomTemplate | Custo
       sourceTemplateName: template.name,
       answers: template.discoveryAnswers,
       notes: template.discoveryNotes ?? {},
+      topology: template.topology,
     };
   }
 

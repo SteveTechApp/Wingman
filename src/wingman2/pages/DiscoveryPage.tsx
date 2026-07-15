@@ -11,6 +11,22 @@ import {
   type DiscoveryHandoffMode,
 } from "../lib/discoveryTemplateHandoff";
 import { TEMPLATE_MARKETS } from "../lib/templateMarkets";
+import DiscoveryLocationsConnections from "../components/DiscoveryLocationsConnections";
+import {
+  clearDiscoveryTopology,
+  createBlankProjectTopology,
+  generateProjectTopologyFromDiscovery,
+  normaliseProjectTopology,
+  projectTopologyConnectionTypes,
+  projectTopologyHasContent,
+  projectTopologyLongestRun,
+  projectTopologyMissingInformation,
+  projectTopologyNetworkSummary,
+  projectTopologySummary,
+  readDiscoveryTopology,
+  writeDiscoveryTopology,
+  type ProjectTopology,
+} from "../lib/projectTopology";
 
 function _hasActiveTemplateSolutionSeed(): boolean {
   if (typeof window === "undefined") {
@@ -388,82 +404,54 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
   },
   {
     id: "usb",
-    shortLabel: "USB / UC",
-    question: "Is USB, camera or conferencing needed?",
-    prompt: "Only say yes if cameras, speakerphones, touch displays or BYOD/BYOM are involved.",
-    why: "USB changes the architecture. HDMI-only designs are unsafe when conferencing devices are part of the workflow.",
+    shortLabel: "USB / UC workflow",
+    question: "What USB or conferencing workflow is required?",
+    prompt: "Select the host workflow, peripherals and USB bandwidth that apply. Use the notes box to record where the peripherals are located.",
+    why: "USB host ownership, peripheral location and bandwidth can change the architecture. HDMI-only designs are unsafe when conferencing or interactive devices are involved.",
     required: true,
     selectionMode: "multiple",
     exclusiveValues: ["no-usb", "unknown-usb"],
-    capturePlaceholder: "Example: Users bring laptops and need the room camera and speakerphone for Teams.",
+    capturePlaceholder: "Example: User laptop hosts the room camera and speakerphone over switched USB 2.0, with the peripherals located at the display.",
     options: [
       {
         value: "no-usb",
-        label: "No USB / conferencing",
-        help: "Video/audio switching only unless capture notes say otherwise.",
+        label: "No USB or conferencing required",
+        help: "The system is genuinely video and audio only.",
       },
       {
         value: "usb-camera-audio",
-        label: "USB camera / speakerphone",
-        help: "USB transport and host ownership must be designed.",
+        label: "Camera, audio or touch peripherals",
+        help: "A camera, microphone, speakerphone, touch display or similar USB peripheral is required.",
       },
       {
         value: "byod-byom",
-        label: "BYOD / BYOM",
-        help: "Laptop needs access to display, camera, mic and speakers.",
+        label: "User laptop / BYOD / BYOM host",
+        help: "A user laptop must own the room camera, microphone, speakerphone or other USB devices.",
       },
       {
         value: "room-pc-uc",
-        label: "Room PC / UC appliance",
-        help: "Clarify whether USB devices belong to room PC, user laptop or both.",
-      },
-      {
-        value: "unknown-usb",
-        label: "Unknown",
-        help: "Ask whether the meeting platform needs room camera or audio devices.",
-      },
-    ],
-  },
-  {
-    id: "usb-path",
-    shortLabel: "USB path",
-    question: "What is the USB host and bandwidth path?",
-    prompt: "Capture who owns USB, where the peripherals sit, and whether USB 2.0 or 3.x bandwidth matters.",
-    why: "USB ownership and bandwidth are often the real blockers in conferencing, BYOM, and camera workflows.",
-    required: true,
-    selectionMode: "multiple",
-    exclusiveValues: ["no-usb-path-needed", "unknown-usb-path"],
-    capturePlaceholder: "Example: User laptop hosts room camera and speakerphone over switched USB, or room PC hosts local USB 2.0 peripherals.",
-    options: [
-      {
-        value: "no-usb-path-needed",
-        label: "No USB path needed",
-        help: "Use this when the system is genuinely video/audio only.",
-      },
-      {
-        value: "room-host-usb2",
-        label: "Room host / USB 2.0 path",
-        help: "Room PC or UC appliance owns the peripherals and USB 2.0 class transport is acceptable.",
-      },
-      {
-        value: "user-laptop-host",
-        label: "User laptop hosts room peripherals",
-        help: "BYOD or BYOM workflow where a personal device must own the room camera, mic, or speakerphone.",
+        label: "Room PC / UC appliance host",
+        help: "A fixed room PC, Teams device or UC appliance owns the USB peripherals.",
       },
       {
         value: "switchable-host-usb",
-        label: "Switchable host ownership",
-        help: "USB must move between room system and user laptop depending on workflow.",
+        label: "Switchable room and laptop host",
+        help: "USB ownership must switch between the room system and a user laptop.",
+      },
+      {
+        value: "room-host-usb2",
+        label: "Standard USB 2.0 path",
+        help: "Standard conferencing, touch, keyboard, mouse or USB 2.0-class transport is sufficient.",
       },
       {
         value: "usb3-high-bandwidth-path",
         label: "High-bandwidth USB 3.x path",
-        help: "Use when cameras, capture devices, or other peripherals need a stronger USB 3.x transport path.",
+        help: "Cameras, capture devices or other peripherals require USB 3.x bandwidth.",
       },
       {
-        value: "unknown-usb-path",
+        value: "unknown-usb",
         label: "Unknown",
-        help: "Ask who owns USB, where the peripherals are, and whether USB 2.0 or 3.x bandwidth matters.",
+        help: "Ask who owns the USB session, which peripherals are required, where they are located and whether USB 2.0 or USB 3.x is needed.",
       },
     ],
   },
@@ -549,81 +537,18 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     ],
   },
   {
-    id: "distance",
-    shortLabel: "Distance",
-    question: "What is the installed cable distance?",
-    prompt: "Choose the closest longest run between sources, switching, and displays.",
-    why: "Distance should be captured explicitly before deciding between a simple cable run, a booster/extender, or a networked system.",
+    id: "locations-connections",
+    shortLabel: "Locations & connections",
+    question: "Where are the devices, and how do they connect?",
+    prompt: "Review the suggested devices, assign each one to a room or building location, define the connection type and confirm or estimate the cable length.",
+    why: "A device-by-device topology is more reliable than one overall distance because video, USB, control, audio, fibre and network paths can have different limits.",
     required: true,
-    capturePlaceholder: "Example: Table to display under 5m, or rack to projector around 35m, or distributed displays over building network.",
+    capturePlaceholder: "Example: Sources in room rack, main display at front wall, camera at ceiling; rack-to-display route approximately 18m.",
     options: [
       {
-        value: "under-5m",
-        label: "Under 5m",
-        help: "Short local cable path.",
-      },
-      {
-        value: "5-10m",
-        label: "5-10m",
-        help: "Short extension range.",
-      },
-      {
-        value: "10-35m",
-        label: "10-35m",
-        help: "Medium range where a signal booster/extender is likely needed.",
-      },
-      {
-        value: "35-70m",
-        label: "35-70m",
-        help: "Longer installed run that should be treated carefully in discovery.",
-      },
-      {
-        value: "70-100m-plus",
-        label: "70-100m+",
-        help: "Very long or site-wide path where networked transport may be more realistic.",
-      },
-      {
-        value: "unknown-distance",
-        label: "Unknown",
-        help: "Ask for the longest installed run or whether the design is effectively building-wide.",
-      },
-    ],
-  },
-  {
-    id: "infrastructure",
-    shortLabel: "Infrastructure",
-    question: "What infrastructure is available?",
-    prompt: "Capture cable distances, network availability, rack location and whether IT will support a networked video system.",
-    why: "Infrastructure decides whether a simple cable, a booster/extender, fibre, a switcher, or a networked system is practical.",
-    required: true,
-    selectionMode: "multiple",
-    exclusiveValues: ["unknown-infrastructure"],
-    capturePlaceholder: "Example: Sources in rack, displays up to 60m away, managed network available but IT needs to confirm capacity.",
-    options: [
-      {
-        value: "short-hdmi",
-        label: "Short local cable run",
-        help: "Contained room, short cable paths and local switching likely.",
-      },
-      {
-        value: "hdbaset-distance",
-        label: "Medium distance (needs a booster/extender)",
-        help: "Likely needs a signal booster/extender, possibly alongside a switcher.",
-      },
-      {
-        value: "managed-network",
-        label: "A managed network is available",
-        help: "A networked video system may be practical if the network and switches can handle it — IT will need to confirm this.",
-      },
-      {
-        value: "new-cabling-needed",
-        label: "New cabling required",
-        help: "Capture containment, rack and cable path assumptions.",
-      },
-      {
-        value: "unknown-infrastructure",
-        label: "Unknown",
-        help: "Ask where the sources and displays physically sit.",
+        value: "topology-captured",
+        label: "Devices and paths captured",
+        help: "The device locations, signal paths, transport types and length status have been reviewed.",
       },
     ],
   },
@@ -815,21 +740,14 @@ const baseQuestionStrategyByStep: Record<string, ApplicationSpecificDiscoveryQue
     ],
   },
   usb: {
-    likelyDirection: "USB and conferencing requirements can make an HDMI-only design unsafe.",
-    askNext: "Do users need access to a room camera, speakerphone, touch display or other USB device?",
+    likelyDirection: "USB and conferencing requirements define host ownership, peripheral location and whether USB 2.0 or USB 3.x transport is required.",
+    askNext: "Which device owns the USB session, which peripherals are required, where are they located, and is USB 2.0 or USB 3.x bandwidth needed?",
     checkBeforeProduct: [
       "USB host ownership",
-      "Camera and microphone path",
-      "BYOD, BYOM, room PC or UC appliance workflow",
-    ],
-  },
-  "usb-path": {
-    likelyDirection: "USB path defines host ownership, peripheral location, and whether USB 2.0 or 3.x transport is required.",
-    askNext: "Which device owns the USB session, where are the peripherals, and is USB 2.0 or 3.x bandwidth required?",
-    checkBeforeProduct: [
-      "USB host ownership",
+      "Camera, microphone, speakerphone, touch or other peripherals",
       "Peripheral location",
-      "USB 2.0 versus USB 3.x path",
+      "BYOD, BYOM, room PC or UC appliance workflow",
+      "USB 2.0 versus USB 3.x bandwidth",
     ],
   },
   audio: {
@@ -841,13 +759,14 @@ const baseQuestionStrategyByStep: Record<string, ApplicationSpecificDiscoveryQue
       "Amplifier requirement, or whether sound needs to reach other rooms",
     ],
   },
-  distance: {
-    likelyDirection: "Distance should be captured directly so a simple cable run, a booster/extender, fibre, and a networked system are judged on real path length rather than assumption.",
-    askNext: "What is the longest installed run between the source side, switching core, and display side?",
+  "locations-connections": {
+    likelyDirection: "Device locations and connection paths determine whether native HDMI or USB remains practical, or whether HDBaseT, fibre, USB extension or AV-over-IP is required.",
+    askNext: "Where is each primary device, what does it connect to, which services cross that path, and is the route length estimated, confirmed or unknown?",
     checkBeforeProduct: [
-      "Longest installed run",
-      "Local versus structured cable path",
-      "Whether the path is room-local or building-wide",
+      "Known source, switching, network and destination devices",
+      "Room, rack, ceiling, wall or building location for each device",
+      "HDMI, USB-C, HDBaseT, fibre, IP, USB, audio and control paths",
+      "Estimated versus confirmed installed cable lengths",
     ],
   },
   control: {
@@ -857,15 +776,6 @@ const baseQuestionStrategyByStep: Record<string, ApplicationSpecificDiscoveryQue
       "User control method",
       "Touch panel or third-party control",
       "Staff usability requirement",
-    ],
-  },
-  infrastructure: {
-    likelyDirection: "Cable path, rack position and network ownership decide whether a simple cable, a booster/extender, fibre or a networked system is realistic.",
-    askNext: "Where are the sources and displays physically located, and what cabling or network is available?",
-    checkBeforeProduct: [
-      "Cable distance",
-      "Rack location",
-      "Whether a suitable managed network is available (IT will need to confirm capacity)",
     ],
   },
   "avoip-profile": {
@@ -892,21 +802,6 @@ function getQuestionStrategy(stepId: string, selectedApplication: string): Appli
     return applicationStrategy;
   }
 
-  if (stepId === "infrastructure" && selectedApplication === "av-over-ip") {
-    return {
-      likelyDirection:
-        "Since this is already a networked video project, this step is no longer about cable distance classes. The real decision is whether NetworkHD uses the customer's existing network or a separate dedicated one.",
-      askNext:
-        "Will IT allow NetworkHD on the customer's existing network, or should we carry a separate dedicated network as the default design?",
-      checkBeforeProduct: [
-        "Customer's existing network versus a separate dedicated one",
-        "Whether IT's network can carry this kind of video traffic",
-        "Standard versus highest-performance NetworkHD family requirement",
-        "Controller and switch dependency",
-      ],
-    };
-  }
-
   if (stepId === "avoip-profile" && selectedApplication === "av-over-ip") {
     return {
       likelyDirection:
@@ -925,40 +820,8 @@ function getQuestionStrategy(stepId: string, selectedApplication: string): Appli
   return baseStrategy;
 }
 
-function getQuestionView(step: DiscoveryQuestion, selectedApplication: string): DiscoveryQuestionView {
-  if (step.id !== "infrastructure" || selectedApplication !== "av-over-ip") {
-    return step;
-  }
-
-  return {
-    ...step,
-    selectionMode: "single",
-    exclusiveValues: undefined,
-    selectAllValue: undefined,
-    prompt:
-      "A networked video system is already established. Capture whether NetworkHD uses the customer's existing network or a dedicated switch setup.",
-    why:
-      "Once the design is known to be a networked video system, the main infrastructure decision is the customer's existing network versus a dedicated one, plus who in IT owns that decision.",
-    capturePlaceholder:
-      "Example: NetworkHD will use the customer's existing network if IT confirms it can handle this kind of video traffic, otherwise plan for a separate dedicated network.",
-    options: [
-      {
-        value: "customer-managed-network",
-        label: "Use existing customer network",
-        help: "Use the customer's existing network only if IT confirms it can support this kind of video traffic.",
-      },
-      {
-        value: "dedicated-av-switching",
-        label: "Specify dedicated AV network switch(es)",
-        help: "Default-safe path when network ownership is restricted, unclear or easier to keep separate from IT.",
-      },
-      {
-        value: "unknown-assume-dedicated-av-switching",
-        label: "Unknown - assume dedicated AV network",
-        help: "If network ownership is unclear, carry dedicated AV switch(es) for now and remove them later if the customer network is approved.",
-      },
-    ],
-  };
+function getQuestionView(step: DiscoveryQuestion, _selectedApplication: string): DiscoveryQuestionView {
+  return step;
 }
 
 function getOptionLabel(step: DiscoveryQuestion, value: DiscoveryAnswerValue, selectedApplication = ""): string {
@@ -1170,6 +1033,10 @@ export function DiscoveryPage() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [answers, setAnswers] = useState<DiscoveryAnswers>({});
   const [notes, setNotes] = useState<DiscoveryNotes>({});
+  const [topology, setTopology] = useState<ProjectTopology>(() => {
+    const stored = readDiscoveryTopology();
+    return projectTopologyHasContent(stored) ? stored : createBlankProjectTopology();
+  });
   const [isListening, setIsListening] = useState(false);
   const [micSupported, setMicSupported] = useState(false);
   const [micError, setMicError] = useState("");
@@ -1262,6 +1129,21 @@ export function DiscoveryPage() {
   }, [currentStep.id]);
 
   useEffect(() => {
+    if (currentStep.id !== "locations-connections" || projectTopologyHasContent(topology)) {
+      return;
+    }
+
+    const generated = generateProjectTopologyFromDiscovery({
+      answers,
+      notes,
+      application: selectedApplication,
+      existing: topology,
+    });
+    setTopology(generated);
+    writeDiscoveryTopology(generated);
+  }, [answers, currentStep.id, notes, selectedApplication, topology]);
+
+  useEffect(() => {
     // Template creation/editing and "Use Template" handoff: pre-populate this
     // Discovery session from a template instead of starting blank, and switch
     // into the matching Discovery mode. Consumed once, then cleared.
@@ -1271,13 +1153,50 @@ export function DiscoveryPage() {
       return;
     }
 
-    if (handoff.answers && Object.keys(handoff.answers).length > 0) {
-      setAnswers(handoff.answers as DiscoveryAnswers);
+    const incomingAnswers = {
+      ...((handoff.answers ?? {}) as DiscoveryAnswers),
+    };
+    const incomingNotes = {
+      ...((handoff.notes ?? {}) as DiscoveryNotes),
+    };
+
+    const currentUsb = wmDiscoveryNormaliseAnswerList(incomingAnswers.usb);
+    const legacyUsb = wmDiscoveryNormaliseAnswerList(incomingAnswers["usb-path"]).map((value) => {
+      if (value === "no-usb-path-needed") return "no-usb";
+      if (value === "unknown-usb-path") return "unknown-usb";
+      if (value === "user-laptop-host") return "byod-byom";
+      return value;
+    });
+    let mergedUsb = Array.from(new Set([...currentUsb, ...legacyUsb]));
+    if (mergedUsb.some((value) => value !== "no-usb" && value !== "unknown-usb")) {
+      mergedUsb = mergedUsb.filter((value) => value !== "no-usb" && value !== "unknown-usb");
+    }
+    if (mergedUsb.length) incomingAnswers.usb = mergedUsb;
+
+    const incomingTopology = projectTopologyHasContent(handoff.topology)
+      ? normaliseProjectTopology(handoff.topology)
+      : generateProjectTopologyFromDiscovery({
+          answers: incomingAnswers,
+          notes: incomingNotes,
+          application: wmDiscoveryAnswerToText(incomingAnswers.opportunity),
+        });
+
+    const legacyLocationNotes = [incomingNotes.distance, incomingNotes.infrastructure].filter(Boolean).join(" | ");
+    if (legacyLocationNotes && !incomingNotes["locations-connections"]) {
+      incomingNotes["locations-connections"] = legacyLocationNotes;
     }
 
-    if (handoff.notes && Object.keys(handoff.notes).length > 0) {
-      setNotes(handoff.notes as DiscoveryNotes);
-    }
+    delete incomingAnswers["usb-path"];
+    delete incomingAnswers.distance;
+    delete incomingAnswers.infrastructure;
+    delete incomingNotes["usb-path"];
+    delete incomingNotes.distance;
+    delete incomingNotes.infrastructure;
+
+    setAnswers(incomingAnswers);
+    setNotes(incomingNotes);
+    setTopology(incomingTopology);
+    writeDiscoveryTopology(incomingTopology);
 
     setDiscoveryMode(handoff.mode);
     setTemplateEditId(handoff.templateId);
@@ -1406,6 +1325,37 @@ export function DiscoveryPage() {
     }
   }
 
+  function handleTopologyChange(next: ProjectTopology): void {
+    const normalised = writeDiscoveryTopology(next);
+    setTopology(normalised);
+    setAnswers((previous) => {
+      const updated = { ...previous };
+      if (projectTopologyHasContent(normalised)) {
+        updated["locations-connections"] = "topology-captured";
+      } else {
+        delete updated["locations-connections"];
+      }
+      return updated;
+    });
+    setSavedMessage("");
+  }
+
+  function completeTopologyStep(): void {
+    const completedTopology = projectTopologyHasContent(topology)
+      ? normaliseProjectTopology(topology)
+      : generateProjectTopologyFromDiscovery({ answers, notes, application: selectedApplication });
+    handleTopologyChange(completedTopology);
+
+    if (isLastStep) {
+      window.setTimeout(() => {
+        completionPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
+      return;
+    }
+
+    moveNext();
+  }
+
   function handleCaptureChange(value: string): void {
     setNotes((previous) => ({
       ...previous,
@@ -1459,6 +1409,8 @@ export function DiscoveryPage() {
     setMicError("");
     setAnswers({});
     setNotes({});
+    clearDiscoveryTopology();
+    setTopology(createBlankProjectTopology());
     setActiveIndex(0);
     setSavedMessage("");
     setDiscoveryMode("standard");
@@ -1523,24 +1475,40 @@ export function DiscoveryPage() {
       ? getAvoipNextQuestion(avoipProfileValue, strategy.askNext)
       : strategy.askNext;
     const displayCount = answerLabel("displays");
-    const sourceConnection = answerLabel("source-connection");
     const displayBehaviour = answerLabel("display-behaviour") || answerLabel("displays");
     const signalStandard = answerLabel("signal-standard");
-    const distance = answerLabel("distance");
     const sourceCount = answerLabel("sources");
-    const infrastructure = answerLabel("infrastructure");
     const usb = answerLabel("usb");
-    const usbPath = answerLabel("usb-path");
     const audio = answerLabel("audio");
     const control = answerLabel("control");
     const sourceConnections = answerLabels("source-connection");
-    const usbNeeds = Array.from(
-      new Set([...answerLabels("usb"), ...answerLabels("usb-path")]),
-    );
+    const usbValues = wmDiscoveryNormaliseAnswerList(answers.usb);
+    const usbNeeds = answerLabels("usb");
+    const usbOwnership = [
+      usbValues.includes("byod-byom") ? "User laptop / BYOD / BYOM host" : "",
+      usbValues.includes("room-pc-uc") ? "Room PC / UC appliance host" : "",
+      usbValues.includes("switchable-host-usb") ? "Switchable room and user-laptop host" : "",
+    ].filter(Boolean).join(", ");
+    const usbTransport = [
+      usbValues.includes("room-host-usb2") ? "Standard USB 2.0 path" : "",
+      usbValues.includes("usb3-high-bandwidth-path") ? "High-bandwidth USB 3.x path" : "",
+    ].filter(Boolean).join(", ");
+    const usbTopologyRisk = [
+      usbValues.includes("switchable-host-usb") ? "USB host switching required" : "",
+      usbValues.includes("usb3-high-bandwidth-path") ? "High-bandwidth USB 3.x transport required" : "",
+      usbValues.includes("unknown-usb") ? "USB workflow requires qualification" : "",
+    ].filter(Boolean).join(", ");
     const audioNeeds = answerLabels("audio");
     const controlNeeds = answerLabels("control");
+    const activeTopology = projectTopologyHasContent(topology)
+      ? normaliseProjectTopology(topology)
+      : generateProjectTopologyFromDiscovery({ answers, notes, application: selectedApplication });
+    const topologySummary = projectTopologySummary(activeTopology);
+    const longestRunMetres = projectTopologyLongestRun(activeTopology);
+    const connectionTypes = projectTopologyConnectionTypes(activeTopology);
+    const networkSummary = projectTopologyNetworkSummary(activeTopology);
+    const distanceInfrastructureNotes = topologySummary;
     const qualityTags = signalQualityTags(signalStandard);
-    const distanceInfrastructureNotes = [distance, infrastructure].filter(Boolean).join(" | ");
     const processingNeeds = [
       wmDiscoveryAnswerIncludes(answers["display-behaviour"], "video-wall-or-processor-feed") || wmDiscoveryAnswerIncludes(answers.displays, "video-wall-output") ? "Video wall processing" : "",
       wmDiscoveryAnswerIncludes(answers["display-behaviour"], "multiview-on-one-output") ? "Multiview" : "",
@@ -1562,8 +1530,12 @@ export function DiscoveryPage() {
       return [];
     });
 
-    if (selectedApplication === "av-over-ip" && wmDiscoveryAnswerIncludes(answers.infrastructure, "unknown-assume-dedicated-av-switching")) {
-      missingInformation.push("Confirm whether NetworkHD will use the customer managed network or a dedicated AV switch design.");
+    projectTopologyMissingInformation(activeTopology).forEach((item) => {
+      if (!missingInformation.includes(item)) missingInformation.push(item);
+    });
+
+    if (selectedApplication === "av-over-ip" && !activeTopology.connections.some((connection) => ["ip-av-vlan", "shared-ip-network", "point-to-point-network"].includes(connection.transport))) {
+      missingInformation.push("Confirm whether NetworkHD uses the customer network or a dedicated AV network design.");
     }
 
     if (selectedApplication === "av-over-ip" && (!avoipProfileValue || avoipProfileValue === "unknown-avoip-profile")) {
@@ -1576,6 +1548,7 @@ export function DiscoveryPage() {
 
     const brief: StoredDiscoveryBrief = {
       savedAt: new Date().toISOString(),
+      topology: activeTopology,
       roomModel: {
         roomType: application,
         application,
@@ -1595,18 +1568,24 @@ export function DiscoveryPage() {
         signalStandardSummary: signalStandard,
         downstreamQualityTags: qualityTags,
         resolutionRequirement: signalStandard,
-        usbOwnership: usb,
-        usbTransport: usbPath || usb,
-        usbTopologyRisk: usbPath,
+        topology: activeTopology,
+        locations: activeTopology.locations,
+        projectDevices: activeTopology.devices,
+        projectConnections: activeTopology.connections,
+        connectionSummary: topologySummary,
+        connectionTypes,
+        usbOwnership: usbOwnership || usb,
+        usbTransport: usbTransport || usb,
+        usbTopologyRisk,
         usbNeeds,
         audioPath: audio,
         audioNeeds,
         controlNeeds,
-        cableRun: distance,
-        longestRun: distance,
+        cableRun: longestRunMetres !== undefined ? `${longestRunMetres} m` : "Unknown",
+        longestRun: longestRunMetres !== undefined ? `${longestRunMetres} m` : "Unknown",
         distanceInfrastructureNotes,
-        network: infrastructure,
-        networkAvailability: infrastructure,
+        network: networkSummary,
+        networkAvailability: networkSummary,
         processingNeeds,
         processingRequirement: processingNeeds[0] ?? "",
         videoWallRequirement:
@@ -1664,6 +1643,7 @@ export function DiscoveryPage() {
 
     const brief = buildDiscoveryBrief();
     const roomModel = (brief.roomModel ?? {}) as Record<string, unknown>;
+    const templateTopology = normaliseProjectTopology(brief.topology ?? roomModel.topology);
     const summary = String(roomModel.summary || brief.inference?.summary || "Custom room template created in Discovery.");
 
     const draft = createBlankCustomRoomTemplate({
@@ -1678,6 +1658,7 @@ export function DiscoveryPage() {
       validationItems: brief.missingInformation,
       discoveryAnswers: answers,
       discoveryNotes: notes,
+      topology: templateTopology,
     });
 
     saveCustomRoomTemplate(draft, {
@@ -1885,37 +1866,50 @@ return (
             <p className="wm-ui-copy">{currentStepView.why}</p>
           </div>
 
-          <div className="wm-discovery-option-list wm-ui-card">
-            {currentStepView.options.map((option) => {
-              const selected = Array.isArray(currentAnswer) ? currentAnswer.includes(option.value) : currentAnswer === option.value;
-              const optionClassNames = ["wm-discovery-option"];
-              if (selected) optionClassNames.push("is-selected");
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  className={optionClassNames.join(" ")}
-                  onClick={() => handleSelectAnswer(option.value)}
-                  aria-pressed={selected}
-                >
-                  <span className={wmDiscoveryIsMultiSelectStep(currentStep) ? "wm-discovery-option-checkbox" : "wm-discovery-option-radio"} aria-hidden="true" />
-                  <span>
-                    <strong>
-                      {option.label}
-                    </strong>
-                    <small>{option.help}</small>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          {currentStep.id === "locations-connections" ? (
+            <DiscoveryLocationsConnections
+              value={topology}
+              seed={{ answers, notes, application: selectedApplication, existing: topology }}
+              onChange={handleTopologyChange}
+            />
+          ) : (
+            <div className="wm-discovery-option-list wm-ui-card">
+              {currentStepView.options.map((option) => {
+                const selected = Array.isArray(currentAnswer) ? currentAnswer.includes(option.value) : currentAnswer === option.value;
+                const optionClassNames = ["wm-discovery-option"];
+                if (selected) optionClassNames.push("is-selected");
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={optionClassNames.join(" ")}
+                    onClick={() => handleSelectAnswer(option.value)}
+                    aria-pressed={selected}
+                  >
+                    <span className={wmDiscoveryIsMultiSelectStep(currentStep) ? "wm-discovery-option-checkbox" : "wm-discovery-option-radio"} aria-hidden="true" />
+                    <span>
+                      <strong>{option.label}</strong>
+                      <small>{option.help}</small>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           <div className="wm-discovery-navigation-row wm-ui-card">
             <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={movePrevious} disabled={isFirstStep}>
               Previous
             </button>
-            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={moveNext} disabled={isLastStep}>
-              {wmDiscoveryIsMultiSelectStep(currentStep) ? "Continue" : "Skip / next"}
+            <button
+              className="wm-ui-button wm-ui-button-secondary"
+              type="button"
+              onClick={currentStep.id === "locations-connections" ? completeTopologyStep : moveNext}
+              disabled={currentStep.id === "locations-connections" ? false : isLastStep}
+            >
+              {currentStep.id === "locations-connections"
+                ? (isLastStep ? "Complete discovery" : "Continue")
+                : wmDiscoveryIsMultiSelectStep(currentStep) ? "Continue" : "Skip / next"}
             </button>
           </div>
         </section>

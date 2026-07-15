@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import type { ProjectTopology } from "../lib/projectTopology";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import {
   normalizeMultiSkuCompetitorAnalysis,
@@ -38,6 +39,7 @@ export type StoredProject = {
 export type StoredDiscoveryBrief = {
   savedAt?: string;
   roomModel?: Record<string, unknown>;
+  topology?: ProjectTopology;
   inference?: Record<string, unknown>;
   capturedPercent?: number;
   returnRoute?: string;

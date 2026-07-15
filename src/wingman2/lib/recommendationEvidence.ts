@@ -10,6 +10,12 @@ import type {
 } from "../data/projectStore";
 import { buildSalesReadinessPackage } from "./salesReadiness";
 import { buildAvDecisionEvidence } from "./avDecisionEvidence";
+import {
+  normaliseProjectTopology,
+  projectTopologyConnectionTypes,
+  projectTopologyEvidenceLines,
+  projectTopologySummary,
+} from "./projectTopology";
 
 export type RecommendationEvidenceProduct = {
   sku: string;
@@ -121,9 +127,16 @@ function discoveryFrom(input: RecommendationEvidenceInput) {
   return input.discoveryBrief ?? input.project?.discoveryBrief ?? null;
 }
 
+function topologyFrom(input: RecommendationEvidenceInput) {
+  const discovery = discoveryFrom(input);
+  const roomModel = roomModelFrom(input);
+  return normaliseProjectTopology(discovery?.topology ?? roomModel.topology);
+}
+
 function combinedRequirementText(input: RecommendationEvidenceInput) {
   const roomModel = roomModelFrom(input);
   const inference = inferenceFrom(input);
+  const topology = topologyFrom(input);
   return [
     input.query,
     input.project?.name,
@@ -140,6 +153,9 @@ function combinedRequirementText(input: RecommendationEvidenceInput) {
     roomModel.audioPath,
     roomModel.networkAvailability,
     roomModel.network,
+    projectTopologySummary(topology),
+    ...projectTopologyConnectionTypes(topology),
+    ...projectTopologyEvidenceLines(topology),
     inference.summary,
     inference.architecture,
     input.compare?.summary,
@@ -162,7 +178,8 @@ function countEvidence(input: RecommendationEvidenceInput) {
     fieldLine("Source count", roomModel.sourceCount),
     fieldLine("Display count", roomModel.displayCount),
     fieldLine("Resolution", roomModel.resolutionRequirement ?? roomModel.signalStandard),
-    fieldLine("Distance/infrastructure", roomModel.distanceInfrastructureNotes ?? roomModel.longestRun ?? roomModel.cableRun),
+    fieldLine("Locations/connections", projectTopologySummary(topologyFrom(input)) || (roomModel.distanceInfrastructureNotes ?? roomModel.longestRun ?? roomModel.cableRun)),
+    fieldLine("Connection types", projectTopologyConnectionTypes(topologyFrom(input))),
     fieldLine("USB/conferencing", roomModel.usbTransport ?? roomModel.usbOwnership),
     fieldLine("Audio", roomModel.audioPath ?? roomModel.audioNeeds),
     fieldLine("Control", roomModel.controlNeeds),
