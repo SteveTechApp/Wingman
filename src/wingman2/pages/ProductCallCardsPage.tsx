@@ -903,7 +903,7 @@ function roleJobLine(role: ProductSalesHelperRole): string {
     case "multiview":
       return "showing several live sources together on one output for monitoring, teaching, production or confidence viewing.";
     case "control":
-      return "giving the user a repeatable room action instead of a pile of remotes and manual device settings.";
+      return "giving staff a repeatable room action instead of a pile of remotes and manual device settings.";
     case "accessory":
       return "making the parent system installable, serviceable or complete.";
     default:
@@ -946,7 +946,7 @@ function roleRealWorldJobs(role: ProductSalesHelperRole): string[] {
       return [
         "Drive the loudspeakers or audio zone the rest of the room depends on.",
         "Translate speaker quantity, impedance or 70V/100V taps into a quoteable amplifier choice.",
-        "Confirm whether the user needs simple audio, DSP integration, Dante/AES67, mute control or remote level control.",
+        "Confirm whether the room needs simple audio, DSP integration, Dante/AES67, mute control or remote level control.",
       ];
     case "networkhd":
       return [
@@ -969,7 +969,7 @@ function roleRealWorldJobs(role: ProductSalesHelperRole): string[] {
     case "uc":
       return [
         "Connect the camera, microphone, speaker and host computer path so meetings actually work in the room.",
-        "Clarify whether the user is bringing a laptop, using a room PC, using Teams/Zoom hardware or mixing modes.",
+        "Clarify whether people bring a laptop, use a room PC, use Teams/Zoom hardware or mix operating modes.",
         "Check USB version, host location, cable distance and certified-platform expectations before quote.",
       ];
     case "extender":
@@ -1214,13 +1214,13 @@ function roleDiscoveryQuestions(role: ProductSalesHelperRole): string[] {
     case "multiview":
       return [
         "How many sources need to be visible on one screen at the same time?",
-        "Does the user need fixed layouts or live layout changes?",
+        "Does the operator need fixed layouts or live layout changes?",
         "Where does the multiview output go: monitor, projector, recorder, streamer or processor?",
       ];
     case "control":
       return [
         "Which devices need to be controlled and by what protocols?",
-        "What actions should the user see: present, call, source select, room on/off or presets?",
+        "What actions should the operator see: present, call, source select, room on/off or presets?",
         "Who will configure and support the system after handover?",
       ];
     case "accessory":
@@ -1282,7 +1282,7 @@ function roleProofPoints(role: ProductSalesHelperRole, product: ProductCard): st
       ];
     case "multiview":
       return [
-        "Clear fit when the user needs simultaneous monitoring on one output.",
+        "Clear fit when the application needs simultaneous monitoring on one output.",
         "Separates multiview from independent routed outputs or video-wall processing.",
       ];
     case "control":
@@ -1298,7 +1298,7 @@ function roleProofPoints(role: ProductSalesHelperRole, product: ProductCard): st
     default:
       return [
         `Treat ${product.sku} as a direction until the application and dependencies are confirmed.`,
-        "The strongest sales proof is the fit between the SKU, the user workflow and the missing technical checks.",
+        "The strongest sales proof is the fit between the SKU, the room workflow and the missing technical checks.",
       ];
   }
 }
@@ -1407,7 +1407,7 @@ function buildProductSalesHelperCopy(
   ]).slice(0, 7);
   const firstQuestion =
     discoveryQuestions[0] ||
-    "What does the room need to do for the user on a normal day?";
+    "What does the room need to do on a normal day?";
 
   return {
     whatItDoes: `${product.sku} is ${roleName(role, product)}. ${plainDescription} In salesperson terms, it is there for ${roleJobLine(role)}`,
@@ -1943,11 +1943,9 @@ return () => {
   const safePageIndex = Math.min(pageIndex, pageCount - 1);
   const pageProducts = filteredProducts.slice(safePageIndex * PAGE_SIZE, safePageIndex * PAGE_SIZE + PAGE_SIZE);
 
-  const selectedProduct =
-    products.find((product) => product.sku === selectedSku) ||
-    pageProducts[0] ||
-    filteredProducts[0] ||
-    null;
+  const selectedProduct = selectedSku
+    ? products.find((product) => product.sku === selectedSku) ?? null
+    : null;
   const competitorLandscape = useMemo(
     () => (selectedProduct ? getCompetitorLandscape(selectedProduct) : null),
     [selectedProduct],
@@ -2158,6 +2156,21 @@ return () => {
   const lastVisible = Math.min(filteredProducts.length, (safePageIndex + 1) * PAGE_SIZE);
   const curatedCount = products.filter((product) => product.curated).length;
 
+  function returnToProductSelection(): void {
+    setSelectedSku("");
+    setActiveProductPanel("whatItIs");
+    setActiveGalleryItem(null);
+    setActiveTermLookup(null);
+
+    if (window.location.pathname !== "/wingman/product-call-cards") {
+      window.history.replaceState({}, "", "/wingman/product-call-cards");
+    }
+
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+
   function addProductToProject(): void {
     if (!selectedProduct) {
       return;
@@ -2228,7 +2241,11 @@ return () => {
     goTo(`/wingman/discovery?${params.toString()}`);
   }
 return (
-    <section className="wm-pcc-select-shell wm-ui-section">
+    <section
+      className={`wm-pcc-select-shell wm-ui-section ${
+        selectedProduct ? "wm-pcc-shell-product-mode" : "wm-pcc-shell-selection-mode"
+      }`}
+    >
 
       {activeGalleryItem && selectedProduct && (
         <div
@@ -2290,23 +2307,49 @@ return (
         </aside>
       )}
 
-      <header className="wm-pcc-header wm-ui-card-header">
+      <header
+        className={`wm-pcc-header wm-ui-card-header ${
+          selectedProduct ? "wm-pcc-header-product-mode" : "wm-pcc-header-selection-mode"
+        }`}
+      >
         <div>
-          <p className="wm-pcc-eyebrow wm-ui-copy wm-ui-kicker">Wingman workspace</p>
-          <h1 className="wm-pcc-title wm-ui-title">Product Discussion</h1>
-          <p className="wm-pcc-subtitle wm-ui-copy">Discuss one product, then add it to a project only when needed.</p>
+          <p className="wm-pcc-eyebrow wm-ui-copy wm-ui-kicker">
+            {selectedProduct ? "Product discussion" : "Wingman workspace"}
+          </p>
+          <h1 className="wm-pcc-title wm-ui-title">
+            {selectedProduct ? selectedProduct.sku : "Product Discussion"}
+          </h1>
+          <p className="wm-pcc-subtitle wm-ui-copy">
+            {selectedProduct
+              ? [selectedProduct.family, selectedProduct.category].filter(Boolean).join(" Â· ")
+              : "Choose one product, then use the full workspace for product information and sales guidance."}
+          </p>
         </div>
 
-        <input
-          className="wm-pcc-search wm-ui-input"
-          aria-label="Search WyreStorm SKU or product type"
-          placeholder="Search SKU, family, product type or application..."
-          value={query}
-          onChange={(event) => setQuery(event.currentTarget.value)}
-        />
+        {selectedProduct ? (
+          <button
+            type="button"
+            className="wm-ui-button wm-ui-button-secondary wm-pcc-return-button"
+            onClick={returnToProductSelection}
+          >
+            Return to product selection
+          </button>
+        ) : (
+          <input
+            className="wm-pcc-search wm-ui-input"
+            aria-label="Search WyreStorm SKU or product type"
+            placeholder="Search SKU, family, product type or application..."
+            value={query}
+            onChange={(event) => setQuery(event.currentTarget.value)}
+          />
+        )}
       </header>
 
-      <main className="wm-pcc-grid wm-ui-page wingman-page-host">
+      <main
+        className={`wm-pcc-grid wm-ui-page wingman-page-host ${
+          selectedProduct ? "wm-pcc-product-mode" : "wm-pcc-selection-mode"
+        }`}
+      >
       <details className="wm-ui-card wm-pcc-workflow-guide" aria-label="Product Call Cards workflow guide">
         <summary className="wm-ui-title">How to use this call card</summary>
         <ul className="wm-ui-copy">
@@ -2403,7 +2446,13 @@ return (
                 type="button"
                 onClick={() => {
                   setSelectedSku(product.sku);
+                  setActiveProductPanel("whatItIs");
+                  setActiveGalleryItem(null);
                   setActiveTermLookup(null);
+
+                  window.requestAnimationFrame(() => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  });
                 }}
 
               >
@@ -2425,7 +2474,7 @@ return (
         </section>
 
         <aside className="wm-pcc-card wm-pcc-preview wm-ui-card">
-          <div>
+          <div className="wm-pcc-product-summary">
             <p className="wm-pcc-label wm-ui-copy">Product discussion</p>
             {selectedProduct && <h2 className="wm-pcc-preview-sku wm-ui-title">{selectedProduct.sku}</h2>}
             {selectedProduct && (
