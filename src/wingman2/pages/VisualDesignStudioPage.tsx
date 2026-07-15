@@ -14,6 +14,13 @@ import {
   type DiagramGenerationResult,
   type DiagramTypeId,
 } from "../lib/diagramTemplates";
+import {
+  normaliseProjectTopology,
+  projectTopologyHasContent,
+  projectTopologyMissingInformation,
+  projectTopologySummary,
+  projectTopologyToMermaid,
+} from "../lib/projectTopology";
 
 type SchematicSourceId = "active" | "product-workspace" | "tbc" | string;
 type SchematicNodeKind = "source" | "wyrestorm" | "network" | "display" | "usb" | "audio" | "control" | "validation" | "other";
@@ -57,6 +64,7 @@ const KIND_LABELS: Record<SchematicNodeKind, string> = {
 function projectCoverage(project?: StoredProject | null) {
   return [
     { label: "Discovery", ready: Boolean(project?.discoveryBrief || project?.requirements?.length || project?.ingest) },
+    { label: "Connections", ready: projectTopologyHasContent(project?.discoveryBrief?.topology ?? project?.discoveryBrief?.roomModel?.topology) },
     { label: "Products", ready: Boolean(project?.productSelections?.length || project?.proposal?.products?.length) },
     { label: "Compare", ready: Boolean(project?.compareRuns?.length) },
     { label: "Response pack", ready: Boolean(project?.proposal) },
@@ -649,6 +657,32 @@ function buildProductHandoffDiagram(
   };
 }
 
+function buildProjectTopologyDiagram(project: StoredProject, diagramType: DiagramTypeId): DiagramGenerationResult | null {
+  const roomModel = (project.discoveryBrief?.roomModel ?? {}) as Record<string, unknown>;
+  const topology = normaliseProjectTopology(project.discoveryBrief?.topology ?? roomModel.topology);
+  if (!projectTopologyHasContent(topology)) return null;
+
+  const blockers = projectTopologyMissingInformation(topology);
+  return {
+    diagramType,
+    title: `${project.name} locations and connections`,
+    summary: projectTopologySummary(topology),
+    sourceLabel: "Discovery topology",
+    mermaid: projectTopologyToMermaid(topology),
+    blockers,
+    assumptions: [
+      "Estimated cable lengths are planning allowances and must be checked against the installed route.",
+      "Third-party and TBC objects remain placeholders until manufacturer, model and port compatibility are confirmed.",
+    ],
+    stats: [
+      { label: "Locations", value: String(topology.locations.length) },
+      { label: "Devices", value: String(topology.devices.length) },
+      { label: "Connections", value: String(topology.connections.length) },
+      { label: "Open checks", value: String(blockers.length) },
+    ],
+  };
+}
+
 function buildTbcDiagram(diagramType: DiagramTypeId): DiagramGenerationResult {
   return {
     diagramType,
@@ -729,6 +763,11 @@ export function VisualDesignStudioPage() {
     if (selectedSourceId === "tbc") {
       return buildTbcDiagram(diagramType);
     }
+
+    const topologyDiagram = selectedProject
+      ? buildProjectTopologyDiagram(selectedProject, diagramType)
+      : null;
+    if (topologyDiagram) return topologyDiagram;
 
     return generateDiagram({ diagramType, project: selectedProject });
   }, [diagramType, productHandoff, selectedProject, selectedSourceId]);

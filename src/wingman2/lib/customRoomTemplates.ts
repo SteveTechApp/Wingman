@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { StoredProject, StoredProposalBomRow } from "../data/projectStore";
 import type { RoomTemplate, TemplateBomRow, TemplateBomType } from "./roomTemplates";
+import { normaliseProjectTopology, type ProjectTopology } from "./projectTopology";
 
 export const CUSTOM_ROOM_TEMPLATE_EVENT = "wingman:custom-room-templates-updated";
 
@@ -10,7 +11,7 @@ const defaultTemplateBomType: TemplateBomType = "Validate";
 // Bump when the CustomRoomTemplate shape gains fields that older saved records
 // won't have. normalizeTemplate() always fills safe defaults for missing fields,
 // so older records keep loading; this just records what was captured.
-export const CUSTOM_ROOM_TEMPLATE_SCHEMA_VERSION = 2;
+export const CUSTOM_ROOM_TEMPLATE_SCHEMA_VERSION = 3;
 
 export type DiscoveryAnswerMap = Record<string, string | string[]>;
 export type DiscoveryNoteMap = Record<string, string>;
@@ -27,6 +28,7 @@ export type CustomRoomTemplate = RoomTemplate & {
   // Discovery's own answer shape avoids a second, parallel room-data model.
   discoveryAnswers: DiscoveryAnswerMap;
   discoveryNotes: DiscoveryNoteMap;
+  topology?: ProjectTopology;
 };
 
 export type CreateCustomRoomTemplateInput = {
@@ -41,6 +43,7 @@ export type CreateCustomRoomTemplateInput = {
   validationItems?: string[];
   discoveryAnswers?: DiscoveryAnswerMap;
   discoveryNotes?: DiscoveryNoteMap;
+  topology?: ProjectTopology;
 };
 
 function nowIso() {
@@ -204,6 +207,7 @@ function normalizeTemplate(template: unknown, index: number): CustomRoomTemplate
     sourceProjectId: safeString(record.sourceProjectId, ""),
     discoveryAnswers: safeDiscoveryAnswers(record.discoveryAnswers),
     discoveryNotes: safeDiscoveryNotes(record.discoveryNotes),
+    topology: normaliseProjectTopology(record.topology),
   };
 }
 
@@ -279,11 +283,12 @@ export function createBlankCustomRoomTemplate(input: CreateCustomRoomTemplateInp
     schemaVersion: CUSTOM_ROOM_TEMPLATE_SCHEMA_VERSION,
     discoveryAnswers: input.discoveryAnswers ?? {},
     discoveryNotes: input.discoveryNotes ?? {},
+    topology: normaliseProjectTopology(input.topology),
   };
 }
 
 export function saveCustomRoomTemplate(
-  template: RoomTemplate & { discoveryAnswers?: DiscoveryAnswerMap; discoveryNotes?: DiscoveryNoteMap },
+  template: RoomTemplate & { discoveryAnswers?: DiscoveryAnswerMap; discoveryNotes?: DiscoveryNoteMap; topology?: ProjectTopology },
   options: { id?: string; sourceTemplateId?: string; sourceProjectId?: string } = {},
 ) {
   const existingTemplates = readCustomTemplates();
@@ -302,6 +307,7 @@ export function saveCustomRoomTemplate(
       sourceProjectId: options.sourceProjectId ?? existingTemplate?.sourceProjectId,
       discoveryAnswers: template.discoveryAnswers ?? existingTemplate?.discoveryAnswers,
       discoveryNotes: template.discoveryNotes ?? existingTemplate?.discoveryNotes,
+      topology: template.topology ?? existingTemplate?.topology,
     },
     existingTemplates.length,
   );
