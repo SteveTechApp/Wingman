@@ -176,6 +176,7 @@ export function IngestPage() {
   const [visualAttachments, setVisualAttachments] = useState<VisualAttachmentAnalysis[]>([]);
   const [attachmentStatus, setAttachmentStatus] = useState<"idle" | "analyzing" | "error">("idle");
   const [attachmentError, setAttachmentError] = useState("");
+  const [isEditingRequest, setIsEditingRequest] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const attachmentInputRef = useRef<HTMLInputElement | null>(null);
@@ -215,6 +216,13 @@ export function IngestPage() {
   const requirements = cleanList(analysis.requirements, ["No requirements extracted yet."]);
   const unknowns = cleanList(analysis.unknowns, ["No missing details extracted yet."]);
   const systemShape = useMemo(() => buildSystemShape(analysis.requirements, analysis.unknowns), [analysis.requirements, analysis.unknowns]);
+  const hasDecodedResult = extractState === "complete";
+  const showCaptureWorkspace = !hasDecodedResult || isEditingRequest;
+  const decodedSourceSummary = [
+    pastedText.trim() ? `${pastedText.trim().length.toLocaleString()} characters pasted` : "",
+    selectedFiles.length ? `${selectedFiles.length} readable file${selectedFiles.length === 1 ? "" : "s"}` : "",
+    visualAttachments.length ? `${visualAttachments.length} visual attachment${visualAttachments.length === 1 ? "" : "s"}` : "",
+  ].filter(Boolean);
 
   const redirectToCompare = (text: string) => {
     if (!text.trim()) return false;
@@ -265,6 +273,7 @@ export function IngestPage() {
       { requireExistingProject: true },
     );
     setExtractState("complete");
+    setIsEditingRequest(false);
   };
 
   const updateBulkRowQuantity = (rowId: string, quantity: number) => {
@@ -382,10 +391,31 @@ export function IngestPage() {
       { requireExistingProject: true },
     );
     setExtractState(extractionWarnings.length && !text ? "error" : "complete");
+    if (!(extractionWarnings.length && !text)) setIsEditingRequest(false);
   };
 
   const runPasteAnalysis = () => {
     analyseText(pastedText, [], selectedFiles);
+  };
+
+  const resetStandardRequest = () => {
+    setSelectedFiles([]);
+    setExtractState("idle");
+    setPastedText("");
+    setBulkAnalysis(null);
+    setAnalysis({
+      requirements: [],
+      unknowns: ["Paste a customer message, RFQ, RFI, notes or upload readable files to decode the request."],
+      skippedFiles: [],
+      files: [],
+    });
+    setVisualAttachments([]);
+    setAttachmentStatus("idle");
+    setAttachmentError("");
+    setIsEditingRequest(false);
+
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (attachmentInputRef.current) attachmentInputRef.current.value = "";
   };
 
   if (bulkAnalysis) {
@@ -414,30 +444,80 @@ export function IngestPage() {
   }
 
   return (
-    <div className="pb-8" data-wingman-request-decoder="true">
-      <PageHero
-        eyebrow="Request Decoder"
-        title="Decode the request, review the result, then take one clear next step."
-        purpose="Paste or upload the customer request. Wingman separates usable requirements from missing information."
-        nextMove={nextStep.summary}
-        actions={[
-          { label: nextStep.label, to: nextStep.path },
-        ]}
-      />
+    <div
+      className="wm-ingest-page"
+      data-wingman-request-decoder="true"
+      data-workspace-view={showCaptureWorkspace ? "capture" : "results"}
+    >
+      <header className="wm-ingest-compact-header">
+        <div className="wm-ingest-header-copy">
+          <p className="wm-ingest-kicker">Request Decoder</p>
+          <h1>{showCaptureWorkspace ? "Decode the incoming request" : "Decoded request"}</h1>
+          <p>
+            {showCaptureWorkspace
+              ? "Paste or upload the customer wording, then let Wingman separate requirements from missing information."
+              : "Review the requirements, system direction and open questions before moving into the next workflow."}
+          </p>
+        </div>
 
-      <SectionCard
-        title="Decode the incoming request"
-        subtitle="Start with the customer communication, not a product assumption."
-      >
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_340px]">
-          <section className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
-            <div className="grid gap-4">
-              <label className="grid gap-2">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Request type</span>
+        <div className="wm-ingest-header-actions">
+          <Link
+            className="wm-ingest-button wm-ingest-button-secondary"
+            data-ingest-next-step="true"
+            to={nextStep.path}
+          >
+            {nextStep.label}
+          </Link>
+          {showCaptureWorkspace ? (
+            <Link
+              className="wm-ingest-button wm-ingest-button-secondary"
+              to={nextStep.path}
+            >
+              {nextStep.label}
+            </Link>
+          ) : null}
+          {hasDecodedResult && !showCaptureWorkspace ? (
+            <>
+              <button
+                type="button"
+                className="wm-ingest-button wm-ingest-button-secondary"
+                onClick={() => setIsEditingRequest(true)}
+              >
+                Edit request
+              </button>
+              <Link className="wm-ingest-button wm-ingest-button-primary" to={nextStep.path}>
+                {nextStep.label}
+              </Link>
+            </>
+          ) : null}
+        </div>
+      </header>
+
+      {showCaptureWorkspace ? (
+        <main className="wm-ingest-capture-layout">
+          <section className="wm-ingest-panel wm-ingest-input-panel">
+            <div className="wm-ingest-panel-heading">
+              <div>
+                <span>Customer input</span>
+                <h2>What has the customer asked for?</h2>
+              </div>
+              {hasDecodedResult ? (
+                <button
+                  type="button"
+                  className="wm-ingest-text-button"
+                  onClick={() => setIsEditingRequest(false)}
+                >
+                  Cancel edit
+                </button>
+              ) : null}
+            </div>
+
+            <div className="wm-ingest-request-controls">
+              <label>
+                <span>Request type</span>
                 <select
                   value={requestType}
                   onChange={(event) => setRequestType(event.target.value as RequestType)}
-                  className="min-h-11 rounded-2xl border border-[#29465e] bg-[#0d2133] px-3 text-sm font-semibold text-white"
                 >
                   {requestTypes.map((item) => (
                     <option key={item} value={item}>{item}</option>
@@ -445,26 +525,29 @@ export function IngestPage() {
                 </select>
               </label>
 
-              <label className="grid gap-2">
-                <span className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Paste customer wording</span>
-                <textarea
-                  value={pastedText}
-                  onChange={(event) => setPastedText(event.target.value)}
-                  placeholder="Paste the email, RFQ text, notes, BOM lines or customer message here."
-                  className="min-h-[220px] rounded-2xl border border-[#29465e] bg-[#0d2133] p-4 text-sm leading-6 text-white outline-none focus:border-cyan-300"
-                />
-              </label>
-
               <button
                 type="button"
                 onClick={runPasteAnalysis}
-                disabled={!pastedText.trim()}
-                className="rounded-full bg-cyan-300 px-5 py-3 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Decode pasted request
-              </button>
+                disabled={!pastedText.trim() || extractState === "extracting"}
+                className="wm-ingest-button wm-ingest-button-primary wm-ingest-decode-button"
 
-              <div className="rounded-2xl border-2 border-dashed border-[#29465e] bg-[#081724] p-4">
+              aria-label="Decode pasted request">
+                {extractState === "extracting" ? "Decoding..." : "Decode pasted request"}
+              </button>
+            </div>
+
+            <label className="wm-ingest-textarea-label">
+              <span>Customer wording</span>
+              <textarea
+                value={pastedText}
+                onChange={(event) => setPastedText(event.target.value)}
+                placeholder="Paste the email, RFQ text, notes, BOM lines or customer message here."
+                rows={10}
+              />
+            </label>
+
+            <div className="wm-ingest-upload-grid">
+              <section className="wm-ingest-upload-card">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -473,29 +556,24 @@ export function IngestPage() {
                   onChange={handleFileChange}
                   accept=".pdf,.doc,.docx,.txt,.rtf,.md,.csv,.eml"
                 />
-                <p className="text-sm font-black text-white">Upload readable files</p>
-                <p className="mt-1 text-sm leading-6 text-white/55">
-                  Use this for exported emails, text files, CSV BOMs, markdown notes or documents with extractable text.
-                </p>
+                <div>
+                  <strong>Readable documents</strong>
+                  <span>PDF, Word, text, CSV, email or markdown</span>
+                </div>
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={extractState === "extracting"}
-                  className="mt-3 rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100 disabled:opacity-40"
+                  className="wm-ingest-button wm-ingest-button-secondary"
                 >
                   {extractState === "extracting" ? "Extracting..." : "Select files"}
                 </button>
-
                 {selectedFiles.length ? (
-                  <ul className="mt-3 space-y-1 text-sm text-white/60">
-                    {selectedFiles.map((fileName) => (
-                      <li key={fileName}>{fileName}</li>
-                    ))}
-                  </ul>
+                  <small>{selectedFiles.length} selected: {selectedFiles.slice(0, 2).join(", ")}{selectedFiles.length > 2 ? "â€¦" : ""}</small>
                 ) : null}
-              </div>
+              </section>
 
-              <div className="rounded-2xl border-2 border-dashed border-[#29465e] bg-[#081724] p-4">
+              <section className="wm-ingest-upload-card">
                 <input
                   ref={attachmentInputRef}
                   type="file"
@@ -504,98 +582,199 @@ export function IngestPage() {
                   onChange={handleAttachmentChange}
                   accept="image/*"
                 />
-                <p className="text-sm font-black text-white">Supporting attachments (photos, diagrams)</p>
-                <p className="mt-1 text-sm leading-6 text-white/55">
-                  Add a photo of the room or an existing schematic diagram. Wingman reads it for context alongside the decoded request - it does not replace the product requirement.
-                </p>
+                <div>
+                  <strong>Photos or diagrams</strong>
+                  <span>Add visual context without replacing the brief</span>
+                </div>
                 <button
                   type="button"
                   onClick={() => attachmentInputRef.current?.click()}
                   disabled={attachmentStatus === "analyzing"}
-                  className="mt-3 rounded-full border border-cyan-300 px-4 py-2 text-sm font-black text-cyan-100 disabled:opacity-40"
+                  className="wm-ingest-button wm-ingest-button-secondary"
                 >
-                  {attachmentStatus === "analyzing" ? "Analyzing..." : "Add attachment"}
+                  {attachmentStatus === "analyzing" ? "Analysing..." : "Add attachment"}
                 </button>
-
-                {attachmentStatus === "error" && attachmentError ? (
-                  <p className="mt-3 text-sm leading-6 text-rose-300">{attachmentError}</p>
-                ) : null}
-
                 {visualAttachments.length ? (
-                  <ul className="mt-3 space-y-1 text-sm text-white/60">
-                    {visualAttachments.map((item) => (
-                      <li key={item.id}>{item.fileName}</li>
-                    ))}
-                  </ul>
+                  <small>{visualAttachments.length} visual attachment{visualAttachments.length === 1 ? "" : "s"}</small>
                 ) : null}
+              </section>
+            </div>
+
+            {extractState === "error" ? (
+              <div className="wm-ingest-inline-alert" role="alert">
+                <strong>Wingman could not complete the decode.</strong>
+                <span>{unknowns[0]}</span>
               </div>
+            ) : null}
+
+            {attachmentStatus === "error" && attachmentError ? (
+              <div className="wm-ingest-inline-alert" role="alert">
+                <strong>Attachment analysis failed.</strong>
+                <span>{attachmentError}</span>
+              </div>
+            ) : null}
+          </section>
+
+          <aside className="wm-ingest-panel wm-ingest-guidance-panel">
+            <div className="wm-ingest-panel-heading">
+              <div>
+                <span>{requestGuidance.title}</span>
+                <h2>How Wingman will handle it</h2>
+              </div>
+            </div>
+
+            <div className="wm-ingest-guidance-summary">
+              <strong>Response voice</strong>
+              <p>{requestGuidance.voice}</p>
+            </div>
+
+            <div className="wm-ingest-process-list">
+              <article>
+                <span>1</span>
+                <div>
+                  <strong>Decode</strong>
+                  <p>Separate firm requirements from assumptions and missing information.</p>
+                </div>
+              </article>
+              <article>
+                <span>2</span>
+                <div>
+                  <strong>Review</strong>
+                  <p>{requestGuidance.output}</p>
+                </div>
+              </article>
+              <article>
+                <span>3</span>
+                <div>
+                  <strong>Move forward</strong>
+                  <p>{nextStep.summary}</p>
+                </div>
+              </article>
+            </div>
+
+            <div className="wm-ingest-guidance-note">
+              <strong>No blank result panels</strong>
+              <p>Results stay hidden until Wingman has decoded usable customer content.</p>
+            </div>
+          </aside>
+        </main>
+      ) : (
+        <>
+          <section className="wm-ingest-result-toolbar">
+            <div>
+              <span>Source</span>
+              <strong>{requestType}</strong>
+              <small>{decodedSourceSummary.join(" Â· ") || "Decoded customer wording"}</small>
+            </div>
+
+            <div className="wm-ingest-result-toolbar-actions">
+              <button
+                type="button"
+                className="wm-ingest-button wm-ingest-button-secondary"
+                onClick={() => setIsEditingRequest(true)}
+              >
+                Edit request
+              </button>
+              <button
+                type="button"
+                className="wm-ingest-text-button"
+                onClick={resetStandardRequest}
+              >
+                Start new request
+              </button>
             </div>
           </section>
 
-          <section className="grid gap-4">
-            <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Extracted requirements</p>
-              <ul className="mt-4 space-y-2 text-sm leading-6 text-white/75">
+          <main className="wm-ingest-results-grid">
+            <article className="wm-ingest-panel wm-ingest-result-card wm-ingest-requirements-card">
+              <div className="wm-ingest-panel-heading">
+                <div>
+                  <span>Extracted requirements</span>
+                  <h2>{analysis.requirements.length} captured</h2>
+                </div>
+              </div>
+              <ul className="wm-ingest-compact-list">
                 {requirements.slice(0, 10).map((requirement, index) => (
-                  <li key={`${requirement}-${index}`} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">
-                    {requirement}
+                  <li key={`${requirement}-${index}`}>
+                    <span>{index + 1}</span>
+                    <p>{requirement}</p>
                   </li>
                 ))}
               </ul>
             </article>
 
-            <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Likely system shape</p>
-              <p className="mt-3 text-sm leading-6 text-white/75">{systemShape}</p>
-            </article>
+            <div className="wm-ingest-result-stack">
+              <article className="wm-ingest-panel wm-ingest-result-card">
+                <div className="wm-ingest-panel-heading">
+                  <div>
+                    <span>Likely system shape</span>
+                    <h2>Architecture direction</h2>
+                  </div>
+                </div>
+                <p className="wm-ingest-result-copy">{systemShape}</p>
+              </article>
 
-            {visualAttachments.length ? (
-              <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Visual context</p>
-                <ul className="mt-4 space-y-3 text-sm leading-6 text-white/75">
-                  {visualAttachments.map((item) => (
-                    <li key={item.id} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">
-                      <p className="font-semibold text-white">{item.fileName}</p>
-                      <p className="mt-1 text-white/60">{item.summary}</p>
+              <article className="wm-ingest-panel wm-ingest-result-card wm-ingest-voice-card">
+                <div className="wm-ingest-panel-heading">
+                  <div>
+                    <span>{requestGuidance.title}</span>
+                    <h2>Response voice</h2>
+                  </div>
+                </div>
+                <p className="wm-ingest-result-copy">{requestGuidance.voice}</p>
+                <p className="wm-ingest-result-muted">{requestGuidance.output}</p>
+              </article>
+            </div>
+
+            <aside className="wm-ingest-result-stack">
+              <article className="wm-ingest-panel wm-ingest-result-card">
+                <div className="wm-ingest-panel-heading">
+                  <div>
+                    <span>Unknowns / next actions</span>
+                    <h2>{analysis.unknowns.length} to confirm</h2>
+                  </div>
+                </div>
+                <ul className="wm-ingest-compact-list wm-ingest-unknown-list">
+                  {unknowns.slice(0, 8).map((unknown, index) => (
+                    <li key={`${unknown}-${index}`}>
+                      <span>?</span>
+                      <p>{unknown}</p>
                     </li>
                   ))}
                 </ul>
               </article>
-            ) : null}
-          </section>
 
-          <aside className="grid gap-4">
-            <article className="rounded-3xl border border-cyan-500/30 bg-cyan-500/10 p-5">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-200">{requestGuidance.title}</p>
-              <h2 className="mt-2 text-xl font-black text-white">Correct response voice</h2>
-              <p className="mt-3 text-sm leading-6 text-white/75">{requestGuidance.voice}</p>
-              <p className="mt-3 text-sm leading-6 text-white/75">{requestGuidance.output}</p>
-            </article>
+              <article className="wm-ingest-panel wm-ingest-next-card">
+                <span>Next workflow</span>
+                <h2>{nextStep.label.replace(/^Next:\s*/i, "")}</h2>
+                <p>{nextStep.summary}</p>
+                <Link className="wm-ingest-button wm-ingest-button-primary" to={nextStep.path}>
+                  {nextStep.label}
+                </Link>
+              </article>
+            </aside>
+          </main>
 
-            <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Unknowns / next actions</p>
-              <ul className="mt-4 space-y-2 text-sm leading-6 text-white/75">
-                {unknowns.slice(0, 10).map((unknown, index) => (
-                  <li key={`${unknown}-${index}`} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">
-                    {unknown}
-                  </li>
+          {visualAttachments.length ? (
+            <section className="wm-ingest-panel wm-ingest-visual-strip">
+              <div className="wm-ingest-panel-heading">
+                <div>
+                  <span>Visual context</span>
+                  <h2>{visualAttachments.length} attachment{visualAttachments.length === 1 ? "" : "s"}</h2>
+                </div>
+              </div>
+              <div className="wm-ingest-visual-grid">
+                {visualAttachments.map((item) => (
+                  <article key={item.id}>
+                    <strong>{item.fileName}</strong>
+                    <p>{item.summary}</p>
+                  </article>
                 ))}
-              </ul>
-            </article>
-
-            <article className="rounded-3xl border border-[#29465e] bg-[#071522] p-5">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-cyan-300">Next step</p>
-              <p className="mt-3 text-sm leading-6 text-white/75">{nextStep.summary}</p>
-              <Link
-                to={nextStep.path}
-                className="mt-4 block rounded-full bg-cyan-300 px-4 py-3 text-center text-sm font-black text-slate-950"
-              >
-                {nextStep.label}
-              </Link>
-            </article>
-          </aside>
-        </div>
-      </SectionCard>
+              </div>
+            </section>
+          ) : null}
+        </>
+      )}
     </div>
   );
 }
