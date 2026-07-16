@@ -120,7 +120,7 @@ describe("Discovery rendered workflow handoff", () => {
       </MemoryRouter>,
     );
 
-    const noteBox = screen.getByRole("textbox");
+    const noteBox = screen.getByRole("textbox", { name: /customer wording/i });
 
     fireEvent.change(noteBox, {
       target: {
