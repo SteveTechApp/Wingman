@@ -46,7 +46,9 @@ GitHub checks before automatic deployment, and checks `/` plus `/api/ready`.
 Use `.env.production.example` when promoting the trial deployment to persistent
 Supabase-backed production storage and follow the migration runbook in `OPERATIONS.md` §8.
 
-- [ ] Supabase project provisioned; `001_initial_schema.sql` applied.
+- [ ] Supabase project provisioned; `001_initial_schema.sql` applied (plus
+      `002_scope_service_role_policies.sql` if the database predates the RLS policy
+      role-scoping fix).
 - [ ] File-store data migrated and verified (row counts + sample project); backup retained.
 - [ ] `WINGMAN_STORAGE_MODE=supabase-tables` and app exercised under concurrent use.
 - [ ] All secrets in the host secret manager (no committed `.env`).
