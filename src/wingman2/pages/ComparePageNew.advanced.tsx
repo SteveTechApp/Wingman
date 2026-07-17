@@ -5669,7 +5669,7 @@ function ComparePageNew() {
 
               <p className="wm-compare-sku-note">
                 Selecting a known SKU opens the comparison automatically.
-                Typed entries can use Enter or the review button.
+                Typed entries can still use Enter or the review button.
               </p>
             </section>
 
