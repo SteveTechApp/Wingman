@@ -3557,13 +3557,23 @@ function wyrestormInputSummary(
   profile: ReturnType<typeof buildWyrestormCompareProfile>,
   knownProfile?: KnownWyrestormCompareProfile,
 ): string {
-  const explicit = explicitPortSummary(profile.specs, "input");
+  const role = candidate.product.role.toLowerCase();
+  const family = candidate.product.family.toLowerCase();
+  const isAvoipEncoder = /encoder|transmitter/.test(role) && /networkhd|av-over-ip/.test(family);
+
+  // AV-over-IP encoders physically take an HDMI cable, but the customer-facing
+  // wording should match the "local source input" language used elsewhere for
+  // this family/role rather than the raw HDMI port count.
+  const explicit = isAvoipEncoder ? "" : explicitPortSummary(profile.specs, "input");
 
   if (explicit) {
     return explicit;
   }
 
-  if (knownProfile?.routedInputCount) {
+  // "Routed source input" wording implies matrix-style switching among several
+  // inputs; a single-input AV-over-IP encoder doesn't route anything, so keep
+  // it on the "local source input" wording below instead.
+  if (knownProfile?.routedInputCount && !isAvoipEncoder) {
     const typeText = knownProfile.inputTypes.length ? ` (${knownProfile.inputTypes.join(" / ")})` : "";
     return `${knownProfile.routedInputCount}x routed source input${knownProfile.routedInputCount === 1 ? "" : "s"}${typeText}`;
   }

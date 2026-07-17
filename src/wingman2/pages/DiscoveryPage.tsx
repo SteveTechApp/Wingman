@@ -48,6 +48,8 @@ type DiscoveryOption = {
 type DiscoveryQuestion = {
   id: string;
   shortLabel: string;
+  section: string;
+  optional?: boolean;
   question: string;
   prompt: string;
   why: string;
@@ -137,6 +139,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
   {
     id: "opportunity",
     shortLabel: "Opportunity",
+    section: "About the space",
     question: "What type of opportunity is this?",
     prompt: "Select the closest customer application.",
     why: "The application narrows the likely system shape before Wingman thinks about products.",
@@ -178,6 +181,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
   {
     id: "scale",
     shortLabel: "Scale",
+    section: "About the space",
     question: "What is the approximate room or system scale?",
     prompt: "Pick the closest scale. Exact dimensions can be captured in the notes box.",
     why: "Scale affects whether this needs a simple cable run, a local switcher, or a networked system reaching more rooms.",
@@ -214,6 +218,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
   {
     id: "sources",
     shortLabel: "Sources",
+    section: "Sources & displays",
     question: "How many source positions are likely?",
     prompt: "Think about laptops, PCs, media players, cameras, signage players and wireless input.",
     why: "Source count and location drive input selection, switching, encoder count and cable paths.",
@@ -250,6 +255,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
   {
     id: "source-connection",
     shortLabel: "Source type",
+    section: "Sources & displays",
     question: "What are the source connector types?",
     prompt: "Capture whether sources are fixed HDMI devices, USB-C laptops, cameras, wireless inputs, network streams, or a combination of these.",
     why: "Source connector type changes the viable product family, especially when USB-C, wireless input, NDI, or network video is involved.",
@@ -293,6 +299,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
   {
     id: "displays",
     shortLabel: "Displays",
+    section: "Sources & displays",
     question: "How many displays or outputs are needed?",
     prompt: "Include projectors, confidence monitors, overflow displays, video walls and LED processors.",
     why: "Output count is a major divider between simple switching, matrix and a networked system.",
@@ -329,6 +336,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
   {
     id: "display-behaviour",
     shortLabel: "Display behaviour",
+    section: "Sources & displays",
     question: "How should the displays behave?",
     prompt: "Capture whether outputs mirror, route independently, feed a wall processor, or show multiple sources on one canvas.",
     why: "Display behaviour is the difference between simple distribution, matrix routing, multiview, and wall-processing conversations.",
@@ -366,9 +374,10 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
   },
   {
     id: "signal-standard",
-    shortLabel: "Signal standard",
-    question: "What signal standard is expected?",
-    prompt: "Choose the closest resolution and compatibility requirement. Use notes for any HDR, HDCP, or EDID nuance.",
+    shortLabel: "Picture quality",
+    section: "Sources & displays",
+    question: "How sharp does the picture need to be?",
+    prompt: "Pick the closest picture quality. If displays are a mix of old and new, or very high-end, say so below — the technical checks (HDR, HDCP, EDID) are handled behind the scenes.",
     why: "Resolution, HDR, HDCP, and EDID expectations often decide whether a proposal is actually safe to quote.",
     required: true,
     selectionMode: "multiple",
@@ -377,23 +386,23 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     options: [
       {
         value: "1080p-standard-hdmi",
-        label: "1080p / standard HDMI",
+        label: "Standard HD (1080p / standard HDMI)",
         help: "Standard HD video with no strong HDR or HDCP complexity indicated.",
       },
       {
         value: "4k60-standard",
-        label: "4K60 / standard 4K",
+        label: "Standard 4K (4K60 / standard 4K)",
         help: "4K routing is required but HDR or special compatibility constraints are not yet dominant.",
       },
       {
         value: "4k60-hdr-hdcp",
-        label: "4K60 HDR / HDCP-sensitive",
-        help: "Premium signal path where HDR, HDCP 2.2+, and EDID management must be treated carefully.",
+        label: "Premium 4K with HDR (4K60 HDR / HDCP-sensitive)",
+        help: "Premium signal path where HDR, HDCP 2.2+, and EDID management must be treated carefully — flag this for the design team.",
       },
       {
         value: "legacy-edid-risk",
-        label: "Mixed legacy / EDID risk",
-        help: "Older displays, mixed resolutions, or compatibility-sensitive sinks are part of the requirement.",
+        label: "Mix of older & newer screens (legacy / EDID risk)",
+        help: "Older displays, mixed resolutions, or compatibility-sensitive sinks are part of the requirement — worth a compatibility check.",
       },
       {
         value: "unknown-signal-standard",
@@ -404,9 +413,10 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
   },
   {
     id: "usb",
-    shortLabel: "USB / UC workflow",
-    question: "What USB or conferencing workflow is required?",
-    prompt: "Select the host workflow, peripherals and USB bandwidth that apply. Use the notes box to record where the peripherals are located.",
+    shortLabel: "USB & conferencing",
+    section: "Audio, control & conferencing",
+    question: "Does anything need to plug in over USB for video calls?",
+    prompt: "Think about cameras, microphones, touch screens or a laptop that needs to run the call. Select every option that applies.",
     why: "USB host ownership, peripheral location and bandwidth can change the architecture. HDMI-only designs are unsafe when conferencing or interactive devices are involved.",
     required: true,
     selectionMode: "multiple",
@@ -420,32 +430,32 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       },
       {
         value: "usb-camera-audio",
-        label: "Camera, audio or touch peripherals",
+        label: "Camera, microphone or touch screen",
         help: "A camera, microphone, speakerphone, touch display or similar USB peripheral is required.",
       },
       {
         value: "byod-byom",
-        label: "User laptop / BYOD / BYOM host",
+        label: "Visitor's own laptop runs the call (BYOD / BYOM)",
         help: "A user laptop must own the room camera, microphone, speakerphone or other USB devices.",
       },
       {
         value: "room-pc-uc",
-        label: "Room PC / UC appliance host",
+        label: "A fixed room PC or Teams/UC appliance runs the call",
         help: "A fixed room PC, Teams device or UC appliance owns the USB peripherals.",
       },
       {
         value: "switchable-host-usb",
-        label: "Switchable room and laptop host",
+        label: "Either the room system or a laptop, switchable",
         help: "USB ownership must switch between the room system and a user laptop.",
       },
       {
         value: "room-host-usb2",
-        label: "Standard USB 2.0 path",
+        label: "Standard USB path is enough (webcams, touch, keyboard/mouse — USB 2.0)",
         help: "Standard conferencing, touch, keyboard, mouse or USB 2.0-class transport is sufficient.",
       },
       {
         value: "usb3-high-bandwidth-path",
-        label: "High-bandwidth USB 3.x path",
+        label: "Needs a high-bandwidth USB path (high-res cameras/capture — USB 3.x)",
         help: "Cameras, capture devices or other peripherals require USB 3.x bandwidth.",
       },
       {
@@ -458,6 +468,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
   {
     id: "audio",
     shortLabel: "Audio",
+    section: "Audio, control & conferencing",
     question: "What audio requirement is likely? Select all that apply.",
     prompt: "Capture how sound will actually work in the room — through the screen itself, separate room speakers, or microphones for calls.",
     why: "Audio is often missed in first-pass discovery but affects product choice and dependencies.",
@@ -501,7 +512,8 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
   {
     id: "control",
     shortLabel: "Control",
-      question: "How should people in the room operate the system?",
+    section: "Audio, control & conferencing",
+    question: "How should people in the room operate the system?",
     prompt: "Think about staff use, wall control, touch panels, third-party control, automation or simple source selection.",
     why: "Control affects usability, supportability and whether the solution is realistic for non-technical users.",
     required: true,
@@ -538,11 +550,13 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
   },
   {
     id: "locations-connections",
-    shortLabel: "Locations & connections",
+    shortLabel: "Room layout (optional)",
+    section: "Room layout & cabling",
+    optional: true,
     question: "Where are the devices, and how do they connect?",
-    prompt: "Review the suggested devices, assign each one to a room or building location, define the connection type and confirm or estimate the cable length.",
+    prompt: "This is the advanced, detailed part — it's optional. Wingman has already built a starting layout from your earlier answers below; review it if you know the room, or skip it and add the detail later.",
     why: "A device-by-device topology is more reliable than one overall distance because video, USB, control, audio, fibre and network paths can have different limits.",
-    required: true,
+    required: false,
     capturePlaceholder: "Example: Sources in room rack, main display at front wall, camera at ceiling; rack-to-display route approximately 18m.",
     options: [
       {
@@ -557,6 +571,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
 const avoipProfileQuestion: DiscoveryQuestion = {
   id: "avoip-profile",
   shortLabel: "Performance fit",
+  section: "Sources & displays",
   question: "Which of these sounds closest to what the customer needs?",
   prompt: "Keep this in plain terms — pick whichever is closest to what matters most: cost, image quality, connecting devices, or showing several sources on one screen at once.",
   why: "This is the shortest reliable way to separate NetworkHD 100, 500, and 600 conversations before Finder recommends a family.",
@@ -597,7 +612,12 @@ function getVisibleDiscoveryQuestions(selectedApplication: string): DiscoveryQue
     return baseDiscoveryQuestions;
   }
 
-  return [...baseDiscoveryQuestions, avoipProfileQuestion];
+  // Insert directly after "signal-standard" so it stays grouped inside the
+  // "Sources & displays" phase instead of trailing the whole question set.
+  const insertAfterIndex = baseDiscoveryQuestions.findIndex((step) => step.id === "signal-standard");
+  const withProfile = [...baseDiscoveryQuestions];
+  withProfile.splice(insertAfterIndex + 1, 0, avoipProfileQuestion);
+  return withProfile;
 }
 
 
@@ -1048,6 +1068,11 @@ export function DiscoveryPage() {
   const [sourceTemplateId, setSourceTemplateId] = useState<string | undefined>(undefined);
   const [sourceTemplateName, setSourceTemplateName] = useState<string | undefined>(undefined);
   const [templateSavedMessage, setTemplateSavedMessage] = useState("");
+  const [clientName, setClientName] = useState("");
+  const [contactName, setContactName] = useState("");
+  const [siteName, setSiteName] = useState("");
+  const [budgetLevel, setBudgetLevel] = useState("");
+  const [timeline, setTimeline] = useState("");
   const navigate = useNavigate();
 
   const recogniserRef = useRef<DiscoverySpeechRecognitionLike | null>(null);
@@ -1056,6 +1081,25 @@ export function DiscoveryPage() {
     () => getVisibleDiscoveryQuestions(selectedApplication),
     [selectedApplication],
   );
+
+  // Group the flat question list into named phases so an inexperienced user
+  // always knows roughly where they are and how much is left, instead of
+  // facing one undifferentiated list of 11-12 questions.
+  const discoveryPhases = useMemo(() => {
+    const order: string[] = [];
+    const grouped = new Map<string, DiscoveryQuestion[]>();
+
+    discoveryQuestions.forEach((step) => {
+      if (!grouped.has(step.section)) {
+        order.push(step.section);
+        grouped.set(step.section, []);
+      }
+      grouped.get(step.section)?.push(step);
+    });
+
+    return order.map((name) => ({ name, steps: grouped.get(name) ?? [] }));
+  }, [discoveryQuestions]);
+
   const activeStepIdRef = useRef(discoveryQuestions[0]?.id ?? "");
   
   // Clamp active discovery step after reset or dynamic question-list changes.
@@ -1072,6 +1116,11 @@ export function DiscoveryPage() {
   const completionPanelRef = useRef<HTMLElement | null>(null);
 
   const currentStep = discoveryQuestions[Math.min(activeIndex, Math.max(discoveryQuestions.length - 1, 0))];
+  const currentPhaseIndex = Math.max(0, discoveryPhases.findIndex((phase) => phase.name === currentStep.section));
+  const currentPhase = discoveryPhases[currentPhaseIndex];
+  const currentPhaseAnsweredCount = currentPhase
+    ? currentPhase.steps.filter((step) => wmDiscoveryHasAnswer(answers[step.id])).length
+    : 0;
   const currentStepView = getQuestionView(currentStep, selectedApplication);
   const currentAnswer = answers[currentStep.id] ?? "";
   const currentNote = notes[currentStep.id] ?? "";
@@ -1420,6 +1469,11 @@ export function DiscoveryPage() {
     setSourceTemplateId(undefined);
     setSourceTemplateName(undefined);
     setTemplateSavedMessage("");
+    setClientName("");
+    setContactName("");
+    setSiteName("");
+    setBudgetLevel("");
+    setTimeline("");
 
     navigate("/wingman/discovery", { replace: true });
 
@@ -1606,6 +1660,11 @@ export function DiscoveryPage() {
         summary: summaryText,
         sourceTemplateId: sourceTemplateId || "",
         sourceTemplateName: sourceTemplateName || "",
+        clientName: clientName.trim(),
+        contactName: contactName.trim(),
+        siteName: siteName.trim(),
+        budgetLevel,
+        timeline,
       },
       inference: {
         summary: summaryText,
@@ -1748,7 +1807,12 @@ export function DiscoveryPage() {
   }
 return (
     <main className="wm-discovery-capture-page wm-ui-page wingman-page-host" data-audit={discoveryAuditMarkers.join("|")}>
-      <TemplateDiscoverySeedPanel />
+      {_hasActiveTemplateSolutionSeed() && (
+        <details className="wm-discovery-template-seed-wrapper" open>
+          <summary>Solution builder (from template)</summary>
+          <TemplateDiscoverySeedPanel />
+        </details>
+      )}
       <header className="wm-discovery-capture-hero wm-ui-hero">
         <div>
           <p className="wm-discovery-eyebrow wm-ui-copy wm-ui-kicker">Guided discovery - live call mode</p>
@@ -1757,6 +1821,11 @@ return (
             Capture the customer wording, choose the closest answer, then move forward. Use the capture box when the
             answer is not yet clear.
           </p>
+          {(clientName.trim() || siteName.trim()) && (
+            <p className="wm-discovery-client-line wm-ui-copy">
+              {[clientName.trim(), siteName.trim()].filter(Boolean).join(" · ")}
+            </p>
+          )}
         </div>
 
         <div className="wm-discovery-completion-card wm-ui-card" aria-label="Discovery completion">
@@ -1764,6 +1833,72 @@ return (
           <span>{answeredCount} / {discoveryQuestions.length} captured</span>
         </div>
       </header>
+
+      <details className="wm-discovery-client-panel wm-ui-card">
+        <summary>Client &amp; project details (optional)</summary>
+        <p className="wm-discovery-client-panel-intro wm-ui-copy">
+          Not required to proceed — add these whenever they come up in the conversation. They travel with the brief
+          into the proposal.
+        </p>
+        <div className="wm-discovery-client-grid">
+          <label>
+            Client / company name
+            <input
+              className="wm-ui-input"
+              type="text"
+              value={clientName}
+              onChange={(event) => setClientName(event.target.value)}
+              placeholder="e.g. Northfield Council"
+            />
+          </label>
+          <label>
+            Contact name
+            <input
+              className="wm-ui-input"
+              type="text"
+              value={contactName}
+              onChange={(event) => setContactName(event.target.value)}
+              placeholder="e.g. Priya Shah, Facilities"
+            />
+          </label>
+          <label>
+            Site / project name
+            <input
+              className="wm-ui-input"
+              type="text"
+              value={siteName}
+              onChange={(event) => setSiteName(event.target.value)}
+              placeholder="e.g. Main chamber, Level 2"
+            />
+          </label>
+          <label>
+            Budget sensitivity
+            <select
+              className="wm-ui-input"
+              value={budgetLevel}
+              onChange={(event) => setBudgetLevel(event.target.value)}
+            >
+              <option value="">Not discussed yet</option>
+              <option value="cost-sensitive">Cost-sensitive — value engineering matters</option>
+              <option value="mid-market">Mid-market — balanced cost and quality</option>
+              <option value="premium">Premium — quality and performance lead</option>
+            </select>
+          </label>
+          <label>
+            Timeline
+            <select
+              className="wm-ui-input"
+              value={timeline}
+              onChange={(event) => setTimeline(event.target.value)}
+            >
+              <option value="">Not yet known</option>
+              <option value="urgent">Urgent — needed within weeks</option>
+              <option value="this-quarter">This quarter</option>
+              <option value="exploring">Exploring options</option>
+            </select>
+          </label>
+        </div>
+      </details>
 
       {discoveryMode !== "standard" ? (
         <section className="wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Discovery template mode" data-discovery-mode={discoveryMode}>
@@ -1790,34 +1925,53 @@ return (
           </button>
         </div>
 
+        {currentPhase && (
+          <p className="wm-discovery-phase-line wm-ui-copy">
+            Phase {currentPhaseIndex + 1} of {discoveryPhases.length} — {currentPhase.name}
+            <span className="wm-discovery-phase-count">
+              {" "}({currentPhaseAnsweredCount} / {currentPhase.steps.length} answered in this phase)
+            </span>
+            {currentStep.optional && <span className="wm-discovery-optional-tag"> Optional — safe to skip</span>}
+          </p>
+        )}
+
         <div className="wm-discovery-progress-bar" aria-hidden="true">
           <span style={{ width: `${completionPercent}%` }} />
         </div>
 
         <div className="wm-discovery-step-pills wm-ui-card">
-          {discoveryQuestions.map((step, index) => {
-            const answer = answers[step.id];
-            const isActive = index === activeIndex;
-            const isCaptured = Boolean(answer);
+          {discoveryPhases.map((phase) => (
+            <div className="wm-discovery-step-pill-group" key={phase.name}>
+              <p className="wm-discovery-section-heading">
+                {phase.name}
+                {phase.steps.every((step) => step.optional) && " (optional)"}
+              </p>
+              {phase.steps.map((step) => {
+                const index = discoveryQuestions.indexOf(step);
+                const answer = answers[step.id];
+                const isActive = index === activeIndex;
+                const isCaptured = Boolean(answer);
 
-            return (
-              <button
-                key={step.id}
-                type="button"
-                className={[
-                  "wm-discovery-step-pill",
-                  isActive ? "is-active" : "",
-                  isCaptured ? "is-captured" : "",
-                ].join(" ")}
-                onClick={() => setActiveIndex(index)}
-                aria-current={isActive ? "step" : undefined}
-              >
-                <span>{index + 1}</span>
-                <strong>{step.shortLabel}</strong>
-                {isCaptured && <small>{getOptionLabel(step, answer, selectedApplication)}</small>}
-              </button>
-            );
-          })}
+                return (
+                  <button
+                    key={step.id}
+                    type="button"
+                    className={[
+                      "wm-discovery-step-pill",
+                      isActive ? "is-active" : "",
+                      isCaptured ? "is-captured" : "",
+                    ].join(" ")}
+                    onClick={() => setActiveIndex(index)}
+                    aria-current={isActive ? "step" : undefined}
+                  >
+                    <span>{index + 1}</span>
+                    <strong>{step.shortLabel}</strong>
+                    {isCaptured && <small>{getOptionLabel(step, answer, selectedApplication)}</small>}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
         </div>
       </section>
 
@@ -1933,6 +2087,7 @@ return (
           </div>
 
           <textarea className="wm-ui-input"
+            aria-label="Customer wording / notes"
             value={currentNote}
             onChange={(event) => handleCaptureChange(event.target.value)}
             placeholder={currentStepView.capturePlaceholder}
@@ -1977,7 +2132,11 @@ return (
         <section className="wm-discovery-summary-card wm-ui-section wm-ui-card wm-ui-copy">
           <div className="wm-discovery-summary-heading wm-ui-card wm-ui-title wm-ui-copy">
             <span>Captured brief</span>
-            <p className="wm-ui-copy">Use this as the working discovery summary before moving into product direction.</p>
+            <p className="wm-ui-copy">
+              {isDiscoveryComplete
+                ? "Use this as the working discovery summary before moving into product direction."
+                : "Carry on when ready — the captured brief saves to your project, so the next step picks it up."}
+            </p>
           </div>
 
           <div className="wm-discovery-summary-grid wm-ui-card wm-ui-copy">
@@ -1989,20 +2148,14 @@ return (
               </article>
             ))}
           </div>
-        </section>
-      )}
 
-      {capturedSummary.length > 0 && !isDiscoveryComplete && (
-        <section className="wm-discovery-summary-card wm-ui-section wm-ui-card wm-ui-copy">
-          <div className="wm-discovery-summary-heading wm-ui-card wm-ui-title wm-ui-copy">
-            <span>Next step</span>
-            <p className="wm-ui-copy">Carry this discovery into product selection or a proposal. The captured brief saves to your project, so the next step picks it up.</p>
-          </div>
-          <div className="wm-discovery-capture-actions">
-            <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={moveNext}>Next discovery question</button>
-            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={saveDiscoveryToProject}>Save progress</button>
-          </div>
-          {savedMessage && <p className="wm-discovery-muted-note wm-ui-copy">{savedMessage}</p>}
+          {!isDiscoveryComplete && (
+            <div className="wm-discovery-capture-actions">
+              <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={moveNext}>Next discovery question</button>
+              <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={saveDiscoveryToProject}>Save progress</button>
+            </div>
+          )}
+          {!isDiscoveryComplete && savedMessage && <p className="wm-discovery-muted-note wm-ui-copy">{savedMessage}</p>}
         </section>
       )}
 

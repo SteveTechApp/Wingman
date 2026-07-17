@@ -166,6 +166,30 @@ function isUnknown(value: unknown): boolean {
   return !text || text === "unknown" || text === "verify" || text === "n/a";
 }
 
+// Competitor intelligence buckets every meeting-room switcher/scaler under one
+// coarse "PRESENTATION" domain, while WyreStorm's own product classifier
+// (wyrestormCompareProfile.ts's detectDomain) splits that same category into
+// "PRESENTATION" and "WIRELESS_PRESENTATION" depending on whether the
+// candidate also supports wireless casting. A wireless-capable presentation
+// switcher is still a presentation switcher, so treat these two domains as
+// compatible rather than blocking every wireless-capable candidate with a
+// false "technology class mismatch" against a competitor description that
+// was never that granular in the first place.
+const COMPATIBLE_DOMAIN_GROUPS: ReadonlyArray<ReadonlySet<string>> = [
+  new Set(["presentation", "wireless_presentation"]),
+];
+
+function domainsCompatible(competitorDomain: unknown, wyrestormDomain: unknown): boolean {
+  const a = lower(competitorDomain);
+  const b = lower(wyrestormDomain);
+
+  if (a === b) {
+    return true;
+  }
+
+  return COMPATIBLE_DOMAIN_GROUPS.some((group) => group.has(a) && group.has(b));
+}
+
 function normaliseRole(value: unknown): string {
   const role = lower(value);
 
@@ -501,7 +525,7 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
   const competitorIntelligence = buildCompetitorDecisionEvidence(competitor);
 
   const domainKnown = !isUnknown(competitor.domain) && !isUnknown(wyrestorm.domain);
-  const domainMatches = domainKnown && lower(competitor.domain) === lower(wyrestorm.domain);
+  const domainMatches = domainKnown && domainsCompatible(competitor.domain, wyrestorm.domain);
 
   if (!domainKnown) {
     addUnique(verify, "Technology class needs verification.");
