@@ -41,6 +41,8 @@ import {
 
 type DiscoveryView = {
   projectTitle: string;
+  customerName: string;
+  contactName: string;
   summary: string;
   roomSize: string;
   displays: string;
@@ -83,6 +85,19 @@ function asJoinedText(value: unknown) {
   return asText(value);
 }
 
+function budgetLabelFromLevel(level: string): string {
+  switch (level) {
+    case "cost-sensitive":
+      return "Cost-sensitive — value engineering matters";
+    case "mid-market":
+      return "Mid-market — balanced cost and quality";
+    case "premium":
+      return "Premium — quality and performance lead";
+    default:
+      return "";
+  }
+}
+
 function readDiscovery(project: StoredProject): DiscoveryView {
   const brief = project.discoveryBrief;
   const room = brief?.roomModel ?? {};
@@ -92,6 +107,8 @@ function readDiscovery(project: StoredProject): DiscoveryView {
       asText(room.application) ||
       asText(room.roomType) ||
       project.name,
+    customerName: asText(room.clientName),
+    contactName: asText(room.contactName),
     summary:
       asText(brief?.inference?.summary) ||
       asText(room.summary) ||
@@ -134,6 +151,7 @@ function readDiscovery(project: StoredProject): DiscoveryView {
     control:
       asJoinedText(room.controlNeeds),
     budget:
+      budgetLabelFromLevel(asText(room.budgetLevel)) ||
       asText(room.budgetStyle) ||
       "Not confirmed",
     avoipProfile:
@@ -285,6 +303,8 @@ function ProposalCompletionWizardContent({
       createProposalWizardDefaults({
         projectId: project.id,
         projectName: project.name,
+        customerName: discovery.customerName,
+        contactName: discovery.contactName,
         preparedBy:
           profile.reportPreparedBy ||
           profile.userName ||
@@ -306,6 +326,8 @@ function ProposalCompletionWizardContent({
     [
       assumptions,
       discovery.architecture,
+      discovery.contactName,
+      discovery.customerName,
       discovery.summary,
       familyScores,
       profile.reportPreparedBy,
@@ -507,6 +529,7 @@ function ProposalCompletionWizardContent({
     ["USB / UC", discovery.usb],
     ["Audio", discovery.audio || "Not confirmed"],
     ["Control", discovery.control || "Not confirmed"],
+    ["Budget sensitivity", discovery.budget],
     [
       "Infrastructure",
       [discovery.distance, discovery.network]
