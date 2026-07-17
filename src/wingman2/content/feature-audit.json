@@ -171,15 +171,6 @@
     ]
   },
   {
-    "routeKey": "intelligence",
-    "status": "partial",
-    "summary": "Product Intelligence exposes a browser-local review surface for WyreStorm and competitor records. The protected server draft and approval APIs are not yet promoted into this screen.",
-    "needed": [
-      "Add reviewer assignment, approval history, and clearer duplicate-field warnings.",
-      "Prioritise enrichment for repeated product-language fields that currently rely on family-level fallback copy."
-    ]
-  },
-  {
     "routeKey": "templates",
     "status": "wired",
     "summary": "Templates now work as standalone real-room boilerplates across multiple verticals with pre-populated WyreStorm BOMs, editable quantities/include states, exports, project save, customer-safe narratives, assumptions, upgrade paths, and by-others AV design scope. They no longer route through Discovery.",
