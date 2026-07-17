@@ -404,7 +404,7 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
   const application = cleanText(seed.application, list(answers.opportunity).join(" "));
   const blob = textBlob(answers, notes, application);
   const scale = list(answers.scale).join(" ");
-  const networked = /av-over-ip|distributed|building-wide|campus|managed-network|av vlan|networkhd/.test(blob);
+  const networked = /av-over-ip|distributed|building-wide|campus|managed-network|av vlan|networkhd|network-video-sources|cameras-ndi-network-streams/.test(blob);
   const timestamp = nowIso();
   const locationIds = new Set<string>();
   const deviceIds = new Set<string>();
@@ -425,7 +425,7 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
   const table = addLocation("location-table", /classroom|lecture|teaching/.test(blob) ? "Lectern / teaching position" : "Table / presenter position", /classroom|lecture|teaching/.test(blob) ? "lectern" : "table");
   const front = addLocation("location-front", /projector/.test(blob) ? "Projector / front-of-room" : "Display wall", /projector/.test(blob) ? "projector-position" : "display-wall");
   const rack = addLocation("location-room-rack", "Room rack / local equipment", "room-rack");
-  const ceiling = /camera|microphone|ceiling/.test(blob) ? addLocation("location-ceiling", "Ceiling / camera position", "ceiling") : null;
+  const ceiling = /camera|microphone|ceiling|video-conferencing|conferencing|recording|streaming|camera-distribution/.test(blob) ? addLocation("location-ceiling", "Ceiling / camera position", "ceiling") : null;
   const central = /building-wide|campus|multi-room|central/.test(blob) ? addLocation("location-central-rack", "Central communications room", "central-rack") : null;
   const network = networked ? addLocation("location-av-network", "AV network / VLAN", "network") : null;
 
@@ -461,11 +461,57 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
     });
   }
 
+  // WINGMAN_DISCOVERY_SOURCE_UC_TOPOLOGY_START
   const sourceTypes = list(answers["source-connection"]);
   const sourceCount = sourceCountFrom(answers.sources);
   const sourceDevices: ProjectDevice[] = [];
+  const unifiedCommsValues = Array.from(new Set([
+    ...list(answers["uc-purpose"]),
+    ...list(answers["unified-comms"]),
+    ...list(answers["camera-microphone-workflow"]),
+    ...list(answers["camera-microphone-workflows"]),
+    ...list(answers["camera-microphone-requirements"]),
+  ]));
+  const noUnifiedComms =
+    unifiedCommsValues.includes("no-uc");
+  const unifiedCommsUnknown =
+    unifiedCommsValues.includes("unknown-uc");
+  const unifiedCommsInactive =
+    noUnifiedComms || unifiedCommsUnknown;
+  const legacyCombinedWorkflow =
+    unifiedCommsValues.includes("conferencing-recording");
+  const conferencingRequired =
+    !unifiedCommsInactive &&
+    (
+      unifiedCommsValues.includes("video-conferencing") ||
+      legacyCombinedWorkflow
+    );
+  const recordingRequired =
+    !unifiedCommsInactive &&
+    (
+      unifiedCommsValues.includes("recording-streaming") ||
+      legacyCombinedWorkflow
+    );
+  const cameraDistributionRequired =
+    !unifiedCommsInactive &&
+    unifiedCommsValues.includes("camera-distribution-only");
+  const microphonesOnlyRequired =
+    !unifiedCommsInactive &&
+    unifiedCommsValues.includes("microphones-only");
+  const cameraRequiredByUnifiedComms =
+    conferencingRequired ||
+    recordingRequired ||
+    cameraDistributionRequired;
 
-  if (sourceTypes.some((item) => item === "mixed-hdmi-usbc" || item === "laptops-wireless-inputs" || item === "all-source-types") || /laptop|byod|byom|usb-c/.test(blob)) {
+  if (
+    sourceTypes.some(
+      (item) =>
+        item === "mixed-hdmi-usbc" ||
+        item === "laptops-wireless-inputs" ||
+        item === "all-source-types",
+    ) ||
+    /laptop|byod|byom|usb-c/.test(blob)
+  ) {
     sourceDevices.push(addDevice({
       id: "device-user-laptop",
       name: "User laptop / BYOD source",
@@ -477,12 +523,23 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
     }));
   }
 
-  const fixedSourceNeeded = sourceTypes.length === 0 || sourceTypes.some((item) => item === "fixed-hdmi-sources" || item === "mixed-hdmi-usbc" || item === "all-source-types");
+  const fixedSourceNeeded =
+    sourceTypes.length === 0 ||
+    sourceTypes.some(
+      (item) =>
+        item === "fixed-hdmi-sources" ||
+        item === "mixed-hdmi-usbc" ||
+        item === "all-source-types",
+    );
+
   if (fixedSourceNeeded) {
     for (let index = 0; index < sourceCount; index += 1) {
       sourceDevices.push(addDevice({
         id: `device-fixed-source-${index + 1}`,
-        name: sourceCount > 1 ? `Fixed HDMI source ${index + 1}` : "Fixed HDMI source / room PC",
+        name:
+          sourceCount > 1
+            ? `Fixed HDMI source ${index + 1}`
+            : "Fixed HDMI source / room PC",
         category: "source",
         locationId: rack.id,
         quantity: 1,
@@ -492,7 +549,14 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
     }
   }
 
-  if (sourceTypes.some((item) => item === "laptops-wireless-inputs" || item === "all-source-types") || /wireless presentation|casting/.test(blob)) {
+  if (
+    sourceTypes.some(
+      (item) =>
+        item === "laptops-wireless-inputs" ||
+        item === "all-source-types",
+    ) ||
+    /wireless presentation|casting/.test(blob)
+  ) {
     sourceDevices.push(addDevice({
       id: "device-wireless-receiver",
       name: "Wireless presentation receiver",
@@ -504,15 +568,60 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
     }));
   }
 
-  if (sourceTypes.some((item) => item === "cameras-ndi-network-streams" || item === "all-source-types") || /ndi|ptz|camera/.test(blob)) {
+  if (sourceTypes.includes("network-video-sources")) {
+    sourceDevices.push(addDevice({
+      id: "device-local-source-tbc",
+      name: "Local fixed or user presentation source TBC",
+      category: "source",
+      locationId: table.id,
+      quantity: 1,
+      thirdParty: true,
+      status: "unknown",
+      notes:
+        "Confirm whether the local source is fixed HDMI, user HDMI, USB-C or wireless presentation.",
+    }));
+
+    sourceDevices.push(addDevice({
+      id: "device-network-video-source",
+      name: /ndi/.test(blob)
+        ? "NDI / network video source"
+        : "AV-over-IP / network video source",
+      category: "network-video-source",
+      locationId: network?.id ?? central?.id ?? rack.id,
+      quantity: 1,
+      thirdParty: true,
+      status: "assumed",
+      notes:
+        "Confirm the network video format, ownership, encoder/decoder or bridge requirement and routing destination.",
+    }));
+  }
+
+  const legacyCameraSourceSelected = sourceTypes.some(
+    (item) =>
+      item === "cameras-ndi-network-streams" ||
+      item === "all-source-types",
+  );
+
+  if (
+    legacyCameraSourceSelected ||
+    (!unifiedCommsInactive && /ndi|ptz|camera/.test(blob)) ||
+    cameraRequiredByUnifiedComms
+  ) {
     sourceDevices.push(addDevice({
       id: "device-camera",
-      name: /ndi/.test(blob) ? "NDI / network camera" : "Room camera",
+      name:
+        legacyCameraSourceSelected || /ndi/.test(blob)
+          ? "NDI / network camera"
+          : "Room camera",
       category: "camera",
       locationId: ceiling?.id ?? front.id,
       quantity: 1,
       thirdParty: true,
       status: "assumed",
+      notes:
+        cameraRequiredByUnifiedComms
+          ? "Confirm camera count, framing, USB/HDMI/NDI output and whether a camera bridge is required."
+          : undefined,
     }));
   }
 
@@ -527,6 +636,7 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
       status: "unknown",
     }));
   }
+  // WINGMAN_DISCOVERY_SOURCE_UC_TOPOLOGY_END
 
   const outputCount = displayCountFrom(answers.displays);
   const displayDevices: ProjectDevice[] = [];
@@ -555,10 +665,28 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
     }
   }
 
-  const usbValues = [...list(answers.usb), ...list(answers["usb-path"])];
-  const usbRequired = usbValues.some((item) => !/no-usb|unknown-usb/.test(item)) || /camera|speakerphone|touch|usb|byod|byom/.test(blob);
+  // WINGMAN_DISCOVERY_UC_DEVICE_DEPENDENCIES_START
+  const usbValues = [
+    ...list(answers.usb),
+    ...list(answers["usb-path"]),
+  ];
+  const explicitUsbRequired = usbValues.some(
+    (item) => !/no-usb|unknown-usb/.test(item),
+  );
+  const usbRequired =
+    explicitUsbRequired ||
+    conferencingRequired ||
+    (
+      !unifiedCommsInactive &&
+      /camera|speakerphone|touch|usb|byod|byom/.test(blob)
+    );
+
   let roomHost: ProjectDevice | null = null;
-  if (usbValues.includes("room-pc-uc") || usbValues.includes("room-host-usb2")) {
+
+  if (
+    usbValues.includes("room-pc-uc") ||
+    usbValues.includes("room-host-usb2")
+  ) {
     roomHost = addDevice({
       id: "device-room-host",
       name: "Room PC / UC appliance",
@@ -569,17 +697,92 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
       status: "assumed",
     });
   }
-  if (usbRequired && !devices.some((item) => item.id === "device-camera")) {
+
+  const userLaptop =
+    sourceDevices.find((item) => item.id === "device-user-laptop") ?? null;
+
+  if (conferencingRequired && !roomHost && !userLaptop) {
+    roomHost = addDevice({
+      id: "device-uc-host-tbc",
+      name: "UC host / room or user device TBC",
+      category: "usb-host",
+      locationId: rack.id,
+      quantity: 1,
+      thirdParty: true,
+      status: "unknown",
+      notes:
+        "Confirm whether the call is hosted by a user laptop, room PC or UC appliance.",
+    });
+  }
+
+  if (
+    usbRequired &&
+    !devices.some((item) => item.id === "device-camera")
+  ) {
     addDevice({
       id: "device-usb-peripheral",
-      name: /touch/.test(blob) ? "Touch / interactive USB device" : "USB camera / speakerphone",
+      name: /touch/.test(blob)
+        ? "Touch / interactive USB device"
+        : "USB camera / speakerphone",
       category: "usb-peripheral",
-      locationId: /touch/.test(blob) ? front.id : (ceiling?.id ?? front.id),
+      locationId: /touch/.test(blob)
+        ? front.id
+        : (ceiling?.id ?? front.id),
       quantity: 1,
       thirdParty: true,
       status: "assumed",
     });
   }
+
+  const microphoneRequired =
+    conferencingRequired ||
+    recordingRequired ||
+    microphonesOnlyRequired;
+
+  const roomMicrophone = microphoneRequired
+    ? addDevice({
+        id: "device-room-microphone",
+        name: microphonesOnlyRequired
+          ? "Room microphone system"
+          : "Room microphone / conferencing audio",
+        category: "microphone",
+        locationId: ceiling?.id ?? table.id,
+        quantity: 1,
+        thirdParty: true,
+        status: "assumed",
+        notes:
+          "Confirm microphone type, count, USB/analogue/Dante connection, DSP and echo-cancellation requirements.",
+      })
+    : null;
+
+  const recordingCapture = recordingRequired
+    ? addDevice({
+        id: "device-recording-capture",
+        name: "Recording / streaming capture path TBC",
+        category: "capture",
+        locationId: rack.id,
+        quantity: 1,
+        thirdParty: true,
+        status: "unknown",
+        notes:
+          "Confirm recording platform, capture inputs, audio mix, programme output and streaming destination.",
+      })
+    : null;
+
+  const cameraRoutingBridge = cameraDistributionRequired
+    ? addDevice({
+        id: "device-camera-routing-bridge",
+        name: "Camera routing / bridge path TBC",
+        category: "camera-bridge",
+        locationId: rack.id,
+        quantity: 1,
+        thirdParty: false,
+        status: "unknown",
+        notes:
+          "Confirm whether the camera path is USB, HDMI, NDI or AV-over-IP and which WyreStorm bridge or routing architecture is required.",
+      })
+    : null;
+  // WINGMAN_DISCOVERY_UC_DEVICE_DEPENDENCIES_END
 
   if (hasAnswer(answers, "control", "touch-panel")) {
     addDevice({
@@ -618,27 +821,160 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
     return connection;
   };
 
+  // WINGMAN_DISCOVERY_SOURCE_UC_CONNECTIONS_START
   sourceDevices.forEach((source) => {
-    if (source.category === "camera" && /ndi|network/.test(source.name.toLowerCase())) {
-      addConnection(source, core, ["av-over-ip", "ethernet"], "ip-av-vlan", "Confirm camera stream format and bridge/decoder requirement.");
-    } else if (source.id === "device-user-laptop") {
-      addConnection(source, core, ["video", "embedded-audio"], "usb-c");
-    } else {
-      addConnection(source, core, ["video", "embedded-audio"], source.id === "device-wireless-receiver" ? "hdmi" : undefined);
+    if (source.id === "device-network-video-source") {
+      addConnection(
+        source,
+        core,
+        ["av-over-ip", "ethernet"],
+        "ip-av-vlan",
+        "Confirm the network video format and encoder, decoder or bridge requirement.",
+      );
+      return;
     }
+
+    if (source.category === "camera" && cameraRoutingBridge) {
+      const cameraServices: ProjectConnectionService[] = networked
+        ? ["av-over-ip", "ethernet"]
+        : ["video", "embedded-audio"];
+
+      addConnection(
+        source,
+        cameraRoutingBridge,
+        cameraServices,
+        networked ? "ip-av-vlan" : undefined,
+        "Confirm camera output format and the required bridge or routing path.",
+      );
+      return;
+    }
+
+    if (
+      source.category === "camera" &&
+      /ndi|network/.test(source.name.toLowerCase())
+    ) {
+      addConnection(
+        source,
+        core,
+        ["av-over-ip", "ethernet"],
+        "ip-av-vlan",
+        "Confirm camera stream format and bridge/decoder requirement.",
+      );
+      return;
+    }
+
+    if (source.id === "device-user-laptop") {
+      addConnection(
+        source,
+        core,
+        ["video", "embedded-audio"],
+        "usb-c",
+      );
+      return;
+    }
+
+    addConnection(
+      source,
+      core,
+      ["video", "embedded-audio"],
+      source.id === "device-wireless-receiver"
+        ? "hdmi"
+        : undefined,
+    );
   });
+
+  if (cameraRoutingBridge) {
+    addConnection(
+      cameraRoutingBridge,
+      core,
+      networked
+        ? ["av-over-ip", "video", "embedded-audio"]
+        : ["video", "embedded-audio"],
+      networked ? "ip-av-vlan" : undefined,
+      "Camera routing or distribution path; validate the final bridge and transport.",
+    );
+  }
 
   displayDevices.forEach((display) => {
-    addConnection(core, display, networked ? ["av-over-ip", "video", "embedded-audio"] : ["video", "embedded-audio"], networked ? "ip-av-vlan" : undefined);
+    addConnection(
+      core,
+      display,
+      networked
+        ? ["av-over-ip", "video", "embedded-audio"]
+        : ["video", "embedded-audio"],
+      networked ? "ip-av-vlan" : undefined,
+    );
   });
 
-  const camera = devices.find((item) => item.id === "device-camera" || item.id === "device-usb-peripheral");
-  const userLaptop = devices.find((item) => item.id === "device-user-laptop");
-  const host = usbValues.includes("byod-byom") || usbValues.includes("user-laptop-host") ? userLaptop : roomHost ?? userLaptop;
+  const camera = devices.find(
+    (item) =>
+      item.id === "device-camera" ||
+      item.id === "device-usb-peripheral",
+  );
+
+  const host =
+    usbValues.includes("byod-byom") ||
+    usbValues.includes("user-laptop-host")
+      ? userLaptop
+      : roomHost ?? userLaptop;
+
   if (usbRequired && camera && host && camera.id !== host.id) {
-    const services: ProjectConnectionService[] = usbValues.includes("usb3-high-bandwidth-path") ? ["usb-3"] : ["usb-2"];
-    addConnection(host, camera, services, undefined, usbValues.includes("switchable-host-usb") ? "USB host ownership must switch between room and user devices." : undefined);
+    const services: ProjectConnectionService[] =
+      usbValues.includes("usb3-high-bandwidth-path")
+        ? ["usb-3"]
+        : ["usb-2"];
+
+    addConnection(
+      host,
+      camera,
+      services,
+      undefined,
+      usbValues.includes("switchable-host-usb")
+        ? "USB host ownership must switch between room and user devices."
+        : "Confirm the USB host, camera bandwidth and extension method.",
+    );
   }
+
+  if (roomMicrophone) {
+    if (conferencingRequired && host) {
+      addConnection(
+        host,
+        roomMicrophone,
+        ["usb-2"],
+        undefined,
+        "Confirm whether the microphone connects by USB, DSP, analogue audio or Dante and where echo cancellation occurs.",
+      );
+    } else {
+      addConnection(
+        roomMicrophone,
+        core,
+        ["analogue-audio"],
+        "analogue-audio",
+        "Confirm microphone pre-amplification, DSP, mixing and programme-audio routing.",
+      );
+    }
+  }
+
+  if (recordingCapture) {
+    addConnection(
+      core,
+      recordingCapture,
+      ["video", "embedded-audio"],
+      undefined,
+      "Confirm the capture resolution, programme output, audio mix and recording/streaming platform.",
+    );
+
+    if (roomMicrophone) {
+      addConnection(
+        roomMicrophone,
+        recordingCapture,
+        ["analogue-audio"],
+        "analogue-audio",
+        "Confirm whether the microphone reaches the recording system directly or through a DSP/mixer.",
+      );
+    }
+  }
+  // WINGMAN_DISCOVERY_SOURCE_UC_CONNECTIONS_END
 
   const controlPanel = devices.find((item) => item.id === "device-control-panel");
   if (controlPanel) addConnection(controlPanel, core, ["ethernet", "rs232"], networked ? "shared-ip-network" : "rs232");
@@ -743,6 +1079,58 @@ export function projectTopologyMissingInformation(value: unknown): string[] {
   if (topology.connections.some((item) => item.transport === "ip-av-vlan" || item.transport === "shared-ip-network")) {
     missing.push("Confirm network ownership, switch suitability, multicast/IGMP, bandwidth and VLAN policy with IT.");
   }
+  // WINGMAN_DISCOVERY_UC_MISSING_INFORMATION_START
+  if (
+    topology.devices.some(
+      (item) => item.id === "device-uc-host-tbc",
+    )
+  ) {
+    missing.push(
+      "Confirm whether conferencing is hosted by a user laptop, room PC or UC appliance.",
+    );
+  }
+
+  if (
+    topology.devices.some(
+      (item) => item.id === "device-room-microphone",
+    )
+  ) {
+    missing.push(
+      "Confirm microphone type, quantity, connection method, DSP and echo-cancellation requirements.",
+    );
+  }
+
+  if (
+    topology.devices.some(
+      (item) => item.id === "device-recording-capture",
+    )
+  ) {
+    missing.push(
+      "Confirm the recording or streaming platform, capture inputs, audio mix, resolution and destination.",
+    );
+  }
+
+  if (
+    topology.devices.some(
+      (item) => item.id === "device-camera-routing-bridge",
+    )
+  ) {
+    missing.push(
+      "Confirm whether camera distribution uses USB, HDMI, NDI or AV-over-IP and select the required bridge or routing path.",
+    );
+  }
+
+  if (
+    topology.devices.some(
+      (item) => item.id === "device-network-video-source",
+    )
+  ) {
+    missing.push(
+      "Confirm the network video format, network ownership, routing destination and encoder/decoder or bridge dependency.",
+    );
+  }
+  // WINGMAN_DISCOVERY_UC_MISSING_INFORMATION_END
+
   return Array.from(new Set(missing));
 }
 

@@ -129,6 +129,7 @@ const discoveryAuditMarkers = [
   "Auto advances after selection",
   "Capture customer wording",
   "Optional microphone capture",
+  "Dedicated Unified Communications discovery step",
   "Application-specific discovery question guidance",
   "View full model",
   "Current model",
@@ -220,7 +221,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     shortLabel: "Sources",
     section: "Sources & displays",
     question: "How many source positions are likely?",
-    prompt: "Think about laptops, PCs, media players, cameras, signage players and wireless input.",
+    prompt: "Think about laptops, PCs, media players, signage players and wireless presentation inputs.",
     why: "Source count and location drive input selection, switching, encoder count and cable paths.",
     required: true,
     capturePlaceholder: "Example: 2 HDMI laptops at table, 1 room PC, 1 signage player in rack.",
@@ -256,43 +257,37 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     id: "source-connection",
     shortLabel: "Source type",
     section: "Sources & displays",
-    question: "What are the source connector types?",
-    prompt: "Capture whether sources are fixed HDMI devices, USB-C laptops, cameras, wireless inputs, network streams, or a combination of these.",
-    why: "Source connector type changes the viable product family, especially when USB-C, wireless input, NDI, or network video is involved.",
+    question: "Which source profile best describes the room?",
+    prompt: "Choose the closest overall source workflow. Camera and microphone requirements are captured separately in Unified Communications.",
+    why: "Separating fixed equipment, user presentation and network video avoids overlapping connector-based answers and gives Wingman a clearer architecture direction.",
     required: true,
-    selectionMode: "multiple",
-    exclusiveValues: ["unknown-source-connectors"],
-    selectAllValue: "all-source-types",
-    capturePlaceholder: "Example: Two HDMI media players in rack, one USB-C laptop at table, plus NDI camera feeds.",
+    selectionMode: "single",
+    capturePlaceholder: "Example: Two permanent media players plus laptops connected by USB-C or wireless presentation.",
     options: [
       {
         value: "fixed-hdmi-sources",
-        label: "Mostly fixed HDMI sources",
-        help: "Rack media players, room PCs, signage players, set-top boxes or similar fixed HDMI devices.",
-      },
-      {
-        value: "mixed-hdmi-usbc",
-        label: "Mix of HDMI and USB-C sources",
-        help: "Common when both fixed devices and user laptops need to connect.",
+        label: "Fixed room sources only",
+        help: "Room PCs, media players, signage players, set-top boxes or other permanently installed HDMI devices. Users do not normally connect laptops.",
       },
       {
         value: "laptops-wireless-inputs",
-        label: "Laptop and wireless presentation inputs",
-        help: "User-driven presentation inputs, casting, or guest-device workflows.",
+        label: "User presentation sources only",
+        help: "Users connect laptops by USB-C, HDMI or wireless presentation. There are no significant permanently installed video sources.",
       },
       {
-        value: "cameras-ndi-network-streams",
-        label: "Cameras, NDI or network streams",
-        help: "Capture, broadcast, PTZ, NDI, or other network-video inputs are part of the conversation.",
+        value: "mixed-hdmi-usbc",
+        label: "Fixed sources plus user presentation",
+        help: "The room uses permanently installed HDMI equipment as well as laptops connected by USB-C, HDMI or wireless presentation.",
       },
       {
-        value: "all-source-types",
-        label: "Combination of all source types",
-        help: "Fixed HDMI, USB-C laptops, wireless presentation, cameras, NDI and network streams are all required.",
-      },      {
+        value: "network-video-sources",
+        label: "Mixed sources including network video",
+        help: "Local fixed equipment and/or user laptops are combined with routed AV-over-IP, NDI or other network video streams.",
+      },
+      {
         value: "unknown-source-connectors",
-        label: "Unknown",
-        help: "Ask whether the sources are fixed devices, laptops, USB-C, HDMI, wireless, or network streams.",
+        label: "Not yet confirmed",
+        help: "Confirm whether the room needs fixed equipment, user laptops, wireless presentation or network video before selecting the architecture.",
       },
     ],
   },
@@ -412,56 +407,330 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     ],
   },
   {
+      id: "uc-purpose",
+      shortLabel: "UC requirement",
+      section: "Unified Communications",
+      question: "What camera, microphone or capture workflows are required?",
+      prompt: "Select every workflow that applies. Conferencing, recording and camera distribution may be required together.",
+      why: "These workflows can coexist but need different USB, audio, routing and capture paths. Capturing them separately prevents an incomplete system design.",
+      required: true,
+      selectionMode: "multiple",
+      exclusiveValues: ["no-uc", "unknown-uc"],
+      capturePlaceholder: "Example: Teams conferencing plus lecture recording, using two room cameras and ceiling microphones.",
+      options: [
+          {
+              value: "video-conferencing",
+              label: "Video conferencing",
+              help: "Two-way Teams, Zoom or other calls requiring room cameras, microphones, far-end audio and a USB or UC connection."
+          },
+          {
+              value: "recording-streaming",
+              label: "Recording or live streaming",
+              help: "Camera and microphone feeds must be captured for recording, lecture capture, webcast or live production."
+          },
+          {
+              value: "camera-distribution-only",
+              label: "Camera routing or distribution",
+              help: "Camera feeds must be sent to displays, production equipment, processors or monitoring positions independently of a conferencing call."
+          },
+          {
+              value: "microphones-only",
+              label: "Microphones without cameras",
+              help: "The room requires speech reinforcement, audio capture or microphone distribution but does not need a room camera."
+          },
+          {
+              value: "no-uc",
+              label: "No camera or microphone requirements",
+              help: "Skip the detailed Unified Communications camera, microphone and capture questions."
+          },
+          {
+              value: "unknown-uc",
+              label: "Not yet confirmed",
+              help: "Record the requirement as unresolved and qualify the conferencing, recording, camera and microphone workflow before product selection."
+          }
+      ]
+  },
+  {
+    id: "uc-platform",
+    shortLabel: "UC platform",
+    section: "Unified Communications",
+    question: "What will run the call or capture workflow?",
+    prompt: "Identify the conferencing or capture platform before deciding USB ownership and host switching.",
+    why: "A user laptop, room PC, UC appliance and hardware codec each create a different peripheral and switching requirement.",
+    required: true,
+    selectionMode: "multiple",
+    exclusiveValues: ["unknown-uc-platform"],
+    capturePlaceholder: "Example: Microsoft Teams Room with optional BYOM from a visitor laptop.",
+    options: [
+      {
+        value: "byom-user-laptop",
+        label: "User laptop / BYOM",
+        help: "A visitor laptop runs the call and must use the room camera and microphones.",
+      },
+      {
+        value: "microsoft-teams-room",
+        label: "Microsoft Teams Room",
+        help: "A dedicated Teams room appliance or room PC owns the normal conferencing session.",
+      },
+      {
+        value: "zoom-room",
+        label: "Zoom Room",
+        help: "A dedicated Zoom Room appliance or room PC owns the normal conferencing session.",
+      },
+      {
+        value: "room-pc-conferencing",
+        label: "Room PC / software conferencing",
+        help: "A fixed computer runs the conferencing, recording or streaming application.",
+      },
+      {
+        value: "hardware-codec",
+        label: "Hardware codec",
+        help: "A dedicated conferencing codec owns the room peripherals.",
+      },
+      {
+        value: "unknown-uc-platform",
+        label: "Not yet selected",
+        help: "The platform or host device still needs to be confirmed.",
+      },
+    ],
+  },
+  {
+    id: "uc-camera",
+    shortLabel: "Cameras",
+    section: "Unified Communications",
+    question: "What camera types are required?",
+    prompt: "Select every camera type that applies. Camera quantity, positions and exact models can be captured in the notes.",
+    why: "USB, HDMI and NDI cameras create different transport, bridge, control and bandwidth requirements.",
+    required: true,
+    selectionMode: "multiple",
+    exclusiveValues: ["unknown-camera"],
+    capturePlaceholder: "Example: Two NDI PTZ cameras at the front and rear, plus one fixed USB camera at the display.",
+    options: [
+      {
+        value: "fixed-usb-camera",
+        label: "Fixed USB camera",
+        help: "A fixed webcam or conferencing camera connects directly over USB.",
+      },
+      {
+        value: "usb-ptz-camera",
+        label: "USB PTZ camera",
+        help: "A pan-tilt-zoom conferencing camera requires USB transport and camera control.",
+      },
+      {
+        value: "hdmi-ptz-camera",
+        label: "HDMI PTZ camera",
+        help: "The camera provides HDMI video and may also require IP or RS-232 control.",
+      },
+      {
+        value: "ndi-network-camera",
+        label: "NDI / network PTZ camera",
+        help: "The camera provides a network stream and needs a validated NDI, bridge or decoding workflow.",
+      },
+      {
+        value: "other-camera",
+        label: "Other camera type",
+        help: "Use the notes to capture SDI, proprietary, existing or undecided camera requirements.",
+      },
+      {
+        value: "unknown-camera",
+        label: "Not yet selected",
+        help: "Confirm quantity, interface, resolution, positions and control before quoting.",
+      },
+    ],
+  },
+  {
+    id: "uc-camera-routing",
+    shortLabel: "Camera use",
+    section: "Unified Communications",
+    question: "Where must the camera feeds be used?",
+    prompt: "A camera is only counted as a routed AV source when its feed must leave the conferencing peripheral path.",
+    why: "Conferencing-only USB cameras should not increase the normal source count, while feeds for displays, recording, streaming or multiview require video routing.",
+    required: true,
+    selectionMode: "multiple",
+    exclusiveValues: ["unknown-camera-routing"],
+    capturePlaceholder: "Example: Camera 1 feeds Teams and the recorder; both cameras also appear in a confidence multiview.",
+    options: [
+      {
+        value: "camera-to-conferencing",
+        label: "Conferencing only",
+        help: "The camera is used by the room conferencing host and is not routed as a separate AV source.",
+      },
+      {
+        value: "camera-to-displays",
+        label: "Route to room displays",
+        help: "The camera feed must be switched or distributed to one or more displays.",
+      },
+      {
+        value: "camera-to-recording",
+        label: "Recording or capture",
+        help: "The camera feed must reach a recorder, capture device or production system.",
+      },
+      {
+        value: "camera-to-streaming",
+        label: "Streaming",
+        help: "The camera feed must reach a streaming encoder or software production host.",
+      },
+      {
+        value: "camera-to-multiview",
+        label: "Multiview or monitoring",
+        help: "One or more camera feeds must appear simultaneously in a monitoring layout.",
+      },
+      {
+        value: "unknown-camera-routing",
+        label: "Not confirmed",
+        help: "Confirm whether each camera is conferencing-only or must be routed elsewhere.",
+      },
+    ],
+  },
+  {
+    id: "uc-microphones",
+    shortLabel: "Microphones",
+    section: "Unified Communications",
+    question: "What microphone types are required?",
+    prompt: "Capture speech inputs here. Loudspeakers, amplification and general room audio remain in the separate Audio step.",
+    why: "Speech capture affects USB ownership, echo cancellation, DSP, Dante and recording dependencies.",
+    required: true,
+    selectionMode: "multiple",
+    exclusiveValues: ["no-microphones", "unknown-microphones"],
+    capturePlaceholder: "Example: One ceiling array for Teams, two wireless microphones for presenters and a feed to the recorder.",
+    options: [
+      {
+        value: "speakerphone",
+        label: "Speakerphone",
+        help: "A combined tabletop microphone and loudspeaker connects to the conferencing host.",
+      },
+      {
+        value: "table-microphone",
+        label: "Table microphone",
+        help: "One or more table microphones provide speech capture.",
+      },
+      {
+        value: "ceiling-microphone-array",
+        label: "Ceiling microphone array",
+        help: "A ceiling array normally requires DSP, echo cancellation and a defined audio transport.",
+      },
+      {
+        value: "wireless-microphone",
+        label: "Wireless microphone",
+        help: "Presenter, handheld or lapel microphones are required.",
+      },
+      {
+        value: "lectern-microphone",
+        label: "Lectern microphone",
+        help: "A fixed teaching or presentation microphone is required.",
+      },
+      {
+        value: "existing-microphone-system",
+        label: "Existing microphone system",
+        help: "The design must interface with an existing microphone or DSP system.",
+      },
+      {
+        value: "no-microphones",
+        label: "No microphones required",
+        help: "The selected camera or capture workflow does not require speech capture.",
+      },
+      {
+        value: "unknown-microphones",
+        label: "Not yet selected",
+        help: "Confirm microphone type, quantity, coverage and local reinforcement needs.",
+      },
+    ],
+  },
+  {
+    id: "uc-microphone-connection",
+    shortLabel: "Microphone connection",
+    section: "Unified Communications",
+    question: "How will the microphones connect?",
+    prompt: "Select the known audio paths. Use Not confirmed when the microphone or DSP design has not been agreed.",
+    why: "USB, analogue and Dante microphone paths require different hosts, DSPs, network ownership and BOM dependencies.",
+    required: true,
+    selectionMode: "multiple",
+    exclusiveValues: ["unknown-microphone-connection"],
+    capturePlaceholder: "Example: Dante ceiling microphone into a room DSP, with USB audio from the DSP to the Teams Room.",
+    options: [
+      {
+        value: "usb-microphone-path",
+        label: "USB",
+        help: "A speakerphone, microphone or DSP presents USB audio to the conferencing host.",
+      },
+      {
+        value: "analogue-microphone-path",
+        label: "Analogue",
+        help: "Microphones feed an analogue mixer, DSP or capture interface.",
+      },
+      {
+        value: "dante-microphone-path",
+        label: "Dante / AES67",
+        help: "Network audio carries microphone signals and requires suitable switching and ownership.",
+      },
+      {
+        value: "proprietary-network-microphone",
+        label: "Network / proprietary",
+        help: "The microphone system uses a manufacturer-specific or other network audio path.",
+      },
+      {
+        value: "unknown-microphone-connection",
+        label: "Not confirmed",
+        help: "The microphone interface and DSP path still need to be designed.",
+      },
+    ],
+  },
+  {
     id: "usb",
-    shortLabel: "USB & conferencing",
+    shortLabel: "USB host & transport",
     section: "Audio, control & conferencing",
-    question: "Does anything need to plug in over USB for video calls?",
-    prompt: "Think about cameras, microphones, touch screens or a laptop that needs to run the call. Select every option that applies.",
-    why: "USB host ownership, peripheral location and bandwidth can change the architecture. HDMI-only designs are unsafe when conferencing or interactive devices are involved.",
+    question: "Who owns the USB devices, and how must USB travel?",
+    prompt: "Select the host, switching and bandwidth requirements for cameras, speakerphones, touch displays and capture devices.",
+    why: "USB host ownership, switching, distance and bandwidth can change the complete architecture. HDMI-only designs are unsafe when these peripherals are involved.",
     required: true,
     selectionMode: "multiple",
     exclusiveValues: ["no-usb", "unknown-usb"],
-    capturePlaceholder: "Example: User laptop hosts the room camera and speakerphone over switched USB 2.0, with the peripherals located at the display.",
+    capturePlaceholder: "Example: Teams Room normally owns the USB camera and DSP, but a visitor laptop can take over through switched USB 3.x.",
     options: [
       {
         value: "no-usb",
-        label: "No USB or conferencing required",
-        help: "The system is genuinely video and audio only.",
-      },
-      {
-        value: "usb-camera-audio",
-        label: "Camera, microphone or touch screen",
-        help: "A camera, microphone, speakerphone, touch display or similar USB peripheral is required.",
+        label: "No USB transport required",
+        help: "The camera, microphone and capture workflow genuinely uses non-USB interfaces.",
       },
       {
         value: "byod-byom",
-        label: "Visitor's own laptop runs the call (BYOD / BYOM)",
-        help: "A user laptop must own the room camera, microphone, speakerphone or other USB devices.",
+        label: "User laptop owns the room USB devices",
+        help: "A visitor laptop must use the room camera, microphone, speakerphone or touch devices.",
       },
       {
         value: "room-pc-uc",
-        label: "A fixed room PC or Teams/UC appliance runs the call",
-        help: "A fixed room PC, Teams device or UC appliance owns the USB peripherals.",
+        label: "Room PC or UC appliance owns USB",
+        help: "A fixed room PC, Teams device, Zoom device or codec owns the USB peripherals.",
       },
       {
         value: "switchable-host-usb",
-        label: "Either the room system or a laptop, switchable",
+        label: "USB host must switch",
         help: "USB ownership must switch between the room system and a user laptop.",
       },
       {
         value: "room-host-usb2",
-        label: "Standard USB path is enough (webcams, touch, keyboard/mouse — USB 2.0)",
-        help: "Standard conferencing, touch, keyboard, mouse or USB 2.0-class transport is sufficient.",
+        label: "Standard USB 2.0 path",
+        help: "Standard conferencing, touch, keyboard, mouse or USB 2.0 transport is sufficient.",
       },
       {
         value: "usb3-high-bandwidth-path",
-        label: "Needs a high-bandwidth USB path (high-res cameras/capture — USB 3.x)",
-        help: "Cameras, capture devices or other peripherals require USB 3.x bandwidth.",
+        label: "High-bandwidth USB 3.x path",
+        help: "High-resolution cameras, capture devices or other peripherals require USB 3.x bandwidth.",
+      },
+      {
+        value: "usb-extension-required",
+        label: "USB extension required",
+        help: "The peripheral-to-host distance exceeds a practical direct USB cable run.",
+      },
+      {
+        value: "interactive-usb",
+        label: "Touch or interactive USB required",
+        help: "A touch display or other interactive USB return path is required.",
       },
       {
         value: "unknown-usb",
-        label: "Unknown",
-        help: "Ask who owns the USB session, which peripherals are required, where they are located and whether USB 2.0 or USB 3.x is needed.",
+        label: "Not confirmed",
+        help: "Confirm the host, peripherals, switching, distance and USB 2.0 or USB 3.x requirement.",
       },
     ],
   },
@@ -469,13 +738,13 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     id: "audio",
     shortLabel: "Audio",
     section: "Audio, control & conferencing",
-    question: "What audio requirement is likely? Select all that apply.",
-    prompt: "Capture how sound will actually work in the room — through the screen itself, separate room speakers, or microphones for calls.",
-    why: "Audio is often missed in first-pass discovery but affects product choice and dependencies.",
+    question: "What room audio requirement is likely? Select all that apply.",
+    prompt: "Capture loudspeakers, amplification, de-embedding and room playback here. Speech capture is handled in Unified Communications.",
+    why: "Room audio is often missed in first-pass discovery but affects product choice and dependencies.",
     required: true,
     selectionMode: "multiple",
     exclusiveValues: ["unknown-audio"],
-    capturePlaceholder: "Example: Ceiling speakers and table microphones, with audio into Teams and local playback.",
+    capturePlaceholder: "Example: Ceiling speakers with a room amplifier, plus de-embedded programme audio for recording.",
     options: [
       {
         value: "display-audio",
@@ -485,22 +754,17 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       {
         value: "source-audio-deembed",
         label: "Pull sound out separately",
-        help: "Sound needs to be taken out of the cable run to feed a soundbar, amplifier or recording system.",
+        help: "Sound needs to be taken out of the signal path to feed a soundbar, amplifier or recording system.",
       },
       {
         value: "room-audio",
         label: "Room speakers / amplifier",
-        help: "Check what speakers are already in the room and how the volume/source will be controlled.",
-      },
-      {
-        value: "mic-conferencing",
-        label: "Microphones / conferencing audio",
-        help: "Check how the microphones connect, whether echo needs cancelling, and who owns the room's call device.",
+        help: "Check what speakers are already in the room and how volume and source selection will be controlled.",
       },
       {
         value: "dante-network-audio",
         label: "Sound needs to reach other rooms",
-        help: "Check whether the building's network can carry sound between spaces, and who owns that network.",
+        help: "Check whether the building network can carry sound between spaces and who owns that network.",
       },
       {
         value: "unknown-audio",
@@ -607,7 +871,7 @@ const avoipProfileQuestion: DiscoveryQuestion = {
   ],
 };
 
-function getVisibleDiscoveryQuestions(selectedApplication: string): DiscoveryQuestion[] {
+function getApplicationDiscoveryQuestions(selectedApplication: string): DiscoveryQuestion[] {
   if (selectedApplication !== "av-over-ip") {
     return baseDiscoveryQuestions;
   }
@@ -620,6 +884,51 @@ function getVisibleDiscoveryQuestions(selectedApplication: string): DiscoveryQue
   return withProfile;
 }
 
+
+
+function getVisibleDiscoveryQuestions(
+  selectedApplication: string,
+  answers: DiscoveryAnswers = {},
+): DiscoveryQuestion[] {
+  const withApplicationQuestions = getApplicationDiscoveryQuestions(selectedApplication);
+  const ucPurposeValue = Array.isArray(answers["uc-purpose"])
+    ? answers["uc-purpose"][0] ?? ""
+    : String(answers["uc-purpose"] ?? "");
+  const microphoneValues = Array.isArray(answers["uc-microphones"])
+    ? answers["uc-microphones"]
+    : [String(answers["uc-microphones"] ?? "")].filter(Boolean);
+
+  const detailedUcSteps = new Set([
+    "uc-platform",
+    "uc-camera",
+    "uc-camera-routing",
+    "uc-microphones",
+    "uc-microphone-connection",
+    "usb",
+  ]);
+
+  return withApplicationQuestions.filter((step) => {
+    if (!ucPurposeValue || ucPurposeValue === "no-uc") {
+      return !detailedUcSteps.has(step.id);
+    }
+
+    if (
+      ucPurposeValue === "camera-distribution-only" &&
+      ["uc-platform", "uc-microphones", "uc-microphone-connection", "usb"].includes(step.id)
+    ) {
+      return false;
+    }
+
+    if (
+      step.id === "uc-microphone-connection" &&
+      microphoneValues.includes("no-microphones")
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+}
 
 type ApplicationSpecificDiscoveryQuestionGuidance = {
   likelyDirection: string;
@@ -1049,6 +1358,44 @@ function wmDiscoveryAnswerIncludes(
 }
 // WINGMAN_DISCOVERY_MULTISELECT_RUNTIME_END
 
+// WINGMAN_DISCOVERY_UNIFIED_COMMS_VISIBILITY_START
+function wmDiscoveryIsUnifiedCommsDetailQuestion(
+  step: DiscoveryQuestion,
+): boolean {
+  if (step.id === "uc-purpose") {
+    return false;
+  }
+
+  const optionalSection = String(
+    (step as DiscoveryQuestion & { section?: string }).section ?? "",
+  ).toLowerCase();
+  const identity = `${step.id} ${step.shortLabel}`.toLowerCase();
+
+  return (
+    optionalSection.includes("unified communications") ||
+    /(^|[-_ ])(camera|microphone|capture)([-_ ]|$)/.test(identity) ||
+    /^uc[-_]/.test(step.id.toLowerCase())
+  );
+}
+
+function wmDiscoveryFilterUnifiedCommsQuestions(
+  questions: DiscoveryQuestion[],
+  answers: DiscoveryAnswers,
+): DiscoveryQuestion[] {
+  const selectedWorkflows = wmDiscoveryNormaliseAnswerList(
+    answers["uc-purpose"],
+  );
+
+  if (!selectedWorkflows.includes("no-uc")) {
+    return questions;
+  }
+
+  return questions.filter(
+    (step) => !wmDiscoveryIsUnifiedCommsDetailQuestion(step),
+  );
+}
+// WINGMAN_DISCOVERY_UNIFIED_COMMS_VISIBILITY_END
+
 export function DiscoveryPage() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [answers, setAnswers] = useState<DiscoveryAnswers>({});
@@ -1078,8 +1425,12 @@ export function DiscoveryPage() {
   const recogniserRef = useRef<DiscoverySpeechRecognitionLike | null>(null);
   const selectedApplication = wmDiscoveryAnswerToText(answers.opportunity);
   const discoveryQuestions = useMemo(
-    () => getVisibleDiscoveryQuestions(selectedApplication),
-    [selectedApplication],
+    () =>
+      wmDiscoveryFilterUnifiedCommsQuestions(
+        getVisibleDiscoveryQuestions(selectedApplication),
+        answers,
+      ),
+    [selectedApplication, answers],
   );
 
   // Group the flat question list into named phases so an inexperienced user
@@ -1222,6 +1573,38 @@ export function DiscoveryPage() {
     }
     if (mergedUsb.length) incomingAnswers.usb = mergedUsb;
 
+    const activeLegacyUsb = mergedUsb.some((value) => value !== "no-usb" && value !== "unknown-usb");
+    if (activeLegacyUsb && !incomingAnswers["uc-purpose"]) {
+      incomingAnswers["uc-purpose"] = "video-conferencing";
+    }
+
+    const sourceConnections = wmDiscoveryNormaliseAnswerList(incomingAnswers["source-connection"]);
+    if (sourceConnections.includes("cameras-ndi-network-streams")) {
+      const migratedSourceConnections = sourceConnections.filter((value) => value !== "cameras-ndi-network-streams");
+      if (migratedSourceConnections.length) {
+        incomingAnswers["source-connection"] = migratedSourceConnections;
+      } else {
+        delete incomingAnswers["source-connection"];
+      }
+      incomingAnswers["uc-purpose"] = incomingAnswers["uc-purpose"] || "camera-distribution-only";
+      incomingAnswers["uc-camera"] = incomingAnswers["uc-camera"] || ["ndi-network-camera"];
+      incomingAnswers["uc-camera-routing"] = incomingAnswers["uc-camera-routing"] || ["camera-to-displays"];
+    }
+
+    const legacyAudio = wmDiscoveryNormaliseAnswerList(incomingAnswers.audio);
+    if (legacyAudio.includes("mic-conferencing")) {
+      const migratedAudio = legacyAudio.filter((value) => value !== "mic-conferencing");
+      if (migratedAudio.length) {
+        incomingAnswers.audio = migratedAudio;
+      } else {
+        delete incomingAnswers.audio;
+      }
+      incomingAnswers["uc-purpose"] = incomingAnswers["uc-purpose"] || "video-conferencing";
+      incomingAnswers["uc-microphones"] = incomingAnswers["uc-microphones"] || ["unknown-microphones"];
+      incomingAnswers["uc-microphone-connection"] =
+        incomingAnswers["uc-microphone-connection"] || ["unknown-microphone-connection"];
+    }
+
     const incomingTopology = projectTopologyHasContent(handoff.topology)
       ? normaliseProjectTopology(handoff.topology)
       : generateProjectTopologyFromDiscovery({
@@ -1355,10 +1738,39 @@ export function DiscoveryPage() {
       (step) => step.id === currentStep.id || wmDiscoveryHasAnswer(answers[step.id]),
     );
 
-    setAnswers((previous) => ({
-      ...previous,
-      [currentStep.id]: value,
-    }));
+    setAnswers((previous) => {
+      const updated: DiscoveryAnswers = {
+        ...previous,
+        [currentStep.id]: value,
+      };
+
+      if (currentStep.id === "uc-purpose" && value === "no-uc") {
+        ["uc-platform", "uc-camera", "uc-camera-routing", "uc-microphones", "uc-microphone-connection", "usb"]
+          .forEach((key) => delete updated[key]);
+      }
+
+      if (currentStep.id === "uc-purpose" && value === "camera-distribution-only") {
+        ["uc-platform", "uc-microphones", "uc-microphone-connection", "usb"]
+          .forEach((key) => delete updated[key]);
+      }
+
+      if (currentStep.id === "uc-microphones" && value === "no-microphones") {
+        delete updated["uc-microphone-connection"];
+      }
+
+      return updated;
+    });
+
+    if (currentStep.id === "uc-purpose" && ["no-uc", "camera-distribution-only"].includes(value)) {
+      setNotes((previous) => {
+        const updated: DiscoveryNotes = { ...previous };
+        const keys = value === "no-uc"
+          ? ["uc-platform", "uc-camera", "uc-camera-routing", "uc-microphones", "uc-microphone-connection", "usb"]
+          : ["uc-platform", "uc-microphones", "uc-microphone-connection", "usb"];
+        keys.forEach((key) => delete updated[key]);
+        return updated;
+      });
+    }
 
     setSavedMessage("");
 
@@ -1532,6 +1944,12 @@ export function DiscoveryPage() {
     const displayBehaviour = answerLabel("display-behaviour") || answerLabel("displays");
     const signalStandard = answerLabel("signal-standard");
     const sourceCount = answerLabel("sources");
+    const ucPurpose = answerLabel("uc-purpose");
+    const conferencingPlatform = answerLabels("uc-platform");
+    const cameraNeeds = answerLabels("uc-camera");
+    const cameraRouting = answerLabels("uc-camera-routing");
+    const microphoneNeeds = answerLabels("uc-microphones");
+    const microphoneConnections = answerLabels("uc-microphone-connection");
     const usb = answerLabel("usb");
     const audio = answerLabel("audio");
     const control = answerLabel("control");
@@ -1554,6 +1972,52 @@ export function DiscoveryPage() {
     ].filter(Boolean).join(", ");
     const audioNeeds = answerLabels("audio");
     const controlNeeds = answerLabels("control");
+    // WINGMAN_DISCOVERY_SOURCE_UC_EVIDENCE_DERIVED
+    const wingmanUnifiedCommsValues = wmDiscoveryNormaliseAnswerList(
+      answers["uc-purpose"],
+    );
+    const wingmanUnifiedCommsWorkflows = answerLabels(
+      "uc-purpose",
+    );
+    const wingmanNoUnifiedComms = wingmanUnifiedCommsValues.includes(
+      "no-uc",
+    );
+    const wingmanUnifiedCommsUnknown = wingmanUnifiedCommsValues.includes(
+      "unknown-uc",
+    );
+    const wingmanLegacyCombinedWorkflow = wingmanUnifiedCommsValues.includes(
+      "conferencing-recording",
+    );
+    const wingmanConferencingRequired =
+      !wingmanNoUnifiedComms &&
+      !wingmanUnifiedCommsUnknown &&
+      (
+        wingmanUnifiedCommsValues.includes("video-conferencing") ||
+        wingmanLegacyCombinedWorkflow
+      );
+    const wingmanRecordingRequired =
+      !wingmanNoUnifiedComms &&
+      !wingmanUnifiedCommsUnknown &&
+      (
+        wingmanUnifiedCommsValues.includes("recording-streaming") ||
+        wingmanLegacyCombinedWorkflow
+      );
+    const wingmanCameraDistributionRequired =
+      !wingmanNoUnifiedComms &&
+      !wingmanUnifiedCommsUnknown &&
+      wingmanUnifiedCommsValues.includes("camera-distribution-only");
+    const wingmanMicrophonesOnly =
+      !wingmanNoUnifiedComms &&
+      !wingmanUnifiedCommsUnknown &&
+      wingmanUnifiedCommsValues.includes("microphones-only");
+    const wingmanUnifiedCommsSummary = wingmanNoUnifiedComms
+      ? "No camera or microphone requirements"
+      : wingmanUnifiedCommsUnknown
+        ? "Not yet confirmed"
+        : wingmanConferencingRequired && wingmanRecordingRequired
+          ? "Video conferencing and recording / live streaming"
+          : wingmanUnifiedCommsWorkflows.join(", ") || "Not yet confirmed";
+
     const activeTopology = projectTopologyHasContent(topology)
       ? normaliseProjectTopology(topology)
       : generateProjectTopologyFromDiscovery({ answers, notes, application: selectedApplication });
@@ -1628,6 +2092,13 @@ export function DiscoveryPage() {
         projectConnections: activeTopology.connections,
         connectionSummary: topologySummary,
         connectionTypes,
+        ucPurpose,
+        unifiedCommunicationsRequirement: ucPurpose,
+        conferencingPlatform,
+        cameraNeeds,
+        cameraRouting,
+        microphoneNeeds,
+        microphoneConnections,
         usbOwnership: usbOwnership || usb,
         usbTransport: usbTransport || usb,
         usbTopologyRisk,
@@ -1676,6 +2147,22 @@ export function DiscoveryPage() {
       missingInformation,
       nextBestQuestion,
     };
+    // WINGMAN_DISCOVERY_SOURCE_UC_EVIDENCE_ROOM_MODEL
+    brief.roomModel = {
+      ...(brief.roomModel ?? {}),
+      sourceProfile: answerLabel("source-connection"),
+      sourceProfileValue: wmDiscoveryAnswerToText(
+        answers["source-connection"],
+      ),
+      unifiedCommsWorkflows: wingmanUnifiedCommsWorkflows,
+      cameraMicrophoneWorkflows: wingmanUnifiedCommsWorkflows,
+      unifiedCommsSummary: wingmanUnifiedCommsSummary,
+      conferencingRequired: wingmanConferencingRequired,
+      recordingStreamingRequired: wingmanRecordingRequired,
+      cameraDistributionRequired: wingmanCameraDistributionRequired,
+      microphonesWithoutCameras: wingmanMicrophonesOnly,
+    };
+
     const recommendationEvidence = buildDiscoveryRecommendationEvidence(brief);
 
     return {
@@ -2063,7 +2550,7 @@ return (
             >
               {currentStep.id === "locations-connections"
                 ? (isLastStep ? "Complete discovery" : "Continue")
-                : wmDiscoveryIsMultiSelectStep(currentStep) ? "Continue" : "Skip / next"}
+                : wmDiscoveryIsMultiSelectStep(currentStep) ? "Continue" : "Continue"}
             </button>
           </div>
         </section>
