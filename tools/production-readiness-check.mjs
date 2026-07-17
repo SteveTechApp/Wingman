@@ -178,12 +178,14 @@ for (const marker of [
   }
 }
 
-const proposalPageSource = readFileSync(
-  path.join(projectRoot, "src", "wingman2", "pages", "ProposalPage.tsx"),
+// ProposalPage.tsx is a thin route wrapper; the real proposal UI (including
+// recommendation feedback capture) lives in ProposalCompletionWizard.tsx.
+const proposalWizardSource = readFileSync(
+  path.join(projectRoot, "src", "wingman2", "components", "ProposalCompletionWizard.tsx"),
   "utf8",
 );
 
-if (!proposalPageSource.includes("saveRecommendationFeedback") || !proposalPageSource.includes("Recommendation feedback")) {
+if (!proposalWizardSource.includes("saveRecommendationFeedback") || !proposalWizardSource.includes("Recommendation feedback")) {
   errors.push("Recommendation feedback capture is missing from Proposal.");
 }
 

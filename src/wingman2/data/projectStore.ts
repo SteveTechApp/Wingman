@@ -25,6 +25,8 @@ export type StoredProject = {
   resumeTo: string;
   createdAt: string;
   updatedAt: string;
+  /** True for the built-in starter examples seeded by resetProjectStore(). Never set this on a real project. */
+  isDemo?: boolean;
   discoveryBrief?: StoredDiscoveryBrief;
   productSelections?: StoredProductSelection[];
   ingest?: StoredIngestAnalysis;
@@ -34,6 +36,7 @@ export type StoredProject = {
   recommendationEvidence?: StoredRecommendationEvidence;
   feedback?: StoredRecommendationFeedback[];
   workflow?: StoredWorkflowState;
+  videowall?: StoredVideowallSummary;
 };
 
 export type StoredDiscoveryBrief = {
@@ -234,6 +237,12 @@ export type StoredWorkflowState = {
   updatedAt: string;
 };
 
+export type StoredVideowallSummary = {
+  savedAt: string;
+  wallType: string;
+  summary: Record<string, unknown>;
+};
+
 export type StoredProposalDraft = {
   id: string;
   name: string;
@@ -241,6 +250,8 @@ export type StoredProposalDraft = {
   state: string;
   createdAt: string;
   updatedAt: string;
+  /** True for the built-in starter examples seeded by resetProjectStore(). Never set this on a real draft. */
+  isDemo?: boolean;
 };
 
 export type ProjectStoreSnapshot = {
@@ -370,6 +381,7 @@ function defaultStore(): ProjectStoreSnapshot {
         resumeTo: routeCatalogByKey.discovery.path,
         createdAt: timestamp,
         updatedAt: timestamp,
+        isDemo: true,
       },
       {
         id: "harbour-retail-signage-rollout",
@@ -381,6 +393,7 @@ function defaultStore(): ProjectStoreSnapshot {
         resumeTo: routeCatalogByKey.compare.path,
         createdAt: timestamp,
         updatedAt: timestamp,
+        isDemo: true,
       },
       {
         id: "westbrook-classroom-standard",
@@ -392,6 +405,7 @@ function defaultStore(): ProjectStoreSnapshot {
         resumeTo: routeCatalogByKey.proposal.path,
         createdAt: timestamp,
         updatedAt: timestamp,
+        isDemo: true,
       },
     ],
     activeProjectId: null,
@@ -408,6 +422,7 @@ function defaultStore(): ProjectStoreSnapshot {
         state: "Ready for review",
         createdAt: timestamp,
         updatedAt: timestamp,
+        isDemo: true,
       },
       {
         id: "meeting-room-standard-bundle",
@@ -416,6 +431,7 @@ function defaultStore(): ProjectStoreSnapshot {
         state: "Waiting on assumptions",
         createdAt: timestamp,
         updatedAt: timestamp,
+        isDemo: true,
       },
       {
         id: "retail-display-distribution-pack",
@@ -424,6 +440,7 @@ function defaultStore(): ProjectStoreSnapshot {
         state: "Ready for export",
         createdAt: timestamp,
         updatedAt: timestamp,
+        isDemo: true,
       },
     ],
   };
@@ -845,6 +862,8 @@ function normalizeStoredProject(value: unknown): StoredProject | null {
     updatedAt,
   };
 
+  if (record.isDemo === true) project.isDemo = true;
+
   const discoveryBrief = normalizeDiscoveryBrief(record.discoveryBrief);
   if (discoveryBrief) project.discoveryBrief = discoveryBrief;
 
@@ -872,7 +891,21 @@ function normalizeStoredProject(value: unknown): StoredProject | null {
   const workflow = normalizeWorkflowState(record.workflow);
   if (workflow) project.workflow = workflow;
 
+  const videowall = normalizeVideowallSummary(record.videowall);
+  if (videowall) project.videowall = videowall;
+
   return project;
+}
+
+function normalizeVideowallSummary(value: unknown): StoredVideowallSummary | null {
+  const record = objectRecord(value);
+  if (!record) return null;
+
+  return {
+    savedAt: stringValue(record.savedAt, nowIso()),
+    wallType: stringValue(record.wallType),
+    summary: objectRecord(record.summary) ?? {},
+  };
 }
 
 function normalizeProposalDraft(value: unknown): StoredProposalDraft | null {
@@ -887,6 +920,7 @@ function normalizeProposalDraft(value: unknown): StoredProposalDraft | null {
     state: stringValue(record.state, "Draft"),
     createdAt: stringValue(record.createdAt, updatedAt),
     updatedAt,
+    ...(record.isDemo === true ? { isDemo: true } : {}),
   };
 }
 
@@ -1279,8 +1313,24 @@ export function resetProjectBackendSyncSessionState() {
   backendHydrationPromise = null;
 }
 
+/**
+ * Restores the built-in starter examples to their pristine defaults without
+ * touching any real project or proposal draft. Only entries tagged
+ * `isDemo: true` are ever replaced - anything a user actually created is
+ * preserved untouched, no matter how stale or edited the demo rows have become.
+ */
 export function resetProjectStore() {
-  writeProjectStore(defaultStore());
+  const snapshot = readProjectStore();
+  const defaults = defaultStore();
+  const realProjects = snapshot.projects.filter((project) => !project.isDemo);
+  const realDrafts = snapshot.proposalDrafts.filter((draft) => !draft.isDemo);
+
+  writeProjectStore({
+    ...defaults,
+    projects: [...defaults.projects, ...realProjects],
+    proposalDrafts: [...defaults.proposalDrafts, ...realDrafts],
+    activeProjectId: snapshot.activeProjectId,
+  });
 }
 
 export function copyStoredProject(projectId: string) {
@@ -1484,6 +1534,7 @@ function createWorkflowProject(input: {
   proposal?: StoredProjectProposal;
   requirements?: StoredRequirementRecord[];
   recommendationEvidence?: StoredRecommendationEvidence;
+  videowall?: StoredVideowallSummary;
   workflow: StoredWorkflowState;
 }) {
   const timestamp = nowIso();
@@ -1505,6 +1556,7 @@ function createWorkflowProject(input: {
     proposal: input.proposal,
     requirements: input.requirements,
     recommendationEvidence: input.recommendationEvidence,
+    videowall: input.videowall,
     workflow: input.workflow,
   } satisfies StoredProject;
 }
@@ -1558,6 +1610,48 @@ export function saveDiscoveryBriefToProject(brief: StoredDiscoveryBrief) {
         status: "recommended",
         resumeTo: routeCatalogByKey.finder.path,
         discoveryBrief: brief,
+        workflow,
+      });
+
+  return upsertStoredProject(project);
+}
+
+function projectNameFromVideowall(wallType: string) {
+  if (wallType === "led") return "LED Video Wall Discovery";
+  if (wallType === "lcd") return "LCD Video Wall Discovery";
+  return "Video Wall Discovery";
+}
+
+export function saveVideowallToProject(input: { wallType: string; summary: Record<string, unknown> }) {
+  const timestamp = nowIso();
+  const snapshot = readProjectStore();
+  const existing = getCurrentWorkflowProject(snapshot);
+  const videowall: StoredVideowallSummary = {
+    savedAt: timestamp,
+    wallType: input.wallType,
+    summary: input.summary,
+  };
+  const workflow: StoredWorkflowState = {
+    source: "Video Wall Builder",
+    lastStep: "Video wall discovery saved",
+    nextRoute: routeCatalogByKey.discovery.path,
+    updatedAt: timestamp,
+  };
+
+  const project = existing
+    ? {
+        ...existing,
+        updated: "Just now",
+        updatedAt: timestamp,
+        videowall,
+        workflow,
+      }
+    : createWorkflowProject({
+        name: projectNameFromVideowall(input.wallType),
+        stage: "Discovery",
+        status: "recommended",
+        resumeTo: routeCatalogByKey.discovery.path,
+        videowall,
         workflow,
       });
 
