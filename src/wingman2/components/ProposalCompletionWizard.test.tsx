@@ -36,7 +36,7 @@ describe("ProposalCompletionWizard", () => {
     window.localStorage.clear();
   });
 
-  it("asks the user to open a project when there is no active project", () => {
+  it("prompts to open a project when there is no active project", () => {
     renderWizard();
 
     expect(screen.getByText("Open a project before building a proposal")).not.toBeNull();
