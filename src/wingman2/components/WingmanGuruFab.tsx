@@ -331,7 +331,11 @@ export function WingmanGuruFab({
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
     >
-      <span className="wingman-guru-fab-motion" aria-hidden="true">
+      <span
+        className="wingman-guru-fab-motion"
+        aria-hidden="true"
+        style={{ willChange: "left, top, transform" }}
+      >
         <span className="wingman-guru-fab-sweep" />
         <span className="wingman-guru-fab-glow" />
         <img
