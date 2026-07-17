@@ -220,7 +220,9 @@ describe("Template-to-Discovery handoff", () => {
     fireEvent.click(within(card!).getByRole("button", { name: "Use template" }));
 
     expect(screen.getByText(`Pre-populated from template: ${template.name}`)).toBeInTheDocument();
-    expect((screen.getByRole("textbox") as HTMLTextAreaElement).value).toContain(template.name);
+    expect(
+      (screen.getByRole("textbox", { name: /customer wording/i }) as HTMLTextAreaElement).value,
+    ).toContain(template.name);
   });
 });
 

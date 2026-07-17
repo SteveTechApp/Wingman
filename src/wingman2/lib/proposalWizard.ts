@@ -198,6 +198,8 @@ export function createProposalWizardDefaults(input: {
   proposedSolution?: string;
   assumptions?: string[];
   dependencies?: string[];
+  customerName?: string;
+  contactName?: string;
 }): ProposalWizardDraft {
   const proposedSolution =
     input.proposedSolution?.trim() ||
@@ -209,9 +211,9 @@ export function createProposalWizardDefaults(input: {
     schemaVersion: 1,
     projectId: input.projectId,
     documentType: "blended-proposal",
-    customerName: "",
+    customerName: input.customerName?.trim() ?? "",
     projectName: input.projectName,
-    contactName: "",
+    contactName: input.contactName?.trim() ?? "",
     proposalReference: referenceFor(input.projectId),
     proposalDate: todayIsoDate(),
     validityDays: 30,

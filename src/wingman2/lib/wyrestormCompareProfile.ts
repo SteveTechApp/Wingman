@@ -92,10 +92,16 @@ function detectDomain(product: WyrestormProduct, blob: string): string | undefin
 
 function detectRole(product: WyrestormProduct, blob: string, domain?: string): string | undefined {
   const sku = String(product.sku ?? "").toUpperCase();
+  // WyreStorm's -TX/-RX/-TRX SKU suffix convention is shared by NetworkHD
+  // AVoIP encoders/decoders AND wireless presentation switcher/transmitter
+  // pairs (e.g. SW-620-TX-W). Only treat the suffix as encoder/decoder
+  // evidence outside the presentation domains, so a wireless presentation
+  // switcher doesn't get misread as an AVoIP encoder.
+  const isPresentationDomain = domain === "WIRELESS_PRESENTATION" || domain === "PRESENTATION";
 
-  if (/transceiver|\btrx\b/.test(blob) || /-TRX\b/.test(sku)) return "transceiver";
-  if (/\bencoder\b/.test(blob) || /-TX\b/.test(sku)) return "encoder";
-  if (/\bdecoder\b/.test(blob) || /-RX\b/.test(sku)) return "decoder";
+  if (!isPresentationDomain && (/transceiver|\btrx\b/.test(blob) || /-TRX\b/.test(sku))) return "transceiver";
+  if (!isPresentationDomain && (/\bencoder\b/.test(blob) || /-TX\b/.test(sku))) return "encoder";
+  if (!isPresentationDomain && (/\bdecoder\b/.test(blob) || /-RX\b/.test(sku))) return "decoder";
   if (domain === "MATRIX" || /matrix/.test(blob)) return "matrix";
   if (domain === "DISTRIBUTION" || /splitter|distribution amplifier|duplicator/.test(blob)) return "distribution amplifier";
   if (domain === "VIDEO_WALL" || /video\s*wall/.test(blob)) return "video wall processor";
