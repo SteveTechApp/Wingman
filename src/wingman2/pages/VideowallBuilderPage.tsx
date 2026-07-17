@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { saveVideowallToProject } from "../data/projectStore";
 
 type WallType = "" | "led" | "lcd";
 
@@ -808,7 +809,19 @@ export function VideoWallPage() {
 
   function saveToProject() {
     persist();
-    setMessage("Saved video wall discovery to Wingman handoff storage.");
+
+    const payload = {
+      source: "wingman-video-wall-workflow",
+      wallType,
+      ledAnswers,
+      lcdAnswers,
+      recommendation,
+      visualBundle,
+      updatedAt: new Date().toISOString(),
+    };
+
+    saveVideowallToProject({ wallType: wallType || "unknown", summary: payload });
+    setMessage("Saved to your project. Open Projects or continue into Discovery to keep building it out.");
   }
 
   function openProduct() {

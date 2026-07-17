@@ -432,3 +432,27 @@ export function exportProposalHtml(proposal: StoredProjectProposal, bomRows: Bom
 export function exportBomCsv(proposal: StoredProjectProposal, bomRows: BomRow[]) {
   saveTextFile(`${fileBaseName(proposal.title)}.bom.csv`, buildBomCsv(bomRows), "text/csv;charset=utf-8");
 }
+
+/**
+ * Opens the same formatted proposal document in a new tab and triggers the
+ * browser print dialog, where "Save as PDF" is a standard destination on
+ * every major OS/browser. Avoids pulling in a client-side PDF-generation
+ * library purely to duplicate what the HTML export already renders.
+ */
+export function exportProposalPdf(proposal: StoredProjectProposal, bomRows: BomRow[]) {
+  if (typeof window === "undefined") return;
+
+  const printWindow = window.open("", "_blank");
+
+  if (!printWindow) {
+    throw new Error("Pop-up blocked. Allow pop-ups for this site, or use Export HTML and print to PDF from your browser instead.");
+  }
+
+  printWindow.document.open();
+  printWindow.document.write(buildProposalHtml(proposal, bomRows));
+  printWindow.document.close();
+  printWindow.onload = () => {
+    printWindow.focus();
+    printWindow.print();
+  };
+}
