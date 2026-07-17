@@ -47,7 +47,6 @@
     "check:visual-design-native-output": "node tools/check-visual-design-native-output.mjs",
     "check:guru-ui": "vitest run src/__tests__/guruDrawerUiContract.test.ts",
     "check:workflow": "node tools/workflow-integration-check.mjs",
-    "compare:server": "node server/compare-intelligence-server.mjs",
     "data:audit-wyrestorm-products": "node tools/product-intelligence-audit.mjs",
     "data:canonical-products": "node tools/apply-avoip-data-governance.mjs --sources && node tools/build-product-data-sources.mjs",
     "data:sources:check": "node tools/build-product-data-sources.mjs --check",

@@ -2502,10 +2502,8 @@ const server = http.createServer(async (req, res) => {
         );
         sendJson(res, 200, result);
       } catch (error) {
-        sendJson(res, 500, {
-          error: "Comparison failed",
-          message: error.message,
-        });
+        console.error("[wingman-api] /api/compare/match failed:", error);
+        sendJson(res, 500, { error: "Comparison failed." });
       }
     });
     return;
@@ -2525,10 +2523,8 @@ const server = http.createServer(async (req, res) => {
         const result = await compareCompetitor(input, brand, 1);
         sendJson(res, 200, result.competitor);
       } catch (error) {
-        sendJson(res, 500, {
-          error: "Analysis failed",
-          message: error.message,
-        });
+        console.error("[wingman-api] /api/compare/analyze failed:", error);
+        sendJson(res, 500, { error: "Analysis failed." });
       }
     });
     return;
@@ -2572,3 +2568,11 @@ function gracefulShutdown(signal) {
 
 process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
 process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+
+process.on("uncaughtException", (error) => {
+  console.error("[wingman-api] uncaught exception:", error);
+});
+
+process.on("unhandledRejection", (reason) => {
+  console.error("[wingman-api] unhandled rejection:", reason);
+});
