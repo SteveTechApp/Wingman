@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { runCompetitorLookup, WingmanApiError, type CompetitorLookupResponse } from "../../api/wingmanApi";
-import { extractDocumentText } from "../../lib/documentExtract";
 import { inferSpecFormFieldsFromText } from "../../lib/competitorSpecRegistry";
 import { findSavedCompetitorSpec, saveCompetitorSpec, type SavedCompetitorSpec } from "../../lib/savedCompetitorSpecs";
 
@@ -134,6 +133,7 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved }: { brand: string
     if (!file) return;
 
     setDocumentState({ status: "reading", fileName: file.name, warnings: [] });
+    const { extractDocumentText } = await import("../../lib/documentExtract");
     const extracted = await extractDocumentText(file);
 
     if (!extracted.text.trim()) {

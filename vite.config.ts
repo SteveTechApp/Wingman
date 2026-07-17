@@ -85,10 +85,6 @@ export default defineConfig({
               test: /node_modules[\\/](@radix-ui|lucide-react|clsx|class-variance-authority)[\\/]/,
             },
             {
-              name: "vendor-document-tools",
-              test: /node_modules[\\/](pdfjs-dist|mammoth|jszip)[\\/]/,
-            },
-            {
               name: "vendor-visual-tools",
               test: /node_modules[\\/](@xyflow|reactflow|dagre)[\\/]/,
             },
