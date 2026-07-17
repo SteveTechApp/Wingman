@@ -506,6 +506,10 @@ function productIsSupportOnly(sku: string, text: string): string | null {
   const explicitlyPrimaryHardware =
     /^NHD/.test(key) ||
     /^APO(?:100|200|210|VX20)UC/.test(key) ||
+    // APO-DG2(-PRO) is the wireless-casting dongle itself, not a supporting
+    // accessory for other hardware - it's the lead candidate when a
+    // competitor's own product is a wireless casting dongle.
+    /^APODG2/.test(key) ||
     /^SW020[46]VW$/.test(key) ||
     /^MX/.test(key) ||
     /^MV0401PRO$/.test(key) ||
@@ -845,12 +849,22 @@ export function evaluateProductEligibility(args: {
       return blocked(sku, args.intent, ["This is a wireless presentation workflow, not an AVoIP endpoint comparison. Do not lead with NetworkHD here."]);
     }
 
+    // A competitor described specifically as a "dongle" is a simple casting
+    // accessory, not a multi-input switcher or a full UC room bar - lead with
+    // APO-DG2 (the WyreStorm casting dongle) instead of a switcher/video-bar
+    // nudge in that specific case.
+    const competitorIsDongle = /\bdongle\b/i.test(args.competitorText);
+
     if (/^SW/.test(key) && /\b(wireless|casting|miracast|airplay|chromecast|presentation)\b/i.test(combined)) {
-      return direct(args.intent, ["Wireless presentation switcher candidate."], -90);
+      return direct(args.intent, ["Wireless presentation switcher candidate."], competitorIsDongle ? 30 : -90);
     }
 
     if (/\b(apollo|wireless|casting|miracast|airplay|chromecast)\b/i.test(combined) || /^APO/.test(key)) {
-      return direct(args.intent, ["Wireless casting or collaboration candidate."], /^APOVX20UC/.test(key) ? 15 : 45);
+      const isDg2 = /^APODG2/.test(key);
+      const isVx20Uc = /^APOVX20UC/.test(key);
+      const fitPenalty = competitorIsDongle ? (isDg2 ? 15 : 45) : (isVx20Uc ? 15 : 45);
+
+      return direct(args.intent, ["Wireless casting or collaboration candidate."], fitPenalty);
     }
 
     return related(args.intent, ["No confirmed wireless casting capability."], 75);

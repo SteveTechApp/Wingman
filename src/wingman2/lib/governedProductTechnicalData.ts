@@ -236,15 +236,27 @@ function inferDomain(sku: string, text: string): string | undefined {
 
 function inferRole(sku: string, text: string, domain?: string): string | undefined {
   if (/\bmultiview decoder\b/.test(text)) return "multiview decoder";
-  if (/\btransceiver\b|\btrx\b/.test(text) || /-TRX\b/.test(sku)) return "transceiver";
-  if (/\bencoder\b/.test(text) || /-TX(?:-|$)/.test(sku)) return "encoder";
-  if (/\bdecoder\b/.test(text) || /-RX(?:-|$)/.test(sku)) return "decoder";
+  // WyreStorm's -TX/-RX/-TRX SKU suffix convention is shared by NetworkHD
+  // AVoIP encoders/decoders AND wireless presentation switcher/transmitter
+  // pairs (e.g. SW-620-TX-W). Only treat the suffix as encoder/decoder
+  // evidence outside the presentation domains, so a wireless presentation
+  // switcher doesn't get misread as an AVoIP encoder.
+  const isPresentationDomain = domain === "PRESENTATION" || domain === "WIRELESS_PRESENTATION";
+
+  if (!isPresentationDomain && (/\btransceiver\b|\btrx\b/.test(text) || /-TRX\b/.test(sku))) return "transceiver";
+  if (!isPresentationDomain && (/\bencoder\b/.test(text) || /-TX(?:-|$)/.test(sku))) return "encoder";
+  if (!isPresentationDomain && (/\bdecoder\b/.test(text) || /-RX(?:-|$)/.test(sku))) return "decoder";
   if (domain === "MATRIX") return "matrix";
   if (domain === "VIDEO_WALL") return "video wall processor";
   if (domain === "MULTIVIEW") return "multiview processor";
   if (domain === "PRESENTATION") return "presentation switcher";
   if (domain === "WIRELESS_PRESENTATION") {
-    return /dongle|apo-dg2/.test(text) ? "wireless casting dongle" : "wireless presentation";
+    if (/dongle|apo-dg2/.test(text)) return "wireless casting dongle";
+    // A -SW prefixed switcher that also supports wireless casting is still a
+    // presentation switcher, not a bare casting accessory - matches the same
+    // distinction wyrestormCompareProfile.ts's detectRole() makes.
+    if (/^SW-/.test(sku) || /\b(presentation switcher|switcher)\b/.test(text)) return "presentation switcher";
+    return "wireless presentation";
   }
   if (domain === "UC") return "UC room product";
   if (domain === "AUDIO") return "audio processor";
