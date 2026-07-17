@@ -137,6 +137,26 @@ function configuredStorageMode() {
   return "file";
 }
 
+if (process.env.NODE_ENV === "production") {
+  if (WINGMAN_STORAGE_MODE === "auto" || WINGMAN_STORAGE_MODE === "file") {
+    throw new Error(
+      `Refusing to start in production with WINGMAN_STORAGE_MODE="${WINGMAN_STORAGE_MODE}". ` +
+        'Set WINGMAN_STORAGE_MODE to "supabase-tables" (or "supabase") explicitly so storage ' +
+        "cannot silently fall back to local file storage.",
+    );
+  }
+  if (!STORAGE_FAIL_CLOSED) {
+    throw new Error(
+      "Refusing to start in production with WINGMAN_STORAGE_FAIL_CLOSED disabled. " +
+        "Set WINGMAN_STORAGE_FAIL_CLOSED=true so a Supabase outage fails loudly instead of " +
+        "silently falling back to local file storage.",
+    );
+  }
+  // Eagerly resolve the storage mode so a misconfiguration (e.g. missing Supabase
+  // credentials) crashes the process at startup instead of on the first request.
+  configuredStorageMode();
+}
+
 function getSupabaseAdmin() {
   const mode = configuredStorageMode();
   if (mode !== "supabase" && mode !== "supabase-tables") return null;
