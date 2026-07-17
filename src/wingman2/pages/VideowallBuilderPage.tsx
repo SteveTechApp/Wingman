@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { saveVideowallToProject } from "../data/projectStore";
 
 type WallType = "" | "led" | "lcd";
@@ -744,6 +745,7 @@ function SchematicCard(props: { bundle: VisualBundle }) {
 }
 
 export function VideoWallPage() {
+  const navigate = useNavigate();
   const [wallType, setWallType] = useState<WallType>("");
   const [ledAnswers, setLedAnswers] = useState<LedAnswers>(emptyLed);
   const [lcdAnswers, setLcdAnswers] = useState<LcdAnswers>(emptyLcd);
@@ -804,7 +806,7 @@ export function VideoWallPage() {
 
   function sendTo(path: string) {
     persist();
-    window.location.assign(path);
+    navigate(path);
   }
 
   function saveToProject() {
@@ -833,7 +835,7 @@ export function VideoWallPage() {
     }
 
     persist();
-    window.location.assign(`/wingman/products?search=${encodeURIComponent(primaryProduct)}`);
+    navigate(`/wingman/products?search=${encodeURIComponent(primaryProduct)}`);
   }
 
   function copySummary() {
