@@ -2455,7 +2455,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
   if (method === "GET" && url.pathname === "/api/product-intelligence/health") {
-    await runProtectedRoute(res, () => handleProductIntelligenceHealthGet(req, res, { sendJson }));
+    await runProtectedRoute(res, () => handleProductIntelligenceHealthGet(req, res, url, { sendJson }));
     return;
   }
 
@@ -2486,6 +2486,11 @@ const server = http.createServer(async (req, res) => {
 
   // New competitor match engine endpoint
   if (method === "POST" && url.pathname === "/api/compare/match") {
+    if (!(await requireWingmanPermission(req, res, url, {
+      permission: "canViewDiagnostics",
+      deniedMessage: "Compare requires an authenticated Wingman workspace session.",
+    }))) return;
+
     await runProtectedRoute(res, async () => {
       try {
         const body = await parseJsonBody(req);
@@ -2507,6 +2512,11 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (method === "GET" && url.pathname === "/api/compare/analyze") {
+    if (!(await requireWingmanPermission(req, res, url, {
+      permission: "canViewDiagnostics",
+      deniedMessage: "Compare requires an authenticated Wingman workspace session.",
+    }))) return;
+
     await runProtectedRoute(res, async () => {
       try {
         const input = url.searchParams.get("input") || "";

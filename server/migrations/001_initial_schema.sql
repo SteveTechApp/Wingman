@@ -207,16 +207,19 @@ ALTER TABLE wingman_projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE wingman_audit_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE wingman_telemetry_events ENABLE ROW LEVEL SECURITY;
 
--- Service role has full access (these policies allow the backend to operate)
-CREATE POLICY service_role_all ON wingman_app_state FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY service_role_all ON wingman_users FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY service_role_all ON wingman_workspaces FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY service_role_all ON wingman_workspace_members FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY service_role_all ON wingman_workspace_invitations FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY service_role_all ON wingman_sessions FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY service_role_all ON wingman_projects FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY service_role_all ON wingman_audit_events FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY service_role_all ON wingman_telemetry_events FOR ALL USING (true) WITH CHECK (true);
+-- Service role has full access (these policies allow the backend to operate).
+-- Scoped `TO service_role` explicitly - without this, `USING (true)` grants
+-- every Postgres role (including any anon/authenticated key wired up later)
+-- unrestricted access, which defeats the purpose of enabling RLS at all.
+CREATE POLICY service_role_all ON wingman_app_state FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_role_all ON wingman_users FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_role_all ON wingman_workspaces FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_role_all ON wingman_workspace_members FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_role_all ON wingman_workspace_invitations FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_role_all ON wingman_sessions FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_role_all ON wingman_projects FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_role_all ON wingman_audit_events FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY service_role_all ON wingman_telemetry_events FOR ALL TO service_role USING (true) WITH CHECK (true);
 
 -- ============================================================================
 -- Automatic Cleanup Functions

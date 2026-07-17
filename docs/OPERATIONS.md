@@ -83,9 +83,11 @@ Wingman supports a file store (development) and Supabase (production), selected 
   is unreachable, writes fail loudly rather than silently falling back to the file store.
 - **Backups:** Supabase provides automated backups; verify the retention setting meets your
   needs and test a restore before launch.
-- **Migration from file store:** apply `server/migrations/001_initial_schema.sql`, import
-  existing file-store data, then verify row counts and a sample project before switching
-  `WINGMAN_STORAGE_MODE` to `supabase-tables`. Keep the file-store JSON as a backup.
+- **Migration from file store:** apply `server/migrations/001_initial_schema.sql` (and, for
+  databases provisioned before the RLS policy role-scoping fix, also
+  `server/migrations/002_scope_service_role_policies.sql`), import existing file-store data,
+  then verify row counts and a sample project before switching `WINGMAN_STORAGE_MODE` to
+  `supabase-tables`. Keep the file-store JSON as a backup.
 
 ---
 
@@ -160,7 +162,9 @@ Exempt paths (token bootstrap / unauthenticated entry): `/api/csrf`,
 The dev/file store lives at `data/runtime/wingman-app-db.json` (collections: users/members,
 workspaces, sessions, projects, invitations, audit, telemetry). To move to production storage:
 
-1. Provision the Supabase project and apply `server/migrations/001_initial_schema.sql`.
+1. Provision the Supabase project and apply `server/migrations/001_initial_schema.sql` (plus
+   `server/migrations/002_scope_service_role_policies.sql` if the database predates the RLS
+   policy role-scoping fix).
 2. Set the `SUPABASE_*` env (URL, service-role key, table names from `.env.example`).
 3. **Back up** `data/runtime/wingman-app-db.json` (older installations may still use `data/wingman-app-db.json`).
 4. Bring the app up once with `WINGMAN_STORAGE_MODE=supabase-tables`. The app-store reads Supabase
