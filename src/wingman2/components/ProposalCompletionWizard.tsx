@@ -5,7 +5,10 @@ import {
   Download,
   FileText,
   ListChecks,
+  Printer,
   Table2,
+  ThumbsDown,
+  ThumbsUp,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -14,13 +17,16 @@ import {
   getCurrentWorkflowProject,
   readProjectStore,
   saveProjectProposalToProject,
+  saveRecommendationFeedback,
   type StoredProject,
   type StoredProjectProposal,
+  type StoredRecommendationFeedback,
 } from "../data/projectStore";
 import { getStoredWingmanProfile } from "../data/wingmanProfile";
 import {
   exportBomCsv,
   exportProposalHtml,
+  exportProposalPdf,
 } from "../lib/proposalExport";
 import { exportProposalDocx } from "../lib/proposalDocxExport";
 import {
@@ -345,6 +351,8 @@ function ProposalCompletionWizardContent({
     loadProposalWizardDraft(project.id, defaults),
   );
   const [exportMessage, setExportMessage] = useState("");
+  const [feedbackRating, setFeedbackRating] = useState<StoredRecommendationFeedback["rating"] | null>(null);
+  const [feedbackMessage, setFeedbackMessage] = useState("");
 
   const baseBomRows = salesReadiness.bomRows;
   const bomRows = useMemo<SalesBomRow[]>(
@@ -564,6 +572,77 @@ function ProposalCompletionWizardContent({
           : "DOCX export failed.",
       );
     }
+  }
+
+  function exportHtml() {
+    if (readiness.score < 100) {
+      setExportMessage(
+        "Complete the remaining wizard items before exporting HTML.",
+      );
+      return;
+    }
+
+    try {
+      exportProposalHtml(proposal, bomRows);
+      setExportMessage("HTML export generated.");
+    } catch (error) {
+      setExportMessage(
+        error instanceof Error
+          ? `HTML export failed: ${error.message}`
+          : "HTML export failed.",
+      );
+    }
+  }
+
+  function exportCsv() {
+    if (readiness.score < 100) {
+      setExportMessage(
+        "Complete the remaining wizard items before exporting the BOM CSV.",
+      );
+      return;
+    }
+
+    try {
+      exportBomCsv(proposal, bomRows);
+      setExportMessage("BOM CSV generated.");
+    } catch (error) {
+      setExportMessage(
+        error instanceof Error
+          ? `BOM CSV export failed: ${error.message}`
+          : "BOM CSV export failed.",
+      );
+    }
+  }
+
+  function exportPdf() {
+    if (readiness.score < 100) {
+      setExportMessage(
+        "Complete the remaining wizard items before exporting a PDF.",
+      );
+      return;
+    }
+
+    try {
+      exportProposalPdf(proposal, bomRows);
+      setExportMessage(
+        "Opened the print dialog - choose \"Save as PDF\" as the destination.",
+      );
+    } catch (error) {
+      setExportMessage(
+        error instanceof Error
+          ? `PDF export failed: ${error.message}`
+          : "PDF export failed.",
+      );
+    }
+  }
+
+  function submitRecommendationFeedback(
+    rating: StoredRecommendationFeedback["rating"],
+    label: string,
+  ) {
+    saveRecommendationFeedback({ scope: "proposal", rating, label });
+    setFeedbackRating(rating);
+    setFeedbackMessage("Thanks - this helps improve future recommendations.");
   }
 
   return (
@@ -1047,9 +1126,17 @@ function ProposalCompletionWizardContent({
 
                 <button
                   type="button"
-                  onClick={() =>
-                    exportProposalHtml(proposal, bomRows)
-                  }
+                  disabled={readiness.score < 100}
+                  onClick={exportPdf}
+                >
+                  <Printer aria-hidden="true" />
+                  Export PDF
+                </button>
+
+                <button
+                  type="button"
+                  disabled={readiness.score < 100}
+                  onClick={exportHtml}
                 >
                   <FileText aria-hidden="true" />
                   Export HTML
@@ -1057,9 +1144,8 @@ function ProposalCompletionWizardContent({
 
                 <button
                   type="button"
-                  onClick={() =>
-                    exportBomCsv(proposal, bomRows)
-                  }
+                  disabled={readiness.score < 100}
+                  onClick={exportCsv}
                 >
                   <Table2 aria-hidden="true" />
                   Export BOM CSV
@@ -1071,6 +1157,57 @@ function ProposalCompletionWizardContent({
                   {exportMessage}
                 </p>
               ) : null}
+
+              <div className="wm-proposal-recommendation-feedback">
+                <h3>Recommendation feedback</h3>
+                <p>
+                  Was the recommended architecture and product shortlist right for this
+                  opportunity? This helps improve future recommendations.
+                </p>
+                <div className="wm-proposal-feedback-actions">
+                  <button
+                    type="button"
+                    aria-pressed={feedbackRating === "accepted"}
+                    onClick={() =>
+                      submitRecommendationFeedback(
+                        "accepted",
+                        "Recommendation accepted as proposed",
+                      )
+                    }
+                  >
+                    <ThumbsUp aria-hidden="true" />
+                    Looks right
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={feedbackRating === "missing-accessory"}
+                    onClick={() =>
+                      submitRecommendationFeedback(
+                        "missing-accessory",
+                        "Recommendation was missing an accessory or dependency",
+                      )
+                    }
+                  >
+                    Missing something
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={feedbackRating === "wrong-fit"}
+                    onClick={() =>
+                      submitRecommendationFeedback(
+                        "wrong-fit",
+                        "Recommendation was the wrong architecture or product fit",
+                      )
+                    }
+                  >
+                    <ThumbsDown aria-hidden="true" />
+                    Wrong fit
+                  </button>
+                </div>
+                {feedbackMessage ? (
+                  <p className="wm-proposal-feedback-message">{feedbackMessage}</p>
+                ) : null}
+              </div>
             </>
           ) : null}
 

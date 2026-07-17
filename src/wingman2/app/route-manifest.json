@@ -207,15 +207,6 @@
     "summary": "Support notes, next actions and escalation guidance."
   },
   {
-    "key": "intelligence",
-    "path": "/wingman/intelligence",
-    "segment": "intelligence",
-    "label": "Intelligence",
-    "navLabel": "Intelligence",
-    "pageFile": "IntelligencePage.tsx",
-    "summary": "Product and opportunity intelligence."
-  },
-  {
     "key": "profile",
     "path": "/wingman/settings",
     "segment": "settings",

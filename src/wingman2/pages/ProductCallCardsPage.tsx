@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { getBestProductPositioningCardForSku } from "../data/productPositioningCards";
 import { getProductStory, productStoryRelatedText } from "../data/productStories";
@@ -1821,11 +1822,8 @@ function getSkuFromPath(): string {
   return normaliseSku(decodeURIComponent(last));
 }
 
-function goTo(path: string): void {
-  window.location.assign(path);
-}
-
 export default function ProductCallCardsPage() {
+  const navigate = useNavigate();
   const pathSku = getSkuFromPath();
 
   const [products, setProducts] = useState<ProductCard[]>([]);
@@ -2211,7 +2209,7 @@ return () => {
     params.set("addSku", selectedProduct.sku);
     params.set("source", "product-discussion");
 
-    goTo(`/wingman/projects?${params.toString()}`);
+    navigate(`/wingman/projects?${params.toString()}`);
   }
 
   function startRoomBuilderWithProduct(): void {
@@ -2238,7 +2236,7 @@ return () => {
     params.set("seedSku", selectedProduct.sku);
     params.set("source", "product-discussion");
 
-    goTo(`/wingman/discovery?${params.toString()}`);
+    navigate(`/wingman/discovery?${params.toString()}`);
   }
 return (
     <section
@@ -2595,7 +2593,7 @@ return (
                   params.set("seedSku", selectedProduct.sku);
                   params.set("source", "product-discussion");
 
-                  goTo(`/wingman/visual-studio?${params.toString()}`);
+                  navigate(`/wingman/visual-studio?${params.toString()}`);
                 }}
               >
                 Visualise in Studio

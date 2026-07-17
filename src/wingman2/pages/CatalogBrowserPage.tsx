@@ -134,6 +134,7 @@ function Toggle({ label, active, onClick }: { label: string; active: boolean; on
 export function CatalogBrowserPage() {
   const [catalog, setCatalog] = useState<CatalogProduct[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [state, setState] = useState<CatalogFilterState>(() => createDefaultCatalogFilterState());
 
   useEffect(() => {
@@ -145,7 +146,9 @@ export function CatalogBrowserPage() {
         setLoaded(true);
       })
       .catch(() => {
-        if (!cancelled) setLoaded(true);
+        if (cancelled) return;
+        setLoadError(true);
+        setLoaded(true);
       });
     return () => {
       cancelled = true;
@@ -193,7 +196,11 @@ export function CatalogBrowserPage() {
 
       <section className="flex items-center justify-between px-1 wm-ui-section">
         <p className="text-sm font-bold wm-ui-copy">
-          {loaded ? `${results.length} product${results.length === 1 ? "" : "s"}` : "Loading catalogue..."}
+          {loadError
+            ? "Catalogue unavailable"
+            : loaded
+              ? `${results.length} product${results.length === 1 ? "" : "s"}`
+              : "Loading catalogue..."}
         </p>
         <button className={["wm-ui-button wm-ui-button-secondary", "rounded-full border border-[#29465e] px-3 py-1.5 text-xs font-bold text-cyan-100 hover:border-cyan-300"].filter(Boolean).join(" ")}
           type="button"
@@ -244,7 +251,11 @@ export function CatalogBrowserPage() {
         })}
       </div>
 
-      {loaded && !results.length ? (
+      {loadError ? (
+        <div className="rounded-2xl border p-4 text-sm wm-ui-card wm-ui-copy">
+          The product catalogue could not be loaded. Check your connection and reload the page.
+        </div>
+      ) : loaded && !results.length ? (
         <div className="rounded-2xl border p-4 text-sm wm-ui-card wm-ui-copy">
           No products match these filters. Reset filters or broaden the search.
         </div>

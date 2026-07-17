@@ -52,13 +52,6 @@ const conversationCards: SalesHelperCard[] = [
   },
 ];
 
-const workflowSteps = [
-  "Conversation type",
-  "Ask this next",
-  "Capture detail",
-  "Next action",
-];
-
 export function SalesHelperPage() {
   const navigate = useNavigate();
 
@@ -67,26 +60,17 @@ export function SalesHelperPage() {
       <section className="wm-sh-page-hero" aria-labelledby="sales-helper-title">
         <div>
           <p className="wm-sh-page-kicker">Sales Helper</p>
-          <h1 id="sales-helper-title">Guide distributor sales conversations one step at a time.</h1>
+          <h1 id="sales-helper-title">Find the right Wingman tool for this conversation.</h1>
           <p>
-            Choose the conversation type, ask the next useful question, capture only what matters,
-            then move to the right Wingman tool for enquiries, outbound calls, and WyreStorm attachment opportunities.
+            Choose the closest conversation type below and Wingman opens the tool that asks the next
+            question, captures the detail, and moves you to the next action - Discovery, Finder,
+            Compare, Call Coach, or Proposal.
           </p>
         </div>
       </section>
 
-      <nav className="wm-sh-page-stepper" aria-label="Sales Helper workflow progress">
-        {workflowSteps.map((step, index) => (
-          <div className="wm-sh-page-step" key={step}>
-            <span>{index + 1}</span>
-            <strong>{step}</strong>
-          </div>
-        ))}
-      </nav>
-
       <section className="wm-sh-page-section" aria-labelledby="sales-helper-start-title">
         <div className="wm-sh-section-head">
-          <p className="wm-sh-page-kicker">Step 1 / 4</p>
           <h2 id="sales-helper-start-title">Choose the conversation type</h2>
           <p>
             Pick the closest starting point. Wingman will narrow the next question, keep the conversation application-led, and help you surface viable WyreStorm solution directions.

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { AlertTriangle, Check, Cloud, Copy, RotateCcw, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
@@ -36,6 +37,43 @@ export function ProjectsPage() {
     deleteProposalDraft,
     resetStore,
   } = useProjectStore();
+
+  const [confirmDeleteProjectId, setConfirmDeleteProjectId] = useState<string | null>(null);
+  const [confirmDeleteDraftId, setConfirmDeleteDraftId] = useState<string | null>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
+
+  function handleDeleteProjectClick(projectId: string) {
+    if (confirmDeleteProjectId === projectId) {
+      deleteProject(projectId);
+      setConfirmDeleteProjectId(null);
+      return;
+    }
+
+    setConfirmDeleteProjectId(projectId);
+  }
+
+  function handleDeleteDraftClick(draftId: string) {
+    if (confirmDeleteDraftId === draftId) {
+      deleteProposalDraft(draftId);
+      setConfirmDeleteDraftId(null);
+      return;
+    }
+
+    setConfirmDeleteDraftId(draftId);
+  }
+
+  function handleResetClick() {
+    if (confirmReset) {
+      resetStore();
+      setConfirmReset(false);
+      return;
+    }
+
+    setConfirmReset(true);
+  }
+
+  const realProjectCount = projects.filter((project) => !project.isDemo).length;
+  const realDraftCount = proposalDrafts.filter((draft) => !draft.isDemo).length;
 
   return (
     <div data-wingman-page="projects" className="pb-10">
@@ -85,11 +123,17 @@ export function ProjectsPage() {
               />
               <button
                 type="button"
-                onClick={resetStore}
+                onClick={handleResetClick}
+                onBlur={() => setConfirmReset(false)}
+                title={
+                  realProjectCount || realDraftCount
+                    ? `Restores the built-in starter examples. Your ${realProjectCount} project(s) and ${realDraftCount} draft(s) are never affected.`
+                    : "Restores the built-in starter examples."
+                }
                 className={`inline-flex items-center gap-2 ${PROJECTS_PILL_BUTTON_CLASS} hover:border-cyan-300 hover:bg-[#0d2133] hover:text-[#9ffcf4]`}
               >
                 <RotateCcw className="h-4 w-4" />
-                Reset sample store
+                {confirmReset ? "Confirm reset?" : "Reset sample store"}
               </button>
             </div>
           }
@@ -150,12 +194,12 @@ export function ProjectsPage() {
 
                           <button className={["wm-ui-button wm-ui-button-secondary", `${PROJECTS_ICON_BUTTON_CLASS} hover:border-[#ff8a8a] hover:bg-[#2a1020] hover:text-[#ff8a8a]`].filter(Boolean).join(" ")}
                             type="button"
-                            onClick={() => deleteProject(project.id)}
-
-                            title={`Delete ${project.name}`}
-                            aria-label={`Delete ${project.name}`}
+                            onClick={() => handleDeleteProjectClick(project.id)}
+                            onBlur={() => setConfirmDeleteProjectId((current) => (current === project.id ? null : current))}
+                            title={confirmDeleteProjectId === project.id ? `Click again to permanently delete ${project.name}` : `Delete ${project.name}`}
+                            aria-label={confirmDeleteProjectId === project.id ? `Confirm delete ${project.name}` : `Delete ${project.name}`}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            {confirmDeleteProjectId === project.id ? <AlertTriangle className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
                           </button>
                         </div>
                       </td>
@@ -208,11 +252,12 @@ export function ProjectsPage() {
                     <button
                       className={["wm-ui-button wm-ui-button-secondary", `${PROJECTS_ICON_BUTTON_CLASS} hover:border-[#ff8a8a] hover:bg-[#2a1020] hover:text-[#ff8a8a]`].filter(Boolean).join(" ")}
                       type="button"
-                      onClick={() => deleteProposalDraft(draft.id)}
-                      title={`Delete ${draft.name}`}
-                      aria-label={`Delete ${draft.name}`}
+                      onClick={() => handleDeleteDraftClick(draft.id)}
+                      onBlur={() => setConfirmDeleteDraftId((current) => (current === draft.id ? null : current))}
+                      title={confirmDeleteDraftId === draft.id ? `Click again to permanently delete ${draft.name}` : `Delete ${draft.name}`}
+                      aria-label={confirmDeleteDraftId === draft.id ? `Confirm delete ${draft.name}` : `Delete ${draft.name}`}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      {confirmDeleteDraftId === draft.id ? <AlertTriangle className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
                     </button>
                   </div>
                 </div>
