@@ -5,6 +5,20 @@ import reactHooks from "eslint-plugin-react-hooks";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 import importPlugin from "eslint-plugin-import";
 
+// jsx-a11y's recommended preset ships every rule at "error". Downgrade to
+// "warn" so adopting it surfaces the existing accessibility backlog without
+// turning `npm run lint` into a hard failure on rules the codebase hasn't
+// been audited against yet.
+const jsxA11yRecommendedRules = Object.fromEntries(
+  Object.entries(jsxA11y.flatConfigs.recommended.rules).map(([rule, value]) => {
+    if (value === "off" || (Array.isArray(value) && value[0] === "off")) {
+      return [rule, value];
+    }
+
+    return [rule, Array.isArray(value) ? ["warn", ...value.slice(1)] : "warn"];
+  }),
+);
+
 export default [
   {
     ignores: [
@@ -89,7 +103,8 @@ export default [
       "no-useless-escape": "warn",
       "prefer-const": "warn",
       "no-irregular-whitespace": "warn",
-      "no-case-declarations": "warn"
+      "no-case-declarations": "warn",
+      ...jsxA11yRecommendedRules
     }
   }
 ];
