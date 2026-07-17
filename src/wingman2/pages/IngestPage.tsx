@@ -177,6 +177,7 @@ export function IngestPage() {
   const [attachmentStatus, setAttachmentStatus] = useState<"idle" | "analyzing" | "error">("idle");
   const [attachmentError, setAttachmentError] = useState("");
   const [isEditingRequest, setIsEditingRequest] = useState(false);
+  const [saveWarning, setSaveWarning] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const attachmentInputRef = useRef<HTMLInputElement | null>(null);
@@ -268,10 +269,11 @@ export function IngestPage() {
 
     setAnalysis(nextAnalysis);
     setBulkAnalysis(multiSku);
-    saveIngestAnalysisToProject(
+    const saved = saveIngestAnalysisToProject(
       { ...nextAnalysis, multiSkuIntelligence: multiSku ?? undefined, visualContext: visualAttachments },
       { requireExistingProject: true },
     );
+    setSaveWarning(saved ? "" : "Open or start a project first. The decoded analysis is shown below but was not attached to a project.");
     setExtractState("complete");
     setIsEditingRequest(false);
   };
@@ -318,7 +320,7 @@ export function IngestPage() {
       const results = await Promise.all(files.map((file) => analyzeVisualAttachment(file, requestType)));
       const nextAttachments = [...visualAttachments, ...results];
       setVisualAttachments(nextAttachments);
-      saveIngestAnalysisToProject(
+      const saved = saveIngestAnalysisToProject(
         {
           requirements: analysis.requirements,
           unknowns: analysis.unknowns,
@@ -329,6 +331,7 @@ export function IngestPage() {
         },
         { requireExistingProject: true },
       );
+      setSaveWarning(saved ? "" : "Open or start a project first. The attachment was analyzed but was not attached to a project.");
       setAttachmentStatus("idle");
     } catch (error) {
       setAttachmentError(error instanceof Error ? error.message : "Could not analyze the attached image.");
@@ -343,7 +346,24 @@ export function IngestPage() {
     setSelectedFiles(files.map((file) => file.name));
     setExtractState("extracting");
 
-    const extracted = await extractDocuments(files);
+    let extracted: Awaited<ReturnType<typeof extractDocuments>>;
+    try {
+      extracted = await extractDocuments(files);
+    } catch (error) {
+      setAnalysis({
+        requirements: [],
+        unknowns: [
+          error instanceof Error
+            ? `Could not read the uploaded files: ${error.message}`
+            : "Could not read the uploaded files. Paste the customer request manually instead.",
+        ],
+        skippedFiles: files.map((file) => file.name),
+        files: files.map((file) => file.name),
+      });
+      setExtractState("error");
+      return;
+    }
+
     const text = extracted.map((item) => item.text).filter(Boolean).join("\n\n");
     const extractionWarnings = extracted.flatMap((item) => item.warnings);
     const skippedFiles = extracted.filter((item) => !item.text).map((item) => item.fileName);
@@ -386,10 +406,11 @@ export function IngestPage() {
 
     setAnalysis(nextAnalysis);
     setBulkAnalysis(multiSku);
-    saveIngestAnalysisToProject(
+    const saved = saveIngestAnalysisToProject(
       { ...nextAnalysis, multiSkuIntelligence: multiSku ?? undefined, visualContext: visualAttachments },
       { requireExistingProject: true },
     );
+    setSaveWarning(saved ? "" : "Open or start a project first. The decoded analysis is shown below but was not attached to a project.");
     setExtractState(extractionWarnings.length && !text ? "error" : "complete");
     if (!(extractionWarnings.length && !text)) setIsEditingRequest(false);
   };
@@ -428,6 +449,12 @@ export function IngestPage() {
           nextMove="Carry the batch-eligible items into the proposal workflow."
           actions={[{ label: "Continue to proposal", onClick: continueBulkToProposal }]}
         />
+        {saveWarning ? (
+          <div className="wm-ingest-inline-alert" role="alert">
+            <strong>Not saved to a project.</strong>
+            <span>{saveWarning}</span>
+          </div>
+        ) : null}
         <BulkEnquiryResults
           analysis={bulkAnalysis}
           visualAttachments={visualAttachments}
@@ -611,6 +638,13 @@ export function IngestPage() {
               <div className="wm-ingest-inline-alert" role="alert">
                 <strong>Attachment analysis failed.</strong>
                 <span>{attachmentError}</span>
+              </div>
+            ) : null}
+
+            {saveWarning ? (
+              <div className="wm-ingest-inline-alert" role="alert">
+                <strong>Not saved to a project.</strong>
+                <span>{saveWarning}</span>
               </div>
             ) : null}
           </section>
