@@ -159,10 +159,9 @@ export function LearnPage() {
       eyebrow="Wingman / Learn"
       title="Learn"
       intent="Help me understand AV terms, products, sales guidance or support context."
-      subModes={["Glossary", "Product Intelligence", "Support", "Training / reference"]}
+      subModes={["Glossary", "Support", "Training / reference"]}
       primaryActions={[
         routeAction("glossary", "Glossary", "Look up AV terms, acronyms and customer-safe explanations.", "Search terms"),
-        routeAction("intelligence", "Product Intelligence", "Review product data, classification and source confidence.", "Review intelligence"),
         routeAction("support", "Support guidance", "Find escalation guidance and completion gaps.", "Open support"),
         routeAction("productFamilies", "Product family learning", "Learn how product families fit real sales conversations.", "Learn families")]}
     />

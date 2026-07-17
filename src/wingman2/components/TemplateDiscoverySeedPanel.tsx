@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { TemplateDiscoverySeed } from "../lib/templateDiscoverySeeds";
 
 const TEMPLATE_SEED_KEY = "wingman:template-discovery-seed";
@@ -593,6 +594,7 @@ function buildProposalPack(rawSeed: TemplateDiscoverySeed): ProposalPack {
 }
 
 function TemplateDiscoverySeedPanel() {
+  const navigate = useNavigate();
   const [seed, setSeed] = useState<TemplateDiscoverySeed | null>(() => {
     const rawSeed = readSeed();
     return rawSeed ? completeSeed(rawSeed) : null;
@@ -659,7 +661,7 @@ function TemplateDiscoverySeedPanel() {
 
   const openProposal = () => {
     savePack();
-    window.location.assign("/wingman/proposal");
+    navigate("/wingman/proposal");
   };
 
   const copyText = async (label: string, text: string) => {

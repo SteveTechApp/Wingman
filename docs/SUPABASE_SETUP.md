@@ -62,6 +62,8 @@ For production, we recommend **`supabase-tables`** mode for better performance, 
 3. Copy the contents of `server/migrations/001_initial_schema.sql`
 4. Paste into the SQL editor
 5. Click "Run" to execute the migration
+6. If this database was provisioned before the `TO service_role` policy fix landed, also run
+   `server/migrations/002_scope_service_role_policies.sql` (safe/no-op on a fresh database).
 
 ### Option B: Using the Supabase CLI
 
@@ -78,6 +80,10 @@ supabase link --project-ref your-project-ref
 # Run the migration
 supabase db push
 ```
+
+Existing databases should also apply `server/migrations/002_scope_service_role_policies.sql`
+(see note above) — a fresh database created from the current `001_initial_schema.sql` already
+has this fix.
 
 ### Option C: Using psql Directly
 
@@ -314,4 +320,6 @@ The following tables are created by the migration:
 | `wingman_audit_events` | Security and activity audit log |
 | `wingman_telemetry_events` | Runtime error and event tracking |
 
-For the complete schema definition, see `server/migrations/001_initial_schema.sql`.
+For the complete schema definition, see `server/migrations/001_initial_schema.sql`. Databases
+provisioned before the RLS policy role-scoping fix should also apply
+`server/migrations/002_scope_service_role_policies.sql`.

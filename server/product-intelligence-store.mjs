@@ -229,6 +229,18 @@ async function requireProductIntelligenceAdmin(req, res, url, sendJson) {
   return auth;
 }
 
+// Read access to the product/competitor intelligence catalog only requires an
+// authenticated workspace session, not admin rights - the mutation routes
+// above still require requireProductIntelligenceAdmin().
+async function requireProductIntelligenceRead(req, res, url, sendJson) {
+  const auth = await getWingmanRequestAuth(req, url);
+  if (!auth.ok) {
+    sendJson(res, 401, { ok: false, error: auth.error });
+    return null;
+  }
+  return auth;
+}
+
 function skuMasterPorts(description) {
   const inputs = [];
   const outputs = [];
@@ -1075,7 +1087,10 @@ function enrichProductIntelligenceRecords(products) {
     };
   });
 }
-export async function handleProductIntelligenceGet(_req, res, url, { sendJson }) {
+export async function handleProductIntelligenceGet(req, res, url, { sendJson }) {
+  const auth = await requireProductIntelligenceRead(req, res, url, sendJson);
+  if (!auth) return;
+
   try {
     const db = await ensureDatabase();
     const filters = parseRequestFilters(url);
@@ -1109,7 +1124,10 @@ export async function handleProductIntelligenceGet(_req, res, url, { sendJson })
     });
   }
 }
-export async function handleProductIntelligenceHealthGet(_req, res, { sendJson }) {
+export async function handleProductIntelligenceHealthGet(req, res, url, { sendJson }) {
+  const auth = await requireProductIntelligenceRead(req, res, url, sendJson);
+  if (!auth) return;
+
   try {
     const health = await getProductIntelligenceHealth();
     sendJson(res, 200, health);

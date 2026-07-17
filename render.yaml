@@ -63,5 +63,7 @@ services:
         sync: false
       - key: LOOKUP_ENABLE_LIVE_ENRICHMENT
         value: "true"
-      - key: WINGMAN_AGENT_FORCE_MOCK
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: WINGMAN_CSRF_ENFORCE
         value: "true"

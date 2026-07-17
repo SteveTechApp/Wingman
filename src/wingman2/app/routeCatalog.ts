@@ -4,7 +4,6 @@ import {
   BookOpen,
   Boxes,
   ClipboardList,
-  Database,
   FileText,
   FileUp,
   FolderKanban,
@@ -44,7 +43,6 @@ export type WingmanRouteKey =
   | "ingest"
   | "proposal"
   | "support"
-  | "intelligence"
   | "profile" | "visualStudio";
 
 type RouteManifestEntry = {
@@ -85,7 +83,6 @@ const iconMap: Record<WingmanRouteKey, LucideIcon> = {
   ingest: FileUp,
   proposal: FileText,
   support: LifeBuoy,
-  intelligence: Database,
   profile: Settings,
   visualStudio: Workflow,
 };
@@ -119,7 +116,7 @@ export const consolidatedRouteGroups = {
   products: ["finder", "productFamilies", "catalogBrowser", "productCallCards", "productPitch", "videowall", "proposal"],
   documents: ["ingest", "templates", "compare", "proposal"],
   responsePack: ["proposal", "support", "visualDesign", "templates"],
-  learn: ["glossary", "intelligence", "support", "productFamilies"],
+  learn: ["glossary", "support", "productFamilies"],
 } as const satisfies Partial<Record<WingmanRouteKey, readonly WingmanRouteKey[]>>;
 
 export function routeByPath(pathname: string) {

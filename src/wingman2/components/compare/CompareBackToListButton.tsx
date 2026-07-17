@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { CSSProperties, ReactElement } from "react";
+import { useNavigate } from "react-router-dom";
 
 const COMPARE_RETURN_KEY = "wingman:compare:lastResultsUrl";
 
@@ -18,6 +19,7 @@ const buttonStyle: CSSProperties = {
 };
 
 export function CompareBackToListButton(): ReactElement | null {
+  const navigate = useNavigate();
   const [returnUrl, setReturnUrl] = useState("");
 
   useEffect(() => {
@@ -43,7 +45,7 @@ export function CompareBackToListButton(): ReactElement | null {
       type="button"
       style={buttonStyle}
       onClick={() => {
-        window.location.assign(returnUrl);
+        navigate(returnUrl);
       }}
     >
       ← Back to compare results

@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { saveVideowallToProject } from "../data/projectStore";
 
 type WallType = "" | "led" | "lcd";
 
@@ -743,6 +745,7 @@ function SchematicCard(props: { bundle: VisualBundle }) {
 }
 
 export function VideoWallPage() {
+  const navigate = useNavigate();
   const [wallType, setWallType] = useState<WallType>("");
   const [ledAnswers, setLedAnswers] = useState<LedAnswers>(emptyLed);
   const [lcdAnswers, setLcdAnswers] = useState<LcdAnswers>(emptyLcd);
@@ -803,12 +806,24 @@ export function VideoWallPage() {
 
   function sendTo(path: string) {
     persist();
-    window.location.assign(path);
+    navigate(path);
   }
 
   function saveToProject() {
     persist();
-    setMessage("Saved video wall discovery to Wingman handoff storage.");
+
+    const payload = {
+      source: "wingman-video-wall-workflow",
+      wallType,
+      ledAnswers,
+      lcdAnswers,
+      recommendation,
+      visualBundle,
+      updatedAt: new Date().toISOString(),
+    };
+
+    saveVideowallToProject({ wallType: wallType || "unknown", summary: payload });
+    setMessage("Saved to your project. Open Projects or continue into Discovery to keep building it out.");
   }
 
   function openProduct() {
@@ -820,7 +835,7 @@ export function VideoWallPage() {
     }
 
     persist();
-    window.location.assign(`/wingman/products?search=${encodeURIComponent(primaryProduct)}`);
+    navigate(`/wingman/products?search=${encodeURIComponent(primaryProduct)}`);
   }
 
   function copySummary() {
