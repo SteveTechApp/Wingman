@@ -1,4 +1,4 @@
-declare global {
+﻿declare global {
   interface Window {
     __wingmanTemplateCardExpansionInstalled?: boolean;
   }
@@ -6,7 +6,6 @@ declare global {
 
 const TEMPLATE_ROUTE_MATCHERS = [
   "/wingman/templates",
-  "/wingman/room-templates",
 ];
 
 function isTemplatesRoute(): boolean {
@@ -22,7 +21,6 @@ function isTemplatesRoute(): boolean {
   return (
     route.includes("templates") ||
     className.includes("wm-route-templates") ||
-    className.includes("wm-route-room-templates") ||
     TEMPLATE_ROUTE_MATCHERS.some((matcher) => path.includes(matcher)) ||
     Boolean(document.querySelector('.wingman-nav-link-active[href*="templates"]'))
   );
