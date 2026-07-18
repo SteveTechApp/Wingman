@@ -8,6 +8,13 @@ const styleStack = path.join(root, "src", "wingman2", "styles", "wingman-style-s
 const referenceTheme = path.join(root, "src", "wingman2", "styles", "wingman-reference-theme.css");
 const workflowTheme = path.join(root, "src", "wingman2", "styles", "wingman-workflow-theme.css");
 const visualPolishTheme = path.join(root, "src", "wingman2", "styles", "wingman-visual-polish.css");
+const approvedReferenceAlignment = path.join(
+  root,
+  "src",
+  "wingman2",
+  "styles",
+  "wingman-approved-reference-alignment.css",
+);
 const allowed = new Set([
   "src/main.tsx",
 ]);
@@ -18,6 +25,7 @@ const expectedMainCssImports = [
   "./wingman2/styles/wingman-reference-theme.css",
   "./wingman2/styles/wingman-workflow-theme.css",
   "./wingman2/styles/wingman-visual-polish.css",
+  "./wingman2/styles/wingman-approved-reference-alignment.css",
 ];
 const retiredPageStyleFiles = [
   "discovery-output-preview.css",
@@ -104,7 +112,13 @@ if (
   process.exit(1);
 }
 
-for (const globalStyle of [styleStack, referenceTheme, workflowTheme, visualPolishTheme]) {
+for (const globalStyle of [
+  styleStack,
+  referenceTheme,
+  workflowTheme,
+  visualPolishTheme,
+  approvedReferenceAlignment,
+]) {
   if (!fs.existsSync(globalStyle)) {
     console.error(`Blocked: missing governed global stylesheet ${rel(globalStyle)}.`);
     process.exit(1);
@@ -135,4 +149,6 @@ if (retiredFilesStillPresent.length > 0) {
   process.exit(1);
 }
 
-console.log("CSS import guard passed. Wingman uses the governed base, reference, workflow and visual polish layers only.");
+console.log(
+  "CSS import guard passed. Wingman uses the governed base, reference, workflow, visual polish and approved-reference alignment layers only.",
+);
