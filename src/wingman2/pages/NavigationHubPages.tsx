@@ -13,6 +13,7 @@ type HubAction = {
   icon: LucideIcon;
   accent: PolishAccent;
   note?: string;
+  linkLabel?: string;
 };
 
 type HubPageProps = {
@@ -30,6 +31,7 @@ type HubPageProps = {
 type RouteActionOptions = {
   note?: string;
   accent?: PolishAccent;
+  linkLabel?: string;
 };
 
 function routeAction(
@@ -44,6 +46,7 @@ function routeAction(
     intent,
     action,
     note: options.note,
+    linkLabel: options.linkLabel,
     accent: options.accent ?? "aqua",
     icon: routeCatalogByKey[routeKey].icon,
     to: routeCatalogByKey[routeKey].path,
@@ -65,7 +68,7 @@ function HubCard({ item }: { item: HubAction }) {
         <span className="wm-navhub-card-intent wm-polish-card-body">{item.intent}</span>
         {item.note ? <small className="wm-polish-card-note">{item.note}</small> : null}
         <span className="wm-polish-card-link">
-          Open in Wingman
+          {item.linkLabel ?? "Open in Wingman"}
           <ArrowRight aria-hidden="true" />
         </span>
       </span>
@@ -153,39 +156,56 @@ export function CallCoachPage() {
     <HubPage
       eyebrow="Wingman / Call Coach"
       title="Call Coach"
-      intent="Help me manage a sales conversation: ask the next question, capture requirements, position a product, or decide when to escalate."
-      subModes={["Product-specific call", "Discovery / requirement capture", "Call-out day", "Escalation check"]}
+      intent="Live sales support for product conversations, customer discovery and escalation decisions."
+      subModes={[
+        "Product-specific call",
+        "Discovery / requirement capture",
+        "Call-out day",
+        "Escalation check",
+      ]}
       heroIcon={Bot}
       accent="aqua"
-      tip="Start with Discovery when the customer has described an application but has not yet supplied enough technical detail."
+      tip="Begin with Capture Requirements when the customer has described an application but has not provided enough technical detail."
       primaryActions={[
         routeAction(
           "productCallCards",
-          "Product-specific call",
-          "Select a SKU first, then load positioning, questions, objections, disqualifiers and follow-up wording.",
-          "Open SKU call card",
-          { accent: "aqua" },
+          "Open SKU Call Card",
+          "Search for a WyreStorm SKU and view what it is, what it does, how to position it and the key specification points.",
+          "PRODUCT-SPECIFIC GUIDANCE",
+          {
+            accent: "aqua",
+            linkLabel: "Choose product",
+          },
         ),
         routeAction(
           "discovery",
-          "Discovery / requirement capture",
-          "Capture room purpose, sources, displays, USB, infrastructure and missing details.",
-          "Capture requirements",
-          { accent: "blue" },
+          "Capture Requirements",
+          "Record the application, sources, displays, distances, USB, audio, control and network requirements before selecting products.",
+          "CUSTOMER DISCOVERY",
+          {
+            accent: "blue",
+            linkLabel: "Start discovery",
+          },
         ),
         routeAction(
           "salesHelper",
-          "Call-out day",
-          "Use rep guidance, readiness cues and call-out day prompts during active opportunity work.",
-          "Open sales helper",
-          { accent: "green" },
+          "Open Sales Helper",
+          "Choose whether the opportunity is room-led, display-led, UC-led, competitor-led, product-led or proposal-led.",
+          "GUIDED CONVERSATION SUPPORT",
+          {
+            accent: "green",
+            linkLabel: "Choose conversation type",
+          },
         ),
         routeAction(
           "support",
-          "Escalation check",
-          "Check whether technical review, support input or internal handover is needed.",
-          "Check escalation",
-          { accent: "amber" },
+          "Check Escalation",
+          "Review complexity, missing information, compatibility risks and quote readiness before progressing.",
+          "TECHNICAL REVIEW AND HANDOVER",
+          {
+            accent: "amber",
+            linkLabel: "Check requirements",
+          },
         ),
       ]}
     />
