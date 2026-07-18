@@ -131,3 +131,11 @@ Apply-*.ps1
 *.patch
 *.diff
 
+# WINGMAN_REPOSITORY_HYGIENE_START
+# Historical material and one-off local patch/install files do not belong in the active repository.
+archive/
+Apply-*.ps1
+*-Fixed.ps1
+*.patch
+*.diff
+# WINGMAN_REPOSITORY_HYGIENE_END
