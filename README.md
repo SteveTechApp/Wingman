@@ -52,16 +52,12 @@ Wingman uses one consolidated stylesheet: `src/wingman2/styles/wingman-style-sta
 
 Page files should not import their own CSS. Visual work should use the shared `wm-*` primitives and add route-specific rules to the consolidated stack only when needed.
 
-## Cleanup Archive
+## Repository Hygiene
 
-Old backups, discarded install files, root-level drop-ins and generated zip/log artifacts have been moved out of the active tree to:
+Backups, generated bundles, root-level drop-ins, build output and historical archive folders are excluded from the active repository. Removed material remains recoverable through Git history and the external archive created by the repository sweep script.
 
-```text
-archive/repo-cleanup-20260709-050830/
-```
-
-That archive includes `MOVED_FILES.md` with the full inventory. Keep new scratch files, generated bundles and one-off backups out of active source folders so future debugging starts from the real runtime files.
-
+Keep scratch files, installer bundles and one-off backups outside `C:\Users\steve\wingman` so development and debugging operate only on active runtime files.
 ## Documentation
 
 Detailed feature, launch, migration and audit notes live under `docs/` and existing dated folders in `archive/`.
+

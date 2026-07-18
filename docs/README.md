@@ -40,5 +40,5 @@ The current queues contain 24 lifecycle rows requiring human confirmation and 28
 active products without governed sales stories. They are deliberately review-gated;
 they are not silently promoted to customer-ready data.
 
-Historical audits, superseded plans, branch notes, and generated trend reports live
-under `archive/documentation-history-2026-06-28/` or ignored `reports/`.
+Historical audits, superseded plans, branch notes and generated trend reports are excluded from the active tree. Use Git history or the external repository archive when they are needed.
+
