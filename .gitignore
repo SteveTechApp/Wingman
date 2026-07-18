@@ -106,15 +106,8 @@ wingman/build/
 wingman/package-lock.json
 
 # --- Archives ---
+# Historical material belongs outside the active repository. Git history retains removed files.
 archive/
-!archive/
-archive/*
-!archive/product-data-legacy-2026-06-28/
-!archive/product-data-legacy-2026-06-28/**
-!archive/documentation-history-2026-06-28/
-!archive/documentation-history-2026-06-28/**
-!archive/workspace-backups-2026-06-28/
-!archive/workspace-backups-2026-06-28/**
 *.zip
 *.tar
 *.gz
@@ -133,3 +126,8 @@ data/runtime/
 
 # Local Wingman script backups
 _wingman_backup_*/
+Apply-*.ps1
+*-Fixed.ps1
+*.patch
+*.diff
+
