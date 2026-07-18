@@ -4,6 +4,7 @@ import "./wingman2/styles/wingman-reference-theme.css";
 import "./wingman2/styles/wingman-workflow-theme.css";
 import "./wingman2/styles/wingman-visual-polish.css";
 import "./wingman2/styles/wingman-approved-reference-alignment.css";
+import "./wingman2/styles/wingman-navigation-hub-cascade-lock.css";
 import { installCompareManufacturerAssist } from "./wingman2/lib/compareManufacturerAssist";
 import "./wingman2/lib/guruDetachedPanel";
 import "./wingman2/lib/microphoneSafety";
