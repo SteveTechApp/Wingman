@@ -15,6 +15,13 @@ const approvedReferenceAlignment = path.join(
   "styles",
   "wingman-approved-reference-alignment.css",
 );
+const navigationHubCascadeLock = path.join(
+  root,
+  "src",
+  "wingman2",
+  "styles",
+  "wingman-navigation-hub-cascade-lock.css",
+);
 const allowed = new Set([
   "src/main.tsx",
 ]);
@@ -26,6 +33,7 @@ const expectedMainCssImports = [
   "./wingman2/styles/wingman-workflow-theme.css",
   "./wingman2/styles/wingman-visual-polish.css",
   "./wingman2/styles/wingman-approved-reference-alignment.css",
+  "./wingman2/styles/wingman-navigation-hub-cascade-lock.css",
 ];
 const retiredPageStyleFiles = [
   "discovery-output-preview.css",
@@ -118,6 +126,7 @@ for (const globalStyle of [
   workflowTheme,
   visualPolishTheme,
   approvedReferenceAlignment,
+  navigationHubCascadeLock,
 ]) {
   if (!fs.existsSync(globalStyle)) {
     console.error(`Blocked: missing governed global stylesheet ${rel(globalStyle)}.`);
@@ -150,5 +159,5 @@ if (retiredFilesStillPresent.length > 0) {
 }
 
 console.log(
-  "CSS import guard passed. Wingman uses the governed base, reference, workflow, visual polish and approved-reference alignment layers only.",
+  "CSS import guard passed. Wingman uses the governed base, reference, workflow, visual polish, approved-reference alignment and navigation-hub lock layers only.",
 );
