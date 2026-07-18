@@ -7,6 +7,7 @@ const mainEntry = path.join(root, "src", "main.tsx");
 const styleStack = path.join(root, "src", "wingman2", "styles", "wingman-style-stack.css");
 const referenceTheme = path.join(root, "src", "wingman2", "styles", "wingman-reference-theme.css");
 const workflowTheme = path.join(root, "src", "wingman2", "styles", "wingman-workflow-theme.css");
+const visualPolishTheme = path.join(root, "src", "wingman2", "styles", "wingman-visual-polish.css");
 const allowed = new Set([
   "src/main.tsx",
 ]);
@@ -16,6 +17,7 @@ const expectedMainCssImports = [
   "./wingman2/styles/wingman-style-stack.css",
   "./wingman2/styles/wingman-reference-theme.css",
   "./wingman2/styles/wingman-workflow-theme.css",
+  "./wingman2/styles/wingman-visual-polish.css",
 ];
 const retiredPageStyleFiles = [
   "discovery-output-preview.css",
@@ -102,7 +104,7 @@ if (
   process.exit(1);
 }
 
-for (const globalStyle of [styleStack, referenceTheme, workflowTheme]) {
+for (const globalStyle of [styleStack, referenceTheme, workflowTheme, visualPolishTheme]) {
   if (!fs.existsSync(globalStyle)) {
     console.error(`Blocked: missing governed global stylesheet ${rel(globalStyle)}.`);
     process.exit(1);
@@ -112,7 +114,7 @@ for (const globalStyle of [styleStack, referenceTheme, workflowTheme]) {
 
   if (/@import\s+["']/.test(raw)) {
     console.error(`Blocked: ${rel(globalStyle)} must not import route or patch stylesheets.`);
-    console.error("Keep Wingman styling governed through the three app-wide layers.");
+    console.error("Keep Wingman styling governed through the app-wide layers.");
     process.exit(1);
   }
 }
@@ -126,11 +128,11 @@ if (retiredFilesStillPresent.length > 0) {
   console.error("Blocked: retired page-level style patch files are present.");
   console.error("");
 
-  for (const file of retiredFilesStillPresent) {
-    console.error(file);
+  for (const retiredFile of retiredFilesStillPresent) {
+    console.error(retiredFile);
   }
 
   process.exit(1);
 }
 
-console.log("CSS import guard passed. Wingman uses the governed base, reference and workflow themes only.");
+console.log("CSS import guard passed. Wingman uses the governed base, reference, workflow and visual polish layers only.");

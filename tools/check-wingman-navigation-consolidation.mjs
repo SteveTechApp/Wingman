@@ -13,6 +13,10 @@ function assert(condition, message) {
   }
 }
 
+function hasRouteAction(source, routeKey) {
+  return new RegExp(`routeAction\\(\\s*["']${routeKey}["']`).test(source);
+}
+
 const failures = [];
 
 const routes = read("src/wingman2/app/routes.tsx");
@@ -57,15 +61,15 @@ assert(
 );
 
 assert(
-  navigationHub.includes('routeAction("productCallCards"') &&
-    navigationHub.includes('routeAction("discovery"') &&
-    navigationHub.includes('routeAction("salesHelper"') &&
-    navigationHub.includes('routeAction("support"'),
+  hasRouteAction(navigationHub, "productCallCards") &&
+    hasRouteAction(navigationHub, "discovery") &&
+    hasRouteAction(navigationHub, "salesHelper") &&
+    hasRouteAction(navigationHub, "support"),
   "Call Coach should link to Product Call Cards, Discovery, Sales Helper and Support."
 );
 
 assert(
-  !navigationHub.includes('routeAction("callCards"'),
+  !hasRouteAction(navigationHub, "callCards"),
   "Call Coach should not visibly link back to the legacy Call Cards route."
 );
 
