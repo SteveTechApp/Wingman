@@ -12,7 +12,7 @@ jobs:
   diagnose:
     name: Diagnose verify sequence
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
 
     steps:
       - name: Checkout code
@@ -56,3 +56,63 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Navigation consolidation
+        run: npm run check:navigation-consolidation
+
+      - name: Project sync
+        run: npm run check:project-sync
+
+      - name: Data sources
+        run: npm run check:data-sources
+
+      - name: Product media
+        run: npm run check:product-media
+
+      - name: Product matching
+        run: npm run check:product-matching
+
+      - name: AV decisions
+        run: npm run check:av-decisions
+
+      - name: Compare evidence wording
+        run: npm run check:compare-evidence-led-wording
+
+      - name: Compare output quality
+        run: npm run audit:compare-output-quality
+
+      - name: Compare output scenarios
+        run: npm run check:compare-output-scenarios
+
+      - name: Compare page candidate gate
+        run: npm run check:compare-page-candidate-gate
+
+      - name: Compare SKU normalisation
+        run: npm run check:compare-sku-normalization
+
+      - name: Compare decision
+        run: npm run check:compare-decision
+
+      - name: Competitor intelligence
+        run: npm run check:competitor-intelligence
+
+      - name: Routes
+        run: npm run check:routes
+
+      - name: Route registry direct
+        run: npm run check:route-registry-direct
+
+      - name: Readiness
+        run: npm run check:readiness
+
+      - name: Workflow integration
+        run: npm run check:workflow
+
+      - name: Short workflow pages
+        run: npm run check:short-workflow-pages
+
+      - name: Optional visual support
+        run: npm run check:optional-visual-support
+
+      - name: Visual design native output
+        run: npm run check:visual-design-native-output
