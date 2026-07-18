@@ -1,0 +1,58 @@
+name: Verify Diagnostics
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    name: Diagnose verify sequence
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate canonical product data
+        run: npm run data:canonical-products
+
+      - name: CSS import guard
+        run: npm run wm:guard-css
+
+      - name: Style drift baseline
+        run: npm run check:style-drift-baseline
+
+      - name: Page markup migration
+        run: npm run check:page-markup-migration
+
+      - name: Page visual classes
+        run: npm run check:page-visual-classes
+
+      - name: Duplicate class names
+        run: npm run check:duplicate-classnames
+
+      - name: Dashboard visual correction
+        run: npm run check:dashboard-visual-correction
+
+      - name: Product data sources
+        run: npm run data:sources:check
+
+      - name: TypeScript
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
