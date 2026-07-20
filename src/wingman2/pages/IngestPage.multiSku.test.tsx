@@ -33,7 +33,7 @@ describe("IngestPage multi-SKU competitor intelligence", () => {
     expect(screen.getByText("Bulk enquiry ready")).not.toBeNull();
     expect(screen.getByRole("tab", { name: /Products/ }).getAttribute("aria-selected")).toBe("true");
     expect(screen.queryByPlaceholderText(/Paste the email, RFQ text/i)).toBeNull();
-    expect(screen.queryByText("Open Product Finder")).toBeNull();
+    expect(screen.queryByText("Open Recommendations")).toBeNull();
     expect(screen.getAllByRole("button", { name: "Continue to proposal" }).length).toBeGreaterThan(0);
 
     const skuTable = screen.getByText("Product selection").closest("section");

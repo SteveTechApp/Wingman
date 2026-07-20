@@ -1496,11 +1496,12 @@ export function WingmanGuruDrawer({
         setProducts(parsed);
         setIndexStatus(`Product index loaded: ${parsed.length} entries`);
       })
-      .catch(() => {
+      .catch((error) => {
         if (!active) {
           return;
         }
 
+        console.error("[wingman] GuruDrawer: product intelligence index load failed", error);
         setProducts([]);
         setIndexStatus("Product index unavailable - using built-in AV rules and glossary");
       });

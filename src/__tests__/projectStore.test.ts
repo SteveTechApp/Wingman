@@ -11,7 +11,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 vi.mock("@/wingman2/app/routeCatalog", () => ({
   routeCatalogByKey: {
     discovery: { path: "/wingman/discovery" },
-    finder: { path: "/wingman/finder" },
+    finder: { path: "/wingman/recommendations" },
     compare: { path: "/wingman/compare" },
     proposal: { path: "/wingman/proposal" },
     projects: { path: "/wingman/projects" },
@@ -969,7 +969,7 @@ describe("projectStore", () => {
         family: "Test Family",
         status: "recommended",
         addedAt: new Date().toISOString(),
-        source: "Product Finder",
+        source: "Recommendations",
       };
 
       const result = saveProductSelectionToProject("project-1", selection);
@@ -988,7 +988,7 @@ describe("projectStore", () => {
         stage: "Finder",
         status: "recommended",
         updated: "Now",
-        resumeTo: "/wingman/finder",
+        resumeTo: "/wingman/recommendations",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         productSelections: [
@@ -996,7 +996,7 @@ describe("projectStore", () => {
             sku: "EXISTING-SKU",
             title: "Existing Product",
             addedAt: new Date().toISOString(),
-            source: "Product Finder",
+            source: "Recommendations",
           },
         ],
       };
@@ -1013,7 +1013,7 @@ describe("projectStore", () => {
         sku: "EXISTING-SKU",
         title: "Updated Product Title",
         addedAt: new Date().toISOString(),
-        source: "Product Finder",
+        source: "Recommendations",
       };
 
       const result = saveProductSelectionToProject("project-1", selection);
@@ -1037,7 +1037,7 @@ describe("projectStore", () => {
         sku: "NEW-SKU",
         title: "New Product",
         addedAt: new Date().toISOString(),
-        source: "Product Finder",
+        source: "Recommendations",
       };
 
       const result = saveProductSelectionToCurrentProject(selection);
@@ -1198,7 +1198,7 @@ describe("projectStore", () => {
         stage: "Finder",
         status: "recommended",
         updated: "Now",
-        resumeTo: "/wingman/finder",
+        resumeTo: "/wingman/recommendations",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         discoveryBrief: { savedAt: new Date().toISOString() },
@@ -1318,7 +1318,7 @@ describe("projectStore", () => {
         stage: "Finder",
         status: "recommended",
         updated: "Now",
-        resumeTo: "/wingman/finder",
+        resumeTo: "/wingman/recommendations",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         productSelections: [{ sku: "TEST-SKU", addedAt: new Date().toISOString(), source: "Finder" }],
@@ -1390,7 +1390,7 @@ describe("projectStore", () => {
         stage: "Finder",
         status: "recommended",
         updated: "Now",
-        resumeTo: "/wingman/finder",
+        resumeTo: "/wingman/recommendations",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         productSelections: [{ sku: "SKU", addedAt: new Date().toISOString(), source: "Finder" }],
@@ -1477,7 +1477,7 @@ describe("projectStore", () => {
         workflow: {
           source: "Discovery",
           lastStep: "Saved",
-          nextRoute: "/wingman/finder",
+          nextRoute: "/wingman/recommendations",
           updatedAt: new Date().toISOString(),
         },
       };
@@ -1493,7 +1493,7 @@ describe("projectStore", () => {
         stage: "Finder",
         status: "recommended",
         updated: "Now",
-        resumeTo: "/wingman/finder",
+        resumeTo: "/wingman/recommendations",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         feedback: [
@@ -1735,7 +1735,7 @@ describe("projectStore", () => {
         stage: "Finder",
         status: "recommended",
         updated: "Now",
-        resumeTo: "/wingman/finder",
+        resumeTo: "/wingman/recommendations",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         productSelections: existingSelections,
@@ -1780,7 +1780,7 @@ describe("projectStore", () => {
         stage: "Finder",
         status: "recommended",
         updated: "Now",
-        resumeTo: "/wingman/finder",
+        resumeTo: "/wingman/recommendations",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         productSelections: [{ sku: "SKU", addedAt: new Date().toISOString(), source: "Finder" }],

@@ -20,6 +20,8 @@
  */
 
 import competitorCatalogRaw from "../../../data/catalog/competitor-products.generated.json";
+import { loadProductIntelligenceIndex } from "./productIntelligenceIndexCache";
+import { extractRawProducts } from "./productStoryEngine";
 
 /* ------------------------------------------------------------------ types */
 
@@ -387,12 +389,16 @@ type WsEntry = Record<string, unknown> & {
 
 let wsIndexPromise: Promise<WsEntry[]> | null = null;
 
+// Reuses productIntelligenceIndexCache's shared fetch/parse of the ~11MB
+// product-intelligence-index.json instead of independently re-fetching and
+// re-parsing the same file (previously a second, uncached ~11MB round trip
+// on any flow - e.g. Compare - that also touched the product selector).
 export function loadWyrestormIndex(): Promise<WsEntry[]> {
   if (!wsIndexPromise) {
-    wsIndexPromise = fetch("/product-intelligence-index.json")
-      .then((response) => (response.ok ? response.json() : Promise.reject(new Error(String(response.status)))))
-      .then((data: { products?: WsEntry[] }) => (Array.isArray(data?.products) ? data.products : []))
-      .catch(() => {
+    wsIndexPromise = loadProductIntelligenceIndex()
+      .then((data) => extractRawProducts(data) as WsEntry[])
+      .catch((error) => {
+        console.error("[wingman] compareSpecEngine: loadWyrestormIndex failed", error);
         wsIndexPromise = null;
         return [];
       });
@@ -416,7 +422,8 @@ export function loadWyrestormMediaIndex(): Promise<Map<string, string>> {
         }
         return map;
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("[wingman] compareSpecEngine: loadWyrestormMediaIndex failed", error);
         mediaIndexPromise = null;
         return new Map<string, string>();
       });

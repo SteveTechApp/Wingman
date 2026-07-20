@@ -51,7 +51,7 @@ describe("product-family score surfacing", () => {
           stage: "Finder",
           status: "recommended",
           updated: "Now",
-          resumeTo: "/wingman/finder",
+          resumeTo: "/wingman/recommendations",
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           recommendationEvidence: {

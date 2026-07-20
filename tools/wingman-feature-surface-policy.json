@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "purpose": "Explicitly govern the live Wingman route surface so retired or experimental pages cannot silently re-enter navigation.",
+  "approvedRouteKeys": [
+    "dashboard",
+    "callCoach",
+    "products",
+    "documents",
+    "responsePack",
+    "learn",
+    "projects",
+    "discovery",
+    "recommendations",
+    "productFamilies",
+    "productPitch",
+    "catalogBrowser",
+    "compare",
+    "templates",
+    "videowall",
+    "salesHelper",
+    "visualDesign",
+    "glossary",
+    "callCards",
+    "productCallCards",
+    "ingest",
+    "proposal",
+    "support",
+    "profile",
+    "visualStudio"
+  ],
+  "retiredRouteKeys": [
+    "finder"
+  ],
+  "retiredPageFiles": [
+    "src/wingman2/pages/RecommendationsPage.tsx"
+  ],
+  "legacyRedirects": {
+    "/wingman/finder": "/wingman/discovery"
+  },
+  "reviewRequiredRoutePairs": [
+    {
+      "routes": [
+        "visualDesign",
+        "visualStudio"
+      ],
+      "reason": "Both visual design routes remain live and require a deliberate consolidation decision before either implementation is removed."
+    },
+    {
+      "routes": [
+        "salesHelper",
+        "callCoach"
+      ],
+      "reason": "Both conversation-support routes remain live and must retain distinct user purposes."
+    }
+  ]
+}

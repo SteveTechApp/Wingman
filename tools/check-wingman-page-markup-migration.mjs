@@ -6,7 +6,7 @@ const root = process.cwd();
 const requiredPages = [
   "src/wingman2/pages/DashboardPage.tsx",
   "src/wingman2/pages/DiscoveryPage.tsx",
-  "src/wingman2/pages/FinderPage.tsx",
+  "src/wingman2/pages/RecommendationsPage.tsx",
   "src/wingman2/pages/ProductFamilyPage.tsx",
   "src/wingman2/pages/ProductPitchPage.tsx",
   "src/wingman2/pages/ProposalPage.tsx",

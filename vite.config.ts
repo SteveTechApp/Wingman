@@ -89,8 +89,16 @@ export default defineConfig({
               test: /node_modules[\\/](@xyflow|reactflow|dagre)[\\/]/,
             },
             {
+              name: "wm-competitor-registry",
+              test: /src[\\/]wingman2[\\/]lib[\\/](competitorProductIntelligence|competitorSpecRegistry|knownCompareProfiles|knownWyrestormCompareProfiles)\.tsx?$/,
+            },
+            {
               name: "wm-compare-engine",
-              test: /src[\\/]wingman2[\\/](lib|components)[\\/].*(compare|Compare|competitor|Competitor).*\.tsx?$/,
+              test: /src[\\/]wingman2[\\/]lib[\\/].*(compare|Compare|competitor|Competitor).*\.tsx?$/,
+            },
+            {
+              name: "wm-compare-ui",
+              test: /src[\\/]wingman2[\\/]components[\\/].*(compare|Compare|competitor|Competitor).*\.tsx?$/,
             },
             {
               name: "wm-product-evidence",

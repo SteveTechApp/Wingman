@@ -26,7 +26,6 @@ import {
 const NAVY = "08223A";
 const AQUA = "16B8B0";
 const MID = "31546F";
-const LIGHT = "E8F1F6";
 const TEXT = "172B3A";
 const MUTED = "5E7280";
 

@@ -1,4 +1,4 @@
-﻿import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it } from "vitest";
 
@@ -25,19 +25,19 @@ function buildHospitalityDiscoveryStore(): ProjectStoreSnapshot {
         stage: "Discovery",
         status: "recommended",
         updated: "Just now",
-        resumeTo: "/wingman/finder",
+        resumeTo: "/wingman/recommendations",
         createdAt: timestamp,
         updatedAt: timestamp,
         workflow: {
           source: "Discovery",
           lastStep: "Find matching products",
-          nextRoute: "/wingman/finder",
+          nextRoute: "/wingman/recommendations",
           updatedAt: timestamp,
         },
         discoveryBrief: {
           savedAt: timestamp,
           capturedPercent: 100,
-          returnRoute: "/wingman/finder",
+          returnRoute: "/wingman/recommendations",
           quoteSafetyStatus: "validate-before-quote",
           missingInformation: ["Confirm exact display count before quote."],
           nextBestQuestion: "How many displays and source devices need to be routed?",
@@ -62,7 +62,7 @@ function buildHospitalityDiscoveryStore(): ProjectStoreSnapshot {
               "A contained AV routing system for a sports bar, using matrix or NetworkHD-style distribution depending on distance, zones and display count.",
             whyThisFits: [
               "The workflow captures a hospitality venue with several displays and shared sources.",
-              "The handoff keeps the next step focused on Finder product selection.",
+              "The handoff keeps the next step focused on Recommendations product selection.",
             ],
             evidenceUsed: [
               "Hospitality / bar / venue",
@@ -94,7 +94,7 @@ function buildHospitalityDiscoveryStore(): ProjectStoreSnapshot {
               "The system shape is suitable for a sports-bar routing conversation but needs final quantities before quote.",
             ],
             internalGuidance: [
-              "Use Finder next to decide whether matrix, HDBaseT or NetworkHD is the better product family.",
+              "Use Recommendations next to decide whether matrix, HDBaseT or NetworkHD is the better product family.",
             ],
             quoteSafetyStatus: "validate-before-quote",
             quoteSafetyMessage: "Validate final quantities and cable distances before issuing a quote.",
@@ -113,7 +113,7 @@ describe("Discovery rendered workflow handoff", () => {
     window.sessionStorage.clear();
   });
 
-  it("saves structured hospitality evidence and Finder handoff data", async () => {
+  it("saves structured hospitality evidence and Recommendations handoff data", async () => {
     render(
       <MemoryRouter initialEntries={["/wingman/discovery"]}>
         <DiscoveryPage />
@@ -139,7 +139,7 @@ describe("Discovery rendered workflow handoff", () => {
         snapshot.projects.find((project) => project.id === snapshot.activeProjectId) ?? snapshot.projects[0];
 
       expect(activeProject.workflow?.source).toBe("Discovery");
-      expect(activeProject.workflow?.nextRoute).toBe("/wingman/finder");
+      expect(activeProject.workflow?.nextRoute).toBe("/wingman/recommendations");
       expect(activeProject.discoveryBrief?.roomModel).toBeTruthy();
       expect(activeProject.discoveryBrief?.recommendationEvidence).toBeTruthy();
     });

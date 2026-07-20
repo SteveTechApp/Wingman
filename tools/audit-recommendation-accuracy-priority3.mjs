@@ -154,7 +154,7 @@ const behaviouralSuites = [
   },
   {
     label: "Render coverage added: Discovery handoff",
-    scenarios: ["Discovery saves structured hospitality evidence and Finder handoff data"],
+    scenarios: ["Discovery saves structured hospitality evidence and Recommendations handoff data"],
     files: ["src/__tests__/discoveryWorkflowRendered.test.tsx"],
   },
   {

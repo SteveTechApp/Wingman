@@ -120,7 +120,7 @@ export function GlossaryPage() {
         purpose="Use the glossary during discovery, product selection or proposal work when a term needs quick sales-safe explanation."
         nextMove="Search the acronym, choose the audience role, then use the plain-language wording to keep the customer conversation moving."
         actions={[
-          { label: "Open Finder", to: routeCatalogByKey.finder.path, variant: "primary" },
+          { label: "Browse Catalogue", to: routeCatalogByKey.catalogBrowser.path, variant: "primary" },
           { label: "Open Sales Strategy", to: routeCatalogByKey.salesHelper.path, variant: "secondary" },
         ]}
       />

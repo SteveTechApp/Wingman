@@ -1,0 +1,233 @@
+/* Global Wingman reference finish.
+   Loaded last so the approved Sales Helper visual language reaches every route. */
+
+:root {
+  --wm-ref-bg: #020914;
+  --wm-ref-panel: rgba(8, 22, 39, 0.88);
+  --wm-ref-panel-strong: rgba(10, 27, 47, 0.96);
+  --wm-ref-panel-soft: rgba(7, 18, 33, 0.78);
+  --wm-ref-border: rgba(131, 181, 215, 0.24);
+  --wm-ref-text: #f4f8fc;
+  --wm-ref-copy: #c4cfdd;
+  --wm-ref-muted: #8293a8;
+  --wm-ref-aqua: #20e0cb;
+  --wm-ref-cyan: #48a8ff;
+  --wm-ref-purple: #a279ff;
+  --wm-ref-amber: #ffad32;
+  --wm-ref-green: #31daa6;
+  --wm-ref-radius: 14px;
+  --wm-font: "Geist Variable", Geist, Inter, ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--wm-font) !important;
+  font-weight: 450;
+  background-color: var(--wm-ref-bg) !important;
+}
+
+.wingman-workspace {
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(52rem 24rem at 72% 5%, rgba(34, 143, 216, 0.1), transparent 70%),
+    linear-gradient(125deg, rgba(2, 9, 20, 0.25), rgba(5, 18, 35, 0.48)) !important;
+}
+
+.wingman-workspace::before,
+.wingman-workspace::after {
+  position: absolute;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+}
+
+.wingman-workspace::before {
+  inset: 70px 0 0;
+  opacity: 0.22;
+  background-image:
+    linear-gradient(rgba(71, 168, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(71, 168, 255, 0.1) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at 78% 18%, #000 0%, transparent 68%);
+}
+
+.wingman-workspace::after {
+  right: -13rem;
+  bottom: 5%;
+  width: 58rem;
+  height: 24rem;
+  opacity: 0.26;
+  border: 1px solid rgba(72, 168, 255, 0.22);
+  border-radius: 50%;
+  box-shadow: 0 0 0 78px rgba(72, 168, 255, 0.025), 0 0 0 156px rgba(162, 121, 255, 0.02);
+  transform: rotate(-18deg);
+  mask-image: linear-gradient(90deg, transparent 4%, #000 72%);
+}
+
+.wingman-sidebar {
+  background:
+    radial-gradient(18rem 18rem at 35% 88%, rgba(32, 224, 203, 0.055), transparent 65%),
+    linear-gradient(180deg, rgba(2, 9, 20, 0.995), rgba(2, 8, 18, 0.98)) !important;
+}
+
+.wingman-brand-image {
+  filter: drop-shadow(0 0 13px rgba(32, 224, 203, 0.1));
+}
+
+.wingman-nav-link {
+  color: #cbd5e2 !important;
+}
+
+.wingman-nav-link-active,
+.wingman-nav-link[aria-current="page"] {
+  background:
+    radial-gradient(circle at 0 50%, rgba(32, 224, 203, 0.16), transparent 55%),
+    linear-gradient(90deg, rgba(9, 58, 70, 0.7), rgba(7, 28, 45, 0.72)) !important;
+  border-color: rgba(32, 224, 203, 0.48) !important;
+  box-shadow: inset 3px 0 0 var(--wm-ref-aqua), 0 0 24px rgba(32, 224, 203, 0.06) !important;
+}
+
+.wingman-topbar-page-label,
+.wingman-kicker,
+.wm-ui-badge,
+.wm20-badge,
+.wm-vs-eyebrow,
+.wm-polish-eyebrow {
+  color: var(--wm-ref-aqua) !important;
+}
+
+.wingman-topbar-page-summary,
+.wingman-hero-purpose,
+.wm20-subtitle,
+.wm-ui-context,
+.wingman-section-help,
+.wm-muted,
+small {
+  color: var(--wm-ref-muted) !important;
+}
+
+.wingman-page-host :is(h1, h2, h3, h4, .wingman-display, .wingman-section-card-title-row) {
+  color: var(--wm-ref-text) !important;
+  text-wrap: balance;
+}
+
+.wingman-page-host :is(p, li, td, dd) {
+  color: var(--wm-ref-copy);
+}
+
+/* Shared panels and workflow surfaces */
+.wingman-page-host :is(
+  .wingman-panel,
+  .wingman-surface,
+  .wingman-section-card,
+  .wm-ui-shell,
+  .wm-ui-card,
+  .wm20-panel,
+  .wm-vs-panel,
+  .wm-vs-header-card,
+  .wm-proof,
+  .wm-product-conversation-panel,
+  .wm-product-conversation-card,
+  .wm-topology-location-card,
+  .wm-topology-connection-card
+) {
+  background:
+    linear-gradient(140deg, rgba(12, 31, 52, 0.94), rgba(6, 17, 31, 0.9)) !important;
+  border-color: var(--wm-ref-border) !important;
+  border-radius: var(--wm-ref-radius) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035), 0 14px 35px rgba(0, 0, 0, 0.18) !important;
+}
+
+.wingman-page-host :is(.wingman-section-card, .wm-ui-card, .wm-vs-panel) {
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.wingman-page-host :is(.wingman-section-card, .wm-ui-card, .wm-vs-panel):hover {
+  border-color: rgba(72, 168, 255, 0.34) !important;
+}
+
+/* Form controls */
+.wingman-page-host :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea, .wm-ui-input) {
+  color: var(--wm-ref-text) !important;
+  caret-color: var(--wm-ref-aqua);
+  background: rgba(2, 11, 22, 0.82) !important;
+  border: 1px solid rgba(127, 170, 204, 0.27) !important;
+  border-radius: 9px !important;
+  box-shadow: inset 0 1px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+.wingman-page-host :is(input, select, textarea):focus {
+  outline: 0 !important;
+  border-color: rgba(32, 224, 203, 0.72) !important;
+  box-shadow: 0 0 0 3px rgba(32, 224, 203, 0.1), inset 0 1px 5px rgba(0, 0, 0, 0.18) !important;
+}
+
+.wingman-page-host ::placeholder { color: #617489 !important; }
+
+/* Buttons retain hierarchy while sharing the reference finish. */
+.wingman-page-host :is(button, .wm-ui-button) {
+  border-radius: 9px;
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+
+.wingman-page-host :is(button, .wm-ui-button):not(:disabled):hover { transform: translateY(-1px); }
+
+.wingman-page-host :is(.wm-ui-button-primary, .wingman-primary-button, button[type="submit"]) {
+  color: #f7ffff !important;
+  background: linear-gradient(135deg, #119b90, #087c80) !important;
+  border-color: #21d6c3 !important;
+  box-shadow: 0 8px 22px rgba(15, 157, 146, 0.18) !important;
+}
+
+.wingman-page-host :is(.wm-ui-button-secondary, .wingman-secondary-button) {
+  color: var(--wm-ref-text) !important;
+  background: linear-gradient(135deg, rgba(15, 42, 63, 0.92), rgba(7, 25, 42, 0.92)) !important;
+  border-color: rgba(89, 164, 202, 0.34) !important;
+}
+
+/* Icon accents, data and state surfaces. */
+.wingman-page-host :is(.wingman-section-card-header, .wm-ui-header, .wm-vs-header) svg,
+.wingman-page-host a svg {
+  color: var(--wm-ref-aqua);
+}
+
+.wingman-page-host table {
+  overflow: hidden;
+  border: 1px solid var(--wm-ref-border);
+  border-radius: 11px;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: rgba(5, 16, 29, 0.66);
+}
+
+.wingman-page-host th {
+  color: #dff9fa !important;
+  background: rgba(17, 48, 68, 0.72) !important;
+  border-color: rgba(127, 179, 211, 0.18) !important;
+}
+
+.wingman-page-host td { border-color: rgba(127, 179, 211, 0.13) !important; }
+.wingman-page-host tr:hover td { background: rgba(31, 112, 133, 0.08); }
+
+.wingman-page-host :is(dialog, [role="dialog"], .wingman-guru-drawer, .wm-product-conversation-modal) {
+  color: var(--wm-ref-text);
+  background: linear-gradient(145deg, rgba(10, 28, 48, 0.99), rgba(3, 12, 25, 0.99)) !important;
+  border-color: rgba(32, 224, 203, 0.3) !important;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55), 0 0 45px rgba(32, 224, 203, 0.06) !important;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--wm-ref-aqua) !important;
+  outline-offset: 3px;
+}
+
+* { scrollbar-color: rgba(65, 145, 165, 0.55) rgba(2, 9, 20, 0.45); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+}
+
+@media (max-width: 760px) {
+  .wingman-workspace::after { display: none; }
+  .wingman-workspace::before { opacity: 0.14; }
+}

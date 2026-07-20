@@ -241,7 +241,7 @@ function collectProducts(project?: StoredProject | null) {
   const products: DiagramProduct[] = [];
 
   project?.productSelections?.forEach((selection) => {
-    const product = productFromSelection(selection, "Product Finder");
+    const product = productFromSelection(selection, "Recommendations");
     if (product) products.push(product);
   });
 

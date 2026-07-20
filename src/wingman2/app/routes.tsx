@@ -27,7 +27,7 @@ const pageRegistry: Record<WingmanRouteKey, LazyPageComponent> = {
   learn: lazy(fromNamedExport(() => import("../pages/NavigationHubPages"), "LearnPage")),
   projects: lazy(fromNamedExport(() => import("../pages/ProjectsPage"), "ProjectsPage")),
   discovery: lazy(fromNamedExport(() => import("../pages/DiscoveryPage"), "DiscoveryPage")),
-  finder: lazy(fromNamedExport(() => import("../pages/FinderPage"), "FinderPage")),
+  recommendations: lazy(fromNamedExport(() => import("../pages/RecommendationsPage"), "RecommendationsPage")),
   productFamilies: lazy(fromNamedExport(() => import("../pages/ProductFamilyPage"), "ProductFamilyPage")),
   productPitch: lazy(fromNamedExport(() => import("../pages/ProductPitchPage"), "ProductPitchPage")),
   catalogBrowser: lazy(fromNamedExport(() => import("../pages/CatalogBrowserPage"), "CatalogBrowserPage")),
@@ -73,6 +73,7 @@ export const wingmanRoutes: RouteObject[] = [
       { index: true, element: routeElement(pageRegistry.dashboard) },
       { path: "dashboard", element: <Navigate to="/wingman" replace /> },
       { path: "profile", element: <Navigate to="/wingman/settings" replace /> },
+      { path: "finder", element: <Navigate to="/wingman/discovery" replace /> },
       { path: "projects/:projectId", element: routeElement(ProjectDetailRoute) },
       { path: "templates/:templateId", element: routeElement(TemplateReviewRoute) },
       ...routeCatalog.filter((route) => route.key !== "dashboard").map((route) => ({
