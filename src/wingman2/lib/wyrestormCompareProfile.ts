@@ -374,7 +374,7 @@ function detectFeatures(blob: string): Record<string, boolean> {
   return features;
 }
 
-function buildSpecFacts(product: WyrestormProduct, blob: string, inputCount?: number, outputCount?: number): CompareSpecFacts {
+function buildSpecFacts(product: WyrestormProduct, blob: string, inputCount?: number): CompareSpecFacts {
   const profile = technicalProfile(product);
   const allPorts = uniqueTechnicalPorts([
     ...(profile?.io?.ports ?? []),
@@ -470,21 +470,6 @@ function detectStructuredFeatures(product: WyrestormProduct, blob: string): Reco
   return features;
 }
 
-function sourceTier(product: WyrestormProduct, usedStructuredPorts: boolean, warnings: string[]): CompareDecisionProfile["sourceTier"] {
-  const profile = technicalProfile(product);
-  const status = Number(profile?.sourceQuality?.officialPageStatus);
-
-  if (status === 200 && usedStructuredPorts && warnings.length === 0) {
-    return "official-structured";
-  }
-
-  if (status === 200 && (usedStructuredPorts || (profile?.sourceQuality?.capturedTechnicalLineCount ?? 0) > 0)) {
-    return "official-structured";
-  }
-
-  return "text-inferred";
-}
-
 function sourceLabelFor(tier: CompareDecisionProfile["sourceTier"]): string {
   if (tier === "official-structured") return "Official-page extracted WyreStorm facts";
   if (tier === "verified-profile") return "Verified WyreStorm profile";
@@ -500,7 +485,7 @@ export function buildWyrestormCompareProfile(product: WyrestormProduct): Compare
   const fallbackRole = detectRole(product, blob, domain);
   const role = governed.compare.role ?? fallbackRole;
   const io = structuredIo(product, blob);
-  const fallbackSpecs = buildSpecFacts(product, blob, io.inputCount, io.outputCount);
+  const fallbackSpecs = buildSpecFacts(product, blob, io.inputCount);
   const specs =
     governed.sourceTier === "verified-profile"
       ? { ...governed.compare.specs }

@@ -61,7 +61,7 @@ function allTextFiles() {
 }
 
 function checkStructure() {
-  for (const file of ["src/wingman2/pages/FinderPage.tsx", "src/wingman2/pages/DiscoveryPage.tsx", "src/wingman2/data/projectStore.ts", "package.json"]) {
+  for (const file of ["src/wingman2/pages/RecommendationsPage.tsx", "src/wingman2/pages/DiscoveryPage.tsx", "src/wingman2/data/projectStore.ts", "package.json"]) {
     add(exists(file) ? "PASS" : "FAIL", "Structure", `${file} exists`);
   }
 }
@@ -69,18 +69,18 @@ function checkStructure() {
 function checkProductMatchingGate() {
   const pkg = JSON.parse(read("package.json") || "{}");
   if (!pkg.scripts?.["check:product-matching"]) {
-    add("WARN", "Product Finder", "check:product-matching is missing");
+    add("WARN", "Recommendations", "check:product-matching is missing");
     return;
   }
   try {
     const npmRun = npmRunCommand("check:product-matching");
     execFileSync(npmRun.command, npmRun.args, { cwd: root, stdio: "pipe", timeout: 120000, windowsHide: true });
-    add("PASS", "Product Finder", "Product matching scenario gate passes");
+    add("PASS", "Recommendations", "Product matching scenario gate passes");
   } catch (error) {
     const stdout = error.stdout ? String(error.stdout).trim() : "";
     const stderr = error.stderr ? String(error.stderr).trim() : "";
     const message = [stdout, stderr, error.message].filter(Boolean).join("\n").slice(0, 4000);
-    add("FAIL", "Product Finder", "Product matching scenario gate fails", message);
+    add("FAIL", "Recommendations", "Product matching scenario gate fails", message);
   }
 }
 

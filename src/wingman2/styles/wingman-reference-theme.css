@@ -520,39 +520,21 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
    -------------------------------------------------------------------------- */
 
 .wm-reference-dashboard {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 26px;
   color: var(--wm-ref-text);
 }
 
-.wm-reference-dashboard-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  min-height: 84px;
-}
-
-.wm-reference-kicker {
-  display: none;
-  color: var(--wm-ref-aqua);
-  font-size: 0.72rem;
-  font-weight: 760;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.wm-reference-dashboard-header h1 {
-  margin: 0;
-  color: var(--wm-ref-text) !important;
-  font-size: clamp(2rem, 2.5vw, 3rem) !important;
-  font-weight: 740 !important;
-  letter-spacing: -0.04em !important;
-}
-
-.wm-reference-dashboard-header p {
-  margin: 9px 0 0;
-  color: var(--wm-ref-copy) !important;
-  font-size: 1rem;
+/* The dashboard also carries ".wm-polish-shell" (shared with every other
+   hub page) so it can reuse the polish card/hero styling. That class's own
+   base rule sets "display: grid" at equal specificity and happens to load
+   later in the cascade, silently winning over the flex declaration above
+   and reintroducing the CSS Grid row-sizing bug this file works around
+   elsewhere (see the hero align-self note below). Force flex to win. */
+.wm-reference-dashboard.wm-reference-dashboard {
+  display: flex !important;
+  flex-direction: column !important;
 }
 
 .wm-reference-dashboard-layout {
@@ -568,101 +550,69 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
   min-width: 0;
 }
 
-.wm-reference-primary-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+/* The dashboard reuses the same wm-sh-card-grid layout as every other hub
+   page (see NavigationHubPages.tsx / SalesHelperPage.tsx), so its four
+   primary actions render as the standard two-column grid without any
+   dashboard-specific column overrides. */
+
+/* A route-wide legacy rule styles any element whose class merely contains
+   the substring "hero" (`[class*="hero"]`) with its own border/background/
+   box-shadow. That rule out-specifies the base ".wm-polish-hero" rule
+   (2 selectors vs. 1), which is normally masked on other pages by a much
+   more specific ".wm-navhub-page ... .wm-navhub-hero.wm-polish-hero" rule
+   that only matches inside the ".wm-navhub-page" hub layout. The dashboard
+   doesn't use that layout, so re-assert the correct (borderless) hero
+   styling here instead. */
+.wm-reference-dashboard.wm-reference-dashboard .wm-polish-hero.wm-polish-hero {
+  border: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
 }
 
-.wm-reference-primary-card {
-  position: relative;
-  display: flex;
-  min-height: 245px;
-  flex-direction: column;
-  gap: 20px;
-  padding: 26px;
-  overflow: hidden;
-  color: var(--wm-ref-text) !important;
-  text-decoration: none !important;
-  background:
-    radial-gradient(circle at 25% 15%, rgba(var(--wm-reference-accent-rgb), 0.14), transparent 44%),
-    linear-gradient(145deg, rgba(12, 31, 52, 0.94), rgba(7, 18, 33, 0.94));
-  border: 1px solid rgba(var(--wm-reference-accent-rgb), 0.34);
-  border-radius: var(--wm-ref-radius);
-  box-shadow: var(--wm-ref-shadow-soft);
-  transition: transform 170ms ease, border-color 170ms ease, box-shadow 170ms ease;
+/* The dashboard's top-level container used to be a plain CSS grid, whose
+   implicit row-track sizing mis-measured this hero: the row settled on a
+   height smaller than the hero's actual content, so the greeting subtitle
+   visually spilled out of the box and overlapped the cards below. Making
+   the container a column flexbox (see ".wm-reference-dashboard" above)
+   didn't fully fix it either, because the hero itself is a nested CSS grid
+   (icon column + text column) with text that wraps depending on the
+   resolved width, which reproduces the same mis-measurement one level
+   down. Switch the hero's own internal layout to flexbox too, so its
+   height is sized from actual content in a single consistent pass.
+   Now that the dashboard also carries ".wm-sh-card-grid" (for the shared
+   card styling), the sales-helper ":has(.wm-sh-card-grid) > .wm-polish-hero"
+   rule in wingman-polish-navigation.css also matches this hero and reverts
+   it back to "display: grid" at slightly higher specificity (that stylesheet
+   loads after this one). Out-specify it explicitly so flex keeps winning. */
+.wm-reference-dashboard.wm-reference-dashboard.wm-reference-dashboard .wm-polish-hero.wm-polish-hero.wm-polish-hero {
+  align-self: stretch !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  min-height: 150px !important;
 }
 
-.wm-reference-primary-card::after {
-  position: absolute;
-  inset: auto -30% -48% 18%;
-  height: 58%;
-  content: "";
-  background: radial-gradient(circle, rgba(var(--wm-reference-accent-rgb), 0.12), transparent 70%);
-  pointer-events: none;
+.wm-reference-dashboard.wm-reference-dashboard.wm-reference-dashboard .wm-polish-hero.wm-polish-hero.wm-polish-hero > .wm-polish-hero-icon.wm-polish-hero-icon {
+  flex: 0 0 54px !important;
 }
 
-.wm-reference-primary-card:hover {
-  color: var(--wm-ref-text) !important;
-  text-decoration: none !important;
-  border-color: rgba(var(--wm-reference-accent-rgb), 0.72);
-  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.3), 0 0 26px rgba(var(--wm-reference-accent-rgb), 0.08);
-  transform: translateY(-3px);
+.wm-reference-dashboard.wm-reference-dashboard.wm-reference-dashboard .wm-polish-hero.wm-polish-hero.wm-polish-hero > .wm-polish-hero-copy.wm-polish-hero-copy {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
 }
 
-.wm-reference-action-icon {
-  display: grid;
-  width: 64px;
-  height: 64px;
-  place-items: center;
-  color: var(--wm-reference-accent);
-  background: radial-gradient(circle, rgba(var(--wm-reference-accent-rgb), 0.2), rgba(4, 16, 29, 0.84));
-  border: 1px solid rgba(var(--wm-reference-accent-rgb), 0.68);
-  border-radius: 999px;
-  box-shadow: 0 0 28px rgba(var(--wm-reference-accent-rgb), 0.15);
+.wm-reference-dashboard.wm-reference-dashboard .wm-polish-hero-copy.wm-polish-hero-copy {
+  border: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
 }
 
-.wm-reference-action-icon svg {
-  width: 29px;
-  height: 29px;
-  stroke-width: 1.7;
-}
-
-.wm-reference-primary-copy {
-  display: grid;
-  gap: 10px;
-}
-
-.wm-reference-primary-copy strong {
-  color: var(--wm-ref-text);
-  font-size: 1.16rem;
-  font-weight: 720;
-}
-
-.wm-reference-primary-copy > span {
-  color: var(--wm-ref-copy);
-  font-size: 0.92rem;
-  line-height: 1.65;
-}
-
-.wm-reference-round-arrow {
-  position: absolute;
-  right: 20px;
-  bottom: 20px;
-  display: grid;
-  width: 42px;
-  height: 42px;
-  place-items: center;
-  color: var(--wm-reference-accent);
-  background: rgba(5, 17, 30, 0.82);
-  border: 1px solid rgba(var(--wm-reference-accent-rgb), 0.5);
-  border-radius: 999px;
-}
-
-.wm-reference-round-arrow svg {
-  width: 20px;
-  height: 20px;
-}
+/* Card sizing, text clamping, and illustration placement all now come from
+   the shared ".wm-polish-shell:has(.wm-sh-card-grid)" rules in
+   wingman-polish-navigation.css (the same ones Sales Helper and every other
+   hub page use), since the dashboard's cards carry the same
+   "wm-sh-choice-card" / "wm-sh-card-grid" classes. No dashboard-specific
+   overrides needed here anymore. */
 
 .wm-reference-section {
   display: grid;
@@ -753,9 +703,10 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
   flex: 0 0 auto;
   place-items: center;
   color: var(--wm-ref-aqua);
-  background: rgba(24, 217, 194, 0.12);
-  border: 1px solid rgba(24, 217, 194, 0.2);
-  border-radius: 8px;
+  background: radial-gradient(circle, rgba(24, 217, 194, 0.2), transparent 72%), rgba(24, 217, 194, 0.1);
+  border: 1px solid rgba(24, 217, 194, 0.5);
+  border-radius: 10px;
+  box-shadow: inset 0 0 12px rgba(24, 217, 194, 0.12), 0 0 14px rgba(24, 217, 194, 0.12);
 }
 
 .wm-reference-project-icon svg {
@@ -1238,3 +1189,43 @@ button.wingman-guru-fab[data-wingman-guru-floating-active="true"] img {
   -webkit-user-drag: none !important;
 }
 /* WINGMAN_GURU_GLOBAL_DRAG_END */
+/* WINGMAN_SINGLE_GURU_BADGE_START */
+/*
+   The Guru PNG already contains its own circular badge and outer teal ring.
+   Hide the extra animated sweep ring so the launcher reads as one logo.
+*/
+button.wingman-guru-fab[data-wingman-guru-floating-active="true"]
+  .wingman-guru-fab-sweep,
+.wingman-guru-fab .wingman-guru-fab-sweep {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  animation: none !important;
+}
+
+/* Keep one restrained halo behind the existing PNG rather than a second ring. */
+button.wingman-guru-fab[data-wingman-guru-floating-active="true"]
+  .wingman-guru-fab-glow,
+.wingman-guru-fab .wingman-guru-fab-glow {
+  inset: 10px !important;
+  z-index: 1 !important;
+  opacity: 0.42 !important;
+  background:
+    radial-gradient(
+      circle,
+      rgba(24, 217, 194, 0.28),
+      rgba(24, 217, 194, 0.08) 48%,
+      transparent 72%
+    ) !important;
+  filter: blur(8px) !important;
+  animation: wm-reference-guru-pulse 3.2s ease-in-out infinite !important;
+}
+
+/* Keep the PNG clearly above the remaining glow. */
+button.wingman-guru-fab[data-wingman-guru-floating-active="true"]
+  .wingman-guru-fab-image,
+.wingman-guru-fab .wingman-guru-fab-image {
+  position: relative !important;
+  z-index: 3 !important;
+}
+/* WINGMAN_SINGLE_GURU_BADGE_END */

@@ -67,7 +67,7 @@ describe("productToSelection", () => {
         summary: "4K60 encoder for NetworkHD systems",
         features: ["4K60 4:4:4", "USB 2.0", "IR passthrough"],
         tags: ["encoder", "avoip", "4k"],
-        source: "Product Finder",
+        source: "Recommendations",
         isFallback: false };
 
       const result = productToSelection(product, "Custom Source");
@@ -194,7 +194,7 @@ describe("buildRecommendationEvidence", () => {
 
     it("should build evidence with product selection", () => {
       const input: RecommendationEvidenceInput = {
-        source: "Product Finder",
+        source: "Recommendations",
         product: {
           sku: "NHD-500-TX",
           title: "NetworkHD 500 Transmitter",

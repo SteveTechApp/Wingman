@@ -80,8 +80,8 @@ function determineOutputPurpose(input: SalesReadinessInput): SalesReadinessPacka
     return {
       motion: "Product gap",
       summary: "Discovery has captured the room requirement, but no WyreStorm product has been selected yet.",
-      customerOutput: "This is an internal design brief, not a customer-ready proposal. It should not be exported as a BOM until Product Finder adds at least one core WyreStorm product.",
-      nextAction: "Open Product Finder, load the Discovery brief, select the core WyreStorm product path, then return to Proposal Builder.",
+      customerOutput: "This is an internal design brief, not a customer-ready proposal. It should not be exported as a BOM until Recommendations adds at least one core WyreStorm product.",
+      nextAction: "Open Recommendations, load the Discovery brief, select the core WyreStorm product path, then return to Proposal Builder.",
     };
   }
 
@@ -219,9 +219,9 @@ export function buildSalesReadinessPackage(input: SalesReadinessInput): SalesRea
   const reviewRequired = noCoreProductSelected || readinessScore < 74 || validateRowCount > 2 || openAssumptionCount > 2;
 
   if (noCoreProductSelected) {
-    governanceWarnings.unshift("No WyreStorm core product has been selected. Open Product Finder and add the recommended product path before customer export.");
+    governanceWarnings.unshift("No WyreStorm core product has been selected. Open Recommendations and add the recommended product path before customer export.");
     validationNotes.unshift("This proposal is currently a discovery/design brief only. The BOM is intentionally blank until products are selected.");
-    repGuidance.unshift("Do not present this as a customer proposal yet. Use it to continue qualification or move into Product Finder.");
+    repGuidance.unshift("Do not present this as a customer proposal yet. Use it to continue qualification or move into Recommendations.");
   } else if (reviewRequired) {
     repGuidance.unshift("Position this as a design direction until the validate items are resolved.");
   } else {

@@ -203,8 +203,9 @@ export function CompareShowdown({
         setStatus(next);
         onStatus?.(next);
       })
-      .catch(() => {
+      .catch((error) => {
         if (cancelled) return;
+        console.error("[wingman] CompareShowdown: runSpecShowdown failed", error);
         setStatus("unverified");
         onStatus?.("unverified");
       });

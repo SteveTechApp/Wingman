@@ -28,7 +28,7 @@ export type WingmanRouteKey =
   | "learn"
   | "projects"
   | "discovery"
-  | "finder"
+  | "recommendations"
   | "productFamilies"
   | "productPitch"
   | "catalogBrowser"
@@ -68,7 +68,7 @@ const iconMap: Record<WingmanRouteKey, LucideIcon> = {
   learn: BookOpen,
   projects: FolderKanban,
   discovery: ClipboardList,
-  finder: Search,
+  recommendations: Search,
   productFamilies: LayoutTemplate,
   productPitch: PackageCheck,
   catalogBrowser: Boxes,
@@ -101,6 +101,7 @@ export const routeCatalogByKey = Object.fromEntries(
 export const consolidatedPrimaryNavKeys = [
   "dashboard",
   "callCoach",
+  "salesHelper",
   "products",
   "templates",
   "compare",
@@ -113,7 +114,7 @@ export const consolidatedPrimaryNavKeys = [
 
 export const consolidatedRouteGroups = {
   callCoach: ["callCards", "productCallCards", "discovery", "salesHelper", "support"],
-  products: ["finder", "productFamilies", "catalogBrowser", "productCallCards", "productPitch", "videowall", "proposal"],
+  products: ["productFamilies", "catalogBrowser", "productCallCards", "productPitch", "videowall", "proposal"],
   documents: ["ingest", "templates", "compare", "proposal"],
   responsePack: ["proposal", "support", "visualDesign", "templates"],
   learn: ["glossary", "support", "productFamilies"],

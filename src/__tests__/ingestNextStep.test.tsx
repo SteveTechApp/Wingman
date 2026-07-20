@@ -23,7 +23,7 @@ describe("Request Decoder next step", () => {
     });
 
     expect(screen.queryByRole("link", { name: "Open Discovery" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Open Product Finder" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Open Recommendations" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Compare competitor items" })).not.toBeInTheDocument();
   });
 });

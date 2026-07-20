@@ -23017,3 +23017,935 @@ main.wm-compare-page[data-compare-state="result"] #compare-result-panel-cards .w
 }
 
 /* COMPARE_BATTLE_CARDS_END */
+
+/* WINGMAN_PRODUCTS_HUB_REDESIGN_START */
+/*
+   Products hub:
+   - four clearly differentiated starting routes;
+   - three balanced contextual tools;
+   - compact viewport-efficient hierarchy;
+   - stronger card titles and readable secondary copy;
+   - page-specific rules only.
+*/
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"] {
+  gap: 9px !important;
+  min-height: 0 !important;
+  padding-top: 8px !important;
+  padding-bottom: 24px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-hero.wm-polish-hero {
+  grid-template-columns: 44px minmax(0, 1fr) !important;
+  gap: 11px !important;
+  padding-bottom: 4px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-hero
+  .wm-polish-hero-icon {
+  width: 44px !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  border-radius: 13px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-hero
+  .wm-polish-hero-icon
+  > svg {
+  width: 21px !important;
+  max-width: 21px !important;
+  height: 21px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-hero
+  .wm-polish-eyebrow {
+  margin: 0 0 2px !important;
+  font-size: 0.64rem !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-hero
+  .wm-polish-hero-copy
+  > h1 {
+  margin-bottom: 3px !important;
+  font-size: clamp(1.48rem, 1.65vw, 1.86rem) !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-hero
+  .wm-polish-hero-copy
+  > p:last-child {
+  font-size: 0.84rem !important;
+  line-height: 1.32 !important;
+  color: color-mix(in srgb, var(--wm-ref-text) 72%, transparent) !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-primary-head {
+  display: flex !important;
+  align-items: end !important;
+  min-height: 20px !important;
+  margin: 1px 0 -1px !important;
+  padding: 0 !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-primary-head
+  > .wm-polish-eyebrow,
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-secondary
+  .wm-polish-secondary-head
+  > .wm-polish-eyebrow {
+  margin: 0 !important;
+  font-size: 0.63rem !important;
+  line-height: 1.1 !important;
+  letter-spacing: 0.075em !important;
+  text-transform: uppercase !important;
+  color: color-mix(in srgb, var(--wm-ref-cyan) 82%, white 8%) !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-grid.wm-polish-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-navhub-secondary-grid.wm-polish-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card {
+  grid-template-columns: 46px minmax(0, 1fr) !important;
+  grid-template-rows: minmax(0, 1fr) !important;
+  gap: 12px !important;
+  min-height: 150px !important;
+  max-height: 150px !important;
+  height: 150px !important;
+  padding: 15px !important;
+  border-radius: 13px !important;
+  isolation: isolate !important;
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-secondary
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card {
+  min-height: 132px !important;
+  max-height: 132px !important;
+  height: 132px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card::before {
+  content: "" !important;
+  position: absolute !important;
+  z-index: 0 !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(
+      circle at 92% 12%,
+      color-mix(in srgb, var(--wm-polish-accent) 12%, transparent),
+      transparent 42%
+    ),
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--wm-polish-accent) 5%, transparent),
+      transparent 52%
+    ) !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card:hover,
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card:focus-visible {
+  transform: translateY(-2px) !important;
+  border-color: color-mix(
+    in srgb,
+    var(--wm-polish-accent) 66%,
+    var(--wm-border)
+  ) !important;
+  box-shadow:
+    0 15px 32px rgba(0, 0, 0, 0.2),
+    0 0 0 1px color-mix(in srgb, var(--wm-polish-accent) 17%, transparent)
+    !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-icon.wm-polish-card-icon {
+  width: 46px !important;
+  min-width: 46px !important;
+  max-width: 46px !important;
+  height: 46px !important;
+  min-height: 46px !important;
+  border-radius: 13px !important;
+  border-color: color-mix(in srgb, var(--wm-polish-accent) 72%, transparent) !important;
+  box-shadow: inset 0 0 18px color-mix(in srgb, var(--wm-polish-accent) 9%, transparent) !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-icon
+  > svg {
+  width: 22px !important;
+  max-width: 22px !important;
+  height: 22px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-copy.wm-polish-card-copy {
+  gap: 5px !important;
+  padding-right: 20px !important;
+  overflow: hidden !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-card-copy
+  > .wm-polish-card-kicker {
+  display: none !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-card-copy
+  > .wm-polish-card-title {
+  display: -webkit-box !important;
+  overflow: hidden !important;
+  font-size: 1.02rem !important;
+  line-height: 1.14 !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-card-copy
+  > .wm-polish-card-body {
+  display: -webkit-box !important;
+  overflow: hidden !important;
+  font-size: 0.76rem !important;
+  line-height: 1.34 !important;
+  color: color-mix(in srgb, var(--wm-ref-text) 72%, transparent) !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 3 !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-card-copy
+  > .wm-polish-card-note {
+  display: -webkit-box !important;
+  overflow: hidden !important;
+  margin-top: 0 !important;
+  font-size: 0.66rem !important;
+  line-height: 1.22 !important;
+  color: color-mix(in srgb, var(--wm-ref-text) 58%, transparent) !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 1 !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-card-copy
+  > .wm-polish-card-link {
+  margin-top: auto !important;
+  padding-top: 3px !important;
+  font-size: 0.74rem !important;
+  line-height: 1 !important;
+  font-weight: 700 !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-card-copy
+  > .wm-polish-card-link
+  > svg {
+  width: 14px !important;
+  height: 14px !important;
+  transition: transform 150ms ease !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-navhub-card:hover
+  .wm-polish-card-link
+  > svg,
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-navhub-card:focus-visible
+  .wm-polish-card-link
+  > svg {
+  transform: translateX(3px) !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-art.wm-polish-card-art {
+  right: -7px !important;
+  bottom: -10px !important;
+  width: 78px !important;
+  min-width: 78px !important;
+  max-width: 78px !important;
+  height: 72px !important;
+  min-height: 72px !important;
+  opacity: 0.075 !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-secondary.wm-polish-secondary {
+  gap: 7px !important;
+  margin-top: 2px !important;
+  padding-top: 9px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-secondary
+  .wm-polish-secondary-head {
+  gap: 2px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-secondary
+  .wm-polish-secondary-head
+  > h2 {
+  margin: 0 !important;
+  font-size: 0.98rem !important;
+  line-height: 1.18 !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-polish-tip {
+  min-height: 34px !important;
+  padding: 7px 10px !important;
+  font-size: 0.74rem !important;
+}
+
+@media (max-width: 1180px) {
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    > .wm-navhub-grid.wm-polish-grid,
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    .wm-navhub-secondary-grid.wm-polish-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    .wm-polish-grid
+    > .wm-navhub-card.wm-polish-card,
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    > .wm-navhub-secondary
+    .wm-polish-grid
+    > .wm-navhub-card.wm-polish-card {
+    min-height: 132px !important;
+    max-height: 132px !important;
+    height: 132px !important;
+  }
+}
+
+@media (max-width: 720px) {
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    > .wm-navhub-grid.wm-polish-grid,
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    .wm-navhub-secondary-grid.wm-polish-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    .wm-polish-grid
+    > .wm-navhub-card.wm-polish-card,
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    > .wm-navhub-secondary
+    .wm-polish-grid
+    > .wm-navhub-card.wm-polish-card {
+    min-height: 116px !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    .wm-polish-grid
+    > .wm-navhub-card.wm-polish-card
+    > .wm-polish-card-copy.wm-polish-card-copy {
+    padding-right: 0 !important;
+  }
+}
+/* WINGMAN_PRODUCTS_HUB_REDESIGN_END */
+/* WINGMAN_PRODUCTS_CARD_ALIGNMENT_FIX_START */
+/*
+   Corrects Products hub text/icon collision and fixed-height clipping.
+   These rules intentionally use a Products-page scope so other hubs retain
+   their existing layouts.
+*/
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card.wm-polish-card {
+  display: grid !important;
+  grid-template-columns: 52px minmax(0, 1fr) !important;
+  grid-template-rows: minmax(0, 1fr) !important;
+  column-gap: 16px !important;
+  row-gap: 0 !important;
+  align-items: start !important;
+  align-content: stretch !important;
+  justify-items: stretch !important;
+  min-height: 168px !important;
+  max-height: none !important;
+  height: 168px !important;
+  padding: 16px !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-secondary
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card.wm-polish-card {
+  min-height: 154px !important;
+  height: 154px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-icon.wm-polish-card-icon {
+  position: relative !important;
+  inset: auto !important;
+  grid-column: 1 !important;
+  grid-row: 1 !important;
+  align-self: start !important;
+  justify-self: start !important;
+  width: 52px !important;
+  min-width: 52px !important;
+  max-width: 52px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  max-height: 52px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+  box-sizing: border-box !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-icon
+  > svg {
+  width: 24px !important;
+  max-width: 24px !important;
+  height: 24px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-copy.wm-polish-card-copy {
+  position: relative !important;
+  inset: auto !important;
+  display: flex !important;
+  grid-column: 2 !important;
+  grid-row: 1 !important;
+  align-self: stretch !important;
+  justify-self: stretch !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  min-height: 100% !important;
+  margin: 0 !important;
+  padding: 0 34px 0 0 !important;
+  gap: 6px !important;
+  overflow: visible !important;
+  transform: none !important;
+  box-sizing: border-box !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  .wm-polish-card-copy
+  > * {
+  position: static !important;
+  inset: auto !important;
+  width: auto !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  transform: none !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-card-copy
+  > .wm-polish-card-title {
+  display: -webkit-box !important;
+  margin: 1px 0 0 !important;
+  overflow: hidden !important;
+  font-size: 1.06rem !important;
+  line-height: 1.18 !important;
+  letter-spacing: -0.012em !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-card-copy
+  > .wm-polish-card-body {
+  display: -webkit-box !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  font-size: 0.79rem !important;
+  line-height: 1.38 !important;
+  color: color-mix(in srgb, var(--wm-ref-text) 76%, transparent) !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 3 !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-card-copy
+  > .wm-polish-card-note {
+  display: -webkit-box !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  font-size: 0.69rem !important;
+  line-height: 1.28 !important;
+  color: color-mix(in srgb, var(--wm-ref-text) 62%, transparent) !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-card-copy
+  > .wm-polish-card-link {
+  margin: auto 0 0 !important;
+  padding: 7px 0 0 !important;
+  font-size: 0.76rem !important;
+  line-height: 1 !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-art.wm-polish-card-art {
+  right: 2px !important;
+  bottom: -5px !important;
+  width: 68px !important;
+  min-width: 68px !important;
+  max-width: 68px !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  opacity: 0.055 !important;
+  transform: none !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-art
+  > svg {
+  width: 54px !important;
+  max-width: 54px !important;
+  height: 54px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-polish-tip {
+  margin-top: 2px !important;
+}
+
+@media (max-width: 1180px) {
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    .wm-polish-grid
+    > .wm-navhub-card.wm-polish-card.wm-polish-card,
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    > .wm-navhub-secondary
+    .wm-polish-grid
+    > .wm-navhub-card.wm-polish-card.wm-polish-card {
+    min-height: 144px !important;
+    height: 144px !important;
+  }
+}
+
+@media (max-width: 720px) {
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    .wm-polish-grid
+    > .wm-navhub-card.wm-polish-card.wm-polish-card,
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    > .wm-navhub-secondary
+    .wm-polish-grid
+    > .wm-navhub-card.wm-polish-card.wm-polish-card {
+    grid-template-columns: 48px minmax(0, 1fr) !important;
+    column-gap: 13px !important;
+    min-height: 124px !important;
+    height: auto !important;
+    padding: 14px !important;
+  }
+
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    .wm-polish-grid
+    > .wm-navhub-card.wm-polish-card
+    > .wm-polish-card-icon.wm-polish-card-icon {
+    width: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+  }
+
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    .wm-polish-grid
+    > .wm-navhub-card.wm-polish-card
+    > .wm-polish-card-copy.wm-polish-card-copy {
+    padding-right: 0 !important;
+  }
+}
+/* WINGMAN_PRODUCTS_CARD_ALIGNMENT_FIX_END */
+/* WINGMAN_PRODUCTS_CARD_ROOM_FIX_START */
+/*
+   Products hub card-space correction:
+   Use available vertical space instead of compressing four primary cards into
+   one row. Primary actions now form a clear 2 x 2 decision grid.
+*/
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"] {
+  gap: 11px !important;
+  padding-top: 10px !important;
+  padding-bottom: 28px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-grid.wm-polish-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-rows: minmax(178px, auto) !important;
+  gap: 14px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-navhub-secondary-grid.wm-polish-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-grid.wm-polish-grid
+  > .wm-navhub-card.wm-polish-card.wm-polish-card {
+  grid-template-columns: 64px minmax(0, 1fr) !important;
+  column-gap: 18px !important;
+  min-height: 178px !important;
+  max-height: none !important;
+  height: 178px !important;
+  padding: 20px !important;
+  border-radius: 15px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-grid.wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-icon.wm-polish-card-icon {
+  width: 64px !important;
+  min-width: 64px !important;
+  max-width: 64px !important;
+  height: 64px !important;
+  min-height: 64px !important;
+  max-height: 64px !important;
+  border-radius: 16px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-grid.wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-icon
+  > svg {
+  width: 29px !important;
+  max-width: 29px !important;
+  height: 29px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-grid.wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-copy.wm-polish-card-copy {
+  gap: 8px !important;
+  min-height: 100% !important;
+  padding: 0 52px 0 0 !important;
+  overflow: visible !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-grid.wm-polish-grid
+  .wm-polish-card-copy
+  > .wm-polish-card-title {
+  margin-top: 1px !important;
+  font-size: clamp(1.15rem, 1.2vw, 1.34rem) !important;
+  line-height: 1.16 !important;
+  -webkit-line-clamp: 2 !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-grid.wm-polish-grid
+  .wm-polish-card-copy
+  > .wm-polish-card-body {
+  max-width: 58ch !important;
+  font-size: 0.86rem !important;
+  line-height: 1.46 !important;
+  -webkit-line-clamp: 3 !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-grid.wm-polish-grid
+  .wm-polish-card-copy
+  > .wm-polish-card-link {
+  padding-top: 9px !important;
+  font-size: 0.82rem !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-grid.wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-art.wm-polish-card-art {
+  right: 8px !important;
+  bottom: -4px !important;
+  width: 94px !important;
+  min-width: 94px !important;
+  max-width: 94px !important;
+  height: 86px !important;
+  min-height: 86px !important;
+  opacity: 0.06 !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-grid.wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-art
+  > svg {
+  width: 70px !important;
+  max-width: 70px !important;
+  height: 70px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-secondary.wm-polish-secondary {
+  gap: 10px !important;
+  margin-top: 1px !important;
+  padding-top: 11px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-secondary
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card.wm-polish-card {
+  grid-template-columns: 56px minmax(0, 1fr) !important;
+  column-gap: 16px !important;
+  min-height: 162px !important;
+  max-height: none !important;
+  height: 162px !important;
+  padding: 18px !important;
+  border-radius: 14px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-secondary
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-icon.wm-polish-card-icon {
+  width: 56px !important;
+  min-width: 56px !important;
+  max-width: 56px !important;
+  height: 56px !important;
+  min-height: 56px !important;
+  max-height: 56px !important;
+  border-radius: 14px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-secondary
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-icon
+  > svg {
+  width: 26px !important;
+  max-width: 26px !important;
+  height: 26px !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-secondary
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-copy.wm-polish-card-copy {
+  gap: 6px !important;
+  padding: 0 38px 0 0 !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-secondary
+  .wm-polish-card-copy
+  > .wm-polish-card-title {
+  font-size: 1.06rem !important;
+  line-height: 1.18 !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-secondary
+  .wm-polish-card-copy
+  > .wm-polish-card-body {
+  font-size: 0.79rem !important;
+  line-height: 1.38 !important;
+  -webkit-line-clamp: 3 !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-secondary
+  .wm-polish-card-copy
+  > .wm-polish-card-note {
+  font-size: 0.68rem !important;
+  line-height: 1.26 !important;
+  -webkit-line-clamp: 2 !important;
+}
+
+html body .wingman-page-host
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  > .wm-navhub-secondary
+  .wm-polish-card-copy
+  > .wm-polish-card-link {
+  padding-top: 6px !important;
+  font-size: 0.78rem !important;
+}
+
+@media (max-width: 1120px) {
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    .wm-navhub-secondary-grid.wm-polish-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    > .wm-navhub-grid.wm-polish-grid,
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    .wm-navhub-secondary-grid.wm-polish-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    > .wm-navhub-grid.wm-polish-grid
+    > .wm-navhub-card.wm-polish-card.wm-polish-card,
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    > .wm-navhub-secondary
+    .wm-polish-grid
+    > .wm-navhub-card.wm-polish-card.wm-polish-card {
+    grid-template-columns: 52px minmax(0, 1fr) !important;
+    column-gap: 14px !important;
+    min-height: 138px !important;
+    height: auto !important;
+    padding: 16px !important;
+  }
+
+  html body .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    .wm-polish-grid
+    > .wm-navhub-card.wm-polish-card
+    > .wm-polish-card-copy.wm-polish-card-copy {
+    padding-right: 0 !important;
+  }
+}
+/* WINGMAN_PRODUCTS_CARD_ROOM_FIX_END */

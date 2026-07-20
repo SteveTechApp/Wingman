@@ -6,7 +6,7 @@ const root = process.cwd();
 
 const targetFiles = [
   "src/wingman2/pages/CatalogBrowserPage.tsx",
-  "src/wingman2/pages/FinderPage.tsx",
+  "src/wingman2/pages/RecommendationsPage.tsx",
   "src/wingman2/pages/ProductCallCardsPage.tsx",
   "src/wingman2/pages/ProductFamilyPage.tsx",
   "src/wingman2/pages/ProductPitchPage.tsx",

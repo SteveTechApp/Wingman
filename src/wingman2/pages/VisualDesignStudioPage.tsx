@@ -687,7 +687,7 @@ function buildTbcDiagram(diagramType: DiagramTypeId): DiagramGenerationResult {
   return {
     diagramType,
     title: "TBC schematic scaffold",
-    summary: "Start here when no active project or product handoff exists. Replace TBC blocks as Discovery, Product Finder and Product Workspace add real context.",
+    summary: "Start here when no active project or product handoff exists. Replace TBC blocks as Discovery, Recommendations and Product Workspace add real context.",
     sourceLabel: "TBC scaffold",
     mermaid: [
       "flowchart LR",

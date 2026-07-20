@@ -1,10 +1,10 @@
-﻿import { readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const clientProductIndexConsumers = [
   "src/wingman2/components/WingmanGuruDrawer.tsx",
-  "src/wingman2/pages/FinderPage.tsx",
+  "src/wingman2/lib/productSelectorEngine.ts",
   "src/wingman2/pages/ProductPitchPage.tsx",
   "src/wingman2/pages/ProductCallCardsPage.tsx",
 ];

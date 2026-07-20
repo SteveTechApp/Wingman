@@ -128,7 +128,8 @@ export function ProfilePage() {
           setStatus(`Signed in as ${response.session.user.email || response.session.user.name || "Wingman user"}.`);
         }
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("[wingman] ProfilePage: session check failed", error);
         setSession(null);
       });
   }, []);

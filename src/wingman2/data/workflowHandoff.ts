@@ -349,6 +349,14 @@ export function writeLatestDiscoverySnapshot(snapshot: DiscoverySnapshot) {
   window.dispatchEvent(new CustomEvent("wingman:discovery-handoff-updated"));
 }
 
+export function clearLatestDiscoverySnapshot() {
+  if (typeof window === "undefined") return;
+
+  window.localStorage.removeItem(DISCOVERY_SNAPSHOT_KEY);
+  window.localStorage.removeItem(DISCOVERY_BRIEF_KEY);
+  window.dispatchEvent(new CustomEvent("wingman:discovery-handoff-updated"));
+}
+
 export function readLatestDiscoverySnapshot(): DiscoverySnapshot | null {
   if (typeof window === "undefined") return null;
 

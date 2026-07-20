@@ -1,16 +1,14 @@
 import {
   ArrowRight,
   CheckCircle2,
-  Compass,
-  FolderKanban,
-  LayoutTemplate,
+  LayoutDashboard,
   MoreVertical,
-  Scale,
   Target,
   Zap,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { HubCard, routeAction } from "./NavigationHubPages";
 import { StatusChip } from "../components/StatusChip";
 import {
   setActiveProjectId,
@@ -20,15 +18,36 @@ import {
 } from "../data/projectStore";
 import type { StatusVariant } from "../types";
 
-type DashboardAccent = "discovery" | "compare" | "templates" | "projects";
-
-type DashboardAction = {
-  title: string;
-  description: string;
-  path: string;
-  accent: DashboardAccent;
-  icon: typeof Compass;
-};
+const primaryActions = [
+  routeAction(
+    "discovery",
+    "Start Discovery",
+    "Answer a few questions and get a clear product direction.",
+    "GUIDED REQUIREMENT CAPTURE",
+    { accent: "aqua", linkLabel: "Start discovery", art: "discovery" },
+  ),
+  routeAction(
+    "compare",
+    "Compare Products",
+    "Check a competitor product against the closest WyreStorm fit.",
+    "COMPETITOR PRODUCT MATCH",
+    { accent: "amber", linkLabel: "Compare products", art: "competitor" },
+  ),
+  routeAction(
+    "templates",
+    "Browse Templates",
+    "Start from a ready-made room or application design.",
+    "ROOM & APPLICATION TEMPLATES",
+    { accent: "violet", linkLabel: "Browse templates", art: "templates" },
+  ),
+  routeAction(
+    "projects",
+    "My Projects",
+    "Continue discovery, comparison, design and proposal work.",
+    "ACTIVE PROJECT WORKSPACE",
+    { accent: "green", linkLabel: "Open projects", art: "projects" },
+  ),
+];
 
 type DashboardProject = {
   id: string;
@@ -50,37 +69,6 @@ type DashboardProgress = {
   label: string;
   value: number;
 };
-
-const primaryActions: DashboardAction[] = [
-  {
-    title: "Start Discovery",
-    description: "Answer a few questions and get a clear product direction.",
-    path: routeCatalogByKey.discovery.path,
-    accent: "discovery",
-    icon: Compass,
-  },
-  {
-    title: "Compare Products",
-    description: "Check a competitor product against the closest WyreStorm fit.",
-    path: routeCatalogByKey.compare.path,
-    accent: "compare",
-    icon: Scale,
-  },
-  {
-    title: "Browse Templates",
-    description: "Start from a ready-made room or application design.",
-    path: routeCatalogByKey.templates.path,
-    accent: "templates",
-    icon: LayoutTemplate,
-  },
-  {
-    title: "My Projects",
-    description: "Continue discovery, comparison, design and proposal work.",
-    path: routeCatalogByKey.projects.path,
-    accent: "projects",
-    icon: FolderKanban,
-  },
-];
 
 const fallbackProjects: DashboardProject[] = [
   {
@@ -119,7 +107,7 @@ const STAGE_NEXT_STEP: Partial<Record<ProjectStage, string>> = {
   Discovery: "Continue discovery",
   "Competitor Compare": "Review competitor match",
   "Proposal Builder": "Finish proposal and BOM",
-  Finder: "Shortlist the product family",
+  Recommendations: "Review matched products",
   Templates: "Adapt the room template",
   Support: "Continue the support review",
 };
@@ -224,51 +212,35 @@ export function DashboardPage() {
 
   return (
     <main
-      className="wm-reference-dashboard wm-page"
+      className="wm-reference-dashboard wm-page wm-polish-shell"
       data-wingman-page="home"
       data-wingman-home="true"
       aria-label="Wingman dashboard"
     >
-      <header className="wm-reference-dashboard-header">
-        <div>
-          <span className="wm-reference-kicker">WyreStorm sales intelligence</span>
-          <h1>
+      <section className="wm-polish-hero wm-polish-aqua" aria-labelledby="wingman-dashboard-title">
+        <span className="wm-polish-hero-icon" aria-hidden="true">
+          <LayoutDashboard />
+        </span>
+
+        <div className="wm-polish-hero-copy">
+          <p className="wm-polish-eyebrow">WyreStorm sales intelligence</p>
+          <h1 id="wingman-dashboard-title">
             {greetingForCurrentTime()}
             {displayName ? `, ${displayName}` : ""}
           </h1>
           <p>What would you like to achieve today?</p>
         </div>
-      </header>
+      </section>
 
       <div
         className="wm-reference-dashboard-layout min-h-0"
         style={{ minHeight: "calc(100dvh - 190px)" }}
       >
         <div className="wm-reference-dashboard-main h-full grid-rows-2">
-          <section className="wm-reference-primary-grid h-full" aria-label="Primary Wingman actions">
-            {primaryActions.map((action) => {
-              const Icon = action.icon;
-
-              return (
-                <Link
-                  key={action.path}
-                  to={action.path}
-                  className="wm-reference-primary-card h-full"
-                  data-wm-accent={action.accent}
-                >
-                  <span className="wm-reference-action-icon">
-                    <Icon aria-hidden="true" />
-                  </span>
-                  <span className="wm-reference-primary-copy">
-                    <strong>{action.title}</strong>
-                    <span>{action.description}</span>
-                  </span>
-                  <span className="wm-reference-round-arrow" aria-hidden="true">
-                    <ArrowRight />
-                  </span>
-                </Link>
-              );
-            })}
+          <section className="wm-sh-card-grid wm-polish-grid h-full" aria-label="Primary Wingman actions">
+            {primaryActions.map((action) => (
+              <HubCard key={action.title} item={action} />
+            ))}
           </section>
 
           <section className="wm-reference-section h-full" aria-label="Recent projects">

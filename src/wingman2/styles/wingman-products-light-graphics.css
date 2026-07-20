@@ -1,0 +1,188 @@
+/* ========================================================================== 
+   Wingman Products navigation: lighter decorative graphics
+   Imported after the shared Wingman styles so it remains stable if the
+   underlying navigation-hub stylesheet is consolidated, renamed or absent.
+   ========================================================================== */
+
+html body :is(.wingman-page-host, #root)
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card {
+  isolation: isolate !important;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--wm-polish-panel, #0b1627) 98%, var(--wm-polish-accent) 2%),
+      var(--wm-polish-panel-soft, #101f34)
+    ) !important;
+  border-color:
+    color-mix(
+      in srgb,
+      var(--wm-polish-accent) 20%,
+      var(--wm-polish-border, rgba(125, 211, 252, 0.18))
+    ) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 8px 22px rgba(0, 0, 0, 0.16) !important;
+}
+
+/* Remove the strong per-card colour bloom, including the amber Compare card. */
+html body :is(.wingman-page-host, #root)
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card::before {
+  opacity: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+html body :is(.wingman-page-host, #root)
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card:hover,
+html body :is(.wingman-page-host, #root)
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card:focus-visible {
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--wm-polish-panel, #0b1627) 96%, var(--wm-polish-accent) 4%),
+      color-mix(in srgb, var(--wm-polish-panel-soft, #101f34) 99%, var(--wm-polish-accent) 1%)
+    ) !important;
+  border-color:
+    color-mix(
+      in srgb,
+      var(--wm-polish-accent) 44%,
+      var(--wm-polish-border, rgba(125, 211, 252, 0.18))
+    ) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 12px 28px rgba(0, 0, 0, 0.19) !important;
+}
+
+/* Retain the useful leading icon but reduce its halo. */
+html body :is(.wingman-page-host, #root)
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-icon.wm-polish-card-icon {
+  box-shadow:
+    inset 0 0 16px color-mix(in srgb, var(--wm-polish-accent) 5%, transparent),
+    0 0 10px color-mix(in srgb, var(--wm-polish-accent) 3%, transparent) !important;
+}
+
+/* Recover text space previously reserved for the oversized artwork. */
+html body :is(.wingman-page-host, #root)
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-copy.wm-polish-card-copy {
+  padding-right: clamp(48px, 5vw, 76px) !important;
+}
+
+/* Small, consistently positioned, low-contrast decorative artwork. */
+html body :is(.wingman-page-host, #root)
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-art.wm-polish-card-art {
+  right: 6px !important;
+  bottom: 4px !important;
+  width: 104px !important;
+  min-width: 104px !important;
+  max-width: 104px !important;
+  height: 94px !important;
+  min-height: 94px !important;
+  max-height: 94px !important;
+  opacity: 0.035 !important;
+  transform: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+html body :is(.wingman-page-host, #root)
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card:hover
+  > .wm-polish-card-art.wm-polish-card-art,
+html body :is(.wingman-page-host, #root)
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card:focus-visible
+  > .wm-polish-card-art.wm-polish-card-art {
+  opacity: 0.05 !important;
+}
+
+html body :is(.wingman-page-host, #root)
+  .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+  .wm-polish-grid
+  > .wm-navhub-card.wm-polish-card
+  > .wm-polish-card-art
+  > svg {
+  width: 78px !important;
+  min-width: 78px !important;
+  max-width: 78px !important;
+  height: 78px !important;
+  min-height: 78px !important;
+  max-height: 78px !important;
+  stroke-width: 1.35 !important;
+}
+
+@media (max-width: 1100px) {
+  .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    .wm-polish-grid
+    > .wm-navhub-card.wm-polish-card
+    > .wm-polish-card-copy.wm-polish-card-copy {
+    padding-right: 38px !important;
+  }
+
+  .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    .wm-polish-grid
+    > .wm-navhub-card.wm-polish-card
+    > .wm-polish-card-art.wm-polish-card-art {
+    right: 2px !important;
+    bottom: 2px !important;
+    width: 76px !important;
+    min-width: 76px !important;
+    max-width: 76px !important;
+    height: 70px !important;
+    min-height: 70px !important;
+    max-height: 70px !important;
+    opacity: 0.03 !important;
+  }
+
+  .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    .wm-polish-grid
+    > .wm-navhub-card.wm-polish-card
+    > .wm-polish-card-art
+    > svg {
+    width: 58px !important;
+    min-width: 58px !important;
+    max-width: 58px !important;
+    height: 58px !important;
+    min-height: 58px !important;
+    max-height: 58px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    .wm-polish-grid
+    > .wm-navhub-card.wm-polish-card
+    > .wm-polish-card-copy.wm-polish-card-copy {
+    padding-right: 0 !important;
+  }
+
+  .wingman-page-host
+    .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Products"]
+    .wm-polish-grid
+    > .wm-navhub-card.wm-polish-card
+    > .wm-polish-card-art.wm-polish-card-art {
+    display: none !important;
+  }
+}
