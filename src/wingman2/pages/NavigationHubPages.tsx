@@ -2,10 +2,11 @@ import { ArrowRight, BookOpen, Bot, Boxes, FileSearch, FileText, Sparkles } from
 import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
+import { HubCardArt, type HubCardArtKind } from "../components/HubCardArt";
 
 type PolishAccent = "aqua" | "blue" | "violet" | "magenta" | "amber" | "green";
 
-type HubAction = {
+export type HubAction = {
   title: string;
   intent: string;
   to: string;
@@ -14,13 +15,13 @@ type HubAction = {
   accent: PolishAccent;
   note?: string;
   linkLabel?: string;
+  art?: HubCardArtKind;
 };
 
 type HubPageProps = {
   eyebrow: string;
   title: string;
   intent: string;
-  subModes: string[];
   primaryActions: HubAction[];
   secondaryActions?: HubAction[];
   heroIcon: LucideIcon;
@@ -32,9 +33,10 @@ type RouteActionOptions = {
   note?: string;
   accent?: PolishAccent;
   linkLabel?: string;
+  art?: HubCardArtKind;
 };
 
-function routeAction(
+export function routeAction(
   routeKey: WingmanRouteKey,
   title: string,
   intent: string,
@@ -50,31 +52,39 @@ function routeAction(
     accent: options.accent ?? "aqua",
     icon: routeCatalogByKey[routeKey].icon,
     to: routeCatalogByKey[routeKey].path,
+    art: options.art,
   };
 }
 
-function HubCard({ item }: { item: HubAction }) {
+export function HubCard({ item }: { item: HubAction }) {
   const Icon = item.icon;
 
   return (
-    <Link to={item.to} className={`wm-navhub-card wm-polish-card wm-polish-${item.accent}`}>
+    <Link
+      to={item.to}
+      className={`wm-sh-choice-card wm-polish-card wm-polish-${item.accent}`}
+      aria-label={`Open ${item.title} in Wingman`}
+    >
       <span className="wm-polish-card-icon" aria-hidden="true">
         <Icon />
       </span>
 
-      <span className="wm-polish-card-copy">
-        <span className="wm-navhub-card-action wm-polish-card-kicker">{item.action}</span>
-        <strong className="wm-polish-card-title">{item.title}</strong>
-        <span className="wm-navhub-card-intent wm-polish-card-body">{item.intent}</span>
+      <span className="wm-sh-choice-content wm-polish-card-copy">
+        <span className="wm-sh-choice-eyebrow wm-polish-card-kicker">{item.action}</span>
+        <span className="wm-sh-choice-title wm-polish-card-title">{item.title}</span>
+        <span className="wm-sh-choice-body wm-polish-card-body">{item.intent}</span>
         {item.note ? <small className="wm-polish-card-note">{item.note}</small> : null}
-        <span className="wm-polish-card-link">
+        <span className="wm-sh-choice-action wm-polish-card-link">
           {item.linkLabel ?? "Open in Wingman"}
           <ArrowRight aria-hidden="true" />
         </span>
       </span>
 
-      <span className="wm-polish-card-art" aria-hidden="true">
-        <Icon />
+      <span
+        className={`wm-polish-card-art${item.art ? ` wm-polish-card-art-${item.art}` : ""}`}
+        aria-hidden="true"
+      >
+        {item.art ? <HubCardArt kind={item.art} /> : <Icon />}
       </span>
     </Link>
   );
@@ -84,21 +94,22 @@ function HubPage({
   eyebrow,
   title,
   intent,
-  subModes,
   primaryActions,
   secondaryActions = [],
   heroIcon: HeroIcon,
   accent,
   tip,
 }: HubPageProps) {
+  const actions = [...primaryActions, ...secondaryActions];
+
   return (
     <main
       data-wingman-page="true"
       data-wingman-page-key={title}
-      className="wm-navhub-page wm-polish-shell"
+      className="wm-sh-page wm-polish-shell"
     >
       <section
-        className={`wm-navhub-hero wm-polish-hero wm-polish-${accent}`}
+        className={`wm-sh-page-hero wm-polish-hero wm-polish-${accent}`}
         aria-labelledby="wingman-navhub-title"
       >
         <span className="wm-polish-hero-icon" aria-hidden="true">
@@ -106,47 +117,26 @@ function HubPage({
         </span>
 
         <div className="wm-polish-hero-copy">
-          <p className="wm-navhub-eyebrow wm-polish-eyebrow">{eyebrow}</p>
+          <p className="wm-polish-eyebrow">{eyebrow}</p>
           <h1 id="wingman-navhub-title">{title}</h1>
           <p>{intent}</p>
         </div>
       </section>
 
-      <section className="wm-navhub-submodes" aria-label={`${title} sub-modes`}>
-        {subModes.map((mode) => (
-          <span key={mode}>{mode}</span>
-        ))}
+      <section className="wm-sh-page-section" aria-label={`${title} actions`}>
+        <div className="wm-sh-card-grid wm-polish-grid">
+          {actions.map((item) => (
+            <HubCard key={item.title} item={item} />
+          ))}
+        </div>
+
+        <div className="wm-polish-tip">
+          <Sparkles aria-hidden="true" />
+          <span>
+            <strong>Suggested starting point:</strong> {tip}
+          </span>
+        </div>
       </section>
-
-      <section className="wm-navhub-grid wm-polish-grid" aria-label={`${title} primary actions`}>
-        {primaryActions.map((item) => (
-          <HubCard key={item.title} item={item} />
-        ))}
-      </section>
-
-      {secondaryActions.length ? (
-        <section
-          className="wm-navhub-secondary wm-polish-secondary"
-          aria-label={`${title} supporting tools`}
-        >
-          <div className="wm-polish-secondary-head">
-            <p className="wm-navhub-eyebrow wm-polish-eyebrow">Supporting routes</p>
-            <h2>Other useful tools</h2>
-          </div>
-          <div className="wm-navhub-secondary-grid wm-polish-grid wm-polish-grid-secondary">
-            {secondaryActions.map((item) => (
-              <HubCard key={item.title} item={item} />
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      <div className="wm-polish-tip">
-        <Sparkles aria-hidden="true" />
-        <span>
-          <strong>Suggested starting point:</strong> {tip}
-        </span>
-      </div>
     </main>
   );
 }
@@ -157,12 +147,6 @@ export function CallCoachPage() {
       eyebrow="Wingman / Call Coach"
       title="Call Coach"
       intent="Live sales support for product conversations, customer discovery and escalation decisions."
-      subModes={[
-        "Product-specific call",
-        "Discovery / requirement capture",
-        "Call-out day",
-        "Escalation check",
-      ]}
       heroIcon={Bot}
       accent="aqua"
       tip="Begin with Capture Requirements when the customer has described an application but has not provided enough technical detail."
@@ -175,6 +159,7 @@ export function CallCoachPage() {
           {
             accent: "aqua",
             linkLabel: "Choose product",
+            art: "call-card",
           },
         ),
         routeAction(
@@ -185,6 +170,7 @@ export function CallCoachPage() {
           {
             accent: "blue",
             linkLabel: "Start discovery",
+            art: "discovery",
           },
         ),
         routeAction(
@@ -195,6 +181,7 @@ export function CallCoachPage() {
           {
             accent: "green",
             linkLabel: "Choose conversation type",
+            art: "conversation",
           },
         ),
         routeAction(
@@ -205,6 +192,7 @@ export function CallCoachPage() {
           {
             accent: "amber",
             linkLabel: "Check requirements",
+            art: "support",
           },
         ),
       ]}
@@ -217,78 +205,92 @@ export function ProductsPage() {
     <HubPage
       eyebrow="Wingman / Products"
       title="Products"
-      intent="Help me find, understand or position a WyreStorm product."
-      subModes={["Find Product", "Product Families", "SKU Call Card", "Product Positioning", "Attach Products", "Follow-up Wording"]}
+      intent="Find, understand, compare or position the right WyreStorm product."
       heroIcon={Boxes}
       accent="blue"
-      tip="Use Find Product when you know the requirement; use Product Families when you first need to understand the available technology routes."
+      tip="Start with Find by Requirement when the product is unknown. Use Search a Known SKU when you already have a WyreStorm product code."
       primaryActions={[
         routeAction(
-          "finder",
-          "Find Product",
-          "Search the product intelligence index and move from requirement to shortlist.",
-          "Find products",
-          { accent: "blue" },
+          "catalogBrowser",
+          "Browse Catalogue",
+          "Search the governed WyreStorm catalogue by family, role, technology and lifecycle.",
+          "Browse products",
+          { accent: "blue", linkLabel: "Open catalogue" },
         ),
         routeAction(
           "productFamilies",
-          "Product Families",
-          "Understand the family-level story before choosing a SKU.",
-          "Browse families",
-          { accent: "violet" },
-        ),
-        routeAction(
-          "productCallCards",
-          "SKU Call Card",
-          "Selection-first product call cards: choose a SKU before the detailed sales content appears.",
-          "Select SKU first",
+          "Explore Product Families",
+          "Understand the available WyreStorm technology routes before selecting a specific product.",
+          "Family-led research",
           {
-            accent: "aqua",
-            note: "Includes one-line positioning, one-minute brief, questions, listen-for triggers, objections, disqualifiers, attach products and follow-up wording.",
+            accent: "violet",
+            linkLabel: "Explore",
           },
         ),
         routeAction(
-          "productPitch",
-          "Product Dashboard",
-          "Select a SKU and show product facts, I/O, what to say, what to ask and what to check before recommending.",
-          "Open dashboard",
-          { accent: "green" },
+          "productCallCards",
+          "Search a Known SKU",
+          "Open the sales call card when you already know the WyreStorm product code.",
+          "SKU-led lookup",
+          {
+            accent: "aqua",
+            linkLabel: "Search",
+          },
+        ),
+        routeAction(
+          "compare",
+          "Compare a Competitor",
+          "Start with another manufacturer's SKU and identify the closest safe WyreStorm direction.",
+          "Competitor-led search",
+          {
+            accent: "amber",
+            linkLabel: "Compare",
+          },
         ),
       ]}
       secondaryActions={[
         routeAction(
-          "proposal",
-          "Attach Products",
-          "Carry selected products into response-pack output when the project is ready.",
-          "Attach to output",
-          { accent: "green" },
+          "productPitch",
+          "Product Dashboard",
+          "Review product facts, I/O, positioning, qualification questions and checks before recommending.",
+          "Detailed product view",
+          {
+            accent: "green",
+            note: "Best used after selecting a WyreStorm SKU.",
+            linkLabel: "Open",
+          },
         ),
         routeAction(
-          "compare",
-          "Competitor route",
-          "Start from a competitor product when the customer already has an alternative in mind.",
-          "Compare competitor",
-          { accent: "amber" },
+          "proposal",
+          "Add to Response Pack",
+          "Carry selected products and supporting explanation into the active project response.",
+          "Project output",
+          {
+            accent: "green",
+            note: "Uses the active project and selected products.",
+            linkLabel: "Add",
+          },
         ),
         routeAction(
           "videowall",
           "Videowall Builder",
-          "Shape LED or LCD wall signal flow when the product conversation is display-wall led.",
-          "Open wall builder",
-          { accent: "magenta" },
+          "Design an LED or LCD wall signal-flow architecture when the requirement is display-wall led.",
+          "Display-wall workflow",
+          {
+            accent: "magenta",
+            linkLabel: "Build",
+          },
         ),
       ]}
     />
   );
 }
-
 export function DocumentsPage() {
   return (
     <HubPage
       eyebrow="Wingman / Documents"
       title="Documents"
       intent="Customer sent me a document, BOM, scope or competitor specification. Help me understand what matters to WyreStorm."
-      subModes={["Upload / Paste", "Extracted Items", "WyreStorm Relevance", "Competitor Substitutions", "Clarification Questions", "Send to Response Pack"]}
       heroIcon={FileSearch}
       accent="violet"
       tip="Begin with Decode request for unstructured emails, BOMs or tender text, then move only the relevant items into Compare or Response Pack."
@@ -298,28 +300,28 @@ export function DocumentsPage() {
           "Decode request",
           "Decode emails, RFIs, RFQs, BOMs, scopes and rough notes into requirements, unknowns, system shape and next action.",
           "Decode request",
-          { accent: "violet" },
+          { accent: "violet", art: "decode" },
         ),
         routeAction(
           "templates",
           "Room / BOM templates",
           "Use editable room templates when the document resembles a known room archetype.",
           "Open templates",
-          { accent: "aqua" },
+          { accent: "aqua", art: "templates" },
         ),
         routeAction(
           "compare",
           "Competitor substitutions",
           "Check competitor items and decide whether WyreStorm has a good, partial or no-match path.",
           "Check substitutions",
-          { accent: "amber" },
+          { accent: "amber", art: "competitor" },
         ),
         routeAction(
           "proposal",
           "Send to Response Pack",
           "Turn extracted requirements into a customer requirement summary and products-to-review output.",
           "Create response",
-          { accent: "green" },
+          { accent: "green", art: "proposal" },
         ),
       ]}
     />
@@ -332,7 +334,6 @@ export function ResponsePackPage() {
       eyebrow="Wingman / Response Pack"
       title="Response Pack"
       intent="Create a usable response: quick email reply, RFI response, formal RFQ support, project summary, internal handover or schematic-backed response pack."
-      subModes={["Customer requirement summary", "Suggested system shape", "Products to review", "Technical review required", "Commercial review required before quotation"]}
       heroIcon={FileText}
       accent="amber"
       tip="Start with Response Pack Builder when requirements and products are known; add a schematic only when it materially improves customer understanding."
@@ -342,35 +343,35 @@ export function ResponsePackPage() {
           "Response Pack Builder",
           "Build the customer-facing response, BOM-style product review list and review-gated output.",
           "Build response pack",
-          { accent: "amber" },
+          { accent: "amber", art: "proposal" },
         ),
         routeAction(
           "support",
           "Review gates",
           "Check technical review, commercial review before quotation, escalation and completion gaps.",
           "Request review",
-          { accent: "violet" },
+          { accent: "violet", art: "support" },
         ),
         routeAction(
           "visualStudio",
           "Visual Studio",
           "Create AV schematics and customer-facing concept visuals from captured requirements or sample scenarios.",
           "Open visual studio",
-          { accent: "blue" },
+          { accent: "blue", art: "studio" },
         ),
         routeAction(
           "visualDesign",
           "Schematic Builder",
           "Create end-to-end schematics with WyreStorm devices, known third-party items and TBC products.",
           "Create schematic",
-          { accent: "aqua" },
+          { accent: "aqua", art: "schematic" },
         ),
         routeAction(
           "templates",
           "Template response",
           "Start from a room archetype when a known application template is enough.",
           "Use template",
-          { accent: "green" },
+          { accent: "green", art: "templates" },
         ),
       ]}
     />
@@ -383,7 +384,6 @@ export function LearnPage() {
       eyebrow="Wingman / Learn"
       title="Learn"
       intent="Help me understand AV terms, products, sales guidance or support context."
-      subModes={["Glossary", "Support", "Training / reference"]}
       heroIcon={BookOpen}
       accent="green"
       tip="Use Glossary for a specific term and Product family learning when you need the broader sales and application context."
@@ -393,21 +393,21 @@ export function LearnPage() {
           "Glossary",
           "Look up AV terms, acronyms and customer-safe explanations.",
           "Search terms",
-          { accent: "green" },
+          { accent: "green", art: "glossary" },
         ),
         routeAction(
           "support",
           "Support guidance",
           "Find escalation guidance and completion gaps.",
           "Open support",
-          { accent: "amber" },
+          { accent: "amber", art: "support" },
         ),
         routeAction(
           "productFamilies",
           "Product family learning",
           "Learn how product families fit real sales conversations.",
           "Learn families",
-          { accent: "blue" },
+          { accent: "blue", art: "families" },
         ),
       ]}
     />

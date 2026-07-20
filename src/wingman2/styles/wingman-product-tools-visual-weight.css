@@ -1,0 +1,181 @@
+/* ========================================================================== 
+   Product Tools visual-weight correction
+
+   The matching cards are marked at runtime from their visible titles. This
+   avoids relying on a page component name or CSS class that may differ between
+   local Wingman branches.
+   ========================================================================== */
+
+html body [data-wingman-product-tool-card="true"] {
+  isolation: isolate !important;
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--wm-surface, #0b1627) 98%, var(--wm-primary, #14b8a6) 2%),
+      color-mix(in srgb, var(--wm-surface-2, #101f34) 99%, transparent)
+    ) !important;
+  border-color: color-mix(
+    in srgb,
+    var(--wm-primary, #14b8a6) 22%,
+    var(--wm-border, rgba(125, 211, 252, 0.18))
+  ) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.035),
+    0 8px 22px rgba(0, 0, 0, 0.16) !important;
+}
+
+html body [data-wingman-product-tool-card="true"]::before,
+html body [data-wingman-product-tool-card="true"]::after {
+  opacity: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+html body [data-wingman-product-tool-card="true"]:hover,
+html body [data-wingman-product-tool-card="true"]:focus-visible {
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--wm-surface, #0b1627) 96%, var(--wm-primary, #14b8a6) 4%),
+      var(--wm-surface-2, #101f34)
+    ) !important;
+  border-color: color-mix(
+    in srgb,
+    var(--wm-primary, #14b8a6) 42%,
+    var(--wm-border, rgba(125, 211, 252, 0.18))
+  ) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.045),
+    0 12px 28px rgba(0, 0, 0, 0.19) !important;
+}
+
+html body [data-wingman-product-tool-card="true"] [data-wingman-product-tool-art="true"] {
+  position: absolute !important;
+  z-index: 0 !important;
+  top: auto !important;
+  right: 16px !important;
+  bottom: 10px !important;
+  left: auto !important;
+  display: grid !important;
+  width: 96px !important;
+  min-width: 96px !important;
+  max-width: 96px !important;
+  height: 88px !important;
+  min-height: 88px !important;
+  max-height: 88px !important;
+  place-items: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  pointer-events: none !important;
+  opacity: 0.045 !important;
+  transform: none !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+html body [data-wingman-product-tool-card="true"] svg[data-wingman-product-tool-art="true"],
+html body [data-wingman-product-tool-card="true"] [data-wingman-product-tool-art="true"] svg {
+  width: 76px !important;
+  min-width: 76px !important;
+  max-width: 76px !important;
+  height: 76px !important;
+  min-height: 76px !important;
+  max-height: 76px !important;
+  stroke-width: 1.35 !important;
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+html body [data-wingman-product-tool-card="true"]:hover [data-wingman-product-tool-art="true"],
+html body [data-wingman-product-tool-card="true"]:focus-visible [data-wingman-product-tool-art="true"] {
+  opacity: 0.065 !important;
+}
+
+@media (max-width: 1050px) {
+  html body [data-wingman-product-tool-card="true"] [data-wingman-product-tool-art="true"] {
+    right: 8px !important;
+    bottom: 6px !important;
+    width: 78px !important;
+    min-width: 78px !important;
+    max-width: 78px !important;
+    height: 72px !important;
+    min-height: 72px !important;
+    max-height: 72px !important;
+    opacity: 0.035 !important;
+  }
+
+  html body [data-wingman-product-tool-card="true"] svg[data-wingman-product-tool-art="true"],
+  html body [data-wingman-product-tool-card="true"] [data-wingman-product-tool-art="true"] svg {
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
+    height: 60px !important;
+    min-height: 60px !important;
+    max-height: 60px !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html body [data-wingman-product-tool-card="true"] [data-wingman-product-tool-art="true"] {
+    display: none !important;
+  }
+}
+/* WINGMAN_PRODUCT_TOOL_THIN_STROKES_START */
+/*
+   The Product Tools artwork uses enlarged Lucide SVGs. A normal SVG
+   stroke-width scales with the enlarged viewport, which makes the line art
+   much heavier than the custom room illustrations used elsewhere.
+
+   non-scaling-stroke keeps the decorative artwork at a consistent physical
+   line weight regardless of SVG size.
+*/
+html body
+  [data-wingman-product-tool-card="true"]
+  [data-wingman-product-tool-art="true"]
+  svg {
+  shape-rendering: geometricPrecision !important;
+}
+
+html body
+  [data-wingman-product-tool-card="true"]
+  [data-wingman-product-tool-art="true"]
+  svg :is(
+    path,
+    line,
+    polyline,
+    polygon,
+    circle,
+    ellipse,
+    rect
+  ),
+html body
+  [data-wingman-product-tool-card="true"]
+  svg[data-wingman-product-tool-art="true"] :is(
+    path,
+    line,
+    polyline,
+    polygon,
+    circle,
+    ellipse,
+    rect
+  ) {
+  vector-effect: non-scaling-stroke !important;
+  stroke-width: 1px !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+/* Prevent inherited or component-level stroke rules from making the
+   decorative SVG heavier again. */
+html body
+  [data-wingman-product-tool-card="true"]
+  svg[data-wingman-product-tool-art="true"],
+html body
+  [data-wingman-product-tool-card="true"]
+  [data-wingman-product-tool-art="true"]
+  svg {
+  stroke-width: 1px !important;
+}
+/* WINGMAN_PRODUCT_TOOL_THIN_STROKES_END */

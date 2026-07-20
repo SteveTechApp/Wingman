@@ -252,7 +252,7 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
 
   const requiredProductsLine = proposal.products.length
     ? escapeHtml(proposal.products.map((product: StoredProductSelection) => `${product.sku} - ${product.title || product.family || product.category || "Selected product"}`).join("; "))
-    : "No WyreStorm product shortlist has been added yet - Recommendation: open Product Finder or a room template before this is issued as a customer proposal.";
+    : "No WyreStorm product shortlist has been added yet - Recommendation: open Recommendations or a room template before this is issued as a customer proposal.";
 
   const optionalRows = bomRows.filter((row) => row.type === "Optional");
   const risksAndDependencies = [...(proposal.governanceWarnings ?? []), ...(proposal.validationNotes ?? [])];

@@ -89,7 +89,7 @@ function projectHas(project: StoredProject | null | undefined, terms: string[]):
 
 /**
  * Pools real SKUs from every place a project tracks a product selection:
- * Product Finder selections, the proposal's own product list, BOM rows and
+ * Recommendations selections, the proposal's own product list, BOM rows and
  * governed dependencies. Deduplicated by SKU, "TBC" placeholder rows
  * dropped. This mirrors collectProducts() in diagramTemplates.ts without
  * importing from that (legacy) file.

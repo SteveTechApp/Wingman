@@ -46,7 +46,6 @@ const transientStoragePrefixes = [
   "wingman-workflow-",
   "wingman-discovery-",
   "wingman-proposal-draft",
-  "wingman-finder-draft",
   "wingman-room-draft",
   "wingman-brief-draft",
 ];
@@ -125,8 +124,8 @@ const GURU_SUPPORT_BY_ROUTE: Partial<Record<WingmanRouteKey, GuruSupportCue>> = 
       "What architecture questions matter most here?",
     ],
   },
-  finder: {
-    label: "Product guidance ready",
+  recommendations: {
+    label: "Recommendation guidance ready",
     summary: "Guru can explain what a product actually does in a system, where it fits, and what should be confirmed before it is shortlisted.",
     prompts: [
       "Explain where this WyreStorm product fits in a real system.",

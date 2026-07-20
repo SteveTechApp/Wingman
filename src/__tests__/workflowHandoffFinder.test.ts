@@ -12,7 +12,7 @@ function brief(roomModel: Record<string, unknown>): StoredDiscoveryBrief {
   } as StoredDiscoveryBrief;
 }
 
-describe("Discovery to Finder handoff", () => {
+describe("Discovery to Recommendations handoff", () => {
   it("normalises a complete hospitality brief into Finder option values without turning its narrative into a product search", () => {
     const draft = discoveryBriefToFinderNeed(brief({
       roomType: "Hospitality / bar / venue",

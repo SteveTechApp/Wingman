@@ -24,24 +24,6 @@ const manufacturers = [
   "Sony"
 ];
 
-const skuSignatures: Record<string, string[]> = {
-  Extron: ["DTP2 R 211", "DTP2 T 211", "DTP3 R 201", "IN1608 xi", "NAV D 101", "NAV E 101"],
-  Atlona: ["AT-OME", "AT-UHD", "AT-HDVS", "AT-AVA", "OME-EX"],
-  Lightware: ["LBN-", "UCX-", "MMX", "VINX", "TPX"],
-  Blustream: ["IP250", "IP300", "HEX", "HMXL", "PRO8"],
-  Crestron: ["DM-NVX", "DM-TX", "DM-RMC", "HD-RX", "HD-TX"],
-  Kramer: ["WP-", "TP-", "VIA", "VS-", "VM-"],
-  ZeeVee: ["ZyPer", "Zyper", "ZV"],
-  "AVPro Edge": ["AC-MX", "AC-EX", "MXNET"],
-  Barco: ["ClickShare", "CX-", "C-", "S3", "E2"],
-  "Barco ClickShare": ["CX-20", "CX-30", "CX-50", "C-5", "C-10"],
-  Airtame: ["Airtame"],
-  BirdDog: ["BirdDog", "P200", "P240", "X1"],
-  Marshall: ["CV", "ML-"],
-  Mersive: ["Solstice"],
-  Sony: ["SRG", "BRC", "REA"]
-};
-
 type WindowWithCompareAssist = Window &
   typeof globalThis & {
     __wmCompareManufacturerAssistInstalled?: boolean;
@@ -131,74 +113,6 @@ function setSelectedManufacturer(manufacturer: string): void {
   document.documentElement.dataset.wmCompareSelectedManufacturer = clean;
 }
 
-function readSelectedBrandLine(): string | null {
-  const pageText = normaliseText(document.body?.textContent ?? "");
-  const match = pageText.match(/Selected brand:\s*([A-Za-z0-9\s+\-_.&/]+)/i);
-
-  return cleanManufacturer(match?.[1]);
-}
-
-function readManufacturerInputValue(): string | null {
-  const inputs = Array.from(document.querySelectorAll<HTMLInputElement>("input"));
-
-  for (const input of inputs) {
-    const value = cleanManufacturer(input.value);
-
-    if (!value) {
-      continue;
-    }
-
-    const containerText = normaliseText(
-      input.closest("label, section, article, div")?.textContent ?? ""
-    ).toLowerCase();
-
-    if (containerText.includes("manufacturer") || containerText.includes("competitor brand")) {
-      return value;
-    }
-  }
-
-  return null;
-}
-
-function inferManufacturerFromSkuStep(): string | null {
-  const pageText = normaliseText(document.body?.textContent ?? "");
-
-  if (!pageText.toLowerCase().includes("known skus for selected brand")) {
-    return null;
-  }
-
-  const matches = Object.entries(skuSignatures)
-    .map(([manufacturer, signatures]) => {
-      const score = signatures.reduce((count, signature) => {
-        return pageText.toLowerCase().includes(signature.toLowerCase()) ? count + 1 : count;
-      }, 0);
-
-      return { manufacturer, score };
-    })
-    .filter((item) => item.score > 0)
-    .sort((a, b) => b.score - a.score);
-
-  return matches[0]?.manufacturer ?? null;
-}
-
-function getSelectedManufacturer(): string | null {
-  /*
-    Current page state must win over session storage.
-    This prevents stale cases such as selecting Extron while the badge still shows Atlona.
-  */
-  const current =
-    inferManufacturerFromSkuStep() ??
-    readSelectedBrandLine() ??
-    readManufacturerInputValue();
-
-  if (current) {
-    setSelectedManufacturer(current);
-    return current;
-  }
-
-  return cleanManufacturer(window.sessionStorage.getItem(SELECTED_MANUFACTURER_KEY));
-}
-
 function removeManufacturerBadge(): void {
   document.querySelectorAll(`.${BADGE_CLASS}`).forEach((badge) => badge.remove());
 }
@@ -211,40 +125,6 @@ function findNextProductButton(): HTMLElement | null {
       const text = getActionText(action).toLowerCase();
 
       return text.includes("next") && text.includes("choose") && text.includes("competitor product");
-    }) ?? null
-  );
-}
-
-function findSkuStepTarget(): HTMLElement | null {
-  const pageText = normaliseText(document.body?.textContent ?? "").toLowerCase();
-
-  if (!pageText.includes("known skus for selected brand") && !pageText.includes("competitor sku")) {
-    return null;
-  }
-
-  const headings = Array.from(document.querySelectorAll<HTMLElement>("h1, h2, h3"));
-
-  const productHeading = headings.find((heading) => {
-    const text = normaliseText(heading.textContent).toLowerCase();
-
-    return (
-      text.includes("choose competitor product") ||
-      text.includes("competitor product") ||
-      text.includes("choose competitor sku")
-    );
-  });
-
-  if (productHeading) {
-    return productHeading.closest("section, article, div") as HTMLElement | null;
-  }
-
-  const candidates = Array.from(document.querySelectorAll<HTMLElement>("section, article, div"));
-
-  return (
-    candidates.find((candidate) => {
-      const text = normaliseText(candidate.textContent).toLowerCase();
-
-      return text.includes("known skus for selected brand") || text.includes("competitor sku");
     }) ?? null
   );
 }

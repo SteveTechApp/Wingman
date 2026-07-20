@@ -4,7 +4,7 @@ import process from "node:process";
 
 const repoRoot = process.cwd();
 const indexPath = path.join(repoRoot, "public", "product-intelligence-index.json");
-const finderPagePath = path.join(repoRoot, "src", "wingman2", "pages", "FinderPage.tsx");
+const selectorEnginePath = path.join(repoRoot, "src", "wingman2", "lib", "productSelectorEngine.ts");
 
 const neutralValues = new Set(["", "unknown", "no audio requirement", "no processing", "no control", "not required"]);
 
@@ -104,33 +104,24 @@ function readProducts() {
   return products;
 }
 
-function verifyLiveFinderMatching() {
-  if (!fs.existsSync(finderPagePath)) {
-    throw new Error(`Missing live Finder page: ${path.relative(repoRoot, finderPagePath)}`);
+function verifySharedSelectorMatching() {
+  if (!fs.existsSync(selectorEnginePath)) {
+    throw new Error(`Missing shared product selector engine: ${path.relative(repoRoot, selectorEnginePath)}`);
   }
 
-  const finderPage = fs.readFileSync(finderPagePath, "utf8");
-  const expectedFunctions = [
-    "getActiveFeatureFilters",
-    "toFeatureSearchMatch",
-    "isAllowedFeatureSearchProduct",
-    "productSupportsIoCount",
-    "expectedProductPathForRequirement",
+  const selectorEngine = fs.readFileSync(selectorEnginePath, "utf8");
+  const requiredMarkers = [
+    "export function selectWingmanProducts",
+    "export async function loadWingmanProductSelectorDecisions",
+    "isWingmanProductEligibleForFinderNeed",
+    "loadProductIntelligenceIndex",
+    '| "recommendations"',
   ];
-  const missingFunctions = expectedFunctions.filter((name) => !finderPage.includes(`function ${name}`));
 
-  if (missingFunctions.length) {
-    throw new Error(`Live Finder product matching is missing expected function(s): ${missingFunctions.join(", ")}`);
-  }
+  const missingMarkers = requiredMarkers.filter((marker) => !selectorEngine.includes(marker));
 
-  for (const marker of [
-    "const featureFilters = getActiveFeatureFilters(need)",
-    "isAllowedFeatureSearchProduct(product, need)",
-    "toFeatureSearchMatch(product,",
-  ]) {
-    if (!finderPage.includes(marker)) {
-      throw new Error(`Live Finder product matching is missing usage marker: ${marker}`);
-    }
+  if (missingMarkers.length) {
+    throw new Error(`Shared product selector engine is missing marker(s): ${missingMarkers.join(", ")}`);
   }
 }
 
@@ -307,7 +298,7 @@ const scenarios = [
 ];
 
 try {
-  verifyLiveFinderMatching();
+  verifySharedSelectorMatching();
   const products = readProducts();
   const results = scenarios.map((scenario) => runScenario(products, scenario));
   const failures = results.filter((result) => !result.passed);

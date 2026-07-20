@@ -233,7 +233,7 @@ export function ProjectDetailPage() {
       {
         label: "Product direction",
         value: recommendationEvidence?.productDirection || "Not selected",
-        detail: recommendationEvidence?.systemShape || "Use Finder or Product Pitch to create a safer product direction.",
+        detail: recommendationEvidence?.systemShape || "Use Recommendations or Product Positioning to create a safer product direction.",
       },
       {
         label: "Compare evidence",
@@ -289,7 +289,7 @@ export function ProjectDetailPage() {
           recommendationEvidence.nextBestQuestion ||
           "Recommendation evidence exists but needs review.",
         timestamp: formatProjectTimestamp(recommendationEvidence.updatedAt),
-        route: routeCatalogByKey.finder.path,
+        route: routeCatalogByKey.recommendations.path,
       });
     }
 
@@ -708,7 +708,7 @@ export function ProjectDetailPage() {
                 <Link to={routeCatalogByKey.discovery.path} className="rounded-full border px-4 py-2 text-sm font-semibold text-[#edf6ff] wm-ui-card wm-ui-copy">
                   Discovery
                 </Link>
-                <Link to={routeCatalogByKey.finder.path} className="rounded-full border px-4 py-2 text-sm font-semibold text-[#edf6ff] wm-ui-card wm-ui-copy">
+                <Link to={routeCatalogByKey.recommendations.path} className="rounded-full border px-4 py-2 text-sm font-semibold text-[#edf6ff] wm-ui-card wm-ui-copy">
                   Finder
                 </Link>
                 <Link to={routeCatalogByKey.compare.path} className="rounded-full border px-4 py-2 text-sm font-semibold text-[#edf6ff] wm-ui-card wm-ui-copy">
@@ -955,7 +955,7 @@ export function ProjectDetailPage() {
                 <Link to={routeCatalogByKey.discovery.path} className="rounded-full border px-4 py-2 text-sm font-semibold wm-ui-card wm-ui-copy">
                   Discovery
                 </Link>
-                <Link to={routeCatalogByKey.finder.path} className="rounded-full border px-4 py-2 text-sm font-semibold wm-ui-card wm-ui-copy">
+                <Link to={routeCatalogByKey.recommendations.path} className="rounded-full border px-4 py-2 text-sm font-semibold wm-ui-card wm-ui-copy">
                   Finder
                 </Link>
                 <Link to={routeCatalogByKey.compare.path} className="rounded-full border px-4 py-2 text-sm font-semibold wm-ui-card wm-ui-copy">

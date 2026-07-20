@@ -1,4 +1,4 @@
-﻿import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -101,7 +101,7 @@ function addFinding(findings, severity, area, title, detail, evidence = []) {
 
 const files = {
   comparePage: "src/wingman2/pages/ComparePage.tsx",
-  finderPage: "src/wingman2/pages/FinderPage.tsx",
+  recommendationsPage: "src/wingman2/pages/RecommendationsPage.tsx",
   productPitchPage: "src/wingman2/pages/ProductPitchPage.tsx",
   discoveryPage: "src/wingman2/pages/DiscoveryPage.tsx",
   competitorDecision: "src/wingman2/lib/competitorCompareDecision.ts",
@@ -112,7 +112,7 @@ const files = {
 };
 
 const compare = read(files.comparePage);
-const finder = read(files.finderPage);
+const recommendations = read(files.recommendationsPage);
 const productPitch = read(files.productPitchPage);
 const discovery = read(files.discoveryPage);
 const competitorDecision = read(files.competitorDecision);
@@ -228,13 +228,13 @@ if (hasAny(compare, [".sort(", "matchScore", "fitScore", "FIT SCORE"]) && !has(c
   );
 }
 
-if (!has(finder, "product-intelligence-index") && !has(finder, "matchProducts")) {
+if (!has(recommendations, "product-intelligence-index") && !has(recommendations, "matchProducts")) {
   addFinding(
     findings,
     "medium",
-    "FinderPage",
-    "Finder engine routing is unclear",
-    "Finder should route through governed product-matching logic rather than page-local filtering only."
+    "RecommendationsPage",
+    "Recommendation engine routing is unclear",
+    "Recommendations must route through the shared governed product selector."
   );
 }
 

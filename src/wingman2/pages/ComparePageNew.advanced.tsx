@@ -4969,8 +4969,9 @@ function ComparePageNew() {
         ACTIVE_WYRESTORM_PRODUCTS = mergeRealWyrestormCatalog(WYRESTORM_PRODUCTS, realCandidates);
         setCatalogVersion((version) => version + 1);
       })
-      .catch(() => {
+      .catch((error) => {
         // Non-fatal: the built-in WyreStorm product set still drives comparison.
+        console.error("[wingman] ComparePage: real WyreStorm catalogue load failed, using built-in set", error);
       });
 
     return () => {

@@ -18,7 +18,7 @@ import {
 import { resolveWyrestormSkuAlias } from "../lib/skuAliasResolver";
 import { getProductCallCommercialOverride } from "../lib/productCallCommercialOverrides";
 import { selectWingmanProducts } from "../lib/productSelectorEngine";
-import { isSkuAdminBlocked } from "../lib/adminProductOverrides";
+import { useDebouncedValue } from "../lib/useDebouncedValue";
 import { getCompetitorLandscape } from "../lib/competitorLandscape";
 import {
   DEFAULT_SALES_CONVERSATION_TONE_ID,
@@ -1829,6 +1829,7 @@ export default function ProductCallCardsPage() {
   const [products, setProducts] = useState<ProductCard[]>([]);
   const [isFallback, setIsFallback] = useState(false);
   const [query, setQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(query);
   const [activeFamily, setActiveFamily] = useState("All");
   const [activeQuickFinder, setActiveQuickFinder] = useState("All");
   const [selectedSku, setSelectedSku] = useState(pathSku);
@@ -1889,14 +1890,14 @@ return () => {
 
     const governedProducts = selectWingmanProducts(products, {
       mode: "call-card",
-      query,
+      query: debouncedQuery,
       includeBrowseOnly: true,
     })
       .filter((decision) => decision.eligible)
       .map((decision) => decision.product);
 
     governedProducts
-      .filter((product) => productPresentationMatches(product, query, activeFamily, "All"))
+      .filter((product) => productPresentationMatches(product, debouncedQuery, activeFamily, "All"))
       .forEach((product) => {
         const firstSkuChar = product.sku.charAt(0).toUpperCase();
 
@@ -1911,7 +1912,7 @@ return () => {
       });
 
     return available;
-  }, [products, query, activeFamily]);
+  }, [products, debouncedQuery, activeFamily]);
 
   useEffect(() => {
     if (activeQuickFinder === "All") {
@@ -1928,14 +1929,14 @@ return () => {
   const filteredProducts = useMemo(() => {
     const governedProducts = selectWingmanProducts(products, {
       mode: "call-card",
-      query,
+      query: debouncedQuery,
       includeBrowseOnly: true,
     })
       .filter((decision) => decision.eligible)
       .map((decision) => decision.product);
 
-    return governedProducts.filter((product) => productPresentationMatches(product, query, activeFamily, activeQuickFinder));
-  }, [products, query, activeFamily, activeQuickFinder]);
+    return governedProducts.filter((product) => productPresentationMatches(product, debouncedQuery, activeFamily, activeQuickFinder));
+  }, [products, debouncedQuery, activeFamily, activeQuickFinder]);
 
   const pageCount = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
   const safePageIndex = Math.min(pageIndex, pageCount - 1);

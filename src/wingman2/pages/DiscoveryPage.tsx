@@ -2,6 +2,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { saveDiscoveryBriefToProject, type StoredDiscoveryBrief } from "../data/projectStore";
+import {
+  clearLatestDiscoverySnapshot,
+  readLatestDiscoverySnapshot,
+  writeLatestDiscoverySnapshot,
+} from "../data/workflowHandoff";
 import { buildDiscoveryRecommendationEvidence } from "../lib/recommendationEvidence";
 import TemplateDiscoverySeedPanel from "../components/TemplateDiscoverySeedPanel";
 import { createBlankCustomRoomTemplate, saveCustomRoomTemplate } from "../lib/customRoomTemplates";
@@ -814,19 +819,18 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
   },
   {
     id: "locations-connections",
-    shortLabel: "Room layout (optional)",
+    shortLabel: "Positions & distance",
     section: "Room layout & cabling",
-    optional: true,
-    question: "Where are the devices, and how do they connect?",
-    prompt: "This is the advanced, detailed part — it's optional. Wingman has already built a starting layout from your earlier answers below; review it if you know the room, or skip it and add the detail later.",
-    why: "A device-by-device topology is more reliable than one overall distance because video, USB, control, audio, fibre and network paths can have different limits.",
-    required: false,
-    capturePlaceholder: "Example: Sources in room rack, main display at front wall, camera at ceiling; rack-to-display route approximately 18m.",
+    question: "Where is the equipment, and how far must signals travel?",
+    prompt: "Choose broad room positions, the longest video route and the likely cable path. Exact measurements can be confirmed during the site survey.",
+    why: "Wingman can use simple distance bands to identify when direct cables, HDBaseT, fibre, AV-over-IP or separate USB extension should be considered.",
+    required: true,
+    capturePlaceholder: "Example: Sources in a local rack, displays across a large room, ceiling route approximately 25–50m, USB camera at the front wall.",
     options: [
       {
         value: "topology-captured",
-        label: "Devices and paths captured",
-        help: "The device locations, signal paths, transport types and length status have been reviewed.",
+        label: "Room positions and distances captured",
+        help: "Broad route estimates are stored for cable, extender and architecture checks.",
       },
     ],
   },
@@ -1397,9 +1401,24 @@ function wmDiscoveryFilterUnifiedCommsQuestions(
 // WINGMAN_DISCOVERY_UNIFIED_COMMS_VISIBILITY_END
 
 export function DiscoveryPage() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [answers, setAnswers] = useState<DiscoveryAnswers>({});
-  const [notes, setNotes] = useState<DiscoveryNotes>({});
+  // Restoring an in-progress Discovery draft (autosaved as the customer talks) so
+  // navigating away and back - or a refresh mid-call - never throws the captured
+  // answers away. An explicit "Reset discovery" clears this snapshot.
+  const [discoveryDraft] = useState(() => readLatestDiscoverySnapshot());
+  const draftState = discoveryDraft?.state ?? {};
+  const draftField = (key: string) => {
+    const value = draftState[key];
+    return typeof value === "string" ? value : "";
+  };
+
+  const [activeIndex, setActiveIndex] = useState(() => discoveryDraft?.activeStepIndex ?? 0);
+  const [isReviewingAnswers, setIsReviewingAnswers] = useState(false);
+  const [answers, setAnswers] = useState<DiscoveryAnswers>(
+    () => (draftState.answers as DiscoveryAnswers | undefined) ?? {},
+  );
+  const [notes, setNotes] = useState<DiscoveryNotes>(
+    () => (draftState.notes as DiscoveryNotes | undefined) ?? {},
+  );
   const [topology, setTopology] = useState<ProjectTopology>(() => {
     const stored = readDiscoveryTopology();
     return projectTopologyHasContent(stored) ? stored : createBlankProjectTopology();
@@ -1415,11 +1434,11 @@ export function DiscoveryPage() {
   const [sourceTemplateId, setSourceTemplateId] = useState<string | undefined>(undefined);
   const [sourceTemplateName, setSourceTemplateName] = useState<string | undefined>(undefined);
   const [templateSavedMessage, setTemplateSavedMessage] = useState("");
-  const [clientName, setClientName] = useState("");
-  const [contactName, setContactName] = useState("");
-  const [siteName, setSiteName] = useState("");
-  const [budgetLevel, setBudgetLevel] = useState("");
-  const [timeline, setTimeline] = useState("");
+  const [clientName, setClientName] = useState(() => draftField("clientName"));
+  const [contactName, setContactName] = useState(() => draftField("contactName"));
+  const [siteName, setSiteName] = useState(() => draftField("siteName"));
+  const [budgetLevel, setBudgetLevel] = useState(() => draftField("budgetLevel"));
+  const [timeline, setTimeline] = useState(() => draftField("timeline"));
   const navigate = useNavigate();
 
   const recogniserRef = useRef<DiscoverySpeechRecognitionLike | null>(null);
@@ -1433,23 +1452,6 @@ export function DiscoveryPage() {
     [selectedApplication, answers],
   );
 
-  // Group the flat question list into named phases so an inexperienced user
-  // always knows roughly where they are and how much is left, instead of
-  // facing one undifferentiated list of 11-12 questions.
-  const discoveryPhases = useMemo(() => {
-    const order: string[] = [];
-    const grouped = new Map<string, DiscoveryQuestion[]>();
-
-    discoveryQuestions.forEach((step) => {
-      if (!grouped.has(step.section)) {
-        order.push(step.section);
-        grouped.set(step.section, []);
-      }
-      grouped.get(step.section)?.push(step);
-    });
-
-    return order.map((name) => ({ name, steps: grouped.get(name) ?? [] }));
-  }, [discoveryQuestions]);
 
   const activeStepIdRef = useRef(discoveryQuestions[0]?.id ?? "");
   
@@ -1467,11 +1469,6 @@ export function DiscoveryPage() {
   const completionPanelRef = useRef<HTMLElement | null>(null);
 
   const currentStep = discoveryQuestions[Math.min(activeIndex, Math.max(discoveryQuestions.length - 1, 0))];
-  const currentPhaseIndex = Math.max(0, discoveryPhases.findIndex((phase) => phase.name === currentStep.section));
-  const currentPhase = discoveryPhases[currentPhaseIndex];
-  const currentPhaseAnsweredCount = currentPhase
-    ? currentPhase.steps.filter((step) => wmDiscoveryHasAnswer(answers[step.id])).length
-    : 0;
   const currentStepView = getQuestionView(currentStep, selectedApplication);
   const currentAnswer = answers[currentStep.id] ?? "";
   const currentNote = notes[currentStep.id] ?? "";
@@ -1488,6 +1485,7 @@ export function DiscoveryPage() {
   const isFirstStep = activeIndex === 0;
   const isLastStep = activeIndex === discoveryQuestions.length - 1;
   const isDiscoveryComplete = discoveryQuestions.length > 0 && answeredCount === discoveryQuestions.length;
+  const showCompletionPanel = isDiscoveryComplete && !isReviewingAnswers;
 
   const capturedSummary = useMemo(() => {
     return discoveryQuestions
@@ -1501,6 +1499,27 @@ export function DiscoveryPage() {
         };
       });
   }, [answers, notes, selectedApplication, discoveryQuestions]);
+
+  // Autosave the in-progress draft so it survives navigation away from Discovery
+  // without an explicit "Save to project" click. Skipped until something has
+  // actually been captured, so merely opening the page doesn't manufacture a
+  // brief for Recommendations to pick up.
+  useEffect(() => {
+    if (answeredCount === 0 && Object.keys(notes).length === 0) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      writeLatestDiscoverySnapshot({
+        activeStepIndex: activeIndex,
+        state: { answers, notes, clientName, contactName, siteName, budgetLevel, timeline },
+        brief: buildDiscoveryBrief(),
+        savedAt: "",
+      });
+    }, 400);
+
+    return () => window.clearTimeout(timeout);
+  }, [answeredCount, activeIndex, answers, notes, clientName, contactName, siteName, budgetLevel, timeline]);
 
   useEffect(() => {
     setActiveIndex((current) => Math.min(current, Math.max(discoveryQuestions.length - 1, 0)));
@@ -1865,6 +1884,7 @@ export function DiscoveryPage() {
     window.sessionStorage.removeItem("wingman:template-discovery-seed");
     window.sessionStorage.removeItem("wingman:template-discovery-seed-updated");
     clearDiscoveryHandoff();
+    clearLatestDiscoverySnapshot();
 
     setIsListening(false);
     setMicError("");
@@ -1873,6 +1893,7 @@ export function DiscoveryPage() {
     clearDiscoveryTopology();
     setTopology(createBlankProjectTopology());
     setActiveIndex(0);
+    setIsReviewingAnswers(false);
     setSavedMessage("");
     setDiscoveryMode("standard");
     setTemplateEditId(undefined);
@@ -2221,9 +2242,9 @@ export function DiscoveryPage() {
     navigate(routeCatalogByKey.templates.path);
   }
 
-  function moveForward(target: "finder" | "proposal"): void {
+  function moveForward(target: "recommendations" | "proposal"): void {
     saveDiscoveryBriefToProject(buildDiscoveryBrief());
-    navigate(target === "proposal" ? routeCatalogByKey.proposal.path : routeCatalogByKey.finder.path);
+    navigate(target === "proposal" ? routeCatalogByKey.proposal.path : routeCatalogByKey.recommendations.path);
   }
 
   function toggleMicrophone(): void {
@@ -2404,65 +2425,7 @@ return (
         </section>
       ) : null}
 
-      <section className="wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Discovery trail">
-        <div className="wm-discovery-trail-topline">
-          <span>Discovery trail</span>
-          <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={resetDiscovery}>
-            Reset discovery
-          </button>
-        </div>
-
-        {currentPhase && (
-          <p className="wm-discovery-phase-line wm-ui-copy">
-            Phase {currentPhaseIndex + 1} of {discoveryPhases.length} — {currentPhase.name}
-            <span className="wm-discovery-phase-count">
-              {" "}({currentPhaseAnsweredCount} / {currentPhase.steps.length} answered in this phase)
-            </span>
-            {currentStep.optional && <span className="wm-discovery-optional-tag"> Optional — safe to skip</span>}
-          </p>
-        )}
-
-        <div className="wm-discovery-progress-bar" aria-hidden="true">
-          <span style={{ width: `${completionPercent}%` }} />
-        </div>
-
-        <div className="wm-discovery-step-pills wm-ui-card">
-          {discoveryPhases.map((phase) => (
-            <div className="wm-discovery-step-pill-group" key={phase.name}>
-              <p className="wm-discovery-section-heading">
-                {phase.name}
-                {phase.steps.every((step) => step.optional) && " (optional)"}
-              </p>
-              {phase.steps.map((step) => {
-                const index = discoveryQuestions.indexOf(step);
-                const answer = answers[step.id];
-                const isActive = index === activeIndex;
-                const isCaptured = Boolean(answer);
-
-                return (
-                  <button
-                    key={step.id}
-                    type="button"
-                    className={[
-                      "wm-discovery-step-pill",
-                      isActive ? "is-active" : "",
-                      isCaptured ? "is-captured" : "",
-                    ].join(" ")}
-                    onClick={() => setActiveIndex(index)}
-                    aria-current={isActive ? "step" : undefined}
-                  >
-                    <span>{index + 1}</span>
-                    <strong>{step.shortLabel}</strong>
-                    {isCaptured && <small>{getOptionLabel(step, answer, selectedApplication)}</small>}
-                  </button>
-                );
-              })}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {isDiscoveryComplete ? (
+      {showCompletionPanel ? (
         <section
           ref={completionPanelRef}
           className="wm-discovery-finish-card wm-ui-section wm-ui-card wm-ui-title"
@@ -2477,13 +2440,23 @@ return (
           </p>
 
           <div className="wm-discovery-capture-actions wm-discovery-finish-actions">
-            <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => moveForward("finder")}>Next: find matching products</button>
+            <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => moveForward("recommendations")}>Next: find matching products</button>
             <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={() => moveForward("proposal")}>Build proposal</button>
+            <button
+              className="wm-ui-button wm-ui-button-secondary"
+              type="button"
+              onClick={() => {
+                setActiveIndex(Math.max(discoveryQuestions.length - 1, 0));
+                setIsReviewingAnswers(true);
+              }}
+            >
+              Review answers
+            </button>
             <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={saveDiscoveryToProject}>Save to project</button>
           </div>
 
           <p className="wm-discovery-finish-review wm-ui-copy">
-            Need to amend something? Select any completed stage in the Discovery trail above; every answer remains editable.
+            Need to amend something? Select Review answers, then use Previous and Continue to move through the captured brief.
           </p>
 
           {savedMessage && <p className="wm-discovery-muted-note wm-ui-copy">{savedMessage}</p>}
@@ -2491,8 +2464,39 @@ return (
       ) : (
       <div className="wm-discovery-question-layout">
         <section className="wm-discovery-question-card wm-ui-section wm-ui-card">
+          {/* WINGMAN_DISCOVERY_COMPACT_NAV_START */}
+          <div className="wm-discovery-compact-stepbar" aria-label="Discovery progress and controls">
+            <div className="wm-discovery-compact-step-copy">
+              <strong>Step {activeIndex + 1} of {discoveryQuestions.length}</strong>
+              <span>
+                {currentStep.section}
+                {currentStep.optional ? " · Optional" : ""}
+              </span>
+            </div>
+
+            <div className="wm-discovery-compact-step-actions">
+              {isReviewingAnswers && (
+                <button
+                  className="wm-ui-button wm-ui-button-secondary"
+                  type="button"
+                  onClick={() => setIsReviewingAnswers(false)}
+                >
+                  Back to completion
+                </button>
+              )}
+              <button
+                className="wm-ui-button wm-ui-button-secondary"
+                type="button"
+                onClick={resetDiscovery}
+              >
+                Reset discovery
+              </button>
+            </div>
+          </div>
+          {/* WINGMAN_DISCOVERY_COMPACT_NAV_END */}
+
           <div className="wm-discovery-question-heading wm-ui-title">
-            <span>{activeIndex + 1} / {discoveryQuestions.length}</span>
+            <span>{currentStep.shortLabel}</span>
             <h2 className="wm-ui-title">{currentStepView.question}</h2>
             <p className="wm-ui-copy">{currentStepView.prompt}</p>
             {wmDiscoveryIsMultiSelectStep(currentStep) && (
@@ -2700,7 +2704,3 @@ return (
 }
 
 export default DiscoveryPage;
-
-
-
-

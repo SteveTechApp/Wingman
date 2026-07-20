@@ -42,7 +42,7 @@ describe("shared product selector consistency", () => {
       query: "NetworkHD 500",
       technicalRequirement: "Need a source-side encoder transmitter for NetworkHD 500",
     };
-    const modes = ["finder", "product-pitch", "call-card", "compare", "embedded"] as const;
+    const modes = ["finder", "recommendations", "product-pitch", "call-card", "compare", "embedded"] as const;
 
     const leadSets = modes.map((mode) =>
       selectWingmanProducts(products, { mode, ...request })
@@ -60,7 +60,7 @@ describe("shared product selector consistency", () => {
   it("keeps the primary selector consumers wired to the shared engine", () => {
     expect(readSource("src/wingman2/pages/ProductPitchPage.tsx")).toMatch(/productSelectorEngine/);
     expect(readSource("src/wingman2/pages/ProductCallCardsPage.tsx")).toMatch(/productSelectorEngine/);
-    expect(readSource("src/wingman2/pages/FinderPage.tsx")).toMatch(/productSelectorEngine/);
+    expect(readSource("src/wingman2/pages/RecommendationsPage.tsx")).toMatch(/productSelectorEngine/);
     expect(readSource("src/wingman2/pages/CatalogBrowserPage.tsx")).toMatch(/productSelectorEngine/);
     expect(readSource("src/wingman2/lib/compareEligibilityEngine.ts")).toMatch(/productSelectorEngine/);
   });

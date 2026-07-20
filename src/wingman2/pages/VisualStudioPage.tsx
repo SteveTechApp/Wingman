@@ -68,8 +68,9 @@ export default function VisualStudioPage() {
           setProductIntelligenceIndex(index);
         }
       })
-      .catch(() => {
+      .catch((error) => {
         if (!cancelled) {
+          console.error("[wingman] VisualStudio: product intelligence index load failed", error);
           setProductIntelligenceIndex(null);
         }
       });

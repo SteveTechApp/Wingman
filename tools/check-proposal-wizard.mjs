@@ -48,7 +48,7 @@ const css = read("Proposal wizard CSS", files.css);
   "Export formatted DOCX",
   "computeProposalReadiness",
   "saveProjectProposalToProject",
-  "Open Product Finder",
+  "Open Recommendations",
 ].forEach((marker) =>
   requireMarker("ProposalCompletionWizard.tsx", component, marker),
 );

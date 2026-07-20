@@ -18,9 +18,9 @@
   {
     "routeKey": "products",
     "status": "wired",
-    "summary": "Products groups Finder, Product Families, Product Call Cards, Product Pitch, attach-product flow and follow-up wording under one SKU/product intent.",
+    "summary": "Products groups Recommendations, Product Families, Product Call Cards, Product Pitch, attach-product flow and follow-up wording under one SKU/product intent.",
     "needed": [
-      "Add deeper cross-filtering between Finder results and Product Call Card data."
+      "Add deeper cross-filtering between Recommendations results and Product Call Card data."
     ]
   },
   {
@@ -100,20 +100,19 @@
     ]
   },
   {
+    "routeKey": "recommendations",
+    "status": "wired",
+    "summary": "Recommendations converts the completed Discovery brief into a governed WyreStorm shortlist without running a second discovery questionnaire.",
+    "needed": [
+      "Continue expanding approved product capability and dependency evidence while keeping all recommendation logic in the shared selector engine."
+    ]
+  },
+  {
     "routeKey": "salesHelper",
     "status": "wired",
     "summary": "Sales Helper now includes project-aware guided rep mode with readiness scoring, sales-motion guidance, and escalation guidance alongside static positioning and objection cards.",
     "needed": [
       "Tie objection handling to the matched product family or competitor profile."
-    ]
-  },
-  {
-    "routeKey": "finder",
-    "status": "partial",
-    "summary": "Finder loads the generated product intelligence index, scores WyreStorm products client-side, stores evidence/caution notes with selected products, and keeps standalone shortlists separate from explicit project product selections.",
-    "needed": [
-      "Bind shortlist generation more deeply to discovery inputs and saved project context.",
-      "Add accessory logic and family-level recommendation reasoning."
     ]
   },
   {
@@ -191,7 +190,7 @@
   {
     "routeKey": "visualDesign",
     "status": "wired",
-    "summary": "Visual Design Studio generates guided Mermaid diagrams from project, discovery, Finder, Compare, and Proposal data so reps can copy editable diagrams into Whimsical without a direct API integration.",
+    "summary": "Visual Design Studio generates guided Mermaid diagrams from project, discovery, Recommendations, Compare, and Proposal data so reps can copy editable diagrams into Whimsical without a direct API integration.",
     "needed": [
       "Add rendered Mermaid preview and save generated diagram variants back to projects.",
       "Add approved diagram themes once Whimsical or slide export integration is introduced."
@@ -202,7 +201,7 @@
     "status": "partial",
     "summary": "Visual Studio renders native AV schematic and customer concept graphics from Wingman-ready sample scenarios, with technical/customer modes, assumptions, missing information, quote risks, and next actions.",
     "needed": [
-      "Connect diagram generation directly to saved Discovery, Finder, Compare, Product Pitch, and Proposal data.",
+      "Connect diagram generation directly to saved Discovery, Recommendations, Compare, Product Pitch, and Proposal data.",
       "Add save/export lifecycle and approved visual review before customer issue."
     ]
   },
@@ -211,7 +210,7 @@
     "status": "wired",
     "summary": "AV Glossary gives sales users a searchable reference for common AV terms, acronyms, and technologies with role-specific customer, partner, and consultant wording.",
     "needed": [
-      "Allow glossary terms to be surfaced inline from Finder, Proposal, and Sales Strategy pages.",
+      "Allow glossary terms to be surfaced inline from Recommendations, Proposal, and Sales Strategy pages.",
       "Add product-manager approval metadata for glossary copy revisions."
     ]
   }
