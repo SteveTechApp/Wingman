@@ -80,6 +80,16 @@ function mapDistance(value: unknown) {
   if (includesAny(run, ["10-35m"])) return "Medium 10-35m";
   if (includesAny(run, ["35-70m"])) return "Long 35-70m";
   if (includesAny(run, ["70-100m", "100m+"])) return "Very long 70-100m";
+
+  const metres = Number.parseFloat(run.replace(/[^0-9.]/g, ""));
+  if (Number.isFinite(metres) && metres > 0) {
+    if (metres < 5) return "Local <5m";
+    if (metres <= 10) return "Short 5-10m";
+    if (metres <= 35) return "Medium 10-35m";
+    if (metres <= 70) return "Long 35-70m";
+    return "Very long 70-100m";
+  }
+
   return "Unknown";
 }
 
@@ -89,6 +99,7 @@ function technicalRequirementFromBrief(roomModel: Record<string, unknown>) {
   const displays = lower(roomModel.displayBehaviour);
   const roomType = lower(roomModel.roomType);
   const avoipProfile = lower(roomModel.avoipProfile);
+  const ucPurpose = lower(roomModel.ucPurpose ?? roomModel.unifiedCommunicationsRequirement);
 
   if (includesAny(avoipProfile + roomType, ["av-over-ip", "av over ip", "networkhd"])) return "Distribute AV over network";
   if (includesAny(displays, ["multiview", "several sources on one output"])) return "Create multiview layout";
@@ -97,7 +108,7 @@ function technicalRequirementFromBrief(roomModel: Record<string, unknown>) {
   if (includesAny(outcome + roomType, ["route", "several displays", "multi-zone", "sports bar", "hospitality"])) return "Route sources to multiple displays";
   if (includesAny(displays, ["different content", "independent routing"])) return "Route sources to multiple displays";
   if (includesAny(devices, ["wireless presentation", "wireless inputs"])) return "Wireless presentation";
-  if (includesAny(outcome + devices, ["meeting", "teams", "zoom", "uc", "mtr", "camera", "microphone"])) return "BYOD / UC conferencing";
+  if (includesAny(outcome + devices + ucPurpose, ["meeting", "teams", "zoom", "uc", "mtr", "camera", "microphone", "video conferencing", "conferencing"])) return "BYOD / UC conferencing";
   if (includesAny(devices, ["usb-c", "usb c"])) return "Connect USB-C laptop";
   return "";
 }
@@ -113,6 +124,8 @@ function productPathFromRequirement(requirement: string, roomModel: Record<strin
     roomModel.audioPath,
     roomModel.avoipProfile,
     roomModel.avoipSeriesHint,
+    roomModel.ucPurpose,
+    roomModel.unifiedCommunicationsRequirement,
     list(roomModel.devices).join(" "),
   ].join(" ").toLowerCase();
 
