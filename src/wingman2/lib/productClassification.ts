@@ -612,7 +612,16 @@ function supportsAudioNeed(profile: WingmanProductProfile, requested: string | u
   if (requested === "Mic / speakerphone") return profile.connectors.includes("Mic") || profile.productClass === "uc-room-core";
   if (requested === "DSP integration") return profile.features.dsp || profile.productClass === "audio-dsp";
   if (requested === "Dante / AES67") return profile.features.dante;
-  if (requested === "Amplifier / speakers") return profile.productClass === "audio-amplifier";
+  if (requested === "Amplifier / speakers") {
+    return (
+      profile.productClass === "audio-amplifier" ||
+      profile.productClass === "audio-dsp" ||
+      profile.features.audioDeEmbed ||
+      profile.productClass === "presentation-switcher" ||
+      profile.productClass === "matrix-switch" ||
+      profile.productClass === "uc-room-core"
+    );
+  }
   return true;
 }
 
@@ -623,7 +632,14 @@ function supportsControlNeed(profile: WingmanProductProfile, requested: string |
   if (requested === "Display power control") return profile.features.ipControl || profile.features.rs232 || profile.features.ir;
   if (requested === "Web UI") return profile.features.ipControl;
   if (requested === "Button panel") return profile.productClass === "control-interface";
-  if (requested === "Touch panel") return profile.productClass === "control-interface";
+  if (requested === "Touch panel") {
+    return (
+      profile.productClass === "control-interface" ||
+      profile.features.ipControl ||
+      profile.features.rs232 ||
+      profile.features.telnet
+    );
+  }
   if (requested === "Third-party control") return profile.features.rs232 || profile.features.ipControl || profile.features.telnet;
   return true;
 }
