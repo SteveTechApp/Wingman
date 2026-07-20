@@ -21,6 +21,13 @@ const referenceGlobalFinish = path.join(
   "styles",
   "wingman-reference-global.css",
 );
+const productToolsVisualWeight = path.join(
+  root,
+  "src",
+  "wingman2",
+  "styles",
+  "wingman-product-tools-visual-weight.css",
+);
 const allowed = new Set([
   "src/main.tsx",
 ]);
@@ -32,6 +39,7 @@ const expectedMainCssImports = [
   "./wingman2/styles/wingman-workflow-theme.css",
   "./wingman2/styles/wingman-polish-navigation.css",
   "./wingman2/styles/wingman-reference-global.css",
+  "./wingman2/styles/wingman-product-tools-visual-weight.css",
 ];
 const retiredPageStyleFiles = [
   "wingman-visual-polish.css",
@@ -127,6 +135,7 @@ for (const globalStyle of [
   workflowTheme,
   polishNavigation,
   referenceGlobalFinish,
+  productToolsVisualWeight,
 ]) {
   if (!fs.existsSync(globalStyle)) {
     console.error(`Blocked: missing governed global stylesheet ${rel(globalStyle)}.`);
@@ -159,5 +168,5 @@ if (retiredFilesStillPresent.length > 0) {
 }
 
 console.log(
-  "CSS import guard passed. Wingman uses the governed base, reference, workflow, polish/navigation and global reference finish layers only.",
+  "CSS import guard passed. Wingman uses the governed base, reference, workflow, polish/navigation, global reference finish and product-tools visual-weight layers only.",
 );
