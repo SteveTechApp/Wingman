@@ -155,7 +155,7 @@ export function CallCoachPage() {
           "productCallCards",
           "Open SKU Call Card",
           "Search for a WyreStorm SKU and view what it is, what it does, how to position it and the key specification points.",
-          "PRODUCT-SPECIFIC GUIDANCE",
+          "Product-specific call",
           {
             accent: "aqua",
             linkLabel: "Choose product",
@@ -166,7 +166,7 @@ export function CallCoachPage() {
           "discovery",
           "Capture Requirements",
           "Record the application, sources, displays, distances, USB, audio, control and network requirements before selecting products.",
-          "CUSTOMER DISCOVERY",
+          "Discovery / requirement capture",
           {
             accent: "blue",
             linkLabel: "Start discovery",
@@ -177,7 +177,7 @@ export function CallCoachPage() {
           "salesHelper",
           "Open Sales Helper",
           "Choose whether the opportunity is room-led, display-led, UC-led, competitor-led, product-led or proposal-led.",
-          "GUIDED CONVERSATION SUPPORT",
+          "Call-out day",
           {
             accent: "green",
             linkLabel: "Choose conversation type",
@@ -188,7 +188,7 @@ export function CallCoachPage() {
           "support",
           "Check Escalation",
           "Review complexity, missing information, compatibility risks and quote readiness before progressing.",
-          "TECHNICAL REVIEW AND HANDOVER",
+          "Escalation check",
           {
             accent: "amber",
             linkLabel: "Check requirements",

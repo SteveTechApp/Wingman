@@ -381,7 +381,7 @@ export function RecommendationsPage() {
                         <span className="wm-ui-kicker">
                           {index === 0 ? "Primary direction" : "Alternative"}
                         </span>
-                        <h2 className="mt-1 text-2xl font-black">{decision.sku}</h2>
+                        <h2 className="wm-ui-title mt-1 text-2xl font-black">{decision.sku}</h2>
                         <p className="mt-1 font-bold">{productTitle(decision)}</p>
                       </div>
                       {decision.status === "compatible" ? (
@@ -391,7 +391,7 @@ export function RecommendationsPage() {
                       )}
                     </div>
 
-                    <p className="mt-4 text-sm leading-6">
+                    <p className="wm-ui-copy mt-4 text-sm leading-6">
                       {productDescription(decision)}
                     </p>
 
@@ -445,8 +445,8 @@ export function RecommendationsPage() {
               </div>
             ) : (
               <div className="rounded-2xl border p-5">
-                <strong>No safe product direction yet.</strong>
-                <p className="mt-2">
+                <strong className="wm-ui-title">No safe product direction yet.</strong>
+                <p className="wm-ui-copy mt-2">
                   Review the missing information or broaden the architecture in Discovery before selecting a SKU.
                 </p>
               </div>
