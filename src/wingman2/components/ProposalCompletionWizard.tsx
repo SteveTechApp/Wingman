@@ -880,11 +880,11 @@ function ProposalCompletionWizardContent({
                   <h3>Selected products and BOM</h3>
                   <p>
                     Products are taken from the active project and governed
-                    Finder/product-selection workflow.
+                    Discovery recommendation/product-selection workflow.
                   </p>
                 </div>
-                <Link to={routeCatalogByKey.finder.path}>
-                  Open Product Finder
+                <Link to={routeCatalogByKey.recommendations.path}>
+                  Open Recommendations
                 </Link>
               </div>
 

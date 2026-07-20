@@ -8,6 +8,7 @@ import {
   type WingmanProductProfile,
 } from "./productClassification";
 import { loadProductIntelligenceIndex } from "./productIntelligenceIndexCache";
+import { extractRawProducts } from "./productStoryEngine";
 import { normaliseSkuKey, resolveWyrestormSkuAlias } from "./skuAliasResolver";
 import { resolveProductLifecycle } from "./wyrestormProductLifecycle";
 
@@ -15,6 +16,7 @@ export const PRODUCT_SELECTOR_ENGINE_VERSION = "2026.07.1";
 
 export type ProductSelectorMode =
   | "finder"
+  | "recommendations"
   | "product-pitch"
   | "call-card"
   | "compare"
@@ -110,10 +112,6 @@ function normaliseSku(value: unknown) {
 
 function productSku(product: WingmanProductLike) {
   return clean(product.sku || product.title || product.name);
-}
-
-function canonicalSku(product: WingmanProductLike) {
-  return resolveWyrestormSkuAlias(productSku(product));
 }
 
 function productName(product: WingmanProductLike) {
@@ -341,12 +339,34 @@ function dedupeProducts<TProduct extends WingmanProductLike>(products: readonly 
   return Array.from(bySku.values());
 }
 
+// classifyWingmanProduct()/resolveProductLifecycle() are pure functions of a SKU's own
+// catalogue data and the (build-time, static-per-deploy) admin override/business-status
+// lists - never of the caller's search request. selectWingmanProducts() runs buildDecision
+// over the full ~310-product catalogue on every call (every keystroke in several pages),
+// so without this cache the same SKU gets reclassified from scratch on every call within
+// a session even though the answer can't have changed. Keyed by canonical SKU only: the
+// underlying catalogue array is itself a stable, session-long-cached reference (see
+// productIntelligenceIndexCache.ts), so a given SKU's product data can't change out from
+// under the cache within a session.
+const skuClassificationCache = new Map<string, { profile: WingmanProductProfile; lifecycle: ReturnType<typeof resolveProductLifecycle> }>();
+
+function classifySkuCached<TProduct extends WingmanProductLike>(classifiedProduct: TProduct, canonical: string) {
+  const cached = skuClassificationCache.get(canonical);
+  if (cached) return cached;
+
+  const entry = {
+    profile: classifyWingmanProduct(classifiedProduct),
+    lifecycle: resolveProductLifecycle(canonical),
+  };
+  skuClassificationCache.set(canonical, entry);
+  return entry;
+}
+
 function buildDecision<TProduct extends WingmanProductLike>(product: TProduct, request: ProductSelectorRequest): ProductSelectorDecision<TProduct> {
   const rawSku = productSku(product);
   const canonical = resolveWyrestormSkuAlias(rawSku);
   const classifiedProduct = { ...product, sku: canonical };
-  const profile = classifyWingmanProduct(classifiedProduct);
-  const lifecycle = resolveProductLifecycle(canonical);
+  const { profile, lifecycle } = classifySkuCached(classifiedProduct, canonical);
   const reasons: string[] = [];
   const rejectionReasons: string[] = [];
   const warningReasons: string[] = [];
@@ -462,6 +482,7 @@ export function selectWingmanProducts<TProduct extends WingmanProductLike>(
 export async function loadWingmanProductSelectorDecisions(
   request: ProductSelectorRequest,
 ): Promise<ProductSelectorDecision<IndexedProduct>[]> {
-  const products = await loadProductIntelligenceIndex();
-  return selectWingmanProducts(products as IndexedProduct[], request);
+  const payload = await loadProductIntelligenceIndex();
+  const products = extractRawProducts(payload) as IndexedProduct[];
+  return selectWingmanProducts(products, request);
 }

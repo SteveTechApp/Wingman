@@ -24,7 +24,7 @@
     "label": "Products",
     "navLabel": "Products",
     "pageFile": "NavigationHubPages.tsx",
-    "summary": "Product lookup, finder, positioning support and product call cards."
+    "summary": "Product lookup, governed catalogue access, positioning support and product call cards."
   },
   {
     "key": "documents",
@@ -72,13 +72,13 @@
     "summary": "Capture room, source, display, audio, network and customer requirement details."
   },
   {
-    "key": "finder",
-    "path": "/wingman/finder",
-    "segment": "finder",
-    "label": "Product Finder",
-    "navLabel": "Finder",
-    "pageFile": "FinderPage.tsx",
-    "summary": "Find suitable WyreStorm products from customer requirements."
+    "key": "recommendations",
+    "path": "/wingman/recommendations",
+    "segment": "recommendations",
+    "label": "Recommendations",
+    "navLabel": "Recommendations",
+    "pageFile": "RecommendationsPage.tsx",
+    "summary": "Review WyreStorm products matched from completed Discovery requirements."
   },
   {
     "key": "productFamilies",

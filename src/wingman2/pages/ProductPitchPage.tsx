@@ -27,6 +27,7 @@ import { buildProductCheatSheetHtml } from "../lib/productCheatSheet";
 import { buildProductTopologyProfile } from "../lib/productTopology";
 import { hydrateProductSpecWithTechnicalData } from "../lib/governedProductTechnicalData";
 import { selectWingmanProducts, type ProductSelectorDecision } from "../lib/productSelectorEngine";
+import { useDebouncedValue } from "../lib/useDebouncedValue";
 import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { resolveProductLifecycle } from "../lib/wyrestormProductLifecycle";
 import { getProductMediaBySku, loadProductMediaIndex } from "../data/productMedia";
@@ -168,26 +169,6 @@ const PRODUCT_PITCH_FILTERS = [
 
 type ProductPitchQuickFilter = (typeof PRODUCT_PITCH_FILTERS)[number];
 
-function getProductPitchFilterLead(product: ProductSpec) {
-  const sku = product.sku?.trim().toUpperCase() || "";
-  const name = product.name?.trim().toUpperCase() || "";
-  const value = sku || name;
-
-  return value.charAt(0);
-}
-
-function productMatchesProductPitchFilter(product: ProductSpec, filter: ProductPitchQuickFilter) {
-  if (filter === "All") return true;
-
-  const lead = getProductPitchFilterLead(product);
-
-  if (filter === "1-9") {
-    return /^[1-9]$/.test(lead);
-  }
-
-  return lead === filter;
-}
-
 function normaliseSelectorText(value: string | undefined) {
   return String(value || "").trim().replace(/\s+/g, " ");
 }
@@ -286,12 +267,13 @@ function SelectionPage({
   openProduct: (sku: string) => void;
 }) {
   const term = searchTerm.trim().toLowerCase();
+  const debouncedTerm = useDebouncedValue(term);
   const [selectedFamily, setSelectedFamily] = useState("");
   const [browseAll, setBrowseAll] = useState(false);
   const [visibleLimit, setVisibleLimit] = useState(PRODUCT_PITCH_RESULT_LIMIT);
   const currentProject = useMemo(() => getCurrentWorkflowProject(readProjectStore()), []);
   const recentSku = useMemo(() => readProductWorkspaceHandoff()?.sku ?? "", []);
-  const searchIsUseful = usefulSearchLength(term) >= 2;
+  const searchIsUseful = usefulSearchLength(debouncedTerm) >= 2;
   const baseDecisions = useMemo(
     () =>
       selectWingmanProducts(products, {
@@ -381,7 +363,7 @@ function SelectionPage({
   const matchingProducts = useMemo(() => {
     return selectWingmanProducts(products, {
       mode: "product-pitch",
-      query: searchIsUseful ? term : "",
+      query: searchIsUseful ? debouncedTerm : "",
       family: selectedFamily,
       alphaFilter: activeQuickFilter,
       includeAccessories,
@@ -391,7 +373,7 @@ function SelectionPage({
     })
       .filter((decision) => decision.eligible)
       .map((decision) => decision.product);
-  }, [products, includeAccessories, includeCables, term, searchIsUseful, activeQuickFilter, selectedFamily]);
+  }, [products, includeAccessories, includeCables, debouncedTerm, searchIsUseful, activeQuickFilter, selectedFamily]);
 
   const shouldShowResults = searchIsUseful || Boolean(selectedFamily) || activeQuickFilter !== "All" || browseAll;
   const visibleResults = shouldShowResults ? matchingProducts.slice(0, visibleLimit) : [];
@@ -1340,8 +1322,9 @@ export function ProductPitchPage() {
 
         setLoaded(true);
       })
-      .catch(() => {
+      .catch((error) => {
         if (cancelled) return;
+        console.error("[wingman] ProductPitch: product intelligence index load failed, using fallback catalogue", error);
         setProducts(fallbackProducts.map(applyProductStoryToSpec));
         setLoaded(true);
       });

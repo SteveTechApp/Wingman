@@ -5,7 +5,7 @@
   "files": {
     "src/wingman2/pages/DashboardPage.tsx": 0,
     "src/wingman2/pages/DiscoveryPage.tsx": 0,
-    "src/wingman2/pages/FinderPage.tsx": 56,
+    "src/wingman2/pages/RecommendationsPage.tsx": 56,
     "src/wingman2/pages/ProductFamilyPage.tsx": 11,
     "src/wingman2/pages/ProductPitchPage.tsx": 70,
     "src/wingman2/pages/ProposalPage.tsx": 23,

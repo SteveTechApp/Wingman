@@ -11,7 +11,7 @@ export type ProjectStage =
   | "Discovery"
   | "Competitor Compare"
   | "Proposal Builder"
-  | "Finder"
+  | "Recommendations"
   | "Templates"
   | "Support";
 
@@ -349,7 +349,7 @@ const projectStages: ProjectStage[] = [
   "Discovery",
   "Competitor Compare",
   "Proposal Builder",
-  "Finder",
+  "Recommendations",
   "Templates",
   "Support",
 ];
@@ -463,7 +463,13 @@ function stringArray(value: unknown) {
 
 function normalizedStage(value: unknown): ProjectStage {
   const stage = String(value ?? "").trim();
+  if (stage === "Finder") return "Recommendations";
   return projectStages.includes(stage as ProjectStage) ? (stage as ProjectStage) : "Discovery";
+}
+
+function normalizedWorkflowRoute(value: unknown, fallback: string) {
+  const route = stringValue(value, fallback);
+  return route === "/wingman/finder" ? routeCatalogByKey.recommendations.path : route;
 }
 
 function normalizeProductSelections(value: unknown): StoredProductSelection[] {
@@ -483,7 +489,7 @@ function normalizeProductSelections(value: unknown): StoredProductSelection[] {
         status: statusVariant(record.status),
         tags: stringArray(record.tags),
         addedAt: stringValue(record.addedAt, nowIso()),
-        source: stringValue(record.source, "Product Finder"),
+        source: stringValue(record.source, "Recommendations"),
         evidence: stringArray(record.evidence),
         cautions: stringArray(record.cautions),
       } satisfies StoredProductSelection;
@@ -839,7 +845,7 @@ function normalizeWorkflowState(value: unknown): StoredWorkflowState | undefined
   return {
     source: stringValue(record.source, "Wingman"),
     lastStep: stringValue(record.lastStep, "Updated"),
-    nextRoute: stringValue(record.nextRoute, routeCatalogByKey.projects.path),
+    nextRoute: normalizedWorkflowRoute(record.nextRoute, routeCatalogByKey.projects.path),
     updatedAt: stringValue(record.updatedAt, nowIso()),
   };
 }
@@ -857,7 +863,7 @@ function normalizeStoredProject(value: unknown): StoredProject | null {
     stage: normalizedStage(record.stage),
     status: statusVariant(record.status),
     updated: stringValue(record.updated, "Synced"),
-    resumeTo: stringValue(record.resumeTo, routeCatalogByKey.discovery.path),
+    resumeTo: normalizedWorkflowRoute(record.resumeTo, routeCatalogByKey.discovery.path),
     createdAt: stringValue(record.createdAt, updatedAt),
     updatedAt,
   };
@@ -1120,7 +1126,8 @@ async function fetchBackendProjectStore(storageMode: RemoteProjectStorageMode) {
     return payload.projects
       .filter((project): project is Record<string, unknown> => Boolean(project) && typeof project === "object")
       .map(storedProjectFromBackend);
-  } catch {
+  } catch (error) {
+    console.error("[wingman] projectStore: fetchBackendProjectStore failed", error);
     return null;
   }
 }
@@ -1189,6 +1196,7 @@ function scheduleBackendProjectSync(snapshot: ProjectStoreSnapshot, storageMode:
         }
 
         if (!response.ok) {
+          console.error(`[wingman] projectStore: backend sync failed with status ${response.status}`);
           setProjectSyncStatus({
             state: "error",
             message: `Project sync failed with status ${response.status}. Local changes were preserved.`,
@@ -1203,7 +1211,8 @@ function scheduleBackendProjectSync(snapshot: ProjectStoreSnapshot, storageMode:
           updatedAt: nowIso(),
         });
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("[wingman] projectStore: backend sync request failed", error);
         setProjectSyncStatus({
           state: "error",
           message: "Project sync failed. Local changes were preserved.",
@@ -1588,7 +1597,7 @@ export function saveDiscoveryBriefToProject(brief: StoredDiscoveryBrief) {
   const workflow: StoredWorkflowState = {
     source: "Discovery",
     lastStep: "Discovery saved",
-    nextRoute: routeCatalogByKey.finder.path,
+    nextRoute: routeCatalogByKey.recommendations.path,
     updatedAt: timestamp,
   };
 
@@ -1599,7 +1608,7 @@ export function saveDiscoveryBriefToProject(brief: StoredDiscoveryBrief) {
         stage: "Discovery" as const,
         status: "recommended" as const,
         updated: "Just now",
-        resumeTo: routeCatalogByKey.finder.path,
+        resumeTo: routeCatalogByKey.recommendations.path,
         updatedAt: timestamp,
         discoveryBrief: brief,
         workflow,
@@ -1608,7 +1617,7 @@ export function saveDiscoveryBriefToProject(brief: StoredDiscoveryBrief) {
         name: projectNameFromDiscoveryBrief(brief),
         stage: "Discovery",
         status: "recommended",
-        resumeTo: routeCatalogByKey.finder.path,
+        resumeTo: routeCatalogByKey.recommendations.path,
         discoveryBrief: brief,
         workflow,
       });
@@ -1664,12 +1673,12 @@ export function saveProductSelectionToProject(projectId: string, selection: Stor
     snapshot.projects.find((project) => project.id === projectId) ??
     createWorkflowProject({
       name: `${selection.sku} Product Selection`,
-      stage: "Finder",
+      stage: "Recommendations",
       status: selection.status ?? "alternative",
-      resumeTo: routeCatalogByKey.finder.path,
+      resumeTo: routeCatalogByKey.recommendations.path,
       productSelections: [],
       workflow: {
-        source: "Product Finder",
+        source: "Recommendations",
         lastStep: "Product selected",
         nextRoute: routeCatalogByKey.projects.path,
         updatedAt: nowIso(),
@@ -1685,14 +1694,14 @@ export function saveProductSelectionToProject(projectId: string, selection: Stor
 
   return upsertStoredProject({
     ...existing,
-    stage: "Finder",
+    stage: "Recommendations",
     status: selected.status ?? existing.status,
     updated: "Just now",
-    resumeTo: routeCatalogByKey.finder.path,
+    resumeTo: routeCatalogByKey.recommendations.path,
     updatedAt: timestamp,
     productSelections,
     workflow: {
-      source: "Product Finder",
+      source: "Recommendations",
       lastStep: "Product selected",
       nextRoute: routeCatalogByKey.projects.path,
       updatedAt: timestamp,
@@ -1707,12 +1716,12 @@ export function saveProductSelectionToCurrentProject(selection: StoredProductSel
     existing ??
     createWorkflowProject({
       name: `${selection.sku} Product Selection`,
-      stage: "Finder",
+      stage: "Recommendations",
       status: selection.status ?? "alternative",
-      resumeTo: routeCatalogByKey.finder.path,
+      resumeTo: routeCatalogByKey.recommendations.path,
       productSelections: [],
       workflow: {
-        source: "Product Finder",
+        source: "Recommendations",
         lastStep: "Product selected",
         nextRoute: routeCatalogByKey.projects.path,
         updatedAt: nowIso(),
@@ -1761,7 +1770,7 @@ export function saveRecommendationEvidenceToProject(
   const project = existing
     ? {
         ...existing,
-        stage: "Finder" as const,
+        stage: "Recommendations" as const,
         status,
         updated: "Just now",
         resumeTo: routeCatalogByKey.productPitch.path,
@@ -1774,7 +1783,7 @@ export function saveRecommendationEvidenceToProject(
         name: normalizedSelection
           ? `${normalizedSelection.sku} Product Pitch`
           : evidence.productDirection || "Product Pitch Direction",
-        stage: "Finder",
+        stage: "Recommendations",
         status,
         resumeTo: routeCatalogByKey.productPitch.path,
         productSelections: normalizedSelection ? [normalizedSelection] : undefined,
@@ -1958,8 +1967,10 @@ export function useProjectStore() {
       setSnapshot(readProjectStore());
     }
 
-    hydrateProjectStoreFromBackend().catch(() => {
-      // Local store remains valid when no backend session is available.
+    hydrateProjectStoreFromBackend().catch((error) => {
+      // Local store remains valid when no backend session is available - but this
+      // catch also covers genuine unexpected failures, so log for diagnosis.
+      console.error("[wingman] projectStore: hydrateProjectStoreFromBackend failed", error);
     });
 
     window.addEventListener(PROJECT_STORE_EVENT, refresh);

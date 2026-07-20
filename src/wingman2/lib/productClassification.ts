@@ -262,14 +262,21 @@ function inferFeatures(text: string, sku: string) {
   };
 }
 
-function inferProductClass(product: WingmanProductLike): WingmanProductClass {
-  const sku = clean(product.sku || product.title || product.name).toUpperCase();
-  const text = normalise(getText(product));
-  const compactSku = squash(sku);
-
-  if (startsAny(sku, ["CAB-", "CBL-"]) || sku.includes("HAOC") || includesAny(text, ["active optical cable", "hdmi cable", "usb c cable", "usb-c cable", "cable only"])) return "cable";
-  if (includesAny(text, ["rack mount", "rackmount", "rack kit", "mounting bracket", "replacement psu", "power supply", "faceplate", "accessory only"])) return "accessory";
-  if (startsAny(sku, ["SP-"]) || /^SP\d/i.test(sku) || includesAny(text, ["distribution amplifier", "splitter", "1x2", "1x4", "1x8"])) return "distribution-amplifier";
+// Two-pass classification: WyreStorm's SKU prefixes are an authoritative, unambiguous
+// product-family signal, but the free-text spec blob (tags/description/applications)
+// routinely mentions OTHER product categories in a compatibility or bundled-inclusion
+// sense - e.g. a plain HDBaseT receiver's tags list "unified communications" and
+// "camera" because it's compatible with UC/camera workflows, and an encoder's tags list
+// "2x Rack Mounting Brackets" among its box contents. Matching those phrases before the
+// product's own SKU prefix is checked previously caused real hardware (encoders,
+// receivers, matrix switches, UC cores) to be misclassified by whatever unrelated phrase
+// happened to appear in its tags. So: check every recognized SKU prefix first (pass 1,
+// no free text involved at all), and only fall back to free-text phrase matching (pass 2)
+// for SKUs that don't carry a recognized family prefix.
+function inferProductClassBySkuPrefix(sku: string, text: string): WingmanProductClass | null {
+  if (startsAny(sku, ["CAB-", "CBL-"]) || sku.includes("HAOC")) return "cable";
+  if (sku.includes("-RACK") || startsAny(sku, ["PSU-"])) return "accessory";
+  if (startsAny(sku, ["SP-"]) || /^SP\d/i.test(sku)) return "distribution-amplifier";
 
   if (startsAny(sku, ["EX-"])) return "signal-extender-kit";
 
@@ -283,11 +290,10 @@ function inferProductClass(product: WingmanProductLike): WingmanProductClass {
     return "avoip-transceiver";
   }
 
-  if (startsAny(sku, ["MX-"]) || startsAny(sku, ["MXV-"]) || includesAny(text, ["matrix switch", "matrix routing", "matrix switching", "seamless matrix"])) return "matrix-switch";
+  if (startsAny(sku, ["MX-", "MXV-"])) return "matrix-switch";
+  if (startsAny(sku, ["APO-", "UC-"])) return "uc-room-core";
 
-  if (startsAny(sku, ["APO-"]) || startsAny(sku, ["UC-"]) || includesAny(text, ["video bar", "unified comms", "unified communications", "speakerphone", "apollo", "halo"])) return "uc-room-core";
-
-  if (startsAny(sku, ["CAM-"]) || includesAny(text, ["ptz camera", "camera"])) {
+  if (startsAny(sku, ["CAM-"])) {
     if (includesAny(text, ["bridge", "mixer", "capture"])) return "camera-bridge";
     return "camera";
   }
@@ -297,7 +303,7 @@ function inferProductClass(product: WingmanProductLike): WingmanProductClass {
     return "audio-amplifier";
   }
 
-  if (startsAny(sku, ["SYN-", "CTL-"]) || includesAny(text, ["controller", "touch panel", "keypad", "button panel", "control interface"])) return "control-interface";
+  if (startsAny(sku, ["SYN-", "CTL-"])) return "control-interface";
 
   if (startsAny(sku, ["RX-"])) return "receiver";
   if (startsAny(sku, ["TX-"])) return "transmitter";
@@ -310,12 +316,35 @@ function inferProductClass(product: WingmanProductLike): WingmanProductClass {
     return "hdmi-switcher";
   }
 
-  if (compactSku.includes("MST") || includesAny(text, ["presentation switcher", "room core", "conference room switcher"])) return "presentation-switcher";
+  const compactSku = squash(sku);
+  if (compactSku.includes("MST")) return "presentation-switcher";
+
+  return null;
+}
+
+function inferProductClassByFreeText(text: string): WingmanProductClass {
+  if (includesAny(text, ["matrix switch", "matrix routing", "matrix switching", "seamless matrix"])) return "matrix-switch";
+  if (includesAny(text, ["video bar", "unified comms", "unified communications", "speakerphone", "apollo", "halo"])) return "uc-room-core";
+  if (includesAny(text, ["ptz camera", "camera"])) {
+    return includesAny(text, ["bridge", "mixer", "capture"]) ? "camera-bridge" : "camera";
+  }
+  if (includesAny(text, ["controller", "touch panel", "keypad", "button panel", "control interface"])) return "control-interface";
+  if (includesAny(text, ["presentation switcher", "room core", "conference room switcher"])) return "presentation-switcher";
   if (includesAny(text, ["hdbaset extender", "extender kit", "kvm extender"])) return "signal-extender-kit";
   if (includesAny(text, ["transmitter"])) return "transmitter";
   if (includesAny(text, ["receiver"])) return "receiver";
+  if (includesAny(text, ["active optical cable", "hdmi cable", "usb c cable", "usb-c cable", "cable only"])) return "cable";
+  if (includesAny(text, ["distribution amplifier", "splitter", "1x2", "1x4", "1x8"])) return "distribution-amplifier";
+  if (includesAny(text, ["rack mount", "rackmount", "rack kit", "mounting bracket", "replacement psu", "power supply", "faceplate", "accessory only"])) return "accessory";
 
   return "unknown";
+}
+
+function inferProductClass(product: WingmanProductLike): WingmanProductClass {
+  const sku = clean(product.sku || product.title || product.name).toUpperCase();
+  const text = normalise(getText(product));
+
+  return inferProductClassBySkuPrefix(sku, text) ?? inferProductClassByFreeText(text);
 }
 
 function inferTransport(productClass: WingmanProductClass, text: string, features: WingmanProductProfile["features"]) {

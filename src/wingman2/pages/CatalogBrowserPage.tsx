@@ -30,24 +30,28 @@ export function withBusinessLifecycle(product: CatalogProduct): CatalogProduct {
   return { ...product, lifecycle: { ...product.lifecycle, excludeFromNewRecommendations: true } };
 }
 
-// Apply the catalog match engine, then re-apply lifecycle/accessory exclusions as
-// HARD filters. Smart-find mode keeps any product scoring > 0 even when
-// strictMatch rejected it, so without this an exact search for a suppressed SKU
-// would still render while "Hide end-of-life" is on. Exported for testing.
-export function selectCatalogResults(catalog: CatalogProduct[], state: CatalogFilterState): CatalogProduct[] {
-  const allowedSkus = new Set(
+// The product-selector eligibility pass only depends on includeAccessories/excludeEolSoon,
+// never on search text - split out so the page can memoize it separately and avoid
+// rerunning full-catalogue classification on every keystroke in the search box.
+export function computeAllowedSkus(
+  catalog: CatalogProduct[],
+  opts: Pick<CatalogFilterState, "includeAccessories" | "excludeEolSoon">,
+): Set<string> {
+  return new Set(
     selectWingmanProducts(catalog, {
       mode: "catalogue",
-      includeAccessories: state.includeAccessories,
-      includeDependencies: state.includeAccessories,
-      includeCables: state.includeAccessories,
-      includeBrowseOnly: !state.excludeEolSoon,
-      includeDiscontinued: !state.excludeEolSoon,
+      includeAccessories: opts.includeAccessories,
+      includeDependencies: opts.includeAccessories,
+      includeCables: opts.includeAccessories,
+      includeBrowseOnly: !opts.excludeEolSoon,
+      includeDiscontinued: !opts.excludeEolSoon,
     })
       .filter((decision) => decision.eligible)
       .map((decision) => normaliseSkuKey(decision.sku)),
   );
+}
 
+function applyAllowedSkuFilter(catalog: CatalogProduct[], state: CatalogFilterState, allowedSkus: Set<string>): CatalogProduct[] {
   return filterCatalogProducts(catalog, state).filter((product) => {
     if (!allowedSkus.has(normaliseSkuKey(product.sku))) return false;
     if (state.excludeEolSoon && product.lifecycle.excludeFromNewRecommendations) return false;
@@ -56,6 +60,14 @@ export function selectCatalogResults(catalog: CatalogProduct[], state: CatalogFi
     }
     return true;
   });
+}
+
+// Apply the catalog match engine, then re-apply lifecycle/accessory exclusions as
+// HARD filters. Smart-find mode keeps any product scoring > 0 even when
+// strictMatch rejected it, so without this an exact search for a suppressed SKU
+// would still render while "Hide end-of-life" is on. Exported for testing.
+export function selectCatalogResults(catalog: CatalogProduct[], state: CatalogFilterState): CatalogProduct[] {
+  return applyAllowedSkuFilter(catalog, state, computeAllowedSkus(catalog, state));
 }
 
 const PANEL = "rounded-3xl border border-[#29465e] bg-[#071522]";
@@ -145,8 +157,9 @@ export function CatalogBrowserPage() {
         setCatalog(applyCatalogOverrides(extractRawProducts(data)).map(withBusinessLifecycle));
         setLoaded(true);
       })
-      .catch(() => {
+      .catch((error) => {
         if (cancelled) return;
+        console.error("[wingman] CatalogBrowser: product intelligence index load failed", error);
         setLoadError(true);
         setLoaded(true);
       });
@@ -156,7 +169,16 @@ export function CatalogBrowserPage() {
   }, []);
 
   const facets = useMemo(() => buildFacetIndex(catalog), [catalog]);
-  const results = useMemo(() => selectCatalogResults(catalog, state), [catalog, state]);
+  // Only recomputed when the toggles that actually affect it change - typing in the
+  // search box (part of `state`) no longer reruns the full-catalogue selector pass.
+  const allowedSkus = useMemo(
+    () => computeAllowedSkus(catalog, state),
+    [catalog, state.includeAccessories, state.excludeEolSoon],
+  );
+  const results = useMemo(
+    () => applyAllowedSkuFilter(catalog, state, allowedSkus),
+    [catalog, state, allowedSkus],
+  );
 
   const patch = (next: Partial<CatalogFilterState>) => setState((current) => ({ ...current, ...next }));
 

@@ -8,7 +8,7 @@ const pagesDir = path.join(root, "src", "wingman2", "pages");
 const widePages = new Set([
   "ComparePage.tsx",
   "DiscoveryPage.tsx",
-  "FinderPage.tsx",
+  "RecommendationsPage.tsx",
   "ProposalPage.tsx",
   "VideowallBuilderPage.tsx",
   "ProductFamilyPage.tsx"
