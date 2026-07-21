@@ -16,6 +16,10 @@ export type DiscoveryHandoff = {
   answers?: DiscoveryHandoffAnswers;
   notes?: DiscoveryHandoffNotes;
   topology?: ProjectTopology;
+  // Question id to land the wizard on once the handoff answers are applied,
+  // instead of always starting at question 1. Falls back to the first
+  // question still missing an answer when omitted.
+  startAtQuestionId?: string;
 };
 
 const DISCOVERY_HANDOFF_KEY = "wingman:discovery-handoff";

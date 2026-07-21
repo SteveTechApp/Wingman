@@ -1388,6 +1388,28 @@ function wmDiscoveryFilterUnifiedCommsQuestions(
 }
 // WINGMAN_DISCOVERY_UNIFIED_COMMS_VISIBILITY_END
 
+// A hand-off (template, video-wall builder, Sales Helper) can request a
+// specific question to land on once its pre-filled answers are applied, so
+// e.g. a UC-led enquiry opens straight on "uc-purpose" instead of forcing a
+// click through room-scale questions first. Falls back to the first question
+// the hand-off didn't already answer, so a fully-populated custom template
+// lands on its one real gap instead of question 1.
+function resolveDiscoveryStartIndex(
+  questions: DiscoveryQuestion[],
+  answers: DiscoveryAnswers,
+  startAtQuestionId?: string,
+): number {
+  if (startAtQuestionId) {
+    const requestedIndex = questions.findIndex((step) => step.id === startAtQuestionId);
+    if (requestedIndex >= 0) {
+      return requestedIndex;
+    }
+  }
+
+  const firstUnanswered = questions.findIndex((step) => !wmDiscoveryHasAnswer(answers[step.id]));
+  return firstUnanswered >= 0 ? firstUnanswered : Math.max(questions.length - 1, 0);
+}
+
 export function DiscoveryPage() {
   // Restoring an in-progress Discovery draft (autosaved as the customer talks) so
   // navigating away and back - or a refresh mid-call - never throws the captured
@@ -1644,6 +1666,13 @@ export function DiscoveryPage() {
     setSourceTemplateId(handoff.sourceTemplateId);
     setSourceTemplateName(handoff.sourceTemplateName);
 
+    const startApplication = wmDiscoveryAnswerToText(incomingAnswers.opportunity);
+    const startQuestions = wmDiscoveryFilterUnifiedCommsQuestions(
+      getVisibleDiscoveryQuestions(startApplication, incomingAnswers),
+      incomingAnswers,
+    );
+    setActiveIndex(resolveDiscoveryStartIndex(startQuestions, incomingAnswers, handoff.startAtQuestionId));
+
     clearDiscoveryHandoff();
   }, []);
 
@@ -1686,8 +1715,17 @@ export function DiscoveryPage() {
           ? payload.recommendation.products.map((item) => String(item)).filter(Boolean).join(", ")
           : "";
         const note = `Video wall design from the builder: ${wallType}${products ? `. Suggested: ${products}` : ""}.`;
-        setAnswers((current) => ({ ...current, opportunity: current.opportunity || "video-wall" }));
+        const nextOpportunity = answers.opportunity || "video-wall";
+        const nextAnswers = { ...answers, opportunity: nextOpportunity };
+        setAnswers(nextAnswers);
         setNotes((current) => ({ ...current, opportunity: current.opportunity ? current.opportunity : note }));
+
+        const startApplication = wmDiscoveryAnswerToText(nextOpportunity);
+        const startQuestions = wmDiscoveryFilterUnifiedCommsQuestions(
+          getVisibleDiscoveryQuestions(startApplication, nextAnswers),
+          nextAnswers,
+        );
+        setActiveIndex(resolveDiscoveryStartIndex(startQuestions, nextAnswers));
       } catch {
         // Ignore malformed handoff payloads.
       }
