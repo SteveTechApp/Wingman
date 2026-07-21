@@ -3,6 +3,7 @@ import {
   Building2,
   Cable,
   FileCheck2,
+  LayoutGrid,
   MessageSquare,
   Monitor,
   Scale,
@@ -14,6 +15,7 @@ import type { LucideIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { routeCatalogByKey, type WingmanRouteKey } from "../app/routeCatalog";
 import { HubCardArt, type HubCardArtKind } from "../components/HubCardArt";
+import { writeDiscoveryHandoff, type DiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
 
 type PolishAccent = "aqua" | "blue" | "violet" | "magenta" | "amber" | "green";
 type CardArtKind = HubCardArtKind;
@@ -24,6 +26,11 @@ type SalesHelperCard = {
   body: string;
   routeKey: WingmanRouteKey;
   discoverySeed?: string;
+  // Used instead of discoverySeed when the card needs to do more than seed a
+  // free-text note - e.g. pre-answering a question and jumping the wizard
+  // forward to a specific question id, rather than just leaving context
+  // for whichever question is currently showing.
+  handoff?: DiscoveryHandoff;
   icon: LucideIcon;
   accent: PolishAccent;
   art: CardArtKind;
@@ -46,15 +53,24 @@ const conversationCards: SalesHelperCard[] = [
     art: "room",
   },
   {
-    eyebrow: "Display, projector, signage, LED, LFD or refresh opportunity",
-    title: "Display / projector / LED attach",
-    body: "Use when the opportunity starts from screens, projectors, signage, LED, LFD or a video wall. Work backwards into signal management, switching, extension, control and content behaviour.",
+    eyebrow: "Display, projector, signage or LFD refresh opportunity",
+    title: "Display / projector attach",
+    body: "Use when the opportunity starts from screens, projectors, signage or LFDs and there is no video wall involved. Work backwards into signal management, switching, extension, control and content behaviour.",
     routeKey: "discovery",
     discoverySeed:
-      "Sales Helper starting point: display-led opportunity. The customer is discussing displays, projectors, signage, LED, LFD or a video wall. Work backwards into content behaviour, source count, routing, distance, control and processing.",
+      "Sales Helper starting point: display-led opportunity. The customer is discussing displays, projectors, signage or LFDs. Work backwards into content behaviour, source count, routing, distance, control and processing.",
     icon: Monitor,
     accent: "violet",
     art: "display",
+  },
+  {
+    eyebrow: "Video wall, LED wall, LCD wall or multiview canvas opportunity",
+    title: "Video wall / LED wall",
+    body: "Use when the opportunity is an LED or LCD wall. Opens the Video Wall Builder to size the canvas and get a processor recommendation before Discovery.",
+    routeKey: "videowall",
+    icon: LayoutGrid,
+    accent: "violet",
+    art: "videowall",
   },
   {
     eyebrow: "HDMI extender, switcher, splitter, matrix or signal product enquiry",
@@ -70,10 +86,19 @@ const conversationCards: SalesHelperCard[] = [
   {
     eyebrow: "UC, BYOD, BYOM, camera, microphone or USB device enquiry",
     title: "BYOD / conferencing / USB",
-    body: "Use when Teams, Zoom, cameras, microphones, PTZ, touch panels or USB transport are involved. Keep video, USB and audio paths together.",
+    body: "Use when Teams, Zoom, cameras, microphones, PTZ, touch panels or USB transport are involved. Jumps straight to the UC requirement question instead of the full room-shape flow.",
     routeKey: "discovery",
-    discoverySeed:
-      "Sales Helper starting point: UC, BYOD, BYOM, camera, microphone or USB enquiry. Keep the video, USB host ownership, camera, microphone, audio and display paths together throughout Discovery.",
+    handoff: {
+      mode: "standard",
+      answers: {
+        opportunity: "meeting-room",
+      },
+      notes: {
+        opportunity:
+          "Sales Helper starting point: UC, BYOD, BYOM, camera, microphone or USB enquiry. Keep the video, USB host ownership, camera, microphone, audio and display paths together throughout Discovery. Confirm the room shape afterwards if it isn't already known.",
+      },
+      startAtQuestionId: "uc-purpose",
+    },
     icon: Video,
     accent: "magenta",
     art: "camera",
@@ -111,7 +136,10 @@ export function SalesHelperPage() {
   const navigate = useNavigate();
 
   function openCard(card: SalesHelperCard) {
-    if (card.discoverySeed) {
+    if (card.handoff) {
+      window.sessionStorage.removeItem(callNotesStorageKey);
+      writeDiscoveryHandoff(card.handoff);
+    } else if (card.discoverySeed) {
       window.sessionStorage.setItem(callNotesStorageKey, card.discoverySeed);
     } else {
       window.sessionStorage.removeItem(callNotesStorageKey);

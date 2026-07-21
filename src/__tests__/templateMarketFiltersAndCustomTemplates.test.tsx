@@ -208,8 +208,12 @@ describe("Template-to-Discovery handoff", () => {
     fireEvent.click(within(card!).getByRole("button", { name: "Use template" }));
 
     expect(screen.getByText(`Pre-populated from template: ${original.name}`)).toBeInTheDocument();
-    const selectedOption = document.querySelector('.wm-discovery-option[aria-pressed="true"]');
-    expect(selectedOption?.textContent).toContain("Meeting room / boardroom");
+
+    // The template only answers "opportunity" (meeting-room), so Discovery
+    // should land on the next actually-unanswered question ("scale") instead
+    // of forcing a click through the question it was already given.
+    expect(screen.getByText("What is the approximate room or system scale?")).toBeInTheDocument();
+    expect(screen.getByText("1 / 11 captured")).toBeInTheDocument();
   });
 
   it("pre-populates Discovery with capture notes when a built-in template is used", () => {

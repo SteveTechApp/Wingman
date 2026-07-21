@@ -47,6 +47,14 @@ const salesHelperDiscoverySeeds = countMatches(
   salesHelperPage,
   /discoverySeed:\s*/g,
 );
+// A card can carry context into Discovery either as a free-text note
+// (discoverySeed) or, when it needs to pre-answer a real question and jump
+// the wizard forward, as a full hand-off (handoff:) - both satisfy "this
+// card doesn't dump the rep on a blank Discovery step 1".
+const salesHelperHandoffs = countMatches(
+  salesHelperPage,
+  /\n\s*handoff:\s*\{/g,
+);
 
 assert(
   routeImports.length >= 20,
@@ -150,8 +158,8 @@ assert(
 
 assert(
   salesHelperDiscoveryRoutes >= 4 &&
-    salesHelperDiscoverySeeds >= salesHelperDiscoveryRoutes,
-  "Every Discovery-led Sales Helper card should carry a distinct conversation seed into Discovery.",
+    salesHelperDiscoverySeeds + salesHelperHandoffs >= salesHelperDiscoveryRoutes,
+  "Every Discovery-led Sales Helper card should carry a distinct conversation seed or hand-off into Discovery.",
 );
 
 assert(
