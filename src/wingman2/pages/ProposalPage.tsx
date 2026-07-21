@@ -1,5 +1,4 @@
 import ProposalCompletionWizard from "../components/ProposalCompletionWizard";
-import TemplateProposalSeedPanel from "../components/TemplateProposalSeedPanel";
 
 export function ProposalPageProjectMode() {
   return (
@@ -7,7 +6,6 @@ export function ProposalPageProjectMode() {
       className="wm-proposal-route-page wm-ui-page wingman-page-host"
       data-wingman-proposal-page="true"
     >
-      <TemplateProposalSeedPanel />
       <ProposalCompletionWizard />
     </main>
   );

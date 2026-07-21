@@ -56,36 +56,27 @@ const pageContracts = {
     sources: [
       "src/wingman2/pages/ProposalPage.tsx",
       "src/wingman2/components/ProposalCompletionWizard.tsx",
-      "src/wingman2/components/TemplateProposalSeedPanel.tsx",
     ],
     tokens: {
       page: [
         "wm-proposal-wizard-page",
-        "wm-template-proposal-page",
       ],
       card: [
         "wm-proposal-progress-card",
         "wm-proposal-step-card",
-        "wm-template-proposal-hero",
-        "wm-template-proposal-meta",
-        "wm-template-proposal-table",
         "wingman-surface",
       ],
       title: [
         "wm-proposal-wizard-header",
         "wm-proposal-step-heading",
         "wm-proposal-bom-heading",
-        "wm-template-seed-kicker",
       ],
       copy: [
         "wm-proposal-step-heading",
         "wm-proposal-evidence-details",
-        "wm-template-seed-kicker",
-        "wm-template-proposal-grid",
       ],
       button: [
         "wm-proposal-step-rail",
-        "wm-template-proposal-actions",
       ],
       input: [
         "wm-proposal-field",

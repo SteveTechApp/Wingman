@@ -63,6 +63,36 @@ function hasAny(text: string, terms: string[]) {
   return terms.some((term) => text.includes(term));
 }
 
+const SOURCE_SIDE_PATTERN = /\btx\b|\btrx\b|transmitter|encoder/i;
+const DISPLAY_SIDE_PATTERN = /\brx\b|receiver|decoder/i;
+const CORE_DEVICE_PATTERN = /matrix|switcher|controller|processor|\bdsp\b|\bhub\b/i;
+
+function numberFromCountBand(value: unknown): number | null {
+  const match = String(value ?? "").match(/\d+/);
+  const parsed = Number(match?.[0]);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+// TX/encoder and RX/decoder endpoints are sold per source or per display; a
+// matrix, switcher, controller or DSP is a single core unit regardless of how
+// many sources/displays it serves, so it is deliberately excluded here.
+function defaultBomQty(product: StoredProductSelection, discovery: SalesReadinessInput["discovery"]): number {
+  const blob = `${product.sku} ${product.title ?? ""} ${product.family ?? ""} ${product.category ?? ""}`;
+  if (CORE_DEVICE_PATTERN.test(blob)) return 1;
+
+  if (SOURCE_SIDE_PATTERN.test(blob)) {
+    const sourceCount = numberFromCountBand(discovery.sourceCount);
+    if (sourceCount) return sourceCount;
+  }
+
+  if (DISPLAY_SIDE_PATTERN.test(blob)) {
+    const displayCount = numberFromCountBand(discovery.displayCount);
+    if (displayCount) return displayCount;
+  }
+
+  return 1;
+}
+
 function determineOutputPurpose(input: SalesReadinessInput): SalesReadinessPackage["outputPurpose"] {
   const requirementText = [
     input.discovery.projectTitle,
@@ -176,7 +206,7 @@ export function buildSalesReadinessPackage(input: SalesReadinessInput): SalesRea
       sku: product.sku,
       description: product.title || product.family || product.category || "Selected WyreStorm product",
       role: product.category || product.family || "Core product",
-      qty: 1,
+      qty: defaultBomQty(product, input.discovery),
       type: "Required",
       status: product.status || "alternative",
       evidence: productEvidence,

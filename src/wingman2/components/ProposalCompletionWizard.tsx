@@ -661,7 +661,7 @@ function ProposalCompletionWizardContent({
         </div>
 
         <div
-          className="wm-proposal-readiness"
+          className="wm-proposal-readiness wingman-surface"
           data-ready={readiness.score === 100 ? "true" : "false"}
         >
           <strong>{readiness.score}%</strong>

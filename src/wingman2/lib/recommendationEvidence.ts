@@ -145,12 +145,29 @@ function combinedRequirementText(input: RecommendationEvidenceInput) {
     roomModel.applicationType,
     roomModel.outcome,
     roomModel.roomType,
+    roomModel.scale,
+    roomModel.roomSize,
+    roomModel.sourceTypes,
+    roomModel.devices,
+    roomModel.signalStandard,
     roomModel.displayBehaviour,
     roomModel.displays,
     roomModel.videoWallRequirement,
+    roomModel.multiviewRequirement,
+    roomModel.avoipProfile,
+    roomModel.unifiedCommunicationsRequirement,
+    roomModel.conferencingPlatform,
+    roomModel.cameraNeeds,
+    roomModel.cameraRouting,
+    roomModel.microphoneNeeds,
+    roomModel.microphoneConnections,
     roomModel.usbTransport,
     roomModel.usbOwnership,
+    roomModel.usbNeeds,
     roomModel.audioPath,
+    roomModel.audioNeeds,
+    roomModel.controlNeeds,
+    roomModel.processingNeeds,
     roomModel.networkAvailability,
     roomModel.network,
     projectTopologySummary(topology),
@@ -607,6 +624,15 @@ function productFamilyScores(input: RecommendationEvidenceInput): Recommendation
 
   if (hasAny(combined, ["sw-0206-vw", "sw-0204-vw", "novastar", "led wall", "video wall"])) {
     addFamilyScore(scores, "Video wall processor", 20, "Wall processor language detected.");
+  }
+
+  if (hasAny(combined, ["dante", "aes67", "reach other rooms", "network audio", "networked audio"])) {
+    addFamilyScore(scores, "Presentation / UC", 15, "Dante/AES67 or networked audio distribution language detected.");
+    addFamilyCaution(scores, "Presentation / UC", "Confirm Dante/AES67 network ownership, switch multicast support and DSP scope before quoting networked audio.");
+  }
+
+  if (hasAny(combined, ["third-party control", "third party control", "crestron", "q-sys", "qsys", "amx", "control4"])) {
+    addFamilyCaution(scores, "Core review", "Third-party control system integration (Crestron/Q-SYS/AMX/Control4 or similar) is involved — confirm driver/API support and integration scope before quote.");
   }
 
   return Array.from(scores.values())
