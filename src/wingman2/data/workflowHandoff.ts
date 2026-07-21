@@ -93,27 +93,40 @@ function mapDistance(value: unknown) {
   return "Unknown";
 }
 
+function ucBlobFromBrief(roomModel: Record<string, unknown>) {
+  return [
+    roomModel.ucPurpose,
+    roomModel.unifiedCommunicationsRequirement,
+    list(roomModel.conferencingPlatform).join(" "),
+    list(roomModel.cameraNeeds).join(" "),
+    list(roomModel.cameraRouting).join(" "),
+    list(roomModel.microphoneNeeds).join(" "),
+    list(roomModel.microphoneConnections).join(" "),
+  ].join(" ").toLowerCase();
+}
+
 function technicalRequirementFromBrief(roomModel: Record<string, unknown>) {
   const outcome = lower(roomModel.outcome);
   const devices = list(roomModel.devices).join(" ").toLowerCase();
   const displays = lower(roomModel.displayBehaviour);
   const roomType = lower(roomModel.roomType);
   const avoipProfile = lower(roomModel.avoipProfile);
-  const ucPurpose = lower(roomModel.ucPurpose ?? roomModel.unifiedCommunicationsRequirement);
+  const uc = ucBlobFromBrief(roomModel);
 
   if (includesAny(avoipProfile + roomType, ["av-over-ip", "av over ip", "networkhd"])) return "Distribute AV over network";
   if (includesAny(displays, ["multiview", "several sources on one output"])) return "Create multiview layout";
   if (includesAny(outcome + displays, ["video wall", "signage", "large format", "wall processor", "wall"])) return "Build LCD video wall";
-  if (includesAny(outcome + devices, ["capture", "stream", "record", "ndi camera"])) return "Bring NDI camera into AV system";
+  if (includesAny(outcome + devices + uc, ["capture", "stream", "record", "ndi camera", "ndi / network"])) return "Bring NDI camera into AV system";
   if (includesAny(outcome + roomType, ["route", "several displays", "multi-zone", "sports bar", "hospitality"])) return "Route sources to multiple displays";
   if (includesAny(displays, ["different content", "independent routing"])) return "Route sources to multiple displays";
   if (includesAny(devices, ["wireless presentation", "wireless inputs"])) return "Wireless presentation";
-  if (includesAny(outcome + devices + ucPurpose, ["meeting", "teams", "zoom", "uc", "mtr", "camera", "microphone", "video conferencing", "conferencing"])) return "BYOD / UC conferencing";
+  if (includesAny(outcome + devices + uc, ["meeting", "teams", "zoom", "uc", "mtr", "camera", "microphone", "speakerphone", "byod", "byom", "video conferencing", "conferencing"])) return "BYOD / UC conferencing";
   if (includesAny(devices, ["usb-c", "usb c"])) return "Connect USB-C laptop";
   return "";
 }
 
 function productPathFromRequirement(requirement: string, roomModel: Record<string, unknown>) {
+  const uc = ucBlobFromBrief(roomModel);
   const blob = [
     requirement,
     roomModel.recommendedProductPath,
@@ -124,9 +137,8 @@ function productPathFromRequirement(requirement: string, roomModel: Record<strin
     roomModel.audioPath,
     roomModel.avoipProfile,
     roomModel.avoipSeriesHint,
-    roomModel.ucPurpose,
-    roomModel.unifiedCommunicationsRequirement,
     list(roomModel.devices).join(" "),
+    uc,
   ].join(" ").toLowerCase();
 
   if (includesAny(blob, ["video wall", "signage", "wall"])) return "Video wall";
@@ -134,7 +146,7 @@ function productPathFromRequirement(requirement: string, roomModel: Record<strin
   if (includesAny(blob, ["av over ip", "avoip", "networkhd"])) return "AVoIP";
   if (includesAny(blob, ["multi-zone", "several displays", "route", "distributed"])) return "Matrix / routing";
   if (includesAny(blob, ["wireless", "casting", "airplay", "miracast"])) return "Wireless presentation";
-  if (includesAny(blob, ["uc", "meeting", "teams", "zoom", "mtr", "byod", "byom"])) return "UC / conferencing";
+  if (includesAny(blob, ["uc", "meeting", "teams", "zoom", "mtr", "byod", "byom", "microphone", "speakerphone"])) return "UC / conferencing";
   if (includesAny(blob, ["long", "hdbaset", "extension"])) return "HDBaseT extender";
   return "Presentation switcher";
 }
@@ -190,11 +202,17 @@ function nextQuestionFromMissingItems(missingItems: string[]) {
   return `Can we confirm ${firstMissing.toLowerCase()}?`;
 }
 
-function sourceConnectorFromDevices(devices: string[]) {
+function sourceConnectorFromDevices(devices: string[], roomModel: Record<string, unknown>) {
   const blob = devices.join(" ").toLowerCase();
   if (blob.includes("ndi") || blob.includes("network")) return "RJ45 / network";
   if (blob.includes("hdmi")) return "HDMI";
   if (blob.includes("usb-c")) return "USB-C";
+
+  const cameraNeeds = list(roomModel.cameraNeeds).join(" ").toLowerCase();
+  if (includesAny(cameraNeeds, ["ndi", "network"])) return "RJ45 / network";
+  if (includesAny(cameraNeeds, ["usb"])) return "USB-A";
+  if (includesAny(cameraNeeds, ["hdmi"])) return "HDMI";
+
   return "Unknown";
 }
 
@@ -202,19 +220,30 @@ function usbFromBrief(roomModel: Record<string, unknown>) {
   const blob = [
     roomModel.usbOwnership,
     roomModel.usbTopologyRisk,
+    list(roomModel.usbNeeds).join(" "),
     list(roomModel.devices).join(" "),
+    ucBlobFromBrief(roomModel),
   ].join(" ").toLowerCase();
 
-  if (includesAny(blob, ["no usb", "no usb path needed"])) return "No USB";
-  if (includesAny(blob, ["usb 3", "high bandwidth"])) return "USB 3.x required";
+  if (includesAny(blob, ["no usb transport required", "no usb path needed"]) && !includesAny(blob, ["usb 3", "usb 2", "byod", "byom", "switchable", "camera", "speakerphone"])) {
+    return "No USB";
+  }
+  if (includesAny(blob, ["usb 3", "high bandwidth", "high-bandwidth"])) return "USB 3.x required";
+  if (includesAny(blob, ["touch or interactive usb", "touch return"])) return "Touch return";
   if (includesAny(blob, ["camera", "speakerphone", "microphone", "byod", "byom", "user laptop", "switchable"])) return "USB camera";
   if (includesAny(blob, ["room host", "room pc", "usb 2"])) return "USB 2.0 enough";
   return "Unknown";
 }
 
 function audioFromBrief(roomModel: Record<string, unknown>) {
-  const blob = [roomModel.audioPath, list(roomModel.devices).join(" ")].join(" ").toLowerCase();
-  if (includesAny(blob, ["dante", "aes67"])) return "Dante / AES67";
+  const blob = [
+    roomModel.audioPath,
+    list(roomModel.audioNeeds).join(" "),
+    list(roomModel.microphoneConnections).join(" "),
+    list(roomModel.devices).join(" "),
+  ].join(" ").toLowerCase();
+  if (includesAny(blob, ["dante", "aes67", "reach other rooms", "network audio", "networked audio"])) return "Dante / AES67";
+  if (includesAny(blob, ["pull sound out", "de-embed", "deembed"])) return "Audio de-embed";
   if (includesAny(blob, ["amp-2210", "100v", "speaker"])) return "Amplifier / speakers";
   if (includesAny(blob, ["soundbar", "apo-vx20", "apo-210", "microphone", "conferencing"])) return "Mic / speakerphone";
   if (includesAny(blob, ["dsp"])) return "DSP integration";
@@ -410,6 +439,8 @@ export function discoveryBriefToFinderNeed(brief: StoredDiscoveryBrief | null): 
   const devices = list(roomModel.devices).length ? list(roomModel.devices) : list(roomModel.sourceTypes);
   const requirement = technicalRequirementFromBrief(roomModel);
   const productPath = productPathFromRequirement(requirement, roomModel);
+  const usbRequirement = usbFromBrief(roomModel);
+  const requiresUsb = usbRequirement !== "No USB" && usbRequirement !== "Unknown";
 
   return {
     // The Finder query box is an explicit product-text search. A customer brief is
@@ -419,14 +450,14 @@ export function discoveryBriefToFinderNeed(brief: StoredDiscoveryBrief | null): 
     technicalRequirement: requirement,
     productPath,
     technologyType: technologyTypeFromPath(productPath),
-    signalType: devices.join(" ").toLowerCase().includes("usb") ? "HDMI + USB" : "HDMI video",
-    sourceConnector: sourceConnectorFromDevices(devices),
+    signalType: requiresUsb || devices.join(" ").toLowerCase().includes("usb") ? "HDMI + USB" : "HDMI video",
+    sourceConnector: sourceConnectorFromDevices(devices, roomModel),
     displayConnector: "",
     inputs: inputCountFromBrief(roomModel.sourceCount),
     outputs: outputCountFromBrief(roomModel.displayCount),
     distance: mapDistance(roomModel.cableRun ?? roomModel.longestRun),
     resolution: resolutionFromBrief(roomModel),
-    usb: usbFromBrief(roomModel),
+    usb: usbRequirement,
     audio: audioFromBrief(roomModel),
     network: networkFromBrief(roomModel),
     processing: processingFromBrief(roomModel),

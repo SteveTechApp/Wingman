@@ -8,7 +8,6 @@ import {
   writeLatestDiscoverySnapshot,
 } from "../data/workflowHandoff";
 import { buildDiscoveryRecommendationEvidence } from "../lib/recommendationEvidence";
-import TemplateDiscoverySeedPanel from "../components/TemplateDiscoverySeedPanel";
 import { createBlankCustomRoomTemplate, saveCustomRoomTemplate } from "../lib/customRoomTemplates";
 import {
   clearDiscoveryHandoff,
@@ -32,17 +31,6 @@ import {
   writeDiscoveryTopology,
   type ProjectTopology,
 } from "../lib/projectTopology";
-
-function _hasActiveTemplateSolutionSeed(): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  return Boolean(
-    window.sessionStorage.getItem("wingman:template-discovery-seed-updated") ??
-    window.sessionStorage.getItem("wingman:template-discovery-seed")
-  );
-}
 
 type DiscoveryOption = {
   value: string;
@@ -1881,8 +1869,6 @@ export function DiscoveryPage() {
     window.sessionStorage.removeItem("wingman:use-video-wall-in-discovery");
     window.sessionStorage.removeItem("wingman:video-wall-discovery");
     window.sessionStorage.removeItem("wingman.roomBuilderSeedProduct");
-    window.sessionStorage.removeItem("wingman:template-discovery-seed");
-    window.sessionStorage.removeItem("wingman:template-discovery-seed-updated");
     clearDiscoveryHandoff();
     clearLatestDiscoverySnapshot();
 
@@ -2095,6 +2081,7 @@ export function DiscoveryPage() {
         outcome: notes.opportunity?.trim() || application,
         customerWording: notes.opportunity?.trim() || allNotes[0] || "",
         scale: answerLabel("scale"),
+        roomSize: answerLabel("scale"),
         devices: [sourceCount, ...sourceConnections].filter(Boolean),
         sourceTypes: sourceConnections,
         sourceConnections,
@@ -2315,12 +2302,6 @@ export function DiscoveryPage() {
   }
 return (
     <main className="wm-discovery-capture-page wm-ui-page wingman-page-host" data-audit={discoveryAuditMarkers.join("|")}>
-      {_hasActiveTemplateSolutionSeed() && (
-        <details className="wm-discovery-template-seed-wrapper" open>
-          <summary>Solution builder (from template)</summary>
-          <TemplateDiscoverySeedPanel />
-        </details>
-      )}
       <header className="wm-discovery-capture-hero wm-ui-hero">
         <div>
           <p className="wm-discovery-eyebrow wm-ui-copy wm-ui-kicker">Guided discovery - live call mode</p>
