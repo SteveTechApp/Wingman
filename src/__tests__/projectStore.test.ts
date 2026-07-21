@@ -11,7 +11,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 vi.mock("@/wingman2/app/routeCatalog", () => ({
   routeCatalogByKey: {
     discovery: { path: "/wingman/discovery" },
-    finder: { path: "/wingman/recommendations" },
+    recommendations: { path: "/wingman/recommendations" },
     compare: { path: "/wingman/compare" },
     proposal: { path: "/wingman/proposal" },
     projects: { path: "/wingman/projects" },
@@ -977,7 +977,7 @@ describe("projectStore", () => {
       expect(result.productSelections).toBeDefined();
       expect(result.productSelections?.length).toBe(1);
       expect(result.productSelections?.[0].sku).toBe("TEST-SKU-001");
-      expect(result.stage).toBe("Finder");
+      expect(result.stage).toBe("Recommendations");
     });
 
     it("should not duplicate product selections with same SKU", () => {

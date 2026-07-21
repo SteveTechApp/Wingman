@@ -4,32 +4,31 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import { DiscoveryPage } from "@/wingman2/pages/DiscoveryPage";
 
-describe("Discovery Trail stage states", () => {
+// The numbered step-pill trail (clickable "1 Opportunity" / "2 Scale" buttons
+// with is-active/is-captured classes) was removed in the Discovery redesign
+// in favour of strictly linear Previous/Continue stepping with a compact
+// "Step N of M" indicator - there is no jump-to-step UI left to test. This
+// covers the behaviour that does still exist and matters: selecting a
+// single-select answer auto-advances to the next question.
+describe("Discovery step progression", () => {
   beforeEach(() => {
     window.localStorage.clear();
     window.sessionStorage.clear();
   });
 
-  it("marks the in-progress stage separately from completed stages", async () => {
+  it("auto-advances to the next question after selecting a single-select answer", async () => {
     render(
       <MemoryRouter>
         <DiscoveryPage />
       </MemoryRouter>,
     );
 
-    const opportunityStage = screen.getByRole("button", { name: /^1\s+Opportunity/i });
-    const scaleStage = screen.getByRole("button", { name: /^2\s+Scale/i });
-
-    expect(opportunityStage).toHaveClass("is-active");
-    expect(opportunityStage).not.toHaveClass("is-captured");
+    expect(await screen.findByText(/^Step 1 of \d+$/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Meeting room \/ boardroom/i }));
 
     await waitFor(() => {
-      expect(scaleStage).toHaveClass("is-active");
+      expect(screen.getByText(/^Step 2 of \d+$/)).toBeInTheDocument();
     });
-
-    expect(opportunityStage).toHaveClass("is-captured");
-    expect(opportunityStage).not.toHaveClass("is-active");
   });
 });
