@@ -479,8 +479,24 @@ function minCountForNeed(value: string) {
   return null;
 }
 
-function matchesCount(available: number | null, requested: string | undefined) {
+// Only product classes that expose a genuine, fixed multi-port I/O count
+// (a matrix/switcher SKU whose port count is a real spec) are gated by the
+// captured source/display count. Single-channel network endpoints (AVoIP
+// encoders/decoders/transceivers, HDBaseT transmitters/receivers) and
+// accessories/DSPs/cameras/etc. have no per-unit port count that scales with
+// system size - a distributed AVoIP design with 9+ displays is built from
+// many individual 1-in/1-out transceivers, not one SKU with 9 ports, so
+// requiring profile.inputCount/outputCount >= the system's source/display
+// count for those classes rejected every eligible endpoint product outright.
+const FIXED_PORT_PRODUCT_CLASSES = new Set<WingmanProductClass>([
+  "matrix-switch",
+  "presentation-switcher",
+  "hdmi-switcher",
+]);
+
+function matchesCount(available: number | null, requested: string | undefined, productClass: WingmanProductClass) {
   if (!requested || needIsNeutral(requested)) return true;
+  if (!FIXED_PORT_PRODUCT_CLASSES.has(productClass)) return true;
 
   const min = minCountForNeed(requested);
   if (min == null) return true;
@@ -656,11 +672,11 @@ export function isWingmanProductEligibleForFinderNeed(product: WingmanProductLik
     return false;
   }
 
-  if (!matchesCount(profile.inputCount, need.inputs)) {
+  if (!matchesCount(profile.inputCount, need.inputs, profile.productClass)) {
     return false;
   }
 
-  if (!matchesCount(profile.outputCount, need.outputs)) {
+  if (!matchesCount(profile.outputCount, need.outputs, profile.productClass)) {
     return false;
   }
 
