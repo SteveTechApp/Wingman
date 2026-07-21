@@ -101,7 +101,6 @@ export const routeCatalogByKey = Object.fromEntries(
 export const consolidatedPrimaryNavKeys = [
   "dashboard",
   "callCoach",
-  "salesHelper",
   "products",
   "templates",
   "compare",
