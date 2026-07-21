@@ -132,6 +132,31 @@ describe("product selector engine", () => {
     expect(skus).not.toContain("NHD-600-TRX");
   });
 
+  it("does not reject single-channel AVoIP endpoints for a distributed source/display count", () => {
+    // A distributed AVoIP design with 9+ displays is built from many
+    // individual 1-in/1-out transceivers, not one SKU exposing 9 ports, so
+    // the source/display count gate must not apply to per-unit endpoints.
+    const skus = eligibleSkus({
+      technicalRequirement: "Distribute AV over network",
+      productPath: "AVoIP",
+      inputs: "5-8",
+      outputs: "9+",
+    });
+
+    expect(skus).toContain("NHD-600-TRX");
+    expect(skus).toContain("NHD-500-TX");
+    expect(skus).toContain("NHD-500-RX");
+  });
+
+  it("still rejects a fixed-port matrix that is too small for the requested count", () => {
+    const skus = eligibleSkus({
+      inputs: "9+",
+      outputs: "9+",
+    });
+
+    expect(skus).not.toContain("MXV-0808-H2A");
+  });
+
   it("dedupes aliases to the canonical SKU", () => {
     const decisions = selectWingmanProducts(products, {
       mode: "catalogue",

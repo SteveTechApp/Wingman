@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // page) - this test exercises that real handoff path end to end against the
 // real WyreStorm catalogue.
 
-import { DISCOVERY_BRIEF_KEY, discoveryBriefToFinderNeed } from "@/wingman2/data/workflowHandoff";
+import { DISCOVERY_BRIEF_KEY } from "@/wingman2/data/workflowHandoff";
 import { loadProductIntelligenceIndex } from "@/wingman2/lib/productIntelligenceIndexCache";
 import { RecommendationsPage } from "@/wingman2/pages/RecommendationsPage";
 import productIntelligenceIndex from "../../public/product-intelligence-index.json";
@@ -56,14 +56,8 @@ describe("Recommendations Discovery handoff", () => {
     expect(screen.queryByText("No eligible product passed the current compatibility gates.")).not.toBeInTheDocument();
   });
 
-  // Full end-to-end product matching for this scenario is covered by the
-  // eligibility-gate work tracked separately (single-channel AVoIP endpoints
-  // currently fail the source/display-count gate regardless of series hint).
-  // This checks the part this session actually changed: that Discovery's
-  // captured NetworkHD 600 / 10G AVoIP answers correctly reach the selector
-  // request rather than being lost or diluted in the handoff mapping.
-  it("threads the selected NetworkHD tier and AVoIP signals through to the selector request", () => {
-    const need = discoveryBriefToFinderNeed({
+  it("uses the selected NetworkHD tier when the discovery is a 10G AVoIP design", async () => {
+    window.localStorage.setItem(DISCOVERY_BRIEF_KEY, JSON.stringify({
       savedAt: "2026-06-24T09:00:00.000Z",
       capturedPercent: 100,
       inference: {},
@@ -84,13 +78,15 @@ describe("Recommendations Discovery handoff", () => {
         avoipProfile: "Zero latency / lossless / 10Gb / SDVoE",
         avoipSeriesHint: "NetworkHD 600",
       },
-    });
+    }));
 
-    expect(need?.avoipSeriesHint).toBe("NetworkHD 600");
-    expect(need?.technicalRequirement).toBe("Distribute AV over network");
-    expect(need?.productPath).toBe("AVoIP");
-    expect(need?.network).toBe("10G network");
-    expect(need?.processing).toBe("AVoIP routing");
-    expect(need?.control).toBe("Third-party control");
+    render(
+      <MemoryRouter>
+        <RecommendationsPage />
+      </MemoryRouter>,
+    );
+
+    expect((await screen.findAllByText("NHD-600-TRX")).length).toBeGreaterThan(0);
+    expect(screen.queryByText("No eligible product passed the current compatibility gates.")).not.toBeInTheDocument();
   });
 });
