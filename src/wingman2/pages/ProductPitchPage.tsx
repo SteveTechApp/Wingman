@@ -663,6 +663,12 @@ function OverviewTab({
         </p>
       </section>
 
+      {guidance.featureBenefits.length ? (
+        <WorkCard title="Features and benefits - what each feature does for the customer">
+          <DisplayList items={guidance.featureBenefits} max={6} />
+        </WorkCard>
+      ) : null}
+
       <div className="grid gap-4 lg:grid-cols-2">
         <WorkCard title="How it fits this application">
           <p className="wm-ui-copy">{guidance.scenarioFit}</p>

@@ -1,6 +1,6 @@
 import { getBestProductPositioningCardForSku } from "../data/productPositioningCards";
 import type { ProductPositioningCard } from "../types/productPositioning";
-import { cleanUsefulList, productText, type ProductNarrative, type ProductRole, type ProductSpec } from "./productStoryEngine";
+import { buildProductFeatureBenefits, cleanUsefulList, productText, type ProductNarrative, type ProductRole, type ProductSpec } from "./productStoryEngine";
 
 export type ProductPitchSalesGuidance = {
   plainDescription: string;
@@ -9,6 +9,7 @@ export type ProductPitchSalesGuidance = {
   confirmationQuestion: string;
   bestFitApplications: string[];
   poorFitApplications: string[];
+  featureBenefits: string[];
   customerProblem: string;
   discoveryQuestions: string[];
   quoteChecks: string[];
@@ -365,8 +366,13 @@ export function buildProductPitchSalesGuidance(
   const scenario = roomType && application && roomType.toLowerCase() !== application.toLowerCase()
     ? `${roomType} - ${application}`
     : roomType || application || cleanSalesText(product.applications[0] || "the customer's application");
-  const plainDescription = `This product is used to ${roleJob(narrative.role)}.`;
+  // Lead with the practical, product-specific "what it does for the customer"
+  // copy (governed story whatItDoes -> narrative.whyItHelps) rather than the
+  // role-generic template, which reads identically for every SKU of a role.
+  const practicalDescription = cleanSalesText(narrative.whyItHelps || "");
+  const plainDescription = practicalDescription || `This product is used to ${roleJob(narrative.role)}.`;
   const scenarioFit = `For ${scenario}, use it to ${roleJob(narrative.role)}.`;
+  const featureBenefits = safeList(buildProductFeatureBenefits(product, 6), 6);
   const bestFitApplications = safeList([
     ...(card?.bestFitApplications ?? []),
     ...product.applications,
@@ -422,6 +428,7 @@ export function buildProductPitchSalesGuidance(
     confirmationQuestion: confirmationForRole(narrative.role, scenario),
     bestFitApplications,
     poorFitApplications,
+    featureBenefits,
     customerProblem: cleanSalesText(card?.customerProblems[0] || narrative.customerChallenge),
     discoveryQuestions,
     quoteChecks,
