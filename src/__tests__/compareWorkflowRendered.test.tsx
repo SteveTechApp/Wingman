@@ -34,7 +34,20 @@ function runKnownCompare(brand: string, sku: string) {
   fireEvent.click(screen.getByRole("button", { name: sku }));
 }
 
+// The result view defaults to the "Product cards" tab (the head-to-head proof
+// cards); the summary card and technical comparison matrix these tests assert
+// on live in the "Overview" tab, so switch to it first.
+function openOverviewTab() {
+  const overviewTab = screen.queryByRole("tab", { name: "Overview" });
+
+  if (overviewTab && overviewTab.getAttribute("aria-selected") !== "true") {
+    fireEvent.click(overviewTab);
+  }
+}
+
 function openTechnicalComparisonDetails() {
+  openOverviewTab();
+
   const summary = screen.getByText("Technical comparison details");
   const details = summary.closest("details") as HTMLDetailsElement | null;
 
@@ -44,6 +57,7 @@ function openTechnicalComparisonDetails() {
 }
 
 async function findMainCompareResult(): Promise<HTMLElement> {
+  openOverviewTab();
   return screen.findByLabelText(/Main WyreStorm match:/i);
 }
 
@@ -259,6 +273,7 @@ describe("Compare rendered workflow", () => {
     renderComparePage();
     runKnownCompare("Atlona", "AT-OMNI-111");
 
+    await findMainCompareResult();
     const guruButton = await screen.findByRole("button", { name: "More info from Guru" });
     fireEvent.click(guruButton);
 

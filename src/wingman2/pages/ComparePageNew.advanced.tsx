@@ -4951,7 +4951,10 @@ function ComparePageNew() {
   const [committedSku, setCommittedSku] = useState<string | null>(null);
   const [catalogVersion, setCatalogVersion] = useState(0);
   const [decisionRevision, setDecisionRevision] = useState(0);
-  const [resultTab, setResultTab] = useState<CompareResultTab>("overview");
+  // "Product cards" leads: the head-to-head cards are the proof surface a rep
+  // needs first - confirming Wingman understood the competitor product and
+  // justifying the suggested WyreStorm replacement - before the overview.
+  const [resultTab, setResultTab] = useState<CompareResultTab>("cards");
   // Verified battle cards are supplemental evidence. The governed Compare
   // runtime remains authoritative for recommendation, project save and proposal handoff.
   const navigate = useNavigate();
@@ -5315,7 +5318,7 @@ function ComparePageNew() {
 
     setHasCompared(true);
     setWorkflowStep("options");
-    setResultTab("overview");
+    setResultTab("cards");
     setCompareStage("results");
     setState("results");
   }, [effectiveBrand, mustMatchFeatures]);
@@ -5326,7 +5329,7 @@ function ComparePageNew() {
     runKnownProfileCompare(profile);
     setHasCompared(true);
     setWorkflowStep("options");
-    setResultTab("overview");
+    setResultTab("cards");
     setCompareStage("results");
     setState("results");
     runCompare();
@@ -5484,12 +5487,12 @@ function ComparePageNew() {
 
     setHasCompared(true);
     setWorkflowStep("options");
-    setResultTab("overview");
+    setResultTab("cards");
     setCompareStage("results");
   }
 
   function resetCompare(): void {
-    setResultTab("overview");
+    setResultTab("cards");
     setSelectedBrand("Atlona");
     setCompetitorInput("");
     setMustMatchFeatures("");
@@ -5818,8 +5821,8 @@ function ComparePageNew() {
               <>
                 <nav className="compare-result-tabs" role="tablist" aria-label="Comparison result sections">
                   {([
-                    ["overview", "Overview"],
                     ["cards", "Product cards"],
+                    ["overview", "Overview"],
                     ["evidence", "Proof & evidence"],
                   ] as const).map(([tab, label]) => (
                     <button

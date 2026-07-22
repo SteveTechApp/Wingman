@@ -231,10 +231,17 @@ export function findCompetitorCatalogEntry(brand: string, sku: string): Competit
 function classFromText(t: string): SpecClass {
   const s = t.toLowerCase();
   if (/av.?o(ver)?.?ip|avoip|networkhd|sdvoe|nvx|zyper|mxnet|vinx|ndi/.test(s)) return "AVOIP";
+  if (/video\s*wall/.test(s)) return "VIDEO_WALL";
+  // Function outranks transport/capability keywords: an "8x8 HDBaseT matrix"
+  // or a "matrix switching / multiview" product IS a matrix - its transport
+  // (HDBaseT vs HDMI) is captured separately by transportFrom() and expressed
+  // through the transport verdict, and multiview is a capability, not the
+  // product class. Checking hdbaset/multiview first classified every real
+  // matrix out of the MATRIX class, leaving mis-sized boxes as the only
+  // candidates for matrix competitors.
+  if (/matrix/.test(s)) return "MATRIX";
   if (/hdbaset|hdbt/.test(s)) return "HDBASET";
   if (/multiview|multi-view/.test(s)) return "MULTIVIEW";
-  if (/video\s*wall/.test(s)) return "VIDEO_WALL";
-  if (/matrix/.test(s)) return "MATRIX";
   if (/presentation|switcher|collab.*switch/.test(s)) return "PRESENTATION";
   if (/usb.*ext|extender.*usb/.test(s)) return "USB_EXTENSION";
   if (/extender|extension/.test(s)) return "EXTENDER";
@@ -248,10 +255,12 @@ function classFromText(t: string): SpecClass {
 function roleFromText(t: string): SpecRole {
   const s = t.toLowerCase();
   if (/transceiver/.test(s)) return "transceiver";
+  // A "matrix kit" (matrix bundled with receivers) is a matrix, not an
+  // extender kit - check matrix before the kit/pair patterns.
+  if (/matrix/.test(s)) return "matrix";
   if (/kit|tx\s*\/\s*rx|tx\+rx|pair/.test(s)) return "extender-kit";
   if (/encoder|transmitter|\btx\b/.test(s)) return "transmitter";
   if (/decoder|receiver|\brx\b/.test(s)) return "receiver";
-  if (/matrix/.test(s)) return "matrix";
   if (/switcher|switch\b/.test(s)) return "switcher";
   if (/processor/.test(s)) return "processor";
   if (/controller|control processor/.test(s)) return "controller";
@@ -778,6 +787,20 @@ function detectBlockers(competitor: SpecSheet, ws: SpecSheet): string[] {
     ws.routedIn < competitor.routedIn
   ) {
     blockers.push(`Insufficient routed inputs: needs ${competitor.routedIn}, candidate has ${ws.routedIn}`);
+  }
+
+  // Output capacity is as hard a requirement as input capacity: a candidate
+  // with fewer routed outputs than the competitor physically cannot drive the
+  // same displays (e.g. an 8x4 must never replace an 8x8). Mirrors the
+  // routed-input gate above and the output blocker competitorCompareDecision
+  // already enforces on the Overview path.
+  if (
+    (competitor.specClass === "MATRIX" || competitor.specClass === "PRESENTATION") &&
+    competitor.routedOut != null &&
+    ws.routedOut != null &&
+    ws.routedOut < competitor.routedOut
+  ) {
+    blockers.push(`Insufficient routed outputs: needs ${competitor.routedOut}, candidate has ${ws.routedOut}`);
   }
 
   return blockers;

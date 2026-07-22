@@ -119,4 +119,34 @@ describe("runSpecShowdown", () => {
       expect(reject.blockers.length).toBeGreaterThan(0);
     }
   });
+
+  it("never matches a matrix with fewer routed outputs than the competitor (8x8 vs 8x4)", async () => {
+    // Kramer VS-88H2A is an 8-in/8-out matrix. An 8x4 candidate (e.g.
+    // MX-0804-EDC) physically cannot drive the competitor's 8 displays, so it
+    // must be rejected with an explicit blocker - not surfaced as an 80%
+    // "closest technical match" with the output shortfall softened to a gap.
+    const result = await runSpecShowdown("Kramer", "VS-88H2A");
+    expect(result.coverage).toBe("found");
+    if (result.coverage !== "found") return;
+
+    for (const match of result.matches) {
+      if (match.sheet.routedOut != null) {
+        expect(match.sheet.routedOut).toBeGreaterThanOrEqual(8);
+      }
+      expect(match.sheet.sku).not.toBe("MX-0804-EDC");
+    }
+
+    const outputReject = result.rejected.find((reject) => reject.sku === "MX-0804-EDC");
+    expect(outputReject).toBeDefined();
+    expect(outputReject?.blockers.join(" ")).toMatch(/Insufficient routed outputs/i);
+
+    // A genuine 8x8 matrix must survive the gates and lead the shortlist -
+    // real matrices were previously classified out of the MATRIX class by the
+    // hdbaset/multiview keywords in their category text, leaving no valid
+    // candidates at all.
+    expect(result.matches.length).toBeGreaterThan(0);
+    const top = result.matches[0];
+    expect(top.sheet.routedIn).toBeGreaterThanOrEqual(8);
+    expect(top.sheet.routedOut).toBeGreaterThanOrEqual(8);
+  });
 });
