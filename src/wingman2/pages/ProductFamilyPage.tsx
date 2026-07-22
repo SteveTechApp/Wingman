@@ -1,8 +1,10 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { BookOpenCheck, Cable, CheckCircle2, HelpCircle, MapPin, Network, Search, Sparkles, Workflow } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { isSkuAdminBlocked } from "../lib/adminProductOverrides";
+import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { extractRawProducts } from "../lib/productStoryEngine";
 
 type ProductFamilyGuide = {
   id: string;
@@ -416,7 +418,7 @@ const familyGuides: ProductFamilyGuide[] = [
     id: "usb-kvm",
     name: "USB and KVM extenders",
     shortPosition: "Peripheral transport for cameras, speakerphones, touch displays, room PCs and interactive workflows.",
-    productSkus: ["EX-100-USB", "CAB-USB-3M", "CAB-USB-5M"],
+    productSkus: ["EX-100-KVM", "EX-100-KVM-IP", "EX-100-USB3", "EX-60-USB2", "EX-40-KVM-5K"],
     pitchQuery: "WyreStorm USB KVM extender",
     customerPitch:
       "USB extension protects the room experience in conferencing and control rooms because cameras, microphones and touch devices must work from the correct host location.",
@@ -704,12 +706,73 @@ function productPitchSkuPath(sku: string) {
   return `${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(sku)}`;
 }
 
-function productPitchRangePath(query: string) {
-  return `${routeCatalogByKey.productPitch.path}?q=${encodeURIComponent(query)}`;
+// "Pitch this range" opens Product Positioning for the family's representative
+// (lead) SKU so the rep lands on a real pitch, carrying the family query as a
+// fallback so a lead SKU that isn't in the current catalogue recovers to the
+// range-filtered picker instead of dead-ending. When no SKU in the family is
+// selectable, it opens the range-filtered picker directly.
+function productPitchRangePath(guide: ProductFamilyGuide, knownSkus: Set<string> | null) {
+  const base = routeCatalogByKey.productPitch.path;
+  const rangeQuery = `q=${encodeURIComponent(guide.pitchQuery)}`;
+  const representative = guide.productSkus.find((sku) => isSelectableSku(sku, knownSkus));
+
+  return representative
+    ? `${base}?sku=${encodeURIComponent(representative)}&${rangeQuery}`
+    : `${base}?${rangeQuery}`;
 }
+
+// A SKU card should only link out when it can actually open - i.e. the SKU is
+// not admin-blocked and is present in the loaded product index. Before the
+// index loads (or if it fails to load) knownSkus is null and we optimistically
+// keep the existing behaviour rather than blanking the grid.
+function isSelectableSku(sku: string, knownSkus: Set<string> | null): boolean {
+  if (isSkuAdminBlocked(sku)) return false;
+  if (knownSkus === null) return true;
+  return knownSkus.has(sku.trim().toLowerCase());
+}
+
+function useKnownProductSkus(): Set<string> | null {
+  const [knownSkus, setKnownSkus] = useState<Set<string> | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    loadProductIntelligenceIndex()
+      .then((data) => {
+        if (cancelled) return;
+        const skus = new Set(
+          extractRawProducts(data)
+            .map((entry) => String((entry as { sku?: unknown }).sku ?? "").trim().toLowerCase())
+            .filter(Boolean),
+        );
+        setKnownSkus(skus);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        console.error("[wingman] ProductFamily: product index load failed; showing all listed SKUs", error);
+        setKnownSkus(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return knownSkus;
+}
+
 export function ProductFamilyPage() {
   const [activeFamilyId, setActiveFamilyId] = useState(familyGuides[0].id);
   const activeFamily = useMemo(() => findGuide(activeFamilyId), [activeFamilyId]);
+  const knownSkus = useKnownProductSkus();
+  const selectableSkus = useMemo(
+    () => activeFamily.productSkus.filter((sku) => isSelectableSku(sku, knownSkus)),
+    [activeFamily, knownSkus],
+  );
+  const rangePath = useMemo(
+    () => productPitchRangePath(activeFamily, knownSkus),
+    [activeFamily, knownSkus],
+  );
 
   return (
     <main className="wm-product-family-page wm-ui-page wingman-page-host">
@@ -791,17 +854,16 @@ export function ProductFamilyPage() {
                 </div>
 
                 <Link
-                  to={productPitchRangePath(activeFamily.pitchQuery)}
+                  to={rangePath}
                   className="wm-product-family-range-link"
                 >
                   Pitch this range
                 </Link>
               </div>
 
-              <div className="wm-product-family-sku-grid">
-                {activeFamily.productSkus
-                  .filter((sku) => !isSkuAdminBlocked(sku))
-                  .map((sku) => (
+              {selectableSkus.length ? (
+                <div className="wm-product-family-sku-grid">
+                  {selectableSkus.map((sku) => (
                     <Link
                       key={sku}
                       to={productPitchSkuPath(sku)}
@@ -812,7 +874,13 @@ export function ProductFamilyPage() {
                       <small>Open product workspace</small>
                     </Link>
                   ))}
-              </div>
+                </div>
+              ) : (
+                <p className="wm-ui-copy">
+                  No selectable catalogue SKUs for this family yet. Use "Pitch this range" to
+                  open representative products for the conversation.
+                </p>
+              )}
             </section>
 
             <div className="wm-product-family-summary-grid">
