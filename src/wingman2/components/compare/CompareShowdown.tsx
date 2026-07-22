@@ -20,7 +20,7 @@ import {
   type ShowdownResult,
   type SpecSheet,
 } from "../../lib/compareSpecEngine";
-import { BattleCard, buildBattleStats, type BattleStat } from "./BattleCard";
+import { BattleCard, type BattleStat } from "./BattleCard";
 import { CompareProofTable } from "./CompareProofTable";
 
 export type ShowdownStatus = "idle" | "loading" | "verified" | "unverified" | "missing";
@@ -50,41 +50,154 @@ function bestForLabel(sheet: SpecSheet): string {
   }
 }
 
+function wyrestormFootnote(sheet: SpecSheet): string {
+  switch (sheet.verificationStatus) {
+    case "verified":
+      return "Verified from WyreStorm official documentation";
+    case "verified-with-warning":
+      return "Official source located — some fields require structured review";
+    case "conflicting":
+      return "Technical data conflict — do not quote from this card";
+    case "inferred":
+      return "Technical fields inferred — confirm current WyreStorm datasheet";
+    default:
+      return "Confirm current WyreStorm datasheet before quoting";
+  }
+}
+
 /** Pair up the two cards' stats so equal labels get win/lose highlighting. */
-function pairStats(competitor: BattleStat[], wyrestorm: BattleStat[], match: ShowdownMatch): {
+/**
+ * Build both cards from the exact same comparison verdict rows.
+ *
+ * The previous implementation built each card independently and then attempted
+ * to line up labels afterwards. That allowed one card to show Chroma while the
+ * other showed Outputs, making the visual comparison misleading even when the
+ * proof table was correct.
+ */
+function buildAlignedStats(match: ShowdownMatch): {
   competitor: BattleStat[];
   wyrestorm: BattleStat[];
 } {
-  const verdictByLabel = new Map<string, "match" | "exceeds" | "gap">();
-  for (const verdict of match.verdicts) {
-    if (verdict.verdict === "unverified") continue;
-    verdictByLabel.set(verdict.label.toLowerCase(), verdict.verdict);
-  }
-  const labelKey = (label: string): string => {
-    const t = label.toLowerCase();
-    if (t.includes("resolution")) return "max resolution";
-    if (t.includes("chroma")) return "chroma sampling";
-    if (t.includes("bandwidth")) return "video bandwidth";
-    if (t.includes("hdmi")) return "hdmi inputs";
-    if (t.includes("usb")) return "usb";
-    if (t.includes("control")) return "control options";
-    if (t.includes("audio")) return "audio options";
-    if (t.includes("reach")) return "max reach";
-    if (t.includes("poe")) return "poe / poh power";
-    return t;
+  const priorityByClass: Partial<Record<SpecSheet["specClass"], string[]>> = {
+    MATRIX: [
+      "routedIn",
+      "routedOut",
+      "resolution",
+      "chroma",
+      "bandwidth",
+      "audio",
+      "control",
+      "transport",
+    ],
+    PRESENTATION: [
+      "routedIn",
+      "routedOut",
+      "resolution",
+      "bandwidth",
+      "usb",
+      "audio",
+      "control",
+      "transport",
+    ],
+    HDBASET: [
+      "transport",
+      "resolution",
+      "chroma",
+      "bandwidth",
+      "distance",
+      "usb",
+      "control",
+      "poe",
+    ],
+    EXTENDER: [
+      "transport",
+      "resolution",
+      "chroma",
+      "bandwidth",
+      "distance",
+      "usb",
+      "control",
+      "poe",
+    ],
+    AVOIP: [
+      "transport",
+      "resolution",
+      "chroma",
+      "bandwidth",
+      "usb",
+      "audio",
+      "control",
+      "poe",
+    ],
   };
-  const mark = (stats: BattleStat[], side: "competitor" | "wyrestorm"): BattleStat[] =>
-    stats.map((stat) => {
-      const verdict = verdictByLabel.get(labelKey(stat.label));
-      if (!verdict) return stat;
-      if (verdict === "match") return { ...stat, highlight: "draw" };
-      if (verdict === "exceeds") return { ...stat, highlight: side === "wyrestorm" ? "win" : "lose" };
-      return { ...stat, highlight: side === "wyrestorm" ? "lose" : "win" };
-    });
-  return { competitor: mark(competitor, "competitor"), wyrestorm: mark(wyrestorm, "wyrestorm") };
-}
 
-/* ------------------------------------------------------- printable export */
+  const conciseLabel = (field: string, fallback: string): string => {
+    switch (field) {
+      case "transport": return "Architecture";
+      case "resolution": return "Max video";
+      case "chroma": return "Chroma";
+      case "bandwidth": return "Bandwidth";
+      case "hdmiIn": return "HDMI inputs";
+      case "hdmiOut": return "HDMI outputs";
+      case "routedIn": return "Routed inputs";
+      case "routedOut": return "Routed outputs";
+      case "usb": return "USB / KVM";
+      case "audio": return "Audio";
+      case "control": return "Control";
+      case "distance": return "Max reach";
+      case "poe": return "Power";
+      default: return fallback;
+    }
+  };
+
+  const priority =
+    priorityByClass[match.sheet.specClass] ??
+    ["transport", "resolution", "chroma", "bandwidth", "hdmiIn", "hdmiOut", "usb", "audio", "control", "distance", "poe"];
+
+  const ordered = [...match.verdicts]
+    .sort((left, right) => {
+      const leftIndex = priority.indexOf(left.field);
+      const rightIndex = priority.indexOf(right.field);
+      return (leftIndex < 0 ? 999 : leftIndex) - (rightIndex < 0 ? 999 : rightIndex);
+    });
+
+  const selected: Array<ShowdownMatch["verdicts"][number]> = [];
+  const seen = new Set<string>();
+
+  for (const verdict of ordered) {
+    if (!priority.includes(verdict.field)) continue;
+    if (seen.has(verdict.field)) continue;
+
+    seen.add(verdict.field);
+    selected.push(verdict);
+
+    if (selected.length >= 8) break;
+  }
+
+  const highlight = (
+    verdict: ShowdownMatch["verdicts"][number],
+    side: "competitor" | "wyrestorm",
+  ): BattleStat["highlight"] => {
+    if (verdict.verdict === "unverified") return null;
+    if (verdict.verdict === "match") return "draw";
+    if (verdict.verdict === "exceeds") return side === "wyrestorm" ? "win" : "lose";
+    return side === "wyrestorm" ? "lose" : "win";
+  };
+
+  return {
+    competitor: selected.map((verdict) => ({
+      label: conciseLabel(verdict.field, verdict.label),
+      value: verdict.competitorValue,
+      highlight: highlight(verdict, "competitor"),
+    })),
+    wyrestorm: selected.map((verdict) => ({
+      label: conciseLabel(verdict.field, verdict.label),
+      value: verdict.wyrestormValue,
+      highlight: highlight(verdict, "wyrestorm"),
+    })),
+  };
+}
+/* ------------------------------------------------------- printable export *//* ------------------------------------------------------- printable export */
 
 function escapeHtml(value: string): string {
   return value
@@ -227,11 +340,9 @@ export function CompareShowdown({
 
   if (result.coverage === "missing") return null;
 
-  const competitorStats = buildBattleStats(result.competitor, null);
-
   if (!match) return null;
 
-  const paired = pairStats(competitorStats, buildBattleStats(match.sheet, match.rating), match);
+  const paired = buildAlignedStats(match);
 
   return (
     <section className="wm-showdown wm-ui-card" aria-live="polite">
@@ -279,7 +390,7 @@ export function CompareShowdown({
           stats={paired.wyrestorm}
           accent="wyrestorm"
           bestFor={bestForLabel(match.sheet)}
-          footnote={result.verified ? "Verified from WyreStorm official documentation" : "Confirm current WyreStorm datasheet before quoting"}
+          footnote={wyrestormFootnote(match.sheet)}
         />
       </div> : null}
 

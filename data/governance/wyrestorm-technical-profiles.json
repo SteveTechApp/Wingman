@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-07-14",
+  "updatedAt": "2026-07-22",
   "policy": {
     "purpose": "Source-controlled, reviewed WyreStorm technical facts shared by Product Pitch, Compare, Finder and proposal workflows.",
     "precedence": [
@@ -988,6 +988,497 @@
           "note": "Exact NHD-500-TX port topology mirrored from data/governance/avoip-technology-registry.json."
         }
       ]
+    },
+    {
+      "sku": "MX-0808-H2A-MK2",
+      "status": "verified",
+      "productClass": "MATRIX",
+      "role": "matrix",
+      "productType": "8x8 HDMI matrix switcher",
+      "transport": [
+        "HDMI"
+      ],
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4",
+      "inputCount": 8,
+      "outputCount": 8,
+      "ports": [
+        {
+          "count": 8,
+          "connector": "HDMI Type A",
+          "direction": "input",
+          "category": "video",
+          "detail": "Eight independently routed HDMI source inputs"
+        },
+        {
+          "count": 8,
+          "connector": "HDMI Type A",
+          "direction": "output",
+          "category": "video",
+          "detail": "Eight independently routed HDMI display outputs"
+        },
+        {
+          "count": 8,
+          "connector": "3-pin Phoenix",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Balanced analogue audio outputs"
+        },
+        {
+          "count": 8,
+          "connector": "S/PDIF",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Digital audio outputs"
+        },
+        {
+          "count": 1,
+          "connector": "RJ-45",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "LAN/IP API control"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin Phoenix",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232 API control"
+        },
+        {
+          "count": 1,
+          "connector": "IEC mains",
+          "direction": "input",
+          "category": "power",
+          "detail": "Local mains power"
+        }
+      ],
+      "video": [
+        "Maximum presentation format: 4K60 4:4:4",
+        "18Gbps HDMI bandwidth",
+        "HDMI 2.0 and HDCP 2.2",
+        "HDR10, HDR10+, Dolby Vision and HLG support",
+        "Per-output 5K/4K to 1080p downscaling",
+        "ARC supported on all eight HDMI outputs"
+      ],
+      "audio": [
+        "8 x balanced analogue audio outputs",
+        "8 x S/PDIF digital audio outputs",
+        "Audio de-embedding",
+        "ARC supported on all eight HDMI outputs"
+      ],
+      "usb": [],
+      "network": [
+        "LAN connection is for control only; this is not an AV-over-IP product"
+      ],
+      "control": [
+        "LAN/IP API",
+        "RS-232 API",
+        "CEC display power control",
+        "Front-panel control"
+      ],
+      "power": [
+        "Local mains power",
+        "No PoE or PoH"
+      ],
+      "physical": [
+        "Rack-mount 8x8 HDMI matrix"
+      ],
+      "dependencies": [],
+      "compatibleFamilies": [
+        "HDMI matrix switching"
+      ],
+      "features": {
+        "battleCardApproved": true,
+        "matrixSize": "8x8",
+        "routedInputCount": 8,
+        "routedOutputCount": 8,
+        "physicalVideoOutputCount": 8,
+        "mirroredOutputCount": 0,
+        "loopOutputCount": 0,
+        "audioDeEmbed": true,
+        "scaling": true,
+        "arc": true,
+        "arcOutputCount": 8,
+        "usb": false,
+        "poe": false,
+        "poh": false
+      },
+      "specs": {
+        "matrixInputs": 8,
+        "matrixOutputs": 8,
+        "routedInputCount": 8,
+        "routedOutputCount": 8,
+        "mirroredOutputCount": 0,
+        "loopOutputCount": 0,
+        "hdmiInputs": 8,
+        "hdmiOutputs": 8,
+        "hdmiVersion": "2.0",
+        "hdcpVersion": "2.2",
+        "bandwidthGbps": 18,
+        "audioOutputs": 16,
+        "controlPorts": 2,
+        "audioDeEmbed": true,
+        "analogAudio": true,
+        "spdif": true,
+        "arc": true,
+        "usbTotalPorts": 0,
+        "poe": false,
+        "poh": false
+      },
+      "checks": [
+        "Do not classify this product as an HDBaseT matrix.",
+        "Do not infer 4K120 from broad standards or feature text.",
+        "The eight HDMI outputs are independently routed outputs.",
+        "There are no mirrored HDMI outputs, loop outputs, USB ports or PoE/PoH connections."
+      ],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0808-h2a-mk2/",
+          "reviewedOn": "2026-07-22",
+          "reviewer": "Wingman governed technical-data correction",
+          "note": "Official product identity and technical specification source."
+        }
+      ]
+    },
+    {
+      "sku": "APO-210-UC",
+      "status": "verified-with-warning",
+      "productClass": "PRESENTATION",
+      "role": "presentation switcher",
+      "productType": "Conference speakerphone and presentation switcher",
+      "transport": [
+        "Local HDMI",
+        "USB-C",
+        "Wireless presentation",
+        "HDBaseT display output"
+      ],
+      "maxResolution": "4K30 4:4:4",
+      "chroma": "4:4:4",
+      "inputCount": 2,
+      "outputCount": 2,
+      "ports": [
+        {
+          "count": 1,
+          "connector": "USB-C",
+          "direction": "input",
+          "category": "video",
+          "detail": "USB-C AV input with USB 3.2 Gen 2x1 and up to 60W charging"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI Type A",
+          "direction": "input",
+          "category": "video",
+          "detail": "Local HDMI source input"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI Type A",
+          "direction": "output",
+          "category": "video",
+          "detail": "Local HDMI display output"
+        },
+        {
+          "count": 1,
+          "connector": "RJ-45 HDBaseT",
+          "direction": "output",
+          "category": "video",
+          "detail": "HDBaseT display output; compatible receiver required"
+        },
+        {
+          "count": 1,
+          "connector": "USB-A",
+          "direction": "bidirectional",
+          "category": "usb",
+          "detail": "USB 3.0 peripheral connection"
+        },
+        {
+          "count": 1,
+          "connector": "RJ-45",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "LAN and Telnet API"
+        },
+        {
+          "count": 1,
+          "connector": "24V DC",
+          "direction": "input",
+          "category": "power",
+          "detail": "24V DC 5A external power supply"
+        }
+      ],
+      "video": [
+        "Maximum USB-C video format: 3840x2160p at 30Hz, 8-bit 4:4:4",
+        "HDMI and HDBaseT display outputs",
+        "Dual-view presentation workflow",
+        "Wireless Miracast and AirPlay presentation"
+      ],
+      "audio": [
+        "Integrated 10W speaker",
+        "Integrated 360-degree four-microphone array",
+        "AEC, AGC and noise suppression"
+      ],
+      "usb": [
+        "1 x USB-C with USB 3.2 Gen 2x1",
+        "1 x USB-A 3.0 peripheral port"
+      ],
+      "network": [
+        "1 x LAN connection for control and wireless presentation workflow"
+      ],
+      "control": [
+        "Telnet API",
+        "CEC",
+        "RS-232 passthrough over HDBaseT"
+      ],
+      "power": [
+        "24V DC 5A external power supply",
+        "No PoE or PoH"
+      ],
+      "physical": [
+        "Tabletop conference speakerphone and presentation switcher"
+      ],
+      "dependencies": [
+        "Compatible HDBaseT receiver is required when using the HDBaseT display output"
+      ],
+      "compatibleFamilies": [
+        "Apollo",
+        "WyreStorm HDBaseT receivers"
+      ],
+      "features": {
+        "battleCardApproved": true,
+        "matrixSize": "2x2 presentation",
+        "routedInputCount": 2,
+        "routedOutputCount": 2,
+        "physicalVideoOutputCount": 2,
+        "mirroredOutputCount": 0,
+        "loopOutputCount": 0,
+        "integratedSpeakerphone": true,
+        "integratedMicrophones": true,
+        "wirelessPresentation": true,
+        "multiview": true,
+        "usb": true,
+        "poe": false,
+        "poh": false
+      },
+      "specs": {
+        "matrixInputs": 2,
+        "matrixOutputs": 2,
+        "routedInputCount": 2,
+        "routedOutputCount": 2,
+        "mirroredOutputCount": 0,
+        "loopOutputCount": 0,
+        "hdmiInputs": 1,
+        "hdmiOutputs": 1,
+        "hdbasetOutputs": 1,
+        "usbHostPorts": 1,
+        "usbDevicePorts": 1,
+        "usbTotalPorts": 2,
+        "networkPorts": 1,
+        "poe": false,
+        "poh": false,
+        "externalPsu": true,
+        "powerSupply": "24V DC 5A"
+      },
+      "checks": [
+        "Do not display 8K or 4K60 as the verified maximum presentation format.",
+        "Do not claim PoE or PoH.",
+        "Do not compare this integrated speakerphone product as a direct equivalent to a classroom switcher with an integrated power amplifier.",
+        "Confirm HDBaseT receiver compatibility before quotation."
+      ],
+      "warnings": [
+        "The official product page contains broad product-family metadata that conflicts with the model-specific technical specification table. This profile uses the model-specific table."
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/global/product/apo-210-uc/",
+          "reviewedOn": "2026-07-22",
+          "reviewer": "Wingman model-specific technical correction",
+          "note": "Model-specific Technical Specifications section used in preference to broad feature metadata."
+        }
+      ]
+    },
+    {
+      "sku": "MX-0402-MST",
+      "status": "verified",
+      "productClass": "PRESENTATION",
+      "role": "presentation switcher",
+      "productType": "4x2 multi-input conference-room switcher with MST",
+      "transport": [
+        "Local HDMI",
+        "USB-C DisplayPort Alt Mode"
+      ],
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4",
+      "inputCount": 4,
+      "outputCount": 2,
+      "ports": [
+        {
+          "count": 2,
+          "connector": "HDMI Type A",
+          "direction": "input",
+          "category": "video",
+          "detail": "18Gbps HDMI source inputs"
+        },
+        {
+          "count": 2,
+          "connector": "USB-C",
+          "direction": "input",
+          "category": "video",
+          "detail": "USB-C DisplayPort Alt Mode inputs with up to 60W charging"
+        },
+        {
+          "count": 2,
+          "connector": "HDMI Type A",
+          "direction": "output",
+          "category": "video",
+          "detail": "Two independently routed HDMI display outputs"
+        },
+        {
+          "count": 1,
+          "connector": "5-pin Phoenix",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Balanced analogue audio de-embed output"
+        },
+        {
+          "count": 2,
+          "connector": "USB-B",
+          "direction": "input",
+          "category": "usb",
+          "detail": "USB host connections"
+        },
+        {
+          "count": 4,
+          "connector": "USB-A",
+          "direction": "output",
+          "category": "usb",
+          "detail": "USB peripheral/device connections"
+        },
+        {
+          "count": 2,
+          "connector": "RJ-45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "Ethernet switching, VLAN and control"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin Phoenix",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232"
+        },
+        {
+          "count": 1,
+          "connector": "20V DC",
+          "direction": "input",
+          "category": "power",
+          "detail": "20V external power supply"
+        }
+      ],
+      "video": [
+        "Maximum standard 16:9 format: 3840x2160p at 60Hz, 4:4:4 8-bit",
+        "Ultrawide support: 5120x2160 at 30Hz or 5120x2160 at 60Hz 4:2:0",
+        "18Gbps HDMI bandwidth",
+        "HDR10, HDR10+, HLG and Dolby Vision",
+        "Dual-output MST workflow"
+      ],
+      "audio": [
+        "HDMI and USB-C embedded audio",
+        "Balanced analogue audio de-embedding",
+        "PCM, Dolby and DTS format support"
+      ],
+      "usb": [
+        "USB 3.2 at 5Gbit/s",
+        "2 x USB host connections",
+        "4 x USB peripheral connections"
+      ],
+      "network": [
+        "Dual RJ-45 Ethernet ports",
+        "Ethernet switching and VLAN support"
+      ],
+      "control": [
+        "RS-232",
+        "Telnet",
+        "Web UI"
+      ],
+      "power": [
+        "20V external power supply",
+        "Up to 60W charging on each USB-C input",
+        "No PoE or PoH"
+      ],
+      "physical": [
+        "Rack-mount conference-room presentation switcher"
+      ],
+      "dependencies": [],
+      "compatibleFamilies": [
+        "Synergy",
+        "Conference-room presentation"
+      ],
+      "features": {
+        "battleCardApproved": true,
+        "matrixSize": "4x2",
+        "routedInputCount": 4,
+        "routedOutputCount": 2,
+        "physicalVideoOutputCount": 2,
+        "mirroredOutputCount": 0,
+        "loopOutputCount": 0,
+        "mst": true,
+        "scaling": true,
+        "usb": true,
+        "poe": false,
+        "poh": false
+      },
+      "specs": {
+        "matrixInputs": 4,
+        "matrixOutputs": 2,
+        "routedInputCount": 4,
+        "routedOutputCount": 2,
+        "mirroredOutputCount": 0,
+        "loopOutputCount": 0,
+        "hdmiInputs": 2,
+        "usbCInputs": 2,
+        "hdmiOutputs": 2,
+        "bandwidthGbps": 18,
+        "usbHostPorts": 2,
+        "usbDevicePorts": 4,
+        "usbTotalPorts": 6,
+        "networkPorts": 2,
+        "poe": false,
+        "poh": false,
+        "externalPsu": true,
+        "powerSupply": "20V DC"
+      },
+      "checks": [
+        "Do not display 4K120; the model-specific maximum standard 16:9 format is 4K60 4:4:4.",
+        "Do not convert the 5120x2160 ultrawide mode into 4K120.",
+        "Do not interpret charging wattage or power-consumption figures as refresh rates.",
+        "Do not claim PoE or PoH."
+      ],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0402-mst/",
+          "reviewedOn": "2026-07-22",
+          "reviewer": "Wingman MX-0402-MST resolution correction",
+          "note": "Model-specific technical specifications: 3840x2160p at 60Hz 4:4:4, HDMI 18Gbps."
+        }
+      ],
+      "routedInputs": 4,
+      "routedOutputs": 2,
+      "routedInputCount": 4,
+      "routedOutputCount": 2,
+      "matrixInputs": 4,
+      "matrixOutputs": 2,
+      "matrixSize": "4x2",
+      "matrixSizeEvidence": "SKU/title evidence: MX-0402-MST / 4x2 HDMI",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     }
   ]
 }
