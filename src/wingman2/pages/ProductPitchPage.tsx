@@ -1292,9 +1292,15 @@ export function ProductPitchPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const selectedSku = searchParams.get("sku") || "";
+  // A family / "range" entry point (e.g. from Product Families) arrives with
+  // ?q=<family> rather than a specific ?sku=. Carry it into the picker so the
+  // page opens pre-filtered to that range instead of a blank search, and so a
+  // sku that isn't in the current catalogue can recover to the range picker
+  // instead of dead-ending.
+  const rangeQuery = searchParams.get("q") || "";
 
   const [products, setProducts] = useState<ProductSpec[]>(fallbackProducts);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(rangeQuery);
   const [activeQuickFilter, setActiveQuickFilter] = useState<ProductPitchQuickFilter>("All");
   const [includeAccessories, setIncludeAccessories] = useState(false);
   const [includeCables, setIncludeCables] = useState(false);
@@ -1340,6 +1346,14 @@ export function ProductPitchPage() {
     return products.find((product) => product.sku.toLowerCase() === selectedSku.toLowerCase()) || null;
   }, [products, selectedSku]);
 
+  // Arriving with a fresh ?q=<range> (no specific sku) should pre-fill the
+  // picker search. Kept in an effect so navigating between range links while
+  // the page stays mounted updates the filter, without clobbering a rep who
+  // is typing their own search on the selection screen.
+  useEffect(() => {
+    if (rangeQuery) setSearchTerm(rangeQuery);
+  }, [rangeQuery]);
+
   const openProduct = (sku: string) => {
     navigate(`/wingman/product-pitch?sku=${encodeURIComponent(sku)}`);
   };
@@ -1356,24 +1370,33 @@ export function ProductPitchPage() {
     );
   }
 
+  const selectionPage = (
+    <SelectionPage
+      products={products}
+      searchTerm={searchTerm}
+      setSearchTerm={setSearchTerm}
+      activeQuickFilter={activeQuickFilter}
+      setActiveQuickFilter={setActiveQuickFilter}
+      includeAccessories={includeAccessories}
+      setIncludeAccessories={setIncludeAccessories}
+      includeCables={includeCables}
+      setIncludeCables={setIncludeCables}
+      openProduct={openProduct}
+    />
+  );
+
   if (!selectedSku) {
-    return (
-      <SelectionPage
-        products={products}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        activeQuickFilter={activeQuickFilter}
-        setActiveQuickFilter={setActiveQuickFilter}
-        includeAccessories={includeAccessories}
-        setIncludeAccessories={setIncludeAccessories}
-        includeCables={includeCables}
-        setIncludeCables={setIncludeCables}
-        openProduct={openProduct}
-      />
-    );
+    return selectionPage;
   }
 
   if (!selectedProduct) {
+    // A range/family entry point that pointed at a sku not in the current
+    // catalogue must not dead-end: fall back to the range-filtered picker so
+    // the rep still lands on that family's real products.
+    if (rangeQuery) {
+      return selectionPage;
+    }
+
     return (
       <main className="grid gap-4 pb-6 wm-ui-page wingman-page-host wm-product-pitch-page">
         <section className="rounded-3xl border p-5 wm-ui-section wm-ui-card">
