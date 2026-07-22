@@ -548,6 +548,79 @@ function connectionList(product: ProductSpec, limit = 5): string[] {
   );
 }
 
+// Translate a verified capability token into a plain, customer-facing benefit -
+// what the feature actually DOES for the customer - so generated copy positions
+// value instead of listing spec tokens. Order matters: more specific tokens
+// (4:4:4, USB-C) are tested before broader ones (4K, USB). A token with no rule
+// is simply not surfaced as a benefit rather than being echoed raw.
+const FEATURE_BENEFIT_RULES: Array<{ test: RegExp; benefit: string }> = [
+  { test: /\b4:4:4\b/i, benefit: "crisp text and fine detail with no colour smearing, so spreadsheets, CAD and signage stay sharp" },
+  { test: /dolby vision|\bHDR/i, benefit: "richer contrast and colour on HDR content" },
+  { test: /\b[48]K/i, benefit: "a sharp, detailed picture that holds up on large screens" },
+  { test: /USB-?C/i, benefit: "one cable for video, USB and laptop charging, so people walk up and connect" },
+  { test: /USB[\s-]?(?:3|super)/i, benefit: "fast USB for cameras and high-resolution room peripherals" },
+  { test: /\bKVM\b/i, benefit: "keyboard-and-mouse control of a remote PC from the screen position" },
+  { test: /PoE/i, benefit: "power over the network cable, so no separate supply is needed at the far end" },
+  { test: /\bNDI\b/i, benefit: "camera and AV over standard IP that the network and production tools already understand" },
+  { test: /dante|aes67/i, benefit: "room audio shared over the network to other rooms and systems" },
+  { test: /sdvoe|10\s?gbe/i, benefit: "uncompressed, zero-latency video across a 10G network" },
+  { test: /jpeg[\s-]?xs/i, benefit: "visually lossless video at low bandwidth on an ordinary 1G network" },
+  { test: /seamless/i, benefit: "clean, glitch-free cuts between sources" },
+  { test: /scaling/i, benefit: "each screen gets a correctly sized picture whatever the source resolution" },
+  { test: /e?arc/i, benefit: "TV or soundbar audio returns down the same HDMI cable" },
+  { test: /multiview/i, benefit: "several sources visible on one screen at once" },
+  { test: /video wall/i, benefit: "one picture spread across a group of screens" },
+];
+
+function featureBenefit(token: string): string | null {
+  for (const rule of FEATURE_BENEFIT_RULES) {
+    if (rule.test.test(token)) return rule.benefit;
+  }
+  return null;
+}
+
+// Benefit claims must be per-SKU accurate, so they are extracted ONLY from the
+// resolved technical spec fields (video / audio) and a pipe-delimited spec
+// description - NOT from capabilityTags, which is a broad family-level tag soup
+// (e.g. a 4K30 encoder carries "8K"/"Video Wall"/"USB-C power delivery" tags for
+// the NetworkHD family, none of which are that encoder's own capability). PoC /
+// USB-C *power* is stripped so it is never mis-sold as a USB-C data/video input
+// ("walk up and connect").
+function benefitCapabilityTokens(product: ProductSpec): string[] {
+  const structured = [...product.video, ...product.audio].join(" | ");
+  const pipeDescription = product.description.includes("|") ? product.description : "";
+  const text = `${structured} | ${pipeDescription}`
+    .replace(/USB-?C\s*(?:power delivery|power|pd)\b/gi, " ")
+    .replace(/\bPo[CH]\b/gi, " ");
+  return capabilitiesFromText(text).filter((token) => !/not yet|not confirmed|not applicable/i.test(token));
+}
+
+function collectFeatureBenefits(product: ProductSpec, limit: number): Array<{ token: string; benefit: string }> {
+  const tokens = benefitCapabilityTokens(product);
+  const seen = new Set<string>();
+  const out: Array<{ token: string; benefit: string }> = [];
+
+  for (const token of tokens) {
+    const benefit = featureBenefit(token);
+    if (!benefit || seen.has(benefit)) continue;
+    seen.add(benefit);
+    out.push({ token: token.replace(/\s+/g, " ").trim(), benefit });
+    if (out.length >= limit) break;
+  }
+
+  return out;
+}
+
+// "Feature - plain benefit" lines, per-SKU accurate (see benefitCapabilityTokens).
+export function buildProductFeatureBenefits(product: ProductSpec, limit = 5): string[] {
+  return collectFeatureBenefits(product, limit).map(({ token, benefit }) => `${token} - ${benefit}.`);
+}
+
+// The benefit phrases alone (no "token -" prefix), for weaving into a sentence.
+function featureBenefitPhrases(product: ProductSpec, limit = 2): string[] {
+  return collectFeatureBenefits(product, limit).map(({ benefit }) => benefit);
+}
+
 function rangeRelationship(product: ProductSpec): string {
   const series = networkHdSeries(product);
   if (!series) return "";
@@ -779,8 +852,14 @@ function plainFunctionClause(product: ProductSpec, role: ProductRole): string {
 
 function skuWhatItIs(product: ProductSpec, role: ProductRole): string {
   const kind = productKind(product, role);
+  // Lead with what it does in plain terms, then translate its top capabilities
+  // into customer benefits, and only then note the raw spec/connection facts.
+  const benefits = featureBenefitPhrases(product, 2);
+  const benefitClause = benefits.length ? ` In practice that means ${benefits.join(", and ")}.` : "";
   const feats = headlineFeatures(product, 5);
-  const featureClause = feats.length ? ` Headline capability: ${feats.join(", ")}.` : "";
+  // Keep the verified capability list, but demote it to a subordinate "on the
+  // spec sheet" clause instead of leading with it.
+  const featureClause = feats.length ? ` On the spec sheet: ${feats.join(", ")}.` : "";
   const application = firstMeaningful(product.applications, "");
   const applicationClause =
     application && !isPlaceholderText(application) ? ` It is typically used in ${application.toLowerCase()}.` : "";
@@ -788,18 +867,20 @@ function skuWhatItIs(product: ProductSpec, role: ProductRole): string {
   const connectionClause = connections.length ? ` It connects via ${connections.join(", ")}.` : "";
   const functionClause = plainFunctionClause(product, role);
 
-  return `${product.sku} (${product.name}) is ${articleFor(kind)} ${kind}.${functionClause}${featureClause}${applicationClause}${connectionClause}`;
+  return `${product.sku} (${product.name}) is ${articleFor(kind)} ${kind}.${functionClause}${benefitClause}${applicationClause}${featureClause}${connectionClause}`;
 }
 
 function skuSuggestedWording(product: ProductSpec, role: ProductRole, fallback: string): string {
   const kind = productKind(product, role);
-  const feats = headlineFeatures(product, 3);
   const application = firstMeaningful(product.applications, "");
   const applicationClause =
     application && !isPlaceholderText(application) ? ` for ${application.toLowerCase()}` : "";
-  const featureClause = feats.length > 0 ? ` The practical hooks are ${feats.slice(0, 3).join(", ")}.` : "";
+  // Sell the benefit, not the spec: translate the top capabilities into what
+  // they do for the customer instead of listing "the practical hooks are 4K60".
+  const benefits = featureBenefitPhrases(product, 2);
+  const benefitClause = benefits.length ? ` For the customer that means ${benefits.join(", and ")}.` : "";
   const family = familyRelationship(product, role);
-  const pitch = `"${product.sku} is the ${kind}${applicationClause}."${featureClause}`;
+  const pitch = `"${product.sku} is the ${kind}${applicationClause}."${benefitClause}`;
 
   return family ? `${pitch} Then place it in the range: ${family}` : `${pitch} ${fallback}`;
 }
