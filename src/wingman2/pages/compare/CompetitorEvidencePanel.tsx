@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { runCompetitorLookup, WingmanApiError, type CompetitorLookupResponse } from "../../api/wingmanApi";
 import { inferSpecFormFieldsFromText } from "../../lib/competitorSpecRegistry";
 import { findSavedCompetitorSpec, saveCompetitorSpec, type SavedCompetitorSpec } from "../../lib/savedCompetitorSpecs";
@@ -65,7 +65,7 @@ const DOCUMENT_ACCEPT = ".pdf,.docx,.txt";
  * feeds match scoring directly; only an explicit "Save for next time" click
  * does, same as before this panel grew upload support.
  */
-export function CompetitorEvidencePanel({ brand, sku, onSaved }: { brand: string; sku: string; onSaved: () => void }) {
+export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false }: { brand: string; sku: string; onSaved: () => void; autoRun?: boolean }) {
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [result, setResult] = useState<CompetitorLookupResponse | null>(null);
   const [error, setError] = useState<{ message: string; needsSignIn: boolean } | null>(null);
@@ -126,6 +126,20 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved }: { brand: string
       setStatus("error");
     }
   }, [brand, sku]);
+
+  // When the panel is mounted for a no-match result, automatically kick off the
+  // live lookup so "no match found" immediately becomes "here is what we could
+  // fetch about this product" - the rep no longer has to find and press the
+  // button. Guarded to fire once per brand+sku, and skipped when we already
+  // have a saved spec for this SKU (that saved data is what should be used).
+  const autoRunKeyRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!autoRun || !brand.trim() || !sku.trim() || existingSaved) return;
+    const key = `${brand}:::${sku}`;
+    if (autoRunKeyRef.current === key) return;
+    autoRunKeyRef.current = key;
+    void runLookup();
+  }, [autoRun, brand, sku, existingSaved, runLookup]);
 
   async function handleDocumentChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
