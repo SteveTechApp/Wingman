@@ -492,11 +492,22 @@ export function normalizeWyrestorm(entry: WsEntry): SpecSheet {
 
   const specClass = wsClass(entry);
   const role = wsRole(entry);
-  const { transport, label: transportLabel } = transportFrom(specClass, [
-    transports.join(" "),
-    linkSpeeds.join(" "),
-    text(entry.technologyType),
-  ]);
+  // Structured transport evidence (technicalProfile.transports / link speeds)
+  // outranks the loose technologyType label: e.g. MX-0808-H2A-MK2 lists
+  // transports ["HDMI"] and 8x HDMI in / 8x HDMI out ports, but carries the
+  // family label "HDBaseT / HDMI matrix" - matching the label first tagged a
+  // pure HDMI matrix as HDBaseT, demoting it to an architecture-alternative
+  // against HDMI-matrix competitors. Fall back to the label only when no
+  // structured transport is recorded.
+  const structuredTransport = transportFrom(specClass, [transports.join(" "), linkSpeeds.join(" ")]);
+  const { transport, label: transportLabel } =
+    structuredTransport.transport !== "unknown"
+      ? structuredTransport
+      : transportFrom(specClass, [
+          transports.join(" "),
+          linkSpeeds.join(" "),
+          text(entry.technologyType),
+        ]);
 
   const standards = Array.isArray(video.standards) ? (video.standards as unknown[]).map(text) : [];
   const maxResolutions = Array.isArray(video.maxResolutions) ? (video.maxResolutions as unknown[]).map(text) : [];
