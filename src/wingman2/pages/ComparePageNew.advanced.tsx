@@ -6037,14 +6037,19 @@ function ComparePageNew() {
                   </div>
                 </section>
 
-                <details className="compare-native-summary compare-native-support-details wm-ui-card wm-ui-copy">
-                  <summary>Add evidence or open technical review controls</summary>
+                {/* No local match: automatically run the live lookup and keep
+                    the evidence panel prominent (not buried in a details), so a
+                    no-match immediately becomes a live-lookup search the rep can
+                    act on. */}
+                <CompetitorEvidencePanel
+                  brand={effectiveBrand}
+                  sku={competitorInput}
+                  onSaved={() => setCatalogVersion((version) => version + 1)}
+                  autoRun
+                />
 
-                  <CompetitorEvidencePanel
-                    brand={effectiveBrand}
-                    sku={competitorInput}
-                    onSaved={() => setCatalogVersion((version) => version + 1)}
-                  />
+                <details className="compare-native-summary compare-native-support-details wm-ui-card wm-ui-copy">
+                  <summary>Open technical review controls</summary>
 
                   <GovernedDecisionPanel
                     key={`${effectiveBrand}:${competitorInput}:${displayedDecision?.updatedAt ?? decisionRevision}`}
