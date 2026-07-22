@@ -22,22 +22,82 @@ export function buildBattleStats(sheet: SpecSheet, rating: number | null): Battl
     stats.push({ label, value: `${value}${suffix}` });
   };
 
-  push("Max Resolution", sheet.maxResolutionLabel || (sheet.resolutionRank ? "Verified" : ""));
-  push("Chroma", sheet.chroma);
-  push("Bandwidth (Gbps)", sheet.bandwidthGbps);
-  const io = [sheet.hdmiIn, sheet.hdmiOut];
-  if (io[0] != null || io[1] != null) {
-    push("HDMI In / Out", `${io[0] ?? "—"} / ${io[1] ?? "—"}`);
+  const joinedAudio = sheet.audioSummary || sheet.audioOptions.join(" · ");
+  const joinedControl = sheet.controlSummary || sheet.controlOptions.join(" · ");
+
+  if (sheet.specClass === "MATRIX") {
+    const matrixSize =
+      sheet.matrixSize ||
+      (sheet.routedIn != null && sheet.routedOut != null
+        ? `${sheet.routedIn}x${sheet.routedOut}`
+        : "");
+
+    const inputSummary =
+      sheet.inputSummary ||
+      (sheet.hdmiIn != null ? `${sheet.hdmiIn} x HDMI` : "");
+
+    const routedOutputSummary =
+      sheet.routedOutputSummary ||
+      (sheet.routedOut != null
+        ? `${sheet.routedOut} x ${
+            sheet.transport === "hdbaset" ? "HDBaseT" : "HDMI"
+          }`
+        : "");
+
+    push("Matrix size", matrixSize);
+    push("Inputs", inputSummary);
+    push("Routed outputs", routedOutputSummary);
+    push("Mirrored outputs", sheet.mirroredOutputSummary);
+    push("Max video", sheet.maxResolutionLabel || (sheet.resolutionRank ? "Verified" : ""));
+    push("Bandwidth", sheet.bandwidthGbps, sheet.bandwidthGbps != null ? "Gbps" : "");
+    push("Audio breakout", joinedAudio);
+    push("Control", joinedControl);
+
+    if (rating != null && stats.length < 8) {
+      push("Verified match rating", rating);
+    }
+
+    return stats.slice(0, 8);
   }
-  push("USB", sheet.usbVersion);
-  push("Control Options", sheet.controlOptions.length || null);
-  push("Audio Options", sheet.audioOptions.length || null);
-  push("Max Reach (m)", sheet.distanceM);
-  push("PoE / PoH", sheet.poe);
-  if (rating != null) stats.push({ label: "Verified Match Rating", value: String(rating) });
+
+  if (sheet.specClass === "AVOIP") {
+    push("Endpoint role", sheet.role);
+    push("Network", sheet.transportLabel);
+    push("Input", sheet.inputSummary || (sheet.hdmiIn != null ? `${sheet.hdmiIn} x HDMI` : ""));
+    push("Routed output", sheet.routedOutputSummary);
+    push("Local loop", sheet.loopOutputSummary);
+    push("Max video", sheet.maxResolutionLabel || (sheet.resolutionRank ? "Verified" : ""));
+    push("USB / KVM", sheet.usbVersion);
+    push("Audio", joinedAudio);
+    push("Power", sheet.poe);
+    return stats.slice(0, 8);
+  }
+
+  push("Max video", sheet.maxResolutionLabel || (sheet.resolutionRank ? "Verified" : ""));
+  push("Chroma", sheet.chroma);
+  push("Bandwidth", sheet.bandwidthGbps, sheet.bandwidthGbps != null ? "Gbps" : "");
+
+  const inputSummary =
+    sheet.inputSummary ||
+    (sheet.hdmiIn != null ? `${sheet.hdmiIn} x HDMI` : "");
+  const outputSummary =
+    sheet.routedOutputSummary ||
+    (sheet.hdmiOut != null ? `${sheet.hdmiOut} x HDMI` : "");
+
+  push("Inputs", inputSummary);
+  push("Outputs", outputSummary);
+  push("USB / KVM", sheet.usbVersion);
+  push("Audio", joinedAudio);
+  push("Control", joinedControl);
+  push("Max reach", sheet.distanceM, sheet.distanceM != null ? "m" : "");
+  push("Power", sheet.poe);
+
+  if (rating != null && stats.length < 8) {
+    push("Verified match rating", rating);
+  }
+
   return stats.slice(0, 8);
 }
-
 function brandMonogram(brand: string): string {
   const parts = brand.trim().split(/\s+/);
   return (parts[0]?.[0] ?? "?") + (parts[1]?.[0] ?? "");

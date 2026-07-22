@@ -20,6 +20,7 @@
  */
 
 import competitorCatalogRaw from "../../../data/catalog/competitor-products.generated.json";
+import governedTechnicalProfilesRaw from "../../../data/governance/wyrestorm-technical-profiles.json";
 import { loadProductIntelligenceIndex } from "./productIntelligenceIndexCache";
 import { extractRawProducts } from "./productStoryEngine";
 
@@ -97,6 +98,14 @@ export type SpecSheet = {
   controlOptions: string[];
   distanceM: number | null;
   poe: string;
+  inputSummary?: string;
+  routedOutputSummary?: string;
+  mirroredOutputSummary?: string;
+  loopOutputSummary?: string;
+  audioSummary?: string;
+  controlSummary?: string;
+  matrixSize?: string;
+  verificationStatus?: "verified" | "verified-with-warning" | "inferred" | "missing" | "conflicting";
   citations: Citation[];
   imageUrl?: string;
 };
@@ -164,7 +173,7 @@ export function rankResolution(label: string): number {
   const t = label.toLowerCase();
   if (!t) return 0;
   if (/8k/.test(t)) return 7;
-  if (/4k\s*120|4096.*120|2160.*120/.test(t)) return 6;
+  if (/\b4k\s*@?\s*120(?:\s*hz)?\b|(?:3840|4096)\s*[x×]\s*2160[^;\n]{0,32}\b120\s*hz\b|\b2160p?[^;\n]{0,24}\b120\s*hz\b/.test(t)) return 6;
   if (/4k\s*60.*(4:4:4|444)|(4:4:4|444).*4k\s*60|2160p?\s*@?\s*60.*(4:4:4|444)/.test(t)) return 5;
   if (/4k\s*60|2160p?\s*@?\s*60|4096x2160.*60/.test(t)) return 4;
   if (/4k\s*30|2160p?\s*@?\s*30|4k(?!\d)/.test(t)) return 3;
@@ -240,9 +249,12 @@ function classFromText(t: string): SpecClass {
   // matrix out of the MATRIX class, leaving mis-sized boxes as the only
   // candidates for matrix competitors.
   if (/matrix/.test(s)) return "MATRIX";
+  // Product purpose outranks transport. A presentation switcher with an
+  // HDBaseT input/output remains a PRESENTATION product, not an extender.
+  if (/presentation|collab.*switch|room.*switch/.test(s)) return "PRESENTATION";
   if (/hdbaset|hdbt/.test(s)) return "HDBASET";
   if (/multiview|multi-view/.test(s)) return "MULTIVIEW";
-  if (/presentation|switcher|collab.*switch/.test(s)) return "PRESENTATION";
+  if (/switcher|switch\b/.test(s)) return "PRESENTATION";
   if (/usb.*ext|extender.*usb/.test(s)) return "USB_EXTENSION";
   if (/extender|extension/.test(s)) return "EXTENDER";
   if (/wireless|clickshare|airtame|casting|byod|solstice/.test(s)) return "WIRELESS_PRESENTATION";
@@ -477,7 +489,213 @@ function wsCountPorts(ports: WsPort[], direction: "input" | "output", match: Reg
   return seen ? total : null;
 }
 
+// WINGMAN_GOVERNED_BATTLE_CARD_NORMALISER_START
+type GovernedBattlePort = {
+  count?: unknown;
+  connector?: unknown;
+  direction?: unknown;
+  category?: unknown;
+  detail?: unknown;
+};
+
+type GovernedBattleProfile = {
+  sku?: unknown;
+  status?: unknown;
+  productClass?: unknown;
+  role?: unknown;
+  productType?: unknown;
+  transport?: unknown;
+  maxResolution?: unknown;
+  chroma?: unknown;
+  inputCount?: unknown;
+  outputCount?: unknown;
+  ports?: unknown;
+  audio?: unknown;
+  control?: unknown;
+  power?: unknown;
+  features?: unknown;
+  specs?: unknown;
+  evidence?: unknown;
+};
+
+const GOVERNED_BATTLE_PROFILES: GovernedBattleProfile[] = Array.isArray(
+  (governedTechnicalProfilesRaw as { profiles?: unknown }).profiles,
+)
+  ? ((governedTechnicalProfilesRaw as { profiles: GovernedBattleProfile[] }).profiles)
+  : [];
+
+function governedValue(record: Record<string, unknown>, name: string): unknown {
+  return record[name];
+}
+
+function governedPortCount(
+  ports: GovernedBattlePort[],
+  direction: "input" | "output",
+  category: string,
+  connectorPattern?: RegExp,
+): number {
+  return ports.reduce((total, port) => {
+    if (text(port.direction).toLowerCase() !== direction) return total;
+    if (text(port.category).toLowerCase() !== category) return total;
+    if (connectorPattern && !connectorPattern.test(text(port.connector))) return total;
+    return total + (num(port.count) ?? 0);
+  }, 0);
+}
+
+function governedPortSummary(
+  ports: GovernedBattlePort[],
+  direction: "input" | "output",
+  category: string,
+): string {
+  const grouped = new Map<string, number>();
+
+  for (const port of ports) {
+    if (text(port.direction).toLowerCase() !== direction) continue;
+    if (text(port.category).toLowerCase() !== category) continue;
+
+    const connector = text(port.connector)
+      .replace(/\s+Type\s+A$/i, "")
+      .replace(/^3-pin Phoenix$/i, "analogue")
+      .trim();
+
+    if (!connector) continue;
+    grouped.set(connector, (grouped.get(connector) ?? 0) + (num(port.count) ?? 0));
+  }
+
+  return Array.from(grouped.entries())
+    .map(([connector, count]) => `${count} x ${connector}`)
+    .join(" · ");
+}
+
+function normalizeGovernedBattleCard(entry: WsEntry): SpecSheet | null {
+  const sku = text(entry.sku);
+  const profile = GOVERNED_BATTLE_PROFILES.find((candidate) => key(candidate.sku) === key(sku));
+  if (!profile) return null;
+
+  const features = (
+    profile.features && typeof profile.features === "object" && !Array.isArray(profile.features)
+      ? profile.features
+      : {}
+  ) as Record<string, unknown>;
+
+  if (governedValue(features, "battleCardApproved") !== true) return null;
+
+  const ports = Array.isArray(profile.ports)
+    ? (profile.ports as GovernedBattlePort[])
+    : [];
+
+  const evidence = Array.isArray(profile.evidence)
+    ? (profile.evidence as Array<Record<string, unknown>>)
+    : [];
+
+  const citations: Citation[] = evidence
+    .map((item) => ({
+      label: text(item.sourceType) || "WyreStorm governed technical source",
+      url: text(item.sourceUrl) || undefined,
+      detail: [
+        text(item.reviewedOn) ? `Reviewed ${text(item.reviewedOn)}` : "",
+        text(item.reviewer),
+        text(item.note),
+      ].filter(Boolean).join(" · ") || undefined,
+    }))
+    .filter((item) => item.url || item.detail);
+
+  const transportValues = Array.isArray(profile.transport)
+    ? (profile.transport as unknown[]).map(text).filter(Boolean)
+    : [];
+
+  const maxResolutionLabel = text(profile.maxResolution);
+  const chroma = text(profile.chroma);
+  const audioOptions = Array.isArray(profile.audio)
+    ? (profile.audio as unknown[]).map(text).filter(Boolean)
+    : [];
+  const controlOptions = Array.isArray(profile.control)
+    ? (profile.control as unknown[]).map(text).filter(Boolean)
+    : [];
+  const powerText = Array.isArray(profile.power)
+    ? (profile.power as unknown[]).map(text).join(" ")
+    : "";
+
+  const routedIn = num(governedValue(features, "routedInputCount"))
+    ?? num(profile.inputCount)
+    ?? governedPortCount(ports, "input", "video");
+
+  const routedOut = num(governedValue(features, "routedOutputCount"))
+    ?? num(profile.outputCount)
+    ?? governedPortCount(ports, "output", "video");
+
+  const mirroredOutputCount = num(governedValue(features, "mirroredOutputCount")) ?? 0;
+  const loopOutputCount = num(governedValue(features, "loopOutputCount")) ?? 0;
+  const status = text(profile.status).toLowerCase();
+
+  return {
+    sku,
+    brand: "WyreStorm",
+    name: text(profile.productType) || text(entry.name) || sku,
+    family: text(entry.primarySystemFamily) || text(entry.category) || "WyreStorm",
+    summary: text(entry.summary) || text(entry.description) || text(profile.productType),
+    specClass: classFromText(text(profile.productClass) || text(profile.productType)),
+    role: roleFromText(text(profile.role) || text(profile.productType)),
+    transport: transportFrom(
+      classFromText(text(profile.productClass) || text(profile.productType)),
+      transportValues,
+    ).transport,
+    transportLabel: transportValues.join(" · ") || "Verified governed profile",
+    maxResolutionLabel,
+    resolutionRank: rankResolution(`${maxResolutionLabel} ${chroma}`),
+    chroma,
+    chromaRank: rankChroma(chroma || maxResolutionLabel),
+    hdr: /hdr|dolby vision|hlg/i.test(
+      Array.isArray(profile.transport)
+        ? JSON.stringify(profile)
+        : text(profile.productType),
+    ) ? true : null,
+    bandwidthGbps: num(
+      profile.specs && typeof profile.specs === "object"
+        ? (profile.specs as Record<string, unknown>).bandwidthGbps
+        : null,
+    ),
+    hdmiIn: governedPortCount(ports, "input", "video", /hdmi/i) || null,
+    hdmiOut: governedPortCount(ports, "output", "video", /hdmi/i) || null,
+    routedIn,
+    routedOut,
+    usbVersion: "",
+    usbRank: 0,
+    audioOptions,
+    controlOptions,
+    distanceM: null,
+    poe: /\bpoe\b|\bpoh\b/i.test(powerText) && !/\bno\s+(?:poe|poh)\b/i.test(powerText)
+      ? "PoE/PoH"
+      : "",
+    inputSummary: governedPortSummary(ports, "input", "video"),
+    routedOutputSummary: governedPortSummary(ports, "output", "video"),
+    mirroredOutputSummary: mirroredOutputCount > 0
+      ? `${mirroredOutputCount} x HDMI mirrored`
+      : "",
+    loopOutputSummary: loopOutputCount > 0
+      ? `${loopOutputCount} x local loop output`
+      : "",
+    audioSummary: governedPortSummary(ports, "output", "audio"),
+    controlSummary: controlOptions
+      .filter((item) => !/front[- ]panel/i.test(item))
+      .map((item) => item.replace(/\s+API$/i, ""))
+      .join(" · "),
+    matrixSize: text(governedValue(features, "matrixSize"))
+      || (routedIn && routedOut ? `${routedIn}x${routedOut}` : ""),
+    verificationStatus:
+      status === "verified"
+        ? "verified"
+        : status === "verified-with-warning"
+          ? "verified-with-warning"
+          : "inferred",
+    citations,
+  };
+}
+// WINGMAN_GOVERNED_BATTLE_CARD_NORMALISER_END
+
 export function normalizeWyrestorm(entry: WsEntry): SpecSheet {
+  const governed = normalizeGovernedBattleCard(entry);
+  if (governed) return governed;
   const tp = (entry.technicalProfile ?? {}) as Record<string, unknown>;
   const io = (tp.io ?? {}) as { ports?: WsPort[] };
   const ports = Array.isArray(io.ports) ? io.ports : [];
@@ -511,7 +729,10 @@ export function normalizeWyrestorm(entry: WsEntry): SpecSheet {
 
   const standards = Array.isArray(video.standards) ? (video.standards as unknown[]).map(text) : [];
   const maxResolutions = Array.isArray(video.maxResolutions) ? (video.maxResolutions as unknown[]).map(text) : [];
-  const resolutionCandidates = [...standards, ...maxResolutions];
+  // A dedicated max-resolution field outranks broad standards/feature text.
+  // Mixing both arrays allowed unrelated power or refresh-rate numbers later in
+  // a long standards fragment to promote a 4K60 product to 4K120.
+  const resolutionCandidates = maxResolutions.length > 0 ? maxResolutions : standards;
   let resolutionRank = 0;
   let resolutionLabel = "";
   for (const candidate of resolutionCandidates) {
@@ -651,6 +872,62 @@ function compareNumbers(
   return { field, label, competitorValue: fmt(compValue, suffix), wyrestormValue: fmt(wsValue, suffix), verdict };
 }
 
+function normaliseCapability(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/\bapi\b/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function compareCapabilityLists(
+  field: string,
+  label: string,
+  competitorValues: string[],
+  wyrestormValues: string[],
+): FieldVerdict {
+  const competitorList = uniq(competitorValues);
+  const wyrestormList = uniq(wyrestormValues);
+  const competitorValue = competitorList.length ? competitorList.join(" · ") : "None verified";
+  const wyrestormValue = wyrestormList.length ? wyrestormList.join(" · ") : "None verified";
+
+  if (competitorList.length === 0 && wyrestormList.length === 0) {
+    return { field, label, competitorValue, wyrestormValue, verdict: "unverified" };
+  }
+
+  if (competitorList.length > 0 && wyrestormList.length === 0) {
+    return { field, label, competitorValue, wyrestormValue, verdict: "gap" };
+  }
+
+  if (competitorList.length === 0 && wyrestormList.length > 0) {
+    return { field, label, competitorValue, wyrestormValue, verdict: "exceeds" };
+  }
+
+  const competitorKeys = competitorList.map(normaliseCapability).filter(Boolean);
+  const wyrestormKeys = new Set(wyrestormList.map(normaliseCapability).filter(Boolean));
+  const exactCoverage = competitorKeys.every((item) => wyrestormKeys.has(item));
+
+  if (exactCoverage) {
+    return {
+      field,
+      label,
+      competitorValue,
+      wyrestormValue,
+      verdict: wyrestormKeys.size > competitorKeys.length ? "exceeds" : "match",
+    };
+  }
+
+  return {
+    field,
+    label,
+    competitorValue,
+    wyrestormValue,
+    verdict: "unverified",
+    note: "Capabilities differ in wording or implementation; compare the listed functions during design review.",
+  };
+}
+
 export function buildFieldVerdicts(competitor: SpecSheet, ws: SpecSheet): FieldVerdict[] {
   const verdicts: FieldVerdict[] = [];
 
@@ -749,9 +1026,11 @@ export function buildFieldVerdicts(competitor: SpecSheet, ws: SpecSheet): FieldV
     });
   }
 
-  // Audio + control option coverage
-  verdicts.push(compareNumbers("audio", "Audio options", competitor.audioOptions.length || null, ws.audioOptions.length || null));
-  verdicts.push(compareNumbers("control", "Control options", competitor.controlOptions.length || null, ws.controlOptions.length || null));
+  // Compare the actual capability descriptions. Counting list entries produced
+  // misleading ratings because five unrelated control methods could appear to
+  // "beat" five different control methods.
+  verdicts.push(compareCapabilityLists("audio", "Audio", competitor.audioOptions, ws.audioOptions));
+  verdicts.push(compareCapabilityLists("control", "Control", competitor.controlOptions, ws.controlOptions));
 
   // Distance / reach for extension technologies
   if (competitor.distanceM != null || ws.distanceM != null) {
@@ -793,11 +1072,13 @@ function detectBlockers(competitor: SpecSheet, ws: SpecSheet): string[] {
 
   if (
     (competitor.specClass === "MATRIX" || competitor.specClass === "PRESENTATION") &&
-    competitor.routedIn != null &&
-    ws.routedIn != null &&
-    ws.routedIn < competitor.routedIn
+    competitor.routedIn != null
   ) {
-    blockers.push(`Insufficient routed inputs: needs ${competitor.routedIn}, candidate has ${ws.routedIn}`);
+    if (ws.routedIn == null) {
+      blockers.push(`Routed input capacity unverified: needs ${competitor.routedIn}`);
+    } else if (ws.routedIn < competitor.routedIn) {
+      blockers.push(`Insufficient routed inputs: needs ${competitor.routedIn}, candidate has ${ws.routedIn}`);
+    }
   }
 
   // Output capacity is as hard a requirement as input capacity: a candidate
@@ -807,11 +1088,13 @@ function detectBlockers(competitor: SpecSheet, ws: SpecSheet): string[] {
   // already enforces on the Overview path.
   if (
     (competitor.specClass === "MATRIX" || competitor.specClass === "PRESENTATION") &&
-    competitor.routedOut != null &&
-    ws.routedOut != null &&
-    ws.routedOut < competitor.routedOut
+    competitor.routedOut != null
   ) {
-    blockers.push(`Insufficient routed outputs: needs ${competitor.routedOut}, candidate has ${ws.routedOut}`);
+    if (ws.routedOut == null) {
+      blockers.push(`Routed output capacity unverified: needs ${competitor.routedOut}`);
+    } else if (ws.routedOut < competitor.routedOut) {
+      blockers.push(`Insufficient routed outputs: needs ${competitor.routedOut}, candidate has ${ws.routedOut}`);
+    }
   }
 
   return blockers;

@@ -2221,7 +2221,7 @@
   {
     "sku": "AT-OME-CS31-SA",
     "model": "AT-OME-CS31-SA",
-    "name": "Omega CS31-SA",
+    "name": "Three-Input HDMI Switcher, Mixer Amplifier and USB Hub",
     "brand": "Atlona",
     "manufacturer": "Atlona",
     "family": "Omega",
@@ -2229,65 +2229,77 @@
     "subcategory": "Presentation Switcher",
     "status": "approved",
     "approvalStatus": "approved",
-    "sourceTier": "curated-fingerprint",
-    "summary": "Collaboration switcher with USB-C and HDMI inputs, local HDMI plus HDBaseT outputs, USB routing, and BYOD-friendly room integration.",
-    "sourceUrl": "https://atlona.com/product/at-ome-cs31-sa/",
-    "evidenceSource": "https://atlona.com/product/at-ome-cs31-sa/",
-    "lastReviewed": "2026-06-28",
-    "reviewer": "Wingman curated fingerprint migration",
+    "sourceTier": "official-structured",
+    "summary": "Three-input HDMI presentation switcher with one HDMI output, USB 3.0 routing, audio mixing, AEC and an integrated 50W amplifier for classrooms and meeting rooms.",
+    "sourceUrl": "https://atlona.com/product/at-ome-cs31-sa-c/",
+    "evidenceSource": "https://atlona.com/product/at-ome-cs31-sa-c/",
+    "lastReviewed": "2026-07-22",
+    "reviewer": "Wingman model-variant correction",
     "confidence": "high",
     "role": "presentation switcher",
-    "transport": "Local",
+    "transport": "Local HDMI",
     "technology": "PRESENTATION",
-    "topology": "collaboration switcher",
+    "topology": "3x1 collaboration switcher",
     "directionality": "bidirectional",
     "inputs": [
       {
         "type": "HDMI",
-        "count": 1
+        "count": 3
       },
       {
         "type": "USB Host",
-        "count": 1
-      },
-      {
-        "type": "USB-C",
-        "count": 1
+        "count": 2
       }
     ],
     "outputs": [
-      {
-        "type": "HDBaseT",
-        "count": 1
-      },
       {
         "type": "HDMI",
         "count": 1
       },
       {
         "type": "USB Device",
+        "count": 4
+      },
+      {
+        "type": "Amplified Speaker",
+        "count": 2
+      },
+      {
+        "type": "Balanced Audio",
         "count": 1
       }
     ],
     "control": [
       "TCP/IP",
       "RS-232",
-      "USB",
+      "CEC",
       "Web UI"
     ],
     "audio": [
       "Embedded Audio",
       "De-Embedded Audio",
-      "USB Audio"
+      "USB Audio",
+      "2 x 25W Amplifier",
+      "Audio Mixing",
+      "AEC"
     ],
-    "features": {
-      "usbC": true
-    },
+    "features": [
+      "3x1 presentation switching",
+      "USB 3.0 hub",
+      "Two USB hosts",
+      "Four USB peripherals",
+      "Integrated 50W mixer amplifier",
+      "Audio mixing",
+      "AEC",
+      "Automatic display control"
+    ],
     "video": {
-      "maxResolution": "4K60",
+      "usbStandard": "USB 3.0",
+      "maxResolution": "4K60 4:4:4",
       "hdmi": "2.0",
       "bandwidthGbps": 18,
-      "hdr": true
+      "hdr": true,
+      "chroma": "4:4:4"
     },
     "matrixInputs": 3,
     "routedInputs": 3,
@@ -2295,6 +2307,11 @@
     "matrixOutputs": 1,
     "routedOutputs": 1,
     "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "official-structured",
+    "matrixSizeEvidence": "Official 3x1 model identity",
+    "quoteSafety": "comparison-only-verify",
     "specs": {
       "video": {
         "maxResolution": "4K60 4:4:4",
@@ -2302,19 +2319,26 @@
         "bandwidthGbps": 18,
         "hdr": true
       },
-      "distance": {
-        "meters": 100
-      }
+      "usb": {
+        "standard": "USB 3.0",
+        "hostPorts": 2,
+        "devicePorts": 4
+      },
+      "audio": {
+        "amplifierWatts": 50
+      },
+      "matrixInputs": 3,
+      "matrixOutputs": 1,
+      "routedInputCount": 3,
+      "routedOutputCount": 1
     },
     "aliases": [
-      "atomecs31sa",
-      "atomecs31",
-      "atomecs51"
+      "atomecs31sa"
     ],
-    "knownLimitations": "",
-    "closestWyrestormArchitecture": "USB-C/HDBaseT presentation switcher",
-    "closestWyrestormSkuOrFamily": "SW-120-TX3 (2-input HDBaseT 3.0 switching transmitter with USB-C)",
-    "notes": "Official Atlona Omega collaboration-switcher page. | data/product-intelligence-db.json#1 merged into deployed competitor catalog. | data/product-intelligence-db.json#2 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Atlona Omega is a presentation and collaboration switching family built around HDMI, USB-C, HDBaseT, and USB room workflows. | Compare Omega switchers against presentation switchers and collaboration appliances, not plain HDMI matrices or wall processors. | Official competitor family guidance applied during canonical sync.",
+    "knownLimitations": "This exact SA model uses three HDMI AV inputs. Do not merge it with the USB-C SA-C or HDBaseT-input SA-HDBT variants.",
+    "closestWyrestormArchitecture": "Presentation switcher plus separate room audio/amplification where required",
+    "closestWyrestormSkuOrFamily": "No confirmed single-box equivalent; compare presentation-switcher workflow and amplifier requirement separately",
+    "notes": "Official Atlona family page states: AT-OME-CS31-SA has 3 HDMI inputs; AT-OME-CS31-SA-C has 1 USB-C and 2 HDMI inputs; AT-OME-CS31-SA-HDBT has 1 HDBaseT and 2 HDMI inputs. Do not combine the variants.",
     "sourceFile": "data-sources/competitors/atlona.csv",
     "comparisonOnly": true
   },

@@ -27,12 +27,12 @@
     "data-sources/competitors/zeevee.csv"
   ],
   "hashes": {
-    "data-sources/wyrestorm/products.csv": "430b13fa8b08d4dd49d302663b503e73323a6da8978f07cccbdb32d7bc433bad",
+    "data-sources/wyrestorm/products.csv": "b07bf9e8cb4dd66c8811cc8305168e8adffc372688b1d1f676c130fd3dfc27f8",
     "data-sources/wyrestorm/lifecycle.csv": "38280e8b3a58db83e06bcf2b6ef9eb44bc20a0cca7cbc013101426e782247ed7",
     "data-sources/wyrestorm/enrichment.json": "b69c17c36538b7fe210623593e322a50f2606b50d217107888dd0c5fb4f0425c",
     "data-sources/competitors/airtame.csv": "ca3f745de84e52d5e8bb59c5d3348fafa12b2a2b408f5f5704dac5350bcd5d24",
     "data-sources/competitors/amx.csv": "f382bda00d796e41e22d48de2cf51ddb99b6876f26747fb101916ffb47e0cf7e",
-    "data-sources/competitors/atlona.csv": "e9cf4d1c1eacb5f90ae389e291b61208b94db921f1e68ed09db3da8c3d45813a",
+    "data-sources/competitors/atlona.csv": "a761eb008d3cfaf8778a22926e8dacdf1b85aeefe4dfbb9b38fd68d860492e83",
     "data-sources/competitors/avpro-edge.csv": "b327ebd863705f8825c20242cc325ffc2d6d97eca8767c44de0f79fc1be2a1a6",
     "data-sources/competitors/barco.csv": "cefa1dabb7f748eabbb79d3f0e5dd1b5c99810ad7a62433a052bdb404a8bef8b",
     "data-sources/competitors/binary.csv": "bbdb3579a16c5d19b1f5dd8788834e9a6a9797d88ddbbd9a8ff4fe126541ee49",
