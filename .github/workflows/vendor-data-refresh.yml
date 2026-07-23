@@ -1,0 +1,184 @@
+name: Weekly vendor data refresh
+
+# Refreshes the WyreStorm product data from the vendor's official product pages
+# and opens a pull request with the diff.
+#
+# It opens a PR rather than pushing to main on purpose. This data decides what
+# Wingman tells a rep about a product - specs, lifecycle, classification - and a
+# change to it should be reviewable, even when every automated gate passes.
+#
+# The refresh is NOT part of `build`. A build must not depend on a third-party
+# site being reachable.
+
+on:
+  schedule:
+    # Mondays 06:17 UTC. Off the hour deliberately: scheduled runs bunch up on
+    # the hour across GitHub and get delayed.
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# Never let two refreshes race for the same branch.
+concurrency:
+  group: vendor-data-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: Refresh vendor product data
+    runs-on: ubuntu-latest
+    # The scrape walks the whole catalogue at 5 concurrent requests.
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Refresh product data from the vendor
+        run: npm run data:enrich-wyrestorm-products
+
+      # The scrape runs unattended against a site that can be down, rate-limit
+      # us or serve a consent wall instead of a datasheet. This refuses to
+      # publish a refresh that is materially worse than what is committed.
+      - name: Check the refresh is not a regression
+        run: node tools/check-vendor-refresh-sanity.mjs
+
+      - name: Republish canonical store and product index
+        run: npm run data:sources:build
+
+      - name: Check classification consistency
+        run: npm run check:classification-consistency
+
+      - name: Check enrichment freshness
+        run: npm run check:enrichment-freshness
+
+      # The catalogue-wide invariants: every product resolves to a role from the
+      # taxonomy, no feature benefit is ungrounded in the product's own spec,
+      # and every Discovery system slot can still be filled. These are what
+      # catch a data change that breaks the app rather than the file.
+      - name: Run tests against the refreshed data
+        run: npm test
+
+      # enrichment-status.json carries the run timestamp, so it changes every
+      # week regardless of whether any product changed. That timestamp is what
+      # check:enrichment-freshness reads, so it has to be committed even on a
+      # no-change week - otherwise a catalogue that is genuinely stable would
+      # eventually trip the 120-day failure despite being checked every Monday.
+      #
+      # So: always publish, but distinguish "specs actually changed" from "we
+      # confirmed nothing changed", because those need different review effort.
+      - name: Detect changes
+        id: changes
+        run: |
+          git status --porcelain
+          product_changes="$(git status --porcelain -- . ':(exclude)data-sources/wyrestorm/enrichment-status.json')"
+          if [ -z "$product_changes" ]; then
+            echo "data_changed=false" >> "$GITHUB_OUTPUT"
+            echo "Product data is unchanged this week; publishing the freshness timestamp only."
+          else
+            echo "data_changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Summarise the refresh
+        id: summary
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          DATA_CHANGED: ${{ steps.changes.outputs.data_changed }}
+        run: |
+          {
+            echo 'body<<PR_BODY_EOF'
+            if [ "$DATA_CHANGED" = "true" ]; then
+              echo 'Automated weekly refresh of WyreStorm product data from the vendor product pages. **Product data changed this week.**'
+            else
+              echo 'Automated weekly check of WyreStorm product data. **No product changed.** This PR only advances the freshness timestamp, so `check:enrichment-freshness` keeps reflecting when the data was last confirmed against the vendor.'
+            fi
+            echo ''
+            echo '```json'
+            cat data-sources/wyrestorm/enrichment-status.json
+            echo '```'
+            echo ''
+            echo '### Gates that passed before this PR was opened'
+            echo ''
+            echo '- `check-vendor-refresh-sanity` - refreshed data is no worse than what is committed (no material loss of SKUs, technical evidence or successful page fetches)'
+            echo '- `check:classification-consistency` - no product classification contradicts its own SKU or name'
+            echo '- `check:enrichment-freshness` - data is live-sourced, not from an `--offline` run'
+            echo '- `npm test` - full suite against the refreshed catalogue'
+            echo ''
+            echo '### What to look at'
+            echo ''
+            echo 'The enrichment diff is large by nature. Focus review on `data/catalog/` and'
+            echo '`public/product-intelligence-index.json`: products appearing or disappearing,'
+            echo 'and lifecycle or classification changes.'
+            echo ''
+            echo 'If this PR sits unmerged for 120 days, `check:enrichment-freshness` starts'
+            echo 'failing `npm run verify` on main by design.'
+            echo 'PR_BODY_EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Commit to a rolling refresh branch
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          DATA_CHANGED: ${{ steps.changes.outputs.data_changed }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # One rolling branch, force-pushed, so a missed week does not leave a
+          # queue of stale competing PRs behind.
+          git checkout -B automated/vendor-data-refresh
+          git add -A
+          if [ "$DATA_CHANGED" = "true" ]; then
+            subject="Refresh WyreStorm product data from vendor pages"
+          else
+            subject="Confirm WyreStorm product data is unchanged"
+          fi
+          {
+            echo "$subject"
+            echo ""
+            echo "Automated weekly refresh. Refresh-sanity, classification-consistency,"
+            echo "freshness and the full test suite all passed before this was opened."
+          } > "$RUNNER_TEMP/refresh-commit-message.txt"
+          git commit -F "$RUNNER_TEMP/refresh-commit-message.txt"
+          git push --force origin automated/vendor-data-refresh
+
+      - name: Open or update the pull request
+        if: steps.changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_BODY: ${{ steps.summary.outputs.body }}
+          DATA_CHANGED: ${{ steps.changes.outputs.data_changed }}
+        run: |
+          existing="$(gh pr list --head automated/vendor-data-refresh --state open --json number --jq '.[0].number')"
+          if [ "$DATA_CHANGED" = "true" ]; then
+            title="Weekly vendor product data refresh"
+          else
+            title="Weekly vendor data check - no product changes"
+          fi
+
+          if [ -n "$existing" ]; then
+            gh pr edit "$existing" --title "$title" --body "$PR_BODY"
+            echo "Updated existing PR #$existing"
+          else
+            gh pr create \
+              --title "$title" \
+              --body "$PR_BODY" \
+              --base main \
+              --head automated/vendor-data-refresh
+          fi

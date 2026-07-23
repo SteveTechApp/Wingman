@@ -2202,8 +2202,7 @@ async function main() {
       },
       null,
       2,
-    ) + "
-",
+    ) + "\n",
     "utf8",
   );
 
