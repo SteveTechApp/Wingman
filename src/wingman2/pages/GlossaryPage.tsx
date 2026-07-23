@@ -1,26 +1,27 @@
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, BookOpen, Copy, MessageSquareText, Search, Sparkles } from "lucide-react";
-import { Link } from "react-router-dom";
+import { AlertTriangle, BookOpen, Lightbulb, Search, Sparkles } from "lucide-react";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import {
   AV_GLOSSARY_CATEGORIES,
   AV_GLOSSARY_TERMS,
-  type AvGlossaryAudience,
   type AvGlossaryTerm,
 } from "../data/avGlossary";
-
-const audienceOptions: Array<{ id: AvGlossaryAudience; label: string; helper: string }> = [
-  { id: "endUser", label: "End user", helper: "Outcome-led wording" },
-  { id: "partner", label: "Partner / reseller", helper: "Sales and install framing" },
-  { id: "consultant", label: "Consultant", helper: "Architecture-led wording" },
-];
 
 function normalise(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
 function termSearchText(term: AvGlossaryTerm) {
+  const referenceText = term.reference
+    ? [
+        term.reference.caption,
+        ...term.reference.columns,
+        ...term.reference.rows.flatMap((row) => [row.label, ...row.cells, row.note ?? ""]),
+        term.reference.footnote ?? "",
+      ]
+    : [];
+
   return normalise(
     [
       term.term,
@@ -28,25 +29,19 @@ function termSearchText(term: AvGlossaryTerm) {
       term.category,
       term.plainEnglish,
       term.whyItMatters,
+      term.inReality,
       ...term.aliases,
       ...term.related,
-      ...term.ask,
       ...term.cautions,
-      ...Object.values(term.roleLanguage),
+      ...referenceText,
     ].filter(Boolean).join(" "),
   );
-}
-
-function categoryLabel(category: string) {
-  return category === "All" ? "All" : category;
 }
 
 export function GlossaryPage() {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
-  const [activeAudience, setActiveAudience] = useState<AvGlossaryAudience>("endUser");
   const [selectedId, setSelectedId] = useState(AV_GLOSSARY_TERMS[0]?.id ?? "");
-  const [copyStatus, setCopyStatus] = useState("");
 
   const searchIndex = useMemo(
     () => AV_GLOSSARY_TERMS.map((term) => ({ term, text: termSearchText(term) })),
@@ -77,8 +72,6 @@ export function GlossaryPage() {
   }, [filteredTerms, selectedId]);
 
   const selectedTerm = filteredTerms.find((term) => term.id === selectedId) ?? filteredTerms[0] ?? AV_GLOSSARY_TERMS[0];
-  const activeAudienceLabel = audienceOptions.find((option) => option.id === activeAudience)?.label ?? "End user";
-  const selectedPhrase = selectedTerm?.roleLanguage[activeAudience] ?? "";
   const categoryCounts = useMemo(() => {
     return AV_GLOSSARY_TERMS.reduce<Record<string, number>>((counts, term) => {
       counts[term.category] = (counts[term.category] ?? 0) + 1;
@@ -86,39 +79,33 @@ export function GlossaryPage() {
     }, {});
   }, []);
 
-  async function copySelectedPhrase() {
-    if (!selectedPhrase) {
+  // Jump straight to a term by name, so "related terms" behaves like a
+  // reference cross-reference rather than re-running a text search that might
+  // land somewhere else.
+  function openTerm(name: string) {
+    const target = AV_GLOSSARY_TERMS.find((term) => {
+      const candidates = [term.term, term.acronym ?? "", ...term.aliases].map(normalise);
+      return candidates.includes(normalise(name));
+    });
+
+    setActiveCategory("All");
+
+    if (target) {
+      setQuery("");
+      setSelectedId(target.id);
       return;
     }
 
-    try {
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(selectedPhrase);
-      } else {
-        const textarea = document.createElement("textarea");
-        textarea.value = selectedPhrase;
-        textarea.setAttribute("readonly", "true");
-        textarea.style.position = "fixed";
-        textarea.style.top = "-1000px";
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand("copy");
-        document.body.removeChild(textarea);
-      }
-      setCopyStatus("Copied customer-safe wording.");
-      window.setTimeout(() => setCopyStatus(""), 1800);
-    } catch {
-      setCopyStatus("Copy unavailable in this browser.");
-    }
+    setQuery(name);
   }
 
   return (
     <main className="wm-glossary-page">
       <PageHero
-        eyebrow="AV Glossary"
-        title="Look up terms, acronyms and AV technologies fast."
-        purpose="Use the glossary during discovery, product selection or proposal work when a term needs quick sales-safe explanation."
-        nextMove="Search the acronym, choose the audience role, then use the plain-language wording to keep the customer conversation moving."
+        eyebrow="AV Reference"
+        title="Look up any AV term, standard or cable grade."
+        purpose="A quick reference for what AV technology actually means in practice - versions, standards, formats, distances and the trade-offs behind them."
+        nextMove="Search the term or acronym, then read the plain meaning, what it means in reality, and the version or grade table where one applies."
         actions={[
           { label: "Browse Catalogue", to: routeCatalogByKey.catalogBrowser.path, variant: "primary" },
           { label: "Open Sales Strategy", to: routeCatalogByKey.salesHelper.path, variant: "secondary" },
@@ -132,24 +119,9 @@ export function GlossaryPage() {
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search HDMI, EDID, AVoIP, USB-C, Dante..."
+            placeholder="Search HDMI, 4:2:2, Cat6a, USB 3.2, HDBaseT, eARC..."
           />
         </label>
-
-        <div className="wm-glossary-audience" aria-label="Audience wording" role="group">
-          {audienceOptions.map((option) => (
-            <button
-              key={option.id}
-              type="button"
-              className={activeAudience === option.id ? "is-active" : ""}
-              onClick={() => setActiveAudience(option.id)}
-              aria-pressed={activeAudience === option.id}
-            >
-              <strong>{option.label}</strong>
-              <span>{option.helper}</span>
-            </button>
-          ))}
-        </div>
 
         <div className="wm-glossary-category-row" aria-label="Glossary categories">
           {["All", ...AV_GLOSSARY_CATEGORIES].map((category) => (
@@ -160,7 +132,7 @@ export function GlossaryPage() {
               onClick={() => setActiveCategory(category)}
               aria-pressed={activeCategory === category}
             >
-              {categoryLabel(category)}
+              {category}
               <span>{category === "All" ? AV_GLOSSARY_TERMS.length : categoryCounts[category] ?? 0}</span>
             </button>
           ))}
@@ -193,7 +165,7 @@ export function GlossaryPage() {
             <div className="wm-glossary-empty">
               <BookOpen className="h-5 w-5" />
               <p>No glossary match yet.</p>
-              <span>Try the connector, acronym, product family or customer problem.</span>
+              <span>Try the connector, acronym, standard, cable grade or format.</span>
             </div>
           ) : null}
         </aside>
@@ -208,13 +180,12 @@ export function GlossaryPage() {
                   {selectedTerm.acronym ? <span>{selectedTerm.acronym}</span> : null}
                 </h2>
               </div>
-              <div className="wm-glossary-detail-actions">
-                <button type="button" onClick={copySelectedPhrase}>
-                  <Copy className="h-4 w-4" />
-                  <span>Copy wording</span>
-                </button>
-                <Link to={routeCatalogByKey.salesHelper.path}>Use in call</Link>
-              </div>
+              {selectedTerm.aliases.length ? (
+                <div className="wm-glossary-alias-row">
+                  <p>Also called</p>
+                  <span>{selectedTerm.aliases.join(" · ")}</span>
+                </div>
+              ) : null}
             </header>
 
             <div className="wm-glossary-definition-grid">
@@ -225,55 +196,70 @@ export function GlossaryPage() {
               </section>
               <section>
                 <Sparkles className="h-4 w-4" />
-                <p>Why sales should care</p>
+                <p>Why it matters on a job</p>
                 <strong>{selectedTerm.whyItMatters}</strong>
               </section>
             </div>
 
-            <section className="wm-glossary-say-panel">
-              <div>
-                <MessageSquareText className="h-4 w-4" />
-                <p>Say it to a {activeAudienceLabel}</p>
-              </div>
-              <strong>{selectedPhrase}</strong>
-              {copyStatus ? <span role="status">{copyStatus}</span> : null}
+            {selectedTerm.inReality ? (
+              <section className="wm-glossary-reality-panel">
+                <div>
+                  <Lightbulb className="h-4 w-4" />
+                  <p>What it means in reality</p>
+                </div>
+                <strong>{selectedTerm.inReality}</strong>
+              </section>
+            ) : null}
+
+            {selectedTerm.reference ? (
+              <section className="wm-glossary-reference">
+                <h3>{selectedTerm.reference.caption}</h3>
+                <div className="wm-glossary-reference-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th scope="col">{selectedTerm.reference.rowLabel}</th>
+                        {selectedTerm.reference.columns.map((column) => (
+                          <th key={column} scope="col">{column}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedTerm.reference.rows.map((row) => (
+                        <tr key={row.label}>
+                          <th scope="row">{row.label}</th>
+                          {row.cells.map((cell, index) => (
+                            <td key={`${row.label}-${selectedTerm.reference?.columns[index] ?? index}`}>
+                              {cell}
+                              {index === row.cells.length - 1 && row.note ? <small>{row.note}</small> : null}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {selectedTerm.reference.footnote ? <p>{selectedTerm.reference.footnote}</p> : null}
+              </section>
+            ) : null}
+
+            <section className="wm-glossary-cautions">
+              <h3>Watch out</h3>
+              <ul>
+                {selectedTerm.cautions.map((item) => (
+                  <li key={item}>
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </section>
-
-            <div className="wm-glossary-two-column">
-              <section>
-                <h3>Ask next</h3>
-                <ul>
-                  {selectedTerm.ask.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-              </section>
-
-              <section>
-                <h3>Watch out</h3>
-                <ul>
-                  {selectedTerm.cautions.map((item) => (
-                    <li key={item}>
-                      <AlertTriangle className="h-3.5 w-3.5" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            </div>
 
             <section className="wm-glossary-related">
               <h3>Related terms</h3>
               <div>
                 {selectedTerm.related.map((related) => (
-                  <button
-                    key={related}
-                    type="button"
-                    onClick={() => {
-                      setQuery(related);
-                      setActiveCategory("All");
-                    }}
-                  >
+                  <button key={related} type="button" onClick={() => openTerm(related)}>
                     {related}
                   </button>
                 ))}
