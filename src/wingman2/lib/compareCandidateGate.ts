@@ -1,3 +1,5 @@
+import type { ProductClassificationFacts } from "./productRoleResolution";
+
 export type CompareCompetitorClass =
   | "AVOIP"
   | "HDBASET"
@@ -23,7 +25,42 @@ export type CompareCandidateGateInput = {
   tags?: string[];
   features?: Record<string, unknown> | string[];
   text?: string;
+  /**
+   * The governed taxonomy from the product intelligence index, when the caller
+   * has it. Authoritative: it is authored per SKU, unlike the text heuristics
+   * below which read whatever words happen to be in a title or category.
+   */
+  classification?: ProductClassificationFacts;
 };
+
+// Controlled `subClassifications` tokens mapped to a compare class, most
+// specific function first. Audio contains only devices whose PURPOSE is audio -
+// "audio-deembed" and "audio-conversion" describe a capability on a video
+// product and must never decide its class.
+const TAXONOMY_CLASS_PRIORITY: Array<{ compareClass: CompareCompetitorClass; tokens: string[] }> = [
+  { compareClass: "AVOIP", tokens: ["avoip", "encoder", "decoder", "transceiver", "sdvoe", "networkhd-100", "networkhd-500", "networkhd-600", "avoip-infrastructure", "networkhd-control"] },
+  { compareClass: "CAMERA", tokens: ["camera", "ptz"] },
+  { compareClass: "AUDIO", tokens: ["amplifier", "dsp", "microphone", "speakerphone"] },
+  { compareClass: "MATRIX", tokens: ["matrix"] },
+  { compareClass: "HDBASET", tokens: ["extender", "hdbaset", "transmitter", "receiver"] },
+  { compareClass: "PRESENTATION", tokens: ["presentation-switcher", "source-switcher", "switcher", "wireless-dongle"] },
+  { compareClass: "DISTRIBUTION", tokens: ["splitter"] },
+];
+
+function classFromTaxonomy(
+  classification: ProductClassificationFacts | undefined,
+): CompareCompetitorClass {
+  if (!classification) return "UNKNOWN";
+
+  const tokens = new Set((classification.subClassifications ?? []).map((token) => token.trim().toLowerCase()));
+  if (tokens.has("cable") || tokens.has("accessory")) return "UNKNOWN";
+
+  for (const entry of TAXONOMY_CLASS_PRIORITY) {
+    if (entry.tokens.some((token) => tokens.has(token))) return entry.compareClass;
+  }
+
+  return "UNKNOWN";
+}
 
 export type CompareCandidateGateContext = {
   competitorClass: CompareCompetitorClass;
@@ -127,6 +164,12 @@ function hasAny(text: string, markers: string[]): boolean {
 }
 
 function wingmanSkuClassGuard(candidate: CompareCandidateGateInput): CompareCompetitorClass {
+  // The governed taxonomy wins wherever the caller supplied it. Only fall back
+  // to reading words out of a title or category when there is none - a
+  // live-lookup record, say.
+  const fromTaxonomy = classFromTaxonomy(candidate.classification);
+  if (fromTaxonomy !== "UNKNOWN") return fromTaxonomy;
+
   const sku = String(candidate.sku ?? "").trim().toUpperCase();
   const title = String(candidate.title ?? "").trim().toUpperCase();
   const role = String(candidate.role ?? "").trim().toLowerCase();
@@ -137,8 +180,14 @@ function wingmanSkuClassGuard(candidate: CompareCandidateGateInput): CompareComp
   if (/^EX-/.test(sku) || /^RX-/.test(sku) || /^TX-/.test(sku) || text.includes("hdbaset") || text.includes("hdbt")) return "HDBASET";
   if (/^MX-/.test(sku) || text.includes("matrix")) return "MATRIX";
   if (/^SW-/.test(sku) || text.includes("presentation")) return "PRESENTATION";
-  if (/^APO-/.test(sku) || text.includes("audio") || text.includes("microphone") || text.includes("speakerphone")) return "AUDIO";
   if (/^CAM-/.test(sku) || hasAny(text, CAMERA_MARKERS)) return "CAMERA";
+  // Audio last, and never on a bare "audio" match. A matrix with audio
+  // de-embed, an extender with audio return and a switcher with an audio output
+  // all mention audio; none of them are audio products. Camera is tested first
+  // for the same reason - a camera's text mentions its microphone.
+  if (/^AMP-/.test(sku) || /^APO-/.test(sku) || hasAny(text, ["amplifier", "audio dsp", "microphone", "speakerphone"])) {
+    return "AUDIO";
+  }
   if (/^CAB-/.test(sku) || role.includes("cable")) return "UNKNOWN";
 
   return "UNKNOWN";
@@ -228,9 +277,18 @@ function specificBadSku(candidate: CompareCandidateGateInput): string[] {
 }
 
 export function gateCompareCandidate(
-  candidate: CompareCandidateGateInput,
-  context: CompareCandidateGateContext,
+  rawCandidate: CompareCandidateGateInput,
+  rawContext: CompareCandidateGateContext,
 ): CompareCandidateGateResult {
+  // Candidates arrive from generated catalogue data and from live competitor
+  // lookups, so a null or wrong-shaped entry is a real possibility. This gate
+  // decides what a customer is shown; a malformed row must block that
+  // candidate, not throw and take the whole comparison down with it.
+  const candidate: CompareCandidateGateInput =
+    rawCandidate && typeof rawCandidate === "object" ? rawCandidate : {};
+  const context: CompareCandidateGateContext =
+    rawContext && typeof rawContext === "object" ? rawContext : { competitorClass: "UNKNOWN" };
+
   const _candidateText = textFor(candidate);
   const candidateRole = clean(candidate.role || candidate.category || candidate.productFamily || "unknown");
   const candidateClass = classifyCandidate(candidate);
