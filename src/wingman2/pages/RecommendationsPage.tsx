@@ -20,6 +20,12 @@ import {
   loadWingmanProductSelectorDecisions,
   type ProductSelectorRequest,
 } from "../lib/productSelectorEngine";
+import {
+  buildSystemDesign,
+  productMatchesSlot,
+  type SystemSlot,
+} from "../lib/discoverySystemDesign";
+import { readClassificationFacts } from "../lib/productStoryEngine";
 
 type RecommendationDecision = Awaited<
   ReturnType<typeof loadWingmanProductSelectorDecisions>
@@ -77,8 +83,46 @@ function buildRequest(need: Partial<FinderNeedDraft>): ProductSelectorRequest {
     processing: need.processing ?? "",
     control: need.control ?? "",
     includeArchitectureAlternatives: true,
-    limit: 30,
+    // An AV-over-IP controller is filed as a dependency and is still a required
+    // line on the quote, so dependencies must be selectable. Discontinued and
+    // do-not-spec products stay excluded - `includeDiscontinued` is left off
+    // deliberately, and slot candidates are filtered on eligibility below.
+    includeDependencies: true,
+    // Unlimited. The flat shortlist still shows 12, but the system design has
+    // to bucket candidates into slots (encoder, decoder, controller, extender,
+    // camera, microphone), and a decoder will never appear inside the top 30
+    // ranked against a whole-room requirement.
   };
+}
+
+// Slot candidates come from a SECOND, deliberately unconstrained selector pass.
+//
+// The whole-room need ("distributed 4K60 AV-over-IP over a 70m run") is the
+// right filter for the lead-product shortlist, and the wrong one for a slot:
+// its compatibility gate rejects a ceiling microphone and a PTZ camera for not
+// being distribution products, so the microphone and camera slots silently
+// emptied - a bill of materials quietly missing the parts the room needs.
+//
+// This pass applies no requirement filtering, so lifecycle governance and the
+// governed taxonomy decide slot membership. Discontinued, do-not-spec,
+// superseded and admin-blocked SKUs are still excluded, because
+// `includeDiscontinued` stays off and candidates are filtered on eligibility.
+function buildSlotRequest(): ProductSelectorRequest {
+  return {
+    mode: "recommendations",
+    includeDependencies: true,
+    includeAccessories: true,
+    includeArchitectureAlternatives: true,
+  };
+}
+
+type SystemSlotResult = {
+  slot: SystemSlot;
+  candidates: RecommendationDecision[];
+};
+
+function decisionClassification(decision: RecommendationDecision) {
+  return readClassificationFacts(decision.product as unknown as Record<string, unknown>);
 }
 
 function selectionFromDecision(
@@ -120,6 +164,7 @@ export function RecommendationsPage() {
   const [brief, setBrief] = useState<StoredDiscoveryBrief | null>(null);
   const [need, setNeed] = useState<Partial<FinderNeedDraft>>({});
   const [decisions, setDecisions] = useState<RecommendationDecision[]>([]);
+  const [slotPool, setSlotPool] = useState<RecommendationDecision[]>([]);
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [message, setMessage] = useState("");
 
@@ -148,10 +193,14 @@ export function RecommendationsPage() {
     setNeed(nextNeed);
     setLoadState("loading");
 
-    loadWingmanProductSelectorDecisions(buildRequest(nextNeed))
-      .then((nextDecisions) => {
+    Promise.all([
+      loadWingmanProductSelectorDecisions(buildRequest(nextNeed)),
+      loadWingmanProductSelectorDecisions(buildSlotRequest()),
+    ])
+      .then(([nextDecisions, nextSlotPool]) => {
         if (cancelled) return;
         setDecisions(nextDecisions);
+        setSlotPool(nextSlotPool);
         setLoadState("ready");
       })
       .catch((error) => {
@@ -173,6 +222,89 @@ export function RecommendationsPage() {
         .slice(0, 12),
     [decisions],
   );
+
+  // A room brief describes a system, not a product. Decompose it into the slots
+  // the system needs and resolve each one, so a Discovery that captured four
+  // sources and six displays produces encoders, decoders and a controller
+  // rather than twelve alternatives for a single unnamed box.
+  const design = useMemo(() => buildSystemDesign(brief), [brief]);
+
+  const systemSlots = useMemo<SystemSlotResult[]>(
+    () =>
+      design.slots.map((slot) => ({
+        slot,
+        candidates: slotPool
+          // A slot is a line on a quote. Anything the selector rejected -
+          // discontinued, do-not-spec, superseded, admin-blocked or gated out
+          // by the requirement - must never reach it, or a retired SKU gets
+          // quoted inside an otherwise plausible-looking system.
+          .filter((decision) => decision.eligible)
+          .filter((decision) => productMatchesSlot(decisionClassification(decision), slot))
+          .slice(0, 4),
+      })),
+    [design, slotPool],
+  );
+
+  const unfilledSlots = useMemo(
+    () => systemSlots.filter((entry) => !entry.candidates.length),
+    [systemSlots],
+  );
+
+  function addSlotToProject(slot: SystemSlot, decision: RecommendationDecision) {
+    const selection = selectionFromDecision(decision);
+    const savedProject = saveProductSelectionToCurrentProject({
+      ...selection,
+      source: `Discovery system design - ${slot.label}`,
+      evidence: [
+        `Fills the ${slot.label} slot (qty ${slot.quantity}): ${slot.purpose}`,
+        ...(selection.evidence ?? []),
+      ],
+    });
+
+    setMessage(
+      savedProject
+        ? `${decision.sku} added to ${savedProject.name} as ${slot.label} (qty ${slot.quantity}).`
+        : `${decision.sku} could not be added to a project.`,
+    );
+  }
+
+  function addWholeSystemToProject() {
+    const filled = systemSlots.filter((entry) => entry.candidates.length);
+
+    if (!filled.length) {
+      setMessage("No system slots could be filled from the catalogue yet.");
+      return;
+    }
+
+    let saved = 0;
+    let projectName = "";
+
+    for (const entry of filled) {
+      const selection = selectionFromDecision(entry.candidates[0]);
+      const savedProject = saveProductSelectionToCurrentProject({
+        ...selection,
+        source: `Discovery system design - ${entry.slot.label}`,
+        evidence: [
+          `Fills the ${entry.slot.label} slot (qty ${entry.slot.quantity}): ${entry.slot.purpose}`,
+          ...(selection.evidence ?? []),
+        ],
+      });
+
+      if (savedProject) {
+        saved += 1;
+        projectName = savedProject.name;
+      }
+    }
+
+    const skipped = unfilledSlots.length;
+    setMessage(
+      saved
+        ? `${saved} product${saved === 1 ? "" : "s"} added to ${projectName}.${
+            skipped ? ` ${skipped} slot${skipped === 1 ? "" : "s"} still need a product.` : ""
+          }`
+        : "The system could not be added to a project.",
+    );
+  }
 
   const roomModel = brief?.roomModel ?? {};
   const missingInformation = brief?.missingInformation ?? [];
@@ -210,9 +342,13 @@ export function RecommendationsPage() {
     setLoadState("loading");
     setMessage("");
 
-    loadWingmanProductSelectorDecisions(buildRequest(nextNeed))
-      .then((nextDecisions) => {
+    Promise.all([
+      loadWingmanProductSelectorDecisions(buildRequest(nextNeed)),
+      loadWingmanProductSelectorDecisions(buildSlotRequest()),
+    ])
+      .then(([nextDecisions, nextSlotPool]) => {
         setDecisions(nextDecisions);
+        setSlotPool(nextSlotPool);
         setLoadState("ready");
       })
       .catch((error) => {
@@ -358,6 +494,80 @@ export function RecommendationsPage() {
                   </li>
                 ))}
               </ul>
+            </SectionCard>
+          ) : null}
+
+          {design.slots.length ? (
+            <SectionCard
+              title="System design - what this room needs"
+              subtitle={`${design.architectureReason} A room needs several products working together, so each part is resolved separately below.`}
+            >
+              <div className="grid gap-3">
+                {systemSlots.map(({ slot, candidates }) => (
+                  <div className="wm-ui-card rounded-2xl border p-4" key={slot.kind}>
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <p className="font-black">
+                        {slot.label}
+                        {slot.quantity > 1 ? ` x ${slot.quantity}` : ""}
+                      </p>
+                      <span className="text-sm">{slot.required ? "Required" : "Optional"}</span>
+                    </div>
+                    <p className="mt-1 text-sm">{slot.purpose}</p>
+
+                    {candidates.length ? (
+                      <ul className="mt-3 grid gap-2">
+                        {candidates.map((decision, index) => (
+                          <li className="flex flex-wrap items-center justify-between gap-2" key={decision.sku}>
+                            <span>
+                              <strong>{decision.sku}</strong> {productTitle(decision)}
+                              {index === 0 ? " - best fit" : ""}
+                            </span>
+                            <button
+                              className="wm-ui-button wm-ui-button-secondary rounded-xl px-3 py-2 font-black"
+                              type="button"
+                              onClick={() => addSlotToProject(slot, decision)}
+                            >
+                              Add
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      // Never hide an unfilled slot. A quote that silently omits
+                      // the controller or the receivers is the failure mode this
+                      // whole section exists to prevent.
+                      <p className="mt-3 flex items-start gap-2 text-sm">
+                        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                        <span>
+                          No catalogue product matched this slot. It still belongs on the quote - check the
+                          requirement with pre-sales before sending.
+                        </span>
+                      </p>
+                    )}
+
+                    <p className="mt-2 text-sm">Why: {slot.derivedFrom.join(" · ")}</p>
+                  </div>
+                ))}
+              </div>
+
+              {design.openQuestions.length ? (
+                <ul className="mt-3 grid gap-2">
+                  {design.openQuestions.map((question) => (
+                    <li className="flex items-start gap-2" key={question}>
+                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                      <span>{question}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+
+              <button
+                className="wm-ui-button wm-ui-button-primary mt-4 rounded-xl px-4 py-3 font-black"
+                type="button"
+                onClick={addWholeSystemToProject}
+              >
+                Add the whole system to the project
+              </button>
             </SectionCard>
           ) : null}
 

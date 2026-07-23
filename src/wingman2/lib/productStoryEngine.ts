@@ -248,7 +248,7 @@ export function normaliseProductRecord(entry: unknown, index: number): ProductSp
 // Top-level `classificationPath` / `subClassifications` are read as a fallback
 // because some records carry them alongside `productClassification` rather
 // than only inside it.
-function readClassificationFacts(source: Record<string, unknown>): ProductClassificationFacts | undefined {
+export function readClassificationFacts(source: Record<string, unknown>): ProductClassificationFacts | undefined {
   const governed = asRecord(source.productClassification);
   const hasGoverned = Boolean(Object.keys(governed).length);
 
