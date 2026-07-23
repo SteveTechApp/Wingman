@@ -8,6 +8,10 @@ const projectRoot = path.resolve(__dirname, "..");
 
 const wyrestormSourcePath = path.join(projectRoot, "data-sources", "wyrestorm", "enrichment.json");
 const reportPath = path.join(projectRoot, "reports", "wingman-product-technical-profile-summary.json");
+// reports/ is gitignored, so the detailed summary is a local artefact only.
+// The freshness guard needs something that survives a fresh clone and shows
+// up in review, so a small status record is written beside the enrichment.
+const statusPath = path.join(projectRoot, "data-sources", "wyrestorm", "enrichment-status.json");
 
 const PROFILE_VERSION = "wyrestorm-product-manager-v1";
 const FETCH_TIMEOUT_MS = 25000;
@@ -2186,7 +2190,25 @@ async function main() {
   await fs.writeFile(reportPath, JSON.stringify(summary, null, 2) + "\n", "utf8");
 
   console.log(`[wyrestorm-enrich] Wrote ${path.relative(projectRoot, wyrestormSourcePath)}`);
+  await fs.writeFile(
+    statusPath,
+    JSON.stringify(
+      {
+        generatedAt: summary.generatedAt,
+        profileVersion: summary.profileVersion,
+        offlineMode: summary.offlineMode,
+        sourceProductCount: summary.sourceProductCount,
+        officialPageFetchSummary: summary.officialPageFetchSummary,
+      },
+      null,
+      2,
+    ) + "
+",
+    "utf8",
+  );
+
   console.log(`[wyrestorm-enrich] Wrote ${path.relative(projectRoot, reportPath)}`);
+  console.log(`[wyrestorm-enrich] Wrote ${path.relative(projectRoot, statusPath)}`);
   console.log("[wyrestorm-enrich] Run npm run data:sources:build to publish the updated source package.");
   console.log("[wyrestorm-enrich] Category summary:");
   console.log(JSON.stringify(summary.categorySummary, null, 2));

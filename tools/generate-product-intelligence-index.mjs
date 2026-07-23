@@ -7,7 +7,9 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 
 const canonicalSourceCandidate = "data/wingman-canonical-product-store.json";
-const classificationCorrectionsPath = "data/product-classification-corrections.json";
+// Lives under data/catalog because .gitignore excludes top-level data/*.json,
+// and an escape hatch nobody can commit is not an escape hatch.
+const classificationCorrectionsPath = "data/catalog/product-classification-corrections.json";
 
 // Reviewed corrections to the generated taxonomy, keyed by SKU. See the
 // `purpose` field in the JSON for why these exist and when they can be dropped.
@@ -34,7 +36,7 @@ function applyClassificationCorrection(sku, classification) {
   return {
     ...classification,
     ...correction.set,
-    correctedBy: "data/product-classification-corrections.json",
+    correctedBy: "data/catalog/product-classification-corrections.json",
     correctionReason: correction.reason ?? "",
   };
 }
