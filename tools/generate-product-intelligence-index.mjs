@@ -7,6 +7,37 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 
 const canonicalSourceCandidate = "data/wingman-canonical-product-store.json";
+const classificationCorrectionsPath = "data/product-classification-corrections.json";
+
+// Reviewed corrections to the generated taxonomy, keyed by SKU. See the
+// `purpose` field in the JSON for why these exist and when they can be dropped.
+let classificationCorrections = new Map();
+
+async function loadClassificationCorrections() {
+  if (!(await pathExists(path.join(projectRoot, classificationCorrectionsPath)))) {
+    return new Map();
+  }
+
+  const payload = await readJsonFile(path.join(projectRoot, classificationCorrectionsPath));
+  const entries = Array.isArray(payload?.corrections) ? payload.corrections : [];
+  return new Map(
+    entries
+      .filter((entry) => entry?.sku && entry?.set && typeof entry.set === "object")
+      .map((entry) => [String(entry.sku).toUpperCase(), entry]),
+  );
+}
+
+function applyClassificationCorrection(sku, classification) {
+  const correction = classificationCorrections.get(String(sku ?? "").toUpperCase());
+  if (!correction || !classification) return classification;
+
+  return {
+    ...classification,
+    ...correction.set,
+    correctedBy: "data/product-classification-corrections.json",
+    correctionReason: correction.reason ?? "",
+  };
+}
 
 const outputTargets = [
   { type: "json", path: "public/product-intelligence-index.json" },
@@ -406,9 +437,10 @@ function normalizeProduct(item, index, sourceFile) {
     : [];
 
   const applications = asArray(item?.applications);
-  const productClassification = item?.productClassification && typeof item.productClassification === "object"
+  const rawProductClassification = item?.productClassification && typeof item.productClassification === "object"
     ? item.productClassification
     : null;
+  const productClassification = applyClassificationCorrection(item?.sku, rawProductClassification);
   const technicalProfile = item?.technicalProfile && typeof item.technicalProfile === "object"
     ? item.technicalProfile
     : null;
@@ -418,8 +450,8 @@ function normalizeProduct(item, index, sourceFile) {
       : technicalProfile?.salesLanguage && typeof technicalProfile.salesLanguage === "object"
         ? technicalProfile.salesLanguage
         : null;
-  const classificationPath = asArray(item?.classificationPath);
-  const subClassifications = asArray(item?.subClassifications);
+  const classificationPath = asArray(productClassification?.classificationPath ?? item?.classificationPath);
+  const subClassifications = asArray(productClassification?.subClassifications ?? item?.subClassifications);
   const profileFeatureLabels = Array.isArray(technicalProfile?.features)
     ? technicalProfile.features.map((feature) => asString(feature?.label || feature)).filter(Boolean)
     : [];
@@ -688,6 +720,8 @@ function toTsModule(indexObject) {
 }
 
 async function main() {
+  classificationCorrections = await loadClassificationCorrections();
+  console.log(`[product-intelligence-index] Classification corrections loaded: ${classificationCorrections.size}`);
   const discoveredSources = [];
   const normalizedProducts = [];
   const sourceCandidates = await resolveSourceCandidates();

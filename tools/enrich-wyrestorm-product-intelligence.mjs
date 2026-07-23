@@ -403,6 +403,13 @@ function inferRole(product, text) {
 function baseClassification(product, text) {
   const sku = upper(product.sku || product.id || product.model);
   const identityText = lower(`${product.sku ?? ""} ${product.name ?? ""} ${product.title ?? ""} ${product.description ?? ""} ${product.summary ?? ""}`);
+  // What the product IS, as opposed to what its datasheet talks about. A
+  // description names the things you connect - "supports a PTZ camera on input
+  // 2", "pairs with any NetworkHD decoder" - so deciding a product's own
+  // identity from it turns a transmitter into a camera. Use this for any test
+  // that decides WHAT THE PRODUCT IS; identityText remains fine for detecting
+  // capabilities it mentions.
+  const identityOnlyText = lower(`${product.sku ?? ""} ${product.name ?? ""} ${product.title ?? ""}`);
   const role = inferRole(product, text);
   const roleVisibility = {
     productRole: role.productRole,
@@ -537,8 +544,8 @@ function baseClassification(product, text) {
   if (
     /^CAM-/.test(sku) ||
     /^FOCUS/.test(sku) ||
-    includesAny(identityText, ["ptz camera", "camera bridge", "ndi camera"]) ||
-    (includesAny(identityText, ["webcam"]) && !mentionsWebcamAsPassthroughExample)
+    includesAny(identityOnlyText, ["ptz camera", "camera bridge", "ndi camera"]) ||
+    (includesAny(identityOnlyText, ["webcam"]) && !mentionsWebcamAsPassthroughExample)
   ) {
     return make({
       primaryCategory: "Camera / Capture",
@@ -660,7 +667,30 @@ function baseClassification(product, text) {
 
   if (/^NHD-/.test(sku)) {
     const series = sku.includes("600") || includesAny(text, ["networkhd 600", "10g"]) ? "NetworkHD 600" : sku.includes("500") || includesAny(text, ["networkhd 500"]) ? "NetworkHD 500" : "NetworkHD 100";
-    const endpointRole = includesAny(identityText, ["controller", "touchscreen"]) ? "Controller" : includesAny(identityText, ["multiview"]) ? "Multiview processor" : includesAny(identityText, ["decoder", "receiver"]) ? "Decoder" : includesAny(identityText, ["encoder", "transmitter"]) ? "Encoder" : includesAny(identityText, ["transceiver"]) ? "Transceiver" : "AVoIP endpoint";
+    // The endpoint role is decided from the SKU suffix and the product NAME,
+    // never from the description or summary. A NetworkHD datasheet routinely
+    // names the other end of the link ("pairs with any NetworkHD decoder",
+    // "requires the NHD-000-CTL controller"), and matching that prose is what
+    // previously typed NHD-124-TX, NHD-400-TX and NHD-400-TX-IW - all encoders
+    // - as decoders, and NHD-500-IW-TX, NHD-500-IW-TX-V2, NHD-150-RX and
+    // NHD-250-RX as controllers.
+    //
+    // The suffix is unambiguous: -CTL controller, -TRX transceiver, -TX
+    // encoder, -RX decoder. Multiview is checked before the suffix because a
+    // multiview processor sits on the decode side and is named for its job.
+    const skuRole = lower(sku);
+    const nameRole = lower(`${product.name ?? ""} ${product.title ?? ""}`);
+    const endpointRole = /-ctl(\b|-)/.test(skuRole) || includesAny(nameRole, ["controller", "touchscreen"])
+      ? "Controller"
+      : includesAny(nameRole, ["multiview", "multi-view"])
+        ? "Multiview processor"
+        : /-trx(\b|-)/.test(skuRole) || includesAny(nameRole, ["transceiver"])
+          ? "Transceiver"
+          : /-tx(\b|-)/.test(skuRole) || includesAny(nameRole, ["encoder", "transmitter"])
+            ? "Encoder"
+            : /-rx(\b|-)/.test(skuRole) || includesAny(nameRole, ["decoder", "receiver"])
+              ? "Decoder"
+              : "AVoIP endpoint";
 
     return make({
       primaryCategory: "NetworkHD AV over IP",
