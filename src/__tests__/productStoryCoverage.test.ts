@@ -23,13 +23,12 @@ const auditPath = path.join(repoRoot, "tools", "audit-product-story-coverage.mjs
 const backlogPath = path.join(repoRoot, "docs", "product-story-coverage-backlog.md");
 const policyPath = path.join(repoRoot, "data", "product-story-coverage-policy.json");
 
-const EXPECTED_ACTIVE_BACKLOG = [
-  "APO-210-UC",
-  "EX-100-G2",
-  "EX-100-H2-EARC",
-  "EX-100-IW-USBC",
-  "SW-620-TX-W",
-];
+// Ratchet: the active lead-story backlog is now empty - governed stories were
+// authored for the last five uncovered active SKUs (APO-210-UC, EX-100-G2,
+// EX-100-H2-EARC, EX-100-IW-USBC, SW-620-TX-W), taking active coverage to 100%.
+// This must only ever move toward empty; a new entry here means an active SKU
+// lost or never gained a governed story.
+const EXPECTED_ACTIVE_BACKLOG: string[] = [];
 
 const EXPECTED_DEPENDENCY_CLASSIFICATIONS = new Map([
   ["CAB-HAOC-FRL-XX", "cable"],
@@ -139,7 +138,7 @@ describe("product story backlog hygiene", () => {
       }
 
       expect(firstDocument).toContain("Active catalogue SKUs (alias-deduped): **129**");
-      expect(firstDocument).toContain("Active covered: **124 (96%)** · Active uncovered: **5**");
+      expect(firstDocument).toContain("Active covered: **129 (100%)** · Active uncovered: **0**");
       expect(firstDocument).toContain("cable **34**, dependency-only **1**");
       expect(firstDocument).toContain("NHD-124-RACK-1U — rack:");
     } finally {
