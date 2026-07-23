@@ -5088,7 +5088,7 @@ html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.rig
 .wm-diagram-preview-head,
 .wm-glossary-detail-head,
 .wm-glossary-results-head,
-.wm-glossary-say-panel > div {
+.wm-glossary-reality-panel > div {
   display: flex !important;
   align-items: flex-start !important;
   justify-content: space-between !important;
@@ -5100,7 +5100,7 @@ html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.rig
 }
 
 .wm-diagram-card-head svg,
-.wm-glossary-say-panel svg,
+.wm-glossary-reality-panel svg,
 .wm-glossary-definition-grid svg {
   color: #b45309 !important;
   flex: 0 0 auto !important;
@@ -5111,8 +5111,8 @@ html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.rig
 .wm-glossary-results-head p,
 .wm-glossary-detail-head p,
 .wm-glossary-definition-grid p,
-.wm-glossary-say-panel p,
-.wm-glossary-two-column h3,
+.wm-glossary-reality-panel p,
+.wm-glossary-cautions h3,
 .wm-glossary-related h3 {
   margin: 0 !important;
   color: #b45309 !important;
@@ -5127,8 +5127,7 @@ html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.rig
 .wm-diagram-next-action p,
 .wm-glossary-results-head span,
 .wm-glossary-detail-head span,
-.wm-glossary-search span,
-.wm-glossary-audience button span {
+.wm-glossary-search span {
   color: #64748b !important;
   font-size: 0.8rem !important;
   line-height: 1.35 !important;
@@ -5144,11 +5143,8 @@ html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.rig
 .wm-diagram-template-list button,
 .wm-glossary-term-list button,
 .wm-glossary-category-row button,
-.wm-glossary-audience button,
 .wm-glossary-related button,
-.wm-diagram-preview-head button,
-.wm-glossary-detail-actions button,
-.wm-glossary-detail-actions a {
+.wm-diagram-preview-head button {
   border: 1px solid rgba(148, 163, 184, 0.28) !important;
   border-radius: 14px !important;
   background: #f8fafc !important;
@@ -5157,8 +5153,7 @@ html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.rig
 }
 
 .wm-diagram-template-list button,
-.wm-glossary-term-list button,
-.wm-glossary-audience button {
+.wm-glossary-term-list button {
   display: grid !important;
   gap: 4px !important;
   padding: 11px !important;
@@ -5167,8 +5162,7 @@ html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.rig
 
 .wm-diagram-template-list button.is-active,
 .wm-glossary-term-list button.is-active,
-.wm-glossary-category-row button.is-active,
-.wm-glossary-audience button.is-active {
+.wm-glossary-category-row button.is-active {
   border-color: #0f172a !important;
   background: #0f172a !important;
   color: var(--wm-consistency-text) !important;
@@ -5176,8 +5170,7 @@ html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.rig
 
 .wm-diagram-template-list strong,
 .wm-glossary-term-list strong,
-.wm-diagram-next-action strong,
-.wm-glossary-audience strong {
+.wm-diagram-next-action strong {
   color: inherit !important;
   font-size: 0.88rem !important;
   line-height: 1.2 !important;
@@ -5223,8 +5216,7 @@ html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.rig
 
 .wm-diagram-coverage-grid,
 .wm-diagram-stat-row,
-.wm-glossary-definition-grid,
-.wm-glossary-two-column {
+.wm-glossary-definition-grid {
   display: grid !important;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
   gap: 10px !important;
@@ -5234,8 +5226,8 @@ html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.rig
 .wm-diagram-coverage-grid div,
 .wm-diagram-stat-row div,
 .wm-glossary-definition-grid section,
-.wm-glossary-two-column section,
-.wm-glossary-say-panel,
+.wm-glossary-cautions,
+.wm-glossary-reality-panel,
 .wm-glossary-related,
 .wm-diagram-review-grid section,
 .wm-diagram-copy-status {
@@ -5268,9 +5260,7 @@ html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.rig
   font-weight: 850 !important;
 }
 
-.wm-diagram-preview-head button,
-.wm-glossary-detail-actions button,
-.wm-glossary-detail-actions a {
+.wm-diagram-preview-head button {
   min-height: 38px !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -5286,7 +5276,7 @@ html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.rig
 }
 
 .wm-diagram-review-grid h3,
-.wm-glossary-two-column h3 {
+.wm-glossary-cautions h3 {
   display: flex !important;
   align-items: center !important;
   gap: 7px !important;
@@ -5298,8 +5288,8 @@ html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.rig
 
 .wm-diagram-review-grid p,
 .wm-diagram-review-grid li,
-.wm-glossary-two-column li,
-.wm-glossary-say-panel strong,
+.wm-glossary-cautions li,
+.wm-glossary-reality-panel strong,
 .wm-glossary-definition-grid strong {
   color: #334155 !important;
   font-size: 0.84rem !important;
@@ -5307,7 +5297,7 @@ html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.rig
 }
 
 .wm-diagram-review-grid ul,
-.wm-glossary-two-column ul {
+.wm-glossary-cautions ul {
   display: grid !important;
   gap: 7px !important;
   margin: 9px 0 0 !important;
@@ -5335,7 +5325,6 @@ html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.rig
   padding-left: 38px !important;
 }
 
-.wm-glossary-audience,
 .wm-glossary-category-row,
 .wm-glossary-related div {
   display: flex !important;
@@ -5376,12 +5365,6 @@ html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.rig
   gap: 14px !important;
 }
 
-.wm-glossary-detail-actions {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 8px !important;
-}
-
 .wm-glossary-definition-grid {
   margin-top: 0 !important;
 }
@@ -5391,33 +5374,126 @@ html[data-wingman-route="finder"] .wm-finder-redesign-page > .fixed.bottom-5.rig
   gap: 7px !important;
 }
 
-.wm-glossary-say-panel {
+.wm-glossary-reality-panel {
   display: grid !important;
   gap: 8px !important;
   border-color: rgba(74, 245, 230, 0.36);
   background: #fffaf3 !important;
 }
 
-.wm-glossary-say-panel > span {
+.wm-glossary-reality-panel > span {
   color: #047857 !important;
   font-size: 0.78rem !important;
   font-weight: 800 !important;
 }
 
-.wm-glossary-two-column {
-  margin-top: 0 !important;
+.wm-glossary-cautions {
+  display: grid !important;
+  gap: 8px !important;
+  margin-top: 10px !important;
 }
 
-.wm-glossary-two-column section:last-child li {
+.wm-glossary-cautions li {
   display: flex !important;
   gap: 7px !important;
   align-items: flex-start !important;
 }
 
-.wm-glossary-two-column section:last-child svg {
+.wm-glossary-cautions svg {
   color: #b45309 !important;
   margin-top: 3px !important;
   flex: 0 0 auto !important;
+}
+
+/* Reference table: the version / standard / grade breakdown a user comes to
+   the glossary to look up. Scrolls inside its own container so a wide table
+   never forces the page itself to scroll sideways. */
+.wm-glossary-reference {
+  display: grid !important;
+  gap: 8px !important;
+  margin-top: 10px !important;
+  border: 1px solid rgba(148, 163, 184, 0.24) !important;
+  border-radius: 16px !important;
+  background: #f8fafc !important;
+  padding: 12px !important;
+}
+
+.wm-glossary-reference-scroll {
+  overflow-x: auto !important;
+  max-width: 100% !important;
+}
+
+.wm-glossary-reference table {
+  width: 100% !important;
+  min-width: 520px !important;
+  border-collapse: collapse !important;
+  font-size: 0.82rem !important;
+}
+
+.wm-glossary-reference thead th {
+  text-align: left !important;
+  color: #b45309 !important;
+  font-size: 0.66rem !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  padding: 0 10px 7px 0 !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.34) !important;
+  white-space: nowrap !important;
+}
+
+.wm-glossary-reference tbody th {
+  text-align: left !important;
+  vertical-align: top !important;
+  color: #0f172a !important;
+  font-weight: 850 !important;
+  padding: 9px 12px 9px 0 !important;
+  white-space: nowrap !important;
+  /* Row labels are real names - "Cat5e", "HDMI 2.0a", "Spec 1.0" - so they
+     must not inherit the uppercasing used on the column headings. */
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  font-size: 0.82rem !important;
+}
+
+.wm-glossary-reference tbody td {
+  vertical-align: top !important;
+  color: #334155 !important;
+  line-height: 1.4 !important;
+  padding: 9px 12px 9px 0 !important;
+}
+
+.wm-glossary-reference tbody tr + tr th,
+.wm-glossary-reference tbody tr + tr td {
+  border-top: 1px solid rgba(148, 163, 184, 0.2) !important;
+}
+
+.wm-glossary-reference tbody td small {
+  display: block !important;
+  margin-top: 3px !important;
+  color: #64748b !important;
+  font-size: 0.76rem !important;
+  line-height: 1.35 !important;
+}
+
+.wm-glossary-reference > p {
+  margin: 0 !important;
+  color: #64748b !important;
+  font-size: 0.78rem !important;
+  line-height: 1.4 !important;
+}
+
+.wm-glossary-alias-row {
+  display: grid !important;
+  gap: 2px !important;
+  text-align: right !important;
+  max-width: 45% !important;
+}
+
+.wm-glossary-alias-row span {
+  color: #64748b !important;
+  font-size: 0.76rem !important;
+  line-height: 1.35 !important;
 }
 
 .wm-glossary-empty {
@@ -5477,7 +5553,7 @@ html[data-wingman-route="visualDesign"] .wm-diagram-next-action {
   display: none !important;
 }
 
-html[data-wingman-route="glossary"] .wm-glossary-two-column,
+html[data-wingman-route="glossary"] .wm-glossary-cautions,
 html[data-wingman-route="glossary"] .wm-glossary-related {
   display: none !important;
 }
@@ -5512,7 +5588,7 @@ html[data-wingman-route] .wingman-page-host :where(
   .wm-glossary-results,
   .wm-glossary-detail,
   .wm-glossary-definition-grid,
-  .wm-glossary-say-panel,
+  .wm-glossary-reality-panel,
   .wm-workflow-dashboard-shell
 ) {
   border-color: rgba(126, 157, 182, 0.28) !important;
@@ -6046,10 +6122,8 @@ html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-term-list but
 
 html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-term-list button *,
 html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-toolbar button *,
-html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-audience button *,
 .wm-route-glossary .wm-glossary-page .wm-glossary-term-list button *,
-.wm-route-glossary .wm-glossary-page .wm-glossary-toolbar button *,
-.wm-route-glossary .wm-glossary-page .wm-glossary-audience button * {
+.wm-route-glossary .wm-glossary-page .wm-glossary-toolbar button * {
   color: inherit !important;
   text-shadow: none !important;
 }
@@ -6065,9 +6139,7 @@ html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-term-list but
 }
 
 html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-toolbar button span:last-child,
-html[data-wingman-route="glossary"] .wm-glossary-page .wm-glossary-audience button span:last-child,
-.wm-route-glossary .wm-glossary-page .wm-glossary-toolbar button span:last-child,
-.wm-route-glossary .wm-glossary-page .wm-glossary-audience button span:last-child {
+.wm-route-glossary .wm-glossary-page .wm-glossary-toolbar button span:last-child {
   background: rgba(255, 255, 255, 0.12) !important;
   color: inherit !important;
 }
@@ -6402,7 +6474,7 @@ html[data-wingman-route] .wingman-page-host :is(
   .wm-glossary-results,
   .wm-glossary-detail,
   .wm-glossary-definition-grid,
-  .wm-glossary-say-panel,
+  .wm-glossary-reality-panel,
   .wm-vs-panel,
   .rounded-xl.border,
   .rounded-2xl.border,
