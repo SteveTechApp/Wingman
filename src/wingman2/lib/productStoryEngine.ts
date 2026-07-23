@@ -1,4 +1,9 @@
 import { getProductStory, productStoryRelatedText } from "../data/productStories";
+import {
+  resolveProductRole,
+  type ProductClassificationFacts,
+  type ProductRoleResolution,
+} from "./productRoleResolution";
 export type ProductRole =
   | "camera"
   | "audio"
@@ -52,6 +57,10 @@ export type ProductSpec = {
   checks: string[];
   related: string[];
   technicalData?: ProductTechnicalDataSummary;
+  // The governed taxonomy from the product intelligence index. Carried through
+  // normalisation rather than discarded, so role resolution can use the
+  // authored classification instead of guessing from marketing prose.
+  classification?: ProductClassificationFacts;
 };
 
 // How much of this narrative is trusted, governed copy versus auto-generated
@@ -230,7 +239,41 @@ export function normaliseProductRecord(entry: unknown, index: number): ProductSp
     power: firstList(source, ["power", "psu", "consumption", "mains"], ["Power detail must be confirmed from current datasheet."]),
     physical: firstList(source, ["physical", "dimensions", "mounting", "rack", "formFactor", "weight"], ["Physical details must be confirmed from current datasheet."]),
     checks: firstList(source, ["checks", "beforeRecommending", "beforeQuoting", "whatToCheck", "designChecks"], ["Confirm source count, display count, signal type, distance, USB, audio, control, network and power requirements."]),
-    related: firstList(source, ["related", "relatedProducts", "alternatives", "companionProducts"], [])
+    related: firstList(source, ["related", "relatedProducts", "alternatives", "companionProducts"], []),
+    classification: readClassificationFacts(source)
+  };
+}
+
+// The governed taxonomy travels with the spec instead of being flattened away.
+// Top-level `classificationPath` / `subClassifications` are read as a fallback
+// because some records carry them alongside `productClassification` rather
+// than only inside it.
+function readClassificationFacts(source: Record<string, unknown>): ProductClassificationFacts | undefined {
+  const governed = asRecord(source.productClassification);
+  const hasGoverned = Boolean(Object.keys(governed).length);
+
+  const subClassifications = toList(
+    hasGoverned && governed.subClassifications ? governed.subClassifications : source.subClassifications,
+  );
+  const classificationPath = toList(
+    hasGoverned && governed.classificationPath ? governed.classificationPath : source.classificationPath,
+  );
+
+  if (!hasGoverned && !subClassifications.length && !classificationPath.length) {
+    return undefined;
+  }
+
+  const confidence = Number(governed.confidence);
+
+  return {
+    primaryCategory: toText(governed.primaryCategory) || undefined,
+    category: toText(governed.category) || undefined,
+    systemRole: toText(governed.systemRole) || undefined,
+    subClassifications,
+    classificationPath,
+    signalDomains: toList(governed.signalDomains),
+    transportClass: toList(governed.transportClass),
+    confidence: Number.isFinite(confidence) ? confidence : undefined,
   };
 }
 
@@ -279,24 +322,18 @@ export function productText(product: ProductSpec) {
   ].join(" ").toLowerCase();
 }
 
+// Resolve the narrative role, with provenance. Prefer this over
+// `inferProductRole` where the caller can act on a soft result - `needsReview`
+// marks a role that was guessed from prose because the product carried no
+// governed classification.
+export function resolveProductRoleWithEvidence(product: ProductSpec): ProductRoleResolution {
+  return resolveProductRole(product, productText(product), {
+    isUcRoomProduct: isUcRoomProduct(product),
+  });
+}
+
 export function inferProductRole(product: ProductSpec): ProductRole {
-  const text = productText(product);
-
-  // Exact UC identity takes precedence over loose words such as speaker, audio,
-  // camera or USB-C. Those words describe capabilities, not the system role.
-  if (isUcRoomProduct(product)) return "presentation";
-
-  if (text.includes("multiview") || text.includes("multi-view") || text.includes("quad")) return "multiview";
-  if (text.includes("video wall") || text.includes("videowall") || text.includes("led wall")) return "videoWall";
-  if (text.includes("amplifier") || text.includes("dante") || text.includes("dsp") || text.includes("speaker")) return "audio";
-  if (/^nhd-/i.test(product.sku) || text.includes("networkhd") || text.includes("avoip") || text.includes("av over ip") || text.includes("encoder") || text.includes("decoder")) return "avoip";
-  if (/^cam-/i.test(product.sku) || text.includes("ptz") || text.includes("camera bridge") || text.includes("camera")) return "camera";
-  if (text.includes("matrix")) return "matrix";
-  if (text.includes("presentation") || text.includes("usb-c") || text.includes("byod") || text.includes("byom")) return "presentation";
-  if (text.includes("hdbaset") || text.includes("extender") || text.includes("transmitter") || text.includes("receiver")) return "extension";
-  if (text.includes("wireless") || text.includes("airplay") || text.includes("miracast")) return "wireless";
-
-  return "general";
+  return resolveProductRoleWithEvidence(product).role;
 }
 
 function firstMeaningful(values: string[], fallback: string) {
