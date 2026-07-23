@@ -107,7 +107,7 @@ async function main() {
     console.error(
       "\nFix the rule in tools/enrich-wyrestorm-product-intelligence.mjs that inferred this from datasheet prose,",
     );
-    console.error("or add a reviewed entry to data/product-classification-corrections.json explaining the correction.");
+    console.error("or add a reviewed entry to data/catalog/product-classification-corrections.json explaining the correction.");
     process.exitCode = 1;
     return;
   }
