@@ -6,6 +6,7 @@
  */
 
 import { gateCompareCandidate, type CompareCompetitorClass } from "./compareCandidateGate";
+import type { ProductClassificationFacts } from "./productRoleResolution";
 import { normalizeCompetitorSku } from "./competitorProductIntelligence";
 
 export type TechnologyClass =
@@ -65,6 +66,12 @@ export type WyrestormProduct = {
   searchTerms?: string[];
   description?: string;
   summary?: string;
+  /**
+   * Governed taxonomy from the product intelligence index. Passed through to
+   * the compare candidate gate so a product's class comes from its authored
+   * classification rather than from words in its title or category.
+   */
+  productClassification?: ProductClassificationFacts;
 };
 
 export type MatchResult = {
@@ -537,6 +544,7 @@ function toGateClass(technologyClass: TechnologyClass): CompareCompetitorClass {
 function gateInputForProduct(product: WyrestormProduct) {
   return {
     sku: product.sku,
+    classification: product.productClassification,
     title: product.title || product.name,
     role: product.role || product.governanceRole || product.category,
     category: product.category,
