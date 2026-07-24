@@ -10,6 +10,10 @@ export default defineConfig({
     setupFiles: ["./src/__tests__/setup.ts"],
     include: ["src/**/*.{test,spec}.{ts,tsx}", "server/**/*.{test,spec}.mjs"],
     exclude: ["node_modules", "dist", "src/_ARCHIVE/**"],
+    // Must exceed the 5000ms asyncUtilTimeout set in src/__tests__/setup.ts,
+    // otherwise a slow async query is cut short by the test timeout before it
+    // can report a useful failure. Vitest's default is also 5000ms.
+    testTimeout: 15_000,
     coverage: {
       provider: "v8",
       reporter: ["text", "json-summary"],
