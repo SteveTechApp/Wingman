@@ -139,6 +139,37 @@ N instances the effective limit becomes N times the configured value.
 
 ---
 
+## 4a. Dependency audit exceptions
+
+CI runs `npm run check:dependency-audit`, which wraps `npm audit` for both the root and server
+packages and fails on any **high or critical** advisory.
+
+Plain `npm audit --audit-level=high` has no way to accept a single assessed finding. On
+2026-07-24 a newly published react-router advisory turned the gate red on every branch with no
+code change at all — `main` had passed the same check hours earlier — and because Dependency
+Audit is a required status check, nothing could merge.
+
+The two bad answers are silencing the gate and downgrading a working dependency to satisfy a
+finding that is not reachable in this app. The gate takes the third: a written, expiring
+exception in `tools/dependency-audit-exceptions.json`.
+
+**An exception records that an advisory does not apply to how Wingman uses the package. It is
+not a way to silence a finding that has not been assessed.** Each entry needs a justification,
+who accepted it, and an `expiresOn` date. The check **fails** once an exception expires, and
+also fails if an exception no longer matches any advisory — so entries cannot quietly become
+permanent, and resolved ones get deleted rather than lingering.
+
+### Currently in force
+
+| Advisory | Package | Expires | Why |
+|---|---|---|---|
+| `GHSA-qwww-vcr4-c8h2` | react-router / react-router-dom | 2026-10-24 | RSC-mode CSRF bypass. Wingman is a client-rendered SPA — `BrowserRouter` via `createRoot`, no SSR, no RSC entry point, no RSC API imports. The vulnerable path is unreachable. No fixed release exists above the installed 7.18.1; npm's suggested remediation is a downgrade to 7.11.0, which would undo the deliberate 6.x → 7.x upgrade. |
+
+**Before that expiry:** check whether react-router has published a fixed 7.x. If so, upgrade and
+**delete** the exception rather than extending it.
+
+---
+
 ## 5. Incident Response
 
 | Symptom | Likely cause | First action |
