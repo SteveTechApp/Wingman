@@ -25,9 +25,11 @@ stays auditable; each carries a status marker.
 | P2-3 No release versioning | ✅ Resolved | Version set to `0.9.0`; build label surfaced on the Support page. |
 | P2-4 Documentation drift | ✅ Resolved | One live status document; the other two now point at it. |
 
+**Also resolved:** P1-5 — branch protection is now enabled on `main` with nine required checks,
+applied to admins.
+
 **Still open and needing a human decision:** P0-2's data backlog (business threshold), P1-3
-(client storage model), P1-4 (bundle budgets), P1-5 (branch protection — a repo setting), and
-P2-5 (the Supabase integration).
+(client storage model), P1-4 (bundle budgets), and P2-5 (the Supabase integration).
 
 A genuine discovery while restructuring `verify`: it ran neither `lint` nor the full test suite.
 The pre-commit hook runs `verify`, so lint and test failures could be committed freely — which is
@@ -268,7 +270,7 @@ to read application tables.
 
 ---
 
-### P1-5 · CI is unenforced — `main` has no branch protection
+### P1-5 · CI is unenforced — `main` has no branch protection — ✅ RESOLVED 2026-07-24
 
 _Added 2026-07-24._
 
@@ -288,7 +290,30 @@ but nothing prevented it, and nothing would prevent it next time.
 This qualifies the "quality infrastructure" entry in §4: the CI is well-built and comprehensive,
 and it is also advisory. A guard suite that does not block is a report, not a gate.
 
-**Instructions:**
+**Resolution (2026-07-24).** Branch protection is enabled on `main`:
+
+| Setting | Value |
+|---|---|
+| Required checks | Lint · Type Check · Test · Verify (data) · Verify (contract) · Verify (visual) · Browser Smoke · Build · Dependency Audit |
+| Branch must be up to date | yes |
+| Applies to admins | **yes** |
+| Force pushes / deletions | blocked |
+
+`enforce_admins` is deliberately **on**. With it off, the sole repo admin can still push
+straight to `main`, which would have let every one of the three red commits land exactly as
+before - the protection would have been decorative. To bypass in a genuine emergency, turn it
+off, push, and turn it back on:
+
+```bash
+gh api -X DELETE repos/SteveTechApp/Wingman/branches/main/protection/enforce_admins
+# ... push the emergency fix ...
+gh api -X POST repos/SteveTechApp/Wingman/branches/main/protection/enforce_admins
+```
+
+`Supabase Preview`, CodeQL and GitGuardian are deliberately **not** required: they are externally
+owned, and a required check that fails for reasons outside the repo blocks all merges.
+
+**Original instructions:**
 
 1. Enable branch protection on `main` with required status checks: `Lint`, `Type Check`, `Test`,
    `Verify`, `Dependency Audit`, `Build`.
