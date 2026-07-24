@@ -303,6 +303,63 @@ per-SKU URL 404s. The spec table separates TX and RX rows, so the profile takes 
 - **`SYN-TOUCH10-V2`** — replaces the discontinued do-not-spec `SYN-TOUCH10`. Needs PoE+; 802.3af
   is not sufficient.
 
+#### Batch 3 drafted — 2026-07-24
+
+Five more: `APO-VX20-UC-V2`, `RX-700`, `RX-500`, `SW-130-TX-UK`, `MX-0808-SCL`.
+
+| | |
+|---|---|
+| Verified coverage | **still 7/127** |
+| Drafted awaiting review | 12 → 16 |
+| No profile at all | 108 → 104 |
+
+> ### 🚨 Design gap found in a customer-facing template
+>
+> The **"Local Pub — 8x8 Matrix TV Distribution"** template contains exactly three SKUs:
+> `MX-0808-SCL`, `RX-70-4K` and `SYN-KEY10`.
+>
+> `MX-0808-SCL` has **HDMI outputs only** — uncompressed 18Gbps, no HDBaseT — and its 4K60 modes
+> are rated to just **5m/16ft of HDMI cable**. `RX-70-4K` is an **HDBaseT receiver**. There is no
+> HDBaseT transmitter anywhere in that template.
+>
+> **As templated, the receiver has nothing to connect to, and the remote TVs cannot be reached at
+> 4K60 over 5m of HDMI.** A proposal generated from this template would not build.
+>
+> Fixing it is a design decision — add HDBaseT transmitters on the matrix outputs, or move to a
+> matrix with native HDBaseT outputs — so it is **recorded, not silently changed**.
+
+> **Where the fault is — and is not.** The Compare engine already models this correctly.
+> `findKnownWyrestormMatrixProfile` resolves `MX-0808-SCL` to `outputTypes: ["HDMI"]` /
+> `transport: ["HDMI","USB-C"]` and `MXV-0808-H2A-MK2` to `outputTypes: ["HDBaseT"]` — the
+> HDMI-vs-HDBaseT distinction that months of compare work built is intact and verifiable. The
+> defect is **not** in the engine. It is that `roomTemplates.ts` is hand-authored and **nothing
+> cross-checked its BOMs against that model.** A new guard, `check:template-signal-path`, now does.
+>
+> **The guard found a second instance on its first run:** the *"Residential Media Room — Local
+> Matrix"* template pairs `MX-0404-HDMI` (an 18Gbps HDMI matrix) and `EXP-SW-0401-8K` (an HDMI
+> switcher) with the HDBaseT receiver `RX-70-4K` — again no HDBaseT source. Both templates are
+> frozen in the guard's `KNOWN_INCOMPLETE` list with the design decision each needs; the guard
+> blocks any *new* template with the same fault.
+>
+> **Also surfaced (data, not engine):** `RX-700` is misfiled in `products.csv` as
+> `family="Cable"` and `RX-500` as `family="Camera / Capture"`, though both are HDBaseT receivers.
+> Their `role` is correct (`primary-hardware`), so they are not wrongly excluded from logic, but
+> the family labels are wrong and should be corrected in a data pass.
+
+**Other findings in this batch:**
+
+- **`RX-500` vs `RX-700`** — templates offer these as a distance choice ("short run" / "long run").
+  They also differ on **chroma**: `RX-500` is 4:2:0 at 4K60, `RX-700` is 4:4:4 (via DSC). That is a
+  picture-quality difference, not just a distance one, and the template copy doesn't say so.
+- **`APO-VX20-UC-V2`** — the HDMI **input** is capped at 4K@30Hz and **HDCP 1.4 only**; a protected
+  4K source needing HDCP 2.2 will not pass through. The two HDMI outputs are also not equivalent
+  (out 1 is 4K60/HDCP 2.3, out 2 is 4K30/HDCP 2.2). Easy to mis-sell as "a 4K60 bar". Camera is
+  ePTZ, not mechanical. The existing Zoom-certified / **not** Teams-certified caveat applies.
+- **`SW-130-TX-UK`** — maxes at **4K@30Hz**, not 4K60, and **ARC is not supported**. Its RS-232 and
+  12V DC share one 4-pin Phoenix connector.
+- **`MX-0808-SCL`** — only **7 inputs are HDMI**; the eighth is USB-C. Published max power draw and
+  weight are **"TBD"** on the official page.
+
 **Evidence:**
 ```
 [technical-data] Validated 10 governed profiles.
