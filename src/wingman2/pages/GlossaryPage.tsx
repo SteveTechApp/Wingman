@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, BookOpen, Lightbulb, Search, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
-import { PageHero } from "../components/PageHero";
 import {
   AV_GLOSSARY_CATEGORIES,
   AV_GLOSSARY_TERMS,
@@ -100,29 +100,38 @@ export function GlossaryPage() {
   }
 
   return (
-    <main className="wm-glossary-page">
-      <PageHero
-        eyebrow="AV Reference"
-        title="Look up any AV term, standard or cable grade."
-        purpose="A quick reference for what AV technology actually means in practice - versions, standards, formats, distances and the trade-offs behind them."
-        nextMove="Search the term or acronym, then read the plain meaning, what it means in reality, and the version or grade table where one applies."
-        actions={[
-          { label: "Browse Catalogue", to: routeCatalogByKey.catalogBrowser.path, variant: "primary" },
-          { label: "Open Sales Strategy", to: routeCatalogByKey.salesHelper.path, variant: "secondary" },
-        ]}
-      />
+    <main className="wm-page wm-glossary-page" data-wingman-page="glossary">
+      <section className="wm-glossary-intro" aria-labelledby="glossary-title">
+        <header className="wm-glossary-header">
+          <div>
+            <h1 id="glossary-title" className="wm-page-title">AV glossary</h1>
+            <p className="wm-page-description">
+              Search practical definitions, standards, cable grades and the trade-offs that matter on an AV job.
+            </p>
+          </div>
+          <div className="wm-action-row" aria-label="Glossary actions">
+            <Link className="wm-button wm-button-secondary" to={routeCatalogByKey.catalogBrowser.path}>
+              Browse Catalogue
+            </Link>
+            <Link className="wm-button wm-button-secondary" to={routeCatalogByKey.salesHelper.path}>
+              Open Sales Strategy
+            </Link>
+          </div>
+        </header>
 
-      <section className="wm-glossary-toolbar" aria-label="Glossary search and filters">
         <label className="wm-glossary-search">
           <Search className="h-4 w-4" />
-          <span>Search glossary</span>
+          <span className="sr-only">Search glossary</span>
           <input
+            className="wm-input"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search HDMI, 4:2:2, Cat6a, USB 3.2, HDBaseT, eARC..."
+            placeholder="Search terms, acronyms, standards or cable grades..."
           />
         </label>
+      </section>
 
+      <section className="wm-glossary-toolbar" aria-label="Glossary search and filters">
         <div className="wm-glossary-category-row" aria-label="Glossary categories">
           {["All", ...AV_GLOSSARY_CATEGORIES].map((category) => (
             <button
@@ -154,9 +163,12 @@ export function GlossaryPage() {
                 className={selectedTerm?.id === term.id ? "is-active" : ""}
                 onClick={() => setSelectedId(term.id)}
               >
-                <span>{term.category}</span>
-                <strong>{term.term}</strong>
-                {term.acronym ? <small>{term.acronym}</small> : null}
+                <span className="wm-glossary-term-meta">{term.category}</span>
+                <span className="wm-glossary-term-title">
+                  <strong>{term.term}</strong>
+                  {term.acronym || term.aliases[0] ? <small>{term.acronym ?? term.aliases[0]}</small> : null}
+                </span>
+                <span className="wm-glossary-term-summary">{term.plainEnglish}</span>
               </button>
             ))}
           </div>
@@ -196,7 +208,7 @@ export function GlossaryPage() {
               </section>
               <section>
                 <Sparkles className="h-4 w-4" />
-                <p>Why it matters on a job</p>
+                <p>Typical AV use</p>
                 <strong>{selectedTerm.whyItMatters}</strong>
               </section>
             </div>
@@ -205,7 +217,7 @@ export function GlossaryPage() {
               <section className="wm-glossary-reality-panel">
                 <div>
                   <Lightbulb className="h-4 w-4" />
-                  <p>What it means in reality</p>
+                  <p>What it means in practice</p>
                 </div>
                 <strong>{selectedTerm.inReality}</strong>
               </section>
@@ -244,7 +256,7 @@ export function GlossaryPage() {
             ) : null}
 
             <section className="wm-glossary-cautions">
-              <h3>Watch out</h3>
+              <h3>Limitations and trade-offs</h3>
               <ul>
                 {selectedTerm.cautions.map((item) => (
                   <li key={item}>
