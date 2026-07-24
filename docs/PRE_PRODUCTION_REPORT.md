@@ -2,6 +2,7 @@
 
 _Generated: 2026-07-23 · Branch `main` @ `f100ae8`_
 _Updated: 2026-07-24 — **P0-1 resolved, tree is green.** `npm run verify` exits 0 across all 69 steps; 717/717 tests pass._
+_Updated: 2026-07-24 — added **P0-3** (two divergent migration sets, one with no RLS), **P1-5** (`main` has no branch protection) and **P2-5** (the red GitHub check is Supabase's, not ours), found while investigating CI failures._
 
 This report is **evidence-based**: every gate below was executed against the repository at the
 time of writing, not read from a status document. Where a previous doc says "Pending", this
@@ -194,6 +195,114 @@ Lifecycle governance is working. 167 active + 5 in review are sellable. Do not "
 
 **Exit criteria:** documented threshold met; strict gate in `verify`; review queue triaged to an
 agreed residual.
+
+---
+
+### P0-3 · Two divergent migration sets — one of them has no RLS at all
+
+_Added 2026-07-24, found while investigating the red CI column on GitHub._
+
+**Evidence.** The repo contains two independent sets of migrations that create **the same nine
+tables** (`wingman_app_state`, `wingman_users`, `wingman_workspaces`, `wingman_workspace_members`,
+`wingman_workspace_invitations`, `wingman_sessions`, `wingman_projects`, `wingman_audit_events`,
+`wingman_telemetry_events`):
+
+| Set | Files | `ENABLE ROW LEVEL SECURITY` | `CREATE POLICY` |
+|---|---|---|---|
+| `server/migrations/` | `001_initial_schema.sql`, `002_scope_service_role_policies.sql` | **9** | **9 + 9 rescoped** |
+| `supabase/migrations/` | three `20260310_*.sql` files | **0** | **0** |
+
+The `supabase/migrations/` set creates the tables with **no RLS enabled and no policies defined**,
+and no explicit `GRANT`s. In a stock Supabase project, tables in `public` without RLS are readable
+by anyone holding the (client-side, publicly shipped) anon key. Supabase's own linter classifies
+this as an error-level finding.
+
+**Why this matters now.** `LAUNCH_CHECKLIST.md` §4 tells the operator to apply
+`001_initial_schema.sql` — the safe set. But the Supabase GitHub integration reads
+`supabase/migrations/`, so whichever path is used to provision production decides whether the
+database has RLS. That is a coin-flip on a security control, resolved by whoever runs the
+provisioning step.
+
+**Instructions:**
+
+1. **Name one authoritative set.** `server/migrations/` is the safe, documented, policy-complete
+   one. Recommendation: keep it, and delete or regenerate `supabase/migrations/` from it.
+2. If Supabase branching/preview is meant to stay, `supabase/migrations/` must be a faithful copy
+   including `ENABLE ROW LEVEL SECURITY` and the `002` role-scoped policies — not a parallel
+   hand-written schema.
+3. **Verify against the live database, not the files.** Before any real data is stored, confirm
+   in the Supabase dashboard that RLS is on for all nine tables and that the anon key cannot read
+   `wingman_projects` or `wingman_users`.
+4. Add a guard to `verify` asserting the two sets create the same tables and the same RLS surface,
+   so they cannot drift again. This fits the existing tool idiom.
+
+**Exit criteria:** one migration set, RLS confirmed on in the live project, anon key proven unable
+to read application tables.
+
+---
+
+### P1-5 · CI is unenforced — `main` has no branch protection
+
+_Added 2026-07-24._
+
+**Evidence.** `gh api repos/SteveTechApp/Wingman/branches/main/protection` returns
+`404 Branch not protected`. There are no required status checks. Consequently three consecutive
+commits landed on `main` with genuinely failing checks:
+
+| Commit | Failing repo checks |
+|---|---|
+| `296c40c` | Verify, Test |
+| `aa09604` | Verify, Test |
+| `265028e` | Test, Lint |
+
+All were fixed by `f100ae8`, which passes all ten repo-owned checks. So the damage was transient —
+but nothing prevented it, and nothing would prevent it next time.
+
+This qualifies the "quality infrastructure" entry in §4: the CI is well-built and comprehensive,
+and it is also advisory. A guard suite that does not block is a report, not a gate.
+
+**Instructions:**
+
+1. Enable branch protection on `main` with required status checks: `Lint`, `Type Check`, `Test`,
+   `Verify`, `Dependency Audit`, `Build`.
+2. Do **not** make `Supabase Preview` required (see P2-5) — it is externally owned and currently
+   failing for infrastructure reasons.
+3. Require branches to be up to date before merging.
+4. Once `verify` is staged (P1-1), make the four stage jobs the required checks instead.
+
+---
+
+### P2-5 · The red X on GitHub is a Supabase integration, not your code
+
+_Added 2026-07-24, in answer to "should I be worried about these fails?"_
+
+**Short answer: not about this one.** At the tip of `main` (`f100ae8`) all ten repo-owned checks
+pass — Lint, Type Check, Test, Verify, Dependency Audit, Build, both Docker images, CodeQL. The
+only failure is `Supabase Preview`, a check published by the Supabase GitHub App, not by any
+workflow in `.github/workflows/`.
+
+**Evidence — the failure is infrastructure:**
+```
+failed to connect to postgres: failed to connect to `user=postgres database=postgres`:
+  [2a05:d01c:b72:2a02:...]:5432 dial error: timeout: context deadline exceeded
+```
+Only IPv6 addresses are attempted. It has failed on every commit since `2b7eef1` (2026-07-22);
+the last success was `f0e6a64` on the same day.
+
+**Two likely causes, both cheap to check:**
+1. **Free-tier project paused.** Supabase pauses inactive free projects; the connection then times
+   out exactly like this. Check the dashboard and resume.
+2. **IPv6-only direct connection.** Supabase direct database connections are IPv6-only, and
+   GitHub-hosted runners have no IPv6. The fix is to connect via the Supavisor pooler instead.
+
+**Also note:** the repo has `supabase/migrations/` but no `supabase/config.toml`, which Supabase
+branching normally expects. If branching is not actually wanted, disconnecting the integration
+removes a permanently red check that trains everyone to ignore red checks — which is how the
+three genuinely-broken commits in P1-5 slipped past unnoticed.
+
+**Instructions:** decide whether Supabase branching is wanted. If yes, fix the connection and add
+`config.toml`. If no, disconnect the GitHub App. Either way, do not leave a permanently failing
+check on `main`.
 
 ---
 
@@ -431,13 +540,16 @@ This list exists so effort is not wasted re-solving solved problems.
 **Storage safety**
 - Three explicit modes (`file` / `supabase` / `supabase-tables`) with **fail-closed refusal to
   start in production** on an unsafe mode (`:141`).
-- RLS policies in both migrations, including a dedicated service-role scoping fix
-  (`002_scope_service_role_policies.sql`).
+- RLS policies in both `server/migrations` files, including a dedicated service-role scoping fix
+  (`002_scope_service_role_policies.sql`). **Caveat — see P0-3: a second, divergent migration set
+  exists under `supabase/migrations/` with no RLS at all.**
 
 **Quality infrastructure**
 - 717 tests across 88 files; zero `@ts-ignore`, zero `console.log`, zero `TODO` in 252 source files.
 - A guard suite that **demonstrably works** — it caught the P0-1 regression before a human did.
-- CI runs lint, typecheck, test, verify and dependency audit on both packages.
+- CI runs lint, typecheck, test, verify and dependency audit on both packages, plus CodeQL and
+  Docker image builds — 10 checks. **But none of it is enforced: `main` has no branch protection
+  (P1-5), so red commits land anyway.**
 
 **Deployment**
 - Two-service Render blueprint with private networking, health checks and `sync: false` secrets.
@@ -500,6 +612,9 @@ artefact:
 - [ ] Browser smoke test green in CI against the built app
 - [ ] `check:technical-data --strict` passes for every proposal-reachable SKU
 - [ ] Data review queue triaged to an agreed residual; new-candidate list resolved
+- [ ] One authoritative migration set; RLS confirmed ON in the live Supabase project; anon key
+      proven unable to read `wingman_projects` / `wingman_users`
+- [ ] Branch protection on `main` with required status checks
 - [ ] Production Supabase provisioned, migrated, and exercised under concurrent use
 - [ ] Projects survive machine switch (server-authoritative storage verified)
 - [ ] Telemetry, structured auth logging and uptime alerting live, with a named owner
