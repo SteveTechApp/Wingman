@@ -67,12 +67,19 @@ jobs:
       - name: Generate canonical product data
         run: npm run data:canonical-products
 
-      - name: Run tests
-        run: npm test
+      - name: Run tests with coverage thresholds
+        run: npm run test:coverage
 
+  # The verify pipeline is split into stages so a failure reports every broken
+  # category at once instead of stopping at the first one. Each stage runs as
+  # its own job, so wall-clock is the slowest stage rather than the sum.
   verify:
-    name: Verify
+    name: Verify (${{ matrix.stage }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        stage: [data, contract, visual]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -89,8 +96,42 @@ jobs:
       - name: Generate canonical product data
         run: npm run data:canonical-products
 
-      - name: Run verify pipeline
-        run: npm run verify
+      - name: Build
+        run: npm run build
+
+      - name: Run verify stage
+        run: npm run verify:${{ matrix.stage }}
+
+  # Proves the built app actually boots and renders. Playwright was already a
+  # devDependency and check:browser already existed; neither had ever run in CI.
+  smoke:
+    name: Browser Smoke
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Generate canonical product data
+        run: npm run data:canonical-products
+
+      - name: Build
+        run: npm run build
+
+      - name: Run browser smoke check
+        run: npm run check:browser
+
 
   audit:
     name: Dependency Audit

@@ -1,0 +1,5 @@
+{
+  "governedLeadSkus": 9,
+  "activeLeadSkus": 127,
+  "note": "Coverage floor for check:technical-data. Raise via --update-baseline; never lower by hand."
+}

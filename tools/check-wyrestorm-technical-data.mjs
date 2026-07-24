@@ -3,8 +3,10 @@ import path from "node:path";
 
 const root = process.cwd();
 const strict = process.argv.includes("--strict");
+const updateBaseline = process.argv.includes("--update-baseline");
 const profilePath = path.join(root, "data", "governance", "wyrestorm-technical-profiles.json");
 const productPath = path.join(root, "data-sources", "wyrestorm", "products.csv");
+const coverageBaselinePath = path.join(root, "tools", "wyrestorm-technical-data-coverage-baseline.json");
 
 function fail(message) {
   throw new Error(message);
@@ -175,4 +177,56 @@ if (missing.length) {
 if (strict && missing.length) {
   console.error("[technical-data] Strict coverage failed: active lead SKUs remain without exact governed profiles.");
   process.exit(1);
+}
+
+// ---------------------------------------------------------------------------
+// Coverage ratchet
+// ---------------------------------------------------------------------------
+// Without this, the check reported a 118-SKU review backlog and still exited 0,
+// so `npm run verify` went green while the technical claims behind customer
+// proposals were ~7% governed. A green gate that does not mean what it appears
+// to mean is worse than no gate.
+//
+// The ratchet makes progress monotonic: coverage may rise, never fall. It does
+// not block work at today's level. Raise the floor after each batch with:
+//   npm run check:technical-data -- --update-baseline
+// The end goal is still `--strict` (100% of active lead SKUs), which becomes
+// the verify gate once the agreed launch threshold is met.
+
+const governedLeadSkus = activeLeadProducts.length - missing.length;
+
+if (updateBaseline) {
+  const next = {
+    governedLeadSkus,
+    activeLeadSkus: activeLeadProducts.length,
+    note: "Coverage floor for check:technical-data. Raise via --update-baseline; never lower by hand.",
+  };
+  fs.writeFileSync(coverageBaselinePath, `${JSON.stringify(next, null, 2)}\n`, "utf8");
+  console.log(`[technical-data] Coverage baseline updated to ${governedLeadSkus}/${activeLeadProducts.length}.`);
+  process.exit(0);
+}
+
+if (fs.existsSync(coverageBaselinePath)) {
+  const baseline = readJson(coverageBaselinePath);
+  const floor = Number(baseline.governedLeadSkus ?? 0);
+
+  if (governedLeadSkus < floor) {
+    console.error(
+      `[technical-data] Coverage regressed: ${governedLeadSkus} governed lead SKUs, ` +
+        `below the baseline of ${floor}.`,
+    );
+    console.error(
+      "Governed technical coverage may rise but never fall - a proposal citing an ungoverned\n" +
+        "SKU is an unverified technical claim to a customer. Restore the missing profiles, or\n" +
+        "run `npm run check:technical-data -- --update-baseline` if the active range genuinely shrank.",
+    );
+    process.exit(1);
+  }
+
+  if (governedLeadSkus > floor) {
+    console.log(
+      `[technical-data] Coverage improved: ${governedLeadSkus} governed lead SKUs, above the ` +
+        `baseline of ${floor}. Run \`npm run check:technical-data -- --update-baseline\` to lock it in.`,
+    );
+  }
 }

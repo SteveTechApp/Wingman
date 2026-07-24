@@ -70,10 +70,6 @@ export function selectCatalogResults(catalog: CatalogProduct[], state: CatalogFi
   return applyAllowedSkuFilter(catalog, state, computeAllowedSkus(catalog, state));
 }
 
-const PANEL = "rounded-3xl border border-[#29465e] bg-[#071522]";
-const CARD = "rounded-3xl border border-[#29465e] bg-[#081724]";
-const KICKER = "text-xs font-bold uppercase tracking-[0.12em]";
-
 const humanize = (value: string) => value.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
 function toggle<T>(list: T[], value: T): T[] {
@@ -93,9 +89,7 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full px-3 py-1.5 text-xs font-bold transition ${
-        active ? "bg-cyan-300 text-slate-950" : "border border-[#29465e] bg-[#081724] text-cyan-100 hover:border-cyan-300"
-      }`}
+      className={`wm-catalog-chip ${active ? "is-active" : ""}`}
     >
       {label}
     </button>
@@ -117,9 +111,9 @@ function FacetGroup<T extends string>({
 }) {
   if (!options.length) return null;
   return (
-    <div className="grid gap-2">
-      <span className={`${KICKER} text-cyan-300`}>{title}</span>
-      <div className="flex flex-wrap gap-2">
+    <div className="wm-catalog-facet-group">
+      <span className="wm-catalog-facet-label">{title}</span>
+      <div className="wm-catalog-chip-row">
         {options.map((option) => (
           <Chip key={option} label={format(option)} active={selected.includes(option)} onClick={() => onToggle(option)} />
         ))}
@@ -133,9 +127,7 @@ function Toggle({ label, active, onClick }: { label: string; active: boolean; on
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full px-3 py-1.5 text-xs font-bold transition ${
-        active ? "bg-cyan-300 text-slate-950" : "border border-[#29465e] bg-[#081724] text-white/70 hover:border-cyan-300"
-      }`}
+      className={`wm-catalog-chip ${active ? "is-active" : ""}`}
     >
       {active ? "✓ " : ""}
       {label}
@@ -183,22 +175,22 @@ export function CatalogBrowserPage() {
   const patch = (next: Partial<CatalogFilterState>) => setState((current) => ({ ...current, ...next }));
 
   return (
-    <main className="grid gap-4 pb-6 wm-ui-page wingman-page-host">
-      <section className={`${PANEL} p-5`}>
-        <p className={`${KICKER} text-cyan-300`}>Catalogue browser</p>
-        <h1 className="mt-2 text-3xl font-extrabold tracking-tight wm-ui-title wm-ui-kicker">Browse the WyreStorm range</h1>
-        <p className="mt-2 max-w-4xl text-sm leading-6 wm-ui-copy">
+    <main className="wm-ui-page wingman-page-host wm-catalog-page" data-wingman-page="catalog-browser">
+      <section className="wm-catalog-panel wm-catalog-intro">
+        <p className="wm-ui-kicker">Catalogue browser</p>
+        <h1 className="wm-ui-title">Browse the WyreStorm range</h1>
+        <p className="wm-ui-copy wm-catalog-description">
           Filter by family, role, technology and lifecycle. End-of-life and do-not-recommend products are hidden by
           default — turn that off to see the full range.
         </p>
-        <input className={["wm-ui-input", "mt-4 min-h-12 w-full rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-bold text-white outline-none focus:border-cyan-300"].filter(Boolean).join(" ")}
+        <input className="wm-ui-input wm-catalog-search"
           value={state.search}
           onChange={(event) => patch({ search: event.target.value })}
           placeholder="Search by SKU, name, application — e.g. NHD-500, UC, video wall, Dante"
           type="search"
 
         />
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="wm-catalog-chip-row wm-catalog-toggle-row">
           <Toggle
             label={state.matchMode === "filter" ? "Strict filter" : "Smart find"}
             active={state.matchMode === "filter"}
@@ -210,21 +202,21 @@ export function CatalogBrowserPage() {
         </div>
       </section>
 
-      <section className={`${PANEL} grid gap-4 p-5`}>
+      <section className="wm-catalog-panel wm-catalog-facets">
         <FacetGroup title="Family" options={facets.families} selected={state.families} onToggle={(value) => patch({ families: toggle(state.families, value) })} />
         <FacetGroup title="Role" options={facets.roles} selected={state.roles} onToggle={(value) => patch({ roles: toggle(state.roles, value) })} />
         <FacetGroup title="Technology" options={facets.technologies} selected={state.technologies} onToggle={(value) => patch({ technologies: toggle(state.technologies, value) })} />
       </section>
 
-      <section className="flex items-center justify-between px-1 wm-ui-section">
-        <p className="text-sm font-bold wm-ui-copy">
+      <section className="wm-ui-section wm-catalog-results-head">
+        <p className="wm-ui-copy">
           {loadError
             ? "Catalogue unavailable"
             : loaded
               ? `${results.length} product${results.length === 1 ? "" : "s"}`
               : "Loading catalogue..."}
         </p>
-        <button className={["wm-ui-button wm-ui-button-secondary", "rounded-full border border-[#29465e] px-3 py-1.5 text-xs font-bold text-cyan-100 hover:border-cyan-300"].filter(Boolean).join(" ")}
+        <button className="wm-ui-button wm-ui-button-secondary"
           type="button"
           onClick={() => setState(createDefaultCatalogFilterState())}
 
@@ -233,7 +225,7 @@ export function CatalogBrowserPage() {
         </button>
       </section>
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <div className="wm-catalog-product-grid">
         {results.map((product) => {
           const badges = getCatalogBadges(product);
           const reasons = getCatalogMatchReasons(product, state);
@@ -242,43 +234,39 @@ export function CatalogBrowserPage() {
             <Link
               key={product.id}
               to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(product.sku)}`}
-              className={`${CARD} block p-4 transition hover:border-cyan-300 hover:bg-cyan-500/10`}
+              className="wm-catalog-product-card"
             >
-              <span className={`block ${KICKER} text-cyan-300`}>
+              <span className="wm-catalog-product-meta">
                 {product.family} · {product.series}
               </span>
-              <strong className="mt-2 block text-lg font-extrabold text-white">{product.sku}</strong>
-              <span className="mt-1 block text-sm font-bold wm-ui-copy">{product.name}</span>
-              {product.summary ? <p className="mt-2 line-clamp-2 text-xs leading-5 wm-ui-copy">{product.summary}</p> : null}
+              <strong className="wm-catalog-product-sku">{product.sku}</strong>
+              <span className="wm-ui-copy wm-catalog-product-name">{product.name}</span>
+              {product.summary ? <p className="wm-ui-copy wm-catalog-product-summary">{product.summary}</p> : null}
               {badges.length ? (
-                <div className="mt-3 flex flex-wrap gap-1.5">
+                <div className="wm-catalog-badge-row">
                   {badges.map((badge) => (
                     <span
                       key={badge}
-                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                        badge === "Legacy / suppress"
-                          ? "bg-rose-500/15 text-rose-200"
-                          : "bg-[#0d2133] text-cyan-100"
-                      }`}
+                      className={`wm-catalog-badge ${badge === "Legacy / suppress" ? "is-warning" : ""}`}
                     >
                       {badge}
                     </span>
                   ))}
                 </div>
               ) : null}
-              <p className="mt-3 text-[11px] leading-4 wm-ui-copy">{reasons.join("  ·  ")}</p>
-              {eol ? <p className="mt-1 text-[11px] font-bold wm-ui-copy">Suppressed from new recommendations</p> : null}
+              <p className="wm-ui-copy wm-catalog-reasons">{reasons.join("  ·  ")}</p>
+              {eol ? <p className="wm-ui-copy wm-catalog-suppressed">Suppressed from new recommendations</p> : null}
             </Link>
           );
         })}
       </div>
 
       {loadError ? (
-        <div className="rounded-2xl border p-4 text-sm wm-ui-card wm-ui-copy">
+        <div className="wm-ui-card wm-ui-copy wm-catalog-empty">
           The product catalogue could not be loaded. Check your connection and reload the page.
         </div>
       ) : loaded && !results.length ? (
-        <div className="rounded-2xl border p-4 text-sm wm-ui-card wm-ui-copy">
+        <div className="wm-ui-card wm-ui-copy wm-catalog-empty">
           No products match these filters. Reset filters or broaden the search.
         </div>
       ) : null}

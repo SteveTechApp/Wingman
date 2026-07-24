@@ -1,4 +1,5 @@
 ﻿import { Link } from "react-router-dom";
+import { buildLabel } from "../lib/buildInfo";
 
 const urgentActions = [
   {
@@ -141,6 +142,13 @@ export function SupportPage() {
           </ul>
           <Link to="/wingman/call-coach">Start a guided handoff</Link>
         </aside>
+      </section>
+
+      <section className="wm-support-landing__build" aria-label="Build information">
+        <p>
+          Wingman build <strong>{buildLabel}</strong>
+        </p>
+        <p>Quote this when reporting a problem so the issue can be traced to the exact build.</p>
       </section>
     </main>
   );
