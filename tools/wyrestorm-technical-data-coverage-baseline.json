@@ -1,5 +1,9 @@
 {
-  "governedLeadSkus": 9,
+  "governedLeadSkus": 7,
   "activeLeadSkus": 127,
-  "note": "Coverage floor for check:technical-data. Raise via --update-baseline; never lower by hand."
+  "countedStatuses": [
+    "verified",
+    "verified-with-warning"
+  ],
+  "note": "Verified-profile coverage floor for check:technical-data. Raise via --update-baseline; never lower by hand. review-required profiles deliberately do not count."
 }

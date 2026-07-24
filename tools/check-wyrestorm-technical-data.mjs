@@ -93,6 +93,12 @@ const requiredProfileFields = [
 ];
 
 const seen = new Set();
+// Status by SKU. `seen` alone cannot distinguish a fully verified profile from
+// a review-required stub, and the two are not remotely equivalent downstream:
+// governedProductTechnicalData.ts treats review-required as the weaker
+// "official-structured" tier and refuses to present it as an automatic
+// equivalent. Counting them together let coverage be inflated by adding stubs.
+const statusBySku = new Map();
 const errors = [];
 
 for (const [index, profile] of payload.profiles.entries()) {
@@ -106,6 +112,7 @@ for (const [index, profile] of payload.profiles.entries()) {
   if (!sku) errors.push(`${prefix} has an empty SKU.`);
   if (seen.has(sku)) errors.push(`Duplicate governed technical profile for ${sku}.`);
   seen.add(sku);
+  statusBySku.set(sku, String(profile?.status ?? ""));
 
   if (!["verified", "verified-with-warning", "review-required"].includes(profile?.status)) {
     errors.push(`${sku || prefix} has invalid status ${profile?.status}.`);
@@ -160,22 +167,41 @@ const activeLeadProducts = products.filter((product) => {
     !["cable", "accessory", "rack-mount", "power-accessory", "software-app"].includes(role);
 });
 
-const missing = activeLeadProducts
+const activeLeadSkus = activeLeadProducts
   .map((product) => normaliseSku(product.sku))
-  .filter(Boolean)
-  .filter((sku) => !seen.has(sku));
+  .filter(Boolean);
+
+const VERIFIED_STATUSES = new Set(["verified", "verified-with-warning"]);
+
+const missing = activeLeadSkus.filter((sku) => !seen.has(sku));
+// The number that actually matters. A review-required profile is a placeholder
+// with evidence attached, not a checked specification, and must not be counted
+// as coverage - otherwise the backlog can be "cleared" by adding stubs.
+const verifiedSkus = activeLeadSkus.filter((sku) => VERIFIED_STATUSES.has(statusBySku.get(sku)));
+const awaitingReview = activeLeadSkus.filter((sku) => seen.has(sku) && !VERIFIED_STATUSES.has(statusBySku.get(sku)));
 
 console.log(
   `[technical-data] Validated ${payload.profiles.length} governed profiles. ` +
-    `${activeLeadProducts.length - missing.length}/${activeLeadProducts.length} active lead SKUs have exact governed profiles.`,
+    `${verifiedSkus.length}/${activeLeadProducts.length} active lead SKUs have a VERIFIED governed profile.`,
+);
+console.log(
+  `[technical-data] Coverage detail: ${verifiedSkus.length} verified, ` +
+    `${awaitingReview.length} drafted awaiting review, ${missing.length} with no profile at all.`,
 );
 
-if (missing.length) {
-  console.log(`[technical-data] Review backlog (${missing.length}): ${missing.slice(0, 40).join(", ")}${missing.length > 40 ? ", ..." : ""}`);
+if (awaitingReview.length) {
+  console.log(`[technical-data] Awaiting human review (${awaitingReview.length}): ${awaitingReview.slice(0, 40).join(", ")}${awaitingReview.length > 40 ? ", ..." : ""}`);
 }
 
-if (strict && missing.length) {
-  console.error("[technical-data] Strict coverage failed: active lead SKUs remain without exact governed profiles.");
+if (missing.length) {
+  console.log(`[technical-data] No profile (${missing.length}): ${missing.slice(0, 40).join(", ")}${missing.length > 40 ? ", ..." : ""}`);
+}
+
+if (strict && (missing.length || awaitingReview.length)) {
+  console.error(
+    "[technical-data] Strict coverage failed: every active lead SKU needs a VERIFIED governed profile " +
+      `(${missing.length} missing, ${awaitingReview.length} still awaiting review).`,
+  );
   process.exit(1);
 }
 
@@ -192,17 +218,25 @@ if (strict && missing.length) {
 //   npm run check:technical-data -- --update-baseline
 // The end goal is still `--strict` (100% of active lead SKUs), which becomes
 // the verify gate once the agreed launch threshold is met.
+//
+// The floor tracks VERIFIED profiles specifically. It originally tracked "has
+// any profile", which counted review-required stubs identically - so the
+// backlog could have been driven to zero, and --strict made to pass, by adding
+// 118 placeholder entries without checking a single specification. Ratcheting
+// on the weaker number would have rewarded exactly the behaviour this gate
+// exists to prevent.
 
-const governedLeadSkus = activeLeadProducts.length - missing.length;
+const governedLeadSkus = verifiedSkus.length;
 
 if (updateBaseline) {
   const next = {
     governedLeadSkus,
     activeLeadSkus: activeLeadProducts.length,
-    note: "Coverage floor for check:technical-data. Raise via --update-baseline; never lower by hand.",
+    countedStatuses: ["verified", "verified-with-warning"],
+    note: "Verified-profile coverage floor for check:technical-data. Raise via --update-baseline; never lower by hand. review-required profiles deliberately do not count.",
   };
   fs.writeFileSync(coverageBaselinePath, `${JSON.stringify(next, null, 2)}\n`, "utf8");
-  console.log(`[technical-data] Coverage baseline updated to ${governedLeadSkus}/${activeLeadProducts.length}.`);
+  console.log(`[technical-data] Coverage baseline updated to ${governedLeadSkus}/${activeLeadProducts.length} verified.`);
   process.exit(0);
 }
 
