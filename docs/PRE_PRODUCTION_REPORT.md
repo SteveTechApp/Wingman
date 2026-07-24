@@ -337,9 +337,23 @@ Five more: `APO-VX20-UC-V2`, `RX-700`, `RX-500`, `SW-130-TX-UK`, `MX-0808-SCL`.
 >
 > **The guard found a second instance on its first run:** the *"Residential Media Room — Local
 > Matrix"* template pairs `MX-0404-HDMI` (an 18Gbps HDMI matrix) and `EXP-SW-0401-8K` (an HDMI
-> switcher) with the HDBaseT receiver `RX-70-4K` — again no HDBaseT source. Both templates are
-> frozen in the guard's `KNOWN_INCOMPLETE` list with the design decision each needs; the guard
-> blocks any *new* template with the same fault.
+> switcher) with the HDBaseT receiver `RX-70-4K` — again no HDBaseT source.
+>
+> **Both templates were then fixed (2026-07-24), not just flagged:**
+> - *Local Pub* — `MX-0808-SCL` + stray `RX-70-4K` → **`MX-0808-KIT-V2`**, a native HDBaseT matrix
+>   kit with 8 HDBaseT zone outputs that **ships with 8× MX-KIT-RX receivers** (verified on the
+>   product page), powered from the matrix over 1-way PoH. One SKU, correct product class for
+>   venue TV distribution. The template note records the seamless-switching trade-off for reps who
+>   need it.
+> - *Residential* — the orphaned `RX-70-4K` → **`EX-70-H2`**, a complete HDBaseT extender set
+>   (TX + RX). The transmitter takes one HDMI output from the local matrix; the receiver drives the
+>   one optional remote display. The local HDMI matrix stays, which is correct for a media room.
+>
+> The direct receiver-only substitution a naive fix would reach for was a dead end: the matching
+> transmitter `TX-70-4K` is **discontinued**, which is exactly why the fix uses WyreStorm's
+> purpose-built extender set and matrix kit instead. `KNOWN_INCOMPLETE` is now empty; the guard
+> verifies all 25 templates clean and still blocks any *new* template with the same fault.
+> Both fixes were confirmed rendering correctly in the app.
 >
 > **Also surfaced (data, not engine):** `RX-700` is misfiled in `products.csv` as
 > `family="Cable"` and `RX-500` as `family="Camera / Capture"`, though both are HDBaseT receivers.
