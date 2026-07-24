@@ -155,6 +155,30 @@ export function WingmanGuruFab({
   }, [applyPositionToButton, clampPosition]);
 
   useEffect(() => {
+    const authorisedLauncher = buttonRef.current;
+    if (!authorisedLauncher) return;
+
+    function hideDuplicateLaunchers() {
+      document
+        .querySelectorAll<HTMLElement>('[data-wingman-guru-launcher="true"]')
+        .forEach((launcher) => {
+          if (launcher === authorisedLauncher) return;
+
+          launcher.dataset.wingmanGuruDuplicate = "true";
+          launcher.setAttribute("aria-hidden", "true");
+          launcher.hidden = true;
+        });
+    }
+
+    hideDuplicateLaunchers();
+
+    const observer = new MutationObserver(hideDuplicateLaunchers);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     function handleResize() {
       const button = buttonRef.current;
       if (!button) return;
@@ -311,6 +335,7 @@ export function WingmanGuruFab({
   return (
     <button
       ref={buttonRef}
+      id="wingman-guru-launcher"
       type="button"
       className="wingman-guru-fab"
       data-wingman-guru-launcher="true"
