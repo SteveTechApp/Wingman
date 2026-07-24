@@ -1,0 +1,19 @@
+{
+  "policy": "Reviewed, time-limited exceptions to the high-severity dependency audit gate. An exception records a deliberate decision that a specific advisory does not apply to how Wingman uses the package. It is not a way to silence a finding that has not been assessed. Every entry must carry a justification and an expiry; the check fails once an exception expires, so nothing here can quietly become permanent.",
+  "exceptions": [
+    {
+      "advisory": "GHSA-qwww-vcr4-c8h2",
+      "package": "react-router",
+      "alsoAffects": ["react-router-dom"],
+      "title": "React Router: RSC Mode CSRF Bypass Allows Action Execution Before 400 Response",
+      "severity": "high",
+      "acceptedOn": "2026-07-24",
+      "expiresOn": "2026-10-24",
+      "acceptedBy": "Project owner decision, 2026-07-24",
+      "justification": "The vulnerability is specific to React Router's RSC (React Server Components) mode, where an action can execute before a 400 response is returned. Wingman is an entirely client-rendered SPA: it mounts BrowserRouter in src/main.tsx, has no server-side rendering and no RSC entry point, and does not import any RSC or static-handler API from react-router. The vulnerable code path is therefore not reachable in this application.",
+      "verification": "Confirmed no RSC usage by searching src/ for RSC, createStaticHandler and renderToPipeableStream - no matches. Wingman renders via createRoot in src/main.tsx.",
+      "remediationBlocked": "No fixed release exists above the installed 7.18.1. npm's suggested remediation is a downgrade to react-router-dom 7.11.0, which would undo the deliberate 6.x -> 7.x upgrade applied in PR #115 and already patched for a BrowserRouter prop type change.",
+      "reviewAction": "Before expiry, re-check whether react-router has published a fixed 7.x release. If so, upgrade and delete this exception rather than extending it."
+    }
+  ]
+}
