@@ -29,23 +29,17 @@ const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 // decision. Entries must describe the decision needed. This exists so the guard
 // blocks NEW breakage while the known gap stays visible on every run; it is not
 // a way to make a failing build pass.
-const KNOWN_INCOMPLETE = new Map([
-  [
-    "Local Pub - 8x8 Matrix TV Distribution",
-    "MX-0808-SCL has HDMI outputs only and its 4K60 modes are rated to 5m/16ft of HDMI cable, " +
-      "but the template pairs it with the HDBaseT receiver RX-70-4K and includes no transmitter. " +
-      "Decide: add HDBaseT transmitters on the matrix outputs, or move to a matrix with native " +
-      "HDBaseT outputs (for example the MXV series).",
-  ],
-  [
-    "Residential Media Room - Local Matrix",
-    "Same defect as the Local Pub template, found by this guard on its first run. MX-0404-HDMI is " +
-      "an 18Gbps HDMI matrix and EXP-SW-0401-8K is an HDMI switcher - neither has an HDBaseT " +
-      "output - yet the template includes the HDBaseT receiver RX-70-4K. Decide: add an HDBaseT " +
-      "transmitter, move to an HDBaseT matrix, or drop the receiver if every display is within " +
-      "HDMI range.",
-  ],
-]);
+//
+// Both original entries - "Local Pub - 8x8 Matrix TV Distribution" and
+// "Residential Media Room - Local Matrix" - were FIXED rather than frozen:
+//   - Local Pub: MX-0808-SCL (HDMI-only seamless matrix) + stray RX-70-4K
+//     replaced with MX-0808-KIT-V2, a native HDBaseT matrix kit that ships
+//     with 8 receivers.
+//   - Residential: the orphaned RX-70-4K receiver replaced with EX-70-H2, a
+//     complete HDBaseT extender set (TX + RX).
+// The map is now empty. Keep it that way unless a genuinely undecidable design
+// gap appears; prefer fixing the template.
+const KNOWN_INCOMPLETE = new Map([]);
 
 function parseCsv(text) {
   const lines = text.split(/\r?\n/).filter(Boolean);
@@ -106,9 +100,14 @@ function canDriveHdbaset(sku) {
     if (text.includes("hdbaset") && !/receiver/.test(text)) return true;
   }
   const fallback = catalogueText(sku);
+  // A native HDBaseT matrix (or matrix kit) has HDBaseT zone outputs.
   if (/hdbaset matrix|hdbaset matrix kit/.test(fallback)) return true;
   // Transmitter-shaped SKUs in an HDBaseT context.
   if (/hdbaset/.test(fallback) && /(^|-)TX(-|$)/i.test(sku)) return true;
+  // An HDBaseT extender SET is self-contained (TX + RX). EX-* extension-family
+  // SKUs that are not explicitly a standalone receiver provide their own
+  // transmit end, so they satisfy - and do not require - a separate source.
+  if (/^EX-/i.test(sku) && /extension|extender/.test(fallback) && !/receiver/.test(fallback)) return true;
   return false;
 }
 
