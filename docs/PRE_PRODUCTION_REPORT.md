@@ -264,11 +264,44 @@ this cannot be a bulk script:
 - **`NHD-000-RACK4`** — device mounting brackets are **not** included with the chassis; they ship
   with each endpoint. A quote for the chassis alone is incomplete.
 
-**`NHD-500-RX` is not in this batch and is blocked.** It is the second most used template SKU (9
-appearances), but `https://www.wyrestorm.com/product/nhd-500-rx/` returns 404 and `products.csv`
-carries no URL for it — its `evidence_source` reads "Existing Wingman product intelligence index",
-which is not an official source. **It needs a datasheet or a corrected URL before it can be drafted
-at all**, and that is a question for WyreStorm rather than something to infer.
+**`NHD-500-RX` was blocked in batch 1 and is now unblocked** — see batch 2.
+
+#### Batch 2 drafted — 2026-07-24
+
+Five more: `NHD-500-RX`, `SYN-TOUCH10-V2`, `CAM-420-PTZ`, `AMP-260-DNT`, `NHD-128-NDI-TRX`.
+
+| | |
+|---|---|
+| Verified coverage | **still 7/127** — drafts do not move the ratchet |
+| Drafted awaiting review | 7 → 12 |
+| No profile at all | 113 → 108 |
+
+**`NHD-500-RX` resolved.** It is documented on a *combined* encoder/decoder page,
+`/product/nhd-500-tx-rx-v2/`, reached via the NHD 500 series category listing — which is why the
+per-SKU URL 404s. The spec table separates TX and RX rows, so the profile takes the RX column only.
+
+> **Open revision question.** The official page is titled **"NHD-500-TX/RX v2"**. The instruction
+> that unblocked this described the product as **"NHD-500-RX v3"**. `products.csv` and
+> `lifecycle.csv` both carry a plain `NHD-500-RX` with no revision suffix, marked active. Either
+> the site is behind, or a v3 exists that isn't published. **Confirm which revision the templates
+> should quote before promoting this profile** — nine templates depend on it.
+
+**Quote-safety facts surfaced in this batch** — each is the kind of thing that changes a proposal:
+
+- **`CAM-420-PTZ`** — the 4x MEMS mic array is explicitly documented as **unusable as a video
+  conference audio source**; it exists for voice detection and tracking only. Quoting this camera
+  as the room's microphone would be wrong. Its pan range is also only ±75°, far less than a
+  conventional PTZ.
+- **`NHD-128-NDI-TRX`** — **has no HDMI ports at all.** Both input and output are network streams,
+  so it cannot take a local source or drive a display. Compatibility is documented for the
+  NHD-100/120/150 series and **not** the 500 or 600 series.
+- **`AMP-260-DNT`** — output collapses from 120W on the PSU to 25.5W on PoE+. Speaker outputs are
+  low impedance, not 70V/100V line. The page also calls it a "2 or 4 Channel" amplifier while the
+  spec table lists 2 outputs, and the power row reads "24V DC 5V" where everything else says 5A.
+- **`NHD-500-RX`** — JPEG 2000 at up to 850Mbps is visually lossless, **not** mathematically
+  lossless, and the 5120-wide modes are 4:2:0 CVT rather than 4:4:4.
+- **`SYN-TOUCH10-V2`** — replaces the discontinued do-not-spec `SYN-TOUCH10`. Needs PoE+; 802.3af
+  is not sufficient.
 
 **Evidence:**
 ```
