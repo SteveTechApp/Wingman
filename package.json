@@ -167,7 +167,8 @@
     "check:migration-parity": "node tools/check-wingman-migration-parity.mjs",
     "audit:technical-data-coverage:baseline": "node tools/check-wyrestorm-technical-data.mjs --update-baseline",
     "check:supabase-rls": "node tools/verify-supabase-rls.mjs",
-    "check:template-sku-lifecycle": "node tools/check-room-template-sku-lifecycle.mjs"
+    "check:template-sku-lifecycle": "node tools/check-room-template-sku-lifecycle.mjs",
+    "check:dependency-audit": "node tools/check-dependency-audit.mjs && node tools/check-dependency-audit.mjs --prefix server"
   },
   "dependencies": {
     "@xyflow/react": "^12.10.2",
