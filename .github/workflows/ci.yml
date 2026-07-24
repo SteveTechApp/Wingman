@@ -153,12 +153,12 @@ jobs:
         run: npm ci
         working-directory: server
 
-      - name: Run npm audit (root)
-        run: npm audit --audit-level=high
-
-      - name: Run npm audit (server)
-        run: npm audit --audit-level=high
-        working-directory: server
+      # Wraps `npm audit` so a single assessed advisory can be excepted with a
+      # written justification and an expiry, instead of one finding that does
+      # not apply to Wingman blocking every merge. Exceptions live in
+      # tools/dependency-audit-exceptions.json and expire.
+      - name: Run dependency audit (root and server)
+        run: npm run check:dependency-audit
 
   build:
     name: Build
