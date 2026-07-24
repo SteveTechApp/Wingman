@@ -53,6 +53,46 @@ function tidy(value) {
   return String(value ?? "").trim();
 }
 
+// ---------------------------------------------------------------------------
+// Structured logging
+// ---------------------------------------------------------------------------
+// This module handles every auth and storage path in Wingman and, until now,
+// emitted no logs at all - a failed sign-in, a rate-limit trip or a Supabase
+// write failure left no trace on the server. One JSON line per notable event
+// so the output is greppable and machine-parseable in any log aggregator.
+//
+// Deliberately never logs passwords, password hashes, salts, session tokens or
+// token hashes. Email addresses are reduced to a domain plus a short salted
+// digest so repeated failures against one account can be correlated without
+// writing the address itself into the logs.
+
+const LOG_LEVELS = { debug: 10, info: 20, warn: 30, error: 40 };
+const LOG_LEVEL = LOG_LEVELS[String(process.env.WINGMAN_LOG_LEVEL || "info").trim().toLowerCase()] ?? LOG_LEVELS.info;
+
+function accountRef(email) {
+  const value = tidy(email).toLowerCase();
+  if (!value) return undefined;
+  const [, domain = ""] = value.split("@");
+  const digest = crypto.createHash("sha256").update(value).digest("hex").slice(0, 8);
+  return domain ? `${digest}@${domain}` : digest;
+}
+
+export function logWingmanEvent(level, event, details = {}) {
+  if ((LOG_LEVELS[level] ?? LOG_LEVELS.info) < LOG_LEVEL) return;
+
+  const line = JSON.stringify({
+    ts: nowIso(),
+    level,
+    scope: "wingman-app-store",
+    event,
+    ...details,
+  });
+
+  if (level === "error") console.error(line);
+  else if (level === "warn") console.warn(line);
+  else console.log(line);
+}
+
 const WINGMAN_STORAGE_MODE = String(process.env.WINGMAN_STORAGE_MODE || "auto").trim().toLowerCase();
 const SUPABASE_URL = String(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "").trim();
 const SUPABASE_SERVICE_ROLE_KEY = String(process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
@@ -136,6 +176,23 @@ function configuredStorageMode() {
   }
   return "file";
 }
+
+// Record the resolved storage mode once at startup. Which mode a running
+// instance actually landed on is the single most useful fact when diagnosing
+// "my project vanished" - an instance quietly serving from local file storage
+// looks identical to a healthy one from the outside.
+logWingmanEvent("info", "storage.mode.resolved", {
+  configured: WINGMAN_STORAGE_MODE,
+  resolved: (() => {
+    try {
+      return configuredStorageMode();
+    } catch (error) {
+      return `unavailable: ${error.message}`;
+    }
+  })(),
+  failClosed: STORAGE_FAIL_CLOSED,
+  supabaseConfigured: Boolean(SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY),
+});
 
 if (process.env.NODE_ENV === "production") {
   if (WINGMAN_STORAGE_MODE === "auto" || WINGMAN_STORAGE_MODE === "file") {
@@ -278,6 +335,9 @@ async function upsertRows(client, table, rows) {
   const { error } = await client.from(table).upsert(rows);
   if (error) {
     lastStorageWarning = error.message;
+    // A silent write failure here means a salesperson's project was accepted
+    // by the UI and never persisted. Always log it.
+    logWingmanEvent("error", "storage.upsert.failed", { table, rows: rows.length, reason: error.message });
     return false;
   }
   return true;
@@ -291,6 +351,7 @@ async function deleteRowsNotIn(client, table, ids) {
   const { error } = await query;
   if (error) {
     lastStorageWarning = error.message;
+    logWingmanEvent("error", "storage.delete.failed", { table, reason: error.message });
     return false;
   }
   return true;
@@ -1291,6 +1352,7 @@ export async function handleWingmanAuthSignupPost(req, res, { sendJson, parseJso
   if (!signupRateLimit.ok) {
     const retryAfterSeconds = Math.max(1, Math.ceil(signupRateLimit.retryAfterMs / 1000));
     res.setHeader("Retry-After", String(retryAfterSeconds));
+    logWingmanEvent("warn", "auth.signup.rate_limited", { retryAfterSeconds });
     sendJson(res, 429, {
       ok: false,
       error: "Too many sign-up attempts. Please try again shortly.",
@@ -1385,6 +1447,7 @@ export async function handleWingmanAuthLoginPost(req, res, { sendJson, parseJson
   if (!loginRateLimit.ok) {
     const retryAfterSeconds = Math.max(1, Math.ceil(loginRateLimit.retryAfterMs / 1000));
     res.setHeader("Retry-After", String(retryAfterSeconds));
+    logWingmanEvent("warn", "auth.login.rate_limited", { retryAfterSeconds });
     sendJson(res, 429, {
       ok: false,
       error: "Too many sign-in attempts. Please try again shortly.",
@@ -1411,9 +1474,14 @@ export async function handleWingmanAuthLoginPost(req, res, { sendJson, parseJson
   const db = await readDb();
   const user = db.users.find((candidate) => candidate.email === email);
   if (!user || !(await verifyPassword(password, user))) {
+    // Deliberately does not record whether the account exists - the log should
+    // not become an account-enumeration oracle, same as the response does not.
+    logWingmanEvent("warn", "auth.login.failed", { account: accountRef(email) });
     sendJson(res, 401, { ok: false, error: "Email or password is incorrect." });
     return;
   }
+
+  logWingmanEvent("info", "auth.login.succeeded", { account: accountRef(email), userId: user.id });
 
   const workspace = db.workspaces.find((candidate) => asArray(candidate.memberIds).includes(user.id))
     || db.workspaces.find((candidate) => candidate.ownerUserId === user.id);

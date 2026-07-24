@@ -1,44 +1,28 @@
-﻿# Wingman launch-readiness report
+# Wingman launch-readiness report
 
-_Last updated: 2026-07-05_
+_Last updated: 2026-07-24 - superseded_
 
-## Decision
+## This document has been superseded
 
-Current decision: **No external launch until verification, infrastructure, security and UAT gates are complete.**
+Launch readiness is now tracked in **`docs/PRE_PRODUCTION_REPORT.md`**, which supersedes the gate
+table that used to live here.
 
-## Readiness gates
+The table in this file listed eleven gates, every one of them marked "Pending", unchanged since
+2026-07-05. Gates that are permanently pending are indistinguishable from gates nobody has looked
+at, which is precisely the failure mode the replacement report was written to fix: it runs each
+gate and records what actually happened.
 
-| Gate | Status | Evidence required |
-|---|---|---|
-| Build passes | Pending | `npm run build` output. |
-| Tests pass | Pending | `npm run test` or agreed test command output. |
-| Verify gate passes | Pending | `npm run verify` output if script exists. |
-| Product recommendation guardrails pass | Pending | Compare/finder/product-story tests. |
-| Text hygiene active scan passes | Pending | `npm run text:hygiene`. |
-| Supabase production ready | Pending | Project provisioned, migration applied, data path tested. |
-| CSRF/security ready | Pending | CSRF implemented/tested, secrets rotated. |
-| Monitoring ready | Pending | Monitoring path and owner defined. |
-| Load test complete | Pending | Load-test report. |
-| UAT complete | Pending | 2-3 user sessions and issue triage. |
-| Go/no-go sign-off complete | Pending | Dated sign-off. |
+## Where to look instead
 
-## P0 actions
+| For | See |
+|---|---|
+| Current gate results and open blockers | `docs/PRE_PRODUCTION_REPORT.md` section 2 and 3 |
+| The sequenced plan to production | `docs/PRE_PRODUCTION_REPORT.md` section 5 |
+| Definition of done and sign-off | `docs/PRE_PRODUCTION_REPORT.md` section 6 |
+| The launch-day go/no-go checklist | `docs/LAUNCH_CHECKLIST.md` |
+| Day-to-day status summary | `docs/CURRENT_STATUS.md` |
 
-1. Run build/test/verify and record the results in `docs/CURRENT_STATUS.md`.
-2. Narrow text hygiene to active files only.
-3. Do not commit broad archive/worktree/generated hygiene changes.
-4. Confirm product recommendation lifecycle gates.
-5. Resolve blocking security and production infra tasks.
+## Why this file still exists
 
-## P1 actions
-
-1. Resolve product data review queue.
-2. Refresh production tracker from current repo state.
-3. Run load testing.
-4. Complete UAT.
-
-## P2 actions
-
-1. Update documentation map.
-2. Archive stale readiness/action-plan material.
-3. Create dated launch sign-off artefact.
+It is kept rather than deleted so existing links and references continue to resolve. Do not add
+new status content here.

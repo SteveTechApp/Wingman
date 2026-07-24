@@ -1,55 +1,47 @@
-﻿# Wingman current status
+# Wingman current status
 
-_Last updated: 2026-07-05_
+_Last updated: 2026-07-24_
 
-## Current position
+## Where status lives now
 
-Wingman is in late-stage pre-launch hardening.
+**`docs/PRE_PRODUCTION_REPORT.md` is the live status document.** It records gate results that were
+actually executed rather than asserted, and carries the prioritised route to production.
 
-The documentation set contains useful launch, operations, Supabase, production-readiness, product-governance and design material, but status was spread across multiple documents. This file is now the live status source.
+This file previously held a status table in which every row read "Pending", alongside two other
+documents tracking overlapping state. That spread status across three places and made stale
+entries look identical to real blockers. It is now a pointer, not a second source of truth.
 
-## Launch state
+## Current position at a glance
 
-| Area | Current status | Required action |
-|---|---|---|
-| Build | To be verified from current repo | Run `npm run build` and record result below. |
-| Tests | To be verified from current repo | Run `npm run test` or current test command and record result below. |
-| Verify gate | To be verified from current repo | Run `npm run verify` if available. |
-| Text hygiene | Needs narrowed active-only workflow | Use `npm run text:hygiene` for active scan. Do not run full write mode unless deliberately auditing archives/worktrees. |
-| Product data | Strong but review queue remains | Resolve polluted/review SKUs and lifecycle review items before sales-facing launch. |
-| Supabase | Provisioning required | Create production project, apply migration and test data path. |
-| Security | CSRF and secret rotation need completion | Finish CSRF workflow and document secret rotation. |
-| Monitoring | Required before launch | Add operational monitoring and incident response path. |
-| Load testing | Required before launch | Run documented load test and record result. |
-| UAT | Required before launch | Complete 2-3 user UAT sessions and go/no-go sign-off. |
+| | |
+|---|---|
+| Build / quality gate | `npm run verify` exits 0 across all stages |
+| Tests | 717 passing across 88 files |
+| Coverage | 68.9% lines, 61.0% branches, enforced by threshold in CI |
+| Largest open risk | Governed technical data coverage - see P0-2 in the pre-production report |
+| Launch shape | Internal pilot first; customer-facing output gated on the technical-data ratchet |
 
-## Latest verification log
+## How to refresh this
 
-| Check | Command | Result | Notes |
-|---|---|---|---|
-| Build | `npm run build` | Pending |  |
-| Tests | `npm run test` | Pending |  |
-| Verify | `npm run verify` | Pending |  |
-| Text hygiene | `npm run text:hygiene` | Pending | Active scope only. |
+Do not hand-edit a status table here. Run the gates and read the result:
 
-## Current blockers
+```bash
+npm run verify
+```
 
-1. Confirm current build/test/verify status.
-2. Keep text hygiene fixes active-scope only.
-3. Resolve product-story/lifecycle review queue.
-4. Complete production Supabase provisioning.
-5. Complete CSRF, secret rotation and monitoring.
-6. Complete load test and UAT sign-off.
+Stage by stage, if you want a faster signal:
 
-## Commit guidance
+```bash
+npm run verify:fast
+```
 
-Do not commit `_review/`.
+`verify:fast` runs typecheck, lint and the test suite in about a minute and catches most breakage.
+The remaining stages (`verify:data`, `verify:contract`, `verify:visual`) cover data governance,
+route and workflow contracts, and the visual guard suite.
 
-Preferred staged set for this documentation action:
+## Related documents
 
-- `docs/CURRENT_STATUS.md`
-- `docs/product-data-health.md`
-- `docs/launch-readiness-report.md`
-- `docs/DOCUMENTATION_MAP.md`
-- `tools/audit-text-hygiene.mjs`
-- `package.json`
+- `docs/PRE_PRODUCTION_REPORT.md` - live status, blockers, and the plan to production.
+- `docs/LAUNCH_CHECKLIST.md` - the go/no-go checklist for the launch itself.
+- `docs/OPERATIONS.md` - runbooks, rollback, and operational procedure.
+- `docs/production-readiness-audit.md` - superseded historical audit, kept for context.

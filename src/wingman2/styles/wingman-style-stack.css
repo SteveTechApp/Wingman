@@ -11907,6 +11907,25 @@ details.wm-ui-guidance-card:not([open]) {
   padding: 18px;
 }
 
+.wm-support-landing__build {
+  display: grid;
+  gap: 4px;
+  border-top: 1px solid var(--wm-border);
+  margin-top: 20px;
+  padding-top: 14px;
+  color: var(--wm-text-muted, #94a3b8);
+  font-size: 0.78rem;
+}
+
+.wm-support-landing__build p {
+  margin: 0;
+}
+
+.wm-support-landing__build strong {
+  color: var(--wm-text, #e2e8f0);
+  font-variant-numeric: tabular-nums;
+}
+
 .wm-support-landing__aside h2 {
   margin: 0;
   color: var(--wm-heading);
