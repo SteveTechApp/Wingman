@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { LayoutTemplate } from "lucide-react";
 
 import { routeCatalogByKey } from "../app/routeCatalog";
 import {
@@ -71,14 +72,13 @@ export function TemplatesPage() {
   }
 
   return (
-    <main className="wm-templates-page wm-page wingman-page-host" data-wingman-page="templates">
-      <header className="wm-page-header wm-template-hero">
-        <div>
-          <p className="wm-template-kicker wm-ui-kicker">Wingman / Templates</p>
-          <h1 className="wm-page-title">Room and application templates</h1>
-          <p className="wm-copy">
-            Browse known room archetypes, expand a card for more detail, or reopen a room design saved as a reusable template.
-          </p>
+    <main className="wm-templates-page wm-polish-shell wm-page" data-wingman-page="templates">
+      <header className="wm-polish-hero wm-polish-aqua">
+        <span className="wm-polish-hero-icon" aria-hidden="true"><LayoutTemplate /></span>
+        <div className="wm-polish-hero-copy">
+          <p className="wm-polish-eyebrow">Template library</p>
+          <h1>Room and application templates</h1>
+          <p>Start from a proven room archetype or reuse a custom design.</p>
         </div>
       </header>
 
@@ -102,7 +102,7 @@ export function TemplatesPage() {
         </button>
       </section>
 
-      <section className="wm-section-card" aria-label="Template filters">
+      <section className="wm-template-filter-toolbar" aria-label="Template filters">
         <div className="wm-template-filter-group" aria-label="Vertical filter">
           <span className="wm-template-filter-label">Vertical market</span>
           <div className="wm-template-filter-strip">

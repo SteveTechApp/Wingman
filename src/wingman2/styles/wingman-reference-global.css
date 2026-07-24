@@ -509,3 +509,8 @@ small {
   }
 }
 /* WINGMAN_DESKTOP_DENSITY_90_END */
+
+[data-wingman-guru-duplicate="true"] {
+  display: none !important;
+  pointer-events: none !important;
+}
