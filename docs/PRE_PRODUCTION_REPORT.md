@@ -172,7 +172,66 @@ text where it matters most.
 
 ---
 
-### P0-2 · Technical data governance is the real launch blocker — ⚙️ RATCHET IN PLACE 2026-07-24
+### P0-2 · Technical data governance is the real launch blocker — ⚙️ RATCHET CORRECTED 2026-07-24
+
+> **The 9/127 figure in this section was itself wrong. The honest number is 7/127.**
+>
+> Working the backlog exposed a flaw in the gate: `check:technical-data` called `seen.add(sku)`
+> before looking at status, so a `review-required` stub counted exactly the same as a fully
+> verified profile. Two of the nine were stubs.
+>
+> This mattered more than the two-SKU discrepancy. **The backlog could have been "cleared" — and
+> `--strict` made to pass — by adding 118 placeholder profiles without checking a single
+> specification.** The gate would have gone green while nothing was verified, which is the same
+> failure this finding was raised about, one level deeper. The ratchet I added on 2026-07-23 was
+> ratcheting the inflatable number.
+>
+> Fixed: coverage now counts only `verified` and `verified-with-warning`, reports drafted-awaiting
+> -review separately, and `--strict` requires every active lead SKU to be genuinely verified. The
+> baseline was reset 9 → 7. That is a correction to a wrong measurement, not a lowered bar.
+>
+> The runtime always got this right — `governedProductTechnicalData.ts` treats `review-required`
+> as the weaker "official-structured" tier. Only the metric was wrong.
+
+**What the backlog work found instead.** The 118 remaining profiles genuinely need a human against
+the official datasheets — see "Why this cannot be automated" below. But prioritising the backlog by
+what actually reaches customers (SKUs appearing in room template BOMs, not alphabetical order)
+surfaced a live product-accuracy defect that was worth more than any profile:
+
+| SKU | Status | Appearances | Action |
+|---|---|---|---|
+| `SYN-TOUCH10` | discontinued **and** do-not-spec | 5 templates | ✅ Replaced with active `SYN-TOUCH10-V2` |
+| `RX-70` | **does not exist** in catalogue or lifecycle data | 1 template | ✅ Corrected to `RX-70-4K` (active 70m HDBaseT receiver) |
+| `APO-VX20-MNT` | do-not-spec, no successor listed | 1 template | ⏳ Needs a product-owner decision |
+| `IDB-300` | do-not-spec, no successor listed | 1 template | ⏳ Needs a product-owner decision |
+| `NHD-RACK-1U` | discontinued, no successor listed | 1 template | ⏳ Needs a product-owner decision |
+
+Every teaching-space proposal generated from those templates was quoting a product WyreStorm no
+longer sells, and one template quoted a SKU that has never existed. Nothing checked this: room
+template BOMs are the most direct path from Wingman to a customer document, and their lifecycle
+status was ungoverned.
+
+`check:template-sku-lifecycle` now runs in `verify:data` and blocks any *new* dead SKU entering a
+template, while keeping the three outstanding ones printed on every run rather than silent.
+
+**A caution on that guard's design:** it resolves status the alias-aware way the app does, not by
+reading `lifecycle.csv` directly. Reading the CSV raw reports `APO-VX20-UC` and `MX-0808-SCL` as
+broken, because both carry non-definitive "review" placeholder rows — but both resolve to active
+via their canonical `-V2` forms. A naive version of this check would have produced two false
+accusations against working products.
+
+**Why this cannot be automated.** A `verified` profile requires an evidence record naming a
+reviewer, a review date and the official product page. Generating those in bulk would fabricate
+reviews that never happened, and any extraction error becomes a false technical claim in a customer
+proposal — the exact harm this system exists to prevent. The official pages are reachable and rich
+(the `EX-70-H2` page carries full port, resolution, HDCP, latency and power detail), so the work is
+tractable — but it is verification work, not generation work. Note also that the `EX-70-H2` page
+contradicts itself, listing HDBaseT "Class A" in the spec table and "Class B" in the feature list.
+That is precisely the judgement a reviewer has to exercise and a script cannot.
+
+**Recommended order** for working the remaining 118, highest value first: the SKUs that appear in
+room template BOMs (36 of them), since those reach customers directly, then the NetworkHD/EX
+transport core, then the long tail.
 
 **Evidence:**
 ```

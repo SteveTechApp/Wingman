@@ -1097,7 +1097,7 @@ const coreRoomTemplates: RoomTemplate[] = [
       },
       {
         id: "syntouch10",
-        sku: "SYN-TOUCH10",
+        sku: "SYN-TOUCH10-V2",
         description: "10-inch touch panel",
         role: "Teacher routing interface",
         qty: 1,
@@ -1253,14 +1253,14 @@ const coreRoomTemplates: RoomTemplate[] = [
       },
       {
         id: "syntouch10",
-        sku: "SYN-TOUCH10",
+        sku: "SYN-TOUCH10-V2",
         description: "10-inch touch panel",
         role: "Teacher room control interface",
         qty: 1,
         type: "Validate",
         status: "validate",
         evidence: "The teacher needs an easy way to choose local display, teacher display, or any visible network source.",
-        notes: "Confirm whether SYN-TOUCH10, third-party control, or custom UI is preferred.",
+        notes: "Confirm whether SYN-TOUCH10-V2, third-party control, or custom UI is preferred.",
       },
       {
         id: "network10g",
@@ -1342,7 +1342,7 @@ const coreRoomTemplates: RoomTemplate[] = [
       },
       {
         id: "sportsbarsyntouch",
-        sku: "SYN-TOUCH10",
+        sku: "SYN-TOUCH10-V2",
         description: "10-inch touch panel",
         role: "Staff control interface",
         qty: 1,
@@ -1420,14 +1420,14 @@ const coreRoomTemplates: RoomTemplate[] = [
       },
       {
         id: "pubrx70",
-        sku: "RX-70",
-        description: "HDBaseT receiver",
+        sku: "RX-70-4K",
+        description: "70m 4K HDBaseT receiver",
         role: "Remote TV receive path",
         qty: 4,
         type: "Validate",
         status: "validate",
         evidence: "Remote TVs may need HDBaseT receive paths where HDMI distance is impractical.",
-        notes: "Use only where the selected matrix/output path and distance require a receiver.",
+        notes: "Was listed as \"RX-70\", which is not a real WyreStorm SKU. RX-70-4K is the active 70m HDBaseT receiver. Confirm the matrix output path is HDBaseT and that distance requires a receiver; use RX-70-4K-ARC instead if audio return is needed.",
       },
       {
         id: "pubcontrol",
@@ -1508,7 +1508,7 @@ const coreRoomTemplates: RoomTemplate[] = [
       },
       {
         id: "casinosyntouch",
-        sku: "SYN-TOUCH10",
+        sku: "SYN-TOUCH10-V2",
         description: "10-inch touch panel",
         role: "Venue control interface",
         qty: 2,
@@ -1886,7 +1886,7 @@ const coreRoomTemplates: RoomTemplate[] = [
       },
       {
         id: "situationsyntouch",
-        sku: "SYN-TOUCH10",
+        sku: "SYN-TOUCH10-V2",
         description: "10-inch touch panel",
         role: "Situation room preset interface",
         qty: 2,
