@@ -1,545 +1,274 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import {
-  ArrowLeft,
-  CheckCircle2,
-  Compass,
-  Download,
-  FileText,
-  LayoutTemplate,
-  RotateCcw,
-  Save,
-  SlidersHorizontal,
+  ArrowLeft, Check, CheckCircle2, ChevronDown, ChevronRight, Download, FileText,
+  LayoutTemplate, Minus, MoreHorizontal, Pencil, Plus, RotateCcw, Save, X,
 } from "lucide-react";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
-import { SectionCard } from "../components/SectionCard";
 import { TemplateSchematic } from "../components/TemplateSchematic";
-import {
-  upsertStoredProject,
-  type StoredProductSelection,
-  type StoredProject,
-  type StoredProjectProposal,
-} from "../data/projectStore";
+import { upsertStoredProject, type StoredProductSelection, type StoredProject, type StoredProjectProposal } from "../data/projectStore";
 import { exportBomCsv, exportProposalHtml } from "../lib/proposalExport";
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
 import { saveRoomTemplateCopy, useCustomRoomTemplates } from "../lib/customRoomTemplates";
-import { buildDiscoveryHandoffFromTemplate, writeDiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
 import { roomTemplates, type RoomTemplate, type TemplateBomRow } from "../lib/roomTemplates";
 import type { SalesBomRow } from "../lib/salesReadiness";
 
 const includedStatuses = new Set(["included", "optional", "validate"]);
-function templateVisualPath(fileName: string): string {
-  const base = String(import.meta.env.BASE_URL || "/");
-  const cleanBase = base.endsWith("/") ? base : `${base}/`;
-  const cleanFileName = fileName.replace(/^\/?template-visuals\//, "");
-  return `${cleanBase}template-visuals/${cleanFileName}`;
+const tabs = ["Overview", "Connectivity", "Equipment", "Proposal"] as const;
+type Tab = (typeof tabs)[number];
+
+const groupCaptions: Record<string, string> = {
+  Required: "Core WyreStorm products this room design depends on.",
+  "Requires validation": "Confirm these against the real room before customer issue.",
+  Optional: "Include only where the room actually needs them.",
+  "Third-party scope": "Other AV design scope - supplied and installed by others, not quoted by WyreStorm.",
+};
+
+function cloneRows(rows: TemplateBomRow[]) { return rows.map((row) => ({ ...row })); }
+function groupFor(row: TemplateBomRow) {
+  if (row.status === "excluded") return "Third-party scope";
+  if (row.type === "Required") return "Required";
+  if (row.type === "Validate") return "Requires validation";
+  return "Optional";
 }
-
-function cloneRows(rows: TemplateBomRow[]) {
-  return rows.map((row) => ({ ...row }));
-}
-
-
-function templatePhotoPath(fileName: string): string {
-  const base = String(import.meta.env.BASE_URL || "/");
-  const cleanBase = base.endsWith("/") ? base : `${base}/`;
-  const cleanFileName = fileName.replace(/^\/?template-photos\//, "");
-  return `${cleanBase}template-photos/${cleanFileName}`;
-}
-function roomVisualFor(template: RoomTemplate) {
-  const blob = `${template.id} ${template.name} ${template.application}`.toLowerCase();
-
-  if (blob.includes("multi-camera") || blob.includes("camera bridge")) return templatePhotoPath("photo-multicamera-meeting.jpg");
-  if (blob.includes("huddle") || blob.includes("apollo")) return templatePhotoPath("photo-huddle-room.jpg");
-  if (blob.includes("boardroom")) return templatePhotoPath("photo-boardroom.jpg");
-  if (blob.includes("school hall") || blob.includes("assembly") || blob.includes("projector")) return templatePhotoPath("photo-school-hall-projector.jpg");
-  if (blob.includes("classroom")) return templatePhotoPath("photo-classroom.jpg");
-  if (blob.includes("lecture")) return templatePhotoPath("photo-school-hall-projector.jpg");
-  if (blob.includes("flexible learning")) return templatePhotoPath("photo-flexible-learning.jpg");
-  if (blob.includes("hybrid collaboration") || blob.includes("hybrid teaching") || blob.includes("dante")) return templatePhotoPath("photo-hybrid-teaching.jpg");
-  if (blob.includes("active learning") || blob.includes("600 local") || blob.includes("600-trx") || blob.includes("nhd600")) return templatePhotoPath("photo-situation-room.jpg");
-  if (blob.includes("local pub") || blob.includes("8x8 matrix")) return templatePhotoPath("photo-pub-matrix.jpg");
-  if (blob.includes("sports") || blob.includes("bar")) return templatePhotoPath("photo-sportsbar.jpg");
-  if (blob.includes("casino")) return templatePhotoPath("photo-casino.jpg");
-  if (blob.includes("bingo")) return templatePhotoPath("photo-bingo.jpg");
-  if (blob.includes("led wall")) return templatePhotoPath("photo-led-wall.jpg");
-  if (blob.includes("stadium") || blob.includes("concourse") || blob.includes("vip")) return templatePhotoPath("photo-stadium.jpg");
-  if (blob.includes("security command")) return templatePhotoPath("photo-security-command.jpg");
-  if (blob.includes("situation control") || blob.includes("situation room")) return templatePhotoPath("photo-situation-room.jpg");
-  if (blob.includes("control")) return templatePhotoPath("photo-control-room.jpg");
-  if (blob.includes("signage")) return templatePhotoPath("photo-signage.jpg");
-  if (blob.includes("wall")) return templatePhotoPath("photo-led-wall.jpg");
-
-
-  if (blob.includes("multi-camera") || blob.includes("camera bridge")) return templateVisualPath("room-multicamera.svg");
-  if (blob.includes("school hall") || blob.includes("assembly") || blob.includes("projector")) return templateVisualPath("room-school-hall.svg");
-  if (blob.includes("flexible learning")) return templateVisualPath("room-flex-learning.svg");
-  if (blob.includes("hybrid collaboration") || blob.includes("hybrid teaching") || blob.includes("dante")) return templateVisualPath("room-hybrid-teaching.svg");
-  if (blob.includes("active learning") || blob.includes("600 local") || blob.includes("600-trx") || blob.includes("nhd600")) return templateVisualPath("room-nhd600-lab.svg");
-  if (blob.includes("local pub") || blob.includes("8x8 matrix")) return templateVisualPath("room-pub-matrix.svg");
-  if (blob.includes("casino")) return templateVisualPath("room-casino.svg");
-  if (blob.includes("bingo") || blob.includes("led wall")) return templateVisualPath("room-bingo-led.svg");
-  if (blob.includes("stadium") || blob.includes("concourse") || blob.includes("vip")) return templateVisualPath("room-stadium.svg");
-  if (blob.includes("security command")) return templateVisualPath("room-security-command.svg");
-  if (blob.includes("situation control") || blob.includes("situation room")) return templateVisualPath("room-situation-room.svg");
-
-  if (blob.includes("huddle") || blob.includes("apollo")) return templateVisualPath("room-huddle.svg");
-  if (blob.includes("boardroom")) return templateVisualPath("room-boardroom.svg");
-  if (blob.includes("classroom")) return templateVisualPath("room-classroom.svg");
-  if (blob.includes("lecture") || blob.includes("hall") || blob.includes("auditorium") || blob.includes("assembly")) return templateVisualPath("room-lecture.svg");
-  if (blob.includes("divisible") || blob.includes("ballroom")) return templateVisualPath("room-divisible.svg");
-  if (blob.includes("signage") || blob.includes("casino") || blob.includes("stadium") || blob.includes("concourse") || blob.includes("vip")) return templateVisualPath("room-signage.svg");
-  if (blob.includes("sports") || blob.includes("pub") || blob.includes("bar")) return templateVisualPath("room-sports.svg");
-  if (blob.includes("wall") || blob.includes("bingo") || blob.includes("led")) return templateVisualPath("room-feature-wall.svg");
-  if (blob.includes("simulation") || blob.includes("healthcare")) return templateVisualPath("room-simulation.svg");
-  if (blob.includes("training")) return templateVisualPath("room-training.svg");
-  if (blob.includes("control") || blob.includes("command") || blob.includes("situation") || blob.includes("security")) return templateVisualPath("room-control.svg");
-
-  return templateVisualPath("room-training.svg");
-}
-
 function templateBomRows(template: RoomTemplate, rows: TemplateBomRow[]): SalesBomRow[] {
-  return rows
-    .filter((row) => includedStatuses.has(row.status) && row.qty > 0)
-    .map((row, index) => ({
-      item: index + 1,
-      sku: row.sku,
-      description: row.description,
-      role: row.role,
-      qty: row.qty,
-      type: row.type,
-      status: row.status,
-      evidence: row.evidence,
-      notes: `${row.notes} Template: ${template.name}.`,
-    }));
+  return rows.filter((row) => includedStatuses.has(row.status) && row.qty > 0).map((row, index) => ({
+    item: index + 1, sku: row.sku, description: row.description, role: row.role, qty: row.qty,
+    type: row.type, status: row.status, evidence: row.evidence, notes: `${row.notes} Template: ${template.name}.`,
+  }));
 }
-
 function templateProducts(rows: TemplateBomRow[]): StoredProductSelection[] {
-  return rows
-    .filter((row) => includedStatuses.has(row.status) && row.qty > 0)
-    .map((row) => ({
-      sku: row.sku,
-      title: row.description,
-      category: row.role,
-      status: row.type === "Required" ? "recommended" : "alternative",
-      source: "Room Template",
-      evidence: [row.evidence],
-      cautions: [row.notes],
-      addedAt: new Date().toISOString(),
-    }));
+  return rows.filter((row) => includedStatuses.has(row.status) && row.qty > 0).map((row) => ({
+    sku: row.sku, title: row.description, category: row.role,
+    status: row.type === "Required" ? "recommended" : "alternative",
+    source: "Room Template", evidence: [row.evidence], cautions: [row.notes], addedAt: new Date().toISOString(),
+  }));
 }
-
 function buildTemplateProposal(template: RoomTemplate, rows: TemplateBomRow[]): StoredProjectProposal {
   const bomRows = templateBomRows(template, rows);
   const products = templateProducts(rows);
   const readinessScore = template.validationItems.length > 4 ? 78 : 84;
   const coach = buildWingmanCoachState({
-    source: "proposal-template",
-    audience: "dealer",
-    discovery: {
-      projectTitle: template.name,
-      summary: template.customerNarrative,
-      roomSize: template.application,
-      displays: template.vertical,
-    },
-    selectedProducts: products,
-    bomRows,
-    assumptions: template.assumptions,
-    readinessScore,
+    source: "proposal-template", audience: "dealer",
+    discovery: { projectTitle: template.name, summary: template.customerNarrative, roomSize: template.application, displays: template.vertical },
+    selectedProducts: products, bomRows, assumptions: [...template.assumptions, ...template.validationItems.map((item) => `Unverified: ${item}`)], readinessScore,
   });
-
   return {
-    title: template.name,
-    summary: template.customerNarrative,
-    sections: [
-      "Cover",
-      "Application",
-      "Architecture",
-      "WyreStorm BOM",
-      "Design Scope",
-      "Assumptions",
-      "Validation",
-      "Upgrade Paths",
-    ],
-    products,
-    assumptions: template.assumptions,
+    title: template.name, summary: template.customerNarrative,
+    sections: ["Cover", "Application", "Architecture", "WyreStorm BOM", "Design Scope", "Assumptions", "Validation", "Upgrade Paths"],
+    products, assumptions: [...template.assumptions, ...template.validationItems.map((item) => `Unverified: ${item}`)],
     outputPurpose: {
-      motion: "Room/tender BOM",
-      summary: `Use this as a ${template.vertical} ${template.application.toLowerCase()} boilerplate.`,
+      motion: "Room/tender BOM", summary: `Use this as a ${template.vertical} ${template.application.toLowerCase()} boilerplate.`,
       customerOutput: "A pre-populated WyreStorm BOM with supporting AV design notes, assumptions, and validation points.",
       nextAction: "Adjust quantities and optional rows, then validate site-specific dependencies before customer issue.",
     },
-    governedDependencies: [],
-    bomRows,
-    evidence: bomRows.map((row) => `${row.sku}: ${row.evidence}`),
-    repGuidance: [
-      "Use the template as a real-room starting point rather than a discovery questionnaire.",
-      "Adjust only the quantities and optional rows that differ from the customer's known room.",
-      "Escalate to pre-sales when the room behaviour departs from the template architecture.",
-    ],
-    governanceWarnings: template.validationItems,
-    validationNotes: template.designNotes.map((item) => `${item.label}: ${item.description}`),
-    visualBlocks: coach.visualBlocks,
-    readinessScore,
-    updatedAt: new Date().toISOString(),
+    governedDependencies: [], bomRows, evidence: bomRows.map((row) => `${row.sku}: ${row.evidence}`),
+    repGuidance: ["Use the template as a real-room starting point rather than a discovery questionnaire.", "Adjust only quantities and optional rows that differ from the known room.", "Escalate when room behaviour departs from the template architecture."],
+    governanceWarnings: template.validationItems, validationNotes: template.designNotes.map((item) => `${item.label}: ${item.description}`),
+    visualBlocks: coach.visualBlocks, readinessScore, updatedAt: new Date().toISOString(),
   };
 }
-
 function buildTemplateProject(template: RoomTemplate, rows: TemplateBomRow[]): StoredProject {
   const timestamp = new Date().toISOString();
   const proposal = buildTemplateProposal(template, rows);
-
   return {
-    id: `template-${template.id}-${Date.now()}`,
-    name: template.name,
-    owner: "Wingman user",
-    stage: "Templates",
-    status: "recommended",
-    updated: "Just now",
-    resumeTo: `${routeCatalogByKey.templates.path}/${template.id}`,
-    createdAt: timestamp,
-    updatedAt: timestamp,
-    productSelections: proposal.products,
-    proposal,
-    workflow: {
-      source: "Room Templates",
-      lastStep: "Template review page",
-      nextRoute: routeCatalogByKey.proposal.path,
-      updatedAt: timestamp,
-    },
+    id: `template-${template.id}-${Date.now()}`, name: template.name, owner: "Wingman user", stage: "Templates",
+    status: "recommended", updated: "Just now", resumeTo: `${routeCatalogByKey.templates.path}/${template.id}`,
+    createdAt: timestamp, updatedAt: timestamp, productSelections: proposal.products, proposal,
+    workflow: { source: "Room Templates", lastStep: "Template review page", nextRoute: routeCatalogByKey.proposal.path, updatedAt: timestamp },
   };
 }
 
 export function TemplateReviewPage() {
   const { templateId } = useParams();
-  const navigate = useNavigate();
   const customTemplates = useCustomRoomTemplates();
   const availableTemplates = useMemo(() => [...customTemplates, ...roomTemplates], [customTemplates]);
-  const selectedTemplate = useMemo(
-    () => availableTemplates.find((template) => template.id === templateId),
-    [availableTemplates, templateId],
-  );
-
-  const [selectedRows, setSelectedRows] = useState<TemplateBomRow[]>(() =>
-    selectedTemplate ? cloneRows(selectedTemplate.bom) : [],
-  );
+  const selectedTemplate = useMemo(() => availableTemplates.find((template) => template.id === templateId), [availableTemplates, templateId]);
+  const [selectedRows, setSelectedRows] = useState<TemplateBomRow[]>(() => selectedTemplate ? cloneRows(selectedTemplate.bom) : []);
+  const [activeTab, setActiveTab] = useState<Tab>("Overview");
+  const [dirty, setDirty] = useState(false);
   const [savedProjectPath, setSavedProjectPath] = useState("");
   const [savedTemplatePath, setSavedTemplatePath] = useState("");
+  const [detailRow, setDetailRow] = useState<TemplateBomRow | null>(null);
+  const [filter, setFilter] = useState("All");
+  const [openGroups, setOpenGroups] = useState(new Set(["Required", "Requires validation"]));
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   useEffect(() => {
     if (selectedTemplate) {
-      setSelectedRows(cloneRows(selectedTemplate.bom));
-      setSavedProjectPath("");
-      setSavedTemplatePath("");
+      setSelectedRows(cloneRows(selectedTemplate.bom)); setDirty(false); setActiveTab("Overview");
+      setSavedProjectPath(""); setSavedTemplatePath(""); setDetailRow(null);
     }
   }, [selectedTemplate]);
 
-  if (!selectedTemplate) {
-    return (
-      <div data-wingman-template-detail-page="true" className="pb-10">
-        <PageHero
-          eyebrow="Room Template Review"
-          title="Template not found."
-          purpose="The selected room design template could not be found."
-          nextMove="Return to the template selection page and choose another room type."
-          actions={[{ label: "Back to templates", to: routeCatalogByKey.templates.path }]}
-        />
-      </div>
-    );
+  if (!selectedTemplate) return <div data-wingman-template-detail-page="true" className="pb-10"><PageHero eyebrow="Room templates" title="Template not found." purpose="The selected room design template could not be found." nextMove="Go back to the template library and pick a room design to review." actions={[{ label: "Back to templates", to: routeCatalogByKey.templates.path }]} /></div>;
+
+  const template = selectedTemplate;
+  const bomRows = templateBomRows(template, selectedRows);
+  const counts = {
+    Required: selectedRows.filter((row) => row.type === "Required" && row.status !== "excluded").length,
+    Validate: selectedRows.filter((row) => row.type === "Validate" && row.status !== "excluded").length,
+    Optional: selectedRows.filter((row) => row.type === "Optional" && row.status !== "excluded").length,
+    Excluded: selectedRows.filter((row) => row.status === "excluded").length,
+  };
+  const categories = ["All", ...Array.from(new Set(selectedRows.map((row) => row.role.split(" ")[0])))];
+  const groupedRows = ["Required", "Requires validation", "Optional", "Third-party scope"].map((name) => ({
+    name, rows: selectedRows.filter((row) => groupFor(row) === name && (filter === "All" || row.role.startsWith(filter))),
+  }));
+
+  function mutateRows(updater: (rows: TemplateBomRow[]) => TemplateBomRow[]) { setSelectedRows(updater); setDirty(true); }
+  function toggleGroup(name: string) {
+    setOpenGroups((current) => {
+      const next = new Set(current);
+      if (next.has(name)) next.delete(name); else next.add(name);
+      return next;
+    });
   }
-
-  const activeTemplate = selectedTemplate;
-  const bomRows = templateBomRows(selectedTemplate, selectedRows);
-  const requiredCount = selectedRows.filter((row) => row.type === "Required" && includedStatuses.has(row.status)).length;
-  const optionalCount = selectedRows.filter((row) => row.type !== "Required" && includedStatuses.has(row.status)).length;
-
   function updateRowQty(rowId: string, qty: number) {
     const safeQty = Math.max(0, Math.min(99, Number.isFinite(qty) ? qty : 0));
-
-    setSelectedRows((current) =>
-      current.map((row) =>
-        row.id === rowId
-          ? {
-              ...row,
-              qty: safeQty,
-              status:
-                safeQty === 0
-                  ? "excluded"
-                  : row.status === "excluded"
-                    ? row.type === "Required"
-                      ? "included"
-                      : row.type.toLowerCase()
-                    : row.status,
-            }
-          : row,
-      ),
-    );
+    mutateRows((current) => current.map((row) => row.id !== rowId ? row : {
+      ...row, qty: safeQty, status: safeQty === 0 ? "excluded" : row.status === "excluded" ? (row.type === "Required" ? "included" : row.type.toLowerCase()) : row.status,
+    }));
   }
-
   function toggleRow(rowId: string) {
-    setSelectedRows((current) =>
-      current.map((row) => {
-        if (row.id !== rowId) return row;
-
-        const nextStatus = row.status === "excluded" ? (row.type === "Required" ? "included" : row.type.toLowerCase()) : "excluded";
-
-        return {
-          ...row,
-          status: nextStatus,
-          qty: nextStatus === "excluded" ? 0 : Math.max(1, row.qty),
-        };
-      }),
-    );
+    mutateRows((current) => current.map((row) => {
+      if (row.id !== rowId) return row;
+      const status = row.status === "excluded" ? (row.type === "Required" ? "included" : row.type.toLowerCase()) : "excluded";
+      return { ...row, status, qty: status === "excluded" ? 0 : Math.max(1, row.qty) };
+    }));
   }
-
-  function resetTemplateBom() {
-    setSelectedRows(cloneRows(activeTemplate.bom));
+  function resetEquipment() { setSelectedRows(cloneRows(template.bom)); setDirty(false); setDetailRow(null); }
+  function exportTemplateBom() { exportBomCsv(buildTemplateProposal(template, selectedRows), bomRows); }
+  function exportTemplateProposal() { exportProposalHtml(buildTemplateProposal(template, selectedRows), bomRows); }
+  function saveTemplateProject() { const project = upsertStoredProject(buildTemplateProject(template, selectedRows)); setSavedProjectPath(`/wingman/projects/${project.id}`); setDirty(false); }
+  function saveTemplateDesign() { const copy = saveRoomTemplateCopy(template, selectedRows); setSavedTemplatePath(`${routeCatalogByKey.templates.path}/${copy.id}`); setDirty(false); }
+  function addPlaceholder(thirdParty: boolean) {
+    const id = `custom-${Date.now()}`;
+    mutateRows((rows) => [...rows, {
+      id, sku: thirdParty ? "BY-OTHERS" : "CUSTOM", description: thirdParty ? "Third-party placeholder" : "Added product",
+      role: thirdParty ? "Third-party scope" : "Additional equipment", qty: 1, type: "Optional",
+      status: thirdParty ? "excluded" : "optional", evidence: "Added during template review.", notes: "Confirm product, ownership and technical requirements.",
+    }]);
+    setOpenGroups((current) => new Set(current).add(thirdParty ? "Third-party scope" : "Optional"));
   }
-
-  function exportTemplateBom() {
-    exportBomCsv(buildTemplateProposal(activeTemplate, selectedRows), bomRows);
-  }
-
-  function exportTemplateProposal() {
-    const proposal = buildTemplateProposal(activeTemplate, selectedRows);
-    exportProposalHtml(proposal, bomRows);
-  }
-
-  function saveTemplateProject() {
-    const project = upsertStoredProject(buildTemplateProject(activeTemplate, selectedRows));
-    setSavedProjectPath(`/wingman/projects/${project.id}`);
-  }
-
-  function saveTemplateDesign() {
-    const template = saveRoomTemplateCopy(activeTemplate, selectedRows);
-    setSavedTemplatePath(`${routeCatalogByKey.templates.path}/${template.id}`);
-  }
-
-  function sendTemplateToDiscovery() {
-    writeDiscoveryHandoff(buildDiscoveryHandoffFromTemplate(activeTemplate));
-    navigate(routeCatalogByKey.discovery.path);
+  function onTabKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
+    let next = index;
+    if (event.key === "ArrowRight") next = (index + 1) % tabs.length;
+    else if (event.key === "ArrowLeft") next = (index - 1 + tabs.length) % tabs.length;
+    else if (event.key === "Home") next = 0;
+    else if (event.key === "End") next = tabs.length - 1;
+    else return;
+    event.preventDefault(); setActiveTab(tabs[next]); tabRefs.current[next]?.focus();
   }
 
   return (
-    <div className="pb-10">
-      <PageHero
-        eyebrow="Room Template Review"
-        title={selectedTemplate.name}
-        purpose="Review the selected room design template, validate the architecture notes, adjust the BOM rows, then export or save it as a project."
-        nextMove="Use this page as the template review stage before moving into a customer-specific proposal."
-        actions={[
-          { label: "Back to templates", to: routeCatalogByKey.templates.path, variant: "secondary" },
-          { label: "Open proposal", to: routeCatalogByKey.proposal.path },
-        ]}
-      />
+    <div className="wm-template-workspace pb-10" data-wingman-template-detail-page="true">
+      <header className="wm-template-compact-header">
+        <div className="wm-template-breadcrumb"><Link to={routeCatalogByKey.templates.path}>Templates</Link><ChevronRight /> <span>{template.name}</span></div>
+        <div className="wm-template-header-row">
+          <div>
+            <div className="wm-template-title-line"><h1>{template.name}</h1><span className="wm-status is-confirmed">Ready to configure</span>{dirty ? <span className="wm-status is-unsaved">Unsaved changes</span> : <span className="wm-status is-saved"><Check /> Saved</span>}</div>
+            <p>{template.summary}</p>
+          </div>
+          <div className="wm-template-header-actions">
+            <Link className="wm-button is-secondary" to={routeCatalogByKey.templates.path}><ArrowLeft /> Back to templates</Link>
+            <button className="wm-button is-secondary" type="button" onClick={saveTemplateProject}><Save /> Save as project</button>
+            <button className="wm-button is-primary" type="button" onClick={() => setActiveTab("Proposal")}><FileText /> Continue to proposal</button>
+            <details className="wm-template-overflow"><summary className="wm-icon-button" aria-label="More template actions"><MoreHorizontal /></summary><div>
+              <button type="button" onClick={resetEquipment}><RotateCcw /> Reset equipment</button>
+              <button type="button" onClick={exportTemplateBom}><Download /> Export BOM</button>
+              <button type="button" onClick={saveTemplateDesign}><LayoutTemplate /> Save as template</button>
+            </div></details>
+          </div>
+        </div>
+      </header>
 
-      <SectionCard
-        title="Room design template"
-        subtitle={`${selectedTemplate.vertical} template for ${selectedTemplate.application}.`}
-        rightSlot={
-          <Link
-            to={routeCatalogByKey.templates.path}
-            className="inline-flex items-center gap-2 rounded-full border border-[#29465e] bg-[#0d2133] px-4 py-2 text-sm font-black text-[#edf6ff] transition hover:bg-[#0d2133]"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Select another template
-          </Link>
-        }
-      >
-        <div className="space-y-5">
-          <section className="wm-template-detail-shell">
-            <div
-              className="wm-template-detail-hero"
-              style={{
-                backgroundImage: `linear-gradient(90deg, rgba(2,6,23,0.92), rgba(2,6,23,0.62), rgba(2,6,23,0.18)), url(${roomVisualFor(
-                  selectedTemplate,
-                )})`,
-              }}
-            >
-              <div>
-                <p className="wingman-kicker">{selectedTemplate.vertical} template</p>
-                <h2>{selectedTemplate.name}</h2>
-                <p>{selectedTemplate.customerNarrative}</p>
-              </div>
+      {(savedProjectPath || savedTemplatePath) ? <div className="wm-template-save-notice"><CheckCircle2 />
+        {savedTemplatePath ? <span>Room design saved as a custom template.</span> : null}
+        {savedProjectPath ? <span>Room design saved as a project.</span> : null}
+        {savedProjectPath ? <Link to={savedProjectPath}>Open project</Link> : null}
+        {savedTemplatePath ? <Link to={savedTemplatePath}>Open template</Link> : null}
+      </div> : null}
 
-              <div className="wm-template-detail-actions">
-                <button type="button" onClick={resetTemplateBom}>
-                  <RotateCcw className="h-5 w-5" />
-                  <span>Reset BOM</span>
-                </button>
-                <button type="button" onClick={exportTemplateBom}>
-                  <Download className="h-5 w-5" />
-                  <span>Export BOM</span>
-                </button>
-                <button type="button" onClick={exportTemplateProposal}>
-                  <FileText className="h-5 w-5" />
-                  <span>Export proposal</span>
-                </button>
-                <button type="button" onClick={saveTemplateDesign}>
-                  <LayoutTemplate className="h-5 w-5" />
-                  <span>Save as template</span>
-                </button>
-                <button type="button" onClick={sendTemplateToDiscovery}>
-                  <Compass className="h-5 w-5" />
-                  <span>Use template</span>
-                </button>
-                <button type="button" onClick={saveTemplateProject} className="wm-template-action-primary">
-                  <Save className="h-5 w-5" />
-                  <span>Save project</span>
-                </button>
-              </div>
+      <div className="wm-template-tabs" role="tablist" aria-label="Template workspace">
+        {tabs.map((tab, index) => <button key={tab} ref={(node) => { tabRefs.current[index] = node; }} type="button" role="tab" id={`template-tab-${tab}`} aria-selected={activeTab === tab} aria-controls={`template-panel-${tab}`} tabIndex={activeTab === tab ? 0 : -1} onClick={() => setActiveTab(tab)} onKeyDown={(event) => onTabKeyDown(event, index)}>{tab}{tab === "Equipment" && dirty ? <i aria-label="Unsaved changes" /> : null}</button>)}
+      </div>
+
+      <main id={`template-panel-${activeTab}`} role="tabpanel" aria-labelledby={`template-tab-${activeTab}`} tabIndex={0}>
+        {activeTab === "Overview" ? <div className="wm-template-overview">
+          <section className="wm-template-overview-main">
+            <div className="wm-template-section-heading"><div><span>System at a glance</span><h2>Signal flow</h2></div><span className="wm-status is-assumed">Template assumptions</span></div>
+            <div className="wm-overview-flow">
+              {["Sources", "WyreStorm core", "Transport", "Outputs"].map((stage, index) => <div key={stage}><small>0{index + 1}</small><strong>{stage}</strong><p>{index === 0 ? "Room inputs and UC" : index === 1 ? template.bom[0]?.sku || "Core platform" : index === 2 ? "AVoIP / extension" : "Displays and room systems"}</p></div>)}
             </div>
-
-            {savedProjectPath || savedTemplatePath ? (
-              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-950">
-                <CheckCircle2 className="h-4 w-4" />
-                {savedProjectPath ? (
-                  <>
-                    <span className="font-semibold">Template saved as a standalone project.</span>
-                    <Link to={savedProjectPath} className="rounded-full border border-emerald-300 px-3 py-1 font-semibold hover:bg-[#0d2133]">
-                      Open project
-                    </Link>
-                  </>
-                ) : null}
-                {savedTemplatePath ? (
-                  <>
-                    <span className="font-semibold">Room design saved as a custom template.</span>
-                    <Link to={savedTemplatePath} className="rounded-full border border-emerald-300 px-3 py-1 font-semibold hover:bg-[#0d2133]">
-                      Open template
-                    </Link>
-                  </>
-                ) : null}
-              </div>
-            ) : null}
-
-            <TemplateSchematic template={selectedTemplate} rows={selectedRows} />
-
-            <div className="mt-5 grid gap-4 lg:grid-cols-3">
-              <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
-                <p className="wingman-kicker">Application</p>
-                <p className="mt-2 text-sm leading-6 text-white/70">{selectedTemplate.application}</p>
-              </div>
-              <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
-                <p className="wingman-kicker">Scale</p>
-                <p className="mt-2 text-sm leading-6 text-white/70">{selectedTemplate.scale}</p>
-              </div>
-              <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
-                <p className="wingman-kicker">BOM state</p>
-                <p className="mt-2 text-sm leading-6 text-white/70">
-                  {requiredCount} required rows, {optionalCount} optional or validate rows.
-                </p>
-              </div>
+            <div className="wm-secondary-paths">
+              {["USB", "Camera", "Audio", "Control", "Third-party scope"].map((path, index) => <div key={path}><span className={index === 4 ? "is-others" : index < 2 ? "is-validate" : "is-assumed"} /> <strong>{path}</strong><small>{index === 4 ? "By others" : index < 2 ? "Validate" : "Assumed"}</small></div>)}
             </div>
-
-            <details className="wm-decision-details mt-4">
-              <summary className="cursor-pointer text-sm font-black text-white">
-                Architecture, validation and upgrade notes
-              </summary>
-              <div className="mt-4 grid gap-4 lg:grid-cols-3">
-                <div className="rounded-2xl border border-[#29465e] bg-[#0d2133] p-4">
-                  <p className="wingman-kicker">Architecture</p>
-                  <p className="mt-2 text-sm leading-7 text-white/70">{selectedTemplate.architecture}</p>
-                </div>
-                <div className="rounded-2xl border border-cyan-200 bg-cyan-50 p-4 text-sm leading-6 text-cyan-950">
-                  <p className="font-black">Validate before customer issue</p>
-                  <ul className="mt-2 list-disc space-y-1 pl-4">
-                    {selectedTemplate.validationItems.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="rounded-2xl border border-sky-200 bg-[#10263a] p-4 text-sm leading-6 text-sky-950">
-                  <p className="font-black">Useful upgrade paths</p>
-                  <ul className="mt-2 list-disc space-y-1 pl-4">
-                    {selectedTemplate.upgradePaths.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </details>
-
-            <div className="mt-5 rounded-2xl border border-[#29465e] bg-[#0d2133] p-5">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="wingman-kicker">Other AV design scope
-Editable WyreStorm BOM</p>
-                  <h3 className="mt-2 text-xl font-black text-white">Template rows</h3>
-                </div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-[#0d2133] px-3 py-1.5 text-sm font-semibold text-white/70">
-                  <SlidersHorizontal className="h-4 w-4" />
-                  Quantity and include/exclude edits
-                </div>
-              </div>
-
-              <div className="mt-4 overflow-hidden rounded-2xl border border-[#29465e] wm-template-detail-no-horizontal-scroll">
-                <table className="min-w-full text-left text-sm">
-                  <thead className="bg-[#0d2133] text-white/60">
-                    <tr>
-                      <th className="px-4 py-3 font-semibold">Use</th>
-                      <th className="px-4 py-3 font-semibold">SKU</th>
-                      <th className="px-4 py-3 font-semibold">Role</th>
-                      <th className="px-4 py-3 font-semibold">Qty</th>
-                      <th className="px-4 py-3 font-semibold">Type</th>
-                      <th className="px-4 py-3 font-semibold">Notes</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedRows.map((row) => {
-                      const enabled = includedStatuses.has(row.status);
-
-                      return (
-                        <tr key={row.id} className={`border-t border-[#29465e] ${enabled ? "bg-[#0d2133]" : "bg-[#0d2133] text-slate-400"}`}>
-                          <td className="px-4 py-3">
-                            <input
-                              type="checkbox"
-                              checked={enabled}
-                              onChange={() => toggleRow(row.id)}
-                              className="h-4 w-4 rounded border-[#29465e]"
-                              aria-label={`Include ${row.sku}`}
-                            />
-                          </td>
-                          <td className="px-4 py-3">
-                            <p className="font-black text-[#edf6ff]">{row.sku}</p>
-                            <p className="mt-1 text-xs text-white/55">{row.description}</p>
-                          </td>
-                          <td className="px-4 py-3 text-white/70">{row.role}</td>
-                          <td className="px-4 py-3">
-                            <input
-                              type="number"
-                              min="0"
-                              max="99"
-                              value={row.qty}
-                              onChange={(event) => updateRowQty(row.id, Number(event.target.value))}
-                              className="w-20 rounded-lg border border-[#29465e] px-2 py-1 text-sm text-[#edf6ff]"
-                              aria-label={`Quantity for ${row.sku}`}
-                            />
-                          </td>
-                          <td className="px-4 py-3">
-                            <span
-                              className={`rounded-full px-2.5 py-1 text-xs font-black ${
-                                row.type === "Required"
-                                  ? "bg-emerald-100 text-emerald-800"
-                                  : row.type === "Optional"
-                                    ? "bg-sky-100 text-sky-800"
-                                    : "bg-cyan-100 text-cyan-900"
-                              }`}
-                            >
-                              {row.type}
-                            </span>
-                          </td>
-                          <td className="max-w-md px-4 py-3 text-white/60">{row.notes}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+            <div className="wm-template-overview-notes">
+              <div><span>Application</span><p>{template.application}</p></div>
+              <div><span>Architecture</span><p>{template.architecture}</p></div>
             </div>
           </section>
-        </div>
-      </SectionCard>
+          <aside className="wm-template-readiness">
+            <div><span>Template readiness</span><strong>{template.validationItems.length > 4 ? "78" : "84"}%</strong></div>
+            <div className="wm-readiness-bar"><i style={{ width: `${template.validationItems.length > 4 ? 78 : 84}%` }} /></div>
+            <div className="wm-count-strip"><div><strong>{counts.Required}</strong><span>Required</span></div><div><strong>{counts.Validate}</strong><span>Validate</span></div><div><strong>{counts.Optional}</strong><span>Optional</span></div></div>
+            <h3>Priority validation</h3>
+            <ol>{template.validationItems.slice(0, 3).map((item) => <li key={item}><span>?</span>{item}</li>)}</ol>
+            <button className="wm-button is-primary is-full" type="button" onClick={() => setActiveTab("Equipment")}>Review validation items</button>
+            <button className="wm-button is-secondary is-full" type="button" onClick={() => setActiveTab("Proposal")}>Continue with assumptions</button>
+          </aside>
+        </div> : null}
+
+        {activeTab === "Connectivity" ? <TemplateSchematic template={template} rows={selectedRows} /> : null}
+
+        {activeTab === "Equipment" ? <div className="wm-equipment-workspace">
+          <div className="wm-template-section-heading"><div><span>Equipment schedule</span><h2>Editable WyreStorm BOM</h2></div><span className="wm-status is-assumed">Quantity and include/exclude edits</span></div>
+          <div className="wm-equipment-summary">{Object.entries(counts).map(([label, count]) => <div key={label}><strong>{count}</strong><span>{label}</span></div>)}</div>
+          <div className="wm-equipment-toolbar">
+            <div className="wm-category-filters" aria-label="Equipment category filters">{categories.slice(0, 6).map((category) => <button type="button" key={category} className={filter === category ? "is-active" : ""} onClick={() => setFilter(category)}>{category}</button>)}</div>
+            <div><button type="button" onClick={() => addPlaceholder(false)}><Plus /> Add product</button><button type="button" onClick={() => addPlaceholder(true)}><Plus /> Add third-party placeholder</button><button type="button" onClick={resetEquipment}><RotateCcw /> Reset equipment</button><button type="button" onClick={exportTemplateBom}><Download /> Export BOM</button><button className="is-primary" type="button" onClick={() => setDirty(false)}><Save /> Save changes</button></div>
+          </div>
+          <div className="wm-equipment-groups">
+            {groupedRows.map((group) => <section key={group.name}>
+              <button className="wm-equipment-group-heading" type="button" aria-expanded={openGroups.has(group.name)} onClick={() => toggleGroup(group.name)}><ChevronDown /><span>{group.name}</span><small>{group.rows.length}</small></button>
+              {openGroups.has(group.name) ? <p className="wm-equipment-group-caption">{groupCaptions[group.name]}</p> : null}
+              {openGroups.has(group.name) ? <div>{group.rows.map((row) => {
+                const enabled = includedStatuses.has(row.status);
+                return <article className={`wm-equipment-row ${enabled ? "" : "is-excluded"}`} key={row.id}>
+                  <input type="checkbox" checked={enabled} onChange={() => toggleRow(row.id)} aria-label={`Include ${row.sku}`} />
+                  <div className="wm-equipment-identity"><strong>{row.sku}</strong><span>{row.description}</span></div>
+                  <span className="wm-equipment-role">{row.role}</span>
+                  <div className="wm-quantity-stepper"><button type="button" onClick={() => updateRowQty(row.id, row.qty - 1)} aria-label={`Reduce ${row.sku} quantity`}><Minus /></button><input type="number" min="0" max="99" value={row.qty} onChange={(event) => updateRowQty(row.id, Number(event.target.value))} aria-label={`Quantity for ${row.sku}`} /><button type="button" onClick={() => updateRowQty(row.id, row.qty + 1)} aria-label={`Increase ${row.sku} quantity`}><Plus /></button></div>
+                  <span className={`wm-status ${row.type === "Required" ? "is-confirmed" : row.type === "Validate" ? "is-validate" : enabled ? "is-assumed" : "is-others"}`}>{enabled ? row.type : "Excluded"}</span>
+                  <button type="button" className="wm-icon-button" onClick={() => setDetailRow(row)} aria-label={`Edit ${row.sku}`}><Pencil /></button>
+                </article>;
+              })}</div> : null}
+            </section>)}
+          </div>
+        </div> : null}
+
+        {activeTab === "Proposal" ? <div className="wm-proposal-handoff">
+          <section><span className="wm-status is-validate">{template.validationItems.length} unresolved</span><h2>Proposal is ready with assumptions</h2><p>The equipment schedule can move forward, but the following points remain unverified and will be labelled as assumptions.</p><div className="wm-proposal-readiness"><strong>{template.validationItems.length > 4 ? "78" : "84"}%</strong><span>Proposal readiness</span></div></section>
+          <section><h3>Unresolved assumptions</h3><ul>{template.validationItems.map((item) => <li key={item}><span>Validate</span>{item}</li>)}</ul></section>
+          <aside>
+            <Link className="wm-button is-primary is-full" to={routeCatalogByKey.proposal.path}><FileText /> Create proposal</Link>
+            <button className="wm-button is-secondary is-full" type="button" onClick={exportTemplateProposal}><Download /> Export proposal</button>
+            <button className="wm-button is-secondary is-full" type="button" onClick={exportTemplateBom}><Download /> Export equipment schedule</button>
+            <button className="wm-button is-secondary is-full" type="button" onClick={saveTemplateProject}><Save /> Save as project</button>
+            <button className="wm-button is-secondary is-full" type="button" onClick={saveTemplateDesign}><LayoutTemplate /> Save as template</button>
+          </aside>
+        </div> : null}
+      </main>
+
+      {detailRow ? <div className="wm-equipment-drawer-backdrop" onClick={() => setDetailRow(null)}><aside className="wm-equipment-drawer" role="dialog" aria-modal="true" aria-labelledby="equipment-drawer-title" onClick={(event) => event.stopPropagation()}>
+        <button className="wm-icon-button wm-drawer-close" type="button" onClick={() => setDetailRow(null)} aria-label="Close equipment details"><X /></button>
+        <span className="wm-status is-assumed">{detailRow.type}</span><h2 id="equipment-drawer-title">{detailRow.sku}</h2><p>{detailRow.description}</p>
+        <dl><div><dt>System role</dt><dd>{detailRow.role}</dd></div><div><dt>Evidence</dt><dd>{detailRow.evidence}</dd></div><div><dt>Notes</dt><dd>{detailRow.notes}</dd></div></dl>
+        <label>Quantity<input type="number" min="0" max="99" value={selectedRows.find((row) => row.id === detailRow.id)?.qty ?? 0} onChange={(event) => updateRowQty(detailRow.id, Number(event.target.value))} /></label>
+        <button className="wm-button is-primary is-full" type="button" onClick={() => setDetailRow(null)}>Done</button>
+      </aside></div> : null}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { verifyChainIncludes } from "./verify-chain.mjs";
 
 const repoRoot = process.cwd();
 
@@ -57,7 +58,7 @@ if (!packageJson.scripts?.["check:optional-visual-support"]) {
   errors.push("package.json missing check:optional-visual-support script.");
 }
 
-if (!String(packageJson.scripts?.verify || "").includes("check:optional-visual-support")) {
+if (!verifyChainIncludes(packageJson.scripts, "check:optional-visual-support")) {
   errors.push("package.json verify script missing check:optional-visual-support.");
 }
 

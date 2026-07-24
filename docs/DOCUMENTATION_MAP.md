@@ -6,8 +6,9 @@ _Last updated: 2026-07-05_
 
 | Document | Purpose |
 |---|---|
-| `docs/CURRENT_STATUS.md` | Single live status source for readiness, blockers and verification. |
-| `docs/launch-readiness-report.md` | Current go/no-go gate list. |
+| `docs/PRE_PRODUCTION_REPORT.md` | **Live status source.** Executed gate results, ranked blockers, and the plan to production. |
+| `docs/CURRENT_STATUS.md` | At-a-glance summary; points at the pre-production report. |
+| `docs/launch-readiness-report.md` | Superseded gate list, kept so links resolve. |
 | `docs/product-data-health.md` | Current product governance and data-risk summary. |
 | `docs/OPERATIONS.md` | Operational runbook. |
 | `docs/SUPABASE_SETUP.md` | Supabase setup guide. |

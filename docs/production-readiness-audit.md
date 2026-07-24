@@ -2,6 +2,12 @@
 
 Date: 2026-04-27
 
+> **Superseded on 2026-07-24.** This audit is three months old and much of it has been resolved.
+> It is kept for historical context only - do not use it to judge current readiness.
+>
+> For the current position see **`docs/PRE_PRODUCTION_REPORT.md`**, which records executed gate
+> results rather than assertions.
+
 ## Verdict
 
 Wingman is not production-ready, but the active app is cleaner and safer than the 2026-04-18 audit state.

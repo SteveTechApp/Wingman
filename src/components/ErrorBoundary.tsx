@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { AlertTriangle, RotateCcw } from "lucide-react";
+import { reportRuntimeEvent } from "../wingman2/lib/runtimeTelemetry";
 
 type ErrorBoundaryProps = {
   children: ReactNode;
@@ -29,6 +30,17 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     console.error("[ErrorBoundary] Uncaught error:", error);
     console.error("[ErrorBoundary] Component stack:", errorInfo.componentStack);
+
+    // console.error alone goes nowhere in a production browser. Send the crash
+    // to the backend telemetry endpoint so a failure in front of a customer
+    // leaves a trace someone can actually find.
+    reportRuntimeEvent({
+      kind: "error",
+      message: error.message || "Uncaught render error",
+      stack: error.stack,
+      source: errorInfo.componentStack?.trim().split("\n")[0]?.trim(),
+      handled: true,
+    });
 
     this.setState({ errorInfo });
   }

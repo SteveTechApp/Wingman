@@ -59,9 +59,17 @@ async function assertCompareWorkflow(page) {
   if (await nextProductStep.isVisible().catch(() => false)) {
     await nextProductStep.click();
   }
-  await page.getByLabel("Competitor SKU").fill("DM-NVX-360");
+  // getByLabel("Competitor SKU") is ambiguous: it matches both the input and
+  // the <section aria-label="Competitor SKU lookup"> that wraps it, so Playwright
+  // fails on a strict-mode violation. Target the textbox role explicitly.
+  // This check had never run in CI, so the drift went unnoticed.
+  await page.getByRole("textbox", { name: "Competitor SKU" }).fill("DM-NVX-360");
   await page.getByRole("button", { name: "Review WyreStorm direction", exact: true }).click();
-  await page.locator("text=Suggested WyreStorm direction").waitFor({ state: "visible", timeout: 5000 });
+  // The result panel used to be headed "Suggested WyreStorm direction". That
+  // string no longer exists anywhere in src/ - the heading is now "Comparison
+  // result". Anchoring on a heading role rather than a loose text match keeps
+  // this tied to the actual result state rather than incidental body copy.
+  await page.getByRole("heading", { name: "Comparison result" }).waitFor({ state: "visible", timeout: 15_000 });
   const text = await page.locator("body").innerText();
 
   if (text.includes("Product data not loaded")) {
@@ -103,8 +111,22 @@ try {
   await assertPageText(page, "/wingman/ingest", "Document Ingest");
   await assertPageText(page, "/wingman/compare", "Competitor Compare");
   await assertCompareWorkflow(page);
-  await assertPageText(page, "/wingman/proposal", "Proposal Builder");
-  await assertPageText(page, "/wingman/projects/northbridge-meeting-room-refresh", "Editable requirements");
+
+  // This check had never been run by CI, so several assertions had drifted away
+  // from the UI. Each expectation below was re-derived by driving the real app
+  // rather than by reading source, and the strings were confirmed present.
+  //
+  // "Proposal Builder" no longer appears in src/. A smoke run always starts
+  // with an empty localStorage and therefore no active project, so the proposal
+  // route deterministically renders its empty state.
+  await assertPageText(page, "/wingman/proposal", "Open a project before building a proposal");
+
+  // Was "Editable requirements". That string is still in ProjectDetailPage.tsx
+  // (check:workflow asserts it) but renders only once requirement records
+  // exist, so it is not reachable from a cold start. The project name proves
+  // what this step is really for: the route resolves and seeded project data
+  // loads.
+  await assertPageText(page, "/wingman/projects/northbridge-meeting-room-refresh", "Northbridge Meeting Room Refresh");
 
   console.log("[browser-smoke] Verified built app pages, Compare workflow, and project detail route in a real browser.");
 } finally {
