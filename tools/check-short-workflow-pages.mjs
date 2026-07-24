@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { verifyChainIncludes } from "./verify-chain.mjs";
 
 const repoRoot = process.cwd();
 
@@ -84,7 +85,7 @@ if (!packageJson.scripts?.["check:short-workflow-pages"]) {
   errors.push("package.json missing check:short-workflow-pages script.");
 }
 
-if (!String(packageJson.scripts?.verify || "").includes("check:short-workflow-pages")) {
+if (!verifyChainIncludes(packageJson.scripts, "check:short-workflow-pages")) {
   errors.push("package.json verify script missing check:short-workflow-pages.");
 }
 

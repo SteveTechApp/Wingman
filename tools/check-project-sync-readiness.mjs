@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { verifyChainIncludes } from "./verify-chain.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -64,7 +65,7 @@ if (!packageJson.scripts?.["check:project-sync"]) {
   errors.push("package.json is missing check:project-sync.");
 }
 
-if (!String(packageJson.scripts?.verify ?? "").includes("check:project-sync")) {
+if (!verifyChainIncludes(packageJson.scripts, "check:project-sync")) {
   errors.push("npm run verify does not include check:project-sync.");
 }
 
