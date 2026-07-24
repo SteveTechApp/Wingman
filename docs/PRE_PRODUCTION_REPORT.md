@@ -243,8 +243,22 @@ tables** (`wingman_app_state`, `wingman_users`, `wingman_workspaces`, `wingman_w
 
 The `supabase/migrations/` set creates the tables with **no RLS enabled and no policies defined**,
 and no explicit `GRANT`s. In a stock Supabase project, tables in `public` without RLS are readable
-by anyone holding the (client-side, publicly shipped) anon key. Supabase's own linter classifies
-this as an error-level finding.
+by anyone holding the anon key. Supabase's own linter classifies this as an error-level finding.
+
+> **Severity correction (2026-07-24).** An earlier revision of this section, and PR #114, said the
+> anon key "ships publicly in the browser bundle". **That was wrong, and it overstated the
+> urgency.** Verified since: the Wingman client never imports `@supabase/supabase-js`, no anon key
+> exists anywhere in `.env.example` or the Vite config, and only the server talks to Supabase —
+> with the service-role key, which bypasses RLS regardless.
+>
+> The accurate position: this was a **latent defence-in-depth gap, not an active exposure**. It
+> would have become live the moment anyone obtained the project's anon key (which is public by
+> design and visible in the dashboard) and hit the PostgREST endpoint directly, or wired an anon
+> key into any client. `server/migrations/002` was written for exactly that reason — its own
+> comment says "if an anon/publishable Supabase key were ever wired up".
+>
+> The fix still stands on its merits and the two sets genuinely had to be reconciled. But this was
+> not a live data leak, and I should not have implied it was.
 
 **Why this matters now.** `LAUNCH_CHECKLIST.md` §4 tells the operator to apply
 `001_initial_schema.sql` — the safe set. But the Supabase GitHub integration reads
@@ -267,6 +281,39 @@ provisioning step.
 
 **Exit criteria:** one migration set, RLS confirmed on in the live project, anon key proven unable
 to read application tables.
+
+### Applying this to a live project
+
+The migration files are reconciled and guarded, but **no database has been touched** — the code
+fix and the live fix are separate things, and only the first is done. The Supabase project was
+paused as of 2026-07-24, so nothing could be applied or verified against it.
+
+Once the project is resumed:
+
+```bash
+# 1. Apply the migration. Idempotent - safe to re-run, safe if tables exist.
+#    Easiest route without the Supabase CLI: paste the file into the
+#    dashboard SQL editor and run it.
+#    supabase/migrations/20260724_enable_rls_on_wingman_tables.sql
+
+# 2. Prove it worked, from outside, using the public key.
+SUPABASE_URL=https://<project>.supabase.co \
+SUPABASE_ANON_KEY=<anon key from Settings > API> \
+npm run check:supabase-rls
+```
+
+`check:supabase-rls` (`tools/verify-supabase-rls.mjs`) probes all nine tables with the anon key
+and is read-only, so it is safe against production. It reports `EXPOSED` only when the public key
+actually returns rows — a definitive result.
+
+**Read its "unclear" verdicts carefully.** With RLS on and no anon policy, PostgREST filters rows
+rather than refusing, returning `200 []`. An *empty* table with RLS *off* returns exactly the same
+thing. Those two cases are indistinguishable from outside the database, so the tool reports them
+as inconclusive rather than passing them. For those tables, confirm in the dashboard under
+**Database → Tables** (RLS toggle) or **Advisors → Security**. The check is strongest against a
+database that actually holds rows.
+
+Do this against a staging or branch project before production.
 
 ---
 
