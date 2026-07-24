@@ -233,6 +233,43 @@ That is precisely the judgement a reviewer has to exercise and a script cannot.
 room template BOMs (36 of them), since those reach customers directly, then the NetworkHD/EX
 transport core, then the long tail.
 
+#### Batch 1 drafted — 2026-07-24
+
+Six profiles were transcribed from the official product pages, read in a real browser:
+`NHD-CTL-PRO-V2`, `NHD-600-TRX`, `NHD-0401-MV`, `RX-70-4K`, `CAM-210-PTZ`, `NHD-000-RACK4`.
+
+| | |
+|---|---|
+| Verified coverage | **unchanged at 7/127** — drafts deliberately do not move the ratchet |
+| Drafted awaiting review | 2 → 7 lead SKUs (plus `NHD-000-RACK4`, which is rack-mount and so outside the lead-SKU count) |
+| No profile at all | 118 → 113 |
+
+All six are `status: "review-required"` with an evidence record naming the official page and a
+reviewer string that says plainly it is machine-transcribed and **not** human-verified. **The point
+is to remove the transcription work, not to claim the checking is done.** To promote one: read it
+against the same page, change status to `verified`, and put your own name in the evidence record.
+
+**Ambiguities found while transcribing, deliberately left for the reviewer** — these are the reason
+this cannot be a bulk script:
+
+- **`CAM-210-PTZ`** — the spec table says a 1/2.8in sensor; the Additional Features list on the
+  same page says 1/2.7in. Transcribed the table, flagged in `warnings`.
+- **`NHD-0401-MV`** — branded NetworkHD but takes **four local HDMI inputs**; it is not an AVoIP
+  endpoint and does not decode a NetworkHD stream. Designing it in as a decoder would be wrong, so
+  that is recorded in `checks`.
+- **`RX-70-4K`** — the maximum-resolution table does **not** list 3840x2160 @60Hz, and the 297MHz
+  pixel clock is consistent with that limit. Any 4K60 requirement needs checking against it.
+- **`NHD-600-TRX`** — 4K60 4:4:4 8bit is documented as "with light compression". It should not be
+  presented as uncompressed without qualification.
+- **`NHD-000-RACK4`** — device mounting brackets are **not** included with the chassis; they ship
+  with each endpoint. A quote for the chassis alone is incomplete.
+
+**`NHD-500-RX` is not in this batch and is blocked.** It is the second most used template SKU (9
+appearances), but `https://www.wyrestorm.com/product/nhd-500-rx/` returns 404 and `products.csv`
+carries no URL for it — its `evidence_source` reads "Existing Wingman product intelligence index",
+which is not an official source. **It needs a datasheet or a corrected URL before it can be drafted
+at all**, and that is a question for WyreStorm rather than something to infer.
+
 **Evidence:**
 ```
 [technical-data] Validated 10 governed profiles.
