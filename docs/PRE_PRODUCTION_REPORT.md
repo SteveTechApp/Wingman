@@ -8,6 +8,32 @@ This report is **evidence-based**: every gate below was executed against the rep
 time of writing, not read from a status document. Where a previous doc says "Pending", this
 report says what actually happened.
 
+## What changed on 2026-07-24
+
+Eight of the findings below were fixed. The sections keep their original evidence so the reasoning
+stays auditable; each carries a status marker.
+
+| Finding | Status | What was done |
+|---|---|---|
+| P0-1 Red working tree | ✅ Resolved | Template review refactor finished; four capabilities restored as real UI. |
+| P0-3 Migration sets diverged, one with no RLS | ✅ Resolved | `20260724_enable_rls_on_wingman_tables.sql` closes the gap; `check:migration-parity` prevents recurrence. |
+| P0-2 Technical data governance | ⚙️ Ratchet in place | Coverage floor locked at 9/127; regressions now fail. **The backlog itself is still open work.** |
+| P1-1 69-step serial `verify` | ✅ Resolved | Split into 5 stages, fail-fast, parallelised in CI. |
+| P1-2 CI gaps | ✅ Resolved | Browser smoke job added; coverage thresholds added and enforced. |
+| P2-1 No observability | ✅ Resolved | Client error reporting wired to the existing endpoint; structured auth/storage logs added. |
+| P2-2 Per-instance rate limiting | ✅ Documented | Constraint recorded in `OPERATIONS.md` §4 with the scale-out trigger. |
+| P2-3 No release versioning | ✅ Resolved | Version set to `0.9.0`; build label surfaced on the Support page. |
+| P2-4 Documentation drift | ✅ Resolved | One live status document; the other two now point at it. |
+
+**Still open and needing a human decision:** P0-2's data backlog (business threshold), P1-3
+(client storage model), P1-4 (bundle budgets), P1-5 (branch protection — a repo setting), and
+P2-5 (the Supabase integration).
+
+A genuine discovery while restructuring `verify`: it ran neither `lint` nor the full test suite.
+The pre-commit hook runs `verify`, so lint and test failures could be committed freely — which is
+exactly how `265028e` passed the hook and then failed CI on Test and Lint. Both are now in
+`verify:fast`.
+
 It supersedes the status tables in `docs/CURRENT_STATUS.md` and `docs/launch-readiness-report.md`,
 and updates `docs/production-readiness-audit.md` (dated 2026-04-27, now materially out of date).
 
@@ -69,9 +95,10 @@ Two columns: the audit run on 2026-07-23, and the re-run on 2026-07-24 after P0-
 | Server code | 14,689 lines across `server/**/*.mjs` |
 | Build/QA tools (`tools/`) | 170 files |
 | npm scripts | 155 (76 × `check:*`, 14 × `audit:*`) |
-| `verify` pipeline | 69 serial steps |
+| `verify` pipeline | 69 serial steps → **now 5 stages, 72 steps** |
+| Coverage (measured 07-24) | 68.9% lines · 67.1% statements · 67.8% functions · 61.0% branches |
 | Commits (total / last 30 days) | 891 / 444 |
-| Version | `0.1.0`, **no release tags** |
+| Version | `0.1.0` → **`0.9.0`**; still no release tags |
 | `TODO`/`FIXME`, `@ts-ignore`, `console.log` in `src` | **0 / 0 / 0** |
 
 That last row deserves note: the codebase has zero suppressed types, zero debug logging and zero
@@ -143,7 +170,7 @@ text where it matters most.
 
 ---
 
-### P0-2 · Technical data governance is the real launch blocker
+### P0-2 · Technical data governance is the real launch blocker — ⚙️ RATCHET IN PLACE 2026-07-24
 
 **Evidence:**
 ```
@@ -198,7 +225,7 @@ agreed residual.
 
 ---
 
-### P0-3 · Two divergent migration sets — one of them has no RLS at all
+### P0-3 · Two divergent migration sets — one of them has no RLS at all — ✅ RESOLVED 2026-07-24
 
 _Added 2026-07-24, found while investigating the red CI column on GitHub._
 
@@ -306,7 +333,7 @@ check on `main`.
 
 ---
 
-### P1-1 · `verify` is a 69-step serial chain — restructure it
+### P1-1 · `verify` is a 69-step serial chain — restructure it — ✅ RESOLVED 2026-07-24
 
 **Evidence:** `verify` is a single `&&` chain of 69 steps. `typecheck` is step **10**; `build` is
 step **11**. Today's run spent ~2 minutes on nine CSS/markup guards before discovering a type
@@ -342,7 +369,7 @@ error, then abandoned the remaining 58 gates.
 
 ---
 
-### P1-2 · CI does not run the checks that catch user-visible breakage
+### P1-2 · CI does not run the checks that catch user-visible breakage — ✅ RESOLVED 2026-07-24
 
 **Evidence — `.github/workflows/ci.yml` runs:** lint, typecheck, test,
 verify, `npm audit` (root + server). **It does not run:**
@@ -438,7 +465,7 @@ needed on the Ingest route; the competitor registry only on Compare.
 
 ---
 
-### P2-1 · No production observability
+### P2-1 · No production observability — ✅ RESOLVED 2026-07-24
 
 **Evidence:**
 - **Zero** telemetry wiring in `src` (the server exposes `/api/wingman/telemetry`; the client
@@ -466,7 +493,7 @@ codebase emits no logs at all.
 
 ---
 
-### P2-2 · In-memory rate limiting will not survive production topology
+### P2-2 · In-memory rate limiting will not survive production topology — ✅ DOCUMENTED 2026-07-24
 
 **Evidence:** `wingman-app-store.mjs:996-1020` — auth rate
 limiting (default 8 requests / 60s) is a process-local `Map`.
@@ -480,7 +507,7 @@ is ever scaled beyond one instance, move the limiter to Supabase or Redis first.
 
 ---
 
-### P2-3 · No release versioning
+### P2-3 · No release versioning — ✅ RESOLVED 2026-07-24
 
 **Evidence:** `package.json` is `0.1.0` across 891 commits. The only tags are `archive/*` and
 `rollback-baseline-*`. `render.yaml` sets `autoDeploy: false`.
@@ -496,7 +523,7 @@ known-good baseline commit/tag exists for rollback" cannot be satisfied.
 
 ---
 
-### P2-4 · Documentation states the project is less ready than it is
+### P2-4 · Documentation states the project is less ready than it is — ✅ RESOLVED 2026-07-24
 
 **Evidence:**
 - `docs/CURRENT_STATUS.md` (2026-07-05) — every row in the verification log reads "Pending".

@@ -101,6 +101,42 @@ Wingman supports a file store (development) and Supabase (production), selected 
   competitor look-up rate-limit rejections.
 - **Log hygiene:** never log secrets, full session tokens, or full customer briefs.
 
+### Structured server logs
+
+`server/wingman-app-store.mjs` emits one JSON line per notable event, so logs are greppable and
+parseable by any aggregator. Level is controlled by `WINGMAN_LOG_LEVEL` (`debug` / `info` /
+`warn` / `error`, default `info`).
+
+| Event | Level | Meaning |
+|---|---|---|
+| `storage.mode.resolved` | info | Emitted once at startup. **Check this first in any storage incident** - it records which mode the instance actually landed on. |
+| `auth.login.succeeded` | info | Successful sign-in. |
+| `auth.login.failed` | warn | Bad credentials. Does not record whether the account exists, to avoid an enumeration oracle. |
+| `auth.login.rate_limited` | warn | Sign-in rate limit tripped. A sustained run suggests credential stuffing. |
+| `auth.signup.rate_limited` | warn | Sign-up rate limit tripped. |
+| `storage.upsert.failed` | error | **A write was accepted by the UI and not persisted.** Always investigate. |
+| `storage.delete.failed` | error | A delete did not apply. |
+
+Email addresses are never logged. The `account` field is a short salted digest plus the domain, so
+repeated failures against one account can be correlated without writing the address to disk.
+
+### Client runtime errors
+
+The browser reports uncaught errors and rejected promises to `POST /api/wingman/telemetry`
+(`src/wingman2/lib/runtimeTelemetry.ts`). Read them back with `GET /api/wingman/telemetry`.
+
+Reporting is best-effort by design: it is capped per session, de-duplicates repeats within a
+10-second window so a render loop cannot flood the backend, and silently does nothing for a
+signed-out user (the endpoint requires a session). **Absence of telemetry is therefore not
+evidence of absence of errors** - an unauthenticated crash produces none.
+
+### Known constraint: rate limiting is per-instance
+
+Auth and look-up rate limits are held in an in-process `Map`. They reset on restart or redeploy,
+and do not coordinate across instances. This is acceptable for the current single-instance
+deployment. **Before scaling beyond one instance, move the limiter to Supabase or Redis** - with
+N instances the effective limit becomes N times the configured value.
+
 ---
 
 ## 5. Incident Response

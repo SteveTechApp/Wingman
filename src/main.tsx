@@ -18,11 +18,16 @@ import App from "./App";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { installCsrfFetch } from "./wingman2/api/csrf";
 import { installTemplateCardExpansionController } from "./wingman2/lib/templatesCardExpansion";
+import { installRuntimeTelemetry } from "./wingman2/lib/runtimeTelemetry";
 import "./wingman2/lib/productToolsVisualWeight";
 
 // Attach the X-CSRF-Token header to mutating API calls. No-op until the server
 // guard is enabled (WINGMAN_CSRF_ENFORCE=true).
 installCsrfFetch();
+
+// Report uncaught errors and rejected promises to /api/wingman/telemetry.
+// Best-effort and silent on failure; no-op for a signed-out user.
+installRuntimeTelemetry();
 
 const rootElement = document.getElementById("root");
 
