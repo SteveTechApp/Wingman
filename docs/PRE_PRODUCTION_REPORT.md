@@ -233,6 +233,147 @@ That is precisely the judgement a reviewer has to exercise and a script cannot.
 room template BOMs (36 of them), since those reach customers directly, then the NetworkHD/EX
 transport core, then the long tail.
 
+#### Batch 1 drafted — 2026-07-24
+
+Six profiles were transcribed from the official product pages, read in a real browser:
+`NHD-CTL-PRO-V2`, `NHD-600-TRX`, `NHD-0401-MV`, `RX-70-4K`, `CAM-210-PTZ`, `NHD-000-RACK4`.
+
+| | |
+|---|---|
+| Verified coverage | **unchanged at 7/127** — drafts deliberately do not move the ratchet |
+| Drafted awaiting review | 2 → 7 lead SKUs (plus `NHD-000-RACK4`, which is rack-mount and so outside the lead-SKU count) |
+| No profile at all | 118 → 113 |
+
+All six are `status: "review-required"` with an evidence record naming the official page and a
+reviewer string that says plainly it is machine-transcribed and **not** human-verified. **The point
+is to remove the transcription work, not to claim the checking is done.** To promote one: read it
+against the same page, change status to `verified`, and put your own name in the evidence record.
+
+**Ambiguities found while transcribing, deliberately left for the reviewer** — these are the reason
+this cannot be a bulk script:
+
+- **`CAM-210-PTZ`** — the spec table says a 1/2.8in sensor; the Additional Features list on the
+  same page says 1/2.7in. Transcribed the table, flagged in `warnings`.
+- **`NHD-0401-MV`** — branded NetworkHD but takes **four local HDMI inputs**; it is not an AVoIP
+  endpoint and does not decode a NetworkHD stream. Designing it in as a decoder would be wrong, so
+  that is recorded in `checks`.
+- **`RX-70-4K`** — the maximum-resolution table does **not** list 3840x2160 @60Hz, and the 297MHz
+  pixel clock is consistent with that limit. Any 4K60 requirement needs checking against it.
+- **`NHD-600-TRX`** — 4K60 4:4:4 8bit is documented as "with light compression". It should not be
+  presented as uncompressed without qualification.
+- **`NHD-000-RACK4`** — device mounting brackets are **not** included with the chassis; they ship
+  with each endpoint. A quote for the chassis alone is incomplete.
+
+**`NHD-500-RX` was blocked in batch 1 and is now unblocked** — see batch 2.
+
+#### Batch 2 drafted — 2026-07-24
+
+Five more: `NHD-500-RX`, `SYN-TOUCH10-V2`, `CAM-420-PTZ`, `AMP-260-DNT`, `NHD-128-NDI-TRX`.
+
+| | |
+|---|---|
+| Verified coverage | **still 7/127** — drafts do not move the ratchet |
+| Drafted awaiting review | 7 → 12 |
+| No profile at all | 113 → 108 |
+
+**`NHD-500-RX` resolved.** It is documented on a *combined* encoder/decoder page,
+`/product/nhd-500-tx-rx-v2/`, reached via the NHD 500 series category listing — which is why the
+per-SKU URL 404s. The spec table separates TX and RX rows, so the profile takes the RX column only.
+
+> **Open revision question.** The official page is titled **"NHD-500-TX/RX v2"**. The instruction
+> that unblocked this described the product as **"NHD-500-RX v3"**. `products.csv` and
+> `lifecycle.csv` both carry a plain `NHD-500-RX` with no revision suffix, marked active. Either
+> the site is behind, or a v3 exists that isn't published. **Confirm which revision the templates
+> should quote before promoting this profile** — nine templates depend on it.
+
+**Quote-safety facts surfaced in this batch** — each is the kind of thing that changes a proposal:
+
+- **`CAM-420-PTZ`** — the 4x MEMS mic array is explicitly documented as **unusable as a video
+  conference audio source**; it exists for voice detection and tracking only. Quoting this camera
+  as the room's microphone would be wrong. Its pan range is also only ±75°, far less than a
+  conventional PTZ.
+- **`NHD-128-NDI-TRX`** — **has no HDMI ports at all.** Both input and output are network streams,
+  so it cannot take a local source or drive a display. Compatibility is documented for the
+  NHD-100/120/150 series and **not** the 500 or 600 series.
+- **`AMP-260-DNT`** — output collapses from 120W on the PSU to 25.5W on PoE+. Speaker outputs are
+  low impedance, not 70V/100V line. The page also calls it a "2 or 4 Channel" amplifier while the
+  spec table lists 2 outputs, and the power row reads "24V DC 5V" where everything else says 5A.
+- **`NHD-500-RX`** — JPEG 2000 at up to 850Mbps is visually lossless, **not** mathematically
+  lossless, and the 5120-wide modes are 4:2:0 CVT rather than 4:4:4.
+- **`SYN-TOUCH10-V2`** — replaces the discontinued do-not-spec `SYN-TOUCH10`. Needs PoE+; 802.3af
+  is not sufficient.
+
+#### Batch 3 drafted — 2026-07-24
+
+Five more: `APO-VX20-UC-V2`, `RX-700`, `RX-500`, `SW-130-TX-UK`, `MX-0808-SCL`.
+
+| | |
+|---|---|
+| Verified coverage | **still 7/127** |
+| Drafted awaiting review | 12 → 16 |
+| No profile at all | 108 → 104 |
+
+> ### 🚨 Design gap found in a customer-facing template
+>
+> The **"Local Pub — 8x8 Matrix TV Distribution"** template contains exactly three SKUs:
+> `MX-0808-SCL`, `RX-70-4K` and `SYN-KEY10`.
+>
+> `MX-0808-SCL` has **HDMI outputs only** — uncompressed 18Gbps, no HDBaseT — and its 4K60 modes
+> are rated to just **5m/16ft of HDMI cable**. `RX-70-4K` is an **HDBaseT receiver**. There is no
+> HDBaseT transmitter anywhere in that template.
+>
+> **As templated, the receiver has nothing to connect to, and the remote TVs cannot be reached at
+> 4K60 over 5m of HDMI.** A proposal generated from this template would not build.
+>
+> Fixing it is a design decision — add HDBaseT transmitters on the matrix outputs, or move to a
+> matrix with native HDBaseT outputs — so it is **recorded, not silently changed**.
+
+> **Where the fault is — and is not.** The Compare engine already models this correctly.
+> `findKnownWyrestormMatrixProfile` resolves `MX-0808-SCL` to `outputTypes: ["HDMI"]` /
+> `transport: ["HDMI","USB-C"]` and `MXV-0808-H2A-MK2` to `outputTypes: ["HDBaseT"]` — the
+> HDMI-vs-HDBaseT distinction that months of compare work built is intact and verifiable. The
+> defect is **not** in the engine. It is that `roomTemplates.ts` is hand-authored and **nothing
+> cross-checked its BOMs against that model.** A new guard, `check:template-signal-path`, now does.
+>
+> **The guard found a second instance on its first run:** the *"Residential Media Room — Local
+> Matrix"* template pairs `MX-0404-HDMI` (an 18Gbps HDMI matrix) and `EXP-SW-0401-8K` (an HDMI
+> switcher) with the HDBaseT receiver `RX-70-4K` — again no HDBaseT source.
+>
+> **Both templates were then fixed (2026-07-24), not just flagged:**
+> - *Local Pub* — `MX-0808-SCL` + stray `RX-70-4K` → **`MX-0808-KIT-V2`**, a native HDBaseT matrix
+>   kit with 8 HDBaseT zone outputs that **ships with 8× MX-KIT-RX receivers** (verified on the
+>   product page), powered from the matrix over 1-way PoH. One SKU, correct product class for
+>   venue TV distribution. The template note records the seamless-switching trade-off for reps who
+>   need it.
+> - *Residential* — the orphaned `RX-70-4K` → **`EX-70-H2`**, a complete HDBaseT extender set
+>   (TX + RX). The transmitter takes one HDMI output from the local matrix; the receiver drives the
+>   one optional remote display. The local HDMI matrix stays, which is correct for a media room.
+>
+> The direct receiver-only substitution a naive fix would reach for was a dead end: the matching
+> transmitter `TX-70-4K` is **discontinued**, which is exactly why the fix uses WyreStorm's
+> purpose-built extender set and matrix kit instead. `KNOWN_INCOMPLETE` is now empty; the guard
+> verifies all 25 templates clean and still blocks any *new* template with the same fault.
+> Both fixes were confirmed rendering correctly in the app.
+>
+> **Also surfaced (data, not engine):** `RX-700` is misfiled in `products.csv` as
+> `family="Cable"` and `RX-500` as `family="Camera / Capture"`, though both are HDBaseT receivers.
+> Their `role` is correct (`primary-hardware`), so they are not wrongly excluded from logic, but
+> the family labels are wrong and should be corrected in a data pass.
+
+**Other findings in this batch:**
+
+- **`RX-500` vs `RX-700`** — templates offer these as a distance choice ("short run" / "long run").
+  They also differ on **chroma**: `RX-500` is 4:2:0 at 4K60, `RX-700` is 4:4:4 (via DSC). That is a
+  picture-quality difference, not just a distance one, and the template copy doesn't say so.
+- **`APO-VX20-UC-V2`** — the HDMI **input** is capped at 4K@30Hz and **HDCP 1.4 only**; a protected
+  4K source needing HDCP 2.2 will not pass through. The two HDMI outputs are also not equivalent
+  (out 1 is 4K60/HDCP 2.3, out 2 is 4K30/HDCP 2.2). Easy to mis-sell as "a 4K60 bar". Camera is
+  ePTZ, not mechanical. The existing Zoom-certified / **not** Teams-certified caveat applies.
+- **`SW-130-TX-UK`** — maxes at **4K@30Hz**, not 4K60, and **ARC is not supported**. Its RS-232 and
+  12V DC share one 4-pin Phoenix connector.
+- **`MX-0808-SCL`** — only **7 inputs are HDMI**; the eighth is USB-C. Published max power draw and
+  weight are **"TBD"** on the official page.
+
 **Evidence:**
 ```
 [technical-data] Validated 10 governed profiles.
