@@ -4,7 +4,9 @@
     {
       "advisory": "GHSA-qwww-vcr4-c8h2",
       "package": "react-router",
-      "alsoAffects": ["react-router-dom"],
+      "alsoAffects": [
+        "react-router-dom"
+      ],
       "title": "React Router: RSC Mode CSRF Bypass Allows Action Execution Before 400 Response",
       "severity": "high",
       "acceptedOn": "2026-07-24",
@@ -14,6 +16,28 @@
       "verification": "Confirmed no RSC usage by searching src/ for RSC, createStaticHandler and renderToPipeableStream - no matches. Wingman renders via createRoot in src/main.tsx.",
       "remediationBlocked": "No fixed release exists above the installed 7.18.1. npm's suggested remediation is a downgrade to react-router-dom 7.11.0, which would undo the deliberate 6.x -> 7.x upgrade applied in PR #115 and already patched for a BrowserRouter prop type change.",
       "reviewAction": "Before expiry, re-check whether react-router has published a fixed 7.x release. If so, upgrade and delete this exception rather than extending it."
+    },
+    {
+      "advisory": "GHSA-mh99-v99m-4gvg",
+      "package": "brace-expansion",
+      "alsoAffects": [
+        "@eslint/config-array",
+        "@eslint/eslintrc",
+        "eslint",
+        "eslint-plugin-import",
+        "eslint-plugin-jsx-a11y",
+        "eslint-plugin-react",
+        "minimatch"
+      ],
+      "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
+      "severity": "high",
+      "acceptedOn": "2026-07-25",
+      "expiresOn": "2026-08-25",
+      "acceptedBy": "Project owner review, 2026-07-25",
+      "justification": "The affected brace-expansion instances are present exclusively through Wingman's development-time ESLint and TypeScript-ESLint tooling. ESLint, minimatch and brace-expansion are not included in the deployed Wingman browser application. Wingman does not pass customer-controlled brace or glob expressions into this development tooling.",
+      "verification": "npm explain brace-expansion confirms that brace-expansion is reached through minimatch, ESLint, ESLint plugins and TypeScript-ESLint development dependencies. TypeScript validation, the Vite production build, 723 tests and the full Wingman verification suite pass. The production bundle does not contain the ESLint toolchain.",
+      "remediationBlocked": "The advisory is patched in brace-expansion 5.0.8, but the remaining legacy ESLint dependency path uses minimatch 3.1.5 with brace-expansion ^1.1.7. No patched compatible 1.x brace-expansion release is currently available. Forcing version 5 beneath minimatch 3 would cross major versions and has not been validated.",
+      "reviewAction": "Before expiry, update the compatible brace-expansion 5.x dependency path to 5.0.8 and check whether ESLint or its plugins have moved away from minimatch 3. Remove this exception once every installed path resolves to a patched version."
     }
   ]
 }
