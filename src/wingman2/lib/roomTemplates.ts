@@ -1938,7 +1938,7 @@ const libraryRoomTemplates: RoomTemplate[] = [
         type: "Required",
         status: "included",
         evidence: "Native Teams/Zoom rooms need a certified camera, audio, and switching core with a simple join-and-present workflow.",
-        notes: "Confirm platform (Teams/Zoom), compute device ownership, display count, and mounting height.",
+        notes: "APO-VX20-UC-V2 is Zoom-certified and is NOT Teams-certified: where the room runs Microsoft Teams, test the room before install and state the caveat in the proposal. Also confirm compute ownership, display count, and mounting height.",
       },
       {
         id: "teams-med-mic",
@@ -1962,12 +1962,13 @@ const libraryRoomTemplates: RoomTemplate[] = [
       ]),
     ],
     designNotes: [
+      { label: "Teams certification", description: "APO-VX20-UC-V2 is Zoom-certified but not Teams-certified. For a Teams room, the bar must be tested before install and the certification limitation stated in the proposal - do not present it as a certified Teams core." },
       { label: "Display count", description: "Confirm single or dual display; dual-display Teams/Zoom rooms need the platform-supported dual-monitor layout." },
       { label: "Compute", description: "Confirm whether the room uses a certified MTR/Zoom appliance, a room PC, or a bring-your-own-meeting workflow." },
       { label: "Network", description: "Teams/Zoom device policy, firewall rules, and QoS should be agreed with IT before deployment." },
     ],
     assumptions: ["Native Teams/Zoom room", "Front-of-room bar", "One conferencing host path", "Compute and licences by others"],
-    validationItems: ["Platform (Teams vs Zoom)", "Display count", "Compute ownership", "Microphone coverage", "Network/QoS policy"],
+    validationItems: ["Platform (Teams vs Zoom - Teams needs testing + a proposal caveat)", "Display count", "Compute ownership", "Microphone coverage", "Network/QoS policy"],
     upgradePaths: ["Add a second CAM-420-PTZ and CAM-0402-BRG for multi-camera coverage", "Move to NetworkHD 500 if presentation content routes beyond the room", "Add a scheduling/room-booking panel for managed estates"],
   },
   {
@@ -2013,7 +2014,7 @@ const libraryRoomTemplates: RoomTemplate[] = [
         type: "Optional",
         status: "optional",
         evidence: "A host position or feature wall often needs several sources visible together.",
-        notes: "Confirm whether the multiview is a host preview or a public feature-wall canvas.",
+        notes: "NHD-0401-MV has 4 local HDMI inputs and does not decode NetworkHD directly - feed it from 4x NHD-600-TRX decoder outputs (count these in the endpoint total). Confirm whether the multiview is a host preview or a public feature-wall canvas.",
       },
       {
         id: "exp-centre-trxf",
@@ -2513,7 +2514,7 @@ const libraryRoomTemplates: RoomTemplate[] = [
         type: "Optional",
         status: "optional",
         evidence: "NOC walls often show several telemetry feeds composited into a single overview tile.",
-        notes: "Confirm how many composite tiles the wall layout needs.",
+        notes: "NHD-0401-MV has 4 local HDMI inputs and does not decode NetworkHD directly - feed each unit from 4x NHD-600-TRX decoder outputs (count these in the endpoint total). Confirm how many composite tiles the wall layout needs.",
       },
       ...completeDesignPlaceholders("noc", [
         byOthersRow(
@@ -2595,7 +2596,7 @@ const libraryRoomTemplates: RoomTemplate[] = [
         type: "Optional",
         status: "optional",
         evidence: "A composite of several CCTV feeds is often needed on the overview wall.",
-        notes: "Confirm how many camera windows the composite overview requires.",
+        notes: "NHD-0401-MV has 4 local HDMI inputs and does not decode NetworkHD directly - feed it from 4x NHD-500-RX decoder outputs (count these in the endpoint total). Confirm how many camera windows the composite overview requires.",
       },
       ...completeDesignPlaceholders("traffic", [
         byOthersRow(
@@ -2640,26 +2641,26 @@ const libraryRoomTemplates: RoomTemplate[] = [
         notes: "Confirm exact input/output count, scaling, webcast output, and integration with the voting/mic system.",
       },
       {
-        id: "chamber-sw130",
-        sku: "SW-130-TX-UK",
-        description: "In-wall HDMI and USB-C HDBaseT transmitter",
-        role: "Clerk / presenter input point",
+        id: "chamber-sw120",
+        sku: "SW-120-TX3",
+        description: "HDBaseT 3.0 transmitter / input plate",
+        role: "Clerk / presenter input into the matrix",
         qty: 2,
         type: "Validate",
         status: "validate",
-        evidence: "Clerk, officer, and presenter positions need fixed, robust input points.",
-        notes: "Confirm wall/furniture format, USB requirement, and receiver/matrix termination.",
+        evidence: "Clerk, officer, and presenter positions need fixed HDBaseT 3.0 inputs that feed the MX-1007-HYB matrix. SW-120-TX3 is the input generation designed to pair with the MX-1007-HYB.",
+        notes: "Confirm wall/furniture format and USB requirement. SW-120-TX3 (HDBaseT 3.0) is the correct input generation for the MX-1007-HYB - keep the whole chamber path on HDBaseT 3.0.",
       },
       {
-        id: "chamber-rx700",
-        sku: "RX-700",
-        description: "HDBaseT receiver",
-        role: "Remote member / public display receiver",
+        id: "chamber-rx3100",
+        sku: "RX3-100",
+        description: "HDBaseT 3.0 receiver",
+        role: "Remote member / public display receiver on the matrix outputs",
         qty: 3,
         type: "Validate",
         status: "validate",
-        evidence: "Member and public displays are often remote from the rack; RX-700 is the correct receiver generation for the SW-130-TX-UK transmitters above.",
-        notes: "Confirm cable distances and endpoint locations. Do not substitute an HDBaseT 3.0 RX3-100 - it is a different generation and not a compatible pairing with SW-130-TX-UK.",
+        evidence: "Member and public displays are remote from the rack; RX3-100 is the receiver designed to complete the MX-1007-HYB HDBaseT 3.0 outputs at full 4:4:4 up to 100m. RX-700 is a different HDBaseT generation and does not pair with the MX-1007-HYB matrix outputs.",
+        notes: "Use RX3-100 with the MX-1007-HYB outputs and SW-120-TX3 inputs for a coherent HDBaseT 3.0 path. Confirm cable distances (up to 100m at 4K) and endpoint locations.",
       },
       {
         id: "chamber-cam",
@@ -3064,7 +3065,7 @@ const libraryRoomTemplates: RoomTemplate[] = [
     customerNarrative:
       "Presenters and producers run multi-camera podcast and video recordings with clean camera feeds, program-return and confidence monitors, and content routed reliably around the studio.",
     architecture:
-      "NDI cameras and a camera bridge feed an NDI-to-NetworkHD bridge onto the NetworkHD 500 backbone, alongside a production/switcher source. Decoders feed program-return, confidence, and guest displays, with a multiview for the producer.",
+      "NDI cameras are aggregated and mixed by an NDI camera bridge whose clean HDMI program output is encoded onto the NetworkHD 500 backbone, alongside a graphics/switcher source (NDI cannot cross onto the 500 fabric directly). Decoders feed program-return, confidence, and guest displays, with an optional local multiview for the producer.",
     bom: [
       {
         id: "studio-ctl",
@@ -3078,26 +3079,26 @@ const libraryRoomTemplates: RoomTemplate[] = [
         notes: "Confirm who operates routing during a production.",
       },
       {
-        id: "studio-ndibridge",
-        sku: "NHD-128-NDI-TRX",
-        description: "NDI to NetworkHD bridge / transceiver",
-        role: "Bring NDI camera/production feeds onto the NetworkHD backbone",
-        qty: 2,
+        id: "studio-cambridge",
+        sku: "CAM-0402-NDI-BRG",
+        description: "NDI camera bridge / mixer",
+        role: "NDI multi-camera aggregation and mixing; HDMI program output feeds a 500 encoder",
+        qty: 1,
         type: "Required",
         status: "included",
-        evidence: "NDI camera and production feeds must be bridged onto NetworkHD; NDI cannot feed an NHD-500-TX encoder directly.",
-        notes: "Confirm NDI source count and which feeds are bridged onto the AV network.",
+        evidence: "The studio's NDI cameras are aggregated and mixed here; its HDMI program output is the clean feed that reaches the NetworkHD 500 backbone. NDI cannot feed an NHD-500-TX encoder directly, so this bridge (or the production switcher) is the required HDMI handoff.",
+        notes: "Confirm camera count, USB host, and production-platform compatibility. For native NDI routing across the building instead, use a separate NetworkHD 100-series NDI path (NHD-128-NDI-TRX) - it is not compatible with the 500/600 series.",
       },
       {
         id: "studio-500tx",
         sku: "NHD-500-TX",
         description: "NetworkHD 500 encoder",
-        role: "Production / switcher / graphics source endpoints",
+        role: "Program / switcher / graphics source encoders (HDMI)",
         qty: 2,
         type: "Required",
         status: "included",
-        evidence: "Assumes a switcher/production program feed and a graphics/presentation source.",
-        notes: "Adjust to confirmed HDMI production source count.",
+        evidence: "Encodes the camera-bridge HDMI program output and a graphics/presentation source onto the 500 backbone.",
+        notes: "Adjust to confirmed HDMI source count. Each encoder takes an HDMI feed - from the camera bridge, the production switcher, or a graphics PC - not a raw NDI stream.",
       },
       {
         id: "studio-500rx",
@@ -3110,17 +3111,6 @@ const libraryRoomTemplates: RoomTemplate[] = [
         evidence: "Assumes program-return, confidence, and guest/talent displays.",
         notes: "Adjust to confirmed studio display count.",
       },
-      {
-        id: "studio-cambridge",
-        sku: "CAM-0402-NDI-BRG",
-        description: "NDI camera bridge / mixer",
-        role: "Multi-camera NDI aggregation",
-        qty: 1,
-        type: "Optional",
-        status: "optional",
-        evidence: "Multi-camera studios benefit from an NDI camera bridge/mixer feeding the production and AV network.",
-        notes: "Confirm camera count, USB host, and production-platform compatibility.",
-      },
       ...completeDesignPlaceholders("studio", [
         byOthersRow(
           "studio",
@@ -3132,12 +3122,12 @@ const libraryRoomTemplates: RoomTemplate[] = [
       ]),
     ],
     designNotes: [
-      { label: "NDI workflow", description: "NDI camera and production feeds must be bridged onto NetworkHD via NHD-128-NDI-TRX rather than fed to an HDMI encoder." },
+      { label: "NDI workflow", description: "NDI cannot feed a 500 encoder directly; the NDI camera bridge (or production switcher) provides the HDMI handoff that the 500 encoders take. Native NDI-on-NetworkHD is a separate 100-series path (NHD-128-NDI-TRX), not compatible with the 500/600 series." },
       { label: "Audio", description: "Studio audio (mics, mixer, monitoring) is a specialist production chain, separate from AV routing." },
       { label: "Latency", description: "Confirm acceptable latency for talent return feeds; move critical return paths to NetworkHD 600 if needed." },
     ],
-    assumptions: ["NDI multi-camera workflow", "Production and return displays", "Producer multiview optional", "Production/audio chain by others"],
-    validationItems: ["Camera/NDI source count", "Production platform", "Return-feed latency", "Studio display count", "Audio production chain"],
+    assumptions: ["NDI multi-camera workflow aggregated to HDMI", "Production and return displays", "Producer multiview optional", "Production/audio chain by others"],
+    validationItems: ["Camera/NDI source count", "NDI-to-HDMI handoff (camera bridge or switcher)", "Production platform", "Return-feed latency", "Studio display count"],
     upgradePaths: ["Add NHD-0401-MV for a producer multiview", "Move talent-return feeds to NetworkHD 600 for lowest latency", "Add more NDI bridges as camera positions grow"],
   },
   {
@@ -3247,7 +3237,7 @@ const libraryRoomTemplates: RoomTemplate[] = [
         type: "Optional",
         status: "optional",
         evidence: "Production teams need program, camera, and lyric feeds visible together.",
-        notes: "Confirm source windows and the production-monitor display.",
+        notes: "NHD-0401-MV has 4 local HDMI inputs and does not decode NetworkHD directly - feed it from 4x NHD-600-TRX decoder outputs (count these in the endpoint total). Confirm source windows and the production-monitor display.",
       },
       {
         id: "worship-cam",
