@@ -3634,7 +3634,16 @@
           "reviewer": "Wingman assisted source review (checked against the official product page; NOT human-verified)",
           "note": "Technical Specifications table plus In-the-Box list (8x MX-KIT-RX receivers)."
         }
-      ]
+      ],
+      "routedInputs": 8,
+      "routedOutputs": 8,
+      "routedInputCount": 8,
+      "routedOutputCount": 8,
+      "matrixSizeEvidence": "Title evidence: 8x8 HDBaseT matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote",
+      "mirroredOutputs": 4,
+      "mirroredOutputCount": 4
     },
     {
       "sku": "NHD-600-TRXF",
@@ -4197,7 +4206,14 @@
           "reviewer": "Wingman assisted source review (checked against the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power, Dimensions."
         }
-      ]
+      ],
+      "routedInputs": 10,
+      "routedOutputs": 7,
+      "routedInputCount": 10,
+      "routedOutputCount": 7,
+      "matrixSizeEvidence": "SKU/title evidence: MX-1007-HYB / 10x7 Seamless Matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     }
   ]
 }
