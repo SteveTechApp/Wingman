@@ -8,10 +8,6 @@ const products = JSON.parse(fs.readFileSync(sourcePath, "utf8"));
 function clean(value) {
   return String(value ?? "").replace(/\s+/g, " ").trim();
 }
-function lower(value) {
-  return clean(value).toLowerCase();
-}
-
 function flattenSpecsJson(value, out = []) {
   if (value === null || value === undefined) return out;
   if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {

@@ -2,9 +2,6 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
-const manifestPath = path.join(root, "src", "wingman2", "app", "route-manifest.json");
-const appShellPath = path.join(root, "src", "wingman2", "layout", "AppShell.tsx");
-const cssPath = path.join(root, "src", "wingman2", "styles", "wingman-style-stack.css");
 const pagesDirectory = path.join(root, "src", "wingman2", "pages");
 const reportPath = path.join(root, "docs", "app-page-style-consistency-audit.md");
 const shouldWriteReport =

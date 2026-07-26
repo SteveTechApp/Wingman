@@ -529,7 +529,6 @@ function validateCompetitors() {
     if (!isAvoip(record)) continue;
     const vendor = clean(record.manufacturer ?? record.brand);
     const sku = normaliseSku(record.model ?? record.sku);
-    const technology = technologyFor(record, vendor, sku);
     checked += 1;
 
     const specs = record.specs && typeof record.specs === "object" ? record.specs : {};

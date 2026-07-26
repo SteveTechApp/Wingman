@@ -120,7 +120,7 @@ function regroupPortsByCategory(ports) {
 
 // --- backfill profile inference (ported from enrich-wyrestorm-product-intelligence.mjs) ---
 
-function inferVideoProfile(text, lines) {
+function inferVideoProfile(text) {
   return {
     present: includesAny(text, ["video", "hdmi", "hdbaset", "displayport", "4k", "8k", "1080p", "ndi", "sdi"]),
     maxResolutions: unique(extractMatches(text, /\b(?:8K|4K|3840x2160p?|4096x2160p?|1920x1080p?|1080p|720p)[^.;\n|]{0,45}(?:Hz|hz|4:4:4|4:2:0|HDR|bit)?/g, 20)),
@@ -324,7 +324,7 @@ async function main() {
     const needsBackfill = !profile.video || !profile.audio || !profile.usb || !profile.network || !profile.control;
     if (needsBackfill) {
       const text = textBlobForBackfill(product);
-      if (!profile.video) profile.video = inferVideoProfile(text, []);
+      if (!profile.video) profile.video = inferVideoProfile(text);
       if (!profile.audio) profile.audio = inferAudioProfile(text);
       if (!profile.usb) profile.usb = inferUsbProfile(text);
       if (!profile.network) profile.network = inferNetworkProfile(text);
