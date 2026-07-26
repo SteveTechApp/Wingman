@@ -1,7 +1,6 @@
 import {
   ArrowRight,
   CheckCircle2,
-  LayoutDashboard,
   MoreVertical,
   Target,
   Zap,
@@ -218,10 +217,6 @@ export function DashboardPage() {
       aria-label="Wingman dashboard"
     >
       <section className="wm-polish-hero wm-polish-aqua" aria-labelledby="wingman-dashboard-title">
-        <span className="wm-polish-hero-icon" aria-hidden="true">
-          <LayoutDashboard />
-        </span>
-
         <div className="wm-polish-hero-copy">
           <p className="wm-polish-eyebrow">WyreStorm sales intelligence</p>
           <h1 id="wingman-dashboard-title">
@@ -234,7 +229,7 @@ export function DashboardPage() {
 
       <div
         className="wm-reference-dashboard-layout min-h-0"
-        style={{ minHeight: "calc(100dvh - 190px)" }}
+        style={{ minHeight: "calc(100dvh - 145px)" }}
       >
         <div className="wm-reference-dashboard-main h-full grid-rows-2">
           <section className="wm-sh-card-grid wm-polish-grid h-full" aria-label="Primary Wingman actions">
