@@ -16,6 +16,27 @@ import {
 import { selectWingmanProducts } from "../lib/productSelectorEngine";
 import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { resolveProductLifecycle } from "../lib/wyrestormProductLifecycle";
+import {
+  getWingmanJson,
+  getWingmanSession,
+  postWingmanJson,
+  type WingmanWorkspaceSession,
+} from "../api/wingmanApi";
+
+type ProductIntelligenceRecord = Record<string, unknown> & {
+  sku?: string;
+  vendorType?: string;
+  brand?: string;
+  name?: string;
+  family?: string;
+  summary?: string;
+};
+
+type ProductIntelligenceResponse = {
+  ok: boolean;
+  records?: ProductIntelligenceRecord[];
+  record?: ProductIntelligenceRecord;
+};
 
 // The catalog engine infers lifecycle from text/manual overrides only. Overlay the
 // authoritative 2026 business lists so a SKU that is discontinued, do-not-spec or
@@ -140,6 +161,11 @@ export function CatalogBrowserPage() {
   const [loaded, setLoaded] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [state, setState] = useState<CatalogFilterState>(() => createDefaultCatalogFilterState());
+  const [session, setSession] = useState<WingmanWorkspaceSession | null>(null);
+  const [editingProduct, setEditingProduct] = useState<CatalogProduct | null>(null);
+  const [recordJson, setRecordJson] = useState("");
+  const [editorStatus, setEditorStatus] = useState("");
+  const [editorBusy, setEditorBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -160,11 +186,34 @@ export function CatalogBrowserPage() {
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    getWingmanSession()
+      .then((response) => {
+        if (!cancelled) setSession(response.session ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setSession(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const isAdmin = Boolean(
+    session?.permissions?.canManageWorkspace ||
+    session?.workspaceRole?.toLowerCase() === "admin" ||
+    session?.user?.role?.toLowerCase() === "admin",
+  );
+
   const facets = useMemo(() => buildFacetIndex(catalog), [catalog]);
   // Only recomputed when the toggles that actually affect it change - typing in the
   // search box (part of `state`) no longer reruns the full-catalogue selector pass.
   const allowedSkus = useMemo(
     () => computeAllowedSkus(catalog, state),
+    // The selector only consumes these two fields; depending on all of `state`
+    // would rerun a full-catalogue eligibility pass on every search keystroke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [catalog, state.includeAccessories, state.excludeEolSoon],
   );
   const results = useMemo(
@@ -173,6 +222,88 @@ export function CatalogBrowserPage() {
   );
 
   const patch = (next: Partial<CatalogFilterState>) => setState((current) => ({ ...current, ...next }));
+
+  async function openRecordEditor(product: CatalogProduct) {
+    setEditingProduct(product);
+    setEditorBusy(true);
+    setEditorStatus("Loading the current WyreStorm JSON record...");
+    setRecordJson("");
+
+    try {
+      const response = await getWingmanJson<ProductIntelligenceResponse>(
+        `/api/product-intelligence?vendorType=wyrestorm&sku=${encodeURIComponent(product.sku)}&limit=1`,
+      );
+      const record = response.records?.[0] ?? {
+        vendorType: "wyrestorm",
+        brand: "WyreStorm",
+        sku: product.sku,
+        name: product.name,
+        family: product.family,
+        category: product.category,
+        summary: product.summary,
+        features: [],
+        status: "approved",
+        sourceType: "manual",
+      };
+      setRecordJson(JSON.stringify(record, null, 2));
+      setEditorStatus(response.records?.[0] ? "Record ready to edit." : "No runtime record existed; a new record has been prepared.");
+    } catch (error) {
+      setEditorStatus(error instanceof Error ? error.message : "Could not load the product record.");
+    } finally {
+      setEditorBusy(false);
+    }
+  }
+
+  async function saveRecord() {
+    if (!editingProduct) return;
+
+    let candidate: ProductIntelligenceRecord;
+    try {
+      candidate = JSON.parse(recordJson) as ProductIntelligenceRecord;
+    } catch {
+      setEditorStatus("Invalid JSON. Correct the syntax before saving.");
+      return;
+    }
+
+    if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
+      setEditorStatus("The product record must be a JSON object.");
+      return;
+    }
+    if (String(candidate.sku ?? "").trim().toUpperCase() !== editingProduct.sku.trim().toUpperCase()) {
+      setEditorStatus("The SKU is the record identity and cannot be changed in this editor.");
+      return;
+    }
+
+    candidate.vendorType = "wyrestorm";
+    candidate.brand = "WyreStorm";
+    setEditorBusy(true);
+    setEditorStatus("Validating and saving...");
+
+    try {
+      const response = await postWingmanJson<ProductIntelligenceResponse>("/api/product-intelligence/upsert", candidate);
+      const saved = response.record;
+      if (!response.ok || !saved) throw new Error("The server did not return the saved record.");
+
+      setRecordJson(JSON.stringify(saved, null, 2));
+      setCatalog((current) =>
+        current.map((product) =>
+          normaliseSkuKey(product.sku) === normaliseSkuKey(editingProduct.sku)
+            ? {
+                ...product,
+                name: String(saved.name ?? product.name),
+                family: String(saved.family ?? product.family),
+                summary: String(saved.summary ?? product.summary),
+              }
+            : product,
+        ),
+      );
+      setEditorStatus(`Saved ${editingProduct.sku} to the WyreStorm product JSON.`);
+    } catch (error) {
+      setEditorStatus(error instanceof Error ? error.message : "Could not save the product record.");
+    } finally {
+      setEditorBusy(false);
+    }
+  }
 
   return (
     <main className="wm-ui-page wingman-page-host wm-catalog-page" data-wingman-page="catalog-browser">
@@ -231,32 +362,42 @@ export function CatalogBrowserPage() {
           const reasons = getCatalogMatchReasons(product, state);
           const eol = product.lifecycle.excludeFromNewRecommendations;
           return (
-            <Link
-              key={product.id}
-              to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(product.sku)}`}
-              className="wm-catalog-product-card"
-            >
-              <span className="wm-catalog-product-meta">
-                {product.family} · {product.series}
-              </span>
-              <strong className="wm-catalog-product-sku">{product.sku}</strong>
-              <span className="wm-ui-copy wm-catalog-product-name">{product.name}</span>
-              {product.summary ? <p className="wm-ui-copy wm-catalog-product-summary">{product.summary}</p> : null}
-              {badges.length ? (
-                <div className="wm-catalog-badge-row">
-                  {badges.map((badge) => (
-                    <span
-                      key={badge}
-                      className={`wm-catalog-badge ${badge === "Legacy / suppress" ? "is-warning" : ""}`}
-                    >
-                      {badge}
-                    </span>
-                  ))}
-                </div>
+            <article key={product.id} className="wm-catalog-product-card">
+              <Link
+                to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(product.sku)}`}
+                className="wm-catalog-product-link"
+              >
+                <span className="wm-catalog-product-meta">
+                  {product.family} · {product.series}
+                </span>
+                <strong className="wm-catalog-product-sku">{product.sku}</strong>
+                <span className="wm-ui-copy wm-catalog-product-name">{product.name}</span>
+                {product.summary ? <p className="wm-ui-copy wm-catalog-product-summary">{product.summary}</p> : null}
+                {badges.length ? (
+                  <div className="wm-catalog-badge-row">
+                    {badges.map((badge) => (
+                      <span
+                        key={badge}
+                        className={`wm-catalog-badge ${badge === "Legacy / suppress" ? "is-warning" : ""}`}
+                      >
+                        {badge}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+                <p className="wm-ui-copy wm-catalog-reasons">{reasons.join("  ·  ")}</p>
+                {eol ? <p className="wm-ui-copy wm-catalog-suppressed">Suppressed from new recommendations</p> : null}
+              </Link>
+              {isAdmin ? (
+                <button
+                  className="wm-ui-button wm-ui-button-secondary wm-catalog-edit-record"
+                  type="button"
+                  onClick={() => void openRecordEditor(product)}
+                >
+                  Edit record
+                </button>
               ) : null}
-              <p className="wm-ui-copy wm-catalog-reasons">{reasons.join("  ·  ")}</p>
-              {eol ? <p className="wm-ui-copy wm-catalog-suppressed">Suppressed from new recommendations</p> : null}
-            </Link>
+            </article>
           );
         })}
       </div>
@@ -268,6 +409,54 @@ export function CatalogBrowserPage() {
       ) : loaded && !results.length ? (
         <div className="wm-ui-card wm-ui-copy wm-catalog-empty">
           No products match these filters. Reset filters or broaden the search.
+        </div>
+      ) : null}
+
+      {editingProduct ? (
+        <div className="wm-catalog-editor-backdrop" role="presentation">
+          <section
+            className="wm-catalog-editor"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="wm-catalog-editor-title"
+          >
+            <div className="wm-catalog-editor-head">
+              <div>
+                <p className="wm-ui-kicker">Admin product JSON</p>
+                <h2 id="wm-catalog-editor-title">Edit {editingProduct.sku}</h2>
+              </div>
+              <button
+                className="wm-ui-button wm-ui-button-secondary"
+                type="button"
+                onClick={() => setEditingProduct(null)}
+                disabled={editorBusy}
+              >
+                Close
+              </button>
+            </div>
+            <p className="wm-ui-copy">
+              Edit the complete record as JSON. The SKU is immutable; the server validates and sanitises supported fields.
+            </p>
+            <textarea
+              className="wm-catalog-record-json"
+              aria-label={`${editingProduct.sku} product JSON`}
+              value={recordJson}
+              onChange={(event) => setRecordJson(event.target.value)}
+              spellCheck={false}
+              disabled={editorBusy}
+            />
+            <p className="wm-ui-copy wm-catalog-editor-status" role="status">{editorStatus}</p>
+            <div className="wm-catalog-editor-actions">
+              <button
+                className="wm-ui-button"
+                type="button"
+                onClick={() => void saveRecord()}
+                disabled={editorBusy || !recordJson}
+              >
+                {editorBusy ? "Working..." : "Save record"}
+              </button>
+            </div>
+          </section>
         </div>
       ) : null}
     </main>
