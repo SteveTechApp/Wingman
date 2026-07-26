@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle, Check, Cloud, Copy, RotateCcw, Trash2 } from "lucide-react";
+import { AlertTriangle, Check, Cloud, Copy, FolderKanban, RotateCcw, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { SectionCard } from "../components/SectionCard";
@@ -7,11 +7,11 @@ import { StatusChip, type StatusChipVariant } from "../components/StatusChip";
 import { setActiveProjectId, useProjectStore, type StoredProject, type StoredProjectSyncStatus } from "../data/projectStore";
 
 const PROJECTS_PILL_BUTTON_CLASS =
-  "rounded-full border border-[#29465e] bg-[#0d2133] px-4 py-2 text-xs font-bold text-[#edf6ff] transition";
+  "rounded-lg border border-[#29465e] bg-[#0d2133] px-3 py-2 text-xs font-bold text-[#edf6ff] transition";
 const PROJECTS_ICON_BUTTON_CLASS =
-  "inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#29465e] bg-[#0d2133] text-[#edf6ff] transition";
-const PROJECTS_DARK_BUTTON_CLASS = "rounded-full bg-slate-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-slate-800";
-const PROJECTS_DARK_BUTTON_XS_CLASS = "rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-slate-800";
+  "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#29465e] bg-[#0d2133] text-[#edf6ff] transition";
+const PROJECTS_DARK_BUTTON_CLASS = "rounded-lg bg-slate-900 px-4 py-2 text-sm font-bold text-white transition hover:bg-slate-800";
+const PROJECTS_DARK_BUTTON_XS_CLASS = "rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white transition hover:bg-slate-800";
 
 function projectStatusLabel(status: StoredProject["status"]) {
   if (status === "recommended") return "On track";
@@ -76,20 +76,13 @@ export function ProjectsPage() {
   const realDraftCount = proposalDrafts.filter((draft) => !draft.isDemo).length;
 
   return (
-    <div data-wingman-page="projects" className="pb-10">
-      <section className="wm-projects-compact-hero wm-ui-card" aria-labelledby="projects-page-title">
-        <div className="wm-projects-compact-hero-copy">
-          <p className="wm-ui-kicker">Project Management</p>
-          <h1 id="projects-page-title" className="wm-projects-compact-title">
-            Keep live opportunities, drafts, and next actions in one place.
-          </h1>
-          <p className="wm-copy">
-            Review saved opportunities, captured customer requirements, proposal drafts, and persistent next actions.
-          </p>
-          <p className="wm-projects-next-step wm-copy">
-            <span>Next step</span>
-            <strong>Open the priority project detail record, review requirements, then continue into Discovery, Finder, Compare, or Proposal.</strong>
-          </p>
+    <div data-wingman-page="projects" className="wm-projects-page wm-polish-shell">
+      <section className="wm-polish-hero wm-polish-aqua" aria-labelledby="projects-page-title">
+        <span className="wm-polish-hero-icon" aria-hidden="true"><FolderKanban /></span>
+        <div className="wm-polish-hero-copy">
+          <p className="wm-polish-eyebrow">Project management</p>
+          <h1 id="projects-page-title">Projects</h1>
+          <p>Review active opportunities, saved requirements and proposal-ready drafts in one place.</p>
         </div>
 
         <div className="wm-projects-compact-actions">
@@ -138,33 +131,33 @@ export function ProjectsPage() {
             </div>
           }
         >
-          <div className="overflow-hidden rounded-2xl border wm-ui-card">
+          <div className="wm-projects-table-wrap overflow-hidden rounded-xl border wm-ui-card">
             <table className="min-w-full text-left text-sm wm-ui-copy">
               <thead className="text-[#edf6ff] wm-ui-card">
                 <tr>
-                  <th className="px-5 py-4 font-bold">Project</th>
-                  <th className="px-5 py-4 font-bold">Owner</th>
-                  <th className="px-5 py-4 font-bold">Stage</th>
-                  <th className="px-5 py-4 font-bold">Status</th>
-                  <th className="px-5 py-4 font-bold">Last updated</th>
-                  <th className="px-5 py-4 font-bold">Actions</th>
+                  <th className="px-4 py-3 font-bold">Project</th>
+                  <th className="px-4 py-3 font-bold">Owner</th>
+                  <th className="px-4 py-3 font-bold">Stage</th>
+                  <th className="px-4 py-3 font-bold">Status</th>
+                  <th className="px-4 py-3 font-bold">Last updated</th>
+                  <th className="px-4 py-3 font-bold">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {projects.length ? (
                   projects.map((project) => (
                     <tr key={project.id} className="border-t wm-ui-card">
-                      <td className="px-5 py-4 font-semibold text-[#edf6ff]">{project.name}</td>
-                      <td className="px-5 py-4 text-[#edf6ff]">{project.owner}</td>
-                      <td className="px-5 py-4 text-[#edf6ff]">{project.stage}</td>
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-3 font-semibold text-[#edf6ff]">{project.name}</td>
+                      <td className="px-4 py-3 text-[#edf6ff]">{project.owner}</td>
+                      <td className="px-4 py-3 text-[#edf6ff]">{project.stage}</td>
+                      <td className="px-4 py-3">
                         <StatusChip
                           label={projectStatusLabel(project.status)}
                           variant={project.status}
                         />
                       </td>
-                      <td className="px-5 py-4 text-[#edf6ff]">{project.updated}</td>
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-3 text-[#edf6ff]">{project.updated}</td>
+                      <td className="px-4 py-3">
                         <div className="flex flex-wrap items-center gap-2">
                           <Link
                             to={`${routeCatalogByKey.projects.path}/${project.id}`}
