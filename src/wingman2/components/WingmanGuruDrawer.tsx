@@ -1303,8 +1303,6 @@ async function answerQuestion(question: string, products: ProductEntry[]) {
 }
 
 
-const GURU_STRUCTURED_CONVERSATION_UI_V2 = "GURU_STRUCTURED_CONVERSATION_UI_V2";
-
 type GuruContentBlock =
   | { type: "heading"; text: string }
   | { type: "paragraph"; text: string }

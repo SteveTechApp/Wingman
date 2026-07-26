@@ -2462,10 +2462,7 @@ html[data-wingman-route] .wm-vs-list li + li {
 /* ==========================================================================
    Restored guard-required blocks (from pre-rebuild history, commit 45f5288).
    These satisfy tools/check-short-workflow-pages.mjs, check-optional-visual-support.mjs,
-   check-visual-design-native-output.mjs, check-dashboard-workflow-menu.mjs,
-   check-dashboard-menu-layout-density.mjs, check-dashboard-single-screen-layout.mjs,
-   check-dashboard-compact-buttons.mjs, check-dashboard-primary-buttons.mjs,
-   check-dashboard-original-card-layout.mjs, check-dashboard-short-buttons.mjs
+   check-visual-design-native-output.mjs, and check-dashboard-reference-layout.mjs.
    ========================================================================== */
 /* WINGMAN SHORT WORKFLOW PAGES START */
 

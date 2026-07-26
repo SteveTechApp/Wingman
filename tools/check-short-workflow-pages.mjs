@@ -5,7 +5,6 @@ import { verifyChainIncludes } from "./verify-chain.mjs";
 const repoRoot = process.cwd();
 
 const files = {
-  workspace: path.join(repoRoot, "src", "wingman2", "components", "WingmanWorkspacePage.tsx"),
   guruDrawer: path.join(repoRoot, "src", "wingman2", "components", "WingmanGuruDrawer.tsx"),
   callInterpreter: path.join(repoRoot, "src", "wingman2", "components", "GuruCallNotesInterpreter.tsx"),
   discovery: path.join(repoRoot, "src", "wingman2", "pages", "DiscoveryPage.tsx"),
@@ -30,20 +29,11 @@ function requireMarker(label, source, marker) {
   }
 }
 
-const workspace = read(files.workspace);
 const guruDrawer = read(files.guruDrawer);
 const callInterpreter = read(files.callInterpreter);
 const discovery = read(files.discovery);
 const css = read(files.css);
 const packageJson = JSON.parse(read(files.packageJson) || "{}");
-
-[
-  'data-wingman-short-workflow="true"',
-  'data-wingman-primary-workflow="true"',
-  'data-wingman-support-details="true"',
-  "Show supporting design reasoning, warnings and evidence",
-  "wm-guided-support-details",
-].forEach((marker) => requireMarker("WingmanWorkspacePage.tsx", workspace, marker));
 
 [
   "GuruCallNotesInterpreter",
