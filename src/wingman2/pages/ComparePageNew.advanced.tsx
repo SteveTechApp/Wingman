@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Scale } from "lucide-react";
 import {
   isBannedNetworkHdSku,
   mapCompetitorToNetworkHdAvoip,
@@ -5514,17 +5515,18 @@ function ComparePageNew() {
 
   return (
     <main
-      className="compare-native-page wm-compare-page wm-ui-page wingman-page-host"
+      className="wm-compare-page wm-polish-shell wm-page"
       data-wingman-page="compare"
       data-compare-state={compareStage === "results" ? "result" : "input"}
     >
       {compareStage !== "results" ? (
       <>
-      <section className="compare-native-hero wm-ui-hero wm-ui-section">
-        <div>
-          <p className="compare-native-eyebrow wm-ui-kicker wm-ui-copy">Competitor Compare</p>
-          <h1 className="wm-ui-title">Compare competitor products</h1>
-          <p className="wm-ui-copy">
+      <section className="compare-native-hero wm-polish-hero wm-polish-aqua">
+        <span className="wm-polish-hero-icon" aria-hidden="true"><Scale /></span>
+        <div className="wm-polish-hero-copy">
+          <p className="wm-polish-eyebrow">Competitor compare</p>
+          <h1>Compare competitor products</h1>
+          <p>
             Choose the competitor brand and product. Wingman will show the closest WyreStorm direction and the important differences to check.
           </p>
         </div>
