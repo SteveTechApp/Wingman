@@ -1997,7 +1997,6 @@ export function DiscoveryPage() {
     const microphoneConnections = answerLabels("uc-microphone-connection");
     const usb = answerLabel("usb");
     const audio = answerLabel("audio");
-    const control = answerLabel("control");
     const sourceConnections = answerLabels("source-connection");
     const usbValues = wmDiscoveryNormaliseAnswerList(answers.usb);
     const usbNeeds = answerLabels("usb");
