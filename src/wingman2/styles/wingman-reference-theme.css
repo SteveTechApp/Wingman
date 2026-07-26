@@ -522,7 +522,7 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
 .wm-reference-dashboard {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
   color: var(--wm-ref-text);
 }
 
@@ -589,7 +589,7 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
   width: 100% !important;
   display: flex !important;
   align-items: flex-start !important;
-  min-height: 0 !important;
+  min-height: 105px !important;
 }
 
 .wm-reference-dashboard.wm-reference-dashboard.wm-reference-dashboard .wm-polish-hero.wm-polish-hero.wm-polish-hero > .wm-polish-hero-icon.wm-polish-hero-icon {
