@@ -6151,6 +6151,16 @@ main[data-wingman-home="true"] .wm-page-hero p {
   max-width: 980px !important;
 }
 
+/* Home dashboard hero sits in a fixed-height flex column; its default
+   flex-shrink let the two-line greeting be squeezed to the icon height and
+   overlap the cards below. Keep it at its full content height so the layout
+   below always starts beneath the header. */
+main[data-wingman-home="true"] .wm-polish-hero,
+main[data-wingman-page="home"] .wm-polish-hero {
+  flex: 0 0 auto;
+  min-height: fit-content;
+}
+
 .wm-home-page.wm-navhub-page {
   display: grid;
   gap: 18px;

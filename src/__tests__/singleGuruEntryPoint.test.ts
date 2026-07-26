@@ -102,6 +102,38 @@ describe("single Guru entry point", () => {
     expect(motionLayer?.style.willChange).toBe("left, top, transform");
   });
 
+  it("hides a stale launcher and keeps the authorised launcher visible", async () => {
+    const staleLauncher = document.createElement("button");
+    staleLauncher.dataset.wingmanGuruLauncher = "true";
+    document.body.insertBefore(staleLauncher, container);
+
+    await act(async () => {
+      root.render(
+        createElement(WingmanGuruFab, {
+          open: false,
+          onClick: vi.fn(),
+        }),
+      );
+    });
+
+    const currentLauncher = container.querySelector<HTMLButtonElement>(
+      "#wingman-guru-launcher",
+    );
+    const visibleLaunchers = [...document.querySelectorAll<HTMLElement>(
+      '[data-wingman-guru-launcher="true"]',
+    )].filter((launcher) => !launcher.hidden);
+
+    expect(staleLauncher.dataset.wingmanGuruDuplicate).toBe("true");
+    expect(staleLauncher.getAttribute("aria-hidden")).toBe("true");
+    expect(staleLauncher.hidden).toBe(true);
+    expect(currentLauncher).not.toBeNull();
+    expect(currentLauncher?.hidden).toBe(false);
+    expect(currentLauncher?.dataset.wingmanGuruDuplicate).toBeUndefined();
+    expect(visibleLaunchers).toEqual([currentLauncher]);
+
+    staleLauncher.remove();
+  });
+
   it("moves with pointer events, persists its position and suppresses the drag click", async () => {
     const onClick = vi.fn();
 
