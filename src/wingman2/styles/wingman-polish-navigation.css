@@ -2034,3 +2034,192 @@ html body .wingman-page-host .wm-navhub-page.wm-polish-shell > .wm-polish-tip {
     }
 }
 /* WINGMAN_PRODUCTS_LIGHTER_ART_END */
+
+/* Compact secondary-page system: Projects, Compare and Templates only. */
+@media (min-width: 981px) {
+  .wm-projects-page,
+  .wm-compare-page,
+  .wm-templates-page {
+    padding-bottom: 24px;
+  }
+
+  .wm-projects-page > .wm-polish-hero,
+  .wm-compare-page > .wm-polish-hero,
+  .wm-templates-page > .wm-polish-hero {
+    min-height: 92px !important;
+    max-height: 105px;
+    padding: 13px 16px !important;
+  }
+
+  .wm-projects-page > .wm-polish-hero {
+    grid-template-columns: 50px minmax(0, 1fr) auto !important;
+  }
+
+  .wm-projects-page .wm-projects-compact-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .wm-projects-page > .space-y-3 {
+    display: grid;
+    gap: 12px;
+  }
+
+  .wm-projects-page > .space-y-3 > * {
+    margin-top: 0 !important;
+  }
+
+  .wm-projects-page .wm-projects-table-wrap th,
+  .wm-projects-page .wm-projects-table-wrap td {
+    white-space: nowrap;
+  }
+
+  .wm-projects-page .wm-project-draft-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .wm-projects-page .wm-project-draft-tile {
+    min-height: 0;
+    padding: 14px;
+  }
+
+  .wm-compare-page .compare-native-hero {
+    grid-template-columns: 50px minmax(0, 1fr) auto !important;
+  }
+
+  .wm-compare-page .compare-native-reset {
+    align-self: center;
+    border-radius: 9px !important;
+    padding: 8px 12px !important;
+  }
+
+  .wm-compare-page .compare-native-stage-rail {
+    min-height: 0 !important;
+    gap: 8px !important;
+    padding: 7px !important;
+  }
+
+  .wm-compare-page .compare-native-stage-card {
+    min-height: 48px !important;
+    padding: 7px 10px !important;
+    border-radius: 10px !important;
+  }
+
+  .wm-compare-page .compare-native-stage-card:not(.is-active) {
+    background: rgba(8, 24, 41, 0.52) !important;
+    border-color: rgba(127, 179, 211, 0.16) !important;
+  }
+
+  .wm-compare-page .compare-native-stage-card.is-active {
+    background: rgba(32, 224, 203, 0.08) !important;
+    border-color: rgba(32, 224, 203, 0.48) !important;
+  }
+
+  .wm-compare-page .compare-native-results--stage {
+    gap: 12px !important;
+    padding: 16px !important;
+    border-radius: 14px !important;
+  }
+
+  .wm-compare-page .compare-native-section-title,
+  .wm-compare-page .compare-native-action-row,
+  .wm-compare-page .compare-native-chip-row,
+  .wm-compare-page .compare-native-guidance-row {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .wm-compare-page .compare-native-chip-row {
+    gap: 6px !important;
+    padding: 0 !important;
+  }
+
+  .wm-compare-page .compare-native-chip-row button {
+    border-radius: 8px !important;
+    padding: 7px 10px !important;
+  }
+
+  .wm-templates-page .wm-template-library-toolbar {
+    min-height: 64px !important;
+    max-height: 76px;
+    padding: 10px 14px !important;
+    border-radius: 13px !important;
+  }
+
+  .wm-templates-page .wm-template-library-summary {
+    gap: 1px;
+  }
+
+  .wm-templates-page .wm-template-filter-toolbar {
+    padding: 9px 12px;
+    background: rgba(8, 24, 41, 0.58);
+    border: 1px solid rgba(127, 179, 211, 0.16);
+    border-radius: 12px;
+  }
+
+  .wm-templates-page .wm-template-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .wm-templates-page .wm-template-filter-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .wm-templates-page .wm-filter-chip {
+    min-height: 32px !important;
+    padding: 6px 10px !important;
+    border-radius: 8px !important;
+  }
+
+  .wm-templates-page .wm-template-card-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .wm-templates-page .wm-template-card {
+    display: flex;
+    min-height: 330px;
+    padding: 15px !important;
+    border-radius: 14px !important;
+    flex-direction: column;
+  }
+
+  .wm-templates-page .wm-template-summary,
+  .wm-templates-page .wm-template-direction {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+  }
+
+  .wm-templates-page .wm-template-summary {
+    -webkit-line-clamp: 3;
+  }
+
+  .wm-templates-page .wm-template-direction {
+    -webkit-line-clamp: 4;
+  }
+
+  .wm-templates-page .wm-template-actions {
+    margin-top: auto;
+    gap: 6px;
+  }
+
+  .wm-templates-page .wm-template-actions .wm-button {
+    border-radius: 8px !important;
+    padding: 7px 10px !important;
+  }
+}
+
+@media (min-width: 981px) and (max-width: 1399px) {
+  .wm-templates-page .wm-template-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
