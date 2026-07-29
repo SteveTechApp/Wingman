@@ -3429,35 +3429,6 @@ function compareWyreStormMainCaveat(competitor: CompetitorSummary, candidate: Sc
     || "Closest direction, not confirmed one-box replacement.";
 }
 
-function compareHeaderCaveat(competitor: CompetitorSummary, candidate: ScoredCandidate): string {
-  const replacementConfidence = salesReplacementConfidenceLabel(competitor, candidate);
-  const preferred = replacementConfidence === "Not a drop-in replacement"
-    ? compareWyreStormMainCaveat(competitor, candidate)
-    : compareCompetitorMainCaveat(competitor, candidate);
-  return preferred.length > 92 ? `${preferred.slice(0, 89).trimEnd()}...` : preferred;
-}
-
-function compareDecisionSummaryBullets(
-  competitor: CompetitorSummary,
-  candidate: ScoredCandidate,
-  directionFit: string,
-  replacementConfidence: string,
-): string[] {
-  const firstMatch = commercializeCompareCopy(candidate.matched[0] || candidate.partialMatches[0] || "");
-  const secondMatch = commercializeCompareCopy(candidate.matched[1] || candidate.partialMatches[1] || candidate.matched[0] || "");
-  const quoteCheck = compareHeaderCaveat(competitor, candidate)
-    || commercializeCompareCopy(salesImportantDifference(competitor, candidate));
-
-  return uniqueText([
-    `Selected because ${commercializeCompareCopy(wyrestormPlainEnglishRequirement(candidate, competitor))}.`,
-    firstMatch
-      ? `What matches: ${firstMatch.charAt(0).toLowerCase()}${firstMatch.slice(1)}`
-      : `What matches: ${directionFit.toLowerCase()} with ${replacementConfidence.toLowerCase()}.`,
-    quoteCheck ? `Check before quote: ${quoteCheck.charAt(0).toLowerCase()}${quoteCheck.slice(1)}` : "",
-    secondMatch && secondMatch !== firstMatch ? `Also relevant: ${secondMatch.charAt(0).toLowerCase()}${secondMatch.slice(1)}` : "",
-  ], 3);
-}
-
 function explicitPortSummary(specs: CompareSpecFacts | undefined, direction: "input" | "output"): string {
   if (!specs) {
     return "";
@@ -3802,58 +3773,6 @@ function competitorPlainEnglishPurpose(competitor: CompetitorSummary): string {
   }
 
   return "solve the same system requirement in the competitor ecosystem";
-}
-
-function wyrestormPlainEnglishRequirement(candidate: ScoredCandidate, competitor: CompetitorSummary): string {
-  if (/^CAM-210-NDI-PTZ$/i.test(candidate.product.sku)) {
-    return "the customer needs an actual NDI PTZ camera rather than a transport endpoint elsewhere in the system";
-  }
-
-  if (/^CAM-420-PTZ$/i.test(candidate.product.sku)) {
-    return "the customer needs a controllable room camera and the discussion is really about PTZ coverage, framing and output path";
-  }
-
-  if (/^CAM-0402-NDI-BRG$/i.test(candidate.product.sku)) {
-    return "several camera feeds need to be bridged or combined, rather than replacing the camera itself";
-  }
-
-  if (/NHD-500-TX/i.test(candidate.product.sku)) {
-    return "encoding a local source into a WyreStorm NetworkHD 500 system";
-  }
-
-  if (/NHD-500-E-TX/i.test(candidate.product.sku)) {
-    return "a lighter NetworkHD 500 source encoder path without stepping up to richer endpoint features";
-  }
-
-  if (/NHD-510-TX/i.test(candidate.product.sku)) {
-    return "encoding into NetworkHD 500 where Dante or audio-network workflow matters";
-  }
-
-  if (/^EX-/i.test(candidate.product.sku)) {
-    return "point-to-point extension over category cable rather than switching or matrix routing";
-  }
-
-  if (/^MX-0404-SCL$/i.test(candidate.product.sku)) {
-    return "a contained local matrix with fixed routed HDMI outputs";
-  }
-
-  if (/^MX/i.test(candidate.product.sku)) {
-    return "routed source-to-display switching inside a contained matrix system";
-  }
-
-  if (/^SW-020[46]-VW$/i.test(candidate.product.sku)) {
-    return "a dedicated WyreStorm video wall processor path";
-  }
-
-  if (/^SW-|presentation/i.test(candidate.product.productClass)) {
-    return "presentation-room switching and source ownership in one room";
-  }
-
-  if (/av-over-ip/i.test(competitor.recognisedClass)) {
-    return "the same endpoint role inside the correct WyreStorm AV-over-IP family";
-  }
-
-  return "the same system role in a WyreStorm design";
 }
 
 function _salesOutcomeBadges(competitor: CompetitorSummary, candidate: ScoredCandidate): string[] {
@@ -4236,24 +4155,6 @@ function CompareEvidenceMatrix({ candidate, competitor }: { candidate: ScoredCan
     </section>
   );
 }
-function candidateDecisionTone(candidate: ScoredCandidate): CompareDecisionTone {
-  if (candidate.outcomeLabel === "Insufficient competitor data") return "review";
-  if (candidate.verdict === "GOOD MATCH") return "good";
-  if (candidate.verdict === "ARCHITECTURE ALTERNATIVE") return "alternative";
-  if (candidate.verdict === "NO MATCH") return "reject";
-  return "partial";
-}
-
-function candidateDecisionIcon(candidate: ScoredCandidate): string {
-  const tone = candidateDecisionTone(candidate);
-  if (tone === "good") return "\u2713";
-  if (tone === "partial") return "\u2248";
-  if (tone === "alternative") return "\u21C4";
-  if (tone === "reject") return "\u00D7";
-  return "!";
-}
-
-
 type CompareReportedStatus = "match" | "checks" | "partial" | "no-match";
 
 const COMPARE_REPORTED_STATUS_OPTIONS: Array<{
@@ -4410,8 +4311,6 @@ function BestCandidateCard({
   competitorProfile: CompetitorProfile;
   onCopySummary: () => void;
 }) {
-  const directionFit = salesDirectionFitLabel(candidate);
-  const replacementConfidence = salesReplacementConfidenceLabel(competitor, candidate);
   const wyrestorm = buildWyrestormSummary(candidate);
   const coreFacts = buildCoreComparisonFacts(competitor, competitorProfile, wyrestorm, candidate);
   const whyBullets = salesWhyBullets(candidate);
