@@ -15,7 +15,7 @@
   "profiles": [
     {
       "sku": "APO-DG2",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "WIRELESS_PRESENTATION",
       "role": "wireless casting dongle",
       "productType": "Apollo USB-C wireless casting dongle",
@@ -86,6 +86,13 @@
           "reviewedOn": "2026-06-28",
           "reviewer": "Wingman source migration (review required)",
           "note": "Official WyreStorm product identity and current lifecycle source; exact operating limits remain review-required."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-dg2/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
         }
       ]
     },
@@ -1482,8 +1489,8 @@
     },
     {
       "sku": "NHD-CTL-PRO-V2",
-      "status": "review-required",
-      "productClass": "AVOIP",
+      "status": "verified-with-warning",
+      "productClass": "CONTROL",
       "role": "NetworkHD system controller",
       "productType": "Pro Controller for NetworkHD Series",
       "transport": [
@@ -1567,12 +1574,19 @@
           "reviewedOn": "2026-07-24",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Communication and Control, Power, Environmental."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-ctl-pro-v2/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "NHD-600-TRX",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "AVOIP",
       "role": "SDVoE transceiver (encoder or decoder, software selectable)",
       "productType": "NetworkHD 600 Series 4K60 4:4:4 10GbE SDVoE Transceiver",
@@ -1711,12 +1725,19 @@
           "reviewedOn": "2026-07-24",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "NHD-0401-MV",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "MULTIVIEW",
       "role": "4-input multiview processor and switcher",
       "productType": "NetworkHD 4-Input 4K60 Multiview Switcher",
@@ -1829,6 +1850,13 @@
           "reviewedOn": "2026-07-24",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio and Video, Communication and Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-0401-mv/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
         }
       ]
     },
@@ -1956,7 +1984,7 @@
     },
     {
       "sku": "CAM-210-PTZ",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "CAMERA",
       "role": "PTZ conferencing camera",
       "productType": "1080p PTZ camera with 12x optical zoom",
@@ -1970,7 +1998,7 @@
       "ports": [
         {
           "count": 1,
-          "connector": "USB 3.0 Type C female",
+          "connector": "USB 3.0 Type B female",
           "direction": "output",
           "category": "usb",
           "detail": "UVC 1.5, MJPEG/YUY2"
@@ -1998,13 +2026,13 @@
         }
       ],
       "video": [
-        "USB 3.0: 1920x1080p @60Hz",
+        "USB 3.0: 1920x1080p @30Hz",
         "Network: H.265/MJPEG, CBR or VBR up to 2Mbps",
-        "Cat5e or higher: 1920x1080p @60Hz up to 100m/328ft"
+        "Cat5e or higher: 1920x1080p @30Hz up to 100m/328ft"
       ],
       "audio": [],
       "usb": [
-        "1x USB 3.0 Type C, UVC 1.5, driverless"
+        "1x USB 3.0 Type B female, UVC 1.5, driverless"
       ],
       "network": [
         "1x RJ45 10/100, supports HTTP, RTSP, RTMP and multicast"
@@ -2015,14 +2043,14 @@
         "Built-in IR receiver"
       ],
       "power": [
-        "12V DC 2A | PoE 802.3af",
-        "Max 18W"
+        "12V DC 1A (12V DC 2A PSU supplied)",
+        "Max power consumption 12W"
       ],
       "physical": [
-        "12x optical, 16x digital zoom",
+        "12x optical, 4x digital zoom",
         "Horizontal viewing angle 72.5 degrees, vertical 44.8 degrees"
       ],
-      "maxResolution": "1920x1080p @60Hz",
+      "maxResolution": "1920x1080p @30Hz",
       "dependencies": [
         "USB 3.0 passive cable run is limited to 2m; 15m requires CAB-UAOC-15",
         "Confirm the conferencing platform accepts a UVC camera at the required resolution"
@@ -2034,7 +2062,7 @@
       "features": {
         "ptz": true,
         "uvc": true,
-        "poe": true,
+        "poe": false,
         "hdmiPassthrough": true,
         "opticalZoom12x": true
       },
@@ -2050,7 +2078,7 @@
         "Confirm whether the customer needs USB, network stream, or HDMI output; the three are different integration paths."
       ],
       "warnings": [
-        "The specification table states a 1/2.8 inch sensor while the Additional Features list on the same page states 1/2.7 inch. Confirm with WyreStorm before quoting the sensor size."
+        "Max resolution is 1920x1080p @30Hz per the specification table; the marketing title says '1080p60'. Quote 30Hz. (Corrected from an earlier draft that read 60Hz.)"
       ],
       "evidence": [
         {
@@ -2059,6 +2087,13 @@
           "reviewedOn": "2026-07-24",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Camera & Sensor, Communication & Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/cam-210-ptz/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29. Corrected 5 transcription errors vs the live page: resolution 60→30Hz, USB connector Type C→Type B, digital zoom 16→4x, power removed unsupported PoE 802.3af/18W claim (page: 12V DC 1A/12W), stale sensor warning replaced."
         }
       ]
     },
@@ -2130,7 +2165,7 @@
     },
     {
       "sku": "NHD-500-RX",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "AVOIP",
       "role": "NetworkHD 500 series decoder",
       "productType": "NetworkHD 500 Series 4K60 4:4:4 JPEG2000 decoder",
@@ -2274,7 +2309,7 @@
         "Confirm whether the SFP or the RJ45 network path is being used; the SFP options determine the fibre type and distance."
       ],
       "warnings": [
-        "Documented on a combined encoder/decoder page labelled 'NHD-500-TX/RX v2'. The revision the templates should quote needs confirming - see the note at the top of the drafting script.",
+        "Published revision is v2 (official page 'NHD-500-TX/RX v2'); no public v3 exists. Templates quote NHD-500-RX at the v2 spec. Re-review if a v3 is released.",
         "Encoding is JPEG 2000 at up to 850Mbps, which is visually lossless but not mathematically lossless. Do not present it as uncompressed."
       ],
       "evidence": [
@@ -2284,12 +2319,19 @@
           "reviewedOn": "2026-07-24",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table, RX column: Audio & Video, Communication & Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29. Revision resolved: official site publishes only v2; no public v3."
         }
       ]
     },
     {
       "sku": "SYN-TOUCH10-V2",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "CONTROL",
       "role": "Room control touch panel",
       "productType": "Synergy 10.1 inch all-in-one touchpad controller",
@@ -2381,12 +2423,19 @@
           "reviewedOn": "2026-07-24",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: System, Display, Interface, Power & Environmental."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-touch10-v2/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "CAM-420-PTZ",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "CAMERA",
       "role": "Dual-lens AI PTZ conferencing camera",
       "productType": "4K dual-lens AI PTZ camera with auto framing and speaker tracking",
@@ -2495,12 +2544,19 @@
           "reviewedOn": "2026-07-24",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Video, Camera & Sensor, Audio, Communication & Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/cam-420-ptz/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "AMP-260-DNT",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "AUDIO",
       "role": "Dante network amplifier with DSP",
       "productType": "Advanced 2 channel Dante amplifier",
@@ -2617,12 +2673,19 @@
           "reviewedOn": "2026-07-24",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio, Communication and Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/amp-260-dnt/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "NHD-128-NDI-TRX",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "AVOIP",
       "role": "NDI to NetworkHD gateway / transceiver",
       "productType": "4K30 NDI to AV over IP gateway",
@@ -2715,12 +2778,19 @@
           "reviewedOn": "2026-07-24",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Technical, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-128-ndi-trx/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "APO-VX20-UC-V2",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "UC",
       "role": "UC room product",
       "productType": "Apollo series conference video bar and switcher",
@@ -2840,7 +2910,7 @@
         "networkPorts": 1
       },
       "checks": [
-        "WyreStorm UC is Zoom-certified and NOT Teams-certified. Where the customer runs Teams, the room must be tested before install and the caveat stated in the proposal.",
+        "The v2 product page claims compatibility with Microsoft Teams Rooms (MTR), e.g. Lenovo ThinkSmart Core Gen 1/2. This is a compatibility claim, not a certification statement - confirm Teams Rooms certification status and test the room before install when quoting a Teams deployment.",
         "Inputs are capped at 4K@30Hz, and the HDMI input is HDCP 1.4 only. Confirm before quoting against a 4K60 or HDCP 2.2 source requirement.",
         "The two HDMI outputs are not equivalent - output 1 is 4K@60 HDCP 2.3, output 2 is 4K@30 HDCP 2.2. Confirm which display is on which.",
         "The camera is ePTZ (digital), not mechanical PTZ, with a fixed-focus lens. Confirm this suits the room rather than assuming optical zoom."
@@ -2856,12 +2926,19 @@
           "reviewedOn": "2026-07-24",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Camera and Sensor, Speakerphone, Communication and Control."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-vx20-uc-v2/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29. Teams caveat revised: v2 page claims MTR compatibility (compatible, not certified)."
         }
       ]
     },
     {
       "sku": "RX-700",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "HDBASET",
       "role": "HDBaseT receiver with USB",
       "productType": "100m 4K60 HDBaseT DSC receiver with USB",
@@ -2995,12 +3072,19 @@
           "reviewedOn": "2026-07-24",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/rx-700/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "RX-500",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "HDBASET",
       "role": "HDBaseT receiver with USB",
       "productType": "35m 4K HDBaseT receiver with USB",
@@ -3109,12 +3193,19 @@
           "reviewedOn": "2026-07-24",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/rx-500/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "SW-130-TX-UK",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "PRESENTATION",
       "role": "In-wall HDBaseT presentation transmitter",
       "productType": "3-input in-wall HDBaseT transmitter, 2-gang UK",
@@ -3236,6 +3327,13 @@
           "reviewedOn": "2026-07-24",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Transmission, Video, Audio, Communication & Control."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-130-tx-uk/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
         }
       ]
     },
@@ -3377,7 +3475,7 @@
     },
     {
       "sku": "EX-70-H2",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "HDBASET",
       "role": "HDBaseT extender set (transmitter + receiver)",
       "productType": "18Gbps 4K HDR HDBaseT extender set with 2-way PoH",
@@ -3497,12 +3595,19 @@
           "reviewedOn": "2026-07-26",
           "reviewer": "Wingman assisted source review (checked against the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Product is Class A; the Class B wording on the page is a typing error and is excluded from governed design data."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-70-h2/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "MX-0808-KIT-V2",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "MATRIX",
       "role": "HDBaseT matrix kit with receivers",
       "productType": "8x8 4K UHD HDBaseT matrix kit (matrix + 8 receivers)",
@@ -3633,6 +3738,13 @@
           "reviewedOn": "2026-07-26",
           "reviewer": "Wingman assisted source review (checked against the official product page; NOT human-verified)",
           "note": "Technical Specifications table plus In-the-Box list (8x MX-KIT-RX receivers)."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0808-kit-v2/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
         }
       ],
       "routedInputs": 8,
@@ -3647,7 +3759,7 @@
     },
     {
       "sku": "NHD-600-TRXF",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "AVOIP",
       "role": "SDVoE fibre transceiver (encoder or decoder)",
       "productType": "NetworkHD 600 Series 4K60 4:4:4 10Gb SDVoE fibre transceiver",
@@ -3785,12 +3897,19 @@
           "reviewedOn": "2026-07-26",
           "reviewer": "Wingman assisted source review (checked against the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-trxf/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "SW-0206-VW",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "VIDEO_WALL",
       "role": "Video wall processor",
       "productType": "2-input 6-output 4K60 video wall processor",
@@ -3892,12 +4011,19 @@
           "reviewedOn": "2026-07-26",
           "reviewer": "Wingman assisted source review (checked against the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio and Video, Communication & Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-0206-vw/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified. Specs cross-checked against the live official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "SW-120-TX3",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "PRESENTATION",
       "role": "HDBaseT switching transmitter",
       "productType": "Synergy 2-input 4K60 HDBaseT 3.0 switching transmitter with USB-C",
@@ -4027,12 +4153,19 @@
           "reviewedOn": "2026-07-26",
           "reviewer": "Wingman assisted source review (checked against the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio and Video, Communication & Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-120-tx3/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified. Specs cross-checked against the live official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "MX-1007-HYB",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "MATRIX",
       "role": "Hybrid multi-transport matrix",
       "productType": "10x7 4K hybrid matrix switcher (HDMI / HDBaseT / NetworkHD 500 / USB-C)",
@@ -4205,6 +4338,13 @@
           "reviewedOn": "2026-07-26",
           "reviewer": "Wingman assisted source review (checked against the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power, Dimensions."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-1007-hyb/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
         }
       ],
       "routedInputs": 10,
@@ -4214,6 +4354,787 @@
       "matrixSizeEvidence": "SKU/title evidence: MX-1007-HYB / 10x7 Seamless Matrix",
       "ioEvidenceStatus": "derived",
       "quoteSafety": "verify-before-quote"
+    },
+    {
+      "sku": "SW-640L-TX-W",
+      "status": "review-required",
+      "productClass": "PRESENTATION",
+      "role": "presentation switcher",
+      "productType": "4-input 4K wireless presentation & conferencing switcher with dual HDMI matrix outputs, USB 3.0 hub and 60W USB-C",
+      "transport": [
+        "Local HDMI",
+        "USB-C alt-mode (MST)",
+        "Wireless casting (AirPlay/Miracast/APO-DG2)"
+      ],
+      "maxResolution": "HDMI Out 1: 3840x2160p @60Hz 4:4:4; HDMI Out 2: 3840x2160p @30Hz 4:4:4",
+      "inputCount": 4,
+      "outputCount": 2,
+      "ports": [
+        {
+          "count": 2,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "19-pin type A, HDCP 1.4, up to 4K@30Hz"
+        },
+        {
+          "count": 2,
+          "connector": "USB-C",
+          "direction": "input",
+          "category": "video",
+          "detail": "Alt-mode A/V with MST, Ethernet + data, 60W PD, up to 4K@30Hz"
+        },
+        {
+          "count": 2,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "Out 1: 4K@60Hz HDCP 2.2; Out 2: 4K@30Hz HDCP 1.4"
+        },
+        {
+          "count": 1,
+          "connector": "5-pin Phoenix",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Balanced analog audio de-embed"
+        },
+        {
+          "count": 3,
+          "connector": "USB 3.0 Type A",
+          "direction": "output",
+          "category": "usb",
+          "detail": "Device ports, 5V 1A per port"
+        },
+        {
+          "count": 2,
+          "connector": "USB 3.0 Type B",
+          "direction": "input",
+          "category": "usb",
+          "detail": "Assignable USB hosts"
+        },
+        {
+          "count": 3,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "Ethernet"
+        },
+        {
+          "count": 1,
+          "connector": "4-pin Phoenix",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232 (API), provides 12V"
+        },
+        {
+          "count": 4,
+          "connector": "Wi-Fi antenna",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "802.11 a/b/g/n/ac dual-band 2.4/5GHz"
+        },
+        {
+          "count": 1,
+          "connector": "Phoenix",
+          "direction": "output",
+          "category": "control",
+          "detail": "Relay + PA sensor"
+        }
+      ],
+      "dependencies": [
+        "Wireless casting via APO-DG2/APO-DG2-PRO requires the dongle (sold separately), or use AirPlay/Miracast",
+        "60W USB-C PD is for host device charging"
+      ],
+      "checks": [
+        "Inputs and HDMI Out 2 are HDCP 1.4 only; only HDMI Out 1 is HDCP 2.2. A protected 4K source needing HDCP 2.2 will not pass, and the two outputs are not equivalent.",
+        "Input resolution is capped at 4K@30Hz (USB-C and HDMI). HDMI Out 1 reaches 4K@60Hz; Out 2 is 4K@30Hz.",
+        "Assignable USB host with a built-in USB 3.0 hub - confirm which host owns the peripherals."
+      ],
+      "warnings": [
+        "Easy to mis-sell as a 4K60 switcher: only HDMI Out 1 reaches 4K60/HDCP 2.2; inputs and Out 2 are 4K30 and HDCP 1.4.",
+        "Microsoft Teams Rooms compatibility is claimed on the page (compatible, not certified) - confirm certification for a Teams deployment."
+      ],
+      "power": [
+        "20V 10A",
+        "Max 160W"
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-640l-tx-w/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        }
+      ],
+      "routedInputs": 4,
+      "routedOutputs": 2,
+      "routedInputCount": 4,
+      "routedOutputCount": 2,
+      "matrixInputs": 4,
+      "matrixOutputs": 2,
+      "matrixSize": "4x2",
+      "matrixSizeEvidence": "Title evidence: 4-input presentation switcher with 2 HDMI matrix outputs",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
+    },
+    {
+      "sku": "SW-0204-VW",
+      "status": "review-required",
+      "productClass": "VIDEO_WALL",
+      "role": "video wall processor",
+      "productType": "2-input 4-output 4K60 video wall processor (1x4 / 2x2)",
+      "transport": [
+        "Local HDMI"
+      ],
+      "maxResolution": "4096x2160p @60Hz 4:4:4 8bit",
+      "inputCount": 2,
+      "outputCount": 4,
+      "ports": [
+        {
+          "count": 2,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "19-pin type A"
+        },
+        {
+          "count": 4,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "19-pin type A (video wall tiles)"
+        },
+        {
+          "count": 1,
+          "connector": "5-pin Phoenix",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Balanced analog audio de-embed from selected HDMI input"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin Phoenix",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232, video-wall + routable device control, Telnet"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "LAN, Web UI, video-wall control"
+        }
+      ],
+      "dependencies": [
+        "Local HDMI in/out - add extension where tiles exceed HDMI range",
+        "Layouts limited to 1x4 and 2x2 (plus bezel correction and flip)"
+      ],
+      "checks": [
+        "Only 1x4 and 2x2 layouts (fewer than the SW-0206-VW preset set). Confirm the wall geometry matches.",
+        "Outputs are local HDMI; extend per output for distant tiles.",
+        "Only 2 inputs (alternative). HDCP 2.3."
+      ],
+      "warnings": [],
+      "power": [
+        "12V 3A"
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-0204-vw/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        }
+      ]
+    },
+    {
+      "sku": "MX-0404-HDMI",
+      "status": "review-required",
+      "productClass": "MATRIX",
+      "role": "matrix switcher",
+      "productType": "4x4 18Gbps HDMI matrix switcher with per-output 4K->1080p scaling",
+      "transport": [
+        "Local HDMI (18Gbps)"
+      ],
+      "maxResolution": "4096x2160p @60Hz 8bit 4:4:4",
+      "inputCount": 4,
+      "outputCount": 4,
+      "ports": [
+        {
+          "count": 4,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "19-pin type A, 18Gbps"
+        },
+        {
+          "count": 4,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "19-pin type A, per-output 4K->1080p downscaler"
+        },
+        {
+          "count": 4,
+          "connector": "S/PDIF Coaxial",
+          "direction": "output",
+          "category": "audio",
+          "detail": "5.1ch audio de-embed, one per output"
+        },
+        {
+          "count": 1,
+          "connector": "3.5mm TRS",
+          "direction": "input",
+          "category": "control",
+          "detail": "IR extension"
+        },
+        {
+          "count": 1,
+          "connector": "IR sensor",
+          "direction": "input",
+          "category": "control",
+          "detail": "Front-panel IR"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin terminal",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232, Telnet"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "10/100 LAN, IP control, Web UI"
+        }
+      ],
+      "dependencies": [
+        "HDMI outputs only - no HDBaseT. Remote displays require external extension (e.g. an HDBaseT extender per output)",
+        "Each output has an independent 4K->1080p downscaler"
+      ],
+      "checks": [
+        "HDMI-only matrix (no HDBaseT). For displays beyond HDMI cable range, add extenders - do NOT pair a bare HDBaseT receiver with it expecting a signal.",
+        "HDCP 2.2. 4K60 supported at 4:4:4 (18Gbps) and 4:2:0 10bit HDR.",
+        "S/PDIF coaxial de-embed is 5.1ch surround per output."
+      ],
+      "warnings": [
+        "Outputs are HDMI only. In a distributed design, HDBaseT/AVoIP extension must be added explicitly - the matrix alone will not reach remote zones."
+      ],
+      "power": [
+        "12V DC 2A",
+        "Max 10W"
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0404-hdmi/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        }
+      ],
+      "routedInputs": 4,
+      "routedOutputs": 4,
+      "routedInputCount": 4,
+      "routedOutputCount": 4,
+      "matrixInputs": 4,
+      "matrixOutputs": 4,
+      "matrixSize": "4x4",
+      "matrixSizeEvidence": "SKU/title evidence: MX-0404-HDMI / 4x4 HDMI Matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
+    },
+    {
+      "sku": "RX3-100",
+      "status": "review-required",
+      "productClass": "HDBASET",
+      "role": "HDBaseT receiver",
+      "productType": "HDBaseT 3.0 4K60 4:4:4 receiver with USB 2.0 and 2-way PoH, 100m",
+      "transport": [
+        "HDBaseT 3.0 (18Gbps)"
+      ],
+      "maxResolution": "3840x2160p @60Hz 4:4:4 8bit",
+      "inputCount": 1,
+      "outputCount": 1,
+      "ports": [
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "input",
+          "category": "video",
+          "detail": "1x HDBT in, 8-pin"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "19-pin Type A female"
+        },
+        {
+          "count": 1,
+          "connector": "3.5mm TRS",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Audio out"
+        },
+        {
+          "count": 1,
+          "connector": "Line Out",
+          "direction": "output",
+          "category": "audio",
+          "detail": "2ch audio over HDBaseT, 1-way from TX"
+        },
+        {
+          "count": 3,
+          "connector": "USB Type A",
+          "direction": "input",
+          "category": "usb",
+          "detail": "Device ports, up to 300Mbps uplink"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin Phoenix",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232, 2-way over HDBaseT"
+        }
+      ],
+      "dependencies": [
+        "Requires a matching HDBaseT 3.0 transmitter such as SW-120-TX3 / SW-120-TX3-Ux",
+        "2-way PoH; the supplied PSU does not support USB-C charging on the TX"
+      ],
+      "checks": [
+        "Pairs with HDBaseT 3.0 transmitters only - it will not run at 3.0 rates with Class A/B extenders.",
+        "Uncompressed 4K60 4:4:4 8bit up to 100m over Cat6a.",
+        "USB 2.0 passthrough at 300Mbps across 3 device ports. HDCP 2.3."
+      ],
+      "warnings": [
+        "The bundled PSU does not support USB-C charging on the transmitter - if the TX needs 60W USB-C charging, plan power separately."
+      ],
+      "power": [
+        "20V DC 3A",
+        "Max 10.92W"
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/rx3-100/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        }
+      ]
+    },
+    {
+      "sku": "SYN-KEY10",
+      "status": "review-required",
+      "productClass": "CONTROL",
+      "role": "keypad controller",
+      "productType": "Synergy 10-button RS-232 / IP keypad controller",
+      "transport": [
+        "1GbE network control (PoE)",
+        "RS-232"
+      ],
+      "inputCount": 0,
+      "outputCount": 0,
+      "ports": [
+        {
+          "count": 10,
+          "connector": "Button",
+          "direction": "input",
+          "category": "control",
+          "detail": "Programmable keys, single-action or macro"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "output",
+          "category": "network",
+          "detail": "8-pin, unidirectional to switch, 1-way PoE (switch powers device)"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin Phoenix",
+          "direction": "output",
+          "category": "control",
+          "detail": "RS-232, device control only"
+        },
+        {
+          "count": 1,
+          "connector": "2-pin",
+          "direction": "input",
+          "category": "control",
+          "detail": "12V DC power in"
+        }
+      ],
+      "dependencies": [
+        "Controls Synergy presentation switchers or 3rd-party devices - it is a control surface, not an AV switch",
+        "PoE (802.3af) or local 12V power"
+      ],
+      "checks": [
+        "Confirm what it is controlling; the keypad does not switch or route AV itself.",
+        "Ethernet is unidirectional to the network switch (1-way PoE, switch powers device).",
+        "RS-232 is device-control only."
+      ],
+      "warnings": [
+        "Control surface only - no video or audio path. Do not quote as a switcher."
+      ],
+      "power": [
+        "12V DC 0.5A",
+        "PoE 802.3af",
+        "1.3W"
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-key10/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Technical Specifications table: Ports and Buttons, Communication & Control, Power."
+        }
+      ]
+    },
+    {
+      "sku": "AMP-2120-DNT",
+      "status": "review-required",
+      "productClass": "AUDIO",
+      "role": "network amplifier",
+      "productType": "Advanced 1 or 2 channel Dante amplifier (70V/100V or low-impedance) - COMING SOON",
+      "transport": [
+        "Dante / AES67 audio network",
+        "Local line-level analog"
+      ],
+      "inputCount": 3,
+      "outputCount": 5,
+      "ports": [
+        {
+          "count": 1,
+          "connector": "Line In",
+          "direction": "input",
+          "category": "audio",
+          "detail": "Local analog line input"
+        },
+        {
+          "count": 2,
+          "connector": "Dante",
+          "direction": "input",
+          "category": "audio",
+          "detail": "Dante network audio inputs"
+        },
+        {
+          "count": 1,
+          "connector": "Line Out",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Line-level loop-out for daisy-chaining"
+        },
+        {
+          "count": 2,
+          "connector": "Speaker terminals",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Low impedance speaker outputs (spec table)"
+        },
+        {
+          "count": 2,
+          "connector": "Dante",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Dante network audio outputs"
+        },
+        {
+          "count": 2,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "2x 8-pin RJ45, 10/100Base-T, PoE+ 802.3at"
+        }
+      ],
+      "dependencies": [
+        "Dante requires an audio network and Dante Controller configuration",
+        "Speaker load: page prose claims 70V/100V high-impedance OR 4/8ohm low-impedance, but the spec table lists only low-impedance outs - confirm before quoting a 70V/100V line system"
+      ],
+      "checks": [
+        "Marked 'Coming Soon' on the official page - confirm commercial availability before quoting.",
+        "Power output: prose says up to 240W mono / 2x120W stereo; confirm PSU vs PoE+ output level before promising output.",
+        "Spec table lists 2 low-impedance speaker outs; the 70V/100V capability appears only in the prose. Verify with WyreStorm."
+      ],
+      "warnings": [
+        "Page is 'Coming Soon' - availability unconfirmed; appears in a room template.",
+        "Spec-table/prose conflict on impedance and channel count (title '1 or 2 Channel'; spec table lists 2 low-Z outs).",
+        "The power row reads '24V DC 5V' (apparent typo for 5A, as with AMP-260-DNT) and Max Power Consumption is listed as 'AC 100-240V 50-60Hz', an input rating rather than a consumption figure."
+      ],
+      "power": [
+        "24V DC 5A (page prints '24V DC 5V')",
+        "802.3at PoE+"
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/amp-2120-dnt/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Technical Specifications table: Audio, Communication & Control, Power. Page marked Coming Soon."
+        }
+      ]
+    },
+    {
+      "sku": "CAM-0402-BRG",
+      "status": "review-required",
+      "productClass": "UC",
+      "role": "multi-camera video bridge",
+      "productType": "4K multi-camera USB/HDMI video bridge with quad multiview",
+      "transport": [
+        "USB (UVC/UAC)",
+        "Local HDMI"
+      ],
+      "maxResolution": "3840x2160p @30Hz",
+      "inputCount": 4,
+      "outputCount": 2,
+      "ports": [
+        {
+          "count": 2,
+          "connector": "USB 3.0 Type A",
+          "direction": "input",
+          "category": "usb",
+          "detail": "Camera inputs, MJPEG up to 4K@30Hz"
+        },
+        {
+          "count": 2,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "Up to 4K@30Hz"
+        },
+        {
+          "count": 1,
+          "connector": "USB-C",
+          "direction": "output",
+          "category": "usb",
+          "detail": "USB HOST (UVC/UAC webcam), MJPEG up to 4K@30Hz"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "Up to 4K@30Hz"
+        },
+        {
+          "count": 1,
+          "connector": "4-pin Phoenix",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "LAN, Web UI/API"
+        }
+      ],
+      "dependencies": [
+        "Appears to the host as a UVC/UAC webcam - plug-and-play with Zoom/Teams/OBS",
+        "HDMI out and USB host share one signal (mirrored multiview, up to quad-view)"
+      ],
+      "checks": [
+        "Max resolution is 4K@30Hz on all paths; not 4K60. Confirm against a 4K60 requirement.",
+        "Wired inputs are 2x HDMI + 2x USB (4 sources), despite prose mentioning 'up to eight'. Confirm source count.",
+        "HDCP 2.2 on HDMI."
+      ],
+      "warnings": [
+        "Marketing says 'mix up to eight video sources' but the spec table lists 4 wired inputs (2 HDMI + 2 USB). Quote 4."
+      ],
+      "power": [
+        "20V DC 3A",
+        "36W"
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/cam-0402-brg/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        }
+      ]
+    },
+    {
+      "sku": "CAM-0402-NDI-BRG",
+      "status": "review-required",
+      "productClass": "UC",
+      "role": "multi-camera video bridge",
+      "productType": "4K multi-camera USB/HDMI/NDI video bridge with quad multiview",
+      "transport": [
+        "USB (UVC/UAC)",
+        "Local HDMI",
+        "NDI over LAN"
+      ],
+      "maxResolution": "3840x2160p @30Hz",
+      "inputCount": 8,
+      "outputCount": 3,
+      "ports": [
+        {
+          "count": 2,
+          "connector": "USB 3.0 Type A",
+          "direction": "input",
+          "category": "usb",
+          "detail": "Camera inputs, MJPEG up to 4K@30Hz"
+        },
+        {
+          "count": 2,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "Up to 4K@30Hz"
+        },
+        {
+          "count": 4,
+          "connector": "NDI (LAN)",
+          "direction": "input",
+          "category": "network",
+          "detail": "Up to 4K@30Hz, video only"
+        },
+        {
+          "count": 1,
+          "connector": "USB-C",
+          "direction": "output",
+          "category": "usb",
+          "detail": "USB HOST (UVC/UAC webcam), MJPEG up to 4K@30Hz"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "Up to 4K@30Hz"
+        },
+        {
+          "count": 1,
+          "connector": "NDI (LAN)",
+          "direction": "output",
+          "category": "network",
+          "detail": "Up to 4K@30Hz, video only (H.264/H.265, 8-bit YUV 4:2:0)"
+        },
+        {
+          "count": 1,
+          "connector": "4-pin Phoenix",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "LAN, Web UI/API + NDI streams"
+        }
+      ],
+      "dependencies": [
+        "Appears to the host as a UVC/UAC webcam",
+        "NDI streams are video-only (no audio over NDI)",
+        "The 4 NDI inputs require a suitable IP network"
+      ],
+      "checks": [
+        "Max 4K@30Hz on all paths.",
+        "NDI in/out is video only (H.264/H.265, 8-bit YUV 4:2:0) - no audio over NDI.",
+        "HDCP 2.2 on HDMI."
+      ],
+      "warnings": [
+        "NDI carries video only - plan audio separately.",
+        "Prose says 'up to eight video sources'; wired inputs are 4 (2 HDMI + 2 USB) plus 4 NDI network streams."
+      ],
+      "power": [
+        "20V DC 3A"
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/cam-0402-ndi-brg/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        }
+      ]
+    },
+    {
+      "sku": "NHD-USB-TRX",
+      "status": "review-required",
+      "productClass": "USB_EXTENSION",
+      "role": "USB-over-IP transceiver",
+      "productType": "USB 2.0 over IP transceiver for NetworkHD, with KM-over-IP",
+      "transport": [
+        "1GbE / SFP fibre AV network",
+        "USB 2.0 over IP"
+      ],
+      "inputCount": 0,
+      "outputCount": 0,
+      "ports": [
+        {
+          "count": 1,
+          "connector": "USB 3.2 Gen Type-B",
+          "direction": "input",
+          "category": "usb",
+          "detail": "USB host, 10Gbps connector (USB 2.0-class over IP)"
+        },
+        {
+          "count": 3,
+          "connector": "USB 3.2 Gen2 Type-A",
+          "direction": "output",
+          "category": "usb",
+          "detail": "Device ports, 10Gbps connector, TX mode"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "LAN, PoE+"
+        },
+        {
+          "count": 1,
+          "connector": "SFP",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "Fibre connectivity (per product copy)"
+        }
+      ],
+      "dependencies": [
+        "Works natively with NetworkHD 500 series (and other NHD series)",
+        "Requires an NHD-CTL-PRO v2 for control",
+        "DIP switch sets the TX or RX role"
+      ],
+      "checks": [
+        "Extends USB 2.0 data rates over IP despite USB 3.2 Gen2 (10Gbps) physical connectors - the over-IP throughput is USB 2.0 class, not 10Gbps end to end.",
+        "Supports up to 7 USB devices / 21 endpoints via the two-level hub.",
+        "KM-over-IP for keyboard/mouse switching in control rooms."
+      ],
+      "warnings": [
+        "Despite USB 3.2 Gen2 connectors, this is a USB 2.0-over-IP extender - do not present it as 10Gbps USB 3 extension end to end.",
+        "SFP fibre is described in the product copy; confirm SFP module supply and the full spec table before quoting a fibre run."
+      ],
+      "power": [
+        "12V DC / PoE+",
+        "No-load 2.2W"
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-usb-trx/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Technical Specifications table: Technical, Power. SFP fibre noted from product copy."
+        }
+      ]
     }
   ]
 }

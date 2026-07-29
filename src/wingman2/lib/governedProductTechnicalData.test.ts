@@ -77,7 +77,7 @@ describe("governed product technical data", () => {
 
     expect(resolved.productClass).toBe("WIRELESS_PRESENTATION");
     expect(resolved.role).toBe("wireless casting dongle");
-    expect(resolved.sourceTier).toBe("official-structured");
+    expect(resolved.sourceTier).toBe("verified-profile");
     expect(resolved.compareReady).toBe(false);
     expect(resolved.dependencies.join(" ")).toMatch(/compatible.*receiver\/base device/i);
     expect(resolved.warnings.join(" ")).toMatch(/requires a compatible receiver\/base device/i);
