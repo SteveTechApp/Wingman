@@ -47,7 +47,7 @@ const main = read(mainPath);
   "Today&apos;s Focus",
   "What&apos;s New",
   "grid-rows-2",
-  "calc(100dvh - 190px)",
+  "calc(100dvh - 145px)",
   "routeCatalogByKey.discovery.path",
   "routeCatalogByKey.compare.path",
   "routeCatalogByKey.templates.path",
