@@ -4805,7 +4805,7 @@
       "status": "review-required",
       "productClass": "AUDIO",
       "role": "network amplifier",
-      "productType": "Advanced 1 or 2 channel Dante amplifier (70V/100V or low-impedance) - COMING SOON",
+      "productType": "Advanced 1 or 2 channel Dante amplifier (70V/100V or low-impedance)",
       "transport": [
         "Dante / AES67 audio network",
         "Local line-level analog"
@@ -4861,12 +4861,12 @@
         "Speaker load: page prose claims 70V/100V high-impedance OR 4/8ohm low-impedance, but the spec table lists only low-impedance outs - confirm before quoting a 70V/100V line system"
       ],
       "checks": [
-        "Marked 'Coming Soon' on the official page - confirm commercial availability before quoting.",
+        "Product owner confirms this SKU is active and sellable; the vendor page was still marked 'Coming Soon' when transcribed (2026-07-29).",
         "Power output: prose says up to 240W mono / 2x120W stereo; confirm PSU vs PoE+ output level before promising output.",
         "Spec table lists 2 low-impedance speaker outs; the 70V/100V capability appears only in the prose. Verify with WyreStorm."
       ],
       "warnings": [
-        "Page is 'Coming Soon' - availability unconfirmed; appears in a room template.",
+        "Vendor page was marked 'Coming Soon' at transcription (2026-07-29) but the product is confirmed active by the product owner.",
         "Spec-table/prose conflict on impedance and channel count (title '1 or 2 Channel'; spec table lists 2 low-Z outs).",
         "The power row reads '24V DC 5V' (apparent typo for 5A, as with AMP-260-DNT) and Max Power Consumption is listed as 'AC 100-240V 50-60Hz', an input rating rather than a consumption figure."
       ],
@@ -5133,6 +5133,90 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Technical, Power. SFP fibre noted from product copy."
+        }
+      ]
+    },
+    {
+      "sku": "EXP-SW-0401-8K",
+      "status": "review-required",
+      "productClass": "SWITCHER",
+      "role": "HDMI switcher",
+      "productType": "Essentials 4x1 8K60 HDMI 2.1 switcher with audio de-embed and ARC",
+      "transport": [
+        "Local HDMI (HDMI 2.1, up to 40Gbps FRL)"
+      ],
+      "maxResolution": "7680x4320p @60Hz 4:2:0 10bit (8K60); 4096x2160p @120Hz 4:4:4 10bit (4K120); up to 10240x4320 @120Hz with DSC 1.2a",
+      "inputCount": 4,
+      "outputCount": 1,
+      "ports": [
+        {
+          "count": 4,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "HDMI 2.1, 40Gbps FRL / 18Gbps TMDS"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "HDMI 2.1 output"
+        },
+        {
+          "count": 1,
+          "connector": "S/PDIF",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Audio de-embed from HDMI or ARC, up to 5.1"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin terminal",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232 (4x1 model only)"
+        },
+        {
+          "count": 1,
+          "connector": "IR sensor",
+          "direction": "input",
+          "category": "control",
+          "detail": "Front-panel IR"
+        },
+        {
+          "count": 1,
+          "connector": "Push button",
+          "direction": "input",
+          "category": "control",
+          "detail": "Front-panel source select"
+        }
+      ],
+      "dependencies": [
+        "HDMI output only - no HDBaseT; a remote display needs an HDMI 2.1-rated extender",
+        "8K / HDMI 2.1 end-to-end requires HDMI 2.1 cabling and a 2.1 display; use S/PDIF de-embed or ARC to feed a non-2.1 audio system"
+      ],
+      "checks": [
+        "HDMI-only switcher (single HDMI output, no HDBaseT). Do NOT pair a bare HDBaseT receiver with it - for a remote display add an HDMI 2.1-rated extender.",
+        "8K60 output is 4:2:0 10bit; full 4:4:4 10bit tops out at 4K120. Confirm the exact 8K chroma/refresh the display needs.",
+        "10K@120Hz is via DSC 1.2a (an HDMI 2.1-approved compression), not native uncompressed.",
+        "RS-232 control is on the 4x1 (EXP-SW-0401-8K) model only; the 2x1 has none."
+      ],
+      "warnings": [
+        "8K60 output is 4:2:0 10bit, not 4:4:4. The full-bandwidth 4:4:4 ceiling is 4K120.",
+        "HDMI output only - in a distributed design an HDMI 2.1-rated extender must be added; the switcher alone will not reach a remote zone."
+      ],
+      "power": [
+        "12V DC 1A",
+        "Max 3.5W"
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Shared EXP-SW-0X01-8K family page (0X = number of HDMI inputs). This profile is the 0401 variant: 4x HDMI in, 1x HDMI out. Spec table: Transmission, Video, Audio, Communication & Control, Power."
         }
       ]
     }
