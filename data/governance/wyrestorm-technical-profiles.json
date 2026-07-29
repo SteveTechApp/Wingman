@@ -395,7 +395,7 @@
     },
     {
       "sku": "NHD-124-TX",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "AVOIP",
       "role": "encoder",
       "productType": "NetworkHD 100 four-channel encoder",
@@ -477,12 +477,12 @@
         "powerSupply": "12V DC 3A; PoE wording requires revision confirmation"
       },
       "checks": [
-        "Confirm the exact hardware revision and whether PoE applies.",
-        "Keep the system within NetworkHD 100.",
-        "Confirm the required number of simultaneous encoded inputs."
+        "Keep the system within NetworkHD 100 - pairs with 120-series decoders and the NHD-150-RX multiview receiver.",
+        "4 HDMI inputs encode to 4 network streams; confirm the required number of simultaneous sources.",
+        "Powered by 12V DC 3A (no PoE); gigabit LAN (10/100/1000Base-T)."
       ],
       "warnings": [
-        "Official product-page network-speed and PoE wording is internally inconsistent; confirm the shipping hardware revision before quotation."
+        "HDMI inputs are v1.4 and cap at 4K@30Hz - not a 4K60 encoder. Confirm against any 4K60 source requirement."
       ],
       "evidence": [
         {
@@ -491,6 +491,13 @@
           "reviewedOn": "2026-07-11",
           "reviewer": "Wingman technical data foundation",
           "note": "Official product page technical specification section; contradictory revision wording retained as a warning."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-124-tx/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29. Refreshed a stale warning: the current page shows a clean 10/100/1000 LAN and 12V DC 3A (no PoE), 4K30 max, HDMI 1.4 / HDCP 2.2."
         }
       ]
     },
@@ -1862,7 +1869,7 @@
     },
     {
       "sku": "RX-70-4K",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "HDBASET",
       "role": "HDBaseT receiver",
       "productType": "70m 4K HDBaseT Receiver",
@@ -1967,7 +1974,8 @@
       "checks": [
         "Confirm the source-side device actually has an HDBaseT output before quoting this receiver.",
         "3840x2160 @60Hz is NOT listed in the maximum resolution table. If the customer needs UHD 60Hz, confirm this receiver is suitable before issuing.",
-        "Confirm whether PoH is being supplied from the transmitter or a local PSU is required."
+        "Confirm whether PoH is being supplied from the transmitter or a local PSU is required.",
+        "Its natural matching transmitter TX-70-4K is discontinued - pair with a current HDBaseT Class A matrix output or in-wall transmitter, not TX-70-4K."
       ],
       "warnings": [
         "The listed maxima do not include 3840x2160 @60Hz. Maximum pixel clock is 297MHz, which is consistent with that limit. Check carefully against any 4K60 requirement."
@@ -1979,6 +1987,13 @@
           "reviewedOn": "2026-07-24",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/rx-70-4k/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29. Class A HDBaseT, 2-way PoH, and the max-resolution table (4096x2160@60 24bit 4:4:4; 3840x2160@60 NOT listed) confirmed against the page. TX-70-4K pairing note added."
         }
       ]
     },
@@ -4357,7 +4372,7 @@
     },
     {
       "sku": "SW-640L-TX-W",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "PRESENTATION",
       "role": "presentation switcher",
       "productType": "4-input 4K wireless presentation & conferencing switcher with dual HDMI matrix outputs, USB 3.0 hub and 60W USB-C",
@@ -4465,6 +4480,13 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-640l-tx-w/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
         }
       ],
       "routedInputs": 4,
@@ -4480,7 +4502,7 @@
     },
     {
       "sku": "SW-0204-VW",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "VIDEO_WALL",
       "role": "video wall processor",
       "productType": "2-input 4-output 4K60 video wall processor (1x4 / 2x2)",
@@ -4547,12 +4569,19 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-0204-vw/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified. Specs cross-checked against the official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "MX-0404-HDMI",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "4x4 18Gbps HDMI matrix switcher with per-output 4K->1080p scaling",
@@ -4636,6 +4665,13 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0404-hdmi/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
         }
       ],
       "routedInputs": 4,
@@ -4651,7 +4687,7 @@
     },
     {
       "sku": "RX3-100",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "HDBASET",
       "role": "HDBaseT receiver",
       "productType": "HDBaseT 3.0 4K60 4:4:4 receiver with USB 2.0 and 2-way PoH, 100m",
@@ -4728,12 +4764,19 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/rx3-100/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "SYN-KEY10",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "CONTROL",
       "role": "keypad controller",
       "productType": "Synergy 10-button RS-232 / IP keypad controller",
@@ -4797,12 +4840,19 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Ports and Buttons, Communication & Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-key10/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "AMP-2120-DNT",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "AUDIO",
       "role": "network amplifier",
       "productType": "Advanced 1 or 2 channel Dante amplifier (70V/100V or low-impedance)",
@@ -4881,12 +4931,19 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio, Communication & Control, Power. Page marked Coming Soon."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/amp-2120-dnt/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "CAM-0402-BRG",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "UC",
       "role": "multi-camera video bridge",
       "productType": "4K multi-camera USB/HDMI video bridge with quad multiview",
@@ -4964,12 +5021,19 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/cam-0402-brg/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "CAM-0402-NDI-BRG",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "UC",
       "role": "multi-camera video bridge",
       "productType": "4K multi-camera USB/HDMI/NDI video bridge with quad multiview",
@@ -5063,12 +5127,19 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/cam-0402-ndi-brg/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "NHD-USB-TRX",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "USB_EXTENSION",
       "role": "USB-over-IP transceiver",
       "productType": "USB 2.0 over IP transceiver for NetworkHD, with KM-over-IP",
@@ -5133,12 +5204,19 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Technical, Power. SFP fibre noted from product copy."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-usb-trx/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
         }
       ]
     },
     {
       "sku": "EXP-SW-0401-8K",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "SWITCHER",
       "role": "HDMI switcher",
       "productType": "Essentials 4x1 8K60 HDMI 2.1 switcher with audio de-embed and ARC",
@@ -5217,6 +5295,13 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Shared EXP-SW-0X01-8K family page (0X = number of HDMI inputs). This profile is the 0401 variant: 4x HDMI in, 1x HDMI out. Spec table: Transmission, Video, Audio, Communication & Control, Power."
+        },
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
+          "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
         }
       ]
     }
