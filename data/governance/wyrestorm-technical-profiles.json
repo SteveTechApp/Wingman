@@ -6066,6 +6066,400 @@
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
         }
       ]
+    },
+    {
+      "sku": "MX-0404-SCL",
+      "status": "review-required",
+      "productClass": "MATRIX",
+      "role": "matrix switcher",
+      "productType": "4x4 seamless 4K60 HDMI matrix with per-output scaling and audio de-embed",
+      "transport": [
+        "Local HDMI (18Gbps)"
+      ],
+      "maxResolution": "4096x2160p @60Hz 8bit 4:4:4; 5120x2160 @30Hz",
+      "inputCount": 4,
+      "outputCount": 4,
+      "routedInputs": 4,
+      "routedOutputs": 4,
+      "routedInputCount": 4,
+      "routedOutputCount": 4,
+      "ports": [
+        {
+          "count": 4,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "19-pin type A"
+        },
+        {
+          "count": 4,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "19-pin type A, per-output 4K->1080p downscaler"
+        },
+        {
+          "count": 2,
+          "connector": "5-pin balanced",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Balanced analog audio de-embed"
+        },
+        {
+          "count": 2,
+          "connector": "Toslink",
+          "direction": "output",
+          "category": "audio",
+          "detail": "S/PDIF digital de-embed"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin terminal",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232, Telnet"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "10/100 LAN, IP control, Web UI"
+        }
+      ],
+      "dependencies": [
+        "HDMI outputs only - no HDBaseT; up to 50m with WyreStorm HAOC cables, otherwise add extension",
+        "Each output has an independent 4K->1080p downscaler"
+      ],
+      "checks": [
+        "Seamless switching (no black screen). HDMI-only matrix.",
+        "Per-output downscaler for mixed 4K/1080p displays.",
+        "Video wall + up to 5 multiview layouts. HDCP 2.2."
+      ],
+      "warnings": [
+        "HDMI outputs only - remote displays need HDBaseT/AVoIP extension added explicitly.",
+        "The page 'In the Box' text says 'MX-0404-HDMI' - an apparent copy/paste error on the SCL page."
+      ],
+      "power": [
+        "12V DC",
+        "Max 16W"
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0404-scl/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        }
+      ],
+      "matrixInputs": 4,
+      "matrixOutputs": 4,
+      "matrixSize": "4x4",
+      "matrixSizeEvidence": "SKU/title evidence: MX-0404-SCL / 4x4 HDMI Matrix",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
+    },
+    {
+      "sku": "MX-0808-SCL-V2",
+      "status": "review-required",
+      "productClass": "MATRIX",
+      "role": "matrix switcher",
+      "productType": "8x8 seamless 4K60 scaling HDMI matrix with USB-C (successor to MX-0808-SCL)",
+      "transport": [
+        "Local HDMI (uncompressed 18Gbps)",
+        "USB-C alt-mode"
+      ],
+      "maxResolution": "4096x2160p @60Hz 8bit 4:4:4; 5120x2160 @30Hz",
+      "inputCount": 8,
+      "outputCount": 8,
+      "routedInputs": 8,
+      "routedOutputs": 8,
+      "routedInputCount": 8,
+      "routedOutputCount": 8,
+      "ports": [
+        {
+          "count": 1,
+          "connector": "USB-C",
+          "direction": "input",
+          "category": "video",
+          "detail": "4K60 video, 1GbE passthrough, PD3.0 60W host charging"
+        },
+        {
+          "count": 7,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "19-pin type A"
+        },
+        {
+          "count": 2,
+          "connector": "USB Type B",
+          "direction": "input",
+          "category": "usb",
+          "detail": "USB host"
+        },
+        {
+          "count": 8,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "19-pin type A, per-output 4K60 scaler"
+        },
+        {
+          "count": 4,
+          "connector": "USB Type A",
+          "direction": "output",
+          "category": "usb",
+          "detail": "USB device"
+        },
+        {
+          "count": 4,
+          "connector": "5-pin terminal",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Balanced analog audio de-embed"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin Phoenix",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "LAN, API, Telnet/TLS, Web UI"
+        }
+      ],
+      "dependencies": [
+        "HDMI outputs only - no HDBaseT; add extension for remote zones",
+        "USB-C input carries 4K60 video, a 1GbE passthrough and PD3.0 60W charging"
+      ],
+      "checks": [
+        "Seamless switching (<50ms). Per-output 4K60 scaler.",
+        "This is the V2 successor to the discontinued-adjacent MX-0808-SCL.",
+        "HDMI-only outputs. HDCP 2.2/2.3."
+      ],
+      "warnings": [
+        "HDMI outputs only - not a distribution matrix over Cat cable; add HDBaseT/AVoIP extension for remote zones."
+      ],
+      "power": [
+        "AC 100-240V",
+        "Max 128W (AV 68W + USB-C charging 60W)"
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0808-scl-v2/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        }
+      ],
+      "matrixInputs": 8,
+      "matrixOutputs": 8,
+      "matrixSize": "8x8",
+      "matrixSizeEvidence": "SKU evidence: MX-0808-SCL-V2",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
+    },
+    {
+      "sku": "MX-0812-SCL",
+      "status": "review-required",
+      "productClass": "MATRIX",
+      "role": "matrix switcher",
+      "productType": "8x12 seamless 4K60 scaling HDMI matrix with Dante 4x4 and video-wall/multiview",
+      "transport": [
+        "Local HDMI (uncompressed 18Gbps)",
+        "Dante audio"
+      ],
+      "maxResolution": "4096x2160p @60Hz 8bit 4:4:4; 5120x2160 @30Hz",
+      "inputCount": 8,
+      "outputCount": 12,
+      "routedInputs": 8,
+      "routedOutputs": 12,
+      "routedInputCount": 8,
+      "routedOutputCount": 12,
+      "ports": [
+        {
+          "count": 8,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "19-pin type A"
+        },
+        {
+          "count": 4,
+          "connector": "Dante",
+          "direction": "input",
+          "category": "audio",
+          "detail": "Dante network audio inputs"
+        },
+        {
+          "count": 12,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "19-pin type A, per-output 4K60 scaler; outputs 9-12 support rotation"
+        },
+        {
+          "count": 4,
+          "connector": "Dante",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Dante network audio outputs"
+        },
+        {
+          "count": 4,
+          "connector": "Line",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Analog audio line-level outputs"
+        },
+        {
+          "count": 4,
+          "connector": "USB Type A",
+          "direction": "output",
+          "category": "usb",
+          "detail": "USB 3.0 device"
+        },
+        {
+          "count": 2,
+          "connector": "USB Type B",
+          "direction": "input",
+          "category": "usb",
+          "detail": "USB 3.0 host"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin Phoenix",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "LAN, API, Telnet/TLS, Web UI"
+        }
+      ],
+      "dependencies": [
+        "HDMI outputs only - no HDBaseT; add extension for remote zones",
+        "Dante 4x4 requires an audio network and Dante Controller"
+      ],
+      "checks": [
+        "Three modes: seamless matrix, video-wall controller, multiview switcher.",
+        "Outputs 9-12 support 90/180/270 rotation; multiview mirrors on outputs 1-4.",
+        "HDMI-only outputs. HDCP 2.2/2.3."
+      ],
+      "warnings": [
+        "HDMI outputs only - add HDBaseT/AVoIP extension for remote zones.",
+        "Max power consumption and weight are listed as TBD on the page."
+      ],
+      "power": [
+        "AC 100-240V",
+        "Max power: TBD on page"
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0812-scl/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+        }
+      ],
+      "matrixInputs": 8,
+      "matrixOutputs": 12,
+      "matrixSize": "8x12",
+      "matrixSizeEvidence": "SKU evidence: MX-0812-SCL",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
+    },
+    {
+      "sku": "MX-1616-SCL",
+      "status": "review-required",
+      "productClass": "MATRIX",
+      "role": "matrix switcher",
+      "productType": "16x16 modular seamless scaling matrix chassis (HDMI + HDBaseT cards)",
+      "transport": [
+        "Local HDMI (18Gbps)",
+        "HDBaseT (via TX-SCL-HDBT card)"
+      ],
+      "maxResolution": "4096x2160p @60Hz 8bit 4:4:4; 5120x2160 @30Hz",
+      "inputCount": 16,
+      "outputCount": 16,
+      "routedInputs": 16,
+      "routedOutputs": 16,
+      "routedInputCount": 16,
+      "routedOutputCount": 16,
+      "ports": [
+        {
+          "count": 16,
+          "connector": "Card slot",
+          "direction": "bidirectional",
+          "category": "video",
+          "detail": "Modular: TX-SCL-HDMI (1x HDMI in/out) or TX-SCL-HDBT (1x HDMI in / 1x HDBT out + 15W PoH)"
+        },
+        {
+          "count": 16,
+          "connector": "5-pin balanced",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Balanced audio de-embed, one per output card"
+        },
+        {
+          "count": 1,
+          "connector": "DB9",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232, matrix + routable device control, Telnet"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "LAN, Web UI, matrix control"
+        }
+      ],
+      "dependencies": [
+        "Card-based chassis - the I/O type (HDMI vs HDBaseT) depends on the cards fitted",
+        "HDBaseT output card (TX-SCL-HDBT) supplies 15W 1-way PoH to the receiver"
+      ],
+      "checks": [
+        "Modular 16x16 chassis - configure HDMI or HDBaseT cards per port.",
+        "Unlike the other SCL matrices, this one DOES support HDBaseT via TX-SCL-HDBT cards.",
+        "HDBaseT card is HDMI 1.4 / HDCP 2.2 - confirm the 4K resolution limit over HDBaseT."
+      ],
+      "warnings": [
+        "The HDBaseT output card is HDMI 1.4 (not 2.0) - confirm the achievable 4K resolution/chroma over HDBaseT before quoting.",
+        "Depth and weight are listed as TBD on the page."
+      ],
+      "power": [
+        "Local power via 4-pin Phoenix"
+      ],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-1616-scl/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Technical Specifications table: Audio & Video (card-based), Communication & Control, Power."
+        }
+      ],
+      "matrixInputs": 16,
+      "matrixOutputs": 16,
+      "matrixSize": "16x16",
+      "matrixSizeEvidence": "SKU/title evidence: MX-1616-SCL / 16x16 HDMI",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote"
     }
   ]
 }
