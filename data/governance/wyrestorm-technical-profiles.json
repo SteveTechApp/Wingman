@@ -3776,7 +3776,7 @@
       "sku": "NHD-600-TRXF",
       "status": "verified-with-warning",
       "productClass": "AVOIP",
-      "role": "SDVoE fibre transceiver (encoder or decoder)",
+      "role": "Simultaneous bidirectional SDVoE fibre transceiver (or dedicated encoder/decoder)",
       "productType": "NetworkHD 600 Series 4K60 4:4:4 10Gb SDVoE fibre transceiver",
       "transport": [
         "10Gb SDVoE over fibre (SFP+)"
@@ -3899,7 +3899,7 @@
       },
       "checks": [
         "This is the FIBRE (SFP+) variant. Confirm the site has fibre and the correct SFP+ modules (SR multi-mode vs LR single-mode) for the distance.",
-        "As a transceiver, each unit is an encoder or a decoder - confirm the count of each role.",
+        "The transceiver can transmit and receive A/V simultaneously through one unit, or be programmed as a dedicated TX or RX. Confirm the intended simultaneous or fixed-role operation before counting endpoints.",
         "4K60 4:4:4 8bit uses light compression; confirm where fully uncompressed is specified."
       ],
       "warnings": [
@@ -3996,7 +3996,7 @@
       "maxResolution": "4096x2160p @60Hz 4:4:4 8bit",
       "dependencies": [
         "Local HDMI in and out - displays connect over HDMI; add extension where tiles are beyond HDMI range",
-        "Preset layouts: 1x4, 2x2, 3x2, 2x3, 4x1, plus rotated 1x4[90] and 1x3[60]"
+        "Quick preset layouts: 1x4, 2x2, 3x2, 2x3, 4x1, plus rotated 1x4[90] and 1x3[60]; bezel, rotation and custom layout adjustments support other geometries"
       ],
       "compatibleFamilies": [
         "Video wall / signage"
@@ -4005,6 +4005,7 @@
         "videoWall": true,
         "autoScaler": true,
         "presetLayouts": true,
+        "customLayouts": true,
         "audioDeEmbed": true
       },
       "specs": {
@@ -4014,7 +4015,7 @@
         "externalPsu": true
       },
       "checks": [
-        "This drives a video wall from 2 sources across up to 6 tiles. Confirm the wall geometry matches an available preset layout (1x4, 2x2, 3x2, 2x3, 4x1, or the rotated modes).",
+        "This drives a video wall from 2 sources across up to 6 tiles. Quick presets cover 1x4, 2x2, 3x2, 2x3, 4x1 and rotated modes; other geometries can use bezel, rotation and custom layout adjustments, which must be validated before quoting.",
         "Outputs are local HDMI. Where tiles are beyond HDMI range, add HDBaseT extension per output.",
         "Only 2 inputs. Confirm the source count before quoting against a multi-source requirement."
       ],
@@ -4261,6 +4262,13 @@
         },
         {
           "count": 4,
+          "connector": "4/8-ohm amplified speaker",
+          "direction": "output",
+          "category": "audio",
+          "detail": "4-channel amplified speaker outputs; built-in amplifier can directly drive a stereo pair at 25W per channel"
+        },
+        {
+          "count": 4,
           "connector": "Phoenix GPIO",
           "direction": "bidirectional",
           "category": "control",
@@ -4282,7 +4290,10 @@
       ],
       "audio": [
         "PCM 2ch analog",
-        "Dante Ultimo 4x4"
+        "Dante Ultimo 4x4",
+        "4-channel 4/8-ohm amplified speaker outputs",
+        "Built-in amplifier: 25W per channel for a directly driven stereo speaker pair at 4 or 8 ohms",
+        "Professional audio DSP: 18x10 audio matrix with ducking, gain, EQ, AEC, AGC and mixing"
       ],
       "usb": [
         "2x USB-B host",
@@ -4322,6 +4333,8 @@
         "hdbaset3": true,
         "networkHd500SpillOver": true,
         "dante": true,
+        "builtInAmplifier": true,
+        "audioDsp": true,
         "seamlessSwitching": true,
         "scaling": true,
         "usbC": true
