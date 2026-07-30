@@ -337,11 +337,13 @@ export function AppShell({ children }: AppShellProps) {
         </main>
       </div>
 
-      <WingmanGuruFab
-        open={guruOpen}
-        onClick={() => setGuruOpen((current) => !current)}
-        hasContextualTransfer={Boolean(guruSupportCue)}
-      />
+      {activeRoute?.key !== "dashboard" && (
+        <WingmanGuruFab
+          open={guruOpen}
+          onClick={() => setGuruOpen((current) => !current)}
+          hasContextualTransfer={Boolean(guruSupportCue)}
+        />
+      )}
       {guruOpen && (
         <Suspense fallback={null}>
           <WingmanGuruDrawer
