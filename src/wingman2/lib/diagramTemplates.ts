@@ -14,6 +14,7 @@ import {
   type MermaidEdge,
   type MermaidNode,
 } from "./diagramMermaid";
+import { buildDesignAssuranceLedger } from "./productAssurance";
 
 export type DiagramTypeId =
   | "signal-flow"
@@ -367,6 +368,14 @@ function validationBlockers(project: StoredProject | null | undefined, diagramTy
   project?.proposal?.validationNotes?.forEach((note) => blockers.push(note));
   project?.proposal?.governanceWarnings?.forEach((warning) => blockers.push(warning));
   project?.productSelections?.flatMap((selection) => selection.cautions ?? []).forEach((caution) => blockers.push(caution));
+  if (project) {
+    const assurance = buildDesignAssuranceLedger({
+      products: project.productSelections ?? [],
+      discoveryPercent: Number(project.discoveryBrief?.capturedPercent ?? 0),
+      requirementText: stringifyProject(project),
+    });
+    assurance.blockers.forEach((item) => blockers.push(item.message));
+  }
 
   return uniq(blockers).slice(0, 8);
 }

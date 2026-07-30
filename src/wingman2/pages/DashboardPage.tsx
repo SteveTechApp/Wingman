@@ -2,6 +2,7 @@ import {
   ArrowRight,
   CheckCircle2,
   MoreVertical,
+  Plus,
   Target,
   Zap,
 } from "lucide-react";
@@ -211,13 +212,13 @@ export function DashboardPage() {
 
   return (
     <main
-      className="wm-reference-dashboard wm-page wm-polish-shell"
+      className="wm-reference-dashboard wm-dashboard-page wm-page wm-polish-shell"
       data-wingman-page="home"
       data-wingman-home="true"
       aria-label="Wingman dashboard"
     >
-      <section className="wm-polish-hero wm-polish-aqua" aria-labelledby="wingman-dashboard-title">
-        <div className="wm-polish-hero-copy">
+      <header className="wm-dashboard-heading-row">
+        <div className="wm-dashboard-heading">
           <p className="wm-polish-eyebrow">WyreStorm sales intelligence</p>
           <h1 id="wingman-dashboard-title">
             {greetingForCurrentTime()}
@@ -225,20 +226,27 @@ export function DashboardPage() {
           </h1>
           <p>What would you like to achieve today?</p>
         </div>
-      </section>
 
-      <div
-        className="wm-reference-dashboard-layout min-h-0"
-        style={{ minHeight: "calc(100dvh - 145px)" }}
-      >
-        <div className="wm-reference-dashboard-main h-full grid-rows-2">
-          <section className="wm-sh-card-grid wm-polish-grid h-full" aria-label="Primary Wingman actions">
+        <button
+          type="button"
+          className="wingman-new-project-button"
+          onClick={() => window.dispatchEvent(new Event("wingman:new-project"))}
+          aria-label="Create new Wingman project"
+        >
+          <Plus className="h-4 w-4" />
+          <span>New Project</span>
+        </button>
+      </header>
+
+      <div className="wm-reference-dashboard-layout wm-dashboard-content-grid">
+        <div className="wm-reference-dashboard-main">
+          <section className="wm-sh-card-grid wm-polish-grid" aria-label="Primary Wingman actions">
             {primaryActions.map((action) => (
               <HubCard key={action.title} item={action} />
             ))}
           </section>
 
-          <section className="wm-reference-section h-full" aria-label="Recent projects">
+          <section className="wm-reference-section" aria-label="Recent projects">
             <div className="wm-reference-section-heading">
               <h2>Recent Projects</h2>
               <Link to={routeCatalogByKey.projects.path}>
@@ -247,7 +255,7 @@ export function DashboardPage() {
               </Link>
             </div>
 
-            <div className="wm-reference-project-grid h-full">
+            <div className="wm-reference-project-grid">
               {recentProjects.map((project) => {
                 const progress = projectProgress(project);
 
@@ -256,7 +264,7 @@ export function DashboardPage() {
                     key={project.id}
                     to={`${routeCatalogByKey.projects.path}/${project.id}`}
                     onClick={() => setActiveProjectId(project.id)}
-                    className="wm-reference-project-card h-full"
+                    className="wm-reference-project-card"
                     data-wm-status={project.status}
                   >
                     <div className="wm-reference-project-topline">
@@ -286,8 +294,8 @@ export function DashboardPage() {
           </section>
         </div>
 
-        <aside className="wm-reference-dashboard-rail h-full grid-rows-2" aria-label="Dashboard focus panel">
-          <section className="wm-reference-rail-card wm-reference-focus-card h-full">
+        <aside className="wm-reference-dashboard-rail" aria-label="Dashboard focus panel">
+          <section className="wm-reference-rail-card wm-reference-focus-card">
             <div className="wm-reference-rail-title">
               <Target aria-hidden="true" />
               <h2>Today&apos;s Focus</h2>
@@ -313,7 +321,7 @@ export function DashboardPage() {
             </Link>
           </section>
 
-          <section className="wm-reference-rail-card wm-reference-news-card h-full">
+          <section className="wm-reference-rail-card wm-reference-news-card">
             <div className="wm-reference-rail-title">
               <Zap aria-hidden="true" />
               <h2>What&apos;s New</h2>

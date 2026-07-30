@@ -262,6 +262,13 @@ function ProposalCompletionWizardContent({
   profile: ReturnType<typeof getStoredWingmanProfile>;
 }) {
   const discovery = useMemo(() => readDiscovery(project), [project]);
+  const discoveryWithCompletion = useMemo(
+    () => ({
+      ...discovery,
+      discoveryPercent: Number(project.discoveryBrief?.capturedPercent ?? 0),
+    }),
+    [discovery, project.discoveryBrief?.capturedPercent],
+  );
   const assumptions = useMemo(
     () => standardAssumptions(project),
     [project],
@@ -286,7 +293,7 @@ function ProposalCompletionWizardContent({
     () =>
       buildSalesReadinessPackage({
         products: selectedProducts,
-        discovery,
+        discovery: discoveryWithCompletion,
         assumptions:
           project.proposal?.verification
             ? project.proposal.assumptions
@@ -296,7 +303,7 @@ function ProposalCompletionWizardContent({
       }),
     [
       assumptions,
-      discovery,
+      discoveryWithCompletion,
       project.compareRuns,
       project.ingest,
       project.proposal,
@@ -387,6 +394,7 @@ function ProposalCompletionWizardContent({
         solutionConfirmed: draft.solutionConfirmed,
         continueWithoutBom: draft.continueWithoutBom,
         reviewConfirmed: draft.reviewConfirmed,
+        technicalBlockerCount: salesReadiness.assurance.blockers.length,
       }),
     [
       bomRows.length,
@@ -401,6 +409,7 @@ function ProposalCompletionWizardContent({
       draft.proposedSolution,
       draft.reviewConfirmed,
       draft.solutionConfirmed,
+      salesReadiness.assurance.blockers.length,
     ],
   );
 
@@ -1080,6 +1089,25 @@ function ProposalCompletionWizardContent({
                       </li>
                     ))}
                   </ul>
+                </section>
+
+                <section>
+                  <h3>Technical release gate</h3>
+                  {salesReadiness.assurance.blockers.length ? (
+                    <>
+                      <p>This proposal cannot be exported for customer issue until these items are resolved:</p>
+                      <ul>
+                        {salesReadiness.assurance.blockers.map((item) => (
+                          <li key={item.id}>
+                            {item.sku ? <strong>{item.sku}: </strong> : null}
+                            {item.message}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  ) : (
+                    <p>Selected core products have passed lifecycle and governed-profile release checks.</p>
+                  )}
                 </section>
 
                 <section>

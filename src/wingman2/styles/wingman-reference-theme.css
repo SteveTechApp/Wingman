@@ -522,7 +522,7 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
 .wm-reference-dashboard {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
   color: var(--wm-ref-text);
 }
 
@@ -540,13 +540,46 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
 .wm-reference-dashboard-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 270px;
-  gap: 18px;
+  grid-template-areas: "main rail";
+  gap: 16px;
   align-items: start;
 }
 
+.wm-dashboard-heading-row {
+  display: flex;
+  flex: none;
+  min-height: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0 0 14px;
+}
+
+.wm-dashboard-heading {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.wm-dashboard-heading .wm-polish-eyebrow,
+.wm-dashboard-heading p {
+  margin: 0;
+}
+
+.wm-dashboard-heading h1 {
+  margin: 3px 0 4px;
+}
+
 .wm-reference-dashboard-main {
+  grid-area: main;
   display: grid;
-  gap: 26px;
+  gap: 0;
+  min-width: 0;
+}
+
+.wm-reference-dashboard-main > *,
+.wm-reference-dashboard-rail > *,
+.wm-reference-project-grid > * {
   min-width: 0;
 }
 
@@ -554,55 +587,6 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
    page (see NavigationHubPages.tsx / SalesHelperPage.tsx), so its four
    primary actions render as the standard two-column grid without any
    dashboard-specific column overrides. */
-
-/* A route-wide legacy rule styles any element whose class merely contains
-   the substring "hero" (`[class*="hero"]`) with its own border/background/
-   box-shadow. That rule out-specifies the base ".wm-polish-hero" rule
-   (2 selectors vs. 1), which is normally masked on other pages by a much
-   more specific ".wm-navhub-page ... .wm-navhub-hero.wm-polish-hero" rule
-   that only matches inside the ".wm-navhub-page" hub layout. The dashboard
-   doesn't use that layout, so re-assert the correct (borderless) hero
-   styling here instead. */
-.wm-reference-dashboard.wm-reference-dashboard .wm-polish-hero.wm-polish-hero {
-  border: 0 !important;
-  background: none !important;
-  box-shadow: none !important;
-}
-
-/* The dashboard's top-level container used to be a plain CSS grid, whose
-   implicit row-track sizing mis-measured this hero: the row settled on a
-   height smaller than the hero's actual content, so the greeting subtitle
-   visually spilled out of the box and overlapped the cards below. Making
-   the container a column flexbox (see ".wm-reference-dashboard" above)
-   didn't fully fix it either, because the hero itself is a nested CSS grid
-   (icon column + text column) with text that wraps depending on the
-   resolved width, which reproduces the same mis-measurement one level
-   down. Switch the hero's own internal layout to flexbox too, so its
-   height is sized from actual content in a single consistent pass.
-   Now that the dashboard also carries ".wm-sh-card-grid" (for the shared
-   card styling), the sales-helper ":has(.wm-sh-card-grid) > .wm-polish-hero"
-   rule in wingman-polish-navigation.css also matches this hero and reverts
-   it back to "display: grid" at slightly higher specificity (that stylesheet
-   loads after this one). Out-specify it explicitly so flex keeps winning. */
-.wm-reference-dashboard.wm-reference-dashboard.wm-reference-dashboard .wm-polish-hero.wm-polish-hero.wm-polish-hero {
-  align-self: stretch !important;
-  width: 100% !important;
-  display: flex !important;
-  align-items: flex-start !important;
-  min-height: 68px !important;
-  padding-block: 4px !important;
-}
-
-.wm-reference-dashboard.wm-reference-dashboard.wm-reference-dashboard .wm-polish-hero.wm-polish-hero.wm-polish-hero > .wm-polish-hero-copy.wm-polish-hero-copy {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-}
-
-.wm-reference-dashboard.wm-reference-dashboard .wm-polish-hero-copy.wm-polish-hero-copy {
-  border: 0 !important;
-  background: none !important;
-  box-shadow: none !important;
-}
 
 /* Card sizing, text clamping, and illustration placement all now come from
    the shared ".wm-polish-shell:has(.wm-sh-card-grid)" rules in
@@ -614,6 +598,10 @@ html[data-wingman-route="dashboard"] .wingman-topbar-title {
 .wm-reference-section {
   display: grid;
   gap: 13px;
+}
+
+.wm-reference-dashboard-main > .wm-reference-section {
+  margin-top: 14px;
 }
 
 .wm-reference-section-heading {
@@ -830,8 +818,10 @@ button.wm-reference-quick-card {
 }
 
 .wm-reference-dashboard-rail {
+  grid-area: rail;
   display: grid;
   gap: 14px;
+  min-width: 0;
 }
 
 .wm-reference-rail-card {
@@ -1042,6 +1032,9 @@ button.wm-reference-quick-card {
 @media (max-width: 1100px) {
   .wm-reference-dashboard-layout {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "main"
+      "rail";
   }
 
   .wm-reference-dashboard-rail {
@@ -1121,19 +1114,6 @@ button.wm-reference-quick-card {
     animation: none !important;
   }
 }
-/* WINGMAN_DASHBOARD_LEFT_INSET_START */
-/*
-  Adds a controlled desktop inset to the dashboard heading and left content
-  column. The Today's Focus / What's New rail remains in its existing position.
-*/
-@media (min-width: 900px) {
-  html[data-wingman-route="dashboard"] .wm-reference-dashboard-header,
-  html[data-wingman-route="dashboard"] .wm-reference-dashboard-main {
-    box-sizing: border-box;
-    padding-left: 25px !important;
-  }
-}
-/* WINGMAN_DASHBOARD_LEFT_INSET_END */
 /* WINGMAN_GURU_GLOBAL_DRAG_START */
 .wingman-shell > button.wingman-guru-fab[data-wingman-guru-floating-active="true"],
 button.wingman-guru-fab[data-wingman-guru-floating-active="true"] {
@@ -1188,9 +1168,18 @@ button.wingman-guru-fab[data-wingman-guru-floating-active="true"] img {
 /* WINGMAN_GURU_GLOBAL_DRAG_END */
 /* WINGMAN_SINGLE_GURU_BADGE_START */
 /*
-   The Guru PNG already contains its own circular badge and outer teal ring.
-   Hide the extra animated sweep ring so the launcher reads as one logo.
+   The component renders the Guru PNG as a real image. Retire the legacy
+   pseudo-element copy so the single launcher paints only one Guru.
 */
+button.wingman-guru-fab[data-wingman-guru-floating-active="true"]::after,
+.wingman-guru-fab[data-wingman-guru-floating-active="true"]::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+}
+
+/* The Guru PNG already contains its own circular badge and outer teal ring.
+   Hide the extra sweep ring so the launcher reads as one logo. */
 button.wingman-guru-fab[data-wingman-guru-floating-active="true"]
   .wingman-guru-fab-sweep,
 .wingman-guru-fab .wingman-guru-fab-sweep {

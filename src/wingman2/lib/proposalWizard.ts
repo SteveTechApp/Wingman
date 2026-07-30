@@ -55,6 +55,7 @@ export type ProposalReadinessInput = {
   solutionConfirmed: boolean;
   continueWithoutBom: boolean;
   reviewConfirmed: boolean;
+  technicalBlockerCount?: number;
 };
 
 export type ProposalReadinessResult = {
@@ -319,6 +320,7 @@ export function computeProposalReadiness(
 
   const solutionComplete =
     input.solutionConfirmed &&
+    (input.technicalBlockerCount ?? 0) === 0 &&
     (input.bomRowCount > 0 || input.continueWithoutBom);
 
   const solution = solutionComplete
@@ -353,6 +355,9 @@ export function computeProposalReadiness(
   }
   if (!input.reviewConfirmed) {
     missing.push("Complete the final customer-safe review.");
+  }
+  if ((input.technicalBlockerCount ?? 0) > 0) {
+    missing.push(`Resolve ${input.technicalBlockerCount} technical assurance blocker(s) before customer export.`);
   }
 
   return {

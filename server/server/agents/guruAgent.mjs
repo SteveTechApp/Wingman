@@ -3,22 +3,34 @@ import { geminiStructuredGenerate } from "./lib/geminiStructuredGenerate.mjs";
 import { deriveGuruAnswer } from "./lib/mockDerivations.mjs";
 import { guruSystemPrompt } from "./prompts/guruPrompt.mjs";
 import { guruResponseSchema } from "./schemas/guru.schema.mjs";
-import { getProductIntelligenceSummary, getCompatibilityRules } from "./tools/index.mjs";
+import {
+  getProductDetails,
+  getProductIntelligenceSummary,
+  getCompatibilityRules,
+  searchSkuCatalog,
+} from "./tools/index.mjs";
 
 export async function runGuruAgent(input, deps = {}) {
   const config = getAgentConfig();
-  const [productIntelligence, compatibilityRules] = await Promise.all([
+  const question = input?.question || "";
+  const exactSku = question.toUpperCase().match(/\b[A-Z]{2,8}(?:-[A-Z0-9]{1,})+\b/)?.[0];
+  const [productIntelligence, compatibilityRules, exactProduct, relevantProducts] = await Promise.all([
     getProductIntelligenceSummary({ deps }),
     getCompatibilityRules({ deps }),
+    exactSku ? getProductDetails({ sku: exactSku, deps }) : null,
+    searchSkuCatalog({ query: question, solutionIntent: input?.context?.activity || "", deps }),
   ]);
 
   const payload = {
-    question: input?.question || "",
+    question,
     brief: input?.brief || {},
     architecture: input?.architecture || {},
     context: {
+      activity: input?.context || {},
       productIntelligence,
       compatibilityRules,
+      exactProduct,
+      relevantProducts: relevantProducts.slice(0, 8),
     },
   };
 
