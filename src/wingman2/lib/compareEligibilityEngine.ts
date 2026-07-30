@@ -273,7 +273,12 @@ function extractMatrixSizeFromText(text: string): { inputs?: number; outputs?: n
     };
   }
 
-  const prefixed = compact.match(/(?:MXV|MMX|HMX|MX|VS|C|ACMX)(\d{2})(\d{2})/);
+  // WyreStorm splitters (SP-0104 / SP-0108) and Essentials splitters
+  // (EXP-SP-0104 / EXP-SP-0102-8K) encode inputs+outputs the same way as the
+  // matrix SKUs (SP-0104 = 1 input / 4 outputs). Without this the distribution
+  // amplifier right-sizing (matrixFitPenalty) reads no fan-out and cannot tell a
+  // 1x4 splitter from a 1x8, so a 1x4 request could match the larger 1x8.
+  const prefixed = compact.match(/(?:MXV|MMX|HMX|MX|VS|C|ACMX|EXPSP|SP)(\d{2})(\d{2})/);
 
   if (prefixed) {
     return {
