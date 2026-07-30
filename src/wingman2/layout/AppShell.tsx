@@ -11,7 +11,11 @@ import {
 } from "../app/routeCatalog";
 import { WingmanGuruFab } from "../components/WingmanGuruFab";
 import { WingmanViewportFitControl } from "../components/WingmanViewportFitControl";
-import { clearActiveProject } from "../data/projectStore";
+import {
+  clearActiveProject,
+  getCurrentWorkflowProject,
+  readProjectStore,
+} from "../data/projectStore";
 import { useWingmanLanguage } from "../data/wingmanLanguage";
 import wingmanBrandLogo from "../../assets/branding/wingman-brand-logo.png";
 
@@ -203,6 +207,27 @@ export function AppShell({ children }: AppShellProps) {
   const activeSummary = activeRoute?.summary ?? "WyreStorm technical sales workspace.";
   const activeRouteClass = activeRoute ? `wm-route-${activeRoute.segment}` : "wm-route-dashboard";
   const guruSupportCue = activeRoute ? GURU_SUPPORT_BY_ROUTE[activeRoute.key] : undefined;
+  const guruActivityContext = useMemo(() => {
+    const project = getCurrentWorkflowProject(readProjectStore());
+    return {
+      route: activeRoute?.key ?? "dashboard",
+      activity: activeSummary,
+      project: project
+        ? {
+            id: project.id,
+            name: project.name,
+            stage: project.stage,
+            discoveryPercent: Number(project.discoveryBrief?.capturedPercent ?? 0),
+            selectedSkus: (project.productSelections ?? []).map((item) => item.sku),
+            unresolvedItems: Array.from(new Set([
+              ...(project.discoveryBrief?.missingInformation ?? []),
+              ...(project.ingest?.unknowns ?? []),
+              ...(project.proposal?.governanceWarnings ?? []),
+            ])).slice(0, 8),
+          }
+        : undefined,
+    };
+  }, [activeRoute?.key, activeSummary, location.pathname, pageResetVersion]);
   const primaryNav = useMemo(() => consolidatedPrimaryNavKeys.map((key) => routeCatalogByKey[key]), []);
 
   useEffect(() => {
@@ -243,6 +268,18 @@ export function AppShell({ children }: AppShellProps) {
       window.removeEventListener("wingman:open-guru", handleOpenGuru);
     };
   }, []);
+
+  useEffect(() => {
+    function handleNewProjectRequest() {
+      clearStoredProjectContext();
+      setPageResetVersion((current) => current + 1);
+      navigate(routeCatalogByKey.projects.path);
+      window.setTimeout(resetMainScrollPosition, 0);
+    }
+
+    window.addEventListener("wingman:new-project", handleNewProjectRequest);
+    return () => window.removeEventListener("wingman:new-project", handleNewProjectRequest);
+  }, [navigate]);
 
   function handleNewProject() {
     clearStoredProjectContext();
@@ -318,10 +355,12 @@ export function AppShell({ children }: AppShellProps) {
           </div>
 
           <WingmanViewportFitControl />
-          <button type="button" className="wingman-new-project-button" onClick={handleNewProject} aria-label="Create new Wingman project">
-            <Plus className="h-4 w-4" />
-            <span>{uiText.newProject}</span>
-          </button>
+          {activeRoute?.key !== "dashboard" && (
+            <button type="button" className="wingman-new-project-button" onClick={handleNewProject} aria-label="Create new Wingman project">
+              <Plus className="h-4 w-4" />
+              <span>{uiText.newProject}</span>
+            </button>
+          )}
         </header>
 
         <main className="wingman-app-main">
@@ -337,13 +376,11 @@ export function AppShell({ children }: AppShellProps) {
         </main>
       </div>
 
-      {activeRoute?.key !== "dashboard" && (
-        <WingmanGuruFab
-          open={guruOpen}
-          onClick={() => setGuruOpen((current) => !current)}
-          hasContextualTransfer={Boolean(guruSupportCue)}
-        />
-      )}
+      <WingmanGuruFab
+        open={guruOpen}
+        onClick={() => setGuruOpen((current) => !current)}
+        hasContextualTransfer={Boolean(guruSupportCue)}
+      />
       {guruOpen && (
         <Suspense fallback={null}>
           <WingmanGuruDrawer
@@ -351,6 +388,7 @@ export function AppShell({ children }: AppShellProps) {
             onClose={() => setGuruOpen(false)}
             contextLabel={activeLabel}
             contextSummary={activeSummary}
+            activityContext={guruActivityContext}
             supportCue={guruSupportCue}
             seedPrompt={guruSeedPrompt}
             onSeedHandled={() => setGuruSeedPrompt(null)}

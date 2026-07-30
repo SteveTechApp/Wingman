@@ -30,6 +30,8 @@ type ActiveDrag = {
 
 const storageKey = "wingmanGuruPosition";
 const viewportInset = 12;
+const desktopClearance = 24;
+const compactClearance = 16;
 const dragThreshold = 3;
 const clickDelayMs = 230;
 
@@ -69,7 +71,22 @@ function clearStoredPosition() {
   }
 }
 
-function defaultPosition(button?: HTMLButtonElement | null): GuruPosition {
+function readSafeAreaBottom() {
+  if (typeof document === "undefined" || !document.body) return 0;
+
+  const probe = document.createElement("span");
+  probe.style.cssText =
+    "position:fixed;visibility:hidden;pointer-events:none;padding-bottom:env(safe-area-inset-bottom,0px)";
+  document.body.appendChild(probe);
+  const safeAreaBottom = Number.parseFloat(window.getComputedStyle(probe).paddingBottom) || 0;
+  probe.remove();
+  return safeAreaBottom;
+}
+
+function defaultPosition(
+  button?: HTMLButtonElement | null,
+  includeSafeArea = false,
+): GuruPosition {
   if (typeof window === "undefined") return { left: 24, top: 180 };
 
   const rect = button?.getBoundingClientRect();
@@ -80,16 +97,18 @@ function defaultPosition(button?: HTMLButtonElement | null): GuruPosition {
       ? window.matchMedia("(max-width: 980px)").matches
       : window.innerWidth <= 980;
 
+  const clearance =
+    (narrowViewport ? compactClearance : desktopClearance) +
+    (includeSafeArea ? readSafeAreaBottom() : 0);
+
   return {
     left: clamp(
-      window.innerWidth - width - (narrowViewport ? 18 : 28),
+      window.innerWidth - width - clearance,
       viewportInset,
       Math.max(viewportInset, window.innerWidth - width - viewportInset),
     ),
     top: clamp(
-      narrowViewport
-        ? window.innerHeight - height - 18
-        : Math.round(window.innerHeight * 0.44),
+      window.innerHeight - height - clearance,
       viewportInset,
       Math.max(viewportInset, window.innerHeight - height - viewportInset),
     ),
@@ -103,7 +122,9 @@ export function WingmanGuruFab({
 }: WingmanGuruFabProps) {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const activeDragRef = useRef<ActiveDrag | null>(null);
-  const livePositionRef = useRef<GuruPosition | null>(readStoredPosition());
+  const storedPositionRef = useRef<GuruPosition | null>(readStoredPosition());
+  const preferredPositionRef = useRef<GuruPosition | null>(storedPositionRef.current);
+  const livePositionRef = useRef<GuruPosition | null>(storedPositionRef.current);
   const suppressClickRef = useRef(false);
   const clickTimerRef = useRef<number | null>(null);
 
@@ -146,15 +167,17 @@ export function WingmanGuruFab({
     const button = buttonRef.current;
     if (!button) return;
 
-    const initial = livePositionRef.current
-      ? clampPosition(button, livePositionRef.current.left, livePositionRef.current.top)
-      : defaultPosition(button);
+    const initial = preferredPositionRef.current
+      ? clampPosition(button, preferredPositionRef.current.left, preferredPositionRef.current.top)
+      : defaultPosition(button, true);
 
     applyPositionToButton(initial);
     setPosition(initial);
   }, [applyPositionToButton, clampPosition]);
 
   useEffect(() => {
+    if (open) return;
+
     const authorisedLauncher = buttonRef.current;
     if (!authorisedLauncher) return;
 
@@ -176,18 +199,17 @@ export function WingmanGuruFab({
     observer.observe(document.body, { childList: true, subtree: true });
 
     return () => observer.disconnect();
-  }, []);
+  }, [open]);
 
   useEffect(() => {
     function handleResize() {
       const button = buttonRef.current;
       if (!button) return;
 
-      const current = livePositionRef.current ?? defaultPosition(button);
+      const current = preferredPositionRef.current ?? defaultPosition(button, true);
       const next = clampPosition(button, current.left, current.top);
       applyPositionToButton(next);
       setPosition(next);
-      saveStoredPosition(next);
     }
 
     window.addEventListener("resize", handleResize);
@@ -231,6 +253,7 @@ export function WingmanGuruFab({
 
         const finalPosition = livePositionRef.current;
         if (finalPosition) {
+          preferredPositionRef.current = finalPosition;
           setPosition(finalPosition);
           saveStoredPosition(finalPosition);
         }
@@ -327,7 +350,8 @@ export function WingmanGuruFab({
     }
 
     clearStoredPosition();
-    const next = defaultPosition(buttonRef.current);
+    preferredPositionRef.current = null;
+    const next = defaultPosition(buttonRef.current, true);
     applyPositionToButton(next);
     setPosition(next);
   }

@@ -255,4 +255,32 @@ describe("single Guru entry point", () => {
 
     expect(onClick).toHaveBeenCalledTimes(1);
   });
+
+  it("restores the same single launcher after the Guru panel closes", async () => {
+    const onClick = vi.fn();
+
+    await act(async () => {
+      root.render(createElement(WingmanGuruFab, { open: false, onClick }));
+    });
+
+    expect(container.querySelectorAll('[data-wingman-guru-launcher="true"]')).toHaveLength(1);
+
+    await act(async () => {
+      root.render(createElement(WingmanGuruFab, { open: true, onClick }));
+    });
+
+    expect(container.querySelectorAll('[data-wingman-guru-launcher="true"]')).toHaveLength(0);
+
+    await act(async () => {
+      root.render(createElement(WingmanGuruFab, { open: false, onClick }));
+    });
+
+    const restoredLaunchers = container.querySelectorAll<HTMLButtonElement>(
+      '[data-wingman-guru-launcher="true"]',
+    );
+
+    expect(restoredLaunchers).toHaveLength(1);
+    expect(restoredLaunchers[0]?.hidden).toBe(false);
+    expect(restoredLaunchers[0]?.dataset.wingmanGuruDuplicate).toBeUndefined();
+  });
 });
