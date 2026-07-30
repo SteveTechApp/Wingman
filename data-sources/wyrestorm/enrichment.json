@@ -31906,9 +31906,7 @@
         "networkAudio": [],
         "amplifierPower": [],
         "microphone": [],
-        "speaker": [
-          "Advanced 1 or 2 Channel Dante Amplifier with support for Low and High Impedance Speaker Systems"
-        ],
+        "speaker": [],
         "processing": []
       },
       "usb": {
@@ -32167,7 +32165,6 @@
           "The CAB-UAOC-USBC-10M delivers cutting-edge performance with its adaptive 2- or 4-lane USB-C design. Built with dual MCU chip technology, it intelligently adjusts between DP Alt Mode requirements for unmatched compatibility across devices and environments. Designed for professional AV, conferencing, and broadcast applications, this cable ensures reliable high-speed data, power, and video transmission—perfect for demanding projects where performance and flexibility are non-negotiable.",
           "Supporting up to 20Gbps data transfer and 8K-ready video bandwidth, the CAB-UAOC-USBC-10 ensures smooth, ultra-high-definition performance. Integrated Power Delivery provides 60W making it ideal for powering laptops, displays, and peripherals without compromise.",
           "Designed to excel in mission-critical applications, the cable features Kevlar reinforcement, a flexible TPE jacket, and strong EMI/RFI resistance. With plug-and-play functionality, robust tensile strength, and a minimum bend radius of just 65mm, the CAB-UAOC-USBC-10 guarantees dependable performance and durability in conference rooms, broadcast studios, and AV integration projects.",
-          "Advanced 1 or 2 Channel Dante Amplifier with support for Low and High Impedance Speaker Systems",
           "Supported file types: jpg, jpeg, png, txt, pdf, doc, docx",
           "WyreStorm Technologies is committed to protecting and respecting your privacy, and we’ll only use your personal information to administer your account and to provide the products and services you requested from us. From time to time, we would like to contact you about our products and services, as well as other content that may be of interest to you. You can unsubscribe from these communications at any time. For more information on how to unsubscribe, our privacy policies, and how we are committed to protecting and respecting your privacy, please review our privacy policy .",
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
@@ -38073,7 +38070,7 @@
         "officialProductUrl": "https://www.wyrestorm.com/product/cam-210-ndi-ptz/",
         "officialPageStatus": 200,
         "livePageUsed": true,
-        "capturedTechnicalLineCount": 85
+        "capturedTechnicalLineCount": 86
       },
       "signalDomains": [
         "Video",
@@ -38107,13 +38104,6 @@
             "direction": "output",
             "category": "video",
             "evidence": "1x HDMI female Type A"
-          },
-          {
-            "count": 1,
-            "connector": "NDI stream 1x NDI stream",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x NDI stream"
           },
           {
             "count": 1,
@@ -38173,10 +38163,10 @@
           },
           {
             "count": 1,
-            "connector": "12V DC 1A Power Supply 1x 12V DC 1A Power Supply (US/UK/EU/AU)",
+            "connector": "12V DC 2A Power Supply 1x 12V DC 2A Power Supply (US/UK/EU/AU)",
             "direction": "output",
             "category": "other",
-            "evidence": "1x 12V DC 1A Power Supply (US/UK/EU/AU)"
+            "evidence": "1x 12V DC 2A Power Supply (US/UK/EU/AU)"
           },
           {
             "count": 1,
@@ -38289,13 +38279,6 @@
         "other": [
           {
             "count": 1,
-            "connector": "NDI stream 1x NDI stream",
-            "direction": "output",
-            "category": "other",
-            "evidence": "1x NDI stream"
-          },
-          {
-            "count": 1,
             "connector": "RJ-45 Female 1x RJ-45 Female",
             "direction": "output",
             "category": "other",
@@ -38324,10 +38307,10 @@
           },
           {
             "count": 1,
-            "connector": "12V DC 1A Power Supply 1x 12V DC 1A Power Supply (US/UK/EU/AU)",
+            "connector": "12V DC 2A Power Supply 1x 12V DC 2A Power Supply (US/UK/EU/AU)",
             "direction": "output",
             "category": "other",
-            "evidence": "1x 12V DC 1A Power Supply (US/UK/EU/AU)"
+            "evidence": "1x 12V DC 2A Power Supply (US/UK/EU/AU)"
           },
           {
             "count": 1,
@@ -38354,7 +38337,8 @@
           "1920x1080p @60Hz 2m (passive cable) 15m (with CAB-UAOC-",
           "1920x1080p @60Hz 100m/328ft Output Video Encoding USB 3",
           "1080p HD video 12x optical and 16x digital zoom 72",
-          "1920x1080p @30Hz Cat5e or Higher 1920x1080p @30Hz USB 3"
+          "1920x1080p @30Hz Cat5e or Higher 1920x1080p @30Hz USB 3",
+          "1080p HD video 12x optical and 4x digital zoom Net"
         ],
         "standards": [
           "HDMI"
@@ -38377,6 +38361,7 @@
           "Output Video Encoding",
           "HDMI output for passthrough to local monitor",
           "Perfect for corporate, education and government environments where video capture or conference is required",
+          "1/2.8 inch, 2.07M CMOS sensor that captures crystal clear 1080p HD video",
           "1/2.7inch, 2.07M CMOS sensor that captures crystal clear 1080p HD video",
           "Part of the Unified Communication line of products, the CAM-210-NDI-PTZ offers a premium video conferencing experience. HD 1080p video ensures users appear crystal clear in their meetings. A high-quality pan and tilt motor provides a smooth experience without excess noise or judder. Equipped with four outputs, the CAM-210-NDI-PTZ can output video via its USB 3.0 port, HDMI port, network connection, or NDI. NDI support enables ultra-low latency video integration with professional AV systems, making it ideal for broadcasting, streaming, and production environments. 3rd-party control is a breeze by utilizing the industry-standard VISCA protocol. An integrated web interface and free PC software provide advanced configuration options.",
           "Advanced configuration can be made through the integrated web interface or the software available in the WyreStorm management suite. Adjust settings such as resolution, framerate, brightness, contrast and much more.",
@@ -38414,12 +38399,13 @@
         "present": true,
         "interfaces": [
           "1x RJ-45: 10M/100M Adaptive Ethernet",
-          "Network H.265/MJPEG | CBR or VBR up to 2Mbps",
+          "Network: MJPEG | H.264",
           "Ethernet",
-          "Network output supports HTTP, RTSP, RTMP & Multicast",
+          "Network output supports NDI, HTTP, RTSP, RTMP & Multicast",
           "Flexible control options via the RS-232, LAN or IR",
           "1x RJ45 8-pin LAN",
           "Network H.265/MJPEG | CBR or VBR up to 2Mbps)",
+          "Network output supports HTTP, RTSP, RTMP & Multicast",
           "Part of the Unified Communication line of products, the CAM-210-NDI-PTZ offers a premium video conferencing experience. HD 1080p video ensures users appear crystal clear in their meetings. A high-quality pan and tilt motor provides a smooth experience without excess noise or judder. Equipped with four outputs, the CAM-210-NDI-PTZ can output video via its USB 3.0 port, HDMI port, network connection, or NDI. NDI support enables ultra-low latency video integration with professional AV systems, making it ideal for broadcasting, streaming, and production environments. 3rd-party control is a breeze by utilizing the industry-standard VISCA protocol. An integrated web interface and free PC software provide advanced configuration options.",
           "Transmit 1080p HD video simultaneously via USB 3.0, network connection, and NDI. Use the USB 3.0 output to connect locally to a computer or a WyreStorm presentation switcher, while leveraging the network connection for IP streaming or direct NDI support for ultra-low latency video feeds. NDI allows seamless integration with compatible NVRs, streaming platforms, and production environments, offering unparalleled flexibility for professional AV setups."
         ],
@@ -38458,7 +38444,7 @@
           "12V DC 2A | PoE 802.3af",
           "Max Power Consumption",
           "12V DC 1A",
-          "1x 12V DC 1A Power Supply (US/UK/EU/AU)"
+          "1x 12V DC 2A Power Supply (US/UK/EU/AU)"
         ]
       },
       "mechanical": {
@@ -38532,7 +38518,7 @@
           "id": "ndi",
           "label": "NDI",
           "group": "Network",
-          "evidence": "1x NDI stream",
+          "evidence": "Network output supports NDI, HTTP, RTSP, RTMP & Multicast",
           "confidence": 0.94
         },
         {
@@ -38704,7 +38690,6 @@
           "1x USB 3.0 Type C female",
           "1x RJ-45: 10M/100M Adaptive Ethernet",
           "1x HDMI female Type A",
-          "1x NDI stream",
           "Video Resolution (Max)",
           "USB 3.0 1920x1080p @60Hz",
           "2m (passive cable)",
@@ -38712,11 +38697,11 @@
           "Cat5e or Higher 1920x1080p @60Hz",
           "100m/328ft",
           "Output Video Encoding",
-          "USB 3.0 MJPEG/YUY2 | UVC 1.5",
-          "Network H.265/MJPEG | CBR or VBR up to 2Mbps",
+          "USB 3.0: MJPEG | H.264 | YUY2",
+          "Network: MJPEG | H.264",
           "CAMERA & SENSOR",
           "Sensor",
-          "1/2.7inch, 2.07M CMOS sensor",
+          "1/2.8 inch, 2.07M CMOS sensor",
           "Lens",
           "12x, f=3.5mm ~ 42.3mm, F1.8 ~ F2.8",
           "Zoom",
@@ -38734,7 +38719,7 @@
           "Viewing Angle",
           "Horizontal: 72.5° | Vertical: 44.8°",
           "Rotation",
-          "Horizontal: ±170° | Vertical: 44.8°",
+          "Horizontal: ±170° | Vertical: -30° ~ +90°",
           "Pan Tilt Zoom",
           "Pan: 1.7°~100°/s | Tilt: 1.7°~69.9°/s",
           "Image Flip",
@@ -38750,16 +38735,16 @@
           "Power Supply",
           "12V DC 2A | PoE 802.3af",
           "Max Power Consumption",
-          "18W",
+          "12W",
           "Additional Features",
           "Easy plug-and-play solution with a driver-less setup",
           "Compatible with popular meeting software such as Skype, Teams, Zoom and more",
           "HDMI output for passthrough to local monitor",
           "Perfect for corporate, education and government environments where video capture or conference is required",
-          "1/2.7inch, 2.07M CMOS sensor that captures crystal clear 1080p HD video",
+          "1/2.8 inch, 2.07M CMOS sensor that captures crystal clear 1080p HD video",
           "12x optical and 16x digital zoom",
           "72.5-degree wide angle lens for capturing the entire room",
-          "Network output supports HTTP, RTSP, RTMP & Multicast",
+          "Network output supports NDI, HTTP, RTSP, RTMP & Multicast",
           "A high-grade pan and tilt motor provides extremely smooth camera movement",
           "Flexible control options via the RS-232, LAN or IR",
           "1x USB 3.0 Type B female",
@@ -38768,17 +38753,18 @@
           "Cat5e or Higher 1920x1080p @30Hz",
           "USB 3.0 MJPEG/YUY2/UVC 1.5)",
           "Network H.265/MJPEG | CBR or VBR up to 2Mbps)",
+          "1/2.7inch, 2.07M CMOS sensor",
           "Optical: 12x | Digital: 4x",
           "0.5Lux @ (1.8, AGC ON",
           "Horizontal: ±170° | Vertical: -30°~ +90°",
           "1x 8-pin RJ-45 Female",
           "12V DC 1A",
-          "12W",
+          "1/2.7inch, 2.07M CMOS sensor that captures crystal clear 1080p HD video",
           "12x optical and 4x digital zoom",
+          "Network output supports HTTP, RTSP, RTMP & Multicast",
           "In the Box",
           "1x CAM-210-NDI-PTZ camera",
-          "1x 12V DC 1A Power Supply (US/UK/EU/AU)",
-          "1x IR Remote"
+          "1x 12V DC 2A Power Supply (US/UK/EU/AU)"
         ],
         "featureLines": [
           "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
@@ -38787,8 +38773,9 @@
           "Advanced configuration can be made through the integrated web interface or the software available in the WyreStorm management suite. Adjust settings such as resolution, framerate, brightness, contrast and much more.",
           "Transmit 1080p HD video simultaneously via USB 3.0, network connection, and NDI. Use the USB 3.0 output to connect locally to a computer or a WyreStorm presentation switcher, while leveraging the network connection for IP streaming or direct NDI support for ultra-low latency video feeds. NDI allows seamless integration with compatible NVRs, streaming platforms, and production environments, offering unparalleled flexibility for professional AV setups.",
           "Compatible with popular meeting software such as Skype, Teams, Zoom and more",
-          "Network output supports HTTP, RTSP, RTMP & Multicast",
+          "Network output supports NDI, HTTP, RTSP, RTMP & Multicast",
           "A high-grade pan and tilt motor provides extremely smooth camera movement",
+          "Network output supports HTTP, RTSP, RTMP & Multicast",
           "Supported file types: jpg, jpeg, png, txt, pdf, doc, docx",
           "WyreStorm Technologies is committed to protecting and respecting your privacy, and we’ll only use your personal information to administer your account and to provide the products and services you requested from us. From time to time, we would like to contact you about our products and services, as well as other content that may be of interest to you. You can unsubscribe from these communications at any time. For more information on how to unsubscribe, our privacy policies, and how we are committed to protecting and respecting your privacy, please review our privacy policy .",
           "By clicking register below, you consent to allow WyreStorm Technologies to store and process the personal information submitted above to provide you the content requested."
@@ -39352,7 +39339,7 @@
         "officialProductUrl": "https://www.wyrestorm.com/product/cam-210-ptz/",
         "officialPageStatus": 200,
         "livePageUsed": true,
-        "capturedTechnicalLineCount": 84
+        "capturedTechnicalLineCount": 85
       },
       "signalDomains": [
         "Video",
@@ -39444,10 +39431,10 @@
           },
           {
             "count": 1,
-            "connector": "12V DC 1A Power Supply 1x 12V DC 1A Power Supply (US/UK/EU/AU)",
+            "connector": "12V DC 2A Power Supply 1x 12V DC 2A Power Supply (US/UK/EU/AU)",
             "direction": "output",
             "category": "other",
-            "evidence": "1x 12V DC 1A Power Supply (US/UK/EU/AU)"
+            "evidence": "1x 12V DC 2A Power Supply (US/UK/EU/AU)"
           },
           {
             "count": 1,
@@ -39588,10 +39575,10 @@
           },
           {
             "count": 1,
-            "connector": "12V DC 1A Power Supply 1x 12V DC 1A Power Supply (US/UK/EU/AU)",
+            "connector": "12V DC 2A Power Supply 1x 12V DC 2A Power Supply (US/UK/EU/AU)",
             "direction": "output",
             "category": "other",
-            "evidence": "1x 12V DC 1A Power Supply (US/UK/EU/AU)"
+            "evidence": "1x 12V DC 2A Power Supply (US/UK/EU/AU)"
           },
           {
             "count": 1,
@@ -39618,7 +39605,8 @@
           "1920x1080p @60Hz 2m (passive cable) 15m (with CAB-UAOC-",
           "1920x1080p @60Hz 100m/328ft Output Video Encoding USB 3",
           "1080p HD video 12x optical and 16x digital zoom 72",
-          "1920x1080p @30Hz Cat5e or Higher 1920x1080p @30Hz USB 3"
+          "1920x1080p @30Hz Cat5e or Higher 1920x1080p @30Hz USB 3",
+          "1080p HD video 12x optical and 4x digital zoom In"
         ],
         "standards": [
           "HDMI"
@@ -39641,6 +39629,7 @@
           "Output Video Encoding",
           "HDMI output for passthrough to local monitor",
           "Perfect for corporate, education and government environments where video capture or conference is required",
+          "1/2.8 inch, 2.07M CMOS sensor that captures crystal clear 1080p HD video",
           "1/2.7inch, 2.07M CMOS sensor that captures crystal clear 1080p HD video",
           "Part of the Unified Communication line of products, the CAM-210-PTZ offers a premium video conferencing experience. HD 1080p video ensures users appear crystal clear in their meetings. A high-quality pan and tilt motor provides a smooth experience without excess noise or judder. Equipped with three outputs, the CAM-210-PTZ can output video via its USB 3.0 port, HDMI port or the network connection. 3rd-party control is a breeze by utilizing the industry standard VISCA protocol. An integrated web interface and free PC software provide advanced configuration options.",
           "Advanced configuration can be made through the integrated web interface or the software available in the WyreStorm management suite. Adjust settings such as resolution, framerate, brightness, contrast and much more."
@@ -39675,7 +39664,7 @@
         "present": true,
         "interfaces": [
           "1x RJ-45: 10M/100M Adaptive Ethernet",
-          "Network H.265/MJPEG | CBR or VBR up to 2Mbps",
+          "Network: MJPEG | H.264",
           "Ethernet",
           "Network output supports HTTP, RTSP, RTMP & Multicast",
           "Flexible control options via the RS-232, LAN or IR",
@@ -39716,7 +39705,7 @@
           "12V DC 2A | PoE 802.3af",
           "Max Power Consumption",
           "12V DC 1A",
-          "1x 12V DC 1A Power Supply (US/UK/EU/AU)"
+          "1x 12V DC 2A Power Supply (US/UK/EU/AU)"
         ]
       },
       "mechanical": {
@@ -39959,11 +39948,11 @@
           "Cat5e or Higher 1920x1080p @60Hz",
           "100m/328ft",
           "Output Video Encoding",
-          "USB 3.0 MJPEG/YUY2 | UVC 1.5",
-          "Network H.265/MJPEG | CBR or VBR up to 2Mbps",
+          "USB 3.0: MJPEG | H.264 | YUY2",
+          "Network: MJPEG | H.264",
           "CAMERA & SENSOR",
           "Sensor",
-          "1/2.7inch, 2.07M CMOS sensor",
+          "1/2.8 inch, 2.07M CMOS sensor",
           "Lens",
           "12x, f=3.5mm ~ 42.3mm, F1.8 ~ F2.8",
           "Zoom",
@@ -39981,7 +39970,7 @@
           "Viewing Angle",
           "Horizontal: 72.5° | Vertical: 44.8°",
           "Rotation",
-          "Horizontal: ±170° | Vertical: 44.8°",
+          "Horizontal: ±170° | Vertical: -30° ~ +90°",
           "Pan Tilt Zoom",
           "Pan: 1.7°~100°/s | Tilt: 1.7°~69.9°/s",
           "Image Flip",
@@ -39997,13 +39986,13 @@
           "Power Supply",
           "12V DC 2A | PoE 802.3af",
           "Max Power Consumption",
-          "18W",
+          "12W",
           "Additional Features",
           "Easy plug-and-play solution with a driver-less setup",
           "Compatible with popular meeting software such as Skype, Teams, Zoom and more",
           "HDMI output for passthrough to local monitor",
           "Perfect for corporate, education and government environments where video capture or conference is required",
-          "1/2.7inch, 2.07M CMOS sensor that captures crystal clear 1080p HD video",
+          "1/2.8 inch, 2.07M CMOS sensor that captures crystal clear 1080p HD video",
           "12x optical and 16x digital zoom",
           "72.5-degree wide angle lens for capturing the entire room",
           "Network output supports HTTP, RTSP, RTMP & Multicast",
@@ -40015,18 +40004,18 @@
           "Cat5e or Higher 1920x1080p @30Hz",
           "USB 3.0 MJPEG/YUY2/UVC 1.5)",
           "Network H.265/MJPEG | CBR or VBR up to 2Mbps)",
+          "1/2.7inch, 2.07M CMOS sensor",
           "Optical: 12x | Digital: 4x",
           "0.5Lux @ (1.8, AGC ON",
           "Horizontal: ±170° | Vertical: -30°~ +90°",
           "1x 8-pin RJ-45 Female",
           "12V DC 1A",
-          "12W",
+          "1/2.7inch, 2.07M CMOS sensor that captures crystal clear 1080p HD video",
           "12x optical and 4x digital zoom",
           "In the Box",
           "1x CAM-210-PTZ camera",
-          "1x 12V DC 1A Power Supply (US/UK/EU/AU)",
-          "1x IR Remote",
-          "1x Wall Mount"
+          "1x 12V DC 2A Power Supply (US/UK/EU/AU)",
+          "1x IR Remote"
         ],
         "featureLines": [
           "WyreStorm provides solutions for today’s demanding LECTURING spaces.",
@@ -42962,7 +42951,7 @@
           "Dolby TrueHD",
           "DTS-HD Downmixing and eARC Output - WyreStorm 4K",
           "DTS-HD Downmixing and eARC Output - WyreStorm DISCONTINUED Bringing the latest technology currently only seen on the latest HDMI 2.1 devices the CON-H2-DD-EARC tackles the demands of today",
-          "Dolby TrueHD or DTS-HD audio to stereo and scale incoming 4K UHD content to 1080p. The DSP-controlled stereo audio output allows adjustment of both volume and EQ via a control system and the unit can b... General AV Unclassified"
+          "Dolby TrueHD or DTS-HD audio to stereo and scale incoming 4K UHD content to 1080p. The DSP-controlled stereo audio output allows adjustment of both volume and EQ via a control system and the unit can b... General AV Audio"
         ],
         "networkAudio": [],
         "amplifierPower": [],
@@ -46485,7 +46474,7 @@
           "4K HDBaseT Extender with USB - WyreStorm 100m 4",
           "4K, USB, PoH and HD audio up to 100m/328ft with",
           "4K60Hz 4:2:0 HDBT 2",
-          "4K: 100m/328ft) Extension Extender AUDIO & VIDE",
+          "4K: 100m/328ft) Extension Extender / HDBaseT AU",
           "1920x1080p @60Hz 12bit 3840x2160p @30Hz 8bit 4:4:4 3840",
           "3840x2160p @30Hz 8bit 4:4:4 HDR Supported Standards DCI",
           "4K@60Hz (4:2:0) content up to 100/328ft meters"
@@ -47651,6 +47640,7 @@
       },
       "featureGroups": {
         "Video": [
+          "HDBaseT",
           "HDMI",
           "HDR"
         ],
@@ -47676,6 +47666,13 @@
         ]
       },
       "features": [
+        {
+          "id": "hdbaset",
+          "label": "HDBaseT",
+          "group": "Video",
+          "evidence": "hdbaset",
+          "confidence": 0.72
+        },
         {
           "id": "hdmi",
           "label": "HDMI",
@@ -48674,7 +48671,7 @@
           "id": "hdbaset",
           "label": "HDBaseT",
           "group": "Video",
-          "evidence": "hdbt",
+          "evidence": "hdbaset",
           "confidence": 0.72
         },
         {
@@ -49608,7 +49605,7 @@
           "4K HDMI & USB KVM Extender over HDBaseT WyreSto",
           "4K HDMI, USB 2",
           "4K60Hz 4:2:0 HDBT 2",
-          "4K: 100m/328ft) Extension Extender AUDIO AND VI",
+          "4K: 100m/328ft) Extension Extender / HDBaseT AU",
           "4K@60Hz 4:2:0 8bit, HDCP 2",
           "1080p @60Hz 4K @30Hz 4:4:4 4K @60Hz 4:2:0 5120×144"
         ],
@@ -51560,7 +51557,7 @@
           "4K KVM over IP extender to control computers an",
           "4K video, USB device support, low latency, and",
           "4K30Hz 4:4:4 IP Extender set",
-          "4K30: 100m/328ft) Extension Extender Additional",
+          "4K30: 100m/328ft) Extension Extender / HDBaseT",
           "1920x1080p @60Hz 12bit 3840x2160p @30Hz 8bit 4096x2160p",
           "4K@30Hz resolution Ultra-low latency (&lt"
         ],
@@ -51682,6 +51679,7 @@
       },
       "featureGroups": {
         "Video": [
+          "HDBaseT",
           "HDMI"
         ],
         "USB": [
@@ -51698,6 +51696,13 @@
         ]
       },
       "features": [
+        {
+          "id": "hdbaset",
+          "label": "HDBaseT",
+          "group": "Video",
+          "evidence": "hdbaset",
+          "confidence": 0.72
+        },
         {
           "id": "hdmi",
           "label": "HDMI",
@@ -52667,8 +52672,8 @@
           "id": "hdbaset",
           "label": "HDBaseT",
           "group": "Video",
-          "evidence": "hdbt",
-          "confidence": 0.72
+          "evidence": "Equipped with advanced PoH+ (Power over HDBaseT) support, this unit can deliver a substantial 25.5 Watts of power to all connected peripherals. It also features a high-current output specifically designed to efficiently power devices like USB 3.0 cameras, ensuring optimal performance and reliability.",
+          "confidence": 0.94
         },
         {
           "id": "hdmi",
@@ -54282,7 +54287,7 @@
         "other": []
       },
       "video": {
-        "present": false,
+        "present": true,
         "maxResolutions": [
           "4K60 UTP Extender"
         ],
@@ -54344,8 +54349,20 @@
         "installation": [],
         "evidence": []
       },
-      "featureGroups": {},
-      "features": [],
+      "featureGroups": {
+        "Video": [
+          "HDBaseT"
+        ]
+      },
+      "features": [
+        {
+          "id": "hdbaset",
+          "label": "HDBaseT",
+          "group": "Video",
+          "evidence": "hdbaset",
+          "confidence": 0.72
+        }
+      ],
       "applications": [
         "Point-to-point extension",
         "Long-distance video, USB, control and network transport"
@@ -57268,7 +57285,7 @@
           "1080p UTP Extender - WyreStorm 40m 1080p UTP Exten",
           "1080p HD video over a Cat6 cable",
           "1080p60Hz UTP Extender Set",
-          "1080p: 40m/131ft) Extension Extender Additional Fe",
+          "1080p: 40m/131ft) Extension Extender / HDBaseT Add",
           "1920x1080p @60Hz 8bit Supported Standards DCI Maximum P"
         ],
         "standards": [
@@ -57370,6 +57387,7 @@
       },
       "featureGroups": {
         "Video": [
+          "HDBaseT",
           "HDMI"
         ],
         "Control": [
@@ -57384,6 +57402,13 @@
         ]
       },
       "features": [
+        {
+          "id": "hdbaset",
+          "label": "HDBaseT",
+          "group": "Video",
+          "evidence": "hdbaset",
+          "confidence": 0.72
+        },
         {
           "id": "hdmi",
           "label": "HDMI",
@@ -60885,6 +60910,9 @@
         "evidence": []
       },
       "featureGroups": {
+        "Video": [
+          "HDBaseT"
+        ],
         "USB": [
           "KVM / USB extension",
           "USB 2.0",
@@ -60898,6 +60926,13 @@
         ]
       },
       "features": [
+        {
+          "id": "hdbaset",
+          "label": "HDBaseT",
+          "group": "Video",
+          "evidence": "hdbaset",
+          "confidence": 0.72
+        },
         {
           "id": "kvm",
           "label": "KVM / USB extension",
@@ -61371,7 +61406,8 @@
       "USB routing / switching",
       "Ethernet / LAN",
       "EDID management",
-      "PoE / PoH / PoC"
+      "PoE / PoH / PoC",
+      "HDBaseT"
     ],
     "applications": [
       "KVM extension",
@@ -61430,7 +61466,8 @@
       "EDID management",
       "PoE / PoH / PoC",
       "Point-to-point extension",
-      "Long-distance video, USB, control and network transport"
+      "Long-distance video, USB, control and network transport",
+      "HDBaseT"
     ],
     "routingClass": "Point-to-point extension",
     "source": "2026 WyreStorm Product Guide PDF",
@@ -61791,6 +61828,7 @@
       },
       "featureGroups": {
         "Video": [
+          "HDBaseT",
           "HDMI"
         ],
         "USB": [
@@ -61809,6 +61847,13 @@
         ]
       },
       "features": [
+        {
+          "id": "hdbaset",
+          "label": "HDBaseT",
+          "group": "Video",
+          "evidence": "hdbaset",
+          "confidence": 0.72
+        },
         {
           "id": "hdmi",
           "label": "HDMI",
@@ -62211,7 +62256,8 @@
       "USB routing / switching",
       "Ethernet / LAN",
       "EDID management",
-      "PoE / PoH / PoC"
+      "PoE / PoH / PoC",
+      "HDBaseT"
     ],
     "searchTerms": [
       "EX-60D-KVM",
@@ -62278,7 +62324,8 @@
       "Is the system expected to grow, change rooms, add endpoints, record, stream or integrate with a wider AV platform?",
       "Use for architectural judgement, product-family selection and proposal-safe trade-off language.",
       "Be explicit when the product is technically possible but unlikely to be the most natural choice.",
-      "Do not let a feature match override the real application, architecture or operational requirement."
+      "Do not let a feature match override the real application, architecture or operational requirement.",
+      "HDBaseT"
     ],
     "roleCorrectionSource": "product-manager-profile:wyrestorm-product-manager-v1"
   },
@@ -64880,6 +64927,7 @@
       },
       "featureGroups": {
         "Video": [
+          "HDBaseT",
           "HDMI"
         ],
         "Audio": [
@@ -64897,6 +64945,13 @@
         ]
       },
       "features": [
+        {
+          "id": "hdbaset",
+          "label": "HDBaseT",
+          "group": "Video",
+          "evidence": "hdbaset",
+          "confidence": 0.72
+        },
         {
           "id": "hdmi",
           "label": "HDMI",
@@ -66530,6 +66585,7 @@
       },
       "featureGroups": {
         "Video": [
+          "HDBaseT",
           "HDMI"
         ],
         "USB": [
@@ -66548,6 +66604,13 @@
         ]
       },
       "features": [
+        {
+          "id": "hdbaset",
+          "label": "HDBaseT",
+          "group": "Video",
+          "evidence": "hdbaset",
+          "confidence": 0.72
+        },
         {
           "id": "hdmi",
           "label": "HDMI",
@@ -67430,7 +67493,7 @@
         "maxResolutions": [
           "4K60 HDbaseT 3",
           "4K60Hz 4:4:4,5K30Hz 4:4:4 HDBaseT TM Extender S",
-          "4K 60hz 100m (Cat6a) Extension Extender AUDIO A",
+          "4K 60hz 100m (Cat6a) Extension Extender / HDBas",
           "1920x1080p @ 60Hz 3840x2160 @60Hz 4:4:4 12bit (HDR/DV)"
         ],
         "standards": [
@@ -68632,6 +68695,7 @@
       },
       "featureGroups": {
         "Video": [
+          "HDBaseT",
           "HDMI"
         ],
         "Control": [
@@ -68641,6 +68705,13 @@
         ]
       },
       "features": [
+        {
+          "id": "hdbaset",
+          "label": "HDBaseT",
+          "group": "Video",
+          "evidence": "hdbaset",
+          "confidence": 0.72
+        },
         {
           "id": "hdmi",
           "label": "HDMI",
@@ -69556,6 +69627,7 @@
       },
       "featureGroups": {
         "Video": [
+          "HDBaseT",
           "HDMI",
           "HDR"
         ],
@@ -69569,6 +69641,13 @@
         ]
       },
       "features": [
+        {
+          "id": "hdbaset",
+          "label": "HDBaseT",
+          "group": "Video",
+          "evidence": "hdbaset",
+          "confidence": 0.72
+        },
         {
           "id": "hdmi",
           "label": "HDMI",
@@ -70388,7 +70467,7 @@
           "4K HDMI Fiber Extender",
           "4K HDMI fiber extender to transmit pristine 4K HDR",
           "4K60Hz 4:4:4 Multi-Mode Fiber Extender Set",
-          "4K: 300m/984ft) Extension Extender AUDIO & VIDE",
+          "4K: 300m/984ft) Extension Extender / HDBaseT AU",
           "1920x1080p @60Hz 16bit 3840x2160p @60Hz 10bit 4:2:0 HDR",
           "4096x2160p @60Hz 8bit 4:4:4 Supported Standards DCI"
         ],
@@ -70494,6 +70573,7 @@
       },
       "featureGroups": {
         "Video": [
+          "HDBaseT",
           "HDMI",
           "HDR"
         ],
@@ -70516,6 +70596,13 @@
         ]
       },
       "features": [
+        {
+          "id": "hdbaset",
+          "label": "HDBaseT",
+          "group": "Video",
+          "evidence": "hdbaset",
+          "confidence": 0.72
+        },
         {
           "id": "hdmi",
           "label": "HDMI",
@@ -77755,7 +77842,8 @@
       "applicationRole": "Problem-solving utility for HDMI, audio and control paths",
       "transportClass": [
         "HDMI",
-        "Audio"
+        "Audio",
+        "Control"
       ],
       "signalDomains": [
         "Video",
@@ -77802,7 +77890,8 @@
       ],
       "transports": [
         "HDMI",
-        "Audio"
+        "Audio",
+        "Control"
       ],
       "io": {
         "ports": [],
@@ -77866,7 +77955,7 @@
         "powerOverNetwork": []
       },
       "control": {
-        "present": false,
+        "present": true,
         "protocols": [],
         "evidence": [
           "When multiple audio formats are needed in a system, the EXP-CON-AUD-H2 gives the user 3 audio EDID options to choose from; 5.1 surround, 2 channel analog or passthrough. This is perfect if multiple audio amplifiers or AVRs are in the system, allowing each audio system to receive a discrete EDID without affecting the source."
@@ -77995,7 +78084,7 @@
             "pitch": "Use this view when the installer needs to confirm what each button, touch action or control command actually triggers in the room.",
             "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
             "talkTrack": [
-              "Check the practical signal path around HDMI, Audio before finalising the design.",
+              "Check the practical signal path around HDMI, Audio, Control before finalising the design.",
               "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
               "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
             ],
@@ -78122,7 +78211,7 @@
           "pitch": "Use this view when the installer needs to confirm what each button, touch action or control command actually triggers in the room.",
           "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
           "talkTrack": [
-            "Check the practical signal path around HDMI, Audio before finalising the design.",
+            "Check the practical signal path around HDMI, Audio, Control before finalising the design.",
             "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
             "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
           ],
@@ -78366,7 +78455,8 @@
       "systemRole": "Signal conditioning, audio breakout or format management",
       "applicationRole": "Problem-solving utility for HDMI, audio and control paths",
       "transportClass": [
-        "Audio"
+        "Audio",
+        "Control"
       ],
       "signalDomains": [
         "Video",
@@ -78411,7 +78501,8 @@
         "Control"
       ],
       "transports": [
-        "Audio"
+        "Audio",
+        "Control"
       ],
       "io": {
         "ports": [],
@@ -78456,7 +78547,7 @@
         "powerOverNetwork": []
       },
       "control": {
-        "present": false,
+        "present": true,
         "protocols": [],
         "evidence": []
       },
@@ -78553,7 +78644,7 @@
             "pitch": "Use this view when the installer needs to confirm what each button, touch action or control command actually triggers in the room.",
             "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
             "talkTrack": [
-              "Check the practical signal path around Audio before finalising the design.",
+              "Check the practical signal path around Audio, Control before finalising the design.",
               "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
               "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
             ],
@@ -78678,7 +78769,7 @@
           "pitch": "Use this view when the installer needs to confirm what each button, touch action or control command actually triggers in the room.",
           "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
           "talkTrack": [
-            "Check the practical signal path around Audio before finalising the design.",
+            "Check the practical signal path around Audio, Control before finalising the design.",
             "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
             "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
           ],
@@ -78859,7 +78950,8 @@
       "Use for architectural judgement, product-family selection and proposal-safe trade-off language.",
       "Be explicit when the product is technically possible but unlikely to be the most natural choice.",
       "Do not let a feature match override the real application, architecture or operational requirement.",
-      "Check the practical signal path around Audio before finalising the design."
+      "Check the practical signal path around Audio before finalising the design.",
+      "Check the practical signal path around Audio, Control before finalising the design."
     ],
     "source": {
       "type": "official-product-page",
@@ -78890,7 +78982,8 @@
       "systemRole": "Signal conditioning, audio breakout or format management",
       "applicationRole": "Problem-solving utility for HDMI, audio and control paths",
       "transportClass": [
-        "Audio"
+        "Audio",
+        "Control"
       ],
       "signalDomains": [
         "Video",
@@ -78935,7 +79028,8 @@
         "Control"
       ],
       "transports": [
-        "Audio"
+        "Audio",
+        "Control"
       ],
       "io": {
         "ports": [],
@@ -78959,7 +79053,7 @@
         "present": true,
         "formats": [
           "Dolby Digital 5.1 from a suitable coaxial or TOSLINK audio source to analogue stereo. The WyreStorm EXP-CON-DAC-D is a Digital to Analogue Audio Converter that downmixes S",
-          "Dolby Digital 5.1 from a suitable coaxial or TOSLINK audio source to analogue stereo. General AV Unclassified"
+          "Dolby Digital 5.1 from a suitable coaxial or TOSLINK audio source to analogue stereo. General AV Audio"
         ],
         "networkAudio": [],
         "amplifierPower": [],
@@ -78983,7 +79077,7 @@
         "powerOverNetwork": []
       },
       "control": {
-        "present": false,
+        "present": true,
         "protocols": [],
         "evidence": []
       },
@@ -79071,7 +79165,7 @@
             "pitch": "Use this view when the installer needs to confirm what each button, touch action or control command actually triggers in the room.",
             "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
             "talkTrack": [
-              "Check the practical signal path around Audio before finalising the design.",
+              "Check the practical signal path around Audio, Control before finalising the design.",
               "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
               "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
             ],
@@ -79197,7 +79291,7 @@
           "pitch": "Use this view when the installer needs to confirm what each button, touch action or control command actually triggers in the room.",
           "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
           "talkTrack": [
-            "Check the practical signal path around Audio before finalising the design.",
+            "Check the practical signal path around Audio, Control before finalising the design.",
             "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
             "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
           ],
@@ -79435,7 +79529,8 @@
       "applicationRole": "Problem-solving utility for HDMI, audio and control paths",
       "transportClass": [
         "HDMI",
-        "Audio"
+        "Audio",
+        "Control"
       ],
       "signalDomains": [
         "Video",
@@ -79481,7 +79576,8 @@
       ],
       "transports": [
         "HDMI",
-        "Audio"
+        "Audio",
+        "Control"
       ],
       "io": {
         "ports": [],
@@ -79512,7 +79608,7 @@
         "present": true,
         "formats": [
           "DTS",
-          "Dolby True HD or DTS-HD 7.1 audio signals from an HDMI source and downmix them to RCA stereo analog. General AV Unclassified"
+          "Dolby True HD or DTS-HD 7.1 audio signals from an HDMI source and downmix them to RCA stereo analog. General AV Audio"
         ],
         "networkAudio": [],
         "amplifierPower": [],
@@ -79536,7 +79632,7 @@
         "powerOverNetwork": []
       },
       "control": {
-        "present": false,
+        "present": true,
         "protocols": [],
         "evidence": []
       },
@@ -79637,7 +79733,7 @@
             "pitch": "Use this view when the installer needs to confirm what each button, touch action or control command actually triggers in the room.",
             "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
             "talkTrack": [
-              "Check the practical signal path around HDMI, Audio before finalising the design.",
+              "Check the practical signal path around HDMI, Audio, Control before finalising the design.",
               "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
               "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
             ],
@@ -79766,7 +79862,7 @@
           "pitch": "Use this view when the installer needs to confirm what each button, touch action or control command actually triggers in the room.",
           "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
           "talkTrack": [
-            "Check the practical signal path around HDMI, Audio before finalising the design.",
+            "Check the practical signal path around HDMI, Audio, Control before finalising the design.",
             "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
             "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
           ],
@@ -91012,7 +91108,7 @@
           "4K60 1:2 Scaling HDMI Splitter - WyreStorm The",
           "4K and 1080p displays, which gives the sour",
           "4K60Hz 4:4:4 1x2 HDMI Splitter",
-          "1080p Down-Scaler General AV Unclassified Addition",
+          "1080p Down-Scaler General AV Splitter / Distributi",
           "1920x1080p @60Hz 12bit 1920x1080p @60Hz 16bit 3840x2160",
           "3840x2160p @60Hz 8bit 4:4:4 3840x2160p @60Hz 10bit 4:2:",
           "4096x2160p @60Hz 8bit 4:2:0 4096x2160p @60Hz 8bit 4:4:4",
@@ -91848,7 +91944,7 @@
           "4K60 1:4 Scaling HDMI Splitter - WyreStorm The",
           "4K and 1080p displays, which gives the sour",
           "4K60Hz 4:4:4 1x4 HDMI Splitter",
-          "1080p Down-Scaler General AV Unclassified Addition",
+          "1080p Down-Scaler General AV Splitter / Distributi",
           "1920x1080p @60Hz 12bit 1920x1080p @60Hz 16bit 3840x2160",
           "3840x2160p @30Hz 8bit 4:4:4 3840x2160p @60Hz 10bit 4:2:",
           "4096x2160p @60Hz 8bit 4:2:0 4096x2160p @60Hz 8bit 4:4:4",
@@ -127566,7 +127662,8 @@
       "Do not let a feature match override the real application, architecture or operational requirement.",
       "Matrix with HDBaseT extension",
       "hdbaset",
-      "Check the practical signal path around HDMI, HDBaseT before finalising the design."
+      "Check the practical signal path around HDMI, HDBaseT before finalising the design.",
+      "Check the practical signal path around HDMI before finalising the design."
     ],
     "source": {
       "type": "official-product-page",
@@ -127591,30 +127688,27 @@
       "taxonomyVersion": "wyrestorm-product-manager-v1",
       "primaryCategory": "Matrix / Routing",
       "category": "Seamless matrix",
-      "subCategory": "Matrix with HDBaseT extension",
+      "subCategory": "Fixed I/O matrix",
       "productType": "Matrix routing core",
       "productSubType": "Scaling / seamless matrix",
       "systemRole": "Central video routing",
       "applicationRole": "Fixed I/O source-to-display routing",
       "transportClass": [
-        "HDMI",
-        "HDBaseT"
+        "HDMI"
       ],
       "signalDomains": [
         "Video",
         "Audio",
-        "Control",
-        "Network"
+        "Control"
       ],
       "subClassifications": [
         "matrix",
-        "seamless",
-        "hdbaset"
+        "seamless"
       ],
       "classificationPath": [
         "Matrix / Routing",
         "Seamless matrix",
-        "Matrix with HDBaseT extension",
+        "Fixed I/O matrix",
         "Matrix routing core",
         "Scaling / seamless matrix"
       ],
@@ -127625,14 +127719,13 @@
     "classificationPath": [
       "Matrix / Routing",
       "Seamless matrix",
-      "Matrix with HDBaseT extension",
+      "Fixed I/O matrix",
       "Matrix routing core",
       "Scaling / seamless matrix"
     ],
     "subClassifications": [
       "matrix",
-      "seamless",
-      "hdbaset"
+      "seamless"
     ],
     "technicalProfile": {
       "profileVersion": "wyrestorm-product-manager-v1",
@@ -127651,8 +127744,7 @@
         "Mechanical"
       ],
       "transports": [
-        "HDMI",
-        "HDBaseT"
+        "HDMI"
       ],
       "io": {
         "ports": [
@@ -127978,7 +128070,6 @@
       },
       "featureGroups": {
         "Video": [
-          "HDBaseT",
           "HDMI",
           "HDR"
         ],
@@ -128007,13 +128098,6 @@
         ]
       },
       "features": [
-        {
-          "id": "hdbaset",
-          "label": "HDBaseT",
-          "group": "Video",
-          "evidence": "hdbaset",
-          "confidence": 0.72
-        },
         {
           "id": "hdmi",
           "label": "HDMI",
@@ -128197,7 +128281,7 @@
             "pitch": "Use this view when the installer needs a clear source-to-display count, cable path, rack location and control method for a fixed routing system.",
             "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
             "talkTrack": [
-              "Check the practical signal path around HDMI, HDBaseT before finalising the design.",
+              "Check the practical signal path around HDMI before finalising the design.",
               "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
               "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
             ],
@@ -128387,7 +128471,7 @@
           "pitch": "Use this view when the installer needs a clear source-to-display count, cable path, rack location and control method for a fixed routing system.",
           "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
           "talkTrack": [
-            "Check the practical signal path around HDMI, HDBaseT before finalising the design.",
+            "Check the practical signal path around HDMI before finalising the design.",
             "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
             "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
           ],
@@ -133028,7 +133112,6 @@
         "HDCP support",
         "Multiview",
         "Scaling",
-        "Seamless switching",
         "Video wall"
       ],
       "power": {
@@ -133079,7 +133162,6 @@
           "HDCP support",
           "Multiview",
           "Scaling",
-          "Seamless switching",
           "Video wall"
         ]
       },
@@ -133187,13 +133269,6 @@
           "label": "Scaling",
           "group": "Processing",
           "evidence": "8 Input and 12 Output Seamless Scaling Matrix Switcher",
-          "confidence": 0.94
-        },
-        {
-          "id": "seamless-switching",
-          "label": "Seamless switching",
-          "group": "Processing",
-          "evidence": "The Matrix provides three distinct working modes tailored for system integrator projects: seamless matrix switching, video wall controller, and multiview switcher. This versatility makes it well-suited for a variety of applications and user needs. Designed with flexibility in mind, it supports both vertical and horizontal screen orientations and offers flexible configuration to meet the diverse requirements of professional environments.",
           "confidence": 0.94
         },
         {
@@ -147915,7 +147990,9 @@
       "HDBaseT",
       "HDMI",
       "CEC control",
-      "IP / web control"
+      "IP / web control",
+      "Matrix switcher",
+      "Fixed I/O matrix"
     ],
     "applications": [
       "Residential AV",
@@ -147972,7 +148049,8 @@
       "hdbaset",
       "CEC control",
       "IP / web control",
-      "Fixed I/O source-to-display routing"
+      "Fixed I/O source-to-display routing",
+      "Fixed I/O matrix"
     ],
     "routingClass": "Fixed I/O HDBaseT matrix routing",
     "source": "2026 WyreStorm Product Guide PDF",
@@ -147983,30 +148061,27 @@
     "productClassification": {
       "taxonomyVersion": "wyrestorm-product-manager-v1",
       "primaryCategory": "Matrix / Routing",
-      "category": "HDBaseT matrix",
-      "subCategory": "Matrix with HDBaseT extension",
+      "category": "Matrix switcher",
+      "subCategory": "Fixed I/O matrix",
       "productType": "Matrix routing core",
       "productSubType": "",
       "systemRole": "Central video routing",
       "applicationRole": "Fixed I/O source-to-display routing",
       "transportClass": [
-        "HDMI",
-        "HDBaseT"
+        "HDMI"
       ],
       "signalDomains": [
         "Video",
         "Audio",
-        "Control",
-        "Network"
+        "Control"
       ],
       "subClassifications": [
-        "matrix",
-        "hdbaset"
+        "matrix"
       ],
       "classificationPath": [
         "Matrix / Routing",
-        "HDBaseT matrix",
-        "Matrix with HDBaseT extension",
+        "Matrix switcher",
+        "Fixed I/O matrix",
         "Matrix routing core"
       ],
       "confidence": 0.93,
@@ -148015,13 +148090,12 @@
     },
     "classificationPath": [
       "Matrix / Routing",
-      "HDBaseT matrix",
-      "Matrix with HDBaseT extension",
+      "Matrix switcher",
+      "Fixed I/O matrix",
       "Matrix routing core"
     ],
     "subClassifications": [
-      "matrix",
-      "hdbaset"
+      "matrix"
     ],
     "technicalProfile": {
       "profileVersion": "wyrestorm-product-manager-v1",
@@ -148034,12 +148108,10 @@
       "signalDomains": [
         "Video",
         "Audio",
-        "Control",
-        "Network"
+        "Control"
       ],
       "transports": [
-        "HDMI",
-        "HDBaseT"
+        "HDMI"
       ],
       "io": {
         "ports": [],
@@ -148110,7 +148182,6 @@
       },
       "featureGroups": {
         "Video": [
-          "HDBaseT",
           "HDMI"
         ],
         "Control": [
@@ -148119,13 +148190,6 @@
         ]
       },
       "features": [
-        {
-          "id": "hdbaset",
-          "label": "HDBaseT",
-          "group": "Video",
-          "evidence": "hdbaset",
-          "confidence": 0.72
-        },
         {
           "id": "hdmi",
           "label": "HDMI",
@@ -148223,7 +148287,7 @@
             "pitch": "Use this view when the installer needs a clear source-to-display count, cable path, rack location and control method for a fixed routing system.",
             "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
             "talkTrack": [
-              "Check the practical signal path around HDMI, HDBaseT before finalising the design.",
+              "Check the practical signal path around HDMI before finalising the design.",
               "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
               "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
             ],
@@ -148340,7 +148404,7 @@
           "pitch": "Use this view when the installer needs a clear source-to-display count, cable path, rack location and control method for a fixed routing system.",
           "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
           "talkTrack": [
-            "Check the practical signal path around HDMI, HDBaseT before finalising the design.",
+            "Check the practical signal path around HDMI before finalising the design.",
             "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
             "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
           ],
@@ -148500,7 +148564,10 @@
       "Is the system expected to grow, change rooms, add endpoints, record, stream or integrate with a wider AV platform?",
       "Use for architectural judgement, product-family selection and proposal-safe trade-off language.",
       "Be explicit when the product is technically possible but unlikely to be the most natural choice.",
-      "Do not let a feature match override the real application, architecture or operational requirement."
+      "Do not let a feature match override the real application, architecture or operational requirement.",
+      "Matrix switcher",
+      "Fixed I/O matrix",
+      "Check the practical signal path around HDMI before finalising the design."
     ],
     "roleCorrectionSource": "product-manager-profile:wyrestorm-product-manager-v1"
   },
@@ -155301,7 +155368,7 @@
     "productClassification": {
       "taxonomyVersion": "wyrestorm-product-manager-v1",
       "primaryCategory": "NetworkHD AV over IP",
-      "category": "NetworkHD 500",
+      "category": "NetworkHD 100",
       "subCategory": "Multiview processor",
       "productType": "AVoIP multiview processor",
       "productSubType": "4K60 transport",
@@ -155309,7 +155376,7 @@
       "applicationRole": "Distributed AV routing, video wall, multiview or AVoIP transport",
       "transportClass": [
         "AVoIP",
-        "NetworkHD 500",
+        "NetworkHD 100",
         "1G Ethernet"
       ],
       "signalDomains": [
@@ -155318,12 +155385,12 @@
         "Control"
       ],
       "subClassifications": [
-        "networkhd-500",
+        "networkhd-100",
         "multiview-processor"
       ],
       "classificationPath": [
         "NetworkHD AV over IP",
-        "NetworkHD 500",
+        "NetworkHD 100",
         "Multiview processor",
         "AVoIP multiview processor",
         "4K60 transport"
@@ -155334,13 +155401,13 @@
     },
     "classificationPath": [
       "NetworkHD AV over IP",
-      "NetworkHD 500",
+      "NetworkHD 100",
       "Multiview processor",
       "AVoIP multiview processor",
       "4K60 transport"
     ],
     "subClassifications": [
-      "networkhd-500",
+      "networkhd-100",
       "multiview-processor"
     ],
     "technicalProfile": {
@@ -155360,7 +155427,7 @@
       ],
       "transports": [
         "AVoIP",
-        "NetworkHD 500",
+        "NetworkHD 100",
         "1G Ethernet",
         "HDMI",
         "NetworkHD AV over IP"
@@ -155886,7 +155953,7 @@
             "pitch": "Use this view when the installer needs to confirm endpoint count, switch requirements, VLAN or dedicated AV network design, controller placement and commissioning responsibility.",
             "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
             "talkTrack": [
-              "Check the practical signal path around AVoIP, NetworkHD 500, 1G Ethernet, HDMI before finalising the design.",
+              "Check the practical signal path around AVoIP, NetworkHD 100, 1G Ethernet, HDMI before finalising the design.",
               "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
               "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
             ],
@@ -156072,7 +156139,7 @@
           "pitch": "Use this view when the installer needs to confirm endpoint count, switch requirements, VLAN or dedicated AV network design, controller placement and commissioning responsibility.",
           "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
           "talkTrack": [
-            "Check the practical signal path around AVoIP, NetworkHD 500, 1G Ethernet, HDMI before finalising the design.",
+            "Check the practical signal path around AVoIP, NetworkHD 100, 1G Ethernet, HDMI before finalising the design.",
             "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
             "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
           ],
@@ -156577,7 +156644,7 @@
         ]
       },
       "audio": {
-        "present": false,
+        "present": true,
         "formats": [],
         "networkAudio": [],
         "amplifierPower": [],
@@ -167482,7 +167549,7 @@
         "maxResolutions": [
           "4K AV over IP Quad Encoder - WyreStorm NetworkH",
           "4K AV over IP Quad Encoder - WyreStorm The NHD-",
-          "4K30Hz Quad Encoder AV-over-IP NetworkHD 100 Ad",
+          "4K30Hz Quad Encoder AV-over-IP NetworkHD AVoIP",
           "1080p: High Quality Mode: ~250ms Low Latency Mode:",
           "4K: High Quality Mode: ~300ms Low Latency Mode:",
           "3840x2160p @ 30Hz 1920x1080p @ 60Hz Maximum Pixel Clock",
@@ -168434,7 +168501,8 @@
         "Video",
         "Network",
         "Control",
-        "Power"
+        "Power",
+        "Collaboration"
       ],
       "transports": [
         "NDI",
@@ -168626,6 +168694,9 @@
         ],
         "Power": [
           "PoE / PoH / PoC"
+        ],
+        "Collaboration": [
+          "Camera"
         ]
       },
       "features": [
@@ -168663,10 +168734,18 @@
           "group": "Power",
           "evidence": "20V DC 1A, PoE",
           "confidence": 0.94
+        },
+        {
+          "id": "camera",
+          "label": "Camera",
+          "group": "Collaboration",
+          "evidence": "Easily integrate up to eight NDI HX (NDI 6) camera streams into the NetworkHD system, allowing NDI sources to function as virtual NHD transmitters for flexible multi-camera installations.",
+          "confidence": 0.94
         }
       ],
       "applications": [
         "Classroom / lecture",
+        "BYOM / UC",
         "Control room",
         "NDI camera, streaming and production workflows"
       ],
@@ -168701,6 +168780,7 @@
         ],
         "marketApplications": [
           "Classroom / lecture",
+          "BYOM / UC",
           "Control room",
           "NDI camera, streaming and production workflows"
         ],
@@ -168893,6 +168973,7 @@
       ],
       "marketApplications": [
         "Classroom / lecture",
+        "BYOM / UC",
         "Control room",
         "NDI camera, streaming and production workflows"
       ],
@@ -193238,7 +193319,7 @@
     "productClassification": {
       "taxonomyVersion": "wyrestorm-product-manager-v1",
       "primaryCategory": "NetworkHD AV over IP",
-      "category": "NetworkHD 500",
+      "category": "NetworkHD 100",
       "subCategory": "Encoder",
       "productType": "AVoIP endpoint",
       "productSubType": "4K60 transport",
@@ -193246,7 +193327,7 @@
       "applicationRole": "Distributed AV routing, video wall, multiview or AVoIP transport",
       "transportClass": [
         "AVoIP",
-        "NetworkHD 500",
+        "NetworkHD 100",
         "1G Ethernet"
       ],
       "signalDomains": [
@@ -193256,12 +193337,12 @@
         "USB"
       ],
       "subClassifications": [
-        "networkhd-500",
+        "networkhd-100",
         "encoder"
       ],
       "classificationPath": [
         "NetworkHD AV over IP",
-        "NetworkHD 500",
+        "NetworkHD 100",
         "Encoder",
         "AVoIP endpoint",
         "4K60 transport"
@@ -193272,13 +193353,13 @@
     },
     "classificationPath": [
       "NetworkHD AV over IP",
-      "NetworkHD 500",
+      "NetworkHD 100",
       "Encoder",
       "AVoIP endpoint",
       "4K60 transport"
     ],
     "subClassifications": [
-      "networkhd-500",
+      "networkhd-100",
       "encoder"
     ],
     "technicalProfile": {
@@ -193300,7 +193381,7 @@
       ],
       "transports": [
         "AVoIP",
-        "NetworkHD 500",
+        "NetworkHD 100",
         "1G Ethernet",
         "HDMI",
         "USB-C video input",
@@ -194001,7 +194082,7 @@
             "pitch": "Use this view when the installer needs to confirm endpoint count, switch requirements, VLAN or dedicated AV network design, controller placement and commissioning responsibility.",
             "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
             "talkTrack": [
-              "Check the practical signal path around AVoIP, NetworkHD 500, 1G Ethernet, HDMI before finalising the design.",
+              "Check the practical signal path around AVoIP, NetworkHD 100, 1G Ethernet, HDMI before finalising the design.",
               "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
               "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
             ],
@@ -194209,7 +194290,7 @@
           "pitch": "Use this view when the installer needs to confirm endpoint count, switch requirements, VLAN or dedicated AV network design, controller placement and commissioning responsibility.",
           "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
           "talkTrack": [
-            "Check the practical signal path around AVoIP, NetworkHD 500, 1G Ethernet, HDMI before finalising the design.",
+            "Check the practical signal path around AVoIP, NetworkHD 100, 1G Ethernet, HDMI before finalising the design.",
             "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
             "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
           ],
@@ -201821,7 +201902,8 @@
       "Rack installation",
       "Encoder",
       "AVoIP endpoint",
-      "4K60 transport"
+      "4K60 transport",
+      "NetworkHD 100"
     ],
     "featureTags": [
       "AVoIP",
@@ -201852,7 +201934,8 @@
       "Scaling",
       "PoE / PoH / PoC",
       "Rack installation",
-      "encoder"
+      "encoder",
+      "networkhd-100"
     ],
     "tags": [
       "AVoIP",
@@ -201892,7 +201975,9 @@
       "Distributed AV routing, video wall, multiview or AVoIP transport",
       "Encoder",
       "AVoIP endpoint",
-      "4K60 transport"
+      "4K60 transport",
+      "NetworkHD 100",
+      "networkhd-100"
     ],
     "capabilities": [
       "AVoIP",
@@ -201923,7 +202008,8 @@
       "Rack installation",
       "NetworkHD 600",
       "10G Ethernet",
-      "1G Ethernet"
+      "1G Ethernet",
+      "NetworkHD 100"
     ],
     "searchTerms": [
       "NHD-610",
@@ -202017,7 +202103,10 @@
       "Encoder",
       "AVoIP endpoint",
       "4K60 transport",
-      "Check the practical signal path around AVoIP, NetworkHD 600, 1G Ethernet, HDMI before finalising the design."
+      "Check the practical signal path around AVoIP, NetworkHD 600, 1G Ethernet, HDMI before finalising the design.",
+      "NetworkHD 100",
+      "networkhd-100",
+      "Check the practical signal path around AVoIP, NetworkHD 100, 1G Ethernet, HDMI before finalising the design."
     ],
     "source": {
       "type": "official-product-page",
@@ -202041,7 +202130,7 @@
     "productClassification": {
       "taxonomyVersion": "wyrestorm-product-manager-v1",
       "primaryCategory": "NetworkHD AV over IP",
-      "category": "NetworkHD 600",
+      "category": "NetworkHD 100",
       "subCategory": "Encoder",
       "productType": "AVoIP endpoint",
       "productSubType": "4K60 transport",
@@ -202049,7 +202138,7 @@
       "applicationRole": "Distributed AV routing, video wall, multiview or AVoIP transport",
       "transportClass": [
         "AVoIP",
-        "NetworkHD 600",
+        "NetworkHD 100",
         "1G Ethernet"
       ],
       "signalDomains": [
@@ -202059,12 +202148,12 @@
         "USB"
       ],
       "subClassifications": [
-        "networkhd-600",
+        "networkhd-100",
         "encoder"
       ],
       "classificationPath": [
         "NetworkHD AV over IP",
-        "NetworkHD 600",
+        "NetworkHD 100",
         "Encoder",
         "AVoIP endpoint",
         "4K60 transport"
@@ -202075,13 +202164,13 @@
     },
     "classificationPath": [
       "NetworkHD AV over IP",
-      "NetworkHD 600",
+      "NetworkHD 100",
       "Encoder",
       "AVoIP endpoint",
       "4K60 transport"
     ],
     "subClassifications": [
-      "networkhd-600",
+      "networkhd-100",
       "encoder"
     ],
     "technicalProfile": {
@@ -202103,7 +202192,7 @@
       ],
       "transports": [
         "AVoIP",
-        "NetworkHD 600",
+        "NetworkHD 100",
         "1G Ethernet",
         "HDMI",
         "Dante",
@@ -202820,7 +202909,7 @@
             "pitch": "Use this view when the installer needs to confirm endpoint count, switch requirements, VLAN or dedicated AV network design, controller placement and commissioning responsibility.",
             "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
             "talkTrack": [
-              "Check the practical signal path around AVoIP, NetworkHD 600, 1G Ethernet, HDMI before finalising the design.",
+              "Check the practical signal path around AVoIP, NetworkHD 100, 1G Ethernet, HDMI before finalising the design.",
               "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
               "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
             ],
@@ -203035,7 +203124,7 @@
           "pitch": "Use this view when the installer needs to confirm endpoint count, switch requirements, VLAN or dedicated AV network design, controller placement and commissioning responsibility.",
           "value": "Turns the sales conversation into practical install checks: location, cabling, signal direction, dependencies, control and commissioning risk.",
           "talkTrack": [
-            "Check the practical signal path around AVoIP, NetworkHD 600, 1G Ethernet, HDMI before finalising the design.",
+            "Check the practical signal path around AVoIP, NetworkHD 100, 1G Ethernet, HDMI before finalising the design.",
             "Confirm what connects locally, what leaves the room, and which accessories or endpoints are required.",
             "Check USB class, power method, control path and firmware notes before treating the product as a like-for-like substitute."
           ],
@@ -213973,7 +214062,7 @@
           "id": "camera",
           "label": "Camera",
           "group": "Collaboration",
-          "evidence": "webcam",
+          "evidence": "camera",
           "confidence": 0.72
         },
         {
@@ -213987,7 +214076,6 @@
       "applications": [
         "Meeting room",
         "BYOM / UC",
-        "Audio reinforcement",
         "UC, lecture capture and streaming workflows"
       ],
       "selectionGuidance": {
@@ -214022,7 +214110,6 @@
         "marketApplications": [
           "Meeting room",
           "BYOM / UC",
-          "Audio reinforcement",
           "UC, lecture capture and streaming workflows"
         ],
         "voices": {
@@ -214147,7 +214234,6 @@
       "marketApplications": [
         "Meeting room",
         "BYOM / UC",
-        "Audio reinforcement",
         "UC, lecture capture and streaming workflows"
       ],
       "voices": {
@@ -215785,8 +215871,7 @@
         "Network",
         "Audio",
         "Processing",
-        "Power",
-        "Collaboration"
+        "Power"
       ],
       "transports": [
         "HDBaseT",
@@ -216047,9 +216132,6 @@
         ],
         "Power": [
           "PoE / PoH / PoC"
-        ],
-        "Collaboration": [
-          "Camera"
         ]
       },
       "features": [
@@ -216157,17 +216239,9 @@
           "group": "Power",
           "evidence": "HDMI | USB | HDCP 2.2 | EDID | 1-way PoH (RX powers TX) | Bidirectional RS-232 | CEC",
           "confidence": 0.94
-        },
-        {
-          "id": "camera",
-          "label": "Camera",
-          "group": "Collaboration",
-          "evidence": "camera",
-          "confidence": 0.72
         }
       ],
       "applications": [
-        "BYOM / UC",
         "Point-to-point extension",
         "Long-distance video, USB, control and network transport"
       ],
@@ -216202,7 +216276,6 @@
           "Do not use an extender as a routing system when many sources and many displays need flexible switching."
         ],
         "marketApplications": [
-          "BYOM / UC",
           "Point-to-point extension",
           "Long-distance video, USB, control and network transport"
         ],
@@ -216395,7 +216468,6 @@
         "Do not use an extender as a routing system when many sources and many displays need flexible switching."
       ],
       "marketApplications": [
-        "BYOM / UC",
         "Point-to-point extension",
         "Long-distance video, USB, control and network transport"
       ],
@@ -220653,7 +220725,7 @@
         "maxResolutions": [
           "4K60 HDBaseT DSC Receiver with USB - WyreStorm",
           "4K60Hz 4:2:0 HDBaseT Receiver",
-          "4K: 100m/328ft) [For SW-130-TX] Cables Cable Ad",
+          "4K: 100m/328ft) [For SW-130-TX] Cables Extender",
           "1920x1080p @60Hz 2560x1440p @144Hz 3840x2160p @60Hz 8bi",
           "3840x2160p @60Hz 10bit 4:2:0 HDR 3840x2160p @60Hz 12bit",
           "4K/60 4:4:4 & RGB 8-bit The latest HDR standard",
@@ -223262,7 +223334,7 @@
           "4K: 35m/115ft) - WyreStorm DISCONTINUED Consume",
           "4K is the perfect companion for WyreStorm’s MXV",
           "4K60Hz 4:4:4 Fiber Receiver",
-          "4K:300m/984ft) [For H2XC] Extension Extender Ad",
+          "4K:300m/984ft) [For H2XC] Extension Extender /",
           "1920x1080p @60Hz 16bit 3840x2160p @60Hz 10bit 4:2:0 HDR",
           "4096x2160p @60Hz 8bit 4:4:4 Supported Standards DCI",
           "4K UHD signals up to 300m/984ft (2160p 4:4:4 60Hz",
@@ -230920,7 +230992,6 @@
           "HDR"
         ],
         "Audio": [
-          "Amplifier output",
           "Analog audio",
           "Audio breakout"
         ],
@@ -230947,13 +231018,6 @@
           "group": "Video",
           "evidence": "DCI | RGB | HDR10 | HDR 10+ | Dolby Vision | HLG | BT.2020",
           "confidence": 0.94
-        },
-        {
-          "id": "amplifier",
-          "label": "Amplifier output",
-          "group": "Audio",
-          "evidence": "amplifier",
-          "confidence": 0.72
         },
         {
           "id": "analog-audio",
@@ -231001,7 +231065,6 @@
       "applications": [
         "Classroom / lecture",
         "Digital signage",
-        "Audio reinforcement",
         "Duplicate one source to multiple displays"
       ],
       "selectionGuidance": {
@@ -231036,7 +231099,6 @@
         "marketApplications": [
           "Classroom / lecture",
           "Digital signage",
-          "Audio reinforcement",
           "Duplicate one source to multiple displays"
         ],
         "voices": {
@@ -231200,7 +231262,6 @@
       "marketApplications": [
         "Classroom / lecture",
         "Digital signage",
-        "Audio reinforcement",
         "Duplicate one source to multiple displays"
       ],
       "voices": {
@@ -231681,7 +231742,6 @@
           "HDMI"
         ],
         "Audio": [
-          "Amplifier output",
           "Audio breakout"
         ],
         "Processing": [
@@ -231698,13 +231758,6 @@
           "group": "Video",
           "evidence": "The SP-618 is a simple yet powerful HDMI splitter that can be used in many applications from digital signage to retail or hospitality. Each HDMI output of the SP-618 features a 4K to 1080p down scaler, allowing for mixed resolution displays to be used simultaneously without suffering from compatibility limitations. A balanced analog and digital S/PDIF audio de-embed allows easy connection for external amplifiers or DSPs. With a 1U chassis, the SP-618 can be easily fitted in standard 19&#8243; equipment racks for a tidy installation.",
           "confidence": 0.94
-        },
-        {
-          "id": "amplifier",
-          "label": "Amplifier output",
-          "group": "Audio",
-          "evidence": "amplifier",
-          "confidence": 0.72
         },
         {
           "id": "audio-breakout",
@@ -231730,7 +231783,6 @@
       ],
       "applications": [
         "Digital signage",
-        "Audio reinforcement",
         "Duplicate one source to multiple displays"
       ],
       "selectionGuidance": {
@@ -231764,7 +231816,6 @@
         ],
         "marketApplications": [
           "Digital signage",
-          "Audio reinforcement",
           "Duplicate one source to multiple displays"
         ],
         "voices": {
@@ -231895,7 +231946,6 @@
       ],
       "marketApplications": [
         "Digital signage",
-        "Audio reinforcement",
         "Duplicate one source to multiple displays"
       ],
       "voices": {
@@ -262401,7 +262451,7 @@
         "evidence": []
       },
       "audio": {
-        "present": false,
+        "present": true,
         "formats": [],
         "networkAudio": [],
         "amplifierPower": [],
@@ -263031,7 +263081,7 @@
         "evidence": []
       },
       "audio": {
-        "present": false,
+        "present": true,
         "formats": [],
         "networkAudio": [],
         "amplifierPower": [],
@@ -265003,7 +265053,7 @@
         "maxResolutions": [
           "4K 60 maximum resolution and USB 2",
           "4K60Hz 4:2:0 HDMI & USB Single Gange In-Wall HD",
-          "4K 60 4:2:0 Extension Extender AUDIO AND VIDEO",
+          "4K 60 4:2:0 Extension Extender / HDBaseT AUDIO",
           "1920x1080p @60Hz 16bit 3840x2160p @30Hz 8bit 4:2:0 3840",
           "4096x2160p @60Hz 8bit 4:2:0 5120×1440 @30Hz 5120×1440 @",
           "4K and HD sources from a 1-Gang US decora wall",
@@ -268124,6 +268174,7 @@
       },
       "featureGroups": {
         "Video": [
+          "HDBaseT",
           "HDMI",
           "HDR"
         ],
@@ -268142,6 +268193,13 @@
         ]
       },
       "features": [
+        {
+          "id": "hdbaset",
+          "label": "HDBaseT",
+          "group": "Video",
+          "evidence": "Omitting the complex HDBaseT transmission port, this card allows an input, output and audio functionality to still be added to an H2XC matrix. Whether adding just another audio zone or tapping into the 18Gbps backplane for further I/O, this card can still do it all.",
+          "confidence": 0.94
+        },
         {
           "id": "hdmi",
           "label": "HDMI",
@@ -270637,6 +270695,7 @@
       },
       "featureGroups": {
         "Video": [
+          "HDBaseT",
           "HDMI",
           "HDR"
         ],
@@ -270661,6 +270720,13 @@
         ]
       },
       "features": [
+        {
+          "id": "hdbaset",
+          "label": "HDBaseT",
+          "group": "Video",
+          "evidence": "A HDMI port provides a mirrored output of whatever is being transmitted over HDBaseT TM for direct 2160p 4:4:4/60 throughput from the backplane, giving an uninterrupted, lossless 18gbps output.",
+          "confidence": 0.94
+        },
         {
           "id": "hdmi",
           "label": "HDMI",
