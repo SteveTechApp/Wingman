@@ -4214,6 +4214,349 @@
       "matrixSizeEvidence": "SKU/title evidence: MX-1007-HYB / 10x7 Seamless Matrix",
       "ioEvidenceStatus": "derived",
       "quoteSafety": "verify-before-quote"
+    },
+    {
+      "sku": "SP-0108-SCL",
+      "status": "review-required",
+      "productClass": "DISTRIBUTION",
+      "role": "HDMI splitter",
+      "productType": "1:8 4K HDMI splitter with per-output scaling and audio de-embed",
+      "transport": [
+        "Local HDMI (18Gbps)"
+      ],
+      "maxResolution": "4K60 4:4:4 (4096x2160p @60Hz 8bit)",
+      "inputCount": 1,
+      "outputCount": 8,
+      "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "HDMI input"
+        },
+        {
+          "count": 8,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "8x HDMI out, each with a 4K->1080p downscaler (dipswitch/API)"
+        },
+        {
+          "count": 1,
+          "connector": "3.5mm",
+          "direction": "output",
+          "category": "audio",
+          "detail": "Analog audio de-embed"
+        },
+        {
+          "count": 1,
+          "connector": "Toslink",
+          "direction": "output",
+          "category": "audio",
+          "detail": "S/PDIF de-embed"
+        }
+      ],
+      "dependencies": [
+        "Duplicates one HDMI source to 8 displays",
+        "Per-output scaler for mixed 4K/1080p displays",
+        "Advanced EDID (16 presets + custom), CEC triggering"
+      ],
+      "checks": [
+        "1:8 splitter (duplicate distribution). HDCP 2.2.",
+        "Each output can downscale 4K to 1080p independently.",
+        "Audio de-embed (analog + S/PDIF)."
+      ],
+      "warnings": [
+        "Splitter - duplicates one source to all outputs (not a matrix)."
+      ],
+      "power": [],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/sp-0108-scl/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Technical Specifications (product copy + visible rows)."
+        }
+      ],
+      "routedInputs": 1,
+      "routedOutputs": 8,
+      "routedInputCount": 1,
+      "routedOutputCount": 8,
+      "matrixInputs": 1,
+      "matrixOutputs": 8,
+      "matrixSize": "1x8",
+      "matrixSizeEvidence": "Title evidence: 1x8 HDMI",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote",
+      "physicalOutputs": 8,
+      "physicalOutputCount": 8,
+      "mirroredOutputs": 8,
+      "mirroredOutputCount": 8
+    },
+    {
+      "sku": "SP-0104-H2",
+      "status": "review-required",
+      "productClass": "DISTRIBUTION",
+      "role": "HDMI splitter",
+      "productType": "1:4 4K60 4:4:4 HDMI splitter (H2, 18Gbps)",
+      "transport": [
+        "Local HDMI (18Gbps)"
+      ],
+      "maxResolution": "4K60 4:4:4 (4096x2160p @60Hz 8bit)",
+      "inputCount": 1,
+      "outputCount": 4,
+      "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "HDMI input"
+        },
+        {
+          "count": 4,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "4x duplicate HDMI outputs"
+        }
+      ],
+      "dependencies": [
+        "Duplicates one HDMI source to 4 identical displays",
+        "EDID management (built-in tables + copy from port 1)"
+      ],
+      "checks": [
+        "1:4 splitter (duplicate). 4K60 4:4:4, 18Gbps, HDCP 2.2.",
+        "Not a scaling splitter - outputs mirror the source.",
+        "Slim chassis."
+      ],
+      "warnings": [
+        "Splitter - duplicates one source to all outputs (not a matrix). No per-output scaling.",
+        "Audio mirrors the source through the HDMI outputs - there is no dedicated analog / S-PDIF audio breakout."
+      ],
+      "power": [],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/sp-0104-h2/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Technical Specifications (product copy + feature list)."
+        }
+      ],
+      "routedInputs": 1,
+      "routedOutputs": 4,
+      "routedInputCount": 1,
+      "routedOutputCount": 4,
+      "matrixInputs": 1,
+      "matrixOutputs": 4,
+      "matrixSize": "1x4",
+      "matrixSizeEvidence": "Title evidence: 1x4 HDMI Splitter",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote",
+      "physicalOutputs": 4,
+      "physicalOutputCount": 4,
+      "mirroredOutputs": 4,
+      "mirroredOutputCount": 4
+    },
+    {
+      "sku": "EXP-SP-0104-H2",
+      "status": "review-required",
+      "productClass": "DISTRIBUTION",
+      "role": "HDMI splitter",
+      "productType": "Essentials 1:4 4K60 4:4:4 scaling HDMI splitter (18Gbps)",
+      "transport": [
+        "Local HDMI (18Gbps)"
+      ],
+      "maxResolution": "4K60 4:4:4 (3840x2160p @60Hz 8bit; DCI 4096x2160)",
+      "inputCount": 1,
+      "outputCount": 4,
+      "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "HDMI input"
+        },
+        {
+          "count": 4,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "4x HDMI out, each with a 4K->1080p downscaler"
+        }
+      ],
+      "dependencies": [
+        "Duplicates one HDMI source to 4 displays",
+        "Per-output scaler for mixed 4K/1080p displays",
+        "Auto EDID/HDCP negotiation"
+      ],
+      "checks": [
+        "Essentials 1:4 scaling splitter. 4K60 4:4:4, HDCP 2.2, Dolby Vision.",
+        "Each output downscales 4K to 1080p independently.",
+        "Plug-and-play."
+      ],
+      "warnings": [
+        "Splitter - duplicates one source to all outputs (not a matrix)."
+      ],
+      "power": [],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-sp-0104-h2/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Technical Specifications (product copy + feature list)."
+        }
+      ],
+      "routedInputs": 1,
+      "routedOutputs": 4,
+      "routedInputCount": 1,
+      "routedOutputCount": 4,
+      "matrixInputs": 1,
+      "matrixOutputs": 4,
+      "matrixSize": "1x4",
+      "matrixSizeEvidence": "Title evidence: 1x4 HDMI Splitter",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote",
+      "physicalOutputs": 4,
+      "physicalOutputCount": 4,
+      "mirroredOutputs": 4,
+      "mirroredOutputCount": 4
+    },
+    {
+      "sku": "EXP-SP-0102-H2",
+      "status": "review-required",
+      "productClass": "DISTRIBUTION",
+      "role": "HDMI splitter",
+      "productType": "Essentials 1:2 4K60 4:4:4 scaling HDMI splitter (18Gbps)",
+      "transport": [
+        "Local HDMI (18Gbps)"
+      ],
+      "maxResolution": "4K60 4:4:4 (3840x2160p @60Hz 8bit; DCI 4096x2160)",
+      "inputCount": 1,
+      "outputCount": 2,
+      "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "HDMI input"
+        },
+        {
+          "count": 2,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "2x HDMI out, each with a 4K->1080p downscaler"
+        }
+      ],
+      "dependencies": [
+        "Duplicates one HDMI source to 2 displays",
+        "Per-output scaler for mixed 4K/1080p displays",
+        "Auto EDID/HDCP negotiation"
+      ],
+      "checks": [
+        "Essentials 1:2 scaling splitter. 4K60 4:4:4, HDCP 2.2, Dolby Vision.",
+        "Each output downscales 4K to 1080p independently."
+      ],
+      "warnings": [
+        "Splitter - duplicates one source to all outputs (not a matrix)."
+      ],
+      "power": [],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-sp-0102-h2/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Technical Specifications (product copy + feature list)."
+        }
+      ],
+      "routedInputs": 1,
+      "routedOutputs": 2,
+      "routedInputCount": 1,
+      "routedOutputCount": 2,
+      "matrixInputs": 1,
+      "matrixOutputs": 2,
+      "matrixSize": "1x2",
+      "matrixSizeEvidence": "Title evidence: 1x2 HDMI Splitter",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote",
+      "physicalOutputs": 2,
+      "physicalOutputCount": 2,
+      "mirroredOutputs": 2,
+      "mirroredOutputCount": 2
+    },
+    {
+      "sku": "EXP-SP-0102-8K",
+      "status": "review-required",
+      "productClass": "DISTRIBUTION",
+      "role": "HDMI splitter",
+      "productType": "Essentials 1:2 8K60 HDMI 2.1 splitter with downscaling output 2",
+      "transport": [
+        "Local HDMI (HDMI 2.1, up to 40Gbps FRL)"
+      ],
+      "maxResolution": "8K60 (7680x4320p @60Hz); 4K120 4:4:4 (4096x2160p @120Hz); up to 10240x4320 @120Hz with DSC 1.2a",
+      "inputCount": 1,
+      "outputCount": 2,
+      "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "HDMI 2.1 input"
+        },
+        {
+          "count": 2,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "2x HDMI 2.1 out; output 2 can downscale 8K->4K or 4K->1080p"
+        }
+      ],
+      "dependencies": [
+        "Duplicates one 8K HDMI source to 2 displays",
+        "Output 2 downscales (8K->4K or 4K->1080p) for a lower-res second display",
+        "Needs HDMI 2.1 cabling for 8K/4K120"
+      ],
+      "checks": [
+        "Essentials 1:2 8K splitter (HDMI 2.1). 8K60 / 4K120; DSC 1.2a pass-through up to 10K120.",
+        "Output 2 has a downscaler for mixed 8K/4K/1080p.",
+        "Plug-and-play."
+      ],
+      "warnings": [
+        "Splitter - duplicates one source (output 2 can downscale). 8K/4K120 rely on HDMI 2.1 high-bandwidth / DSC."
+      ],
+      "power": [],
+      "evidence": [
+        {
+          "sourceType": "official-product-page",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-sp-0102-8k/",
+          "reviewedOn": "2026-07-29",
+          "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
+          "note": "Technical Specifications (product copy + feature list)."
+        }
+      ],
+      "routedInputs": 1,
+      "routedOutputs": 2,
+      "routedInputCount": 1,
+      "routedOutputCount": 2,
+      "matrixInputs": 1,
+      "matrixOutputs": 2,
+      "matrixSize": "1x2",
+      "matrixSizeEvidence": "Title evidence: 1x2 HDMI Splitter",
+      "ioEvidenceStatus": "derived",
+      "quoteSafety": "verify-before-quote",
+      "physicalOutputs": 2,
+      "physicalOutputCount": 2,
+      "mirroredOutputs": 2,
+      "mirroredOutputCount": 2
     }
   ]
 }
