@@ -401,12 +401,7 @@ small {
 
   /* Dashboard */
   .wm-reference-dashboard {
-    gap: 16px !important;
-  }
-
-  .wm-reference-dashboard.wm-reference-dashboard.wm-reference-dashboard
-    .wm-polish-hero.wm-polish-hero.wm-polish-hero {
-    min-height: 95px !important;
+    gap: 0 !important;
   }
 
   .wm-reference-dashboard-layout {
@@ -415,7 +410,7 @@ small {
   }
 
   .wm-reference-dashboard-main {
-    gap: 23px !important;
+    gap: 0 !important;
   }
 
   .wm-reference-project-grid {
@@ -509,6 +504,69 @@ small {
   }
 }
 /* WINGMAN_DESKTOP_DENSITY_90_END */
+
+/* The dashboard follows the document's natural vertical flow. Denser
+   application routes retain their existing viewport-managed workspace. */
+html[data-wingman-route="dashboard"],
+html[data-wingman-route="dashboard"] body,
+html[data-wingman-route="dashboard"] body > #root {
+  height: auto !important;
+  min-height: 100% !important;
+  max-height: none !important;
+  overflow-x: clip !important;
+  overflow-y: auto !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-shell,
+html[data-wingman-route="dashboard"] .wingman-workspace,
+html[data-wingman-route="dashboard"] .wingman-app-main {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route="dashboard"] body > #root > .wingman-shell {
+  height: auto !important;
+  min-height: 100% !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-shell > .wingman-workspace,
+html[data-wingman-route="dashboard"] .wingman-shell > .wingman-workspace > .wingman-app-main {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-shell > .wingman-workspace > .wingman-app-main > .wingman-page-host {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  padding: 18px 24px 24px !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route="dashboard"] .wingman-page-host > .wm-dashboard-page.wm-polish-shell {
+  flex: none !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html[data-wingman-route="dashboard"] .wm-dashboard-content-grid {
+  flex: none !important;
+}
+
+@media (min-width: 981px) {
+  html[data-wingman-route="dashboard"] .wingman-topbar {
+    display: none !important;
+  }
+}
 
 [data-wingman-guru-duplicate="true"] {
   display: none !important;
