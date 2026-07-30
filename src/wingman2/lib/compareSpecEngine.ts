@@ -23,6 +23,12 @@ import competitorCatalogRaw from "../../../data/catalog/competitor-products.gene
 import governedTechnicalProfilesRaw from "../../../data/governance/wyrestorm-technical-profiles.json";
 import { loadProductIntelligenceIndex } from "./productIntelligenceIndexCache";
 import { extractRawProducts } from "./productStoryEngine";
+import { resolutionRank as rankResolution, chromaRank as rankChroma } from "./compareResolution";
+
+// Re-exported for backwards compatibility: the resolution/chroma ranking now
+// lives in the shared compareResolution module so competitorCompareDecision and
+// compareSpecEngine rank a capability identically.
+export { rankResolution, rankChroma };
 
 /* ------------------------------------------------------------------ types */
 
@@ -30,6 +36,7 @@ export type SpecClass =
   | "AVOIP"
   | "HDBASET"
   | "MATRIX"
+  | "DISTRIBUTION"
   | "PRESENTATION"
   | "VIDEO_WALL"
   | "MULTIVIEW"
@@ -168,28 +175,8 @@ function uniq(list: string[]): string[] {
   return Array.from(new Set(list.map((item) => item.trim()).filter(Boolean)));
 }
 
-/* Resolution ranking: higher = better. Parsed from free-text labels. */
-export function rankResolution(label: string): number {
-  const t = label.toLowerCase();
-  if (!t) return 0;
-  if (/8k/.test(t)) return 7;
-  if (/\b4k\s*@?\s*120(?:\s*hz)?\b|(?:3840|4096)\s*[x×]\s*2160[^;\n]{0,32}\b120\s*hz\b|\b2160p?[^;\n]{0,24}\b120\s*hz\b/.test(t)) return 6;
-  if (/4k\s*60.*(4:4:4|444)|(4:4:4|444).*4k\s*60|2160p?\s*@?\s*60.*(4:4:4|444)/.test(t)) return 5;
-  if (/4k\s*60|2160p?\s*@?\s*60|4096x2160.*60/.test(t)) return 4;
-  if (/4k\s*30|2160p?\s*@?\s*30|4k(?!\d)/.test(t)) return 3;
-  if (/1080p?\s*@?\s*120/.test(t)) return 2.5;
-  if (/1080|1920x1080|fullhd|full hd/.test(t)) return 2;
-  if (/720/.test(t)) return 1;
-  return 0;
-}
-
-export function rankChroma(label: string): number {
-  const t = label.replace(/\s+/g, "");
-  if (/4:4:4|444/.test(t)) return 3;
-  if (/4:2:2|422/.test(t)) return 2;
-  if (/4:2:0|420/.test(t)) return 1;
-  return 0;
-}
+/* Resolution / chroma ranking now lives in ./compareResolution (imported and
+   re-exported above) so both Compare engines rank a capability identically. */
 
 function rankUsb(label: string): number {
   const t = label.toLowerCase();
@@ -249,6 +236,10 @@ function classFromText(t: string): SpecClass {
   // matrix out of the MATRIX class, leaving mis-sized boxes as the only
   // candidates for matrix competitors.
   if (/matrix/.test(s)) return "MATRIX";
+  // Splitter / distribution amplifier - after matrix, before the generic
+  // audio/switcher rules so a "1x4 HDMI splitter with audio breakout" is
+  // distribution, not audio.
+  if (/splitter|distribution\s*amp|distribution\b|duplicator/.test(s)) return "DISTRIBUTION";
   // Product purpose outranks transport. A presentation switcher with an
   // HDBaseT input/output remains a PRESENTATION product, not an extender.
   if (/presentation|collab.*switch|room.*switch/.test(s)) return "PRESENTATION";
@@ -823,6 +814,7 @@ const CLASS_COMPATIBILITY: Record<SpecClass, SpecClass[]> = {
   AVOIP: ["AVOIP"],
   HDBASET: ["HDBASET", "EXTENDER"],
   MATRIX: ["MATRIX"],
+  DISTRIBUTION: ["DISTRIBUTION"],
   PRESENTATION: ["PRESENTATION"],
   VIDEO_WALL: ["VIDEO_WALL", "AVOIP", "MULTIVIEW"],
   MULTIVIEW: ["MULTIVIEW", "VIDEO_WALL"],
