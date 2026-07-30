@@ -6,12 +6,30 @@ import GuruAssistantAvatar from "./branding/GuruAssistantAvatar";
 import { GuruCallNotesInterpreter } from "./GuruCallNotesInterpreter";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { postWingmanJson } from "../api/wingmanApi";
+import {
+  getProductAssurance,
+  productCanAppearInRecommendation,
+} from "../lib/productAssurance";
+
+export type GuruActivityContext = {
+  route: string;
+  activity: string;
+  project?: {
+    id: string;
+    name: string;
+    stage: string;
+    discoveryPercent: number;
+    selectedSkus: string[];
+    unresolvedItems: string[];
+  };
+};
 
 type WingmanGuruDrawerProps = {
   open: boolean;
   onClose: () => void;
   contextLabel?: string;
   contextSummary?: string;
+  activityContext?: GuruActivityContext;
   supportCue?: {
     label: string;
     summary: string;
@@ -64,6 +82,9 @@ type ProductEntry = {
   salesLanguage?: ProductSalesLanguage;
   text: string;
   raw: unknown;
+  lifecycleStatus: string;
+  doNotSpec: boolean;
+  catalogVisibility: string;
 };
 
 type GlossaryEntry = {
@@ -85,6 +106,7 @@ type LiveCacheEntry = {
 const SKU_PATTERN = /\b[A-Z]{2,6}(?:-[A-Z0-9]{2,}){1,7}\b/g;
 const GURU_CACHE_KEY = "wingman-guru-live-knowledge-cache-v1";
 const GURU_CACHE_LIMIT = 80;
+const GURU_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 const GURU_EXTERNAL_LOOKUP_ENABLED = import.meta.env.VITE_WINGMAN_ENABLE_GURU_EXTERNAL_LOOKUP === "true";
 
 const quickPrompts = [
@@ -221,11 +243,11 @@ const avGlossary: GlossaryEntry[] = [
   },
   {
     terms: ["byom", "bring your own meeting"],
-    title: "BYOD",
+    title: "BYOM",
     answer:
       "BYOM means Bring Your Own Meeting. A participant runs Teams, Zoom, Webex, or similar from their own laptop while using the room camera, microphone, speakers, and display.",
     salesUse:
-      "BYOD normally requires USB routing as well as video routing.",
+      "BYOM normally requires USB routing as well as video routing.",
     watchOut:
       "Wireless presentation is not automatically wireless conferencing. Confirm whether the camera and microphone return to the laptop.",
     related: ["BYOD", "USB host", "wireless conferencing", "camera"],
@@ -346,7 +368,7 @@ const applicationAnswers = [
   {
     terms: ["meeting room", "conference room", "boardroom", "huddle"],
     answer:
-      "For a meeting room, start with the collaboration workflow rather than the product.\n\nLikely WyreStorm paths:\n- Small/simple room: APO video bar or simple presentation switching.\n- Medium BYOD/BYOD room: consider wireless conferencing or USB-C presentation products.\n- More technical dual-display room: consider MST/presentation matrix routes.\n\nQualify next:\n- How many displays?\n- Is USB-C laptop connection required?\n- Is wireless conferencing required or only wireless casting?\n- Are cameras/microphones local or remote?\n- Is this BYOD, MTR, Zoom Room, or flexible use?",
+      "For a meeting room, start with the collaboration workflow rather than the product.\n\nLikely WyreStorm paths:\n- Small/simple room: APO video bar or simple presentation switching.\n- Medium BYOD/BYOM room: consider wireless conferencing or USB-C presentation products.\n- More technical dual-display room: consider MST/presentation matrix routes.\n\nQualify next:\n- How many displays?\n- Is USB-C laptop connection required?\n- Is wireless conferencing required or only wireless casting?\n- Are cameras/microphones local or remote?\n- Is this BYOD, BYOM, MTR, Zoom Room, or flexible use?",
   },
   {
     terms: ["ndi", "camera", "ptz", "streaming", "capture"],
@@ -513,6 +535,9 @@ function toProductEntry(item: unknown): ProductEntry | null {
     salesLanguage: salesLanguageFromRecord(record),
     text,
     raw: item,
+    lifecycleStatus: fieldValue(record, ["lifecycleStatus", "lifecycle_status", "lifecycle"]),
+    doNotSpec: record.doNotSpec === true || record.do_not_spec === true,
+    catalogVisibility: fieldValue(record, ["catalogVisibility", "catalog_visibility"]),
   };
 }
 
@@ -756,6 +781,7 @@ function scoreProduct(product: ProductEntry, query: string) {
 
 function searchProducts(products: ProductEntry[], query: string, limit = 5) {
   return products
+    .filter((product) => productCanAppearInRecommendation(product))
     .map((product) => ({ product, score: scoreProduct(product, query) }))
     .filter((item) => item.score > 0)
     .sort((a, b) => b.score - a.score)
@@ -926,9 +952,13 @@ function answerProductQuestion(question: string, products: ProductEntry[]) {
 
   const lines = usefulLines(product);
   const voiceLines = salesVoiceLines(product, question);
+  const assurance = getProductAssurance(product.sku);
 
   return [
     `${product.sku} - ${product.title}`,
+    !assurance.customerReady
+      ? `Internal status: ${assurance.warnings[0] ?? "Technical verification is required before recommendation or quotation."}`
+      : "",
     product.family ? `Family: ${product.family}` : "",
     product.category ? `Category: ${product.category}` : "",
     product.description ? `Summary: ${product.description}` : "",
@@ -1088,7 +1118,11 @@ function writeGuruCache(cache: Record<string, LiveCacheEntry>) {
 function readCachedLiveAnswer(question: string) {
   const cache = readGuruCache();
   const key = normaliseCacheKey(question);
-  return cache[key] ?? null;
+  const entry = cache[key] ?? null;
+  if (!entry || Date.now() - Date.parse(entry.savedAt) > GURU_CACHE_MAX_AGE_MS) {
+    return null;
+  }
+  return entry;
 }
 
 function storeCachedLiveAnswer(question: string, answer: string, source: string) {
@@ -1182,7 +1216,7 @@ async function tryDuckDuckGoLookup(question: string) {
   ].join("\n");
 }
 
-async function liveLookup(question: string) {
+async function liveLookup(question: string, activityContext?: GuruActivityContext) {
   const cached = readCachedLiveAnswer(question);
 
   if (cached?.answer) {
@@ -1201,7 +1235,11 @@ async function liveLookup(question: string) {
         bullets?: string[];
         confidence?: number;
       };
-    }>("/api/wingman/agents/guru", { question });
+    }>("/api/wingman/agents/guru", {
+      question,
+      brief: activityContext?.project ?? {},
+      context: activityContext ?? {},
+    });
     const answer = response.data?.answer?.trim() || "";
     const confidence = Number(response.data?.confidence || 0);
 
@@ -1258,7 +1296,11 @@ async function liveLookup(question: string) {
   ].join("\n");
 }
 
-async function answerQuestion(question: string, products: ProductEntry[]) {
+async function answerQuestion(
+  question: string,
+  products: ProductEntry[],
+  activityContext?: GuruActivityContext,
+) {
   const lower = question.toLowerCase();
   const skus = extractSkus(question);
 
@@ -1299,7 +1341,7 @@ async function answerQuestion(question: string, products: ProductEntry[]) {
     return productSearchAnswer;
   }
 
-  return liveLookup(question);
+  return liveLookup(question, activityContext);
 }
 
 
@@ -1405,6 +1447,28 @@ function guruMessageTone(content: string) {
   return "standard";
 }
 
+function compactLiveAnswer(content: string, question: string) {
+  if (/\b(detail|detailed|engineering|technical|full explanation|expand)\b/i.test(question)) {
+    return content;
+  }
+
+  const lines = content.replace(/\r/g, "").split("\n").map((line) => line.trim()).filter(Boolean);
+  if (lines.length <= 7) return content;
+
+  const heading = lines[0];
+  const direct = lines.find((line, index) => index > 0 && !line.endsWith(":") && !line.startsWith("-"));
+  const bullets = lines.filter((line) => line.startsWith("-")).slice(0, 3);
+  const caution = lines.find((line) => /confirm|check|before customer|before quote|not verified|requires review/i.test(line));
+
+  return Array.from(new Set([
+    heading,
+    direct,
+    ...bullets,
+    caution && !bullets.includes(caution) ? caution : "",
+    "Ask for technical detail if you need the full engineering checks.",
+  ].filter(Boolean))).join("\n");
+}
+
 function GuruMessageContent({ content }: { content: string }) {
   const blocks = buildGuruContentBlocks(content);
   const loading = guruMessageTone(content) === "loading";
@@ -1460,6 +1524,7 @@ export function WingmanGuruDrawer({
   onClose,
   contextLabel,
   contextSummary,
+  activityContext,
   supportCue,
   seedPrompt,
   onSeedHandled,
@@ -1536,7 +1601,10 @@ export function WingmanGuruDrawer({
       setMessages((current) => [...current, userMessage, pendingMessage]);
       setDraft("");
 
-      const answer = await answerQuestion(prompt, products);
+      const answer = compactLiveAnswer(
+        await answerQuestion(prompt, products, activityContext),
+        prompt,
+      );
 
       setMessages((current) =>
         current.map((message) => (message.id === pendingMessage.id ? { ...message, content: answer } : message))
@@ -1544,7 +1612,7 @@ export function WingmanGuruDrawer({
 
       setMemoryCount(cacheCount());
     },
-    [products],
+    [activityContext, products],
   );
 
   useEffect(() => {

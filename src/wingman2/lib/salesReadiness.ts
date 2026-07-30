@@ -4,6 +4,10 @@ import {
   governedDependencyToBomRow,
   type GovernedDependency,
 } from "./dependencyGovernance";
+import {
+  buildDesignAssuranceLedger,
+  type DesignAssuranceLedger,
+} from "./productAssurance";
 
 export type SalesBomType = "Required" | "Optional" | "Validate";
 export type SalesMotionType = "Product gap" | "Competitor replacement" | "Outcome SKU" | "Room/tender BOM";
@@ -23,6 +27,7 @@ export type SalesBomRow = {
 export type SalesReadinessInput = {
   products: StoredProductSelection[];
   discovery: {
+    discoveryPercent?: number;
     projectTitle: string;
     summary: string;
     roomSize: string;
@@ -57,6 +62,7 @@ export type SalesReadinessPackage = {
   validationNotes: string[];
   readinessScore: number;
   reviewRequired: boolean;
+  assurance: DesignAssuranceLedger;
 };
 
 function hasAny(text: string, terms: string[]) {
@@ -174,6 +180,23 @@ function uniqueRows(rows: SalesBomRow[]) {
 
 export function buildSalesReadinessPackage(input: SalesReadinessInput): SalesReadinessPackage {
   const outputPurpose = determineOutputPurpose(input);
+  const requirementText = [
+    input.discovery.projectTitle,
+    input.discovery.summary,
+    input.discovery.roomSize,
+    input.discovery.displays,
+    input.discovery.displayBehaviour,
+    input.discovery.usb,
+    input.discovery.network,
+    input.discovery.audio,
+    input.discovery.control,
+    ...(input.ingest?.requirements ?? []),
+  ].filter(Boolean).join(" ");
+  const assurance = buildDesignAssuranceLedger({
+    products: input.products,
+    requirementText,
+    discoveryPercent: input.discovery.discoveryPercent ?? 0,
+  });
   const governedDependencies = buildGovernedDependencies(input);
   const evidence = [
     `Sales motion: ${outputPurpose.motion}.`,
@@ -231,6 +254,8 @@ export function buildSalesReadinessPackage(input: SalesReadinessInput): SalesRea
       .filter((dependency) => dependency.confidence === "Low" || dependency.status === "validate")
       .map((dependency) => `${dependency.label}: ${dependency.validationQuestion}`),
   );
+  governanceWarnings.push(...assurance.warnings.map((item) => item.message));
+  governanceWarnings.push(...assurance.blockers.map((item) => `CUSTOMER-ISSUE BLOCKER: ${item.message}`));
 
   if (input.ingest?.requirements?.length) {
     evidence.push(...input.ingest.requirements.slice(0, 4).map((item) => `Document ingest: ${item}`));
@@ -246,7 +271,12 @@ export function buildSalesReadinessPackage(input: SalesReadinessInput): SalesRea
   const readinessScore = noCoreProductSelected
     ? Math.max(10, Math.min(42, 34 - openAssumptionCount * 4))
     : Math.max(25, Math.min(92, 88 - openAssumptionCount * 6 - validateRowCount * 5 + input.products.length * 4));
-  const reviewRequired = noCoreProductSelected || readinessScore < 74 || validateRowCount > 2 || openAssumptionCount > 2;
+  const reviewRequired =
+    !assurance.customerReady ||
+    noCoreProductSelected ||
+    readinessScore < 74 ||
+    validateRowCount > 2 ||
+    openAssumptionCount > 2;
 
   if (noCoreProductSelected) {
     governanceWarnings.unshift("No WyreStorm core product has been selected. Open Recommendations and add the recommended product path before customer export.");
@@ -268,5 +298,6 @@ export function buildSalesReadinessPackage(input: SalesReadinessInput): SalesRea
     validationNotes,
     readinessScore,
     reviewRequired,
+    assurance,
   };
 }
