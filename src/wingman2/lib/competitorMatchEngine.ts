@@ -13,6 +13,7 @@ export type TechnologyClass =
   | "AVOIP"
   | "HDBASET"
   | "MATRIX"
+  | "DISTRIBUTION"
   | "PRESENTATION"
   | "VIDEO_WALL"
   | "EXTENDER"
@@ -166,6 +167,10 @@ const TECH_CLASS_PATTERNS: [RegExp[], TechnologyClass][] = [
   [[/\b(nvx|zyper|ip\d{2,3}uhd|kds|nav\s*[ed]|nmx|mxnet|vinx|ubex|networkhd|nhd|avoip|av.over.ip|sdn|ndi)\b/i], "AVOIP"],
   [[/\b(dtp\d?|hdbaset|hdb|hdbt|cat\s*ext|poe.?ext)\b/i], "HDBASET"],
   [[/\b(matrix|mtrx|mx-?\d|vs-?\d{2}h|mmx|dgx)\b/i], "MATRIX"],
+  // Splitter / distribution amplifier - checked after matrix and before the
+  // generic audio/switcher rules so "1x4 HDMI splitter with audio breakout" is
+  // classified as distribution, not audio (which previously bucketed splitters).
+  [[/\b(splitter|distribution\s*amp|distribution\b|duplicator)\b/i], "DISTRIBUTION"],
   [[/\b(presentation|switcher|scaler|sw-|dmps|dvx|ps-|in1608)\b/i], "PRESENTATION"],
   [[/\b(video\s*wall|wall\s*proc|vw-|multiview)\b/i], "VIDEO_WALL"],
   [[/\b(extender|ext-|kit|tx.*rx|transmit|receiv)\b/i], "EXTENDER"],
@@ -452,6 +457,7 @@ const TECH_CLASS_COMPATIBILITY: Record<TechnologyClass, TechnologyClass[]> = {
   AVOIP: ["AVOIP"],
   HDBASET: ["HDBASET", "EXTENDER"],
   MATRIX: ["MATRIX"],
+  DISTRIBUTION: ["DISTRIBUTION"],
   PRESENTATION: ["PRESENTATION"],
   VIDEO_WALL: ["VIDEO_WALL"],
   EXTENDER: ["EXTENDER", "HDBASET"],
@@ -481,6 +487,13 @@ function getProductTechClass(product: WyrestormProduct): TechnologyClass {
 
   if (/^SW-/.test(sku) || category.includes("presentation")) {
     return "PRESENTATION";
+  }
+
+  // WyreStorm splitters are the SP- / EXP-SP- family. A deterministic SKU rule
+  // avoids the marketing-text ambiguity (splitter pages mention "over HDBaseT"
+  // and "audio", which would otherwise misclassify them as HDBaseT or Audio).
+  if (/^SP-/.test(sku) || /^EXP-SP-/.test(sku) || category.includes("splitter") || category.includes("distribution")) {
+    return "DISTRIBUTION";
   }
 
   if (/^APO-/.test(sku) || category.includes("uc") || category.includes("conferencing")) {

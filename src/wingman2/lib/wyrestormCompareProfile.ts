@@ -11,6 +11,7 @@ import type { CompareDecisionProfile, CompareSpecFacts } from "./competitorCompa
 import type { WyrestormProduct } from "./competitorMatchEngine";
 import { canonicalTransport } from "./competitorSpecRegistry";
 import { resolveProductTechnicalData } from "./governedProductTechnicalData";
+import { deriveSystemRequirements } from "./systemDependencies";
 
 type TechnicalPort = {
   count?: number;
@@ -513,6 +514,22 @@ export function buildWyrestormCompareProfile(product: WyrestormProduct): Compare
     ...governed.evidence,
   ].filter(Boolean)));
 
+  // What else this product needs to operate as a system (AV-over-IP endpoints
+  // need a counterpart + network + controller; a standalone HDBaseT TX/RX needs
+  // its far end, etc.). Derived from the domain/role plus the governed
+  // free-text dependencies so a single component is not sold as a one-box fix.
+  const { standalone, requires } = deriveSystemRequirements({
+    domain,
+    role,
+    sku: product.sku,
+    transport: governed.compare.transport || fallbackTransports,
+    dependencies: governed.dependencies,
+  });
+  const systemDependency = {
+    standalone,
+    systemRequirements: requires,
+  };
+
   return {
     sku: product.sku,
     title: product.name || product.title || product.sku,
@@ -532,5 +549,6 @@ export function buildWyrestormCompareProfile(product: WyrestormProduct): Compare
     profileEvidence: evidence,
     profileWarnings: warnings,
     readiness: governed.compareReady ? "compare-ready" : "verify-only",
+    ...systemDependency,
   };
 }
