@@ -290,7 +290,14 @@ function rigorousMatchToCandidate(match: RigorousMatch, profile: CompetitorProfi
       mismatches: match.decision.outcome === "NO MATCH" ? match.decision.gaps : [],
       unknowns: match.decision.verify,
       blockers: match.decision.blockers,
-      dependencies: [product.caveat],
+      dependencies: [
+        // Surface the structured system requirements first so a single component
+        // is never read as a one-box replacement for a competitor's system.
+        ...(match.decision.systemRequirements && match.decision.systemRequirements.length > 0
+          ? [`Not a one-box replacement - this component also needs: ${match.decision.systemRequirements.join("; ")}.`]
+          : []),
+        product.caveat,
+      ].filter(Boolean),
       outcomeLabel: match.decision.summary,
     },
     profile,
