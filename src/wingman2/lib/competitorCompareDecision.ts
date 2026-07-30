@@ -1,4 +1,6 @@
 import { buildCompetitorDecisionEvidence } from "./competitorProductIntelligence";
+import { resolutionRank } from "./compareResolution";
+import { deriveSystemRequirements } from "./systemDependencies";
 export type CompareDecisionOutcome = "GOOD MATCH" | "PARTIAL MATCH" | "NO MATCH" | "VERIFY";
 
 export type CompareSpecFacts = {
@@ -88,6 +90,14 @@ export type CompareDecisionProfile = {
   profileWarnings?: string[];
   specTier?: string;
   readiness?: string;
+  /**
+   * Whether this product operates on its own. `false` means it is one component
+   * of a larger system - see `systemRequirements` for what else is needed. Used
+   * to stop a single SKU being positioned as a one-box replacement for a
+   * competitor's complete system.
+   */
+  standalone?: boolean;
+  systemRequirements?: string[];
 };
 
 export type CompareDecisionInput = {
@@ -107,6 +117,12 @@ export type CompareDecisionResult = {
   verify: string[];
   summary: string;
   nextAction: string;
+  /**
+   * What else the WyreStorm candidate needs to operate as a system (empty when
+   * it works standalone). Surfaced so a single component is never presented as a
+   * one-box replacement for a competitor's complete system.
+   */
+  systemRequirements: string[];
 };
 
 const ROLE_EQUIVALENTS: Record<string, string[]> = {
@@ -333,17 +349,9 @@ function normaliseChroma(value: unknown): string | undefined {
   return undefined;
 }
 
-function resolutionRank(value: unknown): number {
-  const text = lower(value);
-
-  if (/8k|4320/.test(text)) return 5;
-  if (/4k60|2160p60|uhd.*60/.test(text)) return 4;
-  if (/4k30|2160p30|uhd/.test(text)) return 3;
-  if (/1080p|1920/.test(text)) return 2;
-  if (/720p/.test(text)) return 1;
-
-  return 0;
-}
+// resolutionRank now comes from the shared ./compareResolution module so a
+// capability such as "4096x2160p @60Hz 4:4:4" is ranked as 4K60 rather than
+// mis-read as HD (which previously false-blocked otherwise-valid candidates).
 
 function featureLabel(key: string): string {
   const labels: Record<string, string> = {
@@ -435,6 +443,39 @@ function compareCounts(
   }
 
   addUnique(matches, label + " count matches.");
+}
+
+// Output-count comparison for distribution amplifiers / splitters. The fan-out is
+// the defining spec: too few outputs is a hard blocker, and too many is a
+// right-sizing gap (the unit works but is a larger, costlier splitter than the
+// requirement) rather than a clean "exceeds" that would read as an advantage.
+function compareDistributionOutputs(
+  competitorValue: unknown,
+  wyrestormValue: unknown,
+  blockers: string[],
+  gaps: string[],
+  matches: string[],
+  verify: string[],
+): void {
+  const competitorCount = numberValue(competitorValue);
+  const wyrestormCount = numberValue(wyrestormValue);
+
+  if (competitorCount === null || wyrestormCount === null) {
+    addUnique(verify, "Output fan-out needs verification.");
+    return;
+  }
+
+  if (wyrestormCount < competitorCount) {
+    addUnique(blockers, "Fewer outputs (1:" + wyrestormCount + ") than the required 1:" + competitorCount + " fan-out.");
+    return;
+  }
+
+  if (wyrestormCount > competitorCount) {
+    addUnique(gaps, "Over-provisioned fan-out: 1:" + wyrestormCount + " where 1:" + competitorCount + " is required - a larger splitter than needed.");
+    return;
+  }
+
+  addUnique(matches, "Output fan-out matches (1:" + wyrestormCount + ").");
 }
 
 function scoreConfidence(input: CompareDecisionInput, blockers: string[], gaps: string[], verify: string[]): number {
@@ -635,8 +676,23 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
   const endpointComparison =
     endpointRoles.has(normaliseRole(competitor.role)) || endpointRoles.has(normaliseRole(wyrestorm.role));
 
+  // A distribution amplifier / splitter is defined by its output fan-out, so an
+  // over-sized unit (more outputs than required) is a right-sizing gap, not a
+  // clean "exceeds" match - consistent with the eligibility engine's fan-out
+  // right-sizing. For a matrix, more outputs genuinely can be a fine larger
+  // equivalent, so it keeps the standard compareCounts behaviour.
+  const distributionComparison =
+    /splitter|distribution/.test(
+      [competitor.domain, competitor.role, wyrestorm.domain, wyrestorm.role]
+        .map((value) => lower(value))
+        .join(" "),
+    );
+
   if (endpointComparison) {
     addUnique(info, "Single-stream endpoint: fixed input/output count comparison not applicable.");
+  } else if (distributionComparison) {
+    compareCounts("Input", competitor.inputCount, wyrestorm.inputCount, blockers, gaps, matches, verify, info);
+    compareDistributionOutputs(competitor.outputCount, wyrestorm.outputCount, blockers, gaps, matches, verify);
   } else {
     compareCounts("Input", competitor.inputCount, wyrestorm.inputCount, blockers, gaps, matches, verify, info);
     compareCounts("Output", competitor.outputCount, wyrestorm.outputCount, blockers, gaps, matches, verify, info);
@@ -753,6 +809,21 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
     outcome = "VERIFY";
   }
 
+  // What else the WyreStorm candidate needs to operate as a system. Prefer the
+  // requirements already resolved onto the profile; otherwise derive from its
+  // domain/role. Kept out of blockers/gaps/verify so it never changes the
+  // outcome or confidence - it is surfaced as its own "system requirements" fact
+  // so a single component is not sold as a one-box replacement.
+  const systemRequirements =
+    input.wyrestorm.systemRequirements && input.wyrestorm.systemRequirements.length > 0
+      ? input.wyrestorm.systemRequirements
+      : deriveSystemRequirements({
+          domain: input.wyrestorm.domain,
+          role: input.wyrestorm.role,
+          sku: input.wyrestorm.sku,
+          transport: input.wyrestorm.transport,
+        }).requires;
+
   return {
     outcome,
     confidence,
@@ -762,5 +833,6 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
     verify: verify.concat(info),
     summary: summaryFor(outcome, input),
     nextAction: nextActionFor(outcome),
+    systemRequirements,
   };
 }
