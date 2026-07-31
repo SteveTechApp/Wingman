@@ -5788,10 +5788,13 @@ html[data-wingman-route] .wingman-page-host :where(
   color: var(--wm-uniform-text) !important;
 }
 
-main .wm-page-hero,
 main .wm-page-header,
-main [class*="hero"],
-main [class*="Hero"] {
+main :is(
+  .wm-page-hero, .wm-ui-hero, .compare-native-hero, .wm-template-hero,
+  .wingman-page-hero, .wingman-page-hero-compact, .vw2-hero,
+  .wm-battle-card__hero, .wm-discovery-capture-hero, .wm-product-family-hero,
+  .wm-sh-page-hero, .wm-support-landing__hero
+) {
   padding-block: clamp(1rem, 2vw, 1.75rem) !important;
   margin-bottom: 1rem !important;
 }
@@ -5931,9 +5934,12 @@ main [class*="Hero"] {
   line-height: 1.12 !important;
 }
 
-.wm-template-library-page .wm-page-hero,
-.wm-template-library-page [class*="hero"],
-.wm-template-library-page [class*="Hero"] {
+.wm-template-library-page :is(
+  .wm-page-hero, .wm-ui-hero, .compare-native-hero, .wm-template-hero,
+  .wingman-page-hero, .wingman-page-hero-compact, .vw2-hero,
+  .wm-battle-card__hero, .wm-discovery-capture-hero, .wm-product-family-hero,
+  .wm-sh-page-hero, .wm-support-landing__hero
+) {
   padding-block: 0.65rem !important;
   margin-bottom: 0 !important;
 }
@@ -10939,7 +10945,12 @@ main.wm-dashboard-shell section.wm-dashboard-projects-section .wm-dashboard-proj
 .wm-ui-hero,
 .compare-native-hero,
 .wm-template-hero,
-.wingman-page-host [class*="hero"] {
+.wingman-page-host :is(
+  .wm-page-hero, .wm-ui-hero, .compare-native-hero, .wm-template-hero,
+  .wingman-page-hero, .wingman-page-hero-compact, .vw2-hero,
+  .wm-battle-card__hero, .wm-discovery-capture-hero, .wm-product-family-hero,
+  .wm-sh-page-hero, .wm-support-landing__hero
+) {
   border: 1px solid var(--wm-aqua-border) !important;
   border-radius: var(--wm-radius-2xl) !important;
   background:
@@ -11087,7 +11098,12 @@ main.wm-dashboard-shell section.wm-dashboard-projects-section .wm-dashboard-proj
 @media (max-width: 900px) {
   .wm-ui-hero,
     .compare-native-hero,
-    .wingman-page-host [class*="hero"] {
+    .wingman-page-host :is(
+      .wm-page-hero, .wm-ui-hero, .compare-native-hero, .wm-template-hero,
+      .wingman-page-hero, .wingman-page-hero-compact, .vw2-hero,
+      .wm-battle-card__hero, .wm-discovery-capture-hero, .wm-product-family-hero,
+      .wm-sh-page-hero, .wm-support-landing__hero
+    ) {
       padding: 1rem !important;
     }
 
