@@ -1,9 +1,8 @@
 import type { FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ClipboardCopy, Database, MessageSquareText, RotateCcw, Send, Sparkles, X } from "lucide-react";
+import { ClipboardCopy, Database, MessageSquareText, RotateCcw, Send, X } from "lucide-react";
 import GuruAssistantAvatar from "./branding/GuruAssistantAvatar";
-import { GuruCallNotesInterpreter } from "./GuruCallNotesInterpreter";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { postWingmanJson } from "../api/wingmanApi";
 import {
@@ -108,16 +107,6 @@ const GURU_CACHE_KEY = "wingman-guru-live-knowledge-cache-v1";
 const GURU_CACHE_LIMIT = 80;
 const GURU_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 const GURU_EXTERNAL_LOOKUP_ENABLED = import.meta.env.VITE_WINGMAN_ENABLE_GURU_EXTERNAL_LOOKUP === "true";
-
-const quickPrompts = [
-  "Which receiver can I use with the SW-130-TX-UK?",
-  "Which receiver can I use with the SW-130-TX-UK if USB is not important and the run is 30m?",
-  "Explain MX-0403-H3-MST for an installer.",
-  "What does HDBaseT mean?",
-  "Explain AVoIP encoder vs decoder.",
-  "What is EDID and why does it matter?",
-  "What is USB host vs USB device?",
-];
 
 const avGlossary: GlossaryEntry[] = [
   {
@@ -1522,10 +1511,7 @@ const openingMessage = createMessage(
 export function WingmanGuruDrawer({
   open,
   onClose,
-  contextLabel,
-  contextSummary,
   activityContext,
-  supportCue,
   seedPrompt,
   onSeedHandled,
 }: WingmanGuruDrawerProps) {
@@ -1641,19 +1627,6 @@ export function WingmanGuruDrawer({
     void sendMessage(draft);
   }
 
-  function handleQuickPrompt(prompt: string) {
-    void sendMessage(prompt);
-  }
-
-  function clearGuruMemory() {
-    window.localStorage.removeItem(GURU_CACHE_KEY);
-    setMemoryCount(0);
-    setMessages((current) => [
-      ...current,
-      createMessage("assistant", "Local Guru memory has been cleared. Built-in glossary and product rules remain available."),
-    ]);
-  }
-
   function clearConversation() {
     setMessages([openingMessage]);
     setCopiedMessageId(null);
@@ -1743,73 +1716,6 @@ export function WingmanGuruDrawer({
             </button>
           </div>
         </header>
-
-        <section className="wingman-guru-quick-section" aria-label="Quick Guru questions">
-          <div className="wingman-guru-section-label">
-            <strong>Quick asks</strong>
-            <span>Select a prompt or type your own question below.</span>
-          </div>
-
-          <div className="wingman-guru-quick-prompts">
-            {quickPrompts.map((prompt) => (
-              <button
-                key={prompt}
-                type="button"
-                className="wingman-guru-quick-prompt"
-                onClick={() => handleQuickPrompt(prompt)}
-              >
-                <Sparkles className="h-3.5 w-3.5" />
-                <span>{prompt}</span>
-              </button>
-            ))}
-
-            {memoryCount > 0 ? (
-              <button
-                type="button"
-                className="wingman-guru-quick-prompt wingman-guru-quick-prompt--quiet"
-                onClick={clearGuruMemory}
-              >
-                Clear local memory
-              </button>
-            ) : null}
-          </div>
-        </section>
-
-        {supportCue ? (
-          <details className="wingman-guru-support-drawer">
-            <summary>
-              <span>{supportCue.label}</span>
-              <small>{contextLabel ? `${contextLabel} workflow support` : "Workflow support"}</small>
-            </summary>
-            <div className="wingman-guru-support-content">
-              <p>{supportCue.summary}</p>
-              {contextSummary ? <small>Current page: {contextSummary}</small> : null}
-              <div className="wingman-guru-context-prompts">
-                {supportCue.prompts.map((prompt) => (
-                  <button
-                    key={prompt}
-                    type="button"
-                    className="wingman-guru-context-prompt"
-                    onClick={() => handleQuickPrompt(prompt)}
-                  >
-                    <Sparkles className="h-3.5 w-3.5" />
-                    <span>{prompt}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </details>
-        ) : null}
-
-        <details className="wingman-guru-tool-drawer">
-          <summary>
-            <span>Call notes interpreter</span>
-            <small>Optional: capture or paste call notes and send them into Discovery.</small>
-          </summary>
-          <div className="wingman-guru-tool-content">
-            <GuruCallNotesInterpreter />
-          </div>
-        </details>
 
         <section className="wingman-guru-conversation" aria-label="Guru conversation">
           <div className="wingman-guru-conversation-header">

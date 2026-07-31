@@ -29,16 +29,27 @@ function requireMarker(label, source, marker) {
   }
 }
 
+function refuseMarker(label, source, marker) {
+  if (source.includes(marker)) {
+    errors.push(`${label} must not contain marker: ${marker}`);
+  }
+}
+
 const guruDrawer = read(files.guruDrawer);
 const callInterpreter = read(files.callInterpreter);
 const discovery = read(files.discovery);
 const css = read(files.css);
 const packageJson = JSON.parse(read(files.packageJson) || "{}");
 
+// The Guru drawer is intentionally decluttered: the assistant is header ->
+// conversation -> composer only. The quick-ask rail and the embedded support /
+// call-note tool drawers were removed to simplify the interface.
 [
-  "GuruCallNotesInterpreter",
+  'className="wingman-guru-quick-section"',
+  'className="wingman-guru-support-drawer"',
+  'className="wingman-guru-tool-drawer"',
   "<GuruCallNotesInterpreter />",
-].forEach((marker) => requireMarker("WingmanGuruDrawer.tsx", guruDrawer, marker));
+].forEach((marker) => refuseMarker("WingmanGuruDrawer.tsx", guruDrawer, marker));
 
 [
   'data-wingman-call-notes-interpreter="true"',
