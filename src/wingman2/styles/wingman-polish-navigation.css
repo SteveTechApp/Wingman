@@ -2035,6 +2035,68 @@ html body .wingman-page-host .wm-navhub-page.wm-polish-shell > .wm-polish-tip {
 }
 /* WINGMAN_PRODUCTS_LIGHTER_ART_END */
 
+/* Unified clean page heading for the secondary pages (Templates, Compare,
+   Projects, Settings): a compact, borderless icon + copy heading consistent
+   with the dashboard. The doubled .wm-polish-hero selector raises specificity
+   above the generic main [class*="hero"] and .wingman-page-host [class*="hero"]
+   catch-alls in wingman-style-stack.css that would otherwise wrap these headings
+   in a bordered panel with wasted vertical space. Applies at all widths. */
+.wm-templates-page .wm-polish-hero.wm-polish-hero.wm-polish-hero,
+.wm-compare-page .wm-polish-hero.wm-polish-hero.wm-polish-hero,
+.wm-projects-page .wm-polish-hero.wm-polish-hero.wm-polish-hero,
+.wm-settings-page .wm-polish-hero.wm-polish-hero.wm-polish-hero {
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 0 4px !important;
+  padding: 2px 0 10px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+  align-items: center !important;
+}
+
+.wm-compare-page .compare-native-reset {
+  align-self: center;
+}
+
+/* Three-column heading layout (icon + copy + inline actions) only from the
+   wide breakpoint; narrower widths let the actions wrap below the copy so the
+   copy is not crushed. The tripled class (0,4,0) beats the route rules (0,3,2)
+   that would otherwise impose a 2-column icon-less layout. */
+@media (min-width: 981px) {
+  .wm-compare-page .compare-native-hero.wm-polish-hero.wm-polish-hero {
+    grid-template-columns: 54px minmax(0, 1fr) auto !important;
+  }
+
+  .wm-projects-page .wm-polish-hero.wm-polish-hero.wm-polish-hero,
+  .wm-settings-page .wm-polish-hero.wm-polish-hero.wm-polish-hero {
+    grid-template-columns: 50px minmax(0, 1fr) auto !important;
+  }
+}
+
+/* The generic [class*="hero"] catch-alls also match the -copy and -icon
+   children (both contain the substring "hero"), injecting a large
+   padding-block + margin-bottom that centres the copy and wastes vertical
+   space. Strip exactly those two injected properties back to the compact base. */
+.wm-templates-page .wm-polish-hero-copy,
+.wm-compare-page .wm-polish-hero-copy,
+.wm-projects-page .wm-polish-hero-copy,
+.wm-settings-page .wm-polish-hero-copy,
+.wm-templates-page .wm-polish-hero-icon,
+.wm-compare-page .wm-polish-hero-icon,
+.wm-projects-page .wm-polish-hero-icon,
+.wm-settings-page .wm-polish-hero-icon {
+  padding-block: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.wm-settings-page .wm-settings-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* Compact secondary-page system: Projects, Compare and Templates only. */
 @media (min-width: 981px) {
   .wm-projects-page,
