@@ -21,9 +21,10 @@ describe("Guru structured conversation UI", () => {
     );
   });
 
-  it("keeps optional call-note capture collapsed outside the conversation flow", () => {
-    expect(drawerSource).toContain('className="wingman-guru-tool-drawer"');
-    expect(drawerSource).toContain("<GuruCallNotesInterpreter />");
+  it("keeps the interface decluttered - no quick-ask rail or embedded tool drawers", () => {
+    expect(drawerSource).not.toContain('className="wingman-guru-quick-section"');
+    expect(drawerSource).not.toContain('className="wingman-guru-support-drawer"');
+    expect(drawerSource).not.toContain('className="wingman-guru-tool-drawer"');
   });
 
   it("provides a scrollable conversation and persistent composer contract", () => {
