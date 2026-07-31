@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { SlidersHorizontal } from "lucide-react";
 import {
   getWingmanSession,
   loginWingmanWorkspace,
@@ -269,17 +270,18 @@ export function ProfilePage() {
   }
 
   return (
-    <main className="wm-page wm-settings-page" data-wingman-page="settings">
-      <header className="wm-page-header wm-settings-header">
-        <div>
-          <p className="wm-ui-kicker">Wingman settings</p>
+    <main className="wm-page wm-settings-page wm-polish-shell" data-wingman-page="settings">
+      <header className="wm-polish-hero wm-polish-aqua wm-settings-header">
+        <span className="wm-polish-hero-icon" aria-hidden="true"><SlidersHorizontal /></span>
+        <div className="wm-polish-hero-copy">
+          <p className="wm-polish-eyebrow wm-ui-kicker">Wingman settings</p>
           <h1 className="wm-page-title">Local profile and proposal settings</h1>
           <p className="wm-copy">
             Compact local setup for branding, user details, region defaults, speech capture and workspace recovery.
           </p>
         </div>
 
-        <div className="wm-action-row" aria-label="Profile actions">
+        <div className="wm-settings-hero-actions wm-action-row" aria-label="Profile actions">
           <button className="wm-button wm-button-primary" type="button" onClick={saveProfile}>Save</button>
           <button className="wm-button wm-button-secondary" type="button" onClick={printProfile}>Print</button>
           <button className="wm-button wm-button-ghost" type="button" onClick={resetProfile}>Reset</button>
