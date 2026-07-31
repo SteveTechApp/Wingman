@@ -18272,7 +18272,7 @@ main.wm-product-pitch-page[data-product-pitch-view="workspace"]
   flex: 0 0 auto;
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
+  align-items: start;
   gap: 9px;
   padding: 11px 13px 13px !important;
   border-top: 1px solid rgba(94, 234, 212, 0.20);
@@ -18284,6 +18284,21 @@ main.wm-product-pitch-page[data-product-pitch-view="workspace"]
   min-width: 0;
   display: grid;
   gap: 4px;
+}
+
+/* Keep the accessible label in the a11y tree but out of layout flow so it does
+   not add a grid row above the textarea (which would push the Send button out
+   of alignment with the input). */
+.wingman-guru-input-shell > label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .wingman-guru-input {
