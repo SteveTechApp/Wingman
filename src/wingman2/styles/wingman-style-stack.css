@@ -17357,6 +17357,15 @@ body.wm-product-pitch-page-open .wm-product-pitch-browse-all {
   gap: 0.9rem !important;
 }
 
+/* Product-mode is a single full-width discussion panel. The guide + selector
+   column is hidden, so the two-column selection grid above must be collapsed to
+   a block or the empty 38fr track leaves dead space left of the preview. */
+.wm-pcc-select-shell .wm-pcc-grid.wm-pcc-product-mode {
+  display: block !important;
+  grid-template-columns: none !important;
+  grid-template-areas: none !important;
+}
+
 .wm-pcc-select-shell .wm-pcc-workflow-guide {
   grid-area: guide !important;
   min-width: 0 !important;
