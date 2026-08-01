@@ -975,8 +975,23 @@ function BulkEnquiryResults({
               <ul className="mt-4 space-y-2 text-sm leading-6 text-white/75">
                 {queueRows.map((row) => (
                   <li key={row.id} className="rounded-2xl border border-[#29465e] bg-[#081724] p-3">
-                    <p className="font-semibold text-white">{row.sku}</p>
-                    <p>{row.wyrestormDirection}</p>
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="font-semibold text-white">{row.sku}</p>
+                        <p>{row.wyrestormDirection}</p>
+                      </div>
+                      <Link
+                        className="wm-ui-button wm-ui-button-secondary rounded-xl px-3 py-2 font-black"
+                        to={`${routeCatalogByKey.compare.path}?${new URLSearchParams({
+                          ...(row.brand ? { brand: row.brand } : {}),
+                          sku: row.sku,
+                          context: row.rawItem,
+                          source: "document-ingest-batch",
+                        }).toString()}`}
+                      >
+                        Compare {row.sku}
+                      </Link>
+                    </div>
                   </li>
                 ))}
               </ul>

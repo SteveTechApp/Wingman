@@ -125,6 +125,10 @@ Unknown,ABC-999,mystery item`,
     const batchButton = screen.getByRole("button", { name: /Review selected comparisons \(2\)/ });
     fireEvent.click(batchButton);
     expect(screen.getByText("Selected comparison queue")).not.toBeNull();
+    expect(screen.getByRole("link", { name: "Compare HEX100CS-KIT" }).getAttribute("href"))
+      .toContain("/wingman/compare?brand=Blustream&sku=HEX100CS-KIT");
+    expect(screen.getByRole("link", { name: "Compare C44CS-KIT" }).getAttribute("href"))
+      .toContain("/wingman/compare?brand=Blustream&sku=C44CS-KIT");
     expect(screen.queryByText(/Samsung QM55B/)).toBeNull();
     expect(screen.queryByText(/Blustream PS122/)).toBeNull();
 
