@@ -802,6 +802,7 @@ function parseUpsertPayload(payload) {
     ok: true,
     error: "",
     payload: {
+      replaceMode: payload?.replaceMode === true,
       vendorType,
       brand,
       sku,
@@ -845,6 +846,7 @@ async function upsertRecord(payload) {
 
   const db = await ensureDatabase();
   const incoming = parsed.payload;
+  const replaceMode = incoming.replaceMode === true;
   const id = makeRecordId(incoming.vendorType, incoming.brand, incoming.sku);
   const existing = db.records.find((entry) => entry.id === id) || null;
   const base = existing || recordSkeleton(incoming);
@@ -861,21 +863,21 @@ async function upsertRecord(payload) {
     family: incoming.family || base.family,
     category: incoming.category || base.category,
     summary: incoming.summary || base.summary,
-    features: incoming.features.length > 0 ? incoming.features : base.features,
-    transport: incoming.transport || base.transport,
-    inputs: incoming.inputs.length > 0 ? incoming.inputs : base.inputs,
-    outputs: incoming.outputs.length > 0 ? incoming.outputs : base.outputs,
-    control: incoming.control.length > 0 ? incoming.control : base.control,
-    audio: incoming.audio.length > 0 ? incoming.audio : base.audio,
-    video: incoming.video || base.video,
-    distanceMeters: incoming.distanceMeters ?? base.distanceMeters,
+    features: replaceMode ? incoming.features : (incoming.features.length > 0 ? incoming.features : base.features),
+    transport: replaceMode ? incoming.transport : (incoming.transport || base.transport),
+    inputs: replaceMode ? incoming.inputs : (incoming.inputs.length > 0 ? incoming.inputs : base.inputs),
+    outputs: replaceMode ? incoming.outputs : (incoming.outputs.length > 0 ? incoming.outputs : base.outputs),
+    control: replaceMode ? incoming.control : (incoming.control.length > 0 ? incoming.control : base.control),
+    audio: replaceMode ? incoming.audio : (incoming.audio.length > 0 ? incoming.audio : base.audio),
+    video: replaceMode ? incoming.video : (incoming.video || base.video),
+    distanceMeters: replaceMode ? incoming.distanceMeters : (incoming.distanceMeters ?? base.distanceMeters),
     sourceUrls: dedupeStrings([
       ...incoming.sourceUrls,
       ...base.sourceUrls,
       sourceUrlForBrand(incoming.vendorType, incoming.brand),
     ], 8),
     tags: dedupeStrings([...incoming.tags, ...base.tags], 20),
-    notes: incoming.notes || base.notes,
+    notes: replaceMode ? incoming.notes : (incoming.notes || base.notes),
     status: incoming.status || base.status,
     confidence: incoming.confidence ?? base.confidence,
     sourceType: incoming.sourceType || base.sourceType,

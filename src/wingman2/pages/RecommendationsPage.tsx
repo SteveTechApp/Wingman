@@ -26,7 +26,6 @@ import {
   type SystemSlot,
 } from "../lib/discoverySystemDesign";
 import { readClassificationFacts } from "../lib/productStoryEngine";
-import { getProductAssurance } from "../lib/productAssurance";
 
 type RecommendationDecision = Awaited<
   ReturnType<typeof loadWingmanProductSelectorDecisions>
@@ -219,7 +218,6 @@ export function RecommendationsPage() {
     () =>
       decisions
         .filter((decision) => decision.eligible)
-        .filter((decision) => getProductAssurance(decision.sku).customerReady)
         .filter((decision) => decision.status !== "dependency")
         .slice(0, 12),
     [decisions],
@@ -241,7 +239,6 @@ export function RecommendationsPage() {
           // by the requirement - must never reach it, or a retired SKU gets
           // quoted inside an otherwise plausible-looking system.
           .filter((decision) => decision.eligible)
-          .filter((decision) => getProductAssurance(decision.sku).customerReady)
           .filter((decision) => productMatchesSlot(decisionClassification(decision), slot))
           .slice(0, 4),
       })),
