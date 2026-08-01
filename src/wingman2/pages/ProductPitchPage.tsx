@@ -214,6 +214,12 @@ function DisplayList({ items, max = 6 }: { items: string[]; max?: number }) {
   );
 }
 
+function conciseSalesCopy(value: string, maxWords = 28) {
+  const words = String(value || "").trim().split(/\s+/).filter(Boolean);
+  if (words.length <= maxWords) return words.join(" ");
+  return `${words.slice(0, maxWords).join(" ").replace(/[,:;.-]+$/, "")}…`;
+}
+
 function WorkCard({
   title,
   children,
@@ -652,47 +658,53 @@ function OverviewTab({
   context: ProductSalesContext;
 }) {
   const guidance = buildProductPitchSalesGuidance(product, narrative, context);
+  const topBenefits = cleanUsefulList(guidance.featureBenefits, 3)
+    .map((benefit) => conciseSalesCopy(benefit, 18));
 
   return (
-    <div className="grid gap-4">
-      <section className="wm-ui-section rounded-lg border p-6 wm-ui-card">
-        <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-200`}>Simple product answer</p>
-        <h2 className="mt-2 text-2xl font-extrabold wm-ui-title">What it does</h2>
-        <p className="mt-2 max-w-5xl text-base font-bold leading-6 wm-ui-copy">{guidance.plainDescription}</p>
-        <p className="mt-2 max-w-5xl text-sm leading-6 wm-ui-copy">
-          <strong>Technical description:</strong> {guidance.productRole}
+    <div className="grid gap-3">
+      <section className="wm-ui-section rounded-lg border p-5 wm-ui-card">
+        <p className={`${PRODUCT_PITCH_KICKER_CLASS} wm-ui-kicker`}>Sales quick view</p>
+        <h2 className="mt-1 text-xl font-extrabold wm-ui-title">The customer outcome</h2>
+        <p className="mt-2 max-w-4xl text-base font-bold leading-6 wm-ui-copy">
+          {conciseSalesCopy(guidance.plainDescription, 32)}
         </p>
       </section>
 
-      {guidance.featureBenefits.length ? (
-        <WorkCard title="Features and benefits - what each feature does for the customer">
-          <DisplayList items={guidance.featureBenefits} max={6} />
-        </WorkCard>
-      ) : null}
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <WorkCard title="How it fits this application">
-          <p className="wm-ui-copy">{guidance.scenarioFit}</p>
+      <div className="grid gap-3 lg:grid-cols-3">
+        <WorkCard title="Why it matters">
+          <p className="wm-ui-copy">{conciseSalesCopy(guidance.customerProblem, 24)}</p>
         </WorkCard>
 
-        <WorkCard title="Say it like this">
-          <p className="wm-ui-copy">{guidance.customerSafeWording}</p>
+        <WorkCard title="Best fit">
+          <p className="wm-ui-copy">{conciseSalesCopy(guidance.scenarioFit, 24)}</p>
         </WorkCard>
 
-        <WorkCard title="Confirm this" tone="caution">
-          <p className="wm-ui-copy">{guidance.confirmationQuestion}</p>
-        </WorkCard>
-
-        <WorkCard title="Customer problem it solves">
-          <p className="wm-ui-copy">{guidance.customerProblem}</p>
+        <WorkCard title="Top benefits">
+          <DisplayList items={topBenefits} max={3} />
         </WorkCard>
       </div>
 
+      <section className="wm-ui-section rounded-lg border p-5 wm-ui-card">
+        <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-300`}>Say it like this</p>
+        <p className="mt-2 max-w-5xl text-base leading-6 wm-ui-copy">
+          “{conciseSalesCopy(guidance.customerSafeWording, 36)}”
+        </p>
+      </section>
+
       <details className="wm-ui-card rounded-lg border p-5">
         <summary className="cursor-pointer font-extrabold">
-          More product and quote detail
+          Technical and quote detail
         </summary>
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <WorkCard title="Technical description">
+            <p className="wm-ui-copy">{guidance.productRole}</p>
+          </WorkCard>
+
+          <WorkCard title="Confirm before recommending" tone="caution">
+            <p className="wm-ui-copy">{guidance.confirmationQuestion}</p>
+          </WorkCard>
+
           <WorkCard title="Best-fit applications">
             <DisplayList items={guidance.bestFitApplications} max={4} />
           </WorkCard>
@@ -728,10 +740,12 @@ function OverviewTab({
           <WorkCard title="Internal sales notes" tone="caution">
             <DisplayList items={guidance.internalSalesNotes} max={4} />
           </WorkCard>
+
+          <div className="lg:col-span-2">
+            <ProductMediaPanel sku={product.sku} title={product.name} />
+          </div>
         </div>
       </details>
-
-      <ProductMediaPanel sku={product.sku} title={product.name} />
     </div>
   );
 }

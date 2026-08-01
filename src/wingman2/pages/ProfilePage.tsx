@@ -13,6 +13,10 @@ import {
   resetProjectBackendSyncSessionState,
 } from "../data/projectStore";
 import { StatusChip } from "../components/StatusChip";
+import {
+  readGlossaryHighlightsEnabled,
+  writeGlossaryHighlightsEnabled,
+} from "../lib/glossaryHighlightPreference";
 
 type ProfileSettings = {
   companyName: string;
@@ -118,6 +122,7 @@ export function ProfilePage() {
   const [status, setStatus] = useState("Local settings ready.");
   const [session, setSession] = useState<WingmanWorkspaceSession | null>(null);
   const [workspaceBusy, setWorkspaceBusy] = useState(false);
+  const [glossaryHighlightsEnabled, setGlossaryHighlightsEnabled] = useState(readGlossaryHighlightsEnabled);
 
   useEffect(() => {
     setProfile(readStoredProfile());
@@ -142,6 +147,12 @@ export function ProfilePage() {
     }));
   }
 
+  function updateGlossaryHighlights(enabled: boolean) {
+    setGlossaryHighlightsEnabled(enabled);
+    writeGlossaryHighlightsEnabled(enabled);
+    setStatus(enabled ? "Glossary keyword links enabled." : "Glossary keyword links hidden.");
+  }
+
   function saveProfile() {
     const payload = JSON.stringify({ ...profile, workspacePassword: "" });
 
@@ -164,6 +175,8 @@ export function ProfilePage() {
     }
 
     setProfile(defaultProfile);
+    setGlossaryHighlightsEnabled(true);
+    writeGlossaryHighlightsEnabled(true);
     setStatus("Local profile reset.");
   }
 
@@ -420,6 +433,26 @@ export function ProfilePage() {
             <strong>Recommended</strong>
             <span>Stage new product and competitor findings for review before Finder, Compare or Proposal use them as trusted data.</span>
           </div>
+        </section>
+
+        <section className="wm-section-card" aria-labelledby="wingman-settings-reading">
+          <p className="wm-ui-kicker">Reading assistance</p>
+          <h2 id="wingman-settings-reading" className="wm-card-title">Guru glossary links</h2>
+          <p className="wm-copy">
+            Highlight AV terms such as HDBaseT, EDID and HDR so they open the matching Guru glossary entry.
+          </p>
+
+          <label className="wm-settings-check-row">
+            <input
+              type="checkbox"
+              checked={glossaryHighlightsEnabled}
+              onChange={(event) => updateGlossaryHighlights(event.target.checked)}
+            />
+            <span>
+              <strong>Highlight technology keywords</strong>
+              <small>Turn this off for uninterrupted plain text across Wingman pages.</small>
+            </span>
+          </label>
         </section>
         </div>
 
