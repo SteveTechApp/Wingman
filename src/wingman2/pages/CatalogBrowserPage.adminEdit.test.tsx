@@ -1,10 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import index from "../../../public/product-intelligence-index.json";
 
-const { getWingmanSession } = vi.hoisted(() => ({
+const { getWingmanSession, getWingmanJson } = vi.hoisted(() => ({
   getWingmanSession: vi.fn(),
+  getWingmanJson: vi.fn(),
 }));
 
 vi.mock("../lib/productIntelligenceIndexCache", () => ({
@@ -13,7 +14,7 @@ vi.mock("../lib/productIntelligenceIndexCache", () => ({
 
 vi.mock("../api/wingmanApi", () => ({
   getWingmanSession,
-  getWingmanJson: vi.fn(),
+  getWingmanJson,
   postWingmanJson: vi.fn(),
 }));
 
@@ -40,6 +41,11 @@ describe("CatalogBrowserPage admin record editing", () => {
     );
 
     expect((await screen.findAllByRole("button", { name: "Edit record" })).length).toBeGreaterThan(0);
+
+    getWingmanJson.mockResolvedValue({ ok: true, records: [{ vendorType: "wyrestorm", brand: "WyreStorm", sku: "AMP-2120", status: "draft" }] });
+    fireEvent.click((await screen.findAllByRole("button", { name: "Edit record" }))[0]);
+    expect(await screen.findByRole("button", { name: "Allow product" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Remove product" })).toBeTruthy();
   });
 
   it("does not expose Edit record actions to a non-admin user", async () => {

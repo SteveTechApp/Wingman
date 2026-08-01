@@ -18,6 +18,7 @@ import {
 } from "../lib/productPitchGuidance";
 import { CompareBackToListButton } from "../components/compare/CompareBackToListButton";
 import { ReportProblemButton } from "../components/ReportProblemButton";
+import { AdminProductRecordEditor } from "../components/AdminProductRecordEditor";
 import { ProductMediaPanel } from "../components/ProductMediaPanel";
 import { AVSignalFlowDiagram } from "../components/AVSignalFlowDiagram";
 import { RoomSchematicDiagram } from "../components/RoomSchematicDiagram";
@@ -1157,6 +1158,17 @@ function ProductWorkspace({
               Print cheat-sheet
             </button>
             <ReportProblemButton sku={product.sku} productName={product.name} />
+            <AdminProductRecordEditor
+              product={{
+                sku: product.sku,
+                name: product.name,
+                family: product.family,
+                category: product.category,
+                summary: product.summary,
+              }}
+              onSaved={() => window.location.reload()}
+              onRemoved={backToSelection}
+            />
             <button
               type="button"
               onClick={backToSelection}
