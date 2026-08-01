@@ -7297,6 +7297,11 @@ html[data-wingman-screen-fit] .wm-diagram-card {
     }
 
 }
+/* ===== Product Call Cards - preview panel (consolidated) =====
+   Previously ~5 appended waves of `body .wm-pcc-preview .*` rules plus three
+   duplicate `@media (max-width: 1500px)` blocks fought via source order. This
+   is the single effective (last-wins) result. Product-mode height / overflow /
+   card-size overrides live in the product-mode block further down the file. */
 body .wm-pcc-card,
 body .wm-pcc-results,
 body .wm-pcc-results-panel,
@@ -7319,28 +7324,49 @@ body .wm-pcc-preview h3 {
   line-height: 1.05 !important;
 }
 
+body .wm-pcc-preview .wm-pcc-product-title,
+body .wm-pcc-preview h2 {
+  font-size: 1.15rem !important;
+  line-height: 1.05 !important;
+}
+
+body .wm-pcc-preview .wm-pcc-product-family,
+body .wm-pcc-preview .wm-pcc-product-subtitle {
+  font-size: 0.82rem !important;
+}
+
 body .wm-pcc-preview .wm-pcc-gallery-strip {
   display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) 8.6rem !important;
-  gap: 0.5rem !important;
-  margin: 0.42rem 0 0.58rem !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) 9.4rem !important;
+  gap: 0.65rem !important;
+  margin: 0.6rem 0 0.8rem !important;
 }
 
 body .wm-pcc-preview .wm-pcc-gallery-tile {
-  min-height: 3.15rem !important;
-  height: 3.15rem !important;
-  border-radius: 0.8rem !important;
-  padding: 0.45rem 0.55rem !important;
   display: grid !important;
-  grid-template-columns: 2.05rem minmax(0, 1fr) !important;
-  gap: 0.48rem !important;
+  grid-template-columns: 2.35rem minmax(0, 1fr) !important;
   align-items: center !important;
+  gap: 0.48rem !important;
+  min-height: 4.1rem !important;
+  height: 4.1rem !important;
+  padding: 0.58rem 0.7rem !important;
+  border-radius: 1rem !important;
+}
+
+body .wm-pcc-preview .wm-pcc-visual-studio-button {
+  min-width: 0 !important;
+  min-height: 4.1rem !important;
+  height: 4.1rem !important;
+  padding: 0.42rem 0.62rem !important;
+  border-radius: 1rem !important;
+  font-size: 0.62rem !important;
+  line-height: 1.1 !important;
 }
 
 body .wm-pcc-preview .wm-pcc-gallery-thumb {
-  width: 2.05rem !important;
-  height: 2.05rem !important;
-  border-radius: 0.56rem !important;
+  width: 2.35rem !important;
+  height: 2.35rem !important;
+  border-radius: 0.66rem !important;
 }
 
 body .wm-pcc-preview .wm-pcc-gallery-icon {
@@ -7356,41 +7382,31 @@ body .wm-pcc-preview .wm-pcc-gallery-label {
 }
 
 body .wm-pcc-preview .wm-pcc-gallery-title {
-  font-size: 0.68rem !important;
+  font-size: 0.76rem !important;
   line-height: 1.08 !important;
 }
 
 body .wm-pcc-preview .wm-pcc-gallery-label {
   margin-top: 0.16rem !important;
-  font-size: 0.54rem !important;
+  font-size: 0.6rem !important;
   line-height: 1.08 !important;
-}
-
-body .wm-pcc-preview .wm-pcc-visual-studio-button {
-  min-width: 0 !important;
-  min-height: 3.15rem !important;
-  height: 3.15rem !important;
-  border-radius: 0.8rem !important;
-  padding: 0.42rem 0.62rem !important;
-  font-size: 0.62rem !important;
-  line-height: 1.1 !important;
 }
 
 body .wm-pcc-preview .wm-pcc-section-tabs {
   display: grid !important;
   grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 0.5rem !important;
-  margin: 0 0 0.68rem !important;
+  gap: 0.6rem !important;
+  margin: 0 0 0.85rem !important;
 }
 
 body .wm-pcc-preview .wm-pcc-section-tab {
-  min-height: 3.1rem !important;
-  height: 3.1rem !important;
-  aspect-ratio: auto !important;
-  border-radius: 0.82rem !important;
-  padding: 0.52rem 0.62rem !important;
   display: block !important;
   text-align: left !important;
+  aspect-ratio: auto !important;
+  min-height: 4rem !important;
+  height: 4rem !important;
+  padding: 0.65rem 0.75rem !important;
+  border-radius: 1rem !important;
 }
 
 body .wm-pcc-preview .wm-pcc-section-tab strong,
@@ -7402,226 +7418,24 @@ body .wm-pcc-preview .wm-pcc-section-tab span {
 }
 
 body .wm-pcc-preview .wm-pcc-section-tab strong {
-  font-size: 0.68rem !important;
+  font-size: 0.78rem !important;
   line-height: 1.08 !important;
 }
 
 body .wm-pcc-preview .wm-pcc-section-tab span {
   margin-top: 0.18rem !important;
-  font-size: 0.54rem !important;
+  font-size: 0.62rem !important;
   line-height: 1.08 !important;
 }
 
 body .wm-pcc-preview .wm-pcc-focus-panel {
-  min-height: 0 !important;
-  height: 100% !important;
-  overflow: auto !important;
-  padding: 1.15rem 1.2rem !important;
-  border-radius: 0.9rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-section-heading {
-  font-size: 0.88rem !important;
-  margin-bottom: 0.75rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-response-copy {
-  font-size: 0.92rem !important;
-  line-height: 1.5 !important;
-  max-width: none !important;
-}
-
-body .wm-pcc-preview .wm-pcc-response-subhead {
-  font-size: 0.82rem !important;
-  margin-top: 1rem !important;
-  margin-bottom: 0.45rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-response-list {
-  font-size: 0.84rem !important;
-  line-height: 1.48 !important;
-  max-width: none !important;
-}
-
-body .wm-pcc-preview .wm-pcc-actions {
-  margin-top: 0.75rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-actions button {
-  min-height: 2.35rem !important;
-  font-size: 0.72rem !important;
-}
-
-@media (max-width: 1500px) {
-  body .wm-pcc-card,
-    body .wm-pcc-results,
-    body .wm-pcc-results-panel,
-    body .wm-pcc-list-card,
-    body .wm-pcc-preview {
-      min-height: calc(100vh - 12.8rem) !important;
-      height: calc(100vh - 12.8rem) !important;
-    }
-
-  body .wm-pcc-preview .wm-pcc-focus-panel {
-      padding: 1rem 1.05rem !important;
-    }
-
-}
-body .wm-pcc-preview .wm-pcc-product-title,
-body .wm-pcc-preview h2 {
-  font-size: 1.15rem !important;
-  line-height: 1.05 !important;
-}
-
-body .wm-pcc-preview .wm-pcc-product-family,
-body .wm-pcc-preview .wm-pcc-product-subtitle {
-  font-size: 0.82rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-gallery-strip {
-  grid-template-columns: repeat(3, minmax(0, 1fr)) 9.4rem !important;
-  gap: 0.6rem !important;
-  margin: 0.55rem 0 0.75rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-gallery-tile,
-body .wm-pcc-preview .wm-pcc-visual-studio-button {
-  min-height: 3.75rem !important;
-  height: 3.75rem !important;
-  border-radius: 0.95rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-gallery-tile {
-  grid-template-columns: 2.35rem minmax(0, 1fr) !important;
-  padding: 0.58rem 0.7rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-gallery-thumb {
-  width: 2.35rem !important;
-  height: 2.35rem !important;
-  border-radius: 0.66rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-gallery-title {
-  font-size: 0.76rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-gallery-label {
-  font-size: 0.6rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-section-tabs {
-  gap: 0.6rem !important;
-  margin-bottom: 0.85rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-section-tab {
-  min-height: 3.75rem !important;
-  height: 3.75rem !important;
-  border-radius: 0.95rem !important;
-  padding: 0.65rem 0.75rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-section-tab strong {
-  font-size: 0.78rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-section-tab span {
-  font-size: 0.62rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-focus-panel {
-  display: block !important;
-  padding: 1.45rem 1.55rem !important;
-  border-radius: 1.05rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-section-heading {
-  font-size: 1rem !important;
-  margin-bottom: 0.95rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-response-copy {
-  font-size: 1rem !important;
-  line-height: 1.58 !important;
-}
-
-body .wm-pcc-preview .wm-pcc-response-subhead {
-  font-size: 0.9rem !important;
-  margin-top: 1.2rem !important;
-  margin-bottom: 0.55rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-response-list {
-  font-size: 0.92rem !important;
-  line-height: 1.52 !important;
-}
-
-body .wm-pcc-preview .wm-pcc-actions {
-  margin-top: 0.9rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-actions button {
-  min-height: 2.75rem !important;
-  border-radius: 0.95rem !important;
-  font-size: 0.8rem !important;
-}
-
-@media (max-width: 1500px) {
-  body .wm-pcc-preview .wm-pcc-gallery-tile,
-    body .wm-pcc-preview .wm-pcc-visual-studio-button,
-    body .wm-pcc-preview .wm-pcc-section-tab {
-      min-height: 3.35rem !important;
-      height: 3.35rem !important;
-    }
-
-  body .wm-pcc-preview .wm-pcc-focus-panel {
-      padding: 1.25rem 1.35rem !important;
-    }
-
-  body .wm-pcc-preview .wm-pcc-response-copy {
-      font-size: 0.96rem !important;
-    }
-
-}
-body .wm-pcc-preview {
-  min-height: calc(100vh - 12.1rem) !important;
-  height: calc(100vh - 12.1rem) !important;
-  display: grid !important;
-  grid-template-rows: auto auto auto minmax(0, 1fr) auto !important;
-  overflow: hidden !important;
-}
-
-body .wm-pcc-preview .wm-pcc-gallery-tile,
-body .wm-pcc-preview .wm-pcc-visual-studio-button,
-body .wm-pcc-preview .wm-pcc-section-tab {
-  border-radius: 1rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-gallery-strip {
-  gap: 0.65rem !important;
-  margin: 0.6rem 0 0.8rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-gallery-tile,
-body .wm-pcc-preview .wm-pcc-visual-studio-button {
-  min-height: 4.1rem !important;
-  height: 4.1rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-section-tab {
-  min-height: 4rem !important;
-  height: 4rem !important;
-}
-
-body .wm-pcc-preview .wm-pcc-focus-panel {
+  display: flex !important;
+  flex-direction: column !important;
   min-height: 0 !important;
   height: 100% !important;
   padding: 1.65rem 1.75rem !important;
   border-radius: 1.1rem !important;
   overflow: auto !important;
-  display: flex !important;
-  flex-direction: column !important;
 }
 
 body .wm-pcc-preview .wm-pcc-section-heading {
@@ -7644,6 +7458,11 @@ body .wm-pcc-preview .wm-pcc-response-subhead {
 body .wm-pcc-preview .wm-pcc-response-list {
   font-size: 0.96rem !important;
   line-height: 1.55 !important;
+  max-width: none !important;
+}
+
+body .wm-pcc-preview .wm-pcc-actions {
+  margin-top: 0.9rem !important;
 }
 
 body .wm-pcc-preview .wm-pcc-actions button {
@@ -7653,25 +7472,33 @@ body .wm-pcc-preview .wm-pcc-actions button {
 }
 
 @media (max-width: 1500px) {
+  body .wm-pcc-card,
+  body .wm-pcc-results,
+  body .wm-pcc-results-panel,
+  body .wm-pcc-list-card,
+  body .wm-pcc-preview {
+    min-height: calc(100vh - 12.8rem) !important;
+    height: calc(100vh - 12.8rem) !important;
+  }
+
   body .wm-pcc-preview .wm-pcc-gallery-tile,
-    body .wm-pcc-preview .wm-pcc-visual-studio-button {
-      min-height: 3.75rem !important;
-      height: 3.75rem !important;
-    }
+  body .wm-pcc-preview .wm-pcc-visual-studio-button {
+    min-height: 3.75rem !important;
+    height: 3.75rem !important;
+  }
 
   body .wm-pcc-preview .wm-pcc-section-tab {
-      min-height: 3.7rem !important;
-      height: 3.7rem !important;
-    }
+    min-height: 3.7rem !important;
+    height: 3.7rem !important;
+  }
 
   body .wm-pcc-preview .wm-pcc-focus-panel {
-      padding: 1.45rem 1.55rem !important;
-    }
+    padding: 1.45rem 1.55rem !important;
+  }
 
   body .wm-pcc-preview .wm-pcc-response-copy {
-      font-size: 1rem !important;
-    }
-
+    font-size: 1rem !important;
+  }
 }
 .wm-discovery-capture-page {
   width: min(100%, 1180px);
