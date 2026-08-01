@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -8,6 +8,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // real WyreStorm catalogue.
 
 import { DISCOVERY_BRIEF_KEY } from "@/wingman2/data/workflowHandoff";
+import { readProjectStore } from "@/wingman2/data/projectStore";
 import { loadProductIntelligenceIndex } from "@/wingman2/lib/productIntelligenceIndexCache";
 import { RecommendationsPage } from "@/wingman2/pages/RecommendationsPage";
 import productIntelligenceIndex from "../../public/product-intelligence-index.json";
@@ -88,5 +89,15 @@ describe("Recommendations Discovery handoff", () => {
 
     expect((await screen.findAllByText("NHD-600-TRX")).length).toBeGreaterThan(0);
     expect(screen.queryByText("No eligible product passed the current compatibility gates.")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Add the whole system to the project" }));
+
+    const snapshot = readProjectStore();
+    const project = snapshot.projects.find((candidate) => candidate.id === snapshot.activeProjectId)!;
+    const endpointSelections = project.productSelections?.filter((selection) =>
+      /Source encoder|Display decoder/i.test(selection.evidence?.join(" ") ?? ""),
+    ) ?? [];
+    expect(endpointSelections.reduce((total, selection) => total + (selection.quantity ?? 0), 0)).toBe(14);
+    expect(endpointSelections.every((selection) => (selection.quantity ?? 0) > 0)).toBe(true);
   });
 });

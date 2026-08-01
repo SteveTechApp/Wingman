@@ -127,6 +127,7 @@ function decisionClassification(decision: RecommendationDecision) {
 
 function selectionFromDecision(
   decision: RecommendationDecision,
+  quantity?: number,
 ): StoredProductSelection {
   const status =
     decision.status === "compatible"
@@ -137,6 +138,7 @@ function selectionFromDecision(
 
   return {
     sku: decision.sku,
+    quantity,
     title: productTitle(decision),
     family: productField(decision, "family"),
     category:
@@ -251,7 +253,7 @@ export function RecommendationsPage() {
   );
 
   function addSlotToProject(slot: SystemSlot, decision: RecommendationDecision) {
-    const selection = selectionFromDecision(decision);
+    const selection = selectionFromDecision(decision, slot.quantity);
     const savedProject = saveProductSelectionToCurrentProject({
       ...selection,
       source: `Discovery system design - ${slot.label}`,
@@ -276,16 +278,39 @@ export function RecommendationsPage() {
       return;
     }
 
+    const selectionsBySku = new Map<string, {
+      decision: RecommendationDecision;
+      quantity: number;
+      slotEvidence: string[];
+    }>();
+
+    for (const entry of filled) {
+      const decision = entry.candidates[0];
+      const existing = selectionsBySku.get(decision.sku);
+      const slotEvidence = `Fills the ${entry.slot.label} slot (qty ${entry.slot.quantity}): ${entry.slot.purpose}`;
+
+      if (existing) {
+        existing.quantity += entry.slot.quantity;
+        existing.slotEvidence.push(slotEvidence);
+      } else {
+        selectionsBySku.set(decision.sku, {
+          decision,
+          quantity: entry.slot.quantity,
+          slotEvidence: [slotEvidence],
+        });
+      }
+    }
+
     let saved = 0;
     let projectName = "";
 
-    for (const entry of filled) {
-      const selection = selectionFromDecision(entry.candidates[0]);
+    for (const entry of selectionsBySku.values()) {
+      const selection = selectionFromDecision(entry.decision, entry.quantity);
       const savedProject = saveProductSelectionToCurrentProject({
         ...selection,
-        source: `Discovery system design - ${entry.slot.label}`,
+        source: "Discovery system design - whole system",
         evidence: [
-          `Fills the ${entry.slot.label} slot (qty ${entry.slot.quantity}): ${entry.slot.purpose}`,
+          ...entry.slotEvidence,
           ...(selection.evidence ?? []),
         ],
       });

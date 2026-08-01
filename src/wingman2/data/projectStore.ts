@@ -54,6 +54,8 @@ export type StoredDiscoveryBrief = {
 
 export type StoredProductSelection = {
   sku: string;
+  /** Quantity captured by the workflow slot that selected this product. */
+  quantity?: number;
   title?: string;
   family?: string;
   category?: string;
@@ -461,6 +463,11 @@ function stringArray(value: unknown) {
     : [];
 }
 
+function positiveNumber(value: unknown): number | undefined {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+}
+
 function normalizedStage(value: unknown): ProjectStage {
   const stage = String(value ?? "").trim();
   if (stage === "Finder") return "Recommendations";
@@ -483,6 +490,7 @@ function normalizeProductSelections(value: unknown): StoredProductSelection[] {
 
       return {
         sku,
+        quantity: positiveNumber(record.quantity),
         title: stringValue(record.title, undefined),
         family: stringValue(record.family, undefined),
         category: stringValue(record.category, undefined),

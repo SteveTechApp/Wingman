@@ -104,7 +104,7 @@ function collectRealProducts(project?: StoredProject | null): AdapterProduct[] {
     bySku.set(sku, {
       sku,
       label: selection.title || sku,
-      quantity: 1,
+      quantity: Math.max(1, selection.quantity || 1),
     });
   };
 
