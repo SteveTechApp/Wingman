@@ -79,3 +79,58 @@ describe("text fallback still applies when no taxonomy is supplied", () => {
     ).toBe("CAMERA");
   });
 });
+
+describe("endpoint topology gate", () => {
+  const hdbasetClassification = { subClassifications: ["extender", "hdbaset"] };
+
+  it("blocks a complete extender kit for a transmitter-only competitor", () => {
+    const result = gateCompareCandidate(
+      {
+        sku: "EX-40-KVM-5K",
+        title: "5K HDBaseT Extender Kit",
+        classification: hdbasetClassification,
+      },
+      { competitorClass: "HDBASET", competitorRole: "transmitter" },
+    );
+    expect(result.allowed).toBe(false);
+    expect(result.blockedBy.join(" ")).toMatch(/Endpoint role mismatch/i);
+  });
+
+  it("allows a transmitter for a transmitter-only competitor", () => {
+    const result = gateCompareCandidate(
+      {
+        sku: "TX-35-IW",
+        title: "In-wall HDBaseT Transmitter",
+        classification: hdbasetClassification,
+      },
+      { competitorClass: "HDBASET", competitorRole: "transmitter" },
+    );
+    expect(result.allowed).toBe(true);
+  });
+
+  it("blocks an AVoIP encoder for a decoder request", () => {
+    const result = gateCompareCandidate(
+      {
+        sku: "NHD-500-TX",
+        title: "NetworkHD Encoder",
+        classification: { subClassifications: ["networkhd-500", "encoder"] },
+      },
+      { competitorClass: "AVOIP", competitorRole: "decoder" },
+    );
+    expect(result.allowed).toBe(false);
+    expect(result.blockedBy.join(" ")).toMatch(/Endpoint role mismatch/i);
+  });
+
+  it("blocks modular matrix I/O cards as standalone transmitter equivalents", () => {
+    const result = gateCompareCandidate(
+      {
+        sku: "TX-H2X-HDMI",
+        title: "H2XC HDMI input card",
+        classification: hdbasetClassification,
+      },
+      { competitorClass: "HDBASET", competitorRole: "transmitter" },
+    );
+    expect(result.allowed).toBe(false);
+    expect(result.blockedBy.join(" ")).toMatch(/Modular matrix I\/O card/i);
+  });
+});

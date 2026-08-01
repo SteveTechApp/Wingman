@@ -23,10 +23,14 @@ const index = readJson(path.join(root, "public/product-intelligence-index.json")
 const products = arrayify(index);
 
 const contexts = [
-  { name: "Crestron HDBaseT transmitter", competitorClass: "HDBASET" },
-  { name: "AMX SVSI encoder", competitorClass: "AVOIP" },
+  { name: "Crestron HDBaseT transmitter", competitorClass: "HDBASET", competitorRole: "transmitter" },
+  { name: "AMX SVSI encoder", competitorClass: "AVOIP", competitorRole: "encoder" },
   { name: "AMX control processor", competitorClass: "CONTROL" },
   { name: "Barco wireless presentation", competitorClass: "WIRELESS_PRESENTATION" },
+  { name: "Extron HDMI distribution amplifier", competitorClass: "DISTRIBUTION" },
+  { name: "Kramer routed matrix", competitorClass: "MATRIX" },
+  { name: "BirdDog PTZ camera", competitorClass: "CAMERA" },
+  { name: "Biamp audio DSP", competitorClass: "AUDIO" },
 ];
 
 const output = [];
@@ -38,6 +42,7 @@ for (const context of contexts) {
   for (const product of products) {
     const gate = gateCompareCandidate({
       sku: product.sku,
+      classification: product.productClassification,
       title: product.title || product.name,
       role: product.role || product.governanceRole || product.category,
       category: product.category,
