@@ -22372,6 +22372,49 @@ main.wm-compare-page[data-compare-state="result"] #compare-result-panel-cards .w
   margin-inline: auto !important;
 }
 
+/* Let the discussion flow at its natural height and scroll with the page,
+   instead of locking the panel to the viewport and inner-scrolling the focus
+   panel (which clipped the lower content and buried the action buttons). These
+   override the viewport-height / overflow rules on the page-host, the preview
+   (body .wm-pcc-preview) and the focus panel with higher specificity. */
+.wm-pcc-select-shell .wm-pcc-grid.wm-pcc-product-mode {
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+.wm-pcc-product-mode aside.wm-pcc-preview {
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+.wm-pcc-product-mode .wm-pcc-preview .wm-pcc-focus-panel {
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+/* The select-shell wrapper is locked to `100vh - 5.4rem` with overflow:hidden,
+   which clips the lower content. In product-mode let it flow so the whole call
+   card scrolls with the page. */
+.wm-pcc-shell-product-mode {
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
+/* Reduce the tile/tab card size. Higher specificity (body + 3 classes = 0,3,1)
+   to beat the several `body .wm-pcc-preview .wm-pcc-section-tab { min-height }`
+   rules that otherwise keep them tall. */
+body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-section-tab,
+body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-gallery-tile,
+body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-visual-studio-button {
+  height: auto !important;
+  min-height: 40px !important;
+  padding: 7px 10px !important;
+}
+
 .wm-pcc-product-mode .wm-pcc-product-summary {
   display: none;
 }
@@ -22379,24 +22422,24 @@ main.wm-compare-page[data-compare-state="result"] #compare-result-panel-cards .w
 .wm-pcc-product-mode .wm-pcc-gallery-strip {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
-  gap: 8px;
-  margin: 0 0 12px;
+  gap: 6px;
+  margin: 0 0 8px;
 }
 
 .wm-pcc-product-mode .wm-pcc-gallery-tile,
 .wm-pcc-product-mode .wm-pcc-visual-studio-button {
-  min-height: 52px;
-  padding: 8px 10px;
+  min-height: 42px;
+  padding: 6px 9px;
   border-color: rgba(125, 211, 252, 0.16);
-  border-radius: 10px;
+  border-radius: 9px;
   background: rgba(8, 22, 38, 0.72);
   box-shadow: none;
 }
 
 .wm-pcc-product-mode .wm-pcc-gallery-thumb {
-  width: 34px;
-  min-width: 34px;
-  height: 34px;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
 }
 
 .wm-pcc-product-mode .wm-pcc-gallery-title {
@@ -22420,15 +22463,15 @@ main.wm-compare-page[data-compare-state="result"] #compare-result-panel-cards .w
 .wm-pcc-product-mode .wm-pcc-section-tabs {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
-  margin: 0 0 12px;
+  gap: 6px;
+  margin: 0 0 8px;
 }
 
 .wm-pcc-product-mode .wm-pcc-section-tab {
-  min-height: 54px;
-  padding: 9px 11px;
+  min-height: 40px;
+  padding: 6px 10px;
   border: 1px solid rgba(125, 211, 252, 0.16);
-  border-radius: 9px;
+  border-radius: 8px;
   background: rgba(8, 22, 38, 0.7);
   box-shadow: none;
   text-align: left;
