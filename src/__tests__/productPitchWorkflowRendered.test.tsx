@@ -98,23 +98,16 @@ describe("Product Pitch rendered workflow", () => {
     });
 
     [
-      "What it does",
-      "How it fits this application",
-      "Say it like this",
-      "Confirm this",
-      "Customer problem it solves",
-      "Best-fit applications",
-      "Poor fit / avoid leading with this",
-      "Discovery questions",
-      "Quote checks",
-      "What not to promise",
-      "Attach / companion products",
-      "Alternatives inside WyreStorm",
-      "Customer-safe wording",
-      "Internal sales notes",
+      "The customer outcome",
+      "Why it matters",
+      "Best fit",
+      "Top benefits",
     ].forEach((heading) => {
       expect(screen.getByRole("heading", { name: heading })).toBeInTheDocument();
     });
+
+    const technicalDetail = screen.getByText("Technical and quote detail").closest("details");
+    expect(technicalDetail).not.toHaveAttribute("open");
 
     fireEvent.click(screen.getByRole("button", { name: /Sales Cards/i }));
 

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { routeCatalogByKey } from "../app/routeCatalog";
+import { AV_GLOSSARY_TERMS, type AvGlossaryTerm } from "../data/avGlossary";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { getBestProductPositioningCardForSku } from "../data/productPositioningCards";
 import { getProductStory, productStoryRelatedText } from "../data/productStories";
@@ -29,6 +31,7 @@ import {
   salesConversationToneOptions,
   type SalesConversationToneId,
 } from "../lib/salesConversationTone";
+import { useGlossaryHighlightsEnabled } from "../lib/glossaryHighlightPreference";
 
 function readStoredSalesConversationToneId(): SalesConversationToneId {
   if (typeof window === "undefined" || typeof window.localStorage === "undefined") {
@@ -167,13 +170,6 @@ type ProductGalleryItem = {
   kind: "device" | "system" | "connection";
   imageUrl?: string;
 };
-type QuickTermLookup = {
-  label: string;
-  meaning: string;
-};
-
-let setProductTermLookup: ((lookup: QuickTermLookup) => void) | null = null;
-
 const PRODUCT_PANEL_TABS: Array<{ id: ProductPanelId; label: string; hint: string }> = [
   { id: "whatItIs", label: "What it does", hint: "Plain-English role" },
   { id: "whatItDoes", label: "How it fits here", hint: "Fit and risks" },
@@ -506,28 +502,29 @@ function findGuruTerm(value: string): GuruTechnicalTerm | undefined {
   return GURU_TERM_LOOKUP.get(value.toLowerCase());
 }
 
-function askGuruAboutTerm(termText: string, _product?: ProductCard): void {
-  const term = findGuruTerm(termText);
-  const label = term?.label || termText;
-  const meaning = term?.plainEnglish || "A technical AV term. Check how it affects the product, signal path or customer requirement.";
-
-  if (setProductTermLookup) {
-    setProductTermLookup({
-      label,
-      meaning,
-    });
-
-    return;
-  }
-
-  window.alert(`Guru says: ${label}\n\n${meaning}`);
+function normaliseGuruTerm(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
-function renderWithGuruLinks(text: string, product?: ProductCard): ReactNode {
+function findGlossaryTerm(guruTerm: GuruTechnicalTerm): AvGlossaryTerm | undefined {
+  const candidates = [guruTerm.label, ...guruTerm.aliases].map(normaliseGuruTerm);
+
+  return AV_GLOSSARY_TERMS.find((term) =>
+    [term.id, term.term, term.acronym ?? "", ...term.aliases]
+      .map(normaliseGuruTerm)
+      .some((candidate) => candidates.includes(candidate)),
+  );
+}
+
+export function renderGuruGlossaryLinks(text: string, highlightsEnabled = true): ReactNode {
   const source = cleanText(text);
 
   if (!source) {
     return null;
+  }
+
+  if (!highlightsEnabled) {
+    return source;
   }
 
   const nodes: ReactNode[] = [];
@@ -546,22 +543,23 @@ function renderWithGuruLinks(text: string, product?: ProductCard): ReactNode {
     }
 
     const guruTerm = findGuruTerm(matchedTerm);
+    const glossaryTerm = guruTerm ? findGlossaryTerm(guruTerm) : undefined;
 
-    if (guruTerm) {
+    if (guruTerm && glossaryTerm) {
       nodes.push(
-        <button
+        <Link
           key={`${matchedTerm}-${termStart}`}
-          type="button"
-          className="wm-pcc-guru-term wm-ui-button wm-ui-button-primary"
-          onClick={() => askGuruAboutTerm(matchedTerm, product)}
-          title={`Guru says: ${guruTerm.label}`}
+          className="wm-pcc-guru-term"
+          to={`${routeCatalogByKey.glossary.path}?term=${encodeURIComponent(glossaryTerm.id)}`}
+          title={`Open ${glossaryTerm.term} in the Guru glossary`}
+          aria-label={`${matchedTerm}: open ${glossaryTerm.term} in the Guru glossary`}
         >
           {matchedTerm}
-        </button>,
+        </Link>,
       );
     }
 
-    if (!guruTerm) {
+    if (!guruTerm || !glossaryTerm) {
       nodes.push(matchedTerm);
     }
 
@@ -1836,19 +1834,12 @@ export default function ProductCallCardsPage() {
   const [pageIndex, setPageIndex] = useState(0);
   const [activeProductPanel, setActiveProductPanel] = useState<ProductPanelId>("whatItIs");
   const [activeGalleryItem, setActiveGalleryItem] = useState<ProductGalleryItem | null>(null);
-  const [activeTermLookup, setActiveTermLookup] = useState<QuickTermLookup | null>(null);
+  const glossaryHighlightsEnabled = useGlossaryHighlightsEnabled();
+  const renderWithGuruLinks = (text: string, _product?: ProductCard) =>
+    renderGuruGlossaryLinks(text, glossaryHighlightsEnabled);
   const [conversationToneId, setConversationToneId] = useState<SalesConversationToneId>(
     readStoredSalesConversationToneId,
   );
-
-  useEffect(() => {
-    setProductTermLookup = setActiveTermLookup;
-
-
-return () => {
-      setProductTermLookup = null;
-    };
-  }, []);
 
   useEffect(() => {
     let active = true;
@@ -2159,7 +2150,6 @@ return () => {
     setSelectedSku("");
     setActiveProductPanel("whatItIs");
     setActiveGalleryItem(null);
-    setActiveTermLookup(null);
 
     if (window.location.pathname !== "/wingman/product-call-cards") {
       window.history.replaceState({}, "", "/wingman/product-call-cards");
@@ -2282,28 +2272,6 @@ return (
             </div>
           </div>
         </div>
-      )}
-
-      {activeTermLookup && (
-        <aside className="wm-pcc-guru-says-popover" role="dialog" aria-live="polite">
-          <div className="wm-pcc-guru-says-head">
-            <div>
-              <p className="wm-pcc-guru-says-kicker wm-ui-copy wm-ui-kicker">Guru says</p>
-              <h3 className="wm-pcc-guru-says-title wm-ui-title">{activeTermLookup.label}</h3>
-            </div>
-
-            <button
-              type="button"
-              className="wm-pcc-guru-says-close wm-ui-button wm-ui-button-secondary"
-              onClick={() => setActiveTermLookup(null)}
-              aria-label="Close term explanation"
-            >
-              ×
-            </button>
-          </div>
-
-          <p className="wm-pcc-guru-says-body wm-ui-copy">{activeTermLookup.meaning}</p>
-        </aside>
       )}
 
       <header
@@ -2447,7 +2415,6 @@ return (
                   setSelectedSku(product.sku);
                   setActiveProductPanel("whatItIs");
                   setActiveGalleryItem(null);
-                  setActiveTermLookup(null);
 
                   window.requestAnimationFrame(() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });
