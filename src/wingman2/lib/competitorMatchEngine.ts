@@ -689,6 +689,7 @@ function isRelevantToWyrestorm(competitor: CompetitorProfile): { relevant: boole
     "AVOIP",
     "HDBASET",
     "MATRIX",
+    "DISTRIBUTION",
     "PRESENTATION",
     "VIDEO_WALL",
     "EXTENDER",

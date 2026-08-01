@@ -369,6 +369,35 @@ function intentFromResolvedDomain(resultOrInput: unknown): CompareIntentKind | n
   }
 }
 
+/**
+ * A compact presentation / UC switcher (USB-C, BYOD, auto-switching) is often
+ * marketed as a "4x2 matrix switcher". Without this guard the generic matrix
+ * regex below (which fires on the word "matrix" and small I/O sizes like 4x2)
+ * would classify it as a routing matrix and inject an 8x8 MX candidate instead
+ * of an SW- presentation switcher. A genuine routing matrix - explicit
+ * routing-matrix language, or three-plus outputs - is deliberately excluded so
+ * real matrices are unaffected.
+ */
+function isCompactPresentationSwitcher(text: string): boolean {
+  const strongPresentationSignal =
+    /\busb-?c\b/i.test(text) ||
+    /\b(byod|byom|unified\s*communications?|teams|zoom|huddle|meeting\s*room)\b/i.test(text) ||
+    /\bpresentation\s*switch(?:er|ing)?\b/i.test(text) ||
+    /\bauto[\s-]*switch(?:ing)?\b/i.test(text);
+
+  if (!strongPresentationSignal) {
+    return false;
+  }
+
+  const routingMatrix =
+    /\b(routing\s*matrix|matrix\s*router|cross[\s-]?point|seamless\s*matrix)\b/i.test(text) ||
+    // Three or more outputs (N x >=3) is routing-matrix territory, not a
+    // one/two-display presentation switcher.
+    /\b\d+\s*x\s*([3-9]|\d\d)\b/.test(text);
+
+  return !routingMatrix;
+}
+
 export function classifyCompareIntent(resultOrInput: unknown, inputText = ""): CompareIntentKind {
   const resolvedDomainIntent = intentFromResolvedDomain(resultOrInput);
 
@@ -423,6 +452,14 @@ export function classifyCompareIntent(resultOrInput: unknown, inputText = ""): C
 
   if (/\b(hdbaset\s*matrix|hdbt\s*matrix|c88cs|ac-mx|acmx)\b/i.test(text) || /HMX\d{2}/.test(compact)) {
     return "hdbaset-matrix";
+  }
+
+  // A USB-C / BYOD / auto-switching presentation switcher takes precedence over
+  // the generic matrix heuristic even when its datasheet says "matrix switcher".
+  if (isCompactPresentationSwitcher(text)) {
+    return /\b(byod|byom|teams|zoom|unified\s*communications?|video\s*bar|speakerphone|huddle)\b/i.test(text)
+      ? "uc-byod"
+      : "presentation-switcher";
   }
 
   if (/\b(matrix|mtrx|mmx|vs-|4\s*x\s*2|4x2|4\s*x\s*4|4x4|8\s*x\s*8|8x8)\b/i.test(text)) {
