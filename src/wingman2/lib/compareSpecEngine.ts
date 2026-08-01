@@ -153,7 +153,7 @@ export type ShowdownResult =
       competitor: SpecSheet;
       matches: ShowdownMatch[];
       rejected: Array<{ sku: string; name: string; blockers: string[] }>;
-      verified: boolean; // true when at least one match survived blockers
+      verified: boolean; // true only when at least one fully verified equivalent exists
     };
 
 /* ---------------------------------------------------------------- helpers */
@@ -255,6 +255,36 @@ function classFromText(t: string): SpecClass {
   return "UNKNOWN";
 }
 
+function classFromDeclaredCategory(category: string): SpecClass {
+  switch (category.trim().toLowerCase()) {
+    case "avoip":
+      return "AVOIP";
+    case "hdbaset":
+      return "HDBASET";
+    case "matrix":
+      return "MATRIX";
+    case "distribution":
+      return "DISTRIBUTION";
+    case "switcher":
+    case "uc":
+      return "PRESENTATION";
+    case "video wall":
+      return "VIDEO_WALL";
+    case "extender":
+      return "EXTENDER";
+    case "wireless presentation":
+      return "WIRELESS_PRESENTATION";
+    case "audio":
+      return "AUDIO";
+    case "control":
+      return "CONTROL";
+    case "camera":
+      return "CAMERA";
+    default:
+      return "UNKNOWN";
+  }
+}
+
 function roleFromText(t: string): SpecRole {
   const s = t.toLowerCase();
   if (/transceiver/.test(s)) return "transceiver";
@@ -316,8 +346,26 @@ export function normalizeCompetitor(entry: CompetitorEntry): SpecSheet {
   const video = (entry.video ?? (specs.video as Record<string, unknown>) ?? {}) as Record<string, unknown>;
   const specVideo = (specs.video ?? {}) as Record<string, unknown>;
 
-  const specClass = classFromText([category, technology, subcategory, summary].join(" "));
-  const role = roleFromText([roleText, subcategory, summary].join(" "));
+  // The curated category is a governed product-purpose field. Capability
+  // prose can mention NDI, HDBaseT, a matrix, a paired receiver, or a control
+  // processor without changing what the product itself is. Only fall back to
+  // broad text inference when the catalogue category is not governed.
+  const declaredClass = classFromDeclaredCategory(category);
+  const specClass = declaredClass !== "UNKNOWN"
+    ? declaredClass
+    : classFromText([technology, subcategory, summary].join(" "));
+  // Product identity must come from structured identity fields. Descriptive
+  // prose routinely mentions the *other* endpoint ("pairs with a receiver")
+  // and previously let that incidental word turn a TX-only product into a
+  // complete extender kit. Use prose only when the catalogue has no usable
+  // role/SKU/name evidence at all.
+  const identityRole = roleFromText([
+    roleText,
+    text(entry.sku),
+    text(entry.name),
+    subcategory,
+  ].join(" "));
+  const role = identityRole !== "unknown" ? identityRole : roleFromText(summary);
   const networkSpeed = text(specs.networkSpeed);
   const { transport, label: transportLabel } = transportFrom(specClass, [
     text(entry.transport),
@@ -1089,6 +1137,17 @@ function detectBlockers(competitor: SpecSheet, ws: SpecSheet): string[] {
     }
   }
 
+  // A distribution amplifier must preserve fan-out. A 1x2 cannot replace a
+  // 1x4/1x8, and an unknown output count is not evidence that it can. Treat
+  // this as physical incompatibility rather than a soft scoring gap.
+  if (competitor.specClass === "DISTRIBUTION" && competitor.hdmiOut != null) {
+    if (ws.hdmiOut == null) {
+      blockers.push(`Distribution output capacity unverified: needs ${competitor.hdmiOut}`);
+    } else if (ws.hdmiOut < competitor.hdmiOut) {
+      blockers.push(`Insufficient distribution outputs: needs ${competitor.hdmiOut}, candidate has ${ws.hdmiOut}`);
+    }
+  }
+
   return blockers;
 }
 
@@ -1131,24 +1190,32 @@ export async function runSpecShowdown(brand: string, sku: string): Promise<Showd
     const matched = comparable.filter((verdict) => verdict.verdict === "match" || verdict.verdict === "exceeds");
     const exceeded = comparable.filter((verdict) => verdict.verdict === "exceeds");
     const gaps = comparable.filter((verdict) => verdict.verdict === "gap");
+    const unverified = verdicts.filter((verdict) => verdict.verdict === "unverified");
 
     if (comparable.length < 3) continue; // not enough verified evidence to claim anything
 
     const transportVerdict = verdicts.find((verdict) => verdict.field === "transport");
+    const roleNote = rolesCompatible(competitor.role, ws.role).note;
+    const fullyVerifiedEquivalent =
+      gaps.length === 0
+      && unverified.length === 0
+      && ws.verificationStatus === "verified"
+      && !roleNote;
     const decision: ShowdownDecision =
       transportVerdict?.verdict === "gap"
         ? "architecture-alternative"
-        : gaps.length === 0
+        : fullyVerifiedEquivalent
           ? "confirmed-equivalent"
           : "closest-technical-match";
 
-    const roleNote = rolesCompatible(competitor.role, ws.role).note;
     const advantages = exceeded.map(
       (verdict) => `${verdict.label}: ${verdict.wyrestormValue} vs ${verdict.competitorValue}${verdict.note ? ` — ${verdict.note}` : ""}`,
     );
     const cautions = [
       ...gaps.map((verdict) => `${verdict.label}: ${verdict.wyrestormValue} vs competitor ${verdict.competitorValue}`),
       ...(roleNote ? [roleNote] : []),
+      ...(unverified.length > 0 ? [`${unverified.length} comparison field${unverified.length === 1 ? " is" : "s are"} not verified.`] : []),
+      ...(ws.verificationStatus !== "verified" ? ["WyreStorm candidate profile is not yet fully verified."] : []),
     ];
 
     matches.push({
@@ -1184,6 +1251,6 @@ export async function runSpecShowdown(brand: string, sku: string): Promise<Showd
     competitor,
     matches: matches.slice(0, 3),
     rejected: rejected.slice(0, 6),
-    verified: matches.length > 0,
+    verified: matches.some((match) => match.decision === "confirmed-equivalent"),
   };
 }

@@ -216,6 +216,26 @@ function classifyCandidate(candidate: CompareCandidateGateInput): CompareCompeti
   return "UNKNOWN";
 }
 
+type EndpointRole = "transmitter" | "receiver" | "transceiver" | "kit" | "unknown";
+
+function endpointRoleFromText(value: string): EndpointRole {
+  const compact = value.toLowerCase().replace(/[^a-z0-9]+/g, "");
+  const words = value.toLowerCase();
+  if (/transceiver|\btrx\b/i.test(value) || /trx$/.test(compact)) return "transceiver";
+  if (/\b(?:kit|set|pair)\b|tx\s*[+/]\s*rx/i.test(words)) return "kit";
+  if (/\b(?:transmitter|encoder|tx)\b/i.test(value) || /(?:^|-)tx(?:-|$)/i.test(value) || /tx$/.test(compact)) return "transmitter";
+  if (/\b(?:receiver|decoder|rx)\b/i.test(value) || /(?:^|-)rx(?:-|$)/i.test(value) || /rx$/.test(compact)) return "receiver";
+  return "unknown";
+}
+
+function candidateEndpointRole(candidate: CompareCandidateGateInput): EndpointRole {
+  const identity = [candidate.sku, candidate.title, candidate.role].map(clean).join(" ");
+  const explicit = endpointRoleFromText(identity);
+  if (explicit !== "unknown") return explicit;
+  // EX- products without a TX/RX identity are sold as complete extender sets.
+  return /^EX-/i.test(clean(candidate.sku)) ? "kit" : "unknown";
+}
+
 function allowedClassPair(competitorClass: CompareCompetitorClass, candidateClass: CompareCompetitorClass): boolean {
   if (competitorClass === "UNKNOWN") return candidateClass !== "AUDIO" && candidateClass !== "CONTROL";
   if (competitorClass === candidateClass) return true;
@@ -272,6 +292,7 @@ function specificBadSku(candidate: CompareCandidateGateInput): string[] {
 
   if (/^cab-|cable \/ accessory|\bcable\b/.test(sku + " " + identityText)) blocked.push("Cable product cannot be a primary competitor equivalent.");
   if (/rack mount|rack-mount|^nhd-000-rack/.test(sku + " " + identityText)) blocked.push("Rack accessory cannot be a primary competitor equivalent.");
+  if (/^(?:tx|rx)-(?:h2x|scl)-/.test(sku)) blocked.push("Modular matrix I/O card cannot be a standalone primary competitor equivalent.");
 
   return blocked;
 }
@@ -292,12 +313,14 @@ export function gateCompareCandidate(
   const _candidateText = textFor(candidate);
   const candidateRole = clean(candidate.role || candidate.category || candidate.productFamily || "unknown");
   const candidateClass = classifyCandidate(candidate);
+  const endpointRole = candidateEndpointRole(candidate);
   const competitorClass = context.competitorClass || "UNKNOWN";
   const blockedBy: string[] = [];
   const evidence: string[] = [
     "competitorClass=" + competitorClass,
     "candidateClass=" + candidateClass,
     "candidateRole=" + candidateRole,
+    "candidateEndpointRole=" + endpointRole,
   ];
 
   for (const reason of specificBadSku(candidate)) blockedBy.push(reason);
@@ -308,6 +331,23 @@ export function gateCompareCandidate(
 
   if (!allowedClassPair(competitorClass, candidateClass)) {
     blockedBy.push("Technology class mismatch: competitor is " + competitorClass + " but candidate is " + candidateClass + ".");
+  }
+
+
+  const requestedEndpointRole = endpointRoleFromText(clean(context.competitorRole));
+  if (
+    (competitorClass === "HDBASET" || competitorClass === "AVOIP")
+    && requestedEndpointRole !== "unknown"
+  ) {
+    const endpointCompatible =
+      requestedEndpointRole === endpointRole
+      || (requestedEndpointRole === "transceiver" && (endpointRole === "transmitter" || endpointRole === "receiver"))
+      || (requestedEndpointRole !== "kit" && endpointRole === "transceiver");
+    if (!endpointCompatible) {
+      blockedBy.push(
+        `Endpoint role mismatch: competitor is ${requestedEndpointRole} but candidate is ${endpointRole}.`,
+      );
+    }
   }
 
   if (competitorClass !== "AUDIO" && candidateClass === "AUDIO") {
