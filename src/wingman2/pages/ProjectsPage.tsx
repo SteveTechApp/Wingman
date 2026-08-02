@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle, Check, Cloud, Copy, FolderKanban, RotateCcw, Trash2 } from "lucide-react";
+import { AlertTriangle, Check, Cloud, Copy, RotateCcw, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { SectionCard } from "../components/SectionCard";
@@ -77,14 +77,7 @@ export function ProjectsPage() {
 
   return (
     <div data-wingman-page="projects" className="wm-projects-page wm-polish-shell">
-      <section className="wm-polish-hero wm-polish-aqua" aria-labelledby="projects-page-title">
-        <span className="wm-polish-hero-icon" aria-hidden="true"><FolderKanban /></span>
-        <div className="wm-polish-hero-copy">
-          <p className="wm-polish-eyebrow">Project management</p>
-          <h1 id="projects-page-title">Projects</h1>
-          <p>Review active opportunities, saved requirements and proposal-ready drafts in one place.</p>
-        </div>
-
+      <div className="wm-projects-page-toolbar" aria-label="Project actions">
         <div className="wm-projects-compact-actions">
           <Link to={routeCatalogByKey.discovery.path} className="wm-ui-button wm-ui-button-forward">
             Start discovery
@@ -93,14 +86,14 @@ export function ProjectsPage() {
             Open proposal
           </Link>
         </div>
-      </section>
+      </div>
 
-      <div className="space-y-3">
+      <div className="wm-projects-sections">
         <SectionCard
           title="Active projects"
           subtitle="Use this table to reopen active opportunities, copy useful examples, or remove stale project lines."
-          rightSlot={
-            <div className="flex flex-wrap items-center gap-3">
+        >
+          <div className="wm-projects-store-toolbar">
               <StatusChip
                 className="max-w-xl"
                 variant={syncStatusVariant(syncStatus.state)}
@@ -128,11 +121,18 @@ export function ProjectsPage() {
                 <RotateCcw className="h-4 w-4" />
                 {confirmReset ? "Confirm reset?" : "Reset sample store"}
               </button>
-            </div>
-          }
-        >
-          <div className="wm-projects-table-wrap overflow-hidden rounded-xl border wm-ui-card">
-            <table className="min-w-full text-left text-sm wm-ui-copy">
+          </div>
+
+          <div className="wm-projects-table-wrap rounded-xl border wm-ui-card">
+            <table className="text-left text-sm wm-ui-copy">
+              <colgroup>
+                <col className="wm-projects-col-project" />
+                <col className="wm-projects-col-owner" />
+                <col className="wm-projects-col-stage" />
+                <col className="wm-projects-col-status" />
+                <col className="wm-projects-col-updated" />
+                <col className="wm-projects-col-actions" />
+              </colgroup>
               <thead className="text-[#edf6ff] wm-ui-card">
                 <tr>
                   <th className="px-4 py-3 font-bold">Project</th>
@@ -158,11 +158,11 @@ export function ProjectsPage() {
                       </td>
                       <td className="px-4 py-3 text-[#edf6ff]">{project.updated}</td>
                       <td className="px-4 py-3">
-                        <div className="flex flex-wrap items-center gap-2">
+                        <div className="wm-project-row-actions">
                           <Link
                             to={`${routeCatalogByKey.projects.path}/${project.id}`}
                             onClick={() => setActiveProjectId(project.id)}
-                            className={PROJECTS_PILL_BUTTON_CLASS}
+                            className={`wm-project-row-link ${PROJECTS_PILL_BUTTON_CLASS}`}
                           >
                             Detail
                           </Link>
@@ -170,7 +170,7 @@ export function ProjectsPage() {
                           <Link
                             to={project.resumeTo}
                             onClick={() => setActiveProjectId(project.id)}
-                            className={PROJECTS_DARK_BUTTON_XS_CLASS}
+                            className={`wm-project-row-link ${PROJECTS_DARK_BUTTON_XS_CLASS}`}
                           >
                             {activeProjectId === project.id ? "Resume active" : "Resume workflow"}
                           </Link>

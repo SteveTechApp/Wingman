@@ -31,4 +31,14 @@ describe("Discovery step progression", () => {
       expect(screen.getByText(/^Step 2 of \d+$/)).toBeInTheDocument();
     });
   });
+
+  it("opens the requested Discovery question from a Proposal edit link", async () => {
+    render(
+      <MemoryRouter initialEntries={["/wingman/discovery?edit=signal-standard"]}>
+        <DiscoveryPage />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByRole("heading", { name: "How sharp does the picture need to be?" })).toBeInTheDocument();
+  });
 });

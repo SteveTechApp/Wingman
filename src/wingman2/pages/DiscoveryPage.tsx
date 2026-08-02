@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { saveDiscoveryBriefToProject, type StoredDiscoveryBrief } from "../data/projectStore";
 import {
@@ -1411,6 +1411,8 @@ function resolveDiscoveryStartIndex(
 }
 
 export function DiscoveryPage() {
+  const [searchParams] = useSearchParams();
+  const editQuestionId = searchParams.get("edit")?.trim() ?? "";
   // Restoring an in-progress Discovery draft (autosaved as the customer talks) so
   // navigating away and back - or a refresh mid-call - never throws the captured
   // answers away. An explicit "Reset discovery" clears this snapshot.
@@ -1450,6 +1452,7 @@ export function DiscoveryPage() {
   const [budgetLevel, setBudgetLevel] = useState(() => draftField("budgetLevel"));
   const [timeline, setTimeline] = useState(() => draftField("timeline"));
   const navigate = useNavigate();
+  const budgetInputRef = useRef<HTMLSelectElement | null>(null);
 
   const recogniserRef = useRef<DiscoverySpeechRecognitionLike | null>(null);
   const selectedApplication = wmDiscoveryAnswerToText(answers.opportunity);
@@ -1461,6 +1464,23 @@ export function DiscoveryPage() {
       ),
     [selectedApplication, answers],
   );
+
+  useEffect(() => {
+    if (!editQuestionId || editQuestionId === "budget") return;
+    const editIndex = discoveryQuestions.findIndex((question) => question.id === editQuestionId);
+    if (editIndex >= 0) {
+      setActiveIndex(editIndex);
+      setIsReviewingAnswers(false);
+    }
+  }, [discoveryQuestions, editQuestionId]);
+
+  useEffect(() => {
+    if (editQuestionId !== "budget") return;
+    window.requestAnimationFrame(() => {
+      budgetInputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      budgetInputRef.current?.focus({ preventScroll: true });
+    });
+  }, [editQuestionId]);
 
 
   const activeStepIdRef = useRef(discoveryQuestions[0]?.id ?? "");
@@ -2400,6 +2420,7 @@ return (
           <label>
             Budget sensitivity
             <select
+              ref={budgetInputRef}
               className="wm-ui-input"
               value={budgetLevel}
               onChange={(event) => setBudgetLevel(event.target.value)}

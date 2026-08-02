@@ -14,10 +14,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import {
-  getCurrentWorkflowProject,
-  readProjectStore,
   saveProjectProposalToProject,
   saveRecommendationFeedback,
+  useProjectStore,
   type StoredProject,
   type StoredProjectProposal,
   type StoredRecommendationFeedback,
@@ -183,6 +182,22 @@ function standardAssumptions(project: StoredProject) {
   ).slice(0, 10);
 }
 
+function savedProposalBomRows(rows: StoredProjectProposal["bomRows"]): SalesBomRow[] {
+  return (rows ?? []).map((row, index) => ({
+    item: row.item || index + 1,
+    sku: row.sku,
+    description: row.description,
+    role: row.role,
+    qty: row.qty || 1,
+    type: row.type === "Required" || row.type === "Optional" || row.type === "Validate"
+      ? row.type
+      : "Validate",
+    status: row.status,
+    evidence: row.evidence || "Restored from the saved project proposal.",
+    notes: row.notes,
+  }));
+}
+
 function InputField(props: {
   label: string;
   value: string;
@@ -224,10 +239,7 @@ function TextAreaField(props: {
 }
 
 export function ProposalCompletionWizard() {
-  const project = useMemo(
-    () => getCurrentWorkflowProject(readProjectStore()),
-    [],
-  );
+  const { activeProject: project } = useProjectStore();
   const profile = useMemo(() => getStoredWingmanProfile(), []);
 
   if (!project) {
@@ -283,10 +295,12 @@ function ProposalCompletionWizardContent({
   const selectedProducts = useMemo(
     () =>
       rankProductsByFamilyScores(
-        project.productSelections ?? [],
+        project.productSelections?.length
+          ? project.productSelections
+          : project.proposal?.products ?? [],
         familyScores,
       ),
-    [familyScores, project.productSelections],
+    [familyScores, project.productSelections, project.proposal?.products],
   );
 
   const salesReadiness = useMemo(
@@ -312,12 +326,28 @@ function ProposalCompletionWizardContent({
   );
 
   const defaults = useMemo(
-    () =>
-      createProposalWizardDefaults({
+    () => {
+      const discoveryFingerprint = JSON.stringify([
+        discovery.projectTitle,
+        discovery.roomSize,
+        discovery.sourceCount,
+        discovery.sourceConnection,
+        discovery.displayCount,
+        discovery.displayBehaviour,
+        discovery.signal,
+        discovery.usb,
+        discovery.audio,
+        discovery.control,
+        discovery.distance,
+        discovery.network,
+      ]);
+
+      return createProposalWizardDefaults({
         projectId: project.id,
         projectName: project.name,
         customerName: discovery.customerName,
         contactName: discovery.contactName,
+        discoveryFingerprint,
         preparedBy:
           profile.reportPreparedBy ||
           profile.userName ||
@@ -335,13 +365,26 @@ function ProposalCompletionWizardContent({
             (item) =>
               `${item.label}: ${item.validationQuestion}`,
           ),
-      }),
+      });
+    },
     [
       assumptions,
       discovery.architecture,
+      discovery.audio,
       discovery.contactName,
+      discovery.control,
       discovery.customerName,
+      discovery.displayBehaviour,
+      discovery.displayCount,
+      discovery.distance,
+      discovery.network,
+      discovery.projectTitle,
+      discovery.roomSize,
+      discovery.signal,
       discovery.summary,
+      discovery.sourceConnection,
+      discovery.sourceCount,
+      discovery.usb,
       familyScores,
       profile.reportPreparedBy,
       profile.userName,
@@ -361,7 +404,9 @@ function ProposalCompletionWizardContent({
   const [feedbackRating, setFeedbackRating] = useState<StoredRecommendationFeedback["rating"] | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState("");
 
-  const baseBomRows = salesReadiness.bomRows;
+  const baseBomRows = salesReadiness.bomRows.length
+    ? salesReadiness.bomRows
+    : savedProposalBomRows(project.proposal?.bomRows);
   const bomRows = useMemo<SalesBomRow[]>(
     () =>
       baseBomRows.map((row) => ({
@@ -533,26 +578,28 @@ function ProposalCompletionWizardContent({
   }
 
   const requirementRows = [
-    ["Application", discovery.projectTitle],
-    ["Room / system scale", discovery.roomSize],
-    [
-      "Sources",
-      [discovery.sourceCount, discovery.sourceConnection]
+    { label: "Application", value: discovery.projectTitle, question: "opportunity" },
+    { label: "Room / system scale", value: discovery.roomSize, question: "scale" },
+    {
+      label: "Sources",
+      value: [discovery.sourceCount, discovery.sourceConnection]
         .filter(Boolean)
         .join(" - ") || "Not confirmed",
-    ],
-    ["Displays", discovery.displays],
-    ["Signal standard", discovery.signal],
-    ["USB / UC", discovery.usb],
-    ["Audio", discovery.audio || "Not confirmed"],
-    ["Control", discovery.control || "Not confirmed"],
-    ["Budget sensitivity", discovery.budget],
-    [
-      "Infrastructure",
-      [discovery.distance, discovery.network]
+      question: "sources",
+    },
+    { label: "Displays", value: discovery.displays, question: "displays" },
+    { label: "Signal standard", value: discovery.signal, question: "signal-standard" },
+    { label: "USB / UC", value: discovery.usb, question: "usb" },
+    { label: "Audio", value: discovery.audio || "Not confirmed", question: "audio" },
+    { label: "Control", value: discovery.control || "Not confirmed", question: "control" },
+    { label: "Budget sensitivity", value: discovery.budget, question: "budget" },
+    {
+      label: "Infrastructure",
+      value: [discovery.distance, discovery.network]
         .filter(Boolean)
         .join(" - ") || "Not confirmed",
-    ],
+      question: "locations-connections",
+    },
   ];
 
   async function exportDocx() {
@@ -814,11 +861,16 @@ function ProposalCompletionWizardContent({
               </div>
 
               <div className="wm-proposal-requirements-grid">
-                {requirementRows.map(([label, value]) => (
-                  <article key={label}>
+                {requirementRows.map(({ label, value, question }) => (
+                  <Link
+                    key={label}
+                    to={`${routeCatalogByKey.discovery.path}?edit=${encodeURIComponent(question)}`}
+                    aria-label={`Edit ${label} in Discovery`}
+                  >
                     <span>{label}</span>
                     <strong>{value}</strong>
-                  </article>
+                    <small>Edit in Discovery</small>
+                  </Link>
                 ))}
               </div>
 
