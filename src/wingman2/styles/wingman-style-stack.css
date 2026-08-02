@@ -13252,23 +13252,27 @@ main.wm-page,
         }
 
         .wm-pcc-guru-term {
-          display: inline;
-          border: 0;
-          border-bottom: 1px dotted rgba(103, 232, 249, 0.9);
-          background: transparent;
-          color: #67e8f9;
+          display: inline-block;
+          border: 1px solid rgba(45, 212, 191, 0.72);
+          border-radius: 0.5rem;
+          background: rgba(13, 148, 136, 0.92);
+          color: #ffffff;
           font: inherit;
           font-weight: var(--wm-pcc-weight-heading);
-          padding: 0;
-          margin: 0;
-          cursor: help;
+          line-height: 1.15;
+          padding: 0.18em 0.52em;
+          margin: 0 0.08em;
+          text-decoration: none;
+          cursor: pointer;
         }
 
         .wm-pcc-guru-term:hover,
         .wm-pcc-guru-term:focus {
           color: #ffffff;
-          border-bottom-color: #ffffff;
-          outline: none;
+          border-color: #ffffff;
+          background: #0f766e;
+          outline: 2px solid rgba(103, 232, 249, 0.55);
+          outline-offset: 2px;
         }
 
         .wm-pcc-guru-says-popover {
@@ -14540,6 +14544,35 @@ html[data-wingman-route] .wingman-page-host :is(.wm-icon-button, button[aria-lab
   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   gap: 0.75rem !important;
   align-items: start !important;
+}
+
+.wm-settings-check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid rgba(103, 232, 249, 0.2);
+  border-radius: 0.8rem;
+  background: rgba(3, 18, 31, 0.52);
+  cursor: pointer;
+}
+
+.wm-settings-check-row input {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: 0.12rem 0 0;
+  accent-color: #2dd4bf;
+  flex: 0 0 auto;
+}
+
+.wm-settings-check-row span {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.wm-settings-check-row small {
+  color: var(--wm-text-muted, #9fb3c8);
+  line-height: 1.4;
 }
 
 .wm-settings-column {

@@ -17,7 +17,9 @@ import {
   type ProductSalesContext,
 } from "../lib/productPitchGuidance";
 import { CompareBackToListButton } from "../components/compare/CompareBackToListButton";
+import { ProductFilterPanel, ProductSearchField, ProductWorkspaceHeader, ProductWorkspaceNav } from "../components/ProductWorkspaceChrome";
 import { ReportProblemButton } from "../components/ReportProblemButton";
+import { AdminProductRecordEditor } from "../components/AdminProductRecordEditor";
 import { ProductMediaPanel } from "../components/ProductMediaPanel";
 import { AVSignalFlowDiagram } from "../components/AVSignalFlowDiagram";
 import { RoomSchematicDiagram } from "../components/RoomSchematicDiagram";
@@ -211,6 +213,12 @@ function DisplayList({ items, max = 6 }: { items: string[]; max?: number }) {
       ))}
     </ul>
   );
+}
+
+function conciseSalesCopy(value: string, maxWords = 28) {
+  const words = String(value || "").trim().split(/\s+/).filter(Boolean);
+  if (words.length <= maxWords) return words.join(" ");
+  return `${words.slice(0, maxWords).join(" ").replace(/[,:;.-]+$/, "")}…`;
 }
 
 function WorkCard({
@@ -425,27 +433,21 @@ function SelectionPage({
 
   return (
     <main data-product-pitch-view="selector" className="grid gap-4 pb-6 wm-ui-page wingman-page-host wm-product-pitch-page">
-      <CompareBackToListButton />
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
-        <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Product workspace</p>
-        <h1 className={`${PRODUCT_PITCH_HERO_TITLE_CLASS} text-white`}>Find the right product workspace</h1>
-        <p className="mt-2 max-w-4xl text-sm leading-6 wm-ui-copy">
-          Search by SKU, product name, product family or application. Selecting a result opens the product workspace immediately.
-        </p>
-      </section>
+      <ProductWorkspaceHeader
+        eyebrow="Products / Positioning"
+        title="Find the right product workspace"
+        description="Search by SKU, product name, family or application, then open its facts and sales guidance."
+        actions={<CompareBackToListButton />}
+      />
+      <ProductWorkspaceNav />
 
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5 wm-product-pitch-selector`}>
-        <label className="grid gap-2">
-          <span className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Search products</span>
-          <input className={["wm-ui-input", "min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-bold text-white outline-none focus:border-cyan-300"].filter(Boolean).join(" ")}
-            value={searchTerm}
-            onChange={(event) => updateSearchTerm(event.target.value)}
-            placeholder="Example: MXV-0404-H2A-KIT, NetworkHD, HDMI extender, USB KVM, video wall"
-            type="search"
-
-            autoFocus
-          />
-        </label>
+      <ProductFilterPanel>
+        <ProductSearchField
+          value={searchTerm}
+          onChange={updateSearchTerm}
+          placeholder="Example: MXV-0404-H2A-KIT, NetworkHD, HDMI extender, USB KVM, video wall"
+          autoFocus
+        />
 
         <div className="mt-4 flex flex-wrap gap-3" aria-label="Catalogue include controls">
           <label className="wm-product-pitch-toggle">
@@ -612,7 +614,7 @@ function SelectionPage({
             ) : null}
           </>
         )}
-      </section>
+      </ProductFilterPanel>
     </main>
   );
 }
@@ -651,47 +653,53 @@ function OverviewTab({
   context: ProductSalesContext;
 }) {
   const guidance = buildProductPitchSalesGuidance(product, narrative, context);
+  const topBenefits = cleanUsefulList(guidance.featureBenefits, 3)
+    .map((benefit) => conciseSalesCopy(benefit, 18));
 
   return (
-    <div className="grid gap-4">
-      <section className="wm-ui-section rounded-lg border p-6 wm-ui-card">
-        <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-200`}>Simple product answer</p>
-        <h2 className="mt-2 text-2xl font-extrabold wm-ui-title">What it does</h2>
-        <p className="mt-2 max-w-5xl text-base font-bold leading-6 wm-ui-copy">{guidance.plainDescription}</p>
-        <p className="mt-2 max-w-5xl text-sm leading-6 wm-ui-copy">
-          <strong>Technical description:</strong> {guidance.productRole}
+    <div className="grid gap-3">
+      <section className="wm-ui-section rounded-lg border p-5 wm-ui-card">
+        <p className={`${PRODUCT_PITCH_KICKER_CLASS} wm-ui-kicker`}>Sales quick view</p>
+        <h2 className="mt-1 text-xl font-extrabold wm-ui-title">The customer outcome</h2>
+        <p className="mt-2 max-w-4xl text-base font-bold leading-6 wm-ui-copy">
+          {conciseSalesCopy(guidance.plainDescription, 32)}
         </p>
       </section>
 
-      {guidance.featureBenefits.length ? (
-        <WorkCard title="Features and benefits - what each feature does for the customer">
-          <DisplayList items={guidance.featureBenefits} max={6} />
-        </WorkCard>
-      ) : null}
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <WorkCard title="How it fits this application">
-          <p className="wm-ui-copy">{guidance.scenarioFit}</p>
+      <div className="grid gap-3 lg:grid-cols-3">
+        <WorkCard title="Why it matters">
+          <p className="wm-ui-copy">{conciseSalesCopy(guidance.customerProblem, 24)}</p>
         </WorkCard>
 
-        <WorkCard title="Say it like this">
-          <p className="wm-ui-copy">{guidance.customerSafeWording}</p>
+        <WorkCard title="Best fit">
+          <p className="wm-ui-copy">{conciseSalesCopy(guidance.scenarioFit, 24)}</p>
         </WorkCard>
 
-        <WorkCard title="Confirm this" tone="caution">
-          <p className="wm-ui-copy">{guidance.confirmationQuestion}</p>
-        </WorkCard>
-
-        <WorkCard title="Customer problem it solves">
-          <p className="wm-ui-copy">{guidance.customerProblem}</p>
+        <WorkCard title="Top benefits">
+          <DisplayList items={topBenefits} max={3} />
         </WorkCard>
       </div>
 
+      <section className="wm-ui-section rounded-lg border p-5 wm-ui-card">
+        <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-300`}>Say it like this</p>
+        <p className="mt-2 max-w-5xl text-base leading-6 wm-ui-copy">
+          “{conciseSalesCopy(guidance.customerSafeWording, 36)}”
+        </p>
+      </section>
+
       <details className="wm-ui-card rounded-lg border p-5">
         <summary className="cursor-pointer font-extrabold">
-          More product and quote detail
+          Technical and quote detail
         </summary>
         <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <WorkCard title="Technical description">
+            <p className="wm-ui-copy">{guidance.productRole}</p>
+          </WorkCard>
+
+          <WorkCard title="Confirm before recommending" tone="caution">
+            <p className="wm-ui-copy">{guidance.confirmationQuestion}</p>
+          </WorkCard>
+
           <WorkCard title="Best-fit applications">
             <DisplayList items={guidance.bestFitApplications} max={4} />
           </WorkCard>
@@ -727,10 +735,12 @@ function OverviewTab({
           <WorkCard title="Internal sales notes" tone="caution">
             <DisplayList items={guidance.internalSalesNotes} max={4} />
           </WorkCard>
+
+          <div className="lg:col-span-2">
+            <ProductMediaPanel sku={product.sku} title={product.name} />
+          </div>
         </div>
       </details>
-
-      <ProductMediaPanel sku={product.sku} title={product.name} />
     </div>
   );
 }
@@ -1157,6 +1167,17 @@ function ProductWorkspace({
               Print cheat-sheet
             </button>
             <ReportProblemButton sku={product.sku} productName={product.name} />
+            <AdminProductRecordEditor
+              product={{
+                sku: product.sku,
+                name: product.name,
+                family: product.family,
+                category: product.category,
+                summary: product.summary,
+              }}
+              onSaved={() => window.location.reload()}
+              onRemoved={backToSelection}
+            />
             <button
               type="button"
               onClick={backToSelection}

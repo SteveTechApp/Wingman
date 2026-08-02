@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, BookOpen, Lightbulb, Search, Sparkles } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import {
   AV_GLOSSARY_CATEGORIES,
@@ -39,9 +39,31 @@ function termSearchText(term: AvGlossaryTerm) {
 }
 
 export function GlossaryPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [selectedId, setSelectedId] = useState(AV_GLOSSARY_TERMS[0]?.id ?? "");
+
+  useEffect(() => {
+    const requestedTerm = searchParams.get("term");
+
+    if (!requestedTerm) {
+      return;
+    }
+
+    const requestedValue = normalise(requestedTerm);
+    const target = AV_GLOSSARY_TERMS.find((term) =>
+      [term.id, term.term, term.acronym ?? "", ...term.aliases]
+        .map(normalise)
+        .includes(requestedValue),
+    );
+
+    if (target) {
+      setActiveCategory("All");
+      setQuery("");
+      setSelectedId(target.id);
+    }
+  }, [searchParams]);
 
   const searchIndex = useMemo(
     () => AV_GLOSSARY_TERMS.map((term) => ({ term, text: termSearchText(term) })),
@@ -93,6 +115,7 @@ export function GlossaryPage() {
     if (target) {
       setQuery("");
       setSelectedId(target.id);
+      setSearchParams({ term: target.id });
       return;
     }
 

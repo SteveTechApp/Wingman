@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { routeCatalogByKey } from "../app/routeCatalog";
+import { AV_GLOSSARY_TERMS, type AvGlossaryTerm } from "../data/avGlossary";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { getBestProductPositioningCardForSku } from "../data/productPositioningCards";
 import { getProductStory, productStoryRelatedText } from "../data/productStories";
@@ -29,6 +31,13 @@ import {
   salesConversationToneOptions,
   type SalesConversationToneId,
 } from "../lib/salesConversationTone";
+import { useGlossaryHighlightsEnabled } from "../lib/glossaryHighlightPreference";
+import {
+  ProductFilterPanel,
+  ProductSearchField,
+  ProductWorkspaceHeader,
+  ProductWorkspaceNav,
+} from "../components/ProductWorkspaceChrome";
 
 function readStoredSalesConversationToneId(): SalesConversationToneId {
   if (typeof window === "undefined" || typeof window.localStorage === "undefined") {
@@ -167,13 +176,6 @@ type ProductGalleryItem = {
   kind: "device" | "system" | "connection";
   imageUrl?: string;
 };
-type QuickTermLookup = {
-  label: string;
-  meaning: string;
-};
-
-let setProductTermLookup: ((lookup: QuickTermLookup) => void) | null = null;
-
 const PRODUCT_PANEL_TABS: Array<{ id: ProductPanelId; label: string; hint: string }> = [
   { id: "whatItIs", label: "What it does", hint: "Plain-English role" },
   { id: "whatItDoes", label: "How it fits here", hint: "Fit and risks" },
@@ -506,28 +508,29 @@ function findGuruTerm(value: string): GuruTechnicalTerm | undefined {
   return GURU_TERM_LOOKUP.get(value.toLowerCase());
 }
 
-function askGuruAboutTerm(termText: string, _product?: ProductCard): void {
-  const term = findGuruTerm(termText);
-  const label = term?.label || termText;
-  const meaning = term?.plainEnglish || "A technical AV term. Check how it affects the product, signal path or customer requirement.";
-
-  if (setProductTermLookup) {
-    setProductTermLookup({
-      label,
-      meaning,
-    });
-
-    return;
-  }
-
-  window.alert(`Guru says: ${label}\n\n${meaning}`);
+function normaliseGuruTerm(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
-function renderWithGuruLinks(text: string, product?: ProductCard): ReactNode {
+function findGlossaryTerm(guruTerm: GuruTechnicalTerm): AvGlossaryTerm | undefined {
+  const candidates = [guruTerm.label, ...guruTerm.aliases].map(normaliseGuruTerm);
+
+  return AV_GLOSSARY_TERMS.find((term) =>
+    [term.id, term.term, term.acronym ?? "", ...term.aliases]
+      .map(normaliseGuruTerm)
+      .some((candidate) => candidates.includes(candidate)),
+  );
+}
+
+export function renderGuruGlossaryLinks(text: string, highlightsEnabled = true): ReactNode {
   const source = cleanText(text);
 
   if (!source) {
     return null;
+  }
+
+  if (!highlightsEnabled) {
+    return source;
   }
 
   const nodes: ReactNode[] = [];
@@ -546,22 +549,23 @@ function renderWithGuruLinks(text: string, product?: ProductCard): ReactNode {
     }
 
     const guruTerm = findGuruTerm(matchedTerm);
+    const glossaryTerm = guruTerm ? findGlossaryTerm(guruTerm) : undefined;
 
-    if (guruTerm) {
+    if (guruTerm && glossaryTerm) {
       nodes.push(
-        <button
+        <Link
           key={`${matchedTerm}-${termStart}`}
-          type="button"
-          className="wm-pcc-guru-term wm-ui-button wm-ui-button-primary"
-          onClick={() => askGuruAboutTerm(matchedTerm, product)}
-          title={`Guru says: ${guruTerm.label}`}
+          className="wm-pcc-guru-term"
+          to={`${routeCatalogByKey.glossary.path}?term=${encodeURIComponent(glossaryTerm.id)}`}
+          title={`Open ${glossaryTerm.term} in the Guru glossary`}
+          aria-label={`${matchedTerm}: open ${glossaryTerm.term} in the Guru glossary`}
         >
           {matchedTerm}
-        </button>,
+        </Link>,
       );
     }
 
-    if (!guruTerm) {
+    if (!guruTerm || !glossaryTerm) {
       nodes.push(matchedTerm);
     }
 
@@ -1836,19 +1840,12 @@ export default function ProductCallCardsPage() {
   const [pageIndex, setPageIndex] = useState(0);
   const [activeProductPanel, setActiveProductPanel] = useState<ProductPanelId>("whatItIs");
   const [activeGalleryItem, setActiveGalleryItem] = useState<ProductGalleryItem | null>(null);
-  const [activeTermLookup, setActiveTermLookup] = useState<QuickTermLookup | null>(null);
+  const glossaryHighlightsEnabled = useGlossaryHighlightsEnabled();
+  const renderWithGuruLinks = (text: string, _product?: ProductCard) =>
+    renderGuruGlossaryLinks(text, glossaryHighlightsEnabled);
   const [conversationToneId, setConversationToneId] = useState<SalesConversationToneId>(
     readStoredSalesConversationToneId,
   );
-
-  useEffect(() => {
-    setProductTermLookup = setActiveTermLookup;
-
-
-return () => {
-      setProductTermLookup = null;
-    };
-  }, []);
 
   useEffect(() => {
     let active = true;
@@ -2159,7 +2156,6 @@ return () => {
     setSelectedSku("");
     setActiveProductPanel("whatItIs");
     setActiveGalleryItem(null);
-    setActiveTermLookup(null);
 
     if (window.location.pathname !== "/wingman/product-call-cards") {
       window.history.replaceState({}, "", "/wingman/product-call-cards");
@@ -2284,48 +2280,19 @@ return (
         </div>
       )}
 
-      {activeTermLookup && (
-        <aside className="wm-pcc-guru-says-popover" role="dialog" aria-live="polite">
-          <div className="wm-pcc-guru-says-head">
-            <div>
-              <p className="wm-pcc-guru-says-kicker wm-ui-copy wm-ui-kicker">Guru says</p>
-              <h3 className="wm-pcc-guru-says-title wm-ui-title">{activeTermLookup.label}</h3>
-            </div>
-
-            <button
-              type="button"
-              className="wm-pcc-guru-says-close wm-ui-button wm-ui-button-secondary"
-              onClick={() => setActiveTermLookup(null)}
-              aria-label="Close term explanation"
-            >
-              ×
-            </button>
-          </div>
-
-          <p className="wm-pcc-guru-says-body wm-ui-copy">{activeTermLookup.meaning}</p>
-        </aside>
-      )}
-
-      <header
-        className={`wm-pcc-header wm-ui-card-header ${
-          selectedProduct ? "wm-pcc-header-product-mode" : "wm-pcc-header-selection-mode"
-        }`}
-      >
-        <div>
+      {selectedProduct ? (
+        <header className="wm-pcc-header wm-ui-card-header wm-pcc-header-product-mode">
+          <div>
           <p className="wm-pcc-eyebrow wm-ui-copy wm-ui-kicker">
-            {selectedProduct ? "Product discussion" : "Wingman workspace"}
+            Product discussion
           </p>
           <h1 className="wm-pcc-title wm-ui-title">
-            {selectedProduct ? selectedProduct.sku : "Product Discussion"}
+            {selectedProduct.sku}
           </h1>
           <p className="wm-pcc-subtitle wm-ui-copy">
-            {selectedProduct
-              ? [selectedProduct.family, selectedProduct.category].filter(Boolean).join(" Â· ")
-              : "Choose one product, then use the full workspace for product information and sales guidance."}
+            {[selectedProduct.family, selectedProduct.category].filter(Boolean).join(" · ")}
           </p>
-        </div>
-
-        {selectedProduct ? (
+          </div>
           <button
             type="button"
             className="wm-ui-button wm-ui-button-secondary wm-pcc-return-button"
@@ -2333,16 +2300,25 @@ return (
           >
             Return to product selection
           </button>
-        ) : (
-          <input
-            className="wm-pcc-search wm-ui-input"
-            aria-label="Search WyreStorm SKU or product type"
-            placeholder="Search SKU, family, product type or application..."
-            value={query}
-            onChange={(event) => setQuery(event.currentTarget.value)}
+        </header>
+      ) : (
+        <>
+          <ProductWorkspaceHeader
+            eyebrow="Products / Call cards"
+            title="Find a product call card"
+            description="Search or filter the governed range, then open concise facts and customer-ready sales guidance."
           />
-        )}
-      </header>
+          <ProductWorkspaceNav />
+          <ProductFilterPanel>
+          <ProductSearchField
+            value={query}
+            onChange={setQuery}
+            label="Search products"
+            placeholder="Search SKU, family, product type or application..."
+          />
+          </ProductFilterPanel>
+        </>
+      )}
 
       <main
         className={`wm-pcc-grid wm-ui-page wingman-page-host ${
@@ -2447,7 +2423,6 @@ return (
                   setSelectedSku(product.sku);
                   setActiveProductPanel("whatItIs");
                   setActiveGalleryItem(null);
-                  setActiveTermLookup(null);
 
                   window.requestAnimationFrame(() => {
                     window.scrollTo({ top: 0, behavior: "smooth" });

@@ -370,22 +370,27 @@ function buildDecision<TProduct extends WingmanProductLike>(product: TProduct, r
   const reasons: string[] = [];
   const rejectionReasons: string[] = [];
   const warningReasons: string[] = [];
+  const testingAdminStatus = String((product as Record<string, unknown>).testingAdminStatus ?? "").toLowerCase();
+  const testingAdminAllowed = testingAdminStatus === "approved";
 
   if (canonical !== rawSku) reasons.push(`SKU alias resolved to ${canonical}.`);
   const policyBlockReason = selectorPolicyBlockReason(canonical);
-  if (policyBlockReason) rejectionReasons.push(policyBlockReason);
-  if (lifecycle.status === "unlisted") warningReasons.push("Needs verification: SKU is not confirmed in the governed business lists.");
-  if (lifecycle.supersededBy) warningReasons.push(`Superseded by ${lifecycle.supersededBy}.`);
+  if (policyBlockReason && !testingAdminAllowed) rejectionReasons.push(policyBlockReason);
+  if (lifecycle.status === "unlisted" && !testingAdminAllowed) warningReasons.push("Needs verification: SKU is not confirmed in the governed business lists.");
+  if (lifecycle.supersededBy && !testingAdminAllowed) warningReasons.push(`Superseded by ${lifecycle.supersededBy}.`);
   if (profile.visibility === "request-only") warningReasons.push("Request-only product: show only when the customer requirement asks for it.");
 
-  if (isSkuAdminBlocked(canonical) || lifecycle.adminBlocked) {
+  if ((isSkuAdminBlocked(canonical) || lifecycle.adminBlocked) && !testingAdminAllowed) {
     rejectionReasons.push("Admin override blocks this SKU from selection.");
   }
 
-  if (!request.includeDiscontinued && !lifecycle.recommendable) {
+  if (!request.includeDiscontinued && !lifecycle.recommendable && !testingAdminAllowed) {
     if (lifecycle.status === "discontinued") rejectionReasons.push("Discontinued product is not a current lead selection.");
     if (lifecycle.status === "do-not-spec") rejectionReasons.push("Do-not-spec product is not a current lead selection.");
     if (lifecycle.supersededBy) rejectionReasons.push(`Superseded product should hand off to ${lifecycle.supersededBy}.`);
+  }
+  if (testingAdminAllowed) {
+    reasons.push("ADMIN allowed this SKU for testing against the currently stored product data.");
   }
 
   if (profile.productClass === "cable" && !request.includeCables) {
@@ -409,7 +414,7 @@ function buildDecision<TProduct extends WingmanProductLike>(product: TProduct, r
   } else if (isDependencySku(canonical, profile)) {
     status = "dependency";
     reasons.push("Dependency/accessory candidate; attach to a lead product rather than positioning as the lead.");
-  } else if (!lifecycle.recommendable || warningReasons.length) {
+  } else if ((!lifecycle.recommendable && !testingAdminAllowed) || warningReasons.length) {
     status = "browse-only";
   } else if (profile.visibility === "request-only") {
     status = "partial";

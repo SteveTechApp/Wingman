@@ -83,6 +83,10 @@ function numberFromCountBand(value: unknown): number | null {
 // matrix, switcher, controller or DSP is a single core unit regardless of how
 // many sources/displays it serves, so it is deliberately excluded here.
 function defaultBomQty(product: StoredProductSelection, discovery: SalesReadinessInput["discovery"]): number {
+  if (product.quantity && Number.isFinite(product.quantity) && product.quantity > 0) {
+    return Math.floor(product.quantity);
+  }
+
   const blob = `${product.sku} ${product.title ?? ""} ${product.family ?? ""} ${product.category ?? ""}`;
   if (CORE_DEVICE_PATTERN.test(blob)) return 1;
 
