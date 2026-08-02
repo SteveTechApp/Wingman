@@ -122,7 +122,7 @@ function decideArchitecture(room: Record<string, unknown>): { architecture: Syst
     return { architecture: "video-wall", reason: "The brief describes a video wall or LED wall." };
   }
 
-  if (/networkhd|av over ip|avoip|distributed/.test(blob) || text(room.avoipProfile) || (displays !== null && displays > 10)) {
+  if (/networkhd|av over ip|avoip|distribut(?:ed|ion)/.test(blob) || text(room.avoipProfile) || (displays !== null && displays > 10)) {
     return {
       architecture: "avoip",
       reason: displays !== null && displays > 10

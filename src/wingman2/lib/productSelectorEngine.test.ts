@@ -83,6 +83,22 @@ describe("product selector engine", () => {
     expect(PRODUCT_SELECTOR_ENGINE_VERSION).toBe("2026.07.1");
   });
 
+  it("lets an ADMIN-approved testing record participate using its stored data", () => {
+    const decisions = selectWingmanProducts([
+      {
+        sku: "TEST-ADMIN-1",
+        name: "Admin corrected testing product",
+        family: "Testing",
+        category: "Switcher",
+        description: "Two-input presentation switcher",
+        testingAdminStatus: "approved",
+      },
+    ], { mode: "recommendations", query: "presentation switcher" });
+
+    expect(decisions[0]?.eligible).toBe(true);
+    expect(decisions[0]?.reasons.join(" ")).toMatch(/ADMIN allowed/i);
+  });
+
   it("hides cables and accessories by default", () => {
     const skus = eligibleSkus({ query: "" });
 
@@ -177,4 +193,3 @@ describe("product selector engine", () => {
     expect(decision?.warningReasons.join(" ")).toMatch(/Needs verification/i);
   });
 });
-

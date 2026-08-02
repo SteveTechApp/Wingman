@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
-import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
+import { ProductFilterPanel, ProductSearchField, ProductWorkspaceHeader, ProductWorkspaceNav } from "../components/ProductWorkspaceChrome";
+import {
+  clearProductIntelligenceIndexCache,
+  loadProductIntelligenceIndex,
+} from "../lib/productIntelligenceIndexCache";
 import { extractRawProducts } from "../lib/productStoryEngine";
 import {
   applyCatalogOverrides,
@@ -156,11 +160,19 @@ function Toggle({ label, active, onClick }: { label: string; active: boolean; on
   );
 }
 
+function createTestingCatalogFilterState(): CatalogFilterState {
+  return {
+    ...createDefaultCatalogFilterState(),
+    includeAccessories: true,
+    excludeEolSoon: false,
+  };
+}
+
 export function CatalogBrowserPage() {
   const [catalog, setCatalog] = useState<CatalogProduct[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [loadError, setLoadError] = useState(false);
-  const [state, setState] = useState<CatalogFilterState>(() => createDefaultCatalogFilterState());
+  const [state, setState] = useState<CatalogFilterState>(createTestingCatalogFilterState);
   const [session, setSession] = useState<WingmanWorkspaceSession | null>(null);
   const [editingProduct, setEditingProduct] = useState<CatalogProduct | null>(null);
   const [recordJson, setRecordJson] = useState("");
@@ -210,7 +222,9 @@ export function CatalogBrowserPage() {
   // Only recomputed when the toggles that actually affect it change - typing in the
   // search box (part of `state`) no longer reruns the full-catalogue selector pass.
   const allowedSkus = useMemo(
-    () => computeAllowedSkus(catalog, state),
+    () => state.excludeEolSoon
+      ? computeAllowedSkus(catalog, state)
+      : new Set(catalog.map((product) => normaliseSkuKey(product.sku))),
     // The selector only consumes these two fields; depending on all of `state`
     // would rerun a full-catalogue eligibility pass on every search keystroke.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -276,6 +290,7 @@ export function CatalogBrowserPage() {
 
     candidate.vendorType = "wyrestorm";
     candidate.brand = "WyreStorm";
+    candidate.replaceMode = true;
     setEditorBusy(true);
     setEditorStatus("Validating and saving...");
 
@@ -285,6 +300,7 @@ export function CatalogBrowserPage() {
       if (!response.ok || !saved) throw new Error("The server did not return the saved record.");
 
       setRecordJson(JSON.stringify(saved, null, 2));
+      clearProductIntelligenceIndexCache();
       setCatalog((current) =>
         current.map((product) =>
           normaliseSkuKey(product.sku) === normaliseSkuKey(editingProduct.sku)
@@ -305,21 +321,55 @@ export function CatalogBrowserPage() {
     }
   }
 
+  async function setTestingStatus(status: "approved" | "expired") {
+    if (!editingProduct) return;
+    if (status === "expired" && !window.confirm(`Remove ${editingProduct.sku} from the testing catalogue? The audit record will be retained.`)) {
+      return;
+    }
+
+    setEditorBusy(true);
+    setEditorStatus(status === "approved" ? "Allowing product for testing..." : "Removing product from the testing catalogue...");
+    try {
+      const response = await postWingmanJson<ProductIntelligenceResponse>("/api/product-intelligence/status", {
+        vendorType: "wyrestorm",
+        brand: "WyreStorm",
+        sku: editingProduct.sku,
+        status,
+        notes: status === "approved"
+          ? "ADMIN allowed this product during catalogue cleansing and testing."
+          : "ADMIN removed this product from the testing catalogue; audit record retained.",
+        reviewedBy: session?.user?.email || session?.user?.name || "ADMIN",
+      });
+      if (!response.ok || !response.record) throw new Error("The server did not confirm the status change.");
+      clearProductIntelligenceIndexCache();
+      if (status === "expired") {
+        setCatalog((current) => current.filter((product) => normaliseSkuKey(product.sku) !== normaliseSkuKey(editingProduct.sku)));
+        setEditingProduct(null);
+      } else {
+        setRecordJson(JSON.stringify(response.record, null, 2));
+        setEditorStatus(`${editingProduct.sku} is allowed for testing.`);
+      }
+    } catch (error) {
+      setEditorStatus(error instanceof Error ? error.message : "Could not change the testing status.");
+    } finally {
+      setEditorBusy(false);
+    }
+  }
+
   return (
     <main className="wm-ui-page wingman-page-host wm-catalog-page" data-wingman-page="catalog-browser">
-      <section className="wm-catalog-panel wm-catalog-intro">
-        <p className="wm-ui-kicker">Catalogue browser</p>
-        <h1 className="wm-ui-title">Browse the WyreStorm range</h1>
-        <p className="wm-ui-copy wm-catalog-description">
-          Filter by family, role, technology and lifecycle. End-of-life and do-not-recommend products are hidden by
-          default — turn that off to see the full range.
-        </p>
-        <input className="wm-ui-input wm-catalog-search"
-          value={state.search}
-          onChange={(event) => patch({ search: event.target.value })}
-          placeholder="Search by SKU, name, application — e.g. NHD-500, UC, video wall, Dante"
-          type="search"
+      <ProductWorkspaceHeader
+        eyebrow="Products / Catalogue"
+        title="Browse the WyreStorm range"
+        description="Search the complete stored range, then narrow it by family, role, technology or lifecycle."
+      />
+      <ProductWorkspaceNav />
 
+      <ProductFilterPanel>
+        <ProductSearchField
+          value={state.search}
+          onChange={(search) => patch({ search })}
+          placeholder="Search by SKU, name, application — e.g. NHD-500, UC, video wall, Dante"
         />
         <div className="wm-catalog-chip-row wm-catalog-toggle-row">
           <Toggle
@@ -331,13 +381,12 @@ export function CatalogBrowserPage() {
           <Toggle label="Include accessories" active={state.includeAccessories} onClick={() => patch({ includeAccessories: !state.includeAccessories })} />
           <Toggle label="Hide end-of-life" active={state.excludeEolSoon} onClick={() => patch({ excludeEolSoon: !state.excludeEolSoon })} />
         </div>
-      </section>
-
-      <section className="wm-catalog-panel wm-catalog-facets">
-        <FacetGroup title="Family" options={facets.families} selected={state.families} onToggle={(value) => patch({ families: toggle(state.families, value) })} />
-        <FacetGroup title="Role" options={facets.roles} selected={state.roles} onToggle={(value) => patch({ roles: toggle(state.roles, value) })} />
-        <FacetGroup title="Technology" options={facets.technologies} selected={state.technologies} onToggle={(value) => patch({ technologies: toggle(state.technologies, value) })} />
-      </section>
+        <div className="wm-catalog-facets">
+          <FacetGroup title="Family" options={facets.families} selected={state.families} onToggle={(value) => patch({ families: toggle(state.families, value) })} />
+          <FacetGroup title="Role" options={facets.roles} selected={state.roles} onToggle={(value) => patch({ roles: toggle(state.roles, value) })} />
+          <FacetGroup title="Technology" options={facets.technologies} selected={state.technologies} onToggle={(value) => patch({ technologies: toggle(state.technologies, value) })} />
+        </div>
+      </ProductFilterPanel>
 
       <section className="wm-ui-section wm-catalog-results-head">
         <p className="wm-ui-copy">
@@ -349,7 +398,7 @@ export function CatalogBrowserPage() {
         </p>
         <button className="wm-ui-button wm-ui-button-secondary"
           type="button"
-          onClick={() => setState(createDefaultCatalogFilterState())}
+          onClick={() => setState(createTestingCatalogFilterState())}
 
         >
           Reset filters
@@ -454,6 +503,22 @@ export function CatalogBrowserPage() {
                 disabled={editorBusy || !recordJson}
               >
                 {editorBusy ? "Working..." : "Save record"}
+              </button>
+              <button
+                className="wm-ui-button wm-ui-button-secondary"
+                type="button"
+                onClick={() => void setTestingStatus("approved")}
+                disabled={editorBusy}
+              >
+                Allow product
+              </button>
+              <button
+                className="wm-ui-button wm-ui-button-secondary"
+                type="button"
+                onClick={() => void setTestingStatus("expired")}
+                disabled={editorBusy}
+              >
+                Remove product
               </button>
             </div>
           </section>

@@ -2,6 +2,12 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { BookOpenCheck, Cable, CheckCircle2, HelpCircle, MapPin, Network, Search, Sparkles, Workflow } from "lucide-react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import {
+  ProductFilterPanel,
+  ProductSearchField,
+  ProductWorkspaceHeader,
+  ProductWorkspaceNav,
+} from "../components/ProductWorkspaceChrome";
 import { isSkuAdminBlocked } from "../lib/adminProductOverrides";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { extractRawProducts } from "../lib/productStoryEngine";
@@ -763,7 +769,19 @@ function useKnownProductSkus(): Set<string> | null {
 
 export function ProductFamilyPage() {
   const [activeFamilyId, setActiveFamilyId] = useState(familyGuides[0].id);
+  const [familySearch, setFamilySearch] = useState("");
   const activeFamily = useMemo(() => findGuide(activeFamilyId), [activeFamilyId]);
+  const visibleFamilyGuides = useMemo(() => {
+    const query = familySearch.trim().toLowerCase();
+    if (!query) return familyGuides;
+    return familyGuides.filter((guide) => [
+      guide.name,
+      guide.shortPosition,
+      guide.whatItIs,
+      ...guide.bestFit,
+      ...guide.productSkus,
+    ].join(" ").toLowerCase().includes(query));
+  }, [familySearch]);
   const knownSkus = useKnownProductSkus();
   const selectableSkus = useMemo(
     () => activeFamily.productSkus.filter((sku) => isSelectableSku(sku, knownSkus)),
@@ -776,23 +794,25 @@ export function ProductFamilyPage() {
 
   return (
     <main className="wm-product-family-page wm-ui-page wingman-page-host">
-      <section className="wm-product-family-hero wm-ui-card">
-        <div className="wm-product-family-hero-copy">
-          <p className="wm-product-family-eyebrow">Product families</p>
-          <h1 className="wm-page-title">Choose a family, then open the right SKU.</h1>
-          <p className="wm-ui-copy">
-            Start with the customer application and move from the correct architecture
-            to representative WyreStorm products.
-          </p>
-        </div>
-
-        <div className="wm-product-family-hero-action">
-          <span>Next: choose a family, then open a product workspace.</span>
-          <Link to={routeCatalogByKey.productPitch.path}>
-            Open Product Positioning
+      <ProductWorkspaceHeader
+        eyebrow="Products / Families"
+        title="Choose a product family"
+        description="Start with the customer application, choose the architecture, then open a representative SKU."
+        actions={(
+          <Link className="wm-ui-button wm-ui-button-secondary" to={routeCatalogByKey.productPitch.path}>
+            Search products
           </Link>
-        </div>
-      </section>
+        )}
+      />
+      <ProductWorkspaceNav />
+      <ProductFilterPanel>
+        <ProductSearchField
+          value={familySearch}
+          onChange={setFamilySearch}
+          label="Filter families"
+          placeholder="Search by family, architecture, application or representative SKU..."
+        />
+      </ProductFilterPanel>
 
       <div className="wm-product-family-workspace">
         <aside className="wm-product-family-nav wm-ui-card" aria-label="WyreStorm product families">
@@ -806,7 +826,7 @@ export function ProductFamilyPage() {
           </header>
 
           <div className="wm-product-family-picker-list">
-            {familyGuides.map((guide) => {
+            {visibleFamilyGuides.map((guide) => {
               const active = guide.id === activeFamily.id;
 
               return (
@@ -831,6 +851,9 @@ export function ProductFamilyPage() {
                 </button>
               );
             })}
+            {!visibleFamilyGuides.length ? (
+              <p className="wm-ui-copy wm-product-family-empty">No product families match this filter.</p>
+            ) : null}
           </div>
         </aside>
 

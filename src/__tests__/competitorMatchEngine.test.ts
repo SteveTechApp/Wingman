@@ -313,10 +313,10 @@ describe("compareCompetitor", () => {
       expect(matrixMatch).toBeDefined();
     });
 
-    it("should match HDBaseT competitor to extender products", () => {
+    it("should not use a complete extender kit for a transmitter-only competitor", () => {
       const result = compareCompetitor("DTP2 T 211 HDBaseT", mockProducts);
       const extenderMatch = result.matches.find((m) => m.sku.includes("EX"));
-      expect(extenderMatch).toBeDefined();
+      expect(extenderMatch).toBeUndefined();
       expect(result.matches.some((match) => match.sku.startsWith("MX-"))).toBe(false);
       expect(result.matches.some((match) => match.sku.startsWith("SW-"))).toBe(false);
     });
