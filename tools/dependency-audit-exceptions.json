@@ -14,8 +14,8 @@
       "acceptedBy": "Project owner decision, 2026-07-24",
       "justification": "The vulnerability is specific to React Router's RSC (React Server Components) mode, where an action can execute before a 400 response is returned. Wingman is an entirely client-rendered SPA: it mounts BrowserRouter in src/main.tsx, has no server-side rendering and no RSC entry point, and does not import any RSC or static-handler API from react-router. The vulnerable code path is therefore not reachable in this application.",
       "verification": "Confirmed no RSC usage by searching src/ for RSC, createStaticHandler and renderToPipeableStream - no matches. Wingman renders via createRoot in src/main.tsx.",
-      "remediationBlocked": "No fixed release exists above the installed 7.18.1. npm's suggested remediation is a downgrade to react-router-dom 7.11.0, which would undo the deliberate 6.x -> 7.x upgrade applied in PR #115 and already patched for a BrowserRouter prop type change.",
-      "reviewAction": "Before expiry, re-check whether react-router has published a fixed 7.x release. If so, upgrade and delete this exception rather than extending it."
+      "remediationBlocked": "The patched react-router release is 8.3.0, but the latest available react-router-dom release is 7.18.2 and declares an exact dependency on react-router 7.18.2. Forcing router 8.3.0 through an override would create an unsupported mixed-major installation; npm's automated downgrade path would undo the deliberate 6.x -> 7.x upgrade applied in PR #115. Wingman is pinned to the latest compatible DOM/router pair while this upstream release gap remains.",
+      "reviewAction": "Before expiry, re-check for a react-router-dom release that officially depends on patched react-router. Upgrade the pair together and delete this exception; do not force a mixed-major override."
     },
     {
       "advisory": "GHSA-mh99-v99m-4gvg",
