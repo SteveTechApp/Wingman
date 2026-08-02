@@ -17,14 +17,14 @@ export function ProductWorkspaceHeader({
   actions,
 }: ProductWorkspaceHeaderProps) {
   return (
-    <header className="wm-product-workspace-header">
+    <section className="wm-product-workspace-intro">
       <div className="wm-product-workspace-heading">
         <p className="wm-ui-kicker">{eyebrow}</p>
         <h1 className="wm-ui-title">{title}</h1>
         <p className="wm-ui-copy">{description}</p>
       </div>
       {actions ? <div className="wm-product-workspace-actions">{actions}</div> : null}
-    </header>
+    </section>
   );
 }
 
