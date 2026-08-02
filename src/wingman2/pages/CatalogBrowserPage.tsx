@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
+import { ProductFilterPanel, ProductSearchField, ProductWorkspaceHeader, ProductWorkspaceNav } from "../components/ProductWorkspaceChrome";
 import {
   clearProductIntelligenceIndexCache,
   loadProductIntelligenceIndex,
@@ -357,19 +358,18 @@ export function CatalogBrowserPage() {
 
   return (
     <main className="wm-ui-page wingman-page-host wm-catalog-page" data-wingman-page="catalog-browser">
-      <section className="wm-catalog-panel wm-catalog-intro">
-        <p className="wm-ui-kicker">Catalogue browser</p>
-        <h1 className="wm-ui-title">Browse the WyreStorm range</h1>
-        <p className="wm-ui-copy wm-catalog-description">
-          Filter the complete stored WyreStorm range by family, role and technology. During testing, active, legacy,
-          accessory and review-stage SKUs are shown together; ADMIN can correct, allow or remove individual records.
-        </p>
-        <input className="wm-ui-input wm-catalog-search"
-          value={state.search}
-          onChange={(event) => patch({ search: event.target.value })}
-          placeholder="Search by SKU, name, application — e.g. NHD-500, UC, video wall, Dante"
-          type="search"
+      <ProductWorkspaceHeader
+        eyebrow="Products / Catalogue"
+        title="Browse the WyreStorm range"
+        description="Search the complete stored range, then narrow it by family, role, technology or lifecycle."
+      />
+      <ProductWorkspaceNav />
 
+      <ProductFilterPanel>
+        <ProductSearchField
+          value={state.search}
+          onChange={(search) => patch({ search })}
+          placeholder="Search by SKU, name, application — e.g. NHD-500, UC, video wall, Dante"
         />
         <div className="wm-catalog-chip-row wm-catalog-toggle-row">
           <Toggle
@@ -381,13 +381,12 @@ export function CatalogBrowserPage() {
           <Toggle label="Include accessories" active={state.includeAccessories} onClick={() => patch({ includeAccessories: !state.includeAccessories })} />
           <Toggle label="Hide end-of-life" active={state.excludeEolSoon} onClick={() => patch({ excludeEolSoon: !state.excludeEolSoon })} />
         </div>
-      </section>
-
-      <section className="wm-catalog-panel wm-catalog-facets">
-        <FacetGroup title="Family" options={facets.families} selected={state.families} onToggle={(value) => patch({ families: toggle(state.families, value) })} />
-        <FacetGroup title="Role" options={facets.roles} selected={state.roles} onToggle={(value) => patch({ roles: toggle(state.roles, value) })} />
-        <FacetGroup title="Technology" options={facets.technologies} selected={state.technologies} onToggle={(value) => patch({ technologies: toggle(state.technologies, value) })} />
-      </section>
+        <div className="wm-catalog-facets">
+          <FacetGroup title="Family" options={facets.families} selected={state.families} onToggle={(value) => patch({ families: toggle(state.families, value) })} />
+          <FacetGroup title="Role" options={facets.roles} selected={state.roles} onToggle={(value) => patch({ roles: toggle(state.roles, value) })} />
+          <FacetGroup title="Technology" options={facets.technologies} selected={state.technologies} onToggle={(value) => patch({ technologies: toggle(state.technologies, value) })} />
+        </div>
+      </ProductFilterPanel>
 
       <section className="wm-ui-section wm-catalog-results-head">
         <p className="wm-ui-copy">

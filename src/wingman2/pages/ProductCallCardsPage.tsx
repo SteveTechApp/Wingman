@@ -32,6 +32,12 @@ import {
   type SalesConversationToneId,
 } from "../lib/salesConversationTone";
 import { useGlossaryHighlightsEnabled } from "../lib/glossaryHighlightPreference";
+import {
+  ProductFilterPanel,
+  ProductSearchField,
+  ProductWorkspaceHeader,
+  ProductWorkspaceNav,
+} from "../components/ProductWorkspaceChrome";
 
 function readStoredSalesConversationToneId(): SalesConversationToneId {
   if (typeof window === "undefined" || typeof window.localStorage === "undefined") {
@@ -2274,26 +2280,19 @@ return (
         </div>
       )}
 
-      <header
-        className={`wm-pcc-header wm-ui-card-header ${
-          selectedProduct ? "wm-pcc-header-product-mode" : "wm-pcc-header-selection-mode"
-        }`}
-      >
-        <div>
+      {selectedProduct ? (
+        <header className="wm-pcc-header wm-ui-card-header wm-pcc-header-product-mode">
+          <div>
           <p className="wm-pcc-eyebrow wm-ui-copy wm-ui-kicker">
-            {selectedProduct ? "Product discussion" : "Wingman workspace"}
+            Product discussion
           </p>
           <h1 className="wm-pcc-title wm-ui-title">
-            {selectedProduct ? selectedProduct.sku : "Product Discussion"}
+            {selectedProduct.sku}
           </h1>
           <p className="wm-pcc-subtitle wm-ui-copy">
-            {selectedProduct
-              ? [selectedProduct.family, selectedProduct.category].filter(Boolean).join(" Â· ")
-              : "Choose one product, then use the full workspace for product information and sales guidance."}
+            {[selectedProduct.family, selectedProduct.category].filter(Boolean).join(" · ")}
           </p>
-        </div>
-
-        {selectedProduct ? (
+          </div>
           <button
             type="button"
             className="wm-ui-button wm-ui-button-secondary wm-pcc-return-button"
@@ -2301,16 +2300,25 @@ return (
           >
             Return to product selection
           </button>
-        ) : (
-          <input
-            className="wm-pcc-search wm-ui-input"
-            aria-label="Search WyreStorm SKU or product type"
-            placeholder="Search SKU, family, product type or application..."
-            value={query}
-            onChange={(event) => setQuery(event.currentTarget.value)}
+        </header>
+      ) : (
+        <>
+          <ProductWorkspaceHeader
+            eyebrow="Products / Call cards"
+            title="Find a product call card"
+            description="Search or filter the governed range, then open concise facts and customer-ready sales guidance."
           />
-        )}
-      </header>
+          <ProductWorkspaceNav />
+          <ProductFilterPanel>
+          <ProductSearchField
+            value={query}
+            onChange={setQuery}
+            label="Search products"
+            placeholder="Search SKU, family, product type or application..."
+          />
+          </ProductFilterPanel>
+        </>
+      )}
 
       <main
         className={`wm-pcc-grid wm-ui-page wingman-page-host ${

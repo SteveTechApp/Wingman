@@ -1103,7 +1103,8 @@ html[data-wingman-route="proposal"] .wm-proposal-requirements-grid {
   gap: 9px !important;
 }
 
-html[data-wingman-route="proposal"] .wm-proposal-requirements-grid article {
+html[data-wingman-route="proposal"] .wm-proposal-requirements-grid article,
+html[data-wingman-route="proposal"] .wm-proposal-requirements-grid > a {
   display: grid !important;
   gap: 5px !important;
   min-width: 0 !important;
@@ -1111,6 +1112,29 @@ html[data-wingman-route="proposal"] .wm-proposal-requirements-grid article {
   background: rgba(7, 20, 35, 0.76) !important;
   border: 1px solid var(--wm-ref-border) !important;
   border-radius: 9px !important;
+}
+
+html[data-wingman-route="proposal"] .wm-proposal-requirements-grid > a {
+  color: inherit !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease !important;
+}
+
+html[data-wingman-route="proposal"] .wm-proposal-requirements-grid > a:hover,
+html[data-wingman-route="proposal"] .wm-proposal-requirements-grid > a:focus-visible {
+  border-color: rgba(45, 212, 191, 0.75) !important;
+  background: rgba(13, 148, 136, 0.12) !important;
+  transform: translateY(-1px);
+  outline: none !important;
+}
+
+html[data-wingman-route="proposal"] .wm-proposal-requirements-grid > a small {
+  display: block !important;
+  margin-top: 0.45rem !important;
+  color: #5eead4 !important;
+  font-size: 0.62rem !important;
+  font-weight: 800 !important;
 }
 
 html[data-wingman-route="proposal"] .wm-proposal-requirements-grid span {

@@ -17,6 +17,7 @@ import {
   type ProductSalesContext,
 } from "../lib/productPitchGuidance";
 import { CompareBackToListButton } from "../components/compare/CompareBackToListButton";
+import { ProductFilterPanel, ProductSearchField, ProductWorkspaceHeader, ProductWorkspaceNav } from "../components/ProductWorkspaceChrome";
 import { ReportProblemButton } from "../components/ReportProblemButton";
 import { AdminProductRecordEditor } from "../components/AdminProductRecordEditor";
 import { ProductMediaPanel } from "../components/ProductMediaPanel";
@@ -432,27 +433,21 @@ function SelectionPage({
 
   return (
     <main data-product-pitch-view="selector" className="grid gap-4 pb-6 wm-ui-page wingman-page-host wm-product-pitch-page">
-      <CompareBackToListButton />
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
-        <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Product workspace</p>
-        <h1 className={`${PRODUCT_PITCH_HERO_TITLE_CLASS} text-white`}>Find the right product workspace</h1>
-        <p className="mt-2 max-w-4xl text-sm leading-6 wm-ui-copy">
-          Search by SKU, product name, product family or application. Selecting a result opens the product workspace immediately.
-        </p>
-      </section>
+      <ProductWorkspaceHeader
+        eyebrow="Products / Positioning"
+        title="Find the right product workspace"
+        description="Search by SKU, product name, family or application, then open its facts and sales guidance."
+        actions={<CompareBackToListButton />}
+      />
+      <ProductWorkspaceNav />
 
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5 wm-product-pitch-selector`}>
-        <label className="grid gap-2">
-          <span className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Search products</span>
-          <input className={["wm-ui-input", "min-h-12 rounded-2xl border border-[#29465e] bg-[#0d2133] px-4 text-sm font-bold text-white outline-none focus:border-cyan-300"].filter(Boolean).join(" ")}
-            value={searchTerm}
-            onChange={(event) => updateSearchTerm(event.target.value)}
-            placeholder="Example: MXV-0404-H2A-KIT, NetworkHD, HDMI extender, USB KVM, video wall"
-            type="search"
-
-            autoFocus
-          />
-        </label>
+      <ProductFilterPanel>
+        <ProductSearchField
+          value={searchTerm}
+          onChange={updateSearchTerm}
+          placeholder="Example: MXV-0404-H2A-KIT, NetworkHD, HDMI extender, USB KVM, video wall"
+          autoFocus
+        />
 
         <div className="mt-4 flex flex-wrap gap-3" aria-label="Catalogue include controls">
           <label className="wm-product-pitch-toggle">
@@ -619,7 +614,7 @@ function SelectionPage({
             ) : null}
           </>
         )}
-      </section>
+      </ProductFilterPanel>
     </main>
   );
 }

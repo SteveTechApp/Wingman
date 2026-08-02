@@ -15,6 +15,7 @@ export type ProposalDocumentTypeConfig = {
 export type ProposalWizardDraft = {
   schemaVersion: 1;
   projectId: string;
+  discoveryFingerprint?: string;
   documentType: ProposalDocumentType;
   customerName: string;
   projectName: string;
@@ -201,6 +202,7 @@ export function createProposalWizardDefaults(input: {
   dependencies?: string[];
   customerName?: string;
   contactName?: string;
+  discoveryFingerprint?: string;
 }): ProposalWizardDraft {
   const proposedSolution =
     input.proposedSolution?.trim() ||
@@ -211,6 +213,7 @@ export function createProposalWizardDefaults(input: {
   return {
     schemaVersion: 1,
     projectId: input.projectId,
+    discoveryFingerprint: input.discoveryFingerprint,
     documentType: "blended-proposal",
     customerName: input.customerName?.trim() ?? "",
     projectName: input.projectName,
@@ -271,14 +274,26 @@ export function loadProposalWizardDraft(
     if (!raw) return defaults;
 
     const parsed = JSON.parse(raw) as Partial<ProposalWizardDraft>;
+    const discoveryChanged = parsed.discoveryFingerprint !== defaults.discoveryFingerprint;
     return {
       ...defaults,
       ...parsed,
+      ...(discoveryChanged
+        ? {
+            discoveryFingerprint: defaults.discoveryFingerprint,
+            executiveSummary: defaults.executiveSummary,
+            customerObjectives: defaults.customerObjectives,
+            proposedSolution: defaults.proposedSolution,
+            architectureNarrative: defaults.architectureNarrative,
+            solutionConfirmed: false,
+            reviewConfirmed: false,
+          }
+        : {}),
       schemaVersion: 1,
       projectId,
       bomQuantities: {
         ...defaults.bomQuantities,
-        ...(parsed.bomQuantities ?? {}),
+        ...(discoveryChanged ? {} : parsed.bomQuantities ?? {}),
       },
     };
   } catch {
