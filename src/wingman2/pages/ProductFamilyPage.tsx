@@ -814,18 +814,18 @@ export function ProductFamilyPage() {
         />
       </ProductFilterPanel>
 
-      <div className="wm-product-family-workspace">
-        <aside className="wm-product-family-nav wm-ui-card" aria-label="WyreStorm product families">
-          <header className="wm-product-family-nav-header">
-            <p>Wingman workspace</p>
-            <h2 className="wm-section-title">Choose family</h2>
-            <span className="wm-ui-copy">
-              Pick the family that best matches the customer application before
-              discussing SKUs.
-            </span>
-          </header>
+      <section className="wm-product-family-results" aria-label="WyreStorm product families">
+        <div className="wm-product-family-results-head">
+          <div>
+            <p className="wm-ui-kicker">Product family results</p>
+            <h2 className="wm-section-title">Choose a family</h2>
+          </div>
+          <span className="wm-ui-copy">
+            {visibleFamilyGuides.length} of {familyGuides.length} families
+          </span>
+        </div>
 
-          <div className="wm-product-family-picker-list">
+          <div className="wm-product-family-picker-grid">
             {visibleFamilyGuides.map((guide) => {
               const active = guide.id === activeFamily.id;
 
@@ -855,9 +855,9 @@ export function ProductFamilyPage() {
               <p className="wm-ui-copy wm-product-family-empty">No product families match this filter.</p>
             ) : null}
           </div>
-        </aside>
+      </section>
 
-        <section className="wm-product-family-detail wm-ui-card" aria-live="polite">
+      <section className="wm-product-family-detail wm-ui-card" aria-live="polite">
           <header className="wm-product-family-detail-header">
             <p>Family crib sheet</p>
             <h2 className="wm-section-title">{activeFamily.name}</h2>
@@ -983,8 +983,7 @@ export function ProductFamilyPage() {
               </div>
             </details>
           </div>
-        </section>
-      </div>
+      </section>
 
       <details className="wm-product-family-architecture">
         <summary>Architecture guidance</summary>
