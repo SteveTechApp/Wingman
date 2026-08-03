@@ -22221,29 +22221,26 @@ main.wm-compare-page[data-compare-state="result"] #compare-result-panel-cards .w
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
 }
 
-/* Cap and centre the discussion panel so tiles, tabs and bullet lines stay a
-   readable width instead of stretching across the whole screen (or a zoomed-out
-   viewport) while the prose column stays narrow. Higher specificity + !important
-   to beat the global `main aside { max-width: 100% !important }` rule (the
-   preview is an <aside>). */
+/* The product-mode discussion panel does two things, both needing high
+   specificity + !important:
+   - Cap + centre it (max-width) so tiles, tabs and bullet lines stay readable
+     rather than stretching across a wide/zoomed-out viewport - this must beat
+     the global `main aside { max-width: 100% !important }` rule (the preview is
+     an <aside>).
+   - Let it flow at natural height (height:auto/overflow:visible) so the whole
+     card scrolls with the page instead of the panel locking to the viewport and
+     inner-scrolling (which clipped the lower content and buried the buttons). */
 .wm-pcc-select-shell .wm-pcc-grid.wm-pcc-product-mode aside.wm-pcc-preview {
   max-width: 1440px !important;
   width: 100% !important;
   margin-inline: auto !important;
-}
-
-/* Let the discussion flow at its natural height and scroll with the page,
-   instead of locking the panel to the viewport and inner-scrolling the focus
-   panel (which clipped the lower content and buried the action buttons). These
-   override the viewport-height / overflow rules on the page-host, the preview
-   (body .wm-pcc-preview) and the focus panel with higher specificity. */
-.wm-pcc-select-shell .wm-pcc-grid.wm-pcc-product-mode {
   height: auto !important;
   min-height: 0 !important;
   overflow: visible !important;
 }
 
-.wm-pcc-product-mode aside.wm-pcc-preview {
+/* The shell/grid and the focus panel must flow too, or they clip the scroll. */
+.wm-pcc-select-shell .wm-pcc-grid.wm-pcc-product-mode {
   height: auto !important;
   min-height: 0 !important;
   overflow: visible !important;
