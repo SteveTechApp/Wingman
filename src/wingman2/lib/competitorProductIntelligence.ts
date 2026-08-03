@@ -101,6 +101,40 @@ export const COMPETITOR_SKU_SEED_CATALOG: Record<string, string[]> = (competitor
   return catalog;
 }, {});
 
+// A manufacturer can be a supported Compare input before its first governed
+// SKU profile is curated. Empty catalogues intentionally remain fail-closed:
+// the user can enter a model and collect evidence, but no equivalence is
+// asserted from the manufacturer name alone.
+export const SUPPORTED_COMPETITOR_MANUFACTURERS = [
+  "CYP",
+  "SY Electronics",
+  "Just Add Power",
+  "HDANYWHERE",
+  "Turtle AV",
+  "Black Box",
+  "Datapath",
+  "Matrox Video",
+  "Q-SYS",
+] as const;
+
+for (const manufacturer of SUPPORTED_COMPETITOR_MANUFACTURERS) {
+  COMPETITOR_SKU_SEED_CATALOG[manufacturer] ||= [];
+}
+
+const COMPETITOR_MANUFACTURER_ALIASES: Record<string, string> = {
+  hdanywhere: "HDANYWHERE",
+  hda: "HDANYWHERE",
+  turtleav: "Turtle AV",
+  blackbox: "Black Box",
+  matrox: "Matrox Video",
+  matroxvideo: "Matrox Video",
+  qsc: "Q-SYS",
+  qsys: "Q-SYS",
+  syelectronics: "SY Electronics",
+  jap: "Just Add Power",
+  justaddpower: "Just Add Power",
+};
+
 const REQUIRED_FACTS: Record<CompetitorTechnologyClass, string[]> = {
   AVOIP: ["endpoint role", "network class or codec", "max resolution", "transport", "controller/network requirement", "input/output endpoint count"],
   HDBASET: ["TX/RX role or kit status", "distance class", "max resolution", "HDCP/HDMI generation", "power method", "control/USB support"],
@@ -885,7 +919,9 @@ function canonicalBrand(value: unknown): string {
   const requested = key(value);
   if (!requested) return "";
 
-  return Object.keys(COMPETITOR_SKU_SEED_CATALOG).find((brand) => key(brand) === requested) || clean(value);
+  return COMPETITOR_MANUFACTURER_ALIASES[requested]
+    || Object.keys(COMPETITOR_SKU_SEED_CATALOG).find((brand) => key(brand) === requested)
+    || clean(value);
 }
 
 function skuSeedCandidates(brand?: string): CompetitorSkuSeed[] {

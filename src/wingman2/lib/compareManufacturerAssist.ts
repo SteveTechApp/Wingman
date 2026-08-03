@@ -21,7 +21,16 @@ const manufacturers = [
   "Marshall",
   "Mersive",
   "Airtame",
-  "Sony"
+  "Sony",
+  "CYP",
+  "SY Electronics",
+  "Just Add Power",
+  "HDANYWHERE",
+  "Turtle AV",
+  "Black Box",
+  "Datapath",
+  "Matrox Video",
+  "Q-SYS"
 ];
 
 type WindowWithCompareAssist = Window &
