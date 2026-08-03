@@ -8151,6 +8151,228 @@
     "comparisonOnly": true
   },
   {
+    "sku": "MCXG2DC01",
+    "model": "MCXG2DC01",
+    "name": "Black Box MCX Gen2 Copper Decoder",
+    "brand": "Black Box",
+    "manufacturer": "Black Box",
+    "family": "MCX Gen2",
+    "category": "Encoder/Decoder",
+    "subcategory": "10G SDVoE decoder",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "MCX Gen2 10G copper 4K60 decoder.",
+    "sourceUrl": "https://cdn.blackbox.com/cms/docs/brochures/tps/us_blackbox_brochure_mcx.pdf",
+    "evidenceSource": "https://cdn.blackbox.com/cms/docs/brochures/tps/us_blackbox_brochure_mcx.pdf",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "decoder",
+    "transport": "AVoIP",
+    "technology": "AVOIP",
+    "topology": "many-to-many",
+    "directionality": "unidirectional",
+    "inputs": [
+      {
+        "type": "10GbE copper",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI 2.0",
+        "count": 1
+      }
+    ],
+    "control": [
+      "IR",
+      "RS-232"
+    ],
+    "audio": [],
+    "features": [
+      "USB 2.0",
+      "Ethernet extension",
+      "SDVoE"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official MCX Gen2 brochure",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    },
+    "aliases": [],
+    "knownLimitations": "Requires MCX Gen2 system controller/network and compatible encoder.",
+    "closestWyrestormArchitecture": "NetworkHD 600 decoder",
+    "closestWyrestormSkuOrFamily": "NHD-600-TRX",
+    "notes": "10G SDVoE architecture comparison.",
+    "sourceFile": "data-sources/competitors/black-box.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "MCXG2EC01",
+    "model": "MCXG2EC01",
+    "name": "Black Box MCX Gen2 Copper Encoder",
+    "brand": "Black Box",
+    "manufacturer": "Black Box",
+    "family": "MCX Gen2",
+    "category": "Encoder/Decoder",
+    "subcategory": "10G SDVoE encoder",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "MCX Gen2 10G copper 4K60 encoder.",
+    "sourceUrl": "https://cdn.blackbox.com/cms/docs/brochures/tps/us_blackbox_brochure_mcx.pdf",
+    "evidenceSource": "https://cdn.blackbox.com/cms/docs/brochures/tps/us_blackbox_brochure_mcx.pdf",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "encoder",
+    "transport": "AVoIP",
+    "technology": "AVOIP",
+    "topology": "many-to-many",
+    "directionality": "unidirectional",
+    "inputs": [
+      {
+        "type": "HDMI 2.0",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "10GbE copper",
+        "count": 1
+      }
+    ],
+    "control": [
+      "IR",
+      "RS-232"
+    ],
+    "audio": [],
+    "features": [
+      "USB 2.0",
+      "Ethernet extension",
+      "SDVoE"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official MCX Gen2 brochure",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    },
+    "aliases": [],
+    "knownLimitations": "Requires MCX Gen2 system controller/network and compatible decoder.",
+    "closestWyrestormArchitecture": "NetworkHD 600 encoder",
+    "closestWyrestormSkuOrFamily": "NHD-600-TRX",
+    "notes": "10G SDVoE architecture comparison.",
+    "sourceFile": "data-sources/competitors/black-box.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "MCXG2TD11",
+    "model": "MCXG2TD11",
+    "name": "Black Box MCX Gen2 Transcoder",
+    "brand": "Black Box",
+    "manufacturer": "Black Box",
+    "family": "MCX Gen2",
+    "category": "Encoder/Decoder",
+    "subcategory": "10G SDVoE transceiver",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "Configurable MCX Gen2 encoder or decoder with copper and fiber network ports.",
+    "sourceUrl": "https://cdn.blackbox.com/cms/docs/brochures/tps/us_blackbox_brochure_mcx.pdf",
+    "evidenceSource": "https://cdn.blackbox.com/cms/docs/brochures/tps/us_blackbox_brochure_mcx.pdf",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "transceiver",
+    "transport": "AVoIP",
+    "technology": "AVOIP",
+    "topology": "many-to-many",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "HDMI / DisplayPort / 10GbE",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "DisplayPort / 10GbE",
+        "count": 1
+      }
+    ],
+    "control": [
+      "IR",
+      "RS-232"
+    ],
+    "audio": [],
+    "features": [
+      "USB host and peripheral",
+      "copper and fiber",
+      "SDVoE"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official MCX Gen2 brochure",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "networkSpeed": "10GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "SDVoE Pixel Pipeline"
+    },
+    "aliases": [],
+    "knownLimitations": "Requires MCX Gen2 ecosystem and control.",
+    "closestWyrestormArchitecture": "NetworkHD 600 transceiver",
+    "closestWyrestormSkuOrFamily": "NHD-600-TRX / NHD-600-TRXF",
+    "notes": "Closest architectural overlap is NetworkHD 600 transceiver.",
+    "sourceFile": "data-sources/competitors/black-box.csv",
+    "comparisonOnly": true
+  },
+  {
     "sku": "ACM210",
     "model": "ACM210",
     "name": "ACM210",
@@ -11634,6 +11856,416 @@
     "comparisonOnly": true
   },
   {
+    "sku": "OR-32USBC-4K22",
+    "model": "OR-32USBC-4K22",
+    "name": "CYP OR-32USBC-4K22 3x2 USB-C and HDMI Matrix",
+    "brand": "CYP",
+    "manufacturer": "CYP",
+    "family": "",
+    "category": "Presentation Switcher",
+    "subcategory": "USB-C HDMI Matrix",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "3 x 2 USB-C and HDMI matrix with USB Ethernet hub.",
+    "sourceUrl": "https://cypeurope.com/news/usb-c-product-family-highlight/",
+    "evidenceSource": "https://cypeurope.com/news/usb-c-product-family-highlight/",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "presentation-switcher",
+    "transport": "HDMI / USB-C",
+    "technology": "PRESENTATION",
+    "topology": "many-to-many",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      }
+    ],
+    "control": [],
+    "audio": [
+      "USB 3.0 hub"
+    ],
+    "features": [
+      "60W USB-C charging",
+      "HDR10",
+      "HLG",
+      "Dolby Vision"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 3,
+    "routedInputs": 3,
+    "routedInputCount": 3,
+    "matrixOutputs": 2,
+    "routedOutputs": 2,
+    "routedOutputCount": 2,
+    "physicalOutputs": 2,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official CYP page states 2 HDMI plus 1 USB-C input and 2 HDMI outputs",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "",
+    "closestWyrestormArchitecture": "Presentation switching",
+    "closestWyrestormSkuOrFamily": "SW-130-TX / SW-510-TX",
+    "notes": "Compare by I/O and USB workflow; not automatically equivalent to an in-wall transmitter.",
+    "sourceFile": "data-sources/competitors/cyp.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "OR-44-4K22",
+    "model": "OR-44-4K22",
+    "name": "CYP OR-44-4K22 4x4 HDMI Matrix",
+    "brand": "CYP",
+    "manufacturer": "CYP",
+    "family": "",
+    "category": "Matrix Switcher",
+    "subcategory": "HDMI Matrix",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "4 x 4 Full 4K HDMI matrix switcher.",
+    "sourceUrl": "https://cypeurope.com/product-category/matrices/",
+    "evidenceSource": "https://cypeurope.com/product-category/matrices/",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "matrix",
+    "transport": "HDMI",
+    "technology": "MATRIX",
+    "topology": "many-to-many",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 4
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 4
+      }
+    ],
+    "control": [],
+    "audio": [],
+    "features": [],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 4,
+    "routedInputs": 4,
+    "routedInputCount": 4,
+    "matrixOutputs": 4,
+    "routedOutputs": 4,
+    "routedOutputCount": 4,
+    "physicalOutputs": 4,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "derived",
+    "matrixSizeEvidence": "Official CYP matrix catalogue identifies 4x4 Full 4K HDMI matrix",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "",
+    "closestWyrestormArchitecture": "Fixed HDMI matrix",
+    "closestWyrestormSkuOrFamily": "MX-0404-HDMI",
+    "notes": "Likely comparison lane: fixed 4x4 HDMI matrix; exact audio/control details remain review-only.",
+    "sourceFile": "data-sources/competitors/cyp.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "PUV-44XPL-AVLC-KIT",
+    "model": "PUV-44XPL-AVLC-KIT",
+    "name": "CYP PUV-44XPL-AVLC-KIT 4x4 HDBaseT Matrix Kit",
+    "brand": "CYP",
+    "manufacturer": "CYP",
+    "family": "",
+    "category": "Matrix Switcher",
+    "subcategory": "HDBaseT Matrix Kit",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "4 x 4 HDMI to HDBaseT matrix kit supplied with four receivers.",
+    "sourceUrl": "https://cypeurope.com/product-category/matrices/hdbaset-matrices/",
+    "evidenceSource": "https://cypeurope.com/product-category/matrices/hdbaset-matrices/",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "matrix",
+    "transport": "HDBaseT / HDMI",
+    "technology": "MATRIX",
+    "topology": "many-to-many",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 4
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDBaseT",
+        "count": 4
+      }
+    ],
+    "control": [
+      "IR",
+      "RS-232"
+    ],
+    "audio": [],
+    "features": [
+      "Includes four receivers",
+      "Audio de-embedding",
+      "AVLC"
+    ],
+    "video": {
+      "maxResolution": "4K60"
+    },
+    "matrixInputs": 4,
+    "routedInputs": 4,
+    "routedInputCount": 4,
+    "matrixOutputs": 4,
+    "routedOutputs": 4,
+    "routedOutputCount": 4,
+    "physicalOutputs": 4,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "derived",
+    "matrixSizeEvidence": "Official CYP category identifies 4x4 matrix kit and four included receivers",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "",
+    "closestWyrestormArchitecture": "HDBaseT matrix kit",
+    "closestWyrestormSkuOrFamily": "MXV-0404-H2A-KIT / MX-0404-KIT",
+    "notes": "Receiver inclusion and AVLC transport are important comparison dependencies.",
+    "sourceFile": "data-sources/competitors/cyp.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "Fx4",
+    "model": "Fx4",
+    "name": "Datapath Fx4 Display Controller",
+    "brand": "Datapath",
+    "manufacturer": "Datapath",
+    "family": "X-Series",
+    "category": "Video Wall Processor",
+    "subcategory": "Multi-display controller",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "Standalone multi-display controller for slicing one selected canvas across four outputs.",
+    "sourceUrl": "https://www.datapath.co.uk/datapath-products/video-wall-controllers/datapath-fx4/",
+    "evidenceSource": "https://www.datapath.co.uk/datapath-products/video-wall-controllers/datapath-fx4/",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "video-wall-processor",
+    "transport": "HDMI / DisplayPort",
+    "technology": "VIDEO_WALL",
+    "topology": "one-to-many",
+    "directionality": "unidirectional",
+    "inputs": [
+      {
+        "type": "DisplayPort 1.2",
+        "count": 1
+      },
+      {
+        "type": "HDMI 1.4",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI or DisplayPort",
+        "count": 4
+      },
+      {
+        "type": "DisplayPort loop",
+        "count": 1
+      }
+    ],
+    "control": [
+      "Ethernet",
+      "USB"
+    ],
+    "audio": [],
+    "features": [
+      "four genlocked outputs",
+      "Wall Designer",
+      "8K x 8K input surface"
+    ],
+    "video": {
+      "maxResolution": "4K60 input"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 4,
+    "routedOutputs": 4,
+    "routedOutputCount": 4,
+    "physicalOutputs": 5,
+    "mirroredOutputs": 1,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official specification says four outputs and selected input",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "Not a 3x4 matrix; inputs are choices for one processed canvas.",
+    "closestWyrestormArchitecture": "Video wall processor",
+    "closestWyrestormSkuOrFamily": "EXP-SW-0401-8K / SW-0206-VW",
+    "notes": "Govern as video-wall/display processor rather than routed matrix.",
+    "sourceFile": "data-sources/competitors/datapath.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "Fx4-HDR",
+    "model": "Fx4-HDR",
+    "name": "Datapath Fx4-HDR Display Controller",
+    "brand": "Datapath",
+    "manufacturer": "Datapath",
+    "family": "X-Series",
+    "category": "Video Wall Processor",
+    "subcategory": "HDR multi-display controller",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "HDR-capable four-output multi-display controller.",
+    "sourceUrl": "https://www.datapath.co.uk/datapath-products/video-wall-controllers/x-series/",
+    "evidenceSource": "https://www.datapath.co.uk/datapath-products/video-wall-controllers/x-series/",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "video-wall-processor",
+    "transport": "HDMI / DisplayPort",
+    "technology": "VIDEO_WALL",
+    "topology": "one-to-many",
+    "directionality": "unidirectional",
+    "inputs": [
+      {
+        "type": "DisplayPort / HDMI",
+        "count": 3
+      }
+    ],
+    "outputs": [
+      {
+        "type": "display outputs",
+        "count": 4
+      }
+    ],
+    "control": [
+      "Ethernet",
+      "USB"
+    ],
+    "audio": [],
+    "features": [
+      "HDR 10-bit",
+      "4K60",
+      "multi-display processing"
+    ],
+    "video": {
+      "maxResolution": "4K60 HDR"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 4,
+    "routedOutputs": 4,
+    "routedOutputCount": 4,
+    "physicalOutputs": 4,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "derived",
+    "matrixSizeEvidence": "Official X-Series page",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "Verify detailed I/O against current datasheet; not a routed matrix.",
+    "closestWyrestormArchitecture": "Video wall processor",
+    "closestWyrestormSkuOrFamily": "EXP-SW-0401-8K / SW-0206-VW",
+    "notes": "Likely WyreStorm comparison is video-wall processing not switching.",
+    "sourceFile": "data-sources/competitors/datapath.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "IQS4",
+    "model": "IQS4",
+    "name": "Datapath IQS4 Compact 4K Splitter",
+    "brand": "Datapath",
+    "manufacturer": "Datapath",
+    "family": "",
+    "category": "Distribution Amplifier",
+    "subcategory": "4K splitter",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "Compact one-to-four 4K display splitter.",
+    "sourceUrl": "https://www.datapath.co.uk/datapath-products/",
+    "evidenceSource": "https://www.datapath.co.uk/datapath-products/",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "splitter",
+    "transport": "HDMI / DisplayPort",
+    "technology": "DISTRIBUTION",
+    "topology": "one-to-many",
+    "directionality": "unidirectional",
+    "inputs": [
+      {
+        "type": "video input",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "display output",
+        "count": 4
+      }
+    ],
+    "control": [],
+    "audio": [],
+    "features": [
+      "compact 4K splitter"
+    ],
+    "video": {
+      "maxResolution": "4K"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 4,
+    "mirroredOutputs": 3,
+    "ioEvidenceStatus": "derived",
+    "matrixSizeEvidence": "Official Datapath range identifies compact 4K splitter",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "Detailed formats and connector types require datasheet confirmation.",
+    "closestWyrestormArchitecture": "4K distribution amplifier",
+    "closestWyrestormSkuOrFamily": "EXP-SP-0104-8K / EXP-SP-0104-H2",
+    "notes": "Compare as mirrored distribution only.",
+    "sourceFile": "data-sources/competitors/datapath.csv",
+    "comparisonOnly": true
+  },
+  {
     "sku": "DA2 HD 4K PLUS",
     "model": "DA2 HD 4K PLUS",
     "name": "DA2 HD 4K PLUS Two Output HDMI Distribution Amplifier",
@@ -14437,6 +15069,465 @@
     "closestWyrestormSkuOrFamily": "APO-VX20-UC-V2 + APO-DG2",
     "notes": "Official Extron ShareLink Pro 1100 page. | data/product-intelligence-db.json#32 merged into deployed competitor catalog. | data/product-intelligence-db.json#41 merged into deployed competitor catalog. | data/product-intelligence-db.json#66 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | ShareLink products are wireless presentation and collaboration endpoints for meeting rooms. | Compare ShareLink against wireless presentation and BYOD collaboration products, not matrices or extenders. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#64 merged into deployed competitor catalog. | Official Extron ShareLink Pro 1100 product page and literature. | data/product-intelligence-db.json#70 merged into deployed competitor catalog. | data/product-intelligence-db.json#65 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | ShareLink products are wireless presentation and collaboration endpoints for meeting rooms. | Compare ShareLink against wireless presentation and BYOD collaboration products, not matrices or extenders. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#63 merged into deployed competitor catalog. | Verified via official Extron ShareLink Pro 1100 product page: wireless/wired presentation gateway, 4-device simultaneous display, HDMI input, dual Ethernet.",
     "sourceFile": "data-sources/competitors/extron.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "XTND4K100EARCUSB",
+    "model": "XTND4K100EARCUSB",
+    "name": "HDANYWHERE XTND 4K 100 eARC and USB",
+    "brand": "HDANYWHERE",
+    "manufacturer": "HDANYWHERE",
+    "family": "XTND",
+    "category": "Extender",
+    "subcategory": "HDMI eARC USB extender",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-library",
+    "summary": "Long-distance 18Gbps HDMI extender kit with eARC and USB.",
+    "sourceUrl": "https://library.hdanywhere.com/",
+    "evidenceSource": "https://library.hdanywhere.com/",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "kit",
+    "transport": "HDMI over CAT",
+    "technology": "USB_EXTENSION",
+    "topology": "point-to-point",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB",
+        "count": 1
+      }
+    ],
+    "control": [],
+    "audio": [
+      "eARC"
+    ],
+    "features": [
+      "100m",
+      "18Gbps",
+      "PoH"
+    ],
+    "video": {
+      "maxResolution": "4K60"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "derived",
+    "matrixSizeEvidence": "Official HDA library product summary",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "Exact USB class and supported formats require datasheet confirmation.",
+    "closestWyrestormArchitecture": "HDMI USB extension",
+    "closestWyrestormSkuOrFamily": "EX-100-H2-EARC / EX-100-KVM",
+    "notes": "Likely comparison lane only pending full datasheet ingestion.",
+    "sourceFile": "data-sources/competitors/hdanywhere.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "XTND4K14140TPC",
+    "model": "XTND4K14140TPC",
+    "name": "HDANYWHERE XTND 4K 1x4+1 TPC Splitter",
+    "brand": "HDANYWHERE",
+    "manufacturer": "HDANYWHERE",
+    "family": "XTND",
+    "category": "Distribution Amplifier",
+    "subcategory": "HDMI over CAT splitter",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-library",
+    "summary": "One-input four-way CAT distribution kit with local HDMI mirror output.",
+    "sourceUrl": "https://library.hdanywhere.com/",
+    "evidenceSource": "https://library.hdanywhere.com/",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "splitter",
+    "transport": "HDMI over CAT",
+    "technology": "DISTRIBUTION",
+    "topology": "one-to-many",
+    "directionality": "unidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "CAT video",
+        "count": 4
+      },
+      {
+        "type": "HDMI mirror",
+        "count": 1
+      }
+    ],
+    "control": [
+      "IR"
+    ],
+    "audio": [],
+    "features": [
+      "40m",
+      "TPC",
+      "daisy chain support"
+    ],
+    "video": {
+      "maxResolution": "4K60"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 5,
+    "mirroredOutputs": 4,
+    "ioEvidenceStatus": "derived",
+    "matrixSizeEvidence": "Official HDA library product summary",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "Mirrored distribution only; not independently routed.",
+    "closestWyrestormArchitecture": "HDMI distribution",
+    "closestWyrestormSkuOrFamily": "EXP-SP-0104-H2",
+    "notes": "Treat as 1x4+1 splitter and verify receiver inclusion.",
+    "sourceFile": "data-sources/competitors/hdanywhere.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "XTND4K40TPC",
+    "model": "XTND4K40TPC",
+    "name": "HDANYWHERE XTND 4K 40 TPC",
+    "brand": "HDANYWHERE",
+    "manufacturer": "HDANYWHERE",
+    "family": "XTND",
+    "category": "Extender",
+    "subcategory": "HDMI extender",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-library",
+    "summary": "40m 4K HDMI extender kit with local mirror output and two-way IR.",
+    "sourceUrl": "https://library.hdanywhere.com/",
+    "evidenceSource": "https://library.hdanywhere.com/",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "kit",
+    "transport": "HDMI over CAT",
+    "technology": "EXTENDER",
+    "topology": "point-to-point",
+    "directionality": "unidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "HDMI mirror",
+        "count": 1
+      }
+    ],
+    "control": [
+      "IR"
+    ],
+    "audio": [],
+    "features": [
+      "40m",
+      "TPC",
+      "mirror output"
+    ],
+    "video": {
+      "maxResolution": "4K60"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 2,
+    "mirroredOutputs": 1,
+    "ioEvidenceStatus": "derived",
+    "matrixSizeEvidence": "Official HDA library product summary",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "TPC is proprietary compression and must not be labelled HDBaseT.",
+    "closestWyrestormArchitecture": "Point-to-point HDMI extension",
+    "closestWyrestormSkuOrFamily": "EX-40-G3 / EX-40-H2-ARC",
+    "notes": "Transport is outcome-comparable but not protocol-equivalent.",
+    "sourceFile": "data-sources/competitors/hdanywhere.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "MC-RX1",
+    "model": "MC-RX1",
+    "name": "Just Add Power MC-RX1 MaxColor Decoder",
+    "brand": "Just Add Power",
+    "manufacturer": "Just Add Power",
+    "family": "MaxColor",
+    "category": "Encoder/Decoder",
+    "subcategory": "AVoIP Decoder",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "MaxColor 4K60 4:4:4 decoder with video-wall support.",
+    "sourceUrl": "https://www.justaddpower.com/products/mc-rx1/",
+    "evidenceSource": "https://www.justaddpower.com/products/mc-rx1/",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "decoder",
+    "transport": "AVoIP",
+    "technology": "AVOIP",
+    "topology": "many-to-many",
+    "directionality": "unidirectional",
+    "inputs": [
+      {
+        "type": "1GbE AVoIP",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "control": [
+      "CEC",
+      "IR",
+      "RS-232"
+    ],
+    "audio": [
+      "all lossless formats"
+    ],
+    "features": [
+      "HDR10+",
+      "Dolby Vision",
+      "video wall rotation",
+      "ARC",
+      "PoE"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official product page",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Proprietary visually lossless compression"
+    },
+    "aliases": [],
+    "knownLimitations": "Requires compatible MaxColor encoders and managed network configuration.",
+    "closestWyrestormArchitecture": "NetworkHD decoder",
+    "closestWyrestormSkuOrFamily": "NHD-500-RX / NHD-510-RX",
+    "notes": "Architecture comparison only; codec and interoperability require review.",
+    "sourceFile": "data-sources/competitors/just-add-power.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "MC-TX1",
+    "model": "MC-TX1",
+    "name": "Just Add Power MC-TX1 MaxColor Encoder",
+    "brand": "Just Add Power",
+    "manufacturer": "Just Add Power",
+    "family": "MaxColor",
+    "category": "Encoder/Decoder",
+    "subcategory": "AVoIP Encoder",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "MaxColor 4K60 4:4:4 encoder for managed-network AV distribution.",
+    "sourceUrl": "https://www.justaddpower.com/wp-content/uploads/2023/02/jp-mc-tx1-spec.pdf",
+    "evidenceSource": "https://www.justaddpower.com/wp-content/uploads/2023/02/jp-mc-tx1-spec.pdf",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "encoder",
+    "transport": "AVoIP",
+    "technology": "AVOIP",
+    "topology": "many-to-many",
+    "directionality": "unidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "1GbE AVoIP",
+        "count": 1
+      }
+    ],
+    "control": [
+      "CEC",
+      "IR",
+      "RS-232"
+    ],
+    "audio": [
+      "all lossless formats"
+    ],
+    "features": [
+      "HDR10+",
+      "Dolby Vision",
+      "ARC",
+      "PoE"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official MaxColor specification",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Proprietary visually lossless compression"
+    },
+    "aliases": [],
+    "knownLimitations": "Requires compatible MaxColor decoders and managed network configuration.",
+    "closestWyrestormArchitecture": "NetworkHD encoder",
+    "closestWyrestormSkuOrFamily": "NHD-500-TX / NHD-510-TX",
+    "notes": "Architecture comparison only; codec and interoperability require review.",
+    "sourceFile": "data-sources/competitors/just-add-power.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "MC-TX2",
+    "model": "MC-TX2",
+    "name": "Just Add Power MC-TX2 MaxColor Encoder",
+    "brand": "Just Add Power",
+    "manufacturer": "Just Add Power",
+    "family": "MaxColor",
+    "category": "Encoder/Decoder",
+    "subcategory": "AVoIP Encoder with USB",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "MaxColor encoder with USB 2.0 KVM fiber option and HDMI loop output.",
+    "sourceUrl": "https://www.justaddpower.com/category/product-maxcolor-series/",
+    "evidenceSource": "https://www.justaddpower.com/category/product-maxcolor-series/",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "encoder",
+    "transport": "AVoIP",
+    "technology": "AVOIP",
+    "topology": "many-to-many",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB-C 2.0",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "1GbE AVoIP",
+        "count": 1
+      },
+      {
+        "type": "HDMI loop",
+        "count": 1
+      }
+    ],
+    "control": [
+      "CEC",
+      "IR",
+      "RS-232"
+    ],
+    "audio": [],
+    "features": [
+      "USB 2.0 KVM",
+      "SFP option",
+      "ARC",
+      "PoE"
+    ],
+    "video": {
+      "usbStandard": "USB 2.0",
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 2,
+    "mirroredOutputs": 1,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official MaxColor product catalogue",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "Proprietary visually lossless compression"
+    },
+    "aliases": [],
+    "knownLimitations": "Requires compatible MaxColor decoder; USB is 2.0 rather than USB 3.",
+    "closestWyrestormArchitecture": "NetworkHD encoder with USB",
+    "closestWyrestormSkuOrFamily": "NHD-500-TX / NHD-600-TRX",
+    "notes": "Compare USB class and network ecosystem explicitly.",
+    "sourceFile": "data-sources/competitors/just-add-power.csv",
     "comparisonOnly": true
   },
   {
@@ -18821,6 +19912,163 @@
     "comparisonOnly": true
   },
   {
+    "sku": "CIP-DSH2",
+    "model": "CIP-DSH2",
+    "name": "Matrox ConvertIP DSH",
+    "brand": "Matrox Video",
+    "manufacturer": "Matrox Video",
+    "family": "ConvertIP",
+    "category": "Encoder/Decoder",
+    "subcategory": "ST 2110 and IPMX HDMI transceiver",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "Open-standard HDMI ST 2110/IPMX transmitter receiver and IP gateway.",
+    "sourceUrl": "https://video.matrox.com/en/products/infrastructure/convertip-series/convertip-dsh",
+    "evidenceSource": "https://video.matrox.com/en/products/infrastructure/convertip-series/convertip-dsh",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "transceiver",
+    "transport": "AVoIP",
+    "technology": "AVOIP",
+    "topology": "many-to-many",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "HDMI / IP",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI / IP",
+        "count": 1
+      }
+    ],
+    "control": [
+      "REST API",
+      "NMOS"
+    ],
+    "audio": [
+      "AES67",
+      "ST 2110-30"
+    ],
+    "features": [
+      "10G/25G",
+      "IPMX",
+      "ST 2110",
+      "quad multiview",
+      "PoE+"
+    ],
+    "video": {
+      "maxResolution": "4K60"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official product page",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "networkSpeed": "10/25GbE",
+      "codec": "Pro AV / optional JPEG-XS",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    },
+    "aliases": [],
+    "knownLimitations": "Broadcast/open-standard ecosystem differs from proprietary NetworkHD; optional codec licenses apply.",
+    "closestWyrestormArchitecture": "10G AVoIP transceiver",
+    "closestWyrestormSkuOrFamily": "NHD-600-TRX",
+    "notes": "Architecture alternative requiring network-standard review.",
+    "sourceFile": "data-sources/competitors/matrox-video.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "CIP-DSS",
+    "model": "CIP-DSS",
+    "name": "Matrox ConvertIP DSS",
+    "brand": "Matrox Video",
+    "manufacturer": "Matrox Video",
+    "family": "ConvertIP",
+    "category": "Encoder/Decoder",
+    "subcategory": "ST 2110 and IPMX SDI transceiver",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "SDI ST 2110/IPMX transmitter receiver with scaling and low latency.",
+    "sourceUrl": "https://video.matrox.com/en/products/infrastructure/convertip-series/convertip-dss-tech-specs",
+    "evidenceSource": "https://video.matrox.com/en/products/infrastructure/convertip-series/convertip-dss-tech-specs",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "transceiver",
+    "transport": "AVoIP",
+    "technology": "AVOIP",
+    "topology": "many-to-many",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "12G-SDI / IP",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "12G-SDI / IP",
+        "count": 1
+      }
+    ],
+    "control": [
+      "HTTPS",
+      "NMOS",
+      "RS-232"
+    ],
+    "audio": [
+      "16-channel embedded",
+      "analog stereo"
+    ],
+    "features": [
+      "10/25GbE",
+      "ST 2110",
+      "IPMX",
+      "PoE+"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:2:2",
+      "chroma": "4:2:2"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official technical specification",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "networkSpeed": "10/25GbE",
+      "codec": "Pro AV / optional JPEG-XS",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    },
+    "aliases": [],
+    "knownLimitations": "SDI/broadcast product; no direct HDMI NetworkHD equivalent.",
+    "closestWyrestormArchitecture": "Broadcast IP gateway",
+    "closestWyrestormSkuOrFamily": "Architecture alternative only",
+    "notes": "Keep in no-direct-equivalent lane unless SDI gateway is requested.",
+    "sourceFile": "data-sources/competitors/matrox-video.csv",
+    "comparisonOnly": true
+  },
+  {
     "sku": "Solstice Active Learning",
     "model": "Solstice Active Learning",
     "name": "Solstice Active Learning",
@@ -19283,6 +20531,233 @@
     "closestWyrestormSkuOrFamily": "APO-VX20-UC-V2",
     "notes": "Added during competitor SKU-coverage expansion (UC soundbar category - new competitor brand added since Poly is a leading UC video bar maker not previously covered). Verified via HP/Poly official product page.",
     "sourceFile": "data-sources/competitors/poly.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "NV-1-H-WE",
+    "model": "NV-1-H-WE",
+    "name": "Q-SYS NV-1-H-WE Wallplate Encoder",
+    "brand": "Q-SYS",
+    "manufacturer": "Q-SYS",
+    "family": "NV Series",
+    "category": "Encoder/Decoder",
+    "subcategory": "Wallplate network video encoder",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "Single-channel HDMI wallplate encoder for Q-SYS network video.",
+    "sourceUrl": "https://www.qsys.com/resources/news/detail/q-sys-expands-nv-series-with-nv-1-h-we-wallplate-encoder/",
+    "evidenceSource": "https://www.qsys.com/resources/news/detail/q-sys-expands-nv-series-with-nv-1-h-we-wallplate-encoder/",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "encoder",
+    "transport": "AVoIP",
+    "technology": "AVOIP",
+    "topology": "many-to-many",
+    "directionality": "unidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "Q-SYS network video",
+        "count": 1
+      }
+    ],
+    "control": [
+      "Q-SYS OS"
+    ],
+    "audio": [],
+    "features": [
+      "wallplate form factor",
+      "PoE Type 2",
+      "Q-SYS Shift codec"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official Q-SYS product announcement and model comparison",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "codec": "Q-SYS Shift",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    },
+    "aliases": [],
+    "knownLimitations": "Encoder only with no AV bridging or USB HID routing.",
+    "closestWyrestormArchitecture": "Network video wallplate encoder",
+    "closestWyrestormSkuOrFamily": "NHD-500-TX / NHD-120-TX",
+    "notes": "Physical form and Q-SYS dependency are key differentiators.",
+    "sourceFile": "data-sources/competitors/q-sys.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "NV-21-HU",
+    "model": "NV-21-HU",
+    "name": "Q-SYS NV-21-HU",
+    "brand": "Q-SYS",
+    "manufacturer": "Q-SYS",
+    "family": "NV Series",
+    "category": "Encoder/Decoder",
+    "subcategory": "USB-C network video endpoint",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "Compact software-defined Q-SYS encoder decoder with HDMI and USB-C connectivity.",
+    "sourceUrl": "https://www.qsys.com/products-solutions/q-sys/video/nv-series/",
+    "evidenceSource": "https://www.qsys.com/products-solutions/q-sys/video/nv-series/",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "transceiver",
+    "transport": "AVoIP",
+    "technology": "AVOIP",
+    "topology": "many-to-many",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "Q-SYS OS"
+    ],
+    "audio": [],
+    "features": [
+      "AV bridging",
+      "USB HID routing",
+      "device charging",
+      "PoE Type 3"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 2,
+    "routedInputs": 2,
+    "routedInputCount": 2,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official Q-SYS model comparison",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "codec": "Q-SYS Shift / Mediacast",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    },
+    "aliases": [],
+    "knownLimitations": "Requires Q-SYS ecosystem and high-power PoE or auxiliary supply.",
+    "closestWyrestormArchitecture": "Network video/presentation endpoint",
+    "closestWyrestormSkuOrFamily": "NHD-500 / presentation switching alternative",
+    "notes": "Compare both AVoIP role and USB-C room workflow; not a standalone switcher.",
+    "sourceFile": "data-sources/competitors/q-sys.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "NV-32-H",
+    "model": "NV-32-H",
+    "name": "Q-SYS NV-32-H",
+    "brand": "Q-SYS",
+    "manufacturer": "Q-SYS",
+    "family": "NV Series",
+    "category": "Encoder/Decoder",
+    "subcategory": "Software-defined network video endpoint",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "Software-definable Q-SYS network video endpoint with three HDMI inputs and two outputs.",
+    "sourceUrl": "https://www.qsys.com/products-solutions/q-sys/video/nv-series/",
+    "evidenceSource": "https://www.qsys.com/products-solutions/q-sys/video/nv-series/",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "transceiver",
+    "transport": "AVoIP",
+    "technology": "AVOIP",
+    "topology": "many-to-many",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 3
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      }
+    ],
+    "control": [
+      "RS-232",
+      "GPIO",
+      "Q-SYS OS"
+    ],
+    "audio": [
+      "analog stereo"
+    ],
+    "features": [
+      "AV bridging",
+      "USB HID routing",
+      "Core capable",
+      "PoE Type 4"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 3,
+    "routedInputs": 3,
+    "routedInputCount": 3,
+    "matrixOutputs": 2,
+    "routedOutputs": 2,
+    "routedOutputCount": 2,
+    "physicalOutputs": 2,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official Q-SYS model comparison",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "codec": "Q-SYS Shift / Mediacast",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    },
+    "aliases": [],
+    "knownLimitations": "Requires Q-SYS ecosystem; Mediacast is limited to 1080p30 while Q-SYS Shift supports 4K60.",
+    "closestWyrestormArchitecture": "Network video transceiver",
+    "closestWyrestormSkuOrFamily": "NHD-600-TRX / NHD-500 family",
+    "notes": "Architecture alternative; proprietary codecs and Core role require explicit review.",
+    "sourceFile": "data-sources/competitors/q-sys.csv",
     "comparisonOnly": true
   },
   {
@@ -20000,6 +21475,454 @@
     "closestWyrestormSkuOrFamily": "CAM-210-PTZ (closest fixed/PTZ conferencing camera; not a true POV form factor)",
     "notes": "Verified against Sony Pro / distributor product data: Sony compact 4K60 POV box camera with wide-angle lens, HDMI/IP/USB 3.0 outputs, PoE power, and an optional NDI license.",
     "sourceFile": "data-sources/competitors/sony.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "HDBT-231-100",
+    "model": "HDBT-231-100",
+    "name": "SY HDBT-231-100 Extender Splitter",
+    "brand": "SY Electronics",
+    "manufacturer": "SY Electronics",
+    "family": "",
+    "category": "Distribution Amplifier",
+    "subcategory": "HDBaseT splitter",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "Two-input switcher and mirrored distribution amplifier with three HDBaseT outputs and one HDMI output.",
+    "sourceUrl": "https://www.sy.co.uk/viewProduct/HDBT-231-100",
+    "evidenceSource": "https://www.sy.co.uk/viewProduct/HDBT-231-100",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "splitter",
+    "transport": "HDBaseT",
+    "technology": "DISTRIBUTION",
+    "topology": "one-to-many",
+    "directionality": "unidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDBaseT",
+        "count": 3
+      },
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "EDID",
+      "auto switching"
+    ],
+    "audio": [],
+    "features": [
+      "4K to 70m",
+      "1080p to 100m",
+      "iPoC"
+    ],
+    "video": {
+      "maxResolution": "4K30"
+    },
+    "matrixInputs": 2,
+    "routedInputs": 2,
+    "routedInputCount": 2,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 4,
+    "mirroredOutputs": 3,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official page says selected source is distributed simultaneously to all outputs",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "Outputs mirror one selected input; not an independently routed 2x4 matrix.",
+    "closestWyrestormArchitecture": "HDBaseT distribution",
+    "closestWyrestormSkuOrFamily": "EXP-SP-0104-H2 / SW-0206-VW",
+    "notes": "Govern as splitter/distribution, not matrix.",
+    "sourceFile": "data-sources/competitors/sy-electronics.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "HDX80-4K",
+    "model": "HDX80-4K",
+    "name": "SY HDX80-4K Essential Extender",
+    "brand": "SY Electronics",
+    "manufacturer": "SY Electronics",
+    "family": "",
+    "category": "Extender",
+    "subcategory": "HDMI over CAT extender",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "HDMI extender kit supporting 4K30 4:4:4 to 80m with loop output and IR.",
+    "sourceUrl": "https://www.sy.co.uk/viewProduct/HDX80-4K",
+    "evidenceSource": "https://www.sy.co.uk/viewProduct/HDX80-4K",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "kit",
+    "transport": "HDX over CAT",
+    "technology": "EXTENDER",
+    "topology": "point-to-point",
+    "directionality": "unidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      }
+    ],
+    "control": [
+      "IR",
+      "CEC"
+    ],
+    "audio": [
+      "LPCM 7.1"
+    ],
+    "features": [
+      "80m over CAT6",
+      "PoC",
+      "HDMI loop output"
+    ],
+    "video": {
+      "maxResolution": "4K30 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 2,
+    "mirroredOutputs": 1,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official product page specifies one HDMI input loop output and one receiver output",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "",
+    "closestWyrestormArchitecture": "Point-to-point HDMI extension",
+    "closestWyrestormSkuOrFamily": "EX-70-G2 / EX-100-G2",
+    "notes": "HDX is not HDBaseT; compare outcome and distance without asserting transport equivalence.",
+    "sourceFile": "data-sources/competitors/sy-electronics.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "XCALIBUR-11U",
+    "model": "XCALIBUR-11U",
+    "name": "SY XCALIBUR 11U HDMI and USB Extender",
+    "brand": "SY Electronics",
+    "manufacturer": "SY Electronics",
+    "family": "",
+    "category": "Extender",
+    "subcategory": "HDMI and USB over CAT kit",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "Long-range HDMI 2.0 and USB 2.0 extender pair over CAT6.",
+    "sourceUrl": "https://www.sy.co.uk/viewProduct/XCALIBUR-11U",
+    "evidenceSource": "https://www.sy.co.uk/viewProduct/XCALIBUR-11U",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "kit",
+    "transport": "HX over CAT",
+    "technology": "USB_EXTENSION",
+    "topology": "point-to-point",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB 2.0 host",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB 2.0 device",
+        "count": 1
+      }
+    ],
+    "control": [
+      "IR",
+      "EDID",
+      "HDCP management"
+    ],
+    "audio": [],
+    "features": [
+      "4K60 to 120m",
+      "1080p to 150m",
+      "USB 2.0 to 100m",
+      "PoC"
+    ],
+    "video": {
+      "hdmi": "2.0",
+      "usbStandard": "USB 2.0",
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official page states TX/RX pair with HDMI and USB paths",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "",
+    "closestWyrestormArchitecture": "HDMI and USB extension",
+    "closestWyrestormSkuOrFamily": "EX-100-USB3 / EX-100-KVM",
+    "notes": "USB 2.0 only; do not match to USB 3 products without a requirement check.",
+    "sourceFile": "data-sources/competitors/sy-electronics.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "BOARDROOM BUDDIES",
+    "model": "BOARDROOM BUDDIES",
+    "name": "Turtle AV Boardroom Buddies",
+    "brand": "Turtle AV",
+    "manufacturer": "Turtle AV",
+    "family": "Boardroom Buddies",
+    "category": "Extender",
+    "subcategory": "4K USB-C extender kit",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "Single-CAT6a 4K60 USB 3.2 extender with laptop charging.",
+    "sourceUrl": "https://turtleav.com/portfolio-category/products/",
+    "evidenceSource": "https://turtleav.com/portfolio-category/products/",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "kit",
+    "transport": "HDMI / USB over CAT",
+    "technology": "USB_EXTENSION",
+    "topology": "point-to-point",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "USB-C / HDMI",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI / USB",
+        "count": 1
+      }
+    ],
+    "control": [],
+    "audio": [],
+    "features": [
+      "USB 3.2 Gen 1 at 2.5Gbps",
+      "100W charging",
+      "single CAT6a"
+    ],
+    "video": {
+      "usbStandard": "USB 3.2",
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "derived",
+    "matrixSizeEvidence": "Official Turtle AV product catalogue",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "Distance and exact connector allocation require datasheet confirmation.",
+    "closestWyrestormArchitecture": "USB-C and video extension",
+    "closestWyrestormSkuOrFamily": "EX-100-USB3 / EX-100-IW-USBC",
+    "notes": "Strong workflow overlap; verify distance and USB host/device direction.",
+    "sourceFile": "data-sources/competitors/turtle-av.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "CHAZY 4K MULTIVIEW",
+    "model": "CHAZY 4K MULTIVIEW",
+    "name": "Turtle AV CHAZY 4K Multiview",
+    "brand": "Turtle AV",
+    "manufacturer": "Turtle AV",
+    "family": "CHAZY",
+    "category": "Multiview Processor",
+    "subcategory": "Dante AV-A multiviewer",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "Four-stream Dante AV-A multiviewer with local and network output.",
+    "sourceUrl": "https://turtleav.com/portfolio/chazy-4k-multiview-specs/",
+    "evidenceSource": "https://turtleav.com/portfolio/chazy-4k-multiview-specs/",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "multiviewer",
+    "transport": "Dante AV-A / JPEG 2000",
+    "technology": "MULTIVIEW",
+    "topology": "many-to-one",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "Dante AV-A stream",
+        "count": 4
+      }
+    ],
+    "outputs": [
+      {
+        "type": "Dante AV-A stream",
+        "count": 1
+      },
+      {
+        "type": "HDMI/DisplayPort local",
+        "count": 1
+      }
+    ],
+    "control": [
+      "TCP/IP",
+      "Web UI",
+      "RS-232"
+    ],
+    "audio": [
+      "Euroblock breakout"
+    ],
+    "features": [
+      "custom layouts",
+      "USB 2.0 pass-through",
+      "KVM mouse roaming"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 4,
+    "routedInputs": 4,
+    "routedInputCount": 4,
+    "matrixOutputs": 2,
+    "routedOutputs": 2,
+    "routedOutputCount": 2,
+    "physicalOutputs": 2,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official technical specification",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "networkSpeed": "1GbE",
+      "codec": "JPEG2000"
+    },
+    "aliases": [],
+    "knownLimitations": "Dante AV-A ecosystem dependency; not a conventional HDMI-input multiviewer.",
+    "closestWyrestormArchitecture": "Network multiview",
+    "closestWyrestormSkuOrFamily": "NHD-0401-MV / NHD-600-TRX",
+    "notes": "Architecture alternative rather than direct replacement.",
+    "sourceFile": "data-sources/competitors/turtle-av.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "DARWIN 4K",
+    "model": "DARWIN 4K",
+    "name": "Turtle AV Darwin 4K H.265 AVoIP",
+    "brand": "Turtle AV",
+    "manufacturer": "Turtle AV",
+    "family": "Darwin",
+    "category": "Encoder/Decoder",
+    "subcategory": "Low-bandwidth AVoIP endpoint",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "4K30 H.265 AVoIP endpoint with encoder/decoder roles and multiview receive capability.",
+    "sourceUrl": "https://turtleav.com/portfolio-category/products/",
+    "evidenceSource": "https://turtleav.com/portfolio-category/products/",
+    "lastReviewed": "2026-08-03",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "transceiver",
+    "transport": "AVoIP",
+    "technology": "AVOIP",
+    "topology": "many-to-many",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "HDMI / IP",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI / IP",
+        "count": 1
+      }
+    ],
+    "control": [
+      "RS-232",
+      "Web UI",
+      "API"
+    ],
+    "audio": [
+      "stereo analog"
+    ],
+    "features": [
+      "H.265",
+      "unicast",
+      "multicast",
+      "four-source multiview receive"
+    ],
+    "video": {
+      "maxResolution": "4K30"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "derived",
+    "matrixSizeEvidence": "Official Turtle AV product catalogue",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "codec": "H.265",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed",
+      "avoipCodec": "H.265"
+    },
+    "aliases": [],
+    "knownLimitations": "Network speed and exact endpoint SKU variants require confirmation.",
+    "closestWyrestormArchitecture": "NetworkHD low-bandwidth AVoIP",
+    "closestWyrestormSkuOrFamily": "NHD-100 family",
+    "notes": "Do not compare to 4K60 low-latency endpoints without checking codec and latency.",
+    "sourceFile": "data-sources/competitors/turtle-av.csv",
     "comparisonOnly": true
   },
   {
