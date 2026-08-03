@@ -3,10 +3,27 @@ import { describe, expect, it } from "vitest";
 import {
   buildCompetitorDecisionEvidence,
   buildCompetitorIntelligenceAudit,
+  competitorBrandCounts,
   normalizeCompetitorSku,
 } from "./competitorProductIntelligence";
 
 describe("competitor product intelligence", () => {
+  it("offers supported manufacturers before governed SKU profiles are available", () => {
+    const counts = new Map(competitorBrandCounts().map(({ brand, count }) => [brand, count]));
+
+    [
+      "CYP",
+      "SY Electronics",
+      "Just Add Power",
+      "HDANYWHERE",
+      "Turtle AV",
+      "Black Box",
+      "Datapath",
+      "Matrox Video",
+      "Q-SYS",
+    ].forEach((manufacturer) => expect(counts.has(manufacturer)).toBe(true));
+  });
+
   it("normalizes messy competitor sku input into a known brand-scoped seed", () => {
     const normalized = normalizeCompetitorSku("dmnvx360", "Crestron");
 
