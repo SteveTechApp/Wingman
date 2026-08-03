@@ -109,11 +109,11 @@ describe("Product Pitch rendered workflow", () => {
     const technicalDetail = screen.getByText("Technical and quote detail").closest("details");
     expect(technicalDetail).not.toHaveAttribute("open");
 
-    fireEvent.click(screen.getByRole("button", { name: /Sales Cards/i }));
+    fireEvent.click(screen.getByRole("button", { name: /^Features$/i }));
 
-    expect(await screen.findByText("Do not oversell")).toBeInTheDocument();
+    expect(await screen.findByText("Confirm before promising")).toBeInTheDocument();
     expect(
-      screen.getByText(/Do not promise unverified I\/O, distance, USB, network, audio or control behaviour until checked/i),
+      screen.getByText(/Is that correct\?/i),
     ).toBeInTheDocument();
   });
 
