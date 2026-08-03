@@ -21,12 +21,9 @@ import { ProductFilterPanel, ProductSearchField, ProductWorkspaceHeader, Product
 import { ReportProblemButton } from "../components/ReportProblemButton";
 import { AdminProductRecordEditor } from "../components/AdminProductRecordEditor";
 import { ProductMediaPanel } from "../components/ProductMediaPanel";
-import { AVSignalFlowDiagram } from "../components/AVSignalFlowDiagram";
-import { RoomSchematicDiagram } from "../components/RoomSchematicDiagram";
 import { validateUsbPath, usbValidationIsRequired } from "../logic/usbPathValidator";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { buildProductCheatSheetHtml } from "../lib/productCheatSheet";
-import { buildProductTopologyProfile } from "../lib/productTopology";
 import { hydrateProductSpecWithTechnicalData } from "../lib/governedProductTechnicalData";
 import { selectWingmanProducts, type ProductSelectorDecision } from "../lib/productSelectorEngine";
 import { useDebouncedValue } from "../lib/useDebouncedValue";
@@ -76,7 +73,7 @@ function openProductCheatSheet(product: ProductSpec, narrative: ProductNarrative
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-type ProductTab = "overview" | "sales" | "competitors" | "spec" | "diagram" | "visual";
+type ProductTab = "overview" | "features" | "design" | "spec" | "competitors" | "workflow";
 
 const PRODUCT_PITCH_PANEL_CLASS = "rounded-3xl border border-[#29465e] bg-[#071522]";
 const PRODUCT_PITCH_KICKER_CLASS = "text-xs font-bold uppercase tracking-[0.12em]";
@@ -84,8 +81,6 @@ const PRODUCT_PITCH_CARD_KICKER_CLASS = "text-xs font-bold uppercase tracking-[0
 const PRODUCT_PITCH_HERO_TITLE_CLASS = "mt-2 text-3xl font-extrabold tracking-tight";
 const PRODUCT_PITCH_SECTION_TITLE_CLASS = "text-xl font-extrabold";
 const PRODUCT_PITCH_CARD_TITLE_CLASS = "text-lg font-extrabold";
-const PRODUCT_PITCH_PRIMARY_BUTTON_CLASS = "rounded-full bg-cyan-300 px-5 py-2 text-sm font-bold text-slate-950";
-const PRODUCT_PITCH_SECONDARY_BUTTON_CLASS = "rounded-full border border-cyan-300 px-5 py-2 text-sm font-bold text-cyan-100";
 const PRODUCT_PITCH_SMALL_PRIMARY_BUTTON_CLASS = "rounded-full bg-cyan-300 px-4 py-2 text-sm font-bold text-slate-950";
 const PRODUCT_PITCH_SMALL_SECONDARY_BUTTON_CLASS = "rounded-full border border-cyan-300 px-4 py-2 text-sm font-bold text-cyan-100";
 const PRODUCT_PITCH_FORWARD_BUTTON_CLASS = "wm-ui-button wm-ui-button-forward px-4 py-2 text-sm font-bold";
@@ -745,7 +740,7 @@ function OverviewTab({
   );
 }
 
-function SalesTab({
+function FeaturesTab({
   product,
   narrative,
   context,
@@ -756,31 +751,27 @@ function SalesTab({
 }) {
   const guidance = buildProductPitchSalesGuidance(product, narrative, context);
 
+  const featureBenefits = cleanUsefulList(guidance.featureBenefits, 6);
+
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <WorkCard title="What it does">
-        <p className="wm-ui-copy">{guidance.plainDescription}</p>
-      </WorkCard>
-
-      <WorkCard title="How it is used here">
-        <p className="wm-ui-copy">{guidance.scenarioFit}</p>
-      </WorkCard>
-
-      <WorkCard title="Say it like this">
-        <p className="wm-ui-copy">{guidance.customerSafeWording}</p>
-      </WorkCard>
-
-      <WorkCard title="Confirm this" tone="caution">
-        <p className="wm-ui-copy">{guidance.confirmationQuestion}</p>
-      </WorkCard>
-
-      <WorkCard title="Do not oversell">
-        <p className="wm-ui-copy">Keep the conversation tied to the room, workflow and confirmed requirement. Do not promise unverified I/O, distance, USB, network, audio or control behaviour until checked.</p>
-      </WorkCard>
-
-      <WorkCard title="Technical points if asked">
-        <DisplayList items={product.keyFeatures} max={4} />
-      </WorkCard>
+    <div className="grid gap-4">
+      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
+        <h2 className={PRODUCT_PITCH_SECTION_TITLE_CLASS}>Features that matter</h2>
+        <p className="mt-2 max-w-4xl text-sm leading-6 wm-ui-copy">
+          Use these points in a customer conversation. Open Technical overview only when exact values are needed.
+        </p>
+      </section>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {featureBenefits.map((feature) => (
+          <WorkCard title={conciseSalesCopy(feature, 8)} key={feature}>
+            <p className="wm-ui-copy">{conciseSalesCopy(feature, 24)}</p>
+          </WorkCard>
+        ))}
+      </div>
+      <div className="grid gap-3 lg:grid-cols-2">
+        <WorkCard title="Use it here"><p className="wm-ui-copy">{guidance.scenarioFit}</p></WorkCard>
+        <WorkCard title="Confirm before promising" tone="caution"><p className="wm-ui-copy">{guidance.confirmationQuestion}</p></WorkCard>
+      </div>
     </div>
   );
 }
@@ -930,184 +921,76 @@ function SpecTab({ product }: { product: ProductSpec }) {
   );
 }
 
-function DiagramTab({ product, narrative }: { product: ProductSpec; narrative: ProductNarrative }) {
-  const topology = useMemo(
-    () => buildProductTopologyProfile(product, narrative),
-    [narrative, product],
-  );
+function likelyLocation(product: ProductSpec) {
+  const text = [product.productType, product.category, ...product.physical].join(" ").toLowerCase();
+  if (/wall.?plate|in.?wall/.test(text)) return "At the connection point, installed in the wall or furniture.";
+  if (/camera|ptz/.test(text)) return "At the display wall or room sightline, positioned for the required field of view.";
+  if (/speaker|amplifier/.test(text)) return "Amplifier in the rack or local equipment position; loudspeakers in the room.";
+  if (/receiver|decoder/.test(text)) return "At the destination display, projector or local equipment position.";
+  if (/transmitter|encoder/.test(text)) return "At the source, lectern, table box or central equipment position.";
+  if (/matrix|switcher|controller|processor/.test(text)) return "In the room rack or central equipment position, accessible for service and control.";
+  return "Confirm the room, rack or endpoint location during Discovery before allowing for cables.";
+}
 
-  const saveHandoff = () => {
-    writeProductWorkspaceHandoff(product, narrative);
-  };
+function DesignTab({ product, narrative }: { product: ProductSpec; narrative: ProductNarrative }) {
+  const groups = [
+    ["Source-side connections", product.ioSummary],
+    ["Video and display path", product.video],
+    ["USB / conferencing path", product.usb],
+    ["Audio path", product.audio],
+    ["Network and control", [...product.network, ...product.control]],
+    ["Power and installation", [...product.power, ...product.physical]],
+  ] as const;
 
   return (
     <div className="grid gap-4">
-      <RoomSchematicDiagram
-        product={product}
-        narrative={narrative}
-        profile={topology}
-      />
-
+      <div className="grid gap-3 lg:grid-cols-3">
+        <WorkCard title="Role in the design"><p className="wm-ui-copy">{narrative.whereItSits}</p></WorkCard>
+        <WorkCard title="Likely location"><p className="wm-ui-copy">{likelyLocation(product)}</p></WorkCard>
+        <WorkCard title="Application position"><p className="wm-ui-copy">{narrative.familyFit}</p></WorkCard>
+      </div>
       <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h2 className={`${PRODUCT_PITCH_SECTION_TITLE_CLASS} text-cyan-300`}>
-              Product connection summary
-            </h2>
-            <p className="mt-1 max-w-3xl text-sm leading-6 wm-ui-copy">
-              {topology.summary}
-            </p>
-          </div>
-          <span className="rounded-lg border px-2 py-1 text-xs font-bold wm-ui-card wm-ui-copy">
-            {topology.label}
-          </span>
+        <h2 className={PRODUCT_PITCH_SECTION_TITLE_CLASS}>Connectivity and cable planning</h2>
+        <p className="mt-2 text-sm wm-ui-copy">Confirmed product-record information only. Cable lengths, connector gender and endpoint quantities still need room discovery.</p>
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {groups.map(([title, values]) => (
+            <WorkCard title={title} key={title}><DisplayList items={cleanUsefulList([...values], 6)} max={6} /></WorkCard>
+          ))}
         </div>
-
-        <div className="mt-5 grid items-stretch gap-3 lg:grid-cols-[1fr_54px_1fr_54px_1fr]">
-          <div className="rounded-xl border p-5 wm-ui-card">
-            <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-white/45`}>
-              {topology.source.tag}
-            </p>
-            <strong className="mt-2 block text-lg text-white">
-              {topology.source.title}
-            </strong>
-            <span className="mt-1 block text-sm wm-ui-copy">
-              {topology.source.detail}
-            </span>
-            <small className="mt-3 block text-cyan-200">
-              {topology.sourceEdge.label}
-            </small>
-          </div>
-
-          <div className="hidden items-center justify-center text-2xl font-extrabold text-cyan-300 lg:flex">
-            -&gt;
-          </div>
-
-          <div className="rounded-xl border p-5 wm-ui-card">
-            <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-cyan-200`}>
-              {topology.product.tag}
-            </p>
-            <strong className="mt-2 block text-lg text-white">{product.sku}</strong>
-            <span className="mt-1 block text-sm wm-ui-copy">
-              {topology.product.detail}
-            </span>
-          </div>
-
-          <div className="hidden items-center justify-center text-2xl font-extrabold text-cyan-300 lg:flex">
-            -&gt;
-          </div>
-
-          <div className="rounded-xl border p-5 wm-ui-card">
-            <p className={`${PRODUCT_PITCH_CARD_KICKER_CLASS} text-white/45`}>
-              {topology.output.tag}
-            </p>
-            <strong className="mt-2 block text-lg text-white">
-              {topology.output.title}
-            </strong>
-            <span className="mt-1 block text-sm wm-ui-copy">
-              {topology.output.detail}
-            </span>
-            <small className="mt-3 block text-cyan-200">
-              {topology.outputEdge.label}
-            </small>
-          </div>
-        </div>
-
-        {!topology.renderable ? (
-          <div className="mt-4 rounded-xl border border-amber-400/35 bg-amber-400/10 p-3 text-sm leading-5 text-amber-100">
-            No connection diagram has been asserted for this product. Confirm its actual
-            ports, signal direction and dependencies first.
-          </div>
-        ) : null}
       </section>
-
-      <AVSignalFlowDiagram
-        mode={topology.mode}
-        title="Typical system role"
-        subtitle={`Where ${product.sku} sits in the chain as ${topology.label.toLowerCase()}`}
-      />
-
-      <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
-        <h3 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-cyan-300`}>
-          Open full schematic
-        </h3>
-        <p className="mt-2 text-sm leading-6 wm-ui-copy">
-          Use Schematic Builder for the complete end-to-end design after product role,
-          connector direction, dependencies and customer requirements have been confirmed.
-        </p>
-        <Link
-          to={routeCatalogByKey.visualDesign.path}
-          onClick={saveHandoff}
-          className={`mt-4 inline-flex ${PRODUCT_PITCH_FORWARD_BUTTON_CLASS}`}
-        >
-          Send product to Schematic Builder
-        </Link>
-      </section>
+      <WorkCard title="Checks before it is put on a quote" tone="caution">
+        <DisplayList items={product.checks} max={8} />
+      </WorkCard>
     </div>
   );
 }
 
-function VisualTab({ product, narrative }: { product: ProductSpec; narrative: ProductNarrative }) {
-  const [copied, setCopied] = useState(false);
-  const [saved, setSaved] = useState(false);
-
-  const copyPrompt = () => {
-    if (!navigator.clipboard) return;
-
-    void navigator.clipboard.writeText(narrative.visualPrompt).then(() => {
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1500);
-    });
-  };
-
-  const saveHandoff = () => {
-    writeProductWorkspaceHandoff(product, narrative);
-    setSaved(true);
-    window.setTimeout(() => setSaved(false), 1500);
-  };
+function WorkflowTab({ product, narrative }: { product: ProductSpec; narrative: ProductNarrative }) {
+  const saveHandoff = () => writeProductWorkspaceHandoff(product, narrative);
+  const steps = [
+    { number: "1", title: "Complete room discovery", copy: "Capture the application, room size, sources, displays, USB, audio, control and cable distances.", to: routeCatalogByKey.discovery.path, action: "Open Discovery" },
+    { number: "2", title: "Select the product and schematic", copy: `${product.sku} is already loaded as the product context. Build the real signal path around it.`, to: routeCatalogByKey.visualDesign.path, action: "Build schematic" },
+    { number: "3", title: "Create the representative visual", copy: "In Visual Design Studio, use the discovered room context and export the completed visual as PNG or SVG.", to: routeCatalogByKey.visualDesign.path, action: "Open visual studio" },
+    { number: "4", title: "Add it to the customer response", copy: "Open the active response pack or proposal with the product and visual context retained.", to: routeCatalogByKey.responsePack.path, action: "Open Response Pack" },
+  ];
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
+    <div className="grid gap-4">
       <section className={`${PRODUCT_PITCH_PANEL_CLASS} p-5`}>
-        <h2 className={`${PRODUCT_PITCH_SECTION_TITLE_CLASS} text-cyan-300`}>Room visual prompt</h2>
-        <p className="mt-2 text-sm leading-6 wm-ui-copy">
-          Once discovery is complete, this can become a Generate room image action for proposal support. For now, this prompt can be copied or stored as product context.
-        </p>
-
-        <textarea
-          readOnly
-          value={narrative.visualPrompt}
-          className="mt-4 min-h-[220px] w-full rounded-3xl border p-4 text-sm leading-6 wm-ui-input wm-ui-card wm-ui-copy"
-        />
-
-        <div className="mt-4 flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={copyPrompt}
-            className={PRODUCT_PITCH_PRIMARY_BUTTON_CLASS}
-          >
-            {copied ? "Copied" : "Copy room image prompt"}
-          </button>
-
-          <button
-            type="button"
-            onClick={saveHandoff}
-            className={PRODUCT_PITCH_SECONDARY_BUTTON_CLASS}
-          >
-            {saved ? "Saved" : "Save visual context"}
-          </button>
-        </div>
+        <h2 className={PRODUCT_PITCH_SECTION_TITLE_CLASS}>Move from product discussion to a customer response</h2>
+        <p className="mt-2 max-w-4xl text-sm leading-6 wm-ui-copy">These are live workflow actions. The selected SKU, sales context and visual brief are passed into the next stage.</p>
       </section>
-
-      <aside className="rounded-3xl border p-5 wm-ui-card">
-        <h3 className={`${PRODUCT_PITCH_CARD_TITLE_CLASS} text-white`}>Future workflow</h3>
-        <ol className="mt-4 grid gap-3 text-sm leading-6 wm-ui-copy">
-          <li>1. Complete room discovery.</li>
-          <li>2. Select the product and schematic.</li>
-          <li>3. Generate a representative room image.</li>
-          <li>4. Add the image to the response pack or proposal.</li>
-        </ol>
-      </aside>
+      <div className="grid gap-3 md:grid-cols-2">
+        {steps.map((step) => (
+          <section className={`${PRODUCT_PITCH_PANEL_CLASS} flex flex-col p-5`} key={step.number}>
+            <div className="flex items-start gap-3">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-cyan-300 font-extrabold text-slate-950">{step.number}</span>
+              <div><h3 className={PRODUCT_PITCH_CARD_TITLE_CLASS}>{step.title}</h3><p className="mt-2 text-sm leading-6 wm-ui-copy">{step.copy}</p></div>
+            </div>
+            <Link to={step.to} onClick={saveHandoff} className={`mt-5 self-start ${PRODUCT_PITCH_FORWARD_BUTTON_CLASS}`}>{step.action}</Link>
+          </section>
+        ))}
+      </div>
     </div>
   );
 }
@@ -1253,21 +1136,21 @@ function ProductWorkspace({
 
       <section data-product-pitch-tabs className={`${PRODUCT_PITCH_PANEL_CLASS} p-4`}>
         <div className="flex flex-wrap gap-2">
-          <TabButton label="Overview" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
-          <TabButton label="Sales Cards" active={activeTab === "sales"} onClick={() => setActiveTab("sales")} />
+          <TabButton label="Purpose & Position" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
+          <TabButton label="Features" active={activeTab === "features"} onClick={() => setActiveTab("features")} />
+          <TabButton label="Design & Connectivity" active={activeTab === "design"} onClick={() => setActiveTab("design")} />
+          <TabButton label="Technical Overview" active={activeTab === "spec"} onClick={() => setActiveTab("spec")} />
           <TabButton label="Competitors" active={activeTab === "competitors"} onClick={() => setActiveTab("competitors")} />
-          <TabButton label="Technical Spec" active={activeTab === "spec"} onClick={() => setActiveTab("spec")} />
-          <TabButton label="Diagram" active={activeTab === "diagram"} onClick={() => setActiveTab("diagram")} />
-          <TabButton label="Room Visual" active={activeTab === "visual"} onClick={() => setActiveTab("visual")} />
+          <TabButton label="Next Steps" active={activeTab === "workflow"} onClick={() => setActiveTab("workflow")} />
         </div>
       </section>
 
       {activeTab === "overview" ? <OverviewTab product={product} narrative={narrative} context={salesContext} /> : null}
-      {activeTab === "sales" ? <SalesTab product={product} narrative={narrative} context={salesContext} /> : null}
+      {activeTab === "features" ? <FeaturesTab product={product} narrative={narrative} context={salesContext} /> : null}
+      {activeTab === "design" ? <DesignTab product={product} narrative={narrative} /> : null}
       {activeTab === "competitors" ? <CompetitorsTab product={product} /> : null}
       {activeTab === "spec" ? <SpecTab product={product} /> : null}
-      {activeTab === "diagram" ? <DiagramTab product={product} narrative={narrative} /> : null}
-      {activeTab === "visual" ? <VisualTab product={product} narrative={narrative} /> : null}
+      {activeTab === "workflow" ? <WorkflowTab product={product} narrative={narrative} /> : null}
     </main>
   );
 }
@@ -1275,42 +1158,18 @@ function ProductWorkspace({
 
 function ProductPitchSafetyPanel() {
   return (
-    <section className="wm-section-card wm-product-pitch-safety-panel" aria-labelledby="product-pitch-safety-title">
-      <div className="wm-product-pitch-safety-header">
-        <div>
-          <p className="wm-ui-kicker">Tester safety</p>
-          <h2 id="product-pitch-safety-title" className="wm-card-title">
-            Product Pitch safety review
-          </h2>
-          <p className="wm-copy">
-            Use this page as product-direction guidance for a sales conversation. It is not a final engineered design or quote.
-          </p>
-        </div>
+    <details className="wm-section-card wm-product-pitch-safety-panel" aria-labelledby="product-pitch-safety-title">
+      <summary className="cursor-pointer list-none">
+        <span className="wm-ui-kicker">Design status</span>
+        <strong id="product-pitch-safety-title" className="ml-3 wm-card-title">Sales guidance — confirm before quote</strong>
+        <span className="ml-3 text-sm wm-copy">Open the review rules</span>
+      </summary>
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        <p className="wm-copy"><strong>Qualify:</strong> Confirm application, signal path, endpoint count, USB, audio, control and distance.</p>
+        <p className="wm-copy"><strong>Evidence:</strong> Match the product class, role, dependencies and known gaps to the brief.</p>
+        <p className="wm-copy"><strong>Escalate:</strong> Review AVoIP, USB transport, video walls, substitutions and non-standard designs before quotation.</p>
       </div>
-
-      <div className="wm-product-pitch-safety-grid">
-        <article className="wm-product-pitch-safety-item">
-          <h3 className="wm-card-title">Product direction</h3>
-          <p className="wm-copy">
-            Treat the selected product as the likely WyreStorm direction only after the customer requirement, application, signal path, source/display count, USB, audio, control, distance and infrastructure needs have been checked.
-          </p>
-        </article>
-
-        <article className="wm-product-pitch-safety-item">
-          <h3 className="wm-card-title">Why this fits</h3>
-          <p className="wm-copy">
-            A product fit should be supported by clear evidence: product class, core signal format, routing or extension requirement, endpoint role, required dependencies and any known gaps against the customer brief.
-          </p>
-        </article>
-
-        <article className="wm-product-pitch-safety-item">
-          <h3 className="wm-card-title">Pre-sales review warning</h3>
-          <p className="wm-copy">
-            Escalate for pre-sales review before quotation where the requirement includes AV-over-IP, USB transport, video wall processing, competitor substitution, incomplete room information, unclear network ownership, or any non-standard system behaviour.
-          </p>
-        </article>
-      </div>
-    </section>
+    </details>
   );
 }
 
