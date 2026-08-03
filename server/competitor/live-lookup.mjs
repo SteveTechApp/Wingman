@@ -58,6 +58,21 @@ const ALLOWED_VENDOR_HOSTS = new Set([
   "www.auroramm.com",
   "qsys.com",
   "www.qsys.com",
+  "cypeurope.com",
+  "www.cypeurope.com",
+  "sy.co.uk",
+  "www.sy.co.uk",
+  "hdanywhere.com",
+  "www.hdanywhere.com",
+  "support.hdanywhere.com",
+  "turtleav.com",
+  "www.turtleav.com",
+  "blackbox.com",
+  "www.blackbox.com",
+  "datapath.co.uk",
+  "www.datapath.co.uk",
+  "matrox.com",
+  "www.matrox.com",
   "netgear.com",
   "www.netgear.com",
 
@@ -193,6 +208,51 @@ const BRAND_ADAPTERS = {
     hosts: ["amx.com", "www.amx.com"],
     productUrls: () => [],
     searchUrls: (sku) => [`https://www.amx.com/en/search?keyword=${encodeURIComponent(sku)}`],
+  },
+  cyp: {
+    hosts: ["cypeurope.com", "www.cypeurope.com"],
+    productUrls: () => [],
+    searchUrls: (sku) => [`https://cypeurope.com/?s=${encodeURIComponent(sku)}`],
+  },
+  syelectronics: {
+    hosts: ["sy.co.uk", "www.sy.co.uk"],
+    productUrls: () => [],
+    searchUrls: (sku) => [`https://www.sy.co.uk/?s=${encodeURIComponent(sku)}`],
+  },
+  justaddpower: {
+    hosts: ["justaddpower.com", "www.justaddpower.com"],
+    productUrls: () => [],
+    searchUrls: (sku) => [`https://www.justaddpower.com/search?q=${encodeURIComponent(sku)}`],
+  },
+  hdanywhere: {
+    hosts: ["hdanywhere.com", "www.hdanywhere.com", "support.hdanywhere.com"],
+    productUrls: () => [],
+    searchUrls: (sku) => [`https://www.hdanywhere.com/?s=${encodeURIComponent(sku)}`],
+  },
+  turtleav: {
+    hosts: ["turtleav.com", "www.turtleav.com"],
+    productUrls: () => [],
+    searchUrls: (sku) => [`https://turtleav.com/?s=${encodeURIComponent(sku)}`],
+  },
+  blackbox: {
+    hosts: ["blackbox.com", "www.blackbox.com"],
+    productUrls: () => [],
+    searchUrls: (sku) => [`https://www.blackbox.com/en-us/search?text=${encodeURIComponent(sku)}`],
+  },
+  datapath: {
+    hosts: ["datapath.co.uk", "www.datapath.co.uk"],
+    productUrls: () => [],
+    searchUrls: (sku) => [`https://www.datapath.co.uk/?s=${encodeURIComponent(sku)}`],
+  },
+  matroxvideo: {
+    hosts: ["matrox.com", "www.matrox.com"],
+    productUrls: () => [],
+    searchUrls: (sku) => [`https://video.matrox.com/en/search?keys=${encodeURIComponent(sku)}`],
+  },
+  qsys: {
+    hosts: ["qsys.com", "www.qsys.com"],
+    productUrls: () => [],
+    searchUrls: (sku) => [`https://www.qsys.com/search/?q=${encodeURIComponent(sku)}`],
   },
 };
 
