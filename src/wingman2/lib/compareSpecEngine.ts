@@ -389,7 +389,7 @@ export function normalizeCompetitor(entry: CompetitorEntry): SpecSheet {
 
   const featureText = Array.isArray(entry.features) ? (entry.features as unknown[]).map(text).join(" ") : "";
   const usbSource = `${featureText} ${summary}`;
-  const usbVersion = /usb\s*3[\.x]?\d?/i.exec(usbSource)?.[0]
+  const usbVersion = /usb\s*3[.x]?\d?/i.exec(usbSource)?.[0]
     ?? /usb\s*2\.0|usb\s*2/i.exec(usbSource)?.[0]
     ?? (/\busb\b/i.test(usbSource) ? "USB" : "");
 

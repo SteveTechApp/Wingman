@@ -1646,6 +1646,9 @@ export function DiscoveryPage() {
     }, 400);
 
     return () => window.clearTimeout(timeout);
+  // buildDiscoveryBrief reads the same state listed here; including the render-local
+  // function itself would retrigger the debounce on every render.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answeredCount, activeIndex, answers, notes, clientName, contactName, siteName, budgetLevel, timeline]);
 
   useEffect(() => {
@@ -1866,6 +1869,9 @@ export function DiscoveryPage() {
       }
       window.sessionStorage.removeItem("wingman.roomBuilderSeedProduct");
     }
+  // Session handoffs are intentionally consumed once. Adding answers would
+  // replay and delete newly written handoff state whenever an answer changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function movePrevious(): void {

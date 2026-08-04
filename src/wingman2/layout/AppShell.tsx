@@ -227,7 +227,7 @@ export function AppShell({ children }: AppShellProps) {
           }
         : undefined,
     };
-  }, [activeRoute?.key, activeSummary, location.pathname, pageResetVersion]);
+  }, [activeRoute?.key, activeSummary]);
   const primaryNav = useMemo(() => consolidatedPrimaryNavKeys.map((key) => routeCatalogByKey[key]), []);
 
   useEffect(() => {
@@ -327,10 +327,13 @@ export function AppShell({ children }: AppShellProps) {
 
       </aside>
 
-      <div
+      <button
+        type="button"
         className="wingman-mobile-shade"
         data-mobile-open={mobileNavOpen ? "true" : "false"}
         onClick={() => setMobileNavOpen(false)}
+        aria-label="Close navigation"
+        tabIndex={mobileNavOpen ? 0 : -1}
       />
 
       <div className="wingman-workspace">
