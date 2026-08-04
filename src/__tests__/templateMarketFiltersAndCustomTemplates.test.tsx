@@ -189,6 +189,11 @@ describe("Custom template edit, duplicate and delete", () => {
     expect(getCustomRoomTemplates()).toHaveLength(1);
     expect(within(card!).getByRole("button", { name: "Confirm delete?" })).toBeInTheDocument();
 
+    fireEvent.click(within(card!).getByRole("button", { name: "Keep template" }));
+    expect(getCustomRoomTemplates()).toHaveLength(1);
+    expect(within(card!).getByRole("button", { name: "Delete" })).toBeInTheDocument();
+
+    fireEvent.click(within(card!).getByRole("button", { name: "Delete" }));
     fireEvent.click(within(card!).getByRole("button", { name: "Confirm delete?" }));
     expect(getCustomRoomTemplates()).toHaveLength(0);
   });
