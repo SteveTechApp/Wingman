@@ -16,50 +16,6 @@
       "verification": "Confirmed no RSC usage by searching src/ for RSC, createStaticHandler and renderToPipeableStream - no matches. Wingman renders via createRoot in src/main.tsx.",
       "remediationBlocked": "The patched react-router release is 8.3.0, but the latest available react-router-dom release is 7.18.2 and declares an exact dependency on react-router 7.18.2. Forcing router 8.3.0 through an override would create an unsupported mixed-major installation; npm's automated downgrade path would undo the deliberate 6.x -> 7.x upgrade applied in PR #115. Wingman is pinned to the latest compatible DOM/router pair while this upstream release gap remains.",
       "reviewAction": "Before expiry, re-check for a react-router-dom release that officially depends on patched react-router. Upgrade the pair together and delete this exception; do not force a mixed-major override."
-    },
-    {
-      "advisory": "GHSA-mh99-v99m-4gvg",
-      "package": "brace-expansion",
-      "alsoAffects": [
-        "@eslint/config-array",
-        "@eslint/eslintrc",
-        "eslint",
-        "eslint-plugin-import",
-        "eslint-plugin-jsx-a11y",
-        "eslint-plugin-react",
-        "minimatch"
-      ],
-      "title": "brace-expansion: DoS via unbounded expansion length causing an out-of-memory process crash",
-      "severity": "high",
-      "acceptedOn": "2026-07-25",
-      "expiresOn": "2026-08-25",
-      "acceptedBy": "Project owner review, 2026-07-25",
-      "justification": "The affected brace-expansion instances are present exclusively through Wingman's development-time ESLint and TypeScript-ESLint tooling. ESLint, minimatch and brace-expansion are not included in the deployed Wingman browser application. Wingman does not pass customer-controlled brace or glob expressions into this development tooling.",
-      "verification": "npm explain brace-expansion confirms that brace-expansion is reached through minimatch, ESLint, ESLint plugins and TypeScript-ESLint development dependencies. TypeScript validation, the Vite production build, 723 tests and the full Wingman verification suite pass. The production bundle does not contain the ESLint toolchain.",
-      "remediationBlocked": "The advisory is patched in brace-expansion 5.0.8, but the remaining legacy ESLint dependency path uses minimatch 3.1.5 with brace-expansion ^1.1.7. No patched compatible 1.x brace-expansion release is currently available. Forcing version 5 beneath minimatch 3 would cross major versions and has not been validated.",
-      "reviewAction": "Before expiry, update the compatible brace-expansion 5.x dependency path to 5.0.8 and check whether ESLint or its plugins have moved away from minimatch 3. Remove this exception once every installed path resolves to a patched version."
-    },
-    {
-      "advisory": "GHSA-rgw5-rvv9-x895",
-      "package": "brace-expansion",
-      "alsoAffects": [
-        "@eslint/config-array",
-        "@eslint/eslintrc",
-        "eslint",
-        "eslint-plugin-import",
-        "eslint-plugin-jsx-a11y",
-        "eslint-plugin-react",
-        "minimatch"
-      ],
-      "title": "brace-expansion: DoS via unbounded intermediate arrays, bypassing the CVE-2026-14257 mitigation",
-      "severity": "high",
-      "acceptedOn": "2026-08-04",
-      "expiresOn": "2026-09-04",
-      "acceptedBy": "Project owner review, 2026-08-04",
-      "justification": "The affected brace-expansion instances are installed exclusively through Wingman's development-time ESLint and TypeScript-ESLint toolchains. They are not included in the deployed browser application, and Wingman does not pass customer-controlled brace or glob expressions to those development tools.",
-      "verification": "npm explain brace-expansion confirms both affected installations are dev-only: brace-expansion 1.1.16 is reached through minimatch 3 and ESLint/plugins, while brace-expansion 5.0.7 is reached through minimatch 10 in @typescript-eslint/typescript-estree. The production dependency tree and browser bundle do not contain this lint toolchain.",
-      "remediationBlocked": "The advisory requires brace-expansion 1.1.18+ or 5.0.9+. The installed dependency ranges currently resolve to vulnerable 1.1.16 and 5.0.7 versions through upstream ESLint and TypeScript-ESLint dependencies; forcing incompatible major versions beneath minimatch is not a supported remediation.",
-      "reviewAction": "Before expiry, refresh the lockfile and check for ESLint, TypeScript-ESLint and minimatch releases that resolve every brace-expansion path to 1.1.18+ or 5.0.9+. Remove this exception once all installed paths are patched."
     }
   ]
 }
