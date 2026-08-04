@@ -234,7 +234,27 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false }
         </label>
       </div>
 
-      {error ? <p className="compare-native-muted wm-ui-copy">{error.message}</p> : null}
+      {status === "loading" ? (
+        <p className="compare-native-muted wm-ui-copy" role="status">
+          Searching approved manufacturer sources for {brand} {sku}...
+        </p>
+      ) : null}
+
+      {error ? (
+        <div className="wm-ui-card" role="alert">
+          <p className="wm-ui-copy"><strong>Live lookup could not run</strong></p>
+          <p className="wm-ui-copy">{error.message}</p>
+          {error.needsSignIn ? (
+            <a className="compare-native-secondary-action wm-ui-button wm-ui-button-primary" href="/wingman/settings">
+              Open Workspace settings
+            </a>
+          ) : (
+            <button className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" type="button" onClick={() => { void runLookup(); }}>
+              Try live lookup again
+            </button>
+          )}
+        </div>
+      ) : null}
       {status === "done" && result ? (
         result.ok && result.record ? (
           <div className="wm-ui-card">
