@@ -4436,7 +4436,7 @@ function BestCandidateCard({
               </div>
               <div className="compare-native-core-matrix-body" role="rowgroup">
                 {coreFacts.map((fact) => (
-                  <article key={`core-fact-${fact.label}`} className="compare-native-core-matrix-row wm-ui-card" role="row">
+                  <div key={`core-fact-${fact.label}`} className="compare-native-core-matrix-row wm-ui-card" role="row">
                     <div className="compare-native-core-matrix-cell compare-native-core-matrix-cell--point" role="cell">
                       <span className="compare-native-core-matrix-mobile-label">Comparison point</span>
                       <strong>{fact.label}</strong>
@@ -4453,7 +4453,7 @@ function BestCandidateCard({
                       <span className="compare-native-core-matrix-mobile-label">Result</span>
                       <p className="wm-ui-copy">{fact.result}</p>
                     </div>
-                  </article>
+                  </div>
                 ))}
               </div>
             </div>
@@ -5553,7 +5553,6 @@ function ComparePageNew() {
                   saveCustomManufacturer();
                 }}
                 placeholder="Example: AVPro Edge, AV Access, PureLink"
-                autoFocus
               />
               <p className="compare-native-auto-note wm-ui-copy">
                 Use this when the competitor brand is not listed. The next step will capture the missing model/SKU and the must-match features.
@@ -5760,7 +5759,7 @@ function ComparePageNew() {
 
                 <div className="compare-result-view-switcher">
                   <span>View</span>
-                <nav className="compare-result-tabs" role="tablist" aria-label="Comparison result sections">
+                <div className="compare-result-tabs" role="tablist" aria-label="Comparison result sections">
                   {([
                     ["overview", "Recommendation"],
                     ["cards", "Side-by-side"],
@@ -5779,7 +5778,7 @@ function ComparePageNew() {
                       {label}
                     </button>
                   ))}
-                </nav>
+                </div>
                 </div>
 
                 <section

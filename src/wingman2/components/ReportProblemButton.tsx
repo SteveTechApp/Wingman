@@ -149,12 +149,9 @@ export function ReportProblemButton({
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
           role="dialog"
           aria-modal="true"
-          onClick={close}
         >
-          <div
-            className="w-full max-w-lg rounded-2xl border border-[#29465e] bg-[#071522] p-5 text-white shadow-2xl"
-            onClick={(event) => event.stopPropagation()}
-          >
+          <button type="button" className="absolute inset-0 cursor-default" onClick={close} aria-label="Close problem report" />
+          <div className="relative w-full max-w-lg rounded-2xl border border-[#29465e] bg-[#071522] p-5 text-white shadow-2xl">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-300">Report a problem</p>

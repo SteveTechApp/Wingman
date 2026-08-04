@@ -56,7 +56,6 @@ type ProductSearchFieldProps = {
   onChange: (value: string) => void;
   placeholder: string;
   label?: string;
-  autoFocus?: boolean;
 };
 
 export function ProductSearchField({
@@ -64,7 +63,6 @@ export function ProductSearchField({
   onChange,
   placeholder,
   label = "Search products",
-  autoFocus = false,
 }: ProductSearchFieldProps) {
   return (
     <label className="wm-product-search-field">
@@ -77,7 +75,6 @@ export function ProductSearchField({
           onChange={(event) => onChange(event.currentTarget.value)}
           placeholder={placeholder}
           type="search"
-          autoFocus={autoFocus}
         />
       </span>
     </label>

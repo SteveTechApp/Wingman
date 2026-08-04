@@ -1810,12 +1810,14 @@ export function WingmanGuruDrawer({
   return portalReady
     ? createPortal(
         <>
-      <div
+      <button
+        type="button"
         className="wingman-guru-backdrop"
         data-wingman-guru-backdrop="true"
         data-open={open ? "true" : "false"}
         onClick={onClose}
-        aria-hidden={open ? "false" : "true"}
+        aria-label="Close Guru"
+        tabIndex={open ? 0 : -1}
       />
 
       <aside

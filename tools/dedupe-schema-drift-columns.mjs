@@ -45,7 +45,7 @@ for (const file of files) {
   const rawText = fs.readFileSync(absPath, "utf8");
   const hasBom = rawText.charCodeAt(0) === 0xfeff;
   const rows = readCsv(relPath);
-  const headerLine = rawText.split(/\r?\n/, 1)[0].replace(/^﻿/, "");
+  const headerLine = rawText.split(/\r?\n/, 1)[0].replace(/^\uFEFF/, "");
   const headers = headerLine.split(",").map((h) => h.replace(/^"|"$/g, ""));
 
   const hasDriftColumns = DRIFT_COLUMNS.some((c) => headers.includes(c));

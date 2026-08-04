@@ -14965,6 +14965,258 @@ html[data-wingman-route="call-coach"] main.wm-page [class*="grid"] {
 
 /* Wingman compact action/utility pages - END */
 
+/* Project detail: compact decision-first workspace */
+html[data-wingman-route="projects"] .wm-project-detail-page {
+  width: min(100%, 1440px);
+  margin-inline: auto;
+  padding: 18px 22px 36px !important;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-page > .wm-page-hero {
+  min-height: 0 !important;
+  padding: 20px 22px !important;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-page .wingman-display {
+  max-width: 20ch;
+  font-size: clamp(1.8rem, 3vw, 2.8rem) !important;
+  line-height: 1.05 !important;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-nav {
+  position: sticky;
+  z-index: 20;
+  top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--wm-border-light);
+  background: color-mix(in srgb, var(--wm-bg-0) 92%, transparent) !important;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24) !important;
+  backdrop-filter: blur(16px);
+}
+
+html[data-wingman-route="projects"] :is(.wm-project-detail-nav__links, .wm-project-detail-nav__actions) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-nav .wm-ui-button {
+  min-height: 36px;
+  padding: 0.48rem 0.75rem !important;
+  font-size: 0.78rem;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-editor {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 16px;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-editor label {
+  display: grid;
+  gap: 6px;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-stack {
+  display: grid;
+  gap: 14px !important;
+  margin-top: 14px;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-stack > section {
+  margin: 0 !important;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-stack > section:first-of-type {
+  padding: 18px !important;
+  border-color: rgba(99, 243, 255, 0.34) !important;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-stack > section:first-of-type h2 {
+  font-size: clamp(1.65rem, 2.5vw, 2.35rem) !important;
+}
+
+html[data-wingman-route="projects"] .wm-project-current-result {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: clamp(380px, calc(100dvh - 470px), 640px);
+}
+
+html[data-wingman-route="projects"] .wm-project-current-result__layout {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.65fr) minmax(320px, 0.75fr) !important;
+  align-items: stretch !important;
+  gap: 18px !important;
+}
+
+html[data-wingman-route="projects"] .wm-project-current-result__summary {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(10px, 2vw, 30px);
+}
+
+html[data-wingman-route="projects"] .wm-project-current-result__summary h2 {
+  max-width: 22ch;
+  font-size: clamp(2rem, 3.6vw, 4rem) !important;
+  line-height: 1 !important;
+}
+
+html[data-wingman-route="projects"] .wm-project-current-result__summary > p:last-of-type {
+  max-width: 64ch;
+  font-size: clamp(1rem, 1.15vw, 1.15rem) !important;
+}
+
+html[data-wingman-route="projects"] .wm-project-current-result__next {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(22px, 2.5vw, 36px) !important;
+}
+
+html[data-wingman-route="projects"] .wm-project-current-result__next > p:nth-child(2) {
+  font-size: clamp(1.35rem, 2vw, 2rem) !important;
+  line-height: 1.15 !important;
+}
+
+html[data-wingman-route="projects"] .wm-project-blocker-walkthrough {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--wm-border-light);
+}
+
+html[data-wingman-route="projects"] .wm-project-blocker-walkthrough__progress,
+html[data-wingman-route="projects"] .wm-project-blocker-walkthrough__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+html[data-wingman-route="projects"] .wm-project-blocker-walkthrough__progress button {
+  min-height: 0 !important;
+  padding: 2px 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--wm-heading-soft) !important;
+}
+
+html[data-wingman-route="projects"] .wm-project-blocker-walkthrough__bar {
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+html[data-wingman-route="projects"] .wm-project-blocker-walkthrough__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--wm-aqua);
+  transition: width 180ms ease;
+}
+
+html[data-wingman-route="projects"] .wm-project-blocker-walkthrough__item {
+  min-height: 76px;
+  padding: 14px;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 12px;
+  background: rgba(120, 53, 15, 0.16);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+html[data-wingman-route="projects"] .wm-project-blocker-walkthrough__controls .wm-ui-button {
+  min-height: 36px;
+  padding: 0.45rem 0.7rem !important;
+  font-size: 0.75rem;
+}
+
+html[data-wingman-route="projects"] .wm-project-current-result__footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-stack .wingman-section-card {
+  overflow: clip;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-stack .wingman-section-card-header {
+  min-height: 0 !important;
+  padding: 16px 18px !important;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-stack .wingman-section-card-body {
+  padding: 16px 18px 18px !important;
+}
+
+.wm-project-delete-confirm {
+  border-color: rgba(251, 113, 133, 0.65) !important;
+  background: rgba(159, 18, 57, 0.28) !important;
+}
+
+.wm-project-detail-anchor {
+  position: relative;
+  top: -88px;
+}
+
+@media (max-width: 820px) {
+  html[data-wingman-route="projects"] .wm-project-detail-page {
+    padding: 12px 12px 28px !important;
+  }
+
+  html[data-wingman-route="projects"] .wm-project-detail-nav {
+    position: static;
+    align-items: stretch;
+  }
+
+  html[data-wingman-route="projects"] .wm-project-detail-nav,
+  html[data-wingman-route="projects"] .wm-project-detail-editor {
+    grid-template-columns: 1fr;
+  }
+
+  html[data-wingman-route="projects"] .wm-project-detail-nav__links {
+    display: none;
+  }
+
+  html[data-wingman-route="projects"] .wm-project-detail-nav__actions,
+  html[data-wingman-route="projects"] .wm-project-detail-nav__actions .wm-ui-button {
+    flex: 1;
+  }
+
+  html[data-wingman-route="projects"] .wm-project-current-result {
+    min-height: 0;
+  }
+
+  html[data-wingman-route="projects"] .wm-project-current-result__layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  html[data-wingman-route="projects"] .wm-project-current-result__summary {
+    padding: 10px 4px 18px;
+  }
+
+  html[data-wingman-route="projects"] .wm-project-current-result__footer,
+  html[data-wingman-route="projects"] .wm-project-current-result__footer .wm-ui-button {
+    width: 100%;
+  }
+}
+
 /* Wingman compact navigation hub pages - START */
 
 /* Applies to Call Coach, Products, Documents, Learn and other nav-hub style pages */
