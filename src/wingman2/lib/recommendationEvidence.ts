@@ -708,6 +708,16 @@ function requiredDependencies(input: RecommendationEvidenceInput) {
     dependencies.push("Confirmed USB host/peripheral transport path before quoting conferencing or BYOD workflows.");
   }
 
+  if (hasAny(combined, ["multi-camera-ndi"])) {
+    dependencies.push("CAM-210-NDI-PTZ cameras for each required NDI camera position.");
+    dependencies.push("NHD-128-NDI-TRX gateway to convert up to eight NDI HX camera streams into NetworkHD sources and convert one existing NetworkHD channel back to NDI.");
+    dependencies.push("NHD-150-RX as the main display decoder and multiview processor for up to eight 4K30 or nine 1080p60 network streams.");
+    dependencies.push("A separately validated encoder/capture return path if the NHD-150-RX HDMI multiview output must be sent back to Teams or reintroduced to the NDI/NetworkHD networks.");
+  } else if (hasAny(combined, ["multi-camera-non-ndi"])) {
+    dependencies.push("CAM-420-PTZ cameras for each required non-NDI camera position.");
+    dependencies.push("CAM-0402-BRG camera bridge for USB/HDMI multi-camera switching into the conferencing host.");
+  }
+
   if (hasAny(combined, ["video wall", "videowall", "multiview", "multi-view"])) {
     dependencies.push("Confirmed source count, display count, wall geometry, layout behaviour and control requirement.");
   }

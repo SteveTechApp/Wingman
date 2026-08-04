@@ -15089,6 +15089,63 @@ html[data-wingman-route="projects"] .wm-project-current-result__next > p:nth-chi
   line-height: 1.15 !important;
 }
 
+html[data-wingman-route="projects"] .wm-project-blocker-walkthrough {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--wm-border-light);
+}
+
+html[data-wingman-route="projects"] .wm-project-blocker-walkthrough__progress,
+html[data-wingman-route="projects"] .wm-project-blocker-walkthrough__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+html[data-wingman-route="projects"] .wm-project-blocker-walkthrough__progress button {
+  min-height: 0 !important;
+  padding: 2px 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--wm-heading-soft) !important;
+}
+
+html[data-wingman-route="projects"] .wm-project-blocker-walkthrough__bar {
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+html[data-wingman-route="projects"] .wm-project-blocker-walkthrough__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--wm-aqua);
+  transition: width 180ms ease;
+}
+
+html[data-wingman-route="projects"] .wm-project-blocker-walkthrough__item {
+  min-height: 76px;
+  padding: 14px;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 12px;
+  background: rgba(120, 53, 15, 0.16);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+html[data-wingman-route="projects"] .wm-project-blocker-walkthrough__controls .wm-ui-button {
+  min-height: 36px;
+  padding: 0.45rem 0.7rem !important;
+  font-size: 0.75rem;
+}
+
 html[data-wingman-route="projects"] .wm-project-current-result__footer {
   display: flex;
   justify-content: flex-end;

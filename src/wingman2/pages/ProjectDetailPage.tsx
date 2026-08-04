@@ -139,6 +139,8 @@ export function ProjectDetailPage() {
   const [isEditingProject, setIsEditingProject] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [projectDraft, setProjectDraft] = useState({ name: "", owner: "" });
+  const [showBlockerReview, setShowBlockerReview] = useState(false);
+  const [activeBlockerIndex, setActiveBlockerIndex] = useState(0);
   const readiness = useMemo(() => requirementReadiness(requirements), [requirements]);
   const recommendationEvidence = useMemo(
     () =>
@@ -423,6 +425,21 @@ export function ProjectDetailPage() {
     };
   }, [missingInformation, project, projectEvidenceTimeline.length, proposal, recommendationEvidence, requirements, selectedProducts.length]);
 
+  const activeBlocker = projectReadinessGate.blockers[activeBlockerIndex] ?? null;
+  const activeBlockerWorkflow = useMemo(() => {
+    const blocker = activeBlocker?.toLowerCase() ?? "";
+    if (blocker.includes("product direction") || blocker.includes("recommendation")) {
+      return { label: "Open Finder", route: routeCatalogByKey.recommendations.path };
+    }
+    if (blocker.includes("evidence") || blocker.includes("compare")) {
+      return { label: "Open Compare", route: routeCatalogByKey.compare.path };
+    }
+    if (blocker.includes("proposal")) {
+      return { label: "Open Proposal", route: routeCatalogByKey.proposal.path };
+    }
+    return { label: "Resolve in Discovery", route: routeCatalogByKey.discovery.path };
+  }, [activeBlocker]);
+
   useEffect(() => {
     setRequirements(initialRequirements);
     setMessage("");
@@ -430,6 +447,8 @@ export function ProjectDetailPage() {
     setProjectDraft({ name: project?.name ?? "", owner: project?.owner ?? "" });
     setIsEditingProject(false);
     setConfirmDelete(false);
+    setShowBlockerReview(false);
+    setActiveBlockerIndex(0);
   }, [initialRequirements, project?.name, project?.owner]);
 
   useEffect(() => {
@@ -594,12 +613,61 @@ export function ProjectDetailPage() {
             <div className="wm-project-current-result__next rounded-2xl border p-4 wm-ui-section wm-ui-card">
               <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-kicker">Next step</p>
               <p className="mt-2 font-black wm-ui-copy">{projectReadinessGate.status}</p>
-              <Link
-                to={projectReadinessGate.route}
-                className="mt-3 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-black wm-ui-button wm-ui-button-primary"
-              >
-                {projectReadinessGate.route === routeCatalogByKey.proposal.path ? "Continue to proposal" : "Resolve project blockers"}
-              </Link>
+              {projectReadinessGate.blockers.length ? (
+                <button
+                  type="button"
+                  className="mt-3 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-black wm-ui-button wm-ui-button-primary"
+                  onClick={() => {
+                    setActiveBlockerIndex(0);
+                    setShowBlockerReview(true);
+                  }}
+                  aria-expanded={showBlockerReview}
+                  aria-controls="project-blocker-walkthrough"
+                >
+                  Review {projectReadinessGate.blockers.length} project blocker{projectReadinessGate.blockers.length === 1 ? "" : "s"}
+                </button>
+              ) : (
+                <Link
+                  to={projectReadinessGate.route}
+                  className="mt-3 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-black wm-ui-button wm-ui-button-primary"
+                >
+                  Continue to proposal
+                </Link>
+              )}
+
+              {showBlockerReview && activeBlocker ? (
+                <div id="project-blocker-walkthrough" className="wm-project-blocker-walkthrough" role="region" aria-label="Proposal blocker walkthrough">
+                  <div className="wm-project-blocker-walkthrough__progress">
+                    <span>Blocker {activeBlockerIndex + 1} of {projectReadinessGate.blockers.length}</span>
+                    <button type="button" onClick={() => setShowBlockerReview(false)} aria-label="Close blocker review">Close</button>
+                  </div>
+                  <div className="wm-project-blocker-walkthrough__bar" aria-hidden="true">
+                    <span style={{ width: `${((activeBlockerIndex + 1) / projectReadinessGate.blockers.length) * 100}%` }} />
+                  </div>
+                  <p className="wm-project-blocker-walkthrough__item">{activeBlocker}</p>
+                  <Link to={activeBlockerWorkflow.route} className="wm-ui-button wm-ui-button-primary">
+                    {activeBlockerWorkflow.label}
+                  </Link>
+                  <div className="wm-project-blocker-walkthrough__controls">
+                    <button
+                      type="button"
+                      className="wm-ui-button wm-ui-button-secondary"
+                      onClick={() => setActiveBlockerIndex((current) => Math.max(0, current - 1))}
+                      disabled={activeBlockerIndex === 0}
+                    >
+                      Previous
+                    </button>
+                    <button
+                      type="button"
+                      className="wm-ui-button wm-ui-button-secondary"
+                      onClick={() => setActiveBlockerIndex((current) => Math.min(projectReadinessGate.blockers.length - 1, current + 1))}
+                      disabled={activeBlockerIndex === projectReadinessGate.blockers.length - 1}
+                    >
+                      Next blocker
+                    </button>
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
           <div className="wm-project-current-result__footer">

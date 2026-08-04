@@ -502,6 +502,18 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
     conferencingRequired ||
     recordingRequired ||
     cameraDistributionRequired;
+  const cameraCountValue = list(answers["uc-camera-count"])[0] ?? "";
+  const cameraQuantity = cameraCountValue === "two-cameras"
+    ? 2
+    : cameraCountValue === "three-four-cameras"
+      ? 4
+      : cameraCountValue === "five-plus-cameras"
+        ? 5
+        : 1;
+  const multiCameraRequired = cameraQuantity > 1;
+  const multiCameraPath = list(answers["uc-multi-camera-path"])[0] ?? "";
+  const ndiMultiCamera = multiCameraRequired && multiCameraPath === "multi-camera-ndi";
+  const standardMultiCamera = multiCameraRequired && multiCameraPath === "multi-camera-non-ndi";
 
   if (
     sourceTypes.some(
@@ -610,13 +622,17 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
     sourceDevices.push(addDevice({
       id: "device-camera",
       name:
-        legacyCameraSourceSelected || /ndi/.test(blob)
-          ? "NDI / network camera"
-          : "Room camera",
+        ndiMultiCamera
+          ? "CAM-210-NDI-PTZ camera"
+          : standardMultiCamera
+            ? "CAM-420-PTZ camera"
+            : legacyCameraSourceSelected || /ndi/.test(blob)
+              ? "NDI / network camera"
+              : "Room camera",
       category: "camera",
       locationId: ceiling?.id ?? front.id,
-      quantity: 1,
-      thirdParty: true,
+      quantity: cameraQuantity,
+      thirdParty: !(ndiMultiCamera || standardMultiCamera),
       status: "assumed",
       notes:
         cameraRequiredByUnifiedComms
@@ -769,17 +785,38 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
       })
     : null;
 
-  const cameraRoutingBridge = cameraDistributionRequired
+  const cameraRoutingBridge = cameraDistributionRequired || multiCameraRequired
     ? addDevice({
         id: "device-camera-routing-bridge",
-        name: "Camera routing / bridge path TBC",
+        name: ndiMultiCamera
+          ? "NHD-128-NDI-TRX NDI / NetworkHD bridge"
+          : standardMultiCamera
+            ? "CAM-0402-BRG multi-camera bridge"
+            : "Camera routing / bridge path TBC",
         category: "camera-bridge",
         locationId: rack.id,
         quantity: 1,
         thirdParty: false,
-        status: "unknown",
+        status: ndiMultiCamera || standardMultiCamera ? "assumed" : "unknown",
         notes:
-          "Confirm whether the camera path is USB, HDMI, NDI or AV-over-IP and which WyreStorm bridge or routing architecture is required.",
+          ndiMultiCamera
+            ? "Each CAM-210-NDI-PTZ stream can join the NetworkHD source pool through the NHD-128-NDI-TRX. NHD-150-RX can create the camera/data multiview at its HDMI output; validate the separate encode/capture path required if that composite must return to Teams or the NDI/NetworkHD networks."
+            : standardMultiCamera
+              ? "CAM-0402-BRG switches or bridges the CAM-420-PTZ USB/HDMI camera feeds into the conferencing host."
+              : "Confirm whether the camera path is USB, HDMI, NDI or AV-over-IP and which WyreStorm bridge or routing architecture is required.",
+      })
+    : null;
+
+  const ndiMainDisplayDecoder = ndiMultiCamera
+    ? addDevice({
+        id: "device-ndi-main-display-decoder",
+        name: "NHD-150-RX main display decoder",
+        category: "decoder",
+        locationId: front.id,
+        quantity: 1,
+        thirdParty: false,
+        status: "assumed",
+        notes: "Use as the main display decoder for the NetworkHD/NDI multi-camera workflow.",
       })
     : null;
   // WINGMAN_DISCOVERY_UC_DEVICE_DEPENDENCIES_END
@@ -892,6 +929,16 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
         : ["video", "embedded-audio"],
       networked ? "ip-av-vlan" : undefined,
       "Camera routing or distribution path; validate the final bridge and transport.",
+    );
+  }
+
+  if (ndiMainDisplayDecoder) {
+    addConnection(
+      core,
+      ndiMainDisplayDecoder,
+      ["av-over-ip", "video", "embedded-audio"],
+      "ip-av-vlan",
+      "Main display decode path for NetworkHD sources and NDI camera streams.",
     );
   }
 

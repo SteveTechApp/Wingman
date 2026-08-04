@@ -92,4 +92,15 @@ describe("Project Detail review controls", () => {
     expect(deleteProject).toHaveBeenCalledWith("project-1");
     expect(screen.getByText("Projects list")).not.toBeNull();
   });
+
+  it("walks the user through proposal blockers before routing to the fixing workflow", () => {
+    renderPage();
+
+    fireEvent.click(screen.getByRole("button", { name: /Review .* project blocker/ }));
+
+    expect(screen.getByRole("region", { name: "Proposal blocker walkthrough" })).not.toBeNull();
+    expect(screen.getByText(/Blocker 1 of/)).not.toBeNull();
+    expect(screen.getByText("USB host ownership")).not.toBeNull();
+    expect(screen.getByRole("link", { name: "Resolve in Discovery" }).getAttribute("href")).toBe("/wingman/discovery");
+  });
 });
