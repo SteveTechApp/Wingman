@@ -46,13 +46,13 @@
     "data-sources/competitors/barco.csv": "cefa1dabb7f748eabbb79d3f0e5dd1b5c99810ad7a62433a052bdb404a8bef8b",
     "data-sources/competitors/binary.csv": "bbdb3579a16c5d19b1f5dd8788834e9a6a9797d88ddbbd9a8ff4fe126541ee49",
     "data-sources/competitors/birddog.csv": "46b82015cb46e62155caaa1cc50a81359d8bba55b566da8631255776ce165c1c",
-    "data-sources/competitors/black-box.csv": "11a7f86f2cfff0246e2acf215dc48045d7c44cdd3c8306e91186897ddf50865a",
+    "data-sources/competitors/black-box.csv": "8b54b78472b1658692201cf596cddbc6803009172fa1dbeef6d3f1d29b6d3505",
     "data-sources/competitors/blustream.csv": "4b924d59e8ade3d7d2815c1b0529e0920df794f74b9f03b86d4a52eaf6839af0",
     "data-sources/competitors/crestron.csv": "7a93e0b9647e600d5f5430ed7e21b6ae1511154c50b6a9ea79fcceb483d2e8f8",
-    "data-sources/competitors/cyp.csv": "61840fc56b060318fec1129ddef5d8d78785f20f36d2ece9fa0b135ad4ad4204",
+    "data-sources/competitors/cyp.csv": "fe72d1ca76419df32989c2eabb3f0924e66f71d45dde5455cde9f3eab734e491",
     "data-sources/competitors/datapath.csv": "57fd9eafe35fda660a488f699cd6675e9bb1de9bea7ccef79a8f3b12c77ae812",
     "data-sources/competitors/extron.csv": "b661ccc09be076d534a75decc58d328a82a74cf6fa16412a0acf3cf29b8ba3e2",
-    "data-sources/competitors/hdanywhere.csv": "454432d5092e674577b71291c9bd81de8a1974e114cb63423ad8738ba8fc2bb8",
+    "data-sources/competitors/hdanywhere.csv": "30aad3a23244281dc6c914a3ad372675d75d10f309baa86a0e3d2bd46f3ecb46",
     "data-sources/competitors/just-add-power.csv": "563297c7d07dfd604f8feea3676d786753562e69827486e57971b8ee079f1f57",
     "data-sources/competitors/kramer.csv": "b0561454d7733245517088ddbb77c4543eb3d218883d71701f1995bc787096f9",
     "data-sources/competitors/lightware.csv": "68df5425ae5090f81d1e03f630e19e4ac815dcacab1fe637eb3aba9960abd8ec",
@@ -71,7 +71,7 @@
   "counts": {
     "wyrestorm": 310,
     "wyrestormBlocked": 138,
-    "competitor": 267,
+    "competitor": 279,
     "competitorApproved": 97,
     "competitorManufacturers": 28
   }

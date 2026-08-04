@@ -8225,6 +8225,80 @@
     "comparisonOnly": true
   },
   {
+    "sku": "MCXG2DF01",
+    "model": "MCXG2DF01",
+    "name": "Black Box MCX Gen2 Fiber Decoder",
+    "brand": "Black Box",
+    "manufacturer": "Black Box",
+    "family": "MCX Gen2",
+    "category": "Encoder/Decoder",
+    "subcategory": "10G SDVoE fiber decoder",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-brochure",
+    "summary": "MCX Gen2 10G fiber 4K60 decoder.",
+    "sourceUrl": "https://cdn.blackbox.com/cms/docs/brochures/tps/en_blackbox_brochure_mcx.pdf",
+    "evidenceSource": "https://cdn.blackbox.com/cms/docs/brochures/tps/en_blackbox_brochure_mcx.pdf",
+    "lastReviewed": "2026-08-04",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "decoder",
+    "transport": "AVoIP",
+    "technology": "AVOIP",
+    "topology": "many-to-many",
+    "directionality": "unidirectional",
+    "inputs": [
+      {
+        "type": "10GbE fiber",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI 2.0",
+        "count": 1
+      }
+    ],
+    "control": [
+      "IR",
+      "RS-232"
+    ],
+    "audio": [],
+    "features": [
+      "USB-C",
+      "Scaling",
+      "SDVoE"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official MCX Gen2 comparison chart",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "networkSpeed": "10GbE",
+      "avoipCodec": "SDVoE Pixel Pipeline",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    },
+    "aliases": [],
+    "knownLimitations": "Requires MCX Gen2 controller, compatible encoder and fiber infrastructure.",
+    "closestWyrestormArchitecture": "NetworkHD 600 fiber decoder",
+    "closestWyrestormSkuOrFamily": "NHD-600-TRXF",
+    "notes": "Fiber interface and SFP requirements must be confirmed.",
+    "sourceFile": "data-sources/competitors/black-box.csv",
+    "comparisonOnly": true
+  },
+  {
     "sku": "MCXG2EC01",
     "model": "MCXG2EC01",
     "name": "Black Box MCX Gen2 Copper Encoder",
@@ -8299,6 +8373,80 @@
     "comparisonOnly": true
   },
   {
+    "sku": "MCXG2EF01",
+    "model": "MCXG2EF01",
+    "name": "Black Box MCX Gen2 Fiber Encoder",
+    "brand": "Black Box",
+    "manufacturer": "Black Box",
+    "family": "MCX Gen2",
+    "category": "Encoder/Decoder",
+    "subcategory": "10G SDVoE fiber encoder",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-brochure",
+    "summary": "MCX Gen2 10G fiber 4K60 encoder.",
+    "sourceUrl": "https://cdn.blackbox.com/cms/docs/brochures/tps/en_blackbox_brochure_mcx.pdf",
+    "evidenceSource": "https://cdn.blackbox.com/cms/docs/brochures/tps/en_blackbox_brochure_mcx.pdf",
+    "lastReviewed": "2026-08-04",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "encoder",
+    "transport": "AVoIP",
+    "technology": "AVOIP",
+    "topology": "many-to-many",
+    "directionality": "unidirectional",
+    "inputs": [
+      {
+        "type": "HDMI 2.0",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "10GbE fiber",
+        "count": 1
+      }
+    ],
+    "control": [
+      "IR",
+      "RS-232"
+    ],
+    "audio": [],
+    "features": [
+      "USB-C",
+      "Scaling",
+      "SDVoE"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official MCX Gen2 comparison chart",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "networkSpeed": "10GbE",
+      "avoipCodec": "SDVoE Pixel Pipeline",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    },
+    "aliases": [],
+    "knownLimitations": "Requires MCX Gen2 controller, compatible decoder and fiber infrastructure.",
+    "closestWyrestormArchitecture": "NetworkHD 600 fiber encoder",
+    "closestWyrestormSkuOrFamily": "NHD-600-TRXF",
+    "notes": "Fiber interface and SFP requirements must be confirmed.",
+    "sourceFile": "data-sources/competitors/black-box.csv",
+    "comparisonOnly": true
+  },
+  {
     "sku": "MCXG2TD11",
     "model": "MCXG2TD11",
     "name": "Black Box MCX Gen2 Transcoder",
@@ -8369,6 +8517,85 @@
     "closestWyrestormArchitecture": "NetworkHD 600 transceiver",
     "closestWyrestormSkuOrFamily": "NHD-600-TRX / NHD-600-TRXF",
     "notes": "Closest architectural overlap is NetworkHD 600 transceiver.",
+    "sourceFile": "data-sources/competitors/black-box.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "VS-2101X",
+    "model": "VS-2101X",
+    "name": "Black Box VS-2101X H.264 H.265 Encoder Decoder",
+    "brand": "Black Box",
+    "manufacturer": "Black Box",
+    "family": "",
+    "category": "Encoder/Decoder",
+    "subcategory": "Streaming AVoIP transceiver",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "Low-bandwidth HDMI streaming transceiver selectable as encoder or decoder.",
+    "sourceUrl": "https://www.blackbox.com/en-us/store/product/detail/HDMI-over-IP-H-264-H-265-Encoder-Decoder/VS-2101X?item=VS-2101X",
+    "evidenceSource": "https://www.blackbox.com/en-us/store/product/detail/HDMI-over-IP-H-264-H-265-Encoder-Decoder/VS-2101X?item=VS-2101X",
+    "lastReviewed": "2026-08-04",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "transceiver",
+    "transport": "AVoIP",
+    "technology": "AVOIP",
+    "topology": "point-to-point",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "Ethernet",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "Ethernet",
+        "count": 1
+      }
+    ],
+    "control": [
+      "Web UI"
+    ],
+    "audio": [
+      "AAC"
+    ],
+    "features": [
+      "H.264",
+      "H.265",
+      "Encoder or decoder mode"
+    ],
+    "video": {},
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official Black Box product page",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "avoipCodec": "H.264/H.265",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    },
+    "aliases": [],
+    "knownLimitations": "Streaming architecture and latency differ from visually lossless matrix-distribution systems.",
+    "closestWyrestormArchitecture": "Streaming encoder or decoder",
+    "closestWyrestormSkuOrFamily": "NHD-150-TX / NHD-150-RX",
+    "notes": "Confirm target resolution, latency and third-party decoder interoperability.",
     "sourceFile": "data-sources/competitors/black-box.csv",
     "comparisonOnly": true
   },
@@ -11856,6 +12083,148 @@
     "comparisonOnly": true
   },
   {
+    "sku": "EL-42M-PIP",
+    "model": "EL-42M-PIP",
+    "name": "CYP EL-42M-PIP 4x2 Seamless Matrix and Multiviewer",
+    "brand": "CYP",
+    "manufacturer": "CYP",
+    "family": "",
+    "category": "Multiview Processor",
+    "subcategory": "HDMI matrix multiviewer",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "4 x 2 HDMI seamless matrix switcher with picture-in-picture multiview.",
+    "sourceUrl": "https://cypeurope.com/product-category/matrices/",
+    "evidenceSource": "https://cypeurope.com/product-category/matrices/",
+    "lastReviewed": "2026-08-04",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "multiviewer",
+    "transport": "HDMI",
+    "technology": "MULTIVIEW",
+    "topology": "many-to-many",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 4
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      }
+    ],
+    "control": [],
+    "audio": [],
+    "features": [
+      "Picture-in-picture",
+      "Seamless switching",
+      "Custom window size and position"
+    ],
+    "video": {
+      "maxResolution": "4K60"
+    },
+    "matrixInputs": 4,
+    "routedInputs": 4,
+    "routedInputCount": 4,
+    "matrixOutputs": 2,
+    "routedOutputs": 2,
+    "routedOutputCount": 2,
+    "physicalOutputs": 2,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "derived",
+    "matrixSizeEvidence": "Official CYP catalogue identifies 4x2 matrix and dual-output multiview functionality",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "Confirm simultaneous layout modes and output independence.",
+    "closestWyrestormArchitecture": "Multiview and matrix switching",
+    "closestWyrestormSkuOrFamily": "NHD-0401-MV / SW-0206-VW",
+    "notes": "Outcome may require separate WyreStorm switching and multiview products.",
+    "sourceFile": "data-sources/competitors/cyp.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "IP-7000C-TX",
+    "model": "IP-7000C-TX",
+    "name": "CYP IP-7000C-TX USB-C and HDMI AV over IP Transmitter",
+    "brand": "CYP",
+    "manufacturer": "CYP",
+    "family": "",
+    "category": "Encoder/Decoder",
+    "subcategory": "1G AVoIP encoder",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "1G AV-over-IP transmitter with USB-C and HDMI inputs.",
+    "sourceUrl": "https://cypeurope.com/news/usb-c-product-family-highlight/",
+    "evidenceSource": "https://cypeurope.com/news/usb-c-product-family-highlight/",
+    "lastReviewed": "2026-08-04",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "encoder",
+    "transport": "AVoIP",
+    "technology": "AVOIP",
+    "topology": "many-to-many",
+    "directionality": "unidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "1GbE AVoIP",
+        "count": 1
+      }
+    ],
+    "control": [
+      "IR",
+      "RS-232"
+    ],
+    "audio": [],
+    "features": [
+      "USB extension",
+      "PoE",
+      "Image rotation"
+    ],
+    "video": {
+      "maxResolution": "4K30 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 2,
+    "routedInputs": 2,
+    "routedInputCount": 2,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "derived",
+    "matrixSizeEvidence": "Official CYP USB-C family page identifies inputs, 1G transport and supported resolutions",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {
+      "networkSpeed": "1GbE",
+      "avoipChip": null,
+      "avoipChipStatus": "not-publicly-confirmed"
+    },
+    "aliases": [],
+    "knownLimitations": "4K60 support is limited to 4:2:0; requires compatible CYP IP-7000 receivers and network control.",
+    "closestWyrestormArchitecture": "NetworkHD encoder",
+    "closestWyrestormSkuOrFamily": "NHD-500-TX / NHD-510-TX",
+    "notes": "Confirm codec, latency, controller and USB workflow before proposing an architecture change.",
+    "sourceFile": "data-sources/competitors/cyp.csv",
+    "comparisonOnly": true
+  },
+  {
     "sku": "OR-32USBC-4K22",
     "model": "OR-32USBC-4K22",
     "name": "CYP OR-32USBC-4K22 3x2 USB-C and HDMI Matrix",
@@ -11987,6 +12356,233 @@
     "closestWyrestormArchitecture": "Fixed HDMI matrix",
     "closestWyrestormSkuOrFamily": "MX-0404-HDMI",
     "notes": "Likely comparison lane: fixed 4x4 HDMI matrix; exact audio/control details remain review-only.",
+    "sourceFile": "data-sources/competitors/cyp.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "OR-88U-4K22",
+    "model": "OR-88U-4K22",
+    "name": "CYP OR-88U-4K22 8x8 HDMI Matrix",
+    "brand": "CYP",
+    "manufacturer": "CYP",
+    "family": "",
+    "category": "Matrix Switcher",
+    "subcategory": "HDMI Matrix",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "8 x 8 full-bandwidth HDMI matrix switcher.",
+    "sourceUrl": "https://cypeurope.com/product/or-88u-4k22-8-x-8-hdmi-matrix-switcher-with-usb-power-6g-4k-hdcp2-2-hdmi2-0/",
+    "evidenceSource": "https://cypeurope.com/product/or-88u-4k22-8-x-8-hdmi-matrix-switcher-with-usb-power-6g-4k-hdcp2-2-hdmi2-0/",
+    "lastReviewed": "2026-08-04",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "matrix",
+    "transport": "HDMI",
+    "technology": "MATRIX",
+    "topology": "many-to-many",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 8
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDMI",
+        "count": 8
+      }
+    ],
+    "control": [],
+    "audio": [],
+    "features": [
+      "HDR",
+      "EDID management",
+      "USB power for AOC extenders"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 8,
+    "routedInputs": 8,
+    "routedInputCount": 8,
+    "matrixOutputs": 8,
+    "routedOutputs": 8,
+    "routedOutputCount": 8,
+    "physicalOutputs": 8,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official CYP product page states eight HDMI inputs and eight independently routed outputs",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "USB ports provide power only and are not a KVM path.",
+    "closestWyrestormArchitecture": "Fixed HDMI matrix",
+    "closestWyrestormSkuOrFamily": "MX-0808-SCL / MX-0808-KIT-V2",
+    "notes": "Compare scaling and audio capabilities separately.",
+    "sourceFile": "data-sources/competitors/cyp.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "PUV-2608TX",
+    "model": "PUV-2608TX",
+    "name": "CYP PUV-2608TX Multi-Format HDBaseT Transmitter",
+    "brand": "CYP",
+    "manufacturer": "CYP",
+    "family": "",
+    "category": "Presentation Switcher",
+    "subcategory": "HDBaseT presentation transmitter",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-page",
+    "summary": "Four-input presentation transmitter with HDMI, DisplayPort, USB-C and HDBaseT output.",
+    "sourceUrl": "https://cypeurope.com/product/puv-2608tx-hdbaset2-transmitter-multi-format-switch-with-usb-for-the-reverse-power-puv-2600-series-copy/",
+    "evidenceSource": "https://cypeurope.com/product/puv-2608tx-hdbaset2-transmitter-multi-format-switch-with-usb-for-the-reverse-power-puv-2600-series-copy/",
+    "lastReviewed": "2026-08-04",
+    "reviewer": "Codex official-source pass",
+    "confidence": "high",
+    "role": "presentation-switcher",
+    "transport": "HDBaseT / HDMI / USB-C",
+    "technology": "PRESENTATION",
+    "topology": "point-to-point",
+    "directionality": "unidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 2
+      },
+      {
+        "type": "DisplayPort",
+        "count": 1
+      },
+      {
+        "type": "USB-C",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDBaseT 2",
+        "count": 1
+      }
+    ],
+    "control": [
+      "IR",
+      "RS-232",
+      "CEC"
+    ],
+    "audio": [
+      "Analogue audio embedding"
+    ],
+    "features": [
+      "USB 2.0",
+      "Reverse PoH",
+      "100m"
+    ],
+    "video": {
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 4,
+    "routedInputs": 4,
+    "routedInputCount": 4,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 1,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "verified",
+    "matrixSizeEvidence": "Official CYP product page states the four inputs and single HDBaseT extension path",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "Requires a compatible PUV-2600 receiver and supports one active USB host at a time.",
+    "closestWyrestormArchitecture": "Presentation switching and extension",
+    "closestWyrestormSkuOrFamily": "SW-130-TX / SW-120-TX3",
+    "notes": "Receiver inclusion, USB topology and local output requirements materially affect the match.",
+    "sourceFile": "data-sources/competitors/cyp.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "PUV-3090TX-UEA",
+    "model": "PUV-3090TX-UEA",
+    "name": "CYP PUV-3090TX-UEA HDBaseT 3 Transmitter",
+    "brand": "CYP",
+    "manufacturer": "CYP",
+    "family": "",
+    "category": "Extender",
+    "subcategory": "HDBaseT transmitter with USB",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-guide",
+    "summary": "HDBaseT 3 transmitter with HDMI loop-through, USB 2.0 and analogue audio.",
+    "sourceUrl": "https://cypeurope.com/wp-content/uploads/2024/01/CYP_Solutions_Guide_2024_Final_Web-1.pdf",
+    "evidenceSource": "https://cypeurope.com/wp-content/uploads/2024/01/CYP_Solutions_Guide_2024_Final_Web-1.pdf",
+    "lastReviewed": "2026-08-04",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "transmitter",
+    "transport": "HDBaseT",
+    "technology": "HDBASET",
+    "topology": "point-to-point",
+    "directionality": "unidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 1
+      },
+      {
+        "type": "USB host",
+        "count": 1
+      }
+    ],
+    "outputs": [
+      {
+        "type": "HDBaseT 3",
+        "count": 1
+      },
+      {
+        "type": "HDMI loop",
+        "count": 1
+      }
+    ],
+    "control": [
+      "IR",
+      "RS-232"
+    ],
+    "audio": [
+      "Analogue audio I/O"
+    ],
+    "features": [
+      "USB 2.0",
+      "LAN",
+      "100m",
+      "HDR"
+    ],
+    "video": {
+      "usbStandard": "USB 2.0",
+      "maxResolution": "4K60 4:4:4",
+      "chroma": "4:4:4"
+    },
+    "matrixInputs": 1,
+    "routedInputs": 1,
+    "routedInputCount": 1,
+    "matrixOutputs": 1,
+    "routedOutputs": 1,
+    "routedOutputCount": 1,
+    "physicalOutputs": 2,
+    "mirroredOutputs": 1,
+    "ioEvidenceStatus": "derived",
+    "matrixSizeEvidence": "Official CYP solutions guide identifies the transmitter role and core transport features",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "Requires a compatible receiver; verify USB host selection and power arrangement.",
+    "closestWyrestormArchitecture": "HDBaseT 3 extension",
+    "closestWyrestormSkuOrFamily": "EX-100-H2-EARC / EX-100-KVM",
+    "notes": "Compare the complete transmitter/receiver dependency rather than the transmitter alone.",
     "sourceFile": "data-sources/competitors/cyp.csv",
     "comparisonOnly": true
   },
@@ -15069,6 +15665,274 @@
     "closestWyrestormSkuOrFamily": "APO-VX20-UC-V2 + APO-DG2",
     "notes": "Official Extron ShareLink Pro 1100 page. | data/product-intelligence-db.json#32 merged into deployed competitor catalog. | data/product-intelligence-db.json#41 merged into deployed competitor catalog. | data/product-intelligence-db.json#66 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | ShareLink products are wireless presentation and collaboration endpoints for meeting rooms. | Compare ShareLink against wireless presentation and BYOD collaboration products, not matrices or extenders. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#64 merged into deployed competitor catalog. | Official Extron ShareLink Pro 1100 product page and literature. | data/product-intelligence-db.json#70 merged into deployed competitor catalog. | data/product-intelligence-db.json#65 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | ShareLink products are wireless presentation and collaboration endpoints for meeting rooms. | Compare ShareLink against wireless presentation and BYOD collaboration products, not matrices or extenders. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#63 merged into deployed competitor catalog. | Verified via official Extron ShareLink Pro 1100 product page: wireless/wired presentation gateway, 4-device simultaneous display, HDMI input, dual Ethernet.",
     "sourceFile": "data-sources/competitors/extron.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "MHUB44100A",
+    "model": "MHUB44100A",
+    "name": "HDANYWHERE MHUB 4x4 100A",
+    "brand": "HDANYWHERE",
+    "manufacturer": "HDANYWHERE",
+    "family": "",
+    "category": "Matrix Switcher",
+    "subcategory": "HDMI over CAT matrix kit",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-library",
+    "summary": "Four-source four-display 100m matrix distribution package.",
+    "sourceUrl": "https://library.hdanywhere.com/",
+    "evidenceSource": "https://library.hdanywhere.com/",
+    "lastReviewed": "2026-08-04",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "matrix",
+    "transport": "HDMI over CAT",
+    "technology": "MATRIX",
+    "topology": "many-to-many",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 4
+      }
+    ],
+    "outputs": [
+      {
+        "type": "CAT video",
+        "count": 4
+      }
+    ],
+    "control": [],
+    "audio": [],
+    "features": [
+      "100m",
+      "Complete receiver package",
+      "App control"
+    ],
+    "video": {
+      "maxResolution": "4K"
+    },
+    "matrixInputs": 4,
+    "routedInputs": 4,
+    "routedInputCount": 4,
+    "matrixOutputs": 4,
+    "routedOutputs": 4,
+    "routedOutputCount": 4,
+    "physicalOutputs": 4,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "derived",
+    "matrixSizeEvidence": "Official HDA library identifies four inputs, four displays and 100m package",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "Proprietary transport; verify receiver inclusion and control dependencies.",
+    "closestWyrestormArchitecture": "HDBaseT matrix kit",
+    "closestWyrestormSkuOrFamily": "MXV-0404-H2A-KIT / MX-0404-KIT",
+    "notes": "Comparable by system outcome, not transport protocol.",
+    "sourceFile": "data-sources/competitors/hdanywhere.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "MHUB66100A",
+    "model": "MHUB66100A",
+    "name": "HDANYWHERE MHUB 6x6 100A",
+    "brand": "HDANYWHERE",
+    "manufacturer": "HDANYWHERE",
+    "family": "",
+    "category": "Matrix Switcher",
+    "subcategory": "HDMI over CAT matrix kit",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-library",
+    "summary": "Six-source six-display 100m matrix distribution package.",
+    "sourceUrl": "https://library.hdanywhere.com/",
+    "evidenceSource": "https://library.hdanywhere.com/",
+    "lastReviewed": "2026-08-04",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "matrix",
+    "transport": "HDMI over CAT",
+    "technology": "MATRIX",
+    "topology": "many-to-many",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 6
+      }
+    ],
+    "outputs": [
+      {
+        "type": "CAT video",
+        "count": 6
+      }
+    ],
+    "control": [],
+    "audio": [],
+    "features": [
+      "100m",
+      "Complete receiver package",
+      "App control"
+    ],
+    "video": {
+      "maxResolution": "4K"
+    },
+    "matrixInputs": 6,
+    "routedInputs": 6,
+    "routedInputCount": 6,
+    "matrixOutputs": 6,
+    "routedOutputs": 6,
+    "routedOutputCount": 6,
+    "physicalOutputs": 6,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "derived",
+    "matrixSizeEvidence": "Official HDA library identifies six inputs, six displays and 100m package",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "WyreStorm may require an 8x8 chassis or alternate architecture.",
+    "closestWyrestormArchitecture": "HDBaseT matrix system",
+    "closestWyrestormSkuOrFamily": "MX-0808-KIT-V2 / MX-0808-SCL",
+    "notes": "Capacity fit and receiver count are primary comparison checks.",
+    "sourceFile": "data-sources/competitors/hdanywhere.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "MHUBS888100A",
+    "model": "MHUBS888100A",
+    "name": "HDANYWHERE MHUB S 8+8x8 100A",
+    "brand": "HDANYWHERE",
+    "manufacturer": "HDANYWHERE",
+    "family": "",
+    "category": "Matrix Switcher",
+    "subcategory": "Stackable HDMI over CAT matrix",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-library",
+    "summary": "Stackable eight-input/eight-output matrix platform for larger display systems.",
+    "sourceUrl": "https://library.hdanywhere.com/",
+    "evidenceSource": "https://library.hdanywhere.com/",
+    "lastReviewed": "2026-08-04",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "matrix",
+    "transport": "HDMI over CAT",
+    "technology": "MATRIX",
+    "topology": "many-to-many",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 8
+      }
+    ],
+    "outputs": [
+      {
+        "type": "CAT video",
+        "count": 8
+      }
+    ],
+    "control": [],
+    "audio": [
+      "Volume control"
+    ],
+    "features": [
+      "Stackable",
+      "Up to 80 displays",
+      "100m"
+    ],
+    "video": {
+      "maxResolution": "4K"
+    },
+    "matrixInputs": 8,
+    "routedInputs": 8,
+    "routedInputCount": 8,
+    "matrixOutputs": 8,
+    "routedOutputs": 8,
+    "routedOutputCount": 8,
+    "physicalOutputs": 8,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "derived",
+    "matrixSizeEvidence": "Official HDA library identifies the base 8x8 system and stackable scale",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "Expansion topology is architectural and is not a one-box equivalence.",
+    "closestWyrestormArchitecture": "Scalable matrix or AVoIP",
+    "closestWyrestormSkuOrFamily": "MX-0808-SCL / NetworkHD",
+    "notes": "Use room and output scale to decide fixed matrix versus NetworkHD.",
+    "sourceFile": "data-sources/competitors/hdanywhere.csv",
+    "comparisonOnly": true
+  },
+  {
+    "sku": "MHUBU41140",
+    "model": "MHUBU41140",
+    "name": "HDANYWHERE MHUB U 4x1+1 40",
+    "brand": "HDANYWHERE",
+    "manufacturer": "HDANYWHERE",
+    "family": "",
+    "category": "Matrix Switcher",
+    "subcategory": "HDMI over CAT matrix kit",
+    "status": "review",
+    "approvalStatus": "review",
+    "sourceTier": "official-product-library",
+    "summary": "Entry-level four-source system for two displays, including one remote 40m output.",
+    "sourceUrl": "https://library.hdanywhere.com/",
+    "evidenceSource": "https://library.hdanywhere.com/",
+    "lastReviewed": "2026-08-04",
+    "reviewer": "Codex official-source pass",
+    "confidence": "medium",
+    "role": "matrix",
+    "transport": "HDMI over CAT",
+    "technology": "MATRIX",
+    "topology": "many-to-many",
+    "directionality": "bidirectional",
+    "inputs": [
+      {
+        "type": "HDMI",
+        "count": 4
+      }
+    ],
+    "outputs": [
+      {
+        "type": "CAT video",
+        "count": 1
+      },
+      {
+        "type": "HDMI local",
+        "count": 1
+      }
+    ],
+    "control": [],
+    "audio": [
+      "ARC"
+    ],
+    "features": [
+      "40m",
+      "Complete package",
+      "Two display system"
+    ],
+    "video": {
+      "maxResolution": "4K"
+    },
+    "matrixInputs": 4,
+    "routedInputs": 4,
+    "routedInputCount": 4,
+    "matrixOutputs": 2,
+    "routedOutputs": 2,
+    "routedOutputCount": 2,
+    "physicalOutputs": 2,
+    "mirroredOutputs": 0,
+    "ioEvidenceStatus": "derived",
+    "matrixSizeEvidence": "Official HDA library identifies four inputs, two displays and 40m package",
+    "quoteSafety": "comparison-only-verify",
+    "specs": {},
+    "aliases": [],
+    "knownLimitations": "The two display paths are not equivalent to a 4x4 matrix.",
+    "closestWyrestormArchitecture": "Small HDMI distribution system",
+    "closestWyrestormSkuOrFamily": "MX-0404-KIT / EXP-MX-0402-H2",
+    "notes": "Confirm whether both displays require independently selectable sources.",
+    "sourceFile": "data-sources/competitors/hdanywhere.csv",
     "comparisonOnly": true
   },
   {
