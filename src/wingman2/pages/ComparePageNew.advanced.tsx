@@ -111,7 +111,12 @@ for (const product of UC_COMPETITOR_PRODUCTS) {
 
 COMPETITOR_SKU_SEED_CATALOG.CUSTOM = [];
 
-const MANUFACTURER_SELECT_OPTIONS = Object.keys(COMPETITOR_SKU_SEED_CATALOG).filter((brand) => brand !== "CUSTOM");
+const compareManufacturerNames = (left: string, right: string) =>
+  left.localeCompare(right, undefined, { sensitivity: "base" });
+
+const MANUFACTURER_SELECT_OPTIONS = Object.keys(COMPETITOR_SKU_SEED_CATALOG)
+  .filter((brand) => brand !== "CUSTOM")
+  .sort(compareManufacturerNames);
 
 const COMPARE_TYPEAHEAD_STATIC_MARKERS = [
   "Competitor product",
@@ -4967,7 +4972,7 @@ function ComparePageNew() {
   const compareManufacturerOptions = useMemo(() => {
     const seededBrands = new Set(MANUFACTURER_SELECT_OPTIONS.map((brand) => brand.toLowerCase()));
     const newBrands = customManufacturerStore.filter((brand) => !seededBrands.has(brand.toLowerCase()));
-    return [...newBrands, ...MANUFACTURER_SELECT_OPTIONS];
+    return [...newBrands, ...MANUFACTURER_SELECT_OPTIONS].sort(compareManufacturerNames);
   }, [customManufacturerStore]);
 
   const legacyCandidates = useMemo(() => {

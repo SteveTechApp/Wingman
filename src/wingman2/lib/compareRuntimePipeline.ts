@@ -4,7 +4,7 @@ import {
   applyKnownCompareProfileOverrides,
   enrichCompareInputWithKnownProfile,
 } from "./knownCompareProfiles";
-import { applyCompareEligibilityRanking } from "./compareEligibilityEngine";
+import { applyCompareEligibilityRanking, classifyCompareIntent } from "./compareEligibilityEngine";
 import { applyCompareEquivalenceGuards } from "./compareEquivalenceGuard";
 
 type AnyRecord = Record<string, any>;
@@ -202,6 +202,11 @@ function applyWirelessCastingRulesToRuntimeResult<T>(
   products: readonly WirelessRuntimeRecord[],
   inputText: string,
 ): T {
+  const record = result as WirelessRuntimeRecord;
+  if (classifyCompareIntent(record?.competitor || record, inputText) === "control-system") {
+    return result;
+  }
+
   if (!hasWirelessCastingIntent(result, inputText)) {
     return result;
   }
@@ -213,7 +218,6 @@ function applyWirelessCastingRulesToRuntimeResult<T>(
     connectionLocation: inputText,
   });
 
-  const record = result as WirelessRuntimeRecord;
   record.matches = prioritiseRuntimeSkus(
     record.matches,
     products,
