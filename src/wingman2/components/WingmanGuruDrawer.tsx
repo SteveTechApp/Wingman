@@ -1285,16 +1285,155 @@ async function liveLookup(question: string, activityContext?: GuruActivityContex
   ].join("\n");
 }
 
+function compareContextField(context: string, label: string, nextLabel: string) {
+  const start = context.indexOf(`${label}:`);
+
+  if (start < 0) {
+    return "";
+  }
+
+  const valueStart = start + label.length + 1;
+  const end = context.indexOf(`${nextLabel}:`, valueStart);
+  return context.slice(valueStart, end >= 0 ? end : undefined).trim().replace(/\.\s*$/, "");
+}
+
+function compareContextItems(value: string) {
+  return uniqueGuruLines(
+    value
+      .split("|")
+      .map((item) => cleanGuruLine(item))
+      .filter((item) => item && !/^no (confirmed|explicit)/i.test(item)),
+  );
+}
+
+function isCompareProductManagerRequest(question: string, compareContext?: string) {
+  if (/wingman compare result|technical product manager for this wingman compare/i.test(question)) {
+    return true;
+  }
+
+  if (!compareContext) {
+    return false;
+  }
+
+  return /^(why|what|which|how|does|do|can|could|would|is|are|explain|compare|show|tell|give|list|help|and what|what about)/i.test(question.trim());
+}
+
+export function answerCompareProductManagerQuestion(
+  question: string,
+  products: ProductEntry[],
+  compareContext: string,
+) {
+  const status = compareContextField(compareContext, "Result status", "Competitor") || "Review required";
+  const competitor = compareContextField(compareContext, "Competitor", "WyreStorm direction") || "Competitor product";
+  const direction = compareContextField(compareContext, "WyreStorm direction", "Core requirement");
+  const coreRequirement = compareContextField(compareContext, "Core requirement", "Match evidence");
+  const evidence = compareContextItems(compareContextField(compareContext, "Match evidence", "Important differences"));
+  const differences = compareContextItems(compareContextField(compareContext, "Important differences", "Dependencies and checks"));
+  const dependencies = compareContextItems(compareContextField(compareContext, "Dependencies and checks", "Response request"));
+  const directionSku = extractSkus(direction)[0] || "";
+  const product = directionSku ? findProduct(products, directionSku) : undefined;
+  const productNotes = product ? usefulLines(product).slice(0, 2) : [];
+  const lower = question.toLowerCase();
+  const isSeedRequest = /technical product manager for this wingman compare result/i.test(question);
+  const dependencyFocus = !isSeedRequest && /dependenc|accessor|before quote|confirm|risk|watch/.test(lower);
+  const differenceFocus = !isSeedRequest && /difference|compare|versus|vs|not exact|equivalent/.test(lower);
+  const productHeading = directionSku || direction || "No WyreStorm direction confirmed";
+  const nextQuestions = uniqueGuruLines([
+    dependencies[0] ? `Can the customer confirm ${dependencies[0].replace(/^confirm\s+/i, "").replace(/[.?]$/, "").toLowerCase()}?` : "Which functions and connections are mandatory rather than simply present on the competitor product?",
+    dependencies[1] ? `Is ${dependencies[1].replace(/^confirm\s+/i, "").replace(/[.?]$/, "").toLowerCase()} required in the proposed system?` : "What source, display, USB, audio, control and distance requirements must be preserved?",
+  ]).slice(0, 2);
+
+  if (!directionSku || /no wyrestorm candidate/i.test(direction)) {
+    return [
+      "Product-manager assessment",
+      "",
+      `${competitor} does not yet have a defensible WyreStorm alternative from the available evidence. I would not position a replacement until the core role and missing system requirements are confirmed.`,
+      "",
+      "What I need next",
+      ...nextQuestions.map((item) => `- ${item}`),
+      "",
+      "I can then reassess the product class, architecture and likely WyreStorm family with you.",
+    ].join("\n");
+  }
+
+  const qualification = status.toLowerCase().includes("match") && !/partial|check/i.test(status)
+    ? "This is the current leading WyreStorm option, subject to final lifecycle and system checks."
+    : "This is a credible product direction, not a confirmed one-box equivalent.";
+  const differenceLines = differences.length
+    ? differences
+    : ["No explicit functional difference is recorded, so exact feature parity must not be assumed."];
+  const dependencyLines = dependencies.length
+    ? dependencies
+    : ["Confirm lifecycle, accessories and complete signal-path compatibility before quotation."];
+
+  if (dependencyFocus) {
+    return [
+      `${productHeading} - dependencies before quote`,
+      "",
+      ...dependencyLines.map((item) => `- ${item}`),
+      "",
+      "Qualification questions",
+      ...nextQuestions.map((item) => `- ${item}`),
+      "",
+      "Tell me the intended room, source/display count and required USB/control behaviour and I can turn these into a product-specific checklist.",
+    ].join("\n");
+  }
+
+  if (differenceFocus) {
+    return [
+      `${competitor} versus ${productHeading}`,
+      "",
+      qualification,
+      coreRequirement ? `Core requirement: ${coreRequirement}` : "",
+      "",
+      "Important differences",
+      ...differenceLines.map((item) => `- ${item}`),
+      "",
+      "Design consequence",
+      `- ${dependencyLines[0]}`,
+      "",
+      "Ask me to go deeper on I/O, topology, USB, control or customer-facing positioning.",
+    ].filter(Boolean).join("\n");
+  }
+
+  return [
+    `${productHeading} - product-manager view`,
+    "",
+    qualification,
+    product?.description ? `${product.description}` : product?.title ? `${product.title}.` : "",
+    coreRequirement ? `Core requirement: ${coreRequirement}` : "",
+    "",
+    "Why it is being considered",
+    ...(evidence.length ? evidence : productNotes.length ? productNotes : ["It is the closest role-compatible WyreStorm direction currently supported by the stored product evidence."]).slice(0, 3).map((item) => `- ${item}`),
+    "",
+    "Nuanced differences",
+    ...differenceLines.slice(0, 3).map((item) => `- ${item}`),
+    "",
+    "Dependencies before quote",
+    ...dependencyLines.slice(0, 3).map((item) => `- ${item}`),
+    "",
+    "Ask the customer next",
+    ...nextQuestions.map((item) => `- ${item}`),
+    "",
+    "I can help next by checking I/O and topology, explaining a dependency, comparing another WyreStorm option, or preparing concise customer wording.",
+  ].filter(Boolean).join("\n");
+}
+
 async function answerQuestion(
   question: string,
   products: ProductEntry[],
   activityContext?: GuruActivityContext,
+  compareContext?: string,
 ) {
   const lower = question.toLowerCase();
   const skus = extractSkus(question);
 
   if ((lower.includes("receiver") || lower.includes("rx")) && skus.length) {
     return answerReceiverQuestion(question, products);
+  }
+
+  if (isCompareProductManagerRequest(question, compareContext)) {
+    return answerCompareProductManagerQuestion(question, products, compareContext || question);
   }
 
   const glossaryAnswer = answerGlossary(question);
@@ -1529,6 +1668,7 @@ export function WingmanGuruDrawer({
   const messagesRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const handledSeedPromptRef = useRef<string | null>(null);
+  const compareContextRef = useRef<string | null>(null);
 
   useEffect(() => {
     setMemoryCount(cacheCount());
@@ -1584,11 +1724,15 @@ export function WingmanGuruDrawer({
       const userMessage = createMessage("user", prompt);
       const pendingMessage = createMessage("assistant", "Checking Guru knowledge...");
 
+      if (/wingman compare result|technical product manager for this wingman compare/i.test(prompt)) {
+        compareContextRef.current = prompt;
+      }
+
       setMessages((current) => [...current, userMessage, pendingMessage]);
       setDraft("");
 
       const answer = compactLiveAnswer(
-        await answerQuestion(prompt, products, activityContext),
+        await answerQuestion(prompt, products, activityContext, compareContextRef.current ?? undefined),
         prompt,
       );
 
@@ -1630,6 +1774,7 @@ export function WingmanGuruDrawer({
   function clearConversation() {
     setMessages([openingMessage]);
     setCopiedMessageId(null);
+    compareContextRef.current = null;
   }
 
   async function copyGuruMessage(message: GuruMessage) {
