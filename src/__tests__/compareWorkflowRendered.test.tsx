@@ -326,16 +326,14 @@ describe("Compare rendered workflow", () => {
     expect(screen.queryByText(/Confirm whether the customer wants the same architecture/i)).not.toBeInTheDocument();
   });
 
-  it("keeps Marshall NDI PTZ cameras in the camera lane instead of forcing a NetworkHD encoder result", async () => {
+  it("keeps Marshall PTZ controllers out of camera and NetworkHD endpoint recommendations", async () => {
     renderComparePage();
 
     runKnownCompare("Marshall", "VS-PTC-200NDI");
 
-    await findMainCompareResult();
+    await screen.findByRole("heading", { name: /No suitable WyreStorm match found from the current data/i });
 
-    expect(screen.getAllByText("Marshall VS-PTC-200NDI").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("NDI camera").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText("CAM-210-NDI-PTZ").length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText("CAM-210-NDI-PTZ")).not.toBeInTheDocument();
     expect(screen.queryByText("NHD-500-TX")).not.toBeInTheDocument();
     expect(screen.queryByText(/source-side AV-over-IP encoder/i)).not.toBeInTheDocument();
   });

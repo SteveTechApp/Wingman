@@ -1,11 +1,25 @@
 import { describe, expect, it } from "vitest";
 import rawProductIndex from "../../../public/product-intelligence-index.json";
+import competitorCatalog from "../../../data/catalog/competitor-products.generated.json";
 import { normaliseCompareProducts, runCompareRuntimePipeline } from "./compareRuntimePipeline";
 import { isBannedNetworkHdSku } from "./networkHdAvoipEquivalence";
 
 type AnyRecord = Record<string, any>;
 
 const products: AnyRecord[] = normaliseCompareProducts(rawProductIndex);
+const competitors: AnyRecord[] = competitorCatalog as AnyRecord[];
+
+function fullCompetitorInput(competitorSku: string): { input: string; brand: string } {
+  const competitor = competitors.find((item) => item.sku === competitorSku);
+  if (!competitor) throw new Error(`Missing competitor test record: ${competitorSku}`);
+
+  return {
+    input: [competitor.sku, competitor.name, competitor.category, competitor.subcategory, competitor.role, competitor.transport, competitor.technology, competitor.summary]
+      .filter(Boolean)
+      .join(" | "),
+    brand: competitor.brand || competitor.manufacturer,
+  };
+}
 
 function sku(value: AnyRecord | undefined): string {
   return String(value?.sku ?? value?.wyrestorm?.sku ?? "").toUpperCase();
@@ -109,6 +123,29 @@ describe("competitor compare runtime behaviour", () => {
     expect(leadSkus.some((item) => /-TX\b/.test(item) && !/-TRX\b/.test(item))).toBe(false);
     expect(leadSkus).not.toContain("NHD-600-TRX");
   });
+
+  it.each([
+    ["IP250UHD-TX", /^NHD-500(?:-E)?-TX$/],
+    ["IP250UHD-RX", /^NHD-500(?:-E)?-RX$/],
+    ["NMX-ENC-N2412A", /^NHD-500(?:-E)?-TX$/],
+    ["NMX-DEC-N2422A", /^NHD-500(?:-E)?-RX$/],
+  ])("keeps %s in its governed AVoIP lane when the full catalogue description is supplied", (competitorSku, expectedLead) => {
+    const scenario = fullCompetitorInput(competitorSku);
+    const result = runCompareRuntimePipeline(scenario.input, products, scenario.brand, 12);
+
+    expect(sku(result.matches[0])).toMatch(expectedLead);
+    expect(result.matches.length).toBeGreaterThan(0);
+  });
+
+  it.each(["NX-1200", "AT-VGW-HW", "B-260-HDMI-CTRL", "Solstice Active Learning", "Solstice Gen3"])(
+    "does not recommend unrelated AV transport for governed control product %s",
+    (competitorSku) => {
+      const scenario = fullCompetitorInput(competitorSku);
+      const result = runCompareRuntimePipeline(scenario.input, products, scenario.brand, 12);
+
+      expect(result.matches).toEqual([]);
+    },
+  );
   it("keeps verified 1G AVoIP runtime results away from NetworkHD 600 unless 10G or SDVoE is explicit", () => {
     const scenarios: Array<[string, string | undefined]> = [
       ["DMNVX350", "Crestron"],

@@ -59,6 +59,13 @@ describe("NetworkHD AVoIP family truth", () => {
 });
 
 describe("classifyCompetitorAvoip", () => {
+  it("does not mistake HDMI bandwidth for a 10GbE AVoIP network", () => {
+    const result = classifyCompetitorAvoip("IP250UHD-TX visually-lossless 10Gb HDMI over a 1Gb network with Dante audio");
+
+    expect(result.networkClass).toBe("1g");
+    expect(result.codec).toBe("visually-lossless");
+  });
+
   it("treats a generic 1G AVoIP endpoint as 1G with unknown codec", () => {
     const result = classifyCompetitorAvoip("Blustream IP300UHD-TX AVoIP transmitter 4K60");
     expect(result.isAvoip).toBe(true);

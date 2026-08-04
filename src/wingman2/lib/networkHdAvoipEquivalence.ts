@@ -222,7 +222,6 @@ function includesAny(text: string, terms: string[]): boolean {
   return terms.some((term) => text.includes(term));
 }
 
-const TEN_GIG_SIGNALS = ["10g", "10gbe", "10 gbe", "10 gig", "sdvoe", "zero latency", "zero-latency", "zero frame", "zero-frame", "uncompressed", "25g"];
 const ONE_GIG_SIGNALS = ["1g", "1gbe", "1 gbe", "1 gig", "gigabit"];
 const H26X_SIGNALS = ["h.264", "h264", "h.265", "h265", "hevc", "h.26", "avc"];
 const VISUALLY_LOSSLESS_SIGNALS = ["jpeg2000", "jpeg 2000", "jpeg-2000", "j2k", "jpeg-xs", "jpegxs", "jpeg xs", "visually lossless", "visually-lossless", "pure3", "pixel perfect", "pixel-perfect", "light compression", "mathematically lossless"];
@@ -432,7 +431,12 @@ export function classifyCompetitorAvoip(input: string): CompetitorAvoipClassific
   const known = KNOWN_AVOIP_FAMILIES.find((family) => family.keys.some((key) => compact.includes(key)));
 
   // 2) Explicit signals from the text always win for network class.
-  const explicitTenGig = includesAny(text, TEN_GIG_SIGNALS);
+  // A raw HDMI bandwidth figure such as "10Gb HDMI over a 1Gb network" is not
+  // evidence of a 10GbE AVoIP fabric. Require a network-qualified 10G signal or
+  // an unmistakable 10G architecture marker before selecting NetworkHD 600.
+  const explicitTenGig =
+    /\b(?:10|25)\s*g(?:b|be|igabit)?\s*(?:ethernet|network|lan|sfp|avoip|av\s*over\s*ip)\b/i.test(text) ||
+    /\b(sdvoe|zero[\s-]*(?:latency|frame)|uncompressed(?:\s+(?:avoip|av\s*over\s*ip|network video))?)\b/i.test(text);
   const explicitH26x = includesAny(text, H26X_SIGNALS);
   const explicitLossless = includesAny(text, VISUALLY_LOSSLESS_SIGNALS);
   const explicitOneGig = includesAny(text, ONE_GIG_SIGNALS);
