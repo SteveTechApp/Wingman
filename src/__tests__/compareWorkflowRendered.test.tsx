@@ -128,6 +128,20 @@ describe("Compare rendered workflow", () => {
     expect(screen.queryByRole("button", { name: /open manual picker/i })).not.toBeInTheDocument();
   });
 
+  it("lists competitor manufacturers alphabetically", () => {
+    renderComparePage();
+
+    const manufacturerList = screen.getByLabelText("Known manufacturers");
+    const brands = within(manufacturerList)
+      .getAllByRole("button")
+      .map((button) => button.textContent?.trim() ?? "");
+    const alphabetized = [...brands].sort((left, right) =>
+      left.localeCompare(right, undefined, { sensitivity: "base" }),
+    );
+
+    expect(brands).toEqual(alphabetized);
+  });
+
   it("includes UC manufacturers and products in the structured selectors", async () => {
     renderComparePage();
 
