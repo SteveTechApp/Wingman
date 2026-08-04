@@ -128,7 +128,9 @@ describe("Project Detail rendered workflow evidence", () => {
 
     expect(mockSetActiveProjectId).toHaveBeenCalledWith("project-1");
     expect(screen.getByText("MX-0808-KIT")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Resolve project blockers" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Review .* project blockers?/ }));
+    expect(screen.getByRole("region", { name: "Proposal blocker walkthrough" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Resolve in Discovery|Open Finder|Open Compare|Open Proposal/ })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Review project detail" }));
 
