@@ -1005,7 +1005,15 @@ export function evaluateProductEligibility(args: {
   }
 
   if (args.intent === "controller-accessory") {
-    return direct(args.intent, ["Accessory/controller comparison requested."], 0);
+    const isControllerRoleProduct =
+      /^NHDCTL/.test(key) ||
+      /\b(system[\s-]*controller|controller|control processor|control hub|management appliance)\b/i.test(combined);
+
+    if (isControllerRoleProduct) {
+      return direct(args.intent, ["Controller-role comparison requested."], 0);
+    }
+
+    return blocked(sku, args.intent, ["AV endpoint hardware cannot replace a controller or management appliance."]);
   }
 
   if (args.intent === "control-system") {
@@ -1257,7 +1265,9 @@ export function applyCompareEligibilityRanking<T extends { matches?: LooseMatch[
     // Within the allowed network class, prefer the truth-resolved series/role
     // (e.g. 500 over 100 for a visually-lossless 1G competitor) so it leads.
     const compareEligibility =
-      baseEligibility.eligibility === "direct" && recommendedSkuKeys.has(skuKey(getSku(match)))
+      AVOIP_ENDPOINT_INTENTS.has(intent) &&
+      baseEligibility.eligibility === "direct" &&
+      recommendedSkuKeys.has(skuKey(getSku(match)))
         ? { ...baseEligibility, fitPenalty: baseEligibility.fitPenalty - 40 }
         : baseEligibility;
     const selectorDecision = selectorDecisionBySku.get(skuKey(getSku(match))) || selectorDecisionBySku.get(skuKey(getSku(product)));

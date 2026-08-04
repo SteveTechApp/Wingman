@@ -5,7 +5,7 @@
   "tsx": true,
   "tailwind": {
     "config": "tailwind.config.js",
-    "css": "archive/_wingman_backup_clean_guru_compare_20260614-063638/wingman-style-stack.css",
+    "css": "src/wingman2/styles/wingman-style-stack.css",
     "baseColor": "neutral",
     "cssVariables": true,
     "prefix": ""

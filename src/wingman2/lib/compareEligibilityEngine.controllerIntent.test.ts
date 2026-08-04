@@ -54,7 +54,7 @@ describe("controller-role compare eligibility", () => {
 
   it("recommends NHD-CTL-PRO-V2 for ACM210 instead of a NetworkHD encoder", () => {
     const ranked = applyCompareEligibilityRanking(
-      { competitor: acm210, matches: [] as Array<Record<string, any>> },
+      { competitor: acm210, matches: [encoder] as Array<Record<string, any>>, rejected: [] as Array<Record<string, any>> },
       [controller, encoder],
       "Blustream ACM210",
     );
@@ -62,6 +62,7 @@ describe("controller-role compare eligibility", () => {
     expect(ranked.matches?.[0]?.sku).toBe("NHD-CTL-PRO-V2");
     expect(ranked.matches?.some((match) => match.sku === "NHD-500-TX")).toBe(false);
     expect(ranked.matches?.[0]?.compareEligibility?.intent).toBe("controller-accessory");
+    expect(ranked.rejected?.some((match) => match.sku === "NHD-500-TX")).toBe(true);
   });
 
   it("uses governed AVoIP direction before descriptive audio features", () => {
