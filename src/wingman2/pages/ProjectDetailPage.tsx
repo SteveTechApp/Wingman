@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, CheckCircle2, LayoutTemplate, Save, ShieldCheck } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
+import { ArrowLeft, CheckCircle2, LayoutTemplate, Pencil, Save, ShieldCheck, Trash2, X } from "lucide-react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
@@ -8,6 +8,7 @@ import { StatusChip } from "../components/StatusChip";
 import {
   saveProjectRequirementsToProject,
   setActiveProjectId,
+  updateStoredProject,
   type StoredProject,
   type StoredRequirementRecord,
   type StoredRequirementStatus,
@@ -124,7 +125,8 @@ function formatProjectTimestamp(value: unknown) {
 
 export function ProjectDetailPage() {
   const { projectId } = useParams();
-  const { projects, syncStatus } = useProjectStore();
+  const navigate = useNavigate();
+  const { projects, syncStatus, deleteProject } = useProjectStore();
   const project = projects.find((item) => item.id === projectId) ?? null;
   const initialRequirements = useMemo(
     () => (project ? getProjectRequirementRecords(project) : []),
@@ -134,6 +136,9 @@ export function ProjectDetailPage() {
   const [message, setMessage] = useState("");
   const [savedTemplatePath, setSavedTemplatePath] = useState("");
   const [showSupportingDetails, setShowSupportingDetails] = useState(false);
+  const [isEditingProject, setIsEditingProject] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [projectDraft, setProjectDraft] = useState({ name: "", owner: "" });
   const readiness = useMemo(() => requirementReadiness(requirements), [requirements]);
   const recommendationEvidence = useMemo(
     () =>
@@ -422,7 +427,10 @@ export function ProjectDetailPage() {
     setRequirements(initialRequirements);
     setMessage("");
     setSavedTemplatePath("");
-  }, [initialRequirements]);
+    setProjectDraft({ name: project?.name ?? "", owner: project?.owner ?? "" });
+    setIsEditingProject(false);
+    setConfirmDelete(false);
+  }, [initialRequirements, project?.name, project?.owner]);
 
   useEffect(() => {
     if (projectId) {
@@ -450,9 +458,40 @@ export function ProjectDetailPage() {
     setMessage("Project saved as a custom room template.");
   }
 
+  function saveProjectDetails() {
+    if (!project) return;
+    const name = projectDraft.name.trim();
+    const owner = projectDraft.owner.trim();
+    if (!name) {
+      setMessage("Project name is required.");
+      return;
+    }
+
+    updateStoredProject(project.id, (current) => ({
+      ...current,
+      name,
+      owner: owner || "Wingman user",
+      updated: "Just now",
+      updatedAt: new Date().toISOString(),
+    }));
+    setIsEditingProject(false);
+    setMessage("Project details saved.");
+  }
+
+  function deleteCurrentProject() {
+    if (!project) return;
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
+
+    deleteProject(project.id);
+    navigate(routeCatalogByKey.projects.path);
+  }
+
   if (!project) {
     return (
-      <div className="pb-10">
+      <main className="wm-project-detail-page wm-ui-page pb-10">
         <PageHero
           eyebrow="Project Detail"
           title="Project not found."
@@ -460,12 +499,12 @@ export function ProjectDetailPage() {
           nextMove="Return to Project Management and reopen a current opportunity."
           actions={[{ label: "Back to projects", to: routeCatalogByKey.projects.path }]}
         />
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="pb-10">
+    <main className="wm-project-detail-page wm-ui-page pb-10" data-wingman-page="project-detail">
       <PageHero
         eyebrow="Project Detail"
         title={project.name}
@@ -477,7 +516,49 @@ export function ProjectDetailPage() {
         ]}
       />
 
-      <div className="space-y-6">
+      <nav className="wm-project-detail-nav wm-ui-card" aria-label="Project review navigation">
+        <div className="wm-project-detail-nav__links">
+          <Link to={routeCatalogByKey.projects.path} className="wm-ui-button wm-ui-button-secondary">
+            <ArrowLeft className="h-4 w-4" /> All projects
+          </Link>
+          <a href="#project-overview" className="wm-ui-button wm-ui-button-secondary">Overview</a>
+          <a href="#project-requirements" className="wm-ui-button wm-ui-button-secondary">Requirements</a>
+          <a href="#project-evidence" className="wm-ui-button wm-ui-button-secondary">Evidence</a>
+        </div>
+        <div className="wm-project-detail-nav__actions">
+          <button type="button" className="wm-ui-button wm-ui-button-primary" onClick={() => setIsEditingProject((current) => !current)}>
+            {isEditingProject ? <X className="h-4 w-4" /> : <Pencil className="h-4 w-4" />}
+            {isEditingProject ? "Cancel edit" : "Edit project"}
+          </button>
+          <button
+            type="button"
+            className={`wm-ui-button ${confirmDelete ? "wm-project-delete-confirm" : "wm-ui-button-secondary"}`}
+            onClick={deleteCurrentProject}
+            onBlur={() => setConfirmDelete(false)}
+          >
+            <Trash2 className="h-4 w-4" />
+            {confirmDelete ? "Confirm delete" : "Delete"}
+          </button>
+        </div>
+      </nav>
+
+      {isEditingProject ? (
+        <section className="wm-project-detail-editor wm-ui-section wm-ui-card" aria-label="Edit project details">
+          <label>
+            <span>Project name</span>
+            <input className="wm-ui-input" value={projectDraft.name} onChange={(event) => setProjectDraft((current) => ({ ...current, name: event.target.value }))} />
+          </label>
+          <label>
+            <span>Owner / customer</span>
+            <input className="wm-ui-input" value={projectDraft.owner} onChange={(event) => setProjectDraft((current) => ({ ...current, owner: event.target.value }))} />
+          </label>
+          <button type="button" className="wm-ui-button wm-ui-button-primary" onClick={saveProjectDetails}>
+            <Save className="h-4 w-4" /> Save project
+          </button>
+        </section>
+      ) : null}
+
+      <div id="project-overview" className="wm-project-detail-stack space-y-6">
         {savedTemplatePath ? (
           <section className="rounded-2xl border p-3 text-sm wm-output-panel">
             <div className="flex flex-wrap items-center gap-3">
@@ -490,9 +571,9 @@ export function ProjectDetailPage() {
           </section>
         ) : null}
 
-        <section className="rounded-3xl border p-5 wm-ui-card">
-          <div className="grid gap-4 lg:grid-cols-[1fr_280px] lg:items-center">
-            <div>
+        <section className="wm-project-current-result rounded-3xl border p-5 wm-ui-card">
+          <div className="wm-project-current-result__layout grid gap-4 lg:grid-cols-[1fr_280px] lg:items-center">
+            <div className="wm-project-current-result__summary">
               <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-kicker">Current result</p>
               <h2 className="mt-2 text-3xl font-black wm-ui-title">
                 {selectedProducts[0]?.sku || leadingProductFamilyScore?.family || "No product direction selected"}
@@ -510,7 +591,7 @@ export function ProjectDetailPage() {
                 </div>
               ) : null}
             </div>
-            <div className="rounded-2xl border p-4 wm-ui-section wm-ui-card">
+            <div className="wm-project-current-result__next rounded-2xl border p-4 wm-ui-section wm-ui-card">
               <p className="text-xs font-black uppercase tracking-[0.14em] wm-ui-kicker">Next step</p>
               <p className="mt-2 font-black wm-ui-copy">{projectReadinessGate.status}</p>
               <Link
@@ -521,14 +602,16 @@ export function ProjectDetailPage() {
               </Link>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => setShowSupportingDetails((current) => !current)}
-            className="mt-4 rounded-full border px-4 py-2 text-sm font-black wm-ui-button wm-ui-button-secondary"
-            aria-expanded={showSupportingDetails}
-          >
-            {showSupportingDetails ? "Hide project detail" : "Review project detail"}
-          </button>
+          <div className="wm-project-current-result__footer">
+            <button
+              type="button"
+              onClick={() => setShowSupportingDetails((current) => !current)}
+              className="rounded-full border px-4 py-2 text-sm font-black wm-ui-button wm-ui-button-secondary"
+              aria-expanded={showSupportingDetails}
+            >
+              {showSupportingDetails ? "Hide project detail" : "Review project detail"}
+            </button>
+          </div>
         </section>
 
         {showSupportingDetails ? (
@@ -774,7 +857,8 @@ export function ProjectDetailPage() {
         <SectionCard
           title="Project evidence trace"
           subtitle="Trace what Wingman has actually captured, where it came from, what it proves, and which workflow should be opened next."
-        >
+          >
+          <span id="project-evidence" className="wm-project-detail-anchor" aria-hidden="true" />
           {projectEvidenceTimeline.length ? (
             <div className="grid gap-3">
               {projectEvidenceTimeline.map((item) => (
@@ -807,6 +891,7 @@ export function ProjectDetailPage() {
           title="Editable requirements"
           subtitle="Confirm known requirements, mark weak assumptions for review, and keep unknowns visible rather than guessing."
         >
+          <span id="project-requirements" className="wm-project-detail-anchor" aria-hidden="true" />
           <div className="grid gap-3">
             {requirements.map((requirement) => (
               <div key={requirement.id} className="rounded-2xl border p-4 wm-ui-card">
@@ -971,7 +1056,7 @@ export function ProjectDetailPage() {
         </>
         ) : null}
       </div>
-    </div>
+    </main>
   );
 }
 
