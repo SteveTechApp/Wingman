@@ -468,9 +468,46 @@ export function loadWyrestormIndex(): Promise<WsEntry[]> {
 
 let mediaIndexPromise: Promise<Map<string, string>> | null = null;
 
+export function resolveWyrestormMediaIndexUrl(
+  path = "/product-media-index.json",
+  configuredBase?: string,
+): string | null {
+  try {
+    return new URL(path).toString();
+  } catch {
+    // Site-relative assets need an origin outside the browser.
+  }
+
+  const environmentBase = typeof process !== "undefined"
+    ? process.env.TEST_BASE_URL || process.env.BASE_URL
+    : undefined;
+  const browserBase = typeof window !== "undefined" && window.location?.origin !== "null"
+    ? window.location.origin
+    : undefined;
+  const base = configuredBase || environmentBase || browserBase;
+
+  if (!base) return null;
+
+  try {
+    return new URL(path, base).toString();
+  } catch {
+    return null;
+  }
+}
+
 export function loadWyrestormMediaIndex(): Promise<Map<string, string>> {
   if (!mediaIndexPromise) {
-    mediaIndexPromise = fetch("/product-media-index.json")
+    const isUnconfiguredTestRuntime = typeof process !== "undefined"
+      && process.env.NODE_ENV === "test"
+      && !process.env.TEST_BASE_URL
+      && !process.env.BASE_URL;
+    const mediaIndexUrl = isUnconfiguredTestRuntime ? null : resolveWyrestormMediaIndexUrl();
+
+    if (!mediaIndexUrl) {
+      return Promise.resolve(new Map<string, string>());
+    }
+
+    mediaIndexPromise = fetch(mediaIndexUrl)
       .then((response) => (response.ok ? response.json() : Promise.reject(new Error(String(response.status)))))
       .then((data: { products?: Array<Record<string, unknown>> }) => {
         const map = new Map<string, string>();
