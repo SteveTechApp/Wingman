@@ -63,6 +63,7 @@ export type CompareIntentKind =
   | "cable"
   | "gpio-relay"
   | "controller-accessory"
+  | "control-system"
   | "unknown";
 
 export type CompareEligibilityClass =
@@ -349,9 +350,41 @@ function intentFromResolvedDomain(resultOrInput: unknown): CompareIntentKind | n
     (resultOrInput as LooseRecord).title,
     (resultOrInput as LooseRecord).summary,
     (resultOrInput as LooseRecord).technology,
+    (resultOrInput as LooseRecord).transport,
   ]);
 
+  if (/\b(software|software add-on|management platform|cloud platform|platform \/ software)\b/i.test(roleText)) {
+    return "control-system";
+  }
+
   switch (domain) {
+    case "AVOIP":
+      if (/\b(encoder|transmitter)\b/i.test(roleText)) return "av-over-ip-encoder";
+      if (/\b(decoder|receiver)\b/i.test(roleText)) return "av-over-ip-decoder";
+      if (/\b(controller|director|manager|management)\b/i.test(roleText)) return "controller-accessory";
+      return "av-over-ip";
+    case "HDBASET":
+      return /\bmatrix\b/i.test(roleText) ? "hdbaset-matrix" : "extender";
+    case "MATRIX":
+      return /\b(hdbaset|hdbt)\b/i.test(roleText) ? "hdbaset-matrix" : "matrix";
+    case "PRESENTATION":
+      return "presentation-switcher";
+    case "VIDEO_WALL":
+      return "video-wall-processor";
+    case "MULTIVIEW":
+      return "multiview";
+    case "USB_EXTENSION":
+      return "extender";
+    case "AUDIO":
+      return "network-audio";
+    case "CONTROL":
+      return /\b(av\s*over\s*ip|avoip|networkhd|multicast\s+(?:av|video|system)|domain manager|endpoint manager)\b/i.test(roleText)
+        ? "controller-accessory"
+        : "control-system";
+    case "UC_SOUNDBAR":
+      return "uc-byod";
+    case "CABLE":
+      return "cable";
     case "NDI_CAMERA":
       return "ndi-camera";
     case "PTZ_CAMERA":
@@ -399,6 +432,29 @@ function isCompactPresentationSwitcher(text: string): boolean {
 }
 
 export function classifyCompareIntent(resultOrInput: unknown, inputText = ""): CompareIntentKind {
+  // Some software-only catalogue rows resolve through the hardware family they
+  // extend (for example a wireless-presentation software licence). Preserve the
+  // submitted software identity before that family mapping can inject hardware.
+  if (/\b(software add-on|software platform|cloud management platform|platform\s*\/\s*software(?: generation)?)\b/i.test(inputText)) {
+    return "control-system";
+  }
+
+  if (resultOrInput && typeof resultOrInput === "object") {
+    const record = resultOrInput as LooseRecord;
+    const explicitRole = normalise([record.role, record.category, record.subcategory, record.technology]);
+    const controllerContext = normalise([record.summary, record.description, record.family, inputText]);
+
+    // Controller records frequently mention the AVoIP endpoints they manage.
+    // Their explicit product role must win before descriptive AVoIP keywords,
+    // otherwise a controller such as ACM210 is mistaken for an encoder.
+    if (
+      /\b(controller|control module|control processor|automation controller)\b/i.test(explicitRole) &&
+      /\b(av\s*over\s*ip|avoip|networkhd|multicast\s+(?:av|video|system)|ip\d{2,4}[a-z0-9]*\s+system)\b/i.test(controllerContext)
+    ) {
+      return "controller-accessory";
+    }
+  }
+
   const resolvedDomainIntent = intentFromResolvedDomain(resultOrInput);
 
   if (resolvedDomainIntent) {
@@ -949,7 +1005,19 @@ export function evaluateProductEligibility(args: {
   }
 
   if (args.intent === "controller-accessory") {
-    return direct(args.intent, ["Accessory/controller comparison requested."], 0);
+    const isControllerRoleProduct =
+      /^NHDCTL/.test(key) ||
+      /\b(system[\s-]*controller|controller|control processor|control hub|management appliance)\b/i.test(combined);
+
+    if (isControllerRoleProduct) {
+      return direct(args.intent, ["Controller-role comparison requested."], 0);
+    }
+
+    return blocked(sku, args.intent, ["AV endpoint hardware cannot replace a controller or management appliance."]);
+  }
+
+  if (args.intent === "control-system") {
+    return blocked(sku, args.intent, ["Dedicated control or software platforms require an explicit reviewed equivalent; AV transport hardware cannot be substituted."]);
   }
 
   return related(args.intent, ["No strict intent gate applied."], 80);
@@ -1129,6 +1197,16 @@ function ensureEligibilityCandidatePool(
     );
   }
 
+  if (intent === "controller-accessory") {
+    addCandidateBySku(
+      nextMatches,
+      products,
+      "NHD-CTL-PRO-V2",
+      "Eligibility correction: current NetworkHD system controller inserted as the closest ecosystem-role equivalent for AVoIP control and management.",
+      90,
+    );
+  }
+
   return nextMatches;
 }
 
@@ -1187,7 +1265,9 @@ export function applyCompareEligibilityRanking<T extends { matches?: LooseMatch[
     // Within the allowed network class, prefer the truth-resolved series/role
     // (e.g. 500 over 100 for a visually-lossless 1G competitor) so it leads.
     const compareEligibility =
-      baseEligibility.eligibility === "direct" && recommendedSkuKeys.has(skuKey(getSku(match)))
+      AVOIP_ENDPOINT_INTENTS.has(intent) &&
+      baseEligibility.eligibility === "direct" &&
+      recommendedSkuKeys.has(skuKey(getSku(match)))
         ? { ...baseEligibility, fitPenalty: baseEligibility.fitPenalty - 40 }
         : baseEligibility;
     const selectorDecision = selectorDecisionBySku.get(skuKey(getSku(match))) || selectorDecisionBySku.get(skuKey(getSku(product)));
