@@ -4274,44 +4274,48 @@ function CompareReportedStatusRail({
   );
 }
 
-function compactCompareNextSteps(
+function compactCompareQuoteChecks(
   competitor: CompetitorSummary,
   candidate: ScoredCandidate,
   status: CompareReportedStatus,
 ): string[] {
-  const evidenceSteps = uniqueText([
+  const hasClassMatch = [...candidate.matched, ...candidate.partialMatches]
+    .some((item) => /technology class match/i.test(item));
+  const seenCategories = new Set<string>();
+  const checks: string[] = [];
+  const rawChecks = [
     ...candidate.blockers,
+    ...candidate.mismatches,
     ...candidate.unknowns,
     ...candidate.dependencies,
     ...candidate.checks,
+    ...candidate.gaps,
     ...competitor.verifyItems,
-  ], 4);
+    competitor.warning,
+  ];
 
-  if (status === "match") {
-    return uniqueText([
-      "Confirm current lifecycle, region and required accessories.",
-      evidenceSteps[0] || "Add the matched product to the active project or proposal.",
-    ], 2);
+  for (const rawCheck of rawChecks) {
+    const check = commercializeCompareCopy(String(rawCheck || "")
+      .replace(/^Compare warning:\s*/i, "")
+      .replace(/^Why not direct equivalent:\s*/i, ""));
+
+    if (!check || (hasClassMatch && /no technology class has been verified/i.test(check))) continue;
+
+    const category = /datasheet|current specification|required accessories|mandatory features/i.test(check)
+      ? "datasheet"
+      : /lifecycle|region/i.test(check)
+        ? "lifecycle"
+        : check.toLowerCase();
+
+    if (seenCategories.has(category)) continue;
+    seenCategories.add(category);
+    checks.push(check);
+    if (checks.length === 3) break;
   }
 
-  if (status === "checks") {
-    return uniqueText([
-      evidenceSteps[0] || "Confirm the missing technical evidence before quotation.",
-      evidenceSteps[1] || "Use More info from Guru for the exact qualification questions.",
-    ], 2);
-  }
-
-  if (status === "partial") {
-    return uniqueText([
-      candidate.mismatches[0] || candidate.gaps[0] || "Make the functional difference clear to the customer.",
-      evidenceSteps[0] || "Confirm that the remaining gap is acceptable before quotation.",
-    ], 2);
-  }
-
-  return uniqueText([
-    "Do not quote this as an equivalent.",
-    evidenceSteps[0] || "Add verified competitor evidence or start a new comparison.",
-  ], 2);
+  if (checks.length) return checks;
+  if (status === "match") return ["Confirm current lifecycle, region and required accessories before quotation."];
+  return ["Confirm the unresolved technical differences and required dependencies before quotation."];
 }
 
 function BestCandidateCard({
@@ -4331,13 +4335,7 @@ function BestCandidateCard({
   const askCustomer = salesAskCustomer(competitor, candidate);
   const status = compareReportedStatus(candidate, competitor);
   const statusMeta = compareReportedStatusMeta(status);
-  const nextSteps = compactCompareNextSteps(competitor, candidate, status);
-  const visibleWarnings = uniqueText([
-    ...candidate.dependencies,
-    ...candidate.gaps,
-    ...candidate.unknowns,
-    competitor.warning,
-  ], 2);
+  const quoteChecks = compactCompareQuoteChecks(competitor, candidate, status);
   const conciseReason =
     commercializeCompareCopy(
       candidate.matched[0] ||
@@ -4379,28 +4377,18 @@ function BestCandidateCard({
         <p className="wm-ui-copy">{conciseReason}</p>
       </div>
 
-      <section className="compare-compact-result__next" aria-label="Next steps">
-        <strong>Next steps</strong>
-        <ol>
-          {nextSteps.map((step) => (
-            <li key={step}>{commercializeCompareCopy(step)}</li>
-          ))}
-        </ol>
-      </section>
-
       <section className="compare-compact-result__warnings compare-compact-result__footnotes wm-ui-card" aria-label="Advisory footnotes">
-          <strong>Before you quote</strong>
+          <strong>Check before quoting</strong>
           <ul>
-            {(visibleWarnings.length
-              ? visibleWarnings
-              : ["Confirm current product lifecycle, region, accessories and system compatibility before final quotation."]
-            ).map((warning) => (
-              <li key={warning}>{commercializeCompareCopy(warning)}</li>
+            {quoteChecks.map((warning) => (
+              <li key={warning}>{warning}</li>
             ))}
           </ul>
-          <p className="compare-compact-result__footnote-label">
-            Closest direction does not mean an exact one-box replacement. Confirm the complete signal path and required dependencies.
-          </p>
+          {status === "match" ? null : (
+            <p className="compare-compact-result__footnote-label">
+              This is a product direction, not a guaranteed one-box replacement.
+            </p>
+          )}
       </section>
 
       <div className="compare-native-action-row compare-compact-result__actions wm-ui-card">
