@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LayoutTemplate } from "lucide-react";
+import { ArrowRight, CircleHelp, LayoutTemplate, SlidersHorizontal, Sparkles } from "lucide-react";
 
 import { routeCatalogByKey } from "../app/routeCatalog";
 import {
@@ -15,6 +15,14 @@ import { ALL_MARKET_FILTER, TEMPLATE_MARKET_FILTERS, templateMatchesMarketFilter
 
 function isCustomRoomTemplate(template: RoomTemplate | CustomRoomTemplate): template is CustomRoomTemplate {
   return "customTemplate" in template && template.customTemplate === true;
+}
+
+function templateTone(vertical: string) {
+  if (/education|government/i.test(vertical)) return "violet";
+  if (/healthcare|hospitality|residential/i.test(vertical)) return "green";
+  if (/retail|sports|worship/i.test(vertical)) return "amber";
+  if (/transport|broadcast|media/i.test(vertical)) return "blue";
+  return "aqua";
 }
 
 export function TemplatesPage() {
@@ -77,17 +85,26 @@ export function TemplatesPage() {
         <span className="wm-polish-hero-icon" aria-hidden="true"><LayoutTemplate /></span>
         <div className="wm-polish-hero-copy">
           <p className="wm-polish-eyebrow">Template library</p>
-          <h1>Room and application templates</h1>
-          <p>Start from a proven room archetype or reuse a custom design.</p>
+          <h1>Choose a proven room starting point</h1>
+          <p>Find the closest application, review the outcome, then tailor it in Discovery.</p>
         </div>
       </header>
+
+      <aside className="wm-template-start-guide" aria-label="How to use templates">
+        <span className="wm-template-start-icon" aria-hidden="true"><Sparkles /></span>
+        <div>
+          <strong>Start here</strong>
+          <p>Filter by the customer market, choose the closest room outcome, then use the template to pre-fill Discovery.</p>
+        </div>
+        <span className="wm-template-start-note"><CircleHelp aria-hidden="true" /> Templates are starting points, not final designs.</span>
+      </aside>
 
       <section
         className="wm-template-library-toolbar wm-section-card"
         aria-label="Template library summary"
       >
         <div className="wm-template-library-summary">
-          <p className="wm-template-kicker wm-ui-kicker">Template library</p>
+          <p className="wm-template-kicker wm-ui-kicker">Available starting points</p>
           <h2 className="wm-template-library-count" aria-live="polite">
             {filteredTemplates.length} templates
           </h2>
@@ -104,7 +121,7 @@ export function TemplatesPage() {
 
       <section className="wm-template-filter-toolbar" aria-label="Template filters">
         <div className="wm-template-filter-group" aria-label="Vertical filter">
-          <span className="wm-template-filter-label">Vertical market</span>
+          <span className="wm-template-filter-label"><SlidersHorizontal aria-hidden="true" /> Filter by market</span>
           <div className="wm-template-filter-strip">
             {TEMPLATE_MARKET_FILTERS.map((market) => (
               <button
@@ -128,33 +145,46 @@ export function TemplatesPage() {
           return (
             <article
               key={template.id}
-              className="wm-action-card wm-template-card"
+              className="wm-action-card wm-template-card wm-template-info-card"
               data-custom-template={isCustom ? "true" : undefined}
+              data-template-tone={templateTone(template.vertical)}
             >
-              <div className="wm-template-card-top">
-                {isCustom ? <span className="wm-badge wm-template-custom-badge">Custom</span> : null}
-                <span className="wm-badge">{template.vertical}</span>
-                <span className="wm-badge">{template.scale}</span>
-              </div>
+              <header className="wm-template-card-header">
+                <span className="wm-template-card-icon" aria-hidden="true"><LayoutTemplate /></span>
+                <div className="wm-template-card-top">
+                  {isCustom ? <span className="wm-badge wm-template-custom-badge">Custom</span> : null}
+                  <span className="wm-badge">{template.vertical}</span>
+                  <span className="wm-badge">{template.scale}</span>
+                </div>
+              </header>
 
               <h3 className="wm-card-title">{template.name}</h3>
-              <p className="wm-copy wm-template-summary">{template.summary}</p>
-              <p className="wm-copy wm-template-direction">{template.application}</p>
+              <div className="wm-template-card-outcome">
+                <span>Customer outcome</span>
+                <p className="wm-copy wm-template-summary">{template.summary}</p>
+              </div>
+              <div className="wm-template-card-fit">
+                <span>Best used for</span>
+                <p className="wm-copy wm-template-direction">{template.application}</p>
+              </div>
 
               <div className="wm-template-actions wm-action-row">
+                <button type="button" className="wm-button wm-button-primary" onClick={() => applyTemplateToDiscovery(template)}>
+                  Use template <ArrowRight aria-hidden="true" />
+                </button>
                 <Link
-                  className="wm-button wm-button-primary"
+                  className="wm-button wm-button-secondary"
                   to={`${routeCatalogByKey.templates.path}/${template.id}`}
                   data-template-build-pack="true"
                 >
                   Review template
                 </Link>
-                <button type="button" className="wm-button wm-button-secondary" onClick={() => applyTemplateToDiscovery(template)}>
-                  Use template
-                </button>
+              </div>
 
-                {isCustom ? (
-                  <>
+              {isCustom ? (
+                <details className="wm-template-manage">
+                  <summary>Manage custom template</summary>
+                  <div className="wm-template-manage-actions">
                     <button type="button" className="wm-button wm-button-secondary" onClick={() => editCustomTemplate(template)}>
                       Edit
                     </button>
@@ -173,9 +203,9 @@ export function TemplatesPage() {
                         Keep template
                       </button>
                     ) : null}
-                  </>
-                ) : null}
-              </div>
+                  </div>
+                </details>
+              ) : null}
             </article>
           );
         })}
