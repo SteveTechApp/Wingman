@@ -399,6 +399,22 @@ function isCompactPresentationSwitcher(text: string): boolean {
 }
 
 export function classifyCompareIntent(resultOrInput: unknown, inputText = ""): CompareIntentKind {
+  if (resultOrInput && typeof resultOrInput === "object") {
+    const record = resultOrInput as LooseRecord;
+    const explicitRole = normalise([record.role, record.category, record.subcategory, record.technology]);
+    const controllerContext = normalise([record.summary, record.description, record.family, inputText]);
+
+    // Controller records frequently mention the AVoIP endpoints they manage.
+    // Their explicit product role must win before descriptive AVoIP keywords,
+    // otherwise a controller such as ACM210 is mistaken for an encoder.
+    if (
+      /\b(controller|control module|control processor|automation controller)\b/i.test(explicitRole) &&
+      /\b(av\s*over\s*ip|avoip|networkhd|multicast\s+(?:av|video|system)|ip\d{2,4}[a-z0-9]*\s+system)\b/i.test(controllerContext)
+    ) {
+      return "controller-accessory";
+    }
+  }
+
   const resolvedDomainIntent = intentFromResolvedDomain(resultOrInput);
 
   if (resolvedDomainIntent) {
@@ -1126,6 +1142,16 @@ function ensureEligibilityCandidatePool(
       "Eligibility correction: WyreStorm USB audio or conferencing candidate inserted for USB audio comparison.",
       4,
       72,
+    );
+  }
+
+  if (intent === "controller-accessory") {
+    addCandidateBySku(
+      nextMatches,
+      products,
+      "NHD-CTL-PRO-V2",
+      "Eligibility correction: current NetworkHD system controller inserted as the closest ecosystem-role equivalent for AVoIP control and management.",
+      90,
     );
   }
 
