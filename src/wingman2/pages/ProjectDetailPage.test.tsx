@@ -93,7 +93,7 @@ describe("Project Detail review controls", () => {
     expect(screen.getByText("Projects list")).not.toBeNull();
   });
 
-  it("walks the user through proposal blockers before routing to the fixing workflow", () => {
+  it("guides the salesperson through proposal blockers before routing to the fixing workflow", () => {
     renderPage();
 
     fireEvent.click(screen.getByRole("button", { name: /Review .* project blocker/ }));
