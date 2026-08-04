@@ -488,6 +488,44 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     ],
   },
   {
+    id: "mtr-av-integration",
+    shortLabel: "Teams Room integration",
+    section: "Unified Communications",
+    question: "How must the Microsoft Teams Room connect to the AV system?",
+    prompt: "Confirm both signal directions. A Teams Room commonly needs an AV-system feed into the MTR for sharing or capture, plus an MTR output back into the AV system for distribution to the room displays.",
+    why: "Treating the MTR as only a source or only a destination leaves half of the conferencing path undesigned. Capturing both directions exposes the required switching, capture, USB and return-feed interfaces.",
+    required: true,
+    selectionMode: "single",
+    capturePlaceholder: "Example: AV matrix output feeds the MTR HDMI ingest, while the MTR HDMI output returns to the matrix for both room displays.",
+    options: [
+      {
+        value: "mtr-bidirectional-av",
+        label: "Two-way AV integration",
+        help: "The AV system feeds content or camera video into the MTR, and the MTR sends its meeting output back into the AV system.",
+      },
+      {
+        value: "av-feed-to-mtr-only",
+        label: "AV system feeds the MTR only",
+        help: "The MTR needs an input from the AV system, but its display output does not return through the AV distribution system.",
+      },
+      {
+        value: "mtr-feed-to-av-only",
+        label: "MTR feeds the AV system only",
+        help: "The MTR is treated as an AV source for room distribution, with no separate AV-system feed into the MTR.",
+      },
+      {
+        value: "standalone-mtr",
+        label: "Standalone Teams Room",
+        help: "The MTR connects directly to its displays and peripherals without exchanging video feeds with the wider AV system.",
+      },
+      {
+        value: "unknown-mtr-integration",
+        label: "Not yet confirmed",
+        help: "Confirm the MTR input/capture feed and its output/return feed before completing the system design or proposal.",
+      },
+    ],
+  },
+  {
     id: "uc-camera",
     shortLabel: "Cameras",
     section: "Unified Communications",
@@ -528,6 +566,52 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
         value: "unknown-camera",
         label: "Not yet selected",
         help: "Confirm quantity, interface, resolution, positions and control before quoting.",
+      },
+    ],
+  },
+  {
+    id: "uc-camera-count",
+    shortLabel: "Camera quantity",
+    section: "Unified Communications",
+    question: "How many cameras must the video-conferencing room use?",
+    prompt: "A room with more than one camera needs a camera bridge or compositing path so the conferencing host receives a usable programme feed.",
+    why: "Camera quantity is an architecture decision, not just a BOM count. Multi-camera rooms need switching, bridging or compositing before the feed reaches the conferencing host.",
+    required: true,
+    selectionMode: "single",
+    capturePlaceholder: "Example: Three cameras — presenter close-up, audience wide shot and document camera.",
+    options: [
+      { value: "one-camera", label: "One camera", help: "A single camera feeds the conferencing host directly or through the normal room USB path." },
+      { value: "two-cameras", label: "Two cameras", help: "A camera bridge or compositor is required to select or combine the two camera feeds." },
+      { value: "three-four-cameras", label: "Three or four cameras", help: "Use a governed multi-camera bridge and define switching, presets or multiview composition." },
+      { value: "five-plus-cameras", label: "Five or more cameras", help: "Treat this as a designed production-style camera workflow with explicit network, control and composition requirements." },
+      { value: "unknown-camera-count", label: "Not yet confirmed", help: "Confirm the maximum simultaneous camera count before selecting the bridge architecture." },
+    ],
+  },
+  {
+    id: "uc-multi-camera-path",
+    shortLabel: "Camera bridge",
+    section: "Unified Communications",
+    question: "Will the multi-camera room use NDI cameras?",
+    prompt: "Choose the camera transport so Wingman can apply the correct bridge architecture.",
+    why: "NDI cameras join the NetworkHD source pool and need a network bridge/decoder workflow. Non-NDI cameras use a dedicated HDMI camera bridge.",
+    required: true,
+    selectionMode: "single",
+    capturePlaceholder: "Example: Three CAM-210-NDI-PTZ cameras bridged into NetworkHD, with NHD-150-RX multiview on the main display and a separately validated encode/capture return to Teams.",
+    options: [
+      {
+        value: "multi-camera-ndi",
+        label: "Yes — NDI camera architecture",
+        help: "Use CAM-210-NDI-PTZ cameras, NHD-128-NDI-TRX as the NDI/NetworkHD bridge and NHD-150-RX as the main display decoder. Each NDI stream becomes part of the NetworkHD source pool.",
+      },
+      {
+        value: "multi-camera-non-ndi",
+        label: "No — standard camera architecture",
+        help: "Use CAM-420-PTZ cameras over USB/HDMI with CAM-0402-BRG for multi-camera switching and bridging into the conferencing host.",
+      },
+      {
+        value: "unknown-multi-camera-path",
+        label: "Not yet confirmed",
+        help: "Confirm NDI versus standard camera transport before quoting the bridge, decoder and network dependencies.",
       },
     ],
   },
@@ -1378,13 +1462,26 @@ function wmDiscoveryFilterUnifiedCommsQuestions(
     answers["uc-purpose"],
   );
 
-  if (!selectedWorkflows.includes("no-uc")) {
-    return questions;
-  }
+  return questions.filter((step) => {
+    if (selectedWorkflows.includes("no-uc")) {
+      return !wmDiscoveryIsUnifiedCommsDetailQuestion(step);
+    }
 
-  return questions.filter(
-    (step) => !wmDiscoveryIsUnifiedCommsDetailQuestion(step),
-  );
+    if (step.id === "mtr-av-integration") {
+      return selectedWorkflows.includes("video-conferencing");
+    }
+
+    if (step.id === "uc-camera-count") {
+      return selectedWorkflows.includes("video-conferencing");
+    }
+
+    if (step.id === "uc-multi-camera-path") {
+      const cameraCount = wmDiscoveryAnswerToText(answers["uc-camera-count"]);
+      return selectedWorkflows.includes("video-conferencing") && ["two-cameras", "three-four-cameras", "five-plus-cameras"].includes(cameraCount);
+    }
+
+    return true;
+  });
 }
 // WINGMAN_DISCOVERY_UNIFIED_COMMS_VISIBILITY_END
 
@@ -1549,6 +1646,9 @@ export function DiscoveryPage() {
     }, 400);
 
     return () => window.clearTimeout(timeout);
+  // buildDiscoveryBrief reads the same state listed here; including the render-local
+  // function itself would retrigger the debounce on every render.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answeredCount, activeIndex, answers, notes, clientName, contactName, siteName, budgetLevel, timeline]);
 
   useEffect(() => {
@@ -1769,6 +1869,9 @@ export function DiscoveryPage() {
       }
       window.sessionStorage.removeItem("wingman.roomBuilderSeedProduct");
     }
+  // Session handoffs are intentionally consumed once. Adding answers would
+  // replay and delete newly written handoff state whenever an answer changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function movePrevious(): void {

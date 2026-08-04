@@ -444,6 +444,7 @@ export function ProfilePage() {
 
           <label className="wm-settings-check-row">
             <input
+              aria-label="Highlight technology keywords"
               type="checkbox"
               checked={glossaryHighlightsEnabled}
               onChange={(event) => updateGlossaryHighlights(event.target.checked)}

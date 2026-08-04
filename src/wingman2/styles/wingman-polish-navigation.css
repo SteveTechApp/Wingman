@@ -2195,6 +2195,130 @@ html[data-wingman-route="projects"] .wm-project-draft-title {
   -webkit-line-clamp: 2 !important;
 }
 
+/* Project review uses the same governed workspace shell as the project list. */
+html[data-wingman-route="projects"] .wm-project-detail-page {
+  display: grid;
+  gap: 16px;
+  width: min(100%, 1680px);
+  margin: 0 auto;
+  padding: 18px 24px 32px;
+  min-width: 0;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-page > * {
+  min-width: 0;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-nav {
+  position: sticky;
+  top: 10px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid #29465e;
+  border-radius: 16px;
+  background: color-mix(in srgb, #081827 94%, transparent);
+  box-shadow: 0 14px 34px rgb(0 0 0 / 28%);
+  backdrop-filter: blur(14px);
+}
+
+html[data-wingman-route="projects"] :is(.wm-project-detail-nav__links, .wm-project-detail-nav__actions) {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-nav .wm-ui-button,
+html[data-wingman-route="projects"] .wm-project-detail-editor .wm-ui-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 9px 13px;
+  text-decoration: none;
+}
+
+html[data-wingman-route="projects"] .wm-project-delete-confirm {
+  border-color: #ff7f8f;
+  background: #401421;
+  color: #fff4f5;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-editor {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr) auto;
+  align-items: end;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid #2c546d;
+  border-radius: 18px;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-editor label {
+  display: grid;
+  gap: 7px;
+  color: #cfe6f7;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-editor .wm-ui-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #315873;
+  border-radius: 11px;
+  background: #071725;
+  color: #edf6ff;
+  font: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-stack {
+  display: grid;
+  gap: 16px;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-stack > section,
+html[data-wingman-route="projects"] .wm-project-detail-stack .wingman-section-card {
+  margin: 0;
+}
+
+html[data-wingman-route="projects"] .wm-project-detail-anchor {
+  display: block;
+  position: relative;
+  top: -92px;
+  visibility: hidden;
+}
+
+@media (max-width: 900px) {
+  html[data-wingman-route="projects"] .wm-project-detail-page {
+    padding: 14px 14px 28px;
+  }
+
+  html[data-wingman-route="projects"] .wm-project-detail-nav {
+    position: static;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  html[data-wingman-route="projects"] :is(.wm-project-detail-nav__links, .wm-project-detail-nav__actions) {
+    width: 100%;
+  }
+
+  html[data-wingman-route="projects"] .wm-project-detail-editor {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 1100px) {
   html[data-wingman-route="projects"] .wm-project-draft-grid {
     grid-template-columns: 1fr !important;

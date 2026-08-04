@@ -441,7 +441,6 @@ function SelectionPage({
           value={searchTerm}
           onChange={updateSearchTerm}
           placeholder="Example: MXV-0404-H2A-KIT, NetworkHD, HDMI extender, USB KVM, video wall"
-          autoFocus
         />
 
         <div className="mt-4 flex flex-wrap gap-3" aria-label="Catalogue include controls">

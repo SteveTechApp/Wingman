@@ -49,7 +49,7 @@ for (const file of files) {
   const rows = readCsv(relPath);
   if (!rows.length) continue;
 
-  const headerLine = rawText.split(/\r?\n/, 1)[0].replace(/^﻿/, "");
+  const headerLine = rawText.split(/\r?\n/, 1)[0].replace(/^\uFEFF/, "");
   const headers = headerLine.split(",").map((h) => h.replace(/^"|"$/g, ""));
 
   let changed = false;
