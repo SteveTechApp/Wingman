@@ -1031,6 +1031,16 @@ function skuOptionsForBrand(brand: string, customSkus: string[] = []): string[] 
   return uniqueSkuOptions([...seeded, ...customSkus]);
 }
 
+export function isCompetitorSkuHeldLocally(brand: string, sku: string): boolean {
+  const skuKey = compareSkuKey(sku);
+  if (!skuKey) return false;
+
+  const catalogued = ((COMPETITOR_SKU_SEED_CATALOG as Record<string, readonly string[]>)[brand] ?? [])
+    .some((candidate) => compareSkuKey(candidate) === skuKey);
+
+  return catalogued || Boolean(findSavedCompetitorSpec(brand, sku));
+}
+
 function compareSkuSuggestions(input: string, brand: string): string[] {
   const queryKey = compareSkuKey(input);
   const source = brand ? skuOptionsForBrand(brand) : ALL_COMPETITOR_SKUS;
@@ -5227,7 +5237,8 @@ function ComparePageNew() {
   const alternativeCandidates = best
     ? viableCandidates.filter((candidate) => candidate.product.sku !== best.product.sku)
     : [];
-  const requestLiveLookup = shouldRequestLiveLookupUrl(profile);
+  const requestLiveLookup = shouldRequestLiveLookupUrl(profile)
+    || !isCompetitorSkuHeldLocally(effectiveBrand, competitorInput);
   const sourceUrl = fallbackRetrySourceUrl("");
 
   const handleSkuSelect = useCallback((sku: string): void => {
@@ -5930,6 +5941,7 @@ function ComparePageNew() {
                       brand={effectiveBrand}
                       sku={competitorInput}
                       onSaved={() => setCatalogVersion((version) => version + 1)}
+                      autoRun
                     />
                   ) : null}
                   </details>
