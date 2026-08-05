@@ -1,0 +1,18 @@
+{
+  "updatedAt": "2026-08-05T08:24:20.548Z",
+  "tolerancePct": 1,
+  "rule": "Current measured sizes become the maximum allowed. Future changes must not grow a tracked artefact beyond its limit (plus tolerancePct). Lower limits as the refactor lands; raising one is a reviewed exception (see docs/SIZE_BUDGETS.md).",
+  "limits": {
+    "chunk:compare-engine": 1074507,
+    "chunk:competitor-registry": 696092,
+    "chunk:project-workflow": 484461,
+    "initial:js": 484870,
+    "total:js": 5117049,
+    "total:css": 807622,
+    "source:compare-advanced": 260960,
+    "source:discovery-page": 58639,
+    "source:product-call-cards": 110055,
+    "source:project-detail": 52812,
+    "source:style-stack-css": 721904
+  }
+}

@@ -76,6 +76,25 @@ export default defineConfig({
       output: {
         codeSplitting: {
           groups: [
+            // The eager application shell. The `$initial` tag captures only the
+            // wingman2 modules that are statically reachable from the entry
+            // (main.tsx and its static dependency chain). Because this group has
+            // the highest priority, those modules are removed from the broad
+            // heavy-feature groups below — so an always-on module whose filename
+            // happens to contain "compare"/"project"/"template" (e.g. the
+            // startup shims, projectStore, its ingest normaliser) can no longer
+            // drag an entire multi-hundred-KB feature chunk into the initial
+            // modulepreload. The Compare engine, competitor registry, product
+            // evidence and project-workflow chunks now load only with the lazy
+            // routes that actually use them, cutting the eager JS the dashboard
+            // downloads from ~3.1 MB to ~0.47 MB. Verified via the entry HTML's
+            // modulepreload set (see the initial:js size budget).
+            {
+              name: "wm-app-core",
+              tags: ["$initial"],
+              test: /src[\\/]wingman2[\\/]/,
+              priority: 100,
+            },
             {
               name: "vendor-react",
               test: /node_modules[\\/](react|react-dom|scheduler|use-sync-external-store)[\\/]/,

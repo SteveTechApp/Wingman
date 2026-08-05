@@ -18,12 +18,14 @@ function rejectText(relative, text, label) {
   else checks.push(label);
 }
 
-requireText("src/wingman2/pages/DiscoveryPage.tsx", 'id: "locations-connections"', "Combined discovery step");
+// Question definitions live in the extracted discoveryQuestions module; the
+// topology editor rendering and brief handoff stay in the page component.
+requireText("src/wingman2/pages/discovery/discoveryQuestions.ts", 'id: "locations-connections"', "Combined discovery step");
 requireText("src/wingman2/pages/DiscoveryPage.tsx", "<DiscoveryLocationsConnections", "Topology editor rendering");
 requireText("src/wingman2/pages/DiscoveryPage.tsx", "topology: activeTopology", "Project brief topology handoff");
-rejectText("src/wingman2/pages/DiscoveryPage.tsx", 'id: "distance"', "Legacy distance question removed");
-rejectText("src/wingman2/pages/DiscoveryPage.tsx", 'id: "infrastructure"', "Legacy infrastructure question removed");
-rejectText("src/wingman2/pages/DiscoveryPage.tsx", 'id: "usb-path"', "Duplicate USB question removed");
+rejectText("src/wingman2/pages/discovery/discoveryQuestions.ts", 'id: "distance"', "Legacy distance question removed");
+rejectText("src/wingman2/pages/discovery/discoveryQuestions.ts", 'id: "infrastructure"', "Legacy infrastructure question removed");
+rejectText("src/wingman2/pages/discovery/discoveryQuestions.ts", 'id: "usb-path"', "Duplicate USB question removed");
 requireText("src/wingman2/lib/projectTopology.ts", '"hdbaset-3"', "HDBaseT 3.0 transport model");
 requireText("src/wingman2/lib/projectTopology.ts", '"fibre-sm"', "Single-mode fibre transport model");
 requireText("src/wingman2/lib/projectTopology.ts", '"ip-av-vlan"', "AV VLAN transport model");
