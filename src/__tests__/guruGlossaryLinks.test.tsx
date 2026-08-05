@@ -2,7 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import { GlossaryPage } from "../wingman2/pages/GlossaryPage";
-import { renderGuruGlossaryLinks } from "../wingman2/pages/ProductCallCardsPage";
+import { renderGuruGlossaryLinks } from "../wingman2/components/guruGlossaryLinks";
 import {
   GLOSSARY_HIGHLIGHTS_CHANGE_EVENT,
   GLOSSARY_HIGHLIGHTS_STORAGE_KEY,
