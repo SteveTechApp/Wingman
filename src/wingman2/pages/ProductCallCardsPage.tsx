@@ -119,7 +119,7 @@ type ProductSeed = {
   sourceCatalog?: unknown;
 };
 
-type ProductCard = {
+export type ProductCard = {
   sku: string;
   name: string;
   family: string;
@@ -141,7 +141,7 @@ type ProductPayload = {
   products?: ProductSeed[];
 };
 
-type ProductSalesHelperRole =
+export type ProductSalesHelperRole =
   | "audio"
   | "networkhd"
   | "matrix"
@@ -155,7 +155,7 @@ type ProductSalesHelperRole =
   | "accessory"
   | "general";
 
-type ProductSalesHelperCopy = {
+export type ProductSalesHelperCopy = {
   whatItDoes: string;
   realWorldJobs: string[];
   specWatchOuts: string[];
@@ -488,7 +488,7 @@ function questionsFor(product: ProductCard): string[] {
   ];
 }
 
-function productRoleForSalesHelper(product: ProductCard): ProductSalesHelperRole {
+export function productRoleForSalesHelper(product: ProductCard): ProductSalesHelperRole {
   const sku = product.sku.toUpperCase();
   const text = `${product.sku} ${product.name} ${product.family} ${product.category} ${product.description} ${product.fit} ${product.tags.join(" ")}`.toLowerCase();
   const familyText = `${product.name} ${product.family} ${product.category} ${product.tags.join(" ")}`.toLowerCase();
@@ -1132,7 +1132,7 @@ function roleSpecificationWatchOuts(
   }
 }
 
-function buildProductSalesHelperCopy(
+export function buildProductSalesHelperCopy(
   product: ProductCard,
   knownApplication: string,
   productChecks: string[],
