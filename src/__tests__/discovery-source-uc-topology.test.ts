@@ -102,7 +102,7 @@ describe("Discovery source and Unified Communications topology", () => {
   it("keeps the UI question mutually exclusive and removes the combined option", () => {
     const discoveryPath = path.resolve(
       process.cwd(),
-      "src/wingman2/pages/DiscoveryPage.tsx",
+      "src/wingman2/pages/discovery/discoveryQuestions.ts",
     );
     const source = fs.readFileSync(discoveryPath, "utf8");
     const start = source.indexOf(
@@ -123,7 +123,7 @@ describe("Discovery source and Unified Communications topology", () => {
   it("qualifies both signal directions when conferencing may integrate with a Teams Room", () => {
     const discoveryPath = path.resolve(
       process.cwd(),
-      "src/wingman2/pages/DiscoveryPage.tsx",
+      "src/wingman2/pages/discovery/discoveryQuestions.ts",
     );
     const source = fs.readFileSync(discoveryPath, "utf8");
     const start = source.indexOf('id: "mtr-av-integration"');

@@ -8,7 +8,7 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: ["./src/__tests__/setup.ts"],
-    include: ["src/**/*.{test,spec}.{ts,tsx}", "server/**/*.{test,spec}.mjs"],
+    include: ["src/**/*.{test,spec}.{ts,tsx}", "server/**/*.{test,spec}.mjs", "tools/**/*.{test,spec}.mjs"],
     exclude: ["node_modules", "dist", "src/_ARCHIVE/**"],
     // Must exceed the 5000ms asyncUtilTimeout set in src/__tests__/setup.ts,
     // otherwise a slow async query is cut short by the test timeout before it
