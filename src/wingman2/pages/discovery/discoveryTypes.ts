@@ -29,3 +29,10 @@ export type DiscoveryQuestionView = DiscoveryQuestion;
 export type DiscoveryAnswerValue = string | string[];
 export type DiscoveryAnswers = Record<string, DiscoveryAnswerValue>;
 export type DiscoveryNotes = Record<string, string>;
+
+export type DiscoverySummaryItem = {
+  id: string;
+  label: string;
+  answer: string;
+  note: string;
+};

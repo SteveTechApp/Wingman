@@ -37,6 +37,8 @@ import type {
   DiscoveryNotes,
 } from "./discovery/discoveryTypes";
 import { getQuestionStrategy, getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
+import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
+import { DiscoverySummaryCard } from "./discovery/DiscoverySummaryCard";
 import {
   getAvoipDirection,
   getAvoipNextQuestion,
@@ -1382,84 +1384,26 @@ return (
       )}
 
       {capturedSummary.length > 0 && (
-        <section className="wm-discovery-summary-card wm-ui-section wm-ui-card wm-ui-copy">
-          <div className="wm-discovery-summary-heading wm-ui-card wm-ui-title wm-ui-copy">
-            <span>Captured brief</span>
-            <p className="wm-ui-copy">
-              {isDiscoveryComplete
-                ? "Use this as the working discovery summary before moving into product direction."
-                : "Carry on when ready — the captured brief saves to your project, so the next step picks it up."}
-            </p>
-          </div>
-
-          <div className="wm-discovery-summary-grid wm-ui-card wm-ui-copy">
-            {capturedSummary.map((item) => (
-              <article className="wm-ui-card" key={item.id}>
-                <strong>{item.label}</strong>
-                <span>{item.answer}</span>
-                {item.note && <p className="wm-ui-copy">{item.note}</p>}
-              </article>
-            ))}
-          </div>
-
-          {!isDiscoveryComplete && (
-            <div className="wm-discovery-capture-actions">
-              <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={moveNext}>Next discovery question</button>
-              <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={saveDiscoveryToProject}>Save progress</button>
-            </div>
-          )}
-          {!isDiscoveryComplete && savedMessage && <p className="wm-discovery-muted-note wm-ui-copy">{savedMessage}</p>}
-        </section>
+        <DiscoverySummaryCard
+          items={capturedSummary}
+          isDiscoveryComplete={isDiscoveryComplete}
+          savedMessage={savedMessage}
+          onMoveNext={moveNext}
+          onSaveProgress={saveDiscoveryToProject}
+        />
       )}
 
       {discoveryMode !== "standard" ? (
-        <section className="wm-section-card wm-custom-template-panel" aria-label="Custom template details">
-          <div className="wm-custom-template-copy">
-            <p className="wm-template-kicker wm-ui-kicker">Custom template</p>
-            <h2 className="wm-section-title">Review, then save this template</h2>
-            <p className="wm-copy">
-              Review the captured brief above, name the template and set its vertical market, then save. This does not
-              create a project.
-            </p>
-          </div>
-
-          <div className="wm-custom-template-grid">
-            <label className="wm-field">
-              Template name
-              <input
-                className="wm-input"
-                value={templateDraftName}
-                onChange={(event) => setTemplateDraftName(event.target.value)}
-                placeholder="e.g. Council chamber hybrid meeting"
-              />
-            </label>
-            <label className="wm-field wm-custom-template-wide">
-              Vertical market
-              <select
-                className="wm-input"
-                value={templateDraftMarket}
-                onChange={(event) => setTemplateDraftMarket(event.target.value)}
-              >
-                {TEMPLATE_MARKETS.map((market) => (
-                  <option key={market} value={market}>
-                    {market}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <div className="wm-template-actions wm-action-row">
-            <button type="button" className="wm-button wm-button-primary" onClick={saveAsCustomTemplate} disabled={!canSaveCustomTemplate}>
-              Save Custom Template
-            </button>
-            <button type="button" className="wm-button wm-button-secondary" onClick={cancelTemplateMode}>
-              Cancel
-            </button>
-          </div>
-
-          {templateSavedMessage && <p className="wm-copy">{templateSavedMessage}</p>}
-        </section>
+        <DiscoveryCustomTemplatePanel
+          name={templateDraftName}
+          onNameChange={setTemplateDraftName}
+          market={templateDraftMarket}
+          onMarketChange={setTemplateDraftMarket}
+          canSave={canSaveCustomTemplate}
+          onSave={saveAsCustomTemplate}
+          onCancel={cancelTemplateMode}
+          savedMessage={templateSavedMessage}
+        />
       ) : null}
     </main>
   );
