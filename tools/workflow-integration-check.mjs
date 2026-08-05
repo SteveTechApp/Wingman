@@ -112,8 +112,13 @@ assertSourceContains("src/wingman2/pages/ComparePageNew.tsx", [
   "View comparison evidence",
   "Source/spec page",
 ]);
-assertSourceContains("src/wingman2/pages/DiscoveryPage.tsx", [
+// The per-step guidance data moved to the extracted discoveryQuestions module;
+// the page still consumes getQuestionStrategy and keeps the live-call markers.
+assertSourceContains("src/wingman2/pages/discovery/discoveryQuestions.ts", [
   "baseQuestionStrategyByStep",
+  "getQuestionStrategy",
+]);
+assertSourceContains("src/wingman2/pages/DiscoveryPage.tsx", [
   "getQuestionStrategy",
   "Live call mode",
   "Current model",
