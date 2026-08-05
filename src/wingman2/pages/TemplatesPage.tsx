@@ -1,224 +1,97 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, CircleHelp, LayoutTemplate, SlidersHorizontal, Sparkles } from "lucide-react";
-
+import { ArrowRight, Building2, Check, FilePenLine, LayoutTemplate, X } from "lucide-react";
 import { routeCatalogByKey } from "../app/routeCatalog";
-import {
-  deleteCustomRoomTemplate,
-  duplicateCustomRoomTemplate,
-  useCustomRoomTemplates,
-  type CustomRoomTemplate,
-} from "../lib/customRoomTemplates";
+import { deleteCustomRoomTemplate, duplicateCustomRoomTemplate, useCustomRoomTemplates, type CustomRoomTemplate } from "../lib/customRoomTemplates";
 import { buildDiscoveryHandoffFromTemplate, writeDiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
 import { roomTemplates, type RoomTemplate } from "../lib/roomTemplates";
 import { ALL_MARKET_FILTER, TEMPLATE_MARKET_FILTERS, templateMatchesMarketFilter } from "../lib/templateMarkets";
+import { defaultPersonalisation, loadTemplateDraft, saveTemplateDraft, toSolutionTemplate, validatePublishedTemplate, type DocumentPersonalisation, type SolutionTemplateDefinition } from "../lib/solutionTemplates";
 
-function isCustomRoomTemplate(template: RoomTemplate | CustomRoomTemplate): template is CustomRoomTemplate {
-  return "customTemplate" in template && template.customTemplate === true;
-}
-
-function templateTone(vertical: string) {
-  if (/education|government/i.test(vertical)) return "violet";
-  if (/healthcare|hospitality|residential/i.test(vertical)) return "green";
-  if (/retail|sports|worship/i.test(vertical)) return "amber";
-  if (/transport|broadcast|media/i.test(vertical)) return "blue";
-  return "aqua";
-}
+type AvailableTemplate = RoomTemplate | CustomRoomTemplate;
+const isCustom = (template: AvailableTemplate): template is CustomRoomTemplate => "customTemplate" in template && template.customTemplate === true;
 
 export function TemplatesPage() {
   const customTemplates = useCustomRoomTemplates();
   const navigate = useNavigate();
-  const [marketFilter, setMarketFilter] = useState<string>(ALL_MARKET_FILTER);
+  const [market, setMarket] = useState(ALL_MARKET_FILTER);
+  const [selected, setSelected] = useState<AvailableTemplate | null>(null);
+  const [personalising, setPersonalising] = useState(false);
+  const [personalisation, setPersonalisation] = useState<DocumentPersonalisation | null>(null);
+  const [saved, setSaved] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const templates = useMemo(() => [...customTemplates, ...roomTemplates], [customTemplates]);
+  const filtered = useMemo(() => templates.filter((item) => templateMatchesMarketFilter(item, market)), [templates, market]);
+  const definition = selected ? toSolutionTemplate(selected) : null;
 
-  const availableTemplates = useMemo(
-    () => [...customTemplates, ...roomTemplates],
-    [customTemplates],
-  );
-
-  const filteredTemplates = useMemo(
-    () => availableTemplates.filter((template) => templateMatchesMarketFilter(template, marketFilter)),
-    [availableTemplates, marketFilter],
-  );
-
-  function startNewCustomTemplate() {
-    writeDiscoveryHandoff({ mode: "template-create" });
-    navigate(routeCatalogByKey.discovery.path);
+  function openTemplate(template: AvailableTemplate) {
+    const governed = toSolutionTemplate(template);
+    setSelected(template); setPersonalising(false); setSaved(false);
+    setPersonalisation(loadTemplateDraft(template.id)?.personalisation || defaultPersonalisation(governed));
   }
-
-  function applyTemplateToDiscovery(template: RoomTemplate | CustomRoomTemplate) {
+  function applyTemplate(template: AvailableTemplate) {
     writeDiscoveryHandoff(buildDiscoveryHandoffFromTemplate(template));
     navigate(routeCatalogByKey.discovery.path);
   }
-
-  function editCustomTemplate(template: CustomRoomTemplate) {
-    writeDiscoveryHandoff({
-      mode: "template-edit",
-      templateId: template.id,
-      templateName: template.name,
-      templateMarket: template.vertical,
-      sourceTemplateId: template.sourceTemplateId,
-      sourceTemplateName: template.name,
-      answers: template.discoveryAnswers,
-      notes: template.discoveryNotes,
-    });
+  function startCustom() { writeDiscoveryHandoff({ mode: "template-create" }); navigate(routeCatalogByKey.discovery.path); }
+  function manageCustom(template: CustomRoomTemplate) {
+    writeDiscoveryHandoff({ mode: "template-edit", templateId: template.id, templateName: template.name, templateMarket: template.vertical, sourceTemplateId: template.sourceTemplateId, sourceTemplateName: template.name, answers: template.discoveryAnswers, notes: template.discoveryNotes });
     navigate(routeCatalogByKey.discovery.path);
   }
+  function update<K extends keyof DocumentPersonalisation>(key: K, value: DocumentPersonalisation[K]) { setPersonalisation((current) => current ? { ...current, [key]: value } : current); setSaved(false); }
+  function applyDraft() { if (definition && personalisation) { saveTemplateDraft(definition, personalisation); setSaved(true); } }
 
-  function duplicateTemplate(template: CustomRoomTemplate) {
-    duplicateCustomRoomTemplate(template.id);
-  }
-
-  function confirmDelete(template: CustomRoomTemplate) {
-    if (confirmDeleteId === template.id) {
-      deleteCustomRoomTemplate(template.id);
-      setConfirmDeleteId(null);
-      return;
-    }
-
-    setConfirmDeleteId(template.id);
-  }
-
-  return (
-    <main className="wm-templates-page wm-polish-shell wm-page" data-wingman-page="templates">
-      <header className="wm-polish-hero wm-polish-aqua">
-        <span className="wm-polish-hero-icon" aria-hidden="true"><LayoutTemplate /></span>
-        <div className="wm-polish-hero-copy">
-          <p className="wm-polish-eyebrow">Template library</p>
-          <h1>Choose a proven room starting point</h1>
-          <p>Find the closest application, review the outcome, then tailor it in Discovery.</p>
-        </div>
-      </header>
-
-      <aside className="wm-template-start-guide" aria-label="How to use templates">
-        <span className="wm-template-start-icon" aria-hidden="true"><Sparkles /></span>
-        <div>
-          <strong>Start here</strong>
-          <p>Filter by the customer market, choose the closest room outcome, then use the template to pre-fill Discovery.</p>
-        </div>
-        <span className="wm-template-start-note"><CircleHelp aria-hidden="true" /> Templates are starting points, not final designs.</span>
-      </aside>
-
-      <section
-        className="wm-template-library-toolbar wm-section-card"
-        aria-label="Template library summary"
-      >
-        <div className="wm-template-library-summary">
-          <p className="wm-template-kicker wm-ui-kicker">Available starting points</p>
-          <h2 className="wm-template-library-count" aria-live="polite">
-            {filteredTemplates.length} templates
-          </h2>
-        </div>
-
-        <button
-          type="button"
-          className="wm-button wm-button-primary wm-template-library-create"
-          onClick={startNewCustomTemplate}
-        >
-          + New Custom Template
-        </button>
+  return <main className="wm-templates-page wm-page" data-wingman-page="templates">
+    <header className="wm-solution-header">
+      <div><p className="wm-ui-kicker">Guided solution documents</p><h1>Solution Templates</h1><p>Choose a market and application, then configure a personalised, editable solution draft.</p></div>
+      <div className="wm-solution-header-actions"><button className="wm-button wm-button-secondary" type="button" onClick={() => setMarket("Custom")}>Manage Templates</button><button className="wm-button wm-button-primary" type="button" onClick={startCustom}>+ New Custom Template</button></div>
+    </header>
+    <nav className="wm-template-stages" aria-label="Template workflow stages">
+      {["Market", "Application", "Configure", "Draft"].map((stage, index) => <span key={stage} className={index === (personalising ? 2 : selected ? 1 : 0) ? "is-active" : index < (selected ? 1 : 0) ? "is-complete" : ""}><i>{index < (selected ? 1 : 0) ? <Check /> : index + 1}</i>{stage}</span>)}
+    </nav>
+    <div className="wm-template-browser">
+      <aside className="wm-market-rail" aria-label="Market filters"><h2>Markets</h2>{TEMPLATE_MARKET_FILTERS.map((item) => <button key={item} type="button" aria-label={item} aria-pressed={item === market} className={item === market ? "is-active" : ""} onClick={() => setMarket(item)}><Building2 /> <span>{item}</span><small>{templates.filter((t) => templateMatchesMarketFilter(t, item)).length}</small></button>)}</aside>
+      <section className="wm-template-results wm-section-card" aria-label="Application templates">
+        <div className="wm-template-results-heading"><div><p className="wm-ui-kicker">{market === ALL_MARKET_FILTER ? "All markets" : market}</p><h2>{filtered.length} templates</h2></div><p>Purpose-led application blueprints. Products are resolved after Discovery.</p></div>
+        <div className="wm-solution-card-grid">{filtered.map((template) => {
+          const item = toSolutionTemplate(template); const outcomes = item.businessOutcomes.slice(0, 3);
+          return <article className="wm-solution-card wm-action-card" key={template.id} data-custom-template={isCustom(template) ? "true" : undefined}>
+            <div className="wm-solution-card-visual" aria-hidden="true"><LayoutTemplate /><span className="wm-badge">{template.vertical}</span></div>
+            <div className="wm-solution-card-body"><div className="wm-solution-card-meta"><span className={`wm-status is-${item.status === "published" ? "confirmed" : "assumed"} ${isCustom(template) ? "wm-template-custom-badge" : ""}`}>{item.status === "custom" ? "Custom" : item.status}</span><span>{template.scale}</span></div>
+              <h3 className="wm-card-title">{item.title}</h3><p className="wm-copy">{item.purpose}</p><small>For {item.intendedAudience}</small><ul>{outcomes.map((outcome) => <li key={outcome}>{outcome}</li>)}</ul>
+              <div className="wm-template-actions"><button className="wm-button wm-button-secondary" type="button" onClick={() => openTemplate(template)}>View Template</button><button className="wm-button wm-button-primary" type="button" onClick={() => { openTemplate(template); setPersonalising(true); }}>Personalise</button><button className="wm-button wm-button-secondary" type="button" onClick={() => applyTemplate(template)}>Use template</button><Link className="wm-button wm-button-secondary" to={`${routeCatalogByKey.templates.path}/${template.id}`}>Review template</Link></div>
+              {isCustom(template) ? <details><summary>Manage custom template</summary><div className="wm-template-manage-actions"><button type="button" onClick={() => manageCustom(template)}>Edit</button><button type="button" onClick={() => duplicateCustomRoomTemplate(template.id)}>Duplicate</button><button type="button" onClick={() => confirmDeleteId === template.id ? deleteCustomRoomTemplate(template.id) : setConfirmDeleteId(template.id)}>{confirmDeleteId === template.id ? "Confirm delete?" : "Delete"}</button>{confirmDeleteId === template.id ? <button type="button" onClick={() => setConfirmDeleteId(null)}>Keep template</button> : null}</div></details> : null}
+            </div></article>;
+        })}</div>
       </section>
+    </div>
+    {selected && definition && personalisation ? <TemplateDrawer template={selected} definition={definition} personalisation={personalisation} personalising={personalising} saved={saved} onClose={() => setSelected(null)} onPersonalise={() => setPersonalising(true)} onBack={() => setPersonalising(false)} onUpdate={update} onApply={applyDraft} onUse={() => applyTemplate(selected)} /> : null}
+  </main>;
+}
 
-      <section className="wm-template-filter-toolbar" aria-label="Template filters">
-        <div className="wm-template-filter-group" aria-label="Vertical filter">
-          <span className="wm-template-filter-label"><SlidersHorizontal aria-hidden="true" /> Filter by market</span>
-          <div className="wm-template-filter-strip">
-            {TEMPLATE_MARKET_FILTERS.map((market) => (
-              <button
-                key={market}
-                type="button"
-                className={`wm-filter-chip${market === marketFilter ? " is-active" : ""}`}
-                onClick={() => setMarketFilter(market)}
-                aria-pressed={market === marketFilter}
-              >
-                {market}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
+function TemplateDrawer({ template, definition, personalisation, personalising, saved, onClose, onPersonalise, onBack, onUpdate, onApply, onUse }: { template: AvailableTemplate; definition: SolutionTemplateDefinition; personalisation: DocumentPersonalisation; personalising: boolean; saved: boolean; onClose: () => void; onPersonalise: () => void; onBack: () => void; onUpdate: <K extends keyof DocumentPersonalisation>(key: K, value: DocumentPersonalisation[K]) => void; onApply: () => void; onUse: () => void }) {
+  const publicationIssues = validatePublishedTemplate(definition);
+  return <div className="wm-template-drawer-backdrop"><button className="wm-template-drawer-scrim" type="button" onClick={onClose} aria-label="Close template preview" /><aside className="wm-template-preview-drawer" role="dialog" aria-modal="true" aria-labelledby="template-preview-title">
+    <header><div><p className="wm-ui-kicker">{personalising ? "Configure document" : `${definition.market} · ${template.scale}`}</p><h2 id="template-preview-title">{personalising ? `Personalise ${definition.title}` : definition.title}</h2></div><button className="wm-icon-button" type="button" onClick={onClose} aria-label="Close template preview"><X /></button></header>
+    {personalising ? <PersonalisationForm value={personalisation} onUpdate={onUpdate} /> : <div className="wm-template-preview-content">
+      <section className="wm-section-card"><h3 className="wm-section-title">Purpose</h3><p className="wm-copy">{definition.purpose}</p></section><section className="wm-section-card"><h3 className="wm-section-title">Market-aware customer story</h3><p className="wm-copy">{definition.customerStory}</p></section><div className="wm-template-preview-split"><section><h3>User experience</h3><p>{definition.userExperience}</p></section><section><h3>Business outcomes</h3><ul>{definition.businessOutcomes.map((x) => <li key={x}>{x}</li>)}</ul></section></div>
+      <section><h3>Suggested architecture</h3><p>{definition.architectureDirection}</p></section><section><h3>Included AV paths</h3><ul>{definition.productFamilyRules.slice(0, 6).map((x) => <li key={x}>{x}</li>)}</ul></section>
+      <div className="wm-template-preview-split"><section><h3>Assumptions</h3><ul>{definition.assumptions.map((x) => <li key={x}><span className="wm-status is-assumed">Assumed</span>{x}</li>)}</ul></section><section><h3>Information still required</h3><ul>{definition.qualificationQuestions.map((x) => <li key={x}>{x}</li>)}</ul></section></div>
+      <section><h3>Required dependencies</h3><ul>{definition.requiredDependencies.map((x) => <li key={x}>{x}</li>)}</ul></section><section><h3>Expected document contents</h3><p>{definition.documentBlueprint.join(" · ")}</p></section>
+      {publicationIssues.length ? <p className="wm-template-validation-warning">Draft only: missing {publicationIssues.join(", ")}.</p> : null}
+    </div>}
+    <footer>{personalising ? <><button className="wm-button wm-button-secondary" type="button" onClick={onBack}>Back to preview</button><button className="wm-button wm-button-secondary" type="button" onClick={() => location.reload()}>Reset to Brand Defaults</button><button className="wm-button wm-button-primary" type="button" onClick={onApply}>{saved ? "Draft saved" : "Apply to Draft"}</button></> : <><button className="wm-button wm-button-secondary" type="button" onClick={onPersonalise}><FilePenLine /> Personalise</button><button className="wm-button wm-button-primary" type="button" onClick={onUse}>Use Template <ArrowRight /></button></>}</footer>
+  </aside></div>;
+}
 
-      <section className="wm-section wm-template-card-grid" aria-label="Room templates">
-        {filteredTemplates.map((template) => {
-          const isCustom = isCustomRoomTemplate(template);
-
-          return (
-            <article
-              key={template.id}
-              className="wm-action-card wm-template-card wm-template-info-card"
-              data-custom-template={isCustom ? "true" : undefined}
-              data-template-tone={templateTone(template.vertical)}
-            >
-              <header className="wm-template-card-header">
-                <span className="wm-template-card-icon" aria-hidden="true"><LayoutTemplate /></span>
-                <div className="wm-template-card-top">
-                  {isCustom ? <span className="wm-badge wm-template-custom-badge">Custom</span> : null}
-                  <span className="wm-badge">{template.vertical}</span>
-                  <span className="wm-badge">{template.scale}</span>
-                </div>
-              </header>
-
-              <h3 className="wm-card-title">{template.name}</h3>
-              <div className="wm-template-card-outcome">
-                <span>Customer outcome</span>
-                <p className="wm-copy wm-template-summary">{template.summary}</p>
-              </div>
-              <div className="wm-template-card-fit">
-                <span>Best used for</span>
-                <p className="wm-copy wm-template-direction">{template.application}</p>
-              </div>
-
-              <div className="wm-template-actions wm-action-row">
-                <button type="button" className="wm-button wm-button-primary" onClick={() => applyTemplateToDiscovery(template)}>
-                  Use template <ArrowRight aria-hidden="true" />
-                </button>
-                <Link
-                  className="wm-button wm-button-secondary"
-                  to={`${routeCatalogByKey.templates.path}/${template.id}`}
-                  data-template-build-pack="true"
-                >
-                  Review template
-                </Link>
-              </div>
-
-              {isCustom ? (
-                <details className="wm-template-manage">
-                  <summary>Manage custom template</summary>
-                  <div className="wm-template-manage-actions">
-                    <button type="button" className="wm-button wm-button-secondary" onClick={() => editCustomTemplate(template)}>
-                      Edit
-                    </button>
-                    <button type="button" className="wm-button wm-button-secondary" onClick={() => duplicateTemplate(template)}>
-                      Duplicate
-                    </button>
-                    <button
-                      type="button"
-                      className="wm-button wm-button-secondary"
-                      onClick={() => confirmDelete(template)}
-                    >
-                      {confirmDeleteId === template.id ? "Confirm delete?" : "Delete"}
-                    </button>
-                    {confirmDeleteId === template.id ? (
-                      <button type="button" className="wm-button wm-button-secondary" onClick={() => setConfirmDeleteId(null)}>
-                        Keep template
-                      </button>
-                    ) : null}
-                  </div>
-                </details>
-              ) : null}
-            </article>
-          );
-        })}
-      </section>
-
-      {filteredTemplates.length === 0 ? (
-        <section className="wm-output-panel" aria-live="polite">
-          <h2 className="wm-section-title">Nothing matches that filter</h2>
-          <p className="wm-copy">Choose a different vertical market, or create a new custom template.</p>
-        </section>
-      ) : null}
-    </main>
-  );
+function PersonalisationForm({ value, onUpdate }: { value: DocumentPersonalisation; onUpdate: <K extends keyof DocumentPersonalisation>(key: K, value: DocumentPersonalisation[K]) => void }) {
+  const field = (key: keyof DocumentPersonalisation, label: string, type = "text") => <label>{label}<input type={type} value={String(value[key])} onChange={(e) => onUpdate(key, e.target.value as never)} /></label>;
+  return <div className="wm-personalisation-form"><fieldset><legend>Document details</legend><div className="wm-form-grid">{field("documentTitle", "Document title")}{field("customerName", "Customer name")}{field("site", "Site")}{field("projectReference", "Project reference")}{field("author", "Author")}{field("date", "Date", "date")}{field("revision", "Revision")}</div></fieldset>
+    <fieldset><legend>Brand</legend><div className="wm-form-grid">{field("organisationLogo", "Organisation logo URL")}{field("customerLogo", "Customer logo URL")}{field("primaryColour", "Primary colour", "color")}{field("secondaryColour", "Secondary colour", "color")}{field("font", "Font")}{field("coverImage", "Cover image URL")}{field("footer", "Footer")}{field("disclaimer", "Disclaimer")}</div></fieldset>
+    <fieldset><legend>Content</legend>{(["purpose", "customerStory", "objectives", "executiveSummary", "scope", "exclusions", "nextSteps"] as const).map((key) => <label key={key}>{key.replace(/([A-Z])/g, " $1")}<textarea value={value[key]} onChange={(e) => onUpdate(key, e.target.value)} /></label>)}</fieldset>
+    <fieldset><legend>Audience and detail</legend><div className="wm-form-grid"><label>Audience<select value={value.audience} onChange={(e) => onUpdate("audience", e.target.value as DocumentPersonalisation["audience"])}>{["Customer", "Consultant", "Integrator", "Internal"].map(x => <option key={x}>{x}</option>)}</select></label><label>Detail<select value={value.detail} onChange={(e) => onUpdate("detail", e.target.value as DocumentPersonalisation["detail"])}>{["Executive", "Standard", "Technical"].map(x => <option key={x}>{x}</option>)}</select></label></div></fieldset>
+    <fieldset><legend>Output structure</legend>{([ ["showOptionalUpgrades", "Optional upgrade section"], ["showThirdPartyPlaceholders", "Third-party equipment placeholders"], ["showAssumptionsAndRisks", "Assumptions and risk section"], ["showTechnicalAppendix", "Technical appendix"] ] as const).map(([key, label]) => <label className="wm-check-row" key={key}><input type="checkbox" checked={value[key]} onChange={(e) => onUpdate(key, e.target.checked)} />{label}</label>)}</fieldset>
+  </div>;
 }
 
 export default TemplatesPage;
