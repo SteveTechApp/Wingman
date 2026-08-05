@@ -37,6 +37,7 @@ import type {
   DiscoveryNotes,
 } from "./discovery/discoveryTypes";
 import { getQuestionStrategy, getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
+import { DiscoveryClientDetailsPanel } from "./discovery/DiscoveryClientDetailsPanel";
 import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
 import { DiscoverySummaryCard } from "./discovery/DiscoverySummaryCard";
 import {
@@ -1105,72 +1106,19 @@ return (
         </div>
       </header>
 
-      <details className="wm-discovery-client-panel wm-ui-card">
-        <summary>Client &amp; project details (optional)</summary>
-        <p className="wm-discovery-client-panel-intro wm-ui-copy">
-          Not required to proceed — add these whenever they come up in the conversation. They travel with the brief
-          into the proposal.
-        </p>
-        <div className="wm-discovery-client-grid">
-          <label>
-            Client / company name
-            <input
-              className="wm-ui-input"
-              type="text"
-              value={clientName}
-              onChange={(event) => setClientName(event.target.value)}
-              placeholder="e.g. Northfield Council"
-            />
-          </label>
-          <label>
-            Contact name
-            <input
-              className="wm-ui-input"
-              type="text"
-              value={contactName}
-              onChange={(event) => setContactName(event.target.value)}
-              placeholder="e.g. Priya Shah, Facilities"
-            />
-          </label>
-          <label>
-            Site / project name
-            <input
-              className="wm-ui-input"
-              type="text"
-              value={siteName}
-              onChange={(event) => setSiteName(event.target.value)}
-              placeholder="e.g. Main chamber, Level 2"
-            />
-          </label>
-          <label>
-            Budget sensitivity
-            <select
-              ref={budgetInputRef}
-              className="wm-ui-input"
-              value={budgetLevel}
-              onChange={(event) => setBudgetLevel(event.target.value)}
-            >
-              <option value="">Not discussed yet</option>
-              <option value="cost-sensitive">Cost-sensitive — value engineering matters</option>
-              <option value="mid-market">Mid-market — balanced cost and quality</option>
-              <option value="premium">Premium — quality and performance lead</option>
-            </select>
-          </label>
-          <label>
-            Timeline
-            <select
-              className="wm-ui-input"
-              value={timeline}
-              onChange={(event) => setTimeline(event.target.value)}
-            >
-              <option value="">Not yet known</option>
-              <option value="urgent">Urgent — needed within weeks</option>
-              <option value="this-quarter">This quarter</option>
-              <option value="exploring">Exploring options</option>
-            </select>
-          </label>
-        </div>
-      </details>
+      <DiscoveryClientDetailsPanel
+        clientName={clientName}
+        onClientNameChange={setClientName}
+        contactName={contactName}
+        onContactNameChange={setContactName}
+        siteName={siteName}
+        onSiteNameChange={setSiteName}
+        budgetLevel={budgetLevel}
+        onBudgetLevelChange={setBudgetLevel}
+        budgetInputRef={budgetInputRef}
+        timeline={timeline}
+        onTimelineChange={setTimeline}
+      />
 
       {discoveryMode !== "standard" ? (
         <section className="wm-discovery-trail-card wm-ui-section wm-ui-card" aria-label="Discovery template mode" data-discovery-mode={discoveryMode}>
