@@ -12,6 +12,7 @@ const PRODUCT_INTELLIGENCE_MAX_RECORDS = Math.max(100, Number(process.env.PRODUC
 
 const VALID_VENDOR_TYPES = new Set(["wyrestorm", "competitor"]);
 const VALID_STATUSES = new Set(["draft", "approved", "expired"]);
+const VALID_LIFECYCLES = new Set(["live", "review", "draft", "do-not-use", "discontinued", "superseded", "unlisted"]);
 const VALID_SOURCE_TYPES = new Set(["catalog", "live", "manual", "import"]);
 const VALID_EVIDENCE_TYPES = new Set(["spec", "io", "compatibility", "positioning", "application", "other"]);
 
@@ -336,6 +337,12 @@ function sanitizeStatus(value, fallback = "draft") {
   return fallback;
 }
 
+function sanitizeLifecycle(value, status = "draft") {
+  const normalized = tidy(value).toLowerCase();
+  if (VALID_LIFECYCLES.has(normalized)) return normalized;
+  return status === "approved" ? "live" : status === "expired" ? "do-not-use" : "draft";
+}
+
 function sanitizeVendorType(value, fallback = "competitor") {
   const normalized = normalizeId(value);
   if (VALID_VENDOR_TYPES.has(normalized)) return normalized;
@@ -533,6 +540,7 @@ function sanitizeRecord(raw, fallback = {}) {
     transport: tidy(raw?.transport || fallback.transport) || undefined,
     inputs: coercePortArray(raw?.inputs ?? fallback.inputs),
     outputs: coercePortArray(raw?.outputs ?? fallback.outputs),
+    mirroredOutputs: coercePortArray(raw?.mirroredOutputs ?? fallback.mirroredOutputs),
     control: dedupeStrings(raw?.control ?? fallback.control, 16),
     audio: dedupeStrings(raw?.audio ?? fallback.audio, 16),
     video: coerceVideo(raw?.video ?? fallback.video),
@@ -549,6 +557,15 @@ function sanitizeRecord(raw, fallback = {}) {
     lastReviewedAt: tidy(raw?.lastReviewedAt || fallback.lastReviewedAt) || undefined,
     reviewedBy: tidy(raw?.reviewedBy || fallback.reviewedBy) || undefined,
     evidence: mergeEvidence(raw?.evidence, fallback.evidence),
+    lifecycle: sanitizeLifecycle(raw?.lifecycle ?? fallback.lifecycle, status),
+    applications: dedupeStrings(raw?.applications ?? fallback.applications, 32),
+    dependencies: dedupeStrings(raw?.dependencies ?? fallback.dependencies, 32),
+    compatibility: dedupeStrings(raw?.compatibility ?? fallback.compatibility, 32),
+    limitations: dedupeStrings(raw?.limitations ?? fallback.limitations, 32),
+    salesGuidance: tidy(raw?.salesGuidance || fallback.salesGuidance) || undefined,
+    replacementSku: normalizeSku(raw?.replacementSku || fallback.replacementSku) || undefined,
+    changeNote: tidy(raw?.changeNote || fallback.changeNote) || undefined,
+    history: asArray(raw?.history ?? fallback.history).slice(-30),
   };
 
   if (record.tags.length === 0) {
@@ -814,6 +831,7 @@ function parseUpsertPayload(payload) {
       transport: tidy(payload?.transport),
       inputs: coercePortArray(payload?.inputs),
       outputs: coercePortArray(payload?.outputs),
+      mirroredOutputs: coercePortArray(payload?.mirroredOutputs),
       control: dedupeStrings(payload?.control, 16),
       audio: dedupeStrings(payload?.audio, 16),
       video: coerceVideo(payload?.video),
@@ -829,6 +847,14 @@ function parseUpsertPayload(payload) {
       reviewedBy: tidy(payload?.reviewedBy),
       lastReviewedAt: tidy(payload?.lastReviewedAt),
       evidence: asArray(payload?.evidence),
+      lifecycle: sanitizeLifecycle(payload?.lifecycle, sanitizeStatus(payload?.status, "draft")),
+      applications: dedupeStrings(payload?.applications, 32),
+      dependencies: dedupeStrings(payload?.dependencies, 32),
+      compatibility: dedupeStrings(payload?.compatibility, 32),
+      limitations: dedupeStrings(payload?.limitations, 32),
+      salesGuidance: tidy(payload?.salesGuidance),
+      replacementSku: normalizeSku(payload?.replacementSku),
+      changeNote: tidy(payload?.changeNote),
     },
   };
 }
@@ -867,6 +893,7 @@ async function upsertRecord(payload) {
     transport: replaceMode ? incoming.transport : (incoming.transport || base.transport),
     inputs: replaceMode ? incoming.inputs : (incoming.inputs.length > 0 ? incoming.inputs : base.inputs),
     outputs: replaceMode ? incoming.outputs : (incoming.outputs.length > 0 ? incoming.outputs : base.outputs),
+    mirroredOutputs: replaceMode ? incoming.mirroredOutputs : (incoming.mirroredOutputs.length > 0 ? incoming.mirroredOutputs : base.mirroredOutputs),
     control: replaceMode ? incoming.control : (incoming.control.length > 0 ? incoming.control : base.control),
     audio: replaceMode ? incoming.audio : (incoming.audio.length > 0 ? incoming.audio : base.audio),
     video: replaceMode ? incoming.video : (incoming.video || base.video),
@@ -887,6 +914,15 @@ async function upsertRecord(payload) {
     updatedAt: now,
     lastCapturedAt: now,
     evidence: mergeEvidence(incoming.evidence, base.evidence),
+    lifecycle: incoming.lifecycle,
+    applications: incoming.applications,
+    dependencies: incoming.dependencies,
+    compatibility: incoming.compatibility,
+    limitations: incoming.limitations,
+    salesGuidance: incoming.salesGuidance,
+    replacementSku: incoming.replacementSku,
+    changeNote: incoming.changeNote,
+    history: existing ? [...asArray(base.history), { version: asArray(base.history).length + 1, changedAt: now, changedBy: incoming.reviewedBy || "ADMIN", changeNote: incoming.changeNote || "Product record updated", previous: { ...base, history: undefined } }].slice(-30) : [],
   }, base);
 
   const nextRecords = db.records.filter((entry) => entry.id !== id);
@@ -930,10 +966,12 @@ async function updateStatus(payload) {
   const nextRecord = sanitizeRecord({
     ...existing,
     status,
+    lifecycle: sanitizeLifecycle(payload?.lifecycle, status),
     notes,
     reviewedBy,
     lastReviewedAt: now,
     updatedAt: now,
+    history: [...asArray(existing.history), { version: asArray(existing.history).length + 1, changedAt: now, changedBy: reviewedBy, changeNote: notes || `Lifecycle changed to ${status}`, previous: { ...existing, history: undefined } }].slice(-30),
   }, existing);
 
   const nextRecords = db.records.filter((entry) => entry.id !== id);
