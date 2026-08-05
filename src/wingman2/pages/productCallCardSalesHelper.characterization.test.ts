@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   buildProductSalesHelperCopy,
   productRoleForSalesHelper,
-  type ProductCard,
-} from "./ProductCallCardsPage";
+} from "../lib/productSalesHelperCopy";
+import type { ProductCard } from "../lib/productCallCardTypes";
 
 // Characterization tests for the Product Call Cards sales-helper copy. These
 // lock the current (protected) sales guidance so it can be extracted to a

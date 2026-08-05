@@ -13,3 +13,27 @@ export function cleanText(value: unknown): string {
 
   return "";
 }
+
+export function unique(values: string[]): string[] {
+  const seen = new Set<string>();
+  const output: string[] = [];
+
+  values.forEach((value) => {
+    const clean = value.trim();
+
+    if (!clean) {
+      return;
+    }
+
+    const key = clean.toLowerCase();
+
+    if (seen.has(key)) {
+      return;
+    }
+
+    seen.add(key);
+    output.push(clean);
+  });
+
+  return output;
+}
