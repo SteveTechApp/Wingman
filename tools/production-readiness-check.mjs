@@ -245,12 +245,22 @@ if (!projectRequirementsSource.includes("buildRequirementRecordsFromProject") ||
   errors.push("Project requirement record builder is missing.");
 }
 
+// The per-step guidance data lives in the extracted discoveryQuestions module;
+// the page consumes getQuestionStrategy from it.
+const discoveryQuestionsSource = readFileSync(
+  path.join(projectRoot, "src", "wingman2", "pages", "discovery", "discoveryQuestions.ts"),
+  "utf8",
+);
 const discoveryPageSource = readFileSync(
   path.join(projectRoot, "src", "wingman2", "pages", "DiscoveryPage.tsx"),
   "utf8",
 );
 
-if (!discoveryPageSource.includes("baseQuestionStrategyByStep") || !discoveryPageSource.includes("getQuestionStrategy")) {
+if (
+  !discoveryQuestionsSource.includes("baseQuestionStrategyByStep") ||
+  !discoveryQuestionsSource.includes("getQuestionStrategy") ||
+  !discoveryPageSource.includes("getQuestionStrategy")
+) {
   errors.push("Application-specific discovery question guidance is missing.");
 }
 
