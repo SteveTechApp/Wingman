@@ -14,9 +14,12 @@
  * `kind`:
  *   - "chunk"    match emitted JS chunks whose filename starts with
  *                `${match}-` (stable named groups from vite.config.ts).
- *   - "totalJs"  sum of every emitted .js file.
- *   - "totalCss" sum of every emitted .css file.
- *   - "source"   a single source file measured by its byte size on disk.
+ *   - "totalJs"    sum of every emitted .js file.
+ *   - "totalCss"   sum of every emitted .css file.
+ *   - "initialJs"  sum of the JS the entry HTML loads up front (the entry
+ *                  script plus every modulepreload) — the initial download the
+ *                  browser must fetch before the dashboard is interactive.
+ *   - "source"     a single source file measured by its byte size on disk.
  */
 export const TRACKED_ENTRIES = [
   {
@@ -42,6 +45,13 @@ export const TRACKED_ENTRIES = [
     label: "Project workflow chunk",
     remediation:
       "Keep project/proposal/template code behind its route and split large helpers into lazily-loaded modules.",
+  },
+  {
+    id: "initial:js",
+    kind: "initialJs",
+    label: "Initial (eager) JavaScript",
+    remediation:
+      "Only $initial modules belong in the eager app-core chunk; keep heavy features behind their lazy routes so they stay out of the entry's modulepreload (Phase 2).",
   },
   {
     id: "total:js",
@@ -136,6 +146,14 @@ export function measureEntry(entry, data) {
     case "totalCss": {
       const bytes = data.cssFiles.reduce((sum, file) => sum + file.bytes, 0);
       return { bytes, matched: [`${data.cssFiles.length} files`] };
+    }
+    case "initialJs": {
+      const files = data.initialJsFiles ?? [];
+      if (files.length === 0) {
+        return { bytes: null, matched: [] };
+      }
+      const bytes = files.reduce((sum, file) => sum + file.bytes, 0);
+      return { bytes, matched: [`${files.length} eager files`] };
     }
     case "source": {
       const bytes = data.sourceSizes[entry.path];

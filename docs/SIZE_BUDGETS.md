@@ -26,6 +26,7 @@ merges rather than discovering it months later.
 | `chunk:compare-engine` | `wm-compare-engine-*.js` production chunk | emitted JS |
 | `chunk:competitor-registry` | `wm-competitor-registry-*.js` production chunk | emitted JS |
 | `chunk:project-workflow` | `wm-project-workflow-*.js` production chunk | emitted JS |
+| `initial:js` | the entry `<script>` + every `<link rel="modulepreload">` in `dist/index.html` | eager JS |
 | `total:js` | every emitted `.js` file | emitted JS |
 | `total:css` | every emitted `.css` file | emitted CSS |
 | `source:compare-advanced` | `src/wingman2/pages/ComparePageNew.advanced.tsx` | source file |
@@ -38,6 +39,12 @@ Production chunks are matched by their **stable named-group prefix** (from
 `vite.config.ts`), not by the hashed filename, so a new build hash never breaks
 the check. Sizes are raw (unminified-on-disk) bytes — the same number the build
 reporter prints — reported in KB.
+
+`initial:js` is the download the browser must fetch before the dashboard is
+interactive. It is read from `dist/index.html` — the entry script plus every
+`modulepreload` link — so it tracks the real eager cost rather than a source
+heuristic. Keeping heavy features behind their lazy routes (so they stay out of
+the entry's modulepreload) is what keeps this number down.
 
 ### Tolerance
 

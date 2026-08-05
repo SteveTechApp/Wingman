@@ -16,6 +16,10 @@ const sampleData = {
     { name: "index-BbA7zDOZ.js", bytes: 300 },
   ],
   cssFiles: [{ name: "index-CDZlRXus.css", bytes: 800 }],
+  initialJsFiles: [
+    { name: "index-BbA7zDOZ.js", bytes: 300 },
+    { name: "vendor-react-x.js", bytes: 120 },
+  ],
   sourceSizes: { "src/wingman2/pages/ComparePageNew.advanced.tsx": 2000 },
 };
 
@@ -47,6 +51,14 @@ describe("measureEntry", () => {
 
   it("sums every emitted js file for totalJs", () => {
     expect(measureEntry({ kind: "totalJs" }, sampleData).bytes).toBe(2500);
+  });
+
+  it("sums only the eager entry+modulepreload files for initialJs", () => {
+    expect(measureEntry({ kind: "initialJs" }, sampleData).bytes).toBe(420);
+  });
+
+  it("returns null for initialJs when the entry HTML yielded no files", () => {
+    expect(measureEntry({ kind: "initialJs" }, { ...sampleData, initialJsFiles: [] }).bytes).toBeNull();
   });
 
   it("reads a source file size by path", () => {
@@ -125,6 +137,7 @@ describe("TRACKED_ENTRIES", () => {
         "chunk:compare-engine",
         "chunk:competitor-registry",
         "chunk:project-workflow",
+        "initial:js",
         "total:js",
         "source:compare-advanced",
         "source:discovery-page",
