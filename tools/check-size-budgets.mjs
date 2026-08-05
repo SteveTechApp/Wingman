@@ -27,7 +27,9 @@ import {
 } from "./lib/wingman-size-budgets.mjs";
 
 const root = process.cwd();
-const distAssets = path.join(root, "dist", "assets");
+const distDir = path.join(root, "dist");
+const distAssets = path.join(distDir, "assets");
+const distIndexHtml = path.join(distDir, "index.html");
 const baselinePath = path.join(root, "tools", "wingman-size-budgets.json");
 
 const audit = process.argv.includes("--audit");
@@ -60,10 +62,36 @@ function readSourceSizes() {
   return sizes;
 }
 
+// The JS the entry HTML fetches up front: the entry <script> plus every
+// <link rel="modulepreload">. These are the chunks the browser must download
+// before the dashboard is interactive, so they are the true "initial JS" cost.
+function readInitialJsFiles() {
+  if (!fs.existsSync(distIndexHtml)) {
+    return [];
+  }
+  const html = fs.readFileSync(distIndexHtml, "utf8");
+  const names = new Set();
+  const scriptRe = /<script[^>]*\bsrc="\/assets\/([^"]+\.js)"/g;
+  const preloadRe = /<link[^>]*\brel="modulepreload"[^>]*\bhref="\/assets\/([^"]+\.js)"/g;
+  for (const re of [scriptRe, preloadRe]) {
+    let match;
+    while ((match = re.exec(html))) {
+      names.add(match[1]);
+    }
+  }
+  return [...names]
+    .map((name) => {
+      const absolute = path.join(distAssets, name);
+      return fs.existsSync(absolute) ? { name, bytes: fs.statSync(absolute).size } : null;
+    })
+    .filter((entry) => entry !== null);
+}
+
 function collectData() {
   return {
     jsFiles: listAssets(".js"),
     cssFiles: listAssets(".css"),
+    initialJsFiles: readInitialJsFiles(),
     sourceSizes: readSourceSizes(),
   };
 }
