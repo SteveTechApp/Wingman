@@ -95,7 +95,9 @@ export function logWingmanEvent(level, event, details = {}) {
 
 const WINGMAN_STORAGE_MODE = String(process.env.WINGMAN_STORAGE_MODE || "auto").trim().toLowerCase();
 const SUPABASE_URL = String(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "").trim();
-const SUPABASE_SERVICE_ROLE_KEY = String(process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
+const SUPABASE_SERVICE_ROLE_KEY = String(
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY || "",
+).trim();
 const SUPABASE_WINGMAN_STATE_TABLE = String(process.env.SUPABASE_WINGMAN_STATE_TABLE || "wingman_app_state").trim();
 const SUPABASE_WINGMAN_STATE_ROW_ID = String(process.env.SUPABASE_WINGMAN_STATE_ROW_ID || "global").trim();
 const SUPABASE_WINGMAN_TABLES_ENABLED = !["0", "false", "off", "no"].includes(
