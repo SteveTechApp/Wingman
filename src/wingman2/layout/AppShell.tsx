@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
-import { Menu, Plus, X } from "lucide-react";
+import { Database, Menu, Plus, X } from "lucide-react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import {
@@ -18,6 +18,7 @@ import {
 } from "../data/projectStore";
 import { useWingmanLanguage } from "../data/wingmanLanguage";
 import wingmanBrandLogo from "../../assets/branding/wingman-brand-logo.png";
+import { getWingmanSession, type WingmanWorkspaceSession } from "../api/wingmanApi";
 
 const WingmanGuruDrawer = lazy(() => import("../components/WingmanGuruDrawer"));
 
@@ -198,6 +199,7 @@ export function AppShell({ children }: AppShellProps) {
   const [guruSeedPrompt, setGuruSeedPrompt] = useState<string | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [pageResetVersion, setPageResetVersion] = useState(0);
+  const [workspaceSession, setWorkspaceSession] = useState<WingmanWorkspaceSession | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { uiText } = useWingmanLanguage();
@@ -229,6 +231,13 @@ export function AppShell({ children }: AppShellProps) {
     };
   }, [activeRoute?.key, activeSummary]);
   const primaryNav = useMemo(() => consolidatedPrimaryNavKeys.map((key) => routeCatalogByKey[key]), []);
+  const canManageData = Boolean(workspaceSession?.permissions?.canManageWorkspace || [workspaceSession?.workspaceRole, workspaceSession?.user?.role].some((role) => ["admin", "owner"].includes(String(role).toLowerCase())));
+
+  useEffect(() => {
+    let active = true;
+    getWingmanSession().then((response) => { if (active) setWorkspaceSession(response.session || null); }).catch(() => { if (active) setWorkspaceSession(null); });
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     if (typeof document === "undefined") {
@@ -323,6 +332,7 @@ export function AppShell({ children }: AppShellProps) {
               </span>
             </NavLink>
           ))}
+          {canManageData ? <><span className="wingman-nav-section-label">Admin</span><NavLink to="/wingman/admin/data-manager" title="Maintain governed product intelligence" aria-label="Data Manager: Maintain governed product intelligence" className={({ isActive }) => ["wingman-nav-link", isActive ? "wingman-nav-link-active" : ""].filter(Boolean).join(" ")}><Database className="wingman-nav-icon" /><span className="wingman-nav-copy"><span>Data Manager</span></span><span className="wingman-nav-tooltip" role="tooltip">Maintain governed product intelligence</span></NavLink></> : null}
         </nav>
 
       </aside>

@@ -48,6 +48,7 @@ const pageRegistry: Record<WingmanRouteKey, LazyPageComponent> = {
 
 const ProjectDetailRoute = lazy(fromNamedExport(() => import("../pages/ProjectDetailPage"), "ProjectDetailPage"));
 const TemplateReviewRoute = lazy(fromNamedExport(() => import("../pages/TemplateReviewPage"), "TemplateReviewPage"));
+const DataManagerRoute = lazy(fromNamedExport(() => import("../pages/DataManagerPage"), "DataManagerPage"));
 
 function RouteFallback() {
   return (
@@ -76,6 +77,7 @@ export const wingmanRoutes: RouteObject[] = [
       { path: "finder", element: <Navigate to="/wingman/discovery" replace /> },
       { path: "projects/:projectId", element: routeElement(ProjectDetailRoute) },
       { path: "templates/:templateId", element: routeElement(TemplateReviewRoute) },
+      { path: "admin/data-manager", element: routeElement(DataManagerRoute) },
       ...routeCatalog.filter((route) => route.key !== "dashboard").map((route) => ({
         path: route.key === "productCallCards" ? `${route.segment}/*` : route.segment,
         element: routeElement(pageRegistry[route.key]),
