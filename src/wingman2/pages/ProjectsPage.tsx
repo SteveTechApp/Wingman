@@ -167,8 +167,13 @@ export function ProjectsPage() {
                             Detail
                           </Link>
 
+                          {/* WINGMAN_DISCOVERY_PROJECT_RESUME_QUERY */}
                           <Link
-                            to={project.resumeTo}
+                            to={
+                              project.resumeTo === routeCatalogByKey.discovery.path
+                                ? `${project.resumeTo}?resume=project`
+                                : project.resumeTo
+                            }
                             onClick={() => setActiveProjectId(project.id)}
                             className={`wm-project-row-link ${PROJECTS_DARK_BUTTON_XS_CLASS}`}
                           >
