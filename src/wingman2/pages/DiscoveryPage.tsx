@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
-import { saveDiscoveryBriefToProject, type StoredDiscoveryBrief } from "../data/projectStore";
+import {
+  clearActiveProject,
+  getCurrentWorkflowProject,
+  saveDiscoveryBriefToProject,
+  type StoredDiscoveryBrief,
+} from "../data/projectStore";
 import {
   clearLatestDiscoverySnapshot,
   readLatestDiscoverySnapshot,
@@ -142,6 +147,67 @@ export function DiscoveryPage() {
     const value = draftState[key];
     return typeof value === "string" ? value : "";
   };
+  // WINGMAN_EXISTING_DISCOVERY_WARNING_STATE_START
+  const draftAnswers = (draftState.answers as DiscoveryAnswers | undefined) ?? {};
+  const draftNotes = (draftState.notes as DiscoveryNotes | undefined) ?? {};
+  const hasExistingDiscoveryContent =
+    Object.keys(draftAnswers).length > 0 ||
+    Object.keys(draftNotes).length > 0 ||
+    Boolean(draftField("clientName").trim()) ||
+    Boolean(draftField("contactName").trim()) ||
+    Boolean(draftField("siteName").trim()) ||
+    Number(discoveryDraft?.brief?.capturedPercent ?? 0) > 0;
+
+  const hasSessionDiscoveryHandoff =
+    typeof window !== "undefined" &&
+    (
+      Boolean(window.sessionStorage.getItem("wingman:use-call-notes-in-discovery")) ||
+      window.sessionStorage.getItem("wingman:use-video-wall-in-discovery") === "1" ||
+      Boolean(window.sessionStorage.getItem("wingman.roomBuilderSeedProduct"))
+    );
+
+  const hasIntentionalDiscoveryEntry =
+    Boolean(editQuestionId) ||
+    searchParams.get("resume") === "project" ||
+    Boolean(readDiscoveryHandoff()) ||
+    hasSessionDiscoveryHandoff;
+
+  const [showExistingDiscoveryWarning, setShowExistingDiscoveryWarning] = useState(
+    () => hasExistingDiscoveryContent && !hasIntentionalDiscoveryEntry,
+  );
+
+  const existingDiscoveryProject = useMemo(() => getCurrentWorkflowProject(), []);
+  const existingDiscoveryName =
+    existingDiscoveryProject?.name ||
+    [draftField("clientName"), draftField("siteName")].map((item) => item.trim()).filter(Boolean).join(" - ") ||
+    "Unnamed discovery";
+
+  const existingDiscoveryProgress = Math.max(
+    0,
+    Math.min(100, Number(discoveryDraft?.brief?.capturedPercent ?? 0)),
+  );
+
+  const existingDiscoverySavedAt = (() => {
+    const value =
+      discoveryDraft?.savedAt ||
+      discoveryDraft?.brief?.savedAt ||
+      existingDiscoveryProject?.updatedAt ||
+      "";
+
+    if (!value) return "";
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+
+    return date.toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  })();
+  // WINGMAN_EXISTING_DISCOVERY_WARNING_STATE_END
 
   const [activeIndex, setActiveIndex] = useState(() => discoveryDraft?.activeStepIndex ?? 0);
   const [isReviewingAnswers, setIsReviewingAnswers] = useState(false);
@@ -173,6 +239,30 @@ export function DiscoveryPage() {
   const [timeline, setTimeline] = useState(() => draftField("timeline"));
   const navigate = useNavigate();
   const budgetInputRef = useRef<HTMLSelectElement | null>(null);
+  // WINGMAN_EXISTING_DISCOVERY_WARNING_EFFECT_START
+  useEffect(() => {
+    if (!showExistingDiscoveryWarning) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setShowExistingDiscoveryWarning(false);
+        navigate(-1);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [navigate, showExistingDiscoveryWarning]);
+  // WINGMAN_EXISTING_DISCOVERY_WARNING_EFFECT_END
 
   const recogniserRef = useRef<DiscoverySpeechRecognitionLike | null>(null);
   const selectedApplication = wmDiscoveryAnswerToText(answers.opportunity);
@@ -641,6 +731,27 @@ export function DiscoveryPage() {
     }, 180);
   }
 
+  // WINGMAN_EXISTING_DISCOVERY_WARNING_ACTIONS_START
+  function continueExistingDiscovery(): void {
+    setShowExistingDiscoveryWarning(false);
+  }
+
+  function startNewDiscoveryProject(): void {
+    if (hasExistingDiscoveryContent) {
+      saveDiscoveryBriefToProject(buildDiscoveryBrief());
+    }
+
+    clearActiveProject();
+    setShowExistingDiscoveryWarning(false);
+    resetDiscovery();
+  }
+
+  function cancelExistingDiscoveryChoice(): void {
+    setShowExistingDiscoveryWarning(false);
+    navigate(-1);
+  }
+
+  // WINGMAN_EXISTING_DISCOVERY_WARNING_ACTIONS_END
   function resetDiscovery(): void {
     if (recogniserRef.current) {
       recogniserRef.current.stop();
@@ -1085,6 +1196,75 @@ export function DiscoveryPage() {
   }
 return (
     <main className="wm-discovery-capture-page wm-ui-page wingman-page-host" data-audit={discoveryAuditMarkers.join("|")}>
+      {/* WINGMAN_EXISTING_DISCOVERY_WARNING_MODAL_START */}
+      {showExistingDiscoveryWarning && (
+        <div className="wm-existing-discovery-warning-backdrop">
+          <section
+            className="wm-existing-discovery-warning-dialog wm-ui-card"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="existing-discovery-warning-title"
+            aria-describedby="existing-discovery-warning-description"
+          >
+            <div className="wm-existing-discovery-warning-icon" aria-hidden="true">!</div>
+
+            <div className="wm-existing-discovery-warning-copy">
+              <p className="wm-existing-discovery-warning-kicker">WARNING!</p>
+              <h2 id="existing-discovery-warning-title">Existing Discovery in progress</h2>
+              <p id="existing-discovery-warning-description">
+                Continue the existing Discovery or preserve it and start a new project.
+              </p>
+            </div>
+
+            <dl className="wm-existing-discovery-warning-summary">
+              <div>
+                <dt>Project</dt>
+                <dd>{existingDiscoveryName}</dd>
+              </div>
+              <div>
+                <dt>Progress</dt>
+                <dd>{existingDiscoveryProgress}% captured</dd>
+              </div>
+              {existingDiscoverySavedAt && (
+                <div>
+                  <dt>Last saved</dt>
+                  <dd>{existingDiscoverySavedAt}</dd>
+                </div>
+              )}
+            </dl>
+
+            <p className="wm-existing-discovery-warning-note">
+              Starting a new project will not overwrite this work. The current brief is saved to the project workspace first.
+            </p>
+
+            <div className="wm-existing-discovery-warning-actions">
+              <button
+                className="wm-ui-button wm-ui-button-primary"
+                type="button"
+                onClick={continueExistingDiscovery}
+                autoFocus
+              >
+                Continue existing Discovery
+              </button>
+              <button
+                className="wm-ui-button wm-ui-button-secondary"
+                type="button"
+                onClick={startNewDiscoveryProject}
+              >
+                Start new project
+              </button>
+              <button
+                className="wm-ui-button wm-ui-button-secondary"
+                type="button"
+                onClick={cancelExistingDiscoveryChoice}
+              >
+                Cancel
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+      {/* WINGMAN_EXISTING_DISCOVERY_WARNING_MODAL_END */}
       <header className="wm-discovery-capture-hero wm-ui-hero">
         <div>
           <p className="wm-discovery-eyebrow wm-ui-copy wm-ui-kicker">Guided discovery - live call mode</p>
