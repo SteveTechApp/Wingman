@@ -25201,3 +25201,150 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
     text-align: left !important;
   }
 }
+
+/* WINGMAN_EXISTING_DISCOVERY_WARNING_STYLES_START */
+.wm-existing-discovery-warning-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1600;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 50% 28%, rgba(251, 191, 36, 0.12), transparent 28rem),
+    rgba(2, 8, 18, 0.84);
+  backdrop-filter: blur(8px);
+}
+
+.wm-existing-discovery-warning-dialog {
+  width: min(620px, 100%);
+  max-height: min(760px, calc(100vh - 48px));
+  overflow-y: auto;
+  padding: clamp(22px, 4vw, 34px);
+  border: 1px solid rgba(251, 191, 36, 0.48);
+  border-radius: var(--wm-radius-xl);
+  background:
+    linear-gradient(145deg, rgba(251, 191, 36, 0.07), transparent 42%),
+    var(--wm-surface);
+  box-shadow:
+    0 28px 90px rgba(0, 0, 0, 0.58),
+    0 0 0 1px rgba(251, 191, 36, 0.08);
+}
+
+.wm-existing-discovery-warning-icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  margin-bottom: 18px;
+  border: 1px solid rgba(251, 191, 36, 0.58);
+  border-radius: 16px;
+  background: rgba(251, 191, 36, 0.13);
+  color: var(--wm-warning);
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.wm-existing-discovery-warning-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.wm-existing-discovery-warning-kicker {
+  margin: 0;
+  color: var(--wm-warning);
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+}
+
+.wm-existing-discovery-warning-copy h2 {
+  margin: 0;
+  color: var(--wm-text);
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  line-height: 1.15;
+}
+
+.wm-existing-discovery-warning-copy p:last-child {
+  margin: 0;
+  color: var(--wm-text-soft);
+  line-height: 1.65;
+}
+
+.wm-existing-discovery-warning-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 24px 0 0;
+}
+
+.wm-existing-discovery-warning-summary > div {
+  min-width: 0;
+  padding: 13px 14px;
+  border: 1px solid var(--wm-border);
+  border-radius: var(--wm-radius-md);
+  background: rgba(8, 24, 40, 0.76);
+}
+
+.wm-existing-discovery-warning-summary dt {
+  margin-bottom: 5px;
+  color: var(--wm-muted);
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.wm-existing-discovery-warning-summary dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--wm-text);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.wm-existing-discovery-warning-note {
+  margin: 18px 0 0;
+  padding: 13px 15px;
+  border-left: 3px solid var(--wm-warning);
+  border-radius: 0 var(--wm-radius-sm) var(--wm-radius-sm) 0;
+  background: rgba(251, 191, 36, 0.08);
+  color: var(--wm-text-soft);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.wm-existing-discovery-warning-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.wm-existing-discovery-warning-actions .wm-ui-button:last-child {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 640px) {
+  .wm-existing-discovery-warning-backdrop {
+    align-items: end;
+    padding: 12px;
+  }
+
+  .wm-existing-discovery-warning-dialog {
+    max-height: calc(100vh - 24px);
+    padding: 22px 18px;
+    border-radius: 20px;
+  }
+
+  .wm-existing-discovery-warning-summary,
+  .wm-existing-discovery-warning-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .wm-existing-discovery-warning-actions .wm-ui-button:last-child {
+    grid-column: auto;
+  }
+}
+/* WINGMAN_EXISTING_DISCOVERY_WARNING_STYLES_END */

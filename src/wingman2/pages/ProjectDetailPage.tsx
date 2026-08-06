@@ -437,7 +437,8 @@ export function ProjectDetailPage() {
     if (blocker.includes("proposal")) {
       return { label: "Open Proposal", route: routeCatalogByKey.proposal.path };
     }
-    return { label: "Resolve in Discovery", route: routeCatalogByKey.discovery.path };
+    // WINGMAN_DISCOVERY_PROJECT_DETAIL_RESUME_QUERY
+    return { label: "Resolve in Discovery", route: `${routeCatalogByKey.discovery.path}?resume=project` };
   }, [activeBlocker]);
 
   useEffect(() => {

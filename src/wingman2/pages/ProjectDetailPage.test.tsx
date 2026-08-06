@@ -101,6 +101,8 @@ describe("Project Detail review controls", () => {
     expect(screen.getByRole("region", { name: "Proposal blocker walkthrough" })).not.toBeNull();
     expect(screen.getByText(/Blocker 1 of/)).not.toBeNull();
     expect(screen.getByText("USB host ownership")).not.toBeNull();
-    expect(screen.getByRole("link", { name: "Resolve in Discovery" }).getAttribute("href")).toBe("/wingman/discovery");
+    expect(screen.getByRole("link", { name: "Resolve in Discovery" }).getAttribute("href")).toBe(
+      "/wingman/discovery?resume=project",
+    );
   });
 });
