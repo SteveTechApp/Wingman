@@ -69,4 +69,20 @@ describe("template workflow wiring", () => {
     fireEvent.click(within(card!).getByRole("link", { name: "Review template" }));
     expect(screen.getByRole("heading", { name: savedTemplate.name, level: 1 })).toBeInTheDocument();
   });
+
+  it("keeps an excluded WyreStorm option in its equipment group", () => {
+    renderTemplateRoutes("/wingman/templates/government-control-room-networkhd600");
+
+    fireEvent.click(screen.getByRole("tab", { name: "Equipment" }));
+    fireEvent.click(screen.getByRole("button", { name: /Optional/ }));
+
+    const fibreRow = screen.getByText("NHD-600-TRXF").closest("article");
+    expect(fibreRow).not.toBeNull();
+    fireEvent.click(within(fibreRow!).getByRole("checkbox", { name: "Include NHD-600-TRXF" }));
+
+    const optionalSection = screen.getByRole("button", { name: /Optional/ }).closest("section");
+    const thirdPartySection = screen.getByRole("button", { name: /Third-party scope/ }).closest("section");
+    expect(within(optionalSection!).getByText("NHD-600-TRXF")).toBeInTheDocument();
+    expect(within(thirdPartySection!).queryByText("NHD-600-TRXF")).not.toBeInTheDocument();
+  });
 });

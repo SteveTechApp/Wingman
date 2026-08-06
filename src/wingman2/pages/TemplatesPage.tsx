@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Building2, Check, FilePenLine, LayoutTemplate, X } from "lucide-react";
+import { ArrowRight, Building2, Check, FilePenLine, Info, LayoutTemplate, X } from "lucide-react";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { deleteCustomRoomTemplate, duplicateCustomRoomTemplate, useCustomRoomTemplates, type CustomRoomTemplate } from "../lib/customRoomTemplates";
 import { buildDiscoveryHandoffFromTemplate, writeDiscoveryHandoff } from "../lib/discoveryTemplateHandoff";
@@ -10,6 +10,15 @@ import { defaultPersonalisation, loadTemplateDraft, saveTemplateDraft, toSolutio
 
 type AvailableTemplate = RoomTemplate | CustomRoomTemplate;
 const isCustom = (template: AvailableTemplate): template is CustomRoomTemplate => "customTemplate" in template && template.customTemplate === true;
+const templateTone = (vertical: string) => {
+  const market = vertical.toLowerCase();
+  if (market.includes("education")) return "blue";
+  if (market.includes("retail") || market.includes("hospitality")) return "amber";
+  if (market.includes("health") || market.includes("residential")) return "green";
+  if (market.includes("government") || market.includes("control") || market.includes("transport")) return "violet";
+  if (market.includes("broadcast") || market.includes("media") || market.includes("venue")) return "magenta";
+  return "aqua";
+};
 
 export function TemplatesPage() {
   const customTemplates = useCustomRoomTemplates();
@@ -54,13 +63,14 @@ export function TemplatesPage() {
       <section className="wm-template-results wm-section-card" aria-label="Application templates">
         <div className="wm-template-results-heading"><div><p className="wm-ui-kicker">{market === ALL_MARKET_FILTER ? "All markets" : market}</p><h2>{filtered.length} templates</h2></div><p>Purpose-led application blueprints. Products are resolved after Discovery.</p></div>
         <div className="wm-solution-card-grid">{filtered.map((template) => {
-          const item = toSolutionTemplate(template); const outcomes = item.businessOutcomes.slice(0, 3);
-          return <article className="wm-solution-card wm-action-card" key={template.id} data-custom-template={isCustom(template) ? "true" : undefined}>
+          const item = toSolutionTemplate(template);
+          const purposeId = `template-purpose-${template.id}`;
+          return <article className="wm-solution-card wm-action-card" key={template.id} tabIndex={0} data-template-tone={templateTone(template.vertical)} data-custom-template={isCustom(template) ? "true" : undefined}>
             <div className="wm-solution-card-visual" aria-hidden="true"><LayoutTemplate /><span className="wm-badge">{template.vertical}</span></div>
             <div className="wm-solution-card-body"><div className="wm-solution-card-meta"><span className={`wm-status is-${item.status === "published" ? "confirmed" : "assumed"} ${isCustom(template) ? "wm-template-custom-badge" : ""}`}>{item.status === "custom" ? "Custom" : item.status}</span><span>{template.scale}</span></div>
-              <h3 className="wm-card-title">{item.title}</h3><p className="wm-copy">{item.purpose}</p><small>For {item.intendedAudience}</small><ul>{outcomes.map((outcome) => <li key={outcome}>{outcome}</li>)}</ul>
-              <div className="wm-template-actions"><button className="wm-button wm-button-secondary" type="button" onClick={() => openTemplate(template)}>View Template</button><button className="wm-button wm-button-primary" type="button" onClick={() => { openTemplate(template); setPersonalising(true); }}>Personalise</button><button className="wm-button wm-button-secondary" type="button" onClick={() => applyTemplate(template)}>Use template</button><Link className="wm-button wm-button-secondary" to={`${routeCatalogByKey.templates.path}/${template.id}`}>Review template</Link></div>
-              {isCustom(template) ? <details><summary>Manage custom template</summary><div className="wm-template-manage-actions"><button type="button" onClick={() => manageCustom(template)}>Edit</button><button type="button" onClick={() => duplicateCustomRoomTemplate(template.id)}>Duplicate</button><button type="button" onClick={() => confirmDeleteId === template.id ? deleteCustomRoomTemplate(template.id) : setConfirmDeleteId(template.id)}>{confirmDeleteId === template.id ? "Confirm delete?" : "Delete"}</button>{confirmDeleteId === template.id ? <button type="button" onClick={() => setConfirmDeleteId(null)}>Keep template</button> : null}</div></details> : null}
+              <h3 className="wm-card-title">{item.title}</h3><div className="wm-template-card-tools"><div className="wm-template-info-trigger"><button type="button" aria-label={`More information about ${item.title}`} aria-describedby={purposeId}><Info /></button><p id={purposeId} role="tooltip" className="wm-copy wm-solution-card-purpose"><strong>{template.scale}</strong><span>{item.purpose}</span><Link className="wm-template-tooltip-review" to={`${routeCatalogByKey.templates.path}/${template.id}`}>Review template</Link></p></div></div>
+              <div className="wm-template-actions"><button className="wm-button wm-button-secondary wm-template-action-view" type="button" onClick={() => openTemplate(template)}>View Template</button><button className="wm-button wm-button-primary wm-template-action-use" type="button" onClick={() => applyTemplate(template)}>Use template</button></div>
+              {isCustom(template) ? <details className="wm-template-manage"><summary>Manage custom template</summary><div className="wm-template-manage-actions"><button type="button" onClick={() => manageCustom(template)}>Edit</button><button type="button" onClick={() => duplicateCustomRoomTemplate(template.id)}>Duplicate</button><button type="button" onClick={() => confirmDeleteId === template.id ? deleteCustomRoomTemplate(template.id) : setConfirmDeleteId(template.id)}>{confirmDeleteId === template.id ? "Confirm delete?" : "Delete"}</button>{confirmDeleteId === template.id ? <button type="button" onClick={() => setConfirmDeleteId(null)}>Keep template</button> : null}</div></details> : null}
             </div></article>;
         })}</div>
       </section>
@@ -80,7 +90,7 @@ function TemplateDrawer({ template, definition, personalisation, personalising, 
       <section><h3>Required dependencies</h3><ul>{definition.requiredDependencies.map((x) => <li key={x}>{x}</li>)}</ul></section><section><h3>Expected document contents</h3><p>{definition.documentBlueprint.join(" · ")}</p></section>
       {publicationIssues.length ? <p className="wm-template-validation-warning">Draft only: missing {publicationIssues.join(", ")}.</p> : null}
     </div>}
-    <footer>{personalising ? <><button className="wm-button wm-button-secondary" type="button" onClick={onBack}>Back to preview</button><button className="wm-button wm-button-secondary" type="button" onClick={() => location.reload()}>Reset to Brand Defaults</button><button className="wm-button wm-button-primary" type="button" onClick={onApply}>{saved ? "Draft saved" : "Apply to Draft"}</button></> : <><button className="wm-button wm-button-secondary" type="button" onClick={onPersonalise}><FilePenLine /> Personalise</button><button className="wm-button wm-button-primary" type="button" onClick={onUse}>Use Template <ArrowRight /></button></>}</footer>
+    <footer>{personalising ? <><button className="wm-button wm-button-secondary" type="button" onClick={onBack}>Back to preview</button><button className="wm-button wm-button-secondary" type="button" onClick={() => location.reload()}>Reset to Brand Defaults</button><button className="wm-button wm-button-primary" type="button" onClick={onApply}>{saved ? "Draft saved" : "Apply to Draft"}</button></> : <><Link className="wm-button wm-button-secondary" to={`${routeCatalogByKey.templates.path}/${template.id}`}>Review Template</Link><button className="wm-button wm-button-secondary" type="button" onClick={onPersonalise}><FilePenLine /> Personalise</button><button className="wm-button wm-button-primary" type="button" onClick={onUse}>Use Template <ArrowRight /></button></>}</footer>
   </aside></div>;
 }
 

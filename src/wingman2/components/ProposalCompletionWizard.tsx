@@ -419,6 +419,11 @@ function ProposalCompletionWizardContent({
     [baseBomRows, draft.bomQuantities],
   );
 
+  const commercialPricingComplete = bomRows.length > 0 && bomRows.every((row) => {
+    const value = Number(draft.bomUnitPrices[row.sku]);
+    return Number.isFinite(value) && value >= 0;
+  });
+
   const discoveryPercent = Number(
     project.discoveryBrief?.capturedPercent ??
       (project.discoveryBrief ? 100 : 0),
@@ -440,9 +445,11 @@ function ProposalCompletionWizardContent({
         continueWithoutBom: draft.continueWithoutBom,
         reviewConfirmed: draft.reviewConfirmed,
         technicalBlockerCount: salesReadiness.assurance.blockers.length,
+        commercialPricingComplete,
       }),
     [
       bomRows.length,
+      commercialPricingComplete,
       discoveryPercent,
       draft.architectureNarrative,
       draft.continueWithoutBom,
@@ -957,6 +964,7 @@ function ProposalCompletionWizardContent({
                       <th>Description</th>
                       <th>Role</th>
                       <th>Qty</th>
+                      <th>Unit price ({draft.currency})</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -983,11 +991,27 @@ function ProposalCompletionWizardContent({
                               }
                             />
                           </td>
+                          <td>
+                            <input
+                              aria-label={`Unit price for ${row.sku}`}
+                              type="number"
+                              min={0}
+                              step="0.01"
+                              placeholder="0.00"
+                              value={draft.bomUnitPrices[row.sku] ?? ""}
+                              onChange={(event) =>
+                                updateDraft("bomUnitPrices", {
+                                  ...draft.bomUnitPrices,
+                                  [row.sku]: event.target.value,
+                                })
+                              }
+                            />
+                          </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={4}>
+                        <td colSpan={5}>
                           No final WyreStorm BOM is attached yet. Open Product
                           Finder, or explicitly continue with a design proposal
                           without a final equipment schedule.
@@ -1048,6 +1072,25 @@ function ProposalCompletionWizardContent({
               </div>
 
               <div className="wm-proposal-form-grid">
+                <label className="wm-proposal-field">
+                  <span>Proposal currency</span>
+                  <select
+                    value={draft.currency}
+                    onChange={(event) => updateDraft("currency", event.target.value as ProposalWizardDraft["currency"])}
+                  >
+                    <option value="GBP">GBP (£)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                  </select>
+                </label>
+                <label className="wm-proposal-confirmation">
+                  <input
+                    type="checkbox"
+                    checked={draft.pricesExcludeTax}
+                    onChange={(event) => updateDraft("pricesExcludeTax", event.target.checked)}
+                  />
+                  <span>Equipment prices exclude VAT / sales tax.</span>
+                </label>
                 <TextAreaField
                   label="Scope inclusions"
                   value={draft.inclusions}
@@ -1082,6 +1125,18 @@ function ProposalCompletionWizardContent({
                   onChange={(value) =>
                     updateDraft("responsibilities", value)
                   }
+                />
+                <TextAreaField
+                  label="Services and commercial allowances (service | owner | commercial status)"
+                  value={draft.servicesAndAllowances}
+                  rows={6}
+                  onChange={(value) => updateDraft("servicesAndAllowances", value)}
+                />
+                <TextAreaField
+                  label="Implementation timeline (phase | activity | timing | dependency)"
+                  value={draft.implementationTimeline}
+                  rows={6}
+                  onChange={(value) => updateDraft("implementationTimeline", value)}
                 />
                 <TextAreaField
                   label="Next steps"

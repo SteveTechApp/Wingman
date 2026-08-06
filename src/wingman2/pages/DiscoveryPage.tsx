@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import {
@@ -158,6 +159,10 @@ export function DiscoveryPage() {
     Boolean(draftField("siteName").trim()) ||
     Number(discoveryDraft?.brief?.capturedPercent ?? 0) > 0;
 
+  const resumeExistingDiscoveryStorageKey = "wingman:resume-existing-discovery";
+  const hasExplicitResumeIntent =
+    typeof window !== "undefined" &&
+    window.sessionStorage.getItem(resumeExistingDiscoveryStorageKey) === "1";
   const hasSessionDiscoveryHandoff =
     typeof window !== "undefined" &&
     (
@@ -170,7 +175,8 @@ export function DiscoveryPage() {
     Boolean(editQuestionId) ||
     searchParams.get("resume") === "project" ||
     Boolean(readDiscoveryHandoff()) ||
-    hasSessionDiscoveryHandoff;
+    hasSessionDiscoveryHandoff ||
+    hasExplicitResumeIntent;
 
   const [showExistingDiscoveryWarning, setShowExistingDiscoveryWarning] = useState(
     () => hasExistingDiscoveryContent && !hasIntentionalDiscoveryEntry,
@@ -238,7 +244,29 @@ export function DiscoveryPage() {
   const [budgetLevel, setBudgetLevel] = useState(() => draftField("budgetLevel"));
   const [timeline, setTimeline] = useState(() => draftField("timeline"));
   const navigate = useNavigate();
+  const existingDiscoveryPortalTarget =
+    typeof document !== "undefined"
+      ? document.querySelector<HTMLElement>(".wingman-workspace")
+      : null;
   const budgetInputRef = useRef<HTMLSelectElement | null>(null);
+  // WINGMAN_RESUME_EXISTING_DISCOVERY_INTENT_EFFECT
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (
+      window.sessionStorage.getItem(resumeExistingDiscoveryStorageKey) !== "1"
+    ) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      window.sessionStorage.removeItem(resumeExistingDiscoveryStorageKey);
+    }, 500);
+
+    return () => window.clearTimeout(timeout);
+  }, []);
   // WINGMAN_EXISTING_DISCOVERY_WARNING_EFFECT_START
   useEffect(() => {
     if (!showExistingDiscoveryWarning) {
@@ -733,9 +761,25 @@ export function DiscoveryPage() {
 
   // WINGMAN_EXISTING_DISCOVERY_WARNING_ACTIONS_START
   function continueExistingDiscovery(): void {
+    /*
+      DiscoveryPage already loaded the saved snapshot before displaying this
+      warning. Continuing must therefore dismiss the warning only. Reloading or
+      navigating recreates the page and causes the warning to appear again.
+    */
     setShowExistingDiscoveryWarning(false);
-  }
 
+    window.requestAnimationFrame(() => {
+      const continuationTarget =
+        document.querySelector<HTMLElement>(".wm-discovery-question-card") ??
+        document.querySelector<HTMLElement>(".wm-discovery-trail-card") ??
+        document.querySelector<HTMLElement>(".wm-discovery-completion-card");
+
+      continuationTarget?.scrollIntoView({
+        behavior: "auto",
+        block: "start",
+      });
+    });
+  }
   function startNewDiscoveryProject(): void {
     if (hasExistingDiscoveryContent) {
       saveDiscoveryBriefToProject(buildDiscoveryBrief());
@@ -1197,8 +1241,10 @@ export function DiscoveryPage() {
 return (
     <main className="wm-discovery-capture-page wm-ui-page wingman-page-host" data-audit={discoveryAuditMarkers.join("|")}>
       {/* WINGMAN_EXISTING_DISCOVERY_WARNING_MODAL_START */}
-      {showExistingDiscoveryWarning && (
-        <div className="wm-existing-discovery-warning-backdrop">
+      {showExistingDiscoveryWarning && existingDiscoveryPortalTarget &&
+        !hasIntentionalDiscoveryEntry? createPortal(
+            (
+<div className="wm-existing-discovery-warning-backdrop">
           <section
             className="wm-existing-discovery-warning-dialog wm-ui-card"
             role="alertdialog"
@@ -1263,8 +1309,10 @@ return (
             </div>
           </section>
         </div>
-      )}
-      {/* WINGMAN_EXISTING_DISCOVERY_WARNING_MODAL_END */}
+            ),
+            existingDiscoveryPortalTarget,
+          )
+        : null}
       <header className="wm-discovery-capture-hero wm-ui-hero">
         <div>
           <p className="wm-discovery-eyebrow wm-ui-copy wm-ui-kicker">Guided discovery - live call mode</p>
