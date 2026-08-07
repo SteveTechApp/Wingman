@@ -53,7 +53,6 @@ export function TemplateSchematic({ template, rows }: { template: RoomTemplate; 
                       aria-pressed={selectedStage === nodeIndex}
                       onClick={() => setSelectedStage(nodeIndex)}
                     >
-                      <small>{node.label}</small>
                       <span>{node.title}</span>
                     </button>
                     {index < lane.nodeIndexes.length - 1 ? <i aria-hidden="true" /> : null}

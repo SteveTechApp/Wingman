@@ -13,7 +13,7 @@ export type ProposalDocumentTypeConfig = {
 };
 
 export type ProposalWizardDraft = {
-  schemaVersion: 1;
+  schemaVersion: 2;
   projectId: string;
   discoveryFingerprint?: string;
   documentType: ProposalDocumentType;
@@ -35,6 +35,11 @@ export type ProposalWizardDraft = {
   responsibilities: string;
   leadTime: string;
   warranty: string;
+  currency: "GBP" | "USD" | "EUR";
+  pricesExcludeTax: boolean;
+  bomUnitPrices: Record<string, string>;
+  servicesAndAllowances: string;
+  implementationTimeline: string;
   nextSteps: string;
   solutionConfirmed: boolean;
   continueWithoutBom: boolean;
@@ -57,6 +62,7 @@ export type ProposalReadinessInput = {
   continueWithoutBom: boolean;
   reviewConfirmed: boolean;
   technicalBlockerCount?: number;
+  commercialPricingComplete?: boolean;
 };
 
 export type ProposalReadinessResult = {
@@ -211,7 +217,7 @@ export function createProposalWizardDefaults(input: {
       : "We propose a WyreStorm solution aligned to the captured room, source, display, USB, audio, control and infrastructure requirements.");
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     projectId: input.projectId,
     discoveryFingerprint: input.discoveryFingerprint,
     documentType: "blended-proposal",
@@ -232,7 +238,9 @@ export function createProposalWizardDefaults(input: {
       "Customer-safe explanation of the recommended system architecture.",
     ].join("\n"),
     exclusions: [
-      "Installation labour, commissioning and programming unless expressly listed.",
+      "Cabling, connectors, patch leads and installation consumables unless expressly listed.",
+      "Installation labour, project management, commissioning and programming unless expressly listed.",
+      "Visio, CAD, schematic and as-built drawing production unless expressly listed.",
       "Displays, projectors, loudspeakers, microphones, network switches and third-party equipment unless listed.",
       "Electrical, structural, containment and builder's work.",
     ].join("\n"),
@@ -249,6 +257,23 @@ export function createProposalWizardDefaults(input: {
     ].join("\n"),
     leadTime: "Lead time is subject to stock availability and will be confirmed at order.",
     warranty: "Warranty and support are provided in accordance with the applicable WyreStorm product and regional terms.",
+    currency: "GBP",
+    pricesExcludeTax: true,
+    bomUnitPrices: {},
+    servicesAndAllowances: [
+      "Cabling and consumables | By integrator | Separately quoted",
+      "Installation labour | By integrator | Separately quoted",
+      "Project management | By integrator | Separately quoted",
+      "Configuration and commissioning | By integrator | Separately quoted",
+      "Visio / CAD / as-built drawings | By integrator | Separately quoted",
+    ].join("\n"),
+    implementationTimeline: [
+      "Phase 1 | Site survey and preparation | Days 1-3 | Confirm room, cable routes, network, power and access",
+      "Phase 2 | Hardware delivery and physical installation | Days 4-7 | Subject to stock and site readiness",
+      "Phase 3 | Cabling, configuration and integration | Days 8-10 | Integrator / trades complete by-others scope",
+      "Phase 4 | Commissioning and acceptance testing | Days 11-12 | Validate routing, control, audio, USB and failover",
+      "Phase 5 | Handover and close-out | Days 13-14 | Training, documentation and customer sign-off",
+    ].join("\n"),
     nextSteps: [
       "Confirm the customer and project details.",
       "Approve the proposed architecture and product schedule.",
@@ -289,11 +314,15 @@ export function loadProposalWizardDraft(
             reviewConfirmed: false,
           }
         : {}),
-      schemaVersion: 1,
+      schemaVersion: 2,
       projectId,
       bomQuantities: {
         ...defaults.bomQuantities,
         ...(discoveryChanged ? {} : parsed.bomQuantities ?? {}),
+      },
+      bomUnitPrices: {
+        ...defaults.bomUnitPrices,
+        ...(discoveryChanged ? {} : parsed.bomUnitPrices ?? {}),
       },
     };
   } catch {
@@ -336,6 +365,7 @@ export function computeProposalReadiness(
   const solutionComplete =
     input.solutionConfirmed &&
     (input.technicalBlockerCount ?? 0) === 0 &&
+    (input.commercialPricingComplete ?? input.continueWithoutBom) &&
     (input.bomRowCount > 0 || input.continueWithoutBom);
 
   const solution = solutionComplete
@@ -367,6 +397,9 @@ export function computeProposalReadiness(
   }
   if (!input.solutionConfirmed) {
     missing.push("Confirm that the proposed solution has been reviewed.");
+  }
+  if (input.bomRowCount > 0 && !input.commercialPricingComplete) {
+    missing.push("Enter a unit price for every included equipment line.");
   }
   if (!input.reviewConfirmed) {
     missing.push("Complete the final customer-safe review.");

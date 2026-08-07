@@ -3438,6 +3438,42 @@ html[data-wingman-route="discovery"] .wm-route-advanced-panel .wm-topology-conne
 
 /* WINGMAN_SIMPLE_ROUTE_PLANNER_END */
 
+/* Compact, viewport-bound template review workspace. */
+html[data-wingman-route="templates"] .wingman-page-host:has([data-wingman-template-detail-page="true"]) { height:100%!important; min-height:0!important; overflow:hidden!important; }
+html[data-wingman-route="templates"] .wm-template-workspace[data-wingman-template-detail-page="true"] { display:grid!important; grid-template-rows:auto auto minmax(0,1fr)!important; width:100%!important; height:100%!important; min-height:0!important; gap:8px!important; padding:8px 12px 0!important; overflow:hidden!important; box-sizing:border-box!important; }
+html[data-wingman-route="templates"] .wm-template-compact-header { min-height:0!important; max-height:none!important; margin:0!important; padding:10px 14px!important; border-radius:13px!important; }
+html[data-wingman-route="templates"] .wm-template-breadcrumb,
+html[data-wingman-route="templates"] .wm-template-breadcrumb a { font-size:.66rem!important; }
+html[data-wingman-route="templates"] .wm-template-header-row { display:grid!important; grid-template-columns:minmax(0,1fr) auto!important; align-items:center!important; gap:14px!important; margin-top:5px!important; }
+html[data-wingman-route="templates"] .wm-template-title-line { gap:6px!important; }
+html[data-wingman-route="templates"] .wm-template-title-line h1 { font-size:clamp(1.18rem,1.6vw,1.55rem)!important; line-height:1.08!important; }
+html[data-wingman-route="templates"] .wm-template-header-row>div:first-child>p { max-width:760px!important; margin-top:3px!important; font-size:.72rem!important; line-height:1.3!important; }
+html[data-wingman-route="templates"] .wm-template-header-actions { gap:5px!important; }
+html[data-wingman-route="templates"] .wm-template-header-actions .wm-button { min-height:30px!important; padding:4px 9px!important; font-size:.68rem!important; }
+html[data-wingman-route="templates"] .wm-template-header-actions .wm-icon-button { width:30px!important; height:30px!important; }
+html[data-wingman-route="templates"] .wm-template-tabs { min-height:34px!important; margin:0!important; padding:0 2px!important; }
+html[data-wingman-route="templates"] .wm-template-tabs button { min-width:105px!important; min-height:34px!important; padding:6px 13px!important; font-size:.72rem!important; }
+html[data-wingman-route="templates"] .wm-template-workspace main[role="tabpanel"] { height:100%!important; min-height:0!important; padding-top:0!important; overflow:auto!important; outline:none!important; scrollbar-gutter:stable!important; }
+html[data-wingman-route="templates"] .wm-equipment-workspace { display:grid!important; grid-template-rows:auto auto auto minmax(0,1fr)!important; height:100%!important; min-height:0!important; overflow:hidden!important; border-radius:12px!important; }
+html[data-wingman-route="templates"] .wm-equipment-workspace>.wm-template-section-heading { align-items:center!important; padding:8px 12px!important; }
+html[data-wingman-route="templates"] .wm-equipment-workspace>.wm-template-section-heading h2 { margin-top:1px!important; font-size:.92rem!important; }
+html[data-wingman-route="templates"] .wm-equipment-summary div { padding:7px 12px!important; }
+html[data-wingman-route="templates"] .wm-equipment-summary strong { font-size:.95rem!important; }
+html[data-wingman-route="templates"] .wm-equipment-toolbar { min-height:0!important; padding:6px 10px!important; }
+html[data-wingman-route="templates"] .wm-equipment-toolbar button { min-height:28px!important; padding:3px 8px!important; font-size:.63rem!important; }
+@media(min-width:1101px){
+  html[data-wingman-route="templates"] .wm-equipment-toolbar>div:last-child{flex-wrap:nowrap!important;justify-content:flex-end!important}
+}
+html[data-wingman-route="templates"] .wm-equipment-groups { min-height:0!important; overflow-x:hidden!important; overflow-y:auto!important; overscroll-behavior:contain!important; scrollbar-gutter:stable!important; }
+html[data-wingman-route="templates"] .wm-equipment-group-heading { min-height:30px!important; padding:6px 11px!important; }
+html[data-wingman-route="templates"] .wm-equipment-group-caption { padding:4px 11px 6px!important; font-size:.65rem!important; line-height:1.3!important; }
+html[data-wingman-route="templates"] .wm-equipment-row { min-height:54px!important; padding:6px 11px!important; }
+@media(max-width:1100px){
+  html[data-wingman-route="templates"] .wm-template-header-row{grid-template-columns:1fr!important;gap:7px!important}
+  html[data-wingman-route="templates"] .wm-template-header-actions{flex-wrap:wrap!important}
+  html[data-wingman-route="templates"] .wm-equipment-toolbar{align-items:flex-start!important;flex-direction:column!important}
+}
+
 /* WINGMAN_TEMPLATE_LIBRARY_REFRESH_START */
 html[data-wingman-route="templates"] .wm-templates-page {
   display: grid !important;
@@ -3708,5 +3744,764 @@ html[data-wingman-route="templates"] .wm-template-manage-actions {
 .wm-template-preview-content,.wm-personalisation-form { overflow:auto; padding:20px 22px; }.wm-template-preview-content section { margin-bottom:18px; }.wm-template-preview-content h3,.wm-personalisation-form legend { margin:0 0 7px; font-size:.8rem; font-weight:650; text-transform:uppercase; letter-spacing:.04em; }.wm-template-preview-content p,.wm-template-preview-content li { color:var(--wm-text-muted); font-size:.82rem; line-height:1.55; }.wm-template-preview-split { display:grid; grid-template-columns:1fr 1fr; gap:18px; }.wm-template-preview-content .wm-status { margin-right:6px; }.wm-template-validation-warning { padding:10px; border:1px solid var(--wm-warning); border-radius:8px; }
 .wm-personalisation-form fieldset { margin:0 0 18px; padding:14px; border:1px solid var(--wm-border); border-radius:10px; background:var(--wm-surface); }.wm-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }.wm-personalisation-form label { display:grid; gap:5px; margin-bottom:9px; color:var(--wm-text-muted); font-size:.74rem; text-transform:capitalize; }.wm-personalisation-form input,.wm-personalisation-form textarea,.wm-personalisation-form select { width:100%; border:1px solid var(--wm-border); border-radius:7px; padding:8px 9px; background:var(--wm-background); color:var(--wm-text); font:inherit; }.wm-personalisation-form textarea { min-height:72px; resize:vertical; }.wm-personalisation-form .wm-check-row { display:flex; grid-template-columns:auto 1fr; align-items:center; gap:8px; text-transform:none; }.wm-personalisation-form .wm-check-row input { width:auto; }
 @media(max-width:1100px){.wm-solution-card-grid{grid-template-columns:repeat(2,minmax(240px,1fr));}}@media(max-width:760px){.wm-templates-page{padding:14px}.wm-solution-header{align-items:flex-start;flex-direction:column}.wm-template-stages{overflow:auto}.wm-template-browser{grid-template-columns:1fr}.wm-market-rail{position:static;display:flex;overflow:auto}.wm-market-rail h2{display:none}.wm-market-rail button{min-width:max-content}.wm-solution-card-grid{grid-template-columns:1fr}.wm-template-preview-split,.wm-form-grid{grid-template-columns:1fr}.wm-template-results-heading>p{display:none}}
+/* Templates viewport grid: keep page chrome fixed and scroll template cards only. */
+html[data-wingman-route="templates"] .wingman-app-main {
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="templates"] .wingman-app-main > .wingman-page-host {
+  height: 100% !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="templates"] .wm-templates-page {
+  display: grid !important;
+  grid-template-rows: auto auto minmax(0, 1fr) !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 8px !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-header {
+  min-height: 0 !important;
+  padding: 2px 2px 7px !important;
+  gap: 12px !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-header h1 {
+  margin: 0 !important;
+  font-size: 1.45rem !important;
+  line-height: 1.08 !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-header p {
+  font-size: 0.78rem !important;
+  line-height: 1.25 !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-header .wm-ui-kicker {
+  margin-bottom: 2px !important;
+  font-size: 0.65rem !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-header-actions {
+  gap: 6px !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-header-actions .wm-button {
+  min-height: 32px !important;
+  padding: 0.38rem 0.65rem !important;
+  font-size: 0.76rem !important;
+}
+
+html[data-wingman-route="templates"] .wm-template-stages {
+  min-height: 38px !important;
+  margin: 0 !important;
+  padding: 5px 10px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+
+html[data-wingman-route="templates"] .wm-template-stages span {
+  min-width: 105px !important;
+  font-size: 0.75rem !important;
+  white-space: nowrap !important;
+}
+
+html[data-wingman-route="templates"] .wm-template-stages span:not(:last-child)::after {
+  width: 22px !important;
+  margin: 0 8px !important;
+}
+
+html[data-wingman-route="templates"] .wm-template-stages i {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+html[data-wingman-route="templates"] .wm-template-browser {
+  display: grid !important;
+  grid-template-columns: 180px minmax(0, 1fr) !important;
+  grid-template-rows: minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  align-content: stretch !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  gap: 10px !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="templates"] .wm-market-rail {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+  top: auto !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  padding: 8px !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  scrollbar-gutter: stable !important;
+  border-color: color-mix(in srgb, var(--wm-ref-aqua) 18%, var(--wm-ref-border)) !important;
+  background:
+    radial-gradient(circle at 20% 0%, color-mix(in srgb, var(--wm-ref-aqua) 9%, transparent), transparent 34%),
+    linear-gradient(180deg, rgba(10, 31, 51, 0.98), rgba(6, 18, 32, 0.98)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025) !important;
+}
+
+html[data-wingman-route="templates"] .wm-market-rail h2 {
+  flex: 0 0 auto !important;
+  margin: 1px 7px 5px !important;
+  color: var(--wm-ref-aqua) !important;
+  letter-spacing: 0.06em !important;
+}
+
+html[data-wingman-route="templates"] .wm-market-rail button {
+  flex: 1 1 31px !important;
+  min-height: 31px !important;
+  padding: 5px 7px !important;
+  font-size: 0.75rem !important;
+  border-color: color-mix(in srgb, var(--wm-ref-border) 78%, transparent) !important;
+  background: rgba(12, 39, 59, 0.72) !important;
+  transition: border-color 140ms ease, background 140ms ease, transform 140ms ease !important;
+}
+
+html[data-wingman-route="templates"] .wm-market-rail button:hover {
+  border-color: color-mix(in srgb, var(--wm-ref-aqua) 42%, var(--wm-ref-border)) !important;
+  background: color-mix(in srgb, var(--wm-ref-aqua) 7%, rgba(12, 39, 59, 0.9)) !important;
+  transform: translateX(2px) !important;
+}
+
+html[data-wingman-route="templates"] .wm-market-rail button.is-active {
+  color: #f3ffff !important;
+  border-color: color-mix(in srgb, var(--wm-ref-aqua) 58%, transparent) !important;
+  background: linear-gradient(105deg, color-mix(in srgb, var(--wm-ref-aqua) 30%, #0c3447), rgba(11, 43, 62, 0.92)) !important;
+  box-shadow: inset 3px 0 0 var(--wm-ref-aqua), 0 0 16px color-mix(in srgb, var(--wm-ref-aqua) 9%, transparent) !important;
+}
+
+html[data-wingman-route="templates"] .wm-market-rail button.is-active svg,
+html[data-wingman-route="templates"] .wm-market-rail button.is-active small {
+  color: var(--wm-ref-aqua) !important;
+}
+
+html[data-wingman-route="templates"] .wm-template-results {
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 8px !important;
+  overflow: hidden !important;
+  border-color: color-mix(in srgb, var(--wm-ref-aqua) 22%, var(--wm-ref-border)) !important;
+  background:
+    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--wm-ref-cyan) 9%, transparent), transparent 34%),
+    radial-gradient(circle at 0% 100%, color-mix(in srgb, var(--wm-ref-purple) 6%, transparent), transparent 36%),
+    linear-gradient(145deg, rgba(10, 31, 51, 0.97), rgba(6, 18, 32, 0.98)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025), var(--wm-ref-shadow-soft) !important;
+}
+
+/* Override the generic utility-card height cap applied to direct page sections. */
+html[data-wingman-route="templates"] .wingman-workspace main.wm-templates-page.wm-page
+  > .wm-template-browser
+  > section.wm-template-results.wm-section-card {
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  padding: 8px !important;
+  align-content: stretch !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="templates"] .wm-template-results-heading {
+  min-height: 34px !important;
+  margin: 0 2px 7px !important;
+  gap: 12px !important;
+  padding: 0 3px 7px !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--wm-ref-aqua) 16%, var(--wm-ref-border)) !important;
+}
+
+html[data-wingman-route="templates"] .wm-template-results-heading h2 {
+  margin: 0 !important;
+  font-size: 1rem !important;
+  line-height: 1.1 !important;
+}
+
+html[data-wingman-route="templates"] .wm-template-results-heading .wm-ui-kicker,
+html[data-wingman-route="templates"] .wm-template-results-heading > p {
+  font-size: 0.7rem !important;
+  line-height: 1.2 !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  grid-auto-rows: 202px !important;
+  align-content: start !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  column-gap: 16px !important;
+  row-gap: 16px !important;
+  padding: 4px 6px 8px 4px !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  scrollbar-gutter: stable !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card {
+  --template-accent: var(--wm-ref-aqua);
+  position: relative !important;
+  display: grid !important;
+  grid-template-rows: 45px minmax(0, 1fr) !important;
+  height: 202px !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  border: 1px solid color-mix(in srgb, var(--template-accent) 32%, #18344d) !important;
+  border-top: 2px solid color-mix(in srgb, var(--template-accent) 82%, white) !important;
+  border-radius: 14px !important;
+  background:
+    radial-gradient(circle at 95% 0%, color-mix(in srgb, var(--template-accent) 15%, transparent), transparent 40%),
+    linear-gradient(150deg, color-mix(in srgb, var(--template-accent) 7%, #0b2035), #071525 74%) !important;
+  box-shadow: 0 10px 24px rgba(1, 8, 18, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.025) !important;
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card[data-template-tone="blue"] { --template-accent: #4eb9ff; }
+html[data-wingman-route="templates"] .wm-solution-card[data-template-tone="green"] { --template-accent: #3bd6a0; }
+html[data-wingman-route="templates"] .wm-solution-card[data-template-tone="amber"] { --template-accent: #ffb547; }
+html[data-wingman-route="templates"] .wm-solution-card[data-template-tone="violet"] { --template-accent: #9b7cff; }
+html[data-wingman-route="templates"] .wm-solution-card[data-template-tone="magenta"] { --template-accent: #e980d6; }
+
+html[data-wingman-route="templates"] .wm-solution-card:hover {
+  border-color: color-mix(in srgb, var(--template-accent) 68%, #24445e) !important;
+  box-shadow: 0 14px 30px rgba(1, 8, 18, 0.34), 0 0 22px color-mix(in srgb, var(--template-accent) 10%, transparent) !important;
+  transform: translateY(-2px) !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card-visual {
+  box-sizing: border-box !important;
+  height: 45px !important;
+  min-height: 0 !important;
+  padding: 8px 11px !important;
+  color: var(--template-accent) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--template-accent) 22%, var(--wm-ref-border)) !important;
+  background:
+    linear-gradient(115deg, color-mix(in srgb, var(--template-accent) 14%, rgba(9, 31, 49, 0.98)), rgba(7, 20, 35, 0.92)) !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card-visual svg {
+  width: 21px !important;
+  height: 21px !important;
+  padding: 5px !important;
+  box-sizing: content-box !important;
+  border: 1px solid color-mix(in srgb, var(--template-accent) 45%, transparent) !important;
+  border-radius: 8px !important;
+  background: color-mix(in srgb, var(--template-accent) 10%, rgba(4, 18, 31, 0.86)) !important;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--template-accent) 24%, transparent));
+}
+
+html[data-wingman-route="templates"] .wm-solution-card-visual .wm-badge {
+  color: color-mix(in srgb, var(--template-accent) 78%, white) !important;
+  border-color: color-mix(in srgb, var(--template-accent) 38%, transparent) !important;
+  background: color-mix(in srgb, var(--template-accent) 10%, rgba(4, 16, 29, 0.88)) !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card-body {
+  display: grid !important;
+  grid-template-rows: minmax(0, 1fr) 26px 30px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 10px 14px 12px !important;
+  gap: 4px !important;
+  overflow: visible !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card-meta {
+  display: none !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card-meta .wm-status {
+  display: none !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card-meta {
+  justify-content: flex-end !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card h3 {
+  display: grid !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  min-height: 0 !important;
+  place-items: center !important;
+  margin: 0 !important;
+  padding: 6px 14px !important;
+  overflow: hidden !important;
+  font-size: 0.9rem !important;
+  line-height: 1.15 !important;
+  text-align: center !important;
+  color: var(--wm-ref-text, #f4f8fc) !important;
+  letter-spacing: -0.01em !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card-purpose {
+  display: block !important;
+  position: absolute !important;
+  z-index: 8 !important;
+  right: 0 !important;
+  bottom: calc(100% + 9px) !important;
+  left: auto !important;
+  width: min(360px, calc(100vw - 48px)) !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 9px 10px !important;
+  overflow: visible !important;
+  font-size: 0.72rem !important;
+  line-height: 1.25 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  -webkit-box-orient: initial !important;
+  -webkit-line-clamp: unset !important;
+  color: var(--wm-ref-copy, #b7c7d9) !important;
+  border: 1px solid color-mix(in srgb, var(--template-accent) 48%, var(--wm-ref-border)) !important;
+  border-radius: 9px !important;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--template-accent) 10%, #0a2135), #061421) !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.48), 0 0 20px color-mix(in srgb, var(--template-accent) 10%, transparent) !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transform: translateY(4px) !important;
+  transition: opacity 140ms ease !important;
+}
+
+html[data-wingman-route="templates"] .wm-template-info-trigger {
+  position: relative !important;
+  z-index: 10 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+html[data-wingman-route="templates"] .wm-template-info-trigger > button {
+  display: grid !important;
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  min-height: 26px !important;
+  place-items: center !important;
+  padding: 0 !important;
+  color: var(--template-accent) !important;
+  border: 1px solid color-mix(in srgb, var(--template-accent) 40%, transparent) !important;
+  border-radius: 50% !important;
+  background: color-mix(in srgb, var(--template-accent) 8%, rgba(5, 19, 32, 0.94)) !important;
+  cursor: help !important;
+}
+
+html[data-wingman-route="templates"] .wm-template-info-trigger > button svg {
+  width: 13px !important;
+  height: 13px !important;
+}
+
+html[data-wingman-route="templates"] .wm-template-info-trigger:hover .wm-solution-card-purpose,
+html[data-wingman-route="templates"] .wm-template-info-trigger:focus-within .wm-solution-card-purpose {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) !important;
+}
+
+html[data-wingman-route="templates"] .wm-template-info-trigger:hover::before,
+html[data-wingman-route="templates"] .wm-template-info-trigger:focus-within::before {
+  position: absolute !important;
+  z-index: 9 !important;
+  right: 8px !important;
+  bottom: calc(100% + 3px) !important;
+  width: 10px !important;
+  height: 10px !important;
+  content: "" !important;
+  border-right: 1px solid color-mix(in srgb, var(--template-accent) 48%, var(--wm-ref-border)) !important;
+  border-bottom: 1px solid color-mix(in srgb, var(--template-accent) 48%, var(--wm-ref-border)) !important;
+  background: #061421 !important;
+  transform: rotate(45deg) !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card-purpose strong,
+html[data-wingman-route="templates"] .wm-solution-card-purpose span {
+  display: block !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card-purpose strong {
+  margin-bottom: 3px !important;
+  color: color-mix(in srgb, var(--template-accent) 68%, white) !important;
+  font-size: 0.66rem !important;
+  text-transform: uppercase !important;
+}
+
+html[data-wingman-route="templates"] .wm-template-tooltip-review {
+  display: inline-flex !important;
+  min-height: 28px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-top: 8px !important;
+  padding: 4px 10px !important;
+  color: color-mix(in srgb, var(--template-accent) 74%, white) !important;
+  border: 1px solid color-mix(in srgb, var(--template-accent) 42%, transparent) !important;
+  border-radius: 7px !important;
+  background: color-mix(in srgb, var(--template-accent) 8%, rgba(8, 28, 43, 0.96)) !important;
+  font-size: 0.68rem !important;
+  text-decoration: none !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card-meta > span:last-child {
+  color: color-mix(in srgb, var(--template-accent) 50%, var(--wm-ref-copy)) !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card .wm-status {
+  color: color-mix(in srgb, var(--template-accent) 74%, white) !important;
+  border-color: color-mix(in srgb, var(--template-accent) 34%, transparent) !important;
+  background: color-mix(in srgb, var(--template-accent) 9%, rgba(4, 17, 29, 0.9)) !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card .wm-template-actions {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-template-rows: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  gap: 8px !important;
+  margin: 0 !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card .wm-template-action-more {
+  display: none !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card:hover .wm-solution-card-body,
+html[data-wingman-route="templates"] .wm-solution-card:focus-within .wm-solution-card-body,
+html[data-wingman-route="templates"] .wm-solution-card:focus .wm-solution-card-body {
+  grid-template-rows: minmax(0, 1fr) 26px 66px !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card:hover .wm-template-actions,
+html[data-wingman-route="templates"] .wm-solution-card:focus-within .wm-template-actions,
+html[data-wingman-route="templates"] .wm-solution-card:focus .wm-template-actions {
+  grid-template-rows: repeat(2, 30px) !important;
+  height: 66px !important;
+  min-height: 66px !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card:hover .wm-template-action-more,
+html[data-wingman-route="templates"] .wm-solution-card:focus-within .wm-template-action-more,
+html[data-wingman-route="templates"] .wm-solution-card:focus .wm-template-action-more {
+  display: flex !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--template-accent) 78%, white) !important;
+  outline-offset: 2px !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card .wm-template-actions .wm-button {
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+  min-height: 30px !important;
+  height: 30px !important;
+  padding: 5px 10px !important;
+  overflow: hidden !important;
+  font-size: 0.72rem !important;
+  line-height: 1.1 !important;
+  text-align: center !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card .wm-template-actions > .wm-button {
+  width: 100% !important;
+  margin: 0 !important;
+  text-align: center !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card:not(:hover):not(:focus):not(:focus-within)
+  .wm-template-actions .wm-template-action-more {
+  display: none !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card .wm-template-actions .wm-button-primary {
+  color: #f7ffff !important;
+  border-color: color-mix(in srgb, var(--template-accent) 54%, transparent) !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--template-accent) 60%, #087c80), color-mix(in srgb, var(--template-accent) 32%, #075269)) !important;
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--template-accent) 13%, transparent) !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card .wm-template-actions .wm-button-secondary:hover {
+  color: color-mix(in srgb, var(--template-accent) 72%, white) !important;
+  border-color: color-mix(in srgb, var(--template-accent) 48%, transparent) !important;
+  background: color-mix(in srgb, var(--template-accent) 9%, rgba(10, 39, 57, 0.94)) !important;
+}
+
+/* Calm library treatment: colour identifies a market without filling every card. */
+html[data-wingman-route="templates"] .wm-template-results {
+  background: linear-gradient(145deg, rgba(9, 28, 47, 0.98), rgba(6, 18, 31, 0.99)) !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card-grid {
+  column-gap: 22px !important;
+  row-gap: 22px !important;
+  padding: 6px 10px 12px 6px !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card {
+  border-color: rgba(74, 112, 145, 0.3) !important;
+  border-top-color: color-mix(in srgb, var(--template-accent) 72%, #5d7891) !important;
+  background: linear-gradient(155deg, rgba(11, 32, 52, 0.98), rgba(7, 20, 35, 0.99)) !important;
+  box-shadow: 0 8px 18px rgba(1, 8, 18, 0.2) !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card:hover,
+html[data-wingman-route="templates"] .wm-solution-card:focus-within {
+  z-index: 20 !important;
+  border-color: color-mix(in srgb, var(--template-accent) 42%, #31506a) !important;
+  box-shadow: 0 10px 22px rgba(1, 8, 18, 0.3) !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card-visual {
+  background: rgba(11, 30, 48, 0.78) !important;
+  border-bottom-color: rgba(76, 112, 142, 0.22) !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card-visual svg {
+  filter: none !important;
+  background: rgba(5, 20, 34, 0.72) !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card-visual .wm-badge {
+  background: rgba(5, 18, 31, 0.72) !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card .wm-template-actions .wm-button-primary {
+  background: color-mix(in srgb, var(--template-accent) 25%, #0b5567) !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-route="templates"] .wm-market-rail button {
+  border-color: transparent !important;
+  background: rgba(11, 32, 51, 0.62) !important;
+}
+
+html[data-wingman-route="templates"] .wm-template-card-tools {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+  min-height: 26px !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card:hover .wm-solution-card-body,
+html[data-wingman-route="templates"] .wm-solution-card:focus-within .wm-solution-card-body,
+html[data-wingman-route="templates"] .wm-solution-card:focus .wm-solution-card-body {
+  grid-template-rows: minmax(0, 1fr) 26px 30px !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card:hover .wm-template-actions,
+html[data-wingman-route="templates"] .wm-solution-card:focus-within .wm-template-actions,
+html[data-wingman-route="templates"] .wm-solution-card:focus .wm-template-actions {
+  grid-template-rows: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+}
+
+
+html[data-wingman-route="templates"] .wm-solution-card .wm-template-manage {
+  position: absolute !important;
+  z-index: 4 !important;
+  top: 6px !important;
+  right: 7px !important;
+  max-width: calc(100% - 14px) !important;
+  margin: 0 !important;
+  padding: 4px 6px !important;
+  border: 1px solid var(--wm-border) !important;
+  border-radius: 7px !important;
+  background: rgba(5, 18, 31, 0.96) !important;
+}
+
+html[data-wingman-route="templates"] .wm-solution-card .wm-template-manage[open] {
+  width: min(260px, calc(100% - 14px)) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.42) !important;
+}
+
+html[data-wingman-route="templates"] .wm-template-manage-actions {
+  margin-top: 6px !important;
+  padding-top: 0 !important;
+}
+
+html[data-wingman-route="templates"] .wm-template-manage-actions button {
+  min-height: 27px !important;
+  padding: 4px 6px !important;
+  font-size: 0.67rem !important;
+}
+
+@media (max-width: 1179px) {
+  html[data-wingman-route="templates"] .wm-solution-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 759px) {
+  html[data-wingman-route="templates"] .wm-solution-header {
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
+
+  html[data-wingman-route="templates"] .wm-template-browser {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto minmax(0, 1fr) !important;
+    overflow: hidden !important;
+  }
+
+  html[data-wingman-route="templates"] .wm-market-rail {
+    display: flex !important;
+    height: auto !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+
+  html[data-wingman-route="templates"] .wm-market-rail h2 {
+    display: none !important;
+  }
+
+  html[data-wingman-route="templates"] .wm-market-rail button {
+    min-width: max-content !important;
+  }
+
+  html[data-wingman-route="templates"] .wm-template-results {
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  html[data-wingman-route="templates"] .wm-solution-card-grid {
+    grid-template-columns: 1fr !important;
+    max-height: none !important;
+  }
+
+  html[data-wingman-route="templates"] .wm-template-results-heading > p {
+    display: none !important;
+  }
+}
+
 /* ADMIN Data Manager: shared Wingman surfaces, compact tables and structured editing. */
 .wingman-nav-section-label{display:block;margin:14px 14px 4px;color:var(--wm-text-muted);font-size:.65rem;font-weight:650;letter-spacing:.12em;text-transform:uppercase}.wm-data-manager-page{max-width:1500px;margin:0 auto;padding:20px 24px 44px;color:var(--wm-text)}.wm-data-manager-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-bottom:15px;border-bottom:1px solid var(--wm-border)}.wm-data-manager-header h1{margin:2px 0 3px;font-size:1.65rem}.wm-data-manager-header p{margin:0;color:var(--wm-text-muted)}.wm-data-tabs{display:flex;overflow:auto;gap:2px;margin:14px 0;border-bottom:1px solid var(--wm-border)}.wm-data-tabs button{min-width:max-content;padding:9px 12px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--wm-text-muted);font-size:.76rem}.wm-data-tabs button.is-active{border-bottom-color:var(--wm-accent,#e85d04);color:var(--wm-text);font-weight:650}.wm-data-toolbar{display:grid;grid-template-columns:minmax(230px,1.5fr) repeat(4,minmax(120px,.7fr));align-items:center;gap:8px;padding:12px;margin-bottom:12px}.wm-data-toolbar select,.wm-data-toolbar input,.wm-data-editor input,.wm-data-editor textarea,.wm-data-editor select{border:1px solid var(--wm-border);border-radius:7px;background:var(--wm-background);color:var(--wm-text);font:inherit}.wm-data-toolbar select{height:36px;padding:0 8px;font-size:.74rem}.wm-data-toolbar>label:not(.wm-data-search){display:flex;align-items:center;gap:5px;font-size:.7rem;color:var(--wm-text-muted)}.wm-data-search{display:flex;align-items:center;gap:7px;height:36px;padding:0 9px;border:1px solid var(--wm-border);border-radius:7px;background:var(--wm-background)}.wm-data-search svg{width:15px;color:var(--wm-text-muted)}.wm-data-search input{width:100%;border:0;outline:0;background:transparent}.wm-data-table-card{overflow:hidden}.wm-data-table-card>header{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border-bottom:1px solid var(--wm-border)}.wm-data-table-card h2{margin:0;font-size:1rem}.wm-data-table-card p{margin:3px 0 0;color:var(--wm-text-muted);font-size:.72rem}.wm-data-table-card header button,.wm-data-row-actions button,.wm-impact-panel button,.wm-data-form-section>button,.wm-repeat-row button,.wm-data-editor details button{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--wm-border);border-radius:6px;padding:5px 7px;background:var(--wm-surface);color:var(--wm-text);font-size:.7rem}.wm-data-table-card button svg{width:13px}.wm-data-table-scroll{overflow:auto;max-height:620px}.wm-data-table{width:100%}.wm-data-table-card table{width:100%;border-collapse:collapse;font-size:.76rem}.wm-data-table-card th{position:sticky;top:0;z-index:1;padding:8px 12px;background:var(--wm-surface-muted);color:var(--wm-text-muted);text-align:left;font-size:.67rem;text-transform:uppercase;letter-spacing:.04em}.wm-data-table-card td{padding:10px 12px;border-top:1px solid var(--wm-border);vertical-align:middle}.wm-data-table-card td span,.wm-data-table-card td small{display:block;margin-top:2px;color:var(--wm-text-muted);font-size:.68rem}.wm-data-row-actions{display:flex;flex-wrap:wrap;gap:4px;min-width:210px}.wm-validation-good{display:flex!important;align-items:center;gap:4px;color:var(--wm-success)!important}.wm-validation-good svg{width:13px}.wm-validation-bad{color:var(--wm-warning)!important}.wm-data-message{position:fixed;right:20px;bottom:20px;z-index:90;max-width:520px;padding:10px 14px;border:1px solid var(--wm-border);border-radius:9px;background:var(--wm-surface);box-shadow:var(--wm-shadow);font-size:.78rem}.wm-admin-denied,.wm-data-placeholder{display:grid;place-items:center;max-width:720px;margin:80px auto;padding:40px;text-align:center}.wm-admin-denied svg,.wm-data-placeholder>svg{width:34px;color:var(--wm-text-muted)}.wm-data-placeholder h1,.wm-data-placeholder h2{margin:10px 0 4px}.wm-data-placeholder p{color:var(--wm-text-muted)}.wm-data-placeholder>div{display:flex;gap:8px}.wm-data-editor-backdrop{position:fixed;inset:0;z-index:100;display:flex;justify-content:flex-end}.wm-data-editor-scrim{position:absolute;inset:0;border:0;background:rgba(4,10,16,.62)}.wm-data-editor{position:relative;display:grid;grid-template-rows:auto minmax(0,1fr) auto;width:min(900px,94vw);height:100%;background:var(--wm-background);border-left:1px solid var(--wm-border);box-shadow:-16px 0 44px rgba(0,0,0,.28)}.wm-data-editor>header,.wm-data-editor>footer{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;background:var(--wm-surface);border-bottom:1px solid var(--wm-border)}.wm-data-editor>footer{justify-content:flex-end;border-top:1px solid var(--wm-border);border-bottom:0}.wm-data-editor>header h2{margin:2px 0 0;font-size:1.2rem}.wm-data-editor>header>button{border:0;background:transparent;color:var(--wm-text)}.wm-data-editor-body{overflow:auto;padding:17px}.wm-data-form-section{margin:0 0 12px;padding:12px;border:1px solid var(--wm-border);border-radius:9px;background:var(--wm-surface)}.wm-data-form-section legend{padding:0 5px;font-size:.75rem;font-weight:650;text-transform:uppercase;letter-spacing:.05em}.wm-data-form-section>div{display:grid;grid-template-columns:1fr 1fr;gap:9px}.wm-data-form-section label{display:grid;gap:4px;color:var(--wm-text-muted);font-size:.7rem}.wm-data-form-section label.is-wide{grid-column:1/-1}.wm-data-editor input,.wm-data-editor textarea,.wm-data-editor select{width:100%;padding:8px 9px}.wm-data-editor textarea{min-height:68px;resize:vertical}.wm-field-error{color:var(--wm-danger)!important}.wm-repeat-row{display:grid!important;grid-template-columns:1fr 100px auto!important;gap:7px;margin-bottom:7px}.wm-data-editor details{margin:12px 0;padding:12px;border:1px solid var(--wm-border);border-radius:9px}.wm-data-editor details textarea{min-height:260px;margin:10px 0;font-family:monospace;font-size:.72rem}.wm-before-after{display:grid;grid-template-columns:1fr 1fr;gap:10px}.wm-before-after>div{min-width:0;padding:10px;border:1px solid var(--wm-border);border-radius:8px;background:var(--wm-surface)}.wm-before-after pre{overflow:auto;max-height:330px;font-size:.65rem}.wm-impact-panel{margin:12px 0;padding:12px;border-left:3px solid var(--wm-accent,#e85d04);background:var(--wm-surface)}.wm-impact-panel h3{margin:0 0 5px;font-size:.8rem}.wm-impact-panel p{color:var(--wm-text-muted);font-size:.72rem}.wm-impact-panel button{margin-top:5px}@media(max-width:1100px){.wm-data-toolbar{grid-template-columns:1fr 1fr 1fr}.wm-data-search{grid-column:1/-1}}@media(max-width:700px){.wm-data-manager-page{padding:14px}.wm-data-manager-header{align-items:flex-start;flex-direction:column}.wm-data-toolbar{grid-template-columns:1fr}.wm-data-search{grid-column:auto}.wm-data-form-section>div,.wm-before-after{grid-template-columns:1fr}.wm-data-form-section label.is-wide{grid-column:auto}}
+
+/* WINGMAN_EXISTING_DISCOVERY_CENTRED_MODAL_START */
+/*
+   The warning is portalled directly into .wingman-workspace. This removes it
+   from the scrolling Discovery page and prevents the page frame from clipping
+   or offsetting the dialog.
+*/
+:root {
+  --wm-existing-discovery-topbar-height: 63px;
+  --wm-existing-discovery-modal-gap: clamp(14px, 2vw, 24px);
+}
+
+html:has(.wm-existing-discovery-warning-backdrop),
+body:has(.wm-existing-discovery-warning-backdrop),
+#root:has(.wm-existing-discovery-warning-backdrop),
+.wingman-shell:has(.wm-existing-discovery-warning-backdrop),
+.wingman-workspace:has(.wm-existing-discovery-warning-backdrop),
+.wingman-app-main:has(.wm-existing-discovery-warning-backdrop) {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+}
+
+.wingman-workspace > .wm-existing-discovery-warning-backdrop {
+  position: absolute !important;
+  top: var(--wm-existing-discovery-topbar-height) !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  z-index: 5000 !important;
+
+  box-sizing: border-box !important;
+  display: grid !important;
+  place-items: center !important;
+
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+
+  margin: 0 !important;
+  padding: var(--wm-existing-discovery-modal-gap) !important;
+
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+  pointer-events: auto !important;
+}
+
+.wingman-workspace > .wm-existing-discovery-warning-backdrop >
+.wm-existing-discovery-warning-dialog {
+  position: relative !important;
+  align-self: center !important;
+  justify-self: center !important;
+
+  width: min(652px, 100%) !important;
+  max-width: 652px !important;
+  max-height: 100% !important;
+  margin: 0 !important;
+
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain !important;
+  scrollbar-gutter: stable;
+}
+
+@media (max-width: 760px) {
+  :root {
+    --wm-existing-discovery-topbar-height: 58px;
+  }
+}
+
+@media (max-height: 720px) {
+  :root {
+    --wm-existing-discovery-modal-gap: 12px;
+  }
+}
+/* WINGMAN_EXISTING_DISCOVERY_CENTRED_MODAL_END */
+
+/* WINGMAN_EXISTING_DISCOVERY_RESUME_LINK_START */
+/*
+   Continue Discovery is a native link as well as a React action. This gives
+   the control a browser-level navigation fallback and guarantees that the
+   saved Discovery route opens even if a React click handler is interrupted.
+*/
+.wingman-workspace .wm-existing-discovery-warning-dialog,
+.wingman-workspace .wm-existing-discovery-warning-actions,
+.wingman-workspace .wm-existing-discovery-warning-actions > * {
+  position: relative !important;
+  z-index: 2 !important;
+  pointer-events: auto !important;
+}
+
+.wingman-workspace .wm-existing-discovery-resume-link {
+  display: inline-flex !important;
+  min-width: 0 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+}
+/* WINGMAN_EXISTING_DISCOVERY_RESUME_LINK_END */
