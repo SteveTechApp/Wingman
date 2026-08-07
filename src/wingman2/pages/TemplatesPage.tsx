@@ -65,7 +65,7 @@ export function TemplatesPage() {
         <div className="wm-solution-card-grid">{filtered.map((template) => {
           const item = toSolutionTemplate(template);
           const purposeId = `template-purpose-${template.id}`;
-          return <article className="wm-solution-card wm-action-card" key={template.id} tabIndex={0} data-template-tone={templateTone(template.vertical)} data-custom-template={isCustom(template) ? "true" : undefined}>
+          return <article className="wm-solution-card wm-action-card" key={template.id} data-template-tone={templateTone(template.vertical)} data-custom-template={isCustom(template) ? "true" : undefined}>
             <div className="wm-solution-card-visual" aria-hidden="true"><LayoutTemplate /><span className="wm-badge">{template.vertical}</span></div>
             <div className="wm-solution-card-body"><div className="wm-solution-card-meta"><span className={`wm-status is-${item.status === "published" ? "confirmed" : "assumed"} ${isCustom(template) ? "wm-template-custom-badge" : ""}`}>{item.status === "custom" ? "Custom" : item.status}</span><span>{template.scale}</span></div>
               <h3 className="wm-card-title">{item.title}</h3><div className="wm-template-card-tools"><div className="wm-template-info-trigger"><button type="button" aria-label={`More information about ${item.title}`} aria-describedby={purposeId}><Info /></button><p id={purposeId} role="tooltip" className="wm-copy wm-solution-card-purpose"><strong>{template.scale}</strong><span>{item.purpose}</span><Link className="wm-template-tooltip-review" to={`${routeCatalogByKey.templates.path}/${template.id}`}>Review template</Link></p></div></div>
