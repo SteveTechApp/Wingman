@@ -11,6 +11,18 @@ const proposal: StoredProjectProposal = {
   summary: "Provide resilient, low-latency routing for a government control room.",
   sections: [], products: [], assumptions: [], updatedAt: "2026-08-06T00:00:00.000Z",
   companyName: "WyreStorm", preparedBy: "Solutions Team",
+  applicationProposal: {
+    vertical: "Government", application: "Control room", executiveSummary: "Operational control room.",
+    customerNeed: "Maintain operational visibility.", solutionOverview: "Sources route through NetworkHD to displays.",
+    benefits: [{ title: "Resilience", detail: "Support continuous operations." }],
+    userJourney: ["Operators select an operational source and route it to an approved display."],
+    technicalFacts: [], architectureDiagram: "Operational sources → NetworkHD 600 fabric → Operator displays",
+    acceptanceCriteria: ["All approved source-to-display routes pass functional testing."],
+    visualBriefs: [], verifiedDesignParameters: [], deploymentConditions: [],
+    marketStory: "The room supports rapid, controlled decision-making.",
+    productSpecifications: [{ sku: "NHD-CTL-PRO-V2", name: "NetworkHD controller", role: "Routing control", quantity: 1, summary: "Controls the NetworkHD system.", keyFeatures: ["Central routing management"], validation: ["Confirm firmware compatibility"] }],
+    thirdPartyScope: [{ category: "Displays", description: "Operator and overview displays", responsibility: "Integrator", status: "allowance", quantity: 4, notes: "Confirm size and mounting." }],
+  },
 };
 
 const bom: SalesBomRow[] = [{
@@ -37,6 +49,11 @@ describe("proposal DOCX export", () => {
     expect(text).toContain("Equipment and Pricing");
     expect(text).toContain("£1,250.00");
     expect(text).toContain("Services and Commercial Allowances");
+    expect(text).toContain("Market and Application Story");
+    expect(text).toContain("Third-Party System Scope");
+    expect(text).toContain("WyreStorm Product Specifications");
+    expect(text).toContain("Testing and Acceptance Criteria");
+    expect(text).toContain("Operator displays");
     expect(text).toContain("Cabling and consumables");
     expect(text).toContain("Visio / CAD / as-built drawings");
     expect(text).toContain("Timeline and Phases");

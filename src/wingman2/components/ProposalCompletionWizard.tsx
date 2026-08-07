@@ -43,6 +43,7 @@ import {
   buildSalesReadinessPackage,
   type SalesBomRow,
 } from "../lib/salesReadiness";
+import { compileProjectApplicationProposal } from "../lib/proposalCompiler";
 
 type DiscoveryView = {
   projectTitle: string;
@@ -342,7 +343,7 @@ function ProposalCompletionWizardContent({
         discovery.network,
       ]);
 
-      return createProposalWizardDefaults({
+      const proposalDefaults = createProposalWizardDefaults({
         projectId: project.id,
         projectName: project.name,
         customerName: discovery.customerName,
@@ -352,7 +353,7 @@ function ProposalCompletionWizardContent({
           profile.reportPreparedBy ||
           profile.userName ||
           project.owner,
-        executiveSummary: discovery.summary,
+        executiveSummary: project.proposal?.applicationProposal?.executiveSummary || discovery.summary,
         architectureNarrative:
           discovery.architecture ||
           familyScores[0]?.family ||
@@ -366,6 +367,13 @@ function ProposalCompletionWizardContent({
               `${item.label}: ${item.validationQuestion}`,
           ),
       });
+      const scope = project.proposal?.applicationProposal?.thirdPartyScope ?? [];
+      if (scope.length) {
+        proposalDefaults.servicesAndAllowances = scope
+          .map((item) => `${item.category} | ${item.responsibility} | ${item.status} — ${item.description}`)
+          .join("\n");
+      }
+      return proposalDefaults;
     },
     [
       assumptions,
@@ -392,6 +400,8 @@ function ProposalCompletionWizardContent({
       project.name,
       project.owner,
       project.proposal?.applicationProposal?.solutionOverview,
+      project.proposal?.applicationProposal?.executiveSummary,
+      project.proposal?.applicationProposal?.thirdPartyScope,
       salesReadiness.governedDependencies,
     ],
   );
@@ -423,6 +433,19 @@ function ProposalCompletionWizardContent({
     const value = Number(draft.bomUnitPrices[row.sku]);
     return Number.isFinite(value) && value >= 0;
   });
+
+  const applicationProposal = useMemo(
+    () => project.proposal?.applicationProposal ?? compileProjectApplicationProposal({
+      vertical: asText(project.discoveryBrief?.roomModel?.vertical) || "Commercial AV",
+      application: discovery.projectTitle,
+      summary: draft.executiveSummary || discovery.summary,
+      architecture: draft.architectureNarrative || discovery.architecture,
+      products: selectedProducts,
+      bomRows,
+      assumptions: linesFromText(draft.assumptions),
+    }),
+    [bomRows, discovery.architecture, discovery.projectTitle, discovery.summary, draft.architectureNarrative, draft.assumptions, draft.executiveSummary, project.discoveryBrief?.roomModel?.vertical, project.proposal?.applicationProposal, selectedProducts],
+  );
 
   const discoveryPercent = Number(
     project.discoveryBrief?.capturedPercent ??
@@ -517,8 +540,7 @@ function ProposalCompletionWizardContent({
         project.proposal?.visualBlocks ?? [],
       readinessScore: readiness.score,
       verification: project.proposal?.verification,
-      applicationProposal:
-        project.proposal?.applicationProposal,
+      applicationProposal,
       companyName: profile.companyName,
       preparedBy: draft.preparedBy,
       proposalFooter: profile.proposalFooter,
@@ -544,7 +566,7 @@ function ProposalCompletionWizardContent({
       profile.proposalFooter,
       project.discoveryBrief?.recommendationEvidence?.evidenceUsed,
       project.name,
-      project.proposal?.applicationProposal,
+      applicationProposal,
       project.proposal?.verification,
       project.proposal?.visualBlocks,
       project.recommendationEvidence?.evidenceUsed,
