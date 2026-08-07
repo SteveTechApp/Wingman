@@ -11,6 +11,7 @@ import {
 import { roomTemplates } from "@/wingman2/lib/roomTemplates";
 import { DiscoveryPage } from "@/wingman2/pages/DiscoveryPage";
 import { TemplatesPage } from "@/wingman2/pages/TemplatesPage";
+import { TemplateReviewPage } from "@/wingman2/pages/TemplateReviewPage";
 
 const CUSTOM_ROOM_TEMPLATE_KEY = "wingman-custom-room-templates-v1";
 
@@ -19,6 +20,7 @@ function renderApp(initialPath = "/wingman/templates") {
     <MemoryRouter initialEntries={[initialPath]}>
       <Routes>
         <Route path="/wingman/templates" element={<TemplatesPage />} />
+        <Route path="/wingman/templates/:templateId" element={<TemplateReviewPage />} />
         <Route path="/wingman/discovery" element={<DiscoveryPage />} />
       </Routes>
     </MemoryRouter>,
@@ -199,39 +201,34 @@ describe("Custom template edit, duplicate and delete", () => {
   });
 });
 
-describe("Template-to-Discovery handoff", () => {
+describe("Template-to-summary handoff", () => {
   beforeEach(() => {
     window.localStorage.clear();
     window.sessionStorage.clear();
   });
 
-  it("pre-populates Discovery when a custom template is used, preserving the source reference", () => {
+  it("opens the editable BOM summary when a custom template is used", () => {
     const original = seedCorporateCustomTemplate();
     renderApp();
 
     const card = screen.getByRole("heading", { name: original.name }).closest("article");
     fireEvent.click(within(card!).getByRole("button", { name: "Use template" }));
 
-    expect(screen.getByText(`Pre-populated from template: ${original.name}`)).toBeInTheDocument();
-
-    // The template only answers "opportunity" (meeting-room), so Discovery
-    // should land on the next actually-unanswered question ("scale") instead
-    // of forcing a click through the question it was already given.
-    expect(screen.getByText("What is the approximate room or system scale?")).toBeInTheDocument();
-    expect(screen.getByText("1 / 11 captured")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: original.name, level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Equipment" })).toBeInTheDocument();
+    expect(screen.queryByText(/Pre-populated from template:/)).not.toBeInTheDocument();
   });
 
-  it("pre-populates Discovery with capture notes when a built-in template is used", () => {
+  it("opens a built-in template summary without restarting Discovery", () => {
     renderApp();
 
     const template = roomTemplates[0];
     const card = screen.getByRole("heading", { name: template.name }).closest("article");
     fireEvent.click(within(card!).getByRole("button", { name: "Use template" }));
 
-    expect(screen.getByText(`Pre-populated from template: ${template.name}`)).toBeInTheDocument();
-    expect(
-      (screen.getByRole("textbox", { name: /customer wording/i }) as HTMLTextAreaElement).value,
-    ).toContain(template.name);
+    expect(screen.getByRole("heading", { name: template.name, level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Continue to proposal" })).toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: /customer wording/i })).not.toBeInTheDocument();
   });
 });
 
