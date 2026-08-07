@@ -597,8 +597,8 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     shortLabel: "Microphone connection",
     section: "Unified Communications",
     question: "How will the microphones connect?",
-    prompt: "Select the known audio paths. Use Not confirmed when the microphone or DSP design has not been agreed.",
-    why: "USB, analogue and Dante microphone paths require different hosts, DSPs, network ownership and BOM dependencies.",
+    prompt: "Select every microphone interface, power and signal path that applies.",
+    why: "USB, mic-level, line-level, phantom-powered, digital and Dante paths require different DSP inputs, hosts and network ownership.",
     required: true,
     selectionMode: "multiple",
     exclusiveValues: ["unknown-microphone-connection"],
@@ -607,27 +607,34 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       {
         value: "usb-microphone-path",
         label: "USB",
-        help: "A speakerphone, microphone or DSP presents USB audio to the conferencing host.",
       },
       {
         value: "analogue-microphone-path",
-        label: "Analogue",
-        help: "Microphones feed an analogue mixer, DSP or capture interface.",
+        label: "Analogue mic-level output",
+      },
+      {
+        value: "analogue-line-level-path",
+        label: "Analogue line-level output",
+      },
+      {
+        value: "phantom-powered-microphone",
+        label: "Phantom-powered microphone",
+      },
+      {
+        value: "digital-audio-microphone-path",
+        label: "Digital audio (AES/EBU or S/PDIF)",
       },
       {
         value: "dante-microphone-path",
         label: "Dante / AES67",
-        help: "Network audio carries microphone signals and requires suitable switching and ownership.",
       },
       {
         value: "proprietary-network-microphone",
         label: "Network / proprietary",
-        help: "The microphone system uses a manufacturer-specific or other network audio path.",
       },
       {
         value: "unknown-microphone-connection",
         label: "Not confirmed",
-        help: "The microphone interface and DSP path still need to be designed.",
       },
     ],
   },
@@ -694,9 +701,9 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     id: "audio",
     shortLabel: "Audio",
     section: "Audio, control & conferencing",
-    question: "What room audio requirement is likely? Select all that apply.",
-    prompt: "Capture loudspeakers, amplification, de-embedding and room playback here. Speech capture is handled in Unified Communications.",
-    why: "Room audio is often missed in first-pass discovery but affects product choice and dependencies.",
+    question: "How should room audio be connected and operated?",
+    prompt: "Select playback, amplification, distribution and reinforcement requirements.",
+    why: "Audio topology defines amplifier, DSP, loudspeaker, cabling and commissioning scope for other vendors.",
     required: true,
     selectionMode: "multiple",
     exclusiveValues: ["unknown-audio"],
@@ -705,27 +712,46 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
       {
         value: "display-audio",
         label: "Display audio",
-        help: "Sound from the display speakers is part of the design; select additional audio paths where required.",
       },
       {
         value: "source-audio-deembed",
         label: "Pull sound out separately",
-        help: "Sound needs to be taken out of the signal path to feed a soundbar, amplifier or recording system.",
       },
       {
         value: "room-audio",
-        label: "Room speakers / amplifier",
-        help: "Check what speakers are already in the room and how volume and source selection will be controlled.",
+        label: "Room loudspeakers and amplifier",
+      },
+      {
+        value: "stereo-low-impedance",
+        label: "Stereo low-impedance programme sound",
+      },
+      {
+        value: "multichannel-audio",
+        label: "Multi-channel or surround audio",
+      },
+      {
+        value: "distributed-70v-100v",
+        label: "Distributed 70 V / 100 V loudspeakers",
+      },
+      {
+        value: "separate-programme-voice",
+        label: "Separate programme sound and voice reinforcement",
+      },
+      {
+        value: "analogue-audio-override",
+        label: "Analogue audio override or fallback",
+      },
+      {
+        value: "digital-audio-interface",
+        label: "Digital audio interface",
       },
       {
         value: "dante-network-audio",
-        label: "Sound needs to reach other rooms",
-        help: "Check whether the building network can carry sound between spaces and who owns that network.",
+        label: "Dante / AES67 network audio",
       },
       {
         value: "unknown-audio",
         label: "Unknown",
-        help: "Ask what the customer expects to hear and where.",
       },
     ],
   },
@@ -826,15 +852,137 @@ const avoipProfileQuestion: DiscoveryQuestion = {
   ],
 };
 
+const operationalWorkflowQuestions: DiscoveryQuestion[] = [
+  {
+    id: "source-device-workflows", shortLabel: "Source devices", section: "Sources & displays",
+    question: "Which devices and feeds will people use?",
+    prompt: "Select every source family.",
+    why: "Device roles determine routing and control.",
+    required: true, selectionMode: "multiple", exclusiveValues: ["unknown-source-devices"],
+    capturePlaceholder: "Add device types, quantities and workflows.",
+    options: [
+      { value: "user-laptops", label: "Visitor or staff laptops" },
+      { value: "room-pc-uc-source", label: "Room PC or UC appliance" },
+      { value: "signage-media-players", label: "Signage or media players" },
+      { value: "broadcast-tv-feeds", label: "Broadcast, TV or live-event feeds" },
+      { value: "teaching-visualisers", label: "Lectern, visualiser or teaching sources" },
+      { value: "operational-workstations", label: "Operational workstations or dashboards" },
+      { value: "cameras-production", label: "Camera or production feeds" },
+      { value: "specialist-simulation-medical", label: "Specialist, simulation or clinical equipment" },
+      { value: "network-remote-feeds", label: "Network or remote-room feeds" },
+      { value: "wireless-casting-source", label: "Wireless presentation or casting" },
+      { value: "unknown-source-devices", label: "Not yet confirmed" },
+    ],
+  },
+  {
+    id: "wireless-presentation-operation", shortLabel: "Wireless operation", section: "Sources & displays",
+    question: "How should wireless presentation operate?",
+    prompt: "Choose joining, security and sharing behaviour.",
+    why: "Define a reliable staff and guest workflow.",
+    required: true, selectionMode: "multiple", exclusiveValues: ["no-wireless-presentation", "unknown-wireless-operation"],
+    capturePlaceholder: "Add guest, network and moderation details.",
+    options: [
+      { value: "guest-no-network", label: "Guests present without corporate network access" },
+      { value: "managed-staff-casting", label: "Managed staff casting" },
+      { value: "button-dongle-workflow", label: "Button or dongle workflow" },
+      { value: "moderated-presenters", label: "Host moderation or preview" },
+      { value: "simultaneous-wireless-multiview", label: "Several contributors shown together" },
+      { value: "wireless-touchback", label: "Touchback or annotation" },
+      { value: "wireless-room-routing", label: "Cast content routes beyond one display" },
+      { value: "no-wireless-presentation", label: "No wireless presentation" },
+      { value: "unknown-wireless-operation", label: "Not yet confirmed" },
+    ],
+  },
+  {
+    id: "multiview-destination", shortLabel: "Multiview destination", section: "Sources & displays",
+    question: "Where must multiview appear?",
+    prompt: "Select every destination.",
+    why: "Destinations determine composition paths.",
+    required: true, selectionMode: "multiple", exclusiveValues: ["unknown-multiview-destination"],
+    capturePlaceholder: "Add canvases, resolutions and return paths.",
+    options: [
+      { value: "multiview-single-display", label: "Single flat-panel display" },
+      { value: "multiview-projector", label: "Projector or projection canvas" },
+      { value: "multiview-video-wall", label: "LCD video wall" },
+      { value: "multiview-led-processor", label: "LED wall processor" },
+      { value: "multiview-confidence-monitor", label: "Confidence or operator monitor" },
+      { value: "multiview-record-stream", label: "Recording or streaming output" },
+      { value: "multiview-uc-return", label: "Return composite to Teams/Zoom" },
+      { value: "unknown-multiview-destination", label: "Not yet confirmed" },
+    ],
+  },
+  {
+    id: "multiview-operation", shortLabel: "Multiview operation", section: "Sources & displays",
+    question: "How should multiview layouts operate?",
+    prompt: "Define source count, layout and control.",
+    why: "Operation determines processing and control.",
+    required: true, selectionMode: "multiple", exclusiveValues: ["unknown-multiview-operation"],
+    capturePlaceholder: "Add presets, operators and clean feeds.",
+    options: [
+      { value: "fixed-layout-presets", label: "Fixed named layouts or presets" },
+      { value: "operator-dynamic-layout", label: "Operator builds layouts dynamically" },
+      { value: "automatic-layout", label: "Automatic or active-speaker layout" },
+      { value: "two-four-simultaneous", label: "2–4 simultaneous sources" },
+      { value: "five-nine-simultaneous", label: "5–9 simultaneous sources" },
+      { value: "ten-plus-simultaneous", label: "10+ simultaneous sources" },
+      { value: "independent-compositions", label: "Different compositions on different outputs" },
+      { value: "unknown-multiview-operation", label: "Not yet confirmed" },
+    ],
+  },
+  {
+    id: "uc-microphone-count", shortLabel: "Microphone quantity", section: "Unified Communications",
+    question: "How many microphone feeds or pickup zones are required?",
+    prompt: "Count independent arrays, channels and zones.",
+    why: "Feed count determines mixing, DSP and AEC.",
+    required: true, selectionMode: "single", capturePlaceholder: "Add microphone and zone details.",
+    options: [
+      { value: "one-microphone-feed", label: "One microphone feed or integrated device" },
+      { value: "two-four-microphone-feeds", label: "2–4 feeds or pickup zones" },
+      { value: "five-eight-microphone-feeds", label: "5–8 feeds or pickup zones" },
+      { value: "nine-plus-microphone-feeds", label: "9+ feeds or pickup zones" },
+      { value: "unknown-microphone-count", label: "Not yet confirmed" },
+    ],
+  },
+  {
+    id: "uc-audio-processing", shortLabel: "Audio processing", section: "Unified Communications",
+    question: "How must microphone and programme audio operate?",
+    prompt: "Select mixing, bridging, DSP and output outcomes.",
+    why: "Each destination may require a different mix.",
+    required: true, selectionMode: "multiple", exclusiveValues: ["unknown-audio-processing"],
+    capturePlaceholder: "Add mixes, bridges and commissioning needs.",
+    options: [
+      { value: "direct-integrated-audio", label: "Direct integrated device—no external DSP" },
+      { value: "dsp-aec-automix", label: "DSP, AEC and automixing" },
+      { value: "local-voice-reinforcement", label: "Local voice reinforcement" },
+      { value: "independent-record-mix", label: "Independent recording or streaming mix" },
+      { value: "audio-bridge-usb-dante-analogue", label: "Bridge USB, Dante and/or analogue audio" },
+      { value: "multiple-audio-zones", label: "Different audio zones or outputs" },
+      { value: "operator-audio-control", label: "Operator mixing or mute control" },
+      { value: "unknown-audio-processing", label: "Not yet confirmed" },
+    ],
+  },
+];
+
+function insertAfter(questions: DiscoveryQuestion[], afterId: string, additions: DiscoveryQuestion[]) {
+  const index = questions.findIndex((step) => step.id === afterId);
+  if (index < 0) return questions;
+  questions.splice(index + 1, 0, ...additions);
+  return questions;
+}
+
 function getApplicationDiscoveryQuestions(selectedApplication: string): DiscoveryQuestion[] {
-  if (selectedApplication !== "av-over-ip") {
-    return baseDiscoveryQuestions;
-  }
+  const questions = [...baseDiscoveryQuestions];
+  const byId = (id: string) => operationalWorkflowQuestions.find((step) => step.id === id)!;
+  insertAfter(questions, "source-connection", [byId("source-device-workflows"), byId("wireless-presentation-operation")]);
+  insertAfter(questions, "display-behaviour", [byId("multiview-destination"), byId("multiview-operation")]);
+  insertAfter(questions, "uc-microphones", [byId("uc-microphone-count"), byId("uc-audio-processing")]);
+
+  if (selectedApplication !== "av-over-ip") return questions;
 
   // Insert directly after "signal-standard" so it stays grouped inside the
   // "Sources & displays" phase instead of trailing the whole question set.
-  const insertAfterIndex = baseDiscoveryQuestions.findIndex((step) => step.id === "signal-standard");
-  const withProfile = [...baseDiscoveryQuestions];
+  const insertAfterIndex = questions.findIndex((step) => step.id === "signal-standard");
+  const withProfile = [...questions];
   withProfile.splice(insertAfterIndex + 1, 0, avoipProfileQuestion);
   return withProfile;
 }
@@ -859,10 +1007,21 @@ export function getVisibleDiscoveryQuestions(
     "uc-camera-routing",
     "uc-microphones",
     "uc-microphone-connection",
+    "uc-microphone-count",
+    "uc-audio-processing",
     "usb",
   ]);
 
+  const sourceProfileValues = Array.isArray(answers["source-connection"]) ? answers["source-connection"] : [String(answers["source-connection"] ?? "")];
+  const sourceDeviceValues = Array.isArray(answers["source-device-workflows"]) ? answers["source-device-workflows"] : [String(answers["source-device-workflows"] ?? "")];
+  const displayBehaviourValues = Array.isArray(answers["display-behaviour"]) ? answers["display-behaviour"] : [String(answers["display-behaviour"] ?? "")];
+  const displayValues = Array.isArray(answers.displays) ? answers.displays : [String(answers.displays ?? "")];
+  const multiviewRequired = selectedApplication === "video-wall" || displayBehaviourValues.includes("multiview-on-one-output") || displayValues.includes("video-wall-output") || answers["avoip-profile"] === "multiview-avoip";
+  const wirelessRelevant = sourceProfileValues.some((value) => ["laptops-wireless-inputs", "mixed-hdmi-usbc", "network-video-sources"].includes(value)) || sourceDeviceValues.includes("wireless-casting-source");
+
   return withApplicationQuestions.filter((step) => {
+    if (step.id === "wireless-presentation-operation" && !wirelessRelevant) return false;
+    if (["multiview-destination", "multiview-operation"].includes(step.id) && !multiviewRequired) return false;
     if (!ucPurposeValue || ucPurposeValue === "no-uc") {
       return !detailedUcSteps.has(step.id);
     }
@@ -880,6 +1039,8 @@ export function getVisibleDiscoveryQuestions(
     ) {
       return false;
     }
+
+    if (["uc-microphone-count", "uc-audio-processing"].includes(step.id) && microphoneValues.includes("no-microphones")) return false;
 
     return true;
   });

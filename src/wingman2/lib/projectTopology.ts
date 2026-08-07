@@ -463,6 +463,7 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
 
   // WINGMAN_DISCOVERY_SOURCE_UC_TOPOLOGY_START
   const sourceTypes = list(answers["source-connection"]);
+  const sourceWorkflowTypes = list(answers["source-device-workflows"]);
   const sourceCount = sourceCountFrom(answers.sources);
   const sourceDevices: ProjectDevice[] = [];
   const unifiedCommsValues = Array.from(new Set([
@@ -522,7 +523,7 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
         item === "laptops-wireless-inputs" ||
         item === "all-source-types",
     ) ||
-    /laptop|byod|byom|usb-c/.test(blob)
+    sourceWorkflowTypes.includes("user-laptops") || /laptop|byod|byom|usb-c/.test(blob)
   ) {
     sourceDevices.push(addDevice({
       id: "device-user-laptop",
@@ -567,7 +568,7 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
         item === "laptops-wireless-inputs" ||
         item === "all-source-types",
     ) ||
-    /wireless presentation|casting/.test(blob)
+    sourceWorkflowTypes.includes("wireless-casting-source") || /wireless presentation|casting/.test(blob)
   ) {
     sourceDevices.push(addDevice({
       id: "device-wireless-receiver",
@@ -607,6 +608,29 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
         "Confirm the network video format, ownership, encoder/decoder or bridge requirement and routing destination.",
     }));
   }
+
+  const workflowSourceDefinitions: Record<string, { name: string; category: string; locationId: string }> = {
+    "room-pc-uc-source": { name: "Room PC / UC appliance", category: "source", locationId: rack.id },
+    "signage-media-players": { name: "Signage / media player", category: "source", locationId: rack.id },
+    "broadcast-tv-feeds": { name: "Broadcast / TV / live-event feed", category: "source", locationId: rack.id },
+    "teaching-visualisers": { name: "Lectern / visualiser / teaching source", category: "source", locationId: table.id },
+    "operational-workstations": { name: "Operational workstation / dashboard", category: "source", locationId: table.id },
+    "cameras-production": { name: "Camera / production feed", category: "camera", locationId: ceiling?.id ?? front.id },
+    "specialist-simulation-medical": { name: "Specialist / simulation / clinical source", category: "source", locationId: table.id },
+    "network-remote-feeds": { name: "Network / remote-room source feed", category: "network-video-source", locationId: network?.id ?? central?.id ?? rack.id },
+  };
+  sourceWorkflowTypes.forEach((value) => {
+    const definition = workflowSourceDefinitions[value];
+    if (!definition || sourceDevices.some((device) => device.name === definition.name)) return;
+    sourceDevices.push(addDevice({
+      id: `device-workflow-${value}`,
+      ...definition,
+      quantity: 1,
+      thirdParty: true,
+      status: "assumed",
+      notes: "Confirm quantity, interfaces, operating role, control and every destination for this application-specific source.",
+    }));
+  });
 
   const legacyCameraSourceSelected = sourceTypes.some(
     (item) =>
@@ -754,6 +778,22 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
     conferencingRequired ||
     recordingRequired ||
     microphonesOnlyRequired;
+  const microphoneCountValue = list(answers["uc-microphone-count"])[0] ?? "";
+  const microphoneQuantity = microphoneCountValue === "two-four-microphone-feeds" ? 4
+    : microphoneCountValue === "five-eight-microphone-feeds" ? 8
+      : microphoneCountValue === "nine-plus-microphone-feeds" ? 9 : 1;
+  const audioProcessingValues = list(answers["uc-audio-processing"]);
+  const microphoneConnectionValues = list(answers["uc-microphone-connection"]);
+  const microphoneServices: ProjectConnectionService[] = [
+    ...(microphoneConnectionValues.some((value) => value.includes("analogue") || value.includes("phantom")) ? ["analogue-audio" as const] : []),
+    ...(microphoneConnectionValues.some((value) => value.includes("dante") || value.includes("network")) ? ["ethernet" as const] : []),
+    ...(microphoneConnectionValues.some((value) => value.includes("usb")) ? ["usb-2" as const] : []),
+    ...(microphoneConnectionValues.some((value) => value.includes("digital-audio")) ? ["embedded-audio" as const] : []),
+  ];
+  if (microphoneServices.length === 0) microphoneServices.push("analogue-audio");
+  const microphoneInterfaceNote = microphoneConnectionValues.length > 0
+    ? `Specified microphone interfaces: ${microphoneConnectionValues.join(", ")}. Confirm channel count, gain, phantom power, clocking and conversion.`
+    : "Confirm microphone transport, channel count, gain, phantom power and DSP input allocation.";
 
   const roomMicrophone = microphoneRequired
     ? addDevice({
@@ -763,13 +803,27 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
           : "Room microphone / conferencing audio",
         category: "microphone",
         locationId: ceiling?.id ?? table.id,
-        quantity: 1,
+        quantity: microphoneQuantity,
         thirdParty: true,
         status: "assumed",
         notes:
           "Confirm microphone type, count, USB/analogue/Dante connection, DSP and echo-cancellation requirements.",
       })
     : null;
+
+  const roomAudioDsp = microphoneRequired && (
+    microphoneQuantity > 1 ||
+    audioProcessingValues.some((value) => value !== "direct-integrated-audio" && value !== "unknown-audio-processing")
+  ) ? addDevice({
+    id: "device-room-audio-dsp",
+    name: "Room audio DSP / mixer / bridge",
+    category: "audio-processor",
+    locationId: rack.id,
+    quantity: 1,
+    thirdParty: true,
+    status: audioProcessingValues.includes("unknown-audio-processing") ? "unknown" : "assumed",
+    notes: "Confirm I/O count, DSP/AEC/automix, USB-Dante-analogue bridging, reinforcement, recording mixes, zones, control and commissioning responsibility.",
+  }) : null;
 
   const recordingCapture = recordingRequired
     ? addDevice({
@@ -983,7 +1037,11 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
   }
 
   if (roomMicrophone) {
-    if (conferencingRequired && host) {
+    if (roomAudioDsp) {
+      addConnection(roomMicrophone, roomAudioDsp, microphoneServices, undefined, microphoneInterfaceNote);
+      if (conferencingRequired && host) addConnection(host, roomAudioDsp, ["usb-2"], undefined, "DSP provides the conferencing USB audio/AEC bridge; confirm host ownership and USB extension.");
+      addConnection(roomAudioDsp, core, ["analogue-audio", "embedded-audio", "ethernet"], undefined, "Confirm programme audio, reinforcement, Dante/analogue bridging, zones and control.");
+    } else if (conferencingRequired && host) {
       addConnection(
         host,
         roomMicrophone,
@@ -1013,7 +1071,7 @@ export function generateProjectTopologyFromDiscovery(seed: DiscoveryTopologySeed
 
     if (roomMicrophone) {
       addConnection(
-        roomMicrophone,
+        roomAudioDsp ?? roomMicrophone,
         recordingCapture,
         ["analogue-audio"],
         "analogue-audio",
