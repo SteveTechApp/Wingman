@@ -11,8 +11,25 @@ import type {
   DiscoveryQuestionView,
 } from "./discoveryTypes";
 
-export function getQuestionView(step: DiscoveryQuestion, _selectedApplication: string): DiscoveryQuestionView {
-  return step;
+export function getQuestionView(step: DiscoveryQuestion, selectedApplication: string): DiscoveryQuestionView {
+  if (step.id !== "source-device-workflows") return step;
+  const preferredByApplication: Record<string, string[]> = {
+    "meeting-room": ["user-laptops", "room-pc-uc-source", "wireless-casting-source", "cameras-production", "signage-media-players"],
+    classroom: ["teaching-visualisers", "user-laptops", "room-pc-uc-source", "wireless-casting-source", "cameras-production"],
+    hospitality: ["broadcast-tv-feeds", "signage-media-players", "user-laptops", "wireless-casting-source", "network-remote-feeds"],
+    "video-wall": ["operational-workstations", "signage-media-players", "broadcast-tv-feeds", "network-remote-feeds", "cameras-production"],
+    "av-over-ip": ["network-remote-feeds", "operational-workstations", "signage-media-players", "cameras-production", "user-laptops"],
+  };
+  const preferred = preferredByApplication[selectedApplication] ?? [];
+  const rank = new Map(preferred.map((value, index) => [value, index]));
+  const options = [...step.options].sort((left, right) => (rank.get(left.value) ?? 99) - (rank.get(right.value) ?? 99));
+  return {
+    ...step,
+    prompt: preferred.length
+      ? `${step.prompt} The most likely ${selectedApplication.replace(/-/g, " ")} sources are listed first.`
+      : step.prompt,
+    options,
+  };
 }
 
 export function getOptionLabel(step: DiscoveryQuestion, value: DiscoveryAnswerValue, selectedApplication = ""): string {

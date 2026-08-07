@@ -93,7 +93,9 @@ function walk(dir, output = []) {
   Use escaped Unicode code-points instead of literal mojibake examples so this
   checker does not contaminate the repo with the same text it is looking for.
 */
-const mojibakeMarkerPattern = /[\u00c2\u00c3\u00c6\u0192\u00e2\u20ac\u201c\u201d\u00a2]/u;
+// Detect malformed UTF-8 byte sequences without rejecting valid typography
+// such as curly quotes, bullets, euro symbols, accented letters or inch marks.
+const mojibakeMarkerPattern = /(?:\u00c3[\u0080-\u00bf]|\u00c2[\u0080-\u00bf]|\u00e2(?:[\u0080-\u00bf]|\u20ac|\u201a|\u201e|\u2020|\u2021|\u2030|\u0153|\u0161|\u017e|\u2122))/u;
 const replacementCharacterPattern = /\uFFFD/u;
 
 const files = walk(repoRoot);
@@ -102,7 +104,7 @@ const warnings = [];
 for (const file of files) {
   const rel = normalisePath(file);
 
-  if (rel === "tools/check-compare-source-repair.mjs") {
+  if (rel === "tools/check-compare-source-repair.mjs" || rel === "tools/audit-text-hygiene.mjs") {
     continue;
   }
 

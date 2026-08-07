@@ -5,7 +5,7 @@
 export type DiscoveryOption = {
   value: string;
   label: string;
-  help: string;
+  help?: string;
 };
 
 export type DiscoveryQuestion = {
