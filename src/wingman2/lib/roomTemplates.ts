@@ -1,5 +1,5 @@
 import { extraRoomTemplates } from "./roomTemplatesExtra";
-import { byOthersRow, completeDesignPlaceholders } from "./roomTemplatePlaceholders";
+import { byOthersRow, completeDesignPlaceholders, withRequiredRoomElements } from "./roomTemplatePlaceholders";
 export type TemplateBomType = "Required" | "Optional" | "Validate";
 
 export type TemplateBomRow = {
@@ -3278,6 +3278,6 @@ const libraryRoomTemplates: RoomTemplate[] = [
   },
 ];
 
-export const roomTemplates: RoomTemplate[] = [...coreRoomTemplates, ...libraryRoomTemplates, ...extraRoomTemplates];
+export const roomTemplates: RoomTemplate[] = [...coreRoomTemplates, ...libraryRoomTemplates, ...extraRoomTemplates].map(withRequiredRoomElements);
 
 export const roomTemplateVerticals = ["All", ...Array.from(new Set(roomTemplates.map((template) => template.vertical)))];
