@@ -124,6 +124,19 @@ export default defineConfig({
               test: /src[\\/]wingman2[\\/](lib|data)[\\/].*(productStory|productPositioning|recommendationEvidence|salesReadiness|wyrestormSkuBusinessStatus|roomTemplates).*\.tsx?$/,
             },
             {
+              // Proposal compilation and DOCX authoring are needed only by the
+              // lazy project/template workflow. Keep their document runtime and
+              // market-story compiler out of the shared project workspace chunk.
+              name: "wm-proposal-generation",
+              test: /src[\\/]wingman2[\\/]lib[\\/](?:proposalCompiler|proposalDocxExport)\.tsx?$/,
+              priority: 20,
+            },
+            {
+              name: "vendor-docx",
+              test: /node_modules[\\/]docx[\\/]/,
+              priority: 20,
+            },
+            {
               name: "wm-project-workflow",
               test: /src[\\/]wingman2[\\/](data|lib|components)[\\/].*(project|Project|proposal|Proposal|template|Template).*\.tsx?$/,
             },
