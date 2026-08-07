@@ -22,6 +22,7 @@ import {
 } from "../lib/discoveryTemplateHandoff";
 import { TEMPLATE_MARKETS } from "../lib/templateMarkets";
 import DiscoveryLocationsConnections from "../components/DiscoveryLocationsConnections";
+import { ExistingDiscoveryWarning } from "./discovery/ExistingDiscoveryWarning";
 import {
   clearDiscoveryTopology,
   createBlankProjectTopology,
@@ -1243,73 +1244,14 @@ return (
       {/* WINGMAN_EXISTING_DISCOVERY_WARNING_MODAL_START */}
       {showExistingDiscoveryWarning && existingDiscoveryPortalTarget &&
         !hasIntentionalDiscoveryEntry? createPortal(
-            (
-<div className="wm-existing-discovery-warning-backdrop">
-          <section
-            className="wm-existing-discovery-warning-dialog wm-ui-card"
-            role="alertdialog"
-            aria-modal="true"
-            aria-labelledby="existing-discovery-warning-title"
-            aria-describedby="existing-discovery-warning-description"
-          >
-            <div className="wm-existing-discovery-warning-icon" aria-hidden="true">!</div>
-
-            <div className="wm-existing-discovery-warning-copy">
-              <p className="wm-existing-discovery-warning-kicker">WARNING!</p>
-              <h2 id="existing-discovery-warning-title">Existing Discovery in progress</h2>
-              <p id="existing-discovery-warning-description">
-                Continue the existing Discovery or preserve it and start a new project.
-              </p>
-            </div>
-
-            <dl className="wm-existing-discovery-warning-summary">
-              <div>
-                <dt>Project</dt>
-                <dd>{existingDiscoveryName}</dd>
-              </div>
-              <div>
-                <dt>Progress</dt>
-                <dd>{existingDiscoveryProgress}% captured</dd>
-              </div>
-              {existingDiscoverySavedAt && (
-                <div>
-                  <dt>Last saved</dt>
-                  <dd>{existingDiscoverySavedAt}</dd>
-                </div>
-              )}
-            </dl>
-
-            <p className="wm-existing-discovery-warning-note">
-              Starting a new project will not overwrite this work. The current brief is saved to the project workspace first.
-            </p>
-
-            <div className="wm-existing-discovery-warning-actions">
-              <button
-                className="wm-ui-button wm-ui-button-primary"
-                type="button"
-                onClick={continueExistingDiscovery}
-                autoFocus
-              >
-                Continue existing Discovery
-              </button>
-              <button
-                className="wm-ui-button wm-ui-button-secondary"
-                type="button"
-                onClick={startNewDiscoveryProject}
-              >
-                Start new project
-              </button>
-              <button
-                className="wm-ui-button wm-ui-button-secondary"
-                type="button"
-                onClick={cancelExistingDiscoveryChoice}
-              >
-                Cancel
-              </button>
-            </div>
-          </section>
-        </div>
-            ),
+            <ExistingDiscoveryWarning
+              projectName={existingDiscoveryName}
+              progress={existingDiscoveryProgress}
+              savedAt={existingDiscoverySavedAt}
+              onContinue={continueExistingDiscovery}
+              onStartNew={startNewDiscoveryProject}
+              onCancel={cancelExistingDiscoveryChoice}
+            />,
             existingDiscoveryPortalTarget,
           )
         : null}
