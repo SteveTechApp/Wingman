@@ -4,30 +4,17 @@
   }
 }
 
-const TEMPLATE_ROUTE_MATCHERS = [
-  "/wingman/templates",
-];
-
 function isTemplatesRoute(): boolean {
-  if (typeof document === "undefined") {
+  if (typeof document === "undefined" || typeof window === "undefined") {
     return false;
   }
 
-  const html = document.documentElement;
-  const route = html.getAttribute("data-wingman-route") || "";
-  const className = html.className || "";
-  const path = window.location.pathname;
-
-  return (
-    route.includes("templates") ||
-    className.includes("wm-route-templates") ||
-    TEMPLATE_ROUTE_MATCHERS.some((matcher) => path.includes(matcher)) ||
-    Boolean(document.querySelector('.wingman-nav-link-active[href*="templates"]'))
-  );
+  const path = window.location.pathname.replace(/\/+$/, "");
+  return path === "/wingman/templates" && Boolean(document.querySelector('[data-wingman-page="templates"]'));
 }
 
 function getTemplateArticles(): HTMLElement[] {
-  return Array.from(document.querySelectorAll<HTMLElement>("main article")).filter((article) => {
+  return Array.from(document.querySelectorAll<HTMLElement>('.wm-templates-page .wm-solution-card')).filter((article) => {
     if (!isTemplatesRoute()) {
       return false;
     }

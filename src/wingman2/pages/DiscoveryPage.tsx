@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import {
@@ -21,6 +22,7 @@ import {
 } from "../lib/discoveryTemplateHandoff";
 import { TEMPLATE_MARKETS } from "../lib/templateMarkets";
 import DiscoveryLocationsConnections from "../components/DiscoveryLocationsConnections";
+import { ExistingDiscoveryWarning } from "./discovery/ExistingDiscoveryWarning";
 import {
   clearDiscoveryTopology,
   createBlankProjectTopology,
@@ -158,6 +160,10 @@ export function DiscoveryPage() {
     Boolean(draftField("siteName").trim()) ||
     Number(discoveryDraft?.brief?.capturedPercent ?? 0) > 0;
 
+  const resumeExistingDiscoveryStorageKey = "wingman:resume-existing-discovery";
+  const hasExplicitResumeIntent =
+    typeof window !== "undefined" &&
+    window.sessionStorage.getItem(resumeExistingDiscoveryStorageKey) === "1";
   const hasSessionDiscoveryHandoff =
     typeof window !== "undefined" &&
     (
@@ -170,7 +176,8 @@ export function DiscoveryPage() {
     Boolean(editQuestionId) ||
     searchParams.get("resume") === "project" ||
     Boolean(readDiscoveryHandoff()) ||
-    hasSessionDiscoveryHandoff;
+    hasSessionDiscoveryHandoff ||
+    hasExplicitResumeIntent;
 
   const [showExistingDiscoveryWarning, setShowExistingDiscoveryWarning] = useState(
     () => hasExistingDiscoveryContent && !hasIntentionalDiscoveryEntry,
@@ -238,7 +245,29 @@ export function DiscoveryPage() {
   const [budgetLevel, setBudgetLevel] = useState(() => draftField("budgetLevel"));
   const [timeline, setTimeline] = useState(() => draftField("timeline"));
   const navigate = useNavigate();
+  const existingDiscoveryPortalTarget =
+    typeof document !== "undefined"
+      ? document.querySelector<HTMLElement>(".wingman-workspace")
+      : null;
   const budgetInputRef = useRef<HTMLSelectElement | null>(null);
+  // WINGMAN_RESUME_EXISTING_DISCOVERY_INTENT_EFFECT
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (
+      window.sessionStorage.getItem(resumeExistingDiscoveryStorageKey) !== "1"
+    ) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      window.sessionStorage.removeItem(resumeExistingDiscoveryStorageKey);
+    }, 500);
+
+    return () => window.clearTimeout(timeout);
+  }, []);
   // WINGMAN_EXISTING_DISCOVERY_WARNING_EFFECT_START
   useEffect(() => {
     if (!showExistingDiscoveryWarning) {
@@ -733,9 +762,25 @@ export function DiscoveryPage() {
 
   // WINGMAN_EXISTING_DISCOVERY_WARNING_ACTIONS_START
   function continueExistingDiscovery(): void {
+    /*
+      DiscoveryPage already loaded the saved snapshot before displaying this
+      warning. Continuing must therefore dismiss the warning only. Reloading or
+      navigating recreates the page and causes the warning to appear again.
+    */
     setShowExistingDiscoveryWarning(false);
-  }
 
+    window.requestAnimationFrame(() => {
+      const continuationTarget =
+        document.querySelector<HTMLElement>(".wm-discovery-question-card") ??
+        document.querySelector<HTMLElement>(".wm-discovery-trail-card") ??
+        document.querySelector<HTMLElement>(".wm-discovery-completion-card");
+
+      continuationTarget?.scrollIntoView({
+        behavior: "auto",
+        block: "start",
+      });
+    });
+  }
   function startNewDiscoveryProject(): void {
     if (hasExistingDiscoveryContent) {
       saveDiscoveryBriefToProject(buildDiscoveryBrief());
@@ -1197,74 +1242,19 @@ export function DiscoveryPage() {
 return (
     <main className="wm-discovery-capture-page wm-ui-page wingman-page-host" data-audit={discoveryAuditMarkers.join("|")}>
       {/* WINGMAN_EXISTING_DISCOVERY_WARNING_MODAL_START */}
-      {showExistingDiscoveryWarning && (
-        <div className="wm-existing-discovery-warning-backdrop">
-          <section
-            className="wm-existing-discovery-warning-dialog wm-ui-card"
-            role="alertdialog"
-            aria-modal="true"
-            aria-labelledby="existing-discovery-warning-title"
-            aria-describedby="existing-discovery-warning-description"
-          >
-            <div className="wm-existing-discovery-warning-icon" aria-hidden="true">!</div>
-
-            <div className="wm-existing-discovery-warning-copy">
-              <p className="wm-existing-discovery-warning-kicker">WARNING!</p>
-              <h2 id="existing-discovery-warning-title">Existing Discovery in progress</h2>
-              <p id="existing-discovery-warning-description">
-                Continue the existing Discovery or preserve it and start a new project.
-              </p>
-            </div>
-
-            <dl className="wm-existing-discovery-warning-summary">
-              <div>
-                <dt>Project</dt>
-                <dd>{existingDiscoveryName}</dd>
-              </div>
-              <div>
-                <dt>Progress</dt>
-                <dd>{existingDiscoveryProgress}% captured</dd>
-              </div>
-              {existingDiscoverySavedAt && (
-                <div>
-                  <dt>Last saved</dt>
-                  <dd>{existingDiscoverySavedAt}</dd>
-                </div>
-              )}
-            </dl>
-
-            <p className="wm-existing-discovery-warning-note">
-              Starting a new project will not overwrite this work. The current brief is saved to the project workspace first.
-            </p>
-
-            <div className="wm-existing-discovery-warning-actions">
-              <button
-                className="wm-ui-button wm-ui-button-primary"
-                type="button"
-                onClick={continueExistingDiscovery}
-                autoFocus
-              >
-                Continue existing Discovery
-              </button>
-              <button
-                className="wm-ui-button wm-ui-button-secondary"
-                type="button"
-                onClick={startNewDiscoveryProject}
-              >
-                Start new project
-              </button>
-              <button
-                className="wm-ui-button wm-ui-button-secondary"
-                type="button"
-                onClick={cancelExistingDiscoveryChoice}
-              >
-                Cancel
-              </button>
-            </div>
-          </section>
-        </div>
-      )}
-      {/* WINGMAN_EXISTING_DISCOVERY_WARNING_MODAL_END */}
+      {showExistingDiscoveryWarning && existingDiscoveryPortalTarget &&
+        !hasIntentionalDiscoveryEntry? createPortal(
+            <ExistingDiscoveryWarning
+              projectName={existingDiscoveryName}
+              progress={existingDiscoveryProgress}
+              savedAt={existingDiscoverySavedAt}
+              onContinue={continueExistingDiscovery}
+              onStartNew={startNewDiscoveryProject}
+              onCancel={cancelExistingDiscoveryChoice}
+            />,
+            existingDiscoveryPortalTarget,
+          )
+        : null}
       <header className="wm-discovery-capture-hero wm-ui-hero">
         <div>
           <p className="wm-discovery-eyebrow wm-ui-copy wm-ui-kicker">Guided discovery - live call mode</p>

@@ -8,7 +8,9 @@ import { routeCatalogByKey } from "../app/routeCatalog";
 import { PageHero } from "../components/PageHero";
 import { TemplateSchematic } from "../components/TemplateSchematic";
 import { upsertStoredProject, type StoredProductSelection, type StoredProject, type StoredProjectProposal } from "../data/projectStore";
-import { exportBomCsv, exportProposalHtml } from "../lib/proposalExport";
+import { exportBomCsv } from "../lib/proposalExport";
+import { exportProposalDocx } from "../lib/proposalDocxExport";
+import { createProposalWizardDefaults } from "../lib/proposalWizard";
 import { buildWingmanCoachState } from "../lib/wingmanCoach";
 import { saveRoomTemplateCopy, useCustomRoomTemplates } from "../lib/customRoomTemplates";
 import { roomTemplates, type RoomTemplate, type TemplateBomRow } from "../lib/roomTemplates";
@@ -27,7 +29,9 @@ const groupCaptions: Record<string, string> = {
 
 function cloneRows(rows: TemplateBomRow[]) { return rows.map((row) => ({ ...row })); }
 function groupFor(row: TemplateBomRow) {
-  if (row.status === "excluded") return "Third-party scope";
+  const role = row.role.toLowerCase();
+  const isThirdParty = row.sku === "BY-OTHERS" || role.includes("third-party") || role.includes("by others");
+  if (isThirdParty) return "Third-party scope";
   if (row.type === "Required") return "Required";
   if (row.type === "Validate") return "Requires validation";
   return "Optional";
@@ -140,7 +144,18 @@ export function TemplateReviewPage() {
   }
   function resetEquipment() { setSelectedRows(cloneRows(template.bom)); setDirty(false); setDetailRow(null); }
   function exportTemplateBom() { exportBomCsv(buildTemplateProposal(template, selectedRows), bomRows); }
-  function exportTemplateProposal() { exportProposalHtml(buildTemplateProposal(template, selectedRows), bomRows); }
+  async function exportTemplateProposal() {
+    const proposal = buildTemplateProposal(template, selectedRows);
+    const wizard = createProposalWizardDefaults({
+      projectId: `template-${template.id}`,
+      projectName: template.name,
+      preparedBy: "",
+      executiveSummary: template.customerNarrative,
+      architectureNarrative: template.architecture,
+      assumptions: template.assumptions,
+    });
+    await exportProposalDocx(proposal, bomRows, wizard);
+  }
   function saveTemplateProject() { const project = upsertStoredProject(buildTemplateProject(template, selectedRows)); setSavedProjectPath(`/wingman/projects/${project.id}`); setDirty(false); }
   function saveTemplateDesign() { const copy = saveRoomTemplateCopy(template, selectedRows); setSavedTemplatePath(`${routeCatalogByKey.templates.path}/${copy.id}`); setDirty(false); }
   function addPlaceholder(thirdParty: boolean) {
