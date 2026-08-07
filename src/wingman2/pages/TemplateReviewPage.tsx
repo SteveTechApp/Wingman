@@ -1,5 +1,5 @@
 import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft, Check, CheckCircle2, ChevronDown, ChevronRight, Download, FileText,
   LayoutTemplate, Minus, MoreHorizontal, Pencil, Plus, RotateCcw, Save, X,
@@ -15,6 +15,8 @@ import { buildWingmanCoachState } from "../lib/wingmanCoach";
 import { saveRoomTemplateCopy, useCustomRoomTemplates } from "../lib/customRoomTemplates";
 import { roomTemplates, type RoomTemplate, type TemplateBomRow } from "../lib/roomTemplates";
 import type { SalesBomRow } from "../lib/salesReadiness";
+import { compileTemplateApplicationProposal } from "../lib/proposalCompiler";
+import { loadTemplateDraft } from "../lib/solutionTemplates";
 
 const includedStatuses = new Set(["included", "optional", "validate"]);
 const tabs = ["Overview", "Connectivity", "Equipment", "Proposal"] as const;
@@ -43,7 +45,7 @@ function templateBomRows(template: RoomTemplate, rows: TemplateBomRow[]): SalesB
   }));
 }
 function templateProducts(rows: TemplateBomRow[]): StoredProductSelection[] {
-  return rows.filter((row) => includedStatuses.has(row.status) && row.qty > 0).map((row) => ({
+  return rows.filter((row) => includedStatuses.has(row.status) && row.qty > 0 && !row.sku.startsWith("BY-OTHERS")).map((row) => ({
     sku: row.sku, title: row.description, category: row.role,
     status: row.type === "Required" ? "recommended" : "alternative",
     source: "Room Template", evidence: [row.evidence], cautions: [row.notes], addedAt: new Date().toISOString(),
@@ -58,8 +60,10 @@ function buildTemplateProposal(template: RoomTemplate, rows: TemplateBomRow[]): 
     discovery: { projectTitle: template.name, summary: template.customerNarrative, roomSize: template.application, displays: template.vertical },
     selectedProducts: products, bomRows, assumptions: [...template.assumptions, ...template.validationItems.map((item) => `Unverified: ${item}`)], readinessScore,
   });
+  const personalisation = loadTemplateDraft(template.id)?.personalisation;
   return {
-    title: template.name, summary: template.customerNarrative,
+    title: personalisation?.documentTitle || template.name,
+    summary: personalisation?.executiveSummary || template.customerNarrative,
     sections: ["Cover", "Application", "Architecture", "WyreStorm BOM", "Design Scope", "Assumptions", "Validation", "Upgrade Paths"],
     products, assumptions: [...template.assumptions, ...template.validationItems.map((item) => `Unverified: ${item}`)],
     outputPurpose: {
@@ -70,7 +74,10 @@ function buildTemplateProposal(template: RoomTemplate, rows: TemplateBomRow[]): 
     governedDependencies: [], bomRows, evidence: bomRows.map((row) => `${row.sku}: ${row.evidence}`),
     repGuidance: ["Use the template as a real-room starting point rather than a discovery questionnaire.", "Adjust only quantities and optional rows that differ from the known room.", "Escalate when room behaviour departs from the template architecture."],
     governanceWarnings: template.validationItems, validationNotes: template.designNotes.map((item) => `${item.label}: ${item.description}`),
-    visualBlocks: coach.visualBlocks, readinessScore, updatedAt: new Date().toISOString(),
+    visualBlocks: coach.visualBlocks,
+    applicationProposal: compileTemplateApplicationProposal(template, rows),
+    proposalFooter: personalisation?.footer,
+    readinessScore, updatedAt: new Date().toISOString(),
   };
 }
 function buildTemplateProject(template: RoomTemplate, rows: TemplateBomRow[]): StoredProject {
@@ -80,17 +87,37 @@ function buildTemplateProject(template: RoomTemplate, rows: TemplateBomRow[]): S
     id: `template-${template.id}-${Date.now()}`, name: template.name, owner: "Wingman user", stage: "Templates",
     status: "recommended", updated: "Just now", resumeTo: `${routeCatalogByKey.templates.path}/${template.id}`,
     createdAt: timestamp, updatedAt: timestamp, productSelections: proposal.products, proposal,
+    discoveryBrief: {
+      savedAt: timestamp,
+      capturedPercent: 72,
+      roomModel: {
+        clientName: loadTemplateDraft(template.id)?.personalisation.customerName || "",
+        siteName: loadTemplateDraft(template.id)?.personalisation.site || "",
+        application: template.application,
+        vertical: template.vertical,
+        roomType: template.name,
+        scale: template.scale,
+        summary: template.customerNarrative,
+        inferredArchitectureDirection: template.architecture,
+        sourceTemplateId: template.id,
+        sourceTemplateName: template.name,
+      },
+      inference: { summary: template.customerNarrative, architecture: template.architecture },
+      missingInformation: template.validationItems,
+      nextBestQuestion: template.validationItems[0] || "Confirm the final room scope.",
+    },
     workflow: { source: "Room Templates", lastStep: "Template review page", nextRoute: routeCatalogByKey.proposal.path, updatedAt: timestamp },
   };
 }
 
 export function TemplateReviewPage() {
   const { templateId } = useParams();
+  const navigate = useNavigate();
   const customTemplates = useCustomRoomTemplates();
   const availableTemplates = useMemo(() => [...customTemplates, ...roomTemplates], [customTemplates]);
   const selectedTemplate = useMemo(() => availableTemplates.find((template) => template.id === templateId), [availableTemplates, templateId]);
   const [selectedRows, setSelectedRows] = useState<TemplateBomRow[]>(() => selectedTemplate ? cloneRows(selectedTemplate.bom) : []);
-  const [activeTab, setActiveTab] = useState<Tab>("Overview");
+  const [activeTab, setActiveTab] = useState<Tab>("Equipment");
   const [dirty, setDirty] = useState(false);
   const [savedProjectPath, setSavedProjectPath] = useState("");
   const [savedTemplatePath, setSavedTemplatePath] = useState("");
@@ -101,7 +128,7 @@ export function TemplateReviewPage() {
 
   useEffect(() => {
     if (selectedTemplate) {
-      setSelectedRows(cloneRows(selectedTemplate.bom)); setDirty(false); setActiveTab("Overview");
+      setSelectedRows(cloneRows(selectedTemplate.bom)); setDirty(false); setActiveTab("Equipment");
       setSavedProjectPath(""); setSavedTemplatePath(""); setDetailRow(null);
     }
   }, [selectedTemplate]);
@@ -157,6 +184,11 @@ export function TemplateReviewPage() {
     await exportProposalDocx(proposal, bomRows, wizard);
   }
   function saveTemplateProject() { const project = upsertStoredProject(buildTemplateProject(template, selectedRows)); setSavedProjectPath(`/wingman/projects/${project.id}`); setDirty(false); }
+  function createProposal() {
+    upsertStoredProject(buildTemplateProject(template, selectedRows));
+    setDirty(false);
+    navigate(routeCatalogByKey.proposal.path);
+  }
   function saveTemplateDesign() { const copy = saveRoomTemplateCopy(template, selectedRows); setSavedTemplatePath(`${routeCatalogByKey.templates.path}/${copy.id}`); setDirty(false); }
   function addPlaceholder(thirdParty: boolean) {
     const id = `custom-${Date.now()}`;
@@ -268,7 +300,7 @@ export function TemplateReviewPage() {
           <section><span className="wm-status is-validate">{template.validationItems.length} unresolved</span><h2>Proposal is ready with assumptions</h2><p>The equipment schedule can move forward, but the following points remain unverified and will be labelled as assumptions.</p><div className="wm-proposal-readiness"><strong>{template.validationItems.length > 4 ? "78" : "84"}%</strong><span>Proposal readiness</span></div></section>
           <section><h3>Unresolved assumptions</h3><ul>{template.validationItems.map((item) => <li key={item}><span>Validate</span>{item}</li>)}</ul></section>
           <aside>
-            <Link className="wm-button is-primary is-full" to={routeCatalogByKey.proposal.path}><FileText /> Create proposal</Link>
+            <button className="wm-button is-primary is-full" type="button" onClick={createProposal}><FileText /> Create proposal</button>
             <button className="wm-button is-secondary is-full" type="button" onClick={exportTemplateProposal}><Download /> Export proposal</button>
             <button className="wm-button is-secondary is-full" type="button" onClick={exportTemplateBom}><Download /> Export equipment schedule</button>
             <button className="wm-button is-secondary is-full" type="button" onClick={saveTemplateProject}><Save /> Save as project</button>

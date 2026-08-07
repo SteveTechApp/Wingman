@@ -216,6 +216,25 @@ export type StoredApplicationProposalVisualBrief = {
   purpose: string;
 };
 
+export type StoredProposalProductSpecification = {
+  sku: string;
+  name: string;
+  role: string;
+  quantity: number;
+  summary: string;
+  keyFeatures: string[];
+  validation: string[];
+};
+
+export type StoredProposalScopeItem = {
+  category: string;
+  description: string;
+  responsibility: string;
+  status: "included" | "allowance" | "by-others" | "validate";
+  quantity: number;
+  notes: string;
+};
+
 export type StoredApplicationProposal = {
   vertical: string;
   application: string;
@@ -230,6 +249,10 @@ export type StoredApplicationProposal = {
   visualBriefs: StoredApplicationProposalVisualBrief[];
   verifiedDesignParameters: string[];
   deploymentConditions: string[];
+  marketStory?: string;
+  roomVisualUrl?: string;
+  productSpecifications?: StoredProposalProductSpecification[];
+  thirdPartyScope?: StoredProposalScopeItem[];
 };
 
 export type StoredWorkflowState = {
