@@ -2,7 +2,7 @@
 
 Mode: check
 Scope: active
-Files scanned: 437
+Files scanned: 559
 Suspect files: 0
 Files that would change: 0
 

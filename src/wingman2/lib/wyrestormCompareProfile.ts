@@ -150,7 +150,7 @@ function wmCompareIsCapabilityOnlyUsbPort(port: TechnicalPort): boolean {
 
   if (explicitConnector) return false;
 
-  return /\busb\s*(?:1\.1|2\.0|3(?:\.0|\.1|\.2)?|4(?:\.0)?)\b|\btiers?\b|\bup to\s+\d+\s+devices?\b|\bendpoints?\s*[â‰¤<]=?\s*\d+\b|\bdevice\s+limit\b|\bhub\s+limit\b|\bmax(?:imum)?\s+hubs?\b|\bbandwidth\b|\bversion\b|\bstandard\b/.test(value);
+  return /\busb\s*(?:1\.1|2\.0|3(?:\.0|\.1|\.2)?|4(?:\.0)?)\b|\btiers?\b|\bup to\s+\d+\s+devices?\b|\bendpoints?\s*[≤<]=?\s*\d+\b|\bdevice\s+limit\b|\bhub\s+limit\b|\bmax(?:imum)?\s+hubs?\b|\bbandwidth\b|\bversion\b|\bstandard\b/.test(value);
 }
 
 function wmCompareIsExplicitUsbConnector(port: TechnicalPort): boolean {

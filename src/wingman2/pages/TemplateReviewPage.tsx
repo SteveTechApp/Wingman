@@ -1,7 +1,7 @@
 import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
-  ArrowLeft, Check, CheckCircle2, ChevronDown, ChevronRight, Download, FileText,
+  ArrowLeft, Check, CheckCircle2, ChevronRight, Download, FileText,
   LayoutTemplate, Minus, MoreHorizontal, Pencil, Plus, RotateCcw, Save, X,
 } from "lucide-react";
 import { routeCatalogByKey } from "../app/routeCatalog";
@@ -21,12 +21,14 @@ import { loadTemplateDraft } from "../lib/solutionTemplates";
 const includedStatuses = new Set(["included", "optional", "validate"]);
 const tabs = ["Overview", "Connectivity", "Equipment", "Proposal"] as const;
 type Tab = (typeof tabs)[number];
+const equipmentGroups = ["Required", "Requires validation", "Optional", "Third-party scope"] as const;
+type EquipmentGroup = (typeof equipmentGroups)[number];
 
 const groupCaptions: Record<string, string> = {
-  Required: "Core WyreStorm products for this room.",
+  Required: "Core WyreStorm products.",
   "Requires validation": "Confirm against the real room before issue.",
   Optional: "Include only when the room needs them.",
-  "Third-party scope": "Other AV scope, supplied by others and not quoted by WyreStorm.",
+  "Third-party scope": "Other AV design scope, supplied by others and not quoted by WyreStorm.",
 };
 
 function cloneRows(rows: TemplateBomRow[]) { return rows.map((row) => ({ ...row })); }
@@ -123,12 +125,12 @@ export function TemplateReviewPage() {
   const [savedTemplatePath, setSavedTemplatePath] = useState("");
   const [detailRow, setDetailRow] = useState<TemplateBomRow | null>(null);
   const [filter, setFilter] = useState("All");
-  const [openGroups, setOpenGroups] = useState(new Set(["Required", "Requires validation"]));
+  const [equipmentGroup, setEquipmentGroup] = useState<EquipmentGroup>("Required");
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   useEffect(() => {
     if (selectedTemplate) {
-      setSelectedRows(cloneRows(selectedTemplate.bom)); setDirty(false); setActiveTab("Equipment");
+      setSelectedRows(cloneRows(selectedTemplate.bom)); setDirty(false); setActiveTab("Equipment"); setEquipmentGroup("Required");
       setSavedProjectPath(""); setSavedTemplatePath(""); setDetailRow(null);
     }
   }, [selectedTemplate]);
@@ -144,18 +146,12 @@ export function TemplateReviewPage() {
     Excluded: selectedRows.filter((row) => row.status === "excluded").length,
   };
   const categories = ["All", ...Array.from(new Set(selectedRows.map((row) => row.role.split(" ")[0])))];
-  const groupedRows = ["Required", "Requires validation", "Optional", "Third-party scope"].map((name) => ({
+  const groupedRows = equipmentGroups.map((name) => ({
     name, rows: selectedRows.filter((row) => groupFor(row) === name && (filter === "All" || row.role.startsWith(filter))),
   }));
+  const visibleEquipmentGroup = groupedRows.find((group) => group.name === equipmentGroup)!;
 
   function mutateRows(updater: (rows: TemplateBomRow[]) => TemplateBomRow[]) { setSelectedRows(updater); setDirty(true); }
-  function toggleGroup(name: string) {
-    setOpenGroups((current) => {
-      const next = new Set(current);
-      if (next.has(name)) next.delete(name); else next.add(name);
-      return next;
-    });
-  }
   function updateRowQty(rowId: string, qty: number) {
     const safeQty = Math.max(0, Math.min(99, Number.isFinite(qty) ? qty : 0));
     mutateRows((current) => current.map((row) => row.id !== rowId ? row : {
@@ -197,7 +193,7 @@ export function TemplateReviewPage() {
       role: thirdParty ? "Third-party scope" : "Additional equipment", qty: 1, type: "Optional",
       status: thirdParty ? "excluded" : "optional", evidence: "Added during template review.", notes: "Confirm product, ownership and technical requirements.",
     }]);
-    setOpenGroups((current) => new Set(current).add(thirdParty ? "Third-party scope" : "Optional"));
+    setEquipmentGroup(thirdParty ? "Third-party scope" : "Optional");
   }
   function onTabKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     let next = index;
@@ -238,8 +234,13 @@ export function TemplateReviewPage() {
         {savedTemplatePath ? <Link to={savedTemplatePath}>Open template</Link> : null}
       </div> : null}
 
-      <div className="wm-template-tabs" role="tablist" aria-label="Template workspace">
-        {tabs.map((tab, index) => <button key={tab} ref={(node) => { tabRefs.current[index] = node; }} type="button" role="tab" id={`template-tab-${tab}`} aria-selected={activeTab === tab} aria-controls={`template-panel-${tab}`} tabIndex={activeTab === tab ? 0 : -1} onClick={() => setActiveTab(tab)} onKeyDown={(event) => onTabKeyDown(event, index)}>{tab}{tab === "Equipment" && dirty ? <i aria-label="Unsaved changes" /> : null}</button>)}
+      <div className="wm-template-tab-row">
+        <div className="wm-template-tabs" role="tablist" aria-label="Template workspace">
+          {tabs.map((tab, index) => <button key={tab} ref={(node) => { tabRefs.current[index] = node; }} type="button" role="tab" id={`template-tab-${tab}`} aria-selected={activeTab === tab} aria-controls={`template-panel-${tab}`} tabIndex={activeTab === tab ? 0 : -1} onClick={() => { setActiveTab(tab); if (tab === "Equipment") setEquipmentGroup("Required"); }} onKeyDown={(event) => onTabKeyDown(event, index)}>{tab}{tab === "Equipment" && dirty ? <i aria-label="Unsaved changes" /> : null}</button>)}
+        </div>
+        {activeTab === "Equipment" ? <nav className="wm-equipment-scope-switcher" aria-label="Equipment scope">
+          {equipmentGroups.slice(1).map((group) => <button type="button" key={group} className={equipmentGroup === group ? "is-active" : ""} aria-pressed={equipmentGroup === group} onClick={() => setEquipmentGroup(group)}><span>{group}</span><small>{groupedRows.find((item) => item.name === group)?.rows.length ?? 0}</small></button>)}
+        </nav> : null}
       </div>
 
       <main id={`template-panel-${activeTab}`} role="tabpanel" aria-labelledby={`template-tab-${activeTab}`} tabIndex={0}>
@@ -278,11 +279,11 @@ export function TemplateReviewPage() {
             <div className="wm-equipment-toolbar-cluster"><div><button type="button" onClick={() => addPlaceholder(false)}><Plus /> Add product</button><button type="button" onClick={() => addPlaceholder(true)}><Plus /> Add third-party</button><button type="button" onClick={resetEquipment}><RotateCcw /> Reset</button><button type="button" onClick={exportTemplateBom}><Download /> Export</button><button className="is-primary" type="button" onClick={() => setDirty(false)}><Save /> Save</button></div></div>
           </div>
           <div className="wm-equipment-groups">
-            {groupedRows.map((group) => <section key={group.name}>
-              <button className="wm-equipment-group-heading" type="button" aria-expanded={openGroups.has(group.name)} onClick={() => toggleGroup(group.name)}><ChevronDown /><span><strong>{group.name}</strong><em>{groupCaptions[group.name]}</em></span><small>{group.rows.length}</small></button>
-              {openGroups.has(group.name) ? <div>{group.rows.map((row) => {
+            <section key={visibleEquipmentGroup.name}>
+              <header className="wm-equipment-group-heading"><span><strong>{visibleEquipmentGroup.name}</strong><em>{groupCaptions[visibleEquipmentGroup.name]}</em></span><small>{visibleEquipmentGroup.rows.length}</small></header>
+              <div>{visibleEquipmentGroup.rows.map((row) => {
                 const enabled = includedStatuses.has(row.status);
-                const thirdParty = group.name === "Third-party scope";
+                const thirdParty = visibleEquipmentGroup.name === "Third-party scope";
                 return <article className={`wm-equipment-row ${enabled ? "" : "is-excluded"} ${thirdParty ? "is-third-party" : ""}`} key={row.id}>
                   <input type="checkbox" checked={enabled} onChange={() => toggleRow(row.id)} aria-label={`Include ${row.sku}`} />
                   <div className="wm-equipment-identity"><strong>{thirdParty ? row.description : row.sku}</strong><span>{thirdParty ? row.role : row.description}</span></div>
@@ -291,8 +292,8 @@ export function TemplateReviewPage() {
                   <span className={`wm-status ${row.type === "Required" ? "is-confirmed" : row.type === "Validate" ? "is-validate" : enabled ? "is-assumed" : "is-others"}`}>{enabled ? row.type : "Excluded"}</span>
                   <button type="button" className="wm-icon-button" onClick={() => setDetailRow(row)} aria-label={`Edit ${row.sku}`}><Pencil /></button>
                 </article>;
-              })}</div> : null}
-            </section>)}
+              })}</div>
+            </section>
           </div>
         </div> : null}
 

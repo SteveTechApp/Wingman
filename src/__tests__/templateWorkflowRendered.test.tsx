@@ -83,9 +83,8 @@ describe("template workflow wiring", () => {
     expect(fibreRow).not.toBeNull();
     fireEvent.click(within(fibreRow!).getByRole("checkbox", { name: "Include NHD-600-TRXF" }));
 
-    const optionalSection = screen.getByRole("button", { name: /Optional/ }).closest("section");
-    const thirdPartySection = screen.getByRole("button", { name: /Third-party scope/ }).closest("section");
-    expect(within(optionalSection!).getByText("NHD-600-TRXF")).toBeInTheDocument();
-    expect(within(thirdPartySection!).queryByText("NHD-600-TRXF")).not.toBeInTheDocument();
+    expect(screen.getByText("NHD-600-TRXF")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Third-party scope/ }));
+    expect(screen.queryByText("NHD-600-TRXF")).not.toBeInTheDocument();
   });
 });
