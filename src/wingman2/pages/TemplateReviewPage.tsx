@@ -23,10 +23,10 @@ const tabs = ["Overview", "Connectivity", "Equipment", "Proposal"] as const;
 type Tab = (typeof tabs)[number];
 
 const groupCaptions: Record<string, string> = {
-  Required: "Core WyreStorm products this room design depends on.",
-  "Requires validation": "Confirm these against the real room before customer issue.",
-  Optional: "Include only where the room actually needs them.",
-  "Third-party scope": "Other AV design scope - supplied and installed by others, not quoted by WyreStorm.",
+  Required: "Core WyreStorm products for this room.",
+  "Requires validation": "Confirm against the real room before issue.",
+  Optional: "Include only when the room needs them.",
+  "Third-party scope": "Other AV scope, supplied by others and not quoted by WyreStorm.",
 };
 
 function cloneRows(rows: TemplateBomRow[]) { return rows.map((row) => ({ ...row })); }
@@ -271,22 +271,22 @@ export function TemplateReviewPage() {
         {activeTab === "Connectivity" ? <TemplateSchematic template={template} rows={selectedRows} /> : null}
 
         {activeTab === "Equipment" ? <div className="wm-equipment-workspace">
-          <div className="wm-template-section-heading"><div><span>Equipment schedule</span><h2>Editable WyreStorm BOM</h2></div><span className="wm-status is-assumed">Quantity and include/exclude edits</span></div>
+          <div className="wm-template-section-heading"><div><span>Equipment schedule</span><h2>Editable WyreStorm BOM</h2></div><span className="wm-status is-assumed">Edit quantities and scope</span></div>
           <div className="wm-equipment-summary">{Object.entries(counts).map(([label, count]) => <div key={label}><strong>{count}</strong><span>{label}</span></div>)}</div>
           <div className="wm-equipment-toolbar">
-            <div className="wm-category-filters" aria-label="Equipment category filters">{categories.slice(0, 6).map((category) => <button type="button" key={category} className={filter === category ? "is-active" : ""} onClick={() => setFilter(category)}>{category}</button>)}</div>
-            <div><button type="button" onClick={() => addPlaceholder(false)}><Plus /> Add product</button><button type="button" onClick={() => addPlaceholder(true)}><Plus /> Add third-party placeholder</button><button type="button" onClick={resetEquipment}><RotateCcw /> Reset equipment</button><button type="button" onClick={exportTemplateBom}><Download /> Export BOM</button><button className="is-primary" type="button" onClick={() => setDirty(false)}><Save /> Save changes</button></div>
+            <div className="wm-equipment-toolbar-cluster"><div className="wm-category-filters" aria-label="Equipment category filters">{categories.slice(0, 6).map((category) => <button type="button" key={category} className={filter === category ? "is-active" : ""} onClick={() => setFilter(category)}>{category}</button>)}</div></div>
+            <div className="wm-equipment-toolbar-cluster"><div><button type="button" onClick={() => addPlaceholder(false)}><Plus /> Add product</button><button type="button" onClick={() => addPlaceholder(true)}><Plus /> Add third-party</button><button type="button" onClick={resetEquipment}><RotateCcw /> Reset</button><button type="button" onClick={exportTemplateBom}><Download /> Export</button><button className="is-primary" type="button" onClick={() => setDirty(false)}><Save /> Save</button></div></div>
           </div>
           <div className="wm-equipment-groups">
             {groupedRows.map((group) => <section key={group.name}>
-              <button className="wm-equipment-group-heading" type="button" aria-expanded={openGroups.has(group.name)} onClick={() => toggleGroup(group.name)}><ChevronDown /><span>{group.name}</span><small>{group.rows.length}</small></button>
-              {openGroups.has(group.name) ? <p className="wm-equipment-group-caption">{groupCaptions[group.name]}</p> : null}
+              <button className="wm-equipment-group-heading" type="button" aria-expanded={openGroups.has(group.name)} onClick={() => toggleGroup(group.name)}><ChevronDown /><span><strong>{group.name}</strong><em>{groupCaptions[group.name]}</em></span><small>{group.rows.length}</small></button>
               {openGroups.has(group.name) ? <div>{group.rows.map((row) => {
                 const enabled = includedStatuses.has(row.status);
-                return <article className={`wm-equipment-row ${enabled ? "" : "is-excluded"}`} key={row.id}>
+                const thirdParty = group.name === "Third-party scope";
+                return <article className={`wm-equipment-row ${enabled ? "" : "is-excluded"} ${thirdParty ? "is-third-party" : ""}`} key={row.id}>
                   <input type="checkbox" checked={enabled} onChange={() => toggleRow(row.id)} aria-label={`Include ${row.sku}`} />
-                  <div className="wm-equipment-identity"><strong>{row.sku}</strong><span>{row.description}</span></div>
-                  <span className="wm-equipment-role">{row.role}</span>
+                  <div className="wm-equipment-identity"><strong>{thirdParty ? row.description : row.sku}</strong><span>{thirdParty ? row.role : row.description}</span></div>
+                  <span className="wm-equipment-role">{thirdParty ? "By others" : row.role}</span>
                   <div className="wm-quantity-stepper"><button type="button" onClick={() => updateRowQty(row.id, row.qty - 1)} aria-label={`Reduce ${row.sku} quantity`}><Minus /></button><input type="number" min="0" max="99" value={row.qty} onChange={(event) => updateRowQty(row.id, Number(event.target.value))} aria-label={`Quantity for ${row.sku}`} /><button type="button" onClick={() => updateRowQty(row.id, row.qty + 1)} aria-label={`Increase ${row.sku} quantity`}><Plus /></button></div>
                   <span className={`wm-status ${row.type === "Required" ? "is-confirmed" : row.type === "Validate" ? "is-validate" : enabled ? "is-assumed" : "is-others"}`}>{enabled ? row.type : "Excluded"}</span>
                   <button type="button" className="wm-icon-button" onClick={() => setDetailRow(row)} aria-label={`Edit ${row.sku}`}><Pencil /></button>
