@@ -440,26 +440,26 @@ function compareNetworkClassLabel(
 
   if (speed) {
     if (confidence === "inferred") {
-      return `${speed} Ã¢â‚¬â€ inferred from ${codec || "available codec evidence"}`;
+      return `${speed} — inferred from ${codec || "available codec evidence"}`;
     }
 
     if (confidence === "verify") {
-      return "Network class Ã¢â‚¬â€ verify";
+      return "Network class — verify";
     }
 
-    return `${speed} Ã¢â‚¬â€ confirmed`;
+    return `${speed} — confirmed`;
   }
 
   if (/\bipmx\b/i.test(transport)) {
-    return "Network class Ã¢â‚¬â€ verify";
+    return "Network class — verify";
   }
 
-  if (codec === "SDVoE") return "10GbE Ã¢â‚¬â€ inferred from SDVoE";
+  if (codec === "SDVoE") return "10GbE — inferred from SDVoE";
   if (["JPEG2000", "JPEG XS", "H.264", "H.265"].includes(codec)) {
-    return `1GbE Ã¢â‚¬â€ inferred from ${codec}`;
+    return `1GbE — inferred from ${codec}`;
   }
 
-  return isAvoip ? "Network class Ã¢â‚¬â€ verify" : "";
+  return isAvoip ? "Network class — verify" : "";
 }
 
 function compareNetworkClassResult(competitorValue: string, wyrestormValue: string): string {
@@ -471,10 +471,10 @@ function compareNetworkClassResult(competitorValue: string, wyrestormValue: stri
 
   if (verify || !competitorSpeed || !wyrestormSpeed) return "Verify network class";
   if (competitorSpeed === wyrestormSpeed) {
-    return inferred ? "Likely same network class Ã¢â‚¬â€ verify source" : "Network class matches";
+    return inferred ? "Likely same network class — verify source" : "Network class matches";
   }
 
-  return inferred ? "Potential network mismatch Ã¢â‚¬â€ review" : "Network class mismatch";
+  return inferred ? "Potential network mismatch — review" : "Network class mismatch";
 }
 
 function avoipRoleTags(role: NetworkHdAvoipMember["role"]): string[] {
@@ -4808,7 +4808,7 @@ function GovernedDecisionPanel({
           onClick={() => saveDecision("confirmed-equivalent")}
           aria-pressed={existingDecision?.decisionType === "confirmed-equivalent"}
         >
-          <span className="compare-decision-icon" aria-hidden="true">Ã¢Å“â€œ</span>
+          <span className="compare-decision-icon" aria-hidden="true">✓</span>
           Confirm equivalent
         </button>
         <button
@@ -4818,7 +4818,7 @@ function GovernedDecisionPanel({
           onClick={() => saveDecision("closest-technical-match")}
           aria-pressed={existingDecision?.decisionType === "closest-technical-match"}
         >
-          <span className="compare-decision-icon" aria-hidden="true">Ã¢â€°Ë†</span>
+          <span className="compare-decision-icon" aria-hidden="true">≈</span>
           Approve closest match
         </button>
         <button
@@ -4828,7 +4828,7 @@ function GovernedDecisionPanel({
           onClick={() => saveDecision("architecture-alternative")}
           aria-pressed={existingDecision?.decisionType === "architecture-alternative"}
         >
-          <span className="compare-decision-icon" aria-hidden="true">Ã¢â€¡â€ž</span>
+          <span className="compare-decision-icon" aria-hidden="true">⇄</span>
           Approve architecture alternative
         </button>
         <button
@@ -4846,7 +4846,7 @@ function GovernedDecisionPanel({
           onClick={() => saveDecision("no-suitable-match")}
           aria-pressed={existingDecision?.decisionType === "no-suitable-match"}
         >
-          <span className="compare-decision-icon" aria-hidden="true">Ãƒâ€”</span>
+          <span className="compare-decision-icon" aria-hidden="true">×</span>
           Reject: no suitable match
         </button>
       </div>

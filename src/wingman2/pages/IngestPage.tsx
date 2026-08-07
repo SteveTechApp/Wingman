@@ -596,7 +596,7 @@ export function IngestPage() {
                   {extractState === "extracting" ? "Extracting..." : "Select files"}
                 </button>
                 {selectedFiles.length ? (
-                  <small>{selectedFiles.length} selected: {selectedFiles.slice(0, 2).join(", ")}{selectedFiles.length > 2 ? "â€¦" : ""}</small>
+                  <small>{selectedFiles.length} selected: {selectedFiles.slice(0, 2).join(", ")}{selectedFiles.length > 2 ? "…" : ""}</small>
                 ) : null}
               </section>
 
@@ -698,7 +698,7 @@ export function IngestPage() {
             <div>
               <span>Source</span>
               <strong>{requestType}</strong>
-              <small>{decodedSourceSummary.join(" Â· ") || "Decoded customer wording"}</small>
+              <small>{decodedSourceSummary.join(" · ") || "Decoded customer wording"}</small>
             </div>
 
             <div className="wm-ingest-result-toolbar-actions">
