@@ -962,7 +962,10 @@ button.wm-reference-quick-card {
   object-fit: contain;
   user-select: none;
   filter: drop-shadow(0 10px 17px rgba(0, 0, 0, 0.38)) drop-shadow(0 0 12px rgba(24, 217, 194, 0.42));
-  animation: wm-reference-guru-float 3.6s ease-in-out infinite;
+  /* The launcher itself remains draggable and the surrounding presence
+     effects may animate, but the Guru artwork stays centred in its ring. */
+  animation: none;
+  transform: none;
 }
 
 .wingman-guru-fab-glow {
@@ -1213,5 +1216,7 @@ button.wingman-guru-fab[data-wingman-guru-floating-active="true"]
 .wingman-guru-fab .wingman-guru-fab-image {
   position: relative !important;
   z-index: 3 !important;
+  animation: none !important;
+  transform: none !important;
 }
 /* WINGMAN_SINGLE_GURU_BADGE_END */
