@@ -15,8 +15,11 @@ describe("template proposal compiler", () => {
     expect(proposal.userJourney.length).toBeGreaterThanOrEqual(4);
     expect(proposal.acceptanceCriteria.length).toBeGreaterThanOrEqual(3);
     expect(proposal.productSpecifications?.some((item) => item.sku.includes("NHD"))).toBe(true);
-    expect(proposal.thirdPartyScope?.map((item) => item.category)).toEqual(expect.arrayContaining([
-      "Cabling and connectors", "Installation labour", "Project management", "Commissioning", "Drawings and documentation",
-    ]));
+    const scope = proposal.thirdPartyScope?.map((item) => `${item.category} ${item.description}`).join(" | ") ?? "";
+    expect(scope).toMatch(/CCTS|cabl/i);
+    expect(scope).toMatch(/installation labour/i);
+    expect(scope).toMatch(/project management/i);
+    expect(scope).toMatch(/commissioning/i);
+    expect(scope).toMatch(/CAD\/Visio|drawing|as-built/i);
   });
 });

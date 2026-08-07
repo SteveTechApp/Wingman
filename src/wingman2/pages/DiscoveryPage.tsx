@@ -900,6 +900,12 @@ export function DiscoveryPage() {
     const usb = answerLabel("usb");
     const audio = answerLabel("audio");
     const sourceConnections = answerLabels("source-connection");
+    const sourceDeviceWorkflows = answerLabels("source-device-workflows");
+    const wirelessPresentationOperation = answerLabels("wireless-presentation-operation");
+    const multiviewDestinations = answerLabels("multiview-destination");
+    const multiviewOperation = answerLabels("multiview-operation");
+    const microphoneCount = answerLabel("uc-microphone-count");
+    const audioProcessing = answerLabels("uc-audio-processing");
     const usbValues = wmDiscoveryNormaliseAnswerList(answers.usb);
     const usbNeeds = answerLabels("usb");
     const usbOwnership = [
@@ -977,6 +983,9 @@ export function DiscoveryPage() {
       wmDiscoveryAnswerIncludes(answers["display-behaviour"], "video-wall-or-processor-feed") || wmDiscoveryAnswerIncludes(answers.displays, "video-wall-output") ? "Video wall processing" : "",
       wmDiscoveryAnswerIncludes(answers["display-behaviour"], "multiview-on-one-output") ? "Multiview" : "",
       avoipProfileValue === "multiview-avoip" ? "Multiview" : "",
+      ...multiviewDestinations.map((item) => `Multiview destination: ${item}`),
+      ...multiviewOperation.map((item) => `Multiview operation: ${item}`),
+      ...audioProcessing.map((item) => `Audio processing: ${item}`),
     ].filter(Boolean);
     const missingInformation = discoveryQuestions.flatMap((step) => {
       const answer = answers[step.id] ?? "";
@@ -1021,9 +1030,11 @@ export function DiscoveryPage() {
         customerWording: notes.opportunity?.trim() || allNotes[0] || "",
         scale: answerLabel("scale"),
         roomSize: answerLabel("scale"),
-        devices: [sourceCount, ...sourceConnections].filter(Boolean),
-        sourceTypes: sourceConnections,
+        devices: [sourceCount, ...sourceConnections, ...sourceDeviceWorkflows].filter(Boolean),
+        sourceTypes: [...sourceConnections, ...sourceDeviceWorkflows],
         sourceConnections,
+        sourceDeviceWorkflows,
+        wirelessPresentationOperation,
         sourceCount,
         displayCount,
         displays: displayCount,
@@ -1045,7 +1056,9 @@ export function DiscoveryPage() {
         cameraNeeds,
         cameraRouting,
         microphoneNeeds,
+        microphoneCount,
         microphoneConnections,
+        audioProcessing,
         usbOwnership: usbOwnership || usb,
         usbTransport: usbTransport || usb,
         usbTopologyRisk,
@@ -1070,6 +1083,8 @@ export function DiscoveryPage() {
           avoipProfileValue === "multiview-avoip" || wmDiscoveryAnswerIncludes(answers["display-behaviour"], "multiview-on-one-output")
             ? "Multiview required"
             : "Not indicated",
+        multiviewDestinations,
+        multiviewOperation,
         designDirection: inferredDirection,
         inferredArchitectureDirection: inferredDirection,
         recommendedProductPath: selectedApplication === "av-over-ip" ? "AVoIP / matrix routing" : strategy.likelyDirection,
