@@ -1,0 +1,131 @@
+
+### PATTERN: Videowall Builder
+src\wingman2\pages\NavigationHubPages.tsx:276: "Videowall Builder",
+src\wingman2\styles\wingman-style-stack.css:3296: Videowall Builder, Templates, Projects, Proposal, Dashboard, Profile,
+src\wingman2\styles\wingman-style-stack.css:36270: Videowall Builder artwork should read as a subtle supporting illustration,
+
+### PATTERN: art:\s*"videowall"
+src\wingman2\pages\SalesHelperPage.tsx:73: art: "videowall",
+
+### PATTERN: kind\s*===\s*"videowall"
+src\wingman2\components\HubCardArt.tsx:275: if (kind === "videowall") {
+
+### PATTERN: wm-polish-card-art
+src\wingman2\pages\NavigationHubPages.tsx:84: className={`wm-polish-card-art${item.art ? ` wm-polish-card-art-${item.art}` : ""}`}
+src\wingman2\pages\SalesHelperPage.tsx:199: <span className={`wm-polish-card-art wm-polish-card-art-${card.art}`} aria-hidden="true">
+src\wingman2\styles\wingman-polish-navigation.css:385: .wm-polish-shell .wm-polish-grid .wm-polish-card > .wm-polish-card-art {
+src\wingman2\styles\wingman-polish-navigation.css:405: .wm-polish-card-art::before {
+src\wingman2\styles\wingman-polish-navigation.css:416: .wm-polish-card-art svg {
+src\wingman2\styles\wingman-polish-navigation.css:539: .wm-sh-choice-card > .wm-polish-card-art {
+src\wingman2\styles\wingman-polish-navigation.css:552: .wm-sh-choice-card > .wm-polish-card-art::before {
+src\wingman2\styles\wingman-polish-navigation.css:556: .wm-sh-choice-card > .wm-polish-card-art svg {
+src\wingman2\styles\wingman-polish-navigation.css:562: .wm-sh-choice-card > .wm-polish-card-art-room {
+src\wingman2\styles\wingman-polish-navigation.css:569: .wm-sh-choice-card > .wm-polish-card-art-display {
+src\wingman2\styles\wingman-polish-navigation.css:576: .wm-sh-choice-card > .wm-polish-card-art-cable {
+src\wingman2\styles\wingman-polish-navigation.css:581: .wm-sh-choice-card > .wm-polish-card-art-camera {
+src\wingman2\styles\wingman-polish-navigation.css:586: .wm-sh-choice-card > .wm-polish-card-art-competitor {
+src\wingman2\styles\wingman-polish-navigation.css:592: .wm-sh-choice-card > .wm-polish-card-art-growth {
+src\wingman2\styles\wingman-polish-navigation.css:599: .wm-sh-choice-card > .wm-polish-card-art-proposal {
+src\wingman2\styles\wingman-polish-navigation.css:807: .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid > .wm-polish-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-polish-navigation.css:835: .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid > .wm-polish-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art::before, .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid > .wm-polish-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art::after {
+src\wingman2\styles\wingman-polish-navigation.css:840: .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid > .wm-polish-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art > svg {
+src\wingman2\styles\wingman-polish-navigation.css:1112: .wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-polish-navigation.css:1140: .wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art::before {
+src\wingman2\styles\wingman-polish-navigation.css:1144: .wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art > svg {
+src\wingman2\styles\wingman-polish-navigation.css:1341: html body .wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-polish-navigation.css:1473: .wingman-page-host .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Call Coach"] .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-polish-navigation.css:1485: .wingman-page-host .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Call Coach"] .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art > svg {
+src\wingman2\styles\wingman-polish-navigation.css:1567: .wm-polish-shell .wm-polish-grid .wm-polish-card > .wm-polish-card-art {
+src\wingman2\styles\wingman-polish-navigation.css:1619: .wm-sh-choice-card > .wm-polish-card-art {
+src\wingman2\styles\wingman-polish-navigation.css:1631: .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid > .wm-polish-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-polish-navigation.css:1643: .wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-polish-navigation.css:1661: html body .wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-polish-navigation.css:1750: deliberately built to out-specify every earlier ".wm-polish-card-art"
+src\wingman2\styles\wingman-polish-navigation.css:1755: .wingman-page-host.wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-polish-navigation.css:1823: .wingman-page-host.wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art.wm-polish-card-art::before {
+src\wingman2\styles\wingman-polish-navigation.css:1827: .wingman-page-host.wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art.wm-polish-card-art > svg {
+src\wingman2\styles\wingman-polish-navigation.css:1834: .wingman-page-host.wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-polish-navigation.css:1860: .wingman-page-host.wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-polish-navigation.css:1920: .wingman-page-host.wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-polish-navigation.css:1983: .wm-navhub-page[data-wingman-page-key="Products"] .wm-polish-card-art {
+src\wingman2\styles\wingman-polish-navigation.css:1999: .wm-navhub-page[data-wingman-page-key="Products"] .wm-polish-card-art svg {
+src\wingman2\styles\wingman-polish-navigation.css:2010: .wm-navhub-page[data-wingman-page-key="Products"] .wm-polish-card-art {
+src\wingman2\styles\wingman-polish-navigation.css:2026: .wm-navhub-page[data-wingman-page-key="Products"] .wm-polish-card-art {
+src\wingman2\styles\wingman-products-light-graphics.css:89: > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-products-light-graphics.css:108: > .wm-polish-card-art.wm-polish-card-art,
+src\wingman2\styles\wingman-products-light-graphics.css:113: > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-products-light-graphics.css:121: > .wm-polish-card-art
+src\wingman2\styles\wingman-products-light-graphics.css:145: > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-products-light-graphics.css:161: > .wm-polish-card-art
+src\wingman2\styles\wingman-products-light-graphics.css:185: > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:24118: > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:24384: > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:24400: > .wm-polish-card-art
+src\wingman2\styles\wingman-style-stack.css:24579: > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:24594: > .wm-polish-card-art
+src\wingman2\styles\wingman-style-stack.css:32830: .wm-polish-shell .wm-polish-grid .wm-polish-card > .wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:32850: .wm-polish-card-art::before {
+src\wingman2\styles\wingman-style-stack.css:32861: .wm-polish-card-art svg {
+src\wingman2\styles\wingman-style-stack.css:32984: .wm-sh-choice-card > .wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:32997: .wm-sh-choice-card > .wm-polish-card-art::before {
+src\wingman2\styles\wingman-style-stack.css:33001: .wm-sh-choice-card > .wm-polish-card-art svg {
+src\wingman2\styles\wingman-style-stack.css:33007: .wm-sh-choice-card > .wm-polish-card-art-room {
+src\wingman2\styles\wingman-style-stack.css:33014: .wm-sh-choice-card > .wm-polish-card-art-display {
+src\wingman2\styles\wingman-style-stack.css:33021: .wm-sh-choice-card > .wm-polish-card-art-cable {
+src\wingman2\styles\wingman-style-stack.css:33026: .wm-sh-choice-card > .wm-polish-card-art-camera {
+src\wingman2\styles\wingman-style-stack.css:33031: .wm-sh-choice-card > .wm-polish-card-art-competitor {
+src\wingman2\styles\wingman-style-stack.css:33037: .wm-sh-choice-card > .wm-polish-card-art-growth {
+src\wingman2\styles\wingman-style-stack.css:33044: .wm-sh-choice-card > .wm-polish-card-art-proposal {
+src\wingman2\styles\wingman-style-stack.css:33252: .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid > .wm-polish-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:33280: .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid > .wm-polish-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art::before, .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid > .wm-polish-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art::after {
+src\wingman2\styles\wingman-style-stack.css:33285: .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid > .wm-polish-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art > svg {
+src\wingman2\styles\wingman-style-stack.css:33557: .wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:33585: .wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art::before {
+src\wingman2\styles\wingman-style-stack.css:33589: .wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art > svg {
+src\wingman2\styles\wingman-style-stack.css:33786: html body .wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:33918: .wingman-page-host .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Call Coach"] .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:33930: .wingman-page-host .wm-navhub-page.wm-polish-shell[data-wingman-page-key="Call Coach"] .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art > svg {
+src\wingman2\styles\wingman-style-stack.css:34012: .wm-polish-shell .wm-polish-grid .wm-polish-card > .wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:34064: .wm-sh-choice-card > .wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:34076: .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid > .wm-polish-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:34088: .wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:34106: html body .wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:34195: deliberately built to out-specify every earlier ".wm-polish-card-art"
+src\wingman2\styles\wingman-style-stack.css:34200: .wingman-page-host.wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:34268: .wingman-page-host.wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art.wm-polish-card-art::before {
+src\wingman2\styles\wingman-style-stack.css:34272: .wingman-page-host.wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art.wm-polish-card-art > svg {
+src\wingman2\styles\wingman-style-stack.css:34279: .wingman-page-host.wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:34305: .wingman-page-host.wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:34365: .wingman-page-host.wingman-page-host .wm-navhub-page.wm-polish-shell .wm-polish-grid > .wm-navhub-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art.wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:34428: .wm-navhub-page[data-wingman-page-key="Products"] .wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:34444: .wm-navhub-page[data-wingman-page-key="Products"] .wm-polish-card-art svg {
+src\wingman2\styles\wingman-style-stack.css:34455: .wm-navhub-page[data-wingman-page-key="Products"] .wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:34471: .wm-navhub-page[data-wingman-page-key="Products"] .wm-polish-card-art {
+src\wingman2\styles\wingman-style-stack.css:36273: .wm-polish-card-art:has(.wm-hub-art-videowall) {
+src\wingman2\styles\wingman-style-stack.css:36287: .wm-polish-card-art .wm-hub-art-videowall {
+src\wingman2\styles\wingman-style-stack.css:36298: .wm-polish-card-art .wm-hub-art-videowall rect,
+src\wingman2\styles\wingman-style-stack.css:36299: .wm-polish-card-art .wm-hub-art-videowall path {
+src\wingman2\styles\wingman-style-stack.css:36303: .wm-polish-card-art .wm-hub-art-videowall [fill="currentColor"] {
+src\wingman2\styles\wingman-style-stack.css:36307: .wm-polish-card-art .wm-hub-art-videowall * {
+src\wingman2\styles\wingman-style-stack.css:36312: .wm-polish-card-art:has(.wm-hub-art-videowall) {
+src\wingman2\styles\wingman-style-stack.css:36321: .wm-polish-card-art .wm-hub-art-videowall {
+src\wingman2\styles\wingman-style-stack.css:36330: .wm-polish-card-art:has(.wm-hub-art-videowall) {
+
+### PATTERN: wm-hub-art-videowall
+src\wingman2\components\HubCardArt.tsx:278: className="wm-hub-art-videowall"
+src\wingman2\styles\wingman-style-stack.css:36273: .wm-polish-card-art:has(.wm-hub-art-videowall) {
+src\wingman2\styles\wingman-style-stack.css:36287: .wm-polish-card-art .wm-hub-art-videowall {
+src\wingman2\styles\wingman-style-stack.css:36298: .wm-polish-card-art .wm-hub-art-videowall rect,
+src\wingman2\styles\wingman-style-stack.css:36299: .wm-polish-card-art .wm-hub-art-videowall path {
+src\wingman2\styles\wingman-style-stack.css:36303: .wm-polish-card-art .wm-hub-art-videowall [fill="currentColor"] {
+src\wingman2\styles\wingman-style-stack.css:36307: .wm-polish-card-art .wm-hub-art-videowall * {
+src\wingman2\styles\wingman-style-stack.css:36312: .wm-polish-card-art:has(.wm-hub-art-videowall) {
+src\wingman2\styles\wingman-style-stack.css:36321: .wm-polish-card-art .wm-hub-art-videowall {
+src\wingman2\styles\wingman-style-stack.css:36330: .wm-polish-card-art:has(.wm-hub-art-videowall) {
+
+### CURRENT VIDEOWALL BLOCK
+if (kind === "videowall") {
+
+### CSS MARKERS
+WINGMAN VIDEOWALL HUB ART - LIGHTWEIGHT = 2
+wm-hub-art-videowall = 9

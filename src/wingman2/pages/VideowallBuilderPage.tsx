@@ -42,16 +42,6 @@ type Recommendation = {
   customerSafe: string;
 };
 
-type AdviceCard = {
-  id: string;
-  title: string;
-  direction: string;
-  useWhen: string;
-  askNext: string;
-  avoid: string;
-  customerSafe: string;
-};
-
 type DiagramStage = {
   label: string;
   title: string;
@@ -166,80 +156,6 @@ const emptyLcd: LcdAnswers = {
   sourceLocation: "",
   behaviour: "",
 };
-
-const ledAdvice: AdviceCard[] = [
-  {
-    id: "led-hdmi",
-    title: "LED simple HDMI multiview",
-    direction: "NHD-0401-MV",
-    useWhen: "Use when the LED processor needs one simple HDMI feed with local source composition.",
-    askNext: "How many HDMI sources must be visible, and what input format does the LED processor expect?",
-    avoid: "Do not make this AVoIP unless source locations or routing flexibility justify it.",
-    customerSafe: "WyreStorm can provide a simple composed HDMI output before the LED processor.",
-  },
-  {
-    id: "led-nhd150",
-    title: "LED NetworkHD 100 multiview",
-    direction: "NHD-124-TX + NHD-150-RX + NHD-CTL-PRO",
-    useWhen: "Use when sources are distributed and the LED wall needs a composed multiview output.",
-    askNext: "Does the customer need up to 9 fixed windows or up to 6 floating/custom windows?",
-    avoid: "Do not imply NetworkHD 100, 500 and 600 endpoints are interchangeable.",
-    customerSafe: "This gives a flexible AVoIP source layer with a multiview output for the wall path.",
-  },
-  {
-    id: "led-nhd600",
-    title: "LED premium high-quality distribution",
-    direction: "NetworkHD 600 / NHD-600-TRX direction",
-    useWhen: "Use where the LED wall is quality-sensitive, latency-sensitive, or premium in value.",
-    askNext: "Who owns the 10G network, and what does the final LED processor expect?",
-    avoid: "Do not present this as the lowest-cost route or as final wall processing without confirmation.",
-    customerSafe: "For premium LED walls, the signal layer should protect quality, latency and routing performance.",
-  },
-];
-
-const lcdAdvice: AdviceCard[] = [
-  {
-    id: "lcd-tile",
-    title: "LCD tile mode simple path",
-    direction: "Switcher, extender or matrix direction",
-    useWhen: "Use when the displays create the wall internally and one signal feeds the wall.",
-    askNext: "Do the LCD displays definitely support tile mode, and how far is the source from the wall?",
-    avoid: "Do not force a video wall processor if the displays already handle tile mode.",
-    customerSafe: "If the screens create the wall internally, WyreStorm only needs to deliver the correct source signal.",
-  },
-  {
-    id: "lcd-vw",
-    title: "LCD dedicated video wall processor",
-    direction: "SW-0204-VW or SW-0206-VW",
-    useWhen: "Use for fixed LCD walls where each display needs its own driven output.",
-    askNext: "What is the array size, how many sources are needed, and are presets enough?",
-    avoid: "Do not overbuild with AVoIP if the wall is fixed and local.",
-    customerSafe: "A dedicated processor is often the clearest route for a fixed LCD wall.",
-  },
-  {
-    id: "lcd-matrix",
-    title: "LCD scaling / seamless matrix path",
-    direction: "Scaling matrix / SCL matrix direction",
-    useWhen: "Use where the job is mainly source switching, scaling, fixed I/O or true multiview.",
-    askNext: "How many routed inputs and outputs are required, and is true multiview required?",
-    avoid: "Do not confuse multiple outputs with multiview unless the product has true multiview.",
-    customerSafe: "A matrix path can be simpler when sources and displays are local and predictable.",
-  },
-  {
-    id: "lcd-avoip",
-    title: "LCD AVoIP wall path",
-    direction: "NetworkHD 100 / 500 / 600 with NHD-CTL-PRO",
-    useWhen: "Use when sources are distributed, routing is flexible, or expansion is likely.",
-    askNext: "Who owns the network, and is the project 1G, 10G, or not yet known?",
-    avoid: "Do not assume AVoIP is automatically better for a simple fixed wall.",
-    customerSafe: "AVoIP is strongest when the wall is part of a wider routing system.",
-  },
-];
-
-function labelFor(options: Option[], value: string): string {
-  const found = options.find((option) => option.value === value);
-  return found ? found.label : "Not captured";
-}
 
 function getStartRecommendation(): Recommendation {
   return {
@@ -617,25 +533,6 @@ function FieldRow(props: { label: string; value: string }) {
   );
 }
 
-function AdviceCardView(props: { card: AdviceCard; active: boolean }) {
-  return (
-    <article className={`vw2-advice-card ${props.active ? "is-active" : ""}`}>
-      <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">{props.active ? "Recommended path" : "Option"}</p>
-      <h4>{props.card.title}</h4>
-      <strong>{props.card.direction}</strong>
-      <dl>
-        <dt>Use when</dt>
-        <dd>{props.card.useWhen}</dd>
-        <dt>Ask next</dt>
-        <dd>{props.card.askNext}</dd>
-        <dt>Avoid</dt>
-        <dd>{props.card.avoid}</dd>
-      </dl>
-      <p className="vw2-safe-copy wm-ui-copy">{props.card.customerSafe}</p>
-    </article>
-  );
-}
-
 function ProductVisualCard(props: { bundle: VisualBundle }) {
   const isRack = props.bundle.productForm === "rack";
   const isEndpoint = props.bundle.productForm === "endpoint";
@@ -763,7 +660,6 @@ export function VideoWallPage() {
     return getStartRecommendation();
   }, [wallType, ledAnswers, lcdAnswers]);
 
-  const adviceCards = wallType === "lcd" ? lcdAdvice : ledAdvice;
   const visualBundle = useMemo(() => getVisualBundle(wallType, recommendation), [wallType, recommendation]);
 
   function chooseWall(nextWallType: WallType) {
@@ -866,15 +762,14 @@ export function VideoWallPage() {
   }
 
   return (
-    <main className="vw2-page wm-ui-page wingman-page-host">
+    <main className="vw2-page wm-ui-page">
       <section className="vw2-hero wm-ui-section wm-ui-hero">
         <div>
-          <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">LED / LCD videowall workflow</p>
-          <h1 className="wm-ui-title">Build the video wall route before choosing the product path.</h1>
+          <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Video wall design workspace</p>
+          <h1 className="wm-ui-title">Design the wall first. Choose the signal path second.</h1>
           <p className="wm-ui-copy">
-            Start with LED or LCD, then work through the key discovery questions. Wingman will
-            separate LED processor feeds, LCD tile mode, direct-drive walls, dedicated wall
-            processors, scaling matrix paths and AVoIP architectures.
+            Define the display technology, layout and source behaviour. Wingman will turn those
+            decisions into a safe product and architecture direction.
           </p>
         </div>
         <div className="vw2-hero-actions wm-ui-hero">
@@ -887,40 +782,45 @@ export function VideoWallPage() {
         </div>
       </section>
 
-      <section className="vw2-path-grid wm-ui-section">
-        <button
-          type="button"
-          className={`vw2-path-card ${wallType === "led" ? "is-selected" : ""}`}
-          onClick={() => chooseWall("led")}
-        >
-          <span>LED videowall</span>
-          <strong>Start LED wall discovery</strong>
-          <small>NHD-0401-MV, NHD-150-RX workflow, or NetworkHD 600 direction.</small>
-        </button>
-
-        <button
-          type="button"
-          className={`vw2-path-card ${wallType === "lcd" ? "is-selected" : ""}`}
-          onClick={() => chooseWall("lcd")}
-        >
-          <span>LCD videowall</span>
-          <strong>Start LCD wall discovery</strong>
-          <small>Tile mode, direct drive, SW-0204-VW / SW-0206-VW, matrix or AVoIP.</small>
-        </button>
-      </section>
+      <div className="vw2-progress" aria-label="Video wall design progress">
+        <span className={wallType ? "is-complete" : "is-active"}>1 <strong>Wall type</strong></span>
+        <span className={wallType ? "is-active" : ""}>2 <strong>Requirements</strong></span>
+        <span className={recommendation.products.length ? "is-active" : ""}>3 <strong>Design direction</strong></span>
+      </div>
 
       <section className="vw2-workspace wm-ui-section">
         <div className="vw2-wizard-panel wm-ui-card">
           {!wallType ? (
             <div className="vw2-empty-state">
               <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Start here</p>
-              <h2 className="wm-ui-title">Select LED or LCD</h2>
+              <h2 className="wm-ui-title">Choose the display technology above</h2>
               <p className="wm-ui-copy">
-                LED starts around the processor feed and windowing. LCD starts around screen
-                count, array configuration, tile mode versus direct drive, and source behaviour.
+                The next questions will adapt to the wall type and build the correct signal path.
               </p>
             </div>
           ) : null}
+
+          <section className="vw2-path-grid vw2-workflow-paths" aria-label="Select video wall technology">
+            <button
+              type="button"
+              className={`vw2-path-card ${wallType === "led" ? "is-selected" : ""}`}
+              onClick={() => chooseWall("led")}
+            >
+              <span>LED videowall</span>
+              <strong>LED wall</strong>
+              <small>Processor feeds, multiview and NetworkHD paths.</small>
+            </button>
+
+            <button
+              type="button"
+              className={`vw2-path-card ${wallType === "lcd" ? "is-selected" : ""}`}
+              onClick={() => chooseWall("lcd")}
+            >
+              <span>LCD videowall</span>
+              <strong>LCD screen array</strong>
+              <small>Tile mode, direct drive, matrix and AVoIP paths.</small>
+            </button>
+          </section>
 
           {wallType === "led" ? (
             <>
@@ -970,7 +870,7 @@ export function VideoWallPage() {
           ) : null}
         </div>
 
-        <aside className="vw2-result-panel wm-ui-card">
+        <aside className={`vw2-result-panel wm-ui-card ${wallType ? "" : "is-compact"}`}>
           <div className="vw2-result-head wm-ui-card">
             <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Recommended direction</p>
             <h3 className="wm-ui-title">{recommendation.title}</h3>
@@ -979,43 +879,47 @@ export function VideoWallPage() {
 
           <p className="wm-ui-copy">{recommendation.summary}</p>
 
-          <div className="vw2-summary-list wm-ui-card wm-ui-copy">
-            <FieldRow label="Wall type" value={wallType ? wallType.toUpperCase() : "Not selected"} />
-            <FieldRow label="Architecture" value={recommendation.architecture} />
-            <FieldRow label="Suggested products" value={recommendation.products.length ? recommendation.products.join(" + ") : "Not ready"} />
-          </div>
+          {wallType ? (
+            <>
+              <div className="vw2-summary-list wm-ui-card wm-ui-copy">
+                <FieldRow label="Wall type" value={wallType.toUpperCase()} />
+                <FieldRow label="Architecture" value={recommendation.architecture} />
+                <FieldRow label="Suggested products" value={recommendation.products.length ? recommendation.products.join(" + ") : "Not ready"} />
+              </div>
 
-          <div className="vw2-mini-section">
-            <h4>Ask this next</h4>
-            <ul>
-              {recommendation.askNext.map((item) => <li key={item}>{item}</li>)}
-            </ul>
-          </div>
+              <div className="vw2-mini-section">
+                <h4>Ask this next</h4>
+                <ul>
+                  {recommendation.askNext.map((item) => <li key={item}>{item}</li>)}
+                </ul>
+              </div>
 
-          <div className="vw2-mini-section">
-            <h4>Missing information</h4>
-            {recommendation.missing.length ? (
-              <ul>
-                {recommendation.missing.map((item) => <li key={item}>{item}</li>)}
-              </ul>
-            ) : (
-              <p className="wm-ui-copy">No critical discovery gaps for product direction.</p>
-            )}
-          </div>
+              <div className="vw2-mini-section">
+                <h4>Missing information</h4>
+                {recommendation.missing.length ? (
+                  <ul>
+                    {recommendation.missing.map((item) => <li key={item}>{item}</li>)}
+                  </ul>
+                ) : (
+                  <p className="wm-ui-copy">No critical discovery gaps for product direction.</p>
+                )}
+              </div>
 
-          <div className="vw2-mini-section">
-            <h4>Customer-safe wording</h4>
-            <p className="wm-ui-copy">{recommendation.customerSafe}</p>
-          </div>
+              <div className="vw2-mini-section">
+                <h4>Customer-safe wording</h4>
+                <p className="wm-ui-copy">{recommendation.customerSafe}</p>
+              </div>
 
-          <div className="vw2-action-grid">
-            <button type="button" className="vw2-button vw2-button-primary wm-ui-button wm-ui-button-primary" onClick={() => sendTo("/wingman/discovery")}>Send to Discovery</button>
-            <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={() => sendTo("/wingman/proposal")}>Send to Proposal</button>
-            <button type="button" className="vw2-button wm-ui-button wm-ui-button-primary" onClick={saveToProject}>Save to Project</button>
-            <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={copySummary}>Copy summary</button>
-            <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={openProduct} disabled={!recommendation.products.length}>Open product</button>
-            <button type="button" className="vw2-button vw2-button-danger wm-ui-button wm-ui-button-primary" onClick={restart}>Restart</button>
-          </div>
+              <div className="vw2-action-grid">
+                <button type="button" className="vw2-button vw2-button-primary wm-ui-button wm-ui-button-primary" onClick={() => sendTo("/wingman/discovery")}>Send to Discovery</button>
+                <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={() => sendTo("/wingman/proposal")}>Send to Proposal</button>
+                <button type="button" className="vw2-button wm-ui-button wm-ui-button-primary" onClick={saveToProject}>Save to Project</button>
+                <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={copySummary}>Copy summary</button>
+                <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={openProduct} disabled={!recommendation.products.length}>Open product</button>
+                <button type="button" className="vw2-button vw2-button-danger wm-ui-button wm-ui-button-primary" onClick={restart}>Restart</button>
+              </div>
+            </>
+          ) : null}
 
           {message ? <p className="vw2-saved-message wm-ui-copy">{message}</p> : null}
         </aside>
@@ -1028,57 +932,6 @@ export function VideoWallPage() {
         </section>
       ) : null}
 
-      {wallType ? (
-        <section className="vw2-context-grid wm-ui-section">
-          <article className="vw2-capture-card wm-ui-card">
-            <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Captured answers</p>
-            <h3 className="wm-ui-title">Current wall summary</h3>
-
-            {wallType === "led" ? (
-              <div className="vw2-summary-list wm-ui-card wm-ui-copy">
-                <FieldRow label="Wall behaviour" value={labelFor(ledBehaviourOptions, ledAnswers.behaviour)} />
-                <FieldRow label="Visible windows" value={labelFor(ledWindowOptions, ledAnswers.windows)} />
-                <FieldRow label="Source location" value={labelFor(sourceLocationOptions, ledAnswers.sourceLocation)} />
-                <FieldRow label="Output requirement" value={labelFor(ledOutputOptions, ledAnswers.output)} />
-              </div>
-            ) : null}
-
-            {wallType === "lcd" ? (
-              <div className="vw2-summary-list wm-ui-card wm-ui-copy">
-                <FieldRow label="Screen count" value={lcdAnswers.screenCount === "custom" ? lcdAnswers.customScreenCount || "Custom not entered" : labelFor(lcdScreenOptions, lcdAnswers.screenCount)} />
-                <FieldRow label="Array" value={lcdAnswers.array === "custom" ? lcdAnswers.customArray || "Custom not entered" : labelFor(lcdArrayOptions, lcdAnswers.array)} />
-                <FieldRow label="Orientation" value={labelFor(lcdOrientationOptions, lcdAnswers.orientation)} />
-                <FieldRow label="Drive method" value={labelFor(lcdDriveOptions, lcdAnswers.driveMethod)} />
-                <FieldRow label="Source count" value={labelFor(lcdSourceOptions, lcdAnswers.sourceCount)} />
-                <FieldRow label="Source location" value={labelFor(sourceLocationOptions, lcdAnswers.sourceLocation)} />
-                <FieldRow label="Required behaviour" value={labelFor(lcdBehaviourOptions, lcdAnswers.behaviour)} />
-              </div>
-            ) : null}
-          </article>
-
-          <article className="vw2-capture-card wm-ui-card">
-            <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Sales guidance</p>
-            <h3 className="wm-ui-title">What to avoid</h3>
-            <p className="wm-ui-copy">{recommendation.avoid}</p>
-            <h3 className="wm-ui-title">Customer-safe explanation</h3>
-            <p className="wm-ui-copy">{recommendation.customerSafe}</p>
-            {visualBundle ? (
-              <>
-                <h3 className="wm-ui-title">Typical application</h3>
-                <p className="wm-ui-copy">{visualBundle.application}</p>
-              </>
-            ) : null}
-          </article>
-        </section>
-      ) : null}
-
-      {wallType ? (
-        <section className="vw2-advice-grid wm-ui-section">
-          {adviceCards.map((card) => (
-            <AdviceCardView key={card.id} card={card} active={card.id === recommendation.id} />
-          ))}
-        </section>
-      ) : null}
     </main>
   );
 }
