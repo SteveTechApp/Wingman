@@ -2650,10 +2650,7 @@
     "closestWyrestormSkuOrFamily": "SW-120-TX3 + APO-DG2 (wireless casting)",
     "notes": "Official Atlona Omega matrix-switcher page. | data/product-intelligence-db.json#3 merged into deployed competitor catalog. | data/product-intelligence-db.json#4 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Atlona Omega is a presentation and collaboration switching family built around HDMI, USB-C, HDBaseT, and USB room workflows. | Compare Omega switchers against presentation switchers and collaboration appliances, not plain HDMI matrices or wall processors. | Official competitor family guidance applied during canonical sync. | Verified against official Atlona AT-OME-MS52W product page: 5-input Omega presentation switcher, USB-C/DisplayPort/wireless, dual HDMI + HDBaseT out.",
     "sourceFile": "data-sources/competitors/atlona.csv",
-    "comparisonOnly": true,
-    "matrixSize": "5x2",
-    "physicalOutputCount": 3,
-    "mirroredOutputCount": 1
+    "comparisonOnly": true
   },
   {
     "sku": "AT-OME-PS62",
@@ -2834,8 +2831,7 @@
     "closestWyrestormSkuOrFamily": "SW-0401-H2",
     "notes": "Official Atlona education brochure and product page. | data/product-intelligence-db.json#58 merged into deployed competitor catalog. | data/product-intelligence-db.json#6 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Atlona Omega is a presentation and collaboration switching family built around HDMI, USB-C, HDBaseT, and USB room workflows. | Compare Omega switchers against presentation switchers and collaboration appliances, not plain HDMI matrices or wall processors. | Official competitor family guidance applied during canonical sync. | Verified against official Atlona AT-OME-SW32 product page: 3-input Omega matrix switcher, HDMI/USB-C, dual HDMI outputs.",
     "sourceFile": "data-sources/competitors/atlona.csv",
-    "comparisonOnly": true,
-    "matrixSize": "3x2"
+    "comparisonOnly": true
   },
   {
     "sku": "AT-OME-TX11-WP",
@@ -10625,8 +10621,7 @@
     "closestWyrestormSkuOrFamily": "MX-0808-H2A-MK2",
     "notes": "src/competitor/competitors.json#9 merged into deployed competitor catalog. | data/product-intelligence-db.json#23 merged into deployed competitor catalog. | data/product-intelligence-db.json#34 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | DigitalMedia modular matrix products are enterprise routing chassis for large AV switching systems. | Compare DigitalMedia modular matrixes against modular or enterprise matrix systems rather than room switchers. | Official competitor family guidance applied during canonical sync. | Verified via official Crestron DM-MD8X8 spec sheet: modular 8x8 chassis, 12.5Gbps backplane, QuickSwitch HD, wide range of plug-in I/O card types.",
     "sourceFile": "data-sources/competitors/crestron.csv",
-    "comparisonOnly": true,
-    "matrixSize": "8x8"
+    "comparisonOnly": true
   },
   {
     "sku": "DM-NVX-350",
@@ -11610,10 +11605,7 @@
     "closestWyrestormSkuOrFamily": "EXP-SP-0102-H2",
     "notes": "Official Crestron HD-DA2-4KZ-E page. | data/product-intelligence-db.json#24 merged into deployed competitor catalog. | data/product-intelligence-db.json#28 merged into deployed competitor catalog. | data/product-intelligence-db.json#39 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Crestron HD-DA products are HDMI distribution amplifiers for mirrored output workflows. | Compare HD-DA products against splitters and DAs, not matrices or room switchers. | Official competitor family guidance applied during canonical sync. | Verified via Crestron official HD-DA2-4KZ-E spec sheet: 18Gbps TMDS, HDCP 1.4/2.2, 24VDC 0.75A power pack, no control system required.",
     "sourceFile": "data-sources/competitors/crestron.csv",
-    "comparisonOnly": true,
-    "matrixSize": "1x2",
-    "physicalOutputCount": 2,
-    "mirroredOutputCount": 2
+    "comparisonOnly": true
   },
   {
     "sku": "HD-MD4X2-4KZ-E",
@@ -17999,8 +17991,7 @@
     "closestWyrestormSkuOrFamily": "Matrix switcher direction",
     "notes": "competitor-compare.seed.json#15 merged into deployed competitor catalog. | Official Kramer VS-88H2A page. | competitor-compare.seed.json#6 merged into deployed competitor catalog. | data/product-intelligence-db.json#38 merged into deployed competitor catalog. | data/product-intelligence-db.json#47 merged into deployed competitor catalog. | data/product-intelligence-db.json#72 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Kramer VS products are local HDMI matrix switchers for fixed I/O routing. | Compare VS products against plain matrices rather than collaboration or transport systems. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#70 merged into deployed competitor catalog. | Closest Wingman recommendation is a WyreStorm matrix workflow matched to I/O count and feature level. | Check exact I/O count | Confirm audio de-embedding needs | Review EDID / scaling expectations",
     "sourceFile": "data-sources/competitors/kramer.csv",
-    "comparisonOnly": true,
-    "matrixSize": "8x8"
+    "comparisonOnly": true
   },
   {
     "sku": "DA2-HDMI",
@@ -18076,10 +18067,7 @@
     "closestWyrestormSkuOrFamily": "EXP-SP-0102-H2",
     "notes": "Official Lightware DA2-HDMI product page. | data/product-intelligence-db.json#39 merged into deployed competitor catalog. | data/product-intelligence-db.json#48 merged into deployed competitor catalog. | data/product-intelligence-db.json#73 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Lightware DA products are local distribution amplifiers for mirrored output workflows. | Compare DA products against splitters and mirrored distribution products, not matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#71 merged into deployed competitor catalog. | Verified via official Lightware DA2HDMI-4K-Plus page: EDID management/display emulation, Pixel Accurate Reclocking, HDMI-powered, Plus-A variant adds audio embed/de-embed.",
     "sourceFile": "data-sources/competitors/lightware.csv",
-    "comparisonOnly": true,
-    "matrixSize": "1x2",
-    "physicalOutputCount": 2,
-    "mirroredOutputCount": 2
+    "comparisonOnly": true
   },
   {
     "sku": "DA4-HDMI20-C",
@@ -19501,8 +19489,7 @@
     "closestWyrestormSkuOrFamily": "SW-120-TX3",
     "notes": "Official Lightware Taurus UCX family page. | data/product-intelligence-db.json#40 merged into deployed competitor catalog. | data/product-intelligence-db.json#50 merged into deployed competitor catalog. | data/product-intelligence-db.json#75 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Taurus UCX products are collaboration-first universal switchers with USB-C, USB host routing, and room workflow control. | Compare Taurus UCX products against collaboration matrices and presentation systems, not plain local HDMI matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#73 merged into deployed competitor catalog. | Verified via official Lightware Taurus UCX-2x1-HC30 page/datasheet: 2-in-1 USB-C+HDMI switcher, 18Gbps/HDCP2.2, 60W USB-C charging, noiseless.",
     "sourceFile": "data-sources/competitors/lightware.csv",
-    "comparisonOnly": true,
-    "matrixSize": "2x1"
+    "comparisonOnly": true
   },
   {
     "sku": "UCX-4x2-HC40",
@@ -19676,8 +19663,7 @@
     "closestWyrestormSkuOrFamily": "SW-510-TX",
     "notes": "Official Lightware Taurus UCX family page and A&E specification. | data/product-intelligence-db.json#41 merged into deployed competitor catalog. | data/product-intelligence-db.json#51 merged into deployed competitor catalog. | data/product-intelligence-db.json#76 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Taurus UCX products are collaboration-first universal switchers with USB-C, USB host routing, and room workflow control. | Compare Taurus UCX products against collaboration matrices and presentation systems, not plain local HDMI matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#74 merged into deployed competitor catalog. | Verified via official Lightware Taurus UCX-4x2-HC60D page: adds Dante/AES67 audio output over the HC40, USB3.1 host switch, up to 100W USB-C charging.",
     "sourceFile": "data-sources/competitors/lightware.csv",
-    "comparisonOnly": true,
-    "matrixSize": "4x2"
+    "comparisonOnly": true
   },
   {
     "sku": "UCX-4X3-HCM40",
@@ -19763,8 +19749,7 @@
     "closestWyrestormSkuOrFamily": "SW-510-TX + SW-515-RX",
     "notes": "Official Lightware UCX-4x3-HCM40 product page. | data/product-intelligence-db.json#42 merged into deployed competitor catalog. | data/product-intelligence-db.json#52 merged into deployed competitor catalog. | data/product-intelligence-db.json#77 merged into deployed competitor catalog. | Canonical competitor record rebuilt from structured compare catalog. | Taurus UCX products are collaboration-first universal switchers with USB-C, USB host routing, and room workflow control. | Compare Taurus UCX products against collaboration matrices and presentation systems, not plain local HDMI matrices. | Official competitor family guidance applied during canonical sync. | data/product-intelligence-db.json#75 merged into deployed competitor catalog. | Verified via official Lightware Taurus UCX-4x3-HCM40 page: dual-screen extended desktop via USB-C DP MST, 4K60, 100W charging, USB3.1 host switching.",
     "sourceFile": "data-sources/competitors/lightware.csv",
-    "comparisonOnly": true,
-    "matrixSize": "4x3"
+    "comparisonOnly": true
   },
   {
     "sku": "VINX-110-HDMI-ENC",
