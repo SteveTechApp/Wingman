@@ -94,21 +94,22 @@ const lcdScreenOptions: Option[] = [
   { value: "two", label: "2 screens" },
   { value: "four", label: "4 screens" },
   { value: "six", label: "6 screens" },
+  { value: "eight", label: "8 screens" },
   { value: "nine", label: "9 screens" },
   { value: "twelve", label: "12 screens" },
   { value: "sixteen", label: "16 screens" },
   { value: "custom", label: "Custom" },
 ];
 
-const lcdArrayOptions: Option[] = [
-  { value: "1x2", label: "1x2" },
-  { value: "2x2", label: "2x2" },
-  { value: "3x2", label: "3x2" },
-  { value: "3x3", label: "3x3" },
-  { value: "1x4", label: "1x4" },
-  { value: "4x4", label: "4x4" },
-  { value: "custom", label: "Custom" },
-];
+const lcdArrayByScreenCount: Record<string, string> = {
+  two: "1x2",
+  four: "2x2",
+  six: "3x2",
+  eight: "4x2",
+  nine: "3x3",
+  twelve: "3x4",
+  sixteen: "4x4",
+};
 
 const lcdOrientationOptions: Option[] = [
   { value: "landscape", label: "Landscape" },
@@ -513,6 +514,7 @@ function ChoiceGrid(props: {
             key={option.value}
             type="button"
             className={`vw2-chip ${props.value === option.value ? "is-selected" : ""}`}
+            aria-pressed={props.value === option.value}
             onClick={() => props.onChange(option.value)}
           >
             <span>{option.label}</span>
@@ -531,6 +533,10 @@ function FieldRow(props: { label: string; value: string }) {
       <strong>{props.value}</strong>
     </div>
   );
+}
+
+function selectedLabel(options: Option[], value: string): string {
+  return options.find((option) => option.value === value)?.label ?? "";
 }
 
 function ProductVisualCard(props: { bundle: VisualBundle }) {
@@ -661,6 +667,49 @@ export function VideoWallPage() {
   }, [wallType, ledAnswers, lcdAnswers]);
 
   const visualBundle = useMemo(() => getVisualBundle(wallType, recommendation), [wallType, recommendation]);
+  const lcdArray = lcdAnswers.array === "custom" ? lcdAnswers.customArray.trim() : lcdAnswers.array;
+  const lcdAspectWarning = useMemo(() => {
+    if (!lcdArray) return "";
+
+    const match = lcdArray.match(/^(\d+)\s*[x×]\s*(\d+)$/i);
+    if (!match) return "";
+
+    const columns = Number(match[1]);
+    const rows = Number(match[2]);
+    return columns !== rows
+      ? `A single 16:9 source will be stretched to fill this ${columns}x${rows} wall. Recommended approach: drive a signal to each screen individually so displays can run separately or combine to create a larger window while maintaining the source aspect ratio.`
+      : "";
+  }, [lcdArray]);
+  const workflowSummary = useMemo(() => {
+    if (wallType === "led") {
+      return [
+        { label: "Wall behaviour", value: selectedLabel(ledBehaviourOptions, ledAnswers.behaviour) },
+        { label: "Visible windows", value: selectedLabel(ledWindowOptions, ledAnswers.windows) },
+        { label: "Source location", value: selectedLabel(sourceLocationOptions, ledAnswers.sourceLocation) },
+        { label: "Output requirement", value: selectedLabel(ledOutputOptions, ledAnswers.output) },
+      ];
+    }
+
+    if (wallType === "lcd") {
+      return [
+        {
+          label: "Screens",
+          value: lcdAnswers.screenCount === "custom"
+            ? lcdAnswers.customScreenCount.trim()
+            : selectedLabel(lcdScreenOptions, lcdAnswers.screenCount),
+        },
+        { label: "Array", value: lcdArray },
+        { label: "Orientation", value: selectedLabel(lcdOrientationOptions, lcdAnswers.orientation) },
+        { label: "Drive method", value: selectedLabel(lcdDriveOptions, lcdAnswers.driveMethod) },
+        { label: "Sources", value: selectedLabel(lcdSourceOptions, lcdAnswers.sourceCount) },
+        { label: "Source location", value: selectedLabel(sourceLocationOptions, lcdAnswers.sourceLocation) },
+        { label: "Wall behaviour", value: selectedLabel(lcdBehaviourOptions, lcdAnswers.behaviour) },
+      ];
+    }
+
+    return [];
+  }, [wallType, ledAnswers, lcdAnswers, lcdArray]);
+  const completedWorkflowItems = workflowSummary.filter((item) => item.value).length;
 
   function chooseWall(nextWallType: WallType) {
     setWallType(nextWallType);
@@ -673,7 +722,18 @@ export function VideoWallPage() {
   }
 
   function updateLcd(key: keyof LcdAnswers, value: string) {
-    setLcdAnswers((current) => ({ ...current, [key]: value }));
+    setLcdAnswers((current) => {
+      if (key === "screenCount") {
+        return {
+          ...current,
+          screenCount: value,
+          array: value === "custom" ? "custom" : lcdArrayByScreenCount[value] ?? "",
+          customArray: value === "custom" ? current.customArray : "",
+        };
+      }
+
+      return { ...current, [key]: value };
+    });
     setMessage("");
   }
 
@@ -852,85 +912,190 @@ export function VideoWallPage() {
                 </label>
               ) : null}
 
-              <ChoiceGrid eyebrow="Step 2" title="What is the screen array?" options={lcdArrayOptions} value={lcdAnswers.array} onChange={(value) => updateLcd("array", value)} />
+              {lcdAspectWarning ? (
+                <div className="vw2-aspect-warning" role="status">
+                  <strong>Aspect ratio warning</strong>
+                  <span>{lcdAspectWarning}</span>
+                </div>
+              ) : null}
 
-              {lcdAnswers.array === "custom" ? (
+              {lcdAnswers.screenCount === "custom" ? (
                 <label className="vw2-input-label wm-ui-kicker">
                   Custom array
                   <input className="wm-ui-input" value={lcdAnswers.customArray} onChange={(event) => updateLcd("customArray", event.target.value)} placeholder="Example: 5x3" />
                 </label>
               ) : null}
 
-              <ChoiceGrid eyebrow="Step 3" title="What is the orientation?" options={lcdOrientationOptions} value={lcdAnswers.orientation} onChange={(value) => updateLcd("orientation", value)} />
-              <ChoiceGrid eyebrow="Step 4" title="How is the LCD wall driven?" options={lcdDriveOptions} value={lcdAnswers.driveMethod} onChange={(value) => updateLcd("driveMethod", value)} />
-              <ChoiceGrid eyebrow="Step 5" title="How many sources feed the wall?" options={lcdSourceOptions} value={lcdAnswers.sourceCount} onChange={(value) => updateLcd("sourceCount", value)} />
-              <ChoiceGrid eyebrow="Step 6" title="Where are the sources?" options={sourceLocationOptions} value={lcdAnswers.sourceLocation} onChange={(value) => updateLcd("sourceLocation", value)} />
-              <ChoiceGrid eyebrow="Step 7" title="What does the wall need to do?" options={lcdBehaviourOptions} value={lcdAnswers.behaviour} onChange={(value) => updateLcd("behaviour", value)} />
+              <ChoiceGrid eyebrow="Step 2" title="What is the orientation?" options={lcdOrientationOptions} value={lcdAnswers.orientation} onChange={(value) => updateLcd("orientation", value)} />
+              <ChoiceGrid eyebrow="Step 3" title="How is the LCD wall driven?" options={lcdDriveOptions} value={lcdAnswers.driveMethod} onChange={(value) => updateLcd("driveMethod", value)} />
+              {lcdAnswers.driveMethod === "tile-mode" ? (
+                <section className="vw2-design-guide" data-guide="tile-mode">
+                  <div className="vw2-design-guide-head">
+                    <p className="vw2-eyebrow">Design guide</p>
+                    <h3>Tile mode: one 4K canvas shared by the whole wall</h3>
+                  </div>
+                  <p>
+                    Every display receives the same 4K signal and crops its assigned tile. The wall
+                    does not gain resolution as screens are added: each screen shows only a fraction
+                    of the 3840×2160 source canvas.
+                  </p>
+                  <div className="vw2-guide-columns">
+                    <div>
+                      <strong>Advantages</strong>
+                      <ul>
+                        <li>One output, one source path and simpler cabling.</li>
+                        <li>Cost-effective for one full-screen image across a fixed wall.</li>
+                        <li>Display bezel compensation may be handled internally.</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <strong>Implications</strong>
+                      <ul>
+                        <li>Effective detail per display falls as the array grows.</li>
+                        <li>Screens cannot show independent sources from that single feed.</li>
+                        <li>One signal-path failure can affect the complete wall.</li>
+                        <li>Confirm all displays support compatible tile mode and HDCP behaviour.</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="vw2-range-guide">
+                    <div className="vw2-range-guide-head">
+                      <strong>NetworkHD video-wall options</strong>
+                      <span>Choose the range by wall processing, image quality and network requirements.</span>
+                    </div>
+                    <div className="vw2-range-grid">
+                      <article>
+                        <span>100 / 120 Series</span>
+                        <h4>NHD-120-RX wall processing</h4>
+                        <ul>
+                          <li>Video walls up to 16×16.</li>
+                          <li>Image scaling, bezel compensation and display rotation.</li>
+                          <li>Mosaic walls with custom screen orientation.</li>
+                          <li>Low-bandwidth 1GbE distribution; up to 4K30 on NHD-120 endpoints.</li>
+                        </ul>
+                      </article>
+                      <article>
+                        <span>100 Series Multiview</span>
+                        <h4>NHD-150-RX composed output</h4>
+                        <ul>
+                          <li>One receiver creates a multiview canvas before the display tile-mode chain.</li>
+                          <li>Up to 9 arbitrary windows for incoming video at 1080p or below.</li>
+                          <li>Up to 8 windows when incoming video is above 1080p.</li>
+                          <li>Useful when the wall needs several sources but only one composed 4K output.</li>
+                        </ul>
+                      </article>
+                      <article>
+                        <span>500 Series</span>
+                        <h4>High-density 1GbE video walls</h4>
+                        <ul>
+                          <li>Video walls up to 16×16 with bezel adjustment.</li>
+                          <li>Mosaic layouts and rotated displays.</li>
+                          <li>4K60 4:4:4 JPEG 2000 with scaler/video-wall processing.</li>
+                          <li>Ultrawide/custom output timings include 5120×2160 and 5120×1440.</li>
+                        </ul>
+                      </article>
+                      <article>
+                        <span>600 Series</span>
+                        <h4>NHD-600-TRX wall + multiview</h4>
+                        <ul>
+                          <li>Video walls up to 8×8 with bezel adjustment.</li>
+                          <li>Up to 16 freely placed and resized multiview windows.</li>
+                          <li>Lossless, near-zero-latency 4K60 4:4:4 SDVoE over 10GbE.</li>
+                          <li>Best suited to premium image-quality and latency-sensitive designs.</li>
+                        </ul>
+                      </article>
+                    </div>
+                  </div>
+                </section>
+              ) : null}
+              {lcdAnswers.driveMethod === "direct-drive" ? (
+                <section className="vw2-design-guide" data-guide="direct-drive">
+                  <div className="vw2-design-guide-head">
+                    <p className="vw2-eyebrow">Design guide</p>
+                    <h3>Direct drive: a dedicated signal for every display</h3>
+                  </div>
+                  <p>
+                    Each screen has its own output, allowing independent content or coordinated
+                    windows across groups of displays while preserving the intended aspect ratio and
+                    available resolution at each destination.
+                  </p>
+                  <div className="vw2-guide-columns">
+                    <div>
+                      <strong>Advantages</strong>
+                      <ul>
+                        <li>Displays can operate independently or combine into larger windows.</li>
+                        <li>Better control of scaling, cropping, aspect ratio and per-screen detail.</li>
+                        <li>Flexible layouts, source routing and future reconfiguration.</li>
+                        <li>A single output failure is less likely to remove the entire wall.</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <strong>Tradeoffs</strong>
+                      <ul>
+                        <li>Requires one managed output or decoder per display.</li>
+                        <li>More cabling, switching capacity, configuration and control.</li>
+                        <li>Higher hardware and installation cost.</li>
+                        <li>Frame synchronisation and matched display settings must be considered.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </section>
+              ) : null}
+              <ChoiceGrid eyebrow="Step 4" title="How many sources feed the wall?" options={lcdSourceOptions} value={lcdAnswers.sourceCount} onChange={(value) => updateLcd("sourceCount", value)} />
+              <ChoiceGrid eyebrow="Step 5" title="Where are the sources?" options={sourceLocationOptions} value={lcdAnswers.sourceLocation} onChange={(value) => updateLcd("sourceLocation", value)} />
+              <ChoiceGrid eyebrow="Step 6" title="What does the wall need to do?" options={lcdBehaviourOptions} value={lcdAnswers.behaviour} onChange={(value) => updateLcd("behaviour", value)} />
             </>
           ) : null}
         </div>
 
         <aside className={`vw2-result-panel wm-ui-card ${wallType ? "" : "is-compact"}`}>
-          <div className="vw2-result-head wm-ui-card">
-            <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Recommended direction</p>
-            <h3 className="wm-ui-title">{recommendation.title}</h3>
-            <span className="vw2-status">{recommendation.quoteSafety}</span>
-          </div>
+          <div className="vw2-result-content">
+            <div className="vw2-result-head wm-ui-card">
+              <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Recommended direction</p>
+              <h3 className="wm-ui-title">{recommendation.title}</h3>
+              <span className="vw2-status">{recommendation.quoteSafety}</span>
+            </div>
 
-          <p className="wm-ui-copy">{recommendation.summary}</p>
-
-          {wallType ? (
-            <>
+            {wallType ? (
+              <>
               <div className="vw2-summary-list wm-ui-card wm-ui-copy">
                 <FieldRow label="Wall type" value={wallType.toUpperCase()} />
                 <FieldRow label="Architecture" value={recommendation.architecture} />
                 <FieldRow label="Suggested products" value={recommendation.products.length ? recommendation.products.join(" + ") : "Not ready"} />
               </div>
 
-              <div className="vw2-mini-section">
-                <h4>Ask this next</h4>
-                <ul>
-                  {recommendation.askNext.map((item) => <li key={item}>{item}</li>)}
-                </ul>
-              </div>
+              <section className="vw2-selection-summary" aria-label="Workflow selection summary">
+                <div className="vw2-selection-summary-head">
+                  <h4>Selection summary</h4>
+                  <span>{completedWorkflowItems} of {workflowSummary.length} complete</span>
+                </div>
+                <div className="vw2-selection-list">
+                  {workflowSummary.map((item) => (
+                    <div key={item.label} className={item.value ? "is-complete" : "is-pending"}>
+                      <span>{item.label}</span>
+                      <strong>{item.value || "To complete"}</strong>
+                    </div>
+                  ))}
+                </div>
+              </section>
 
-              <div className="vw2-mini-section">
-                <h4>Missing information</h4>
-                {recommendation.missing.length ? (
-                  <ul>
-                    {recommendation.missing.map((item) => <li key={item}>{item}</li>)}
-                  </ul>
-                ) : (
-                  <p className="wm-ui-copy">No critical discovery gaps for product direction.</p>
-                )}
-              </div>
+                {message ? <p className="vw2-saved-message wm-ui-copy">{message}</p> : null}
+              </>
+            ) : null}
+          </div>
 
-              <div className="vw2-mini-section">
-                <h4>Customer-safe wording</h4>
-                <p className="wm-ui-copy">{recommendation.customerSafe}</p>
-              </div>
-
-              <div className="vw2-action-grid">
-                <button type="button" className="vw2-button vw2-button-primary wm-ui-button wm-ui-button-primary" onClick={() => sendTo("/wingman/discovery")}>Send to Discovery</button>
-                <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={() => sendTo("/wingman/proposal")}>Send to Proposal</button>
-                <button type="button" className="vw2-button wm-ui-button wm-ui-button-primary" onClick={saveToProject}>Save to Project</button>
-                <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={copySummary}>Copy summary</button>
-                <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={openProduct} disabled={!recommendation.products.length}>Open product</button>
-                <button type="button" className="vw2-button vw2-button-danger wm-ui-button wm-ui-button-primary" onClick={restart}>Restart</button>
-              </div>
-            </>
+          {wallType ? (
+            <div className="vw2-action-grid">
+              <button type="button" className="vw2-button vw2-button-primary wm-ui-button wm-ui-button-primary" onClick={() => sendTo("/wingman/discovery")}>Send to Discovery</button>
+              <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={() => sendTo("/wingman/proposal")}>Send to Proposal</button>
+              <button type="button" className="vw2-button wm-ui-button wm-ui-button-primary" onClick={saveToProject}>Save to Project</button>
+              <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={copySummary}>Copy summary</button>
+              <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={openProduct} disabled={!recommendation.products.length}>Open product</button>
+              <button type="button" className="vw2-button vw2-button-danger wm-ui-button wm-ui-button-primary" onClick={restart}>Restart</button>
+            </div>
           ) : null}
-
-          {message ? <p className="vw2-saved-message wm-ui-copy">{message}</p> : null}
         </aside>
       </section>
-
-      {visualBundle ? (
-        <section className="vw2-visual-grid wm-ui-section">
-          <ProductVisualCard bundle={visualBundle} />
-          <SchematicCard bundle={visualBundle} />
-        </section>
-      ) : null}
 
     </main>
   );
