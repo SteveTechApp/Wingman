@@ -10,11 +10,13 @@ export function DiscoveryRouteInsightPanel({ insight, currentStepId }: Discovery
 
   return (
     <div className="wm-discovery-route-insight wm-discovery-why-card wm-ui-card" role="status">
-      <strong>{insight.label}</strong>
-      <p className="wm-ui-copy">{insight.summary}</p>
-      <ul>
-        {insight.decisions.map((decision) => <li key={decision}>{decision}</li>)}
-      </ul>
+      <div className="wm-discovery-route-insight-copy">
+        <strong>{insight.label}</strong>
+        <p className="wm-ui-copy">{insight.summary}</p>
+      </div>
+      <div className="wm-discovery-route-decisions" aria-label="Discovery route priorities">
+        {insight.decisions.map((decision) => <span key={decision}>{decision}</span>)}
+      </div>
     </div>
   );
 }

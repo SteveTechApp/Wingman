@@ -1346,7 +1346,11 @@ return (
         />
       ) : (
       <div className="wm-discovery-question-layout">
-        <section className="wm-discovery-question-card wm-ui-section wm-ui-card">
+        <section
+          className="wm-discovery-question-card wm-ui-section wm-ui-card"
+          data-discovery-step={currentStep.id}
+          data-discovery-section={currentStep.section}
+        >
           {/* WINGMAN_DISCOVERY_COMPACT_NAV_START */}
           <div className="wm-discovery-compact-stepbar" aria-label="Discovery progress and controls">
             <div className="wm-discovery-compact-step-copy">
@@ -1445,6 +1449,19 @@ return (
         </section>
 
         <aside className="wm-discovery-capture-card wm-ui-card">
+          {capturedSummary.length > 0 && (
+            <DiscoverySummaryCard
+              items={capturedSummary}
+              isDiscoveryComplete={isDiscoveryComplete}
+              savedMessage={savedMessage}
+              onMoveNext={moveNext}
+              onSaveProgress={saveDiscoveryToProject}
+              videoWallRequired={requiresVideoWallConfiguration}
+              onConfigureVideoWall={openVideoWallConfiguration}
+              compact
+            />
+          )}
+
           <div className="wm-discovery-capture-heading wm-ui-title">
             <div>
               <span>Capture box</span>
@@ -1502,18 +1519,6 @@ return (
           )}
         </aside>
       </div>
-      )}
-
-      {capturedSummary.length > 0 && (
-        <DiscoverySummaryCard
-          items={capturedSummary}
-          isDiscoveryComplete={isDiscoveryComplete}
-          savedMessage={savedMessage}
-          onMoveNext={moveNext}
-          onSaveProgress={saveDiscoveryToProject}
-          videoWallRequired={requiresVideoWallConfiguration}
-          onConfigureVideoWall={openVideoWallConfiguration}
-        />
       )}
 
       {discoveryMode !== "standard" ? (
