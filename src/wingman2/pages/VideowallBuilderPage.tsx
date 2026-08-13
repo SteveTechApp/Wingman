@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { saveVideowallToProject } from "../data/projectStore";
+import "../styles/wingman-videowall.css";
 
 type WallType = "" | "led" | "lcd";
 
