@@ -6,6 +6,7 @@ import {
   type MultiSkuCompetitorAnalysis,
 } from "../lib/documentIngest/multiSkuCompetitorIngest";
 import type { StatusVariant } from "../types";
+import type { DiscoveryEvidence, ProjectEvidenceFoundation } from "../types/productTruth";
 
 export type ProjectStage =
   | "Discovery"
@@ -37,6 +38,8 @@ export type StoredProject = {
   feedback?: StoredRecommendationFeedback[];
   workflow?: StoredWorkflowState;
   videowall?: StoredVideowallSummary;
+  evidenceFoundation?: ProjectEvidenceFoundation;
+  visualAssets?: ProposalVisualAsset[];
 };
 
 export type StoredDiscoveryBrief = {
@@ -50,6 +53,7 @@ export type StoredDiscoveryBrief = {
   nextBestQuestion?: string;
   quoteSafetyStatus?: StoredQuoteSafetyStatus;
   recommendationEvidence?: StoredRecommendationEvidence;
+  structuredEvidence?: DiscoveryEvidence;
 };
 
 export type StoredProductSelection = {
@@ -193,6 +197,46 @@ export type StoredProposalVisualBlock = {
   summary: string;
   proposalUse: string;
   exportLabel: string;
+  assetId?: string;
+  renderSrc?: string;
+};
+
+export type ProposalVisualKind = "block-diagram" | "technical-schematic" | "room-concept";
+export type ProposalVisualPurpose = "proposal" | "customer-explanation" | "technical-review" | "handover";
+export type ProposalVisualStatus = "draft" | "review-required" | "approved";
+
+export type ProposalVisualConnection = {
+  id: string;
+  fromNodeId: string;
+  fromPortId?: string;
+  toNodeId: string;
+  toPortId?: string;
+  signal: "video" | "audio" | "control" | "network" | "usb" | "power";
+  transport: string;
+  cableId?: string;
+  cableSpecification?: string;
+  estimatedLengthM?: number;
+  route: Array<{ x: number; y: number }>;
+  status: "confirmed" | "assumed" | "by-others" | "review";
+};
+
+export type ProposalVisualAsset = {
+  id: string;
+  projectId: string;
+  kind: ProposalVisualKind;
+  title: string;
+  purpose: ProposalVisualPurpose;
+  status: ProposalVisualStatus;
+  revision: number;
+  source: { projectRevision?: string; productSkus: string[]; templateId?: string };
+  model?: Record<string, unknown>;
+  connections?: ProposalVisualConnection[];
+  render: { svg?: string; pngDataUrl?: string; thumbnailDataUrl?: string; width: number; height: number };
+  caption: string;
+  assumptions: string[];
+  warnings: string[];
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type StoredProposalVerification = {
@@ -747,6 +791,8 @@ function normalizeProposalVisualBlocks(value: unknown): StoredProposalVisualBloc
         summary: summary || "Visual support for the customer proposal.",
         proposalUse: stringValue(record.proposalUse, "Use this to make the recommendation easier to understand and sell onward."),
         exportLabel: stringValue(record.exportLabel, "Proposal visual"),
+        assetId: typeof record.assetId === "string" ? record.assetId : undefined,
+        renderSrc: typeof record.renderSrc === "string" ? record.renderSrc : undefined,
       };
     })
     .filter((item): item is StoredProposalVisualBlock => Boolean(item));
@@ -931,7 +977,48 @@ function normalizeStoredProject(value: unknown): StoredProject | null {
   const videowall = normalizeVideowallSummary(record.videowall);
   if (videowall) project.videowall = videowall;
 
+  const visualAssets = normalizeProposalVisualAssets(record.visualAssets, project.id);
+  if (visualAssets.length) project.visualAssets = visualAssets;
+
   return project;
+}
+
+function normalizeProposalVisualAssets(value: unknown, projectId: string): ProposalVisualAsset[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    const record = objectRecord(item);
+    const render = objectRecord(record?.render);
+    if (!record || !render) return [];
+    const kind = ["block-diagram", "technical-schematic", "room-concept"].includes(String(record.kind))
+      ? record.kind as ProposalVisualKind
+      : "block-diagram";
+    return [{
+      id: stringValue(record.id, createId("proposal-visual")),
+      projectId,
+      kind,
+      title: stringValue(record.title, "Proposal visual"),
+      purpose: (["proposal", "customer-explanation", "technical-review", "handover"].includes(String(record.purpose))
+        ? record.purpose : "proposal") as ProposalVisualPurpose,
+      status: (["draft", "review-required", "approved"].includes(String(record.status))
+        ? record.status : "draft") as ProposalVisualStatus,
+      revision: Math.max(1, Number(record.revision) || 1),
+      source: objectRecord(record.source) as ProposalVisualAsset["source"] ?? { productSkus: [] },
+      model: objectRecord(record.model) ?? undefined,
+      connections: Array.isArray(record.connections) ? record.connections as ProposalVisualConnection[] : undefined,
+      render: {
+        svg: typeof render.svg === "string" ? render.svg : undefined,
+        pngDataUrl: typeof render.pngDataUrl === "string" ? render.pngDataUrl : undefined,
+        thumbnailDataUrl: typeof render.thumbnailDataUrl === "string" ? render.thumbnailDataUrl : undefined,
+        width: Number(render.width) || 1600,
+        height: Number(render.height) || 900,
+      },
+      caption: stringValue(record.caption),
+      assumptions: Array.isArray(record.assumptions) ? record.assumptions.map(String) : [],
+      warnings: Array.isArray(record.warnings) ? record.warnings.map(String) : [],
+      createdAt: stringValue(record.createdAt, nowIso()),
+      updatedAt: stringValue(record.updatedAt, nowIso()),
+    }];
+  });
 }
 
 function normalizeVideowallSummary(value: unknown): StoredVideowallSummary | null {
@@ -1966,6 +2053,48 @@ export function saveProjectProposalToProject(proposal: StoredProjectProposal) {
       });
 
   return upsertStoredProject(project);
+}
+
+export function saveProposalVisualAsset(
+  projectId: string,
+  input: Omit<ProposalVisualAsset, "id" | "projectId" | "revision" | "createdAt" | "updatedAt"> & { id?: string },
+): ProposalVisualAsset | null {
+  const timestamp = nowIso();
+  let saved: ProposalVisualAsset | null = null;
+  const project = updateStoredProject(projectId, (current) => {
+    const previous = input.id ? current.visualAssets?.find((asset) => asset.id === input.id) : undefined;
+    saved = {
+      ...input,
+      id: previous?.id ?? input.id ?? createId("proposal-visual"),
+      projectId,
+      revision: (previous?.revision ?? 0) + 1,
+      createdAt: previous?.createdAt ?? timestamp,
+      updatedAt: timestamp,
+    };
+    const visualAssets = [saved, ...(current.visualAssets ?? []).filter((asset) => asset.id !== saved?.id)];
+    const visualBlock: StoredProposalVisualBlock = {
+      id: `visual-block-${saved.id}`,
+      assetId: saved.id,
+      kind: saved.kind,
+      title: saved.title,
+      summary: saved.caption,
+      proposalUse: saved.purpose,
+      exportLabel: `Revision ${saved.revision}`,
+      renderSrc: saved.render.svg || saved.render.pngDataUrl || saved.render.thumbnailDataUrl,
+    };
+    return {
+      ...current,
+      visualAssets,
+      updated: "Just now",
+      updatedAt: timestamp,
+      proposal: current.proposal ? {
+        ...current.proposal,
+        visualBlocks: [visualBlock, ...(current.proposal.visualBlocks ?? []).filter((block) => block.assetId !== saved?.id)],
+        updatedAt: timestamp,
+      } : current.proposal,
+    };
+  });
+  return project && saved ? (saved as ProposalVisualAsset) : null;
 }
 
 export function saveProjectRequirementsToProject(projectId: string, requirements: StoredRequirementRecord[]) {

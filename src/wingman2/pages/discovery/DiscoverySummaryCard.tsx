@@ -10,6 +10,8 @@ type DiscoverySummaryCardProps = {
   savedMessage: string;
   onMoveNext: () => void;
   onSaveProgress: () => void;
+  videoWallRequired?: boolean;
+  onConfigureVideoWall?: () => void;
 };
 
 export function DiscoverySummaryCard({
@@ -18,6 +20,8 @@ export function DiscoverySummaryCard({
   savedMessage,
   onMoveNext,
   onSaveProgress,
+  videoWallRequired = false,
+  onConfigureVideoWall,
 }: DiscoverySummaryCardProps) {
   return (
     <section className="wm-discovery-summary-card wm-ui-section wm-ui-card wm-ui-copy">
@@ -39,6 +43,14 @@ export function DiscoverySummaryCard({
           </article>
         ))}
       </div>
+
+      {videoWallRequired && onConfigureVideoWall && (
+        <div className="wm-discovery-live-tip">
+          <strong>Video wall configuration required</strong>
+          <p className="wm-ui-copy">The selected display requirement needs wall type, layout, source-window and processing decisions before product matching.</p>
+          <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={onConfigureVideoWall}>Configure video wall</button>
+        </div>
+      )}
 
       {!isDiscoveryComplete && (
         <div className="wm-discovery-capture-actions">

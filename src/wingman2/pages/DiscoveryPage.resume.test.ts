@@ -10,4 +10,11 @@ describe("existing Discovery resume warning", () => {
     expect(source).toContain("onContinue={continueExistingDiscovery}");
     expect(source).toContain("setShowExistingDiscoveryWarning(false)");
   });
+
+  it("does not nest a second page host inside the AppShell page host", () => {
+    const source = readFileSync(join(process.cwd(), "src/wingman2/pages/DiscoveryPage.tsx"), "utf8");
+
+    expect(source).not.toMatch(/<main[^>]+className="[^"]*wingman-page-host/);
+    expect(source).toContain('className="wm-discovery-capture-page wm-ui-page"');
+  });
 });

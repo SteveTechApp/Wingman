@@ -109,7 +109,7 @@ describe("Product Pitch rendered workflow", () => {
     const technicalDetail = screen.getByText("Technical and quote detail").closest("details");
     expect(technicalDetail).not.toHaveAttribute("open");
 
-    fireEvent.click(screen.getByRole("button", { name: /^Features$/i }));
+    fireEvent.click(screen.getByRole("tab", { name: /^Features$/i }));
 
     expect(await screen.findByText("Confirm before promising")).toBeInTheDocument();
     expect(

@@ -1,5 +1,6 @@
 import { getWingmanJson, postWingmanJson } from "../api/wingmanApi";
 import { clearProductIntelligenceIndexCache } from "../lib/productIntelligenceIndexCache";
+import type { CompetitorEquivalenceRecord, ProductTruth } from "../types/productTruth";
 
 export type AdminLifecycle = "live" | "review" | "draft" | "do-not-use" | "discontinued" | "superseded" | "unlisted";
 export type ProductPort = { type: string; count: number; label?: string };
@@ -11,6 +12,8 @@ export type ProductIntelligenceRecord = Record<string, unknown> & {
   applications?: string[]; dependencies?: string[]; compatibility?: string[]; limitations?: string[];
   salesGuidance?: string; evidence: ProductEvidence[]; notes?: string; updatedAt?: string; reviewedBy?: string;
   archived?: boolean; changeNote?: string;
+  confidence?: number; lastReviewedAt?: string; sourceUrls?: string[];
+  productTruth?: ProductTruth; equivalence?: CompetitorEquivalenceRecord;
 };
 
 type ListResponse = { ok: boolean; records?: ProductIntelligenceRecord[]; total?: number };

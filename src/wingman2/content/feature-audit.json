@@ -206,6 +206,15 @@
     ]
   },
   {
+    "routeKey": "proposalVisuals",
+    "status": "wired",
+    "summary": "Proposal Visuals consolidates customer block diagrams, governed technical schematics and room-concept briefs into one project-aware workspace with versioned asset persistence and proposal insertion.",
+    "needed": [
+      "Add governed port-to-port routing, cable schedules and manual orthogonal route editing.",
+      "Connect room concepts to an approved image-generation and object-storage service."
+    ]
+  },
+  {
     "routeKey": "glossary",
     "status": "wired",
     "summary": "AV Glossary gives sales users a searchable reference for common AV terms, acronyms, and technologies with role-specific customer, partner, and consultant wording.",

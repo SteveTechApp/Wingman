@@ -626,7 +626,9 @@ function TabButton({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full px-4 py-2 text-sm font-bold transition ${
+      role="tab"
+      aria-selected={active}
+      className={`wm-product-pitch-tab rounded-full px-4 py-2 text-sm font-bold transition ${
         active
           ? "bg-cyan-300 text-slate-950"
           : "border border-[#29465e] bg-[#081724] text-cyan-100 hover:border-cyan-300"
@@ -839,25 +841,25 @@ function SpecTable({ product }: { product: ProductSpec }) {
   ] as const;
 
   return (
-    <div className="overflow-hidden rounded-3xl border wm-ui-card wm-ui-title">
+    <dl className="wm-product-spec-groups">
       {rows.map(([label, rawItems]) => {
         const items = cleanUsefulList([...rawItems], 8);
         const displayItems = items.length ? items : ["Not confirmed"];
 
         return (
-          <div key={label} className="grid gap-3 border-b p-4 last:border-b-0 lg:grid-cols-[220px_minmax(0,1fr)] wm-ui-card wm-ui-title">
-            <strong className="text-sm font-extrabold wm-ui-copy">{label}</strong>
-            <div className="flex flex-wrap gap-2">
+          <div key={label} className="wm-product-spec-group">
+            <dt>{label}</dt>
+            <dd>
               {displayItems.map((item) => (
-                <span key={item} className="rounded-lg border px-3 py-1.5 text-sm wm-ui-card wm-ui-copy">
+                <span key={item}>
                   {item}
                 </span>
               ))}
-            </div>
+            </dd>
           </div>
         );
       })}
-    </div>
+    </dl>
   );
 }
 
@@ -1133,8 +1135,8 @@ function ProductWorkspace({
 
       <ProductPitchSafetyPanel />
 
-      <section data-product-pitch-tabs className={`${PRODUCT_PITCH_PANEL_CLASS} p-4`}>
-        <div className="flex flex-wrap gap-2">
+      <section data-product-pitch-tabs className={`${PRODUCT_PITCH_PANEL_CLASS} p-4`} aria-label="Product information views">
+        <div className="flex flex-wrap gap-2" role="tablist">
           <TabButton label="Purpose & Position" active={activeTab === "overview"} onClick={() => setActiveTab("overview")} />
           <TabButton label="Features" active={activeTab === "features"} onClick={() => setActiveTab("features")} />
           <TabButton label="Design & Connectivity" active={activeTab === "design"} onClick={() => setActiveTab("design")} />
@@ -1144,12 +1146,14 @@ function ProductWorkspace({
         </div>
       </section>
 
-      {activeTab === "overview" ? <OverviewTab product={product} narrative={narrative} context={salesContext} /> : null}
-      {activeTab === "features" ? <FeaturesTab product={product} narrative={narrative} context={salesContext} /> : null}
-      {activeTab === "design" ? <DesignTab product={product} narrative={narrative} /> : null}
-      {activeTab === "competitors" ? <CompetitorsTab product={product} /> : null}
-      {activeTab === "spec" ? <SpecTab product={product} /> : null}
-      {activeTab === "workflow" ? <WorkflowTab product={product} narrative={narrative} /> : null}
+      <section className={`wm-product-pitch-tab-view is-${activeTab}`} role="tabpanel">
+        {activeTab === "overview" ? <OverviewTab product={product} narrative={narrative} context={salesContext} /> : null}
+        {activeTab === "features" ? <FeaturesTab product={product} narrative={narrative} context={salesContext} /> : null}
+        {activeTab === "design" ? <DesignTab product={product} narrative={narrative} /> : null}
+        {activeTab === "competitors" ? <CompetitorsTab product={product} /> : null}
+        {activeTab === "spec" ? <SpecTab product={product} /> : null}
+        {activeTab === "workflow" ? <WorkflowTab product={product} narrative={narrative} /> : null}
+      </section>
     </main>
   );
 }

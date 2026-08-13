@@ -205,9 +205,10 @@ export function AppShell({ children }: AppShellProps) {
   const { uiText } = useWingmanLanguage();
 
   const activeRoute = useMemo(() => routeByPath(location.pathname), [location.pathname]);
-  const activeLabel = activeRoute?.label ?? "Home";
-  const activeSummary = activeRoute?.summary ?? "WyreStorm technical sales workspace.";
-  const activeRouteClass = activeRoute ? `wm-route-${activeRoute.segment}` : "wm-route-dashboard";
+  const isDataManagerRoute = location.pathname.includes("/admin/data-manager");
+  const activeLabel = isDataManagerRoute ? "Data Manager" : activeRoute?.label ?? "Home";
+  const activeSummary = isDataManagerRoute ? "Governed product intelligence" : activeRoute?.summary ?? "WyreStorm technical sales workspace.";
+  const activeRouteClass = isDataManagerRoute ? "wm-route-data-manager" : activeRoute ? `wm-route-${activeRoute.segment}` : "wm-route-dashboard";
   const guruSupportCue = activeRoute ? GURU_SUPPORT_BY_ROUTE[activeRoute.key] : undefined;
   const guruActivityContext = useMemo(() => {
     const project = getCurrentWorkflowProject(readProjectStore());
@@ -231,7 +232,9 @@ export function AppShell({ children }: AppShellProps) {
     };
   }, [activeRoute?.key, activeSummary]);
   const primaryNav = useMemo(() => consolidatedPrimaryNavKeys.map((key) => routeCatalogByKey[key]), []);
-  const canManageData = Boolean(workspaceSession?.permissions?.canManageWorkspace || [workspaceSession?.workspaceRole, workspaceSession?.user?.role].some((role) => ["admin", "owner"].includes(String(role).toLowerCase())));
+  const canManageData =
+  import.meta.env.DEV ||
+  Boolean(workspaceSession?.permissions?.canManageWorkspace || [workspaceSession?.workspaceRole, workspaceSession?.user?.role].some((role) => ["admin", "owner"].includes(String(role).toLowerCase())));
 
   useEffect(() => {
     let active = true;
@@ -296,6 +299,24 @@ export function AppShell({ children }: AppShellProps) {
     navigate(routeCatalogByKey.projects.path);
     window.setTimeout(resetMainScrollPosition, 0);
   }
+
+  const wingmanPageKey =
+
+    location.pathname.includes("/admin/data-manager")
+
+      ? "data-manager"
+
+      : activeRoute?.key ?? "dashboard";
+
+  useEffect(() => {
+    document.documentElement.dataset.wingmanRoute = wingmanPageKey;
+
+    return () => {
+      if (document.documentElement.dataset.wingmanRoute === wingmanPageKey) {
+        delete document.documentElement.dataset.wingmanRoute;
+      }
+    };
+  }, [wingmanPageKey]);
 
   return (
     <div className={`wingman-shell wingman-authority-shell ${activeRouteClass}`}>
@@ -380,7 +401,7 @@ export function AppShell({ children }: AppShellProps) {
           <div
             data-wingman-visual-root="true"
             data-wingman-page-style="governed"
-            data-wingman-page-key={activeRoute?.key ?? "dashboard"}
+            data-wingman-page-key={wingmanPageKey}
             className="wingman-page-host wm-app-page-frame"
             key={`${location.pathname}-${pageResetVersion}`}
           >
@@ -413,3 +434,4 @@ export function AppShell({ children }: AppShellProps) {
 }
 
 export default AppShell;
+

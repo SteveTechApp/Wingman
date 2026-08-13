@@ -713,7 +713,7 @@ html[data-wingman-route="discovery"]
   inset: 0 !important;
   display: grid !important;
   place-items: center !important;
-  content: "✓" !important;
+  content: "" !important;
   color: #02110f !important;
   font-size: 0.72rem !important;
   font-weight: 900 !important;
@@ -1725,7 +1725,7 @@ html[data-wingman-route="compare"] .compare-native-guidance-row > summary::after
 }
 
 html[data-wingman-route="compare"] .compare-native-guidance-row[open] > summary::after {
-  content: "−" !important;
+  content: "" !important;
 }
 
 html[data-wingman-route="compare"] .compare-native-guidance-row > p {
@@ -2846,7 +2846,8 @@ html[data-wingman-route="compare"] .compare-product-info-card__actions .compare-
 
 :is(
   html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
+  html[data-wingman-route="visual-studio"],
+  html[data-wingman-route="proposalVisuals"]
 ) .wm-vs-canvas-stage {
   position: relative !important;
   width: 100% !important;
@@ -2865,8 +2866,11 @@ html[data-wingman-route="compare"] .compare-product-info-card__actions .compare-
 
 :is(
   html[data-wingman-route="visualStudio"],
-  html[data-wingman-route="visual-studio"]
+  html[data-wingman-route="visual-studio"],
+  html[data-wingman-route="proposalVisuals"]
 ) .wm-vs-canvas-stage > .react-flow {
+  position: absolute !important;
+  inset: 0 !important;
   width: 100% !important;
   height: 100% !important;
 }
@@ -4533,3 +4537,1339 @@ body:has(.wm-existing-discovery-warning-backdrop),
   cursor: pointer !important;
 }
 /* WINGMAN_EXISTING_DISCOVERY_RESUME_LINK_END */
+
+.wm-data-quality-summary{display:flex;align-items:center;gap:18px;overflow:auto;margin-bottom:12px;padding:10px 14px}
+.wm-data-quality-summary>div{min-width:max-content}
+.wm-data-quality-summary>div:first-child{margin-right:auto}
+.wm-data-quality-summary h2{margin:1px 0;font-size:.9rem}
+.wm-data-quality-summary p,.wm-data-quality-summary small,.wm-data-quality-summary span{display:block;margin:0;color:var(--wm-text-muted);font-size:.65rem}
+.wm-data-quality-summary strong{display:block;font-size:1rem}
+
+/* WINGMAN_DATA_MANAGER_ROUTE_VIEWPORT_START */
+
+/* ==========================================================
+   DATA MANAGER
+   ROUTE-OWNED FIXED WORKSPACE
+
+   Only .wm-data-table-scroll scrolls vertically.
+   ========================================================== */
+
+html[data-wingman-route="data-manager"] .wingman-shell,
+html[data-wingman-route="data-manager"] .wingman-workspace {
+  height: 100vh !important;
+  min-height: 0 !important;
+  max-height: 100vh !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="data-manager"] .wingman-app-main {
+  flex: 1 1 auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="data-manager"]
+.wingman-app-main > .wingman-page-host {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-manager-page {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  flex-direction: column !important;
+
+  width: 100% !important;
+  max-width: none !important;
+
+  height: 100% !important;
+  min-height: 0 !important;
+
+  margin: 0 !important;
+  padding: 12px 18px 0 !important;
+
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="data-manager"]
+.wm-data-manager-page > .wm-data-manager-header,
+html[data-wingman-route="data-manager"]
+.wm-data-manager-page > .wm-data-tabs,
+html[data-wingman-route="data-manager"]
+.wm-data-manager-page > .wm-data-quality-summary,
+html[data-wingman-route="data-manager"]
+.wm-data-manager-page > .wm-data-toolbar {
+  flex: 0 0 auto !important;
+}
+
+/* Results card consumes remaining viewport space. */
+html[data-wingman-route="data-manager"] .wm-data-table-card {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  flex-direction: column !important;
+
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-table-card > header {
+  flex: 0 0 auto !important;
+}
+
+/* THIS is the only scrolling element. */
+html[data-wingman-route="data-manager"] .wm-data-table-scroll {
+  flex: 1 1 auto !important;
+
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+
+  overscroll-behavior: contain !important;
+  scrollbar-gutter: stable !important;
+}
+
+/* Table itself does not scroll. */
+html[data-wingman-route="data-manager"] .wm-data-table {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Keep headings visible inside the data scroller. */
+html[data-wingman-route="data-manager"] .wm-data-table th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 10 !important;
+}
+
+/* WINGMAN_DATA_MANAGER_ROUTE_VIEWPORT_END */
+
+/* WINGMAN_DATA_MANAGER_COMPACT_CHROME_START */
+
+/* ============================================================
+   DATA MANAGER
+   COMPACT STATIC CHROME / MAXIMUM DATA VIEWPORT
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   PAGE PADDING
+   ------------------------------------------------------------ */
+
+html[data-wingman-route="data-manager"] .wm-data-manager-page {
+  padding: 8px 16px 0 !important;
+  gap: 0 !important;
+}
+
+
+/* ------------------------------------------------------------
+   HEADER
+   ------------------------------------------------------------ */
+
+html[data-wingman-route="data-manager"] .wm-data-manager-header {
+  min-height: 0 !important;
+  padding: 0 0 8px !important;
+  margin: 0 !important;
+
+  align-items: center !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-manager-header h1 {
+  margin: 1px 0 1px !important;
+  font-size: 1.35rem !important;
+  line-height: 1.05 !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-manager-header p {
+  margin: 0 !important;
+  font-size: .72rem !important;
+  line-height: 1.2 !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-manager-header .wm-ui-kicker,
+html[data-wingman-route="data-manager"] .wm-data-manager-header small {
+  font-size: .62rem !important;
+  line-height: 1.1 !important;
+}
+
+
+/* ------------------------------------------------------------
+   TABS
+   ------------------------------------------------------------ */
+
+html[data-wingman-route="data-manager"] .wm-data-tabs {
+  min-height: 30px !important;
+  margin: 5px 0 6px !important;
+  padding: 0 !important;
+  gap: 3px !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-tabs button {
+  min-height: 28px !important;
+  padding: 4px 9px !important;
+  font-size: .68rem !important;
+  line-height: 1 !important;
+}
+
+
+/* ------------------------------------------------------------
+   LIVE GOVERNANCE
+   Change from tall card to compact horizontal strip
+   ------------------------------------------------------------ */
+
+html[data-wingman-route="data-manager"] .wm-data-quality-summary {
+  display: grid !important;
+  grid-template-columns: 150px minmax(0, 1fr) !important;
+
+  align-items: center !important;
+  gap: 10px !important;
+
+  min-height: 0 !important;
+  margin: 0 0 7px !important;
+  padding: 8px 12px !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-quality-heading {
+  min-width: 0 !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-quality-heading .wm-ui-kicker {
+  margin: 0 !important;
+  font-size: .58rem !important;
+  line-height: 1 !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-quality-heading h2 {
+  margin: 2px 0 1px !important;
+  font-size: .88rem !important;
+  line-height: 1 !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-quality-heading small {
+  font-size: .62rem !important;
+  line-height: 1 !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-quality-metrics {
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(90px, 1fr)) !important;
+  gap: 5px !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-quality-metric {
+  min-height: 34px !important;
+  padding: 4px 7px !important;
+  border-radius: 7px !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-quality-metric strong {
+  display: inline !important;
+  margin-right: 3px !important;
+  font-size: .82rem !important;
+  line-height: 1 !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-quality-metric span {
+  display: inline !important;
+  margin: 0 !important;
+  font-size: .61rem !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+
+/* ------------------------------------------------------------
+   FILTER TOOLBAR
+   Reduce from two tall rows to compact controlled height
+   ------------------------------------------------------------ */
+
+html[data-wingman-route="data-manager"] .wm-data-toolbar {
+  display: grid !important;
+
+  grid-template-columns:
+    minmax(260px, 1.6fr)
+    repeat(4, minmax(130px, .85fr)) !important;
+
+  gap: 7px !important;
+
+  min-height: 0 !important;
+  margin: 0 0 7px !important;
+  padding: 8px 10px !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-toolbar input,
+html[data-wingman-route="data-manager"] .wm-data-toolbar select,
+html[data-wingman-route="data-manager"] .wm-data-toolbar button,
+html[data-wingman-route="data-manager"] .wm-data-search {
+  height: 32px !important;
+  min-height: 32px !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-toolbar select,
+html[data-wingman-route="data-manager"] .wm-data-toolbar input {
+  font-size: .7rem !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-toolbar > label:not(.wm-data-search) {
+  font-size: .65rem !important;
+}
+
+/* Put secondary controls in one compact second line */
+html[data-wingman-route="data-manager"] .wm-data-toolbar > label:nth-last-of-type(-n+2),
+html[data-wingman-route="data-manager"] .wm-data-toolbar > button {
+  min-height: 28px !important;
+}
+
+
+/* ------------------------------------------------------------
+   RESULTS HEADER
+   ------------------------------------------------------------ */
+
+html[data-wingman-route="data-manager"] .wm-data-table-card > header {
+  min-height: 44px !important;
+  padding: 8px 12px !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-table-card h2 {
+  margin: 0 !important;
+  font-size: .9rem !important;
+  line-height: 1.05 !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-table-card p {
+  margin: 2px 0 0 !important;
+  font-size: .64rem !important;
+  line-height: 1.1 !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-table-card > header button {
+  min-height: 28px !important;
+  padding: 4px 7px !important;
+  font-size: .65rem !important;
+}
+
+
+/* ------------------------------------------------------------
+   TABLE DENSITY
+   More records visible
+   ------------------------------------------------------------ */
+
+html[data-wingman-route="data-manager"] .wm-data-table-card th {
+  padding: 6px 9px !important;
+  font-size: .62rem !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-table-card td {
+  padding: 7px 9px !important;
+  font-size: .7rem !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-table-card td span,
+html[data-wingman-route="data-manager"] .wm-data-table-card td small {
+  margin-top: 1px !important;
+  font-size: .62rem !important;
+}
+
+
+/* ------------------------------------------------------------
+   REFRESH BUTTON
+   ------------------------------------------------------------ */
+
+html[data-wingman-route="data-manager"] .wm-data-manager-header button {
+  min-height: 30px !important;
+  padding: 5px 9px !important;
+  font-size: .68rem !important;
+}
+
+
+/* ------------------------------------------------------------
+   RESPONSIVE FALLBACK
+   ------------------------------------------------------------ */
+
+@media (max-width: 1200px) {
+
+  html[data-wingman-route="data-manager"] .wm-data-quality-summary {
+    grid-template-columns: 130px minmax(0, 1fr) !important;
+  }
+
+  html[data-wingman-route="data-manager"] .wm-data-quality-metrics {
+    grid-template-columns: repeat(3, minmax(90px, 1fr)) !important;
+  }
+
+  html[data-wingman-route="data-manager"] .wm-data-toolbar {
+    grid-template-columns: repeat(3, minmax(150px, 1fr)) !important;
+  }
+}
+
+/* WINGMAN_DATA_MANAGER_COMPACT_CHROME_END */
+
+/* WINGMAN_DATA_MANAGER_TOP_TIGHTEN_START */
+
+/* Reduce wasted space at top of Data Manager */
+
+html[data-wingman-route="data-manager"] .wingman-page-host {
+  padding-top: 0 !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-manager-page {
+  padding-top: 2px !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-manager-header {
+  padding-top: 0 !important;
+  padding-bottom: 4px !important;
+  margin-top: 0 !important;
+  margin-bottom: 2px !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-manager-header .wm-ui-kicker {
+  margin-top: 0 !important;
+  margin-bottom: 1px !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-manager-header h1 {
+  margin-top: 0 !important;
+  margin-bottom: 1px !important;
+  line-height: 1 !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-manager-header p {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  line-height: 1.15 !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-tabs {
+  margin-top: 3px !important;
+  margin-bottom: 4px !important;
+}
+
+/* WINGMAN_DATA_MANAGER_TOP_TIGHTEN_END */
+
+/* WINGMAN_DATA_MANAGER_HEADING_SPACING_START */
+
+/* ==========================================================
+   DATA MANAGER
+   TIGHTER HEADER + GOVERNANCE SPACING
+   ========================================================== */
+
+/* Pull Data Manager content further upward */
+html[data-wingman-route="data-manager"] .wm-data-manager-page {
+  padding-top: 0 !important;
+}
+
+/* Compact title block */
+html[data-wingman-route="data-manager"] .wm-data-manager-header {
+  min-height: 0 !important;
+  padding: 0 0 3px !important;
+  margin: 0 !important;
+  gap: 8px !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-manager-header .wm-ui-kicker {
+  margin: 0 0 1px !important;
+  font-size: .59rem !important;
+  line-height: 1 !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-manager-header h1 {
+  margin: 0 0 1px !important;
+  font-size: 1.28rem !important;
+  line-height: 1 !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-manager-header p {
+  margin: 0 !important;
+  font-size: .68rem !important;
+  line-height: 1.1 !important;
+}
+
+/* Tabs sit immediately below heading */
+html[data-wingman-route="data-manager"] .wm-data-tabs {
+  min-height: 27px !important;
+  margin: 2px 0 4px !important;
+  padding: 0 !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-tabs button {
+  min-height: 26px !important;
+  padding: 3px 8px !important;
+  line-height: 1 !important;
+}
+
+/* ----------------------------------------------------------
+   LIVE GOVERNANCE
+   Remove the large unused vertical area.
+   ---------------------------------------------------------- */
+
+html[data-wingman-route="data-manager"] .wm-data-quality-summary {
+  box-sizing: border-box !important;
+
+  display: grid !important;
+  grid-template-columns: 150px minmax(0, 1fr) !important;
+
+  align-items: center !important;
+
+  min-height: 54px !important;
+  height: auto !important;
+
+  margin: 0 0 5px !important;
+  padding: 7px 12px !important;
+
+  gap: 10px !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-quality-heading {
+  align-self: center !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-quality-heading .wm-ui-kicker {
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-quality-heading h2 {
+  margin: 2px 0 1px !important;
+  line-height: 1 !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-quality-heading small {
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+
+/* Metrics remain one horizontal row */
+html[data-wingman-route="data-manager"] .wm-data-quality-metrics {
+  align-items: center !important;
+  align-self: center !important;
+  gap: 5px !important;
+}
+
+html[data-wingman-route="data-manager"] .wm-data-quality-metric {
+  min-height: 30px !important;
+  height: 30px !important;
+
+  padding: 3px 7px !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  white-space: nowrap !important;
+}
+
+/* Filters sit closer to Governance */
+html[data-wingman-route="data-manager"] .wm-data-toolbar {
+  margin-top: 0 !important;
+  margin-bottom: 5px !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+
+/* Give saved vertical space directly to records */
+html[data-wingman-route="data-manager"] .wm-data-table-card {
+  margin-top: 0 !important;
+}
+
+/* WINGMAN_DATA_MANAGER_HEADING_SPACING_END */
+
+/* WINGMAN_DATA_MANAGER_MAX_WORKSPACE_START */
+
+/* ============================================================
+   DATA MANAGER
+   REMOVE DUPLICATE PAGE CHROME / MAXIMISE DATA AREA
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   1. Page title is already supplied by the Wingman top bar.
+      Remove the duplicate title/copy from the page itself.
+   ------------------------------------------------------------ */
+
+html[data-wingman-route="data-manager"]
+.wm-data-manager-header > div:first-child {
+  display: none !important;
+}
+
+
+/*
+   Keep Refresh Data available without allowing the old header
+   block to consume significant vertical space.
+*/
+
+html[data-wingman-route="data-manager"]
+.wm-data-manager-header {
+  min-height: 0 !important;
+  height: 0 !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  border: 0 !important;
+
+  position: relative !important;
+
+  overflow: visible !important;
+}
+
+
+html[data-wingman-route="data-manager"]
+.wm-data-manager-header > button,
+html[data-wingman-route="data-manager"]
+.wm-data-manager-header .wm-button {
+  position: absolute !important;
+
+  right: 0 !important;
+  top: 4px !important;
+
+  z-index: 20 !important;
+
+  min-height: 28px !important;
+
+  padding: 4px 8px !important;
+
+  font-size: .66rem !important;
+}
+
+
+/* ------------------------------------------------------------
+   2. Tabs become the first real row of Data Manager content
+   ------------------------------------------------------------ */
+
+html[data-wingman-route="data-manager"]
+.wm-data-tabs {
+  min-height: 28px !important;
+
+  margin: 0 112px 4px 0 !important;
+  padding: 0 !important;
+
+  gap: 3px !important;
+}
+
+
+html[data-wingman-route="data-manager"]
+.wm-data-tabs button {
+  min-height: 27px !important;
+  height: 27px !important;
+
+  padding: 3px 8px !important;
+
+  font-size: .67rem !important;
+  line-height: 1 !important;
+}
+
+
+/* ------------------------------------------------------------
+   3. LIVE GOVERNANCE
+      Convert large presentation card into compact control strip
+   ------------------------------------------------------------ */
+
+html[data-wingman-route="data-manager"]
+.wm-data-quality-summary {
+  display: grid !important;
+
+  grid-template-columns:
+    150px
+    minmax(0, 1fr) !important;
+
+  align-items: center !important;
+
+  min-height: 46px !important;
+  height: 46px !important;
+  max-height: 46px !important;
+
+  margin: 0 0 5px !important;
+
+  padding: 5px 10px !important;
+
+  gap: 10px !important;
+
+  overflow: hidden !important;
+
+  border-radius: 11px !important;
+}
+
+
+html[data-wingman-route="data-manager"]
+.wm-data-quality-heading {
+  align-self: center !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+
+html[data-wingman-route="data-manager"]
+.wm-data-quality-heading .wm-ui-kicker {
+  margin: 0 !important;
+
+  font-size: .56rem !important;
+  line-height: .95 !important;
+}
+
+
+html[data-wingman-route="data-manager"]
+.wm-data-quality-heading h2 {
+  margin: 1px 0 !important;
+
+  font-size: .78rem !important;
+  line-height: 1 !important;
+}
+
+
+html[data-wingman-route="data-manager"]
+.wm-data-quality-heading small {
+  margin: 0 !important;
+
+  font-size: .56rem !important;
+  line-height: 1 !important;
+}
+
+
+/* Governance filter buttons stay in one row */
+
+html[data-wingman-route="data-manager"]
+.wm-data-quality-metrics {
+  display: grid !important;
+
+  grid-template-columns:
+    repeat(6, minmax(90px, 1fr)) !important;
+
+  align-items: center !important;
+
+  gap: 5px !important;
+
+  min-height: 0 !important;
+  height: 30px !important;
+
+  margin: 0 !important;
+}
+
+
+html[data-wingman-route="data-manager"]
+.wm-data-quality-metric {
+  display: flex !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  min-height: 28px !important;
+  height: 28px !important;
+
+  padding: 2px 6px !important;
+
+  margin: 0 !important;
+
+  white-space: nowrap !important;
+}
+
+
+html[data-wingman-route="data-manager"]
+.wm-data-quality-metric strong {
+  display: inline !important;
+
+  margin: 0 3px 0 0 !important;
+
+  font-size: .72rem !important;
+  line-height: 1 !important;
+}
+
+
+html[data-wingman-route="data-manager"]
+.wm-data-quality-metric span {
+  display: inline !important;
+
+  margin: 0 !important;
+
+  font-size: .58rem !important;
+  line-height: 1 !important;
+}
+
+
+/* ------------------------------------------------------------
+   4. FILTER BAR
+   ------------------------------------------------------------ */
+
+html[data-wingman-route="data-manager"]
+.wm-data-toolbar {
+  min-height: 0 !important;
+
+  margin: 0 0 5px !important;
+
+  padding: 6px 9px !important;
+
+  gap: 6px !important;
+}
+
+
+html[data-wingman-route="data-manager"]
+.wm-data-search,
+html[data-wingman-route="data-manager"]
+.wm-data-toolbar select,
+html[data-wingman-route="data-manager"]
+.wm-data-toolbar input {
+  min-height: 30px !important;
+  height: 30px !important;
+}
+
+
+/* ------------------------------------------------------------
+   5. RESULTS AREA
+      Any saved vertical space now goes directly to the table.
+   ------------------------------------------------------------ */
+
+html[data-wingman-route="data-manager"]
+.wm-data-table-card {
+  margin-top: 0 !important;
+}
+
+
+html[data-wingman-route="data-manager"]
+.wm-data-table-card > header {
+  min-height: 40px !important;
+
+  padding: 6px 12px !important;
+}
+
+
+html[data-wingman-route="data-manager"]
+.wm-data-table-card h2 {
+  font-size: .82rem !important;
+}
+
+
+html[data-wingman-route="data-manager"]
+.wm-data-table-card p {
+  font-size: .6rem !important;
+}
+
+
+/* ------------------------------------------------------------
+   6. Page itself starts immediately beneath Wingman top bar
+   ------------------------------------------------------------ */
+
+html[data-wingman-route="data-manager"]
+.wingman-page-host {
+  padding-top: 0 !important;
+}
+
+
+html[data-wingman-route="data-manager"]
+.wm-data-manager-page {
+  padding-top: 3px !important;
+}
+
+
+/* WINGMAN_DATA_MANAGER_MAX_WORKSPACE_END */
+
+/* WINGMAN DATA MANAGER COMPACT VIEWPORT - START */
+/*
+   Data Manager is a high-density administration workspace.
+   Keep the records table dominant, minimise non-working vertical space,
+   and scroll the records region rather than the whole page.
+*/
+.wm-data-manager-page {
+  height: calc(100dvh - 16px) !important;
+  max-height: calc(100dvh - 16px) !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+/* Compact page heading/action area. */
+.wm-data-manager-page .wm-data-manager-header {
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 4px 4px 2px !important;
+  gap: 12px !important;
+  align-items: center !important;
+}
+
+.wm-data-manager-page .wm-data-manager-header h1 {
+  margin: 0 !important;
+  line-height: 1.05 !important;
+}
+
+.wm-data-manager-page .wm-data-manager-header p {
+  margin-top: 2px !important;
+  margin-bottom: 0 !important;
+}
+
+.wm-data-manager-page .wm-data-manager-header .wm-ui-kicker {
+  display: none !important;
+}
+
+/* Keep dataset tabs compact and single-line on a normal desktop viewport. */
+.wm-data-manager-page .wm-data-tabs {
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 4px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: thin;
+}
+
+.wm-data-manager-page .wm-data-tabs button {
+  min-height: 30px !important;
+  padding: 5px 10px !important;
+  line-height: 1.1 !important;
+  white-space: nowrap !important;
+}
+
+/*
+   Local builds have used several names for the Live Governance / Data Quality
+   block. These selectors are intentionally scoped to Data Manager only.
+*/
+.wm-data-manager-page :is(
+  .wm-data-governance,
+  .wm-data-governance-card,
+  .wm-data-quality,
+  .wm-data-quality-card,
+  .wm-data-quality-panel,
+  .wm-live-governance,
+  section[class*="governance"],
+  section[class*="data-quality"],
+  section[class*="dataQuality"]
+) {
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 8px 12px !important;
+  gap: 8px !important;
+  align-items: center !important;
+}
+
+/* Remove large fixed/min heights left behind by earlier dashboard-style cards. */
+.wm-data-manager-page :is(
+  [class*="governance"],
+  [class*="data-quality"],
+  [class*="dataQuality"]
+) {
+  min-height: 0 !important;
+}
+
+/* Compress governance metric cards/counters without removing their information. */
+.wm-data-manager-page :is(
+  [class*="governance"],
+  [class*="data-quality"],
+  [class*="dataQuality"]
+) :is(article, [class*="metric"], [class*="stat"], [class*="counter"]) {
+  min-height: 30px !important;
+  padding: 5px 8px !important;
+  margin: 0 !important;
+  line-height: 1.1 !important;
+}
+
+/* Search/filter controls: dense desktop toolbar, responsive when required. */
+.wm-data-manager-page .wm-data-toolbar {
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 7px 10px !important;
+  gap: 6px 8px !important;
+  align-items: center !important;
+}
+
+@media (min-width: 1280px) {
+  .wm-data-manager-page .wm-data-toolbar {
+    display: grid !important;
+    grid-template-columns:
+      minmax(280px, 1.8fr)
+      minmax(150px, 1fr)
+      minmax(150px, 1fr)
+      minmax(150px, 1fr)
+      minmax(130px, 0.9fr)
+      auto
+      auto
+      minmax(150px, 0.9fr) !important;
+  }
+}
+
+.wm-data-manager-page .wm-data-toolbar :is(input, select, button) {
+  min-height: 34px !important;
+}
+
+.wm-data-manager-page .wm-data-toolbar label {
+  margin: 0 !important;
+}
+
+.wm-data-manager-page .wm-data-search {
+  min-width: 0 !important;
+}
+
+/*
+   Records become the dominant viewport region.
+   min-height:0 is critical so the internal table can actually shrink/scroll.
+*/
+.wm-data-manager-page .wm-data-table-card {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 8px 10px 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.wm-data-manager-page .wm-data-table-card > header {
+  flex: 0 0 auto !important;
+  min-height: 38px !important;
+  margin: 0 !important;
+  padding: 0 2px 7px !important;
+  align-items: center !important;
+}
+
+.wm-data-manager-page .wm-data-table-card > header h2 {
+  margin: 0 !important;
+  line-height: 1.1 !important;
+}
+
+.wm-data-manager-page .wm-data-table-card > header p {
+  margin: 1px 0 0 !important;
+  line-height: 1.15 !important;
+}
+
+.wm-data-manager-page .wm-data-table-scroll {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  overflow-x: auto !important;
+  overscroll-behavior: contain;
+}
+
+/* Compact table while preserving SKU/name/manufacturer hierarchy. */
+.wm-data-manager-page .wm-data-table-scroll table {
+  width: 100% !important;
+}
+
+.wm-data-manager-page .wm-data-table-scroll thead th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 2 !important;
+  height: 36px !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+
+.wm-data-manager-page .wm-data-table-scroll tbody tr {
+  height: 58px !important;
+}
+
+.wm-data-manager-page .wm-data-table-scroll tbody td {
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+  vertical-align: middle !important;
+}
+
+.wm-data-manager-page .wm-data-table-scroll td > strong,
+.wm-data-manager-page .wm-data-table-scroll td > span,
+.wm-data-manager-page .wm-data-table-scroll td > small {
+  line-height: 1.15 !important;
+}
+
+.wm-data-manager-page .wm-data-table-scroll td > span {
+  display: block !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.wm-data-manager-page .wm-data-row-actions {
+  gap: 4px !important;
+}
+
+.wm-data-manager-page .wm-data-row-actions button {
+  min-width: 32px !important;
+  min-height: 32px !important;
+  padding: 5px !important;
+}
+
+/* Do not let status messages steal permanent table height. */
+.wm-data-manager-page .wm-data-message {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  padding: 5px 8px !important;
+}
+
+/* Smaller displays may return to natural page scrolling rather than clipping controls. */
+@media (max-width: 1100px), (max-height: 720px) {
+  .wm-data-manager-page {
+    height: auto !important;
+    max-height: none !important;
+    min-height: calc(100dvh - 16px) !important;
+    overflow: visible !important;
+  }
+
+  .wm-data-manager-page .wm-data-table-card {
+    min-height: 480px !important;
+  }
+
+  .wm-data-manager-page .wm-data-table-scroll {
+    max-height: 65dvh !important;
+  }
+}
+/* WINGMAN DATA MANAGER COMPACT VIEWPORT - END */
+
+/* WINGMAN DATA MANAGER SPECIFICITY FIX - START */
+/*
+  This block intentionally uses a route + workspace + page + first-of-type
+  selector so it outranks the global rule that forces the first section card
+  on every Wingman page to 190-240px high.
+*/
+
+/* DATA QUALITY — override the global first-section hero/card rule */
+html[data-wingman-route="data-manager"]
+.wingman-workspace
+main.wm-page.wm-data-manager-page
+> section.wm-section-card.wm-data-quality-summary:first-of-type {
+  box-sizing: border-box !important;
+  display: grid !important;
+  grid-template-columns: 150px minmax(0, 1fr) !important;
+  align-items: center !important;
+
+  flex: 0 0 48px !important;
+  width: 100% !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+
+  margin: 0 !important;
+  padding: 5px 10px !important;
+  gap: 8px !important;
+  overflow: hidden !important;
+  align-content: center !important;
+}
+
+/* Prevent inherited card layout from re-expanding the summary */
+html[data-wingman-route="data-manager"]
+.wingman-workspace
+main.wm-page.wm-data-manager-page
+> section.wm-section-card.wm-data-quality-summary:first-of-type > * {
+  min-height: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  align-self: center !important;
+}
+
+html[data-wingman-route="data-manager"]
+.wingman-workspace
+main.wm-page.wm-data-manager-page
+> section.wm-section-card.wm-data-quality-summary:first-of-type
+:is(h1,h2,h3,h4,p,small,strong,span) {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  line-height: 1.05 !important;
+}
+
+/* Keep the metric row horizontal and compact */
+html[data-wingman-route="data-manager"]
+.wingman-workspace
+main.wm-page.wm-data-manager-page
+> section.wm-section-card.wm-data-quality-summary:first-of-type
+> :last-child {
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 6px !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="data-manager"]
+.wingman-workspace
+main.wm-page.wm-data-manager-page
+> section.wm-section-card.wm-data-quality-summary:first-of-type
+> :last-child > * {
+  flex: 1 1 0 !important;
+  min-width: 92px !important;
+  min-height: 30px !important;
+  max-height: 30px !important;
+  margin: 0 !important;
+  padding: 4px 7px !important;
+  white-space: nowrap !important;
+}
+
+/*
+  FILTERS — do not force a guessed 8-direct-child grid.
+  The current local markup groups some controls, so use flex instead.
+  This keeps grouped checkboxes/Add Product visible on the same row.
+*/
+html[data-wingman-route="data-manager"]
+.wingman-workspace
+main.wm-page.wm-data-manager-page
+> .wm-data-toolbar {
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+
+  width: 100% !important;
+  min-height: 48px !important;
+  height: 48px !important;
+  max-height: 48px !important;
+
+  margin: 0 !important;
+  padding: 6px 9px !important;
+  gap: 7px !important;
+  overflow: hidden !important;
+}
+
+html[data-wingman-route="data-manager"]
+.wingman-workspace
+main.wm-page.wm-data-manager-page
+> .wm-data-toolbar > * {
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+/* Search gets the largest share */
+html[data-wingman-route="data-manager"]
+.wingman-workspace
+main.wm-page.wm-data-manager-page
+> .wm-data-toolbar > :first-child {
+  flex: 1.7 1 250px !important;
+}
+
+/* Selects and grouped controls share the remaining width */
+html[data-wingman-route="data-manager"]
+.wingman-workspace
+main.wm-page.wm-data-manager-page
+> .wm-data-toolbar > :not(:first-child) {
+  flex: 1 1 120px !important;
+}
+
+/* If a direct child is itself a controls wrapper, keep its children inline */
+html[data-wingman-route="data-manager"]
+.wingman-workspace
+main.wm-page.wm-data-manager-page
+> .wm-data-toolbar
+> :is(div,fieldset) {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 7px !important;
+}
+
+html[data-wingman-route="data-manager"]
+.wingman-workspace
+main.wm-page.wm-data-manager-page
+> .wm-data-toolbar
+:is(input:not([type="checkbox"]),select,button) {
+  min-width: 0 !important;
+  height: 34px !important;
+  min-height: 34px !important;
+}
+
+html[data-wingman-route="data-manager"]
+.wingman-workspace
+main.wm-page.wm-data-manager-page
+> .wm-data-toolbar label {
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+
+html[data-wingman-route="data-manager"]
+.wingman-workspace
+main.wm-page.wm-data-manager-page
+> .wm-data-toolbar input[type="checkbox"] {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  margin: 0 4px 0 0 !important;
+}
+
+/* TABLE — keep all reclaimed height */
+html[data-wingman-route="data-manager"]
+.wingman-workspace
+main.wm-page.wm-data-manager-page
+> .wm-data-table-card {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+}
+
+/* Desktop density */
+@media (min-width: 1180px) {
+  html[data-wingman-route="data-manager"]
+  .wingman-workspace
+  main.wm-page.wm-data-manager-page
+  > .wm-data-table-card
+  .wm-data-table-scroll tbody tr {
+    height: 54px !important;
+  }
+
+  html[data-wingman-route="data-manager"]
+  .wingman-workspace
+  main.wm-page.wm-data-manager-page
+  > .wm-data-table-card
+  .wm-data-table-scroll tbody td {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+}
+
+/* Responsive escape hatch */
+@media (max-width: 1179px) {
+  html[data-wingman-route="data-manager"]
+  .wingman-workspace
+  main.wm-page.wm-data-manager-page
+  > section.wm-section-card.wm-data-quality-summary:first-of-type {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 48px !important;
+  }
+
+  html[data-wingman-route="data-manager"]
+  .wingman-workspace
+  main.wm-page.wm-data-manager-page
+  > .wm-data-toolbar {
+    height: auto !important;
+    max-height: none !important;
+    flex-wrap: wrap !important;
+    overflow: visible !important;
+  }
+}
+/* WINGMAN DATA MANAGER SPECIFICITY FIX - END */
+
+/* Encoding-safe selected-state tick. Draw the mark rather than using a
+   text glyph so stylesheet transcoding cannot leak mojibake into the UI. */
+html[data-wingman-route="discovery"]
+  .wm-discovery-option.is-selected
+  .wm-discovery-option-checkbox::after {
+  content: "" !important;
+  inset: 3px 5px 5px 6px !important;
+  display: block !important;
+  border-right: 2px solid #02110f !important;
+  border-bottom: 2px solid #02110f !important;
+  transform: rotate(45deg) !important;
+}
