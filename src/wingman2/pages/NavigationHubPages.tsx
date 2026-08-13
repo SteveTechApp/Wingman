@@ -261,17 +261,6 @@ export function ProductsPage() {
           },
         ),
         routeAction(
-          "proposal",
-          "Add to Response Pack",
-          "Carry selected products and supporting explanation into the active project response.",
-          "Project output",
-          {
-            accent: "green",
-            note: "Uses the active project and selected products.",
-            linkLabel: "Add",
-          },
-        ),
-        routeAction(
           "videowall",
           "Videowall Builder",
           "Design an LED or LCD wall signal-flow architecture when the requirement is display-wall led.",

@@ -8,6 +8,7 @@ import {
   ProductWorkspaceHeader,
   ProductWorkspaceNav,
 } from "../components/ProductWorkspaceChrome";
+import { ProductWhyFlashCard } from "../components/ProductWhyFlashCard";
 import { isSkuAdminBlocked } from "../lib/adminProductOverrides";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { extractRawProducts } from "../lib/productStoryEngine";
@@ -904,15 +905,12 @@ export function ProductFamilyPage() {
               {selectableSkus.length ? (
                 <div className="wm-product-family-sku-grid">
                   {selectableSkus.map((sku) => (
-                    <Link
-                      key={sku}
-                      to={productPitchSkuPath(sku)}
-                      className="wm-product-family-sku-card"
-                    >
-                      <span>SKU</span>
-                      <strong>{sku}</strong>
-                      <small>Open product workspace</small>
-                    </Link>
+                    <div key={sku} className="wm-product-family-sku-option">
+                      <Link to={productPitchSkuPath(sku)} className="wm-product-family-sku-card">
+                        <span>SKU</span><strong>{sku}</strong><small>Open product workspace</small>
+                      </Link>
+                      <ProductWhyFlashCard context={{ sku, family: activeFamily.name, problem: activeFamily.whyItExists, useWhen: activeFamily.roomFit }} />
+                    </div>
                   ))}
                 </div>
               ) : (
