@@ -279,6 +279,7 @@ export function ProductsPage() {
           {
             accent: "magenta",
             linkLabel: "Build",
+            art: "videowall",
           },
         ),
       ]}
@@ -353,18 +354,11 @@ export function ResponsePackPage() {
           { accent: "violet", art: "support" },
         ),
         routeAction(
-          "visualStudio",
-          "Visual Studio",
-          "Create AV schematics and customer-facing concept visuals from captured requirements or sample scenarios.",
-          "Open visual studio",
-          { accent: "blue", art: "studio" },
-        ),
-        routeAction(
-          "visualDesign",
-          "Schematic Builder",
-          "Create end-to-end schematics with WyreStorm devices, known third-party items and TBC products.",
-          "Create schematic",
-          { accent: "aqua", art: "schematic" },
+          "proposalVisuals",
+          "Create proposal visual",
+          "Build a customer block diagram, governed technical schematic or conceptual room/application visual from the active project.",
+          "Proposal visuals",
+          { accent: "blue", art: "studio", linkLabel: "Choose visual type" },
         ),
         routeAction(
           "templates",

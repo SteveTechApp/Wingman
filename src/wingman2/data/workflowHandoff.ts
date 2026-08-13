@@ -292,6 +292,7 @@ function networkFromBrief(roomModel: Record<string, unknown>) {
 function controlFromBrief(roomModel: Record<string, unknown>) {
   const control = list(roomModel.controlNeeds).join(" ").toLowerCase();
   if (includesAny(control, ["third-party", "third party"])) return "Third-party control";
+  if (includesAny(control, ["software", "app control", "browser", "desktop application", "mobile app"])) return "Web UI";
   if (includesAny(control, ["touch panel", "room control"])) return "Touch panel";
   if (includesAny(control, ["remote", "front panel"])) return "IR";
   if (includesAny(control, ["simple", "automatic"])) return "No control";

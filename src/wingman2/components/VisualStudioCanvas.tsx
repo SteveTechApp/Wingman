@@ -35,6 +35,7 @@ import type { VisualDiagramMode, VisualDiagramModel } from "../lib/visualStudioT
 interface VisualStudioCanvasProps {
   model: VisualDiagramModel;
   mode: VisualDiagramMode;
+  onSaveAsset?: (render: { svg: string; width: number; height: number }) => void;
 }
 
 function downloadDataUrl(dataUrl: string, filename: string): void {
@@ -187,7 +188,7 @@ const nodeTypes = {
   wingmanVisualNode: WingmanVisualNode
 };
 
-function VisualStudioCanvasInner({ model, mode }: VisualStudioCanvasProps) {
+function VisualStudioCanvasInner({ model, mode, onSaveAsset }: VisualStudioCanvasProps) {
   const exportRef = useRef<HTMLDivElement | null>(null);
   const { fitView } = useReactFlow();
   const drawingNumber = `WM-${safeFileName(model.id).toUpperCase().slice(0, 18)}`;
@@ -254,6 +255,18 @@ const exportPng = async () => {
     downloadBlob(blob, `${safeFileName(model.title)}.vsdx`);
   };
 
+  const saveToProject = async () => {
+    if (!exportRef.current || !onSaveAsset) return;
+    await fitView({ padding: 0.12, minZoom: 0.45, maxZoom: 0.95, duration: 0 });
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    const svg = await toSvg(exportRef.current, { cacheBust: true, backgroundColor: "#f6f7fb" });
+    onSaveAsset({
+      svg,
+      width: exportRef.current.offsetWidth || 1600,
+      height: exportRef.current.offsetHeight || 900,
+    });
+  };
+
   return (
     <section className={`wm-vs-canvas-shell wm-vs-canvas-shell-${mode}`}>
       <div className="wm-vs-canvas-toolbar">
@@ -262,6 +275,11 @@ const exportPng = async () => {
           <h2>{model.title}</h2>
         </div>
         <div className="wm-vs-toolbar-actions">
+          {onSaveAsset ? (
+            <button type="button" className="wm-vs-button wm-vs-button-primary" onClick={saveToProject}>
+              Save to project
+            </button>
+          ) : null}
           <button type="button" className="wm-vs-button wm-vs-button-secondary" onClick={exportSvg}>
             Export SVG
           </button>

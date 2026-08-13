@@ -340,6 +340,15 @@ export default function DiscoveryLocationsConnections({
   const defaultPlan = deriveDefaultPlan(blob);
   const plan = readStoredPlan(topology, defaultPlan);
   const [showAdvanced, setShowAdvanced] = useState(topology.mode === "advanced");
+  const [activePlanningStep, setActivePlanningStep] = useState(0);
+  const planningSteps = [
+    "Equipment position",
+    "Video distance",
+    "Cable route",
+    ...(usbRequired ? ["USB path"] : []),
+    "Exceptions",
+  ];
+  const finalPlanningStep = planningSteps.length - 1;
 
   function buildPlannedTopology(nextPlan: RoutePlanningState, baseOverride?: ProjectTopology): ProjectTopology {
     const generated = generateProjectTopologyFromDiscovery({
@@ -645,8 +654,23 @@ export default function DiscoveryLocationsConnections({
         </div>
       </header>
 
-      <div className="wm-route-planner-flow">
-        <fieldset className="wm-route-planner-step">
+      <nav className="wm-route-stepper" aria-label="Signal distance check progress">
+        {planningSteps.map((label, index) => (
+          <button
+            key={label}
+            type="button"
+            className={index === activePlanningStep ? "is-active" : index < activePlanningStep ? "is-complete" : ""}
+            onClick={() => setActivePlanningStep(index)}
+            aria-current={index === activePlanningStep ? "step" : undefined}
+          >
+            <span>{index + 1}</span>
+            <strong>{label}</strong>
+          </button>
+        ))}
+      </nav>
+
+      <div className="wm-route-planner-flow wm-route-planner-flow-guided">
+        {activePlanningStep === 0 ? <fieldset className="wm-route-planner-step">
           <legend><span>1</span> Where is the main equipment?</legend>
           <div className="wm-route-choice-grid">
             {EQUIPMENT_OPTIONS.map((option) => (
@@ -662,9 +686,9 @@ export default function DiscoveryLocationsConnections({
               </button>
             ))}
           </div>
-        </fieldset>
+        </fieldset> : null}
 
-        <fieldset className="wm-route-planner-step">
+        {activePlanningStep === 1 ? <fieldset className="wm-route-planner-step">
           <legend><span>2</span> What is the longest video route?</legend>
           <div className="wm-route-choice-grid wm-route-distance-grid">
             {DISTANCE_OPTIONS.map((option) => (
@@ -686,9 +710,9 @@ export default function DiscoveryLocationsConnections({
             <div><i /><strong>{videoMetres === undefined ? "Survey required" : `${videoMetres} m planning allowance`}</strong><i /></div>
             <span>Main display / endpoint</span>
           </div>
-        </fieldset>
+        </fieldset> : null}
 
-        <fieldset className="wm-route-planner-step">
+        {activePlanningStep === 2 ? <fieldset className="wm-route-planner-step">
           <legend><span>3</span> How will the cable probably travel?</legend>
           <div className="wm-route-choice-grid">
             {ROUTE_OPTIONS.map((option) => (
@@ -704,9 +728,9 @@ export default function DiscoveryLocationsConnections({
               </button>
             ))}
           </div>
-        </fieldset>
+        </fieldset> : null}
 
-        {usbRequired ? (
+        {usbRequired && activePlanningStep === 3 ? (
           <fieldset className="wm-route-planner-step">
             <legend><span>4</span> Where is the USB host compared with the USB devices?</legend>
             <p className="wm-route-planner-intro">
@@ -729,7 +753,7 @@ export default function DiscoveryLocationsConnections({
           </fieldset>
         ) : null}
 
-        <fieldset className="wm-route-planner-step">
+        {activePlanningStep === finalPlanningStep ? <fieldset className="wm-route-planner-step">
           <legend><span>{usbRequired ? "5" : "4"}</span> Is any device much further away than the rest?</legend>
           <div className="wm-route-choice-grid wm-route-exception-choice-grid">
             {([
@@ -775,7 +799,32 @@ export default function DiscoveryLocationsConnections({
               </label>
             </div>
           ) : null}
-        </fieldset>
+        </fieldset> : null}
+
+        <footer className="wm-route-step-actions">
+          <button
+            className="wm-ui-button wm-ui-button-secondary"
+            type="button"
+            onClick={() => setActivePlanningStep((step) => Math.max(0, step - 1))}
+            disabled={activePlanningStep === 0}
+          >
+            Back
+          </button>
+          <span>Step {activePlanningStep + 1} of {planningSteps.length}</span>
+          {activePlanningStep < finalPlanningStep ? (
+            <button
+              className="wm-ui-button wm-ui-button-primary"
+              type="button"
+              onClick={() => setActivePlanningStep((step) => Math.min(finalPlanningStep, step + 1))}
+            >
+              Next question
+            </button>
+          ) : (
+            <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => setActivePlanningStep(0)}>
+              Review answers
+            </button>
+          )}
+        </footer>
       </div>
 
       <section className="wm-route-result-card" aria-label="Likely transport requirement">

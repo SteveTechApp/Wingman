@@ -12,6 +12,27 @@ import type {
 } from "./discoveryTypes";
 
 export function getQuestionView(step: DiscoveryQuestion, selectedApplication: string): DiscoveryQuestionView {
+  if (step.id === "audio") {
+    const preferredByApplication: Record<string, string[]> = {
+      "meeting-room": ["display-audio", "room-audio", "source-audio-deembed", "dante-network-audio", "no-room-audio"],
+      classroom: ["room-audio", "separate-programme-voice", "distributed-70v-100v", "dante-network-audio", "display-audio"],
+      hospitality: ["distributed-70v-100v", "separate-programme-voice", "analogue-audio-override", "dante-network-audio", "display-audio"],
+      "video-wall": ["source-audio-deembed", "room-audio", "display-audio", "analogue-audio-override", "no-room-audio"],
+      "av-over-ip": ["dante-network-audio", "source-audio-deembed", "room-audio", "digital-audio-interface", "no-room-audio"],
+    };
+    const preferred = preferredByApplication[selectedApplication] ?? [];
+    const rank = new Map(preferred.map((value, index) => [value, index]));
+    const options = [...step.options].sort((left, right) => (rank.get(left.value) ?? 99) - (rank.get(right.value) ?? 99));
+    const promptByApplication: Record<string, string> = {
+      "meeting-room": "Choose how calls, presentations and room programme audio should be heard.",
+      classroom: "Choose how teaching audio, programme sound and speech reinforcement should cover the room.",
+      hospitality: "Choose how programme audio, venue zones, announcements and local overrides should operate.",
+      "video-wall": "Choose whether wall content audio is de-embedded, played locally, routed elsewhere or excluded from scope.",
+      "av-over-ip": "Choose how audio should be extracted, routed and distributed across the networked system.",
+    };
+    return { ...step, prompt: promptByApplication[selectedApplication] ?? step.prompt, options };
+  }
+
   if (step.id !== "source-device-workflows") return step;
   const preferredByApplication: Record<string, string[]> = {
     "meeting-room": ["user-laptops", "room-pc-uc-source", "wireless-casting-source", "cameras-production", "signage-media-players"],
