@@ -274,27 +274,24 @@ export function HubCardArt({ kind }: { kind: HubCardArtKind }) {
 
   if (kind === "videowall") {
     return (
-      <svg viewBox="0 0 240 150" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">
-        {[0, 1, 2].map((col) =>
-          [0, 1].map((row) => (
-            <rect
-              key={`${col}-${row}`}
-              x={26 + col * 65}
-              y={26 + row * 56}
-              width="57"
-              height="48"
-              rx="4"
-              fill="currentColor"
-              opacity={(col + row) % 2 === 0 ? "0.09" : "0.05"}
-              stroke="currentColor"
-            />
-          )),
-        )}
-        <path d="m40 66 14-12 12 8 16-14 18 12" opacity="0.55" />
+      <svg
+        className="wm-hub-art-videowall"
+        viewBox="0 0 240 150"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <g opacity="0.32" strokeWidth="1">
+          <rect x="78" y="40" width="106" height="68" rx="5" />
+          <path d="M113 108v12m36-12v12M98 120h66" opacity="0.72" />
+          <path d="M131 40v68" opacity="0.36" />
+          <path d="M78 74h106" opacity="0.36" />
+        </g>
       </svg>
     );
   }
-
   if (kind === "decode") {
     return (
       <svg viewBox="0 0 240 150" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round">

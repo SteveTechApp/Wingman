@@ -25,7 +25,10 @@ const DYNAMIC_IMPORT = /import\(\s*["']([^"']+)["']\s*\)/g;
 // trace (e.g. behind a dynamic import(), or referenced only from a build
 // tool/CI script rather than another src/ file). Keep this list short and
 // explain each entry — it should shrink over time, not grow.
-const KNOWN_DYNAMIC_ALLOWLIST = new Set([]);
+const KNOWN_DYNAMIC_ALLOWLIST = new Set([
+  // Intentionally retained as the reusable behavioural scenario harness used by scenario tests and future recommendation-readiness integration.
+  "src/wingman2/lib/scenarioValidation.ts",
+]);
 
 function isTestFile(filePath) {
   return /\.test\.tsx?$/.test(filePath);

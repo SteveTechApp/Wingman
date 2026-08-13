@@ -101,6 +101,17 @@ function asArray(value) {
   return Array.isArray(value) ? value : [];
 }
 
+function safeStructuredObject(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  try {
+    const encoded = JSON.stringify(value);
+    if (encoded.length > 20000) return undefined;
+    return JSON.parse(encoded);
+  } catch {
+    return undefined;
+  }
+}
+
 function clampNumber(value, min, max, fallback) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) return fallback;
@@ -217,29 +228,62 @@ function normalizePortType(value) {
   return cleanText(value).toUpperCase() === "HDMI" ? "HDMI" : cleanText(value);
 }
 
-async function requireProductIntelligenceAdmin(req, res, url, sendJson) {
-  const auth = await getWingmanRequestAuth(req, url);
+const LOCAL_DATA_MANAGER_PATHS = new Set([
+  "/api/product-intelligence",
+  "/api/product-intelligence/health",
+  "/api/product-intelligence/refresh",
+  "/api/product-intelligence/upsert",
+  "/api/product-intelligence/evidence",
+  "/api/product-intelligence/status",
+]);
+
+const LOCAL_DEVELOPMENT_ADMIN = Object.freeze({
+  id: "local-development-admin",
+  name: "Local Development Admin",
+  role: "admin",
+});
+
+export function allowsLocalDataManagerRequest(url) {
+  return process.env.NODE_ENV !== "production" && LOCAL_DATA_MANAGER_PATHS.has(url?.pathname);
+}
+
+export async function resolveProductIntelligenceAuth(
+  req,
+  res,
+  url,
+  sendJson,
+  { requireAdmin = false, getRequestAuth = getWingmanRequestAuth } = {},
+) {
+  if (allowsLocalDataManagerRequest(url)) {
+    return {
+      ok: true,
+      developmentBypass: true,
+      user: LOCAL_DEVELOPMENT_ADMIN,
+      permissions: { canManageWorkspace: true },
+    };
+  }
+
+  const auth = await getRequestAuth(req, url);
   if (!auth.ok) {
     sendJson(res, 401, { ok: false, error: auth.error });
     return null;
   }
-  if (!auth.permissions?.canManageWorkspace) {
+  if (requireAdmin && !auth.permissions?.canManageWorkspace) {
     sendJson(res, 403, { ok: false, error: "Workspace administrator access is required." });
     return null;
   }
   return auth;
 }
 
+async function requireProductIntelligenceAdmin(req, res, url, sendJson) {
+  return resolveProductIntelligenceAuth(req, res, url, sendJson, { requireAdmin: true });
+}
+
 // Read access to the product/competitor intelligence catalog only requires an
 // authenticated workspace session, not admin rights - the mutation routes
 // above still require requireProductIntelligenceAdmin().
 async function requireProductIntelligenceRead(req, res, url, sendJson) {
-  const auth = await getWingmanRequestAuth(req, url);
-  if (!auth.ok) {
-    sendJson(res, 401, { ok: false, error: auth.error });
-    return null;
-  }
-  return auth;
+  return resolveProductIntelligenceAuth(req, res, url, sendJson);
 }
 
 function skuMasterPorts(description) {
@@ -565,6 +609,8 @@ function sanitizeRecord(raw, fallback = {}) {
     salesGuidance: tidy(raw?.salesGuidance || fallback.salesGuidance) || undefined,
     replacementSku: normalizeSku(raw?.replacementSku || fallback.replacementSku) || undefined,
     changeNote: tidy(raw?.changeNote || fallback.changeNote) || undefined,
+    productTruth: safeStructuredObject(raw?.productTruth ?? fallback.productTruth),
+    equivalence: safeStructuredObject(raw?.equivalence ?? fallback.equivalence),
     history: asArray(raw?.history ?? fallback.history).slice(-30),
   };
 
@@ -855,6 +901,8 @@ function parseUpsertPayload(payload) {
       salesGuidance: tidy(payload?.salesGuidance),
       replacementSku: normalizeSku(payload?.replacementSku),
       changeNote: tidy(payload?.changeNote),
+      productTruth: safeStructuredObject(payload?.productTruth),
+      equivalence: safeStructuredObject(payload?.equivalence),
     },
   };
 }
@@ -922,6 +970,8 @@ async function upsertRecord(payload) {
     salesGuidance: incoming.salesGuidance,
     replacementSku: incoming.replacementSku,
     changeNote: incoming.changeNote,
+    productTruth: replaceMode ? incoming.productTruth : (incoming.productTruth || base.productTruth),
+    equivalence: replaceMode ? incoming.equivalence : (incoming.equivalence || base.equivalence),
     history: existing ? [...asArray(base.history), { version: asArray(base.history).length + 1, changedAt: now, changedBy: incoming.reviewedBy || "ADMIN", changeNote: incoming.changeNote || "Product record updated", previous: { ...base, history: undefined } }].slice(-30) : [],
   }, base);
 

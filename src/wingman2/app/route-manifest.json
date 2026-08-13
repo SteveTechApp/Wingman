@@ -223,5 +223,14 @@
     "navLabel": "Visual Studio",
     "pageFile": "VisualStudioPage.tsx",
     "summary": "Diagramming and visual system support."
+  },
+  {
+    "key": "proposalVisuals",
+    "path": "/wingman/proposal-visuals",
+    "segment": "proposal-visuals",
+    "label": "Proposal Visuals",
+    "navLabel": "Proposal Visuals",
+    "pageFile": "ProposalVisualsPage.tsx",
+    "summary": "Create governed block diagrams, technical schematics and room concepts."
   }
 ]

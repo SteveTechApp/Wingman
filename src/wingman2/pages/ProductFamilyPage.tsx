@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { BookOpenCheck, Cable, CheckCircle2, HelpCircle, MapPin, Network, Search, Sparkles, Workflow } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import {
   ProductFilterPanel,
@@ -768,7 +768,11 @@ function useKnownProductSkus(): Set<string> | null {
 }
 
 export function ProductFamilyPage() {
-  const [activeFamilyId, setActiveFamilyId] = useState(familyGuides[0].id);
+  const { familyId } = useParams<{ familyId?: string }>();
+  const navigate = useNavigate();
+  const isFamilyDetail = Boolean(familyId);
+  const requestedFamily = familyId ? familyGuides.find((guide) => guide.id === familyId) : undefined;
+  const [activeFamilyId, setActiveFamilyId] = useState(familyId ?? familyGuides[0].id);
   const [familySearch, setFamilySearch] = useState("");
   const activeFamily = useMemo(() => findGuide(activeFamilyId), [activeFamilyId]);
   const visibleFamilyGuides = useMemo(() => {
@@ -792,29 +796,39 @@ export function ProductFamilyPage() {
     [activeFamily, knownSkus],
   );
 
+  if (familyId && !requestedFamily) {
+    return <Navigate to="/wingman/product-families" replace />;
+  }
+
   return (
     <main className="wm-product-family-page wm-ui-page wingman-page-host">
       <ProductWorkspaceHeader
         eyebrow="Products / Families"
-        title="Choose a product family"
-        description="Start with the customer application, choose the architecture, then open a representative SKU."
+        title={isFamilyDetail ? activeFamily.name : "Choose a product family"}
+        description={isFamilyDetail ? activeFamily.shortPosition : "Start with the customer application, choose the architecture, then open a representative SKU."}
         actions={(
-          <Link className="wm-ui-button wm-ui-button-secondary" to={routeCatalogByKey.productPitch.path}>
-            Search products
-          </Link>
+          isFamilyDetail ? (
+            <Link className="wm-ui-button wm-ui-button-secondary" to="/wingman/product-families">
+              Back to all families
+            </Link>
+          ) : (
+            <Link className="wm-ui-button wm-ui-button-secondary" to={routeCatalogByKey.productPitch.path}>
+              Search products
+            </Link>
+          )
         )}
       />
       <ProductWorkspaceNav />
-      <ProductFilterPanel>
+      {!isFamilyDetail ? <ProductFilterPanel>
         <ProductSearchField
           value={familySearch}
           onChange={setFamilySearch}
           label="Filter families"
           placeholder="Search by family, architecture, application or representative SKU..."
         />
-      </ProductFilterPanel>
+      </ProductFilterPanel> : null}
 
-      <section className="wm-product-family-results" aria-label="WyreStorm product families">
+      {!isFamilyDetail ? <section className="wm-product-family-results" aria-label="WyreStorm product families">
         <div className="wm-product-family-results-head">
           <div>
             <p className="wm-ui-kicker">Product family results</p>
@@ -834,8 +848,11 @@ export function ProductFamilyPage() {
                   className={`wm-product-family-picker${active ? " is-active" : ""}`}
                   key={guide.id}
                   type="button"
-                  aria-pressed={active}
-                  onClick={() => setActiveFamilyId(guide.id)}
+                  aria-pressed={false}
+                  onClick={() => {
+                    setActiveFamilyId(guide.id);
+                    navigate(`/wingman/product-families/${guide.id}`);
+                  }}
                 >
                   <span className="wm-product-family-picker-title">
                     {active ? (
@@ -855,9 +872,9 @@ export function ProductFamilyPage() {
               <p className="wm-ui-copy wm-product-family-empty">No product families match this filter.</p>
             ) : null}
           </div>
-      </section>
+      </section> : null}
 
-      <section className="wm-product-family-detail wm-ui-card" aria-live="polite">
+      {isFamilyDetail ? <section className="wm-product-family-detail wm-ui-card" aria-live="polite">
           <header className="wm-product-family-detail-header">
             <p>Family crib sheet</p>
             <h2 className="wm-section-title">{activeFamily.name}</h2>
@@ -983,9 +1000,9 @@ export function ProductFamilyPage() {
               </div>
             </details>
           </div>
-      </section>
+      </section> : null}
 
-      <details className="wm-product-family-architecture">
+      {isFamilyDetail ? <details className="wm-product-family-architecture">
         <summary>Architecture guidance</summary>
         <div className="wm-product-family-rules-grid">
           {decisionRules.map((rule, index) => (
@@ -998,7 +1015,7 @@ export function ProductFamilyPage() {
             </article>
           ))}
         </div>
-      </details>
+      </details> : null}
     </main>
   );
 }

@@ -1563,7 +1563,7 @@ return (
                   params.set("seedSku", selectedProduct.sku);
                   params.set("source", "product-discussion");
 
-                  navigate(`/wingman/visual-studio?${params.toString()}`);
+                  navigate(`/wingman/proposal-visuals?${params.toString()}`);
                 }}
               >
                 Visualise in Studio

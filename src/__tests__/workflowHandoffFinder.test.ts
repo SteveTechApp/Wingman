@@ -78,4 +78,12 @@ describe("Discovery to Recommendations handoff", () => {
       avoipSeriesHint: "NetworkHD 600",
     });
   });
+
+  it("maps software and app operation to a web UI control requirement", () => {
+    const draft = discoveryBriefToFinderNeed(brief({
+      controlNeeds: ["Software / app control"],
+    }));
+
+    expect(draft.control).toBe("Web UI");
+  });
 });

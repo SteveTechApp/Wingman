@@ -27,6 +27,13 @@ const primaryActions = [
     { accent: "aqua", linkLabel: "Start discovery", art: "discovery" },
   ),
   routeAction(
+    "ingest",
+    "Decode Request",
+    "Turn customer emails, RFQs, BOMs, scopes and rough notes into clear requirements and next actions.",
+    "REQUEST DECODER",
+    { accent: "violet", linkLabel: "Decode request", art: "decode" },
+  ),
+  routeAction(
     "compare",
     "Compare Products",
     "Check a competitor product against the closest WyreStorm fit.",

@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { loadProductIntelligenceIndex } from "@/wingman2/lib/productIntelligenceIndexCache";
@@ -41,8 +41,10 @@ describe("Product Families 'Pitch this range' + SKU card wiring", () => {
     mockIndex(["NHD-120-TX", "NHD-150-RX"]);
 
     render(
-      <MemoryRouter>
-        <ProductFamilyPage />
+      <MemoryRouter initialEntries={["/wingman/product-families/networkhd-100"]}>
+        <Routes>
+          <Route path="/wingman/product-families/:familyId" element={<ProductFamilyPage />} />
+        </Routes>
       </MemoryRouter>,
     );
 
@@ -65,8 +67,10 @@ describe("Product Families 'Pitch this range' + SKU card wiring", () => {
     mockIndex(["SOME-OTHER-SKU"]);
 
     render(
-      <MemoryRouter>
-        <ProductFamilyPage />
+      <MemoryRouter initialEntries={["/wingman/product-families/networkhd-100"]}>
+        <Routes>
+          <Route path="/wingman/product-families/:familyId" element={<ProductFamilyPage />} />
+        </Routes>
       </MemoryRouter>,
     );
 

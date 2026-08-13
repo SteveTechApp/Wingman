@@ -22,11 +22,12 @@ describe("ADMIN Data Manager", () => {
     expect(screen.getByRole("button", { name: /Add Product/ })).toBeInTheDocument();
   });
 
-  it("does not allow a non-admin to access records", async () => {
+  it("allows local development access without an admin session", async () => {
     getWingmanSession.mockResolvedValue({ ok: true, session: { workspaceRole: "sales" } });
     render(<MemoryRouter><DataManagerPage /></MemoryRouter>);
-    expect(await screen.findByRole("heading", { name: "Administrator access required" })).toBeInTheDocument();
-    expect(getWingmanJson).not.toHaveBeenCalled();
+    expect(await screen.findByRole("heading", { name: "Data Manager" })).toBeInTheDocument();
+    expect(await screen.findByText("TEST-1")).toBeInTheDocument();
+    expect(getWingmanJson).toHaveBeenCalledWith("/api/product-intelligence?limit=1000");
   });
 
   it("edits routed and mirrored outputs independently", async () => {
