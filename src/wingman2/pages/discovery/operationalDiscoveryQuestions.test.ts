@@ -26,6 +26,66 @@ describe("operational discovery branches", () => {
     expect(ids({ "display-behaviour": ["same-content-all-displays"] })).not.toContain("multiview-destination");
   });
 
+  it("uses a shortened, wall-specific route for video wall projects", () => {
+    const visible = ids({ opportunity: "video-wall" }, "video-wall");
+    expect(visible).toEqual(expect.arrayContaining(["video-wall-technology", "video-wall-purpose", "signal-standard", "control", "locations-connections"]));
+    expect(visible).not.toEqual(expect.arrayContaining(["displays", "display-behaviour", "uc-purpose", "uc-platform", "usb"]));
+    expect(visible).not.toContain("multiview-destination");
+  });
+
+  it("only opens detailed multiview discovery when the wall will compose live sources", () => {
+    expect(ids({ "video-wall-purpose": "single-canvas" }, "video-wall")).not.toContain("multiview-destination");
+    expect(ids({ "video-wall-purpose": "multi-source-canvas" }, "video-wall")).toEqual(expect.arrayContaining([
+      "multiview-destination", "multiview-operation",
+    ]));
+  });
+
+  it("removes impossible display behaviours for a single-display system", () => {
+    const displayBehaviour = getVisibleDiscoveryQuestions("meeting-room", {
+      displays: "one-display",
+    }).find((step) => step.id === "display-behaviour")!;
+
+    expect(displayBehaviour.options.map((option) => option.value)).not.toEqual(expect.arrayContaining([
+      "independent-routing-per-display",
+      "video-wall-or-processor-feed",
+    ]));
+    expect(displayBehaviour.options.map((option) => option.value)).toContain("same-content-all-displays");
+  });
+
+  it("only asks camera questions when the selected workflow uses cameras", () => {
+    const microphoneOnly = ids({ "uc-purpose": ["microphones-only"] });
+    expect(microphoneOnly).not.toEqual(expect.arrayContaining([
+      "uc-camera",
+      "uc-camera-count",
+      "uc-camera-routing",
+      "uc-multi-camera-path",
+    ]));
+  });
+
+  it("only asks Teams Room integration after Teams Room is selected", () => {
+    expect(ids({
+      "uc-purpose": ["video-conferencing"],
+      "uc-platform": ["byom-user-laptop"],
+    })).not.toContain("mtr-av-integration");
+
+    expect(ids({
+      "uc-purpose": ["video-conferencing"],
+      "uc-platform": ["microsoft-teams-room"],
+    })).toContain("mtr-av-integration");
+  });
+
+  it("filters the multi-camera path to the selected camera technology", () => {
+    const questions = getVisibleDiscoveryQuestions("meeting-room", {
+      "uc-purpose": ["video-conferencing"],
+      "uc-camera": ["ndi-network-camera"],
+      "uc-camera-count": "three-four-cameras",
+    });
+    const bridge = questions.find((step) => step.id === "uc-multi-camera-path")!;
+
+    expect(bridge.options.map((option) => option.value)).toContain("multi-camera-ndi");
+    expect(bridge.options.map((option) => option.value)).not.toContain("multi-camera-non-ndi");
+  });
+
   it("asks microphone quantity and processing when microphone workflows are active", () => {
     const visible = ids({ "uc-purpose": ["video-conferencing"], "uc-microphones": ["ceiling-microphone-array"] });
     expect(visible).toEqual(expect.arrayContaining(["uc-microphone-count", "uc-audio-processing"]));
@@ -47,6 +107,23 @@ describe("operational discovery branches", () => {
       "stereo-low-impedance", "multichannel-audio", "distributed-70v-100v",
       "separate-programme-voice", "analogue-audio-override", "digital-audio-interface", "dante-network-audio",
     ]));
+  });
+
+  it("prioritises audio choices and wording for the selected application", () => {
+    const hospitalityAudio = getQuestionView(
+      getVisibleDiscoveryQuestions("hospitality").find((step) => step.id === "audio")!,
+      "hospitality",
+    );
+    const videoWallAudio = getQuestionView(
+      getVisibleDiscoveryQuestions("video-wall").find((step) => step.id === "audio")!,
+      "video-wall",
+    );
+
+    expect(hospitalityAudio.options[0].value).toBe("distributed-70v-100v");
+    expect(hospitalityAudio.prompt).toContain("venue zones");
+    expect(videoWallAudio.options[0].value).toBe("source-audio-deembed");
+    expect(videoWallAudio.prompt).toContain("wall content audio");
+    expect(videoWallAudio.options.map((option) => option.value)).toContain("no-room-audio");
   });
 
   it("creates distinct source devices and a DSP bridge from operational answers", () => {
