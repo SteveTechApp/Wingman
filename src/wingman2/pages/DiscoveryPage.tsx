@@ -43,7 +43,7 @@ import type {
   DiscoveryAnswers,
   DiscoveryNotes,
 } from "./discovery/discoveryTypes";
-import { getQuestionStrategy, getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
+import { getDiscoveryRouteInsight, getQuestionStrategy, getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
 import { DiscoveryClientDetailsPanel } from "./discovery/DiscoveryClientDetailsPanel";
 import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
 import { DiscoverySummaryCard } from "./discovery/DiscoverySummaryCard";
@@ -298,10 +298,14 @@ export function DiscoveryPage() {
   const discoveryQuestions = useMemo(
     () =>
       wmDiscoveryFilterUnifiedCommsQuestions(
-        getVisibleDiscoveryQuestions(selectedApplication),
+        getVisibleDiscoveryQuestions(selectedApplication, answers),
         answers,
       ),
     [selectedApplication, answers],
+  );
+  const discoveryRouteInsight = useMemo(
+    () => getDiscoveryRouteInsight(selectedApplication),
+    [selectedApplication],
   );
 
   useEffect(() => {
@@ -356,6 +360,49 @@ export function DiscoveryPage() {
   const isDiscoveryComplete = discoveryQuestions.length > 0 && answeredCount === discoveryQuestions.length;
   const showCompletionPanel = isDiscoveryComplete && !isReviewingAnswers;
 
+  // Remove stale downstream answers when an earlier decision makes their
+  // question irrelevant. Without this, hidden wireless, multiview or UC
+  // answers could still leak into summaries and recommendations.
+  useEffect(() => {
+    const visibleIds = new Set(discoveryQuestions.map((step) => step.id));
+
+    setAnswers((previous) => {
+      const staleIds = Object.keys(previous).filter((id) => !visibleIds.has(id));
+      if (staleIds.length === 0) return previous;
+      const next = { ...previous };
+      staleIds.forEach((id) => delete next[id]);
+      return next;
+    });
+
+    setNotes((previous) => {
+      const staleIds = Object.keys(previous).filter((id) => !visibleIds.has(id));
+      if (staleIds.length === 0) return previous;
+      const next = { ...previous };
+      staleIds.forEach((id) => delete next[id]);
+      return next;
+    });
+  }, [discoveryQuestions]);
+
+  const selectedAnswerLabel = (stepId: string): string => {
+    const step = discoveryQuestions.find((candidate) => candidate.id === stepId);
+    return step && wmDiscoveryHasAnswer(answers[stepId])
+      ? getOptionLabel(step, answers[stepId], selectedApplication)
+      : "";
+  };
+  const requiresVideoWallConfiguration =
+    wmDiscoveryAnswerIncludes(answers.displays, "video-wall-output") ||
+    wmDiscoveryAnswerIncludes(answers["display-behaviour"], "video-wall-or-processor-feed") ||
+    selectedApplication === "video-wall";
+  const opportunityDescription = [
+    selectedAnswerLabel("opportunity") || wmDiscoveryAnswerToText(answers.opportunity),
+    selectedAnswerLabel("scale"),
+    selectedAnswerLabel("sources"),
+    selectedAnswerLabel("source-device-workflows"),
+    selectedAnswerLabel("displays"),
+    selectedAnswerLabel("display-behaviour"),
+    selectedAnswerLabel("signal-standard"),
+  ].filter(Boolean).join(" · ");
+
   const capturedSummary = useMemo(() => {
     return discoveryQuestions
       .filter((step) => wmDiscoveryHasAnswer(answers[step.id]) || Boolean(notes[step.id]))
@@ -364,10 +411,12 @@ export function DiscoveryPage() {
           id: step.id,
           label: step.shortLabel,
           answer: wmDiscoveryHasAnswer(answers[step.id]) ? getOptionLabel(step, answers[step.id], selectedApplication) : "Captured note only",
-          note: notes[step.id] ?? "",
+          note: step.id === "opportunity"
+            ? opportunityDescription
+            : notes[step.id] ?? "",
         };
       });
-  }, [answers, notes, selectedApplication, discoveryQuestions]);
+  }, [answers, notes, selectedApplication, discoveryQuestions, opportunityDescription]);
 
   // Autosave the in-progress draft so it survives navigation away from Discovery
   // without an explicit "Save to project" click. Skipped until something has
@@ -649,6 +698,10 @@ export function DiscoveryPage() {
     );
 
     setAnswers((previous) => {
+      if (currentStep.id === "opportunity" && previous.opportunity !== value) {
+        return { opportunity: value };
+      }
+
       const updated: DiscoveryAnswers = {
         ...previous,
         [currentStep.id]: value,
@@ -670,6 +723,11 @@ export function DiscoveryPage() {
 
       return updated;
     });
+
+    if (currentStep.id === "opportunity" && answers.opportunity !== value) {
+      setNotes({});
+      setTopology(generateProjectTopologyFromDiscovery({ answers: { opportunity: value }, notes: {}, application: value }));
+    }
 
     if (currentStep.id === "uc-purpose" && ["no-uc", "camera-distribution-only"].includes(value)) {
       setNotes((previous) => {
@@ -1026,8 +1084,8 @@ export function DiscoveryPage() {
         roomType: application,
         application,
         applicationType: application,
-        outcome: notes.opportunity?.trim() || application,
-        customerWording: notes.opportunity?.trim() || allNotes[0] || "",
+        outcome: opportunityDescription || application,
+        customerWording: notes.opportunity?.trim() || "",
         scale: answerLabel("scale"),
         roomSize: answerLabel("scale"),
         devices: [sourceCount, ...sourceConnections, ...sourceDeviceWorkflows].filter(Boolean),
@@ -1185,7 +1243,16 @@ export function DiscoveryPage() {
 
   function moveForward(target: "recommendations" | "proposal"): void {
     saveDiscoveryBriefToProject(buildDiscoveryBrief());
+    if (target === "recommendations" && requiresVideoWallConfiguration) {
+      navigate(routeCatalogByKey.videowall.path);
+      return;
+    }
     navigate(target === "proposal" ? routeCatalogByKey.proposal.path : routeCatalogByKey.recommendations.path);
+  }
+
+  function openVideoWallConfiguration(): void {
+    saveDiscoveryBriefToProject(buildDiscoveryBrief());
+    navigate(routeCatalogByKey.videowall.path);
   }
 
   function toggleMicrophone(): void {
@@ -1255,7 +1322,7 @@ export function DiscoveryPage() {
     setIsListening(true);
   }
 return (
-    <main className="wm-discovery-capture-page wm-ui-page wingman-page-host" data-audit={discoveryAuditMarkers.join("|")}>
+    <main className="wm-discovery-capture-page wm-ui-page" data-audit={discoveryAuditMarkers.join("|")}>
       {/* WINGMAN_EXISTING_DISCOVERY_WARNING_MODAL_START */}
       {showExistingDiscoveryWarning && existingDiscoveryPortalTarget &&
         !hasIntentionalDiscoveryEntry? createPortal(
@@ -1337,7 +1404,7 @@ return (
           </p>
 
           <div className="wm-discovery-capture-actions wm-discovery-finish-actions">
-            <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => moveForward("recommendations")}>Next: find matching products</button>
+            <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => moveForward("recommendations")}>{requiresVideoWallConfiguration ? "Next: configure video wall" : "Next: find matching products"}</button>
             <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={() => moveForward("proposal")}>Build proposal</button>
             <button
               className="wm-ui-button wm-ui-button-secondary"
@@ -1391,6 +1458,16 @@ return (
             </div>
           </div>
           {/* WINGMAN_DISCOVERY_COMPACT_NAV_END */}
+
+          {discoveryRouteInsight && currentStep.id !== "opportunity" && (
+            <div className="wm-discovery-route-insight wm-discovery-why-card wm-ui-card" role="status">
+              <strong>{discoveryRouteInsight.label}</strong>
+              <p className="wm-ui-copy">{discoveryRouteInsight.summary}</p>
+              <ul>
+                {discoveryRouteInsight.decisions.map((decision) => <li key={decision}>{decision}</li>)}
+              </ul>
+            </div>
+          )}
 
           <div className="wm-discovery-question-heading wm-ui-title">
             <span>{currentStep.shortLabel}</span>
@@ -1523,6 +1600,8 @@ return (
           savedMessage={savedMessage}
           onMoveNext={moveNext}
           onSaveProgress={saveDiscoveryToProject}
+          videoWallRequired={requiresVideoWallConfiguration}
+          onConfigureVideoWall={openVideoWallConfiguration}
         />
       )}
 

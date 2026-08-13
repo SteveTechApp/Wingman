@@ -706,9 +706,14 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     why: "Audio topology defines amplifier, DSP, loudspeaker, cabling and commissioning scope for other vendors.",
     required: true,
     selectionMode: "multiple",
-    exclusiveValues: ["unknown-audio"],
+    exclusiveValues: ["no-room-audio", "unknown-audio"],
     capturePlaceholder: "Example: Ceiling speakers with a room amplifier, plus de-embedded programme audio for recording.",
     options: [
+      {
+        value: "no-room-audio",
+        label: "No separate room audio system",
+        help: "Audio is not required, remains within the source/display, or is outside this project scope.",
+      },
       {
         value: "display-audio",
         label: "Display audio",
@@ -760,7 +765,7 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
     shortLabel: "Control",
     section: "Audio, control & conferencing",
     question: "How should people in the room operate the system?",
-    prompt: "Think about staff use, wall control, touch panels, third-party control, automation or simple source selection.",
+    prompt: "Think about staff use, wall control, touch panels, software or app control, third-party control, automation or simple source selection.",
     why: "Control affects usability, supportability and whether the solution is realistic for non-technical users.",
     required: true,
     selectionMode: "multiple",
@@ -781,6 +786,11 @@ const baseDiscoveryQuestions: DiscoveryQuestion[] = [
         value: "touch-panel",
         label: "Touch panel / room control",
         help: "Useful for meeting rooms, classrooms and staff-operated AV.",
+      },
+      {
+        value: "software-app-control",
+        label: "Software / app control",
+        help: "Operate the system from a browser, desktop application, tablet or mobile app.",
       },
       {
         value: "third-party-control",
@@ -853,6 +863,35 @@ const avoipProfileQuestion: DiscoveryQuestion = {
 };
 
 const operationalWorkflowQuestions: DiscoveryQuestion[] = [
+  {
+    id: "video-wall-technology", shortLabel: "Wall technology", section: "Video wall intent",
+    question: "What kind of video wall is being planned?",
+    prompt: "Choose the physical display technology. If it is not confirmed, Wingman will keep both design paths open.",
+    why: "LCD arrays and direct-view LED walls use different processing, layout, mounting and commissioning workflows.",
+    required: true, selectionMode: "single",
+    capturePlaceholder: "Example: 3 × 3 narrow-bezel LCD wall, or a 5 m × 2 m indoor direct-view LED canvas.",
+    options: [
+      { value: "lcd-array", label: "LCD screen array", help: "Multiple flat panels arranged as one wall or as independently addressed tiles." },
+      { value: "direct-view-led", label: "Direct-view LED wall", help: "LED cabinets driven by an LED processor or controller." },
+      { value: "projection-canvas", label: "Blended projection canvas", help: "Multiple projectors forming a larger blended image." },
+      { value: "wall-technology-unknown", label: "Not confirmed yet", help: "Keep LCD, LED and processing decisions open for comparison." },
+    ],
+  },
+  {
+    id: "video-wall-purpose", shortLabel: "Wall purpose", section: "Video wall intent",
+    question: "How should the wall present content?",
+    prompt: "Select the closest operating model. This decision controls whether detailed multiview questions are necessary.",
+    why: "A single canvas, signage wall, independently routed tiles and a true multiview canvas require materially different processing.",
+    required: true, selectionMode: "single",
+    capturePlaceholder: "Example: One presentation stretched across the whole wall, with an occasional four-source preset.",
+    options: [
+      { value: "single-canvas", label: "One image across the full wall", help: "The wall behaves as one large display canvas." },
+      { value: "independent-tiles", label: "Different content on individual screens", help: "Each LCD tile or zone needs independent routing." },
+      { value: "signage-presets", label: "Signage layouts and scheduled presets", help: "Content follows repeatable branded or operational layouts." },
+      { value: "multi-source-canvas", label: "Several live sources composed together", help: "A multiview or windowing processor is required." },
+      { value: "wall-purpose-unknown", label: "Not confirmed yet", help: "Capture the uncertainty without forcing a processor choice." },
+    ],
+  },
   {
     id: "source-device-workflows", shortLabel: "Source devices", section: "Sources & displays",
     question: "Which devices and feeds will people use?",
@@ -977,6 +1016,10 @@ function getApplicationDiscoveryQuestions(selectedApplication: string): Discover
   insertAfter(questions, "display-behaviour", [byId("multiview-destination"), byId("multiview-operation")]);
   insertAfter(questions, "uc-microphones", [byId("uc-microphone-count"), byId("uc-audio-processing")]);
 
+  if (selectedApplication === "video-wall") {
+    insertAfter(questions, "scale", [byId("video-wall-technology"), byId("video-wall-purpose")]);
+  }
+
   if (selectedApplication !== "av-over-ip") return questions;
 
   // Insert directly after "signal-standard" so it stays grouped inside the
@@ -1000,6 +1043,25 @@ export function getVisibleDiscoveryQuestions(
   const microphoneValues = Array.isArray(answers["uc-microphones"])
     ? answers["uc-microphones"]
     : [String(answers["uc-microphones"] ?? "")].filter(Boolean);
+  const ucPurposeValues = Array.isArray(answers["uc-purpose"])
+    ? answers["uc-purpose"]
+    : [String(answers["uc-purpose"] ?? "")].filter(Boolean);
+  const ucPlatformValues = Array.isArray(answers["uc-platform"])
+    ? answers["uc-platform"]
+    : [String(answers["uc-platform"] ?? "")].filter(Boolean);
+  const cameraValues = Array.isArray(answers["uc-camera"])
+    ? answers["uc-camera"]
+    : [String(answers["uc-camera"] ?? "")].filter(Boolean);
+  const cameraCount = Array.isArray(answers["uc-camera-count"])
+    ? answers["uc-camera-count"][0] ?? ""
+    : String(answers["uc-camera-count"] ?? "");
+  const displayCount = Array.isArray(answers.displays)
+    ? answers.displays[0] ?? ""
+    : String(answers.displays ?? "");
+  const hasCameraWorkflow = ucPurposeValues.some((value) =>
+    ["video-conferencing", "recording-streaming", "camera-distribution-only"].includes(value),
+  );
+  const hasMultipleCameras = ["two-cameras", "three-four-cameras", "five-plus-cameras"].includes(cameraCount);
 
   const detailedUcSteps = new Set([
     "uc-platform",
@@ -1015,11 +1077,17 @@ export function getVisibleDiscoveryQuestions(
   const sourceProfileValues = Array.isArray(answers["source-connection"]) ? answers["source-connection"] : [String(answers["source-connection"] ?? "")];
   const sourceDeviceValues = Array.isArray(answers["source-device-workflows"]) ? answers["source-device-workflows"] : [String(answers["source-device-workflows"] ?? "")];
   const displayBehaviourValues = Array.isArray(answers["display-behaviour"]) ? answers["display-behaviour"] : [String(answers["display-behaviour"] ?? "")];
-  const displayValues = Array.isArray(answers.displays) ? answers.displays : [String(answers.displays ?? "")];
-  const multiviewRequired = selectedApplication === "video-wall" || displayBehaviourValues.includes("multiview-on-one-output") || displayValues.includes("video-wall-output") || answers["avoip-profile"] === "multiview-avoip";
+  const wallPurpose = Array.isArray(answers["video-wall-purpose"]) ? answers["video-wall-purpose"][0] : answers["video-wall-purpose"];
+  const multiviewRequired = wallPurpose === "multi-source-canvas" || displayBehaviourValues.includes("multiview-on-one-output") || answers["avoip-profile"] === "multiview-avoip";
   const wirelessRelevant = sourceProfileValues.some((value) => ["laptops-wireless-inputs", "mixed-hdmi-usbc", "network-video-sources"].includes(value)) || sourceDeviceValues.includes("wireless-casting-source");
 
   return withApplicationQuestions.filter((step) => {
+    if (selectedApplication === "video-wall" && [
+      "displays", "uc-purpose", "uc-platform", "mtr-av-integration", "uc-camera",
+      "uc-camera-count", "uc-multi-camera-path", "uc-camera-routing", "uc-microphones",
+      "uc-microphone-connection", "uc-microphone-count", "uc-audio-processing", "usb",
+    ].includes(step.id)) return false;
+    if (selectedApplication === "video-wall" && step.id === "display-behaviour") return false;
     if (step.id === "wireless-presentation-operation" && !wirelessRelevant) return false;
     if (["multiview-destination", "multiview-operation"].includes(step.id) && !multiviewRequired) return false;
     if (!ucPurposeValue || ucPurposeValue === "no-uc") {
@@ -1042,8 +1110,56 @@ export function getVisibleDiscoveryQuestions(
 
     if (["uc-microphone-count", "uc-audio-processing"].includes(step.id) && microphoneValues.includes("no-microphones")) return false;
 
+    if (step.id === "mtr-av-integration" && !ucPlatformValues.includes("microsoft-teams-room")) return false;
+
+    if (["uc-camera", "uc-camera-count", "uc-camera-routing"].includes(step.id) && !hasCameraWorkflow) return false;
+
+    if (step.id === "uc-multi-camera-path" && (!hasCameraWorkflow || !hasMultipleCameras)) return false;
+
     return true;
+  }).map((step) => {
+    let options = step.options;
+
+    if (step.id === "display-behaviour" && displayCount === "one-display") {
+      options = options.filter((option) => ![
+        "independent-routing-per-display",
+        "video-wall-or-processor-feed",
+      ].includes(option.value));
+    }
+
+    if (step.id === "uc-multi-camera-path") {
+      const hasNdi = cameraValues.includes("ndi-network-camera");
+      const hasNonNdi = cameraValues.some((value) => [
+        "fixed-usb-camera",
+        "usb-ptz-camera",
+        "hdmi-ptz-camera",
+        "other-camera",
+      ].includes(value));
+
+      if (hasNdi && !hasNonNdi) {
+        options = options.filter((option) => option.value !== "multi-camera-non-ndi");
+      } else if (hasNonNdi && !hasNdi) {
+        options = options.filter((option) => option.value !== "multi-camera-ndi");
+      }
+    }
+
+    return options === step.options ? step : { ...step, options };
   });
+}
+
+export type DiscoveryRouteInsight = {
+  label: string;
+  summary: string;
+  decisions: string[];
+};
+
+export function getDiscoveryRouteInsight(selectedApplication: string): DiscoveryRouteInsight | undefined {
+  if (selectedApplication !== "video-wall") return undefined;
+  return {
+    label: "Video wall route selected",
+    summary: "Wingman has removed generic conferencing, camera, microphone, USB and display-count steps. The shortened route concentrates on wall technology, content behaviour, sources, signal quality, control, audio scope and cable paths.",
+    decisions: ["LCD, LED or projection canvas", "Full canvas, independent tiles, signage or multiview", "Processing, control and signal-path implications"],
+  };
 }
 
 type ApplicationSpecificDiscoveryQuestionGuidance = {
