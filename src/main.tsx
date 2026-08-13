@@ -1,3 +1,4 @@
+import { installWingmanLocalSessionFallback } from "./wingman2/utils/installWingmanLocalSessionFallback";
 import "@xyflow/react/dist/style.css";
 import "./wingman2/styles/wingman-style-stack.css";
 import "./wingman2/styles/wingman-reference-theme.css";
@@ -37,6 +38,8 @@ if (!rootElement) {
 
 installCompareManufacturerAssist();
 installTemplateCardExpansionController();
+
+installWingmanLocalSessionFallback();
 
 createRoot(rootElement).render(
   <React.StrictMode>

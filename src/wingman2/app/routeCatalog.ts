@@ -43,7 +43,7 @@ export type WingmanRouteKey =
   | "ingest"
   | "proposal"
   | "support"
-  | "profile" | "visualStudio";
+  | "profile" | "visualStudio" | "proposalVisuals";
 
 type RouteManifestEntry = {
   key: WingmanRouteKey;
@@ -85,6 +85,7 @@ const iconMap: Record<WingmanRouteKey, LucideIcon> = {
   support: LifeBuoy,
   profile: Settings,
   visualStudio: Workflow,
+  proposalVisuals: Workflow,
 };
 
 const manifest = routeManifest as RouteManifestEntry[];
@@ -115,7 +116,7 @@ export const consolidatedRouteGroups = {
   callCoach: ["callCards", "productCallCards", "discovery", "salesHelper", "support"],
   products: ["productFamilies", "catalogBrowser", "productCallCards", "productPitch", "videowall", "proposal"],
   documents: ["ingest", "templates", "compare", "proposal"],
-  responsePack: ["proposal", "support", "visualDesign", "templates"],
+  responsePack: ["proposal", "support", "proposalVisuals", "templates"],
   learn: ["glossary", "support", "productFamilies"],
 } as const satisfies Partial<Record<WingmanRouteKey, readonly WingmanRouteKey[]>>;
 
@@ -136,6 +137,10 @@ export function routeByPath(pathname: string) {
 
   if (pathname.startsWith("/wingman/product-call-cards/")) {
     return routeCatalogByKey.productCallCards;
+  }
+
+  if (pathname.startsWith("/wingman/product-families/")) {
+    return routeCatalogByKey.productFamilies;
   }
 
   if (normalizedPath === "/wingman/profile") {

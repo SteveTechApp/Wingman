@@ -43,10 +43,17 @@ import type {
   DiscoveryAnswers,
   DiscoveryNotes,
 } from "./discovery/discoveryTypes";
-import { getQuestionStrategy, getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
+import { getDiscoveryRouteInsight, getQuestionStrategy, getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
 import { DiscoveryClientDetailsPanel } from "./discovery/DiscoveryClientDetailsPanel";
 import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
 import { DiscoverySummaryCard } from "./discovery/DiscoverySummaryCard";
+import { DiscoveryRouteInsightPanel } from "./discovery/DiscoveryRouteInsightPanel";
+import { DiscoveryCompletionPanel } from "./discovery/DiscoveryCompletionPanel";
+import {
+  getDiscoverySpeechRecognition,
+  type DiscoverySpeechRecognitionEventLike,
+  type DiscoverySpeechRecognitionLike,
+} from "./discovery/discoverySpeechRecognition";
 import {
   getAvoipDirection,
   getAvoipNextQuestion,
@@ -65,52 +72,6 @@ import {
   wmDiscoveryNormaliseAnswerList,
   wmDiscoveryToggleMultiSelectAnswer,
 } from "./discovery/discoveryAnswerUtils";
-
-type DiscoverySpeechRecognitionAlternativeLike = {
-  transcript: string;
-};
-
-type DiscoverySpeechRecognitionResultLike = {
-  isFinal: boolean;
-  0: DiscoverySpeechRecognitionAlternativeLike;
-};
-
-type DiscoverySpeechRecognitionResultListLike = {
-  length: number;
-  [index: number]: DiscoverySpeechRecognitionResultLike;
-};
-
-type DiscoverySpeechRecognitionEventLike = {
-  resultIndex?: number;
-  results: DiscoverySpeechRecognitionResultListLike;
-};
-
-type DiscoverySpeechRecognitionLike = {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  onresult: ((event: DiscoverySpeechRecognitionEventLike) => void) | null;
-  onerror: (() => void) | null;
-  onend: (() => void) | null;
-  start: () => void;
-  stop: () => void;
-};
-
-type DiscoverySpeechRecognitionConstructor = new () => DiscoverySpeechRecognitionLike;
-
-type DiscoverySpeechWindow = Window &
-  typeof globalThis & {
-    SpeechRecognition?: DiscoverySpeechRecognitionConstructor;
-    webkitSpeechRecognition?: DiscoverySpeechRecognitionConstructor;
-  };
-
-function getDiscoverySpeechRecognition(): DiscoverySpeechRecognitionConstructor | undefined {
-  
-
-const speechWindow = window as DiscoverySpeechWindow;
-
-  return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
-}
 
 // Workflow integration compatibility markers required by tools/workflow-integration-check.mjs.
 // Live call mode
@@ -140,9 +101,6 @@ const discoveryAuditMarkers = [
 export function DiscoveryPage() {
   const [searchParams] = useSearchParams();
   const editQuestionId = searchParams.get("edit")?.trim() ?? "";
-  // Restoring an in-progress Discovery draft (autosaved as the customer talks) so
-  // navigating away and back - or a refresh mid-call - never throws the captured
-  // answers away. An explicit "Reset discovery" clears this snapshot.
   const [discoveryDraft] = useState(() => readLatestDiscoverySnapshot());
   const draftState = discoveryDraft?.state ?? {};
   const draftField = (key: string) => {
@@ -298,10 +256,14 @@ export function DiscoveryPage() {
   const discoveryQuestions = useMemo(
     () =>
       wmDiscoveryFilterUnifiedCommsQuestions(
-        getVisibleDiscoveryQuestions(selectedApplication),
+        getVisibleDiscoveryQuestions(selectedApplication, answers),
         answers,
       ),
     [selectedApplication, answers],
+  );
+  const discoveryRouteInsight = useMemo(
+    () => getDiscoveryRouteInsight(selectedApplication),
+    [selectedApplication],
   );
 
   useEffect(() => {
@@ -356,6 +318,46 @@ export function DiscoveryPage() {
   const isDiscoveryComplete = discoveryQuestions.length > 0 && answeredCount === discoveryQuestions.length;
   const showCompletionPanel = isDiscoveryComplete && !isReviewingAnswers;
 
+  useEffect(() => {
+    const visibleIds = new Set(discoveryQuestions.map((step) => step.id));
+
+    setAnswers((previous) => {
+      const staleIds = Object.keys(previous).filter((id) => !visibleIds.has(id));
+      if (staleIds.length === 0) return previous;
+      const next = { ...previous };
+      staleIds.forEach((id) => delete next[id]);
+      return next;
+    });
+
+    setNotes((previous) => {
+      const staleIds = Object.keys(previous).filter((id) => !visibleIds.has(id));
+      if (staleIds.length === 0) return previous;
+      const next = { ...previous };
+      staleIds.forEach((id) => delete next[id]);
+      return next;
+    });
+  }, [discoveryQuestions]);
+
+  const selectedAnswerLabel = (stepId: string): string => {
+    const step = discoveryQuestions.find((candidate) => candidate.id === stepId);
+    return step && wmDiscoveryHasAnswer(answers[stepId])
+      ? getOptionLabel(step, answers[stepId], selectedApplication)
+      : "";
+  };
+  const requiresVideoWallConfiguration =
+    wmDiscoveryAnswerIncludes(answers.displays, "video-wall-output") ||
+    wmDiscoveryAnswerIncludes(answers["display-behaviour"], "video-wall-or-processor-feed") ||
+    selectedApplication === "video-wall";
+  const opportunityDescription = [
+    selectedAnswerLabel("opportunity") || wmDiscoveryAnswerToText(answers.opportunity),
+    selectedAnswerLabel("scale"),
+    selectedAnswerLabel("sources"),
+    selectedAnswerLabel("source-device-workflows"),
+    selectedAnswerLabel("displays"),
+    selectedAnswerLabel("display-behaviour"),
+    selectedAnswerLabel("signal-standard"),
+  ].filter(Boolean).join(" · ");
+
   const capturedSummary = useMemo(() => {
     return discoveryQuestions
       .filter((step) => wmDiscoveryHasAnswer(answers[step.id]) || Boolean(notes[step.id]))
@@ -364,15 +366,13 @@ export function DiscoveryPage() {
           id: step.id,
           label: step.shortLabel,
           answer: wmDiscoveryHasAnswer(answers[step.id]) ? getOptionLabel(step, answers[step.id], selectedApplication) : "Captured note only",
-          note: notes[step.id] ?? "",
+          note: step.id === "opportunity"
+            ? opportunityDescription
+            : notes[step.id] ?? "",
         };
       });
-  }, [answers, notes, selectedApplication, discoveryQuestions]);
+  }, [answers, notes, selectedApplication, discoveryQuestions, opportunityDescription]);
 
-  // Autosave the in-progress draft so it survives navigation away from Discovery
-  // without an explicit "Save to project" click. Skipped until something has
-  // actually been captured, so merely opening the page doesn't manufacture a
-  // brief for Recommendations to pick up.
   useEffect(() => {
     if (answeredCount === 0 && Object.keys(notes).length === 0) {
       return;
@@ -388,8 +388,6 @@ export function DiscoveryPage() {
     }, 400);
 
     return () => window.clearTimeout(timeout);
-  // buildDiscoveryBrief reads the same state listed here; including the render-local
-  // function itself would retrigger the debounce on every render.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answeredCount, activeIndex, answers, notes, clientName, contactName, siteName, budgetLevel, timeline]);
 
@@ -435,9 +433,6 @@ export function DiscoveryPage() {
   }, [answers, currentStep.id, notes, selectedApplication, topology]);
 
   useEffect(() => {
-    // Template creation/editing and "Use Template" handoff: pre-populate this
-    // Discovery session from a template instead of starting blank, and switch
-    // into the matching Discovery mode. Consumed once, then cleared.
     const handoff = readDiscoveryHandoff();
 
     if (!handoff) {
@@ -566,7 +561,6 @@ export function DiscoveryPage() {
   }, []);
 
   useEffect(() => {
-    // Video Wall builder handoff: "Send to Discovery" seeds the wall design here.
     const useVideoWall = window.sessionStorage.getItem("wingman:use-video-wall-in-discovery");
     const videoWallRaw = window.sessionStorage.getItem("wingman:video-wall-discovery");
     if (useVideoWall === "1" && videoWallRaw) {
@@ -594,7 +588,6 @@ export function DiscoveryPage() {
       window.sessionStorage.removeItem("wingman:use-video-wall-in-discovery");
     }
 
-    // Product call-card "start room builder" handoff: seed discovery with the chosen product.
     const seedRaw = window.sessionStorage.getItem("wingman.roomBuilderSeedProduct");
     if (seedRaw) {
       try {
@@ -611,8 +604,6 @@ export function DiscoveryPage() {
       }
       window.sessionStorage.removeItem("wingman.roomBuilderSeedProduct");
     }
-  // Session handoffs are intentionally consumed once. Adding answers would
-  // replay and delete newly written handoff state whenever an answer changes.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -649,6 +640,10 @@ export function DiscoveryPage() {
     );
 
     setAnswers((previous) => {
+      if (currentStep.id === "opportunity" && previous.opportunity !== value) {
+        return { opportunity: value };
+      }
+
       const updated: DiscoveryAnswers = {
         ...previous,
         [currentStep.id]: value,
@@ -670,6 +665,11 @@ export function DiscoveryPage() {
 
       return updated;
     });
+
+    if (currentStep.id === "opportunity" && answers.opportunity !== value) {
+      setNotes({});
+      setTopology(generateProjectTopologyFromDiscovery({ answers: { opportunity: value }, notes: {}, application: value }));
+    }
 
     if (currentStep.id === "uc-purpose" && ["no-uc", "camera-distribution-only"].includes(value)) {
       setNotes((previous) => {
@@ -1026,8 +1026,8 @@ export function DiscoveryPage() {
         roomType: application,
         application,
         applicationType: application,
-        outcome: notes.opportunity?.trim() || application,
-        customerWording: notes.opportunity?.trim() || allNotes[0] || "",
+        outcome: opportunityDescription || application,
+        customerWording: notes.opportunity?.trim() || "",
         scale: answerLabel("scale"),
         roomSize: answerLabel("scale"),
         devices: [sourceCount, ...sourceConnections, ...sourceDeviceWorkflows].filter(Boolean),
@@ -1185,7 +1185,16 @@ export function DiscoveryPage() {
 
   function moveForward(target: "recommendations" | "proposal"): void {
     saveDiscoveryBriefToProject(buildDiscoveryBrief());
+    if (target === "recommendations" && requiresVideoWallConfiguration) {
+      navigate(routeCatalogByKey.videowall.path);
+      return;
+    }
     navigate(target === "proposal" ? routeCatalogByKey.proposal.path : routeCatalogByKey.recommendations.path);
+  }
+
+  function openVideoWallConfiguration(): void {
+    saveDiscoveryBriefToProject(buildDiscoveryBrief());
+    navigate(routeCatalogByKey.videowall.path);
   }
 
   function toggleMicrophone(): void {
@@ -1255,7 +1264,7 @@ export function DiscoveryPage() {
     setIsListening(true);
   }
 return (
-    <main className="wm-discovery-capture-page wm-ui-page wingman-page-host" data-audit={discoveryAuditMarkers.join("|")}>
+    <main className="wm-discovery-capture-page wm-ui-page" data-audit={discoveryAuditMarkers.join("|")}>
       {/* WINGMAN_EXISTING_DISCOVERY_WARNING_MODAL_START */}
       {showExistingDiscoveryWarning && existingDiscoveryPortalTarget &&
         !hasIntentionalDiscoveryEntry? createPortal(
@@ -1323,44 +1332,25 @@ return (
       ) : null}
 
       {showCompletionPanel ? (
-        <section
-          ref={completionPanelRef}
-          className="wm-discovery-finish-card wm-ui-section wm-ui-card wm-ui-title"
-          tabIndex={-1}
-          aria-labelledby="discovery-complete-title"
-        >
-          <span>Discovery complete</span>
-          <h2 className="wm-ui-title" id="discovery-complete-title">All {discoveryQuestions.length} answers are captured. Choose the next move.</h2>
-          <p className="wm-ui-copy">
-            Your complete room brief is ready. Finder will use the core architecture requirements to recommend products,
-            while keeping supporting audio, control and installation details visible for validation.
-          </p>
-
-          <div className="wm-discovery-capture-actions wm-discovery-finish-actions">
-            <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => moveForward("recommendations")}>Next: find matching products</button>
-            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={() => moveForward("proposal")}>Build proposal</button>
-            <button
-              className="wm-ui-button wm-ui-button-secondary"
-              type="button"
-              onClick={() => {
-                setActiveIndex(Math.max(discoveryQuestions.length - 1, 0));
-                setIsReviewingAnswers(true);
-              }}
-            >
-              Review answers
-            </button>
-            <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={saveDiscoveryToProject}>Save to project</button>
-          </div>
-
-          <p className="wm-discovery-finish-review wm-ui-copy">
-            Need to amend something? Select Review answers, then use Previous and Continue to move through the captured brief.
-          </p>
-
-          {savedMessage && <p className="wm-discovery-muted-note wm-ui-copy">{savedMessage}</p>}
-        </section>
+        <DiscoveryCompletionPanel
+          panelRef={completionPanelRef}
+          answerCount={discoveryQuestions.length}
+          requiresVideoWallConfiguration={requiresVideoWallConfiguration}
+          savedMessage={savedMessage}
+          onMoveForward={moveForward}
+          onReviewAnswers={() => {
+            setActiveIndex(Math.max(discoveryQuestions.length - 1, 0));
+            setIsReviewingAnswers(true);
+          }}
+          onSave={saveDiscoveryToProject}
+        />
       ) : (
       <div className="wm-discovery-question-layout">
-        <section className="wm-discovery-question-card wm-ui-section wm-ui-card">
+        <section
+          className="wm-discovery-question-card wm-ui-section wm-ui-card"
+          data-discovery-step={currentStep.id}
+          data-discovery-section={currentStep.section}
+        >
           {/* WINGMAN_DISCOVERY_COMPACT_NAV_START */}
           <div className="wm-discovery-compact-stepbar" aria-label="Discovery progress and controls">
             <div className="wm-discovery-compact-step-copy">
@@ -1391,6 +1381,8 @@ return (
             </div>
           </div>
           {/* WINGMAN_DISCOVERY_COMPACT_NAV_END */}
+
+          <DiscoveryRouteInsightPanel insight={discoveryRouteInsight} currentStepId={currentStep.id} />
 
           <div className="wm-discovery-question-heading wm-ui-title">
             <span>{currentStep.shortLabel}</span>
@@ -1457,6 +1449,19 @@ return (
         </section>
 
         <aside className="wm-discovery-capture-card wm-ui-card">
+          {capturedSummary.length > 0 && (
+            <DiscoverySummaryCard
+              items={capturedSummary}
+              isDiscoveryComplete={isDiscoveryComplete}
+              savedMessage={savedMessage}
+              onMoveNext={moveNext}
+              onSaveProgress={saveDiscoveryToProject}
+              videoWallRequired={requiresVideoWallConfiguration}
+              onConfigureVideoWall={openVideoWallConfiguration}
+              compact
+            />
+          )}
+
           <div className="wm-discovery-capture-heading wm-ui-title">
             <div>
               <span>Capture box</span>
@@ -1514,16 +1519,6 @@ return (
           )}
         </aside>
       </div>
-      )}
-
-      {capturedSummary.length > 0 && (
-        <DiscoverySummaryCard
-          items={capturedSummary}
-          isDiscoveryComplete={isDiscoveryComplete}
-          savedMessage={savedMessage}
-          onMoveNext={moveNext}
-          onSaveProgress={saveDiscoveryToProject}
-        />
       )}
 
       {discoveryMode !== "standard" ? (

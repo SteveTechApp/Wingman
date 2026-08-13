@@ -323,7 +323,10 @@ export function buildProposalHtml(proposal: StoredProjectProposal, bomRows: BomR
   ${buildSchematicSectionHtml(proposal, bomRows)}
   ${
     visualBlocks.length
-      ? `<h3>Supporting visuals</h3><div class="visual-grid">${visualBlocks.map((block) => `<div class="visual-card"><strong>${escapeHtml(block.title)}</strong><p>${escapeHtml(block.summary)}</p><p>${escapeHtml(block.proposalUse)}</p><span>${escapeHtml(block.exportLabel)}</span></div>`).join("")}</div>`
+      ? `<h3>Supporting visuals</h3><div class="visual-grid">${visualBlocks.map((block) => {
+          const image = block.renderSrc;
+          return `<div class="visual-card">${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(block.title)}" style="display:block;width:100%;height:auto;margin-bottom:12px;border:1px solid #cbd5e1;border-radius:8px;" />` : ""}<strong>${escapeHtml(block.title)}</strong><p>${escapeHtml(block.summary)}</p><p>${escapeHtml(block.proposalUse)}</p><span>${escapeHtml(block.exportLabel)}</span></div>`;
+        }).join("")}</div>`
       : ""
   }
 

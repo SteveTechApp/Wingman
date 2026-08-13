@@ -517,6 +517,27 @@ html[data-wingman-route="dashboard"] body > #root {
   overflow-y: auto !important;
 }
 
+/* Keep dashboard scrolling available on unusually short viewports without
+   showing a persistent vertical scrollbar beside the right-hand rail. */
+html[data-wingman-route="dashboard"],
+html[data-wingman-route="dashboard"] body,
+html[data-wingman-route="dashboard"] .wingman-shell,
+html[data-wingman-route="dashboard"] .wingman-workspace,
+html[data-wingman-route="dashboard"] .wingman-app-main {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html[data-wingman-route="dashboard"]::-webkit-scrollbar,
+html[data-wingman-route="dashboard"] body::-webkit-scrollbar,
+html[data-wingman-route="dashboard"] .wingman-shell::-webkit-scrollbar,
+html[data-wingman-route="dashboard"] .wingman-workspace::-webkit-scrollbar,
+html[data-wingman-route="dashboard"] .wingman-app-main::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 html[data-wingman-route="dashboard"] .wingman-shell,
 html[data-wingman-route="dashboard"] .wingman-workspace,
 html[data-wingman-route="dashboard"] .wingman-app-main {
@@ -560,6 +581,161 @@ html[data-wingman-route="dashboard"] .wingman-page-host > .wm-dashboard-page.wm-
 
 html[data-wingman-route="dashboard"] .wm-dashboard-content-grid {
   flex: none !important;
+}
+
+/* Keep the home dashboard comfortably within a typical laptop viewport.
+   This is intentionally route-scoped: workflow screens retain the shared
+   desktop density above, while the dashboard gets a slightly tighter shell. */
+@media (min-width: 1024px) {
+  html[data-wingman-route="dashboard"] {
+    --wm-ref-sidebar-width: 190px;
+    --wm-sidebar-width: 190px;
+  }
+
+  html[data-wingman-route="dashboard"] .wingman-sidebar {
+    padding: 16px 11px 12px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wingman-brand {
+    min-height: 50px !important;
+    margin: 0 6px 12px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wingman-brand-image {
+    width: 136px !important;
+    max-height: 48px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wingman-nav {
+    gap: 3px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wingman-nav-link {
+    min-height: 35px !important;
+    gap: 9px !important;
+    padding: 7px 10px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wingman-shell > .wingman-workspace > .wingman-app-main > .wingman-page-host {
+    padding: 14px 20px 20px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-dashboard-heading-row {
+    margin-bottom: 10px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-dashboard-heading h1 {
+    font-size: clamp(1.55rem, 1.75vw, 2rem) !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-reference-dashboard-layout {
+    grid-template-columns: minmax(0, 1fr) 224px !important;
+    gap: 12px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid {
+    gap: 10px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid > .wm-polish-card.wm-polish-card {
+    grid-template-columns: 48px minmax(0, 1fr) !important;
+    gap: 12px !important;
+    min-height: 136px !important;
+    padding: 14px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid > .wm-polish-card.wm-polish-card > .wm-polish-card-icon.wm-polish-card-icon {
+    width: 46px !important;
+    min-width: 46px !important;
+    max-width: 46px !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    border-radius: 11px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid > .wm-polish-card.wm-polish-card > .wm-polish-card-icon.wm-polish-card-icon > svg {
+    width: 22px !important;
+    height: 22px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid > .wm-polish-card.wm-polish-card > .wm-polish-card-copy.wm-polish-card-copy {
+    gap: 4px !important;
+    padding-right: clamp(84px, 8vw, 116px) !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid .wm-polish-card-copy.wm-polish-card-copy > .wm-polish-card-kicker {
+    font-size: 0.68rem !important;
+    line-height: 1.15 !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid .wm-polish-card-copy.wm-polish-card-copy > .wm-polish-card-title {
+    font-size: 1rem !important;
+    line-height: 1.15 !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid .wm-polish-card-copy.wm-polish-card-copy > .wm-polish-card-body {
+    display: -webkit-box !important;
+    overflow: hidden !important;
+    font-size: 0.76rem !important;
+    line-height: 1.35 !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid .wm-polish-card-copy.wm-polish-card-copy > .wm-polish-card-link {
+    padding-top: 3px !important;
+    font-size: 0.76rem !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-polish-shell.wm-polish-shell:has(.wm-sh-card-grid) .wm-sh-card-grid.wm-polish-grid > .wm-polish-card.wm-polish-card > .wm-polish-card-art.wm-polish-card-art {
+    width: 160px !important;
+    min-width: 160px !important;
+    max-width: 160px !important;
+    height: 112px !important;
+    min-height: 112px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-reference-dashboard-main > .wm-reference-section {
+    margin-top: 10px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-reference-section {
+    gap: 9px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-reference-project-grid,
+  html[data-wingman-route="dashboard"] .wm-reference-dashboard-rail {
+    gap: 10px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-reference-project-card {
+    min-height: 132px !important;
+    gap: 9px !important;
+    padding: 13px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-reference-rail-card {
+    gap: 11px !important;
+    padding: 14px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-reference-focus-list {
+    gap: 5px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wm-reference-focus-list a {
+    padding: 6px 0 !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wingman-guru-fab {
+    width: 62px !important;
+    height: 62px !important;
+  }
+
+  html[data-wingman-route="dashboard"] .wingman-guru-fab-image {
+    width: 54px !important;
+    height: 54px !important;
+  }
 }
 
 @media (min-width: 981px) {

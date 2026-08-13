@@ -48,7 +48,7 @@ function templateBomRows(template: RoomTemplate, rows: TemplateBomRow[]): SalesB
 }
 function templateProducts(rows: TemplateBomRow[]): StoredProductSelection[] {
   return rows.filter((row) => includedStatuses.has(row.status) && row.qty > 0 && !row.sku.startsWith("BY-OTHERS")).map((row) => ({
-    sku: row.sku, title: row.description, category: row.role,
+    sku: row.sku, quantity: row.qty, title: row.description, category: row.role,
     status: row.type === "Required" ? "recommended" : "alternative",
     source: "Room Template", evidence: [row.evidence], cautions: [row.notes], addedAt: new Date().toISOString(),
   }));
@@ -180,6 +180,11 @@ export function TemplateReviewPage() {
     await exportProposalDocx(proposal, bomRows, wizard);
   }
   function saveTemplateProject() { const project = upsertStoredProject(buildTemplateProject(template, selectedRows)); setSavedProjectPath(`/wingman/projects/${project.id}`); setDirty(false); }
+  function createProposalVisual() {
+    upsertStoredProject(buildTemplateProject(template, selectedRows));
+    setDirty(false);
+    navigate(`${routeCatalogByKey.proposalVisuals.path}?mode=block-diagram&sourceTemplateId=${encodeURIComponent(template.id)}`);
+  }
   function createProposal() {
     upsertStoredProject(buildTemplateProject(template, selectedRows));
     setDirty(false);
@@ -217,6 +222,7 @@ export function TemplateReviewPage() {
           <div className="wm-template-header-actions">
             <Link className="wm-button is-secondary" to={routeCatalogByKey.templates.path}><ArrowLeft /> Back to templates</Link>
             <button className="wm-button is-secondary" type="button" onClick={saveTemplateProject}><Save /> Save as project</button>
+            <button className="wm-button is-secondary" type="button" onClick={createProposalVisual}><LayoutTemplate /> Create visual</button>
             <button className="wm-button is-primary" type="button" onClick={() => setActiveTab("Proposal")}><FileText /> Continue to proposal</button>
             <details className="wm-template-overflow"><summary className="wm-icon-button" aria-label="More template actions"><MoreHorizontal /></summary><div>
               <button type="button" onClick={resetEquipment}><RotateCcw /> Reset equipment</button>

@@ -1,7 +1,8 @@
 const WINGMAN_SCALE_VARIABLES: Record<string, string> = {
-  "--wm-fit-scale": "1",
-  "--wm-visual-scale": "1",
-  "--wm-visual-scale-percent": "100%",
+  "--wm-fit-scale": "0.9",
+  "--wm-visual-scale": "0.9",
+  "--wm-visual-scale-percent": "90%",
+  "--wm-app-scale": "0.9",
   "--wm-scaled-target-left": "0px",
   "--wm-scaled-target-top": "0px",
 };

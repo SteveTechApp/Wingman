@@ -44,6 +44,7 @@ const pageRegistry: Record<WingmanRouteKey, LazyPageComponent> = {
   support: lazy(fromNamedExport(() => import("../pages/SupportPage"), "SupportPage")),
   profile: lazy(() => import("../pages/ProfilePage")),
   visualStudio: lazy(() => import("../pages/VisualStudioPage")),
+  proposalVisuals: lazy(() => import("../pages/ProposalVisualsPage")),
 };
 
 const ProjectDetailRoute = lazy(fromNamedExport(() => import("../pages/ProjectDetailPage"), "ProjectDetailPage"));
@@ -75,10 +76,13 @@ export const wingmanRoutes: RouteObject[] = [
       { path: "dashboard", element: <Navigate to="/wingman" replace /> },
       { path: "profile", element: <Navigate to="/wingman/settings" replace /> },
       { path: "finder", element: <Navigate to="/wingman/discovery" replace /> },
+      { path: "visual-studio", element: <Navigate to="/wingman/proposal-visuals?mode=technical-schematic" replace /> },
+      { path: "visual-design", element: <Navigate to="/wingman/proposal-visuals?mode=technical-schematic" replace /> },
       { path: "projects/:projectId", element: routeElement(ProjectDetailRoute) },
       { path: "templates/:templateId", element: routeElement(TemplateReviewRoute) },
+      { path: "product-families/:familyId", element: routeElement(pageRegistry.productFamilies) },
       { path: "admin/data-manager", element: routeElement(DataManagerRoute) },
-      ...routeCatalog.filter((route) => route.key !== "dashboard").map((route) => ({
+      ...routeCatalog.filter((route) => !["dashboard", "visualStudio", "visualDesign"].includes(route.key)).map((route) => ({
         path: route.key === "productCallCards" ? `${route.segment}/*` : route.segment,
         element: routeElement(pageRegistry[route.key]),
       })),

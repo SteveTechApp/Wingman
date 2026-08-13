@@ -30,6 +30,7 @@ const productToolsVisualWeight = path.join(
 );
 const allowed = new Set([
   "src/main.tsx",
+  "src/wingman2/pages/VideowallBuilderPage.tsx",
 ]);
 
 const expectedMainCssImports = [
@@ -126,6 +127,15 @@ if (
 ) {
   console.error("Blocked: src/main.tsx must import only the governed Wingman global styles in the required order.");
   console.error(`Found: ${mainCssImports.length ? mainCssImports.join(", ") : "none"}`);
+  process.exit(1);
+}
+
+const videoWallPage = path.join(root, "src", "wingman2", "pages", "VideowallBuilderPage.tsx");
+const videoWallRaw = fs.readFileSync(videoWallPage, "utf8");
+const videoWallCssImports = [...videoWallRaw.matchAll(/import\s+["']([^"']+\.css)["'];/g)].map((match) => match[1]);
+
+if (videoWallCssImports.length !== 1 || videoWallCssImports[0] !== "../styles/wingman-videowall.css") {
+  console.error("Blocked: the lazy video-wall route must import only its governed route stylesheet.");
   process.exit(1);
 }
 
