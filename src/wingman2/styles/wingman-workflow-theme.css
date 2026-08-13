@@ -302,6 +302,41 @@ html[data-wingman-route="discovery"] .wm-discovery-why-card p {
   line-height: 1.35 !important;
 }
 
+html[data-wingman-route="discovery"] .wm-discovery-route-insight {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 8px !important;
+  padding: 10px 12px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-route-insight-copy {
+  display: flex !important;
+  gap: 12px !important;
+  align-items: baseline !important;
+  min-width: 0 !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-route-insight-copy strong {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-route-decisions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-route-decisions span {
+  padding: 3px 7px !important;
+  color: var(--wm-ref-copy) !important;
+  font-size: 0.66rem !important;
+  line-height: 1.25 !important;
+  background: color-mix(in srgb, var(--wm-ref-cyan) 6%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--wm-ref-cyan) 18%, var(--wm-ref-border)) !important;
+  border-radius: 999px !important;
+}
+
 html[data-wingman-route="discovery"] .wm-discovery-option-list {
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -414,6 +449,104 @@ html[data-wingman-route="discovery"] .wm-discovery-capture-card {
   padding: 17px !important;
 }
 
+html[data-wingman-route="discovery"] .wm-discovery-capture-card > .wm-discovery-summary-card.is-compact {
+  display: grid !important;
+  gap: 9px !important;
+  padding: 12px !important;
+  background: color-mix(in srgb, var(--wm-ref-aqua) 5%, var(--wm-ref-panel)) !important;
+  border: 1px solid color-mix(in srgb, var(--wm-ref-aqua) 26%, var(--wm-ref-border)) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-summary-card.is-compact .wm-discovery-summary-heading {
+  display: grid !important;
+  gap: 2px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-summary-card.is-compact .wm-discovery-summary-heading span {
+  color: var(--wm-ref-aqua) !important;
+  font-size: 0.68rem !important;
+  font-weight: 780 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-summary-card.is-compact .wm-discovery-summary-heading p {
+  margin: 0 !important;
+  color: var(--wm-ref-muted) !important;
+  font-size: 0.68rem !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-summary-card.is-compact .wm-discovery-summary-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+  max-height: 190px !important;
+  padding: 0 !important;
+  overflow-y: auto !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-summary-card.is-compact .wm-discovery-summary-grid article {
+  display: grid !important;
+  gap: 2px !important;
+  min-width: 0 !important;
+  padding: 7px 8px !important;
+  background: color-mix(in srgb, var(--wm-ref-bg) 55%, transparent) !important;
+  border: 1px solid var(--wm-ref-border) !important;
+  border-radius: 7px !important;
+  box-shadow: none !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-summary-card.is-compact .wm-discovery-summary-grid article strong {
+  overflow: hidden !important;
+  color: var(--wm-ref-muted) !important;
+  font-size: 0.61rem !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-summary-card.is-compact .wm-discovery-summary-grid article span {
+  overflow: hidden !important;
+  color: var(--wm-ref-text) !important;
+  font-size: 0.68rem !important;
+  font-weight: 680 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-summary-card.is-compact .wm-discovery-summary-grid article p {
+  display: none !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-summary-card.is-compact .wm-discovery-live-tip {
+  padding: 9px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-question-card[data-discovery-step="opportunity"] {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--wm-ref-aqua) 8%, var(--wm-ref-panel-strong)), var(--wm-ref-panel-soft)) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-question-card[data-discovery-step="locations-connections"] {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--wm-ref-purple) 8%, var(--wm-ref-panel-strong)), var(--wm-ref-panel-soft)) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-question-card[data-discovery-step="locations-connections"] .wm-discovery-question-heading > span {
+  color: color-mix(in srgb, var(--wm-ref-purple) 72%, white) !important;
+  border-color: color-mix(in srgb, var(--wm-ref-purple) 34%, transparent) !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-question-card[data-discovery-step="control"] {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--wm-ref-green) 7%, var(--wm-ref-panel-strong)), var(--wm-ref-panel-soft)) !important;
+}
+
 html[data-wingman-route="discovery"] .wm-discovery-capture-heading {
   display: flex !important;
   align-items: flex-start !important;
@@ -458,8 +591,8 @@ html[data-wingman-route="discovery"] .wm-discovery-mic-button.is-listening {
 }
 
 html[data-wingman-route="discovery"] .wm-discovery-capture-card textarea {
-  min-height: 168px !important;
-  max-height: 235px !important;
+  min-height: 132px !important;
+  max-height: 210px !important;
   padding: 12px !important;
   resize: vertical !important;
   color: var(--wm-ref-text) !important;
@@ -2875,6 +3008,13 @@ html[data-wingman-route="compare"] .compare-product-info-card__actions .compare-
   height: 100% !important;
 }
 
+@media (max-width: 720px) {
+  html[data-wingman-route="discovery"] .wm-discovery-route-insight-copy {
+    display: grid !important;
+    gap: 4px !important;
+  }
+}
+
 :is(
   html[data-wingman-route="visualStudio"],
   html[data-wingman-route="visual-studio"]
@@ -4165,6 +4305,58 @@ html[data-wingman-route="templates"] .wm-template-info-trigger:focus-within::bef
   border-bottom: 1px solid color-mix(in srgb, var(--template-accent) 48%, var(--wm-ref-border)) !important;
   background: #061421 !important;
   transform: rotate(45deg) !important;
+}
+
+/* Discovery desktop workspace: use the horizontal canvas instead of stacking
+   a narrow two-column answer grid above unused space. */
+@media (min-width: 1181px) {
+  html[data-wingman-route="discovery"] .wm-discovery-question-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 400px) !important;
+    gap: 16px !important;
+  }
+
+  html[data-wingman-route="discovery"] .wm-discovery-option-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  html[data-wingman-route="discovery"] .wm-discovery-option {
+    min-height: 68px !important;
+    padding: 10px 11px !important;
+  }
+
+  html[data-wingman-route="discovery"] .wm-discovery-capture-card {
+    max-height: calc(100vh - 26px) !important;
+    gap: 10px !important;
+    padding: 14px !important;
+    overflow-y: auto !important;
+    scrollbar-gutter: stable !important;
+  }
+
+  html[data-wingman-route="discovery"]
+    .wm-discovery-capture-card
+    > .wm-discovery-summary-card.is-compact {
+    gap: 7px !important;
+    padding: 10px !important;
+  }
+
+  html[data-wingman-route="discovery"]
+    .wm-discovery-summary-card.is-compact
+    .wm-discovery-summary-grid {
+    max-height: 150px !important;
+  }
+
+  html[data-wingman-route="discovery"] .wm-discovery-capture-card textarea {
+    min-height: 112px !important;
+    max-height: 165px !important;
+  }
+}
+
+/* Preserve two useful answer columns on compact desktop widths. The earlier
+   single-column fallback made the workflow unnecessarily tall. */
+@media (min-width: 961px) and (max-width: 1180px) {
+  html[data-wingman-route="discovery"] .wm-discovery-option-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
 }
 
 html[data-wingman-route="templates"] .wm-solution-card-purpose strong,

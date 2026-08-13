@@ -12,6 +12,7 @@ type DiscoverySummaryCardProps = {
   onSaveProgress: () => void;
   videoWallRequired?: boolean;
   onConfigureVideoWall?: () => void;
+  compact?: boolean;
 };
 
 export function DiscoverySummaryCard({
@@ -22,13 +23,16 @@ export function DiscoverySummaryCard({
   onSaveProgress,
   videoWallRequired = false,
   onConfigureVideoWall,
+  compact = false,
 }: DiscoverySummaryCardProps) {
   return (
-    <section className="wm-discovery-summary-card wm-ui-section wm-ui-card wm-ui-copy">
+    <section className={`wm-discovery-summary-card wm-ui-section wm-ui-card wm-ui-copy${compact ? " is-compact" : ""}`}>
       <div className="wm-discovery-summary-heading wm-ui-card wm-ui-title wm-ui-copy">
-        <span>Captured brief</span>
+        <span>{compact ? "Current room model" : "Captured brief"}</span>
         <p className="wm-ui-copy">
-          {isDiscoveryComplete
+          {compact
+            ? `${items.length} decision${items.length === 1 ? "" : "s"} captured. Review these as the room takes shape.`
+            : isDiscoveryComplete
             ? "Use this as the working discovery summary before moving into product direction."
             : "Carry on when ready — the captured brief saves to your project, so the next step picks it up."}
         </p>
@@ -52,13 +56,13 @@ export function DiscoverySummaryCard({
         </div>
       )}
 
-      {!isDiscoveryComplete && (
+      {!compact && !isDiscoveryComplete && (
         <div className="wm-discovery-capture-actions">
           <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={onMoveNext}>Next discovery question</button>
           <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={onSaveProgress}>Save progress</button>
         </div>
       )}
-      {!isDiscoveryComplete && savedMessage && <p className="wm-discovery-muted-note wm-ui-copy">{savedMessage}</p>}
+      {!compact && !isDiscoveryComplete && savedMessage && <p className="wm-discovery-muted-note wm-ui-copy">{savedMessage}</p>}
     </section>
   );
 }
