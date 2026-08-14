@@ -113,6 +113,23 @@ describe("Discovery rendered workflow handoff", () => {
     window.sessionStorage.clear();
   });
 
+  it("keeps the customer's exact wording in the live summary", async () => {
+    render(
+      <MemoryRouter initialEntries={["/wingman/discovery"]}>
+        <DiscoveryPage />
+      </MemoryRouter>,
+    );
+
+    const customerWording =
+      "The lecturer must switch the room without calling support, and the rack stays in the comms room.";
+    fireEvent.change(screen.getByRole("textbox", { name: /customer wording/i }), {
+      target: { value: customerWording },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /classroom \/ teaching space/i }));
+
+    expect(await screen.findByText(new RegExp(customerWording, "i"))).toBeInTheDocument();
+  });
+
   it("saves structured hospitality evidence and Recommendations handoff data", async () => {
     render(
       <MemoryRouter initialEntries={["/wingman/discovery"]}>

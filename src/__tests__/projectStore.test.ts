@@ -38,6 +38,7 @@ import {
   saveDiscoveryBriefToProject,
   saveProductSelectionToProject,
   saveProductSelectionToCurrentProject,
+  createProjectForProductSelection,
   saveIngestAnalysisToProject,
   saveCompareRunToProject,
   saveProjectProposalToProject,
@@ -1044,6 +1045,39 @@ describe("projectStore", () => {
 
       expect(result).not.toBeNull();
       expect(result.productSelections?.[0].sku).toBe("NEW-SKU");
+    });
+  });
+
+  describe("createProjectForProductSelection", () => {
+    it("creates a separately named active project instead of reusing an existing workflow", () => {
+      const existingProject: StoredProject = {
+        id: "existing-project",
+        name: "Existing opportunity",
+        owner: "Owner",
+        stage: "Discovery",
+        status: "recommended",
+        updated: "Now",
+        resumeTo: "/wingman/discovery",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        discoveryBrief: { savedAt: new Date().toISOString() },
+      };
+      localStorageMock.getItem.mockReturnValue(JSON.stringify({
+        projects: [existingProject],
+        proposalDrafts: [],
+        activeProjectId: "existing-project",
+      } satisfies ProjectStoreSnapshot));
+
+      const result = createProjectForProductSelection("New boardroom", {
+        sku: "MX-0402-MST",
+        title: "Matrix switcher",
+        source: "Product call cards",
+      });
+
+      expect(result.id).not.toBe(existingProject.id);
+      expect(result.name).toBe("New boardroom");
+      expect(result.resumeTo).toBe("/wingman/proposal");
+      expect(result.productSelections?.[0]?.sku).toBe("MX-0402-MST");
     });
   });
 

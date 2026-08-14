@@ -1896,6 +1896,26 @@ export function saveProductSelectionToCurrentProject(selection: StoredProductSel
   return saveProductSelectionToProject(project.id, selection);
 }
 
+export function createProjectForProductSelection(name: string, selection: StoredProductSelection) {
+  const projectName = name.trim() || `${selection.sku} Product Selection`;
+  const normalizedSelection = normalizeProductSelections([selection])[0] ?? selection;
+  const project = createWorkflowProject({
+    name: projectName,
+    stage: "Recommendations",
+    status: selection.status ?? "alternative",
+    resumeTo: routeCatalogByKey.proposal.path,
+    productSelections: [normalizedSelection],
+    workflow: {
+      source: "Product call cards",
+      lastStep: "Product selected",
+      nextRoute: routeCatalogByKey.proposal.path,
+      updatedAt: nowIso(),
+    },
+  });
+
+  return upsertStoredProject(project);
+}
+
 export function saveRecommendationEvidenceToProject(
   evidence: StoredRecommendationEvidence,
   selection?: StoredProductSelection,

@@ -59,11 +59,14 @@ export function TemplatesPage() {
     </nav>
     <div className="wm-template-browser">
       <aside className="wm-market-rail" aria-label="Market filters"><h2>Markets</h2>{TEMPLATE_MARKET_FILTERS.map((item) => <button key={item} type="button" aria-label={item} aria-pressed={item === market} className={item === market ? "is-active" : ""} onClick={() => setMarket(item)}><Building2 /> <span>{item}</span><small>{templates.filter((t) => templateMatchesMarketFilter(t, item)).length}</small></button>)}</aside>
-      <section className="wm-template-results wm-section-card" aria-label="Application templates">
+      <section className="wm-template-results wm-section-card" aria-label="Application templates" data-market-view={market === ALL_MARKET_FILTER ? "all" : "filtered"}>
         <div className="wm-template-results-heading"><div><p className="wm-ui-kicker">{market === ALL_MARKET_FILTER ? "All markets" : market}</p><h2>{filtered.length} templates</h2></div><p>Purpose-led room blueprints with an editable WyreStorm BOM.</p></div>
         <div className="wm-solution-card-grid">{filtered.map((template) => {
           const item = toSolutionTemplate(template);
           const purposeId = `template-purpose-${template.id}`;
+          if (market === ALL_MARKET_FILTER) {
+            return <button className="wm-all-template-button" key={template.id} type="button" data-template-tone={templateTone(template.vertical)} onClick={() => applyTemplate(template)}><span className="wm-all-template-name">{item.title}</span><span className="wm-all-template-category">{template.vertical}</span></button>;
+          }
           return <article className="wm-solution-card wm-action-card" key={template.id} data-template-tone={templateTone(template.vertical)} data-custom-template={isCustom(template) ? "true" : undefined}>
             <div className="wm-solution-card-visual" aria-hidden="true"><LayoutTemplate /><span className="wm-badge">{template.vertical}</span></div>
             <div className="wm-solution-card-body"><div className="wm-solution-card-meta"><span className={`wm-status is-${item.status === "published" ? "confirmed" : "assumed"} ${isCustom(template) ? "wm-template-custom-badge" : ""}`}>{item.status === "custom" ? "Custom" : item.status}</span><span>{template.scale}</span></div>

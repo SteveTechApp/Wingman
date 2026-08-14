@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, ArrowRight, Boxes, Check, CheckCircle2, Link2, PackageCheck, RefreshCw, Route, ShieldCheck } from "lucide-react";
+import { AlertTriangle, ArrowRight, Boxes, Check, CheckCircle2, Link2, PackageCheck, PencilLine, RefreshCw, Route, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { routeCatalogByKey } from "../app/routeCatalog";
@@ -7,6 +7,7 @@ import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 import {
   saveProductSelectionToCurrentProject,
+  saveDiscoveryBriefToProject,
   useProjectStore,
   type StoredDiscoveryBrief,
   type StoredProductSelection,
@@ -32,6 +33,76 @@ type RecommendationDecision = Awaited<
 >[number];
 
 type LoadState = "loading" | "ready" | "missing" | "error";
+
+type MissingDetailDefinition = {
+  group: string;
+  fields: string[];
+  prompt: string;
+  placeholder: string;
+  options?: string[];
+};
+
+function missingDetailDefinition(item: string): MissingDetailDefinition {
+  const value = item.toLowerCase();
+  if (value.includes("scale")) return {
+    group: "scale",
+    fields: ["scale", "roomScale"],
+    prompt: "Select the approximate system scale",
+    placeholder: "Choose a scale",
+    options: ["Small room / local system", "Medium room / departmental system", "Large room / multi-zone system", "Enterprise / site-wide system"],
+  };
+  if (value.includes("source profile")) return {
+    group: "source-profile",
+    fields: ["sourceProfile"],
+    prompt: "Select the closest source profile",
+    placeholder: "Choose a source profile",
+    options: ["Fixed sources in one rack", "Local room sources", "Distributed or remote-room sources", "Mixed local and distributed sources"],
+  };
+  if (value.includes("cable length")) return {
+    group: "cable-validation",
+    fields: ["cableRunValidation"],
+    prompt: "Record the cable-route validation status",
+    placeholder: "Choose a validation status",
+    options: ["Measured and confirmed on site", "Confirmed from approved drawings", "Estimated — site survey still required"],
+  };
+  if (value.includes("network ownership")) return {
+    group: "network",
+    fields: ["networkAvailability", "network"],
+    prompt: "Confirm the network position",
+    placeholder: "Choose the network position",
+    options: ["Dedicated AV network approved", "Existing managed LAN approved by IT", "WyreStorm network switch to be supplied", "IT review still required"],
+  };
+  if (value.includes("usb host ownership")) return {
+    group: "usb",
+    fields: ["usbTransport", "usbNeeds"],
+    prompt: "Describe the USB host, peripheral location and required USB version",
+    placeholder: "Example: Room PC in rack to USB 3.0 camera at front wall, bidirectional control required",
+  };
+  if (value.includes("display/output count")) return {
+    group: "display",
+    fields: ["displayCount", "displayBehaviour"],
+    prompt: "Enter the display count and required behaviour",
+    placeholder: "Example: 4 outputs; one canvas with optional independent source routing",
+  };
+  if (value.includes("video wall layout")) return {
+    group: "video-wall-design",
+    fields: ["videoWallDesignValidation", "videoWallRequirement"],
+    prompt: "Confirm the wall layout, source count, presets and control behaviour",
+    placeholder: "Example: 3 × 3 LCD, 6 sources, full-wall plus four presets, app control",
+  };
+  if (value.includes("wall layout")) return {
+    group: "wall-path",
+    fields: ["videoWallRequirement", "processingRequirement"],
+    prompt: "Confirm the canvas, source behaviour and processor path",
+    placeholder: "Example: Direct-view LED, six floating windows, NHD-150-RX feeding the LED processor",
+  };
+  return {
+    group: item.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+    fields: ["recommendationValidationNotes"],
+    prompt: "Add the missing design detail",
+    placeholder: "Enter the confirmed requirement",
+  };
+}
 
 function text(value: unknown, fallback = "") {
   const output = String(value ?? "").trim();
@@ -169,6 +240,8 @@ export function RecommendationsPage() {
   const [slotPool, setSlotPool] = useState<RecommendationDecision[]>([]);
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [message, setMessage] = useState("");
+  const [editingCheck, setEditingCheck] = useState("");
+  const [detailAnswers, setDetailAnswers] = useState<Record<string, string>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -400,6 +473,61 @@ export function RecommendationsPage() {
       });
   }
 
+  function saveMissingDetail(item: string) {
+    if (!brief) return;
+    const definition = missingDetailDefinition(item);
+    const answer = text(detailAnswers[definition.group]);
+    if (!answer) {
+      setMessage("Enter or select the missing detail before saving it.");
+      return;
+    }
+
+    const remainingMissing = missingInformation.filter(
+      (candidate) => missingDetailDefinition(candidate).group !== definition.group,
+    );
+    const nextRoomModel = { ...(brief.roomModel ?? {}) };
+    definition.fields.forEach((field) => {
+      nextRoomModel[field] = field === "usbNeeds" ? [answer] : answer;
+    });
+
+    const nextBrief: StoredDiscoveryBrief = {
+      ...brief,
+      roomModel: nextRoomModel,
+      missingInformation: remainingMissing,
+      nextBestQuestion: remainingMissing[0] ?? "",
+      quoteSafetyStatus: remainingMissing.length ? "do-not-quote-yet" : "validate-before-quote",
+      inference: {
+        ...(brief.inference ?? {}),
+        missing: remainingMissing,
+        risks: remainingMissing,
+        quoteSafetyStatus: remainingMissing.length ? "do-not-quote-yet" : "validate-before-quote",
+      },
+    };
+    const nextNeed = discoveryBriefToFinderNeed(nextBrief);
+    saveDiscoveryBriefToProject(nextBrief, activeProject?.id);
+    setBrief(nextBrief);
+    setEditingCheck("");
+    setMessage(`Saved: ${definition.prompt}. Recommendations are being recalculated.`);
+
+    if (!nextNeed) return;
+    setNeed(nextNeed);
+    setLoadState("loading");
+    Promise.all([
+      loadWingmanProductSelectorDecisions(buildRequest(nextNeed)),
+      loadWingmanProductSelectorDecisions(buildSlotRequest()),
+    ])
+      .then(([nextDecisions, nextSlotPool]) => {
+        setDecisions(nextDecisions);
+        setSlotPool(nextSlotPool);
+        setLoadState("ready");
+        setMessage("Detail saved and the system recommendation has been updated.");
+      })
+      .catch((error) => {
+        console.error("[wingman] Recommendations: inline detail recalculation failed", error);
+        setLoadState("error");
+      });
+  }
+
   return (
     <main
       className="wm-page wm-recommendations-page"
@@ -533,12 +661,51 @@ export function RecommendationsPage() {
               subtitle="These points remain visible because an estimated recommendation must not be presented as a confirmed design."
             >
               <ul className="wm-rec-check-list">
-                {missingInformation.map((item) => (
-                  <li className="flex items-start gap-2" key={item}>
-                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                    <span>{item}</span>
-                  </li>
-                ))}
+                {missingInformation.map((item) => {
+                  const definition = missingDetailDefinition(item);
+                  const isEditing = editingCheck === definition.group;
+                  return (
+                    <li className={isEditing ? "is-editing" : ""} key={item}>
+                      <div className="wm-rec-check-summary">
+                        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                        <span>{item}</span>
+                        <button
+                          type="button"
+                          aria-expanded={isEditing}
+                          onClick={() => setEditingCheck(isEditing ? "" : definition.group)}
+                        >
+                          <PencilLine size={14} aria-hidden="true" />
+                          {isEditing ? "Cancel" : "Complete"}
+                        </button>
+                      </div>
+                      {isEditing ? (
+                        <div className="wm-rec-check-editor">
+                          <label htmlFor={`missing-${definition.group}`}>{definition.prompt}</label>
+                          {definition.options ? (
+                            <select
+                              id={`missing-${definition.group}`}
+                              value={detailAnswers[definition.group] ?? ""}
+                              onChange={(event) => setDetailAnswers((current) => ({ ...current, [definition.group]: event.target.value }))}
+                            >
+                              <option value="">{definition.placeholder}</option>
+                              {definition.options.map((option) => <option key={option} value={option}>{option}</option>)}
+                            </select>
+                          ) : (
+                            <input
+                              id={`missing-${definition.group}`}
+                              value={detailAnswers[definition.group] ?? ""}
+                              onChange={(event) => setDetailAnswers((current) => ({ ...current, [definition.group]: event.target.value }))}
+                              placeholder={definition.placeholder}
+                            />
+                          )}
+                          <button type="button" onClick={() => saveMissingDetail(item)}>
+                            <Check size={15} aria-hidden="true" /> Save detail
+                          </button>
+                        </div>
+                      ) : null}
+                    </li>
+                  );
+                })}
               </ul>
             </SectionCard>
             </div>

@@ -368,7 +368,9 @@ function intentFromResolvedDomain(resultOrInput: unknown): CompareIntentKind | n
     case "MATRIX":
       return /\b(hdbaset|hdbt)\b/i.test(roleText) ? "hdbaset-matrix" : "matrix";
     case "PRESENTATION":
-      return "presentation-switcher";
+      return /\b(uc|video\s*bar|conference\s*bar|conferencing\s*bar|soundbar|room appliance)\b/i.test(roleText)
+        ? "uc-byod"
+        : "presentation-switcher";
     case "VIDEO_WALL":
       return "video-wall-processor";
     case "MULTIVIEW":
@@ -382,6 +384,7 @@ function intentFromResolvedDomain(resultOrInput: unknown): CompareIntentKind | n
         ? "controller-accessory"
         : "control-system";
     case "UC_SOUNDBAR":
+    case "UC":
       return "uc-byod";
     case "CABLE":
       return "cable";
@@ -754,10 +757,11 @@ export function evaluateProductEligibility(args: {
   }
 
   const supportOnlyReason = productIsSupportOnly(sku, combined);
-  const isApolloUcHardware = /^APO(?:100|200|210|VX20)UC/.test(key);
+  const isUcRoomHardware =
+    /\b(video\s*bar|conference\s*bar|conferencing\s*bar|uc\s*room\s*(?:product|endpoint)|all-in-one.*(?:camera|conferencing)|integrated\s+camera)\b/i.test(combined);
   const isRoleMatchedPrimaryProduct =
     ((args.intent === "ndi-camera" || args.intent === "ptz-camera") && /^CAM/.test(key)) ||
-    ((args.intent === "uc-byod" || args.intent === "usb-audio") && isApolloUcHardware);
+    ((args.intent === "uc-byod" || args.intent === "usb-audio") && isUcRoomHardware);
   const invalidLeadReason = isRoleMatchedPrimaryProduct
     ? null
     : invalidLeadReasonForIntent(supportOnlyReason, args.intent);
@@ -881,6 +885,18 @@ export function evaluateProductEligibility(args: {
     const competitorNeedsUcHardware = /\b(byom|teams|zoom|unified\s*communications?|uc\s*room|video\s*bar|conference\s*(bar|room|system)|speakerphone)\b/i.test(args.competitorText);
     const wirelessPresentationSwitcher = /^SW/.test(key) && /\b(wireless|casting|miracast|airplay|chromecast|presentation|switcher|byod|byom)\b/i.test(combined);
 
+    if (args.intent === "uc-byod" && competitorNeedsUcHardware && !isUcRoomHardware) {
+      return blocked(sku, args.intent, [
+        "Candidate does not provide the integrated camera, microphones and speakers required for an all-in-one UC video-bar comparison.",
+      ]);
+    }
+
+    if (args.intent === "uc-byod" && competitorNeedsUcHardware && wirelessPresentationSwitcher) {
+      return blocked(sku, args.intent, [
+        "A wireless presentation transmitter does not replace an all-in-one UC video bar with an integrated camera, microphones and speakers.",
+      ]);
+    }
+
     if (wirelessPresentationSwitcher) {
       const size = extractMatrixSizeFromText(args.competitorText);
       const prefersCompactSwitcher = Boolean(size.inputs && size.inputs <= 2);
@@ -891,11 +907,11 @@ export function evaluateProductEligibility(args: {
       return direct(args.intent, ["Wireless presentation switcher candidate."], fitPenalty);
     }
 
-    if (args.intent === "presentation-switcher" && isApolloUcHardware && !competitorNeedsUcHardware) {
-      return alternative(args.intent, ["Apollo UC hardware is a conferencing-room alternative, not the lead wireless presentation switcher match."], 45);
+    if (args.intent === "presentation-switcher" && isUcRoomHardware && !competitorNeedsUcHardware) {
+      return alternative(args.intent, ["UC room hardware is a conferencing-room alternative, not the lead wireless presentation switcher match."], 45);
     }
 
-    if (/^SW|^MX/.test(key) || (args.intent === "uc-byod" && isApolloUcHardware) || /\b(presentation|switcher|usb-c|byod|byom|unified communications?|video bar)\b/i.test(combined)) {
+    if (/^SW|^MX/.test(key) || (args.intent === "uc-byod" && isUcRoomHardware) || /\b(presentation|switcher|usb-c|byod|byom|unified communications?|video bar)\b/i.test(combined)) {
       return direct(args.intent, ["Presentation/switching candidate for meeting-room workflow."], 0);
     }
 
