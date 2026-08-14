@@ -5,6 +5,7 @@ type DiscoveryCompletionPanelProps = {
   panelRef: RefObject<HTMLElement>;
   answerCount: number;
   requiresVideoWallConfiguration: boolean;
+  videoWallConfigured: boolean;
   savedMessage: string;
   onMoveForward: (target: "recommendations" | "proposal") => void;
   onReviewAnswers: () => void;
@@ -15,6 +16,7 @@ export function DiscoveryCompletionPanel({
   panelRef,
   answerCount,
   requiresVideoWallConfiguration,
+  videoWallConfigured,
   savedMessage,
   onMoveForward,
   onReviewAnswers,
@@ -34,22 +36,27 @@ export function DiscoveryCompletionPanel({
         <div>
           <span className="wm-discovery-finish-kicker">Discovery complete</span>
           <h2 className="wm-ui-title" id="discovery-complete-title">
-            Your room brief is ready to move forward.
+            {videoWallConfigured
+              ? "Your room and video wall briefs are ready."
+              : "Your room brief is ready to move forward."}
           </h2>
           <p className="wm-ui-copy">
-            All {answerCount} answers are captured. The core architecture, supporting services and installation details
-            will stay visible as Wingman builds the solution.
+            {videoWallConfigured
+              ? `All ${answerCount} discovery answers and the video wall configuration are captured. Wingman can now match products against the complete design.`
+              : `All ${answerCount} answers are captured. The core architecture, supporting services and installation details will stay visible as Wingman builds the solution.`}
           </p>
         </div>
       </div>
 
       <div className="wm-discovery-finish-workspace">
         <article className="wm-discovery-finish-next">
-          <span>Recommended next step</span>
+          <span>{videoWallConfigured ? "Video wall ready" : "Recommended next step"}</span>
           <h3>{requiresVideoWallConfiguration ? "Configure the video wall" : "Find matching products"}</h3>
           <p className="wm-ui-copy">
             {requiresVideoWallConfiguration
               ? "Confirm the wall layout and processing requirements before product matching."
+              : videoWallConfigured
+                ? "Use the captured wall type, source-window behaviour and signal-path decisions to build the product shortlist."
               : "Turn the captured requirements into an evidence-led product shortlist."}
           </p>
           <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => onMoveForward("recommendations")}>
@@ -79,6 +86,7 @@ export function DiscoveryCompletionPanel({
 
       <footer className="wm-discovery-finish-footer">
         <span><Check size={14} aria-hidden="true" /> {answerCount} of {answerCount} requirements captured</span>
+        {videoWallConfigured && <span><Check size={14} aria-hidden="true" /> Video wall configuration captured</span>}
         {savedMessage && <span className="wm-discovery-finish-saved"><Check size={14} aria-hidden="true" /> {savedMessage}</span>}
       </footer>
     </section>

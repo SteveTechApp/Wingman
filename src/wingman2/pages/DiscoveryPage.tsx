@@ -203,6 +203,9 @@ export function DiscoveryPage() {
   const [micSupported, setMicSupported] = useState(false);
   const [micError, setMicError] = useState("");
   const [savedMessage, setSavedMessage] = useState("");
+  const [hasVideoWallBuilderHandoff] = useState(() =>
+    typeof window !== "undefined" && Boolean(window.sessionStorage.getItem("wingman:video-wall-discovery")),
+  );
   const [discoveryMode, setDiscoveryMode] = useState<DiscoveryHandoffMode>("standard");
   const [templateEditId, setTemplateEditId] = useState<string | undefined>(undefined);
   const [templateDraftName, setTemplateDraftName] = useState("");
@@ -358,7 +361,9 @@ export function DiscoveryPage() {
     wmDiscoveryAnswerIncludes(answers["display-behaviour"], "video-wall-or-processor-feed") ||
     selectedApplication === "video-wall";
   const videoWallConfigured = Boolean(
-    existingDiscoveryProject?.videowall?.summary || (!discoveryDraft ? currentWorkflowProject?.videowall?.summary : undefined),
+    hasVideoWallBuilderHandoff ||
+    existingDiscoveryProject?.videowall?.summary ||
+    (!discoveryDraft ? currentWorkflowProject?.videowall?.summary : undefined),
   );
   const videoWallConfigurationPending = requiresVideoWallConfiguration && !videoWallConfigured;
   const opportunityDescription = [
@@ -1370,6 +1375,7 @@ return (
           panelRef={completionPanelRef}
           answerCount={discoveryQuestions.length}
           requiresVideoWallConfiguration={videoWallConfigurationPending}
+          videoWallConfigured={requiresVideoWallConfiguration && videoWallConfigured}
           savedMessage={savedMessage}
           onMoveForward={moveForward}
           onReviewAnswers={() => {
