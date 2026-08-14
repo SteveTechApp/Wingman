@@ -45,11 +45,10 @@ import type {
   DiscoveryAnswers,
   DiscoveryNotes,
 } from "./discovery/discoveryTypes";
-import { getDiscoveryRouteInsight, getQuestionStrategy, getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
+import { getQuestionStrategy, getVisibleDiscoveryQuestions } from "./discovery/discoveryQuestions";
 import { DiscoveryClientDetailsPanel } from "./discovery/DiscoveryClientDetailsPanel";
 import { DiscoveryCustomTemplatePanel } from "./discovery/DiscoveryCustomTemplatePanel";
 import { DiscoverySummaryCard } from "./discovery/DiscoverySummaryCard";
-import { DiscoveryRouteInsightPanel } from "./discovery/DiscoveryRouteInsightPanel";
 import { DiscoveryCompletionPanel } from "./discovery/DiscoveryCompletionPanel";
 import {
   getDiscoverySpeechRecognition,
@@ -143,13 +142,19 @@ export function DiscoveryPage() {
     () => hasExistingDiscoveryContent && !hasIntentionalDiscoveryEntry,
   );
 
-  const existingDiscoveryProject = useMemo(
-    () => resolveDiscoverySnapshotProject(discoveryDraft, readProjectStore()),
-    [discoveryDraft],
+  const [existingDiscoveryProject] = useState(() =>
+    resolveDiscoverySnapshotProject(discoveryDraft, readProjectStore()),
   );
-  const currentWorkflowProject = useMemo(
-    () => getCurrentWorkflowProject(readProjectStore()),
-    [discoveryDraft],
+  const discoveryOwnershipRef = useRef<{ projectId?: string; projectName?: string } | null>(
+    discoveryDraft
+      ? {
+          projectId: existingDiscoveryProject?.id ?? discoveryDraft.projectId,
+          projectName: existingDiscoveryProject?.name ?? discoveryDraft.projectName,
+        }
+      : null,
+  );
+  const [currentWorkflowProject] = useState(() =>
+    getCurrentWorkflowProject(readProjectStore()),
   );
   const existingDiscoveryName =
     existingDiscoveryProject?.name || discoveryDraft?.projectName ||
@@ -269,10 +274,6 @@ export function DiscoveryPage() {
       ),
     [selectedApplication, answers],
   );
-  const discoveryRouteInsight = useMemo(
-    () => getDiscoveryRouteInsight(selectedApplication),
-    [selectedApplication],
-  );
 
   useEffect(() => {
     if (!editQuestionId || editQuestionId === "budget") return;
@@ -357,7 +358,7 @@ export function DiscoveryPage() {
     wmDiscoveryAnswerIncludes(answers["display-behaviour"], "video-wall-or-processor-feed") ||
     selectedApplication === "video-wall";
   const videoWallConfigured = Boolean(
-    existingDiscoveryProject?.videowall?.summary || currentWorkflowProject?.videowall?.summary,
+    existingDiscoveryProject?.videowall?.summary || (!discoveryDraft ? currentWorkflowProject?.videowall?.summary : undefined),
   );
   const videoWallConfigurationPending = requiresVideoWallConfiguration && !videoWallConfigured;
   const opportunityDescription = [
@@ -392,8 +393,7 @@ export function DiscoveryPage() {
 
     const timeout = window.setTimeout(() => {
       writeLatestDiscoverySnapshot({
-        projectId: existingDiscoveryProject?.id ?? discoveryDraft?.projectId,
-        projectName: existingDiscoveryProject?.name ?? discoveryDraft?.projectName,
+        ...(discoveryOwnershipRef.current ?? {}),
         activeStepIndex: activeIndex,
         state: { answers, notes, clientName, contactName, siteName, budgetLevel, timeline },
         brief: buildDiscoveryBrief(),
@@ -804,6 +804,9 @@ export function DiscoveryPage() {
     }
 
     clearActiveProject();
+    // An explicit empty owner prevents the new draft from falling back to the
+    // prior workflow project while no replacement project exists yet.
+    discoveryOwnershipRef.current = { projectId: undefined, projectName: undefined };
     setShowExistingDiscoveryWarning(false);
     resetDiscovery();
   }
@@ -828,6 +831,7 @@ export function DiscoveryPage() {
     window.sessionStorage.removeItem("wingman.roomBuilderSeedProduct");
     clearDiscoveryHandoff();
     clearLatestDiscoverySnapshot();
+    discoveryOwnershipRef.current = { projectId: undefined, projectName: undefined };
 
     setIsListening(false);
     setMicError("");
@@ -1154,8 +1158,21 @@ export function DiscoveryPage() {
   }
 
   function saveDiscoveryToProject(): void {
-    saveDiscoveryBriefToProject(buildDiscoveryBrief());
+    saveDiscoveryToOwningProject();
     setSavedMessage("Discovery saved to your project. Continue to product selection or a proposal when ready.");
+  }
+
+  function saveDiscoveryToOwningProject() {
+    const ownership = discoveryOwnershipRef.current;
+    const savedProject = saveDiscoveryBriefToProject(
+      buildDiscoveryBrief(),
+      ownership ? ownership.projectId ?? null : undefined,
+    );
+    discoveryOwnershipRef.current = {
+      projectId: savedProject.id,
+      projectName: savedProject.name,
+    };
+    return savedProject;
   }
 
   const canSaveCustomTemplate = templateDraftName.trim().length > 0 && wmDiscoveryHasAnswer(answers.opportunity);
@@ -1201,7 +1218,7 @@ export function DiscoveryPage() {
   }
 
   function moveForward(target: "recommendations" | "proposal"): void {
-    saveDiscoveryBriefToProject(buildDiscoveryBrief());
+    saveDiscoveryToOwningProject();
     if (target === "recommendations" && videoWallConfigurationPending) {
       navigate(routeCatalogByKey.videowall.path);
       return;
@@ -1210,7 +1227,7 @@ export function DiscoveryPage() {
   }
 
   function openVideoWallConfiguration(): void {
-    saveDiscoveryBriefToProject(buildDiscoveryBrief());
+    saveDiscoveryToOwningProject();
     navigate(routeCatalogByKey.videowall.path);
   }
 
@@ -1399,8 +1416,6 @@ return (
           </div>
           {/* WINGMAN_DISCOVERY_COMPACT_NAV_END */}
 
-          <DiscoveryRouteInsightPanel insight={discoveryRouteInsight} currentStepId={currentStep.id} />
-
           <div className="wm-discovery-question-heading wm-ui-title">
             <span>{currentStep.shortLabel}</span>
             <h2 className="wm-ui-title">{currentStepView.question}</h2>
@@ -1410,11 +1425,6 @@ return (
                 Select one or more options, then choose Continue.
               </small>
             )}
-          </div>
-
-          <div className="wm-discovery-why-card wm-ui-card">
-            <strong>Why this matters</strong>
-            <p className="wm-ui-copy">{currentStepView.why}</p>
           </div>
 
           {currentStep.id === "locations-connections" ? (
