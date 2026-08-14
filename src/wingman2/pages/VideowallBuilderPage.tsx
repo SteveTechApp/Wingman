@@ -794,25 +794,17 @@ export function VideoWallPage() {
     window.sessionStorage.setItem("wingman:video-wall-discovery", JSON.stringify(payload, null, 2));
     window.sessionStorage.setItem("wingman:use-video-wall-in-discovery", "1");
     window.localStorage.setItem("wingman:video-wall-last-summary", JSON.stringify(payload, null, 2));
+    return payload;
   }
 
   function sendTo(path: string) {
-    persist();
+    const payload = persist();
+    saveVideowallToProject({ wallType: wallType || "unknown", summary: payload });
     navigate(path);
   }
 
   function saveToProject() {
-    persist();
-
-    const payload = {
-      source: "wingman-video-wall-workflow",
-      wallType,
-      ledAnswers,
-      lcdAnswers,
-      recommendation,
-      visualBundle,
-      updatedAt: new Date().toISOString(),
-    };
+    const payload = persist();
 
     saveVideowallToProject({ wallType: wallType || "unknown", summary: payload });
     setMessage("Saved to your project. Open Projects or continue into Discovery to keep building it out.");
@@ -901,6 +893,7 @@ export function VideoWallPage() {
             <button
               type="button"
               className={`vw2-path-card ${wallType === "led" ? "is-selected" : ""}`}
+              aria-pressed={wallType === "led"}
               onClick={() => chooseWall("led")}
             >
               <span>LED videowall</span>
@@ -911,6 +904,7 @@ export function VideoWallPage() {
             <button
               type="button"
               className={`vw2-path-card ${wallType === "lcd" ? "is-selected" : ""}`}
+              aria-pressed={wallType === "lcd"}
               onClick={() => chooseWall("lcd")}
             >
               <span>LCD videowall</span>
