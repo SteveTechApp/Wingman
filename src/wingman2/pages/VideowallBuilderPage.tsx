@@ -858,7 +858,7 @@ export function VideoWallPage() {
   }
 
   return (
-    <main className="vw2-page wm-ui-page">
+    <main className={`vw2-page wm-ui-page ${wallType ? "" : "is-landing"}`}>
       <section className="vw2-hero">
         <div>
           <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Video wall design workspace</p>
@@ -884,14 +884,15 @@ export function VideoWallPage() {
         <span className={recommendation.products.length ? "is-active" : ""}>3 <strong>Design direction</strong></span>
       </div>
 
-      <section className="vw2-workspace wm-ui-section">
-        <div className="vw2-wizard-panel wm-ui-card">
+      <section className={`vw2-workspace wm-ui-section ${wallType ? "" : "is-landing"}`}>
+        <div className={`vw2-wizard-panel wm-ui-card ${wallType ? "" : "is-landing"}`}>
           {!wallType ? (
             <div className="vw2-empty-state">
-              <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Start here</p>
-              <h2 className="wm-ui-title">Choose the display technology above</h2>
+              <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Choose a starting point</p>
+              <h2 className="wm-ui-title">What kind of wall are you designing?</h2>
               <p className="wm-ui-copy">
-                The next questions will adapt to the wall type and build the correct signal path.
+                Start with the display surface. Wingman will adapt the discovery path and protect
+                the design from incompatible processing, routing and window requirements.
               </p>
             </div>
           ) : null}
@@ -1098,7 +1099,7 @@ export function VideoWallPage() {
           ) : null}
         </div>
 
-        <aside className={`vw2-result-panel wm-ui-card ${wallType ? "" : "is-compact"}`}>
+        {wallType ? <aside className="vw2-result-panel wm-ui-card">
           <div className="vw2-result-content">
             <div className="vw2-result-head wm-ui-card">
               <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Recommended direction</p>
@@ -1144,7 +1145,7 @@ export function VideoWallPage() {
               <button type="button" className="vw2-button vw2-button-danger wm-ui-button wm-ui-button-primary" onClick={restart}>Restart</button>
             </div>
           ) : null}
-        </aside>
+        </aside> : null}
       </section>
 
     </main>
