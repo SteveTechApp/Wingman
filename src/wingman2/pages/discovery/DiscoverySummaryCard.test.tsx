@@ -59,4 +59,23 @@ describe("DiscoverySummaryCard", () => {
     fireEvent.click(screen.getByRole("button", { name: "Configure video wall" }));
     expect(configure).toHaveBeenCalledOnce();
   });
+
+  it("shows the video wall as configured when the project has a saved configuration", () => {
+    render(
+      <DiscoverySummaryCard
+        items={[{ id: "displays", label: "Displays", answer: "Video wall / LED processor", note: "" }]}
+        isDiscoveryComplete={false}
+        savedMessage=""
+        onMoveNext={vi.fn()}
+        onSaveProgress={vi.fn()}
+        videoWallRequired
+        videoWallConfigured
+        onConfigureVideoWall={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Video wall configured")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Review video wall" })).toBeTruthy();
+    expect(screen.queryByText("Video wall configuration required")).toBeNull();
+  });
 });
