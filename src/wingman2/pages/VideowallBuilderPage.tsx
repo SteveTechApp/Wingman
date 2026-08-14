@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { DecisionCompatibilityAlert } from "../components/DecisionCompatibilityAlert";
 import { saveVideowallToProject } from "../data/projectStore";
+import { hasBlockingDecisionIssue } from "../lib/decisionConstraints";
+import { evaluateVideowallDecisionConstraints } from "../lib/videowallDecisionConstraints";
 import "../styles/wingman-videowall.css";
 
 type WallType = "" | "led" | "lcd";
@@ -510,18 +513,29 @@ function ChoiceGrid(props: {
       <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">{props.eyebrow}</p>
       <h3 className="wm-ui-title">{props.title}</h3>
       <div className="vw2-chip-grid">
-        {props.options.map((option) => (
-          <button
-            key={option.value}
-            type="button"
-            className={`vw2-chip ${props.value === option.value ? "is-selected" : ""}`}
-            aria-pressed={props.value === option.value}
-            onClick={() => props.onChange(option.value)}
-          >
-            <span>{option.label}</span>
-            {option.note ? <small>{option.note}</small> : null}
-          </button>
-        ))}
+        {props.options.map((option) => {
+          const tooltipId = `vw2-help-${props.eyebrow}-${option.value}`
+            .toLowerCase()
+            .replace(/[^a-z0-9_-]+/g, "-");
+
+          return (
+            <button
+              key={option.value}
+              type="button"
+              className={`vw2-chip ${props.value === option.value ? "is-selected" : ""}`}
+              aria-pressed={props.value === option.value}
+              aria-describedby={option.note ? tooltipId : undefined}
+              onClick={() => props.onChange(option.value)}
+            >
+              <span>{option.label}</span>
+              {option.note ? (
+                <span id={tooltipId} role="tooltip" className="vw2-chip-tooltip">
+                  {option.note}
+                </span>
+              ) : null}
+            </button>
+          );
+        })}
       </div>
     </section>
   );
@@ -653,9 +667,10 @@ export function VideoWallPage() {
   const [wallType, setWallType] = useState<WallType>("");
   const [ledAnswers, setLedAnswers] = useState<LedAnswers>(emptyLed);
   const [lcdAnswers, setLcdAnswers] = useState<LcdAnswers>(emptyLcd);
+  const [dismissedDesignGuide, setDismissedDesignGuide] = useState("");
   const [message, setMessage] = useState("");
 
-  const recommendation = useMemo(() => {
+  const baseRecommendation = useMemo(() => {
     if (wallType === "led") {
       return getLedRecommendation(ledAnswers);
     }
@@ -666,6 +681,23 @@ export function VideoWallPage() {
 
     return getStartRecommendation();
   }, [wallType, ledAnswers, lcdAnswers]);
+
+  const compatibilityIssues = useMemo(() => evaluateVideowallDecisionConstraints({
+    wallType,
+    led: ledAnswers,
+    lcd: lcdAnswers,
+  }), [wallType, ledAnswers, lcdAnswers]);
+  const hasBlockingIssues = hasBlockingDecisionIssue(compatibilityIssues);
+  const recommendation = useMemo<Recommendation>(() => {
+    if (!hasBlockingIssues) return baseRecommendation;
+
+    return {
+      ...baseRecommendation,
+      products: [],
+      missing: [...baseRecommendation.missing, ...compatibilityIssues.map((issue) => issue.resolution)],
+      quoteSafety: "Blocked - technical mismatch",
+    };
+  }, [baseRecommendation, compatibilityIssues, hasBlockingIssues]);
 
   const visualBundle = useMemo(() => getVisualBundle(wallType, recommendation), [wallType, recommendation]);
   const lcdArray = lcdAnswers.array === "custom" ? lcdAnswers.customArray.trim() : lcdAnswers.array;
@@ -723,6 +755,7 @@ export function VideoWallPage() {
   }
 
   function updateLcd(key: keyof LcdAnswers, value: string) {
+    if (key === "driveMethod") setDismissedDesignGuide("");
     setLcdAnswers((current) => {
       if (key === "screenCount") {
         return {
@@ -742,6 +775,7 @@ export function VideoWallPage() {
     setWallType("");
     setLedAnswers(emptyLed);
     setLcdAnswers(emptyLcd);
+    setDismissedDesignGuide("");
     setMessage("");
   }
 
@@ -752,6 +786,7 @@ export function VideoWallPage() {
       ledAnswers,
       lcdAnswers,
       recommendation,
+      compatibilityIssues,
       visualBundle,
       updatedAt: new Date().toISOString(),
     };
@@ -824,7 +859,7 @@ export function VideoWallPage() {
 
   return (
     <main className="vw2-page wm-ui-page">
-      <section className="vw2-hero wm-ui-section wm-ui-hero">
+      <section className="vw2-hero">
         <div>
           <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">Video wall design workspace</p>
           <h1 className="wm-ui-title">Design the wall first. Choose the signal path second.</h1>
@@ -833,11 +868,11 @@ export function VideoWallPage() {
             decisions into a safe product and architecture direction.
           </p>
         </div>
-        <div className="vw2-hero-actions wm-ui-hero">
-          <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={() => sendTo("/wingman/discovery")}>
+        <div className="vw2-hero-actions">
+          <button type="button" className="vw2-button" onClick={() => sendTo("/wingman/discovery")}>
             Send to discovery
           </button>
-          <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={() => sendTo("/wingman/proposal")}>
+          <button type="button" className="vw2-button" onClick={() => sendTo("/wingman/proposal")}>
             Send to proposal
           </button>
         </div>
@@ -890,6 +925,8 @@ export function VideoWallPage() {
                 <h2 className="wm-ui-title">Confirm how the LED wall needs to be fed.</h2>
               </div>
 
+              <DecisionCompatibilityAlert issues={compatibilityIssues} />
+
               <ChoiceGrid eyebrow="Step 1" title="What does the customer need the LED wall to show?" options={ledBehaviourOptions} value={ledAnswers.behaviour} onChange={(value) => updateLed("behaviour", value)} />
               <ChoiceGrid eyebrow="Step 2" title="How many visible windows are required?" options={ledWindowOptions} value={ledAnswers.windows} onChange={(value) => updateLed("windows", value)} />
               <ChoiceGrid eyebrow="Step 3" title="Where are the sources?" options={sourceLocationOptions} value={ledAnswers.sourceLocation} onChange={(value) => updateLed("sourceLocation", value)} />
@@ -903,6 +940,8 @@ export function VideoWallPage() {
                 <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">LCD discovery</p>
                 <h2 className="wm-ui-title">Confirm array, drive method and source behaviour.</h2>
               </div>
+
+              <DecisionCompatibilityAlert issues={compatibilityIssues} />
 
               <ChoiceGrid eyebrow="Step 1" title="How many screens are in the LCD wall?" options={lcdScreenOptions} value={lcdAnswers.screenCount} onChange={(value) => updateLcd("screenCount", value)} />
 
@@ -929,11 +968,16 @@ export function VideoWallPage() {
 
               <ChoiceGrid eyebrow="Step 2" title="What is the orientation?" options={lcdOrientationOptions} value={lcdAnswers.orientation} onChange={(value) => updateLcd("orientation", value)} />
               <ChoiceGrid eyebrow="Step 3" title="How is the LCD wall driven?" options={lcdDriveOptions} value={lcdAnswers.driveMethod} onChange={(value) => updateLcd("driveMethod", value)} />
-              {lcdAnswers.driveMethod === "tile-mode" ? (
+              {lcdAnswers.driveMethod === "tile-mode" && dismissedDesignGuide !== "tile-mode" ? (
                 <section className="vw2-design-guide" data-guide="tile-mode">
                   <div className="vw2-design-guide-head">
-                    <p className="vw2-eyebrow">Design guide</p>
-                    <h3>Tile mode: one 4K canvas shared by the whole wall</h3>
+                    <div>
+                      <p className="vw2-eyebrow">Design guide</p>
+                      <h3>Tile mode: one 4K canvas shared by the whole wall</h3>
+                    </div>
+                    <button type="button" className="vw2-guide-close" aria-label="Close tile mode design guide" title="Close design guide" onClick={() => setDismissedDesignGuide("tile-mode")}>
+                      <span aria-hidden="true">×</span>
+                    </button>
                   </div>
                   <p>
                     Every display receives the same 4K signal and crops its assigned tile. The wall
@@ -1009,11 +1053,16 @@ export function VideoWallPage() {
                   </div>
                 </section>
               ) : null}
-              {lcdAnswers.driveMethod === "direct-drive" ? (
+              {lcdAnswers.driveMethod === "direct-drive" && dismissedDesignGuide !== "direct-drive" ? (
                 <section className="vw2-design-guide" data-guide="direct-drive">
                   <div className="vw2-design-guide-head">
-                    <p className="vw2-eyebrow">Design guide</p>
-                    <h3>Direct drive: a dedicated signal for every display</h3>
+                    <div>
+                      <p className="vw2-eyebrow">Design guide</p>
+                      <h3>Direct drive: a dedicated signal for every display</h3>
+                    </div>
+                    <button type="button" className="vw2-guide-close" aria-label="Close direct drive design guide" title="Close design guide" onClick={() => setDismissedDesignGuide("direct-drive")}>
+                      <span aria-hidden="true">×</span>
+                    </button>
                   </div>
                   <p>
                     Each screen has its own output, allowing independent content or coordinated
@@ -1088,7 +1137,7 @@ export function VideoWallPage() {
           {wallType ? (
             <div className="vw2-action-grid">
               <button type="button" className="vw2-button vw2-button-primary wm-ui-button wm-ui-button-primary" onClick={() => sendTo("/wingman/discovery")}>Send to Discovery</button>
-              <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={() => sendTo("/wingman/proposal")}>Send to Proposal</button>
+              <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={() => sendTo("/wingman/proposal")} disabled={hasBlockingIssues}>Send to Proposal</button>
               <button type="button" className="vw2-button wm-ui-button wm-ui-button-primary" onClick={saveToProject}>Save to Project</button>
               <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={copySummary}>Copy summary</button>
               <button type="button" className="vw2-button wm-ui-button wm-ui-button-secondary" onClick={openProduct} disabled={!recommendation.products.length}>Open product</button>

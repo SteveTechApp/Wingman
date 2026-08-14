@@ -1708,10 +1708,14 @@ function projectNameFromIngest(files: string[], intelligence?: MultiSkuCompetito
   return files.length > 1 ? `${files[0]} + ${files.length - 1} file(s)` : "Imported Requirements";
 }
 
-export function saveDiscoveryBriefToProject(brief: StoredDiscoveryBrief) {
+export function saveDiscoveryBriefToProject(brief: StoredDiscoveryBrief, projectId?: string | null) {
   const timestamp = nowIso();
   const snapshot = readProjectStore();
-  const existing = getCurrentWorkflowProject(snapshot);
+  const existing = projectId === undefined
+    ? getCurrentWorkflowProject(snapshot)
+    : projectId
+      ? snapshot.projects.find((project) => project.id === projectId) ?? null
+      : null;
   const workflow: StoredWorkflowState = {
     source: "Discovery",
     lastStep: "Discovery saved",
