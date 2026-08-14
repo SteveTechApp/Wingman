@@ -1,4 +1,5 @@
 import type { RefObject } from "react";
+import { ArrowRight, Check, ClipboardCheck, FileText, Save } from "lucide-react";
 
 type DiscoveryCompletionPanelProps = {
   panelRef: RefObject<HTMLElement>;
@@ -26,34 +27,60 @@ export function DiscoveryCompletionPanel({
       tabIndex={-1}
       aria-labelledby="discovery-complete-title"
     >
-      <span>Discovery complete</span>
-      <h2 className="wm-ui-title" id="discovery-complete-title">
-        All {answerCount} answers are captured. Choose the next move.
-      </h2>
-      <p className="wm-ui-copy">
-        Your complete room brief is ready. Finder will use the core architecture requirements to recommend products,
-        while keeping supporting audio, control and installation details visible for validation.
-      </p>
-
-      <div className="wm-discovery-capture-actions wm-discovery-finish-actions">
-        <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => onMoveForward("recommendations")}>
-          {requiresVideoWallConfiguration ? "Next: configure video wall" : "Next: find matching products"}
-        </button>
-        <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={() => onMoveForward("proposal")}>
-          Build proposal
-        </button>
-        <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={onReviewAnswers}>
-          Review answers
-        </button>
-        <button className="wm-ui-button wm-ui-button-secondary" type="button" onClick={onSave}>
-          Save to project
-        </button>
+      <div className="wm-discovery-finish-intro">
+        <div className="wm-discovery-finish-mark" aria-hidden="true">
+          <Check size={28} strokeWidth={3} />
+        </div>
+        <div>
+          <span className="wm-discovery-finish-kicker">Discovery complete</span>
+          <h2 className="wm-ui-title" id="discovery-complete-title">
+            Your room brief is ready to move forward.
+          </h2>
+          <p className="wm-ui-copy">
+            All {answerCount} answers are captured. The core architecture, supporting services and installation details
+            will stay visible as Wingman builds the solution.
+          </p>
+        </div>
       </div>
 
-      <p className="wm-discovery-finish-review wm-ui-copy">
-        Need to amend something? Select Review answers, then use Previous and Continue to move through the captured brief.
-      </p>
-      {savedMessage && <p className="wm-discovery-muted-note wm-ui-copy">{savedMessage}</p>}
+      <div className="wm-discovery-finish-workspace">
+        <article className="wm-discovery-finish-next">
+          <span>Recommended next step</span>
+          <h3>{requiresVideoWallConfiguration ? "Configure the video wall" : "Find matching products"}</h3>
+          <p className="wm-ui-copy">
+            {requiresVideoWallConfiguration
+              ? "Confirm the wall layout and processing requirements before product matching."
+              : "Turn the captured requirements into an evidence-led product shortlist."}
+          </p>
+          <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => onMoveForward("recommendations")}>
+            {requiresVideoWallConfiguration ? "Next: configure video wall" : "Next: find matching products"}
+            <ArrowRight size={17} aria-hidden="true" />
+          </button>
+        </article>
+
+        <div className="wm-discovery-finish-actions" aria-label="Other discovery actions">
+          <button type="button" onClick={() => onMoveForward("proposal")}>
+            <FileText size={20} aria-hidden="true" />
+            <span><strong>Build proposal</strong><small>Start the customer response</small></span>
+            <ArrowRight size={16} aria-hidden="true" />
+          </button>
+          <button type="button" onClick={onReviewAnswers}>
+            <ClipboardCheck size={20} aria-hidden="true" />
+            <span><strong>Review answers</strong><small>Check or amend the brief</small></span>
+            <ArrowRight size={16} aria-hidden="true" />
+          </button>
+          <button type="button" onClick={onSave}>
+            <Save size={20} aria-hidden="true" />
+            <span><strong>Save to project</strong><small>Keep this discovery on file</small></span>
+            <ArrowRight size={16} aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+
+      <footer className="wm-discovery-finish-footer">
+        <span><Check size={14} aria-hidden="true" /> {answerCount} of {answerCount} requirements captured</span>
+        {savedMessage && <span className="wm-discovery-finish-saved"><Check size={14} aria-hidden="true" /> {savedMessage}</span>}
+      </footer>
     </section>
   );
 }
