@@ -285,12 +285,16 @@ export function CompareShowdown({
   active,
   onStatus,
   view = "all",
+  selectedWyrestormSku,
+  onSelectedWyrestormSkuChange,
 }: {
   brand: string;
   competitorSku: string;
   active: boolean;
   onStatus?: (status: ShowdownStatus) => void;
   view?: ShowdownView;
+  selectedWyrestormSku?: string;
+  onSelectedWyrestormSkuChange?: (sku: string) => void;
 }) {
   const [result, setResult] = useState<ShowdownResult | null>(null);
   const [status, setStatus] = useState<ShowdownStatus>("idle");
@@ -329,8 +333,23 @@ export function CompareShowdown({
 
   const match = useMemo(() => {
     if (!result || result.coverage !== "found") return null;
+
+    if (selectedWyrestormSku) {
+      return result.matches.find(
+        (candidate) => candidate.sheet.sku.toUpperCase() === selectedWyrestormSku.toUpperCase(),
+      ) ?? null;
+    }
+
     return result.matches[selectedIndex] ?? result.matches[0] ?? null;
-  }, [result, selectedIndex]);
+  }, [result, selectedIndex, selectedWyrestormSku]);
+
+  const effectiveSelectedIndex = useMemo(() => {
+    if (!result || result.coverage !== "found" || !match) return 0;
+    const index = result.matches.findIndex(
+      (candidate) => candidate.sheet.sku.toUpperCase() === match.sheet.sku.toUpperCase(),
+    );
+    return index >= 0 ? index : 0;
+  }, [match, result]);
 
   if (!active || status === "idle") return null;
 
@@ -340,7 +359,13 @@ export function CompareShowdown({
 
   if (result.coverage === "missing") return null;
 
-  if (!match) return null;
+  if (!match) {
+    return selectedWyrestormSku ? (
+      <section className="wm-showdown wm-ui-card" role="status">
+        Verified side-by-side evidence is not available for the selected WyreStorm candidate {selectedWyrestormSku}.
+      </section>
+    ) : null;
+  }
 
   const paired = buildAlignedStats(match);
 
@@ -361,7 +386,15 @@ export function CompareShowdown({
           {result.matches.length > 1 ? (
             <label className="wm-showdown__alt">
               Candidate
-              <select value={selectedIndex} onChange={(event) => setSelectedIndex(Number(event.target.value))}>
+              <select
+                value={effectiveSelectedIndex}
+                onChange={(event) => {
+                  const nextIndex = Number(event.target.value);
+                  setSelectedIndex(nextIndex);
+                  const nextSku = result.matches[nextIndex]?.sheet.sku;
+                  if (nextSku) onSelectedWyrestormSkuChange?.(nextSku);
+                }}
+              >
                 {result.matches.map((candidate, index) => (
                   <option key={candidate.sheet.sku} value={index}>
                     {candidate.sheet.sku} · {candidate.rating}%

@@ -4227,10 +4227,10 @@ function CompareEvidenceMatrix({ candidate, competitor }: { candidate: ScoredCan
       {candidate.requirements?.length ? (
         <div className="compare-native-requirement-ledger" role="table" aria-label="Necessary comparison requirements">
           <div className="compare-native-core-matrix-row compare-native-core-matrix-row--header" role="row">
-            <strong role="columnheader">Necessary datapoint</strong>
-            <strong role="columnheader">Competitor</strong>
-            <strong role="columnheader">WyreStorm</strong>
-            <strong role="columnheader">Status</strong>
+            <div role="columnheader">Necessary datapoint</div>
+            <div role="columnheader">Competitor</div>
+            <div role="columnheader">WyreStorm</div>
+            <div role="columnheader">Status</div>
           </div>
           {candidate.requirements.filter((item) => item.tier === "necessary").map((item) => (
             <div className={`compare-native-core-matrix-row compare-requirement--${item.status}`} role="row" key={item.key}>
@@ -4361,11 +4361,11 @@ function CompetitorSearchCard({
   const primaryFacts = summary.facts.slice(0, 4);
 
   return (
-    <section className="wm-compare-searched-product" aria-labelledby="wm-compare-searched-product-title">
+    <section className="wm-match-searched-product" aria-labelledby="wm-match-searched-product-title">
       <header>
         <div>
           <span className="compare-native-eyebrow wm-ui-kicker">Searched competitor</span>
-          <h2 id="wm-compare-searched-product-title">{brand} {sku}</h2>
+          <h2 id="wm-match-searched-product-title">{brand} {sku}</h2>
         </div>
         <span className={`wm-compare-local-status ${locallyRecognised ? "is-recognised" : "is-lookup"}`}>
           {locallyRecognised ? "Recognised locally" : "Live lookup required"}
@@ -6059,6 +6059,11 @@ function ComparePageNew() {
                     competitorSku={competitorInput}
                     active={hasCompared}
                     view="cards"
+                    selectedWyrestormSku={(displayedCandidate ?? best).product.sku}
+                    onSelectedWyrestormSkuChange={(sku) => {
+                      const index = viableCandidates.findIndex((candidate) => candidate.product.sku.toUpperCase() === sku.toUpperCase());
+                      if (index >= 0) setCandidateIndex(index);
+                    }}
                   />
                 </section>
 
@@ -6074,6 +6079,11 @@ function ComparePageNew() {
                     competitorSku={competitorInput}
                     active={hasCompared}
                     view="proof"
+                    selectedWyrestormSku={(displayedCandidate ?? best).product.sku}
+                    onSelectedWyrestormSkuChange={(sku) => {
+                      const index = viableCandidates.findIndex((candidate) => candidate.product.sku.toUpperCase() === sku.toUpperCase());
+                      if (index >= 0) setCandidateIndex(index);
+                    }}
                   />
 
                   <details className="compare-native-summary compare-native-support-details wm-ui-card wm-ui-copy">
@@ -6082,7 +6092,7 @@ function ComparePageNew() {
                   <GovernedDecisionPanel
                     key={`${effectiveBrand}:${competitorInput}:${displayedDecision?.updatedAt ?? decisionRevision}`}
                     profile={profile}
-                    candidate={best ?? heuristicCandidates[0] ?? null}
+                    candidate={displayedCandidate ?? best ?? heuristicCandidates[0] ?? null}
                     existingDecision={displayedDecision}
                     onSaved={() => setDecisionRevision((revision) => revision + 1)}
                   />

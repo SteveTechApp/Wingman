@@ -65,7 +65,7 @@ export function TemplatesPage() {
           const item = toSolutionTemplate(template);
           const purposeId = `template-purpose-${template.id}`;
           if (market === ALL_MARKET_FILTER) {
-            return <button className="wm-all-template-button" key={template.id} type="button" data-template-tone={templateTone(template.vertical)} onClick={() => applyTemplate(template)}><span className="wm-all-template-name">{item.title}</span><span className="wm-all-template-category">{template.vertical}</span></button>;
+            return <button className="wm-library-tile" key={template.id} type="button" aria-label={item.title} data-template-tone={templateTone(template.vertical)} onClick={() => applyTemplate(template)}><span className="wm-library-tile__name">{item.title}</span><span className="wm-library-tile__category">{template.vertical}</span></button>;
           }
           return <article className="wm-solution-card wm-action-card" key={template.id} data-template-tone={templateTone(template.vertical)} data-custom-template={isCustom(template) ? "true" : undefined}>
             <div className="wm-solution-card-visual" aria-hidden="true"><LayoutTemplate /><span className="wm-badge">{template.vertical}</span></div>
