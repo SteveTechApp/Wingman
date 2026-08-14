@@ -4,13 +4,14 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import {
   clearActiveProject,
-  getCurrentWorkflowProject,
+  readProjectStore,
   saveDiscoveryBriefToProject,
   type StoredDiscoveryBrief,
 } from "../data/projectStore";
 import {
   clearLatestDiscoverySnapshot,
   readLatestDiscoverySnapshot,
+  resolveDiscoverySnapshotProject,
   writeLatestDiscoverySnapshot,
 } from "../data/workflowHandoff";
 import { buildDiscoveryRecommendationEvidence } from "../lib/recommendationEvidence";
@@ -141,9 +142,12 @@ export function DiscoveryPage() {
     () => hasExistingDiscoveryContent && !hasIntentionalDiscoveryEntry,
   );
 
-  const existingDiscoveryProject = useMemo(() => getCurrentWorkflowProject(), []);
+  const existingDiscoveryProject = useMemo(
+    () => resolveDiscoverySnapshotProject(discoveryDraft, readProjectStore()),
+    [discoveryDraft],
+  );
   const existingDiscoveryName =
-    existingDiscoveryProject?.name ||
+    existingDiscoveryProject?.name || discoveryDraft?.projectName ||
     [draftField("clientName"), draftField("siteName")].map((item) => item.trim()).filter(Boolean).join(" - ") ||
     "Unnamed discovery";
 
@@ -156,7 +160,6 @@ export function DiscoveryPage() {
     const value =
       discoveryDraft?.savedAt ||
       discoveryDraft?.brief?.savedAt ||
-      existingDiscoveryProject?.updatedAt ||
       "";
 
     if (!value) return "";
@@ -380,6 +383,8 @@ export function DiscoveryPage() {
 
     const timeout = window.setTimeout(() => {
       writeLatestDiscoverySnapshot({
+        projectId: existingDiscoveryProject?.id ?? discoveryDraft?.projectId,
+        projectName: existingDiscoveryProject?.name ?? discoveryDraft?.projectName,
         activeStepIndex: activeIndex,
         state: { answers, notes, clientName, contactName, siteName, budgetLevel, timeline },
         brief: buildDiscoveryBrief(),
@@ -783,7 +788,10 @@ export function DiscoveryPage() {
   }
   function startNewDiscoveryProject(): void {
     if (hasExistingDiscoveryContent) {
-      saveDiscoveryBriefToProject(buildDiscoveryBrief());
+      saveDiscoveryBriefToProject(
+        buildDiscoveryBrief(),
+        existingDiscoveryProject?.id ?? discoveryDraft?.projectId ?? null,
+      );
     }
 
     clearActiveProject();

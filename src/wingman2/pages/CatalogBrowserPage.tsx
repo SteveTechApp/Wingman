@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { ProductFilterPanel, ProductSearchField, ProductWorkspaceHeader, ProductWorkspaceNav } from "../components/ProductWorkspaceChrome";
+import { ProductWhyFlashCard } from "../components/ProductWhyFlashCard";
 import {
   clearProductIntelligenceIndexCache,
   loadProductIntelligenceIndex,
@@ -437,6 +438,7 @@ export function CatalogBrowserPage() {
                 <p className="wm-ui-copy wm-catalog-reasons">{reasons.join("  ·  ")}</p>
                 {eol ? <p className="wm-ui-copy wm-catalog-suppressed">Suppressed from new recommendations</p> : null}
               </Link>
+              <ProductWhyFlashCard context={{ sku: product.sku, name: product.name, family: product.family, summary: product.summary }} />
               {isAdmin ? (
                 <button
                   className="wm-ui-button wm-ui-button-secondary wm-catalog-edit-record"

@@ -486,9 +486,9 @@ html[data-wingman-route="discovery"] .wm-discovery-summary-card.is-compact .wm-d
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   gap: 6px !important;
-  max-height: 190px !important;
+  max-height: none !important;
   padding: 0 !important;
-  overflow-y: auto !important;
+  overflow: visible !important;
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
@@ -528,6 +528,29 @@ html[data-wingman-route="discovery"] .wm-discovery-summary-card.is-compact .wm-d
 
 html[data-wingman-route="discovery"] .wm-discovery-summary-card.is-compact .wm-discovery-live-tip {
   padding: 9px !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-summary-toggle {
+  justify-self: start !important;
+  padding: 4px 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--wm-ref-aqua) !important;
+  font: inherit !important;
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-summary-toggle:hover {
+  text-decoration: underline !important;
+}
+
+html[data-wingman-route="discovery"] .wm-discovery-summary-card.is-compact.is-expanded,
+html[data-wingman-route="discovery"] .wm-discovery-summary-card.is-compact.is-expanded .wm-discovery-summary-grid {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
 }
 
 html[data-wingman-route="discovery"] .wm-discovery-question-card[data-discovery-step="opportunity"] {
@@ -4342,7 +4365,8 @@ html[data-wingman-route="templates"] .wm-template-info-trigger:focus-within::bef
   html[data-wingman-route="discovery"]
     .wm-discovery-summary-card.is-compact
     .wm-discovery-summary-grid {
-    max-height: 150px !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 
   html[data-wingman-route="discovery"] .wm-discovery-capture-card textarea {
