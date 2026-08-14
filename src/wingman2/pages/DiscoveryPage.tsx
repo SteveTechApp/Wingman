@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import {
   clearActiveProject,
+  getCurrentWorkflowProject,
   readProjectStore,
   saveDiscoveryBriefToProject,
   type StoredDiscoveryBrief,
@@ -144,6 +145,10 @@ export function DiscoveryPage() {
 
   const existingDiscoveryProject = useMemo(
     () => resolveDiscoverySnapshotProject(discoveryDraft, readProjectStore()),
+    [discoveryDraft],
+  );
+  const currentWorkflowProject = useMemo(
+    () => getCurrentWorkflowProject(readProjectStore()),
     [discoveryDraft],
   );
   const existingDiscoveryName =
@@ -351,6 +356,10 @@ export function DiscoveryPage() {
     wmDiscoveryAnswerIncludes(answers.displays, "video-wall-output") ||
     wmDiscoveryAnswerIncludes(answers["display-behaviour"], "video-wall-or-processor-feed") ||
     selectedApplication === "video-wall";
+  const videoWallConfigured = Boolean(
+    existingDiscoveryProject?.videowall?.summary || currentWorkflowProject?.videowall?.summary,
+  );
+  const videoWallConfigurationPending = requiresVideoWallConfiguration && !videoWallConfigured;
   const opportunityDescription = [
     selectedAnswerLabel("opportunity") || wmDiscoveryAnswerToText(answers.opportunity),
     selectedAnswerLabel("scale"),
@@ -1193,7 +1202,7 @@ export function DiscoveryPage() {
 
   function moveForward(target: "recommendations" | "proposal"): void {
     saveDiscoveryBriefToProject(buildDiscoveryBrief());
-    if (target === "recommendations" && requiresVideoWallConfiguration) {
+    if (target === "recommendations" && videoWallConfigurationPending) {
       navigate(routeCatalogByKey.videowall.path);
       return;
     }
@@ -1343,7 +1352,7 @@ return (
         <DiscoveryCompletionPanel
           panelRef={completionPanelRef}
           answerCount={discoveryQuestions.length}
-          requiresVideoWallConfiguration={requiresVideoWallConfiguration}
+          requiresVideoWallConfiguration={videoWallConfigurationPending}
           savedMessage={savedMessage}
           onMoveForward={moveForward}
           onReviewAnswers={() => {
@@ -1465,6 +1474,7 @@ return (
               onMoveNext={moveNext}
               onSaveProgress={saveDiscoveryToProject}
               videoWallRequired={requiresVideoWallConfiguration}
+              videoWallConfigured={videoWallConfigured}
               onConfigureVideoWall={openVideoWallConfiguration}
               compact
             />
