@@ -1,12 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { getBestProductPositioningCardForSku } from "../data/productPositioningCards";
 import { getProductStory, productStoryRelatedText } from "../data/productStories";
 import {
+  createProjectForProductSelection,
   getCurrentWorkflowProject,
   readProjectStore,
-  saveProductSelectionToCurrentProject,
+  saveProductSelectionToProject,
+  setActiveProjectId,
+  useProjectStore,
 } from "../data/projectStore";
 import { buildProductNarrative, normaliseProductRecord, type ProductNarrative } from "../lib/productStoryEngine";
 import {
@@ -822,6 +826,7 @@ function getSkuFromPath(): string {
 
 export default function ProductCallCardsPage() {
   const navigate = useNavigate();
+  const { projects, activeProject } = useProjectStore();
   const pathSku = getSkuFromPath();
 
   const [products, setProducts] = useState<ProductCard[]>([]);
@@ -834,6 +839,8 @@ export default function ProductCallCardsPage() {
   const [pageIndex, setPageIndex] = useState(0);
   const [activeProductPanel, setActiveProductPanel] = useState<ProductPanelId>("whatItIs");
   const [activeGalleryItem, setActiveGalleryItem] = useState<ProductGalleryItem | null>(null);
+  const [projectTargetOpen, setProjectTargetOpen] = useState(false);
+  const [newProjectName, setNewProjectName] = useState("");
   const glossaryHighlightsEnabled = useGlossaryHighlightsEnabled();
   const renderWithGuruLinks = (text: string, _product?: ProductCard) =>
     renderGuruGlossaryLinks(text, glossaryHighlightsEnabled);
@@ -1160,7 +1167,18 @@ export default function ProductCallCardsPage() {
     });
   }
 
-  function addProductToProject(): void {
+  function productSelection() {
+    if (!selectedProduct) return null;
+    return {
+      sku: selectedProduct.sku,
+      title: selectedProduct.name,
+      family: selectedProduct.family,
+      category: selectedProduct.category,
+      source: "Product call cards",
+    };
+  }
+
+  function finishProjectHandoff(projectId: string): void {
     if (!selectedProduct) {
       return;
     }
@@ -1179,16 +1197,10 @@ export default function ProductCallCardsPage() {
       source: "product-discussion",
     };
 
-    // Persist into the canonical project store so the product actually lands in the
-    // current project (ProjectsPage reads projectStore). The sessionStorage payload is
-    // kept for richer call-card context, but the store is what makes the handoff stick.
-    saveProductSelectionToCurrentProject({
-      sku: selectedProduct.sku,
-      title: selectedProduct.name,
-      family: selectedProduct.family,
-      category: selectedProduct.category,
-      source: "Product call cards",
-    });
+    const selection = productSelection();
+    if (!selection) return;
+    setActiveProjectId(projectId);
+    saveProductSelectionToProject(projectId, selection);
 
     try {
       window.sessionStorage.setItem("wingman.pendingProjectProduct", JSON.stringify(payload));
@@ -1200,7 +1212,15 @@ export default function ProductCallCardsPage() {
     params.set("addSku", selectedProduct.sku);
     params.set("source", "product-discussion");
 
-    navigate(`/wingman/projects?${params.toString()}`);
+    navigate(`/wingman/projects/${projectId}?${params.toString()}`);
+  }
+
+  function createProjectAndAddProduct(): void {
+    const selection = productSelection();
+    if (!selection) return;
+    const project = createProjectForProductSelection(newProjectName, selection);
+    setProjectTargetOpen(false);
+    finishProjectHandoff(project.id);
   }
 
   function startRoomBuilderWithProduct(): void {
@@ -1273,6 +1293,48 @@ return (
           </div>
         </div>
       )}
+
+      {projectTargetOpen && selectedProduct && typeof document !== "undefined" && createPortal((
+        <div className="wm-pcc-project-target-backdrop" role="presentation">
+          <section className="wm-pcc-project-target-dialog wm-ui-card" role="dialog" aria-modal="true" aria-labelledby="wm-pcc-project-target-title">
+            <header>
+              <div>
+                <p className="wm-ui-kicker">Add {selectedProduct.sku} to a proposal</p>
+                <h2 id="wm-pcc-project-target-title">Choose the project this product belongs to</h2>
+                <p>The proposal is built from a project record. Select an existing opportunity or create a new one now.</p>
+              </div>
+              <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => setProjectTargetOpen(false)} aria-label="Close project selection">×</button>
+            </header>
+
+            {activeProject && (
+              <button type="button" className="wm-pcc-project-target-current wm-ui-button wm-ui-button-primary" onClick={() => finishProjectHandoff(activeProject.id)}>
+                Add to current project: {activeProject.name}
+              </button>
+            )}
+
+            {projects.length > 0 && (
+              <div className="wm-pcc-project-target-existing">
+                <h3>{activeProject ? "Or choose another project" : "Choose an existing project"}</h3>
+                <div>
+                  {projects.filter((project) => project.id !== activeProject?.id).map((project) => (
+                    <button key={project.id} type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => finishProjectHandoff(project.id)}>
+                      <strong>{project.name}</strong><span>{project.stage} · {project.updated}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="wm-pcc-project-target-new">
+              <label htmlFor="wm-pcc-new-project-name">Create a new project</label>
+              <div>
+                <input id="wm-pcc-new-project-name" value={newProjectName} onChange={(event) => setNewProjectName(event.target.value)} placeholder={`${selectedProduct.sku} opportunity`} />
+                <button type="button" className="wm-ui-button wm-ui-button-primary" onClick={createProjectAndAddProduct}>Create and add product</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      ), document.body)}
 
       {selectedProduct ? (
         <header className="wm-pcc-header wm-ui-card-header wm-pcc-header-product-mode">
@@ -1835,13 +1897,16 @@ return (
             <div className="wm-pcc-action-wrap">
               <button
                 type="button"
-                onClick={addProductToProject}
+                onClick={() => {
+                  setNewProjectName("");
+                  setProjectTargetOpen(true);
+                }}
                 disabled={!selectedProduct}
                 className={`wm-pcc-action-button wm-pcc-primary ${!selectedProduct ? "wm-pcc-disabled" : ""}`}
               >
-                Add to project
+                Add to proposal
               </button>
-              <p className="wm-pcc-action-help wm-ui-copy">Attach this SKU to an opportunity.</p>
+              <p className="wm-pcc-action-help wm-ui-copy">Choose or create the project that will own this proposal.</p>
             </div>
 
             <div className="wm-pcc-action-wrap">

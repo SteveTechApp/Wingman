@@ -30,7 +30,11 @@ import { classifyCompetitorCompareDecision, type CompareSpecFacts } from "../lib
 import { isWyreStormSkuCompareLeadAllowed } from "../lib/wyrestormSkuBusinessStatus";
 import { resolveWyrestormSkuAlias, skuAliasMatches } from "../lib/skuAliasResolver";
 import type { RigorousCompareResult, RigorousMatch } from "../lib/rigorousCompare";
-import { applyCompareEligibilityRanking } from "../lib/compareEligibilityEngine";
+import {
+  applyCompareEligibilityRanking,
+  classifyCompareIntent,
+  evaluateProductEligibility,
+} from "../lib/compareEligibilityEngine";
 import { runCompareRuntimePipeline } from "../lib/compareRuntimePipeline";
 import {
   readCompetitorMatchDecisionLedger,
@@ -1260,6 +1264,8 @@ function extractTags(text: string): string[] {
   if (includesAny(text, ["CAMERA", "HUDDLY", "VADDIO", "RALLY BAR", "MEETUP", "BRIO", "WEBCAM"])) tags.push("camera");
   if (includesAny(text, ["WIRELESS", "CLICKSHARE", "SOLSTICE", "MERSIVE", "AIRTAME", "AIRPLAY", "MIRACAST", "CHROMECAST"])) tags.push("wireless casting");
   if (includesAny(text, ["SPEAKERPHONE", "SOUNDBAR", "VIDEO BAR", "CONFERENCING BAR", "USB CAMERA", "CONFERENCE CAMERA"])) tags.push("usb conferencing");
+  if (includesAny(text, ["MINI", "HUDDLE ROOM", "SMALL ROOM", "SMALL MEETING ROOM", "HOME OFFICE"])) tags.push("compact room");
+  if (includesAny(text, ["MEDIUM ROOM", "MEDIUM MEETING ROOM", "8-10 PEOPLE", "8 TO 10 PEOPLE"])) tags.push("medium room");
   // The bare word "AMPLIFIER" also appears in "distribution amplifier" - the
   // real product-naming convention for HDMI/video splitters (e.g. WyreStorm's
   // own SP-0104-H2 datasheet describes its role as "Distribution amplifier"),
@@ -1392,7 +1398,9 @@ function buildCompetitorProfile(brand: string, sku: string, description: string)
     brand: resolvedSpec?.brand || brand,
     sku: normalizedSku,
     rawText,
-    productClass: productClassFromResolvedDomain(resolvedSpec?.domain) || productClassFromTags(requestedTags),
+    productClass: ucProduct
+      ? productClassFromTags(requestedTags)
+      : productClassFromResolvedDomain(resolvedSpec?.domain) || productClassFromTags(requestedTags),
     role: resolvedSpec?.domain === "HDBASET" && resolvedSpec?.features?.receiverKit
       ? "TX/RX extender kit"
       : resolvedSpec?.domain === "HDBASET" && resolvedSpec?.features?.usbRouting
@@ -1488,10 +1496,17 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
 
   profile.requestedTags.forEach((tag) => {
     if (product.tags.includes(tag)) {
-      score += 7;
+      score += tag === "compact room" || tag === "medium room" ? 20 : 7;
       matched.push(`Matches requested feature: ${tag}`);
     }
   });
+
+  const requestedRoomFit = profile.requestedTags.find((tag) => tag === "compact room" || tag === "medium room");
+  const candidateRoomFit = product.tags.find((tag) => tag === "compact room" || tag === "medium room");
+  if (requestedRoomFit && candidateRoomFit && requestedRoomFit !== candidateRoomFit) {
+    score -= 12;
+    partialMatches.push(`Room positioning differs: competitor is ${requestedRoomFit}, candidate is ${candidateRoomFit}.`);
+  }
 
   if (competitorIo.waivedAdditionalVideoFamilies.length > 0) {
     matched.push(`Additional competitor connectors excluded from this comparison: ${competitorIo.waivedAdditionalVideoFamilies.join(", ")}.`);
@@ -4332,6 +4347,38 @@ function CompareReportedStatusRail({
   );
 }
 
+function CompetitorSearchCard({
+  brand,
+  sku,
+  summary,
+  locallyRecognised,
+}: {
+  brand: string;
+  sku: string;
+  summary: CompetitorSummary;
+  locallyRecognised: boolean;
+}) {
+  const primaryFacts = summary.facts.slice(0, 4);
+
+  return (
+    <section className="wm-compare-searched-product" aria-labelledby="wm-compare-searched-product-title">
+      <header>
+        <div>
+          <span className="compare-native-eyebrow wm-ui-kicker">Searched competitor</span>
+          <h2 id="wm-compare-searched-product-title">{brand} {sku}</h2>
+        </div>
+        <span className={`wm-compare-local-status ${locallyRecognised ? "is-recognised" : "is-lookup"}`}>
+          {locallyRecognised ? "Recognised locally" : "Live lookup required"}
+        </span>
+      </header>
+      <p>{summary.detail || summary.warning || "Competitor product identity requires confirmation."}</p>
+      <dl>
+        {primaryFacts.map((fact) => <div key={fact.label}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}
+      </dl>
+    </section>
+  );
+}
+
 function compactCompareQuoteChecks(
   competitor: CompetitorSummary,
   candidate: ScoredCandidate,
@@ -4957,6 +5004,7 @@ function ComparePageNew() {
   // needs first - confirming Wingman understood the competitor product and
   // justifying the suggested WyreStorm replacement - before the overview.
   const [resultTab, setResultTab] = useState<CompareResultTab>("overview");
+  const [candidateIndex, setCandidateIndex] = useState(0);
   // Verified battle cards are supplemental evidence. The governed Compare
   // runtime remains authoritative for recommendation, project save and proposal handoff.
   const navigate = useNavigate();
@@ -5055,7 +5103,10 @@ function ComparePageNew() {
       .map((product) => scoreProduct(profile, product))
       .filter((candidate) => isSelectableWyrestormRecommendation(candidate.product))
       .sort((a, b) => b.score - a.score)
-      .slice(0, 8);
+      // Classification and eligibility—not an arbitrary early top-eight cut—
+      // decide which products survive. This prevents a valid same-role product
+      // with less marketing-keyword overlap from being discarded too soon.
+      .slice(0, 40);
   }, [profile, catalogVersion]);
 
   const rigorousResult = useMemo(() => {
@@ -5081,15 +5132,13 @@ function ComparePageNew() {
     // same bare "wireless presentation" role and "Wireless" transport regardless
     // of whether it's a UC bar or a casting dongle) - backfilling those too
     // turned real matches into false role/transport-mismatch blockers.
-    const isUnknownCompareField = (value?: string): boolean => {
-      const text = String(value ?? "").trim().toLowerCase();
-      return !text || text === "unknown" || text === "verify" || text === "n/a";
-    };
+    const inferredCompetitorDomain = domainFromProductClass(profile.productClass);
     const competitorForClassification: typeof result.competitor = {
       ...result.competitor,
-      domain: isUnknownCompareField(result.competitor.domain)
-        ? (domainFromProductClass(profile.productClass) ?? result.competitor.domain)
-        : result.competitor.domain,
+      // The page classifier has the full resolved product description, whereas
+      // the runtime registry can retain a coarser legacy domain. Prefer the
+      // evidence-derived product class whenever one was established.
+      domain: inferredCompetitorDomain ?? result.competitor.domain,
     };
 
     const classifiedLegacyMatches: RigorousMatch[] = legacyCandidates.map((candidate) => {
@@ -5179,11 +5228,13 @@ function ComparePageNew() {
   }, [competitorInput, effectiveBrand, legacyCandidates, mustMatchFeatures, catalogVersion]);
 
   const heuristicCandidates = useMemo(
-    () =>
-      rigorousResult.matches
+    () => {
+      const candidates = rigorousResult.matches
         .map((match) => rigorousMatchToCandidate(match, profile))
-        .filter((candidate) => isSelectableWyrestormRecommendation(candidate.product))
-        .slice(0, 5),
+        .filter((candidate) => isSelectableWyrestormRecommendation(candidate.product));
+
+      return candidates;
+    },
     [profile, rigorousResult],
   );
 
@@ -5262,18 +5313,50 @@ function ComparePageNew() {
         ]
       : heuristicCandidates;
 
-    return applyGovernedCandidateOrder(
-      candidates,
+    const requestedRoomFit = profile.requestedTags.find((tag) => tag === "compact room" || tag === "medium room");
+    const semanticRank = (candidate: ScoredCandidate): number => {
+      const candidateRoomFit = candidate.product.tags.find((tag) => tag === "compact room" || tag === "medium room");
+      const sameProductClass = candidate.product.productClass === profile.productClass ? 100 : 0;
+      const roomFit = requestedRoomFit && candidateRoomFit
+        ? requestedRoomFit === candidateRoomFit ? 120 : -60
+        : 0;
+      return candidate.score + sameProductClass + roomFit;
+    };
+    const semanticallyOrdered = [...candidates].sort((a, b) => semanticRank(b) - semanticRank(a));
+
+    const ordered = applyGovernedCandidateOrder(
+      semanticallyOrdered,
       governedDecision,
       (candidate) => candidate.product.sku,
     );
-  }, [governedCandidate, governedDecision, heuristicCandidates]);
+
+    const intent = classifyCompareIntent(
+      profile.resolvedSpec ?? { domain: domainFromProductClass(profile.productClass), role: profile.role },
+      `${profile.brand} ${profile.sku} ${profile.rawText}`,
+    );
+
+    // Governed/local decisions are ranking evidence, not permission to bypass
+    // current product-role eligibility. Revalidate the final merged list so a
+    // stale saved decision cannot resurrect a wrong product architecture.
+    return ordered.filter((candidate) =>
+      evaluateProductEligibility({
+        intent,
+        competitorText: `${profile.brand} ${profile.sku} ${profile.rawText}`,
+        match: candidate.product,
+        product: candidate.product,
+      }).eligibility !== "blocked",
+    );
+  }, [governedCandidate, governedDecision, heuristicCandidates, profile]);
 
   const viableCandidates = useMemo(
     () => scoredCandidates.filter((candidate) => candidate.verdict !== "NO MATCH"),
     [scoredCandidates],
   );
   const best = viableCandidates[0] ?? null;
+  const displayedCandidate = viableCandidates[candidateIndex] ?? best;
+  useEffect(() => {
+    if (candidateIndex >= viableCandidates.length) setCandidateIndex(0);
+  }, [candidateIndex, viableCandidates.length]);
   useEffect(() => {
     if (!hasCompared || workflowStep !== "options" || !best?.product.sku) {
       return;
@@ -5304,6 +5387,14 @@ function ComparePageNew() {
     : [];
   const requestLiveLookup = shouldRequestLiveLookupUrl(profile)
     || !isCompetitorSkuHeldLocally(effectiveBrand, competitorInput);
+  const primarySearchCriteria = uniqueText([
+    `Manufacturer: ${effectiveBrand}`,
+    `SKU / model: ${competitorInput}`,
+    profile.productClass !== "Unknown" ? `Product class: ${profile.productClass}` : "Product class: not recognised locally",
+    profile.role !== "Unknown" ? `Role: ${profile.role}` : "Role: not recognised locally",
+    profile.transport !== "Unknown" ? `Transport: ${profile.transport}` : "Transport: not recognised locally",
+    mustMatchFeatures.trim() ? `Must match: ${mustMatchFeatures.trim()}` : "",
+  ], 6);
   const sourceUrl = fallbackRetrySourceUrl("");
 
   const handleSkuSelect = useCallback((sku: string): void => {
@@ -5322,6 +5413,7 @@ function ComparePageNew() {
     setHasCompared(true);
     setWorkflowStep("options");
     setResultTab("overview");
+    setCandidateIndex(0);
     setCompareStage("results");
     setState("results");
   }, [effectiveBrand, mustMatchFeatures]);
@@ -5333,6 +5425,7 @@ function ComparePageNew() {
     setHasCompared(true);
     setWorkflowStep("options");
     setResultTab("overview");
+    setCandidateIndex(0);
     setCompareStage("results");
     setState("results");
     runCompare();
@@ -5347,11 +5440,12 @@ function ComparePageNew() {
   }, [competitorInput, effectiveBrand, mustMatchFeatures]);
 
   const handleReset = useCallback((): void => {
+    setCandidateIndex(0);
     resetCompare();
   }, []);
 
   const summary = useMemo(() => {
-    if (!best) {
+    if (!displayedCandidate) {
       if (governedDecision?.decisionType === "no-suitable-match") {
         return `${effectiveBrand} ${competitorInput}: approved no suitable WyreStorm match. Reviewer: ${governedDecision.reviewer || "not recorded"}.`;
       }
@@ -5359,9 +5453,9 @@ function ComparePageNew() {
       return "No suitable WyreStorm direction found from the current data.";
     }
 
-    const directionFit = salesDirectionFitLabel(best);
-    const replacementConfidence = salesReplacementConfidenceLabel(competitorSummary, best);
-    const askCustomer = salesAskCustomer(competitorSummary, best).map((line) => commercializeCompareCopy(line)).filter(Boolean);
+    const directionFit = salesDirectionFitLabel(displayedCandidate);
+    const replacementConfidence = salesReplacementConfidenceLabel(competitorSummary, displayedCandidate);
+    const askCustomer = salesAskCustomer(competitorSummary, displayedCandidate).map((line) => commercializeCompareCopy(line)).filter(Boolean);
     const identityItems = competitorIdentityItems(competitorSummary);
     const limitedWarning = exactLimitedDataWarning(profile);
 
@@ -5369,42 +5463,42 @@ function ComparePageNew() {
       `${competitorSummary.heading} appears to be a ${shortRoleLabel(competitorSummary.role)}.`,
       ...(governedDecision ? [`Governed decision: ${governedDecisionLabel(governedDecision)}${governedDecision.reviewer ? ` by ${governedDecision.reviewer}` : ""}.`] : []),
       ...identityItems.map((line) => line),
-      `The closest WyreStorm direction is ${best.product.sku} because it performs the same basic job in a ${best.product.family} system.`,
+      `The selected WyreStorm direction is ${displayedCandidate.product.sku} because it performs the same basic job in a ${displayedCandidate.product.family} system.`,
       `${directionFit}. ${replacementConfidence}.`,
-      salesImportantDifference(competitorSummary, best),
+      salesImportantDifference(competitorSummary, displayedCandidate),
       ...(limitedWarning ? [limitedWarning] : []),
       "",
       "Ask the customer before quoting:",
       ...askCustomer.slice(0, 4).map((line) => `- ${line}`),
     ].join("\n");
-  }, [best, competitorInput, competitorSummary, effectiveBrand, governedDecision, profile]);
+  }, [competitorInput, competitorSummary, displayedCandidate, effectiveBrand, governedDecision, profile]);
 
   const handleCommit = useCallback(
     (target: "project" | "proposal"): void => {
-      if (!best) return;
+      if (!displayedCandidate) return;
 
       const status =
-        best.verdict === "GOOD MATCH" ? "recommended" : best.verdict === "NO MATCH" ? "caution" : "alternative";
+        displayedCandidate.verdict === "GOOD MATCH" ? "recommended" : displayedCandidate.verdict === "NO MATCH" ? "caution" : "alternative";
       const selection: StoredProductSelection = {
-        sku: best.product.sku,
-        title: best.product.name,
-        family: best.product.family,
+        sku: displayedCandidate.product.sku,
+        title: displayedCandidate.product.name,
+        family: displayedCandidate.product.family,
         status,
         source: "Competitor Compare",
-        evidence: best.matched,
-        cautions: best.checks,
+        evidence: displayedCandidate.matched,
+        cautions: displayedCandidate.checks,
       };
       const compareRun = {
         competitorBrand: effectiveBrand,
         competitorSku: competitorInput || undefined,
-        wyrestormSku: best.product.sku,
-        wyrestormTitle: best.product.name,
+        wyrestormSku: displayedCandidate.product.sku,
+        wyrestormTitle: displayedCandidate.product.name,
         mode: "compare",
         summary,
-        matchScore: Math.round(best.score),
-        matchType: best.verdict,
-        evidence: best.matched,
-        warnings: best.checks,
+        matchScore: Math.round(displayedCandidate.score),
+        matchType: displayedCandidate.verdict,
+        evidence: displayedCandidate.matched,
+        warnings: displayedCandidate.checks,
         source: "Competitor Compare",
       };
 
@@ -5417,24 +5511,24 @@ function ComparePageNew() {
           query: [effectiveBrand, competitorInput, mustMatchFeatures].filter(Boolean).join(" "),
           compare: compareRun,
           product: {
-            sku: best.product.sku,
-            title: best.product.name,
-            family: best.product.family,
-            category: best.product.productClass,
-            tags: best.product.tags,
-            summary: best.matched.join(" "),
+            sku: displayedCandidate.product.sku,
+            title: displayedCandidate.product.name,
+            family: displayedCandidate.product.family,
+            category: displayedCandidate.product.productClass,
+            tags: displayedCandidate.product.tags,
+            summary: displayedCandidate.matched.join(" "),
           },
         }),
         selection,
       );
 
-      setCommittedSku(best.product.sku);
+      setCommittedSku(displayedCandidate.product.sku);
 
       if (target === "proposal") {
         navigate(routeCatalogByKey.proposal.path);
       }
     },
-    [best, competitorInput, effectiveBrand, mustMatchFeatures, navigate, summary],
+    [competitorInput, displayedCandidate, effectiveBrand, mustMatchFeatures, navigate, summary],
   );
 
   function saveCustomManufacturer(): void {
@@ -5815,6 +5909,12 @@ function ComparePageNew() {
 
           {hasCompared ? (
           <>
+            <CompetitorSearchCard
+              brand={effectiveBrand}
+              sku={competitorInput}
+              summary={competitorSummary}
+              locallyRecognised={!requestLiveLookup}
+            />
             {best ? (
               <>
                 <aside className="compare-result-guide" aria-label="How to use this result">
@@ -5857,10 +5957,17 @@ function ComparePageNew() {
                     ref={bestMatchRef}
                     className="compare-native-scroll-target"
                     tabIndex={-1}
-                    aria-label={`Main WyreStorm match: ${best.product.sku}`}
+                    aria-label={`Main WyreStorm match: ${(displayedCandidate ?? best).product.sku}`}
                   >
+                    {viableCandidates.length > 1 ? (
+                      <nav className="wm-compare-candidate-nav" aria-label="WyreStorm equivalent options">
+                        <button type="button" aria-label="Previous WyreStorm equivalent" onClick={() => setCandidateIndex((index) => (index - 1 + viableCandidates.length) % viableCandidates.length)}>‹</button>
+                        <span><strong>WyreStorm equivalent</strong> Option {candidateIndex + 1} of {viableCandidates.length}</span>
+                        <button type="button" aria-label="Next WyreStorm equivalent" onClick={() => setCandidateIndex((index) => (index + 1) % viableCandidates.length)}>›</button>
+                      </nav>
+                    ) : null}
                     <BestCandidateCard
-                      candidate={best}
+                      candidate={displayedCandidate ?? best}
                       competitor={competitorSummary}
                       competitorProfile={profile}
                       onCopySummary={() => { void copySummary(); }}
@@ -5871,9 +5978,9 @@ function ComparePageNew() {
                     <div>
                       <strong>Next action</strong>
                       <span>
-                        {compareReportedStatus(best, competitorSummary) === "match"
+                        {compareReportedStatus(displayedCandidate ?? best, competitorSummary) === "match"
                           ? "Use the matched direction in the project or proposal."
-                          : compareReportedStatus(best, competitorSummary) === "partial"
+                          : compareReportedStatus(displayedCandidate ?? best, competitorSummary) === "partial"
                             ? "Record the partial match and confirm the stated difference."
                             : "Confirm the outstanding checks before proposal use."}
                       </span>
@@ -5885,12 +5992,12 @@ function ComparePageNew() {
                         className="compare-native-more wm-ui-button wm-ui-button-primary"
                         onClick={() => handleCommit("project")}
                       >
-                        {compareReportedStatus(best, competitorSummary) === "match"
+                        {compareReportedStatus(displayedCandidate ?? best, competitorSummary) === "match"
                           ? "Add to project"
                           : "Add to project for review"}
                       </button>
 
-                      {compareReportedStatus(best, competitorSummary) === "match" ? (
+                      {compareReportedStatus(displayedCandidate ?? best, competitorSummary) === "match" ? (
                         <button
                           type="button"
                           className="compare-native-secondary-action wm-ui-button wm-ui-button-primary"
@@ -5902,13 +6009,13 @@ function ComparePageNew() {
 
                       <Link
                         className="compare-native-secondary-action"
-                        to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(best.product.sku)}&source=compare`}
+                        to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent((displayedCandidate ?? best).product.sku)}&source=compare`}
                       >
                         Product details
                       </Link>
                     </div>
 
-                    {committedSku === best.product.sku ? (
+                    {committedSku === (displayedCandidate ?? best).product.sku ? (
                       <p className="compare-native-muted wm-ui-copy">
                         Saved. <Link to={routeCatalogByKey.projects.path}>Open projects</Link>.
                       </p>
@@ -6006,6 +6113,7 @@ function ComparePageNew() {
                       sku={competitorInput}
                       onSaved={() => setCatalogVersion((version) => version + 1)}
                       autoRun
+                      primaryCriteria={primarySearchCriteria}
                     />
                   ) : null}
                   </details>
@@ -6077,6 +6185,7 @@ function ComparePageNew() {
                   sku={competitorInput}
                   onSaved={() => setCatalogVersion((version) => version + 1)}
                   autoRun
+                  primaryCriteria={primarySearchCriteria}
                 />
 
                 <details className="compare-native-summary compare-native-support-details wm-ui-card wm-ui-copy">

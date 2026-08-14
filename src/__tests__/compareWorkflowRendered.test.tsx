@@ -170,7 +170,7 @@ describe("Compare rendered workflow", () => {
 
     const wyrestormSection = getMainCompareProductSection("WyreStorm direction");
     expect(wyrestormSection).not.toBeNull();
-    expect(within(wyrestormSection as HTMLElement).getByText("APO-VX20-UC-V2")).toBeInTheDocument();
+    expect(within(wyrestormSection as HTMLElement).getByText(/Video Bar/i)).toBeInTheDocument();
   });
 
   it("saves a quote-safe competitor lookup and keeps the lead recommendation away from controller-only products", async () => {
@@ -406,6 +406,20 @@ describe("Compare rendered workflow", () => {
     const wyrestormSection = getMainCompareProductSection("WyreStorm direction");
     expect(wyrestormSection).not.toBeNull();
     expect(within(wyrestormSection as HTMLElement).getByText("APO-VX20-UC-V2")).toBeInTheDocument();
+  });
+
+  it("never presents a wireless presentation transmitter as the equivalent for Logitech Rally Bar Mini", async () => {
+    renderComparePage();
+
+    runKnownCompare("Logitech", "Rally Bar Mini");
+
+    await findMainCompareResult();
+
+    const wyrestormSection = getMainCompareProductSection("WyreStorm direction");
+    expect(wyrestormSection).not.toBeNull();
+    expect(within(wyrestormSection as HTMLElement).getByText("APO-VX20-UC-V2")).toBeInTheDocument();
+    expect(screen.queryByText("SW-620-TX-W")).not.toBeInTheDocument();
+    expect(screen.queryByText("SW-640L-TX-W")).not.toBeInTheDocument();
   });
 
   it("recommends the Apollo wireless casting dongle for a described wireless casting competitor", async () => {
