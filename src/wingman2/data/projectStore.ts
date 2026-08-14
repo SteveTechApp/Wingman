@@ -1753,10 +1753,47 @@ function projectNameFromVideowall(wallType: string) {
   return "Video Wall Discovery";
 }
 
+const VIDEOWALL_PRODUCT_SKU_PATTERN = /^[A-Z0-9]+(?:-[A-Z0-9]+)+$/;
+
+export function productSelectionsFromVideowallSummary(
+  summary: Record<string, unknown>,
+  savedAt = nowIso(),
+): StoredProductSelection[] {
+  const recommendation: Record<string, unknown> =
+    summary.recommendation && typeof summary.recommendation === "object" && !Array.isArray(summary.recommendation)
+      ? summary.recommendation as Record<string, unknown>
+      : {};
+  const products = Array.isArray(recommendation.products) ? recommendation.products : [];
+  const evidence = [recommendation.title, recommendation.rationale]
+    .filter((value): value is string => typeof value === "string" && Boolean(value.trim()))
+    .map((value) => value.trim());
+
+  return [...new Set(products
+    .filter((value): value is string => typeof value === "string")
+    .map((value) => value.trim().toUpperCase())
+    .filter((value) => VIDEOWALL_PRODUCT_SKU_PATTERN.test(value)))]
+    .map((sku) => ({
+      sku,
+      title: sku,
+      category: "Video Wall",
+      status: "recommended" as const,
+      tags: ["videowall"],
+      addedAt: savedAt,
+      source: "Video Wall Builder",
+      evidence,
+    }));
+}
+
 export function saveVideowallToProject(input: { wallType: string; summary: Record<string, unknown> }) {
   const timestamp = nowIso();
   const snapshot = readProjectStore();
   const existing = getCurrentWorkflowProject(snapshot);
+  const recommendedProducts = productSelectionsFromVideowallSummary(input.summary, timestamp);
+  const recommendedSkus = new Set(recommendedProducts.map((product) => product.sku));
+  const productSelections = [
+    ...recommendedProducts,
+    ...(existing?.productSelections ?? []).filter((product) => !recommendedSkus.has(product.sku)),
+  ].slice(0, 20);
   const videowall: StoredVideowallSummary = {
     savedAt: timestamp,
     wallType: input.wallType,
@@ -1775,6 +1812,7 @@ export function saveVideowallToProject(input: { wallType: string; summary: Recor
         updated: "Just now",
         updatedAt: timestamp,
         videowall,
+        productSelections,
         workflow,
       }
     : createWorkflowProject({
@@ -1783,6 +1821,7 @@ export function saveVideowallToProject(input: { wallType: string; summary: Recor
         status: "recommended",
         resumeTo: routeCatalogByKey.discovery.path,
         videowall,
+        productSelections: productSelections.length ? productSelections : undefined,
         workflow,
       });
 

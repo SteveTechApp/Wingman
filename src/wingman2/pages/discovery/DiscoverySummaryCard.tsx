@@ -12,6 +12,7 @@ type DiscoverySummaryCardProps = {
   onMoveNext: () => void;
   onSaveProgress: () => void;
   videoWallRequired?: boolean;
+  videoWallConfigured?: boolean;
   onConfigureVideoWall?: () => void;
   compact?: boolean;
 };
@@ -23,6 +24,7 @@ export function DiscoverySummaryCard({
   onMoveNext,
   onSaveProgress,
   videoWallRequired = false,
+  videoWallConfigured = false,
   onConfigureVideoWall,
   compact = false,
 }: DiscoverySummaryCardProps) {
@@ -64,10 +66,20 @@ export function DiscoverySummaryCard({
       )}
 
       {videoWallRequired && onConfigureVideoWall && (
-        <div className="wm-discovery-live-tip">
-          <strong>Video wall configuration required</strong>
-          <p className="wm-ui-copy">The selected display requirement needs wall type, layout, source-window and processing decisions before product matching.</p>
-          <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={onConfigureVideoWall}>Configure video wall</button>
+        <div className={`wm-discovery-live-tip${videoWallConfigured ? " is-configured" : ""}`}>
+          <strong>{videoWallConfigured ? "Video wall configured" : "Video wall configuration required"}</strong>
+          <p className="wm-ui-copy">
+            {videoWallConfigured
+              ? "The wall type, layout, source-window and processing decisions are saved to this project and ready for product matching."
+              : "The selected display requirement needs wall type, layout, source-window and processing decisions before product matching."}
+          </p>
+          <button
+            className={`wm-ui-button ${videoWallConfigured ? "wm-ui-button-secondary" : "wm-ui-button-primary"}`}
+            type="button"
+            onClick={onConfigureVideoWall}
+          >
+            {videoWallConfigured ? "Review video wall" : "Configure video wall"}
+          </button>
         </div>
       )}
 
