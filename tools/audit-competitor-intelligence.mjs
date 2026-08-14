@@ -15,11 +15,20 @@ function extractCatalogue() {
     const brand = String(product.manufacturer || product.brand || "Unknown");
     const sku = String(product.model || product.sku || "").trim();
     if (!sku) continue;
-    if (!byBrand.has(brand)) byBrand.set(brand, []);
-    byBrand.get(brand).push(sku);
+    if (!byBrand.has(brand)) byBrand.set(brand, { skus: [], roles: [] });
+    byBrand.get(brand).skus.push(sku);
+    const role = String(product.role || product.product_class || product.productClass || "Unknown").trim();
+    if (role) byBrand.get(brand).roles.push(role);
   }
   return [...byBrand.entries()]
-    .map(([brand, skus]) => ({ brand, count: new Set(skus).size, skus: [...new Set(skus)].sort() }))
+    .map(([brand, values]) => {
+      const skus = [...new Set(values.skus)].sort();
+      const roles = [...new Set(values.roles)].sort();
+      const coverageStatus = skus.length >= 8 && roles.length >= 4
+        ? "broad"
+        : skus.length >= 5 && roles.length >= 3 ? "developing" : "selective";
+      return { brand, count: skus.length, roleCount: roles.length, coverageStatus, roles, skus };
+    })
     .sort((a, b) => a.brand.localeCompare(b.brand));
 }
 
@@ -33,7 +42,7 @@ console.log("Competitor intelligence catalogue counts");
 console.log("=======================================");
 
 for (const item of brandCounts) {
-  console.log(item.brand.padEnd(14) + String(item.count).padStart(3));
+  console.log(item.brand.padEnd(14) + String(item.count).padStart(3) + "  " + item.coverageStatus.padEnd(10) + " " + item.roleCount + " roles");
 }
 
 console.log("---------------------------------------");
@@ -59,7 +68,17 @@ writeFileSync(path.join(outputDir, "competitor-intelligence-audit.md"), [
   "",
   "## Brand counts",
   "",
-  ...brandCounts.map((item) => "- " + item.brand + ": " + item.count),
+  ...brandCounts.map((item) => "- " + item.brand + ": " + item.count + " SKUs / " + item.roleCount + " roles / " + item.coverageStatus),
+  "",
+  "## Coverage policy",
+  "",
+  "- Broad: at least 8 governed SKUs across at least 4 product roles.",
+  "- Developing: at least 5 governed SKUs across at least 3 product roles.",
+  "- Selective: below the developing threshold; the UI and sales team must not describe this brand as comprehensive.",
+  "",
+  "## Selective brands requiring expansion",
+  "",
+  ...brandCounts.filter((item) => item.coverageStatus === "selective").map((item) => "- " + item.brand + ": " + item.count + " SKUs / " + item.roleCount + " roles"),
   "",
   "## Current status",
   "",

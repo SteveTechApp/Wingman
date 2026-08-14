@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { DiscoverySummaryItem } from "./discoveryTypes";
 
 // Presentational "Captured brief" summary. Renders the captured answers/notes
@@ -25,8 +26,11 @@ export function DiscoverySummaryCard({
   onConfigureVideoWall,
   compact = false,
 }: DiscoverySummaryCardProps) {
+  const [expanded, setExpanded] = useState(false);
+  const canExpand = compact && items.length > 6;
+  const visibleItems = canExpand && !expanded ? items.slice(0, 6) : items;
   return (
-    <section className={`wm-discovery-summary-card wm-ui-section wm-ui-card wm-ui-copy${compact ? " is-compact" : ""}`}>
+    <section className={`wm-discovery-summary-card wm-ui-section wm-ui-card wm-ui-copy${compact ? " is-compact" : ""}${expanded ? " is-expanded" : ""}`}>
       <div className="wm-discovery-summary-heading wm-ui-card wm-ui-title wm-ui-copy">
         <span>{compact ? "Current room model" : "Captured brief"}</span>
         <p className="wm-ui-copy">
@@ -39,7 +43,7 @@ export function DiscoverySummaryCard({
       </div>
 
       <div className="wm-discovery-summary-grid wm-ui-card wm-ui-copy">
-        {items.map((item) => (
+        {visibleItems.map((item) => (
           <article className="wm-ui-card" key={item.id}>
             <strong>{item.label}</strong>
             <span>{item.answer}</span>
@@ -47,6 +51,17 @@ export function DiscoverySummaryCard({
           </article>
         ))}
       </div>
+
+      {canExpand && (
+        <button
+          className="wm-discovery-summary-toggle"
+          type="button"
+          aria-expanded={expanded}
+          onClick={() => setExpanded((value) => !value)}
+        >
+          {expanded ? "Collapse model" : `View all ${items.length} decisions`}
+        </button>
+      )}
 
       {videoWallRequired && onConfigureVideoWall && (
         <div className="wm-discovery-live-tip">
