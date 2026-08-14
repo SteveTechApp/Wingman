@@ -303,6 +303,14 @@ export function loadProposalWizardDraft(
     return {
       ...defaults,
       ...parsed,
+      // Step 1 is project/profile metadata, not authored proposal narrative.
+      // Always refresh it so a cached draft cannot impersonate another project.
+      customerName: defaults.customerName,
+      contactName: defaults.contactName,
+      projectName: defaults.projectName,
+      proposalReference: defaults.proposalReference,
+      proposalDate: defaults.proposalDate,
+      preparedBy: defaults.preparedBy,
       ...(discoveryChanged
         ? {
             discoveryFingerprint: defaults.discoveryFingerprint,
