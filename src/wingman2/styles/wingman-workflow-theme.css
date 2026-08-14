@@ -553,6 +553,25 @@ html[data-wingman-route="discovery"] .wm-discovery-summary-card.is-compact.is-ex
   overflow: visible !important;
 }
 
+html[data-wingman-route="discovery"] .wm-route-stepper button > span {
+  margin-right: 0.35rem !important;
+}
+
+html[data-wingman-route="discovery"] .wm-route-step-actions {
+  display: grid !important;
+  grid-template-columns: 1fr auto 1fr !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+html[data-wingman-route="discovery"] .wm-route-step-actions > button:first-child {
+  justify-self: start !important;
+}
+
+html[data-wingman-route="discovery"] .wm-route-step-actions > button:last-child {
+  justify-self: end !important;
+}
+
 html[data-wingman-route="discovery"] .wm-discovery-question-card[data-discovery-step="opportunity"] {
   background: linear-gradient(145deg, color-mix(in srgb, var(--wm-ref-aqua) 8%, var(--wm-ref-panel-strong)), var(--wm-ref-panel-soft)) !important;
 }
