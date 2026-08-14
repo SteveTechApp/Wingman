@@ -544,7 +544,7 @@ function selectedLabel(options: Option[], value: string): string {
   return options.find((option) => option.value === value)?.label ?? "";
 }
 
-function ProductVisualCard(props: { bundle: VisualBundle }) {
+function _ProductVisualCard(props: { bundle: VisualBundle }) {
   const isRack = props.bundle.productForm === "rack";
   const isEndpoint = props.bundle.productForm === "endpoint";
 
@@ -614,7 +614,7 @@ function ProductVisualCard(props: { bundle: VisualBundle }) {
   );
 }
 
-function SchematicCard(props: { bundle: VisualBundle }) {
+function _SchematicCard(props: { bundle: VisualBundle }) {
   return (
     <article className="vw2-visual-card wm-ui-card">
       <div className="vw2-visual-card-head wm-ui-card">

@@ -712,7 +712,7 @@ export function RecommendationsPage() {
           ) : null}
 
           {design.slots.length ? (
-            <section className="wm-rec-system" aria-labelledby="wm-rec-system-title">
+            <section className="wm-rec-system wm-ui-card" aria-labelledby="wm-rec-system-title">
               <header className="wm-rec-system-header">
                 <div className="wm-rec-system-heading">
                   <span className="wm-rec-system-icon"><Boxes size={25} aria-hidden="true" /></span>

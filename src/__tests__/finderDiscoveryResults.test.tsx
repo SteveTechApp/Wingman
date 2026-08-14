@@ -90,7 +90,7 @@ describe("Recommendations Discovery handoff", () => {
     expect((await screen.findAllByText("NHD-600-TRX")).length).toBeGreaterThan(0);
     expect(screen.queryByText("No eligible product passed the current compatibility gates.")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Add the whole system to the project" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add complete system to project" }));
 
     const snapshot = readProjectStore();
     const project = snapshot.projects.find((candidate) => candidate.id === snapshot.activeProjectId)!;

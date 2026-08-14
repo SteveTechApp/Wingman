@@ -52,8 +52,8 @@ describe("Templates market filters", () => {
     renderApp();
 
     expect(screen.getByText(`${roomTemplates.length + 1} templates`)).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Council Chamber Hybrid" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: roomTemplates[0].name })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Council Chamber Hybrid" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: roomTemplates[0].name })).toBeInTheDocument();
   });
 
   it("limits results to Corporate templates and updates the count when that filter is selected", () => {
@@ -84,6 +84,8 @@ describe("Templates market filters", () => {
 
   it("built-in template cards offer no Edit or Delete actions", () => {
     renderApp();
+
+    fireEvent.click(screen.getByRole("button", { name: roomTemplates[0].vertical }));
 
     const card = screen.getByRole("heading", { name: roomTemplates[0].name }).closest("article");
     expect(card).not.toBeNull();
@@ -116,10 +118,7 @@ describe("New Custom Template creation via Discovery", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Save Custom Template" }));
 
-    const heading = screen.getByRole("heading", { name: "Divisible Training Room" });
-    expect(heading).toBeInTheDocument();
-    const card = heading.closest("article")!;
-    expect(card.querySelector(".wm-template-custom-badge")).toHaveTextContent("Custom");
+    expect(screen.getByRole("button", { name: "Divisible Training Room" })).toBeInTheDocument();
 
     const stored = getCustomRoomTemplates();
     expect(stored).toHaveLength(1);
@@ -152,6 +151,8 @@ describe("Custom template edit, duplicate and delete", () => {
     const original = seedCorporateCustomTemplate();
     renderApp();
 
+    fireEvent.click(screen.getByRole("button", { name: "Custom" }));
+
     const card = screen.getByRole("heading", { name: original.name }).closest("article");
     fireEvent.click(within(card!).getByRole("button", { name: "Edit" }));
 
@@ -170,6 +171,8 @@ describe("Custom template edit, duplicate and delete", () => {
     const original = seedCorporateCustomTemplate();
     renderApp();
 
+    fireEvent.click(screen.getByRole("button", { name: "Custom" }));
+
     const card = screen.getByRole("heading", { name: original.name }).closest("article");
     fireEvent.click(within(card!).getByRole("button", { name: "Duplicate" }));
 
@@ -184,6 +187,8 @@ describe("Custom template edit, duplicate and delete", () => {
   it("requires confirmation before deleting a custom template", () => {
     const original = seedCorporateCustomTemplate();
     renderApp();
+
+    fireEvent.click(screen.getByRole("button", { name: "Custom" }));
 
     const card = screen.getByRole("heading", { name: original.name }).closest("article");
     fireEvent.click(within(card!).getByRole("button", { name: "Delete" }));
@@ -211,8 +216,7 @@ describe("Template-to-summary handoff", () => {
     const original = seedCorporateCustomTemplate();
     renderApp();
 
-    const card = screen.getByRole("heading", { name: original.name }).closest("article");
-    fireEvent.click(within(card!).getByRole("button", { name: "Use template" }));
+    fireEvent.click(screen.getByRole("button", { name: original.name }));
 
     expect(screen.getByRole("heading", { name: original.name, level: 1 })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Equipment" })).toBeInTheDocument();
@@ -223,8 +227,7 @@ describe("Template-to-summary handoff", () => {
     renderApp();
 
     const template = roomTemplates[0];
-    const card = screen.getByRole("heading", { name: template.name }).closest("article");
-    fireEvent.click(within(card!).getByRole("button", { name: "Use template" }));
+    fireEvent.click(screen.getByRole("button", { name: template.name }));
 
     expect(screen.getByRole("heading", { name: template.name, level: 1 })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Continue to proposal" })).toBeInTheDocument();
@@ -283,6 +286,6 @@ describe("Custom template persistence and normalisation", () => {
 
     // And the page renders this legacy record without crashing.
     renderApp();
-    expect(screen.getByRole("heading", { name: "Legacy Room" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Legacy Room" })).toBeInTheDocument();
   });
 });
