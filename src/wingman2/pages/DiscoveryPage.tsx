@@ -1519,11 +1519,6 @@ return (
 
           {micError && <p className="wm-discovery-error-note wm-ui-copy">{micError}</p>}
 
-          <div className="wm-discovery-live-tip">
-            <strong>Ask this next</strong>
-            <p className="wm-ui-copy">{selectedApplicationGuidance?.askNext ?? selectedQuestionStrategy.askNext}</p>
-          </div>
-
           {selectedApplicationGuidance && (
             <div className="wm-discovery-live-tip wm-discovery-application-guidance">
               <strong>Application-specific discovery question guidance</strong>
