@@ -3,6 +3,19 @@ import { resolutionRank } from "./compareResolution";
 import { deriveSystemRequirements } from "./systemDependencies";
 export type CompareDecisionOutcome = "GOOD MATCH" | "PARTIAL MATCH" | "NO MATCH" | "VERIFY";
 
+export type CompareRequirementTier = "necessary" | "conditional" | "beneficial";
+export type CompareRequirementStatus = "meets" | "exceeds" | "fails" | "unknown" | "not-applicable";
+
+export type CompareRequirementAssessment = {
+  key: string;
+  label: string;
+  tier: CompareRequirementTier;
+  status: CompareRequirementStatus;
+  competitorValue: string;
+  wyrestormValue: string;
+  evidence: string;
+};
+
 export type CompareSpecFacts = {
   hdmiInputs?: number;
   hdmiOutputs?: number;
@@ -123,6 +136,11 @@ export type CompareDecisionResult = {
    * one-box replacement for a competitor's complete system.
    */
   systemRequirements: string[];
+  /** Structured proof used by the UI to separate essentials from advantages. */
+  requirements: CompareRequirementAssessment[];
+  necessaryCoverage: { confirmed: number; total: number; unknown: number; failed: number };
+  evidenceCompleteness: number;
+  solutionType: "direct-equivalent" | "qualified-alternative" | "architecture-alternative" | "insufficient-evidence" | "no-match";
 };
 
 const ROLE_EQUIVALENTS: Record<string, string[]> = {
@@ -180,6 +198,31 @@ function numberValue(value: unknown): number | null {
 function isUnknown(value: unknown): boolean {
   const text = lower(value);
   return !text || text === "unknown" || text === "verify" || text === "n/a";
+}
+
+function describedPower(profile: CompareDecisionProfile): string {
+  const specs = profile.specs ?? {};
+  const methods = [
+    specs.poe ? "PoE" : "",
+    specs.poh ? "PoH" : "",
+    specs.poc ? "PoC" : "",
+    specs.internalPsu ? "internal PSU" : "",
+    specs.externalPsu ? "external PSU" : "",
+    specs.powerSupply || "",
+  ].filter(Boolean);
+  return Array.from(new Set(methods)).join(" / ");
+}
+
+function requirement(
+  key: string,
+  label: string,
+  tier: CompareRequirementTier,
+  status: CompareRequirementStatus,
+  competitorValue: string,
+  wyrestormValue: string,
+  evidence: string,
+): CompareRequirementAssessment {
+  return { key, label, tier, status, competitorValue, wyrestormValue, evidence };
 }
 
 // Competitor intelligence buckets every meeting-room switcher/scaler under one
@@ -824,6 +867,115 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
           transport: input.wyrestorm.transport,
         }).requires;
 
+  const competitorPower = describedPower(competitor);
+  const wyrestormPower = describedPower(wyrestorm);
+  const classificationComplete = domainKnown && roleKnown && !isUnknown(competitor.transport) && !isUnknown(wyrestorm.transport);
+  const candidateIsStandalone = wyrestorm.standalone ?? systemRequirements.length === 0;
+  const competitorIsStandalone = competitor.standalone;
+
+  if (!classificationComplete && outcome !== "NO MATCH") {
+    outcome = "VERIFY";
+    addUnique(verify, "Direct equivalence is blocked until product class, endpoint role and transport are all confirmed.");
+  }
+
+  if (systemRequirements.length > 0) {
+    addUnique(
+      verify,
+      "Complete-solution requirement: include " + systemRequirements.join("; ") + ".",
+    );
+    if (outcome === "GOOD MATCH" && competitorIsStandalone !== false) {
+      outcome = "PARTIAL MATCH";
+      addUnique(gaps, "WyreStorm is a component-led architecture rather than a confirmed one-box equivalent.");
+    }
+  }
+
+  if (!wyrestormPower) {
+    addUnique(verify, "WyreStorm power method is not verified (local PSU, voltage, PoE/PoH/PoC and direction must be confirmed).");
+    if (outcome !== "NO MATCH") outcome = "VERIFY";
+  }
+  if (!competitorPower) {
+    addUnique(verify, "Competitor power method is not verified; confirm local PSU and PoE/PoH/PoC requirements.");
+    if (outcome !== "NO MATCH") outcome = "VERIFY";
+  }
+
+  const requirements: CompareRequirementAssessment[] = [
+    requirement(
+      "product-class",
+      "Product class",
+      "necessary",
+      !domainKnown ? "unknown" : domainMatches ? "meets" : "fails",
+      clean(competitor.domain) || "Not verified",
+      clean(wyrestorm.domain) || "Not verified",
+      domainKnown ? "Compared from classified product data." : "Classification evidence is incomplete.",
+    ),
+    requirement(
+      "endpoint-role",
+      "Endpoint role",
+      "necessary",
+      !roleKnown ? "unknown" : roleMatchesFlag ? "meets" : "fails",
+      clean(competitor.role) || "Not verified",
+      clean(wyrestorm.role) || "Not verified",
+      roleKnown ? "Compared from structured role data." : "Endpoint role is incomplete.",
+    ),
+    requirement(
+      "transport",
+      "Transport",
+      "necessary",
+      isUnknown(competitor.transport) || isUnknown(wyrestorm.transport)
+        ? "unknown"
+        : transportMatches(competitor.transport, wyrestorm.transport) ? "meets" : "fails",
+      clean(competitor.transport) || "Not verified",
+      clean(wyrestorm.transport) || "Not verified",
+      "Underlying transport must be architecture-compatible.",
+    ),
+    requirement(
+      "resolution",
+      "Maximum resolution",
+      "necessary",
+      competitorResolution === 0 || wyrestormResolution === 0
+        ? "unknown"
+        : wyrestormResolution < competitorResolution ? "fails" : wyrestormResolution > competitorResolution ? "exceeds" : "meets",
+      clean(competitor.maxResolution) || "Not verified",
+      clean(wyrestorm.maxResolution) || "Not verified",
+      "Resolution is evaluated as a minimum capability.",
+    ),
+    requirement(
+      "power",
+      "Power and power direction",
+      "necessary",
+      !competitorPower || !wyrestormPower ? "unknown" : "meets",
+      competitorPower || "Not verified",
+      wyrestormPower || "Not verified",
+      "Confirm voltage, PSU inclusion, power budget and PoE/PoH/PoC direction before quotation.",
+    ),
+    requirement(
+      "system-topology",
+      "Complete solution",
+      "necessary",
+      systemRequirements.length === 0 ? "meets" : competitorIsStandalone === false ? "meets" : "unknown",
+      competitorIsStandalone === undefined ? "Topology not verified" : competitorIsStandalone ? "Standalone" : "System component",
+      candidateIsStandalone ? "Standalone" : `Requires: ${systemRequirements.join("; ")}`,
+      systemRequirements.length === 0 ? "No additional mandatory WyreStorm component captured." : "Compare the complete system and minimum BOM, not only the headline SKU.",
+    ),
+  ];
+  const necessary = requirements.filter((item) => item.tier === "necessary");
+  const necessaryCoverage = {
+    confirmed: necessary.filter((item) => item.status === "meets" || item.status === "exceeds").length,
+    total: necessary.length,
+    unknown: necessary.filter((item) => item.status === "unknown").length,
+    failed: necessary.filter((item) => item.status === "fails").length,
+  };
+  const evidenceCompleteness = necessary.length
+    ? Math.round((necessaryCoverage.confirmed / necessary.length) * 100)
+    : 0;
+  const solutionType: CompareDecisionResult["solutionType"] = outcome === "NO MATCH"
+    ? "no-match"
+    : systemRequirements.length > 0 && competitorIsStandalone !== false && classificationComplete && Boolean(competitorPower && wyrestormPower)
+        ? "architecture-alternative"
+      : !classificationComplete || necessaryCoverage.unknown > 0
+        ? "insufficient-evidence"
+        : outcome === "GOOD MATCH" ? "direct-equivalent" : "qualified-alternative";
+
   return {
     outcome,
     confidence,
@@ -834,5 +986,9 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
     summary: summaryFor(outcome, input),
     nextAction: nextActionFor(outcome),
     systemRequirements,
+    requirements,
+    necessaryCoverage,
+    evidenceCompleteness,
+    solutionType,
   };
 }

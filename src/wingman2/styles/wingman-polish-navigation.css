@@ -1974,6 +1974,61 @@ html body .wingman-page-host .wm-navhub-page.wm-polish-shell > .wm-polish-tip {
     overflow: hidden;
 }
 
+/* Products hub: six actions fit as two compact rows on desktop. */
+@media (min-width: 1180px) and (min-height: 700px) {
+  .wingman-page-host.wingman-page-host .wm-sh-page.wm-polish-shell[data-wingman-page-key="Products"] {
+    gap: 10px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding-block: 8px 14px !important;
+  }
+
+  .wingman-page-host .wm-sh-page[data-wingman-page-key="Products"] > .wm-sh-page-hero {
+    min-height: 72px !important;
+    padding: 10px 16px !important;
+  }
+
+  .wingman-page-host .wm-sh-page[data-wingman-page-key="Products"] > .wm-sh-page-section {
+    gap: 10px !important;
+    padding: 0 !important;
+  }
+
+  .wingman-page-host .wm-sh-page[data-wingman-page-key="Products"] .wm-sh-card-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .wingman-page-host.wingman-page-host .wm-sh-page[data-wingman-page-key="Products"] .wm-sh-card-grid.wm-polish-grid > .wm-polish-card.wm-polish-card {
+    height: 132px !important;
+    min-height: 132px !important;
+    max-height: 132px !important;
+    align-items: center !important;
+    padding: 10px 16px !important;
+  }
+
+  .wingman-page-host .wm-sh-page[data-wingman-page-key="Products"] .wm-polish-card-icon {
+    width: 58px !important;
+    min-width: 58px !important;
+    height: 58px !important;
+    min-height: 58px !important;
+  }
+
+  .wingman-page-host.wingman-page-host .wm-sh-page[data-wingman-page-key="Products"] .wm-polish-card-copy.wm-polish-card-copy {
+    justify-content: center !important;
+    gap: 3px !important;
+  }
+
+  .wingman-page-host .wm-sh-page[data-wingman-page-key="Products"] .wm-polish-card-link {
+    margin-top: 1px !important;
+  }
+
+  .wingman-page-host .wm-sh-page[data-wingman-page-key="Products"] .wm-polish-tip {
+    min-height: 38px !important;
+    padding: 7px 12px !important;
+  }
+}
+
 .wm-navhub-page[data-wingman-page-key="Products"] .wm-polish-card-copy {
     position: relative;
     z-index: 2;

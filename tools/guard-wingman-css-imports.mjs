@@ -139,6 +139,33 @@ if (videoWallCssImports.length !== 1 || videoWallCssImports[0] !== "../styles/wi
   process.exit(1);
 }
 
+if (/vw2-hero[^"']*\bwm-ui-(?:section|hero)\b/.test(videoWallRaw)) {
+  console.error("Blocked: the video-wall hero must not reuse global hero/section classes; they inflate the route workspace.");
+  process.exit(1);
+}
+
+if (/vw2-hero-actions[^"']*\bwm-ui-hero\b/.test(videoWallRaw)) {
+  console.error("Blocked: video-wall actions must not be marked as a global hero.");
+  process.exit(1);
+}
+
+if (videoWallRaw.includes("<small>{option.note}</small>") || !videoWallRaw.includes('role="tooltip" className="vw2-chip-tooltip"')) {
+  console.error("Blocked: video-wall option help must remain in accessible hover/focus tooltips, not visible button copy.");
+  process.exit(1);
+}
+
+const videoWallStyle = fs.readFileSync(path.join(root, "src", "wingman2", "styles", "wingman-videowall.css"), "utf8");
+for (const selector of [
+  'html[data-wingman-route="videowall"] .vw2-hero',
+  'html[data-wingman-route="videowall"] .vw2-hero-actions',
+  'html[data-wingman-route="videowall"] .wingman-page-host .vw2-page .vw2-path-card',
+]) {
+  if (!videoWallStyle.includes(selector)) {
+    console.error(`Blocked: missing route-scoped video-wall cascade lock: ${selector}`);
+    process.exit(1);
+  }
+}
+
 for (const globalStyle of [
   styleStack,
   referenceTheme,

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { classifyCompetitorCompareDecision } from "./competitorCompareDecision";
 
 describe("competitor compare decision", () => {
-  it("classifies a verified AVoIP encoder pairing as a good match with usable sales guidance", () => {
+  it("keeps a verified AVoIP encoder pairing qualified until its complete system and power are proven", () => {
     const result = classifyCompetitorCompareDecision({
       score: 88,
       competitor: {
@@ -25,11 +25,10 @@ describe("competitor compare decision", () => {
       },
     });
 
-    expect(result.outcome).toBe("GOOD MATCH");
+    expect(result.outcome).toBe("VERIFY");
     expect(result.blockers).toHaveLength(0);
-    expect(result.gaps).toHaveLength(0);
-    expect(result.summary).toContain("credible comparison candidate");
-    expect(result.nextAction).toContain("Use as the primary comparison candidate");
+    expect(result.gaps.join(" ")).toMatch(/component-led architecture/i);
+    expect(result.systemRequirements.join(" ")).toMatch(/decoder/i);
   });
 
   it("returns no match when a control processor is compared to an AV endpoint", () => {
@@ -86,11 +85,11 @@ describe("competitor compare decision", () => {
       },
     });
 
-    expect(result.outcome).toBe("PARTIAL MATCH");
+    expect(result.outcome).toBe("VERIFY");
     expect(result.blockers).toHaveLength(0);
     expect(result.gaps.join(" ")).toMatch(/USB-C/i);
-    expect(result.summary).toContain("differences must be explained");
-    expect(result.nextAction).toContain("partial alternative");
+    expect(result.summary).toContain("More evidence is required");
+    expect(result.nextAction).toContain("datasheet");
   });
 
   it("preserves a partial-match validation warning when routed matrix evidence is incomplete", () => {
@@ -120,7 +119,7 @@ describe("competitor compare decision", () => {
       },
     });
 
-    expect(result.outcome).toBe("PARTIAL MATCH");
+    expect(result.outcome).toBe("VERIFY");
     expect(result.verify.join(" ")).toMatch(/Routed output behaviour needs verification/i);
     expect(result.verify.join(" ")).toMatch(/routed HDBaseT zone outputs/i);
   });
@@ -152,7 +151,7 @@ describe("competitor compare decision", () => {
       },
     });
 
-    expect(result.outcome).toBe("PARTIAL MATCH");
+    expect(result.outcome).toBe("VERIFY");
     expect(result.blockers).toHaveLength(0);
     expect(result.gaps.join(" ")).toMatch(/4:4:4 chroma.*4:2:0/i);
     expect(result.gaps.join(" ")).toMatch(/color-fidelity/i);
@@ -185,7 +184,7 @@ describe("competitor compare decision", () => {
       },
     });
 
-    expect(matching.outcome).toBe("GOOD MATCH");
+    expect(matching.outcome).toBe("VERIFY");
     expect(matching.gaps).toHaveLength(0);
     expect(matching.matches.join(" ")).toMatch(/Chroma fidelity matches/i);
 
@@ -215,7 +214,7 @@ describe("competitor compare decision", () => {
       },
     });
 
-    expect(exceeding.outcome).toBe("GOOD MATCH");
+    expect(exceeding.outcome).toBe("VERIFY");
     expect(exceeding.gaps).toHaveLength(0);
     expect(exceeding.matches.join(" ")).toMatch(/Chroma fidelity meets or exceeds competitor/i);
   });
@@ -246,7 +245,7 @@ describe("competitor compare decision", () => {
       },
     });
 
-    expect(result.outcome).toBe("GOOD MATCH");
+    expect(result.outcome).toBe("VERIFY");
     expect(result.gaps).toHaveLength(0);
     expect(result.gaps.join(" ")).not.toMatch(/chroma/i);
     expect(result.matches.join(" ")).not.toMatch(/chroma/i);

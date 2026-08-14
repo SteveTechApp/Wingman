@@ -2,6 +2,8 @@ import { routeCatalogByKey } from "../app/routeCatalog";
 import {
   getCurrentWorkflowProject,
   readProjectStore,
+  type ProjectStoreSnapshot,
+  type StoredProject,
   type StoredQuoteSafetyStatus,
   type StoredDiscoveryBrief,
 } from "./projectStore";
@@ -11,6 +13,8 @@ export const DISCOVERY_BRIEF_KEY = "wingman-discovery-brief";
 export const DISCOVERY_SNAPSHOT_KEY = "wingman-discovery-snapshot-v3";
 
 export type DiscoverySnapshot = {
+  projectId?: string;
+  projectName?: string;
   activeStepIndex: number;
   state: Record<string, unknown>;
   brief: StoredDiscoveryBrief;
@@ -382,14 +386,68 @@ export function buildDiscoveryBriefFromState(
 export function writeLatestDiscoverySnapshot(snapshot: DiscoverySnapshot) {
   if (typeof window === "undefined") return;
 
+  const project = getCurrentWorkflowProject(readProjectStore());
+  const hasExplicitProjectIdentity =
+    Object.prototype.hasOwnProperty.call(snapshot, "projectId") ||
+    Object.prototype.hasOwnProperty.call(snapshot, "projectName");
+
   const payload = {
     ...snapshot,
+    projectId: hasExplicitProjectIdentity ? snapshot.projectId : project?.id,
+    projectName: hasExplicitProjectIdentity ? snapshot.projectName : project?.name,
     savedAt: nowIso(),
   };
 
   window.localStorage.setItem(DISCOVERY_SNAPSHOT_KEY, JSON.stringify(payload));
   window.localStorage.setItem(DISCOVERY_BRIEF_KEY, JSON.stringify(payload.brief));
   window.dispatchEvent(new CustomEvent("wingman:discovery-handoff-updated"));
+}
+
+function normalizedIdentity(value: unknown) {
+  return String(value ?? "").trim().toLocaleLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function discoveryIdentity(snapshot: DiscoverySnapshot) {
+  const state = asRecord(snapshot.state);
+  const roomModel = asRecord(snapshot.brief?.roomModel);
+  return [
+    snapshot.projectName,
+    state.clientName,
+    state.siteName,
+    roomModel.customer,
+    roomModel.customerName,
+    roomModel.companyName,
+    roomModel.site,
+    roomModel.siteName,
+  ].map(normalizedIdentity).filter(Boolean);
+}
+
+/** Resolve only a project with evidence that it owns this exact Discovery. */
+export function resolveDiscoverySnapshotProject(
+  snapshot: DiscoverySnapshot | null,
+  store: ProjectStoreSnapshot = readProjectStore(),
+): StoredProject | null {
+  if (!snapshot) return null;
+  if (snapshot.projectId) {
+    return store.projects.find((project) => project.id === snapshot.projectId) ?? null;
+  }
+
+  const identities = discoveryIdentity(snapshot);
+  if (!identities.length) return null;
+
+  const matches = store.projects.filter((project) => {
+    const projectSnapshot: DiscoverySnapshot = {
+      activeStepIndex: 0,
+      state: {},
+      brief: project.discoveryBrief ?? {},
+      projectName: project.name,
+      savedAt: "",
+    };
+    const projectIdentities = discoveryIdentity(projectSnapshot);
+    return identities.some((identity) => projectIdentities.includes(identity));
+  });
+
+  return matches.length === 1 ? matches[0] : null;
 }
 
 export function clearLatestDiscoverySnapshot() {

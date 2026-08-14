@@ -263,6 +263,10 @@ type ScoredCandidate = {
   blockers: string[];
   dependencies: string[];
   outcomeLabel: string;
+  requirements?: RigorousMatch["decision"]["requirements"];
+  necessaryCoverage?: RigorousMatch["decision"]["necessaryCoverage"];
+  evidenceCompleteness?: number;
+  solutionType?: RigorousMatch["decision"]["solutionType"];
 };
 
 function rigorousMatchToCandidate(match: RigorousMatch, profile: CompetitorProfile): ScoredCandidate {
@@ -304,6 +308,10 @@ function rigorousMatchToCandidate(match: RigorousMatch, profile: CompetitorProfi
         product.caveat,
       ].filter(Boolean),
       outcomeLabel: match.decision.summary,
+      requirements: match.decision.requirements,
+      necessaryCoverage: match.decision.necessaryCoverage,
+      evidenceCompleteness: match.decision.evidenceCompleteness,
+      solutionType: match.decision.solutionType,
     },
     profile,
   );
@@ -4123,6 +4131,23 @@ function CompareEvidenceMatrix({ candidate, competitor }: { candidate: ScoredCan
 
   const rows = [
     {
+      label: "Mandatory requirement coverage",
+      evidence: candidate.necessaryCoverage
+        ? `${candidate.necessaryCoverage.confirmed}/${candidate.necessaryCoverage.total} confirmed; ${candidate.necessaryCoverage.unknown} unknown; ${candidate.necessaryCoverage.failed} failed`
+        : "Structured requirement coverage was not available.",
+      meaning: "A direct equivalent requires every necessary requirement to be confirmed and none to fail."
+    },
+    {
+      label: "Evidence completeness",
+      evidence: typeof candidate.evidenceCompleteness === "number" ? `${candidate.evidenceCompleteness}% of necessary comparison points confirmed` : "Not calculated",
+      meaning: "Measures evidence coverage rather than presenting an apparently precise similarity score."
+    },
+    {
+      label: "Solution type",
+      evidence: String(candidate.solutionType || "qualified-alternative").replace(/-/g, " "),
+      meaning: "Separates a direct product equivalent from a component-led or architecture alternative."
+    },
+    {
       label: "Competitor product",
       evidence: `${competitorBrand} - ${competitorSku} - ${competitorType}`,
       meaning: "Identifies what the customer is actually asking Wingman to compare."
@@ -4184,6 +4209,24 @@ function CompareEvidenceMatrix({ candidate, competitor }: { candidate: ScoredCan
           </div>
         ))}
       </div>
+      {candidate.requirements?.length ? (
+        <div className="compare-native-requirement-ledger" role="table" aria-label="Necessary comparison requirements">
+          <div className="compare-native-core-matrix-row compare-native-core-matrix-row--header" role="row">
+            <strong role="columnheader">Necessary datapoint</strong>
+            <strong role="columnheader">Competitor</strong>
+            <strong role="columnheader">WyreStorm</strong>
+            <strong role="columnheader">Status</strong>
+          </div>
+          {candidate.requirements.filter((item) => item.tier === "necessary").map((item) => (
+            <div className={`compare-native-core-matrix-row compare-requirement--${item.status}`} role="row" key={item.key}>
+              <span role="cell"><strong>{item.label}</strong><small>{item.evidence}</small></span>
+              <span role="cell">{item.competitorValue}</span>
+              <span role="cell">{item.wyrestormValue}</span>
+              <strong role="cell">{item.status.replace(/-/g, " ")}</strong>
+            </div>
+          ))}
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -4391,6 +4434,23 @@ function BestCandidateCard({
         <strong>Why</strong>
         <p className="wm-ui-copy">{conciseReason}</p>
       </div>
+
+      {candidate.necessaryCoverage ? (
+        <section className="compare-compact-result__coverage wm-ui-card" aria-label="Comparison safety summary">
+          <div>
+            <span>Necessary requirements</span>
+            <strong>{candidate.necessaryCoverage.confirmed}/{candidate.necessaryCoverage.total} confirmed</strong>
+          </div>
+          <div>
+            <span>Evidence completeness</span>
+            <strong>{candidate.evidenceCompleteness ?? 0}%</strong>
+          </div>
+          <div>
+            <span>Solution type</span>
+            <strong>{String(candidate.solutionType || "qualified-alternative").replace(/-/g, " ")}</strong>
+          </div>
+        </section>
+      ) : null}
 
       <section className="compare-compact-result__warnings compare-compact-result__footnotes wm-ui-card" aria-label="Advisory footnotes">
           <strong>Check before quoting</strong>
