@@ -18,7 +18,6 @@ type LedAnswers = {
   behaviour: string;
   windows: string;
   sourceLocation: string;
-  output: string;
 };
 
 type LcdAnswers = {
@@ -70,7 +69,6 @@ const ledBehaviourOptions: Option[] = [
   { value: "fixed-multiview", label: "Fixed multiview layout", note: "Preset windows." },
   { value: "custom-windows", label: "Custom drag-and-drop windows", note: "Flexible operator layouts." },
   { value: "premium-quality", label: "High-quality / low-latency distribution", note: "Premium wall signal path." },
-  { value: "led-processor", label: "Feed an LED processor", note: "Novastar-style processor input." },
 ];
 
 const ledWindowOptions: Option[] = [
@@ -86,12 +84,6 @@ const sourceLocationOptions: Option[] = [
   { value: "local", label: "Local sources", note: "Sources near rack/processor." },
   { value: "distributed", label: "Distributed sources", note: "Sources around the building." },
   { value: "mixed", label: "Mixed / unknown", note: "Not confirmed yet." },
-];
-
-const ledOutputOptions: Option[] = [
-  { value: "single-hdmi-led-processor", label: "Single HDMI output to LED processor", note: "WyreStorm feeds the processor." },
-  { value: "avoip-decoder", label: "AVoIP decoder output", note: "Part of a NetworkHD system." },
-  { value: "unsure", label: "Unsure" },
 ];
 
 const lcdScreenOptions: Option[] = [
@@ -147,7 +139,6 @@ const emptyLed: LedAnswers = {
   behaviour: "",
   windows: "",
   sourceLocation: "",
-  output: "",
 };
 
 const emptyLcd: LcdAnswers = {
@@ -182,7 +173,6 @@ function getLedRecommendation(answers: LedAnswers): Recommendation {
     !answers.behaviour ? "Wall behaviour" : "",
     !answers.windows ? "Visible window count" : "",
     !answers.sourceLocation ? "Source location" : "",
-    !answers.output ? "Output requirement" : "",
   ].filter(Boolean);
 
   if (answers.behaviour === "premium-quality" || answers.windows === "more-than-nine") {
@@ -215,7 +205,7 @@ function getLedRecommendation(answers: LedAnswers): Recommendation {
     };
   }
 
-  if (answers.behaviour || answers.output === "single-hdmi-led-processor") {
+  if (answers.behaviour) {
     return {
       id: "led-hdmi",
       title: "Simple LED HDMI multiview direction",
@@ -719,7 +709,6 @@ export function VideoWallPage() {
         { label: "Wall behaviour", value: selectedLabel(ledBehaviourOptions, ledAnswers.behaviour) },
         { label: "Visible windows", value: selectedLabel(ledWindowOptions, ledAnswers.windows) },
         { label: "Source location", value: selectedLabel(sourceLocationOptions, ledAnswers.sourceLocation) },
-        { label: "Output requirement", value: selectedLabel(ledOutputOptions, ledAnswers.output) },
       ];
     }
 
@@ -918,6 +907,7 @@ export function VideoWallPage() {
               <div className="vw2-panel-title wm-ui-card wm-ui-title">
                 <p className="vw2-eyebrow wm-ui-copy wm-ui-kicker">LED discovery</p>
                 <h2 className="wm-ui-title">Confirm how the LED wall needs to be fed.</h2>
+                <p className="wm-ui-copy">The LED processor is mandatory. Confirm the content behaviour and the signal format feeding it.</p>
               </div>
 
               <DecisionCompatibilityAlert issues={compatibilityIssues} />
@@ -925,7 +915,6 @@ export function VideoWallPage() {
               <ChoiceGrid eyebrow="Step 1" title="What does the customer need the LED wall to show?" options={ledBehaviourOptions} value={ledAnswers.behaviour} onChange={(value) => updateLed("behaviour", value)} />
               <ChoiceGrid eyebrow="Step 2" title="How many visible windows are required?" options={ledWindowOptions} value={ledAnswers.windows} onChange={(value) => updateLed("windows", value)} />
               <ChoiceGrid eyebrow="Step 3" title="Where are the sources?" options={sourceLocationOptions} value={ledAnswers.sourceLocation} onChange={(value) => updateLed("sourceLocation", value)} />
-              <ChoiceGrid eyebrow="Step 4" title="What output does the wall path need?" options={ledOutputOptions} value={ledAnswers.output} onChange={(value) => updateLed("output", value)} />
             </>
           ) : null}
 
