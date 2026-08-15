@@ -142,7 +142,7 @@ const ALL_COMPETITOR_SKUS: string[] = Object.values(COMPETITOR_SKU_SEED_CATALOG)
   .flat()
   .map((sku) => String(sku));
 
-type Verdict = "GOOD MATCH" | "PARTIAL MATCH" | "ARCHITECTURE ALTERNATIVE" | "NO MATCH";
+type Verdict = "GOOD MATCH" | "PARTIAL MATCH" | "VERIFY" | "ARCHITECTURE ALTERNATIVE" | "NO MATCH";
 type CompareStage = "brand" | "sku" | "results";
 type CompareResultTab = "overview" | "cards" | "evidence";
 
@@ -285,11 +285,15 @@ function rigorousMatchToCandidate(match: RigorousMatch, profile: CompetitorProfi
     caveat: "Confirm the product specification and required accessories before quoting.",
   };
   const verdict: Verdict =
-    match.decision.outcome === "GOOD MATCH"
-      ? "GOOD MATCH"
-      : match.decision.outcome === "NO MATCH"
-        ? "NO MATCH"
-        : "PARTIAL MATCH";
+    match.decision.solutionType === "architecture-alternative"
+      ? "ARCHITECTURE ALTERNATIVE"
+      : match.decision.outcome === "GOOD MATCH"
+        ? "GOOD MATCH"
+        : match.decision.outcome === "NO MATCH"
+          ? "NO MATCH"
+          : match.decision.outcome === "VERIFY"
+            ? "VERIFY"
+            : "PARTIAL MATCH";
 
   return applyCompareEquivalenceGuards(
     {
@@ -2384,8 +2388,12 @@ function plainLanguageOutcome(profile: CompetitorProfile, candidate: ScoredCandi
     return "Insufficient competitor data";
   }
 
+  if (candidate.verdict === "VERIFY") {
+    return "Evidence required";
+  }
+
   if (candidate.verdict === "ARCHITECTURE ALTERNATIVE") {
-    return "Feature check needed";
+    return "Architecture alternative";
   }
 
   if (candidate.verdict === "GOOD MATCH" && candidate.matched.some((line) => /Same product class|Same endpoint role|matrix topology|role-compatible/i.test(line))) {
@@ -4268,6 +4276,7 @@ function compareReportedStatus(
   // Blue takes precedence whenever the product direction still depends on
   // unresolved technical evidence, dependencies, warnings or quote blockers.
   if (
+    candidate.verdict === "VERIFY" ||
     candidate.verdict === "ARCHITECTURE ALTERNATIVE" ||
     candidate.outcomeLabel === "Insufficient competitor data" ||
     candidate.blockers.length > 0 ||
@@ -4767,9 +4776,15 @@ function GovernedDecisionPanel({
       decisionType === "confirmed-equivalent" &&
       (!candidate ||
         candidate.verdict !== "GOOD MATCH" ||
-        candidate.blockers.length > 0)
+        candidate.blockers.length > 0 ||
+        candidate.unknowns.length > 0 ||
+        !candidate.necessaryCoverage ||
+        candidate.necessaryCoverage.failed > 0 ||
+        candidate.necessaryCoverage.unknown > 0 ||
+        candidate.necessaryCoverage.confirmed !== candidate.necessaryCoverage.total ||
+        candidate.solutionType !== "direct-equivalent")
     ) {
-      setMessage("Confirmed equivalent is only available for a blocker-free good match.");
+      setMessage("Confirmed equivalent is only available when every necessary requirement is evidenced, no blockers or unknowns remain, and the result is a direct equivalent.");
       return;
     }
 
