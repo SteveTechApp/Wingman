@@ -334,6 +334,7 @@ function ProposalCompletionWizardContent({
         discovery.contactName,
         profile.reportPreparedBy || profile.userName || project.owner,
         discovery.projectTitle,
+        discovery.summary,
         discovery.roomSize,
         discovery.sourceCount,
         discovery.sourceConnection,

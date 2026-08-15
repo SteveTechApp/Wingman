@@ -46,6 +46,8 @@ export type SystemSlot = {
   derivedFrom: string[];
   /** False for slots worth offering but not required by the brief. */
   required: boolean;
+  /** Some mandatory system parts are supplied outside the WyreStorm catalogue. */
+  supply: "wyrestorm" | "external";
   /** Taxonomy match, not text match. */
   match: {
     tokens?: string[];
@@ -175,6 +177,8 @@ function needsExtension(room: Record<string, unknown>): boolean {
  */
 export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDesign {
   const room = asRecord(brief?.roomModel);
+  const configuredVideowall = asRecord(room.configuredVideowall);
+  const configuredLedAnswers = asRecord(configuredVideowall.ledAnswers);
   const { architecture, reason } = decideArchitecture(room);
 
   const slots: SystemSlot[] = [];
@@ -182,6 +186,9 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
 
   const sources = parseCount(room.sourceCount);
   const displays = parseCount(room.displayCount);
+  const wallType = lower(room.wallType || configuredVideowall.wallType);
+  const wallBehaviour = `${lower(room.displayBehaviour)} ${lower(configuredLedAnswers.behaviour)}`;
+  const sourceLocation = `${lower(room.sourceLocation)} ${lower(configuredLedAnswers.sourceLocation)} ${listText(room.devices)} ${listText(room.sourceTypes)}`;
 
   const sourceEvidence = sources !== null ? `Sources captured: ${sources}` : "Source count not captured";
   const displayEvidence = displays !== null ? `Displays captured: ${displays}` : "Display count not captured";
@@ -198,6 +205,7 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
         quantity: sources ?? 1,
         derivedFrom: [sourceEvidence, reason],
         required: true,
+        supply: "wyrestorm",
         match: { tokens: ["encoder", "transceiver"], excludeTokens: ["decoder"] },
       });
       slots.push({
@@ -207,6 +215,7 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
         quantity: displays ?? 1,
         derivedFrom: [displayEvidence, reason],
         required: true,
+        supply: "wyrestorm",
         match: { tokens: ["decoder"], excludeTokens: ["encoder"] },
       });
       slots.push({
@@ -216,20 +225,86 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
         quantity: 1,
         derivedFrom: ["Every NetworkHD system needs a controller"],
         required: true,
+        supply: "wyrestorm",
         match: { tokens: ["networkhd-control", "avoip-infrastructure", "controller"] },
       });
       break;
 
     case "video-wall":
-      slots.push({
-        kind: "wall-processor",
-        label: "Video wall processor",
-        purpose: "Spreads one picture across the group of screens and holds the layout.",
-        quantity: 1,
-        derivedFrom: [reason],
-        required: true,
-        match: { tokens: ["video-wall", "multiview-processor"], primaryCategory: ["Video Processing"] },
-      });
+      if (wallType === "led" || /direct-view led/.test(lower(room.wallTechnology))) {
+        const usesDistributedSources = /distributed|remote|network/.test(sourceLocation);
+        const needsComposition = /multi|several|custom|window|layout|canvas/.test(wallBehaviour) || (sources ?? 0) > 1;
+
+        if (usesDistributedSources) {
+          slots.push({
+            kind: "avoip-encoder",
+            label: "Source encoders",
+            purpose: "Put each remote or networked source onto the AV network so it can reach the wall.",
+            quantity: sources ?? 1,
+            derivedFrom: [sourceEvidence, "Sources are distributed or include remote-room feeds"],
+            required: true,
+            supply: "wyrestorm",
+            match: { tokens: ["encoder", "transceiver"], excludeTokens: ["decoder"] },
+          });
+          slots.push({
+            kind: needsComposition ? "multiview" : "avoip-decoder",
+            label: needsComposition ? "Multiview decoder" : "Wall-feed decoder",
+            purpose: needsComposition
+              ? "Receives the selected network sources and composes the operator's layout into one wall feed."
+              : "Takes the selected source off the AV network and provides the feed for the LED processor.",
+            quantity: 1,
+            derivedFrom: [wallBehaviour || "One composed feed is required at the wall"],
+            required: true,
+            supply: "wyrestorm",
+            match: needsComposition
+              ? { tokens: ["multiview-processor", "decoder"] }
+              : { tokens: ["decoder"], excludeTokens: ["encoder"] },
+          });
+          slots.push({
+            kind: "avoip-control",
+            label: "AV-over-IP controller",
+            purpose: "Discovers the endpoints and runs source routing; the networked system cannot operate without it.",
+            quantity: 1,
+            derivedFrom: ["Every NetworkHD system needs a controller"],
+            required: true,
+            supply: "wyrestorm",
+            match: { tokens: ["networkhd-control", "avoip-infrastructure", "controller"] },
+          });
+        } else if (needsComposition) {
+          slots.push({
+            kind: "multiview",
+            label: "Source composition / multiview",
+            purpose: "Combines the required live sources into one composed feed before the LED processor.",
+            quantity: 1,
+            derivedFrom: [wallBehaviour || sourceEvidence],
+            required: true,
+            supply: "wyrestorm",
+            match: { tokens: ["multiview-processor"], primaryCategory: ["Video Processing"] },
+          });
+        }
+
+        slots.push({
+          kind: "wall-processor",
+          label: "LED processor / controller",
+          purpose: "Maps the incoming canvas to the LED cabinets and performs the final wall processing.",
+          quantity: 1,
+          derivedFrom: ["Mandatory for every direct-view LED wall"],
+          required: true,
+          supply: "external",
+          match: { tokens: ["external-led-processor"] },
+        });
+      } else {
+        slots.push({
+          kind: "wall-processor",
+          label: "Video wall processor",
+          purpose: "Spreads one picture across the group of screens and holds the layout.",
+          quantity: 1,
+          derivedFrom: [reason],
+          required: true,
+          supply: "wyrestorm",
+          match: { tokens: ["video-wall", "multiview-processor"], primaryCategory: ["Video Processing"] },
+        });
+      }
       break;
 
     case "matrix":
@@ -240,6 +315,7 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
         quantity: 1,
         derivedFrom: [sourceEvidence, displayEvidence, reason],
         required: true,
+        supply: "wyrestorm",
         match: { tokens: ["matrix"] },
       });
       break;
@@ -252,6 +328,7 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
         quantity: 1,
         derivedFrom: [sourceEvidence, reason],
         required: true,
+        supply: "wyrestorm",
         match: { tokens: ["presentation-switcher", "source-switcher", "switcher"] },
       });
       break;
@@ -273,6 +350,7 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
       quantity: extensionQuantity,
       derivedFrom: [`Cable run captured: ${text(room.cableRun) || text(room.longestRun)}`],
       required: true,
+      supply: "wyrestorm",
       match: { tokens: ["extender", "hdbaset"], excludeTokens: ["matrix"] },
     });
   } else if (architecture === "extension") {
@@ -290,6 +368,7 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
       quantity: 1,
       derivedFrom: [text(room.cameraNeeds) ? `Camera requirement: ${text(room.cameraNeeds)}` : "Room is used for calls"],
       required: Boolean(text(room.cameraNeeds)) || isUc,
+      supply: "wyrestorm",
       match: { tokens: ["camera", "ptz"], primaryCategory: ["Camera / Capture"] },
     });
   }
@@ -304,6 +383,7 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
         text(room.microphoneNeeds) ? `Microphone requirement: ${text(room.microphoneNeeds)}` : "Room is used for calls",
       ],
       required: Boolean(text(room.microphoneNeeds)) || isUc,
+      supply: "wyrestorm",
       match: { tokens: ["microphone", "speakerphone"] },
     });
   }
@@ -317,6 +397,7 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
       quantity: 1,
       derivedFrom: [`Audio requirement: ${text(room.audioNeeds) || text(room.audioPath)}`],
       required: true,
+      supply: "wyrestorm",
       match: { tokens: ["amplifier", "dsp"], primaryCategory: ["Audio"] },
     });
   }
@@ -329,6 +410,7 @@ export function buildSystemDesign(brief: StoredDiscoveryBrief | null): SystemDes
       quantity: 1,
       derivedFrom: [`Control requirement: ${text(room.controlNeeds)}`],
       required: false,
+      supply: "wyrestorm",
       // An AV-over-IP system controller is not a room control interface. It
       // carries a "controller" token and would otherwise fill this slot with
       // the same product already quoted as the NetworkHD controller.

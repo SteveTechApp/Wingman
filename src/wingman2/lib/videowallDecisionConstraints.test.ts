@@ -4,7 +4,7 @@ import { evaluateVideowallDecisionConstraints, type VideowallDecisionState } fro
 function state(overrides: Partial<VideowallDecisionState> = {}): VideowallDecisionState {
   return {
     wallType: "led",
-    led: { behaviour: "", windows: "", sourceLocation: "", output: "" },
+    led: { behaviour: "", windows: "", sourceLocation: "" },
     lcd: { screenCount: "", driveMethod: "", sourceCount: "", sourceLocation: "", behaviour: "" },
     ...overrides,
   };
@@ -13,7 +13,7 @@ function state(overrides: Partial<VideowallDecisionState> = {}): VideowallDecisi
 describe("videowall decision constraints", () => {
   it("blocks custom drag-and-drop with more than nine windows without changing either decision", () => {
     const decisions = state({
-      led: { behaviour: "custom-windows", windows: "more-than-nine", sourceLocation: "distributed", output: "avoip-decoder" },
+      led: { behaviour: "custom-windows", windows: "more-than-nine", sourceLocation: "distributed" },
     });
 
     expect(evaluateVideowallDecisionConstraints(decisions)).toEqual(
@@ -25,7 +25,7 @@ describe("videowall decision constraints", () => {
 
   it("accepts the supported six-window custom mode", () => {
     const decisions = state({
-      led: { behaviour: "custom-windows", windows: "floating-six", sourceLocation: "distributed", output: "avoip-decoder" },
+      led: { behaviour: "custom-windows", windows: "floating-six", sourceLocation: "distributed" },
     });
 
     expect(evaluateVideowallDecisionConstraints(decisions)).toEqual([]);

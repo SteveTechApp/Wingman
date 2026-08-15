@@ -203,6 +203,9 @@ export function DiscoveryPage() {
   const [micSupported, setMicSupported] = useState(false);
   const [micError, setMicError] = useState("");
   const [savedMessage, setSavedMessage] = useState("");
+  const [hasVideoWallBuilderHandoff] = useState(() =>
+    typeof window !== "undefined" && Boolean(window.sessionStorage.getItem("wingman:video-wall-discovery")),
+  );
   const [discoveryMode, setDiscoveryMode] = useState<DiscoveryHandoffMode>("standard");
   const [templateEditId, setTemplateEditId] = useState<string | undefined>(undefined);
   const [templateDraftName, setTemplateDraftName] = useState("");
@@ -358,7 +361,9 @@ export function DiscoveryPage() {
     wmDiscoveryAnswerIncludes(answers["display-behaviour"], "video-wall-or-processor-feed") ||
     selectedApplication === "video-wall";
   const videoWallConfigured = Boolean(
-    existingDiscoveryProject?.videowall?.summary || (!discoveryDraft ? currentWorkflowProject?.videowall?.summary : undefined),
+    hasVideoWallBuilderHandoff ||
+    existingDiscoveryProject?.videowall?.summary ||
+    (!discoveryDraft ? currentWorkflowProject?.videowall?.summary : undefined),
   );
   const videoWallConfigurationPending = requiresVideoWallConfiguration && !videoWallConfigured;
   const opportunityDescription = [
@@ -372,19 +377,28 @@ export function DiscoveryPage() {
   ].filter(Boolean).join(" · ");
 
   const capturedSummary = useMemo(() => {
+    const activeTopologySummary = projectTopologyHasContent(topology)
+      ? projectTopologySummary(normaliseProjectTopology(topology))
+      : "";
+
     return discoveryQuestions
       .filter((step) => wmDiscoveryHasAnswer(answers[step.id]) || Boolean(notes[step.id]))
       .map((step) => {
+        const capturedNote = notes[step.id]?.trim() ?? "";
+        const supportingDetails = step.id === "opportunity"
+          ? [opportunityDescription, capturedNote].filter(Boolean).join(" - ")
+          : step.id === "locations-connections"
+            ? [activeTopologySummary, capturedNote].filter(Boolean).join(" - ")
+            : capturedNote;
+
         return {
           id: step.id,
           label: step.shortLabel,
           answer: wmDiscoveryHasAnswer(answers[step.id]) ? getOptionLabel(step, answers[step.id], selectedApplication) : "Captured note only",
-          note: step.id === "opportunity"
-            ? opportunityDescription
-            : notes[step.id] ?? "",
+          note: supportingDetails,
         };
       });
-  }, [answers, notes, selectedApplication, discoveryQuestions, opportunityDescription]);
+  }, [answers, notes, selectedApplication, discoveryQuestions, opportunityDescription, topology]);
 
   useEffect(() => {
     if (answeredCount === 0 && Object.keys(notes).length === 0) {
@@ -681,8 +695,17 @@ export function DiscoveryPage() {
     });
 
     if (currentStep.id === "opportunity" && answers.opportunity !== value) {
-      setNotes({});
-      setTopology(generateProjectTopologyFromDiscovery({ answers: { opportunity: value }, notes: {}, application: value }));
+      // The note beside the application question is the customer's original
+      // requirement. Changing the classification must not discard that source
+      // wording; only notes belonging to the old conditional route are stale.
+      const opportunityNote = notes.opportunity?.trim() ?? "";
+      const nextNotes: DiscoveryNotes = opportunityNote ? { opportunity: opportunityNote } : {};
+      setNotes(nextNotes);
+      setTopology(generateProjectTopologyFromDiscovery({
+        answers: { opportunity: value },
+        notes: nextNotes,
+        application: value,
+      }));
     }
 
     if (currentStep.id === "uc-purpose" && ["no-uc", "camera-distribution-only"].includes(value)) {
@@ -1370,6 +1393,7 @@ return (
           panelRef={completionPanelRef}
           answerCount={discoveryQuestions.length}
           requiresVideoWallConfiguration={videoWallConfigurationPending}
+          videoWallConfigured={requiresVideoWallConfiguration && videoWallConfigured}
           savedMessage={savedMessage}
           onMoveForward={moveForward}
           onReviewAnswers={() => {

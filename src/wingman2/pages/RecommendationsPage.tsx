@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, CheckCircle2, RefreshCw, ShieldCheck } from "lucide-react";
+import { AlertTriangle, ArrowRight, Boxes, Check, CheckCircle2, Link2, PackageCheck, PencilLine, RefreshCw, Route, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { routeCatalogByKey } from "../app/routeCatalog";
@@ -7,6 +7,7 @@ import { PageHero } from "../components/PageHero";
 import { SectionCard } from "../components/SectionCard";
 import {
   saveProductSelectionToCurrentProject,
+  saveDiscoveryBriefToProject,
   useProjectStore,
   type StoredDiscoveryBrief,
   type StoredProductSelection,
@@ -32,6 +33,76 @@ type RecommendationDecision = Awaited<
 >[number];
 
 type LoadState = "loading" | "ready" | "missing" | "error";
+
+type MissingDetailDefinition = {
+  group: string;
+  fields: string[];
+  prompt: string;
+  placeholder: string;
+  options?: string[];
+};
+
+function missingDetailDefinition(item: string): MissingDetailDefinition {
+  const value = item.toLowerCase();
+  if (value.includes("scale")) return {
+    group: "scale",
+    fields: ["scale", "roomScale"],
+    prompt: "Select the approximate system scale",
+    placeholder: "Choose a scale",
+    options: ["Small room / local system", "Medium room / departmental system", "Large room / multi-zone system", "Enterprise / site-wide system"],
+  };
+  if (value.includes("source profile")) return {
+    group: "source-profile",
+    fields: ["sourceProfile"],
+    prompt: "Select the closest source profile",
+    placeholder: "Choose a source profile",
+    options: ["Fixed sources in one rack", "Local room sources", "Distributed or remote-room sources", "Mixed local and distributed sources"],
+  };
+  if (value.includes("cable length")) return {
+    group: "cable-validation",
+    fields: ["cableRunValidation"],
+    prompt: "Record the cable-route validation status",
+    placeholder: "Choose a validation status",
+    options: ["Measured and confirmed on site", "Confirmed from approved drawings", "Estimated — site survey still required"],
+  };
+  if (value.includes("network ownership")) return {
+    group: "network",
+    fields: ["networkAvailability", "network"],
+    prompt: "Confirm the network position",
+    placeholder: "Choose the network position",
+    options: ["Dedicated AV network approved", "Existing managed LAN approved by IT", "WyreStorm network switch to be supplied", "IT review still required"],
+  };
+  if (value.includes("usb host ownership")) return {
+    group: "usb",
+    fields: ["usbTransport", "usbNeeds"],
+    prompt: "Describe the USB host, peripheral location and required USB version",
+    placeholder: "Example: Room PC in rack to USB 3.0 camera at front wall, bidirectional control required",
+  };
+  if (value.includes("display/output count")) return {
+    group: "display",
+    fields: ["displayCount", "displayBehaviour"],
+    prompt: "Enter the display count and required behaviour",
+    placeholder: "Example: 4 outputs; one canvas with optional independent source routing",
+  };
+  if (value.includes("video wall layout")) return {
+    group: "video-wall-design",
+    fields: ["videoWallDesignValidation", "videoWallRequirement"],
+    prompt: "Confirm the wall layout, source count, presets and control behaviour",
+    placeholder: "Example: 3 × 3 LCD, 6 sources, full-wall plus four presets, app control",
+  };
+  if (value.includes("wall layout")) return {
+    group: "wall-path",
+    fields: ["videoWallRequirement", "processingRequirement"],
+    prompt: "Confirm the canvas, source behaviour and processor path",
+    placeholder: "Example: Direct-view LED, six floating windows, NHD-150-RX feeding the LED processor",
+  };
+  return {
+    group: item.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+    fields: ["recommendationValidationNotes"],
+    prompt: "Add the missing design detail",
+    placeholder: "Enter the confirmed requirement",
+  };
+}
 
 function text(value: unknown, fallback = "") {
   const output = String(value ?? "").trim();
@@ -169,6 +240,8 @@ export function RecommendationsPage() {
   const [slotPool, setSlotPool] = useState<RecommendationDecision[]>([]);
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [message, setMessage] = useState("");
+  const [editingCheck, setEditingCheck] = useState("");
+  const [detailAnswers, setDetailAnswers] = useState<Record<string, string>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -229,13 +302,26 @@ export function RecommendationsPage() {
   // the system needs and resolve each one, so a Discovery that captured four
   // sources and six displays produces encoders, decoders and a controller
   // rather than twelve alternatives for a single unnamed box.
-  const design = useMemo(() => buildSystemDesign(brief), [brief]);
+  const systemBrief = useMemo<StoredDiscoveryBrief | null>(() => {
+    const videoWallBelongsToBrief =
+      brief?.savedAt && activeProject?.discoveryBrief?.savedAt === brief.savedAt;
+    if (!brief || !activeProject?.videowall || !videoWallBelongsToBrief) return brief;
+    return {
+      ...brief,
+      roomModel: {
+        ...(brief.roomModel ?? {}),
+        wallType: activeProject.videowall.wallType,
+        configuredVideowall: activeProject.videowall.summary,
+      },
+    };
+  }, [activeProject?.discoveryBrief?.savedAt, activeProject?.videowall, brief]);
+  const design = useMemo(() => buildSystemDesign(systemBrief), [systemBrief]);
 
   const systemSlots = useMemo<SystemSlotResult[]>(
     () =>
       design.slots.map((slot) => ({
         slot,
-        candidates: slotPool
+        candidates: slot.supply === "external" ? [] : slotPool
           // A slot is a line on a quote. Anything the selector rejected -
           // discontinued, do-not-spec, superseded, admin-blocked or gated out
           // by the requirement - must never reach it, or a retired SKU gets
@@ -248,7 +334,7 @@ export function RecommendationsPage() {
   );
 
   const unfilledSlots = useMemo(
-    () => systemSlots.filter((entry) => !entry.candidates.length),
+    () => systemSlots.filter((entry) => entry.slot.supply === "wyrestorm" && !entry.candidates.length),
     [systemSlots],
   );
 
@@ -340,6 +426,11 @@ export function RecommendationsPage() {
     need.resolution,
     need.usb,
   ].filter(Boolean);
+  const requiredSystemSlots = systemSlots.filter(({ slot }) => slot.required);
+  const resolvedSystemSlots = requiredSystemSlots.filter(
+    ({ slot, candidates }) => slot.supply === "external" || candidates.length > 0,
+  );
+  const systemUnitCount = systemSlots.reduce((total, { slot }) => total + slot.quantity, 0);
 
   function addToProject(decision: RecommendationDecision) {
     const savedProject = saveProductSelectionToCurrentProject(
@@ -382,6 +473,61 @@ export function RecommendationsPage() {
       });
   }
 
+  function saveMissingDetail(item: string) {
+    if (!brief) return;
+    const definition = missingDetailDefinition(item);
+    const answer = text(detailAnswers[definition.group]);
+    if (!answer) {
+      setMessage("Enter or select the missing detail before saving it.");
+      return;
+    }
+
+    const remainingMissing = missingInformation.filter(
+      (candidate) => missingDetailDefinition(candidate).group !== definition.group,
+    );
+    const nextRoomModel = { ...(brief.roomModel ?? {}) };
+    definition.fields.forEach((field) => {
+      nextRoomModel[field] = field === "usbNeeds" ? [answer] : answer;
+    });
+
+    const nextBrief: StoredDiscoveryBrief = {
+      ...brief,
+      roomModel: nextRoomModel,
+      missingInformation: remainingMissing,
+      nextBestQuestion: remainingMissing[0] ?? "",
+      quoteSafetyStatus: remainingMissing.length ? "do-not-quote-yet" : "validate-before-quote",
+      inference: {
+        ...(brief.inference ?? {}),
+        missing: remainingMissing,
+        risks: remainingMissing,
+        quoteSafetyStatus: remainingMissing.length ? "do-not-quote-yet" : "validate-before-quote",
+      },
+    };
+    const nextNeed = discoveryBriefToFinderNeed(nextBrief);
+    saveDiscoveryBriefToProject(nextBrief, activeProject?.id);
+    setBrief(nextBrief);
+    setEditingCheck("");
+    setMessage(`Saved: ${definition.prompt}. Recommendations are being recalculated.`);
+
+    if (!nextNeed) return;
+    setNeed(nextNeed);
+    setLoadState("loading");
+    Promise.all([
+      loadWingmanProductSelectorDecisions(buildRequest(nextNeed)),
+      loadWingmanProductSelectorDecisions(buildSlotRequest()),
+    ])
+      .then(([nextDecisions, nextSlotPool]) => {
+        setDecisions(nextDecisions);
+        setSlotPool(nextSlotPool);
+        setLoadState("ready");
+        setMessage("Detail saved and the system recommendation has been updated.");
+      })
+      .catch((error) => {
+        console.error("[wingman] Recommendations: inline detail recalculation failed", error);
+        setLoadState("error");
+      });
+  }
+
   return (
     <main
       className="wm-page wm-recommendations-page"
@@ -390,9 +536,9 @@ export function RecommendationsPage() {
     >
       <PageHero
         eyebrow="Discovery recommendations"
-        title="Products matched to the completed requirement."
-        purpose="Wingman uses the saved Discovery brief and the shared governed selector. No second discovery questionnaire is required."
-        nextMove="Review the shortlist, validate cautions and add suitable products to the active project."
+        title="Build the complete system."
+        purpose="Wingman has translated the Discovery brief into the product roles, quantities and dependencies needed to make the design work as one system."
+        nextMove="Review the proposed architecture, confirm unresolved checks, then add the complete system to the active project."
       />
 
       {loadState === "missing" ? (
@@ -454,6 +600,7 @@ export function RecommendationsPage() {
 
       {brief && loadState === "ready" ? (
         <>
+          <div className="wm-rec-context-card">
           <SectionCard
             title="Requirement used for matching"
             subtitle={text(
@@ -464,26 +611,26 @@ export function RecommendationsPage() {
               ),
             )}
           >
-            <div className="grid gap-3 md:grid-cols-3">
-              <article className="wm-ui-card rounded-2xl border p-4">
+            <div className="wm-rec-requirement-grid">
+              <article className="wm-rec-requirement">
                 <span className="wm-ui-kicker">Application</span>
                 <strong className="mt-2 block">
                   {text(roomModel.application, text(roomModel.roomType, "Not confirmed"))}
                 </strong>
               </article>
-              <article className="wm-ui-card rounded-2xl border p-4">
+              <article className="wm-rec-requirement">
                 <span className="wm-ui-kicker">Matching basis</span>
                 <strong className="mt-2 block">
                   {requirementSummary.join(" · ") || "General product direction"}
                 </strong>
               </article>
-              <article className="wm-ui-card rounded-2xl border p-4">
+              <article className="wm-rec-requirement">
                 <span className="wm-ui-kicker">Quote status</span>
                 <strong className="mt-2 block">{quoteStatusLabel(brief)}</strong>
               </article>
             </div>
 
-            <div className="mt-4 flex flex-wrap gap-3">
+            <div className="wm-rec-context-actions">
               <Link
                 className="wm-ui-button wm-ui-button-secondary rounded-xl px-4 py-3 font-black"
                 to={routeCatalogByKey.discovery.path}
@@ -505,99 +652,181 @@ export function RecommendationsPage() {
               </Link>
             </div>
           </SectionCard>
+          </div>
 
           {missingInformation.length ? (
+            <div className="wm-rec-checks-card">
             <SectionCard
               title="Checks still required"
               subtitle="These points remain visible because an estimated recommendation must not be presented as a confirmed design."
             >
-              <ul className="grid gap-2">
-                {missingInformation.map((item) => (
-                  <li className="flex items-start gap-2" key={item}>
-                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                    <span>{item}</span>
-                  </li>
-                ))}
+              <ul className="wm-rec-check-list">
+                {missingInformation.map((item) => {
+                  const definition = missingDetailDefinition(item);
+                  const isEditing = editingCheck === definition.group;
+                  return (
+                    <li className={isEditing ? "is-editing" : ""} key={item}>
+                      <div className="wm-rec-check-summary">
+                        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                        <span>{item}</span>
+                        <button
+                          type="button"
+                          aria-expanded={isEditing}
+                          onClick={() => setEditingCheck(isEditing ? "" : definition.group)}
+                        >
+                          <PencilLine size={14} aria-hidden="true" />
+                          {isEditing ? "Cancel" : "Complete"}
+                        </button>
+                      </div>
+                      {isEditing ? (
+                        <div className="wm-rec-check-editor">
+                          <label htmlFor={`missing-${definition.group}`}>{definition.prompt}</label>
+                          {definition.options ? (
+                            <select
+                              id={`missing-${definition.group}`}
+                              value={detailAnswers[definition.group] ?? ""}
+                              onChange={(event) => setDetailAnswers((current) => ({ ...current, [definition.group]: event.target.value }))}
+                            >
+                              <option value="">{definition.placeholder}</option>
+                              {definition.options.map((option) => <option key={option} value={option}>{option}</option>)}
+                            </select>
+                          ) : (
+                            <input
+                              id={`missing-${definition.group}`}
+                              value={detailAnswers[definition.group] ?? ""}
+                              onChange={(event) => setDetailAnswers((current) => ({ ...current, [definition.group]: event.target.value }))}
+                              placeholder={definition.placeholder}
+                            />
+                          )}
+                          <button type="button" onClick={() => saveMissingDetail(item)}>
+                            <Check size={15} aria-hidden="true" /> Save detail
+                          </button>
+                        </div>
+                      ) : null}
+                    </li>
+                  );
+                })}
               </ul>
             </SectionCard>
+            </div>
           ) : null}
 
           {design.slots.length ? (
-            <SectionCard
-              title="System design - what this room needs"
-              subtitle={`${design.architectureReason} A room needs several products working together, so each part is resolved separately below.`}
-            >
-              <div className="grid gap-3">
-                {systemSlots.map(({ slot, candidates }) => (
-                  <div className="wm-ui-card rounded-2xl border p-4" key={slot.kind}>
-                    <div className="flex flex-wrap items-baseline justify-between gap-2">
-                      <p className="font-black">
-                        {slot.label}
-                        {slot.quantity > 1 ? ` x ${slot.quantity}` : ""}
-                      </p>
-                      <span className="text-sm">{slot.required ? "Required" : "Optional"}</span>
-                    </div>
-                    <p className="mt-1 text-sm">{slot.purpose}</p>
+            <section className="wm-rec-system wm-ui-card" aria-labelledby="wm-rec-system-title">
+              <header className="wm-rec-system-header">
+                <div className="wm-rec-system-heading">
+                  <span className="wm-rec-system-icon"><Boxes size={25} aria-hidden="true" /></span>
+                  <div>
+                    <p className="wm-ui-kicker">Proposed system architecture</p>
+                    <h2 id="wm-rec-system-title">What the complete solution needs</h2>
+                    <p>{design.architectureReason} Each card below is a different job in the system—not an alternative to the whole design.</p>
+                  </div>
+                </div>
+                <div className="wm-rec-system-stats" aria-label="System design status">
+                  <span><strong>{resolvedSystemSlots.length}/{requiredSystemSlots.length}</strong> required roles resolved</span>
+                  <span><strong>{systemUnitCount}</strong> total units</span>
+                  <span className={unfilledSlots.length ? "is-warning" : "is-ready"}>
+                    {unfilledSlots.length ? `${unfilledSlots.length} role${unfilledSlots.length === 1 ? "" : "s"} need review` : "System roles covered"}
+                  </span>
+                </div>
+              </header>
 
-                    {candidates.length ? (
-                      <ul className="mt-3 grid gap-2">
-                        {candidates.map((decision, index) => (
-                          <li className="flex flex-wrap items-center justify-between gap-2" key={decision.sku}>
-                            <span>
-                              <strong>{decision.sku}</strong> {productTitle(decision)}
-                              {index === 0 ? " - best fit" : ""}
-                            </span>
-                            <button
-                              className="wm-ui-button wm-ui-button-secondary rounded-xl px-3 py-2 font-black"
-                              type="button"
-                              onClick={() => addSlotToProject(slot, decision)}
-                            >
-                              Add
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      // Never hide an unfilled slot. A quote that silently omits
-                      // the controller or the receivers is the failure mode this
-                      // whole section exists to prevent.
-                      <p className="mt-3 flex items-start gap-2 text-sm">
-                        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                        <span>
-                          No catalogue product matched this slot. It still belongs on the quote - check the
-                          requirement with pre-sales before sending.
-                        </span>
-                      </p>
-                    )}
-
-                    <p className="mt-2 text-sm">Why: {slot.derivedFrom.join(" · ")}</p>
+              <div className="wm-rec-system-flow" aria-label="System signal path">
+                {systemSlots.map(({ slot }, index) => (
+                  <div className="wm-rec-flow-step" key={`flow-${slot.kind}`}>
+                    <span>{index + 1}</span>
+                    <strong>{slot.label}</strong>
+                    {index < systemSlots.length - 1 ? <ArrowRight size={16} aria-hidden="true" /> : null}
                   </div>
                 ))}
               </div>
 
+              <div className="wm-rec-slot-list">
+                {systemSlots.map(({ slot, candidates }, index) => {
+                  const lead = candidates[0];
+                  const alternatives = candidates.slice(1);
+                  return (
+                    <article className={`wm-rec-slot${slot.supply === "external" ? " is-external" : ""}${!lead && slot.supply === "wyrestorm" ? " is-unresolved" : ""}`} key={slot.kind}>
+                      <div className="wm-rec-slot-index">{index + 1}</div>
+                      <div className="wm-rec-slot-copy">
+                        <div className="wm-rec-slot-title-row">
+                          <div>
+                            <span className="wm-rec-slot-role">System role</span>
+                            <h3>{slot.label}</h3>
+                          </div>
+                          <div className="wm-rec-slot-badges">
+                            <span className={slot.required ? "is-required" : "is-optional"}>{slot.required ? "Required" : "Optional"}</span>
+                            <span>Qty {slot.quantity}</span>
+                          </div>
+                        </div>
+                        <p className="wm-rec-slot-purpose">{slot.purpose}</p>
+
+                        {slot.supply === "external" ? (
+                          <div className="wm-rec-external-dependency">
+                            <Link2 size={20} aria-hidden="true" />
+                            <div>
+                              <strong>Mandatory external dependency</strong>
+                              <span>Specify the LED manufacturer’s processor/controller separately. It is required, but it is not a WyreStorm product.</span>
+                            </div>
+                          </div>
+                        ) : lead ? (
+                          <div className="wm-rec-lead-product">
+                            <div className="wm-rec-product-check"><Check size={18} aria-hidden="true" /></div>
+                            <div>
+                              <span>Best fit for this role</span>
+                              <strong>{lead.sku}</strong>
+                              <p>{productTitle(lead)}</p>
+                            </div>
+                            <button type="button" className="wm-ui-button wm-ui-button-secondary" onClick={() => addSlotToProject(slot, lead)}>
+                              Add role
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="wm-rec-unresolved">
+                            <AlertTriangle size={20} aria-hidden="true" />
+                            <div><strong>Product not resolved</strong><span>This role still belongs on the quote. Validate it with pre-sales before sending.</span></div>
+                          </div>
+                        )}
+
+                        <div className="wm-rec-slot-evidence"><Route size={15} aria-hidden="true" /><span>Included because {slot.derivedFrom.join(" · ")}</span></div>
+
+                        {alternatives.length ? (
+                          <details className="wm-rec-alternatives">
+                            <summary>Compare {alternatives.length} alternative{alternatives.length === 1 ? "" : "s"} for this role</summary>
+                            <div>
+                              {alternatives.map((decision) => (
+                                <div className="wm-rec-alternative" key={decision.sku}>
+                                  <span><strong>{decision.sku}</strong>{productTitle(decision)}</span>
+                                  <button type="button" onClick={() => addSlotToProject(slot, decision)}>Use this instead</button>
+                                </div>
+                              ))}
+                            </div>
+                          </details>
+                        ) : null}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+
               {design.openQuestions.length ? (
-                <ul className="mt-3 grid gap-2">
-                  {design.openQuestions.map((question) => (
-                    <li className="flex items-start gap-2" key={question}>
-                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                      <span>{question}</span>
-                    </li>
-                  ))}
-                </ul>
+                <aside className="wm-rec-open-questions">
+                  <div><AlertTriangle size={20} aria-hidden="true" /><strong>Confirm before final quote</strong></div>
+                  <ul>{design.openQuestions.map((question) => <li key={question}>{question}</li>)}</ul>
+                </aside>
               ) : null}
 
-              <button
-                className="wm-ui-button wm-ui-button-primary mt-4 rounded-xl px-4 py-3 font-black"
-                type="button"
-                onClick={addWholeSystemToProject}
-              >
-                Add the whole system to the project
-              </button>
-            </SectionCard>
+              <footer className="wm-rec-system-footer">
+                <div><PackageCheck size={22} aria-hidden="true" /><span><strong>Add the proposed WyreStorm system</strong><small>Adds the best-fit product and correct quantity for every resolved role.</small></span></div>
+                <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={addWholeSystemToProject}>Add complete system to project</button>
+              </footer>
+            </section>
           ) : null}
 
+          <details className="wm-rec-advanced-matches">
+            <summary>Advanced: explore all matching products</summary>
           <SectionCard
-            title="Recommended WyreStorm products"
+            title="Additional governed product matches"
             subtitle={
               matches.length
                 ? `${matches.length} governed lead candidate${matches.length === 1 ? "" : "s"} matched the saved requirement.`
@@ -687,6 +916,7 @@ export function RecommendationsPage() {
               </div>
             )}
           </SectionCard>
+          </details>
 
           {message ? (
             <div className="wm-ui-card mt-4 rounded-xl border p-4 font-bold">

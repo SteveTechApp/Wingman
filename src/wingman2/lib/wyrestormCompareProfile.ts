@@ -68,6 +68,10 @@ function text(product: WyrestormProduct): string {
 function detectDomain(product: WyrestormProduct, blob: string): string | undefined {
   const sku = String(product.sku ?? "").toUpperCase();
 
+  if (/\b(video|conference|conferencing)\s*bar\b|all-in-one video bar|integrated camera.*microphone.*speaker/.test(blob)) {
+    return "UC";
+  }
+
   if (/^NHD-/.test(sku) || blob.includes("avoip") || blob.includes("av over ip") || blob.includes("networkhd")) {
     return "AVOIP";
   }
@@ -99,6 +103,8 @@ function detectRole(product: WyrestormProduct, blob: string, domain?: string): s
   // evidence outside the presentation domains, so a wireless presentation
   // switcher doesn't get misread as an AVoIP encoder.
   const isPresentationDomain = domain === "WIRELESS_PRESENTATION" || domain === "PRESENTATION";
+
+  if (domain === "UC") return "video bar";
 
   if (!isPresentationDomain && (/transceiver|\btrx\b/.test(blob) || /-TRX\b/.test(sku))) return "transceiver";
   if (!isPresentationDomain && (/\bencoder\b/.test(blob) || /-TX\b/.test(sku))) return "encoder";
