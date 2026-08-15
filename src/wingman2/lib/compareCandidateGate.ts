@@ -43,7 +43,8 @@ const TAXONOMY_CLASS_PRIORITY: Array<{ compareClass: CompareCompetitorClass; tok
   { compareClass: "AUDIO", tokens: ["amplifier", "dsp", "microphone", "speakerphone"] },
   { compareClass: "MATRIX", tokens: ["matrix"] },
   { compareClass: "HDBASET", tokens: ["extender", "hdbaset", "transmitter", "receiver"] },
-  { compareClass: "PRESENTATION", tokens: ["presentation-switcher", "source-switcher", "switcher", "wireless-dongle"] },
+  { compareClass: "WIRELESS_PRESENTATION", tokens: ["wireless-dongle"] },
+  { compareClass: "PRESENTATION", tokens: ["presentation-switcher", "source-switcher", "switcher"] },
   { compareClass: "DISTRIBUTION", tokens: ["splitter"] },
 ];
 
@@ -164,13 +165,18 @@ function hasAny(text: string, markers: string[]): boolean {
 }
 
 function wingmanSkuClassGuard(candidate: CompareCandidateGateInput): CompareCompetitorClass {
-  // The governed taxonomy wins wherever the caller supplied it. Only fall back
+    const sku = String(candidate.sku ?? "").trim().toUpperCase();
+
+  // Product identity takes precedence over broad taxonomy/text heuristics.
+  // APO-DG2 is specifically a wireless casting dongle. Its copy also contains
+  // generic terms such as "presentation" and "Apollo", which must not cause it
+  // to be reclassified as a presentation switcher or audio product.
+  if (sku === "APO-DG2") return "WIRELESS_PRESENTATION";
+// The governed taxonomy wins wherever the caller supplied it. Only fall back
   // to reading words out of a title or category when there is none - a
   // live-lookup record, say.
   const fromTaxonomy = classFromTaxonomy(candidate.classification);
   if (fromTaxonomy !== "UNKNOWN") return fromTaxonomy;
-
-  const sku = String(candidate.sku ?? "").trim().toUpperCase();
   const title = String(candidate.title ?? "").trim().toUpperCase();
   const role = String(candidate.role ?? "").trim().toLowerCase();
   const text = [sku, title, role, candidate.category, candidate.productFamily, candidate.family].join(" ").toLowerCase();
@@ -257,6 +263,8 @@ function allowedClassPair(competitorClass: CompareCompetitorClass, candidateClas
 }
 
 function isAccessoryLike(candidate: CompareCandidateGateInput, role: string): boolean {
+  // APO-DG2 is intentionally eligible when Compare is matching an explicit casting dongle.
+  if (clean(candidate.sku).toUpperCase() === "APO-DG2") return false;
   const identityText = identityTextFor(candidate) + " " + role.toLowerCase();
   const markerText = markerTextFor(candidate);
 
@@ -281,7 +289,7 @@ function specificBadSku(candidate: CompareCandidateGateInput): string[] {
   const sku = String(candidate.sku ?? "").trim().toLowerCase();
   const identityText = identityTextFor(candidate);
 
-    const apoConferenceOrAudioPattern = /apo-com-mic|apo-sky-mic|apo-dg1|apo-dg2|apo-dg-hdmi|apo-120-dnt/;
+    const apoConferenceOrAudioPattern = /apo-com-mic|apo-sky-mic|apo-dg1|apo-dg-hdmi|apo-120-dnt/;
   const deprecatedApoTableSpeakerphoneSku = ["apo", "210", "uc"].join("-");
   if (
     apoConferenceOrAudioPattern.test(sku + " " + identityText) ||
@@ -322,6 +330,11 @@ export function gateCompareCandidate(
     "candidateRole=" + candidateRole,
     "candidateEndpointRole=" + endpointRole,
   ];
+  if (clean(candidate.sku).toUpperCase() === "APO-DG2") {
+    evidence.push(
+      "APO-DG2 requires a compatible WyreStorm wireless presentation switcher or UC soundbar.",
+    );
+  }
 
   for (const reason of specificBadSku(candidate)) blockedBy.push(reason);
 
@@ -331,6 +344,39 @@ export function gateCompareCandidate(
 
   if (!allowedClassPair(competitorClass, candidateClass)) {
     blockedBy.push("Technology class mismatch: competitor is " + competitorClass + " but candidate is " + candidateClass + ".");
+  }
+
+  // A wireless-presentation competitor must be answered by a candidate that can
+  // actually cast wirelessly. Every SW-*/EXP-SW-* switcher classifies as
+  // PRESENTATION (the lane WIRELESS_PRESENTATION shares), but a wired-only
+  // switcher is not an equivalent for a Barco ClickShare / Extron ShareLink -
+  // require wireless evidence on the candidate before it can fill the lane.
+  if (competitorClass === "WIRELESS_PRESENTATION" && candidateClass === "PRESENTATION") {
+    const wirelessMarkers = [
+      "wireless", "casting", "miracast", "airplay", "chromecast",
+      "clickshare", "airmedia", "solstice", "screenbeam", "wifidirect",
+    ];
+    const taxonomyTokens = (candidate.classification?.subClassifications ?? [])
+      .map((token) => String(token).trim().toLowerCase());
+    const wirelessEvidence = hasAny(textFor(candidate), wirelessMarkers) ||
+      taxonomyTokens.some((token) => wirelessMarkers.includes(token));
+    if (!wirelessEvidence) {
+      blockedBy.push("Wired-only presentation switcher cannot satisfy a wireless presentation comparison; wireless casting capability is required.");
+    }
+  }
+
+  // Audio DSP comparisons: WyreStorm makes no DSP, so an amplifier must not be
+  // offered as the primary candidate for one - surface the gap explicitly so an
+  // inexperienced rep sees "no direct equivalent" rather than a misleading list.
+  const competitorDescription = clean(context.competitorRole) + " " + clean(context.applicationContext);
+  if (
+    competitorClass === "AUDIO" &&
+    /\bdsp\b|digital\s+signal\s+processor/i.test(competitorDescription)
+  ) {
+    const candidateIdentity = identityTextFor(candidate);
+    if (/\bamplifier\b/i.test(candidateIdentity) || /^AMP-/i.test(clean(candidate.sku))) {
+      blockedBy.push("WyreStorm does not manufacture audio DSPs; an amplifier is not an equivalent for a DSP and must not be offered as the primary replacement.");
+    }
   }
 
 
