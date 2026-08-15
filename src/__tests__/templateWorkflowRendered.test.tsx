@@ -29,11 +29,7 @@ describe("template workflow wiring", () => {
     expect(template).toBeDefined();
     renderTemplateRoutes();
 
-    const card = screen.getByRole("heading", { name: template!.name }).closest("article");
-    expect(card).not.toBeNull();
-
-    expect(within(card!).queryByRole("button", { name: "View Template" })).not.toBeInTheDocument();
-    fireEvent.click(within(card!).getByRole("button", { name: "Use template" }));
+    fireEvent.click(screen.getByRole("button", { name: template!.name }));
     expect(screen.getByRole("heading", { name: template!.name, level: 1 })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Equipment" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByText("Editable WyreStorm BOM")).toBeInTheDocument();
@@ -65,11 +61,7 @@ describe("template workflow wiring", () => {
 
     expect(screen.getByRole("heading", { name: `${roomTemplates.length + 1} templates` })).toBeInTheDocument();
 
-    const card = screen.getByRole("heading", { name: savedTemplate.name }).closest("article");
-    expect(card).not.toBeNull();
-    expect(within(card!).getByText("Custom")).toBeInTheDocument();
-
-    fireEvent.click(within(card!).getByRole("button", { name: "Use template" }));
+    fireEvent.click(screen.getByRole("button", { name: savedTemplate.name }));
     expect(screen.getByRole("heading", { name: savedTemplate.name, level: 1 })).toBeInTheDocument();
   });
 

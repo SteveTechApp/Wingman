@@ -130,7 +130,7 @@ describe("Project Detail rendered workflow evidence", () => {
     expect(screen.getByText("MX-0808-KIT")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Review .* project blockers?/ }));
     expect(screen.getByRole("region", { name: "Proposal blocker walkthrough" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Resolve in Discovery|Open Finder|Open Compare|Open Proposal/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Open full Discovery|Open Finder|Open Compare|Open Proposal/ })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Review project detail" }));
 

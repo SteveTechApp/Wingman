@@ -153,6 +153,16 @@ const ROLE_EQUIVALENTS: Record<string, string[]> = {
   "distribution amplifier": ["splitter", "hdmi splitter", "distribution amp"],
   controller: ["control processor", "control module"],
   "presentation switcher": ["presentation scaler", "room switcher", "collaboration switcher"],
+  "video bar": [
+    "room appliance",
+    "conferencing bar",
+    "conference bar",
+    "usb conferencing",
+    "conference bar / usb conferencing",
+    "uc soundbar",
+    "uc room product",
+    "uc room endpoint",
+  ],
   "video wall processor": ["wall processor", "videowall processor"],
   "multiview processor": ["windowing processor", "multi-view processor"],
 };
