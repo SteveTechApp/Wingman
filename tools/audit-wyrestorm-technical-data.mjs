@@ -68,7 +68,13 @@ if (target) {
     .filter((port) => port.category === "video" && port.direction === "output")
     .reduce((sum, port) => sum + Number(port.count || 0), 0);
 
-  check(target.status === "verified", "MX-0808-H2A-MK2 is governed as verified");
+  // "Verified" requires a human: MX-0808-H2A-MK2 entered the governed
+  // program machine-transcribed, then a reviewer confirmed its spec-critical
+  // fields in the 2026-08 structured review pass, recording verifiedBy.
+  check(
+    target.status === "verified" && Boolean(String(target.verifiedBy || "").trim()),
+    "MX-0808-H2A-MK2 is human-verified with verifiedBy recorded",
+  );
   check(target.productClass === "MATRIX", "MX-0808-H2A-MK2 product class is MATRIX");
   check(Array.isArray(target.transport) && target.transport.length === 1 && target.transport[0] === "HDMI",
     "MX-0808-H2A-MK2 transport is HDMI only");

@@ -68,6 +68,45 @@ describe("multi-SKU competitor document ingest", () => {
     });
   });
 
+  it("classifies matrix SKUs whose description carries the matrix wording", () => {
+    const analysis = analyzeMultiSkuCompetitorDocument([
+      "Kramer VS-42H 4x2 HDMI matrix switcher",
+      "Atlona 8x8 matrix, 4K60",
+      "Extron HDMI matrix 4 inputs",
+    ].join("\n"));
+
+    expect(bySku(analysis, "VS-42H")).toMatchObject({
+      productClass: "hdbaset-matrix",
+      role: "matrix",
+      eligibleAsLead: true,
+    });
+    expect(analysis.triage.rows.find((row) => row.sku === "VS-42H")?.status).toBe("architecture_alternative");
+  });
+
+  it("reads quantities from CSV/trailing table cells", () => {
+    const analysis = analyzeMultiSkuCompetitorDocument([
+      "Part Number, Description, Qty",
+      "SW-120-TX3, HDBaseT 3.0 transmitter, 8",
+      "RX3-100, HDBaseT 3.0 receiver, 8",
+      "EX-70-G2, extender kit, 12",
+    ].join("\n"));
+
+    expect(bySku(analysis, "SW-120-TX3")?.quantity).toBe(8);
+    expect(bySku(analysis, "RX3-100")?.quantity).toBe(8);
+    expect(bySku(analysis, "EX-70-G2")?.quantity).toBe(12);
+  });
+
+  it("prefers quantity-first notation over matrix sizes and ignores decimals", () => {
+    const analysis = analyzeMultiSkuCompetitorDocument([
+      "12x Kramer VS-42H 4x2 HDMI matrix",
+      "2.5x zoom camera bracket, 4x2 matrix line",
+      "single 4x2 HDMI matrix",
+    ].join("\n"));
+
+    // "12x" wins over the "4x2" size and the "2.5x" decimal.
+    expect(bySku(analysis, "VS-42H")?.quantity).toBe(12);
+  });
+
   it("builds grouped sales opportunities and sell-out quote warnings", () => {
     const analysis = analyzeMultiSkuCompetitorDocument(BLUSTREAM_PACIFIC_EMAIL_FIXTURE);
 

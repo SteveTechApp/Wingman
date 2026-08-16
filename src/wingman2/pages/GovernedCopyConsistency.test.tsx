@@ -4,10 +4,21 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import index from "../../../public/product-intelligence-index.json";
-import { governedProfilesWithoutSkus } from "../lib/testHelpers/governedProfilesHarness";
+import {
+  governedProfilesHumanVerifiedExcept,
+  governedProfilesWithoutSkus,
+} from "../lib/testHelpers/governedProfilesHarness";
+import { specCriticalFieldLabel, type SpecCriticalField } from "../lib/governedConfirmationBacklog";
+import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { CatalogBrowserPage } from "./CatalogBrowserPage";
 import ComparePageNew from "./ComparePageNew";
 import { ProductPitchPage } from "./ProductPitchPage";
+
+// The profiles import below resolves to the SAME mocked payload the pages see
+// (vi.mock intercepts the module for every importer in this graph), so the
+// sweep can derive each card's expected confirmed-field set from the data
+// that actually drove the render.
+import governedProfilesMocked from "../../../data/governance/wyrestorm-technical-profiles.json";
 
 // ---------------------------------------------------------------------------
 // App-wide copy-consistency sweep for the missing tier.
@@ -23,6 +34,11 @@ import { ProductPitchPage } from "./ProductPitchPage";
 // Product Call Cards and the Data Manager render no governed badges or
 // resolver labels (verified by source scan below), so they are trivially
 // consistent - and the static scan would catch them if that ever changed.
+//
+// The reviewer-trail contract rides along in the Catalog sweep: the shared
+// GovernedReviewerTrail element may render ONLY alongside a verified badge,
+// and the fields it claims must equal exactly the profile's confirmed set -
+// never a field the reviewer did not sign off.
 // ---------------------------------------------------------------------------
 
 // Each test drives a surface with the mutable index, so a genuine "no data at
@@ -36,14 +52,21 @@ vi.mock("../lib/productIntelligenceIndexCache", () => ({
   loadProductIntelligenceIndex: vi.fn().mockImplementation(() => Promise.resolve(indexForSweep)),
 }));
 
-// Remove the two matrix profiles the sweep drives to the missing tier; every
-// other product's resolution stays real (see the harness JSDoc for the mock
-// path depth rule).
+// Remove the two matrix profiles the sweep drives to the missing tier, and
+// mark every remaining profile human-confirmed (`verifiedBy`) so the compare
+// surface's "other cards keep their verified badge" contract tests the real
+// verified path - machine-transcribed profiles would render at the
+// official-structured tier, not verified (see governedProfilesHarness.ts).
 vi.mock("../../../data/governance/wyrestorm-technical-profiles.json", async () => {
   const actual = (await vi.importActual(
     "../../../data/governance/wyrestorm-technical-profiles.json",
   )) as { default: { profiles: Array<{ sku: string }> } };
-  return { default: governedProfilesWithoutSkus(actual.default, ["MX-0402-MST", "MX-0404-SCL"]) };
+  return {
+    default: governedProfilesHumanVerifiedExcept(
+      governedProfilesWithoutSkus(actual.default, ["MX-0402-MST", "MX-0404-SCL"]),
+      ["MX-0402-MST", "MX-0404-SCL"],
+    ),
+  };
 });
 
 // The Catalog surface needs a workspace session (mirrors the Catalog test).
@@ -59,6 +82,22 @@ vi.mock("../api/wingmanApi", () => ({
   getWingmanJson: vi.fn().mockResolvedValue({ ok: true }),
   postWingmanJson: vi.fn().mockResolvedValue({ ok: true, record: null }),
   runCompetitorLookup: vi.fn().mockResolvedValue({ ok: true, record: null }),
+  // The Compare surface also mounts the decision review queue; resolve its
+  // fetch so the sweep's surfaces settle without unhandled rejections.
+  fetchCompetitorDecisionQueue: vi.fn().mockResolvedValue({
+    ok: true,
+    total: 0,
+    pending: 0,
+    approved: 0,
+    queue: [],
+  }),
+  fetchApprovedCompetitorDecisions: vi.fn().mockResolvedValue({
+    ok: true,
+    total: 0,
+    approved: 0,
+    decisions: [],
+  }),
+  approveCompetitorDecision: vi.fn().mockResolvedValue({ ok: true }),
   WingmanApiError: class WingmanApiError extends Error {},
 }));
 
@@ -159,6 +198,64 @@ describe("app-wide missing-tier copy consistency sweep", () => {
     ).filter((badge) => badge.textContent === CANONICAL_COPY);
     expect(canonicalBadges.length).toBeGreaterThan(0);
     expect(document.body.textContent ?? "").not.toContain(LEGACY_COPY);
+  });
+
+  it("renders reviewer trails only alongside verified badges and never claims fields outside the confirmed set", async () => {
+    indexForSweep = index;
+
+    render(
+      <MemoryRouter initialEntries={["/wingman/catalog-browser"]}>
+        <CatalogBrowserPage />
+      </MemoryRouter>,
+    );
+
+    await waitFor(
+      () => {
+        expect(document.querySelectorAll(".wm-catalog-product-card").length).toBeGreaterThan(0);
+      },
+      { timeout: 5000 },
+    );
+
+    // The mocked payload marks every governed profile human-confirmed (except
+    // the two stripped SKUs), so this is the full bidirectional contract over
+    // every rendered card: trail <-> verified badge, and trail fields == the
+    // profile's confirmedFields.
+    const confirmedFieldsBySku = new Map(
+      (governedProfilesMocked as { profiles: Array<{ sku: string; confirmedFields?: string[] }> }).profiles.map(
+        (profile) => [normaliseSkuKey(profile.sku), profile.confirmedFields ?? []],
+      ),
+    );
+
+    let verifiedCards = 0;
+    for (const card of Array.from(document.querySelectorAll(".wm-catalog-product-card"))) {
+      const sku = normaliseSkuKey(card.querySelector(".wm-catalog-product-sku")?.textContent ?? "");
+      const badge = card.querySelector(".compare-native-governance-badge");
+      const trail = card.querySelector(".wm-governed-reviewer-trail");
+      const isVerified = badge?.className.includes("is-verified") ?? false;
+
+      if (isVerified) {
+        verifiedCards += 1;
+        // Every verified card carries its trail...
+        expect(trail, `verified card ${sku} carries its reviewer trail`).not.toBeNull();
+        // ...and the fields it claims are EXACTLY the confirmed set - never a
+        // field the reviewer did not sign off, never a missing one.
+        const confirmedFields = confirmedFieldsBySku.get(sku) ?? [];
+        const expectedLabels = confirmedFields
+          .map((field) => specCriticalFieldLabel(field as SpecCriticalField))
+          .join(" · ");
+        const fieldsEl = trail!.querySelector(".wm-governed-reviewer-trail__fields");
+        if (confirmedFields.length === 0) {
+          expect(fieldsEl, `${sku} never claims a field outside the confirmed set`).toBeNull();
+        } else {
+          expect(fieldsEl?.textContent, `${sku} trail fields equal the confirmed set`).toBe(expectedLabels);
+        }
+      } else {
+        // The trail never renders without a verified badge.
+        expect(trail, `unverified card ${sku} has no reviewer trail`).toBeNull();
+      }
+    }
+    // The scenario genuinely surfaces human-verified cards with trails.
+    expect(verifiedCards).toBeGreaterThan(0);
   });
 
   it("compare shows the canonical label on a candidate with no data at all while verified cards stay verified", async () => {

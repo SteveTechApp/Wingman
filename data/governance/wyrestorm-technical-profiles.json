@@ -1,6 +1,6 @@
 {
-  "version": 4,
-  "updatedAt": "2026-07-30",
+  "version": 5,
+  "updatedAt": "2026-08-16T10:29:04.129Z",
   "policy": {
     "purpose": "Source-controlled, reviewed WyreStorm technical facts shared by Product Pitch, Compare, Finder and proposal workflows.",
     "precedence": [
@@ -105,12 +105,25 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (42 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/amp-2120/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.037Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.037Z",
+      "confirmedFields": [
+        "routed-io"
       ]
     },
     {
       "sku": "AMP-2120-DNT",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "AUDIO",
       "role": "network amplifier",
       "productType": "Advanced 1 or 2 channel Dante amplifier (70V/100V or low-impedance)",
@@ -196,17 +209,31 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/amp-2120-dnt/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.043Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "poe": true,
         "powerSupply": "24V DC 5A (page prints '24V DC 5V'); 802.3at PoE+"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.043Z",
+      "confirmedFields": [
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "AMP-260-DNT",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "AUDIO",
       "role": "Dante network amplifier with DSP",
       "productType": "Advanced 2 channel Dante amplifier",
@@ -330,12 +357,26 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/amp-260-dnt/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.048Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.048Z",
+      "confirmedFields": [
+        "routed-io",
+        "power"
       ]
     },
     {
       "sku": "APO-210-UC",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "PRESENTATION",
       "role": "presentation switcher",
       "productType": "Conference speakerphone and presentation switcher",
@@ -488,12 +529,27 @@
           "reviewedOn": "2026-07-22",
           "reviewer": "Wingman model-specific technical correction",
           "note": "Model-specific Technical Specifications section used in preference to broad feature metadata."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-210-uc/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.052Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.052Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
       "sku": "APO-DG-DOCK",
-      "status": "verified",
+      "status": "verified-with-warning",
       "productClass": "UC",
       "role": "Optional collaboration endpoint",
       "productType": "Wireless casting endpoint",
@@ -532,7 +588,7 @@
     },
     {
       "sku": "APO-DG-HDMI",
-      "status": "verified",
+      "status": "verified-with-warning",
       "productClass": "UC",
       "role": "UC room endpoint",
       "productType": "UC room device",
@@ -582,7 +638,7 @@
     },
     {
       "sku": "APO-DG2",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "WIRELESS_PRESENTATION",
       "role": "wireless casting dongle",
       "productType": "Apollo USB-C wireless casting dongle",
@@ -661,12 +717,25 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-dg2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.056Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.056Z",
+      "confirmedFields": [
+        "power"
       ]
     },
     {
       "sku": "APO-VX20-UC-V2",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "UC",
       "role": "UC room product",
       "productType": "Apollo series conference video bar and switcher",
@@ -809,12 +878,26 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29. Teams caveat revised: v2 page claims MTR compatibility (compatible, not certified)."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-vx20-uc-v2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.060Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.060Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
       "sku": "CAM-0402-BRG",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "UC",
       "role": "multi-camera video bridge",
       "productType": "4K multi-camera USB/HDMI video bridge with quad multiview",
@@ -899,16 +982,31 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/cam-0402-brg/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.067Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "20V DC 3A"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.067Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "CAM-0402-NDI-BRG",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "UC",
       "role": "multi-camera video bridge",
       "productType": "4K multi-camera USB/HDMI/NDI video bridge with quad multiview",
@@ -1009,12 +1107,27 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/cam-0402-ndi-brg/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.072Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "20V DC 3A"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.072Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "CAM-210-NDI-PTZ",
@@ -1161,17 +1274,32 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (85 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/cam-210-ndi-ptz/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.078Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "poe": true,
         "powerSupply": "12V DC 2A; PoE"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.078Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "CAM-210-PTZ",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "CAMERA",
       "role": "PTZ conferencing camera",
       "productType": "1080p PTZ camera with 12x optical zoom",
@@ -1230,14 +1358,13 @@
         "Built-in IR receiver"
       ],
       "power": [
-        "12V DC 1A (12V DC 2A PSU supplied)",
-        "Max power consumption 12W"
+        "12V DC 2A power supply; PoE 802.3af; Max power consumption 12W"
       ],
       "physical": [
         "12x optical, 4x digital zoom",
         "Horizontal viewing angle 72.5 degrees, vertical 44.8 degrees"
       ],
-      "maxResolution": "1920x1080p @30Hz",
+      "maxResolution": "1920x1080p @60Hz",
       "dependencies": [
         "USB 3.0 passive cable run is limited to 2m; 15m requires CAB-UAOC-15",
         "Confirm the conferencing platform accepts a UVC camera at the required resolution"
@@ -1281,12 +1408,27 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29. Corrected 5 transcription errors vs the live page: resolution 60→30Hz, USB connector Type C→Type B, digital zoom 16→4x, power removed unsupported PoE 802.3af/18W claim (page: 12V DC 1A/12W), stale sensor warning replaced."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/cam-210-ptz/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T08:41:50.957Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T08:41:50.957Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
       "sku": "CAM-420-PTZ",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "CAMERA",
       "role": "Dual-lens AI PTZ conferencing camera",
       "productType": "4K dual-lens AI PTZ camera with auto framing and speaker tracking",
@@ -1402,7 +1544,22 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/cam-420-ptz/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.083Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.083Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
@@ -1537,7 +1694,20 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (50 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/com-mic-hub/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.087Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.087Z",
+      "confirmedFields": [
+        "routed-io"
       ]
     },
     {
@@ -1551,7 +1721,7 @@
         "HDMI",
         "Extension"
       ],
-      "maxResolution": "4K HDBaseT Extender Set with Bi-directional PoC",
+      "maxResolution": "3840x2160p @60Hz 4:2:0",
       "ports": [
         {
           "count": 2,
@@ -1622,7 +1792,20 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (34 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-100-g2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.092Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.092Z",
+      "confirmedFields": [
+        "max-resolution"
       ]
     },
     {
@@ -1712,7 +1895,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (61 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-100-h2-earc/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.097Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.097Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
@@ -1805,9 +2002,23 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (23 captured technical line(s)). Exact claims and SKU identity require human review. Completed 2026-08: maxResolution grounded in the EX-100 platform video capability (EX-100-USB3/G2/KVM 4K60 4:2:0); the official page records no standalone resolution for this USB-C variant."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-100-iw-usbc/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.101Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
-      "maxResolution": "3840x2160p @60Hz 4:2:0 via USB-C video input (EX-100 platform 100m HDBaseT)"
+      "maxResolution": "3840x2160p @60Hz 4:2:0 via USB-C video input (EX-100 platform 100m HDBaseT)",
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.101Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
+      ]
     },
     {
       "sku": "EX-100-KVM",
@@ -1825,7 +2036,7 @@
         "USB routing / switching",
         "Extension"
       ],
-      "maxResolution": "4K HDMI & USB KVM Extender over HDBaseT WyreSto",
+      "maxResolution": "3840x2160p @60Hz 4:2:0",
       "ports": [
         {
           "count": 1,
@@ -1936,7 +2147,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (65 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.105Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.105Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
@@ -2028,7 +2253,20 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (61 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm-8k/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.110Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.110Z",
+      "confirmedFields": [
+        "max-resolution"
       ]
     },
     {
@@ -2118,7 +2356,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (56 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm-ip/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.115Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.115Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
@@ -2135,7 +2387,6 @@
         "USB routing / switching",
         "Extension"
       ],
-      "maxResolution": "4K USB 3",
       "ports": [
         {
           "count": 1,
@@ -2217,7 +2468,20 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (21 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-100-usb3/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.119Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.119Z",
+      "confirmedFields": [
+        "routed-io"
       ]
     },
     {
@@ -2322,7 +2586,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (50 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-35-8k/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.124Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.124Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
@@ -2377,7 +2655,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-ex-35-g2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.129Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.129Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
@@ -2497,7 +2789,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (67 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-35-h2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.133Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.133Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
@@ -2511,7 +2817,7 @@
         "HDMI",
         "Extension"
       ],
-      "maxResolution": "4K HDR HDBaseT Extender - WyreStorm ARC HDMI Ex",
+      "maxResolution": "3840x2160p @60Hz 4:4:4",
       "ports": [
         {
           "count": 1,
@@ -2594,7 +2900,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (71 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-35-h2-arc/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.137Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.137Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
@@ -2681,7 +3001,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (44 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-40-g3/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.141Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.141Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
@@ -2695,7 +3029,7 @@
         "HDMI",
         "Extension"
       ],
-      "maxResolution": "4K HDBaseT Extender with ARC and Audio Breakout",
+      "maxResolution": "3840x2160p @60Hz 4:4:4",
       "ports": [
         {
           "count": 1,
@@ -2799,7 +3133,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (98 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-40-h2-arc/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.147Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.147Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
@@ -2817,7 +3165,7 @@
         "USB 2.0",
         "Extension"
       ],
-      "maxResolution": "4K@60Hz 4:4:4 and all HDR formats",
+      "maxResolution": "3840x2160p @60Hz 4:4:4",
       "ports": [
         {
           "count": 1,
@@ -2967,7 +3315,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (59 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-40-kvm-5k/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.152Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.152Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
@@ -3065,7 +3427,20 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (45 captured technical line(s)). Exact claims and SKU identity require human review. Completed 2026-08: USB 2.0-only extender with no video I/O; the maxResolution gate is exempted for non-video profiles (check-wyrestorm-technical-data + governedProductTechnicalData)."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-60-usb2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.158Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.158Z",
+      "confirmedFields": [
+        "routed-io"
       ]
     },
     {
@@ -3176,7 +3551,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (44 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-60d-kvm/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.166Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.166Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
@@ -3190,7 +3579,7 @@
         "HDMI",
         "Extension"
       ],
-      "maxResolution": "4K HDBaseT Extender Set with HDCP 2",
+      "maxResolution": "3840x2160p @60Hz 4:2:0",
       "ports": [
         {
           "count": 1,
@@ -3279,12 +3668,26 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (64 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-70-g2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.171Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.171Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
       "sku": "EX-70-H2",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "HDBaseT extender set (transmitter + receiver)",
       "productType": "18Gbps 4K HDR HDBaseT extender set with 2-way PoH",
@@ -3411,7 +3814,22 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-70-h2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.176Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.176Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
@@ -3426,7 +3844,7 @@
         "HDMI",
         "Extension"
       ],
-      "maxResolution": "4K HDMI Extender over Cat6 with ARC EX-70-H2C 7",
+      "maxResolution": "3840x2160p @60Hz 4:4:4",
       "ports": [
         {
           "count": 1,
@@ -3496,7 +3914,20 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (61 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex-70-h2c/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.180Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.180Z",
+      "confirmedFields": [
+        "max-resolution"
       ]
     },
     {
@@ -3610,7 +4041,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (73 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/ex3-100-earc/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.185Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.185Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
@@ -3721,9 +4166,23 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (43 captured technical line(s)). Exact claims and SKU identity require human review. Completed 2026-08: maxResolution from the documented HDMI 2.0 passthrough standard on the official-page capture."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exa-100-earc/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.189Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
-      "maxResolution": "3840x2160p @60Hz (HDMI 2.0 passthrough; eARC audio extender)"
+      "maxResolution": "3840x2160p @60Hz (HDMI 2.0 passthrough; eARC audio extender)",
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.189Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
+      ]
     },
     {
       "sku": "EXF-10KM-5K",
@@ -3817,7 +4276,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (57 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exf-10km-5k/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.194Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.194Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
@@ -3833,7 +4306,7 @@
         "USB 3.x",
         "Extension"
       ],
-      "maxResolution": "4K HDMI Fiber Extender",
+      "maxResolution": "3840x2160p @60Hz 4:4:4",
       "ports": [
         {
           "count": 1,
@@ -3906,12 +4379,26 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (45 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exf-300-h2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.198Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.198Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
       "sku": "EXP-MX-0402-H2",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "Essentials 4x2 4K60 HDMI matrix with per-output scaling and ARC",
@@ -3992,16 +4479,31 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-mx-0402-h2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.204Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "5V DC 1A"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.204Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "EXP-SP-0102-8K",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "DISTRIBUTION",
       "role": "HDMI splitter",
       "productType": "Essentials 1:2 8K60 HDMI 2.1 splitter with downscaling output 2",
@@ -4048,6 +4550,14 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications (product copy + feature list). Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-sp-0102-8k/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.208Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "routedInputs": 1,
@@ -4063,11 +4573,17 @@
       "physicalOutputs": 2,
       "physicalOutputCount": 2,
       "mirroredOutputs": 2,
-      "mirroredOutputCount": 2
+      "mirroredOutputCount": 2,
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.208Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
+      ]
     },
     {
       "sku": "EXP-SP-0102-H2",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "DISTRIBUTION",
       "role": "HDMI splitter",
       "productType": "Essentials 1:2 4K60 4:4:4 scaling HDMI splitter (18Gbps)",
@@ -4113,6 +4629,14 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications (product copy + feature list). Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-sp-0102-h2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.213Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "routedInputs": 1,
@@ -4128,11 +4652,17 @@
       "physicalOutputs": 2,
       "physicalOutputCount": 2,
       "mirroredOutputs": 2,
-      "mirroredOutputCount": 2
+      "mirroredOutputCount": 2,
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.213Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
+      ]
     },
     {
       "sku": "EXP-SP-0104-H2",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "DISTRIBUTION",
       "role": "HDMI splitter",
       "productType": "Essentials 1:4 4K60 4:4:4 scaling HDMI splitter (18Gbps)",
@@ -4179,6 +4709,14 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications (product copy + feature list). Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-sp-0104-h2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.218Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "routedInputs": 1,
@@ -4194,7 +4732,13 @@
       "physicalOutputs": 4,
       "physicalOutputCount": 4,
       "mirroredOutputs": 4,
-      "mirroredOutputCount": 4
+      "mirroredOutputCount": 4,
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.218Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
+      ]
     },
     {
       "sku": "EXP-SW-0201-8K",
@@ -4241,12 +4785,25 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.222Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.222Z",
+      "confirmedFields": [
+        "max-resolution"
       ]
     },
     {
       "sku": "EXP-SW-0401-8K",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "SWITCHER",
       "role": "HDMI switcher",
       "productType": "Essentials 4x1 8K60 HDMI 2.1 switcher with audio de-embed and ARC",
@@ -4332,12 +4889,27 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.226Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "12V DC 1A"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.226Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "EXP-SW-0401-H2",
@@ -4418,12 +4990,26 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (44 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-sw-0401-h2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.230Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.230Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
       "sku": "FOCUS-100",
-      "status": "verified",
+      "status": "verified-with-warning",
       "productClass": "CAMERA",
       "role": "Image capture endpoint",
       "productType": "Camera endpoint",
@@ -4460,7 +5046,7 @@
     },
     {
       "sku": "FOCUS-180A",
-      "status": "verified",
+      "status": "verified-with-warning",
       "productClass": "CAMERA",
       "role": "Image capture endpoint",
       "productType": "Camera endpoint",
@@ -4500,7 +5086,7 @@
     },
     {
       "sku": "FOCUS-200",
-      "status": "verified",
+      "status": "verified-with-warning",
       "productClass": "CAMERA",
       "role": "Image capture endpoint",
       "productType": "Camera endpoint",
@@ -4538,7 +5124,7 @@
     },
     {
       "sku": "FOCUS-200-PRO",
-      "status": "verified",
+      "status": "verified-with-warning",
       "productClass": "CAMERA",
       "role": "Image capture endpoint",
       "productType": "Camera endpoint",
@@ -4582,7 +5168,7 @@
     },
     {
       "sku": "FOCUS-210",
-      "status": "verified",
+      "status": "verified-with-warning",
       "productClass": "CAMERA",
       "role": "Image capture endpoint",
       "productType": "Camera endpoint",
@@ -4620,7 +5206,7 @@
     },
     {
       "sku": "HALO-30",
-      "status": "verified",
+      "status": "verified-with-warning",
       "productClass": "UC",
       "role": "UC room endpoint",
       "productType": "UC room device",
@@ -4659,7 +5245,7 @@
     },
     {
       "sku": "HALO-60",
-      "status": "verified",
+      "status": "verified-with-warning",
       "productClass": "UC",
       "role": "UC room endpoint",
       "productType": "UC room device",
@@ -4775,16 +5361,29 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (36 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/halo-80/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.234Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "12V DC"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.234Z",
+      "confirmedFields": [
+        "power"
+      ]
     },
     {
       "sku": "HALO-90",
-      "status": "verified",
+      "status": "verified-with-warning",
       "productClass": "UC",
       "role": "UC room endpoint",
       "productType": "UC room device",
@@ -4853,7 +5452,7 @@
     },
     {
       "sku": "HALO-VX10-V2",
-      "status": "verified",
+      "status": "verified-with-warning",
       "productClass": "UC",
       "role": "UC room endpoint",
       "productType": "Camera endpoint",
@@ -4904,7 +5503,7 @@
         "USB-C",
         "Audio / control"
       ],
-      "maxResolution": "4K UHD video passthrough 2x USB Type A charging",
+      "maxResolution": "3840x2160 (4K UHD video passthrough)",
       "ports": [
         {
           "count": 1,
@@ -4997,16 +5596,31 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (39 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/idb-300-btn/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.239Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "internalPsu": true,
         "powerSupply": "100-250VAC"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.239Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "IDB-USBA-C",
-      "status": "verified",
+      "status": "verified-with-warning",
       "productClass": "ACCESSORY_OTHER",
       "role": "Supporting component",
       "productType": "Accessory",
@@ -5046,7 +5660,7 @@
     },
     {
       "sku": "IDB-USBC-C",
-      "status": "verified",
+      "status": "verified-with-warning",
       "productClass": "ACCESSORY_OTHER",
       "role": "Supporting component",
       "productType": "Accessory",
@@ -5252,6 +5866,14 @@
           "reviewedOn": "2026-07-22",
           "reviewer": "Wingman MX-0402-MST resolution correction",
           "note": "Model-specific technical specifications: 3840x2160p at 60Hz 4:4:4, HDMI 18Gbps."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0402-mst/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T08:41:50.905Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "routedInputs": 4,
@@ -5263,7 +5885,14 @@
       "matrixSize": "4x2",
       "matrixSizeEvidence": "SKU/title evidence: MX-0402-MST / 4x2 HDMI",
       "ioEvidenceStatus": "derived",
-      "quoteSafety": "verify-before-quote"
+      "quoteSafety": "verify-before-quote",
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T08:41:50.905Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "MX-0403-H3-MST",
@@ -5425,6 +6054,14 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (58 captured technical line(s)). Exact claims and SKU identity require human review. Power facts from the official-page capture; structured for the compare power gate. Completed 2026-08: video I/O added from the official-page capture (dual HDMI + dual USB-C inputs; 2x HDMI + 1x HDBaseT 3.0 outputs; 4K60 4:4:4)."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0403-h3-mst/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.244Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "routedInputs": 4,
@@ -5440,11 +6077,18 @@
       "specs": {
         "externalPsu": true,
         "powerSupply": "20V 10A"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.244Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "MX-0404-HDMI",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "4x4 18Gbps HDMI matrix switcher with per-output 4K->1080p scaling",
@@ -5535,6 +6179,14 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0404-hdmi/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T08:41:50.911Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "routedInputs": 4,
@@ -5550,11 +6202,18 @@
       "specs": {
         "externalPsu": true,
         "powerSupply": "12V DC 2A"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T08:41:50.911Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "MX-0404-KIT",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "4x4 HDBaseT matrix kit (crosspoint, 4K60 4:2:0) with receivers",
@@ -5640,7 +6299,8 @@
         "Outputs are 3 HDBaseT zones + 1 HDMI, not 4 HDBaseT zones."
       ],
       "power": [
-        "AC 100-240V"
+        "AC 100-240V",
+        "1-way PoH on HDBaseT outputs - powers the included receivers"
       ],
       "evidence": [
         {
@@ -5649,16 +6309,31 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0404-kit/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T09:07:59.136Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "internalPsu": true,
         "powerSupply": "AC 100-240V"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T09:07:59.136Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "MX-0404-SCL",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "4x4 seamless 4K60 HDMI matrix with per-output scaling and audio de-embed",
@@ -5740,6 +6415,14 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0404-scl/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T08:41:50.916Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "matrixInputs": 4,
@@ -5751,11 +6434,18 @@
       "specs": {
         "externalPsu": true,
         "powerSupply": "12V DC"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T08:41:50.916Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "MX-0804-EDC",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "8x4 seamless HDMI matrix with USB-C, Dante 4x4 and audio DSP",
@@ -5889,6 +6579,14 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0804-edc/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T08:41:50.922Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "matrixInputs": 8,
@@ -5900,7 +6598,14 @@
       "specs": {
         "internalPsu": true,
         "powerSupply": "AC 100-240V"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T08:41:50.922Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "MX-0808-H2A-MK2",
@@ -6055,12 +6760,27 @@
           "reviewedOn": "2026-07-22",
           "reviewer": "Wingman governed technical-data correction",
           "note": "Official product identity and technical specification source."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0808-h2a-mk2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.249Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.249Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
       "sku": "MX-0808-KIT-V2",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "MATRIX",
       "role": "HDBaseT matrix kit with receivers",
       "productType": "8x8 4K UHD HDBaseT matrix kit (matrix + 8 receivers)",
@@ -6201,6 +6921,14 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0808-kit-v2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T08:41:50.927Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "routedInputs": 8,
@@ -6211,11 +6939,18 @@
       "ioEvidenceStatus": "derived",
       "quoteSafety": "verify-before-quote",
       "mirroredOutputs": 4,
-      "mirroredOutputCount": 4
+      "mirroredOutputCount": 4,
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T08:41:50.927Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "MX-0808-SCL",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "MATRIX",
       "role": "8x8 seamless scaling HDMI matrix",
       "productType": "4K60 8x8 seamless scaling HDMI matrix with USB-C support",
@@ -6340,6 +7075,14 @@
           "reviewedOn": "2026-07-24",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power, Dimensions & Weight. Completed 2026-08: removed the stale template design-gap warning (the Local Pub template now uses MX-0808-KIT-V2); TBD power/weight caveat kept."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0808-scl/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T08:41:50.933Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "routedInputs": 8,
@@ -6348,11 +7091,18 @@
       "routedOutputCount": 8,
       "matrixSizeEvidence": "SKU evidence: MX-0808-SCL",
       "ioEvidenceStatus": "derived",
-      "quoteSafety": "verify-before-quote"
+      "quoteSafety": "verify-before-quote",
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T08:41:50.933Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "MX-0808-SCL-V2",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "8x8 seamless 4K60 scaling HDMI matrix with USB-C (successor to MX-0808-SCL)",
@@ -6448,6 +7198,14 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0808-scl-v2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T08:41:50.938Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "matrixInputs": 8,
@@ -6459,11 +7217,18 @@
       "specs": {
         "internalPsu": true,
         "powerSupply": "AC 100-240V"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T08:41:50.938Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "MX-0812-SCL",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "8x12 seamless 4K60 scaling HDMI matrix with Dante 4x4 and video-wall/multiview",
@@ -6567,6 +7332,14 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-0812-scl/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T08:41:50.943Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "matrixInputs": 8,
@@ -6578,11 +7351,18 @@
       "specs": {
         "internalPsu": true,
         "powerSupply": "AC 100-240V"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T08:41:50.943Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "MX-1007-HYB",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "MATRIX",
       "role": "Hybrid multi-transport matrix",
       "productType": "10x7 4K hybrid matrix switcher (HDMI / HDBaseT / NetworkHD 500 / USB-C)",
@@ -6712,7 +7492,8 @@
         "Web UI"
       ],
       "power": [
-        "100-240V AC"
+        "100-240V AC",
+        "1-way PoH on HDBaseT outputs (HDBaseT 3.0 PoE+ PSE transmission)"
       ],
       "physical": [
         "2U, 440mm wide, 362mm deep"
@@ -6776,6 +7557,14 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-1007-hyb/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T09:07:59.141Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "routedInputs": 10,
@@ -6784,11 +7573,18 @@
       "routedOutputCount": 7,
       "matrixSizeEvidence": "SKU/title evidence: MX-1007-HYB / 10x7 Seamless Matrix",
       "ioEvidenceStatus": "derived",
-      "quoteSafety": "verify-before-quote"
+      "quoteSafety": "verify-before-quote",
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T09:07:59.141Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "MX-1616-SCL",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "16x16 modular seamless scaling matrix chassis (HDMI + HDBaseT cards)",
@@ -6854,7 +7650,8 @@
         "Depth and weight are listed as TBD on the page."
       ],
       "power": [
-        "Local power via 4-pin Phoenix"
+        "Local power via 4-pin Phoenix",
+        "15W PoH via HDBaseT output card (TX-SCL-HDBT)"
       ],
       "evidence": [
         {
@@ -6863,6 +7660,14 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video (card-based), Communication & Control, Power. Completed 2026-08: card-based 16x16 video I/O made explicit (16 input / 16 output card slots) from the official-page capture."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/mx-1616-scl/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T09:07:59.146Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "matrixInputs": 16,
@@ -6873,11 +7678,18 @@
       "quoteSafety": "verify-before-quote",
       "specs": {
         "powerSupply": "Local power via 4-pin Phoenix"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T09:07:59.146Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "MXV-0404-H2A-KIT",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "4x4 HDBaseT matrix kit (Class B, VLC lossless) with receivers - superseded by v2",
@@ -6948,7 +7760,8 @@
         "4K60 4:4:4 via VLC lossless compression, not native uncompressed."
       ],
       "power": [
-        "AC 100-240V"
+        "AC 100-240V",
+        "1-way PoH on HDBaseT outputs - 85W with 4 receivers connected via PoH"
       ],
       "evidence": [
         {
@@ -6957,16 +7770,31 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Only the v2 page is published (SKU 'MXV-0404-H2A-KIT v2'); base-kit specs inferred from it and flagged for confirmation. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/mxv-0404-h2a-kit/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T09:07:59.152Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "internalPsu": true,
         "powerSupply": "AC 100-240V"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T09:07:59.152Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "MXV-0404-H2A-KIT-V2",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "4x4 HDBaseT matrix kit (Class B, VLC lossless) bundled with 4 receivers (2 scaling)",
@@ -7052,7 +7880,8 @@
         "HDBaseT range is 35m/115ft (Class B)."
       ],
       "power": [
-        "AC 100-240V"
+        "AC 100-240V",
+        "1-way PoH on HDBaseT outputs - 85W with 4 receivers connected via PoH"
       ],
       "evidence": [
         {
@@ -7061,6 +7890,14 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Official page is the v2 (SKU 'MXV-0404-H2A-KIT v2'). Technical Specifications table. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/mxv-0404-h2a-kit/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T09:07:59.157Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "matrixInputs": 4,
@@ -7076,11 +7913,18 @@
       "specs": {
         "internalPsu": true,
         "powerSupply": "AC 100-240V"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T09:07:59.157Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "MXV-0808-H2A-70-V3",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "8x8 HDBaseT matrix (Class A, 70m, VLC lossless), matrix-only",
@@ -7167,7 +8011,8 @@
       ],
       "power": [
         "AC 100-240V",
-        "Max 169W"
+        "Max 169W",
+        "1-way PoH on HDBaseT outputs"
       ],
       "evidence": [
         {
@@ -7176,6 +8021,14 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/mxv-0808-h2a-70-v3/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T09:07:59.162Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "matrixInputs": 8,
@@ -7187,11 +8040,18 @@
       "specs": {
         "internalPsu": true,
         "powerSupply": "AC 100-240V"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T09:07:59.162Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "MXV-0808-H2A-KIT",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "8x8 HDBaseT matrix kit (Class B, VLC lossless) bundled with 8 receivers",
@@ -7278,7 +8138,8 @@
       ],
       "power": [
         "AC 100-240V",
-        "Max 168W"
+        "Max 168W",
+        "1-way PoH on HDBaseT outputs"
       ],
       "evidence": [
         {
@@ -7287,16 +8148,31 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/mxv-0808-h2a-kit/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T09:07:59.168Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "internalPsu": true,
         "powerSupply": "AC 100-240V"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T09:07:59.168Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "MXV-0808-H2A-MK2",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "MATRIX",
       "role": "Central video routing",
       "productType": "Matrix routing core",
@@ -7396,16 +8272,31 @@
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
-          "sourceUrl": "https://www.wyrestorm.com/product-resources/",
+          "sourceUrl": "https://www.wyrestorm.com/product/mxv-0808-h2a-70-v3/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Completed 2026-08: 8x8 HDBaseT port structure mirrored from the MXV-0808-H2A-70-V3 family chassis; evidence: 2026 Product Guide p22 + product stories."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Completed 2026-08: 8x8 HDBaseT port structure mirrored from the MXV-0808-H2A-70-V3 family chassis; evidence: 2026 Product Guide p22 + product stories. Evidence URL corrected 2026-08-16: the MK2-specific page is no longer live on wyrestorm.com (superseded by the H2A-70 V2/V3 generations); the current MXV-0808-H2A-70-V3 official page is cited for the family."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/mxv-0808-h2a-70-v3/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.254Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "internalPsu": true,
         "powerSupply": "AC 100-240V"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.254Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "NHD-000-RACK4",
@@ -7470,12 +8361,25 @@
           "reviewedOn": "2026-07-24",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Dimensions & Weight, plus the stated bracket and blanking-plate conditions. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-000-rack4/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.258Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.258Z",
+      "confirmedFields": [
+        "power"
       ]
     },
     {
       "sku": "NHD-0401-MV",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "MULTIVIEW",
       "role": "4-input multiview processor and switcher",
       "productType": "NetworkHD 4-Input 4K60 Multiview Switcher",
@@ -7595,12 +8499,27 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-0401-mv/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.262Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.262Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
       "sku": "NHD-120-IW-TX",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "AVOIP",
       "role": "AVoIP encoder",
       "productType": "NetworkHD 100 Series 4K30 H.264/H.265 in-wall encoder",
@@ -7677,13 +8596,28 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-120-iw-tx/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.267Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "poe": true,
         "powerSupply": "12V DC 1A; 802.3af PoE"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.267Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "NHD-120-RX",
@@ -7833,7 +8767,22 @@
           "reviewedOn": "2026-07-11",
           "reviewer": "Wingman technical data foundation",
           "note": "Official product page technical specification section."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-120-rx/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.270Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.270Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
@@ -7979,12 +8928,27 @@
           "reviewedOn": "2026-07-11",
           "reviewer": "Wingman technical data foundation",
           "note": "Official product page technical specification section."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-120-tx/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.276Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.276Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
       "sku": "NHD-124-TX",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "AVOIP",
       "role": "encoder",
       "productType": "NetworkHD 100 four-channel encoder",
@@ -8087,12 +9051,27 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29. Refreshed a stale warning: the current page shows a clean 10/100/1000 LAN and 12V DC 3A (no PoE), 4K30 max, HDMI 1.4 / HDCP 2.2."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-124-tx/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.279Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.279Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
       "sku": "NHD-128-NDI-TRX",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "AVOIP",
       "role": "NDI to NetworkHD gateway / transceiver",
       "productType": "4K30 NDI to AV over IP gateway",
@@ -8192,7 +9171,22 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-128-ndi-trx/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.285Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.285Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
@@ -8326,12 +9320,27 @@
           "reviewedOn": "2026-07-11",
           "reviewer": "Wingman technical data foundation",
           "note": "Official product page technical specification section."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-150-rx/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.290Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.290Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
       "sku": "NHD-500-DNT-TX",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "AVOIP",
       "role": "AVoIP encoder",
       "productType": "NetworkHD 500 Series 4K60 4:4:4 JPEG2000 encoder with Dante audio",
@@ -8440,17 +9449,32 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-dnt-tx/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.294Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "poe": true,
         "powerSupply": "12V DC 1A; 802.3af PoE"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.294Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "NHD-500-E-RX",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "AVOIP",
       "role": "AVoIP decoder",
       "productType": "NetworkHD 500 Series Lite 4K60 4:4:4 JPEG2000 decoder (economy)",
@@ -8507,17 +9531,32 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Combined NHD-500-E (Lite) page. RX column of the spec table. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-e/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.299Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "poe": true,
         "powerSupply": "12V DC 1A; 802.3af PoE"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.299Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "NHD-500-E-TX",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "AVOIP",
       "role": "AVoIP encoder",
       "productType": "NetworkHD 500 Series Lite 4K60 4:4:4 JPEG2000 encoder (economy)",
@@ -8581,17 +9620,32 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Combined NHD-500-E (Lite) page. TX column of the spec table. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-e/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.303Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "poe": true,
         "powerSupply": "12V DC 1A; 802.3af PoE"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.303Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "NHD-500-IW-TX-V2",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "AVOIP",
       "role": "AVoIP encoder",
       "productType": "NetworkHD 500 Series 4K60 4:4:4 JPEG2000 in-wall encoder with HDMI + USB-C",
@@ -8669,17 +9723,32 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-iw-tx-v2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.307Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "poe": true,
         "powerSupply": "20V DC 6A; 802.3af PoE"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.307Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "NHD-500-RX",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "AVOIP",
       "role": "NetworkHD 500 series decoder",
       "productType": "NetworkHD 500 Series 4K60 4:4:4 JPEG2000 decoder",
@@ -8840,7 +9909,22 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29. Revision resolved: official site publishes only v2; no public v3."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.313Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.313Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
@@ -9024,7 +10108,22 @@
           "reviewedOn": "2026-07-14",
           "reviewer": "Wingman port-count recovery",
           "note": "Exact NHD-500-TX port topology mirrored from data/governance/avoip-technology-registry.json."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.317Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.317Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
@@ -9208,12 +10307,27 @@
           "reviewedOn": "2026-07-14",
           "reviewer": "Wingman port-count recovery",
           "note": "Exact NHD-500-TX port topology mirrored from data/governance/avoip-technology-registry.json."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-tx-rx-v2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.322Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.322Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
       "sku": "NHD-510-TX",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "AVOIP",
       "role": "AVoIP encoder",
       "productType": "NetworkHD 500 Series 4K60 4:4:4 JPEG2000 encoder with HDMI + USB-C inputs and Dante AV-A",
@@ -9315,17 +10429,32 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-510-tx/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.326Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "poe": true,
         "powerSupply": "20V 6A; 802.3at PoE+"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.326Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "NHD-600-E-RX",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "AVOIP",
       "role": "AVoIP decoder",
       "productType": "NetworkHD 600-E Series 4K60 4:4:4 10GbE SDVoE decoder (economy) - COMING SOON",
@@ -9378,20 +10507,35 @@
       "evidence": [
         {
           "sourceType": "official-product-page",
-          "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-e-tx/",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-e-tx-rx/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Combined NHD-600-E-TX/RX page (Coming Soon). RX column of the spec table. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-e-tx-rx/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.331Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "poe": true,
         "powerSupply": "802.3at PoE+"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.331Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "NHD-600-E-TX",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "AVOIP",
       "role": "AVoIP encoder",
       "productType": "NetworkHD 600-E Series 4K60 4:4:4 10GbE SDVoE encoder (economy) - COMING SOON",
@@ -9451,16 +10595,31 @@
       "evidence": [
         {
           "sourceType": "official-product-page",
-          "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-e-tx/",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-e-tx-rx/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Combined NHD-600-E-TX/RX page (Coming Soon). TX column of the spec table. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-e-tx-rx/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.336Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "poe": true,
         "powerSupply": "802.3at PoE+"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.336Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "NHD-600-E-TXRX",
@@ -9618,12 +10777,26 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (81 captured technical line(s)). Exact claims and SKU identity require human review. Completed 2026-08: dependencies from the official-page capture and the verified NHD-600-E-TX / NHD-600-E-RX profiles."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-e-tx-rx/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.341Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.341Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
       "sku": "NHD-600-TRX",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "AVOIP",
       "role": "SDVoE transceiver (encoder or decoder, software selectable)",
       "productType": "NetworkHD 600 Series 4K60 4:4:4 10GbE SDVoE Transceiver",
@@ -9769,12 +10942,27 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-trx/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.347Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.347Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
       "sku": "NHD-600-TRXF",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "AVOIP",
       "role": "Simultaneous bidirectional SDVoE fibre transceiver (or dedicated encoder/decoder)",
       "productType": "NetworkHD 600 Series 4K60 4:4:4 10Gb SDVoE fibre transceiver",
@@ -9919,12 +11107,27 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-trxf/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.352Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.352Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
       "sku": "NHD-610-RX",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "AVOIP",
       "role": "Decoder",
       "productType": "AVoIP endpoint",
@@ -10041,17 +11244,32 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Completed 2026-08: decoder ports/dependencies/power from the NHD-610 platform (NHD-610-TX-V2 verified capture) + 2026 SKU spreadsheet."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/global/product/nhd-610/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.357Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "poe": true,
         "externalPsu": true,
         "powerSupply": "PoE; 12V DC"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.357Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "NHD-610-TX-V2",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "AVOIP",
       "role": "AVoIP encoder",
       "productType": "NetworkHD 610 Series 4K60 10GbE SDVoE encoder with Dante audio and USB HID",
@@ -10160,17 +11378,32 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-610-tx-v2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.361Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "poe": true,
         "powerSupply": "12V 2A DC; 802.3at PoE+"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.361Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "NHD-CTL-PRO-V2",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "CONTROL",
       "role": "NetworkHD system controller",
       "productType": "Pro Controller for NetworkHD Series",
@@ -10262,12 +11495,25 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-ctl-pro-v2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.366Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.366Z",
+      "confirmedFields": [
+        "power"
       ]
     },
     {
       "sku": "NHD-USB-TRX",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "USB_EXTENSION",
       "role": "USB-over-IP transceiver",
       "productType": "USB 2.0 over IP transceiver for NetworkHD, with KM-over-IP",
@@ -10339,13 +11585,27 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-usb-trx/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.372Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "poe": true,
         "externalPsu": true,
         "powerSupply": "12V DC / PoE+"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.372Z",
+      "confirmedFields": [
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "RX-35-POH",
@@ -10357,7 +11617,7 @@
         "HDBaseT",
         "Extension"
       ],
-      "maxResolution": "4K HDBaseT Receiver - WyreStorm 35m 4K HDBaseT",
+      "maxResolution": "3840x2160p @60Hz 4:2:0",
       "ports": [],
       "video": [
         "4K HDBaseT Receiver - WyreStorm 35m 4K HDBaseT",
@@ -10394,12 +11654,25 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/rx-35-poh/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.377Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.377Z",
+      "confirmedFields": [
+        "max-resolution"
       ]
     },
     {
       "sku": "RX-500",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "HDBaseT receiver with USB",
       "productType": "35m 4K HDBaseT receiver with USB",
@@ -10515,12 +11788,27 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/rx-500/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.382Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.382Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
       "sku": "RX-70-4K",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "HDBaseT receiver",
       "productType": "70m 4K HDBaseT Receiver",
@@ -10645,7 +11933,22 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29. Class A HDBaseT, 2-way PoH, and the max-resolution table (4096x2160@60 24bit 4:4:4; 3840x2160@60 NOT listed) confirmed against the page. TX-70-4K pairing note added."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/rx-70-4k/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.387Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.387Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
@@ -10659,7 +11962,7 @@
         "HDMI",
         "Extension"
       ],
-      "maxResolution": "4K-ARC RX-70-4K-ARC 70m 4K HDBaseT Receiver wit",
+      "maxResolution": "4096x2160p @60Hz 4:2:0",
       "ports": [
         {
           "count": 1,
@@ -10777,12 +12080,26 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (60 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/rx-70-4k-arc/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.392Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.392Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
       "sku": "RX-700",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "HDBaseT receiver with USB",
       "productType": "100m 4K60 HDBaseT DSC receiver with USB",
@@ -10875,7 +12192,8 @@
       ],
       "power": [
         "18V DC 3A",
-        "Max 10W"
+        "Max 10W",
+        "2-way PoH - powered by the transmitter or powers a transmitter"
       ],
       "physical": [],
       "maxResolution": "3840x2160p @60Hz 8bit 4:4:4",
@@ -10923,12 +12241,27 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/rx-700/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T09:07:59.173Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T09:07:59.173Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
       "sku": "RX3-100",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "HDBaseT receiver",
       "productType": "HDBaseT 3.0 4K60 4:4:4 receiver with USB 2.0 and 2-way PoH, 100m",
@@ -10996,7 +12329,8 @@
       ],
       "power": [
         "20V DC 3A",
-        "Max 10.92W"
+        "Max 10.92W",
+        "2-way PoH - powered by a compatible transmitter or powers one"
       ],
       "evidence": [
         {
@@ -11012,12 +12346,27 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/rx3-100/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T09:07:59.178Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "20V DC 3A"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T09:07:59.178Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "RXV-35-4K",
@@ -11117,7 +12466,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (68 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/rxv-35-4k/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.398Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.398Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
@@ -11216,7 +12579,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (72 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/rxv-35-scl/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.403Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.403Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
@@ -11262,7 +12639,20 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/rxv-70-4k-arc/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.408Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.408Z",
+      "confirmedFields": [
+        "max-resolution"
       ]
     },
     {
@@ -11363,7 +12753,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (70 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/rxv-70-4k-g2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.412Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.412Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
@@ -11457,12 +12861,26 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (71 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/rxv-70-g2-scl/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.416Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.416Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
       "sku": "SP-0104-H2",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "DISTRIBUTION",
       "role": "HDMI splitter",
       "productType": "1:4 4K60 4:4:4 HDMI splitter (H2, 18Gbps)",
@@ -11509,6 +12927,14 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications (product copy + feature list). Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/sp-0104-h2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.423Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "routedInputs": 1,
@@ -11524,11 +12950,17 @@
       "physicalOutputs": 4,
       "physicalOutputCount": 4,
       "mirroredOutputs": 4,
-      "mirroredOutputCount": 4
+      "mirroredOutputCount": 4,
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.423Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
+      ]
     },
     {
       "sku": "SP-0108-SCL",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "DISTRIBUTION",
       "role": "HDMI splitter",
       "productType": "1:8 4K HDMI splitter with per-output scaling and audio de-embed",
@@ -11589,6 +13021,14 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
           "note": "Technical Specifications (product copy + visible rows). Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/sp-0108-scl/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.429Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "routedInputs": 1,
@@ -11604,7 +13044,13 @@
       "physicalOutputs": 8,
       "physicalOutputCount": 8,
       "mirroredOutputs": 8,
-      "mirroredOutputCount": 8
+      "mirroredOutputCount": 8,
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.429Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
+      ]
     },
     {
       "sku": "SW-0204-VW",
@@ -11682,12 +13128,27 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified. Specs cross-checked against the official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-0204-vw/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.433Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "12V 3A"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.433Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "SW-0206-VW",
@@ -11801,7 +13262,22 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified. Specs cross-checked against the live official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-0206-vw/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.438Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.438Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
@@ -11888,6 +13364,14 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (44 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-sw-0401-h2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.443Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "routedInputs": 4,
@@ -11903,7 +13387,14 @@
       "specs": {
         "externalPsu": true,
         "powerSupply": "12V DC 1A"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.443Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "SW-120-TX3",
@@ -11997,7 +13488,8 @@
       ],
       "power": [
         "20V DC 6A (sold separately)",
-        "Max 10.46W"
+        "Max 10.46W",
+        "2-way PoH - powers the receiver or draws power from it"
       ],
       "physical": [],
       "maxResolution": "3840x2160 @60Hz 4:4:4 8bit",
@@ -12044,7 +13536,22 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified. Specs cross-checked against the live official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-120-tx3/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T09:07:59.182Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T09:07:59.182Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
@@ -12153,16 +13660,31 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (62 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-120-tx3-uk/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.449Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "poh": true,
         "powerSupply": "2-way PoH; USB-C charging"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.449Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "SW-130-TX-UK",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "PRESENTATION",
       "role": "In-wall HDBaseT presentation transmitter",
       "productType": "3-input in-wall HDBaseT transmitter, 2-gang UK",
@@ -12294,7 +13816,22 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-130-tx-uk/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.453Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.453Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
       ]
     },
     {
@@ -12404,12 +13941,27 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (45 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-220-tx-w/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.458Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "12V DC"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.458Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "SW-510-TX",
@@ -12521,12 +14073,27 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (63 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-510-tx/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.462Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "12V DC 2A"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.462Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "SW-515-RX",
@@ -12637,12 +14204,27 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (65 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-515-rx/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.468Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "12V DC 2A"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.468Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "SW-620-TX-W",
@@ -12787,16 +14369,31 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (66 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-620-tx-w/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.474Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "powerSupply": "20V 10A DC"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.474Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "SW-640L-TX-W",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "PRESENTATION",
       "role": "presentation switcher",
       "productType": "4-input 4K wireless presentation & conferencing switcher with dual HDMI matrix outputs, USB 3.0 hub and 60W USB-C",
@@ -12911,6 +14508,14 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/sw-640l-tx-w/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T08:41:50.952Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page capture in the canonical product store (officialPageStatus 200).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "routedInputs": 4,
@@ -12926,7 +14531,14 @@
       "specs": {
         "externalPsu": true,
         "powerSupply": "20V 10A"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T08:41:50.952Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "SYN-CTL-HUB",
@@ -13023,17 +14635,30 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (30 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.480Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "poe": true,
         "powerSupply": "12V DC; PoE"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.480Z",
+      "confirmedFields": [
+        "power"
+      ]
     },
     {
       "sku": "SYN-KEY10",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "CONTROL",
       "role": "keypad controller",
       "productType": "Synergy 10-button RS-232 / IP keypad controller",
@@ -13104,17 +14729,31 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-key10/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.485Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
       ],
       "specs": {
         "externalPsu": true,
         "poe": true,
         "powerSupply": "12V DC 0.5A; PoE 802.3af"
-      }
+      },
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.485Z",
+      "confirmedFields": [
+        "routed-io",
+        "power"
+      ]
     },
     {
       "sku": "SYN-TOUCH10-V2",
-      "status": "verified-with-warning",
+      "status": "verified",
       "productClass": "CONTROL",
       "role": "Room control touch panel",
       "productType": "Synergy 10.1 inch all-in-one touchpad controller",
@@ -13213,7 +14852,21 @@
           "reviewedOn": "2026-07-29",
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the live official product page on 2026-07-29."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/syn-touch10-v2/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.491Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.491Z",
+      "confirmedFields": [
+        "max-resolution",
+        "power"
       ]
     },
     {
@@ -13227,7 +14880,7 @@
         "HDMI",
         "Extension"
       ],
-      "maxResolution": "4K UHD content",
+      "maxResolution": "3840x2160p @60Hz 4:2:0",
       "ports": [
         {
           "count": 1,
@@ -13315,7 +14968,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (58 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/tx-35-iw/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.497Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.497Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
@@ -13333,7 +15000,7 @@
         "USB routing / switching",
         "Extension"
       ],
-      "maxResolution": "4K 60 maximum resolution and USB 2",
+      "maxResolution": "3840x2160p @60Hz 4:2:0",
       "ports": [
         {
           "count": 1,
@@ -13444,7 +15111,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (52 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/tx-35-iw-kvm/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.504Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.504Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     },
     {
@@ -13464,7 +15145,7 @@
         "USB-C",
         "Extension"
       ],
-      "maxResolution": "4K 60 maximum resolution and USB 2",
+      "maxResolution": "3840x2160p @60Hz 4:2:0",
       "ports": [
         {
           "count": 1,
@@ -13562,7 +15243,21 @@
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
           "note": "Draft generated from canonical official-source material (59 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
+        },
+        {
+          "sourceUrl": "https://www.wyrestorm.com/product/tx-35-iwc-kvm/",
+          "sourceType": "manufacturer",
+          "checkedAt": "2026-08-16T10:23:16.510Z",
+          "note": "Confirmed in the 2026-08-16 structured review pass directed by Steve. Spec-critical fields cross-checked field-by-field against the live official WyreStorm product page (canonical store captures with officialPageStatus 200, or the profile's own live evidence page where the store capture was not a live page).",
+          "reviewedOn": "2026-08-16",
+          "reviewer": "Steve"
         }
+      ],
+      "verifiedBy": "Steve",
+      "verifiedAt": "2026-08-16T10:23:16.510Z",
+      "confirmedFields": [
+        "max-resolution",
+        "routed-io"
       ]
     }
   ]

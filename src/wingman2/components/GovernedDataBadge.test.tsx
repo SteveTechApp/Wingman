@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { render } from "@testing-library/react";
-import { GovernedDataBadge, governedBadgeMeta } from "./GovernedDataBadge";
+import { GovernedDataBadge, governedBadgeMeta, weakestLinkTier } from "./GovernedDataBadge";
 
 // The governed badge is shared by the Compare, Product Pitch and Catalog pages
 // so every product card tells the same data-tier story. These tiers are the
@@ -30,5 +30,20 @@ describe("GovernedDataBadge", () => {
     expect(container.textContent).toContain("Verified governed data");
     expect(container.querySelector(".compare-native-governance-badge.is-verified")).toBeTruthy();
     expect(getByTitle("Data source: Verified governed data")).toBeTruthy();
+  });
+});
+
+describe("weakestLinkTier", () => {
+  it("returns the least trustworthy tier of the set", () => {
+    expect(weakestLinkTier(["verified-profile", "official-structured", "text-inferred"])).toBe("text-inferred");
+    expect(weakestLinkTier(["official-structured", "verified-profile"])).toBe("official-structured");
+    expect(weakestLinkTier(["verified-profile", "missing"])).toBe("missing");
+    expect(weakestLinkTier(["verified-profile"])).toBe("verified-profile");
+  });
+
+  it("treats undefined and unknown tiers as the weakest link", () => {
+    expect(weakestLinkTier(["verified-profile", undefined])).toBe("missing");
+    expect(weakestLinkTier(["verified-profile", "not-a-tier"])).toBe("missing");
+    expect(weakestLinkTier([])).toBe("missing");
   });
 });

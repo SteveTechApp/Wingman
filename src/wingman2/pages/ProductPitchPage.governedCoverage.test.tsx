@@ -1,10 +1,15 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import index from "../../../public/product-intelligence-index.json";
 import { loadProductIntelligenceIndex } from "../lib/productIntelligenceIndexCache";
 import { governedProfilesWithoutSkus } from "../lib/testHelpers/governedProfilesHarness";
+import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { ProductPitchPage } from "./ProductPitchPage";
+
+// The mocked profiles module (MX-0402-MST stripped) is the source of truth for
+// the badge tier each selector row must show.
+import governedProfiles from "../../../data/governance/wyrestorm-technical-profiles.json";
 
 // The real product-intelligence index drives the same hydration the live app
 // uses (hydrateProductSpecWithTechnicalData), so the badge on every result row
@@ -26,7 +31,7 @@ vi.mock("../../../data/governance/wyrestorm-technical-profiles.json", async () =
 });
 
 describe("product pitch governed-coverage render", () => {
-  it("renders selector result rows where every badge reads 'Verified governed data'", async () => {
+  it("renders selector result rows where every governed badge reads the honest official tier", async () => {
     render(
       <MemoryRouter initialEntries={["/wingman/product-pitch"]}>
         <ProductPitchPage />
@@ -44,26 +49,108 @@ describe("product pitch governed-coverage render", () => {
       { timeout: 5000 },
     );
 
+    // Machine-transcribed governed profiles must render the official-structured
+    // tier, while the profiles the 2026-08-16 review pass human-confirmed must
+    // render the verified tier - never the other way round.
+    const humanVerifiedSkus = new Set(
+      (governedProfiles as { profiles: Array<{ sku: string; status: string; verifiedBy?: string }> }).profiles
+        .filter((profile) => profile.status === "verified" && Boolean(profile.verifiedBy?.trim()))
+        .map((profile) => normaliseSkuKey(profile.sku)),
+    );
     const rows = document.querySelectorAll(".wm-product-pitch-result-card");
     rows.forEach((row) => {
+      const sku = normaliseSkuKey(
+        row.querySelector(".wm-product-pitch-result-sku")?.textContent ?? "",
+      );
       const badge = row.querySelector(".compare-native-governance-badge");
       expect(badge, "every selector row carries a governance badge").not.toBeNull();
-      expect(badge?.textContent).toContain("Verified governed data");
-      expect(badge?.className).toContain("is-verified");
+      if (humanVerifiedSkus.has(sku)) {
+        expect(badge?.textContent, `${sku} badge`).toContain("Verified governed data");
+        expect(badge?.className).toContain("is-verified");
+      } else {
+        expect(badge?.textContent, `${sku} badge`).toContain("Official data - review required");
+        expect(badge?.className).toContain("is-warn");
+        expect(badge?.className).not.toContain("is-verified");
+      }
     });
   });
 
-  it("renders the product workspace header badge as verified", async () => {
+  it("shows the reviewer trail behind a human-verified workspace badge", async () => {
     render(
-      <MemoryRouter initialEntries={["/wingman/product-pitch?sku=SW-620-TX-W"]}>
+      <MemoryRouter initialEntries={["/wingman/product-pitch?sku=MX-0808-SCL"]}>
         <ProductPitchPage />
       </MemoryRouter>,
     );
 
-    const badge = await screen.findByText("Verified governed data");
+    // MX-0808-SCL was confirmed in the 2026-08-16 review pass, so the
+    // workspace hero carries the same reviewer trail as the dashboard list:
+    // who confirmed, which fields, and the official source.
+    const trail = await screen.findByLabelText("Human confirmation trail");
+
+    expect(trail.textContent).toContain("Confirmed by Steve · 2026-08-16");
+    expect(trail.textContent).toContain("Max resolution · Routed I/O · Power");
+    const evidenceLink = within(trail).getByRole("link");
+    expect(evidenceLink.getAttribute("href")).toBe("https://www.wyrestorm.com/product/mx-0808-scl/");
+    expect(evidenceLink.getAttribute("target")).toBe("_blank");
+
+    // The verified badge sits directly above the trail.
+    const badge = screen.getByText("Verified governed data");
     expect(badge.className).toContain("is-verified");
+  });
+
+  it("renders the reviewer trail on a verified result row with its evidence link", async () => {
+    render(
+      <MemoryRouter initialEntries={["/wingman/product-pitch"]}>
+        <ProductPitchPage />
+      </MemoryRouter>,
+    );
+
+    const input = await screen.findByLabelText("Search products");
+    fireEvent.change(input, { target: { value: "MX-0808-SCL" } });
+
+    await waitFor(
+      () => {
+        expect(document.querySelectorAll(".wm-product-pitch-result-card").length).toBeGreaterThan(0);
+      },
+      { timeout: 5000 },
+    );
+
+    const row = Array.from(document.querySelectorAll(".wm-product-pitch-result-card")).find((candidate) =>
+      candidate.querySelector(".wm-product-pitch-result-sku")?.textContent?.includes("MX-0808-SCL"),
+    );
+    expect(row).toBeDefined();
+
+    // The row is a non-interactive container (not a button), so the trail's
+    // evidence link can live inside it; the product name is the open link.
+    expect(row!.tagName.toLowerCase()).toBe("div");
+    expect(row!.querySelector("button")).toBeNull();
+    const openLink = row!.querySelector("a.wm-product-pitch-result-name");
+    expect(openLink?.getAttribute("href")).toContain("sku=MX-0808-SCL");
+
+    // The same reviewer trail as the workspace hero: who, which fields, source.
+    const trail = row!.querySelector(".wm-governed-reviewer-trail");
+    expect(trail).not.toBeNull();
+    expect(trail!.textContent).toContain("Confirmed by Steve · 2026-08-16");
+    expect(trail!.textContent).toContain("Max resolution · Routed I/O · Power");
+    const evidenceLink = trail!.querySelector("a");
+    expect(evidenceLink?.getAttribute("href")).toBe("https://www.wyrestorm.com/product/mx-0808-scl/");
+  });
+
+  it("renders the product workspace header badge at the honest official tier", async () => {
+    render(
+      <MemoryRouter initialEntries={["/wingman/product-pitch?sku=HALO-30"]}>
+        <ProductPitchPage />
+      </MemoryRouter>,
+    );
+
+    // HALO-30 has a governed profile that no reviewer has confirmed yet
+    // (verified-with-warning, no verifiedBy), so its workspace hero must
+    // render the official-structured tier - never the verified badge.
+    const badge = await screen.findByText("Official data - review required");
+    expect(badge.className).toContain("is-warn");
+    expect(badge.className).not.toContain("is-verified");
     // The workspace hero carries the SKU whose profile backs the badge.
-    const hero = screen.getAllByRole("heading", { name: "SW-620-TX-W" })[0];
+    const hero = screen.getAllByRole("heading", { name: "HALO-30" })[0];
     expect(hero).not.toBeNull();
   });
 

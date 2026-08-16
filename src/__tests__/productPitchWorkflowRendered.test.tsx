@@ -284,15 +284,18 @@ describe("Product Pitch rendered workflow", () => {
     const search = await screen.findByRole("searchbox");
     fireEvent.change(search, { target: { value: "MXV-0404-H2A-KIT" } });
 
-    const exactResult = await screen.findByRole("button", { name: /MXV-0404-H2A-KIT/i });
-    expect(exactResult.querySelector(".wm-product-pitch-result-sku")).toHaveTextContent("MXV-0404-H2A-KIT");
-    expect(exactResult.querySelector(".wm-product-pitch-result-name")).toHaveTextContent("4x4 HDBaseT Matrix Kit");
-    expect(exactResult.querySelector(".wm-product-pitch-result-family")).toHaveTextContent("Matrix / HDBaseT / MXV");
-    expect(exactResult.querySelector(".wm-product-pitch-result-status")).toHaveTextContent(/Active|Needs verification/i);
-    expect(exactResult).not.toHaveTextContent(/SKU:|Name:|Category:|Status:/i);
+    // Result rows are non-interactive containers now; locate the card via its
+    // SKU span and inspect its four metadata columns.
+    const exactCard = (await screen.findByText("MXV-0404-H2A-KIT")).closest(".wm-product-pitch-result-card");
+    expect(exactCard).not.toBeNull();
+    expect(exactCard!.querySelector(".wm-product-pitch-result-sku")).toHaveTextContent("MXV-0404-H2A-KIT");
+    expect(exactCard!.querySelector(".wm-product-pitch-result-name")).toHaveTextContent("4x4 HDBaseT Matrix Kit");
+    expect(exactCard!.querySelector(".wm-product-pitch-result-family")).toHaveTextContent("Matrix / HDBaseT / MXV");
+    expect(exactCard!.querySelector(".wm-product-pitch-result-status")).toHaveTextContent(/Active|Needs verification/i);
+    expect(exactCard).not.toHaveTextContent(/SKU:|Name:|Category:|Status:/i);
 
     fireEvent.change(search, { target: { value: "600-TRXF" } });
-    expect(await screen.findByRole("button", { name: /NHD-600-TRXF/i })).toBeInTheDocument();
+    expect(await screen.findByText("NHD-600-TRXF")).toBeInTheDocument();
   });
 
   it("renders project suggestions and recently viewed before general results", async () => {
@@ -388,7 +391,9 @@ describe("Product Pitch rendered workflow", () => {
     );
 
     fireEvent.change(await screen.findByRole("searchbox"), { target: { value: "NHD" } });
-    fireEvent.click(await screen.findByRole("button", { name: /NHD-600-TRXF/i }));
+    // The open affordance is the product-name link inside the result row.
+    const nhdCard = (await screen.findByText("NHD-600-TRXF")).closest(".wm-product-pitch-result-card");
+    fireEvent.click(nhdCard!.querySelector("a.wm-product-pitch-result-name")!);
 
     expect(await screen.findByRole("heading", { name: "NHD-600-TRXF", level: 1 })).toBeInTheDocument();
 

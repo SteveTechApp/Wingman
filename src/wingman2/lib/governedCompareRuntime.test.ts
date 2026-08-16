@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { classifyCompetitorCompareDecision } from "./competitorCompareDecision";
-import type {
-  CompetitorMatchDecision,
-  CompetitorMatchDecisionLedger,
+import {
+  mergeApprovedLedgerDecisions,
+  type CompetitorMatchDecision,
+  type CompetitorMatchDecisionLedger,
 } from "./competitorMatchDecisionLedger";
 import {
   applyGovernedCandidateOrder,
@@ -93,6 +94,51 @@ describe("governed Compare runtime", () => {
         (candidate) => candidate.sku,
       ),
     ).toEqual([]);
+  });
+
+  it("overlays server-approved decisions onto the local ledger by competitor identity", () => {
+    const localApproved = decision({
+      id: "local-approved",
+      reviewer: "Local reviewer",
+      reviewedAt: "2026-07-01T09:00:00.000Z",
+      updatedAt: "2026-07-01T09:00:00.000Z",
+    });
+    const serverApproved = decision({
+      id: "server-approved",
+      reviewer: "Server reviewer",
+      reviewedAt: "2026-07-02T09:00:00.000Z",
+      updatedAt: "2026-07-02T09:00:00.000Z",
+    });
+    const unrelated = decision({
+      id: "unrelated",
+      competitorSku: "IP200UHD-TX",
+      decisionType: "review-required",
+      reviewStatus: "pending-review",
+      reviewer: null,
+      reviewedAt: null,
+    });
+
+    const merged = mergeApprovedLedgerDecisions(
+      ledger(localApproved, unrelated),
+      [serverApproved],
+    );
+
+    // The server approval replaces the same-identity local row and takes
+    // precedence in runtime resolution; unrelated rows are untouched.
+    expect(merged.decisions).toHaveLength(2);
+    expect(merged.decisions[0]).toBe(serverApproved);
+    expect(merged.decisions[1]).toBe(unrelated);
+    expect(
+      resolveApprovedGovernedDecision(merged, "blustream", "ip250uhd-tx"),
+    ).toEqual(serverApproved);
+  });
+
+  it("leaves the local ledger untouched when there are no approved server decisions", () => {
+    const local = ledger(
+      decision({ reviewStatus: "pending-review", reviewer: null, reviewedAt: null }),
+    );
+
+    expect(mergeApprovedLedgerDecisions(local, [])).toBe(local);
   });
 
   it("hard-blocks transmitter versus receiver direction", () => {

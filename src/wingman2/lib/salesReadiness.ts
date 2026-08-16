@@ -266,7 +266,8 @@ export function buildSalesReadinessPackage(input: SalesReadinessInput): SalesRea
   }
 
   if (input.compareRun?.matchScore) {
-    evidence.push(`Competitor comparison evidence captured: ${input.compareRun.wyrestormSku || input.compareRun.wyrestormTitle || "WyreStorm candidate"} scored ${input.compareRun.matchScore}.`);
+    const confidenceNote = input.compareRun.confidence ? ` (${input.compareRun.confidence})` : "";
+    evidence.push(`Competitor comparison evidence captured: ${input.compareRun.wyrestormSku || input.compareRun.wyrestormTitle || "WyreStorm candidate"} scored ${input.compareRun.matchScore}${confidenceNote}.`);
   }
 
   const openAssumptionCount = input.assumptions.filter((item) => !/validate final product specifications/i.test(item)).length;

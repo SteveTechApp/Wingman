@@ -9,6 +9,7 @@ import {
   saveProjectRequirementsToProject,
   setActiveProjectId,
   updateStoredProject,
+  type StoredCompareRun,
   type StoredProject,
   type StoredRequirementRecord,
   type StoredRequirementStatus,
@@ -20,6 +21,18 @@ import { getProjectRequirementRecords, requirementReadiness } from "../lib/proje
 import { getProductFamilyRankingReason } from "../lib/productFamilyShortlistRanking";
 
 const statusOptions: StoredRequirementStatus[] = ["confirmed", "review", "unknown"];
+
+// Deep link into the Compare page's typed-SKU flow with the stored competitor,
+// so the trace's Open action re-runs the re-check instead of landing on a cold
+// compare. The Compare page consumes ?brand=&sku= as inbound state.
+function compareDeepLink(compareRun: StoredCompareRun) {
+  const params = new URLSearchParams();
+  if (compareRun.competitorBrand) params.set("brand", compareRun.competitorBrand);
+  const sku = compareRun.competitorSku || compareRun.competitorName;
+  if (sku) params.set("sku", sku);
+  const query = params.toString();
+  return query ? `${routeCatalogByKey.compare.path}?${query}` : routeCatalogByKey.compare.path;
+}
 
 function statusLabel(status: StoredRequirementStatus) {
   if (status === "confirmed") return "Confirmed";
@@ -205,7 +218,10 @@ export function ProjectDetailPage() {
   const [requirements, setRequirements] = useState<StoredRequirementRecord[]>(initialRequirements);
   const [message, setMessage] = useState("");
   const [savedTemplatePath, setSavedTemplatePath] = useState("");
-  const [showSupportingDetails, setShowSupportingDetails] = useState(false);
+  // Detail body (opportunity record, evidence trace, requirements, recommendation evidence)
+  // renders expanded by default so the evidence timeline - including the compare-run
+  // confidence chip - is visible without an extra click. The toggle still collapses it.
+  const [showSupportingDetails, setShowSupportingDetails] = useState(true);
   const [isEditingProject, setIsEditingProject] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [projectDraft, setProjectDraft] = useState({ name: "", owner: "" });
@@ -400,7 +416,7 @@ export function ProjectDetailPage() {
           compareRun.warnings?.[0] ||
           "Comparison evidence saved to project.",
         timestamp: formatProjectTimestamp(compareRun.createdAt),
-        route: routeCatalogByKey.compare.path,
+        route: compareDeepLink(compareRun),
       });
     });
 

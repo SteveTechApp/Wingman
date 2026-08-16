@@ -25,6 +25,24 @@ function syncStatusVariant(state: StoredProjectSyncStatus["state"]): StatusChipV
   return "neutral";
 }
 
+/**
+ * The most recent comparison's stored confidence tier (e.g. "Plausible —
+ * confirm"), surfaced as a per-row badge so a rep sees the verdict without
+ * opening the project. Compare runs are stored newest-first, so [0] is latest.
+ */
+function latestCompareConfidence(project: StoredProject): string | null {
+  const confidence = project.compareRuns?.[0]?.confidence;
+  return confidence && confidence.trim() ? confidence : null;
+}
+
+function compareConfidenceVariant(confidence: string): StatusChipVariant {
+  const label = confidence.toLowerCase();
+  if (label.includes("strong")) return "success";
+  if (label.includes("no equivalent")) return "danger";
+  // "Plausible — confirm" and "Evidence pending" both need review before quoting.
+  return "warning";
+}
+
 export function ProjectsPage() {
   const {
     projects,
@@ -145,11 +163,25 @@ export function ProjectsPage() {
               </thead>
               <tbody>
                 {projects.length ? (
-                  projects.map((project) => (
+                  projects.map((project) => {
+                    const compareConfidence = latestCompareConfidence(project);
+                    return (
                     <tr key={project.id} className="border-t wm-ui-card">
                       <td className="px-4 py-3 font-semibold text-[#edf6ff]">{project.name}</td>
                       <td className="px-4 py-3 text-[#edf6ff]">{project.owner}</td>
-                      <td className="px-4 py-3 text-[#edf6ff]">{project.stage}</td>
+                      <td className="px-4 py-3 text-[#edf6ff]">
+                        <div className="flex flex-col items-start gap-1">
+                          <span>{project.stage}</span>
+                          {compareConfidence ? (
+                            <StatusChip
+                              label={compareConfidence}
+                              variant={compareConfidenceVariant(compareConfidence)}
+                              className="wm-projects-compare-tier text-[10px] leading-4"
+                              title="Last comparison's verdict tier"
+                            />
+                          ) : null}
+                        </div>
+                      </td>
                       <td className="px-4 py-3">
                         <StatusChip
                           label={projectStatusLabel(project.status)}
@@ -202,7 +234,8 @@ export function ProjectsPage() {
                         </div>
                       </td>
                     </tr>
-                  ))
+                    );
+                  })
                 ) : (
                   <tr>
                     <td className="px-5 py-8 text-center text-[#cfe6f7]" colSpan={6}>

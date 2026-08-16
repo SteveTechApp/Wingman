@@ -192,9 +192,17 @@ function extractQuantity(sourceLine: string): number {
     /\bqty\.?\s*[:=]?\s*(\d{1,3})\b/i,
     /\bquantity\s*[:=]?\s*(\d{1,3})\b/i,
     /\b(\d{1,3})\s*(?:off|no\.?)\b/i,
-    /\bx\s*(\d{1,3})\b/i,
-    /\b(\d{1,3})\s*x\b/i,
+    // Quantity-first form ("12x Kramer VS-42H"). The (?![0-9]) guard keeps the
+    // "4x2" matrix-size notation from being read as a count, and the lookbehind
+    // stops "2.5x" decimals from leaking a phantom quantity.
+    /(?<![0-9.])(\d{1,3})\s*x(?![0-9])\b/i,
+    // Suffix form ("VS-42H x2") - the x must be a standalone token, not the
+    // X inside an SKU like TX3/RX3 or part of a "4x2" size.
+    /(?<![A-Za-z0-9])x\s*(\d{1,3})\b/i,
     /\(\s*(\d{1,3})\s*\)/,
+    // Table/CSV rows carry the quantity as their own trailing cell
+    // ("SW-120-TX3, HDBaseT 3.0 transmitter, 8").
+    /(?:,|\t|\|)\s*(?<![0-9.])(\d{1,3})\s*$/,
   ];
 
   for (const pattern of patterns) {
@@ -272,7 +280,10 @@ function classifySku(sku: string, description = ""): {
     return { productClass: "usb-kvm", role: "standalone", workflowTags: ["usb", "kvm"], confidence: "high" };
   }
 
-  if (/^(?:C\d{2}(?:CS)?KIT|PLA\d+CS|HMX|HMXL)/.test(key) || /\b(?:hdbaset|av)\s+matrix\b/i.test(text)) {
+  // "HDMI matrix", "4x2 matrix switcher" and "8x8 matrix" are the common RFQ
+  // phrasings; a bare "matrix" mention is enough when the SKU gives no clue.
+  // The earlier power/accessory checks keep "matrix power supply" out of here.
+  if (/^(?:C\d{2}(?:CS)?KIT|PLA\d+CS|HMX|HMXL)/.test(key) || /\bmatrix\b/i.test(text)) {
     return { productClass: "hdbaset-matrix", role: "matrix", workflowTags: ["matrix", "routed outputs"], confidence: "high" };
   }
 

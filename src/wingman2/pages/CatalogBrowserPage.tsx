@@ -7,7 +7,7 @@ import {
   clearProductIntelligenceIndexCache,
   loadProductIntelligenceIndex,
 } from "../lib/productIntelligenceIndexCache";
-import { extractRawProducts } from "../lib/productStoryEngine";
+import { extractRawProducts, type GovernedReviewerTrail as GovernedReviewerTrailData } from "../lib/productStoryEngine";
 import {
   applyCatalogOverrides,
   buildFacetIndex,
@@ -23,6 +23,7 @@ import { normaliseSkuKey } from "../lib/skuAliasResolver";
 import { resolveProductTechnicalData } from "../lib/governedProductTechnicalData";
 import { resolveProductLifecycle } from "../lib/wyrestormProductLifecycle";
 import { GovernedDataBadge } from "../components/GovernedDataBadge";
+import { GovernedReviewerTrail } from "../components/GovernedReviewerTrail";
 import {
   getWingmanJson,
   getWingmanSession,
@@ -182,15 +183,19 @@ export function CatalogBrowserPage() {
   const [editorStatus, setEditorStatus] = useState("");
   const [editorBusy, setEditorBusy] = useState(false);
 
-  // Governed-data tier per catalogue SKU, resolved once from the same engine
-  // the Compare page and Product Pitch use, so the badge on every product card
-  // tells the same story as the compare match cards.
+  // Governed-data tier (and reviewer trail when human-verified) per catalogue
+  // SKU, resolved once from the same engine the Compare page and Product Pitch
+  // use, so the badge and trail on every product card tell the same story as
+  // the compare match cards.
   const governedTiers = useMemo(() => {
     const tiers = new Map<string, string>();
+    const trails = new Map<string, GovernedReviewerTrailData>();
     for (const product of catalog) {
-      tiers.set(normaliseSkuKey(product.sku), resolveProductTechnicalData(product).sourceTier);
+      const resolved = resolveProductTechnicalData(product);
+      tiers.set(normaliseSkuKey(product.sku), resolved.sourceTier);
+      if (resolved.reviewerTrail) trails.set(normaliseSkuKey(product.sku), resolved.reviewerTrail);
     }
-    return tiers;
+    return { tiers, trails };
   }, [catalog]);
 
   useEffect(() => {
@@ -424,6 +429,7 @@ export function CatalogBrowserPage() {
           const badges = getCatalogBadges(product);
           const reasons = getCatalogMatchReasons(product, state);
           const eol = product.lifecycle.excludeFromNewRecommendations;
+          const reviewerTrail = governedTiers.trails.get(normaliseSkuKey(product.sku));
           return (
             <article key={product.id} className="wm-catalog-product-card">
               <Link
@@ -436,7 +442,7 @@ export function CatalogBrowserPage() {
                 <strong className="wm-catalog-product-sku">{product.sku}</strong>
                 <span className="wm-ui-copy wm-catalog-product-name">{product.name}</span>
                 {product.summary ? <p className="wm-ui-copy wm-catalog-product-summary">{product.summary}</p> : null}
-                <GovernedDataBadge tier={governedTiers.get(normaliseSkuKey(product.sku))} />
+                <GovernedDataBadge tier={governedTiers.tiers.get(normaliseSkuKey(product.sku))} />
                 {badges.length ? (
                   <div className="wm-catalog-badge-row">
                     {badges.map((badge) => (
@@ -452,6 +458,7 @@ export function CatalogBrowserPage() {
                 <p className="wm-ui-copy wm-catalog-reasons">{reasons.join("  ·  ")}</p>
                 {eol ? <p className="wm-ui-copy wm-catalog-suppressed">Suppressed from new recommendations</p> : null}
               </Link>
+              {reviewerTrail ? <GovernedReviewerTrail trail={reviewerTrail} /> : null}
               <ProductWhyFlashCard context={{ sku: product.sku, name: product.name, family: product.family, summary: product.summary }} />
               {isAdmin ? (
                 <button

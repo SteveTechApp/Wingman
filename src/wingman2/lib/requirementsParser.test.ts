@@ -38,6 +38,15 @@ describe("requirements parser count vocabulary", () => {
   it("does not treat a bare 4K display as four displays", () => {
     expect(counts("Supply one 4K display for the meeting room.")).toEqual({ sources: undefined, displays: "1" });
   });
+
+  it("reads counts that precede an HDMI/DP version string", () => {
+    expect(counts("four HDMI 2.0 inputs and two 4K displays")).toEqual({ sources: "4", displays: "2" });
+    expect(counts("2x HDMI 2.0 inputs, 1x DisplayPort 1.4 output to a display")).toEqual({ sources: "2", displays: "1" });
+  });
+
+  it("still never reads the version itself as the count", () => {
+    expect(counts("DisplayPort 1.4 output to 2 displays")).toEqual({ sources: undefined, displays: "2" });
+  });
 });
 
 describe("requirements parser unknowns stay consistent with extraction", () => {

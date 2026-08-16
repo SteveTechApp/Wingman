@@ -7,6 +7,7 @@ type ProfileRecord = {
   sku: string;
   name?: string;
   status?: string;
+  verifiedBy?: string;
   productClass?: string;
   role?: string;
   transport?: string[];
@@ -16,10 +17,20 @@ type ProfileRecord = {
   evidence?: unknown[];
 };
 
-const products = (governedProfiles as { profiles: ProfileRecord[] }).profiles.map((p) => ({
+const governedProfilesList = (governedProfiles as { profiles: ProfileRecord[] }).profiles;
+
+const products = governedProfilesList.map((p) => ({
   sku: p.sku,
   name: p.name || p.sku,
 }));
+
+// "Verified" requires a human: the 2026-08-16 review passes confirmed 117 of
+// the 130 governed profiles (status verified + verifiedBy recorded).
+const humanVerified = new Set(
+  governedProfilesList
+    .filter((profile) => profile.status === "verified" && Boolean(profile.verifiedBy?.trim()))
+    .map((profile) => profile.sku.toUpperCase()),
+);
 
 function runtimeMatches(input: string, brand: string) {
   const result = runCompareRuntimePipeline(input, products as never, brand, 8) as {
@@ -32,13 +43,18 @@ describe("match-card governance tier", () => {
   it("survives the eligibility-injection path with the governed tier intact", () => {
     // AT-UHD-PRO3-88M triggers eligibility-injected 8x8 matrix candidates; the
     // injected matches must carry a resolved compare profile, not a bare
-    // catalogue row, so the match card badge can show the governed tier.
+    // catalogue row, so the match card badge can show the governed tier. The
+    // 2026-08-16 review passes human-confirmed the matrix family (derived from
+    // the governed data, so the pin follows the data rather than a hardcoded
+    // set); only profiles still awaiting a human stay at official-structured.
     const matches = runtimeMatches("AT-UHD-PRO3-88M 8x8 4K HDMI matrix", "Atlona");
     expect(matches.length).toBeGreaterThan(0);
     const matrix = matches.filter((m) => /^(MXV|MX)-0808/.test(m.sku));
     expect(matrix.length).toBeGreaterThan(0);
     for (const match of matrix) {
-      expect(match.wyrestorm?.sourceTier, `${match.sku} tier`).toBe("verified-profile");
+      expect(match.wyrestorm?.sourceTier, `${match.sku} tier`).toBe(
+        humanVerified.has(match.sku.toUpperCase()) ? "verified-profile" : "official-structured",
+      );
     }
   });
 
