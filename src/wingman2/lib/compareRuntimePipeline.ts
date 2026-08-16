@@ -289,6 +289,16 @@ function applyWirelessCastingRulesToRuntimeResult<T>(
     return result;
   }
 
+  const competitorText = wirelessRuntimeText(record?.competitor);
+
+  // A competitor described explicitly as a casting/presentation DONGLE (e.g.
+  // ClickShare Button, ScreenBeam) is a single endpoint, not a room switcher:
+  // lead with APO-DG2 (the WyreStorm casting dongle itself) even where the
+  // room-size rules would otherwise put a presentation switcher or UC bar
+  // first. The eligibility layer already prefers APO-DG2 via fit penalty for
+  // this case - the room-based reordering must not override it.
+  const dongleCompetitor = /\bdongle\b/i.test(`${inputText} ${competitorText}`);
+
   const recommendation = recommendWirelessCastingSkus({
     roomType: inputText,
     sourceCount: inferWirelessSourceCount(inputText, result),
@@ -296,13 +306,20 @@ function applyWirelessCastingRulesToRuntimeResult<T>(
     connectionLocation: inputText,
   });
 
+  const primarySkus = dongleCompetitor
+    ? ["APO-DG2", ...recommendation.primarySkus]
+    : recommendation.primarySkus;
+  const rationale = dongleCompetitor
+    ? `The competitor is described as a wireless casting dongle, so APO-DG2 (the WyreStorm casting dongle) leads as the direct endpoint equivalent, with a wireless presentation switcher available as the room upgrade path. ${recommendation.rationale}`
+    : recommendation.rationale;
+
   const ranked = prioritiseRuntimeSkus(
     record.matches,
     products,
     record.competitor,
-    recommendation.primarySkus,
+    primarySkus,
     recommendation.optionalSkus,
-    recommendation.rationale,
+    rationale,
   );
 
   record.matches = ranked.matches;

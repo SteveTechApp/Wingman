@@ -136,7 +136,12 @@ for (const [index, profile] of payload.profiles.entries()) {
   }
 
   if (profile?.status !== "review-required") {
-    if (!String(profile?.maxResolution ?? "").trim() && ["AVOIP", "MATRIX", "VIDEO_WALL", "MULTIVIEW", "HDBASET", "PRESENTATION"].includes(profile?.productClass)) {
+    const hasVideoIo = (profile?.ports ?? []).some((port) => port?.category === "video");
+    if (
+      hasVideoIo &&
+      !String(profile?.maxResolution ?? "").trim() &&
+      ["AVOIP", "MATRIX", "VIDEO_WALL", "MULTIVIEW", "HDBASET", "PRESENTATION"].includes(profile?.productClass)
+    ) {
       errors.push(`${sku || prefix} verified video profile must define maxResolution.`);
     }
     if (!nonEmptyArray(profile?.dependencies) && profile?.productClass === "AVOIP") {

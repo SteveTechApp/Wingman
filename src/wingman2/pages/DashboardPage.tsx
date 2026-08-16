@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { HubCard, routeAction } from "./NavigationHubPages";
 import { StatusChip } from "../components/StatusChip";
+import { governedCoverageSummary } from "../lib/governedCoverage";
 import {
   setActiveProjectId,
   useProjectStore,
@@ -207,6 +208,26 @@ function readDisplayName() {
   return "Steve";
 }
 
+function GovernedCoverageStrip() {
+  const coverage = governedCoverageSummary();
+  const verifiedTotal = coverage.verified + coverage.verifiedWithWarning;
+  return (
+    <section className="wm-dashboard-coverage-strip" aria-label="Governed product data coverage">
+      <span className="wm-dashboard-coverage-strip__dot" aria-hidden="true" />
+      <p>
+        <strong>{coverage.verifiedPct}% of product profiles verified</strong>
+        <small>
+          {verifiedTotal}/{coverage.total} governed profiles · {coverage.compareReady} compare-ready — the Compare
+          feature leads only with verified governed data.
+        </small>
+      </p>
+      <Link to={routeCatalogByKey.compare.path} className="wm-dashboard-coverage-strip__link">
+        Compare products
+      </Link>
+    </section>
+  );
+}
+
 export function DashboardPage() {
   const { projects } = useProjectStore();
 
@@ -252,6 +273,8 @@ export function DashboardPage() {
               <HubCard key={action.title} item={action} />
             ))}
           </section>
+
+          <GovernedCoverageStrip />
 
           <section className="wm-reference-section" aria-label="Recent projects">
             <div className="wm-reference-section-heading">

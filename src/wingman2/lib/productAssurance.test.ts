@@ -14,14 +14,19 @@ describe("product assurance", () => {
     expect(result.customerReady).toBe(true);
   });
 
-  it("blocks an active product without a verified governed profile", () => {
+  it("blocks a product without a verified governed profile", () => {
+    // Every active lead SKU now carries a verified governed profile (100%
+    // coverage, 2026-08), so the gate is exercised with a real cable SKU that
+    // has no governed profile: it must be blocked, not silently quotable.
     const ledger = buildDesignAssuranceLedger({
-      products: [{ sku: "AMP-2120" }],
+      products: [{ sku: "CAB-HAOC-10" }],
       discoveryPercent: 100,
     });
 
     expect(ledger.customerReady).toBe(false);
-    expect(ledger.blockers.some((item) => item.sku === "AMP-2120")).toBe(true);
+    expect(
+      ledger.blockers.some((item) => item.sku === "CAB-HAOC-10" && /verified governed technical profile/.test(item.message)),
+    ).toBe(true);
   });
 
   it("adds security and resilience overlays for critical environments", () => {
