@@ -57,7 +57,18 @@ try {
 } catch {
 }
 
-const PORT = Number(process.env.PORT || 8787);
+// Coerce the ambient PORT defensively: shells and orchestrators sometimes
+// export PORT=0 (or garbage), which previously made the API bind a random port
+// while the Vite proxy kept targeting 8787 - every /api call then failed
+// silently. A 0/invalid value falls back to the project default.
+function resolvePort(value, fallback) {
+  const parsed = Number(value);
+  if (Number.isFinite(parsed) && parsed > 0 && parsed <= 65535) {
+    return Math.trunc(parsed);
+  }
+  return fallback;
+}
+const PORT = resolvePort(process.env.PORT || 8787, 8787);
 const HOST = process.env.HOST || "127.0.0.1";
 const UI_HOST = String(process.env.WINGMAN_UI_HOST || "127.0.0.1").trim() || "127.0.0.1";
 const parsedUiPort = Number(process.env.WINGMAN_UI_PORT || 3000);
@@ -2538,8 +2549,12 @@ error: "Route not found.",
 });
 
 server.listen(PORT, HOST, () => {
+  // Log the port the OS actually bound (they agree unless PORT was 0), so a
+  // mis-configured proxy target is visible in the startup output.
+  const address = server.address();
+  const boundPort = address && typeof address === "object" ? address.port : PORT;
   const health = buildHealthPayload();
-  console.log(`[wingman-api] listening on http://${HOST}:${PORT}`);
+  console.log(`[wingman-api] listening on http://${HOST}:${boundPort}`);
   console.log(`[wingman-api] health: ${health.lookupEndpoint.replace("/api/competitor-lookup", "/api/health")}`);
 });
 

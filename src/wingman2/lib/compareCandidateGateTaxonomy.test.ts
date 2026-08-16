@@ -52,6 +52,70 @@ describe("compare candidate class comes from the taxonomy first", () => {
   });
 });
 
+describe("wireless presentation lane requires wireless evidence (audit P2-1)", () => {
+  it("allows a wireless-capable presentation switcher for a wireless competitor", () => {
+    const result = gateCompareCandidate(
+      {
+        sku: "SW-640L-TX-W",
+        title: "Wireless Conferencing Solutions for Seamless Communication",
+        classification: { subClassifications: ["presentation-switcher", "wireless", "uc"] },
+      },
+      { competitorClass: "WIRELESS_PRESENTATION" },
+    );
+    expect(result.allowed).toBe(true);
+  });
+
+  it("blocks a wired-only presentation switcher for a wireless competitor", () => {
+    const result = gateCompareCandidate(
+      {
+        sku: "EXP-SW-0201-8K",
+        title: "8K60Hz 4:4:4 2x1 HDMI Switcher",
+      },
+      { competitorClass: "WIRELESS_PRESENTATION" },
+    );
+    expect(result.allowed).toBe(false);
+    expect(result.blockedBy.join(" ")).toMatch(/wireless casting capability is required/i);
+  });
+
+  it("still allows wired presentation switchers for plain presentation competitors", () => {
+    const result = gateCompareCandidate(
+      {
+        sku: "EXP-SW-0201-8K",
+        title: "8K60Hz 4:4:4 2x1 HDMI Switcher",
+      },
+      { competitorClass: "PRESENTATION" },
+    );
+    expect(result.allowed).toBe(true);
+  });
+});
+
+describe("audio DSP comparisons do not offer amplifiers (audit P2-2)", () => {
+  it("blocks an amplifier as the primary candidate for an audio DSP competitor", () => {
+    const result = gateCompareCandidate(
+      {
+        sku: "AMP-2120",
+        title: "Advanced 2 or 4 Channel Amplifier",
+        classification: { subClassifications: ["amplifier"] },
+      },
+      { competitorClass: "AUDIO", competitorRole: "audio dsp" },
+    );
+    expect(result.allowed).toBe(false);
+    expect(result.blockedBy.join(" ")).toMatch(/an amplifier is not an equivalent for a DSP/i);
+  });
+
+  it("leaves amplifiers in the lane for plain audio competitors", () => {
+    const result = gateCompareCandidate(
+      {
+        sku: "AMP-2120",
+        title: "Advanced 2 or 4 Channel Amplifier",
+        classification: { subClassifications: ["amplifier"] },
+      },
+      { competitorClass: "AUDIO", competitorRole: "amplifier" },
+    );
+    expect(result.allowed).toBe(true);
+  });
+});
+
 describe("text fallback still applies when no taxonomy is supplied", () => {
   it("does not classify a video product as audio just because it mentions audio", () => {
     // A live-lookup record with no governed classification. The old rule

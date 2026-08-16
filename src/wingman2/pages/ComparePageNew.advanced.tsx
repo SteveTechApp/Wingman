@@ -5328,6 +5328,12 @@ function ComparePageNew() {
         ]
       : heuristicCandidates;
 
+    const intent = classifyCompareIntent(
+      profile.resolvedSpec ?? { domain: domainFromProductClass(profile.productClass), role: profile.role },
+      `${profile.brand} ${profile.sku} ${profile.rawText}`,
+    );
+
+    const explicitCastingDongleRequest = /\b(?:wireless\s+)?casting\s+dongle\b|\bwireless\s+dongle\b|\bcasting\s+button\b|\bpresentation\s+dongle\b/i.test(profile.rawText);
     const requestedRoomFit = profile.requestedTags.find((tag) => tag === "compact room" || tag === "medium room");
     const semanticRank = (candidate: ScoredCandidate): number => {
       const candidateRoomFit = candidate.product.tags.find((tag) => tag === "compact room" || tag === "medium room");
@@ -5335,25 +5341,45 @@ function ComparePageNew() {
       const roomFit = requestedRoomFit && candidateRoomFit
         ? requestedRoomFit === candidateRoomFit ? 120 : -60
         : 0;
-      return candidate.score + sameProductClass + roomFit;
+      const productFormFit =
+        explicitCastingDongleRequest && candidate.product.sku.toUpperCase() === "APO-DG2"
+          ? 1000
+          : 0;
+
+      return candidate.score + sameProductClass + roomFit + productFormFit;
     };
     const semanticallyOrdered = [...candidates].sort((a, b) => semanticRank(b) - semanticRank(a));
 
+    // A competitor described as a wireless CASTING DONGLE must lead with
+    // APO-DG2 (the WyreStorm dongle itself), not with a multi-input presentation
+    // switcher. The eligibility engine already encodes this (APO-DG2 gets the
+    // best fit for a dongle competitor), but the keyword-score sort would let
+    // the SW-* switcher win on marketing-word overlap - the exact case the
+    // eligibility layer's competitorIsDongle branch exists to prevent.
+    const dongleCompetitor =
+      intent === "wireless-casting" &&
+      /\bdongle\b/i.test(`${profile.brand} ${profile.sku} ${profile.rawText}`);
+    const semanticallyOrderedAdjusted = dongleCompetitor
+      ? [...semanticallyOrdered].sort((a, b) => {
+          const aIsDongle = /^APO-DG/.test(a.product.sku.toUpperCase());
+          const bIsDongle = /^APO-DG/.test(b.product.sku.toUpperCase());
+          if (aIsDongle !== bIsDongle) {
+            return aIsDongle ? -1 : 1;
+          }
+          return semanticRank(b) - semanticRank(a);
+        })
+      : semanticallyOrdered;
+
     const ordered = applyGovernedCandidateOrder(
-      semanticallyOrdered,
+      semanticallyOrderedAdjusted,
       governedDecision,
       (candidate) => candidate.product.sku,
-    );
-
-    const intent = classifyCompareIntent(
-      profile.resolvedSpec ?? { domain: domainFromProductClass(profile.productClass), role: profile.role },
-      `${profile.brand} ${profile.sku} ${profile.rawText}`,
     );
 
     // Governed/local decisions are ranking evidence, not permission to bypass
     // current product-role eligibility. Revalidate the final merged list so a
     // stale saved decision cannot resurrect a wrong product architecture.
-    return ordered.filter((candidate) =>
+    const eligibleCandidates = ordered.filter((candidate) =>
       evaluateProductEligibility({
         intent,
         competitorText: `${profile.brand} ${profile.sku} ${profile.rawText}`,
@@ -5361,6 +5387,35 @@ function ComparePageNew() {
         product: candidate.product,
       }).eligibility !== "blocked",
     );
+
+    // Apply exact requested product form only after governance and eligibility.
+    // This allows APO-DG2 to lead when the customer expressly asks for a
+    // casting dongle/button, without weakening any normal compatibility gate.
+    //
+    // APO-DG2 remains dependent on a compatible WyreStorm wireless
+    // presentation switcher or UC soundbar and is not a complete standalone
+    // wireless presentation system.
+    const explicitCastingDongleFinalIntent =
+      /\b(?:wireless\s+)?casting\s+dongle\b|\bwireless\s+dongle\b|\bpresentation\s+dongle\b|\bcasting\s+(?:button|transmitter)\b|\bwireless\s+(?:button|transmitter)\b/i.test(
+        `${profile.brand} ${profile.sku} ${profile.rawText}`,
+      );
+
+    if (explicitCastingDongleFinalIntent) {
+      const explicitProductFormCandidate = eligibleCandidates.find(
+        (candidate) => candidate.product.sku.toUpperCase() === "APO-DG2",
+      );
+
+      if (explicitProductFormCandidate) {
+        return [
+          explicitProductFormCandidate,
+          ...eligibleCandidates.filter(
+            (candidate) => candidate.product.sku.toUpperCase() !== "APO-DG2",
+          ),
+        ];
+      }
+    }
+
+    return eligibleCandidates;
   }, [governedCandidate, governedDecision, heuristicCandidates, profile]);
 
   const viableCandidates = useMemo(

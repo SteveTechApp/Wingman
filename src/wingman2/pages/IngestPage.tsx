@@ -372,7 +372,10 @@ export function IngestPage() {
     if (!combinedText.trim()) {
       setAnalysis({
         requirements: [],
-        unknowns: ["No usable text could be extracted. Paste the customer request manually or convert the file to text first."],
+        unknowns: [
+          ...extractionWarnings,
+          "No usable text could be extracted. Paste the customer request manually or convert the file to text first.",
+        ],
         skippedFiles,
         files: files.map((file) => file.name),
       });
