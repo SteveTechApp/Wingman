@@ -57,7 +57,7 @@ export function DiscoveryCompletionPanel({
               ? "Confirm the wall layout and processing requirements before product matching."
               : videoWallConfigured
                 ? "Use the captured wall type, source-window behaviour and signal-path decisions to build the product shortlist."
-              : "Turn the captured requirements into an evidence-led product shortlist."}
+                : "Turn the captured requirements into an evidence-led product shortlist."}
           </p>
           <button className="wm-ui-button wm-ui-button-primary" type="button" onClick={() => onMoveForward("recommendations")}>
             {requiresVideoWallConfiguration ? "Next: configure video wall" : "Next: find matching products"}
