@@ -15,6 +15,10 @@ it("offers the evidence panel (URL / upload / manual entry) when no WyreStorm ma
   );
 
   expect(await screen.findByText("No suitable WyreStorm match found from the current data")).not.toBeNull();
+  expect(screen.getByRole("heading", { name: /Blustream ZZZ-NOT-A-REAL-SKU-999/i })).not.toBeNull();
+  expect(screen.getByText("Live lookup required")).not.toBeNull();
+  expect(screen.getByText("Primary search criteria")).not.toBeNull();
+  expect(screen.getByText("SKU / model: ZZZ-NOT-A-REAL-SKU-999")).not.toBeNull();
   expect(screen.getByText("Add evidence for this product")).not.toBeNull();
   expect(screen.getByRole("button", { name: /run live lookup/i })).not.toBeNull();
   expect(screen.getByText(/upload pdf/i)).not.toBeNull();

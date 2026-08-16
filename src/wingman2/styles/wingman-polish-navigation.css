@@ -3040,6 +3040,27 @@ html[data-wingman-route="projects"] .wm-project-detail-anchor {
   padding: 0 !important;
 }
 
+.wm-pcc-select-shell.wm-pcc-shell-selection-mode {
+  height: auto !important;
+  min-height: calc(100vh - 5.4rem) !important;
+  grid-template-rows: auto auto auto auto !important;
+  align-content: start !important;
+  overflow: visible !important;
+}
+
+.wm-pcc-shell-selection-mode .wm-product-workspace-intro {
+  min-height: 86px !important;
+}
+
+.wm-pcc-shell-selection-mode .wm-product-workspace-nav {
+  min-height: 34px !important;
+}
+
+.wm-pcc-shell-selection-mode .wm-pcc-grid.wm-pcc-selection-mode {
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+
 .wm-pcc-shell-selection-mode .wm-pcc-grid.wm-pcc-selection-mode .wm-pcc-workflow-guide {
   grid-column: 1 !important;
   margin: 0 !important;
@@ -3062,7 +3083,15 @@ body .wm-pcc-shell-selection-mode .wm-pcc-grid.wm-pcc-selection-mode aside.wm-pc
 
 .wm-pcc-shell-selection-mode .wm-pcc-product-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  grid-auto-rows: minmax(54px, auto) !important;
   gap: 8px !important;
+  overflow: visible !important;
+}
+
+.wm-pcc-shell-selection-mode .wm-pcc-product {
+  height: auto !important;
+  min-height: 54px !important;
+  padding: 9px 11px !important;
 }
 
 .wm-pcc-shell-selection-mode .wm-pcc-status {
@@ -3092,6 +3121,12 @@ body .wm-pcc-shell-selection-mode .wm-pcc-grid.wm-pcc-selection-mode aside.wm-pc
   }
 }
 
+@media (min-width: 981px) and (max-width: 1399px) {
+  .wm-pcc-shell-selection-mode .wm-pcc-product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
 @media (max-width: 720px) {
   .wm-catalog-page,
   .wm-product-pitch-page,
@@ -3108,4 +3143,50 @@ body .wm-pcc-shell-selection-mode .wm-pcc-grid.wm-pcc-selection-mode aside.wm-pc
   .wm-pcc-shell-selection-mode .wm-pcc-product-grid {
     grid-template-columns: 1fr !important;
   }
+}
+.wm-pcc-project-target-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgb(2 10 20 / 78%);
+  backdrop-filter: blur(8px);
+}
+
+.wm-pcc-project-target-dialog {
+  width: min(760px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 18px 20px;
+  border: 1px solid rgb(37 211 199 / 38%);
+  box-shadow: 0 28px 90px rgb(0 0 0 / 55%);
+}
+
+.wm-pcc-project-target-dialog > header,
+.wm-pcc-project-target-new > div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.wm-pcc-project-target-dialog h2 { margin: 2px 0 5px; font-size: clamp(1.15rem, 2vw, 1.4rem); }
+.wm-pcc-project-target-dialog p { margin: 0; color: var(--wm-text-muted, #a9bfd1); }
+.wm-pcc-project-target-current { width: 100%; margin-top: 14px; }
+.wm-pcc-project-target-existing,
+.wm-pcc-project-target-new { margin-top: 13px; padding-top: 12px; border-top: 1px solid rgb(120 170 200 / 20%); }
+.wm-pcc-project-target-existing h3,
+.wm-pcc-project-target-new label { display: block; margin: 0 0 7px; color: #eef8ff; font-size: 0.92rem; font-weight: 750; }
+.wm-pcc-project-target-existing > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+.wm-pcc-project-target-existing button { display: grid; justify-items: start; gap: 3px; text-align: left; }
+.wm-pcc-project-target-existing button span { color: var(--wm-text-muted, #a9bfd1); font-size: 0.78rem; }
+.wm-pcc-project-target-new input { flex: 1; min-width: 0; border: 1px solid #28516a; border-radius: 9px; background: #061524; color: #f4fbff; padding: 9px 11px; }
+
+@media (max-width: 680px) {
+  .wm-pcc-project-target-existing > div { grid-template-columns: 1fr; }
+  .wm-pcc-project-target-new > div { flex-direction: column; }
+  .wm-pcc-project-target-new input,
+  .wm-pcc-project-target-new button { width: 100%; }
 }

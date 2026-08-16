@@ -21,7 +21,7 @@ import {
   type StoredProjectProposal,
   type StoredRecommendationFeedback,
 } from "../data/projectStore";
-import { getStoredWingmanProfile } from "../data/wingmanProfile";
+import { useWingmanProfile, type WingmanProfile } from "../data/wingmanProfile";
 import {
   exportBomCsv,
   exportProposalHtml,
@@ -241,7 +241,7 @@ function TextAreaField(props: {
 
 export function ProposalCompletionWizard() {
   const { activeProject: project } = useProjectStore();
-  const profile = useMemo(() => getStoredWingmanProfile(), []);
+  const { profile } = useWingmanProfile();
 
   if (!project) {
     return (
@@ -272,7 +272,7 @@ function ProposalCompletionWizardContent({
   profile,
 }: {
   project: StoredProject;
-  profile: ReturnType<typeof getStoredWingmanProfile>;
+  profile: WingmanProfile;
 }) {
   const discovery = useMemo(() => readDiscovery(project), [project]);
   const discoveryWithCompletion = useMemo(
@@ -329,7 +329,12 @@ function ProposalCompletionWizardContent({
   const defaults = useMemo(
     () => {
       const discoveryFingerprint = JSON.stringify([
+        project.name,
+        discovery.customerName,
+        discovery.contactName,
+        profile.reportPreparedBy || profile.userName || project.owner,
         discovery.projectTitle,
+        discovery.summary,
         discovery.roomSize,
         discovery.sourceCount,
         discovery.sourceConnection,
@@ -413,6 +418,21 @@ function ProposalCompletionWizardContent({
   const [exportMessage, setExportMessage] = useState("");
   const [feedbackRating, setFeedbackRating] = useState<StoredRecommendationFeedback["rating"] | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState("");
+
+  useEffect(() => {
+    setDraft((current) => {
+      const sourceFieldsAreCurrent =
+        current.customerName === defaults.customerName &&
+        current.contactName === defaults.contactName &&
+        current.projectName === defaults.projectName &&
+        current.proposalReference === defaults.proposalReference &&
+        current.proposalDate === defaults.proposalDate &&
+        current.preparedBy === defaults.preparedBy;
+      return current.discoveryFingerprint === defaults.discoveryFingerprint && sourceFieldsAreCurrent
+        ? current
+        : loadProposalWizardDraft(project.id, defaults);
+    });
+  }, [defaults, project.id]);
 
   const baseBomRows = salesReadiness.bomRows.length
     ? salesReadiness.bomRows

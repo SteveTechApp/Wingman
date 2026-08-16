@@ -100,6 +100,34 @@ describe("a room brief produces a multi-product system, not one SKU", () => {
     expect(design.slots.find((slot) => slot.kind === "microphone")?.quantity).toBe(2);
   });
 
+  it("builds a configured direct-view LED wall as a system with an external LED processor", () => {
+    const design = buildSystemDesign(
+      brief({
+        application: "Video wall / LED wall",
+        wallTechnology: "Direct-view LED wall",
+        wallType: "led",
+        sourceCount: "6",
+        devices: ["Network or remote-room feeds", "Room PC", "Signage player"],
+        configuredVideowall: {
+          wallType: "led",
+          ledAnswers: {
+            behaviour: "custom-windows",
+            windows: "floating-six",
+            sourceLocation: "distributed",
+          },
+        },
+      }),
+    );
+
+    expect(design.slots.map((slot) => slot.kind)).toEqual(
+      expect.arrayContaining(["avoip-encoder", "multiview", "avoip-control", "wall-processor"]),
+    );
+    expect(design.slots.find((slot) => slot.kind === "avoip-encoder")?.quantity).toBe(6);
+    expect(design.slots.find((slot) => slot.kind === "wall-processor")).toEqual(
+      expect.objectContaining({ supply: "external", required: true }),
+    );
+  });
+
   it("raises open questions instead of inventing counts", () => {
     const design = buildSystemDesign(brief({ application: "Meeting room" }));
 

@@ -7,7 +7,6 @@ export type VideowallDecisionState = {
     behaviour: string;
     windows: string;
     sourceLocation: string;
-    output: string;
   };
   lcd: {
     screenCount: string;
