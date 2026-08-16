@@ -88,6 +88,76 @@ function dedupeText(items: Array<string | undefined | null>) {
   );
 }
 
+// WINGMAN_INLINE_BLOCKER_ANSWERS_V1
+function normaliseBlockerText(value: unknown) {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .replace(/[.:;!?]+$/g, "");
+}
+
+function blockerRequirementLabel(blocker: string) {
+  return blocker
+    .replace(/^confirm\s+/i, "")
+    .replace(/^what\s+is\s+/i, "")
+    .replace(/^whether\s+/i, "")
+    .replace(/[.:;!?]+$/g, "")
+    .trim();
+}
+
+function blockerRequirementId(blocker: string) {
+  const slug = normaliseBlockerText(blocker)
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 72);
+
+  return `project-blocker-${slug || "requirement"}`;
+}
+
+function blockerAnswerOptions(blocker: string) {
+  const text = normaliseBlockerText(blocker);
+
+  if (text.includes("room or system scale") || text.includes("room/system scale") || text.includes("room scale")) {
+    return [
+      "Small (<10m)",
+      "Medium (<25m)",
+      "Large (<50m)",
+      "Extra large / distributed (50m+)",
+      "Not sure yet",
+    ];
+  }
+
+  if (
+    text.includes("required?") ||
+    text.startsWith("confirm whether") ||
+    text.startsWith("is ") ||
+    text.startsWith("does ") ||
+    text.startsWith("do ")
+  ) {
+    return ["Yes", "No", "Not sure yet"];
+  }
+
+  if (text.includes("budget")) {
+    return ["Cost-sensitive", "Mid-range", "Premium / performance-led", "Not confirmed"];
+  }
+
+  if (text.includes("timescale") || text.includes("timeline") || text.includes("project stage")) {
+    return ["Immediate / <4 weeks", "1-3 months", "3-6 months", "6+ months", "Not confirmed"];
+  }
+
+  if (text.includes("network")) {
+    return ["AV VLAN available", "Shared network", "No suitable network", "Not confirmed"];
+  }
+
+  return [];
+}
+
+function blockerAnswerNeedsReview(answer: string) {
+  const text = normaliseBlockerText(answer);
+  return text.includes("not sure") || text.includes("not confirmed") || text.includes("unknown");
+}
+
 type ProjectEvidenceTimelineItem = {
   id: string;
   label: string;
@@ -141,6 +211,7 @@ export function ProjectDetailPage() {
   const [projectDraft, setProjectDraft] = useState({ name: "", owner: "" });
   const [showBlockerReview, setShowBlockerReview] = useState(false);
   const [activeBlockerIndex, setActiveBlockerIndex] = useState(0);
+  const [blockerDraft, setBlockerDraft] = useState("");
   const readiness = useMemo(() => requirementReadiness(requirements), [requirements]);
   const recommendationEvidence = useMemo(
     () =>
@@ -438,8 +509,120 @@ export function ProjectDetailPage() {
       return { label: "Open Proposal", route: routeCatalogByKey.proposal.path };
     }
     // WINGMAN_DISCOVERY_PROJECT_DETAIL_RESUME_QUERY
-    return { label: "Resolve in Discovery", route: `${routeCatalogByKey.discovery.path}?resume=project` };
+    return { label: "Open full Discovery", route: `${routeCatalogByKey.discovery.path}?resume=project` };
   }, [activeBlocker]);
+
+  const activeBlockerOptions = useMemo(
+    () => (activeBlocker ? blockerAnswerOptions(activeBlocker) : []),
+    [activeBlocker],
+  );
+
+  const activeBlockerCanAnswerInline = useMemo(() => {
+    if (!activeBlocker) return false;
+    const text = normaliseBlockerText(activeBlocker);
+
+    return !(
+      text.includes("product direction") ||
+      text.includes("recommendation evidence") ||
+      text.includes("no evidence") ||
+      text.includes("compare") ||
+      text.includes("proposal readiness") ||
+      text.includes("proposal draft") ||
+      text.includes("marked do not quote")
+    );
+  }, [activeBlocker]);
+
+  useEffect(() => {
+    setBlockerDraft("");
+  }, [activeBlocker]);
+
+  function saveActiveBlockerAnswer() {
+    if (!project || !activeBlocker) return;
+
+    const answer = blockerDraft.trim();
+    if (!answer) {
+      setMessage("Enter or select an answer before saving this requirement.");
+      return;
+    }
+
+    const blockerKey = normaliseBlockerText(activeBlocker);
+    const now = new Date().toISOString();
+    const matchedRequirement = requirements.find((requirement) => {
+      const label = normaliseBlockerText(requirement.label);
+      const blocker = normaliseBlockerText(activeBlocker);
+
+      return blocker.includes(label) || label.includes(blocker);
+    });
+
+    const nextRequirement: StoredRequirementRecord = {
+      id: matchedRequirement?.id ?? blockerRequirementId(activeBlocker),
+      label: matchedRequirement?.label ?? blockerRequirementLabel(activeBlocker),
+      value: answer,
+      category: matchedRequirement?.category ?? "Project completion",
+      source: "Project Detail - Next Step",
+      status: blockerAnswerNeedsReview(answer) ? "review" : "confirmed",
+      whyItMatters:
+        matchedRequirement?.whyItMatters ||
+        "Captured from the Project Detail Next Step panel to clear a missing project requirement.",
+      updatedAt: now,
+    };
+
+    const nextRequirements = matchedRequirement
+      ? requirements.map((requirement) =>
+          requirement.id === matchedRequirement.id ? nextRequirement : requirement,
+        )
+      : [...requirements, nextRequirement];
+
+    const withoutResolvedBlocker = (items?: string[]) =>
+      (items ?? []).filter((item) => normaliseBlockerText(item) !== blockerKey);
+
+    updateStoredProject(project.id, (current) => ({
+      ...current,
+      requirements: nextRequirements,
+      discoveryBrief: current.discoveryBrief
+        ? {
+            ...current.discoveryBrief,
+            missingInformation: withoutResolvedBlocker(current.discoveryBrief.missingInformation),
+            nextBestQuestion:
+              normaliseBlockerText(current.discoveryBrief.nextBestQuestion) === blockerKey
+                ? undefined
+                : current.discoveryBrief.nextBestQuestion,
+          }
+        : current.discoveryBrief,
+      recommendationEvidence: current.recommendationEvidence
+        ? {
+            ...current.recommendationEvidence,
+            missingInformation: withoutResolvedBlocker(current.recommendationEvidence.missingInformation),
+            nextBestQuestion:
+              normaliseBlockerText(current.recommendationEvidence.nextBestQuestion) === blockerKey
+                ? undefined
+                : current.recommendationEvidence.nextBestQuestion,
+          }
+        : current.recommendationEvidence,
+      proposal: current.proposal
+        ? {
+            ...current.proposal,
+            governanceWarnings: withoutResolvedBlocker(current.proposal.governanceWarnings),
+            updatedAt: now,
+          }
+        : current.proposal,
+      updated: "Just now",
+      updatedAt: now,
+    }));
+
+    setRequirements(nextRequirements);
+    setBlockerDraft("");
+    setMessage(`Requirement saved: ${nextRequirement.label}.`);
+
+    const remainingCount = Math.max(0, projectReadinessGate.blockers.length - 1);
+    if (remainingCount === 0) {
+      setShowBlockerReview(false);
+      setActiveBlockerIndex(0);
+      return;
+    }
+
+    setActiveBlockerIndex((current) => Math.min(current, remainingCount - 1));
+  }
 
   useEffect(() => {
     setRequirements(initialRequirements);
@@ -645,10 +828,69 @@ export function ProjectDetailPage() {
                   <div className="wm-project-blocker-walkthrough__bar" aria-hidden="true">
                     <span style={{ width: `${((activeBlockerIndex + 1) / projectReadinessGate.blockers.length) * 100}%` }} />
                   </div>
-                  <p className="wm-project-blocker-walkthrough__item">{activeBlocker}</p>
-                  <Link to={activeBlockerWorkflow.route} className="wm-ui-button wm-ui-button-primary">
-                    {activeBlockerWorkflow.label}
-                  </Link>
+                  <div className="wm-project-blocker-walkthrough__question">
+                    <p className="wm-project-blocker-walkthrough__item">{activeBlocker}</p>
+                    {activeBlockerCanAnswerInline ? (
+                      <p className="wm-project-blocker-walkthrough__why">
+                        Answer here to update the project requirement without leaving this page.
+                      </p>
+                    ) : (
+                      <p className="wm-project-blocker-walkthrough__why">
+                        This blocker needs the linked Wingman workflow rather than a simple project answer.
+                      </p>
+                    )}
+                  </div>
+
+                  {activeBlockerCanAnswerInline ? (
+                    <div className="wm-project-blocker-answer">
+                      {activeBlockerOptions.length ? (
+                        <div className="wm-project-blocker-answer__options" role="group" aria-label="Answer options">
+                          {activeBlockerOptions.map((option) => (
+                            <button
+                              key={option}
+                              type="button"
+                              className={`wm-project-blocker-answer__option ${blockerDraft === option ? "is-selected" : ""}`}
+                              onClick={() => setBlockerDraft(option)}
+                              aria-pressed={blockerDraft === option}
+                            >
+                              {option}
+                            </button>
+                          ))}
+                        </div>
+                      ) : null}
+
+                      <label className="wm-project-blocker-answer__field">
+                        <span>{activeBlockerOptions.length ? "Or enter a different answer" : "Answer"}</span>
+                        <input
+                          type="text"
+                          className="wm-ui-input"
+                          value={blockerDraft}
+                          onChange={(event) => setBlockerDraft(event.target.value)}
+                          placeholder="Enter the customer or project answer"
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              event.preventDefault();
+                              saveActiveBlockerAnswer();
+                            }
+                          }}
+                        />
+                      </label>
+
+                      <button
+                        type="button"
+                        className="wm-ui-button wm-ui-button-primary wm-project-blocker-answer__save"
+                        onClick={saveActiveBlockerAnswer}
+                        disabled={!blockerDraft.trim()}
+                      >
+                        Save &amp; next
+                      </button>
+                    </div>
+                  ) : (
+                    <Link to={activeBlockerWorkflow.route} className="wm-ui-button wm-ui-button-primary">
+                      {activeBlockerWorkflow.label}
+                    </Link>
+                  )}
+
                   <div className="wm-project-blocker-walkthrough__controls">
                     <button
                       type="button"
@@ -664,9 +906,15 @@ export function ProjectDetailPage() {
                       onClick={() => setActiveBlockerIndex((current) => Math.min(projectReadinessGate.blockers.length - 1, current + 1))}
                       disabled={activeBlockerIndex === projectReadinessGate.blockers.length - 1}
                     >
-                      Next blocker
+                      Skip for now
                     </button>
                   </div>
+
+                  {activeBlockerCanAnswerInline ? (
+                    <Link to={activeBlockerWorkflow.route} className="wm-project-blocker-walkthrough__discovery-link">
+                      Open full Discovery
+                    </Link>
+                  ) : null}
                 </div>
               ) : null}
             </div>

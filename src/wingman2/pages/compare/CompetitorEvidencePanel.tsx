@@ -65,7 +65,7 @@ const DOCUMENT_ACCEPT = ".pdf,.docx,.txt";
  * feeds match scoring directly; only an explicit "Save for next time" click
  * does, same as before this panel grew upload support.
  */
-export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false }: { brand: string; sku: string; onSaved: () => void; autoRun?: boolean }) {
+export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false, primaryCriteria = [] }: { brand: string; sku: string; onSaved: () => void; autoRun?: boolean; primaryCriteria?: string[] }) {
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [result, setResult] = useState<CompetitorLookupResponse | null>(null);
   const [error, setError] = useState<{ message: string; needsSignIn: boolean } | null>(null);
@@ -207,7 +207,22 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false }
   const canSave = form.title.trim().length > 0 || form.domain !== "UNKNOWN";
 
   return (
-    <section className="compare-native-card wm-ui-section wm-ui-card">
+    <section className="compare-native-card wm-compare-live-lookup wm-ui-section wm-ui-card" data-lookup-status={status}>
+      <div className="wm-compare-live-lookup__status" role="status">
+        <span className="wm-compare-live-lookup__pulse" aria-hidden="true" />
+        <div>
+          <strong>{status === "loading" ? "Live lookup in progress" : status === "done" ? "Live lookup complete" : status === "error" ? "Live lookup needs attention" : "Live lookup ready"}</strong>
+          <span>{status === "loading" ? `Searching approved manufacturer sources for ${brand} ${sku}` : `Lookup target: ${brand} ${sku}`}</span>
+        </div>
+      </div>
+
+      {primaryCriteria.length ? (
+        <div className="wm-compare-lookup-criteria" aria-label="Primary search criteria">
+          <strong>Primary search criteria</strong>
+          <div>{primaryCriteria.map((criterion) => <span key={criterion}>{criterion}</span>)}</div>
+        </div>
+      ) : null}
+
       <h3 className="wm-ui-title">Add evidence for this product</h3>
       <p className="wm-ui-copy">
         Wingman has limited local data for this competitor product. Fetch the manufacturer's own product page, upload a PDF spec sheet, or attach a screenshot for reference - then confirm the details below and save them. Saved details are reused automatically the next time this SKU comes up in Compare.
@@ -233,12 +248,6 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false }
           <input type="file" accept="image/*" style={{ display: "none" }} onChange={handleImageChange} />
         </label>
       </div>
-
-      {status === "loading" ? (
-        <p className="compare-native-muted wm-ui-copy" role="status">
-          Searching approved manufacturer sources for {brand} {sku}...
-        </p>
-      ) : null}
 
       {error ? (
         <div className="wm-ui-card" role="alert">
@@ -274,9 +283,12 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false }
             ) : null}
           </div>
         ) : (
-          <p className="compare-native-muted wm-ui-copy">
-            No manufacturer page could be resolved automatically. Confirm the product type manually below.
-          </p>
+          <div className="wm-compare-lookup-explanation">
+            <strong>No manufacturer product record was resolved</strong>
+            <p className="compare-native-muted wm-ui-copy">
+              Wingman searched for {brand} {sku}{primaryCriteria.length ? ` using ${primaryCriteria.join(", ")}` : ""}, but did not find enough reliable product evidence to classify it and recommend an equivalent safely. The SKU may be incomplete, discontinued, region-specific, blocked from automated access, or absent from approved manufacturer sources.
+            </p>
+          </div>
         )
       ) : null}
 

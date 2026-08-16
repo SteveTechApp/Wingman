@@ -250,4 +250,113 @@ describe("competitor compare decision", () => {
     expect(result.gaps.join(" ")).not.toMatch(/chroma/i);
     expect(result.matches.join(" ")).not.toMatch(/chroma/i);
   });
+
+  it("treats a wireless-presentation competitor role as compatible with a presentation switcher (audit P0-1)", () => {
+    const result = classifyCompetitorCompareDecision({
+      score: 88,
+      competitor: {
+        sku: "Barco CLICKSHARE-CX-30",
+        domain: "WIRELESS_PRESENTATION",
+        role: "wireless presentation",
+        transport: "Wireless",
+        maxResolution: "4K30",
+        specTier: "family-rule",
+      },
+      wyrestorm: {
+        sku: "SW-620-TX-W",
+        domain: "WIRELESS_PRESENTATION",
+        role: "Room presentation and source switching core",
+        transport: "Wireless",
+        maxResolution: "4K60",
+        features: { wireless: true },
+        sourceTier: "verified-profile",
+      },
+    });
+
+    expect(result.blockers.join(" ")).not.toMatch(/product role mismatch/i);
+    expect(result.blockers.join(" ")).not.toMatch(/technology class mismatch/i);
+  });
+
+  it("allows a directional PARTIAL MATCH for a complete family-rule competitor profile (audit P1-1)", () => {
+    const result = classifyCompetitorCompareDecision({
+      score: 96,
+      competitor: {
+        sku: "NMX-ENC-N2412A",
+        title: "AMX NMX-ENC-N2412A SVSI encoder AVoIP 1G",
+        domain: "AVOIP",
+        role: "Encoder",
+        transport: "AV over IP 1G",
+        maxResolution: "4K60",
+        specs: { internalPsu: true },
+        specTier: "family-rule",
+      },
+      wyrestorm: {
+        sku: "NHD-500-TX",
+        domain: "AVOIP",
+        role: "Encoder",
+        transport: "AV over IP 1G",
+        maxResolution: "4K60",
+        specs: { poe: true },
+        sourceTier: "verified-profile",
+      },
+    });
+
+    // A family-rule profile with domain + role + transport all confirmed can
+    // reach a DIRECTIONAL PARTIAL MATCH, but never GOOD MATCH (which stays
+    // exclusive to verified profiles) - see the GOOD-exclusivity test below.
+    expect(result.outcome).toBe("PARTIAL MATCH");
+    expect(result.blockers).toHaveLength(0);
+  });
+
+  it("keeps GOOD MATCH exclusive to verified competitor profiles", () => {
+    const result = classifyCompetitorCompareDecision({
+      score: 95,
+      competitor: {
+        sku: "Barco CX-50",
+        domain: "WIRELESS_PRESENTATION",
+        role: "wireless presentation",
+        transport: "Wireless",
+        maxResolution: "4K60",
+        specs: { externalPsu: true },
+        specTier: "family-rule",
+      },
+      wyrestorm: {
+        sku: "SW-620-TX-W",
+        domain: "WIRELESS_PRESENTATION",
+        role: "presentation switcher",
+        transport: "Wireless",
+        maxResolution: "4K60",
+        features: { wireless: true },
+        specs: { externalPsu: true },
+        sourceTier: "verified-profile",
+      },
+    });
+
+    expect(result.outcome).not.toBe("GOOD MATCH");
+  });
+
+  it("blocks an amplifier as the primary equivalent for an audio DSP competitor (audit P2-2)", () => {
+    const result = classifyCompetitorCompareDecision({
+      score: 70,
+      competitor: {
+        sku: "Biamp TesiraFORTE",
+        title: "Biamp TesiraFORTE audio DSP",
+        domain: "AUDIO",
+        role: "audio dsp",
+        transport: "Audio",
+        specTier: "family-rule",
+      },
+      wyrestorm: {
+        sku: "AMP-2120",
+        title: "Advanced 2 or 4 Channel Amplifier",
+        domain: "AUDIO",
+        role: "audio processor",
+        transport: "Audio",
+        sourceTier: "verified-profile",
+      },
+    });
+
+    expect(result.outcome).toBe("NO MATCH");
+    expect(result.blockers.join(" ")).toMatch(/an amplifier is not an equivalent for a DSP/i);
+  });
 });
