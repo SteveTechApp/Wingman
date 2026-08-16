@@ -6,6 +6,11 @@
       "date": "2026-08-16",
       "metrics": ["pageSections"],
       "reason": "Reviewed exception for the compare confidence-tier and evidence-trace feature work: 24 new page-specific CSS sections (2650 to 2674) for the tier chip tones and glyphs, the verdict-lead banner treatment, the projects-list tier badge and the shared print styles, scoped under html[data-wingman-route=\"compare\"] and the projects page. The styles are deliberately scoped per route; consolidation into the layered stylesheet (Phase 8 of docs/SIZE_BUDGETS.md) is the planned reduction."
+    },
+    {
+      "date": "2026-08-16",
+      "metrics": ["pageSections"],
+      "reason": "Reviewed exception for the compare verdict-lead signal-route visual: 25 new page-specific CSS sections (2674 to 2699) for the routed-link diagram treatment of the verdict lead (source-to-display route, route lamps, tier-toned route states for strong/confirm/pending/none), scoped under html[data-wingman-route=\"compare\"] in wingman-workflow-theme.css. Consolidation into the layered stylesheet remains the planned reduction (Phase 8 of docs/SIZE_BUDGETS.md)."
     }
   ],
   "totals": {
@@ -13,7 +18,7 @@
     "rgb": 2725,
     "inlineStyle": 60,
     "arbitraryTailwind": 288,
-    "pageSections": 2674,
+    "pageSections": 2699,
     "legacyPills": 4
   }
 }

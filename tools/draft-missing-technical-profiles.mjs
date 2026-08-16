@@ -5,7 +5,10 @@
  *
  * This tool is deliberately fail-closed:
  * - --check and --apply are mutually exclusive;
- * - only active, specifiable lead products are considered;
+ * - only current, specifiable lead products are considered: `active` lifecycle
+ *   always, and `review` lifecycle only when a successful official WyreStorm
+ *   page was captured (the product is live on the site but its currency is
+ *   pending human confirmation - the draft stays review-required either way);
  * - every draft must have a successful captured official WyreStorm page;
  * - every draft remains review-required;
  * - existing profiles are never overwritten;
@@ -13,9 +16,10 @@
  */
 
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { isCurrentCatalogProduct } from "./lib/current-catalog.mjs";
+import { atomicWriteJson, list, profileClass, text, unique, validateSchema } from "./lib/wyrestorm-profile-utils.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const target = path.join(root, "data", "governance", "wyrestorm-technical-profiles.json");
@@ -23,7 +27,6 @@ const canonicalPath = path.join(root, "data", "wingman-canonical-product-store.j
 const schemaPath = path.join(root, "data", "schemas", "wyrestorm-technical-profile.schema.json");
 const REVIEWED_ON = "2026-07-30";
 const REVIEWER = "Wingman canonical official-source extraction (NOT human-verified)";
-const excludedRoles = new Set(["cable", "accessory", "rack-mount", "power-accessory", "software-app"]);
 const officialSourceOverrides = new Map([
   ["EXP-SW-0201-8K", "https://www.wyrestorm.com/product/exp-sw-0x01-8k/"],
   ["IDB-USBA-C", "https://www.wyrestorm.com/product/idb-400-ms-c/"],
@@ -37,31 +40,6 @@ function fail(message) {
   process.exit(1);
 }
 
-function text(value) {
-  return String(value ?? "").replace(/\s+/g, " ").trim();
-}
-
-function unique(values, limit = 30) {
-  return Array.from(new Set(values.map(text).filter(Boolean))).slice(0, limit);
-}
-
-function list(value) {
-  return Array.isArray(value) ? value : [];
-}
-
-function profileClass(product) {
-  const primary = text(product.productClassification?.primaryCategory).toUpperCase();
-  const sku = text(product.sku).toUpperCase();
-  if (sku.startsWith("NHD-")) return "AVOIP";
-  if (sku.startsWith("MX-") || sku.startsWith("MXV-")) return "MATRIX";
-  if (sku.startsWith("EX") || sku.startsWith("RX") || sku.startsWith("TX")) return "HDBASET";
-  if (sku.startsWith("SW-")) return "PRESENTATION";
-  if (sku.startsWith("CAM-") || primary.includes("CAMERA")) return "CAMERA";
-  if (sku.startsWith("AMP-") || primary.includes("AUDIO")) return "AUDIO";
-  if (sku.startsWith("APO-") || sku.startsWith("HALO-") || sku.startsWith("FOCUS-")) return "UC";
-  if (sku.startsWith("SYN-")) return "CONTROL";
-  return primary.replace(/[^A-Z0-9]+/g, "_") || "OTHER";
-}
 
 function domainLines(domain, keys) {
   if (!domain || typeof domain !== "object") return [];
@@ -144,32 +122,6 @@ function createDraft(product) {
   };
 }
 
-function validateSchema(value, schema, location = "$") {
-  const errors = [];
-  const typeMatches = {
-    object: (candidate) => candidate !== null && typeof candidate === "object" && !Array.isArray(candidate),
-    array: Array.isArray,
-    string: (candidate) => typeof candidate === "string",
-    integer: Number.isInteger,
-  };
-  if (schema.type && !typeMatches[schema.type]?.(value)) return [`${location} must be ${schema.type}.`];
-  if (schema.enum && !schema.enum.includes(value)) errors.push(`${location} has an invalid value.`);
-  if (typeof value === "string" && schema.minLength !== undefined && value.length < schema.minLength) errors.push(`${location} is too short.`);
-  if (typeof value === "number" && schema.minimum !== undefined && value < schema.minimum) errors.push(`${location} is below its minimum.`);
-  if (Array.isArray(value)) {
-    if (schema.minItems !== undefined && value.length < schema.minItems) errors.push(`${location} has too few items.`);
-    if (schema.items) value.forEach((item, index) => errors.push(...validateSchema(item, schema.items, `${location}[${index}]`)));
-  }
-  if (typeMatches.object(value)) {
-    for (const required of schema.required ?? []) {
-      if (!Object.hasOwn(value, required)) errors.push(`${location}.${required} is required.`);
-    }
-    for (const [key, childSchema] of Object.entries(schema.properties ?? {})) {
-      if (Object.hasOwn(value, key)) errors.push(...validateSchema(value[key], childSchema, `${location}.${key}`));
-    }
-  }
-  return errors;
-}
 
 function validateOfficialSources(products, drafts) {
   const errors = [];
@@ -186,24 +138,6 @@ function validateOfficialSources(products, drafts) {
   return errors;
 }
 
-function atomicWriteJson(filePath, value) {
-  const temporary = path.join(
-    path.dirname(filePath),
-    `.${path.basename(filePath)}.${process.pid}.${Date.now()}.${os.hostname()}.tmp`,
-  );
-  let descriptor;
-  try {
-    descriptor = fs.openSync(temporary, "wx", 0o600);
-    fs.writeFileSync(descriptor, `${JSON.stringify(value, null, 2)}\n`, "utf8");
-    fs.fsyncSync(descriptor);
-    fs.closeSync(descriptor);
-    descriptor = undefined;
-    fs.renameSync(temporary, filePath);
-  } finally {
-    if (descriptor !== undefined) fs.closeSync(descriptor);
-    if (fs.existsSync(temporary)) fs.unlinkSync(temporary);
-  }
-}
 
 const check = process.argv.includes("--check");
 const apply = process.argv.includes("--apply");
@@ -218,12 +152,14 @@ const payload = JSON.parse(fs.readFileSync(target, "utf8"));
 const canonical = JSON.parse(fs.readFileSync(canonicalPath, "utf8"));
 const schema = JSON.parse(fs.readFileSync(schemaPath, "utf8"));
 const existing = new Set(payload.profiles.map((profile) => text(profile.sku).toUpperCase()));
-const activeLeadProducts = canonical.products.filter((product) =>
-  text(product.lifecycleStatus).toLowerCase() === "active" &&
-  product.doNotSpec !== true &&
-  !excludedRoles.has(text(product.productRole).toLowerCase())
-);
-const missingProducts = activeLeadProducts.filter((product) => !existing.has(text(product.sku).toUpperCase()));
+// Only products the website currently lists are drafted, per the shared
+// current-catalog predicate (tools/lib/current-catalog.mjs): `active`
+// lifecycle always; `review` lifecycle only when an official page was
+// successfully captured (live on the site, currency pending human
+// confirmation - the review-required draft status keeps that gate).
+// Discontinued, do-not-spec and accessory/cable products are never drafted.
+const currentProducts = canonical.products.filter(isCurrentCatalogProduct);
+const missingProducts = currentProducts.filter((product) => !existing.has(text(product.sku).toUpperCase()));
 const drafts = missingProducts.map(createDraft);
 const candidate = structuredClone(payload);
 candidate.profiles.push(...drafts);
@@ -231,7 +167,7 @@ candidate.profiles.sort((a, b) => text(a.sku).localeCompare(text(b.sku)));
 if (drafts.length) candidate.updatedAt = REVIEWED_ON;
 
 const errors = [
-  ...validateOfficialSources(activeLeadProducts, drafts),
+  ...validateOfficialSources(currentProducts, drafts),
   ...validateSchema(candidate, schema),
 ];
 const seen = new Set();
@@ -247,7 +183,7 @@ if (errors.length) {
 }
 
 console.log(`[draft-missing-profiles] Candidate schema valid: ${candidate.profiles.length} total profile(s).`);
-console.log(`[draft-missing-profiles] Official captured source validated for ${drafts.length} missing active lead SKU(s).`);
+console.log(`[draft-missing-profiles] Official captured source validated for ${drafts.length} missing current-catalog SKU(s).`);
 console.log(`[draft-missing-profiles] Drafts: ${drafts.map((draft) => draft.sku).join(", ") || "(none)"}`);
 
 if (check) {

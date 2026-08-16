@@ -34,8 +34,8 @@ describe("DashboardPage confirmation flow (ready profile)", () => {
     renderDashboard();
 
     const card = screen.getByLabelText("Profiles awaiting human confirmation");
-    // With APO-210-UC set aside for review, the awaiting list is 14 (13 real profiles + the test's simulated one).
-    expect(card.textContent).toContain("14 awaiting");
+    // With APO-210-UC set aside for review, the awaiting list is 18 (17 real profiles + the test's simulated one).
+    expect(card.textContent).toContain("18 awaiting");
     const apoRow = within(card).getByText("APO-210-UC").closest("li");
     fireEvent.click(within(apoRow as HTMLElement).getByRole("button", { name: "Confirm" }));
 
@@ -66,7 +66,7 @@ describe("DashboardPage confirmation flow (ready profile)", () => {
     renderDashboard();
 
     const card = screen.getByLabelText("Profiles awaiting human confirmation");
-    expect(card.textContent).toContain("14 awaiting");
+    expect(card.textContent).toContain("18 awaiting");
     const apoRow = within(card).getByText("APO-210-UC").closest("li");
     fireEvent.click(within(apoRow as HTMLElement).getByRole("button", { name: "Confirm" }));
 
@@ -97,7 +97,7 @@ describe("DashboardPage confirmation flow (ready profile)", () => {
       evidenceUrl: "https://wyrestorm.com/products/apo-210-uc",
     });
 
-    expect(card.textContent).toContain("13 awaiting");
+    expect(card.textContent).toContain("17 awaiting");
     // The row leaves the awaiting list (the notice above it still names the SKU).
     expect(within(card).queryByText("APO-210-UC")).toBeNull();
     // The panel closes after a successful save.

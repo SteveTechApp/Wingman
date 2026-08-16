@@ -11,11 +11,12 @@ describe("governed confirmation backlog", () => {
     // The 2026-08-16 structured review passes confirmed 117 profiles (the
     // original matrix/switcher/HDBaseT batch plus the 97-profile batch covering
     // every profile whose spec-critical fields were readable) against live
-    // official pages; the remaining 13 machine-transcribed profiles still await
-    // a reviewer recording verifiedBy.
-    expect(backlog.total).toBe(130);
+    // official pages, and the coverage campaign added 4 machine-transcribed
+    // profiles (134 total); the 17 machine-transcribed profiles still await a
+    // reviewer recording verifiedBy.
+    expect(backlog.total).toBe(134);
     expect(backlog.humanVerified).toBe(117);
-    expect(backlog.awaiting.length).toBe(13);
+    expect(backlog.awaiting.length).toBe(17);
   });
 
   it("splits the backlog into ready-to-confirm and need-data-work with consistent per-profile fields", () => {
@@ -23,7 +24,7 @@ describe("governed confirmation backlog", () => {
 
     expect(backlog.readyToConfirm + backlog.needDataWork).toBe(backlog.awaiting.length);
     // The 2026-08 batch confirmed every profile that was ready (readable
-    // spec-critical fields) - the remaining 13 all need data work first, so
+    // spec-critical fields) - the remaining 17 all need data work first, so
     // readyToConfirm is honestly zero rather than showing a fake queue.
     expect(backlog.readyToConfirm).toBe(0);
     expect(backlog.needDataWork).toBeGreaterThan(0);

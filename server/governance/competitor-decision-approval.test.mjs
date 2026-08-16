@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -7,6 +7,21 @@ import {
   pendingDecisionQueue,
   saveCompetitorDecisionApproval,
 } from "./competitor-decision-approval.mjs";
+import {
+  __setLedgerSupabaseClientForTests,
+  mergeLedgers,
+} from "./competitor-decision-ledger-store.mjs";
+
+const originalSyncMode = process.env.WINGMAN_LEDGER_SYNC_MODE;
+
+afterEach(() => {
+  __setLedgerSupabaseClientForTests(null);
+  if (originalSyncMode === undefined) {
+    delete process.env.WINGMAN_LEDGER_SYNC_MODE;
+  } else {
+    process.env.WINGMAN_LEDGER_SYNC_MODE = originalSyncMode;
+  }
+});
 
 function fixtureDecision(overrides) {
   return {
@@ -267,6 +282,207 @@ describe("approvedCompetitorDecisions", () => {
       expect(result.total).toBe(4);
       expect(result.approved).toBe(0);
       expect(result.decisions).toEqual([]);
+    });
+  });
+});
+
+describe("mergeLedgers (two-way sync core)", () => {
+  it("lets a remote approval beat a local pending row", () => {
+    const local = { version: 1, updatedAt: "2026-08-16T00:00:00.000Z", decisions: [fixtureDecision()] };
+    const remote = {
+      version: 1,
+      updatedAt: "2026-08-16T02:00:00.000Z",
+      decisions: [
+        fixtureDecision({
+          reviewStatus: "approved",
+          reviewer: "R. Remote",
+          reviewedAt: "2026-08-16T02:00:00.000Z",
+          evidence: [{ sourceUrl: "https://maker.example/sku-1", sourceType: "manufacturer" }],
+        }),
+      ],
+    };
+
+    const merged = mergeLedgers(local, remote);
+    expect(merged.decisions).toHaveLength(1);
+    expect(merged.decisions[0].reviewStatus).toBe("approved");
+    expect(merged.decisions[0].reviewer).toBe("R. Remote");
+    // The engine snapshot survives the merge untouched.
+    expect(merged.decisions[0].engineSnapshot.decisionType).toBe("closest-technical-match");
+  });
+
+  it("preserves a local approval against a remote pending row", () => {
+    const local = {
+      version: 1,
+      updatedAt: "2026-08-16T00:00:00.000Z",
+      decisions: [
+        fixtureDecision({
+          reviewStatus: "approved",
+          reviewer: "L. Local",
+          reviewedAt: "2026-08-16T01:00:00.000Z",
+          evidence: [{ sourceUrl: "https://maker.example/sku-1", sourceType: "manufacturer" }],
+        }),
+      ],
+    };
+    const remote = { version: 1, updatedAt: "2026-08-16T00:00:00.000Z", decisions: [fixtureDecision()] };
+
+    const merged = mergeLedgers(local, remote);
+    expect(merged.decisions[0].reviewStatus).toBe("approved");
+    expect(merged.decisions[0].reviewer).toBe("L. Local");
+  });
+
+  it("keeps the newer review when both sides approved the same row", () => {
+    const newer = fixtureDecision({
+      reviewStatus: "approved",
+      reviewer: "B. Reviewer",
+      reviewedAt: "2026-08-16T03:00:00.000Z",
+      updatedAt: "2026-08-16T03:00:00.000Z",
+    });
+    const older = fixtureDecision({
+      reviewStatus: "approved",
+      reviewer: "A. Reviewer",
+      reviewedAt: "2026-08-16T01:00:00.000Z",
+      updatedAt: "2026-08-16T01:00:00.000Z",
+    });
+
+    const merged = mergeLedgers(
+      { version: 1, updatedAt: "2026-08-16T00:00:00.000Z", decisions: [older] },
+      { version: 1, updatedAt: "2026-08-16T00:00:00.000Z", decisions: [newer] },
+    );
+    expect(merged.decisions[0].reviewer).toBe("B. Reviewer");
+  });
+
+  it("includes rows unique to either side and dedupes by identity", () => {
+    const local = {
+      version: 1,
+      updatedAt: "2026-08-16T00:00:00.000Z",
+      decisions: [fixtureDecision()], // Maker SKU-1
+    };
+    const remote = {
+      version: 1,
+      updatedAt: "2026-08-16T00:00:00.000Z",
+      decisions: [fixtureDecision({ competitorSku: "SKU-9", id: "maker-SKU-9--review-required" })],
+    };
+
+    const merged = mergeLedgers(local, remote);
+    expect(merged.decisions.map((decision) => decision.competitorSku).sort()).toEqual(["SKU-1", "SKU-9"]);
+  });
+});
+
+describe("Supabase write-through + cross-machine reads", () => {
+  function fakeSupabaseClient() {
+    let rows = [];
+    return {
+      __rows: () => rows,
+      from: () => ({
+        select: () => ({
+          order: async () => ({
+            data: rows.map((row) => ({ payload: row.payload })),
+            error: null,
+          }),
+        }),
+        upsert: async (newRows) => {
+          for (const row of newRows) {
+            const index = rows.findIndex((existing) => existing.id === row.id);
+            if (index >= 0) rows[index] = row;
+            else rows.push(row);
+          }
+          return { error: null };
+        },
+        delete: () => ({
+          in: async (column, ids) => {
+            rows = rows.filter((row) => !ids.includes(row.id));
+            return { error: null };
+          },
+        }),
+      }),
+    };
+  }
+
+  it("pushes an approval through to the Supabase mirror (write-through)", async () => {
+    const client = fakeSupabaseClient();
+    __setLedgerSupabaseClientForTests(client);
+    process.env.WINGMAN_LEDGER_SYNC_MODE = "supabase";
+
+    await withTempLedgerFile(async (filePath) => {
+      const result = await saveCompetitorDecisionApproval(
+        {
+          competitorManufacturer: "Maker",
+          competitorSku: "SKU-1",
+          reviewer: "A. Reviewer",
+          evidenceUrl: "https://maker.example/sku-1",
+        },
+        filePath,
+      );
+
+      expect(result.ok).toBe(true);
+      const mirrored = client.__rows().find((row) => row.id === "maker-SKU-1--closest-technical-match");
+      expect(mirrored).toBeDefined();
+      expect(mirrored.payload.reviewStatus).toBe("approved");
+      expect(mirrored.payload.reviewer).toBe("A. Reviewer");
+    });
+  });
+
+  it("approval pushes are row-scoped and never clobber another machine's approval", async () => {
+    const client = fakeSupabaseClient();
+    __setLedgerSupabaseClientForTests(client);
+    process.env.WINGMAN_LEDGER_SYNC_MODE = "supabase";
+    // The mirror already holds an approval from another machine (SKU-9) that
+    // this machine's committed file does NOT contain. Approving SKU-1 must not
+    // overwrite or drop it.
+    client.__rows().push({
+      id: "maker-SKU-9--approved",
+      payload: fixtureDecision({
+        id: "maker-SKU-9--approved",
+        competitorSku: "SKU-9",
+        reviewStatus: "approved",
+        reviewer: "R. Remote",
+        reviewedAt: "2026-08-16T02:00:00.000Z",
+        evidence: [{ sourceUrl: "https://maker.example/sku-9", sourceType: "manufacturer" }],
+      }),
+    });
+
+    await withTempLedgerFile(async (filePath) => {
+      await saveCompetitorDecisionApproval(
+        {
+          competitorManufacturer: "Maker",
+          competitorSku: "SKU-1",
+          reviewer: "A. Reviewer",
+          evidenceUrl: "https://maker.example/sku-1",
+        },
+        filePath,
+      );
+
+      const remoteBySku = new Map(client.__rows().map((row) => [row.payload.competitorSku, row.payload]));
+      expect([...remoteBySku.keys()].sort()).toEqual(["SKU-1", "SKU-9"]);
+      expect(remoteBySku.get("SKU-1").reviewStatus).toBe("approved");
+      // The other machine's approval survives untouched.
+      expect(remoteBySku.get("SKU-9").reviewStatus).toBe("approved");
+      expect(remoteBySku.get("SKU-9").reviewer).toBe("R. Remote");
+    });
+  });
+
+  it("serves remote approvals on reads so another machine's review is visible", async () => {
+    const client = fakeSupabaseClient();
+    __setLedgerSupabaseClientForTests(client);
+    process.env.WINGMAN_LEDGER_SYNC_MODE = "supabase";
+    // Seed the mirror with an approval NOT in the local committed file.
+    client.__rows().push({
+      id: "maker-SKU-9--approved",
+      payload: fixtureDecision({
+        id: "maker-SKU-9--approved",
+        competitorSku: "SKU-9",
+        reviewStatus: "approved",
+        reviewer: "R. Remote",
+        reviewedAt: "2026-08-16T02:00:00.000Z",
+        evidence: [{ sourceUrl: "https://maker.example/sku-9", sourceType: "manufacturer" }],
+      }),
+    });
+
+    await withTempLedgerFile(async (filePath) => {
+      const result = await approvedCompetitorDecisions(filePath);
+      expect(result.ok).toBe(true);
+      const skus = result.decisions.map((decision) => decision.competitorSku).sort();
+      expect(skus).toEqual(["SKU-3", "SKU-9"]);
     });
   });
 });
