@@ -3248,16 +3248,34 @@ html[data-wingman-route="compare"] .compare-verdict-lead {
   margin: 0 0 18px !important;
 }
 
+/* The verdict lead is the front panel of the comparison: a machined
+   faceplate whose top edge catches the light, with the comparison drawn as a
+   routed signal link - the way an AV engineer reads a source feeding a
+   product. The tier chip stays the source of truth; the lamp, line and chip
+   share one tone (below) so they can never disagree. */
 html[data-wingman-route="compare"] .compare-verdict-lead__banner {
-  padding: 18px 20px !important;
-  border-radius: 14px !important;
+  position: relative !important;
+  padding: 16px 20px 18px !important;
+  border-radius: 10px !important;
   border: 1px solid var(--wm-ref-border) !important;
   background:
-    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--wm-ref-cyan) 16%, transparent), transparent 48%),
-    linear-gradient(135deg, rgba(6, 34, 40, 0.95), rgba(6, 22, 37, 0.96)) !important;
+    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--wm-ref-cyan) 14%, transparent), transparent 46%),
+    linear-gradient(180deg, rgba(13, 32, 48, 0.97), rgba(6, 17, 30, 0.97)) !important;
 }
 
-html[data-wingman-route="compare"] .compare-verdict-lead__banner strong {
+html[data-wingman-route="compare"] .compare-verdict-lead__banner::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 10px !important;
+  right: 10px !important;
+  height: 1px !important;
+  border-radius: 10px 10px 0 0 !important;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, white 18%, transparent) 18%, color-mix(in srgb, white 18%, transparent) 82%, transparent) !important;
+  pointer-events: none !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__heading {
   display: block !important;
   margin-bottom: 4px !important;
   color: #eafffb !important;
@@ -3270,6 +3288,159 @@ html[data-wingman-route="compare"] .compare-verdict-lead__banner p {
   color: color-mix(in srgb, var(--wm-ref-copy) 88%, white) !important;
   font-size: 0.9rem !important;
   line-height: 1.5 !important;
+}
+
+/* ---- Signal route: the comparison drawn as a routed link ---- */
+html[data-wingman-route="compare"] .compare-verdict-lead__route {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 14px !important;
+  margin: 14px 0 12px !important;
+  padding: 12px 14px !important;
+  border-radius: 8px !important;
+  border: 1px solid color-mix(in srgb, var(--wm-ref-border) 85%, transparent) !important;
+  background: rgba(3, 9, 17, 0.55) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__route-end {
+  display: grid !important;
+  gap: 3px !important;
+  min-width: 0 !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__route-end small {
+  font-size: 0.58rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: color-mix(in srgb, var(--wm-ref-copy) 55%, transparent) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__route-end strong {
+  display: block !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  font-family: "Cascadia Code", Consolas, monospace !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: var(--wm-ref-copy) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__route-end--to {
+  text-align: right !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__route-end--to strong {
+  color: color-mix(in srgb, var(--wm-ref-aqua) 82%, white) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__route-link {
+  position: relative !important;
+  display: block !important;
+  width: 84px !important;
+  height: 2px !important;
+  border-radius: 2px !important;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--wm-ref-copy) 28%, transparent), color-mix(in srgb, var(--wm-ref-aqua) 72%, transparent)) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__route-link::after {
+  content: "" !important;
+  position: absolute !important;
+  top: 50% !important;
+  right: -1px !important;
+  transform: translateY(-50%) !important;
+  border-top: 5px solid transparent !important;
+  border-bottom: 5px solid transparent !important;
+  border-left: 8px solid var(--wm-ref-aqua) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__route-lamp {
+  position: absolute !important;
+  top: 50% !important;
+  left: 0 !important;
+  transform: translateY(-50%) !important;
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50% !important;
+  background: var(--wm-ref-aqua) !important;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--wm-ref-aqua) 65%, transparent) !important;
+}
+
+/* Route tones follow the confidence tier chip, not the status class - so the
+   lamp, the line and the chip can never disagree (evidence-pending stays
+   amber even though its status class is no-match). */
+html[data-wingman-route="compare"] .compare-verdict-lead__banner:has(.compare-confidence-tier--strong) .compare-verdict-lead__route-link {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--wm-ref-green) 45%, transparent), var(--wm-ref-green)) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__banner:has(.compare-confidence-tier--strong) .compare-verdict-lead__route-link::after {
+  border-left-color: var(--wm-ref-green) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__banner:has(.compare-confidence-tier--strong) .compare-verdict-lead__route-lamp {
+  background: var(--wm-ref-green) !important;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--wm-ref-green) 70%, transparent) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__banner:has(.compare-confidence-tier--confirm) .compare-verdict-lead__route-link {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--wm-ref-amber) 45%, transparent), var(--wm-ref-amber)) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__banner:has(.compare-confidence-tier--confirm) .compare-verdict-lead__route-link::after {
+  border-left-color: var(--wm-ref-amber) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__banner:has(.compare-confidence-tier--confirm) .compare-verdict-lead__route-lamp {
+  background: var(--wm-ref-amber) !important;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--wm-ref-amber) 70%, transparent) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__banner:has(.compare-confidence-tier--pending) .compare-verdict-lead__route-link {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--wm-ref-amber) 45%, transparent), var(--wm-ref-amber)) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__banner:has(.compare-confidence-tier--pending) .compare-verdict-lead__route-link::after {
+  border-left-color: var(--wm-ref-amber) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__banner:has(.compare-confidence-tier--pending) .compare-verdict-lead__route-lamp {
+  background: var(--wm-ref-amber) !important;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--wm-ref-amber) 70%, transparent) !important;
+}
+
+/* Pending only ever pairs with the no-match status class; the status class
+   lives on the section, the banner on the header inside it. The descendant
+   selector out-specifies the --no-match banner rule below, so an amber
+   "Evidence pending" chip never sits on a red panel. */
+html[data-wingman-route="compare"] .compare-verdict-lead--no-match .compare-verdict-lead__banner:has(.compare-confidence-tier--pending) {
+  border-color: color-mix(in srgb, var(--wm-ref-amber) 52%, var(--wm-ref-border)) !important;
+  box-shadow: inset 4px 0 0 var(--wm-ref-amber), inset 0 1px 0 color-mix(in srgb, white 10%, transparent) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__banner:has(.compare-confidence-tier--pending) .compare-verdict-lead__route-end--to strong {
+  color: color-mix(in srgb, var(--wm-ref-amber) 82%, white) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__banner:has(.compare-confidence-tier--none) .compare-verdict-lead__route-link {
+  background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--wm-ref-red, #e5484d) 45%, transparent) 0 5px, transparent 5px 9px) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__banner:has(.compare-confidence-tier--none) .compare-verdict-lead__route-link::after {
+  border-left-color: var(--wm-ref-red, #e5484d) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__banner:has(.compare-confidence-tier--none) .compare-verdict-lead__route-lamp {
+  background: var(--wm-ref-red, #e5484d) !important;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--wm-ref-red, #e5484d) 55%, transparent) !important;
+}
+
+html[data-wingman-route="compare"] .compare-verdict-lead__banner:has(.compare-confidence-tier--none) .compare-verdict-lead__route-end--to strong {
+  color: color-mix(in srgb, var(--wm-ref-red, #e5484d) 82%, white) !important;
 }
 
 html[data-wingman-route="compare"] .compare-confidence-tier {

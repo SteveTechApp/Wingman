@@ -41,6 +41,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # The canonical product store (data/wingman-canonical-product-store.json)
+      # is generated, not committed: the current-catalog completeness gate in
+      # check:technical-data reads it, so it must be rebuilt here from the
+      # committed data-sources before any check runs.
+      - name: Generate canonical product data
+        run: npm run data:canonical-products
+
       # Check-only mirror of `govern --apply --strict`. `--strict` without
       # `--apply` runs the strict coverage gate in dry-run: it fails when any
       # active-lead profile still needs human-curated data instead of writing
@@ -51,11 +58,23 @@ jobs:
       # Compares against the committed coverage baseline in
       # tools/wyrestorm-technical-data-coverage-baseline.json.
       # `--update-baseline` is intentionally not passed so CI never rewrites it.
+      # Also enforces the current-catalog completeness gate: every product the
+      # website currently lists as a specifiable lead (active, or review with a
+      # captured official page) must have a governed profile of any status -
+      # a lifecycle mislabel can never silently hide a coverage gap.
       - name: Check technical data against baseline
         run: npm run check:technical-data:strict
 
       - name: Audit technical data
         run: node tools/audit-wyrestorm-technical-data.mjs
+
+      # The PDF spec-sheet ingestion gate: every spec-bearing official PDF in
+      # the committed manifest must belong to a current, specifiable product
+      # that either already has a governed profile or is drafted by
+      # `npm run ingest:wyrestorm-spec-sheets`. A spec sheet for a current
+      # product with no profile fails here instead of silently waiting.
+      - name: Check spec-sheet ingestion is complete
+        run: npm run check:spec-sheet-ingest
 
       # The governed drift gate: every profile's spec-critical fields
       # (max resolution, routed I/O, power) must agree with the canonical
