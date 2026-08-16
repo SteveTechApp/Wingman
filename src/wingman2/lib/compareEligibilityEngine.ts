@@ -7,6 +7,7 @@ import {
 } from "./networkHdAvoipEquivalence";
 import { selectWingmanProducts } from "./productSelectorEngine";
 import { getWyreStormCompareLeadBlockReason } from "./wyrestormSkuBusinessStatus";
+import { buildWyrestormCompareProfile } from "./wyrestormCompareProfile";
 
 const AVOIP_ENDPOINT_INTENTS = new Set<CompareIntentKind>([
   "av-over-ip",
@@ -178,7 +179,10 @@ function makeEligibilityCandidateFromProduct(product: LooseRecord, reason: strin
     sku,
     name,
     family: product.family ?? product.productFamily ?? product.category ?? "WyreStorm",
-    wyrestorm: product,
+    // A real compare profile (not the raw catalogue row) so the match card can
+    // surface the governed data tier - sourceTier/sourceLabel are set from the
+    // governed registry, never carried as bare product fields.
+    wyrestorm: buildWyrestormCompareProfile(product as any),
     summary: reason,
     matches: [reason],
     gaps: [],
@@ -612,6 +616,10 @@ function productIsSupportOnly(sku: string, text: string): string | null {
     // competitor's own product is a wireless casting dongle.
     /^APODG2/.test(key) ||
     /^SW020[46]VW$/.test(key) ||
+    // SW-620/640-TX-W are the wireless presentation switchers themselves -
+    // primary hardware, never support items (their box-contents copy mentions
+    // an included PSU, which must not flip them into a "power accessory").
+    /^SW6/.test(key) ||
     /^MX/.test(key) ||
     /^MV0401PRO$/.test(key) ||
     /^EX/.test(key);
@@ -632,7 +640,11 @@ function productIsSupportOnly(sku: string, text: string): string | null {
     return "Controller cannot be a lead replacement for signal transport hardware.";
   }
 
-  if (/^PSU|^PWR|POWERADAPTER|POWERSUPPLY/.test(key) || /\b(power supply|psu|power accessory)\b/i.test(value)) {
+  // Power wording is matched on the SKU identity ONLY. A primary product's
+  // box-contents copy routinely mentions an included PSU ("20V 10A power
+  // supply"), so matching on description text turns real hardware into
+  // "power accessories" - see SW-640L-TX-W / AMP-260-DNT.
+  if (/^PSU|^PWR|POWERADAPTER|POWERSUPPLY/.test(key)) {
     return "Power accessory cannot be a lead replacement candidate.";
   }
 
@@ -959,26 +971,44 @@ export function evaluateProductEligibility(args: {
   }
 
   if (args.intent === "wireless-casting") {
-    if (/^NHD/.test(key) || /\b(avoip|networkhd|encoder|decoder|transceiver|transmitter|receiver)\b/i.test(combined)) {
-      return blocked(sku, args.intent, ["This is a wireless presentation workflow, not an AVoIP endpoint comparison. Do not lead with NetworkHD here."]);
-    }
-
     // A competitor described specifically as a "dongle" is a simple casting
     // accessory, not a multi-input switcher or a full UC room bar - lead with
     // APO-DG2 (the WyreStorm casting dongle) instead of a switcher/video-bar
     // nudge in that specific case.
     const competitorIsDongle = /\bdongle\b/i.test(args.competitorText);
 
+    // SW-* wireless presentation switchers are the lead answer for this lane,
+    // and must be checked BEFORE the AVoIP-endpoint wording block below: their
+    // catalogue copy routinely contains generic "encoder / transmitter" and
+    // "receiver" words (search terms, application questions) that would
+    // otherwise flip the actual wireless switcher into a blocked NetworkHD
+    // impostor - see SW-640L-TX-W.
     if (/^SW/.test(key) && /\b(wireless|casting|miracast|airplay|chromecast|presentation)\b/i.test(combined)) {
       return direct(args.intent, ["Wireless presentation switcher candidate."], competitorIsDongle ? 30 : -90);
     }
 
+    // NetworkHD endpoints are never the answer to a wireless-presentation
+    // brief, regardless of what their catalogue copy says.
+    if (/^NHD/.test(key)) {
+      return blocked(sku, args.intent, ["This is a wireless presentation workflow, not an AVoIP endpoint comparison. Do not lead with NetworkHD here."]);
+    }
+
+    // Apollo / wireless / casting products are the wireless collaboration line
+    // themselves. Check them BEFORE the generic AVoIP-word block: their
+    // enriched catalogue copy routinely contains generic "endpoint / decoder /
+    // transceiver"-style words (applications, search terms) that would
+    // otherwise flip the actual casting dongle (APO-DG2) or UC bar into a
+    // blocked NetworkHD impostor - same root cause as the SW-640L-TX-W case.
     if (/\b(apollo|wireless|casting|miracast|airplay|chromecast)\b/i.test(combined) || /^APO/.test(key)) {
       const isDg2 = /^APODG2/.test(key);
       const isVx20Uc = /^APOVX20UC/.test(key);
       const fitPenalty = competitorIsDongle ? (isDg2 ? 15 : 45) : (isVx20Uc ? 15 : 45);
 
       return direct(args.intent, ["Wireless casting or collaboration candidate."], fitPenalty);
+    }
+
+    if (/\b(avoip|networkhd|av-over-ip|encoder|decoder|transceiver)\b/i.test(combined)) {
+      return blocked(sku, args.intent, ["This is a wireless presentation workflow, not an AVoIP endpoint comparison. Do not lead with NetworkHD here."]);
     }
 
     return related(args.intent, ["No confirmed wireless casting capability."], 75);

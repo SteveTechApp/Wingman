@@ -277,10 +277,17 @@ describe("competitor compare runtime behaviour", () => {
   it("adds IDB-300 as an option when wireless casting includes a desk connection", () => {
     const result = runCompareRuntimePipeline("standard meeting room wireless casting with desk HDMI and USB connection", products, undefined, 12);
     const leadSkus = skus(result.matches).slice(0, 8);
+    const steps = (result.nextSteps as string[]).join(" ");
 
     expect(leadSkus[0]).toBe("SW-620-TX-W");
     expect(leadSkus).toContain("APO-DG2");
-    expect(leadSkus).toContain("IDB-300");
+
+    // IDB-300 is an accessory, not a like-for-like equivalent, so it must be
+    // recommended in the guidance prose (audit P0-1: no decision-less raw rows,
+    // and no accessory masquerading as a match card).
+    expect(steps).toMatch(/IDB-300/);
+    expect(steps).toMatch(/accessory/i);
+    expect(leadSkus).not.toContain("IDB-300");
   });
 
   it("matches Blustream WMF72 to a wireless presentation switcher, not an Apollo UC soundbar", () => {
@@ -291,6 +298,62 @@ describe("competitor compare runtime behaviour", () => {
     expect(leadSkus[0]).toMatch(/^SW-(620|640L)-TX-W$/);
     expect(leadSkus[0]).not.toBe("APO-VX20-UC-V2");
     expect(leadSkus).toContain("SW-620-TX-W");
+  });
+
+  describe("wireless compare regression (audit P0-1)", () => {
+    it.each(["CLICKSHARE-CX-30", "SHARELINK-PRO-1100"])(
+      "returns a real, decided wireless-presentation direction for %s",
+      (competitorSku) => {
+        const scenario = fullCompetitorInput(competitorSku);
+        const result = runCompareRuntimePipeline(scenario.input, products, scenario.brand, 12);
+
+        // The most common competitor category must answer, not dead-end.
+        expect(result.topOutcome).not.toBe("NONE");
+        expect(result.matches.length).toBeGreaterThan(0);
+
+        // Every surfaced candidate carries a real verdict - no decision-less
+        // raw catalogue rows may reach the UI (previously SW-620-TX-W and
+        // APO-DG2 were prepended without one).
+        for (const match of result.matches as AnyRecord[]) {
+          expect(match.decision).toBeDefined();
+          expect(["GOOD MATCH", "PARTIAL MATCH", "VERIFY", "NO MATCH"]).toContain(match.decision.outcome);
+          expect(match.decision.blockers).toBeDefined();
+        }
+
+        // The 4-input wireless switcher must not be blocked as a "power
+        // accessory" (its box-contents copy mentions an included PSU) and must
+        // be a real accepted candidate with a decision.
+        const match640 = (result.matches as AnyRecord[]).find((match) => sku(match) === "SW-640L-TX-W");
+        expect(match640).toBeDefined();
+        expect((match640 as AnyRecord | undefined)?.decision).toBeDefined();
+        const rejectedSkus = skus(result.rejected);
+        expect(rejectedSkus).not.toContain("SW-640L-TX-W");
+      },
+    );
+
+    it("keeps the wireless switcher family ahead of the casting dongle for a wireless presentation competitor", () => {
+      const scenario = fullCompetitorInput("CLICKSHARE-CX-30");
+      const result = runCompareRuntimePipeline(scenario.input, products, scenario.brand, 12);
+      const leadSkus = skus(result.matches).slice(0, 4);
+
+      expect(leadSkus[0]).toMatch(/^SW-(620|640L)-TX-W$/);
+      expect(leadSkus.indexOf("APO-DG2")).toBeGreaterThan(0);
+    });
+
+    it("leads with APO-DG2 for a competitor described as a wireless casting dongle (role-equivalence regression)", () => {
+      const result = runCompareRuntimePipeline("wireless casting dongle byod presentation ClickShare Button", products, "Barco", 12);
+      const leadSkus = skus(result.matches).slice(0, 4);
+
+      // A casting dongle is the wireless-presentation endpoint itself: the
+      // dongle must lead AND carry a real accepted decision, not a false
+      // role-mismatch NO MATCH ("wireless casting dongle" was not in
+      // ROLE_EQUIVALENTS["presentation switcher"]).
+      expect(leadSkus[0]).toBe("APO-DG2");
+      const dg2 = (result.matches as AnyRecord[]).find((match) => sku(match) === "APO-DG2");
+      expect(dg2?.decision).toBeDefined();
+      expect(dg2?.decision.outcome).not.toBe("NO MATCH");
+      expect(String(dg2?.decision.blockers ?? [])).not.toMatch(/role mismatch/i);
+    });
   });
 
   it("never positions end-of-life SKUs (CAM-200-PTZ, APO-200-UC) as compare candidates", () => {

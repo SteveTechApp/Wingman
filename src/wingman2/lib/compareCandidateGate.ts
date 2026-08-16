@@ -333,6 +333,39 @@ export function gateCompareCandidate(
     blockedBy.push("Technology class mismatch: competitor is " + competitorClass + " but candidate is " + candidateClass + ".");
   }
 
+  // A wireless-presentation competitor must be answered by a candidate that can
+  // actually cast wirelessly. Every SW-*/EXP-SW-* switcher classifies as
+  // PRESENTATION (the lane WIRELESS_PRESENTATION shares), but a wired-only
+  // switcher is not an equivalent for a Barco ClickShare / Extron ShareLink -
+  // require wireless evidence on the candidate before it can fill the lane.
+  if (competitorClass === "WIRELESS_PRESENTATION" && candidateClass === "PRESENTATION") {
+    const wirelessMarkers = [
+      "wireless", "casting", "miracast", "airplay", "chromecast",
+      "clickshare", "airmedia", "solstice", "screenbeam", "wifidirect",
+    ];
+    const taxonomyTokens = (candidate.classification?.subClassifications ?? [])
+      .map((token) => String(token).trim().toLowerCase());
+    const wirelessEvidence = hasAny(textFor(candidate), wirelessMarkers) ||
+      taxonomyTokens.some((token) => wirelessMarkers.includes(token));
+    if (!wirelessEvidence) {
+      blockedBy.push("Wired-only presentation switcher cannot satisfy a wireless presentation comparison; wireless casting capability is required.");
+    }
+  }
+
+  // Audio DSP comparisons: WyreStorm makes no DSP, so an amplifier must not be
+  // offered as the primary candidate for one - surface the gap explicitly so an
+  // inexperienced rep sees "no direct equivalent" rather than a misleading list.
+  const competitorDescription = clean(context.competitorRole) + " " + clean(context.applicationContext);
+  if (
+    competitorClass === "AUDIO" &&
+    /\bdsp\b|digital\s+signal\s+processor/i.test(competitorDescription)
+  ) {
+    const candidateIdentity = identityTextFor(candidate);
+    if (/\bamplifier\b/i.test(candidateIdentity) || /^AMP-/i.test(clean(candidate.sku))) {
+      blockedBy.push("WyreStorm does not manufacture audio DSPs; an amplifier is not an equivalent for a DSP and must not be offered as the primary replacement.");
+    }
+  }
+
 
   const requestedEndpointRole = endpointRoleFromText(clean(context.competitorRole));
   if (

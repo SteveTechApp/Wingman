@@ -24,6 +24,7 @@ import { competitorSkuSeeds } from "../lib/competitorProductIntelligence";
 import { resolveCompetitorSpecProfile, type ResolvedCompetitorProfile } from "../lib/competitorSpecRegistry";
 import { findSavedCompetitorSpec } from "../lib/savedCompetitorSpecs";
 import { buildWyrestormCompareProfile } from "../lib/wyrestormCompareProfile";
+import { governedCoverageSummary } from "../lib/governedCoverage";
 import { findKnownWyrestormCompareProfile, hydrateWyrestormCompareProfile } from "../lib/knownWyrestormCompareProfiles";
 import type { KnownWyrestormCompareProfile } from "../lib/knownWyrestormCompareProfiles";
 import { classifyCompetitorCompareDecision, type CompareSpecFacts } from "../lib/competitorCompareDecision";
@@ -51,6 +52,7 @@ import {
 } from "../lib/governedCompareRuntime";
 import { CompetitorEvidencePanel } from "./compare/CompetitorEvidencePanel";
 import { CompareShowdown } from "../components/compare/CompareShowdown";
+import { GovernedDataBadge as GovernanceBadge } from "../components/GovernedDataBadge";
 
 /**
  * Keyword-heuristic recommendations are RETIRED (fail-closed policy).
@@ -271,6 +273,17 @@ type ScoredCandidate = {
   necessaryCoverage?: RigorousMatch["decision"]["necessaryCoverage"];
   evidenceCompleteness?: number;
   solutionType?: RigorousMatch["decision"]["solutionType"];
+  // Governed-profile status of the WyreStorm candidate (verified-profile =
+  // verified governed data; official-structured / text-inferred / missing =
+  // the honest fallback tiers). Surfaced on the match card so reps can see the
+  // data behind the verdict.
+  governedTier?: string;
+  governedLabel?: string;
+  // Eligibility fit from the ranking layer (lower = better). Carried through so
+  // the display sort can respect the eligibility verdict instead of letting
+  // keyword/confidence overlap override it (e.g. a room hub must not lead with
+  // the casting dongle just because the dongle's decision confidence is higher).
+  fitPenalty?: number;
 };
 
 function rigorousMatchToCandidate(match: RigorousMatch, profile: CompetitorProfile): ScoredCandidate {
@@ -318,8 +331,14 @@ function rigorousMatchToCandidate(match: RigorousMatch, profile: CompetitorProfi
       outcomeLabel: match.decision.summary,
       requirements: match.decision.requirements,
       necessaryCoverage: match.decision.necessaryCoverage,
+      fitPenalty: (match as { compareEligibility?: { fitPenalty?: number } }).compareEligibility?.fitPenalty,
       evidenceCompleteness: match.decision.evidenceCompleteness,
       solutionType: match.decision.solutionType,
+      governedTier: match.wyrestorm?.sourceTier ?? "missing",
+      // The resolver emits the canonical "Technical data not resolved" label
+      // for the missing tier, and the shared badge canonicalizes the tier
+      // itself - so the label flows straight through.
+      governedLabel: match.wyrestorm?.sourceLabel,
     },
     profile,
   );
@@ -4432,6 +4451,7 @@ function compactCompareQuoteChecks(
   return ["Confirm the unresolved technical differences and required dependencies before quotation."];
 }
 
+
 function BestCandidateCard({
   candidate,
   competitor,
@@ -4483,6 +4503,7 @@ function BestCandidateCard({
           <span>WyreStorm direction</span>
           <strong>{wyrestorm.heading}</strong>
           <small>{wyrestorm.detail}</small>
+          <GovernanceBadge tier={candidate.governedTier} label={candidate.governedLabel} />
         </section>
       </div>
 
@@ -4629,6 +4650,7 @@ function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
         <span><small>Product type</small><strong>{candidate.product.productClass}</strong></span>
         <span><small>Connection</small><strong>{candidate.product.transport}</strong></span>
         <span><small>Position</small><strong>{candidate.outcomeLabel}</strong></span>
+        <span><small>Data status</small><strong><GovernanceBadge tier={candidate.governedTier} label={candidate.governedLabel} /></strong></span>
       </div>
 
       <section className="compare-native-option-note compare-product-info-card__fit wm-ui-card">
@@ -5328,6 +5350,11 @@ function ComparePageNew() {
         ]
       : heuristicCandidates;
 
+    const intent = classifyCompareIntent(
+      profile.resolvedSpec ?? { domain: domainFromProductClass(profile.productClass), role: profile.role },
+      `${profile.brand} ${profile.sku} ${profile.rawText}`,
+    );
+
     const requestedRoomFit = profile.requestedTags.find((tag) => tag === "compact room" || tag === "medium room");
     const semanticRank = (candidate: ScoredCandidate): number => {
       const candidateRoomFit = candidate.product.tags.find((tag) => tag === "compact room" || tag === "medium room");
@@ -5337,17 +5364,47 @@ function ComparePageNew() {
         : 0;
       return candidate.score + sameProductClass + roomFit;
     };
-    const semanticallyOrdered = [...candidates].sort((a, b) => semanticRank(b) - semanticRank(a));
+    // In the wireless-presentation lane the eligibility layer holds the precise
+    // verdict (hub -> SW-* switcher, dongle -> APO-DG2) via fit penalties. The
+    // keyword/confidence sort below must not override it - otherwise a casting
+    // dongle with high decision confidence can leapfrog the actual room switcher
+    // for a ClickShare-style HUB competitor, or vice versa. Fit is the primary
+    // key only for this intent; everywhere else the legacy keyword sort stands.
+    const eligibilityFit = (candidate: ScoredCandidate): number =>
+      Number.isFinite(candidate.fitPenalty) ? (candidate.fitPenalty as number) : 0;
+    const compareCandidates = (a: ScoredCandidate, b: ScoredCandidate): number => {
+      if (intent === "wireless-casting") {
+        const fitDelta = eligibilityFit(a) - eligibilityFit(b);
+        if (fitDelta !== 0) return fitDelta;
+      }
+      return semanticRank(b) - semanticRank(a);
+    };
+    const semanticallyOrdered = [...candidates].sort(compareCandidates);
+
+    // A competitor described as a wireless CASTING DONGLE must lead with
+    // APO-DG2 (the WyreStorm dongle itself), not with a multi-input presentation
+    // switcher. The eligibility engine already encodes this (APO-DG2 gets the
+    // best fit for a dongle competitor), but the keyword-score sort would let
+    // the SW-* switcher win on marketing-word overlap - the exact case the
+    // eligibility layer's competitorIsDongle branch exists to prevent.
+    const dongleCompetitor =
+      intent === "wireless-casting" &&
+      /\bdongle\b/i.test(`${profile.brand} ${profile.sku} ${profile.rawText}`);
+    const semanticallyOrderedAdjusted = dongleCompetitor
+      ? [...semanticallyOrdered].sort((a, b) => {
+          const aIsDongle = /^APO-DG/.test(a.product.sku.toUpperCase());
+          const bIsDongle = /^APO-DG/.test(b.product.sku.toUpperCase());
+          if (aIsDongle !== bIsDongle) {
+            return aIsDongle ? -1 : 1;
+          }
+          return semanticRank(b) - semanticRank(a);
+        })
+      : semanticallyOrdered;
 
     const ordered = applyGovernedCandidateOrder(
-      semanticallyOrdered,
+      semanticallyOrderedAdjusted,
       governedDecision,
       (candidate) => candidate.product.sku,
-    );
-
-    const intent = classifyCompareIntent(
-      profile.resolvedSpec ?? { domain: domainFromProductClass(profile.productClass), role: profile.role },
-      `${profile.brand} ${profile.sku} ${profile.rawText}`,
     );
 
     // Governed/local decisions are ranking evidence, not permission to bypass
@@ -5369,6 +5426,7 @@ function ComparePageNew() {
   );
   const best = viableCandidates[0] ?? null;
   const displayedCandidate = viableCandidates[candidateIndex] ?? best;
+  const governedCoverage = useMemo(() => governedCoverageSummary(), []);
   useEffect(() => {
     if (candidateIndex >= viableCandidates.length) setCandidateIndex(0);
   }, [candidateIndex, viableCandidates.length]);
@@ -5400,6 +5458,43 @@ function ComparePageNew() {
   const alternativeCandidates = best
     ? viableCandidates.filter((candidate) => candidate.product.sku !== best.product.sku)
     : [];
+
+  // When every candidate is rejected, the no-match card should say WHY, not
+  // just "no suitable match" - e.g. an audio DSP competitor (Biamp Tesira,
+  // Q-SYS Core) is rejected because WyreStorm makes no DSP, and a rep should
+  // see that specific reason instead of a generic low-evidence warning.
+  // Only substantive blockers are surfaced: generic candidate-gate and
+  // evidence-gap boilerplate (e.g. an "accessory cannot be a lead" rejection
+  // for a totally un-described CUSTOM / missing SKU search) must keep falling
+  // back to the limited-data wording, which is the honest message there.
+  const topNoMatchReason = useMemo(() => {
+    const genericReasonPatterns = [
+      /accessory, controller, rack, cable or support item/i,
+      /cannot be a lead replacement/i,
+      /confirm the current specification/i,
+      /no technology class has been verified/i,
+      /no role, transport/i,
+      /more evidence is required/i,
+      /not enough evidence/i,
+      /available facts do not support/i,
+    ];
+    const isSpecificReason = (reason: string): boolean =>
+      reason.length > 0 && !genericReasonPatterns.some((pattern) => pattern.test(reason));
+
+    const rejectedReason = (rigorousResult.rejected ?? [])
+      .map((match) => String((match as Record<string, unknown>).rejectedReason ?? "").trim())
+      .find(isSpecificReason);
+
+    if (rejectedReason) return rejectedReason;
+
+    const firstNoMatch = (rigorousResult.matches ?? []).find((match) => {
+      const decision = (match as Record<string, unknown>).decision as Record<string, unknown> | undefined;
+      return decision?.outcome === "NO MATCH";
+    });
+    const blockers = ((firstNoMatch as Record<string, unknown> | undefined)?.decision as Record<string, unknown> | undefined)?.blockers;
+    return Array.isArray(blockers) ? blockers.find(isSpecificReason) ?? "" : "";
+  }, [rigorousResult]);
+
   const requestLiveLookup = shouldRequestLiveLookupUrl(profile)
     || !isCompetitorSkuHeldLocally(effectiveBrand, competitorInput);
   const primarySearchCriteria = uniqueText([
@@ -5981,6 +6076,15 @@ function ComparePageNew() {
                         <button type="button" aria-label="Next WyreStorm equivalent" onClick={() => setCandidateIndex((index) => (index + 1) % viableCandidates.length)}>›</button>
                       </nav>
                     ) : null}
+                    <section className="compare-native-governance-strip wm-ui-card" aria-label="Governed product data coverage">
+                      <span className="compare-native-governance-strip__dot" aria-hidden="true" />
+                      <p className="wm-ui-copy">
+                        <strong>{governedCoverage.verifiedPct}% of product profiles verified</strong>
+                        <span>
+                          {governedCoverage.verified + governedCoverage.verifiedWithWarning}/{governedCoverage.total} governed profiles · {governedCoverage.compareReady} compare-ready — every match card here is backed by verified governed data.
+                        </span>
+                      </p>
+                    </section>
                     <BestCandidateCard
                       candidate={displayedCandidate ?? best}
                       competitor={competitorSummary}
@@ -6159,7 +6263,7 @@ function ComparePageNew() {
                       <p className="wm-ui-copy">
                         {governedDecision?.decisionType === "no-suitable-match"
                           ? `This no-match decision was approved${governedDecision.reviewer ? ` by ${governedDecision.reviewer}` : ""}.`
-                          : competitorSummary.warning || "The available facts do not support a safe WyreStorm equivalent."}
+                          : topNoMatchReason || competitorSummary.warning || "The available facts do not support a safe WyreStorm equivalent."}
                       </p>
                     </div>
                   </header>

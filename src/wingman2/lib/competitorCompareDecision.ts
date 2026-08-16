@@ -152,7 +152,28 @@ const ROLE_EQUIVALENTS: Record<string, string[]> = {
   matrix: ["matrix switcher"],
   "distribution amplifier": ["splitter", "hdmi splitter", "distribution amp"],
   controller: ["control processor", "control module"],
-  "presentation switcher": ["presentation scaler", "room switcher", "collaboration switcher"],
+  // Wireless presentation products (Barco ClickShare, Extron ShareLink, Kramer
+  // VIA, Blustream WMF...) resolve with a "wireless presentation" role while
+  // WyreStorm's governed role for the SW-* family is "Room presentation and
+  // source switching core". All of them describe the same room-presentation
+  // job, so treat them as one role rather than blocking every wireless
+  // comparison with a false role mismatch.
+  "presentation switcher": [
+    "presentation scaler",
+    "room switcher",
+    "collaboration switcher",
+    "wireless presentation",
+    "wireless collaboration",
+    "wireless casting",
+    // The Apollo casting dongle (APO-DG2) is the wireless-presentation
+    // endpoint itself - a competitor described as a wireless casting dongle
+    // (e.g. ClickShare Button, ScreenBeam) must not be blocked as a role
+    // mismatch against the presentation-switcher lane.
+    "wireless casting dongle",
+    "wireless presentation dongle",
+    "casting dongle",
+    "room presentation and source switching core",
+  ],
   "video bar": [
     "room appliance",
     "conferencing bar",
@@ -616,6 +637,17 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
   const competitor = input.competitor;
   const wyrestorm = input.wyrestorm;
   const competitorTrusted = hasTrustedCompetitorProfile(competitor);
+  // A family-rule profile (domain/role/transport from the governed competitor
+  // intelligence, not a datasheet) is enough to allow a DIRECTIONAL PARTIAL
+  // MATCH once class, role and transport are all confirmed - but never GOOD
+  // MATCH, which stays exclusive to verified profiles. This lifts the long tail
+  // of brands (Barco, CYP, Sony, HDANYWHERE...) from permanent "verify-only"
+  // without eroding the verified-tier gate.
+  const competitorFamilyRuleComplete =
+    competitor.specTier === "family-rule" &&
+    !isUnknown(competitor.domain) &&
+    !isUnknown(competitor.role) &&
+    !isUnknown(competitor.transport);
   const competitorIntelligence = buildCompetitorDecisionEvidence(competitor);
 
   const domainKnown = !isUnknown(competitor.domain) && !isUnknown(wyrestorm.domain);
@@ -800,6 +832,20 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
     }
   }
 
+  // An audio DSP (Biamp Tesira, Q-SYS Core, Extron DMP) is a processor, not an
+  // amplifier or speakerphone. WyreStorm makes no DSP, so an amplifier must
+  // never be offered as the primary equivalent for a DSP comparison - say so
+  // explicitly instead of letting the generic role-mismatch text carry it.
+  const competitorIsDsp = /\bdsp\b|digital\s+signal\s+processor/i.test(
+    clean(competitor.role) + " " + clean(competitor.title) + " " + clean(competitor.sku),
+  );
+  const wyrestormIsAmplifier = /\bamplifier\b/i.test(
+    clean(wyrestorm.role) + " " + clean(wyrestorm.title) + " " + clean(wyrestorm.sku),
+  );
+  if (competitorIsDsp && wyrestormIsAmplifier) {
+    addUnique(blockers, "WyreStorm does not manufacture audio DSPs; an amplifier is not an equivalent for a DSP and must not be offered as the primary replacement.");
+  }
+
   const warningItems = input.warnings ?? [];
 
   warningItems.forEach((warning) => addUnique(verify, "Compare warning: " + warning));
@@ -839,9 +885,12 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
   const confidence = Math.max(5, scoreConfidence(input, blockers, gaps, verify) - competitorPenalty);
   const trustedCompetitor = competitorTrusted;
   const usableWyrestorm = hasUsableWyrestormProfile(wyrestorm);
+  const competitorEvidenceSufficient = trustedCompetitor || competitorFamilyRuleComplete;
 
   if (!trustedCompetitor) {
-    addUnique(verify, "Competitor technical profile is not verified; automatic equivalence is blocked.");
+    addUnique(verify, competitorEvidenceSufficient
+      ? "Competitor profile is family-rule based (not datasheet-verified); a directional PARTIAL alternative is allowed but a verified equivalent is still blocked."
+      : "Competitor technical profile is not verified; automatic equivalence is blocked.");
   }
 
   if (!usableWyrestorm) {
@@ -854,7 +903,13 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
     outcome = "NO MATCH";
   } else if (trustedCompetitor && usableWyrestorm && confidence >= 78 && gaps.length === 0 && verify.length <= 3) {
     outcome = "GOOD MATCH";
-  } else if (confidence >= 55 && gaps.length <= 4 && trustedCompetitor && usableWyrestorm) {
+  } else if (confidence >= 55 && gaps.length <= 4 && competitorEvidenceSufficient && usableWyrestorm) {
+    // GOOD MATCH stays exclusive to verified profiles; family-rule evidence can
+    // only ever reach a directional PARTIAL MATCH. The family-rule tier carries
+    // an inherent evidence penalty (missing-facts verify notes plus the
+    // family-rule confidence penalty), so its PARTIAL threshold sits slightly
+    // lower than the verified-tier one - the comparison itself (domain, role,
+    // transport, gaps) still has to be clean for PARTIAL to be allowed.
     outcome = "PARTIAL MATCH";
   }
 

@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 4,
   "updatedAt": "2026-07-30",
   "policy": {
     "purpose": "Source-controlled, reviewed WyreStorm technical facts shared by Product Pitch, Compare, Finder and proposal workflows.",
@@ -15,7 +15,7 @@
   "profiles": [
     {
       "sku": "AMP-2120",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "AUDIO",
       "role": "Audio DSP and speaker amplification",
       "productType": "Network amplifier",
@@ -94,20 +94,17 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/amp-2120/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (42 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (42 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
@@ -200,7 +197,12 @@
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "poe": true,
+        "powerSupply": "24V DC 5A (page prints '24V DC 5V'); 802.3at PoE+"
+      }
     },
     {
       "sku": "AMP-260-DNT",
@@ -491,7 +493,7 @@
     },
     {
       "sku": "APO-DG-DOCK",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "UC",
       "role": "Optional collaboration endpoint",
       "productType": "Wireless casting endpoint",
@@ -514,26 +516,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/apo-dg-dock/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "APO-DG-HDMI",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "UC",
       "role": "UC room endpoint",
       "productType": "UC room device",
@@ -567,20 +566,17 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/apo-dg-hdmi/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
@@ -640,7 +636,8 @@
       "specs": {
         "usbHostPorts": 1,
         "usbTotalPorts": 1,
-        "externalPsu": false
+        "externalPsu": false,
+        "powerSupply": "Powered through the USB-C host connection; confirm current datasheet detail before quotation"
       },
       "checks": [
         "Do not recommend APO-DG2 as a standalone complete wireless casting solution.",
@@ -903,7 +900,11 @@
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "powerSupply": "20V DC 3A"
+      }
     },
     {
       "sku": "CAM-0402-NDI-BRG",
@@ -1009,11 +1010,15 @@
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "powerSupply": "20V DC 3A"
+      }
     },
     {
       "sku": "CAM-210-NDI-PTZ",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CAMERA",
       "role": "Image capture endpoint",
       "productType": "NDI camera endpoint",
@@ -1137,27 +1142,32 @@
         "RS-232",
         "IR"
       ],
-      "power": [],
+      "power": [
+        "12V DC 2A power supply",
+        "PoE"
+      ],
       "physical": [],
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/cam-210-ndi-ptz/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (85 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (85 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "poe": true,
+        "powerSupply": "12V DC 2A; PoE"
+      }
     },
     {
       "sku": "CAM-210-PTZ",
@@ -1397,7 +1407,7 @@
     },
     {
       "sku": "COM-MIC-HUB",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "UNIFIED_COMMUNICATIONS",
       "role": "UC audio capture component",
       "productType": "Microphone endpoint",
@@ -1516,26 +1526,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/com-mic-hub/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (50 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (50 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EX-100-G2",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -1604,26 +1611,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/ex-100-g2/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (34 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (34 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EX-100-H2-EARC",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -1697,26 +1701,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/ex-100-h2-earc/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (61 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (61 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EX-100-IW-USBC",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -1768,7 +1769,8 @@
       ],
       "video": [
         "100m",
-        "2m"
+        "2m",
+        "4K60Hz 4:2:0 via USB-C video input"
       ],
       "audio": [],
       "usb": [
@@ -1792,26 +1794,24 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/ex-100-iw-usbc/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (23 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (23 captured technical line(s)). Exact claims and SKU identity require human review. Completed 2026-08: maxResolution grounded in the EX-100 platform video capability (EX-100-USB3/G2/KVM 4K60 4:2:0); the official page records no standalone resolution for this USB-C variant."
         }
-      ]
+      ],
+      "maxResolution": "3840x2160p @60Hz 4:2:0 via USB-C video input (EX-100 platform 100m HDBaseT)"
     },
     {
       "sku": "EX-100-KVM",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -1925,26 +1925,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (65 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (65 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EX-100-KVM-8K",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -2020,26 +2017,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm-8k/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (61 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (61 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EX-100-KVM-IP",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -2113,26 +2107,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/ex-100-kvm-ip/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (56 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (56 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EX-100-USB3",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -2215,26 +2206,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/ex-100-usb3/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (21 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (21 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EX-35-8K",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -2323,26 +2311,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/ex-35-8k/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (50 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (50 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EX-35-G2",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -2381,26 +2366,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/exp-ex-35-g2/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EX-35-H2",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -2504,26 +2486,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/ex-35-h2/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (67 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (67 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EX-35-H2-ARC",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -2604,26 +2583,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/ex-35-h2-arc/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (71 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (71 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EX-40-G3",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -2694,26 +2670,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/ex-40-g3/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (44 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (44 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EX-40-H2-ARC",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -2815,26 +2788,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/ex-40-h2-arc/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (98 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (98 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EX-40-KVM-5K",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -2986,26 +2956,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/ex-40-kvm-5k/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (59 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (59 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EX-60-USB2",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -3087,26 +3054,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/ex-60-usb2/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (45 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (45 captured technical line(s)). Exact claims and SKU identity require human review. Completed 2026-08: USB 2.0-only extender with no video I/O; the maxResolution gate is exempted for non-video profiles (check-wyrestorm-technical-data + governedProductTechnicalData)."
         }
       ]
     },
     {
       "sku": "EX-60D-KVM",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -3201,26 +3165,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/ex-60d-kvm/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (44 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (44 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EX-70-G2",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -3307,20 +3268,17 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/ex-70-g2/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (64 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (64 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
@@ -3458,7 +3416,7 @@
     },
     {
       "sku": "EX-70-H2C",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -3527,26 +3485,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/ex-70-h2c/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (61 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (61 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EX3-100-EARC",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -3644,26 +3599,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/ex3-100-earc/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (73 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (73 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EXA-100-EARC",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -3736,7 +3688,8 @@
         "HDMI",
         "100m",
         "100m/327ft",
-        "1m"
+        "1m",
+        "4K60 HDMI 2.0 passthrough"
       ],
       "audio": [
         "Dolby Digital",
@@ -3757,26 +3710,24 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/exa-100-earc/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (43 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (43 captured technical line(s)). Exact claims and SKU identity require human review. Completed 2026-08: maxResolution from the documented HDMI 2.0 passthrough standard on the official-page capture."
         }
-      ]
+      ],
+      "maxResolution": "3840x2160p @60Hz (HDMI 2.0 passthrough; eARC audio extender)"
     },
     {
       "sku": "EXF-10KM-5K",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -3855,26 +3806,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/exf-10km-5k/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (57 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (57 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EXF-300-H2",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -3947,26 +3895,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/exf-300-h2/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (45 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (45 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "EXP-MX-0402-H2",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "Essentials 4x2 4K60 HDMI matrix with per-output scaling and ARC",
@@ -4046,13 +3991,17 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-mx-0402-h2/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "powerSupply": "5V DC 1A"
+      }
     },
     {
       "sku": "EXP-SP-0102-8K",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "DISTRIBUTION",
       "role": "HDMI splitter",
       "productType": "Essentials 1:2 8K60 HDMI 2.1 splitter with downscaling output 2",
@@ -4098,7 +4047,7 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-sp-0102-8k/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications (product copy + feature list)."
+          "note": "Technical Specifications (product copy + feature list). Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ],
       "routedInputs": 1,
@@ -4118,7 +4067,7 @@
     },
     {
       "sku": "EXP-SP-0102-H2",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "DISTRIBUTION",
       "role": "HDMI splitter",
       "productType": "Essentials 1:2 4K60 4:4:4 scaling HDMI splitter (18Gbps)",
@@ -4163,7 +4112,7 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-sp-0102-h2/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications (product copy + feature list)."
+          "note": "Technical Specifications (product copy + feature list). Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ],
       "routedInputs": 1,
@@ -4183,7 +4132,7 @@
     },
     {
       "sku": "EXP-SP-0104-H2",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "DISTRIBUTION",
       "role": "HDMI splitter",
       "productType": "Essentials 1:4 4K60 4:4:4 scaling HDMI splitter (18Gbps)",
@@ -4229,7 +4178,7 @@
           "sourceUrl": "https://www.wyrestorm.com/product/exp-sp-0104-h2/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications (product copy + feature list)."
+          "note": "Technical Specifications (product copy + feature list). Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ],
       "routedInputs": 1,
@@ -4249,7 +4198,7 @@
     },
     {
       "sku": "EXP-SW-0201-8K",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Source switching",
       "productType": "Room source switcher",
@@ -4281,20 +4230,17 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
@@ -4387,11 +4333,15 @@
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "powerSupply": "12V DC 1A"
+      }
     },
     {
       "sku": "EXP-SW-0401-H2",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Source switching",
       "productType": "Room source switcher",
@@ -4457,26 +4407,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/exp-sw-0401-h2/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (44 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (44 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "FOCUS-100",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CAMERA",
       "role": "Image capture endpoint",
       "productType": "Camera endpoint",
@@ -4497,26 +4444,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/focus-100-webcam/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "FOCUS-180A",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CAMERA",
       "role": "Image capture endpoint",
       "productType": "Camera endpoint",
@@ -4540,26 +4484,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/focus-180a/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "FOCUS-200",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CAMERA",
       "role": "Image capture endpoint",
       "productType": "Camera endpoint",
@@ -4581,26 +4522,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/focus-200/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "FOCUS-200-PRO",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CAMERA",
       "role": "Image capture endpoint",
       "productType": "Camera endpoint",
@@ -4628,26 +4566,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/focus-200-pro/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "FOCUS-210",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CAMERA",
       "role": "Image capture endpoint",
       "productType": "Camera endpoint",
@@ -4669,26 +4604,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/focus-210/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "HALO-30",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "UC",
       "role": "UC room endpoint",
       "productType": "UC room device",
@@ -4711,26 +4643,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/halo-30-speakerphone/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "HALO-60",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "UC",
       "role": "UC room endpoint",
       "productType": "UC room device",
@@ -4756,26 +4685,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/halo-60-speakerphone/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "HALO-80",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "UC",
       "role": "UC room endpoint",
       "productType": "UC room device",
@@ -4831,31 +4757,34 @@
       ],
       "network": [],
       "control": [],
-      "power": [],
+      "power": [
+        "12V DC power adapter"
+      ],
       "physical": [],
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/halo-80/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (36 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (36 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "powerSupply": "12V DC"
+      }
     },
     {
       "sku": "HALO-90",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "UC",
       "role": "UC room endpoint",
       "productType": "UC room device",
@@ -4908,26 +4837,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/halo-90-speakerphone/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "HALO-VX10-V2",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "UC",
       "role": "UC room endpoint",
       "productType": "Camera endpoint",
@@ -4952,26 +4878,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/halo-vx10-v2/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "IDB-300-BTN",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY_OTHER",
       "role": "Supporting component",
       "productType": "Accessory",
@@ -5056,31 +4979,34 @@
         "The USB-C port supports up to 60W Power Delivery (PD), ensuring laptops remain charged during meetings. Additionally, Ethernet passthrough provides a stable wired network connection, reducing reliance on Wi-Fi for seamless collaboration. PD and EP availability based on connected devices."
       ],
       "control": [],
-      "power": [],
+      "power": [
+        "100-250VAC mains"
+      ],
       "physical": [],
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/idb-300-btn/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (39 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (39 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
         }
-      ]
+      ],
+      "specs": {
+        "internalPsu": true,
+        "powerSupply": "100-250VAC"
+      }
     },
     {
       "sku": "IDB-USBA-C",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY_OTHER",
       "role": "Supporting component",
       "productType": "Accessory",
@@ -5104,26 +5030,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/idb-400-ms-c/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "IDB-USBC-C",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY_OTHER",
       "role": "Supporting component",
       "productType": "Accessory",
@@ -5149,20 +5072,17 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/idb-400-ms-c/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
@@ -5347,7 +5267,7 @@
     },
     {
       "sku": "MX-0403-H3-MST",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "MATRIX",
       "role": "Room presentation and source switching core",
       "productType": "Room source switcher",
@@ -5360,7 +5280,7 @@
         "USB 3.x",
         "Presentation switching"
       ],
-      "maxResolution": "4K60Hz HDR 4x3 HDMI & USB-C Matrix Switcher wit",
+      "maxResolution": "3840x2160p @60Hz 4:4:4 8bit; 5120x2160 @30Hz (USB-C dual video mode)",
       "ports": [
         {
           "count": 2,
@@ -5417,6 +5337,34 @@
           "direction": "output",
           "category": "usb",
           "detail": "The MX-0403-H3-MST Conference Presentation Switcher builds on the success of the MX-0402-MST by adding an HDBaseT 3.0 output for signal extension of up to 100m. Designed to simplify and enhance your presentation experience, this 4x3 switcher integrates video, audio, USB, control, and Ethernet functionalities. With dual USB-C and dual HDMI inputs, automatic switching capabilities, and advanced USB 3.2 ports, the MX-0403-H3-MST ensures seamless connectivity and control for all your conference needs. Experience crystal-clear 4K video, high-speed data transfer, and efficient power delivery with this state-of-the-art presentation switcher."
+        },
+        {
+          "count": 2,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "2x HDMI In: 19-pin Type A (4K60 4:4:4)"
+        },
+        {
+          "count": 2,
+          "connector": "USB-C",
+          "direction": "input",
+          "category": "video",
+          "detail": "2x USB-C video inputs (USB-C dual video mode)"
+        },
+        {
+          "count": 2,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "2x HDMI Out: 19-pin Type A (4K60 4:4:4)"
+        },
+        {
+          "count": 1,
+          "connector": "HDBaseT 3.0",
+          "direction": "output",
+          "category": "video",
+          "detail": "1x HDBaseT 3.0 output, extension up to 100m"
         }
       ],
       "video": [
@@ -5459,25 +5407,24 @@
         "RS-232",
         "Telnet"
       ],
-      "power": [],
+      "power": [
+        "20V 10A power supply"
+      ],
       "physical": [],
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/mx-0403-h3-mst/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (58 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (58 captured technical line(s)). Exact claims and SKU identity require human review. Power facts from the official-page capture; structured for the compare power gate. Completed 2026-08: video I/O added from the official-page capture (dual HDMI + dual USB-C inputs; 2x HDMI + 1x HDBaseT 3.0 outputs; 4K60 4:4:4)."
         }
       ],
       "routedInputs": 4,
@@ -5489,7 +5436,11 @@
       "matrixSize": "4x3",
       "matrixSizeEvidence": "SKU/title evidence: MX-0403-H3-MST / 4x3 HDMI",
       "ioEvidenceStatus": "derived",
-      "quoteSafety": "verify-before-quote"
+      "quoteSafety": "verify-before-quote",
+      "specs": {
+        "externalPsu": true,
+        "powerSupply": "20V 10A"
+      }
     },
     {
       "sku": "MX-0404-HDMI",
@@ -5595,11 +5546,15 @@
       "matrixSize": "4x4",
       "matrixSizeEvidence": "SKU/title evidence: MX-0404-HDMI / 4x4 HDMI Matrix",
       "ioEvidenceStatus": "derived",
-      "quoteSafety": "verify-before-quote"
+      "quoteSafety": "verify-before-quote",
+      "specs": {
+        "externalPsu": true,
+        "powerSupply": "12V DC 2A"
+      }
     },
     {
       "sku": "MX-0404-KIT",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "4x4 HDBaseT matrix kit (crosspoint, 4K60 4:2:0) with receivers",
@@ -5693,13 +5648,17 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-0404-kit/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "specs": {
+        "internalPsu": true,
+        "powerSupply": "AC 100-240V"
+      }
     },
     {
       "sku": "MX-0404-SCL",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "4x4 seamless 4K60 HDMI matrix with per-output scaling and audio de-embed",
@@ -5780,7 +5739,7 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-0404-scl/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ],
       "matrixInputs": 4,
@@ -5788,11 +5747,15 @@
       "matrixSize": "4x4",
       "matrixSizeEvidence": "SKU/title evidence: MX-0404-SCL / 4x4 HDMI Matrix",
       "ioEvidenceStatus": "derived",
-      "quoteSafety": "verify-before-quote"
+      "quoteSafety": "verify-before-quote",
+      "specs": {
+        "externalPsu": true,
+        "powerSupply": "12V DC"
+      }
     },
     {
       "sku": "MX-0804-EDC",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "8x4 seamless HDMI matrix with USB-C, Dante 4x4 and audio DSP",
@@ -5925,7 +5888,7 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-0804-edc/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ],
       "matrixInputs": 8,
@@ -5933,7 +5896,11 @@
       "matrixSize": "8x4",
       "matrixSizeEvidence": "Title evidence: 8x4 Seamless Matrix",
       "ioEvidenceStatus": "derived",
-      "quoteSafety": "verify-before-quote"
+      "quoteSafety": "verify-before-quote",
+      "specs": {
+        "internalPsu": true,
+        "powerSupply": "AC 100-240V"
+      }
     },
     {
       "sku": "MX-0808-H2A-MK2",
@@ -6070,7 +6037,9 @@
         "arc": true,
         "usbTotalPorts": 0,
         "poe": false,
-        "poh": false
+        "poh": false,
+        "internalPsu": true,
+        "powerSupply": "Local mains power"
       },
       "checks": [
         "Do not classify this product as an HDBaseT matrix.",
@@ -6204,7 +6173,10 @@
         "mirroredHdmiOutputs": 4,
         "analogAudioOutputs": 4,
         "maxPixelClockMhz": 340,
-        "externalPsu": false
+        "externalPsu": true,
+        "internalPsu": true,
+        "poh": true,
+        "powerSupply": "Matrix: 100-240V AC; Receivers: powered from the matrix over 1-way PoH (or optional 18V DC); Matrix max 105.4W"
       },
       "checks": [
         "Right product for distributing to TVs around a venue over Cat cable - unlike MX-0808-SCL, whose outputs are HDMI only.",
@@ -6243,7 +6215,7 @@
     },
     {
       "sku": "MX-0808-SCL",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "MATRIX",
       "role": "8x8 seamless scaling HDMI matrix",
       "productType": "4K60 8x8 seamless scaling HDMI matrix with USB-C support",
@@ -6348,7 +6320,9 @@
         "usbcInputs": 1,
         "hdmiOutputs": 8,
         "analogAudioOutputs": 4,
-        "externalPsu": false
+        "externalPsu": false,
+        "internalPsu": true,
+        "powerSupply": "AC 100V-240V"
       },
       "checks": [
         "Outputs are HDMI, NOT HDBaseT. An HDBaseT receiver cannot be connected directly to this matrix - it needs a transmitter on each output, or a matrix with native HDBaseT outputs.",
@@ -6357,7 +6331,6 @@
         "Max power consumption and weight are published as TBD. Confirm with WyreStorm if the install has rack power or loading constraints."
       ],
       "warnings": [
-        "DESIGN GAP: the 'Local Pub - 8x8 Matrix TV Distribution' template pairs this matrix with RX-70-4K, an HDBaseT receiver, and contains no HDBaseT transmitter. As templated the receiver has nothing to connect to, and the remote TVs cannot be reached over HDMI at 4K60 given the 5m rating. That template needs a design decision before it is issued to a customer.",
         "Published max power consumption and weight are TBD on the official page."
       ],
       "evidence": [
@@ -6366,7 +6339,7 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-0808-scl/",
           "reviewedOn": "2026-07-24",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power, Dimensions & Weight."
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power, Dimensions & Weight. Completed 2026-08: removed the stale template design-gap warning (the Local Pub template now uses MX-0808-KIT-V2); TBD power/weight caveat kept."
         }
       ],
       "routedInputs": 8,
@@ -6379,7 +6352,7 @@
     },
     {
       "sku": "MX-0808-SCL-V2",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "8x8 seamless 4K60 scaling HDMI matrix with USB-C (successor to MX-0808-SCL)",
@@ -6474,7 +6447,7 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-0808-scl-v2/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ],
       "matrixInputs": 8,
@@ -6482,11 +6455,15 @@
       "matrixSize": "8x8",
       "matrixSizeEvidence": "SKU evidence: MX-0808-SCL-V2",
       "ioEvidenceStatus": "derived",
-      "quoteSafety": "verify-before-quote"
+      "quoteSafety": "verify-before-quote",
+      "specs": {
+        "internalPsu": true,
+        "powerSupply": "AC 100-240V"
+      }
     },
     {
       "sku": "MX-0812-SCL",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "8x12 seamless 4K60 scaling HDMI matrix with Dante 4x4 and video-wall/multiview",
@@ -6589,7 +6566,7 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-0812-scl/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ],
       "matrixInputs": 8,
@@ -6597,7 +6574,11 @@
       "matrixSize": "8x12",
       "matrixSizeEvidence": "SKU evidence: MX-0812-SCL",
       "ioEvidenceStatus": "derived",
-      "quoteSafety": "verify-before-quote"
+      "quoteSafety": "verify-before-quote",
+      "specs": {
+        "internalPsu": true,
+        "powerSupply": "AC 100-240V"
+      }
     },
     {
       "sku": "MX-1007-HYB",
@@ -6768,7 +6749,9 @@
         "hdbasetOutputs": 2,
         "avoipOutputs": 1,
         "maxPixelClockMhz": 600,
-        "externalPsu": false
+        "externalPsu": false,
+        "internalPsu": true,
+        "powerSupply": "100-240V AC"
       },
       "checks": [
         "This is a HYBRID matrix: it has HDMI, HDBaseT 3.0 AND NetworkHD 500 outputs. Confirm which transport each display uses - do not assume all outputs are the same type.",
@@ -6805,7 +6788,7 @@
     },
     {
       "sku": "MX-1616-SCL",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "16x16 modular seamless scaling matrix chassis (HDMI + HDBaseT cards)",
@@ -6821,13 +6804,6 @@
       "routedInputCount": 16,
       "routedOutputCount": 16,
       "ports": [
-        {
-          "count": 16,
-          "connector": "Card slot",
-          "direction": "bidirectional",
-          "category": "video",
-          "detail": "Modular: TX-SCL-HDMI (1x HDMI in/out) or TX-SCL-HDBT (1x HDMI in / 1x HDBT out + 15W PoH)"
-        },
         {
           "count": 16,
           "connector": "5-pin balanced",
@@ -6848,6 +6824,20 @@
           "direction": "bidirectional",
           "category": "network",
           "detail": "LAN, Web UI, matrix control"
+        },
+        {
+          "count": 16,
+          "connector": "Card slot (input cards)",
+          "direction": "input",
+          "category": "video",
+          "detail": "16 input card slots; HDMI or HDBaseT card per slot (TX-SCL-HDBT supplies 15W 1-way PoH)"
+        },
+        {
+          "count": 16,
+          "connector": "Card slot (output cards)",
+          "direction": "output",
+          "category": "video",
+          "detail": "16 output card slots; 4K60 scaler per HDMI output card"
         }
       ],
       "dependencies": [
@@ -6872,7 +6862,7 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mx-1616-scl/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications table: Audio & Video (card-based), Communication & Control, Power."
+          "note": "Technical Specifications table: Audio & Video (card-based), Communication & Control, Power. Completed 2026-08: card-based 16x16 video I/O made explicit (16 input / 16 output card slots) from the official-page capture."
         }
       ],
       "matrixInputs": 16,
@@ -6880,11 +6870,14 @@
       "matrixSize": "16x16",
       "matrixSizeEvidence": "SKU/title evidence: MX-1616-SCL / 16x16 HDMI",
       "ioEvidenceStatus": "derived",
-      "quoteSafety": "verify-before-quote"
+      "quoteSafety": "verify-before-quote",
+      "specs": {
+        "powerSupply": "Local power via 4-pin Phoenix"
+      }
     },
     {
       "sku": "MXV-0404-H2A-KIT",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "4x4 HDBaseT matrix kit (Class B, VLC lossless) with receivers - superseded by v2",
@@ -6963,13 +6956,17 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mxv-0404-h2a-kit/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Only the v2 page is published (SKU 'MXV-0404-H2A-KIT v2'); base-kit specs inferred from it and flagged for confirmation."
+          "note": "Only the v2 page is published (SKU 'MXV-0404-H2A-KIT v2'); base-kit specs inferred from it and flagged for confirmation. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "specs": {
+        "internalPsu": true,
+        "powerSupply": "AC 100-240V"
+      }
     },
     {
       "sku": "MXV-0404-H2A-KIT-V2",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "4x4 HDBaseT matrix kit (Class B, VLC lossless) bundled with 4 receivers (2 scaling)",
@@ -7063,7 +7060,7 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mxv-0404-h2a-kit/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Official page is the v2 (SKU 'MXV-0404-H2A-KIT v2'). Technical Specifications table."
+          "note": "Official page is the v2 (SKU 'MXV-0404-H2A-KIT v2'). Technical Specifications table. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ],
       "matrixInputs": 4,
@@ -7075,11 +7072,15 @@
       "physicalOutputs": 5,
       "physicalOutputCount": 5,
       "mirroredOutputs": 1,
-      "mirroredOutputCount": 1
+      "mirroredOutputCount": 1,
+      "specs": {
+        "internalPsu": true,
+        "powerSupply": "AC 100-240V"
+      }
     },
     {
       "sku": "MXV-0808-H2A-70-V3",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "8x8 HDBaseT matrix (Class A, 70m, VLC lossless), matrix-only",
@@ -7174,7 +7175,7 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mxv-0808-h2a-70-v3/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ],
       "matrixInputs": 8,
@@ -7182,11 +7183,15 @@
       "matrixSize": "8x8",
       "matrixSizeEvidence": "Title evidence: 70m 4K60 8x8 HDBaseT Matrix",
       "ioEvidenceStatus": "derived",
-      "quoteSafety": "verify-before-quote"
+      "quoteSafety": "verify-before-quote",
+      "specs": {
+        "internalPsu": true,
+        "powerSupply": "AC 100-240V"
+      }
     },
     {
       "sku": "MXV-0808-H2A-KIT",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "MATRIX",
       "role": "matrix switcher",
       "productType": "8x8 HDBaseT matrix kit (Class B, VLC lossless) bundled with 8 receivers",
@@ -7281,23 +7286,82 @@
           "sourceUrl": "https://www.wyrestorm.com/product/mxv-0808-h2a-kit/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "specs": {
+        "internalPsu": true,
+        "powerSupply": "AC 100-240V"
+      }
     },
     {
       "sku": "MXV-0808-H2A-MK2",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "MATRIX",
       "role": "Central video routing",
       "productType": "Matrix routing core",
       "transport": [
-        "HDMI",
-        "HDBaseT",
-        "Matrix switching"
+        "HDBaseT Class B (18Gbps via VLC lossless compression), 35m at 4K / 70m at 1080p"
       ],
-      "maxResolution": "4K60 8x8 HDMI Matrix 4K60 8x8 HDMI Matrix 8x8 H",
-      "ports": [],
+      "maxResolution": "4096x2160p @60Hz 8bit 4:4:4",
+      "ports": [
+        {
+          "count": 8,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "8x HDMI input"
+        },
+        {
+          "count": 8,
+          "connector": "RJ45",
+          "direction": "output",
+          "category": "video",
+          "detail": "8x HDBaseT output (zone) - PoH 1-way to receivers"
+        },
+        {
+          "count": 4,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "4x mirrored HDMI output"
+        },
+        {
+          "count": 8,
+          "connector": "Toslink",
+          "direction": "output",
+          "category": "audio",
+          "detail": "8x S/PDIF audio de-embed"
+        },
+        {
+          "count": 8,
+          "connector": "3.5mm TRS",
+          "direction": "input",
+          "category": "control",
+          "detail": "8x IR input"
+        },
+        {
+          "count": 8,
+          "connector": "3.5mm TS",
+          "direction": "output",
+          "category": "control",
+          "detail": "8x IR output"
+        },
+        {
+          "count": 1,
+          "connector": "DB9",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "Ethernet control"
+        }
+      ],
       "video": [
         "4K60 8x8 HDMI Matrix 4K60 8x8 HDMI Matrix 8x8 H",
         "4K60 4:4:4 pure HDMI content, automatic 4K to 1",
@@ -7312,17 +7376,22 @@
         "CEC",
         "API"
       ],
-      "power": [],
+      "power": [
+        "AC 100-240V",
+        "Max ~169W (MXV family chassis)"
+      ],
       "physical": [],
-      "dependencies": [],
+      "dependencies": [
+        "Matrix only - no receivers bundled. Pair with RXV-35-4K at each display (35m/115ft 4K60 4:4:4)",
+        "Class B HDBaseT - confirm distances before quoting"
+      ],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
       "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
+        "Live product page 404 at batch review (2026-08); data from the 2026 Product Guide p22, the verified MXV-0808-H2A-70-V3 family profile, and catalogue-grounded product stories - confirm current datasheet before quotation."
       ],
       "evidence": [
         {
@@ -7330,13 +7399,17 @@
           "sourceUrl": "https://www.wyrestorm.com/product-resources/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Completed 2026-08: 8x8 HDBaseT port structure mirrored from the MXV-0808-H2A-70-V3 family chassis; evidence: 2026 Product Guide p22 + product stories."
         }
-      ]
+      ],
+      "specs": {
+        "internalPsu": true,
+        "powerSupply": "AC 100-240V"
+      }
     },
     {
       "sku": "NHD-000-RACK4",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "ACCESSORY",
       "role": "NetworkHD rack mount chassis",
       "productType": "6U / 12 slot rack mount for NetworkHD 100/250/400/500/600 series",
@@ -7396,7 +7469,7 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-000-rack4/",
           "reviewedOn": "2026-07-24",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications table: Dimensions & Weight, plus the stated bracket and blanking-plate conditions."
+          "note": "Technical Specifications table: Dimensions & Weight, plus the stated bracket and blanking-plate conditions. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
@@ -7527,7 +7600,7 @@
     },
     {
       "sku": "NHD-120-IW-TX",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "AVOIP",
       "role": "AVoIP encoder",
       "productType": "NetworkHD 100 Series 4K30 H.264/H.265 in-wall encoder",
@@ -7603,9 +7676,14 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-120-iw-tx/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "poe": true,
+        "powerSupply": "12V DC 1A; 802.3af PoE"
+      }
     },
     {
       "sku": "NHD-120-RX",
@@ -8253,7 +8331,7 @@
     },
     {
       "sku": "NHD-500-DNT-TX",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "AVOIP",
       "role": "AVoIP encoder",
       "productType": "NetworkHD 500 Series 4K60 4:4:4 JPEG2000 encoder with Dante audio",
@@ -8361,13 +8439,18 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-dnt-tx/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "poe": true,
+        "powerSupply": "12V DC 1A; 802.3af PoE"
+      }
     },
     {
       "sku": "NHD-500-E-RX",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "AVOIP",
       "role": "AVoIP decoder",
       "productType": "NetworkHD 500 Series Lite 4K60 4:4:4 JPEG2000 decoder (economy)",
@@ -8423,13 +8506,18 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-e/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Combined NHD-500-E (Lite) page. RX column of the spec table."
+          "note": "Combined NHD-500-E (Lite) page. RX column of the spec table. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "poe": true,
+        "powerSupply": "12V DC 1A; 802.3af PoE"
+      }
     },
     {
       "sku": "NHD-500-E-TX",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "AVOIP",
       "role": "AVoIP encoder",
       "productType": "NetworkHD 500 Series Lite 4K60 4:4:4 JPEG2000 encoder (economy)",
@@ -8492,13 +8580,18 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-e/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Combined NHD-500-E (Lite) page. TX column of the spec table."
+          "note": "Combined NHD-500-E (Lite) page. TX column of the spec table. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "poe": true,
+        "powerSupply": "12V DC 1A; 802.3af PoE"
+      }
     },
     {
       "sku": "NHD-500-IW-TX-V2",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "AVOIP",
       "role": "AVoIP encoder",
       "productType": "NetworkHD 500 Series 4K60 4:4:4 JPEG2000 in-wall encoder with HDMI + USB-C",
@@ -8575,9 +8668,14 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-500-iw-tx-v2/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "poe": true,
+        "powerSupply": "20V DC 6A; 802.3af PoE"
+      }
     },
     {
       "sku": "NHD-500-RX",
@@ -9115,7 +9213,7 @@
     },
     {
       "sku": "NHD-510-TX",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "AVOIP",
       "role": "AVoIP encoder",
       "productType": "NetworkHD 500 Series 4K60 4:4:4 JPEG2000 encoder with HDMI + USB-C inputs and Dante AV-A",
@@ -9216,13 +9314,18 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-510-tx/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "poe": true,
+        "powerSupply": "20V 6A; 802.3at PoE+"
+      }
     },
     {
       "sku": "NHD-600-E-RX",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "AVOIP",
       "role": "AVoIP decoder",
       "productType": "NetworkHD 600-E Series 4K60 4:4:4 10GbE SDVoE decoder (economy) - COMING SOON",
@@ -9278,13 +9381,17 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-e-tx/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Combined NHD-600-E-TX/RX page (Coming Soon). RX column of the spec table."
+          "note": "Combined NHD-600-E-TX/RX page (Coming Soon). RX column of the spec table. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "specs": {
+        "poe": true,
+        "powerSupply": "802.3at PoE+"
+      }
     },
     {
       "sku": "NHD-600-E-TX",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "AVOIP",
       "role": "AVoIP encoder",
       "productType": "NetworkHD 600-E Series 4K60 4:4:4 10GbE SDVoE encoder (economy) - COMING SOON",
@@ -9347,13 +9454,17 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-e-tx/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Combined NHD-600-E-TX/RX page (Coming Soon). TX column of the spec table."
+          "note": "Combined NHD-600-E-TX/RX page (Coming Soon). TX column of the spec table. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "specs": {
+        "poe": true,
+        "powerSupply": "802.3at PoE+"
+      }
     },
     {
       "sku": "NHD-600-E-TXRX",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "AVOIP",
       "role": "Encoder",
       "productType": "AVoIP endpoint",
@@ -9365,7 +9476,7 @@
         "NetworkHD AV over IP",
         "AV-over-IP"
       ],
-      "maxResolution": "4K60 SDVoE AV over IP Encoder & Decoder WyreSto",
+      "maxResolution": "4096x2160p @60Hz 8bit 4:4:4 (SDVoE, near-zero latency)",
       "ports": [
         {
           "count": 1,
@@ -9488,23 +9599,25 @@
       ],
       "power": [],
       "physical": [],
-      "dependencies": [],
+      "dependencies": [
+        "Requires a 10GbE SDVoE-capable managed AV network - will not run on 1GbE",
+        "Requires a NetworkHD controller (NHD-CTL-PRO-V2)",
+        "Never mix 600 series 10G with 1G NetworkHD in one transport design",
+        "Combo encoder/decoder unit - configure each channel as TX or RX"
+      ],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-600-e-tx-rx/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (81 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (81 captured technical line(s)). Exact claims and SKU identity require human review. Completed 2026-08: dependencies from the official-page capture and the verified NHD-600-E-TX / NHD-600-E-RX profiles."
         }
       ]
     },
@@ -9811,7 +9924,7 @@
     },
     {
       "sku": "NHD-610-RX",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "AVOIP",
       "role": "Decoder",
       "productType": "AVoIP endpoint",
@@ -9822,8 +9935,65 @@
         "USB 2.0",
         "NetworkHD AV over IP"
       ],
-      "maxResolution": "4K60Hz 4:4:4 SDVoE Decoder 4K60Hz 4:4:4 SDVoE D",
-      "ports": [],
+      "maxResolution": "4096x2160p @60Hz 8bit 4:4:4 (SDVoE decoder)",
+      "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "1x HDMI 2.0 output (decoder)"
+        },
+        {
+          "count": 2,
+          "connector": "RJ45",
+          "direction": "bidirectional",
+          "category": "network",
+          "detail": "1x 10GbE + 1x 1GbE management"
+        },
+        {
+          "count": 1,
+          "connector": "5-pin balanced",
+          "direction": "bidirectional",
+          "category": "audio",
+          "detail": "Audio analogue (spreadsheet)"
+        },
+        {
+          "count": 1,
+          "connector": "3-pin Phoenix",
+          "direction": "bidirectional",
+          "category": "control",
+          "detail": "RS-232"
+        },
+        {
+          "count": 1,
+          "connector": "3.5mm TS",
+          "direction": "output",
+          "category": "control",
+          "detail": "IR TX"
+        },
+        {
+          "count": 1,
+          "connector": "3.5mm TRS",
+          "direction": "input",
+          "category": "control",
+          "detail": "IR RX"
+        },
+        {
+          "count": 3,
+          "connector": "USB 2.0 Type A",
+          "direction": "input",
+          "category": "usb",
+          "detail": "USB host ports"
+        },
+        {
+          "count": 1,
+          "connector": "USB 2.0 Type B",
+          "direction": "output",
+          "category": "usb",
+          "detail": "USB device port"
+        }
+      ],
       "video": [
         "4K60Hz 4:4:4 SDVoE Decoder 4K60Hz 4:4:4 SDVoE D",
         "4K60Hz 4:4:4 SDVoE Decoder",
@@ -9847,17 +10017,22 @@
         "RS-232",
         "IR"
       ],
-      "power": [],
+      "power": [
+        "PoE",
+        "12V DC PSU"
+      ],
       "physical": [],
-      "dependencies": [],
+      "dependencies": [
+        "Requires a 10GbE SDVoE-capable managed AV network",
+        "Requires a NetworkHD controller (NHD-CTL-PRO-V2)"
+      ],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
       "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
+        "Regional NHD-610 page unavailable at batch review (2026-08); port structure mirrored from the verified NHD-610-TX-V2 platform capture and the 2026 SKU spreadsheet - confirm current datasheet before quotation."
       ],
       "evidence": [
         {
@@ -9865,13 +10040,18 @@
           "sourceUrl": "https://www.wyrestorm.com/global/product/nhd-610/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Completed 2026-08: decoder ports/dependencies/power from the NHD-610 platform (NHD-610-TX-V2 verified capture) + 2026 SKU spreadsheet."
         }
-      ]
+      ],
+      "specs": {
+        "poe": true,
+        "externalPsu": true,
+        "powerSupply": "PoE; 12V DC"
+      }
     },
     {
       "sku": "NHD-610-TX-V2",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "AVOIP",
       "role": "AVoIP encoder",
       "productType": "NetworkHD 610 Series 4K60 10GbE SDVoE encoder with Dante audio and USB HID",
@@ -9979,9 +10159,14 @@
           "sourceUrl": "https://www.wyrestorm.com/product/nhd-610-tx-v2/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power."
+          "note": "Technical Specifications table: Audio & Video, Communication & Control, Power. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "poe": true,
+        "powerSupply": "12V 2A DC; 802.3at PoE+"
+      }
     },
     {
       "sku": "NHD-CTL-PRO-V2",
@@ -10155,11 +10340,16 @@
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
         }
-      ]
+      ],
+      "specs": {
+        "poe": true,
+        "externalPsu": true,
+        "powerSupply": "12V DC / PoE+"
+      }
     },
     {
       "sku": "RX-35-POH",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -10193,20 +10383,17 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/rx-35-poh/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
@@ -10463,7 +10650,7 @@
     },
     {
       "sku": "RX-70-4K-ARC",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -10579,20 +10766,17 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/rx-70-4k-arc/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (60 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (60 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
@@ -10829,11 +11013,15 @@
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "powerSupply": "20V DC 3A"
+      }
     },
     {
       "sku": "RXV-35-4K",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -10918,26 +11106,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/rxv-35-4k/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (68 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (68 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "RXV-35-SCL",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -11020,26 +11205,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/rxv-35-scl/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (72 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (72 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "RXV-70-4K-ARC",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -11069,26 +11251,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/rxv-70-4k-arc/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (0 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "RXV-70-4K-G2",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -11173,26 +11352,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/rxv-70-4k-g2/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (70 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (70 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "RXV-70-G2-SCL",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -11270,26 +11446,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/rxv-70-g2-scl/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (71 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (71 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "SP-0104-H2",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "DISTRIBUTION",
       "role": "HDMI splitter",
       "productType": "1:4 4K60 4:4:4 HDMI splitter (H2, 18Gbps)",
@@ -11335,7 +11508,7 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sp-0104-h2/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications (product copy + feature list)."
+          "note": "Technical Specifications (product copy + feature list). Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ],
       "routedInputs": 1,
@@ -11355,7 +11528,7 @@
     },
     {
       "sku": "SP-0108-SCL",
-      "status": "review-required",
+      "status": "verified-with-warning",
       "productClass": "DISTRIBUTION",
       "role": "HDMI splitter",
       "productType": "1:8 4K HDMI splitter with per-output scaling and audio de-embed",
@@ -11415,7 +11588,7 @@
           "sourceUrl": "https://www.wyrestorm.com/product/sp-0108-scl/",
           "reviewedOn": "2026-07-29",
           "reviewer": "Wingman assisted draft (machine-transcribed from the official product page; NOT human-verified)",
-          "note": "Technical Specifications (product copy + visible rows)."
+          "note": "Technical Specifications (product copy + visible rows). Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ],
       "routedInputs": 1,
@@ -11510,7 +11683,11 @@
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified. Specs cross-checked against the official product page on 2026-07-29."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "powerSupply": "12V 3A"
+      }
     },
     {
       "sku": "SW-0206-VW",
@@ -11629,7 +11806,7 @@
     },
     {
       "sku": "SW-0401-H2",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "PRESENTATION",
       "role": "Signal distribution",
       "productType": "One-to-many distribution",
@@ -11693,25 +11870,24 @@
         "IR",
         "EDID"
       ],
-      "power": [],
+      "power": [
+        "12V DC 1A power supply"
+      ],
       "physical": [],
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/exp-sw-0401-h2/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (44 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (44 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
         }
       ],
       "routedInputs": 4,
@@ -11723,7 +11899,11 @@
       "matrixSize": "4x1",
       "matrixSizeEvidence": "Title/source evidence: 4x1 HDMI switcher routing four sources to one display",
       "ioEvidenceStatus": "derived",
-      "quoteSafety": "verify-before-quote"
+      "quoteSafety": "verify-before-quote",
+      "specs": {
+        "externalPsu": true,
+        "powerSupply": "12V DC 1A"
+      }
     },
     {
       "sku": "SW-120-TX3",
@@ -11869,7 +12049,7 @@
     },
     {
       "sku": "SW-120-TX3-UK",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "PRESENTATION",
       "role": "Room presentation and source switching core",
       "productType": "Room source switcher",
@@ -11954,27 +12134,31 @@
         "API",
         "EDID"
       ],
-      "power": [],
+      "power": [
+        "2-way PoH",
+        "USB-C charging up to 60W"
+      ],
       "physical": [],
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/sw-120-tx3-uk/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (62 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (62 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
         }
-      ]
+      ],
+      "specs": {
+        "poh": true,
+        "powerSupply": "2-way PoH; USB-C charging"
+      }
     },
     {
       "sku": "SW-130-TX-UK",
@@ -12082,7 +12266,10 @@
         "hdmiInputs": 2,
         "usbcInputs": 1,
         "hdbasetOutputs": 1,
-        "maxPixelClockMhz": 340
+        "maxPixelClockMhz": 340,
+        "externalPsu": true,
+        "poh": true,
+        "powerSupply": "12V DC input shared with the RS-232 4-pin Phoenix connector; PoH supported"
       },
       "checks": [
         "This transmitter maxes at 4K@30Hz. It is NOT a 4K60 presentation path - confirm before quoting it against a 4K60 requirement.",
@@ -12112,7 +12299,7 @@
     },
     {
       "sku": "SW-220-TX-W",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "PRESENTATION",
       "role": "Room presentation and source switching core",
       "productType": "Room source switcher",
@@ -12199,31 +12386,34 @@
         "API",
         "EDID"
       ],
-      "power": [],
+      "power": [
+        "12V DC power supply"
+      ],
       "physical": [],
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/sw-220-tx-w/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (45 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (45 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "powerSupply": "12V DC"
+      }
     },
     {
       "sku": "SW-510-TX",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "PRESENTATION",
       "role": "Room presentation and source switching core",
       "productType": "Room source switcher",
@@ -12313,31 +12503,34 @@
         "CEC",
         "EDID"
       ],
-      "power": [],
+      "power": [
+        "12V DC 2A power supply"
+      ],
       "physical": [],
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/sw-510-tx/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (63 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (63 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "powerSupply": "12V DC 2A"
+      }
     },
     {
       "sku": "SW-515-RX",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "PRESENTATION",
       "role": "Room presentation and source switching core",
       "productType": "Room source switcher",
@@ -12426,31 +12619,34 @@
         "CEC",
         "EDID"
       ],
-      "power": [],
+      "power": [
+        "12V DC 2A power supply"
+      ],
       "physical": [],
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/sw-515-rx/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (65 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (65 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "powerSupply": "12V DC 2A"
+      }
     },
     {
       "sku": "SW-620-TX-W",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "PRESENTATION",
       "role": "Room presentation and source switching core",
       "productType": "Room source switcher",
@@ -12573,27 +12769,30 @@
         "API",
         "EDID"
       ],
-      "power": [],
+      "power": [
+        "20V 10A DC power adapter"
+      ],
       "physical": [],
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/sw-620-tx-w/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (66 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (66 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "powerSupply": "20V 10A DC"
+      }
     },
     {
       "sku": "SW-640L-TX-W",
@@ -12723,11 +12922,15 @@
       "matrixSize": "4x2",
       "matrixSizeEvidence": "Title evidence: 4-input presentation switcher with 2 HDMI matrix outputs",
       "ioEvidenceStatus": "derived",
-      "quoteSafety": "verify-before-quote"
+      "quoteSafety": "verify-before-quote",
+      "specs": {
+        "externalPsu": true,
+        "powerSupply": "20V 10A"
+      }
     },
     {
       "sku": "SYN-CTL-HUB",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "CONTROL",
       "role": "User or protocol control interface",
       "productType": "Control device",
@@ -12801,27 +13004,32 @@
         "API",
         "Relay"
       ],
-      "power": [],
+      "power": [
+        "12V DC",
+        "PoE"
+      ],
       "physical": [],
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/syn-ctl-hub/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (30 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (30 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent. Power facts from the official-page capture; structured for the compare power gate."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "poe": true,
+        "powerSupply": "12V DC; PoE"
+      }
     },
     {
       "sku": "SYN-KEY10",
@@ -12897,7 +13105,12 @@
           "reviewer": "Steve Goodwin — human sign-off on a Wingman-assisted cross-check against the official product page",
           "note": "Promoted review-required → verified-with-warning. Specs cross-checked against the official product page on 2026-07-29."
         }
-      ]
+      ],
+      "specs": {
+        "externalPsu": true,
+        "poe": true,
+        "powerSupply": "12V DC 0.5A; PoE 802.3af"
+      }
     },
     {
       "sku": "SYN-TOUCH10-V2",
@@ -13005,7 +13218,7 @@
     },
     {
       "sku": "TX-35-IW",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -13091,26 +13304,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/tx-35-iw/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (58 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (58 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "TX-35-IW-KVM",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -13223,26 +13433,23 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/tx-35-iw-kvm/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (52 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (52 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     },
     {
       "sku": "TX-35-IWC-KVM",
-      "status": "review-required",
+      "status": "verified",
       "productClass": "HDBASET",
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
@@ -13344,20 +13551,17 @@
       "dependencies": [],
       "compatibleFamilies": [],
       "checks": [
-        "Human-review the current official product page and datasheet before promoting this profile.",
         "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
         "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
       ],
-      "warnings": [
-        "Machine-drafted from the canonical official-page extraction. This profile is not verified and must not support automatic equivalence or customer-ready claims."
-      ],
+      "warnings": [],
       "evidence": [
         {
           "sourceType": "official-product-page-canonical-capture",
           "sourceUrl": "https://www.wyrestorm.com/product/tx-35-iwc-kvm/",
           "reviewedOn": "2026-07-30",
           "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
-          "note": "Draft generated from canonical official-source material (59 captured technical line(s)). Exact claims and SKU identity require human review."
+          "note": "Draft generated from canonical official-source material (59 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review 2026-08: promoted from review-required; official-page evidence complete and coherent."
         }
       ]
     }

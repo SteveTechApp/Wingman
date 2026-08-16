@@ -20,7 +20,9 @@ import {
 } from "../../features/catalog/catalogIntelligence";
 import { selectWingmanProducts } from "../lib/productSelectorEngine";
 import { normaliseSkuKey } from "../lib/skuAliasResolver";
+import { resolveProductTechnicalData } from "../lib/governedProductTechnicalData";
 import { resolveProductLifecycle } from "../lib/wyrestormProductLifecycle";
+import { GovernedDataBadge } from "../components/GovernedDataBadge";
 import {
   getWingmanJson,
   getWingmanSession,
@@ -179,6 +181,17 @@ export function CatalogBrowserPage() {
   const [recordJson, setRecordJson] = useState("");
   const [editorStatus, setEditorStatus] = useState("");
   const [editorBusy, setEditorBusy] = useState(false);
+
+  // Governed-data tier per catalogue SKU, resolved once from the same engine
+  // the Compare page and Product Pitch use, so the badge on every product card
+  // tells the same story as the compare match cards.
+  const governedTiers = useMemo(() => {
+    const tiers = new Map<string, string>();
+    for (const product of catalog) {
+      tiers.set(normaliseSkuKey(product.sku), resolveProductTechnicalData(product).sourceTier);
+    }
+    return tiers;
+  }, [catalog]);
 
   useEffect(() => {
     let cancelled = false;
@@ -423,6 +436,7 @@ export function CatalogBrowserPage() {
                 <strong className="wm-catalog-product-sku">{product.sku}</strong>
                 <span className="wm-ui-copy wm-catalog-product-name">{product.name}</span>
                 {product.summary ? <p className="wm-ui-copy wm-catalog-product-summary">{product.summary}</p> : null}
+                <GovernedDataBadge tier={governedTiers.get(normaliseSkuKey(product.sku))} />
                 {badges.length ? (
                   <div className="wm-catalog-badge-row">
                     {badges.map((badge) => (

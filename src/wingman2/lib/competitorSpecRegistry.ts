@@ -703,6 +703,76 @@ function countCatalogPorts(ports: CatalogPort[] | undefined, matcher: RegExp): n
   return total > 0 ? total : undefined;
 }
 
+/**
+ * Curated competitor rows carry power facts as a nested free-form object
+ * (e.g. {poe: "46-57V, 30W max"}, {dc: "12V", currentMa: 200},
+ * {input: "External universal 100-240 VAC supply"}, {psuIncluded: true}).
+ * The compare decision engine reads FLAT CompareSpecFacts keys
+ * (poe/poc/poh/internalPsu/externalPsu/powerSupply) - the nested object was
+ * previously spread in verbatim and never reached describedPower(), so even
+ * approved fingerprints with real power data still failed the "competitor
+ * power method is not verified" gate. This flattens the curated facts into
+ * those decision-readable keys. Nothing here is invented: a flat key is only
+ * set when the curated row states the fact (an explicit boolean flag, a
+ * power-input statement, or a DC voltage). Consumption-only facts
+ * (consumptionW/maxW/currentMa) never imply a method and are left out.
+ */
+function flattenCompetitorPowerFacts(power: unknown): Pick<
+  CompareSpecFacts,
+  "poe" | "poc" | "poh" | "internalPsu" | "externalPsu" | "powerSupply" | "powerDelivery"
+> {
+  const out: Record<string, unknown> = {};
+  if (!power || typeof power !== "object" || Array.isArray(power)) return out;
+  const p = power as Record<string, unknown>;
+  const stated = (v: unknown) => v === true || (typeof v === "string" && v.trim().length > 0);
+
+  if (stated(p.poe) || stated(p.powerOverEthernet)) out.poe = true;
+  if (stated(p.poc) || stated(p.powerOverCable)) out.poc = true;
+  if (stated(p.poh) || stated(p.powerOverHdbaset)) out.poh = true;
+  if (p.internalPsu === true) out.internalPsu = true;
+  if (p.externalPsu === true || p.psuIncluded === true || p.supplyIncluded === true || p.adapterIncluded === true) {
+    out.externalPsu = true;
+  }
+
+  const statements = [p.input, p.powerSupply, p.device, p.pack, p.local, p.adapter, p.supply]
+    .filter((v): v is string => typeof v === "string" && v.trim().length > 0);
+  for (const statement of statements) {
+    if (/\bpoe\b|power over ethernet/i.test(statement)) out.poe = true;
+    if (/\bpoc\b|power over cable/i.test(statement)) out.poc = true;
+    if (/\bpoh\b|power over hdbaset/i.test(statement)) out.poh = true;
+    if (/internal supply|internal psu|ac mains|mains input|internal power|\biec\b/i.test(statement)) out.internalPsu = true;
+    if (/external|adapter|\bpsu\b|power supply|dc\s*\d|universal|included supply/i.test(statement)) out.externalPsu = true;
+  }
+
+  const dcVoltage = [p.dc, p.dcVoltage, p.voltage]
+    .map((v) => (typeof v === "string" ? v : typeof v === "number" ? String(v) : ""))
+    .find((v) => /(\d+\s*v\b|dc)/i.test(v));
+  if (dcVoltage) out.externalPsu = true;
+
+  if (statements.length > 0) {
+    out.powerSupply = statements[0];
+  } else if (out.poh) {
+    out.powerSupply = "PoH / HDBaseT remote power";
+  } else if (out.poc) {
+    out.powerSupply = "PoC remote power";
+  } else if (out.poe) {
+    out.powerSupply = "PoE";
+  } else if (dcVoltage) {
+    out.powerSupply = `${dcVoltage} DC external PSU`;
+  } else if (out.externalPsu) {
+    out.powerSupply = "External PSU";
+  } else if (out.internalPsu) {
+    out.powerSupply = "Internal PSU";
+  }
+
+  if (p.usbCPd === true || p.usbCPdWatts !== undefined) out.powerDelivery = true;
+
+  return out as Pick<
+    CompareSpecFacts,
+    "poe" | "poc" | "poh" | "internalPsu" | "externalPsu" | "powerSupply" | "powerDelivery"
+  >;
+}
+
 function catalogEntryToFingerprint(entry: CatalogEntry): Fingerprint | null {
   const sku = String(entry.sku ?? "").trim();
   const brand = String(entry.brand ?? "").trim();
@@ -749,10 +819,12 @@ function catalogEntryToFingerprint(entry: CatalogEntry): Fingerprint | null {
   if (/usb-?c/i.test(portTypes)) features.usbC = true;
   if (/usb (host|device)/i.test(portTypes)) features.usbRouting = true;
 
+  const catalogSpecs = entry.specs && typeof entry.specs === "object" ? entry.specs : {};
   const specs = finaliseAvoipNetworkFacts(
     {
       ...parseSpecFacts(blob, inputCount, outputCount, features),
-      ...(entry.specs && typeof entry.specs === "object" ? entry.specs : {}),
+      ...catalogSpecs,
+      ...flattenCompetitorPowerFacts((catalogSpecs as Record<string, unknown>).power),
     },
     blob,
     domain === "AVOIP",

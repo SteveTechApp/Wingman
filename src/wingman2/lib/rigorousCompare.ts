@@ -73,6 +73,88 @@ function dedupe(values: string[], limit = 6): string[] {
   return Array.from(new Set(values.filter(Boolean))).slice(0, limit);
 }
 
+// Free-text competitor queries (no SKU in the competitor catalogue, no
+// datasheet pasted) often carry an unmistakable product-class signal that
+// `resolveCompetitorSpecProfile` never surfaces - it only classifies from
+// curated fingerprints / source products, not from the words in the request.
+// The classifier's contract explicitly expects callers to backfill
+// domain/role/transport from any free-text classifier they have, so when the
+// resolved profile comes back unclassified but `analyzeCompetitor` detected a
+// technology class, merge that signal in. specTier stays "sku-only" so the
+// outcome can never exceed VERIFY - this only rescues inputs that would
+// otherwise dead-end on the "competitor could not be classified at all"
+// blocker (e.g. "training room wireless casting with 4 sources" -> NO MATCH
+// everywhere instead of a real wireless-presentation comparison).
+const FREE_TEXT_CLASSIFICATION: Record<string, { domain: string; role: string; transport: string }> = {
+  WIRELESS_PRESENTATION: { domain: "WIRELESS_PRESENTATION", role: "wireless presentation", transport: "Wireless" },
+  PRESENTATION: { domain: "PRESENTATION", role: "presentation switcher", transport: "HDMI" },
+  MATRIX: { domain: "MATRIX", role: "matrix", transport: "HDMI" },
+  DISTRIBUTION: { domain: "DISTRIBUTION", role: "distribution amplifier", transport: "HDMI" },
+  VIDEO_WALL: { domain: "VIDEO_WALL", role: "video wall processor", transport: "HDMI" },
+  AVOIP: { domain: "AVOIP", role: "transceiver", transport: "AV over IP" },
+  HDBASET: { domain: "HDBASET", role: "transceiver", transport: "HDBaseT" },
+  EXTENDER: { domain: "HDBASET", role: "transceiver", transport: "HDBaseT" },
+  USB_CONFERENCE: { domain: "UC", role: "uc room endpoint", transport: "USB" },
+  AUDIO: { domain: "AUDIO", role: "processor", transport: "Audio" },
+  CONTROL: { domain: "CONTROL", role: "controller", transport: "Control" },
+};
+
+// Precise endpoint roles detected from free text that the classifier's
+// ROLE_EQUIVALENTS table already understands; anything else falls back to the
+// technology-class default role.
+const FREE_TEXT_ENDPOINT_ROLES = new Set(["encoder", "decoder", "transceiver", "transmitter", "receiver", "matrix", "processor", "controller"]);
+
+// Before falling back to the coarse technology class, check the request text
+// for the same precise signals the eligibility intent classifier uses. The
+// generic tech class alone would mislabel a "4 source multiview processor" as
+// VIDEO_WALL, or a "4K NDI PTZ conference camera" as AVOIP (the word "NDI"),
+// hijacking the more accurate text-based intent.
+const FREE_TEXT_PRECISE_CLASSIFICATION: Array<{ test: RegExp; domain: string; role: string; transport: string }> = [
+  // UC / all-in-one video bars must be checked before the generic technology
+  // class: their descriptions routinely mention "camera", "microphone" and
+  // "speaker", which the coarse AUDIO class pattern would otherwise grab and
+  // route the comparison into network-audio instead of the UC room direction.
+  { test: /\b(video\s*bar|conference\s*bar|conferencing\s*bar|soundbar|uc\s*room(?:\s*(?:product|endpoint))?|all-in-one[^.]*(?:camera|conferencing)|integrated\s+camera|camera[,\s]+microphone[,\s]+speaker|speakerphone|unified\s*communications?)\b/i, domain: "UC", role: "uc room endpoint", transport: "USB" },
+  { test: /\b(multiview|multi-view|single output canvas|quad view|picture by picture|\bpip\b|\bpbp\b|windowing processor)\b/i, domain: "MULTIVIEW", role: "multiview processor", transport: "HDMI" },
+  { test: /\b(video wall processor|wall processor|lcd video wall|dedicated video wall)\b/i, domain: "VIDEO_WALL", role: "video wall processor", transport: "HDMI" },
+  { test: /\b(ndi[\s-]?(camera|cam|ptz)|birddog|ndi source|ndi encoder camera)\b/i, domain: "NDI_CAMERA", role: "ndi camera", transport: "NDI" },
+  { test: /\b(ptz|pan[-\s]?tilt[-\s]?zoom|visca|pelco[\s-]?d)\b/i, domain: "PTZ_CAMERA", role: "ptz camera", transport: "NDI" },
+  { test: /\b(wireless (casting|presentation|sharing|collaboration)|clickshare|solstice|mersive|airtame|miracast|airplay|chromecast|wifidisplay)\b/i, domain: "WIRELESS_PRESENTATION", role: "wireless presentation", transport: "Wireless" },
+];
+
+function isBlank(value: unknown): boolean {
+  const text = String(value ?? "").trim().toLowerCase();
+  return !text || text === "unknown" || text === "n/a";
+}
+
+function backfillFreeTextClassification(
+  competitor: ResolvedCompetitorProfile,
+  analysis: CompetitorProfile,
+  inputText: string,
+): Partial<ResolvedCompetitorProfile> {
+  if (!isBlank(competitor.domain)) {
+    return {};
+  }
+
+  const precise = FREE_TEXT_PRECISE_CLASSIFICATION.find((entry) => entry.test.test(inputText));
+  const backfill = precise ?? FREE_TEXT_CLASSIFICATION[analysis.technologyClass];
+  if (!backfill) {
+    return {};
+  }
+
+  const override: Partial<ResolvedCompetitorProfile> = {
+    domain: backfill.domain,
+    transport: isBlank(competitor.transport) ? backfill.transport : competitor.transport,
+  };
+
+  if (isBlank(competitor.role)) {
+    const detectedRole = String(analysis.role ?? "").toLowerCase();
+    override.role = FREE_TEXT_ENDPOINT_ROLES.has(detectedRole) ? detectedRole : backfill.role;
+  }
+
+  return override;
+}
+
 export function rigorousCompare(
   input: string,
   products: WyrestormProduct[],
@@ -82,7 +164,11 @@ export function rigorousCompare(
 ): RigorousCompareResult {
   const analysis = analyzeCompetitor(input, providedBrand);
   const base = compareCompetitor(input, products, providedBrand, maxCandidates);
-  const competitor = resolveCompetitorSpecProfile(input, providedBrand || analysis.brand, sourceUrl);
+  const resolvedCompetitor = resolveCompetitorSpecProfile(input, providedBrand || analysis.brand, sourceUrl);
+  const competitor: ResolvedCompetitorProfile = {
+    ...resolvedCompetitor,
+    ...backfillFreeTextClassification(resolvedCompetitor, analysis, input),
+  };
   const unresolvedCompetitor =
     competitor.specTier === "sku-only" &&
     (!competitor.domain || competitor.domain === "UNKNOWN") &&
