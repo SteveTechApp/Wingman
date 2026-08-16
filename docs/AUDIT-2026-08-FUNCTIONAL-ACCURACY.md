@@ -1493,3 +1493,110 @@ explanation aimed at an inexperienced rep.
   "!Plausible — confirm" chip with the print button present (popup windows are
   blocked in the sandboxed preview, so the printed HTML itself is pinned by the
   unit tests).
+
+---
+
+## Verdict-lead front-panel redesign (16 Aug 2026)
+
+The Compare page's verdict lead — the front panel a rep sees first — now renders
+the comparison the way an AV engineer reads a signal flow: as a routed link
+from the competitor product into the WyreStorm product, instead of a bare
+heading.
+
+- **Signal-route faceplate**: the banner is now a machined panel (hairline
+  top-edge highlight) containing a route strip — `COMPETITOR
+  BARCO CLICKSHARE-CX-30 ──▶ WYRESTORM SW-640L-TX-W` in Cascadia mono with a
+  status LED lamp at the source end and an arrowhead at the destination.
+- **Tone-follows-chip**: the lamp, routed line, and panel inset are driven by
+  the confidence-tier chip's tone (via `:has()`), never by the status class —
+  so an amber "Evidence pending" chip can never sit on a red no-match panel
+  (the compound-selector bug this exposed was caught live and fixed).
+- **Honest broken-route**: "No equivalent" renders the link as a dashed red
+  broken trace with a red lamp and red destination label — the route visibly
+  does not connect.
+- **Live-verified** all three tones in the running app: confirm (amber solid,
+  CLICKSHARE-CX-30 → SW-640L-TX-W), pending (amber, unknown typed SKU), none
+  (red dashed, Airtame Cloud). Strict typecheck, governed render gate (9 files
+  / 26 tests), and sales-facing-language checks pass; the style-drift baseline
+  needs +24 sections when this lands (all in wingman-workflow-theme.css).
+
+---
+
+## Backend API design audit (api-design-principles) — 16 Aug 2026
+
+Audited the Wingman backend HTTP surface — `server/competitor-lookup-server.mjs`
+(2631-line hand-rolled Node router, no framework), the agents router
+(`server/routes/agents.mjs`), and the governance / intelligence / approvals
+handlers — against REST design principles.
+
+### Surface
+
+~45 endpoints: `/api/health|ready|health/details`, `/api/csrf`,
+`/api/wingman/*` (auth, workspace, projects, invitations, governance, audit,
+telemetry, agents), `/api/competitor/*` (resolveMatch, liveLookup),
+`/api/competitor-lookup` (+ `/api/wingman/competitor-lookup` alias),
+`/api/competitor-approvals`, `/api/competitor-lookup/diagnostics*`,
+`/api/governance/*`, `/api/intelligence/*`, `/api/product-intelligence/*`,
+`/api/compare/match|analyze`. No OpenAPI spec exists.
+
+### Findings (by principle)
+
+1. **Verb-style actions in resource URLs** — `resolveMatch`, `liveLookup`,
+   `build-competitor`, `build-wyrestorm`, `mark-ready`, `sync`, `clear`,
+   `prune`, `refresh`, `upsert`, `confirm`, `approve`, `accept`, `resolve`.
+   Several are state transitions REST would model as PATCH on the resource
+   (`mark-ready`, `drafts/status`, `approve`, `confirm`); others are
+   genuinely RPC. The bigger issue is **three overlapping namespaces** for the
+   same concern (competitor matching): `/api/competitor/resolveMatch`,
+   `/api/competitor-lookup`, and `/api/compare/match|analyze` — plus a live
+   **duplicate route alias** `/api/wingman/competitor-lookup` ===
+   `/api/competitor-lookup`.
+2. **Status-code semantics** — `resolveMatch` returned **400 on "no match
+   found"**, conflating a valid business outcome (nothing matched) with a
+   malformed request. Fixed: now 200 with `{ok:false, error}` (4xx reserved
+   for bad input/auth). The 401 gate, 404 fallback shape, and 413 body limit
+   (`parseJsonBody` + `MAX_JSON_BODY_BYTES`) were already correct.
+3. **Inconsistent response envelopes** — health uses `{status:"ok"}`,
+   ready uses `{ready:true}`, the 404 uses `{ok:false,error,route}`, most
+   handlers use `{ok:boolean,error?}`, but `/api/compare/match|analyze` used
+   bare `{error}` on 500 and `analyze` unwrapped `result.competitor`.
+   Fixed: both compare endpoints now emit `{ok:true, ...result}` / `{ok:false,
+   error}`. (Both endpoints have zero in-app callers — dead surface.)
+4. **HTTP method semantics** — `clear`/`prune`/`mark-ready`/`approve`/
+   `confirm` as POST actions are defensible for this internal tool but
+   inconsistent with each other; a PATCH pass would tidy them.
+5. **Pagination** — the decision queue accepts `?limit=` (safely coerced);
+   diagnostics caps at `LOOKUP_RUNTIME_EVENT_MAX`. Adequate for internal use;
+   no cursor pagination, fine at this scale.
+6. **Rate limiting** — present for live lookup (window + max exposed in
+   health); other mutation endpoints (approvals, intelligence builds) have no
+   limit — acceptable behind the auth gate.
+7. **Versioning** — no `/api/v1` prefix; breaking changes to
+   `resolveMatch`'s shape have shipped without a version guard. Risk is low
+   (single client, in-repo) but a `v1` prefix at next breaking change would
+   be cheap insurance.
+8. **Security posture (already good)** — CSRF double-submit guard
+   (inert until `WINGMAN_CSRF_ENFORCE=true`), per-route permission checks,
+   body-size cap, host/loopback-only local bypass for intelligence drafts.
+
+### Changed (safe, verified)
+
+- `resolveMatch`: no-match → **200 `{ok:false,error}`** (was 400).
+- `/api/compare/match` + `/api/compare/analyze`: unified **`{ok:true,...}` /
+  `{ok:false,error}`** envelopes.
+- Verified: `node --check`, all 5 server suites (48 tests via vitest), and
+  `check:workflow` (asserts the 401 gates still fire).
+
+### Recommended next steps (not done — bigger changes)
+
+1. **OpenAPI spec** (`docs/api/openapi.yaml`) generated from the router —
+   the single highest-value addition: it forces the envelope/status decisions
+   above to be explicit and gives the Supabase-edge client one source of truth.
+2. **De-duplicate the alias** — pick `/api/competitor-lookup` and migrate the
+   client (`wingmanApi.ts`) off `/api/wingman/competitor-lookup`.
+3. **Consolidate the three competitor-matching namespaces** into one
+   resource (`/api/competitors/{id}/match` + `/api/competitors/lookup`),
+   retiring `resolveMatch`/`liveLookup`/`compare/*` behind it.
+4. **PATCH pass** for state transitions (`projects/:id`, `drafts/:id/status`,
+   `decisions/:id`).
+5. **`v1` prefix** at the next breaking change.

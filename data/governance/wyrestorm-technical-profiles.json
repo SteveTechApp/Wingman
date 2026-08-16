@@ -1,6 +1,6 @@
 {
-  "version": 5,
-  "updatedAt": "2026-08-16T10:29:04.129Z",
+  "version": 7,
+  "updatedAt": "2026-07-30",
   "policy": {
     "purpose": "Source-controlled, reviewed WyreStorm technical facts shared by Product Pitch, Compare, Finder and proposal workflows.",
     "precedence": [
@@ -731,6 +731,133 @@
       "verifiedAt": "2026-08-16T10:23:16.056Z",
       "confirmedFields": [
         "power"
+      ]
+    },
+    {
+      "sku": "APO-VX20-UC",
+      "status": "verified-with-warning",
+      "productClass": "UC",
+      "role": "UC room endpoint",
+      "productType": "Camera endpoint",
+      "transport": [
+        "USB",
+        "Wireless",
+        "HDMI",
+        "USB-C video input",
+        "KVM / USB extension",
+        "USB 3.x",
+        "USB-C",
+        "USB-C power delivery",
+        "Wireless presentation",
+        "UC / conferencing"
+      ],
+      "maxResolution": "4K AI camera",
+      "ports": [
+        {
+          "count": 1,
+          "connector": "USB-C",
+          "direction": "input",
+          "category": "usb",
+          "detail": "1x USB-C Input with Alt-Mode"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "1x HDMI Input"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "1x HDMI Output"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "unspecified",
+          "category": "video",
+          "detail": "1 x 5m HDMI Cable"
+        },
+        {
+          "count": 1,
+          "connector": "USB-B",
+          "direction": "unspecified",
+          "category": "usb",
+          "detail": "1x 5m USB-B 3.0 Host Cable"
+        },
+        {
+          "count": 4,
+          "connector": "Analog audio",
+          "direction": "input",
+          "category": "audio",
+          "detail": "Features 4 x MEMS microphones in a Beamforming array with Acoustic Echo Cancellation, Automatic Gain Control and Automatic Noise Suppression, ensuring you can be heard loud and clear in every meeting up to 8 meters away. The stereo speakers with bass enhancement provide crisp audio delivery, even in the largest rooms."
+        }
+      ],
+      "video": [
+        "4K AI camera",
+        "3840x2160p 30Hz 4:4:4 8bit 1920x1080p 60Hz Inputs/Outpu",
+        "3840x2160p @30Hz 1920x1080p @60Hz Output Encoding MJPEG",
+        "HDMI",
+        "HDMI 1.4",
+        "HDCP 1.4",
+        "8m",
+        "26ft",
+        "8.0M",
+        "60m",
+        "5m",
+        "EDID management"
+      ],
+      "audio": [
+        "Microphone",
+        "4 x MEMS mic array, AEC | ANS | AGC",
+        "Pickup Range: 5-8m (16-26ft)",
+        "APO-MIC-EXT - USB to Ethernet cable for use with the APO-COM-MIC add-on microphone allows point-to-point extension up to 60m over Cat6 cable to the APO-COM-MIC . (Sold separately)",
+        "Add on the APO-COM-MIC USB microphone for expanded pickup range in your meeting space. This microphone features a 360 degree pick-up angle at a distance up to 5m (16ft). Cascade up to 5 mics and ensure even the largest rooms are fully covered.",
+        "Speaker",
+        "The integrated 4K camera not only provides a crystal-clear video conference experience but delivers smart AI enhanced functionality including intelligent backlighting, auto-framing, presenter tracking and speaker tracking.",
+        "AEC",
+        "AGC",
+        "ANS"
+      ],
+      "usb": [
+        "USB 3.2 Gen 1",
+        "USB 3.x",
+        "USB-C",
+        "USB-B",
+        "USB-A",
+        "KVM / HID",
+        "5Gbps"
+      ],
+      "network": [
+        "LAN",
+        "x 8-pin RJ45",
+        "APO-MIC-EXT - USB to Ethernet cable for use with the APO-COM-MIC add-on microphone allows point-to-point extension up to 60m over Cat6 cable to the APO-COM-MIC . (Sold separately)",
+        "5Gbps"
+      ],
+      "control": [
+        "CEC",
+        "EDID"
+      ],
+      "power": [],
+      "physical": [],
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "checks": [
+        "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
+        "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
+      ],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "official-product-page-canonical-capture",
+          "sourceUrl": "https://www.wyrestorm.com/product/apo-vx20-uc/",
+          "reviewedOn": "2026-07-30",
+          "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
+          "note": "Draft generated from canonical official-source material (69 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review: promoted from review-required; official-page evidence complete and coherent. Machine promotion only - a human must confirm the spec-critical fields (max resolution, routed I/O, power) and record verifiedBy before this profile may claim verified status."
+        }
       ]
     },
     {
@@ -11268,6 +11395,189 @@
       ]
     },
     {
+      "sku": "NHD-610-TX",
+      "status": "verified-with-warning",
+      "productClass": "AVOIP",
+      "role": "Encoder",
+      "productType": "AVoIP endpoint",
+      "transport": [
+        "AVoIP",
+        "NetworkHD 600",
+        "10G Ethernet",
+        "HDMI",
+        "Dante",
+        "KVM / USB extension",
+        "USB 2.0",
+        "NetworkHD AV over IP"
+      ],
+      "maxResolution": "4K60Hz 4:4:4 SDVoE Encoder 4K60Hz 4:4:4 SDVoE E",
+      "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "input",
+          "category": "video",
+          "detail": "1x HDMI 2.0"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45 / Ethernet",
+          "direction": "input",
+          "category": "audio",
+          "detail": "1x 5-pin Balanced Analog Audio"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "1x HDMI 2.0 Loop Out"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45 / Ethernet",
+          "direction": "output",
+          "category": "audio",
+          "detail": "1x 5-pin Balanced Analog Audio Out"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45 / Ethernet",
+          "direction": "output",
+          "category": "network",
+          "detail": "1x 10GbE 8-Pin RJ45"
+        },
+        {
+          "count": 1,
+          "connector": "RJ45 / Ethernet",
+          "direction": "output",
+          "category": "network",
+          "detail": "1x 1GbE 8-pin RJ45 (Auxiliary Lan)"
+        },
+        {
+          "count": 1,
+          "connector": "Analog audio",
+          "direction": "output",
+          "category": "audio",
+          "detail": "1x 3-pin Phoenix Connector | 2 Way | Broadcast | Routed | API Programmable"
+        },
+        {
+          "count": 1,
+          "connector": "IR",
+          "direction": "output",
+          "category": "control",
+          "detail": "1x IR TX 3.5mm TS Mono Jack | API Programmable"
+        },
+        {
+          "count": 1,
+          "connector": "IR",
+          "direction": "output",
+          "category": "control",
+          "detail": "1x IR RX 3.5mm TRS Stereo Jack | API Programmable"
+        },
+        {
+          "count": 3,
+          "connector": "USB",
+          "direction": "output",
+          "category": "usb",
+          "detail": "3x USB 1.1 HID Type A"
+        },
+        {
+          "count": 1,
+          "connector": "USB",
+          "direction": "output",
+          "category": "usb",
+          "detail": "1x USB 1.1 HID Type B Host"
+        },
+        {
+          "count": 1,
+          "connector": "IR",
+          "direction": "output",
+          "category": "control",
+          "detail": "1x IR Emitter (TX)"
+        },
+        {
+          "count": 1,
+          "connector": "IR",
+          "direction": "output",
+          "category": "control",
+          "detail": "1x IR Receiver (RX)"
+        }
+      ],
+      "video": [
+        "4K60Hz 4:4:4 SDVoE Encoder 4K60Hz 4:4:4 SDVoE E",
+        "4K60Hz 4:4:4 SDVoE Encoder",
+        "1080p@60Hz 8bit - 3",
+        "4K UHD@30Hz 4:4:4 8bit - 6",
+        "4K UHD@60Hz 4:4:4 8bit - 8",
+        "4096x2160p @ 60Hz 8bit 4:4:4 or RGB 3840x2160p @ 60Hz 1",
+        "1920x1080p @ 60Hz 12bit Supported Standards RGB",
+        "HDMI 2.0",
+        "HDMI",
+        "HDCP 2.2",
+        "Dolby Vision",
+        "HDR",
+        "Scaling",
+        "Seamless switching",
+        "EDID management"
+      ],
+      "audio": [
+        "Dolby Vision",
+        "Dolby Vision 3840x 2160p",
+        "Dolby Atmos TM and DTS",
+        "Dante",
+        "AES67"
+      ],
+      "usb": [
+        "USB 2.0",
+        "KVM / HID"
+      ],
+      "network": [
+        "1x 10GbE 8-Pin RJ45",
+        "LAN",
+        "1x 1GbE 8-pin RJ45 (Auxiliary Lan)",
+        "The NetworkHD 610-TX expand the functionality of the powerful SDVoE 600 series product line. The 610-TX retain many of the capabilities found on the other models, such as full HDMI 2.0 encoding, zero latency transmissions, video wall and multiview processing. However, the 610 packs an extra punch by incorporating a Dante/AES67 output, allowing audio from the HDMI or analog audio input to transmit to Dante/AES67 enabled amplifiers, DSP or mixers. The TX is also equipped with a full speed USB 1.1 HID chipset, maximizing compatibility with thousands of USB peripherals for extension over the network, such as a keyboard/mouse & touchscreens, or just simple data transfers.",
+        "The NHD-610-TX is equipped with a 2CH Dante audio transmitter. Audio from either the HDMI or analog audio input can be sent over the network using Dante protocols for a latency free and lossless delivery to compatible audio equipment. We’ve also made sure AES67 is supported to expand compatibility with even more audio receivers.",
+        "All 600 series components support encoding full HDMI 2.0 content. This includes 4K60 4:4:4 8bit and high dynamic range formats such as Dolby Vision, HDR10 and HLG. Most HDMI content is transmitted completely uncompressed and delivered over the network latency free using genlock synchronization.",
+        "Compatible with the 802.3at PoE+ protocol, the 610s can power from a compatible network switch removing the need to use cumbersome DC power supplies.",
+        "An auxiliary 1GbE LAN port provides a bridged connection to the main 10G port for connecting peripherals. It can also be setup to isolate Dante audio to a separate network.",
+        "NetworkHD",
+        "Dante",
+        "AES67",
+        "API",
+        "10GbE",
+        "PoE"
+      ],
+      "control": [
+        "RS-232",
+        "IR",
+        "CEC",
+        "API",
+        "EDID"
+      ],
+      "power": [],
+      "physical": [],
+      "dependencies": [
+        "Requires a 10GbE SDVoE-capable managed AV network - will not run on 1GbE",
+        "Requires a NetworkHD controller (NHD-CTL-PRO-V2)",
+        "Never mix 600 series 10G with 1G NetworkHD in one transport design"
+      ],
+      "compatibleFamilies": [],
+      "checks": [
+        "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
+      ],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "official-product-page-canonical-capture",
+          "sourceUrl": "https://www.wyrestorm.com/product/nhd-610-tx-v2/",
+          "reviewedOn": "2026-07-30",
+          "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
+          "note": "Draft generated from canonical official-source material (69 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review: promoted from review-required; official-page evidence complete and coherent. Machine promotion only - a human must confirm the spec-critical fields (max resolution, routed I/O, power) and record verifiedBy before this profile may claim verified status."
+        }
+      ]
+    },
+    {
       "sku": "NHD-610-TX-V2",
       "status": "verified",
       "productClass": "AVOIP",
@@ -13397,6 +13707,106 @@
       ]
     },
     {
+      "sku": "SW-0X01-8K",
+      "status": "verified-with-warning",
+      "productClass": "PRESENTATION",
+      "role": "Room presentation and source switching core",
+      "productType": "Room source switcher",
+      "transport": [
+        "HDMI",
+        "HDMI 2.1 / 8K",
+        "USB 3.x",
+        "Presentation switching"
+      ],
+      "maxResolution": "8K EXP-SW-0X01-8K WyreStorm Essentials 8K60 HDM",
+      "ports": [
+        {
+          "count": 1,
+          "connector": "HDMI",
+          "direction": "output",
+          "category": "video",
+          "detail": "1x HDMI"
+        },
+        {
+          "count": 1,
+          "connector": "IR",
+          "direction": "output",
+          "category": "control",
+          "detail": "1 x IR Receiver Cable"
+        },
+        {
+          "count": 1,
+          "connector": "IR",
+          "direction": "output",
+          "category": "control",
+          "detail": "1x IR Remote (CR2025 battery not included)"
+        },
+        {
+          "count": 1,
+          "connector": "Analog audio",
+          "direction": "output",
+          "category": "audio",
+          "detail": "1x 3-Pin Phoenix Connector (EXP-SW-0401-8K)"
+        }
+      ],
+      "video": [
+        "8K EXP-SW-0X01-8K WyreStorm Essentials 8K60 HDM",
+        "8K60 HDMI Switcher - WyreStorm Our plug-and-pla",
+        "8K HDMI switcher series has the ability to send",
+        "8K@60Hz or 4K@120Hz resolutions to your display",
+        "8K) 2 (EXP-SW-0201-8K) Output 1x HDMI Maximum D",
+        "1080p @240Hz 4096 x 2160p @120Hz 4:4:4 10bit 5120×",
+        "8K Switcher 1x DC 12V PSU (US,UK,EU,AU) 1 x IR",
+        "8K) 1x Quickstart Guide Product Resources",
+        "HDMI",
+        "HDMI 2.1",
+        "HDCP 2.3",
+        "Dolby Vision",
+        "18 Gbps",
+        "40Gbps",
+        "18Gbps",
+        "EDID management"
+      ],
+      "audio": [
+        "Dolby Vision",
+        "PCM",
+        "DTS-X",
+        "Dolby Atmos Maximum Sampling Rate 192KHz Maximum Audio Channels 32 COMMUNICATION"
+      ],
+      "usb": [
+        "USB 3.x",
+        "10Gbps",
+        "40Gbps"
+      ],
+      "network": [
+        "10Gbps"
+      ],
+      "control": [
+        "RS-232",
+        "IR",
+        "CEC",
+        "EDID"
+      ],
+      "power": [],
+      "physical": [],
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "checks": [
+        "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
+        "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
+      ],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "official-product-page-canonical-capture",
+          "sourceUrl": "https://www.wyrestorm.com/product/exp-sw-0x01-8k/",
+          "reviewedOn": "2026-07-30",
+          "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
+          "note": "Draft generated from canonical official-source material (93 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review: promoted from review-required; official-page evidence complete and coherent. Machine promotion only - a human must confirm the spec-critical fields (max resolution, routed I/O, power) and record verifiedBy before this profile may claim verified status."
+        }
+      ]
+    },
+    {
       "sku": "SW-120-TX3",
       "status": "verified",
       "productClass": "PRESENTATION",
@@ -13680,6 +14090,79 @@
         "max-resolution",
         "routed-io",
         "power"
+      ]
+    },
+    {
+      "sku": "SW-130-TX",
+      "status": "verified-with-warning",
+      "productClass": "PRESENTATION",
+      "role": "Room presentation and source switching core",
+      "productType": "Room source switcher",
+      "transport": [
+        "HDMI",
+        "HDBaseT",
+        "DisplayPort",
+        "KVM / USB extension",
+        "USB 2.0",
+        "USB routing / switching",
+        "Presentation switching"
+      ],
+      "maxResolution": "4K HDBaseT Receiver with USB - WyreStorm 35m 4K",
+      "ports": [],
+      "video": [
+        "4K HDBaseT Receiver with USB - WyreStorm 35m 4K",
+        "4K video, USB 2",
+        "3840x2160p @30Hz 10bit HDR 4:2:0 3840x2160p @60Hz 8bit 4:2:0",
+        "1920x1080p @60Hz 12bit Supported Standards DCI",
+        "4K UHD content and sources HD Multichannel audi",
+        "HDMI",
+        "HDCP 2.2",
+        "HDCP",
+        "Dolby Vision",
+        "HDR",
+        "10.2Gbps",
+        "35m",
+        "35m/115ft",
+        "EDID management"
+      ],
+      "audio": [
+        "PCM",
+        "DTS-X and Dolby Atmos Audio Out",
+        "Dolby Vision",
+        "Dolby Vision at 30Hz HDCP 22 encryption technology ensuring compatibility with the latest 4K UHD content and sources HD Multichannel audio up to DTS",
+        "Dolby Atmos via HDMI 2160p 4"
+      ],
+      "usb": [
+        "USB 2.0",
+        "USB device",
+        "KVM / HID"
+      ],
+      "network": [
+        "1x HDBT In: 8-pin RJ45",
+        "PoH"
+      ],
+      "control": [
+        "RS-232",
+        "CEC",
+        "EDID"
+      ],
+      "power": [],
+      "physical": [],
+      "dependencies": [],
+      "compatibleFamilies": [],
+      "checks": [
+        "Confirm all I/O counts, signal directions, performance limits, included accessories and mandatory dependencies before quotation.",
+        "Confirm lifecycle, firmware, regional variant, power supply, mounting and cable requirements before customer issue."
+      ],
+      "warnings": [],
+      "evidence": [
+        {
+          "sourceType": "official-product-page-canonical-capture",
+          "sourceUrl": "https://www.wyrestorm.com/product/rx-500/",
+          "reviewedOn": "2026-07-30",
+          "reviewer": "Wingman canonical official-source extraction (NOT human-verified)",
+          "note": "Draft generated from canonical official-source material (63 captured technical line(s)). Exact claims and SKU identity require human review. Batch governed review: promoted from review-required; official-page evidence complete and coherent. Machine promotion only - a human must confirm the spec-critical fields (max resolution, routed I/O, power) and record verifiedBy before this profile may claim verified status."
+        }
       ]
     },
     {

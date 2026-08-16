@@ -119,7 +119,10 @@ describe("compare page strong-direction render (green tier)", () => {
     expect(tier?.querySelector(".compare-confidence-tier__glyph")?.textContent).toBe("✓");
 
     // The prose heading matches the tier: a close match exists, not "confirm".
-    expect(verdict.querySelector(".compare-verdict-lead__banner strong")?.textContent).toMatch(
+    // (Target the heading element: the banner's route strip also carries a
+    // <strong> for the competitor name, which a loose descendant selector would
+    // hit first.)
+    expect(verdict.querySelector(".compare-verdict-lead__heading")?.textContent).toMatch(
       /close wyrestorm match exists/i,
     );
 
