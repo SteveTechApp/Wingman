@@ -25,6 +25,9 @@ describe("CatalogBrowserPage admin record editing", () => {
     getWingmanSession.mockReset();
   });
 
+  // Under full-suite load this test has intermittently exceeded vitest's
+  // default 15s testTimeout (it completes in ~5s in isolation); give it a
+  // proportionate budget so load-induced scheduling delays don't flake it.
   it("shows Edit record actions to a workspace administrator", async () => {
     getWingmanSession.mockResolvedValue({
       ok: true,
@@ -46,7 +49,7 @@ describe("CatalogBrowserPage admin record editing", () => {
     fireEvent.click((await screen.findAllByRole("button", { name: "Edit record" }))[0]);
     expect(await screen.findByRole("button", { name: "Allow product" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Remove product" })).toBeTruthy();
-  });
+  }, 30000);
 
   it("does not expose Edit record actions to a non-admin user", async () => {
     getWingmanSession.mockResolvedValue({

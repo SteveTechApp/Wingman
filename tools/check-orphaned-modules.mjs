@@ -28,6 +28,10 @@ const DYNAMIC_IMPORT = /import\(\s*["']([^"']+)["']\s*\)/g;
 const KNOWN_DYNAMIC_ALLOWLIST = new Set([
   // Intentionally retained as the reusable behavioural scenario harness used by scenario tests and future recommendation-readiness integration.
   "src/wingman2/lib/scenarioValidation.ts",
+  // Test-only data-source injection harness (governed-profiles coverage-loss scenarios) imported by render regressions, deliberately outside the runtime graph.
+  "src/wingman2/lib/testHelpers/governedProfilesHarness.ts",
+  // Guard module for the competitor-decision drift gate: imported by tools/snapshot-competitor-match-decisions.mjs and the snapshot test, never by live pages.
+  "src/wingman2/lib/competitorMatchDecisionSnapshot.ts",
 ]);
 
 function isTestFile(filePath) {

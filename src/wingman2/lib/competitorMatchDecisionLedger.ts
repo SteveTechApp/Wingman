@@ -139,6 +139,16 @@ function makeDecisionIdentity(
   ].join("::");
 }
 
+function makeCompetitorIdentity(decision: {
+  competitorManufacturer: string;
+  competitorSku: string;
+}): string {
+  return [
+    clean(decision.competitorManufacturer).toLowerCase(),
+    normaliseSku(decision.competitorSku),
+  ].join("::");
+}
+
 export function emptyCompetitorMatchDecisionLedger(): CompetitorMatchDecisionLedger {
   return {
     version: 1,
@@ -318,6 +328,35 @@ export function saveCompetitorMatchDecision(
   );
 
   return nextLedger;
+}
+
+/**
+ * Overlay the governed ledger's approved decisions (fetched from the server)
+ * onto the local per-browser ledger. An approved server decision is the
+ * authoritative human review of that competitor product, so it replaces any
+ * local entry for the same manufacturer + SKU and takes precedence in
+ * runtime resolution - a queue approval therefore changes what a rep sees
+ * immediately, not just on the next batch.
+ */
+export function mergeApprovedLedgerDecisions(
+  local: CompetitorMatchDecisionLedger,
+  approved: CompetitorMatchDecision[],
+): CompetitorMatchDecisionLedger {
+  if (approved.length === 0) return local;
+
+  const approvedIdentities = new Set(
+    approved.map(makeCompetitorIdentity),
+  );
+
+  const localDecisions = local.decisions.filter(
+    (decision) => !approvedIdentities.has(makeCompetitorIdentity(decision)),
+  );
+
+  return {
+    version: 1,
+    updatedAt: approved[0]?.updatedAt ?? local.updatedAt,
+    decisions: [...approved, ...localDecisions],
+  };
 }
 
 export function findApprovedCompetitorMatchDecision(

@@ -16,6 +16,19 @@ export type ProductRole =
   | "wireless"
   | "general";
 
+/**
+ * The human reviewer trail behind a verified governed profile: who confirmed
+ * the spec-critical fields, when, which fields, and the official source used.
+ * Only present when the profile is human-verified (`status: "verified"` +
+ * `verifiedBy` recorded) - the same facts the dashboard's verified list shows.
+ */
+export type GovernedReviewerTrail = {
+  verifiedBy: string;
+  reviewedOn: string;
+  confirmedFields: string[];
+  evidenceUrl: string;
+};
+
 export type ProductTechnicalDataSummary = {
   status: "verified" | "official-structured" | "inferred" | "missing";
   statusLabel: string;
@@ -32,6 +45,8 @@ export type ProductTechnicalDataSummary = {
   evidence: string[];
   missingFields: string[];
   warnings: string[];
+  /** Reviewer trail when this product's governed profile is human-verified. */
+  reviewerTrail?: GovernedReviewerTrail;
 };
 
 export type ProductSpec = {

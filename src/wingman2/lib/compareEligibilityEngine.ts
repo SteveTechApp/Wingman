@@ -7,6 +7,7 @@ import {
 } from "./networkHdAvoipEquivalence";
 import { selectWingmanProducts } from "./productSelectorEngine";
 import { getWyreStormCompareLeadBlockReason } from "./wyrestormSkuBusinessStatus";
+import { buildWyrestormCompareProfile } from "./wyrestormCompareProfile";
 
 const AVOIP_ENDPOINT_INTENTS = new Set<CompareIntentKind>([
   "av-over-ip",
@@ -178,7 +179,10 @@ function makeEligibilityCandidateFromProduct(product: LooseRecord, reason: strin
     sku,
     name,
     family: product.family ?? product.productFamily ?? product.category ?? "WyreStorm",
-    wyrestorm: product,
+    // A real compare profile (not the raw catalogue row) so the match card can
+    // surface the governed data tier - sourceTier/sourceLabel are set from the
+    // governed registry, never carried as bare product fields.
+    wyrestorm: buildWyrestormCompareProfile(product as any),
     summary: reason,
     matches: [reason],
     gaps: [],
@@ -763,18 +767,13 @@ export function evaluateProductEligibility(args: {
       return blocked(sku, args.intent, [networkMismatch]);
     }
   }
-  const explicitCastingDongleRequest = /\b(?:casting|wireless|presentation)\s+(?:dongle|button|transmitter)\b|\b(?:dongle|casting button|wireless button|clickshare button)\b/i.test(args.competitorText);
-  const isExplicitDg2Match =
-    sku.toUpperCase() === "APO-DG2" &&
-    explicitCastingDongleRequest;
 
   const supportOnlyReason = productIsSupportOnly(sku, combined);
   const isUcRoomHardware =
     /\b(video\s*bar|conference\s*bar|conferencing\s*bar|uc\s*room\s*(?:product|endpoint)|all-in-one.*(?:camera|conferencing)|integrated\s+camera)\b/i.test(combined);
   const isRoleMatchedPrimaryProduct =
     ((args.intent === "ndi-camera" || args.intent === "ptz-camera") && /^CAM/.test(key)) ||
-    ((args.intent === "uc-byod" || args.intent === "usb-audio") && isUcRoomHardware)
-    || isExplicitDg2Match;
+    ((args.intent === "uc-byod" || args.intent === "usb-audio") && isUcRoomHardware);
   const invalidLeadReason = isRoleMatchedPrimaryProduct
     ? null
     : invalidLeadReasonForIntent(supportOnlyReason, args.intent);
@@ -909,12 +908,6 @@ export function evaluateProductEligibility(args: {
         "A wireless presentation transmitter does not replace an all-in-one UC video bar with an integrated camera, microphones and speakers.",
       ]);
     }
-    if (isExplicitDg2Match) {
-      return direct(args.intent, [
-        "Explicit casting-dongle requirement matched to APO-DG2.",
-        "Required dependency: APO-DG2 must be paired with a compatible WyreStorm wireless presentation switcher or UC soundbar.",
-      ], 0);
-    }
 
     if (wirelessPresentationSwitcher) {
       const size = extractMatrixSizeFromText(args.competitorText);
@@ -994,16 +987,28 @@ export function evaluateProductEligibility(args: {
       return direct(args.intent, ["Wireless presentation switcher candidate."], competitorIsDongle ? 30 : -90);
     }
 
-    if (/^NHD/.test(key) || /\b(avoip|networkhd|av-over-ip|encoder|decoder|transceiver)\b/i.test(combined)) {
+    // NetworkHD endpoints are never the answer to a wireless-presentation
+    // brief, regardless of what their catalogue copy says.
+    if (/^NHD/.test(key)) {
       return blocked(sku, args.intent, ["This is a wireless presentation workflow, not an AVoIP endpoint comparison. Do not lead with NetworkHD here."]);
     }
 
+    // Apollo / wireless / casting products are the wireless collaboration line
+    // themselves. Check them BEFORE the generic AVoIP-word block: their
+    // enriched catalogue copy routinely contains generic "endpoint / decoder /
+    // transceiver"-style words (applications, search terms) that would
+    // otherwise flip the actual casting dongle (APO-DG2) or UC bar into a
+    // blocked NetworkHD impostor - same root cause as the SW-640L-TX-W case.
     if (/\b(apollo|wireless|casting|miracast|airplay|chromecast)\b/i.test(combined) || /^APO/.test(key)) {
       const isDg2 = /^APODG2/.test(key);
       const isVx20Uc = /^APOVX20UC/.test(key);
       const fitPenalty = competitorIsDongle ? (isDg2 ? 15 : 45) : (isVx20Uc ? 15 : 45);
 
       return direct(args.intent, ["Wireless casting or collaboration candidate."], fitPenalty);
+    }
+
+    if (/\b(avoip|networkhd|av-over-ip|encoder|decoder|transceiver)\b/i.test(combined)) {
+      return blocked(sku, args.intent, ["This is a wireless presentation workflow, not an AVoIP endpoint comparison. Do not lead with NetworkHD here."]);
     }
 
     return related(args.intent, ["No confirmed wireless casting capability."], 75);

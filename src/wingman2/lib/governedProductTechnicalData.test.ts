@@ -36,6 +36,10 @@ describe("governed product technical data", () => {
     const resolved = resolveProductTechnicalData({ sku: "NHD-120-RX" }, base);
     const hydrated = hydrateProductSpecWithTechnicalData(base, { sku: "NHD-120-RX" });
 
+    // NHD-120-RX is human-verified (Steve confirmed its spec-critical fields
+    // in the 2026-08 structured review pass), so it renders at the
+    // verified-profile tier - "verified" requires a human (pinned in
+    // governedProductTechnicalData.humanVerified.test.ts).
     expect(resolved.sourceTier).toBe("verified-profile");
     expect(resolved.compareReady).toBe(true);
     expect(resolved.productClass).toBe("AVOIP");
@@ -77,6 +81,10 @@ describe("governed product technical data", () => {
 
     expect(resolved.productClass).toBe("WIRELESS_PRESENTATION");
     expect(resolved.role).toBe("wireless casting dongle");
+    // APO-DG2 was machine-transcribed and is now human-verified (2026-08
+    // structured review pass), so it renders at the verified-profile tier;
+    // it stays not-compare-ready because it can only work paired with a
+    // compatible receiver/base device, never standalone.
     expect(resolved.sourceTier).toBe("verified-profile");
     expect(resolved.compareReady).toBe(false);
     expect(resolved.dependencies.join(" ")).toMatch(/compatible.*receiver\/base device/i);

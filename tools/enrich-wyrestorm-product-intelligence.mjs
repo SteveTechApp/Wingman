@@ -1222,7 +1222,11 @@ function extractPorts(lines) {
       const rawConnector = clean(match[2]);
       if (!rawConnector || rawConnector.length > 80) continue;
 
-      const connector = normaliseConnector(`${match[0]} ${line}`);
+      // The compact match prefix is always a substring of the line; prepending it
+      // made normaliseConnector see doubled text for non-family connectors (e.g.
+      // "1x EXP-MX-0402-H2 Matrix" became "EXP-MX-0402-H2 Matrix 1x EXP-MX-0402-H2
+      // Matrix"). The line itself already carries the connector phrase.
+      const connector = normaliseConnector(line);
       ports.push({
         count,
         connector,

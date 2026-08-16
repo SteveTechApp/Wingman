@@ -166,6 +166,97 @@ export async function postWingmanJson<T>(path: string, body: unknown): Promise<T
   return payload as T;
 }
 
+export type ProfileConfirmationResponse = {
+  ok: boolean;
+  sku?: string;
+  verifiedBy?: string;
+  verifiedAt?: string;
+  confirmedFields?: string[];
+  file?: string;
+  error?: string;
+};
+
+export function confirmGovernedProfile(input: {
+  sku: string;
+  verifiedBy: string;
+  confirmedFields: string[];
+  evidenceUrl: string;
+}) {
+  return postWingmanJson<ProfileConfirmationResponse>("/api/governance/profiles/confirm", input);
+}
+
+export type CompetitorDecisionQueueItem = {
+  id: string;
+  competitorManufacturer: string;
+  competitorSku: string;
+  decisionType: string;
+  wyrestormSku: string | null;
+  productClass: string;
+  endpointRole: string;
+  transportClass: string;
+  maxResolution: string | null;
+  inputCount: number | null;
+  routedOutputCount: number | null;
+  lead: boolean;
+};
+
+export type CompetitorDecisionQueueResponse = {
+  ok: boolean;
+  total?: number;
+  pending?: number;
+  approved?: number;
+  queue?: CompetitorDecisionQueueItem[];
+  error?: string;
+};
+
+export type CompetitorDecisionApprovedResponse = {
+  ok: boolean;
+  total?: number;
+  approved?: number;
+  decisions?: import("../lib/competitorMatchDecisionLedger").CompetitorMatchDecision[];
+  error?: string;
+};
+
+export type CompetitorDecisionApprovalResponse = {
+  ok: boolean;
+  competitorManufacturer?: string;
+  competitorSku?: string;
+  decisionType?: string;
+  wyrestormSku?: string | null;
+  reviewer?: string;
+  reviewedAt?: string;
+  approved?: number;
+  total?: number;
+  error?: string;
+};
+
+/** The governed ledger's approved decisions as full records (runtime promotion). */
+export function fetchApprovedCompetitorDecisions() {
+  return getWingmanJson<CompetitorDecisionApprovedResponse>(
+    "/api/governance/competitor-decisions/approved",
+  );
+}
+
+/** The governed ledger's pending decisions, sorted by what reps face first. */
+export function fetchCompetitorDecisionQueue(limit = 100) {
+  return getWingmanJson<CompetitorDecisionQueueResponse>(
+    `/api/governance/competitor-decisions/queue?limit=${encodeURIComponent(limit)}`,
+  );
+}
+
+/** Approve a pending ledger decision: records reviewer + evidence, flips reviewStatus. */
+export function approveCompetitorDecision(input: {
+  competitorManufacturer: string;
+  competitorSku: string;
+  reviewer: string;
+  evidenceUrl: string;
+}) {
+  return postWingmanJson<CompetitorDecisionApprovalResponse>(
+    "/api/governance/competitor-decisions/approve",
+    input,
+  );
+}
+
 export function runCompetitorLookup(input: { brand: string; sku: string; query?: string }) {
   const query = input.query || [input.brand, input.sku].filter(Boolean).join(" ");
 

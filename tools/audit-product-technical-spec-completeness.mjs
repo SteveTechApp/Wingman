@@ -19,6 +19,10 @@ function includesAny(text, terms) {
 
 // Evidence text that indicates a "port" entry is really an included
 // accessory / in-box item rather than a physical signal I/O connector.
+// Rows describing a real connector - even alongside a bundled cable, power
+// cord or terminal-block housing - are ports, not box accessories.
+const EXPLICIT_CONNECTOR = /\b(?:hdmi|hdbaset|displayport|sdi|vga|dvi|usb[- ]?[abc]\b|usb\s+\d(?:\.\d)?|type\s*[- ]?[abc]|rj-?45|ethernet|rs-?232|phoenix|3\.5mm|toslink|spdif|sfp|bnc|xlr|rca|jack|receptacle|socket|combo|mini\s*?din)\b|\d+\s*-?\s*pin\b/i;
+
 const ACCESSORY_EVIDENCE_TERMS = [
   "mounting bracket",
   "rack bracket",
@@ -29,7 +33,6 @@ const ACCESSORY_EVIDENCE_TERMS = [
   "user guide",
   "power supply",
   "power adapter",
-  "terminal block",
   "remote control",
   "desktop stand",
   "wall mounting kit",
@@ -41,6 +44,7 @@ const ACCESSORY_EVIDENCE_TERMS = [
 
 function isAccessoryPort(port) {
   const evidence = lower(`${port.connector || ""} ${port.evidence || ""}`);
+  if (EXPLICIT_CONNECTOR.test(evidence)) return false;
   if (includesAny(evidence, ACCESSORY_EVIDENCE_TERMS)) return true;
   // Self-referencing companion-unit rows, e.g. "1x NHD-500-TX or NHD-500-RX"
   if (/\b(transmitter|receiver|tx|rx)\b.*\b(1x|2x)\b/i.test(port.connector || "") && /\bor\b/i.test(port.connector || "")) return true;

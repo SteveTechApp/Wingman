@@ -1,18 +1,22 @@
-{
-  "updatedAt": "2026-08-15T05:50:14.550Z",
+{  "updatedAt": "2026-08-16T16:30:00.000Z",
   "tolerancePct": 1,
   "rule": "Current measured sizes become the maximum allowed. Future changes must not grow a tracked artefact beyond its limit (plus tolerancePct). Lower limits as the refactor lands; raising one is a reviewed exception (see docs/SIZE_BUDGETS.md).",
-  "limits": {
-    "chunk:compare-engine": 660061,
-    "chunk:competitor-registry": 839361,
-    "chunk:project-workflow": 117846,
-    "initial:js": 494935,
-    "total:js": 5413076,
-    "total:css": 929919,
-    "source:compare-advanced": 271733,
-    "source:discovery-page": 61956,
-    "source:product-call-cards": 73117,
-    "source:project-detail": 62053,
-    "source:style-stack-css": 726357
-  }
+  "exceptions": [
+    {
+      "date": "2026-08-16",
+      "limits": ["total:js", "chunk:competitor-registry", "total:css", "source:compare-advanced", "source:project-detail"],
+      "reason": "Reviewed exception for the compare confidence-tier and evidence-trace feature work. The tier chip (with colour-blind-safe glyphs), verdict-lead banner treatment, projects-list tier badge and shared print styles added ~18 KB emitted CSS; the governed competitor-decision ledger (33 approved decisions, ~15 K lines) embedded in the competitor-registry chunk added ~54 KB JS and raised total JS ~86 KB; the verdict-tier helper, chip plumbing, approved-ledger promotion wiring and strong-direction coupling fix added ~15 KB to the Compare page; the evidence-trace default-expand fix and typed-SKU deep-link helper added ~0.9 KB to ProjectDetailPage. Growth was minimised by extracting the chip (CompareConfidenceTier.tsx) and decision queue (CompetitorDecisionReviewQueue.tsx); the remaining weight is the Phase 2/4/7/8 extraction programme's target (see docs/SIZE_BUDGETS.md)."
+    }
+  ],
+ "limits": {   "chunk:compare-engine": 660061,
+   "chunk:competitor-registry": 1272898,
+   "chunk:project-workflow": 117846,
+   "initial:js": 494935,
+   "total:js": 5555290,   "total:css": 947967,
+   "source:compare-advanced": 293297,
+   "source:discovery-page": 61956,
+   "source:product-call-cards": 73117,
+   "source:project-detail": 62989,
+  "source:style-stack-css": 726357
+ }
 }

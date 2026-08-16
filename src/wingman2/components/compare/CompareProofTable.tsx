@@ -6,7 +6,7 @@
  * WyreStorm advantage rows for sales positioning.
  */
 
-import type { FieldVerdict, ShowdownMatch, SpecSheet } from "../../lib/compareSpecEngine";
+import type { FieldProvenance, FieldVerdict, ShowdownMatch, SpecSheet } from "../../lib/compareSpecEngine";
 
 const VERDICT_LABEL: Record<FieldVerdict["verdict"], string> = {
   match: "MATCH",
@@ -14,6 +14,16 @@ const VERDICT_LABEL: Record<FieldVerdict["verdict"], string> = {
   gap: "GAP",
   unverified: "UNVERIFIED",
 };
+
+/** Per-field provenance tag copy, weakest to strongest. */
+const PROVENANCE_META: Record<FieldProvenance, { label: string; className: string }> = {
+  unverified: { label: "Unverified", className: "wm-proof__provenance--unverified" },
+  inferred: { label: "Inferred", className: "wm-proof__provenance--inferred" },
+  official: { label: "Official", className: "wm-proof__provenance--official" },
+  verified: { label: "Verified", className: "wm-proof__provenance--verified" },
+};
+
+const PROVENANCE_LADDER: FieldProvenance[] = ["unverified", "inferred", "official", "verified"];
 
 export function CompareProofTable({
   competitor,
@@ -31,6 +41,9 @@ export function CompareProofTable({
         <p>
           {match.matchedFields} of {match.comparableFields} verified fields match or exceed
           {match.gapFields > 0 ? ` · ${match.gapFields} gap${match.gapFields === 1 ? "" : "s"} to confirm` : " · no gaps found"}
+          <span className={`wm-proof__weakest wm-proof__weakest--${match.provenance}`}>
+            Weakest data tier: {PROVENANCE_META[match.provenance].label}
+          </span>
         </p>
       </header>
 
@@ -47,8 +60,30 @@ export function CompareProofTable({
           {match.verdicts.map((row) => (
             <tr key={row.field} className={`wm-proof__row wm-proof__row--${row.verdict}`}>
               <th scope="row">{row.label}</th>
-              <td>{row.competitorValue}</td>
-              <td>{row.wyrestormValue}</td>
+              <td>
+                {row.competitorValue}
+                <span className={`wm-proof__provenance ${PROVENANCE_META[row.competitorProvenance].className}`}>
+                  {PROVENANCE_META[row.competitorProvenance].label}
+                </span>
+              </td>
+              <td>
+                {row.wyrestormValue}
+                {row.wyrestormProvenance === "verified" && ws.reviewerEvidence ? (
+                  <a
+                    className="wm-proof__provenance wm-proof__provenance--verified"
+                    href={ws.reviewerEvidence.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    title={`Human-confirmed by ${ws.reviewerEvidence.reviewer}${ws.reviewerEvidence.reviewedOn ? ` on ${ws.reviewerEvidence.reviewedOn}` : ""} - official source`}
+                  >
+                    {PROVENANCE_META.verified.label}
+                  </a>
+                ) : (
+                  <span className={`wm-proof__provenance ${PROVENANCE_META[row.wyrestormProvenance].className}`}>
+                    {PROVENANCE_META[row.wyrestormProvenance].label}
+                  </span>
+                )}
+              </td>
               <td>
                 <span className={`wm-proof__verdict wm-proof__verdict--${row.verdict}`}>
                   {VERDICT_LABEL[row.verdict]}
@@ -81,6 +116,21 @@ export function CompareProofTable({
           </ul>
         </section>
       ) : null}
+
+      <section className="wm-proof__provenance-legend" aria-label="Data provenance legend">
+        <h4>Data provenance per field</h4>
+        <p>
+          {PROVENANCE_LADDER.map((tier) => (
+            <span key={tier} className={`wm-proof__provenance ${PROVENANCE_META[tier].className}`}>
+              {PROVENANCE_META[tier].label}
+            </span>
+          ))}
+          <span className="wm-proof__provenance-copy">
+            Verified = human-reviewed governed data · Official = structured source, review required ·
+            Inferred = read from text · Unverified = no value resolved.
+          </span>
+        </p>
+      </section>
 
       <section className="wm-proof__sources" aria-label="Evidence sources">
         <h4>Evidence sources</h4>

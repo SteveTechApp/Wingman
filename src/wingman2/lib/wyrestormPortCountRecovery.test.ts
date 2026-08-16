@@ -12,6 +12,9 @@ describe("NHD-500-TX exact physical and routed I/O", () => {
       description: "4K60 4:4:4 1GbE encoder",
     } as never);
 
+    // NHD-500-TX is human-verified (the 2026-08-16 review pass confirmed its
+    // spec-critical fields and recorded verifiedBy), so it renders the
+    // verified tier.
     expect(profile.sourceTier).toBe("verified-profile");
     expect(profile.inputCount).toBe(1);
     expect(profile.outputCount).toBe(1);

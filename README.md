@@ -4,6 +4,10 @@ WyreStorm Wingman is an internal sales, discovery, product-selection and proposa
 
 The application helps sales and pre-sales users move from customer requirements to a practical AV system direction using guided workflows, product intelligence, comparison support, project storage and proposal-ready outputs.
 
+[![Evidence freshness](https://github.com/SteveTechApp/Wingman/actions/workflows/wyrestorm-freshness.yml/badge.svg)](https://github.com/SteveTechApp/Wingman/actions/workflows/wyrestorm-freshness.yml)
+
+The nightly evidence-freshness run live-checks every governed evidence page — WyreStorm profiles and approved competitor decisions — and re-runs the field-drift, confirmation-baseline and competitor-decision gates. Red here means an official page is dead/moved (either side) or an approved decision has drifted from the live engine — each gate's result is reported in the run summary before the next scheduled run.
+
 ## Active App Files
 
 - App entry: `src/main.tsx`
