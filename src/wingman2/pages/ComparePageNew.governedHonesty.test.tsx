@@ -2,12 +2,17 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import index from "../../../public/product-intelligence-index.json";
-import { governedProfilesWithoutSkus } from "../lib/testHelpers/governedProfilesHarness";
+import {
+  governedProfilesHumanVerifiedExcept,
+  governedProfilesWithoutSkus,
+} from "../lib/testHelpers/governedProfilesHarness";
 
 // Simulate a governed-coverage regression at the data source: MX-0404-SCL (a
-// real matrix option card, normally verified) loses its governed profile. The
-// real payload runs through the harness filter, so every other product's
-// resolution stays real - only this one profile is gone.
+// real matrix option card, normally a governed profile) loses it. The real
+// payload runs through the harness filter, so every other product's resolution
+// stays real - only this one profile is gone - and every remaining profile is
+// marked human-confirmed (`verifiedBy`) so the verified cards in this scenario
+// honestly claim the verified tier while the stripped card falls back.
 //
 // Honest outcome (verified against the real resolver): with the governed
 // profile removed, the resolver falls back to the product's official-page
@@ -24,7 +29,12 @@ vi.mock("../../../data/governance/wyrestorm-technical-profiles.json", async () =
   const actual = (await vi.importActual(
     "../../../data/governance/wyrestorm-technical-profiles.json",
   )) as { default: { profiles: Array<{ sku: string }> } };
-  return { default: governedProfilesWithoutSkus(actual.default, ["MX-0404-SCL"]) };
+  return {
+    default: governedProfilesHumanVerifiedExcept(
+      governedProfilesWithoutSkus(actual.default, ["MX-0404-SCL"]),
+      ["MX-0404-SCL"],
+    ),
+  };
 });
 
 // The real product-intelligence index drives the same real-catalogue candidate
@@ -67,8 +77,9 @@ describe("compare page governed honesty render", () => {
 
     // Honesty contract, two ways: the card whose governed profile disappeared
     // shows an honest amber review-required badge (never verified), and every
-    // card that still has a profile stays verified (the fallback never leaks
-    // onto governed cards).
+    // card that still has a profile never leaks that fallback - it either
+    // stays verified or honestly downgrades to the missing tier when it
+    // surfaces unresolved rows (the weakest-link badge contract).
     const fallbackSkus = new Set<string>();
     for (const badge of badges) {
       const text = badge.textContent ?? "";
@@ -81,8 +92,19 @@ describe("compare page governed honesty render", () => {
         );
         fallbackSkus.add((card?.textContent ?? "").split("\n")[1]?.trim() || "unknown");
       } else {
-        expect(text, "verified badge copy").toContain("Verified governed data");
-        expect(badge.className, "verified badge class").toContain("is-verified");
+        // The review-required fallback must never leak onto governed cards;
+        // weakest-link cards may show the missing tier but never the
+        // lost-profile fallback.
+        expect(text, "governed badge copy").not.toContain("review required");
+        expect(
+          ["Verified governed data", "Technical data not resolved"].includes(text),
+          "governed badge must be verified or the honest weakest-link tier",
+        ).toBe(true);
+        if (text === "Verified governed data") {
+          expect(badge.className, "verified badge class").toContain("is-verified");
+        } else {
+          expect(badge.className, "missing badge class").toContain("is-warn");
+        }
       }
     }
 

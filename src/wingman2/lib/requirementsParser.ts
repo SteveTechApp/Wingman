@@ -45,8 +45,11 @@ const NUMBER_TOKEN = "(?:\\d+|" + Object.keys(WORD_NUMBERS).join("|") + ")";
 // Connectors frequently prefix the count noun ("2x HDMI inputs"); resolutions
 // sit between connector and noun in spec phrasing ("1x 4K display"). Both are
 // optional so plain "3 sources to 4 screens" and "4 laptops" still work.
+// Version numbers also sit in that slot ("4 HDMI 2.0 inputs") - the count
+// guard above already stops the version from being read as the quantity, so
+// letting it occupy the resolution slot only recovers legitimate counts.
 const CONNECTOR_TOKEN = "(?:(?:hdmi|displayport|\\bdp\\b|vga|dvi|sdi|usb-?c|usb c)\\s*)?";
-const RESOLUTION_TOKEN = "(?:(?:4k60|4k|8k|uhd|1080p|hdr)\\s*)?";
+const RESOLUTION_TOKEN = "(?:(?:4k60|4k|8k|uhd|1080p|hdr|\\d+(?:\\.\\d+)?)\\s*)?";
 
 // The count is the single capture group (match[1]) - everything else around it
 // is deliberately non-capturing. A digit or dot immediately before the count

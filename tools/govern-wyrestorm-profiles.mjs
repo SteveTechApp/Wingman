@@ -5,9 +5,12 @@
 // batch follows the same path:
 //
 //   1. TRIAGE   - classify review-required profiles against the governed gates
-//   2. PROMOTE  - flip evidence-complete profiles to verified /
-//                 verified-with-warning, strip the machine-draft marker and
-//                 stamp the promotion into the evidence record
+//   2. PROMOTE  - flip evidence-complete profiles to verified-with-warning
+//                 (machine promotion NEVER claims the human-verified status:
+//                 a human must record `verifiedBy` after confirming the
+//                 spec-critical fields - max resolution, routed I/O, power),
+//                 strip the machine-draft marker and stamp the promotion into
+//                 the evidence record
 //   3. POWER    - convert free-text power facts into the structured specs the
 //                 compare decision engine reads (poe/poh/poc/internalPsu/
 //                 externalPsu/powerSupply)
@@ -49,7 +52,7 @@ const VIDEO_CLASSES = ["AVOIP", "MATRIX", "VIDEO_WALL", "MULTIVIEW", "HDBASET", 
 const VERIFIED_STATUSES = new Set(["verified", "verified-with-warning"]);
 const NON_LEAD_ROLES = new Set(["cable", "accessory", "rack-mount", "power-accessory", "software-app"]);
 const PROMOTION_NOTE =
-  "Batch governed review: promoted from review-required; official-page evidence complete and coherent.";
+  "Batch governed review: promoted from review-required; official-page evidence complete and coherent. Machine promotion only - a human must confirm the spec-critical fields (max resolution, routed I/O, power) and record verifiedBy before this profile may claim verified status.";
 const POWER_NOTE = "Power facts from the official-page capture; structured for the compare power gate.";
 // Design gaps that need a human decision before a product may be quoted. The
 // Local Pub template issue (MX-0808-SCL) was resolved 2026-07-24 - keep this
@@ -163,14 +166,18 @@ function runWorkflow(profiles) {
       report.held.push(`${e.sku} | unclassified`);
       continue;
     }
-    e.status = clean ? "verified" : "verified-with-warning";
+    // Machine promotion lands at verified-with-warning, never `verified`:
+    // verified status is reserved for profiles a human confirmed by recording
+    // `verifiedBy`. The resolver renders anything without a human `verifiedBy`
+    // at the official-structured tier.
+    e.status = "verified-with-warning";
     e.warnings = (e.warnings ?? []).filter((w) => w !== BLANKET);
     e.checks = (e.checks ?? []).filter((c) => c !== REVIEW_CHECK);
     if (Array.isArray(e.evidence) && e.evidence.length) {
       const ev = e.evidence[0];
       ev.note = ev.note ? `${ev.note} ${PROMOTION_NOTE}` : PROMOTION_NOTE;
     }
-    (clean ? report.verified : report.verifiedWithWarning).push(e.sku);
+    report.verifiedWithWarning.push(e.sku);
     report.changed = true;
   }
 
@@ -194,10 +201,9 @@ const coverage = computeCoverage(payload.profiles);
 
 console.log(`[govern-wyrestorm] ${APPLY ? "APPLY" : "DRY-RUN"} on ${PROFILE_FILE}`);
 console.log(`  profiles: ${payload.profiles.length} (version ${payload.version})`);
-console.log(`  triage -> verified: ${report.verified.length}`);
-if (report.verified.length) console.log(`    ${report.verified.join(", ")}`);
 console.log(`  triage -> verified-with-warning: ${report.verifiedWithWarning.length}`);
 if (report.verifiedWithWarning.length) console.log(`    ${report.verifiedWithWarning.join(", ")}`);
+console.log(`  triage -> verified: ${report.verified.length} (machine promotion never claims verified - a human must record verifiedBy after confirming spec-critical fields)`);
 console.log(`  held for human data: ${report.held.length}`);
 for (const row of report.held) console.log(`    ${row}`);
 console.log(`  power converted to structured specs: ${report.powerConverted.length}`);

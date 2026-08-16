@@ -209,7 +209,10 @@ export function buildBomRows(products: StoredProductSelection[]): BomRow[] {
     sku: product.sku,
     description: product.title || product.family || product.category || "Selected WyreStorm product",
     role: product.category || product.family || "Core product",
-    qty: 1,
+    qty:
+      Number.isFinite(Number(product.quantity)) && Number(product.quantity) > 0
+        ? Math.floor(Number(product.quantity))
+        : 1,
     type: "Required",
     status: product.status || "alternative",
     evidence: product.evidence?.[0] || "Selected WyreStorm product.",

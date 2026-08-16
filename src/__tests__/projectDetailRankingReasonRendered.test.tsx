@@ -97,6 +97,7 @@ describe("Project Detail rendered workflow evidence", () => {
               createdAt: new Date().toISOString(),
               competitorBrand: "Kramer",
               competitorSku: "VS-88H2A",
+              confidence: "Plausible — confirm",
               wyrestormSku: "MX-0808-KIT",
               wyrestormTitle: "8x8 matrix kit",
               summary: "Local hospitality routing points to a contained matrix direction.",
@@ -127,12 +128,16 @@ describe("Project Detail rendered workflow evidence", () => {
     );
 
     expect(mockSetActiveProjectId).toHaveBeenCalledWith("project-1");
-    expect(screen.getByText("MX-0808-KIT")).toBeInTheDocument();
+    expect(screen.getAllByText("MX-0808-KIT").length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole("button", { name: /Review .* project blockers?/ }));
     expect(screen.getByRole("region", { name: "Proposal blocker walkthrough" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Open full Discovery|Open Finder|Open Compare|Open Proposal/ })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Review project detail" }));
+    // The evidence trace renders by default: the compare-run confidence chip is
+    // visible on the timeline without an extra click.
+    expect(screen.getByText("Project evidence trace")).toBeInTheDocument();
+    expect(screen.getAllByText("Plausible — confirm").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Kramer VS-88H2A").length).toBeGreaterThan(0);
 
     expect(screen.getByText("Product-family decision")).toBeInTheDocument();
     expect(screen.getAllByText("Matrix / HDBaseT").length).toBeGreaterThan(0);
@@ -142,5 +147,21 @@ describe("Project Detail rendered workflow evidence", () => {
     expect(screen.getAllByText("Confirm final display resolution for all bar TVs.").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Sports Bar Proposal").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Kramer VS-88H2A").length).toBeGreaterThan(0);
+  });
+
+  it("collapses and re-expands the detail body with the Review/Hide toggle", () => {
+    render(
+      <MemoryRouter initialEntries={["/wingman/projects/project-1"]}>
+        <Routes>
+          <Route path="/wingman/projects/:projectId" element={<ProjectDetailPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText("Project evidence trace")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Hide project detail" }));
+    expect(screen.queryByText("Project evidence trace")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Review project detail" }));
+    expect(screen.getByText("Project evidence trace")).toBeInTheDocument();
   });
 });

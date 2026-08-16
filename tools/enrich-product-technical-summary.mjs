@@ -73,6 +73,12 @@ function extractMatches(text, regex, limit = 20) {
 
 // --- accessory-vs-real-port detection -------------------------------------
 
+// Rows that describe a real connector - even alongside a bundled cable, power
+// cord or terminal-block housing - are ports, not box accessories. This escape
+// runs first so genuine terminal-block, USB-with-version and cable-bundled rows
+// survive into io.ports instead of being hidden from the I/O counts.
+const EXPLICIT_CONNECTOR = /\b(?:hdmi|hdbaset|displayport|sdi|vga|dvi|usb[- ]?[abc]\b|usb\s+\d(?:\.\d)?|type\s*[- ]?[abc]|rj-?45|ethernet|rs-?232|phoenix|3\.5mm|toslink|spdif|sfp|bnc|xlr|rca|jack|receptacle|socket|combo|mini\s*?din)\b|\d+\s*-?\s*pin\b/i;
+
 const ACCESSORY_EVIDENCE_TERMS = [
   "mounting bracket",
   "rack bracket",
@@ -83,7 +89,6 @@ const ACCESSORY_EVIDENCE_TERMS = [
   "user guide",
   "power supply",
   "power adapter",
-  "terminal block",
   "remote control",
   "desktop stand",
   "wall mounting kit",
@@ -96,6 +101,7 @@ const ACCESSORY_EVIDENCE_TERMS = [
 
 function isAccessoryPort(port) {
   const evidence = lower(`${port.connector || ""} ${port.evidence || ""}`);
+  if (EXPLICIT_CONNECTOR.test(evidence)) return false;
   if (includesAny(evidence, ACCESSORY_EVIDENCE_TERMS)) return true;
   if (/\b(transmitter|receiver|tx|rx)\b.*\b(1x|2x)\b/i.test(port.connector || "") && /\bor\b/i.test(port.connector || "")) return true;
   return false;

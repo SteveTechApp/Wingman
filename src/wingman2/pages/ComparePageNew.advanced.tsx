@@ -38,6 +38,7 @@ import {
 } from "../lib/compareEligibilityEngine";
 import { runCompareRuntimePipeline } from "../lib/compareRuntimePipeline";
 import {
+  mergeApprovedLedgerDecisions,
   readCompetitorMatchDecisionLedger,
   saveCompetitorMatchDecision,
   type CompareDecisionType,
@@ -51,8 +52,11 @@ import {
   resolveApprovedGovernedDecision,
 } from "../lib/governedCompareRuntime";
 import { CompetitorEvidencePanel } from "./compare/CompetitorEvidencePanel";
+import { CompetitorDecisionReviewQueue } from "../components/compare/CompetitorDecisionReviewQueue";
+import { fetchApprovedCompetitorDecisions } from "../api/wingmanApi";
+import { CompareConfidenceTier } from "../components/compare/CompareConfidenceTier";
 import { CompareShowdown } from "../components/compare/CompareShowdown";
-import { GovernedDataBadge as GovernanceBadge } from "../components/GovernedDataBadge";
+import { GovernedDataBadge as GovernanceBadge, weakestLinkTier } from "../components/GovernedDataBadge";
 
 /**
  * Keyword-heuristic recommendations are RETIRED (fail-closed policy).
@@ -314,20 +318,23 @@ function rigorousMatchToCandidate(match: RigorousMatch, profile: CompetitorProfi
       score: match.decision.confidence,
       verdict,
       matched: match.decision.matches,
-      checks: match.decision.verify,
+      // The product caveat is a positioning note ("Use for... / confirm X before
+      // quoting"), not a hard dependency - it belongs with the pre-quote checks
+      // so a clean engine match can genuinely reach the "match" status instead of
+      // every candidate being forced to "checks" by an always-present caveat.
+      checks: uniqueText([...match.decision.verify, product.caveat], 6),
       gaps: match.decision.gaps,
       partialMatches: match.decision.outcome === "PARTIAL MATCH" ? match.decision.matches : [],
       mismatches: match.decision.outcome === "NO MATCH" ? match.decision.gaps : [],
       unknowns: match.decision.verify,
       blockers: match.decision.blockers,
       dependencies: [
-        // Surface the structured system requirements first so a single component
-        // is never read as a one-box replacement for a competitor's system.
+        // Surface the structured system requirements so a single component is
+        // never read as a one-box replacement for a competitor's system.
         ...(match.decision.systemRequirements && match.decision.systemRequirements.length > 0
           ? [`Not a one-box replacement - this component also needs: ${match.decision.systemRequirements.join("; ")}.`]
           : []),
-        product.caveat,
-      ].filter(Boolean),
+      ],
       outcomeLabel: match.decision.summary,
       requirements: match.decision.requirements,
       necessaryCoverage: match.decision.necessaryCoverage,
@@ -3029,7 +3036,17 @@ function buildWyrestormSummary(candidate: ScoredCandidate): WyreStormSummary {
       { label: "HDMI / HDCP", value: hdmiProtection },
       { label: "USB", value: usbFacts },
       { label: "HDBaseT / distance", value: hdbasetFacts },
-      { label: "Max resolution", value: knownProfile?.maxResolution || resolution },
+      // The curated known-profile registry predates the governed profiles and
+      // still carries "Verify datasheet" placeholders for kit SKUs whose real
+      // max resolution is now governed - a placeholder must never override a
+      // real governed value on the card a rep reads.
+      {
+        label: "Max resolution",
+        value:
+          knownProfile?.maxResolution && !/^verify datasheet/i.test(knownProfile.maxResolution)
+            ? knownProfile.maxResolution
+            : resolution,
+      },
       {
         label: "Network class",
         value: compareNetworkClassLabel(
@@ -3058,6 +3075,33 @@ function textHasToken(value: string, pattern: RegExp): boolean {
 
 function safeCompareValue(value: string | undefined): string {
   return String(value ?? "").trim();
+}
+
+/** A surfaced cell counts as resolved only when it carries a real value. */
+function surfaceValueResolved(value: string): boolean {
+  const cleaned = String(value ?? "").trim();
+  return Boolean(cleaned) && cleaned !== "Needs verification" && !/verify datasheet/i.test(cleaned);
+}
+
+/**
+ * Weakest-link tier for a match card: the least trustworthy tier across every
+ * field the card surfaces (both columns). A surfaced row is a weak link when
+ * either side's value is unresolved - a card that shows "Needs verification"
+ * or "Verify datasheet" anywhere must not claim the strongest governed tier.
+ */
+function weakestLinkCardTier(
+  coreFacts: CompareCoreFact[],
+  wyrestormTier: string | undefined,
+): string {
+  const rowTiers = coreFacts
+    .filter((fact) => fact.label !== "Main caveat")
+    .map((fact) => {
+      if (!surfaceValueResolved(fact.competitor) || !surfaceValueResolved(fact.wyrestorm)) {
+        return "missing";
+      }
+      return wyrestormTier ?? "missing";
+    });
+  return weakestLinkTier([wyrestormTier, ...rowTiers]);
 }
 
 function displayCompareValue(value: string | undefined): string {
@@ -4452,6 +4496,227 @@ function compactCompareQuoteChecks(
 }
 
 
+/**
+ * Plain-language answer surface for an inexperienced rep: what the competitor
+ * product IS, whether WyreStorm makes anything like it, and the single best
+ * suggestion with the checks to run before quoting. The deep technical
+ * comparison (BestCandidateCard) stays below for whoever wants the detail.
+ */
+/**
+ * The explicit confidence tier for the verdict lead banner, derived from the
+ * same `CompareReportedStatus` the prose heading uses - so the short tier chip
+ * and the full heading can never disagree. Three levels map to the engine's
+ * assessment ladder: "Strong direction" (match), "Plausible - confirm"
+ * (partial / checks), "No equivalent" (reviewed or generic no-match). The
+ * evidence-pending case is deliberately its own tier: the banner says
+ * "nothing is ruled out", so a "No equivalent" chip there would contradict it.
+ */
+export function compareVerdictTier(
+  status: CompareReportedStatus,
+  opts: { reviewedBy?: string; evidencePending?: boolean } = {},
+): { label: string; tone: "strong" | "confirm" | "pending" | "none" } {
+  switch (status) {
+    case "match":
+      return { label: "Strong direction", tone: "strong" };
+    case "partial":
+    case "checks":
+      return { label: "Plausible — confirm", tone: "confirm" };
+    default:
+      if (opts.evidencePending) {
+        return { label: "Evidence pending", tone: "pending" };
+      }
+      return { label: "No equivalent", tone: "none" };
+  }
+}
+
+function compareVerdictCopy(
+  competitor: CompetitorSummary,
+  candidate: ScoredCandidate | null,
+  status: CompareReportedStatus,
+  opts: { reviewedBy?: string; evidencePending?: boolean } = {},
+): { heading: string; line: string } {
+  const competitorName = competitor.heading;
+  const sku = candidate?.product.sku ?? null;
+
+  switch (status) {
+    case "match":
+      return {
+        heading: "A close WyreStorm match exists",
+        line: `${sku} is the closest WyreStorm product to the ${competitorName} — they do the same job. Run the small checks below before you quote.`,
+      };
+    case "partial":
+      return {
+        heading: "Possibly similar — confirm the main difference",
+        line: `${sku} covers most of what the ${competitorName} does. The main difference below is what you will need to explain to the customer.`,
+      };
+    case "checks":
+      return {
+        heading: "The direction looks plausible — confirm a few things first",
+        line: `${sku} is the closest WyreStorm direction from the current evidence. A few technical points still need confirming before you rely on it.`,
+      };
+    default:
+      if (opts.reviewedBy) {
+        return {
+          heading: "No suitable WyreStorm match — confirmed by review",
+          line: `${opts.reviewedBy} reviewed this competitor and confirmed that no WyreStorm product in the current data replaces the ${competitorName} safely.`,
+        };
+      }
+      if (opts.evidencePending) {
+        return {
+          heading: "Evidence still being reviewed",
+          line: `${competitorName} is not in the local data yet, so Wingman cannot yet confirm whether a WyreStorm equivalent exists. Nothing is ruled out — the verification steps below are gathering the official specification.`,
+        };
+      }
+      return {
+        heading: "No close WyreStorm equivalent found",
+        line: `No WyreStorm product in the current data matches the ${competitorName} closely enough to suggest safely.`,
+      };
+  }
+}
+
+function competitorBriefFacts(competitor: CompetitorSummary): Array<{ label: string; value: string }> {
+  return [
+    { label: "Product type", value: competitor.recognisedClass },
+    { label: "Role", value: competitor.role },
+    { label: "Connection", value: competitor.transport },
+    { label: "Resolution", value: competitor.resolution },
+  ].map((fact) => ({
+    ...fact,
+    value: fact.value && fact.value !== "Unknown" && fact.value !== "Not verified locally"
+      ? fact.value
+      : "Needs confirmation",
+  }));
+}
+
+function CompareVerdictLead({
+  competitor,
+  candidate,
+  status,
+  alternativesCount,
+  noMatchReason,
+  reviewedBy,
+  evidencePending,
+}: {
+  competitor: CompetitorSummary;
+  candidate: ScoredCandidate | null;
+  status: CompareReportedStatus;
+  alternativesCount: number;
+  noMatchReason?: string;
+  reviewedBy?: string;
+  evidencePending?: boolean;
+}) {
+  const verdict = compareVerdictCopy(competitor, candidate, status, { reviewedBy, evidencePending });
+  const tier = compareVerdictTier(status, { reviewedBy, evidencePending });
+  const purposeLine = `${competitor.heading} is used to ${competitorPlainEnglishPurpose(competitor)}.`;
+  const why = candidate ? salesWhyBullets(candidate).slice(0, 2) : [];
+  const mainDifference = candidate ? salesImportantDifference(competitor, candidate) : "";
+  const quoteChecks = candidate
+    ? compactCompareQuoteChecks(competitor, candidate, status)
+    : competitor.verifyItems.slice(0, 3);
+
+  // Plain, honest guidance for the no-match path: what the rep should actually
+  // say to the customer, and the constructive moves that keep the conversation
+  // alive. A specific engine reason (e.g. "WyreStorm makes no DSP") is the
+  // honest answer; otherwise the message depends on whether evidence is still
+  // being gathered (unknown SKU / review-required) or genuinely absent.
+  const customerLine = candidate
+    ? ""
+    : reviewedBy
+      ? `Say it plainly: "There is no direct WyreStorm equivalent for this model." This was confirmed by review rather than guessed, so it is the honest answer, not a gap in the data. Offer the closest adjacent WyreStorm product if the customer can accept a different architecture, or ask what the product must actually do.`
+      : evidencePending
+        ? `Say: "We are verifying this one — the model is not in our local catalogue yet, so I cannot confirm a WyreStorm equivalent right now." Nothing is ruled out;${noMatchReason ? ` ${noMatchReason}` : ""} The verification steps below are gathering the official specification.`
+        : noMatchReason
+          ? `Say it plainly: "There is no direct WyreStorm equivalent for this model." ${noMatchReason} This is the honest answer, not a gap in the data. Offer the closest adjacent WyreStorm product if the customer can accept a different architecture, or ask what the product must actually do.`
+          : `Say it plainly: "I cannot confirm a WyreStorm equivalent for this model from the current data." Nothing is ruled out — verifying the latest specification may still turn up a match. Ask the customer what the product must actually do and re-check.`;
+  const nextSteps = uniqueText([
+    "Ask the customer what the product must actually do — the same job may be met by a different WyreStorm product.",
+    ...competitor.verifyItems.slice(0, 2),
+    "Start a new comparison if the requirement has changed.",
+  ], 3);
+
+  return (
+    <section className={`compare-verdict-lead compare-verdict-lead--${status}`} aria-label="Compare verdict">
+      <header className="compare-verdict-lead__banner">
+        <CompareConfidenceTier label={tier.label} tone={tier.tone} />
+        <strong>{verdict.heading}</strong>
+        <p className="wm-ui-copy">{verdict.line}</p>
+      </header>
+
+      <div className="compare-verdict-lead__columns">
+        <section className="compare-verdict-lead__brief wm-ui-card" aria-label="What the competitor product is">
+          <span className="compare-native-eyebrow wm-ui-kicker">What this product is</span>
+          <p className="compare-verdict-lead__purpose wm-ui-copy">{purposeLine}</p>
+          <dl className="compare-verdict-lead__facts">
+            {competitorBriefFacts(competitor).map((fact) => (
+              <div key={fact.label}>
+                <dt>{fact.label}</dt>
+                <dd>{fact.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        {candidate ? (
+          <section className="compare-verdict-lead__suggestion wm-ui-card" aria-label="WyreStorm suggestion">
+            <span className="compare-native-eyebrow wm-ui-kicker">WyreStorm suggestion</span>
+            <h3 className="wm-ui-title">{candidate.product.sku}</h3>
+            <p className="compare-verdict-lead__product-name wm-ui-copy">{candidate.product.name}</p>
+            {why.length ? (
+              <div className="compare-verdict-lead__why">
+                <strong>Why this one</strong>
+                <ul>
+                  {why.map((item) => (
+                    <li key={item}>{commercializeCompareCopy(item)}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            {mainDifference ? (
+              <p className="compare-verdict-lead__difference wm-ui-copy">
+                <strong>Main difference:</strong> {commercializeCompareCopy(mainDifference)}
+              </p>
+            ) : null}
+          </section>
+        ) : (
+          <section className="compare-verdict-lead__message wm-ui-card" aria-label="What to tell the customer">
+            <span className="compare-native-eyebrow wm-ui-kicker">What to tell the customer</span>
+            <p className="compare-verdict-lead__purpose wm-ui-copy">{customerLine}</p>
+          </section>
+        )}
+      </div>
+
+      {candidate ? (
+        quoteChecks.length ? (
+          <section className="compare-verdict-lead__checks wm-ui-card" aria-label="Before you quote">
+            <strong>Before you quote</strong>
+            <ul>
+              {quoteChecks.map((check) => (
+                <li key={check}>{check}</li>
+              ))}
+            </ul>
+          </section>
+        ) : null
+      ) : (
+        <section className="compare-verdict-lead__checks wm-ui-card" aria-label="Where to go next">
+          <strong>Where to go next</strong>
+          <ol>
+            {nextSteps.map((step) => (
+              <li key={step}>{commercializeCompareCopy(step)}</li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {alternativesCount > 0 ? (
+        <p className="compare-verdict-lead__alternatives wm-ui-copy">
+          There {alternativesCount === 1 ? "is 1 other" : `are ${alternativesCount} other`} WyreStorm option
+          {alternativesCount === 1 ? "" : "s"} to consider further down.
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
 function BestCandidateCard({
   candidate,
   competitor,
@@ -4465,6 +4730,7 @@ function BestCandidateCard({
 }) {
   const wyrestorm = buildWyrestormSummary(candidate);
   const coreFacts = buildCoreComparisonFacts(competitor, competitorProfile, wyrestorm, candidate);
+  const badgeTier = weakestLinkCardTier(coreFacts, candidate.governedTier);
   const whyBullets = salesWhyBullets(candidate);
   const askCustomer = salesAskCustomer(competitor, candidate);
   const status = compareReportedStatus(candidate, competitor);
@@ -4503,7 +4769,7 @@ function BestCandidateCard({
           <span>WyreStorm direction</span>
           <strong>{wyrestorm.heading}</strong>
           <small>{wyrestorm.detail}</small>
-          <GovernanceBadge tier={candidate.governedTier} label={candidate.governedLabel} />
+          <GovernanceBadge tier={badgeTier} label={candidate.governedLabel} />
         </section>
       </div>
 
@@ -4620,6 +4886,14 @@ function BestCandidateCard({
 }
 
 function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
+  const optionTier = weakestLinkTier([
+    candidate.governedTier,
+    // The option card surfaces exactly three WyreStorm facts; any of them
+    // unresolved makes the card's claim weaker than the profile tier alone.
+    ...[candidate.product.productClass, candidate.product.transport, candidate.outcomeLabel].map(
+      (value) => (surfaceValueResolved(String(value ?? "")) ? candidate.governedTier : "missing"),
+    ),
+  ]);
   const reason = commercializeCompareCopy(
     candidate.matched[0] ||
       candidate.partialMatches[0] ||
@@ -4650,7 +4924,7 @@ function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
         <span><small>Product type</small><strong>{candidate.product.productClass}</strong></span>
         <span><small>Connection</small><strong>{candidate.product.transport}</strong></span>
         <span><small>Position</small><strong>{candidate.outcomeLabel}</strong></span>
-        <span><small>Data status</small><strong><GovernanceBadge tier={candidate.governedTier} label={candidate.governedLabel} /></strong></span>
+        <span><small>Data status</small><strong><GovernanceBadge tier={optionTier} label={candidate.governedLabel} /></strong></span>
       </div>
 
       <section className="compare-native-option-note compare-product-info-card__fit wm-ui-card">
@@ -5037,6 +5311,12 @@ function ComparePageNew() {
   const [committedSku, setCommittedSku] = useState<string | null>(null);
   const [catalogVersion, setCatalogVersion] = useState(0);
   const [decisionRevision, setDecisionRevision] = useState(0);
+  // Ledger-approved decisions fetched from the governed server; merged over
+  // the per-browser localStorage ledger so a queue approval promotes into the
+  // runtime results immediately (see mergeApprovedLedgerDecisions).
+  const [approvedLedgerDecisions, setApprovedLedgerDecisions] = useState<
+    CompetitorMatchDecision[]
+  >([]);
   // "Product cards" leads: the head-to-head cards are the proof surface a rep
   // needs first - confirming Wingman understood the competitor product and
   // justifying the suggested WyreStorm replacement - before the overview.
@@ -5069,7 +5349,39 @@ function ComparePageNew() {
     };
   }, []);
 
+  // Refresh the governed ledger's approved decisions whenever a decision
+  // changes (queue approval or the local decision desk both bump
+  // decisionRevision), so an approval takes effect on the current results.
+  // Failure is non-fatal: the localStorage ledger and heuristic results stay
+  // authoritative when the governed server is absent (offline / standalone).
+  useEffect(() => {
+    let cancelled = false;
 
+    fetchApprovedCompetitorDecisions()
+      .then((response) => {
+        if (!cancelled && response.ok) {
+          setApprovedLedgerDecisions(response.decisions ?? []);
+        }
+      })
+      .catch(() => {
+        // Keep the last known approved set (or none) - promotion is additive.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [decisionRevision]);
+
+  const effectiveLedger = useMemo(
+    () =>
+      typeof window === "undefined"
+        ? null
+        : mergeApprovedLedgerDecisions(
+            readCompetitorMatchDecisionLedger(window.localStorage),
+            approvedLedgerDecisions,
+          ),
+    [approvedLedgerDecisions, decisionRevision],
+  );
 
   const effectiveBrand = selectedBrand || brandForCompetitorSku(competitorInput);
   const skuSuggestions = useMemo(() => compareSkuSuggestions(competitorInput, effectiveBrand), [competitorInput, effectiveBrand]);
@@ -5086,19 +5398,19 @@ function ComparePageNew() {
   const competitorSummary = useMemo(() => buildCompetitorSummary(profile, mustMatchFeatures), [mustMatchFeatures, profile]);
   const hasCompetitorSelection = competitorInput.trim().length > 0;
   const governedDecision = useMemo(() => {
-    if (typeof window === "undefined" || !competitorInput.trim()) {
+    if (!effectiveLedger || !competitorInput.trim()) {
       return null;
     }
 
     return resolveApprovedGovernedDecision(
-      readCompetitorMatchDecisionLedger(window.localStorage),
+      effectiveLedger,
       effectiveBrand,
       competitorInput,
     );
-  }, [competitorInput, decisionRevision, effectiveBrand]);
+  }, [competitorInput, effectiveLedger, effectiveBrand]);
 
   const displayedDecision = useMemo(() => {
-    if (typeof window === "undefined" || !competitorInput.trim()) {
+    if (!effectiveLedger || !competitorInput.trim()) {
       return null;
     }
 
@@ -5106,13 +5418,13 @@ function ComparePageNew() {
     const sku = competitorInput.trim().toUpperCase();
 
     return (
-      readCompetitorMatchDecisionLedger(window.localStorage).decisions.find(
+      effectiveLedger.decisions.find(
         (decision) =>
           decision.competitorManufacturer.trim().toLowerCase() === manufacturer &&
           decision.competitorSku.trim().toUpperCase() === sku,
       ) ?? null
     );
-  }, [competitorInput, decisionRevision, effectiveBrand]);
+  }, [competitorInput, effectiveLedger, effectiveBrand]);
 
   const compareManufacturerOptions = useMemo(() => {
     const seededBrands = new Set(MANUFACTURER_SELECT_OPTIONS.map((brand) => brand.toLowerCase()));
@@ -5589,13 +5901,21 @@ function ComparePageNew() {
 
       const status =
         displayedCandidate.verdict === "GOOD MATCH" ? "recommended" : displayedCandidate.verdict === "NO MATCH" ? "caution" : "alternative";
+      // Carry the same explicit confidence tier the verdict lead showed on
+      // screen into the project and any proposal/response-pack export: the
+      // project timeline renders compareRun.confidence, and the selection's
+      // first evidence line becomes the BOM evidence basis in the exported
+      // proposal/CSV, so a quoted comparison keeps its confidence label.
+      const tierLabel = compareVerdictTier(
+        compareReportedStatus(displayedCandidate, competitorSummary),
+      ).label;
       const selection: StoredProductSelection = {
         sku: displayedCandidate.product.sku,
         title: displayedCandidate.product.name,
         family: displayedCandidate.product.family,
         status,
         source: "Competitor Compare",
-        evidence: displayedCandidate.matched,
+        evidence: [`Compare verdict: ${tierLabel}`, ...displayedCandidate.matched],
         cautions: displayedCandidate.checks,
       };
       const compareRun = {
@@ -5607,6 +5927,7 @@ function ComparePageNew() {
         summary,
         matchScore: Math.round(displayedCandidate.score),
         matchType: displayedCandidate.verdict,
+        confidence: tierLabel,
         evidence: displayedCandidate.matched,
         warnings: displayedCandidate.checks,
         source: "Competitor Compare",
@@ -5638,7 +5959,7 @@ function ComparePageNew() {
         navigate(routeCatalogByKey.proposal.path);
       }
     },
-    [competitorInput, displayedCandidate, effectiveBrand, mustMatchFeatures, navigate, summary],
+    [competitorInput, competitorSummary, displayedCandidate, effectiveBrand, mustMatchFeatures, navigate, summary],
   );
 
   function saveCustomManufacturer(): void {
@@ -6063,6 +6384,13 @@ function ComparePageNew() {
                   className="compare-result-tab-panel"
                   hidden={resultTab !== "overview"}
                 >
+                  <CompareVerdictLead
+                    competitor={competitorSummary}
+                    candidate={displayedCandidate ?? best}
+                    status={compareReportedStatus(displayedCandidate ?? best, competitorSummary)}
+                    alternativesCount={Math.max(0, viableCandidates.length - 1)}
+                  />
+
                   <div
                     ref={bestMatchRef}
                     className="compare-native-scroll-target"
@@ -6076,12 +6404,12 @@ function ComparePageNew() {
                         <button type="button" aria-label="Next WyreStorm equivalent" onClick={() => setCandidateIndex((index) => (index + 1) % viableCandidates.length)}>›</button>
                       </nav>
                     ) : null}
-                    <section className="compare-native-governance-strip wm-ui-card" aria-label="Governed product data coverage">
+                    <section className="compare-native-governance-strip wm-ui-card" aria-label="Product data trust note">
                       <span className="compare-native-governance-strip__dot" aria-hidden="true" />
                       <p className="wm-ui-copy">
-                        <strong>{governedCoverage.verifiedPct}% of product profiles verified</strong>
+                        <strong>{governedCoverage.verifiedPct}% of WyreStorm product data is human-checked</strong>
                         <span>
-                          {governedCoverage.verified + governedCoverage.verifiedWithWarning}/{governedCoverage.total} governed profiles · {governedCoverage.compareReady} compare-ready — every match card here is backed by verified governed data.
+                          {governedCoverage.verified} of {governedCoverage.total} products reviewed against official pages — every card here is backed by that checked data.
                         </span>
                       </p>
                     </section>
@@ -6183,6 +6511,9 @@ function ComparePageNew() {
                       const index = viableCandidates.findIndex((candidate) => candidate.product.sku.toUpperCase() === sku.toUpperCase());
                       if (index >= 0) setCandidateIndex(index);
                     }}
+                    verdictTier={compareVerdictTier(
+                      compareReportedStatus(displayedCandidate ?? best, competitorSummary),
+                    )}
                   />
                 </section>
 
@@ -6250,6 +6581,22 @@ function ComparePageNew() {
               </>
             ) : (
               <>
+                <CompareVerdictLead
+                  competitor={competitorSummary}
+                  candidate={null}
+                  status="no-match"
+                  alternativesCount={0}
+                  noMatchReason={topNoMatchReason}
+                  reviewedBy={
+                    governedDecision?.decisionType === "no-suitable-match"
+                      ? governedDecision.reviewer ?? undefined
+                      : undefined
+                  }
+                  evidencePending={
+                    requestLiveLookup || governedDecision?.decisionType === "review-required"
+                  }
+                />
+
                 <section className="compare-native-empty compare-compact-result compare-compact-result--no-match wm-ui-section wm-ui-card">
                   <CompareReportedStatusRail status="no-match" />
 
@@ -6267,18 +6614,6 @@ function ComparePageNew() {
                       </p>
                     </div>
                   </header>
-
-                  <section className="compare-compact-result__next" aria-label="Next steps">
-                    <strong>Next steps</strong>
-                    <ol>
-                      {uniqueText([
-                        competitorSummary.verifyItems[0] || "Add verified competitor product evidence.",
-                        competitorSummary.verifyItems[1] || "Start a new comparison if the requirement has changed.",
-                      ], 2).map((item) => (
-                        <li key={item}>{commercializeCompareCopy(item)}</li>
-                      ))}
-                    </ol>
-                  </section>
 
                   <div className="compare-native-action-row compare-compact-result__actions wm-ui-card">
                     <button
@@ -6334,6 +6669,10 @@ function ComparePageNew() {
           ) : null}
         </section>
       ) : null}
+
+      <CompetitorDecisionReviewQueue
+        onApprovalRecorded={() => setDecisionRevision((revision) => revision + 1)}
+      />
 
       <span className="compare-native-marker" aria-hidden="true">{ROUTE_LOCK_MARKER}</span>
       <span className="compare-native-marker" aria-hidden="true">{COMPARE_TYPEAHEAD_STATIC_MARKERS.join(" ")}</span>

@@ -7,6 +7,36 @@
  * `CompareDecisionProfile.sourceTier` values the compare decision engine and
  * `resolveProductTechnicalData` emit, so every surface tells the same story.
  */
+
+/** Weakest-to-strongest ladder over the badge's own tier vocabulary. */
+const TIER_RANK: Record<string, number> = {
+  "verified-profile": 3,
+  "official-structured": 2,
+  "text-inferred": 1,
+  missing: 0,
+};
+
+/**
+ * Weakest-link combine: the least trustworthy tier of the given set, so a
+ * card that surfaces any unresolved field can never claim a stronger tier
+ * than that field deserves. Unknown tiers count as `missing` (weakest).
+ */
+export function weakestLinkTier(tiers: Array<string | undefined>): string {
+  const normalize = (tier: string | undefined): string =>
+    tier !== undefined && TIER_RANK[tier] !== undefined ? tier : "missing";
+  let weakest = "missing";
+  let weakestRank = Number.POSITIVE_INFINITY;
+  for (const tier of tiers) {
+    const normalized = normalize(tier);
+    const rank = TIER_RANK[normalized];
+    if (rank < weakestRank) {
+      weakestRank = rank;
+      weakest = normalized;
+    }
+  }
+  return weakest;
+}
+
 export function governedBadgeMeta(tier?: string, label?: string): { text: string; className: string } {
   switch (tier) {
     case "verified-profile":

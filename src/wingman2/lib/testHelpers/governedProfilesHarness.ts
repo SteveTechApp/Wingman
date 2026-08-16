@@ -75,3 +75,26 @@ export function governedProfilesWithStatus(
     ),
   };
 }
+
+/**
+ * Human-confirmation scenario: mark every profile EXCEPT the excluded SKUs as
+ * human-confirmed (`status: "verified"` + a `verifiedBy` record), so those
+ * cards may honestly claim the verified tier while the excluded ones stay
+ * machine-transcribed and render at the official-structured tier. Mirrors a
+ * governed program where a human has confirmed the spec-critical fields for
+ * the lead profiles.
+ */
+export function governedProfilesHumanVerifiedExcept(
+  payload: GovernedProfilesPayload,
+  excludedSkus: string[],
+): GovernedProfilesPayload {
+  const excluded = new Set(excludedSkus.map((sku) => sku.toUpperCase()));
+  return {
+    ...payload,
+    profiles: payload.profiles.map((profile) =>
+      excluded.has(profile.sku.toUpperCase())
+        ? profile
+        : { ...profile, status: "verified", verifiedBy: "Human review pass" },
+    ),
+  };
+}

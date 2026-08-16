@@ -1,0 +1,126 @@
+name: WyreStorm Evidence Freshness
+
+# Nightly freshness gate for the governed WyreStorm data. The evidence
+# URLs in data/governance/wyrestorm-technical-profiles.json point at official
+# product pages; the audit found such pages silently returning 404 (NHD-E
+# series). This job live-checks every evidence URL on both sides of the trust
+# story - the governed profiles and the approved competitor decisions - and
+# re-runs the governed drift + review-pass + competitor-decision gates so
+# dead, repurposed or drifted spec pages, approved decisions whose official
+# source has rotted, and outcomes that no longer match the live engine are
+# surfaced automatically before a rep quotes against them.
+#
+# Failures are deliberate: the job exits non-zero when an official page is
+# dead or has moved to a different product slug (either side), when the
+# committed profiles carry field drift / a half-applied confirmation batch,
+# or when an approved competitor decision's outcome has flipped against the
+# current engine.
+
+on:
+  schedule:
+    # 03:00 UTC daily - quiet for the EU/US sales day and outside page-fetch
+    # peak hours on the official site.
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence-freshness:
+    name: Evidence liveness + governed + competitor drift
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Each gate runs with continue-on-error so one failure cannot hide the
+      # other gates' results; the final step reports all five outcomes in the
+      # run summary and fails the job if any gate failed (failures stay
+      # deliberate - the summary is the visible record, the exit code is the
+      # signal).
+      #
+      # Live-checks every unique evidence sourceUrl carried by the governed
+      # profiles. Fails on 404/410 ("dead") or a redirect to a different
+      # product slug ("moved"); transient server errors, bot-blocking and
+      # timeouts are warnings so a flaky network cannot take the gate down.
+      - name: Check official evidence page liveness
+        id: gate-liveness
+        continue-on-error: true
+        run: npm run check:evidence-liveness
+
+      # The governed drift gate: every profile's spec-critical fields must
+      # agree with the canonical store, and no human-verified profile may
+      # carry an unclassifiable max-resolution. A store refresh that drifts
+      # the committed profiles fails here.
+      - name: Re-run governed field-drift gate
+        id: gate-drift
+        continue-on-error: true
+        run: npm run check:governed-drift
+
+      # The review-pass gate: dry-runs the structured confirmation pass -
+      # every CONFIRMATION_BATCH SKU must be present, readable, evidence-backed
+      # and already human-verified, with no value fixes pending.
+      - name: Re-verify governed confirmation baseline
+        id: gate-review-pass
+        continue-on-error: true
+        run: npm run check:governed-review-pass
+
+      # The competitor-decision drift gate: the committed golden baseline in
+      # data/governance/competitor-match-decisions.json must match the live
+      # engine's outcome for every approved competitor row. An outcome flip
+      # (decision type, lead candidate, or option set) on an approved row
+      # fails loudly instead of silently changing what a rep sees. Nightly
+      # coverage matters because the PR gate only triggers on
+      # data/governance/** - an engine or spec change that ships without
+      # touching those paths would otherwise never re-check the approvals.
+      - name: Re-run competitor decision drift gate
+        id: gate-competitor
+        continue-on-error: true
+        run: npm run check:competitor-decisions
+
+      # The competitor evidence liveness gate: the competitor side of the
+      # WyreStorm evidence check above. Live-checks every evidence URL carried
+      # by the APPROVED decisions - a promoted decision must not silently lose
+      # its official source. PDF datasheets and JSON-LD product pages verify
+      # by content; client-rendered shells (e.g. Hall Research SPA pages) are
+      # reported as unverifiable-by-direct-fetch context, never a failure.
+      - name: Check approved competitor evidence liveness
+        id: gate-evidence-competitor
+        continue-on-error: true
+        run: npm run check:competitor-evidence-liveness
+
+      # Writes the five-gate result table to the run summary (visible on the
+      # Actions run page), then fails the job if any gate failed so a drift
+      # turns the run red and the README status badge too.
+      - name: Report freshness gate results
+        if: always()
+        run: |
+          {
+            echo "## WyreStorm evidence freshness — $(date -u +'%Y-%m-%d')"
+            echo ""
+            echo "| Gate | Result |"
+            echo "| --- | --- |"
+            echo "| Evidence page liveness (WyreStorm) | ${{ steps.gate-liveness.outcome }} |"
+            echo "| Governed field drift | ${{ steps.gate-drift.outcome }} |"
+            echo "| Governed confirmation baseline | ${{ steps.gate-review-pass.outcome }} |"
+            echo "| Competitor decision drift | ${{ steps.gate-competitor.outcome }} |"
+            echo "| Approved competitor evidence liveness | ${{ steps.gate-evidence-competitor.outcome }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ steps.gate-liveness.outcome }}" != "success" ] || \
+             [ "${{ steps.gate-drift.outcome }}" != "success" ] || \
+             [ "${{ steps.gate-review-pass.outcome }}" != "success" ] || \
+             [ "${{ steps.gate-competitor.outcome }}" != "success" ] || \
+             [ "${{ steps.gate-evidence-competitor.outcome }}" != "success" ]; then
+            echo "::error::One or more freshness gates failed - see the run summary."
+            exit 1
+          fi

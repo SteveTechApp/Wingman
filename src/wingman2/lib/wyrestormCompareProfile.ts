@@ -152,7 +152,7 @@ function wmCompareIsCapabilityOnlyUsbPort(port: TechnicalPort): boolean {
   if (!/\busb\b|usb-[abc]|usb[abc]\b/.test(value)) return false;
 
   const explicitConnector =
-    /usb\s*(?:type\s*)?[- ]?[abc]\b|usb-[abc]\b|type\s*[- ]?[abc]\s+usb|\b(?:host|device|client|peripheral|upstream|downstream)\s+(?:usb\s+)?(?:port|connector|socket)|\busb\s+(?:host|device|client|peripheral|upstream|downstream)\b|\b(?:receptacle|connector|socket)\b/.test(value);
+    /usb\s*(?:type\s*)?[- ]?[abc]\b|usb-[abc]\b|type\s*[- ]?[abc]\b|\b(?:host|device|client|peripheral|upstream|downstream)\s+(?:usb\s+)?(?:port|connector|socket)|\busb\s+(?:host|device|client|peripheral|upstream|downstream)\b|\b(?:receptacle|connector|socket)\b|\d+\s*-?\s*(?:pin|way)\b|female\b|male\b|phoenix|screw\s*down|terminal block|mini din/.test(value);
 
   if (explicitConnector) return false;
 
@@ -226,12 +226,22 @@ function uniqueTechnicalPorts(ports: TechnicalPort[]): TechnicalPort[] {
   return Array.from(byKey.values());
 }
 
+function wmCompareHasExplicitConnector(value: string): boolean {
+  return /\bhdmi\b|hdbaset|displayport|\bsdi\b|\bvga\b|\bdvi\b|usb[- ]?[abc]\b|usb\s+\d(?:\.\d)?\b|type\s*[- ]?[abc]\b|rj-?45|ethernet|\blan\b|rs-?232|phoenix|screw\s*down|\d+\s*-?\s*pin\b|terminal block|3\.5mm|toslink|spdif|\bsfp\b|fibre|fiber|dante|aes67|\bir\b|\bcec\b|\brelay\b|\bgpio\b|\bline\b|speaker|balanced|composite|optical|mini din|receptacle|socket|jack\b|female|male\b|bnc\b|xlr\b|rca\b|component|\btrs\b|combo\b/i.test(value);
+}
+
 function isLikelyAccessoryOrFalsePort(port: TechnicalPort): boolean {
   const value = portText(port);
 
   if (!value) return true;
-  if (wmCompareIsCapabilityOnlyUsbPort(port)) return true;
   if (Number(port.count) > 64) return true;
+  // A row that describes a real connector - even when it also mentions a
+  // bundled cable, power cord or terminal-block housing - is a port, not a
+  // box accessory. The enrichment split keeps box contents out of io.ports;
+  // this escape protects genuine terminal-block, USB, RS-232 and IR rows that
+  // survive in mixed wording from being hidden from the I/O counts.
+  if (wmCompareHasExplicitConnector(value)) return false;
+  if (wmCompareIsCapabilityOnlyUsbPort(port)) return true;
   if (/\b(bracket|mount|remote|battery|psu|power supply|power cord|ac power|dc power|mains|adapter|quickstart|quick start|guide|manual|warranty|wall mount|rack mount|terminal block|cable|lens cap|unit|kit|screw|sticker|label|rubber|foot|feet)\b/.test(value)) {
     return true;
   }

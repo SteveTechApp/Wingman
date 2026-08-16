@@ -18,6 +18,7 @@ import {
 } from "../lib/productPitchGuidance";
 import { CompareBackToListButton } from "../components/compare/CompareBackToListButton";
 import { GovernedDataBadge } from "../components/GovernedDataBadge";
+import { GovernedReviewerTrail } from "../components/GovernedReviewerTrail";
 import { ProductFilterPanel, ProductSearchField, ProductWorkspaceHeader, ProductWorkspaceNav } from "../components/ProductWorkspaceChrome";
 import { ReportProblemButton } from "../components/ReportProblemButton";
 import { AdminProductRecordEditor } from "../components/AdminProductRecordEditor";
@@ -256,8 +257,7 @@ function SelectionPage({
   includeAccessories,
   setIncludeAccessories,
   includeCables,
-  setIncludeCables,
-  openProduct
+  setIncludeCables
 }: {
   products: ProductSpec[];
   searchTerm: string;
@@ -268,7 +268,6 @@ function SelectionPage({
   setIncludeAccessories: (value: boolean) => void;
   includeCables: boolean;
   setIncludeCables: (value: boolean) => void;
-  openProduct: (sku: string) => void;
 }) {
   const term = searchTerm.trim().toLowerCase();
   const debouncedTerm = useDebouncedValue(term);
@@ -412,20 +411,29 @@ function SelectionPage({
     setVisibleLimit(PRODUCT_PITCH_RESULT_LIMIT);
   };
 
-  const ResultButton = ({ product }: { product: ProductSpec }) => (
-    <button
-      className="wm-product-pitch-result-card wm-ui-button wm-ui-button-secondary"
-      type="button"
-      onClick={() => openProduct(product.sku)}
-    >
+  // Non-interactive container (not a button) so the reviewer trail - with its
+  // own evidence link - can render inside the row. The product name is the
+  // open affordance; it navigates to the same workspace the button used to.
+  const ResultCard = ({ product }: { product: ProductSpec }) => (
+    <div className="wm-product-pitch-result-card">
       <span className="wm-product-pitch-result-sku" data-label="SKU">{product.sku}{" "}</span>
-      <span className="wm-product-pitch-result-name" data-label="Product name">{displayProductResultName(product)}{" "}</span>
+      <Link
+        className="wm-product-pitch-result-name"
+        data-label="Product name"
+        to={`/wingman/product-pitch?sku=${encodeURIComponent(product.sku)}`}
+        title={`Open the ${product.sku} workspace`}
+      >
+        {displayProductResultName(product)}{" "}
+      </Link>
       <span className="wm-product-pitch-result-family" data-label="Category">{productCategoryFamily(product)}{" "}</span>
       <span className="wm-product-pitch-result-status" data-label="Status">
         {decisionBySku.get(normaliseSkuKey(product.sku))?.lifecycleLabel ?? "Needs verification"}
       </span>
       <GovernedDataBadge tier={product.technicalData?.sourceTier} label={product.technicalData?.statusLabel} />
-    </button>
+      {product.technicalData?.reviewerTrail ? (
+        <GovernedReviewerTrail trail={product.technicalData.reviewerTrail} />
+      ) : null}
+    </div>
   );
 
   return (
@@ -499,7 +507,7 @@ function SelectionPage({
             <div className="wm-ui-card rounded-3xl border p-4">
             <h2 className="wm-card-title">Suggested from current project</h2>
             <div className="mt-3 grid gap-2">
-              {suggestedProducts.length ? suggestedProducts.map((product) => <ResultButton key={product.sku} product={product} />) : (
+              {suggestedProducts.length ? suggestedProducts.map((product) => <ResultCard key={product.sku} product={product} />) : (
                 <p className="text-sm wm-ui-copy">No saved project product selection yet.</p>
               )}
             </div>
@@ -508,7 +516,7 @@ function SelectionPage({
             <div className="wm-ui-card rounded-3xl border p-4">
             <h2 className="wm-card-title">Recently viewed</h2>
             <div className="mt-3 grid gap-2">
-              {recentProducts.length ? recentProducts.map((product) => <ResultButton key={product.sku} product={product} />) : (
+              {recentProducts.length ? recentProducts.map((product) => <ResultCard key={product.sku} product={product} />) : (
                 <p className="text-sm wm-ui-copy">No recent product workspace yet.</p>
               )}
             </div>
@@ -556,7 +564,7 @@ function SelectionPage({
                   <div className="wm-ui-card rounded-3xl border p-4">
                     <h2 className="wm-card-title">Suggested from current project</h2>
                     <div className="mt-3 grid gap-2">
-                      {suggestedProducts.map((product) => <ResultButton key={product.sku} product={product} />)}
+                      {suggestedProducts.map((product) => <ResultCard key={product.sku} product={product} />)}
                     </div>
                   </div>
                 ) : null}
@@ -564,7 +572,7 @@ function SelectionPage({
                   <div className="wm-ui-card rounded-3xl border p-4">
                     <h2 className="wm-card-title">Recently viewed</h2>
                     <div className="mt-3 grid gap-2">
-                      {recentProducts.map((product) => <ResultButton key={product.sku} product={product} />)}
+                      {recentProducts.map((product) => <ResultCard key={product.sku} product={product} />)}
                     </div>
                   </div>
                 ) : null}
@@ -588,7 +596,7 @@ function SelectionPage({
               </div>
               <div className="wm-product-pitch-result-list" role="list" aria-label="Product results">
                 {visibleResults.map((product) => (
-                  <ResultButton key={product.sku} product={product} />
+                  <ResultCard key={product.sku} product={product} />
                 ))}
               </div>
             </div>
@@ -1041,6 +1049,9 @@ function ProductWorkspace({
             <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Product positioning</p>
             <h1 className={`${PRODUCT_PITCH_HERO_TITLE_CLASS} text-cyan-200`}>{product.sku}</h1>
             <GovernedDataBadge tier={product.technicalData?.sourceTier} label={product.technicalData?.statusLabel} />
+            {product.technicalData?.reviewerTrail ? (
+              <GovernedReviewerTrail trail={product.technicalData.reviewerTrail} />
+            ) : null}
             <h2 className={`mt-1 ${PRODUCT_PITCH_SECTION_TITLE_CLASS} text-white`}>{product.name}</h2>
             <p className="mt-3 max-w-4xl text-sm leading-6 wm-ui-copy">{narrative.headline}</p>
           </div>
@@ -1246,10 +1257,6 @@ export function ProductPitchPage() {
     if (rangeQuery) setSearchTerm(rangeQuery);
   }, [rangeQuery]);
 
-  const openProduct = (sku: string) => {
-    navigate(`/wingman/product-pitch?sku=${encodeURIComponent(sku)}`);
-  };
-
   const backToSelection = () => {
     navigate("/wingman/product-pitch");
   };
@@ -1273,7 +1280,6 @@ export function ProductPitchPage() {
       setIncludeAccessories={setIncludeAccessories}
       includeCables={includeCables}
       setIncludeCables={setIncludeCables}
-      openProduct={openProduct}
     />
   );
 

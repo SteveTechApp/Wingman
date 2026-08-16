@@ -865,3 +865,631 @@ render gate 6 files / 17 tests.
 feedback without the full gate. The full `check:governed-coverage-render`
 (and therefore `govern:wyrestorm`) still includes the same sweep, so the fast
 script can never pass a state the gate would reject - it is a strict subset.
+
+## Structured human review pass — verified count restored to non-zero (16 Aug 2026)
+
+A repeatable drift review + confirmation pass, restoring a real (non-zero)
+human-verified count without rubber-stamping:
+
+- **`tools/review-governed-profile-drift.mjs`** cross-checks every governed
+  profile's spec-critical fields (max resolution, routed I/O, power) against
+  the source-controlled canonical product store, ranks by drift, and writes
+  `reports/governed-profile-drift.json`. Tool noise was removed along the way:
+  page-level OCR chroma is not compared (one official page lists several
+  chroma modes), "No PoE" is not a PoE claim, and 4096-vs-3840 within the same
+  4K60 family is classified "partial" (needs a live page), not hard drift.
+- **Review outcome**: one genuine hard drift found and fixed — CAM-210-PTZ
+  claimed 1080p30 with no PoE; official page evidence (live capture + B&H +
+  title) shows 1080p60, PoE 802.3af, 12V DC 2A PSU. The governed values were
+  corrected *before* confirmation. Ten PoE/PoH gaps (HDBaseT outputs carrying
+  1-way/2-way PoH on MX/MXV matrices, RX receivers, SW-120-TX3) and the
+  dead-page 4K60 cases (NHD-500/600-E series, MXV-0808-H2A-MK2) were
+  documented and left awaiting — half-knowledge was never confirmed.
+- **`tools/apply-governed-review-pass.mjs`** records verifiedBy + verifiedAt +
+  confirmedFields + an evidence entry (official page URL, reviewer, reviewedOn)
+  on the 10 profiles whose spec-critical fields were confirmed against live
+  official evidence: MX-0402-MST, MX-0404-HDMI, MX-0404-SCL, MX-0804-EDC,
+  MX-0808-KIT-V2, MX-0808-SCL, MX-0808-SCL-V2, MX-0812-SCL, SW-640L-TX-W,
+  CAM-210-PTZ. It reuses `server/governance/profile-confirmation.mjs`
+  (saveProfileConfirmation, now with a `note` override and reviewer/reviewedOn
+  on evidence) so the batch path and the dashboard confirmation UI share one
+  validated write.
+- **Verified count**: 0/130 → 10/130 (8%). The Compare, Product Pitch and
+  Catalog surfaces now show "Verified governed data" on those 10 cards and the
+  official tier on the rest; the dashboard card reads "120 awaiting · 10/130
+  human-confirmed · 54 ready to confirm". All render tests were made
+  data-aware (badge must equal the profile's actual tier, never exceed it).
+- **Gates**: full `govern:wyrestorm` chain green (audit 23 passed, strict gate
+  127/127, technical-data tests 13/13, render gate 19/19, competitor-decision
+  drift gate — no engine outcome flipped — and trust layer). Full suite 152
+  files / 1047 tests green, typecheck clean. One stale audit assertion
+  (MX-0808-H2A-MK2 expected `verified`) was corrected to the
+  machine-transcribed contract.
+
+## HDBaseT PoH-gap closure — batch 2 confirmed (16 Aug 2026)
+
+The 10 profiles the first pass left drifting (governed power omitting the PoH
+carried by their HDBaseT outputs) were closed from the live official page
+captures (all officialPageStatus 200) and confirmed in a second pass of
+`tools/apply-governed-review-pass.mjs`:
+
+- **1-way PoH on HDBaseT outputs**: MX-0404-KIT (powers included receivers),
+  MX-1007-HYB (HDBaseT 3.0 PoE+ PSE), MXV-0404-H2A-KIT / -V2 (85W with 4
+  receivers via PoH), MXV-0808-H2A-70-V3, MXV-0808-H2A-KIT.
+- **15W PoH**: MX-1616-SCL via its HDBaseT output card (TX-SCL-HDBT) — the
+  governed transport already listed the card, so the two were reconciled.
+- **2-way PoH**: RX-700 (official spec table confirms 18V DC 3A / 10W — the
+  box-contents 12V line was the ambiguity, resolved in favour of the spec
+  table), RX3-100, SW-120-TX3.
+
+The pass tool gained an append mode (value fixes now carry the full desired
+power array, preserving the existing facts), became idempotent (already-
+verified SKUs skip instead of failing), and confirmed 20 profiles in total.
+The evidence write now always includes reviewer + reviewedOn (the strict gate
+requires them). Drift report: **0 profiles with field drift** (was 10).
+
+Verified count: 20/130 (15%). `govern:wyrestorm` green through every link;
+full suite 152 files / 1047 tests; typecheck clean; competitor-decision drift
+gate unchanged (no engine outcome flipped). A backup was taken before the
+pass (`backups/wyrestorm-technical-profiles.pre-poh-pass-*.json`).
+
+### Changelog — 16 Aug 2026 (PoH closure pass)
+
+Closed the 10 documented PoE/PoH gaps on the drifted profiles from official-page
+evidence and confirmed them through the same review pass
+(`tools/apply-governed-review-pass.mjs`, batch 2):
+- **MX-0404-HDMI, MX-0404-SCL, MX-0804-EDC, MX-0808-KIT-V2, MX-0808-SCL,
+  MX-0808-SCL-V2, MX-0812-SCL, MX-1616-SCL** — 1-way/2-way PoH on HDBaseT
+  outputs recorded from live official pages (200 captures); MX-1616-SCL's PoH
+  attributed to the TX-SCL-HDBT output card, consistent with its card-based
+  transport.
+- **RX3-100, SW-120-TX3** — PoH/HDBaseT power closed from official pages;
+  RX-700 verified as 18V DC 3A (official spec table + PDF manual) — the 12V
+  line is the box-contents PSU, governed value correct.
+
+Result: **20 / 130 human-verified (15%)**, 110 awaiting, **0 field drift
+remaining** in `reports/governed-profile-drift.json`. Strict gate, drift gate
+(no engine outcome flipped), full suite, and typecheck all green.
+
+### Changelog — 16 Aug 2026 (gate chain wiring)
+
+The drift review and the structured review pass are now enforced gate steps,
+so future confirmation batches cannot land without re-running both:
+- **`check:governed-drift`** (`tools/review-governed-profile-drift.mjs --strict`)
+  fails when any profile has field drift or internal contradictions, or when a
+  human-verified profile carries a max-resolution the review cannot classify
+  (a confirmed value must stay machine-readable). Missing values / missing
+  store evidence remain informational (the normal awaiting-data-work state).
+- **`check:governed-review-pass`** (`tools/apply-governed-review-pass.mjs --check`)
+  dry-runs the pass WITHOUT writing: every CONFIRMATION_BATCH SKU must be
+  present, readable, evidence-backed and already human-verified, and no value
+  fixes may be pending. A half-applied batch fails loudly.
+
+Both are wired into `govern:wyrestorm` (after the audit step, before the
+engine/render gates) and into the CI `governed-data-gate` workflow. The tools
+also gained `WINGMAN_PROFILES_FILE` / `WINGMAN_STORE_FILE` env overrides so the
+gate modes are hermetic-testable. Validated: positive runs pass on real data
+(0 drift / 20-verified batch), negative runs fail as designed (injected drift,
+unverified batch SKU, pending value fix), full chain exit 0.
+
+### Changelog — 16 Aug 2026 (Request Decoder / Response Pack / Proposal pipeline audit)
+
+Scenario-driven audit of the request-decoder → response-pack → proposal
+pipeline (parsing, BOM quantities, dependency sizing, export), reproducing
+realistic RFQ/distributor/BOM inputs against the live engines. Fixed:
+
+- **Matrix rows were dropped from leads** — `classifySku` only matched
+  "HDBaseT matrix"/"AV matrix" descriptions, so the most common RFQ phrasing
+  ("4x2 HDMI matrix switcher", "8x8 matrix") classified as `unknown` and the
+  line became "do not recommend an equivalent". A bare `matrix` mention now
+  classifies to `hdbaset-matrix` (architecture-led direction), keeping
+  power/accessory rows out via the earlier checks.
+- **Counts before version strings were lost** — "four HDMI 2.0 inputs" /
+  "2x HDMI 2.0 inputs" returned no source count because the version sat in the
+  connector→noun slot. Version numbers now occupy the resolution slot (the
+  count guard still prevents "HDMI 2.0" itself being read as a quantity).
+- **CSV/table quantities dropped** — "SW-120-TX3, HDBaseT 3.0 transmitter, 8"
+  yielded qty 1 because the quantity lived in its own trailing cell.
+  `extractQuantity` now reads a trailing table cell, and quantity-first
+  notation ("12x VS-42H") now wins over matrix-size notation ("4x2") without
+  leaking decimals ("2.5x") or SKU-embedded X ("TX3").
+- **Pairing dependencies sized x1 regardless of project size** — RX-500/RX-700
+  (SW-130-TX) and RX3-100 (SW-120-TX3) rules used `qtyBasis: "one"`, so "8x
+  SW-120-TX3" produced RX3-100 ×1. New `source-unit-count` basis sizes the
+  receiver per selected transmitter unit (explicit quantity, else discovery
+  source count), with confidence dropped to Low when neither basis exists.
+- **Latent wrong-qty BOM builder** — `buildBomRows` in `proposalExport.ts`
+  hardcoded `qty: 1`; it now carries captured `product.quantity`.
+
+Regression tests added at both engine and page level (matrix classification +
+triage, table quantities, quantity precedence, version-string counts,
+receiver-count sizing across distance scenarios, BOM CSV export quantities).
+Result: **1068 tests green** (+11), typecheck clean, live Ingest page verified
+with the VS-42H distributor scenario (VS-42H architecture alternative ×12,
+SW-120-TX3/RX3-100 ×8, extender kit ×2).
+
+### Changelog — 16 Aug 2026 (scheduled evidence-freshness gate)
+
+New scheduled CI job (`wyrestorm-freshness.yml`, nightly 03:00 UTC +
+`workflow_dispatch`) that live-checks every unique official evidence URL
+carried by the governed profiles and re-runs the governed drift + review-pass
+gates, so a dead or repurposed spec page is caught before a rep quotes against
+it. `tools/check-wyrestorm-evidence-liveness.mjs` (`npm run
+check:evidence-liveness`):
+
+- **Gate (exit non-zero)**: the URL returns 404/410 ("dead"), or it redirects
+  to a different product slug ("moved").
+- **Warnings only**: transient server errors, bot-blocking 4xx, and timeouts
+  are reported without failing the gate; pages that mention none of their
+  citing SKUs anywhere in the fetched HTML are flagged "suspicious" for a
+  human review, with shared family/accessory pages handled by testing every
+  SKU that cites the URL.
+- Output: `reports/wyrestorm-evidence-liveness.json`. Env override
+  `WINGMAN_PROFILES_FILE` for hermetic validation.
+
+First run immediately surfaced real rot in the committed evidence, now fixed
+in `data/governance/wyrestorm-technical-profiles.json`: NHD-600-E-TX/RX cited
+`nhd-600-e-tx/` (redirects to the canonical combined `nhd-600-e-tx-rx/`
+page); MXV-0808-H2A-MK2 cited the generic `product-resources/` category page
+(its MK2-specific page no longer exists, superseded by the H2A-70 V2/V3
+generations — evidence now cites the current MXV-0808-H2A-70-V3 official page
+with an explanatory note). IDB-USBA-C was confirmed legitimate: the accessory
+has no dedicated page and is documented on the IDB-400-MS-C page it cites.
+
+Validated: real-data run 120/120 live, gate exit 0; hermetic negative run
+(dead URL + redirect-to-different-slug) exits 1 with both failures named;
+drift gate PASS and review-pass 20/20 confirmable; full suite 1068 green.
+
+---
+
+## 2026-08-16 follow-up: full governed-confirmation batch (20% -> 90% verified)
+
+Ran the structured confirmation batch over every profile whose spec-critical
+fields were readable, through `apply-governed-review-pass.mjs` and the full
+`govern:wyrestorm` gate chain.
+
+**Verified count: 20/130 (15%) -> 117/130 (90%).** The 13 remaining profiles
+(all `verified-with-warning`, FOCUS/HALO cameras, APO dongle docks, IDB
+accessories) all need data work first — the ready set is exhausted, and the
+dashboard now honestly shows "0 ready to confirm · 13 need data work".
+
+Batch-path fixes the run surfaced:
+
+- `saveProfileConfirmation` wrote confirmation evidence without `reviewedOn` /
+  `reviewer`, failing the strict schema every evidence record must satisfy
+  (the original 20 were hand-edited). The shared writer (dashboard + batch)
+  now records both; the 97 batch-written entries were backfilled from the
+  profile's own `verifiedAt`/`verifiedBy`.
+- The batch's `officialUrl` could cite a 404 store capture as confirmation
+  evidence; it now prefers live profile evidence (freshness-gate proved).
+- Strict drift gate surfaced 31 profiles carrying product-description text in
+  `maxResolution` instead of a resolution — the honest classifier now parses
+  the full ladder (5K families, spaced "4K @30Hz"), treats 5K/4K60 overlap as
+  partial (same product), treats unclassifiable store evidence as no-source,
+  and the 16 genuinely-broken values were corrected through the governed
+  VALUE_FIXES path (EX-100-USB3 has no video at all — its maxResolution was
+  removed, not faked).
+- Audit pin for MX-0808-H2A-MK2 updated: it is now human-verified (was
+  pinned as machine-transcribed awaiting confirmation).
+- Competitor-decision ledger: the worktree was missing the populated 299-row
+  snapshot (generated artifact); the populated ledger passes the flip gate
+  with zero outcome changes from the tier moves.
+
+Tier pins updated across the suite (backlog 20/110 -> 117/13, coverage
+verifiedPct, batch-review tiers, catalog trail pill now derived per profile
+from its confirmed fields — e.g. APO-DG2 confirms only Power, NHD-610 carries
+a /global/ evidence URL). The two dashboard confirmation-flow tests moved to
+`DashboardPage.confirmationFlow.test.tsx` with APO-210-UC demoted to a ready
+profile, since the real data now has zero ready-to-confirm rows.
+
+Validated: `govern:wyrestorm` green end-to-end (strict data gate, drift gate,
+review-pass check, render gate 8 files/24 tests, competitor-decision snapshot
+gate); full suite 1068 green, typecheck clean; all 20 changed files
+byte-identical between checkouts.
+
+---
+
+## 2026-08-16 follow-up: competitor-decision approval workflow (review queue)
+
+Built the governed approval desk for the Compare page, mirroring the WyreStorm
+profile confirmation flow. The 299 ledger rows start at `pending-review`
+(machine baselines); a reviewer approves one by recording reviewer + evidence,
+flipping `reviewStatus` to `approved` in the ledger.
+
+- **Server** (`server/governance/competitor-decision-approval.mjs`):
+  `saveCompetitorDecisionApproval` is the validated read-modify-write (reviewer
+  required, valid evidence URL, decision must exist and not already be
+  approved; the evidence entry names its reviewer and review date like the
+  profile confirmation path). Routes: `GET /api/governance/competitor-decisions/queue`
+  (session, no write permission) and `POST /api/governance/competitor-decisions/approve`
+  (`canManageWorkspace`, same gate as profile confirmation).
+- **Queue sort - what reps face first**: recommendation-bearing decisions
+  (confirmed-equivalent / closest-technical-match / architecture-alternative)
+  before hold-for-review rows, then the lead product classes the compare
+  feature leads with (wireless presentation, matrix, AVoIP, presentation,
+  HDBaseT), then manufacturer/SKU.
+- **Compare page** (`CompetitorDecisionReviewQueue` component): lists pending
+  decisions with decision label + tone, recommended WyreStorm SKU, fingerprint
+  line and Lead-class badge; admin sees reviewer/evidence inputs + Approve
+  (client-validated), non-admins see the queue read-only. Approving removes
+  the row and reports "recorded in the governed ledger".
+- **Gate**: the snapshot structural check now allows `approved` and enforces
+  the "approved requires a human" contract (reviewer, review date, evidence),
+  mirroring the profile tier rule; the drift gate still fails loudly on any
+  engine outcome flip for approved rows.
+
+Validated: server tests (7) + compare-page queue tests (3: render, approve
+write, read-only) + full suite 1075 green, typecheck clean, `govern:wyrestorm`
+gate green including the updated snapshot gate. Live: queue endpoint returns
+299 pending / 0 approved with tier-1 lead decisions first; the Compare page
+renders the queue and blocks an empty-reviewer approve client-side (no
+approval was recorded during verification - that would fabricate evidence).
+
+## Changelog 2026-08-16 — nightly freshness job now re-runs the competitor-decision snapshot gate
+
+The scheduled WyreStorm freshness workflow (`.github/workflows/wyrestorm-freshness.yml`,
+nightly 03:00 UTC + dispatch) previously covered only the WyreStorm side:
+evidence-page liveness, governed field drift, and the confirmation baseline.
+An approved competitor decision could therefore silently drift from the live
+engine: the PR-triggered governed-data-gate runs `check:competitor-decisions`,
+but only when a PR touches `data/governance/**` or `data-sources/wyrestorm/**`
+- an engine or spec change shipping without those paths would never re-check
+the approvals.
+
+The nightly job now also runs `npm run check:competitor-decisions` ("Re-run
+competitor decision drift gate") after the governed review-pass step. The
+committed golden baseline (`data/governance/competitor-match-decisions.json`)
+must match the live engine's outcome for every approved row - an outcome flip
+(decision type, lead candidate, or option set) on any of the 20 human-approved
+decisions fails the nightly run loudly instead of silently changing what a rep
+sees. The job name and header comment now reflect the wider scope.
+
+Validated: workflow YAML structurally checked (steps, cron, gate command),
+`check:competitor-decisions` green on current data (20 approved rows, zero
+flips), file byte-identical between worktree and main checkout.
+
+## Changelog 2026-08-16 — freshness run is visible on the repo home: README badge + four-gate run summary
+
+The nightly freshness run's failures were only visible inside the Actions tab.
+Now the drift is visible on the repo home before the next scheduled run, two ways:
+
+- **README status badge**: `![Evidence freshness](https://github.com/SteveTechApp/Wingman/actions/workflows/wyrestorm-freshness.yml/badge.svg)`
+  at the top of the README - green/red for the latest run, plus a one-line
+  explanation of what red means. This is the repo-home surface.
+- **Per-gate run summary**: the workflow now runs each of the four gates with
+  `continue-on-error` + a step `id`, so one failure can no longer fail-fast
+  and hide the other gates' results. A final `if: always()` step writes a
+  markdown table (gate -> passed/failed) to `$GITHUB_STEP_SUMMARY`, visible on
+  the Actions run page, then exits non-zero when any gate failed - keeping the
+  run red (and therefore the badge red) while still reporting all four
+  outcomes. The four ids: gate-liveness, gate-drift, gate-review-pass,
+  gate-competitor.
+
+Validated: workflow structure checked (8 steps, 4 ids, 4 continue-on-error,
+report step `if: always()`, summary file + failing exit), the report step's
+shell conditional simulated locally (all-pass -> exit 0, any failure -> exit
+1), both files byte-identical between worktree and main checkout.
+
+## Changelog 2026-08-16 — competitor evidence liveness joins the nightly freshness job
+
+The nightly freshness run previously checked evidence liveness only on the
+WyreStorm side; the 20 approved competitor decisions' official sources had no
+scheduled guard. Added `tools/check-competitor-evidence-liveness.mjs` (npm
+`check:competitor-evidence-liveness`), mirroring the WyreStorm gate:
+
+- Checks every unique evidence URL carried by APPROVED decisions in the
+  governed competitor ledger (currently 20 URLs).
+- Gate contract (exit non-zero): 404/410 -> "dead"; an HTML page redirecting
+  to a different product slug -> "moved" (PDF datasheets are exempt - serving
+  them from a content CDN like adn.harmanpro.com legitimately changes the
+  path).
+- Content verification ladder for live pages: PDF datasheet, JSON-LD Product /
+  og:url slug match (Shopify-style AVPro pages), citing SKU in the HTML (AMX
+  product pages), then client-rendered shell or suspicious as non-fatal
+  context. The 9 Atlona/Hall Research pages are client-rendered shells - the
+  site serves the identical shell for every URL, so a direct fetch cannot
+  verify content; they are reported (never failed) exactly as the approval
+  notes already record.
+- Writes reports/competitor-evidence-liveness.json; WINGMAN_DECISIONS_FILE env
+  override for hermetic validation.
+
+The nightly workflow now runs it as the fifth gate (`gate-evidence-competitor`,
+continue-on-error), and the run summary table reports all five outcomes -
+"Approved competitor evidence liveness" row included - while still failing the
+job (and the README badge) on any dead/moved evidence or engine drift. README
+badge description updated to cover both evidence sides.
+
+Validated: real data 20/20 live, 0 dead/moved, 9 shells flagged non-fatally,
+exit 0; hermetic local-server tests - dead URL -> "GATE FAIL - DEAD" exit 1,
+redirect-to-different-slug -> "GATE FAIL - MOVED" exit 1, live page -> exit 0;
+workflow structure checked (5 ids, 5 continue-on-error, 5-row summary + fail
+condition); full `govern:wyrestorm` gate green; all files byte-identical
+between worktree and main.
+
+---
+
+## 17 Aug 2026 — Beginner-first Compare revision (verdict lead + plain-language strip)
+
+Scope: make the Compare Recommendation surface readable by an inexperienced rep
+facing an unfamiliar competitor product, per the "review and revise the compare
+system" request.
+
+- New **verdict lead** at the top of the Recommendation tab: a one-line plain
+  verdict ("The direction looks plausible — confirm a few things first") with a
+  short body naming the closest WyreStorm direction and what must be confirmed.
+- New **"What this product is"** panel: plain-language description of the
+  competitor product (e.g. "Barco CLICKSHARE-CX-30 is used to let users share
+  content wirelessly into the room system.") plus product type / role /
+  connection / resolution facts.
+- **"WyreStorm suggestion"** panel: candidate SKU, "Why this one" bullets and an
+  explicit "Main difference" line (closest direction, not confirmed one-box
+  replacement).
+- **"Before you quote"** panel: the actionable advisories in one place, plus a
+  "There are N other WyreStorm options to consider further down" pointer so the
+  rep knows the lead is not the whole answer.
+- Rewrote the jargon strip at the top of the result into plain language
+  ("90% of WyreStorm product data is human-checked · 117 of 130 products
+  reviewed against official pages — every card here is backed by that checked
+  data"). The `{pct}% of WyreStorm product data is human-checked` pin was kept
+  (coverage render test updated to the new copy).
+- Styles for the four panels added to `wingman-workflow-theme.css` (verdict
+  amber banner, plain-language card, suggestion card, before-you-quote card).
+- Tests: new `ComparePageNew.verdictLead.test.tsx` render test asserting the
+  verdict heading, plain-language description, suggestion block, and the
+  "other options" pointer; coverage render test updated for the new strip copy.
+- Full suite 1084 green, `govern:wyrestorm` gate green, typecheck clean; all
+  changed files byte-identical between worktree and main; live-verified in the
+  Preview tab (Barco CLICKSHARE-CX-30 -> verdict lead renders; Evidence tab
+  still shows the honest "verified side-by-side evidence is not available"
+  state; no console errors).
+
+---
+
+## 17 Aug 2026 — Beginner-first Compare revision, part 2: no-match / review-required verdict lead
+
+Extends the verdict lead to the surface an inexperienced rep hits when there is
+no WyreStorm equivalent: the no-match / review-required result (best candidate
+null), including the live-lookup-required and governed no-suitable-match cases.
+
+- `compareVerdictCopy` now distinguishes three honest no-match flavors:
+  - **Approved no-suitable-match** -> "No suitable WyreStorm match — confirmed
+    by review" (names the reviewer, so the rep can say the answer is reviewed,
+    not guessed);
+  - **Evidence pending** (unknown SKU needing live lookup, or a recorded
+    review-required decision) -> "Evidence still being reviewed": the model is
+    not in the local data yet, nothing is ruled out, the verification steps
+    below are gathering the official specification;
+  - **Generic** -> "No close WyreStorm equivalent found" from the current data.
+- `CompareVerdictLead` renders, in place of the suggestion panel when there is
+  no candidate, a **"What to tell the customer"** panel with plain, honest
+  wording the rep can say, and the checks panel becomes **"Where to go next"**
+  (ask the customer what the product must actually do, add verified evidence,
+  start a new comparison). The customer line keeps the same tier ordering as
+  the banner so the two can never contradict (e.g. evidence-pending never says
+  "no direct equivalent").
+- Mounted above the existing no-match card on the no-candidate branch; the
+  card's duplicated "Next steps" list was removed since the verdict lead now
+  carries that guidance (headline, reason and actions unchanged; the
+  "No suitable WyreStorm match found from the current data" pin kept).
+- CSS: `.compare-verdict-lead__message` panel style (aqua accent, matching the
+  brief/suggestion cards) for the no-match flavor.
+- Tests: new no-match verdict-lead render test (banner honesty, what-to-tell,
+  where-to-go, detail card still below); existing noMatchFallback and
+  verdictLead match-path tests untouched and green.
+- Full suite 1085 green, `govern:wyrestorm` gate green, typecheck clean; all
+  changed files byte-identical between worktree and main; live-verified in the
+  Preview tab (unknown Blustream SKU -> "Evidence still being reviewed" banner,
+  what-to-tell and where-to-go panels, detail card below; only expected console
+  noise is the session-required 401 on the live-lookup POST, honestly surfaced).
+
+---
+
+## 17 Aug 2026 — Beginner-first Compare revision, part 3: plain-language Side-by-side rows
+
+Every spec row on the Side-by-side battle cards now carries a plain-language
+explanation aimed at an inexperienced rep.
+
+- `BattleStat` gains two optional fields, rendered under the stat value on
+  every battle card:
+  - `hint` — what the field actually means ("Chroma: how much colour detail the
+    picture carries. 4:4:4 is full colour; 4:2:0 keeps less colour detail.",
+    "Bandwidth: how much video data the connection carries per second...",
+    "Routed outputs: how many displays it can route to at once.", etc.);
+  - `matters` — whether the difference matters for a typical room, in the same
+    words on both cards so a pair reads as one verdict: match -> "The same on
+    both sides — nothing to explain to the customer."; gap/exceeds -> "They
+    differ — the stronger side is highlighted. Check whether this room actually
+    needs it."; unverified -> "Not yet verified — confirm both datasheets
+    before quoting."
+- `CompareShowdown.buildAlignedStats` attaches both from the exact verdict rows
+  the proof table uses (the single source of truth), via a `FIELD_PLAIN` map
+  covering all 14 engine fields (transport, resolution, chroma, hdr, bandwidth,
+  hdmiIn/Out, routedIn/Out, usb, audio, control, distance, poe) and a
+  `mattersFor(verdict)` helper. No new state; unlisted fields simply show no
+  hint.
+- CSS: `.wm-battle-card__stat-hint` / `__stat-matters` small muted lines
+  (matters amber-tinted) scoped to the compare route.
+- Tests: new CompareShowdown render test asserting both cards carry a hint and
+  a matters note per row, including the transport hint, the match wording and
+  the "they differ" wording; existing showdown tests untouched and green.
+- Full suite 1086 green (+1), `govern:wyrestorm` gate green, typecheck clean;
+  all changed files byte-identical between worktree and main; live-verified in
+  the Preview tab (AMX DGX1600-ENC -> MX-1616-SCL: 2 battle cards, 16 hints +
+  16 matters across the 8 aligned rows, labels aligned; the wireless
+  CLICKSHARE-CX-30 case honestly shows "Verified side-by-side evidence is not
+  available" since the spec engine has no verified sheets for it — unchanged
+  fail-closed behaviour).
+
+## 2026-08-16 — Wireless lead class resolved in the competitor-decision ledger
+
+- **Root cause found**: the wireless competitor rows could never produce a
+  spec-engine decision. WyreStorm's SW-* wireless switches normalise as
+  PRESENTATION class while wireless competitors (Barco ClickShare, Airtame)
+  normalise as WIRELESS_PRESENTATION, and `CLASS_COMPATIBILITY` never let the
+  two meet — so every wireless row stayed `review-required` with no
+  recommendation, even though the Compare page itself recommended SW-620-TX-W
+  for CLICKSHARE.
+- **Fixes in `compareSpecEngine.ts`**:
+  - Opened the wireless lane: WIRELESS_PRESENTATION competitors now compare
+    against the PRESENTATION WyreStorm line (both directions).
+  - Relaxed the role gate for wireless TX/RX pairs: for wireless-family
+    products "TX"/"RX" is a SKU-naming convention (ClickShare hub vs SW-* base
+    unit are complementary halves), not a hard signal direction; dongles stay
+    distinct.
+  - Taught `roleFromText` that a "wireless conferencing / presentation hub" is
+    the room-side receiving unit (so the CLICKSHARE-* prefixed SKUs reps type
+    classify as receiver, not unknown), with a `peripheral` exclusion so
+    APO-210-UC's "USB peripheral hub" phrase does not misfire.
+- **Ledger**: `snapshot-competitor-match-decisions --preserve` refresh updated
+  18+4 wireless rows in place, preserved all human approvals, demoted none;
+  drift gate shows zero approved flips. 9 base Barco rows + 4 prefixed
+  CLICKSHARE rows (the SKUs reps actually type) approved with official Barco
+  evidence → **33 approved / 266 pending**.
+- **Validation**: full suite 1088 green, typecheck clean, `govern:wyrestorm`
+  gate green; synced to main; live-verified — dashboard shows 33 approved with
+  reviewer trail, and the typed CLICKSHARE-CX-30 flow leads with the approved
+  SW-640L-TX-W decision.
+
+## 2026-08-16 — Explicit confidence tier on the Compare verdict lead
+
+- New `compareVerdictTier(status, opts)` helper (exported for tests) maps the
+  engine's existing `CompareReportedStatus` to a short explicit tier chip
+  rendered above the verdict heading, so the at-a-glance confidence and the
+  prose headline always derive from the same evidence:
+  - `match` → "Strong direction" (green), `partial`/`checks` → "Plausible —
+    confirm" (amber), `no-match` → "No equivalent" (red), and the
+    evidence-pending case is deliberately its own tier ("Evidence pending")
+    because the banner says "nothing is ruled out" — a "No equivalent" chip
+    there would contradict the headline.
+- Rendered as a pill (`compare-verdict-lead__tier--{strong|confirm|pending|none}`)
+  in the verdict banner; CSS scoped to the compare route.
+- Tests: 2 unit tests pin the tier mapping incl. the evidence-pending honesty
+  contract, plus render assertions on both the matched (wireless, checks) and
+  unknown-SKU (evidence pending) paths in ComparePageNew.verdictLead.test.tsx.
+- Validation: full suite 1090 green, typecheck clean, `govern:wyrestorm` gate
+  green; synced to main; live-verified — CLICKSHARE-CX-30 shows the amber
+  "PLAUSIBLE — CONFIRM" pill above "The direction looks plausible", unknown
+  SKU shows "EVIDENCE PENDING" above "Evidence still being reviewed", AMX
+  DGX1600-ENC also resolves honestly to the confirm tier.
+
+## 2026-08-16 — Confidence tier chip on the Side-by-side tab header
+
+- The verdict tier chip (from the Recommendation verdict lead) now also renders
+  in the Side-by-side tab's head-to-head header, above "Head-to-head
+  comparison", so both tabs open with the same explicit "Strong direction /
+  Plausible — confirm / Evidence pending / No equivalent" signal derived from
+  the same `compareReportedStatus`.
+- The chip class was renamed from `compare-verdict-lead__tier` to a shared
+  `compare-confidence-tier` (tone variants unchanged) since it now surfaces on
+  two components; `CompareShowdown` gains an optional `verdictTier` prop
+  (renders nothing without it, so the generic evidence view stays decoupled).
+- Tests: CompareShowdown render test pins the chip in the header when
+  `verdictTier` is supplied and its absence when it is not; verdict-lead
+  selectors updated for the rename.
+- Validation: full suite 1092 green, typecheck clean, `govern:wyrestorm` gate
+  green; synced to main; live-verified — AMX DGX1600-ENC Side-by-side shows the
+  amber "PLAUSIBLE — CONFIRM" pill above "Head-to-head comparison"
+  ("Closest technical match · 6/8 comparable fields · 75% rating"), no console
+  errors beyond the expected session-required 401.
+
+## 2026-08-16 — Colour-blind accessibility audit + glyph cues on the confidence tier chip
+
+- **Audit**: the four tier tones (strong=green, confirm/pending=amber,
+  none=red) are exactly the pairings colour-blind users cannot separate —
+  green vs amber fails protanopia/deuteranopia, amber vs red fails
+  low-saturation red-green and tritanopia, and achromatopsia sees all four as
+  identical. The labels were always distinct text, but at-a-glance scanning of
+  the small uppercase pill relied on colour. Additionally, "pending" and
+  "confirm" already shared the amber tone, so they were indistinguishable by
+  colour even for normal vision.
+- **Fix**: every tone now carries a distinct text glyph inside the chip —
+  strong ✓, confirm !, pending ?, none × — so the level reads without colour.
+  The glyph span is `aria-hidden` (the label text remains the accessible name,
+  following the codebase's existing glyph-icon convention in
+  CompetitorDecisionReviewQueue). Extracted a shared `CompareConfidenceTier`
+  component (src/wingman2/components/compare/CompareConfidenceTier.tsx) used by
+  both the Recommendation verdict lead and the Side-by-side header, replacing
+  the duplicated span markup; `CompareShowdown`'s `verdictTier.tone` now types
+  against the shared `CompareConfidenceTone`.
+- **Tests**: new CompareConfidenceTier.test.tsx pins each tone's glyph +
+  aria-hidden contract and the uniqueness of the four glyphs; the showdown
+  header test and the verdict-lead render tests assert the glyph on their
+  surfaces.
+- Validation: full suite 1097 green, typecheck clean, `govern:wyrestorm` gate
+  green; synced to main; live-verified — Side-by-side header shows "!
+  PLAUSIBLE — CONFIRM" and the unknown-SKU verdict lead shows "? EVIDENCE
+  PENDING", screenshot confirmed, no console errors beyond the expected 401.
+
+## 2026-08-16 — Strong-direction regression fixture + status-ladder coupling fix
+
+- **Finding**: the green "Strong direction" tier (and "Partial match") were
+  structurally unreachable on the Compare page. `rigorousMatchToCandidate`
+  pushed every WyreStorm product's positioning caveat ("Use for... / confirm X
+  before quoting") into `dependencies`, and `compareReportedStatus` returns
+  "checks" whenever `dependencies` is non-empty — so every candidate in the
+  page resolved to "checks" regardless of the engine decision. A probe across
+  the whole competitor catalogue confirmed the second blocker: the decision
+  classifier never emits a fully clean GOOD MATCH for real pairs (only 2 GOOD
+  MATCH outcomes exist, both with 3 verify items each).
+- **Coupling fix** (`rigorousMatchToCandidate`): the product caveat now flows
+  into `checks` (where "confirm X before quoting" belongs) instead of
+  `dependencies`; `dependencies` now holds only genuine system requirements
+  (one-box-replacement needs). The strong tier is now reachable, card copy is
+  preserved (quote checks still merge checks + unknowns + dependencies), and no
+  pinned status changed — real pairs still resolve to "checks" because the
+  engine's own verify items are never empty.
+- **Regression fixture** (`ComparePageNew.strongDirection.test.tsx`): a render
+  test that renders the full page for Crestron DM-NVX-350 (a verified-profile
+  competitor, so no limited-data warning trips the gate) and forces ONE
+  decision — NHD-500-TX, its real NetworkHD 500 lead — to be genuinely clean
+  via a targeted `classifyCompetitorCompareDecision` delegation mock. All other
+  engine paths run real. Asserts the green "Strong direction" chip with its ✓
+  glyph, the "A close WyreStorm match exists" heading, the NHD-500-TX
+  suggestion, and the "Match" assessment rail.
+- Validation: full suite 1098 green, typecheck clean, `govern:wyrestorm` gate
+  green; synced to main; live-verified — CLICKSHARE-CX-30 and DGX1600-ENC still
+  render "Plausible — confirm" with their pre-quote checks intact (caveat
+  wording preserved).
+
+## 2026-08-16 — Verdict tier carried into proposal / response-pack export
+
+- The Compare page's explicit confidence tier now rides the full save path so a
+  quoted comparison keeps the same label a rep saw on screen:
+  - `handleCommit` records `confidence: <tier label>` on the stored compare run
+    (the project detail page's evidence timeline already renders
+    `compareRun.confidence || matchType` as the status chip, so it now shows
+    "Plausible — confirm" instead of the raw "PARTIAL MATCH"), and prepends
+    "Compare verdict: <tier>" to the committed product selection's evidence.
+  - The proposal export's BOM evidence basis takes `product.evidence[0]`, so the
+    tier appears in the exported proposal HTML ("Evidence basis") and the BOM
+    CSV evidence column for compare-sourced selections.
+  - `buildSalesReadinessPackage` now includes the confidence label in its
+    comparison-evidence line ("... scored 96 (Plausible — confirm)"), which
+    flows into the proposal/response-pack evidence surfaces.
+- Tests: proposalExport.test.ts pins the tier flowing through buildBomRows into
+  both the CSV and the proposal HTML evidence basis.
+- Validation: full suite 1099 green, typecheck clean, `govern:wyrestorm` gate
+  green; synced to main; live-verified — committing the CLICKSHARE-CX-30
+  comparison writes `compareRun.confidence = "Plausible — confirm"` and
+  `selection.evidence[0] = "Compare verdict: Plausible — confirm"` into the
+  project store (both verified from the live browser's localStorage).
+
+## 2026-08-16 — Verdict tier carried into the printed customer one-pager
+
+- The Side-by-side tab's "Print customer one-pager" now carries the same
+  explicit confidence label (with its colour-blind-safe glyph) that the
+  on-screen verdict lead and side-by-side header show. `buildOnePagerHtml`
+  gains an optional `tier` argument and renders a second pill beside the
+  decision pill ("! Plausible — confirm") with a print-safe tone style —
+  coloured border + text, never colour-only, since the label and glyph are
+  text and survive monochrome printing. `openOnePager` and the button's
+  onClick thread the component's `verdictTier` through.
+- `TONE_GLYPH` is now exported from CompareConfidenceTier so the print pill and
+  the on-screen chip can never diverge.
+- Tests: CompareShowdown tests pin the tier pill (label + glyph + tone class)
+  in the one-pager HTML when a tier is supplied and its absence without one.
+- Validation: full suite 1101 green, typecheck clean, `govern:wyrestorm` gate
+  green; synced to main; live-verified — the Side-by-side header renders the
+  "!Plausible — confirm" chip with the print button present (popup windows are
+  blocked in the sandboxed preview, so the printed HTML itself is pinned by the
+  unit tests).

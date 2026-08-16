@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import { readProjectStore, upsertStoredProject } from "../data/projectStore";
 import { routeCatalogByKey } from "../app/routeCatalog";
@@ -20,6 +20,10 @@ describe("DashboardPage", () => {
     window.localStorage.clear();
   });
 
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it("shows the fallback demo projects when the project store is empty", () => {
     const recentProjects = renderDashboard();
 
@@ -27,6 +31,92 @@ describe("DashboardPage", () => {
     expect(recentProjects.getByText("Harbour Retail Signage Rollout")).not.toBeNull();
     expect(recentProjects.getByText("Westbrook Classroom Standard")).not.toBeNull();
   });
+
+  it("renders the profiles-awaiting-human-confirmation card with its backlog", () => {
+    renderDashboard();
+
+    const card = screen.getByLabelText("Profiles awaiting human confirmation");
+    expect(card.textContent).toContain("Profiles awaiting human confirmation");
+    // The 2026-08-16 review passes confirmed 117 of the 130 governed profiles;
+    // the 13 that remain all need data work first (the ready set was exhausted).
+    expect(card.textContent).toContain("13 awaiting");
+    expect(card.textContent).toContain("117/130 human-confirmed");
+    expect(card.textContent).toContain("0 ready to confirm");
+    // A real profile row with its spec-critical field state (the card lists
+    // the first eight awaiting profiles alphabetically).
+    expect(card.textContent).toContain("HALO-30");
+    expect(card.textContent).toContain("Power - missing data");
+    expect(card.textContent).toMatch(/and [0-9]+ more awaiting confirmation/);
+  });
+
+  it("renders the human-verified reviewer trail recent-first with who, when and the source URL", () => {
+    renderDashboard();
+
+    const card = screen.getByLabelText("Human-verified profiles");
+    expect(card.textContent).toContain("Human-verified profiles");
+    expect(card.textContent).toContain("117 verified");
+    // Recent-first is the default: the 97-profile batch's final write (the
+    // last SKU in the batch list) is the first row, with its reviewer trail
+    // and official source link.
+    expect(card.textContent).toContain("TX-35-IWC-KVM");
+    expect(card.textContent).toContain("confirmed by Steve · 2026-08-16");
+    const evidenceLink = within(card).getByRole("link", { name: /wyrestorm\.com\/product\/tx-35-iwc-kvm/ });
+    expect(evidenceLink.getAttribute("href")).toBe("https://www.wyrestorm.com/product/tx-35-iwc-kvm/");
+    expect(evidenceLink.getAttribute("target")).toBe("_blank");
+    expect(card.textContent).toMatch(/and 109 more verified profiles/);
+  });
+
+  it("sorts the human-verified list SKU A-Z or recent-first on demand", () => {
+    renderDashboard();
+
+    const card = screen.getByLabelText("Human-verified profiles");
+    const sort = within(card).getByLabelText("Sort verified profiles");
+    const firstRow = () => within(card).getAllByRole("listitem")[0].textContent ?? "";
+
+    // Default is recent-first: TX-35-IWC-KVM carries the batch's final write.
+    expect(firstRow()).toContain("TX-35-IWC-KVM");
+
+    fireEvent.change(sort, { target: { value: "sku" } });
+    expect(firstRow()).toContain("AMP-2120"); // alphabetically first verified SKU
+    expect(card.textContent).toContain("APO-210-UC"); // inside the A-Z visible slice
+
+    fireEvent.change(sort, { target: { value: "recent" } });
+    expect(firstRow()).toContain("TX-35-IWC-KVM");
+  });
+
+  it("filters the human-verified list by reviewer", () => {
+    renderDashboard();
+
+    const card = screen.getByLabelText("Human-verified profiles");
+    const filter = within(card).getByLabelText("Filter by reviewer");
+    const options = Array.from(filter.querySelectorAll("option")).map((option) => option.textContent);
+    // The review pass recorded a single reviewer of record so far; the control
+    // is built from the data so future reviewers appear automatically.
+    expect(options).toContain("All reviewers");
+    expect(options).toContain("Steve");
+
+    fireEvent.change(filter, { target: { value: "Steve" } });
+    expect(within(card).getAllByRole("listitem").length).toBeGreaterThan(0);
+    expect(card.textContent).toMatch(/and 109 more verified profiles/);
+
+    fireEvent.change(filter, { target: { value: "all" } });
+    expect(card.textContent).toMatch(/and 109 more verified profiles/);
+  });
+
+  it("marks profiles with missing spec-critical data as not yet confirmable", () => {
+    renderDashboard();
+
+    const card = screen.getByLabelText("Profiles awaiting human confirmation");
+    const haloRow = within(card).getByText("HALO-30").closest("li");
+    expect(haloRow).not.toBeNull();
+    const button = within(haloRow as HTMLElement).getByRole("button", { name: "Add data first" });
+    expect((button as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  // The confirmation panel and API-write flow are covered in
+  // DashboardPage.confirmationFlow.test.tsx, which mocks APO-210-UC back to a
+  // ready-to-confirm profile: the real data now has 117 verified and zero
+  // ready-to-confirm, so that flow needs a controlled ready profile to run.
 
   it("links each primary action to its Wingman route", () => {
     renderDashboard();

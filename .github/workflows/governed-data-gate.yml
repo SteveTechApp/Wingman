@@ -57,6 +57,21 @@ jobs:
       - name: Audit technical data
         run: node tools/audit-wyrestorm-technical-data.mjs
 
+      # The governed drift gate: every profile's spec-critical fields
+      # (max resolution, routed I/O, power) must agree with the canonical
+      # store, and no human-verified profile may carry a max-resolution the
+      # review cannot classify. A confirmation batch that introduces field
+      # drift fails here.
+      - name: Run governed field-drift gate
+        run: npm run check:governed-drift
+
+      # The review-pass gate: dry-runs the structured confirmation pass
+      # without writing - every CONFIRMATION_BATCH SKU must be present,
+      # readable, evidence-backed and already human-verified, with no value
+      # fixes pending. A half-applied confirmation batch fails here.
+      - name: Verify governed review pass is fully applied
+        run: npm run check:governed-review-pass
+
       - name: Run technical-data engine tests
         run: npm run check:technical-data-tests
 
@@ -67,3 +82,17 @@ jobs:
       # app code, docs or data sources.
       - name: Run governed badge and copy render gate
         run: npm run check:governed-coverage-render
+
+      # The competitor-decision drift gate: the committed golden baseline in
+      # data/governance/competitor-match-decisions.json must match the live
+      # engine's outcome for every approved competitor row. An outcome flip
+      # (decision type, lead candidate, or option set) fails loudly instead of
+      # silently changing what a rep sees.
+      - name: Run competitor decision drift gate
+        run: npm run check:competitor-decisions
+
+      # The compare trust-layer structural check: ledger populated, no
+      # duplicate decisions, and only human decisions carry the approval
+      # contract (machine baselines stay pending-review).
+      - name: Run compare trust-layer check
+        run: npm run check:compare-trust-layer

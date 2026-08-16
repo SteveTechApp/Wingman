@@ -33,6 +33,10 @@ if (failures.length === 0) {
 
     if (!Array.isArray(ledger.decisions)) {
       failures.push("Competitor match ledger decisions must be an array.");
+    } else if (ledger.decisions.length === 0) {
+      failures.push(
+        "Competitor match ledger is empty - run `npm run snapshot:competitor-decisions` to record the engine baseline.",
+      );
     } else {
       const identities = new Set();
 
@@ -48,7 +52,14 @@ if (failures.length === 0) {
         }
         identities.add(identity);
 
+        // Machine baselines from the snapshot tool are pending-review by
+        // design: they record the engine's current outcome for the drift gate
+        // and are inert at runtime (only `approved` rows are promoted). Only
+        // HUMAN decisions must carry the full approval contract.
+        const isMachineBaseline = decision.reviewStatus === "pending-review";
+
         if (
+          !isMachineBaseline &&
           decision.decisionType === "confirmed-equivalent" &&
           decision.reviewStatus !== "approved"
         ) {
@@ -58,6 +69,7 @@ if (failures.length === 0) {
         }
 
         if (
+          !isMachineBaseline &&
           decision.decisionType === "confirmed-equivalent" &&
           (!decision.reviewer ||
             !decision.reviewedAt ||

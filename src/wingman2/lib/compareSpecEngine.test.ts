@@ -4,7 +4,9 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import competitorCatalogRaw from "../../../data/catalog/competitor-products.generated.json";
 import {
   findCompetitorCatalogEntry,
+  loadWyrestormIndex,
   normalizeCompetitor,
+  normalizeWyrestorm,
   rankChroma,
   rankResolution,
   runSpecShowdown,
@@ -161,6 +163,30 @@ describe("runSpecShowdown", () => {
     }
   });
 
+  it("carries the reviewer trail on a human-verified governed sheet", async () => {
+    const entries = await loadWyrestormIndex();
+    const entry = entries.find((candidate) => candidate.sku === "MX-0808-SCL");
+    expect(entry).toBeDefined();
+
+    const sheet = normalizeWyrestorm(entry!);
+    // Human-verified governed profile: the tier and the reviewer trail travel
+    // together, with the official source the reviewer confirmed against.
+    expect(sheet.verificationStatus).toBe("verified");
+    expect(sheet.reviewerEvidence).toMatchObject({
+      reviewer: "Steve",
+      reviewedOn: "2026-08-16",
+    });
+    expect(sheet.reviewerEvidence?.url).toContain("wyrestorm.com/product/mx-0808-scl");
+    // The same trail is visible in the evidence-sources citations.
+    expect(sheet.citations.some((citation) => citation.label === "WyreStorm human-reviewed source" && citation.url === sheet.reviewerEvidence?.url)).toBe(true);
+
+    // An awaiting (machine-transcribed) profile never claims a reviewer trail:
+    // FOCUS-100 has a governed profile but no reviewer has recorded verifiedBy.
+    const focus = entries.find((candidate) => candidate.sku === "FOCUS-100");
+    expect(focus).toBeDefined();
+    expect(normalizeWyrestorm(focus!).reviewerEvidence).toBeUndefined();
+  });
+
   it("does not confuse a paired receiver reference with a complete extender kit", async () => {
     const entry = findCompetitorCatalogEntry("Crestron", "HD-TX-4KZ-211-2G");
     expect(entry).not.toBeNull();
@@ -234,10 +260,20 @@ describe("runSpecShowdown", () => {
       if (result.coverage !== "found") continue;
 
       for (const match of result.matches) {
+        // Wireless casting is a TX/RX pair system: the room-side unit is named
+        // "TX" by some manufacturers (WyreStorm SW-* base units) and "receiver"
+        // by others (ClickShare hubs), so the direction rule is relaxed only
+        // when BOTH products are wireless-family and neither is a laptop-side
+        // dongle - mirroring detectBlockers. HDBaseT/HDMI TX vs RX stays strict.
+        const wirelessPair =
+          competitor.transport === "wireless" &&
+          match.sheet.transport === "wireless" &&
+          competitor.role !== "dongle" &&
+          match.sheet.role !== "dongle";
         const allowed = competitor.role === "transmitter"
           ? ["transmitter", "transceiver"]
           : ["receiver", "transceiver"];
-        if (!allowed.includes(match.sheet.role)) {
+        if (!allowed.includes(match.sheet.role) && !wirelessPair) {
           violations.push(
             `${competitor.brand} ${competitor.sku} (${competitor.role}) -> ${match.sheet.sku} (${match.sheet.role})`,
           );
@@ -254,12 +290,16 @@ describe("runSpecShowdown", () => {
       HDBASET: ["HDBASET", "EXTENDER"],
       MATRIX: ["MATRIX"],
       DISTRIBUTION: ["DISTRIBUTION"],
-      PRESENTATION: ["PRESENTATION"],
       VIDEO_WALL: ["VIDEO_WALL", "AVOIP", "MULTIVIEW"],
       MULTIVIEW: ["MULTIVIEW", "VIDEO_WALL"],
       EXTENDER: ["EXTENDER", "HDBASET"],
       USB_EXTENSION: ["USB_EXTENSION"],
-      WIRELESS_PRESENTATION: ["WIRELESS_PRESENTATION"],
+      // The WyreStorm wireless range is classified PRESENTATION while wireless
+      // competitors are WIRELESS_PRESENTATION; the two lanes deliberately meet
+      // (mirrors CLASS_COMPATIBILITY) so the wireless lead class can produce
+      // verified decisions instead of always falling back to review-required.
+      WIRELESS_PRESENTATION: ["WIRELESS_PRESENTATION", "PRESENTATION"],
+      PRESENTATION: ["PRESENTATION", "WIRELESS_PRESENTATION"],
       AUDIO: ["AUDIO"],
       CONTROL: ["CONTROL"],
       CAMERA: ["CAMERA"],

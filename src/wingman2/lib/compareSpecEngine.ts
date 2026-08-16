@@ -79,6 +79,18 @@ export type Citation = {
   detail?: string;
 };
 
+/**
+ * The human reviewer trail behind a `verified` WyreStorm sheet: who confirmed
+ * the spec-critical fields, when, and the official source they confirmed
+ * against. Only present when the governed profile is human-verified
+ * (`status: "verified"` + an evidence entry with a source URL).
+ */
+export type ReviewerEvidence = {
+  url: string;
+  reviewer: string;
+  reviewedOn: string;
+};
+
 export type SpecSheet = {
   sku: string;
   brand: string;
@@ -114,10 +126,57 @@ export type SpecSheet = {
   matrixSize?: string;
   verificationStatus?: "verified" | "verified-with-warning" | "inferred" | "missing" | "conflicting";
   citations: Citation[];
+  /** Reviewer trail when this sheet is backed by a human-verified governed profile. */
+  reviewerEvidence?: ReviewerEvidence;
   imageUrl?: string;
 };
 
 export type VerdictKind = "match" | "exceeds" | "gap" | "unverified";
+
+/**
+ * Per-side data provenance for one comparison field. Weakest to strongest:
+ * unverified (no value) < inferred (from text) < official (structured source,
+ * not human-reviewed) < verified (human-reviewed governed data).
+ */
+export type FieldProvenance = "unverified" | "inferred" | "official" | "verified";
+
+const PROVENANCE_RANK: Record<FieldProvenance, number> = {
+  unverified: 0,
+  inferred: 1,
+  official: 2,
+  verified: 3,
+};
+
+/** Weakest-link combine: the least trustworthy of the given provenances. */
+export function weakestFieldProvenance(...tiers: FieldProvenance[]): FieldProvenance {
+  return tiers.reduce<FieldProvenance>(
+    (weakest, tier) => (PROVENANCE_RANK[tier] < PROVENANCE_RANK[weakest] ? tier : weakest),
+    "verified",
+  );
+}
+
+/** Provenance a value inherits from its source sheet when the value is present. */
+function sheetFieldProvenance(sheet: Pick<SpecSheet, "verificationStatus">): FieldProvenance {
+  switch (sheet.verificationStatus) {
+    case "verified":
+      return "verified";
+    case "verified-with-warning":
+      return "official";
+    case "inferred":
+      return "inferred";
+    default:
+      // Sheets without an explicit status (index-derived or competitor rows
+      // without a curated tier) are structured official-page data at best.
+      return "official";
+  }
+}
+
+function fieldProvenance(
+  side: Pick<SpecSheet, "verificationStatus">,
+  valuePresent: boolean,
+): FieldProvenance {
+  return valuePresent ? sheetFieldProvenance(side) : "unverified";
+}
 
 export type FieldVerdict = {
   field: string;
@@ -126,6 +185,12 @@ export type FieldVerdict = {
   wyrestormValue: string;
   verdict: VerdictKind;
   note?: string;
+  /** Provenance of the competitor side's value for this field. */
+  competitorProvenance: FieldProvenance;
+  /** Provenance of the WyreStorm side's value for this field. */
+  wyrestormProvenance: FieldProvenance;
+  /** Weakest-link summary across both sides. */
+  provenance: FieldProvenance;
 };
 
 export type ShowdownDecision =
@@ -144,6 +209,8 @@ export type ShowdownMatch = {
   rating: number; // 0-100 verified rating
   advantages: string[]; // where WyreStorm EXCEEDS + architecture benefits
   cautions: string[]; // gaps + notes
+  /** Weakest-link provenance across every compared field (both sides). */
+  provenance: FieldProvenance;
 };
 
 export type ShowdownResult =
@@ -292,6 +359,12 @@ function roleFromText(t: string): SpecRole {
   // extender kit - check matrix before the kit/pair patterns.
   if (/matrix/.test(s)) return "matrix";
   if (/kit|tx\s*\/\s*rx|tx\+rx|pair/.test(s)) return "extender-kit";
+  // A wireless conferencing / presentation hub is the room-side receiving unit
+  // of the casting system (ClickShare hub vs the laptop-side button/dongle),
+  // mirroring the base catalogue rows that label the same products
+  // "receiver / hub". Without this, the CLICKSHARE-* prefixed SKUs reps type
+  // classify as role "unknown" and can never produce a verified decision.
+  if (/\bhub\b/.test(s) && /wireless|conferencing|presentation/.test(s) && !/peripheral/.test(s)) return "receiver";
   if (/encoder|transmitter|\btx\b/.test(s)) return "transmitter";
   if (/decoder|receiver|\brx\b/.test(s)) return "receiver";
   if (/switcher|switch\b/.test(s)) return "switcher";
@@ -410,6 +483,21 @@ export function normalizeCompetitor(entry: CompetitorEntry): SpecSheet {
     });
   }
 
+  // Provenance for the competitor side: a human-approved curated fingerprint
+  // or official-page source is verified; a bare SKU seed / raw feed row is at
+  // best inferred. Values missing on a field are stamped unverified later.
+  const competitorStatus = text(entry.status).toLowerCase();
+  const sourceTier = text(entry.sourceTier).toLowerCase();
+  const verificationStatus: SpecSheet["verificationStatus"] =
+    competitorStatus === "approved" &&
+    /curated-fingerprint|official-structured|official-product-page|official-manufacturer|reviewed-import|official-product-guide|official-product-library|official-product-brochure/.test(sourceTier)
+      ? "verified"
+      : competitorStatus === "approved"
+        ? "verified-with-warning"
+        : competitorStatus === "review" || competitorStatus === "draft"
+          ? "inferred"
+          : undefined;
+
   return {
     sku: text(entry.sku),
     brand: text(entry.brand),
@@ -436,6 +524,7 @@ export function normalizeCompetitor(entry: CompetitorEntry): SpecSheet {
     controlOptions: uniq(Array.isArray(entry.control) ? (entry.control as unknown[]).map(text) : []),
     distanceM: distance,
     poe: poeMatch ? poeMatch[0].toUpperCase() : "",
+    verificationStatus,
     citations,
   };
 }
@@ -604,6 +693,19 @@ function governedValue(record: Record<string, unknown>, name: string): unknown {
   return record[name];
 }
 
+/** Latest evidence entry's reviewer trail (source URL, reviewer, date) if one exists. */
+function reviewerEvidenceFromProfile(profile: GovernedBattleProfile | undefined): ReviewerEvidence | undefined {
+  const evidence = Array.isArray(profile?.evidence) ? (profile.evidence as Array<Record<string, unknown>>) : [];
+  const latest = evidence[evidence.length - 1] ?? {};
+  const url = text(latest.sourceUrl);
+  if (!url) return undefined;
+  return {
+    url,
+    reviewer: text(latest.reviewer) || "Human reviewer",
+    reviewedOn: text(latest.reviewedOn),
+  };
+}
+
 function governedPortCount(
   ports: GovernedBattlePort[],
   direction: "input" | "output",
@@ -765,6 +867,7 @@ function normalizeGovernedBattleCard(entry: WsEntry): SpecSheet | null {
           ? "verified-with-warning"
           : "inferred",
     citations,
+    reviewerEvidence: reviewerEvidenceFromProfile(profile),
   };
 }
 // WINGMAN_GOVERNED_BATTLE_CARD_NORMALISER_END
@@ -772,6 +875,19 @@ function normalizeGovernedBattleCard(entry: WsEntry): SpecSheet | null {
 export function normalizeWyrestorm(entry: WsEntry): SpecSheet {
   const governed = normalizeGovernedBattleCard(entry);
   if (governed) return governed;
+  // The governed battle-card path requires an explicit approval flag that the
+  // current profiles do not carry, so stamp provenance directly from the
+  // governed profile's status when one exists for this SKU.
+  const governedProfile = GOVERNED_BATTLE_PROFILES.find((candidate) => key(candidate.sku) === key(text(entry.sku)));
+  const governedStatus = text(governedProfile?.status).toLowerCase();
+  const verificationStatus: SpecSheet["verificationStatus"] =
+    governedStatus === "verified"
+      ? "verified"
+      : governedStatus === "verified-with-warning"
+        ? "verified-with-warning"
+        : governedStatus === "review-required"
+          ? "inferred"
+          : undefined;
   const tp = (entry.technicalProfile ?? {}) as Record<string, unknown>;
   const io = (tp.io ?? {}) as { ports?: WsPort[] };
   const ports = Array.isArray(io.ports) ? io.ports : [];
@@ -862,6 +978,16 @@ export function normalizeWyrestorm(entry: WsEntry): SpecSheet {
   const citations: Citation[] = [];
   if (officialUrl) citations.push({ label: "WyreStorm official product page", url: officialUrl });
   if (guidePages) citations.push({ label: "WyreStorm Product Guide 2026 (PDF)", detail: `Pages ${guidePages}` });
+  const reviewerEvidence = governedStatus === "verified" ? reviewerEvidenceFromProfile(governedProfile) : undefined;
+  if (reviewerEvidence) {
+    citations.push({
+      label: "WyreStorm human-reviewed source",
+      url: reviewerEvidence.url,
+      detail:
+        [reviewerEvidence.reviewedOn ? `Reviewed ${reviewerEvidence.reviewedOn}` : "", reviewerEvidence.reviewer].filter(Boolean).join(" · ") ||
+        undefined,
+    });
+  }
 
   return {
     sku: text(entry.sku),
@@ -889,7 +1015,9 @@ export function normalizeWyrestorm(entry: WsEntry): SpecSheet {
     controlOptions,
     distanceM,
     poe,
+    verificationStatus,
     citations,
+    reviewerEvidence,
   };
 }
 
@@ -900,12 +1028,18 @@ const CLASS_COMPATIBILITY: Record<SpecClass, SpecClass[]> = {
   HDBASET: ["HDBASET", "EXTENDER"],
   MATRIX: ["MATRIX"],
   DISTRIBUTION: ["DISTRIBUTION"],
-  PRESENTATION: ["PRESENTATION"],
+  // The WyreStorm wireless range (SW-* switchers, APO-* dongles) is classified
+  // PRESENTATION, while wireless competitors (ClickShare, VIA, Solstice...) are
+  // WIRELESS_PRESENTATION - the two must meet or the headline wireless lead
+  // class can never produce a verified spec-engine decision. The compare page
+  // already recommends SW-* for wireless competitors, so this mirrors the
+  // product reality in both directions.
+  WIRELESS_PRESENTATION: ["WIRELESS_PRESENTATION", "PRESENTATION"],
+  PRESENTATION: ["PRESENTATION", "WIRELESS_PRESENTATION"],
   VIDEO_WALL: ["VIDEO_WALL", "AVOIP", "MULTIVIEW"],
   MULTIVIEW: ["MULTIVIEW", "VIDEO_WALL"],
   EXTENDER: ["EXTENDER", "HDBASET"],
   USB_EXTENSION: ["USB_EXTENSION"],
-  WIRELESS_PRESENTATION: ["WIRELESS_PRESENTATION"],
   AUDIO: ["AUDIO"],
   CONTROL: ["CONTROL"],
   CAMERA: ["CAMERA"],
@@ -935,13 +1069,15 @@ function fmt(value: string | number | null | undefined, suffix = ""): string {
   return `${value}${suffix}`;
 }
 
+type UnstampedVerdict = Omit<FieldVerdict, "competitorProvenance" | "wyrestormProvenance" | "provenance">;
+
 function compareNumbers(
   field: string,
   label: string,
   compValue: number | null,
   wsValue: number | null,
   suffix = "",
-): FieldVerdict {
+): UnstampedVerdict {
   if (compValue == null || wsValue == null) {
     return { field, label, competitorValue: fmt(compValue, suffix), wyrestormValue: fmt(wsValue, suffix), verdict: "unverified" };
   }
@@ -963,7 +1099,7 @@ function compareCapabilityLists(
   label: string,
   competitorValues: string[],
   wyrestormValues: string[],
-): FieldVerdict {
+): UnstampedVerdict {
   const competitorList = uniq(competitorValues);
   const wyrestormList = uniq(wyrestormValues);
   const competitorValue = competitorList.length ? competitorList.join(" · ") : "None verified";
@@ -1005,8 +1141,23 @@ function compareCapabilityLists(
   };
 }
 
+function isUnverifiedDisplayValue(value: string): boolean {
+  return !value || value === "Unverified" || value === "None verified";
+}
+
+function stampVerdictProvenance(verdict: UnstampedVerdict, competitor: SpecSheet, ws: SpecSheet): FieldVerdict {
+  const competitorProvenance = fieldProvenance(competitor, !isUnverifiedDisplayValue(verdict.competitorValue));
+  const wyrestormProvenance = fieldProvenance(ws, !isUnverifiedDisplayValue(verdict.wyrestormValue));
+  return {
+    ...verdict,
+    competitorProvenance,
+    wyrestormProvenance,
+    provenance: weakestFieldProvenance(competitorProvenance, wyrestormProvenance),
+  };
+}
+
 export function buildFieldVerdicts(competitor: SpecSheet, ws: SpecSheet): FieldVerdict[] {
-  const verdicts: FieldVerdict[] = [];
+  const verdicts: UnstampedVerdict[] = [];
 
   // Transport (architecture) — compared, never silently equalised.
   if (competitor.transport === "unknown" || ws.transport === "unknown") {
@@ -1125,7 +1276,7 @@ export function buildFieldVerdicts(competitor: SpecSheet, ws: SpecSheet): FieldV
     });
   }
 
-  return verdicts;
+  return verdicts.map((verdict) => stampVerdictProvenance(verdict, competitor, ws));
 }
 
 /* -------------------------------------------------------------- showdown */
@@ -1141,7 +1292,18 @@ function detectBlockers(competitor: SpecSheet, ws: SpecSheet): string[] {
   }
 
   const roleCheck = rolesCompatible(competitor.role, ws.role);
-  if (!roleCheck.ok && !roleCheck.note) {
+  // Wireless casting is a TX/RX pair system: the room-side unit is named "TX"
+  // by some manufacturers (WyreStorm SW-* base units) and "receiver" by others
+  // (ClickShare hubs), so TX/RX labels are SKU-naming conventions there, not a
+  // hard direction. Relax the role gate only for the wireless pair - HDBaseT /
+  // HDMI TX vs RX directions stay strict, and a laptop-side dongle never
+  // replaces a room-side unit.
+  const wirelessPair =
+    competitor.transport === "wireless" &&
+    ws.transport === "wireless" &&
+    competitor.role !== "dongle" &&
+    ws.role !== "dongle";
+  if (!roleCheck.ok && !roleCheck.note && !wirelessPair) {
     blockers.push(`Role mismatch: ${competitor.role} vs ${ws.role}`);
   } else if (!roleCheck.ok && roleCheck.note === "Role unverified") {
     blockers.push("Role could not be verified from evidence");
@@ -1266,6 +1428,10 @@ export async function runSpecShowdown(brand: string, sku: string): Promise<Showd
       rating: Math.round((matched.length / comparable.length) * 100),
       advantages,
       cautions,
+      provenance: verdicts.reduce<FieldProvenance>(
+        (weakest, verdict) => weakestFieldProvenance(weakest, verdict.provenance),
+        "verified",
+      ),
     });
   }
 

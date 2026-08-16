@@ -71,6 +71,26 @@ The Compare result should show:
 Do not display a generic confidence percentage unless the score is transparent
 and repeatable.
 
+## Golden baseline and engine drift gate
+
+`data/governance/competitor-match-decisions.json` also holds a machine
+**golden baseline**: the spec engine's current outcome for every approved
+competitor row (decision type, lead candidate and option set), stored as
+`pending-review` snapshots. Snapshots are inert at runtime - only `approved`
+rows are promoted - so the baseline exists purely to make engine drift loud.
+
+- Regenerate: `npm run snapshot:competitor-decisions` (runs the live engine
+  over all approved rows, writes the ledger, then verifies the written
+  baseline against the engine). Only re-run after deliberately reviewing an
+  engine or data change that legitimately alters a comparison outcome.
+- Guard: `npm run check:competitor-decisions` re-runs the engine and fails
+  loudly on any outcome flip (decision type, lead candidate, or option set)
+  or on any approved row missing a baseline. Wired into `govern:wyrestorm`
+  and the CI governed-data gate.
+- Structure: `npm run check:compare-trust-layer` requires a populated ledger,
+  unique decisions, and that only human decisions carry the approval
+  contract.
+
 ## Missing competitor SKU workflow
 
 1. Enter missing SKU.
