@@ -1,13 +1,13 @@
 # WyreStorm Technical Data Audit
 
-Generated: 2026-07-22T07:35:52.433Z
+Generated: 2026-08-16T10:43:04.343Z
 
 Status: **PASSED**
 
 ## Passed
 
 - MX-0808-H2A-MK2 governed profile exists
-- MX-0808-H2A-MK2 is governed as verified
+- MX-0808-H2A-MK2 is human-verified with verifiedBy recorded
 - MX-0808-H2A-MK2 product class is MATRIX
 - MX-0808-H2A-MK2 transport is HDMI only
 - MX-0808-H2A-MK2 maximum presentation format is 4K60, not 4K120

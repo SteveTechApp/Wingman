@@ -1,4 +1,10 @@
 import { handleAgentsRoute } from "./routes/agents.mjs";
+import {
+  handleCompetitorDecisionApprovalPost,
+  handleCompetitorDecisionApprovedGet,
+  handleCompetitorDecisionQueueGet,
+} from "./governance/competitor-decision-approval.mjs";
+import { handleProfileConfirmationPost } from "./governance/profile-confirmation.mjs";
 import { enforceCsrf, issueCsrf } from "./security/csrf.mjs";
 import http from "node:http";
 import fs from "node:fs/promises";
@@ -2423,6 +2429,38 @@ const server = http.createServer(async (req, res) => {
 
   if (method === "POST" && url.pathname === "/api/competitor-approvals") {
     await runProtectedRoute(res, () => handleApprovalsPost(req, res, url));
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/governance/profiles/confirm") {
+    await runProtectedRoute(res, () => handleProfileConfirmationPost(req, res, url, {
+      sendJson,
+      parseJsonBody,
+      requireWingmanPermission,
+    }));
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/governance/competitor-decisions/queue") {
+    await runProtectedRoute(res, () => handleCompetitorDecisionQueueGet(req, res, url, {
+      sendJson,
+    }));
+    return;
+  }
+
+  if (method === "GET" && url.pathname === "/api/governance/competitor-decisions/approved") {
+    await runProtectedRoute(res, () => handleCompetitorDecisionApprovedGet(req, res, url, {
+      sendJson,
+    }));
+    return;
+  }
+
+  if (method === "POST" && url.pathname === "/api/governance/competitor-decisions/approve") {
+    await runProtectedRoute(res, () => handleCompetitorDecisionApprovalPost(req, res, url, {
+      sendJson,
+      parseJsonBody,
+      requireWingmanPermission,
+    }));
     return;
   }
 

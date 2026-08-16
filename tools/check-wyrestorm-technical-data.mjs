@@ -118,6 +118,14 @@ for (const [index, profile] of payload.profiles.entries()) {
     errors.push(`${sku || prefix} has invalid status ${profile?.status}.`);
   }
 
+  // "Verified" requires a human: a profile may only claim the verified status
+  // when a human recorded confirmation of the spec-critical fields in
+  // `verifiedBy`. Machine-transcribed profiles must stay at
+  // verified-with-warning (which renders at the official-structured tier).
+  if (profile?.status === "verified" && !String(profile?.verifiedBy ?? "").trim()) {
+    errors.push(`${sku || prefix} claims verified status without a human verifiedBy - machine data must stay at verified-with-warning.`);
+  }
+
   if (!nonEmptyArray(profile?.transport)) errors.push(`${sku || prefix} must define transport.`);
   if (!Array.isArray(profile?.ports)) errors.push(`${sku || prefix} ports must be an array.`);
   if (!Array.isArray(profile?.dependencies)) errors.push(`${sku || prefix} dependencies must be an array.`);
@@ -136,7 +144,12 @@ for (const [index, profile] of payload.profiles.entries()) {
   }
 
   if (profile?.status !== "review-required") {
-    if (!String(profile?.maxResolution ?? "").trim() && ["AVOIP", "MATRIX", "VIDEO_WALL", "MULTIVIEW", "HDBASET", "PRESENTATION"].includes(profile?.productClass)) {
+    const hasVideoIo = (profile?.ports ?? []).some((port) => port?.category === "video");
+    if (
+      hasVideoIo &&
+      !String(profile?.maxResolution ?? "").trim() &&
+      ["AVOIP", "MATRIX", "VIDEO_WALL", "MULTIVIEW", "HDBASET", "PRESENTATION"].includes(profile?.productClass)
+    ) {
       errors.push(`${sku || prefix} verified video profile must define maxResolution.`);
     }
     if (!nonEmptyArray(profile?.dependencies) && profile?.productClass === "AVOIP") {

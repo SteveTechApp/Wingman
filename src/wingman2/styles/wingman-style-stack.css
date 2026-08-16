@@ -15732,7 +15732,7 @@ main.wm-product-pitch-page .wm-product-pitch-result-list > .wm-product-pitch-res
 }
 
 .wm-product-pitch-page .wm-product-pitch-result-card:hover,
-.wm-product-pitch-page .wm-product-pitch-result-card:focus-visible {
+.wm-product-pitch-page .wm-product-pitch-result-card:focus-within {
   border-color: rgba(77, 238, 224, 0.72) !important;
   background: rgba(20, 184, 166, 0.12) !important;
   box-shadow: 0 0 0 2px rgba(77, 238, 224, 0.24);
@@ -15759,6 +15759,11 @@ main.wm-product-pitch-page .wm-product-pitch-result-list > .wm-product-pitch-res
   color: var(--wm-text);
   font-size: 0.92rem;
   font-weight: 800;
+  text-decoration: none;
+}
+.wm-product-pitch-page .wm-product-pitch-result-name:hover {
+  color: var(--wm-link, #38bdf8);
+  text-decoration: underline;
 }
 
 .wm-product-pitch-page .wm-product-pitch-result-family {
@@ -23750,6 +23755,96 @@ body .wm-pcc-product-mode .wm-pcc-preview .wm-pcc-visual-studio-button {
   color: var(--wm-ref-muted, #8798aa);
 }
 
+.wm-proof__provenance {
+  display: inline-block;
+  margin: 4px 4px 0 0;
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.wm-proof__provenance--verified {
+  color: var(--wm-ref-green, #24d6a3);
+}
+
+a.wm-proof__provenance--verified {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+a.wm-proof__provenance--verified:hover {
+  text-decoration: underline;
+}
+
+.wm-proof__provenance--official {
+  color: var(--wm-ref-cyan, #38bdf8);
+}
+
+.wm-proof__provenance--inferred {
+  color: var(--wm-ref-amber, #f5a524);
+}
+
+.wm-proof__provenance--unverified {
+  color: var(--wm-ref-muted, #8798aa);
+}
+
+.wm-proof__weakest {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.wm-proof__weakest--verified {
+  background: rgba(36, 214, 163, 0.16);
+  color: var(--wm-ref-green, #24d6a3);
+}
+
+.wm-proof__weakest--official {
+  background: rgba(56, 189, 248, 0.16);
+  color: var(--wm-ref-cyan, #38bdf8);
+}
+
+.wm-proof__weakest--inferred {
+  background: rgba(245, 165, 36, 0.16);
+  color: var(--wm-ref-amber, #f5a524);
+}
+
+.wm-proof__weakest--unverified {
+  background: rgba(135, 152, 170, 0.16);
+  color: var(--wm-ref-muted, #8798aa);
+}
+
+.wm-proof__provenance-legend h4 {
+  margin: 0 0 6px;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--wm-ref-text, #f7fbff);
+}
+
+.wm-proof__provenance-legend p {
+  margin: 0;
+  font-size: 0.76rem;
+  color: var(--wm-ref-copy, #c6d3e1);
+}
+
+.wm-proof__provenance-copy {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.7rem;
+  color: var(--wm-ref-muted, #8798aa);
+}
+
 .wm-proof__advantages h4,
 .wm-proof__cautions h4,
 .wm-proof__sources h4 {
@@ -25357,3 +25452,110 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
 .wm-decision-compatibility-alert article strong { color:#ffd4da; font-size:.76rem; }
 .wm-decision-compatibility-alert article p { margin:0; color:#d9b9c0; font-size:.7rem; line-height:1.45; }
 .wm-decision-compatibility-alert article span { color:#ffbdc7; font-size:.68rem; font-weight:750; }
+
+/* Governed-data badges on compare match cards and the coverage strip. */
+.compare-native-governance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.compare-native-governance-badge.is-verified {
+  color: #c9ffe9;
+  background: rgba(16, 94, 61, 0.55);
+  border-color: rgba(36, 214, 163, 0.55);
+}
+.compare-native-governance-badge.is-warn {
+  color: #ffe8bd;
+  background: rgba(94, 63, 12, 0.55);
+  border-color: rgba(245, 165, 36, 0.55);
+}
+.compare-product-info-card__facts .compare-native-governance-badge {
+  margin-top: 0;
+  white-space: normal;
+}
+/* Reviewer trail under governed badges (Product Pitch + Catalog cards). */
+.wm-product-pitch-result-card .wm-governed-reviewer-trail {
+  grid-column: 1 / -1;
+  margin-top: 2px;
+}
+.wm-governed-reviewer-trail {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 8px;
+  font-size: 0.72rem;
+}
+.wm-governed-reviewer-trail__reviewer {
+  color: #4ade80;
+  font-weight: 700;
+}
+.wm-governed-reviewer-trail__fields {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: rgba(74, 222, 128, 0.14);
+  color: #4ade80;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.wm-governed-reviewer-trail__evidence {
+  color: #38bdf8;
+  font-size: 0.68rem;
+  text-decoration: underline;
+  word-break: break-all;
+}
+.compare-native-governance-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+}
+.compare-native-governance-strip__dot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #24d6a3;
+  box-shadow: 0 0 0 4px rgba(36, 214, 163, 0.18);
+}
+.compare-native-governance-strip p {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+}
+.compare-native-governance-strip p strong {
+  font-size: 0.82rem;
+}
+.compare-native-governance-strip p span {
+  color: var(--wm-ref-muted, #8798aa);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+/* Governed-data badge on Product Pitch selector rows: the result card is a
+   fixed 4-column grid, so the badge spans the full row beneath the aligned
+   columns instead of breaking the grid layout. */
+.wm-product-pitch-page .wm-product-pitch-result-card .compare-native-governance-badge {
+  grid-column: 1 / -1;
+  margin-top: 4px;
+}
+
+/* Governed-data badge on catalog product cards: align with the card's own
+   compact badge row so the data tier reads as part of the card summary. */
+.wm-catalog-product-card .compare-native-governance-badge {
+  margin-top: 6px;
+}

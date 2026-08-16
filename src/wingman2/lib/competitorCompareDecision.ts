@@ -144,16 +144,6 @@ export type CompareDecisionResult = {
 };
 
 const ROLE_EQUIVALENTS: Record<string, string[]> = {
-  "wireless casting": [
-    "wireless presentation",
-    "wireless casting dongle",
-    "casting dongle",
-    "presentation dongle",
-    "casting button",
-    "wireless button",
-    "wireless casting transmitter",
-    "wireless presentation transmitter",
-  ],
   encoder: ["transmitter", "source endpoint", "tx"],
   decoder: ["receiver", "display endpoint", "rx"],
   transmitter: ["encoder", "source endpoint", "tx"],
@@ -175,6 +165,13 @@ const ROLE_EQUIVALENTS: Record<string, string[]> = {
     "wireless presentation",
     "wireless collaboration",
     "wireless casting",
+    // The Apollo casting dongle (APO-DG2) is the wireless-presentation
+    // endpoint itself - a competitor described as a wireless casting dongle
+    // (e.g. ClickShare Button, ScreenBeam) must not be blocked as a role
+    // mismatch against the presentation-switcher lane.
+    "wireless casting dongle",
+    "wireless presentation dongle",
+    "casting dongle",
     "room presentation and source switching core",
   ],
   "video bar": [

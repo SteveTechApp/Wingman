@@ -21,6 +21,7 @@ import {
   type SpecSheet,
 } from "../../lib/compareSpecEngine";
 import { BattleCard, type BattleStat } from "./BattleCard";
+import { CompareConfidenceTier, TONE_GLYPH, type CompareConfidenceTone } from "./CompareConfidenceTier";
 import { CompareProofTable } from "./CompareProofTable";
 
 export type ShowdownStatus = "idle" | "loading" | "verified" | "unverified" | "missing";
@@ -63,6 +64,38 @@ function wyrestormFootnote(sheet: SpecSheet): string {
     default:
       return "Confirm current WyreStorm datasheet before quoting";
   }
+}
+
+/**
+ * Plain-language explanations of what each spec field means, aimed at an
+ * inexperienced rep who may not know what "chroma" or "routed outputs" are.
+ * Shown under the stat value on both battle cards in the Side-by-side view.
+ */
+const FIELD_PLAIN: Record<string, string> = {
+  transport: "How the product moves the signal — cable type or network. Same means a like-for-like install.",
+  resolution: "The highest picture size it can carry. 4K is ultra high definition; less looks softer on large screens.",
+  chroma: "How much colour detail the picture carries. 4:4:4 is full colour; 4:2:0 keeps less colour detail.",
+  hdr: "High dynamic range — a brighter, more lifelike picture on HDR screens.",
+  bandwidth: "How much video data the connection carries per second — more headroom handles higher resolution and smoother motion.",
+  hdmiIn: "How many sources (laptops, players) connect directly.",
+  hdmiOut: "How many screens it can drive directly.",
+  routedIn: "How many sources the switcher accepts.",
+  routedOut: "How many displays it can route to at once.",
+  usb: "Whether USB devices (cameras, keyboards, touchscreens) pass through the connection.",
+  audio: "How audio is handled — embedded in the video, or broken out to speakers and audio systems.",
+  control: "How the system is controlled — IR, RS-232 or IP — and whether control passes through.",
+  distance: "The longest cable run supported without signal loss.",
+  poe: "Whether it can be powered over the network cable — fewer power supplies and adapters in the rack.",
+};
+
+/**
+ * Plain-language take on whether the row's difference matters for a typical
+ * room. Same text on both cards so the pair reads as one verdict, not two.
+ */
+function mattersFor(verdict: ShowdownMatch["verdicts"][number]["verdict"]): string {
+  if (verdict === "unverified") return "Not yet verified — confirm both datasheets before quoting.";
+  if (verdict === "match") return "The same on both sides — nothing to explain to the customer.";
+  return "They differ — the stronger side is highlighted. Check whether this room actually needs it.";
 }
 
 /** Pair up the two cards' stats so equal labels get win/lose highlighting. */
@@ -189,11 +222,15 @@ function buildAlignedStats(match: ShowdownMatch): {
       label: conciseLabel(verdict.field, verdict.label),
       value: verdict.competitorValue,
       highlight: highlight(verdict, "competitor"),
+      hint: FIELD_PLAIN[verdict.field],
+      matters: mattersFor(verdict.verdict),
     })),
     wyrestorm: selected.map((verdict) => ({
       label: conciseLabel(verdict.field, verdict.label),
       value: verdict.wyrestormValue,
       highlight: highlight(verdict, "wyrestorm"),
+      hint: FIELD_PLAIN[verdict.field],
+      matters: mattersFor(verdict.verdict),
     })),
   };
 }
@@ -207,7 +244,17 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function buildOnePagerHtml(competitor: SpecSheet, match: ShowdownMatch): string {
+/**
+ * Build the printable customer one-pager. `tier` carries the same explicit
+ * confidence label (with its colour-blind-safe glyph) the on-screen verdict
+ * lead / side-by-side header shows, so the print export and the screen can
+ * never disagree. Exported for the render tests.
+ */
+export function buildOnePagerHtml(
+  competitor: SpecSheet,
+  match: ShowdownMatch,
+  tier?: ShowdownVerdictTier,
+): string {
   const ws = match.sheet;
   const rows = match.verdicts
     .map((row) => {
@@ -234,6 +281,10 @@ function buildOnePagerHtml(competitor: SpecSheet, match: ShowdownMatch): string 
   const advantages = match.advantages.map((a) => `<li>${escapeHtml(a)}</li>`).join("");
   const cautions = match.cautions.map((c) => `<li>${escapeHtml(c)}</li>`).join("");
 
+  const tierPill = tier
+    ? `<span class="decision tier tier--${tier.tone}">${TONE_GLYPH[tier.tone]} ${escapeHtml(tier.label)}</span>`
+    : "";
+
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <title>WyreStorm ${escapeHtml(ws.sku)} vs ${escapeHtml(competitor.brand)} ${escapeHtml(competitor.sku)}</title>
@@ -242,6 +293,10 @@ function buildOnePagerHtml(competitor: SpecSheet, match: ShowdownMatch): string 
   h1{font-size:22px;margin:0 0 4px}
   .sub{color:#475569;margin:0 0 18px;font-size:13px}
   .decision{display:inline-block;background:#0f766e;color:#fff;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:16px}
+  .tier{background:#fff;border:1.5px solid;margin-left:8px}
+  .tier--strong{color:#166534;border-color:#166534}
+  .tier--confirm,.tier--pending{color:#b45309;border-color:#b45309}
+  .tier--none{color:#b91c1c;border-color:#b91c1c}
   table{border-collapse:collapse;width:100%;font-size:13px;margin-bottom:18px}
   th,td{border:1px solid #cbd5e1;padding:7px 9px;text-align:left;vertical-align:top}
   thead th{background:#0f172a;color:#fff}
@@ -255,7 +310,7 @@ function buildOnePagerHtml(competitor: SpecSheet, match: ShowdownMatch): string 
 </style></head><body>
 <h1>Why we recommend WyreStorm ${escapeHtml(ws.sku)} to replace ${escapeHtml(competitor.brand)} ${escapeHtml(competitor.sku)}</h1>
 <p class="sub">${escapeHtml(ws.name)} · ${escapeHtml(ws.family)}</p>
-<span class="decision">${DECISION_LABEL[match.decision]}</span>
+<span class="decision">${DECISION_LABEL[match.decision]}</span>${tierPill}
 <p class="rating"><strong>${match.matchedFields} of ${match.comparableFields}</strong> independently verified specification fields match or exceed the competitor product (${match.rating}% verified match rating). Every value below is taken from the cited manufacturer documentation — nothing is estimated.</p>
 <table>
 <thead><tr><th>Specification</th><th>${escapeHtml(competitor.brand)} ${escapeHtml(competitor.sku)}</th><th>WyreStorm ${escapeHtml(ws.sku)}</th><th>Verdict</th></tr></thead>
@@ -269,15 +324,26 @@ ${cautions ? `<h2>Items to confirm during design review</h2><ul>${cautions}</ul>
 </body></html>`;
 }
 
-function openOnePager(competitor: SpecSheet, match: ShowdownMatch): void {
+function openOnePager(competitor: SpecSheet, match: ShowdownMatch, tier?: ShowdownVerdictTier): void {
   const printWindow = window.open("", "_blank", "noopener=false");
   if (!printWindow) return;
   printWindow.document.open();
-  printWindow.document.write(buildOnePagerHtml(competitor, match));
+  printWindow.document.write(buildOnePagerHtml(competitor, match, tier));
   printWindow.document.close();
 }
 
 /* ---------------------------------------------------------------- component */
+
+/**
+ * The Compare page's explicit confidence tier (Strong direction / Plausible -
+ * confirm / Evidence pending / No equivalent), rendered as the same chip the
+ * Recommendation tab's verdict lead shows. Optional: the showdown is a generic
+ * evidence view and can render without it.
+ */
+export type ShowdownVerdictTier = {
+  label: string;
+  tone: CompareConfidenceTone;
+};
 
 export function CompareShowdown({
   brand,
@@ -287,6 +353,7 @@ export function CompareShowdown({
   view = "all",
   selectedWyrestormSku,
   onSelectedWyrestormSkuChange,
+  verdictTier,
 }: {
   brand: string;
   competitorSku: string;
@@ -295,6 +362,7 @@ export function CompareShowdown({
   view?: ShowdownView;
   selectedWyrestormSku?: string;
   onSelectedWyrestormSkuChange?: (sku: string) => void;
+  verdictTier?: ShowdownVerdictTier;
 }) {
   const [result, setResult] = useState<ShowdownResult | null>(null);
   const [status, setStatus] = useState<ShowdownStatus>("idle");
@@ -373,6 +441,9 @@ export function CompareShowdown({
     <section className="wm-showdown wm-ui-card" aria-live="polite">
       {view !== "proof" ? <header className="wm-showdown__header">
         <div>
+          {verdictTier ? (
+            <CompareConfidenceTier label={verdictTier.label} tone={verdictTier.tone} />
+          ) : null}
           <h3>{result.verified ? "Verified head-to-head" : "Head-to-head comparison"}</h3>
           <p>
             <span className={`wm-showdown__decision wm-showdown__decision--${match.decision}`}>
@@ -403,7 +474,7 @@ export function CompareShowdown({
               </select>
             </label>
           ) : null}
-          <button type="button" className="wm-ui-button wm-ui-button-primary" onClick={() => openOnePager(result.competitor, match)}>
+          <button type="button" className="wm-ui-button wm-ui-button-primary" onClick={() => openOnePager(result.competitor, match, verdictTier)}>
             Print customer one-pager
           </button>
         </div>

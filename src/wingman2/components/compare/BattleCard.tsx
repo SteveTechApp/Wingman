@@ -13,6 +13,10 @@ export type BattleStat = {
   label: string;
   value: string;
   highlight?: "win" | "lose" | "draw" | null;
+  /** Plain-language explanation of what this field means (for an inexperienced rep). */
+  hint?: string;
+  /** Plain-language note on whether the difference matters for a typical room. */
+  matters?: string;
 };
 
 export function buildBattleStats(sheet: SpecSheet, rating: number | null): BattleStat[] {
@@ -150,6 +154,8 @@ export function BattleCard({
                 >
                   <dt>{stat.label}</dt>
                   <dd>{stat.value}</dd>
+                  {stat.hint ? <p className="wm-battle-card__stat-hint">{stat.hint}</p> : null}
+                  {stat.matters ? <p className="wm-battle-card__stat-matters">{stat.matters}</p> : null}
                 </div>
               ))}
             </dl>

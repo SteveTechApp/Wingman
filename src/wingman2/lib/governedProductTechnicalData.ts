@@ -1,5 +1,6 @@
 import governedTechnicalProfiles from "../../../data/governance/wyrestorm-technical-profiles.json";
 import type {
+  GovernedReviewerTrail,
   ProductSpec,
   ProductTechnicalDataSummary,
 } from "./productStoryEngine";
@@ -30,6 +31,15 @@ type TechnicalEvidence = {
 type GovernedProfileRecord = {
   sku: string;
   status: "verified" | "verified-with-warning" | "review-required";
+  /**
+   * Human who confirmed the spec-critical fields (max resolution, routed I/O,
+   * power). A profile is only truly `verified` when a human is recorded here:
+   * machine-transcribed profiles omit it and render at the official-structured
+   * tier until confirmed.
+   */
+  verifiedBy?: string;
+  /** Spec-critical fields the reviewer signed off (max-resolution, routed-io, power). */
+  confirmedFields?: string[];
   productClass: string;
   role: string;
   productType: string;
@@ -86,6 +96,8 @@ export type ResolvedProductTechnicalData = {
   sourceTier: NonNullable<CompareDecisionProfile["sourceTier"]>;
   sourceUrl?: string;
   statusLabel: string;
+  /** Reviewer trail when this product's governed profile is human-verified. */
+  reviewerTrail?: GovernedReviewerTrail;
   compare: {
     domain?: string;
     role?: string;
@@ -538,12 +550,42 @@ function exactEvidence(profile: GovernedProfileRecord): string[] {
 function exactProfileData(profile: GovernedProfileRecord): ResolvedProductTechnicalData {
   const ioSummary = unique(profile.ports.map(portLabel));
   const missingFields: string[] = [];
+  // "Verified" requires a human: a machine-transcribed profile (status
+  // promoted by the batch gate) is official-page data, not human-confirmed
+  // data, and must render at the official-structured tier until a human
+  // records confirmation in `verifiedBy`.
+  const humanVerified = profile.status === "verified" && Boolean(profile.verifiedBy?.trim());
   const sourceTier: NonNullable<CompareDecisionProfile["sourceTier"]> =
-    profile.status === "review-required" ? "official-structured" : "verified-profile";
+    humanVerified ? "verified-profile" : "official-structured";
   const evidence = exactEvidence(profile);
+  // The reviewer trail mirrors the dashboard's verified list: the latest
+  // evidence entry carries the official source the reviewer confirmed against.
+  const latestEvidence = profile.evidence[profile.evidence.length - 1];
+  const reviewerTrail: GovernedReviewerTrail | undefined = humanVerified
+    ? {
+        verifiedBy: profile.verifiedBy?.trim() || "Human reviewer",
+        reviewedOn: latestEvidence?.reviewedOn?.trim() ?? "",
+        confirmedFields: profile.confirmedFields ?? [],
+        evidenceUrl: latestEvidence?.sourceUrl?.trim() ?? "",
+      }
+    : undefined;
+  // maxResolution is a video-product requirement: profiles with no video I/O
+  // AND no mandatory host dependency (USB extenders, audio endpoints) are
+  // compare-ready without a video format. Products with a mandatory dependency
+  // (e.g. the APO-DG2 dongle needing a receiver/base device) are workflow
+  // endpoints, not standalone equivalents, and must never look compare-ready.
+  const hasVideoIo = (profile.ports ?? []).some((port) => port.category === "video");
+  const hasMandatoryDependency = (profile.dependencies ?? []).length > 0;
+  const resolutionRequired = hasVideoIo || hasMandatoryDependency;
   const compareReady =
     profile.status !== "review-required" &&
-    Boolean(profile.productClass && profile.role && profile.transport.length && profile.maxResolution && evidence.length);
+    Boolean(
+      profile.productClass &&
+        profile.role &&
+        profile.transport.length &&
+        (resolutionRequired ? profile.maxResolution : true) &&
+        evidence.length,
+    );
 
   return {
     sku: normaliseSku(profile.sku),
@@ -574,12 +616,10 @@ function exactProfileData(profile: GovernedProfileRecord): ResolvedProductTechni
     compareReady,
     sourceTier,
     sourceUrl: profile.evidence[0]?.sourceUrl,
-    statusLabel:
-      profile.status === "verified"
-        ? "Verified governed profile"
-        : profile.status === "verified-with-warning"
-          ? "Verified profile with warning"
-          : "Official profile requiring review",
+    statusLabel: humanVerified
+      ? "Verified governed profile"
+      : "Official profile requiring review",
+    reviewerTrail,
     compare: {
       domain: profile.productClass,
       role: profile.role,
@@ -910,7 +950,7 @@ export function resolveProductTechnicalData(
         ? "Official data - incomplete"
         : sourceTier === "text-inferred"
           ? "Text-inferred - review only"
-          : "Technical data missing",
+          : "Technical data not resolved",
     compare: {
       domain,
       role,
@@ -951,6 +991,7 @@ function technicalSummary(
     evidence: resolved.evidence,
     missingFields: resolved.missingFields,
     warnings: resolved.warnings,
+    reviewerTrail: resolved.reviewerTrail,
   };
 }
 

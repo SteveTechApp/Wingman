@@ -45,7 +45,7 @@ export type DependencyGovernanceInput = {
   compareRun?: StoredCompareRun | null;
 };
 
-type DependencyQuantityBasis = "one" | "source-count" | "display-count";
+type DependencyQuantityBasis = "one" | "source-count" | "display-count" | "source-unit-count";
 
 type ExactDependencyRule = {
   id: string;
@@ -88,7 +88,7 @@ export const EXACT_DEPENDENCY_RULES: ExactDependencyRule[] = [
     maxDistanceMetres: 35,
     distanceFallbackTerms: ["short distance", "short-distance", "shorter distance", "shorter run", "short run"],
     skipWhenUsbNotRequired: true,
-    qtyBasis: "one",
+    qtyBasis: "source-unit-count",
     trigger: "SW-130-TX family transmitter selected with a short-distance receive path.",
     evidence: "RX-500 is a valid shorter-distance HDBaseT receiver path for SW-130/APO-style products.",
     validationQuestion: "Confirm the actual cable distance, required resolution, USB/control needs, and cable grade before treating RX-500 as final.",
@@ -109,7 +109,7 @@ export const EXACT_DEPENDENCY_RULES: ExactDependencyRule[] = [
     allowUnknownDistance: true,
     excludedCombinedTerms: ["short distance", "short-distance", "shorter distance", "shorter run", "short run"],
     skipWhenUsbNotRequired: true,
-    qtyBasis: "one",
+    qtyBasis: "source-unit-count",
     trigger: "SW-130-TX family transmitter selected without a confirmed short-distance receiver path.",
     evidence: "Catalog receiver record identifies RX-700 as the longer-distance receiver path for SW-130-TX.",
     validationQuestion: "Confirm the receiver location, cable path, required resolution, USB/control needs, and whether an existing compatible receiver is already in scope.",
@@ -125,7 +125,7 @@ export const EXACT_DEPENDENCY_RULES: ExactDependencyRule[] = [
     status: "required",
     confidence: "High",
     sourceSkus: ["SW-120-TX3", "SW-120-TX3-UK"],
-    qtyBasis: "one",
+    qtyBasis: "source-unit-count",
     trigger: "SW-120-TX3 family transmitter selected.",
     evidence: "Catalog transmitter and receiver records cross-reference SW-120-TX3 and RX3-100.",
     validationQuestion: "Confirm whether RX3-100 or the paired matrix input path is the intended receive side, and validate cable grade and USB/control requirements.",
@@ -453,6 +453,17 @@ function distanceEvidenceForRule(rule: ExactDependencyRule, input: DependencyGov
   return " Distance basis: not confirmed.";
 }
 
+function selectedSourceUnits(rule: ExactDependencyRule, input: DependencyGovernanceInput) {
+  const sourceSkus = rule.sourceSkus ?? [];
+  return input.products
+    .filter((product) => sourceSkus.some((sku) => normaliseSku(sku) === normaliseSku(product.sku)))
+    .reduce((sum, product) => {
+      const explicit = Number(product.quantity);
+      if (Number.isFinite(explicit) && explicit > 0) return sum + Math.floor(explicit);
+      return sum + (numericBasis(input.discovery.sourceCount) ?? 1);
+    }, 0);
+}
+
 function quantityForRule(rule: ExactDependencyRule, input: DependencyGovernanceInput) {
   if (rule.qtyBasis === "source-count") {
     return numericBasis(input.discovery.sourceCount) ?? 1;
@@ -462,11 +473,28 @@ function quantityForRule(rule: ExactDependencyRule, input: DependencyGovernanceI
     return numericBasis(input.discovery.displayCount) ?? numericBasis(input.discovery.displays) ?? 1;
   }
 
+  // A pairing dependency (receiver for a transmitter) must follow how many
+  // source units were actually selected, not assume a single-unit project.
+  if (rule.qtyBasis === "source-unit-count") {
+    return selectedSourceUnits(rule, input) || 1;
+  }
+
   return 1;
 }
 
 function confidenceForRule(rule: ExactDependencyRule, input: DependencyGovernanceInput) {
   if (rule.qtyBasis === "source-count" && !numericBasis(input.discovery.sourceCount)) {
+    return "Low" satisfies DependencyConfidence;
+  }
+
+  if (
+    rule.qtyBasis === "source-unit-count" &&
+    !input.products.some((product) => {
+      const explicit = Number(product.quantity);
+      return Number.isFinite(explicit) && explicit > 0;
+    }) &&
+    !numericBasis(input.discovery.sourceCount)
+  ) {
     return "Low" satisfies DependencyConfidence;
   }
 

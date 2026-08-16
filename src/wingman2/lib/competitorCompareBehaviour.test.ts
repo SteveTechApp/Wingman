@@ -339,6 +339,21 @@ describe("competitor compare runtime behaviour", () => {
       expect(leadSkus[0]).toMatch(/^SW-(620|640L)-TX-W$/);
       expect(leadSkus.indexOf("APO-DG2")).toBeGreaterThan(0);
     });
+
+    it("leads with APO-DG2 for a competitor described as a wireless casting dongle (role-equivalence regression)", () => {
+      const result = runCompareRuntimePipeline("wireless casting dongle byod presentation ClickShare Button", products, "Barco", 12);
+      const leadSkus = skus(result.matches).slice(0, 4);
+
+      // A casting dongle is the wireless-presentation endpoint itself: the
+      // dongle must lead AND carry a real accepted decision, not a false
+      // role-mismatch NO MATCH ("wireless casting dongle" was not in
+      // ROLE_EQUIVALENTS["presentation switcher"]).
+      expect(leadSkus[0]).toBe("APO-DG2");
+      const dg2 = (result.matches as AnyRecord[]).find((match) => sku(match) === "APO-DG2");
+      expect(dg2?.decision).toBeDefined();
+      expect(dg2?.decision.outcome).not.toBe("NO MATCH");
+      expect(String(dg2?.decision.blockers ?? [])).not.toMatch(/role mismatch/i);
+    });
   });
 
   it("never positions end-of-life SKUs (CAM-200-PTZ, APO-200-UC) as compare candidates", () => {
