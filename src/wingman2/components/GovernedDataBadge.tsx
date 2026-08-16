@@ -16,11 +16,9 @@ export function governedBadgeMeta(tier?: string, label?: string): { text: string
     case "text-inferred":
       return { text: "Inferred data - review before use", className: "is-warn" };
     default:
-      // The resolver's statusLabel for a profile-less product is "Technical
-      // data missing" - the same state as this badge's canonical copy. Always
-      // use the canonical string for the missing tier so every surface
-      // (Compare, Product Pitch, Catalog) shows one consistent wording instead
-      // of a second label leaking through.
+      // The missing tier always renders the canonical copy - the resolver
+      // itself emits it now, and this keeps any stale caller (or a label-only
+      // unknown tier) from leaking a second wording onto a surface.
       if (tier === "missing") {
         return { text: "Technical data not resolved", className: "is-warn" };
       }
