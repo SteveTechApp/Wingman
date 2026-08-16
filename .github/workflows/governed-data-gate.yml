@@ -1,0 +1,69 @@
+name: Governed Data Gate
+
+# The full governed batch gate (`govern:wyrestorm`) rewritten in check-only form
+# for CI. PRs touching the governed profiles must pass the strict coverage gate,
+# the technical-data baseline check and the badge/copy render gate before they
+# can land - with nothing applied or written by CI.
+#
+# `--apply` and `--update-baseline` are deliberately absent: the batch workflow
+# is a local authoring tool that writes promotions and baselines, and CI must
+# only ever verify a PR's committed state, never mutate it.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'data/governance/**'
+      - 'data-sources/wyrestorm/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'data/governance/**'
+      - 'data-sources/wyrestorm/**'
+
+permissions:
+  contents: read
+
+jobs:
+  governed-data-gate:
+    name: Governed Data Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Check-only mirror of `govern --apply --strict`. `--strict` without
+      # `--apply` runs the strict coverage gate in dry-run: it fails when any
+      # active-lead profile still needs human-curated data instead of writing
+      # the promotion.
+      - name: Run governed profile strict gate
+        run: node tools/govern-wyrestorm-profiles.mjs --strict
+
+      # Compares against the committed coverage baseline in
+      # tools/wyrestorm-technical-data-coverage-baseline.json.
+      # `--update-baseline` is intentionally not passed so CI never rewrites it.
+      - name: Check technical data against baseline
+        run: npm run check:technical-data:strict
+
+      - name: Audit technical data
+        run: node tools/audit-wyrestorm-technical-data.mjs
+
+      - name: Run technical-data engine tests
+        run: npm run check:technical-data-tests
+
+      # The badge honesty and copy-consistency render gate: every compare /
+      # product pitch / catalog match-card badge must read "Verified governed
+      # data", the profile-stripped honesty paths must stay honest, and the
+      # legacy "Technical data missing" wording must not reappear anywhere in
+      # app code, docs or data sources.
+      - name: Run governed badge and copy render gate
+        run: npm run check:governed-coverage-render
