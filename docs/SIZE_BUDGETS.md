@@ -92,6 +92,30 @@ The limits are meant to travel **downward**.
 
 Never raise a limit merely to make a red build green. That defeats the ratchet.
 
+## Approved exceptions
+
+### 2026-08-16 — Compare confidence-tier and evidence-trace feature work
+
+Reviewed exception recorded in `tools/wingman-size-budgets.json` (and
+`tools/wingman-style-drift-baseline.json` for style drift) for the compare
+confidence-tier system and the honest project evidence trace. Five size limits
+and one style-drift metric were raised to their measured values:
+
+| Limit | Before | After | Growth | Cause |
+|---|---|---|---|---|
+| `chunk:competitor-registry` | 1,205,382 | 1,272,898 | +67,516 B | governed competitor-decision ledger (33 approved rows, ~15 K lines) embedded in the chunk |
+| `total:js` | 5,413,076 | 5,555,290 | +142,214 B | the ledger plus new modules (`CompareConfidenceTier`, `CompetitorDecisionReviewQueue`, snapshot guard) |
+| `total:css` | 929,919 | 947,967 | +18,048 B | tier chip tones + glyphs, verdict-lead banner, projects-list tier badge, print styles |
+| `source:compare-advanced` | 277,904 | 293,297 | +15,393 B | verdict-tier helper, chip plumbing, approved-ledger promotion, strong-direction coupling fix |
+| `source:project-detail` | 62,053 | 62,989 | +936 B | evidence-trace default-expand fix, typed-SKU deep-link helper |
+| style-drift `pageSections` | 2,650 | 2,674 | +24 | new page-specific CSS sections for the same tier/badge styles |
+
+Growth was minimised by extracting the chip (`CompareConfidenceTier.tsx`) and
+the decision queue (`CompetitorDecisionReviewQueue.tsx`) into their own
+modules. The remaining weight is the target of the Phase 2/4/7/8 extraction
+programme named in each artefact's remediation, so these limits should travel
+back downward as that refactor lands.
+
 ## Adding a new tracked artefact
 
 Add an entry to `TRACKED_ENTRIES` in `tools/lib/wingman-size-budgets.mjs`
