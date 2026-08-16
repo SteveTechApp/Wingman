@@ -25357,3 +25357,76 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
 .wm-decision-compatibility-alert article strong { color:#ffd4da; font-size:.76rem; }
 .wm-decision-compatibility-alert article p { margin:0; color:#d9b9c0; font-size:.7rem; line-height:1.45; }
 .wm-decision-compatibility-alert article span { color:#ffbdc7; font-size:.68rem; font-weight:750; }
+
+/* Governed-data badges on compare match cards and the coverage strip. */
+.compare-native-governance-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.compare-native-governance-badge.is-verified {
+  color: #c9ffe9;
+  background: rgba(16, 94, 61, 0.55);
+  border-color: rgba(36, 214, 163, 0.55);
+}
+.compare-native-governance-badge.is-warn {
+  color: #ffe8bd;
+  background: rgba(94, 63, 12, 0.55);
+  border-color: rgba(245, 165, 36, 0.55);
+}
+.compare-product-info-card__facts .compare-native-governance-badge {
+  margin-top: 0;
+  white-space: normal;
+}
+.compare-native-governance-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+}
+.compare-native-governance-strip__dot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #24d6a3;
+  box-shadow: 0 0 0 4px rgba(36, 214, 163, 0.18);
+}
+.compare-native-governance-strip p {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+}
+.compare-native-governance-strip p strong {
+  font-size: 0.82rem;
+}
+.compare-native-governance-strip p span {
+  color: var(--wm-ref-muted, #8798aa);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+/* Governed-data badge on Product Pitch selector rows: the result card is a
+   fixed 4-column grid, so the badge spans the full row beneath the aligned
+   columns instead of breaking the grid layout. */
+.wm-product-pitch-page .wm-product-pitch-result-card .compare-native-governance-badge {
+  grid-column: 1 / -1;
+  margin-top: 4px;
+}
+
+/* Governed-data badge on catalog product cards: align with the card's own
+   compact badge row so the data tier reads as part of the card summary. */
+.wm-catalog-product-card .compare-native-governance-badge {
+  margin-top: 6px;
+}

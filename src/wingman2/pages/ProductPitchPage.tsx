@@ -17,6 +17,7 @@ import {
   type ProductSalesContext,
 } from "../lib/productPitchGuidance";
 import { CompareBackToListButton } from "../components/compare/CompareBackToListButton";
+import { GovernedDataBadge } from "../components/GovernedDataBadge";
 import { ProductFilterPanel, ProductSearchField, ProductWorkspaceHeader, ProductWorkspaceNav } from "../components/ProductWorkspaceChrome";
 import { ReportProblemButton } from "../components/ReportProblemButton";
 import { AdminProductRecordEditor } from "../components/AdminProductRecordEditor";
@@ -423,6 +424,7 @@ function SelectionPage({
       <span className="wm-product-pitch-result-status" data-label="Status">
         {decisionBySku.get(normaliseSkuKey(product.sku))?.lifecycleLabel ?? "Needs verification"}
       </span>
+      <GovernedDataBadge tier={product.technicalData?.sourceTier} label={product.technicalData?.statusLabel} />
     </button>
   );
 
@@ -1038,6 +1040,7 @@ function ProductWorkspace({
           <div>
             <p className={`${PRODUCT_PITCH_KICKER_CLASS} text-cyan-300`}>Product positioning</p>
             <h1 className={`${PRODUCT_PITCH_HERO_TITLE_CLASS} text-cyan-200`}>{product.sku}</h1>
+            <GovernedDataBadge tier={product.technicalData?.sourceTier} label={product.technicalData?.statusLabel} />
             <h2 className={`mt-1 ${PRODUCT_PITCH_SECTION_TITLE_CLASS} text-white`}>{product.name}</h2>
             <p className="mt-3 max-w-4xl text-sm leading-6 wm-ui-copy">{narrative.headline}</p>
           </div>

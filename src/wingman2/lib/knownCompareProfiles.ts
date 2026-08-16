@@ -2,6 +2,7 @@ const C88CS_SAFE_PROFILE_SUMMARY = "8x8 HDBaseT matrix. Routes multiple HDMI sou
 const LIGHTWARE_MMX4X2_SAFE_PROFILE_SUMMARY = "4x2 HDMI matrix switcher. Routes four HDMI sources to two independently routed HDMI outputs. Treat as a compact local HDMI matrix, not an 8x8 system.";
 const AVPRO_4X4_HDBT_SAFE_PROFILE_SUMMARY = "4x4 HDBaseT matrix intent. Routes four HDMI sources to four independently routed display zones. Confirm the exact AVPro SKU because AC-EX SKUs are extender-family products, while AC-MX SKUs are matrix-family products.";
 import { hydrateWyrestormCompareProfile } from "./knownWyrestormCompareProfiles";
+import { resolveProductTechnicalData } from "./governedProductTechnicalData";
 import { enrichWyrestormProductWithKnownMatrixProfile } from "./knownWyrestormMatrixProfiles";
 import { resolveWyrestormSkuAlias, skuAliasMatches, normaliseSkuKey } from "./skuAliasResolver";
 
@@ -398,11 +399,21 @@ function makeMatch(candidate: PreferredCandidate, product: AnyRecord): AnyRecord
     ...product,
     sku: productSku(product) || candidate.sku,
   });
+  // The known-profile hydrator sets specTier but never the compare profile's
+  // sourceTier, so the governed registry is authoritative for the data tier
+  // surfaced on match cards (verified governed data vs review/inferred).
+  const governed = resolveProductTechnicalData(hydratedProduct);
+  const wyrestorm = {
+    ...hydratedProduct,
+    sourceTier: governed.sourceTier ?? "missing",
+    sourceLabel: governed.statusLabel || "Technical data not resolved",
+    readiness: governed.compareReady ? "compare-ready" : "verify-only",
+  };
 
   return {
     sku: productSku(hydratedProduct) || resolveWyrestormSkuAlias(candidate.sku),
     name: productName(hydratedProduct),
-    wyrestorm: hydratedProduct,
+    wyrestorm,
     decision: {
       outcome: candidate.outcome,
       confidence: candidate.confidence,

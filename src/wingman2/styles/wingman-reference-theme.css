@@ -1220,3 +1220,56 @@ button.wingman-guru-fab[data-wingman-guru-floating-active="true"]
   transform: none !important;
 }
 /* WINGMAN_SINGLE_GURU_BADGE_END */
+
+/* Governed product-data coverage strip on the dashboard. */
+.wm-dashboard-coverage-strip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 11px 14px;
+  color: var(--wm-ref-text);
+  background: linear-gradient(145deg, rgba(12, 38, 34, 0.85), rgba(7, 22, 24, 0.9));
+  border: 1px solid rgba(36, 214, 163, 0.4);
+  border-radius: 12px;
+}
+.wm-dashboard-coverage-strip__dot {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--wm-ref-green);
+  box-shadow: 0 0 0 4px rgba(36, 214, 163, 0.18);
+}
+.wm-dashboard-coverage-strip p {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  flex: 1 1 auto;
+}
+.wm-dashboard-coverage-strip p strong {
+  font-size: 0.88rem;
+}
+.wm-dashboard-coverage-strip p small {
+  color: var(--wm-ref-muted);
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+.wm-dashboard-coverage-strip__link {
+  color: var(--wm-ref-aqua) !important;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none !important;
+  white-space: nowrap;
+}
+.wm-dashboard-coverage-strip__link:hover {
+  text-decoration: underline !important;
+}
+@media (max-width: 640px) {
+  .wm-dashboard-coverage-strip {
+    flex-wrap: wrap;
+  }
+  .wm-dashboard-coverage-strip__link {
+    margin-left: 22px;
+  }
+}

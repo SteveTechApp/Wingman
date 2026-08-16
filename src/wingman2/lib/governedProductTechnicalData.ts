@@ -541,9 +541,23 @@ function exactProfileData(profile: GovernedProfileRecord): ResolvedProductTechni
   const sourceTier: NonNullable<CompareDecisionProfile["sourceTier"]> =
     profile.status === "review-required" ? "official-structured" : "verified-profile";
   const evidence = exactEvidence(profile);
+  // maxResolution is a video-product requirement: profiles with no video I/O
+  // AND no mandatory host dependency (USB extenders, audio endpoints) are
+  // compare-ready without a video format. Products with a mandatory dependency
+  // (e.g. the APO-DG2 dongle needing a receiver/base device) are workflow
+  // endpoints, not standalone equivalents, and must never look compare-ready.
+  const hasVideoIo = (profile.ports ?? []).some((port) => port.category === "video");
+  const hasMandatoryDependency = (profile.dependencies ?? []).length > 0;
+  const resolutionRequired = hasVideoIo || hasMandatoryDependency;
   const compareReady =
     profile.status !== "review-required" &&
-    Boolean(profile.productClass && profile.role && profile.transport.length && profile.maxResolution && evidence.length);
+    Boolean(
+      profile.productClass &&
+        profile.role &&
+        profile.transport.length &&
+        (resolutionRequired ? profile.maxResolution : true) &&
+        evidence.length,
+    );
 
   return {
     sku: normaliseSku(profile.sku),
@@ -910,7 +924,7 @@ export function resolveProductTechnicalData(
         ? "Official data - incomplete"
         : sourceTier === "text-inferred"
           ? "Text-inferred - review only"
-          : "Technical data missing",
+          : "Technical data not resolved",
     compare: {
       domain,
       role,
