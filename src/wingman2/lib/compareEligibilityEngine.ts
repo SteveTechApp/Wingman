@@ -612,6 +612,10 @@ function productIsSupportOnly(sku: string, text: string): string | null {
     // competitor's own product is a wireless casting dongle.
     /^APODG2/.test(key) ||
     /^SW020[46]VW$/.test(key) ||
+    // SW-620/640-TX-W are the wireless presentation switchers themselves -
+    // primary hardware, never support items (their box-contents copy mentions
+    // an included PSU, which must not flip them into a "power accessory").
+    /^SW6/.test(key) ||
     /^MX/.test(key) ||
     /^MV0401PRO$/.test(key) ||
     /^EX/.test(key);
@@ -632,7 +636,11 @@ function productIsSupportOnly(sku: string, text: string): string | null {
     return "Controller cannot be a lead replacement for signal transport hardware.";
   }
 
-  if (/^PSU|^PWR|POWERADAPTER|POWERSUPPLY/.test(key) || /\b(power supply|psu|power accessory)\b/i.test(value)) {
+  // Power wording is matched on the SKU identity ONLY. A primary product's
+  // box-contents copy routinely mentions an included PSU ("20V 10A power
+  // supply"), so matching on description text turns real hardware into
+  // "power accessories" - see SW-640L-TX-W / AMP-260-DNT.
+  if (/^PSU|^PWR|POWERADAPTER|POWERSUPPLY/.test(key)) {
     return "Power accessory cannot be a lead replacement candidate.";
   }
 
@@ -755,13 +763,18 @@ export function evaluateProductEligibility(args: {
       return blocked(sku, args.intent, [networkMismatch]);
     }
   }
+  const explicitCastingDongleRequest = /\b(?:casting|wireless|presentation)\s+(?:dongle|button|transmitter)\b|\b(?:dongle|casting button|wireless button|clickshare button)\b/i.test(args.competitorText);
+  const isExplicitDg2Match =
+    sku.toUpperCase() === "APO-DG2" &&
+    explicitCastingDongleRequest;
 
   const supportOnlyReason = productIsSupportOnly(sku, combined);
   const isUcRoomHardware =
     /\b(video\s*bar|conference\s*bar|conferencing\s*bar|uc\s*room\s*(?:product|endpoint)|all-in-one.*(?:camera|conferencing)|integrated\s+camera)\b/i.test(combined);
   const isRoleMatchedPrimaryProduct =
     ((args.intent === "ndi-camera" || args.intent === "ptz-camera") && /^CAM/.test(key)) ||
-    ((args.intent === "uc-byod" || args.intent === "usb-audio") && isUcRoomHardware);
+    ((args.intent === "uc-byod" || args.intent === "usb-audio") && isUcRoomHardware)
+    || isExplicitDg2Match;
   const invalidLeadReason = isRoleMatchedPrimaryProduct
     ? null
     : invalidLeadReasonForIntent(supportOnlyReason, args.intent);
@@ -896,6 +909,12 @@ export function evaluateProductEligibility(args: {
         "A wireless presentation transmitter does not replace an all-in-one UC video bar with an integrated camera, microphones and speakers.",
       ]);
     }
+    if (isExplicitDg2Match) {
+      return direct(args.intent, [
+        "Explicit casting-dongle requirement matched to APO-DG2.",
+        "Required dependency: APO-DG2 must be paired with a compatible WyreStorm wireless presentation switcher or UC soundbar.",
+      ], 0);
+    }
 
     if (wirelessPresentationSwitcher) {
       const size = extractMatrixSizeFromText(args.competitorText);
@@ -959,18 +978,24 @@ export function evaluateProductEligibility(args: {
   }
 
   if (args.intent === "wireless-casting") {
-    if (/^NHD/.test(key) || /\b(avoip|networkhd|encoder|decoder|transceiver|transmitter|receiver)\b/i.test(combined)) {
-      return blocked(sku, args.intent, ["This is a wireless presentation workflow, not an AVoIP endpoint comparison. Do not lead with NetworkHD here."]);
-    }
-
     // A competitor described specifically as a "dongle" is a simple casting
     // accessory, not a multi-input switcher or a full UC room bar - lead with
     // APO-DG2 (the WyreStorm casting dongle) instead of a switcher/video-bar
     // nudge in that specific case.
     const competitorIsDongle = /\bdongle\b/i.test(args.competitorText);
 
+    // SW-* wireless presentation switchers are the lead answer for this lane,
+    // and must be checked BEFORE the AVoIP-endpoint wording block below: their
+    // catalogue copy routinely contains generic "encoder / transmitter" and
+    // "receiver" words (search terms, application questions) that would
+    // otherwise flip the actual wireless switcher into a blocked NetworkHD
+    // impostor - see SW-640L-TX-W.
     if (/^SW/.test(key) && /\b(wireless|casting|miracast|airplay|chromecast|presentation)\b/i.test(combined)) {
       return direct(args.intent, ["Wireless presentation switcher candidate."], competitorIsDongle ? 30 : -90);
+    }
+
+    if (/^NHD/.test(key) || /\b(avoip|networkhd|av-over-ip|encoder|decoder|transceiver)\b/i.test(combined)) {
+      return blocked(sku, args.intent, ["This is a wireless presentation workflow, not an AVoIP endpoint comparison. Do not lead with NetworkHD here."]);
     }
 
     if (/\b(apollo|wireless|casting|miracast|airplay|chromecast)\b/i.test(combined) || /^APO/.test(key)) {
