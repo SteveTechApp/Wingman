@@ -122,6 +122,14 @@ function clampConfidence(value, fallback = 0.6) {
   return Number(clampNumber(value, 0, 1, fallback).toFixed(3));
 }
 
+function pickInt(value) {
+  return Number.isFinite(value) ? Math.trunc(value) : undefined;
+}
+
+function pickText(value) {
+  return tidy(value) || undefined;
+}
+
 function normalizeUrl(value) {
   const raw = tidy(value);
   if (!raw) return "";
@@ -502,7 +510,7 @@ async function writeJsonFile(filePath, payload) {
   await fs.writeFile(filePath, JSON.stringify(payload, null, 2), "utf8");
 }
 
-function mapCatalogRecord(raw, vendorType, capturedAt) {
+export function mapCatalogRecord(raw, vendorType, capturedAt) {
   const brand = vendorType === "wyrestorm" ? "WyreStorm" : tidy(raw?.brand) || "Unknown";
   const sku = normalizeSku(raw?.sku);
   if (!sku) return null;
@@ -538,6 +546,24 @@ function mapCatalogRecord(raw, vendorType, capturedAt) {
     lastReviewedAt: vendorType === "wyrestorm" ? capturedAt : undefined,
     reviewedBy: vendorType === "wyrestorm" ? "seed-catalog" : undefined,
     evidence: [],
+    // Routed I/O and matrix-size evidence, carried from the canonical store /
+    // competitor catalog so the runtime state matches the evidence authority
+    // (data/governance/routed-io-evidence.json) by construction.
+    routedInputs: pickInt(raw?.routedInputs),
+    routedOutputs: pickInt(raw?.routedOutputs),
+    routedInputCount: pickInt(raw?.routedInputCount),
+    routedOutputCount: pickInt(raw?.routedOutputCount),
+    matrixInputs: pickInt(raw?.matrixInputs),
+    matrixOutputs: pickInt(raw?.matrixOutputs),
+    matrixSize: pickText(raw?.matrixSize),
+    matrixSizeEvidence: pickText(raw?.matrixSizeEvidence),
+    ioEvidenceStatus: pickText(raw?.ioEvidenceStatus),
+    quoteSafety: pickText(raw?.quoteSafety),
+    physicalOutputs: pickInt(raw?.physicalOutputs),
+    physicalOutputCount: pickInt(raw?.physicalOutputCount),
+    mirroredOutputs: pickInt(raw?.mirroredOutputs),
+    mirroredOutputCount: pickInt(raw?.mirroredOutputCount),
+    physicalVideoOutputCount: pickInt(raw?.physicalVideoOutputCount),
   };
 
   record.tags = tagsFromRecord(record);
@@ -545,7 +571,7 @@ function mapCatalogRecord(raw, vendorType, capturedAt) {
   return record;
 }
 
-function sanitizeRecord(raw, fallback = {}) {
+export function sanitizeRecord(raw, fallback = {}) {
   const vendorType = sanitizeVendorType(raw?.vendorType || fallback.vendorType, "competitor");
   const brand = tidy(raw?.brand || fallback.brand) || (vendorType === "wyrestorm" ? "WyreStorm" : "Unknown");
   const sku = normalizeSku(raw?.sku || fallback.sku);
@@ -612,6 +638,23 @@ function sanitizeRecord(raw, fallback = {}) {
     productTruth: safeStructuredObject(raw?.productTruth ?? fallback.productTruth),
     equivalence: safeStructuredObject(raw?.equivalence ?? fallback.equivalence),
     history: asArray(raw?.history ?? fallback.history).slice(-30),
+    // Routed I/O and matrix-size evidence (see mapCatalogRecord): kept on the
+    // sanitized record so a server boot can never strip the evidence the
+    // compare feature reads from the runtime state.
+    routedInputs: pickInt(raw?.routedInputs ?? fallback.routedInputs),
+    routedOutputs: pickInt(raw?.routedOutputs ?? fallback.routedOutputs),
+    routedInputCount: pickInt(raw?.routedInputCount ?? fallback.routedInputCount),
+    routedOutputCount: pickInt(raw?.routedOutputCount ?? fallback.routedOutputCount),
+    matrixInputs: pickInt(raw?.matrixInputs ?? fallback.matrixInputs),
+    matrixOutputs: pickInt(raw?.matrixOutputs ?? fallback.matrixOutputs),
+    matrixSize: pickText(raw?.matrixSize ?? fallback.matrixSize),
+    matrixSizeEvidence: pickText(raw?.matrixSizeEvidence ?? fallback.matrixSizeEvidence),
+    ioEvidenceStatus: pickText(raw?.ioEvidenceStatus ?? fallback.ioEvidenceStatus),
+    quoteSafety: pickText(raw?.quoteSafety ?? fallback.quoteSafety),
+    physicalOutputs: pickInt(raw?.physicalOutputs ?? fallback.physicalOutputs),
+    physicalOutputCount: pickInt(raw?.physicalOutputCount ?? fallback.physicalOutputCount),
+    mirroredOutputCount: pickInt(raw?.mirroredOutputCount ?? fallback.mirroredOutputCount),
+    physicalVideoOutputCount: pickInt(raw?.physicalVideoOutputCount ?? fallback.physicalVideoOutputCount),
   };
 
   if (record.tags.length === 0) {
@@ -651,7 +694,7 @@ function mergeRecord(seedRecord, existingRecord) {
   return merged;
 }
 
-async function buildSeedRecords(existingRecords = []) {
+export async function buildSeedRecords(existingRecords = []) {
   const capturedAt = nowIso();
   const wyrestormCanonical = await readJsonFile(WINGMAN_CANONICAL_PRODUCT_STORE_FILE, { products: [] });
   const wyrestormRows = asArray(wyrestormCanonical?.products)
