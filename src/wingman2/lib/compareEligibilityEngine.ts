@@ -733,6 +733,172 @@ function matrixFitPenalty(competitorText: string, sku: string, text: string): nu
   return penalty;
 }
 
+type ExtenderStructuralFitFacts = {
+  distanceMeters: number | null;
+  hasUsbExtension: boolean;
+  hasKvm: boolean;
+};
+
+type ExtenderStructuralAssessment = {
+  directCapable: boolean;
+  fitPenalty: number;
+  reasons: string[];
+};
+
+/**
+ * Reads advertised extension reach from text.
+ *
+ * Distance is never inferred from the SKU number. It must come from structured
+ * data or an explicit metres/feet statement.
+ */
+function deriveAdvertisedDistanceMeters(text: string): number | null {
+  const metres = Array.from(
+    text.matchAll(/(\d+(?:\.\d+)?)\s*m(?:eters?|etres?)?\b/gi),
+  )
+    .map((match) => Number(match[1]))
+    .filter((value) => Number.isFinite(value) && value > 0 && value < 20000);
+
+  const feet = Array.from(
+    text.matchAll(/(\d+(?:\.\d+)?)\s*(?:ft|feet|foot)\b/gi),
+  )
+    .map((match) => Number(match[1]) * 0.3048)
+    .filter((value) => Number.isFinite(value) && value > 0 && value < 20000);
+
+  const values = [...metres, ...feet];
+
+  return values.length > 0 ? Math.max(...values) : null;
+}
+
+function deriveExtenderStructuralFitFacts(
+  value: unknown,
+  extraText = "",
+): ExtenderStructuralFitFacts {
+  const record: LooseRecord =
+    value && typeof value === "object" && !Array.isArray(value)
+      ? (value as LooseRecord)
+      : {};
+
+  const specs: LooseRecord =
+    record.specs && typeof record.specs === "object" && !Array.isArray(record.specs)
+      ? (record.specs as LooseRecord)
+      : {};
+
+  const technicalProfile: LooseRecord =
+    record.technicalProfile &&
+    typeof record.technicalProfile === "object" &&
+    !Array.isArray(record.technicalProfile)
+      ? (record.technicalProfile as LooseRecord)
+      : {};
+
+  const technicalSpecs: LooseRecord =
+    technicalProfile.specs &&
+    typeof technicalProfile.specs === "object" &&
+    !Array.isArray(technicalProfile.specs)
+      ? (technicalProfile.specs as LooseRecord)
+      : {};
+
+  const text = normalise([value, extraText]);
+
+  const structuredDistance = numberFromValue(
+    record.hdbasetDistance ??
+      record.distanceMeters ??
+      specs.hdbasetDistance ??
+      specs.distanceMeters ??
+      technicalProfile.hdbasetDistance ??
+      technicalProfile.distanceMeters ??
+      technicalSpecs.hdbasetDistance ??
+      technicalSpecs.distanceMeters ??
+      technicalProfile.hdbaset?.distanceMeters ??
+      technicalProfile.hdbaset?.distance,
+  );
+
+  const distanceMeters =
+    structuredDistance ??
+    deriveAdvertisedDistanceMeters(text);
+
+  const hasKvm =
+    /\bkvm\b/i.test(text) ||
+    /\bkeyboard\b.{0,80}\bmouse\b/i.test(text) ||
+    /\bmouse\b.{0,80}\bkeyboard\b/i.test(text);
+
+  // A bare USB-C video input is not USB extension evidence.
+  const hasUsbExtension =
+    hasKvm ||
+    /\busb[\s_-]*(?:2(?:\.0)?|3(?:\.\d+)?|host|device|extension|extender|over[\s_-]*ip)\b/i.test(
+      text,
+    );
+
+  return {
+    distanceMeters: distanceMeters ?? null,
+    hasUsbExtension,
+    hasKvm,
+  };
+}
+
+function scoreExtenderStructuralFit(
+  required: ExtenderStructuralFitFacts,
+  candidate: ExtenderStructuralFitFacts,
+): ExtenderStructuralAssessment {
+  let directCapable = true;
+  let fitPenalty = 0;
+  const reasons: string[] = [];
+
+  if (required.distanceMeters !== null) {
+    if (candidate.distanceMeters === null) {
+      directCapable = false;
+      fitPenalty += 120;
+      reasons.push(
+        `Required extender reach is ${Math.round(required.distanceMeters)}m, but the candidate's supported reach is not evidenced.`,
+      );
+    } else if (candidate.distanceMeters < required.distanceMeters) {
+      directCapable = false;
+      fitPenalty += 180;
+      reasons.push(
+        `Candidate reach (${Math.round(candidate.distanceMeters)}m) is below the required ${Math.round(required.distanceMeters)}m.`,
+      );
+    } else if (candidate.distanceMeters <= required.distanceMeters * 1.25) {
+      fitPenalty -= 30;
+      reasons.push(
+        `Candidate reach (${Math.round(candidate.distanceMeters)}m) closely covers the required ${Math.round(required.distanceMeters)}m.`,
+      );
+    } else {
+      fitPenalty += 5;
+      reasons.push(
+        `Candidate reach (${Math.round(candidate.distanceMeters)}m) covers the required ${Math.round(required.distanceMeters)}m with additional headroom.`,
+      );
+    }
+  }
+
+  if (required.hasKvm) {
+    if (!candidate.hasKvm) {
+      directCapable = false;
+      fitPenalty += 180;
+      reasons.push(
+        "KVM/USB host-control transport is required, but no KVM capability is evidenced on this candidate.",
+      );
+    } else {
+      fitPenalty -= 25;
+      reasons.push("Candidate provides the required KVM/USB host-control path.");
+    }
+  } else if (required.hasUsbExtension) {
+    if (!candidate.hasUsbExtension) {
+      directCapable = false;
+      fitPenalty += 150;
+      reasons.push(
+        "USB extension is required, but no USB extension capability is evidenced on this candidate.",
+      );
+    } else {
+      fitPenalty -= 20;
+      reasons.push("Candidate provides the required USB extension path.");
+    }
+  }
+
+  return {
+    directCapable,
+    fitPenalty,
+    reasons,
+  };
+}
 export function evaluateProductEligibility(args: {
   intent: CompareIntentKind;
   competitorText: string;
@@ -932,20 +1098,81 @@ export function evaluateProductEligibility(args: {
 
   if (args.intent === "extender") {
     if (/^MX|^SW/.test(key) || /\b(presentation|matrix|switcher)\b/i.test(combined)) {
-      return alternative(args.intent, ["ARCHITECTURE ALTERNATIVE: candidate changes the room architecture rather than replacing the point-to-point HDBaseT extender path."], 65);
+      return alternative(
+        args.intent,
+        [
+          "ARCHITECTURE ALTERNATIVE: candidate changes the room architecture rather than replacing the point-to-point HDBaseT extender path.",
+        ],
+        65,
+      );
     }
+
+    const requiredExtenderFit = deriveExtenderStructuralFitFacts(
+      args.competitorText,
+    );
+
+    const candidateExtenderFit = deriveExtenderStructuralFitFacts(
+      product,
+      combined,
+    );
+
+    const structuralFit = scoreExtenderStructuralFit(
+      requiredExtenderFit,
+      candidateExtenderFit,
+    );
 
     if (/^NHDUSBTRX$/.test(key) && /\busb\b/i.test(args.competitorText)) {
-      return direct(args.intent, ["USB extension-over-IP candidate for USB/KVM workflow."], -20);
+      if (!structuralFit.directCapable) {
+        return related(
+          args.intent,
+          structuralFit.reasons,
+          Math.max(90, structuralFit.fitPenalty),
+        );
+      }
+
+      return direct(
+        args.intent,
+        [
+          "USB extension-over-IP candidate for USB/KVM workflow.",
+          ...structuralFit.reasons,
+        ],
+        -20 + structuralFit.fitPenalty,
+      );
     }
 
-    if (/^EX|^RX|^TX/.test(key) || /\b(extender|extension|hdbaset|hdbt|transmitter|receiver|usb\s*(2\.0|3\.0|extension|extender))\b/i.test(combined)) {
-      return direct(args.intent, ["Extension candidate for point-to-point transport."], 0);
+    if (
+      /^EX|^RX|^TX/.test(key) ||
+      /\b(extender|extension|hdbaset|hdbt|transmitter|receiver|usb\s*(2\.0|3\.0|extension|extender))\b/i.test(
+        combined,
+      )
+    ) {
+      if (!structuralFit.directCapable) {
+        return related(
+          args.intent,
+          [
+            "Extender architecture is relevant, but the candidate does not have enough evidenced capability for a direct replacement.",
+            ...structuralFit.reasons,
+          ],
+          Math.max(90, structuralFit.fitPenalty),
+        );
+      }
+
+      return direct(
+        args.intent,
+        [
+          "Extension candidate for point-to-point transport.",
+          ...structuralFit.reasons,
+        ],
+        structuralFit.fitPenalty,
+      );
     }
 
-    return related(args.intent, ["Related product, but not a direct extender lead."], 80);
+    return related(
+      args.intent,
+      ["Related product, but not a direct extender lead."],
+      80,
+    );
   }
-
   if (args.intent === "ndi-camera") {
     if (/^CAM/.test(key) && /NDI/.test(key)) {
       return direct(args.intent, ["WyreStorm NDI camera candidate for a camera-role comparison."], -120);
