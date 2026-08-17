@@ -1,11 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
+import { isCurrentCatalogProduct } from "./lib/current-catalog.mjs";
 
 const root = process.cwd();
 const strict = process.argv.includes("--strict");
 const updateBaseline = process.argv.includes("--update-baseline");
 const profilePath = path.join(root, "data", "governance", "wyrestorm-technical-profiles.json");
 const productPath = path.join(root, "data-sources", "wyrestorm", "products.csv");
+const canonicalStorePath = path.join(root, "data", "wingman-canonical-product-store.json");
 const coverageBaselinePath = path.join(root, "tools", "wyrestorm-technical-data-coverage-baseline.json");
 
 function fail(message) {
@@ -214,6 +216,140 @@ if (strict && (missing.length || awaitingReview.length)) {
   console.error(
     "[technical-data] Strict coverage failed: every active lead SKU needs a VERIFIED governed profile " +
       `(${missing.length} missing, ${awaitingReview.length} still awaiting review).`,
+  );
+  process.exit(1);
+}
+
+// ---------------------------------------------------------------------------
+// Current-catalog completeness gate
+// ---------------------------------------------------------------------------
+// Hard floor, enforced in both strict and ratchet modes and before any
+// baseline write: every product the website currently lists as a specifiable
+// lead (active, or review with a captured official page; never discontinued,
+// do-not-spec or cable/accessory) must have SOME governed profile. A
+// review-required profile counts - it is evidence-attached and honestly
+// renders at the official-structured tier. This closes the lifecycle blind
+// spot the active-only CSV check had (review products with no profile), using
+// the exact predicate the campaign tool drafts from so the gate fails
+// precisely when tools/draft-missing-technical-profiles.mjs would draft.
+//
+// The honesty badge contract is untouched: products outside this set
+// (discontinued, accessories, not-yet-in-catalog) legitimately render
+// "Technical data not resolved" at runtime, and that honesty path is pinned by
+// check:governed-coverage-render.
+
+if (!fs.existsSync(canonicalStorePath)) {
+  console.error(
+    "[technical-data] Missing canonical product store - run `npm run data:canonical-products` " +
+      "before this gate (CI generates it in the data stage).",
+  );
+  process.exit(1);
+}
+
+const canonical = readJson(canonicalStorePath);
+const currentProducts = (canonical.products ?? []).filter(isCurrentCatalogProduct);
+const currentMissing = currentProducts.filter((product) => !seen.has(normaliseSku(product.sku)));
+const currentStatusCounts = { verified: 0, "verified-with-warning": 0, "review-required": 0 };
+for (const product of currentProducts) {
+  const status = statusBySku.get(normaliseSku(product.sku)) ?? "missing";
+  if (status in currentStatusCounts) currentStatusCounts[status] += 1;
+}
+
+console.log(
+  `[technical-data] Current catalog: ${currentProducts.length} specifiable lead products ` +
+    `(${currentStatusCounts.verified} verified, ${currentStatusCounts["verified-with-warning"]} verified-with-warning, ` +
+    `${currentStatusCounts["review-required"]} review-required, ${currentMissing.length} with no profile).`,
+);
+
+if (currentMissing.length) {
+  console.error(
+    "[technical-data] Current-catalog coverage FAILED: " +
+      `${currentMissing.length} product(s) have no governed profile: ${currentMissing
+        .map((product) => normaliseSku(product.sku))
+        .slice(0, 40)
+        .join(", ")}${currentMissing.length > 40 ? ", ..." : ""}.`,
+  );
+  console.error(
+    "Every current, specifiable WyreStorm product must have a governed profile - run\n" +
+      "`node tools/draft-missing-technical-profiles.mjs --check` to see the draftable set, or\n" +
+      "`--apply` to draft it as review-required before the next batch.",
+  );
+  process.exit(1);
+}
+
+// ---------------------------------------------------------------------------
+// Confirmation aging gate
+// ---------------------------------------------------------------------------
+// A machine-transcribed profile (review-required or verified-with-warning)
+// becomes verified only when a human confirms the spec-critical fields and
+// records verifiedBy. Time is the enforcement lever: profiles left unconfirmed
+// past the warn threshold are flagged (the dashboard surfaces the same list),
+// and past the fail threshold this gate hard-fails - the manual confirmation
+// backlog must be worked, not parked. Thresholds live in
+// data/governance/profile-confirmation-aging.json, the single source shared
+// with the dashboard module, so the gate and the UI can never disagree.
+// Undatable profiles (no evidence timestamp at all) count as overdue: their
+// freshness cannot be verified. This gate runs before the baseline ratchet on
+// purpose - a --update-baseline run must not paper over an overdue backlog.
+
+const agingConfigPath = path.join(root, "data", "governance", "profile-confirmation-aging.json");
+if (!fs.existsSync(agingConfigPath)) {
+  console.error("[technical-data] Missing confirmation-aging config: " + agingConfigPath);
+  process.exit(1);
+}
+const agingConfig = readJson(agingConfigPath);
+const WARN_AFTER_DAYS = Number(agingConfig.warnAfterDays) || 14;
+const FAIL_AFTER_DAYS = Number(agingConfig.failAfterDays) || 30;
+
+const DAY_MS = 86_400_000;
+
+function profileAgeDays(profile) {
+  let newest = "";
+  for (const evidence of profile?.evidence ?? []) {
+    const date = String(evidence?.reviewedOn ?? "").trim() || String(evidence?.checkedAt ?? "").slice(0, 10);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date) && date > newest) newest = date;
+  }
+  if (!newest) return null;
+  const age = Math.floor((Date.now() - Date.parse(`${newest}T00:00:00Z`)) / DAY_MS);
+  return Number.isFinite(age) && age >= 0 ? age : null;
+}
+
+const unconfirmedProfiles = payload.profiles.filter(
+  (profile) => profile.status === "review-required" || profile.status === "verified-with-warning",
+);
+const agedProfiles = unconfirmedProfiles
+  .map((profile) => ({ sku: normaliseSku(profile.sku), ageDays: profileAgeDays(profile) }))
+  .sort((a, b) => (b.ageDays ?? -1) - (a.ageDays ?? -1) || a.sku.localeCompare(b.sku));
+const agingList = agedProfiles.filter((entry) => entry.ageDays !== null && entry.ageDays >= WARN_AFTER_DAYS);
+const overdueList = agedProfiles.filter((entry) => entry.ageDays === null || entry.ageDays >= FAIL_AFTER_DAYS);
+
+if (agedProfiles.length) {
+  const describeAge = (entry) =>
+    `${entry.sku} (${entry.ageDays === null ? "no evidence timestamp" : `${entry.ageDays}d`})`;
+  console.log(
+    `[technical-data] Confirmation aging: ${agedProfiles.length} unconfirmed profile(s); ` +
+      `${agingList.length} past the ${WARN_AFTER_DAYS}-day warn threshold, ` +
+      `${overdueList.length} past the ${FAIL_AFTER_DAYS}-day fail threshold.`,
+  );
+  if (agingList.length) {
+    console.warn(
+      `[technical-data] WARNING - awaiting confirmation (${agingList.length}): ` +
+        agingList.map(describeAge).join(", "),
+    );
+  }
+}
+
+if (overdueList.length) {
+  console.error(
+    `[technical-data] Confirmation aging FAILED: ${overdueList.length} profile(s) are overdue for human ` +
+      `confirmation (past ${FAIL_AFTER_DAYS} days, or undatable):\n  ` +
+      overdueList.map(describeAge).join("\n  "),
+  );
+  console.error(
+    "A machine-transcribed profile renders at the official-structured tier until a reviewer confirms the\n" +
+      "spec-critical fields and records verifiedBy. Confirm the overdue profiles (dashboard confirmation\n" +
+      "card, or npm run check:governed-review-pass) before the next batch - the backlog must be worked,\n" +
+      "not parked.",
   );
   process.exit(1);
 }

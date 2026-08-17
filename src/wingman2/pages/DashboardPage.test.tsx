@@ -37,14 +37,14 @@ describe("DashboardPage", () => {
 
     const card = screen.getByLabelText("Profiles awaiting human confirmation");
     expect(card.textContent).toContain("Profiles awaiting human confirmation");
-    // The 2026-08-16 review passes confirmed 117 of the 130 governed profiles;
-    // the 13 that remain all need data work first (the ready set was exhausted).
-    expect(card.textContent).toContain("13 awaiting");
-    expect(card.textContent).toContain("117/130 human-confirmed");
+    // The 2026-08-16 review passes confirmed 117 of the 134 governed profiles;
+    // the 17 that remain all need data work first (the ready set was exhausted).
+    expect(card.textContent).toContain("17 awaiting");
+    expect(card.textContent).toContain("117/134 human-confirmed");
     expect(card.textContent).toContain("0 ready to confirm");
     // A real profile row with its spec-critical field state (the card lists
     // the first eight awaiting profiles alphabetically).
-    expect(card.textContent).toContain("HALO-30");
+    expect(card.textContent).toContain("APO-DG-DOCK");
     expect(card.textContent).toContain("Power - missing data");
     expect(card.textContent).toMatch(/and [0-9]+ more awaiting confirmation/);
   });
@@ -107,9 +107,9 @@ describe("DashboardPage", () => {
     renderDashboard();
 
     const card = screen.getByLabelText("Profiles awaiting human confirmation");
-    const haloRow = within(card).getByText("HALO-30").closest("li");
-    expect(haloRow).not.toBeNull();
-    const button = within(haloRow as HTMLElement).getByRole("button", { name: "Add data first" });
+    const dockRow = within(card).getByText("APO-DG-DOCK").closest("li");
+    expect(dockRow).not.toBeNull();
+    const button = within(dockRow as HTMLElement).getByRole("button", { name: "Add data first" });
     expect((button as HTMLButtonElement).disabled).toBe(true);
   });
 

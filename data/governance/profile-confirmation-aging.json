@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "warnAfterDays": 14,
+  "failAfterDays": 30,
+  "note": "A machine-transcribed profile (review-required or verified-with-warning) becomes verified only when a human confirms the spec-critical fields and records verifiedBy. warnAfterDays flags profiles whose confirmation is overdue for review (visible on the dashboard); failAfterDays hard-fails the technical-data gate so the manual confirmation backlog is enforced, not just displayed. Age is measured from the profile's newest evidence timestamp (reviewedOn / checkedAt). Shared by tools/check-wyrestorm-technical-data.mjs and src/wingman2/lib/governedConfirmationBacklog.ts so the gate and the dashboard can never disagree."
+}

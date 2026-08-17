@@ -9,6 +9,10 @@ import {
   splitList,
   truthy,
 } from "./product-update-utils.mjs";
+import {
+  applyRoutedIoEvidence,
+  loadRoutedIoEvidence,
+} from "./lib/routed-io-evidence.mjs";
 
 const root = process.cwd();
 const checkOnly = process.argv.includes("--check");
@@ -789,6 +793,25 @@ async function buildMaintenanceOutputs(products, competitors, _manifest) {
   return { queue, report, markdown };
 }
 
+/** Emits the routed-I/O evidence authority onto the canonical WyreStorm
+ * products and the competitor catalog by SKU, so every downstream artifact
+ * (public index, server-seeded runtime state) carries it by construction. */
+function applyRoutedIoEvidenceBySku(products, competitors) {
+  const evidence = loadRoutedIoEvidence();
+  let applied = 0;
+
+  for (const record of [...products, ...competitors]) {
+    const entry = evidence[normaliseSku(record?.sku)];
+    if (!entry) continue;
+    applyRoutedIoEvidence(record, entry);
+    applied += 1;
+  }
+
+  if (applied > 0) {
+    console.log(`[product-data] Routed I/O evidence applied: ${applied} product(s).`);
+  }
+}
+
 async function main() {
   const productSourceRows = readCsv(wyrestormProductsPath);
   const lifecycleRows = readCsv(wyrestormLifecyclePath);
@@ -808,6 +831,7 @@ async function main() {
 
   const products = buildWyrestormProducts(productSourceRows, lifecycleRows, enrichmentRows);
   const competitors = await compileCompetitors();
+  applyRoutedIoEvidenceBySku(products, competitors);
   const competitorFiles = (await fs.readdir(competitorDirectory))
     .filter((name) => name.endsWith(".csv"))
     .sort()

@@ -2114,6 +2114,409 @@ function allowLocalIntelligenceDraftBypass(req, url) {
 }
 let shuttingDown = false;
 
+// ---------------------------------------------------------------------------
+// Declarative route table
+//
+// Every endpoint is one entry: method, path (or pattern), the permission gate
+// (401 / 403 via requireWingmanPermission), whether a local-only bypass skips
+// the gate, and the handler. The dispatcher below turns each entry into the
+// same uniform shape - permission gate, then handler under runProtectedRoute
+// (503 on throw) unless the handler declares `raw: true` and owns its errors.
+// ---------------------------------------------------------------------------
+
+function matchRoute(method, url) {
+  const pathname = url.pathname;
+  for (const route of ROUTES) {
+    if (route.method !== method) continue;
+    if (route.path === pathname) return route;
+    if (route.pattern) {
+      const params = pathname.match(route.pattern);
+      if (params) return { ...route, params };
+    }
+  }
+  return null;
+}
+
+const ROUTES = [
+  // --- Public introspection (no session required) ---
+  {
+    method: "GET",
+    path: "/api/health",
+    raw: true,
+    handler: (req, res) => {
+      const version = process.env.WINGMAN_VERSION || "0.1.0";
+      sendJson(res, 200, { status: "ok", timestamp: nowIso(), version });
+    },
+  },
+  {
+    method: "GET",
+    path: "/api/ready",
+    raw: true,
+    handler: async (req, res) => {
+      // Kubernetes-style readiness check - verify the server is accepting
+      // connections AND, when Supabase-backed storage is configured, that
+      // Supabase is reachable.
+      if (!server.listening || shuttingDown) {
+        sendJson(res, 503, { ready: false, timestamp: nowIso(), error: "Server is not ready to accept traffic." });
+        return;
+      }
+      const storage = await getStorageReadiness();
+      if (!storage.ready) {
+        sendJson(res, 503, { ready: false, timestamp: nowIso(), storageMode: storage.mode, error: storage.error || "Storage is not ready." });
+        return;
+      }
+      sendJson(res, 200, { ready: true, timestamp: nowIso(), storageMode: storage.mode });
+    },
+  },
+  {
+    method: "GET",
+    path: "/api/health/details",
+    raw: true,
+    handler: (req, res) => sendJson(res, 200, buildHealthPayload()),
+  },
+
+  // --- Competitor match / live lookup (authenticated) ---
+  {
+    method: "POST",
+    path: "/api/competitor/resolveMatch",
+    permission: "canViewDiagnostics",
+    deniedMessage: "Competitor match lookup requires an authenticated Wingman workspace session.",
+    raw: true, // handler owns its 500 envelope
+    handler: async (req, res, url, { parseJsonBody }) => {
+      try {
+        const body = await parseJsonBody(req);
+        const result = await resolveCompetitorMatch({
+          manufacturer: tidy(body.manufacturer),
+          model: tidy(body.model),
+          productUrl: tidy(body.productUrl),
+        });
+        // "Could not resolve a match" is a valid business outcome (the client
+        // branches on `ok`), not a malformed request - so it stays a 200 with
+        // an ok:false payload. 4xx is reserved for bad input and auth failures.
+        return sendJson(res, 200, result);
+      } catch (error) {
+        return sendJson(res, 500, { ok: false, error: error instanceof Error ? error.message : "Resolve match failed" });
+      }
+    },
+  },
+  {
+    method: "POST",
+    path: "/api/competitor/liveLookup",
+    permission: "canViewDiagnostics",
+    deniedMessage: "Competitor live lookup requires an authenticated Wingman workspace session.",
+    raw: true, // handler owns its 500 envelope
+    handler: async (req, res, url, { parseJsonBody }) => {
+      try {
+        const body = await parseJsonBody(req);
+        const result = await resolveCompetitorLiveLookup({
+          manufacturer: tidy(body.manufacturer),
+          model: tidy(body.model),
+          productUrl: tidy(body.productUrl),
+        });
+        return sendJson(res, result.ok ? 200 : 400, result);
+      } catch (error) {
+        return sendJson(res, 500, { ok: false, error: error instanceof Error ? error.message : "Live lookup failed" });
+      }
+    },
+  },
+
+  // --- Wingman app surface ---
+  {
+    method: "GET",
+    path: "/api/wingman/health",
+    handler: (req, res, url, { sendJson }) => handleWingmanHealthGet(req, res, { sendJson }),
+  },
+  {
+    method: "POST",
+    path: "/api/wingman/auth/signup",
+    handler: (req, res, url, { sendJson, parseJsonBody }) => handleWingmanAuthSignupPost(req, res, { sendJson, parseJsonBody }),
+  },
+  {
+    method: "POST",
+    path: "/api/wingman/auth/login",
+    handler: (req, res, url, { sendJson, parseJsonBody }) => handleWingmanAuthLoginPost(req, res, { sendJson, parseJsonBody }),
+  },
+  {
+    method: "GET",
+    path: "/api/wingman/auth/session",
+    handler: (req, res, url, { sendJson }) => handleWingmanAuthSessionGet(req, res, url, { sendJson }),
+  },
+  {
+    method: "POST",
+    path: "/api/wingman/auth/logout",
+    handler: (req, res, url, { sendJson }) => handleWingmanAuthLogoutPost(req, res, url, { sendJson }),
+  },
+  {
+    method: "POST",
+    path: "/api/wingman/product-report",
+    handler: (req, res, url, { sendJson, parseJsonBody }) => handleProductReportPost(req, res, url, { sendJson, parseJsonBody }),
+  },
+  {
+    method: "GET",
+    path: "/api/wingman/workspace",
+    handler: (req, res, url, { sendJson }) => handleWingmanWorkspaceGet(req, res, url, { sendJson }),
+  },
+  {
+    method: "GET",
+    path: "/api/wingman/workspace/members",
+    handler: (req, res, url, { sendJson }) => handleWingmanWorkspaceMembersGet(req, res, url, { sendJson }),
+  },
+  {
+    method: "GET",
+    path: "/api/wingman/workspace/invitations",
+    handler: (req, res, url, { sendJson }) => handleWingmanWorkspaceInvitationsGet(req, res, url, { sendJson }),
+  },
+  {
+    method: "POST",
+    path: "/api/wingman/workspace/invitations",
+    handler: (req, res, url, { sendJson, parseJsonBody }) => handleWingmanWorkspaceInvitationsPost(req, res, url, { sendJson, parseJsonBody }),
+  },
+  {
+    method: "POST",
+    path: "/api/wingman/workspace/settings",
+    handler: (req, res, url, { sendJson, parseJsonBody }) => handleWingmanWorkspaceSettingsPost(req, res, url, { sendJson, parseJsonBody }),
+  },
+  {
+    method: "GET",
+    path: "/api/wingman/projects",
+    handler: (req, res, url, { sendJson }) => handleWingmanProjectsGet(req, res, url, { sendJson }),
+  },
+  {
+    method: "POST",
+    path: "/api/wingman/projects/sync",
+    handler: (req, res, url, { sendJson, parseJsonBody }) => handleWingmanProjectsSyncPost(req, res, url, { sendJson, parseJsonBody }),
+  },
+  {
+    method: "POST",
+    pattern: /^\/api\/wingman\/workspace\/members\/([^/]+)\/role$/,
+    handler: (req, res, url, { sendJson, parseJsonBody }, params) =>
+      handleWingmanWorkspaceMemberRolePost(req, res, url, decodeURIComponent(params[1] || ""), { sendJson, parseJsonBody }),
+  },
+  {
+    method: "GET",
+    path: "/api/wingman/invitations/resolve",
+    handler: (req, res, url, { sendJson }) => handleWingmanInvitationResolveGet(req, res, url, { sendJson }),
+  },
+  {
+    method: "POST",
+    path: "/api/wingman/invitations/accept",
+    handler: (req, res, url, { sendJson, parseJsonBody }) => handleWingmanInvitationAcceptPost(req, res, url, { sendJson, parseJsonBody }),
+  },
+  {
+    method: "POST",
+    pattern: /^\/api\/wingman\/projects\/([^/]+)\/(comments|shares|attachments|mark-ready)$/,
+    handler: (req, res, url, { sendJson, parseJsonBody }, params) => {
+      const projectId = decodeURIComponent(params[1] || "");
+      const action = params[2];
+      const handlers = {
+        comments: handleWingmanProjectCommentsPost,
+        shares: handleWingmanProjectSharesPost,
+        attachments: handleWingmanProjectAttachmentsPost,
+        "mark-ready": handleWingmanProjectMarkReadyPost,
+      };
+      return handlers[action](req, res, url, projectId, { sendJson, parseJsonBody });
+    },
+  },
+  {
+    method: "GET",
+    path: "/api/wingman/governance",
+    handler: (req, res, url, { sendJson }) => handleWingmanGovernanceGet(req, res, url, { sendJson }),
+  },
+  {
+    method: "GET",
+    path: "/api/wingman/audit",
+    handler: (req, res, url, { sendJson }) => handleWingmanAuditGet(req, res, url, { sendJson }),
+  },
+  {
+    method: "GET",
+    path: "/api/wingman/telemetry",
+    handler: (req, res, url, { sendJson }) => handleWingmanTelemetryGet(req, res, url, { sendJson }),
+  },
+  {
+    method: "POST",
+    path: "/api/wingman/telemetry",
+    handler: (req, res, url, { sendJson, parseJsonBody }) => handleWingmanTelemetryPost(req, res, url, { sendJson, parseJsonBody }),
+  },
+
+  // --- Competitor lookup + runtime diagnostics (authenticated) ---
+  {
+    method: "POST",
+    path: "/api/competitor-lookup",
+    permission: "canViewDiagnostics",
+    deniedMessage: "Competitor lookup requires an authenticated Wingman workspace session.",
+    raw: true, // handleLookupRequest owns its errors
+    handler: (req, res) => handleLookupRequest(req, res),
+  },
+  {
+    method: "POST",
+    path: "/api/wingman/competitor-lookup",
+    permission: "canViewDiagnostics",
+    deniedMessage: "Competitor lookup requires an authenticated Wingman workspace session.",
+    raw: true,
+    handler: (req, res) => handleLookupRequest(req, res),
+  },
+  {
+    method: "GET",
+    path: "/api/competitor-lookup/diagnostics",
+    handler: (req, res, url) => handleLookupRuntimeDiagnosticsGet(req, res, url),
+  },
+  {
+    method: "POST",
+    path: "/api/competitor-lookup/diagnostics/clear",
+    handler: (req, res, url) => handleLookupRuntimeDiagnosticsClear(req, res, url),
+  },
+  {
+    method: "POST",
+    path: "/api/competitor-lookup/diagnostics/prune",
+    handler: (req, res, url) => handleLookupRuntimeDiagnosticsPrune(req, res, url),
+  },
+  {
+    method: "GET",
+    path: "/api/competitor-approvals",
+    handler: (req, res, url) => handleApprovalsGet(req, res, url),
+  },
+  {
+    method: "POST",
+    path: "/api/competitor-approvals",
+    handler: (req, res, url) => handleApprovalsPost(req, res, url), // handler enforces canManageWorkspace internally
+  },
+
+  // --- Governance ---
+  {
+    method: "POST",
+    path: "/api/governance/profiles/confirm",
+    handler: (req, res, url, { sendJson, parseJsonBody }) =>
+      handleProfileConfirmationPost(req, res, url, { sendJson, parseJsonBody, requireWingmanPermission }),
+  },
+  {
+    method: "GET",
+    path: "/api/governance/competitor-decisions/queue",
+    handler: (req, res, url, { sendJson }) => handleCompetitorDecisionQueueGet(req, res, url, { sendJson }),
+  },
+  {
+    method: "GET",
+    path: "/api/governance/competitor-decisions/approved",
+    handler: (req, res, url, { sendJson }) => handleCompetitorDecisionApprovedGet(req, res, url, { sendJson }),
+  },
+  {
+    method: "POST",
+    path: "/api/governance/competitor-decisions/approve",
+    handler: (req, res, url, { sendJson, parseJsonBody }) =>
+      handleCompetitorDecisionApprovalPost(req, res, url, { sendJson, parseJsonBody, requireWingmanPermission }),
+  },
+
+  // --- Product intelligence drafts (local bypass skips the gate; otherwise it
+  // --- is enforced uniformly below) ---
+  {
+    method: "GET",
+    path: "/api/intelligence/drafts",
+    permission: "canManageWorkspace",
+    deniedMessage: "Product intelligence drafts are restricted to workspace admins.",
+    localBypass: true,
+    handler: (req, res, url, { sendJson }) => handleIntelligenceDraftsGet(req, res, url, { sendJson }),
+  },
+  {
+    method: "POST",
+    path: "/api/intelligence/build-competitor",
+    permission: "canViewDiagnostics",
+    deniedMessage: "Competitor intelligence build requires an authenticated Wingman workspace session.",
+    localBypass: true,
+    handler: (req, res, url, { sendJson, parseJsonBody }) =>
+      handleIntelligenceDraftBuildCompetitorPost(req, res, url, { sendJson, parseJsonBody }),
+  },
+  {
+    method: "POST",
+    path: "/api/intelligence/build-wyrestorm",
+    permission: "canViewDiagnostics",
+    deniedMessage: "WyreStorm intelligence build requires an authenticated Wingman workspace session.",
+    localBypass: true,
+    handler: (req, res, url, { sendJson, parseJsonBody }) =>
+      handleIntelligenceDraftBuildWyrestormPost(req, res, url, { sendJson, parseJsonBody }),
+  },
+  {
+    method: "POST",
+    path: "/api/intelligence/drafts/status",
+    permission: "canManageWorkspace",
+    deniedMessage: "Product intelligence draft approval is restricted to workspace admins.",
+    localBypass: true,
+    handler: (req, res, url, { sendJson, parseJsonBody }) =>
+      handleIntelligenceDraftStatusPost(req, res, url, { sendJson, parseJsonBody }),
+  },
+
+  // --- Product intelligence store ---
+  {
+    method: "GET",
+    path: "/api/product-intelligence/health",
+    handler: (req, res, url, { sendJson }) => handleProductIntelligenceHealthGet(req, res, url, { sendJson }),
+  },
+  {
+    method: "GET",
+    path: "/api/product-intelligence",
+    handler: (req, res, url, { sendJson }) => handleProductIntelligenceGet(req, res, url, { sendJson }),
+  },
+  {
+    method: "POST",
+    path: "/api/product-intelligence/refresh",
+    handler: (req, res, url, { sendJson, parseJsonBody }) => handleProductIntelligenceRefreshPost(req, res, url, { sendJson, parseJsonBody }),
+  },
+  {
+    method: "POST",
+    path: "/api/product-intelligence/upsert",
+    handler: (req, res, url, { sendJson, parseJsonBody }) => handleProductIntelligenceUpsertPost(req, res, url, { sendJson, parseJsonBody }),
+  },
+  {
+    method: "POST",
+    path: "/api/product-intelligence/evidence",
+    handler: (req, res, url, { sendJson, parseJsonBody }) => handleProductIntelligenceEvidencePost(req, res, url, { sendJson, parseJsonBody }),
+  },
+  {
+    method: "POST",
+    path: "/api/product-intelligence/status",
+    handler: (req, res, url, { sendJson, parseJsonBody }) => handleProductIntelligenceStatusPost(req, res, url, { sendJson, parseJsonBody }),
+  },
+
+  // --- Competitor match engine (authenticated) ---
+  {
+    method: "POST",
+    path: "/api/compare/match",
+    permission: "canViewDiagnostics",
+    deniedMessage: "Compare requires an authenticated Wingman workspace session.",
+    handler: async (req, res, url, { sendJson, parseJsonBody }) => {
+      try {
+        const body = await parseJsonBody(req);
+        const { compareCompetitor } = await import("./competitor/match-engine.mjs");
+        const result = await compareCompetitor(
+          body.input || "",
+          body.brand || undefined,
+          Math.min(body.maxResults || 5, 10)
+        );
+        sendJson(res, 200, { ok: true, ...result });
+      } catch (error) {
+        console.error("[wingman-api] /api/compare/match failed:", error);
+        sendJson(res, 500, { ok: false, error: "Comparison failed." });
+      }
+    },
+  },
+  {
+    method: "GET",
+    path: "/api/compare/analyze",
+    permission: "canViewDiagnostics",
+    deniedMessage: "Compare requires an authenticated Wingman workspace session.",
+    handler: async (req, res, url, { sendJson }) => {
+      try {
+        const input = url.searchParams.get("input") || "";
+        const brand = url.searchParams.get("brand") || undefined;
+        const { compareCompetitor } = await import("./competitor/match-engine.mjs");
+        const result = await compareCompetitor(input, brand, 1);
+        sendJson(res, 200, { ok: true, ...result });
+      } catch (error) {
+        console.error("[wingman-api] /api/compare/analyze failed:", error);
+        sendJson(res, 500, { ok: false, error: "Analysis failed." });
+      }
+    },
+  },
+];
+
 const server = http.createServer(async (req, res) => {
   const method = req.method || "GET";
   const url = new URL(req.url || "/", `http://${req.headers.host || `${HOST}:${PORT}`}`);
@@ -2129,28 +2532,6 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (allowLocalIntelligenceDraftBypass(req, url)) {
-    if (method === "GET" && url.pathname === "/api/intelligence/drafts") {
-      await runProtectedRoute(res, () => handleIntelligenceDraftsGet(req, res, url, { sendJson }));
-      return;
-    }
-
-    if (method === "POST" && url.pathname === "/api/intelligence/build-competitor") {
-      await runProtectedRoute(res, () => handleIntelligenceDraftBuildCompetitorPost(req, res, url, { sendJson, parseJsonBody }));
-      return;
-    }
-
-    if (method === "POST" && url.pathname === "/api/intelligence/build-wyrestorm") {
-      await runProtectedRoute(res, () => handleIntelligenceDraftBuildWyrestormPost(req, res, url, { sendJson, parseJsonBody }));
-      return;
-    }
-
-    if (method === "POST" && url.pathname === "/api/intelligence/drafts/status") {
-      await runProtectedRoute(res, () => handleIntelligenceDraftStatusPost(req, res, url, { sendJson, parseJsonBody }));
-      return;
-    }
-  }
-
   try {
     if (await handleAgentsRoute(req, res)) {
       return;
@@ -2163,427 +2544,37 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (method === "POST" && url.pathname === "/api/competitor/resolveMatch") {
-    if (!(await requireWingmanPermission(req, res, url, {
-      permission: "canViewDiagnostics",
-      deniedMessage: "Competitor match lookup requires an authenticated Wingman workspace session.",
-    }))) return;
-
-    try {
-      const body = await parseJsonBody(req);
-
-      const result = await resolveCompetitorMatch({
-        manufacturer: tidy(body.manufacturer),
-        model: tidy(body.model),
-        productUrl: tidy(body.productUrl),
-      });
-
-      return sendJson(res, result.ok ? 200 : 400, result);
-    } catch (error) {
-      return sendJson(res, 500, {
-        ok: false,
-        error: error instanceof Error ? error.message : "Resolve match failed",
-      });
-    }
-  }
-
-  if (method === "POST" && url.pathname === "/api/competitor/liveLookup") {
-    if (!(await requireWingmanPermission(req, res, url, {
-      permission: "canViewDiagnostics",
-      deniedMessage: "Competitor live lookup requires an authenticated Wingman workspace session.",
-    }))) return;
-
-    try {
-      const body = await parseJsonBody(req);
-
-      const result = await resolveCompetitorLiveLookup({
-        manufacturer: tidy(body.manufacturer),
-        model: tidy(body.model),
-        productUrl: tidy(body.productUrl),
-      });
-
-      return sendJson(res, result.ok ? 200 : 400, result);
-    } catch (error) {
-      return sendJson(res, 500, {
-        ok: false,
-        error: error instanceof Error ? error.message : "Live lookup failed",
-      });
-    }
-  }
-
   if (method === "OPTIONS") {
     res.writeHead(204, withCorsHeaders());
     res.end();
     return;
   }
 
-  if (method === "GET" && url.pathname === "/api/health") {
-    const version = process.env.WINGMAN_VERSION || "0.1.0";
-    sendJson(res, 200, {
-      status: "ok",
-      timestamp: nowIso(),
-      version,
+  const route = matchRoute(method, url);
+  if (!route) {
+    sendJson(res, 404, {
+      ok: false,
+      error: "Route not found.",
+      route: `${method} ${url.pathname}`,
     });
     return;
   }
 
-  if (method === "GET" && url.pathname === "/api/ready") {
-    // Kubernetes-style readiness check - verify the server is accepting connections
-    // AND, when Supabase-backed storage is configured, that Supabase is reachable.
-    if (!server.listening || shuttingDown) {
-      sendJson(res, 503, {
-        ready: false,
-        timestamp: nowIso(),
-        error: "Server is not ready to accept traffic.",
-      });
-      return;
-    }
-
-    const storage = await getStorageReadiness();
-    if (!storage.ready) {
-      sendJson(res, 503, {
-        ready: false,
-        timestamp: nowIso(),
-        storageMode: storage.mode,
-        error: storage.error || "Storage is not ready.",
-      });
-      return;
-    }
-
-    sendJson(res, 200, {
-      ready: true,
-      timestamp: nowIso(),
-      storageMode: storage.mode,
-    });
-    return;
-  }
-
-  if (method === "GET" && url.pathname === "/api/health/details") {
-    sendJson(res, 200, buildHealthPayload());
-    return;
-  }
-
-  if (method === "GET" && url.pathname === "/api/wingman/health") {
-    await runProtectedRoute(res, () => handleWingmanHealthGet(req, res, { sendJson }));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/wingman/auth/signup") {
-    await runProtectedRoute(res, () => handleWingmanAuthSignupPost(req, res, { sendJson, parseJsonBody }));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/wingman/auth/login") {
-    await runProtectedRoute(res, () => handleWingmanAuthLoginPost(req, res, { sendJson, parseJsonBody }));
-    return;
-  }
-
-  if (method === "GET" && url.pathname === "/api/wingman/auth/session") {
-    await runProtectedRoute(res, () => handleWingmanAuthSessionGet(req, res, url, { sendJson }));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/wingman/auth/logout") {
-    await runProtectedRoute(res, () => handleWingmanAuthLogoutPost(req, res, url, { sendJson }));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/wingman/product-report") {
-    await runProtectedRoute(res, () => handleProductReportPost(req, res, url, { sendJson, parseJsonBody }));
-    return;
-  }
-
-  if (method === "GET" && url.pathname === "/api/wingman/workspace") {
-    await runProtectedRoute(res, () => handleWingmanWorkspaceGet(req, res, url, { sendJson }));
-    return;
-  }
-
-  if (method === "GET" && url.pathname === "/api/wingman/workspace/members") {
-    await runProtectedRoute(res, () => handleWingmanWorkspaceMembersGet(req, res, url, { sendJson }));
-    return;
-  }
-
-  if (method === "GET" && url.pathname === "/api/wingman/workspace/invitations") {
-    await runProtectedRoute(res, () => handleWingmanWorkspaceInvitationsGet(req, res, url, { sendJson }));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/wingman/workspace/invitations") {
-    await runProtectedRoute(res, () => handleWingmanWorkspaceInvitationsPost(req, res, url, { sendJson, parseJsonBody }));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/wingman/workspace/settings") {
-    await runProtectedRoute(res, () => handleWingmanWorkspaceSettingsPost(req, res, url, { sendJson, parseJsonBody }));
-    return;
-  }
-
-  if (method === "GET" && url.pathname === "/api/wingman/projects") {
-    await runProtectedRoute(res, () => handleWingmanProjectsGet(req, res, url, { sendJson }));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/wingman/projects/sync") {
-    await runProtectedRoute(res, () => handleWingmanProjectsSyncPost(req, res, url, { sendJson, parseJsonBody }));
-    return;
-  }
-
-  const workspaceMemberRoleRoute = url.pathname.match(/^\/api\/wingman\/workspace\/members\/([^/]+)\/role$/);
-  if (workspaceMemberRoleRoute && method === "POST") {
-    const userId = decodeURIComponent(workspaceMemberRoleRoute[1] || "");
-    await runProtectedRoute(res, () => handleWingmanWorkspaceMemberRolePost(req, res, url, userId, { sendJson, parseJsonBody }));
-    return;
-  }
-
-  if (method === "GET" && url.pathname === "/api/wingman/invitations/resolve") {
-    await runProtectedRoute(res, () => handleWingmanInvitationResolveGet(req, res, url, { sendJson }));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/wingman/invitations/accept") {
-    await runProtectedRoute(res, () => handleWingmanInvitationAcceptPost(req, res, url, { sendJson, parseJsonBody }));
-    return;
-  }
-
-  const wingmanProjectRoute = url.pathname.match(/^\/api\/wingman\/projects\/([^/]+)\/(comments|shares|attachments|mark-ready)$/);
-  if (wingmanProjectRoute) {
-    const projectId = decodeURIComponent(wingmanProjectRoute[1] || "");
-    const action = wingmanProjectRoute[2];
-
-    if (method === "POST" && action === "comments") {
-      await runProtectedRoute(res, () => handleWingmanProjectCommentsPost(req, res, url, projectId, { sendJson, parseJsonBody }));
-      return;
-    }
-
-    if (method === "POST" && action === "shares") {
-      await runProtectedRoute(res, () => handleWingmanProjectSharesPost(req, res, url, projectId, { sendJson, parseJsonBody }));
-      return;
-    }
-
-    if (method === "POST" && action === "attachments") {
-      await runProtectedRoute(res, () => handleWingmanProjectAttachmentsPost(req, res, url, projectId, { sendJson, parseJsonBody }));
-      return;
-    }
-
-    if (method === "POST" && action === "mark-ready") {
-      await runProtectedRoute(res, () => handleWingmanProjectMarkReadyPost(req, res, url, projectId, { sendJson, parseJsonBody }));
-      return;
-    }
-  }
-
-  if (method === "GET" && url.pathname === "/api/wingman/governance") {
-    await runProtectedRoute(res, () => handleWingmanGovernanceGet(req, res, url, { sendJson }));
-    return;
-  }
-
-  if (method === "GET" && url.pathname === "/api/wingman/audit") {
-    await runProtectedRoute(res, () => handleWingmanAuditGet(req, res, url, { sendJson }));
-    return;
-  }
-
-  if (method === "GET" && url.pathname === "/api/wingman/telemetry") {
-    await runProtectedRoute(res, () => handleWingmanTelemetryGet(req, res, url, { sendJson }));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/wingman/telemetry") {
-    await runProtectedRoute(res, () => handleWingmanTelemetryPost(req, res, url, { sendJson, parseJsonBody }));
-    return;
-  }
-
-  if (
-    method === "POST" &&
-    (
-      url.pathname === "/api/competitor-lookup" ||
-      url.pathname === "/api/wingman/competitor-lookup"
-    )
-  ) {
-    if (!(await requireWingmanPermission(req, res, url, {
-      permission: "canViewDiagnostics",
-      deniedMessage: "Competitor lookup requires an authenticated Wingman workspace session.",
+  // A declared permission gate is enforced uniformly (401 unauth / 403
+  // insufficient), unless a local-only bypass explicitly applies.
+  if (!(route.localBypass && allowLocalIntelligenceDraftBypass(req, url))) {
+    if (route.permission && !(await requireWingmanPermission(req, res, url, {
+      permission: route.permission,
+      deniedMessage: route.deniedMessage,
     }))) return;
+  }
 
-    await handleLookupRequest(req, res);
+  if (route.raw) {
+    await route.handler(req, res, url, { sendJson, parseJsonBody }, route.params);
     return;
   }
 
-  if (method === "GET" && url.pathname === "/api/competitor-lookup/diagnostics") {
-    await runProtectedRoute(res, () => handleLookupRuntimeDiagnosticsGet(req, res, url));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/competitor-lookup/diagnostics/clear") {
-    await runProtectedRoute(res, () => handleLookupRuntimeDiagnosticsClear(req, res, url));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/competitor-lookup/diagnostics/prune") {
-    await runProtectedRoute(res, () => handleLookupRuntimeDiagnosticsPrune(req, res, url));
-    return;
-  }
-
-  if (method === "GET" && url.pathname === "/api/competitor-approvals") {
-    await runProtectedRoute(res, () => handleApprovalsGet(req, res, url));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/competitor-approvals") {
-    await runProtectedRoute(res, () => handleApprovalsPost(req, res, url));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/governance/profiles/confirm") {
-    await runProtectedRoute(res, () => handleProfileConfirmationPost(req, res, url, {
-      sendJson,
-      parseJsonBody,
-      requireWingmanPermission,
-    }));
-    return;
-  }
-
-  if (method === "GET" && url.pathname === "/api/governance/competitor-decisions/queue") {
-    await runProtectedRoute(res, () => handleCompetitorDecisionQueueGet(req, res, url, {
-      sendJson,
-    }));
-    return;
-  }
-
-  if (method === "GET" && url.pathname === "/api/governance/competitor-decisions/approved") {
-    await runProtectedRoute(res, () => handleCompetitorDecisionApprovedGet(req, res, url, {
-      sendJson,
-    }));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/governance/competitor-decisions/approve") {
-    await runProtectedRoute(res, () => handleCompetitorDecisionApprovalPost(req, res, url, {
-      sendJson,
-      parseJsonBody,
-      requireWingmanPermission,
-    }));
-    return;
-  }
-
-  if (method === "GET" && url.pathname === "/api/intelligence/drafts") {
-    if (!(await requireWingmanPermission(req, res, url, {
-      permission: "canManageWorkspace",
-      deniedMessage: "Product intelligence drafts are restricted to workspace admins.",
-    }))) return;
-
-    await runProtectedRoute(res, () => handleIntelligenceDraftsGet(req, res, url, { sendJson }));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/intelligence/build-competitor") {
-    if (!(await requireWingmanPermission(req, res, url, {
-      permission: "canViewDiagnostics",
-      deniedMessage: "Competitor intelligence build requires an authenticated Wingman workspace session.",
-    }))) return;
-
-    await runProtectedRoute(res, () => handleIntelligenceDraftBuildCompetitorPost(req, res, url, { sendJson, parseJsonBody }));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/intelligence/build-wyrestorm") {
-    if (!(await requireWingmanPermission(req, res, url, {
-      permission: "canViewDiagnostics",
-      deniedMessage: "WyreStorm intelligence build requires an authenticated Wingman workspace session.",
-    }))) return;
-
-    await runProtectedRoute(res, () => handleIntelligenceDraftBuildWyrestormPost(req, res, url, { sendJson, parseJsonBody }));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/intelligence/drafts/status") {
-    if (!(await requireWingmanPermission(req, res, url, {
-      permission: "canManageWorkspace",
-      deniedMessage: "Product intelligence draft approval is restricted to workspace admins.",
-    }))) return;
-
-    await runProtectedRoute(res, () => handleIntelligenceDraftStatusPost(req, res, url, { sendJson, parseJsonBody }));
-    return;
-  }
-  if (method === "GET" && url.pathname === "/api/product-intelligence/health") {
-    await runProtectedRoute(res, () => handleProductIntelligenceHealthGet(req, res, url, { sendJson }));
-    return;
-  }
-
-  if (method === "GET" && url.pathname === "/api/product-intelligence") {
-    await runProtectedRoute(res, () => handleProductIntelligenceGet(req, res, url, { sendJson }));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/product-intelligence/refresh") {
-    await runProtectedRoute(res, () => handleProductIntelligenceRefreshPost(req, res, url, { sendJson, parseJsonBody }));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/product-intelligence/upsert") {
-    await runProtectedRoute(res, () => handleProductIntelligenceUpsertPost(req, res, url, { sendJson, parseJsonBody }));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/product-intelligence/evidence") {
-    await runProtectedRoute(res, () => handleProductIntelligenceEvidencePost(req, res, url, { sendJson, parseJsonBody }));
-    return;
-  }
-
-  if (method === "POST" && url.pathname === "/api/product-intelligence/status") {
-    await runProtectedRoute(res, () => handleProductIntelligenceStatusPost(req, res, url, { sendJson, parseJsonBody }));
-    return;
-  }
-
-  // New competitor match engine endpoint
-  if (method === "POST" && url.pathname === "/api/compare/match") {
-    if (!(await requireWingmanPermission(req, res, url, {
-      permission: "canViewDiagnostics",
-      deniedMessage: "Compare requires an authenticated Wingman workspace session.",
-    }))) return;
-
-    await runProtectedRoute(res, async () => {
-      try {
-        const body = await parseJsonBody(req);
-        const { compareCompetitor } = await import("./competitor/match-engine.mjs");
-        const result = await compareCompetitor(
-          body.input || "",
-          body.brand || undefined,
-          Math.min(body.maxResults || 5, 10)
-        );
-        sendJson(res, 200, result);
-      } catch (error) {
-        console.error("[wingman-api] /api/compare/match failed:", error);
-        sendJson(res, 500, { error: "Comparison failed." });
-      }
-    });
-    return;
-  }
-
-  if (method === "GET" && url.pathname === "/api/compare/analyze") {
-    if (!(await requireWingmanPermission(req, res, url, {
-      permission: "canViewDiagnostics",
-      deniedMessage: "Compare requires an authenticated Wingman workspace session.",
-    }))) return;
-
-    await runProtectedRoute(res, async () => {
-      try {
-        const input = url.searchParams.get("input") || "";
-        const brand = url.searchParams.get("brand") || undefined;
-        const { compareCompetitor } = await import("./competitor/match-engine.mjs");
-        const result = await compareCompetitor(input, brand, 1);
-        sendJson(res, 200, result.competitor);
-      } catch (error) {
-        console.error("[wingman-api] /api/compare/analyze failed:", error);
-        sendJson(res, 500, { error: "Analysis failed." });
-      }
-    });
-    return;
-  }
-
-  sendJson(res, 404, {
-    ok: false,
-error: "Route not found.",
-    route: `${method} ${url.pathname}`,
-  });
+  await runProtectedRoute(res, () => route.handler(req, res, url, { sendJson, parseJsonBody }, route.params));
 });
 
 server.listen(PORT, HOST, () => {

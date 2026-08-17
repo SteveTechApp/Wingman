@@ -7,6 +7,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 const port = 8899;
+// Isolate the spawned server's writable sandbox outside the repo, matching
+// check:api-contract - the workflow boot must never write into data/.
+const throwawayDataDir = path.join(projectRoot, ".freebuff", "tmp", "workflow-check-data");
 const errors = [];
 
 function assertSourceContains(relativePath, markers) {
@@ -49,6 +52,7 @@ async function checkProtectedBackendRoutes() {
       ...process.env,
       PORT: String(port),
       WINGMAN_UI_PORT: "3999",
+      WINGMAN_DATA_DIR: throwawayDataDir,
     },
     stdio: "ignore",
     windowsHide: true,

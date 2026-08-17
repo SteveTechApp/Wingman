@@ -16,11 +16,21 @@
  * rows, and within a tier the lead product classes the compare feature leads
  * with (wireless presentation, matrix, AVoIP, presentation, HDBaseT) before
  * cameras / control / audio / accessories.
+ *
+ * Cross-machine story (competitor-decision-ledger-store.mjs): the committed
+ * JSON is the seed; when Supabase is configured the store merges the remote
+ * mirror into every read and pushes every approval write through to it, so a
+ * review approved on one machine is visible on every other. `syncCompetitorDecisionLedger`
+ * is the two-way reconcile, gated by the same drift check that guards commits.
  */
 
-import fs from "node:fs/promises";
-import path from "node:path";
 import { COMPETITOR_DECISION_LEDGER_FILE } from "../catalog/files.mjs";
+import {
+  ledgerSyncEnabled,
+  pushDecisionToSupabase,
+  readLedgerForApi,
+  writeCommittedLedgerFile,
+} from "./competitor-decision-ledger-store.mjs";
 
 function text(value) {
   return String(value ?? "").trim();
@@ -28,20 +38,6 @@ function text(value) {
 
 function nowIso() {
   return new Date().toISOString();
-}
-
-async function readJsonFile(filePath, fallback) {
-  try {
-    const raw = await fs.readFile(filePath, "utf8");
-    return JSON.parse(raw);
-  } catch {
-    return fallback;
-  }
-}
-
-async function writeJsonFile(filePath, value) {
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
-  await fs.writeFile(filePath, JSON.stringify(value, null, 2), "utf8");
 }
 
 /** Decision types that recommend a WyreStorm product, highest value first. */
@@ -113,7 +109,10 @@ export async function saveCompetitorDecisionApproval(
   });
   if (!validation.ok) return { ok: false, error: validation.error };
 
-  const ledger = await readJsonFile(filePath, null);
+  // Remote-aware read: when Supabase is enabled the merged ledger includes
+  // approvals made on other machines, so this approval lands on top of the
+  // whole team's state, not just this machine's committed file.
+  const { ledger, mode, warnings } = await readLedgerForApi(filePath);
   if (!ledger || !Array.isArray(ledger.decisions)) {
     return { ok: false, error: "Competitor decision ledger is missing or malformed." };
   }
@@ -157,7 +156,17 @@ export async function saveCompetitorDecisionApproval(
 
   ledger.decisions[decisionIndex] = nextDecision;
   ledger.updatedAt = now;
-  await writeJsonFile(filePath, ledger);
+  await writeCommittedLedgerFile(ledger, filePath);
+
+  // Write-through mirror: the committed file stays the durable record AND the
+  // approval is pushed to Supabase so it leaves this machine. Row-scoped on
+  // purpose: pushing the whole merged ledger from a possibly-stale file could
+  // overwrite another machine's concurrent approval.
+  let remote = { ok: true, warnings: [] };
+  if (ledgerSyncEnabled()) {
+    remote = await pushDecisionToSupabase(nextDecision);
+    if (!remote.ok) warnings.push(`Supabase push failed: ${remote.error}`);
+  }
 
   return {
     ok: true,
@@ -165,6 +174,8 @@ export async function saveCompetitorDecisionApproval(
     total: ledger.decisions.length,
     approved: ledger.decisions.filter(isApproved).length,
     file: filePath,
+    mode,
+    warnings,
   };
 }
 
@@ -176,7 +187,7 @@ export async function saveCompetitorDecisionApproval(
  * `filePath` defaults to the governed ledger; tests inject a temp copy.
  */
 export async function approvedCompetitorDecisions(filePath = COMPETITOR_DECISION_LEDGER_FILE) {
-  const ledger = await readJsonFile(filePath, null);
+  const { ledger, mode, warnings } = await readLedgerForApi(filePath);
   if (!ledger || !Array.isArray(ledger.decisions)) {
     return { ok: false, error: "Competitor decision ledger is missing or malformed." };
   }
@@ -189,6 +200,8 @@ export async function approvedCompetitorDecisions(filePath = COMPETITOR_DECISION
     approved: decisions.length,
     decisions,
     file: filePath,
+    mode,
+    warnings,
   };
 }
 
@@ -198,7 +211,7 @@ export async function approvedCompetitorDecisions(filePath = COMPETITOR_DECISION
  * `filePath` defaults to the governed ledger; tests inject a temp copy.
  */
 export async function pendingDecisionQueue(filePath = COMPETITOR_DECISION_LEDGER_FILE, limit = 100) {
-  const ledger = await readJsonFile(filePath, null);
+  const { ledger, mode, warnings } = await readLedgerForApi(filePath);
   if (!ledger || !Array.isArray(ledger.decisions)) {
     return { ok: false, error: "Competitor decision ledger is missing or malformed." };
   }
@@ -238,6 +251,8 @@ export async function pendingDecisionQueue(filePath = COMPETITOR_DECISION_LEDGER
     approved: ledger.decisions.filter(isApproved).length,
     queue,
     file: filePath,
+    mode,
+    warnings,
   };
 }
 

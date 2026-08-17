@@ -5,8 +5,8 @@ import {
   mapRealCatalogEntryToCompareCandidate,
   mergeRealWyrestormCatalog,
   type ProductIntelligenceIndexEntry,
-  type WyreStormProduct,
 } from "./ComparePageNew.advanced";
+import type { WyreStormProduct } from "../lib/compareVerdictPipeline";
 import fixture from "../lib/__fixtures__/productIntelligenceIndexSample.json";
 
 // This fixture is a trimmed sample of real entries from

@@ -14,8 +14,15 @@
  */
 
 import governedTechnicalProfilesRaw from "../../../data/governance/wyrestorm-technical-profiles.json";
+import agingConfig from "../../../data/governance/profile-confirmation-aging.json";
+
+/** Thresholds shared with the CI gate (data/governance/profile-confirmation-aging.json). */
+export const PROFILE_CONFIRMATION_WARN_AFTER_DAYS = Number(agingConfig.warnAfterDays) || 14;
+export const PROFILE_CONFIRMATION_FAIL_AFTER_DAYS = Number(agingConfig.failAfterDays) || 30;
 
 export type SpecCriticalField = "max-resolution" | "routed-io" | "power";
+
+export type AgingState = "fresh" | "aging" | "overdue";
 
 export type AwaitingProfile = {
   sku: string;
@@ -27,6 +34,10 @@ export type AwaitingProfile = {
   missingData: SpecCriticalField[];
   /** Human-readable current value per spec-critical field ("" when missing). */
   values: Record<SpecCriticalField, string>;
+  /** Days since the profile's newest evidence timestamp; null when undatable. */
+  ageDays: number | null;
+  /** Confirmation aging: "fresh" < warn threshold, "aging" between warn and fail, "overdue" at/past fail (or undatable). */
+  aging: AgingState;
 };
 
 export type VerifiedProfile = {
@@ -52,9 +63,13 @@ export type ConfirmationBacklog = {
   readyToConfirm: number;
   /** Profiles missing at least one spec-critical value. */
   needDataWork: number;
+  /** Unconfirmed profiles past the warn threshold (the visible backlog). */
+  aging: number;
+  /** Unconfirmed profiles past the fail threshold, or undatable (gate-enforced). */
+  overdue: number;
 };
 
-type EvidenceRecord = { sourceUrl?: string; reviewedOn?: string; reviewer?: string };
+type EvidenceRecord = { sourceUrl?: string; reviewedOn?: string; checkedAt?: string; reviewer?: string };
 
 type ProfileRecord = {
   sku?: string;
@@ -204,6 +219,23 @@ function latestEvidence(profile: ProfileRecord): EvidenceRecord {
   return list[list.length - 1] ?? {};
 }
 
+/** Newest evidence date (YYYY-MM-DD) across all entries; "" when undatable. */
+function newestEvidenceDate(profile: ProfileRecord): string {
+  let newest = "";
+  for (const evidence of Array.isArray(profile.evidence) ? (profile.evidence as EvidenceRecord[]) : []) {
+    const date = text(evidence.reviewedOn) || text(evidence.checkedAt).slice(0, 10);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(date) && date > newest) newest = date;
+  }
+  return newest;
+}
+
+function agingStateFor(ageDays: number | null): AgingState {
+  if (ageDays === null) return "overdue";
+  if (ageDays >= PROFILE_CONFIRMATION_FAIL_AFTER_DAYS) return "overdue";
+  if (ageDays >= PROFILE_CONFIRMATION_WARN_AFTER_DAYS) return "aging";
+  return "fresh";
+}
+
 function toVerifiedProfile(profile: ProfileRecord): VerifiedProfile {
   const evidence = latestEvidence(profile);
   const confirmedFields = (Array.isArray(profile.confirmedFields) ? profile.confirmedFields : []) as SpecCriticalField[];
@@ -233,6 +265,10 @@ export function governedConfirmationBacklog(): ConfirmationBacklog {
       continue;
     }
     const { awaitingConfirmation, missingData } = specFieldState(profile);
+    const newestDate = newestEvidenceDate(profile);
+    const ageDays = newestDate
+      ? Math.max(0, Math.floor((Date.now() - Date.parse(`${newestDate}T00:00:00Z`)) / 86_400_000))
+      : null;
     awaiting.push({
       sku: text(profile.sku),
       productClass: text(profile.productClass) || "Unknown class",
@@ -244,10 +280,21 @@ export function governedConfirmationBacklog(): ConfirmationBacklog {
         "routed-io": specFieldValue(profile, "routed-io"),
         power: specFieldValue(profile, "power"),
       },
+      ageDays,
+      aging: agingStateFor(ageDays),
     });
   }
 
-  awaiting.sort((a, b) => a.sku.localeCompare(b.sku));
+  const agingRank = { overdue: 0, aging: 1, fresh: 2 };
+  // Actionable first: profiles ready to confirm, then the aging backlog (most
+  // overdue at the top), then the rest by SKU.
+  awaiting.sort(
+    (a, b) =>
+      Number(a.missingData.length > 0) - Number(b.missingData.length > 0) ||
+      agingRank[a.aging] - agingRank[b.aging] ||
+      (b.ageDays ?? -1) - (a.ageDays ?? -1) ||
+      a.sku.localeCompare(b.sku),
+  );
   verified.sort((a, b) => a.sku.localeCompare(b.sku));
 
   const readyToConfirm = awaiting.filter((profile) => profile.missingData.length === 0).length;
@@ -259,5 +306,7 @@ export function governedConfirmationBacklog(): ConfirmationBacklog {
     verified,
     readyToConfirm,
     needDataWork: awaiting.length - readyToConfirm,
+    aging: awaiting.filter((profile) => profile.aging === "aging").length,
+    overdue: awaiting.filter((profile) => profile.aging === "overdue").length,
   };
 }
