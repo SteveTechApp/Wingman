@@ -23,14 +23,15 @@ One-off scripts used during the Data Manager, CSS consolidation, video-wall styl
 
 ### Superseded source scaffolding
 
-- `src/features/catalog/catalogIntelligence.ts`
 - `src/lib/`
 
-The active application entry point is the Vite/React Wingman application under `src/wingman2/`. The removed `src/lib/` files were Next.js/Supabase SSR scaffolding and are outside the active typecheck entry set unless imported. The cleanup branch is validated by CI before merge so any hidden dependency fails closed.
+The active application entry point is the Vite/React Wingman application under `src/wingman2/`. The removed `src/lib/` files were legacy Next.js/Supabase SSR scaffolding outside the active application path.
+
+`src/features/catalog/catalogIntelligence.ts` was evaluated for removal but restored after the production Docker build proved that `CatalogBrowserPage.tsx` still imports it. It remains active code.
 
 ## Retained deliberately
 
-The cleanup does **not** remove active build, deployment, data-governance, generated-catalogue, test, documentation, Supabase migration, Docker or current `tools/` assets. The product review workbook is also retained because it may still support governed data maintenance.
+The cleanup does **not** remove active build, deployment, catalogue intelligence, data-governance, generated-catalogue, test, documentation, Supabase migration, Docker or current `tools/` assets. The product review workbook is also retained because it may still support governed data maintenance.
 
 ## Restore example
 
@@ -40,4 +41,4 @@ git restore --source archive/pre-cleanup-20260817 -- path/to/file
 
 ## Validation policy
 
-Repository cleanup is merged only after the normal Wingman CI, governed-data and Docker build gates pass.
+Repository cleanup is merged only after the normal Wingman CI and Docker build gates pass. Failed validation is treated as evidence that a candidate archive path is still active, as happened with the catalogue intelligence module during this pass.
