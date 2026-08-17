@@ -13,10 +13,13 @@
  *      200 with ok:false, never a 400.
  *   5. Unknown routes fall through to the uniform 404 envelope.
  *
- * The signup writes only to gitignored data/runtime/ sandbox files. Exit code
+ * WINGMAN_DATA_DIR points the server's whole writable sandbox (runtime DBs,
+ * approvals, live-lookup records) at a throwaway directory outside the repo,
+ * so this check never writes into the working tree's data/ at all. Exit code
  * is non-zero on any contract violation, so CI fails loudly.
  */
 import { spawn } from "node:child_process";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -27,6 +30,10 @@ const projectRoot = path.resolve(__dirname, "..");
 // side by side without colliding.
 const port = 8898;
 const base = `http://127.0.0.1:${port}`;
+// Throwaway writable data root (gitignored .freebuff area). Wiped before the
+// boot so every run seeds from the committed catalog afresh.
+const throwawayDataDir = path.join(projectRoot, ".freebuff", "tmp", "api-contract-data");
+fs.rmSync(throwawayDataDir, { recursive: true, force: true });
 
 const errors = [];
 const passed = [];
@@ -83,6 +90,7 @@ const child = spawn(process.execPath, ["server/competitor-lookup-server.mjs"], {
     ...process.env,
     PORT: String(port),
     WINGMAN_UI_PORT: "3998",
+    WINGMAN_DATA_DIR: throwawayDataDir,
   },
   stdio: "ignore",
   windowsHide: true,

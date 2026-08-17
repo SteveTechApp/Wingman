@@ -9,6 +9,7 @@ const files = {
   storageTest: "src/wingman2/lib/competitorMatchDecisionLedger.test.ts",
   runtime: "src/wingman2/lib/governedCompareRuntime.ts",
   runtimeTest: "src/wingman2/lib/governedCompareRuntime.test.ts",
+  pipeline: "src/wingman2/lib/compareVerdictPipeline.ts",
   comparePage: "src/wingman2/pages/ComparePageNew.advanced.tsx",
   orphanGuard: "tools/check-orphaned-modules.mjs",
 };
@@ -99,7 +100,6 @@ if (failures.length === 0) {
   const requiredRuntimeMarkers = [
     "readCompetitorMatchDecisionLedger",
     "resolveApprovedGovernedDecision",
-    "applyGovernedCandidateOrder",
     "GovernedDecisionPanel",
     "data-wingman-governed-decision",
     "no-suitable-match",
@@ -108,6 +108,16 @@ if (failures.length === 0) {
   for (const marker of requiredRuntimeMarkers) {
     if (!comparePage.includes(marker)) {
       failures.push(`Live Compare page missing governed runtime marker: ${marker}`);
+    }
+  }
+
+  // The candidate-ordering wiring now lives in the pure verdict pipeline the
+  // page calls (engine snapshot -> ledger override -> verdict), so the marker
+  // is asserted against that module.
+  const pipeline = read(files.pipeline);
+  for (const marker of ["applyGovernedCandidateOrder", "governedDecisionLabel"]) {
+    if (!pipeline.includes(marker)) {
+      failures.push(`Compare verdict pipeline missing governed runtime marker: ${marker}`);
     }
   }
 

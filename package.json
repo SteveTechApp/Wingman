@@ -101,7 +101,6 @@
     "check:wingman-repair-guard": "node tools/check-wingman-repair-guard.mjs",
     "check:compare-source-repair": "node tools/check-compare-source-repair.mjs",
     "wm:check-routed-io": "node tools/repair-routed-io-evidence.mjs",
-    "wm:repair-routed-io": "node tools/repair-routed-io-evidence.mjs --apply",
     "check:wingman-scenarios": "node tools/check-wingman-scenario-validation.mjs",
     "check:wingman-recommendation-scenarios": "node tools/check-wingman-recommendation-scenarios.mjs",
     "check:compare-sku-auto-advance": "node tools/check-compare-sku-auto-advance.mjs",

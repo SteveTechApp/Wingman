@@ -19,6 +19,13 @@ import {
   salesImportantDifference,
   compactCompareQuoteChecks,
 } from "../lib/repScript";
+import {
+  domainFromProductClass,
+  resolveCompareVerdictCandidates,
+  type ScoredCandidate,
+  type Verdict,
+  type WyreStormProduct,
+} from "../lib/compareVerdictPipeline";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import {
@@ -40,11 +47,7 @@ import { classifyCompetitorCompareDecision, type CompareSpecFacts } from "../lib
 import { isWyreStormSkuCompareLeadAllowed } from "../lib/wyrestormSkuBusinessStatus";
 import { resolveWyrestormSkuAlias, skuAliasMatches } from "../lib/skuAliasResolver";
 import type { RigorousCompareResult, RigorousMatch } from "../lib/rigorousCompare";
-import {
-  applyCompareEligibilityRanking,
-  classifyCompareIntent,
-  evaluateProductEligibility,
-} from "../lib/compareEligibilityEngine";
+import { applyCompareEligibilityRanking } from "../lib/compareEligibilityEngine";
 import { runCompareRuntimePipeline } from "../lib/compareRuntimePipeline";
 import {
   mergeApprovedLedgerDecisions,
@@ -56,7 +59,6 @@ import {
   type CompetitorMatchDecision,
 } from "../lib/competitorMatchDecisionLedger";
 import {
-  applyGovernedCandidateOrder,
   governedDecisionLabel,
   resolveApprovedGovernedDecision,
 } from "../lib/governedCompareRuntime";
@@ -157,7 +159,6 @@ const ALL_COMPETITOR_SKUS: string[] = Object.values(COMPETITOR_SKU_SEED_CATALOG)
   .flat()
   .map((sku) => String(sku));
 
-type Verdict = "GOOD MATCH" | "PARTIAL MATCH" | "VERIFY" | "ARCHITECTURE ALTERNATIVE" | "NO MATCH";
 type CompareStage = "brand" | "sku" | "results";
 type CompareResultTab = "overview" | "cards" | "evidence";
 
@@ -172,18 +173,6 @@ type CompetitorProfile = {
   videoTags: string[];
   knownProfile: Record<string, unknown> | null;
   resolvedSpec: ResolvedCompetitorProfile | null;
-};
-
-export type WyreStormProduct = {
-  sku: string;
-  name: string;
-  family: string;
-  productClass: string;
-  role: string;
-  transport: string;
-  tags: string[];
-  caveat: string;
-  compareSuitability?: "general" | "specialist";
 };
 
 function productClassFromResolvedDomain(domain?: string): string | null {
@@ -221,83 +210,6 @@ function productClassFromResolvedDomain(domain?: string): string | null {
       return null;
   }
 }
-
-// Inverse of productClassFromResolvedDomain(), used to backfill a structured
-// competitor profile's domain when resolveCompetitorSpecProfile() couldn't
-// classify it (no curated fingerprint/family rule) but the page's own tag
-// classifier (extractTags/productClassFromTags) already did, from well-described
-// free text. Values here are chosen to match what wyrestormCompareProfile.ts's
-// detectDomain() actually produces for the real WyreStorm catalogue, NOT just
-// the conceptually "nicest" label - e.g. every WyreStorm Apollo product (both
-// UC conferencing bars and wireless-casting dongles) is detected as
-// "WIRELESS_PRESENTATION" (matched on its APO- SKU prefix), so both "USB
-// conferencing" and "Wireless casting" map there too. Mapping to a
-// domain string the WyreStorm side can never produce (e.g. a distinct
-// "WIRELESS_CASTING"/"USB_CONFERENCING") would turn a previously-benign
-// "domain unknown, verify" into a false "domain mismatch" blocker instead.
-// Distribution amplifiers and splitters share one strict, non-matrix domain.
-function domainFromProductClass(productClass: string): string | undefined {
-  switch (productClass) {
-    case "AV-over-IP":
-      return "AVOIP";
-    case "Network audio":
-      return "AUDIO";
-    case "Video wall":
-      return "VIDEO_WALL";
-    case "Multiview":
-      return "MULTIVIEW";
-    case "Matrix":
-      return "MATRIX";
-    case "HDBaseT extender":
-      return "HDBASET";
-    case "Presentation switcher":
-      return "PRESENTATION";
-    case "Wireless casting":
-      return "WIRELESS_PRESENTATION";
-    case "NDI camera":
-      return "NDI_CAMERA";
-    case "PTZ camera":
-      return "PTZ_CAMERA";
-    case "Control accessory":
-      return "CONTROL";
-    case "USB conferencing":
-      return "UC";
-    case "HDMI splitter":
-      return "DISTRIBUTION";
-    default:
-      return undefined;
-  }
-}
-
-type ScoredCandidate = {
-  product: WyreStormProduct;
-  score: number;
-  verdict: Verdict;
-  matched: string[];
-  checks: string[];
-  gaps: string[];
-  partialMatches: string[];
-  mismatches: string[];
-  unknowns: string[];
-  blockers: string[];
-  dependencies: string[];
-  outcomeLabel: string;
-  requirements?: RigorousMatch["decision"]["requirements"];
-  necessaryCoverage?: RigorousMatch["decision"]["necessaryCoverage"];
-  evidenceCompleteness?: number;
-  solutionType?: RigorousMatch["decision"]["solutionType"];
-  // Governed-profile status of the WyreStorm candidate (verified-profile =
-  // verified governed data; official-structured / text-inferred / missing =
-  // the honest fallback tiers). Surfaced on the match card so reps can see the
-  // data behind the verdict.
-  governedTier?: string;
-  governedLabel?: string;
-  // Eligibility fit from the ranking layer (lower = better). Carried through so
-  // the display sort can respect the eligibility verdict instead of letting
-  // keyword/confidence overlap override it (e.g. a room hub must not lead with
-  // the casting dongle just because the dongle's decision confidence is higher).
-  fitPenalty?: number;
-};
 
 function rigorousMatchToCandidate(match: RigorousMatch, profile: CompetitorProfile): ScoredCandidate {
   const product = ACTIVE_WYRESTORM_PRODUCTS.find((candidate) => candidate.sku === match.sku) ?? {
@@ -5171,166 +5083,21 @@ function ComparePageNew() {
       : rankedWithDecisions;
   }, [competitorInput, effectiveBrand, legacyCandidates, mustMatchFeatures, catalogVersion]);
 
-  const heuristicCandidates = useMemo(
-    () => {
-      const candidates = rigorousResult.matches
-        .map((match) => rigorousMatchToCandidate(match, profile))
-        .filter((candidate) => isSelectableWyrestormRecommendation(candidate.product));
-
-      return candidates;
-    },
-    [profile, rigorousResult],
+  const verdictResult = useMemo(
+    () =>
+      resolveCompareVerdictCandidates({
+        engineMatches: rigorousResult.matches,
+        products: ACTIVE_WYRESTORM_PRODUCTS,
+        governedDecision,
+        profile,
+        toCandidate: rigorousMatchToCandidate,
+        scoreProduct,
+        isSelectable: isSelectableWyrestormRecommendation,
+      }),
+    [rigorousResult, governedDecision, profile],
   );
-
-  const governedCandidate = useMemo(() => {
-    if (
-      !governedDecision?.wyrestormSku ||
-      governedDecision.decisionType === "no-suitable-match"
-    ) {
-      return null;
-    }
-
-    const targetSku = governedDecision.wyrestormSku.toUpperCase();
-    const existing = heuristicCandidates.find(
-      (candidate) => candidate.product.sku.toUpperCase() === targetSku,
-    );
-    const product =
-      existing?.product ??
-      ACTIVE_WYRESTORM_PRODUCTS.find(
-        (candidate) => candidate.sku.toUpperCase() === targetSku,
-      );
-
-    if (!product) return null;
-
-    const base = existing ?? scoreProduct(profile, product);
-    const verdict: Verdict =
-      governedDecision.decisionType === "confirmed-equivalent"
-        ? "GOOD MATCH"
-        : governedDecision.decisionType === "architecture-alternative"
-          ? "ARCHITECTURE ALTERNATIVE"
-          : "PARTIAL MATCH";
-
-    return {
-      ...base,
-      score: Math.max(
-        base.score,
-        governedDecision.decisionType === "confirmed-equivalent" ? 100 : 95,
-      ),
-      verdict,
-      matched: uniqueText([
-        ...governedDecision.matchedPoints,
-        ...base.matched,
-      ], 12),
-      gaps: uniqueText([
-        ...governedDecision.importantDifferences,
-        ...base.gaps,
-      ], 12),
-      partialMatches: uniqueText([
-        ...governedDecision.importantDifferences,
-        ...base.partialMatches,
-      ], 12),
-      mismatches: uniqueText([
-        ...governedDecision.importantDifferences,
-        ...base.mismatches,
-      ], 12),
-      blockers: uniqueText([
-        ...governedDecision.quoteBlockers,
-        ...base.blockers,
-      ], 12),
-      dependencies: uniqueText([
-        ...governedDecision.dependencies,
-        ...base.dependencies,
-      ], 12),
-      outcomeLabel: governedDecisionLabel(governedDecision),
-    };
-  }, [governedDecision, heuristicCandidates, profile]);
-
-  const scoredCandidates = useMemo(() => {
-    const candidates = governedCandidate
-      ? [
-          governedCandidate,
-          ...heuristicCandidates.filter(
-            (candidate) =>
-              candidate.product.sku.toUpperCase() !==
-              governedCandidate.product.sku.toUpperCase(),
-          ),
-        ]
-      : heuristicCandidates;
-
-    const intent = classifyCompareIntent(
-      profile.resolvedSpec ?? { domain: domainFromProductClass(profile.productClass), role: profile.role },
-      `${profile.brand} ${profile.sku} ${profile.rawText}`,
-    );
-
-    const requestedRoomFit = profile.requestedTags.find((tag) => tag === "compact room" || tag === "medium room");
-    const semanticRank = (candidate: ScoredCandidate): number => {
-      const candidateRoomFit = candidate.product.tags.find((tag) => tag === "compact room" || tag === "medium room");
-      const sameProductClass = candidate.product.productClass === profile.productClass ? 100 : 0;
-      const roomFit = requestedRoomFit && candidateRoomFit
-        ? requestedRoomFit === candidateRoomFit ? 120 : -60
-        : 0;
-      return candidate.score + sameProductClass + roomFit;
-    };
-    // In the wireless-presentation lane the eligibility layer holds the precise
-    // verdict (hub -> SW-* switcher, dongle -> APO-DG2) via fit penalties. The
-    // keyword/confidence sort below must not override it - otherwise a casting
-    // dongle with high decision confidence can leapfrog the actual room switcher
-    // for a ClickShare-style HUB competitor, or vice versa. Fit is the primary
-    // key only for this intent; everywhere else the legacy keyword sort stands.
-    const eligibilityFit = (candidate: ScoredCandidate): number =>
-      Number.isFinite(candidate.fitPenalty) ? (candidate.fitPenalty as number) : 0;
-    const compareCandidates = (a: ScoredCandidate, b: ScoredCandidate): number => {
-      if (intent === "wireless-casting") {
-        const fitDelta = eligibilityFit(a) - eligibilityFit(b);
-        if (fitDelta !== 0) return fitDelta;
-      }
-      return semanticRank(b) - semanticRank(a);
-    };
-    const semanticallyOrdered = [...candidates].sort(compareCandidates);
-
-    // A competitor described as a wireless CASTING DONGLE must lead with
-    // APO-DG2 (the WyreStorm dongle itself), not with a multi-input presentation
-    // switcher. The eligibility engine already encodes this (APO-DG2 gets the
-    // best fit for a dongle competitor), but the keyword-score sort would let
-    // the SW-* switcher win on marketing-word overlap - the exact case the
-    // eligibility layer's competitorIsDongle branch exists to prevent.
-    const dongleCompetitor =
-      intent === "wireless-casting" &&
-      /\bdongle\b/i.test(`${profile.brand} ${profile.sku} ${profile.rawText}`);
-    const semanticallyOrderedAdjusted = dongleCompetitor
-      ? [...semanticallyOrdered].sort((a, b) => {
-          const aIsDongle = /^APO-DG/.test(a.product.sku.toUpperCase());
-          const bIsDongle = /^APO-DG/.test(b.product.sku.toUpperCase());
-          if (aIsDongle !== bIsDongle) {
-            return aIsDongle ? -1 : 1;
-          }
-          return semanticRank(b) - semanticRank(a);
-        })
-      : semanticallyOrdered;
-
-    const ordered = applyGovernedCandidateOrder(
-      semanticallyOrderedAdjusted,
-      governedDecision,
-      (candidate) => candidate.product.sku,
-    );
-
-    // Governed/local decisions are ranking evidence, not permission to bypass
-    // current product-role eligibility. Revalidate the final merged list so a
-    // stale saved decision cannot resurrect a wrong product architecture.
-    return ordered.filter((candidate) =>
-      evaluateProductEligibility({
-        intent,
-        competitorText: `${profile.brand} ${profile.sku} ${profile.rawText}`,
-        match: candidate.product,
-        product: candidate.product,
-      }).eligibility !== "blocked",
-    );
-  }, [governedCandidate, governedDecision, heuristicCandidates, profile]);
-
-  const viableCandidates = useMemo(
-    () => scoredCandidates.filter((candidate) => candidate.verdict !== "NO MATCH"),
-    [scoredCandidates],
-  );
+  const viableCandidates = verdictResult.viable;
+  const heuristicLead = verdictResult.heuristicLead;
   const best = viableCandidates[0] ?? null;
   const displayedCandidate = viableCandidates[candidateIndex] ?? best;
   const governedCoverage = useMemo(() => governedCoverageSummary(), []);
@@ -6137,7 +5904,7 @@ function ComparePageNew() {
                   <GovernedDecisionPanel
                     key={`${effectiveBrand}:${competitorInput}:${displayedDecision?.updatedAt ?? decisionRevision}`}
                     profile={profile}
-                    candidate={displayedCandidate ?? best ?? heuristicCandidates[0] ?? null}
+                    candidate={displayedCandidate ?? best ?? heuristicLead ?? null}
                     existingDecision={displayedDecision}
                     onSaved={() => setDecisionRevision((revision) => revision + 1)}
                   />

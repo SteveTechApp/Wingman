@@ -1,11 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const ROOT_DIR = path.resolve(__dirname, "..", "..");
-const LIVE_LOOKUP_DB_FILE = path.join(ROOT_DIR, "data", "competitor-live-lookup-records.json");
+import { COMPETITOR_LIVE_LOOKUP_DB_FILE as LIVE_LOOKUP_DB_FILE } from "../catalog/files.mjs";
 
 const LIVE_LOOKUP_MEMORY_CACHE = new Map();
 /* COMPETITOR-LIVE-LOOKUP-ALLOWLIST-GUARD-START */

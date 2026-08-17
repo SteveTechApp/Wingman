@@ -404,8 +404,8 @@ function GovernedConfirmationCard() {
           <h2>Profiles awaiting human confirmation</h2>
           <p>
             {backlog.humanVerified}/{backlog.total} human-confirmed · {backlog.readyToConfirm} ready to confirm ·{" "}
-            {backlog.needDataWork} need data work first. A profile becomes verified when a reviewer confirms max
-            resolution, routed I/O and power and records verifiedBy.
+            {backlog.needDataWork} need data work first · {backlog.aging} aging · {backlog.overdue} overdue. A profile
+            becomes verified when a reviewer confirms max resolution, routed I/O and power and records verifiedBy.
           </p>
         </div>
         <span className="wm-dashboard-confirmation-card__count">{awaiting.length} awaiting</span>
@@ -419,6 +419,26 @@ function GovernedConfirmationCard() {
         {visible.map((profile) => (
           <li key={profile.sku} className="wm-dashboard-confirmation-card__row">
             <strong>{profile.sku}</strong>
+            <span
+              className={`wm-dashboard-confirmation-card__tag ${
+                profile.aging === "overdue"
+                  ? "wm-dashboard-confirmation-card__tag--missing"
+                  : "wm-dashboard-confirmation-card__tag--awaiting"
+              }`}
+              title={
+                profile.ageDays === null
+                  ? "No evidence timestamp - the profile cannot be dated"
+                  : profile.aging === "overdue"
+                    ? `Awaiting confirmation for ${profile.ageDays} days - past the overdue threshold`
+                    : `Awaiting confirmation for ${profile.ageDays} day(s)`
+              }
+            >
+              {profile.ageDays === null
+                ? "no date"
+                : profile.aging === "overdue"
+                  ? `OVERDUE ${profile.ageDays}d`
+                  : `${profile.ageDays}d`}
+            </span>
             <span className="wm-dashboard-confirmation-card__class">{profile.productClass}</span>
             {profile.awaitingConfirmation.map((field) => (
               <span

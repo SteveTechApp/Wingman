@@ -21,10 +21,14 @@
  *            whole story: the merged ledger must still match the engine before
  *            it is pushed anywhere.
  *
- * The merge is deterministic and conservative: engine snapshots come from the
- * committed baseline, human approvals win over machine rows, and the newest
- * review/update time breaks ties - so two machines converge on the same
- * ledger without a conflict protocol.
+ * The merge is deterministic, conservative and commutative: engine snapshots
+ * come from the committed baseline, human approvals win over machine rows,
+ * the newest review/update time breaks ties, and a full tie (equal review and
+ * update times) falls back to the canonical row so the outcome never depends
+ * on which side was passed first - two machines converge on the same ledger
+ * without a conflict protocol, regardless of argument order. These invariants
+ * are pinned by the randomized harness in
+ * competitor-decision-ledger-merge.invariant.test.mjs.
  *
  * Env:
  *   WINGMAN_LEDGER_SYNC_MODE   "auto" (default; Supabase when credentials are
@@ -241,14 +245,26 @@ export function mergeLedgers(local, remote) {
     ...decisions.map((decision) => text(decision.updatedAt)),
   ].filter(Boolean).sort().reverse();
 
+  const versions = [local?.version, remote?.version]
+    .map(Number)
+    .filter((value) => Number.isFinite(value) && value > 0);
+
   return {
-    version: Number.isFinite(Number(local?.version)) ? Number(local.version) : Number(remote?.version) || 1,
+    // Max of both sides so the ledger version does not depend on argument
+    // order (a merge of the same two ledgers must be identical either way).
+    version: versions.length ? Math.max(...versions) : 1,
     updatedAt: timestamps[0] || nowIso(),
     decisions,
   };
 }
 
-/** Approved rows win; otherwise the newest review/update time wins. */
+/**
+ * Approved rows win; otherwise the newest review/update time wins. A full tie
+ * (equal review and update times, different content) falls back to the
+ * canonical (JSON-serialized) smaller row so the merge is COMMUTATIVE: the
+ * outcome never depends on which side was passed first, so two machines
+ * holding differently-ordered or differently-shaped inputs still converge.
+ */
 function pickWinner(a, b) {
   const approvedRank = (decision) => (decision?.reviewStatus === "approved" ? 1 : 0);
   if (approvedRank(a) !== approvedRank(b)) {
@@ -258,7 +274,11 @@ function pickWinner(a, b) {
   if (reviewedAt(a) !== reviewedAt(b)) {
     return reviewedAt(a) > reviewedAt(b) ? a : b;
   }
-  return String(a?.updatedAt ?? "") >= String(b?.updatedAt ?? "") ? a : b;
+  const updatedAt = (decision) => String(decision?.updatedAt ?? "");
+  if (updatedAt(a) !== updatedAt(b)) {
+    return updatedAt(a) > updatedAt(b) ? a : b;
+  }
+  return JSON.stringify(a) <= JSON.stringify(b) ? a : b;
 }
 
 // ---------------------------------------------------------------------------
