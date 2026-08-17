@@ -83,7 +83,10 @@ describe("compare page verdict lead (beginner-first answer)", () => {
     const verdict = await screen.findByLabelText("Compare verdict");
 
     // The verdict banner answers "is there anything similar?" in plain words.
-    expect(verdict.querySelector(".compare-verdict-lead__banner strong")?.textContent).toMatch(
+    // (Target the heading element: the banner's route strip also carries a
+    // <strong> for the competitor name, which a loose descendant selector would
+    // hit first.)
+    expect(verdict.querySelector(".compare-verdict-lead__heading")?.textContent).toMatch(
       /match|plausible|equivalent|similar/i,
     );
 
@@ -131,7 +134,7 @@ describe("compare page verdict lead (beginner-first answer)", () => {
     const verdict = await screen.findByLabelText("Compare verdict");
 
     // An unknown SKU means evidence is still being reviewed, not an invented answer.
-    expect(verdict.querySelector(".compare-verdict-lead__banner strong")?.textContent).toMatch(
+    expect(verdict.querySelector(".compare-verdict-lead__heading")?.textContent).toMatch(
       /reviewed|equivalent|match/i,
     );
 

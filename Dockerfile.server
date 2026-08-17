@@ -19,6 +19,7 @@ COPY data/ /app/data/
 # and CI-built backend images independent of ignored local generated files.
 COPY data-sources/ /app/data-sources/
 COPY tools/build-product-data-sources.mjs tools/product-update-utils.mjs /app/tools/
+COPY tools/lib/routed-io-evidence.mjs /app/tools/lib/routed-io-evidence.mjs
 RUN node tools/build-product-data-sources.mjs
 
 # Expose the server port

@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   governedConfirmationBacklog,
+  PROFILE_CONFIRMATION_FAIL_AFTER_DAYS,
+  PROFILE_CONFIRMATION_WARN_AFTER_DAYS,
   specCriticalFieldLabel,
+  type AgingState,
 } from "./governedConfirmationBacklog";
 
 describe("governed confirmation backlog", () => {
@@ -11,11 +14,12 @@ describe("governed confirmation backlog", () => {
     // The 2026-08-16 structured review passes confirmed 117 profiles (the
     // original matrix/switcher/HDBaseT batch plus the 97-profile batch covering
     // every profile whose spec-critical fields were readable) against live
-    // official pages; the remaining 13 machine-transcribed profiles still await
-    // a reviewer recording verifiedBy.
-    expect(backlog.total).toBe(130);
+    // official pages, and the coverage campaign added 4 machine-transcribed
+    // profiles (134 total); the 17 machine-transcribed profiles still await a
+    // reviewer recording verifiedBy.
+    expect(backlog.total).toBe(134);
     expect(backlog.humanVerified).toBe(117);
-    expect(backlog.awaiting.length).toBe(13);
+    expect(backlog.awaiting.length).toBe(17);
   });
 
   it("splits the backlog into ready-to-confirm and need-data-work with consistent per-profile fields", () => {
@@ -23,7 +27,7 @@ describe("governed confirmation backlog", () => {
 
     expect(backlog.readyToConfirm + backlog.needDataWork).toBe(backlog.awaiting.length);
     // The 2026-08 batch confirmed every profile that was ready (readable
-    // spec-critical fields) - the remaining 13 all need data work first, so
+    // spec-critical fields) - the remaining 17 all need data work first, so
     // readyToConfirm is honestly zero rather than showing a fake queue.
     expect(backlog.readyToConfirm).toBe(0);
     expect(backlog.needDataWork).toBeGreaterThan(0);
@@ -36,6 +40,26 @@ describe("governed confirmation backlog", () => {
       const missing = new Set(profile.missingData);
       expect(awaiting.size + missing.size).toBeLessThanOrEqual(3);
       for (const field of awaiting) expect(missing.has(field)).toBe(false);
+    }
+  });
+
+  it("ages every awaiting profile from its newest evidence timestamp and flags the current backlog", () => {
+    const backlog = governedConfirmationBacklog();
+
+    expect(PROFILE_CONFIRMATION_WARN_AFTER_DAYS).toBeGreaterThan(0);
+    expect(PROFILE_CONFIRMATION_FAIL_AFTER_DAYS).toBeGreaterThan(PROFILE_CONFIRMATION_WARN_AFTER_DAYS);
+    // All 17 machine-transcribed profiles carry 2026-07-30 capture evidence,
+    // so they are uniformly past the warn threshold but inside the fail
+    // threshold: visible on the dashboard, not yet blocking the gate.
+    expect(backlog.aging).toBe(17);
+    expect(backlog.overdue).toBe(0);
+
+    for (const profile of backlog.awaiting) {
+      const states: AgingState[] = ["fresh", "aging", "overdue"];
+      expect(states).toContain(profile.aging);
+      expect(profile.ageDays).not.toBeNull();
+      expect(Number(profile.ageDays)).toBeGreaterThanOrEqual(14);
+      expect(profile.aging).toBe("aging");
     }
   });
 

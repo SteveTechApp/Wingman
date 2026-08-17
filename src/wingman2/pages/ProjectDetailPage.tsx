@@ -19,6 +19,7 @@ import { buildRecommendationEvidence } from "../lib/recommendationEvidence";
 import { saveProjectAsRoomTemplate } from "../lib/customRoomTemplates";
 import { getProjectRequirementRecords, requirementReadiness } from "../lib/projectRequirements";
 import { getProductFamilyRankingReason } from "../lib/productFamilyShortlistRanking";
+import { repTierLabelFromRun } from "../lib/repScript";
 
 const statusOptions: StoredRequirementStatus[] = ["confirmed", "review", "unknown"];
 
@@ -409,7 +410,10 @@ export function ProjectDetailPage() {
           "Competitor comparison",
         ),
         source: compareRun.source || "Compare",
-        status: compareRun.confidence || compareRun.matchType || "Comparison saved",
+        // Tier label for a stored run comes from repScript (single source of
+        // truth for the comparison narrative) - honest "Comparison saved"
+        // fallback for runs saved before the confidence field existed.
+        status: repTierLabelFromRun(compareRun),
         detail:
           compareRun.summary ||
           compareRun.evidence?.[0] ||
