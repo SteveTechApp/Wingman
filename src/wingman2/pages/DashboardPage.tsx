@@ -14,6 +14,8 @@ import { StatusChip } from "../components/StatusChip";
 import {
   confirmGovernedProfile,
   fetchApprovedCompetitorDecisions,
+  getWingmanSession,
+  type WingmanWorkspaceSession,
 } from "../api/wingmanApi";
 import { governedDecisionLabel } from "../lib/governedCompareRuntime";
 import type { CompetitorMatchDecision } from "../lib/competitorMatchDecisionLedger";
@@ -220,6 +222,15 @@ function readDisplayName() {
   }
 
   return "Steve";
+}
+
+function isDashboardAdminSession(session: WingmanWorkspaceSession | null): boolean {
+  return Boolean(
+    session?.permissions?.canManageWorkspace ||
+      [session?.workspaceRole, session?.user?.role].some((role) =>
+        ["admin", "owner"].includes(String(role).toLowerCase()),
+      ),
+  );
 }
 
 function isGovernedEvidenceUrl(value: string): boolean {
@@ -718,6 +729,28 @@ function GovernedCoverageStrip() {
 
 export function DashboardPage() {
   const { projects } = useProjectStore();
+  const [workspaceSession, setWorkspaceSession] = useState<WingmanWorkspaceSession | null>(null);
+  const [sessionReady, setSessionReady] = useState(false);
+  const showAdminGovernance = sessionReady && isDashboardAdminSession(workspaceSession);
+
+  useEffect(() => {
+    let active = true;
+
+    getWingmanSession()
+      .then((response) => {
+        if (active) setWorkspaceSession(response.session || null);
+      })
+      .catch(() => {
+        if (active) setWorkspaceSession(null);
+      })
+      .finally(() => {
+        if (active) setSessionReady(true);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const sourceProjects: DashboardProject[] = projects.length
     ? projects.map((project) => ({ ...project, scope: projectScopeLine(project) }))
@@ -764,11 +797,13 @@ export function DashboardPage() {
 
           <GovernedCoverageStrip />
 
-          <CompetitorDecisionApprovedCard />
-
-          <GovernedConfirmationCard />
-
-          <GovernedVerifiedCard />
+          {showAdminGovernance ? (
+            <>
+              <CompetitorDecisionApprovedCard />
+              <GovernedConfirmationCard />
+              <GovernedVerifiedCard />
+            </>
+          ) : null}
 
           <section className="wm-reference-section" aria-label="Recent projects">
             <div className="wm-reference-section-heading">

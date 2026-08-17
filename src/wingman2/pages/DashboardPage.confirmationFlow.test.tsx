@@ -1,8 +1,37 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { governedProfilesWithStatus } from "../lib/testHelpers/governedProfilesHarness";
 import { DashboardPage } from "./DashboardPage";
+
+const { getWingmanSession } = vi.hoisted(() => ({
+  getWingmanSession: vi.fn(),
+}));
+
+vi.mock("../api/wingmanApi", async () => {
+  const actual = await vi.importActual<typeof import("../api/wingmanApi")>(
+    "../api/wingmanApi",
+  );
+  return {
+    ...actual,
+    getWingmanSession,
+  };
+});
+
+function adminSessionResponse() {
+  return {
+    ok: true,
+    session: {
+      workspaceRole: "admin",
+      permissions: { canManageWorkspace: true },
+      user: {
+        id: "test-admin",
+        name: "Steve",
+        role: "admin",
+      },
+    },
+  };
+}
 
 // The 2026-08-16 review passes confirmed every profile whose spec-critical
 // fields were readable (117 of 130), so the real data has zero ready-to-confirm
@@ -30,10 +59,15 @@ function renderDashboard() {
 }
 
 describe("DashboardPage confirmation flow (ready profile)", () => {
-  it("opens the confirmation panel for a ready profile listing its spec-critical fields with values", () => {
+  beforeEach(() => {
+    getWingmanSession.mockReset();
+    getWingmanSession.mockResolvedValue(adminSessionResponse());
+  });
+
+  it("opens the confirmation panel for a ready profile listing its spec-critical fields with values", async () => {
     renderDashboard();
 
-    const card = screen.getByLabelText("Profiles awaiting human confirmation");
+    const card = await screen.findByLabelText("Profiles awaiting human confirmation");
     // With APO-210-UC set aside for review, the awaiting list is 18 (17 real profiles + the test's simulated one).
     expect(card.textContent).toContain("18 awaiting");
     const apoRow = within(card).getByText("APO-210-UC").closest("li");
@@ -65,7 +99,7 @@ describe("DashboardPage confirmation flow (ready profile)", () => {
 
     renderDashboard();
 
-    const card = screen.getByLabelText("Profiles awaiting human confirmation");
+    const card = await screen.findByLabelText("Profiles awaiting human confirmation");
     expect(card.textContent).toContain("18 awaiting");
     const apoRow = within(card).getByText("APO-210-UC").closest("li");
     fireEvent.click(within(apoRow as HTMLElement).getByRole("button", { name: "Confirm" }));

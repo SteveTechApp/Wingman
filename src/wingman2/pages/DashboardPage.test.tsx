@@ -5,6 +5,50 @@ import { readProjectStore, upsertStoredProject } from "../data/projectStore";
 import { routeCatalogByKey } from "../app/routeCatalog";
 import { DashboardPage } from "./DashboardPage";
 
+const { getWingmanSession } = vi.hoisted(() => ({
+  getWingmanSession: vi.fn(),
+}));
+
+vi.mock("../api/wingmanApi", async () => {
+  const actual = await vi.importActual<typeof import("../api/wingmanApi")>(
+    "../api/wingmanApi",
+  );
+  return {
+    ...actual,
+    getWingmanSession,
+  };
+});
+
+function adminSessionResponse() {
+  return {
+    ok: true,
+    session: {
+      workspaceRole: "admin",
+      permissions: { canManageWorkspace: true },
+      user: {
+        id: "test-admin",
+        name: "Steve",
+        role: "admin",
+      },
+    },
+  };
+}
+
+function normalUserSessionResponse() {
+  return {
+    ok: true,
+    session: {
+      workspaceRole: "member",
+      permissions: { canManageWorkspace: false },
+      user: {
+        id: "test-user",
+        name: "Normal User",
+        role: "member",
+      },
+    },
+  };
+}
+
 function renderDashboard() {
   render(
     <MemoryRouter initialEntries={["/wingman"]}>
@@ -15,9 +59,16 @@ function renderDashboard() {
   return within(screen.getByLabelText("Recent projects"));
 }
 
+function renderAdminDashboard() {
+  getWingmanSession.mockResolvedValue(adminSessionResponse());
+  return renderDashboard();
+}
+
 describe("DashboardPage", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    getWingmanSession.mockReset();
+    getWingmanSession.mockResolvedValue(normalUserSessionResponse());
   });
 
   afterEach(() => {
@@ -32,10 +83,10 @@ describe("DashboardPage", () => {
     expect(recentProjects.getByText("Westbrook Classroom Standard")).not.toBeNull();
   });
 
-  it("renders the profiles-awaiting-human-confirmation card with its backlog", () => {
-    renderDashboard();
+  it("renders the profiles-awaiting-human-confirmation card with its backlog for admins", async () => {
+    renderAdminDashboard();
 
-    const card = screen.getByLabelText("Profiles awaiting human confirmation");
+    const card = await screen.findByLabelText("Profiles awaiting human confirmation");
     expect(card.textContent).toContain("Profiles awaiting human confirmation");
     // The 2026-08-16 review passes confirmed 117 of the 134 governed profiles;
     // the 17 that remain all need data work first (the ready set was exhausted).
@@ -49,10 +100,10 @@ describe("DashboardPage", () => {
     expect(card.textContent).toMatch(/and [0-9]+ more awaiting confirmation/);
   });
 
-  it("renders the human-verified reviewer trail recent-first with who, when and the source URL", () => {
-    renderDashboard();
+  it("renders the human-verified reviewer trail recent-first with who, when and the source URL for admins", async () => {
+    renderAdminDashboard();
 
-    const card = screen.getByLabelText("Human-verified profiles");
+    const card = await screen.findByLabelText("Human-verified profiles");
     expect(card.textContent).toContain("Human-verified profiles");
     expect(card.textContent).toContain("117 verified");
     // Recent-first is the default: the 97-profile batch's final write (the
@@ -66,10 +117,10 @@ describe("DashboardPage", () => {
     expect(card.textContent).toMatch(/and 109 more verified profiles/);
   });
 
-  it("sorts the human-verified list SKU A-Z or recent-first on demand", () => {
-    renderDashboard();
+  it("sorts the human-verified list SKU A-Z or recent-first on demand for admins", async () => {
+    renderAdminDashboard();
 
-    const card = screen.getByLabelText("Human-verified profiles");
+    const card = await screen.findByLabelText("Human-verified profiles");
     const sort = within(card).getByLabelText("Sort verified profiles");
     const firstRow = () => within(card).getAllByRole("listitem")[0].textContent ?? "";
 
@@ -84,10 +135,10 @@ describe("DashboardPage", () => {
     expect(firstRow()).toContain("TX-35-IWC-KVM");
   });
 
-  it("filters the human-verified list by reviewer", () => {
-    renderDashboard();
+  it("filters the human-verified list by reviewer for admins", async () => {
+    renderAdminDashboard();
 
-    const card = screen.getByLabelText("Human-verified profiles");
+    const card = await screen.findByLabelText("Human-verified profiles");
     const filter = within(card).getByLabelText("Filter by reviewer");
     const options = Array.from(filter.querySelectorAll("option")).map((option) => option.textContent);
     // The review pass recorded a single reviewer of record so far; the control
@@ -103,14 +154,26 @@ describe("DashboardPage", () => {
     expect(card.textContent).toMatch(/and 109 more verified profiles/);
   });
 
-  it("marks profiles with missing spec-critical data as not yet confirmable", () => {
-    renderDashboard();
+  it("marks profiles with missing spec-critical data as not yet confirmable for admins", async () => {
+    renderAdminDashboard();
 
-    const card = screen.getByLabelText("Profiles awaiting human confirmation");
+    const card = await screen.findByLabelText("Profiles awaiting human confirmation");
     const dockRow = within(card).getByText("APO-DG-DOCK").closest("li");
     expect(dockRow).not.toBeNull();
     const button = within(dockRow as HTMLElement).getByRole("button", { name: "Add data first" });
     expect((button as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("keeps governance reviewer panels off the normal-user landing page", async () => {
+    renderDashboard();
+
+    await vi.waitFor(() => {
+      expect(getWingmanSession).toHaveBeenCalledTimes(1);
+    });
+
+    expect(screen.queryByLabelText("Approved competitor decisions")).toBeNull();
+    expect(screen.queryByLabelText("Profiles awaiting human confirmation")).toBeNull();
+    expect(screen.queryByLabelText("Human-verified profiles")).toBeNull();
   });
 
   // The confirmation panel and API-write flow are covered in

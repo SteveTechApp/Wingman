@@ -1,14 +1,16 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type {
   CompetitorDecisionApprovedResponse,
+  WingmanSessionResponse,
 } from "../api/wingmanApi";
 import type { CompetitorMatchDecision } from "../lib/competitorMatchDecisionLedger";
 import { DashboardPage } from "./DashboardPage";
 
-const { fetchApprovedCompetitorDecisions } = vi.hoisted(() => ({
+const { fetchApprovedCompetitorDecisions, getWingmanSession } = vi.hoisted(() => ({
   fetchApprovedCompetitorDecisions: vi.fn(),
+  getWingmanSession: vi.fn(),
 }));
 
 vi.mock("../api/wingmanApi", async () => {
@@ -18,8 +20,39 @@ vi.mock("../api/wingmanApi", async () => {
   return {
     ...actual,
     fetchApprovedCompetitorDecisions,
+    getWingmanSession,
   };
 });
+
+function adminSessionResponse(): WingmanSessionResponse {
+  return {
+    ok: true,
+    session: {
+      workspaceRole: "admin",
+      permissions: { canManageWorkspace: true },
+      user: {
+        id: "test-admin",
+        name: "Steve",
+        role: "admin",
+      },
+    },
+  };
+}
+
+function normalUserSessionResponse(): WingmanSessionResponse {
+  return {
+    ok: true,
+    session: {
+      workspaceRole: "member",
+      permissions: { canManageWorkspace: false },
+      user: {
+        id: "test-user",
+        name: "Normal User",
+        role: "member",
+      },
+    },
+  };
+}
 
 function approvedDecision(
   manufacturer: string,
@@ -72,6 +105,12 @@ function approvedPayload(): CompetitorDecisionApprovedResponse {
 }
 
 describe("DashboardPage approved competitor decisions card", () => {
+  beforeEach(() => {
+    fetchApprovedCompetitorDecisions.mockReset();
+    getWingmanSession.mockReset();
+    getWingmanSession.mockResolvedValue(adminSessionResponse());
+  });
+
   it("surfaces the approved count, the pending remainder and the reviewer trail", async () => {
     fetchApprovedCompetitorDecisions.mockResolvedValue(approvedPayload());
 
@@ -96,6 +135,24 @@ describe("DashboardPage approved competitor decisions card", () => {
     expect(rows[0].textContent).toContain("Approved closest technical match · Steve · 2026-08-16");
     expect(rows[0].textContent).toContain("hallresearch.com");
     expect(rows[1].textContent).toContain("AMX DGX1600-ENC");
+  });
+
+  it("does not fetch or render the admin decision trail for a normal user", async () => {
+    getWingmanSession.mockResolvedValue(normalUserSessionResponse());
+    fetchApprovedCompetitorDecisions.mockResolvedValue(approvedPayload());
+
+    render(
+      <MemoryRouter initialEntries={["/wingman"]}>
+        <DashboardPage />
+      </MemoryRouter>,
+    );
+
+    await waitFor(() => {
+      expect(getWingmanSession).toHaveBeenCalledTimes(1);
+    });
+
+    expect(screen.queryByLabelText("Approved competitor decisions")).toBeNull();
+    expect(fetchApprovedCompetitorDecisions).not.toHaveBeenCalled();
   });
 
   it("renders nothing when the governed server is absent", async () => {
