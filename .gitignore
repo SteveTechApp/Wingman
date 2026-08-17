@@ -11,6 +11,8 @@ build/
 coverage/
 .npm/
 .pnpm-store/
+server/node_modules/
+.vite-temp/
 
 # --- Logs ---
 *.log
@@ -55,9 +57,21 @@ $RECYCLE.BIN/
 *.rej
 *~
 New Text Document.txt
+.sync-test.txt
+bashcreated.txt
+verify-failure.txt
 
-# --- PowerShell / script scratch ---
+# --- PowerShell / patch scratch ---
 *.ps1.bak
+Apply-*.ps1
+*-Fixed.ps1
+*.patch
+*.diff
+
+# --- Agent / local worktrees and work notes ---
+.wingman-work/
+.freebuff/
+.codex/
 
 # --- Runtime / generated data ---
 data/*.json
@@ -67,6 +81,7 @@ data/*.json
 !data/seed/**
 !data/wyrestorm-product-intelligence.json
 !data/product-intelligence-db.json
+data/runtime/
 
 # --- Databases / local server state ---
 *.db
@@ -92,11 +107,11 @@ _backups/
 backups/
 .DISCARDED/
 _review/
-.codex/
 lighthouse-reports/
 reports/
 _release/
 release/
+_wingman_backup_*/
 
 # --- Nested duplicate project protection ---
 wingman/node_modules/
@@ -106,7 +121,8 @@ wingman/build/
 wingman/package-lock.json
 
 # --- Archives ---
-# Historical material belongs outside the active repository. Git history retains removed files.
+# Historical material belongs outside the active repository. Git history and
+# archive/* branches retain material removed from the working tree.
 archive/
 *.zip
 *.tar
@@ -120,22 +136,3 @@ archive/
 
 # --- Vite oddities ---
 vite.config.ts.timestamp-*
-server/node_modules/
-.vite-temp/
-data/runtime/
-
-# Local Wingman script backups
-_wingman_backup_*/
-Apply-*.ps1
-*-Fixed.ps1
-*.patch
-*.diff
-
-# WINGMAN_REPOSITORY_HYGIENE_START
-# Historical material and one-off local patch/install files do not belong in the active repository.
-archive/
-Apply-*.ps1
-*-Fixed.ps1
-*.patch
-*.diff
-# WINGMAN_REPOSITORY_HYGIENE_END
