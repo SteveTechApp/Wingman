@@ -7,6 +7,8 @@ import { PageHero } from "../components/PageHero";
 import { readProductWorkspaceHandoff, type ProductWorkspaceHandoff } from "../data/productWorkspaceHandoff";
 import { writeSchematicWorkspaceHandoff } from "../data/schematicWorkspaceHandoff";
 import { useProjectStore, type StoredProject } from "../data/projectStore";
+import { buildSchematicBriefFromProject } from "../lib/schematic/projectToSchematicBrief";
+import type { SchematicProjectBrief } from "../lib/schematic/schematicTypes";
 import {
   DIAGRAM_TEMPLATES,
   diagramTemplateFor,
@@ -78,6 +80,20 @@ function productCoverage(productHandoff: ProductWorkspaceHandoff | null) {
     { label: "Room visual", ready: Boolean(productHandoff?.visualPrompt) },
     { label: "Checks", ready: Boolean(productHandoff?.checks?.length) },
   ];
+}
+
+function buildBriefFromProductHandoff(handoff: ProductWorkspaceHandoff): SchematicProjectBrief {
+  return {
+    id: handoff.sku,
+    title: `${handoff.sku} - product schematic`,
+    products: [{ sku: handoff.sku, label: handoff.name || handoff.sku, quantity: 1 }],
+    sources: [{ label: "Presenter source" }],
+    displays: [{ label: "Room display" }],
+    usbRequired: false,
+    audioRequired: false,
+    controlRequired: false,
+    networkAvailable: true,
+  };
 }
 
 function projectLabel(project: StoredProject) {
@@ -755,6 +771,15 @@ export function VisualDesignStudioPage() {
     return projects.find((project) => project.id === selectedSourceId) ?? null;
   }, [activeProject, projects, selectedSourceId]);
 
+  // Native schematic engine (WingmanGeneratedSchematicPanel) needs its own brief. It used
+  // to always render a hardcoded demo brief regardless of what was actually selected here --
+  // now it reflects the real selected project (or product handoff / TBC scaffold) instead.
+  const generatedSchematicBrief = useMemo(() => {
+    if (selectedProject) return buildSchematicBriefFromProject(selectedProject);
+    if (selectedSourceId === "product-workspace" && productHandoff) return buildBriefFromProductHandoff(productHandoff);
+    return undefined;
+  }, [productHandoff, selectedProject, selectedSourceId]);
+
   const generated = useMemo(() => {
     if (selectedSourceId === "product-workspace" && productHandoff) {
       return buildProductHandoffDiagram(productHandoff, diagramType);
@@ -790,7 +815,7 @@ export function VisualDesignStudioPage() {
 
   return (
     <main className="wm-visual-design-page" data-wingman-schematic-builder="true">
-      <WingmanGeneratedSchematicPanel />
+      <WingmanGeneratedSchematicPanel brief={generatedSchematicBrief} />
       <details className="wm-ui-card wm-legacy-schematic-shell">
         <summary className="wm-legacy-schematic-summary">
           <span>Legacy schematic scaffold</span>

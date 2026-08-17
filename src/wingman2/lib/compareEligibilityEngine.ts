@@ -6,7 +6,28 @@ import {
   type NetworkHdAvoipRecommendation,
 } from "./networkHdAvoipEquivalence";
 import { selectWingmanProducts } from "./productSelectorEngine";
+import {
+  derivePresentationSwitcherFitProfile,
+  findDynamicPresentationSwitcherCandidates,
+  scorePresentationSwitcherFit,
+} from "./dynamicPresentationSwitcherFit";
+import {
+  deriveMatrixFitProfile,
+  findDynamicMatrixCandidates,
+  scoreMatrixFit,
+} from "./dynamicMatrixFit";
+import {
+  deriveDistributionAmpFitProfile,
+  findDynamicDistributionAmpCandidates,
+  scoreDistributionAmpFit,
+} from "./dynamicDistributionAmpFit";
+import {
+  deriveExtenderFitProfile,
+  findDynamicExtenderCandidates,
+  scoreExtenderFit,
+} from "./dynamicExtenderFit";
 import { getWyreStormCompareLeadBlockReason } from "./wyrestormSkuBusinessStatus";
+import type { ComparisonRow } from "./structuredFitCommon";
 
 const AVOIP_ENDPOINT_INTENTS = new Set<CompareIntentKind>([
   "av-over-ip",
@@ -77,6 +98,8 @@ export type CompareEligibilityResult = {
   reasons: string[];
   blockers: string[];
   fitPenalty: number;
+  /** Side-by-side "features and I/O" comparison chart rows, when the intent's scorer computes them. */
+  comparisonRows?: ComparisonRow[];
 };
 
 function toText(value: unknown): string {
@@ -250,39 +273,6 @@ function addCandidatesByPredicate(
       return;
     }
   }
-}
-
-function extractMatrixSizeFromText(text: string): { inputs?: number; outputs?: number } {
-  const readable = text.replace(/[×]/g, "x");
-  const explicit = readable.match(/(?:^|[^0-9])(\d{1,2})\s*x\s*(\d{1,2})(?:[^0-9]|$)/i);
-
-  if (explicit) {
-    return {
-      inputs: Number(explicit[1]),
-      outputs: Number(explicit[2]),
-    };
-  }
-
-  const compact = skuKey(text);
-  const blustreamKit = compact.match(/^(?:HMX|C)(\d)(\d)(?:18G|4K|KIT|CS|PRO|$)/);
-
-  if (blustreamKit) {
-    return {
-      inputs: Number(blustreamKit[1]),
-      outputs: Number(blustreamKit[2]),
-    };
-  }
-
-  const prefixed = compact.match(/(?:MXV|MMX|HMX|MX|VS|C|ACMX)(\d{2})(\d{2})/);
-
-  if (prefixed) {
-    return {
-      inputs: Number(prefixed[1]),
-      outputs: Number(prefixed[2]),
-    };
-  }
-
-  return {};
 }
 
 function numberFromValue(value: unknown): number | undefined {
@@ -469,33 +459,36 @@ function blocked(sku: string, intent: CompareIntentKind, reasons: string[]): Com
   };
 }
 
-function direct(intent: CompareIntentKind, reasons: string[], fitPenalty = 0): CompareEligibilityResult {
+function direct(intent: CompareIntentKind, reasons: string[], fitPenalty = 0, comparisonRows?: ComparisonRow[]): CompareEligibilityResult {
   return {
     eligibility: "direct",
     intent,
     reasons,
     blockers: [],
     fitPenalty,
+    comparisonRows,
   };
 }
 
-function alternative(intent: CompareIntentKind, reasons: string[], fitPenalty = 25): CompareEligibilityResult {
+function alternative(intent: CompareIntentKind, reasons: string[], fitPenalty = 25, comparisonRows?: ComparisonRow[]): CompareEligibilityResult {
   return {
     eligibility: "architecture-alternative",
     intent,
     reasons,
     blockers: [],
     fitPenalty,
+    comparisonRows,
   };
 }
 
-function related(intent: CompareIntentKind, reasons: string[], fitPenalty = 75): CompareEligibilityResult {
+function related(intent: CompareIntentKind, reasons: string[], fitPenalty = 75, comparisonRows?: ComparisonRow[]): CompareEligibilityResult {
   return {
     eligibility: "related-only",
     intent,
     reasons,
     blockers: [],
     fitPenalty,
+    comparisonRows,
   };
 }
 
@@ -595,37 +588,13 @@ function productHasNetworkHdEndpointRole(sku: string, text: string): boolean {
     /\b(tx|rx|trx|encoder|decoder|transceiver|transmitter|receiver)\b/i.test(value);
 }
 
-function matrixFitPenalty(competitorText: string, sku: string, text: string): number {
-  const required = extractMatrixSizeFromText(competitorText);
-  const offered = extractMatrixSizeFromText(`${sku} ${text}`);
-
-  let penalty = 0;
-
-  if (required.inputs && offered.inputs) {
-    if (offered.inputs < required.inputs) {
-      penalty += 200;
-    } else {
-      penalty += Math.max(0, offered.inputs - required.inputs) * 10;
-    }
-  }
-
-  if (required.outputs && offered.outputs) {
-    if (offered.outputs < required.outputs) {
-      penalty += 200;
-    } else {
-      penalty += Math.max(0, offered.outputs - required.outputs) * 10;
-    }
-  }
-
-  return penalty;
-}
-
 export function evaluateProductEligibility(args: {
   intent: CompareIntentKind;
   competitorText: string;
   match: LooseMatch;
   product?: LooseRecord;
   competitorNetworkClass?: AvoipNetworkClass;
+  competitorRecord?: LooseRecord;
 }): CompareEligibilityResult {
   const product = args.product || args.match;
   const sku = getSku(product || args.match);
@@ -754,22 +723,39 @@ export function evaluateProductEligibility(args: {
       return blocked(sku, args.intent, ["Candidate is not a matrix/switching product."]);
     }
 
-    const penalty = matrixFitPenalty(args.competitorText, sku, combined);
+    // Fit is computed fresh from live structured I/O data every time (see
+    // dynamicMatrixFit.ts) -- no fixed per-size SKU table, so a room that needs a size
+    // WyreStorm didn't previously have a hardcoded rule for still gets scored properly.
+    const competitorProfile = deriveMatrixFitProfile(args.competitorRecord ?? {}, args.competitorText);
+    const candidateProfile = deriveMatrixFitProfile(product || args.match, combined);
+    const fit = scoreMatrixFit(competitorProfile, candidateProfile);
 
-    if (penalty >= 200) {
-      return related(args.intent, ["Matrix candidate appears undersized for required routed I/O."], penalty);
+    if (fit.eligibility === "direct") {
+      return direct(args.intent, fit.reasons, fit.fitPenalty, fit.rows);
     }
 
-    const size = extractMatrixSizeFromText(args.competitorText);
-    const matrixBonus = size.inputs === 4 && size.outputs === 2 && (/0402|4X2/.test(key)) ? -100 : 0;
+    if (fit.eligibility === "alternative") {
+      return alternative(args.intent, fit.reasons, Math.max(fit.fitPenalty, 30), fit.rows);
+    }
 
-    return direct(args.intent, ["Matrix/switching candidate with compatible routed I/O direction."], penalty + matrixBonus);
+    return related(args.intent, fit.reasons, Math.max(fit.fitPenalty, 60), fit.rows);
   }
 
   if (args.intent === "distribution-amplifier") {
     if (/^SP|^EXPSP/.test(key) || /\b(splitter|distribution amplifier|distribution amp|duplicator)\b/i.test(combined)) {
-      const penalty = matrixFitPenalty(args.competitorText, sku, combined);
-      return direct(args.intent, ["HDMI distribution amplifier candidate with a one-source, mirrored-output topology."], penalty);
+      const competitorProfile = deriveDistributionAmpFitProfile(args.competitorRecord ?? {});
+      const candidateProfile = deriveDistributionAmpFitProfile(product || args.match);
+      const fit = scoreDistributionAmpFit(competitorProfile, candidateProfile);
+
+      if (fit.eligibility === "direct") {
+        return direct(args.intent, fit.reasons, fit.fitPenalty, fit.rows);
+      }
+
+      if (fit.eligibility === "alternative") {
+        return alternative(args.intent, fit.reasons, Math.max(fit.fitPenalty, 30), fit.rows);
+      }
+
+      return related(args.intent, fit.reasons, Math.max(fit.fitPenalty, 60), fit.rows);
     }
 
     if (/^MX|^NHD/.test(key) || /\b(matrix|routed|networkhd|av-over-ip)\b/i.test(combined)) {
@@ -780,28 +766,32 @@ export function evaluateProductEligibility(args: {
   }
 
   if (args.intent === "presentation-switcher" || args.intent === "uc-byod") {
-    const competitorNeedsUcHardware = /\b(byom|teams|zoom|unified\s*communications?|uc\s*room|video\s*bar|conference\s*(bar|room|system)|speakerphone)\b/i.test(args.competitorText);
-    const wirelessPresentationSwitcher = /^SW/.test(key) && /\b(wireless|casting|miracast|airplay|chromecast|presentation|switcher|byod|byom)\b/i.test(combined);
+    // Candidate pool + fit score are both computed fresh from live structured data
+    // (see dynamicPresentationSwitcherFit.ts) -- no fixed per-SKU judgement calls here,
+    // so a catalog change (new SKU, re-classified SKU, discontinued SKU) is reflected the
+    // next time this runs, instead of requiring someone to edit this file.
+    const looksLikeFamilyCandidate =
+      /^SW|^MX|^APO/.test(key) ||
+      (args.intent === "uc-byod" && isApolloUcHardware) ||
+      /\b(presentation|switcher|usb-c|byod|byom|unified communications?|video bar|matrix)\b/i.test(combined);
 
-    if (wirelessPresentationSwitcher) {
-      const size = extractMatrixSizeFromText(args.competitorText);
-      const prefersCompactSwitcher = Boolean(size.inputs && size.inputs <= 2);
-      const prefersLargerSwitcher = Boolean(size.inputs && size.inputs >= 4);
-      const is620 = key === "SW620TXW" || key === "SW620LTXW";
-      const is640 = key === "SW640LTXW" || key === "SW640TXW";
-      const fitPenalty = (prefersCompactSwitcher && is620) || (prefersLargerSwitcher && is640) ? -110 : -90;
-      return direct(args.intent, ["Wireless presentation switcher candidate."], fitPenalty);
+    if (!looksLikeFamilyCandidate) {
+      return related(args.intent, ["Related product, but not a direct presentation switcher lead."], 80);
     }
 
-    if (args.intent === "presentation-switcher" && isApolloUcHardware && !competitorNeedsUcHardware) {
-      return alternative(args.intent, ["Apollo UC hardware is a conferencing-room alternative, not the lead wireless presentation switcher match."], 45);
+    const competitorProfile = derivePresentationSwitcherFitProfile(args.competitorRecord ?? {}, args.competitorText);
+    const candidateProfile = derivePresentationSwitcherFitProfile(product || args.match, combined);
+    const fit = scorePresentationSwitcherFit(competitorProfile, candidateProfile);
+
+    if (fit.eligibility === "direct") {
+      return direct(args.intent, fit.reasons, fit.fitPenalty, fit.rows);
     }
 
-    if (/^SW|^MX/.test(key) || (args.intent === "uc-byod" && isApolloUcHardware) || /\b(presentation|switcher|usb-c|byod|byom|unified communications?|video bar)\b/i.test(combined)) {
-      return direct(args.intent, ["Presentation/switching candidate for meeting-room workflow."], 0);
+    if (fit.eligibility === "alternative") {
+      return alternative(args.intent, fit.reasons, Math.max(fit.fitPenalty, 30), fit.rows);
     }
 
-    return related(args.intent, ["Related product, but not a direct presentation switcher lead."], 80);
+    return related(args.intent, fit.reasons, Math.max(fit.fitPenalty, 60), fit.rows);
   }
 
   if (args.intent === "extender") {
@@ -809,12 +799,18 @@ export function evaluateProductEligibility(args: {
       return alternative(args.intent, ["ARCHITECTURE ALTERNATIVE: candidate changes the room architecture rather than replacing the point-to-point HDBaseT extender path."], 65);
     }
 
-    if (/^NHDUSBTRX$/.test(key) && /\busb\b/i.test(args.competitorText)) {
-      return direct(args.intent, ["USB extension-over-IP candidate for USB/KVM workflow."], -20);
-    }
+    if (/^EX|^RX|^TX|^NHDUSBTRX/.test(key) || /\b(extender|extension|hdbaset|hdbt|transmitter|receiver|usb\s*(2\.0|3\.0|extension|extender))\b/i.test(combined)) {
+      // Fit is computed from the competitor's actual distance/USB/KVM requirement (see
+      // dynamicExtenderFit.ts), not a fixed short-list offered regardless of reach.
+      const competitorProfile = deriveExtenderFitProfile(args.competitorRecord ?? {}, args.competitorText);
+      const candidateProfile = deriveExtenderFitProfile(product || args.match, combined);
+      const fit = scoreExtenderFit(competitorProfile, candidateProfile);
 
-    if (/^EX|^RX|^TX/.test(key) || /\b(extender|extension|hdbaset|hdbt|transmitter|receiver|usb\s*(2\.0|3\.0|extension|extender))\b/i.test(combined)) {
-      return direct(args.intent, ["Extension candidate for point-to-point transport."], 0);
+      if (fit.eligibility === "direct") {
+        return direct(args.intent, fit.reasons, fit.fitPenalty, fit.rows);
+      }
+
+      return related(args.intent, fit.reasons, Math.max(fit.fitPenalty, 60), fit.rows);
     }
 
     return related(args.intent, ["Related product, but not a direct extender lead."], 80);
@@ -849,25 +845,95 @@ export function evaluateProductEligibility(args: {
       return blocked(sku, args.intent, ["This is a wireless presentation workflow, not an AVoIP endpoint comparison. Do not lead with NetworkHD here."]);
     }
 
-    // A competitor described specifically as a "dongle" is a simple casting
-    // accessory, not a multi-input switcher or a full UC room bar - lead with
-    // APO-DG2 (the WyreStorm casting dongle) instead of a switcher/video-bar
-    // nudge in that specific case.
     const competitorIsDongle = /\bdongle\b/i.test(args.competitorText);
+    const looksLikeCastingCandidate =
+      /^SW|^APO/.test(key) ||
+      /\b(apollo|wireless|casting|miracast|airplay|chromecast|presentation)\b/i.test(combined);
 
-    if (/^SW/.test(key) && /\b(wireless|casting|miracast|airplay|chromecast|presentation)\b/i.test(combined)) {
-      return direct(args.intent, ["Wireless presentation switcher candidate."], competitorIsDongle ? 30 : -90);
+    if (!looksLikeCastingCandidate) {
+      return related(args.intent, ["No confirmed wireless casting capability."], 75);
     }
 
-    if (/\b(apollo|wireless|casting|miracast|airplay|chromecast)\b/i.test(combined) || /^APO/.test(key)) {
-      const isDg2 = /^APODG2/.test(key);
-      const isVx20Uc = /^APOVX20UC/.test(key);
-      const fitPenalty = competitorIsDongle ? (isDg2 ? 15 : 45) : (isVx20Uc ? 15 : 45);
+    // Wireless casting uses the same structured fit model as presentation
+    // switching, while retaining dependency safety for accessory-only dongles.
+    const competitorProfile = derivePresentationSwitcherFitProfile(
+      args.competitorRecord ?? {},
+      args.competitorText,
+    );
+    const candidateProfile = derivePresentationSwitcherFitProfile(
+      product || args.match,
+      combined,
+    );
+    const fit = scorePresentationSwitcherFit(competitorProfile, candidateProfile);
 
-      return direct(args.intent, ["Wireless casting or collaboration candidate."], fitPenalty);
+    const isDg2 = /^APODG2/.test(key);
+    const isCompleteReceiverOrBase =
+      /^APOVX20UC/.test(key) ||
+      (/^SW/.test(key) && /W$/.test(key));
+
+    if (isDg2) {
+      const dependencyReason =
+        "APO-DG2 is a casting accessory and requires a compatible receiver/base device such as APO-VX20-UC v2 or a compatible -W presentation switcher; it is not a standalone casting solution.";
+      const reasons = Array.from(new Set([...fit.reasons, dependencyReason]));
+
+      if (fit.eligibility === "related") {
+        return related(
+          args.intent,
+          reasons,
+          Math.max(fit.fitPenalty, competitorIsDongle ? 45 : 70),
+          fit.rows,
+        );
+      }
+
+      // Keep DG2 ahead of an oversized complete system when the competitor is
+      // specifically a dongle, but never classify the accessory alone as direct.
+      return alternative(
+        args.intent,
+        reasons,
+        Math.max(fit.fitPenalty, competitorIsDongle ? 15 : 45),
+        fit.rows,
+      );
     }
 
-    return related(args.intent, ["No confirmed wireless casting capability."], 75);
+    if (competitorIsDongle && isCompleteReceiverOrBase) {
+      const reasons = Array.from(
+        new Set([
+          ...fit.reasons,
+          "Complete wireless casting receiver/base solution; broader than a dongle accessory but suitable as the required system endpoint.",
+        ]),
+      );
+
+      if (fit.eligibility === "related") {
+        return related(
+          args.intent,
+          reasons,
+          Math.max(fit.fitPenalty, 60),
+          fit.rows,
+        );
+      }
+
+      return alternative(
+        args.intent,
+        reasons,
+        Math.max(fit.fitPenalty, 30),
+        fit.rows,
+      );
+    }
+
+    if (fit.eligibility === "direct") {
+      return direct(args.intent, fit.reasons, fit.fitPenalty, fit.rows);
+    }
+
+    if (fit.eligibility === "alternative") {
+      return alternative(
+        args.intent,
+        fit.reasons,
+        Math.max(fit.fitPenalty, 30),
+        fit.rows,
+      );
+    }
+
+    return related(args.intent, fit.reasons, Math.max(fit.fitPenalty, 60), fit.rows);
   }
 
   if (args.intent === "network-audio") {
@@ -919,6 +985,7 @@ function ensureEligibilityCandidatePool(
   intent: CompareIntentKind,
   competitorText: string,
   avoipRecommendation: NetworkHdAvoipRecommendation,
+  competitorRecord: LooseRecord = {},
 ): LooseMatch[] {
   const nextMatches = [...matches];
 
@@ -945,84 +1012,73 @@ function ensureEligibilityCandidatePool(
   }
 
   if (intent === "matrix" || intent === "hdbaset-matrix") {
-    const size = extractMatrixSizeFromText(competitorText);
-    const prefersHdBaseTMatrix = /\bhdbaset\b|\bhdbt\b|\btps\b/i.test(competitorText);
+    // Dynamic search over the live matrix catalog, scored on routed I/O size fit and
+    // HDBaseT-vs-local-HDMI transport match (see dynamicMatrixFit.ts) -- not a fixed
+    // per-size SKU table that only covers a few hand-picked sizes.
+    const competitorFitProfile = deriveMatrixFitProfile(competitorRecord, competitorText);
+    const dynamicCandidates = findDynamicMatrixCandidates(products, competitorFitProfile, 6);
 
-    if (size.inputs === 4 && size.outputs === 4) {
-      addCandidateBySku(nextMatches, products, "MXV-0404-H2A-KIT", "Eligibility correction: correctly sized 4x4 HDBaseT matrix candidate inserted for routed matrix comparison.", 90);
-      addCandidateBySku(nextMatches, products, "MX-0404-HDMI", "Eligibility correction: correctly sized 4x4 HDMI matrix candidate inserted for routed matrix comparison.", 84);
-      addCandidateBySku(nextMatches, products, "MX-0404-SCL", "Eligibility correction: correctly sized 4x4 scaling matrix candidate inserted for routed matrix comparison.", 82);
-    }
-
-    if (size.inputs === 4 && size.outputs === 2) {
-      addCandidateBySku(nextMatches, products, "MX-0402-MST", "Eligibility correction: correctly sized 4x2 WyreStorm matrix candidate inserted ahead of oversized 8x8 options.", 86);
-      addCandidatesByPredicate(
+    for (const candidate of dynamicCandidates) {
+      addCandidateBySku(
         nextMatches,
         products,
-        (product) => /0402|4X2/.test(skuKey(product.sku)) && (/^MX/.test(skuKey(product.sku)) || /\b(matrix|switcher|routed)\b/i.test(productText(product))),
-        "Eligibility correction: correctly sized 4x2 matrix/switching candidate inserted ahead of oversized 8x8 options.",
-        4,
-        82,
+        candidate.sku,
+        `Dynamic fit match: ${candidate.fit.reasons.join(" ")}`,
+        Math.max(10, 90 - Math.round(candidate.fit.fitPenalty / 2)),
       );
-    }
-
-    if (size.inputs === 8 && size.outputs === 8) {
-      addCandidateBySku(nextMatches, products, "MXV-0808-H2A-KIT", "Eligibility correction: correctly sized 8x8 HDBaseT matrix candidate inserted for routed matrix comparison.", 90);
-      addCandidateBySku(nextMatches, products, "MXV-0808-H2A-70-V3", "Eligibility correction: correctly sized 8x8 long-reach HDBaseT matrix candidate inserted for routed matrix comparison.", 88);
-      addCandidateBySku(nextMatches, products, "MX-0808-H2A-MK2", "Eligibility correction: correctly sized 8x8 HDMI matrix candidate inserted for routed matrix comparison.", 86);
-      addCandidateBySku(nextMatches, products, "MX-0808-SCL-V2", "Eligibility correction: correctly sized 8x8 scaling matrix candidate inserted for routed matrix comparison.", 84);
-    }
-
-    if (
-      size.inputs &&
-      size.outputs &&
-      size.inputs <= 8 &&
-      size.outputs <= 8 &&
-      !(size.inputs === 4 && size.outputs === 2) &&
-      !(size.inputs === 4 && size.outputs === 4) &&
-      !(size.inputs === 8 && size.outputs === 8)
-    ) {
-      const overCapacityReason = `Eligibility correction: nearest larger fixed matrix candidates inserted because WyreStorm does not offer an exact ${size.inputs}x${size.outputs} routed matrix. More I/O is acceptable only if the room still stays in the same matrix architecture.`;
-
-      if (prefersHdBaseTMatrix) {
-        addCandidateBySku(nextMatches, products, "MXV-0808-H2A-KIT", overCapacityReason, 88);
-        addCandidateBySku(nextMatches, products, "MXV-0808-H2A-70-V3", `${overCapacityReason} Use the longer-reach path only when distance requires it.`, 84);
-        addCandidateBySku(nextMatches, products, "MX-0808-KIT-V2", `${overCapacityReason} Older kit path, so verify bandwidth and topology before quote.`, 80);
-      }
-
-      addCandidateBySku(nextMatches, products, "MX-0808-H2A-MK2", overCapacityReason, prefersHdBaseTMatrix ? 82 : 88);
-      addCandidateBySku(nextMatches, products, "MX-0808-SCL-V2", `${overCapacityReason} Only keep the scaling path in play if scaling is commercially useful.`, prefersHdBaseTMatrix ? 78 : 84);
     }
   }
 
   if (intent === "distribution-amplifier") {
-    addCandidateBySku(nextMatches, products, "SP-0104-H2", "Eligibility correction: four-output HDMI distribution amplifier inserted for mirrored distribution.", 88);
-    addCandidateBySku(nextMatches, products, "SP-0108-SCL", "Eligibility correction: eight-output HDMI distribution amplifier inserted for mirrored distribution.", 90);
-    addCandidatesByPredicate(
-      nextMatches,
-      products,
-      (product) => /^SP|^EXPSP/.test(skuKey(product.sku)) || /\b(splitter|distribution amplifier)\b/i.test(productText(product)),
-      "Eligibility correction: same-topology HDMI distribution candidate inserted.",
-      4,
-      84,
-    );
+    // Dynamic search scored on the competitor's actual required output count (see
+    // dynamicDistributionAmpFit.ts) instead of always leading with the same two SKUs.
+    const competitorFitProfile = deriveDistributionAmpFitProfile(competitorRecord);
+    const dynamicCandidates = findDynamicDistributionAmpCandidates(products, competitorFitProfile, 4);
+
+    for (const candidate of dynamicCandidates) {
+      addCandidateBySku(
+        nextMatches,
+        products,
+        candidate.sku,
+        `Dynamic fit match: ${candidate.fit.reasons.join(" ")}`,
+        Math.max(10, 90 - Math.round(candidate.fit.fitPenalty / 2)),
+      );
+    }
   }
 
   if (intent === "presentation-switcher" || intent === "uc-byod") {
-    addCandidateBySku(nextMatches, products, "MX-0402-MST", "Eligibility correction: presentation switcher candidate inserted for compact meeting-room switching workflow.", 86);
-    addCandidateBySku(nextMatches, products, "MX-0403-H3-MST", "Eligibility correction: presentation switcher candidate inserted for presentation rooms that also need a stronger room-core output path.", 84);
-    addCandidateBySku(nextMatches, products, "SW-620-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for meeting-room collaboration workflow.", 84);
-    addCandidateBySku(nextMatches, products, "SW-640L-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for BYOD/BYOM workflow.", 82);
-    addCandidateBySku(nextMatches, products, "APO-VX20-UC-V2", "Eligibility correction: UC room hardware candidate inserted for conferencing workflow comparison.", 78);
+    // Dynamic search over the live catalog (matrix + presentation-switcher + UC families),
+    // scored against the competitor's own structured spec -- not a fixed SKU allowlist.
+    // See dynamicPresentationSwitcherFit.ts for the scoring model.
+    const competitorFitProfile = derivePresentationSwitcherFitProfile(competitorRecord, competitorText);
+    const dynamicCandidates = findDynamicPresentationSwitcherCandidates(products, competitorFitProfile, 6);
+
+    for (const candidate of dynamicCandidates) {
+      addCandidateBySku(
+        nextMatches,
+        products,
+        candidate.sku,
+        `Dynamic fit match: ${candidate.fit.reasons.join(" ")}`,
+        Math.max(10, 90 - Math.round(candidate.fit.fitPenalty / 2)),
+      );
+    }
   }
 
   if (intent === "extender") {
-    addCandidateBySku(nextMatches, products, "EX-70-H2", "Eligibility correction: HDBaseT extender candidate inserted for point-to-point transport comparison.", 84);
-    addCandidateBySku(nextMatches, products, "EX-35-H2", "Eligibility correction: compact HDBaseT extender candidate inserted for shorter point-to-point transport comparison.", 82);
-    addCandidateBySku(nextMatches, products, "EX-100-USB3", "Eligibility correction: USB 3 extension candidate inserted for USB/KVM workflow comparison.", 84);
-    addCandidateBySku(nextMatches, products, "EX-100-KVM", "Eligibility correction: KVM-capable HDBaseT extender candidate inserted for point-to-point transport comparison.", 82);
-    addCandidateBySku(nextMatches, products, "EX-60-USB2", "Eligibility correction: USB 2 extension candidate inserted for USB workflow comparison.", 80);
-    addCandidateBySku(nextMatches, products, "NHD-USB-TRX", "Eligibility correction: USB over IP transceiver inserted for USB extension workflow comparison.", 78);
+    // Dynamic search scored on the competitor's actual distance/USB/KVM requirement (see
+    // dynamicExtenderFit.ts) instead of always offering the same six SKUs regardless of reach.
+    const competitorFitProfile = deriveExtenderFitProfile(competitorRecord, competitorText);
+    const dynamicCandidates = findDynamicExtenderCandidates(products, competitorFitProfile, 6);
+
+    for (const candidate of dynamicCandidates) {
+      addCandidateBySku(
+        nextMatches,
+        products,
+        candidate.sku,
+        `Dynamic fit match: ${candidate.fit.reasons.join(" ")}`,
+        Math.max(10, 90 - Math.round(candidate.fit.fitPenalty / 2)),
+      );
+    }
   }
 
   if (intent === "video-wall-processor") {
@@ -1062,18 +1118,20 @@ function ensureEligibilityCandidatePool(
   }
 
   if (intent === "wireless-casting") {
-    addCandidateBySku(nextMatches, products, "SW-620-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for wireless casting comparison.", 88);
-    addCandidateBySku(nextMatches, products, "SW-640L-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for multi-source wireless presentation comparison.", 86);
-    addCandidateBySku(nextMatches, products, "APO-DG2", "Eligibility correction: Apollo wireless presentation accessory inserted for casting comparison.", 72);
-    addCandidateBySku(nextMatches, products, "APO-VX20-UC-V2", "Eligibility correction: Apollo collaboration product retained as a UC-room alternative, not the default switcher match.", 70);
-    addCandidatesByPredicate(
-      nextMatches,
-      products,
-      (product) => /^APO/.test(String(product.sku ?? "")) || /\b(apollo|wireless|casting)\b/i.test(productText(product)),
-      "Eligibility correction: WyreStorm Apollo or wireless collaboration product inserted for wireless casting comparison.",
-      4,
-      76,
-    );
+    // Same family + scorer as presentation-switcher (see dynamicPresentationSwitcherFit.ts)
+    // -- no separate fixed SW-620/SW-640/APO-DG2 list to maintain in parallel.
+    const competitorFitProfile = derivePresentationSwitcherFitProfile(competitorRecord, competitorText);
+    const dynamicCandidates = findDynamicPresentationSwitcherCandidates(products, competitorFitProfile, 6);
+
+    for (const candidate of dynamicCandidates) {
+      addCandidateBySku(
+        nextMatches,
+        products,
+        candidate.sku,
+        `Dynamic fit match: ${candidate.fit.reasons.join(" ")}`,
+        Math.max(10, 90 - Math.round(candidate.fit.fitPenalty / 2)),
+      );
+    }
   }
 
   if (intent === "usb-audio") {
@@ -1123,7 +1181,8 @@ export function applyCompareEligibilityRanking<T extends { matches?: LooseMatch[
     : "unknown";
   const recommendedSkuKeys = new Set(avoipRecommendation.candidateSkus.map((sku) => skuKey(sku)));
 
-  const matches = ensureEligibilityCandidatePool(rawMatches, products, intent, competitorText, avoipRecommendation);
+  const competitorRecord = (result.competitor || result) as LooseRecord;
+  const matches = ensureEligibilityCandidatePool(rawMatches, products, intent, competitorText, avoipRecommendation, competitorRecord);
   const selectorDecisions = selectWingmanProducts(products, {
     mode: "compare",
     query: competitorText,
@@ -1140,6 +1199,7 @@ export function applyCompareEligibilityRanking<T extends { matches?: LooseMatch[
       match,
       product,
       competitorNetworkClass,
+      competitorRecord,
     });
 
     // Within the allowed network class, prefer the truth-resolved series/role

@@ -29,6 +29,7 @@ import { classifyCompetitorCompareDecision, type CompareSpecFacts } from "../lib
 import { isWyreStormSkuCompareLeadAllowed } from "../lib/wyrestormSkuBusinessStatus";
 import { resolveWyrestormSkuAlias, skuAliasMatches } from "../lib/skuAliasResolver";
 import type { RigorousCompareResult, RigorousMatch } from "../lib/rigorousCompare";
+import type { ComparisonRow } from "../lib/structuredFitCommon";
 import { applyCompareEligibilityRanking } from "../lib/compareEligibilityEngine";
 import { runCompareRuntimePipeline } from "../lib/compareRuntimePipeline";
 import {
@@ -247,9 +248,14 @@ type ScoredCandidate = {
   blockers: string[];
   dependencies: string[];
   outcomeLabel: string;
+  /** Structured feature/I-O side-by-side rows, when the eligibility engine computed them for this intent. */
+  comparisonRows?: ComparisonRow[];
 };
 
-function rigorousMatchToCandidate(match: RigorousMatch, profile: CompetitorProfile): ScoredCandidate {
+function rigorousMatchToCandidate(
+  match: RigorousMatch & { compareEligibility?: { comparisonRows?: ComparisonRow[] } },
+  profile: CompetitorProfile,
+): ScoredCandidate {
   const product = ACTIVE_WYRESTORM_PRODUCTS.find((candidate) => candidate.sku === match.sku) ?? {
     sku: match.sku,
     name: match.name,
@@ -281,6 +287,7 @@ function rigorousMatchToCandidate(match: RigorousMatch, profile: CompetitorProfi
       blockers: match.decision.blockers,
       dependencies: [product.caveat],
       outcomeLabel: match.decision.summary,
+      comparisonRows: match.compareEligibility?.comparisonRows,
     },
     profile,
   );
@@ -293,7 +300,7 @@ type RankedMatchWithOptionalDecision = Partial<RigorousMatch> & {
   confidence?: number;
   score?: number;
   why?: string;
-  compareEligibility?: { reasons?: string[] };
+  compareEligibility?: { reasons?: string[]; comparisonRows?: ComparisonRow[] };
   eligibility?: { reasons?: string[] };
 };
 
@@ -336,7 +343,8 @@ function normalizeRankedRigorousMatches(
         score: Number.isFinite(score) ? score : 72,
         evidence,
       }),
-    };
+      compareEligibility: match.compareEligibility,
+    } as RigorousMatch;
   });
 }
 
@@ -4319,6 +4327,41 @@ function compareReportedStatusMeta(status: CompareReportedStatus): {
   };
 }
 
+function CompetitorIntelligencePanel({ competitor }: { competitor: CompetitorSummary }) {
+  const visibleFacts = competitor.facts.filter((fact) => fact.value);
+
+  return (
+    <section className="compare-native-competitor-intel wm-ui-section wm-ui-card" aria-label="Competitor product intelligence">
+      <p className="compare-native-label compare-native-label--subtle wm-ui-copy">Competitor product identified</p>
+      <h3 className="wm-ui-title">{competitor.heading}</h3>
+      <p className="wm-ui-copy">{competitor.detail}</p>
+
+      {visibleFacts.length ? (
+        <div className="compare-native-competitor-intel-facts">
+          {visibleFacts.map((fact) => (
+            <div key={fact.label} className="compare-native-competitor-intel-fact">
+              <span className="compare-native-label compare-native-label--subtle wm-ui-copy">{fact.label}</span>
+              <strong>{fact.value}</strong>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      <CompareEvidenceList title="What we know about this product" items={competitor.knownFeatures} />
+      <CompareEvidenceList
+        title="Still to confirm"
+        items={competitor.unknownFeatures}
+        className="compare-native-evidence--warn wm-ui-title"
+      />
+
+      <p className="compare-native-muted wm-ui-copy compare-native-competitor-intel-note">
+        Even without a WyreStorm equivalent to offer, it's worth keeping a record of what's actually deployed at this
+        account -- useful intelligence for future quotes, roadmap conversations and competitive positioning.
+      </p>
+    </section>
+  );
+}
+
 function CompareReportedStatusRail({
   status,
 }: {
@@ -4388,6 +4431,47 @@ function compactCompareNextSteps(
   ], 2);
 }
 
+function CompareSideBySideChart({ rows }: { rows?: ComparisonRow[] }) {
+  if (!rows || rows.length === 0) return null;
+
+  const statusIcon: Record<ComparisonRow["status"], string> = {
+    match: "\u2713",
+    gap: "\u2717",
+    extra: "+",
+    info: "\u2013",
+  };
+
+  return (
+    <section className="compare-native-io-chart wm-ui-section wm-ui-card" aria-label="Feature and I/O side-by-side comparison">
+      <div className="compare-native-io-chart-heading">
+        <p className="compare-native-label compare-native-label--subtle wm-ui-copy">Feature &amp; I/O comparison</p>
+        <div className="compare-native-io-chart-legend">
+          <span><span className="compare-native-io-chart-legend-dot" style={{ background: "#34d399" }} />Match</span>
+          <span><span className="compare-native-io-chart-legend-dot" style={{ background: "#f87171" }} />Gap</span>
+          <span><span className="compare-native-io-chart-legend-dot" style={{ background: "#60a5fa" }} />WyreStorm adds</span>
+        </div>
+      </div>
+      <div className="compare-native-io-chart-table" role="table" aria-label="Feature and I/O comparison table">
+        <div className="compare-native-io-chart-row compare-native-io-chart-row--header" role="row">
+          <span className="compare-native-io-chart-cell compare-native-io-chart-heading-cell" role="columnheader">Feature / I-O</span>
+          <span className="compare-native-io-chart-cell compare-native-io-chart-heading-cell" role="columnheader">Competitor</span>
+          <span className="compare-native-io-chart-cell compare-native-io-chart-heading-cell" role="columnheader">WyreStorm</span>
+        </div>
+        {rows.map((row) => (
+          <div key={row.feature} className={`compare-native-io-chart-row compare-native-io-chart-row--${row.status}`} role="row">
+            <div className="compare-native-io-chart-cell compare-native-io-chart-feature" role="cell">
+              <span className="compare-native-io-chart-status-icon" aria-hidden="true">{statusIcon[row.status]}</span>
+              <strong>{row.feature}</strong>
+            </div>
+            <div className="compare-native-io-chart-cell" role="cell">{row.competitor}</div>
+            <div className="compare-native-io-chart-cell" role="cell">{row.wyrestorm}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function BestCandidateCard({
   candidate,
   competitor,
@@ -4447,6 +4531,8 @@ function BestCandidateCard({
           <small>{wyrestorm.detail}</small>
         </section>
       </div>
+
+      <CompareSideBySideChart rows={candidate.comparisonRows} />
 
       <div className="compare-compact-result__reason wm-ui-card">
         <strong>Why</strong>
@@ -5900,6 +5986,8 @@ function ComparePageNew() {
                       No match
                     </span>
                   </header>
+
+                  <CompetitorIntelligencePanel competitor={competitorSummary} />
 
                   <section className="compare-compact-result__next" aria-label="Next steps">
                     <strong>Next steps</strong>

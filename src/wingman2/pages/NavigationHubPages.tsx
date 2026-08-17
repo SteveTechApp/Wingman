@@ -146,8 +146,8 @@ export function ResponsePackPage() {
       primaryActions={[
         routeAction("proposal", "Response Pack Builder", "Build the customer-facing response, BOM-style product review list and review-gated output.", "Build response pack"),
         routeAction("support", "Review gates", "Check technical review, commercial review before quotation, escalation and completion gaps.", "Request review"),
-        routeAction("visualStudio", "Visual Studio", "Create AV schematics and customer-facing concept visuals from captured requirements or sample scenarios.", "Open visual studio"),
-        routeAction("visualDesign", "Schematic Builder", "Create end-to-end schematics with WyreStorm devices, known third-party items and TBC products.", "Create schematic"),
+        routeAction("visualStudio", "Visual Studio", "Quick concept and technical visuals for sales conversations - use before requirements are locked in, from a sample scenario or your active project.", "Open visual studio"),
+        routeAction("visualDesign", "Schematic Builder", "The detailed schematic that backs the quote - pulls in your project's real requirements, flags TBC and third-party products, and attaches to the response pack.", "Create schematic"),
         routeAction("templates", "Template response", "Start from a room archetype when a known application template is enough.", "Use template")]}
     />
   );
