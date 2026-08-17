@@ -1,0 +1,45 @@
+Canonical source recovery from:
+d9b3dc60a830e0fc03338cb04b377c21422d4906
+Protect unrelated Wingman work during Discovery UC integration
+
+Excluded deliberately:
+- src/__tests__/discovery-source-uc-topology.test.ts
+- src/wingman2/lib/projectTopology.ts
+- src/wingman2/pages/DiscoveryPage.tsx
+- data/catalog/competitor-products.generated.json
+- data/catalog/product-data-manifest.generated.json
+- CompositeCompare-local-source.txt
+- Implement-WingmanUnifiedCommsDiscovery*.ps1
+- verify_fix_tmp.mjs
+
+Recovered tracked files:
+data-sources/competitors/extron.csv
+src/wingman2/lib/compareEligibilityEngine.ts
+src/wingman2/lib/recommendationEvidence.ts
+src/wingman2/lib/situationalConstraints.ts
+src/wingman2/pages/ComparePageNew.advanced.tsx
+src/wingman2/pages/NavigationHubPages.tsx
+src/wingman2/pages/VisualDesignStudioPage.tsx
+src/wingman2/styles/wingman-style-stack.css
+
+Recovered new source files:
+src/wingman2/lib/dynamicDistributionAmpFit.ts
+src/wingman2/lib/dynamicExtenderFit.ts
+src/wingman2/lib/dynamicMatrixFit.ts
+src/wingman2/lib/dynamicPresentationSwitcherFit.ts
+src/wingman2/lib/structuredFitCommon.ts
+
+Current status:
+ M data-sources/competitors/extron.csv
+ M src/wingman2/lib/compareEligibilityEngine.ts
+ M src/wingman2/lib/recommendationEvidence.ts
+ M src/wingman2/lib/situationalConstraints.ts
+ M src/wingman2/pages/ComparePageNew.advanced.tsx
+ M src/wingman2/pages/NavigationHubPages.tsx
+ M src/wingman2/pages/VisualDesignStudioPage.tsx
+ M src/wingman2/styles/wingman-style-stack.css
+?? src/wingman2/lib/dynamicDistributionAmpFit.ts
+?? src/wingman2/lib/dynamicExtenderFit.ts
+?? src/wingman2/lib/dynamicMatrixFit.ts
+?? src/wingman2/lib/dynamicPresentationSwitcherFit.ts
+?? src/wingman2/lib/structuredFitCommon.ts
