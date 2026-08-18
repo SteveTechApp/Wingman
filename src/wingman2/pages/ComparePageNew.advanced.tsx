@@ -210,7 +210,7 @@ function productClassFromResolvedDomain(domain?: string): string | null {
 }
 
 function rigorousMatchToCandidate(match: RigorousMatch, profile: CompetitorProfile): ScoredCandidate {
-  const product = ACTIVE_WYRESTORM_PRODUCTS.find((candidate) => candidate.sku === match.sku) ?? {
+  const product = findWyrestormProduct(match.sku) ?? {
     sku: match.sku,
     name: match.name,
     family: match.family || "WyreStorm",
