@@ -1,3 +1,5 @@
+import type { ProductTechnologyProfile } from "./technologyProfile";
+
 export type KnownBoolean = boolean | null;
 export type DataConfidence = "verified" | "high" | "medium" | "low" | "requires-review";
 export type ProductLifecycle = "live" | "review" | "draft" | "do-not-use" | "discontinued" | "superseded" | "unlisted";
@@ -20,6 +22,7 @@ export type ProductTruth = {
   usb?: { supported?: KnownBoolean; version?: string | null; hostDeviceBehaviour?: string | null; kvm?: KnownBoolean };
   audio?: { embedded?: KnownBoolean; embedding?: KnownBoolean; deEmbedding?: KnownBoolean; analogue?: KnownBoolean; dante?: KnownBoolean };
   transport?: { hdBaseT?: KnownBoolean; avOverIp?: KnownBoolean; networkHdFamily?: "100" | "500" | "600" | null; networkClass?: string | null };
+  technology?: ProductTechnologyProfile;
   control?: { ip?: KnownBoolean; rs232?: KnownBoolean; ir?: KnownBoolean; cec?: KnownBoolean; other?: string[] };
   dependencies?: { required?: string[]; compatibleAccessories?: string[]; requiredController?: string | null; requiredReceiverOrBase?: string | null; notes?: string | null };
   governance?: { confidence?: DataConfidence; sourceReferences?: string[]; lastVerifiedAt?: string | null; verificationNotes?: string | null; qualityFlags?: string[] };

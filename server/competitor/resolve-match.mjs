@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { resolveCompetitorLiveLookup } from "./live-lookup.mjs";
+import { normaliseProductTechnology } from "./technology-normalizer.mjs";
 import {
   COMPETITOR_CATALOG_FILE,
   PRODUCT_INTELLIGENCE_DB_FILE,
@@ -497,6 +498,10 @@ function buildComparisonRows(competitor, wyrestorm) {
     comparisonRow("Device class", competitor.deviceClass, wyrestorm.deviceClass),
     comparisonRow("Form factor", competitor.formFactor, wyrestorm.formFactor),
     comparisonRow("Transport", competitor.transport, wyrestorm.transport),
+    comparisonRow("Vendor technology", competitor.technologyProfile?.vendorTechnology, wyrestorm.technologyProfile?.vendorTechnology),
+    comparisonRow("Canonical transport", competitor.technologyProfile?.canonicalTransport, wyrestorm.technologyProfile?.canonicalTransport),
+    comparisonRow("Network class", competitor.technologyProfile?.networkClass, wyrestorm.technologyProfile?.networkClass),
+    comparisonRow("Codec / standard", competitor.technologyProfile?.codecStandard || competitor.technologyProfile?.codecName, wyrestorm.technologyProfile?.codecStandard || wyrestorm.technologyProfile?.codecName),
     comparisonRow("Role", competitor.role, wyrestorm.role),
     comparisonRow("HDMI inputs", competitor.ports?.hdmiIn, wyrestorm.ports?.hdmiIn),
     comparisonRow("HDMI outputs", competitor.ports?.hdmiOut, wyrestorm.ports?.hdmiOut),
@@ -804,18 +809,44 @@ function toStructuredProfile(input) {
       }
     : detectPortCounts(blob);
 
+  const detectedTransport = tidy(input.transport || detectTransport(blob));
+  const technologyProfile =
+    input.technologyProfile && typeof input.technologyProfile === "object"
+      ? input.technologyProfile
+      : normaliseProductTechnology({
+          manufacturer: input.manufacturer,
+          sku: input.model || input.sku,
+          model: input.model,
+          family: input.family,
+          productClass: input.category,
+          transport: detectedTransport,
+          technology: input.technology || input.subtype,
+          summary: input.summary,
+          description: input.rawText,
+          features: input.features,
+          specs: {
+            video: input.video,
+            ports,
+          },
+          sourceUrl: input.sourceUrl || input.resolvedUrl,
+          rawText: blob,
+        });
+
+  const transport = tidy(technologyProfile?.canonicalTransport || detectedTransport);
+
   return {
     manufacturer: tidy(input.manufacturer),
     model: tidy(input.model),
     title: tidy(input.title || input.model),
     summary: tidy(input.summary),
     category: tidy(input.category || detectCategory(blob)),
-    transport: tidy(input.transport || detectTransport(blob)),
-    subtype: tidy(input.subtype || detectSubtype(blob)),
+    transport,
+    technologyProfile,
+    subtype: tidy(input.subtype || technologyProfile?.codecName || detectSubtype(blob)),
     role: tidy(input.role || detectRole(blob)),
     video: input.video || detectVideo(blob),
     ports,
-    ioProfile: buildNormalizedIoProfile({ ...input, ports, rawText: blob }),
+    ioProfile: buildNormalizedIoProfile({ ...input, ports, transport, rawText: blob }),
     features: input.features && typeof input.features === "object"
       ? input.features
       : detectFeatures(blob),
@@ -823,12 +854,11 @@ function toStructuredProfile(input) {
     formFactor: tidy(input.formFactor || detectFormFactor(blob, input.model)),
     comparisonDomain: input.comparisonDomain || detectComparisonDomain(blob),
     comparisonUseCase: detectComparisonUseCase(blob, input.comparisonDomain || detectComparisonDomain(blob)),
-    hdbtGeneration: detectHdbtGeneration(blob),
+    hdbtGeneration: transport === "HDBaseT" ? detectHdbtGeneration(blob) : "UNKNOWN",
     sourceUrl: tidy(input.sourceUrl || input.resolvedUrl),
     rawText: tidy(input.rawText || blob),
   };
 }
-
 function extractCompetitorProfileFromLivePayload(payload, manufacturer, model) {
   const html = String(payload?.html || "");
   const text = String(payload?.text || "");
@@ -846,6 +876,7 @@ function extractCompetitorProfileFromLivePayload(payload, manufacturer, model) {
     summary,
     keySpecs: Array.isArray(payload?.keySpecs) ? payload.keySpecs : [],
     sourceUrl: payload?.resolvedUrl,
+    technologyProfile: payload?.technologyProfile,
     rawText: text,
   });
 
@@ -939,6 +970,7 @@ function buildCandidateFromCatalog(row) {
     hdbtGeneration: base.hdbtGeneration,
     deviceClass: detectDeviceClass(blob, sku),
     transport: base.transport,
+    technologyProfile: base.technologyProfile,
     subtype: base.subtype,
     role: base.role,
     category: base.role !== "Unknown" ? base.role : detectCategory(blob),
@@ -1326,17 +1358,55 @@ function scoreProfiles(competitor, wyrestorm, options = {}) {
     warnings.push(`Use case differs (${competitorUseCase} vs ${wyrestormUseCase}).`);
   }
 
-  if (competitor.transport === wyrestorm.transport && isKnownValue(competitor.transport)) {
-    transportScore = 100;
-    strengths.push(`Transport aligned (${competitor.transport}).`);
-  } else if (!isKnownValue(competitor.transport) || !isKnownValue(wyrestorm.transport)) {
+  const competitorTechnology = competitor?.technologyProfile || {};
+  const wyrestormTechnology = wyrestorm?.technologyProfile || {};
+  const competitorCanonicalTransport = String(
+    competitorTechnology.canonicalTransport || competitor.transport || "",
+  );
+  const wyrestormCanonicalTransport = String(
+    wyrestormTechnology.canonicalTransport || wyrestorm.transport || "",
+  );
+  const competitorNetworkClass = String(competitorTechnology.networkClass || "");
+  const wyrestormNetworkClass = String(wyrestormTechnology.networkClass || "");
+
+  if (
+    competitorCanonicalTransport === wyrestormCanonicalTransport &&
+    isKnownValue(competitorCanonicalTransport)
+  ) {
+    if (
+      competitorCanonicalTransport === "AV-over-IP" &&
+      competitorNetworkClass &&
+      wyrestormNetworkClass &&
+      competitorNetworkClass !== wyrestormNetworkClass
+    ) {
+      transportScore = 0;
+      blockers.push(
+        `AV-over-IP network architecture mismatch (${competitorNetworkClass} vs ${wyrestormNetworkClass}).`,
+      );
+    } else {
+      transportScore = 100;
+      strengths.push(`Canonical transport aligned (${competitorCanonicalTransport}).`);
+
+      if (
+        competitorCanonicalTransport === "AV-over-IP" &&
+        competitorNetworkClass &&
+        wyrestormNetworkClass
+      ) {
+        strengths.push(`AV-over-IP network class aligned (${competitorNetworkClass}).`);
+      }
+    }
+  } else if (
+    !isKnownValue(competitorCanonicalTransport) ||
+    !isKnownValue(wyrestormCanonicalTransport)
+  ) {
     transportScore = 35;
-    warnings.push("Transport classification is incomplete.");
+    warnings.push("Canonical transport classification is incomplete.");
   } else {
     transportScore = 0;
-    blockers.push(`Transport mismatch (${competitor.transport} vs ${wyrestorm.transport}).`);
+    blockers.push(
+      `Canonical transport mismatch (${competitorCanonicalTransport} vs ${wyrestormCanonicalTransport}).`,
+    );
   }
-
   if (areRolesCompatible(competitor, wyrestorm)) {
     roleScore =
       roleKey(competitor.role) === roleKey(wyrestorm.role) && roleKey(competitor.role) !== "unknown"
@@ -1349,24 +1419,48 @@ function scoreProfiles(competitor, wyrestorm, options = {}) {
     blockers.push(`Device role mismatch (${competitor.role} vs ${wyrestorm.role}).`);
   }
 
-  if (competitor.transport === "AVoIP" || wyrestorm.transport === "AVoIP") {
-    if (competitor.subtype === wyrestorm.subtype && isKnownValue(competitor.subtype)) {
-      subtypeScore = 100;
-      strengths.push(`AVoIP subtype aligned (${competitor.subtype}).`);
-    } else if (
-      !isKnownValue(competitor.subtype) ||
-      !isKnownValue(wyrestorm.subtype) ||
-      competitor.subtype === "Proprietary" ||
-      wyrestorm.subtype === "Proprietary"
+  const isAvoipComparison =
+    competitorCanonicalTransport === "AV-over-IP" ||
+    wyrestormCanonicalTransport === "AV-over-IP";
+
+  if (isAvoipComparison) {
+    const competitorCodec = String(
+      competitorTechnology.codecStandard || competitorTechnology.codecName || competitor.subtype || "",
+    );
+    const wyrestormCodec = String(
+      wyrestormTechnology.codecStandard || wyrestormTechnology.codecName || wyrestorm.subtype || "",
+    );
+
+    if (
+      competitorNetworkClass &&
+      wyrestormNetworkClass &&
+      competitorNetworkClass !== wyrestormNetworkClass
     ) {
-      subtypeScore = 45;
-      warnings.push("AVoIP subtype is not precise enough for a fully trusted compare.");
+      subtypeScore = 20;
+      warnings.push(
+        `AV-over-IP codec comparison is secondary because the network classes differ (${competitorNetworkClass} vs ${wyrestormNetworkClass}).`,
+      );
+    } else if (
+      competitorCodec &&
+      wyrestormCodec &&
+      normalise(competitorCodec) === normalise(wyrestormCodec)
+    ) {
+      subtypeScore = 100;
+      strengths.push(`AV-over-IP codec / standard aligned (${competitorCodec}).`);
+    } else if (
+      competitorCanonicalTransport === "AV-over-IP" &&
+      wyrestormCanonicalTransport === "AV-over-IP" &&
+      (!competitorNetworkClass || !wyrestormNetworkClass || competitorNetworkClass === wyrestormNetworkClass)
+    ) {
+      subtypeScore = 70;
+      warnings.push(
+        `AV-over-IP codec differs or is proprietary (${competitorCodec || "unknown"} vs ${wyrestormCodec || "unknown"}), but the application/network architecture remains comparable.`,
+      );
     } else {
-      subtypeScore = 0;
-      blockers.push(`AVoIP subtype mismatch (${competitor.subtype} vs ${wyrestorm.subtype}).`);
+      subtypeScore = 45;
+      warnings.push("AV-over-IP codec / compression evidence is incomplete.");
     }
   }
-
   if (competitor.transport === "HDBaseT" || wyrestorm.transport === "HDBaseT") {
     if (competitor.hdbtGeneration === wyrestorm.hdbtGeneration && competitor.hdbtGeneration !== "UNKNOWN") {
       generationScore = 100;
@@ -1898,6 +1992,7 @@ export async function resolveCompetitorMatch(payload) {
       ports: competitorProfile.ports,
       video: competitorProfile.video,
       features: competitorProfile.features,
+      technologyProfile: competitorProfile.technologyProfile,
     },
     best_match: best,
     alternatives,
