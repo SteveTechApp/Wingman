@@ -5,6 +5,8 @@ import {
   enrichCompareInputWithKnownProfile,
 } from "./knownCompareProfiles";
 import { applyCompareEligibilityRanking, classifyCompareIntent } from "./compareEligibilityEngine";
+import { recoverFalseNoMatchCandidates } from "./compareFalseNoMatchRecovery";
+import { rescueCompareFalseNoMatchWithV2 } from "./compareMatchServiceV2";
 import { applyCompareEquivalenceGuards } from "./compareEquivalenceGuard";
 import { buildWyrestormCompareProfile } from "./wyrestormCompareProfile";
 import { classifyCompetitorCompareDecision } from "./competitorCompareDecision";
@@ -141,6 +143,22 @@ function wirelessRuntimeText(value: unknown): string {
   ]
     .filter(Boolean)
     .join(" ");
+}
+
+function isExplicitRuntimeCastingAccessory(value: unknown): boolean {
+  const text = String(value ?? "").toLowerCase();
+
+  if (/\b(?:dongle|clickshare\s+button|airmedia\s+connect\s+adapter)\b/i.test(text)) {
+    return true;
+  }
+
+  const hasAccessoryWord = /\b(?:adapter|button|dongle)\b/i.test(text);
+  const hasWirelessPresentationContext =
+    /\b(?:airmedia|clickshare|wireless|casting|screen\s*share|screen\s*sharing|presentation|byod)\b/i.test(text);
+  const looksLikeRoomCore =
+    /\b(?:switcher|receiver|gateway|video\s*bar|conference\s*bar|room\s*system|matrix)\b/i.test(text);
+
+  return hasAccessoryWord && hasWirelessPresentationContext && !looksLikeRoomCore;
 }
 
 function hasWirelessCastingIntent(result: unknown, inputText: string): boolean {
@@ -297,7 +315,7 @@ function applyWirelessCastingRulesToRuntimeResult<T>(
   // room-size rules would otherwise put a presentation switcher or UC bar
   // first. The eligibility layer already prefers APO-DG2 via fit penalty for
   // this case - the room-based reordering must not override it.
-  const dongleCompetitor = /\bdongle\b/i.test(`${inputText} ${competitorText}`);
+  const castingAccessoryCompetitor = isExplicitRuntimeCastingAccessory(`${inputText} ${competitorText}`);
 
   const recommendation = recommendWirelessCastingSkus({
     roomType: inputText,
@@ -306,15 +324,28 @@ function applyWirelessCastingRulesToRuntimeResult<T>(
     connectionLocation: inputText,
   });
 
-  const primarySkus = dongleCompetitor
+  const primarySkus = castingAccessoryCompetitor
     ? ["APO-DG2", ...recommendation.primarySkus]
     : recommendation.primarySkus;
-  const rationale = dongleCompetitor
-    ? `The competitor is described as a wireless casting dongle, so APO-DG2 (the WyreStorm casting dongle) leads as the direct endpoint equivalent, with a wireless presentation switcher available as the room upgrade path. ${recommendation.rationale}`
+
+  const rationale = castingAccessoryCompetitor
+    ? `The competitor is an explicit wireless casting accessory (dongle/button/adapter), so APO-DG2 leads as the role-equivalent accessory. APO-DG2 must then be paired with a compatible WyreStorm room core such as SW-620-TX-W, SW-640L-TX-W, or APO-VX20-UC-V2. ${recommendation.rationale}`
     : recommendation.rationale;
 
+  // This runtime layer executes AFTER the main eligibility engine. It must not
+  // re-introduce or preserve DG2 for a generic wireless room-hub comparison
+  // after eligibility has correctly determined that the accessory is not the
+  // thing being compared.
+  const wirelessMatches = castingAccessoryCompetitor
+    ? record.matches
+    : (Array.isArray(record.matches)
+        ? record.matches.filter(
+            (match: WirelessRuntimeRecord) => runtimeSkuKey(match) !== "APODG2",
+          )
+        : record.matches);
+
   const ranked = prioritiseRuntimeSkus(
-    record.matches,
+    wirelessMatches,
     products,
     record.competitor,
     primarySkus,
@@ -332,8 +363,13 @@ function applyWirelessCastingRulesToRuntimeResult<T>(
     ? `For desk/table or lectern connections, add ${recommendation.optionalSkus.join(", ")} as a connectivity accessory option - it is an accessory, not a like-for-like equivalent.`
     : "";
 
+  const castingAccessorySystemProse = castingAccessoryCompetitor
+    ? "APO-DG2 is the casting accessory only. Pair it with one compatible WyreStorm room core: SW-620-TX-W, SW-640L-TX-W, or APO-VX20-UC-V2."
+    : "";
+
   record.nextSteps = [
-    recommendation.rationale,
+    rationale,
+    ...(castingAccessorySystemProse ? [castingAccessorySystemProse] : []),
     ...(optionalProse ? [optionalProse] : []),
     ...(Array.isArray(record.nextSteps) ? record.nextSteps : []),
   ];
@@ -355,7 +391,17 @@ function runCompareRuntimePipelineBase(
   );
   const curatedResult = applyKnownCompareProfileOverrides(baseResult, normalisedProducts, inputText, brand);
 
-  return applyCompareEligibilityRanking(curatedResult, normalisedProducts, inputText);
+  const rankedResult = applyCompareEligibilityRanking(
+    curatedResult,
+    normalisedProducts,
+    inputText,
+  );
+
+  return rescueCompareFalseNoMatchWithV2(
+    rankedResult,
+    normalisedProducts,
+    inputText,
+  );
 }
 
 export function runCompareRuntimePipeline(...args: Parameters<typeof runCompareRuntimePipelineBase>): ReturnType<typeof runCompareRuntimePipelineBase> {
