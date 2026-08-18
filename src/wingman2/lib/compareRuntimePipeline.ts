@@ -6,7 +6,6 @@ import {
 } from "./knownCompareProfiles";
 import { applyCompareEligibilityRanking, classifyCompareIntent } from "./compareEligibilityEngine";
 import { recoverFalseNoMatchCandidates } from "./compareFalseNoMatchRecovery";
-import { rescueCompareFalseNoMatchWithV2 } from "./compareMatchServiceV2";
 import { applyCompareEquivalenceGuards } from "./compareEquivalenceGuard";
 import { buildWyrestormCompareProfile } from "./wyrestormCompareProfile";
 import { classifyCompetitorCompareDecision } from "./competitorCompareDecision";
@@ -397,10 +396,11 @@ function runCompareRuntimePipelineBase(
     inputText,
   );
 
-  return rescueCompareFalseNoMatchWithV2(
+  return recoverFalseNoMatchCandidates(
     rankedResult,
     normalisedProducts,
     inputText,
+    Math.max(limit, 12),
   );
 }
 
