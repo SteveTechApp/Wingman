@@ -7018,3 +7018,121 @@ html[data-wingman-route="discovery"]
     grid-template-columns: 1fr;
   }
 }
+
+/* WINGMAN_COMPARE_INLINE_DROPDOWNS_V2
+   Manufacturer and competitor SKU choices belong to the Compare workspace.
+   The option panel is anchored directly beneath its own input and never uses
+   the browser-owned native datalist popup. */
+.compare-native-results,
+.compare-native-results form,
+.compare-inline-combobox-field {
+  overflow: visible !important;
+}
+
+.compare-inline-combobox-field {
+  position: relative;
+  z-index: 1;
+}
+
+.compare-inline-combobox-field:focus-within {
+  z-index: 120;
+}
+
+.compare-inline-combobox {
+  position: relative !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.compare-inline-options {
+  position: absolute !important;
+  z-index: 1000 !important;
+  top: calc(100% + 4px) !important;
+  left: 0 !important;
+  right: auto !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  max-height: min(280px, 36vh) !important;
+  display: grid !important;
+  gap: 2px !important;
+  padding: 6px !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  color: var(--wm-ref-text) !important;
+  background:
+    linear-gradient(
+      145deg,
+      var(--wm-ref-panel-strong),
+      var(--wm-ref-panel)
+    ) !important;
+  border: 1px solid var(--wm-ref-border) !important;
+  border-radius: var(--wm-ref-radius-small) !important;
+  box-shadow: var(--wm-ref-shadow-soft) !important;
+  box-sizing: border-box !important;
+}
+
+.compare-inline-option {
+  display: block !important;
+  width: 100% !important;
+  min-height: 34px !important;
+  padding: 7px 10px !important;
+  color: var(--wm-ref-copy) !important;
+  font: inherit !important;
+  text-align: left !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+}
+
+.compare-inline-option:hover,
+.compare-inline-option.is-active,
+.compare-inline-option[aria-selected="true"] {
+  color: var(--wm-ref-text) !important;
+  background: color-mix(
+    in srgb,
+    var(--wm-ref-aqua) 12%,
+    var(--wm-ref-panel-soft)
+  ) !important;
+}
+
+.compare-inline-option:focus-visible {
+  outline: 2px solid var(--wm-ref-aqua) !important;
+  outline-offset: -2px !important;
+}
+
+/* WINGMAN_COMPARE_INLINE_DROPDOWNS_V3
+   Keep suggestion panels compact and anchored to the left edge of the field.
+   The complete filtered list remains available through internal scrolling. */
+  [data-wingman-inline-combobox="manufacturer"]
+  .compare-inline-options {
+  width: min(440px, 100%) !important;
+  min-width: min(320px, 100%) !important;
+  max-width: min(440px, 100%) !important;
+  left: 0 !important;
+  right: auto !important;
+  max-height: min(300px, 38vh) !important;
+}
+
+  [data-wingman-inline-combobox="sku"]
+  .compare-inline-options {
+  width: min(560px, 100%) !important;
+  min-width: min(360px, 100%) !important;
+  max-width: min(560px, 100%) !important;
+  left: 0 !important;
+  right: auto !important;
+  max-height: min(300px, 38vh) !important;
+}
+
+@media (max-width: 760px) {
+      [data-wingman-inline-combobox="manufacturer"]
+    .compare-inline-options,
+      [data-wingman-inline-combobox="sku"]
+    .compare-inline-options {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+  }
+}

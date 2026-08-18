@@ -250,28 +250,28 @@ describe("competitor compare runtime behaviour", () => {
     expect(lead).toContain("NDI");
   });
 
-  it("uses APO-VX20-UC-V2 with APO-DG2 for huddle-room wireless casting runtime results", () => {
+  it("uses APO-VX20-UC-V2 without forcing a dongle for huddle-room wireless casting runtime results", () => {
     const result = runCompareRuntimePipeline("small huddle room wireless casting with ClickShare style sharing", products, undefined, 12);
     const leadSkus = skus(result.matches).slice(0, 5);
 
     expect(leadSkus[0]).toBe("APO-VX20-UC-V2");
-    expect(leadSkus).toContain("APO-DG2");
+    expect(leadSkus).not.toContain("APO-DG2");
   });
 
-  it("uses SW-620-TX-W with APO-DG2 for standard wireless casting runtime results", () => {
+  it("uses SW-620-TX-W without forcing a dongle for standard wireless casting runtime results", () => {
     const result = runCompareRuntimePipeline("standard meeting room wireless casting ClickShare CX-50", products, "Barco ClickShare", 12);
     const leadSkus = skus(result.matches).slice(0, 6);
 
     expect(leadSkus[0]).toBe("SW-620-TX-W");
-    expect(leadSkus).toContain("APO-DG2");
+    expect(leadSkus).not.toContain("APO-DG2");
   });
 
-  it("uses SW-640L-TX-W with APO-DG2 for larger wireless casting runtime results with four or more sources", () => {
+  it("uses SW-640L-TX-W without forcing a dongle for larger wireless casting runtime results with four or more sources", () => {
     const result = runCompareRuntimePipeline("training room wireless casting with 4 sources", products, undefined, 12);
     const leadSkus = skus(result.matches).slice(0, 6);
 
     expect(leadSkus[0]).toBe("SW-640L-TX-W");
-    expect(leadSkus).toContain("APO-DG2");
+    expect(leadSkus).not.toContain("APO-DG2");
   });
 
   it("adds IDB-300 as an option when wireless casting includes a desk connection", () => {
@@ -280,7 +280,7 @@ describe("competitor compare runtime behaviour", () => {
     const steps = (result.nextSteps as string[]).join(" ");
 
     expect(leadSkus[0]).toBe("SW-620-TX-W");
-    expect(leadSkus).toContain("APO-DG2");
+    expect(leadSkus).not.toContain("APO-DG2");
 
     // IDB-300 is an accessory, not a like-for-like equivalent, so it must be
     // recommended in the guidance prose (audit P0-1: no decision-less raw rows,
@@ -337,7 +337,7 @@ describe("competitor compare runtime behaviour", () => {
       const leadSkus = skus(result.matches).slice(0, 4);
 
       expect(leadSkus[0]).toMatch(/^SW-(620|640L)-TX-W$/);
-      expect(leadSkus.indexOf("APO-DG2")).toBeGreaterThan(0);
+      expect(leadSkus).not.toContain("APO-DG2");
     });
 
     it("leads with APO-DG2 for a competitor described as a wireless casting dongle (role-equivalence regression)", () => {
@@ -349,6 +349,11 @@ describe("competitor compare runtime behaviour", () => {
       // role-mismatch NO MATCH ("wireless casting dongle" was not in
       // ROLE_EQUIVALENTS["presentation switcher"]).
       expect(leadSkus[0]).toBe("APO-DG2");
+      expect(
+        leadSkus.some((item) =>
+          /^SW-(620|640L)-TX-W$/.test(item) || item === "APO-VX20-UC-V2"
+        ),
+      ).toBe(true);
       const dg2 = (result.matches as AnyRecord[]).find((match) => sku(match) === "APO-DG2");
       expect(dg2?.decision).toBeDefined();
       expect(dg2?.decision.outcome).not.toBe("NO MATCH");
@@ -374,4 +379,23 @@ describe("competitor compare runtime behaviour", () => {
       }
     }
   }, 20000); // 6 sequential runCompareRuntimePipeline calls at ~900ms each now exceed the 5000ms default
+
+  it("maps Crestron AM-TX3-100 to APO-DG2 plus a compatible room core", () => {
+    const result = runCompareRuntimePipeline(
+      "AM-TX3-100 AirMedia Connect Adapter",
+      products,
+      "Crestron",
+      12,
+    );
+    const leadSkus = skus(result.matches).slice(0, 8);
+
+    expect(leadSkus[0]).toBe("APO-DG2");
+    expect(
+      leadSkus.some(
+        (item) =>
+          /^SW-(620|640L)-TX-W$/.test(item) ||
+          item === "APO-VX20-UC-V2",
+      ),
+    ).toBe(true);
+  });
 });
