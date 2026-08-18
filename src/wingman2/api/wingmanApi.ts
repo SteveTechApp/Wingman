@@ -1,3 +1,5 @@
+import type { ProductTechnologyProfile } from "../types/technologyProfile";
+
 export type NormalizedIoPortGroup = {
   type?: string;
   count?: number | null;
@@ -51,6 +53,13 @@ export type CompetitorMatchCandidate = {
   feature_coverage?: number;
   resolvedUrl?: string;
   summary?: string;
+  profile?: {
+    technologyProfile?: ProductTechnologyProfile;
+    transport?: string;
+    subtype?: string;
+    role?: string;
+    [key: string]: unknown;
+  };
   ioProfile?: NormalizedIoProfile;
   comparison_rows?: Array<{
     label?: string;
@@ -81,6 +90,7 @@ export type CompetitorMatchResponse = {
     category?: string;
     summary?: string;
     resolvedUrl?: string;
+    technologyProfile?: ProductTechnologyProfile;
   };
   best_match?: CompetitorMatchCandidate | null;
   alternatives?: CompetitorMatchCandidate[];

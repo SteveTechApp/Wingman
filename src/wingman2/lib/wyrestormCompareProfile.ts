@@ -12,6 +12,7 @@ import type { WyrestormProduct } from "./competitorMatchEngine";
 import { canonicalTransport } from "./competitorSpecRegistry";
 import { resolveProductTechnicalData } from "./governedProductTechnicalData";
 import { deriveSystemRequirements } from "./systemDependencies";
+import { normaliseProductTechnology } from "./technologyNormalizer";
 
 type TechnicalPort = {
   count?: number;
@@ -545,13 +546,26 @@ export function buildWyrestormCompareProfile(product: WyrestormProduct): Compare
     standalone,
     systemRequirements: requires,
   };
+  const technology = normaliseProductTechnology({
+    manufacturer: "WyreStorm",
+    sku: product.sku,
+    family: product.family || product.productFamily,
+    productClass: domain,
+    transport: governed.compare.transport || fallbackTransports || canonicalTransport(domain),
+    technology: (product.technologies ?? []).join(" / "),
+    summary: blob,
+    features,
+    specs,
+    sourceUrl: governed.sourceUrl ?? technicalProfile(product)?.sourceQuality?.officialProductUrl,
+  });
 
   return {
     sku: product.sku,
     title: product.name || product.title || product.sku,
     domain,
     role,
-    transport: governed.compare.transport || fallbackTransports || canonicalTransport(domain),
+    transport: technology.canonicalTransport || governed.compare.transport || fallbackTransports || canonicalTransport(domain),
+    technology,
     inputCount: governed.compare.inputCount ?? io.inputCount,
     outputCount: governed.compare.outputCount ?? io.outputCount,
     maxResolution: governed.compare.maxResolution ?? detectResolution(blob),
