@@ -3798,21 +3798,77 @@ function CompareManufacturerCombobox(props: {
   selectedBrand: string;
   onBrandSelect: (brand: string) => void;
 }) {
+  const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const query = props.selectedBrand.trim().toLowerCase();
+  const visibleBrands = props.brands
+    .filter((brand) => !query || brand.toLowerCase().includes(query));
+
+  const chooseBrand = (brand: string): void => {
+    props.onBrandSelect(brand);
+    setOpen(false);
+    setActiveIndex(-1);
+  };
+
   return (
-    <section className="wm-ui-card p-4">
+    <section className="wm-ui-card p-4 compare-inline-combobox-field" data-wingman-inline-combobox="manufacturer">
       <label className="compare-native-label wm-ui-kicker" htmlFor="compare-manufacturer">Manufacturer</label>
-      <input
-        id="compare-manufacturer"
-        list="compare-manufacturer-options"
-        className="compare-native-input wm-ui-input"
-        value={props.selectedBrand}
-        onChange={(event) => props.onBrandSelect(event.target.value)}
-        placeholder="Type competitor manufacturer"
-        autoComplete="off"
-      />
-      <datalist id="compare-manufacturer-options">
-        {props.brands.map((brand) => <option key={brand} value={brand} />)}
-      </datalist>
+      <div className="compare-inline-combobox">
+        <input
+          id="compare-manufacturer"
+          className="compare-native-input wm-ui-input"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-haspopup="listbox"
+          aria-expanded={open && visibleBrands.length > 0}
+          aria-controls="compare-manufacturer-options"
+          value={props.selectedBrand}
+          onFocus={() => setOpen(true)}
+          onBlur={() => setOpen(false)}
+          onChange={(event) => {
+            props.onBrandSelect(event.target.value);
+            setOpen(true);
+            setActiveIndex(-1);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowDown") {
+              event.preventDefault();
+              setOpen(true);
+              setActiveIndex((current) => Math.min(current + 1, Math.max(visibleBrands.length - 1, 0)));
+            } else if (event.key === "ArrowUp") {
+              event.preventDefault();
+              setOpen(true);
+              setActiveIndex((current) => Math.max(current - 1, 0));
+            } else if (event.key === "Enter" && open && activeIndex >= 0 && visibleBrands[activeIndex]) {
+              event.preventDefault();
+              chooseBrand(visibleBrands[activeIndex]);
+            } else if (event.key === "Escape") {
+              setOpen(false);
+              setActiveIndex(-1);
+            }
+          }}
+          placeholder="Type competitor manufacturer"
+          autoComplete="off"
+        />
+        {open && visibleBrands.length > 0 ? (
+          <div id="compare-manufacturer-options" className="compare-inline-options" role="listbox" aria-label="Manufacturer suggestions">
+            {visibleBrands.map((brand, index) => (
+              <button
+                key={brand}
+                type="button"
+                role="option"
+                aria-selected={index === activeIndex}
+                className={`compare-inline-option${index === activeIndex ? " is-active" : ""}`}
+                tabIndex={-1}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => chooseBrand(brand)}
+              >
+                {brand}
+              </button>
+            ))}
+          </div>
+        ) : null}
+      </div>
     </section>
   );
 }
@@ -3824,29 +3880,93 @@ function CompareProductLookupInput(props: {
   onInputChange: (value: string) => void;
   onSkuSelect: (sku: string) => void;
 }) {
+  const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
   const options = uniqueSkuOptions([...props.knownSkus, ...props.suggestions]).slice(0, 120);
+  const query = props.value.trim().toUpperCase();
+  const visibleOptions = options
+    .filter((skuOption) => !query || skuOption.toUpperCase().includes(query));
+
+  const chooseSku = (sku: string): void => {
+    props.onInputChange(sku);
+    setOpen(false);
+    setActiveIndex(-1);
+    props.onSkuSelect(sku);
+  };
 
   return (
-    <section className="wm-ui-card p-4" data-wingman-compare-auto-advance="true">
+    <section
+      className="wm-ui-card p-4 compare-inline-combobox-field"
+      data-wingman-compare-auto-advance="true"
+      data-wingman-inline-combobox="sku"
+    >
       <label className="compare-native-label wm-ui-kicker" htmlFor="compare-competitor-sku">Competitor SKU</label>
-      <input
-        id="compare-competitor-sku"
-        list="compare-competitor-sku-options"
-        className="compare-native-input wm-ui-input"
-        value={props.value}
-        onChange={(event) => {
-          const value = event.target.value;
-          props.onInputChange(value);
-          const exact = options.find((option) => option.trim().toUpperCase() === value.trim().toUpperCase());
-          if (exact) props.onSkuSelect(exact);
-        }}
-        placeholder="Type competitor model / SKU"
-        data-wingman-sku-normalisation="true"
-        autoComplete="off"
-      />
-      <datalist id="compare-competitor-sku-options">
-        {options.map((skuOption) => <option key={skuOption} value={skuOption} />)}
-      </datalist>
+      <div className="compare-inline-combobox">
+        <input
+          id="compare-competitor-sku"
+          className="compare-native-input wm-ui-input"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-haspopup="listbox"
+          aria-expanded={open && visibleOptions.length > 0}
+          aria-controls="compare-competitor-sku-options"
+          value={props.value}
+          onFocus={() => setOpen(true)}
+          onBlur={() => setOpen(false)}
+          onChange={(event) => {
+            const value = event.target.value;
+            props.onInputChange(value);
+            const exact = options.find((option) => option.trim().toUpperCase() === value.trim().toUpperCase());
+
+            if (exact) {
+              setOpen(false);
+              setActiveIndex(-1);
+              props.onSkuSelect(exact);
+            } else {
+              setOpen(true);
+              setActiveIndex(-1);
+            }
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowDown") {
+              event.preventDefault();
+              setOpen(true);
+              setActiveIndex((current) => Math.min(current + 1, Math.max(visibleOptions.length - 1, 0)));
+            } else if (event.key === "ArrowUp") {
+              event.preventDefault();
+              setOpen(true);
+              setActiveIndex((current) => Math.max(current - 1, 0));
+            } else if (event.key === "Enter" && open && activeIndex >= 0 && visibleOptions[activeIndex]) {
+              event.preventDefault();
+              chooseSku(visibleOptions[activeIndex]);
+            } else if (event.key === "Escape") {
+              setOpen(false);
+              setActiveIndex(-1);
+            }
+          }}
+          placeholder="Type competitor model / SKU"
+          data-wingman-sku-normalisation="true"
+          autoComplete="off"
+        />
+        {open && visibleOptions.length > 0 ? (
+          <div id="compare-competitor-sku-options" className="compare-inline-options" role="listbox" aria-label="Competitor SKU suggestions">
+            {visibleOptions.map((skuOption, index) => (
+              <button
+                key={skuOption}
+                type="button"
+                role="option"
+                aria-selected={index === activeIndex}
+                className={`compare-inline-option${index === activeIndex ? " is-active" : ""}`}
+                tabIndex={-1}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => chooseSku(skuOption)}
+              >
+                {skuOption}
+              </button>
+            ))}
+          </div>
+        ) : null}
+      </div>
       <p className="compare-native-muted wm-ui-copy mt-2">Known SKUs compare automatically. For an unknown model, type it and press Compare.</p>
     </section>
   );
