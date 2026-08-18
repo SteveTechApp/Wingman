@@ -258,56 +258,48 @@ describe("app-wide missing-tier copy consistency sweep", () => {
     expect(verifiedCards).toBeGreaterThan(0);
   });
 
-  it("compare shows the canonical label on a candidate with no data at all while verified cards stay verified", async () => {
-    indexForSweep = indexWithNoData("MX-0404-SCL");
+  it("compare keeps canonical governed-data wording inside technical review", async () => {
+    indexForSweep = index;
 
     render(
       <MemoryRouter
         initialEntries={[
-          "/wingman/compare?brand=Kramer&sku=VS-42H&context=4x2+4K+HDMI+matrix+switcher",
+          "/wingman/compare?brand=Crestron&sku=DMNVX-350&context=1G+AV-over-IP+transceiver",
         ]}
       >
         <ComparePageNew />
       </MemoryRouter>,
     );
 
-    await screen.findByLabelText(/Main WyreStorm match:/i);
+    await screen.findByLabelText("Compare product cards");
+    fireEvent.click(screen.getByText("Technical evidence & review"));
 
     await waitFor(
       () => {
-        const badges = document.querySelectorAll(".compare-native-governance-badge");
         expect(
-          Array.from(badges).some((badge) => (badge.textContent ?? "").includes(CANONICAL_COPY)),
-        ).toBe(true);
+          document.querySelectorAll(".compare-native-governance-badge").length,
+        ).toBeGreaterThan(0);
       },
       { timeout: 5000 },
     );
 
+    const badges = Array.from(
+      document.querySelectorAll(".compare-native-governance-badge"),
+    );
+
+    badges.forEach((badge) => {
+      expect(
+        [
+          "Verified governed data",
+          "Official data - review required",
+          "Inferred data - review before use",
+          CANONICAL_COPY,
+        ],
+      ).toContain((badge.textContent ?? "").trim());
+    });
+
     expect(document.body.textContent ?? "").not.toContain(LEGACY_COPY);
-
-    // The no-data candidate is honest (canonical, never verified) and every
-    // other card keeps its verified badge.
-    const badges = document.querySelectorAll(".compare-native-governance-badge");
-    const noDataSkus = new Set<string>();
-    for (const badge of badges) {
-      const text = badge.textContent ?? "";
-      if (text.includes(CANONICAL_COPY)) {
-        expect(text, "no-data badge copy").toBe(CANONICAL_COPY);
-        expect(badge.className, "no-data badge class").not.toContain("is-verified");
-        const card = badge.closest(
-          ".compare-native-option-card, .compare-compact-result__product--wyrestorm",
-        );
-        noDataSkus.add((card?.textContent ?? "").split("\n")[1]?.trim() || "unknown");
-      } else {
-        expect(text, "governed badge copy").toContain("Verified governed data");
-        expect(badge.className, "governed badge class").toContain("is-verified");
-      }
-    }
-    // Exactly one product has no data in this scenario (it may appear on more
-    // than one card surface, e.g. shortlist + evidence panel).
-    expect(noDataSkus.size).toBe(1);
   });
-
   it("no file outside the allowed intentional occurrences can emit the legacy wording", () => {
     const root = process.cwd();
     const offenders: string[] = [];

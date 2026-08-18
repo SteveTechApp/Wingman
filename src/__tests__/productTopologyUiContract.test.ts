@@ -19,7 +19,7 @@ describe("Product Pitch topology UI contract", () => {
     // topology diagram inline. The governed topology profile still backs the
     // exported cheat sheet (productCheatSheet.ts) and the RoomSchematicDiagram
     // component keeps its safeguards (asserted below).
-    expect(productPitchSource).toContain("routeCatalogByKey.visualDesign.path");
+    expect(productPitchSource).toContain("routeCatalogByKey.proposalVisuals.path");
     expect(productPitchSource).toMatch(/schematic/i);
     // The old inline topology profile / raw diagram markup is no longer here.
     expect(productPitchSource).not.toContain("buildProductTopologyProfile");

@@ -63,9 +63,7 @@ import {
   resolveApprovedGovernedDecision,
 } from "../lib/governedCompareRuntime";
 import { CompetitorEvidencePanel } from "./compare/CompetitorEvidencePanel";
-import { CompetitorDecisionReviewQueue } from "../components/compare/CompetitorDecisionReviewQueue";
 import { fetchApprovedCompetitorDecisions } from "../api/wingmanApi";
-import { CompareVerdictLead } from "../components/compare/CompareVerdictLead";
 import { CompareShowdown } from "../components/compare/CompareShowdown";
 import { GovernedDataBadge as GovernanceBadge, weakestLinkTier } from "../components/GovernedDataBadge";
 
@@ -3801,27 +3799,20 @@ function CompareManufacturerCombobox(props: {
   onBrandSelect: (brand: string) => void;
 }) {
   return (
-    <section className="compare-native-card compare-native-card--compact wm-ui-card wm-ui-section wm-ui-centered-card">
+    <section className="wm-ui-card p-4">
       <label className="compare-native-label wm-ui-kicker" htmlFor="compare-manufacturer">Manufacturer</label>
       <input
         id="compare-manufacturer"
+        list="compare-manufacturer-options"
         className="compare-native-input wm-ui-input"
         value={props.selectedBrand}
         onChange={(event) => props.onBrandSelect(event.target.value)}
-        placeholder="Type competitor brand"
+        placeholder="Type competitor manufacturer"
+        autoComplete="off"
       />
-      <div className="compare-native-chip-row wm-ui-card" aria-label="Known manufacturers">
-        {props.brands.map((brand) => (
-          <button
-            key={brand}
-            className={`compare-native-chip wm-ui-button ${brand === props.selectedBrand ? "wm-ui-button-selected" : "wm-ui-button-secondary"}`}
-            type="button"
-            onClick={() => props.onBrandSelect(brand)}
-          >
-            {brand}
-          </button>
-        ))}
-      </div>
+      <datalist id="compare-manufacturer-options">
+        {props.brands.map((brand) => <option key={brand} value={brand} />)}
+      </datalist>
     </section>
   );
 }
@@ -3833,54 +3824,33 @@ function CompareProductLookupInput(props: {
   onInputChange: (value: string) => void;
   onSkuSelect: (sku: string) => void;
 }) {
+  const options = uniqueSkuOptions([...props.knownSkus, ...props.suggestions]).slice(0, 120);
+
   return (
-    <section className="compare-native-card compare-native-card--compact wm-ui-card wm-ui-section wm-ui-centered-card" data-wingman-compare-auto-advance="true">
+    <section className="wm-ui-card p-4" data-wingman-compare-auto-advance="true">
       <label className="compare-native-label wm-ui-kicker" htmlFor="compare-competitor-sku">Competitor SKU</label>
       <input
         id="compare-competitor-sku"
+        list="compare-competitor-sku-options"
         className="compare-native-input wm-ui-input"
         value={props.value}
-        onChange={(event) => props.onInputChange(event.target.value)}
-        placeholder="Type competitor SKU or select from the known list"
+        onChange={(event) => {
+          const value = event.target.value;
+          props.onInputChange(value);
+          const exact = options.find((option) => option.trim().toUpperCase() === value.trim().toUpperCase());
+          if (exact) props.onSkuSelect(exact);
+        }}
+        placeholder="Type competitor model / SKU"
         data-wingman-sku-normalisation="true"
+        autoComplete="off"
       />
-
-      <div className="compare-native-sku-block">
-        <button className="compare-native-chip compare-native-chip--custom wm-ui-button wm-ui-button-secondary" type="button" onClick={() => props.onSkuSelect("CUSTOM / missing SKU")}>
-          CUSTOM / missing SKU
-        </button>
-
-        <p className="compare-native-label compare-native-label--subtle wm-ui-copy">Known SKUs for selected brand</p>
-
-        <div className="compare-native-chip-row wm-ui-card">
-          {props.knownSkus.length > 0 ? (
-            props.knownSkus.map((skuOption) => (
-              <button key={skuOption} className="compare-native-chip wm-ui-button wm-ui-button-secondary" type="button" onClick={() => props.onSkuSelect(skuOption)}>
-                {skuOption}
-              </button>
-            ))
-          ) : (
-            <p className="compare-native-muted wm-ui-copy">No known SKUs are currently stored for this brand. Use CUSTOM / missing SKU and describe the must-match features.</p>
-          )}
-        </div>
-
-        {props.value.trim().length > 0 && props.suggestions.length > 0 ? (
-          <div className="compare-native-typed-matches">
-            <p className="compare-native-label compare-native-label--subtle wm-ui-copy">Closest typed matches</p>
-            <div className="compare-native-chip-row wm-ui-card">
-              {props.suggestions.slice(0, 8).map((skuOption) => (
-                <button key={skuOption} className="compare-native-chip wm-ui-button wm-ui-button-secondary" type="button" onClick={() => props.onSkuSelect(skuOption)}>
-                  {skuOption}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : null}
-      </div>
+      <datalist id="compare-competitor-sku-options">
+        {options.map((skuOption) => <option key={skuOption} value={skuOption} />)}
+      </datalist>
+      <p className="compare-native-muted wm-ui-copy mt-2">Known SKUs compare automatically. For an unknown model, type it and press Compare.</p>
     </section>
   );
 }
-
 
 function CompareEvidenceMatrix({ candidate, competitor }: { candidate: ScoredCandidate; competitor: unknown }) {
   const readText = (source: unknown, keys: string[], fallback: string) => {
@@ -4542,6 +4512,48 @@ function compareDecisionButtonClass(
   return `compare-decision-button compare-decision-button--${tone} is-selected`;
 }
 
+// WINGMAN_MINIMUM_COMPARE_CARDS_V2
+function MinimumCompareCards({ competitor, competitorProfile, candidate }: {
+  competitor: CompetitorSummary;
+  competitorProfile: CompetitorProfile;
+  candidate: ScoredCandidate | null;
+}) {
+  const status = compareReportedStatus(candidate, competitor);
+  const statusMeta = compareReportedStatusMeta(status);
+  const wyrestorm = candidate ? buildWyrestormSummary(candidate) : null;
+  const rows = candidate && wyrestorm
+    ? buildCoreComparisonFacts(competitor, competitorProfile, wyrestorm, candidate).slice(0, 6)
+    : competitor.facts.slice(0, 6).map((fact) => ({ label: fact.label, competitor: fact.value, wyrestorm: "", result: "" }));
+  const reason = candidate
+    ? commercializeCompareCopy(candidate.matched[0] || candidate.partialMatches[0] || candidate.mismatches[0] || candidate.unknowns[0] || statusMeta.guidance)
+    : competitor.warning || "The available evidence does not support a safe WyreStorm equivalent.";
+
+  return (
+    <section className="compare-compact-result wm-ui-section wm-ui-card" aria-label="Compare product cards">
+      <CompareReportedStatusRail status={status} />
+      <header className="compare-compact-result__headline"><div><h2 className="wm-ui-title">{statusMeta.heading}</h2><p className="wm-ui-copy">{reason}</p></div></header>
+      <div className="compare-compact-result__products">
+        <article className="compare-compact-result__product wm-ui-card" aria-label="Competitor product card">
+          <span>Competitor product</span><strong>{competitor.heading}</strong><small>{competitor.detail}</small>
+          <dl className="compare-product-info-card__facts">
+            {rows.map((row) => <div key={`c-${row.label}`}><small>{row.label}</small><strong>{row.competitor || "Needs verification"}</strong></div>)}
+          </dl>
+        </article>
+        <span className="compare-compact-result__arrow" aria-hidden="true">→</span>
+        <article className="compare-compact-result__product compare-compact-result__product--wyrestorm wm-ui-card" aria-label={candidate ? "WyreStorm product card" : "No WyreStorm product match"}>
+          <span>WyreStorm alternative</span>
+          {candidate && wyrestorm ? <>
+            <strong>{candidate.product.sku}</strong><small>{candidate.product.name}</small>
+            <dl className="compare-product-info-card__facts">
+              {rows.map((row) => <div key={`w-${row.label}`}><small>{row.label}</small><strong>{row.wyrestorm || "Needs verification"}</strong></div>)}
+            </dl>
+          </> : <><strong>No suitable match</strong><small>Confirm the competitor specification or add evidence before positioning an alternative.</small></>}
+        </article>
+      </div>
+    </section>
+  );
+}
+
 function GovernedDecisionPanel({
   profile,
   candidate,
@@ -4791,12 +4803,6 @@ function CompareSummaryPanel({ summary, requestLiveLookup, sourceUrl }: { summar
   );
 }
 
-const COMPARE_STAGES: Array<{ key: CompareStage; step: string; title: string }> = [
-  { key: "brand", step: "Step 1", title: "Choose competitor brand" },
-  { key: "sku", step: "Step 2", title: "Choose competitor product" },
-  { key: "results", step: "Step 3", title: "Review WyreStorm direction" },
-];
-
 function ComparePageNew() {
   const bestMatchRef = useRef<HTMLDivElement | null>(null);
   const [searchParams] = useSearchParams();
@@ -4804,17 +4810,15 @@ function ComparePageNew() {
   const inboundSku = String(searchParams.get("sku") ?? "").trim().toUpperCase();
   const inboundContext = String(searchParams.get("context") ?? "").trim();
   const hasInboundCompare = Boolean(inboundSku);
-  const [selectedBrand, setSelectedBrand] = useState(inboundBrand || "Atlona");
+  const [selectedBrand, setSelectedBrand] = useState(inboundBrand || "");
   const [competitorInput, setCompetitorInput] = useState(inboundSku);
   const [mustMatchFeatures, setMustMatchFeatures] = useState(inboundContext);
   const [workflowStep, setWorkflowStep] = useState<"capture" | "options">(hasInboundCompare ? "options" : "capture");
-  const [compareStage, setCompareStage] = useState<CompareStage>(hasInboundCompare ? "results" : "brand");
+  const [compareStage, setCompareStage] = useState<CompareStage>(hasInboundCompare ? "results" : "sku");
   const [hasCompared, setHasCompared] = useState(hasInboundCompare);
   const [, setState] = useState<"capture" | "analyzing" | "results">(hasInboundCompare ? "results" : "capture");
   const [customSkuStore, setCustomSkuStore] = useState<string[]>([]);
   const [customManufacturerStore, setCustomManufacturerStore] = useState<string[]>([]);
-  const [customManufacturerInput, setCustomManufacturerInput] = useState("");
-  const [isAddingManufacturer, setIsAddingManufacturer] = useState(false);
   const [committedSku, setCommittedSku] = useState<string | null>(null);
   const [catalogVersion, setCatalogVersion] = useState(0);
   const [decisionRevision, setDecisionRevision] = useState(0);
@@ -4827,7 +4831,7 @@ function ComparePageNew() {
   // "Product cards" leads: the head-to-head cards are the proof surface a rep
   // needs first - confirming Wingman understood the competitor product and
   // justifying the suggested WyreStorm replacement - before the overview.
-  const [resultTab, setResultTab] = useState<CompareResultTab>("overview");
+  const [, setResultTab] = useState<CompareResultTab>("overview");
   const [candidateIndex, setCandidateIndex] = useState(0);
   // Verified battle cards are supplemental evidence. The governed Compare
   // runtime remains authoritative for recommendation, project save and proposal handoff.
@@ -5100,7 +5104,6 @@ function ComparePageNew() {
   const heuristicLead = verdictResult.heuristicLead;
   const best = viableCandidates[0] ?? null;
   const displayedCandidate = viableCandidates[candidateIndex] ?? best;
-  const governedCoverage = useMemo(() => governedCoverageSummary(), []);
   useEffect(() => {
     if (candidateIndex >= viableCandidates.length) setCandidateIndex(0);
   }, [candidateIndex, viableCandidates.length]);
@@ -5324,43 +5327,10 @@ function ComparePageNew() {
     [competitorInput, competitorSummary, displayedCandidate, effectiveBrand, mustMatchFeatures, navigate, summary],
   );
 
-  function saveCustomManufacturer(): void {
-    const brand = customManufacturerInput.trim();
-
-    if (!brand) {
-      return;
-    }
-
-    const lowerBrand = brand.toLowerCase();
-
-    setCustomManufacturerStore((current) => {
-      const alreadyCustom = current.some((item) => item.toLowerCase() === lowerBrand);
-      const alreadySeeded = MANUFACTURER_SELECT_OPTIONS.some((item) => item.toLowerCase() === lowerBrand);
-
-      if (alreadyCustom || alreadySeeded) {
-        return current;
-      }
-
-      return [brand, ...current].slice(0, 12);
-    });
-
-    setSelectedBrand(brand);
-    setCompetitorInput("");
-    setCommittedSku(null);
-    setMustMatchFeatures("");
-    setWorkflowStep("capture");
-    setHasCompared(false);
-    setState("capture");
-    setCustomManufacturerInput("");
-    setIsAddingManufacturer(false);
-    setCompareStage("sku");
-  }
   function onBrandSelect(brand: string): void {
     setSelectedBrand(brand);
     setCompetitorInput("");
     setCommittedSku(null);
-    setIsAddingManufacturer(false);
-    setCustomManufacturerInput("");
     setCompareStage("sku");
   }
 
@@ -5383,16 +5353,14 @@ function ComparePageNew() {
 
   function resetCompare(): void {
     setResultTab("overview");
-    setSelectedBrand("Atlona");
+    setSelectedBrand("");
     setCompetitorInput("");
     setMustMatchFeatures("");
     setWorkflowStep("capture");
-    setCompareStage("brand");
+    setCompareStage("sku");
     setHasCompared(false);
     setCustomSkuStore([]);
     setCustomManufacturerStore([]);
-    setCustomManufacturerInput("");
-    setIsAddingManufacturer(false);
     setCommittedSku(null);
   }
 
@@ -5402,645 +5370,57 @@ function ComparePageNew() {
 
   handleRetryWithSourceUrl("");
 
+  // WINGMAN_MINIMUM_COMPARE_RENDER_V2
+  const activeCandidate = displayedCandidate ?? best;
+
   return (
-    <main
-      className="wm-compare-page wm-polish-shell wm-page"
-      data-wingman-page="compare"
-      data-compare-state={compareStage === "results" ? "result" : "input"}
-    >
+    <main className="wm-compare-page wm-polish-shell wm-page" data-wingman-page="compare" data-compare-state={compareStage === "results" ? "result" : "input"}>
       {compareStage !== "results" ? (
-      <>
-      <section className="compare-native-hero wm-polish-hero wm-polish-aqua">
-        <span className="wm-polish-hero-icon" aria-hidden="true"><Scale /></span>
-        <div className="wm-polish-hero-copy">
-          <p className="wm-polish-eyebrow">Competitor compare</p>
-          <h1 aria-label="Compare competitor products">Find the WyreStorm alternative</h1>
-          <p>
-            Look up a competitor SKU. Wingman will shortlist the safest WyreStorm options and explain what must be checked before quoting.
-          </p>
-        </div>
-        <button className="compare-native-reset wm-ui-button wm-ui-button-secondary wm-ui-quiet-action" type="button" onClick={handleReset}>Reset compare</button>
-      </section>
-
-      <nav
-        className="compare-native-stage-rail wm-compare-step-rail"
-        aria-label="Compare workflow steps"
-      >
-        {COMPARE_STAGES.map((stage, index) => {
-          const isActive = compareStage === stage.key;
-          const currentIndex = COMPARE_STAGES.findIndex(
-            (item) => item.key === compareStage,
-          );
-          const isComplete = currentIndex > index;
-          const isLocked = stage.key === "results" && !hasCompared;
-          const statusLabel = isActive
-            ? "Current step"
-            : isComplete
-              ? "Complete"
-              : isLocked
-                ? "Available after selection"
-                : "Next";
-
-          return (
-            <button
-              key={stage.key}
-              type="button"
-              className={`compare-native-stage-card wm-compare-step${isActive ? " is-active" : ""}${isComplete ? " is-complete" : ""}${isLocked ? " is-locked" : ""}`}
-              onClick={() => {
-                if (isLocked) {
-                  return;
-                }
-
-                setCompareStage(stage.key);
-              }}
-              aria-current={isActive ? "step" : undefined}
-              disabled={isLocked}
-            >
-              <span
-                className="compare-native-stage-step wm-compare-step-number"
-                aria-hidden="true"
-              >
-                {isComplete ? "\u2713" : index + 1}
-              </span>
-
-              <span className="wm-compare-step-copy">
-                <strong>{stage.title}</strong>
-                <small>{statusLabel}</small>
-              </span>
-            </button>
-          );
-        })}
-      </nav>
-      </>
-      ) : null}
-
-      {compareStage === "brand" ? (
-        <section className="compare-native-results compare-native-results--stage wm-ui-section wm-ui-card" aria-live="polite">
-          <div className="compare-native-section-title wm-ui-card-header wm-ui-card wm-ui-title">
-            <h2 className="wm-ui-title">Choose competitor brand</h2>
-            <p className="wm-ui-copy">Start with the manufacturer so Wingman can narrow the SKU list and compare against the right product family.</p>
-          </div>
-
-          <CompareManufacturerCombobox brands={compareManufacturerOptions} selectedBrand={selectedBrand} onBrandSelect={onBrandSelect} />
-
-          <details className="compare-native-guidance-row wm-ui-card">
-            <summary>Why this step matters</summary>
-            <p className="wm-ui-copy">Picking the brand first keeps the next screen shorter and avoids mixing unlike technologies before the actual competitor product has been chosen.</p>
-          </details>
-
-          {isAddingManufacturer ? (
-            <section className="compare-native-card compare-native-card--compact wm-ui-card wm-ui-section wm-ui-centered-card">
-              <label className="compare-native-label wm-ui-kicker" htmlFor="compare-custom-manufacturer">Missing manufacturer name</label>
-              <input
-                id="compare-custom-manufacturer"
-                className="compare-native-input wm-ui-input"
-                value={customManufacturerInput}
-                onChange={(event) => setCustomManufacturerInput(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key !== "Enter") {
-                    return;
-                  }
-
-                  event.preventDefault();
-                  saveCustomManufacturer();
-                }}
-                placeholder="Example: AVPro Edge, AV Access, PureLink"
-              />
-              <p className="compare-native-auto-note wm-ui-copy">
-                Use this when the competitor brand is not listed. The next step will capture the missing model/SKU and the must-match features.
-              </p>
-              <div className="compare-native-action-row wm-ui-action-row wm-ui-card">
-                <button className="compare-native-more wm-ui-button wm-ui-button-primary" type="button" onClick={saveCustomManufacturer} disabled={customManufacturerInput.trim().length === 0}>
-                  Use this manufacturer
-                </button>
-                <button
-                  className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
-                  type="button"
-                  onClick={() => {
-                    setIsAddingManufacturer(false);
-                    setCustomManufacturerInput("");
-                  }}
-                >
-                  Cancel
-                </button>
-              </div>
-            </section>
-          ) : null}
-          <div className="compare-native-action-row compare-native-action-row--between wm-ui-action-row wm-ui-card wm-ui-centered-actions">
-            <span className="compare-native-muted wm-ui-copy">Selected brand: {selectedBrand}</span>
-            <div className="compare-native-action-row compare-native-action-row--equal wm-ui-action-row wm-ui-card">
-              <button
-                className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
-                type="button"
-                onClick={() => {
-                  setIsAddingManufacturer((current) => !current);
-                  setCustomManufacturerInput("");
-                }}
-              >
-                Add missing manufacturer
-              </button>
-              <button className="compare-native-more wm-ui-button wm-ui-button-forward wm-ui-button-primary" type="button" onClick={() => setCompareStage("sku")}>
-                Next: choose competitor product
-              </button>
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      {compareStage === "sku" ? (
-        <form
-          className="compare-native-results compare-native-results--stage compare-native-sku-stage wm-ui-section wm-ui-card"
-          onSubmit={handleSubmit}
-        >
-          <header className="wm-compare-sku-header">
-            <div
-              className="compare-native-stage-brand-badge wm-compare-selected-brand"
-              aria-label={`Selected brand ${selectedBrand}`}
-            >
-              <span>Selected brand</span>
-              <strong>{selectedBrand}</strong>
-            </div>
-
-            <div className="wm-compare-sku-heading">
-              <span>Product lookup</span>
-              <h2 className="wm-ui-title" aria-label="Choose the competitor SKU">Enter the competitor SKU</h2>
-              <p className="wm-ui-copy">
-                Wingman will return the strongest WyreStorm direction and any
-                other credible ways to meet the same core requirement.
-              </p>
-            </div>
+        <section className="compare-native-results wm-ui-section" aria-label="Compare competitor products">
+          <header className="compare-native-section-title wm-ui-card wm-ui-title">
+            <div><span className="compare-native-eyebrow wm-ui-kicker">Competitor compare</span><h1 className="wm-ui-title">Compare competitor products</h1><p className="wm-ui-copy">Enter the competitor manufacturer and model. Wingman will place the competitor product on the left and the closest safe WyreStorm direction on the right.</p></div>
           </header>
-
-          <div className="wm-compare-sku-workspace">
-            <section
-              className="wm-compare-sku-lookup"
-              aria-label="Competitor SKU lookup"
-            >
-              <div className="wm-compare-panel-heading">
-                <span aria-hidden="true">&#8594;</span>
-                <div>
-                  <strong>Search by model number</strong>
-                  <small>
-                    Choose a known SKU or enter the model exactly as supplied.
-                  </small>
-                </div>
-              </div>
-
-              <CompareProductLookupInput
-                value={competitorInput}
-                knownSkus={knownBrandSkus}
-                suggestions={skuSuggestions}
-                onInputChange={setCompetitorInput}
-                onSkuSelect={onSkuSelect}
-              />
-
-              <p className="wm-compare-sku-note">
-                Selecting a known SKU opens the comparison automatically.
-                Typed entries can still use Enter or the review button.
-              </p>
-            </section>
-
-            <details
-              className="wm-compare-match-requirements"
-              aria-label="Optional matching details"
-            >
-              <summary className="wm-compare-panel-heading">
-                <span aria-hidden="true">+</span>
-                <div>
-                  <strong>Add essential requirements</strong>
-                  <small>
-                    Optional—only when the SKU alone does not describe the job.
-                  </small>
-                </div>
-              </summary>
-
-              <div className="wm-compare-requirements-body">
-                <label
-                  className="wm-compare-requirement-field"
-                  htmlFor="compare-must-match"
-                >
-                  <span>What must the WyreStorm solution preserve?</span>
-                  <textarea
-                    id="compare-must-match"
-                    className="compare-native-input wm-ui-input"
-                    value={mustMatchFeatures}
-                    onChange={(event) =>
-                      setMustMatchFeatures(event.target.value)
-                    }
-                    placeholder="Example: transmitter role, 4K60, USB device path and 100 m extension"
-                    rows={4}
-                  />
-                </label>
-
-                <div className="wm-compare-requirement-examples">
-                  <span>Details that can change the answer</span>
-                  <small>Endpoint role</small>
-                  <small>Input / output count</small>
-                  <small>USB path</small>
-                  <small>Distance or network class</small>
-                </div>
-              </div>
-            </details>
-          </div>
-
-          <footer className="wm-compare-sku-actions">
-            <button
-              className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
-              type="button"
-              onClick={() => setCompareStage("brand")}
-            >
-              Back to brand
-            </button>
-
-            <div className="wm-compare-sku-action-copy">
-              <span>{competitorInput || "No competitor SKU selected"}</span>
-              <small>
-                {hasCompetitorSelection
-                  ? "Ready to review the WyreStorm direction."
-                  : "Select or enter a competitor SKU to continue."}
-              </small>
+          <form className="wm-ui-card wm-ui-section p-4" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <CompareManufacturerCombobox brands={compareManufacturerOptions} selectedBrand={selectedBrand} onBrandSelect={onBrandSelect} />
+              <CompareProductLookupInput value={competitorInput} knownSkus={knownBrandSkus} suggestions={skuSuggestions} onInputChange={setCompetitorInput} onSkuSelect={onSkuSelect} />
             </div>
-
-            <button
-              className="compare-native-more wm-ui-button wm-ui-button-forward wm-ui-button-primary"
-              type="submit"
-              disabled={!hasCompetitorSelection}
-            >
-              Review WyreStorm direction
-            </button>
-          </footer>
-
-          <button
-            className="compare-native-hidden-submit"
-            type="submit"
-            aria-hidden="true"
-            tabIndex={-1}
-            hidden
-          >
-            Run compare
-          </button>
-        </form>
-      ) : null}
-
-      {compareStage === "results" ? (
+            <details className="compare-native-summary wm-ui-card wm-ui-copy mt-4"><summary>Add essential requirement</summary><label className="wm-field mt-3" htmlFor="compare-must-match">Only use this when the SKU alone does not describe the requirement.<textarea id="compare-must-match" className="compare-native-input wm-ui-input" value={mustMatchFeatures} onChange={(event) => setMustMatchFeatures(event.target.value)} placeholder="Example: 4K60, 6x2 routed I/O, USB path, 100 m extension" rows={3} /></label></details>
+            <div className="compare-native-action-row wm-ui-action-row mt-4"><button className="compare-native-more wm-ui-button wm-ui-button-primary" type="submit" disabled={!hasCompetitorSelection}>Compare</button></div>
+          </form>
+        </section>
+      ) : (
         <section className="compare-native-results wm-ui-section" aria-live="polite">
-          <header className="compare-native-section-title compare-native-section-title--inline compare-result-toolbar wm-ui-title">
-            <div>
-              <span className="compare-native-eyebrow wm-ui-kicker">Competitor Compare</span>
-              <h1 className="wm-ui-title">{workflowStep === "capture" ? "Start a new competitor comparison" : "Comparison result"}</h1>
-              <p className="wm-ui-copy">Review the recommended direction first. Check advisories before using it in a quote.</p>
+          <header className="compare-native-section-title compare-native-section-title--inline wm-ui-card wm-ui-title"><div><span className="compare-native-eyebrow wm-ui-kicker">Competitor compare</span><h1 className="wm-ui-title">Comparison result</h1></div><button className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" type="button" onClick={handleReset}>New comparison</button></header>
+          {hasCompared ? <>
+            <div ref={bestMatchRef} className="compare-native-scroll-target" tabIndex={-1} aria-label={activeCandidate ? `Main WyreStorm match: ${activeCandidate.product.sku}` : "Main WyreStorm match: none"}>
+              <MinimumCompareCards competitor={competitorSummary} competitorProfile={profile} candidate={activeCandidate} />
             </div>
-            <div className="compare-native-action-row compare-result-toolbar__actions wm-ui-card">
-              <button className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" type="button" onClick={() => setCompareStage("sku")}>
-                Edit search
-              </button>
-              <button className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" type="button" onClick={handleReset}>
-                New comparison
-              </button>
-            </div>
-          </header>
-
-          {hasCompared ? (
-          <>
-            <CompetitorSearchCard
-              brand={effectiveBrand}
-              sku={competitorInput}
-              summary={competitorSummary}
-              locallyRecognised={!requestLiveLookup}
-            />
-            {best ? (
-              <>
-                <aside className="compare-result-guide" aria-label="How to use this result">
-                  <strong>Start here</strong>
-                  <span>Recommendation shows the sales direction. Use Side-by-side or Evidence only when more detail is needed.</span>
-                </aside>
-
-                <div className="compare-result-view-switcher">
-                  <span>View</span>
-                <div className="compare-result-tabs" role="tablist" aria-label="Comparison result sections">
-                  {([
-                    ["overview", "Recommendation"],
-                    ["cards", "Side-by-side"],
-                    ["evidence", "Evidence & review"],
-                  ] as const).map(([tab, label]) => (
-                    <button
-                      key={tab}
-                      id={`compare-result-tab-${tab}`}
-                      type="button"
-                      role="tab"
-                      aria-selected={resultTab === tab}
-                      aria-controls={`compare-result-panel-${tab}`}
-                      className={`compare-result-tabs__button${resultTab === tab ? " is-active" : ""}`}
-                      onClick={() => setResultTab(tab)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                </div>
-
-                <section
-                  id="compare-result-panel-overview"
-                  role="tabpanel"
-                  aria-labelledby="compare-result-tab-overview"
-                  className="compare-result-tab-panel"
-                  hidden={resultTab !== "overview"}
-                >
-                  <CompareVerdictLead
-                    competitor={competitorSummary}
-                    candidate={displayedCandidate ?? best}
-                    status={compareReportedStatus(displayedCandidate ?? best, competitorSummary)}
-                    alternativesCount={Math.max(0, viableCandidates.length - 1)}
-                  />
-
-                  <div
-                    ref={bestMatchRef}
-                    className="compare-native-scroll-target"
-                    tabIndex={-1}
-                    aria-label={`Main WyreStorm match: ${(displayedCandidate ?? best).product.sku}`}
-                  >
-                    {viableCandidates.length > 1 ? (
-                      <nav className="wm-compare-candidate-nav" aria-label="WyreStorm equivalent options">
-                        <button type="button" aria-label="Previous WyreStorm equivalent" onClick={() => setCandidateIndex((index) => (index - 1 + viableCandidates.length) % viableCandidates.length)}>‹</button>
-                        <span><strong>WyreStorm equivalent</strong> Option {candidateIndex + 1} of {viableCandidates.length}</span>
-                        <button type="button" aria-label="Next WyreStorm equivalent" onClick={() => setCandidateIndex((index) => (index + 1) % viableCandidates.length)}>›</button>
-                      </nav>
-                    ) : null}
-                    <section className="compare-native-governance-strip wm-ui-card" aria-label="Product data trust note">
-                      <span className="compare-native-governance-strip__dot" aria-hidden="true" />
-                      <p className="wm-ui-copy">
-                        <strong>{governedCoverage.verifiedPct}% of WyreStorm product data is human-checked</strong>
-                        <span>
-                          {governedCoverage.verified} of {governedCoverage.total} products reviewed against official pages — every card here is backed by that checked data.
-                        </span>
-                      </p>
-                    </section>
-                    <BestCandidateCard
-                      candidate={displayedCandidate ?? best}
-                      competitor={competitorSummary}
-                      competitorProfile={profile}
-                      onCopySummary={() => { void copySummary(); }}
-                    />
-                  </div>
-
-                  <section className="compare-compact-next-action wm-ui-card" aria-label="Primary next action">
-                    <div>
-                      <strong>Next action</strong>
-                      <span>
-                        {compareReportedStatus(displayedCandidate ?? best, competitorSummary) === "match"
-                          ? "Use the matched direction in the project or proposal."
-                          : compareReportedStatus(displayedCandidate ?? best, competitorSummary) === "partial"
-                            ? "Record the partial match and confirm the stated difference."
-                            : "Confirm the outstanding checks before proposal use."}
-                      </span>
-                    </div>
-
-                    <div className="compare-native-action-row wm-ui-card">
-                      <button
-                        type="button"
-                        className="compare-native-more wm-ui-button wm-ui-button-primary"
-                        onClick={() => handleCommit("project")}
-                      >
-                        {compareReportedStatus(displayedCandidate ?? best, competitorSummary) === "match"
-                          ? "Add to project"
-                          : "Add to project for review"}
-                      </button>
-
-                      {compareReportedStatus(displayedCandidate ?? best, competitorSummary) === "match" ? (
-                        <button
-                          type="button"
-                          className="compare-native-secondary-action wm-ui-button wm-ui-button-primary"
-                          onClick={() => handleCommit("proposal")}
-                        >
-                          Build proposal
-                        </button>
-                      ) : null}
-
-                      <Link
-                        className="compare-native-secondary-action"
-                        to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent((displayedCandidate ?? best).product.sku)}&source=compare`}
-                      >
-                        Product details
-                      </Link>
-                    </div>
-
-                    {committedSku === (displayedCandidate ?? best).product.sku ? (
-                      <p className="compare-native-muted wm-ui-copy">
-                        Saved. <Link to={routeCatalogByKey.projects.path}>Open projects</Link>.
-                      </p>
-                    ) : null}
-                  </section>
-
-                  {alternativeCandidates.length ? (
-                    <section className="compare-shortlist" aria-labelledby="compare-shortlist-heading">
-                      <header className="compare-shortlist__heading">
-                        <div>
-                          <span className="compare-native-eyebrow wm-ui-kicker">Other valid approaches</span>
-                          <h2 id="compare-shortlist-heading" className="wm-ui-title">Other WyreStorm options to consider</h2>
-                          <p className="wm-ui-copy">
-                            These products meet the same core role but differ in architecture, capacity or included features.
-                          </p>
-                        </div>
-                        <span className="compare-shortlist__count">{Math.min(alternativeCandidates.length, 3)} options</span>
-                      </header>
-
-                      <div className="compare-native-option-grid compare-shortlist__grid wm-ui-card">
-                        {alternativeCandidates.slice(0, 3).map((candidate) => (
-                          <CandidateOptionCard
-                            key={`${candidate.product.sku}-${candidate.verdict}`}
-                            candidate={candidate}
-                          />
-                        ))}
-                      </div>
-                    </section>
-                  ) : null}
-                </section>
-
-                <section
-                  id="compare-result-panel-cards"
-                  role="tabpanel"
-                  aria-labelledby="compare-result-tab-cards"
-                  className="compare-result-tab-panel"
-                  hidden={resultTab !== "cards"}
-                >
-                  <CompareShowdown
-                    brand={effectiveBrand}
-                    competitorSku={competitorInput}
-                    active={hasCompared}
-                    view="cards"
-                    selectedWyrestormSku={(displayedCandidate ?? best).product.sku}
-                    onSelectedWyrestormSkuChange={(sku) => {
-                      const index = viableCandidates.findIndex((candidate) => candidate.product.sku.toUpperCase() === sku.toUpperCase());
-                      if (index >= 0) setCandidateIndex(index);
-                    }}
-                    verdictTier={compareVerdictTier(
-                      compareReportedStatus(displayedCandidate ?? best, competitorSummary),
-                    )}
-                  />
-                </section>
-
-                <section
-                  id="compare-result-panel-evidence"
-                  role="tabpanel"
-                  aria-labelledby="compare-result-tab-evidence"
-                  className="compare-result-tab-panel compare-result-tab-panel--evidence"
-                  hidden={resultTab !== "evidence"}
-                >
-                  <CompareShowdown
-                    brand={effectiveBrand}
-                    competitorSku={competitorInput}
-                    active={hasCompared}
-                    view="proof"
-                    selectedWyrestormSku={(displayedCandidate ?? best).product.sku}
-                    onSelectedWyrestormSkuChange={(sku) => {
-                      const index = viableCandidates.findIndex((candidate) => candidate.product.sku.toUpperCase() === sku.toUpperCase());
-                      if (index >= 0) setCandidateIndex(index);
-                    }}
-                  />
-
-                  <details className="compare-native-summary compare-native-support-details wm-ui-card wm-ui-copy">
-                  <summary>Technical review controls and other options</summary>
-
-                  <GovernedDecisionPanel
-                    key={`${effectiveBrand}:${competitorInput}:${displayedDecision?.updatedAt ?? decisionRevision}`}
-                    profile={profile}
-                    candidate={displayedCandidate ?? best ?? heuristicLead ?? null}
-                    existingDecision={displayedDecision}
-                    onSaved={() => setDecisionRevision((revision) => revision + 1)}
-                  />
-
-                  {alternativeCandidates.length ? (
-                    <section className="compare-native-options wm-ui-card">
-                      <h3 className="wm-ui-title">Other possible WyreStorm options</h3>
-                      <div className="compare-native-option-grid wm-ui-card">
-                        {alternativeCandidates.slice(0, 3).map((candidate) => (
-                          <CandidateOptionCard
-                            key={`${candidate.product.sku}-${candidate.verdict}`}
-                            candidate={candidate}
-                          />
-                        ))}
-                      </div>
-                    </section>
-                  ) : null}
-
-                  <CompareSummaryPanel
-                    summary={summary}
-                    requestLiveLookup={requestLiveLookup}
-                    sourceUrl={sourceUrl}
-                  />
-
-                  {requestLiveLookup ? (
-                    <CompetitorEvidencePanel
-                      brand={effectiveBrand}
-                      sku={competitorInput}
-                      onSaved={() => setCatalogVersion((version) => version + 1)}
-                      autoRun
-                      primaryCriteria={primarySearchCriteria}
-                    />
-                  ) : null}
-                  </details>
-                </section>
-              </>
-            ) : (
-              <>
-                <CompareVerdictLead
-                  competitor={competitorSummary}
-                  candidate={null}
-                  status="no-match"
-                  alternativesCount={0}
-                  noMatchReason={topNoMatchReason}
-                  reviewedBy={
-                    governedDecision?.decisionType === "no-suitable-match"
-                      ? governedDecision.reviewer ?? undefined
-                      : undefined
-                  }
-                  evidencePending={
-                    requestLiveLookup || governedDecision?.decisionType === "review-required"
-                  }
-                />
-
-                <section className="compare-native-empty compare-compact-result compare-compact-result--no-match wm-ui-section wm-ui-card">
-                  <CompareReportedStatusRail status="no-match" />
-
-                  <header className="compare-compact-result__headline">
-                    <div>
-                      <h3 className="wm-ui-title">
-                        {governedDecision?.decisionType === "no-suitable-match"
-                          ? "Reviewed decision: no suitable WyreStorm match"
-                          : "No suitable WyreStorm match found from the current data"}
-                      </h3>
-                      <p className="wm-ui-copy">
-                        {governedDecision?.decisionType === "no-suitable-match"
-                          ? `This no-match decision was approved${governedDecision.reviewer ? ` by ${governedDecision.reviewer}` : ""}.`
-                          : topNoMatchReason || competitorSummary.warning || "The available facts do not support a safe WyreStorm equivalent."}
-                      </p>
-                    </div>
-                  </header>
-
-                  <div className="compare-native-action-row compare-compact-result__actions wm-ui-card">
-                    <button
-                      className="compare-native-more wm-ui-button wm-ui-button-primary"
-                      type="button"
-                      onClick={() => openGuruForCompareResult(competitorSummary, null, "no-match")}
-                    >
-                      More info from Guru
-                    </button>
-                    <button
-                      className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
-                      type="button"
-                      onClick={() => setCompareStage("sku")}
-                    >
-                      Edit competitor details
-                    </button>
-                    <button
-                      className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
-                      type="button"
-                      onClick={handleReset}
-                    >
-                      Start new compare
-                    </button>
-                  </div>
-                </section>
-
-                {/* No local match: automatically run the live lookup and keep
-                    the evidence panel prominent (not buried in a details), so a
-                    no-match immediately becomes a live-lookup search the rep can
-                    act on. */}
-                <CompetitorEvidencePanel
-                  brand={effectiveBrand}
-                  sku={competitorInput}
-                  onSaved={() => setCatalogVersion((version) => version + 1)}
-                  autoRun
-                  primaryCriteria={primarySearchCriteria}
-                />
-
-                <details className="compare-native-summary compare-native-support-details wm-ui-card wm-ui-copy">
-                  <summary>Open technical review controls</summary>
-
-                  <GovernedDecisionPanel
-                    key={`${effectiveBrand}:${competitorInput}:${displayedDecision?.updatedAt ?? decisionRevision}`}
-                    profile={profile}
-                    candidate={null}
-                    existingDecision={displayedDecision}
-                    onSaved={() => setDecisionRevision((revision) => revision + 1)}
-                  />
-                </details>
-              </>
-            )}
-          </>
-          ) : null}
+            {activeCandidate ? <section className="wm-ui-card wm-ui-section" aria-label="Compare result actions"><div className="compare-native-action-row wm-ui-action-row">
+              <button type="button" className="compare-native-more wm-ui-button wm-ui-button-primary" onClick={() => handleCommit("project")}>{compareReportedStatus(activeCandidate, competitorSummary) === "match" ? "Add to project" : "Add to project for review"}</button>
+              <Link className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(activeCandidate.product.sku)}&source=compare`}>Product details</Link>
+              <button className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" type="button" onClick={handleReset}>New comparison</button>
+            </div>{committedSku === activeCandidate.product.sku ? <p className="compare-native-muted wm-ui-copy">Saved. <Link to={routeCatalogByKey.projects.path}>Open projects</Link>.</p> : null}</section> : null}
+            <details className="compare-native-summary wm-ui-card wm-ui-copy"><summary>Technical evidence &amp; review</summary><div className="mt-4">
+              <CompetitorSearchCard brand={effectiveBrand} sku={competitorInput} summary={competitorSummary} locallyRecognised={!requestLiveLookup} />
+              {activeCandidate ? <>
+                <BestCandidateCard candidate={activeCandidate} competitor={competitorSummary} competitorProfile={profile} onCopySummary={() => { void copySummary(); }} />
+                {alternativeCandidates.length ? <section className="compare-native-options wm-ui-card"><h3 className="wm-ui-title">Other WyreStorm options</h3><div className="compare-native-option-grid wm-ui-card">{alternativeCandidates.slice(0, 3).map((candidate) => <CandidateOptionCard key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} />)}</div></section> : null}
+                <CompareShowdown brand={effectiveBrand} competitorSku={competitorInput} active={hasCompared} view="proof" selectedWyrestormSku={activeCandidate.product.sku} onSelectedWyrestormSkuChange={(sku) => { const index = viableCandidates.findIndex((candidate) => candidate.product.sku.toUpperCase() === sku.toUpperCase()); if (index >= 0) setCandidateIndex(index); }} />
+              </> : null}
+              <GovernedDecisionPanel key={`${effectiveBrand}:${competitorInput}:${displayedDecision?.updatedAt ?? decisionRevision}`} profile={profile} candidate={activeCandidate ?? heuristicLead ?? null} existingDecision={displayedDecision} onSaved={() => setDecisionRevision((revision) => revision + 1)} />
+              <CompareSummaryPanel summary={summary} requestLiveLookup={requestLiveLookup} sourceUrl={sourceUrl} />
+              {requestLiveLookup ? <CompetitorEvidencePanel brand={effectiveBrand} sku={competitorInput} onSaved={() => setCatalogVersion((version) => version + 1)} autoRun primaryCriteria={primarySearchCriteria} /> : null}
+            </div></details>
+          </> : null}
         </section>
-      ) : null}
-
-      <CompetitorDecisionReviewQueue
-        onApprovalRecorded={() => setDecisionRevision((revision) => revision + 1)}
-      />
-
+      )}
       <span className="compare-native-marker" aria-hidden="true">{ROUTE_LOCK_MARKER}</span>
       <span className="compare-native-marker" aria-hidden="true">{COMPARE_TYPEAHEAD_STATIC_MARKERS.join(" ")}</span>
       <span className="compare-native-marker" aria-hidden="true">{COMPARE_CANDIDATE_GATE_STATIC_MARKERS.join(" ")}</span>
     </main>
   );
+
 }
 
 export default ComparePageNew;

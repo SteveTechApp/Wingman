@@ -940,6 +940,34 @@ export function evaluateProductEligibility(args: {
   const isRoleMatchedPrimaryProduct =
     ((args.intent === "ndi-camera" || args.intent === "ptz-camera") && /^CAM/.test(key)) ||
     ((args.intent === "uc-byod" || args.intent === "usb-audio") && isUcRoomHardware);
+
+  // COMPARE_PRIMARY_ROLE_ISOLATION_V1
+  // Do not let keyword score promote a fundamentally different primary product.
+  const explicitCandidateRoleText = normalise([
+    product?.category,
+    product?.role,
+    product?.governanceRole,
+    product?.productClass,
+    product?.family,
+    product?.name,
+    product?.title,
+  ]);
+  const isCameraPrimaryHardware =
+    /^CAM/.test(key) ||
+    /\b(?:ptz|ndi)\s*camera\b/i.test(explicitCandidateRoleText) ||
+    /\bcamera\s*(?:endpoint|source|product)\b/i.test(explicitCandidateRoleText);
+  const strictFixedSignalIntent =
+    args.intent === "matrix" ||
+    args.intent === "hdbaset-matrix" ||
+    args.intent === "distribution-amplifier" ||
+    args.intent === "presentation-switcher" ||
+    args.intent === "extender";
+
+  if (strictFixedSignalIntent && (isCameraPrimaryHardware || isUcRoomHardware)) {
+    return blocked(sku, args.intent, [
+      "Primary product class / role mismatch: camera or UC room hardware cannot lead a matrix, presentation-switcher, distribution or extender comparison.",
+    ]);
+  }
   const invalidLeadReason = isRoleMatchedPrimaryProduct
     ? null
     : invalidLeadReasonForIntent(supportOnlyReason, args.intent);
@@ -1086,7 +1114,9 @@ export function evaluateProductEligibility(args: {
     }
 
     if (args.intent === "presentation-switcher" && isUcRoomHardware && !competitorNeedsUcHardware) {
-      return alternative(args.intent, ["UC room hardware is a conferencing-room alternative, not the lead wireless presentation switcher match."], 45);
+      return blocked(sku, args.intent, [
+        "UC room hardware is a different primary product class and cannot replace a presentation switcher.",
+      ]);
     }
 
     if (/^SW|^MX/.test(key) || (args.intent === "uc-byod" && isUcRoomHardware) || /\b(presentation|switcher|usb-c|byod|byom|unified communications?|video bar)\b/i.test(combined)) {

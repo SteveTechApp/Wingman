@@ -18,7 +18,6 @@
     "templates",
     "videowall",
     "salesHelper",
-    "visualDesign",
     "glossary",
     "callCards",
     "productCallCards",
@@ -26,26 +25,20 @@
     "proposal",
     "proposalVisuals",
     "support",
-    "profile",
-    "visualStudio"
+    "profile"
   ],
   "retiredRouteKeys": [
-    "finder"
+    "finder",
+    "visualDesign",
+    "visualStudio"
   ],
-  "retiredPageFiles": [
-    "src/wingman2/pages/RecommendationsPage.tsx"
-  ],
+  "retiredPageFiles": [],
   "legacyRedirects": {
-    "/wingman/finder": "/wingman/discovery"
+    "/wingman/finder": "/wingman/discovery",
+    "/wingman/visual-design": "/wingman/proposal-visuals?mode=technical-schematic",
+    "/wingman/visual-studio": "/wingman/proposal-visuals?mode=technical-schematic"
   },
   "reviewRequiredRoutePairs": [
-    {
-      "routes": [
-        "visualDesign",
-        "visualStudio"
-      ],
-      "reason": "Both visual design routes remain live and require a deliberate consolidation decision before either implementation is removed."
-    },
     {
       "routes": [
         "salesHelper",
@@ -53,5 +46,18 @@
       ],
       "reason": "Both conversation-support routes remain live and must retain distinct user purposes."
     }
+  ],
+  "approvedDistinctRoutePairs": [
+    {
+      "routes": [
+        "salesHelper",
+        "callCoach"
+      ],
+      "reason": "Retain as distinct intents: Call Coach provides live conversation guidance; Sales Helper provides application-led sales prompts and qualification support."
+    }
+  ],
+  "approvedUnreachableSources": [
+    "src/wingman2/lib/competitorMatchDecisionSnapshot.ts",
+    "src/wingman2/lib/testHelpers/governedProfilesHarness.ts"
   ]
 }
