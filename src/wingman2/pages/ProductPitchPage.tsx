@@ -980,8 +980,8 @@ function WorkflowTab({ product, narrative }: { product: ProductSpec; narrative: 
   const saveHandoff = () => writeProductWorkspaceHandoff(product, narrative);
   const steps = [
     { number: "1", title: "Complete room discovery", copy: "Capture the application, room size, sources, displays, USB, audio, control and cable distances.", to: routeCatalogByKey.discovery.path, action: "Open Discovery" },
-    { number: "2", title: "Select the product and schematic", copy: `${product.sku} is already loaded as the product context. Build the real signal path around it.`, to: routeCatalogByKey.visualDesign.path, action: "Build schematic" },
-    { number: "3", title: "Create the representative visual", copy: "In Visual Design Studio, use the discovered room context and export the completed visual as PNG or SVG.", to: routeCatalogByKey.visualDesign.path, action: "Open visual studio" },
+    { number: "2", title: "Select the product and schematic", copy: `${product.sku} is already loaded as the product context. Build the real signal path around it.`, to: routeCatalogByKey.proposalVisuals.path, action: "Build schematic" },
+    { number: "3", title: "Create the representative visual", copy: "In Visual Design Studio, use the discovered room context and export the completed visual as PNG or SVG.", to: routeCatalogByKey.proposalVisuals.path, action: "Open visual studio" },
     { number: "4", title: "Add it to the customer response", copy: "Open the active response pack or proposal with the product and visual context retained.", to: routeCatalogByKey.responsePack.path, action: "Open Response Pack" },
   ];
 
