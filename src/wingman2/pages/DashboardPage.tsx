@@ -136,6 +136,8 @@ const STAGE_NEXT_STEP: Partial<Record<ProjectStage, string>> = {
   Support: "Continue the support review",
 };
 
+const SHOW_HOME_GOVERNANCE = false;
+
 const STATUS_LABEL: Record<StatusVariant, string> = {
   recommended: "On track",
   alternative: "In progress",
@@ -795,13 +797,13 @@ export function DashboardPage() {
             ))}
           </section>
 
-          <GovernedCoverageStrip />
+          {SHOW_HOME_GOVERNANCE ? <GovernedCoverageStrip /> : null}
 
           {showAdminGovernance ? (
             <>
-              <CompetitorDecisionApprovedCard />
-              <GovernedConfirmationCard />
-              <GovernedVerifiedCard />
+              {SHOW_HOME_GOVERNANCE ? <CompetitorDecisionApprovedCard /> : null}
+              {SHOW_HOME_GOVERNANCE ? <GovernedConfirmationCard /> : null}
+              {SHOW_HOME_GOVERNANCE ? <GovernedVerifiedCard /> : null}
             </>
           ) : null}
 

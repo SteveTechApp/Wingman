@@ -257,11 +257,11 @@ export function ProjectDetailPage() {
     const seedSku = selectedProducts[0]?.sku;
 
     if (!seedSku) {
-      return routeCatalogByKey.visualStudio.path;
+      return routeCatalogByKey.proposalVisuals.path;
     }
 
     const params = new URLSearchParams({ seedSku, source: "product-discussion" });
-    return `${routeCatalogByKey.visualStudio.path}?${params.toString()}`;
+    return `${routeCatalogByKey.proposalVisuals.path}?${params.toString()}`;
   }, [selectedProducts]);
 
   const selectedProductRankingReasons = useMemo(

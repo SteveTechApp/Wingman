@@ -144,15 +144,6 @@
     "summary": "Application-led sales prompts and customer conversation support."
   },
   {
-    "key": "visualDesign",
-    "path": "/wingman/visual-design",
-    "segment": "visual-design",
-    "label": "Visual Design",
-    "navLabel": "Visual Design",
-    "pageFile": "VisualDesignStudioPage.tsx",
-    "summary": "Create signal-flow and system design visuals."
-  },
-  {
     "key": "glossary",
     "path": "/wingman/glossary",
     "segment": "glossary",
@@ -214,15 +205,6 @@
     "navLabel": "Settings",
     "pageFile": "ProfilePage.tsx",
     "summary": "User profile, preferences and Wingman settings."
-  },
-  {
-    "key": "visualStudio",
-    "path": "/wingman/visual-studio",
-    "segment": "visual-studio",
-    "label": "Visual Studio",
-    "navLabel": "Visual Studio",
-    "pageFile": "VisualStudioPage.tsx",
-    "summary": "Diagramming and visual system support."
   },
   {
     "key": "proposalVisuals",

@@ -183,7 +183,7 @@ const GURU_SUPPORT_BY_ROUTE: Partial<Record<WingmanRouteKey, GuruSupportCue>> = 
       "What product direction should I explore from this requirement?",
     ],
   },
-  visualStudio: {
+  proposalVisuals: {
     label: "Diagram help ready",
     summary: "Guru can explain what the system diagram means, what assumptions it is making, and what should be verified against the live design.",
     prompts: [

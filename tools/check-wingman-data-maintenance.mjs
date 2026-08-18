@@ -49,6 +49,7 @@ async function main() {
   const queue = await readJson("data/wingman-data-maintenance-queue.json");
   const report = await readJson("reports/wingman-data-maintenance-report.json");
   const manifest = await readJson("data/catalog/product-data-manifest.generated.json");
+  const maintenanceBaseline = await readJson("tools/wingman-data-maintenance-baseline.json");
 
   const canonicalProducts = payloadToArray(canonical);
   const indexProducts = payloadToArray(index);
@@ -62,7 +63,12 @@ async function main() {
   requireCondition(indexProducts.length === canonicalProducts.length, `Public product index (${indexProducts.length}) is not aligned with canonical products (${canonicalProducts.length}).`, errors);
   requireCondition(indexSources.includes("data/wingman-canonical-product-store.json"), "Public product index is not generated from data/wingman-canonical-product-store.json.", errors);
   requireCondition(canonicalWithMaintenance.length === canonicalProducts.length, "Some canonical products are missing maintenance gate metadata.", errors);
-  requireCondition(canonicalWithCompareGate.length >= 180, `Only ${canonicalWithCompareGate.length} products are compare-ready. Expected at least 180.`, errors);
+  const minimumCompareReady = Number(maintenanceBaseline?.minimumCompareReady ?? 0);
+  requireCondition(
+    canonicalWithCompareGate.length >= minimumCompareReady,
+    `Only ${canonicalWithCompareGate.length} products are compare-ready. Baseline requires at least ${minimumCompareReady}.`,
+    errors,
+  );
   requireCondition(Array.isArray(queue?.newWyrestormCandidates), "Maintenance queue is missing newWyrestormCandidates.", errors);
   requireCondition(Array.isArray(queue?.dataReviewItems), "Maintenance queue is missing dataReviewItems.", errors);
   requireCondition(Array.isArray(report?.phaseStatus) && report.phaseStatus.length >= 6, "Maintenance report does not cover phases 1-6.", errors);

@@ -1,42 +1,36 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import index from "../../../public/product-intelligence-index.json";
 import ComparePageNew from "./ComparePageNew";
 
-// The real product-intelligence index drives the same real-catalogue candidate
-// build the live app uses, so the render matches what a rep sees after typing
-// an unrecognized competitor SKU.
 vi.mock("../lib/productIntelligenceIndexCache", () => ({
   loadProductIntelligenceIndex: vi.fn().mockResolvedValue(index),
 }));
 
 describe("compare page typed-SKU honesty render", () => {
-  it("shows 'Live lookup required' and unknown-input advisories for an unrecognized typed SKU", async () => {
+  it("fails closed for a genuinely unknown typed SKU and offers evidence lookup", async () => {
     render(
       <MemoryRouter
-        initialEntries={["/wingman/compare?brand=Kramer&sku=VS-42H"]}
+        initialEntries={[
+          "/wingman/compare?brand=Kramer&sku=ZZZ-NOT-A-REAL-SKU-999",
+        ]}
       >
         <ComparePageNew />
       </MemoryRouter>,
     );
 
-    // Wait for the main match (and with it the candidate set) before
-    // asserting, so the full comparison has settled.
-    await screen.findByLabelText(/Main WyreStorm match:/i);
+    const cards = await screen.findByLabelText("Compare product cards");
+    const competitor = within(cards).getByLabelText("Competitor product card");
 
-    // The unrecognized SKU must not claim local recognition: the honest badge
-    // tells the rep a live lookup is required instead.
-    expect(screen.getByText("Live lookup required")).not.toBeNull();
+    expect(competitor.textContent).toContain("ZZZ-NOT-A-REAL-SKU-999");
+    expect(competitor.textContent).toMatch(/Needs confirmation|Not verified locally/i);
+    expect(within(cards).getByLabelText("No WyreStorm product match")).not.toBeNull();
+
+    fireEvent.click(screen.getByText("Technical evidence & review"));
+
+    expect(await screen.findByText("Live lookup required")).not.toBeNull();
     expect(screen.queryByText("Recognised locally")).toBeNull();
-
-    // The engine must not fabricate competitor counts: with the competitor's
-    // I/O unknown, the advisories say so plainly on the result cards.
-    expect(
-      screen.getAllByText(/Competitor inputs unknown; WyreStorm candidate provides/i).length,
-    ).toBeGreaterThan(0);
-    expect(
-      screen.getAllByText(/Competitor outputs unknown; WyreStorm candidate provides/i).length,
-    ).toBeGreaterThan(0);
+    expect(screen.getByText("Add evidence for this product")).not.toBeNull();
   });
 });

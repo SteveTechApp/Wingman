@@ -36,14 +36,13 @@ export type WingmanRouteKey =
   | "templates"
   | "videowall"
   | "salesHelper"
-  | "visualDesign"
   | "glossary"
   | "callCards"
   | "productCallCards"
   | "ingest"
   | "proposal"
   | "support"
-  | "profile" | "visualStudio" | "proposalVisuals";
+  | "profile" | "proposalVisuals";
 
 type RouteManifestEntry = {
   key: WingmanRouteKey;
@@ -76,7 +75,6 @@ const iconMap: Record<WingmanRouteKey, LucideIcon> = {
   templates: LayoutTemplate,
   videowall: Monitor,
   salesHelper: Bot,
-  visualDesign: Workflow,
   glossary: BookOpen,
   callCards: ClipboardList,
   productCallCards: PackageCheck,
@@ -84,7 +82,6 @@ const iconMap: Record<WingmanRouteKey, LucideIcon> = {
   proposal: FileText,
   support: LifeBuoy,
   profile: Settings,
-  visualStudio: Workflow,
   proposalVisuals: Workflow,
 };
 
