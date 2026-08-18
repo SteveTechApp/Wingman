@@ -97,6 +97,30 @@ function normalise(value: unknown): string {
   return toText(value).toLowerCase();
 }
 
+/**
+ * Recognises the competitor-side device that plays the "casting accessory"
+ * role. Vendors use several names for essentially the same user-facing job:
+ * dongle, button, connect adapter, wireless presentation adapter, etc.
+ *
+ * Keep this deliberately scoped to wireless-presentation language so a generic
+ * AV/network adapter is never mistaken for a casting accessory.
+ */
+function isExplicitCastingAccessoryComparison(value: unknown): boolean {
+  const text = normalise(value);
+
+  if (/\b(?:dongle|clickshare\s+button|airmedia\s+connect\s+adapter)\b/i.test(text)) {
+    return true;
+  }
+
+  const hasAccessoryWord = /\b(?:adapter|button|dongle)\b/i.test(text);
+  const hasWirelessPresentationContext =
+    /\b(?:airmedia|clickshare|wireless|casting|screen\s*share|screen\s*sharing|presentation|byod)\b/i.test(text);
+  const looksLikeRoomCore =
+    /\b(?:switcher|receiver|gateway|video\s*bar|conference\s*bar|room\s*system|matrix)\b/i.test(text);
+
+  return hasAccessoryWord && hasWirelessPresentationContext && !looksLikeRoomCore;
+}
+
 function skuKey(value: unknown): string {
   return String(value ?? "").toUpperCase().replace(/[^A-Z0-9]+/g, "");
 }
@@ -1232,7 +1256,7 @@ export function evaluateProductEligibility(args: {
     // accessory, not a multi-input switcher or a full UC room bar - lead with
     // APO-DG2 (the WyreStorm casting dongle) instead of a switcher/video-bar
     // nudge in that specific case.
-    const competitorIsDongle = /\bdongle\b/i.test(args.competitorText);
+    const competitorIsDongle = isExplicitCastingAccessoryComparison(args.competitorText);
 
     // SW-* wireless presentation switchers are the lead answer for this lane,
     // and must be checked BEFORE the AVoIP-endpoint wording block below: their
@@ -1259,8 +1283,26 @@ export function evaluateProductEligibility(args: {
     if (/\b(apollo|wireless|casting|miracast|airplay|chromecast)\b/i.test(combined) || /^APO/.test(key)) {
       const isDg2 = /^APODG2/.test(key);
       const isVx20Uc = /^APOVX20UC/.test(key);
-      const fitPenalty = competitorIsDongle ? (isDg2 ? 15 : 45) : (isVx20Uc ? 15 : 45);
 
+      // APO-DG2 is a casting dongle accessory. It is only a valid compare
+      // candidate when the competitor itself is explicitly a casting dongle.
+      // Generic ClickShare / wireless-presentation room-hub comparisons must
+      // lead with the compatible room core or wireless switcher instead.
+      if (isDg2 && !competitorIsDongle) {
+        return blocked(sku, args.intent, [
+          "APO-DG2 is a casting dongle accessory and may only be recommended when the competitor comparison explicitly requests a casting dongle.",
+        ]);
+      }
+
+      if (isDg2 && competitorIsDongle) {
+        return direct(
+          args.intent,
+          ["Explicit casting-dongle comparison: APO-DG2 is the matching dongle role."],
+          -120,
+        );
+      }
+
+      const fitPenalty = isVx20Uc ? 15 : 45;
       return direct(args.intent, ["Wireless casting or collaboration candidate."], fitPenalty);
     }
 
@@ -1475,14 +1517,37 @@ function ensureEligibilityCandidatePool(
   }
 
   if (intent === "wireless-casting") {
+    const competitorIsDongle = isExplicitCastingAccessoryComparison(competitorText);
+
     addCandidateBySku(nextMatches, products, "SW-620-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for wireless casting comparison.", 88);
     addCandidateBySku(nextMatches, products, "SW-640L-TX-W", "Eligibility correction: wireless presentation switcher candidate inserted for multi-source wireless presentation comparison.", 86);
-    addCandidateBySku(nextMatches, products, "APO-DG2", "Eligibility correction: Apollo wireless presentation accessory inserted for casting comparison.", 72);
+
+    // DG2 is not a generic wireless-presentation match. Add it only when the
+    // compared competitor is explicitly a casting dongle. A compatible room
+    // core remains in the pool so the UI can present the required paired path.
+    if (competitorIsDongle) {
+      addCandidateBySku(
+        nextMatches,
+        products,
+        "APO-DG2",
+        "Eligibility correction: explicit casting-dongle comparison inserts APO-DG2 alongside a compatible WyreStorm room core.",
+        92,
+      );
+    }
+
     addCandidateBySku(nextMatches, products, "APO-VX20-UC-V2", "Eligibility correction: Apollo collaboration product retained as a UC-room alternative, not the default switcher match.", 70);
     addCandidatesByPredicate(
       nextMatches,
       products,
-      (product) => /^APO/.test(String(product.sku ?? "")) || /\b(apollo|wireless|casting)\b/i.test(productText(product)),
+      (product) => {
+        const candidateKey = skuKey(product.sku ?? product.model ?? product.partNumber);
+
+        if (/^APODG2/.test(candidateKey)) {
+          return competitorIsDongle;
+        }
+
+        return /^APO/.test(candidateKey) || /\b(apollo|wireless|casting)\b/i.test(productText(product));
+      },
       "Eligibility correction: WyreStorm Apollo or wireless collaboration product inserted for wireless casting comparison.",
       4,
       76,
@@ -1523,6 +1588,65 @@ function eligibilityRank(value: CompareEligibilityClass): number {
 function decisionConfidence(match: LooseMatch): number {
   const value = Number(match?.decision?.confidence ?? match?.confidence ?? match?.score ?? 0);
   return Number.isFinite(value) ? value : 0;
+}
+
+const DG2_COMPANION_REQUIREMENT =
+  "APO-DG2 requires one compatible WyreStorm room core: SW-620-TX-W, SW-640L-TX-W, or APO-VX20-UC-V2.";
+
+const DG2_COMPANION_SKUS = [
+  "SW-620-TX-W",
+  "SW-640L-TX-W",
+  "APO-VX20-UC-V2",
+] as const;
+
+function applyCastingAccessoryCompanionRequirement(
+  match: LooseMatch,
+  intent: CompareIntentKind,
+  competitorText: string,
+): LooseMatch {
+  if (
+    intent !== "wireless-casting" ||
+    !isExplicitCastingAccessoryComparison(competitorText) ||
+    skuKey(getSku(match)) !== "APODG2"
+  ) {
+    return match;
+  }
+
+  const decision: LooseRecord =
+    match?.decision && typeof match.decision === "object"
+      ? match.decision
+      : {};
+
+  const systemRequirements = Array.from(
+    new Set([
+      ...(Array.isArray(decision.systemRequirements)
+        ? decision.systemRequirements
+        : []),
+      DG2_COMPANION_REQUIREMENT,
+    ]),
+  );
+
+  const verify = Array.from(
+    new Set([
+      ...(Array.isArray(decision.verify) ? decision.verify : []),
+      "Confirm which compatible room core is required for the application before quoting APO-DG2.",
+    ]),
+  );
+
+  return {
+    ...match,
+    requiredCompanionSkus: [...DG2_COMPANION_SKUS],
+    companionRequirement: DG2_COMPANION_REQUIREMENT,
+    decision: {
+      ...decision,
+      systemRequirements,
+      verify,
+      nextAction:
+        "Lead with APO-DG2 for the casting accessory, then pair it with SW-620-TX-W, SW-640L-TX-W, or APO-VX20-UC-V2 as the compatible WyreStorm room core.",
+    },
+    nextAction:
+      "Lead with APO-DG2 for the casting accessory, then pair it with SW-620-TX-W, SW-640L-TX-W, or APO-VX20-UC-V2 as the compatible WyreStorm room core.",
+  };
 }
 
 export function applyCompareEligibilityRanking<T extends { matches?: LooseMatch[]; rejected?: LooseMatch[]; competitor?: LooseRecord; topOutcome?: string; recommendation?: string; nextSteps?: string[] }>(
@@ -1586,13 +1710,59 @@ export function applyCompareEligibilityRanking<T extends { matches?: LooseMatch[
         }
       : compareEligibility;
 
+    const candidateKey = skuKey(getSku(match) || getSku(product));
+    const explicitCastingAccessory =
+      intent === "wireless-casting" &&
+      isExplicitCastingAccessoryComparison(competitorText);
+
+    // Final authoritative DG2 rule.
+    //
+    // 1) Generic wireless room-hub / presentation comparisons must NEVER surface
+    //    APO-DG2 as a candidate.
+    //
+    // 2) When the competitor itself is an explicit casting accessory (dongle,
+    //    ClickShare Button, AirMedia Connect Adapter, etc.), APO-DG2 is the
+    //    correct role-equivalent lead. In that narrow case we are allowed to
+    //    override a generic shared-selector "accessory" rejection, provided the
+    //    core Compare eligibility gate did not itself block DG2 for lifecycle,
+    //    business-status, or another hard safety reason.
+    //
+    // This is deliberately applied after the shared selector because that
+    // selector cannot know whether an accessory is the thing actually being
+    // compared. The Compare engine can.
+    let finalEligibility = selectorGatedEligibility;
+
+    if (intent === "wireless-casting" && candidateKey === "APODG2") {
+      if (explicitCastingAccessory && compareEligibility.eligibility !== "blocked") {
+        finalEligibility = {
+          ...compareEligibility,
+          eligibility: "direct" as const,
+          fitPenalty: Math.min(compareEligibility.fitPenalty, -220),
+          reasons: Array.from(new Set([
+            ...compareEligibility.reasons,
+            "Explicit casting-accessory role match: APO-DG2 is the correct WyreStorm dongle/button/adapter equivalent.",
+          ])),
+        };
+      } else {
+        finalEligibility = {
+          ...selectorGatedEligibility,
+          eligibility: "blocked" as const,
+          fitPenalty: Math.max(selectorGatedEligibility.fitPenalty, 950),
+          reasons: Array.from(new Set([
+            ...selectorGatedEligibility.reasons,
+            "APO-DG2 is not a generic wireless room-core recommendation; only surface it when the competitor itself is an explicit casting accessory.",
+          ])),
+        };
+      }
+    }
+
     return {
       match: {
         ...match,
-        compareEligibility: selectorGatedEligibility,
-        eligibility: selectorGatedEligibility,
+        compareEligibility: finalEligibility,
+        eligibility: finalEligibility,
       },
-      compareEligibility: selectorGatedEligibility,
+      compareEligibility: finalEligibility,
       index,
     };
   });
@@ -1611,7 +1781,13 @@ export function applyCompareEligibilityRanking<T extends { matches?: LooseMatch[
 
       return a.index - b.index;
     })
-    .map((item) => item.match);
+    .map((item) =>
+      applyCastingAccessoryCompanionRequirement(
+        item.match,
+        intent,
+        competitorText,
+      ),
+    );
 
   const blockedMatches = evaluated
     .filter((item) => item.compareEligibility.eligibility === "blocked")
