@@ -57,10 +57,10 @@ export function recommendWirelessCastingSkus(input: WirelessCastingRecommendatio
 
   if (isSmallHuddleWirelessCastingRoom(input)) {
     return {
-      primarySkus: ["APO-VX20-UC-V2", "APO-DG2"],
+      primarySkus: ["APO-VX20-UC-V2"],
       optionalSkus,
       rationale:
-        "Small and huddle meeting rooms should use APO-VX20-UC-V2 with APO-DG2 for a compact wireless casting and UC-led room workflow. APO-VX20-UC is not compatible with the APO-DG2 dongle, so it is not an option here even though it is the larger-room step up from APO-VX20-UC-V2.",
+        "Small and huddle meeting rooms should lead with APO-VX20-UC-V2 for the compact wireless/UC room workflow. APO-DG2 is added only when the comparison explicitly calls for a casting dongle; it must not be forced into every wireless opportunity.",
     };
   }
 
@@ -69,10 +69,10 @@ export function recommendWirelessCastingSkus(input: WirelessCastingRecommendatio
     : "SW-620-TX-W";
 
   return {
-    primarySkus: [switcherSku, "APO-DG2"],
+    primarySkus: [switcherSku],
     optionalSkus,
     rationale:
-      "Standard wireless casting opportunities should use a presentation switcher with wireless capability and APO-DG2, rather than defaulting to the huddle-room APO-VX20-UC-V2 path.",
+      "Standard wireless casting opportunities should lead with the appropriate wireless presentation switcher. APO-DG2 is added only when the comparison explicitly calls for a casting dongle, rather than being recommended for every wireless opportunity.",
   };
 }
 
