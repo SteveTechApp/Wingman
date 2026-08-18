@@ -88,8 +88,22 @@ export type CompetitorMatchResponse = {
     model?: string;
     title?: string;
     category?: string;
+    comparisonDomain?: string;
+    comparisonUseCase?: string;
+    transport?: string;
+    role?: string;
+    subtype?: string;
+    hdbtGeneration?: string;
     summary?: string;
     resolvedUrl?: string;
+    ports?: Record<string, number | undefined>;
+    video?: {
+      maxResolution?: string;
+      chroma?: string;
+      bandwidth?: string;
+      [key: string]: unknown;
+    };
+    features?: Record<string, boolean | undefined>;
     technologyProfile?: ProductTechnologyProfile;
   };
   best_match?: CompetitorMatchCandidate | null;
