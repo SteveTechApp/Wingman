@@ -35,7 +35,6 @@ const pageRegistry: Record<WingmanRouteKey, LazyPageComponent> = {
   templates: lazy(fromNamedExport(() => import("../pages/TemplatesPage"), "TemplatesPage")),
   videowall: lazy(() => import("../pages/VideowallBuilderPage")),
   salesHelper: lazy(fromNamedExport(() => import("../pages/SalesHelperPage"), "SalesHelperPage")),
-  visualDesign: lazy(fromNamedExport(() => import("../pages/VisualDesignStudioPage"), "VisualDesignStudioPage")),
   glossary: lazy(fromNamedExport(() => import("../pages/GlossaryPage"), "GlossaryPage")),
   callCards: lazy(fromNamedExport(() => import("../pages/CallCardsPage"), "CallCardsPage")),
   productCallCards: lazy(() => import("../pages/ProductCallCardsPage")),
@@ -43,7 +42,6 @@ const pageRegistry: Record<WingmanRouteKey, LazyPageComponent> = {
   proposal: lazy(fromNamedExport(() => import("../pages/ProposalPage"), "ProposalPage")),
   support: lazy(fromNamedExport(() => import("../pages/SupportPage"), "SupportPage")),
   profile: lazy(() => import("../pages/ProfilePage")),
-  visualStudio: lazy(() => import("../pages/VisualStudioPage")),
   proposalVisuals: lazy(() => import("../pages/ProposalVisualsPage")),
 };
 
@@ -82,7 +80,7 @@ export const wingmanRoutes: RouteObject[] = [
       { path: "templates/:templateId", element: routeElement(TemplateReviewRoute) },
       { path: "product-families/:familyId", element: routeElement(pageRegistry.productFamilies) },
       { path: "admin/data-manager", element: routeElement(DataManagerRoute) },
-      ...routeCatalog.filter((route) => !["dashboard", "visualStudio", "visualDesign"].includes(route.key)).map((route) => ({
+      ...routeCatalog.filter((route) => route.key !== "dashboard").map((route) => ({
         path: route.key === "productCallCards" ? `${route.segment}/*` : route.segment,
         element: routeElement(pageRegistry[route.key]),
       })),

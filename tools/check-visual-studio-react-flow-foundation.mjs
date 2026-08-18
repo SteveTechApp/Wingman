@@ -17,7 +17,6 @@ const main = read("src/main.tsx");
 const guard = read("tools/guard-wingman-css-imports.mjs");
 const canvas = read("src/wingman2/components/VisualStudioCanvas.tsx");
 const factory = read("src/wingman2/lib/visualStudioDiagramFactory.ts");
-const product = read("src/wingman2/lib/visualStudioProductConnection.ts");
 const css = read("src/wingman2/styles/wingman-workflow-theme.css");
 
 const cssImports = [
@@ -65,16 +64,6 @@ if (!guard.includes('"@xyflow/react/dist/style.css"')) {
 });
 
 [
-  "NetworkHD Decoder / Display",
-  "const mainOutputSource = hasAvoipTransport(facts)",
-  "source: mainOutputSource",
-].forEach((marker) => {
-  if (!product.includes(marker)) {
-    errors.push(`Product connection model is missing: ${marker}`);
-  }
-});
-
-[
   "WINGMAN_VISUAL_STUDIO_REACT_FLOW_FOUNDATION_START",
   ".wm-vs-canvas-stage > .react-flow",
   ".react-flow__edge-path",
@@ -92,5 +81,5 @@ if (errors.length) {
 }
 
 console.log(
-  "[visual-studio-react-flow] Official React Flow CSS, deterministic product layout and visible edge contracts passed.",
+  "[visual-studio-react-flow] Official React Flow CSS, deterministic diagram layout and visible edge contracts passed.",
 );

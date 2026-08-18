@@ -54,34 +54,56 @@ async function assertPageText(page, pathname, expectedText) {
 
 async function assertCompareWorkflow(page) {
   await page.goto(`http://127.0.0.1:${port}/wingman/compare`, { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: "Crestron" }).click();
-  const nextProductStep = page.getByRole("button", { name: "Next: choose competitor product" });
-  if (await nextProductStep.isVisible().catch(() => false)) {
-    await nextProductStep.click();
-  }
-  // getByLabel("Competitor SKU") is ambiguous: it matches both the input and
-  // the <section aria-label="Competitor SKU lookup"> that wraps it, so Playwright
-  // fails on a strict-mode violation. Target the textbox role explicitly.
-  // This check had never run in CI, so the drift went unnoticed.
-  await page.getByRole("textbox", { name: "Competitor SKU" }).fill("DM-NVX-360");
-  await page.getByRole("button", { name: "Review WyreStorm direction", exact: true }).click();
-  // The result panel used to be headed "Suggested WyreStorm direction". That
-  // string no longer exists anywhere in src/ - the heading is now "Comparison
-  // result". Anchoring on a heading role rather than a loose text match keeps
-  // this tied to the actual result state rather than incidental body copy.
-  await page.getByRole("heading", { name: "Comparison result" }).waitFor({ state: "visible", timeout: 15_000 });
-  const text = await page.locator("body").innerText();
 
-  if (text.includes("Product data not loaded")) {
+  // Minimum-card Compare is a single manufacturer + SKU form.
+  // Both controls are datalist-backed inputs and expose the combobox role.
+  const manufacturerInput = page.getByRole("combobox", { name: /^Manufacturer$/i });
+  const skuInput = page.getByRole("combobox", { name: /^Competitor SKU$/i });
+
+  await manufacturerInput.fill("Crestron");
+  await skuInput.fill("DM-NVX-350");
+
+  // Exact known SKUs may auto-advance immediately. If they do not, the same
+  // form retains an explicit Compare submit path for typed/unknown entries.
+  const resultHeading = page.getByRole("heading", { name: "Comparison result" });
+
+  if (!(await resultHeading.isVisible().catch(() => false))) {
+    const compareButton = page.getByRole("button", { name: "Compare", exact: true });
+
+    if (await compareButton.isVisible().catch(() => false)) {
+      await compareButton.click();
+    }
+  }
+
+  await resultHeading.waitFor({ state: "visible", timeout: 15_000 });
+
+  const cards = page.locator('[aria-label="Compare product cards"]');
+  await cards.waitFor({ state: "visible", timeout: 15_000 });
+
+  const competitorCard = cards.locator('[aria-label="Competitor product card"]');
+  const wyrestormCard = cards.locator('[aria-label="WyreStorm product card"]');
+
+  await competitorCard.waitFor({ state: "visible", timeout: 10_000 });
+  await wyrestormCard.waitFor({ state: "visible", timeout: 10_000 });
+
+  const competitorText = await competitorCard.innerText();
+  const wyrestormText = await wyrestormCard.innerText();
+  const bodyText = await page.locator("body").innerText();
+
+  if (!competitorText.includes("DM-NVX-350")) {
+    throw new Error("Compare workflow did not retain the selected competitor SKU on the competitor card.");
+  }
+
+  if (bodyText.includes("Product data not loaded")) {
     throw new Error("Compare workflow could not load product data.");
   }
 
-  if (!/NHD-|NetworkHD|WyreStorm/i.test(text)) {
-    throw new Error("Compare workflow did not render a sensible WyreStorm match.");
+  if (!/NHD-|NetworkHD|WyreStorm/i.test(wyrestormText)) {
+    throw new Error("Compare workflow did not render a sensible WyreStorm match on the primary product card.");
   }
 
   for (const blockedSku of ["APO-210-UC", "APO-SKY-MIC", "COM-MIC-HUB", "CAM-210-PTZ"]) {
-    if (text.includes(blockedSku)) {
+    if (wyrestormText.includes(blockedSku)) {
       throw new Error(`Compare workflow rendered blocked non-equivalent candidate ${blockedSku}.`);
     }
   }

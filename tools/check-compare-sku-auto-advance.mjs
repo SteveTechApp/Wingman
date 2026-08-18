@@ -3,8 +3,14 @@ import { resolve } from "node:path";
 
 const repoRoot = process.cwd();
 
-const compareWrapperPath = resolve(repoRoot, "src/wingman2/pages/ComparePageNew.tsx");
-const compareAdvancedPath = resolve(repoRoot, "src/wingman2/pages/ComparePageNew.advanced.tsx");
+const wrapperPath = resolve(
+  repoRoot,
+  "src/wingman2/pages/ComparePageNew.tsx",
+);
+const advancedPath = resolve(
+  repoRoot,
+  "src/wingman2/pages/ComparePageNew.advanced.tsx",
+);
 
 function fail(failures) {
   console.error("[compare-sku-auto-advance] Check failed:");
@@ -18,52 +24,79 @@ function readRequired(filePath, label) {
   if (!existsSync(filePath)) {
     fail([`Missing ${label}: ${filePath}`]);
   }
-
   return readFileSync(filePath, "utf8");
 }
 
-const wrapperSource = readRequired(compareWrapperPath, "ComparePageNew wrapper");
-const advancedSource = readRequired(compareAdvancedPath, "ComparePageNew advanced implementation");
-const splitSource = `${wrapperSource}\n\n${advancedSource}`;
+const wrapperSource = readRequired(wrapperPath, "ComparePageNew wrapper");
+const advancedSource = readRequired(
+  advancedPath,
+  "ComparePageNew advanced implementation",
+);
 
 const failures = [];
 
-const requiredMarkers = [
-  "Viable product choices",
-  "Typed entries can still use Enter",
-  "handleSkuSelect",
-  "handleSubmit",
-  'data-wingman-compare-auto-advance="true"',
-  'setWorkflowStep("options")',
-];
-
-for (const marker of requiredMarkers) {
-  if (!splitSource.includes(marker)) {
-    failures.push(`Split Compare implementation missing marker: ${marker}`);
+function requireText(source, text, message) {
+  if (!source.includes(text)) {
+    failures.push(message);
   }
 }
 
-if (!wrapperSource.includes("ComparePageNew.advanced")) {
-  failures.push("Compare entry point should retain the structured Compare implementation.");
+// Route bridge.
+requireText(
+  wrapperSource,
+  "ComparePageNew.advanced",
+  "Compare entry point should retain the structured Compare implementation.",
+);
+
+// Current minimum-card contract.
+if (
+  !advancedSource.includes("WINGMAN_MINIMUM_COMPARE_RENDER_V2") &&
+  !advancedSource.includes("WINGMAN_MINIMUM_COMPARE_CARDS_V2")
+) {
+  failures.push(
+    "Advanced Compare implementation should retain the minimum-card Compare contract.",
+  );
 }
 
-const handleSkuSelectIndex = splitSource.indexOf("handleSkuSelect");
-const handleSubmitIndex = splitSource.indexOf("handleSubmit");
+// Exact known-SKU interaction.
+requireText(
+  advancedSource,
+  'data-wingman-compare-auto-advance="true"',
+  "Competitor SKU field should retain the auto-advance marker.",
+);
 
-if (handleSkuSelectIndex < 0 || handleSubmitIndex < 0 || handleSkuSelectIndex > handleSubmitIndex) {
-  failures.push("Could not confirm handleSkuSelect is wired before handleSubmit in the split Compare implementation.");
-}
+requireText(
+  advancedSource,
+  "props.onSkuSelect(exact)",
+  "Exact known SKU entries should continue through props.onSkuSelect(exact).",
+);
 
-if (!advancedSource.includes("handleSkuSelect")) {
-  failures.push("Advanced Compare implementation should retain handleSkuSelect.");
-}
+// Typed / unknown-SKU interaction.
+// A text input inside a form with onSubmit={handleSubmit} and a submit button
+// provides Enter-to-submit semantics. Handler syntax/implementation is covered
+// by TypeScript and rendered workflow tests rather than source-text parsing.
+requireText(
+  advancedSource,
+  "onSubmit={handleSubmit}",
+  "Typed competitor entries should remain wired to handleSubmit through the form.",
+);
 
-if (!advancedSource.includes("handleSubmit")) {
-  failures.push("Advanced Compare implementation should retain handleSubmit.");
-}
+requireText(
+  advancedSource,
+  'type="submit"',
+  "Compare should retain a submit control so typed entries can use Enter.",
+);
+
+requireText(
+  advancedSource,
+  ">Compare<",
+  "Compare submit control should remain present on the minimum-card input surface.",
+);
 
 if (failures.length > 0) {
   fail(failures);
 }
 
-console.log("[compare-sku-auto-advance] Verified Compare SKU auto-advance and product workflow wiring.");
+console.log(
+  "[compare-sku-auto-advance] Verified minimum-card Compare wiring: exact known SKU auto-select plus typed/unknown SKU form submission.",
+);

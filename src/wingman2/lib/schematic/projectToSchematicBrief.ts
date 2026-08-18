@@ -16,7 +16,7 @@ import type { SchematicEndpointBrief, SchematicProductBrief, SchematicProjectBri
  * network -> decoder -> display pairing, and raises blocker warnings when a
  * device can't be paired. Until this adapter existed, it was only ever
  * exercised with a hardcoded DEFAULT_BRIEF demo
- * (WingmanGeneratedSchematicPanel.tsx). This file is the missing link that
+ * (the now-retired generated-schematic demo panel). This file is the missing link that
  * lets it run against a real project.
  *
  * Project data is intentionally read directly from StoredProject fields

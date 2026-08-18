@@ -188,24 +188,6 @@
     ]
   },
   {
-    "routeKey": "visualDesign",
-    "status": "wired",
-    "summary": "Visual Design Studio generates guided Mermaid diagrams from project, discovery, Recommendations, Compare, and Proposal data so reps can copy editable diagrams into Whimsical without a direct API integration.",
-    "needed": [
-      "Add rendered Mermaid preview and save generated diagram variants back to projects.",
-      "Add approved diagram themes once Whimsical or slide export integration is introduced."
-    ]
-  },
-  {
-    "routeKey": "visualStudio",
-    "status": "partial",
-    "summary": "Visual Studio renders native AV schematic and customer concept graphics from Wingman-ready sample scenarios, with technical/customer modes, assumptions, missing information, quote risks, and next actions.",
-    "needed": [
-      "Connect diagram generation directly to saved Discovery, Recommendations, Compare, Product Pitch, and Proposal data.",
-      "Add save/export lifecycle and approved visual review before customer issue."
-    ]
-  },
-  {
     "routeKey": "proposalVisuals",
     "status": "wired",
     "summary": "Proposal Visuals consolidates customer block diagrams, governed technical schematics and room-concept briefs into one project-aware workspace with versioned asset persistence and proposal insertion.",

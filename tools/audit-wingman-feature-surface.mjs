@@ -98,9 +98,20 @@ const candidates = allSource.filter((file) =>
   scanRoots.some((scanRoot) => file.startsWith(scanRoot + path.sep)),
 );
 
+const approvedUnreachableSources = new Set(
+  Array.isArray(policy.approvedUnreachableSources) ? policy.approvedUnreachableSources : [],
+);
+
+const intentionallyNonRuntime = candidates
+  .filter((file) => !reachable.has(file))
+  .map(relative)
+  .filter((file) => approvedUnreachableSources.has(file))
+  .sort();
+
 const unreachable = candidates
   .filter((file) => !reachable.has(file))
   .map(relative)
+  .filter((file) => !approvedUnreachableSources.has(file))
   .sort();
 
 const unfinished = [...reachable]
@@ -131,10 +142,22 @@ const missingPageFiles = manifest
   .map((route) => ({ key: route.key, pageFile: route.pageFile }));
 
 const overlapWarnings = [];
-if (keySet.has("visualDesign") && keySet.has("visualStudio")) {
-  overlapWarnings.push("Both visualDesign and visualStudio remain routed. Confirm which is canonical before deleting either implementation.");
+const approvedDistinctRoutePairs = Array.isArray(policy.approvedDistinctRoutePairs)
+  ? policy.approvedDistinctRoutePairs
+  : [];
+
+function approvedDistinctPair(left, right) {
+  return approvedDistinctRoutePairs.some((entry) => {
+    const routes = Array.isArray(entry?.routes) ? entry.routes : [];
+    return routes.includes(left) && routes.includes(right);
+  });
 }
-if (keySet.has("salesHelper") && keySet.has("callCoach")) {
+
+if (
+  keySet.has("salesHelper") &&
+  keySet.has("callCoach") &&
+  !approvedDistinctPair("salesHelper", "callCoach")
+) {
   overlapWarnings.push("Sales Helper and Call Coach are both routed. Confirm that their customer intents remain distinct.");
 }
 
@@ -190,6 +213,10 @@ const markdown = [
   "## Potentially unreachable source",
   "",
   ...(unreachable.length ? unreachable.map((item) => "- " + item) : ["None detected."]),
+  "",
+  "## Intentional non-runtime support",
+  "",
+  ...(intentionallyNonRuntime.length ? intentionallyNonRuntime.map((item) => "- " + item) : ["None."]),
   "",
   "## Unfinished markers in live code",
   "",
