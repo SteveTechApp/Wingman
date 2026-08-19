@@ -25,9 +25,10 @@ describe("live competitor research assessment", () => {
     ).toBe(false);
   });
 
-  it("keeps even a strong live result at VERIFY/review-required until promoted", () => {
+  it("keeps even a strong fresh live result review-required", () => {
     const assessment = assessLiveCompetitorResearch({
       ok: true,
+      competitor_lookup_mode: "live",
       competitor_product: {
         manufacturer: "Crestron",
         model: "DM-NVX-350",
@@ -62,14 +63,55 @@ describe("live competitor research assessment", () => {
     });
 
     expect(assessment.outcome).toBe("candidate");
+    expect(assessment.sourceMode).toBe("live");
     expect(assessment.candidateSku).toBe("NHD-500-TX");
     expect(assessment.reviewRequired).toBe(true);
-    expect(assessment.competitor.technologyProfile?.networkClass).toBe("1GbE");
   });
 
-  it("returns no-match when the live resolver blocks the candidate", () => {
+  it("allows approved stored intelligence to leave review-required when readiness is ready", () => {
     const assessment = assessLiveCompetitorResearch({
       ok: true,
+      competitor_lookup_mode: "stored-intelligence",
+      competitor_product: {
+        manufacturer: "Crestron",
+        model: "DM-NVX-350",
+        title: "Approved DM NVX profile",
+        category: "AV-over-IP",
+        comparisonDomain: "AVOIP",
+        role: "Encoder",
+        transport: "AV-over-IP",
+        resolvedUrl: "https://www.crestron.com/example",
+        technologyProfile: {
+          vendorTechnology: "Crestron DM NVX",
+          canonicalTransport: "AV-over-IP",
+          networkClass: "1GbE",
+        },
+      },
+      best_match: {
+        sku: "NHD-500-TX",
+        match_type: "DIRECT MATCH",
+        confidence_score: 94,
+        readiness: {
+          status: "ready",
+          summary: "Approved product evidence supports the match direction.",
+          strengths: ["Canonical transport aligned.", "Device role aligned."],
+          warnings: [],
+          blockers: [],
+          reviewRequired: false,
+        },
+      },
+      resolved_competitor_url: "https://www.crestron.com/example",
+    });
+
+    expect(assessment.sourceMode).toBe("stored-intelligence");
+    expect(assessment.reviewRequired).toBe(false);
+    expect(assessment.readinessStatus).toBe("ready");
+  });
+
+  it("returns no-match when the resolver blocks the candidate", () => {
+    const assessment = assessLiveCompetitorResearch({
+      ok: true,
+      competitor_lookup_mode: "live",
       competitor_product: {
         manufacturer: "Example",
         model: "DSP-1",
@@ -96,6 +138,7 @@ describe("live competitor research assessment", () => {
   it("returns an honest no-match when research finds no WyreStorm candidate", () => {
     const assessment = assessLiveCompetitorResearch({
       ok: true,
+      competitor_lookup_mode: "live",
       competitor_product: {
         manufacturer: "Example",
         model: "UNKNOWN-1",

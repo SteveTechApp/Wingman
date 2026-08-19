@@ -4947,31 +4947,52 @@ function liveResearchToScoredCandidate(
     return null;
   }
 
+  const approvedDirectMatch =
+    assessment.sourceMode === "stored-intelligence" &&
+    !assessment.reviewRequired &&
+    assessment.readinessStatus === "ready" &&
+    assessment.matchType === "DIRECT MATCH" &&
+    assessment.blockers.length === 0;
+
   return {
     product,
     score: assessment.confidenceScore,
-    verdict: "VERIFY",
+    verdict: approvedDirectMatch ? "GOOD MATCH" : "VERIFY",
     matched: uniqueText(assessment.matched, 8),
     checks: uniqueText(
       [
         ...assessment.warnings,
         ...assessment.nextActions,
-        "Live web research must be reviewed before this competitor profile is treated as governed local data.",
+        ...(assessment.sourceMode === "live"
+          ? ["Live web research must be reviewed before this competitor profile is treated as governed local data."]
+          : []),
       ],
       8,
     ),
     gaps: uniqueText(assessment.warnings, 6),
     partialMatches: uniqueText(assessment.matched, 6),
     mismatches: [],
-    unknowns: [
-      "The competitor facts were researched live and have not yet been promoted to approved local intelligence.",
-    ],
+    unknowns: approvedDirectMatch
+      ? []
+      : [
+          assessment.sourceMode === "stored-intelligence"
+            ? "Approved competitor data is available, but this WyreStorm direction still requires technical review before it can be treated as direct."
+            : "The competitor facts were researched live and have not yet been promoted to approved local intelligence.",
+        ],
     blockers: uniqueText(assessment.blockers, 6),
     dependencies: [],
-    outcomeLabel: `Live researched direction - review required. ${assessment.summary}`,
-    solutionType: "insufficient-evidence",
-    governedTier: "text-inferred",
-    governedLabel: "Live researched - review required",
+    outcomeLabel: approvedDirectMatch
+      ? `Approved competitor intelligence. ${assessment.summary}`
+      : assessment.sourceMode === "stored-intelligence"
+        ? `Approved competitor intelligence - match review required. ${assessment.summary}`
+        : `Live researched direction - review required. ${assessment.summary}`,
+    solutionType: approvedDirectMatch ? "direct-equivalent" : "insufficient-evidence",
+    governedTier: approvedDirectMatch ? "official-structured" : "text-inferred",
+    governedLabel: approvedDirectMatch
+      ? "Approved competitor intelligence"
+      : assessment.sourceMode === "stored-intelligence"
+        ? "Approved data - match review required"
+        : "Live researched - review required",
   };
 }
 
@@ -5038,7 +5059,9 @@ function mergeLiveResearchCompetitorSummary(
       10,
     ),
     warning:
-      "Live-researched competitor data - review the source before promoting it to governed local intelligence.",
+      assessment.sourceMode === "live"
+        ? "Live-researched competitor data - review the source before promoting it to governed local intelligence."
+        : "",
     sourceUrl: live.sourceUrl || assessment.sourceUrl || base.sourceUrl,
   };
 }
@@ -5054,23 +5077,28 @@ function LiveResearchStatusCard({
 }) {
   if (status === "idle") return null;
 
+  const stored = assessment?.sourceMode === "stored-intelligence";
   const heading =
     status === "loading"
-      ? "Researching competitor product"
+      ? "Checking competitor intelligence"
       : status === "error"
-        ? "Live research could not complete"
-        : assessment?.outcome === "candidate"
-          ? "Live research found a WyreStorm direction"
-          : "Live research found no safe WyreStorm direction";
+        ? "Competitor research could not complete"
+        : stored
+          ? "Approved competitor intelligence loaded"
+          : assessment?.outcome === "candidate"
+            ? "Live research found a WyreStorm direction"
+            : "Live research found no safe WyreStorm direction";
 
   const detail =
     status === "loading"
-      ? "Wingman is checking live product evidence and will run the researched profile through the WyreStorm match resolver."
+      ? "Wingman is checking approved competitor intelligence first, then live product evidence when needed."
       : status === "error"
-        ? error || "Live research is unavailable. Use the evidence tools below to confirm the product manually."
-        : assessment?.outcome === "candidate"
-          ? `${assessment.candidateSku} is a researched direction only. Review the evidence before quotation or approval.`
-          : assessment?.summary || "No safe WyreStorm product match was established from the researched evidence.";
+        ? error || "Competitor research is unavailable. Use the evidence tools below to confirm the product manually."
+        : stored
+          ? assessment?.summary || "The approved competitor profile is now being used by Compare."
+          : assessment?.outcome === "candidate"
+            ? `${assessment.candidateSku} is a researched direction only. Review the evidence before quotation or approval.`
+            : assessment?.summary || "No safe WyreStorm product match was established from the researched evidence.";
 
   return (
     <section
@@ -5798,15 +5826,23 @@ function ComparePageNew() {
                 brand={effectiveBrand}
                 sku={competitorInput}
                 summary={competitorSummary}
-                locallyRecognised={!requestLiveLookup}
-                liveResearched={liveResearchStatus === "done" && Boolean(liveResearchResult?.ok)}
+                locallyRecognised={
+                  !requestLiveLookup ||
+                  liveResearchAssessment?.sourceMode === "stored-intelligence"
+                }
+                liveResearched={
+                  liveResearchStatus === "done" &&
+                  liveResearchAssessment?.sourceMode === "live"
+                }
               />
               {activeCandidate ? <>
                 <BestCandidateCard candidate={activeCandidate} competitor={competitorSummary} competitorProfile={profile} onCopySummary={() => { void copySummary(); }} />
                 {alternativeCandidates.length ? <section className="compare-native-options wm-ui-card"><h3 className="wm-ui-title">Other WyreStorm options</h3><div className="compare-native-option-grid wm-ui-card">{alternativeCandidates.slice(0, 3).map((candidate) => <CandidateOptionCard key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} />)}</div></section> : null}
                 <CompareShowdown brand={effectiveBrand} competitorSku={competitorInput} active={hasCompared} view="proof" selectedWyrestormSku={activeCandidate.product.sku} onSelectedWyrestormSkuChange={(sku) => { const index = viableCandidates.findIndex((candidate) => candidate.product.sku.toUpperCase() === sku.toUpperCase()); if (index >= 0) setCandidateIndex(index); }} />
               </> : null}
-              {requestLiveLookup && liveResearchStatus === "done" ? (
+              {requestLiveLookup &&
+              liveResearchStatus === "done" &&
+              liveResearchAssessment?.sourceMode === "live" ? (
                 <section className="wm-ui-card wm-ui-section" aria-label="Live research governance notice">
                   <h3 className="wm-ui-title">Review before governance approval</h3>
                   <p className="wm-ui-copy">
@@ -5816,8 +5852,8 @@ function ComparePageNew() {
               ) : (
                 <GovernedDecisionPanel key={`${effectiveBrand}:${competitorInput}:${displayedDecision?.updatedAt ?? decisionRevision}`} profile={profile} candidate={activeCandidate ?? heuristicLead ?? null} existingDecision={displayedDecision} onSaved={() => setDecisionRevision((revision) => revision + 1)} />
               )}
-              <CompareSummaryPanel summary={summary} requestLiveLookup={requestLiveLookup} sourceUrl={sourceUrl} />
-              {requestLiveLookup ? <CompetitorEvidencePanel brand={effectiveBrand} sku={competitorInput} onSaved={() => setCatalogVersion((version) => version + 1)} autoRun={liveResearchStatus === "error"} primaryCriteria={primarySearchCriteria} /> : null}
+              <CompareSummaryPanel summary={summary} requestLiveLookup={requestLiveLookup && liveResearchAssessment?.sourceMode !== "stored-intelligence"} sourceUrl={sourceUrl} />
+              {requestLiveLookup && liveResearchAssessment?.sourceMode !== "stored-intelligence" ? <CompetitorEvidencePanel brand={effectiveBrand} sku={competitorInput} onSaved={() => setCatalogVersion((version) => version + 1)} autoRun={liveResearchStatus === "error"} primaryCriteria={primarySearchCriteria} /> : null}
             </div></details>
           </> : null}
         </section>

@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import index from "../../../public/product-intelligence-index.json";
 
 const { runCompetitorMatchMock } = vi.hoisted(() => ({
@@ -26,6 +26,10 @@ vi.mock("../lib/productIntelligenceIndexCache", () => ({
 }));
 
 import ComparePageNew from "./ComparePageNew";
+
+beforeEach(() => {
+  runCompetitorMatchMock.mockReset();
+});
 
 describe("compare page typed-SKU honesty render", () => {
   it("researches a genuinely unknown SKU and surfaces a verify-only WyreStorm direction", async () => {
@@ -105,5 +109,76 @@ describe("compare page typed-SKU honesty render", () => {
     ).not.toBeNull();
     expect(screen.getByText("Review before governance approval")).not.toBeNull();
     expect(screen.getByText("Add evidence for this product")).not.toBeNull();
+  });
+
+  it("uses a promoted stored competitor profile as recognised local intelligence", async () => {
+    runCompetitorMatchMock.mockResolvedValue({
+      ok: true,
+      competitor_lookup_mode: "stored-intelligence",
+      competitor_product: {
+        manufacturer: "Kramer",
+        model: "PROMOTED-ENC-1",
+        title: "Approved 1GbE encoder",
+        category: "AV-over-IP",
+        comparisonDomain: "AVOIP",
+        comparisonUseCase: "DISTRIBUTION",
+        transport: "AV-over-IP",
+        role: "Encoder",
+        subtype: "Vendor codec",
+        summary: "Administrator-approved competitor intelligence.",
+        resolvedUrl: "https://www.kramerav.com/example-approved",
+        technologyProfile: {
+          vendorTechnology: "Approved vendor platform",
+          canonicalTransport: "AV-over-IP",
+          networkClass: "1GbE",
+          codecName: "Vendor codec",
+        },
+      },
+      best_match: {
+        sku: "NHD-500-TX",
+        name: "NHD-500-TX",
+        match_type: "DIRECT MATCH",
+        confidence_score: 94,
+        readiness: {
+          status: "ready",
+          summary: "Approved product evidence supports the match direction.",
+          strengths: [
+            "Canonical transport aligned.",
+            "Device role aligned.",
+          ],
+          warnings: [],
+          blockers: [],
+          nextActions: [],
+          reviewRequired: false,
+        },
+      },
+      alternatives: [],
+      resolved_competitor_url: "https://www.kramerav.com/example-approved",
+    });
+
+    render(
+      <MemoryRouter
+        initialEntries={[
+          "/wingman/compare?brand=Kramer&sku=PROMOTED-ENC-1",
+        ]}
+      >
+        <ComparePageNew />
+      </MemoryRouter>,
+    );
+
+    expect(
+      await screen.findByText("Approved competitor intelligence loaded"),
+    ).not.toBeNull();
+
+    const cards = await screen.findByLabelText("Compare product cards");
+    expect(cards.textContent).toContain("NHD-500-TX");
+    expect(cards.textContent).toMatch(/Suitable WyreStorm match|Match/i);
+
+    fireEvent.click(screen.getByText("Technical evidence & review"));
+
+    expect(await screen.findByText("Recognised locally")).not.toBeNull();
+    expect(screen.queryByText("Review before governance approval")).toBeNull();
+    expect(screen.getByText("Governed match decision")).not.toBeNull();
+    expect(screen.queryByText("Add evidence for this product")).toBeNull();
   });
 });

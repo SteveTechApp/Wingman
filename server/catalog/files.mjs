@@ -27,6 +27,10 @@ export const WINGMAN_APP_DB_FILE = path.join(RUNTIME_DATA_DIR, "wingman-app-db.j
 export const LEGACY_WINGMAN_APP_DB_FILE = path.join(REPO_DATA_DIR, "wingman-app-db.json");
 export const COMPETITOR_APPROVALS_FILE = path.join(DATA_DIR, "competitor-approvals.json");
 export const COMPETITOR_LIVE_LOOKUP_DB_FILE = path.join(DATA_DIR, "competitor-live-lookup-records.json");
+export const COMPETITOR_LIVE_RESEARCH_REVIEW_FILE = path.join(
+  RUNTIME_DATA_DIR,
+  "competitor-live-research-review.json",
+);
 export const WYRESTORM_TECHNICAL_PROFILES_FILE = path.join(REPO_DATA_DIR, "governance", "wyrestorm-technical-profiles.json");
 export const COMPETITOR_DECISION_LEDGER_FILE = path.join(REPO_DATA_DIR, "governance", "competitor-match-decisions.json");
 export const WINGMAN_PRODUCT_REPORTS_FILE = path.join(DATA_DIR, "wingman-product-reports.json");
