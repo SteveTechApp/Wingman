@@ -13,6 +13,7 @@ import { canonicalTransport } from "./competitorSpecRegistry";
 import { resolveProductTechnicalData } from "./governedProductTechnicalData";
 import { deriveSystemRequirements } from "./systemDependencies";
 import { normaliseProductTechnology } from "./technologyNormalizer";
+import { buildAvProductSemanticProfile } from "./avProductSemanticProfiler";
 
 type TechnicalPort = {
   count?: number;
@@ -498,9 +499,13 @@ function sourceLabelFor(tier: CompareDecisionProfile["sourceTier"]): string {
 export function buildWyrestormCompareProfile(product: WyrestormProduct): CompareDecisionProfile {
   const governed = resolveProductTechnicalData(product);
   const blob = text(product);
-  const fallbackDomain = detectDomain(product, blob);
+  const semantic = buildAvProductSemanticProfile(product as any);
+  const fallbackDomain = semantic.compareDomain ?? detectDomain(product, blob);
   const domain = governed.compare.domain ?? fallbackDomain;
-  const fallbackRole = detectRole(product, blob, domain);
+  const fallbackRole =
+    semantic.canonicalRole !== "unknown"
+      ? semantic.canonicalRole
+      : detectRole(product, blob, domain);
   const role = governed.compare.role ?? fallbackRole;
   const io = structuredIo(product, blob);
   const fallbackSpecs = buildSpecFacts(product, blob, io.inputCount);
@@ -566,8 +571,15 @@ export function buildWyrestormCompareProfile(product: WyrestormProduct): Compare
     role,
     transport: technology.canonicalTransport || governed.compare.transport || fallbackTransports || canonicalTransport(domain),
     technology,
-    inputCount: governed.compare.inputCount ?? io.inputCount,
-    outputCount: governed.compare.outputCount ?? io.outputCount,
+    inputCount:
+      governed.compare.inputCount ??
+      io.inputCount ??
+      semantic.logicalInputCount,
+    outputCount:
+      governed.compare.outputCount ??
+      (semantic.primaryOutputBehaviour === "mirrored"
+        ? semantic.logicalOutputCount
+        : io.outputCount ?? semantic.logicalOutputCount),
     maxResolution: governed.compare.maxResolution ?? detectResolution(blob),
     chroma: governed.compare.chroma ?? detectChroma(blob),
     latency: governed.compare.latency,
