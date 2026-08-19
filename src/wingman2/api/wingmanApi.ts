@@ -97,6 +97,8 @@ export type CompetitorMatchResponse = {
     summary?: string;
     resolvedUrl?: string;
     ports?: Record<string, number | undefined>;
+    ioProfile?: NormalizedIoProfile;
+    sourceUrls?: string[];
     video?: {
       maxResolution?: string;
       chroma?: string;
@@ -299,6 +301,93 @@ export function runCompetitorMatch(input: { manufacturer: string; model: string;
   });
 }
 
+export type LiveResearchReviewStatus = "pending" | "approved" | "rejected";
+
+export type LiveResearchReviewRecord = {
+  id: string;
+  manufacturer: string;
+  sku: string;
+  title: string;
+  category: string;
+  comparisonDomain: string;
+  comparisonUseCase: string;
+  role: string;
+  transport: string;
+  subtype: string;
+  hdbtGeneration?: string;
+  summary: string;
+  sourceUrl: string;
+  sourceUrls: string[];
+  technologyProfile?: ProductTechnologyProfile;
+  ioProfile?: NormalizedIoProfile;
+  ports?: Record<string, number | undefined>;
+  video?: Record<string, unknown>;
+  features?: Record<string, boolean | undefined>;
+  bestMatch?: {
+    sku?: string;
+    name?: string;
+    matchType?: string;
+    confidenceScore?: number;
+    summary?: string;
+    readiness?: CompetitorMatchCandidate["readiness"];
+  } | null;
+  reviewStatus: LiveResearchReviewStatus;
+  discoveredAt?: string;
+  firstSeenAt?: string;
+  lastSeenAt?: string;
+  seenCount?: number;
+  reviewedAt?: string | null;
+  reviewedBy?: string | null;
+  reviewNotes?: string;
+  promotedRecordId?: string | null;
+};
+
+export type LiveResearchReviewQueueResponse = {
+  ok: boolean;
+  count?: number;
+  records?: LiveResearchReviewRecord[];
+  updatedAt?: string;
+  error?: string;
+};
+
+export type LiveResearchReviewActionResponse = {
+  ok: boolean;
+  record?: LiveResearchReviewRecord;
+  productRecord?: Record<string, unknown>;
+  error?: string;
+};
+
+export function fetchLiveResearchReviewQueue(status = "") {
+  const query = status
+    ? `?status=${encodeURIComponent(status)}`
+    : "";
+  return getWingmanJson<LiveResearchReviewQueueResponse>(
+    `/api/governance/live-research/queue${query}`,
+  );
+}
+
+export function approveLiveResearchReview(input: {
+  id: string;
+  reviewer: string;
+  sourceUrl?: string;
+  notes?: string;
+}) {
+  return postWingmanJson<LiveResearchReviewActionResponse>(
+    "/api/governance/live-research/approve",
+    input,
+  );
+}
+
+export function rejectLiveResearchReview(input: {
+  id: string;
+  reviewer: string;
+  notes?: string;
+}) {
+  return postWingmanJson<LiveResearchReviewActionResponse>(
+    "/api/governance/live-research/reject",
+    input,
+  );
+}
 export type VisionContextAttachmentKind = "room_photo" | "schematic_diagram" | "unclear";
 
 export type VisionContextResult = {

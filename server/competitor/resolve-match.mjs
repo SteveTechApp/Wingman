@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { resolveCompetitorLiveLookup } from "./live-lookup.mjs";
 import { normaliseProductTechnology } from "./technology-normalizer.mjs";
+import { stageLiveResearchReview } from "../intelligence/live-research-review.mjs";
 import {
   COMPETITOR_CATALOG_FILE,
   PRODUCT_INTELLIGENCE_DB_FILE,
@@ -1845,14 +1846,33 @@ function buildCompetitorProfileFromIntelligenceRecord(record) {
     lan: sumPortsByType([...(Array.isArray(record?.inputs) ? record.inputs : []), ...(Array.isArray(record?.outputs) ? record.outputs : [])], ["rj45", "lan", "ethernet"]),
   };
 
+  const productTruth =
+    record?.productTruth && typeof record.productTruth === "object"
+      ? record.productTruth
+      : {};
+  const technologyProfile =
+    productTruth?.technology && typeof productTruth.technology === "object"
+      ? productTruth.technology
+      : undefined;
+  const truthVideo =
+    productTruth?.videoCapability && typeof productTruth.videoCapability === "object"
+      ? productTruth.videoCapability
+      : {};
+  const storedVideo =
+    record?.video && typeof record.video === "object"
+      ? record.video
+      : {};
+
   const structuredFields = {
     category: record?.category,
-    technology: record?.technology,
-    transport: record?.transport,
-    role: record?.role,
+    technology: technologyProfile?.vendorTechnology,
+    transport: record?.transport || technologyProfile?.canonicalTransport,
+    role: productTruth?.identity?.role || record?.role,
   };
   const comparisonDomain = domainFromStructuredCategory(structuredFields);
-  const role = roleFromStructuredCategory(structuredFields);
+  const role =
+    tidy(productTruth?.identity?.role) ||
+    roleFromStructuredCategory(structuredFields);
 
   return enrichProfile(toStructuredProfile({
     manufacturer: tidy(record?.brand),
@@ -1860,7 +1880,8 @@ function buildCompetitorProfileFromIntelligenceRecord(record) {
     title: tidy(record?.name || record?.sku),
     summary: tidy(record?.summary),
     category: tidy(record?.category),
-    transport: tidy(record?.transport),
+    transport: tidy(record?.transport || technologyProfile?.canonicalTransport),
+    technologyProfile,
     comparisonDomain,
     role,
     keySpecs: [
@@ -1871,14 +1892,25 @@ function buildCompetitorProfileFromIntelligenceRecord(record) {
     rawText: blob,
     sourceUrl: firstSourceUrl(record),
     ports,
-    video: record?.video && typeof record.video === "object" ? record.video : undefined,
+    video: {
+      ...storedVideo,
+      maxResolution:
+        tidy(storedVideo?.maxResolution) ||
+        tidy(truthVideo?.maximumResolution) ||
+        undefined,
+      chroma:
+        tidy(storedVideo?.chroma) ||
+        tidy(truthVideo?.chroma) ||
+        undefined,
+      hdr:
+        typeof storedVideo?.hdr === "boolean"
+          ? storedVideo.hdr
+          : typeof truthVideo?.hdr === "boolean"
+            ? truthVideo.hdr
+            : undefined,
+    },
   }));
 }
-
-
-
-
-
 
 export async function resolveCompetitorMatch(payload) {
   const manufacturer = tidy(payload?.manufacturer);
@@ -1893,21 +1925,46 @@ export async function resolveCompetitorMatch(payload) {
 
   const cached = MATCH_CACHE.get(cacheKey);
   if (cached) {
-    return {
-      ...cached,
-      cacheHit: true,
-    };
+    if (cached.competitor_lookup_mode === "live") {
+      // A live result may have been approved in Data Manager since this cache
+      // entry was created. Re-check the governed runtime store before serving
+      // stale live evidence so promotion takes effect immediately.
+      const promotedRecord = await loadCompetitorIntelligenceRecord(
+        manufacturer,
+        model,
+      );
+
+      if (!promotedRecord) {
+        return {
+          ...cached,
+          cacheHit: true,
+        };
+      }
+
+      MATCH_CACHE.delete(cacheKey);
+    } else {
+      return {
+        ...cached,
+        cacheHit: true,
+      };
+    }
   }
 
   const storedCompetitorRecord = await loadCompetitorIntelligenceRecord(manufacturer, model);
 
   let competitorProfile = null;
   let competitorResolvedUrl = "";
+  let competitorSourceUrls = [];
   let competitorLookupMode = "live";
 
   if (storedCompetitorRecord) {
     competitorProfile = buildCompetitorProfileFromIntelligenceRecord(storedCompetitorRecord);
     competitorResolvedUrl = firstSourceUrl(storedCompetitorRecord);
+    competitorSourceUrls = Array.isArray(storedCompetitorRecord.sourceUrls)
+      ? storedCompetitorRecord.sourceUrls.filter(Boolean)
+      : competitorResolvedUrl
+        ? [competitorResolvedUrl]
+        : [];
     competitorLookupMode = "stored-intelligence";
   }
 
@@ -1928,6 +1985,11 @@ export async function resolveCompetitorMatch(payload) {
 
     competitorProfile = enrichProfile(extractCompetitorProfileFromLivePayload(competitorLive, manufacturer, model));
     competitorResolvedUrl = competitorLive.resolvedUrl || competitorLive.discoveryUrl || productUrl || inferCompetitorProductUrl(manufacturer, model);
+    competitorSourceUrls = Array.isArray(competitorLive.sourceUrls)
+      ? competitorLive.sourceUrls.filter(Boolean)
+      : competitorResolvedUrl
+        ? [competitorResolvedUrl]
+        : [];
   }
 
   const wyrestormRows = await getWyreStormCatalog();
@@ -1989,7 +2051,9 @@ export async function resolveCompetitorMatch(payload) {
       hdbtGeneration: competitorProfile.hdbtGeneration,
       summary: competitorProfile.summary,
       resolvedUrl: competitorResolvedUrl,
+      sourceUrls: competitorSourceUrls,
       ports: competitorProfile.ports,
+      ioProfile: competitorProfile.ioProfile,
       video: competitorProfile.video,
       features: competitorProfile.features,
       technologyProfile: competitorProfile.technologyProfile,
@@ -2001,6 +2065,20 @@ export async function resolveCompetitorMatch(payload) {
     compare_quality: best?.quality || null,
     compare_readiness: best?.readiness || null,
   };
+
+  if (competitorLookupMode === "live") {
+    try {
+      await stageLiveResearchReview(result);
+    } catch (error) {
+      // Governance persistence must never turn a valid Compare result into an
+      // application failure. The result remains review-required; Data Manager
+      // will simply not receive this discovery until staging succeeds.
+      console.warn(
+        "[wingman] live competitor research could not be staged for review:",
+        error instanceof Error ? error.message : String(error),
+      );
+    }
+  }
 
   MATCH_CACHE.set(cacheKey, result);
   return result;

@@ -5,9 +5,12 @@ import type {
 import type { ProductTechnologyProfile } from "../types/technologyProfile";
 
 export type LiveCompetitorResearchStatus = "idle" | "loading" | "done" | "error";
+export type CompetitorResearchSourceMode = "live" | "stored-intelligence" | "unknown";
 
 export type LiveCompetitorResearchAssessment = {
   outcome: "candidate" | "no-match";
+  sourceMode: CompetitorResearchSourceMode;
+  readinessStatus: string;
   candidateSku?: string;
   confidenceScore: number;
   matchType: string;
@@ -48,6 +51,16 @@ function boundedScore(candidate: CompetitorMatchCandidate | null | undefined): n
   return Math.max(0, Math.min(100, Math.round(raw)));
 }
 
+function sourceModeFor(response: CompetitorMatchResponse): CompetitorResearchSourceMode {
+  if (response.competitor_lookup_mode === "stored-intelligence") {
+    return "stored-intelligence";
+  }
+  if (response.competitor_lookup_mode === "live") {
+    return "live";
+  }
+  return "unknown";
+}
+
 export function shouldAutoResearchCompetitor(input: {
   hasCompared: boolean;
   requestLiveLookup: boolean;
@@ -63,11 +76,10 @@ export function shouldAutoResearchCompetitor(input: {
 }
 
 /**
- * Convert the server-side live resolveMatch response into a deliberately
- * conservative client assessment. Live web research may identify a strong
- * WyreStorm direction, but it is never silently promoted to GOOD MATCH.
- * A non-blocked live candidate therefore enters the UI as VERIFY until a
- * reviewed competitor profile is saved/promoted into governed local data.
+ * The same resolveMatch endpoint can return fresh web research or an approved
+ * runtime competitor profile. Fresh web research remains review-required.
+ * Approved stored intelligence can participate normally, but a WyreStorm
+ * equivalence remains a separate governed decision.
  */
 export function assessLiveCompetitorResearch(
   response: CompetitorMatchResponse,
@@ -77,6 +89,7 @@ export function assessLiveCompetitorResearch(
   const readiness = best?.readiness;
   const readinessStatus = tidy(readiness?.status).toLowerCase();
   const matchType = tidy(best?.match_type);
+  const sourceMode = sourceModeFor(response);
   const blocked =
     readinessStatus === "blocked" ||
     /\b(?:incompatible|no match|blocked)\b/i.test(matchType);
@@ -106,22 +119,27 @@ export function assessLiveCompetitorResearch(
   const warnings = unique(readiness?.warnings ?? []);
   const blockers = unique(readiness?.blockers ?? []);
   const nextActions = unique(readiness?.nextActions ?? []);
+  const reviewRequired =
+    sourceMode !== "stored-intelligence" ||
+    readinessStatus !== "ready";
 
   if (!response.ok || !best?.sku || blocked) {
     return {
       outcome: "no-match",
+      sourceMode,
+      readinessStatus,
       confidenceScore: boundedScore(best),
       matchType,
       summary:
         tidy(readiness?.summary) ||
         tidy(best?.summary) ||
-        "Live research did not establish a safe WyreStorm product match.",
+        "Research did not establish a safe WyreStorm product match.",
       matched,
       warnings,
       blockers:
         blockers.length > 0
           ? blockers
-          : ["No safe WyreStorm match was established from the researched evidence."],
+          : ["No safe WyreStorm match was established from the available evidence."],
       nextActions,
       reviewRequired: true,
       sourceUrl,
@@ -131,21 +149,25 @@ export function assessLiveCompetitorResearch(
 
   return {
     outcome: "candidate",
+    sourceMode,
+    readinessStatus,
     candidateSku: tidy(best.sku),
     confidenceScore: boundedScore(best),
     matchType,
     summary:
       tidy(readiness?.summary) ||
       tidy(best.summary) ||
-      "Live research found a plausible WyreStorm direction.",
+      (sourceMode === "stored-intelligence"
+        ? "Approved competitor intelligence found a plausible WyreStorm direction."
+        : "Live research found a plausible WyreStorm direction."),
     matched:
       matched.length > 0
         ? matched
-        : ["The live resolver found a role/architecture-compatible WyreStorm direction."],
+        : ["The resolver found a role/architecture-compatible WyreStorm direction."],
     warnings,
     blockers,
     nextActions,
-    reviewRequired: true,
+    reviewRequired,
     sourceUrl,
     competitor: competitorSummary,
   };
