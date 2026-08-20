@@ -32,6 +32,53 @@ beforeEach(() => {
 });
 
 describe("compare page typed-SKU honesty render", () => {
+  it("renders a current 1x2 splitter match for Atlona AT-HDDA-2", async () => {
+    render(
+      <MemoryRouter initialEntries={["/wingman/compare?brand=Atlona&sku=AT-HDDA-2"]}>
+        <ComparePageNew />
+      </MemoryRouter>,
+    );
+
+    const cards = await screen.findByLabelText("Compare product cards");
+    await waitFor(() => {
+      expect(cards.textContent).toMatch(/EXP-SP-0102-(?:H2|8K)/);
+    });
+    expect(within(cards).queryByLabelText("No WyreStorm product match")).toBeNull();
+  });
+
+  it("recalculates an 8x8 matrix instead of applying the stored 8x12 decision", async () => {
+    render(
+      <MemoryRouter initialEntries={["/wingman/compare?brand=Atlona&sku=AT-HDR-H2H-88MA"]}>
+        <ComparePageNew />
+      </MemoryRouter>,
+    );
+
+    const cards = await screen.findByLabelText("Compare product cards");
+    await waitFor(() => {
+      expect(cards.textContent).toMatch(/MX(?:V)?-0808/);
+    });
+    expect(cards.textContent).not.toContain("MX-0812-SCL");
+  });
+
+  it("matches a local 4x4 HDMI matrix to the same transport architecture", async () => {
+    render(
+      <MemoryRouter initialEntries={["/wingman/compare?brand=Atlona&sku=AT-HDR-H2H-44MA"]}>
+        <ComparePageNew />
+      </MemoryRouter>,
+    );
+
+    const cards = await screen.findByLabelText("Compare product cards");
+    await waitFor(() => {
+      expect(cards.textContent).toContain("MX-0404-HDMI");
+    });
+    expect(cards.textContent).not.toContain("MX-0404-KIT");
+    expect(await screen.findByRole("heading", { name: "Other technically plausible matrix options" })).not.toBeNull();
+    const matrixOptions = screen.getByLabelText("Other technically plausible matrix options");
+    expect(matrixOptions.textContent).toContain("MX-0404-SCL");
+    expect(matrixOptions.textContent).not.toContain("MX-0804-EDC");
+    expect(matrixOptions.textContent).not.toContain("MX-0808-SCL");
+  });
+
   it("researches a genuinely unknown SKU and surfaces a verify-only WyreStorm direction", async () => {
     runCompetitorMatchMock.mockResolvedValue({
       ok: true,

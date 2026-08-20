@@ -851,20 +851,23 @@ function SpecTable({ product }: { product: ProductSpec }) {
   ] as const;
 
   return (
-    <dl className="wm-product-spec-groups">
+    <dl className="wm-product-spec-groups grid grid-cols-1 gap-3 md:grid-cols-2">
       {rows.map(([label, rawItems]) => {
-        const items = cleanUsefulList([...rawItems], 8);
+        // Technical overview is the detailed record view. Do not apply the
+        // short sales-card limit here: doing so silently hides stored facts.
+        const items = cleanUsefulList([...rawItems], Number.MAX_SAFE_INTEGER);
         const displayItems = items.length ? items : ["Not confirmed"];
+        const isUnconfirmed = items.length === 0;
 
         return (
-          <div key={label} className="wm-product-spec-group">
-            <dt>{label}</dt>
+          <div key={label} className="wm-product-spec-group min-w-0 rounded-2xl border p-4 wm-ui-card">
+            <dt className="mb-2 wm-ui-kicker text-cyan-300">{label}</dt>
             <dd>
-              {displayItems.map((item) => (
-                <span key={item}>
-                  {item}
-                </span>
-              ))}
+              <ul className={`grid gap-2 ${isUnconfirmed ? "is-unconfirmed italic opacity-70" : ""}`}>
+                {displayItems.map((item) => (
+                  <li className="break-words wm-ui-copy" key={item}>{item}</li>
+                ))}
+              </ul>
             </dd>
           </div>
         );

@@ -7,12 +7,10 @@
  *   1. the spec-first engine   - rigorousResult.matches (RigorousMatch[])
  *   2. the heuristic fallback  - merged into that engine snapshot as classified
  *                                legacy matches (see ComparePageNew.advanced.tsx)
- *   3. the rep's localStorage ledger - rendered as decision evidence; its
- *                                approved subset is merged into the effective
- *                                ledger and resolves to the override below
- *   4. approved-decision promotion  - governedDecision (CompetitorMatchDecision)
+ *   3. the rep's decision ledger - retained as audit/review evidence only;
+ *                                  it never changes the live engine result
  *
- * Inputs are the engine snapshot plus the approved ledger override (or null).
+ * Inputs are the current engine snapshot plus optional historical review context.
  * The output is the verdict-ranked, eligibility-filtered candidate list the
  * page renders - `viable` plus the raw engine lead used by the honest no-match
  * render path. The render gate (check:governed-coverage-render) is the oracle
@@ -22,15 +20,11 @@
 import type { ResolvedCompetitorProfile } from "./competitorSpecRegistry";
 import type { CompetitorMatchDecision } from "./competitorMatchDecisionLedger";
 import {
-  applyGovernedCandidateOrder,
-  governedDecisionLabel,
-} from "./governedCompareRuntime";
-import {
   classifyCompareIntent,
   evaluateProductEligibility,
 } from "./compareEligibilityEngine";
 import type { RigorousMatch } from "./rigorousCompare";
-import { uniqueText } from "./repScript";
+import { assessMatrixVariantFit } from "./matrixVariantFit";
 
 export type Verdict =
   | "GOOD MATCH"
@@ -149,79 +143,13 @@ export function domainFromProductClass(productClass: string): string | undefined
 }
 
 /**
- * The approved ledger override promoted into a ScoredCandidate: the engine's
- * candidate for the decision's WyreStorm SKU (or a fresh score when the engine
- * never surfaced it), carrying the decision's verdict, matched points, gaps and
- * blockers on top of the engine evidence.
- */
-function buildGovernedCandidate<P extends PipelineCompetitorProfile>(
-  decision: CompetitorMatchDecision | null,
-  engineCandidates: readonly ScoredCandidate[],
-  products: readonly WyreStormProduct[],
-  profile: P,
-  scoreProduct: (profile: P, product: WyreStormProduct) => ScoredCandidate,
-): ScoredCandidate | null {
-  if (
-    !decision?.wyrestormSku ||
-    decision.decisionType === "no-suitable-match"
-  ) {
-    return null;
-  }
-
-  const targetSku = decision.wyrestormSku.toUpperCase();
-  const existing = engineCandidates.find(
-    (candidate) => candidate.product.sku.toUpperCase() === targetSku,
-  );
-  const product =
-    existing?.product ??
-    products.find((candidate) => candidate.sku.toUpperCase() === targetSku);
-
-  if (!product) return null;
-
-  const base = existing ?? scoreProduct(profile, product);
-  const verdict: Verdict =
-    decision.decisionType === "confirmed-equivalent"
-      ? "GOOD MATCH"
-      : decision.decisionType === "architecture-alternative"
-        ? "ARCHITECTURE ALTERNATIVE"
-        : "PARTIAL MATCH";
-
-  return {
-    ...base,
-    score: Math.max(
-      base.score,
-      decision.decisionType === "confirmed-equivalent" ? 100 : 95,
-    ),
-    verdict,
-    matched: uniqueText([...decision.matchedPoints, ...base.matched], 12),
-    gaps: uniqueText([...decision.importantDifferences, ...base.gaps], 12),
-    partialMatches: uniqueText(
-      [...decision.importantDifferences, ...base.partialMatches],
-      12,
-    ),
-    mismatches: uniqueText(
-      [...decision.importantDifferences, ...base.mismatches],
-      12,
-    ),
-    blockers: uniqueText([...decision.quoteBlockers, ...base.blockers], 12),
-    dependencies: uniqueText(
-      [...decision.dependencies, ...base.dependencies],
-      12,
-    ),
-    outcomeLabel: governedDecisionLabel(decision),
-  };
-}
-
-/**
- * The single engineSnapshot -> ledger override -> verdict pipeline.
+ * The single engineSnapshot -> verdict pipeline.
  *
  * `engineMatches` is the engine snapshot (already carrying the classified
- * heuristic fallback). `governedDecision` is the approved ledger override (or
- * null). The result is the exact candidate derivation the Compare page used to
- * spread across four useMemos: engine candidates first, the governed override
- * promoted to the lead (suppressing all candidates on an approved
- * no-suitable-match), semantic + eligibility ordering, and the honest raw lead
- * for no-match render paths.
+ * heuristic fallback). Historical decisions are accepted for API compatibility
+ * and audit display, but candidate selection is always recomputed from current
+ * data. The result applies semantic + eligibility ordering and retains the raw
+ * lead for honest no-match render paths.
  */
 export function resolveCompareVerdictCandidates<P extends PipelineCompetitorProfile>(params: {
   engineMatches: readonly RigorousMatch[];
@@ -232,33 +160,32 @@ export function resolveCompareVerdictCandidates<P extends PipelineCompetitorProf
   scoreProduct: (profile: P, product: WyreStormProduct) => ScoredCandidate;
   isSelectable: (candidate: WyreStormProduct | null | undefined) => boolean;
 }): CompareVerdictResult {
-  const { engineMatches, products, governedDecision, profile } = params;
+  const { engineMatches, profile } = params;
 
   // 1. Engine snapshot -> selectable candidates (heuristic fallback included).
   const engineCandidates = engineMatches
     .map((match) => params.toCandidate(match, profile))
     .filter((candidate) => params.isSelectable(candidate.product));
 
-  // 2. Ledger override -> promoted governed candidate.
-  const governedCandidate = buildGovernedCandidate(
-    governedDecision,
-    engineCandidates,
-    products,
-    profile,
-    params.scoreProduct,
-  );
+  // Historical review decisions are deliberately not merged here. Every run
+  // ranks the current engine candidates from current product/spec data.
+  const candidates = engineCandidates.map((candidate) => {
+    const matrixFit = assessMatrixVariantFit({
+      competitorText: `${profile.brand} ${profile.sku} ${profile.rawText}`,
+      competitorFeatures: profile.resolvedSpec?.features,
+      candidate: candidate.product,
+    });
 
-  // 3. Merge, semantic-order, then eligibility-filter into the final list.
-  const candidates = governedCandidate
-    ? [
-        governedCandidate,
-        ...engineCandidates.filter(
-          (candidate) =>
-            candidate.product.sku.toUpperCase() !==
-            governedCandidate.product.sku.toUpperCase(),
-        ),
-      ]
-    : engineCandidates;
+    if (!matrixFit.applies) return candidate;
+
+    return {
+      ...candidate,
+      score: Math.max(0, Math.min(100, candidate.score + matrixFit.scoreAdjustment)),
+      matched: Array.from(new Set([...matrixFit.matched, ...candidate.matched])),
+      gaps: Array.from(new Set([...matrixFit.gaps, ...candidate.gaps])),
+      checks: Array.from(new Set([...matrixFit.checks, ...candidate.checks])),
+    };
+  });
 
   const intent = classifyCompareIntent(
     profile.resolvedSpec ??
@@ -286,19 +213,32 @@ export function resolveCompareVerdictCandidates<P extends PipelineCompetitorProf
         : 0;
     return candidate.score + sameProductClass + roomFit;
   };
-  // In the wireless-presentation lane the eligibility layer holds the precise
-  // verdict (hub -> SW-* switcher, dongle -> APO-DG2) via fit penalties. The
-  // keyword/confidence sort below must not override it - otherwise a casting
-  // dongle with high decision confidence can leapfrog the actual room switcher
-  // for a ClickShare-style HUB competitor, or vice versa. Fit is the primary
-  // key only for this intent; everywhere else the legacy keyword sort stands.
-  const eligibilityFit = (candidate: ScoredCandidate): number =>
-    Number.isFinite(candidate.fitPenalty) ? (candidate.fitPenalty as number) : 0;
+  // Eligibility expresses architecture and capacity fit; keyword confidence
+  // must not override it. This applies to every product class, not only the
+  // wireless lane: for example a 1x8 splitter can have richer keyword evidence
+  // than the correct 1x2 splitter while still being the worse-sized match.
+  const eligibilityFor = (candidate: ScoredCandidate) =>
+    evaluateProductEligibility({
+      intent,
+      competitorText: `${profile.brand} ${profile.sku} ${profile.rawText}`,
+      match: candidate.product,
+      product: candidate.product,
+    });
+  const eligibilityRank: Record<string, number> = {
+    direct: 0,
+    "architecture-alternative": 1,
+    "related-only": 2,
+    blocked: 3,
+  };
   const compareCandidates = (a: ScoredCandidate, b: ScoredCandidate): number => {
-    if (intent === "wireless-casting") {
-      const fitDelta = eligibilityFit(a) - eligibilityFit(b);
-      if (fitDelta !== 0) return fitDelta;
-    }
+    const aEligibility = eligibilityFor(a);
+    const bEligibility = eligibilityFor(b);
+    const eligibilityDelta =
+      (eligibilityRank[aEligibility.eligibility] ?? 3) -
+      (eligibilityRank[bEligibility.eligibility] ?? 3);
+    if (eligibilityDelta !== 0) return eligibilityDelta;
+    const fitDelta = aEligibility.fitPenalty - bEligibility.fitPenalty;
+    if (fitDelta !== 0) return fitDelta;
     return semanticRank(b) - semanticRank(a);
   };
   const semanticallyOrdered = [...candidates].sort(compareCandidates);
@@ -323,11 +263,7 @@ export function resolveCompareVerdictCandidates<P extends PipelineCompetitorProf
       })
     : semanticallyOrdered;
 
-  const ordered = applyGovernedCandidateOrder(
-    semanticallyOrderedAdjusted,
-    governedDecision,
-    (candidate) => candidate.product.sku,
-  );
+  const ordered = semanticallyOrderedAdjusted;
 
   // Governed/local decisions are ranking evidence, not permission to bypass
   // current product-role eligibility. Revalidate the final merged list so a
@@ -342,7 +278,6 @@ export function resolveCompareVerdictCandidates<P extends PipelineCompetitorProf
         product: candidate.product,
       }).eligibility !== "blocked",
   );
-
   return {
     viable,
     heuristicLead: engineCandidates[0] ?? null,

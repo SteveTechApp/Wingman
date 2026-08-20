@@ -478,6 +478,12 @@ function classifyPort(port: TechnicalPort): "video" | "audio" | "usb" | "network
   return "other";
 }
 
+function isDanteNetworkAudioPort(port: TechnicalPort): boolean {
+  return /\b(dante|aes67)\b/i.test(
+    [port.connector, port.detail, port.evidence].map(asText).join(" "),
+  );
+}
+
 function portLabel(port: TechnicalPort): string {
   const count = Number(port.count) > 0 ? Number(port.count) : 1;
   const connector = asText(port.connector || port.evidence || "Connection");
@@ -548,7 +554,25 @@ function exactEvidence(profile: GovernedProfileRecord): string[] {
 }
 
 function exactProfileData(profile: GovernedProfileRecord): ResolvedProductTechnicalData {
-  const ioSummary = unique(profile.ports.map(portLabel));
+  const portGroups = {
+    video: profile.ports.filter((port) => classifyPort(port) === "video").map(portLabel),
+    audio: profile.ports.filter((port) => classifyPort(port) === "audio" || isDanteNetworkAudioPort(port)).map(portLabel),
+    usb: profile.ports.filter((port) => classifyPort(port) === "usb").map(portLabel),
+    network: profile.ports.filter((port) => classifyPort(port) === "network" || isDanteNetworkAudioPort(port)).map(portLabel),
+    control: profile.ports.filter((port) => classifyPort(port) === "control").map(portLabel),
+    power: profile.ports.filter((port) => classifyPort(port) === "power").map(portLabel),
+    other: profile.ports.filter((port) => classifyPort(port) === "other").map(portLabel),
+  };
+  // Keep the headline I/O view focused on the routed signal path. Governed
+  // audio, USB, network, control and power ports belong in their own fields;
+  // otherwise those fields incorrectly read "Not confirmed" while the same
+  // facts are buried in a flat connector list.
+  const networkCarriesPrimaryMedia = profile.productClass === "AVOIP";
+  const ioSummary = unique([
+    ...portGroups.video,
+    ...(networkCarriesPrimaryMedia ? portGroups.network : []),
+    ...portGroups.other,
+  ]);
   const missingFields: string[] = [];
   // "Verified" requires a human: a machine-transcribed profile (status
   // promoted by the batch gate) is official-page data, not human-confirmed
@@ -599,12 +623,12 @@ function exactProfileData(profile: GovernedProfileRecord): ResolvedProductTechni
     inputCount: profile.inputCount,
     outputCount: profile.outputCount,
     ioSummary,
-    video: unique(profile.video ?? []),
-    audio: unique(profile.audio ?? []),
-    usb: unique(profile.usb ?? []),
-    network: unique(profile.network ?? []),
-    control: unique(profile.control ?? []),
-    power: unique(profile.power ?? []),
+    video: unique([...portGroups.video, ...(profile.video ?? [])]),
+    audio: unique([...portGroups.audio, ...(profile.audio ?? [])]),
+    usb: unique([...portGroups.usb, ...(profile.usb ?? [])]),
+    network: unique([...portGroups.network, ...(profile.network ?? [])]),
+    control: unique([...portGroups.control, ...(profile.control ?? [])]),
+    power: unique([...portGroups.power, ...(profile.power ?? [])]),
     physical: unique(profile.physical ?? []),
     dependencies: unique(profile.dependencies),
     compatibleFamilies: unique(profile.compatibleFamilies ?? []),
@@ -795,9 +819,9 @@ export function resolveProductTechnicalData(
 
   const portGroups = {
     video: ports.filter((port) => classifyPort(port) === "video").map(portLabel),
-    audio: ports.filter((port) => classifyPort(port) === "audio").map(portLabel),
+    audio: ports.filter((port) => classifyPort(port) === "audio" || isDanteNetworkAudioPort(port)).map(portLabel),
     usb: ports.filter((port) => classifyPort(port) === "usb").map(portLabel),
-    network: ports.filter((port) => classifyPort(port) === "network").map(portLabel),
+    network: ports.filter((port) => classifyPort(port) === "network" || isDanteNetworkAudioPort(port)).map(portLabel),
     control: ports.filter((port) => classifyPort(port) === "control").map(portLabel),
     power: ports.filter((port) => classifyPort(port) === "power").map(portLabel),
   };

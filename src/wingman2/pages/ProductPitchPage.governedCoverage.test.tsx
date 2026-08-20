@@ -31,6 +31,36 @@ vi.mock("../../../data/governance/wyrestorm-technical-profiles.json", async () =
 });
 
 describe("product pitch governed-coverage render", () => {
+  it("renders technical facts as separate, readable list items", async () => {
+    render(
+      <MemoryRouter initialEntries={["/wingman/product-pitch?sku=MXV-0808-H2A-KIT&source=compare"]}>
+        <ProductPitchPage />
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(await screen.findByRole("tab", { name: "Technical Overview" }));
+
+    const groups = document.querySelector(".wm-product-spec-groups");
+    expect(groups).not.toBeNull();
+    expect(groups?.querySelectorAll(".wm-product-spec-group").length).toBeGreaterThan(10);
+    expect(groups?.querySelectorAll("dd > ul > li").length).toBeGreaterThan(10);
+    expect(groups?.querySelector("dd > span")).toBeNull();
+
+    const ioGroup = Array.from(groups?.querySelectorAll(".wm-product-spec-group") ?? [])
+      .find((group) => group.querySelector("dt")?.textContent === "I/O summary");
+    expect(ioGroup).toBeDefined();
+    expect(ioGroup?.querySelectorAll("li").length).toBeGreaterThan(1);
+    expect(ioGroup?.textContent).not.toMatch(/Toslink|IR RX|IR TX|RS-232|Web UI/i);
+
+    const groupText = (label: string) => Array.from(groups?.querySelectorAll(".wm-product-spec-group") ?? [])
+      .find((group) => group.querySelector("dt")?.textContent === label)?.textContent ?? "";
+    expect(groupText("Audio")).toMatch(/Toslink.*S\/PDIF/i);
+    expect(groupText("Control / integration")).toMatch(/IR RX/i);
+    expect(groupText("Control / integration")).toMatch(/IR TX/i);
+    expect(groupText("Control / integration")).toMatch(/RS-232/i);
+    expect(groupText("Network")).toMatch(/LAN.*Web UI/i);
+  });
+
   it("renders selector result rows where every governed badge reads the honest official tier", async () => {
     render(
       <MemoryRouter initialEntries={["/wingman/product-pitch"]}>
