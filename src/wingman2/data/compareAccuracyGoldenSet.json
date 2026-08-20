@@ -1,0 +1,189 @@
+[
+  {
+    "id": "avoip-blustream-250-tx",
+    "lane": "AVoIP",
+    "input": "IP250UHD-TX",
+    "brand": "Blustream",
+    "leadPattern": "^NHD-500(?:-E)?-TX$",
+    "forbiddenPatterns": ["-RX$", "^NHD-600"]
+  },
+  {
+    "id": "avoip-blustream-250-rx",
+    "lane": "AVoIP",
+    "input": "IP250UHD-RX",
+    "brand": "Blustream",
+    "leadPattern": "^NHD-500(?:-E)?-RX$",
+    "forbiddenPatterns": ["-TX$", "^NHD-600"]
+  },
+  {
+    "id": "avoip-atlona-omni-121-decoder",
+    "lane": "AVoIP",
+    "input": "AT-OMNI-121",
+    "brand": "Atlona",
+    "leadPattern": "^(?:NHD-500(?:-E)?-RX|NHD-600-TRX)$",
+    "forbiddenPatterns": ["^NHD-500(?:-E)?-TX$"]
+  },
+  {
+    "id": "avoip-explicit-10g-sdvoe",
+    "lane": "AVoIP",
+    "input": "10G SDVoE AV over IP transceiver endpoint",
+    "leadPattern": "^NHD-600-TRX",
+    "forbiddenPatterns": ["^NHD-500"]
+  },
+  {
+    "id": "matrix-lightware-4x2",
+    "lane": "Matrix",
+    "input": "MMX4x2-HDMI",
+    "brand": "Lightware",
+    "outcomeNotNone": true,
+    "leadPattern": "^(?:MX-0402-MST|EXP-MX-0402-H2)$",
+    "requiredAnyPatterns": ["0402", "4X2"],
+    "forbiddenTopNPatterns": [
+      { "pattern": "^MX-0808", "topN": 4 }
+    ]
+  },
+  {
+    "id": "matrix-lightware-6x2",
+    "lane": "Matrix",
+    "input": "MMX6x2-HT200",
+    "brand": "Lightware",
+    "outcomeNotNone": true,
+    "forbiddenLeadPatterns": ["0402", "0403", "^APO-", "^CAM-"]
+  },
+  {
+    "id": "matrix-blustream-4x4",
+    "lane": "Matrix",
+    "input": "HMX44-18G-KIT",
+    "brand": "Blustream",
+    "outcomeNotNone": true,
+    "requiredAnyPatterns": ["0404"],
+    "forbiddenLeadPatterns": ["^APO-", "^CAM-", "^NHD-"]
+  },
+  {
+    "id": "extender-hdbaset-70m",
+    "lane": "Extender",
+    "input": "4K60 HDMI HDBaseT extender 70m point to point",
+    "outcomeNotNone": true,
+    "leadPattern": "^EX-",
+    "forbiddenLeadPatterns": ["^MX-", "^CAM-", "^APO-"]
+  },
+  {
+    "id": "extender-kvm-100m",
+    "lane": "Extender",
+    "input": "4K HDMI KVM extender 100m with USB host keyboard and mouse",
+    "outcomeNotNone": true,
+    "leadPattern": "^EX-",
+    "requiredAnyPatterns": ["KVM"],
+    "forbiddenLeadPatterns": ["^CAM-", "^APO-"]
+  },
+  {
+    "id": "presentation-crestron-hd-ps622",
+    "lane": "Presentation",
+    "input": "Crestron HD-PS622 6x2 presentation switcher HDMI USB-C",
+    "brand": "Crestron",
+    "outcomeNotNone": true,
+    "leadPattern": "^(?:SW-|MX-)",
+    "forbiddenLeadPatterns": ["^CAM-", "^APO-"]
+  },
+  {
+    "id": "wireless-clickshare-room-core",
+    "lane": "Wireless",
+    "input": "CLICKSHARE-CX-30",
+    "brand": "Barco",
+    "outcomeNotNone": true,
+    "leadPattern": "^SW-(?:620|640L)-TX-W$",
+    "forbiddenPatterns": ["^APO-DG2$"]
+  },
+  {
+    "id": "wireless-airmedia-connect-adapter",
+    "lane": "Wireless",
+    "input": "AM-TX3-100 AirMedia Connect Adapter",
+    "brand": "Crestron",
+    "outcomeNotNone": true,
+    "leadPattern": "^APO-DG2$",
+    "requiredAnyPatterns": ["^SW-(?:620|640L)-TX-W$", "^APO-VX20-UC-V2$"],
+    "companionRequired": true
+  },
+  {
+    "id": "wireless-explicit-casting-dongle",
+    "lane": "Wireless",
+    "input": "wireless casting dongle BYOD presentation ClickShare Button",
+    "brand": "Barco",
+    "outcomeNotNone": true,
+    "leadPattern": "^APO-DG2$",
+    "requiredAnyPatterns": ["^SW-(?:620|640L)-TX-W$", "^APO-VX20-UC-V2$"],
+    "companionRequired": true
+  },
+  {
+    "id": "wireless-huddle-core",
+    "lane": "Wireless",
+    "input": "small huddle room wireless casting with ClickShare style sharing",
+    "outcomeNotNone": true,
+    "leadPattern": "^APO-VX20-UC-V2$",
+    "forbiddenPatterns": ["^APO-DG2$"]
+  },
+  {
+    "id": "camera-birddog-ndi",
+    "lane": "Camera",
+    "input": "P200",
+    "brand": "BirdDog",
+    "outcomeNotNone": true,
+    "leadPattern": "^CAM-.*NDI",
+    "forbiddenLeadPatterns": ["^NHD-"]
+  },
+  {
+    "id": "camera-sony-ptz",
+    "lane": "Camera",
+    "input": "SRG-X120",
+    "brand": "Sony",
+    "outcomeNotNone": true,
+    "leadPattern": "^CAM-.*PTZ$",
+    "forbiddenLeadPatterns": ["^NHD-"]
+  },
+  {
+    "id": "camera-free-text-ndi-ptz",
+    "lane": "Camera",
+    "input": "4K NDI PTZ conference camera VISCA over IP",
+    "outcomeNotNone": true,
+    "leadPattern": "^CAM-.*NDI",
+    "forbiddenLeadPatterns": ["^NHD-"]
+  },
+  {
+    "id": "video-wall-dedicated-processor",
+    "lane": "Video wall",
+    "input": "dedicated LCD video wall processor",
+    "outcomeNotNone": true,
+    "leadPattern": "^SW-020[46]-VW$",
+    "forbiddenLeadPatterns": ["^NHD-", "^APO-", "^CAM-"]
+  },
+  {
+    "id": "multiview-single-output-canvas",
+    "lane": "Multiview",
+    "input": "4 source multiview processor single output canvas",
+    "outcomeNotNone": true,
+    "requiredAnyPatterns": ["^NHD-0401-MV$", "^NHD-150-RX$"],
+    "forbiddenLeadPatterns": ["^APO-", "^CAM-"]
+  },
+  {
+    "id": "control-amx-nx1200",
+    "lane": "Control",
+    "input": "NX-1200",
+    "brand": "AMX",
+    "matchesEmpty": true
+  },
+  {
+    "id": "control-atlona-vgw",
+    "lane": "Control",
+    "input": "AT-VGW-HW",
+    "brand": "Atlona",
+    "matchesEmpty": true
+  },
+  {
+    "id": "audio-biamp-tesiraforte",
+    "lane": "Audio",
+    "input": "TesiraFORTE Dante DSP audio processor",
+    "brand": "Biamp",
+    "forbiddenLeadPatterns": ["^NHD-", "^CAM-"],
+    "forbiddenOutcomes": ["GOOD MATCH"]
+  }
+]
