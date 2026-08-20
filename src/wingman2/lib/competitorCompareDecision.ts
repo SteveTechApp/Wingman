@@ -1,6 +1,7 @@
 import { buildCompetitorDecisionEvidence } from "./competitorProductIntelligence";
 import { resolutionRank } from "./compareResolution";
 import { deriveSystemRequirements } from "./systemDependencies";
+import type { ProductTechnologyProfile } from "../types/technologyProfile";
 export type CompareDecisionOutcome = "GOOD MATCH" | "PARTIAL MATCH" | "NO MATCH" | "VERIFY";
 
 export type CompareRequirementTier = "necessary" | "conditional" | "beneficial";
@@ -89,6 +90,7 @@ export type CompareDecisionProfile = {
   domain?: string;
   role?: string;
   transport?: string;
+  technology?: ProductTechnologyProfile;
   inputCount?: number;
   outputCount?: number;
   maxResolution?: string;

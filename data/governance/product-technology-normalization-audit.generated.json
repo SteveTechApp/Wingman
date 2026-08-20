@@ -1,0 +1,277 @@
+{
+  "version": 1,
+  "generatedAt": "2026-08-18T18:44:37.505Z",
+  "sources": {
+    "competitor": "data/catalog/competitor-products.generated.json",
+    "wyrestorm": "public/product-intelligence-index.json"
+  },
+  "totals": {
+    "records": 665,
+    "competitorRecords": 355,
+    "wyrestormRecords": 310,
+    "normalizedByGovernedRule": 69,
+    "canonicalTransportKnown": 101,
+    "networkClassKnown": 47,
+    "codecKnown": 47
+  },
+  "byManufacturer": [
+    {
+      "manufacturer": "Airtame",
+      "products": 4,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "AMX",
+      "products": 17,
+      "normalized": 3,
+      "canonicalTransportKnown": 3,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Atlona",
+      "products": 32,
+      "normalized": 4,
+      "canonicalTransportKnown": 4,
+      "networkClassKnown": 4,
+      "codecKnown": 4
+    },
+    {
+      "manufacturer": "AVPro Edge",
+      "products": 11,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Barco",
+      "products": 15,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Binary",
+      "products": 8,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "BirdDog",
+      "products": 11,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Black Box",
+      "products": 6,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Blustream",
+      "products": 25,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Crestron",
+      "products": 22,
+      "normalized": 8,
+      "canonicalTransportKnown": 9,
+      "networkClassKnown": 8,
+      "codecKnown": 8
+    },
+    {
+      "manufacturer": "CYP",
+      "products": 18,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Datapath",
+      "products": 3,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Extron",
+      "products": 36,
+      "normalized": 23,
+      "canonicalTransportKnown": 23,
+      "networkClassKnown": 8,
+      "codecKnown": 8
+    },
+    {
+      "manufacturer": "HDANYWHERE",
+      "products": 18,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Just Add Power",
+      "products": 13,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Kramer",
+      "products": 23,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Lightware",
+      "products": 29,
+      "normalized": 4,
+      "canonicalTransportKnown": 4,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Logitech",
+      "products": 2,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Marshall",
+      "products": 8,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Matrox Video",
+      "products": 2,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Mersive",
+      "products": 3,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Poly",
+      "products": 3,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Q-SYS",
+      "products": 3,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Sony",
+      "products": 9,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "SY Electronics",
+      "products": 17,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Turtle AV",
+      "products": 3,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "Visionary",
+      "products": 2,
+      "normalized": 0,
+      "canonicalTransportKnown": 0,
+      "networkClassKnown": 0,
+      "codecKnown": 0
+    },
+    {
+      "manufacturer": "WyreStorm",
+      "products": 310,
+      "normalized": 23,
+      "canonicalTransportKnown": 54,
+      "networkClassKnown": 23,
+      "codecKnown": 23
+    },
+    {
+      "manufacturer": "ZeeVee",
+      "products": 12,
+      "normalized": 4,
+      "canonicalTransportKnown": 4,
+      "networkClassKnown": 4,
+      "codecKnown": 4
+    }
+  ],
+  "unresolvedNamedTechnology": [
+    {
+      "manufacturer": "Atlona",
+      "sku": "OMNISTREAM AT-OMNI-121"
+    },
+    {
+      "manufacturer": "Extron",
+      "sku": "NAV-E-121"
+    },
+    {
+      "manufacturer": "Extron",
+      "sku": "NAV-SD-121"
+    },
+    {
+      "manufacturer": "Lightware",
+      "sku": "VINX-110-HDMI-ENC"
+    },
+    {
+      "manufacturer": "Lightware",
+      "sku": "VINX-120-HDMI-ENC"
+    },
+    {
+      "manufacturer": "Lightware",
+      "sku": "VINX-210AP-HDMI-DEC"
+    }
+  ]
+}

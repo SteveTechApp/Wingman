@@ -1035,6 +1035,9 @@ async function upsertRecord(payload) {
   };
 }
 
+export async function upsertProductIntelligenceRecord(payload) {
+  return upsertRecord(payload);
+}
 async function updateStatus(payload) {
   const brand = tidy(payload?.brand);
   const sku = normalizeSku(payload?.sku);
