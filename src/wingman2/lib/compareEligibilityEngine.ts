@@ -754,6 +754,29 @@ function matrixFitPenalty(competitorText: string, sku: string, text: string): nu
     }
   }
 
+  // Matrix capacity alone is not enough to establish technical equivalence.
+  // A local-HDMI matrix and an HDBaseT matrix kit can both be 4x4, but they
+  // have different output transports, cabling, receiver requirements and
+  // package topology. Prefer the architecture that the competitor evidence
+  // actually describes, without relying on a permanent SKU-to-SKU mapping.
+  const requirement = normalise(competitorText);
+  const candidate = normalise(`${sku} ${text}`);
+  const requiresRemoteTransport = /\b(hdbaset|hdbt|tps|category cable|cat\s*[56][a-z]?|receiver(?:s| kit)?|rx kit)\b/i.test(requirement);
+  const requiresLocalHdmi = /\bhdmi\b/i.test(requirement) && !requiresRemoteTransport;
+  const offersRemoteTransport = /\b(hdbaset|hdbt|receiver(?:s| kit)?|rx kit)\b/i.test(candidate) || /(?:H2A|HDBT)/.test(skuKey(sku));
+  const offersLocalHdmiOnly = /\bhdmi\b/i.test(candidate) && !offersRemoteTransport;
+  const addsUnrequestedScaling = /\b(seamless|scaling|scaler)\b/i.test(candidate) || /SCL/.test(skuKey(sku));
+
+  if (requiresRemoteTransport && offersLocalHdmiOnly) {
+    penalty += 120;
+  } else if (requiresLocalHdmi && offersRemoteTransport) {
+    penalty += 120;
+  }
+
+  if (!/\b(seamless|scaling|scaler)\b/i.test(requirement) && addsUnrequestedScaling) {
+    penalty += 30;
+  }
+
   return penalty;
 }
 
@@ -959,11 +982,6 @@ export function evaluateProductEligibility(args: {
   }
 
   const supportOnlyReason = productIsSupportOnly(sku, combined);
-  const isUcRoomHardware =
-    /\b(video\s*bar|conference\s*bar|conferencing\s*bar|uc\s*room\s*(?:product|endpoint)|all-in-one.*(?:camera|conferencing)|integrated\s+camera)\b/i.test(combined);
-  const isRoleMatchedPrimaryProduct =
-    ((args.intent === "ndi-camera" || args.intent === "ptz-camera") && /^CAM/.test(key)) ||
-    ((args.intent === "uc-byod" || args.intent === "usb-audio") && isUcRoomHardware);
 
   // COMPARE_PRIMARY_ROLE_ISOLATION_V1
   // Do not let keyword score promote a fundamentally different primary product.
@@ -976,6 +994,15 @@ export function evaluateProductEligibility(args: {
     product?.name,
     product?.title,
   ]);
+  // Product descriptions and tags include downstream applications (for
+  // example a splitter may mention feeding a UC room or an integrated camera).
+  // Those fields must not redefine the candidate's primary hardware class.
+  // Use only the curated identity fields above for the hard UC/camera gate.
+  const isUcRoomHardware =
+    /\b(video\s*bar|conference\s*bar|conferencing\s*bar|uc\s*room\s*(?:product|endpoint)|all-in-one.*(?:camera|conferencing)|integrated\s+camera)\b/i.test(explicitCandidateRoleText);
+  const isRoleMatchedPrimaryProduct =
+    ((args.intent === "ndi-camera" || args.intent === "ptz-camera") && /^CAM/.test(key)) ||
+    ((args.intent === "uc-byod" || args.intent === "usb-audio") && isUcRoomHardware);
   const isCameraPrimaryHardware =
     /^CAM/.test(key) ||
     /\b(?:ptz|ndi)\s*camera\b/i.test(explicitCandidateRoleText) ||

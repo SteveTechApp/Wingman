@@ -179,3 +179,42 @@ describe("buildCandidateFromCatalog (WyreStorm canonical rows)", () => {
     expect(candidate.role).toBe("Matrix");
   });
 });
+
+describe("buildRankedCandidate", () => {
+  const { buildCandidateFromCatalog, buildRankedCandidate, toStructuredProfile } = compareInternals;
+
+  it("keeps a canonical catalogue match when live WyreStorm enrichment fails", () => {
+    const competitor = toStructuredProfile({
+      manufacturer: "Competitor",
+      model: "DA-1X4",
+      title: "1x4 HDMI distribution amplifier",
+      category: "Distribution Amplifier",
+      comparisonDomain: "DISTRIBUTION",
+      role: "Distribution Amplifier",
+      transport: "HDMI",
+      ports: { hdmiIn: 1, hdmiOut: 4 },
+    });
+    const candidate = buildCandidateFromCatalog({
+      sku: "SP-0104",
+      name: "1x4 HDMI Splitter",
+      productClassification: {
+        primaryCategory: "Distribution",
+        category: "Splitter / distribution amplifier",
+      },
+      ports: { hdmiIn: 1, hdmiOut: 4 },
+    });
+
+    const result = buildRankedCandidate(
+      competitor,
+      candidate,
+      { ok: false, error: "WyreStorm page fetch failed: 404" },
+      "stored-intelligence",
+    );
+
+    expect(result.sku).toBe("SP-0104");
+    expect(result.verified_catalog_sku).toBe(true);
+    expect(result.live_spec_extracted).toBe(false);
+    expect(result.match_score).toBeGreaterThan(0);
+    expect(result.profile.role).toBe("Distribution Amplifier");
+  });
+});

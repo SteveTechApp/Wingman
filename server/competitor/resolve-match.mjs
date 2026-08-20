@@ -1108,6 +1108,46 @@ function buildWyreStormProfile(page, fallbackCandidate) {
   }));
 }
 
+function buildRankedCandidate(competitorProfile, candidate, page, competitorLookupMode) {
+  const liveSpecExtracted = page?.ok === true;
+  const resolvedUrl = liveSpecExtracted
+    ? page.url
+    : buildWyreStormProductUrl(candidate.sku);
+  const profile = buildWyreStormProfile(
+    liveSpecExtracted
+      ? page
+      : {
+          title: candidate.name,
+          text: candidate.blob,
+          url: resolvedUrl,
+        },
+    candidate,
+  );
+  const scored = scoreProfiles(competitorProfile, profile, {
+    competitorLookupMode,
+  });
+
+  return {
+    sku: candidate.sku,
+    name: profile.title,
+    match_score: scored.matchScore,
+    match_type: scored.matchType,
+    confidence: scored.confidence,
+    confidence_score: scored.confidenceScore,
+    io_coverage: scored.ioCoverage,
+    feature_coverage: scored.featureCoverage,
+    resolvedUrl,
+    summary: scored.readiness.summary || profile.summary,
+    profile,
+    comparison_rows: buildComparisonRows(competitorProfile, profile),
+    breakdown: scored.breakdown,
+    quality: scored.quality,
+    readiness: scored.readiness,
+    verified_catalog_sku: true,
+    live_spec_extracted: liveSpecExtracted,
+  };
+}
+
 function coveragePercent(total, matched) {
   if (total <= 0) return 0;
   return Math.round((matched / total) * 100);
@@ -1997,35 +2037,22 @@ export async function resolveCompetitorMatch(payload) {
 
   const ranked = [];
   for (const candidate of shortlist) {
-    const page = await fetchWyreStormPage(candidate.sku);
-    if (!page.ok) continue;
-
-    const profile = buildWyreStormProfile(page, candidate);
-    const scored = scoreProfiles(competitorProfile, profile, {
+    let page;
+    try {
+      page = await fetchWyreStormPage(candidate.sku);
+    } catch (error) {
+      page = {
+        ok: false,
+        sku: candidate.sku,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+    ranked.push(buildRankedCandidate(
+      competitorProfile,
+      candidate,
+      page,
       competitorLookupMode,
-    });
-
-    const comparison_rows = buildComparisonRows(competitorProfile, profile);
-
-    ranked.push({
-      sku: candidate.sku,
-      name: profile.title,
-      match_score: scored.matchScore,
-      match_type: scored.matchType,
-      confidence: scored.confidence,
-      confidence_score: scored.confidenceScore,
-      io_coverage: scored.ioCoverage,
-      feature_coverage: scored.featureCoverage,
-      resolvedUrl: page.url,
-      summary: scored.readiness.summary || profile.summary,
-      profile,
-      comparison_rows,
-      breakdown: scored.breakdown,
-      quality: scored.quality,
-      readiness: scored.readiness,
-      verified_catalog_sku: true,
-      live_spec_extracted: true,
-    });
+    ));
   }
 
   ranked.sort((a, b) => b.match_score - a.match_score || b.confidence_score - a.confidence_score || a.sku.localeCompare(b.sku));
@@ -2092,5 +2119,6 @@ export const compareInternals = {
   roleFromStructuredCategory,
   isApprovedCompetitorIntelligenceRecord,
   buildCandidateFromCatalog,
+  buildRankedCandidate,
   buildCompetitorProfileFromIntelligenceRecord,
 };

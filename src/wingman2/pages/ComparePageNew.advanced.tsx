@@ -909,9 +909,19 @@ function productClassFromRealCatalogTaxonomy(entry: ProductIntelligenceIndexEntr
 // tag-based derivation (unaffected by this specific contamination) is used.
 function roleFromRealCatalogTaxonomy(entry: ProductIntelligenceIndexEntry): string | null {
   const family = String(entry.primarySystemFamily ?? "");
+  const category = String(entry.productClassification?.category ?? "").toLowerCase();
   const subCategory = String(entry.productClassification?.subCategory ?? "").toLowerCase();
 
   if (family === "Extension") return "TX/RX extender kit";
+  if (family === "Distribution" || category.includes("splitter") || category.includes("distribution amplifier")) {
+    return "Distribution amplifier";
+  }
+  if (family === "Matrix / Routing" || category.includes("matrix")) return "Matrix switcher";
+  if (family === "Camera / Capture") return subCategory.includes("ndi") ? "NDI Camera" : "PTZ Camera";
+  if (family === "Audio") return "Audio processor";
+  if (family === "Control") return "Control processor";
+  if (family === "Unified Communications") return "UC room endpoint";
+  if (family === "Presentation / Room Core") return "Presentation switcher";
 
   if (family === "NetworkHD AV over IP") {
     if (subCategory.includes("encoder")) return "Encoder / transmitter";
@@ -1419,6 +1429,7 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
   const wirelessCastingRequirement = profile.productClass === "Wireless casting";
   const competitorIo = buildCompetitorIoSnapshot(profile);
   const candidateIo = buildWyrestormIoSnapshot(product);
+  const connectorCoverage = assessCompetitorConnectorCoverage(competitorIo);
   const unresolvedAdditionalVideoFamilies = competitorIo.additionalVideoFamilies.filter(
     (family) => !competitorIo.waivedAdditionalVideoFamilies.includes(family),
   );
@@ -1472,10 +1483,17 @@ function scoreProduct(profile: CompetitorProfile, product: WyreStormProduct): Sc
   }
 
   if (unresolvedAdditionalVideoFamilies.length > 0) {
-    score -= 84;
-    mismatches.push(`Competitor evidence includes ${unresolvedAdditionalVideoFamilies.join(", ")} connections outside the default HDMI / USB-C / HDBaseT comparison lane.`);
-    blockers.push(`Confirm that ${unresolvedAdditionalVideoFamilies.join(", ")} are not required for this comparison before recommending a WyreStorm alternative.`);
-    unknowns.push(`If ${unresolvedAdditionalVideoFamilies.join(", ")} stay in scope, reject this candidate rather than treating it as a valid match.`);
+    mismatches.push(`Missing native connector support: the competitor includes ${unresolvedAdditionalVideoFamilies.join(", ")}, which this WyreStorm candidate does not provide.`);
+
+    if (connectorCoverage.predominantlyUnsupported) {
+      score -= 84;
+      blockers.push("The competitor's evidenced video I/O is predominantly outside WyreStorm's native HDMI, HDBaseT, IP and USB-C input / HDMI, HDBaseT and IP output coverage.");
+      unknowns.push("Confirm an acceptable conversion or architecture change before treating this as a viable replacement.");
+    } else {
+      score -= 18;
+      gaps.push(`The supported ${connectorCoverage.supportedFamilies.join(", ")} path remains comparable, but ${unresolvedAdditionalVideoFamilies.join(", ")} would require conversion or a changed workflow if used.`);
+      checks.push(`Confirm whether the competitor's ${unresolvedAdditionalVideoFamilies.join(", ")} connections are required in the proposed system.`);
+    }
   }
 
   score += compareInputOutputFit(
@@ -1967,6 +1985,11 @@ function isContainedLocalMatrixRequirement(profile: CompetitorProfile): boolean 
 
 function matrixInputCount(profile: CompetitorProfile): number | undefined {
   return profile.resolvedSpec?.inputCount;
+}
+
+function matrixSkuSizeKey(sku: string): string {
+  const match = compareSkuKey(sku).match(/(?:MXV|MX)(\d{2})(\d{2})/);
+  return match ? `${Number(match[1])}x${Number(match[2])}` : "";
 }
 
 function isEighteenGigMatrix(profile: CompetitorProfile): boolean {
@@ -2650,7 +2673,7 @@ function buildCompetitorSummary(profile: CompetitorProfile, mustMatchFeatures: s
   const unknownFeatures = uniqueText([
     ...compareUnknownFeatureSummary(profile),
     unsupportedPorts.length
-      ? "WyreStorm does not natively match every competitor legacy connector, so confirm whether signal conversion or surrounding workflow is acceptable."
+      ? "WyreStorm does not natively match every additional competitor connector, so confirm whether signal conversion or a changed workflow is acceptable."
       : "",
   ], 8);
 
@@ -3018,6 +3041,35 @@ type CompareIoSnapshot = {
   additionalVideoFamilies: string[];
   waivedAdditionalVideoFamilies: string[];
 };
+
+const WYRESTORM_NATIVE_INPUT_FAMILIES = new Set(["HDMI", "HDBaseT/TPS", "Network/LAN", "USB-C"]);
+const WYRESTORM_NATIVE_OUTPUT_FAMILIES = new Set(["HDMI", "HDBaseT/TPS", "Network/LAN"]);
+
+export function assessCompetitorConnectorCoverage(snapshot: CompareIoSnapshot): {
+  supportedFamilies: string[];
+  unsupportedFamilies: string[];
+  predominantlyUnsupported: boolean;
+} {
+  const supportedInputFamilies = snapshot.inputFamilies.filter((family) => WYRESTORM_NATIVE_INPUT_FAMILIES.has(family));
+  const supportedOutputFamilies = snapshot.outputFamilies.filter((family) => WYRESTORM_NATIVE_OUTPUT_FAMILIES.has(family));
+  const supportedFamilies = uniqueText([
+    ...supportedInputFamilies,
+    ...supportedOutputFamilies,
+  ], 12);
+  const unsupportedFamilies = uniqueText(snapshot.additionalVideoFamilies, 12);
+  const supportedPathCount = supportedInputFamilies.length + supportedOutputFamilies.length;
+  const unsupportedPathCount =
+    snapshot.inputFamilies.filter((family) => unsupportedFamilies.includes(family)).length +
+    snapshot.outputFamilies.filter((family) => unsupportedFamilies.includes(family)).length;
+
+  return {
+    supportedFamilies,
+    unsupportedFamilies,
+    predominantlyUnsupported:
+      unsupportedFamilies.length > 0 &&
+      (supportedPathCount === 0 || unsupportedPathCount > supportedPathCount),
+  };
+}
 
 function connectorFamilyLabel(value: string): string {
   const normalized = value.toLowerCase().trim();
@@ -4503,13 +4555,18 @@ function CandidateOptionCard({ candidate }: { candidate: ScoredCandidate }) {
       (value) => (surfaceValueResolved(String(value ?? "")) ? candidate.governedTier : "missing"),
     ),
   ]);
+  const matrixVariantReason = candidate.product.productClass === "Matrix"
+    ? candidate.checks.find((item) => /feature-enhanced alternative|HDBaseT distance|receiver topology|video-wall/i.test(item))
+    : undefined;
   const reason = commercializeCompareCopy(
-    candidate.matched[0] ||
+    matrixVariantReason ||
+      candidate.matched[0] ||
       candidate.partialMatches[0] ||
       "Closest role-compatible WyreStorm option from the current Compare data.",
   );
   const advisory = commercializeCompareCopy(
-    candidate.dependencies[0] ||
+    matrixVariantReason ||
+      candidate.dependencies[0] ||
       candidate.mismatches[0] ||
       candidate.gaps[0] ||
       candidate.unknowns[0] ||
@@ -4816,7 +4873,7 @@ function GovernedDecisionPanel({
     setMessage(
       reviewStatus === "pending-review"
         ? "Saved as review required. It will not override heuristic matching until approved."
-        : `${governedDecisionLabel(governedDecision)} saved and applied.`,
+        : `${governedDecisionLabel(governedDecision)} saved as review evidence. Live matching will continue to use current product data.`,
     );
     onSaved();
   }
@@ -5355,7 +5412,12 @@ function ComparePageNew() {
       };
     });
     const seen = new Set<string>();
-    const matches = [...classifiedLegacyMatches, ...result.matches].filter((match) => {
+    // The runtime pipeline is the authoritative, fully classified result. Keep
+    // its copy of a SKU when the legacy scorer found the same product: the
+    // heuristic may carry a stale NO MATCH decision based on weaker text
+    // overlap, and putting it first caused de-duplication to discard a valid
+    // technical match (for example AT-HDDA-2 -> EXP-SP-0102-H2).
+    const matches = [...result.matches, ...classifiedLegacyMatches].filter((match) => {
       const key = match.sku.toUpperCase();
 
       if (seen.has(key)) {
@@ -5457,6 +5519,14 @@ function ComparePageNew() {
   const alternativeCandidates = best
     ? viableCandidates.filter((candidate) => candidate.product.sku !== best.product.sku)
     : [];
+  const matrixCandidatePool = best?.product.productClass === "Matrix"
+    ? alternativeCandidates.filter((candidate) => candidate.product.productClass === "Matrix")
+    : [];
+  const bestMatrixSize = best ? matrixSkuSizeKey(best.product.sku) : "";
+  const exactSizeMatrixAlternatives = bestMatrixSize
+    ? matrixCandidatePool.filter((candidate) => matrixSkuSizeKey(candidate.product.sku) === bestMatrixSize)
+    : [];
+  const matrixAlternatives = (exactSizeMatrixAlternatives.length ? exactSizeMatrixAlternatives : matrixCandidatePool).slice(0, 3);
 
   // When every candidate is rejected, the no-match card should say WHY, not
   // just "no suitable match" - e.g. an audio DSP competitor (Biamp Tesira,
@@ -5641,10 +5711,6 @@ function ComparePageNew() {
 
   const summary = useMemo(() => {
     if (!displayedCandidate) {
-      if (governedDecision?.decisionType === "no-suitable-match") {
-        return `${effectiveBrand} ${competitorInput}: approved no suitable WyreStorm match. Reviewer: ${governedDecision.reviewer || "not recorded"}.`;
-      }
-
       return "No suitable WyreStorm direction found from the current data.";
     }
 
@@ -5656,7 +5722,7 @@ function ComparePageNew() {
 
     return [
       `${competitorSummary.heading} appears to be a ${shortRoleLabel(competitorSummary.role)}.`,
-      ...(governedDecision ? [`Governed decision: ${governedDecisionLabel(governedDecision)}${governedDecision.reviewer ? ` by ${governedDecision.reviewer}` : ""}.`] : []),
+      ...(governedDecision ? [`Historical review: ${governedDecisionLabel(governedDecision)}${governedDecision.reviewer ? ` by ${governedDecision.reviewer}` : ""}. Current matching was recalculated independently.`] : []),
       ...identityItems.map((line) => line),
       `The selected WyreStorm direction is ${displayedCandidate.product.sku} because it performs the same basic job in a ${displayedCandidate.product.family} system.`,
       `${directionFit}. ${replacementConfidence}.`,
@@ -5821,6 +5887,7 @@ function ComparePageNew() {
               <Link className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(activeCandidate.product.sku)}&source=compare`}>Product details</Link>
               <button className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" type="button" onClick={handleReset}>New comparison</button>
             </div>{committedSku === activeCandidate.product.sku ? <p className="compare-native-muted wm-ui-copy">Saved. <Link to={routeCatalogByKey.projects.path}>Open projects</Link>.</p> : null}</section> : null}
+            {matrixAlternatives.length ? <section className="compare-native-options wm-ui-card" aria-label="Other technically plausible matrix options"><h2 className="wm-ui-title">Other technically plausible matrix options</h2><p className="wm-ui-copy">These variants satisfy the confirmed matrix direction but differ on scaling, video-wall processing, distance or receiver architecture that the competitor evidence may not resolve.</p><div className="compare-native-option-grid wm-ui-card">{matrixAlternatives.map((candidate) => <CandidateOptionCard key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} />)}</div></section> : null}
             <details className="compare-native-summary wm-ui-card wm-ui-copy"><summary>Technical evidence &amp; review</summary><div className="mt-4">
               <CompetitorSearchCard
                 brand={effectiveBrand}
@@ -5837,7 +5904,7 @@ function ComparePageNew() {
               />
               {activeCandidate ? <>
                 <BestCandidateCard candidate={activeCandidate} competitor={competitorSummary} competitorProfile={profile} onCopySummary={() => { void copySummary(); }} />
-                {alternativeCandidates.length ? <section className="compare-native-options wm-ui-card"><h3 className="wm-ui-title">Other WyreStorm options</h3><div className="compare-native-option-grid wm-ui-card">{alternativeCandidates.slice(0, 3).map((candidate) => <CandidateOptionCard key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} />)}</div></section> : null}
+                {alternativeCandidates.length && matrixAlternatives.length === 0 ? <section className="compare-native-options wm-ui-card"><h3 className="wm-ui-title">Other WyreStorm options</h3><div className="compare-native-option-grid wm-ui-card">{alternativeCandidates.slice(0, 3).map((candidate) => <CandidateOptionCard key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} />)}</div></section> : null}
                 <CompareShowdown brand={effectiveBrand} competitorSku={competitorInput} active={hasCompared} view="proof" selectedWyrestormSku={activeCandidate.product.sku} onSelectedWyrestormSkuChange={(sku) => { const index = viableCandidates.findIndex((candidate) => candidate.product.sku.toUpperCase() === sku.toUpperCase()); if (index >= 0) setCandidateIndex(index); }} />
               </> : null}
               {requestLiveLookup &&

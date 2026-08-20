@@ -60,4 +60,25 @@ describe("distribution-amplifier fan-out right-sizing", () => {
     // A 1:2 for a 1:4 need is undersized, so it is penalised far more.
     expect(essentialsTwo.fitPenalty).toBeGreaterThan(essentialsFour.fitPenalty);
   });
+
+  it("does not reclassify a curated splitter as UC hardware from application tags", () => {
+    const result = evaluateProductEligibility({
+      intent: "distribution-amplifier",
+      competitorText: "1x2 HDMI distribution amplifier",
+      match: { sku: "EXP-SP-0102-H2" },
+      product: {
+        sku: "EXP-SP-0102-H2",
+        name: "1x2 HDMI splitter",
+        family: "Distribution",
+        productClass: "HDMI splitter",
+        role: "Distribution amplifier",
+        // Real catalogue application/search data can legitimately mention
+        // downstream UC and camera use without changing the hardware's class.
+        tags: ["conference room", "integrated camera workflow", "UC room"],
+      },
+    });
+
+    expect(result.eligibility).toBe("direct");
+    expect(result.fitPenalty).toBe(0);
+  });
 });
