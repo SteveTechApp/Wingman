@@ -1,0 +1,1896 @@
+{
+  "version": 1,
+  "title": "Wingman AV Product Semantics Registry",
+  "purpose": "Canonical first-contact AV product understanding. Wingman must classify what a product is, what practical job it performs, its topology, logical I/O, physical connector types, output behaviour, transport, specialist capabilities and dependencies before attempting a WyreStorm match.",
+  "nonNegotiableRules": [
+    "Purpose and topology are classified before SKU similarity or brand matching.",
+    "Connector type is not product purpose: HDMI, USB-C, HDBaseT, Ethernet, fibre, XLR and Phoenix describe interfaces/transport, not the job of the product.",
+    "Logical I/O and physical connectors are separate facts.",
+    "Mirrored outputs are functional fan-out for distribution amplifiers, but do not increase routed matrix size.",
+    "A matrix output is independently routable; a mirrored output repeats the same selected source; a loop/local-monitor output is a convenience copy.",
+    "Multiview means multiple simultaneous source windows on one output canvas; multiple outputs alone do not imply multiview.",
+    "AV-over-IP role is directional: encoder/transmitter, decoder/receiver, or transceiver. Role is a hard comparison gate.",
+    "A bridge/converter is compared by what it converts from and to, not by a shared connector keyword.",
+    "Support/accessory products cannot lead a replacement unless the competitor item is itself a support/accessory product.",
+    "Unknown facts remain unknown. Missing evidence triggers research/review, never invention."
+  ],
+  "canonicalProfileSchema": {
+    "identity": {
+      "manufacturer": "string",
+      "sku": "string",
+      "name": "string",
+      "archetypeId": "string",
+      "productFamily": "string",
+      "practicalPurpose": "string",
+      "whatItIsNot": [
+        "string"
+      ],
+      "canonicalRole": "string",
+      "direction": "source-side | destination-side | bidirectional | processing | room-core | support | unknown"
+    },
+    "topology": {
+      "model": "string",
+      "logicalInputCount": "number|null",
+      "logicalOutputCount": "number|null",
+      "physicalInputConnectorCount": "number|null",
+      "physicalOutputConnectorCount": "number|null",
+      "routedOutputCount": "number|null",
+      "mirroredOutputCount": "number|null",
+      "loopOutputCount": "number|null",
+      "localMonitorOutputCount": "number|null",
+      "compositedOutputCount": "number|null",
+      "networkStreamInputCount": "number|null",
+      "networkStreamOutputCount": "number|null"
+    },
+    "ports": [
+      {
+        "connector": "HDMI | USB-C | USB-A | USB-B | HDBaseT | RJ45/Ethernet | fibre/SFP | SDI | DP | DVI | VGA | XLR | Phoenix | RCA | 3.5mm | TOSLINK | other",
+        "direction": "input | output | bidirectional | unspecified",
+        "signalFamily": "video | audio | usb-data | network-av | network-audio | control | power | mixed",
+        "count": "number",
+        "logicalFunction": "source-input | routed-output | mirrored-output | loop-output | monitor-output | host-port | device-port | network-stream | control | power | other",
+        "transportOrProtocol": "string|null",
+        "notes": "string|null"
+      }
+    ],
+    "transport": {
+      "vendorTechnology": "string|null",
+      "canonicalTransport": "string|null",
+      "medium": "string|null",
+      "networkClass": "string|null",
+      "codec": "string|null",
+      "compressionClass": "string|null",
+      "latencyClass": "string|null",
+      "distanceMeters": "number|null",
+      "interoperability": "string|null"
+    },
+    "capabilities": {
+      "video": {
+        "maxResolution": "string|null",
+        "maxFrameRate": "number|null",
+        "chroma": "string|null",
+        "hdr": "boolean|null",
+        "scaling": "boolean|null",
+        "seamlessSwitching": "boolean|null",
+        "multiview": "boolean|null",
+        "videoWall": "boolean|null",
+        "edid": "boolean|null",
+        "hdcp": "string|null"
+      },
+      "usb": {
+        "supported": "boolean|null",
+        "version": "string|null",
+        "hostDeviceBehaviour": "string|null",
+        "kvm": "boolean|null",
+        "hub": "boolean|null"
+      },
+      "audio": {
+        "embedded": "boolean|null",
+        "embed": "boolean|null",
+        "deEmbed": "boolean|null",
+        "analogue": "boolean|null",
+        "digital": "boolean|null",
+        "dante": "boolean|null",
+        "aes67": "boolean|null",
+        "aec": "boolean|null",
+        "amplifiedOutput": "boolean|null"
+      },
+      "control": {
+        "ip": "boolean|null",
+        "rs232": "boolean|null",
+        "ir": "boolean|null",
+        "cec": "boolean|null",
+        "gpio": "boolean|null",
+        "relay": "boolean|null",
+        "api": "boolean|null"
+      }
+    },
+    "specialistFeatures": [
+      "string"
+    ],
+    "dependencies": {
+      "requiredController": "string|null",
+      "requiredPeerEndpoint": "string|null",
+      "requiredAccessories": [
+        "string"
+      ],
+      "ecosystemDependencies": [
+        "string"
+      ]
+    },
+    "comparisonContract": {
+      "mandatory": [
+        "string"
+      ],
+      "preferred": [
+        "string"
+      ],
+      "informational": [
+        "string"
+      ],
+      "disqualifiers": [
+        "string"
+      ],
+      "unknowns": [
+        "string"
+      ]
+    },
+    "governance": {
+      "confidence": "verified | high | medium | low | requires-review",
+      "sourceReferences": [
+        "string"
+      ],
+      "reviewRequired": "boolean",
+      "qualityFlags": [
+        "string"
+      ]
+    }
+  },
+  "topologyModels": {
+    "point-to-point": {
+      "definition": "One source-side endpoint or device path connects to one destination-side endpoint.",
+      "examples": [
+        "HDBaseT extender",
+        "USB extender",
+        "KVM extender",
+        "fibre extender"
+      ],
+      "keyQuestion": "What travels across the link, in which direction, how far, and what peer endpoint is required?"
+    },
+    "one-to-many-mirrored": {
+      "definition": "One selected source is duplicated to multiple outputs that all carry the same content.",
+      "examples": [
+        "HDMI splitter",
+        "distribution amplifier"
+      ],
+      "keyQuestion": "How many mirrored outputs exist and what connector/format does each use?"
+    },
+    "many-to-one-selected": {
+      "definition": "Several source inputs exist, with one selected for a destination at a time.",
+      "examples": [
+        "basic switcher",
+        "simple presentation switcher"
+      ],
+      "keyQuestion": "How many source choices exist and what destination/output workflow is required?"
+    },
+    "many-to-many-routed": {
+      "definition": "Multiple inputs can be independently routed to multiple logical outputs.",
+      "examples": [
+        "matrix switcher",
+        "seamless matrix"
+      ],
+      "keyQuestion": "What is the true routed matrix size, excluding mirrored/local/loop connectors?"
+    },
+    "many-to-one-composited": {
+      "definition": "Multiple sources are simultaneously arranged as windows on one output canvas.",
+      "examples": [
+        "multiview processor",
+        "quad-viewer"
+      ],
+      "keyQuestion": "How many simultaneous windows and how many independent canvases are supported?"
+    },
+    "canvas-to-many": {
+      "definition": "One or more sources are processed across a coordinated multi-display canvas.",
+      "examples": [
+        "video wall processor",
+        "LED processor"
+      ],
+      "keyQuestion": "What wall/canvas geometry, window count and scaling behaviour are required?"
+    },
+    "network-routed": {
+      "definition": "Media is encoded/published and subscribed/decoded across an Ethernet/fibre network.",
+      "examples": [
+        "AV-over-IP encoder",
+        "decoder",
+        "transceiver",
+        "NDI endpoint"
+      ],
+      "keyQuestion": "What network class, codec, direction, latency and ecosystem requirements apply?"
+    },
+    "bridge": {
+      "definition": "The product translates, combines or exposes one signal/workflow ecosystem to another.",
+      "examples": [
+        "camera bridge",
+        "format converter",
+        "audio bridge",
+        "USB bridge"
+      ],
+      "keyQuestion": "What enters, what leaves, and what translation/processing happens between them?"
+    },
+    "room-core": {
+      "definition": "A product combines several room functions such as switching, USB, wireless, audio, scaling and control.",
+      "examples": [
+        "presentation switcher",
+        "UC room core",
+        "wireless presentation hub"
+      ],
+      "keyQuestion": "What room workflow does the combined feature set enable?"
+    },
+    "endpoint-source": {
+      "definition": "A device creates or injects media into the system.",
+      "examples": [
+        "camera",
+        "microphone",
+        "AVoIP encoder"
+      ],
+      "keyQuestion": "What media does it create and through which output interfaces?"
+    },
+    "endpoint-destination": {
+      "definition": "A device consumes/receives media from the system.",
+      "examples": [
+        "display",
+        "projector",
+        "speaker",
+        "AVoIP decoder"
+      ],
+      "keyQuestion": "What media does it receive and through which input interfaces?"
+    },
+    "bidirectional-endpoint": {
+      "definition": "The product can be configured for source-side or destination-side operation.",
+      "examples": [
+        "AVoIP transceiver"
+      ],
+      "keyQuestion": "What mode is required in this application?"
+    },
+    "support-only": {
+      "definition": "The product supports a system but is not itself the principal AV function.",
+      "examples": [
+        "system controller",
+        "rack accessory",
+        "power supply",
+        "network switch",
+        "cable"
+      ],
+      "keyQuestion": "Is the competitor item also a support item, or is this only a dependency?"
+    }
+  },
+  "connectionSemantics": {
+    "HDMI": {
+      "class": "local-digital-av",
+      "canCarry": [
+        "video",
+        "embedded audio",
+        "CEC",
+        "EDID/HDCP"
+      ],
+      "rules": [
+        "Direction is product-specific.",
+        "An HDMI output may be routed, mirrored, loop-through or local-monitor; output behaviour must be stored separately."
+      ]
+    },
+    "USB-C": {
+      "class": "multi-function-connector",
+      "canCarry": [
+        "USB data",
+        "DisplayPort Alt Mode video",
+        "power delivery",
+        "control"
+      ],
+      "rules": [
+        "Do not infer video merely from the presence of USB-C.",
+        "Record host/device behaviour, Alt Mode direction and PD separately."
+      ]
+    },
+    "USB-A": {
+      "class": "usb-connector",
+      "canCarry": [
+        "USB data",
+        "power"
+      ],
+      "rules": [
+        "Usually host-facing in AV products, but verify host/device role."
+      ]
+    },
+    "USB-B": {
+      "class": "usb-connector",
+      "canCarry": [
+        "USB data"
+      ],
+      "rules": [
+        "Usually upstream/device-facing in AV products, but verify host/device role."
+      ]
+    },
+    "HDBaseT": {
+      "class": "twisted-pair-av-transport",
+      "canCarry": [
+        "video",
+        "audio",
+        "control",
+        "Ethernet",
+        "USB when supported",
+        "power when supported"
+      ],
+      "rules": [
+        "TX/source-side and RX/destination-side roles are distinct.",
+        "Generation, distance, USB, power and interoperability are independent facts.",
+        "An HDBaseT connector on a matrix may be a routed output; on an extender TX it is transport output."
+      ]
+    },
+    "RJ45/Ethernet": {
+      "class": "network-interface",
+      "canCarry": [
+        "AV-over-IP",
+        "NDI",
+        "Dante/AES67",
+        "control",
+        "management",
+        "PoE"
+      ],
+      "rules": [
+        "RJ45 alone does not establish AV-over-IP.",
+        "Record protocol/network class separately."
+      ]
+    },
+    "Fibre/SFP": {
+      "class": "physical-medium",
+      "canCarry": [
+        "Ethernet",
+        "SDVoE",
+        "SDI",
+        "vendor proprietary AV"
+      ],
+      "rules": [
+        "SFP/fibre does not establish protocol or direction by itself."
+      ]
+    },
+    "SDI": {
+      "class": "serial-digital-video",
+      "canCarry": [
+        "video",
+        "embedded audio"
+      ],
+      "rules": [
+        "Record 3G/6G/12G generation separately."
+      ]
+    },
+    "DisplayPort": {
+      "class": "local-digital-av",
+      "canCarry": [
+        "video",
+        "embedded audio",
+        "MST"
+      ],
+      "rules": [
+        "MST logical display count is not the same as physical connector count."
+      ]
+    },
+    "XLR": {
+      "class": "audio-connector",
+      "canCarry": [
+        "balanced analogue audio",
+        "AES3 when specified"
+      ],
+      "rules": [
+        "Record input/output and mic/line/digital function explicitly."
+      ]
+    },
+    "Phoenix/Euroblock": {
+      "class": "terminal-block",
+      "canCarry": [
+        "balanced audio",
+        "GPIO",
+        "relay",
+        "RS-232",
+        "power"
+      ],
+      "rules": [
+        "Connector form alone says nothing about signal family; labelled function is mandatory."
+      ]
+    },
+    "3.5mm/RCA": {
+      "class": "analogue-or-digital-audio-connector",
+      "canCarry": [
+        "analogue audio",
+        "S/PDIF on some RCA connectors"
+      ],
+      "rules": [
+        "Record signal type and direction explicitly."
+      ]
+    },
+    "TOSLINK": {
+      "class": "digital-audio-interface",
+      "canCarry": [
+        "S/PDIF digital audio"
+      ],
+      "rules": [
+        "Record direction explicitly."
+      ]
+    },
+    "Dante/AES67": {
+      "class": "network-audio",
+      "canCarry": [
+        "packetised audio",
+        "clocking",
+        "control"
+      ],
+      "rules": [
+        "Store transmit and receive channel counts separately where known."
+      ]
+    },
+    "RS-232": {
+      "class": "control-interface",
+      "canCarry": [
+        "serial control"
+      ],
+      "rules": [
+        "Record pass-through versus local device-control behaviour where relevant."
+      ]
+    },
+    "IR": {
+      "class": "control-interface",
+      "canCarry": [
+        "infrared control"
+      ],
+      "rules": [
+        "Identify emitter/TX and receiver/RX function."
+      ]
+    },
+    "GPIO/Relay": {
+      "class": "control-interface",
+      "canCarry": [
+        "logic input",
+        "contact closure output"
+      ],
+      "rules": [
+        "Record electrical direction/rating separately."
+      ]
+    }
+  },
+  "productArchetypes": [
+    {
+      "id": "distribution-amplifier",
+      "name": "Distribution amplifier / splitter",
+      "category": "Video distribution",
+      "purpose": "Duplicate one source to multiple destinations without independent routing.",
+      "topologyModel": "one-to-many-mirrored",
+      "canonicalRoles": [
+        "distribution amplifier",
+        "splitter"
+      ],
+      "practicalUse": "Same source on several displays.",
+      "inputSemantics": "Normally one primary video input; identify connector and supported signal format.",
+      "outputSemantics": "Two or more physical outputs carrying the same source; mirrored outputs are functional fan-out.",
+      "specialistCharacteristics": [
+        "EDID",
+        "HDCP",
+        "downscaling",
+        "audio breakout",
+        "cascading"
+      ],
+      "comparisonKeys": [
+        "purpose",
+        "input count/type",
+        "mirrored output count/type",
+        "video capability",
+        "EDID/HDCP",
+        "scaling"
+      ],
+      "aliases": [
+        "splitter",
+        "DA"
+      ],
+      "cautions": [
+        "Do not treat mirrored outputs as matrix routes."
+      ],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "basic-switcher",
+      "name": "Basic switcher",
+      "category": "Video switching",
+      "purpose": "Select one of several inputs for one destination path.",
+      "topologyModel": "many-to-one-selected",
+      "canonicalRoles": [
+        "switcher"
+      ],
+      "practicalUse": "Simple source selection for one display/output path.",
+      "inputSemantics": "Several selectable source inputs.",
+      "outputSemantics": "Usually one selected output; extra identical outputs may be mirrored.",
+      "specialistCharacteristics": [
+        "auto switching",
+        "EDID",
+        "CEC"
+      ],
+      "comparisonKeys": [
+        "input quantity/types",
+        "output behaviour",
+        "resolution",
+        "control"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "matrix-switcher",
+      "name": "Matrix switcher",
+      "category": "Video switching",
+      "purpose": "Independently route multiple inputs to multiple logical outputs.",
+      "topologyModel": "many-to-many-routed",
+      "canonicalRoles": [
+        "matrix",
+        "matrix switcher"
+      ],
+      "practicalUse": "Different sources to different displays/zones simultaneously.",
+      "inputSemantics": "Multiple source inputs; record connector family and quantity.",
+      "outputSemantics": "Multiple independently routable logical outputs; mirrored/local/loop outputs are separate.",
+      "specialistCharacteristics": [
+        "audio breakaway",
+        "EDID",
+        "HDCP",
+        "redundancy"
+      ],
+      "comparisonKeys": [
+        "routed input count",
+        "routed output count",
+        "connector mix",
+        "video",
+        "audio/control"
+      ],
+      "aliases": [],
+      "cautions": [
+        "Physical output connector count is not automatically matrix size."
+      ],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "seamless-matrix",
+      "name": "Seamless matrix",
+      "category": "Video switching",
+      "purpose": "Matrix routing with frame-sync/scaling for presentation-safe transitions.",
+      "topologyModel": "many-to-many-routed",
+      "canonicalRoles": [
+        "seamless matrix",
+        "matrix switcher"
+      ],
+      "practicalUse": "Multi-output presentation/control rooms needing clean switching.",
+      "inputSemantics": "Multiple source inputs, often mixed connector types.",
+      "outputSemantics": "Multiple independently routed/scaled outputs.",
+      "specialistCharacteristics": [
+        "seamless switching",
+        "scaling",
+        "multiview optional",
+        "video wall optional"
+      ],
+      "comparisonKeys": [
+        "matrix size",
+        "connector mix",
+        "seamless/scaling",
+        "latency",
+        "processing features"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "presentation-switcher",
+      "name": "Presentation switcher / room core",
+      "category": "Presentation",
+      "purpose": "Combine room source switching with USB-C, wireless, scaling, USB/audio/control workflows.",
+      "topologyModel": "room-core",
+      "canonicalRoles": [
+        "presentation switcher",
+        "room core"
+      ],
+      "practicalUse": "Meeting rooms/classrooms where user workflow matters as much as I/O.",
+      "inputSemantics": "Several local source inputs; USB-C may combine video, USB data and charging.",
+      "outputSemantics": "One or a few display outputs; determine whether outputs are mirrored or independent.",
+      "specialistCharacteristics": [
+        "USB-C PD",
+        "BYOD/BYOM",
+        "wireless presentation",
+        "scaling",
+        "USB switching",
+        "DSP"
+      ],
+      "comparisonKeys": [
+        "source types/count",
+        "display output behaviour",
+        "USB path",
+        "charging",
+        "wireless",
+        "audio/control"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "multiview-processor",
+      "name": "Multiview processor",
+      "category": "Video processing",
+      "purpose": "Show multiple simultaneous source windows on one output canvas.",
+      "topologyModel": "many-to-one-composited",
+      "canonicalRoles": [
+        "multiview processor"
+      ],
+      "practicalUse": "Monitoring, confidence displays, command/control and multi-source presentation.",
+      "inputSemantics": "Several simultaneous source inputs.",
+      "outputSemantics": "One or more canvases; source windows are not separate physical outputs.",
+      "specialistCharacteristics": [
+        "window count",
+        "freeform layouts",
+        "labels",
+        "scaling",
+        "latency"
+      ],
+      "comparisonKeys": [
+        "window/input count",
+        "canvas count",
+        "layout freedom",
+        "resolution",
+        "latency"
+      ],
+      "aliases": [
+        "quad viewer"
+      ],
+      "cautions": [
+        "Multiple outputs alone never prove multiview."
+      ],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "video-wall-processor",
+      "name": "Video wall processor",
+      "category": "Video processing",
+      "purpose": "Map/process source content across multiple displays as a coordinated canvas.",
+      "topologyModel": "canvas-to-many",
+      "canonicalRoles": [
+        "video wall processor"
+      ],
+      "practicalUse": "LCD/LED walls requiring bezel, layout, window or canvas control.",
+      "inputSemantics": "One or more sources.",
+      "outputSemantics": "Multiple display/wall outputs or network-fed wall endpoints.",
+      "specialistCharacteristics": [
+        "wall geometry",
+        "bezel compensation",
+        "windowing",
+        "rotation",
+        "scaling"
+      ],
+      "comparisonKeys": [
+        "wall dimensions",
+        "source count",
+        "display count",
+        "windowing",
+        "resolution",
+        "latency"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "scaler-converter",
+      "name": "Scaler / format converter",
+      "category": "Video processing",
+      "purpose": "Convert connector/format/timing and optionally scale video.",
+      "topologyModel": "bridge",
+      "canonicalRoles": [
+        "scaler",
+        "converter"
+      ],
+      "practicalUse": "Resolve incompatible source/destination formats or timings.",
+      "inputSemantics": "One or more source-format inputs.",
+      "outputSemantics": "Converted/scaled outputs; usually not independently routed unless explicitly stated.",
+      "specialistCharacteristics": [
+        "scaling",
+        "colour-space conversion",
+        "frame-rate conversion",
+        "aspect ratio"
+      ],
+      "comparisonKeys": [
+        "input format",
+        "output format",
+        "resolution",
+        "scaling/conversion",
+        "latency"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "hdbaset-extender-kit",
+      "name": "HDBaseT extender kit",
+      "category": "Extension",
+      "purpose": "Extend AV/control/USB over twisted pair between source and destination.",
+      "topologyModel": "point-to-point",
+      "canonicalRoles": [
+        "TX/RX extender kit",
+        "extender"
+      ],
+      "practicalUse": "Longer-than-HDMI source-to-display paths.",
+      "inputSemantics": "TX accepts local sources; RX-side return USB/control may exist.",
+      "outputSemantics": "TX outputs HDBaseT; RX exposes local HDMI/USB/audio/control.",
+      "specialistCharacteristics": [
+        "HDBaseT generation",
+        "distance",
+        "PoH/PoC",
+        "USB",
+        "Ethernet",
+        "RS232/IR"
+      ],
+      "comparisonKeys": [
+        "direction",
+        "distance",
+        "HDBaseT generation",
+        "video",
+        "USB",
+        "power",
+        "control"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [
+        "matched TX/RX unless integrated"
+      ],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "hdbaset-transmitter",
+      "name": "HDBaseT transmitter",
+      "category": "Extension",
+      "purpose": "Send local source signals onto an HDBaseT link.",
+      "topologyModel": "point-to-point",
+      "canonicalRoles": [
+        "transmitter",
+        "TX"
+      ],
+      "practicalUse": "Source-side wall plate or box transmitter.",
+      "inputSemantics": "Local HDMI/USB-C/etc source inputs.",
+      "outputSemantics": "HDBaseT transport output; local HDMI loop if present is not a second routed zone.",
+      "specialistCharacteristics": [
+        "wall plate",
+        "PoH",
+        "USB",
+        "audio/control"
+      ],
+      "comparisonKeys": [
+        "source connector",
+        "HDBaseT generation",
+        "distance",
+        "loop behaviour",
+        "power/control"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "hdbaset-receiver",
+      "name": "HDBaseT receiver",
+      "category": "Extension",
+      "purpose": "Receive HDBaseT and expose local destination interfaces.",
+      "topologyModel": "point-to-point",
+      "canonicalRoles": [
+        "receiver",
+        "RX"
+      ],
+      "practicalUse": "Display/device-side termination of HDBaseT.",
+      "inputSemantics": "HDBaseT twisted-pair input.",
+      "outputSemantics": "Local HDMI/USB/audio/control outputs.",
+      "specialistCharacteristics": [
+        "PoH",
+        "USB",
+        "audio extraction",
+        "RS232/IR"
+      ],
+      "comparisonKeys": [
+        "HDBaseT generation",
+        "distance",
+        "destination outputs",
+        "USB/audio/control"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "usb-extender",
+      "name": "USB extender",
+      "category": "USB extension",
+      "purpose": "Extend USB host/device connectivity over copper, fibre or network.",
+      "topologyModel": "point-to-point",
+      "canonicalRoles": [
+        "USB extender"
+      ],
+      "practicalUse": "Remote cameras, touchscreens, speakerphones, storage or KVM peripherals.",
+      "inputSemantics": "Upstream/host-side USB path.",
+      "outputSemantics": "Downstream/device USB ports.",
+      "specialistCharacteristics": [
+        "USB 2.0/3.x",
+        "isochronous support",
+        "hub count",
+        "power"
+      ],
+      "comparisonKeys": [
+        "USB version",
+        "host/device topology",
+        "device count",
+        "distance",
+        "medium"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "kvm-extender",
+      "name": "KVM extender",
+      "category": "USB/video extension",
+      "purpose": "Extend computer video plus keyboard/mouse/USB control.",
+      "topologyModel": "point-to-point",
+      "canonicalRoles": [
+        "KVM extender"
+      ],
+      "practicalUse": "Remote PCs, control rooms, machine rooms.",
+      "inputSemantics": "Video + USB host-side inputs.",
+      "outputSemantics": "Remote video + USB device outputs.",
+      "specialistCharacteristics": [
+        "USB HID",
+        "transparent USB",
+        "multi-head video",
+        "audio"
+      ],
+      "comparisonKeys": [
+        "video",
+        "USB/KVM",
+        "distance",
+        "display count",
+        "latency"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "avoip-encoder",
+      "name": "AV-over-IP encoder",
+      "category": "Network video",
+      "purpose": "Convert local media into a network stream.",
+      "topologyModel": "network-routed",
+      "canonicalRoles": [
+        "encoder",
+        "transmitter"
+      ],
+      "practicalUse": "Source-side endpoint in distributed AVoIP.",
+      "inputSemantics": "Local HDMI/SDI/USB-C/etc plus optional USB/audio/control.",
+      "outputSemantics": "Ethernet/fibre network stream; local monitor/loop is separate and usually mirrored.",
+      "specialistCharacteristics": [
+        "network class",
+        "codec",
+        "compression",
+        "latency",
+        "USB/KVM",
+        "Dante/AES67",
+        "scaling"
+      ],
+      "comparisonKeys": [
+        "role",
+        "network class",
+        "codec/compression",
+        "video",
+        "USB/audio/control",
+        "controller"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [
+        "network",
+        "decoder endpoint",
+        "controller when required"
+      ],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "avoip-decoder",
+      "name": "AV-over-IP decoder",
+      "category": "Network video",
+      "purpose": "Receive a network media stream and expose it locally.",
+      "topologyModel": "network-routed",
+      "canonicalRoles": [
+        "decoder",
+        "receiver"
+      ],
+      "practicalUse": "Display-side endpoint in distributed AVoIP.",
+      "inputSemantics": "Ethernet/fibre stream input.",
+      "outputSemantics": "Local HDMI/DP/USB/audio/control outputs.",
+      "specialistCharacteristics": [
+        "network class",
+        "codec",
+        "latency",
+        "scaling",
+        "video wall",
+        "USB/KVM"
+      ],
+      "comparisonKeys": [
+        "role",
+        "network class",
+        "codec/compression",
+        "output capability",
+        "USB/audio/control",
+        "wall/scaling"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [
+        "network",
+        "encoder endpoint",
+        "controller when required"
+      ],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "avoip-transceiver",
+      "name": "AV-over-IP transceiver",
+      "category": "Network video",
+      "purpose": "Operate as encoder or decoder according to configuration.",
+      "topologyModel": "bidirectional-endpoint",
+      "canonicalRoles": [
+        "transceiver"
+      ],
+      "practicalUse": "Common endpoint hardware used source-side or display-side.",
+      "inputSemantics": "Depends on configured role.",
+      "outputSemantics": "Depends on configured role.",
+      "specialistCharacteristics": [
+        "network class",
+        "codec",
+        "latency",
+        "USB",
+        "Dante",
+        "redundancy"
+      ],
+      "comparisonKeys": [
+        "network class",
+        "configured role",
+        "codec",
+        "video",
+        "USB/audio/control",
+        "controller"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "avoip-controller",
+      "name": "AV-over-IP controller",
+      "category": "Network control",
+      "purpose": "Discover/configure/control/rout AVoIP endpoints.",
+      "topologyModel": "support-only",
+      "canonicalRoles": [
+        "system controller",
+        "AVoIP controller"
+      ],
+      "practicalUse": "Management dependency for an AVoIP system.",
+      "inputSemantics": "Network/control data.",
+      "outputSemantics": "Control/configuration, not programme video.",
+      "specialistCharacteristics": [
+        "API",
+        "routing",
+        "endpoint capacity",
+        "redundancy"
+      ],
+      "comparisonKeys": [
+        "ecosystem",
+        "endpoint capacity",
+        "API/control"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": false
+    },
+    {
+      "id": "network-switch",
+      "name": "Managed AV network switch",
+      "category": "Network infrastructure",
+      "purpose": "Provide Ethernet switching for AVoIP, Dante, NDI and control.",
+      "topologyModel": "support-only",
+      "canonicalRoles": [
+        "network switch"
+      ],
+      "practicalUse": "Network infrastructure rather than endpoint replacement.",
+      "inputSemantics": "Ethernet/fibre ports.",
+      "outputSemantics": "Ethernet/fibre ports.",
+      "specialistCharacteristics": [
+        "1/10/25GbE",
+        "PoE budget",
+        "IGMP",
+        "PTP",
+        "VLAN",
+        "AV profiles"
+      ],
+      "comparisonKeys": [
+        "port speed/count",
+        "PoE",
+        "multicast/PTP",
+        "uplinks",
+        "management"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": false
+    },
+    {
+      "id": "wireless-presentation-hub",
+      "name": "Wireless presentation hub",
+      "category": "Wireless presentation",
+      "purpose": "Receive wireless sharing sessions and present them to a room display, often with wired/USB features.",
+      "topologyModel": "room-core",
+      "canonicalRoles": [
+        "wireless presentation hub"
+      ],
+      "practicalUse": "Guest presentation/collaboration rooms.",
+      "inputSemantics": "Wireless sessions plus optional HDMI/USB-C.",
+      "outputSemantics": "Display output; USB conference bridge may be bidirectional logically.",
+      "specialistCharacteristics": [
+        "AirPlay",
+        "Miracast",
+        "Chromecast",
+        "vendor app",
+        "BYOM",
+        "moderation"
+      ],
+      "comparisonKeys": [
+        "wireless protocols",
+        "presenter count",
+        "wired I/O",
+        "USB/BYOM",
+        "security/network"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "casting-accessory",
+      "name": "Casting dongle / button",
+      "category": "Wireless presentation",
+      "purpose": "User-side accessory that initiates a wireless presentation session to a compatible room core.",
+      "topologyModel": "support-only",
+      "canonicalRoles": [
+        "casting dongle",
+        "wireless presentation accessory"
+      ],
+      "practicalUse": "Laptop-side accessory, not the complete room receiver.",
+      "inputSemantics": "Usually USB/USB-C from laptop.",
+      "outputSemantics": "Wireless session to compatible receiver.",
+      "specialistCharacteristics": [
+        "driverless",
+        "touchback",
+        "pairing"
+      ],
+      "comparisonKeys": [
+        "accessory role",
+        "compatible core",
+        "host connector",
+        "workflow"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [
+        "compatible room core"
+      ],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "uc-video-bar",
+      "name": "UC video bar",
+      "category": "Unified communications",
+      "purpose": "Combine camera, microphones, speaker and host meeting workflow.",
+      "topologyModel": "room-core",
+      "canonicalRoles": [
+        "UC room endpoint",
+        "conference bar"
+      ],
+      "practicalUse": "All-in-one small/medium meeting room conferencing.",
+      "inputSemantics": "USB/network host plus optional content inputs.",
+      "outputSemantics": "Camera/audio to host and speaker output; optional display/content output.",
+      "specialistCharacteristics": [
+        "camera tracking",
+        "mic pickup",
+        "speaker SPL",
+        "BYOD/BYOM",
+        "platform certification"
+      ],
+      "comparisonKeys": [
+        "room size",
+        "camera",
+        "microphone/audio",
+        "host workflow",
+        "display/content I/O",
+        "certification"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "camera-bridge",
+      "name": "Camera / USB bridge",
+      "category": "Unified communications",
+      "purpose": "Bridge professional camera/media inputs into USB conferencing or another media ecosystem.",
+      "topologyModel": "bridge",
+      "canonicalRoles": [
+        "camera bridge",
+        "USB bridge"
+      ],
+      "practicalUse": "Make HDMI/SDI/NDI cameras appear as USB conference devices or combine multiple cameras.",
+      "inputSemantics": "Camera HDMI/SDI/NDI/IP plus control.",
+      "outputSemantics": "USB UVC/UAC and/or HDMI/network.",
+      "specialistCharacteristics": [
+        "multi-camera",
+        "UVC/UAC",
+        "NDI",
+        "USB host behaviour",
+        "audio embedding"
+      ],
+      "comparisonKeys": [
+        "camera inputs",
+        "USB version",
+        "host behaviour",
+        "switching",
+        "audio/control"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "ptz-camera",
+      "name": "PTZ camera",
+      "category": "Camera",
+      "purpose": "Capture controllable room video.",
+      "topologyModel": "endpoint-source",
+      "canonicalRoles": [
+        "PTZ camera",
+        "camera"
+      ],
+      "practicalUse": "Conferencing, lecture capture, streaming, production.",
+      "inputSemantics": "Control/network/power/audio inputs are auxiliary, not programme-video source inputs.",
+      "outputSemantics": "USB/HDMI/SDI/NDI/IP video outputs depending on model.",
+      "specialistCharacteristics": [
+        "sensor",
+        "optical zoom",
+        "tracking",
+        "PTZ range",
+        "PoE",
+        "VISCA"
+      ],
+      "comparisonKeys": [
+        "camera type",
+        "resolution",
+        "zoom",
+        "outputs",
+        "USB/network protocol",
+        "tracking/control"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "ndi-camera",
+      "name": "NDI camera",
+      "category": "Camera",
+      "purpose": "Capture video and publish NDI network media.",
+      "topologyModel": "endpoint-source",
+      "canonicalRoles": [
+        "NDI camera"
+      ],
+      "practicalUse": "Network-native camera source.",
+      "inputSemantics": "Control/network/power/audio inputs.",
+      "outputSemantics": "NDI plus any local HDMI/SDI/USB outputs.",
+      "specialistCharacteristics": [
+        "NDI flavour",
+        "PoE",
+        "PTZ",
+        "latency",
+        "tracking"
+      ],
+      "comparisonKeys": [
+        "camera",
+        "NDI",
+        "resolution",
+        "zoom",
+        "latency",
+        "local outputs",
+        "control"
+      ],
+      "aliases": [],
+      "cautions": [
+        "NDI support on a bridge/decoder does not make it a camera."
+      ],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "fixed-camera",
+      "name": "Fixed conference/capture camera",
+      "category": "Camera",
+      "purpose": "Capture room video without motorised PTZ.",
+      "topologyModel": "endpoint-source",
+      "canonicalRoles": [
+        "camera"
+      ],
+      "practicalUse": "Huddle rooms, fixed framing, document/capture positions.",
+      "inputSemantics": "Power/control/audio as applicable.",
+      "outputSemantics": "USB/HDMI/IP video outputs.",
+      "specialistCharacteristics": [
+        "field of view",
+        "digital zoom",
+        "auto framing",
+        "tracking"
+      ],
+      "comparisonKeys": [
+        "resolution",
+        "FOV",
+        "outputs",
+        "USB/IP",
+        "tracking"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "capture-recorder",
+      "name": "Capture / recorder / streamer",
+      "category": "Capture",
+      "purpose": "Acquire media for recording, streaming or computer ingest.",
+      "topologyModel": "endpoint-destination",
+      "canonicalRoles": [
+        "capture device",
+        "recorder",
+        "streamer"
+      ],
+      "practicalUse": "Lecture capture, streaming, recording, HDMI/SDI-to-USB ingest.",
+      "inputSemantics": "HDMI/SDI/network/audio sources.",
+      "outputSemantics": "USB capture, encoded IP stream, storage and/or confidence output.",
+      "specialistCharacteristics": [
+        "codec",
+        "recording format",
+        "streaming protocol",
+        "storage",
+        "UVC"
+      ],
+      "comparisonKeys": [
+        "input formats",
+        "capture resolution",
+        "codec/protocol",
+        "storage",
+        "USB/network outputs"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "audio-dsp",
+      "name": "Audio DSP",
+      "category": "Audio",
+      "purpose": "Mix, route and process audio channels.",
+      "topologyModel": "many-to-many-routed",
+      "canonicalRoles": [
+        "audio DSP",
+        "audio processor"
+      ],
+      "practicalUse": "Microphones, conferencing, reinforcement and room audio processing.",
+      "inputSemantics": "Mic/line/digital/network audio inputs.",
+      "outputSemantics": "Line/digital/network audio outputs.",
+      "specialistCharacteristics": [
+        "AEC",
+        "automixing",
+        "EQ",
+        "dynamics",
+        "Dante/AES67",
+        "USB audio",
+        "GPIO"
+      ],
+      "comparisonKeys": [
+        "channel count",
+        "mic/line",
+        "AEC",
+        "network audio",
+        "USB",
+        "processing",
+        "control"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "audio-mixer",
+      "name": "Audio mixer",
+      "category": "Audio",
+      "purpose": "Combine and route multiple audio sources.",
+      "topologyModel": "many-to-many-routed",
+      "canonicalRoles": [
+        "mixer"
+      ],
+      "practicalUse": "Live/event/room audio source management.",
+      "inputSemantics": "Multiple mic/line/digital/network inputs.",
+      "outputSemantics": "Main/aux/bus/network outputs.",
+      "specialistCharacteristics": [
+        "bus count",
+        "DSP",
+        "USB",
+        "Dante",
+        "recording"
+      ],
+      "comparisonKeys": [
+        "input count/type",
+        "bus/output count",
+        "DSP",
+        "network/USB"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "power-amplifier",
+      "name": "Power amplifier",
+      "category": "Audio",
+      "purpose": "Raise line/network audio to speaker-level power.",
+      "topologyModel": "many-to-many-routed",
+      "canonicalRoles": [
+        "amplifier",
+        "power amplifier"
+      ],
+      "practicalUse": "Drive passive loudspeakers.",
+      "inputSemantics": "Line/network/digital audio inputs.",
+      "outputSemantics": "Amplified speaker outputs.",
+      "specialistCharacteristics": [
+        "watts/channel",
+        "impedance",
+        "70/100V",
+        "DSP",
+        "bridging",
+        "protection"
+      ],
+      "comparisonKeys": [
+        "channel count",
+        "power/load",
+        "input type",
+        "DSP/network audio",
+        "control"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "network-audio-interface",
+      "name": "Network audio interface",
+      "category": "Audio",
+      "purpose": "Bridge local audio channels to/from network audio.",
+      "topologyModel": "bridge",
+      "canonicalRoles": [
+        "audio interface",
+        "network audio bridge"
+      ],
+      "practicalUse": "Join analogue/digital sources and destinations to Dante/AES67.",
+      "inputSemantics": "Analogue/digital and/or network channels.",
+      "outputSemantics": "Network and/or analogue/digital channels.",
+      "specialistCharacteristics": [
+        "Dante/AES67",
+        "sample rate",
+        "PoE",
+        "clocking"
+      ],
+      "comparisonKeys": [
+        "TX/RX channels",
+        "local connectors",
+        "sample rate",
+        "network protocol",
+        "power"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "audio-embedder",
+      "name": "Audio embedder / de-embedder",
+      "category": "Audio",
+      "purpose": "Insert or extract audio from a video transport.",
+      "topologyModel": "bridge",
+      "canonicalRoles": [
+        "audio embedder",
+        "audio de-embedder"
+      ],
+      "practicalUse": "Break audio into/out of HDMI/SDI/AV paths.",
+      "inputSemantics": "Video plus optional external audio.",
+      "outputSemantics": "Video pass-through plus extracted/embedded audio.",
+      "specialistCharacteristics": [
+        "ARC/eARC",
+        "SPDIF",
+        "balanced analogue"
+      ],
+      "comparisonKeys": [
+        "video format",
+        "audio formats",
+        "direction",
+        "connector types",
+        "ARC/eARC"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "microphone",
+      "name": "Microphone",
+      "category": "Audio",
+      "purpose": "Capture acoustic audio.",
+      "topologyModel": "endpoint-source",
+      "canonicalRoles": [
+        "microphone"
+      ],
+      "practicalUse": "Speech/music capture.",
+      "inputSemantics": "Acoustic field plus power/control/network depending on design.",
+      "outputSemantics": "Mic/line, USB or network-audio output.",
+      "specialistCharacteristics": [
+        "pickup pattern",
+        "beamforming",
+        "PoE",
+        "Dante",
+        "phantom power"
+      ],
+      "comparisonKeys": [
+        "application",
+        "output type",
+        "coverage",
+        "network/USB",
+        "mounting/power"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "speaker",
+      "name": "Loudspeaker",
+      "category": "Audio",
+      "purpose": "Convert electrical/network audio to acoustic output.",
+      "topologyModel": "endpoint-destination",
+      "canonicalRoles": [
+        "speaker",
+        "loudspeaker"
+      ],
+      "practicalUse": "Room audio reproduction.",
+      "inputSemantics": "Speaker-level, line-level or network-audio input.",
+      "outputSemantics": "Acoustic output.",
+      "specialistCharacteristics": [
+        "SPL",
+        "coverage",
+        "impedance",
+        "active/passive",
+        "PoE",
+        "Dante"
+      ],
+      "comparisonKeys": [
+        "active/passive",
+        "input",
+        "power/load",
+        "coverage/SPL",
+        "mounting"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "control-processor",
+      "name": "Control processor",
+      "category": "Control",
+      "purpose": "Run automation logic and control AV/environmental devices.",
+      "topologyModel": "support-only",
+      "canonicalRoles": [
+        "control processor",
+        "controller"
+      ],
+      "practicalUse": "System automation/control brain.",
+      "inputSemantics": "IP/serial/GPIO/contact/trigger inputs.",
+      "outputSemantics": "IP/serial/IR/relay/GPIO outputs.",
+      "specialistCharacteristics": [
+        "drivers",
+        "logic",
+        "scheduling",
+        "API",
+        "security"
+      ],
+      "comparisonKeys": [
+        "protocols",
+        "I/O",
+        "driver ecosystem",
+        "programming",
+        "scale"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "touch-panel",
+      "name": "Touch panel",
+      "category": "Control",
+      "purpose": "Provide a user interface to a control/room system.",
+      "topologyModel": "support-only",
+      "canonicalRoles": [
+        "touch panel",
+        "control interface"
+      ],
+      "practicalUse": "Room/user UI.",
+      "inputSemantics": "User touch + network/control data.",
+      "outputSemantics": "Control commands/UI feedback.",
+      "specialistCharacteristics": [
+        "screen size",
+        "PoE",
+        "mounting",
+        "UI platform"
+      ],
+      "comparisonKeys": [
+        "compatibility",
+        "screen",
+        "mounting",
+        "power/network"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "gpio-relay",
+      "name": "GPIO / relay interface",
+      "category": "Control",
+      "purpose": "Expose contact closure, GPIO or relay automation I/O.",
+      "topologyModel": "support-only",
+      "canonicalRoles": [
+        "GPIO interface",
+        "relay interface"
+      ],
+      "practicalUse": "Screens, lifts, sensors, triggers and simple automation.",
+      "inputSemantics": "GPIO/contact/serial/network control.",
+      "outputSemantics": "Relay/GPIO/contact outputs.",
+      "specialistCharacteristics": [
+        "NO/NC",
+        "electrical rating",
+        "isolation"
+      ],
+      "comparisonKeys": [
+        "I/O quantity/type",
+        "electrical rating",
+        "control method"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "display",
+      "name": "Display / monitor",
+      "category": "Display",
+      "purpose": "Present video to viewers.",
+      "topologyModel": "endpoint-destination",
+      "canonicalRoles": [
+        "display",
+        "monitor"
+      ],
+      "practicalUse": "Visual destination.",
+      "inputSemantics": "HDMI/DP/USB-C/HDBaseT/IP depending on model.",
+      "outputSemantics": "Normally no programme-video output; loops do not create new zones.",
+      "specialistCharacteristics": [
+        "size",
+        "brightness",
+        "resolution",
+        "touch",
+        "signage",
+        "OPS"
+      ],
+      "comparisonKeys": [
+        "size/application",
+        "resolution",
+        "brightness",
+        "inputs",
+        "touch/USB",
+        "control"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "projector",
+      "name": "Projector",
+      "category": "Display",
+      "purpose": "Project video onto a screen/surface.",
+      "topologyModel": "endpoint-destination",
+      "canonicalRoles": [
+        "projector"
+      ],
+      "practicalUse": "Large-format room display.",
+      "inputSemantics": "HDMI/HDBaseT/network depending on model.",
+      "outputSemantics": "Optical projected image.",
+      "specialistCharacteristics": [
+        "lumens",
+        "lens/throw",
+        "resolution",
+        "laser",
+        "warping/blending"
+      ],
+      "comparisonKeys": [
+        "brightness",
+        "throw/lens",
+        "resolution",
+        "input transport",
+        "control"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "led-processor",
+      "name": "LED display processor",
+      "category": "Display processing",
+      "purpose": "Map/scale/process source content onto an LED canvas.",
+      "topologyModel": "canvas-to-many",
+      "canonicalRoles": [
+        "LED processor",
+        "video processor"
+      ],
+      "practicalUse": "LED display infrastructure.",
+      "inputSemantics": "HDMI/DP/SDI/IP sources.",
+      "outputSemantics": "LED/fibre/network/display mapping outputs.",
+      "specialistCharacteristics": [
+        "canvas pixels",
+        "layers",
+        "genlock",
+        "HDR",
+        "redundancy"
+      ],
+      "comparisonKeys": [
+        "canvas capacity",
+        "inputs",
+        "layers",
+        "output ecosystem",
+        "latency",
+        "redundancy"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": true
+    },
+    {
+      "id": "cable-adapter",
+      "name": "Cable / passive adapter",
+      "category": "Accessory",
+      "purpose": "Physically connect compatible interfaces without being the system's main AV function.",
+      "topologyModel": "support-only",
+      "canonicalRoles": [
+        "cable",
+        "adapter"
+      ],
+      "practicalUse": "Dependency/accessory.",
+      "inputSemantics": "Connector end A.",
+      "outputSemantics": "Connector end B.",
+      "specialistCharacteristics": [
+        "active/passive",
+        "directionality",
+        "length",
+        "bandwidth"
+      ],
+      "comparisonKeys": [
+        "connector A/B",
+        "directionality",
+        "bandwidth",
+        "length"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": false
+    },
+    {
+      "id": "power-accessory",
+      "name": "Power supply / injector / PDU",
+      "category": "Accessory",
+      "purpose": "Provide/distribute power.",
+      "topologyModel": "support-only",
+      "canonicalRoles": [
+        "power accessory"
+      ],
+      "practicalUse": "System dependency.",
+      "inputSemantics": "AC/DC/PoE power input.",
+      "outputSemantics": "AC/DC/PoE power output.",
+      "specialistCharacteristics": [
+        "voltage",
+        "current",
+        "PoE standard",
+        "sequencing"
+      ],
+      "comparisonKeys": [
+        "compatibility",
+        "capacity",
+        "connector",
+        "PoE class"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": false
+    },
+    {
+      "id": "mounting-accessory",
+      "name": "Mount / bracket / rack accessory",
+      "category": "Accessory",
+      "purpose": "Mechanically install another product.",
+      "topologyModel": "support-only",
+      "canonicalRoles": [
+        "mounting accessory"
+      ],
+      "practicalUse": "Physical installation support.",
+      "inputSemantics": "No programme signal input.",
+      "outputSemantics": "No programme signal output.",
+      "specialistCharacteristics": [
+        "load",
+        "VESA/rack format",
+        "orientation"
+      ],
+      "comparisonKeys": [
+        "compatibility",
+        "mechanical format"
+      ],
+      "aliases": [],
+      "cautions": [],
+      "typicalDependencies": [],
+      "leadReplacementEligible": false
+    }
+  ],
+  "firstContactProcedure": [
+    {
+      "step": 1,
+      "name": "Identify the practical job",
+      "instruction": "Describe the product in plain AV terms before reading candidate SKUs: source, destination, router, processor, bridge, room core, endpoint or support item."
+    },
+    {
+      "step": 2,
+      "name": "Assign a topology model",
+      "instruction": "Determine point-to-point, mirrored distribution, switched, routed matrix, composited multiview, wall/canvas, network-routed, bridge, room-core or endpoint behaviour."
+    },
+    {
+      "step": 3,
+      "name": "Separate logical I/O from connectors",
+      "instruction": "Count logical inputs/outputs and then map physical connectors to those functions. Do not let connector count redefine topology."
+    },
+    {
+      "step": 4,
+      "name": "Classify every output behaviour",
+      "instruction": "Mark each output/routed group as routed, mirrored, loop, local-monitor, composited, encoded/network or destination/local."
+    },
+    {
+      "step": 5,
+      "name": "Resolve transport and role",
+      "instruction": "Identify HDMI/local, USB-C, HDBaseT/proprietary twisted pair, fibre, SDI, Ethernet AVoIP, NDI, wireless or network-audio; then identify direction/role."
+    },
+    {
+      "step": 6,
+      "name": "Extract specialist capabilities",
+      "instruction": "Record only evidence-backed features that change practical equivalence: scaling, seamless switching, multiview, wall, USB/KVM, Dante/AES67, AEC, PTZ/tracking, BYOM, power, control, redundancy."
+    },
+    {
+      "step": 7,
+      "name": "Create the comparison contract",
+      "instruction": "Separate mandatory, preferred, informational and unknown facts. Hard-gate purpose/topology/role before scoring feature similarity."
+    },
+    {
+      "step": 8,
+      "name": "Research unknowns if necessary",
+      "instruction": "Use manufacturer evidence to fill missing semantic facts. Do not treat a discovered product page as sufficient unless it establishes the required comparison contract."
+    }
+  ],
+  "matchingOrder": [
+    "practicalPurpose",
+    "topologyModel",
+    "canonicalRole/direction",
+    "mandatory logical I/O",
+    "output behaviour",
+    "connection/transport",
+    "video/audio/USB/control mandatory capability",
+    "specialist characteristics",
+    "dependencies/ecosystem",
+    "preferred features",
+    "commercial/product-family positioning"
+  ],
+  "hardMismatchExamples": [
+    {
+      "competitor": "1x4 HDMI splitter",
+      "candidate": "4x4 matrix",
+      "reason": "Different topology: mirrored distribution vs independent routing."
+    },
+    {
+      "competitor": "AVoIP encoder",
+      "candidate": "AVoIP decoder",
+      "reason": "Wrong endpoint direction."
+    },
+    {
+      "competitor": "PTZ camera",
+      "candidate": "camera bridge",
+      "reason": "Source device vs bridge/processor."
+    },
+    {
+      "competitor": "wireless presentation hub",
+      "candidate": "casting dongle only",
+      "reason": "Room core vs accessory."
+    },
+    {
+      "competitor": "multiview processor",
+      "candidate": "multi-output splitter",
+      "reason": "Composited canvas vs mirrored fan-out."
+    },
+    {
+      "competitor": "HDBaseT extender",
+      "candidate": "local HDMI switcher",
+      "reason": "Point-to-point extension vs local switching."
+    }
+  ]
+}

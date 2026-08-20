@@ -4,8 +4,9 @@ import { getWingmanSession, type WingmanWorkspaceSession } from "../api/wingmanA
 import { PRODUCT_LIFECYCLES, displayLifecycle, emptyProduct, isArchivedProduct, productIntelligenceRepository, validateProductRecord, type AdminLifecycle, type ProductIntelligenceRecord, type ProductPort } from "../data/productIntelligenceRepository";
 import { qualityCounts } from "../lib/productDataQuality";
 import type { ProductQualityIssue } from "../types/productTruth";
+import { LiveResearchReviewQueue } from "../components/data/LiveResearchReviewQueue";
 
-const TABS = ["WyreStorm Products", "Competitor Products", "Match Overrides", "Lifecycle", "Reported Errors", "Import / Export", "Change History"] as const;
+const TABS = ["WyreStorm Products", "Competitor Products", "Live Research", "Match Overrides", "Lifecycle", "Reported Errors", "Import / Export", "Change History"] as const;
 type Tab = typeof TABS[number];
 const QUALITY_SUMMARY: Array<{ issue: ProductQualityIssue; label: string }> = [
   { issue: "requires-review", label: "Require review" },
@@ -67,10 +68,10 @@ export function DataManagerPage() {
   const options = (key: "brand" | "family" | "category") => Array.from(new Set(records.filter((r) => r.vendorType === vendorType).map((r) => String(r[key] || "")).filter(Boolean))).sort();
   async function lifecycle(record: ProductIntelligenceRecord, next: AdminLifecycle) { try { await productIntelligenceRepository.changeLifecycle(record, next, session?.user?.email || "ADMIN"); await reload(); setMessage(`${record.sku} is now ${next}. Affected product caches were cleared.`); } catch (error) { setMessage(error instanceof Error ? error.message : "Lifecycle change failed."); } }
 
-  if (!sessionReady) return <main className="wm-data-manager-page wm-page"><p>Checking administrator accessÃ¢â‚¬Â¦</p></main>;
+  if (!sessionReady) return <main className="wm-data-manager-page wm-page"><p>Checking administrator access...</p></main>;
   if (!admin) return <main className="wm-data-manager-page wm-page"><section className="wm-section-card wm-admin-denied"><ShieldAlert /><h1>Administrator access required</h1><p>Data Manager is available only to workspace administrators.</p></section></main>;
   return <main className="wm-data-manager-page wm-page" data-wingman-page="data-manager">
-    <header className="wm-data-manager-header"><div><p className="wm-ui-kicker">ADMIN Ã‚Â· Governed product intelligence</p><h1>Data Manager</h1><p>Maintain product and competitor records without editing repository JSON files.</p></div><button className="wm-button wm-button-secondary" type="button" onClick={() => void reload()}><RefreshCcw /> Refresh data</button></header>
+    <header className="wm-data-manager-header"><div><p className="wm-ui-kicker">ADMIN - Governed product intelligence</p><h1>Data Manager</h1><p>Maintain product and competitor records without editing repository JSON files.</p></div><button className="wm-button wm-button-secondary" type="button" onClick={() => void reload()}><RefreshCcw /> Refresh data</button></header>
     <nav className="wm-data-tabs" aria-label="Data Manager datasets">{TABS.map((item) => <button type="button" key={item} className={tab === item ? "is-active" : ""} onClick={() => setTab(item)}>{item}</button>)}</nav>
     {(tab === "WyreStorm Products" || tab === "Competitor Products") ? <>
       <section className="wm-data-quality-summary wm-section-card wm-data-governance-compact" aria-labelledby="data-quality-title">
@@ -119,7 +120,13 @@ export function DataManagerPage() {
       </section>
       <section className="wm-data-table-card wm-section-card"><header><div><h2>{visible.length} records</h2><p>Validation, lifecycle and editor information remain visible at a glance.</p></div><button type="button" onClick={() => setSort(sort === "sku" ? "updatedAt" : "sku")}><ArrowUpDown /> Sort by {sort === "sku" ? "last edited" : "SKU"}</button></header>
         <div className="wm-data-table-scroll"><table><thead><tr><th>Product</th><th>Classification</th><th>Lifecycle</th><th>Validation</th><th>Last edited</th><th>Actions</th></tr></thead><tbody>{visible.map((record) => { const errors = validateProductRecord(record, records); const blocked = isArchivedProduct(record); return <tr key={`${record.vendorType}-${record.brand}-${record.sku}`}><td><strong>{record.sku}</strong><span>{record.name}</span><small>{record.brand}</small></td><td>{record.family}<small>{record.category}</small></td><td><span className={`wm-status ${blocked ? "is-validate" : "is-confirmed"}`}>{displayLifecycle(record)}</span></td><td>{Object.keys(errors).length ? <span className="wm-validation-bad">{Object.keys(errors).length} issues</span> : <span className="wm-validation-good"><CheckCircle2 /> Valid</span>}</td><td>{record.updatedAt ? new Date(record.updatedAt).toLocaleDateString() : "Ã¢â‚¬â€"}<small>{record.reviewedBy || "System import"}</small></td><td><div className="wm-data-row-actions"><button type="button" onClick={() => setEditing(structuredClone(record))} className="wm-data-icon-action" aria-label="Edit product" title="Edit"><Pencil /></button><button type="button" onClick={() => setEditing({ ...structuredClone(record), id: undefined, sku: `${record.sku}-COPY`, lifecycle: "draft" })}><Copy /><span className="wm-sr-only">Duplicate</span></button>{blocked ? <button type="button" onClick={() => void lifecycle(record, "review")}><RefreshCcw /> Restore</button> : <button type="button" onClick={() => void lifecycle(record, "do-not-use")}><Archive /><span className="wm-sr-only">Archive</span></button>}</div></td></tr>; })}</tbody></table></div>{loading ? <p>Loading recordsÃ¢â‚¬Â¦</p> : null}</section>
-    </> : <DatasetPlaceholder tab={tab} records={records} />}
+    </> : tab === "Live Research" ? (
+      <LiveResearchReviewQueue
+        existingRecords={records.filter((record) => record.vendorType === "competitor")}
+        reviewer={session?.user?.email || session?.user?.name || "ADMIN"}
+        onPromoted={reload}
+      />
+    ) : <DatasetPlaceholder tab={tab} records={records} />}
     {message ? <p className="wm-data-message" role="status">{message}</p> : null}
     {editing ? <ProductEditor record={editing} allRecords={records} editor={session?.user?.email || "ADMIN"} onClose={() => setEditing(null)} onSaved={async () => { setEditing(null); await reload(); setMessage("Product saved. Product Catalogue, Finder, Compare, Product Pitch, Guru, Templates, BOM and Proposal caches were invalidated."); }} /> : null}
   </main>;

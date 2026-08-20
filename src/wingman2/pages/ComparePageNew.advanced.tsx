@@ -63,7 +63,17 @@ import {
   resolveApprovedGovernedDecision,
 } from "../lib/governedCompareRuntime";
 import { CompetitorEvidencePanel } from "./compare/CompetitorEvidencePanel";
-import { fetchApprovedCompetitorDecisions } from "../api/wingmanApi";
+import {
+  fetchApprovedCompetitorDecisions,
+  runCompetitorMatch,
+  type CompetitorMatchResponse,
+} from "../api/wingmanApi";
+import {
+  assessLiveCompetitorResearch,
+  shouldAutoResearchCompetitor,
+  type LiveCompetitorResearchAssessment,
+  type LiveCompetitorResearchStatus,
+} from "../lib/liveCompetitorResearch";
 import { CompareShowdown } from "../components/compare/CompareShowdown";
 import { GovernedDataBadge as GovernanceBadge, weakestLinkTier } from "../components/GovernedDataBadge";
 
@@ -4282,11 +4292,13 @@ function CompetitorSearchCard({
   sku,
   summary,
   locallyRecognised,
+  liveResearched = false,
 }: {
   brand: string;
   sku: string;
   summary: CompetitorSummary;
   locallyRecognised: boolean;
+  liveResearched?: boolean;
 }) {
   const primaryFacts = summary.facts.slice(0, 4);
 
@@ -4298,7 +4310,7 @@ function CompetitorSearchCard({
           <h2 id="wm-match-searched-product-title">{brand} {sku}</h2>
         </div>
         <span className={`wm-compare-local-status ${locallyRecognised ? "is-recognised" : "is-lookup"}`}>
-          {locallyRecognised ? "Recognised locally" : "Live lookup required"}
+          {locallyRecognised ? "Recognised locally" : liveResearched ? "Live researched - review required" : "Live lookup required"}
         </span>
       </header>
       <p>{summary.detail || summary.warning || "Competitor product identity requires confirmation."}</p>
@@ -4923,6 +4935,192 @@ function CompareSummaryPanel({ summary, requestLiveLookup, sourceUrl }: { summar
   );
 }
 
+function liveResearchToScoredCandidate(
+  assessment: LiveCompetitorResearchAssessment | null,
+): ScoredCandidate | null {
+  if (!assessment || assessment.outcome !== "candidate" || !assessment.candidateSku) {
+    return null;
+  }
+
+  const product = findWyrestormProduct(assessment.candidateSku);
+  if (!product) {
+    return null;
+  }
+
+  const approvedDirectMatch =
+    assessment.sourceMode === "stored-intelligence" &&
+    !assessment.reviewRequired &&
+    assessment.readinessStatus === "ready" &&
+    assessment.matchType === "DIRECT MATCH" &&
+    assessment.blockers.length === 0;
+
+  return {
+    product,
+    score: assessment.confidenceScore,
+    verdict: approvedDirectMatch ? "GOOD MATCH" : "VERIFY",
+    matched: uniqueText(assessment.matched, 8),
+    checks: uniqueText(
+      [
+        ...assessment.warnings,
+        ...assessment.nextActions,
+        ...(assessment.sourceMode === "live"
+          ? ["Live web research must be reviewed before this competitor profile is treated as governed local data."]
+          : []),
+      ],
+      8,
+    ),
+    gaps: uniqueText(assessment.warnings, 6),
+    partialMatches: uniqueText(assessment.matched, 6),
+    mismatches: [],
+    unknowns: approvedDirectMatch
+      ? []
+      : [
+          assessment.sourceMode === "stored-intelligence"
+            ? "Approved competitor data is available, but this WyreStorm direction still requires technical review before it can be treated as direct."
+            : "The competitor facts were researched live and have not yet been promoted to approved local intelligence.",
+        ],
+    blockers: uniqueText(assessment.blockers, 6),
+    dependencies: [],
+    outcomeLabel: approvedDirectMatch
+      ? `Approved competitor intelligence. ${assessment.summary}`
+      : assessment.sourceMode === "stored-intelligence"
+        ? `Approved competitor intelligence - match review required. ${assessment.summary}`
+        : `Live researched direction - review required. ${assessment.summary}`,
+    solutionType: approvedDirectMatch ? "direct-equivalent" : "insufficient-evidence",
+    governedTier: approvedDirectMatch ? "official-structured" : "text-inferred",
+    governedLabel: approvedDirectMatch
+      ? "Approved competitor intelligence"
+      : assessment.sourceMode === "stored-intelligence"
+        ? "Approved data - match review required"
+        : "Live researched - review required",
+  };
+}
+
+function mergeLiveResearchCompetitorSummary(
+  base: CompetitorSummary,
+  assessment: LiveCompetitorResearchAssessment | null,
+): CompetitorSummary {
+  if (!assessment) return base;
+
+  const live = assessment.competitor;
+  const technology = live.technologyProfile;
+  const liveFacts = [
+    technology?.vendorTechnology
+      ? { label: "Vendor technology", value: technology.vendorTechnology }
+      : null,
+    technology?.canonicalTransport
+      ? { label: "Canonical transport", value: technology.canonicalTransport }
+      : null,
+    technology?.networkClass
+      ? { label: "Network class", value: technology.networkClass }
+      : null,
+    technology?.codecStandard || technology?.codecName
+      ? {
+          label: "Codec / standard",
+          value: String(technology.codecStandard || technology.codecName),
+        }
+      : null,
+  ].filter((item): item is { label: string; value: string } => Boolean(item));
+
+  const factMap = new Map<string, { label: string; value: string }>();
+  for (const fact of [...liveFacts, ...base.facts]) {
+    if (!factMap.has(fact.label)) factMap.set(fact.label, fact);
+  }
+
+  return {
+    ...base,
+    detail: live.summary || base.detail,
+    recognisedClass:
+      live.category ||
+      live.comparisonDomain ||
+      base.recognisedClass,
+    role: live.role || base.role,
+    transport:
+      technology?.canonicalTransport ||
+      live.transport ||
+      base.transport,
+    ecosystem:
+      technology?.interoperability ||
+      base.ecosystem,
+    facts: Array.from(factMap.values()).slice(0, 8),
+    knownFeatures: uniqueText(
+      [
+        ...base.knownFeatures,
+        technology?.vendorTechnology
+          ? `Vendor technology: ${technology.vendorTechnology}`
+          : "",
+        technology?.networkClass
+          ? `Network class: ${technology.networkClass}`
+          : "",
+        technology?.codecStandard || technology?.codecName
+          ? `Codec / standard: ${technology.codecStandard || technology.codecName}`
+          : "",
+      ],
+      10,
+    ),
+    warning:
+      assessment.sourceMode === "live"
+        ? "Live-researched competitor data - review the source before promoting it to governed local intelligence."
+        : "",
+    sourceUrl: live.sourceUrl || assessment.sourceUrl || base.sourceUrl,
+  };
+}
+
+function LiveResearchStatusCard({
+  status,
+  assessment,
+  error,
+}: {
+  status: LiveCompetitorResearchStatus;
+  assessment: LiveCompetitorResearchAssessment | null;
+  error: string;
+}) {
+  if (status === "idle") return null;
+
+  const stored = assessment?.sourceMode === "stored-intelligence";
+  const heading =
+    status === "loading"
+      ? "Checking competitor intelligence"
+      : status === "error"
+        ? "Competitor research could not complete"
+        : stored
+          ? "Approved competitor intelligence loaded"
+          : assessment?.outcome === "candidate"
+            ? "Live research found a WyreStorm direction"
+            : "Live research found no safe WyreStorm direction";
+
+  const detail =
+    status === "loading"
+      ? "Wingman is checking approved competitor intelligence first, then live product evidence when needed."
+      : status === "error"
+        ? error || "Competitor research is unavailable. Use the evidence tools below to confirm the product manually."
+        : stored
+          ? assessment?.summary || "The approved competitor profile is now being used by Compare."
+          : assessment?.outcome === "candidate"
+            ? `${assessment.candidateSku} is a researched direction only. Review the evidence before quotation or approval.`
+            : assessment?.summary || "No safe WyreStorm product match was established from the researched evidence.";
+
+  return (
+    <section
+      className="wm-ui-card wm-ui-section compare-live-research-status"
+      role="status"
+      data-live-research-status={status}
+    >
+      <strong>{heading}</strong>
+      <p className="wm-ui-copy">{detail}</p>
+      {assessment?.sourceUrl ? (
+        <a
+          className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary"
+          href={assessment.sourceUrl}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Open researched source
+        </a>
+      ) : null}
+    </section>
+  );
+}
 function ComparePageNew() {
   const bestMatchRef = useRef<HTMLDivElement | null>(null);
   const [searchParams] = useSearchParams();
@@ -4953,6 +5151,10 @@ function ComparePageNew() {
   // justifying the suggested WyreStorm replacement - before the overview.
   const [, setResultTab] = useState<CompareResultTab>("overview");
   const [candidateIndex, setCandidateIndex] = useState(0);
+  const [liveResearchStatus, setLiveResearchStatus] = useState<LiveCompetitorResearchStatus>("idle");
+  const [liveResearchResult, setLiveResearchResult] = useState<CompetitorMatchResponse | null>(null);
+  const [liveResearchError, setLiveResearchError] = useState("");
+  const liveResearchSequence = useRef(0);
   // Verified battle cards are supplemental evidence. The governed Compare
   // runtime remains authoritative for recommendation, project save and proposal handoff.
   const navigate = useNavigate();
@@ -5026,7 +5228,7 @@ function ComparePageNew() {
     [competitorInput, effectiveBrand, mustMatchFeatures, catalogVersion],
   );
 
-  const competitorSummary = useMemo(() => buildCompetitorSummary(profile, mustMatchFeatures), [mustMatchFeatures, profile]);
+  const localCompetitorSummary = useMemo(() => buildCompetitorSummary(profile, mustMatchFeatures), [mustMatchFeatures, profile]);
   const hasCompetitorSelection = competitorInput.trim().length > 0;
   const governedDecision = useMemo(() => {
     if (!effectiveLedger || !competitorInput.trim()) {
@@ -5223,7 +5425,7 @@ function ComparePageNew() {
   const viableCandidates = verdictResult.viable;
   const heuristicLead = verdictResult.heuristicLead;
   const best = viableCandidates[0] ?? null;
-  const displayedCandidate = viableCandidates[candidateIndex] ?? best;
+  const localDisplayedCandidate = viableCandidates[candidateIndex] ?? best;
   useEffect(() => {
     if (candidateIndex >= viableCandidates.length) setCandidateIndex(0);
   }, [candidateIndex, viableCandidates.length]);
@@ -5294,6 +5496,92 @@ function ComparePageNew() {
 
   const requestLiveLookup = shouldRequestLiveLookupUrl(profile)
     || !isCompetitorSkuHeldLocally(effectiveBrand, competitorInput);
+
+  useEffect(() => {
+    const shouldRun = shouldAutoResearchCompetitor({
+      hasCompared,
+      requestLiveLookup,
+      manufacturer: effectiveBrand,
+      sku: competitorInput,
+    });
+
+    const sequence = ++liveResearchSequence.current;
+
+    if (!shouldRun || compareStage !== "results") {
+      setLiveResearchStatus("idle");
+      setLiveResearchResult(null);
+      setLiveResearchError("");
+      return;
+    }
+
+    let cancelled = false;
+    setLiveResearchStatus("loading");
+    setLiveResearchResult(null);
+    setLiveResearchError("");
+
+    runCompetitorMatch({
+      manufacturer: effectiveBrand,
+      model: competitorInput.trim(),
+    })
+      .then((response) => {
+        if (cancelled || sequence !== liveResearchSequence.current) return;
+
+        if (!response.ok) {
+          setLiveResearchStatus("error");
+          setLiveResearchResult(response);
+          setLiveResearchError("Live research did not return a usable competitor profile.");
+          return;
+        }
+
+        setLiveResearchResult(response);
+        setLiveResearchStatus("done");
+      })
+      .catch((error) => {
+        if (cancelled || sequence !== liveResearchSequence.current) return;
+        setLiveResearchResult(null);
+        setLiveResearchStatus("error");
+        setLiveResearchError(
+          error instanceof Error
+            ? error.message
+            : "Live competitor research failed.",
+        );
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    compareStage,
+    competitorInput,
+    effectiveBrand,
+    hasCompared,
+    requestLiveLookup,
+  ]);
+
+  const liveResearchAssessment = useMemo(
+    () =>
+      liveResearchResult?.ok
+        ? assessLiveCompetitorResearch(liveResearchResult)
+        : null,
+    [liveResearchResult],
+  );
+
+  const liveResearchCandidate = useMemo(
+    () => liveResearchToScoredCandidate(liveResearchAssessment),
+    [catalogVersion, liveResearchAssessment],
+  );
+
+  const competitorSummary = useMemo(
+    () =>
+      mergeLiveResearchCompetitorSummary(
+        localCompetitorSummary,
+        liveResearchAssessment,
+      ),
+    [liveResearchAssessment, localCompetitorSummary],
+  );
+
+  const displayedCandidate =
+    localDisplayedCandidate ?? best ?? liveResearchCandidate;
   const primarySearchCriteria = uniqueText([
     `Manufacturer: ${effectiveBrand}`,
     `SKU / model: ${competitorInput}`,
@@ -5302,7 +5590,7 @@ function ComparePageNew() {
     profile.transport !== "Unknown" ? `Transport: ${profile.transport}` : "Transport: not recognised locally",
     mustMatchFeatures.trim() ? `Must match: ${mustMatchFeatures.trim()}` : "",
   ], 6);
-  const sourceUrl = fallbackRetrySourceUrl("");
+  const sourceUrl = liveResearchAssessment?.sourceUrl || fallbackRetrySourceUrl("");
 
   const handleSkuSelect = useCallback((sku: string): void => {
     const normalizedSku = normalizeCompetitorSku(sku);
@@ -5482,6 +5770,9 @@ function ComparePageNew() {
     setCustomSkuStore([]);
     setCustomManufacturerStore([]);
     setCommittedSku(null);
+    setLiveResearchStatus("idle");
+    setLiveResearchResult(null);
+    setLiveResearchError("");
   }
 
   async function copySummary(): Promise<void> {
@@ -5514,7 +5805,16 @@ function ComparePageNew() {
           <header className="compare-native-section-title compare-native-section-title--inline wm-ui-card wm-ui-title"><div><span className="compare-native-eyebrow wm-ui-kicker">Competitor compare</span><h1 className="wm-ui-title">Comparison result</h1></div><button className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" type="button" onClick={handleReset}>New comparison</button></header>
           {hasCompared ? <>
             <div ref={bestMatchRef} className="compare-native-scroll-target" tabIndex={-1} aria-label={activeCandidate ? `Main WyreStorm match: ${activeCandidate.product.sku}` : "Main WyreStorm match: none"}>
-              <MinimumCompareCards competitor={competitorSummary} competitorProfile={profile} candidate={activeCandidate} />
+              {requestLiveLookup ? (
+                <LiveResearchStatusCard
+                  status={liveResearchStatus}
+                  assessment={liveResearchAssessment}
+                  error={liveResearchError}
+                />
+              ) : null}
+              {requestLiveLookup && liveResearchStatus === "loading" ? null : (
+                <MinimumCompareCards competitor={competitorSummary} competitorProfile={profile} candidate={activeCandidate} />
+              )}
             </div>
             {activeCandidate ? <section className="wm-ui-card wm-ui-section" aria-label="Compare result actions"><div className="compare-native-action-row wm-ui-action-row">
               <button type="button" className="compare-native-more wm-ui-button wm-ui-button-primary" onClick={() => handleCommit("project")}>{compareReportedStatus(activeCandidate, competitorSummary) === "match" ? "Add to project" : "Add to project for review"}</button>
@@ -5522,15 +5822,38 @@ function ComparePageNew() {
               <button className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" type="button" onClick={handleReset}>New comparison</button>
             </div>{committedSku === activeCandidate.product.sku ? <p className="compare-native-muted wm-ui-copy">Saved. <Link to={routeCatalogByKey.projects.path}>Open projects</Link>.</p> : null}</section> : null}
             <details className="compare-native-summary wm-ui-card wm-ui-copy"><summary>Technical evidence &amp; review</summary><div className="mt-4">
-              <CompetitorSearchCard brand={effectiveBrand} sku={competitorInput} summary={competitorSummary} locallyRecognised={!requestLiveLookup} />
+              <CompetitorSearchCard
+                brand={effectiveBrand}
+                sku={competitorInput}
+                summary={competitorSummary}
+                locallyRecognised={
+                  !requestLiveLookup ||
+                  liveResearchAssessment?.sourceMode === "stored-intelligence"
+                }
+                liveResearched={
+                  liveResearchStatus === "done" &&
+                  liveResearchAssessment?.sourceMode === "live"
+                }
+              />
               {activeCandidate ? <>
                 <BestCandidateCard candidate={activeCandidate} competitor={competitorSummary} competitorProfile={profile} onCopySummary={() => { void copySummary(); }} />
                 {alternativeCandidates.length ? <section className="compare-native-options wm-ui-card"><h3 className="wm-ui-title">Other WyreStorm options</h3><div className="compare-native-option-grid wm-ui-card">{alternativeCandidates.slice(0, 3).map((candidate) => <CandidateOptionCard key={`${candidate.product.sku}-${candidate.verdict}`} candidate={candidate} />)}</div></section> : null}
                 <CompareShowdown brand={effectiveBrand} competitorSku={competitorInput} active={hasCompared} view="proof" selectedWyrestormSku={activeCandidate.product.sku} onSelectedWyrestormSkuChange={(sku) => { const index = viableCandidates.findIndex((candidate) => candidate.product.sku.toUpperCase() === sku.toUpperCase()); if (index >= 0) setCandidateIndex(index); }} />
               </> : null}
-              <GovernedDecisionPanel key={`${effectiveBrand}:${competitorInput}:${displayedDecision?.updatedAt ?? decisionRevision}`} profile={profile} candidate={activeCandidate ?? heuristicLead ?? null} existingDecision={displayedDecision} onSaved={() => setDecisionRevision((revision) => revision + 1)} />
-              <CompareSummaryPanel summary={summary} requestLiveLookup={requestLiveLookup} sourceUrl={sourceUrl} />
-              {requestLiveLookup ? <CompetitorEvidencePanel brand={effectiveBrand} sku={competitorInput} onSaved={() => setCatalogVersion((version) => version + 1)} autoRun primaryCriteria={primarySearchCriteria} /> : null}
+              {requestLiveLookup &&
+              liveResearchStatus === "done" &&
+              liveResearchAssessment?.sourceMode === "live" ? (
+                <section className="wm-ui-card wm-ui-section" aria-label="Live research governance notice">
+                  <h3 className="wm-ui-title">Review before governance approval</h3>
+                  <p className="wm-ui-copy">
+                    Live research can make a match judgement, but it is not approved competitor intelligence. Review and save the evidence below before creating an approved governed match decision.
+                  </p>
+                </section>
+              ) : (
+                <GovernedDecisionPanel key={`${effectiveBrand}:${competitorInput}:${displayedDecision?.updatedAt ?? decisionRevision}`} profile={profile} candidate={activeCandidate ?? heuristicLead ?? null} existingDecision={displayedDecision} onSaved={() => setDecisionRevision((revision) => revision + 1)} />
+              )}
+              <CompareSummaryPanel summary={summary} requestLiveLookup={requestLiveLookup && liveResearchAssessment?.sourceMode !== "stored-intelligence"} sourceUrl={sourceUrl} />
+              {requestLiveLookup && liveResearchAssessment?.sourceMode !== "stored-intelligence" ? <CompetitorEvidencePanel brand={effectiveBrand} sku={competitorInput} onSaved={() => setCatalogVersion((version) => version + 1)} autoRun={liveResearchStatus === "error"} primaryCriteria={primarySearchCriteria} /> : null}
             </div></details>
           </> : null}
         </section>

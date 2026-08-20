@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { COMPETITOR_LIVE_LOOKUP_DB_FILE as LIVE_LOOKUP_DB_FILE } from "../catalog/files.mjs";
+import { normaliseProductTechnology } from "./technology-normalizer.mjs";
 
 const LIVE_LOOKUP_MEMORY_CACHE = new Map();
 /* COMPETITOR-LIVE-LOOKUP-ALLOWLIST-GUARD-START */
@@ -332,6 +333,9 @@ function asCachedPayload(record, cacheType) {
     title: record?.title || "",
     summary: record?.summary || "",
     keySpecs: Array.isArray(record?.keySpecs) ? record.keySpecs : [],
+    technologyProfile: record?.technologyProfile && typeof record.technologyProfile === "object"
+      ? record.technologyProfile
+      : null,
     sources: Array.isArray(record?.sources) ? record.sources : [],
     sourceUrls: Array.isArray(record?.sourceUrls) ? record.sourceUrls : [],
     text: record?.text || "",
@@ -734,6 +738,16 @@ function buildReturnRecord({ manufacturer, model, productUrl, pages, attempts })
   const summary = summarizeText(bestHtml, bestText, model);
   const keySpecs = extractKeySpecs(aggregateText || bestText);
   const sourceUrls = uniqueStrings(successful.map((page) => page.url));
+  const technologyProfile = normaliseProductTechnology({
+    manufacturer,
+    model,
+    sku: model,
+    title,
+    summary,
+    rawText: aggregateText || bestText,
+    features: keySpecs,
+    sourceUrl: best?.url || productUrl || sourceUrls[0] || "",
+  });
 
   return {
     ok: Boolean(best),
@@ -744,6 +758,7 @@ function buildReturnRecord({ manufacturer, model, productUrl, pages, attempts })
     title,
     summary,
     keySpecs,
+    technologyProfile,
     sources: attempts.map((attempt) => ({
       url: attempt.url,
       label: attempt.kind,

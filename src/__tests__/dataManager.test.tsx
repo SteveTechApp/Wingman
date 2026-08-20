@@ -7,12 +7,86 @@ import { lifecycleToApiStatus, validateProductRecord, type ProductIntelligenceRe
 const getWingmanSession = vi.fn();
 const getWingmanJson = vi.fn();
 const postWingmanJson = vi.fn();
-vi.mock("@/wingman2/api/wingmanApi", () => ({ getWingmanSession: (...args: unknown[]) => getWingmanSession(...args), getWingmanJson: (...args: unknown[]) => getWingmanJson(...args), postWingmanJson: (...args: unknown[]) => postWingmanJson(...args) }));
+const fetchLiveResearchReviewQueue = vi.fn();
+const approveLiveResearchReview = vi.fn();
+const rejectLiveResearchReview = vi.fn();
 
-const record: ProductIntelligenceRecord = { id: "wyrestorm::wyrestorm::TEST-1", vendorType: "wyrestorm", brand: "WyreStorm", sku: "TEST-1", name: "Test encoder", family: "NetworkHD", category: "AVoIP", summary: "Test", status: "approved", lifecycle: "live", transport: "1GbE", inputs: [{ type: "HDMI", count: 1 }], outputs: [{ type: "HDMI", count: 1 }], mirroredOutputs: [{ type: "HDMI", count: 1 }], features: [], evidence: [{ label: "Datasheet", value: "1x HDMI", sourceUrl: "https://example.com" }], updatedAt: "2026-08-05T10:00:00Z", reviewedBy: "admin@example.com" };
+vi.mock("@/wingman2/api/wingmanApi", () => ({
+  getWingmanSession: (...args: unknown[]) => getWingmanSession(...args),
+  getWingmanJson: (...args: unknown[]) => getWingmanJson(...args),
+  postWingmanJson: (...args: unknown[]) => postWingmanJson(...args),
+  fetchLiveResearchReviewQueue: (...args: unknown[]) => fetchLiveResearchReviewQueue(...args),
+  approveLiveResearchReview: (...args: unknown[]) => approveLiveResearchReview(...args),
+  rejectLiveResearchReview: (...args: unknown[]) => rejectLiveResearchReview(...args),
+}));
+
+const record: ProductIntelligenceRecord = {
+  id: "wyrestorm::wyrestorm::TEST-1",
+  vendorType: "wyrestorm",
+  brand: "WyreStorm",
+  sku: "TEST-1",
+  name: "Test encoder",
+  family: "NetworkHD",
+  category: "AVoIP",
+  summary: "Test",
+  status: "approved",
+  lifecycle: "live",
+  transport: "1GbE",
+  inputs: [{ type: "HDMI", count: 1 }],
+  outputs: [{ type: "HDMI", count: 1 }],
+  mirroredOutputs: [{ type: "HDMI", count: 1 }],
+  features: [],
+  evidence: [{ label: "Datasheet", value: "1x HDMI", sourceUrl: "https://example.com" }],
+  updatedAt: "2026-08-05T10:00:00Z",
+  reviewedBy: "admin@example.com",
+};
+
+const liveResearchRecord = {
+  id: "live-research::example::ENC-1",
+  manufacturer: "Example",
+  sku: "ENC-1",
+  title: "Example Encoder",
+  category: "AV-over-IP",
+  comparisonDomain: "AVOIP",
+  comparisonUseCase: "DISTRIBUTION",
+  role: "Encoder",
+  transport: "AV-over-IP",
+  subtype: "Vendor codec",
+  summary: "Researched 1GbE encoder.",
+  sourceUrl: "https://manufacturer.example/ENC-1",
+  sourceUrls: ["https://manufacturer.example/ENC-1"],
+  technologyProfile: {
+    vendorTechnology: "Example Stream",
+    canonicalTransport: "AV-over-IP",
+    networkClass: "1GbE",
+    codecName: "Vendor codec",
+  },
+  bestMatch: {
+    sku: "NHD-500-TX",
+    matchType: "CLOSE MATCH",
+    confidenceScore: 84,
+    readiness: {
+      status: "review",
+      summary: "Review codec implementation.",
+      blockers: [],
+      warnings: ["Codec differs."],
+      strengths: ["1GbE architecture aligns."],
+      nextActions: [],
+      reviewRequired: true,
+    },
+  },
+  reviewStatus: "pending",
+};
 
 describe("ADMIN Data Manager", () => {
-  beforeEach(() => { vi.clearAllMocks(); getWingmanJson.mockResolvedValue({ ok: true, records: [record] }); postWingmanJson.mockResolvedValue({ ok: true, record }); });
+  beforeEach(() => {
+    vi.clearAllMocks();
+    getWingmanJson.mockResolvedValue({ ok: true, records: [record] });
+    postWingmanJson.mockResolvedValue({ ok: true, record });
+    fetchLiveResearchReviewQueue.mockResolvedValue({ ok: true, records: [] });
+    approveLiveResearchReview.mockResolvedValue({ ok: true });
+    rejectLiveResearchReview.mockResolvedValue({ ok: true });
+  });
 
   it("allows an administrator to access the product table", async () => {
     getWingmanSession.mockResolvedValue({ ok: true, session: { workspaceRole: "admin", user: { email: "admin@example.com" } } });
@@ -49,6 +123,44 @@ describe("ADMIN Data Manager", () => {
     const sku = await screen.findByText("TEST-1");
     fireEvent.click(within(sku.closest("tr")!).getByRole("button", { name: /Archive/ }));
     await waitFor(() => expect(postWingmanJson).toHaveBeenCalledWith("/api/product-intelligence/status", expect.objectContaining({ status: "expired", notes: expect.stringContaining("do-not-use") })));
+  });
+
+  it("reviews and promotes live competitor research without approving equivalence", async () => {
+    getWingmanSession.mockResolvedValue({
+      ok: true,
+      session: {
+        workspaceRole: "admin",
+        user: { email: "admin@example.com" },
+      },
+    });
+    fetchLiveResearchReviewQueue.mockResolvedValue({
+      ok: true,
+      records: [liveResearchRecord],
+    });
+
+    render(<MemoryRouter><DataManagerPage /></MemoryRouter>);
+
+    await screen.findByRole("heading", { name: "Data Manager" });
+    fireEvent.click(screen.getByRole("button", { name: "Live Research" }));
+
+    expect(
+      await screen.findByRole("heading", { name: "Live Research Review" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Example ENC-1/)).toBeInTheDocument();
+    expect(screen.getByText(/NHD-500-TX/)).toBeInTheDocument();
+    expect(screen.getByText(/does not approve the proposed WyreStorm equivalence/i)).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Approve & use in Compare" }),
+    );
+
+    await waitFor(() =>
+      expect(approveLiveResearchReview).toHaveBeenCalledWith({
+        id: "live-research::example::ENC-1",
+        reviewer: "admin@example.com",
+        sourceUrl: "https://manufacturer.example/ENC-1",
+      }),
+    );
   });
 });
 
