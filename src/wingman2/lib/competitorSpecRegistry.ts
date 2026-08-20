@@ -628,6 +628,7 @@ type CatalogEntry = {
   category?: string;
   subcategory?: string;
   technology?: string;
+  topology?: string;
   role?: string;
   directionality?: string;
   transport?: string;
@@ -656,18 +657,42 @@ const CATALOG_VIDEO_PORT = /(hdmi|hdbaset|displayport|\bdp\b|dtp\d?|\bdm\b|tpx|m
 function catalogDomain(entry: CatalogEntry): CompetitorTechnologyClass | undefined {
   const tech = String(entry.technology ?? "").toLowerCase();
   const category = String(entry.category ?? "").toLowerCase();
+  const subcategory = String(entry.subcategory ?? "").toLowerCase();
+  const role = String(entry.role ?? "").toLowerCase();
+  const topology = String(entry.topology ?? "").toLowerCase();
+  const endpointRole = /\b(?:transmitter|receiver|encoder|decoder|tx|rx|extender)\b/.test(role);
 
   if (tech.includes("usb extension")) return "USB_EXTENSION";
   if (tech.includes("avoip") || category === "avoip") return "AVOIP";
-  if (tech.includes("hdbaset") || category === "extender") return "HDBASET";
+
+  // Purpose and routing topology outrank transport. Matrices, presentation
+  // switchers and distribution amplifiers commonly carry HDBaseT without
+  // becoming point-to-point extenders.
+  if (
+    category === "presentation" ||
+    (category === "switcher" && !endpointRole) ||
+    role.includes("presentation switcher") ||
+    subcategory.includes("presentation switcher")
+  ) return "PRESENTATION";
   if (tech.includes("video wall") || category === "video wall") return "VIDEO_WALL";
-  if (tech.includes("matrix") || category === "matrix") return "MATRIX";
+  if (
+    tech.includes("matrix") ||
+    category === "matrix" ||
+    role.includes("matrix switcher") ||
+    topology === "matrix"
+  ) return "MATRIX";
   if (tech.includes("wireless") || category === "wireless presentation") return "WIRELESS_PRESENTATION";
   if (tech.includes("control") || category === "control") return "CONTROL";
-  if (tech.includes("distribution") || category === "distribution") return "DISTRIBUTION";
-  if (tech.includes("presentation") || tech.includes("unified communications") || category === "switcher" || category === "uc") {
+  if (
+    tech.includes("distribution") ||
+    category === "distribution" ||
+    role.includes("distribution amplifier") ||
+    topology === "splitter"
+  ) return "DISTRIBUTION";
+  if (tech.includes("presentation") || tech.includes("unified communications") || (category === "switcher" && !endpointRole) || category === "uc") {
     return "PRESENTATION";
   }
+  if (tech.includes("hdbaset") || category === "extender" || category === "hdbaset") return "HDBASET";
   return undefined;
 }
 
@@ -791,7 +816,7 @@ function catalogEntryToFingerprint(entry: CatalogEntry): Fingerprint | null {
   // (left undefined so they are never penalised); others count physical video ports.
   let inputCount: number | undefined;
   let outputCount: number | undefined;
-  if (domain === "MATRIX" || domain === "VIDEO_WALL") {
+  if (domain === "MATRIX" || domain === "VIDEO_WALL" || domain === "PRESENTATION") {
     inputCount = entry.matrixInputs ?? entry.routedInputCount ?? countCatalogPorts(entry.inputs, CATALOG_VIDEO_PORT);
     outputCount = entry.matrixOutputs ?? entry.routedOutputCount ?? countCatalogPorts(entry.outputs, CATALOG_VIDEO_PORT);
   } else if (domain !== "AVOIP") {

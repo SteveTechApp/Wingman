@@ -867,14 +867,16 @@ function productClassFromRealCatalogTaxonomy(entry: ProductIntelligenceIndexEntr
   if (combined.includes("video wall")) return "Video wall";
   if (combined.includes("multiview") || combined.includes("multi-view")) return "Multiview";
   if (combined.includes("splitter") || combined.includes("distribution amplifier")) return "HDMI splitter";
+  // Product family describes purpose; HDBaseT inside a presentation switcher
+  // is a transport/output capability, not evidence that the product is an
+  // extender. Keep the purpose check ahead of connector-derived classes.
+  if (family === "Presentation / Room Core" || combined.includes("presentation")) return "Presentation switcher";
   if (combined.includes("hdbaset") && !combined.includes("matrix")) return "HDBaseT extender";
   if (combined.includes("matrix")) return "Matrix";
 
   if (family === "NetworkHD AV over IP" || combined.includes("avoip") || combined.includes("av-over-ip") || combined.includes("av over ip")) {
     return "AV-over-IP";
   }
-
-  if (family === "Presentation / Room Core" || combined.includes("presentation")) return "Presentation switcher";
 
   // "Extension" family covers both HDBaseT and USB/KVM point-to-point
   // extenders (e.g. EX-100-KVM-IP's own category is "USB / KVM extender",
@@ -3521,12 +3523,18 @@ function inferredCompetitorOutputLabel(profile: CompetitorProfile): { singular: 
 
 function competitorInputSummary(profile: CompetitorProfile): string {
   const explicit = explicitPortSummary(profile.resolvedSpec?.specs, "input");
+  const count = profile.resolvedSpec?.inputCount;
+  const routedArchitecture = profile.productClass === "Matrix" || profile.productClass === "Presentation switcher";
+
+  if (routedArchitecture && count) {
+    const routed = commercialPortLabel(count, "routed source input", "routed source inputs");
+    return explicit ? `${routed} (${explicit})` : routed;
+  }
 
   if (explicit) {
     return explicit;
   }
 
-  const count = profile.resolvedSpec?.inputCount;
   if (!count) {
     return "";
   }
@@ -3537,12 +3545,18 @@ function competitorInputSummary(profile: CompetitorProfile): string {
 
 function competitorOutputSummary(profile: CompetitorProfile): string {
   const explicit = explicitPortSummary(profile.resolvedSpec?.specs, "output");
+  const count = profile.resolvedSpec?.outputCount;
+  const routedArchitecture = profile.productClass === "Matrix" || profile.productClass === "Presentation switcher";
+
+  if (routedArchitecture && count) {
+    const routed = commercialPortLabel(count, "routed display output", "routed display outputs");
+    return explicit ? `${routed} (${explicit})` : routed;
+  }
 
   if (explicit) {
     return explicit;
   }
 
-  const count = profile.resolvedSpec?.outputCount;
   if (!count) {
     return "";
   }
@@ -4710,11 +4724,29 @@ function MinimumCompareCards({ competitor, competitorProfile, candidate }: {
   const status = compareReportedStatus(candidate, competitor);
   const statusMeta = compareReportedStatusMeta(status);
   const wyrestorm = candidate ? buildWyrestormSummary(candidate) : null;
+  const noMatchFactPriority = (label: string): number => {
+    if (/^inputs$/i.test(label)) return 0;
+    if (/^outputs$/i.test(label)) return 1;
+    return 2;
+  };
+  const confirmedRoutedFacts = [
+    competitorProfile.resolvedSpec?.inputCount
+      ? { label: "Inputs", value: `${competitorProfile.resolvedSpec.inputCount}x routed source inputs` }
+      : null,
+    competitorProfile.resolvedSpec?.outputCount
+      ? { label: "Outputs", value: `${competitorProfile.resolvedSpec.outputCount}x routed display outputs` }
+      : null,
+  ].filter((fact): fact is { label: string; value: string } => Boolean(fact));
   const rows = candidate && wyrestorm
     ? buildCoreComparisonFacts(competitor, competitorProfile, wyrestorm, candidate).slice(0, 6)
-    : competitor.facts.slice(0, 6).map((fact) => ({ label: fact.label, competitor: fact.value, wyrestorm: "", result: "" }));
+    : [...confirmedRoutedFacts, ...competitor.facts.filter((fact) => !confirmedRoutedFacts.some((confirmed) => confirmed.label === fact.label))]
+        .sort((a, b) => noMatchFactPriority(a.label) - noMatchFactPriority(b.label))
+        .slice(0, 6)
+        .map((fact) => ({ label: fact.label, competitor: fact.value, wyrestorm: "", result: "" }));
   const reason = candidate
     ? commercializeCompareCopy(candidate.matched[0] || candidate.partialMatches[0] || candidate.mismatches[0] || candidate.unknowns[0] || statusMeta.guidance)
+    : competitorProfile.resolvedSpec?.inputCount && competitorProfile.resolvedSpec?.outputCount
+      ? `No current WyreStorm candidate satisfies the confirmed ${competitorProfile.resolvedSpec.inputCount}x${competitorProfile.resolvedSpec.outputCount} routed I/O requirement without an input or output capacity shortfall.`
     : competitor.warning || "The available evidence does not support a safe WyreStorm equivalent.";
 
   return (
@@ -5854,16 +5886,37 @@ function ComparePageNew() {
     <main className="wm-compare-page wm-polish-shell wm-page" data-wingman-page="compare" data-compare-state={compareStage === "results" ? "result" : "input"}>
       {compareStage !== "results" ? (
         <section className="compare-native-results wm-ui-section" aria-label="Compare competitor products">
-          <header className="compare-native-section-title wm-ui-card wm-ui-title">
-            <div><span className="compare-native-eyebrow wm-ui-kicker">Competitor compare</span><h1 className="wm-ui-title">Compare competitor products</h1><p className="wm-ui-copy">Enter the competitor manufacturer and model. Wingman will place the competitor product on the left and the closest safe WyreStorm direction on the right.</p></div>
+          <header className="compare-native-section-title wm-ui-card">
+            <div><span className="compare-native-eyebrow wm-ui-kicker">Competitor compare</span><h1 className="wm-ui-title">Compare competitor products</h1><p className="wm-ui-copy">Identify the competitor product, then compare its confirmed signal path, routed I/O and technical capabilities against the current WyreStorm range.</p></div>
           </header>
-          <form className="wm-ui-card wm-ui-section p-4" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <CompareManufacturerCombobox brands={compareManufacturerOptions} selectedBrand={selectedBrand} onBrandSelect={onBrandSelect} />
-              <CompareProductLookupInput value={competitorInput} knownSkus={knownBrandSkus} suggestions={skuSuggestions} onInputChange={setCompetitorInput} onSkuSelect={onSkuSelect} />
+          <form className="compare-native-sku-stage" onSubmit={handleSubmit}>
+            <div className="wm-compare-sku-header">
+              <div className="wm-compare-selected-brand">
+                <span>Manufacturer</span>
+                <strong>{selectedBrand || "Not selected"}</strong>
+              </div>
+              <div className="wm-compare-sku-heading">
+                <span>Product identification</span>
+                <h2 className="wm-ui-title">What are you comparing?</h2>
+                <p>Choose a manufacturer and enter the exact competitor model. Known SKUs are recognised as you type.</p>
+              </div>
             </div>
-            <details className="compare-native-summary wm-ui-card wm-ui-copy mt-4"><summary>Add essential requirement</summary><label className="wm-field mt-3" htmlFor="compare-must-match">Only use this when the SKU alone does not describe the requirement.<textarea id="compare-must-match" className="compare-native-input wm-ui-input" value={mustMatchFeatures} onChange={(event) => setMustMatchFeatures(event.target.value)} placeholder="Example: 4K60, 6x2 routed I/O, USB path, 100 m extension" rows={3} /></label></details>
-            <div className="compare-native-action-row wm-ui-action-row mt-4"><button className="compare-native-more wm-ui-button wm-ui-button-primary" type="submit" disabled={!hasCompetitorSelection}>Compare</button></div>
+            <div className="wm-compare-sku-workspace">
+              <div className="wm-compare-sku-lookup">
+                <div className="wm-compare-panel-heading"><span>1</span><div><strong>Competitor product</strong><small>Manufacturer and model / SKU</small></div></div>
+                <CompareManufacturerCombobox brands={compareManufacturerOptions} selectedBrand={selectedBrand} onBrandSelect={onBrandSelect} />
+                <CompareProductLookupInput value={competitorInput} knownSkus={knownBrandSkus} suggestions={skuSuggestions} onInputChange={setCompetitorInput} onSkuSelect={onSkuSelect} />
+              </div>
+              <details className="wm-compare-match-requirements">
+                <summary className="wm-compare-panel-heading"><span>2</span><div><strong>Essential requirement</strong><small>Optional — add only what the SKU does not explain</small></div></summary>
+                <label className="wm-compare-requirement-field" htmlFor="compare-must-match"><span>Must-have capability</span><textarea id="compare-must-match" className="compare-native-input wm-ui-input" value={mustMatchFeatures} onChange={(event) => setMustMatchFeatures(event.target.value)} placeholder="For example: 4K60, 6x2 routed I/O, USB path or 100 m extension" rows={3} /></label>
+                <div className="wm-compare-requirement-examples" aria-label="Requirement examples"><span>Useful details</span><small>Resolution</small><small>Routed I/O</small><small>Extension</small><small>USB</small></div>
+              </details>
+            </div>
+            <div className="wm-compare-sku-actions">
+              <button className="compare-native-more wm-ui-button wm-ui-button-primary" type="submit" disabled={!hasCompetitorSelection}>Compare</button>
+              <div className="wm-compare-sku-action-copy"><span>{competitorInput || "Enter a competitor SKU to continue"}</span><small>The engine evaluates current product data each time.</small></div>
+            </div>
           </form>
         </section>
       ) : (

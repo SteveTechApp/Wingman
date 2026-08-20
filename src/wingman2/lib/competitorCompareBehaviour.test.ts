@@ -183,6 +183,18 @@ describe("competitor compare runtime behaviour", () => {
     expect(leadSkus.some((item) => item.includes("0402") || item.includes("4X2"))).toBe(true);
   });
 
+  it("does not invent an undersized match for the 11x2 Blustream MFP112", () => {
+    const result = runCompareRuntimePipeline("MFP112", products, "Blustream", 12);
+    const leadSkus = skus(result.matches).slice(0, 5);
+
+    expect(result.competitor.domain).toBe("PRESENTATION");
+    expect(result.competitor.inputCount).toBe(11);
+    expect(result.competitor.outputCount).toBe(2);
+    expect(leadSkus).not.toContain("SW-510-TX");
+    expect(leadSkus).not.toContain("MXV-0808-H2A-KIT");
+    expect(leadSkus).not.toContain("MX-0808-KIT-V2");
+  });
+
   it("keeps Lightware MMX6x2 requests as 6x2 matrix jobs and does not lead with undersized 4x2 products", () => {
     const result = runCompareRuntimePipeline("MMX6x2-HT200", products, "Lightware", 12);
     const leadSkus = skus(result.matches).slice(0, 4);
@@ -297,7 +309,7 @@ describe("competitor compare runtime behaviour", () => {
     expect(result.competitor.sku).toBe("WMF72");
     expect(leadSkus[0]).toMatch(/^SW-(620|640L)-TX-W$/);
     expect(leadSkus[0]).not.toBe("APO-VX20-UC-V2");
-    expect(leadSkus).toContain("SW-620-TX-W");
+    expect(leadSkus).not.toContain("SW-620-TX-W");
   });
 
   describe("wireless compare regression (audit P0-1)", () => {
