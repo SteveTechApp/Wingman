@@ -4,6 +4,7 @@ import {
   normaliseCompareProducts,
   runCompareRuntimePipeline,
 } from "./compareRuntimePipeline";
+import { buildRealWyrestormCandidates } from "../pages/ComparePageNew.advanced";
 
 type AnyRecord = Record<string, any>;
 
@@ -21,6 +22,15 @@ function leadSkus(result: AnyRecord, limit = 8): string[] {
 }
 
 describe("Compare false-no-match recovery matrix", () => {
+  it("matches Atlona AT-HDDA-2 to the 1x2 WyreStorm HDMI splitter", () => {
+    const pageProducts = buildRealWyrestormCandidates(rawProductIndex);
+    const result = runCompareRuntimePipeline("Atlona AT-HDDA-2", pageProducts, "Atlona", 12);
+    const leads = leadSkus(result);
+
+    expect(result.topOutcome).not.toBe("NONE");
+    expect(leads).toContain("EXP-SP-0102-H2");
+  });
+
   it("keeps Atlona AT-OMNI-121 in the decoder/receiver lane", () => {
     const result = runCompareRuntimePipeline(
       "AT-OMNI-121",

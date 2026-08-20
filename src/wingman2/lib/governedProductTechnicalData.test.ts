@@ -31,6 +31,33 @@ function baseProduct(sku: string): ProductSpec {
 }
 
 describe("governed product technical data", () => {
+  it("routes governed ports into their functional technical fields", () => {
+    const resolved = resolveProductTechnicalData(
+      { sku: "MXV-0808-H2A-KIT" },
+      baseProduct("MXV-0808-H2A-KIT"),
+    );
+
+    expect(resolved.ioSummary.join(" ")).toMatch(/HDMI input|HDBaseT zone outputs/i);
+    expect(resolved.ioSummary.join(" ")).not.toMatch(/Toslink|IR RX|IR TX|RS-232|Web UI/i);
+    expect(resolved.audio.join(" ")).toMatch(/Toslink.*S\/PDIF/i);
+    expect(resolved.control.join(" ")).toMatch(/IR RX/i);
+    expect(resolved.control.join(" ")).toMatch(/IR TX/i);
+    expect(resolved.control.join(" ")).toMatch(/RS-232/i);
+    expect(resolved.network.join(" ")).toMatch(/LAN.*Web UI/i);
+  });
+
+  it("cross-lists Dante interfaces as both audio and network data", () => {
+    const resolved = resolveProductTechnicalData(
+      { sku: "AMP-260-DNT" },
+      baseProduct("AMP-260-DNT"),
+    );
+
+    expect(resolved.audio.join(" ")).toMatch(/Dante network audio input/i);
+    expect(resolved.network.join(" ")).toMatch(/Dante network audio input/i);
+    expect(resolved.network.join(" ")).toMatch(/RJ45/i);
+    expect(resolved.ioSummary.join(" ")).not.toMatch(/Dante network audio input/i);
+  });
+
   it("hydrates NHD-120-RX from the exact governed profile", () => {
     const base = baseProduct("NHD-120-RX");
     const resolved = resolveProductTechnicalData({ sku: "NHD-120-RX" }, base);

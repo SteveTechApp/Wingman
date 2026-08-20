@@ -9,11 +9,9 @@ import type { RigorousMatch } from "./rigorousCompare";
 import type { CompetitorMatchDecision } from "./competitorMatchDecisionLedger";
 
 /**
- * Pins the engineSnapshot -> ledger override -> verdict pipeline in isolation:
- * engine lead surfacing, approved-decision promotion (including a SKU the
- * engine never surfaced), no-suitable-match suppression, and the honest NO
- * MATCH render fallback. Uses real active WyreStorm SKUs so the eligibility
- * filter at the end of the pipeline does not remove the fixtures.
+ * Pins the live engineSnapshot -> verdict pipeline in isolation. Historical
+ * decisions remain audit evidence and must never promote, insert or suppress
+ * candidates produced from current product data.
  */
 
 const ACTIVE_SKUS = ["MX-0402-MST", "NHD-500-TX", "SP-0104-H2"];
@@ -174,7 +172,7 @@ describe("resolveCompareVerdictCandidates", () => {
     ]);
   });
 
-  it("promotes the approved decision to the lead with its verdict and evidence", () => {
+  it("does not let an approved historical decision replace the current engine lead", () => {
     const result = run(
       [
         makeMatch("MX-0402-MST", "GOOD MATCH", 80),
@@ -187,18 +185,12 @@ describe("resolveCompareVerdictCandidates", () => {
     );
 
     const lead = result.viable[0];
-    expect(lead.product.sku).toBe("NHD-500-TX");
+    expect(lead.product.sku).toBe("MX-0402-MST");
     expect(lead.verdict).toBe("GOOD MATCH");
-    expect(lead.score).toBeGreaterThanOrEqual(100);
-    expect(lead.outcomeLabel).toBe("Confirmed equivalent");
-    expect(lead.matched).toContain("switches multiple sources");
-    // The promoted decision must never duplicate the same SKU in the list.
-    expect(
-      result.viable.filter((candidate) => candidate.product.sku === "NHD-500-TX"),
-    ).toHaveLength(1);
+    expect(lead.score).toBe(80);
   });
 
-  it("promotes a decision for a SKU the engine never surfaced", () => {
+  it("does not insert a historical decision SKU the current engine did not surface", () => {
     const result = run(
       [makeMatch("MX-0402-MST", "GOOD MATCH", 80)],
       baseDecision({
@@ -207,11 +199,10 @@ describe("resolveCompareVerdictCandidates", () => {
       }),
     );
 
-    expect(result.viable[0].product.sku).toBe("SP-0104-H2");
-    expect(result.viable[0].verdict).toBe("PARTIAL MATCH");
+    expect(result.viable.map((candidate) => candidate.product.sku)).toEqual(["MX-0402-MST"]);
   });
 
-  it("suppresses every candidate on an approved no-suitable-match", () => {
+  it("does not let a historical no-suitable-match suppress current candidates", () => {
     const result = run(
       [
         makeMatch("MX-0402-MST", "GOOD MATCH", 80),
@@ -220,8 +211,10 @@ describe("resolveCompareVerdictCandidates", () => {
       baseDecision({ decisionType: "no-suitable-match", wyrestormSku: null }),
     );
 
-    expect(result.viable).toEqual([]);
-    // The honest raw lead still exists for the no-match render path.
+    expect(result.viable.map((candidate) => candidate.product.sku)).toEqual([
+      "MX-0402-MST",
+      "NHD-500-TX",
+    ]);
     expect(result.heuristicLead?.product.sku).toBe("MX-0402-MST");
   });
 
