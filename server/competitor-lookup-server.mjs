@@ -57,6 +57,11 @@ import {
   handleIntelligenceDraftsGet,
   handleIntelligenceDraftStatusPost,
 } from "./intelligence/auto-draft-builder.mjs";
+import {
+  handleLiveResearchReviewApprovePost,
+  handleLiveResearchReviewQueueGet,
+  handleLiveResearchReviewRejectPost,
+} from "./intelligence/live-research-review.mjs";
 let createSupabaseClient = null;
 try {
   ({ createClient: createSupabaseClient } = await import("@supabase/supabase-js"));
@@ -2094,7 +2099,10 @@ function allowLocalIntelligenceDraftBypass(req, url) {
     "/api/intelligence/drafts",
     "/api/intelligence/build-competitor",
     "/api/intelligence/build-wyrestorm",
-    "/api/intelligence/drafts/status"
+    "/api/intelligence/drafts/status",
+    "/api/governance/live-research/queue",
+    "/api/governance/live-research/approve",
+    "/api/governance/live-research/reject"
   ].includes(pathname);
 
   if (!allowedPath) {
@@ -2405,6 +2413,34 @@ const ROUTES = [
       handleCompetitorDecisionApprovalPost(req, res, url, { sendJson, parseJsonBody, requireWingmanPermission }),
   },
 
+  // --- Live competitor research governance ---
+  {
+    method: "GET",
+    path: "/api/governance/live-research/queue",
+    permission: "canManageWorkspace",
+    deniedMessage: "Live competitor research review is restricted to workspace admins.",
+    localBypass: true,
+    handler: (req, res, url, { sendJson }) =>
+      handleLiveResearchReviewQueueGet(req, res, url, { sendJson }),
+  },
+  {
+    method: "POST",
+    path: "/api/governance/live-research/approve",
+    permission: "canManageWorkspace",
+    deniedMessage: "Live competitor research approval is restricted to workspace admins.",
+    localBypass: true,
+    handler: (req, res, url, { sendJson, parseJsonBody }) =>
+      handleLiveResearchReviewApprovePost(req, res, url, { sendJson, parseJsonBody }),
+  },
+  {
+    method: "POST",
+    path: "/api/governance/live-research/reject",
+    permission: "canManageWorkspace",
+    deniedMessage: "Live competitor research rejection is restricted to workspace admins.",
+    localBypass: true,
+    handler: (req, res, url, { sendJson, parseJsonBody }) =>
+      handleLiveResearchReviewRejectPost(req, res, url, { sendJson, parseJsonBody }),
+  },
   // --- Product intelligence drafts (local bypass skips the gate; otherwise it
   // --- is enforced uniformly below) ---
   {

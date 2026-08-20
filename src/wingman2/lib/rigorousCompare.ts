@@ -25,6 +25,8 @@ import {
   type ResolvedCompetitorProfile,
 } from "./competitorSpecRegistry";
 import { buildWyrestormCompareProfile } from "./wyrestormCompareProfile";
+import { buildAvProductSemanticProfile, semanticCompareBackfill } from "./avProductSemanticProfiler";
+import { mergeSemanticRecallWithHeuristicMatches, recallSemanticCandidates } from "./semanticProductRecall";
 import { isBannedNetworkHdSku } from "./networkHdAvoipEquivalence";
 
 export type RigorousMatch = {
@@ -165,9 +167,26 @@ export function rigorousCompare(
   const analysis = analyzeCompetitor(input, providedBrand);
   const base = compareCompetitor(input, products, providedBrand, maxCandidates);
   const resolvedCompetitor = resolveCompetitorSpecProfile(input, providedBrand || analysis.brand, sourceUrl);
+  const semanticCompetitor = buildAvProductSemanticProfile({
+    ...resolvedCompetitor,
+    manufacturer: providedBrand || analysis.brand,
+    rawText: input,
+  });
+  const semanticBackfill = semanticCompareBackfill(semanticCompetitor);
+  const legacyBackfill = backfillFreeTextClassification(resolvedCompetitor, analysis, input);
   const competitor: ResolvedCompetitorProfile = {
     ...resolvedCompetitor,
-    ...backfillFreeTextClassification(resolvedCompetitor, analysis, input),
+    ...legacyBackfill,
+    domain:
+      resolvedCompetitor.domain && resolvedCompetitor.domain !== "UNKNOWN"
+        ? resolvedCompetitor.domain
+        : semanticBackfill.domain ?? legacyBackfill.domain ?? resolvedCompetitor.domain,
+    role:
+      resolvedCompetitor.role && resolvedCompetitor.role !== "unknown"
+        ? resolvedCompetitor.role
+        : semanticBackfill.role ?? legacyBackfill.role ?? resolvedCompetitor.role,
+    inputCount: resolvedCompetitor.inputCount ?? semanticBackfill.inputCount,
+    outputCount: resolvedCompetitor.outputCount ?? semanticBackfill.outputCount,
   };
   const unresolvedCompetitor =
     competitor.specTier === "sku-only" &&
@@ -198,7 +217,22 @@ export function rigorousCompare(
     products.map((product) => [String(product.sku), product]),
   );
 
-  const evaluated: RigorousMatch[] = base.matches.map((match) => {
+  const semanticRecall = recallSemanticCandidates({
+    competitor: {
+      ...competitor,
+      manufacturer: providedBrand || analysis.brand,
+      rawText: input,
+    },
+    products: products as any,
+    limit: Math.max(24, maxCandidates * 4),
+  });
+  const candidateSeeds = mergeSemanticRecallWithHeuristicMatches(
+    base.matches as any,
+    semanticRecall,
+    Math.max(32, maxCandidates * 5),
+  );
+
+  const evaluated: RigorousMatch[] = candidateSeeds.map((match: any) => {
     const product = bySku.get(match.sku);
     const wyrestorm: CompareDecisionProfile = product
       ? buildWyrestormCompareProfile(product)
