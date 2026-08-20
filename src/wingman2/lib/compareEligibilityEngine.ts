@@ -358,6 +358,35 @@ function extractStructuredMatrixSize(value: unknown): { inputs: number; outputs:
   return undefined;
 }
 
+function extractCandidateMatrixSize(value: unknown): { inputs?: number; outputs?: number } | undefined {
+  const explicit = extractStructuredMatrixSize(value);
+  if (explicit) return explicit;
+
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+
+  // WyreStorm routed capacity normally lives in the governed technical profile,
+  // not in the flat catalogue record. Use the same normalised profile as the
+  // compare cards so eligibility and presentation cannot disagree.
+  const record = value as LooseRecord;
+  const profile = buildWyrestormCompareProfile({
+    ...record,
+    features: Array.isArray(record.features) ? record.features : [],
+    technologies: Array.isArray(record.technologies) ? record.technologies : [],
+    featureTags: Array.isArray(record.featureTags) ? record.featureTags : [],
+    tags: Array.isArray(record.tags) ? record.tags : [],
+  } as any);
+  const inputs = numberFromValue(profile.inputCount);
+  const outputs = numberFromValue(profile.outputCount);
+  const descriptiveText = toText(record);
+  const describedInputs = numberFromValue(descriptiveText.match(/\b(\d{1,2})[ -]input\b/i)?.[1]);
+  const describedOutputs = numberFromValue(descriptiveText.match(/\b(\d{1,2})[ -]output\b/i)?.[1]);
+  const resolvedInputs = Math.max(inputs && inputs <= 64 ? inputs : 0, describedInputs ?? 0) || undefined;
+  const resolvedOutputs = Math.max(outputs && outputs <= 64 ? outputs : 0, describedOutputs ?? 0) || undefined;
+  return resolvedInputs || resolvedOutputs
+    ? { inputs: resolvedInputs, outputs: resolvedOutputs }
+    : undefined;
+}
+
 function structuredMatrixText(value: unknown): string {
   const size = extractStructuredMatrixSize(value);
   return size ? `${size.inputs}x${size.outputs} routed matrix` : "";
@@ -732,9 +761,9 @@ function productHasNetworkHdEndpointRole(sku: string, text: string): boolean {
     /\b(tx|rx|trx|encoder|decoder|transceiver|transmitter|receiver)\b/i.test(value);
 }
 
-function matrixFitPenalty(competitorText: string, sku: string, text: string): number {
+function matrixFitPenalty(competitorText: string, sku: string, text: string, product?: unknown): number {
   const required = extractMatrixSizeFromText(competitorText);
-  const offered = extractMatrixSizeFromText(`${sku} ${text}`);
+  const offered = extractCandidateMatrixSize(product) ?? extractMatrixSizeFromText(`${sku} ${text}`);
 
   let penalty = 0;
 
@@ -1113,10 +1142,10 @@ export function evaluateProductEligibility(args: {
       return blocked(sku, args.intent, ["Candidate is not a matrix/switching product."]);
     }
 
-    const penalty = matrixFitPenalty(args.competitorText, sku, combined);
+    const penalty = matrixFitPenalty(args.competitorText, sku, combined, product);
 
     if (penalty >= 200) {
-      return related(args.intent, ["Matrix candidate appears undersized for required routed I/O."], penalty);
+      return blocked(sku, args.intent, ["Matrix candidate is undersized for the confirmed routed I/O requirement."]);
     }
 
     const size = extractMatrixSizeFromText(args.competitorText);
@@ -1127,7 +1156,7 @@ export function evaluateProductEligibility(args: {
 
   if (args.intent === "distribution-amplifier") {
     if (/^SP|^EXPSP/.test(key) || /\b(splitter|distribution amplifier|distribution amp|duplicator)\b/i.test(combined)) {
-      const penalty = matrixFitPenalty(args.competitorText, sku, combined);
+      const penalty = matrixFitPenalty(args.competitorText, sku, combined, product);
       return direct(args.intent, ["HDMI distribution amplifier candidate with a one-source, mirrored-output topology."], penalty);
     }
 
@@ -1141,6 +1170,16 @@ export function evaluateProductEligibility(args: {
   if (args.intent === "presentation-switcher" || args.intent === "uc-byod") {
     const competitorNeedsUcHardware = /\b(byom|teams|zoom|unified\s*communications?|uc\s*room|video\s*bar|conference\s*(bar|room|system)|speakerphone)\b/i.test(args.competitorText);
     const wirelessPresentationSwitcher = /^SW/.test(key) && /\b(wireless|casting|miracast|airplay|chromecast|presentation|switcher|byod|byom)\b/i.test(combined);
+    const capacityPenalty = matrixFitPenalty(args.competitorText, sku, combined, product);
+
+    // Product-family similarity never compensates for insufficient confirmed
+    // routed capacity. Unknown capacity remains reviewable; known undersizing
+    // is a functional mismatch and must not enter the viable candidate list.
+    if (capacityPenalty >= 200) {
+      return blocked(sku, args.intent, [
+        "Candidate is undersized for the confirmed presentation-switcher routed I/O requirement.",
+      ]);
+    }
 
     if (args.intent === "uc-byod" && competitorNeedsUcHardware && !isUcRoomHardware) {
       return blocked(sku, args.intent, [
@@ -1161,7 +1200,7 @@ export function evaluateProductEligibility(args: {
       const is620 = key === "SW620TXW" || key === "SW620LTXW";
       const is640 = key === "SW640LTXW" || key === "SW640TXW";
       const fitPenalty = (prefersCompactSwitcher && is620) || (prefersLargerSwitcher && is640) ? -110 : -90;
-      return direct(args.intent, ["Wireless presentation switcher candidate."], fitPenalty);
+      return direct(args.intent, ["Wireless presentation switcher candidate."], fitPenalty + capacityPenalty);
     }
 
     if (args.intent === "presentation-switcher" && isUcRoomHardware && !competitorNeedsUcHardware) {
@@ -1171,7 +1210,7 @@ export function evaluateProductEligibility(args: {
     }
 
     if (/^SW|^MX/.test(key) || (args.intent === "uc-byod" && isUcRoomHardware) || /\b(presentation|switcher|usb-c|byod|byom|unified communications?|video bar)\b/i.test(combined)) {
-      return direct(args.intent, ["Presentation/switching candidate for meeting-room workflow."], 0);
+      return direct(args.intent, ["Presentation/switching candidate for meeting-room workflow."], capacityPenalty);
     }
 
     return related(args.intent, ["Related product, but not a direct presentation switcher lead."], 80);

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import competitorCatalog from "../../../data/catalog/competitor-products.generated.json";
 
 import {
   CURATED_FINGERPRINTS,
@@ -83,5 +84,42 @@ describe("competitor fingerprint integrity", () => {
     const profile = resolveCompetitorSpecProfile("AT-OMNI-112", "Atlona");
     expect(String(profile.role).toLowerCase()).toBe("encoder");
     expect(profile.inputCount).toBe(2);
+  });
+
+  it("classifies HDBaseT-capable products by purpose instead of reducing them to extenders", () => {
+    const presentation = resolveCompetitorSpecProfile("MFP112", "Blustream");
+    expect(presentation.domain).toBe("PRESENTATION");
+    expect(presentation.role).toBe("presentation switcher");
+    expect(presentation.inputCount).toBe(11);
+    expect(presentation.outputCount).toBe(2);
+
+    const matrix = resolveCompetitorSpecProfile("C44-KIT", "Blustream");
+    expect(matrix.domain).toBe("MATRIX");
+    expect(matrix.inputCount).toBe(4);
+    expect(matrix.outputCount).toBe(4);
+
+    const distribution = resolveCompetitorSpecProfile("VM-4HDT", "Kramer");
+    expect(distribution.domain).toBe("DISTRIBUTION");
+  });
+
+  it("keeps every catalogued HDBaseT routing product in its declared architecture lane", () => {
+    const expectedDomainByCategory = {
+      Matrix: "MATRIX",
+      Presentation: "PRESENTATION",
+      Distribution: "DISTRIBUTION",
+    } as const;
+    const routedProducts = competitorCatalog.filter((entry) =>
+      /hdbaset/i.test(String(entry.technology ?? "")) &&
+      entry.category in expectedDomainByCategory,
+    );
+
+    expect(routedProducts.length).toBeGreaterThan(10);
+    for (const entry of routedProducts) {
+      const profile = resolveCompetitorSpecProfile(entry.sku, entry.brand);
+      expect(profile.domain, `${entry.brand} ${entry.sku}`).toBe(
+        expectedDomainByCategory[entry.category as keyof typeof expectedDomainByCategory],
+      );
+      expect(profile.domain, `${entry.brand} ${entry.sku} must not be treated as an extender`).not.toBe("HDBASET");
+    }
   });
 });

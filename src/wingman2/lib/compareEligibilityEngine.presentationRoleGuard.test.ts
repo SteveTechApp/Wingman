@@ -34,4 +34,26 @@ describe("Compare presentation-switcher role isolation", () => {
 
     expect(result.eligibility).toBe("blocked");
   });
+
+  it("blocks a same-family presentation switcher that is below confirmed routed capacity", () => {
+    const result = evaluateProductEligibility({
+      intent: "presentation-switcher",
+      competitorText: "11x2 routed matrix presentation switcher",
+      match: {
+        sku: "SW-510-TX",
+        name: "4-input presentation switcher",
+        inputCount: 4,
+        outputCount: 2,
+      },
+      product: {
+        sku: "SW-510-TX",
+        name: "4-input presentation switcher",
+        inputCount: 4,
+        outputCount: 2,
+      },
+    });
+
+    expect(result.eligibility).toBe("blocked");
+    expect(result.blockers.join(" ")).toMatch(/undersized|routed I\/O/i);
+  });
 });

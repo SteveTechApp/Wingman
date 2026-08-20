@@ -7104,8 +7104,8 @@ html[data-wingman-route="discovery"]
 }
 
 /* WINGMAN_COMPARE_INLINE_DROPDOWNS_V3
-   Keep suggestion panels compact and anchored to the left edge of the field.
-   The complete filtered list remains available through internal scrolling. */
+   Keep manufacturer choices compact. SKU choices use the full lookup width so
+   product codes are easier to scan and more of the filtered range stays in view. */
   [data-wingman-inline-combobox="manufacturer"]
   .compare-inline-options {
   width: min(440px, 100%) !important;
@@ -7118,12 +7118,13 @@ html[data-wingman-route="discovery"]
 
   [data-wingman-inline-combobox="sku"]
   .compare-inline-options {
-  width: min(560px, 100%) !important;
-  min-width: min(360px, 100%) !important;
-  max-width: min(560px, 100%) !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
   left: 0 !important;
-  right: auto !important;
-  max-height: min(300px, 38vh) !important;
+  right: 0 !important;
+  max-height: min(520px, 58vh) !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
 }
 
 @media (max-width: 760px) {
@@ -7134,5 +7135,6 @@ html[data-wingman-route="discovery"]
     width: 100% !important;
     min-width: 100% !important;
     max-width: 100% !important;
+    grid-template-columns: 1fr !important;
   }
 }
