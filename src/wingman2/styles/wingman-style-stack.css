@@ -25559,3 +25559,65 @@ html[data-wingman-route="glossary"] .wm-glossary-search .wm-input::placeholder,
 .wm-catalog-product-card .compare-native-governance-badge {
   margin-top: 6px;
 }
+
+/* Product specification facts are structured records, not inline prose. */
+.wm-product-spec-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.wm-product-spec-group {
+  min-width: 0;
+  padding: 1rem 1.125rem;
+  border: 1px solid rgba(69, 113, 145, 0.55);
+  border-radius: 1rem;
+  background: rgba(7, 21, 34, 0.92);
+}
+
+.wm-product-spec-group dt {
+  margin: 0 0 0.55rem;
+  color: #67e8f9;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.wm-product-spec-group dd,
+.wm-product-spec-group ul {
+  min-width: 0;
+  margin: 0;
+}
+
+.wm-product-spec-group ul {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0;
+  list-style: none;
+}
+
+.wm-product-spec-group li {
+  color: var(--wm-ref-text, #e8f1f7);
+  font-size: 0.875rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.wm-product-spec-group li + li {
+  padding-top: 0.45rem;
+  border-top: 1px solid rgba(69, 113, 145, 0.28);
+}
+
+.wm-product-spec-group ul.is-unconfirmed li {
+  color: var(--wm-ref-muted, #8798aa);
+  font-style: italic;
+}
+
+@media (max-width: 800px) {
+  .wm-product-spec-groups {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -853,18 +853,21 @@ function SpecTable({ product }: { product: ProductSpec }) {
   return (
     <dl className="wm-product-spec-groups">
       {rows.map(([label, rawItems]) => {
-        const items = cleanUsefulList([...rawItems], 8);
+        // Technical overview is the detailed record view. Do not apply the
+        // short sales-card limit here: doing so silently hides stored facts.
+        const items = cleanUsefulList([...rawItems], Number.MAX_SAFE_INTEGER);
         const displayItems = items.length ? items : ["Not confirmed"];
+        const isUnconfirmed = items.length === 0;
 
         return (
           <div key={label} className="wm-product-spec-group">
             <dt>{label}</dt>
             <dd>
-              {displayItems.map((item) => (
-                <span key={item}>
-                  {item}
-                </span>
-              ))}
+              <ul className={isUnconfirmed ? "is-unconfirmed" : undefined}>
+                {displayItems.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
             </dd>
           </div>
         );
