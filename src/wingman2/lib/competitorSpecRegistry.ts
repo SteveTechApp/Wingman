@@ -23,6 +23,8 @@ import {
 } from "./competitorProductIntelligence";
 import { findCompetitorSourceProduct, type CompetitorSourceProduct } from "../data/competitorSourceFeeds";
 import competitorCompareCatalogRaw from "../../../data/catalog/competitor-products.generated.json";
+import { normaliseProductTechnology } from "./technologyNormalizer";
+import type { ProductTechnologyProfile } from "../types/technologyProfile";
 
 export type CompetitorSpecTier = "verified-profile" | "family-rule" | "sku-only";
 
@@ -36,6 +38,7 @@ export type ResolvedCompetitorProfile = CompareDecisionProfile & {
   confidencePenalty: number;
   source: "fingerprint" | "family-rule" | "typed-text" | "user-saved";
   datasheetUrl?: string;
+  technology?: ProductTechnologyProfile;
 };
 
 export type Fingerprint = {
@@ -53,6 +56,7 @@ export type Fingerprint = {
   features?: Record<string, boolean>;
   specs?: CompareSpecFacts;
   datasheetUrl?: string;
+  technology?: ProductTechnologyProfile;
   approvalStatus?: "approved" | "review" | "draft" | "needs-evidence";
   sourceTier?: string;
 };
@@ -1046,13 +1050,25 @@ export function resolveCompetitorSpecProfile(
   const displaySku = fingerprint && !fingerprint.keys.includes(evidenceSkuKey)
     ? fingerprint.sku
     : evidence.sku || canonicalInput;
+  const technology = normaliseProductTechnology({
+    manufacturer: sourceProduct?.manufacturer || normalised?.brand || fingerprint?.brand || evidence.brand,
+    sku: sourceProduct?.sku || displaySku,
+    productClass: domain,
+    transport: sourceProduct?.transport || canonicalTransport(domain),
+    technology: sourceProduct?.transport,
+    summary: [sourceProduct?.summary, parseBasis].filter(Boolean).join(" "),
+    features,
+    specs: fingerprint?.specs,
+    sourceUrl: fingerprint?.datasheetUrl || catalogFingerprint?.datasheetUrl || sourceProduct?.sourceUrl || sourceUrl,
+  });
 
   return {
     sku: sourceProduct?.sku || displaySku,
     title: sourceProduct?.title || canonicalInput,
     domain,
     role,
-    transport: sourceProduct?.transport || canonicalTransport(domain),
+    transport: technology.canonicalTransport || sourceProduct?.transport || canonicalTransport(domain),
+    technology,
     inputCount: fingerprint?.inputCount ?? sourceProduct?.inputCount ?? parsedIo.inputCount,
     outputCount: fingerprint?.outputCount ?? sourceProduct?.outputCount ?? parsedIo.outputCount,
     maxResolution: fingerprint?.maxResolution ?? sourceProduct?.maxResolution ?? parseResolution(parseBasis),
