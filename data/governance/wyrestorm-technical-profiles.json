@@ -1456,7 +1456,7 @@
         "12x optical, 4x digital zoom",
         "Horizontal viewing angle 72.5 degrees, vertical 44.8 degrees"
       ],
-      "maxResolution": "1920x1080p @60Hz",
+      "maxResolution": "1920x1080p @30Hz",
       "dependencies": [
         "USB 3.0 passive cable run is limited to 2m; 15m requires CAB-UAOC-15",
         "Confirm the conferencing platform accepts a UVC camera at the required resolution"

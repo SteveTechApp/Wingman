@@ -85,10 +85,33 @@ describe("real WyreStorm catalogue integration", () => {
       const rx700 = mapRealCatalogEntryToCompareCandidate(entry("RX-700"));
       expect(rx700?.productClass).toBe("HDBaseT extender");
       expect(rx700?.role).toBe("TX/RX extender kit");
+      expect(rx700?.transport).toBe("HDBaseT");
 
       const rx3100 = mapRealCatalogEntryToCompareCandidate(entry("RX3-100"));
       expect(rx3100?.productClass).toBe("HDBaseT extender");
       expect(rx3100?.role).toBe("TX/RX extender kit");
+      expect(rx3100?.transport).toBe("HDBaseT");
+    });
+
+    it("does not let a contaminated NDI tag override governed HDBaseT transport", () => {
+      const candidate = mapRealCatalogEntryToCompareCandidate({
+        sku: "EX-70-H2",
+        name: "4K HDBaseT extender",
+        primarySystemFamily: "Extension",
+        technologies: ["HDBaseT", "NDI"],
+        features: ["NDI"],
+        productRole: "endpoint-hardware",
+        lifecycleStatus: "active",
+        productClassification: {
+          category: "HDBaseT extender",
+          subCategory: "Extender set",
+          productType: "Signal extension endpoint",
+          transportClass: ["HDBaseT"],
+        } as ProductIntelligenceIndexEntry["productClassification"],
+      });
+
+      expect(candidate?.productClass).toBe("HDBaseT extender");
+      expect(candidate?.transport).toBe("HDBaseT");
     });
 
     it("classifies an AVoIP transceiver correctly despite the same lingering pollution", () => {
