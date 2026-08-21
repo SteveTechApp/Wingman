@@ -459,6 +459,7 @@ function buildSpecFacts(product: WyrestormProduct, blob: string, inputCount?: nu
   specs.arc = /\barc\b/.test(blob) || undefined;
   specs.earc = /\bearc\b/.test(blob) || undefined;
   specs.dante = /\bdante\b/.test(blob) || undefined;
+  specs.dedicatedDantePort = /dedicated dante port|separate dante|independent dante port/.test(blob) || undefined;
   specs.aes67 = /aes67/.test(blob) || undefined;
 
   specs.poe = /\bpoe\b|poe\+|802\.3af|802\.3at|power over ethernet/.test(blob) || undefined;
@@ -467,6 +468,12 @@ function buildSpecFacts(product: WyrestormProduct, blob: string, inputCount?: nu
   specs.powerDelivery = /usb-c power|power delivery|\bpd\b/.test(blob) || undefined;
   specs.externalPsu = /external power|dc power|power supply|psu|adapter/.test(blob) || anyPort(allPorts, /power supply|dc power|psu/);
   specs.internalPsu = /internal power|iec|mains input/.test(blob) || undefined;
+  const hdbasetVersion = blob.match(/\bhdbaset\s*(?:tm\s*)?(3(?:\.0)?|2(?:\.0)?|1(?:\.0)?)\b/i);
+  const hdbasetClass = blob.match(/\bhdbaset[^.]{0,30}\bclass\s*([abc])\b|\bclass\s*([abc])\b[^.]{0,30}\bhdbaset\b/i);
+  const hdbasetDistances = Array.from(blob.matchAll(/\b(\d{2,3})\s*m(?:eters?|etres?)?\b/gi)).map((match) => Number(match[1]));
+  specs.hdbasetVersion = hdbasetVersion ? `HDBaseT ${Number(hdbasetVersion[1]).toFixed(1)}` : undefined;
+  specs.hdbasetClass = hdbasetClass ? `Class ${String(hdbasetClass[1] ?? hdbasetClass[2]).toUpperCase()}` : undefined;
+  specs.hdbasetDistance = hdbasetDistances.length ? Math.max(...hdbasetDistances) : undefined;
 
   if (specs.poh) specs.powerSupply = "PoH / HDBaseT remote power";
   else if (specs.poc) specs.powerSupply = "PoC remote power";

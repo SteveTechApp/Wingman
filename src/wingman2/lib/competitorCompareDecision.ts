@@ -209,6 +209,13 @@ const HARD_FEATURES = [
   "poh",
   "audioDeEmbed",
   "audioEmbed",
+  "rs232",
+  "ir",
+  "cec",
+  "ethernetControl",
+  "arc",
+  "earc",
+  "dedicatedDantePort",
 ];
 
 function clean(value: unknown): string {
@@ -449,6 +456,13 @@ function featureLabel(key: string): string {
     poh: "PoH",
     audioDeEmbed: "audio de-embed",
     audioEmbed: "audio embed",
+    rs232: "RS-232 control",
+    ir: "IR control",
+    cec: "CEC control",
+    ethernetControl: "Ethernet / API control",
+    arc: "ARC",
+    earc: "eARC",
+    dedicatedDantePort: "dedicated Dante network port",
   };
 
   return labels[key] || key;
@@ -821,9 +835,67 @@ export function classifyCompetitorCompareDecision(input: CompareDecisionInput): 
     }
   }
 
+  const competitorHdbasetVersion = lower(competitor.specs?.hdbasetVersion);
+  const wyrestormHdbasetVersion = lower(wyrestorm.specs?.hdbasetVersion);
+  if (competitorHdbasetVersion) {
+    if (!wyrestormHdbasetVersion) {
+      addUnique(gaps, `Competitor requires ${competitor.specs?.hdbasetVersion}; WyreStorm candidate generation is not evidenced.`);
+    } else if (competitorHdbasetVersion !== wyrestormHdbasetVersion) {
+      addUnique(blockers, `HDBaseT generation mismatch: competitor uses ${competitor.specs?.hdbasetVersion}, WyreStorm candidate uses ${wyrestorm.specs?.hdbasetVersion}.`);
+    } else {
+      addUnique(matches, `${competitor.specs?.hdbasetVersion} generation matches.`);
+    }
+  }
+
+  const competitorHdbasetClass = lower(competitor.specs?.hdbasetClass);
+  const wyrestormHdbasetClass = lower(wyrestorm.specs?.hdbasetClass);
+  if (competitorHdbasetClass) {
+    if (!wyrestormHdbasetClass) {
+      addUnique(gaps, `Competitor requires ${competitor.specs?.hdbasetClass}; WyreStorm candidate HDBaseT class is not evidenced.`);
+    } else if (competitorHdbasetClass !== wyrestormHdbasetClass) {
+      addUnique(blockers, `HDBaseT class mismatch: competitor uses ${competitor.specs?.hdbasetClass}, WyreStorm candidate uses ${wyrestorm.specs?.hdbasetClass}.`);
+    } else {
+      addUnique(matches, `${competitor.specs?.hdbasetClass} matches.`);
+    }
+  }
+
+  const competitorDistance = numberValue(competitor.specs?.hdbasetDistance);
+  const wyrestormDistance = numberValue(wyrestorm.specs?.hdbasetDistance);
+  if (competitorDistance !== null) {
+    if (wyrestormDistance === null) {
+      addUnique(gaps, `Competitor HDBaseT reach is ${competitorDistance}m; candidate reach is not evidenced.`);
+    } else if (wyrestormDistance < competitorDistance) {
+      addUnique(blockers, `HDBaseT reach is insufficient: ${wyrestormDistance}m versus the required ${competitorDistance}m.`);
+    } else {
+      addUnique(matches, `HDBaseT reach meets the ${competitorDistance}m requirement.`);
+    }
+  }
+
+  const secondaryPortCounts: Array<[keyof CompareSpecFacts, string]> = [
+    ["hdmiLoopOutputs", "HDMI loop outputs"],
+    ["displayPortInputs", "DisplayPort inputs"],
+    ["dviInputs", "DVI inputs"],
+    ["vgaInputs", "VGA inputs"],
+    ["sdiInputs", "SDI inputs"],
+    ["usbHostPorts", "USB host ports"],
+    ["usbDevicePorts", "USB device ports"],
+    ["audioInputs", "audio inputs"],
+    ["audioOutputs", "audio outputs"],
+    ["networkPorts", "network ports"],
+    ["controlPorts", "control ports"],
+  ];
+  for (const [key, label] of secondaryPortCounts) {
+    const requiredCount = numberValue(competitor.specs?.[key]);
+    if (requiredCount === null) continue;
+    const offeredCount = numberValue(wyrestorm.specs?.[key]);
+    if (offeredCount === null) addUnique(gaps, `Competitor provides ${requiredCount} ${label}; candidate coverage is not evidenced.`);
+    else if (offeredCount < requiredCount) addUnique(gaps, `Candidate provides fewer ${label} (${offeredCount}) than the competitor (${requiredCount}).`);
+    else addUnique(matches, `${label} meet the competitor requirement.`);
+  }
+
   for (const feature of HARD_FEATURES) {
-    const competitorHas = yes(competitor.features?.[feature]);
-    const wyrestormHas = yes(wyrestorm.features?.[feature]);
+    const competitorHas = yes(competitor.features?.[feature] ?? competitor.specs?.[feature as keyof CompareSpecFacts]);
+    const wyrestormHas = yes(wyrestorm.features?.[feature] ?? wyrestorm.specs?.[feature as keyof CompareSpecFacts]);
 
     if (competitorHas && !wyrestormHas) {
       addUnique(gaps, "Competitor has " + featureLabel(feature) + " but WyreStorm candidate does not show it.");

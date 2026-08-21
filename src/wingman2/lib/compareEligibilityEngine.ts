@@ -813,6 +813,9 @@ type ExtenderStructuralFitFacts = {
   distanceMeters: number | null;
   hasUsbExtension: boolean;
   hasKvm: boolean;
+  hdbasetGeneration: number | null;
+  hdbasetClass: "A" | "B" | null;
+  uncompressed18Gbps: boolean;
 };
 
 type ExtenderStructuralAssessment = {
@@ -904,10 +907,21 @@ function deriveExtenderStructuralFitFacts(
       text,
     );
 
+  const generationMatch = text.match(/\bhdbaset\s*(?:tm\s*)?(?:version\s*)?(3(?:\.0)?)\b/i);
+  const classMatch = text.match(/\bhdbaset[^.]{0,30}\bclass\s*([ab])\b|\bclass\s*([ab])\b[^.]{0,30}\bhdbaset\b/i);
+  const hdbasetGeneration = generationMatch ? Number(generationMatch[1]) : null;
+  const hdbasetClass = String(classMatch?.[1] ?? classMatch?.[2] ?? "").toUpperCase() as "A" | "B" | "";
+  const uncompressed18Gbps =
+    /\buncompressed\b[^.]{0,50}\b18\s*gbps\b|\b18\s*gbps\b[^.]{0,50}\buncompressed\b/i.test(text) ||
+    (/\b4k\s*60(?:hz)?\b/i.test(text) && /\b4\s*:\s*4\s*:\s*4\b/i.test(text) && hdbasetGeneration === 3);
+
   return {
     distanceMeters: distanceMeters ?? null,
     hasUsbExtension,
     hasKvm,
+    hdbasetGeneration,
+    hdbasetClass: hdbasetClass || null,
+    uncompressed18Gbps,
   };
 }
 
@@ -918,6 +932,38 @@ function scoreExtenderStructuralFit(
   let directCapable = true;
   let fitPenalty = 0;
   const reasons: string[] = [];
+
+  if (required.hdbasetGeneration !== null) {
+    if (candidate.hdbasetGeneration !== required.hdbasetGeneration) {
+      directCapable = false;
+      fitPenalty += 220;
+      reasons.push(
+        candidate.hdbasetGeneration === null
+          ? `HDBaseT ${required.hdbasetGeneration.toFixed(1)} is required, but the candidate's HDBaseT generation is not evidenced.`
+          : `Candidate uses HDBaseT ${candidate.hdbasetGeneration.toFixed(1)}, not the required HDBaseT ${required.hdbasetGeneration.toFixed(1)}.`,
+      );
+    } else {
+      fitPenalty -= 45;
+      reasons.push(`Candidate matches the required HDBaseT ${required.hdbasetGeneration.toFixed(1)} generation.`);
+    }
+  } else if (required.hdbasetClass !== null) {
+    if (candidate.hdbasetClass !== required.hdbasetClass) {
+      directCapable = false;
+      fitPenalty += 180;
+      reasons.push(`HDBaseT Class ${required.hdbasetClass} is required, but the candidate does not evidence the same class.`);
+    }
+  }
+
+  if (required.uncompressed18Gbps) {
+    if (!candidate.uncompressed18Gbps) {
+      directCapable = false;
+      fitPenalty += 200;
+      reasons.push("Uncompressed 18Gbps / 4K60 4:4:4 transport is required but is not evidenced on this candidate.");
+    } else {
+      fitPenalty -= 35;
+      reasons.push("Candidate evidences the required uncompressed 18Gbps / 4K60 4:4:4 transport class.");
+    }
+  }
 
   if (required.distanceMeters !== null) {
     if (candidate.distanceMeters === null) {
@@ -1544,6 +1590,14 @@ function ensureEligibilityCandidatePool(
     addCandidateBySku(nextMatches, products, "EX-100-KVM", "Eligibility correction: KVM-capable HDBaseT extender candidate inserted for point-to-point transport comparison.", 82);
     addCandidateBySku(nextMatches, products, "EX-60-USB2", "Eligibility correction: USB 2 extension candidate inserted for USB workflow comparison.", 80);
     addCandidateBySku(nextMatches, products, "NHD-USB-TRX", "Eligibility correction: USB over IP transceiver inserted for USB extension workflow comparison.", 78);
+    addCandidatesByPredicate(
+      nextMatches,
+      products,
+      (product) => /^EX/.test(skuKey(product.sku)) && /\b(hdbaset|hdbt|extender|extension)\b/i.test(productText(product)),
+      "Eligibility correction: current HDBaseT extender candidate inserted for class, reach and bandwidth evaluation.",
+      20,
+      80,
+    );
   }
 
   if (intent === "video-wall-processor") {

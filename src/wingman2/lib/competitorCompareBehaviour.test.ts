@@ -195,6 +195,15 @@ describe("competitor compare runtime behaviour", () => {
     expect(leadSkus).not.toContain("MX-0808-KIT-V2");
   });
 
+  it("matches an HDBaseT 3.0 18Gbps extender by generation before generic HDBaseT products", () => {
+    const result = runCompareRuntimePipeline("HEX18G-KIT", products, "Blustream", 12);
+    const leadSkus = skus(result.matches).slice(0, 6);
+
+    expect(result.competitor.domain).toBe("HDBASET");
+    expect(leadSkus[0]).toBe("EX3-100-EARC");
+    expect(leadSkus.indexOf("EX-70-H2")).toBeGreaterThan(0);
+  });
+
   it("keeps Lightware MMX6x2 requests as 6x2 matrix jobs and does not lead with undersized 4x2 products", () => {
     const result = runCompareRuntimePipeline("MMX6x2-HT200", products, "Lightware", 12);
     const leadSkus = skus(result.matches).slice(0, 4);
