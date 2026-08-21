@@ -74,6 +74,16 @@ describe("Compare rendered workflow - minimum card surface", () => {
     expect(alternative.textContent).not.toMatch(/MXV-0808-H2A-KIT|MX-0808-KIT-V2/);
   });
 
+  it("shows the HDBaseT generation when comparing an HDBaseT 3.0 extender", async () => {
+    renderPage();
+    runCompare("Blustream", "HEX18G-KIT");
+    const cards = await screen.findByLabelText("Compare product cards");
+
+    expect(cards.textContent).toContain("HDBaseT class / reach");
+    expect(cards.textContent).toMatch(/HDBaseT 3(?:\.0)?/i);
+    expect(within(cards).getByLabelText("WyreStorm product card").textContent).not.toContain("EX-70-H2");
+  });
+
   it("keeps the three core result actions", async () => {
     renderPage();
     runCompare("Crestron", "DM-NVX-350");

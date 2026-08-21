@@ -3681,6 +3681,12 @@ function buildCoreComparisonFacts(
       result: "",
     },
     {
+      label: "HDMI / HDCP",
+      competitor: safeCompareValue(competitorFacts.get("HDMI / HDCP")),
+      wyrestorm: safeCompareValue(wyrestormFacts.get("HDMI / HDCP")),
+      result: "",
+    },
+    {
       label: "Other video I/O",
       competitor: safeCompareValue(competitorFacts.get("Other video I/O")),
       wyrestorm: safeCompareValue(wyrestormFacts.get("Other video I/O")),
@@ -3690,6 +3696,12 @@ function buildCoreComparisonFacts(
       label: "USB",
       competitor: safeCompareValue(competitorFacts.get("USB")),
       wyrestorm: safeCompareValue(wyrestormFacts.get("USB")),
+      result: "",
+    },
+    {
+      label: "Control / network",
+      competitor: safeCompareValue(competitorFacts.get("Control / network")),
+      wyrestorm: safeCompareValue(wyrestormFacts.get("Control / network")),
       result: "",
     },
     {
@@ -3735,7 +3747,18 @@ function buildCoreComparisonFacts(
     },
   ];
 
+  if (profile.resolvedSpec?.domain === "HDBASET" || /hdbaset/i.test(competitor.transport)) {
+    entries.splice(1, 0, {
+      label: "HDBaseT class / reach",
+      competitor: safeCompareValue(competitorFacts.get("HDBaseT / TPS")),
+      wyrestorm: safeCompareValue(wyrestormFacts.get("HDBaseT / distance")),
+      result: "",
+    });
+  }
+
+  const alwaysVisible = new Set(["Product type", "Inputs", "Outputs"]);
   return entries
+    .filter((entry) => alwaysVisible.has(entry.label) || Boolean(entry.competitor) || Boolean(entry.wyrestorm))
     .map((entry) => ({
       ...entry,
       competitor: displayCompareValue(entry.competitor),
@@ -4738,10 +4761,10 @@ function MinimumCompareCards({ competitor, competitorProfile, candidate }: {
       : null,
   ].filter((fact): fact is { label: string; value: string } => Boolean(fact));
   const rows = candidate && wyrestorm
-    ? buildCoreComparisonFacts(competitor, competitorProfile, wyrestorm, candidate).slice(0, 6)
+    ? buildCoreComparisonFacts(competitor, competitorProfile, wyrestorm, candidate).slice(0, 12)
     : [...confirmedRoutedFacts, ...competitor.facts.filter((fact) => !confirmedRoutedFacts.some((confirmed) => confirmed.label === fact.label))]
         .sort((a, b) => noMatchFactPriority(a.label) - noMatchFactPriority(b.label))
-        .slice(0, 6)
+        .slice(0, 12)
         .map((fact) => ({ label: fact.label, competitor: fact.value, wyrestorm: "", result: "" }));
   const reason = candidate
     ? commercializeCompareCopy(candidate.matched[0] || candidate.partialMatches[0] || candidate.mismatches[0] || candidate.unknowns[0] || statusMeta.guidance)

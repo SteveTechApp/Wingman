@@ -512,12 +512,16 @@ export function parseSpecFacts(text: string, inputCount?: number, outputCount?: 
   specs.powerDelivery = /usb-c power|power delivery|\bpd\b/.test(value) ? true : undefined;
   specs.externalPsu = /external power|dc power|power supply|psu|adapter/.test(value) ? true : undefined;
   specs.internalPsu = /internal power|iec|mains input/.test(value) ? true : undefined;
-  specs.hdbasetVersion = parseFirstMatch(value, [/\bhdbaset\s*(3\.0|2\.0|1\.0)\b/i], (version) => `HDBaseT ${version}`);
+  specs.hdbasetVersion = parseFirstMatch(value, [/\bhdbaset\s*(3(?:\.0)?|2(?:\.0)?|1(?:\.0)?)\b/i], (version) => `HDBaseT ${Number(version).toFixed(1)}`);
   specs.hdbasetClass = parseFirstMatch(
     value,
     [/\bhdbaset[^.]{0,24}\bclass\s*([abc])\b/i, /\bclass\s*([abc])\b[^.]{0,24}\bhdbaset\b/i],
     (klass) => `Class ${klass.toUpperCase()}`,
   ) ?? specs.hdbasetClass;
+  const hdbasetDistanceMatch = value.match(/\b(\d{2,3})\s*m(?:eters?|etres?)?\b/i);
+  specs.hdbasetDistance = hdbasetDistanceMatch
+    ? Number(hdbasetDistanceMatch[1])
+    : specs.hdbasetDistance;
 
   if (specs.poh) specs.powerSupply = "PoH / HDBaseT remote power";
   else if (specs.poc) specs.powerSupply = "PoC remote power";
