@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { __liveLookupTest } from "./live-lookup.mjs";
 
-const { extractCandidateLinks, normalizeAllowedProductUrl, sourceAuthority } = __liveLookupTest;
+const { buildReturnRecord, extractCandidateLinks, normalizeAllowedProductUrl, sourceAuthority } = __liveLookupTest;
 
 describe("competitor live lookup evidence boundaries", () => {
   it("unwraps an exact-SKU DuckDuckGo result into an allowed reseller page", () => {
@@ -22,5 +22,49 @@ describe("competitor live lookup evidence boundaries", () => {
     expect(sourceAuthority("https://www.bing.com/search?q=TP-580T", "bing-search").tier).toBe(5);
     expect(sourceAuthority("https://www.reddit.com/r/CommercialAV/comments/example", "reddit-search").tier).toBe(4);
     expect(sourceAuthority("https://www.manualslib.com/manual/123/Kramer-TP-580T.html", "discovered-product-link").tier).toBe(2);
+  });
+
+  it("rejects a generic technical PDF whose display title was synthesized from the requested model", () => {
+    const genericText = `${"HDMI inputs outputs resolution technical specifications. ".repeat(20)} Generic matrix switcher.`;
+    const result = buildReturnRecord({
+      manufacturer: "Example",
+      model: "REQUESTED-SKU-123",
+      productUrl: "",
+      pages: [{
+        ok: true,
+        url: "https://www.manualslib.com/download/generic-matrix-datasheet.pdf",
+        kind: "discovered-product-link",
+        title: "REQUESTED-SKU-123 technical document",
+        identityTitle: "",
+        text: genericText,
+        score: 100,
+      }],
+      attempts: [],
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.sourceUrls).toEqual([]);
+  });
+
+  it("accepts PDF metadata as model identity evidence", () => {
+    const text = "HDMI inputs outputs resolution technical specifications. ".repeat(20);
+    const result = buildReturnRecord({
+      manufacturer: "Example",
+      model: "REQUESTED-SKU-123",
+      productUrl: "",
+      pages: [{
+        ok: true,
+        url: "https://www.manualslib.com/download/product-datasheet.pdf",
+        kind: "discovered-product-link",
+        title: "REQUESTED-SKU-123 Datasheet",
+        identityTitle: "REQUESTED-SKU-123 Datasheet",
+        text,
+        score: 100,
+      }],
+      attempts: [],
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.sourceUrls).toHaveLength(1);
   });
 });
