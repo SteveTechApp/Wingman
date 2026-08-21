@@ -17702,7 +17702,7 @@ main.wm-product-pitch-page[data-product-pitch-view="selector"]
   safety panel, tabs and tab content from sharing or collapsing into a single
   constrained viewport row.
 */
-main.wm-product-pitch-page[data-product-pitch-view="workspace"] {
+[data-product-pitch-view="workspace"] {
   display: grid !important;
   grid-template-rows: none !important;
   grid-auto-rows: max-content !important;
@@ -17722,14 +17722,69 @@ main.wm-product-pitch-page[data-product-pitch-view="workspace"] {
   color: var(--pitch-ink);
 }
 
-main.wm-product-pitch-page[data-product-pitch-view="workspace"] > * {
+[data-product-pitch-view="workspace"] > * {
   position: relative !important;
   min-width: 0 !important;
   min-height: 0 !important;
   height: auto !important;
 }
 
-main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+/*
+  The product image is supporting evidence, not the page itself. Keep the
+  identity, positioning statement and actions together above the fold even
+  when the indexed image contains a large native canvas.
+*/
+[data-product-pitch-view="workspace"]
+  .wm-product-pitch-identity__layout {
+  display: grid !important;
+  grid-template-columns: minmax(220px, 320px) minmax(0, 1fr) !important;
+  grid-template-areas:
+    "media copy"
+    "media actions" !important;
+  align-items: center !important;
+  gap: 0.875rem 1.25rem !important;
+}
+
+[data-product-pitch-view="workspace"]
+  .wm-product-pitch-identity__media {
+  grid-area: media !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 100% !important;
+  min-height: 190px !important;
+  max-height: 230px !important;
+  overflow: hidden !important;
+  border: 1px solid var(--pitch-line) !important;
+  border-radius: 1rem !important;
+  background: radial-gradient(circle at 50% 70%, rgba(65, 179, 216, 0.2), rgba(3, 15, 27, 0.72) 68%) !important;
+}
+
+[data-product-pitch-view="workspace"]
+  .wm-product-pitch-identity__media img {
+  display: block !important;
+  width: 100% !important;
+  height: 220px !important;
+  max-height: 220px !important;
+  object-fit: contain !important;
+}
+
+[data-product-pitch-view="workspace"]
+  .wm-product-pitch-identity__copy {
+  grid-area: copy !important;
+  align-self: end !important;
+}
+
+[data-product-pitch-view="workspace"]
+  .wm-product-pitch-identity__actions {
+  grid-area: actions !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  align-self: start !important;
+}
+
+[data-product-pitch-view="workspace"]
   .wm-product-pitch-safety-panel {
   display: block !important;
   grid-template-rows: none !important;
@@ -17742,7 +17797,34 @@ main.wm-product-pitch-page[data-product-pitch-view="workspace"]
   overflow: visible !important;
 }
 
-main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+[data-product-pitch-view="workspace"]
+  .wm-product-pitch-safety-panel > summary {
+  display: grid !important;
+  grid-template-columns: 2rem minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  padding: 0.875rem 1rem !important;
+}
+
+[data-product-pitch-view="workspace"]
+  .wm-product-pitch-safety-panel > summary :is(strong, span) {
+  display: block !important;
+  min-width: 0 !important;
+}
+
+[data-product-pitch-view="workspace"]
+  .wm-product-pitch-safety-panel__icon {
+  display: grid !important;
+  width: 2rem !important;
+  height: 2rem !important;
+  place-items: center !important;
+  border-radius: 999px !important;
+  background: rgba(251, 191, 36, 0.16) !important;
+  color: #fcd34d !important;
+  font-weight: 900 !important;
+}
+
+[data-product-pitch-view="workspace"]
   .wm-product-pitch-safety-grid {
   display: grid !important;
   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
@@ -17752,7 +17834,7 @@ main.wm-product-pitch-page[data-product-pitch-view="workspace"]
   height: auto !important;
 }
 
-main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+[data-product-pitch-view="workspace"]
   .wm-product-pitch-safety-item {
   display: grid !important;
   align-content: start !important;
@@ -17763,7 +17845,7 @@ main.wm-product-pitch-page[data-product-pitch-view="workspace"]
   overflow: visible !important;
 }
 
-main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+[data-product-pitch-view="workspace"]
   [data-product-pitch-tabs] {
   position: relative !important;
   z-index: 2 !important;
@@ -17774,7 +17856,7 @@ main.wm-product-pitch-page[data-product-pitch-view="workspace"]
   overflow: visible !important;
 }
 
-main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+[data-product-pitch-view="workspace"]
   [data-product-pitch-tabs] > div {
   display: flex !important;
   flex-wrap: wrap !important;
@@ -17783,7 +17865,7 @@ main.wm-product-pitch-page[data-product-pitch-view="workspace"]
   min-height: 0 !important;
 }
 
-main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+[data-product-pitch-view="workspace"]
   :is(section, article, aside, details) {
   max-height: none !important;
 }
@@ -17811,9 +17893,40 @@ main.wm-product-pitch-page[data-product-pitch-view="workspace"]
     grid-template-columns: minmax(0, 1fr) !important;
   }
 
-  main.wm-product-pitch-page[data-product-pitch-view="workspace"]
+  [data-product-pitch-view="workspace"]
     .wm-product-pitch-safety-grid {
     grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  [data-product-pitch-view="workspace"]
+    .wm-product-pitch-identity__layout {
+    grid-template-columns: minmax(150px, 220px) minmax(0, 1fr) !important;
+  }
+
+  [data-product-pitch-view="workspace"]
+    .wm-product-pitch-identity__media,
+  [data-product-pitch-view="workspace"]
+    .wm-product-pitch-identity__media img {
+    min-height: 150px !important;
+    height: 170px !important;
+    max-height: 170px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  [data-product-pitch-view="workspace"]
+    .wm-product-pitch-identity__layout {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas: "media" "copy" "actions" !important;
+  }
+
+  [data-product-pitch-view="workspace"]
+    .wm-product-pitch-identity__media,
+  [data-product-pitch-view="workspace"]
+    .wm-product-pitch-identity__media img {
+    min-height: 130px !important;
+    height: 150px !important;
+    max-height: 150px !important;
   }
 }
 
