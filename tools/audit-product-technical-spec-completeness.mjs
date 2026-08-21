@@ -44,6 +44,13 @@ const ACCESSORY_EVIDENCE_TERMS = [
 
 function isAccessoryPort(port) {
   const evidence = lower(`${port.connector || ""} ${port.evidence || ""}`);
+  // A governed power inlet describes how the device itself is powered. It is
+  // not the same thing as an in-box PSU/accessory row.
+  if (lower(port.category) === "power") return false;
+  // Accessory nouns take precedence over connector tokens: "USB cable" and
+  // "IR remote control" are not ports merely because their names contain USB
+  // or IR.
+  if (/\b(?:cables?|remote(?: control)?|mounting brackets?|rack brackets?|wall brackets?|receiver units?|transmitter units?|power suppl(?:y|ies)|power adapters?)\b/i.test(evidence)) return true;
   if (EXPLICIT_CONNECTOR.test(evidence)) return false;
   if (includesAny(evidence, ACCESSORY_EVIDENCE_TERMS)) return true;
   // Self-referencing companion-unit rows, e.g. "1x NHD-500-TX or NHD-500-RX"

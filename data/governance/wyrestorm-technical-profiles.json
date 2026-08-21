@@ -1,6 +1,6 @@
 {
-  "version": 7,
-  "updatedAt": "2026-07-30",
+  "version": 8,
+  "updatedAt": "2026-08-21",
   "policy": {
     "purpose": "Source-controlled, reviewed WyreStorm technical facts shared by Product Pitch, Compare, Finder and proposal workflows.",
     "precedence": [
@@ -517,7 +517,7 @@
         "Do not display 8K or 4K60 as the verified maximum presentation format.",
         "Do not claim PoE or PoH.",
         "Do not compare this integrated speakerphone product as a direct equivalent to a classroom switcher with an integrated power amplifier.",
-        "Confirm HDBaseT receiver compatibility before quotation."
+        "Confirm HDBaseT receiver compatibility, class and reach before quotation."
       ],
       "warnings": [
         "The official product page contains broad product-family metadata that conflicts with the model-specific technical specification table. This profile uses the model-specific table."
@@ -773,20 +773,6 @@
           "direction": "output",
           "category": "video",
           "detail": "1x HDMI Output"
-        },
-        {
-          "count": 1,
-          "connector": "HDMI",
-          "direction": "unspecified",
-          "category": "video",
-          "detail": "1 x 5m HDMI Cable"
-        },
-        {
-          "count": 1,
-          "connector": "USB-B",
-          "direction": "unspecified",
-          "category": "usb",
-          "detail": "1x 5m USB-B 3.0 Host Cable"
         },
         {
           "count": 4,
@@ -1315,27 +1301,6 @@
           "direction": "output",
           "category": "video",
           "detail": "12x optical and 4x digital zoom"
-        },
-        {
-          "count": 1,
-          "connector": "IR",
-          "direction": "output",
-          "category": "control",
-          "detail": "1x IR Remote"
-        },
-        {
-          "count": 1,
-          "connector": "RS-232",
-          "direction": "output",
-          "category": "control",
-          "detail": "1x 2m 8 pin Mini Din RS-232 cable"
-        },
-        {
-          "count": 1,
-          "connector": "USB-C",
-          "direction": "output",
-          "category": "usb",
-          "detail": "1x USB 3.0 Type-C to A cable"
         }
       ],
       "video": [
@@ -1503,7 +1468,7 @@
       "features": {
         "ptz": true,
         "uvc": true,
-        "poe": false,
+        "poe": true,
         "hdmiPassthrough": true,
         "opticalZoom12x": true
       },
@@ -1519,7 +1484,7 @@
         "Confirm whether the customer needs USB, network stream, or HDMI output; the three are different integration paths."
       ],
       "warnings": [
-        "Max resolution is 1920x1080p @30Hz per the specification table; the marketing title says '1080p60'. Quote 30Hz. (Corrected from an earlier draft that read 60Hz.)"
+        "Overall product maximum is 1920x1080p @60Hz. The captured USB 3.0 and IP/Cat5e paths are listed at 1920x1080p @30Hz, so confirm the required output path and frame rate before quoting."
       ],
       "evidence": [
         {
@@ -2082,13 +2047,6 @@
           "direction": "output",
           "category": "network",
           "detail": "TX: 1x RJ45 Output"
-        },
-        {
-          "count": 1,
-          "connector": "USB-C",
-          "direction": "output",
-          "category": "usb",
-          "detail": "1x 2m USB 3.2 Type-C to Type-C Cable"
         }
       ],
       "video": [
@@ -2412,15 +2370,7 @@
         "Extension"
       ],
       "maxResolution": "4K 30Hz KVM Extender over IP",
-      "ports": [
-        {
-          "count": 1,
-          "connector": "USB",
-          "direction": "output",
-          "category": "usb",
-          "detail": "1x 1.5m USB Type B Cable"
-        }
-      ],
+      "ports": [],
       "video": [
         "4K 30Hz KVM Extender over IP",
         "4K KVM over IP extender to control computers an",
@@ -2542,13 +2492,6 @@
           "direction": "output",
           "category": "usb",
           "detail": "1x EX-100-USB3 (1 TX & 1 RX included)"
-        },
-        {
-          "count": 1,
-          "connector": "USB",
-          "direction": "output",
-          "category": "usb",
-          "detail": "1x 1.8m USB 3.0 Type-A to Type-B Cable (5Gb)"
         }
       ],
       "video": [
@@ -2638,20 +2581,6 @@
           "direction": "output",
           "category": "audio",
           "detail": "1x 5-pin Phoenix Terminal (balanced audio out)"
-        },
-        {
-          "count": 1,
-          "connector": "IR",
-          "direction": "unspecified",
-          "category": "control",
-          "detail": "1x IR Receiver Cable (30-50KHz)"
-        },
-        {
-          "count": 1,
-          "connector": "IR",
-          "direction": "unspecified",
-          "category": "control",
-          "detail": "1x IR Emitter Cable"
         }
       ],
       "video": [
@@ -3067,13 +2996,6 @@
         },
         {
           "count": 1,
-          "connector": "USB-A",
-          "direction": "output",
-          "category": "usb",
-          "detail": "1x USB-A to Micro-B RX Power Cable"
-        },
-        {
-          "count": 1,
           "connector": "IR",
           "direction": "output",
           "category": "control",
@@ -3380,13 +3302,6 @@
         },
         {
           "count": 1,
-          "connector": "USB",
-          "direction": "input",
-          "category": "usb",
-          "detail": "1x USB2.0 Type-A to Type-B cable"
-        },
-        {
-          "count": 1,
           "connector": "USB-A",
           "direction": "output",
           "category": "usb",
@@ -3501,20 +3416,6 @@
           "direction": "output",
           "category": "usb",
           "detail": "RX: 4x USB 2.0 Type-A out"
-        },
-        {
-          "count": 1,
-          "connector": "USB",
-          "direction": "output",
-          "category": "usb",
-          "detail": "1x EX-60-USB2 Receiver Unit"
-        },
-        {
-          "count": 1,
-          "connector": "USB",
-          "direction": "output",
-          "category": "usb",
-          "detail": "1x 1.5m USB 2.0 Type-A to Type-B Cable"
         }
       ],
       "video": [
@@ -3628,13 +3529,6 @@
           "direction": "output",
           "category": "usb",
           "detail": "Receiver: 2x HDMI OUT, 4x USB 2.0 Type-A out"
-        },
-        {
-          "count": 1,
-          "connector": "USB",
-          "direction": "output",
-          "category": "usb",
-          "detail": "1x USB Type-A to Type-B cable (1.5m)"
         }
       ],
       "video": [
@@ -4093,20 +3987,6 @@
           "detail": "1x HDBaseT OUT, 1x HDMI Loop Out, 1x Optical Out"
         },
         {
-          "count": 1,
-          "connector": "IR",
-          "direction": "output",
-          "category": "control",
-          "detail": "1x IR Receiver Cable"
-        },
-        {
-          "count": 1,
-          "connector": "IR",
-          "direction": "output",
-          "category": "control",
-          "detail": "1x IR Emitter Cable"
-        },
-        {
           "count": 2,
           "connector": "RS-232",
           "direction": "output",
@@ -4225,34 +4105,6 @@
           "direction": "output",
           "category": "control",
           "detail": "RX: 1x IR Out"
-        },
-        {
-          "count": 2,
-          "connector": "USB",
-          "direction": "output",
-          "category": "usb",
-          "detail": "2x 5V 1A USB Power Supply (US/EU/UK/AU)"
-        },
-        {
-          "count": 1,
-          "connector": "IR",
-          "direction": "output",
-          "category": "control",
-          "detail": "1x IR Receiver"
-        },
-        {
-          "count": 1,
-          "connector": "IR",
-          "direction": "output",
-          "category": "control",
-          "detail": "1x IR Transmitter"
-        },
-        {
-          "count": 2,
-          "connector": "USB-C",
-          "direction": "output",
-          "category": "usb",
-          "detail": "2x 1m USB Micro-to-A USB Cables"
         }
       ],
       "video": [
@@ -4318,7 +4170,6 @@
       "role": "Point-to-point extension",
       "productType": "Signal extension endpoint",
       "transport": [
-        "HDBaseT",
         "Fiber",
         "HDMI",
         "Extension"
@@ -5051,6 +4902,13 @@
       "maxResolution": "4K60Hz 4:4:4 4x1 HDMI Switcher 4K60Hz 4:4:4 4x1",
       "ports": [
         {
+          "count": 4,
+          "connector": "HDMI Type A",
+          "direction": "input",
+          "category": "video",
+          "detail": "4x HDMI source inputs"
+        },
+        {
           "count": 1,
           "connector": "HDMI",
           "direction": "output",
@@ -5063,20 +4921,6 @@
           "direction": "output",
           "category": "control",
           "detail": "1x IR Ext. Port"
-        },
-        {
-          "count": 1,
-          "connector": "IR",
-          "direction": "output",
-          "category": "control",
-          "detail": "1x IR Remote Control"
-        },
-        {
-          "count": 1,
-          "connector": "IR",
-          "direction": "output",
-          "category": "control",
-          "detail": "1 x IR Receiver Cable"
         }
       ],
       "video": [
@@ -5433,20 +5277,6 @@
           "direction": "unspecified",
           "category": "usb",
           "detail": "2x USB Mini"
-        },
-        {
-          "count": 1,
-          "connector": "USB-C",
-          "direction": "unspecified",
-          "category": "usb",
-          "detail": "1x USB 2.0 Type-A to Type-C Cable (1.5m)"
-        },
-        {
-          "count": 1,
-          "connector": "USB",
-          "direction": "unspecified",
-          "category": "usb",
-          "detail": "1x USB Mini Cable (3m)"
         }
       ],
       "video": [
@@ -5525,13 +5355,6 @@
       ],
       "maxResolution": "4K HDMI output, USB 3",
       "ports": [
-        {
-          "count": 1,
-          "connector": "USB-C",
-          "direction": "unspecified",
-          "category": "usb",
-          "detail": "USB-C Cable: 1 x USB-C multi-functional cable that supports data transfer, power delivery and display"
-        },
         {
           "count": 2,
           "connector": "USB-C",
@@ -5666,27 +5489,6 @@
           "direction": "input",
           "category": "usb",
           "detail": "Multiple connection options including: 1x Mains, USB Charging, 2 x HDMI, USB-C and RJ-45 passthrough"
-        },
-        {
-          "count": 1,
-          "connector": "USB-C",
-          "direction": "input",
-          "category": "usb",
-          "detail": "1x USB Type-C to Type-C Cable"
-        },
-        {
-          "count": 1,
-          "connector": "HDMI",
-          "direction": "input",
-          "category": "video",
-          "detail": "1x HDMI 2.0 cable"
-        },
-        {
-          "count": 1,
-          "connector": "USB-A",
-          "direction": "input",
-          "category": "usb",
-          "detail": "1x USB A to USB B cable"
         }
       ],
       "video": [
@@ -6051,20 +5853,6 @@
           "direction": "output",
           "category": "audio",
           "detail": "1x Analog Audio Out (5-pin Phoenix Male Connector)"
-        },
-        {
-          "count": 2,
-          "connector": "USB-C",
-          "direction": "output",
-          "category": "usb",
-          "detail": "2x USB-C 2m cables"
-        },
-        {
-          "count": 2,
-          "connector": "USB",
-          "direction": "output",
-          "category": "usb",
-          "detail": "2x USB 3.0 A to B 1.8m Cables"
         },
         {
           "count": 1,
@@ -7770,7 +7558,7 @@
       "checks": [
         "Modular 16x16 chassis - configure HDMI or HDBaseT cards per port.",
         "Unlike the other SCL matrices, this one DOES support HDBaseT via TX-SCL-HDBT cards.",
-        "HDBaseT card is HDMI 1.4 / HDCP 2.2 - confirm the 4K resolution limit over HDBaseT."
+        "HDBaseT card is HDMI 1.4 / HDCP 2.2 - confirm its HDBaseT class, reach and 4K resolution limit before quotation."
       ],
       "warnings": [
         "The HDBaseT output card is HDMI 1.4 (not 2.0) - confirm the achievable 4K resolution/chroma over HDBaseT before quoting.",
@@ -8566,6 +8354,20 @@
         "3840x2160@60Hz 4:4:4 (UHD)",
         "1920x1080p @60Hz 12bit"
       ],
+      "videoStandards": [
+        "RGB",
+        "DCI",
+        "BT.2020",
+        "Rec.709"
+      ],
+      "outputVideoEncoding": "Uncompressed HDMI",
+      "maximumPixelClockMhz": 600,
+      "hdmi": [
+        "HDMI 2.0b",
+        "HDCP 2.2",
+        "CEC",
+        "EDID"
+      ],
       "audio": [
         "Analog audio de-embed via 3.5mm TRS"
       ],
@@ -8590,20 +8392,30 @@
         "Sources connect over local HDMI - this is not a network AVoIP endpoint and does not decode a NetworkHD stream"
       ],
       "compatibleFamilies": [
+        "NetworkHD 400",
+        "NetworkHD 500",
         "NetworkHD Touch"
       ],
       "features": {
         "multiview": true,
+        "preloadedLayouts": 6,
         "localHdmiInputs": true,
         "audioDeEmbed": true,
         "webUi": true,
-        "frontPanelControl": true
+        "frontPanelControl": true,
+        "automaticOutputDownscaling": true,
+        "hdr10": true,
+        "hlg": true,
+        "dolbyVision": true,
+        "networkHdCtlProIntegration": true
       },
       "specs": {
         "hdmiInputs": 4,
         "hdmiOutputs": 1,
         "networkSpeedGbps": 1,
-        "externalPsu": true
+        "externalPsu": true,
+        "maximumPixelClockMhz": 600,
+        "powerConsumptionWatts": 18
       },
       "checks": [
         "Despite the NetworkHD branding this takes four LOCAL HDMI inputs. Do not design it as an AVoIP decoder or count it as a NetworkHD endpoint.",
@@ -12980,31 +12792,38 @@
       "ports": [
         {
           "count": 1,
-          "connector": "HDBaseT",
+          "connector": "HDBaseT (RJ-45)",
+          "direction": "input",
+          "category": "video",
+          "detail": "1x HDBaseT input, Class A"
+        },
+        {
+          "count": 1,
+          "connector": "HDMI Type A",
           "direction": "output",
           "category": "video",
-          "detail": "1x IR RX 3.5mm (1/8in) TRS Stereo | 1x IR TX: 3.5mm (1/8in) TS Mono | Bidirectional over HDBaseT"
+          "detail": "1x HDMI output"
         },
         {
           "count": 1,
-          "connector": "IR",
-          "direction": "output",
+          "connector": "3-pin terminal block",
+          "direction": "bidirectional",
           "category": "control",
-          "detail": "1x Wide-band IR Emitter"
+          "detail": "1x RS-232 port"
         },
         {
           "count": 1,
-          "connector": "IR",
+          "connector": "3.5mm TS",
           "direction": "output",
           "category": "control",
-          "detail": "1x Wide-band IR Receiver (30-50KHz) 2x Mounting Brackets"
+          "detail": "1x IR TX port"
         },
         {
-          "count": 2,
-          "connector": "IR",
-          "direction": "output",
+          "count": 1,
+          "connector": "3.5mm TRS",
+          "direction": "input",
           "category": "control",
-          "detail": "1x Wide-band IR Receiver (30-50KHz) 2x Mounting Brackets"
+          "detail": "1x IR RX port"
         }
       ],
       "video": [
@@ -13603,6 +13422,13 @@
       "maxResolution": "4K60 4x1 HDMI Switcher - WyreStorm WyreStorm Es",
       "ports": [
         {
+          "count": 4,
+          "connector": "HDMI Type A",
+          "direction": "input",
+          "category": "video",
+          "detail": "4x HDMI source inputs"
+        },
+        {
           "count": 1,
           "connector": "HDMI",
           "direction": "output",
@@ -13615,20 +13441,6 @@
           "direction": "output",
           "category": "control",
           "detail": "1x IR Ext. Port"
-        },
-        {
-          "count": 1,
-          "connector": "IR",
-          "direction": "output",
-          "category": "control",
-          "detail": "1x IR Remote Control"
-        },
-        {
-          "count": 1,
-          "connector": "IR",
-          "direction": "output",
-          "category": "control",
-          "detail": "1 x IR Receiver Cable"
         }
       ],
       "video": [
@@ -13726,20 +13538,6 @@
           "direction": "output",
           "category": "video",
           "detail": "1x HDMI"
-        },
-        {
-          "count": 1,
-          "connector": "IR",
-          "direction": "output",
-          "category": "control",
-          "detail": "1 x IR Receiver Cable"
-        },
-        {
-          "count": 1,
-          "connector": "IR",
-          "direction": "output",
-          "category": "control",
-          "detail": "1x IR Remote (CR2025 battery not included)"
         },
         {
           "count": 1,
@@ -13992,20 +13790,6 @@
           "direction": "input",
           "category": "usb",
           "detail": "1x USB-C (USB Alt Mode/Host)"
-        },
-        {
-          "count": 1,
-          "connector": "USB",
-          "direction": "output",
-          "category": "usb",
-          "detail": "1x 1.8m USB2.0 Type-B to Type-A cable"
-        },
-        {
-          "count": 1,
-          "connector": "USB-C",
-          "direction": "output",
-          "category": "usb",
-          "detail": "1x 2m USB-C to USB-C Cable with Locking Connector (5Gbps)"
         }
       ],
       "video": [
@@ -15533,13 +15317,6 @@
           "direction": "output",
           "category": "audio",
           "detail": "1x 3-pin Phoenix Male Connector"
-        },
-        {
-          "count": 1,
-          "connector": "USB-A",
-          "direction": "output",
-          "category": "usb",
-          "detail": "1x USB-B to USB-A host cable"
         }
       ],
       "video": [
@@ -15664,13 +15441,6 @@
           "direction": "output",
           "category": "audio",
           "detail": "1x 3-pin Phoenix Male Connector"
-        },
-        {
-          "count": 1,
-          "connector": "USB-C",
-          "direction": "output",
-          "category": "usb",
-          "detail": "1x 2m USB 3.2 Type-C to Type-C Cable"
         }
       ],
       "video": [

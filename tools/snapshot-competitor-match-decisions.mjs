@@ -16,13 +16,18 @@ import { spawnSync } from "node:child_process";
 
 const testFile = "src/wingman2/lib/competitorMatchDecisions.snapshot.test.ts";
 const preserve = process.argv.includes("--preserve");
+const acceptDemotions = process.argv.includes("--accept-demotions");
 const mode = preserve ? "refresh" : "write";
 
 // `shell: true` so the npx shim resolves on every platform (cmd.exe on
 // Windows, sh elsewhere).
 const write = spawnSync("npx", ["vitest", "run", testFile], {
   shell: true,
-  env: { ...process.env, SNAPSHOT_COMPETITOR_DECISIONS: mode },
+  env: {
+    ...process.env,
+    SNAPSHOT_COMPETITOR_DECISIONS: mode,
+    SNAPSHOT_ALLOW_APPROVAL_DEMOTION: acceptDemotions ? "true" : "",
+  },
   stdio: "inherit",
 });
 

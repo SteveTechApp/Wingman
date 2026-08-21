@@ -45,7 +45,13 @@ function findRecords(value, targetSku, records = []) {
 }
 
 function classText(record) {
+  const classification = record.productClassification ?? {};
   return [
+    classification.primaryCategory,
+    classification.category,
+    classification.subCategory,
+    classification.productType,
+    classification.systemRole,
     record.productClass,
     record.category,
     record.productType,

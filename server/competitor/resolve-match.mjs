@@ -2,7 +2,6 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { resolveCompetitorLiveLookup } from "./live-lookup.mjs";
 import { normaliseProductTechnology } from "./technology-normalizer.mjs";
-import { stageLiveResearchReview } from "../intelligence/live-research-review.mjs";
 import {
   COMPETITOR_CATALOG_FILE,
   PRODUCT_INTELLIGENCE_DB_FILE,
@@ -2092,20 +2091,6 @@ export async function resolveCompetitorMatch(payload) {
     compare_quality: best?.quality || null,
     compare_readiness: best?.readiness || null,
   };
-
-  if (competitorLookupMode === "live") {
-    try {
-      await stageLiveResearchReview(result);
-    } catch (error) {
-      // Governance persistence must never turn a valid Compare result into an
-      // application failure. The result remains review-required; Data Manager
-      // will simply not receive this discovery until staging succeeds.
-      console.warn(
-        "[wingman] live competitor research could not be staged for review:",
-        error instanceof Error ? error.message : String(error),
-      );
-    }
-  }
 
   MATCH_CACHE.set(cacheKey, result);
   return result;
