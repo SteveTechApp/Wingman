@@ -26,7 +26,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PROFILES_FILE = process.env.WINGMAN_PROFILES_FILE ?? path.join(root, "data/governance/wyrestorm-technical-profiles.json");
@@ -37,18 +37,18 @@ const REPORT_FILE = path.join(root, "reports/governed-profile-drift.json");
 const RESOLUTION_FAMILIES = [
   { family: "8K", pattern: /7680|8k/i },
   { family: "4K60-4096", pattern: /4096x2160/i },
-  { family: "4K60-3840", pattern: /3840x2160p?\s*@?\s*60|4k\s*@?\s*60|4k60/i },
-  { family: "4K30-3840", pattern: /3840x2160p?\s*@?\s*30|4k\s*@?\s*30|4k30/i },
+  { family: "4K60-3840", pattern: /3840x2160p?\s*(?:@|at)?\s*60|4k\s*(?:@|at)?\s*60|4k60/i },
+  { family: "4K30-3840", pattern: /3840x2160p?\s*(?:@|at)?\s*30|4k\s*(?:@|at)?\s*30|4k30/i },
   // 5K-wide (5120x2160) sits AFTER 4K so a multi-resolution value like
   // "4096x2160p @60Hz; 5120x2160 @30Hz" classifies by its primary 4K60 line,
   // not the stretched-ultrawide bonus mode.
-  { family: "5K60", pattern: /5120x2160p?\s*@?\s*60|5k60/i },
-  { family: "5K30", pattern: /5120x2160p?\s*@?\s*30|5k30/i },
+  { family: "5K60", pattern: /5120x2160p?\s*(?:@|at)?\s*60|5k60/i },
+  { family: "5K30", pattern: /5120x2160p?\s*(?:@|at)?\s*30|5k30/i },
   // Bare pixel counts without a refresh rate ("3840x2160 (4K UHD passthrough)")
   // and the "4K UHD" phrasing that stands in for the same pixel count.
   { family: "4K", pattern: /3840x2160|4096x2160|4k\s*uhd/i },
   { family: "WXGA", pattern: /1280x800/i },
-  { family: "1080p60", pattern: /1920x1080p?\s*@?\s*60|1080p60/i },
+  { family: "1080p60", pattern: /1920x1080p?\s*(?:@|at)?\s*60|1080p60/i },
   { family: "1080p", pattern: /1920x1080|1080p/i },
 ];
 
@@ -56,7 +56,7 @@ function text(value) {
   return String(value ?? "").trim();
 }
 
-function resolutionFamily(value) {
+export function resolutionFamily(value) {
   const normalized = text(value);
   for (const entry of RESOLUTION_FAMILIES) {
     if (entry.pattern.test(normalized)) return entry.family;
@@ -90,7 +90,7 @@ function normalizeResolutionList(storeEntry) {
   return Array.isArray(list) ? list : [];
 }
 
-function maxResolutionDrift(profile, storeEntry) {
+export function maxResolutionDrift(profile, storeEntry) {
   const governed = text(profile.maxResolution);
   if (!governed || isPlaceholder(governed)) {
     return { status: "missing", detail: "No readable max resolution in the governed profile" };
@@ -295,4 +295,6 @@ function main() {
   }
 }
 
-main();
+if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+  main();
+}
