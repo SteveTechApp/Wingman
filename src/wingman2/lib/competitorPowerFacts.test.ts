@@ -68,7 +68,7 @@ describe("competitor power facts", () => {
     expect(validateCuratedFingerprints()).toEqual([]);
   });
 
-  it("reaches PARTIAL MATCH for the headline CLICKSHARE-CX-30 vs SW-620-TX-W compare", () => {
+  it("verifies CLICKSHARE-CX-30 vs SW-620-TX-W while preserving confirmed power facts", () => {
     const competitor = resolveCompetitorSpecProfile("CLICKSHARE-CX-30", "Barco");
     const sw620 = indexProduct("SW-620-TX-W");
     expect(sw620).toBeTruthy();
@@ -98,8 +98,8 @@ describe("competitor power facts", () => {
       ],
     });
 
-    expect(result.outcome).toBe("PARTIAL MATCH");
-    expect(result.gaps).toHaveLength(0);
+    expect(result.outcome).toBe("VERIFY");
+    expect(result.gaps.join(" ")).toMatch(/USB device ports|Ethernet \/ API control/i);
     const power = result.requirements.find((item) => item.key === "power");
     expect(power?.status).toBe("meets");
     expect(power?.competitorValue).toContain("12V DC 2A external adapter");

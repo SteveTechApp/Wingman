@@ -33,6 +33,9 @@ type WyrestormProductWithProfile = WyrestormProduct & {
       capturedTechnicalLineCount?: number;
     };
     transports?: string[];
+    power?: {
+      evidence?: string[];
+    };
     io?: {
       ports?: TechnicalPort[];
       video?: TechnicalPort[];
@@ -45,6 +48,10 @@ type WyrestormProductWithProfile = WyrestormProduct & {
 };
 
 function text(product: WyrestormProduct): string {
+  const profile = technicalProfile(product);
+  const profilePowerEvidence = Array.isArray(profile?.power?.evidence)
+    ? profile.power.evidence
+    : [];
   return [
     product.sku,
     product.name,
@@ -61,6 +68,7 @@ function text(product: WyrestormProduct): string {
     ...(product.featureTags ?? []),
     ...(product.tags ?? []),
     ...(product.capabilities ?? []),
+    ...profilePowerEvidence,
   ]
     .filter(Boolean)
     .join(" ")
@@ -516,13 +524,14 @@ export function buildWyrestormCompareProfile(product: WyrestormProduct): Compare
   const role = governed.compare.role ?? fallbackRole;
   const io = structuredIo(product, blob);
   const fallbackSpecs = buildSpecFacts(product, blob, io.inputCount);
-  const specs =
-    governed.sourceTier === "verified-profile"
-      ? { ...governed.compare.specs }
-      : {
-          ...fallbackSpecs,
-          ...governed.compare.specs,
-        };
+  // Verification is an authority layer, not a destructive projection. The
+  // governed record often certifies only the claims reviewed by a human; the
+  // remaining connector, control and transport facts still come from the
+  // structured official-page capture. Merge both and let governed values win.
+  const specs = {
+    ...fallbackSpecs,
+    ...governed.compare.specs,
+  };
   const fallbackFeatures = detectStructuredFeatures(product, blob);
   const features = {
     ...fallbackFeatures,

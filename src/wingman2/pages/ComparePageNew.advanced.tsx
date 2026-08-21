@@ -2169,6 +2169,12 @@ function exactLimitedDataWarning(profile: CompetitorProfile): string {
 
 function compareSignalDirection(profile: CompetitorProfile): string {
   const role = (profile.role || "").toLowerCase();
+  const identity = `${profile.rawText} ${profile.resolvedSpec?.title ?? ""}`.toLowerCase();
+  if (
+    role.includes("extender kit") ||
+    role.includes("extension kit") ||
+    (/extender|extension/.test(identity) && /\bkit\b|\bset\b/.test(identity))
+  ) return "Point-to-point source-to-display extension";
   if (role.includes("encoder") || role.includes("transmitter")) return "Source-side / encoder path";
   if (role.includes("decoder") || role.includes("receiver")) return "Display-side / decoder path";
   if (role.includes("transceiver")) return "Bidirectional / transceiver path";
@@ -2442,7 +2448,11 @@ function competitorUsbFacts(profile: CompetitorProfile): string {
 
 function competitorHdbasetFacts(profile: CompetitorProfile): string {
   const specs = profile.resolvedSpec?.specs;
-  const items = [specs?.hdbasetVersion, specs?.hdbasetClass].filter(Boolean);
+  const items = [
+    specs?.hdbasetVersion,
+    specs?.hdbasetClass,
+    specs?.hdbasetDistance ? `${specs.hdbasetDistance}m reach` : "",
+  ].filter(Boolean);
   return items.length ? `HDBaseT: ${items.join(" | ")}` : "";
 }
 
@@ -3544,7 +3554,26 @@ function competitorInputSummary(profile: CompetitorProfile): string {
 }
 
 function competitorOutputSummary(profile: CompetitorProfile): string {
-  const explicit = explicitPortSummary(profile.resolvedSpec?.specs, "output");
+  const specs = profile.resolvedSpec?.specs;
+  const catalogOutputs = Array.isArray(profile.knownProfile?.outputs) ? profile.knownProfile.outputs : [];
+  const catalogLoopOutputs = catalogOutputs.reduce((total, output) => {
+    if (!output || typeof output !== "object") return total;
+    const item = output as Record<string, unknown>;
+    return /loop/i.test(String(item.type ?? item.label ?? "")) ? total + Number(item.count ?? 0) : total;
+  }, 0);
+  const loopOutputs = specs?.hdmiLoopOutputs ?? catalogLoopOutputs;
+  const statedHdmiOutputs = specs?.hdmiOutputs ?? 0;
+  const displayHdmiOutputs = loopOutputs > 0 && statedHdmiOutputs >= loopOutputs
+    ? statedHdmiOutputs - loopOutputs
+    : statedHdmiOutputs;
+  const explicit = explicitPortSummary(
+    specs ? { ...specs, hdmiOutputs: displayHdmiOutputs || undefined, hdmiLoopOutputs: undefined } : undefined,
+    "output",
+  );
+  const physicalOutputs = joinCommercialFactParts([
+    explicit,
+    loopOutputs ? `${loopOutputs}x local HDMI loop output${loopOutputs === 1 ? "" : "s"} (non-routed)` : "",
+  ]);
   const count = profile.resolvedSpec?.outputCount;
   const routedArchitecture = profile.productClass === "Matrix" || profile.productClass === "Presentation switcher";
 
@@ -3553,8 +3582,8 @@ function competitorOutputSummary(profile: CompetitorProfile): string {
     return explicit ? `${routed} (${explicit})` : routed;
   }
 
-  if (explicit) {
-    return explicit;
+  if (physicalOutputs) {
+    return physicalOutputs;
   }
 
   if (!count) {
@@ -3608,6 +3637,16 @@ function wyrestormOutputSummary(
       ? `${knownProfile.loopOutputCount}x loop ${knownProfile.loopOutputTypes.join(" / ")} output${knownProfile.loopOutputCount === 1 ? "" : "s"}`
       : "",
   ]);
+  const isPointToPointExtender = /extender|extension|hdbaset/i.test([
+    candidate.product.productClass,
+    candidate.product.family,
+    candidate.product.role,
+  ].join(" "));
+
+  if (isPointToPointExtender) {
+    const displayOutput = explicit || "1x receiver-side HDMI display output";
+    return joinCommercialFactParts([displayOutput, extras]);
+  }
 
   if (knownProfile?.routedOutputCount) {
     const routedTypes = knownProfile.routedOutputTypes.length ? ` (${knownProfile.routedOutputTypes.join(" / ")})` : "";
@@ -3625,6 +3664,7 @@ function wyrestormOutputSummary(
 
 function competitorComparisonFacts(competitor: CompetitorSummary, profile: CompetitorProfile): Array<{ label: string; value: string }> {
   const unsupportedPorts = unsupportedCompetitorVideoPorts(profile);
+  const competitorLoopOutputs = profile.resolvedSpec?.specs?.hdmiLoopOutputs ?? 0;
   const transport = `${profile.transport} ${profile.resolvedSpec?.transport ?? ""}`.trim();
 
   return [
@@ -3647,7 +3687,13 @@ function competitorComparisonFacts(competitor: CompetitorSummary, profile: Compe
         stripComparePrefix(competitorAudioNetworkFacts(profile), "Audio / Network"),
       ]),
     },
-    { label: "Other video I/O", value: unsupportedPorts.join(", ") },
+    {
+      label: "Other video I/O",
+      value: joinCommercialFactParts([
+        unsupportedPorts.join(", "),
+        competitorLoopOutputs ? `${competitorLoopOutputs}x local HDMI loop output${competitorLoopOutputs === 1 ? "" : "s"} (non-routed)` : "",
+      ]),
+    },
   ].filter((entry) => entry.value);
 }
 
@@ -5958,6 +6004,15 @@ function ComparePageNew() {
                 <MinimumCompareCards competitor={competitorSummary} competitorProfile={profile} candidate={activeCandidate} />
               )}
             </div>
+            {requestLiveLookup && liveResearchStatus === "done" && liveResearchAssessment?.sourceMode === "live" ? (
+              <CompetitorEvidencePanel
+                brand={effectiveBrand}
+                sku={competitorInput}
+                onSaved={() => setCatalogVersion((version) => version + 1)}
+                primaryCriteria={primarySearchCriteria}
+                liveResearchResult={liveResearchResult}
+              />
+            ) : null}
             {activeCandidate ? <section className="wm-ui-card wm-ui-section" aria-label="Compare result actions"><div className="compare-native-action-row wm-ui-action-row">
               <button type="button" className="compare-native-more wm-ui-button wm-ui-button-primary" onClick={() => handleCommit("project")}>{compareReportedStatus(activeCandidate, competitorSummary) === "match" ? "Add to project" : "Add to project for review"}</button>
               <Link className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(activeCandidate.product.sku)}&source=compare`}>Product details</Link>
@@ -5996,7 +6051,7 @@ function ComparePageNew() {
                 <GovernedDecisionPanel key={`${effectiveBrand}:${competitorInput}:${displayedDecision?.updatedAt ?? decisionRevision}`} profile={profile} candidate={activeCandidate ?? heuristicLead ?? null} existingDecision={displayedDecision} onSaved={() => setDecisionRevision((revision) => revision + 1)} />
               )}
               <CompareSummaryPanel summary={summary} requestLiveLookup={requestLiveLookup && liveResearchAssessment?.sourceMode !== "stored-intelligence"} sourceUrl={sourceUrl} />
-              {requestLiveLookup && liveResearchAssessment?.sourceMode !== "stored-intelligence" ? <CompetitorEvidencePanel brand={effectiveBrand} sku={competitorInput} onSaved={() => setCatalogVersion((version) => version + 1)} autoRun={liveResearchStatus === "error"} primaryCriteria={primarySearchCriteria} /> : null}
+              {requestLiveLookup && liveResearchStatus === "error" ? <CompetitorEvidencePanel brand={effectiveBrand} sku={competitorInput} onSaved={() => setCatalogVersion((version) => version + 1)} autoRun primaryCriteria={primarySearchCriteria} /> : null}
             </div></details>
           </> : null}
         </section>

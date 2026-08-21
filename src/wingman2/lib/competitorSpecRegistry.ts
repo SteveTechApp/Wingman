@@ -432,6 +432,7 @@ export function parseSpecFacts(text: string, inputCount?: number, outputCount?: 
 
   specs.hdmiInputs = quantityFromLabel(value, ["hdmi inputs", "video inputs", "input count"]) ?? specs.hdmiInputs;
   specs.hdmiOutputs = quantityFromLabel(value, ["hdmi outputs", "video outputs", "output count"]) ?? specs.hdmiOutputs;
+  specs.hdmiLoopOutputs = quantityFromLabel(value, ["hdmi loop outputs", "hdmi loop output", "hdmi loop"]);
   specs.hdmiVersion = parseFirstMatch(value, [/\bhdmi\s*(2\.1|2\.0|1\.4|1\.3|1\.2)\b/i], (version) => `HDMI ${version}`);
   specs.hdcpVersion = parseFirstMatch(value, [/\bhdcp\s*(2\.3|2\.2|2\.1|2\.0|1\.4)\b/i], (version) => `HDCP ${version}`);
   specs.displayPortInputs = quantityFromLabel(value, ["displayport inputs", "dp inputs"]);
@@ -1008,7 +1009,13 @@ export function resolveCompetitorSpecProfile(
     (evidence.role && evidence.role !== "Unknown" ? evidence.role : undefined);
 
   const parsedIo = parseIoCounts(canonicalInput);
-  const parseBasis = [canonicalInput, input, sourceUrlText].filter(Boolean).join(" ");
+  const parseBasis = [
+    canonicalInput,
+    input,
+    sourceUrlText,
+    sourceProduct?.summary,
+    ...(sourceProduct?.evidence ?? []),
+  ].filter(Boolean).join(" ");
   const parsedFeatures = parseFeatures(parseBasis);
   const features = {
     ...(sourceProduct?.features ?? {}),

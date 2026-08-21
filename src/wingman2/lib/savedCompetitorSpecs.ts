@@ -33,6 +33,7 @@ export type SavedCompetitorSpecInput = {
   outputCount?: number;
   notes: string;
   sourceUrl?: string;
+  features?: Record<string, boolean>;
   savedFrom: "manual" | "live-lookup";
 };
 
@@ -111,7 +112,7 @@ export function saveCompetitorSpec(input: SavedCompetitorSpecInput): SavedCompet
     performanceTier: "user-saved",
     inputCount: input.inputCount,
     outputCount: input.outputCount,
-    features: existing?.features ?? {},
+    features: input.features ?? existing?.features ?? {},
     sourceUrl: input.sourceUrl || "",
     evidence: input.notes.trim() ? [input.notes.trim()] : [],
     id: existing?.id || uid(),

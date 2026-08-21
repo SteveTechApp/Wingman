@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-18T18:44:37.505Z",
+  "generatedAt": "2026-08-21T08:15:37.397Z",
   "sources": {
     "competitor": "data/catalog/competitor-products.generated.json",
     "wyrestorm": "public/product-intelligence-index.json"

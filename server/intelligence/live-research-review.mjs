@@ -582,6 +582,32 @@ export async function handleLiveResearchReviewQueueGet(
   sendJson(res, 200, result);
 }
 
+export async function handleLiveResearchReviewSubmitPost(
+  req,
+  res,
+  url,
+  { sendJson, parseJsonBody },
+) {
+  let body = {};
+  try {
+    body = await parseJsonBody(req);
+  } catch {
+    sendJson(res, 400, { ok: false, error: "Invalid JSON body." });
+    return;
+  }
+
+  const result = await stageLiveResearchReview(body.result);
+  if (!result.staged) {
+    sendJson(res, 400, {
+      ok: false,
+      error: "Only a completed live-research result can be submitted for review.",
+    });
+    return;
+  }
+
+  sendJson(res, 200, result);
+}
+
 export async function handleLiveResearchReviewApprovePost(
   req,
   res,

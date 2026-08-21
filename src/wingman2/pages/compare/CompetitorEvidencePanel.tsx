@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { runCompetitorLookup, WingmanApiError, type CompetitorLookupResponse } from "../../api/wingmanApi";
+import { runCompetitorLookup, submitLiveResearchReview, WingmanApiError, type CompetitorLookupResponse, type CompetitorMatchResponse } from "../../api/wingmanApi";
 import { inferSpecFormFieldsFromText } from "../../lib/competitorSpecRegistry";
 import { findSavedCompetitorSpec, saveCompetitorSpec, type SavedCompetitorSpec } from "../../lib/savedCompetitorSpecs";
 
@@ -53,6 +53,26 @@ function savedSpecToForm(spec: SavedCompetitorSpec): SavedSpecFormState {
   };
 }
 
+function liveResearchNotes(result: CompetitorMatchResponse): string {
+  const product = result.competitor_product;
+  if (!product) return "";
+  const ioGroups = [
+    ...(product.ioProfile?.videoInputs ?? []),
+    ...(product.ioProfile?.videoOutputs ?? []),
+    ...(product.ioProfile?.usb ?? []),
+    ...(product.ioProfile?.audio ?? []),
+    ...(product.ioProfile?.networkControl ?? []),
+  ].map((group) => group.label || [group.count, group.type].filter(Boolean).join("x ")).filter(Boolean);
+  const features = Object.entries(product.features ?? {}).filter(([, enabled]) => enabled).map(([name]) => name);
+  return Array.from(new Set([
+    product.summary,
+    product.hdbtGeneration ? `HDBaseT ${product.hdbtGeneration}` : "",
+    product.video?.bandwidth ? `Video bandwidth ${product.video.bandwidth}` : "",
+    ...ioGroups,
+    ...features,
+  ].filter(Boolean))).join(". ");
+}
+
 const DOCUMENT_ACCEPT = ".pdf,.docx,.txt";
 
 /**
@@ -65,12 +85,13 @@ const DOCUMENT_ACCEPT = ".pdf,.docx,.txt";
  * feeds match scoring directly; only an explicit "Save for next time" click
  * does, same as before this panel grew upload support.
  */
-export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false, primaryCriteria = [] }: { brand: string; sku: string; onSaved: () => void; autoRun?: boolean; primaryCriteria?: string[] }) {
+export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false, primaryCriteria = [], liveResearchResult = null }: { brand: string; sku: string; onSaved: () => void; autoRun?: boolean; primaryCriteria?: string[]; liveResearchResult?: CompetitorMatchResponse | null }) {
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [result, setResult] = useState<CompetitorLookupResponse | null>(null);
   const [error, setError] = useState<{ message: string; needsSignIn: boolean } | null>(null);
   const [form, setForm] = useState<SavedSpecFormState>(emptySavedSpecForm);
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [submissionState, setSubmissionState] = useState<"idle" | "submitting" | "submitted" | "error">("idle");
   const [documentState, setDocumentState] = useState<{ status: "idle" | "reading" | "done" | "error"; fileName?: string; warnings: string[] }>({ status: "idle", warnings: [] });
   const [imagePreview, setImagePreview] = useState<{ fileName: string; objectUrl: string } | null>(null);
 
@@ -82,12 +103,42 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false, 
     setError(null);
     setStatus("idle");
     setSavedAt(null);
+    setSubmissionState("idle");
     setDocumentState({ status: "idle", warnings: [] });
     setImagePreview((current) => {
       if (current) URL.revokeObjectURL(current.objectUrl);
       return null;
     });
   }, [brand, sku, existingSaved]);
+
+  useEffect(() => {
+    const researched = liveResearchResult?.competitor_product;
+    if (!liveResearchResult?.ok || liveResearchResult.competitor_lookup_mode !== "live" || !researched) return;
+
+    const domain = SAVED_SPEC_DOMAIN_OPTIONS.some((option) => option.value === researched.comparisonDomain)
+      ? researched.comparisonDomain as SavedCompetitorSpec["domain"]
+      : "UNKNOWN";
+    const role = SAVED_SPEC_ROLE_OPTIONS.includes(researched.role as SavedCompetitorSpec["role"])
+      ? researched.role as SavedCompetitorSpec["role"]
+      : "Unknown";
+    const inputCount = researched.ioProfile?.headline?.inputs;
+    const outputCount = researched.ioProfile?.headline?.outputs;
+
+    setStatus("done");
+    setForm((current) => ({
+      ...current,
+      title: researched.title || current.title || sku,
+      domain: domain !== "UNKNOWN" ? domain : current.domain,
+      role: role !== "Unknown" ? role : current.role,
+      transport: researched.transport || current.transport,
+      maxResolution: researched.video?.maxResolution || current.maxResolution,
+      chroma: researched.video?.chroma || current.chroma,
+      inputCount: Number.isFinite(inputCount) ? String(inputCount) : current.inputCount,
+      outputCount: Number.isFinite(outputCount) ? String(outputCount) : current.outputCount,
+      notes: liveResearchNotes(liveResearchResult) || current.notes,
+      sourceUrl: researched.resolvedUrl || liveResearchResult.resolved_competitor_url || researched.sourceUrls?.[0] || current.sourceUrl,
+    }));
+  }, [liveResearchResult, sku]);
 
   useEffect(() => {
     return () => {
@@ -182,7 +233,7 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false, 
     setForm((current) => ({ ...current, [field]: value }));
   }
 
-  function saveForm() {
+  async function saveForm() {
     saveCompetitorSpec({
       manufacturer: brand,
       sku,
@@ -196,10 +247,21 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false, 
       outputCount: form.outputCount.trim() ? Number(form.outputCount) : undefined,
       notes: form.notes,
       sourceUrl: form.sourceUrl,
-      savedFrom: result?.ok ? "live-lookup" : "manual",
+      features: liveResearchResult?.competitor_product?.features as Record<string, boolean> | undefined,
+      savedFrom: result?.ok || liveResearchResult?.competitor_lookup_mode === "live" ? "live-lookup" : "manual",
     });
     setSavedAt(new Date().toLocaleTimeString());
     onSaved();
+
+    if (liveResearchResult?.ok && liveResearchResult.competitor_lookup_mode === "live") {
+      setSubmissionState("submitting");
+      try {
+        await submitLiveResearchReview(liveResearchResult);
+        setSubmissionState("submitted");
+      } catch {
+        setSubmissionState("error");
+      }
+    }
   }
 
   if (!sku.trim()) return null;
@@ -224,6 +286,12 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false, 
       ) : null}
 
       <h3 className="wm-ui-title">Add evidence for this product</h3>
+      {liveResearchResult?.competitor_lookup_mode === "live" ? (
+        <div className="wm-ui-card wm-compare-live-lookup__confirmation">
+          <strong>Review before keeping these researched facts</strong>
+          <p className="wm-ui-copy">Nothing is added to your local product data until you confirm it below. Confirmation also sends the cited research package to Wingman admin for formal review; it does not change the core database automatically.</p>
+        </div>
+      ) : null}
       <p className="wm-ui-copy">
         Wingman has limited local data for this competitor product. Fetch the manufacturer's own product page, upload a PDF spec sheet, or attach a screenshot for reference - then confirm the details below and save them. Saved details are reused automatically the next time this SKU comes up in Compare.
       </p>
@@ -368,10 +436,12 @@ export function CompetitorEvidencePanel({ brand, sku, onSaved, autoRun = false, 
           <textarea className="wm-textarea" value={form.notes} onChange={(event) => updateForm("notes", event.target.value)} />
         </label>
         <div className="compare-native-action-row wm-ui-card">
-          <button type="button" className="compare-native-more wm-ui-button wm-ui-button-primary" onClick={saveForm} disabled={!canSave}>
-            Save for next time
+          <button type="button" className="compare-native-more wm-ui-button wm-ui-button-primary" onClick={() => { void saveForm(); }} disabled={!canSave || submissionState === "submitting"}>
+            {submissionState === "submitting" ? "Saving and submitting..." : liveResearchResult?.competitor_lookup_mode === "live" ? "Keep researched facts" : "Save for next time"}
           </button>
-          {savedAt ? <p className="compare-native-muted wm-ui-copy">Saved at {savedAt}. This SKU will use your saved data next time.</p> : null}
+          {savedAt ? <p className="compare-native-muted wm-ui-copy">Saved locally at {savedAt}. This SKU will use your saved data next time.</p> : null}
+          {submissionState === "submitted" ? <p className="compare-native-muted wm-ui-copy" role="status">Sent to Wingman admin for formal review. Your local copy remains available while the core record is pending.</p> : null}
+          {submissionState === "error" ? <p className="compare-native-muted wm-ui-copy" role="alert">Saved locally, but the admin review submission could not be sent. Keep this page open and try again when the workspace service is available.</p> : null}
         </div>
       </div>
     </section>

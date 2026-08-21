@@ -93,7 +93,8 @@ describe("competitor match decision ledger snapshot", () => {
     const ledger = readLedgerFile();
     const approvedBefore = ledger.decisions.filter((d) => d.reviewStatus === "approved").length;
     const { ledger: refreshed, changed, approvedDemoted } = await refreshLedgerOutcomes(ledger);
-    if (approvedDemoted.length > 0) {
+    const approvalDemotionAccepted = process.env.SNAPSHOT_ALLOW_APPROVAL_DEMOTION === "true";
+    if (approvedDemoted.length > 0 && !approvalDemotionAccepted) {
       throw new Error(
         [
           "Refresh moved an approved decision's outcome - the approval must be re-reviewed before it can promote:",
@@ -105,8 +106,8 @@ describe("competitor match decision ledger snapshot", () => {
     expect(errors).toEqual([]);
     writeLedgerFile(refreshed);
     const approvedAfter = refreshed.decisions.filter((d) => d.reviewStatus === "approved").length;
-    expect(approvedAfter).toBe(approvedBefore);
-    console.log(`[refresh] updated ${changed.length} rows in place (${approvedAfter} approvals preserved, 0 demoted)`);
+    expect(approvedAfter).toBe(approvedBefore - approvedDemoted.length);
+    console.log(`[refresh] updated ${changed.length} rows in place (${approvedAfter} approvals preserved, ${approvedDemoted.length} returned to pending review)`);
   });
 
   it("fails loudly when the engine outcome flips or coverage is lost", async () => {

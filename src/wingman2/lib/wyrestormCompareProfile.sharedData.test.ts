@@ -22,4 +22,35 @@ describe("shared governed WyreStorm Compare profile", () => {
     expect(profile.specs?.hdmiOutputs).toBe(1);
     expect(profile.specs?.networkSpeed).toBe("1GbE");
   });
+
+  it("retains structured official-page facts that are outside the reviewed governance subset", () => {
+    const profile = buildWyrestormCompareProfile({
+      sku: "EX3-100-EARC",
+      name: "100m HDBaseT 3.0 extender kit",
+      family: "Extender / HDBaseT",
+      category: "HDBaseT extender",
+      description: "Uncompressed 18Gbps 4K60 4:4:4 with RS-232, IR and eARC at 100m",
+      technicalProfile: {
+        io: {
+          ports: [
+            { count: 1, connector: "HDMI", direction: "input", category: "video" },
+            { count: 1, connector: "HDMI", direction: "output", category: "video" },
+            { count: 1, connector: "RS-232", direction: "bidirectional", category: "control" },
+            { count: 1, connector: "IR", direction: "bidirectional", category: "control" },
+          ],
+        },
+      },
+    } as never);
+
+    expect(profile.sourceTier).toBe("verified-profile");
+    expect(profile.specs).toMatchObject({
+      hdmiInputs: 1,
+      hdmiOutputs: 1,
+      hdbasetVersion: "HDBaseT 3.0",
+      hdbasetDistance: 100,
+      rs232: true,
+      ir: true,
+      earc: true,
+    });
+  });
 });
