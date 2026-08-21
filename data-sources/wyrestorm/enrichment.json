@@ -39970,7 +39970,7 @@
           "Part of the Unified Communication line of products, the CAM-210-PTZ offers a premium video conferencing experience. HD 1080p video ensures users appear crystal clear in their meetings. A high-quality pan and tilt motor provides a smooth experience without excess noise or judder. Equipped with three outputs, the CAM-210-PTZ can output video via its USB 3.0 port, HDMI port or the network connection. 3rd-party control is a breeze by utilizing the industry standard VISCA protocol. An integrated web interface and free PC software provide advanced configuration options.",
           "Advanced configuration can be made through the integrated web interface or the software available in the WyreStorm management suite. Adjust settings such as resolution, framerate, brightness, contrast and much more."
         ],
-        "maximum": "1920x1080p @30Hz"
+        "maximum": "1920x1080p @60Hz"
       },
       "audio": {
         "present": false,
@@ -40436,7 +40436,7 @@
           "12x optical, 4x digital zoom",
           "Horizontal viewing angle 72.5 degrees, vertical 44.8 degrees"
         ],
-        "maxResolution": "1920x1080p @30Hz",
+        "maxResolution": "1920x1080p @60Hz",
         "dependencies": [
           "USB 3.0 passive cable run is limited to 2m; 15m requires CAB-UAOC-15",
           "Confirm the conferencing platform accepts a UVC camera at the required resolution"
@@ -40448,7 +40448,7 @@
         "features": {
           "ptz": true,
           "uvc": true,
-          "poe": false,
+          "poe": true,
           "hdmiPassthrough": true,
           "opticalZoom12x": true
         },
@@ -40464,7 +40464,7 @@
           "Confirm whether the customer needs USB, network stream, or HDMI output; the three are different integration paths."
         ],
         "warnings": [
-          "Max resolution is 1920x1080p @30Hz per the specification table; the marketing title says '1080p60'. Quote 30Hz. (Corrected from an earlier draft that read 60Hz.)"
+          "Overall product maximum is 1920x1080p @60Hz. The captured USB 3.0 and IP/Cat5e paths are listed at 1920x1080p @30Hz, so confirm the required output path and frame rate before quoting."
         ],
         "evidence": [
           {
@@ -40875,7 +40875,7 @@
         "USB conferencing",
         "NDI/IP capture workflows"
       ],
-      "quoteWarnings": "This is a 1080p camera, not 4K. Confirm before offering it against a 4K camera requirement. USB 3.0 over a passive cable is limited to 2m - quote CAB-UAOC-15 where the camera is more than 2m from the host. Confirm whether the customer needs USB, network stream, or HDMI output; the three are different integration paths. Max resolution is 1920x1080p @30Hz per the specification table; the marketing title says '1080p60'. Quote 30Hz. (Corrected from an earlier draft that read 60Hz.)"
+      "quoteWarnings": "This is a 1080p camera, not 4K. Confirm before offering it against a 4K camera requirement. USB 3.0 over a passive cable is limited to 2m - quote CAB-UAOC-15 where the camera is more than 2m from the host. Confirm whether the customer needs USB, network stream, or HDMI output; the three are different integration paths. Overall product maximum is 1920x1080p @60Hz. The captured USB 3.0 and IP/Cat5e paths are listed at 1920x1080p @30Hz, so confirm the required output path and frame rate before quoting."
     }
   },
   {

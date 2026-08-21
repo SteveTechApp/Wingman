@@ -1456,7 +1456,7 @@
         "12x optical, 4x digital zoom",
         "Horizontal viewing angle 72.5 degrees, vertical 44.8 degrees"
       ],
-      "maxResolution": "1920x1080p @30Hz",
+      "maxResolution": "1920x1080p @60Hz",
       "dependencies": [
         "USB 3.0 passive cable run is limited to 2m; 15m requires CAB-UAOC-15",
         "Confirm the conferencing platform accepts a UVC camera at the required resolution"
@@ -1468,7 +1468,7 @@
       "features": {
         "ptz": true,
         "uvc": true,
-        "poe": false,
+        "poe": true,
         "hdmiPassthrough": true,
         "opticalZoom12x": true
       },
@@ -1484,7 +1484,7 @@
         "Confirm whether the customer needs USB, network stream, or HDMI output; the three are different integration paths."
       ],
       "warnings": [
-        "Max resolution is 1920x1080p @30Hz per the specification table; the marketing title says '1080p60'. Quote 30Hz. (Corrected from an earlier draft that read 60Hz.)"
+        "Overall product maximum is 1920x1080p @60Hz. The captured USB 3.0 and IP/Cat5e paths are listed at 1920x1080p @30Hz, so confirm the required output path and frame rate before quoting."
       ],
       "evidence": [
         {
