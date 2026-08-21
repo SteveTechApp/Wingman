@@ -81,8 +81,7 @@
     "lane": "Presentation",
     "input": "Crestron HD-PS622 6x2 presentation switcher HDMI USB-C",
     "brand": "Crestron",
-    "outcomeNotNone": true,
-    "leadPattern": "^(?:SW-|MX-)",
+    "matchesEmpty": true,
     "forbiddenLeadPatterns": ["^CAM-", "^APO-"]
   },
   {

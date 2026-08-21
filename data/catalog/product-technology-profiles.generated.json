@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-18T18:44:37.502Z",
+  "generatedAt": "2026-08-21T08:15:37.394Z",
   "records": [
     {
       "vendorType": "competitor",
@@ -9568,7 +9568,7 @@
         "vendorTechnology": "WyreStorm NetworkHD 500",
         "canonicalTransport": "HDBaseT",
         "transportFamily": "twisted-pair",
-        "standardRelationship": "based-on",
+        "standardRelationship": "compatible",
         "interoperability": "third-party-compatible",
         "networkClass": "1GbE",
         "codecName": "JPEG2000",
@@ -9958,7 +9958,7 @@
         "vendorTechnology": "WyreStorm NetworkHD 600",
         "canonicalTransport": "HDBaseT",
         "transportFamily": "twisted-pair",
-        "standardRelationship": "based-on",
+        "standardRelationship": "compatible",
         "interoperability": "third-party-compatible",
         "networkClass": "10GbE",
         "codecName": "SDVoE",

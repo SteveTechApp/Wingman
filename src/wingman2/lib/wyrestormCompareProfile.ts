@@ -33,6 +33,9 @@ type WyrestormProductWithProfile = WyrestormProduct & {
       capturedTechnicalLineCount?: number;
     };
     transports?: string[];
+    power?: {
+      evidence?: string[];
+    };
     io?: {
       ports?: TechnicalPort[];
       video?: TechnicalPort[];
@@ -45,6 +48,10 @@ type WyrestormProductWithProfile = WyrestormProduct & {
 };
 
 function text(product: WyrestormProduct): string {
+  const profile = technicalProfile(product);
+  const profilePowerEvidence = Array.isArray(profile?.power?.evidence)
+    ? profile.power.evidence
+    : [];
   return [
     product.sku,
     product.name,
@@ -61,6 +68,7 @@ function text(product: WyrestormProduct): string {
     ...(product.featureTags ?? []),
     ...(product.tags ?? []),
     ...(product.capabilities ?? []),
+    ...profilePowerEvidence,
   ]
     .filter(Boolean)
     .join(" ")
@@ -459,6 +467,7 @@ function buildSpecFacts(product: WyrestormProduct, blob: string, inputCount?: nu
   specs.arc = /\barc\b/.test(blob) || undefined;
   specs.earc = /\bearc\b/.test(blob) || undefined;
   specs.dante = /\bdante\b/.test(blob) || undefined;
+  specs.dedicatedDantePort = /dedicated dante port|separate dante|independent dante port/.test(blob) || undefined;
   specs.aes67 = /aes67/.test(blob) || undefined;
 
   specs.poe = /\bpoe\b|poe\+|802\.3af|802\.3at|power over ethernet/.test(blob) || undefined;
@@ -467,6 +476,12 @@ function buildSpecFacts(product: WyrestormProduct, blob: string, inputCount?: nu
   specs.powerDelivery = /usb-c power|power delivery|\bpd\b/.test(blob) || undefined;
   specs.externalPsu = /external power|dc power|power supply|psu|adapter/.test(blob) || anyPort(allPorts, /power supply|dc power|psu/);
   specs.internalPsu = /internal power|iec|mains input/.test(blob) || undefined;
+  const hdbasetVersion = blob.match(/\bhdbaset\s*(?:tm\s*)?(3(?:\.0)?|2(?:\.0)?|1(?:\.0)?)\b/i);
+  const hdbasetClass = blob.match(/\bhdbaset[^.]{0,30}\bclass\s*([abc])\b|\bclass\s*([abc])\b[^.]{0,30}\bhdbaset\b/i);
+  const hdbasetDistances = Array.from(blob.matchAll(/\b(\d{2,3})\s*m(?:eters?|etres?)?\b/gi)).map((match) => Number(match[1]));
+  specs.hdbasetVersion = hdbasetVersion ? `HDBaseT ${Number(hdbasetVersion[1]).toFixed(1)}` : undefined;
+  specs.hdbasetClass = hdbasetClass ? `Class ${String(hdbasetClass[1] ?? hdbasetClass[2]).toUpperCase()}` : undefined;
+  specs.hdbasetDistance = hdbasetDistances.length ? Math.max(...hdbasetDistances) : undefined;
 
   if (specs.poh) specs.powerSupply = "PoH / HDBaseT remote power";
   else if (specs.poc) specs.powerSupply = "PoC remote power";
@@ -509,13 +524,14 @@ export function buildWyrestormCompareProfile(product: WyrestormProduct): Compare
   const role = governed.compare.role ?? fallbackRole;
   const io = structuredIo(product, blob);
   const fallbackSpecs = buildSpecFacts(product, blob, io.inputCount);
-  const specs =
-    governed.sourceTier === "verified-profile"
-      ? { ...governed.compare.specs }
-      : {
-          ...fallbackSpecs,
-          ...governed.compare.specs,
-        };
+  // Verification is an authority layer, not a destructive projection. The
+  // governed record often certifies only the claims reviewed by a human; the
+  // remaining connector, control and transport facts still come from the
+  // structured official-page capture. Merge both and let governed values win.
+  const specs = {
+    ...fallbackSpecs,
+    ...governed.compare.specs,
+  };
   const fallbackFeatures = detectStructuredFeatures(product, blob);
   const features = {
     ...fallbackFeatures,

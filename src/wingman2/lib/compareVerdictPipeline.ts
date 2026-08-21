@@ -161,6 +161,17 @@ export function resolveCompareVerdictCandidates<P extends PipelineCompetitorProf
   isSelectable: (candidate: WyreStormProduct | null | undefined) => boolean;
 }): CompareVerdictResult {
   const { engineMatches, profile } = params;
+  const resolvedInputs = profile.resolvedSpec?.inputCount;
+  const resolvedOutputs = profile.resolvedSpec?.outputCount;
+  const routedRequirement = resolvedInputs && resolvedOutputs
+    ? `${resolvedInputs}x${resolvedOutputs} routed matrix`
+    : "";
+  const competitorText = [
+    routedRequirement,
+    profile.brand,
+    profile.sku,
+    profile.rawText,
+  ].filter(Boolean).join(" ");
 
   // 1. Engine snapshot -> selectable candidates (heuristic fallback included).
   const engineCandidates = engineMatches
@@ -171,7 +182,7 @@ export function resolveCompareVerdictCandidates<P extends PipelineCompetitorProf
   // ranks the current engine candidates from current product/spec data.
   const candidates = engineCandidates.map((candidate) => {
     const matrixFit = assessMatrixVariantFit({
-      competitorText: `${profile.brand} ${profile.sku} ${profile.rawText}`,
+      competitorText,
       competitorFeatures: profile.resolvedSpec?.features,
       candidate: candidate.product,
     });
@@ -193,7 +204,7 @@ export function resolveCompareVerdictCandidates<P extends PipelineCompetitorProf
         domain: domainFromProductClass(profile.productClass),
         role: profile.role,
       },
-    `${profile.brand} ${profile.sku} ${profile.rawText}`,
+    competitorText,
   );
 
   const requestedRoomFit = profile.requestedTags.find(
@@ -220,7 +231,7 @@ export function resolveCompareVerdictCandidates<P extends PipelineCompetitorProf
   const eligibilityFor = (candidate: ScoredCandidate) =>
     evaluateProductEligibility({
       intent,
-      competitorText: `${profile.brand} ${profile.sku} ${profile.rawText}`,
+      competitorText,
       match: candidate.product,
       product: candidate.product,
     });
@@ -273,7 +284,7 @@ export function resolveCompareVerdictCandidates<P extends PipelineCompetitorProf
       candidate.verdict !== "NO MATCH" &&
       evaluateProductEligibility({
         intent,
-        competitorText: `${profile.brand} ${profile.sku} ${profile.rawText}`,
+        competitorText,
         match: candidate.product,
         product: candidate.product,
       }).eligibility !== "blocked",

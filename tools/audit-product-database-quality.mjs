@@ -180,7 +180,11 @@ function isFalsePort(port) {
 function isVideoPort(port) {
   const text = portText(port);
   if (isFalsePort(port)) return false;
-  if (clean(port.category).toLowerCase() === "video") return true;
+  const category = clean(port.category).toLowerCase();
+  // A structured category is authoritative. Audio de-embed rows often refer
+  // to their HDMI source in the detail text; that does not make the S/PDIF or
+  // analogue connector a second video output.
+  if (category) return category === "video";
   return /\b(hdmi|hdbaset|hdbt|tps|displayport|usb-c|usbc|sdi)\b/i.test(text);
 }
 

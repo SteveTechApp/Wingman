@@ -34,4 +34,53 @@ describe("Compare presentation-switcher role isolation", () => {
 
     expect(result.eligibility).toBe("blocked");
   });
+
+  it("blocks a same-family presentation switcher that is below confirmed routed capacity", () => {
+    const result = evaluateProductEligibility({
+      intent: "presentation-switcher",
+      competitorText: "11x2 routed matrix presentation switcher",
+      match: {
+        sku: "SW-510-TX",
+        name: "4-input presentation switcher",
+        inputCount: 4,
+        outputCount: 2,
+      },
+      product: {
+        sku: "SW-510-TX",
+        name: "4-input presentation switcher",
+        inputCount: 4,
+        outputCount: 2,
+      },
+    });
+
+    expect(result.eligibility).toBe("blocked");
+    expect(result.blockers.join(" ")).toMatch(/undersized|routed I\/O/i);
+  });
+});
+
+describe("HDBaseT extender class eligibility", () => {
+  const competitorText = "HEX18G-KIT uncompressed 18Gbps HDBaseT 3.0 extender kit 100m 4K60 4:4:4";
+
+  it("rejects a generic earlier-generation extender for an HDBaseT 3.0 requirement", () => {
+    const result = evaluateProductEligibility({
+      intent: "extender",
+      competitorText,
+      match: { sku: "EX-70-H2", name: "70m Class A HDBaseT extender" },
+      product: { sku: "EX-70-H2", name: "70m Class A HDBaseT extender" },
+    });
+
+    expect(result.eligibility).not.toBe("direct");
+    expect([...result.reasons, ...result.blockers].join(" ")).toMatch(/HDBaseT 3\.0|generation/i);
+  });
+
+  it("accepts a capacity-equivalent HDBaseT 3.0 extender", () => {
+    const result = evaluateProductEligibility({
+      intent: "extender",
+      competitorText,
+      match: { sku: "EX3-100-EARC", name: "100m uncompressed 18Gbps HDBaseT 3.0 4K60 4:4:4 extender" },
+      product: { sku: "EX3-100-EARC", name: "100m uncompressed 18Gbps HDBaseT 3.0 4K60 4:4:4 extender" },
+    });
+
+    expect(result.eligibility).toBe("direct");
+  });
 });

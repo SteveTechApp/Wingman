@@ -1,19 +1,22 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { runCompetitorLookup, WingmanApiError } from "../../api/wingmanApi";
+import { runCompetitorLookup, submitLiveResearchReview, WingmanApiError } from "../../api/wingmanApi";
+import { findSavedCompetitorSpec } from "../../lib/savedCompetitorSpecs";
 import { CompetitorEvidencePanel } from "./CompetitorEvidencePanel";
 
 vi.mock("../../api/wingmanApi", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../api/wingmanApi")>();
-  return { ...actual, runCompetitorLookup: vi.fn() };
+  return { ...actual, runCompetitorLookup: vi.fn(), submitLiveResearchReview: vi.fn() };
 });
 
 const mockedLookup = vi.mocked(runCompetitorLookup);
+const mockedSubmit = vi.mocked(submitLiveResearchReview);
 
 describe("CompetitorEvidencePanel live lookup", () => {
   beforeEach(() => {
     window.localStorage.clear();
     mockedLookup.mockReset();
+    mockedSubmit.mockReset();
   });
 
   it("shows a persistent sign-in action when the protected lookup rejects the request", async () => {
@@ -92,5 +95,41 @@ describe("CompetitorEvidencePanel live lookup", () => {
     await waitFor(() => expect(screen.queryByText("Recovered product")).not.toBeNull());
     expect(mockedLookup).toHaveBeenCalledTimes(2);
     expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  it("keeps confirmed live facts locally and submits the same research package for admin review", async () => {
+    const onSaved = vi.fn();
+    const liveResult = {
+      ok: true,
+      competitor_lookup_mode: "live",
+      resolved_competitor_url: "https://cypeurope.com/product/el-42m-pip",
+      competitor_product: {
+        manufacturer: "CYP",
+        model: "EL-42M-PIP",
+        title: "CYP EL-42M-PIP",
+        comparisonDomain: "MULTIVIEW",
+        role: "Multiview Processor",
+        transport: "HDMI",
+        summary: "4x2 seamless matrix and multiviewer",
+        video: { maxResolution: "4K60", chroma: "4:4:4" },
+        ioProfile: { headline: { inputs: 4, outputs: 2 } },
+      },
+    } as const;
+    mockedSubmit.mockResolvedValue({ ok: true, staged: true });
+
+    render(<CompetitorEvidencePanel brand="CYP" sku="EL-42M-PIP" onSaved={onSaved} liveResearchResult={liveResult} />);
+    fireEvent.click(await screen.findByRole("button", { name: "Keep researched facts" }));
+
+    await screen.findByText(/Sent to Wingman admin for formal review/i);
+    expect(mockedSubmit).toHaveBeenCalledWith(liveResult);
+    expect(onSaved).toHaveBeenCalledTimes(1);
+    expect(findSavedCompetitorSpec("CYP", "EL-42M-PIP")).toMatchObject({
+      domain: "MULTIVIEW",
+      role: "Multiview Processor",
+      inputCount: 4,
+      outputCount: 2,
+      maxResolution: "4K60",
+      savedFrom: "live-lookup",
+    });
   });
 });

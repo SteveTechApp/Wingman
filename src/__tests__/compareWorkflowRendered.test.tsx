@@ -58,6 +58,32 @@ describe("Compare rendered workflow - minimum card surface", () => {
     expect(cards.textContent).not.toContain("APO-VX20-UC-V2");
   });
 
+  it("renders MFP112 as an 11x2 presentation job without an 8x8 matrix lead", async () => {
+    renderPage();
+    runCompare("Blustream", "MFP112");
+    const cards = await screen.findByLabelText("Compare product cards");
+    const competitor = within(cards).getByLabelText("Competitor product card");
+    const alternative = within(cards).getByLabelText("No WyreStorm product match");
+
+    expect(competitor.textContent).toContain("Presentation switcher");
+    expect(competitor.textContent).toContain("11x routed source inputs");
+    expect(competitor.textContent).toContain("2x routed display outputs");
+    expect(alternative.textContent).toContain("No suitable match");
+    expect(cards.textContent).toContain("11x2 routed I/O requirement");
+    expect(alternative.textContent).not.toContain("SW-510-TX");
+    expect(alternative.textContent).not.toMatch(/MXV-0808-H2A-KIT|MX-0808-KIT-V2/);
+  });
+
+  it("shows the HDBaseT generation when comparing an HDBaseT 3.0 extender", async () => {
+    renderPage();
+    runCompare("Blustream", "HEX18G-KIT");
+    const cards = await screen.findByLabelText("Compare product cards");
+
+    expect(cards.textContent).toContain("HDBaseT class / reach");
+    expect(cards.textContent).toMatch(/HDBaseT 3(?:\.0)?/i);
+    expect(within(cards).getByLabelText("WyreStorm product card").textContent).not.toContain("EX-70-H2");
+  });
+
   it("keeps the three core result actions", async () => {
     renderPage();
     runCompare("Crestron", "DM-NVX-350");

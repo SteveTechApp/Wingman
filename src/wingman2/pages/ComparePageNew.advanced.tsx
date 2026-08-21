@@ -756,6 +756,7 @@ export type ProductIntelligenceIndexEntry = {
     category?: unknown;
     subCategory?: unknown;
     productType?: unknown;
+    transportClass?: unknown;
   };
   subClassifications?: unknown;
   productRole?: unknown;
@@ -867,14 +868,16 @@ function productClassFromRealCatalogTaxonomy(entry: ProductIntelligenceIndexEntr
   if (combined.includes("video wall")) return "Video wall";
   if (combined.includes("multiview") || combined.includes("multi-view")) return "Multiview";
   if (combined.includes("splitter") || combined.includes("distribution amplifier")) return "HDMI splitter";
+  // Product family describes purpose; HDBaseT inside a presentation switcher
+  // is a transport/output capability, not evidence that the product is an
+  // extender. Keep the purpose check ahead of connector-derived classes.
+  if (family === "Presentation / Room Core" || combined.includes("presentation")) return "Presentation switcher";
   if (combined.includes("hdbaset") && !combined.includes("matrix")) return "HDBaseT extender";
   if (combined.includes("matrix")) return "Matrix";
 
   if (family === "NetworkHD AV over IP" || combined.includes("avoip") || combined.includes("av-over-ip") || combined.includes("av over ip")) {
     return "AV-over-IP";
   }
-
-  if (family === "Presentation / Room Core" || combined.includes("presentation")) return "Presentation switcher";
 
   // "Extension" family covers both HDBaseT and USB/KVM point-to-point
   // extenders (e.g. EX-100-KVM-IP's own category is "USB / KVM extender",
@@ -935,6 +938,40 @@ function roleFromRealCatalogTaxonomy(entry: ProductIntelligenceIndexEntry): stri
   return null;
 }
 
+// Transport is an architectural fact, so prefer the governed product taxonomy
+// and structured technical profile over free-text feature tags. Marketing-page
+// parsing has historically leaked unrelated labels (for example NDI from a
+// generic page sentence) into `technologies`; allowing those tags to define
+// transport made an HDBaseT extender render as "NDI / HDMI".
+function transportFromRealCatalogTaxonomy(entry: ProductIntelligenceIndexEntry): string | null {
+  const classification = entry.productClassification;
+  const classified = stringListFrom(classification?.transportClass);
+  const technical = entry.technicalProfile as {
+    transports?: unknown;
+    governedSpecification?: { transport?: unknown };
+  } | undefined;
+  const governed = stringListFrom(technical?.governedSpecification?.transport);
+  const structured = stringListFrom(technical?.transports);
+  const evidence = [...governed, ...classified, ...structured].join(" / ");
+  const productClass = productClassFromRealCatalogTaxonomy(entry);
+
+  // Purpose/classification is authoritative when noisy legacy arrays contain
+  // a contradictory protocol token. An Extension-family HDBaseT endpoint can
+  // carry HDMI locally, but it cannot become an NDI transport product merely
+  // because a stale enrichment label says NDI.
+  if (productClass === "HDBaseT extender") return "HDBaseT";
+  if (/\bHDBaseT\b/i.test(evidence)) return "HDBaseT";
+  if (/\b(?:AV[- ]over[- ]IP|AVoIP|NetworkHD)\b/i.test(evidence)) return /10\s*GbE/i.test(evidence) ? "10GbE AVoIP" : "1GbE AVoIP";
+  if (/\b(?:NDI)\b/i.test(evidence)) return "NDI / HDMI";
+  if (/\bDante\b|\bAES67\b/i.test(evidence)) return "Dante / AES67 / network audio";
+  if (/\bWireless\b|\bWi-?Fi\b/i.test(evidence)) return "Wi-Fi / Ethernet";
+  if (/\bUSB\b/i.test(evidence) && !/\bHDMI\b/i.test(evidence)) return "USB";
+
+  if (productClass === "HDMI splitter") return "HDMI distribution";
+  if (["Matrix", "Video wall", "Multiview"].includes(productClass ?? "")) return "HDMI / processing";
+  return null;
+}
+
 export function mapRealCatalogEntryToCompareCandidate(entry: ProductIntelligenceIndexEntry): WyreStormProduct | null {
   const sku = String(entry.sku ?? "").trim();
   if (!sku) return null;
@@ -951,7 +988,7 @@ export function mapRealCatalogEntryToCompareCandidate(entry: ProductIntelligence
     family,
     productClass,
     role: roleFromRealCatalogTaxonomy(entry) ?? roleFromTags(tags),
-    transport: transportFromTags(tags),
+    transport: transportFromRealCatalogTaxonomy(entry) ?? transportFromTags(tags),
     tags,
     caveat: "Confirm the current specification and required accessories against the datasheet before quoting.",
   };
@@ -2167,6 +2204,12 @@ function exactLimitedDataWarning(profile: CompetitorProfile): string {
 
 function compareSignalDirection(profile: CompetitorProfile): string {
   const role = (profile.role || "").toLowerCase();
+  const identity = `${profile.rawText} ${profile.resolvedSpec?.title ?? ""}`.toLowerCase();
+  if (
+    role.includes("extender kit") ||
+    role.includes("extension kit") ||
+    (/extender|extension/.test(identity) && /\bkit\b|\bset\b/.test(identity))
+  ) return "Point-to-point source-to-display extension";
   if (role.includes("encoder") || role.includes("transmitter")) return "Source-side / encoder path";
   if (role.includes("decoder") || role.includes("receiver")) return "Display-side / decoder path";
   if (role.includes("transceiver")) return "Bidirectional / transceiver path";
@@ -2440,7 +2483,11 @@ function competitorUsbFacts(profile: CompetitorProfile): string {
 
 function competitorHdbasetFacts(profile: CompetitorProfile): string {
   const specs = profile.resolvedSpec?.specs;
-  const items = [specs?.hdbasetVersion, specs?.hdbasetClass].filter(Boolean);
+  const items = [
+    specs?.hdbasetVersion,
+    specs?.hdbasetClass,
+    specs?.hdbasetDistance ? `${specs.hdbasetDistance}m reach` : "",
+  ].filter(Boolean);
   return items.length ? `HDBaseT: ${items.join(" | ")}` : "";
 }
 
@@ -3521,12 +3568,18 @@ function inferredCompetitorOutputLabel(profile: CompetitorProfile): { singular: 
 
 function competitorInputSummary(profile: CompetitorProfile): string {
   const explicit = explicitPortSummary(profile.resolvedSpec?.specs, "input");
+  const count = profile.resolvedSpec?.inputCount;
+  const routedArchitecture = profile.productClass === "Matrix" || profile.productClass === "Presentation switcher";
+
+  if (routedArchitecture && count) {
+    const routed = commercialPortLabel(count, "routed source input", "routed source inputs");
+    return explicit ? `${routed} (${explicit})` : routed;
+  }
 
   if (explicit) {
     return explicit;
   }
 
-  const count = profile.resolvedSpec?.inputCount;
   if (!count) {
     return "";
   }
@@ -3536,13 +3589,38 @@ function competitorInputSummary(profile: CompetitorProfile): string {
 }
 
 function competitorOutputSummary(profile: CompetitorProfile): string {
-  const explicit = explicitPortSummary(profile.resolvedSpec?.specs, "output");
+  const specs = profile.resolvedSpec?.specs;
+  const catalogOutputs = Array.isArray(profile.knownProfile?.outputs) ? profile.knownProfile.outputs : [];
+  const catalogLoopOutputs = catalogOutputs.reduce((total, output) => {
+    if (!output || typeof output !== "object") return total;
+    const item = output as Record<string, unknown>;
+    return /loop/i.test(String(item.type ?? item.label ?? "")) ? total + Number(item.count ?? 0) : total;
+  }, 0);
+  const loopOutputs = specs?.hdmiLoopOutputs ?? catalogLoopOutputs;
+  const statedHdmiOutputs = specs?.hdmiOutputs ?? 0;
+  const displayHdmiOutputs = loopOutputs > 0 && statedHdmiOutputs >= loopOutputs
+    ? statedHdmiOutputs - loopOutputs
+    : statedHdmiOutputs;
+  const explicit = explicitPortSummary(
+    specs ? { ...specs, hdmiOutputs: displayHdmiOutputs || undefined, hdmiLoopOutputs: undefined } : undefined,
+    "output",
+  );
+  const physicalOutputs = joinCommercialFactParts([
+    explicit,
+    loopOutputs ? `${loopOutputs}x local HDMI loop output${loopOutputs === 1 ? "" : "s"} (non-routed)` : "",
+  ]);
+  const count = profile.resolvedSpec?.outputCount;
+  const routedArchitecture = profile.productClass === "Matrix" || profile.productClass === "Presentation switcher";
 
-  if (explicit) {
-    return explicit;
+  if (routedArchitecture && count) {
+    const routed = commercialPortLabel(count, "routed display output", "routed display outputs");
+    return explicit ? `${routed} (${explicit})` : routed;
   }
 
-  const count = profile.resolvedSpec?.outputCount;
+  if (physicalOutputs) {
+    return physicalOutputs;
+  }
+
   if (!count) {
     return "";
   }
@@ -3594,6 +3672,16 @@ function wyrestormOutputSummary(
       ? `${knownProfile.loopOutputCount}x loop ${knownProfile.loopOutputTypes.join(" / ")} output${knownProfile.loopOutputCount === 1 ? "" : "s"}`
       : "",
   ]);
+  const isPointToPointExtender = /extender|extension|hdbaset/i.test([
+    candidate.product.productClass,
+    candidate.product.family,
+    candidate.product.role,
+  ].join(" "));
+
+  if (isPointToPointExtender) {
+    const displayOutput = explicit || "1x receiver-side HDMI display output";
+    return joinCommercialFactParts([displayOutput, extras]);
+  }
 
   if (knownProfile?.routedOutputCount) {
     const routedTypes = knownProfile.routedOutputTypes.length ? ` (${knownProfile.routedOutputTypes.join(" / ")})` : "";
@@ -3611,6 +3699,7 @@ function wyrestormOutputSummary(
 
 function competitorComparisonFacts(competitor: CompetitorSummary, profile: CompetitorProfile): Array<{ label: string; value: string }> {
   const unsupportedPorts = unsupportedCompetitorVideoPorts(profile);
+  const competitorLoopOutputs = profile.resolvedSpec?.specs?.hdmiLoopOutputs ?? 0;
   const transport = `${profile.transport} ${profile.resolvedSpec?.transport ?? ""}`.trim();
 
   return [
@@ -3633,7 +3722,13 @@ function competitorComparisonFacts(competitor: CompetitorSummary, profile: Compe
         stripComparePrefix(competitorAudioNetworkFacts(profile), "Audio / Network"),
       ]),
     },
-    { label: "Other video I/O", value: unsupportedPorts.join(", ") },
+    {
+      label: "Other video I/O",
+      value: joinCommercialFactParts([
+        unsupportedPorts.join(", "),
+        competitorLoopOutputs ? `${competitorLoopOutputs}x local HDMI loop output${competitorLoopOutputs === 1 ? "" : "s"} (non-routed)` : "",
+      ]),
+    },
   ].filter((entry) => entry.value);
 }
 
@@ -3667,6 +3762,12 @@ function buildCoreComparisonFacts(
       result: "",
     },
     {
+      label: "HDMI / HDCP",
+      competitor: safeCompareValue(competitorFacts.get("HDMI / HDCP")),
+      wyrestorm: safeCompareValue(wyrestormFacts.get("HDMI / HDCP")),
+      result: "",
+    },
+    {
       label: "Other video I/O",
       competitor: safeCompareValue(competitorFacts.get("Other video I/O")),
       wyrestorm: safeCompareValue(wyrestormFacts.get("Other video I/O")),
@@ -3676,6 +3777,12 @@ function buildCoreComparisonFacts(
       label: "USB",
       competitor: safeCompareValue(competitorFacts.get("USB")),
       wyrestorm: safeCompareValue(wyrestormFacts.get("USB")),
+      result: "",
+    },
+    {
+      label: "Control / network",
+      competitor: safeCompareValue(competitorFacts.get("Control / network")),
+      wyrestorm: safeCompareValue(wyrestormFacts.get("Control / network")),
       result: "",
     },
     {
@@ -3721,7 +3828,18 @@ function buildCoreComparisonFacts(
     },
   ];
 
+  if (profile.resolvedSpec?.domain === "HDBASET" || /hdbaset/i.test(competitor.transport)) {
+    entries.splice(1, 0, {
+      label: "HDBaseT class / reach",
+      competitor: safeCompareValue(competitorFacts.get("HDBaseT / TPS")),
+      wyrestorm: safeCompareValue(wyrestormFacts.get("HDBaseT / distance")),
+      result: "",
+    });
+  }
+
+  const alwaysVisible = new Set(["Product type", "Inputs", "Outputs"]);
   return entries
+    .filter((entry) => alwaysVisible.has(entry.label) || Boolean(entry.competitor) || Boolean(entry.wyrestorm))
     .map((entry) => ({
       ...entry,
       competitor: displayCompareValue(entry.competitor),
@@ -4710,11 +4828,29 @@ function MinimumCompareCards({ competitor, competitorProfile, candidate }: {
   const status = compareReportedStatus(candidate, competitor);
   const statusMeta = compareReportedStatusMeta(status);
   const wyrestorm = candidate ? buildWyrestormSummary(candidate) : null;
+  const noMatchFactPriority = (label: string): number => {
+    if (/^inputs$/i.test(label)) return 0;
+    if (/^outputs$/i.test(label)) return 1;
+    return 2;
+  };
+  const confirmedRoutedFacts = [
+    competitorProfile.resolvedSpec?.inputCount
+      ? { label: "Inputs", value: `${competitorProfile.resolvedSpec.inputCount}x routed source inputs` }
+      : null,
+    competitorProfile.resolvedSpec?.outputCount
+      ? { label: "Outputs", value: `${competitorProfile.resolvedSpec.outputCount}x routed display outputs` }
+      : null,
+  ].filter((fact): fact is { label: string; value: string } => Boolean(fact));
   const rows = candidate && wyrestorm
-    ? buildCoreComparisonFacts(competitor, competitorProfile, wyrestorm, candidate).slice(0, 6)
-    : competitor.facts.slice(0, 6).map((fact) => ({ label: fact.label, competitor: fact.value, wyrestorm: "", result: "" }));
+    ? buildCoreComparisonFacts(competitor, competitorProfile, wyrestorm, candidate).slice(0, 12)
+    : [...confirmedRoutedFacts, ...competitor.facts.filter((fact) => !confirmedRoutedFacts.some((confirmed) => confirmed.label === fact.label))]
+        .sort((a, b) => noMatchFactPriority(a.label) - noMatchFactPriority(b.label))
+        .slice(0, 12)
+        .map((fact) => ({ label: fact.label, competitor: fact.value, wyrestorm: "", result: "" }));
   const reason = candidate
     ? commercializeCompareCopy(candidate.matched[0] || candidate.partialMatches[0] || candidate.mismatches[0] || candidate.unknowns[0] || statusMeta.guidance)
+    : competitorProfile.resolvedSpec?.inputCount && competitorProfile.resolvedSpec?.outputCount
+      ? `No current WyreStorm candidate satisfies the confirmed ${competitorProfile.resolvedSpec.inputCount}x${competitorProfile.resolvedSpec.outputCount} routed I/O requirement without an input or output capacity shortfall.`
     : competitor.warning || "The available evidence does not support a safe WyreStorm equivalent.";
 
   return (
@@ -5854,16 +5990,37 @@ function ComparePageNew() {
     <main className="wm-compare-page wm-polish-shell wm-page" data-wingman-page="compare" data-compare-state={compareStage === "results" ? "result" : "input"}>
       {compareStage !== "results" ? (
         <section className="compare-native-results wm-ui-section" aria-label="Compare competitor products">
-          <header className="compare-native-section-title wm-ui-card wm-ui-title">
-            <div><span className="compare-native-eyebrow wm-ui-kicker">Competitor compare</span><h1 className="wm-ui-title">Compare competitor products</h1><p className="wm-ui-copy">Enter the competitor manufacturer and model. Wingman will place the competitor product on the left and the closest safe WyreStorm direction on the right.</p></div>
+          <header className="compare-native-section-title wm-ui-card">
+            <div><span className="compare-native-eyebrow wm-ui-kicker">Competitor compare</span><h1 className="wm-ui-title">Compare competitor products</h1><p className="wm-ui-copy">Identify the competitor product, then compare its confirmed signal path, routed I/O and technical capabilities against the current WyreStorm range.</p></div>
           </header>
-          <form className="wm-ui-card wm-ui-section p-4" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <CompareManufacturerCombobox brands={compareManufacturerOptions} selectedBrand={selectedBrand} onBrandSelect={onBrandSelect} />
-              <CompareProductLookupInput value={competitorInput} knownSkus={knownBrandSkus} suggestions={skuSuggestions} onInputChange={setCompetitorInput} onSkuSelect={onSkuSelect} />
+          <form className="compare-native-sku-stage" onSubmit={handleSubmit}>
+            <div className="wm-compare-sku-header">
+              <div className="wm-compare-selected-brand">
+                <span>Manufacturer</span>
+                <strong>{selectedBrand || "Not selected"}</strong>
+              </div>
+              <div className="wm-compare-sku-heading">
+                <span>Product identification</span>
+                <h2 className="wm-ui-title">What are you comparing?</h2>
+                <p>Choose a manufacturer and enter the exact competitor model. Known SKUs are recognised as you type.</p>
+              </div>
             </div>
-            <details className="compare-native-summary wm-ui-card wm-ui-copy mt-4"><summary>Add essential requirement</summary><label className="wm-field mt-3" htmlFor="compare-must-match">Only use this when the SKU alone does not describe the requirement.<textarea id="compare-must-match" className="compare-native-input wm-ui-input" value={mustMatchFeatures} onChange={(event) => setMustMatchFeatures(event.target.value)} placeholder="Example: 4K60, 6x2 routed I/O, USB path, 100 m extension" rows={3} /></label></details>
-            <div className="compare-native-action-row wm-ui-action-row mt-4"><button className="compare-native-more wm-ui-button wm-ui-button-primary" type="submit" disabled={!hasCompetitorSelection}>Compare</button></div>
+            <div className="wm-compare-sku-workspace">
+              <div className="wm-compare-sku-lookup">
+                <div className="wm-compare-panel-heading"><span>1</span><div><strong>Competitor product</strong><small>Manufacturer and model / SKU</small></div></div>
+                <CompareManufacturerCombobox brands={compareManufacturerOptions} selectedBrand={selectedBrand} onBrandSelect={onBrandSelect} />
+                <CompareProductLookupInput value={competitorInput} knownSkus={knownBrandSkus} suggestions={skuSuggestions} onInputChange={setCompetitorInput} onSkuSelect={onSkuSelect} />
+              </div>
+              <details className="wm-compare-match-requirements">
+                <summary className="wm-compare-panel-heading"><span>2</span><div><strong>Essential requirement</strong><small>Optional — add only what the SKU does not explain</small></div></summary>
+                <label className="wm-compare-requirement-field" htmlFor="compare-must-match"><span>Must-have capability</span><textarea id="compare-must-match" className="compare-native-input wm-ui-input" value={mustMatchFeatures} onChange={(event) => setMustMatchFeatures(event.target.value)} placeholder="For example: 4K60, 6x2 routed I/O, USB path or 100 m extension" rows={3} /></label>
+                <div className="wm-compare-requirement-examples" aria-label="Requirement examples"><span>Useful details</span><small>Resolution</small><small>Routed I/O</small><small>Extension</small><small>USB</small></div>
+              </details>
+            </div>
+            <div className="wm-compare-sku-actions">
+              <button className="compare-native-more wm-ui-button wm-ui-button-primary" type="submit" disabled={!hasCompetitorSelection}>Compare</button>
+              <div className="wm-compare-sku-action-copy"><span>{competitorInput || "Enter a competitor SKU to continue"}</span><small>The engine evaluates current product data each time.</small></div>
+            </div>
           </form>
         </section>
       ) : (
@@ -5882,6 +6039,15 @@ function ComparePageNew() {
                 <MinimumCompareCards competitor={competitorSummary} competitorProfile={profile} candidate={activeCandidate} />
               )}
             </div>
+            {requestLiveLookup && liveResearchStatus === "done" && liveResearchAssessment?.sourceMode === "live" ? (
+              <CompetitorEvidencePanel
+                brand={effectiveBrand}
+                sku={competitorInput}
+                onSaved={() => setCatalogVersion((version) => version + 1)}
+                primaryCriteria={primarySearchCriteria}
+                liveResearchResult={liveResearchResult}
+              />
+            ) : null}
             {activeCandidate ? <section className="wm-ui-card wm-ui-section" aria-label="Compare result actions"><div className="compare-native-action-row wm-ui-action-row">
               <button type="button" className="compare-native-more wm-ui-button wm-ui-button-primary" onClick={() => handleCommit("project")}>{compareReportedStatus(activeCandidate, competitorSummary) === "match" ? "Add to project" : "Add to project for review"}</button>
               <Link className="compare-native-secondary-action wm-ui-button wm-ui-button-secondary" to={`${routeCatalogByKey.productPitch.path}?sku=${encodeURIComponent(activeCandidate.product.sku)}&source=compare`}>Product details</Link>
@@ -5920,7 +6086,7 @@ function ComparePageNew() {
                 <GovernedDecisionPanel key={`${effectiveBrand}:${competitorInput}:${displayedDecision?.updatedAt ?? decisionRevision}`} profile={profile} candidate={activeCandidate ?? heuristicLead ?? null} existingDecision={displayedDecision} onSaved={() => setDecisionRevision((revision) => revision + 1)} />
               )}
               <CompareSummaryPanel summary={summary} requestLiveLookup={requestLiveLookup && liveResearchAssessment?.sourceMode !== "stored-intelligence"} sourceUrl={sourceUrl} />
-              {requestLiveLookup && liveResearchAssessment?.sourceMode !== "stored-intelligence" ? <CompetitorEvidencePanel brand={effectiveBrand} sku={competitorInput} onSaved={() => setCatalogVersion((version) => version + 1)} autoRun={liveResearchStatus === "error"} primaryCriteria={primarySearchCriteria} /> : null}
+              {requestLiveLookup && liveResearchStatus === "error" ? <CompetitorEvidencePanel brand={effectiveBrand} sku={competitorInput} onSaved={() => setCatalogVersion((version) => version + 1)} autoRun primaryCriteria={primarySearchCriteria} /> : null}
             </div></details>
           </> : null}
         </section>
