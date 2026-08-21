@@ -111,14 +111,21 @@ if (failures.length === 0) {
     }
   }
 
-  // The candidate-ordering wiring now lives in the pure verdict pipeline the
-  // page calls (engine snapshot -> ledger override -> verdict), so the marker
-  // is asserted against that module.
+  // Saved decisions are review evidence only. The verdict pipeline must accept
+  // the review context but explicitly keep it out of current candidate
+  // selection; every comparison is recalculated from the current engine data.
   const pipeline = read(files.pipeline);
-  for (const marker of ["applyGovernedCandidateOrder", "governedDecisionLabel"]) {
+  for (const marker of [
+    "governedDecision: CompetitorMatchDecision | null",
+    "Historical review decisions are deliberately not merged here",
+  ]) {
     if (!pipeline.includes(marker)) {
-      failures.push(`Compare verdict pipeline missing governed runtime marker: ${marker}`);
+      failures.push(`Compare verdict pipeline missing current-data decision marker: ${marker}`);
     }
+  }
+
+  if (!comparePage.includes("governedDecisionLabel")) {
+    failures.push("Live Compare page does not label historical review evidence.");
   }
 
   const runtime = read(files.runtime);
