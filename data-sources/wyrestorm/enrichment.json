@@ -39970,7 +39970,7 @@
           "Part of the Unified Communication line of products, the CAM-210-PTZ offers a premium video conferencing experience. HD 1080p video ensures users appear crystal clear in their meetings. A high-quality pan and tilt motor provides a smooth experience without excess noise or judder. Equipped with three outputs, the CAM-210-PTZ can output video via its USB 3.0 port, HDMI port or the network connection. 3rd-party control is a breeze by utilizing the industry standard VISCA protocol. An integrated web interface and free PC software provide advanced configuration options.",
           "Advanced configuration can be made through the integrated web interface or the software available in the WyreStorm management suite. Adjust settings such as resolution, framerate, brightness, contrast and much more."
         ],
-        "maximum": "1920x1080p @60Hz"
+        "maximum": "1920x1080p @30Hz"
       },
       "audio": {
         "present": false,
@@ -40436,7 +40436,7 @@
           "12x optical, 4x digital zoom",
           "Horizontal viewing angle 72.5 degrees, vertical 44.8 degrees"
         ],
-        "maxResolution": "1920x1080p @60Hz",
+        "maxResolution": "1920x1080p @30Hz",
         "dependencies": [
           "USB 3.0 passive cable run is limited to 2m; 15m requires CAB-UAOC-15",
           "Confirm the conferencing platform accepts a UVC camera at the required resolution"
